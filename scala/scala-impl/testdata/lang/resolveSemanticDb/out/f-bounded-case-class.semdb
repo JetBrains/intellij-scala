@@ -1,0 +1,4 @@
+Document tests/pos/f-bounded-case-class.scala
+(1:48..1:49) _empty_/Test#[X] -> 1:17
+(1:54..1:55) _empty_/Test#[Y] -> 1:31
+

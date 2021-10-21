@@ -1,0 +1,14 @@
+Document tests/pos/i8881.scala
+(2:12..2:18) scala/Predef.String#
+(2:23..2:29) scala/Predef.String#
+(2:34..2:37) scala/Int#
+(2:44..2:47) scala/Int#
+(2:52..2:58) scala/Predef.String#
+(3:9..3:12) scala/Int#
+(3:15..3:18) scala/Predef.`???`().
+(4:22..4:22) scala/ContextFunction1#apply().
+(4:3..4:4) _empty_/Crash.f(). -> 2:7
+(4:14..4:15) _empty_/Crash.f().(a) -> 2:9
+(4:5..4:6) _empty_/Crash.f().(b) -> 2:20
+(4:22..4:22) _empty_/Crash.given_Int. -> 3:9
+

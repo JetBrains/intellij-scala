@@ -1,0 +1,7 @@
+Document tests/pos/t8306.scala
+(2:12..2:15) scala/Int#
+(3:23..3:26) scala/Int#
+(4:7..4:10) _empty_/Si8306#foo(). -> 2:7
+(5:27..5:29) scala/Int#`!=`(+3).
+(5:23..5:26) local0 -> 5:16
+

@@ -1,0 +1,14 @@
+Document tests/pos/i5006.scala
+(2:10..2:13) scala/Int#
+(2:34..2:39) scala/Int#toInt().
+(2:16..2:28) scala/Any#asInstanceOf().
+(2:29..2:32) scala/Int#
+(6:10..6:13) scala/Int#
+(6:34..6:39) scala/Int#toInt().
+(6:16..6:28) scala/Any#asInstanceOf().
+(6:29..6:32) scala/Int#
+(10:10..10:13) scala/Int#
+(10:34..10:39) scala/Int#toInt().
+(10:16..10:28) scala/Any#asInstanceOf().
+(10:29..10:32) scala/Int#
+

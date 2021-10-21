@@ -1,0 +1,107 @@
+Document tests/pos/t2913.scala
+(3:14..3:17) scala/Int#
+(7:14..7:20) scala/Predef.String#
+(8:14..8:20) scala/Predef.String#
+(8:25..8:31) scala/Predef.String#
+(13:19..13:32) scala/language.noAutoTupling.
+(13:10..13:18) scala/language.
+(15:28..15:29) _empty_/A# -> 2:7
+(15:32..15:37) _empty_/RichA# -> 6:7
+(15:49..15:49) _empty_/RichA#`<init>`(). -> 7:3
+(15:44..15:49) _empty_/RichA# -> 6:7
+(17:16..17:16) _empty_/A#`<init>`(). -> 3:3
+(17:15..17:16) _empty_/A# -> 2:7
+(18:5..18:8) _empty_/RichA#foo(+2). -> 9:7
+(18:3..18:3) _empty_/TestNoAutoTupling.AToRichA(). -> 15:16
+(18:3..18:4) _empty_/TestNoAutoTupling.a. -> 17:7
+(19:5..19:8) _empty_/A#foo(). -> 3:7
+(19:3..19:4) _empty_/TestNoAutoTupling.a. -> 17:7
+(21:5..21:8) _empty_/RichA#foo(). -> 7:7
+(21:3..21:3) _empty_/TestNoAutoTupling.AToRichA(). -> 15:16
+(21:3..21:4) _empty_/TestNoAutoTupling.a. -> 17:7
+(30:5..30:8) _empty_/RichA#foo(+1). -> 8:7
+(30:3..30:3) _empty_/TestNoAutoTupling.AToRichA(). -> 15:16
+(30:3..30:4) _empty_/TestNoAutoTupling.a. -> 17:7
+(36:29..36:30) _empty_/test1.Foo#[T] -> 36:18
+(36:31..36:33) _empty_/test1.Foo#[T2] -> 36:20
+(36:38..36:44) scala/Predef.String#
+(36:57..36:58) _empty_/test1.Foo#[T] -> 36:18
+(36:59..36:61) _empty_/test1.Foo#[T2] -> 36:20
+(36:67..36:73) scala/Predef.String#
+(37:19..37:20) _empty_/test1.Foo#[T] -> 36:18
+(37:27..37:29) _empty_/test1.Foo#[T2] -> 36:20
+(37:35..37:35) scala/Function2#apply().
+(37:34..37:35) _empty_/test1.Foo#f. -> 36:24
+(37:36..37:37) _empty_/test1.Foo#apply().(t) -> 37:15
+(37:38..37:39) local0 -> 37:25
+(38:20..38:21) _empty_/test1.Foo#[T] -> 36:18
+(38:22..38:24) _empty_/test1.Foo#[T2] -> 36:20
+(38:30..38:30) scala/Function2#apply().
+(38:29..38:30) _empty_/test1.Foo#f. -> 36:24
+(38:33..38:35) scala/Tuple2#_1.
+(38:31..38:32) _empty_/test1.Foo#apply(+1).(p) -> 38:15
+(38:38..38:40) scala/Tuple2#_2.
+(38:36..38:37) _empty_/test1.Foo#apply(+1).(p) -> 38:15
+(40:26..40:27) _empty_/test1.g().[T] -> 40:18
+(40:28..40:34) scala/Predef.String#
+(40:39..40:45) scala/Predef.String#
+(40:54..40:57) _empty_/test1.Foo# -> 36:14
+(40:48..40:53) _empty_/test1. -> 35:8
+(40:58..40:59) _empty_/test1.g().[T] -> 40:18
+(40:60..40:66) scala/Predef.String#
+(40:73..40:73) _empty_/test1.Foo.apply(). -> 36:3
+(40:70..40:73) _empty_/test1.Foo. -> 36:14
+(40:74..40:75) _empty_/test1.g().(f) -> 40:21
+(41:19..41:24) scala/Array#
+(41:25..41:31) scala/Predef.String#
+(41:36..41:40) scala/Unit#
+(42:16..42:19) scala/Int#
+(42:22..42:28) scala/Predef.String#
+(42:35..42:36) java/lang/String#`+`().
+(42:33..42:34) local3 -> 42:20
+(42:37..42:38) local2 -> 42:14
+(43:5..43:12) scala/Predef.println(+1).
+(43:14..43:14) _empty_/test1.Foo#apply(). -> 37:9
+(43:13..43:13) _empty_/test1.g(). -> 40:16
+(43:13..43:14) local1 -> 42:9
+(48:19..48:24) scala/Array#
+(48:25..48:31) scala/Predef.String#
+(48:35..48:39) scala/Unit#
+(49:19..49:22) scala/Int#
+(49:30..49:36) scala/Predef.String#
+(49:63..49:64) java/lang/String#`+`().
+(49:51..49:52) java/lang/String#`+`().
+(49:47..49:48) java/lang/String#`+`().
+(49:49..49:50) local5 -> 49:15
+(49:65..49:68) local6 -> 49:24
+(50:29..50:30) local8 -> 50:21
+(50:31..50:37) scala/Predef.String#
+(50:42..50:48) scala/Predef.String#
+(50:51..50:52) local8 -> 50:21
+(50:56..50:62) scala/Predef.String#
+(50:68..50:69) local8 -> 50:21
+(50:75..50:75) scala/Function2#apply().
+(50:74..50:75) local9 -> 50:24
+(50:76..50:77) local10 -> 50:66
+(51:5..51:12) scala/Predef.println(+1).
+(51:15..51:15) scala/Function1#apply().
+(51:13..51:13) local7 -> 50:18
+(51:13..51:15) local4 -> 49:9
+(58:28..58:29) _empty_/A# -> 2:7
+(58:32..58:37) _empty_/RichA# -> 6:7
+(58:49..58:49) _empty_/RichA#`<init>`(). -> 7:3
+(58:44..58:49) _empty_/RichA# -> 6:7
+(60:16..60:16) _empty_/A#`<init>`(). -> 3:3
+(60:15..60:16) _empty_/A# -> 2:7
+(61:5..61:8) _empty_/RichA#foo(+2). -> 9:7
+(61:3..61:3) _empty_/TestWithAutoTupling.AToRichA(). -> 58:16
+(61:3..61:4) _empty_/TestWithAutoTupling.a. -> 60:7
+(62:5..62:8) _empty_/A#foo(). -> 3:7
+(62:3..62:4) _empty_/TestWithAutoTupling.a. -> 60:7
+(64:5..64:8) _empty_/RichA#foo(). -> 7:7
+(64:3..64:3) _empty_/TestWithAutoTupling.AToRichA(). -> 58:16
+(64:3..64:4) _empty_/TestWithAutoTupling.a. -> 60:7
+(73:5..73:8) _empty_/RichA#foo(+1). -> 8:7
+(73:3..73:3) _empty_/TestWithAutoTupling.AToRichA(). -> 58:16
+(73:3..73:4) _empty_/TestWithAutoTupling.a. -> 60:7
+

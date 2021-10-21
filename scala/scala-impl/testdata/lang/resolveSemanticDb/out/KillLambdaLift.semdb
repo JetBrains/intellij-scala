@@ -1,0 +1,6 @@
+Document tests/pos/KillLambdaLift.scala
+(2:52..2:55) scala/Predef.`???`().
+(2:45..2:51) scala/Predef.
+(2:39..2:44) scala/
+(2:32..2:38) _root_/
+

@@ -1,0 +1,28 @@
+Document tests/pos/i11977.scala
+(3:17..3:20) scala/Int#
+(3:22..3:28) scala/Predef.String#
+(3:36..3:39) scala/Int#
+(3:41..3:47) scala/Predef.String#
+(3:51..3:54) scala/Int#
+(5:7..5:8) scala/Int#`+`(+4).
+(5:5..5:6) local0 -> 4:9
+(5:10..5:10) scala/NonEmptyTuple#apply().
+(5:9..5:10) _empty_/Test.add0().(b) -> 3:31
+(7:16..7:19) scala/Int#
+(7:21..7:27) scala/Predef.String#
+(7:35..7:38) scala/Int#
+(7:40..7:46) scala/Predef.String#
+(7:52..7:55) scala/Int#
+(7:57..7:63) scala/Predef.String#
+(7:68..7:68) scala/Tuple2.apply().
+(7:73..7:74) scala/Int#`+`(+4).
+(7:69..7:69) scala/NonEmptyTuple#apply().
+(7:68..7:69) _empty_/Test.add().(a) -> 7:11
+(7:76..7:76) scala/NonEmptyTuple#apply().
+(7:75..7:76) _empty_/Test.add().(b) -> 7:30
+(7:86..7:87) java/lang/String#`+`().
+(7:82..7:82) scala/NonEmptyTuple#apply().
+(7:81..7:82) _empty_/Test.add().(a) -> 7:11
+(7:89..7:89) scala/NonEmptyTuple#apply().
+(7:88..7:89) _empty_/Test.add().(b) -> 7:30
+

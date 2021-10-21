@@ -1,0 +1,20 @@
+Document tests/pos/t2910.scala
+(2:14..2:18) scala/Unit#
+(3:5..3:6) local0
+(7:14..7:18) scala/Unit#
+(8:5..8:12) scala/Predef.println(+1).
+(8:15..8:21) java/lang/String#length().
+(8:13..8:14) local2 -> 9:14
+(12:14..12:18) scala/Unit#
+(13:24..13:27) local4
+(17:25..17:28) local4
+(20:14..20:18) scala/Unit#
+(22:7..22:8) local9 -> 23:16
+(28:14..28:18) scala/Unit#
+(29:17..29:20) scala/Int#
+(29:23..29:24) local11 -> 31:14
+(30:13..30:20) scala/Console.println(+1).
+(30:5..30:12) scala/Console.
+(31:17..31:20) scala/Int#
+(31:23..31:24) local10 -> 29:14
+

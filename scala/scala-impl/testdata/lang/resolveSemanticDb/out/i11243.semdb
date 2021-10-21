@@ -1,0 +1,257 @@
+Document tests/pos/i11243.scala
+(1:27..1:30) scala/App#
+(4:30..4:37) _empty_/WriterTest.Functor# -> 6:9
+(4:38..4:39) _empty_/WriterTest.Functor.apply().[F] -> 4:15
+(4:44..4:45) _empty_/WriterTest.Functor.apply().(f) -> 4:27
+(7:25..7:26) _empty_/WriterTest.Functor#[F] -> 6:17
+(7:27..7:28) _empty_/WriterTest.Functor#map().[A] -> 7:16
+(8:18..8:19) _empty_/WriterTest.Functor#map().[A] -> 7:16
+(8:23..8:24) _empty_/WriterTest.Functor#map().[B] -> 7:19
+(8:27..8:28) _empty_/WriterTest.Functor#[F] -> 6:17
+(8:29..8:30) _empty_/WriterTest.Functor#map().[B] -> 7:19
+(11:30..11:41) _empty_/WriterTest.Applicative# -> 13:9
+(11:42..11:43) _empty_/WriterTest.Applicative.apply().[F] -> 11:15
+(11:48..11:49) _empty_/WriterTest.Applicative.apply().(a) -> 11:27
+(13:35..13:42) _empty_/WriterTest.Functor# -> 6:9
+(13:43..13:44) _empty_/WriterTest.Applicative#[F] -> 13:21
+(14:19..14:20) _empty_/WriterTest.Applicative#pure().[A] -> 14:14
+(14:22..14:23) _empty_/WriterTest.Applicative#[F] -> 13:21
+(14:24..14:25) _empty_/WriterTest.Applicative#pure().[A] -> 14:14
+(16:24..16:25) _empty_/WriterTest.Applicative#[F] -> 13:21
+(16:26..16:27) _empty_/WriterTest.Applicative#ap().[A] -> 16:16
+(17:17..17:18) _empty_/WriterTest.Applicative#[F] -> 13:21
+(17:19..17:20) _empty_/WriterTest.Applicative#ap().[A] -> 16:16
+(17:24..17:25) _empty_/WriterTest.Applicative#ap().[B] -> 16:18
+(17:29..17:30) _empty_/WriterTest.Applicative#[F] -> 13:21
+(17:31..17:32) _empty_/WriterTest.Applicative#ap().[B] -> 16:18
+(16:26..16:27) _empty_/WriterTest.Applicative#map().[A] -> 16:16
+(19:18..19:19) _empty_/WriterTest.Applicative#map().[A] -> 16:16
+(19:23..19:24) _empty_/WriterTest.Applicative#map().[B] -> 16:18
+(19:27..19:28) _empty_/WriterTest.Applicative#[F] -> 13:21
+(19:29..19:30) _empty_/WriterTest.Applicative#map().[B] -> 16:18
+(20:11..20:13) _empty_/WriterTest.Applicative#ap(). -> 17:11
+(20:9..20:10) _empty_/WriterTest.Applicative#map().(x) -> 16:21
+(20:14..20:18) _empty_/WriterTest.Applicative#pure(). -> 14:9
+(20:19..20:20) _empty_/WriterTest.Applicative#map().(f) -> 19:15
+(23:27..23:28) _empty_/WriterTest.Applicative#[F] -> 13:21
+(23:29..23:30) _empty_/WriterTest.Applicative#map2().[A] -> 23:16
+(23:46..23:47) _empty_/WriterTest.Applicative#[F] -> 13:21
+(23:48..23:49) _empty_/WriterTest.Applicative#map2().[B] -> 23:18
+(23:56..23:57) _empty_/WriterTest.Applicative#map2().[A] -> 23:16
+(23:58..23:59) _empty_/WriterTest.Applicative#map2().[B] -> 23:18
+(23:64..23:65) _empty_/WriterTest.Applicative#map2().[C] -> 23:20
+(23:68..23:69) _empty_/WriterTest.Applicative#[F] -> 13:21
+(23:70..23:71) _empty_/WriterTest.Applicative#map2().[C] -> 23:20
+(24:16..24:17) _empty_/WriterTest.Applicative#[F] -> 13:21
+(24:18..24:19) _empty_/WriterTest.Applicative#map2().[B] -> 23:18
+(24:23..24:24) _empty_/WriterTest.Applicative#map2().[C] -> 23:20
+(24:31..24:34) _empty_/WriterTest.Applicative#map(). -> 19:11
+(24:28..24:30) _empty_/WriterTest.Applicative#map2().(fa) -> 23:23
+(24:39..24:40) _empty_/WriterTest.Applicative#map2().[A] -> 23:16
+(24:49..24:50) _empty_/WriterTest.Applicative#map2().[B] -> 23:18
+(24:56..24:56) scala/Function2#apply().
+(24:55..24:56) _empty_/WriterTest.Applicative#map2().(f) -> 23:52
+(24:57..24:58) local1 -> 24:36
+(24:59..24:60) local2 -> 24:46
+(25:10..25:12) _empty_/WriterTest.Applicative#ap(). -> 17:11
+(25:7..25:9) _empty_/WriterTest.Applicative#map2().(fb) -> 23:42
+(25:13..25:16) local0 -> 24:11
+(28:7..28:18) _empty_/WriterTest.Applicative# -> 13:9
+(32:30..32:35) _empty_/WriterTest.Monad# -> 34:9
+(32:36..32:37) _empty_/WriterTest.Monad.apply().[F] -> 32:15
+(32:42..32:43) _empty_/WriterTest.Monad.apply().(m) -> 32:27
+(34:29..34:40) _empty_/WriterTest.Applicative# -> 13:9
+(34:41..34:42) _empty_/WriterTest.Monad#[F] -> 34:15
+(37:19..37:20) _empty_/WriterTest.Monad#pure().[A] -> 37:14
+(37:22..37:23) _empty_/WriterTest.Monad#[F] -> 34:15
+(37:24..37:25) _empty_/WriterTest.Monad#pure().[A] -> 37:14
+(39:24..39:25) _empty_/WriterTest.Monad#[F] -> 34:15
+(39:26..39:27) _empty_/WriterTest.Monad#flatMap().[A] -> 39:15
+(41:24..41:25) _empty_/WriterTest.Monad#flatMap().[A] -> 39:15
+(41:27..41:28) _empty_/WriterTest.Monad#[F] -> 34:15
+(41:29..41:30) _empty_/WriterTest.Monad#flatMap().[B] -> 39:17
+(41:33..41:34) _empty_/WriterTest.Monad#[F] -> 34:15
+(41:35..41:36) _empty_/WriterTest.Monad#flatMap().[B] -> 39:17
+(39:26..39:27) _empty_/WriterTest.Monad#ap().[A] -> 39:15
+(44:21..44:22) _empty_/WriterTest.Monad#[F] -> 34:15
+(44:23..44:24) _empty_/WriterTest.Monad#ap().[A] -> 39:15
+(44:28..44:29) _empty_/WriterTest.Monad#ap().[B] -> 39:17
+(44:33..44:34) _empty_/WriterTest.Monad#[F] -> 34:15
+(44:35..44:36) _empty_/WriterTest.Monad#ap().[B] -> 39:17
+(45:15..45:22) _empty_/WriterTest.Monad#flatMap(). -> 41:13
+(45:11..45:14) _empty_/WriterTest.Monad#ap().(fab) -> 44:16
+(47:18..47:25) _empty_/WriterTest.Monad#flatMap(). -> 41:13
+(47:15..47:17) _empty_/WriterTest.Monad#ap().(fa) -> 39:20
+(49:19..49:23) _empty_/WriterTest.Monad#pure(). -> 37:9
+(49:25..49:25) scala/Function1#apply().
+(49:24..49:25) local3 -> 46:13
+(49:26..49:27) local4 -> 48:17
+(55:7..55:12) _empty_/WriterTest.Monad# -> 34:9
+(57:27..57:32) _empty_/WriterTest.Monad# -> 34:9
+(57:41..57:47) scala/package.Either#
+(57:48..57:51) _empty_/WriterTest.eitherMonad#[Err] -> 57:21
+(58:20..58:21) _empty_/WriterTest.eitherMonad#pure().[A] -> 58:14
+(58:24..58:30) scala/package.Either#
+(58:31..58:34) _empty_/WriterTest.eitherMonad#[Err] -> 57:21
+(58:36..58:37) _empty_/WriterTest.eitherMonad#pure().[A] -> 58:14
+(58:46..58:46) scala/util/Right.apply().
+(58:41..58:46) scala/package.Right.
+(58:47..58:48) _empty_/WriterTest.eitherMonad#pure().(a) -> 58:17
+(59:24..59:30) scala/package.Either#
+(59:31..59:34) _empty_/WriterTest.eitherMonad#[Err] -> 57:21
+(59:35..59:36) _empty_/WriterTest.eitherMonad#flatMap().[A] -> 59:16
+(59:54..59:55) _empty_/WriterTest.eitherMonad#flatMap().[A] -> 59:16
+(59:59..59:65) scala/package.Either#
+(59:66..59:69) _empty_/WriterTest.eitherMonad#[Err] -> 57:21
+(59:71..59:72) _empty_/WriterTest.eitherMonad#flatMap().[B] -> 59:18
+(60:7..60:8) _empty_/WriterTest.eitherMonad#flatMap().(x) -> 59:21
+(61:19..61:19) scala/util/Right.unapply().
+(61:14..61:19) scala/package.Right.
+(61:27..61:27) scala/Function1#apply().
+(61:26..61:27) _empty_/WriterTest.eitherMonad#flatMap().(f) -> 59:51
+(61:28..61:29) local5 -> 61:20
+(62:18..62:18) scala/util/Left.unapply().
+(62:14..62:18) scala/package.Left.
+(62:31..62:31) scala/util/Left.apply().
+(62:27..62:31) scala/package.Left.
+(62:32..62:35) local6 -> 62:19
+(66:22..66:27) _empty_/WriterTest.Monad# -> 34:9
+(67:20..67:21) _empty_/WriterTest.optionMonad.pure().[A] -> 67:14
+(67:29..67:29) scala/Some.apply().
+(67:25..67:29) scala/Some.
+(67:30..67:31) _empty_/WriterTest.optionMonad.pure().(a) -> 67:17
+(68:24..68:30) scala/Option#
+(68:31..68:32) _empty_/WriterTest.optionMonad.flatMap().[A] -> 68:15
+(69:22..69:23) _empty_/WriterTest.optionMonad.flatMap().[A] -> 68:15
+(69:27..69:33) scala/Option#
+(69:34..69:35) _empty_/WriterTest.optionMonad.flatMap().[B] -> 68:17
+(70:9..70:11) _empty_/WriterTest.optionMonad.flatMap().(fa) -> 68:20
+(71:20..71:20) scala/Some.unapply().
+(71:16..71:20) scala/Some.
+(72:14..72:14) scala/Function1#apply().
+(72:13..72:14) _empty_/WriterTest.optionMonad.flatMap().(f) -> 69:19
+(72:15..72:16) local7 -> 71:21
+(73:16..73:20) scala/None.
+(74:13..74:17) scala/None.
+(78:20..78:25) _empty_/WriterTest.Monad# -> 34:9
+(78:26..78:30) scala/package.List#
+(79:20..79:21) _empty_/WriterTest.listMonad.pure().[A] -> 79:14
+(79:24..79:28) scala/package.List#
+(79:29..79:30) _empty_/WriterTest.listMonad.pure().[A] -> 79:14
+(79:38..79:38) scala/collection/IterableFactory#apply().
+(79:34..79:38) scala/package.List.
+(79:39..79:40) _empty_/WriterTest.listMonad.pure().(a) -> 79:17
+(81:23..81:27) scala/package.List#
+(81:28..81:29) _empty_/WriterTest.listMonad.flatMap().[A] -> 81:15
+(82:22..82:23) _empty_/WriterTest.listMonad.flatMap().[A] -> 81:15
+(82:27..82:31) scala/package.List#
+(82:32..82:33) _empty_/WriterTest.listMonad.flatMap().[B] -> 81:17
+(82:37..82:41) scala/package.List#
+(82:42..82:43) _empty_/WriterTest.listMonad.flatMap().[B] -> 81:17
+(83:9..83:10) _empty_/WriterTest.listMonad.flatMap().(x) -> 81:20
+(84:21..84:21) scala/collection/immutable/`::`.unapply().
+(84:19..84:21) scala/package.`::`.
+(84:34..84:36) scala/collection/IterableOps#`++`().
+(84:29..84:29) scala/Function1#apply().
+(84:28..84:29) _empty_/WriterTest.listMonad.flatMap().(f) -> 82:19
+(84:30..84:32) local8 -> 84:16
+(84:40..84:47) scala/collection/immutable/List#flatMap().
+(84:37..84:39) local9 -> 84:22
+(84:48..84:49) _empty_/WriterTest.listMonad.flatMap().(f) -> 82:19
+(85:16..85:19) scala/package.Nil.
+(85:23..85:26) scala/package.Nil.
+(89:54..89:55) _empty_/WriterTest.Transformer#[F] -> 89:26
+(89:56..89:57) _empty_/WriterTest.Transformer#[A] -> 89:38
+(89:32..89:37) _empty_/WriterTest.Monad# -> 34:9
+(89:37..89:37) _empty_/WriterTest.Transformer#[F] -> 89:26
+(91:32..91:37) _empty_/WriterTest.Monad# -> 34:9
+(91:37..91:37) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(91:40..91:45) _empty_/WriterTest.Monad# -> 34:9
+(91:54..91:65) _empty_/WriterTest.Transformer# -> 89:14
+(91:66..91:67) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(93:20..93:21) _empty_/WriterTest.transformerMonad#pure().[A] -> 93:14
+(93:24..93:35) _empty_/WriterTest.Transformer# -> 89:14
+(93:36..93:37) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(93:38..93:39) _empty_/WriterTest.transformerMonad#pure().[A] -> 93:14
+(93:54..93:54) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(93:43..93:54) _empty_/WriterTest.Transformer. -> 89:14
+(93:72..93:76) _empty_/WriterTest.Monad#pure(). -> 37:9
+(93:55..93:61) scala/Predef.summon().
+(93:62..93:67) _empty_/WriterTest.Monad# -> 34:9
+(93:68..93:69) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(93:77..93:78) _empty_/WriterTest.transformerMonad#pure().(a) -> 93:17
+(95:25..95:36) _empty_/WriterTest.Transformer# -> 89:14
+(95:37..95:38) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(95:39..95:40) _empty_/WriterTest.transformerMonad#flatMap().[A] -> 95:16
+(96:22..96:23) _empty_/WriterTest.transformerMonad#flatMap().[A] -> 95:16
+(96:27..96:38) _empty_/WriterTest.Transformer# -> 89:14
+(96:39..96:40) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(96:41..96:42) _empty_/WriterTest.transformerMonad#flatMap().[B] -> 95:18
+(97:18..97:19) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(97:20..97:21) _empty_/WriterTest.transformerMonad#flatMap().[B] -> 95:18
+(97:34..97:41) _empty_/WriterTest.Monad#flatMap(). -> 41:13
+(97:30..97:30) _empty_/WriterTest.Monad.apply(). -> 32:9
+(97:25..97:30) _empty_/WriterTest.Monad. -> 31:10
+(97:31..97:32) _empty_/WriterTest.transformerMonad#[F] -> 91:26
+(97:45..97:52) _empty_/WriterTest.Transformer#wrapped. -> 89:45
+(97:42..97:44) _empty_/WriterTest.transformerMonad#flatMap().(fa) -> 95:21
+(98:11..98:11) local11
+(99:18..99:25) _empty_/WriterTest.Transformer#wrapped. -> 89:45
+(99:14..99:14) scala/Function1#apply().
+(99:13..99:14) _empty_/WriterTest.transformerMonad#flatMap().(f) -> 96:19
+(99:15..99:16) local12 -> 98:16
+(100:15..100:15) local13
+(101:17..101:18) local14 -> 100:20
+(105:20..105:20) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(105:9..105:20) _empty_/WriterTest.Transformer. -> 89:14
+(105:21..105:24) local10 -> 97:13
+(109:21..109:27) scala/package.Either#
+(109:28..109:34) scala/Predef.String#
+(109:35..109:36) _empty_/WriterTest.EString#[A] -> 109:16
+(111:24..111:27) scala/Int#
+(111:30..111:41) _empty_/WriterTest.Transformer# -> 89:14
+(111:42..111:49) _empty_/WriterTest.EString# -> 109:8
+(111:50..111:53) scala/Int#
+(112:14..112:16) scala/Int#`==`(+3).
+(112:10..112:11) scala/Int#`%`(+3).
+(112:8..112:9) _empty_/WriterTest.incrementEven().(a) -> 111:21
+(112:31..112:31) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(112:20..112:31) _empty_/WriterTest.Transformer. -> 89:14
+(112:36..112:36) scala/util/Left.apply().
+(112:32..112:36) scala/package.Left.
+(112:60..112:60) _empty_/WriterTest.eitherMonad(). -> 57:9
+(113:21..113:21) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(113:10..113:21) _empty_/WriterTest.Transformer. -> 89:14
+(113:27..113:27) scala/util/Right.apply().
+(113:22..113:27) scala/package.Right.
+(113:30..113:31) scala/Int#`+`(+4).
+(113:28..113:29) _empty_/WriterTest.incrementEven().(a) -> 111:21
+(113:35..113:35) _empty_/WriterTest.eitherMonad(). -> 57:9
+(116:20..116:23) scala/Int#
+(116:26..116:37) _empty_/WriterTest.Transformer# -> 89:14
+(116:38..116:45) _empty_/WriterTest.EString# -> 109:8
+(116:47..116:50) scala/Int#
+(117:14..117:16) scala/Int#`==`(+3).
+(117:10..117:11) scala/Int#`%`(+3).
+(117:8..117:9) _empty_/WriterTest.doubleOdd().(a) -> 116:17
+(117:31..117:31) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(117:20..117:31) _empty_/WriterTest.Transformer. -> 89:14
+(117:36..117:36) scala/util/Left.apply().
+(117:32..117:36) scala/package.Left.
+(117:61..117:61) _empty_/WriterTest.eitherMonad(). -> 57:9
+(118:21..118:21) _empty_/WriterTest.Transformer.apply(). -> 89:3
+(118:10..118:21) _empty_/WriterTest.Transformer. -> 89:14
+(118:27..118:27) scala/util/Right.apply().
+(118:22..118:27) scala/package.Right.
+(118:30..118:31) scala/Int#`*`(+3).
+(118:28..118:29) _empty_/WriterTest.doubleOdd().(a) -> 116:17
+(118:35..118:35) _empty_/WriterTest.eitherMonad(). -> 57:9
+(121:23..121:36) _empty_/WriterTest.incrementEven(). -> 111:7
+(123:33..123:40) _empty_/WriterTest.transformerMonad#flatMap(). -> 96:11
+(123:16..123:32) _empty_/WriterTest.transformerMonad(). -> 91:9
+(123:5..123:15) _empty_/WriterTest. -> 1:8
+(123:32..123:32) _empty_/WriterTest.eitherMonad(). -> 57:9
+(123:41..123:54) _empty_/WriterTest.writerExample. -> 121:7
+(123:56..123:65) _empty_/WriterTest.doubleOdd(). -> 116:7
+(123:56..123:56) local15
+

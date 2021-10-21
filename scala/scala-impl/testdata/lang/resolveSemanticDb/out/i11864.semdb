@@ -1,0 +1,101 @@
+Document tests/pos/i11864.scala
+(1:30..1:47) scala/language.experimental.erasedDefinitions.
+(1:17..1:29) scala/language.experimental.
+(1:8..1:16) scala/language.
+(7:56..7:59) scala/Predef.`???`().
+(7:34..7:36) _empty_/i11864$package.Ev# -> 3:6
+(7:39..7:45) scala/Option#
+(7:46..7:48) _empty_/test1.foo().(ev) -> 7:30
+(8:63..8:66) scala/Predef.`???`().
+(8:37..8:40) _empty_/i11864$package.Sub# -> 4:6
+(8:41..8:42) _empty_/test1.bar().[X] -> 8:30
+(8:46..8:52) scala/Option#
+(8:53..8:55) _empty_/test1.bar().(ev) -> 8:33
+(10:5..10:8) _empty_/test1.foo(). -> 7:26
+(10:9..10:12) scala/Predef.`???`().
+(11:13..11:16) _empty_/test1.bar(). -> 8:26
+(11:17..11:20) scala/Int#
+(11:22..11:25) scala/Predef.`???`().
+(12:5..12:6) local0 -> 11:9
+(12:8..12:14) scala/Option#
+(12:15..12:18) scala/Int#
+(15:22..15:24) _empty_/i11864$package.Ev# -> 3:6
+(15:27..15:33) scala/Option#
+(15:34..15:36) _empty_/test2.foo().(ev) -> 15:18
+(15:44..15:47) scala/Predef.`???`().
+(16:25..16:28) _empty_/i11864$package.Sub# -> 4:6
+(16:29..16:30) _empty_/test2.bar().[X] -> 16:18
+(16:34..16:40) scala/Option#
+(16:41..16:43) _empty_/test2.bar().(ev) -> 16:21
+(16:51..16:54) scala/Predef.`???`().
+(18:5..18:8) _empty_/test2.foo(). -> 15:14
+(18:9..18:12) scala/Predef.`???`().
+(19:13..19:16) _empty_/test2.bar(). -> 16:14
+(19:17..19:20) scala/Int#
+(19:22..19:25) scala/Predef.`???`().
+(20:5..20:6) local1 -> 19:9
+(20:8..20:14) scala/Option#
+(20:15..20:18) scala/Int#
+(23:22..23:24) _empty_/i11864$package.Ev# -> 3:6
+(23:29..23:31) _empty_/test3.bar().(ev) -> 23:18
+(23:38..23:44) scala/Option#
+(23:45..23:47) _empty_/test3.bar().(ev) -> 23:18
+(23:59..23:59) scala/Some.apply().
+(23:55..23:59) scala/Some.
+(23:60..23:61) _empty_/test3.bar().(x) -> 23:26
+(24:10..24:12) _empty_/i11864$package.Ev# -> 3:6
+(24:26..24:29) scala/Int#
+(24:34..24:37) scala/Predef.`???`().
+(26:13..26:16) _empty_/test3.bar(). -> 23:14
+(26:17..26:18) _empty_/test3.a. -> 24:7
+(26:20..26:23) scala/Predef.`???`().
+(27:5..27:6) local3 -> 26:9
+(27:8..27:14) scala/Option#
+(27:15..27:18) scala/Int#
+(30:22..30:24) _empty_/i11864$package.Ev# -> 3:6
+(30:29..30:31) _empty_/test4.bar().(ev) -> 30:18
+(30:38..30:44) scala/Option#
+(30:45..30:47) _empty_/test4.bar().(ev) -> 30:18
+(30:59..30:59) scala/Some.apply().
+(30:55..30:59) scala/Some.
+(30:60..30:61) _empty_/test4.bar().(x) -> 30:26
+(31:10..31:12) _empty_/i11864$package.Ev# -> 3:6
+(31:26..31:29) scala/Int#
+(31:34..31:37) scala/Predef.`???`().
+(33:13..33:16) _empty_/test4.bar(). -> 30:14
+(33:17..33:18) _empty_/test4.a. -> 31:7
+(33:20..33:23) scala/Predef.`???`().
+(34:5..34:6) local5 -> 33:9
+(34:8..34:14) scala/Option#
+(34:15..34:18) scala/Int#
+(37:24..37:25) _empty_/CallbackTo#[A] -> 36:25
+(37:29..37:30) _empty_/CallbackTo#map().[B] -> 37:18
+(37:60..37:68) _empty_/CallbackTo.MapGuard# -> 42:8
+(37:49..37:59) _empty_/CallbackTo. -> 40:8
+(37:69..37:70) _empty_/CallbackTo#map().[B] -> 37:18
+(37:74..37:84) _empty_/CallbackTo# -> 36:13
+(37:85..37:87) _empty_/CallbackTo#map().(ev) -> 37:45
+(37:95..37:98) scala/Predef.`???`().
+(42:35..42:36) _empty_/CallbackTo.MapGuard#[A] -> 42:17
+(43:29..43:37) _empty_/CallbackTo.MapGuard# -> 42:8
+(43:38..43:39) _empty_/CallbackTo.MapGuard().[A] -> 43:25
+(43:43..43:46) scala/Predef.`???`().
+(45:26..45:30) scala/package.List#
+(45:31..45:32) _empty_/CallbackTo.traverse().[A] -> 45:16
+(45:36..45:46) _empty_/CallbackTo# -> 36:13
+(45:47..45:51) scala/package.List#
+(45:52..45:53) _empty_/CallbackTo.traverse().[B] -> 45:19
+(46:12..46:22) _empty_/CallbackTo# -> 36:13
+(46:23..46:27) scala/package.List#
+(46:28..46:29) _empty_/CallbackTo.traverse().[A] -> 45:16
+(46:34..46:38) scala/package.List#
+(46:39..46:40) _empty_/CallbackTo.traverse().[B] -> 45:19
+(46:45..46:48) scala/Predef.`???`().
+(47:7..47:10) _empty_/CallbackTo#map(). -> 37:14
+(47:5..47:6) local7 -> 46:9
+(47:12..47:12) scala/Function1#apply().
+(47:13..47:15) _empty_/CallbackTo.traverse().(ta) -> 45:22
+(47:17..47:17) _empty_/CallbackTo.MapGuard(). -> 43:16
+(4:15..4:17) _empty_/i11864$package.Ev# -> 3:6
+(4:31..4:32) _empty_/i11864$package.Sub#[X] -> 4:10
+

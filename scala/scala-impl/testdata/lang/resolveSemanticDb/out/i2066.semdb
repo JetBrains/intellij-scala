@@ -1,0 +1,11 @@
+Document tests/pos/i2066.scala
+(4:25..4:28) _empty_/Foo# -> 1:7
+(5:15..5:19) scala/Unit#
+(8:25..8:28) _empty_/Foo# -> 1:7
+(9:23..9:27) scala/Unit#
+(12:17..12:20) _empty_/Foo# -> 1:7
+(12:23..12:27) scala/Unit#
+(13:9..13:13) _empty_/Test.One#meth(). -> 5:9
+(13:5..13:5) _empty_/Test.One(). -> 4:18
+(13:5..13:8) _empty_/Test.test().(foo) -> 12:12
+

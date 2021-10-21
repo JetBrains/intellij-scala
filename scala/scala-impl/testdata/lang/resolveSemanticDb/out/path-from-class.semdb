@@ -1,0 +1,23 @@
+Document tests/pos/path-from-class.scala
+(7:14..7:17) _empty_/Outer#inner.Foo# -> 6:10
+(7:20..7:23) scala/Predef.`???`().
+(9:12..9:15) _empty_/Outer#Bar# -> 4:8
+(9:18..9:21) scala/Predef.`???`().
+(13:20..13:20) _empty_/Outer#`<init>`(). -> 4:3
+(13:15..13:20) _empty_/Outer# -> 3:7
+(14:20..14:20) _empty_/Outer#`<init>`(). -> 4:3
+(14:15..14:20) _empty_/Outer# -> 3:7
+(15:17..15:17) scala/collection/IterableFactory#apply().
+(15:13..15:17) scala/package.List.
+(15:26..15:29) _empty_/Outer#inner.foo(). -> 7:9
+(15:20..15:25) _empty_/Outer#inner. -> 5:10
+(15:18..15:19) _empty_/Main.a. -> 13:7
+(15:39..15:42) _empty_/Outer#inner.foo(). -> 7:9
+(15:33..15:38) _empty_/Outer#inner. -> 5:10
+(15:31..15:32) _empty_/Main.a. -> 13:7
+(17:21..17:24) _empty_/Outer#Bar# -> 4:8
+(17:13..17:18) _empty_/Outer# -> 3:7
+(17:27..17:35) scala/Predef.identity().
+(17:38..17:41) _empty_/Outer#bar(). -> 9:7
+(17:36..17:37) _empty_/Main.a. -> 13:7
+

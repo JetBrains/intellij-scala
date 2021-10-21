@@ -1,0 +1,8 @@
+Document tests/pos/array-clone.scala
+(3:17..3:17) scala/Array.apply(+5).
+(3:12..3:17) scala/Array.
+(5:11..5:16) scala/Array#
+(5:17..5:20) scala/Int#
+(5:27..5:32) scala/Array#clone().
+(5:24..5:26) _empty_/test.xs. -> 3:7
+

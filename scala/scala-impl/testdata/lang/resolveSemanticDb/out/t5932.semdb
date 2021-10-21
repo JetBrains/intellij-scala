@@ -1,0 +1,25 @@
+Document tests/pos/t5932.scala
+(3:24..3:24) _empty_/A#`<init>`(). -> 1:1
+(3:23..3:24) _empty_/A# -> 1:7
+(6:13..6:14) _empty_/B. -> 3:13
+(6:16..6:17) _empty_/A# -> 1:7
+(8:3..8:10) scala/Predef.println(+1).
+(8:14..8:16) scala/Any#`==`().
+(8:11..8:13) _empty_/Test.x1. -> 6:7
+(8:17..8:18) _empty_/B. -> 3:13
+(9:3..9:10) scala/Predef.println(+1).
+(9:13..9:15) scala/Any#`==`().
+(9:11..9:12) _empty_/B. -> 3:13
+(9:16..9:18) _empty_/Test.x1. -> 6:7
+(11:13..11:14) _empty_/B. -> 3:13
+(11:16..11:17) _empty_/A# -> 1:7
+(11:23..11:30) scala/Product#
+(13:3..13:10) scala/Predef.println(+1).
+(13:14..13:16) scala/Any#`==`().
+(13:11..13:13) _empty_/Test.x2. -> 11:7
+(13:17..13:18) _empty_/B. -> 3:13
+(14:3..14:10) scala/Predef.println(+1).
+(14:13..14:15) scala/Any#`==`().
+(14:11..14:12) _empty_/B. -> 3:13
+(14:16..14:18) _empty_/Test.x2. -> 11:7
+

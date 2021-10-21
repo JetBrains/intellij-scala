@@ -1,0 +1,10 @@
+Document tests/pos/t1226.scala
+(3:54..3:57) scala/Any#
+(3:31..3:37) graphs/ -> 1:9
+(6:25..6:28) scala/Any#
+(6:44..6:44) graphs/Graph#`<init>`(). -> 3:21
+(6:39..6:44) graphs/Graph# -> 3:16
+(6:45..6:53) graphs/Nodes#mappings. -> 6:14
+(7:12..7:20) scala/Any#toString().
+(7:3..7:11) graphs/Nodes#mappings. -> 6:14
+

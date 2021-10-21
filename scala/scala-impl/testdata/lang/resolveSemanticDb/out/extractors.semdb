@@ -1,0 +1,34 @@
+Document tests/pos/extractors.scala
+(4:24..4:28) _empty_/test.Tree# -> 3:9
+(4:40..4:44) scala/package.List#
+(4:45..4:49) _empty_/test.Tree# -> 3:9
+(4:64..4:64) _empty_/test.Tree#`<init>`(). -> 3:3
+(4:60..4:64) _empty_/test.Tree# -> 3:9
+(7:16..7:17) _empty_/test.DeconstructorCommon#[T] -> 6:29
+(9:18..9:25) scala/Boolean#
+(9:34..9:36) java/lang/Object#eq().
+(9:28..9:33) _empty_/test.DeconstructorCommon#field(). -> 7:9
+(10:29..10:29) scala/Boolean#`unary_!`().
+(10:22..10:29) _empty_/test.DeconstructorCommon#isEmpty(). -> 9:9
+(11:20..11:21) _empty_/test.DeconstructorCommon#[T] -> 6:29
+(12:7..12:12) _empty_/test.DeconstructorCommon#`field_=`(). -> 7:9
+(12:15..12:16) _empty_/test.DeconstructorCommon#unapply().(s) -> 11:17
+(17:36..17:55) _empty_/test.DeconstructorCommon# -> 6:9
+(17:56..17:61) _empty_/test.Apply# -> 4:9
+(18:13..18:17) _empty_/test.Tree# -> 3:9
+(19:13..19:17) scala/package.List#
+(19:18..19:22) _empty_/test.Tree# -> 3:9
+(22:24..22:42) _empty_/test.ApplyDeconstructor# -> 17:9
+(23:13..23:17) _empty_/test.Tree# -> 3:9
+(23:26..23:29) _empty_/test.Apply#fun. -> 4:19
+(23:20..23:25) _empty_/test.DeconstructorCommon#field(). -> 7:9
+(24:13..24:17) scala/package.List#
+(24:18..24:22) _empty_/test.Tree# -> 3:9
+(24:32..24:36) _empty_/test.Apply#args. -> 4:34
+(24:26..24:31) _empty_/test.DeconstructorCommon#field(). -> 7:9
+(27:29..27:33) _empty_/test.Tree# -> 3:9
+(28:5..28:9) _empty_/test.assocsFromApply().(tree) -> 27:23
+(29:17..29:17) _empty_/test.DeconstructorCommon#unapply(). -> 11:9
+(29:12..29:17) _empty_/test.Apply. -> 22:10
+(29:32..29:35) scala/Predef.`???`().
+

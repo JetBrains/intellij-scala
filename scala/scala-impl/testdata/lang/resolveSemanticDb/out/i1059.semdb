@@ -1,0 +1,12 @@
+Document tests/pos/i1059.scala
+(2:18..2:18) scala/collection/IterableFactory#apply().
+(2:14..2:18) scala/package.List.
+(4:3..4:7) _empty_/Repeated.list. -> 2:7
+(5:14..5:14) scala/collection/SeqFactory#unapplySeq().
+(5:10..5:14) scala/package.List.
+(6:14..6:14) scala/collection/SeqFactory#unapplySeq().
+(6:10..6:14) scala/package.List.
+(7:14..7:14) scala/collection/SeqFactory#unapplySeq().
+(7:10..7:14) scala/package.List.
+(8:10..8:13) scala/package.Nil.
+

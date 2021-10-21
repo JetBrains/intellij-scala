@@ -1,0 +1,17 @@
+Document tests/pos/i9562.scala
+(5:17..5:20) _empty_/Foo# -> 1:7
+(6:15..6:18) _empty_/Foo#foo(). -> 2:7
+(6:13..6:14) _empty_/Unrelated.g().(f) -> 5:14
+(8:17..8:20) _empty_/Foo# -> 1:7
+(9:13..9:16) scala/Int#
+(10:13..10:16) scala/Int#
+(10:22..10:23) scala/Int#`+`(+4).
+(10:19..10:21) _empty_/Unrelated.h1(). -> 9:9
+(10:19..10:19) _empty_/Unrelated.h2().(f) -> 8:14
+(11:17..11:20) scala/Int#
+(11:23..11:26) scala/Int#
+(11:32..11:33) scala/Int#`+`(+4).
+(11:29..11:31) _empty_/Unrelated.h2(). -> 10:9
+(11:29..11:29) _empty_/Unrelated.`++:`().(f) -> 8:14
+(11:34..11:35) _empty_/Unrelated.`++:`().(x) -> 11:14
+

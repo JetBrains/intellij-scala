@@ -1,0 +1,11 @@
+Document tests/pos/t566.scala
+(2:18..2:22) scala/package.List#
+(2:23..2:24) _empty_/test.foo().[a] -> 2:11
+(2:28..2:32) scala/package.List#
+(2:33..2:34) _empty_/test.foo().[a] -> 2:11
+(3:30..3:30) scala/collection/immutable/List#`::`().
+(3:26..3:30) scala/collection/IterableOps#tail().
+(3:23..3:25) _empty_/test.foo().(ys) -> 2:14
+(3:15..3:15) local0 -> 3:15
+(3:30..3:30) _empty_/test.foo(). -> 2:7
+

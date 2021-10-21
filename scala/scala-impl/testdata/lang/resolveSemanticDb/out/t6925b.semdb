@@ -1,0 +1,24 @@
+Document tests/pos/t6925b.scala
+(4:17..4:28) scala/language.higherKinds.
+(4:8..4:16) scala/language.
+(7:18..7:19) _empty_/Base#[M] -> 6:21
+(7:21..7:22) _empty_/Base#foo().[A] -> 7:11
+(7:24..7:25) _empty_/Base#foo().[B] -> 7:14
+(7:28..7:31) scala/Any#
+(10:44..10:44) _empty_/Base#`<init>`(). -> 6:20
+(10:23..10:27) _empty_/Base# -> 6:16
+(11:60..11:60) local0
+(11:66..11:66) scala/Tuple2.unapply().
+(11:76..11:76) scala/Tuple2.apply().
+(11:76..11:77) local1 -> 11:66
+(11:79..11:81) _empty_/Derived#foo().[AA] -> 11:11
+(11:83..11:84) local2 -> 11:69
+(11:86..11:88) _empty_/Derived#foo().[BB] -> 11:15
+(15:19..15:26) scala/Predef.println(+1).
+(16:16..16:19) scala/Int#
+(16:28..16:31) scala/Predef.`???`().
+(16:22..16:24) _empty_/Test.lx. -> 15:12
+(17:16..17:19) scala/Int#
+(17:63..17:66) scala/Predef.`???`().
+(17:22..17:24) _empty_/Test.lx. -> 15:12
+

@@ -1,0 +1,32 @@
+Document tests/pos/i11078.scala
+(3:20..3:21) _empty_/FooCreator#[A] -> 2:18
+(7:13..7:16) _empty_/Foo# -> 1:7
+(7:17..7:18) _empty_/FooWrapper#A# -> 7:8
+(8:12..8:13) _empty_/FooWrapper#A# -> 7:8
+(11:19..11:22) _empty_/Foo# -> 1:7
+(11:23..11:25) _empty_/FooWrapper.apply().[A0] -> 11:13
+(11:36..11:38) _empty_/FooWrapper.apply().[A0] -> 11:13
+(11:41..11:51) _empty_/FooWrapper# -> 6:7
+(11:63..11:65) _empty_/FooWrapper.apply().[A0] -> 11:13
+(11:74..11:84) _empty_/FooWrapper# -> 6:7
+(12:14..12:16) _empty_/FooWrapper.apply().[A0] -> 11:13
+(13:14..13:16) _empty_/FooWrapper.apply().[A0] -> 11:13
+(13:19..13:25) _empty_/FooWrapper.apply().(toWrap) -> 11:28
+(18:13..18:16) _empty_/Foo# -> 1:7
+(18:17..18:18) _empty_/FooCreatorWrapper#A# -> 18:8
+(19:19..19:29) _empty_/FooCreator# -> 2:7
+(19:30..19:31) _empty_/FooCreatorWrapper#A# -> 18:8
+(24:27..24:44) _empty_/FooCreatorWrapper# -> 17:7
+(24:54..24:57) _empty_/Bar# -> 22:14
+(27:18..27:21) _empty_/Bar# -> 22:14
+(27:24..27:34) _empty_/FooWrapper# -> 6:7
+(27:37..27:40) _empty_/i11078$package.process().(bar) -> 27:13
+(28:15..28:15) _empty_/Bar.Baz.unapply().
+(28:12..28:15) _empty_/Bar.Baz. -> 24:14
+(28:8..28:11) _empty_/Bar. -> 23:8
+(28:38..28:38) _empty_/FooWrapper.apply(). -> 11:7
+(28:28..28:38) _empty_/FooWrapper. -> 10:8
+(28:58..28:67) _empty_/FooCreator#createFoo(). -> 3:7
+(28:47..28:57) _empty_/FooCreatorWrapper#fooCreator(). -> 19:7
+(28:39..28:46) local4 -> 28:16
+

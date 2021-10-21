@@ -1,0 +1,25 @@
+Document tests/pos/i8319.scala
+(4:40..4:40) example/Tree#`<init>`(). -> 3:27
+(4:31..4:35) example/Tree# -> 3:23
+(4:36..4:39) scala/Any#
+(5:40..5:40) example/Tree#`<init>`(). -> 3:27
+(5:31..5:35) example/Tree# -> 3:23
+(5:36..5:39) scala/Any#
+(6:40..6:40) example/Tree#`<init>`(). -> 3:27
+(6:31..6:35) example/Tree# -> 3:23
+(6:36..6:39) scala/Any#
+(9:32..9:33) scala/`|`#
+(9:23..9:26) example/Lam# -> 4:12
+(9:34..9:37) example/App# -> 5:12
+(11:1..11:8) example/ -> 1:9
+(11:20..11:26) scala/Option#
+(11:27..11:31) example/Tree# -> 3:23
+(11:39..11:40) example/i8319$package.foo().(s) -> 11:17
+(12:12..12:12) scala/Some.unapply().
+(12:8..12:12) scala/Some.
+(12:16..12:19) example/Var# -> 6:12
+(13:12..13:12) scala/Some.unapply().
+(13:8..13:12) scala/Some.
+(13:19..13:19) example/Branch.unapply(). -> 9:7
+(13:13..13:19) example/Branch. -> 8:8
+

@@ -1,0 +1,14 @@
+Document tests/pos/t344.scala
+(3:28..3:28) _empty_/Bug.A#`<init>`(). -> 2:3
+(3:27..3:28) _empty_/Bug.A# -> 2:9
+(4:28..4:28) _empty_/Bug.A#`<init>`(). -> 2:3
+(4:27..4:28) _empty_/Bug.A# -> 2:9
+(5:10..5:11) _empty_/Bug.A# -> 2:9
+(7:9..7:9) _empty_/Bug.A1.apply().
+(7:7..7:9) _empty_/Bug.A1. -> 3:14
+(9:27..9:27) _empty_/Bug.A1.apply().
+(9:25..9:27) _empty_/Bug.A1. -> 3:14
+(9:37..9:37) _empty_/Bug.A2.apply().
+(9:35..9:37) _empty_/Bug.A2. -> 4:14
+(10:7..10:8) local0 -> 9:11
+

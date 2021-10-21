@@ -1,0 +1,16 @@
+Document tests/pos/t2081.scala
+(2:20..2:23) scala/Int#
+(3:29..3:30) scala/Int#`*`(+3).
+(3:26..3:27) scala/Int#`*`(+3).
+(3:23..3:24) scala/Int#`*`(+3).
+(3:20..3:21) scala/Int#`*`(+3).
+(3:30..3:31) _empty_/ScalaForRubyists.RichInt#n. -> 2:17
+(6:27..6:30) scala/Int#
+(6:33..6:40) _empty_/ScalaForRubyists.RichInt# -> 2:9
+(6:54..6:54) _empty_/ScalaForRubyists.RichInt#`<init>`(). -> 2:16
+(6:47..6:54) _empty_/ScalaForRubyists.RichInt# -> 2:9
+(6:55..6:56) _empty_/ScalaForRubyists.RichInt().(n) -> 6:24
+(8:14..8:18) _empty_/ScalaForRubyists.RichInt#days(). -> 3:9
+(8:11..8:11) _empty_/ScalaForRubyists.RichInt(). -> 6:16
+(10:17..10:18) scala/Double#`+`(+7).
+

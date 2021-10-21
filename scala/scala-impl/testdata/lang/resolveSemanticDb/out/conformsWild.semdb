@@ -1,0 +1,11 @@
+Document tests/pos/conformsWild.scala
+(3:10..3:19) scala/Function1#
+(3:32..3:38) scala/Predef.String#
+(5:10..5:19) scala/Function1#
+(6:11..6:20) scala/Function1#
+(6:34..6:35) local2 -> 6:29
+(7:11..7:20) scala/Function1#
+(7:24..7:31) scala/Nothing#
+(7:40..7:41) local3 -> 7:35
+(9:20..9:20) scala/Tuple2.apply().
+

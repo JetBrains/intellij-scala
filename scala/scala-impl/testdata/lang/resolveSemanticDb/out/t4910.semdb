@@ -1,0 +1,5 @@
+Document tests/pos/t4910.scala
+(5:3..5:13) scala/Predef.implicitly().
+(5:14..5:17) _empty_/A#foo. -> 2:19
+(5:23..5:23) _empty_/A#foo. -> 2:19
+

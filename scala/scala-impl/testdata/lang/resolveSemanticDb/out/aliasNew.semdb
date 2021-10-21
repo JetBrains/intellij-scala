@@ -1,0 +1,11 @@
+Document tests/pos/aliasNew.scala
+(3:33..3:40) scala/collection/mutable/HashMap#
+(3:25..3:32) scala/collection/mutable/
+(3:14..3:24) scala/collection/
+(3:41..3:47) scala/Predef.String#
+(3:49..3:52) scala/Int#
+(5:19..5:19) scala/collection/mutable/HashMap#`<init>`(+1).
+(5:16..5:19) _empty_/test.Map# -> 3:8
+(6:5..6:5) scala/collection/mutable/HashMap#update().
+(6:3..6:5) _empty_/test.xs. -> 5:7
+

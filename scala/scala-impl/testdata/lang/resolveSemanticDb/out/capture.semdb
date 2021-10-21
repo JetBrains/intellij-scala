@@ -1,0 +1,25 @@
+Document tests/pos/capture.scala
+(24:36..24:44) _empty_/Test#Liftable# -> 22:18
+(24:45..24:50) scala/Predef.Class#
+(24:51..24:52) _empty_/Test#ClassIsLiftable().[T] -> 24:32
+(24:79..24:79) _empty_/Test#Liftable#`<init>`(). -> 22:26
+(24:61..24:69) _empty_/Test#Liftable# -> 22:18
+(24:70..24:75) scala/Predef.Class#
+(24:76..24:77) _empty_/Test#ClassIsLiftable().[T] -> 24:32
+(28:40..28:41) _empty_/Test#LiftExprOps#[T] -> 28:30
+(29:29..29:37) _empty_/Test#Liftable# -> 22:18
+(29:38..29:39) _empty_/Test#LiftExprOps#[T] -> 28:30
+(29:43..29:47) _empty_/Test#Expr# -> 26:9
+(29:48..29:49) _empty_/Test#LiftExprOps#[T] -> 28:30
+(29:53..29:56) scala/Predef.`???`().
+(32:21..32:26) scala/Predef.Class#
+(32:32..32:35) scala/Predef.`???`().
+(34:16..34:22) _empty_/Test#LiftExprOps#toExpr(). -> 29:9
+(34:3..34:3) _empty_/Test#LiftExprOps(). -> 28:18
+(34:3..34:15) _empty_/Test#runtimeClass(). -> 32:7
+(34:23..34:38) _empty_/Test#ClassIsLiftable(). -> 24:16
+(36:16..36:22) _empty_/Test#LiftExprOps#toExpr(). -> 29:9
+(36:3..36:3) _empty_/Test#LiftExprOps(). -> 28:18
+(36:3..36:15) _empty_/Test#runtimeClass(). -> 32:7
+(36:22..36:22) _empty_/Test#ClassIsLiftable(). -> 24:16
+

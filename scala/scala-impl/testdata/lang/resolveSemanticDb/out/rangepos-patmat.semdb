@@ -1,0 +1,6 @@
+Document tests/pos/rangepos-patmat.scala
+(2:13..2:28) scala/PartialFunction#
+(2:29..2:32) scala/Any#
+(2:34..2:40) scala/Predef.String#
+(2:46..2:46) local0
+

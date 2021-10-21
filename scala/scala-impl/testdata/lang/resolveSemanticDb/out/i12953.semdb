@@ -1,0 +1,20 @@
+Document tests/pos/i12953.scala
+(1:20..1:25) scala/Predef.Class#
+(1:55..1:71) scala/annotation/StaticAnnotation#
+(1:44..1:54) scala/annotation/
+(1:38..1:43) scala/
+(3:39..3:55) scala/annotation/StaticAnnotation#
+(3:28..3:38) scala/annotation/
+(3:22..3:27) scala/
+(5:20..5:26) _empty_/Schema# -> 1:7
+(5:27..5:34) scala/Predef.classOf().
+(5:35..5:39) scala/package.List#
+(5:40..5:41) _empty_/Foo#[A] -> 5:16
+(5:50..5:56) scala/Predef.String#
+(6:20..6:23) _empty_/Ann# -> 3:7
+(6:24..6:25) _empty_/Bar#[A] -> 6:16
+(6:32..6:38) scala/Predef.String#
+(7:13..7:16) _empty_/Ann# -> 3:7
+(7:17..7:18) _empty_/i12953$package.baz().[A] -> 7:9
+(7:25..7:31) scala/Predef.String#
+

@@ -1,0 +1,22 @@
+Document tests/pos/i5481.scala
+(3:17..3:18) _empty_/TypeAlias.Set#[A] -> 3:12
+(3:22..3:29) scala/Boolean#
+(6:25..6:26) _empty_/TypeAlias.Set.singleton().[A] -> 6:19
+(6:29..6:32) _empty_/TypeAlias.Set# -> 3:8
+(6:33..6:34) _empty_/TypeAlias.Set.singleton().[A] -> 6:19
+(6:40..6:42) scala/Any#`==`().
+(6:43..6:44) _empty_/TypeAlias.Set.singleton().(a) -> 6:22
+(12:24..12:25) _empty_/OpaqueType.Set#[A] -> 12:19
+(12:29..12:36) scala/Boolean#
+(15:25..15:26) _empty_/OpaqueType.Set.singleton().[A] -> 15:19
+(15:29..15:32) _empty_/OpaqueType.Set# -> 12:15
+(15:33..15:34) _empty_/OpaqueType.Set.singleton().[A] -> 15:19
+(15:40..15:42) scala/Any#`==`().
+(15:43..15:44) _empty_/OpaqueType.Set.singleton().(a) -> 15:22
+(16:26..16:27) _empty_/OpaqueType.Set.singleton0().[A] -> 16:20
+(16:30..16:33) _empty_/OpaqueType.Set# -> 12:15
+(16:34..16:35) _empty_/OpaqueType.Set.singleton0().[A] -> 16:20
+(16:46..16:48) scala/Any#`==`().
+(16:43..16:44) _empty_/OpaqueType.Set.singleton0().[A] -> 16:20
+(16:49..16:50) _empty_/OpaqueType.Set.singleton0().(a) -> 16:23
+

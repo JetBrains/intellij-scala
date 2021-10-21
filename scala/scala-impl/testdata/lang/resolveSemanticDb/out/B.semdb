@@ -1,0 +1,7 @@
+Document tests/pos/B.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:17..3:17) scala/collection/IterableFactory#apply().
+(3:13..3:17) scala/package.List.
+

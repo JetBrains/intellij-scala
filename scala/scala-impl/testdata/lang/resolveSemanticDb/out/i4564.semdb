@@ -1,0 +1,89 @@
+Document tests/pos/i4564.scala
+(1:17..1:20) scala/Int#
+(2:15..2:18) scala/Int#
+(2:27..2:27) _empty_/A.apply(). -> 1:1
+(2:26..2:27) _empty_/A. -> 1:12
+(2:28..2:29) _empty_/A#copy().(x) -> 2:12
+(2:21..2:22) _empty_/A#x. -> 1:14
+(6:39..6:42) scala/Int#
+(9:24..9:27) scala/Int#
+(9:37..9:38) scala/Int#`>`(+3).
+(9:35..9:36) _empty_/ClashNoSig.apply().(x) -> 9:21
+(9:56..9:56) _empty_/ClashNoSig#`<init>`(). -> 16:22
+(9:46..9:56) _empty_/ClashNoSig# -> 16:12
+(9:57..9:58) _empty_/ClashNoSig.apply().(x) -> 9:21
+(9:65..9:68) scala/Predef.`???`().
+(10:18..10:28) _empty_/ClashNoSig# -> 16:12
+(10:32..10:33) _empty_/ClashNoSig.unapply().(x) -> 10:15
+(12:13..12:13) _empty_/ClashNoSig.apply(). -> 9:15
+(12:3..12:13) _empty_/ClashNoSig. -> 8:8
+(13:24..13:24) _empty_/ClashNoSig.unapply(). -> 10:7
+(13:14..13:24) _empty_/ClashNoSig. -> 8:8
+(13:33..13:37) _empty_/ClashNoSig#copy(). -> 17:7
+(13:31..13:32) local0 -> 13:10
+(13:40..13:41) scala/Int#`+`(+4).
+(13:38..13:39) local1 -> 13:25
+(13:44..13:46) _empty_/ClashNoSig#_1(). -> 16:35
+(13:42..13:43) local0 -> 13:10
+(16:35..16:38) scala/Int#
+(17:15..17:18) scala/Int#
+(17:32..17:32) _empty_/ClashNoSig.apply(). -> 9:15
+(17:22..17:32) _empty_/ClashNoSig. -> 8:8
+(17:33..17:34) _empty_/ClashNoSig#copy().(y) -> 17:12
+(21:24..21:27) scala/Int#
+(21:37..21:38) scala/Int#`>`(+3).
+(21:35..21:36) _empty_/Clash.apply().(x) -> 21:21
+(21:51..21:51) _empty_/Clash#`<init>`(). -> 23:17
+(21:46..21:51) _empty_/Clash# -> 23:12
+(21:52..21:53) _empty_/Clash.apply().(x) -> 21:21
+(21:60..21:63) scala/Predef.`???`().
+(23:30..23:33) scala/Int#
+(26:24..26:27) scala/Int#
+(26:30..26:38) _empty_/ClashSig# -> 28:12
+(26:47..26:48) scala/Int#`>`(+3).
+(26:45..26:46) _empty_/ClashSig.apply().(x) -> 26:21
+(26:64..26:64) _empty_/ClashSig#`<init>`(). -> 28:20
+(26:56..26:64) _empty_/ClashSig# -> 28:12
+(26:65..26:66) _empty_/ClashSig.apply().(x) -> 26:21
+(26:73..26:76) scala/Predef.`???`().
+(28:33..28:36) scala/Int#
+(31:24..31:27) scala/Int#
+(31:30..31:43) _empty_/ClashOverload# -> 34:12
+(31:52..31:53) scala/Int#`>`(+3).
+(31:50..31:51) _empty_/ClashOverload.apply().(x) -> 31:21
+(31:74..31:74) _empty_/ClashOverload#`<init>`(). -> 34:25
+(31:61..31:74) _empty_/ClashOverload# -> 34:12
+(31:75..31:76) _empty_/ClashOverload.apply().(x) -> 31:21
+(31:83..31:88) _empty_/ClashOverload.apply(+1). -> 32:7
+(32:16..32:22) scala/Predef.String#
+(32:25..32:38) _empty_/ClashOverload# -> 34:12
+(32:41..32:44) scala/Predef.`???`().
+(34:38..34:41) scala/Int#
+(37:24..37:31) scala/Boolean#
+(37:34..37:44) _empty_/NoClashSig# -> 39:12
+(37:51..37:52) _empty_/NoClashSig.apply(+1).(x) -> 37:21
+(37:64..37:64) _empty_/NoClashSig.apply(). -> 39:1
+(37:54..37:64) _empty_/NoClashSig. -> 36:8
+(37:73..37:76) scala/Predef.`???`().
+(39:35..39:38) scala/Int#
+(43:24..43:31) scala/Boolean#
+(43:34..43:49) _empty_/NoClashOverload# -> 46:12
+(43:56..43:57) _empty_/NoClashOverload.apply(+1).(x) -> 43:21
+(43:74..43:74) _empty_/NoClashOverload.apply(). -> 46:1
+(43:59..43:74) _empty_/NoClashOverload. -> 41:8
+(43:83..43:88) _empty_/NoClashOverload.apply(+2). -> 44:7
+(44:16..44:22) scala/Predef.String#
+(44:25..44:40) _empty_/NoClashOverload# -> 46:12
+(44:43..44:46) scala/Predef.`???`().
+(46:40..46:43) scala/Int#
+(49:16..49:17) _empty_/BaseNCP#[T] -> 48:15
+(49:20..49:31) _empty_/NoClashPoly# -> 53:12
+(49:38..49:41) scala/Predef.`???`().
+(49:54..49:54) _empty_/NoClashPoly.apply(). -> 53:1
+(49:43..49:54) _empty_/NoClashPoly. -> 52:8
+(49:63..49:66) scala/Predef.`???`().
+(52:44..52:44) _empty_/BaseNCP#`<init>`(). -> 48:14
+(52:28..52:35) _empty_/BaseNCP# -> 48:7
+(52:36..52:43) scala/Boolean#
+(53:28..53:31) scala/Int#
+

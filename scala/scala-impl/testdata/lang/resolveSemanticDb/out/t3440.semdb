@@ -1,0 +1,16 @@
+Document tests/pos/t3440.scala
+(3:24..3:27) scala/Any#
+(6:41..6:41) _empty_/test.SampleFormat1#`<init>`(). -> 3:5
+(6:28..6:41) _empty_/test.SampleFormat1# -> 2:18
+(7:29..7:34) scala/sys/package.error().
+(7:25..7:28) scala/sys/
+(9:42..9:42) _empty_/test.SampleFormat1#`<init>`(). -> 3:5
+(9:29..9:42) _empty_/test.SampleFormat1# -> 2:18
+(10:29..10:34) scala/sys/package.error().
+(10:25..10:28) scala/sys/
+(13:12..13:15) scala/Any#
+(14:16..14:20) _empty_/test.Int8. -> 6:15
+(15:16..15:21) _empty_/test.Int16. -> 9:15
+(16:20..16:25) scala/sys/package.error().
+(16:16..16:19) scala/sys/
+

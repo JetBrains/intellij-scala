@@ -1,0 +1,8 @@
+Document tests/pos/anonBridge.scala
+(2:10..2:25) scala/PartialFunction#
+(2:26..2:29) scala/Int#
+(2:31..2:34) scala/Int#
+(2:40..2:40) local0
+(2:48..2:51) scala/Int#
+(2:55..2:56) local1 -> 2:45
+

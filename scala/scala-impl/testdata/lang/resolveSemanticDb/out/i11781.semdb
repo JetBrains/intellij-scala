@@ -1,0 +1,34 @@
+Document tests/pos/i11781.scala
+(2:18..2:19) _empty_/Test.C1#[A] -> 2:12
+(3:16..3:18) _empty_/Test.C1# -> 2:9
+(3:19..3:20) _empty_/Test.D1#[A] -> 3:11
+(4:9..4:9) _empty_/Test.C1#`<init>`(). -> 2:11
+(4:7..4:9) _empty_/Test.D1# -> 3:8
+(6:21..6:22) _empty_/Test.C2#[A] -> 6:15
+(7:16..7:18) _empty_/Test.C2# -> 6:9
+(7:19..7:22) scala/Int#
+(7:24..7:25) _empty_/Test.D2#[A] -> 7:11
+(8:9..8:9) _empty_/Test.C2#`<init>`(). -> 6:11
+(8:7..8:9) _empty_/Test.D2# -> 7:8
+(9:14..9:14) _empty_/Test.C2#`<init>`(). -> 6:11
+(9:7..9:9) _empty_/Test.D2# -> 7:8
+(9:10..9:13) scala/Int#
+(11:14..11:17) scala/Int#
+(11:34..11:34) _empty_/Test.C2#`<init>`(). -> 6:11
+(11:27..11:29) _empty_/Test.D2# -> 7:8
+(11:30..11:33) scala/Int#
+(11:35..11:36) _empty_/Test.E#x. -> 11:11
+(12:14..12:17) scala/Int#
+(12:29..12:29) _empty_/Test.C2#`<init>`(). -> 6:11
+(12:27..12:29) _empty_/Test.D2# -> 7:8
+(12:30..12:31) _empty_/Test.F#x. -> 12:11
+(15:37..15:38) _empty_/Ah.Values#[A] -> 15:31
+(18:32..18:38) _empty_/Ah.Values# -> 15:20
+(18:29..18:31) _empty_/Ah. -> 14:8
+(18:39..18:40) _empty_/Ah.Object#[B] -> 17:16
+(18:42..18:43) _empty_/Ah.Object#Values#[A] -> 18:24
+(20:17..20:23) _empty_/Ah.Object#Values# -> 18:16
+(20:24..20:28) scala/Unit#
+(21:19..21:19) _empty_/Ah.Values#`<init>`(). -> 15:26
+(21:13..21:19) _empty_/Ah.Object#Values# -> 18:16
+

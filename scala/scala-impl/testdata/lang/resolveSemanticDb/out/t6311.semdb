@@ -1,0 +1,17 @@
+Document tests/pos/t6311.scala
+(2:29..2:40) scala/package.Traversable#
+(2:41..2:42) _empty_/A#fooMinimal().[T] -> 2:18
+(2:50..2:56) scala/Predef.String#
+(2:66..2:77) scala/package.Traversable#
+(2:78..2:79) _empty_/A#fooMinimal().[T] -> 2:18
+(2:90..2:94) _empty_/A#fooMinimal().[Coll] -> 2:21
+(2:97..2:108) scala/package.Traversable#
+(2:109..2:110) _empty_/A#fooMinimal().[T] -> 2:18
+(2:133..2:133) java/lang/Exception#`<init>`().
+(2:124..2:133) scala/package.Exception#
+(4:3..4:13) _empty_/A#fooMinimal(). -> 2:7
+(4:22..4:22) scala/collection/IterableFactory#apply().
+(4:18..4:22) scala/package.List.
+(4:31..4:31) scala/collection/IterableFactory#apply().
+(4:27..4:31) scala/package.List.
+

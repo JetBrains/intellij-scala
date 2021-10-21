@@ -1,0 +1,7 @@
+Document tests/pos/i11481.scala
+(1:35..1:36) _empty_/Foo#[F] -> 1:16
+(1:37..1:40) scala/Int#
+(1:44..1:50) java/lang/Object#
+(2:46..2:47) _empty_/Bar#[G] -> 2:22
+(2:48..2:49) local3 -> 2:32
+

@@ -1,0 +1,22 @@
+Document tests/pos/t245.scala
+(5:24..5:29) _empty_/Value# -> 1:7
+(5:32..5:35) scala/Int#
+(7:14..7:17) scala/Int#
+(7:20..7:23) scala/Int#
+(9:22..9:27) _empty_/Value# -> 1:7
+(10:15..10:18) scala/Int#
+(10:22..10:27) _empty_/Value# -> 1:7
+(12:15..12:18) scala/Int#
+(12:22..12:27) _empty_/Value# -> 1:7
+(13:15..13:19) scala/Long#
+(13:22..13:27) _empty_/Value# -> 1:7
+(15:3..15:6) _empty_/Test.foo(). -> 7:7
+(15:7..15:7) _empty_/Test.view(). -> 5:16
+(15:7..15:11) _empty_/Test.fun0(). -> 9:7
+(16:3..16:6) _empty_/Test.foo(). -> 7:7
+(16:7..16:7) _empty_/Test.view(). -> 5:16
+(16:7..16:11) _empty_/Test.fun1(). -> 12:7
+(16:12..16:12) _empty_/Test.view(). -> 5:16
+(16:21..16:21) _empty_/Value#`<init>`(). -> 1:1
+(16:16..16:21) _empty_/Value# -> 1:7
+

@@ -1,0 +1,42 @@
+Document tests/pos/opaques-patmat.scala
+(2:21..2:24) scala/Int#
+(4:18..4:21) scala/Int#
+(4:24..4:27) _empty_/OpaquePatmat.Pos# -> 2:15
+(5:7..5:14) scala/Predef.require().
+(5:17..5:18) scala/Int#`>`(+3).
+(5:15..5:16) _empty_/OpaquePatmat.Pos.mkPos().(i) -> 4:15
+(6:7..6:8) _empty_/OpaquePatmat.Pos.mkPos().(i) -> 4:15
+(8:26..8:27) _empty_/OpaquePatmat.Pos.coerce().[F] -> 8:16
+(8:28..8:31) scala/Int#
+(8:35..8:36) _empty_/OpaquePatmat.Pos.coerce().[F] -> 8:16
+(8:37..8:40) _empty_/OpaquePatmat.Pos# -> 2:15
+(8:44..8:46) _empty_/OpaquePatmat.Pos.coerce().(fa) -> 8:22
+(12:31..12:34) _empty_/OpaquePatmat.Pos# -> 2:15
+(12:44..12:48) _empty_/OpaquePatmat.Expr# -> 11:16
+(12:49..12:52) _empty_/OpaquePatmat.Pos# -> 2:15
+(13:31..13:34) scala/Int#
+(13:44..13:48) _empty_/OpaquePatmat.Expr# -> 11:16
+(13:49..13:52) scala/Int#
+(14:31..14:37) scala/Predef.String#
+(14:47..14:51) _empty_/OpaquePatmat.Expr# -> 11:16
+(14:52..14:58) scala/Predef.String#
+(16:15..16:19) _empty_/OpaquePatmat.Expr# -> 11:16
+(16:20..16:23) _empty_/OpaquePatmat.Pos# -> 2:15
+(16:27..16:30) _empty_/OpaquePatmat.Pos# -> 2:15
+(16:33..16:34) _empty_/OpaquePatmat.eval().(e) -> 16:12
+(17:17..17:17) _empty_/OpaquePatmat.PosExpr.unapply().
+(17:10..17:17) _empty_/OpaquePatmat.PosExpr. -> 12:20
+(17:24..17:25) local0 -> 17:18
+(20:17..20:17) _empty_/OpaquePatmat.IntExpr.unapply().
+(20:10..20:17) _empty_/OpaquePatmat.IntExpr. -> 13:20
+(20:28..20:33) _empty_/OpaquePatmat.Pos.mkPos(). -> 4:9
+(20:24..20:27) _empty_/OpaquePatmat.Pos. -> 3:10
+(21:17..21:17) _empty_/OpaquePatmat.StrExpr.unapply().
+(21:10..21:17) _empty_/OpaquePatmat.StrExpr. -> 14:20
+(21:24..21:27) scala/Predef.`???`().
+(24:3..24:7) _empty_/OpaquePatmat.eval(). -> 16:7
+(24:12..24:18) _empty_/OpaquePatmat.Pos.coerce(). -> 8:9
+(24:8..24:11) _empty_/OpaquePatmat.Pos. -> 3:10
+(24:32..24:32) _empty_/OpaquePatmat.IntExpr.apply(). -> 13:3
+(24:25..24:32) _empty_/OpaquePatmat.IntExpr. -> 13:20
+

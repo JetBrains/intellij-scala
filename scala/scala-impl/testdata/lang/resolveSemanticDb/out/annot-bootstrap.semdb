@@ -1,0 +1,8 @@
+Document tests/pos/annot-bootstrap.scala
+(1:15..1:25) scala/annotation/
+(1:9..1:14) scala/
+(5:19..5:22) scala/Int#
+(8:56..8:72) scala/annotation/StaticAnnotation#
+(8:45..8:55) scala/annotation/
+(8:39..8:44) scala/
+

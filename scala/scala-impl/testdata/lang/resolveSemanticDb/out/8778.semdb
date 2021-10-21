@@ -1,0 +1,42 @@
+Document tests/pos/8778.scala
+(4:15..4:16) _empty_/Test.M#[X] -> 4:10
+(5:10..5:13) _empty_/Inv# -> 1:7
+(5:18..5:19) scala/`&`#
+(5:14..5:17) scala/Int#
+(5:20..5:26) scala/Predef.String#
+(5:31..5:34) scala/Int#
+(8:10..8:13) scala/Any#
+(8:17..8:23) scala/Predef.String#
+(11:15..11:16) _empty_/Test.m().[X] -> 11:9
+(11:19..11:20) _empty_/Test.M# -> 4:8
+(11:21..11:22) _empty_/Test.m().[X] -> 11:9
+(11:26..11:27) _empty_/Test.m().(x) -> 11:12
+(12:13..12:16) _empty_/Inv# -> 1:7
+(12:21..12:22) scala/`&`#
+(12:17..12:20) scala/Int#
+(12:23..12:29) scala/Predef.String#
+(13:13..13:16) scala/Any#
+(17:24..17:27) scala/`=:=`#
+(17:11..17:14) _empty_/Inv# -> 1:7
+(17:15..17:22) scala/Nothing#
+(17:28..17:31) _empty_/Inv# -> 1:7
+(17:36..17:37) scala/`&`#
+(17:32..17:35) scala/Int#
+(17:38..17:44) scala/Predef.String#
+(17:74..17:86) scala/Any#asInstanceOf().
+(17:49..17:59) scala/Predef.implicitly().
+(17:64..17:67) scala/`=:=`#
+(17:60..17:63) scala/Int#
+(17:68..17:71) scala/Int#
+(17:72..17:72) scala/`<:<`.refl().
+(19:13..19:16) _empty_/Inv# -> 1:7
+(19:17..19:24) scala/Nothing#
+(19:32..19:35) _empty_/Inv# -> 1:7
+(19:36..19:43) scala/Nothing#
+(20:3..20:4) _empty_/Test.m(). -> 11:7
+(20:5..20:9) _empty_/Test.invN. -> 19:7
+(21:3..21:4) _empty_/Test.m(). -> 11:7
+(21:7..21:7) scala/`=:=`#apply().
+(21:5..21:7) _empty_/Test.ev. -> 17:7
+(21:8..21:12) _empty_/Test.invN. -> 19:7
+

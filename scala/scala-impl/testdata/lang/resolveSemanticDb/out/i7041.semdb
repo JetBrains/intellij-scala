@@ -1,0 +1,27 @@
+Document tests/pos/i7041.scala
+(1:27..1:42) scala/util/control/NonLocalReturns.
+(1:19..1:26) scala/util/control/
+(1:14..1:18) scala/util/
+(1:8..1:13) scala/
+(3:20..3:29) scala/package.Throwable#
+(3:38..3:39) _empty_/i7041$package.rescue().[T] -> 3:12
+(4:32..4:47) scala/PartialFunction#
+(4:48..4:49) _empty_/i7041$package.rescue().[E] -> 3:15
+(4:51..4:52) _empty_/i7041$package.rescue().[T] -> 3:12
+(5:9..5:11) _empty_/i7041$package.rescue().(op) -> 3:31
+(7:16..7:31) scala/util/control/NonLocalReturns.ReturnThrowable#
+(7:44..7:46) local0 -> 7:12
+(8:16..8:17) _empty_/i7041$package.rescue().[E] -> 3:15
+(9:22..9:33) scala/PartialFunction#isDefinedAt().
+(9:13..9:21) _empty_/i7041$package.rescue().(fallback) -> 4:22
+(9:34..9:36) local1 -> 8:12
+(9:48..9:48) scala/Function1#apply().
+(9:40..9:48) _empty_/i7041$package.rescue().(fallback) -> 4:22
+(9:49..9:51) local1 -> 8:12
+(9:64..9:66) local1 -> 8:12
+(12:11..12:15) scala/Unit#
+(13:9..13:15) _empty_/i7041$package.rescue(). -> 4:14
+(13:5..13:6) scala/Int#`/`(+3).
+(13:18..13:18) local2
+(13:26..13:45) java/lang/ArithmeticException#
+

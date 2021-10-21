@@ -1,0 +1,4 @@
+Document tests/pos/t1625b.scala
+(2:14..2:20) scala/Predef.String#
+(2:24..2:27) scala/Int#
+

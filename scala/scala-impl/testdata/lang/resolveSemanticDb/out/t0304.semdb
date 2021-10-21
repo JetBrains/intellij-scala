@@ -1,0 +1,6 @@
+Document tests/pos/t0304.scala
+(3:13..3:14) scala/Int#`-`(+3).
+(4:15..4:16) scala/Int#`+`(+4).
+(4:12..4:14) _empty_/O.f1(). -> 2:7
+(4:17..4:19) _empty_/O.f2(). -> 3:7
+

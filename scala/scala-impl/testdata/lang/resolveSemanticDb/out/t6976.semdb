@@ -1,0 +1,30 @@
+Document tests/pos/t6976/ImplicitBug_2.scala
+(1:23..1:27) _empty_/Exts# -> 7:7
+(4:29..4:32) scala/App#
+(4:38..4:42) _empty_/Exts# -> 7:7
+(6:3..6:10) scala/Predef.println(+1).
+(6:13..6:16) _empty_/Exts.AnyExts#moo(). -> 3:9
+(6:11..6:11) _empty_/Exts#AnyExts(). -> 9:16
+
+Document tests/pos/t6976/Exts_1.scala
+(2:36..2:37) _empty_/Exts.AnyExts#[T] -> 2:26
+(2:53..2:53) scala/AnyVal#`<init>`().
+(2:47..2:53) scala/AnyVal#
+(8:19..8:38) scala/language.implicitConversions.
+(8:10..8:18) scala/language.
+(9:30..9:31) _empty_/Exts#AnyExts().[T] -> 9:24
+(9:39..9:46) _empty_/Exts.AnyExts# -> 2:18
+(9:34..9:38) _empty_/Exts. -> 1:8
+(9:47..9:48) _empty_/Exts#AnyExts().[T] -> 9:24
+(9:57..9:64) _empty_/Exts.AnyExts(). -> 2:18
+(9:52..9:56) _empty_/Exts. -> 1:8
+(9:65..9:66) _empty_/Exts#AnyExts().(o) -> 9:27
+
+Document tests/pos/t6976/ImplicitBug_1.scala
+(21:23..21:27) _empty_/Exts# -> 7:7
+(23:29..23:32) scala/App#
+(23:38..23:45) _empty_/Support# -> 1:7
+(26:3..26:10) scala/Predef.println(+1).
+(26:13..26:16) _empty_/Exts.AnyExts#moo(). -> 3:9
+(26:11..26:11) _empty_/Exts#AnyExts(). -> 9:16
+

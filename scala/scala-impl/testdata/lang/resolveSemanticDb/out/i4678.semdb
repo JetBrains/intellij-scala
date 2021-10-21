@@ -1,0 +1,18 @@
+Document tests/pos/i4678.scala
+(2:10..2:13) scala/Int#
+(5:39..5:49) scala/annotation/Annotation#
+(5:28..5:38) scala/annotation/
+(5:22..5:27) scala/
+(6:39..6:49) scala/annotation/Annotation#
+(6:28..6:38) scala/annotation/
+(6:22..6:27) scala/
+(7:39..7:49) scala/annotation/Annotation#
+(7:28..7:38) scala/annotation/
+(7:22..7:27) scala/
+(8:39..8:49) scala/annotation/Annotation#
+(8:28..8:38) scala/annotation/
+(8:22..8:27) scala/
+(9:39..9:49) scala/annotation/Annotation#
+(9:28..9:38) scala/annotation/
+(9:22..9:27) scala/
+

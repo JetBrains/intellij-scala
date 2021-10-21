@@ -1,0 +1,7 @@
+Document tests/pos/synthetics.scala
+(1:17..1:20) scala/Int#
+(1:29..1:35) scala/Predef.String#
+(8:32..8:35) scala/Int#
+(12:29..12:29) _empty_/Top#`<init>`(). -> 8:3
+(12:26..12:29) _empty_/Top# -> 6:7
+

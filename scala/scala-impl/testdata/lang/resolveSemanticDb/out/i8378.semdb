@@ -1,0 +1,28 @@
+Document tests/pos/i8378.scala
+(10:35..10:37) _empty_/ZLayer.fromServices().[A0] -> 10:20
+(10:39..10:41) _empty_/ZLayer.fromServices().[A1] -> 10:24
+(10:46..10:47) _empty_/ZLayer.fromServices().[B] -> 10:28
+(10:50..10:56) _empty_/ZLayer# -> 7:7
+(10:57..10:60) _empty_/Has# -> 1:7
+(10:61..10:63) _empty_/ZLayer.fromServices().[A0] -> 10:20
+(10:70..10:73) _empty_/Has# -> 1:7
+(10:74..10:76) _empty_/ZLayer.fromServices().[A1] -> 10:24
+(10:79..10:86) scala/Nothing#
+(10:88..10:91) _empty_/Has# -> 1:7
+(10:92..10:93) _empty_/ZLayer.fromServices().[B] -> 10:28
+(11:5..11:8) scala/Predef.`???`().
+(14:11..14:17) _empty_/ZLayer# -> 7:7
+(14:25..14:26) scala/`&`#
+(14:18..14:21) _empty_/Has# -> 1:7
+(14:22..14:23) _empty_/A# -> 3:7
+(14:27..14:30) _empty_/Has# -> 1:7
+(14:31..14:32) _empty_/B# -> 4:7
+(14:35..14:42) scala/Nothing#
+(14:44..14:47) _empty_/Has# -> 1:7
+(14:48..14:49) _empty_/C# -> 5:7
+(15:10..15:22) _empty_/ZLayer.fromServices(). -> 10:7
+(15:3..15:9) _empty_/ZLayer. -> 9:8
+(15:29..15:30) _empty_/A# -> 3:7
+(15:35..15:36) _empty_/B# -> 4:7
+(16:9..16:10) _empty_/C# -> 5:7
+

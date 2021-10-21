@@ -1,0 +1,23 @@
+Document tests/pos/i8449.scala
+(2:30..2:33) scala/compiletime/ops/int.
+(2:26..2:29) scala/compiletime/ops/
+(2:14..2:25) scala/compiletime/
+(2:8..2:13) scala/
+(5:17..5:20) scala/Int#
+(5:25..5:28) scala/Int#
+(5:31..5:32) _empty_/Test.Fib#[N] -> 5:12
+(8:26..8:27) scala/compiletime/ops/int.`+`#
+(8:15..8:18) _empty_/Test.Fib# -> 5:8
+(8:21..8:22) scala/compiletime/ops/int.`-`#
+(8:19..8:20) _empty_/Test.Fib#[N] -> 5:12
+(8:28..8:31) _empty_/Test.Fib# -> 5:8
+(8:34..8:35) scala/compiletime/ops/int.`-`#
+(8:32..8:33) _empty_/Test.Fib#[N] -> 5:12
+(10:13..10:16) _empty_/Test.Fib# -> 5:8
+(11:13..11:16) _empty_/Test.Fib# -> 5:8
+(12:13..12:16) _empty_/Test.Fib# -> 5:8
+(13:13..13:16) _empty_/Test.Fib# -> 5:8
+(14:13..14:16) _empty_/Test.Fib# -> 5:8
+(15:13..15:16) _empty_/Test.Fib# -> 5:8
+(16:13..16:16) _empty_/Test.Fib# -> 5:8
+

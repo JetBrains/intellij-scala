@@ -1,0 +1,82 @@
+Document tests/pos/depmet_implicit_norm_ret.scala
+(2:14..2:20) scala/AnyRef#
+(2:35..2:36) _empty_/Test.`?`().[S] -> 2:9
+(2:40..2:41) _empty_/Test.`?`().(w) -> 2:31
+(2:49..2:50) _empty_/Test.`?`().(w) -> 2:31
+(6:39..6:46) _empty_/Test.ZipWith# -> 22:9
+(6:34..6:38) _empty_/Test. -> 1:8
+(6:47..6:48) _empty_/Test.ZipWithDefault#ZeroZipWith().[S] -> 6:30
+(6:59..6:65) scala/package.Stream#
+(6:66..6:67) _empty_/Test.ZipWithDefault#ZeroZipWith().[S] -> 6:30
+(6:76..6:83) _empty_/Test.ZipWith# -> 22:9
+(6:84..6:85) _empty_/Test.ZipWithDefault#ZeroZipWith().[S] -> 6:30
+(7:16..7:22) scala/package.Stream#
+(7:23..7:24) _empty_/Test.ZipWithDefault#ZeroZipWith().[S] -> 6:30
+(11:40..11:40) _empty_/Test.ZipWithDefault#`<init>`(). -> 6:5
+(11:26..11:40) _empty_/Test.ZipWithDefault# -> 5:9
+(13:22..13:23) _empty_/Test.ZipWith.apply().[S] -> 13:15
+(13:38..13:45) _empty_/Test.ZipWith# -> 22:9
+(13:46..13:47) _empty_/Test.ZipWith.apply().[S] -> 13:15
+(13:54..13:55) _empty_/Test.ZipWith#T# -> 23:10
+(13:51..13:53) _empty_/Test.ZipWith.apply().(zw) -> 13:34
+(13:68..13:68) scala/Function1#apply().
+(13:61..13:68) _empty_/Test.ZipWith#zipWith(). -> 24:9
+(13:58..13:60) _empty_/Test.ZipWith.apply().(zw) -> 13:34
+(13:69..13:70) _empty_/Test.ZipWith.apply().(s) -> 13:18
+(15:52..15:59) _empty_/Test.ZipWith# -> 22:9
+(15:60..15:61) _empty_/Test.ZipWith.SuccZipWith().[R] -> 15:32
+(15:70..15:77) _empty_/Test.ZipWith# -> 22:9
+(15:65..15:69) _empty_/Test. -> 1:8
+(15:78..15:79) _empty_/Test.ZipWith.SuccZipWith().[S] -> 15:30
+(15:83..15:84) _empty_/Test.ZipWith.SuccZipWith().[R] -> 15:32
+(15:95..15:101) scala/package.Stream#
+(15:102..15:103) _empty_/Test.ZipWith.SuccZipWith().[S] -> 15:30
+(15:114..15:115) _empty_/Test.ZipWith#T# -> 23:10
+(15:108..15:113) _empty_/Test.ZipWith.SuccZipWith().(zWith) -> 15:44
+(15:123..15:130) _empty_/Test.ZipWith# -> 22:9
+(15:131..15:132) _empty_/Test.ZipWith.SuccZipWith().[S] -> 15:30
+(15:136..15:137) _empty_/Test.ZipWith.SuccZipWith().[R] -> 15:32
+(16:16..16:22) scala/package.Stream#
+(16:23..16:24) _empty_/Test.ZipWith.SuccZipWith().[S] -> 15:30
+(16:35..16:36) _empty_/Test.ZipWith#T# -> 23:10
+(16:29..16:34) _empty_/Test.ZipWith.SuccZipWith().(zWith) -> 15:44
+(20:10..20:17) _empty_/Test.ZipWith. -> 11:10
+(24:19..24:20) _empty_/Test.ZipWith#[S] -> 22:17
+(24:24..24:25) _empty_/Test.ZipWith#T# -> 23:10
+(24:32..24:37) scala/sys/package.error().
+(24:28..24:31) scala/sys/
+(29:21..29:22) _empty_/Test.map1().[A] -> 29:12
+(29:26..29:27) _empty_/Test.map1().[B] -> 29:14
+(29:38..29:38) _empty_/Test.ZipWith.apply(). -> 13:9
+(29:31..29:38) _empty_/Test.ZipWith. -> 11:10
+(29:39..29:40) _empty_/Test.map1().(f) -> 29:17
+(29:42..29:53) _empty_/Test.ZipWith.SuccZipWith(). -> 15:18
+(29:53..29:53) _empty_/Test.ZipWithDefault#ZeroZipWith(). -> 6:18
+(30:13..30:19) scala/package.Stream#
+(30:20..30:23) scala/Int#
+(30:70..30:75) scala/Function1#apply().
+(30:27..30:31) _empty_/Test.map1(). -> 29:7
+(30:32..30:38) scala/Predef.String#
+(30:40..30:43) scala/Int#
+(30:49..30:55) scala/Predef.String#
+(30:62..30:68) java/lang/String#length().
+(30:60..30:61) local6 -> 30:46
+(30:82..30:82) scala/collection/IterableFactory#apply().
+(30:76..30:82) scala/package.Stream.
+(32:21..32:22) _empty_/Test.map2().[A] -> 32:12
+(32:26..32:27) _empty_/Test.map2().[B] -> 32:14
+(32:38..32:38) _empty_/Test.ZipWith.apply(). -> 13:9
+(32:31..32:38) _empty_/Test.ZipWith. -> 11:10
+(32:39..32:40) _empty_/Test.map2().(f) -> 32:17
+(32:41..32:41) _empty_/Test.ZipWith.SuccZipWith(). -> 15:18
+(32:41..32:41) _empty_/Test.ZipWithDefault#ZeroZipWith(). -> 6:18
+(33:13..33:19) scala/package.Stream#
+(33:20..33:23) scala/Int#
+(33:57..33:62) scala/Function1#apply().
+(33:27..33:31) _empty_/Test.map2(). -> 32:7
+(33:36..33:42) scala/Predef.String#
+(33:49..33:55) java/lang/String#length().
+(33:47..33:48) local7 -> 33:33
+(33:69..33:69) scala/collection/IterableFactory#apply().
+(33:63..33:69) scala/package.Stream.
+

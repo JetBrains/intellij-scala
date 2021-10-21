@@ -1,0 +1,55 @@
+Document tests/pos/depfuntype.scala
+(3:28..3:29) _empty_/Test.C#M# -> 3:18
+(5:17..5:18) _empty_/Test.C# -> 3:9
+(5:25..5:26) _empty_/Test.C#M# -> 3:18
+(5:23..5:24) local1 -> 5:14
+(6:16..6:18) _empty_/Test.DF# -> 5:8
+(6:25..6:26) _empty_/Test.C# -> 3:9
+(6:33..6:34) _empty_/Test.C#m. -> 3:25
+(6:31..6:32) local2 -> 6:22
+(7:15..7:16) _empty_/Test.C# -> 3:9
+(7:28..7:31) scala/Int#
+(8:18..8:18) scala/Function1#apply().
+(8:11..8:18) _empty_/Test.depfun1. -> 6:7
+(8:19..8:20) _empty_/Test.c. -> 7:7
+(9:11..9:14) scala/Int#
+(9:17..9:18) _empty_/Test.y. -> 8:7
+(11:18..11:19) _empty_/Test.C# -> 3:9
+(11:25..11:26) _empty_/Test.C#m. -> 3:25
+(11:23..11:24) _empty_/Test.depmeth().(x) -> 11:15
+(12:17..12:24) _empty_/Test.depmeth(). -> 11:7
+(12:17..12:17) local6
+(13:16..13:18) _empty_/Test.DF# -> 5:8
+(13:21..13:28) _empty_/Test.depfun2. -> 12:7
+(15:10..15:11) _empty_/Test.C# -> 3:9
+(15:14..15:15) _empty_/Test.c. -> 7:7
+(16:18..16:18) scala/Function1#apply().
+(16:11..16:18) _empty_/Test.depfun3. -> 13:7
+(16:19..16:20) _empty_/Test.d. -> 15:7
+(17:13..17:14) _empty_/Test.C#M# -> 3:18
+(17:11..17:12) _empty_/Test.d. -> 15:7
+(17:17..17:18) _empty_/Test.z. -> 16:7
+(20:47..20:48) _empty_/Test.implicitly().[T] -> 20:31
+(20:51..20:53) _empty_/Test.implicitly().(ev) -> 20:43
+(20:61..20:63) _empty_/Test.implicitly().(ev) -> 20:43
+(22:18..22:19) _empty_/Test.C# -> 3:9
+(22:27..22:28) _empty_/Test.C#M# -> 3:18
+(22:25..22:26) local8 -> 22:15
+(24:20..24:21) _empty_/Test.C# -> 3:9
+(24:24..24:27) scala/Predef.`???`().
+(26:13..26:16) _empty_/Test.IDF# -> 22:8
+(26:33..26:34) _empty_/Test.C#m. -> 3:25
+(26:19..26:29) _empty_/Test.implicitly(). -> 20:20
+(26:30..26:31) _empty_/Test.C# -> 3:9
+(28:15..28:15) scala/ContextFunction1#apply().
+(28:11..28:15) _empty_/Test.ifun. -> 26:7
+(28:22..28:23) _empty_/Test.c. -> 7:7
+(29:11..29:14) scala/Int#
+(29:17..29:18) _empty_/Test.u. -> 28:7
+(31:15..31:15) scala/ContextFunction1#apply().
+(31:11..31:15) _empty_/Test.ifun. -> 26:7
+(31:22..31:23) _empty_/Test.d. -> 15:7
+(32:13..32:14) _empty_/Test.C#M# -> 3:18
+(32:11..32:12) _empty_/Test.d. -> 15:7
+(32:17..32:18) _empty_/Test.v. -> 31:7
+

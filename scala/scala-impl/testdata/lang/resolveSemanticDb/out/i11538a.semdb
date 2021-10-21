@@ -1,0 +1,22 @@
+Document tests/pos/i11538a.scala
+(4:18..4:19) a/Printer#[A] -> 3:17
+(4:22..4:26) scala/Unit#
+(6:9..6:16) a/Printer# -> 3:9
+(6:17..6:23) scala/Predef.String#
+(7:18..7:24) scala/Predef.String#
+(7:28..7:35) scala/Predef.println(+1).
+(7:36..7:37) a/i11538a$package.given_Printer_String.print().(s) -> 7:15
+(11:10..11:11) a/ -> 1:9
+(14:31..14:36) scala/compiletime/package$package.error().
+(14:38..14:48) scala/compiletime/package$package.summonFrom().
+(14:18..14:29) scala/compiletime/
+(14:12..14:17) scala/
+(18:20..18:27) a/Printer# -> 3:9
+(18:28..18:34) scala/Predef.String#
+(19:19..19:24) scala/compiletime/package$package.error().
+(22:20..22:26) scala/Predef.summon().
+(22:27..22:34) a/Printer# -> 3:9
+(22:35..22:41) scala/Predef.String#
+(22:43..22:43) a/i11538a$package.given_Printer_String. -> 6:9
+(23:24..23:43) b/test.summonStringPrinter(). -> 16:16
+

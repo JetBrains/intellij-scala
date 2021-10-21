@@ -1,0 +1,56 @@
+Document tests/pos/mirror-implicit-scope.scala
+(1:14..1:22) scala/deriving/
+(1:8..1:13) scala/
+(5:23..5:29) scala/deriving/Mirror#
+(5:45..5:47) _empty_/Test.K0. -> 4:10
+(5:75..5:76) _empty_/Test.K0.Generic#[T] -> 5:18
+(6:21..6:28) scala/Product#
+(6:35..6:42) _empty_/Test.K0.Generic# -> 5:10
+(6:43..6:44) _empty_/Test.K0.toRepr().[T] -> 6:16
+(7:29..7:30) _empty_/Test.K0.toRepr().[T] -> 6:16
+(7:33..7:36) _empty_/Test.K0.toRepr().(gen) -> 6:30
+(7:78..7:90) scala/Any#asInstanceOf().
+(7:63..7:74) scala/Tuple.fromProduct().
+(7:57..7:62) scala/Tuple.
+(7:75..7:76) _empty_/Test.K0.toRepr().(t) -> 7:26
+(12:26..12:32) scala/deriving/Mirror#
+(12:48..12:50) _empty_/Test.K1. -> 11:10
+(12:86..12:87) _empty_/Test.K1.Generic#[F] -> 12:18
+(12:88..12:89) local5 -> 12:79
+(13:41..13:48) _empty_/Test.K1.Generic# -> 12:10
+(13:49..13:50) _empty_/Test.K1.toRepr().[F] -> 13:16
+(14:29..14:30) _empty_/Test.K1.toRepr().[F] -> 13:16
+(14:31..14:32) _empty_/Test.K1.toRepr().[T] -> 13:33
+(14:36..14:39) _empty_/Test.K1.toRepr().(gen) -> 13:36
+(14:58..14:59) _empty_/Test.K1.toRepr().[T] -> 13:33
+(14:84..14:96) scala/Any#asInstanceOf().
+(14:69..14:80) scala/Tuple.fromProduct().
+(14:63..14:68) scala/Tuple.
+(14:81..14:82) _empty_/Test.K1.toRepr().(t) -> 14:26
+(18:21..18:24) scala/Int#
+(18:29..18:35) scala/Predef.String#
+(18:40..18:47) scala/Boolean#
+(19:12..19:18) scala/Predef.summon().
+(19:22..19:29) _empty_/Test.K0.Generic# -> 5:10
+(19:19..19:21) _empty_/Test.K0. -> 4:10
+(19:30..19:33) _empty_/Test.ISB# -> 18:14
+(20:12..20:12) _empty_/Test.K0.toRepr(). -> 7:18
+(20:12..20:14) _empty_/Test.v0. -> 19:7
+(20:25..20:25) _empty_/Test.ISB.apply(). -> 18:3
+(20:22..20:25) _empty_/Test.ISB. -> 18:14
+(21:12..21:15) scala/Int#
+(21:17..21:23) scala/Predef.String#
+(21:25..21:32) scala/Boolean#
+(21:36..21:38) _empty_/Test.v1. -> 20:7
+(23:24..23:25) _empty_/Test.Box#[T] -> 23:18
+(24:12..24:18) scala/Predef.summon().
+(24:22..24:29) _empty_/Test.K1.Generic# -> 12:10
+(24:19..24:21) _empty_/Test.K1. -> 11:10
+(25:12..25:12) _empty_/Test.K1.toRepr(). -> 14:18
+(25:12..25:14) _empty_/Test.v3. -> 24:7
+(25:25..25:25) _empty_/Test.Box.apply(). -> 23:3
+(25:22..25:25) _empty_/Test.Box. -> 23:14
+(26:11..26:17) scala/Tuple1#
+(26:18..26:21) scala/Int#
+(26:25..26:27) _empty_/Test.v4. -> 25:7
+

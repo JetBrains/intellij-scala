@@ -1,0 +1,8 @@
+Document tests/pos/i5413-a.scala
+(5:29..5:30) _empty_/ImplicitChainTest.ipl().[A] -> 5:11
+(5:34..5:36) _empty_/Or# -> 1:7
+(5:37..5:38) _empty_/ImplicitChainTest.ipl().[A] -> 5:11
+(5:42..5:43) _empty_/C# -> 2:7
+(6:3..6:6) _empty_/ImplicitChainTest.ipl(). -> 5:7
+(6:6..6:6) scala/Predef.$conforms().
+

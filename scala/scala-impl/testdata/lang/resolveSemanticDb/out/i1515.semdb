@@ -1,0 +1,21 @@
+Document tests/pos/i1515.scala
+(3:29..3:30) _empty_/Case#[T] -> 3:23
+(3:40..3:45) _empty_/Trait# -> 1:14
+(3:46..3:47) _empty_/Case#[T] -> 3:23
+(6:18..6:23) scala/Array#
+(6:24..6:30) scala/Predef.String#
+(6:34..6:38) scala/Unit#
+(8:17..8:22) _empty_/Trait# -> 1:14
+(8:23..8:24) local1 -> 8:11
+(8:28..8:32) scala/Unit#
+(9:7..9:8) local2 -> 8:14
+(10:18..10:18) _empty_/Case.unapply(). -> 3:1
+(10:14..10:18) _empty_/Case. -> 3:18
+(10:25..10:32) scala/Predef.println(+1).
+(10:37..10:37) scala/Some.apply().
+(10:33..10:37) scala/Some.
+(10:38..10:39) local3 -> 10:19
+(13:5..13:6) local0 -> 8:9
+(13:11..13:11) _empty_/Case.apply(). -> 3:1
+(13:7..13:11) _empty_/Case. -> 3:18
+

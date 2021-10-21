@@ -1,0 +1,9 @@
+Document tests/pos/i518.scala
+(1:29..1:32) scala/Int#
+(1:48..1:48) scala/AnyVal#`<init>`().
+(1:42..1:48) scala/AnyVal#
+(4:10..4:13) scala/Int#
+(4:29..4:37) scala/Any#hashCode().
+(4:25..4:25) _empty_/Meter#`<init>`(). -> 1:12
+(4:20..4:25) _empty_/Meter# -> 1:7
+

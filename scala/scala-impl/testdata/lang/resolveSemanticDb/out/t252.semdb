@@ -1,0 +1,48 @@
+Document tests/pos/t252.scala
+(4:22..4:28) _empty_/Module# -> 1:16
+(5:15..5:25) _empty_/T#moduleType# -> 4:8
+(9:16..9:22) _empty_/Module# -> 1:16
+(10:16..10:17) _empty_/T# -> 3:16
+(10:39..10:44) _empty_/Base#mType# -> 9:8
+(13:36..13:36) _empty_/Base#`<init>`(). -> 9:3
+(13:32..13:36) _empty_/Base# -> 8:16
+(15:10..15:11) _empty_/T# -> 3:16
+(15:14..15:17) scala/Predef.`???`().
+(18:22..18:23) _empty_/Derived#cont1().[X] -> 18:13
+(18:28..18:29) _empty_/Derived#cont1().[X] -> 18:13
+(18:33..18:34) _empty_/Derived#cont1().[Y] -> 18:16
+(18:37..18:38) _empty_/Derived#cont1().[Y] -> 18:16
+(18:42..18:42) scala/Function1#apply().
+(18:41..18:42) _empty_/Derived#cont1().(f) -> 18:25
+(18:43..18:44) _empty_/Derived#cont1().(x) -> 18:19
+(19:3..19:8) _empty_/Derived#cont1(). -> 18:7
+(19:9..19:10) _empty_/Derived#t. -> 15:7
+(19:19..19:25) _empty_/T#module. -> 5:7
+(19:17..19:18) local1 -> 19:12
+(22:22..22:23) _empty_/Derived#cont2().[X] -> 22:13
+(22:28..22:29) _empty_/Derived#cont2().[X] -> 22:13
+(22:33..22:36) scala/Int#
+(22:40..22:41) _empty_/Derived#cont2().[Y] -> 22:16
+(22:44..22:45) _empty_/Derived#cont2().[Y] -> 22:16
+(22:52..22:52) scala/Function1#apply().
+(22:49..22:49) scala/Function1#apply().
+(22:48..22:49) _empty_/Derived#cont2().(f) -> 22:25
+(22:50..22:51) _empty_/Derived#cont2().(x) -> 22:19
+(23:3..23:8) _empty_/Derived#cont2(). -> 22:7
+(23:9..23:10) _empty_/Derived#t. -> 15:7
+(23:24..23:30) _empty_/T#module. -> 5:7
+(23:22..23:23) local2 -> 23:12
+(26:17..26:21) scala/package.List#
+(26:22..26:27) _empty_/Base#tType# -> 10:8
+(26:31..26:35) scala/Unit#
+(27:35..27:35) scala/collection/immutable/List#foreach().
+(27:21..27:21) scala/collection/immutable/List#map().
+(27:15..27:21) _empty_/Derived#f().(inputs) -> 26:9
+(27:29..27:35) _empty_/T#module. -> 5:7
+(27:27..27:28) local4 -> 27:10
+(27:10..27:10) scala/Tuple2.apply().
+(27:10..27:11) local4 -> 27:10
+(27:23..27:24) local5 -> 27:23
+(27:10..27:10) local6
+(27:10..27:10) scala/Tuple2.unapply().
+

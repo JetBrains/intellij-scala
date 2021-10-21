@@ -1,0 +1,21 @@
+Document tests/pos/t2635.scala
+(5:14..5:19) scala/Predef.Class#
+(5:25..5:29) _empty_/Base# -> 1:16
+(5:33..5:37) scala/Unit#
+(8:18..8:23) scala/Array#
+(8:24..8:30) scala/Predef.String#
+(8:34..8:38) scala/Unit#
+(10:13..10:19) scala/Option#
+(10:20..10:25) scala/Predef.Class#
+(10:31..10:35) _empty_/Base# -> 1:16
+(10:44..10:44) scala/Some.apply().
+(10:40..10:44) scala/Some.
+(10:45..10:52) scala/Predef.classOf().
+(10:53..10:57) _empty_/Base# -> 1:16
+(11:5..11:7) local0 -> 10:9
+(12:16..12:16) scala/Some.unapply().
+(12:12..12:16) scala/Some.
+(12:23..12:26) _empty_/Test.run(). -> 5:7
+(12:27..12:28) local1 -> 12:17
+(13:12..13:16) scala/None.
+

@@ -1,0 +1,5 @@
+Document tests/pos/t530.scala
+(21:19..21:25) scala/AnyRef#
+(23:15..23:23) local2
+(26:5..26:14) local4
+

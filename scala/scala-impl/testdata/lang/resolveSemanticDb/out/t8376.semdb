@@ -1,0 +1,10 @@
+Document tests/pos/t8376/Test.scala
+(2:13..2:19) _empty_/BindingsX#select().
+(2:3..2:12) _empty_/BindingsX#
+(4:13..4:20) _empty_/BindingsY.select1(). -> 8:7
+(4:3..4:12) _empty_/BindingsY. -> 7:8
+(8:21..8:27) scala/Predef.String#
+(8:36..8:42) scala/Predef.String#
+(9:21..9:24) scala/Any#
+(9:33..9:39) scala/Predef.String#
+

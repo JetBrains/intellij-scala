@@ -1,0 +1,7 @@
+Document tests/pos/t7475a.scala
+(2:14..2:17) scala/Any#
+(5:22..5:25) scala/Any#
+(9:11..9:26) _empty_/ConcretePrivate# -> 4:7
+(9:32..9:46) _empty_/AbstractPublic# -> 1:7
+(10:20..10:23) scala/Any#
+

@@ -1,0 +1,24 @@
+Document tests/pos/i12140/Trait.scala
+(4:8..4:14) scala/quoted/
+(7:21..7:24) scala/Int#
+(11:19..11:24) example/Trait# -> 6:7
+(11:30..11:30) scala/quoted/runtime/Expr.splice().
+(11:30..11:37) example/Trait.getImpl(). -> 13:7
+(13:21..13:27) scala/quoted/Quotes#
+(13:30..13:34) scala/quoted/Expr#
+(13:35..13:40) example/Trait# -> 6:7
+(13:59..13:59) scala/ContextFunction1#apply().
+(13:47..13:47) scala/quoted/runtime/Expr.quote().
+(13:51..13:56) example/Trait# -> 6:7
+(13:44..13:44) example/Trait.getImpl().(x$1) -> 13:21
+
+Document tests/pos/i12140/Test.scala
+(1:2..1:6) scala/main#
+(1:18..1:25) scala/Predef.println(+1).
+(1:40..1:43) example/Trait.get(). -> 11:14
+(1:34..1:39) example/Trait. -> 10:8
+(1:26..1:33) example/ -> 2:9
+(1:1..1:1) _empty_/Test$package.Test(). -> 1:11
+(1:1..1:1) scala/util/CommandLineParser.showError().
+(1:1..1:1) local0 -> 13:47
+

@@ -1,0 +1,28 @@
+Document tests/pos/i9531.scala
+(4:21..4:22) _empty_/i9531$package.exprQuote().[T] -> 4:15
+(4:33..4:38) _empty_/Scope# -> 1:7
+(4:47..4:51) scala/Null#
+(4:63..4:67) _empty_/Scope#Expr# -> 2:8
+(4:61..4:62) _empty_/i9531$package.exprQuote().(s) -> 4:30
+(4:68..4:69) _empty_/i9531$package.exprQuote().[T] -> 4:15
+(4:73..4:76) scala/Predef.`???`().
+(4:21..4:22) _empty_/i9531$package.exprQuote$default$3().[T] -> 4:15
+(5:20..5:29) scala/Singleton#
+(5:34..5:35) _empty_/i9531$package.exprQuote(+1).[T] -> 5:15
+(5:46..5:51) _empty_/Scope# -> 1:7
+(5:56..5:60) _empty_/Scope#Expr# -> 2:8
+(5:54..5:55) _empty_/i9531$package.exprQuote(+1).(s) -> 5:43
+(5:61..5:62) _empty_/i9531$package.exprQuote(+1).[T] -> 5:15
+(5:66..5:69) scala/Predef.`???`().
+(7:19..7:24) _empty_/Scope# -> 1:7
+(7:27..7:31) scala/Unit#
+(8:13..8:17) _empty_/Scope#Expr# -> 2:8
+(8:11..8:12) _empty_/i9531$package.test().(s) -> 7:16
+(8:23..8:32) _empty_/i9531$package.exprQuote(+1). -> 5:5
+(8:35..8:35) _empty_/i9531$package.test().(s) -> 7:16
+(9:12..9:21) _empty_/i9531$package.exprQuote(+1). -> 5:5
+(9:24..9:24) _empty_/i9531$package.test().(s) -> 7:16
+(10:13..10:17) _empty_/Scope#Expr# -> 2:8
+(10:11..10:12) _empty_/i9531$package.test().(s) -> 7:16
+(10:23..10:25) local1 -> 9:7
+

@@ -1,0 +1,12 @@
+Document tests/pos/i6655.scala
+(2:14..2:18) scala/Unit#
+(3:18..3:19) scala/`|`#
+(3:12..3:18) scala/Predef.String#
+(3:19..3:23) scala/Null#
+(3:26..3:29) scala/Predef.`???`().
+(4:11..4:13) scala/Any#`!=`().
+(4:9..4:10) local0 -> 3:9
+(5:17..5:23) java/lang/String#length().
+(5:15..5:16) local0 -> 3:9
+(7:15..7:16) local0 -> 3:9
+

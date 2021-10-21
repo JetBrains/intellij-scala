@@ -1,0 +1,26 @@
+Document tests/pos/syntax-rewrite.scala
+(9:23..9:23) scala/collection/immutable/List#foreach().
+(9:14..9:14) scala/collection/IterableFactory#apply().
+(9:10..9:14) scala/package.List.
+(11:5..11:12) scala/Predef.println(+1).
+(11:13..11:14) local0 -> 9:5
+(13:27..13:27) scala/collection/immutable/List#map().
+(13:18..13:18) scala/collection/IterableFactory#apply().
+(13:14..13:18) scala/package.List.
+(13:36..13:37) local1 -> 13:9
+(17:14..17:14) scala/collection/WithFilter#foreach().
+(16:23..16:23) scala/collection/IterableOps#withFilter().
+(16:14..16:14) scala/collection/IterableFactory#apply().
+(16:10..16:14) scala/package.List.
+(17:10..17:12) scala/Int#`==`(+3).
+(17:8..17:9) local2 -> 16:5
+(19:3..19:10) scala/Predef.println(+1).
+(19:11..19:12) local2 -> 16:5
+(22:5..22:12) scala/Predef.println(+1).
+(23:5..23:12) scala/Predef.println(+1).
+(31:20..31:21) _empty_/test.loop().[T] -> 31:12
+(31:24..31:25) _empty_/test.loop().[T] -> 31:12
+(31:28..31:29) _empty_/test.loop().(x) -> 31:17
+(33:19..33:23) _empty_/test.loop(). -> 31:7
+(34:5..34:12) scala/Predef.println().
+

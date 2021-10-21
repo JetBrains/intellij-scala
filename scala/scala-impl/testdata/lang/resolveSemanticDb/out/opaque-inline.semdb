@@ -1,0 +1,30 @@
+Document tests/pos/opaque-inline.scala
+(3:26..3:29) scala/Int#
+(5:27..5:42) _empty_/refined.PositiveFactory# -> 7:9
+(8:29..8:32) scala/Int#
+(8:35..8:43) _empty_/refined.Positive# -> 3:15
+(8:46..8:51) _empty_/refined.PositiveFactory#apply().(value) -> 8:22
+(10:14..10:22) _empty_/refined.Positive# -> 3:15
+(10:25..10:33) _empty_/refined.Positive# -> 3:15
+(10:36..10:37) _empty_/refined.PositiveFactory#f().(x) -> 10:11
+(11:30..11:33) scala/Int#
+(11:36..11:44) _empty_/refined.Positive# -> 3:15
+(12:17..12:17) scala/Tuple2.apply().
+(12:17..12:22) _empty_/refined.PositiveFactory#fapply().(value) -> 11:23
+(12:24..12:29) _empty_/refined.PositiveFactory#fapply().(value) -> 11:23
+(13:7..13:8) _empty_/refined.PositiveFactory#f(). -> 10:9
+(13:12..13:14) scala/Tuple2#_1.
+(13:9..13:11) local0 -> 12:11
+(15:2..15:6) scala/main#
+(15:16..15:20) scala/Unit#
+(16:10..16:17) _empty_/refined. -> 2:8
+(18:23..18:28) _empty_/refined.PositiveFactory#apply(). -> 8:16
+(18:14..18:22) _empty_/refined.Positive. -> 5:10
+(18:29..18:30) local1 -> 17:7
+(19:24..19:30) _empty_/refined.PositiveFactory#fapply(). -> 11:16
+(19:15..19:23) _empty_/refined.Positive. -> 5:10
+(19:31..19:32) local1 -> 17:7
+(15:1..15:1) _empty_/`opaque-inline$package`.run(). -> 15:11
+(15:1..15:1) scala/util/CommandLineParser.showError().
+(15:1..15:1) local4
+

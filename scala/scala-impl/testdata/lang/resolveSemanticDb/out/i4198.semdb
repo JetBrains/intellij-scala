@@ -1,0 +1,11 @@
+Document tests/pos/i4198.scala
+(2:14..2:17) scala/Any#
+(2:20..2:24) scala/Unit#
+(3:5..3:6) _empty_/Foo#foo().(x) -> 2:11
+(4:15..4:18) _empty_/Bar# -> 13:7
+(5:11..5:16) _empty_/Bar#value(). -> 14:7
+(5:9..5:10) local0 -> 4:12
+(6:23..6:26) _empty_/Bar# -> 13:7
+(14:14..14:15) _empty_/Bar#[T] -> 13:11
+(14:18..14:21) scala/Predef.`???`().
+

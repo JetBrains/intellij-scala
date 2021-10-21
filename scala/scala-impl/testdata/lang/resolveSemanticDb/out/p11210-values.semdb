@@ -1,0 +1,25 @@
+Document tests/pos/p11210-values.scala
+(2:14..2:17) scala/package.Seq#
+(2:18..2:19) _empty_/Foo#[A] -> 1:12
+(2:23..2:26) scala/Predef.`???`().
+(5:14..5:17) scala/package.Seq#
+(5:18..5:21) scala/package.Seq#
+(5:22..5:23) _empty_/Bar#[A] -> 4:12
+(5:28..5:31) scala/Predef.`???`().
+(8:2..8:6) scala/main#
+(9:32..9:33) scala/`&`#
+(9:15..9:18) _empty_/Foo# -> 1:7
+(9:19..9:22) scala/package.Seq#
+(9:23..9:29) scala/Double#
+(9:34..9:37) _empty_/Bar# -> 4:7
+(9:38..9:44) scala/Double#
+(9:48..9:51) scala/Predef.`???`().
+(10:10..10:13) scala/package.Seq#
+(10:14..10:17) scala/package.Seq#
+(10:18..10:24) scala/Double#
+(10:36..10:41) _empty_/Bar#toSeq(). -> 5:7
+(10:29..10:35) local0 -> 9:7
+(8:1..8:1) _empty_/`p11210-values$package`.Test(). -> 8:11
+(8:1..8:1) scala/util/CommandLineParser.showError().
+(8:1..8:1) local2
+

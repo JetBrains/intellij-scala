@@ -1,0 +1,48 @@
+Document tests/pos/t6966.scala
+(1:18..1:22) scala/math/Ordering.Byte.
+(1:24..1:44) scala/math/LowPriorityOrderingImplicits#comparatorToOrdering().
+(1:8..1:16) scala/package.Ordering.
+(5:51..5:57) _empty_/Format# -> 2:7
+(5:58..5:59) _empty_/CacheIvy.basicInputCache().[I] -> 5:34
+(5:67..5:72) scala/package.Equiv#
+(5:73..5:74) _empty_/CacheIvy.basicInputCache().[I] -> 5:34
+(5:78..5:88) _empty_/InputCache# -> 3:7
+(5:89..5:90) _empty_/CacheIvy.basicInputCache().[I] -> 5:34
+(6:42..6:47) scala/package.Equiv#
+(6:48..6:49) _empty_/CacheIvy.arrEquiv().[T] -> 6:27
+(6:53..6:58) scala/package.Equiv#
+(6:59..6:64) scala/Array#
+(6:65..6:66) _empty_/CacheIvy.arrEquiv().[T] -> 6:27
+(7:29..7:39) _empty_/InputCache# -> 3:7
+(7:40..7:44) _empty_/HNil# -> 15:14
+(8:35..8:41) _empty_/Format# -> 2:7
+(8:42..8:47) scala/Array#
+(8:48..8:52) scala/Byte#
+(9:22..9:27) _empty_/HList# -> 14:14
+(9:31..9:36) _empty_/HCons# -> 17:13
+(9:37..9:38) _empty_/CacheIvy.`:+:`#[H] -> 9:14
+(9:39..9:40) _empty_/CacheIvy.`:+:`#[T] -> 9:17
+(10:37..10:42) _empty_/HList# -> 14:14
+(10:59..10:69) _empty_/InputCache# -> 3:7
+(10:70..10:71) _empty_/CacheIvy.hConsCache().[H] -> 10:29
+(10:80..10:90) _empty_/InputCache# -> 3:7
+(10:91..10:92) _empty_/CacheIvy.hConsCache().[T] -> 10:32
+(10:96..10:106) _empty_/InputCache# -> 3:7
+(10:109..10:112) _empty_/CacheIvy.`:+:`# -> 9:10
+(10:107..10:108) _empty_/CacheIvy.hConsCache().[H] -> 10:29
+(10:113..10:114) _empty_/CacheIvy.hConsCache().[T] -> 10:32
+(11:5..11:15) _empty_/CacheIvy.hConsCache(). -> 10:18
+(11:16..11:21) scala/Array#
+(11:22..11:26) scala/Byte#
+(11:29..11:33) _empty_/HNil# -> 15:14
+(11:34..11:34) _empty_/CacheIvy.basicInputCache(). -> 5:18
+(11:34..11:34) _empty_/CacheIvy.ByteArrayFormat(). -> 8:18
+(11:34..11:34) _empty_/CacheIvy.arrEquiv(). -> 6:18
+(11:34..11:34) scala/math/Ordering.Byte.
+(11:34..11:34) _empty_/CacheIvy.hNilCache(). -> 7:18
+(15:27..15:32) _empty_/HList# -> 14:14
+(16:21..16:25) _empty_/HNil# -> 15:14
+(17:41..17:42) _empty_/HCons#[H] -> 17:19
+(17:51..17:52) _empty_/HCons#[T] -> 17:22
+(17:62..17:67) _empty_/HList# -> 14:14
+

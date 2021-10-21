@@ -1,0 +1,15 @@
+Document tests/pos/i7087.scala
+(5:13..5:14) _empty_/i7087$package.F#[T] -> 5:8
+(6:8..6:9) _empty_/i7087$package.G# -> 3:6
+(6:16..6:22) scala/Predef.String#
+(9:20..9:21) _empty_/i7087$package.g().[T] -> 9:12
+(10:20..10:21) _empty_/i7087$package.F# -> 5:6
+(10:22..10:23) _empty_/i7087$package.g().[T] -> 9:12
+(10:28..10:31) scala/Predef.`???`().
+(13:10..13:11) _empty_/i7087$package.G# -> 3:6
+(13:12..13:15) scala/Int#
+(13:29..13:35) scala/Predef.String#
+(13:41..13:42) _empty_/i7087$package.g(). -> 10:7
+(13:39..13:40) _empty_/i7087$package.f().(x) -> 13:7
+(13:42..13:42) _empty_/i7087$package.f().(Foo) -> 13:24
+

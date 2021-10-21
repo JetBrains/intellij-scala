@@ -1,0 +1,9 @@
+Document tests/pos/t757.scala
+(3:14..3:18) scala/Unit#
+(4:15..4:22) scala/Console.println(+1).
+(4:7..4:14) scala/Console.
+(10:23..10:26) scala/App#
+(11:11..11:14) foo/C.foo(). -> 3:9
+(11:9..11:10) foo/C. -> 2:10
+(11:5..11:8) foo/ -> 1:9
+

@@ -1,0 +1,14 @@
+Document tests/pos/i9828.scala
+(4:15..4:18) scala/Int#
+(4:37..4:40) scala/Int#
+(4:43..4:46) scala/Int#
+(4:51..4:52) scala/Int#`+`(+4).
+(4:49..4:50) _empty_/i9828$package.g().(x) -> 4:12
+(4:53..4:54) _empty_/i9828$package.g().(y) -> 4:34
+(5:18..5:19) _empty_/i9828$package.f().[S] -> 5:12
+(5:23..5:26) scala/Int#
+(5:44..5:50) scala/Predef.String#
+(6:11..6:12) _empty_/i9828$package.g(). -> 4:31
+(7:18..7:19) _empty_/i9828$package.f(). -> 5:39
+(7:23..7:29) scala/Predef.String#
+

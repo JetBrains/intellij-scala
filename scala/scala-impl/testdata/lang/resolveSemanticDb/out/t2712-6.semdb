@@ -1,0 +1,16 @@
+Document tests/pos/t2712-6.scala
+(4:35..4:36) test/Tags.Tagged#[T] -> 4:18
+(4:50..4:51) test/Tags.Tagged#[A] -> 4:15
+(6:21..6:27) test/Tags.Tagged# -> 4:8
+(6:28..6:29) test/Tags.`@@`#[T] -> 6:11
+(6:31..6:34) test/Tags.`@@`#[Tag] -> 6:14
+(10:24..10:25) test/Tags.meh().[M] -> 10:11
+(10:26..10:27) test/Tags.meh().[A] -> 10:17
+(10:31..10:32) test/Tags.meh().[M] -> 10:11
+(10:33..10:34) test/Tags.meh().[A] -> 10:17
+(10:38..10:40) test/Tags.meh().(ma) -> 10:20
+(11:3..11:6) test/Tags.meh(). -> 10:7
+(11:17..11:19) test/Tags.`@@`# -> 6:8
+(11:13..11:16) scala/Int#
+(11:20..11:31) test/Tags.Disjunction# -> 8:9
+

@@ -1,0 +1,7 @@
+Document tests/pos/t0905.scala
+(3:21..3:22) _empty_/Test.A# -> 2:9
+(4:19..4:20) _empty_/Test.A# -> 2:9
+(5:3..5:10) scala/Predef.println(+1).
+(5:11..5:12) _empty_/Test.f(). -> 3:7
+(5:12..5:12) _empty_/Test.x. -> 4:16
+

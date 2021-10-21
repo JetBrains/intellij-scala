@@ -1,0 +1,16 @@
+Document tests/pos/t9004.scala
+(2:27..2:29) _empty_/Main.AA#[RR] -> 2:12
+(2:38..2:39) _empty_/Main.AA#R# -> 2:23
+(4:16..4:18) _empty_/Main.AA# -> 2:9
+(5:21..5:22) _empty_/Main.AA#r(). -> 2:35
+(5:19..5:20) _empty_/Main.test1().(a) -> 4:13
+(19:5..19:6) local0 -> 5:9
+(19:17..19:18) _empty_/Main.AA#R# -> 2:23
+(19:15..19:16) _empty_/Main.test1().(a) -> 4:13
+(23:21..23:22) _empty_/Main.AA#R# -> 2:23
+(23:19..23:20) _empty_/Main.test1().(a) -> 4:13
+(23:34..23:35) _empty_/Main.AA#r(). -> 2:35
+(23:32..23:33) _empty_/Main.test1().(a) -> 4:13
+(24:23..24:24) _empty_/Main.AA#r(). -> 2:35
+(24:21..24:22) _empty_/Main.test1().(a) -> 4:13
+

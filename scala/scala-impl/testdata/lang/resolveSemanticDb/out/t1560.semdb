@@ -1,0 +1,11 @@
+Document tests/pos/t1560.scala
+(1:21..1:24) scala/App#
+(4:12..4:13) _empty_/Test.C#[T] -> 3:11
+(7:10..7:16) scala/Option#
+(7:17..7:18) _empty_/Test.C# -> 3:9
+(9:11..9:12) _empty_/Test.b(). -> 7:7
+(10:14..10:14) scala/Some.unapply().
+(10:10..10:14) scala/Some.
+(10:23..10:24) _empty_/Test.C#t(). -> 4:9
+(10:21..10:22) local0 -> 10:15
+

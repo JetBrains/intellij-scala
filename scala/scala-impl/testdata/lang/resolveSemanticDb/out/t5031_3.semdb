@@ -1,0 +1,16 @@
+Document tests/pos/t5031_3/package.scala
+(4:14..4:17) scala/Int#
+(4:21..4:27) scala/Predef.String#
+
+Document tests/pos/t5031_3/Foo_1.scala
+(1:9..1:12) foo/ -> 1:9
+
+Document tests/pos/t5031_3/Main_2.scala
+(1:9..1:12) org/
+(3:21..3:24) scala/App#
+(4:4..4:11) scala/Predef.println(+1).
+(4:24..4:27) foo/bar/Foo.bar(). -> 4:7
+(4:20..4:23) foo/bar/Foo. -> 3:8
+(4:16..4:19) foo/bar/ -> 1:13
+(4:12..4:15) foo/ -> 1:9
+

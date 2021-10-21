@@ -1,0 +1,9 @@
+Document tests/pos/patdef.scala
+(3:19..3:22) scala/Int#
+(5:10..5:13) scala/Any#
+(5:17..5:17) _empty_/Test.C.apply(). -> 3:3
+(5:16..5:17) _empty_/Test.C. -> 3:14
+(7:14..7:15) _empty_/Test.c. -> 5:7
+(7:8..7:8) _empty_/Test.C.unapply().
+(7:7..7:8) _empty_/Test.C. -> 3:14
+

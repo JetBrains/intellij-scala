@@ -1,0 +1,11 @@
+Document tests/pos/philippe2.scala
+(1:8..1:13) scala/
+(4:14..4:17) scala/Int#
+(4:22..4:25) scala/Int#
+(4:28..4:32) scala/Unit#
+(5:12..5:15) scala/Int#
+(5:19..5:23) scala/Unit#
+(5:26..5:29) _empty_/m1#foo(). -> 4:7
+(5:31..5:31) local0 -> 5:31
+(5:26..5:26) local1
+

@@ -1,0 +1,37 @@
+Document tests/pos/i3590.scala
+(4:25..4:31) _empty_/Tagged# -> 1:7
+(4:32..4:33) _empty_/Tagged.Aux#[T] -> 4:12
+(11:20..11:24) _empty_/Fun0# -> 19:7
+(16:45..16:48) _empty_/Tagged.Aux# -> 4:8
+(16:38..16:44) _empty_/Tagged. -> 3:8
+(16:49..16:50) _empty_/Fun.tagged().[T] -> 16:23
+(16:52..16:55) scala/Int#
+(16:59..16:62) _empty_/Fun# -> 7:7
+(16:63..16:64) _empty_/Fun.tagged().[T] -> 16:23
+(16:79..16:82) scala/Int#
+(16:87..16:90) scala/Predef.`???`().
+(20:28..20:31) _empty_/Fun# -> 7:7
+(20:32..20:33) _empty_/Fun0#default().[T] -> 20:24
+(20:48..20:54) scala/Predef.String#
+(20:59..20:62) scala/Predef.`???`().
+(23:24..23:27) scala/App#
+(24:19..24:22) scala/Int#
+(24:27..24:33) scala/Predef.String#
+(26:23..26:29) _empty_/Tagged# -> 1:7
+(26:30..26:31) _empty_/FunDemo.A# -> 24:14
+(26:35..26:38) scala/Predef.`???`().
+(30:19..30:25) scala/AnyRef#
+(30:40..30:41) _empty_/FunDemo.summon().[T] -> 30:14
+(30:44..30:46) _empty_/FunDemo.summon().(ev) -> 30:36
+(30:54..30:56) _empty_/FunDemo.summon().(ev) -> 30:36
+(32:14..32:20) _empty_/FunDemo.summon(). -> 30:7
+(32:21..32:24) _empty_/Fun# -> 7:7
+(32:25..32:26) _empty_/FunDemo.A# -> 24:14
+(32:28..32:28) _empty_/Fun.tagged(). -> 16:16
+(32:28..32:28) _empty_/FunDemo.A.tag. -> 26:18
+(38:3..38:11) scala/Predef.identity().
+(38:12..38:15) _empty_/Fun# -> 7:7
+(38:16..38:17) _empty_/FunDemo.A# -> 24:14
+(38:32..38:35) scala/Int#
+(38:39..38:43) _empty_/FunDemo.adhl. -> 32:7
+

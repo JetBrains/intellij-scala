@@ -1,0 +1,62 @@
+Document tests/pos/i4984.scala
+(2:24..2:29) scala/Array#
+(2:30..2:31) _empty_/Array2.unapplySeq().[T] -> 2:18
+(2:35..2:52) _empty_/Array2.UnapplySeqWrapper# -> 4:15
+(2:53..2:54) _empty_/Array2.unapplySeq().[T] -> 2:18
+(2:79..2:79) _empty_/Array2.UnapplySeqWrapper#`<init>`(). -> 4:32
+(2:80..2:81) _empty_/Array2.unapplySeq().(x) -> 2:21
+(4:51..4:56) scala/Array#
+(4:57..4:58) _empty_/Array2.UnapplySeqWrapper#[T] -> 4:33
+(4:75..4:75) scala/AnyVal#`<init>`().
+(4:69..4:75) scala/AnyVal#
+(5:18..5:25) scala/Boolean#
+(6:14..6:31) _empty_/Array2.UnapplySeqWrapper# -> 4:15
+(6:32..6:33) _empty_/Array2.UnapplySeqWrapper#[T] -> 4:33
+(7:28..7:31) scala/Int#
+(7:34..7:37) scala/Int#
+(7:42..7:55) scala/collection/ArrayOps#lengthCompare().
+(7:40..7:40) scala/Predef.genericArrayOps().
+(7:40..7:41) _empty_/Array2.UnapplySeqWrapper#a. -> 4:48
+(7:56..7:59) _empty_/Array2.UnapplySeqWrapper#lengthCompare().(len) -> 7:23
+(8:18..8:21) scala/Int#
+(8:24..8:25) _empty_/Array2.UnapplySeqWrapper#[T] -> 4:33
+(8:29..8:29) scala/Array#apply().
+(8:28..8:29) _empty_/Array2.UnapplySeqWrapper#a. -> 4:48
+(8:30..8:31) _empty_/Array2.UnapplySeqWrapper#apply().(i) -> 8:15
+(9:17..9:20) scala/Int#
+(9:29..9:32) scala/package.Seq#
+(9:23..9:28) scala/
+(9:33..9:34) _empty_/Array2.UnapplySeqWrapper#[T] -> 4:33
+(9:38..9:41) scala/Predef.`???`().
+(10:22..10:25) scala/package.Seq#
+(10:16..10:21) scala/
+(10:26..10:27) _empty_/Array2.UnapplySeqWrapper#[T] -> 4:33
+(10:33..10:38) scala/collection/ArrayOps#toSeq().
+(10:31..10:31) scala/Predef.genericArrayOps().
+(10:31..10:32) _empty_/Array2.UnapplySeqWrapper#a. -> 4:48
+(15:17..15:22) scala/Array#
+(15:23..15:26) scala/Int#
+(15:30..15:33) scala/Int#
+(15:36..15:38) _empty_/Test#test1().(xs) -> 15:13
+(16:16..16:16) _empty_/Array2.unapplySeq(). -> 2:7
+(16:10..16:16) _empty_/Array2. -> 1:8
+(16:28..16:29) scala/Int#`+`(+4).
+(16:26..16:27) local0 -> 16:17
+(16:30..16:31) local1 -> 16:20
+(19:17..19:22) scala/Array#
+(19:23..19:26) scala/Int#
+(19:30..19:33) scala/package.Seq#
+(19:34..19:37) scala/Int#
+(19:41..19:43) _empty_/Test#test2().(xs) -> 19:13
+(20:16..20:16) _empty_/Array2.unapplySeq(). -> 2:7
+(20:10..20:16) _empty_/Array2. -> 1:8
+(20:33..20:35) local4 -> 20:23
+(23:17..23:22) scala/Array#
+(23:23..23:26) scala/Int#
+(23:30..23:33) scala/package.Seq#
+(23:34..23:37) scala/Int#
+(23:41..23:43) _empty_/Test#test3().(xs) -> 23:13
+(24:16..24:16) _empty_/Array2.unapplySeq(). -> 2:7
+(24:10..24:16) _empty_/Array2. -> 1:8
+(24:27..24:29) local5 -> 24:17
+

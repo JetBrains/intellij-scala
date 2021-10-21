@@ -1,0 +1,5 @@
+Document tests/pos/i2437a.scala
+(2:16..2:19) scala/Any#
+(2:23..2:26) _empty_/Test.foo().(arg) -> 2:11
+(3:15..3:19) scala/package.List#
+

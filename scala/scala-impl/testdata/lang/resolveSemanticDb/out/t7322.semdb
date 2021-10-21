@@ -1,0 +1,7 @@
+Document tests/pos/t7322.scala
+(3:24..3:37) scala/StringContext#
+(4:19..4:22) scala/Any#
+(9:13..9:14) t7322/package.X#`x_?`(). -> 4:9
+(9:9..9:9) t7322/package.X(). -> 3:18
+(9:9..9:9) scala/StringContext.apply().
+

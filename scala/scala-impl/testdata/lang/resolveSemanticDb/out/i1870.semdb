@@ -1,0 +1,20 @@
+Document tests/pos/i1870.scala
+(2:28..2:29) _empty_/Unfold#[S] -> 2:19
+(2:34..2:35) _empty_/Unfold#[S] -> 2:19
+(2:39..2:45) scala/Option#
+(2:47..2:48) _empty_/Unfold#[A] -> 2:22
+(2:49..2:50) _empty_/Unfold#[S] -> 2:19
+(2:62..2:68) _empty_/Stream# -> 1:7
+(2:69..2:70) _empty_/Unfold#[A] -> 2:22
+(5:19..5:25) _empty_/Stream# -> 1:7
+(5:26..5:27) _empty_/Test.unbox().[A] -> 5:13
+(5:32..5:33) _empty_/Test.unbox().(s) -> 5:16
+(6:16..6:16) _empty_/Unfold.unapply(). -> 2:1
+(6:10..6:16) _empty_/Unfold. -> 2:12
+(6:16..6:16) local0
+(7:16..7:17) local1 -> 6:17
+(8:16..8:17) local2 -> 6:20
+(9:8..9:8) scala/Tuple2.apply().
+(9:8..9:9) local1 -> 6:17
+(9:11..9:12) local2 -> 6:20
+

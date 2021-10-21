@@ -1,0 +1,28 @@
+Document tests/pos/strawman-i79.scala
+(2:11..2:14) scala/App#
+(5:15..5:27) _empty_/Empty.IterableOnce# -> 11:9
+(5:28..5:29) _empty_/Empty.Iterable#[A] -> 4:19
+(8:17..8:18) _empty_/Empty.IterableOps#[A] -> 7:22
+(8:24..8:36) _empty_/Empty.IterableOnce# -> 11:9
+(8:37..8:38) _empty_/Empty.IterableOps#`++`().[B] -> 8:12
+(8:42..8:44) _empty_/Empty.IterableOps#[CC] -> 7:26
+(8:45..8:46) _empty_/Empty.IterableOps#`++`().[B] -> 8:12
+(8:50..8:53) scala/Predef.`???`().
+(14:15..14:26) _empty_/Empty.IterableOps# -> 7:9
+(14:27..14:28) _empty_/Empty.LazyList#[A] -> 13:19
+(14:40..14:48) _empty_/Empty.LazyList# -> 13:9
+(14:49..14:50) _empty_/Empty.LazyList#[A] -> 13:19
+(15:12..15:20) _empty_/Empty.Iterable# -> 4:9
+(15:21..15:22) _empty_/Empty.LazyList#[A] -> 13:19
+(18:20..18:23) scala/Any#
+(18:26..18:34) _empty_/Empty.LazyList# -> 13:9
+(18:35..18:36) _empty_/Empty.LazyList.empty().[A] -> 18:15
+(18:55..18:55) _empty_/Empty.LazyList#`<init>`(). -> 13:17
+(18:44..18:52) _empty_/Empty.LazyList# -> 13:9
+(18:53..18:54) _empty_/Empty.LazyList.empty().[A] -> 18:15
+(21:18..21:20) _empty_/Empty.IterableOps#`++`(). -> 8:9
+(21:12..21:17) _empty_/Empty.LazyList.empty(). -> 18:9
+(21:3..21:11) _empty_/Empty.LazyList. -> 17:10
+(21:30..21:35) _empty_/Empty.LazyList.empty(). -> 18:9
+(21:21..21:29) _empty_/Empty.LazyList. -> 17:10
+

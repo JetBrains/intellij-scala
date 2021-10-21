@@ -1,0 +1,6 @@
+Document tests/pos/t7232c/Test.scala
+(2:10..2:14) pack/
+(3:19..3:30) pack/Foo#List#isInnerList().
+(3:7..3:16) pack/Foo#innerList().
+(3:3..3:6) pack/Foo#
+

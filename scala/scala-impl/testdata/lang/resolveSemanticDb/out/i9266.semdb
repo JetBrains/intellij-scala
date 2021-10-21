@@ -1,0 +1,8 @@
+Document tests/pos/i9266.scala
+(1:17..1:35) scala/language.`future-migration`.
+(1:8..1:16) scala/language.
+(3:26..3:29) scala/Int#
+(3:35..3:36) scala/Int#`+`(+4).
+(3:33..3:34) local0 -> 3:23
+(3:37..3:38) local0 -> 3:23
+

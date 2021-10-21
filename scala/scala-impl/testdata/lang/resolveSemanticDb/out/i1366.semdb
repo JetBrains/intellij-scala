@@ -1,0 +1,6 @@
+Document tests/pos/i1366.scala
+(3:10..3:14) scala/Char#
+(4:11..4:15) scala/Char#
+(4:17..4:21) scala/Char#
+(4:26..4:26) scala/Tuple2.apply().
+

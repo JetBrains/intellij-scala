@@ -1,0 +1,18 @@
+Document tests/pos/t6008.scala
+(4:14..4:17) scala/Int#
+(4:19..4:26) scala/Boolean#
+(4:31..4:33) _empty_/Test#x().(in) -> 4:9
+(4:48..4:48) scala/Tuple2.unapply().
+(4:51..4:54) scala/Int#
+(4:59..4:66) scala/Boolean#
+(7:14..7:17) scala/Int#
+(7:19..7:26) scala/Boolean#
+(7:31..7:33) _empty_/Test#y().(in) -> 7:9
+(7:48..7:48) scala/Tuple2.unapply().
+(7:54..7:61) scala/Boolean#
+(11:14..11:17) scala/Int#
+(11:19..11:26) scala/Boolean#
+(11:31..11:33) _empty_/Test#z().(in) -> 11:9
+(11:48..11:48) scala/Tuple2.unapply().
+(11:51..11:54) scala/Int#
+

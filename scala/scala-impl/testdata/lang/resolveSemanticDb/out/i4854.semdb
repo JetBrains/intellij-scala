@@ -1,0 +1,8 @@
+Document tests/pos/i4854.scala
+(2:12..2:15) scala/Int#
+(2:18..2:22) scala/Unit#
+(3:10..3:16) scala/Predef.String#
+(3:20..3:24) scala/Unit#
+(4:4..4:4) scala/Function1#apply().
+(4:3..4:4) _empty_/C#f. -> 3:7
+

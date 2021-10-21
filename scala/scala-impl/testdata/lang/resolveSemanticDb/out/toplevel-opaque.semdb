@@ -1,0 +1,26 @@
+Document tests/pos/toplevel-opaque/Test.scala
+(2:10..2:11) _empty_/`opaque-id$package`.T# -> 1:13
+(2:12..2:15) scala/Int#
+(2:19..2:22) scala/Predef.`???`().
+(3:10..3:13) scala/Int#
+(4:10..4:13) scala/Int#
+(4:18..4:19) _empty_/`opaque-id$package`.T.f(). -> 3:7
+(4:16..4:17) _empty_/`opaque-id$package`.T. -> 2:8
+(4:20..4:21) _empty_/Test.x. -> 2:7
+(5:10..5:11) _empty_/`opaque-id$package`.T# -> 1:13
+(5:12..5:15) scala/Int#
+(5:21..5:22) _empty_/`opaque-id$package`.T.g(). -> 4:7
+(5:19..5:20) _empty_/`opaque-id$package`.T. -> 2:8
+(5:23..5:24) _empty_/Test.y. -> 3:7
+
+Document tests/pos/toplevel-opaque/opaque-id.scala
+(1:20..1:21) _empty_/`opaque-id$package`.T#[X] -> 1:15
+(3:12..3:13) _empty_/`opaque-id$package`.T# -> 1:13
+(3:14..3:17) scala/Int#
+(3:21..3:24) scala/Int#
+(3:27..3:28) _empty_/`opaque-id$package`.T.f().(x) -> 3:9
+(4:12..4:15) scala/Int#
+(4:18..4:19) _empty_/`opaque-id$package`.T# -> 1:13
+(4:20..4:23) scala/Int#
+(4:27..4:28) _empty_/`opaque-id$package`.T.g().(x) -> 4:9
+

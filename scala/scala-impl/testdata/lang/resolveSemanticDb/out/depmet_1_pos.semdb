@@ -1,0 +1,15 @@
+Document tests/pos/depmet_1_pos.scala
+(2:18..2:24) scala/Predef.String#
+(2:29..2:30) _empty_/Test.precise().(x) -> 2:15
+(2:38..2:39) _empty_/Test.precise().(x) -> 2:15
+(2:47..2:48) _empty_/Test.precise().(y) -> 2:26
+(4:13..4:16) _empty_/Test.foo. -> 3:7
+(4:25..4:28) _empty_/Test.foo. -> 3:7
+(4:36..4:43) _empty_/Test.precise(). -> 2:7
+(4:44..4:47) _empty_/Test.foo. -> 3:7
+(4:36..4:36) local0
+(5:13..5:16) _empty_/Test.foo. -> 3:7
+(5:24..5:31) _empty_/Test.precise(). -> 2:7
+(5:32..5:35) _empty_/Test.foo. -> 3:7
+(5:37..5:40) _empty_/Test.foo. -> 3:7
+

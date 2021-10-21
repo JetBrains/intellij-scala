@@ -1,0 +1,26 @@
+Document tests/pos/i4785.scala
+(1:21..1:24) scala/Predef.Set.
+(1:14..1:20) scala/Predef.
+(1:8..1:13) scala/
+(3:22..3:27) java/nio/file/Paths#
+(3:17..3:21) java/nio/file/
+(3:13..3:16) java/nio/
+(3:8..3:12) java/
+(6:15..6:21) java/lang/String#
+(6:29..6:35) scala/collection/SeqOps#length().
+(6:26..6:28) _empty_/i4785#bar().(xs) -> 6:11
+(8:16..8:19) scala/package.Seq#
+(8:20..8:26) java/lang/String#
+(8:33..8:38) scala/Array#
+(8:39..8:45) java/lang/String#
+(9:11..9:14) java/nio/file/Paths#get().
+(9:5..9:10) java/nio/file/Paths#
+(9:24..9:26) _empty_/i4785#test().(xs) -> 8:12
+(10:11..10:14) java/nio/file/Paths#get().
+(10:5..10:10) java/nio/file/Paths#
+(10:24..10:26) _empty_/i4785#test().(ys) -> 8:29
+(12:5..12:8) _empty_/i4785#bar(). -> 6:7
+(12:9..12:11) _empty_/i4785#test().(xs) -> 8:12
+(13:5..13:8) _empty_/i4785#bar(). -> 6:7
+(13:9..13:11) _empty_/i4785#test().(ys) -> 8:29
+

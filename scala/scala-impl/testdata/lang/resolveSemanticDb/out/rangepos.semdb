@@ -1,0 +1,6 @@
+Document tests/pos/rangepos.scala
+(1:18..1:24) scala/Double#
+(1:40..1:40) scala/AnyVal#`<init>`().
+(1:34..1:40) scala/AnyVal#
+(4:13..4:19) scala/Predef.String#
+

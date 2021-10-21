@@ -1,0 +1,40 @@
+Document tests/pos/i12286.scala
+(1:30..1:36) scala/Predef.String#
+(2:21..2:27) scala/Predef.String#
+(2:37..2:41) _empty_/Base# -> 1:14
+(3:21..3:27) scala/Predef.String#
+(3:37..3:41) _empty_/Base# -> 1:14
+(4:23..4:29) scala/Predef.String#
+(4:39..4:43) _empty_/Base# -> 1:14
+(6:22..6:28) scala/Predef.String#
+(8:1..8:8) _empty_/
+(8:40..8:41) scala/`|`#
+(8:34..8:35) scala/`|`#
+(8:30..8:33) _empty_/One# -> 2:12
+(8:36..8:39) _empty_/Two# -> 3:12
+(8:42..8:47) _empty_/Three# -> 4:12
+(9:10..9:14) _empty_/Item# -> 6:12
+(9:23..9:24) _empty_/i12286$package.doWithItem().[T] -> 8:24
+(9:35..9:36) _empty_/i12286$package.doWithItem().[T] -> 8:24
+(9:41..9:45) _empty_/Item# -> 6:12
+(9:49..9:61) _empty_/i12286$package.doWithItemId(). -> 10:13
+(9:67..9:70) _empty_/Item#_id. -> 6:17
+(9:62..9:66) _empty_/i12286$package.doWithItem().(item) -> 9:4
+(9:72..9:77) _empty_/i12286$package.doWithItem().(value) -> 9:16
+(9:79..9:85) _empty_/i12286$package.doWithItem().(action) -> 9:26
+(10:1..10:8) _empty_/
+(10:42..10:43) scala/`|`#
+(10:36..10:37) scala/`|`#
+(10:32..10:35) _empty_/One# -> 2:12
+(10:38..10:41) _empty_/Two# -> 3:12
+(10:44..10:49) _empty_/Three# -> 4:12
+(11:12..11:18) scala/Predef.String#
+(11:27..11:28) _empty_/i12286$package.doWithItemId().[U] -> 10:26
+(11:39..11:40) _empty_/i12286$package.doWithItemId().[U] -> 10:26
+(11:45..11:49) _empty_/Item# -> 6:12
+(12:5..12:12) scala/Predef.println(+1).
+(12:19..12:22) _empty_/Base#str(). -> 1:25
+(12:13..12:18) _empty_/i12286$package.doWithItemId().(value) -> 11:20
+(13:9..13:9) _empty_/Item.apply(). -> 6:1
+(13:5..13:9) _empty_/Item. -> 6:12
+

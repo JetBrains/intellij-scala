@@ -1,0 +1,14 @@
+Document tests/pos/byname-implicits-19.scala
+(56:43..56:44) _empty_/Test.A# -> 53:9
+(56:47..56:48) _empty_/Test.A# -> 53:9
+(56:51..56:54) scala/Predef.`???`().
+(58:5..58:15) scala/Predef.implicitly().
+(58:16..58:17) _empty_/Test.A# -> 53:9
+(58:18..58:18) local0 -> 56:18
+(62:43..62:44) _empty_/Test.A# -> 53:9
+(62:47..62:48) _empty_/Test.A# -> 53:9
+(62:51..62:54) scala/Predef.`???`().
+(64:5..64:15) scala/Predef.implicitly().
+(64:16..64:17) _empty_/Test.A# -> 53:9
+(64:18..64:18) local3 -> 62:18
+

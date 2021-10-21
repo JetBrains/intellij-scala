@@ -1,0 +1,41 @@
+Document tests/pos/tcpoly_infer_implicit_tuple_wrapper.scala
+(1:25..1:33) scala/collection/Iterable.
+(1:25..1:33) scala/collection/Iterable#
+(1:14..1:24) scala/collection/
+(1:8..1:13) scala/
+(3:58..3:60) _empty_/IterableOps#[CC] -> 3:19
+(3:61..3:63) _empty_/IterableOps#[A1] -> 3:42
+(3:66..3:74) scala/collection/Iterable#
+(3:75..3:77) _empty_/IterableOps#[A2] -> 3:46
+(4:15..4:17) _empty_/IterableOps#[CC] -> 3:19
+(4:18..4:20) _empty_/IterableOps#[A1] -> 3:42
+(4:23..4:25) _empty_/IterableOps#[CC] -> 3:19
+(4:26..4:28) _empty_/IterableOps#[A2] -> 3:46
+(4:37..4:42) scala/sys/package.error().
+(4:33..4:36) scala/sys/
+(9:78..9:80) _empty_/Test.tupleOfIterableWrapper().[CC] -> 9:39
+(9:81..9:83) _empty_/Test.tupleOfIterableWrapper().[A1] -> 9:62
+(9:86..9:94) scala/collection/Iterable#
+(9:95..9:97) _empty_/Test.tupleOfIterableWrapper().[A2] -> 9:66
+(9:102..9:113) _empty_/IterableOps# -> 3:7
+(9:114..9:116) _empty_/Test.tupleOfIterableWrapper().[CC] -> 9:39
+(9:118..9:120) _empty_/Test.tupleOfIterableWrapper().[A1] -> 9:62
+(9:122..9:124) _empty_/Test.tupleOfIterableWrapper().[A2] -> 9:66
+(10:36..10:36) _empty_/IterableOps#`<init>`(). -> 3:18
+(10:13..10:24) _empty_/IterableOps# -> 3:7
+(10:25..10:27) _empty_/Test.tupleOfIterableWrapper().[CC] -> 9:39
+(10:29..10:31) _empty_/Test.tupleOfIterableWrapper().[A1] -> 9:62
+(10:33..10:35) _empty_/Test.tupleOfIterableWrapper().[A2] -> 9:66
+(10:37..10:42) _empty_/Test.tupleOfIterableWrapper().(tuple) -> 9:70
+(12:12..12:12) scala/Tuple2.apply().
+(12:16..12:16) scala/collection/IterableFactory#apply().
+(12:12..12:16) scala/package.List.
+(12:31..12:31) scala/collection/IterableFactory#apply().
+(12:27..12:31) scala/package.List.
+(14:29..14:34) _empty_/IterableOps#unzip(). -> 4:7
+(14:3..14:25) _empty_/Test.tupleOfIterableWrapper(). -> 9:16
+(14:26..14:27) _empty_/Test.t. -> 12:7
+(16:5..16:10) _empty_/IterableOps#unzip(). -> 4:7
+(16:3..16:3) _empty_/Test.tupleOfIterableWrapper(). -> 9:16
+(16:3..16:4) _empty_/Test.t. -> 12:7
+

@@ -1,0 +1,12 @@
+Document tests/pos/i12395.scala
+(1:2..1:6) scala/main#
+(1:18..1:22) scala/Unit#
+(4:11..4:12) local0 -> 2:7
+(7:7..7:14) scala/Predef.println(+1).
+(8:7..8:10) scala/Predef.`???`().
+(9:3..9:10) scala/Predef.println(+1).
+(9:11..9:12) local0 -> 2:7
+(1:1..1:1) _empty_/i12395$package.main(). -> 1:11
+(1:1..1:1) scala/util/CommandLineParser.showError().
+(1:1..1:1) local2
+

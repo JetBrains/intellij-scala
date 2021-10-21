@@ -1,0 +1,24 @@
+Document tests/pos/hk-deep-subtype.scala
+(2:35..2:52) scala/annotation/unchecked/uncheckedVariance#
+(2:25..2:34) scala/annotation/unchecked/
+(2:14..2:24) scala/annotation/
+(2:8..2:13) scala/
+(4:21..4:24) _empty_/GTT# -> 7:7
+(4:25..4:26) _empty_/GT#[A] -> 4:10
+(7:39..7:42) _empty_/HNB# -> 6:7
+(7:43..7:45) _empty_/GTT#[DD] -> 7:15
+(7:46..7:47) _empty_/GTT#[C] -> 7:12
+(7:50..7:67) scala/annotation/unchecked/uncheckedVariance#
+(11:15..11:17) _empty_/GTF#[EE] -> 9:11
+(11:18..11:19) _empty_/GTF#foo().[F] -> 11:11
+(11:23..11:26) scala/Predef.`???`().
+(12:17..12:18) _empty_/GTF#bar().[G] -> 12:11
+(12:21..12:23) _empty_/GTF#[EE] -> 9:11
+(12:24..12:25) _empty_/GTF#bar().[G] -> 12:11
+(12:29..12:32) scala/Predef.`???`().
+(14:17..14:19) _empty_/GTF#[EE] -> 9:11
+(14:20..14:22) _empty_/GTF#[EE] -> 9:11
+(14:23..14:26) scala/Int#
+(14:31..14:34) _empty_/GTF#bar(). -> 12:7
+(14:35..14:38) _empty_/GTF#foo(). -> 11:7
+

@@ -1,0 +1,10 @@
+Document tests/pos/hk-variance.scala
+(17:20..17:21) _empty_/Test2.S# -> 11:9
+(17:23..17:24) _empty_/Test2.T# -> 14:9
+(18:17..18:20) scala/Int#
+(4:14..4:15) _empty_/`hk-variance$package`.Id#[X] -> 4:9
+(7:12..7:12) _empty_/C#`<init>`(). -> 1:8
+(7:13..7:15) _empty_/`hk-variance$package`.Id# -> 4:6
+(8:12..8:12) _empty_/D#`<init>`(). -> 2:8
+(8:13..8:15) _empty_/`hk-variance$package`.Id# -> 4:6
+

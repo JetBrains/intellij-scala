@@ -1,0 +1,8 @@
+Document tests/pos/i12616.scala
+(7:14..7:17) scala/Any#
+(7:20..7:24) scala/Unit#
+(8:7..8:8) _empty_/Foo#Baz.f().(x) -> 7:11
+(9:27..9:28) scala/`&`#
+(9:18..9:21) _empty_/Foo#Bar. -> 4:7
+(9:29..9:30) _empty_/Foo#Baz.f().(x) -> 7:11
+

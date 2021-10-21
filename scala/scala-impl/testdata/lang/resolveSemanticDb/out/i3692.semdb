@@ -1,0 +1,28 @@
+Document tests/pos/i3692.scala
+(8:18..8:23) scala/Array#
+(8:24..8:30) scala/Predef.String#
+(8:34..8:38) scala/Unit#
+(9:21..9:22) _empty_/C# -> 1:7
+(9:28..9:31) scala/Predef.Set#
+(9:32..9:35) scala/Int#
+(9:43..9:48) scala/collection/immutable/Set.empty().
+(9:39..9:42) scala/Predef.Set.
+(10:14..10:15) _empty_/C# -> 1:7
+(10:20..10:23) scala/Predef.Set#
+(10:24..10:27) scala/Int#
+(10:37..10:37) scala/ContextFunction1#apply().
+(10:31..10:37) local0 -> 9:9
+(11:17..11:18) _empty_/C# -> 1:7
+(11:23..11:26) scala/Predef.Set#
+(11:27..11:30) scala/Int#
+(11:40..11:40) scala/ContextFunction1#apply().
+(11:34..11:40) local0 -> 9:9
+(12:23..12:24) _empty_/C# -> 1:7
+(12:29..12:32) scala/Predef.Set#
+(12:33..12:36) scala/Int#
+(12:42..12:42) scala/Function1#apply().
+(12:41..12:42) local8 -> 12:16
+(12:48..12:48) _empty_/C#`<init>`(). -> 1:11
+(12:47..12:48) _empty_/C# -> 1:7
+(12:56..12:59) scala/Int#
+

@@ -1,0 +1,10 @@
+Document tests/pos/i9290/package.scala
+
+Document tests/pos/i9290/Test.scala
+(3:38..3:41) scala/Int#
+(7:48..7:59) sudoku/SudokuField# -> 3:18
+(7:75..7:75) scala/AnyVal#`<init>`().
+(7:69..7:75) scala/AnyVal#
+(8:12..8:15) scala/Int#
+(8:18..8:21) scala/Predef.`???`().
+

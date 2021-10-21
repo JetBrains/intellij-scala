@@ -1,0 +1,14 @@
+Document tests/pos/i3171.scala
+(2:14..2:17) scala/Int#
+(2:22..2:25) scala/Int#
+(3:17..3:20) scala/Int#
+(3:29..3:35) scala/Predef.String#
+(4:12..4:12) _empty_/Test.C#`<init>`(). -> 2:10
+(4:12..4:13) _empty_/Test.C#`<init>`(+1).(x) -> 3:14
+(4:17..4:22) scala/collection/StringOps#toInt().
+(4:15..4:15) scala/Predef.augmentString().
+(4:15..4:16) _empty_/Test.C#`<init>`(+1).(y) -> 3:26
+(7:13..7:17) scala/Unit#
+(8:10..8:10) _empty_/Test.C#`<init>`(+1). -> 3:9
+(8:9..8:10) _empty_/Test.C# -> 2:9
+

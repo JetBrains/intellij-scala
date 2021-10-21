@@ -1,0 +1,43 @@
+Document tests/pos/i2554.scala
+(3:32..3:42) _empty_/foo.ShapeLevel# -> 2:9
+(4:35..4:49) _empty_/foo.FlatShapeLevel# -> 3:9
+(6:24..6:43) _empty_/foo.TupleShapeImplicits# -> 7:9
+(8:45..8:55) _empty_/foo.ShapeLevel# -> 2:9
+(9:20..9:25) _empty_/foo.Shape# -> 5:18
+(9:31..9:36) _empty_/foo.TupleShapeImplicits#tuple2Shape().[Level] -> 8:36
+(9:38..9:40) _empty_/foo.TupleShapeImplicits#tuple2Shape().[M1] -> 8:57
+(9:42..9:44) _empty_/foo.TupleShapeImplicits#tuple2Shape().[U1] -> 8:64
+(9:46..9:48) _empty_/foo.TupleShapeImplicits#tuple2Shape().[P1] -> 8:71
+(9:55..9:60) _empty_/foo.Shape# -> 5:18
+(9:66..9:71) _empty_/foo.TupleShapeImplicits#tuple2Shape().[Level] -> 8:36
+(9:73..9:75) _empty_/foo.TupleShapeImplicits#tuple2Shape().[M2] -> 8:60
+(9:77..9:79) _empty_/foo.TupleShapeImplicits#tuple2Shape().[U2] -> 8:67
+(9:81..9:83) _empty_/foo.TupleShapeImplicits#tuple2Shape().[P2] -> 8:74
+(10:9..10:14) _empty_/foo.Shape# -> 5:18
+(10:15..10:20) _empty_/foo.TupleShapeImplicits#tuple2Shape().[Level] -> 8:36
+(10:23..10:25) _empty_/foo.TupleShapeImplicits#tuple2Shape().[M1] -> 8:57
+(10:26..10:28) _empty_/foo.TupleShapeImplicits#tuple2Shape().[M2] -> 8:60
+(10:32..10:34) _empty_/foo.TupleShapeImplicits#tuple2Shape().[U1] -> 8:64
+(10:35..10:37) _empty_/foo.TupleShapeImplicits#tuple2Shape().[U2] -> 8:67
+(10:41..10:43) _empty_/foo.TupleShapeImplicits#tuple2Shape().[P1] -> 8:71
+(10:44..10:46) _empty_/foo.TupleShapeImplicits#tuple2Shape().[P2] -> 8:74
+(10:51..10:54) scala/Predef.`???`().
+(14:10..14:13) _empty_/foo. -> 1:8
+(15:23..15:28) _empty_/foo.Shape# -> 5:18
+(15:34..15:48) _empty_/foo.FlatShapeLevel# -> 3:9
+(15:50..15:53) scala/Int#
+(15:55..15:58) scala/Int#
+(16:20..16:31) _empty_/foo.TupleShapeImplicits#tuple2Shape(). -> 8:24
+(16:14..16:19) _empty_/foo.Shape. -> 6:10
+(16:32..16:37) _empty_/Test.shape. -> 15:16
+(16:39..16:44) _empty_/Test.shape. -> 15:16
+(17:18..17:23) _empty_/foo.Shape# -> 5:18
+(17:14..17:17) _empty_/foo. -> 1:8
+(17:28..17:42) _empty_/foo.FlatShapeLevel# -> 3:9
+(17:24..17:27) _empty_/foo. -> 1:8
+(17:45..17:48) scala/Int#
+(17:50..17:53) scala/Int#
+(17:57..17:60) scala/Int#
+(17:62..17:65) scala/Int#
+(17:73..17:77) _empty_/Test.hint(). -> 16:7
+

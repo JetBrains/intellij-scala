@@ -1,0 +1,57 @@
+Document tests/pos/t789.scala
+(5:26..5:30) _empty_/_main.Impl# -> 3:9
+(7:27..7:31) _empty_/_main.Impl# -> 3:9
+(9:15..9:23) _empty_/_main.SizeImpl# -> 5:9
+(9:29..9:38) _empty_/_main.ColorImpl# -> 7:9
+(11:14..11:18) _empty_/_main.Impl# -> 3:9
+(11:22..11:23) _empty_/_main.info().(x) -> 11:12
+(12:12..12:16) _empty_/_main.Both# -> 9:8
+(12:53..12:54) java/lang/String#`+`().
+(12:43..12:44) java/lang/String#`+`().
+(12:34..12:35) java/lang/String#`+`().
+(12:38..12:42) _empty_/_main.SizeImpl#size(). -> 5:37
+(12:36..12:37) local0 -> 12:10
+(12:57..12:62) _empty_/_main.ColorImpl#color(). -> 7:38
+(12:55..12:56) local0 -> 12:10
+(13:12..13:20) _empty_/_main.SizeImpl# -> 5:9
+(13:34..13:35) java/lang/String#`+`().
+(13:38..13:42) _empty_/_main.SizeImpl#size(). -> 5:37
+(13:36..13:37) local1 -> 13:10
+(14:12..14:21) _empty_/_main.ColorImpl# -> 7:9
+(14:34..14:35) java/lang/String#`+`().
+(14:38..14:43) _empty_/_main.ColorImpl#color(). -> 7:38
+(14:36..14:37) local2 -> 14:10
+(18:15..18:19) _empty_/_main.Impl# -> 3:9
+(18:23..18:24) _empty_/_main.info2().(x) -> 18:13
+(19:12..19:20) _empty_/_main.SizeImpl# -> 5:9
+(19:26..19:35) _empty_/_main.ColorImpl# -> 7:9
+(19:68..19:69) java/lang/String#`+`().
+(19:58..19:59) java/lang/String#`+`().
+(19:49..19:50) java/lang/String#`+`().
+(19:53..19:57) _empty_/_main.SizeImpl#size(). -> 5:37
+(19:51..19:52) local3 -> 19:10
+(19:72..19:77) _empty_/_main.ColorImpl#color(). -> 7:38
+(19:70..19:71) local3 -> 19:10
+(20:12..20:20) _empty_/_main.SizeImpl# -> 5:9
+(20:34..20:35) java/lang/String#`+`().
+(20:38..20:42) _empty_/_main.SizeImpl#size(). -> 5:37
+(20:36..20:37) local4 -> 20:10
+(21:12..21:21) _empty_/_main.ColorImpl# -> 7:9
+(21:34..21:35) java/lang/String#`+`().
+(21:38..21:43) _empty_/_main.ColorImpl#color(). -> 7:38
+(21:36..21:37) local5 -> 21:10
+(26:17..26:22) scala/Array#
+(26:23..26:29) scala/Predef.String#
+(26:33..26:37) scala/Unit#
+(28:26..28:34) _empty_/_main.SizeImpl# -> 5:9
+(29:13..29:20) scala/Console.println(+1).
+(29:5..29:12) scala/Console.
+(29:30..29:31) java/lang/String#`+`().
+(29:32..29:36) _empty_/_main.info(). -> 11:7
+(29:41..29:47) local6 -> 28:11
+(30:13..30:20) scala/Console.println(+1).
+(30:5..30:12) scala/Console.
+(30:30..30:31) java/lang/String#`+`().
+(30:32..30:37) _empty_/_main.info2(). -> 18:7
+(30:42..30:48) local6 -> 28:11
+

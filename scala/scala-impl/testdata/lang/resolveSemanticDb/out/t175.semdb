@@ -1,0 +1,4 @@
+Document tests/pos/t175.scala
+(2:15..2:19) scala/Unit#
+(2:25..2:25) _empty_/C#`<init>`(). -> 2:3
+

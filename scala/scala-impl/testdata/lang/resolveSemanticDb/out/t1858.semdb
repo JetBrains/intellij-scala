@@ -1,0 +1,18 @@
+Document tests/pos/t1858.scala
+(1:33..1:38) scala/collection/mutable/Stack.
+(1:33..1:38) scala/collection/mutable/Stack#
+(1:25..1:32) scala/collection/mutable/
+(1:14..1:24) scala/collection/
+(1:8..1:13) scala/
+(6:27..6:27) scala/collection/mutable/Stack#`<init>`(+1).
+(6:17..6:22) scala/collection/mutable/Stack#
+(6:23..6:26) scala/Int#
+(7:7..7:11) scala/collection/mutable/Stack#push().
+(7:5..7:6) local0 -> 6:9
+(8:7..8:11) scala/collection/mutable/Stack#push(+1).
+(8:5..8:6) local0 -> 6:9
+(9:7..9:11) scala/collection/mutable/Stack#push(+1).
+(9:5..9:6) local0 -> 6:9
+(10:7..10:11) scala/collection/mutable/Stack#push(+1).
+(10:5..10:6) local0 -> 6:9
+

@@ -1,0 +1,16 @@
+Document tests/pos/unapply.scala
+(2:26..2:27) _empty_/test.Foo#[T] -> 2:13
+(5:25..5:28) _empty_/test.Foo# -> 2:9
+(5:29..5:30) _empty_/test.Foo.unapply().[a] -> 5:18
+(5:39..5:39) scala/Some.apply().
+(5:35..5:39) scala/Some.
+(5:43..5:46) _empty_/test.Foo#arg. -> 2:20
+(5:41..5:42) _empty_/test.Foo.unapply().(m) -> 5:21
+(7:35..7:38) _empty_/test.Foo# -> 2:9
+(7:39..7:40) _empty_/test.matchAndGetArgFromFoo().[b] -> 7:29
+(7:43..7:44) _empty_/test.matchAndGetArgFromFoo().[b] -> 7:29
+(7:48..7:49) _empty_/test.matchAndGetArgFromFoo().(e) -> 7:33
+(7:66..7:66) _empty_/test.Foo.unapply(). -> 5:9
+(7:63..7:66) _empty_/test.Foo. -> 4:10
+(7:73..7:74) local0 -> 7:67
+

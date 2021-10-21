@@ -1,0 +1,205 @@
+Document tests/pos/i12126.scala
+(4:23..4:24) _empty_/Structures.Functor#[F] -> 3:17
+(4:25..4:26) _empty_/Structures.Functor#map().[A] -> 4:16
+(5:21..5:22) _empty_/Structures.Functor#map().[A] -> 4:16
+(5:26..5:27) _empty_/Structures.Functor#map().[B] -> 5:15
+(5:30..5:31) _empty_/Structures.Functor#[F] -> 3:17
+(5:32..5:33) _empty_/Structures.Functor#map().[B] -> 5:15
+(4:25..4:26) _empty_/Structures.Functor#as().[A] -> 4:16
+(6:20..6:21) _empty_/Structures.Functor#as().[B] -> 6:14
+(6:24..6:25) _empty_/Structures.Functor#[F] -> 3:17
+(6:26..6:27) _empty_/Structures.Functor#as().[B] -> 6:14
+(6:31..6:34) _empty_/Structures.Functor#map(). -> 5:11
+(6:31..6:31) _empty_/Structures.Functor#as().(fa) -> 4:19
+(6:40..6:41) _empty_/Structures.Functor#as().(b) -> 6:17
+(4:25..4:26) _empty_/Structures.Functor#void().[A] -> 4:16
+(7:17..7:18) _empty_/Structures.Functor#[F] -> 3:17
+(7:19..7:23) scala/Unit#
+(7:27..7:29) _empty_/Structures.Functor#as(). -> 6:11
+(7:27..7:27) _empty_/Structures.Functor#void().(fa) -> 4:19
+(9:35..9:42) _empty_/Structures.Functor# -> 3:9
+(9:43..9:44) _empty_/Structures.Applicative#[F] -> 9:21
+(10:20..10:21) _empty_/Structures.Applicative#pure().[A] -> 10:14
+(10:24..10:25) _empty_/Structures.Applicative#[F] -> 9:21
+(10:26..10:27) _empty_/Structures.Applicative#pure().[A] -> 10:14
+(11:15..11:16) _empty_/Structures.Applicative#[F] -> 9:21
+(11:17..11:21) scala/Unit#
+(11:25..11:29) _empty_/Structures.Applicative#pure(). -> 10:9
+(12:22..12:23) _empty_/Structures.Applicative#[F] -> 9:21
+(12:24..12:25) _empty_/Structures.Applicative#map2().[A] -> 12:15
+(13:26..13:27) _empty_/Structures.Applicative#[F] -> 9:21
+(13:28..13:29) _empty_/Structures.Applicative#map2().[B] -> 13:16
+(13:36..13:37) _empty_/Structures.Applicative#map2().[A] -> 12:15
+(13:39..13:40) _empty_/Structures.Applicative#map2().[B] -> 13:16
+(13:45..13:46) _empty_/Structures.Applicative#map2().[C] -> 13:19
+(13:49..13:50) _empty_/Structures.Applicative#[F] -> 9:21
+(13:51..13:52) _empty_/Structures.Applicative#map2().[C] -> 13:19
+(12:24..12:25) _empty_/Structures.Applicative#map().[A] -> 12:15
+(14:21..14:22) _empty_/Structures.Applicative#map().[A] -> 12:15
+(14:26..14:27) _empty_/Structures.Applicative#map().[B] -> 14:15
+(14:30..14:31) _empty_/Structures.Applicative#[F] -> 9:21
+(14:32..14:33) _empty_/Structures.Applicative#map().[B] -> 14:15
+(15:12..15:16) _empty_/Structures.Applicative#map2(). -> 13:11
+(15:9..15:11) _empty_/Structures.Applicative#map().(fa) -> 12:18
+(15:17..15:21) _empty_/Structures.Applicative#unit(). -> 11:9
+(15:34..15:34) scala/Function1#apply().
+(15:33..15:34) _empty_/Structures.Applicative#map().(f) -> 14:18
+(15:35..15:36) local0 -> 15:24
+(17:29..17:40) _empty_/Structures.Applicative# -> 9:9
+(17:41..17:42) _empty_/Structures.Monad#[F] -> 17:15
+(18:22..18:23) _empty_/Structures.Monad#[F] -> 17:15
+(18:24..18:25) _empty_/Structures.Monad#flatMap().[A] -> 18:15
+(19:25..19:26) _empty_/Structures.Monad#flatMap().[A] -> 18:15
+(19:30..19:31) _empty_/Structures.Monad#[F] -> 17:15
+(19:32..19:33) _empty_/Structures.Monad#flatMap().[B] -> 19:19
+(19:37..19:38) _empty_/Structures.Monad#[F] -> 17:15
+(19:39..19:40) _empty_/Structures.Monad#flatMap().[B] -> 19:19
+(18:24..18:25) _empty_/Structures.Monad#map().[A] -> 18:15
+(20:30..20:31) _empty_/Structures.Monad#map().[A] -> 18:15
+(20:35..20:36) _empty_/Structures.Monad#map().[B] -> 20:24
+(20:39..20:40) _empty_/Structures.Monad#[F] -> 17:15
+(20:41..20:42) _empty_/Structures.Monad#map().[B] -> 20:24
+(21:9..21:16) _empty_/Structures.Monad#flatMap(). -> 19:11
+(21:9..21:9) _empty_/Structures.Monad#map().(fa) -> 18:18
+(21:22..21:26) _empty_/Structures.Applicative#pure(). -> 10:9
+(21:28..21:28) scala/Function1#apply().
+(21:27..21:28) _empty_/Structures.Monad#map().(f) -> 20:27
+(21:29..21:30) local1 -> 21:17
+(18:24..18:25) _empty_/Structures.Monad#map2().[A] -> 18:15
+(22:26..22:27) _empty_/Structures.Monad#[F] -> 17:15
+(22:28..22:29) _empty_/Structures.Monad#map2().[B] -> 22:16
+(22:36..22:37) _empty_/Structures.Monad#map2().[A] -> 18:15
+(22:39..22:40) _empty_/Structures.Monad#map2().[B] -> 22:16
+(22:45..22:46) _empty_/Structures.Monad#map2().[C] -> 22:19
+(22:49..22:50) _empty_/Structures.Monad#[F] -> 17:15
+(22:51..22:52) _empty_/Structures.Monad#map2().[C] -> 22:19
+(23:9..23:16) _empty_/Structures.Monad#flatMap(). -> 19:11
+(23:9..23:9) _empty_/Structures.Monad#map2().(fa) -> 18:18
+(23:25..23:28) _empty_/Structures.Monad#map(). -> 20:20
+(23:22..23:24) _empty_/Structures.Monad#map2().(fb) -> 22:22
+(23:35..23:35) scala/Function2#apply().
+(23:34..23:35) _empty_/Structures.Monad#map2().(f) -> 22:32
+(23:36..23:37) local2 -> 23:17
+(23:39..23:40) local3 -> 23:29
+(25:9..25:14) _empty_/Structures.Monad# -> 17:9
+(25:15..25:19) scala/package.List#
+(26:20..26:21) _empty_/Structures.given_Monad_List.pure().[A] -> 26:14
+(26:29..26:29) scala/collection/IterableFactory#apply().
+(26:25..26:29) scala/package.List.
+(26:30..26:31) _empty_/Structures.given_Monad_List.pure().(a) -> 26:17
+(27:22..27:26) scala/package.List#
+(27:27..27:28) _empty_/Structures.given_Monad_List.flatMap().[A] -> 27:15
+(28:25..28:26) _empty_/Structures.given_Monad_List.flatMap().[A] -> 27:15
+(28:30..28:34) scala/package.List#
+(28:35..28:36) _empty_/Structures.given_Monad_List.flatMap().[B] -> 28:19
+(28:44..28:51) scala/collection/immutable/List#flatMap().
+(28:41..28:43) _empty_/Structures.given_Monad_List.flatMap().(fa) -> 27:18
+(28:52..28:53) _empty_/Structures.given_Monad_List.flatMap().(f) -> 28:22
+(30:9..30:14) _empty_/Structures.Monad# -> 17:9
+(31:20..31:21) _empty_/Structures.given_Monad_Option.pure().[A] -> 31:14
+(31:29..31:29) scala/Some.apply().
+(31:25..31:29) scala/Some.
+(31:30..31:31) _empty_/Structures.given_Monad_Option.pure().(a) -> 31:17
+(32:22..32:28) scala/Option#
+(32:29..32:30) _empty_/Structures.given_Monad_Option.flatMap().[A] -> 32:15
+(33:25..33:26) _empty_/Structures.given_Monad_Option.flatMap().[A] -> 32:15
+(33:30..33:36) scala/Option#
+(33:37..33:38) _empty_/Structures.given_Monad_Option.flatMap().[B] -> 33:19
+(33:46..33:53) scala/Option#flatMap().
+(33:43..33:45) _empty_/Structures.given_Monad_Option.flatMap().(fa) -> 32:18
+(33:54..33:55) _empty_/Structures.given_Monad_Option.flatMap().(f) -> 33:22
+(36:37..36:38) _empty_/Structures.Kleisli#[A] -> 36:29
+(36:42..36:43) _empty_/Structures.Kleisli#[F] -> 36:23
+(36:44..36:45) _empty_/Structures.Kleisli#[B] -> 36:32
+(38:29..38:36) _empty_/Structures.Kleisli# -> 36:15
+(38:37..38:38) _empty_/Structures.apply().[F] -> 38:14
+(38:40..38:41) _empty_/Structures.apply().[A] -> 38:20
+(38:43..38:44) _empty_/Structures.apply().[B] -> 38:23
+(39:18..39:19) _empty_/Structures.apply().[A] -> 38:20
+(39:22..39:23) _empty_/Structures.apply().[F] -> 38:14
+(39:24..39:25) _empty_/Structures.apply().[B] -> 38:23
+(39:30..39:30) scala/Function1#apply().
+(39:29..39:30) _empty_/Structures.apply().(k) -> 38:26
+(39:31..39:32) _empty_/Structures.apply().(a) -> 39:15
+(42:30..42:31) _empty_/Structures.Kleisli.apply().[A] -> 42:21
+(42:35..42:36) _empty_/Structures.Kleisli.apply().[F] -> 42:15
+(42:37..42:38) _empty_/Structures.Kleisli.apply().[B] -> 42:24
+(42:42..42:49) _empty_/Structures.Kleisli# -> 36:15
+(42:50..42:51) _empty_/Structures.Kleisli.apply().[F] -> 42:15
+(42:53..42:54) _empty_/Structures.Kleisli.apply().[A] -> 42:21
+(42:56..42:57) _empty_/Structures.Kleisli.apply().[B] -> 42:24
+(42:61..42:62) _empty_/Structures.Kleisli.apply().(f) -> 42:27
+(44:28..44:33) _empty_/Structures.Monad# -> 17:9
+(44:34..44:35) _empty_/Structures.given_Monad_Kleisli#[F] -> 44:10
+(44:39..44:44) _empty_/Structures.Monad# -> 17:9
+(44:53..44:60) _empty_/Structures.Kleisli# -> 36:15
+(44:61..44:62) _empty_/Structures.given_Monad_Kleisli#[F] -> 44:10
+(44:64..44:65) _empty_/Structures.given_Monad_Kleisli#[A] -> 44:16
+(45:20..45:21) _empty_/Structures.given_Monad_Kleisli#pure().[B] -> 45:14
+(45:32..45:32) _empty_/Structures.Kleisli.apply(). -> 42:9
+(45:25..45:32) _empty_/Structures.Kleisli. -> 41:10
+(45:40..45:44) _empty_/Structures.Applicative#pure(). -> 10:9
+(45:38..45:39) _empty_/Structures.given_Monad_Kleisli#F. -> 44:25
+(45:45..45:46) _empty_/Structures.given_Monad_Kleisli#pure().(b) -> 45:17
+(46:21..46:28) _empty_/Structures.Kleisli# -> 36:15
+(46:29..46:30) _empty_/Structures.given_Monad_Kleisli#[F] -> 44:10
+(46:32..46:33) _empty_/Structures.given_Monad_Kleisli#[A] -> 44:16
+(46:35..46:36) _empty_/Structures.given_Monad_Kleisli#flatMap().[B] -> 46:15
+(47:25..47:26) _empty_/Structures.given_Monad_Kleisli#flatMap().[B] -> 46:15
+(47:30..47:37) _empty_/Structures.Kleisli# -> 36:15
+(47:38..47:39) _empty_/Structures.given_Monad_Kleisli#[F] -> 44:10
+(47:41..47:42) _empty_/Structures.given_Monad_Kleisli#[A] -> 44:16
+(47:44..47:45) _empty_/Structures.given_Monad_Kleisli#flatMap().[C] -> 47:19
+(48:14..48:14) _empty_/Structures.Monad#flatMap(). -> 19:11
+(48:15..48:15) scala/Function1#apply().
+(48:14..48:15) _empty_/Structures.given_Monad_Kleisli#flatMap().(k) -> 46:18
+(48:16..48:17) local4 -> 48:9
+(48:36..48:36) scala/Function1#apply().
+(48:33..48:33) scala/Function1#apply().
+(48:32..48:33) _empty_/Structures.given_Monad_Kleisli#flatMap().(f) -> 47:22
+(48:34..48:35) local5 -> 48:27
+(48:37..48:38) local4 -> 48:9
+(50:5..50:15) _empty_/Structures. -> 1:8
+(52:2..52:6) scala/main#
+(53:10..53:20) _empty_/Structures. -> 1:8
+(54:3..54:10) scala/Predef.println(+1).
+(54:11..54:11) _empty_/Structures.Monad#map2(). -> 22:11
+(54:15..54:15) scala/collection/IterableFactory#apply().
+(54:11..54:15) scala/package.List.
+(54:34..54:34) scala/collection/IterableFactory#apply().
+(54:30..54:34) scala/package.List.
+(54:46..54:46) scala/Tuple2.apply().
+(56:10..56:17) _empty_/Structures.Kleisli# -> 36:15
+(56:26..56:29) scala/Int#
+(56:31..56:34) scala/Int#
+(56:45..56:45) _empty_/Structures.Kleisli.apply(). -> 42:9
+(56:38..56:45) _empty_/Structures.Kleisli. -> 41:10
+(56:50..56:53) scala/Int#
+(56:67..56:69) scala/Int#`==`(+3).
+(56:63..56:64) scala/Int#`%`(+3).
+(56:61..56:62) local7 -> 56:47
+(56:81..56:81) scala/Some.apply().
+(56:77..56:81) scala/Some.
+(56:82..56:83) local7 -> 56:47
+(56:90..56:94) scala/None.
+(57:10..57:17) _empty_/Structures.Kleisli# -> 36:15
+(57:26..57:29) scala/Int#
+(57:31..57:34) scala/Int#
+(57:91..57:95) _empty_/Structures.given_Monad_Kleisli#pure(). -> 45:9
+(57:38..57:44) scala/Predef.summon().
+(57:45..57:56) _empty_/Structures.Applicative# -> 9:9
+(57:65..57:72) _empty_/Structures.Kleisli# -> 36:15
+(57:81..57:84) scala/Int#
+(57:86..57:87) local9 -> 57:58
+(57:90..57:90) _empty_/Structures.given_Monad_Kleisli(). -> 44:9
+(57:90..57:90) _empty_/Structures.given_Monad_Option. -> 30:9
+(58:3..58:10) scala/Predef.println(+1).
+(58:11..58:27) _empty_/Structures.apply(). -> 39:9
+(58:11..58:11) _empty_/Structures.Monad#map2(). -> 22:11
+(58:11..58:12) local6 -> 56:7
+(58:18..58:19) local8 -> 57:7
+(58:23..58:24) scala/Int#`+`(+4).
+(52:1..52:1) _empty_/i12126$package.run(). -> 52:11
+(52:1..52:1) scala/util/CommandLineParser.showError().
+(52:1..52:1) local10
+

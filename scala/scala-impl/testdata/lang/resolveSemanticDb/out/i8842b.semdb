@@ -1,0 +1,14 @@
+Document tests/pos/i8842b.scala
+(1:24..1:27) scala/Int#
+(1:30..1:34) scala/Unit#
+(2:24..2:25) scala/Int#`+`(+4).
+(2:22..2:23) _empty_/i8842b$package.f().(x) -> 1:21
+(2:26..2:27) _empty_/i8842b$package.f().(x) -> 1:21
+(3:29..3:30) scala/Int#`+`(+4).
+(3:23..3:28) local0 -> 2:14
+(3:31..3:32) _empty_/i8842b$package.f().(x) -> 1:21
+(4:13..4:19) local1 -> 3:14
+(5:3..5:6) local2 -> 4:7
+(8:11..8:15) scala/Unit#
+(8:18..8:19) _empty_/i8842b$package.f(). -> 1:12
+

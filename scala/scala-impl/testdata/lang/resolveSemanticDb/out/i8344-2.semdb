@@ -1,0 +1,14 @@
+Document tests/pos/i8344-2.scala
+(2:41..2:44) scala/Tuple.Map#
+(2:35..2:40) scala/Tuple.
+(2:45..2:46) _empty_/Foo#[T] -> 2:16
+(2:67..2:75) _empty_/Datatype# -> 1:14
+(2:76..2:77) _empty_/Foo#[T] -> 2:16
+(5:11..5:19) _empty_/Datatype# -> 1:14
+(5:25..5:28) scala/Predef.`???`().
+(6:3..6:5) local0 -> 5:7
+(7:13..7:13) _empty_/Foo.unapply(). -> 2:1
+(7:10..7:13) _empty_/Foo. -> 2:12
+(7:13..7:13) local1
+(7:20..7:23) scala/Predef.`???`().
+

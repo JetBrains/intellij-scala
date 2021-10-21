@@ -1,0 +1,6 @@
+Document tests/pos/i3816.scala
+(3:17..3:25) _empty_/Iterable# -> 1:7
+(3:46..3:48) _empty_/Iterable#DD# -> 3:8
+(3:41..3:45) _empty_/Iterable# -> 1:7
+(3:49..3:50) local2 -> 3:36
+

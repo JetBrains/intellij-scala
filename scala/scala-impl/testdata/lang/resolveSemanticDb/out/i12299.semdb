@@ -1,0 +1,46 @@
+Document tests/pos/i12299/Outer_1.scala
+(4:18..4:21) scala/Int#
+(5:25..5:25) _empty_/Outer.Inner.Bar#`<init>`(). -> 4:14
+(8:10..8:15) _empty_/Outer.Inner. -> 3:10
+
+Document tests/pos/i12299/Test_2.scala
+(1:8..1:13) _empty_/Outer. -> 1:8
+(3:12..3:12) _empty_/Outer.Inner.Bar#`<init>`(+1). -> 5:11
+(3:9..3:12) _empty_/Outer.Inner.Bar# -> 4:11
+(4:12..4:12) _empty_/Outer.Inner.Bar#`<init>`(). -> 4:14
+(4:9..4:12) _empty_/Outer.Inner.Bar# -> 4:11
+
+Document tests/pos/i12299.scala
+(4:18..4:21) scala/Int#
+(5:25..5:25) _empty_/Outer0.Inner.Bar#`<init>`(). -> 4:14
+(8:10..8:15) _empty_/Outer0.Inner. -> 3:10
+(10:14..10:14) _empty_/Outer0.Inner.Bar#`<init>`(+1). -> 5:11
+(10:11..10:14) _empty_/Outer0.Inner.Bar# -> 4:11
+(11:14..11:14) _empty_/Outer0.Inner.Bar#`<init>`(). -> 4:14
+(11:11..11:14) _empty_/Outer0.Inner.Bar# -> 4:11
+(18:18..18:21) scala/Int#
+(19:25..19:25) _empty_/Outer2.Inner.Bar#`<init>`(). -> 18:14
+(23:12..23:17) _empty_/Outer2.Inner. -> 17:10
+(25:16..25:16) _empty_/Outer2.Inner.Bar#`<init>`(+1). -> 19:11
+(25:13..25:16) _empty_/Outer2.Inner.Bar# -> 18:11
+(26:16..26:16) _empty_/Outer2.Inner.Bar#`<init>`(). -> 18:14
+(26:13..26:16) _empty_/Outer2.Inner.Bar# -> 18:11
+(29:12..29:17) _empty_/Outer2.Inner. -> 17:10
+(30:20..30:26) scala/Predef.String#
+(31:16..31:16) scala/Function0#apply().
+(31:13..31:16) _empty_/Outer2.test3.Bar(). -> 30:9
+(35:10..35:16) _empty_/Outer0. -> 1:8
+(35:16..35:16) _empty_/Outer0.Inner. -> 3:10
+(37:22..37:22) _empty_/Outer0.Inner.Bar#`<init>`(+1). -> 5:11
+(37:19..37:22) _empty_/Outer0.Inner.Bar# -> 4:11
+(38:22..38:22) _empty_/Outer0.Inner.Bar#`<init>`(). -> 4:14
+(38:19..38:22) _empty_/Outer0.Inner.Bar# -> 4:11
+(44:18..44:21) scala/Int#
+(45:25..45:25) _empty_/Outer4.Inner.Bar#`<init>`(). -> 44:14
+(49:10..49:15) _empty_/Outer4.Inner. -> 43:10
+(49:15..49:15) _empty_/Outer4.Inner.Bar. -> 46:12
+(51:14..51:14) _empty_/Outer4.Inner.Bar#`<init>`(+1). -> 45:11
+(51:11..51:14) _empty_/Outer4.Inner.Bar# -> 44:11
+(52:14..52:14) _empty_/Outer4.Inner.Bar#`<init>`(). -> 44:14
+(52:11..52:14) _empty_/Outer4.Inner.Bar# -> 44:11
+

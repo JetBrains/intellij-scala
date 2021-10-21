@@ -1,0 +1,110 @@
+Document tests/pos/opaque-immutable-array.scala
+(2:24..2:32) scala/reflect/ClassTag.
+(2:24..2:32) scala/reflect/ClassTag#
+(2:16..2:23) scala/reflect/
+(2:10..2:15) scala/
+(3:20..3:26) java/util/Arrays#
+(3:15..3:19) java/util/
+(3:10..3:14) java/
+(5:28..5:33) scala/Array#
+(5:34..5:36) _empty_/ia.IArray#[A1] -> 5:22
+(8:32..8:33) _empty_/ia.IArray.apply().[A] -> 8:15
+(8:18..8:26) scala/reflect/ClassTag#
+(8:26..8:26) _empty_/ia.IArray.apply().[A] -> 8:15
+(8:38..8:48) _empty_/ia.IArray.initialize(). -> 10:9
+(8:54..8:54) scala/Array.apply().
+(8:49..8:54) scala/Array.
+(8:55..8:57) _empty_/ia.IArray.apply().(xs) -> 8:28
+(10:32..10:37) scala/Array#
+(10:38..10:39) _empty_/ia.IArray.initialize().[A] -> 10:20
+(10:43..10:49) _empty_/ia.IArray# -> 5:15
+(10:50..10:51) _empty_/ia.IArray.initialize().[A] -> 10:20
+(10:55..10:59) _empty_/ia.IArray.initialize().(body) -> 10:23
+(11:21..11:27) _empty_/ia.IArray# -> 5:15
+(11:28..11:29) _empty_/ia.IArray.size().[A] -> 11:14
+(11:33..11:36) scala/Int#
+(11:42..11:48) scala/Array#length().
+(11:39..11:41) _empty_/ia.IArray.size().(ia) -> 11:17
+(12:20..12:26) _empty_/ia.IArray# -> 5:15
+(12:27..12:28) _empty_/ia.IArray.get().[A] -> 12:13
+(12:34..12:37) scala/Int#
+(12:40..12:41) _empty_/ia.IArray.get().[A] -> 12:13
+(12:46..12:46) scala/Array#apply().
+(12:44..12:46) _empty_/ia.IArray.get().(ia) -> 12:16
+(12:47..12:48) _empty_/ia.IArray.get().(i) -> 12:31
+(15:21..15:27) scala/AnyRef#
+(15:49..15:55) _empty_/ia.IArray# -> 5:15
+(15:56..15:57) _empty_/ia.IArray.sorted().[A] -> 15:16
+(15:35..15:43) scala/math/Ordering#
+(15:30..15:34) scala/math/
+(15:43..15:43) _empty_/ia.IArray.sorted().[A] -> 15:16
+(15:61..15:67) _empty_/ia.IArray# -> 5:15
+(15:68..15:69) _empty_/ia.IArray.sorted().[A] -> 15:16
+(16:24..16:30) java/util/Arrays#copyOf().
+(16:17..16:23) java/util/Arrays#
+(16:31..16:33) _empty_/ia.IArray.sorted().(ia) -> 15:45
+(16:38..16:44) scala/Array#length().
+(16:35..16:37) _empty_/ia.IArray.sorted().(ia) -> 15:45
+(17:26..17:35) scala/util/Sorting.quickSort(+3).
+(17:18..17:25) scala/util/Sorting.
+(17:13..17:17) scala/util/
+(17:7..17:12) scala/
+(17:36..17:39) local0 -> 16:11
+(18:7..18:10) local0 -> 16:11
+(23:26..23:32) _empty_/ia.IArray# -> 5:15
+(23:33..23:37) scala/Long#
+(23:46..23:50) scala/Long#
+(23:53..23:56) scala/Int#
+(24:14..24:26) java/util/Arrays#binarySearch().
+(24:7..24:13) java/util/Arrays#
+(24:27..24:29) _empty_/ia.IArray.binarySearch().(ia) -> 23:22
+(24:31..24:35) _empty_/ia.IArray.binarySearch().(elem) -> 23:40
+(26:5..26:11) scala/Predef.assert(+1).
+(26:33..26:35) scala/Int#`==`(+3).
+(26:12..26:16) _empty_/ia.IArray.size(). -> 11:9
+(26:17..26:22) _empty_/ia.IArray.apply(). -> 8:9
+(26:31..26:31) scala/reflect/ClassTag.apply().
+(27:5..27:11) scala/Predef.assert(+1).
+(27:34..27:36) scala/Int#`==`(+3).
+(27:12..27:16) _empty_/ia.IArray.size(). -> 11:9
+(27:23..27:23) _empty_/ia.IArray.apply(). -> 8:9
+(27:17..27:23) _empty_/ia.IArray. -> 7:10
+(27:32..27:32) scala/reflect/ClassTag.apply().
+(34:25..34:31) _empty_/ia.IArray# -> 5:15
+(34:32..34:36) scala/Long#
+(34:45..34:49) scala/Long#
+(34:52..34:55) scala/Int#
+(35:16..35:19) scala/Int#
+(36:16..36:19) scala/Int#
+(36:29..36:33) _empty_/ia.IArray.size(). -> 11:9
+(36:22..36:28) _empty_/ia.IArray. -> 7:10
+(36:34..36:36) _empty_/ia.binaryIndexOf().(ia) -> 34:21
+(37:18..37:20) scala/Int#`<=`(+3).
+(37:12..37:17) local1 -> 35:9
+(37:21..37:26) local2 -> 36:9
+(38:36..38:39) scala/Int#`>>>`().
+(38:27..38:28) scala/Int#`+`(+4).
+(38:21..38:26) local1 -> 35:9
+(38:29..38:34) local2 -> 36:9
+(39:22..39:25) _empty_/ia.IArray.get(). -> 12:9
+(39:15..39:21) _empty_/ia.IArray. -> 7:10
+(39:26..39:28) _empty_/ia.binaryIndexOf().(ia) -> 34:21
+(39:30..39:36) local3 -> 38:11
+(41:13..41:15) scala/Long#`==`(+4).
+(41:11..41:12) local4 -> 39:11
+(41:16..41:20) _empty_/ia.binaryIndexOf().(elem) -> 34:39
+(41:29..41:35) local3 -> 38:11
+(41:35..41:35) _empty_/ia.binaryIndexOf(). -> 34:7
+(42:18..42:19) scala/Long#`<`(+4).
+(42:16..42:17) local4 -> 39:11
+(42:20..42:24) _empty_/ia.binaryIndexOf().(elem) -> 34:39
+(42:26..42:31) local1 -> 35:9
+(42:41..42:42) scala/Int#`+`(+4).
+(42:34..42:40) local3 -> 38:11
+(43:12..43:17) local2 -> 36:9
+(43:27..43:28) scala/Int#`-`(+3).
+(43:20..43:26) local3 -> 38:11
+(45:12..45:13) scala/Int#`-`(+3).
+(45:11..45:11) scala/Int#`unary_-`().
+(45:6..45:11) local1 -> 35:9
+

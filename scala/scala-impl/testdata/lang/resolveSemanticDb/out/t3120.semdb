@@ -1,0 +1,4 @@
+Document tests/pos/t3120/Test.scala
+(2:5..2:14) _empty_/Q#passInner().
+(2:3..2:4) _empty_/Q#
+

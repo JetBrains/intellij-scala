@@ -1,0 +1,15 @@
+Document tests/pos/i576.scala
+(4:25..4:26) _empty_/A# -> 1:7
+(4:36..4:39) scala/Int#
+(5:13..5:16) scala/Int#
+(6:5..6:8) _empty_/Impl.foo(). -> 4:7
+(7:5..7:8) _empty_/Impl.foo(). -> 4:7
+(13:26..13:29) scala/Int#
+(13:34..13:35) _empty_/A# -> 1:7
+(13:45..13:48) scala/Int#
+(14:13..14:16) scala/Int#
+(15:22..15:25) scala/Int#
+(16:5..16:8) _empty_/Impl2.foo(). -> 13:7
+(16:10..17:2) _empty_/Impl2.foo().(ev) -> 13:22
+(16:10..16:10) local0 -> 15:18
+

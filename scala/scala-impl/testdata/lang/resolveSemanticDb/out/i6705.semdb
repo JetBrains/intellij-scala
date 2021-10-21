@@ -1,0 +1,17 @@
+Document tests/pos/i6705.scala
+(2:17..2:23) scala/Predef.String#
+(3:19..3:25) scala/Predef.String#
+(3:28..3:34) scala/Predef.String#
+(8:17..8:23) scala/Predef.String#
+(8:41..8:47) scala/Predef.String#
+(8:50..8:57) scala/Boolean#
+(8:60..8:63) scala/Predef.`???`().
+(10:18..10:29) _empty_/StringTempl# -> 1:7
+(10:32..10:36) scala/Unit#
+(11:19..11:27) _empty_/Test.shouldBe(). -> 8:29
+(11:10..11:18) _empty_/StringTempl#mkString(). -> 2:7
+(11:5..11:9) _empty_/Test.test().(tmpl) -> 10:12
+(12:30..12:38) _empty_/Test.shouldBe(). -> 8:29
+(12:10..12:18) _empty_/StringTempl#mkString(+1). -> 3:7
+(12:5..12:9) _empty_/Test.test().(tmpl) -> 10:12
+

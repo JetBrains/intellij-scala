@@ -1,0 +1,17 @@
+Document tests/pos/t2795-new.scala
+(3:23..3:31) scala/reflect/ClassTag.
+(3:23..3:31) scala/reflect/ClassTag#
+(3:33..3:41) scala/reflect/package.classTag().
+(3:14..3:21) scala/reflect/
+(3:8..3:13) scala/
+(9:13..9:20) t1/Element# -> 5:7
+(9:21..9:22) t1/Config#T# -> 9:8
+(10:19..10:27) scala/reflect/ClassTag#
+(10:28..10:29) t1/Config#T# -> 9:8
+(15:25..15:31) t1/Config# -> 8:7
+(16:27..16:32) scala/Array#
+(16:33..16:34) t1/Config#T# -> 9:8
+(16:38..16:42) scala/Unit#
+(17:13..17:28) scala/runtime/Arrays.newGenericArray().
+(17:28..17:28) t1/Config#m. -> 10:16
+

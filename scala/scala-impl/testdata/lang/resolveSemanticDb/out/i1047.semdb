@@ -1,0 +1,81 @@
+Document tests/pos/i1047.scala
+(3:22..3:25) scala/App#
+(4:3..4:10) scala/Predef.println(+1).
+(7:20..7:27) hello/world.AnimalPackage#AnimalU# -> 8:10
+(8:31..8:34) scala/Int#
+(9:22..9:29) hello/world.AnimalPackage#AnimalU# -> 8:10
+(9:32..9:38) hello/world.AnimalPackage#Animal# -> 7:10
+(10:36..10:37) scala/`&`#
+(10:28..10:35) hello/world.AnimalPackage#AnimalU# -> 8:10
+(10:38..10:39) hello/world.AnimalPackage#newSubAnimal().[T] -> 10:22
+(10:49..10:50) scala/`&`#
+(10:42..10:48) hello/world.AnimalPackage#Animal# -> 7:10
+(10:51..10:52) hello/world.AnimalPackage#newSubAnimal().[T] -> 10:22
+(12:10..12:23) hello/world.AnimalPackage# -> 6:9
+(12:30..12:43) hello/world.AnimalPackage# -> 6:9
+(13:19..13:26) hello/world.AnimalPackage#AnimalU# -> 8:10
+(14:31..14:38) hello/world.AnimalPackage#AnimalU# -> 8:10
+(14:41..14:47) local3 -> 13:10
+(14:50..14:51) local5 -> 14:28
+(15:45..15:46) scala/`&`#
+(15:37..15:44) hello/world.AnimalPackage#AnimalU# -> 8:10
+(15:47..15:48) local7 -> 15:31
+(15:58..15:59) scala/`&`#
+(15:51..15:57) local3 -> 13:10
+(15:60..15:61) local7 -> 15:31
+(15:64..15:65) local8 -> 15:34
+(17:17..17:23) hello/world.AnimalPackage#Animal# -> 7:10
+(17:15..17:16) hello/world.p. -> 12:7
+(17:28..17:37) hello/world.AnimalPackage#newAnimal(). -> 9:9
+(17:26..17:27) hello/world.p. -> 12:7
+(19:26..19:27) scala/`&`#
+(19:19..19:25) hello/world.AnimalPackage#Animal# -> 7:10
+(19:17..19:18) hello/world.p. -> 12:7
+(19:31..19:39) hello/world.CatPackage#CatDelta# -> 20:10
+(19:28..19:30) hello/world.CatPackage# -> 18:9
+(20:33..20:36) scala/Int#
+(21:27..21:28) scala/`&`#
+(21:19..21:26) hello/world.AnimalPackage#AnimalU# -> 8:10
+(21:17..21:18) hello/world.p. -> 12:7
+(21:32..21:40) hello/world.CatPackage#CatDelta# -> 20:10
+(21:29..21:31) hello/world.CatPackage# -> 18:9
+(22:19..22:23) hello/world.CatPackage#CatU# -> 21:10
+(22:26..22:29) hello/world.CatPackage#Cat# -> 19:10
+(23:30..23:31) scala/`&`#
+(23:25..23:29) hello/world.CatPackage#CatU# -> 21:10
+(23:32..23:33) hello/world.CatPackage#newSubCat().[T] -> 23:19
+(23:40..23:41) scala/`&`#
+(23:36..23:39) hello/world.CatPackage#Cat# -> 19:10
+(23:42..23:43) hello/world.CatPackage#newSubCat().[T] -> 23:19
+(25:11..25:21) hello/world.CatPackage# -> 18:9
+(25:28..25:38) hello/world.CatPackage# -> 18:9
+(26:25..26:26) scala/`&`#
+(26:18..26:24) hello/world.AnimalPackage#Animal# -> 7:10
+(26:16..26:17) hello/world.p. -> 12:7
+(26:30..26:38) hello/world.CatPackage#CatDelta# -> 20:10
+(26:27..26:29) local13 -> 25:24
+(27:19..27:23) hello/world.CatPackage#CatU# -> 21:10
+(27:26..27:29) local15 -> 26:10
+(27:34..27:46) hello/world.AnimalPackage#newSubAnimal(). -> 10:9
+(27:32..27:33) hello/world.p. -> 12:7
+(27:50..27:58) hello/world.CatPackage#CatDelta# -> 20:10
+(27:47..27:49) local13 -> 25:24
+(27:60..27:61) local17 -> 27:16
+(28:30..28:31) scala/`&`#
+(28:25..28:29) hello/world.CatPackage#CatU# -> 21:10
+(28:32..28:33) local19 -> 28:19
+(28:40..28:41) scala/`&`#
+(28:36..28:39) local15 -> 26:10
+(28:42..28:43) local19 -> 28:19
+(28:48..28:60) hello/world.AnimalPackage#newSubAnimal(). -> 10:9
+(28:46..28:47) hello/world.p. -> 12:7
+(28:73..28:74) scala/`&`#
+(28:64..28:72) hello/world.CatPackage#CatDelta# -> 20:10
+(28:61..28:63) local13 -> 25:24
+(28:75..28:76) local19 -> 28:19
+(28:78..28:79) local20 -> 28:22
+(30:17..30:20) hello/world.CatPackage#Cat# -> 19:10
+(30:14..30:16) hello/world.pc. -> 25:7
+(30:26..30:32) hello/world.CatPackage#newCat(). -> 22:9
+(30:23..30:25) hello/world.pc. -> 25:7
+

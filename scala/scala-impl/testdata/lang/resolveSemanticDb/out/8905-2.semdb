@@ -1,0 +1,15 @@
+Document tests/pos/8905-2.scala
+(2:18..2:21) scala/Int#
+(2:28..2:37) scala/Function1#
+(2:44..2:50) scala/Tuple.Concat#
+(2:38..2:43) scala/Tuple.
+(2:51..2:53) _empty_/Test#[T1] -> 1:12
+(2:55..2:57) _empty_/Test#[T2] -> 1:25
+(2:60..2:64) scala/Unit#
+(2:70..2:71) _empty_/Test#test6().[X] -> 2:23
+(2:77..2:89) scala/Any#isInstanceOf().
+(2:75..2:76) _empty_/Test#test6().(x) -> 2:67
+(2:90..2:99) scala/Function1#
+(2:100..2:103) scala/Int#
+(2:105..2:108) scala/Any#
+

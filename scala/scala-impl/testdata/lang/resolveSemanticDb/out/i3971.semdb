@@ -1,0 +1,5 @@
+Document tests/pos/i3971.scala
+(2:36..2:37) scala/Int#`+`(+4).
+(2:27..2:35) scala/Int.MaxValue.
+(2:23..2:26) scala/Int.
+

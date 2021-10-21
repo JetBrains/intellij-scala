@@ -1,0 +1,21 @@
+Document tests/pos/t4501.scala
+(2:33..2:43) scala/collection/mutable/ListBuffer.
+(2:33..2:43) scala/collection/mutable/ListBuffer#
+(2:25..2:32) scala/collection/mutable/
+(2:14..2:24) scala/collection/
+(2:8..2:13) scala/
+(5:16..5:17) _empty_/A#foo().[T] -> 5:11
+(5:21..5:22) _empty_/A#foo().[T] -> 5:11
+(5:24..5:25) _empty_/A#foo().[T] -> 5:11
+(5:28..5:29) _empty_/A#foo().(a) -> 5:14
+(8:12..8:15) _empty_/A#foo(). -> 5:7
+(8:26..8:26) scala/collection/IterableFactory#apply().
+(8:16..8:26) scala/collection/mutable/ListBuffer.
+(8:40..8:40) scala/collection/IterableFactory#apply().
+(8:30..8:40) scala/collection/mutable/ListBuffer.
+(9:12..9:15) _empty_/A#foo(). -> 5:7
+(9:20..9:20) scala/collection/IterableFactory#apply().
+(9:16..9:20) scala/package.List.
+(9:28..9:28) scala/collection/IterableFactory#apply().
+(9:24..9:28) scala/package.List.
+

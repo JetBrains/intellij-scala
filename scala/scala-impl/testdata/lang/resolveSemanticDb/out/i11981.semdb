@@ -1,0 +1,30 @@
+Document tests/pos/i11981.scala
+(3:26..3:27) scala/`|`#
+(3:24..3:25) _empty_/Main.Optional#[A] -> 3:19
+(3:28..3:32) _empty_/Main.Null# -> 2:11
+(5:19..5:27) _empty_/Main.Optional# -> 3:10
+(5:28..5:31) scala/Int#
+(11:15..11:17) _empty_/Main.TC# -> 8:11
+(11:18..11:26) _empty_/Main.Optional# -> 3:10
+(11:30..11:33) scala/Predef.`???`().
+(12:15..12:17) _empty_/Main.TC# -> 8:11
+(12:28..12:31) scala/Predef.`???`().
+(14:30..14:31) _empty_/Main.summonTC().[F] -> 14:18
+(14:32..14:33) _empty_/Main.summonTC().[A] -> 14:24
+(14:42..14:44) _empty_/Main.TC# -> 8:11
+(14:45..14:46) _empty_/Main.summonTC().[F] -> 14:18
+(14:50..14:54) scala/Unit#
+(14:57..14:60) scala/Predef.`???`().
+(16:5..16:13) _empty_/Main.summonTC(). -> 14:9
+(16:20..16:20) scala/Option.apply().
+(16:14..16:20) scala/Option.
+(16:25..16:25) _empty_/Main.g2. -> 12:11
+(18:5..18:13) _empty_/Main.summonTC(). -> 14:9
+(18:14..18:22) _empty_/Main.Optional# -> 3:10
+(18:24..18:27) scala/Int#
+(18:29..18:37) _empty_/Main.maybeInt. -> 5:9
+(18:38..18:38) _empty_/Main.g1. -> 11:11
+(20:5..20:13) _empty_/Main.summonTC(). -> 14:9
+(20:14..20:22) _empty_/Main.maybeInt. -> 5:9
+(20:23..20:23) _empty_/Main.g1. -> 11:11
+

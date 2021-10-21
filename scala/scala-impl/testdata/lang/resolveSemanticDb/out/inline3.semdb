@@ -1,0 +1,35 @@
+Document tests/pos/inline3.scala
+(3:12..3:18) scala/Predef.String#
+(5:43..5:65) _empty_/ErasedProductInstances# -> 16:13
+(5:66..5:67) _empty_/K0.ProductInstances#[F] -> 5:32
+(5:68..5:69) _empty_/K0.ProductInstances#[T] -> 5:38
+(7:38..7:43) scala/Array#
+(7:44..7:47) scala/Any#
+(7:51..7:54) scala/Predef.`???`().
+(8:43..8:59) _empty_/K0.ProductInstances# -> 5:15
+(8:60..8:61) _empty_/K0.mkProductInstances().[F] -> 8:33
+(8:63..8:64) _empty_/K0.mkProductInstances().[T] -> 8:39
+(9:53..9:65) scala/Any#asInstanceOf().
+(9:31..9:31) _empty_/ErasedProductInstances#`<init>`(). -> 16:35
+(9:32..9:45) _empty_/K0.summonAsArray(). -> 7:14
+(9:46..9:47) _empty_/K0.mkProductInstances().[F] -> 8:33
+(9:49..9:50) _empty_/K0.mkProductInstances().[T] -> 8:39
+(9:66..9:82) _empty_/K0.ProductInstances# -> 5:15
+(9:83..9:84) _empty_/K0.mkProductInstances().[F] -> 8:33
+(9:86..9:87) _empty_/K0.mkProductInstances().[T] -> 8:39
+(11:10..11:11) _empty_/K0.T# -> 3:8
+(13:21..13:22) _empty_/K0.T# -> 3:8
+(13:25..13:26) _empty_/K0.T# -> 3:8
+(13:35..13:47) scala/Any#asInstanceOf().
+(13:48..13:49) _empty_/K0.T# -> 3:8
+(16:48..16:53) scala/Array#
+(16:54..16:57) scala/Any#
+(19:19..19:22) scala/Int#
+(22:6..22:9) _empty_/K0.foo(). -> 13:14
+(22:3..22:5) _empty_/K0. -> 1:8
+(22:13..22:14) _empty_/K0.x. -> 11:7
+(22:10..22:12) _empty_/K0. -> 1:8
+(23:6..23:24) _empty_/K0.mkProductInstances(). -> 8:14
+(23:3..23:5) _empty_/K0. -> 1:8
+(23:33..23:36) _empty_/ISB# -> 19:12
+

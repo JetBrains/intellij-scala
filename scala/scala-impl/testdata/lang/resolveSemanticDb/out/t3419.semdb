@@ -1,0 +1,13 @@
+Document tests/pos/t3419/C_2.scala
+(2:12..2:13) _empty_/T# -> 1:7
+(2:14..2:17) scala/Any#
+(2:18..2:21) scala/Int#
+(2:36..2:39) scala/Int#
+(2:48..2:51) scala/Int#
+(2:55..2:58) local2 -> 2:41
+
+Document tests/pos/t3419/B_1.scala
+(2:15..2:16) _empty_/T#[A] -> 1:9
+(2:23..2:24) _empty_/T#[B] -> 1:11
+(2:29..2:30) _empty_/T#[B] -> 1:11
+

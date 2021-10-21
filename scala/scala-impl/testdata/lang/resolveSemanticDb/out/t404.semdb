@@ -1,0 +1,11 @@
+Document tests/pos/t404.scala
+(3:13..3:14) _empty_/AbsIterator#T# -> 2:8
+(5:30..5:41) _empty_/AbsIterator# -> 1:7
+(6:12..6:16) scala/Char#
+(9:28..9:39) _empty_/AbsIterator# -> 1:7
+(10:31..10:32) _empty_/AbsIterator#T# -> 2:8
+(10:41..10:45) _empty_/AbsIterator#next(). -> 3:7
+(12:31..12:31) _empty_/StringIterator#`<init>`(). -> 5:30
+(12:17..12:31) _empty_/StringIterator# -> 5:7
+(12:37..12:49) _empty_/SyncIterator# -> 9:7
+

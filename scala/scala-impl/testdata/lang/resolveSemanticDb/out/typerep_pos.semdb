@@ -1,0 +1,44 @@
+Document tests/pos/typerep_pos.scala
+(1:24..1:27) scala/App#
+(3:42..3:42) _empty_/typerep.TypeRep#`<init>`(). -> 2:16
+(3:30..3:37) _empty_/typerep.TypeRep# -> 2:9
+(3:38..3:41) scala/Int#
+(6:50..6:50) _empty_/typerep.TypeRep#`<init>`(). -> 2:16
+(6:34..6:41) _empty_/typerep.TypeRep# -> 2:9
+(6:42..6:49) scala/Boolean#
+(9:34..9:41) _empty_/typerep.TypeRep# -> 2:9
+(9:42..9:43) _empty_/typerep.ListRep#[T] -> 9:22
+(9:70..9:70) _empty_/typerep.TypeRep#`<init>`(). -> 2:16
+(9:54..9:61) _empty_/typerep.TypeRep# -> 2:9
+(9:62..9:66) scala/package.List#
+(9:67..9:68) _empty_/typerep.ListRep#[T] -> 9:22
+(13:24..13:31) _empty_/typerep.TypeRep# -> 2:9
+(13:32..13:35) scala/Int#
+(13:39..13:45) _empty_/typerep.IntRep. -> 3:15
+(14:28..14:35) _empty_/typerep.TypeRep# -> 2:9
+(14:36..14:43) scala/Boolean#
+(14:47..14:57) _empty_/typerep.BooleanRep. -> 6:15
+(15:45..15:52) _empty_/typerep.TypeRep# -> 2:9
+(15:53..15:54) _empty_/typerep.listRep().[T] -> 15:24
+(15:58..15:65) _empty_/typerep.TypeRep# -> 2:9
+(15:66..15:70) scala/package.List#
+(15:71..15:72) _empty_/typerep.listRep().[T] -> 15:24
+(15:84..15:84) _empty_/typerep.ListRep.apply(). -> 9:3
+(15:77..15:84) _empty_/typerep.ListRep. -> 9:14
+(15:85..15:92) _empty_/typerep.listRep().(elemrep) -> 15:36
+(17:21..17:22) _empty_/typerep.getType().[T] -> 17:15
+(17:38..17:45) _empty_/typerep.TypeRep# -> 2:9
+(17:46..17:47) _empty_/typerep.getType().[T] -> 17:15
+(17:51..17:58) _empty_/typerep.TypeRep# -> 2:9
+(17:59..17:60) _empty_/typerep.getType().[T] -> 17:15
+(17:64..17:67) _empty_/typerep.getType().(rep) -> 17:33
+(19:3..19:10) scala/Predef.println(+1).
+(19:11..19:18) _empty_/typerep.getType(). -> 17:7
+(19:21..19:21) _empty_/typerep.intRep(). -> 13:16
+(20:3..20:10) scala/Predef.println(+1).
+(20:11..20:18) _empty_/typerep.getType(). -> 17:7
+(20:23..20:23) scala/collection/IterableFactory#apply().
+(20:19..20:23) scala/package.List.
+(20:27..20:27) _empty_/typerep.listRep(). -> 15:16
+(20:27..20:27) _empty_/typerep.intRep(). -> 13:16
+

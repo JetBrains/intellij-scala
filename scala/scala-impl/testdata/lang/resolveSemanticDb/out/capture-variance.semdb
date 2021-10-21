@@ -1,0 +1,28 @@
+Document tests/pos/capture-variance.scala
+(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
+(2:18..2:20) _empty_/Hi# -> 1:7
+(9:10..9:14) scala/package.List#
+(9:15..9:19) _empty_/Cov1# -> 3:7
+(9:20..9:23) scala/Any#
+(9:28..9:31) scala/Predef.`???`().
+(9:34..9:38) scala/package.List#
+(9:39..9:43) _empty_/Cov1# -> 3:7
+(10:10..10:14) scala/package.List#
+(10:15..10:19) _empty_/Cov2# -> 4:7
+(10:20..10:22) _empty_/Hi# -> 1:7
+(10:27..10:30) scala/Predef.`???`().
+(10:33..10:37) scala/package.List#
+(10:38..10:42) _empty_/Cov2# -> 4:7
+(11:10..11:14) scala/package.List#
+(11:15..11:22) _empty_/Contra1# -> 5:7
+(11:23..11:30) scala/Nothing#
+(11:35..11:38) scala/Predef.`???`().
+(11:41..11:45) scala/package.List#
+(11:46..11:53) _empty_/Contra1# -> 5:7
+(12:10..12:14) scala/package.List#
+(12:15..12:22) _empty_/Contra2# -> 6:7
+(12:23..12:25) _empty_/Lo# -> 2:7
+(12:30..12:33) scala/Predef.`???`().
+(12:36..12:40) scala/package.List#
+(12:41..12:48) _empty_/Contra2# -> 6:7
+

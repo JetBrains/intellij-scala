@@ -1,0 +1,23 @@
+Document tests/pos/t2023.scala
+(4:38..4:39) _empty_/C.ipl().[A] -> 4:20
+(4:43..4:50) scala/package.Ordered#
+(4:51..4:52) _empty_/C.ipl().[A] -> 4:20
+(4:56..4:57) _empty_/C# -> 1:7
+(4:58..4:59) _empty_/C.ipl().[A] -> 4:20
+(8:17..8:18) _empty_/P.foo().[A] -> 8:11
+(8:23..8:24) _empty_/P.foo().[A] -> 8:11
+(8:38..8:39) _empty_/C# -> 1:7
+(8:40..8:41) _empty_/P.foo().[A] -> 8:11
+(8:45..8:49) scala/Unit#
+(12:20..12:24) scala/Unit#
+(13:7..13:10) _empty_/P.foo(). -> 8:7
+(13:5..13:6) _empty_/P. -> 7:8
+(13:20..13:20) _empty_/C.ipl(). -> 4:16
+(13:20..13:20) scala/LowPriorityImplicits#charWrapper().
+(13:20..13:20) local0
+(14:7..14:10) _empty_/P.foo(). -> 8:7
+(14:5..14:6) _empty_/P. -> 7:8
+(14:20..14:20) _empty_/C.ipl(). -> 4:16
+(14:20..14:20) scala/LowPriorityImplicits#charWrapper().
+(14:20..14:20) local1
+

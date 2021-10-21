@@ -1,0 +1,10 @@
+Document tests/pos/t1136.scala
+(2:14..2:17) scala/Int#
+(2:21..2:25) scala/Unit#
+(3:7..3:13) scala/collection/IterableOnceOps#toList().
+(3:5..3:6) _empty_/test.foo().(s) -> 2:11
+(4:15..4:19) scala/package.List#
+(4:20..4:23) scala/Int#
+(4:28..4:31) _empty_/test.foo(). -> 2:7
+(4:32..4:33) local0 -> 4:12
+

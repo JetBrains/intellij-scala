@@ -1,0 +1,14 @@
+Document tests/pos/i8491.scala
+(4:27..4:30) _empty_/Foo# -> 1:7
+(4:31..4:32) _empty_/Test.qux1().[A] -> 4:12
+(4:38..4:41) _empty_/Bar# -> 1:21
+(4:57..4:60) _empty_/Bar# -> 1:21
+(4:63..4:64) _empty_/Test.qux1().(B) -> 4:35
+(4:48..4:51) _empty_/Bar# -> 1:21
+(5:15..5:18) _empty_/Foo# -> 1:7
+(5:18..5:18) _empty_/Test.qux2().[A] -> 5:12
+(5:32..5:35) _empty_/Bar# -> 1:21
+(5:51..5:54) _empty_/Bar# -> 1:21
+(5:57..5:58) _empty_/Test.qux2().(B) -> 5:29
+(5:42..5:45) _empty_/Bar# -> 1:21
+

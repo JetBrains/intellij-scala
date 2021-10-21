@@ -1,0 +1,16 @@
+Document tests/pos/implicit-divergent.scala
+(3:24..3:27) _empty_/Foo# -> 1:7
+(3:28..3:31) scala/Int#
+(3:35..3:38) scala/Predef.`???`().
+(7:38..7:41) _empty_/Foo# -> 1:7
+(7:42..7:43) _empty_/Test.genFoo().[T] -> 7:23
+(7:47..7:48) _empty_/Test.genFoo().[T] -> 7:23
+(7:52..7:55) _empty_/Foo# -> 1:7
+(7:56..7:57) _empty_/Test.genFoo().[T] -> 7:23
+(7:61..7:64) scala/Predef.`???`().
+(9:13..9:17) scala/Unit#
+(10:5..10:15) scala/Predef.implicitly().
+(10:16..10:19) _empty_/Foo# -> 1:7
+(10:20..10:23) scala/Int#
+(10:25..10:25) _empty_/Foo.intFoo(). -> 3:16
+

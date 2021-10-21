@@ -1,0 +1,27 @@
+Document tests/pos/cyclics-pos.scala
+(5:27..5:30) _empty_/Abs# -> 2:7
+(5:42..5:43) _empty_/Cyclic3#A# -> 5:22
+(6:27..6:32) _empty_/Param# -> 1:7
+(6:33..6:34) _empty_/Cyclic4#A# -> 6:22
+(7:28..7:31) _empty_/Abs# -> 2:7
+(7:43..7:45) _empty_/Cyclic5#AA# -> 7:22
+(7:57..7:58) _empty_/Cyclic5#A# -> 7:38
+(12:18..12:34) _empty_/IterableTemplate# -> 10:7
+(13:22..13:28) _empty_/IterableTemplate#Constr# -> 12:8
+(13:43..13:44) _empty_/IterableTemplate#ConstrOf#[A] -> 13:17
+(15:17..15:25) scala/package.Iterator#
+(15:26..15:30) _empty_/IterableTemplate#Elem# -> 11:8
+(17:19..17:23) _empty_/IterableTemplate#Elem# -> 11:8
+(17:27..17:28) _empty_/IterableTemplate#map().[B] -> 17:12
+(17:31..17:39) _empty_/IterableTemplate#ConstrOf# -> 13:8
+(17:40..17:41) _empty_/IterableTemplate#map().[B] -> 17:12
+(19:18..19:22) _empty_/IterableTemplate#Elem# -> 11:8
+(19:26..19:30) scala/Unit#
+(19:43..19:50) scala/collection/IterableOnceOps#foreach().
+(19:34..19:42) _empty_/IterableTemplate#iterator(). -> 15:7
+(19:51..19:52) _empty_/IterableTemplate#foreach().(f) -> 19:15
+(23:27..23:43) _empty_/IterableTemplate# -> 10:7
+(25:18..25:26) _empty_/Iterable# -> 23:7
+(25:27..25:28) _empty_/Iterable#[A] -> 23:16
+(25:61..25:67) _empty_/Iterable#Constr# -> 25:8
+

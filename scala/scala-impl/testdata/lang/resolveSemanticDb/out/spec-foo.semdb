@@ -1,0 +1,6 @@
+Document tests/pos/spec-foo.scala
+(2:16..2:16) scala/collection/IterableFactory#apply().
+(2:12..2:16) scala/package.List.
+(3:10..3:10) scala/collection/immutable/List#`::`().
+(3:8..3:10) _empty_/Foo#xs. -> 2:7
+

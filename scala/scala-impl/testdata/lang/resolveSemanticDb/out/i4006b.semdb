@@ -1,0 +1,5 @@
+Document tests/pos/i4006b.scala
+(2:19..2:22) scala/Int#
+(2:65..2:72) scala/Predef.println(+1).
+(3:3..3:6) _empty_/Foo#foo(). -> 2:14
+

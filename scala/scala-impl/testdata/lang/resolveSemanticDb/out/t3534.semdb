@@ -1,0 +1,17 @@
+Document tests/pos/t3534.scala
+(2:8..2:8) scala/collection/IterableFactory#apply().
+(2:4..2:8) scala/package.List.
+(2:9..2:15) scala/Option#
+(2:16..2:19) scala/Int#
+(3:18..3:18) scala/collection/immutable/`::`.unapply().
+(3:16..3:18) scala/package.`::`.
+(3:11..3:15) scala/None.
+(3:24..3:24) scala/collection/immutable/`::`.unapply().
+(3:22..3:24) scala/package.`::`.
+(4:35..4:35) java/lang/Exception#`<init>`(+1).
+(4:26..4:35) scala/package.Exception#
+(4:58..4:66) scala/collection/IterableOnceOps#mkString(+2).
+(4:38..4:44) scala/collection/immutable/List#filter().
+(4:36..4:37) local2 -> 4:11
+(4:47..4:56) scala/Option#isDefined().
+

@@ -1,0 +1,14 @@
+Document tests/pos/i2201a.scala
+(3:24..3:25) _empty_/Fix#[F] -> 3:11
+(3:26..3:29) _empty_/Fix# -> 3:7
+(3:30..3:31) _empty_/Fix#[F] -> 3:11
+(5:19..5:22) _empty_/Foo# -> 1:7
+(5:23..5:26) scala/Int#
+(6:19..6:22) _empty_/Fix# -> 3:7
+(6:23..6:28) _empty_/DocTree.Const# -> 5:8
+(7:18..7:23) _empty_/DocTree.Const# -> 5:8
+(7:24..7:32) _empty_/DocTree.FixConst# -> 6:8
+(7:36..7:44) _empty_/DocTree.FixConst# -> 6:8
+(7:54..7:54) _empty_/Fix#`<init>`(). -> 3:10
+(7:55..7:56) _empty_/DocTree.docTree().(s) -> 7:15
+

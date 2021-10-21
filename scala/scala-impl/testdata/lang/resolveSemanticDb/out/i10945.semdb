@@ -1,0 +1,7 @@
+Document tests/pos/i10945/Test_2.scala
+(1:36..1:43) _empty_/Built_1#Builder#
+(1:28..1:35) _empty_/Built_1#
+(1:44..1:45) _empty_/Test_2$package.useBuilder().[A] -> 1:16
+(1:49..1:53) scala/Unit#
+(1:56..1:59) scala/Predef.`???`().
+

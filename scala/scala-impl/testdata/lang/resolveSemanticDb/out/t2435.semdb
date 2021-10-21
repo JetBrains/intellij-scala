@@ -1,0 +1,32 @@
+Document tests/pos/t2435.scala
+(5:24..5:30) scala/Predef.String#
+(6:31..6:31) _empty_/Bug.FConstant#`<init>`(). -> 9:23
+(6:11..6:20) _empty_/Bug.FConstant# -> 9:14
+(6:32..6:40) _empty_/Bug.FChain#chain().(constant) -> 5:15
+(9:46..9:52) scala/Predef.String#
+(9:59..9:60) _empty_/Bug.FConstant#[E] -> 9:24
+(9:76..9:76) _empty_/Bug.FChain#`<init>`(). -> 3:5
+(9:70..9:76) _empty_/Bug.FChain# -> 2:18
+(10:19..10:20) _empty_/Bug.FChain#T# -> 3:10
+(10:14..10:18) _empty_/Bug.FConstant#tail. -> 9:54
+(13:29..13:29) _empty_/Bug.FChain#`<init>`(). -> 3:5
+(13:23..13:29) _empty_/Bug.FChain# -> 2:18
+(14:14..14:18) scala/Unit#
+(20:10..20:13) _empty_/Bug. -> 1:8
+(21:3..21:10) scala/Predef.println(+1).
+(22:28..22:33) _empty_/Bug.FChain#chain(). -> 5:9
+(22:17..22:22) _empty_/Bug.FChain#chain(). -> 5:9
+(22:12..22:16) _empty_/Bug.FNil. -> 13:10
+(23:15..23:20) _empty_/Bug.FChain#chain(). -> 5:9
+(23:12..23:14) _empty_/Test.a1. -> 22:7
+(25:3..25:10) scala/Predef.println(+1).
+(26:39..26:44) _empty_/Bug.FChain#chain(). -> 5:9
+(26:28..26:33) _empty_/Bug.FChain#chain(). -> 5:9
+(26:17..26:22) _empty_/Bug.FChain#chain(). -> 5:9
+(26:12..26:16) _empty_/Bug.FNil. -> 13:10
+(27:11..27:20) _empty_/Bug.FConstant# -> 9:14
+(27:26..27:35) _empty_/Bug.FConstant# -> 9:14
+(27:41..27:50) _empty_/Bug.FConstant# -> 9:14
+(27:51..27:55) _empty_/Bug.FNil. -> 13:10
+(27:66..27:68) _empty_/Test.a3. -> 26:7
+

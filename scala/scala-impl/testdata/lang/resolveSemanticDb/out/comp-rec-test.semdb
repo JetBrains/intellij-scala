@@ -1,0 +1,13 @@
+Document tests/pos/comp-rec-test.scala
+(1:21..1:24) scala/App#
+(7:27..7:33) _empty_/Comp.Family# -> 3:10
+(8:15..8:19) scala/Unit#
+(11:23..11:29) _empty_/Comp.Family# -> 3:10
+(12:14..12:20) _empty_/Comp.Family# -> 3:10
+(13:17..13:18) _empty_/Comp.Family#T# -> 4:11
+(13:15..13:16) _empty_/Comp.Wrap#v. -> 12:10
+(16:31..16:35) _empty_/Comp.Wrap# -> 11:10
+(17:14..17:21) _empty_/Comp.Trivial. -> 7:11
+(20:35..20:39) _empty_/Comp.Wrap# -> 11:10
+(21:14..21:25) _empty_/Comp.WrapTrivial. -> 16:11
+

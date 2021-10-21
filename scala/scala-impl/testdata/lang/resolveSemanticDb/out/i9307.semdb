@@ -1,0 +1,22 @@
+Document tests/pos/i9307.scala
+(1:20..1:33) scala/compiletime/package$package.uninitialized().
+(1:8..1:19) scala/compiletime/
+(3:21..3:24) scala/Int#
+(3:27..3:40) scala/compiletime/package$package.uninitialized().
+(4:21..4:26) scala/Array#
+(4:27..4:30) scala/Int#
+(4:34..4:47) scala/compiletime/package$package.uninitialized().
+(5:27..5:32) scala/Array#
+(5:33..5:36) scala/Int#
+(5:40..5:53) scala/compiletime/package$package.uninitialized().
+(6:21..6:26) scala/Array#
+(6:27..6:33) java/lang/Object#
+(6:37..6:50) scala/compiletime/package$package.uninitialized().
+(7:21..7:26) scala/Array#
+(7:27..7:32) scala/Array#
+(7:33..7:36) scala/Int#
+(7:41..7:54) scala/compiletime/package$package.uninitialized().
+(8:21..8:25) scala/package.List#
+(8:26..8:29) scala/Int#
+(8:33..8:46) scala/compiletime/package$package.uninitialized().
+

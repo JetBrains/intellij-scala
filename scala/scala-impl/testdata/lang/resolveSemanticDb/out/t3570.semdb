@@ -1,0 +1,9 @@
+Document tests/pos/t3570.scala
+(2:35..2:35) java/lang/Throwable#`<init>`().
+(2:26..2:35) scala/package.Throwable#
+(3:23..3:28) _empty_/test#Break. -> 2:12
+(4:21..4:25) scala/Unit#
+(4:28..4:32) scala/Unit#
+(5:15..5:16) _empty_/test#block().(x) -> 4:15
+(5:35..5:40) _empty_/test#Break. -> 2:12
+

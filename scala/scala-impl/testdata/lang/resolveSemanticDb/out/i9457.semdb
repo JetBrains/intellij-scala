@@ -1,0 +1,13 @@
+Document tests/pos/i9457.scala
+(2:13..2:16) scala/Int#
+(3:5..3:6) _empty_/inlinetuple.f(). -> 4:14
+(3:8..3:8) scala/Tuple2.apply().
+(4:27..4:30) scala/Int#
+(4:32..4:35) scala/Int#
+(4:39..4:42) scala/Int#
+(5:18..5:19) _empty_/inlinetuple.f().(p) -> 4:23
+(5:10..5:10) scala/Tuple2.unapply().
+(6:7..6:8) scala/Int#`+`(+4).
+(6:5..6:6) local0 -> 5:10
+(6:9..6:10) local1 -> 5:13
+

@@ -1,0 +1,69 @@
+Document tests/pos/t2082.scala
+(4:66..4:72) _empty_/Mapper# -> 2:7
+(4:73..4:74) _empty_/KeyedMapper#[T] -> 4:28
+(13:27..13:38) _empty_/KeyedMapper# -> 4:7
+(13:39..13:43) scala/Long#
+(13:45..13:56) _empty_/TestSubject# -> 13:7
+(13:63..13:67) _empty_/IdPK# -> 11:7
+(15:23..15:34) _empty_/KeyedMapper# -> 4:7
+(15:35..15:39) scala/Long#
+(15:41..15:48) _empty_/TestRun# -> 15:7
+(15:55..15:59) _empty_/IdPK# -> 11:7
+(16:32..16:48) _empty_/MappedForeignKey# -> 9:7
+(16:49..16:53) scala/Long#
+(16:55..16:62) _empty_/TestRun# -> 15:7
+(16:64..16:75) _empty_/TestSubject# -> 13:7
+(19:31..19:31) _empty_/TestRun#`<init>`(). -> 15:23
+(19:24..19:31) _empty_/TestRun# -> 15:7
+(19:37..19:52) _empty_/KeyedMetaMapper# -> 7:7
+(19:53..19:57) scala/Long#
+(19:59..19:66) _empty_/TestRun# -> 15:7
+(21:42..21:42) _empty_/TestSubject#`<init>`(). -> 13:27
+(21:31..21:42) _empty_/TestSubject# -> 13:7
+(21:48..21:63) _empty_/KeyedMetaMapper# -> 7:7
+(21:64..21:68) scala/Long#
+(21:70..21:81) _empty_/TestSubject# -> 13:7
+(22:43..22:43) _empty_/MetaTestSubject#`<init>`(). -> 21:31
+(22:28..22:43) _empty_/MetaTestSubject# -> 21:7
+(26:29..26:40) _empty_/KeyedMapper# -> 4:7
+(26:41..26:45) scala/Long#
+(26:47..26:52) _empty_/Main.oneToOneJoin().[PType] -> 26:20
+(26:59..26:63) _empty_/IdPK# -> 11:7
+(27:29..27:40) _empty_/KeyedMapper# -> 4:7
+(27:41..27:45) scala/Long#
+(27:47..27:52) _empty_/Main.oneToOneJoin().[CType] -> 27:20
+(27:59..27:63) _empty_/IdPK# -> 11:7
+(28:33..28:38) _empty_/Main.oneToOneJoin().[CType] -> 27:20
+(28:44..28:59) _empty_/KeyedMetaMapper# -> 7:7
+(28:60..28:64) scala/Long#
+(28:66..28:71) _empty_/Main.oneToOneJoin().[CType] -> 27:20
+(29:30..29:46) _empty_/MappedForeignKey# -> 9:7
+(29:47..29:51) scala/Long#
+(29:53..29:58) _empty_/Main.oneToOneJoin().[PType] -> 26:20
+(29:60..29:65) _empty_/Main.oneToOneJoin().[CType] -> 27:20
+(30:13..30:17) scala/package.List#
+(30:18..30:23) _empty_/Main.oneToOneJoin().[PType] -> 26:20
+(30:38..30:47) _empty_/Main.oneToOneJoin().[CMetaType] -> 28:20
+(30:61..30:66) _empty_/Main.oneToOneJoin().[PType] -> 26:20
+(30:71..30:77) _empty_/Main.oneToOneJoin().[FKType] -> 29:20
+(31:3..31:6) scala/Predef.Map#
+(31:7..31:11) scala/Long#
+(31:13..31:18) _empty_/Main.oneToOneJoin().[CType] -> 27:20
+(31:26..31:31) scala/collection/immutable/Map.empty().
+(31:22..31:25) scala/Predef.Map.
+(33:15..33:19) scala/Unit#
+(34:5..34:17) _empty_/Main.oneToOneJoin(). -> 26:7
+(34:18..34:25) _empty_/TestRun# -> 15:7
+(34:27..34:38) _empty_/TestSubject# -> 13:7
+(34:40..34:55) _empty_/MetaTestSubject# -> 21:7
+(35:18..35:34) _empty_/MappedForeignKey# -> 9:7
+(35:35..35:39) scala/Long#
+(35:41..35:48) _empty_/TestRun# -> 15:7
+(35:50..35:61) _empty_/TestSubject# -> 13:7
+(36:9..36:9) scala/collection/IterableFactory#apply().
+(36:5..36:9) scala/package.List.
+(36:13..36:24) _empty_/TestSubject. -> 22:8
+(36:31..36:38) _empty_/TestRun# -> 15:7
+(36:46..36:57) _empty_/TestRun#testSubject. -> 16:12
+(36:43..36:45) local0 -> 36:27
+

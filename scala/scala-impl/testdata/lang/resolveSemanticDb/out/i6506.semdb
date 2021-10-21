@@ -1,0 +1,8 @@
+Document tests/pos/i6506.scala
+(2:10..2:15) scala/Tuple#
+(2:24..2:33) scala/Tuple.fromArray().
+(2:18..2:23) scala/Tuple.
+(2:39..2:39) scala/Array.apply().
+(2:34..2:39) scala/Array.
+(2:54..2:54) scala/reflect/ClassTag.apply().
+

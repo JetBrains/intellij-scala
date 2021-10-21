@@ -1,0 +1,12 @@
+Document tests/pos/t5968.scala
+(2:12..2:18) scala/package.Either#
+(2:19..2:22) scala/Int#
+(2:24..2:25) _empty_/X. -> 1:8
+(2:35..2:36) _empty_/X.f().(e) -> 2:9
+(3:14..3:14) scala/util/Left.unapply().
+(3:10..3:14) scala/package.Left.
+(3:21..3:22) local0 -> 3:15
+(4:15..4:15) scala/util/Right.unapply().
+(4:10..4:15) scala/package.Right.
+(4:16..4:17) _empty_/X. -> 1:8
+

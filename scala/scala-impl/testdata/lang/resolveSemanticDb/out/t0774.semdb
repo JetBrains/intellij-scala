@@ -1,0 +1,7 @@
+Document tests/pos/t0774/unrelated.scala
+(2:10..2:15) _empty_/Outer.Inner. -> 6:10
+(4:3..4:12) _empty_/Outer.Inner.deathname(). -> 7:9
+(7:20..7:23) scala/Int#
+
+Document tests/pos/t0774/deathname.scala
+

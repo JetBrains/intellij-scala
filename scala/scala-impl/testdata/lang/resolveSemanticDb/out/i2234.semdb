@@ -1,0 +1,27 @@
+Document tests/pos/i2234.scala
+(2:19..2:20) _empty_/Test.Dummy#[A] -> 2:14
+(4:12..4:17) _empty_/Test.Dummy# -> 2:8
+(4:18..4:24) scala/Predef.String#
+(5:12..5:17) _empty_/Test.Dummy# -> 2:8
+(5:18..5:21) scala/Int#
+(7:26..7:31) _empty_/Test.Dummy# -> 2:8
+(7:32..7:33) _empty_/Test.dummy().[A] -> 7:22
+(7:42..7:54) scala/Any#asInstanceOf().
+(7:55..7:56) _empty_/Test.dummy().[A] -> 7:22
+(8:12..8:16) scala/package.List#
+(8:17..8:23) scala/Predef.String#
+(8:38..8:43) _empty_/Test.Dummy# -> 2:8
+(8:44..8:50) scala/Predef.String#
+(9:12..9:16) scala/package.List#
+(9:17..9:20) scala/Int#
+(9:35..9:40) _empty_/Test.Dummy# -> 2:8
+(9:41..9:44) scala/Int#
+(11:3..11:4) _empty_/Test.m(+1). -> 9:7
+(11:9..11:9) scala/collection/IterableFactory#apply().
+(11:5..11:9) scala/package.List.
+(11:19..11:19) _empty_/Test.dummy(). -> 7:16
+(12:3..12:4) _empty_/Test.m(). -> 8:7
+(12:9..12:9) scala/collection/IterableFactory#apply().
+(12:5..12:9) scala/package.List.
+(12:15..12:15) _empty_/Test.dummy(). -> 7:16
+

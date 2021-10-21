@@ -1,0 +1,11 @@
+Document tests/pos/i7734.scala
+(1:11..1:17) scala/Double#
+(1:22..1:25) scala/Int#
+(1:53..1:53) java/lang/Enum#`<init>`().
+(1:46..1:50) java/lang/Enum#
+(1:41..1:45) java/lang/
+(1:36..1:40) java/
+(1:51..1:52) _empty_/A# -> 1:6
+(2:21..2:21) _empty_/A#`<init>`(). -> 1:7
+(2:20..2:21) _empty_/A# -> 1:6
+

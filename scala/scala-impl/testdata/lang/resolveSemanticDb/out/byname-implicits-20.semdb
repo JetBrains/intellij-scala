@@ -1,0 +1,48 @@
+Document tests/pos/byname-implicits-20.scala
+(6:22..6:29) _empty_/Test.Generic# -> 2:9
+(6:30..6:31) _empty_/Test.Generic.Aux#[T] -> 6:14
+(6:47..6:48) _empty_/Test.Generic.Aux#[R] -> 6:17
+(11:27..11:30) _empty_/Test.Foo# -> 9:9
+(11:31..11:35) scala/Unit#
+(11:39..11:42) scala/Predef.`???`().
+(12:26..12:29) _empty_/Test.Foo# -> 9:9
+(12:30..12:33) scala/Int#
+(12:37..12:40) scala/Predef.`???`().
+(13:47..13:50) _empty_/Test.Foo# -> 9:9
+(13:51..13:52) _empty_/Test.Foo.fooPair().[T] -> 13:26
+(13:61..13:64) _empty_/Test.Foo# -> 9:9
+(13:65..13:66) _empty_/Test.Foo.fooPair().[U] -> 13:29
+(13:70..13:73) _empty_/Test.Foo# -> 9:9
+(13:75..13:76) _empty_/Test.Foo.fooPair().[T] -> 13:26
+(13:78..13:79) _empty_/Test.Foo.fooPair().[U] -> 13:29
+(13:84..13:87) scala/Predef.`???`().
+(14:53..14:56) _empty_/Test.Generic.Aux# -> 6:10
+(14:45..14:52) _empty_/Test.Generic. -> 5:10
+(14:57..14:58) _empty_/Test.Foo.fooGen().[T] -> 14:25
+(14:60..14:61) _empty_/Test.Foo.fooGen().[R] -> 14:28
+(14:71..14:74) _empty_/Test.Foo# -> 9:9
+(14:75..14:76) _empty_/Test.Foo.fooGen().[R] -> 14:28
+(14:80..14:83) _empty_/Test.Foo# -> 9:9
+(14:84..14:85) _empty_/Test.Foo.fooGen().[T] -> 14:25
+(14:89..14:92) scala/Predef.`???`().
+(19:24..19:31) _empty_/Test.Generic# -> 2:9
+(19:32..19:33) _empty_/Test.A# -> 17:9
+(19:50..19:51) _empty_/Test.B# -> 22:9
+(19:53..19:57) scala/Unit#
+(19:63..19:66) scala/Predef.`???`().
+(24:24..24:31) _empty_/Test.Generic# -> 2:9
+(24:32..24:33) _empty_/Test.B# -> 22:9
+(24:50..24:53) scala/Int#
+(24:56..24:59) scala/Int#
+(24:61..24:65) scala/Unit#
+(24:72..24:75) scala/Predef.`???`().
+(27:3..27:13) scala/Predef.implicitly().
+(27:14..27:17) _empty_/Test.Foo# -> 9:9
+(27:18..27:19) _empty_/Test.A# -> 17:9
+(27:21..27:21) _empty_/Test.Foo.fooGen(). -> 14:18
+(27:21..27:21) _empty_/Test.A.genA. -> 19:18
+(27:21..27:21) _empty_/Test.Foo.fooPair(). -> 13:18
+(27:21..27:21) _empty_/Test.B.genB. -> 24:18
+(27:21..27:21) _empty_/Test.Foo.fooInt. -> 12:18
+(27:21..27:21) _empty_/Test.Foo.fooUnit. -> 11:18
+

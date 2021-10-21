@@ -1,0 +1,32 @@
+Document tests/pos/i2745.scala
+(2:27..2:28) scala/`|`#
+(2:20..2:26) _empty_/Test.Errors# -> 3:20
+(2:29..2:30) _empty_/Test.Result#[A] -> 2:15
+(3:33..3:36) scala/package.Seq#
+(3:37..3:43) scala/Predef.String#
+(5:38..5:44) _empty_/Test.Result# -> 2:8
+(5:45..5:46) _empty_/Test.RichRes#[A] -> 5:26
+(5:63..5:63) scala/AnyVal#`<init>`().
+(5:57..5:63) scala/AnyVal#
+(6:19..6:20) _empty_/Test.RichRes#[A] -> 5:26
+(6:24..6:25) _empty_/Test.RichRes#map().[B] -> 6:13
+(6:28..6:34) _empty_/Test.Result# -> 2:8
+(6:35..6:36) _empty_/Test.RichRes#map().[B] -> 6:13
+(6:40..6:43) _empty_/Test.RichRes#res. -> 5:33
+(7:16..7:22) _empty_/Test.Errors# -> 3:20
+(7:26..7:28) local0 -> 7:12
+(8:15..8:16) _empty_/Test.RichRes#[A] -> 5:26
+(8:21..8:21) scala/Function1#apply().
+(8:20..8:21) _empty_/Test.RichRes#map().(f) -> 6:16
+(8:22..8:23) local1 -> 8:12
+(12:12..12:18) _empty_/Test.Result# -> 2:8
+(12:19..12:25) scala/Predef.String#
+(12:29..12:32) scala/Predef.`???`().
+(13:14..13:20) scala/Predef.String#
+(13:23..13:26) scala/Int#
+(13:29..13:32) scala/Predef.`???`().
+(15:7..15:10) _empty_/Test.RichRes#map(). -> 6:9
+(15:3..15:3) _empty_/Test.RichRes(). -> 5:18
+(15:3..15:6) _empty_/Test.foo(). -> 12:7
+(15:11..15:12) _empty_/Test.f(). -> 13:7
+

@@ -1,0 +1,52 @@
+Document tests/pos/i6127.scala
+(1:16..1:24) scala/reflect/ClassTag.
+(1:16..1:24) scala/reflect/ClassTag#
+(1:8..1:15) scala/reflect/
+(4:16..4:24) scala/reflect/ClassTag#
+(4:24..4:24) _empty_/Co.empty().[X] -> 4:13
+(4:27..4:29) _empty_/Co# -> 2:7
+(4:30..4:31) _empty_/Co.empty().[X] -> 4:13
+(4:35..4:38) scala/Predef.`???`().
+(8:16..8:24) scala/reflect/ClassTag#
+(8:24..8:24) _empty_/Contra.empty().[X] -> 8:13
+(8:27..8:33) _empty_/Contra# -> 6:7
+(8:34..8:35) _empty_/Contra.empty().[X] -> 8:13
+(8:39..8:42) scala/Predef.`???`().
+(10:19..10:21) _empty_/Foo#[FT] -> 10:12
+(11:17..11:20) _empty_/Foo# -> 10:7
+(11:21..11:26) scala/Array#
+(11:27..11:33) scala/Predef.String#
+(11:45..11:45) _empty_/Foo#`<init>`(). -> 10:10
+(11:52..11:57) scala/Array.empty().
+(11:46..11:51) scala/Array.
+(11:57..11:57) scala/reflect/ClassTag.apply().
+(12:11..12:16) scala/Array#
+(12:17..12:23) scala/Predef.String#
+(12:33..12:38) scala/Array.empty().
+(12:27..12:32) scala/Array.
+(12:38..12:38) scala/reflect/ClassTag.apply().
+(13:14..13:17) _empty_/Foo# -> 10:7
+(13:18..13:20) _empty_/Co# -> 2:7
+(13:21..13:27) scala/Predef.String#
+(13:39..13:39) _empty_/Foo#`<init>`(). -> 10:10
+(13:43..13:48) _empty_/Co.empty(). -> 4:7
+(13:40..13:42) _empty_/Co. -> 3:8
+(13:48..13:48) scala/reflect/ClassTag.apply().
+(14:11..14:13) _empty_/Co# -> 2:7
+(14:14..14:20) scala/Predef.String#
+(14:27..14:32) _empty_/Co.empty(). -> 4:7
+(14:24..14:26) _empty_/Co. -> 3:8
+(14:32..14:32) scala/reflect/ClassTag.apply().
+(15:18..15:21) _empty_/Foo# -> 10:7
+(15:22..15:28) _empty_/Contra# -> 6:7
+(15:29..15:35) scala/Predef.String#
+(15:47..15:47) _empty_/Foo#`<init>`(). -> 10:10
+(15:55..15:60) _empty_/Contra.empty(). -> 8:7
+(15:48..15:54) _empty_/Contra. -> 7:8
+(15:60..15:60) scala/reflect/ClassTag.apply().
+(16:11..16:17) _empty_/Contra# -> 6:7
+(16:18..16:24) scala/Predef.String#
+(16:35..16:40) _empty_/Contra.empty(). -> 8:7
+(16:28..16:34) _empty_/Contra. -> 7:8
+(16:40..16:40) scala/reflect/ClassTag.apply().
+

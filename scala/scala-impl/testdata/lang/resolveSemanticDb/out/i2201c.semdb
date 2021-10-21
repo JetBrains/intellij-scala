@@ -1,0 +1,17 @@
+Document tests/pos/i2201c.scala
+(2:27..2:30) scala/Int#
+(4:22..4:23) _empty_/Test.Swap#[B] -> 4:16
+(4:25..4:26) _empty_/Test.Swap#[A] -> 4:13
+(6:29..6:30) _empty_/Test.foo().[M] -> 6:11
+(6:31..6:32) _empty_/Test.foo().[T] -> 6:20
+(6:34..6:35) _empty_/Test.foo().[S] -> 6:23
+(6:51..6:52) _empty_/Test.foo().[T] -> 6:20
+(6:56..6:58) _empty_/Test.foo().(ev) -> 6:47
+(8:10..8:14) _empty_/Test.Swap# -> 4:8
+(8:15..8:18) scala/Int#
+(8:20..8:26) scala/Predef.String#
+(8:31..8:31) scala/Tuple2.apply().
+(10:3..10:6) _empty_/Test.foo(). -> 6:7
+(10:7..10:8) _empty_/Test.a. -> 8:7
+(10:9..10:9) _empty_/Test.theAnswer. -> 2:16
+

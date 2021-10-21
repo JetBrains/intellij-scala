@@ -1,0 +1,5 @@
+Document tests/pos/i4328.scala
+(4:15..4:16) _empty_/A# -> 1:7
+(4:24..4:24) _empty_/A#`<init>`(). -> 1:8
+(4:23..4:24) _empty_/A# -> 1:7
+

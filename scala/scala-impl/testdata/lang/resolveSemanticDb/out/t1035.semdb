@@ -1,0 +1,33 @@
+Document tests/pos/t1035.scala
+(7:12..7:18) scala/Predef.String#
+(7:33..7:46) scala/compiletime/package$package.uninitialized().
+(7:21..7:32) scala/compiletime/
+(8:19..8:23) _empty_/A#name(). -> 7:7
+(9:17..9:23) scala/Predef.String#
+(9:29..9:32) scala/Int#
+(9:37..9:37) _empty_/A#`<init>`(). -> 7:3
+(9:50..9:54) _empty_/A#`name_=`(). -> 7:7
+(9:57..9:61) _empty_/A#`<init>`(+1).(name) -> 9:12
+(13:14..13:20) scala/Predef.String#
+(13:31..13:31) _empty_/A#`<init>`(+1). -> 9:7
+(13:30..13:31) _empty_/A# -> 6:7
+(13:32..13:36) _empty_/B#name. -> 13:9
+(19:20..19:21) _empty_/A# -> 6:7
+(19:29..19:29) scala/Some.apply().
+(19:25..19:29) scala/Some.
+(19:32..19:39) _empty_/A#getName(). -> 8:7
+(19:30..19:31) _empty_/D#A.unapply().(p) -> 19:18
+(23:20..23:21) _empty_/B# -> 13:7
+(23:29..23:29) scala/Some.apply().
+(23:25..23:29) scala/Some.
+(23:32..23:39) _empty_/A#getName(). -> 8:7
+(23:30..23:31) _empty_/D#B.unapply().(p) -> 23:18
+(25:14..25:17) scala/Any#
+(25:21..25:22) _empty_/D#foo().(p) -> 25:12
+(26:13..26:13) _empty_/D#B.unapply(). -> 23:10
+(26:12..26:13) _empty_/D#B. -> 22:11
+(26:23..26:30) scala/Predef.println(+1).
+(27:13..27:13) _empty_/D#A.unapply(). -> 19:10
+(27:12..27:13) _empty_/D#A. -> 18:11
+(27:23..27:30) scala/Predef.println(+1).
+

@@ -1,0 +1,35 @@
+Document tests/pos/varargs-annot-generics.scala
+(1:25..1:32) scala/annotation/varargs#
+(1:14..1:24) scala/annotation/
+(1:8..1:13) scala/
+(4:5..4:12) scala/annotation/varargs#
+(5:19..5:20) _empty_/VarArgs.foo1().[A] -> 5:13
+(5:26..5:32) scala/Predef.String#
+(5:36..5:37) _empty_/VarArgs.foo1().[A] -> 5:13
+(5:40..5:43) scala/Predef.`???`().
+(7:5..7:12) scala/annotation/varargs#
+(8:19..8:23) scala/package.List#
+(8:24..8:25) _empty_/VarArgs.foo2().[A] -> 8:13
+(8:32..8:38) scala/Predef.String#
+(8:42..8:43) _empty_/VarArgs.foo2().[A] -> 8:13
+(8:46..8:49) scala/Predef.`???`().
+(10:5..10:12) scala/annotation/varargs#
+(11:19..11:22) scala/Int#
+(11:26..11:30) scala/Unit#
+(11:33..11:36) scala/Predef.`???`().
+(13:5..13:12) scala/annotation/varargs#
+(14:19..14:20) _empty_/VarArgs.bar1().[A] -> 14:13
+(14:24..14:28) scala/Unit#
+(14:31..14:34) scala/Predef.`???`().
+(16:5..16:12) scala/annotation/varargs#
+(17:19..17:20) _empty_/VarArgs.bar2().[A] -> 17:13
+(17:26..17:27) _empty_/VarArgs.bar2().[A] -> 17:13
+(17:31..17:32) _empty_/VarArgs.bar2().[A] -> 17:13
+(17:35..17:38) scala/Predef.`???`().
+(19:5..19:12) scala/annotation/varargs#
+(20:18..20:28) java/lang/Comparable#
+(20:29..20:30) _empty_/VarArgs.bar3().[A] -> 20:13
+(20:37..20:38) _empty_/VarArgs.bar3().[A] -> 20:13
+(20:42..20:43) _empty_/VarArgs.bar3().[A] -> 20:13
+(20:46..20:49) scala/Predef.`???`().
+

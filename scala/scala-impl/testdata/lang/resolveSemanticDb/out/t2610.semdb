@@ -1,0 +1,4 @@
+Document tests/pos/t2610.scala
+(5:9..5:12) mada/defects/tests/aaa/package.foo(). -> 9:9
+(5:5..5:8) mada/defects/tests/aaa/
+

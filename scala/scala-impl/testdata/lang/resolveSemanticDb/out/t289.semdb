@@ -1,0 +1,4 @@
+Document tests/pos/t289.scala
+(5:19..5:19) _empty_/A#`<init>`(). -> 2:3
+(5:18..5:19) _empty_/A# -> 1:7
+

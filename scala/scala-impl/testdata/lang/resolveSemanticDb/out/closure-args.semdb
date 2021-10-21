@@ -1,0 +1,36 @@
+Document tests/pos/closure-args.scala
+(1:30..1:41) scala/language.experimental.fewerBraces.
+(1:17..1:29) scala/language.experimental.
+(1:8..1:16) scala/language.
+(3:14..3:14) scala/collection/IterableFactory#apply().
+(3:10..3:14) scala/package.List.
+(4:13..4:16) scala/collection/immutable/List#map().
+(4:10..4:12) _empty_/`closure-args$package`.xs. -> 3:5
+(5:5..5:6) scala/Int#`+`(+4).
+(5:3..5:4) local0 -> 4:17
+(6:12..6:20) scala/collection/LinearSeqOps#foldLeft().
+(6:9..6:11) _empty_/`closure-args$package`.ys. -> 4:5
+(7:5..7:6) scala/Int#`+`(+4).
+(7:3..7:4) local1 -> 6:25
+(7:7..7:8) local2 -> 6:28
+(8:12..8:20) scala/collection/LinearSeqOps#foldLeft().
+(8:9..8:11) _empty_/`closure-args$package`.ys. -> 4:5
+(8:28..8:31) scala/Int#
+(8:36..8:39) scala/Int#
+(9:13..9:14) scala/Int#`+`(+4).
+(9:11..9:12) local3 -> 8:25
+(9:15..9:16) local4 -> 8:33
+(10:5..10:6) scala/Int#`*`(+3).
+(10:3..10:4) local5 -> 9:7
+(10:7..10:8) local5 -> 9:7
+(11:9..11:12) scala/Int#
+(15:10..15:10) scala/collection/LinearSeqOps#apply().
+(14:4..14:10) scala/collection/immutable/List#filter().
+(12:4..12:7) scala/collection/immutable/List#map().
+(11:15..11:17) _empty_/`closure-args$package`.xs. -> 3:5
+(13:7..13:8) scala/Int#`*`(+3).
+(13:5..13:6) local6 -> 12:8
+(13:9..13:10) local6 -> 12:8
+(15:7..15:8) scala/Int#`>`(+3).
+(15:5..15:6) local7 -> 14:11
+

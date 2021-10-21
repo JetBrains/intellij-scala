@@ -1,0 +1,41 @@
+Document tests/pos/or-inf.scala
+(3:23..3:24) scala/`|`#
+(3:14..3:17) scala/Predef.Set#
+(3:18..3:21) scala/Int#
+(3:25..3:28) scala/Predef.Set#
+(3:29..3:35) scala/Predef.String#
+(4:3..4:4) _empty_/Test.a(). -> 3:7
+(4:8..4:8) scala/collection/IterableFactory#apply().
+(4:5..4:8) scala/Predef.Set.
+(5:3..5:4) _empty_/Test.a(). -> 3:7
+(5:8..5:8) scala/collection/IterableFactory#apply().
+(5:5..5:8) scala/Predef.Set.
+(7:14..7:18) scala/package.List#
+(7:28..7:29) scala/`|`#
+(7:19..7:22) scala/Predef.Set#
+(7:23..7:26) scala/Int#
+(7:30..7:33) scala/Predef.Set#
+(7:34..7:40) scala/Predef.String#
+(8:3..8:4) _empty_/Test.b(). -> 7:7
+(8:9..8:9) scala/collection/IterableFactory#apply().
+(8:5..8:9) scala/package.List.
+(8:13..8:13) scala/collection/IterableFactory#apply().
+(8:10..8:13) scala/Predef.Set.
+(9:3..9:4) _empty_/Test.b(). -> 7:7
+(9:9..9:9) scala/collection/IterableFactory#apply().
+(9:5..9:9) scala/package.List.
+(9:13..9:13) scala/collection/IterableFactory#apply().
+(9:10..9:13) scala/Predef.Set.
+(11:21..11:22) scala/`|`#
+(11:12..11:15) scala/Predef.Set#
+(11:16..11:19) scala/Any#
+(11:23..11:28) scala/Array#
+(11:29..11:32) scala/Any#
+(12:3..12:4) _empty_/Test.c(). -> 11:7
+(12:8..12:8) scala/collection/IterableFactory#apply().
+(12:5..12:8) scala/Predef.Set.
+(13:3..13:4) _empty_/Test.c(). -> 11:7
+(13:10..13:10) scala/Array.apply().
+(13:5..13:10) scala/Array.
+(13:13..13:13) scala/reflect/ClassTag.Any.
+

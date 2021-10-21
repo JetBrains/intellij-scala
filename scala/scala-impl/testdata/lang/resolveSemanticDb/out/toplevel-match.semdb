@@ -1,0 +1,15 @@
+Document tests/pos/toplevel-match.scala
+(5:37..5:42) _empty_/HList# -> 4:7
+(6:23..6:28) _empty_/HList# -> 4:7
+(8:17..8:22) _empty_/HList# -> 4:7
+(8:27..8:32) _empty_/HList# -> 4:7
+(8:35..8:37) _empty_/`toplevel-match$package`.AtoB#[Xs] -> 8:11
+(9:8..9:12) _empty_/HNil# -> 6:7
+(9:19..9:23) _empty_/HNil# -> 6:7
+(9:24..9:25) _empty_/B# -> 2:7
+(10:8..10:13) _empty_/HCons# -> 5:7
+(10:24..10:29) _empty_/HCons# -> 5:7
+(10:30..10:31) _empty_/B# -> 2:7
+(10:33..10:37) _empty_/`toplevel-match$package`.AtoB# -> 8:6
+(10:38..10:40) local2 -> 10:17
+

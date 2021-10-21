@@ -1,0 +1,31 @@
+Document tests/pos/t7753.scala
+(1:25..1:36) scala/language.higherKinds.
+(1:38..1:57) scala/language.implicitConversions.
+(1:14..1:22) scala/language.
+(1:8..1:13) scala/
+(6:13..6:16) _empty_/Foo# -> 3:7
+(11:13..11:17) scala/Unit#
+(12:22..12:24) _empty_/SI# -> 5:7
+(12:37..12:40) _empty_/Foo#Out# -> 3:18
+(12:32..12:36) _empty_/SI#inst. -> 6:7
+(12:29..12:31) local1 -> 12:18
+(12:44..12:45) local2 -> 12:26
+(14:14..14:17) _empty_/Foo# -> 3:7
+(14:31..14:34) scala/Int#
+(14:39..14:42) scala/Predef.`???`().
+(15:17..15:20) _empty_/Foo# -> 3:7
+(15:23..15:25) _empty_/SI# -> 5:7
+(15:41..15:44) _empty_/Foo#Out# -> 3:18
+(15:39..15:40) local6 -> 15:14
+(15:56..15:57) local6 -> 15:14
+(15:67..15:70) scala/Predef.`???`().
+(17:21..17:25) local5 -> 15:9
+(17:26..17:29) local3 -> 14:9
+(19:13..19:16) scala/Int#
+(19:19..19:27) local0 -> 12:9
+(19:28..19:37) local9 -> 17:9
+(26:13..26:16) scala/Int#
+(26:19..26:27) local0 -> 12:9
+(26:28..26:32) local5 -> 15:9
+(26:33..26:36) local3 -> 14:9
+

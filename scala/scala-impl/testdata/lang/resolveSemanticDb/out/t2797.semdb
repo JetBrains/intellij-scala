@@ -1,0 +1,24 @@
+Document tests/pos/t2797.scala
+(2:17..2:18) _empty_/MyVector#[A] -> 1:16
+(2:22..2:23) _empty_/MyVector#map().[B] -> 2:11
+(2:26..2:34) _empty_/MyVector# -> 1:7
+(2:35..2:36) _empty_/MyVector#map().[B] -> 2:11
+(2:44..2:49) scala/sys/package.error().
+(2:40..2:43) scala/sys/
+(6:26..6:34) _empty_/MyVector# -> 1:7
+(6:36..6:37) _empty_/Test.unzip().[B] -> 6:13
+(6:39..6:40) _empty_/Test.unzip().[C] -> 6:16
+(6:46..6:54) _empty_/MyVector# -> 1:7
+(6:55..6:56) _empty_/Test.unzip().[B] -> 6:13
+(6:59..6:67) _empty_/MyVector# -> 1:7
+(6:68..6:69) _empty_/Test.unzip().[C] -> 6:16
+(7:6..7:6) scala/Tuple2.apply().
+(7:12..7:15) _empty_/MyVector#map(). -> 2:7
+(7:6..7:11) _empty_/Test.unzip().(_this) -> 6:19
+(7:26..7:28) scala/Tuple2#_1.
+(7:23..7:25) local0 -> 7:17
+(7:38..7:41) _empty_/MyVector#map(). -> 2:7
+(7:32..7:37) _empty_/Test.unzip().(_this) -> 6:19
+(7:52..7:54) scala/Tuple2#_2.
+(7:49..7:51) local1 -> 7:43
+

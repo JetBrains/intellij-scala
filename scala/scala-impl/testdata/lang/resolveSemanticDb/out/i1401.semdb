@@ -1,0 +1,14 @@
+Document tests/pos/i1401.scala
+(4:15..4:17) i1401/Subtractable#[AS] -> 3:20
+(4:20..4:24) i1401/Subtractable#[Repr] -> 3:25
+(8:25..8:37) i1401/Subtractable# -> 3:7
+(8:38..8:40) i1401/BufferLike#[BA] -> 7:18
+(8:42..8:46) i1401/BufferLike#[This] -> 7:23
+(9:10..9:14) i1401/BufferLike#[This] -> 7:23
+(19:15..19:17) i1401/BufferLike#[BA] -> 7:18
+(19:20..19:24) i1401/BufferLike#[This] -> 7:23
+(22:25..22:35) i1401/BufferLike# -> 7:7
+(22:36..22:37) i1401/Buffer#[A] -> 22:14
+(22:39..22:45) i1401/Buffer# -> 22:7
+(22:46..22:47) i1401/Buffer#[A] -> 22:14
+

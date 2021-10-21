@@ -1,0 +1,11 @@
+Document tests/pos/t3924.scala
+(2:21..2:33) scala/package.Serializable#
+(3:24..3:36) java/io/Serializable#
+(3:21..3:23) java/io/
+(3:16..3:20) java/
+(3:39..3:43) scala/Unit#
+(3:46..3:53) scala/Predef.println(+1).
+(3:54..3:55) _empty_/Test.Hoe#add().(a) -> 3:13
+(4:23..4:27) scala/Unit#
+(4:32..4:35) _empty_/Test.Hoe#add(). -> 3:9
+

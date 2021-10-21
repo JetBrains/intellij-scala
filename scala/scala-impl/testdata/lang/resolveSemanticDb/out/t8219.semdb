@@ -1,0 +1,15 @@
+Document tests/pos/t8219.scala
+(5:28..5:29) _empty_/Broken#const().[T] -> 5:22
+(5:32..5:35) _empty_/Gen# -> 2:7
+(5:36..5:37) _empty_/Broken#const().[T] -> 5:22
+(5:41..5:44) scala/Predef.`???`().
+(6:44..6:45) _empty_/Broken#convertToEqualizer().[T] -> 6:35
+(6:48..6:57) _empty_/Equalizer# -> 1:7
+(6:58..6:59) _empty_/Broken#convertToEqualizer().[T] -> 6:35
+(6:63..6:66) scala/Predef.`???`().
+(8:13..8:16) scala/Any#
+(9:3..9:5) _empty_/Broken#in(). -> 8:7
+(10:18..10:22) scala/None.
+(10:12..10:17) scala/
+(11:8..11:10) scala/Any#`==`().
+

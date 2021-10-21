@@ -1,0 +1,5 @@
+Document tests/pos/ilya2/A.scala
+(2:23..2:26) _empty_/B#bar().
+(2:20..2:20) _empty_/B#`<init>`(+1).
+(2:19..2:20) _empty_/B#
+

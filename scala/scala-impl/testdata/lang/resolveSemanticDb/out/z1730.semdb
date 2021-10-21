@@ -1,0 +1,9 @@
+Document tests/pos/z1730.scala
+(5:20..5:21) _empty_/X#[R] -> 4:9
+(5:33..5:40) scala/Boolean#
+(9:26..9:27) _empty_/Boo#toX().[R] -> 9:20
+(9:31..9:32) _empty_/X# -> 4:7
+(9:33..9:34) _empty_/Boo#toX().[R] -> 9:20
+(10:13..10:17) scala/Unit#
+(11:5..11:5) _empty_/Boo#toX(). -> 9:16
+

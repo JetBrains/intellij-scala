@@ -1,0 +1,9 @@
+Document tests/pos/t3486/test.scala
+(2:13..2:14) _empty_/Test#[A] -> 1:12
+(2:18..2:19) _empty_/Test#[A] -> 1:12
+(3:19..3:20) _empty_/Test#[A] -> 1:12
+(3:22..3:23) _empty_/Test#[A] -> 1:12
+(3:26..3:27) _empty_/Test#specified().(a) -> 3:17
+(6:30..6:34) _empty_/Test# -> 1:7
+(6:35..6:36) _empty_/T2#[A] -> 6:19
+

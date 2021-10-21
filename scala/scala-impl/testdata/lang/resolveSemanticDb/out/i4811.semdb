@@ -1,0 +1,18 @@
+Document tests/pos/i4811.scala
+(1:24..1:30) scala/Predef.String#
+(1:46..1:46) scala/AnyVal#`<init>`().
+(1:40..1:46) scala/AnyVal#
+(2:14..2:22) scala/package.Iterator#
+(2:23..2:29) scala/Predef.String#
+(2:72..2:72) scala/collection/AbstractIterator#`<init>`().
+(2:48..2:64) scala/collection/AbstractIterator#
+(2:37..2:47) scala/collection/
+(2:65..2:71) scala/Predef.String#
+(4:18..4:25) scala/Boolean#
+(5:17..5:23) scala/Predef.String#
+(6:7..6:12) local1 -> 3:23
+(12:21..12:27) scala/Predef.String#
+(12:43..12:43) scala/AnyVal#`<init>`().
+(12:37..12:43) scala/AnyVal#
+(14:13..14:16) _empty_/FooOps#bar(). -> 13:21
+

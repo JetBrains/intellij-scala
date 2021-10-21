@@ -1,0 +1,39 @@
+Document tests/pos/i5625.scala
+(3:22..3:23) _empty_/Test.LeafElem#[X] -> 3:17
+(4:10..4:16) scala/Predef.String#
+(4:20..4:24) scala/Char#
+(5:10..5:15) scala/Array#
+(5:22..5:30) _empty_/Test.LeafElem# -> 3:8
+(5:31..5:32) local0 -> 5:16
+(6:10..6:18) scala/package.Iterable#
+(6:25..6:33) _empty_/Test.LeafElem# -> 3:8
+(6:34..6:35) local1 -> 6:19
+(7:10..7:16) scala/AnyVal#
+(7:20..7:21) _empty_/Test.LeafElem#[X] -> 3:17
+(10:3..10:9) scala/Predef.summon().
+(10:27..10:30) scala/`=:=`#
+(10:10..10:18) _empty_/Test.LeafElem# -> 3:8
+(10:19..10:25) scala/Predef.String#
+(10:31..10:35) scala/Char#
+(10:36..10:36) scala/`<:<`.refl().
+(11:3..11:9) scala/Predef.summon().
+(11:31..11:34) scala/`=:=`#
+(11:10..11:18) _empty_/Test.LeafElem# -> 3:8
+(11:19..11:24) scala/Array#
+(11:25..11:28) scala/Int#
+(11:35..11:38) scala/Int#
+(11:39..11:39) scala/`<:<`.refl().
+(12:3..12:9) scala/Predef.summon().
+(12:34..12:37) scala/`=:=`#
+(12:10..12:18) _empty_/Test.LeafElem# -> 3:8
+(12:19..12:27) scala/package.Iterable#
+(12:28..12:31) scala/Int#
+(12:38..12:41) scala/Int#
+(12:42..12:42) scala/`<:<`.refl().
+(13:3..13:9) scala/Predef.summon().
+(13:24..13:27) scala/`=:=`#
+(13:10..13:18) _empty_/Test.LeafElem# -> 3:8
+(13:19..13:22) scala/Int#
+(13:28..13:31) scala/Int#
+(13:32..13:32) scala/`<:<`.refl().
+

@@ -1,0 +1,5 @@
+Document tests/pos/i9525/volatile.scala
+(3:47..3:63) scala/annotation/StaticAnnotation#
+(3:36..3:46) scala/annotation/
+(3:30..3:35) scala/ -> 1:9
+

@@ -1,0 +1,27 @@
+Document tests/pos/pos-bug1210.scala
+(3:23..3:24) _empty_/Test.f().[T] -> 3:11
+(3:28..3:32) scala/package.List#
+(3:33..3:34) _empty_/Test.f().[T] -> 3:11
+(3:38..3:42) scala/package.List#
+(3:43..3:44) _empty_/Test.f().[T] -> 3:11
+(5:9..5:12) scala/package.Nil.
+(11:25..11:26) _empty_/Test.M# -> 8:20
+(11:49..11:57) _empty_/Test.M#Settings# -> 10:14
+(11:44..11:48) _empty_/Test.M# -> 8:20
+(13:16..13:20) scala/package.List#
+(13:21..13:29) _empty_/Test.M#selfType# -> 11:14
+(13:33..13:34) _empty_/Test.f(). -> 3:9
+(13:35..13:43) _empty_/Test.M#selfType# -> 11:14
+(13:49..13:57) _empty_/Test.M#selfType# -> 11:14
+(13:64..13:65) _empty_/Test.M#v. -> 13:13
+(13:62..13:63) local2 -> 13:46
+(19:25..19:27) _empty_/Test.M2# -> 16:20
+(19:50..19:58) _empty_/Test.M2#Settings# -> 18:14
+(19:45..19:49) _empty_/Test.M2# -> 16:20
+(21:16..21:20) scala/package.List#
+(21:21..21:29) _empty_/Test.M2#selfType# -> 19:14
+(21:33..21:36) scala/package.Nil.
+(24:13..24:14) _empty_/Test.f(). -> 3:9
+(24:15..24:23) _empty_/Test.M2#selfType# -> 19:14
+(24:27..24:28) _empty_/Test.M2#g(). -> 21:13
+

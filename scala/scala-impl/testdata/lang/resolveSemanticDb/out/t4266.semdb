@@ -1,0 +1,14 @@
+Document tests/pos/t4266.scala
+(4:6..4:17) scala/specialized#
+(4:18..4:21) scala/Int.
+(8:17..8:18) _empty_/Test.Tensor2Like#[D] -> 6:6
+(10:22..10:24) _empty_/Test.Tensor2Like#[A1] -> 4:23
+(10:27..10:31) scala/Unit#
+(11:17..11:25) _empty_/Test.DomainLike#contains(). -> 16:9
+(11:14..11:16) _empty_/Test.Product2DomainLike#_1(). -> 24:9
+(11:7..11:13) _empty_/Test.Tensor2Like#domain(). -> 8:9
+(11:26..11:28) _empty_/Test.Tensor2Like#checkKey().(k1) -> 10:18
+(16:23..16:24) _empty_/Test.DomainLike#[A] -> 15:20
+(16:27..16:34) scala/Boolean#
+(24:13..24:15) _empty_/Test.Product2DomainLike#[D1] -> 23:29
+

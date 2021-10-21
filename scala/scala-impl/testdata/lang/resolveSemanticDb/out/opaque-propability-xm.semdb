@@ -1,0 +1,103 @@
+Document tests/pos/opaque-propability-xm.scala
+(2:29..2:35) scala/Double#
+(5:18..5:24) scala/Double#
+(5:27..5:33) scala/Option#
+(5:34..5:45) _empty_/prob.Probability# -> 2:15
+(6:20..6:22) scala/Boolean#`&&`().
+(6:15..6:17) scala/Double#`<=`(+6).
+(6:18..6:19) _empty_/prob.Probability.apply().(n) -> 5:15
+(6:25..6:27) scala/Double#`<=`(+6).
+(6:23..6:24) _empty_/prob.Probability.apply().(n) -> 5:15
+(6:37..6:37) scala/Some.apply().
+(6:33..6:37) scala/Some.
+(6:38..6:39) _empty_/prob.Probability.apply().(n) -> 5:15
+(6:46..6:50) scala/None.
+(8:19..8:25) scala/Double#
+(8:28..8:39) _empty_/prob.Probability# -> 2:15
+(9:7..9:14) scala/Predef.require(+1).
+(9:24..9:26) scala/Boolean#`&&`().
+(9:19..9:21) scala/Double#`<=`(+6).
+(9:22..9:23) _empty_/prob.Probability.unsafe().(p) -> 8:16
+(9:29..9:31) scala/Double#`<=`(+6).
+(9:27..9:28) _empty_/prob.Probability.unsafe().(p) -> 8:16
+(9:75..9:76) scala/StringContext#s().
+(9:39..9:39) scala/StringContext.apply().
+(9:73..9:74) _empty_/prob.Probability.unsafe().(p) -> 8:16
+(10:7..10:8) _empty_/prob.Probability.unsafe().(p) -> 8:16
+(13:21..13:32) _empty_/prob.Probability# -> 2:15
+(13:35..13:41) scala/Double#
+(13:44..13:45) _empty_/prob.Probability.asDouble().(p) -> 13:18
+(15:16..15:27) _empty_/prob.Probability# -> 2:15
+(16:19..16:30) _empty_/prob.Probability# -> 2:15
+(17:18..17:29) _empty_/prob.Probability# -> 2:15
+(19:28..19:36) scala/package.Ordering#
+(19:37..19:48) _empty_/prob.Probability# -> 2:15
+(20:7..20:17) scala/Predef.implicitly().
+(20:18..20:26) scala/package.Ordering#
+(20:27..20:33) scala/Double#
+(20:35..20:35) _empty_/prob.Probability.ordering. -> 19:18
+(22:20..22:31) _empty_/prob.Probability# -> 2:15
+(22:47..22:58) _empty_/prob.Probability# -> 2:15
+(22:69..22:70) scala/Double#`-`(+6).
+(22:61..22:68) _empty_/prob.Probability.Certain. -> 17:9
+(22:71..22:73) _empty_/prob.Probability.`unary_~`().(p1) -> 22:16
+(23:20..23:31) _empty_/prob.Probability# -> 2:15
+(23:44..23:55) _empty_/prob.Probability# -> 2:15
+(23:58..23:69) _empty_/prob.Probability# -> 2:15
+(23:75..23:76) scala/Double#`*`(+6).
+(23:72..23:74) _empty_/prob.Probability.`&`().(p1) -> 23:16
+(23:77..23:79) _empty_/prob.Probability.`&`().(p2) -> 23:40
+(24:20..24:31) _empty_/prob.Probability# -> 2:15
+(24:44..24:55) _empty_/prob.Probability# -> 2:15
+(24:58..24:69) _empty_/prob.Probability# -> 2:15
+(24:80..24:81) scala/Double#`-`(+6).
+(24:75..24:76) scala/Double#`+`(+7).
+(24:72..24:74) _empty_/prob.Probability.`|`().(p1) -> 24:16
+(24:77..24:79) _empty_/prob.Probability.`|`().(p2) -> 24:40
+(24:86..24:87) scala/Double#`*`(+6).
+(24:83..24:85) _empty_/prob.Probability.`|`().(p1) -> 24:16
+(24:88..24:90) _empty_/prob.Probability.`|`().(p2) -> 24:40
+(26:20..26:31) _empty_/prob.Probability# -> 2:15
+(26:51..26:58) scala/Boolean#
+(26:64..26:66) scala/Double#`==`(+6).
+(26:61..26:63) _empty_/prob.Probability.isImpossible().(p1) -> 26:16
+(26:67..26:72) _empty_/prob.Probability.Never. -> 15:9
+(27:20..27:31) _empty_/prob.Probability# -> 2:15
+(27:48..27:55) scala/Boolean#
+(27:61..27:63) scala/Double#`==`(+6).
+(27:58..27:60) _empty_/prob.Probability.isCertain().(p1) -> 27:16
+(27:64..27:71) _empty_/prob.Probability.Certain. -> 17:9
+(29:23..29:29) scala/util/Random.
+(29:23..29:29) scala/util/Random#
+(29:18..29:22) scala/util/
+(29:12..29:17) scala/
+(31:20..31:31) _empty_/prob.Probability# -> 2:15
+(31:47..31:53) scala/util/Random#
+(31:65..31:72) scala/Boolean#
+(31:88..31:90) scala/Double#`<=`(+6).
+(31:77..31:87) scala/util/Random#nextDouble().
+(31:75..31:76) _empty_/prob.Probability.sample().(r) -> 31:44
+(31:91..31:93) _empty_/prob.Probability.sample().(p1) -> 31:16
+(31:56..31:62) scala/util/Random.
+(32:20..32:31) _empty_/prob.Probability# -> 2:15
+(32:47..32:53) scala/Double#
+(32:56..32:58) _empty_/prob.Probability.toDouble().(p1) -> 32:16
+(35:33..35:39) _empty_/prob.Probability.unsafe(). -> 8:9
+(35:21..35:32) _empty_/prob.Probability. -> 4:19
+(36:22..36:22) _empty_/prob.Probability.`unary_~`(). -> 22:37
+(36:22..36:33) _empty_/prob.caughtTrain. -> 35:7
+(37:31..37:39) _empty_/prob.Probability.CoinToss. -> 16:9
+(37:19..37:30) _empty_/prob.Probability. -> 4:19
+(38:17..38:17) _empty_/prob.Probability.`|`(). -> 24:37
+(38:17..38:28) _empty_/prob.caughtTrain. -> 35:7
+(38:32..38:32) _empty_/prob.Probability.`&`(). -> 23:37
+(38:32..38:43) _empty_/prob.missedTrain. -> 36:7
+(38:46..38:55) _empty_/prob.caughtCab. -> 37:7
+(40:3..40:10) scala/Predef.println(+1).
+(40:47..40:53) scala/collection/IterableOnceOps#toList().
+(40:20..40:23) scala/collection/immutable/Range#map().
+(40:14..40:16) scala/runtime/RichInt#to().
+(40:12..40:12) scala/LowPriorityImplicits#intWrapper().
+(40:29..40:29) _empty_/prob.Probability.sample(). -> 31:37
+(40:29..40:36) _empty_/prob.arrived. -> 38:7
+

@@ -1,0 +1,25 @@
+Document tests/pos/i9782.scala
+(5:32..5:36) _empty_/Elem# -> 3:7
+(5:37..5:38) _empty_/Obj#[T] -> 5:11
+(8:50..8:54) _empty_/Copy#copyImpl().[Repr] -> 8:16
+(8:55..8:57) _empty_/Copy#[In] -> 7:12
+(8:61..8:65) _empty_/Copy#copyImpl().[Repr] -> 8:16
+(8:66..8:69) _empty_/Copy#[Out] -> 7:27
+(10:47..10:51) _empty_/Copy#apply().[Repr] -> 10:13
+(10:52..10:54) _empty_/Copy#[In] -> 7:12
+(10:58..10:62) _empty_/Copy#apply().[Repr] -> 10:13
+(10:63..10:66) _empty_/Copy#[Out] -> 7:27
+(11:15..11:23) _empty_/Copy#copyImpl(). -> 8:7
+(11:24..11:28) _empty_/Copy#apply().[Repr] -> 10:13
+(11:30..11:32) _empty_/Copy#apply().(in) -> 10:43
+(12:6..12:6) scala/Tuple2.apply().
+(12:6..12:8) _empty_/Copy#apply().(in) -> 10:43
+(12:10..12:13) local0 -> 11:9
+(13:13..13:13) scala/Tuple2.unapply().
+(13:20..13:23) _empty_/Obj# -> 5:7
+(13:24..13:26) _empty_/Copy#[In] -> 7:12
+(13:37..13:40) _empty_/Obj# -> 5:7
+(13:41..13:44) _empty_/Copy#[Out] -> 7:27
+(14:9..14:16) scala/Predef.println(+1).
+(17:5..17:8) local0 -> 11:9
+

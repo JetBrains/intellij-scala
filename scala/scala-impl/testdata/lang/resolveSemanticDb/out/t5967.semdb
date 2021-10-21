@@ -1,0 +1,9 @@
+Document tests/pos/t5967.scala
+(2:14..2:17) scala/Int#
+(2:22..2:23) _empty_/Test.f().(a) -> 2:11
+(3:16..3:16) scala/collection/immutable/`::`.unapply().
+(3:14..3:16) scala/package.`::`.
+(3:17..3:20) scala/package.Nil.
+(4:19..4:27) scala/collection/Seq#toString().
+(4:17..4:18) _empty_/Test.f().(a) -> 2:11
+

@@ -1,0 +1,10 @@
+Document tests/pos/case-signature.scala
+(3:33..3:37) scala/package.List#
+(3:38..3:39) _empty_/Benchmark#[A] -> 3:22
+(4:24..4:28) scala/Long#
+(4:38..4:39) _empty_/Benchmark#[A] -> 3:22
+(4:50..4:53) scala/Int#
+(4:58..4:62) scala/Unit#
+(5:8..5:12) scala/package.List#
+(5:13..5:14) _empty_/Benchmark#[A] -> 3:22
+

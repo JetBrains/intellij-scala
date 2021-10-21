@@ -1,0 +1,30 @@
+Document tests/pos/t359.scala
+(3:14..3:18) scala/package.List#
+(3:19..3:20) _empty_/Bug359.C# -> 2:9
+(3:24..3:25) _empty_/Bug359.C# -> 2:9
+(4:5..4:6) _empty_/Bug359.g(). -> 27:15
+(7:11..7:13) _empty_/Bug359.f1(). -> 3:7
+(7:14..7:16) local0 -> 5:7
+(9:18..9:19) _empty_/Bug359.C# -> 2:9
+(10:18..10:19) _empty_/Bug359.C# -> 2:9
+(11:18..11:25) scala/collection/immutable/List#isEmpty().
+(11:15..11:17) local0 -> 5:7
+(11:27..11:28) local1 -> 9:15
+(11:34..11:35) local2 -> 10:15
+(15:14..15:18) scala/package.List#
+(15:19..15:20) _empty_/Bug359.C# -> 2:9
+(15:24..15:25) _empty_/Bug359.C# -> 2:9
+(16:5..16:6) _empty_/Bug359.g(). -> 27:15
+(19:18..19:19) _empty_/Bug359.C# -> 2:9
+(20:18..20:19) _empty_/Bug359.C# -> 2:9
+(21:18..21:25) scala/collection/immutable/List#isEmpty().
+(21:15..21:17) local3 -> 17:7
+(21:27..21:28) local4 -> 19:15
+(21:34..21:35) local5 -> 20:15
+(23:11..23:13) _empty_/Bug359.f2(). -> 15:7
+(23:14..23:16) local3 -> 17:7
+(27:21..27:25) scala/package.List#
+(27:26..27:27) _empty_/Bug359.C# -> 2:9
+(27:32..27:33) _empty_/Bug359.C# -> 2:9
+(27:36..27:37) _empty_/Bug359.C# -> 2:9
+

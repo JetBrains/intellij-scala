@@ -1,0 +1,12 @@
+Document tests/pos/i3873.scala
+(2:23..2:27) scala/package.List#
+(2:28..2:31) scala/Int#
+(2:35..2:39) scala/Unit#
+(3:16..3:24) scala/collection/LinearSeqOps#foldLeft().
+(3:13..3:15) _empty_/Test.sum2().(ys) -> 2:19
+(3:13..3:13) local0
+(5:17..5:21) scala/package.List#
+(5:22..5:25) scala/Int#
+(5:31..5:35) _empty_/Test.sum2(). -> 2:14
+(5:36..5:38) local1 -> 5:13
+

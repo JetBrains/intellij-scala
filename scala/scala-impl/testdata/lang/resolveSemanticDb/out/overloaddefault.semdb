@@ -1,0 +1,34 @@
+Document tests/pos/overloaddefault.scala
+(2:22..2:27) _empty_/Scope# -> 1:7
+(4:20..4:23) scala/Int#
+(4:32..4:37) _empty_/Scope# -> 1:7
+(5:22..5:25) scala/Int#
+(5:35..5:35) _empty_/CI#`<init>`(). -> 4:14
+(5:33..5:35) _empty_/CI# -> 4:12
+(5:36..5:39) _empty_/CI#derivedCI().(pre) -> 5:17
+(5:41..5:46) _empty_/CI#decls. -> 4:25
+(6:22..6:25) scala/Int#
+(6:45..6:50) _empty_/Scope# -> 1:7
+(6:73..6:73) _empty_/CI#`<init>`(). -> 4:14
+(6:71..6:73) _empty_/CI# -> 4:12
+(6:74..6:77) _empty_/CI#derivedCI(+1).(pre) -> 6:17
+(6:79..6:84) _empty_/CI#derivedCI(+1).(decls) -> 6:38
+(6:33..6:36) _empty_/CI#pre. -> 4:15
+(6:58..6:63) _empty_/CI#decls. -> 4:25
+(10:18..10:18) _empty_/CI#`<init>`(). -> 4:14
+(10:16..10:18) _empty_/CI# -> 4:12
+(10:32..10:32) _empty_/MScope#`<init>`(). -> 2:22
+(10:26..10:32) _empty_/MScope# -> 2:7
+(11:26..11:26) _empty_/MScope#`<init>`(). -> 2:22
+(11:20..11:26) _empty_/MScope# -> 2:7
+(12:6..12:15) _empty_/CI#derivedCI(+1). -> 6:7
+(12:3..12:5) _empty_/Test.ci(). -> 10:7
+(12:19..12:24) _empty_/CI#derivedCI(+1).(decls) -> 6:38
+(12:27..12:33) _empty_/Test.decls1. -> 11:7
+(13:6..13:15) _empty_/CI#derivedCI(). -> 5:7
+(13:3..13:5) _empty_/Test.ci(). -> 10:7
+(13:16..13:19) _empty_/CI#derivedCI().(pre) -> 5:17
+(14:3..14:5) _empty_/Test.ci(). -> 10:7
+(14:16..14:21) _empty_/CI#derivedCI(+1).(decls) -> 6:38
+(14:24..14:30) _empty_/Test.decls1. -> 11:7
+

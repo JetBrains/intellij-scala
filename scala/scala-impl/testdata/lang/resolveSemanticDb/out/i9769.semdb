@@ -1,0 +1,10 @@
+Document tests/pos/i9769.scala
+(3:70..3:71) scala/StringContext#f().
+(3:25..3:25) scala/StringContext.apply().
+(3:57..3:65) _empty_/Main.lifeOfPi. -> 2:7
+(5:18..5:23) scala/Array#
+(5:24..5:30) scala/Predef.String#
+(5:34..5:38) scala/Unit#
+(6:5..6:12) scala/Predef.println(+1).
+(6:13..6:26) _empty_/Main.fInterpolator. -> 3:7
+

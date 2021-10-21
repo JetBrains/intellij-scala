@@ -1,0 +1,14 @@
+Document tests/pos/hk-subtyping.scala
+(3:20..3:21) _empty_/Test.compare().[T] -> 3:23
+(5:3..5:10) _empty_/Test.compare(). -> 3:7
+(5:11..5:14) scala/Int#
+(5:16..5:19) scala/Int#
+(6:3..6:10) _empty_/Test.compare(). -> 3:7
+(6:11..6:14) scala/Int#
+(6:16..6:19) scala/Any#
+(9:5..9:12) _empty_/Test.compare(). -> 3:7
+(9:13..9:14) _empty_/Test.f().[C] -> 8:9
+(9:15..9:18) scala/Int#
+(9:21..9:25) scala/package.List#
+(9:26..9:29) scala/Int#
+

@@ -1,0 +1,75 @@
+Document tests/pos/i12211.scala
+(23:13..23:25) scala/annotation/experimental#
+(23:2..23:12) scala/annotation/
+(24:44..24:72) scala/Selectable.WithoutPreciseParameterTypes#
+(24:33..24:43) scala/Selectable.
+(25:26..25:32) scala/Predef.String#
+(25:46..25:51) scala/Predef.Class#
+(25:63..25:66) scala/Any#
+(25:70..25:73) scala/Any#
+(25:76..25:79) scala/Predef.`???`().
+(26:13..26:25) scala/annotation/experimental#
+(26:2..26:12) scala/annotation/
+(27:23..27:40) _empty_/RelaxedSelectable# -> 24:7
+(28:14..28:15) _empty_/Sink#[A] -> 27:12
+(28:18..28:22) scala/Unit#
+(2:22..2:23) _empty_/i12211$package.fst0().[A] -> 2:10
+(2:28..2:29) _empty_/i12211$package.fst0().[B] -> 2:13
+(2:30..2:31) _empty_/i12211$package.fst0().(a) -> 2:19
+(2:40..2:41) _empty_/i12211$package.fst0().(a) -> 2:19
+(2:49..2:50) _empty_/i12211$package.fst0().(a) -> 2:19
+(4:23..4:24) _empty_/i12211$package.fst().[A] -> 4:9
+(4:33..4:34) _empty_/i12211$package.fst().[B] -> 4:12
+(4:35..4:36) local1 -> 4:20
+(4:47..4:48) local1 -> 4:20
+(5:7..5:8) _empty_/i12211$package.fst().[A] -> 4:9
+(5:17..5:18) _empty_/i12211$package.fst().[B] -> 4:12
+(5:19..5:20) local4 -> 5:4
+(5:31..5:32) local4 -> 5:4
+(7:23..7:24) _empty_/i12211$package.snd().[A] -> 7:9
+(7:39..7:40) _empty_/i12211$package.snd().[B] -> 7:12
+(7:41..7:42) local7 -> 7:20
+(7:53..7:54) local9 -> 7:36
+(8:7..8:8) _empty_/i12211$package.snd().[A] -> 7:9
+(8:23..8:24) _empty_/i12211$package.snd().[B] -> 7:12
+(8:25..8:26) local10 -> 8:4
+(8:37..8:38) local11 -> 8:20
+(10:24..10:25) _empty_/i12211$package.fst1().[A] -> 10:10
+(10:34..10:35) _empty_/i12211$package.fst1().[B] -> 10:13
+(10:36..10:37) local13 -> 10:21
+(10:48..10:49) local13 -> 10:21
+(10:57..10:61) _empty_/i12211$package.fst0(). -> 2:5
+(10:57..10:57) local16
+(10:57..10:57) local17
+(12:25..12:26) _empty_/i12211$package.test1().[A] -> 12:11
+(12:41..12:42) _empty_/i12211$package.test1().[B] -> 12:14
+(12:43..12:44) local19 -> 12:22
+(12:55..12:58) scala/Any#
+(13:3..13:6) _empty_/i12211$package.snd(). -> 7:5
+(13:7..13:8) _empty_/i12211$package.test1().[A] -> 12:11
+(13:10..13:11) _empty_/i12211$package.test1().[B] -> 12:14
+(15:25..15:26) _empty_/i12211$package.test2().[A] -> 15:11
+(15:35..15:36) _empty_/i12211$package.test2().[B] -> 15:14
+(15:37..15:38) local23 -> 15:22
+(15:49..15:50) _empty_/i12211$package.test2().[A] -> 15:11
+(15:53..15:56) _empty_/i12211$package.fst(). -> 4:5
+(15:57..15:58) _empty_/i12211$package.test2().[A] -> 15:11
+(15:60..15:61) _empty_/i12211$package.test2().[B] -> 15:14
+(20:16..20:18) _empty_/AA# -> 17:7
+(20:27..20:29) _empty_/BB# -> 18:7
+(20:30..20:31) local27 -> 20:13
+(20:42..20:44) _empty_/BB# -> 18:7
+(21:7..21:9) _empty_/AA# -> 17:7
+(21:18..21:20) _empty_/BB# -> 18:7
+(21:21..21:22) local30 -> 21:4
+(21:33..21:34) local31 -> 21:15
+(30:25..30:25) _empty_/Sink#`<init>`(). -> 27:11
+(30:13..30:17) _empty_/Sink# -> 27:7
+(30:18..30:24) scala/Predef.String#
+(31:8..31:25) _empty_/RelaxedSelectable# -> 24:7
+(31:39..31:45) scala/Predef.String#
+(31:48..31:52) scala/Unit#
+(31:57..31:58) _empty_/i12211$package.a. -> 30:5
+(32:10..32:10) _empty_/RelaxedSelectable#applyDynamic(). -> 25:7
+(32:9..32:10) _empty_/i12211$package.b. -> 31:5
+

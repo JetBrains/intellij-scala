@@ -1,0 +1,61 @@
+Document tests/pos/i7877.scala
+(1:24..1:27) scala/App#
+(4:22..4:23) _empty_/Example.ZSink#[R] -> 3:16
+(4:36..4:38) _empty_/Example.ZSink#[A0] -> 3:24
+(4:46..4:47) _empty_/Example.ZSink#[A] -> 3:29
+(5:13..5:18) _empty_/Example.ZSink# -> 3:9
+(5:19..5:21) _empty_/Example.ZSink#orElse().[R1] -> 4:16
+(5:23..5:25) _empty_/Example.ZSink#orElse().[E1] -> 4:25
+(5:27..5:30) _empty_/Example.ZSink#orElse().[A00] -> 4:29
+(5:32..5:34) _empty_/Example.ZSink#orElse().[A1] -> 4:40
+(5:36..5:37) _empty_/Example.ZSink#orElse().[C] -> 4:49
+(6:23..6:26) scala/`=:=`#
+(6:20..6:22) _empty_/Example.ZSink#orElse().[A1] -> 4:40
+(6:27..6:30) _empty_/Example.ZSink#orElse().[A00] -> 4:29
+(6:33..6:38) _empty_/Example.ZSink# -> 3:9
+(6:39..6:41) _empty_/Example.ZSink#orElse().[R1] -> 4:16
+(6:43..6:45) _empty_/Example.ZSink#orElse().[E1] -> 4:25
+(6:47..6:50) _empty_/Example.ZSink#orElse().[A00] -> 4:29
+(6:52..6:54) _empty_/Example.ZSink#orElse().[A1] -> 4:40
+(6:56..6:62) scala/package.Either#
+(6:63..6:64) _empty_/Example.ZSink#[B] -> 3:33
+(6:66..6:67) _empty_/Example.ZSink#orElse().[C] -> 4:49
+(7:7..7:10) scala/Predef.`???`().
+(11:22..11:27) _empty_/Example.ZSink# -> 3:9
+(11:28..11:31) scala/Any#
+(11:33..11:37) scala/Unit#
+(11:39..11:46) scala/Nothing#
+(11:48..11:49) _empty_/Example.ZSink.identity().[A] -> 11:18
+(11:51..11:52) _empty_/Example.ZSink.identity().[A] -> 11:18
+(11:56..11:59) scala/Predef.`???`().
+(12:20..12:21) _empty_/Example.ZSink.fail().[E] -> 12:14
+(12:24..12:29) _empty_/Example.ZSink# -> 3:9
+(12:30..12:33) scala/Any#
+(12:35..12:36) _empty_/Example.ZSink.fail().[E] -> 12:14
+(12:38..12:45) scala/Nothing#
+(12:47..12:50) scala/Any#
+(12:52..12:59) scala/Nothing#
+(12:63..12:66) scala/Predef.`???`().
+(16:10..16:15) _empty_/Example.ZSink# -> 3:9
+(16:16..16:19) scala/Any#
+(16:21..16:27) scala/Predef.String#
+(16:29..16:32) scala/Int#
+(16:34..16:37) scala/Int#
+(16:39..16:45) scala/package.Either#
+(16:46..16:49) scala/Int#
+(16:51..16:58) scala/Nothing#
+(17:25..17:31) _empty_/Example.ZSink#orElse(). -> 4:9
+(17:11..17:19) _empty_/Example.ZSink.identity(). -> 11:9
+(17:5..17:10) _empty_/Example.ZSink. -> 10:10
+(17:20..17:23) scala/Int#
+(17:38..17:42) _empty_/Example.ZSink.fail(). -> 12:9
+(17:32..17:37) _empty_/Example.ZSink. -> 10:10
+(17:51..17:51) scala/`<:<`.refl().
+(20:23..20:29) _empty_/Example.ZSink#orElse(). -> 4:9
+(20:9..20:17) _empty_/Example.ZSink.identity(). -> 11:9
+(20:3..20:8) _empty_/Example.ZSink. -> 10:10
+(20:18..20:21) scala/Int#
+(20:36..20:40) _empty_/Example.ZSink.fail(). -> 12:9
+(20:30..20:35) _empty_/Example.ZSink. -> 10:10
+(20:49..20:49) scala/`<:<`.refl().
+

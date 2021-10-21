@@ -1,0 +1,29 @@
+Document tests/pos/t2018.scala
+(2:16..2:16) _empty_/A#B#`<init>`(). -> 7:5
+(2:15..2:16) _empty_/A#B# -> 6:9
+(4:33..4:41) scala/collection/StrictOptimizedLinearSeqOps#iterator().
+(4:25..4:25) scala/collection/IterableFactory#apply().
+(4:21..4:25) scala/package.List.
+(4:31..4:31) _empty_/A#`<init>`(). -> 2:3
+(4:30..4:31) _empty_/A# -> 1:7
+(9:32..9:33) _empty_/A# -> 1:7
+(9:36..9:37) _empty_/A# -> 1:7
+(10:30..10:34) scala/collection/IterableOnceOps#find().
+(10:18..10:29) _empty_/A#getChildren(). -> 4:7
+(10:16..10:17) _empty_/A#B#getAncestor().(p) -> 9:29
+(10:39..10:44) _empty_/A#B#check(). -> 7:17
+(10:37..10:38) _empty_/A#b. -> 2:7
+(10:63..10:63) scala/Some.unapply().
+(10:59..10:63) scala/Some.
+(10:70..10:71) local1 -> 10:64
+(10:77..10:81) scala/None.
+(10:85..10:86) _empty_/A#B#getAncestor().(p) -> 9:29
+(12:13..12:15) scala/Any#`==`().
+(12:11..12:12) local0 -> 10:11
+(12:16..12:17) _empty_/A#B#getAncestor().(p) -> 9:29
+(12:19..12:20) _empty_/A#B#getAncestor().(p) -> 9:29
+(12:30..12:41) _empty_/A#B#getAncestor(). -> 9:17
+(12:28..12:29) _empty_/A#b. -> 2:7
+(12:26..12:27) local0 -> 10:11
+(12:42..12:43) local0 -> 10:11
+

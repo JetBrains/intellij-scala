@@ -1,0 +1,15 @@
+Document tests/pos/i11968.scala
+(2:16..2:19) scala/Int#
+(6:19..6:20) scala/`|`#
+(6:12..6:18) scala/Predef.String#
+(6:21..6:25) scala/Null#
+(6:28..6:31) scala/Predef.`???`().
+(7:15..7:21) java/lang/String#length().
+(7:13..7:14) local0 -> 6:9
+(8:14..8:15) scala/`|`#
+(8:12..8:13) _empty_/C# -> 1:7
+(8:16..8:20) scala/Null#
+(8:23..8:26) scala/Predef.`???`().
+(9:7..9:10) _empty_/C#get(). -> 2:9
+(9:5..9:6) local2 -> 8:9
+

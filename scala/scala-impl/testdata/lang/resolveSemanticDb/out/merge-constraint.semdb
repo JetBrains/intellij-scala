@@ -1,0 +1,18 @@
+Document tests/pos/merge-constraint.scala
+(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
+(2:18..2:20) _empty_/Hi# -> 1:7
+(5:19..5:20) _empty_/Test.foo().[T] -> 5:11
+(5:25..5:26) _empty_/Test.foo().[T] -> 5:11
+(5:31..5:32) _empty_/Test.foo().[T] -> 5:11
+(5:36..5:37) _empty_/Test.foo().[U] -> 5:14
+(5:40..5:41) _empty_/Test.foo().[U] -> 5:14
+(5:44..5:47) scala/Predef.`???`().
+(7:16..7:18) _empty_/Hi# -> 1:7
+(7:24..7:26) _empty_/Lo# -> 2:7
+(7:29..7:33) scala/Unit#
+(8:15..8:18) _empty_/Test.foo(). -> 5:7
+(8:19..8:21) _empty_/Test.test().(hi) -> 7:12
+(8:28..8:30) _empty_/Test.test().(lo) -> 7:20
+(9:12..9:14) _empty_/Lo# -> 2:7
+(9:17..9:20) local0 -> 8:9
+

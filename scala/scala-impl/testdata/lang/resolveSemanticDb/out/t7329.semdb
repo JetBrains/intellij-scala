@@ -1,0 +1,8 @@
+Document tests/pos/t7329.scala
+(1:73..1:74) _empty_/TwoParamSpecializedWithDefault#[A] -> 1:51
+(1:79..1:80) _empty_/TwoParamSpecializedWithDefault#[B] -> 1:67
+(1:39..1:50) scala/specialized#
+(1:55..1:66) scala/specialized#
+(1:84..1:87) scala/Predef.`???`().
+(1:90..1:91) _empty_/TwoParamSpecializedWithDefault.$lessinit$greater$default$2().[B] -> 1:67
+

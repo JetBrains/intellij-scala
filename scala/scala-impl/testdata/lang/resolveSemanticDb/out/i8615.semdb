@@ -1,0 +1,22 @@
+Document tests/pos/i8615.scala
+(1:43..1:51) scala/math/Ordering#
+(1:38..1:42) scala/math/
+(1:32..1:37) scala/
+(1:52..1:57) scala/Array#
+(1:58..1:59) _empty_/ArrayOrdering#[N] -> 1:21
+(2:18..2:23) scala/Array#
+(2:24..2:25) _empty_/ArrayOrdering#[N] -> 1:21
+(2:31..2:36) scala/Array#
+(2:37..2:38) _empty_/ArrayOrdering#[N] -> 1:21
+(2:43..2:46) scala/Predef.`???`().
+(4:43..4:51) scala/math/Ordering#
+(4:38..4:42) scala/math/
+(4:32..4:37) scala/
+(4:52..4:57) scala/Array#
+(4:58..4:61) scala/Int#
+(5:18..5:23) scala/Array#
+(5:24..5:27) scala/Int#
+(5:33..5:38) scala/Array#
+(5:39..5:42) scala/Int#
+(5:47..5:50) scala/Predef.`???`().
+

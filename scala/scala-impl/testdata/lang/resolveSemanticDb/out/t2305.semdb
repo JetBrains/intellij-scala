@@ -1,0 +1,20 @@
+Document tests/pos/t2305.scala
+(1:18..1:27) java/util/ArrayList#
+(1:13..1:17) java/util/
+(1:8..1:12) java/
+(5:41..5:53) java/io/Serializable#
+(5:38..5:40) java/io/
+(5:33..5:37) java/
+(8:37..8:41) _empty_/Bind# -> 3:7
+(8:59..8:63) _empty_/Bind# -> 3:7
+(9:38..9:42) _empty_/Bind# -> 3:7
+(9:65..9:69) _empty_/Bind# -> 3:7
+(14:32..14:36) _empty_/Bind# -> 3:7
+(14:55..14:59) scala/Unit#
+(15:5..15:12) _empty_/works.runbind(). -> 14:9
+(15:12..15:12) _empty_/Bind.MySerializableBind. -> 9:18
+(19:32..19:36) _empty_/Bind# -> 3:7
+(19:50..19:54) scala/Unit#
+(20:9..20:16) _empty_/breaks.runbind(). -> 19:9
+(20:16..20:16) _empty_/Bind.JavaArrayListBind. -> 8:18
+

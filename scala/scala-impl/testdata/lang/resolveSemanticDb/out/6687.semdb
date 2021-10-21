@@ -1,0 +1,17 @@
+Document tests/pos/6687.scala
+(6:17..6:18) _empty_/Box#[X] -> 6:11
+(1:13..1:14) _empty_/`6687$package`.T#[X] -> 1:8
+(2:8..2:14) scala/Predef.String#
+(2:18..2:21) scala/Int#
+(3:8..3:11) scala/Int#
+(3:15..3:21) scala/Predef.String#
+(8:13..8:16) _empty_/Box# -> 6:7
+(8:17..8:18) _empty_/`6687$package`.f().[X] -> 8:7
+(8:22..8:23) _empty_/`6687$package`.T# -> 1:6
+(8:24..8:25) _empty_/`6687$package`.f().[X] -> 8:7
+(8:29..8:30) _empty_/`6687$package`.f().(x) -> 8:10
+(9:11..9:14) _empty_/Box# -> 6:7
+(9:15..9:18) scala/Int#
+(10:11..10:14) _empty_/Box# -> 6:7
+(10:15..10:21) scala/Predef.String#
+

@@ -1,0 +1,31 @@
+Document tests/pos/t7785.scala
+(1:14..1:22) scala/language.
+(1:8..1:13) scala/
+(6:19..6:20) _empty_/R# -> 3:7
+(6:21..6:28) scala/Nothing#
+(6:32..6:35) scala/Predef.`???`().
+(11:28..11:29) _empty_/R# -> 3:7
+(11:30..11:34) _empty_/TraversableOps#OpsDup1#[Repr] -> 10:17
+(11:38..11:41) scala/Any#
+(14:27..14:34) _empty_/TraversableOps#OpsDup1# -> 10:9
+(14:35..14:39) _empty_/TraversableOps#Ops#[Repr] -> 14:13
+(15:28..15:29) _empty_/R# -> 3:7
+(15:30..15:34) _empty_/TraversableOps#Ops#[Repr] -> 14:13
+(15:44..15:57) scala/DummyImplicit#
+(15:60..15:63) scala/Any#
+(18:36..18:37) _empty_/TraversableOps#ct2ops().[C] -> 18:26
+(18:38..18:39) _empty_/TraversableOps#ct2ops().[T] -> 18:23
+(19:5..19:8) _empty_/TraversableOps#Ops# -> 14:9
+(19:9..19:10) _empty_/TraversableOps#ct2ops().[C] -> 18:26
+(19:11..19:12) _empty_/TraversableOps#ct2ops().[T] -> 18:23
+(21:19..21:25) scala/Option#
+(21:26..21:27) _empty_/TraversableOps#force().[T] -> 21:13
+(23:7..23:12) _empty_/TraversableOps#Ops#force(). -> 15:9
+(23:5..23:5) _empty_/TraversableOps#ct2ops(). -> 18:16
+(23:5..23:6) _empty_/TraversableOps#force().(t) -> 21:16
+(23:12..23:12) _empty_/TraversableOps#R. -> 6:16
+(23:12..23:12) scala/DummyImplicit.dummyImplicit.
+(33:22..33:25) _empty_/TraversableOps#Ops# -> 14:9
+(33:26..33:27) _empty_/TraversableOps#foo().[C] -> 33:14
+(33:28..33:29) _empty_/TraversableOps#foo().[T] -> 33:11
+

@@ -1,0 +1,20 @@
+Document tests/pos/t0591.scala
+(2:34..2:35) _empty_/Test.implicitly().[T] -> 2:18
+(2:38..2:39) _empty_/Test.implicitly().[T] -> 2:18
+(2:42..2:43) _empty_/Test.implicitly().(t) -> 2:30
+(3:40..3:41) _empty_/Test.perhaps().[T] -> 3:24
+(3:45..3:51) scala/Option#
+(3:52..3:53) _empty_/Test.perhaps().[T] -> 3:24
+(3:61..3:61) scala/Some.apply().
+(3:57..3:61) scala/Some.
+(3:62..3:63) _empty_/Test.perhaps().(t) -> 3:36
+(4:23..4:29) scala/Predef.String#
+(5:3..5:13) _empty_/Test.implicitly(). -> 2:7
+(5:14..5:20) scala/Predef.String#
+(5:21..5:21) _empty_/Test.hello. -> 4:16
+(6:3..6:13) _empty_/Test.implicitly(). -> 2:7
+(6:14..6:20) scala/Option#
+(6:21..6:27) scala/Predef.String#
+(6:29..6:29) _empty_/Test.perhaps(). -> 3:16
+(6:29..6:29) _empty_/Test.hello. -> 4:16
+

@@ -1,0 +1,37 @@
+Document tests/pos/t6123-explaintypes-implicits.scala
+(3:42..3:45) _empty_/ImplicitBugReport.Exp# -> 2:9
+(3:46..3:50) _empty_/ImplicitBugReport.CanBuildExp#[Elem] -> 3:22
+(3:55..3:57) _empty_/ImplicitBugReport.CanBuildExp#[To] -> 3:29
+(4:51..4:54) _empty_/ImplicitBugReport.Exp# -> 2:9
+(4:55..4:66) scala/package.Traversable#
+(4:67..4:68) _empty_/ImplicitBugReport.TraversableExp#[T] -> 4:24
+(6:32..6:43) _empty_/ImplicitBugReport.CanBuildExp# -> 3:9
+(6:44..6:45) _empty_/ImplicitBugReport.canBuildExp().[T] -> 6:28
+(6:47..6:50) _empty_/ImplicitBugReport.Exp# -> 2:9
+(6:51..6:52) _empty_/ImplicitBugReport.canBuildExp().[T] -> 6:28
+(6:57..6:60) scala/Predef.`???`().
+(7:43..7:46) _empty_/ImplicitBugReport.Exp# -> 2:9
+(7:47..7:48) _empty_/ImplicitBugReport.canBuildExpTrav().[T] -> 7:32
+(7:63..7:74) _empty_/ImplicitBugReport.CanBuildExp# -> 3:9
+(7:75..7:76) _empty_/ImplicitBugReport.canBuildExpTrav().[T] -> 7:32
+(7:78..7:82) _empty_/ImplicitBugReport.canBuildExpTrav().[ExpT] -> 7:35
+(7:86..7:97) _empty_/ImplicitBugReport.CanBuildExp# -> 3:9
+(7:98..7:109) scala/package.Traversable#
+(7:110..7:111) _empty_/ImplicitBugReport.canBuildExpTrav().[T] -> 7:32
+(7:114..7:128) _empty_/ImplicitBugReport.TraversableExp# -> 4:9
+(7:129..7:130) _empty_/ImplicitBugReport.canBuildExpTrav().[T] -> 7:32
+(7:132..7:136) _empty_/ImplicitBugReport.canBuildExpTrav().[ExpT] -> 7:35
+(7:141..7:144) scala/Predef.`???`().
+(8:30..8:31) _empty_/ImplicitBugReport.toExpTempl().[T] -> 8:18
+(8:45..8:56) _empty_/ImplicitBugReport.CanBuildExp# -> 3:9
+(8:57..8:58) _empty_/ImplicitBugReport.toExpTempl().[T] -> 8:18
+(8:60..8:64) _empty_/ImplicitBugReport.toExpTempl().[That] -> 8:21
+(8:68..8:72) _empty_/ImplicitBugReport.toExpTempl().[That] -> 8:21
+(8:75..8:78) scala/Predef.`???`().
+(10:18..10:22) scala/Unit#
+(11:14..11:24) _empty_/ImplicitBugReport.toExpTempl(). -> 8:7
+(11:28..11:28) scala/collection/SeqFactory.Delegate#apply().
+(11:25..11:28) scala/package.Seq.
+(11:41..11:41) _empty_/ImplicitBugReport.canBuildExpTrav(). -> 7:16
+(11:41..11:41) _empty_/ImplicitBugReport.canBuildExp(). -> 6:16
+

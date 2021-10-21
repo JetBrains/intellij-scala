@@ -1,0 +1,50 @@
+Document tests/pos/t0438.scala
+(2:39..2:40) _empty_/Foo#pair2fun2().[A] -> 2:26
+(2:42..2:43) _empty_/Foo#pair2fun2().[B] -> 2:29
+(2:48..2:49) _empty_/Foo#pair2fun2().[C] -> 2:32
+(2:54..2:55) _empty_/Foo#pair2fun2().[A] -> 2:26
+(2:57..2:58) _empty_/Foo#pair2fun2().[B] -> 2:29
+(2:64..2:65) _empty_/Foo#pair2fun2().[C] -> 2:32
+(3:12..3:13) _empty_/Foo#pair2fun2().[A] -> 2:26
+(3:15..3:16) _empty_/Foo#pair2fun2().[B] -> 2:29
+(3:23..3:23) scala/Function2#apply().
+(3:22..3:23) _empty_/Foo#pair2fun2().(f) -> 2:35
+(3:26..3:28) scala/Tuple2#_1.
+(3:24..3:25) local0 -> 3:8
+(3:32..3:34) scala/Tuple2#_2.
+(3:30..3:31) local0 -> 3:8
+(5:16..5:19) scala/Int#
+(5:21..5:24) scala/Int#
+(5:30..5:33) scala/Int#
+(5:37..5:38) _empty_/Foo#foo().(f) -> 5:11
+(6:14..6:17) scala/Int#
+(6:22..6:25) scala/Int#
+(6:31..6:32) scala/Int#`+`(+4).
+(6:29..6:30) _empty_/Foo#bar().(x) -> 6:11
+(6:33..6:34) _empty_/Foo#bar().(y) -> 6:19
+(8:3..8:6) _empty_/Foo#foo(). -> 5:7
+(8:12..8:15) scala/Int#
+(8:15..8:15) scala/Tuple2#_1.
+(8:20..8:23) scala/Int#
+(8:23..8:23) scala/Tuple2#_2.
+(8:30..8:31) scala/Int#`+`(+4).
+(8:28..8:29) local2 -> 8:9
+(8:32..8:33) local3 -> 8:17
+(9:3..9:6) _empty_/Foo#foo(). -> 5:7
+(9:7..9:16) _empty_/Foo#pair2fun2(). -> 2:16
+(9:17..9:20) _empty_/Foo#bar(). -> 6:7
+(9:17..9:17) local4
+(9:17..9:17) local5
+(10:3..10:6) _empty_/Foo#foo(). -> 5:7
+(10:7..10:7) scala/Tuple2#_1.
+(10:7..10:7) scala/Tuple2#_2.
+(10:7..10:10) _empty_/Foo#bar(). -> 6:7
+(10:7..10:7) local7
+(10:7..10:7) local8
+(11:3..11:6) _empty_/Foo#foo(). -> 5:7
+(11:7..11:7) scala/Tuple2#_1.
+(11:7..11:7) scala/Tuple2#_2.
+(11:7..11:10) _empty_/Foo#bar(). -> 6:7
+(11:7..11:7) local10
+(11:7..11:7) local11
+

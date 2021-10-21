@@ -1,0 +1,31 @@
+Document tests/pos/i5526a.scala
+(3:21..3:22) _empty_/A# -> 1:7
+(3:28..3:29) local1 -> 3:18
+(3:36..3:37) _empty_/test1.foo().[E] -> 3:11
+(3:41..3:42) _empty_/test1.foo().[E] -> 3:11
+(4:17..4:18) _empty_/A# -> 1:7
+(5:10..5:12) scala/Tuple2#_2.
+(5:6..5:6) scala/Function1#apply().
+(5:5..5:6) _empty_/test1.foo().(f) -> 3:14
+(5:7..5:8) local2 -> 4:9
+(7:14..7:17) _empty_/test1.foo(). -> 3:7
+(7:26..7:26) scala/Tuple2.apply().
+(7:26..7:27) local4 -> 7:20
+(8:10..8:13) scala/Int#
+(8:16..8:19) _empty_/test1.res. -> 7:8
+(12:23..12:24) _empty_/test2.empty().[A] -> 12:13
+(12:27..12:28) _empty_/test2.F# -> 11:9
+(12:29..12:30) _empty_/test2.empty().[A] -> 12:13
+(12:32..12:35) scala/Any#
+(12:39..12:42) scala/Predef.`???`().
+(13:22..13:28) scala/AnyRef#
+(13:33..13:34) _empty_/test2.F# -> 11:9
+(13:35..13:36) _empty_/test2.hof().[R] -> 13:12
+(13:38..13:39) local6 -> 13:19
+(13:48..13:49) _empty_/test2.F# -> 11:9
+(13:50..13:51) _empty_/test2.hof().[R] -> 13:12
+(13:53..13:56) scala/Any#
+(13:60..13:63) scala/Predef.`???`().
+(14:4..14:7) _empty_/test2.hof(). -> 13:8
+(15:5..15:10) _empty_/test2.empty(). -> 12:7
+

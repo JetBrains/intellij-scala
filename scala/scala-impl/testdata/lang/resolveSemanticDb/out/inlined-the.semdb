@@ -1,0 +1,58 @@
+Document tests/pos/inlined-the.scala
+(7:7..7:14) scala/Predef.locally().
+(8:25..8:25) _empty_/Instances.D#`<init>`(). -> 3:10
+(8:21..8:22) _empty_/Instances.D# -> 3:9
+(8:23..8:24) local1 -> 8:17
+(9:9..9:15) scala/Predef.summon().
+(9:16..9:17) _empty_/Instances.D# -> 3:9
+(9:18..9:21) scala/Int#
+(9:23..9:23) local2 -> 8:15
+(10:29..10:32) scala/Predef.`???`().
+(11:20..11:26) scala/Predef.summon().
+(11:29..11:29) local3 -> 10:22
+(12:16..12:17) local3 -> 10:22
+(12:25..12:31) scala/Predef.summon().
+(12:32..12:33) local3 -> 10:22
+(12:39..12:39) local3 -> 10:22
+(16:7..16:14) scala/Predef.locally().
+(17:25..17:25) _empty_/Instances.D#`<init>`(). -> 3:10
+(17:21..17:22) _empty_/Instances.D# -> 3:9
+(17:23..17:24) local7 -> 17:17
+(18:9..18:13) _empty_/Instances.the2(). -> 36:14
+(18:14..18:15) _empty_/Instances.D# -> 3:9
+(18:16..18:19) scala/Int#
+(18:21..18:21) local8 -> 17:15
+(19:29..19:32) scala/Predef.`???`().
+(20:20..20:24) _empty_/Instances.the2(). -> 36:14
+(20:27..20:27) local9 -> 19:22
+(21:16..21:17) local9 -> 19:22
+(21:25..21:29) _empty_/Instances.the2(). -> 36:14
+(21:30..21:31) local9 -> 19:22
+(21:37..21:37) local9 -> 19:22
+(25:7..25:14) scala/Predef.locally().
+(26:25..26:29) scala/package.List#
+(26:35..26:38) scala/Predef.`???`().
+(27:16..27:20) scala/package.List#
+(27:26..27:30) _empty_/Instances.the2(). -> 36:14
+(27:31..27:35) scala/package.List#
+(27:39..27:39) local12 -> 26:22
+(29:26..29:30) scala/package.List#
+(29:31..29:32) local12 -> 26:22
+(29:41..29:44) scala/Predef.`???`().
+(30:16..30:20) scala/package.List#
+(30:21..30:22) local12 -> 26:22
+(30:31..30:35) _empty_/Instances.the2(). -> 36:14
+(30:36..30:40) scala/package.List#
+(30:41..30:42) local12 -> 26:22
+(30:49..30:49) local14 -> 29:22
+(36:34..36:35) _empty_/Instances.the2().[T] -> 36:19
+(36:38..36:39) _empty_/Instances.the2().(x) -> 36:31
+(36:47..36:48) _empty_/Instances.the2().(x) -> 36:31
+(38:37..38:38) _empty_/Instances.theList().[T] -> 38:22
+(38:41..38:45) scala/package.List#
+(38:46..38:47) _empty_/Instances.theList().(x) -> 38:34
+(38:60..38:60) scala/collection/IterableFactory#apply().
+(38:56..38:60) scala/package.List.
+(38:61..38:62) _empty_/Instances.theList().(x) -> 38:34
+(38:69..38:70) _empty_/Instances.theList().(x) -> 38:34
+

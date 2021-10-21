@@ -1,0 +1,5 @@
+Document tests/pos/i1704.scala
+(2:25..2:31) _empty_/AnyRef# -> 1:7
+(3:22..3:28) scala/package.AnyRef.
+(3:44..3:55) _empty_/AnyRef#StringMatch. -> 2:7
+

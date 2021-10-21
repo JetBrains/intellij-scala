@@ -1,0 +1,9 @@
+Document tests/pos/i743.scala
+(2:13..2:17) scala/package.List#
+(2:18..2:21) scala/Int#
+(2:25..2:28) scala/Int#
+(3:6..3:13) scala/collection/immutable/List#foreach().
+(3:4..3:5) _empty_/NonLocalReturn.foo().(a) -> 2:10
+(3:26..3:27) local0 -> 3:14
+(3:27..3:27) _empty_/NonLocalReturn.foo(). -> 2:6
+

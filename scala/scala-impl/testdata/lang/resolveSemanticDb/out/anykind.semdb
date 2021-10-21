@@ -1,0 +1,464 @@
+Document tests/pos/anykind.scala
+(3:24..3:25) _empty_/Test.Bar#[A] -> 3:18
+(25:50..25:53) _empty_/Test.Foo#Out# -> 25:34
+(25:56..25:59) _empty_/Test.Foo#Out# -> 25:34
+(25:62..25:63) _empty_/Test.Foo#id().(t) -> 25:47
+(28:27..28:30) _empty_/Test.Foo# -> 25:9
+(28:31..28:32) _empty_/Test.Foo.foo0().[T] -> 28:23
+(28:47..28:48) _empty_/Test.Foo.foo0().[T] -> 28:23
+(28:57..28:60) _empty_/Test.Foo# -> 25:9
+(28:61..28:62) _empty_/Test.Foo.foo0().[T] -> 28:23
+(28:77..28:78) _empty_/Test.Foo.foo0().[T] -> 28:23
+(29:30..29:33) _empty_/Test.Foo# -> 25:9
+(29:34..29:35) _empty_/Test.Foo.foo1().[T] -> 29:23
+(29:50..29:51) _empty_/Test.Foo.foo1().[T] -> 29:23
+(29:52..29:55) scala/Any#
+(29:65..29:68) _empty_/Test.Foo# -> 25:9
+(29:69..29:70) _empty_/Test.Foo.foo1().[T] -> 29:23
+(29:85..29:86) _empty_/Test.Foo.foo1().[T] -> 29:23
+(29:87..29:90) scala/Any#
+(30:33..30:36) _empty_/Test.Foo# -> 25:9
+(30:37..30:38) _empty_/Test.Foo.foo2().[T] -> 30:23
+(30:53..30:54) _empty_/Test.Foo.foo2().[T] -> 30:23
+(30:55..30:58) scala/Any#
+(30:60..30:63) scala/Any#
+(30:73..30:76) _empty_/Test.Foo# -> 25:9
+(30:77..30:78) _empty_/Test.Foo.foo2().[T] -> 30:23
+(30:93..30:94) _empty_/Test.Foo.foo2().[T] -> 30:23
+(30:95..30:98) scala/Any#
+(30:100..30:103) scala/Any#
+(33:16..33:23) scala/AnyKind#
+(33:37..33:40) _empty_/Test.Foo# -> 25:9
+(33:41..33:42) _empty_/Test.foo().[T] -> 33:11
+(33:46..33:47) _empty_/Test.foo().(f) -> 33:34
+(33:55..33:56) _empty_/Test.foo().(f) -> 33:34
+(34:12..34:14) _empty_/Test.Foo#id(). -> 25:44
+(34:3..34:6) _empty_/Test.foo(). -> 33:7
+(34:7..34:10) scala/Int#
+(34:11..34:11) _empty_/Test.Foo.foo0(). -> 28:18
+(35:13..35:15) _empty_/Test.Foo#id(). -> 25:44
+(35:3..35:6) _empty_/Test.foo(). -> 33:7
+(35:7..35:11) scala/package.List#
+(35:12..35:12) _empty_/Test.Foo.foo1(). -> 29:18
+(35:20..35:20) scala/collection/IterableFactory#apply().
+(35:16..35:20) scala/package.List.
+(35:21..35:24) scala/Any#
+(36:12..36:14) _empty_/Test.Foo#id(). -> 25:44
+(36:3..36:6) _empty_/Test.foo(). -> 33:7
+(36:7..36:10) scala/Predef.Map#
+(36:11..36:11) _empty_/Test.Foo.foo2(). -> 30:18
+(36:18..36:18) scala/collection/MapFactory#apply().
+(36:15..36:18) scala/Predef.Map.
+(36:19..36:22) scala/Any#
+(36:24..36:27) scala/Any#
+(36:31..36:33) scala/Predef.ArrowAssoc#`->`().
+(36:29..36:29) scala/Predef.ArrowAssoc().
+(36:44..36:46) scala/Predef.ArrowAssoc#`->`().
+(36:42..36:42) scala/Predef.ArrowAssoc().
+(36:57..36:59) scala/Predef.ArrowAssoc#`->`().
+(36:55..36:55) scala/Predef.ArrowAssoc().
+(40:44..40:51) scala/AnyKind#
+(42:19..42:26) scala/AnyKind#
+(42:36..42:43) scala/AnyKind#
+(42:47..42:53) _empty_/Test.Kinded# -> 40:9
+(42:54..42:55) _empty_/Test.Kinded.Aux#[M] -> 42:14
+(42:70..42:74) _empty_/Test.Kinded.Aux#[Out0] -> 42:28
+(44:30..44:33) _empty_/Test.Kinded.Aux# -> 42:10
+(44:34..44:35) _empty_/Test.Kinded.kinded0().[M] -> 44:26
+(44:37..44:38) _empty_/Test.Kinded.kinded0().[M] -> 44:26
+(44:46..44:52) _empty_/Test.Kinded# -> 40:9
+(44:53..44:54) _empty_/Test.Kinded.kinded0().[M] -> 44:26
+(44:69..44:70) _empty_/Test.Kinded.kinded0().[M] -> 44:26
+(45:33..45:36) _empty_/Test.Kinded.Aux# -> 42:10
+(45:37..45:38) _empty_/Test.Kinded.kinded1().[M] -> 45:26
+(45:40..45:41) _empty_/Test.Kinded.kinded1().[M] -> 45:26
+(45:49..45:55) _empty_/Test.Kinded# -> 40:9
+(45:56..45:57) _empty_/Test.Kinded.kinded1().[M] -> 45:26
+(45:75..45:76) _empty_/Test.Kinded.kinded1().[M] -> 45:26
+(45:77..45:78) local14 -> 45:70
+(46:36..46:39) _empty_/Test.Kinded.Aux# -> 42:10
+(46:40..46:41) _empty_/Test.Kinded.kinded2().[M] -> 46:26
+(46:43..46:44) _empty_/Test.Kinded.kinded2().[M] -> 46:26
+(46:52..46:58) _empty_/Test.Kinded# -> 40:9
+(46:59..46:60) _empty_/Test.Kinded.kinded2().[M] -> 46:26
+(46:81..46:82) _empty_/Test.Kinded.kinded2().[M] -> 46:26
+(46:83..46:84) local17 -> 46:73
+(46:86..46:87) local18 -> 46:76
+(49:3..49:13) scala/Predef.implicitly().
+(49:21..49:24) _empty_/Test.Kinded.Aux# -> 42:10
+(49:14..49:20) _empty_/Test.Kinded. -> 41:10
+(49:25..49:28) scala/Int#
+(49:30..49:33) scala/Int#
+(49:35..49:35) _empty_/Test.Kinded.kinded0(). -> 44:18
+(50:3..50:13) scala/Predef.implicitly().
+(50:21..50:24) _empty_/Test.Kinded.Aux# -> 42:10
+(50:14..50:20) _empty_/Test.Kinded. -> 41:10
+(50:25..50:29) scala/package.List#
+(50:31..50:35) scala/package.List#
+(50:37..50:37) _empty_/Test.Kinded.kinded1(). -> 45:18
+(51:3..51:13) scala/Predef.implicitly().
+(51:21..51:24) _empty_/Test.Kinded.Aux# -> 42:10
+(51:14..51:20) _empty_/Test.Kinded. -> 41:10
+(51:25..51:28) scala/Predef.Map#
+(51:30..51:33) scala/Predef.Map#
+(51:35..51:35) _empty_/Test.Kinded.kinded2(). -> 46:18
+(55:32..55:39) scala/AnyKind#
+(55:54..55:59) _empty_/Test.HList# -> 93:16
+(56:25..56:45) _empty_/Test.KinderLowerImplicits# -> 62:9
+(57:24..57:31) scala/AnyKind#
+(57:42..57:47) _empty_/Test.HList# -> 93:16
+(57:51..57:57) _empty_/Test.Kinder# -> 55:9
+(57:58..57:60) _empty_/Test.Kinder.Aux#[MA] -> 57:14
+(57:73..57:75) _empty_/Test.Kinder.Aux#[M0] -> 57:18
+(57:89..57:94) _empty_/Test.Kinder.Aux#[Args0] -> 57:33
+(59:45..59:48) _empty_/Test.Kinder.Aux# -> 57:10
+(59:38..59:44) _empty_/Test.Kinder. -> 56:10
+(59:49..59:51) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
+(59:52..59:54) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
+(59:57..59:59) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
+(59:64..59:66) _empty_/Test.`::`# -> 94:20
+(59:61..59:63) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
+(59:67..59:71) _empty_/Test.HNil# -> 95:16
+(59:79..59:85) _empty_/Test.Kinder# -> 55:9
+(59:86..59:88) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
+(59:89..59:91) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
+(59:108..59:110) _empty_/Test.Kinder.kinder1().[M0] -> 59:26
+(59:111..59:112) local23 -> 59:103
+(59:130..59:132) _empty_/Test.`::`# -> 94:20
+(59:127..59:129) _empty_/Test.Kinder.kinder1().[A0] -> 59:33
+(59:133..59:137) _empty_/Test.HNil# -> 95:16
+(63:52..63:55) _empty_/Test.Kinder.Aux# -> 57:10
+(63:45..63:51) _empty_/Test.Kinder. -> 56:10
+(63:56..63:58) _empty_/Test.KinderLowerImplicits#kinder2().[M0] -> 63:26
+(63:59..63:61) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
+(63:63..63:65) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
+(63:68..63:70) _empty_/Test.KinderLowerImplicits#kinder2().[M0] -> 63:26
+(63:75..63:77) _empty_/Test.`::`# -> 94:20
+(63:72..63:74) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
+(63:81..63:83) _empty_/Test.`::`# -> 94:20
+(63:78..63:80) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
+(63:84..63:88) _empty_/Test.HNil# -> 95:16
+(63:96..63:102) _empty_/Test.Kinder# -> 55:9
+(63:103..63:105) _empty_/Test.KinderLowerImplicits#kinder2().[M0] -> 63:26
+(63:106..63:108) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
+(63:110..63:112) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
+(63:132..63:134) _empty_/Test.KinderLowerImplicits#kinder2().[M0] -> 63:26
+(63:135..63:136) local27 -> 63:124
+(63:138..63:139) local28 -> 63:127
+(63:157..63:159) _empty_/Test.`::`# -> 94:20
+(63:154..63:156) _empty_/Test.KinderLowerImplicits#kinder2().[A0] -> 63:36
+(63:163..63:165) _empty_/Test.`::`# -> 94:20
+(63:160..63:162) _empty_/Test.KinderLowerImplicits#kinder2().[B0] -> 63:40
+(63:166..63:170) _empty_/Test.HNil# -> 95:16
+(64:37..64:40) _empty_/Test.Kinder.Aux# -> 57:10
+(64:30..64:36) _empty_/Test.Kinder. -> 56:10
+(64:41..64:42) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 64:26
+(64:44..64:45) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 64:26
+(64:47..64:51) _empty_/Test.HNil# -> 95:16
+(64:59..64:65) _empty_/Test.Kinder# -> 55:9
+(64:66..64:67) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 64:26
+(64:80..64:81) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 64:26
+(64:95..64:99) _empty_/Test.HNil# -> 95:16
+(72:35..72:43) _empty_/Test.SameKind# -> 69:9
+(72:44..72:45) _empty_/Test.SameKind.sameKind0().[A] -> 72:28
+(72:47..72:48) _empty_/Test.SameKind.sameKind0().[B] -> 72:31
+(73:44..73:52) _empty_/Test.SameKind# -> 69:9
+(73:53..73:55) _empty_/Test.SameKind.sameKind01().[M1] -> 73:29
+(73:57..73:59) _empty_/Test.SameKind.sameKind01().[M2] -> 73:36
+(74:50..74:58) _empty_/Test.SameKind# -> 69:9
+(74:59..74:61) _empty_/Test.SameKind.sameKind02().[M1] -> 74:29
+(74:63..74:65) _empty_/Test.SameKind.sameKind02().[M2] -> 74:39
+(77:22..77:29) scala/AnyKind#
+(77:37..77:44) scala/AnyKind#
+(77:65..77:73) _empty_/Test.SameKind# -> 69:9
+(77:74..77:76) _empty_/Test.sameKind().[M1] -> 77:16
+(77:78..77:80) _empty_/Test.sameKind().[M2] -> 77:31
+(77:85..77:93) _empty_/Test.sameKind().(sameKind) -> 77:55
+(79:3..79:11) _empty_/Test.sameKind(). -> 77:7
+(79:12..79:15) scala/Int#
+(79:17..79:23) scala/Predef.String#
+(79:24..79:24) _empty_/Test.SameKind.sameKind0(). -> 72:18
+(80:3..80:11) _empty_/Test.sameKind(). -> 77:7
+(80:12..80:16) scala/package.List#
+(80:22..80:22) _empty_/Test.SameKind.sameKind01(). -> 73:18
+(81:3..81:11) _empty_/Test.sameKind(). -> 77:7
+(81:12..81:15) scala/Predef.Map#
+(81:22..81:22) _empty_/Test.SameKind.sameKind02(). -> 74:18
+(94:47..94:48) _empty_/Test.`::`#[H] -> 94:24
+(94:57..94:58) _empty_/Test.`::`#[T] -> 94:28
+(94:68..94:73) _empty_/Test.HList# -> 93:16
+(95:29..95:34) _empty_/Test.HList# -> 93:16
+(96:28..96:32) _empty_/Test.HNil# -> 95:16
+(102:32..102:38) _empty_/Test.New.KPList# -> 100:18
+(103:31..103:36) _empty_/Test.New.KPNil# -> 102:18
+(104:23..104:30) scala/AnyKind#
+(104:38..104:43) _empty_/Test.HList# -> 93:16
+(104:47..104:48) _empty_/Test.New.KPNil.`:::`().[H] -> 104:15
+(104:74..104:77) _empty_/Test.Kinder.Aux# -> 57:10
+(104:67..104:73) _empty_/Test.Kinder. -> 56:10
+(104:78..104:79) _empty_/Test.New.KPNil.`:::`().[H] -> 104:15
+(104:81..104:82) _empty_/Test.New.KPNil.`:::`().[M] -> 104:18
+(104:84..104:86) _empty_/Test.New.KPNil.`:::`().[HL] -> 104:32
+(105:16..105:16) _empty_/Test.New.`:::`.apply(). -> 108:5
+(105:13..105:16) _empty_/Test.New.`:::`. -> 108:23
+(105:9..105:12) _empty_/Test.New. -> 98:10
+(105:17..105:18) _empty_/Test.New.KPNil.`:::`().(h) -> 104:45
+(105:20..105:25) _empty_/Test.New.KPNil. -> 103:17
+(105:26..105:26) _empty_/Test.New.KPNil.`:::`().(kinder) -> 104:59
+(109:13..109:14) _empty_/Test.New.`:::`#[H] -> 108:27
+(110:13..110:14) _empty_/Test.New.`:::`#[T] -> 108:30
+(111:35..111:38) _empty_/Test.Kinder.Aux# -> 57:10
+(111:28..111:34) _empty_/Test.Kinder. -> 56:10
+(111:39..111:40) _empty_/Test.New.`:::`#[H] -> 108:27
+(111:42..111:43) _empty_/Test.New.`:::`#[M] -> 108:43
+(111:45..111:48) _empty_/Test.New.`:::`#[HL0] -> 108:57
+(111:59..111:65) _empty_/Test.New.KPList# -> 100:18
+(113:49..113:50) _empty_/Test.New.KPListOps#[L] -> 113:32
+(114:23..114:30) scala/AnyKind#
+(114:38..114:43) _empty_/Test.HList# -> 93:16
+(114:47..114:48) _empty_/Test.New.KPListOps#`:::`().[H] -> 114:15
+(114:74..114:77) _empty_/Test.Kinder.Aux# -> 57:10
+(114:67..114:73) _empty_/Test.Kinder. -> 56:10
+(114:78..114:79) _empty_/Test.New.KPListOps#`:::`().[H] -> 114:15
+(114:81..114:82) _empty_/Test.New.KPListOps#`:::`().[M] -> 114:18
+(114:84..114:86) _empty_/Test.New.KPListOps#`:::`().[HL] -> 114:32
+(115:16..115:16) _empty_/Test.New.`:::`.apply(). -> 108:5
+(115:13..115:16) _empty_/Test.New.`:::`. -> 108:23
+(115:9..115:12) _empty_/Test.New. -> 98:10
+(115:17..115:18) _empty_/Test.New.KPListOps#`:::`().(h) -> 114:45
+(115:20..115:21) _empty_/Test.New.KPListOps#l. -> 113:45
+(115:22..115:22) _empty_/Test.New.KPListOps#`:::`().(kinder) -> 114:59
+(118:33..118:39) _empty_/Test.New.KPList# -> 100:18
+(118:44..118:45) _empty_/Test.New.kplistOps().[L] -> 118:28
+(118:48..118:57) _empty_/Test.New.KPListOps# -> 113:22
+(118:58..118:59) _empty_/Test.New.kplistOps().[L] -> 118:28
+(118:76..118:76) _empty_/Test.New.KPListOps#`<init>`(). -> 113:31
+(118:77..118:78) _empty_/Test.New.kplistOps().(l) -> 118:41
+(120:95..120:95) _empty_/Test.New.KPListOps#`:::`(). -> 114:11
+(120:25..120:25) _empty_/Test.New.kplistOps(). -> 118:18
+(120:36..120:36) _empty_/Test.New.kplistOps(). -> 118:18
+(120:54..120:54) _empty_/Test.New.kplistOps(). -> 118:18
+(120:95..120:95) _empty_/Test.New.KPNil.`:::`(). -> 104:11
+(120:90..120:95) _empty_/Test.New.KPNil. -> 103:17
+(120:57..120:57) local38 -> 120:57
+(120:95..120:95) _empty_/Test.Kinder.kinder1(). -> 59:18
+(120:40..120:40) local37 -> 120:40
+(120:95..120:95) _empty_/Test.KinderLowerImplicits#kinder0(). -> 64:18
+(120:17..120:17) local36 -> 120:17
+(122:12..122:15) _empty_/Test.Bar# -> 3:14
+(122:16..122:19) scala/Int#
+(122:26..122:30) _empty_/Test.New.`:::`#head. -> 109:7
+(122:23..122:25) _empty_/Test.New.kl. -> 120:9
+(123:13..123:19) scala/Predef.String#
+(123:30..123:34) _empty_/Test.New.`:::`#head. -> 109:7
+(123:25..123:29) _empty_/Test.New.`:::`#tail. -> 110:7
+(123:22..123:24) _empty_/Test.New.kl. -> 120:9
+(124:13..124:17) scala/package.List#
+(124:18..124:21) scala/Int#
+(124:38..124:42) _empty_/Test.New.`:::`#head. -> 109:7
+(124:33..124:37) _empty_/Test.New.`:::`#tail. -> 110:7
+(124:28..124:32) _empty_/Test.New.`:::`#tail. -> 110:7
+(124:25..124:27) _empty_/Test.New.kl. -> 120:9
+(125:13..125:16) scala/Predef.Map#
+(125:17..125:23) scala/Predef.String#
+(125:25..125:29) scala/Long#
+(125:51..125:55) _empty_/Test.New.`:::`#head. -> 109:7
+(125:46..125:50) _empty_/Test.New.`:::`#tail. -> 110:7
+(125:41..125:45) _empty_/Test.New.`:::`#tail. -> 110:7
+(125:36..125:40) _empty_/Test.New.`:::`#tail. -> 110:7
+(125:33..125:35) _empty_/Test.New.kl. -> 120:9
+(149:32..149:38) _empty_/Test.Old.KPList# -> 147:18
+(150:31..150:36) _empty_/Test.Old.KPNil# -> 149:18
+(152:57..152:63) _empty_/Test.Old.KPList# -> 147:18
+(153:53..153:56) _empty_/Test.Old.`:::`# -> 152:18
+(153:57..153:58) _empty_/Test.Old.KPCons#[M] -> 153:18
+(153:60..153:61) _empty_/Test.Old.KPCons#[T] -> 153:32
+(154:18..154:23) _empty_/Test.HList# -> 93:16
+(156:17..156:18) _empty_/Test.Old.KPCons#H# -> 155:12
+(157:17..157:18) _empty_/Test.Old.KPCons#[T] -> 153:32
+(161:21..161:28) scala/AnyKind#
+(161:35..161:41) _empty_/Test.Old.KPList# -> 147:18
+(161:54..161:59) _empty_/Test.HList# -> 93:16
+(161:63..161:69) _empty_/Test.Old.KPCons# -> 153:11
+(161:70..161:71) _empty_/Test.Old.KPCons.Aux#[M] -> 161:16
+(161:73..161:74) _empty_/Test.Old.KPCons.Aux#[T] -> 161:30
+(161:87..161:89) _empty_/Test.Old.KPCons.Aux#[H0] -> 161:43
+(161:101..161:104) _empty_/Test.Old.KPCons.Aux#[HL0] -> 161:47
+(165:23..165:30) scala/AnyKind#
+(165:37..165:42) _empty_/Test.HList# -> 93:16
+(165:52..165:57) _empty_/Test.Old.KPCons.Apply# -> 163:13
+(165:58..165:59) _empty_/Test.Old.KPCons.Apply.Aux#[M] -> 165:18
+(165:61..165:62) _empty_/Test.Old.KPCons.Apply.Aux#[A] -> 165:32
+(165:77..165:81) _empty_/Test.Old.KPCons.Apply.Aux#[Out0] -> 165:44
+(166:33..166:36) _empty_/Test.Old.KPCons.Apply.Aux# -> 165:14
+(166:37..166:38) _empty_/Test.Old.KPCons.Apply.apply0().[M] -> 166:29
+(166:40..166:44) _empty_/Test.HNil# -> 95:16
+(166:46..166:47) _empty_/Test.Old.KPCons.Apply.apply0().[M] -> 166:29
+(166:55..166:60) _empty_/Test.Old.KPCons.Apply# -> 163:13
+(166:61..166:62) _empty_/Test.Old.KPCons.Apply.apply0().[M] -> 166:29
+(166:64..166:68) _empty_/Test.HNil# -> 95:16
+(166:83..166:84) _empty_/Test.Old.KPCons.Apply.apply0().[M] -> 166:29
+(167:39..167:42) _empty_/Test.Old.KPCons.Apply.Aux# -> 165:14
+(167:43..167:44) _empty_/Test.Old.KPCons.Apply.apply1().[M] -> 167:29
+(167:48..167:50) _empty_/Test.`::`# -> 94:20
+(167:46..167:47) _empty_/Test.Old.KPCons.Apply.apply1().[A] -> 167:35
+(167:51..167:55) _empty_/Test.HNil# -> 95:16
+(167:57..167:58) _empty_/Test.Old.KPCons.Apply.apply1().[M] -> 167:29
+(167:59..167:60) _empty_/Test.Old.KPCons.Apply.apply1().[A] -> 167:35
+(167:69..167:74) _empty_/Test.Old.KPCons.Apply# -> 163:13
+(167:75..167:76) _empty_/Test.Old.KPCons.Apply.apply1().[M] -> 167:29
+(167:80..167:82) _empty_/Test.`::`# -> 94:20
+(167:78..167:79) _empty_/Test.Old.KPCons.Apply.apply1().[A] -> 167:35
+(167:83..167:87) _empty_/Test.HNil# -> 95:16
+(167:102..167:103) _empty_/Test.Old.KPCons.Apply.apply1().[M] -> 167:29
+(167:104..167:105) _empty_/Test.Old.KPCons.Apply.apply1().[A] -> 167:35
+(168:45..168:48) _empty_/Test.Old.KPCons.Apply.Aux# -> 165:14
+(168:49..168:50) _empty_/Test.Old.KPCons.Apply.apply2().[M] -> 168:29
+(168:54..168:56) _empty_/Test.`::`# -> 94:20
+(168:52..168:53) _empty_/Test.Old.KPCons.Apply.apply2().[A] -> 168:38
+(168:59..168:61) _empty_/Test.`::`# -> 94:20
+(168:57..168:58) _empty_/Test.Old.KPCons.Apply.apply2().[B] -> 168:41
+(168:62..168:66) _empty_/Test.HNil# -> 95:16
+(168:68..168:69) _empty_/Test.Old.KPCons.Apply.apply2().[M] -> 168:29
+(168:70..168:71) _empty_/Test.Old.KPCons.Apply.apply2().[A] -> 168:38
+(168:73..168:74) _empty_/Test.Old.KPCons.Apply.apply2().[B] -> 168:41
+(168:83..168:88) _empty_/Test.Old.KPCons.Apply# -> 163:13
+(168:89..168:90) _empty_/Test.Old.KPCons.Apply.apply2().[M] -> 168:29
+(168:94..168:96) _empty_/Test.`::`# -> 94:20
+(168:92..168:93) _empty_/Test.Old.KPCons.Apply.apply2().[A] -> 168:38
+(168:99..168:101) _empty_/Test.`::`# -> 94:20
+(168:97..168:98) _empty_/Test.Old.KPCons.Apply.apply2().[B] -> 168:41
+(168:102..168:106) _empty_/Test.HNil# -> 95:16
+(168:121..168:122) _empty_/Test.Old.KPCons.Apply.apply2().[M] -> 168:29
+(168:123..168:124) _empty_/Test.Old.KPCons.Apply.apply2().[A] -> 168:38
+(168:126..168:127) _empty_/Test.Old.KPCons.Apply.apply2().[B] -> 168:41
+(171:52..171:57) _empty_/Test.HList# -> 93:16
+(173:23..173:30) scala/AnyKind#
+(173:43..173:48) _empty_/Test.HList# -> 93:16
+(173:52..173:59) _empty_/Test.Old.KPCons.Unapply# -> 171:13
+(173:60..173:61) _empty_/Test.Old.KPCons.Unapply.Aux#[M] -> 173:18
+(173:63..173:64) _empty_/Test.Old.KPCons.Unapply.Aux#[O] -> 173:32
+(173:79..173:83) _empty_/Test.Old.KPCons.Unapply.Aux#[Out0] -> 173:35
+(175:35..175:38) _empty_/Test.Old.KPCons.Unapply.Aux# -> 173:14
+(175:39..175:40) _empty_/Test.Old.KPCons.Unapply.unapply0().[M] -> 175:31
+(175:42..175:43) _empty_/Test.Old.KPCons.Unapply.unapply0().[M] -> 175:31
+(175:45..175:49) _empty_/Test.HNil# -> 95:16
+(175:57..175:64) _empty_/Test.Old.KPCons.Unapply# -> 171:13
+(175:65..175:66) _empty_/Test.Old.KPCons.Unapply.unapply0().[M] -> 175:31
+(175:68..175:69) _empty_/Test.Old.KPCons.Unapply.unapply0().[M] -> 175:31
+(175:84..175:88) _empty_/Test.HNil# -> 95:16
+(176:50..176:53) _empty_/Test.Old.KPCons.Unapply.Aux# -> 173:14
+(176:42..176:49) _empty_/Test.Old.KPCons.Unapply. -> 172:14
+(176:54..176:55) _empty_/Test.Old.KPCons.Unapply.unapply1().[M] -> 176:31
+(176:57..176:58) _empty_/Test.Old.KPCons.Unapply.unapply1().[M] -> 176:31
+(176:59..176:61) _empty_/Test.Old.KPCons.Unapply.unapply1().[A0] -> 176:37
+(176:67..176:69) _empty_/Test.`::`# -> 94:20
+(176:64..176:66) _empty_/Test.Old.KPCons.Unapply.unapply1().[A0] -> 176:37
+(176:70..176:74) _empty_/Test.HNil# -> 95:16
+(176:82..176:89) _empty_/Test.Old.KPCons.Unapply# -> 171:13
+(176:90..176:91) _empty_/Test.Old.KPCons.Unapply.unapply1().[M] -> 176:31
+(176:93..176:94) _empty_/Test.Old.KPCons.Unapply.unapply1().[M] -> 176:31
+(176:95..176:97) _empty_/Test.Old.KPCons.Unapply.unapply1().[A0] -> 176:37
+(176:116..176:118) _empty_/Test.`::`# -> 94:20
+(176:113..176:115) _empty_/Test.Old.KPCons.Unapply.unapply1().[A0] -> 176:37
+(176:119..176:123) _empty_/Test.HNil# -> 95:16
+(177:49..177:52) _empty_/Test.Old.KPCons.Unapply.Aux# -> 173:14
+(177:53..177:54) _empty_/Test.Old.KPCons.Unapply.unapply2().[M] -> 177:31
+(177:56..177:57) _empty_/Test.Old.KPCons.Unapply.unapply2().[M] -> 177:31
+(177:58..177:60) _empty_/Test.Old.KPCons.Unapply.unapply2().[A0] -> 177:40
+(177:62..177:64) _empty_/Test.Old.KPCons.Unapply.unapply2().[B0] -> 177:44
+(177:70..177:72) _empty_/Test.`::`# -> 94:20
+(177:67..177:69) _empty_/Test.Old.KPCons.Unapply.unapply2().[A0] -> 177:40
+(177:76..177:78) _empty_/Test.`::`# -> 94:20
+(177:73..177:75) _empty_/Test.Old.KPCons.Unapply.unapply2().[B0] -> 177:44
+(177:79..177:83) _empty_/Test.HNil# -> 95:16
+(177:91..177:98) _empty_/Test.Old.KPCons.Unapply# -> 171:13
+(177:99..177:100) _empty_/Test.Old.KPCons.Unapply.unapply2().[M] -> 177:31
+(177:102..177:103) _empty_/Test.Old.KPCons.Unapply.unapply2().[M] -> 177:31
+(177:104..177:106) _empty_/Test.Old.KPCons.Unapply.unapply2().[A0] -> 177:40
+(177:108..177:110) _empty_/Test.Old.KPCons.Unapply.unapply2().[B0] -> 177:44
+(177:129..177:131) _empty_/Test.`::`# -> 94:20
+(177:126..177:128) _empty_/Test.Old.KPCons.Unapply.unapply2().[A0] -> 177:40
+(177:135..177:137) _empty_/Test.`::`# -> 94:20
+(177:132..177:134) _empty_/Test.Old.KPCons.Unapply.unapply2().[B0] -> 177:44
+(177:138..177:142) _empty_/Test.HNil# -> 95:16
+(182:30..182:35) _empty_/Test.HList# -> 93:16
+(182:42..182:48) _empty_/Test.Old.KPList# -> 147:18
+(182:57..182:59) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
+(182:68..182:69) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
+(182:94..182:97) _empty_/Test.Old.KPCons.Unapply.Aux# -> 173:14
+(182:86..182:93) _empty_/Test.Old.KPCons.Unapply. -> 172:14
+(182:98..182:99) _empty_/Test.Old.KPCons.KPConsBuilder#[M] -> 181:27
+(182:101..182:103) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
+(182:105..182:108) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0] -> 182:23
+(182:119..182:122) _empty_/Test.Old.KPCons.Aux# -> 161:12
+(182:112..182:118) _empty_/Test.Old.KPCons. -> 160:12
+(182:123..182:124) _empty_/Test.Old.KPCons.KPConsBuilder#[M] -> 181:27
+(182:126..182:127) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
+(182:129..182:131) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
+(182:133..182:136) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0] -> 182:23
+(182:144..182:150) _empty_/Test.Old.KPCons# -> 153:11
+(182:151..182:152) _empty_/Test.Old.KPCons.KPConsBuilder#[M] -> 181:27
+(182:154..182:155) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
+(183:21..183:24) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0] -> 182:23
+(184:20..184:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0] -> 182:19
+(185:21..185:22) local57 -> 184:16
+(185:25..185:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0) -> 182:50
+(186:21..186:22) _empty_/Test.Old.KPCons.KPConsBuilder#apply().[T] -> 182:37
+(186:25..186:30) _empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0) -> 182:61
+(190:22..190:29) scala/AnyKind#
+(190:37..190:50) _empty_/Test.Old.KPCons.KPConsBuilder# -> 181:13
+(190:51..190:52) _empty_/Test.Old.KPCons.apply().[M] -> 190:17
+(196:18..196:18) _empty_/Test.Old.KPCons.KPConsBuilder#apply(). -> 182:13
+(196:13..196:13) _empty_/Test.Old.KPCons.apply(). -> 190:11
+(196:7..196:13) _empty_/Test.Old.KPCons. -> 160:12
+(197:12..197:12) _empty_/Test.Bar.apply(). -> 3:3
+(197:9..197:12) _empty_/Test.Bar. -> 3:14
+(198:23..198:23) _empty_/Test.Old.KPCons.KPConsBuilder#apply(). -> 182:13
+(198:15..198:15) _empty_/Test.Old.KPCons.apply(). -> 190:11
+(198:9..198:15) _empty_/Test.Old.KPCons. -> 160:12
+(198:16..198:22) scala/Predef.String#
+(200:23..200:23) _empty_/Test.Old.KPCons.KPConsBuilder#apply(). -> 182:13
+(200:17..200:17) _empty_/Test.Old.KPCons.apply(). -> 190:11
+(200:11..200:17) _empty_/Test.Old.KPCons. -> 160:12
+(200:18..200:22) scala/package.List#
+(201:17..201:17) scala/collection/IterableFactory#apply().
+(201:13..201:17) scala/package.List.
+(202:24..202:24) _empty_/Test.Old.KPCons.KPConsBuilder#apply(). -> 182:13
+(202:19..202:19) _empty_/Test.Old.KPCons.apply(). -> 190:11
+(202:13..202:19) _empty_/Test.Old.KPCons. -> 160:12
+(202:20..202:23) scala/Predef.Map#
+(203:18..203:18) scala/collection/MapFactory#apply().
+(203:15..203:18) scala/Predef.Map.
+(203:26..203:28) scala/Predef.ArrowAssoc#`->`().
+(203:19..203:19) scala/Predef.ArrowAssoc().
+(203:40..203:42) scala/Predef.ArrowAssoc#`->`().
+(203:33..203:33) scala/Predef.ArrowAssoc().
+(204:15..204:20) _empty_/Test.Old.KPNil. -> 150:17
+(205:14..205:14) _empty_/Test.Old.KPCons.Unapply.unapply2(). -> 177:22
+(206:12..206:12) _empty_/Test.Old.KPCons.Unapply.unapply1(). -> 176:22
+(207:10..207:10) _empty_/Test.Old.KPCons.Unapply.unapply0(). -> 175:22
+(208:8..208:8) _empty_/Test.Old.KPCons.Unapply.unapply1(). -> 176:22
+(210:12..210:15) _empty_/Test.Bar# -> 3:14
+(210:16..210:19) scala/Int#
+(210:26..210:30) _empty_/Test.Old.KPCons#head(). -> 156:11
+(210:23..210:25) _empty_/Test.Old.kl. -> 195:9
+(211:13..211:19) scala/Predef.String#
+(211:30..211:34) _empty_/Test.Old.KPCons#head(). -> 156:11
+(211:25..211:29) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(211:22..211:24) _empty_/Test.Old.kl. -> 195:9
+(212:13..212:17) scala/package.List#
+(212:18..212:21) scala/Int#
+(212:38..212:42) _empty_/Test.Old.KPCons#head(). -> 156:11
+(212:33..212:37) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(212:28..212:32) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(212:25..212:27) _empty_/Test.Old.kl. -> 195:9
+(213:13..213:16) scala/Predef.Map#
+(213:17..213:23) scala/Predef.String#
+(213:25..213:29) scala/Long#
+(213:51..213:55) _empty_/Test.Old.KPCons#head(). -> 156:11
+(213:46..213:50) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(213:41..213:45) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(213:36..213:40) _empty_/Test.Old.KPCons#tail(). -> 157:11
+(213:33..213:35) _empty_/Test.Old.kl. -> 195:9
+

@@ -1,0 +1,5 @@
+Document tests/pos/t6040.scala
+(1:17..1:25) scala/language.dynamics.
+(1:8..1:16) scala/language.
+(3:17..3:24) scala/Dynamic#
+

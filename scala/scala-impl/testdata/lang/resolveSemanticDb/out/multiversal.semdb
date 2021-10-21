@@ -1,0 +1,91 @@
+Document tests/pos/multiversal.scala
+(2:16..2:24) scala/CanEqual.
+(2:16..2:24) scala/CanEqual#
+(2:10..2:15) scala/
+(4:22..4:30) scala/CanEqual#
+(4:31..4:32) _empty_/Test.given_CanEqual_List_List().[X] -> 4:10
+(4:34..4:35) _empty_/Test.given_CanEqual_List_List().[Y] -> 4:13
+(4:39..4:47) scala/CanEqual#
+(4:48..4:52) scala/package.List#
+(4:53..4:54) _empty_/Test.given_CanEqual_List_List().[X] -> 4:10
+(4:57..4:61) scala/package.List#
+(4:62..4:63) _empty_/Test.given_CanEqual_List_List().[Y] -> 4:13
+(4:77..4:84) scala/CanEqual.derived.
+(4:68..4:76) scala/CanEqual.
+(6:10..6:14) scala/Byte#
+(7:10..7:14) scala/Char#
+(8:10..8:13) scala/Int#
+(9:10..9:14) scala/Long#
+(10:11..10:18) java/lang/Integer#
+(10:21..10:21) scala/Predef.int2Integer().
+(10:21..10:22) _empty_/Test.i. -> 8:7
+(12:11..12:13) scala/Any#`==`().
+(12:7..12:7) scala/collection/IterableFactory#apply().
+(12:3..12:7) scala/package.List.
+(12:8..12:9) _empty_/Test.b. -> 6:7
+(12:18..12:18) scala/collection/IterableFactory#apply().
+(12:14..12:18) scala/package.List.
+(12:19..12:20) _empty_/Test.l. -> 9:7
+(13:11..13:13) scala/Any#`==`().
+(13:7..13:7) scala/collection/IterableFactory#apply().
+(13:3..13:7) scala/package.List.
+(13:8..13:9) _empty_/Test.l. -> 9:7
+(13:18..13:18) scala/collection/IterableFactory#apply().
+(13:14..13:18) scala/package.List.
+(13:19..13:20) _empty_/Test.c. -> 7:7
+(14:11..14:13) scala/Any#`!=`().
+(14:7..14:7) scala/collection/IterableFactory#apply().
+(14:3..14:7) scala/package.List.
+(14:8..14:9) _empty_/Test.b. -> 6:7
+(14:18..14:18) scala/collection/IterableFactory#apply().
+(14:14..14:18) scala/package.List.
+(14:19..14:20) _empty_/Test.c. -> 7:7
+(15:11..15:13) scala/Any#`==`().
+(15:7..15:7) scala/collection/IterableFactory#apply().
+(15:3..15:7) scala/package.List.
+(15:8..15:9) _empty_/Test.i. -> 8:7
+(15:18..15:18) scala/collection/IterableFactory#apply().
+(15:14..15:18) scala/package.List.
+(15:19..15:20) _empty_/Test.l. -> 9:7
+(16:11..16:13) scala/Any#`==`().
+(16:7..16:7) scala/collection/IterableFactory#apply().
+(16:3..16:7) scala/package.List.
+(16:8..16:9) _empty_/Test.i. -> 8:7
+(16:18..16:18) scala/collection/IterableFactory#apply().
+(16:14..16:18) scala/package.List.
+(16:19..16:21) _empty_/Test.ii. -> 10:7
+(17:12..17:14) scala/Any#`==`().
+(17:7..17:7) scala/collection/IterableFactory#apply().
+(17:3..17:7) scala/package.List.
+(17:8..17:10) _empty_/Test.ii. -> 10:7
+(17:19..17:19) scala/collection/IterableFactory#apply().
+(17:15..17:19) scala/package.List.
+(17:20..17:21) _empty_/Test.l. -> 9:7
+(18:11..18:13) scala/Any#`==`().
+(18:7..18:7) scala/collection/IterableFactory#apply().
+(18:3..18:7) scala/package.List.
+(18:8..18:9) _empty_/Test.b. -> 6:7
+(18:18..18:18) scala/collection/IterableFactory#apply().
+(18:14..18:18) scala/package.List.
+(18:19..18:21) _empty_/Test.ii. -> 10:7
+(19:12..19:14) scala/Any#`==`().
+(19:7..19:7) scala/collection/IterableFactory#apply().
+(19:3..19:7) scala/package.List.
+(19:8..19:10) _empty_/Test.ii. -> 10:7
+(19:19..19:19) scala/collection/IterableFactory#apply().
+(19:15..19:19) scala/package.List.
+(19:20..19:21) _empty_/Test.l. -> 9:7
+(21:18..21:26) scala/reflect/ClassTag.
+(21:18..21:26) scala/reflect/ClassTag#
+(21:10..21:17) scala/reflect/
+(22:19..22:27) scala/reflect/ClassTag#
+(22:28..22:35) scala/Boolean#
+(22:53..22:60) scala/reflect/ClassTag.Boolean.
+(22:44..22:52) scala/reflect/ClassTag.
+(24:20..24:28) scala/reflect/ClassTag#
+(24:28..24:28) _empty_/Test.Setting#[T] -> 24:17
+(25:19..25:29) scala/Predef.implicitly().
+(25:30..25:38) scala/reflect/ClassTag#
+(25:39..25:40) _empty_/Test.Setting#[T] -> 24:17
+(26:12..26:22) _empty_/Test.BooleanTag. -> 22:7
+

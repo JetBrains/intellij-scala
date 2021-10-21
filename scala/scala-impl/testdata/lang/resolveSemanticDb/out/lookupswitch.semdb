@@ -1,0 +1,4 @@
+Document tests/pos/lookupswitch.scala
+(4:12..4:15) scala/Int#
+(4:19..4:20) _empty_/A#f().(x) -> 4:9
+

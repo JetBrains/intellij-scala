@@ -1,0 +1,42 @@
+Document tests/pos/i1036.scala
+(2:24..2:26) _empty_/Test.second().[sA] -> 2:14
+(2:33..2:35) _empty_/Test.second().[sA] -> 2:14
+(2:42..2:44) _empty_/Test.second().[sB] -> 2:18
+(2:47..2:49) _empty_/Test.second().[sB] -> 2:18
+(2:52..2:55) _empty_/Test.second().(bar) -> 2:37
+(3:21..3:22) _empty_/Test.third().[A] -> 3:13
+(3:29..3:30) _empty_/Test.third().[A] -> 3:13
+(3:37..3:38) _empty_/Test.third().[B] -> 3:16
+(3:41..3:42) _empty_/Test.third().[B] -> 3:16
+(3:45..3:48) _empty_/Test.third().(bar) -> 3:32
+(4:23..4:29) scala/Predef.String#
+(4:33..4:34) _empty_/Test.expectString().(s) -> 4:20
+(7:13..7:19) _empty_/Test.second(). -> 2:7
+(7:24..7:29) scala/collection/immutable/Set.empty().
+(7:20..7:23) scala/Predef.Set.
+(7:30..7:36) scala/Predef.String#
+(7:43..7:48) scala/collection/immutable/Set.empty().
+(7:39..7:42) scala/Predef.Set.
+(8:7..8:10) scala/collection/IterableOps#map().
+(8:5..8:6) local0 -> 7:9
+(8:11..8:23) _empty_/Test.expectString(). -> 4:7
+(8:11..8:11) local1
+(9:42..9:45) scala/collection/IterableOps#map().
+(9:5..9:11) _empty_/Test.second(). -> 2:7
+(9:16..9:21) scala/collection/immutable/Set.empty().
+(9:12..9:15) scala/Predef.Set.
+(9:22..9:28) scala/Predef.String#
+(9:35..9:40) scala/collection/immutable/Set.empty().
+(9:31..9:34) scala/Predef.Set.
+(9:46..9:58) _empty_/Test.expectString(). -> 4:7
+(9:46..9:46) local2
+(10:41..10:44) scala/collection/IterableOps#map().
+(10:5..10:10) _empty_/Test.third(). -> 3:7
+(10:15..10:20) scala/collection/immutable/Set.empty().
+(10:11..10:14) scala/Predef.Set.
+(10:21..10:27) scala/Predef.String#
+(10:34..10:39) scala/collection/immutable/Set.empty().
+(10:30..10:33) scala/Predef.Set.
+(10:45..10:57) _empty_/Test.expectString(). -> 4:7
+(10:45..10:45) local3
+

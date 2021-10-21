@@ -1,0 +1,13 @@
+Document tests/pos/matches.scala
+(3:5..3:8) scala/runtime/RichInt#min().
+(3:3..3:3) scala/LowPriorityImplicits#intWrapper().
+(8:41..8:41) java/lang/AssertionError#`<init>`().
+(8:27..8:41) java/lang/AssertionError#
+(12:6..12:8) scala/Boolean#`||`().
+(11:8..11:9) scala/Int#`<`(+3).
+(12:9..12:10) matches/Test.x. -> 10:7
+(15:6..15:8) scala/Boolean#`||`().
+(15:12..15:13) scala/Int#`+`(+4).
+(19:5..19:12) scala/Predef.println(+1).
+(20:5..20:9) matches/Test. -> 2:8
+

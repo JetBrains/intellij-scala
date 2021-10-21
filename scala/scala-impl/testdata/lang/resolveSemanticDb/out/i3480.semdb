@@ -1,0 +1,10 @@
+Document tests/pos/i3480.scala
+(2:14..2:29) scala/PartialFunction#
+(2:30..2:33) scala/Int#
+(2:35..2:38) scala/Int#
+(2:44..2:44) scala/Function1#apply().
+(2:43..2:44) _empty_/Test#foo().(x) -> 2:11
+(4:3..4:6) _empty_/Test#foo(). -> 2:7
+(4:9..4:9) local0
+(4:19..4:20) local1 -> 4:14
+

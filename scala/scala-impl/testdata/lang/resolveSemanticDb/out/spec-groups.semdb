@@ -1,0 +1,377 @@
+Document tests/pos/spec-groups.scala
+(1:8..1:21) scala/Specializable.
+(3:40..3:41) _empty_/A#[T] -> 3:34
+(3:10..3:21) scala/specialized#
+(3:22..3:32) scala/Specializable.Primitives.
+(4:11..4:22) scala/specialized#
+(4:23..4:33) scala/Specializable.Primitives.
+(4:41..4:42) _empty_/A#[T] -> 3:34
+(4:47..4:48) _empty_/A#f1().[U] -> 4:35
+(4:54..4:54) scala/Tuple2.apply().
+(4:54..4:55) _empty_/A#f1().(x) -> 4:38
+(4:57..4:58) _empty_/A#f1().(y) -> 4:44
+(5:11..5:22) scala/specialized#
+(5:23..5:33) scala/Specializable.Everything.
+(5:41..5:42) _empty_/A#[T] -> 3:34
+(5:47..5:48) _empty_/A#f2().[U] -> 5:35
+(5:54..5:54) scala/Tuple2.apply().
+(5:54..5:55) _empty_/A#f2().(x) -> 5:38
+(5:57..5:58) _empty_/A#f2().(y) -> 5:44
+(6:11..6:22) scala/specialized#
+(6:23..6:34) scala/Specializable.Bits32AndUp.
+(6:42..6:43) _empty_/A#[T] -> 3:34
+(6:48..6:49) _empty_/A#f3().[U] -> 6:36
+(6:55..6:55) scala/Tuple2.apply().
+(6:55..6:56) _empty_/A#f3().(x) -> 6:39
+(6:58..6:59) _empty_/A#f3().(y) -> 6:45
+(7:11..7:22) scala/specialized#
+(7:23..7:31) scala/Specializable.Integral.
+(7:39..7:40) _empty_/A#[T] -> 3:34
+(7:45..7:46) _empty_/A#f4().[U] -> 7:33
+(7:52..7:52) scala/Tuple2.apply().
+(7:52..7:53) _empty_/A#f4().(x) -> 7:36
+(7:55..7:56) _empty_/A#f4().(y) -> 7:42
+(8:11..8:22) scala/specialized#
+(8:23..8:33) scala/Specializable.AllNumeric.
+(8:41..8:42) _empty_/A#[T] -> 3:34
+(8:47..8:48) _empty_/A#f5().[U] -> 8:35
+(8:54..8:54) scala/Tuple2.apply().
+(8:54..8:55) _empty_/A#f5().(x) -> 8:38
+(8:57..8:58) _empty_/A#f5().(y) -> 8:44
+(9:11..9:22) scala/specialized#
+(9:23..9:34) scala/Specializable.BestOfBreed.
+(9:42..9:43) _empty_/A#[T] -> 3:34
+(9:48..9:49) _empty_/A#f6().[U] -> 9:36
+(9:55..9:55) scala/Tuple2.apply().
+(9:55..9:56) _empty_/A#f6().(x) -> 9:39
+(9:58..9:59) _empty_/A#f6().(y) -> 9:45
+(10:11..10:22) scala/specialized#
+(10:23..10:27) scala/Byte.
+(10:29..10:35) scala/Double.
+(10:37..10:43) scala/package.AnyRef.
+(10:51..10:52) _empty_/A#[T] -> 3:34
+(10:57..10:58) _empty_/A#f7().[U] -> 10:45
+(10:64..10:64) scala/Tuple2.apply().
+(10:64..10:65) _empty_/A#f7().(x) -> 10:48
+(10:67..10:68) _empty_/A#f7().(y) -> 10:54
+(12:10..12:21) scala/specialized#
+(12:22..12:32) scala/Specializable.Everything.
+(13:11..13:22) scala/specialized#
+(13:23..13:33) scala/Specializable.Primitives.
+(13:41..13:42) _empty_/B#[T] -> 12:34
+(13:47..13:48) _empty_/B#f1().[U] -> 13:35
+(13:54..13:54) scala/Tuple2.apply().
+(13:54..13:55) _empty_/B#f1().(x) -> 13:38
+(13:57..13:58) _empty_/B#f1().(y) -> 13:44
+(14:11..14:22) scala/specialized#
+(14:23..14:33) scala/Specializable.Everything.
+(14:41..14:42) _empty_/B#[T] -> 12:34
+(14:47..14:48) _empty_/B#f2().[U] -> 14:35
+(14:54..14:54) scala/Tuple2.apply().
+(14:54..14:55) _empty_/B#f2().(x) -> 14:38
+(14:57..14:58) _empty_/B#f2().(y) -> 14:44
+(15:11..15:22) scala/specialized#
+(15:23..15:34) scala/Specializable.Bits32AndUp.
+(15:42..15:43) _empty_/B#[T] -> 12:34
+(15:48..15:49) _empty_/B#f3().[U] -> 15:36
+(15:55..15:55) scala/Tuple2.apply().
+(15:55..15:56) _empty_/B#f3().(x) -> 15:39
+(15:58..15:59) _empty_/B#f3().(y) -> 15:45
+(16:11..16:22) scala/specialized#
+(16:23..16:31) scala/Specializable.Integral.
+(16:39..16:40) _empty_/B#[T] -> 12:34
+(16:45..16:46) _empty_/B#f4().[U] -> 16:33
+(16:52..16:52) scala/Tuple2.apply().
+(16:52..16:53) _empty_/B#f4().(x) -> 16:36
+(16:55..16:56) _empty_/B#f4().(y) -> 16:42
+(17:11..17:22) scala/specialized#
+(17:23..17:33) scala/Specializable.AllNumeric.
+(17:41..17:42) _empty_/B#[T] -> 12:34
+(17:47..17:48) _empty_/B#f5().[U] -> 17:35
+(17:54..17:54) scala/Tuple2.apply().
+(17:54..17:55) _empty_/B#f5().(x) -> 17:38
+(17:57..17:58) _empty_/B#f5().(y) -> 17:44
+(18:11..18:22) scala/specialized#
+(18:23..18:34) scala/Specializable.BestOfBreed.
+(18:42..18:43) _empty_/B#[T] -> 12:34
+(18:48..18:49) _empty_/B#f6().[U] -> 18:36
+(18:55..18:55) scala/Tuple2.apply().
+(18:55..18:56) _empty_/B#f6().(x) -> 18:39
+(18:58..18:59) _empty_/B#f6().(y) -> 18:45
+(19:11..19:22) scala/specialized#
+(19:23..19:27) scala/Byte.
+(19:29..19:35) scala/Double.
+(19:37..19:43) scala/package.AnyRef.
+(19:51..19:52) _empty_/B#[T] -> 12:34
+(19:57..19:58) _empty_/B#f7().[U] -> 19:45
+(19:64..19:64) scala/Tuple2.apply().
+(19:64..19:65) _empty_/B#f7().(x) -> 19:48
+(19:67..19:68) _empty_/B#f7().(y) -> 19:54
+(21:10..21:21) scala/specialized#
+(21:22..21:33) scala/Specializable.Bits32AndUp.
+(22:11..22:22) scala/specialized#
+(22:23..22:33) scala/Specializable.Primitives.
+(22:41..22:42) _empty_/C#[T] -> 21:35
+(22:47..22:48) _empty_/C#f1().[U] -> 22:35
+(22:54..22:54) scala/Tuple2.apply().
+(22:54..22:55) _empty_/C#f1().(x) -> 22:38
+(22:57..22:58) _empty_/C#f1().(y) -> 22:44
+(23:11..23:22) scala/specialized#
+(23:23..23:33) scala/Specializable.Everything.
+(23:41..23:42) _empty_/C#[T] -> 21:35
+(23:47..23:48) _empty_/C#f2().[U] -> 23:35
+(23:54..23:54) scala/Tuple2.apply().
+(23:54..23:55) _empty_/C#f2().(x) -> 23:38
+(23:57..23:58) _empty_/C#f2().(y) -> 23:44
+(24:11..24:22) scala/specialized#
+(24:23..24:34) scala/Specializable.Bits32AndUp.
+(24:42..24:43) _empty_/C#[T] -> 21:35
+(24:48..24:49) _empty_/C#f3().[U] -> 24:36
+(24:55..24:55) scala/Tuple2.apply().
+(24:55..24:56) _empty_/C#f3().(x) -> 24:39
+(24:58..24:59) _empty_/C#f3().(y) -> 24:45
+(25:11..25:22) scala/specialized#
+(25:23..25:31) scala/Specializable.Integral.
+(25:39..25:40) _empty_/C#[T] -> 21:35
+(25:45..25:46) _empty_/C#f4().[U] -> 25:33
+(25:52..25:52) scala/Tuple2.apply().
+(25:52..25:53) _empty_/C#f4().(x) -> 25:36
+(25:55..25:56) _empty_/C#f4().(y) -> 25:42
+(26:11..26:22) scala/specialized#
+(26:23..26:33) scala/Specializable.AllNumeric.
+(26:41..26:42) _empty_/C#[T] -> 21:35
+(26:47..26:48) _empty_/C#f5().[U] -> 26:35
+(26:54..26:54) scala/Tuple2.apply().
+(26:54..26:55) _empty_/C#f5().(x) -> 26:38
+(26:57..26:58) _empty_/C#f5().(y) -> 26:44
+(27:11..27:22) scala/specialized#
+(27:23..27:34) scala/Specializable.BestOfBreed.
+(27:42..27:43) _empty_/C#[T] -> 21:35
+(27:48..27:49) _empty_/C#f6().[U] -> 27:36
+(27:55..27:55) scala/Tuple2.apply().
+(27:55..27:56) _empty_/C#f6().(x) -> 27:39
+(27:58..27:59) _empty_/C#f6().(y) -> 27:45
+(28:11..28:22) scala/specialized#
+(28:23..28:27) scala/Byte.
+(28:29..28:35) scala/Double.
+(28:37..28:43) scala/package.AnyRef.
+(28:51..28:52) _empty_/C#[T] -> 21:35
+(28:57..28:58) _empty_/C#f7().[U] -> 28:45
+(28:64..28:64) scala/Tuple2.apply().
+(28:64..28:65) _empty_/C#f7().(x) -> 28:48
+(28:67..28:68) _empty_/C#f7().(y) -> 28:54
+(30:10..30:21) scala/specialized#
+(30:22..30:30) scala/Specializable.Integral.
+(31:11..31:22) scala/specialized#
+(31:23..31:33) scala/Specializable.Primitives.
+(31:41..31:42) _empty_/D#[T] -> 30:32
+(31:47..31:48) _empty_/D#f1().[U] -> 31:35
+(31:54..31:54) scala/Tuple2.apply().
+(31:54..31:55) _empty_/D#f1().(x) -> 31:38
+(31:57..31:58) _empty_/D#f1().(y) -> 31:44
+(32:11..32:22) scala/specialized#
+(32:23..32:33) scala/Specializable.Everything.
+(32:41..32:42) _empty_/D#[T] -> 30:32
+(32:47..32:48) _empty_/D#f2().[U] -> 32:35
+(32:54..32:54) scala/Tuple2.apply().
+(32:54..32:55) _empty_/D#f2().(x) -> 32:38
+(32:57..32:58) _empty_/D#f2().(y) -> 32:44
+(33:11..33:22) scala/specialized#
+(33:23..33:34) scala/Specializable.Bits32AndUp.
+(33:42..33:43) _empty_/D#[T] -> 30:32
+(33:48..33:49) _empty_/D#f3().[U] -> 33:36
+(33:55..33:55) scala/Tuple2.apply().
+(33:55..33:56) _empty_/D#f3().(x) -> 33:39
+(33:58..33:59) _empty_/D#f3().(y) -> 33:45
+(34:11..34:22) scala/specialized#
+(34:23..34:31) scala/Specializable.Integral.
+(34:39..34:40) _empty_/D#[T] -> 30:32
+(34:45..34:46) _empty_/D#f4().[U] -> 34:33
+(34:52..34:52) scala/Tuple2.apply().
+(34:52..34:53) _empty_/D#f4().(x) -> 34:36
+(34:55..34:56) _empty_/D#f4().(y) -> 34:42
+(35:11..35:22) scala/specialized#
+(35:23..35:33) scala/Specializable.AllNumeric.
+(35:41..35:42) _empty_/D#[T] -> 30:32
+(35:47..35:48) _empty_/D#f5().[U] -> 35:35
+(35:54..35:54) scala/Tuple2.apply().
+(35:54..35:55) _empty_/D#f5().(x) -> 35:38
+(35:57..35:58) _empty_/D#f5().(y) -> 35:44
+(36:11..36:22) scala/specialized#
+(36:23..36:34) scala/Specializable.BestOfBreed.
+(36:42..36:43) _empty_/D#[T] -> 30:32
+(36:48..36:49) _empty_/D#f6().[U] -> 36:36
+(36:55..36:55) scala/Tuple2.apply().
+(36:55..36:56) _empty_/D#f6().(x) -> 36:39
+(36:58..36:59) _empty_/D#f6().(y) -> 36:45
+(37:11..37:22) scala/specialized#
+(37:23..37:27) scala/Byte.
+(37:29..37:35) scala/Double.
+(37:37..37:43) scala/package.AnyRef.
+(37:51..37:52) _empty_/D#[T] -> 30:32
+(37:57..37:58) _empty_/D#f7().[U] -> 37:45
+(37:64..37:64) scala/Tuple2.apply().
+(37:64..37:65) _empty_/D#f7().(x) -> 37:48
+(37:67..37:68) _empty_/D#f7().(y) -> 37:54
+(39:10..39:21) scala/specialized#
+(39:22..39:32) scala/Specializable.AllNumeric.
+(40:11..40:22) scala/specialized#
+(40:23..40:33) scala/Specializable.Primitives.
+(40:41..40:42) _empty_/E#[T] -> 39:34
+(40:47..40:48) _empty_/E#f1().[U] -> 40:35
+(40:54..40:54) scala/Tuple2.apply().
+(40:54..40:55) _empty_/E#f1().(x) -> 40:38
+(40:57..40:58) _empty_/E#f1().(y) -> 40:44
+(41:11..41:22) scala/specialized#
+(41:23..41:33) scala/Specializable.Everything.
+(41:41..41:42) _empty_/E#[T] -> 39:34
+(41:47..41:48) _empty_/E#f2().[U] -> 41:35
+(41:54..41:54) scala/Tuple2.apply().
+(41:54..41:55) _empty_/E#f2().(x) -> 41:38
+(41:57..41:58) _empty_/E#f2().(y) -> 41:44
+(42:11..42:22) scala/specialized#
+(42:23..42:34) scala/Specializable.Bits32AndUp.
+(42:42..42:43) _empty_/E#[T] -> 39:34
+(42:48..42:49) _empty_/E#f3().[U] -> 42:36
+(42:55..42:55) scala/Tuple2.apply().
+(42:55..42:56) _empty_/E#f3().(x) -> 42:39
+(42:58..42:59) _empty_/E#f3().(y) -> 42:45
+(43:11..43:22) scala/specialized#
+(43:23..43:31) scala/Specializable.Integral.
+(43:39..43:40) _empty_/E#[T] -> 39:34
+(43:45..43:46) _empty_/E#f4().[U] -> 43:33
+(43:52..43:52) scala/Tuple2.apply().
+(43:52..43:53) _empty_/E#f4().(x) -> 43:36
+(43:55..43:56) _empty_/E#f4().(y) -> 43:42
+(44:11..44:22) scala/specialized#
+(44:23..44:33) scala/Specializable.AllNumeric.
+(44:41..44:42) _empty_/E#[T] -> 39:34
+(44:47..44:48) _empty_/E#f5().[U] -> 44:35
+(44:54..44:54) scala/Tuple2.apply().
+(44:54..44:55) _empty_/E#f5().(x) -> 44:38
+(44:57..44:58) _empty_/E#f5().(y) -> 44:44
+(45:11..45:22) scala/specialized#
+(45:23..45:34) scala/Specializable.BestOfBreed.
+(45:42..45:43) _empty_/E#[T] -> 39:34
+(45:48..45:49) _empty_/E#f6().[U] -> 45:36
+(45:55..45:55) scala/Tuple2.apply().
+(45:55..45:56) _empty_/E#f6().(x) -> 45:39
+(45:58..45:59) _empty_/E#f6().(y) -> 45:45
+(46:11..46:22) scala/specialized#
+(46:23..46:27) scala/Byte.
+(46:29..46:35) scala/Double.
+(46:37..46:43) scala/package.AnyRef.
+(46:51..46:52) _empty_/E#[T] -> 39:34
+(46:57..46:58) _empty_/E#f7().[U] -> 46:45
+(46:64..46:64) scala/Tuple2.apply().
+(46:64..46:65) _empty_/E#f7().(x) -> 46:48
+(46:67..46:68) _empty_/E#f7().(y) -> 46:54
+(48:10..48:21) scala/specialized#
+(48:22..48:33) scala/Specializable.BestOfBreed.
+(49:11..49:22) scala/specialized#
+(49:23..49:33) scala/Specializable.Primitives.
+(49:41..49:42) _empty_/F#[T] -> 48:35
+(49:47..49:48) _empty_/F#f1().[U] -> 49:35
+(49:54..49:54) scala/Tuple2.apply().
+(49:54..49:55) _empty_/F#f1().(x) -> 49:38
+(49:57..49:58) _empty_/F#f1().(y) -> 49:44
+(50:11..50:22) scala/specialized#
+(50:23..50:33) scala/Specializable.Everything.
+(50:41..50:42) _empty_/F#[T] -> 48:35
+(50:47..50:48) _empty_/F#f2().[U] -> 50:35
+(50:54..50:54) scala/Tuple2.apply().
+(50:54..50:55) _empty_/F#f2().(x) -> 50:38
+(50:57..50:58) _empty_/F#f2().(y) -> 50:44
+(51:11..51:22) scala/specialized#
+(51:23..51:34) scala/Specializable.Bits32AndUp.
+(51:42..51:43) _empty_/F#[T] -> 48:35
+(51:48..51:49) _empty_/F#f3().[U] -> 51:36
+(51:55..51:55) scala/Tuple2.apply().
+(51:55..51:56) _empty_/F#f3().(x) -> 51:39
+(51:58..51:59) _empty_/F#f3().(y) -> 51:45
+(52:11..52:22) scala/specialized#
+(52:23..52:31) scala/Specializable.Integral.
+(52:39..52:40) _empty_/F#[T] -> 48:35
+(52:45..52:46) _empty_/F#f4().[U] -> 52:33
+(52:52..52:52) scala/Tuple2.apply().
+(52:52..52:53) _empty_/F#f4().(x) -> 52:36
+(52:55..52:56) _empty_/F#f4().(y) -> 52:42
+(53:11..53:22) scala/specialized#
+(53:23..53:33) scala/Specializable.AllNumeric.
+(53:41..53:42) _empty_/F#[T] -> 48:35
+(53:47..53:48) _empty_/F#f5().[U] -> 53:35
+(53:54..53:54) scala/Tuple2.apply().
+(53:54..53:55) _empty_/F#f5().(x) -> 53:38
+(53:57..53:58) _empty_/F#f5().(y) -> 53:44
+(54:11..54:22) scala/specialized#
+(54:23..54:34) scala/Specializable.BestOfBreed.
+(54:42..54:43) _empty_/F#[T] -> 48:35
+(54:48..54:49) _empty_/F#f6().[U] -> 54:36
+(54:55..54:55) scala/Tuple2.apply().
+(54:55..54:56) _empty_/F#f6().(x) -> 54:39
+(54:58..54:59) _empty_/F#f6().(y) -> 54:45
+(55:11..55:22) scala/specialized#
+(55:23..55:27) scala/Byte.
+(55:29..55:35) scala/Double.
+(55:37..55:43) scala/package.AnyRef.
+(55:51..55:52) _empty_/F#[T] -> 48:35
+(55:57..55:58) _empty_/F#f7().[U] -> 55:45
+(55:64..55:64) scala/Tuple2.apply().
+(55:64..55:65) _empty_/F#f7().(x) -> 55:48
+(55:67..55:68) _empty_/F#f7().(y) -> 55:54
+(57:10..57:21) scala/specialized#
+(57:22..57:26) scala/Byte.
+(57:28..57:34) scala/Double.
+(57:36..57:42) scala/package.AnyRef.
+(58:11..58:22) scala/specialized#
+(58:23..58:33) scala/Specializable.Primitives.
+(58:41..58:42) _empty_/G#[T] -> 57:44
+(58:47..58:48) _empty_/G#f1().[U] -> 58:35
+(58:54..58:54) scala/Tuple2.apply().
+(58:54..58:55) _empty_/G#f1().(x) -> 58:38
+(58:57..58:58) _empty_/G#f1().(y) -> 58:44
+(59:11..59:22) scala/specialized#
+(59:23..59:33) scala/Specializable.Everything.
+(59:41..59:42) _empty_/G#[T] -> 57:44
+(59:47..59:48) _empty_/G#f2().[U] -> 59:35
+(59:54..59:54) scala/Tuple2.apply().
+(59:54..59:55) _empty_/G#f2().(x) -> 59:38
+(59:57..59:58) _empty_/G#f2().(y) -> 59:44
+(60:11..60:22) scala/specialized#
+(60:23..60:34) scala/Specializable.Bits32AndUp.
+(60:42..60:43) _empty_/G#[T] -> 57:44
+(60:48..60:49) _empty_/G#f3().[U] -> 60:36
+(60:55..60:55) scala/Tuple2.apply().
+(60:55..60:56) _empty_/G#f3().(x) -> 60:39
+(60:58..60:59) _empty_/G#f3().(y) -> 60:45
+(61:11..61:22) scala/specialized#
+(61:23..61:31) scala/Specializable.Integral.
+(61:39..61:40) _empty_/G#[T] -> 57:44
+(61:45..61:46) _empty_/G#f4().[U] -> 61:33
+(61:52..61:52) scala/Tuple2.apply().
+(61:52..61:53) _empty_/G#f4().(x) -> 61:36
+(61:55..61:56) _empty_/G#f4().(y) -> 61:42
+(62:11..62:22) scala/specialized#
+(62:23..62:33) scala/Specializable.AllNumeric.
+(62:41..62:42) _empty_/G#[T] -> 57:44
+(62:47..62:48) _empty_/G#f5().[U] -> 62:35
+(62:54..62:54) scala/Tuple2.apply().
+(62:54..62:55) _empty_/G#f5().(x) -> 62:38
+(62:57..62:58) _empty_/G#f5().(y) -> 62:44
+(63:11..63:22) scala/specialized#
+(63:23..63:34) scala/Specializable.BestOfBreed.
+(63:42..63:43) _empty_/G#[T] -> 57:44
+(63:48..63:49) _empty_/G#f6().[U] -> 63:36
+(63:55..63:55) scala/Tuple2.apply().
+(63:55..63:56) _empty_/G#f6().(x) -> 63:39
+(63:58..63:59) _empty_/G#f6().(y) -> 63:45
+(64:11..64:22) scala/specialized#
+(64:23..64:27) scala/Byte.
+(64:29..64:35) scala/Double.
+(64:37..64:43) scala/package.AnyRef.
+(64:51..64:52) _empty_/G#[T] -> 57:44
+(64:57..64:58) _empty_/G#f7().[U] -> 64:45
+(64:64..64:64) scala/Tuple2.apply().
+(64:64..64:65) _empty_/G#f7().(x) -> 64:48
+(64:67..64:68) _empty_/G#f7().(y) -> 64:54
+

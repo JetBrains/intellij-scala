@@ -1,0 +1,15 @@
+Document tests/pos/i2974.scala
+(3:23..3:26) _empty_/Foo# -> 1:7
+(3:27..3:28) _empty_/Bar#[T] -> 3:12
+(6:20..6:23) _empty_/Foo# -> 1:7
+(6:24..6:27) scala/Any#
+(6:31..6:34) scala/Predef.`???`().
+(7:20..7:23) _empty_/Bar# -> 3:7
+(7:24..7:27) scala/Int#
+(7:31..7:34) scala/Predef.`???`().
+(9:13..9:17) scala/Unit#
+(10:5..10:15) scala/Predef.implicitly().
+(10:16..10:19) _empty_/Foo# -> 1:7
+(10:20..10:23) scala/Int#
+(10:25..10:25) _empty_/Test.ba. -> 7:16
+

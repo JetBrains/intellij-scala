@@ -1,0 +1,6 @@
+Document tests/pos/t7864.scala
+(3:30..3:30) scala/Function1#apply().
+(3:6..3:14) scala/Any#toString().
+(3:20..3:23) scala/Any#
+(3:28..3:29) local0 -> 3:17
+

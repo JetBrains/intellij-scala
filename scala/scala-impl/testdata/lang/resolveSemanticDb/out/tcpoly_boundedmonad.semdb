@@ -1,0 +1,45 @@
+Document tests/pos/tcpoly_boundedmonad.scala
+(2:16..2:21) _empty_/Monad#[Bound] -> 1:51
+(2:22..2:23) _empty_/Monad#map().[S] -> 2:11
+(2:29..2:30) _empty_/Monad#[T] -> 1:13
+(2:34..2:35) _empty_/Monad#map().[S] -> 2:11
+(2:38..2:44) _empty_/Monad#[MyType] -> 1:28
+(2:45..2:46) _empty_/Monad#map().[S] -> 2:11
+(4:20..4:26) _empty_/Monad#flatMap().[RBound] -> 4:59
+(4:27..4:28) _empty_/Monad#flatMap().[S] -> 4:15
+(6:19..6:20) _empty_/Monad#[T] -> 1:13
+(6:24..6:30) _empty_/Monad#flatMap().[Result] -> 5:15
+(6:31..6:32) _empty_/Monad#flatMap().[S] -> 4:15
+(6:36..6:42) _empty_/Monad#flatMap().[Result] -> 5:15
+(6:43..6:44) _empty_/Monad#flatMap().[S] -> 4:15
+(8:17..8:18) _empty_/Monad#[T] -> 1:13
+(8:22..8:29) scala/Boolean#
+(8:32..8:38) _empty_/Monad#[MyType] -> 1:28
+(8:39..8:40) _empty_/Monad#[T] -> 1:13
+(11:36..11:41) _empty_/Monad# -> 1:7
+(11:42..11:43) _empty_/Set#[T] -> 11:11
+(11:50..11:57) scala/package.Ordered#
+(12:16..12:23) scala/package.Ordered#
+(12:24..12:25) _empty_/Set#map().[S] -> 12:11
+(12:31..12:32) _empty_/Set#[T] -> 11:11
+(12:36..12:37) _empty_/Set#map().[S] -> 12:11
+(12:40..12:43) _empty_/Set# -> 11:7
+(12:44..12:45) _empty_/Set#map().[S] -> 12:11
+(12:53..12:58) scala/sys/package.error().
+(12:49..12:52) scala/sys/
+(14:20..14:26) _empty_/Set#flatMap().[RBound] -> 14:59
+(14:27..14:28) _empty_/Set#flatMap().[S] -> 14:15
+(16:19..16:20) _empty_/Set#[T] -> 11:11
+(16:24..16:30) _empty_/Set#flatMap().[Result] -> 15:15
+(16:31..16:32) _empty_/Set#flatMap().[S] -> 14:15
+(16:36..16:42) _empty_/Set#flatMap().[Result] -> 15:15
+(16:43..16:44) _empty_/Set#flatMap().[S] -> 14:15
+(16:53..16:58) scala/sys/package.error().
+(16:49..16:52) scala/sys/
+(18:17..18:18) _empty_/Set#[T] -> 11:11
+(18:22..18:29) scala/Boolean#
+(18:32..18:35) _empty_/Set# -> 11:7
+(18:36..18:37) _empty_/Set#[T] -> 11:11
+(18:45..18:50) scala/sys/package.error().
+(18:41..18:44) scala/sys/
+

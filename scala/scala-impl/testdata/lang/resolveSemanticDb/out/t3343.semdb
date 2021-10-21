@@ -1,0 +1,43 @@
+Document tests/pos/t3343.scala
+(1:35..1:42) scala/collection/mutable/Builder.
+(1:44..1:54) scala/collection/mutable/ListBuffer.
+(1:44..1:54) scala/collection/mutable/ListBuffer#
+(1:25..1:32) scala/collection/mutable/
+(1:14..1:24) scala/collection/
+(1:8..1:13) scala/
+(5:51..5:51) _empty_/Test.Converter#`<init>`(). -> 4:18
+(5:37..5:46) _empty_/Test.Converter# -> 4:9
+(5:47..5:50) scala/Int#
+(7:71..7:80) _empty_/Test.Converter# -> 4:9
+(7:81..7:82) _empty_/Test.TraversableConverter#[T] -> 7:30
+(7:94..7:101) scala/collection/mutable/Builder#
+(7:102..7:103) _empty_/Test.TraversableConverter#[T] -> 7:30
+(7:105..7:109) _empty_/Test.TraversableConverter#[Coll] -> 7:33
+(7:110..7:111) _empty_/Test.TraversableConverter#[T] -> 7:30
+(7:141..7:141) _empty_/Test.Converter#`<init>`(). -> 4:18
+(7:123..7:132) _empty_/Test.Converter# -> 4:9
+(7:133..7:137) _empty_/Test.TraversableConverter#[Coll] -> 7:33
+(7:138..7:139) _empty_/Test.TraversableConverter#[T] -> 7:30
+(8:20..8:21) _empty_/Test.TraversableConverter#[T] -> 7:30
+(8:24..8:28) scala/package.List#
+(8:29..8:30) _empty_/Test.TraversableConverter#[T] -> 7:30
+(8:38..8:38) scala/collection/IterableFactory#apply().
+(8:34..8:38) scala/package.List.
+(8:39..8:40) _empty_/Test.TraversableConverter#convert().(x) -> 8:17
+(10:11..10:20) _empty_/Test.Converter# -> 4:9
+(10:21..10:25) scala/package.List#
+(10:26..10:29) scala/Int#
+(10:58..10:58) _empty_/Test.TraversableConverter#`<init>`(). -> 7:29
+(10:59..10:77) _empty_/Test.SimpleIntConverter. -> 5:10
+(10:98..10:98) scala/collection/mutable/ListBuffer#`<init>`().
+(10:83..10:93) scala/collection/mutable/ListBuffer#
+(10:94..10:97) scala/Int#
+(11:37..11:37) _empty_/Test.TraversableConverter#`<init>`(). -> 7:29
+(11:38..11:56) _empty_/Test.SimpleIntConverter. -> 5:10
+(11:77..11:77) scala/collection/mutable/ListBuffer#`<init>`().
+(11:62..11:72) scala/collection/mutable/ListBuffer#
+(11:73..11:76) scala/Int#
+(13:18..13:23) scala/Array#
+(13:24..13:30) scala/Predef.String#
+(13:34..13:38) scala/Unit#
+

@@ -1,0 +1,12 @@
+Document tests/pos/i1812.scala
+(2:18..2:19) _empty_/FF#[R] -> 1:10
+(2:22..2:25) scala/Predef.`???`().
+(5:15..5:18) scala/Int#
+(5:34..5:34) scala/AnyVal#`<init>`().
+(5:28..5:34) scala/AnyVal#
+(6:15..6:19) scala/Unit#
+(8:30..8:30) _empty_/FF#`<init>`(). -> 1:9
+(8:23..8:25) _empty_/FF# -> 1:7
+(8:26..8:29) local0 -> 7:11
+(9:42..9:49) _empty_/FF#compose(). -> 2:7
+

@@ -1,0 +1,13 @@
+Document tests/pos/t1090.scala
+(4:20..4:28) scala/package.Iterator#
+(4:29..4:33) _empty_/Test.Manager#Node# -> 3:10
+(9:32..9:39) _empty_/Test.Manager# -> 2:9
+(9:27..9:31) _empty_/Test. -> 1:8
+(10:29..10:33) _empty_/Test.Core#Node# -> 7:10
+(12:21..12:28) _empty_/Test.Core#Manager# -> 9:11
+(12:49..12:56) scala/collection/IterableOnceOps#foreach().
+(12:40..12:48) _empty_/Test.Manager#iterator(). -> 4:9
+(12:32..12:39) _empty_/Test.Core#f().(manager) -> 12:11
+(13:7..13:7) local0
+(13:19..13:27) _empty_/Test.Core#NodeImpl# -> 8:11
+

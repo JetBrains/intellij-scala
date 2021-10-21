@@ -1,0 +1,31 @@
+Document tests/pos/i12379a.scala
+(6:22..6:23) _empty_/Bar#[T] -> 6:11
+(1:45..1:49) _empty_/i12379a$package.convFail().[From] -> 1:25
+(1:53..1:57) scala/Unit#
+(2:23..2:35) scala/compiletime/package$package.summonInline().
+(2:11..2:22) scala/compiletime/
+(2:36..2:46) scala/Conversion#
+(2:47..2:51) _empty_/i12379a$package.convFail().(from) -> 1:38
+(2:58..2:60) _empty_/i12379a$package.convFail().[Of] -> 1:21
+(4:43..4:47) _empty_/i12379a$package.convOK().[From] -> 4:23
+(4:59..4:69) scala/Conversion#
+(4:70..4:74) _empty_/i12379a$package.convOK().(from) -> 4:36
+(4:81..4:83) _empty_/i12379a$package.convOK().[Of] -> 4:19
+(4:88..4:92) scala/Unit#
+(7:13..7:16) scala/Int#
+(7:20..7:30) scala/Conversion#
+(7:31..7:32) _empty_/i12379a$package.given_Conversion_T_Bar().[T] -> 7:8
+(7:34..7:37) _empty_/Bar# -> 6:7
+(7:38..7:39) _empty_/i12379a$package.given_Conversion_T_Bar().[T] -> 7:8
+(7:47..7:47) _empty_/Bar#`<init>`(). -> 6:10
+(9:2..9:6) scala/main#
+(9:18..9:22) scala/Unit#
+(10:3..10:9) _empty_/i12379a$package.convOK(). -> 4:12
+(10:10..10:13) _empty_/Bar# -> 6:7
+(10:22..10:22) _empty_/i12379a$package.given_Conversion_T_Bar(). -> 7:7
+(11:3..11:11) _empty_/i12379a$package.convFail(). -> 1:12
+(11:12..11:15) _empty_/Bar# -> 6:7
+(9:1..9:1) _empty_/i12379a$package.main(). -> 9:11
+(9:1..9:1) scala/util/CommandLineParser.showError().
+(9:1..9:1) local1
+

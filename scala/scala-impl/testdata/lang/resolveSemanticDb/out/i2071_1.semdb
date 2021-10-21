@@ -1,0 +1,9 @@
+Document tests/pos/i2071_1.scala
+(2:19..2:34) scala/PartialFunction#
+(2:35..2:36) _empty_/Test.PF#[A] -> 2:11
+(2:38..2:39) _empty_/Test.PF#[B] -> 2:14
+(4:10..4:12) _empty_/Test.PF# -> 2:8
+(4:13..4:16) scala/Int#
+(4:18..4:24) scala/Predef.String#
+(5:5..5:5) local0
+

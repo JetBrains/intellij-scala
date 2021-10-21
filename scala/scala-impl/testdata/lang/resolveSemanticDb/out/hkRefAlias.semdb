@@ -1,0 +1,20 @@
+Document tests/pos/hkRefAlias.scala
+(3:18..3:18) _empty_/X#`<init>`(). -> 2:1
+(3:17..3:18) _empty_/X# -> 2:7
+(6:15..6:18) _empty_/Bar# -> 1:7
+(6:30..6:31) _empty_/Test.G#[X] -> 6:10
+(8:3..8:13) scala/Predef.implicitly().
+(8:19..8:22) scala/`=:=`#
+(8:14..8:15) _empty_/Test.G# -> 6:8
+(8:24..8:27) _empty_/Bar# -> 1:7
+(8:40..8:40) scala/`<:<`.refl().
+(9:3..9:13) scala/Predef.implicitly().
+(9:29..9:32) scala/`=:=`#
+(9:14..9:15) _empty_/Test.G# -> 6:8
+(9:21..9:22) _empty_/Y# -> 3:7
+(9:26..9:27) _empty_/X# -> 2:7
+(9:34..9:37) _empty_/Bar# -> 1:7
+(9:50..9:51) _empty_/Y# -> 3:7
+(9:55..9:56) _empty_/X# -> 2:7
+(9:60..9:60) scala/`<:<`.refl().
+

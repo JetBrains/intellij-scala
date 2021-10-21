@@ -1,0 +1,15 @@
+Document tests/pos/t5639/Foo.scala
+(1:9..1:13) pack/
+(6:23..6:26) scala/Int#
+(6:29..6:32) pack/age/Baz# -> 3:7
+(6:42..6:42) pack/age/Baz#`<init>`(). -> 3:1
+(6:39..6:42) pack/age/Baz# -> 3:7
+
+Document tests/pos/t5639/Bar.scala
+(1:9..1:13) pack/
+(3:17..3:26) pack/age/Implicits. -> 5:8
+(3:13..3:16) pack/age/ -> 1:14
+(3:8..3:12) pack/
+(6:13..6:16) pack/age/Baz# -> 3:7
+(6:21..6:21) pack/age/Implicits.Baz(). -> 6:16
+

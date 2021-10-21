@@ -1,0 +1,12 @@
+Document tests/pos/i5338.scala
+(2:25..2:25) scala/Tuple.apply().
+(2:20..2:25) scala/Tuple.
+(4:14..4:19) scala/Tuple#
+(4:28..4:29) _empty_/Test.f().[T] -> 4:9
+(4:34..4:35) _empty_/Test.f().[X] -> 4:21
+(5:8..5:10) scala/Tuple#`++`().
+(5:5..5:7) _empty_/Test.f().(xs) -> 4:24
+(5:26..5:26) scala/Tuple#`*:`().
+(5:16..5:26) _empty_/Test.emptyTuple. -> 2:7
+(5:11..5:12) _empty_/Test.f().(x) -> 4:31
+

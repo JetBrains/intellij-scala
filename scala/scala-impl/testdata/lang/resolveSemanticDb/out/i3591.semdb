@@ -1,0 +1,9 @@
+Document tests/pos/i3591.scala
+(4:17..4:18) _empty_/Foo#A# -> 2:9
+(4:22..4:23) _empty_/Foo#Bla#[X] -> 4:12
+(7:22..7:22) _empty_/Foo#`<init>`(). -> 2:3
+(7:19..7:22) _empty_/Foo# -> 1:7
+(8:10..8:13) _empty_/Foo#Bla# -> 4:8
+(8:14..8:15) _empty_/Foo#A# -> 2:9
+(8:19..8:22) scala/Predef.`???`().
+

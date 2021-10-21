@@ -1,0 +1,147 @@
+Document tests/pos/byname-implicits-22.scala
+(2:24..2:32) scala/reflect/ClassTag.
+(2:24..2:32) scala/reflect/ClassTag#
+(2:16..2:23) scala/reflect/
+(2:10..2:15) scala/
+(6:34..6:40) scala/Predef.String#
+(8:32..8:40) scala/reflect/ClassTag#
+(8:41..8:42) _empty_/repro.Atomic.apply(+1).[V] -> 8:15
+(8:46..8:52) _empty_/repro.Atomic# -> 6:14
+(8:53..8:54) _empty_/repro.Atomic.apply(+1).[V] -> 8:15
+(8:64..8:64) _empty_/repro.Atomic.apply(). -> 6:3
+(8:58..8:64) _empty_/repro.Atomic. -> 7:10
+(8:65..8:66) _empty_/repro.Atomic.apply(+1).[V] -> 8:15
+(8:72..8:80) scala/reflect/ClassTag#toString().
+(8:68..8:71) _empty_/repro.Atomic.apply(+1).(vtt) -> 8:27
+(11:37..11:43) scala/Predef.String#
+(13:35..13:43) scala/reflect/ClassTag#
+(13:44..13:45) _empty_/repro.Assign.apply(+1).[V] -> 13:15
+(13:49..13:55) _empty_/repro.Assign# -> 11:14
+(13:56..13:57) _empty_/repro.Assign.apply(+1).[V] -> 13:15
+(13:59..13:60) _empty_/repro.Assign.apply(+1).[X] -> 13:18
+(13:70..13:70) _empty_/repro.Assign.apply(). -> 11:3
+(13:64..13:70) _empty_/repro.Assign. -> 12:10
+(13:71..13:72) _empty_/repro.Assign.apply(+1).[V] -> 13:15
+(13:74..13:75) _empty_/repro.Assign.apply(+1).[X] -> 13:18
+(13:81..13:89) scala/reflect/ClassTag#toString().
+(13:77..13:80) _empty_/repro.Assign.apply(+1).(vtt) -> 13:30
+(17:14..17:20) scala/Predef.String#
+(20:40..20:46) _empty_/repro.Atomic# -> 6:14
+(20:47..20:48) _empty_/repro.AsString.atomic().[V] -> 20:25
+(20:52..20:60) _empty_/repro.AsString# -> 16:9
+(20:61..20:62) _empty_/repro.AsString.atomic().[V] -> 20:25
+(21:11..21:19) _empty_/repro.AsString# -> 16:9
+(21:20..21:21) _empty_/repro.AsString.atomic().[V] -> 20:25
+(21:37..21:41) _empty_/repro.Atomic#name. -> 6:28
+(21:35..21:36) _empty_/repro.AsString.atomic().(a) -> 20:37
+(22:43..22:49) _empty_/repro.Assign# -> 11:14
+(22:50..22:51) _empty_/repro.AsString.assign().[V] -> 22:25
+(22:53..22:54) _empty_/repro.AsString.assign().[X] -> 22:28
+(22:62..22:70) _empty_/repro.AsString# -> 16:9
+(22:71..22:72) _empty_/repro.AsString.assign().[X] -> 22:28
+(22:76..22:84) _empty_/repro.AsString# -> 16:9
+(22:85..22:86) _empty_/repro.AsString.assign().[V] -> 22:25
+(23:11..23:19) _empty_/repro.AsString# -> 16:9
+(23:20..23:21) _empty_/repro.AsString.assign().[V] -> 22:25
+(23:39..23:42) _empty_/repro.AsString#str(). -> 17:9
+(23:35..23:38) _empty_/repro.AsString.assign().(asx) -> 22:57
+(24:43..24:51) _empty_/repro.AsString# -> 16:9
+(24:52..24:53) _empty_/repro.AsString.plus().[L] -> 24:23
+(24:61..24:69) _empty_/repro.AsString# -> 16:9
+(24:70..24:71) _empty_/repro.AsString.plus().[R] -> 24:26
+(24:75..24:83) _empty_/repro.AsString# -> 16:9
+(24:84..24:85) _empty_/repro.`+`# -> 4:9
+(24:86..24:87) _empty_/repro.AsString.plus().[L] -> 24:23
+(24:89..24:90) _empty_/repro.AsString.plus().[R] -> 24:26
+(25:11..25:19) _empty_/repro.AsString# -> 16:9
+(25:20..25:21) _empty_/repro.`+`# -> 4:9
+(25:22..25:23) _empty_/repro.AsString.plus().[L] -> 24:23
+(25:25..25:26) _empty_/repro.AsString.plus().[R] -> 24:26
+(25:70..25:71) scala/StringContext#s().
+(25:43..25:43) scala/StringContext.apply().
+(25:50..25:53) _empty_/repro.AsString#str(). -> 17:9
+(25:46..25:49) _empty_/repro.AsString.plus().(asl) -> 24:38
+(25:65..25:68) _empty_/repro.AsString#str(). -> 17:9
+(25:61..25:64) _empty_/repro.AsString.plus().(asr) -> 24:56
+(29:26..29:32) _empty_/repro.Atomic# -> 6:14
+(29:33..29:34) _empty_/repro.X# -> 28:9
+(29:44..29:44) _empty_/repro.Atomic.apply(+1). -> 8:9
+(29:38..29:44) _empty_/repro.Atomic. -> 7:10
+(29:45..29:46) _empty_/repro.X# -> 28:9
+(29:47..29:47) scala/reflect/ClassTag.apply().
+(31:26..31:32) _empty_/repro.Atomic# -> 6:14
+(31:33..31:34) _empty_/repro.Y# -> 30:9
+(31:44..31:44) _empty_/repro.Atomic.apply(+1). -> 8:9
+(31:38..31:44) _empty_/repro.Atomic. -> 7:10
+(31:45..31:46) _empty_/repro.Y# -> 30:9
+(31:47..31:47) scala/reflect/ClassTag.apply().
+(33:26..33:32) _empty_/repro.Atomic# -> 6:14
+(33:33..33:34) _empty_/repro.Z# -> 32:9
+(33:44..33:44) _empty_/repro.Atomic.apply(+1). -> 8:9
+(33:38..33:44) _empty_/repro.Atomic. -> 7:10
+(33:45..33:46) _empty_/repro.Z# -> 32:9
+(33:47..33:47) scala/reflect/ClassTag.apply().
+(36:26..36:32) _empty_/repro.Assign# -> 11:14
+(36:33..36:34) _empty_/repro.Q# -> 35:9
+(36:44..36:45) _empty_/repro.`+`# -> 4:9
+(36:39..36:40) _empty_/repro.`+`# -> 4:9
+(36:37..36:38) _empty_/repro.X# -> 28:9
+(36:41..36:42) _empty_/repro.Y# -> 30:9
+(36:46..36:47) _empty_/repro.Z# -> 32:9
+(36:57..36:57) _empty_/repro.Assign.apply(+1). -> 13:9
+(36:51..36:57) _empty_/repro.Assign. -> 12:10
+(36:58..36:59) _empty_/repro.Q# -> 35:9
+(36:69..36:70) _empty_/repro.`+`# -> 4:9
+(36:64..36:65) _empty_/repro.`+`# -> 4:9
+(36:62..36:63) _empty_/repro.X# -> 28:9
+(36:66..36:67) _empty_/repro.Y# -> 30:9
+(36:71..36:72) _empty_/repro.Z# -> 32:9
+(36:73..36:73) scala/reflect/ClassTag.apply().
+(38:26..38:32) _empty_/repro.Assign# -> 11:14
+(38:33..38:34) _empty_/repro.R# -> 37:9
+(38:38..38:39) _empty_/repro.`+`# -> 4:9
+(38:36..38:37) _empty_/repro.Q# -> 35:9
+(38:40..38:41) _empty_/repro.Z# -> 32:9
+(38:51..38:51) _empty_/repro.Assign.apply(+1). -> 13:9
+(38:45..38:51) _empty_/repro.Assign. -> 12:10
+(38:52..38:53) _empty_/repro.R# -> 37:9
+(38:57..38:58) _empty_/repro.`+`# -> 4:9
+(38:55..38:56) _empty_/repro.Q# -> 35:9
+(38:59..38:60) _empty_/repro.Z# -> 32:9
+(38:61..38:61) scala/reflect/ClassTag.apply().
+(40:3..40:13) scala/Predef.implicitly().
+(40:14..40:22) _empty_/repro.AsString# -> 16:9
+(40:23..40:24) _empty_/repro.X# -> 28:9
+(40:26..40:26) _empty_/repro.AsString.atomic(). -> 20:18
+(40:26..40:26) _empty_/repro.declareX. -> 29:16
+(41:3..41:13) scala/Predef.implicitly().
+(41:14..41:22) _empty_/repro.AsString# -> 16:9
+(41:25..41:26) _empty_/repro.`+`# -> 4:9
+(41:23..41:24) _empty_/repro.X# -> 28:9
+(41:27..41:28) _empty_/repro.Y# -> 30:9
+(41:30..41:30) _empty_/repro.AsString.plus(). -> 24:18
+(41:30..41:30) _empty_/repro.AsString.atomic(). -> 20:18
+(41:30..41:30) _empty_/repro.declareX. -> 29:16
+(41:30..41:30) _empty_/repro.declareY. -> 31:16
+(42:3..42:13) scala/Predef.implicitly().
+(42:14..42:22) _empty_/repro.AsString# -> 16:9
+(42:23..42:24) _empty_/repro.Q# -> 35:9
+(42:26..42:26) _empty_/repro.AsString.assign(). -> 22:18
+(42:26..42:26) _empty_/repro.declareQ. -> 36:16
+(42:26..42:26) _empty_/repro.AsString.plus(). -> 24:18
+(42:26..42:26) _empty_/repro.AsString.atomic(). -> 20:18
+(42:26..42:26) _empty_/repro.declareX. -> 29:16
+(42:26..42:26) _empty_/repro.declareY. -> 31:16
+(42:26..42:26) _empty_/repro.declareZ. -> 33:16
+(43:3..43:13) scala/Predef.implicitly().
+(43:14..43:22) _empty_/repro.AsString# -> 16:9
+(43:23..43:24) _empty_/repro.R# -> 37:9
+(43:26..43:26) _empty_/repro.AsString.assign(). -> 22:18
+(43:26..43:26) _empty_/repro.declareR. -> 38:16
+(43:26..43:26) _empty_/repro.AsString.plus(). -> 24:18
+(43:26..43:26) _empty_/repro.declareQ. -> 36:16
+(43:26..43:26) _empty_/repro.AsString.atomic(). -> 20:18
+(43:26..43:26) _empty_/repro.declareX. -> 29:16
+(43:26..43:26) _empty_/repro.declareY. -> 31:16
+(43:26..43:26) _empty_/repro.declareZ. -> 33:16
+

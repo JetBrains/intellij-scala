@@ -1,0 +1,15 @@
+Document tests/pos/t3037.scala
+(4:3..4:10) scala/Predef.println(+1).
+(7:6..7:18) scala/Any#asInstanceOf().
+(7:19..7:25) java/lang/Object#
+(8:17..8:18) test/A.foo().[T] -> 8:11
+(8:22..8:23) test/A.foo().(x) -> 8:14
+(9:10..9:13) scala/Int#
+(10:10..10:14) scala/Long#
+(11:3..11:4) test/A.`x_=`(). -> 9:7
+(11:7..11:10) test/A.foo(). -> 8:7
+(11:11..11:12) test/A.x(). -> 9:7
+(12:3..12:4) test/A.`y_=`(). -> 10:7
+(12:7..12:10) test/A.foo(). -> 8:7
+(12:11..12:12) test/A.y(). -> 10:7
+

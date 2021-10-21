@@ -1,0 +1,28 @@
+Document tests/pos/t2503.scala
+(1:25..1:32) scala/collection/mutable/
+(1:14..1:24) scala/collection/
+(1:8..1:13) scala/
+(3:21..3:27) scala/collection/mutable/Buffer#
+(3:28..3:29) _empty_/SB#[A] -> 3:10
+(4:38..4:41) scala/Int#
+(4:49..4:61) scala/package.IterableOnce#
+(4:62..4:63) _empty_/SB#[A] -> 3:10
+(4:67..4:71) scala/Unit#
+(4:74..4:86) java/lang/Object#synchronized().
+(5:12..5:21) scala/collection/mutable/Buffer#insertAll().
+(5:22..5:23) _empty_/SB#insertAll().(n) -> 4:35
+(5:25..5:29) _empty_/SB#insertAll().(iter) -> 4:43
+(8:35..8:38) scala/Int#
+(8:49..8:50) _empty_/SB#[A] -> 3:10
+(8:53..8:57) scala/Unit#
+(8:60..8:72) java/lang/Object#synchronized().
+(9:11..9:17) scala/collection/mutable/SeqOps#update().
+(9:18..9:19) _empty_/SB#update().(n) -> 8:32
+(9:21..9:28) _empty_/SB#update().(newelem) -> 8:40
+(13:21..13:24) scala/App#
+(14:23..14:23) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
+(14:7..14:18) scala/collection/mutable/ArrayBuffer#
+(14:19..14:22) scala/Int#
+(14:29..14:31) _empty_/SB# -> 3:7
+(14:32..14:35) scala/Int#
+

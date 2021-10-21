@@ -1,0 +1,23 @@
+Document tests/pos/i6126.scala
+(2:24..2:25) _empty_/Test#Foo#[T] -> 2:14
+(4:21..4:24) _empty_/Test#Foo# -> 2:9
+(4:25..4:26) _empty_/Test#unfoo().[T] -> 4:13
+(4:30..4:31) _empty_/Test#unfoo().[T] -> 4:13
+(4:38..4:39) _empty_/Test#Foo#x. -> 2:21
+(4:34..4:37) _empty_/Test#unfoo().(foo) -> 4:16
+(6:17..6:20) _empty_/Test#Foo# -> 2:9
+(6:21..6:26) scala/Array#
+(6:27..6:33) java/lang/Object#
+(6:45..6:45) _empty_/Test#Foo#`<init>`(). -> 2:12
+(6:52..6:57) scala/Array.empty().
+(6:46..6:51) scala/Array.
+(6:58..6:64) java/lang/Object#
+(6:65..6:65) scala/reflect/ClassTag.apply().
+(8:19..8:21) scala/collection/ArrayOps#`++`(+1).
+(8:3..8:3) scala/Predef.refArrayOps().
+(8:3..8:8) _empty_/Test#unfoo(). -> 4:7
+(8:9..8:17) _empty_/Test#fooArray(). -> 6:7
+(8:22..8:27) _empty_/Test#unfoo(). -> 4:7
+(8:28..8:36) _empty_/Test#fooArray(). -> 6:7
+(8:37..8:37) scala/reflect/ClassTag.apply().
+

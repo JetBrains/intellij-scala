@@ -1,0 +1,118 @@
+Document tests/pos/6709.scala
+(2:22..2:23) _empty_/Foo.LeafElem#[X] -> 2:17
+(3:10..3:16) scala/Predef.String#
+(3:25..3:29) scala/Char#
+(4:10..4:15) scala/Array#
+(4:25..4:33) _empty_/Foo.LeafElem# -> 2:8
+(4:34..4:35) local0 -> 4:16
+(5:10..5:18) scala/package.Iterable#
+(5:25..5:33) _empty_/Foo.LeafElem# -> 2:8
+(5:34..5:35) local1 -> 5:19
+(6:10..6:16) scala/AnyVal#
+(6:25..6:26) _empty_/Foo.LeafElem#[X] -> 2:17
+(9:22..9:23) _empty_/Foo.leafElem().[X] -> 9:16
+(9:26..9:34) _empty_/Foo.LeafElem# -> 2:8
+(9:35..9:36) _empty_/Foo.leafElem().[X] -> 9:16
+(10:5..10:6) _empty_/Foo.leafElem().(x) -> 9:19
+(11:15..11:21) scala/Predef.String#
+(11:32..11:38) java/lang/String#charAt().
+(11:30..11:31) local2 -> 11:12
+(12:15..12:20) scala/Array#
+(12:30..12:38) _empty_/Foo.leafElem(). -> 9:7
+(12:40..12:40) scala/Array#apply().
+(12:39..12:40) local3 -> 12:12
+(13:15..13:23) scala/package.Iterable#
+(13:30..13:38) _empty_/Foo.leafElem(). -> 9:7
+(13:41..13:45) scala/collection/IterableOps#head().
+(13:39..13:40) local5 -> 13:12
+(14:15..14:21) scala/AnyVal#
+(14:30..14:31) _empty_/Foo.leafElem().(x) -> 9:19
+(17:23..17:24) _empty_/Foo.leafElem2().[X] -> 17:17
+(17:27..17:35) _empty_/Foo.LeafElem# -> 2:8
+(17:36..17:37) _empty_/Foo.leafElem2().[X] -> 17:17
+(18:5..18:6) _empty_/Foo.leafElem2().(x) -> 17:20
+(19:15..19:21) scala/Predef.String#
+(19:27..19:35) _empty_/Foo.leafElem(). -> 9:7
+(19:36..19:37) _empty_/Foo.leafElem2().[X] -> 17:17
+(19:39..19:40) _empty_/Foo.leafElem2().(x) -> 17:20
+(20:15..20:20) scala/Array#
+(20:27..20:35) _empty_/Foo.leafElem(). -> 9:7
+(20:36..20:37) _empty_/Foo.leafElem2().[X] -> 17:17
+(20:39..20:40) _empty_/Foo.leafElem2().(x) -> 17:20
+(25:26..25:29) scala/compiletime/ops/int.
+(25:22..25:25) scala/compiletime/ops/
+(25:10..25:21) scala/compiletime/
+(27:18..27:21) scala/Int#
+(27:28..27:31) scala/Int#
+(27:36..27:39) scala/Int#
+(28:5..28:6) _empty_/Bar.Plus#[A] -> 27:13
+(29:20..29:21) _empty_/Bar.Plus#[B] -> 27:23
+(30:12..30:13) scala/compiletime/ops/int.S#
+(30:20..30:21) scala/compiletime/ops/int.S#
+(30:22..30:26) _empty_/Bar.Plus# -> 27:8
+(30:27..30:28) local9 -> 30:14
+(30:30..30:31) _empty_/Bar.Plus#[B] -> 27:23
+(33:17..33:20) scala/Int#
+(33:27..33:30) scala/Int#
+(33:35..33:36) _empty_/Bar.plus().[A] -> 33:12
+(33:41..33:42) _empty_/Bar.plus().[B] -> 33:22
+(33:45..33:49) _empty_/Bar.Plus# -> 27:8
+(33:50..33:51) _empty_/Bar.plus().[A] -> 33:12
+(33:53..33:54) _empty_/Bar.plus().[B] -> 33:22
+(34:5..34:6) _empty_/Bar.plus().(a) -> 33:32
+(35:23..35:24) _empty_/Bar.plus().(b) -> 33:38
+(36:15..36:16) scala/compiletime/ops/int.S#
+(36:23..36:27) _empty_/Bar.succ(). -> 40:7
+(36:28..36:32) _empty_/Bar.plus(). -> 33:7
+(36:33..36:37) _empty_/Bar.pred(). -> 39:7
+(36:38..36:39) local10 -> 36:12
+(36:42..36:43) _empty_/Bar.plus().(b) -> 33:38
+(39:17..39:20) scala/Int#
+(39:25..39:26) scala/compiletime/ops/int.S#
+(39:27..39:28) _empty_/Bar.pred().[X] -> 39:12
+(39:32..39:33) _empty_/Bar.pred().[X] -> 39:12
+(39:44..39:56) scala/Any#asInstanceOf().
+(39:39..39:40) scala/Int#`-`(+3).
+(39:37..39:38) _empty_/Bar.pred().(x) -> 39:22
+(40:17..40:20) scala/Int#
+(40:25..40:26) _empty_/Bar.succ().[X] -> 40:12
+(40:29..40:30) scala/compiletime/ops/int.S#
+(40:31..40:32) _empty_/Bar.succ().[X] -> 40:12
+(40:44..40:56) scala/Any#asInstanceOf().
+(40:39..40:40) scala/Int#`+`(+4).
+(40:37..40:38) _empty_/Bar.succ().(x) -> 40:22
+(42:17..42:21) _empty_/Bar.plus(). -> 33:7
+(49:30..49:31) _empty_/Main.BinNat.Odd#[N] -> 49:14
+(51:31..51:32) _empty_/Main.BinNat.Even#[N] -> 51:15
+(54:10..54:16) _empty_/Main.BinNat. -> 46:8
+(56:17..56:23) _empty_/Main.BinNat# -> 46:8
+(56:28..56:34) _empty_/Main.BinNat# -> 46:8
+(57:5..57:6) _empty_/Main.Inc#[N] -> 56:12
+(58:12..58:16) _empty_/Main.BinNat.Zero. -> 47:10
+(58:25..58:28) _empty_/Main.BinNat.Odd# -> 49:10
+(58:29..58:33) _empty_/Main.BinNat.Zero. -> 47:10
+(59:12..59:15) _empty_/Main.BinNat.Odd# -> 49:10
+(59:25..59:29) _empty_/Main.BinNat.Even# -> 51:10
+(59:30..59:31) local12 -> 59:16
+(60:12..60:16) _empty_/Main.BinNat.Even# -> 51:10
+(60:25..60:28) _empty_/Main.BinNat.Odd# -> 49:10
+(60:29..60:32) _empty_/Main.Inc# -> 56:8
+(60:33..60:34) local13 -> 60:17
+(63:16..63:22) _empty_/Main.BinNat# -> 46:8
+(63:27..63:28) _empty_/Main.inc().[N] -> 63:11
+(63:31..63:34) _empty_/Main.Inc# -> 56:8
+(63:35..63:36) _empty_/Main.inc().[N] -> 63:11
+(64:5..64:6) _empty_/Main.inc().(b) -> 63:24
+(65:15..65:19) _empty_/Main.BinNat.Zero. -> 47:10
+(65:35..65:35) _empty_/Main.BinNat.Odd#`<init>`(). -> 49:13
+(65:36..65:40) _empty_/Main.BinNat.Zero. -> 47:10
+(66:15..66:18) _empty_/Main.BinNat.Odd# -> 49:10
+(66:36..66:36) _empty_/Main.BinNat.Even#`<init>`(). -> 51:14
+(66:39..66:40) _empty_/Main.BinNat.Odd#n. -> 49:27
+(66:37..66:38) local14 -> 66:12
+(67:15..67:19) _empty_/Main.BinNat.Even# -> 51:10
+(69:16..69:16) _empty_/Main.BinNat.Odd#`<init>`(). -> 49:13
+(69:17..69:20) _empty_/Main.inc(). -> 63:7
+(69:23..69:24) _empty_/Main.BinNat.Even#n. -> 51:28
+(69:21..69:22) local16 -> 67:12
+

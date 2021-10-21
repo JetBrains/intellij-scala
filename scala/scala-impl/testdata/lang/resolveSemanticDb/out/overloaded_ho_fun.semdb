@@ -1,0 +1,218 @@
+Document tests/pos/overloaded_ho_fun.scala
+(1:19..1:27) scala/math/Ordering.
+(1:19..1:27) scala/math/Ordering#
+(1:14..1:18) scala/math/
+(1:8..1:13) scala/
+(2:22..2:30) scala/reflect/ClassTag.
+(2:22..2:30) scala/reflect/ClassTag#
+(2:14..2:21) scala/reflect/
+(2:8..2:13) scala/
+(4:30..4:33) scala/Int#
+(4:36..4:42) scala/Predef.String#
+(5:30..5:33) scala/Int#
+(5:36..5:37) _empty_/SamP#[U] -> 5:12
+(7:27..7:28) _empty_/OverloadedFun#[T] -> 7:21
+(9:14..9:17) scala/Any#
+(9:21..9:27) scala/Predef.String#
+(9:30..9:36) scala/Predef.String#
+(9:40..9:40) scala/Function1#apply().
+(9:39..9:40) _empty_/OverloadedFun#foo().(f) -> 9:11
+(9:41..9:42) _empty_/OverloadedFun#x. -> 7:24
+(10:14..10:17) scala/Any#
+(10:21..10:22) _empty_/OverloadedFun#[T] -> 7:21
+(10:25..10:26) _empty_/OverloadedFun#[T] -> 7:21
+(10:30..10:30) scala/Function1#apply().
+(10:29..10:30) _empty_/OverloadedFun#foo(+1).(f) -> 10:11
+(12:18..12:21) scala/Int#
+(12:25..12:31) scala/Predef.String#
+(12:34..12:40) scala/Predef.String#
+(12:44..12:44) scala/Function1#apply().
+(12:43..12:44) _empty_/OverloadedFun#poly().(f) -> 12:15
+(13:18..13:21) scala/Int#
+(13:25..13:26) _empty_/OverloadedFun#poly(+1).[U] -> 13:12
+(13:29..13:30) _empty_/OverloadedFun#poly(+1).[U] -> 13:12
+(13:34..13:34) scala/Function1#apply().
+(13:33..13:34) _empty_/OverloadedFun#poly(+1).(f) -> 13:15
+(19:22..19:28) scala/Predef.String#
+(19:32..19:38) scala/Predef.String#
+(20:41..20:49) java/util/function/Function#
+(20:32..20:40) java/util/function/
+(20:27..20:31) java/util/
+(20:22..20:26) java/
+(20:50..20:56) scala/Predef.String#
+(20:58..20:64) scala/Predef.String#
+(23:22..23:28) scala/Predef.String#
+(24:17..24:21) scala/Char#
+(24:25..24:26) _empty_/StringLike#map().[A] -> 24:11
+(24:29..24:34) scala/Array#
+(24:35..24:36) _empty_/StringLike#map().[A] -> 24:11
+(24:40..24:43) scala/Predef.`???`().
+(25:14..25:18) scala/Char#
+(25:22..25:26) scala/Char#
+(25:29..25:35) scala/Predef.String#
+(25:38..25:41) scala/Predef.`???`().
+(29:34..29:34) _empty_/OverloadedFun#`<init>`(). -> 7:20
+(29:16..29:29) _empty_/OverloadedFun# -> 7:7
+(29:30..29:33) scala/Int#
+(31:6..31:9) _empty_/OverloadedFun#foo(). -> 9:7
+(31:3..31:5) _empty_/Test.of. -> 29:7
+(31:12..31:20) scala/Any#toString().
+(33:6..33:10) _empty_/OverloadedFun#poly(+1). -> 13:7
+(33:3..33:5) _empty_/Test.of. -> 29:7
+(33:18..33:19) scala/Int#`/`(+3).
+(33:16..33:17) local0 -> 33:11
+(35:6..35:17) _empty_/OverloadedFun#polyJavaSam(). -> 19:7
+(35:3..35:5) _empty_/Test.of. -> 29:7
+(35:23..35:24) local1 -> 35:18
+(37:26..37:26) _empty_/StringLike#`<init>`(). -> 23:17
+(37:16..37:26) _empty_/StringLike# -> 23:7
+(38:6..38:9) _empty_/StringLike#map(). -> 24:7
+(38:3..38:5) _empty_/Test.sl. -> 37:7
+(38:12..38:14) scala/Char#`==`(+2).
+(39:6..39:9) _empty_/StringLike#map(+1). -> 25:7
+(39:3..39:5) _empty_/Test.sl. -> 37:7
+(43:34..43:37) scala/package.Seq#
+(43:38..43:39) _empty_/sorting.stableSort().[K] -> 43:18
+(43:46..43:47) _empty_/sorting.stableSort().[K] -> 43:18
+(43:49..43:50) _empty_/sorting.stableSort().[K] -> 43:18
+(43:55..43:62) scala/Boolean#
+(43:21..43:29) scala/reflect/ClassTag#
+(43:29..43:29) _empty_/sorting.stableSort().[K] -> 43:18
+(43:65..43:70) scala/Array#
+(43:71..43:72) _empty_/sorting.stableSort().[K] -> 43:18
+(43:76..43:79) scala/Predef.`???`().
+(44:34..44:39) scala/Array#
+(44:40..44:41) _empty_/sorting.stableSort(+1).[L] -> 44:18
+(44:48..44:49) _empty_/sorting.stableSort(+1).[L] -> 44:18
+(44:51..44:52) _empty_/sorting.stableSort(+1).[L] -> 44:18
+(44:57..44:64) scala/Boolean#
+(44:21..44:29) scala/reflect/ClassTag#
+(44:29..44:29) _empty_/sorting.stableSort(+1).[L] -> 44:18
+(44:67..44:71) scala/Unit#
+(44:74..44:77) scala/Predef.`???`().
+(46:3..46:13) _empty_/sorting.stableSort(). -> 43:7
+(46:14..46:17) scala/Predef.`???`().
+(46:20..46:23) scala/package.Seq#
+(46:24..46:31) scala/Boolean#
+(46:38..46:45) scala/Boolean#
+(46:50..46:57) scala/Boolean#
+(46:64..46:66) scala/Boolean#`&&`().
+(46:62..46:63) local3 -> 46:35
+(46:69..46:69) scala/Boolean#`unary_!`().
+(46:68..46:69) local4 -> 46:47
+(46:70..46:70) scala/reflect/ClassTag.apply().
+(56:19..56:20) _empty_/SI10194.X#[A] -> 55:11
+(56:24..56:25) _empty_/SI10194.X#map().[B] -> 56:13
+(56:28..56:32) scala/Unit#
+(59:22..59:23) _empty_/SI10194.X# -> 55:9
+(59:24..59:25) _empty_/SI10194.Y#[A] -> 59:11
+(60:19..60:20) _empty_/SI10194.Y#[A] -> 59:11
+(60:24..60:25) _empty_/SI10194.Y#map().[B] -> 60:13
+(60:46..60:54) scala/math/Ordering#
+(60:55..60:56) _empty_/SI10194.Y#map().[B] -> 60:13
+(60:60..60:64) scala/Unit#
+(63:22..63:23) _empty_/SI10194.Y# -> 59:9
+(63:24..63:25) _empty_/SI10194.Z#[A] -> 63:11
+(65:18..65:21) _empty_/SI10194.Y#map(). -> 60:9
+(65:10..65:11) _empty_/SI10194.Y# -> 59:9
+(65:12..65:15) scala/Int#
+(65:29..65:37) scala/Any#toString().
+(65:27..65:28) local5 -> 65:22
+(65:38..65:38) scala/math/Ordering.String.
+(66:18..66:21) _empty_/SI10194.Y#map(). -> 60:9
+(66:10..66:11) _empty_/SI10194.Z# -> 63:9
+(66:12..66:15) scala/Int#
+(66:29..66:37) scala/Any#toString().
+(66:27..66:28) local6 -> 66:22
+(66:38..66:38) scala/math/Ordering.String.
+(70:25..70:28) scala/Int#
+(70:32..70:33) _empty_/A#map().[T] -> 70:19
+(70:36..70:40) scala/Unit#
+(71:18..71:19) _empty_/A# -> 70:7
+(72:17..72:20) _empty_/SAM# -> 89:7
+(72:21..72:24) scala/Int#
+(72:26..72:29) scala/Any#
+(72:33..72:37) scala/Unit#
+(73:41..73:44) scala/Int#
+(73:48..73:49) _empty_/B.map().[T] -> 73:11
+(73:28..73:36) scala/reflect/ClassTag#
+(73:20..73:27) scala/reflect/
+(73:14..73:19) scala/
+(73:36..73:36) _empty_/B.map().[T] -> 73:11
+(73:52..73:56) scala/Unit#
+(74:12..74:15) scala/Int#
+(74:19..74:20) _empty_/B.f().(x) -> 74:9
+(75:3..75:9) _empty_/B.noover(). -> 72:7
+(75:10..75:11) _empty_/B.f(). -> 74:7
+(75:10..75:10) local7
+(76:3..76:9) _empty_/B.noover(). -> 72:7
+(76:10..76:18) scala/Predef.identity().
+(76:10..76:10) local8
+(77:3..77:6) _empty_/B.map(). -> 73:7
+(77:7..77:8) _empty_/B.f(). -> 74:7
+(77:7..77:7) local9
+(77:9..77:9) scala/reflect/ClassTag.apply().
+(78:3..78:6) _empty_/B.map(). -> 73:7
+(78:7..78:15) scala/Predef.identity().
+(78:7..78:7) local10
+(78:16..78:16) scala/reflect/ClassTag.apply().
+(81:23..81:26) scala/Int#
+(81:30..81:33) scala/Int#
+(81:36..81:39) scala/Int#
+(81:54..81:60) scala/Predef.String#
+(81:64..81:67) scala/Int#
+(81:70..81:76) scala/Predef.String#
+(82:14..82:17) scala/Int#
+(82:21..82:22) _empty_/B.fun().(x) -> 82:11
+(83:21..83:22) _empty_/B.fun2().[T] -> 83:12
+(84:5..84:6) _empty_/B.t.f(). -> 81:18
+(84:3..84:4) _empty_/B.t. -> 81:10
+(84:7..84:10) _empty_/B.fun(). -> 82:7
+(84:7..84:7) local12
+(89:34..89:35) _empty_/SAM#[T] -> 89:12
+(89:38..89:39) _empty_/SAM#[R] -> 89:16
+(90:26..90:29) _empty_/SAM# -> 89:7
+(90:30..90:33) scala/Int#
+(90:35..90:36) _empty_/A2#map().[T] -> 90:20
+(90:40..90:44) scala/Unit#
+(91:19..91:21) _empty_/A2# -> 90:7
+(92:17..92:20) _empty_/SAM# -> 89:7
+(92:21..92:24) scala/Int#
+(92:26..92:29) scala/Any#
+(92:33..92:37) scala/Unit#
+(93:41..93:44) _empty_/SAM# -> 89:7
+(93:45..93:48) scala/Int#
+(93:50..93:51) _empty_/B2.map().[T] -> 93:11
+(93:28..93:36) scala/reflect/ClassTag#
+(93:20..93:27) scala/reflect/
+(93:14..93:19) scala/
+(93:36..93:36) _empty_/B2.map().[T] -> 93:11
+(93:55..93:59) scala/Unit#
+(94:12..94:15) scala/Int#
+(94:19..94:20) _empty_/B2.f().(x) -> 94:9
+(95:3..95:9) _empty_/B2.noover(). -> 92:7
+(95:10..95:11) _empty_/B2.f(). -> 94:7
+(95:10..95:10) local13
+(96:3..96:9) _empty_/B2.noover(). -> 92:7
+(96:10..96:18) scala/Predef.identity().
+(96:10..96:10) local14
+(97:3..97:6) _empty_/B2.map(). -> 93:7
+(97:7..97:8) _empty_/B2.f(). -> 94:7
+(97:7..97:7) local15
+(97:9..97:9) scala/reflect/ClassTag.apply().
+(101:23..101:26) _empty_/SAM# -> 89:7
+(101:27..101:30) scala/Int#
+(101:32..101:35) scala/Int#
+(101:39..101:42) scala/Int#
+(101:57..101:60) _empty_/SAM# -> 89:7
+(101:61..101:67) scala/Predef.String#
+(101:69..101:72) scala/Int#
+(101:76..101:82) scala/Predef.String#
+(102:14..102:17) scala/Int#
+(102:21..102:22) _empty_/B2.fun().(x) -> 102:11
+(103:21..103:22) _empty_/B2.fun2().[T] -> 103:12
+(104:5..104:6) _empty_/B2.t.f(). -> 101:18
+(104:3..104:4) _empty_/B2.t. -> 101:10
+(104:7..104:10) _empty_/B2.fun(). -> 102:7
+(104:7..104:7) local17
+

@@ -1,0 +1,18 @@
+Document tests/pos/t0066.scala
+(3:30..3:31) _empty_/GBTree#Node#[A] -> 3:21
+(3:38..3:39) _empty_/GBTree#Node#[B] -> 3:23
+(3:48..3:52) _empty_/GBTree#Node# -> 3:16
+(3:53..3:54) _empty_/GBTree#Node#[A] -> 3:21
+(3:55..3:56) _empty_/GBTree#Node#[B] -> 3:23
+(3:65..3:69) _empty_/GBTree#Node# -> 3:16
+(3:70..3:71) _empty_/GBTree#Node#[A] -> 3:21
+(3:72..3:73) _empty_/GBTree#Node#[B] -> 3:23
+(4:22..4:22) _empty_/GBTree#Tree#`<init>`(). -> 2:24
+(4:13..4:17) _empty_/GBTree#Tree# -> 2:20
+(4:18..4:19) _empty_/GBTree#Node#[A] -> 3:21
+(4:20..4:21) _empty_/GBTree#Node#[B] -> 3:23
+(5:44..5:44) _empty_/GBTree#Tree#`<init>`(). -> 2:24
+(5:35..5:39) _empty_/GBTree#Tree# -> 2:20
+(5:40..5:41) _empty_/GBTree#Nil#[A] -> 5:20
+(5:42..5:43) _empty_/GBTree#Nil#[B] -> 5:22
+

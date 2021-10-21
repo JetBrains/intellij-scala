@@ -1,0 +1,53 @@
+Document tests/pos/t4063.scala
+(4:52..4:60) _empty_/Parallel# -> 1:7
+(4:66..4:80) _empty_/Parallelizable# -> 2:7
+(4:81..4:94) _empty_/PIterableLike# -> 4:7
+(4:95..4:96) _empty_/PIterableLike#[T] -> 4:22
+(4:98..4:102) _empty_/PIterableLike#[Repr] -> 4:26
+(6:26..6:39) _empty_/PIterableLike# -> 4:7
+(6:41..6:42) _empty_/PMap#[K] -> 6:12
+(6:44..6:45) _empty_/PMap#[V] -> 6:15
+(6:48..6:52) _empty_/PMap# -> 6:7
+(6:53..6:54) _empty_/PMap#[K] -> 6:12
+(6:56..6:57) _empty_/PMap#[V] -> 6:15
+(7:23..7:36) _empty_/PIterableLike# -> 4:7
+(7:37..7:38) _empty_/PSet#[T] -> 7:12
+(7:40..7:44) _empty_/PSet# -> 7:7
+(7:45..7:46) _empty_/PSet#[T] -> 7:12
+(11:23..11:36) _empty_/CIterableLike# -> 9:7
+(11:37..11:38) _empty_/CSet#[T] -> 11:12
+(11:40..11:44) _empty_/CSet# -> 11:7
+(11:45..11:46) _empty_/CSet#[T] -> 11:12
+(11:54..11:68) _empty_/Parallelizable# -> 2:7
+(11:69..11:73) _empty_/PSet# -> 7:7
+(11:74..11:75) _empty_/CSet#[T] -> 11:12
+(13:26..13:39) _empty_/CIterableLike# -> 9:7
+(13:41..13:42) _empty_/CMap#[K] -> 13:12
+(13:44..13:45) _empty_/CMap#[V] -> 13:15
+(13:48..13:52) _empty_/CMap# -> 13:7
+(13:53..13:54) _empty_/CMap#[K] -> 13:12
+(13:56..13:57) _empty_/CMap#[V] -> 13:15
+(13:65..13:79) _empty_/Parallelizable# -> 2:7
+(13:80..13:84) _empty_/PMap# -> 6:7
+(13:85..13:86) _empty_/CMap#[K] -> 13:12
+(13:88..13:89) _empty_/CMap#[V] -> 13:15
+(18:15..18:19) scala/Unit#
+(19:14..19:18) _empty_/CMap# -> 13:7
+(19:19..19:22) scala/Int#
+(19:24..19:28) _empty_/CSet# -> 11:7
+(19:29..19:32) scala/Int#
+(19:41..19:45) _empty_/CMap# -> 13:7
+(19:46..19:49) scala/Int#
+(19:51..19:55) _empty_/CSet# -> 11:7
+(19:56..19:59) scala/Int#
+(20:14..20:18) _empty_/CSet# -> 11:7
+(20:19..20:22) scala/Int#
+(20:30..20:34) _empty_/CSet# -> 11:7
+(20:35..20:38) scala/Int#
+(29:9..29:21) java/lang/Object#synchronized().
+(29:5..29:8) local0 -> 19:9
+(30:13..30:15) scala/Int#`==`(+3).
+(30:11..30:12) _empty_/Test.x(). -> 16:7
+(31:9..31:12) local0 -> 19:9
+(33:9..33:12) local2 -> 20:9
+

@@ -1,0 +1,25 @@
+Document tests/pos/sigs.scala
+(3:17..3:21) scala/package.List#
+(3:22..3:23) _empty_/sigs.Lst#[A] -> 3:12
+(5:19..5:20) _empty_/sigs.Twin#[B] -> 5:13
+(5:22..5:23) _empty_/sigs.Twin#[B] -> 5:13
+(7:13..7:14) scala/Int#`*`(+3).
+(11:16..11:19) scala/Int#
+(11:22..11:25) scala/Any#
+(12:14..12:20) java/lang/Object#
+(16:25..16:25) _empty_/sigs.Base#`<init>`(). -> 11:5
+(16:21..16:25) _empty_/sigs.Base# -> 9:9
+(20:24..20:27) scala/Int#
+(23:19..23:20) _empty_/sigs.B# -> 29:9
+(25:15..25:16) scala/`&`#
+(25:12..25:14) _empty_/sigs.A#AA# -> 24:10
+(25:17..25:19) _empty_/sigs.B#BB# -> 30:10
+(29:19..29:20) _empty_/sigs.A# -> 23:9
+(31:15..31:16) scala/`&`#
+(31:12..31:14) _empty_/sigs.A#AA# -> 24:10
+(31:17..31:19) _empty_/sigs.B#BB# -> 30:10
+(34:19..34:20) _empty_/sigs.A# -> 23:9
+(34:26..34:27) _empty_/sigs.B# -> 29:9
+(35:15..35:21) scala/Predef.String#
+(36:15..36:21) scala/AnyRef#
+

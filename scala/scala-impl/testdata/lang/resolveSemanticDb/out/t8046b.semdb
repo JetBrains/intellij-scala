@@ -1,0 +1,13 @@
+Document tests/pos/t8046b.scala
+(3:16..3:18) _empty_/One#Op# -> 2:8
+(3:19..3:22) scala/Int#
+(6:19..6:22) _empty_/One# -> 1:7
+(7:23..7:24) _empty_/M# -> 16:7
+(7:25..7:26) _empty_/Two#Op#[A] -> 7:12
+(10:23..10:28) _empty_/One#Alias# -> 3:8
+(10:37..10:43) scala/Int#toChar().
+(10:31..10:36) _empty_/M#value(). -> 16:18
+(16:25..16:26) _empty_/M#[A] -> 16:9
+(16:33..16:38) scala/sys/package.error().
+(16:29..16:32) scala/sys/
+

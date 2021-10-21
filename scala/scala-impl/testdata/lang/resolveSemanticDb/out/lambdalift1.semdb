@@ -1,0 +1,18 @@
+Document tests/pos/lambdalift1.scala
+(1:8..1:13) scala/
+(5:24..5:30) java/lang/Object#
+(5:19..5:23) java/lang/
+(5:14..5:18) java/
+(5:35..5:36) _empty_/test.f().[a] -> 5:9
+(6:40..6:47) java/io/PrintStream#println(+9).
+(6:36..6:39) java/lang/System#out.
+(6:29..6:35) java/lang/System#
+(6:24..6:28) java/lang/
+(6:19..6:23) java/
+(6:48..6:49) _empty_/test.f().(x) -> 5:32
+(10:17..10:22) local0 -> 6:9
+(12:13..12:14) local4 -> 10:11
+(12:9..12:10) local3 -> 9:11
+(15:13..15:14) local2 -> 8:11
+(15:9..15:10) local1 -> 7:11
+

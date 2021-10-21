@@ -1,0 +1,33 @@
+Document tests/pos/t5137.scala
+(4:6..4:7) scala/math/BigInt#`*`().
+(4:4..4:4) scala/math/BigInt.int2bigInt().
+(6:7..6:10) scala/collection/IterableOnceOps#sum().
+(4:24..4:27) scala/collection/immutable/List#map().
+(4:13..4:13) scala/collection/IterableFactory#apply().
+(4:9..4:13) scala/package.List.
+(4:14..4:20) scala/package.BigInt#
+(4:37..4:39) local0 -> 4:30
+(5:15..5:16) local1 -> 5:10
+(6:10..6:10) scala/math/Numeric.BigIntIsIntegral.
+(9:16..9:17) scala/math/BigInt#`*`().
+(9:5..9:5) scala/math/BigInt.int2bigInt().
+(9:8..9:14) scala/package.BigInt#
+(11:6..11:9) scala/collection/IterableOnceOps#sum().
+(9:34..9:37) scala/collection/immutable/List#map().
+(9:23..9:23) scala/collection/IterableFactory#apply().
+(9:19..9:23) scala/package.List.
+(9:24..9:30) scala/package.BigInt#
+(10:5..10:5) local2
+(10:15..10:16) local3 -> 10:10
+(11:9..11:9) scala/math/Numeric.BigIntIsIntegral.
+(14:6..14:7) scala/math/BigInt#`*`().
+(14:4..14:4) scala/math/BigInt.int2bigInt().
+(16:6..16:9) scala/collection/IterableOnceOps#sum().
+(14:24..14:27) scala/collection/immutable/List#map().
+(14:13..14:13) scala/collection/IterableFactory#apply().
+(14:9..14:13) scala/package.List.
+(14:14..14:20) scala/package.BigInt#
+(15:5..15:5) local4
+(15:15..15:16) local5 -> 15:10
+(16:9..16:9) scala/math/Numeric.BigIntIsIntegral.
+

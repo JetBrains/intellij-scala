@@ -1,0 +1,39 @@
+Document tests/pos/i9103.scala
+(3:9..3:12) _empty_/a.Foo# -> 2:9
+(3:13..3:17) scala/Unit#
+(3:21..3:24) scala/Predef.`???`().
+(13:28..13:29) _empty_/Show#[T] -> 13:12
+(13:32..13:38) scala/Predef.String#
+(15:18..15:38) _empty_/LowPriorityInstances# -> 19:14
+(21:11..21:22) _empty_/S.Permissions# -> 16:9
+(21:9..21:10) _empty_/S. -> 15:8
+(21:25..21:28) scala/Predef.`???`().
+(22:9..22:13) _empty_/Show# -> 13:7
+(22:16..22:27) _empty_/S.Permissions# -> 16:9
+(22:14..22:15) _empty_/S. -> 15:8
+(5:9..5:10) _empty_/a. -> 1:8
+(7:13..7:19) scala/Predef.summon().
+(7:22..7:25) _empty_/a.Foo# -> 2:9
+(7:20..7:21) _empty_/i9103$package.b. -> 5:5
+(7:26..7:30) scala/Unit#
+(7:32..7:32) _empty_/a.given_Foo_Unit. -> 3:9
+(9:8..9:12) scala/Long#
+(10:12..10:18) scala/package.BigInt#
+(10:21..10:21) scala/math/BigInt.int2bigInt().
+(11:19..11:20) scala/math/BigInt#`%`().
+(11:17..11:17) scala/math/BigInt.long2bigInt().
+(11:17..11:18) _empty_/i9103$package.n. -> 9:5
+(11:21..11:29) scala/Predef.identity().
+(11:30..11:35) _empty_/i9103$package.total. -> 10:5
+(26:3..26:10) scala/Predef.println(+1).
+(26:11..26:21) scala/Predef.implicitly().
+(26:24..26:35) _empty_/S.Permissions# -> 16:9
+(26:22..26:23) _empty_/S. -> 15:8
+(26:36..26:36) _empty_/LowPriorityInstances.given_Permissions. -> 21:9
+(27:3..27:10) scala/Predef.println(+1).
+(27:11..27:21) scala/Predef.implicitly().
+(27:22..27:26) _empty_/Show# -> 13:7
+(27:29..27:40) _empty_/S.Permissions# -> 16:9
+(27:27..27:28) _empty_/S. -> 15:8
+(27:42..27:42) _empty_/LowPriorityInstances.given_Show_Permissions. -> 22:9
+

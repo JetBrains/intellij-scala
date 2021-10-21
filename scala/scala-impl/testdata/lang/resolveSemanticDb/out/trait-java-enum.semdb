@@ -1,0 +1,7 @@
+Document tests/pos/trait-java-enum.scala
+(1:27..1:31) java/lang/Enum#
+(1:22..1:26) java/lang/
+(1:17..1:21) java/
+(1:32..1:33) _empty_/T# -> 1:7
+(3:21..3:22) _empty_/T# -> 1:7
+

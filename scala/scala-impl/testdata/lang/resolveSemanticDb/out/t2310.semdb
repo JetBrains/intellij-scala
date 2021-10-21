@@ -1,0 +1,21 @@
+Document tests/pos/t2310.scala
+(1:14..1:20) scala/package.Stream.
+(1:8..1:13) scala/
+(23:23..23:29) scala/package.Stream#
+(23:30..23:31) _empty_/consistencyError.crash().[A] -> 23:13
+(23:42..23:48) scala/package.Stream#
+(23:49..23:50) _empty_/consistencyError.crash().[A] -> 23:13
+(23:56..23:56) scala/Tuple2.apply().
+(23:56..23:61) _empty_/consistencyError.crash().(lefts) -> 23:16
+(23:63..23:69) _empty_/consistencyError.crash().(rights) -> 23:34
+(24:11..24:11) scala/Tuple2.unapply().
+(24:18..24:23) scala/collection/immutable/Stream.Empty.
+(24:11..24:17) scala/package.Stream.
+(24:32..24:37) scala/collection/immutable/Stream.Empty.
+(24:25..24:31) scala/package.Stream.
+(24:42..24:46) scala/None.
+(25:11..25:11) scala/Tuple2.unapply().
+(25:16..25:16) scala/collection/immutable/Stream.`#::`.unapply().
+(25:13..25:16) scala/collection/immutable/Stream.`#::`.
+(25:28..25:32) scala/None.
+

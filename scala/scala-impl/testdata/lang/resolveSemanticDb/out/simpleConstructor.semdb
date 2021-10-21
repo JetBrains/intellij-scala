@@ -1,0 +1,10 @@
+Document tests/pos/simpleConstructor.scala
+(2:12..2:15) scala/Int#
+(2:24..2:27) scala/Int#
+(2:36..2:39) scala/Int#
+(4:26..4:29) scala/Int#
+(4:51..4:54) scala/Int#
+(4:74..4:77) scala/Int#
+(4:41..4:42) _empty_/B# -> 4:7
+(4:64..4:65) _empty_/B# -> 4:7
+

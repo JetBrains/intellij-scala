@@ -1,0 +1,59 @@
+Document tests/pos/t3278.scala
+(3:23..3:24) _empty_/Test#update().[B] -> 3:16
+(3:30..3:33) scala/Int#
+(3:36..3:40) scala/Unit#
+(4:22..4:23) _empty_/Test#apply().[B] -> 4:15
+(7:12..7:15) _empty_/Foo# -> 1:7
+(8:20..8:21) _empty_/Test2#B# -> 7:8
+(8:27..8:30) scala/Int#
+(8:33..8:37) scala/Unit#
+(9:19..9:20) _empty_/Test2#B# -> 7:8
+(13:18..13:23) scala/Array#
+(13:24..13:30) scala/Predef.String#
+(13:34..13:38) scala/Unit#
+(14:25..14:25) _empty_/Test#`<init>`(). -> 3:5
+(14:21..14:25) _empty_/Test# -> 2:7
+(15:24..15:24) _empty_/Foo#`<init>`(). -> 1:1
+(15:21..15:24) _empty_/Foo# -> 1:7
+(16:10..16:10) _empty_/Test#update(). -> 3:9
+(16:9..16:10) local0 -> 14:13
+(16:11..16:12) local1 -> 15:13
+(17:10..17:10) _empty_/Test#update(). -> 3:9
+(17:9..17:10) local0 -> 14:13
+(17:11..17:12) local1 -> 15:13
+(17:21..17:22) scala/Int#`+`(+4).
+(17:17..17:17) _empty_/Test#apply(). -> 4:9
+(17:16..17:17) local0 -> 14:13
+(17:18..17:19) local1 -> 15:13
+(18:10..18:10) _empty_/Test#update(). -> 3:9
+(18:9..18:10) local0 -> 14:13
+(18:11..18:12) local1 -> 15:13
+(18:13..18:13) scala/Int#`+`(+4).
+(18:10..18:10) _empty_/Test#apply(). -> 4:9
+(22:21..22:26) scala/Array#
+(22:27..22:33) scala/Predef.String#
+(22:37..22:41) scala/Unit#
+(23:13..23:13) scala/Array#update().
+(23:9..23:13) _empty_/Test2.main().(args) -> 22:14
+(23:16..23:16) java/lang/String#`+`().
+(23:13..23:13) scala/Array#apply().
+(24:26..24:26) _empty_/Test2#`<init>`(). -> 7:3
+(24:21..24:26) _empty_/Test2# -> 6:7
+(25:24..25:24) _empty_/Foo#`<init>`(). -> 1:1
+(25:21..25:24) _empty_/Foo# -> 1:7
+(26:10..26:10) _empty_/Test2#update(). -> 8:9
+(26:9..26:10) local2 -> 24:13
+(26:11..26:12) local3 -> 25:13
+(27:10..27:10) _empty_/Test2#update(). -> 8:9
+(27:9..27:10) local2 -> 24:13
+(27:11..27:12) local3 -> 25:13
+(27:21..27:22) scala/Int#`+`(+4).
+(27:17..27:17) _empty_/Test2#apply(). -> 9:9
+(27:16..27:17) local2 -> 24:13
+(27:18..27:19) local3 -> 25:13
+(28:10..28:10) _empty_/Test2#update(). -> 8:9
+(28:9..28:10) local2 -> 24:13
+(28:11..28:12) local3 -> 25:13
+(28:13..28:13) scala/Int#`+`(+4).
+(28:10..28:10) _empty_/Test2#apply(). -> 9:9
+

@@ -1,0 +1,22 @@
+Document tests/pos/variances-flip.scala
+(2:24..2:25) _empty_/Foo#[B] -> 1:16
+(2:28..2:31) scala/Predef.`???`().
+(3:24..3:25) _empty_/Foo#[D] -> 1:24
+(3:28..3:31) scala/Predef.`???`().
+(5:13..5:14) _empty_/Foo#[B] -> 1:16
+(5:18..5:19) _empty_/Foo#[A] -> 1:12
+(5:25..5:26) _empty_/Foo#[D] -> 1:24
+(5:30..5:31) _empty_/Foo#[C] -> 1:20
+(5:35..5:36) _empty_/Foo#g(). -> 6:7
+(5:39..5:39) scala/Function1#apply().
+(5:37..5:39) _empty_/Foo#f().(p1) -> 5:9
+(5:40..5:41) _empty_/Foo#b(). -> 2:21
+(5:46..5:46) scala/Function1#apply().
+(5:44..5:46) _empty_/Foo#f().(p2) -> 5:21
+(5:47..5:48) _empty_/Foo#d(). -> 3:21
+(6:12..6:13) _empty_/Foo#[A] -> 1:12
+(6:18..6:19) _empty_/Foo#[C] -> 1:20
+(6:25..6:25) scala/Tuple2.apply().
+(6:25..6:26) _empty_/Foo#b(). -> 2:21
+(6:28..6:29) _empty_/Foo#d(). -> 3:21
+

@@ -1,0 +1,21 @@
+Document tests/pos/i5145.scala
+(2:14..2:17) scala/Int#
+(2:20..2:23) scala/Int#
+(4:19..4:22) scala/Int#
+(4:25..4:29) scala/Unit#
+(5:5..5:11) local1 -> 4:9
+(6:5..6:11) local0 -> 3:9
+(8:19..8:22) scala/Int#
+(8:26..8:29) scala/Int#
+(9:28..9:31) scala/Int#
+(9:35..9:38) scala/Int#
+(11:3..11:10) scala/Predef.locally().
+(12:5..12:8) _empty_/Test#bar(). -> 8:7
+(12:9..12:15) _empty_/Test#bar().(inline) -> 8:11
+(12:18..12:26) scala/Predef.identity().
+(12:18..12:18) local3
+(13:5..13:8) _empty_/Test#bar(). -> 8:7
+(13:19..13:25) local4 -> 13:9
+(14:5..14:8) _empty_/Test#bar(). -> 8:7
+(14:28..14:34) local5 -> 14:18
+

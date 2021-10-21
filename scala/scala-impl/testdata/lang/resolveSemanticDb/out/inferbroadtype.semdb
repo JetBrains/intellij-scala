@@ -1,0 +1,12 @@
+Document tests/pos/inferbroadtype.scala
+(2:49..2:56) scala/Boolean#
+(3:30..3:30) _empty_/Test.Base#`<init>`(). -> 2:25
+(3:26..3:30) _empty_/Test.Base# -> 2:18
+(4:17..4:21) _empty_/Test.Base# -> 2:18
+(4:36..4:36) _empty_/Test.Concrete#`<init>`(). -> 3:26
+(4:28..4:36) _empty_/Test.Concrete# -> 3:9
+(6:19..6:19) _empty_/Test.Base#`<init>`(). -> 2:25
+(6:15..6:19) _empty_/Test.Base# -> 2:18
+(7:3..7:4) _empty_/Test.`c_=`(). -> 6:7
+(7:7..7:14) _empty_/Test.getBase(). -> 4:7
+

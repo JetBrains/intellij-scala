@@ -1,0 +1,6 @@
+Document tests/pos/t0002.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(4:14..4:16) scala/Boolean#`==`().
+(4:12..4:13) local0 -> 3:9
+

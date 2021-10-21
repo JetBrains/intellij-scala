@@ -1,0 +1,14 @@
+Document tests/pos/i7964.scala
+(3:15..3:19) _empty_/Nums# -> 1:6
+(3:23..3:26) scala/Predef.`???`().
+(4:10..4:13) _empty_/i7964$package.fok(). -> 3:5
+(4:19..4:22) _empty_/Nums.One. -> 1:18
+(4:14..4:18) _empty_/Nums. -> 1:6
+(6:29..6:33) _empty_/Nums# -> 1:6
+(6:44..6:48) _empty_/i7964$package.fko().(that) -> 6:23
+(7:13..7:16) _empty_/Nums.One. -> 1:18
+(7:8..7:12) _empty_/Nums. -> 1:6
+(9:10..9:13) _empty_/i7964$package.fko(). -> 6:12
+(9:19..9:22) _empty_/Nums.One. -> 1:18
+(9:14..9:18) _empty_/Nums. -> 1:6
+

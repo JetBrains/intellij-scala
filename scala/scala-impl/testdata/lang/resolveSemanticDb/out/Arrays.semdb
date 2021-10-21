@@ -1,0 +1,17 @@
+Document tests/pos/Arrays.scala
+(2:15..2:20) scala/Array#
+(2:21..2:27) scala/Predef.String#
+(3:37..3:37) scala/Array#`<init>`().
+(3:24..3:29) scala/Array#
+(3:30..3:36) scala/Predef.String#
+(4:13..4:13) scala/Array#update().
+(4:4..4:13) local0 -> 3:8
+(5:31..5:31) scala/Array#`<init>`().
+(5:21..5:26) scala/Array#
+(5:27..5:30) scala/Int#
+(6:13..6:13) scala/Array#update().
+(6:4..6:13) local0 -> 3:8
+(6:29..6:37) scala/Any#toString().
+(6:25..6:25) scala/Array#apply().
+(6:19..6:25) local1 -> 5:8
+

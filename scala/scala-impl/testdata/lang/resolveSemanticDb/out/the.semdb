@@ -1,0 +1,10 @@
+Document tests/pos/the.scala
+(3:30..3:31) _empty_/Test.Foo#T# -> 3:20
+(5:17..5:20) _empty_/Test.Foo# -> 3:9
+(6:14..6:17) scala/Int#
+(10:10..10:13) scala/Int#
+(10:28..10:29) _empty_/Test.intFoo.x. -> 7:9
+(10:16..10:22) scala/Predef.summon().
+(10:23..10:26) _empty_/Test.Foo# -> 3:9
+(10:27..10:27) _empty_/Test.intFoo. -> 5:9
+

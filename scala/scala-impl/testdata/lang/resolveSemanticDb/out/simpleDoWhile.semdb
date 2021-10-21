@@ -1,0 +1,5 @@
+Document tests/pos/simpleDoWhile.scala
+(5:7..5:8) local0 -> 3:9
+(6:9..6:11) scala/Int#`!=`(+3).
+(6:7..6:8) local0 -> 3:9
+

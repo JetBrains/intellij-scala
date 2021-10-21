@@ -1,0 +1,22 @@
+Document tests/pos/i903.scala
+(2:19..2:25) scala/Predef.String#
+(2:30..2:33) scala/Int#
+(4:13..4:21) _empty_/Test.contains(). -> 2:7
+(4:30..4:33) scala/Int#
+(5:14..5:22) _empty_/Test.contains(). -> 2:7
+(5:32..5:35) scala/Int#
+(6:12..6:15) scala/Int#
+(6:19..6:26) scala/Boolean#
+(6:29..6:37) _empty_/Test.contains(). -> 2:7
+(7:13..7:16) scala/Int#
+(7:20..7:27) scala/Boolean#
+(7:30..7:38) _empty_/Test.contains(). -> 2:7
+(8:7..8:12) scala/Function1#apply().
+(8:5..8:6) local0 -> 4:9
+(20:16..20:24) scala/collection/SeqOps#contains().
+(20:13..20:13) scala/LowPriorityImplicits#wrapString().
+(20:25..20:25) scala/Tuple2.apply().
+(20:33..20:36) scala/Int#
+(21:7..21:12) scala/Function1#apply().
+(21:5..21:6) local4 -> 20:9
+

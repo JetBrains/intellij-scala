@@ -1,0 +1,9 @@
+Document tests/pos/t1987b/b.scala
+(3:9..3:12) bug/ -> 1:9
+(8:11..8:15) bug/packageb/package.func(). -> 5:7
+(9:11..9:15) bug/packageb/package.func(+1). -> 6:7
+
+Document tests/pos/t1987b/a.scala
+(5:15..5:18) scala/Int#
+(6:15..6:21) scala/Predef.String#
+

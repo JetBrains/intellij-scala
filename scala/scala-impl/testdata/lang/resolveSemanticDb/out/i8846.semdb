@@ -1,0 +1,11 @@
+Document tests/pos/i8846.scala
+(3:15..3:18) scala/Any#
+(6:10..6:13) scala/Int#
+(7:12..7:12) example/X#`<init>`(). -> 3:8
+(7:11..7:12) example/X# -> 3:7
+(8:19..8:32) java/lang/AutoCloseable#
+(8:39..8:52) java/lang/AutoCloseable#
+(9:21..9:28) scala/Predef.println(+1).
+(9:29..9:34) example/XImpl#param. -> 6:3
+(11:5..11:11) local0 -> 8:9
+

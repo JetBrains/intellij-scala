@@ -1,0 +1,12 @@
+Document tests/pos/i5413-b.scala
+(3:20..3:21) _empty_/Foo.foo().[A] -> 3:11
+(3:25..3:27) _empty_/Foo.Or# -> 2:8
+(3:28..3:29) _empty_/Foo.foo().[A] -> 3:11
+(3:33..3:36) scala/Any#
+(4:14..4:15) _empty_/Foo.id().[A] -> 4:10
+(4:19..4:20) _empty_/Foo.id().[A] -> 4:10
+(4:23..4:31) scala/Predef.identity().
+(4:23..4:23) local0
+(5:3..5:6) _empty_/Foo.foo(). -> 3:7
+(5:7..5:9) _empty_/Foo.id(). -> 4:7
+

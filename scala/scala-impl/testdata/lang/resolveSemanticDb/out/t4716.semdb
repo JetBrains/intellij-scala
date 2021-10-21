@@ -1,0 +1,12 @@
+Document tests/pos/t4716.scala
+(1:42..1:54) scala/package.IterableOnce#
+(1:55..1:56) _empty_/Bug2#[A] -> 1:31
+(1:13..1:24) scala/specialized#
+(1:25..1:28) scala/Int.
+(2:15..2:16) _empty_/Bug2#[A] -> 1:31
+(2:24..2:36) scala/package.IterableOnce#
+(2:37..2:38) _empty_/Bug2#`++`().[B] -> 2:10
+(3:24..3:32) scala/collection/IterableOnce#iterator().
+(3:19..3:23) _empty_/Bug2#`++`().(that) -> 2:18
+(4:5..4:7) local0 -> 3:14
+

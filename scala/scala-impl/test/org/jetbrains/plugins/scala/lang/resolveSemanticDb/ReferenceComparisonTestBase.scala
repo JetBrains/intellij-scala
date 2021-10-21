@@ -31,7 +31,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   protected def runTestToResult(testName: String): Result = {
     val files = setupFiles(testName)
-    val store = SemanticDbStore.fromSemanticDbPath(outPath.resolve(testName))
+    val store = SemanticDbStore.fromTextFile(outPath.resolve(testName + ".semdb"))
 
     var problems = Seq.empty[String]
     var refCount = 0

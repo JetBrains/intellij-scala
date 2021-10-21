@@ -1,0 +1,32 @@
+Document tests/pos/i2468.scala
+(2:20..2:33) scala/compiletime/package$package.uninitialized().
+(2:8..2:19) scala/compiletime/
+(6:26..6:32) scala/Predef.String#
+(6:35..6:48) scala/compiletime/package$package.uninitialized().
+(10:26..10:32) scala/Predef.String#
+(10:35..10:48) scala/compiletime/package$package.uninitialized().
+(11:5..11:6) _empty_/Test.B#x(). -> 10:23
+(15:27..15:30) scala/Int#
+(15:33..15:46) scala/compiletime/package$package.uninitialized().
+(16:27..16:31) scala/Unit#
+(16:34..16:47) scala/compiletime/package$package.uninitialized().
+(17:27..17:31) scala/Char#
+(17:34..17:47) scala/compiletime/package$package.uninitialized().
+(18:27..18:34) scala/Boolean#
+(18:37..18:50) scala/compiletime/package$package.uninitialized().
+(19:27..19:32) scala/Float#
+(19:35..19:48) scala/compiletime/package$package.uninitialized().
+(20:27..20:33) scala/Double#
+(20:36..20:49) scala/compiletime/package$package.uninitialized().
+(21:27..21:31) scala/Char#
+(21:34..21:47) scala/compiletime/package$package.uninitialized().
+(22:27..22:31) scala/Byte#
+(22:34..22:47) scala/compiletime/package$package.uninitialized().
+(23:27..23:33) scala/AnyVal#
+(23:36..23:49) scala/compiletime/package$package.uninitialized().
+(24:28..24:29) _empty_/Test.D# -> 27:9
+(24:32..24:45) scala/compiletime/package$package.uninitialized().
+(27:14..27:17) scala/Int#
+(27:33..27:33) scala/AnyVal#`<init>`().
+(27:27..27:33) scala/AnyVal#
+

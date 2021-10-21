@@ -1,0 +1,70 @@
+Document tests/pos/byname-implicits-2.scala
+(3:24..3:27) _empty_/Foo# -> 1:7
+(3:28..3:31) scala/Int#
+(3:35..3:38) scala/Predef.`???`().
+(4:42..4:45) _empty_/Foo# -> 1:7
+(4:46..4:47) _empty_/Foo.fooPair().[H] -> 4:24
+(4:53..4:56) _empty_/Foo# -> 1:7
+(4:57..4:58) _empty_/Foo.fooPair().[T] -> 4:27
+(4:62..4:65) _empty_/Foo# -> 1:7
+(4:67..4:68) _empty_/Foo.fooPair().[H] -> 4:24
+(4:70..4:71) _empty_/Foo.fooPair().[T] -> 4:27
+(4:76..4:79) scala/Predef.`???`().
+(9:41..9:44) _empty_/Foo# -> 1:7
+(9:46..9:49) scala/Int#
+(9:52..9:55) scala/Int#
+(9:57..9:60) scala/Int#
+(9:66..9:69) _empty_/Foo# -> 1:7
+(9:70..9:73) _empty_/Bar# -> 7:7
+(9:77..9:80) scala/Predef.`???`().
+(14:35..14:38) _empty_/Foo# -> 1:7
+(14:39..14:42) scala/Int#
+(14:53..14:56) _empty_/Foo# -> 1:7
+(14:57..14:60) _empty_/Baz# -> 12:7
+(14:64..14:67) _empty_/Foo# -> 1:7
+(14:68..14:71) _empty_/Baz# -> 12:7
+(14:75..14:78) scala/Predef.`???`().
+(18:3..18:13) scala/Predef.implicitly().
+(18:14..18:17) _empty_/Foo# -> 1:7
+(18:18..18:21) scala/Int#
+(18:23..18:23) _empty_/Foo.fooInt. -> 3:16
+(19:3..19:13) scala/Predef.implicitly().
+(19:14..19:17) _empty_/Foo# -> 1:7
+(19:19..19:22) scala/Int#
+(19:24..19:27) scala/Int#
+(19:30..19:30) _empty_/Foo.fooPair(). -> 4:16
+(19:30..19:30) _empty_/Foo.fooInt. -> 3:16
+(20:3..20:13) scala/Predef.implicitly().
+(20:14..20:17) _empty_/Foo# -> 1:7
+(20:19..20:22) scala/Int#
+(20:25..20:28) scala/Int#
+(20:30..20:33) scala/Int#
+(20:37..20:37) _empty_/Foo.fooPair(). -> 4:16
+(20:37..20:37) _empty_/Foo.fooInt. -> 3:16
+(21:3..21:13) scala/Predef.implicitly().
+(21:14..21:17) _empty_/Foo# -> 1:7
+(21:19..21:22) scala/Int#
+(21:25..21:28) scala/Int#
+(21:31..21:34) scala/Int#
+(21:36..21:39) scala/Int#
+(21:44..21:44) _empty_/Foo.fooPair(). -> 4:16
+(21:44..21:44) _empty_/Foo.fooInt. -> 3:16
+(22:3..22:13) scala/Predef.implicitly().
+(22:14..22:17) _empty_/Foo# -> 1:7
+(22:18..22:21) _empty_/Bar# -> 7:7
+(22:23..22:23) _empty_/Bar.fooBar(). -> 9:16
+(22:23..22:23) _empty_/Foo.fooPair(). -> 4:16
+(22:23..22:23) _empty_/Foo.fooInt. -> 3:16
+(23:3..23:13) scala/Predef.implicitly().
+(23:14..23:17) _empty_/Foo# -> 1:7
+(23:19..23:22) scala/Int#
+(23:24..23:27) _empty_/Bar# -> 7:7
+(23:30..23:30) _empty_/Foo.fooPair(). -> 4:16
+(23:30..23:30) _empty_/Foo.fooInt. -> 3:16
+(23:30..23:30) _empty_/Bar.fooBar(). -> 9:16
+(24:3..24:13) scala/Predef.implicitly().
+(24:14..24:17) _empty_/Foo# -> 1:7
+(24:18..24:21) _empty_/Baz# -> 12:7
+(24:23..24:23) _empty_/Baz.fooBaz(). -> 14:16
+(24:23..24:23) _empty_/Foo.fooInt. -> 3:16
+

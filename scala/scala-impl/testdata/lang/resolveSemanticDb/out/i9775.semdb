@@ -1,0 +1,20 @@
+Document tests/pos/i9775.scala
+(2:38..2:38) java/lang/Object#`<init>`().
+(2:32..2:38) scala/AnyRef#
+(3:4..3:12) scala/volatile#
+(5:23..5:29) java/lang/Thread#
+(5:32..5:35) scala/Predef.`???`().
+(6:10..6:15) scala/Array#
+(6:16..6:19) scala/Int#
+(6:23..6:26) scala/Predef.`???`().
+(8:40..8:47) scala/Boolean#
+(9:6..9:6) scala/Array#apply().
+(9:5..9:6) _empty_/ThreadedImpl#x. -> 6:7
+(12:20..12:22) scala/Boolean#`&&`().
+(12:12..12:19) java/lang/Thread#isAlive().
+(12:5..12:11) _empty_/ThreadedImpl#thread. -> 5:15
+(12:34..12:46) java/lang/Object#synchronized().
+(12:23..12:33) _empty_/ThreadedImpl#threadSync. -> 2:15
+(12:57..12:57) scala/Boolean#`unary_!`().
+(12:48..12:57) _empty_/ThreadedImpl#wasClosed(). -> 3:25
+

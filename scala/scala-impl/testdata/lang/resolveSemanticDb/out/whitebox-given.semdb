@@ -1,0 +1,6 @@
+Document tests/pos/whitebox-given.scala
+(1:26..1:29) scala/Int#
+(2:12..2:18) scala/Predef.summon().
+(2:19..2:22) scala/Int#
+(2:23..2:23) _empty_/`whitebox-given$package`.given_Int(). -> 1:26
+

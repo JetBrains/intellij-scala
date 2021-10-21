@@ -1,0 +1,12 @@
+Document tests/pos/t3577.scala
+(1:32..1:33) _empty_/Check#[A] -> 1:18
+(3:23..3:28) _empty_/Check# -> 1:12
+(6:13..6:15) _empty_/C2# -> 3:12
+(6:18..6:21) scala/Any#
+(6:31..6:34) scala/Any#
+(7:12..7:12) _empty_/C2.unapplySeq().
+(7:10..7:12) _empty_/C2. -> 3:12
+(8:12..8:15) scala/collection/IterableOps#map().
+(8:7..8:11) local0 -> 7:16
+(8:18..8:23) _empty_/Check#value. -> 1:25
+

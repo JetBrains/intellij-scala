@@ -1,0 +1,14 @@
+Document tests/pos/i8845.scala
+(2:16..2:19) scala/Int#
+(2:23..2:27) scala/Long#
+(4:31..4:40) _empty_/IntToLong# -> 1:7
+(4:44..4:47) scala/Predef.`???`().
+(5:31..5:40) _empty_/IntToLong# -> 1:7
+(5:44..5:47) scala/Predef.`???`().
+(7:13..7:21) _empty_/i8845$package.convert1(). -> 4:12
+(7:22..7:22) scala/Int.int2long().
+(7:24..7:25) scala/Int#`*`(+3).
+(8:13..8:21) _empty_/i8845$package.convert2(). -> 5:12
+(8:22..8:22) scala/Int.int2long().
+(8:24..8:25) scala/Int#`*`(+3).
+

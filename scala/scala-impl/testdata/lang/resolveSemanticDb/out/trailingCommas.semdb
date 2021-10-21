@@ -1,0 +1,74 @@
+Document tests/pos/trailingCommas/trailingCommas.scala
+(4:14..4:17) scala/Int#
+(4:24..4:30) scala/Predef.String#
+(4:46..4:49) foo/package.Ev0# -> 153:16
+(4:56..4:59) foo/package.Ev1# -> 154:16
+(5:3..5:4) foo/ArgumentExprs1#f(). -> 4:7
+(9:5..9:8) foo/package.Ev0. -> 153:37
+(10:5..10:9) foo/package.Ev1. -> 154:37
+(14:12..14:15) scala/Int#
+(14:20..14:23) scala/Int#
+(15:3..15:4) foo/ArgumentExprs1#g(). -> 14:7
+(17:3..17:4) foo/ArgumentExprs1#g(). -> 14:7
+(17:11..17:11) scala/collection/IterableFactory#apply().
+(17:7..17:11) scala/package.List.
+(22:16..22:19) scala/Int#
+(22:26..22:32) scala/Predef.String#
+(22:48..22:51) foo/package.Ev0# -> 153:16
+(22:58..22:61) foo/package.Ev1# -> 154:16
+(23:8..23:8) foo/ArgumentExprs2#C#`<init>`(). -> 22:10
+(23:7..23:8) foo/ArgumentExprs2#C# -> 22:9
+(27:5..27:8) foo/package.Ev0. -> 153:37
+(28:5..28:9) foo/package.Ev1. -> 154:37
+(34:15..34:18) scala/Int#
+(35:15..35:22) scala/Predef.String#
+(37:15..37:18) foo/package.Ev0# -> 153:16
+(38:15..38:19) foo/package.Ev1# -> 154:16
+(39:11..39:15) scala/Unit#
+(44:17..44:20) scala/Int#
+(45:17..45:24) scala/Predef.String#
+(47:17..47:20) foo/package.Ev0# -> 153:16
+(48:17..48:21) foo/package.Ev1# -> 154:16
+(52:19..52:22) scala/Int#
+(57:11..57:14) scala/Int#
+(57:16..57:22) scala/Predef.String#
+(58:5..58:5) scala/Tuple2.apply().
+(63:10..63:13) scala/Int#
+(70:10..70:11) foo/TypeArgs#C# -> 69:9
+(71:5..71:8) scala/Int#
+(72:5..72:12) scala/Predef.String#
+(87:6..87:10) scala/Unit#
+(92:5..92:8) scala/Int#
+(93:7..93:14) scala/Predef.String#
+(98:5..98:9) scala/Int#
+(104:5..104:8) scala/Int#
+(105:7..105:14) scala/Predef.String#
+(106:10..106:17) scala/Boolean#
+(113:15..113:18) scala/Any#
+(111:5..111:5) scala/Tuple2.unapply().
+(116:7..116:7) scala/Some.apply().
+(116:3..116:7) scala/Some.
+(117:14..117:14) scala/Some.unapply().
+(117:10..117:14) scala/Some.
+(118:10..118:11) local0 -> 117:15
+(122:7..122:7) scala/collection/IterableFactory#apply().
+(122:3..122:7) scala/package.List.
+(123:14..123:14) scala/collection/SeqFactory#unapplySeq().
+(123:10..123:14) scala/package.List.
+(129:22..129:22) scala/collection/immutable/List#`::`().
+(129:19..129:22) scala/package.Nil.
+(128:11..128:11) scala/collection/SeqFactory#unapplySeq().
+(128:7..128:11) scala/package.List.
+(134:5..134:8) foo/package.Ev0. -> 153:37
+(134:5..134:8) foo/package.Ev0# -> 153:16
+(135:5..135:9) foo/package.Ev1. -> 154:37
+(135:5..135:9) foo/package.Ev1# -> 154:16
+(133:10..133:13) foo/ -> 1:9
+(140:13..140:16) scala/Int#
+(140:18..140:24) scala/Predef.String#
+(140:29..140:36) scala/Boolean#
+(140:39..140:43) scala/Unit#
+(142:3..142:4) foo/Bindings#g(). -> 140:7
+(153:49..153:52) foo/package.Ev0# -> 153:16
+(154:49..154:52) foo/package.Ev1# -> 154:16
+

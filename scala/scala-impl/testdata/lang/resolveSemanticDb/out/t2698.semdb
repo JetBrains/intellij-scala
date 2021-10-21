@@ -1,0 +1,18 @@
+Document tests/pos/t2698.scala
+(3:19..3:24) _empty_/WordExp#Label# -> 2:18
+(6:14..6:24) scala/collection/
+(6:8..6:13) scala/
+(9:13..9:20) _empty_/WordExp# -> 1:7
+(10:24..10:31) _empty_/WordExp#_labelT# -> 3:8
+(10:19..10:23) _empty_/S2#lang. -> 9:7
+(12:15..12:20) scala/Array#
+(12:21..12:29) _empty_/S2#__labelT# -> 10:8
+(12:45..12:58) scala/compiletime/package$package.uninitialized().
+(12:33..12:44) scala/compiletime/
+(13:30..13:30) scala/collection/MapFactory#apply().
+(13:27..13:30) scala/collection/immutable/Map.
+(13:17..13:26) scala/collection/immutable/
+(13:38..13:50) scala/collection/ArrayOps#zipWithIndex().
+(13:31..13:31) scala/Predef.refArrayOps().
+(13:31..13:37) _empty_/S2#deltaq(). -> 12:7
+

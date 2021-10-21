@@ -1,0 +1,96 @@
+Document tests/pos/i12373.scala
+(1:35..1:41) scala/Predef.String#
+(4:23..4:32) _empty_/ColumnSet# -> 3:14
+(4:37..4:46) _empty_/ColumnSet# -> 3:14
+(5:18..5:27) _empty_/ColumnSet# -> 3:14
+(5:35..5:39) _empty_/ColumnSet#`++`().[That] -> 5:10
+(5:42..5:48) _empty_/ColumnSet#Append# -> 4:8
+(5:49..5:53) _empty_/ColumnSet#`++`().[That] -> 5:10
+(9:33..9:38) _empty_/ColumnSet.Empty. -> 12:15
+(10:33..10:37) _empty_/ColumnSet.Cons# -> 17:21
+(10:38..10:39) _empty_/ColumnSet.Singleton#[A] -> 10:18
+(10:41..10:46) _empty_/ColumnSet.Empty# -> 9:8
+(12:29..12:38) _empty_/ColumnSet# -> 3:14
+(13:25..13:34) _empty_/ColumnSet# -> 3:14
+(13:38..13:42) _empty_/ColumnSet.Empty.Append#[That] -> 13:17
+(14:29..14:38) _empty_/ColumnSet# -> 3:14
+(14:46..14:50) _empty_/ColumnSet.Empty.`++`().[That] -> 14:21
+(14:53..14:59) _empty_/ColumnSet.Empty.Append# -> 13:10
+(14:60..14:64) _empty_/ColumnSet.Empty.`++`().[That] -> 14:21
+(14:68..14:72) _empty_/ColumnSet.Empty.`++`().(that) -> 14:40
+(17:51..17:57) _empty_/Column# -> 1:19
+(17:58..17:59) _empty_/ColumnSet.Cons#[A] -> 17:26
+(17:68..17:69) _empty_/ColumnSet.Cons#[B] -> 17:29
+(17:79..17:88) _empty_/ColumnSet# -> 3:14
+(18:25..18:34) _empty_/ColumnSet# -> 3:14
+(18:38..18:42) _empty_/ColumnSet.Cons# -> 17:21
+(18:43..18:44) _empty_/ColumnSet.Cons#[A] -> 17:26
+(18:51..18:57) _empty_/ColumnSet#Append# -> 4:8
+(18:46..18:50) _empty_/ColumnSet.Cons#tail. -> 17:62
+(18:58..18:62) _empty_/ColumnSet.Cons#Append#[That] -> 18:17
+(19:29..19:38) _empty_/ColumnSet# -> 3:14
+(19:46..19:50) _empty_/ColumnSet.Cons#`++`().[That] -> 19:21
+(19:53..19:59) _empty_/ColumnSet.Cons#Append# -> 18:10
+(19:60..19:64) _empty_/ColumnSet.Cons#`++`().[That] -> 19:21
+(19:72..19:72) _empty_/ColumnSet.Cons.apply(). -> 17:3
+(19:68..19:72) _empty_/ColumnSet.Cons. -> 17:21
+(19:73..19:77) _empty_/ColumnSet.Cons#head. -> 17:45
+(19:84..19:86) _empty_/ColumnSet#`++`(). -> 5:7
+(19:79..19:83) _empty_/ColumnSet.Cons#tail. -> 17:62
+(19:87..19:91) _empty_/ColumnSet.Cons#`++`().(that) -> 19:40
+(22:18..22:24) scala/Predef.String#
+(22:27..22:36) _empty_/ColumnSet.Singleton# -> 10:8
+(22:37..22:41) scala/Long#
+(22:53..22:53) _empty_/ColumnSet.Cons.apply(). -> 17:3
+(22:49..22:53) _empty_/ColumnSet.Cons. -> 17:21
+(22:60..22:60) _empty_/Column.apply(). -> 1:1
+(22:54..22:60) _empty_/Column. -> 1:19
+(22:61..22:65) scala/Long#
+(22:67..22:71) _empty_/ColumnSet.long().(name) -> 22:12
+(22:74..22:79) _empty_/ColumnSet.Empty. -> 12:15
+(23:20..23:26) scala/Predef.String#
+(23:29..23:38) _empty_/ColumnSet.Singleton# -> 10:8
+(23:39..23:45) scala/Predef.String#
+(23:53..23:53) _empty_/ColumnSet.Cons.apply(). -> 17:3
+(23:49..23:53) _empty_/ColumnSet.Cons. -> 17:21
+(23:60..23:60) _empty_/Column.apply(). -> 1:1
+(23:54..23:60) _empty_/Column. -> 1:19
+(23:61..23:67) scala/Predef.String#
+(23:69..23:73) _empty_/ColumnSet.string().(name) -> 23:14
+(23:76..23:81) _empty_/ColumnSet.Empty. -> 12:15
+(27:10..27:19) _empty_/ColumnSet. -> 8:8
+(28:28..28:30) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(28:17..28:21) _empty_/ColumnSet.long(). -> 22:7
+(28:31..28:37) _empty_/ColumnSet.string(). -> 23:7
+(32:52..32:54) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(32:28..32:30) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(32:17..32:21) _empty_/ColumnSet.long(). -> 22:7
+(32:31..32:37) _empty_/ColumnSet.string(). -> 23:7
+(32:55..32:61) _empty_/ColumnSet.string(). -> 23:7
+(36:75..36:77) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(36:52..36:54) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(36:28..36:30) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(36:17..36:21) _empty_/ColumnSet.long(). -> 22:7
+(36:31..36:37) _empty_/ColumnSet.string(). -> 23:7
+(36:55..36:61) _empty_/ColumnSet.string(). -> 23:7
+(36:78..36:82) _empty_/ColumnSet.long(). -> 22:7
+(39:180..39:182) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(39:54..39:56) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(39:30..39:32) _empty_/ColumnSet.Cons#`++`(). -> 19:18
+(39:19..39:23) _empty_/ColumnSet.long(). -> 22:7
+(39:33..39:39) _empty_/ColumnSet.string(). -> 23:7
+(39:57..39:63) _empty_/ColumnSet.string(). -> 23:7
+(39:143..39:149) _empty_/ColumnSet.Cons#Append# -> 18:10
+(39:95..39:101) _empty_/ColumnSet.Cons#Append# -> 18:10
+(39:79..39:88) _empty_/ColumnSet.Singleton# -> 10:8
+(39:89..39:93) scala/Long#
+(39:112..39:116) _empty_/ColumnSet.Cons# -> 17:21
+(39:102..39:111) _empty_/ColumnSet. -> 8:8
+(39:117..39:123) scala/Predef.String#
+(39:135..39:140) _empty_/ColumnSet.Empty# -> 9:8
+(39:125..39:134) _empty_/ColumnSet. -> 8:8
+(39:160..39:169) _empty_/ColumnSet.Singleton# -> 10:8
+(39:150..39:159) _empty_/ColumnSet. -> 8:8
+(39:170..39:176) scala/Predef.String#
+(39:183..39:187) _empty_/ColumnSet.long(). -> 22:7
+

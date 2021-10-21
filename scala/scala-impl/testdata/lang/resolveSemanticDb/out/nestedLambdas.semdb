@@ -1,0 +1,23 @@
+Document tests/pos/nestedLambdas.scala
+(3:29..3:30) _empty_/Test#T#[X] -> 3:13
+(3:32..3:33) _empty_/Test#T#[Y] -> 3:21
+(5:24..5:25) _empty_/Test#A#[X] -> 5:10
+(5:27..5:28) _empty_/Test#A#[Y] -> 5:16
+(7:16..7:17) _empty_/Test#B#[X] -> 7:10
+(7:19..7:20) _empty_/Test#B#[X] -> 7:10
+(9:10..9:11) _empty_/Test#T# -> 3:8
+(9:12..9:15) scala/Int#
+(9:17..9:24) scala/Boolean#
+(9:28..9:31) scala/Predef.`???`().
+(11:10..11:11) _empty_/Test#A# -> 5:8
+(11:12..11:15) scala/Int#
+(11:17..11:24) scala/Boolean#
+(11:28..11:29) _empty_/Test#x. -> 9:7
+(13:35..13:38) scala/Predef.`???`().
+(15:3..15:4) _empty_/Test#f(). -> 13:7
+(15:5..15:6) _empty_/Test#A# -> 5:8
+(15:7..15:10) scala/Int#
+(17:41..17:44) scala/Predef.`???`().
+(19:3..19:4) _empty_/Test#g(). -> 17:7
+(19:5..19:6) _empty_/Test#A# -> 5:8
+

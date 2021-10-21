@@ -1,0 +1,11 @@
+Document tests/pos/t211.scala
+(3:19..3:20) _empty_/A# -> 1:7
+(3:26..3:27) _empty_/B# -> 2:7
+(3:36..3:37) _empty_/A# -> 1:7
+(3:43..3:44) _empty_/B# -> 2:7
+(4:21..4:24) scala/App#
+(5:10..5:10) _empty_/Foo#`<init>`(). -> 3:19
+(5:7..5:10) _empty_/Foo# -> 3:7
+(6:11..6:18) scala/Console.println(+1).
+(6:3..6:10) scala/Console.
+

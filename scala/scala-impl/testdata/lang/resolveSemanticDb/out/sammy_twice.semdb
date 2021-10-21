@@ -1,0 +1,20 @@
+Document tests/pos/sammy_twice.scala
+(3:30..3:31) _empty_/F#[T] -> 3:9
+(3:34..3:35) _empty_/F#[U] -> 3:12
+(6:20..6:21) _empty_/C#app().[T] -> 6:11
+(6:26..6:27) _empty_/F# -> 3:7
+(6:28..6:29) _empty_/C#app().[T] -> 6:11
+(6:31..6:32) _empty_/C#app().[U] -> 6:14
+(6:36..6:37) _empty_/C#app().[U] -> 6:14
+(6:41..6:41) _empty_/F#apply(). -> 3:21
+(6:40..6:41) _empty_/C#app().(f) -> 6:23
+(6:42..6:43) _empty_/C#app().(x) -> 6:17
+(7:3..7:6) _empty_/C#app(). -> 6:7
+(7:19..7:19) scala/collection/IterableFactory#apply().
+(7:15..7:19) scala/package.List.
+(7:20..7:21) local0 -> 7:10
+(8:3..8:6) _empty_/C#app(). -> 6:7
+(8:19..8:19) scala/collection/IterableFactory#apply().
+(8:15..8:19) scala/package.List.
+(8:20..8:21) local1 -> 8:10
+

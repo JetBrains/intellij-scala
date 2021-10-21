@@ -1,0 +1,65 @@
+Document tests/pos/t7983.scala
+(1:13..1:16) foo/bar/
+(1:9..1:12) foo/
+(8:22..8:32) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
+(9:23..9:27) foo/bar/baz/DivergenceTest#Flat# -> 8:9
+(13:47..13:51) foo/bar/baz/DivergenceTest#Flat# -> 8:9
+(13:55..13:65) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
+(13:75..13:85) foo/bar/baz/DivergenceTest#ColumnBase# -> 5:9
+(14:53..14:56) scala/`<:<`#
+(14:51..14:52) foo/bar/baz/DivergenceTest#columnBaseShape().[C] -> 13:70
+(14:57..14:67) foo/bar/baz/DivergenceTest#ColumnBase# -> 5:9
+(14:68..14:69) foo/bar/baz/DivergenceTest#columnBaseShape().[T] -> 13:67
+(15:40..15:46) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(15:47..15:52) foo/bar/baz/DivergenceTest#columnBaseShape().[Level] -> 13:38
+(15:54..15:55) foo/bar/baz/DivergenceTest#columnBaseShape().[C] -> 13:70
+(15:57..15:58) foo/bar/baz/DivergenceTest#columnBaseShape().[T] -> 13:67
+(15:62..15:65) scala/Predef.`???`().
+(17:40..17:50) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
+(17:56..17:62) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(17:63..17:68) foo/bar/baz/DivergenceTest#intShape().[Level] -> 17:31
+(17:70..17:73) scala/Int#
+(17:75..17:78) scala/Int#
+(17:82..17:85) scala/Predef.`???`().
+(18:43..18:53) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
+(19:47..19:53) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(19:59..19:64) foo/bar/baz/DivergenceTest#tuple2Shape().[Level] -> 18:34
+(19:66..19:68) foo/bar/baz/DivergenceTest#tuple2Shape().[M1] -> 18:55
+(19:70..19:72) foo/bar/baz/DivergenceTest#tuple2Shape().[U1] -> 18:62
+(20:47..20:53) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(20:59..20:64) foo/bar/baz/DivergenceTest#tuple2Shape().[Level] -> 18:34
+(20:66..20:68) foo/bar/baz/DivergenceTest#tuple2Shape().[M2] -> 18:58
+(20:70..20:72) foo/bar/baz/DivergenceTest#tuple2Shape().[U2] -> 18:65
+(21:36..21:42) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(21:43..21:48) foo/bar/baz/DivergenceTest#tuple2Shape().[Level] -> 18:34
+(21:51..21:53) foo/bar/baz/DivergenceTest#tuple2Shape().[M1] -> 18:55
+(21:54..21:56) foo/bar/baz/DivergenceTest#tuple2Shape().[M2] -> 18:58
+(21:60..21:62) foo/bar/baz/DivergenceTest#tuple2Shape().[U1] -> 18:62
+(21:63..21:65) foo/bar/baz/DivergenceTest#tuple2Shape().[U2] -> 18:65
+(21:70..21:73) scala/Predef.`???`().
+(23:12..23:16) scala/Unit#
+(24:27..24:37) foo/bar/baz/DivergenceTest#ColumnBase# -> 5:9
+(24:38..24:41) scala/Int#
+(26:23..26:24) local2 -> 26:14
+(26:42..26:48) foo/bar/baz/DivergenceTest#Shape2# -> 11:9
+(26:54..26:58) foo/bar/baz/DivergenceTest#Flat# -> 8:9
+(26:60..26:61) local2 -> 26:14
+(26:63..26:64) local3 -> 26:17
+(26:69..26:72) scala/Predef.`???`().
+(28:5..28:9) local1 -> 26:9
+(28:11..28:11) scala/Tuple2.apply().
+(28:12..28:12) scala/Tuple2.apply().
+(28:21..28:28) local0 -> 24:11
+(28:34..28:34) foo/bar/baz/DivergenceTest#tuple2Shape(). -> 18:22
+(28:34..28:34) foo/bar/baz/DivergenceTest#intShape(). -> 17:22
+(28:34..28:34) foo/bar/baz/DivergenceTest#columnBaseShape(). -> 13:22
+(28:34..28:34) scala/`<:<`.refl().
+(29:5..29:9) local1 -> 26:9
+(29:11..29:11) scala/Tuple2.apply().
+(29:12..29:12) scala/Tuple2.apply().
+(29:18..29:25) local0 -> 24:11
+(29:34..29:34) foo/bar/baz/DivergenceTest#tuple2Shape(). -> 18:22
+(29:34..29:34) foo/bar/baz/DivergenceTest#columnBaseShape(). -> 13:22
+(29:34..29:34) scala/`<:<`.refl().
+(29:34..29:34) foo/bar/baz/DivergenceTest#intShape(). -> 17:22
+

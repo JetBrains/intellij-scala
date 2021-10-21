@@ -1,0 +1,8 @@
+Document tests/pos/t7475b.scala
+(5:13..5:16) scala/Any#
+(5:22..5:23) _empty_/T# -> 4:7
+(5:29..5:30) _empty_/U# -> 1:7
+(7:14..7:18) _empty_/T#priv. -> 6:15
+(7:4..7:7) scala/Predef.`???`().
+(7:10..7:12) _empty_/T#TT# -> 5:8
+

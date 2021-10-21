@@ -1,0 +1,26 @@
+Document tests/pos/i739.scala
+(4:17..4:18) _empty_/Test.foo().[T] -> 4:11
+(4:33..4:34) _empty_/Test.foo().[T] -> 4:11
+(4:37..4:38) _empty_/Test.foo().[T] -> 4:11
+(4:41..4:44) scala/Predef.`???`().
+(7:29..7:30) _empty_/Test.Fn#[T] -> 6:12
+(7:33..7:34) _empty_/Test.Fn#[T] -> 6:12
+(7:37..7:40) scala/Predef.`???`().
+(10:17..10:18) _empty_/Test.bar().[T] -> 10:11
+(10:21..10:23) _empty_/Test.Fn# -> 6:9
+(10:24..10:25) _empty_/Test.bar().[T] -> 10:11
+(10:29..10:32) scala/Predef.`???`().
+(12:13..12:17) scala/Unit#
+(13:28..13:31) _empty_/Foo# -> 1:7
+(13:41..13:41) _empty_/Foo#`<init>`(). -> 1:1
+(13:38..13:41) _empty_/Foo# -> 1:7
+(14:5..14:8) _empty_/Test.foo(). -> 4:7
+(14:16..14:16) _empty_/Foo#`<init>`(). -> 1:1
+(14:13..14:16) _empty_/Foo# -> 1:7
+(14:17..14:17) local0 -> 13:18
+(15:18..15:24) _empty_/Test.Fn#invoke(). -> 7:9
+(15:5..15:8) _empty_/Test.bar(). -> 10:7
+(15:16..15:16) _empty_/Foo#`<init>`(). -> 1:1
+(15:13..15:16) _empty_/Foo# -> 1:7
+(15:24..15:24) local0 -> 13:18
+

@@ -1,0 +1,23 @@
+Document tests/pos/i1747.scala
+(1:43..1:53) java/util/Collection#
+(1:38..1:42) java/util/
+(1:33..1:37) java/
+(1:54..1:55) _empty_/Coll1#[E] -> 1:22
+(2:30..2:35) scala/Array#
+(2:36..2:37) _empty_/Coll1#toArray().[T] -> 2:24
+(2:43..2:49) java/lang/Object#
+(2:53..2:58) scala/Array#
+(2:59..2:60) _empty_/Coll1#toArray().[T] -> 2:24
+(2:66..2:72) java/lang/Object#
+(2:76..2:79) scala/Predef.`???`().
+(5:43..5:53) java/util/Collection#
+(5:38..5:42) java/util/
+(5:33..5:37) java/
+(5:54..5:55) _empty_/Coll2#[E] -> 5:22
+(6:29..6:35) java/lang/Object#
+(6:40..6:45) scala/Array#
+(6:46..6:47) _empty_/Coll2#toArray().[T] -> 6:24
+(6:51..6:56) scala/Array#
+(6:57..6:58) _empty_/Coll2#toArray().[T] -> 6:24
+(6:62..6:65) scala/Predef.`???`().
+

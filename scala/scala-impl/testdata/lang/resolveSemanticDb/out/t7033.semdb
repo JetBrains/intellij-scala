@@ -1,0 +1,21 @@
+Document tests/pos/t7033.scala
+(1:17..1:28) scala/language.higherKinds.
+(1:8..1:16) scala/language.
+(3:30..3:31) _empty_/Wrap.X#[X] -> 3:20
+(5:3..5:4) _empty_/Wrap.X(). -> 3:18
+(5:5..5:8) scala/Int#
+(9:30..9:31) _empty_/Wrap#Y#[Y] -> 9:20
+(10:3..10:4) _empty_/Wrap#Y(). -> 9:18
+(10:5..10:8) scala/Int#
+(11:33..11:34) _empty_/Wrap#Z#[Z] -> 11:20
+(11:45..11:46) _empty_/Wrap#Z# -> 11:18
+(11:47..11:48) _empty_/Wrap#Z#[Z] -> 11:20
+(12:3..12:4) _empty_/Wrap#Z(). -> 11:18
+(12:5..12:9) scala/package.List#
+(12:15..12:15) scala/collection/IterableFactory#apply().
+(12:11..12:15) scala/package.List.
+(12:27..12:27) _empty_/Wrap#Z#`<init>`(). -> 11:19
+(12:20..12:21) _empty_/Wrap#Z# -> 11:18
+(12:22..12:26) scala/package.List#
+(15:24..15:25) _empty_/X#[X] -> 15:14
+

@@ -1,0 +1,15 @@
+Document tests/pos/virtpatmat_exist_uncurry.scala
+(3:23..3:38) scala/PartialFunction#
+(3:39..3:43) _empty_/Test.Leaf# -> 2:9
+(3:48..3:49) _empty_/Test.Leaf#collect().[U] -> 3:17
+(3:53..3:57) scala/package.List#
+(3:58..3:59) _empty_/Test.Leaf#collect().[U] -> 3:17
+(4:17..4:21) scala/package.List#
+(4:22..4:26) _empty_/Test.Leaf# -> 2:9
+(4:27..4:28) _empty_/Test.Leaf#[T] -> 2:14
+(4:33..4:40) _empty_/Test.Leaf#collect(). -> 3:9
+(4:43..4:43) local0
+(4:51..4:55) _empty_/Test.Leaf# -> 2:9
+(4:56..4:57) _empty_/Test.Leaf#[T] -> 2:14
+(4:62..4:63) local1 -> 4:48
+

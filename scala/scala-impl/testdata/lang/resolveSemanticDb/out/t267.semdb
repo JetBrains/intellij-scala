@@ -1,0 +1,60 @@
+Document tests/pos/t267.scala
+(9:15..9:18) expAbstractData/Base#Exp# -> 11:9
+(12:15..12:18) scala/Int#
+(14:16..14:19) scala/Int#
+(14:29..14:32) expAbstractData/Base#Exp# -> 11:9
+(14:41..14:44) expAbstractData/Base#exp# -> 9:8
+(15:17..15:18) expAbstractData/Base#Num#v. -> 14:13
+(16:16..16:21) expAbstractData/Base#Num#value. -> 15:9
+(20:25..20:28) scala/App#
+(20:34..20:38) expAbstractData/Base# -> 8:7
+(21:14..21:17) expAbstractData/Base#Exp# -> 11:9
+(22:21..22:21) expAbstractData/Base#Num#`<init>`(). -> 14:12
+(22:18..22:21) expAbstractData/Base#Num# -> 14:9
+(23:11..23:18) scala/Console.println(+1).
+(23:3..23:10) scala/Console.
+(23:24..23:28) expAbstractData/Base#Num#eval(). -> 16:9
+(23:19..23:23) expAbstractData/testBase.term. -> 22:7
+(28:24..28:28) expAbstractData/Base# -> 8:7
+(29:17..29:20) expAbstractData/Base#exp# -> 9:8
+(29:25..29:28) expAbstractData/Base#exp# -> 9:8
+(29:38..29:41) expAbstractData/Base#Exp# -> 11:9
+(29:50..29:53) expAbstractData/Base#exp# -> 9:8
+(30:16..30:17) expAbstractData/BasePlus#Plus#l. -> 29:14
+(31:17..31:18) expAbstractData/BasePlus#Plus#r. -> 29:22
+(32:26..32:27) scala/Int#`+`(+4).
+(32:21..32:25) expAbstractData/Base#Exp#eval(). -> 12:9
+(32:16..32:20) expAbstractData/BasePlus#Plus#left. -> 30:9
+(32:34..32:38) expAbstractData/Base#Exp#eval(). -> 12:9
+(32:28..32:33) expAbstractData/BasePlus#Plus#right. -> 31:9
+(38:20..38:24) expAbstractData/Base# -> 8:7
+(39:15..39:19) expAbstractData/Show#Exp1# -> 41:9
+(41:22..41:25) expAbstractData/Base#Exp# -> 11:9
+(42:15..42:21) scala/Predef.String#
+(44:17..44:20) scala/Int#
+(44:33..44:33) expAbstractData/Base#Num#`<init>`(). -> 14:12
+(44:30..44:33) expAbstractData/Base#Num# -> 14:9
+(44:34..44:35) expAbstractData/Show#Num1#v. -> 44:14
+(44:42..44:46) expAbstractData/Show#Exp1# -> 41:9
+(44:55..44:58) expAbstractData/Show#exp# -> 39:8
+(44:64..44:68) expAbstractData/Show#Num1# -> 44:9
+(45:22..45:30) scala/Any#toString().
+(45:16..45:21) expAbstractData/Base#Num#value. -> 15:9
+(51:24..51:32) expAbstractData/BasePlus# -> 28:7
+(51:38..51:42) expAbstractData/Show# -> 38:7
+(52:18..52:21) expAbstractData/Show#exp# -> 39:8
+(52:26..52:29) expAbstractData/Show#exp# -> 39:8
+(52:43..52:43) expAbstractData/BasePlus#Plus#`<init>`(). -> 29:13
+(52:39..52:43) expAbstractData/BasePlus#Plus# -> 29:9
+(52:44..52:45) expAbstractData/ShowPlus#Plus1#l. -> 52:15
+(52:47..52:48) expAbstractData/ShowPlus#Plus1#r. -> 52:23
+(52:55..52:59) expAbstractData/Show#Exp1# -> 41:9
+(52:68..52:71) expAbstractData/Show#exp# -> 39:8
+(52:77..52:82) expAbstractData/ShowPlus#Plus1# -> 52:9
+(53:34..53:35) java/lang/String#`+`().
+(53:26..53:27) java/lang/String#`+`().
+(53:21..53:25) expAbstractData/Show#Exp1#show(). -> 42:9
+(53:16..53:20) expAbstractData/BasePlus#Plus#left. -> 30:9
+(53:42..53:46) expAbstractData/Show#Exp1#show(). -> 42:9
+(53:36..53:41) expAbstractData/BasePlus#Plus#right. -> 31:9
+

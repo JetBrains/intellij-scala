@@ -1,0 +1,13 @@
+Document tests/pos/t2741/2741_2.scala
+(3:10..3:16) _empty_/Scalaz. -> 9:8
+(4:10..4:11) _empty_/MAs#a. -> 6:7
+(4:3..4:9) _empty_/Scalaz. -> 9:8
+
+Document tests/pos/t2741/2741_1.scala
+(2:21..2:25) scala/package.List#
+(2:26..2:29) _empty_/Partial#Apply#[XYZ] -> 2:14
+(6:10..6:12) _empty_/MA# -> 4:7
+(6:21..6:26) _empty_/Partial#Apply# -> 2:8
+(6:13..6:20) _empty_/Partial# -> 1:7
+(9:23..9:26) _empty_/MAs# -> 5:7
+

@@ -1,0 +1,35 @@
+Document tests/pos/t807.scala
+(3:18..3:22) _empty_/Matcher#Link# -> 2:9
+(4:19..4:23) _empty_/Matcher#Link# -> 2:9
+(4:49..4:53) _empty_/Matcher#Link#Self# -> 3:10
+(7:18..7:25) scala/Boolean#
+(7:29..7:33) _empty_/Matcher#Link# -> 2:9
+(11:28..11:35) _empty_/Matcher# -> 1:7
+(13:29..13:33) _empty_/Matcher#Link# -> 2:9
+(14:28..14:37) _empty_/BraceMatcher#BracePair#BraceLink# -> 13:11
+(15:19..15:27) _empty_/BraceMatcher#BracePair#OpenLink# -> 14:11
+(16:20..16:29) _empty_/BraceMatcher#BracePair#CloseLink# -> 18:11
+(18:29..18:38) _empty_/BraceMatcher#BracePair#BraceLink# -> 13:11
+(19:19..19:28) _empty_/BraceMatcher#BracePair#CloseLink# -> 18:11
+(20:20..20:28) _empty_/BraceMatcher#BracePair#OpenLink# -> 14:11
+(24:29..24:41) _empty_/BraceMatcher# -> 11:7
+(25:28..25:32) _empty_/Matcher#Link# -> 2:9
+(26:24..26:34) _empty_/IfElseMatcher#IfElseLink# -> 25:9
+(27:17..27:23) _empty_/IfElseMatcher#IfLink# -> 26:9
+(28:18..28:26) _empty_/IfElseMatcher#ElseImpl# -> 30:9
+(30:26..30:36) _empty_/IfElseMatcher#IfElseLink# -> 25:9
+(30:42..30:50) _empty_/Matcher#HasLinks# -> 6:9
+(31:17..31:25) _empty_/IfElseMatcher#ElseImpl# -> 30:9
+(32:18..32:24) _empty_/IfElseMatcher#IfLink# -> 26:9
+(33:27..33:34) scala/Boolean#
+(35:19..35:28) _empty_/BraceMatcher#BracePair# -> 12:9
+(36:33..36:41) _empty_/Matcher#HasLinks# -> 6:9
+(37:27..37:33) _empty_/IfElseMatcher#IfLink# -> 26:9
+(38:40..38:48) _empty_/BraceMatcher#BracePair#OpenLink# -> 14:11
+(38:30..38:39) _empty_/IfElseMatcher#parenPair. -> 35:7
+(39:27..39:34) scala/Boolean#
+(39:37..39:41) _empty_/Matcher#Link# -> 2:9
+(39:44..39:45) _empty_/IfElseMatcher#IfWithParenImpl#link().(b) -> 39:23
+(40:18..40:24) _empty_/IfElseMatcher#IfWithParenImpl#ifLink. -> 37:12
+(41:19..41:28) _empty_/IfElseMatcher#IfWithParenImpl#openParen. -> 38:12
+

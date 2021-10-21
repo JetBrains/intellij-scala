@@ -1,0 +1,11 @@
+Document tests/pos/objXfun.scala
+(1:21..1:24) scala/Int#
+(1:28..1:31) scala/Int#
+(2:16..2:19) scala/Int#
+(2:23..2:24) _empty_/Foo.apply().(x) -> 2:13
+(5:11..5:14) scala/Int#
+(6:13..6:16) scala/Int#
+(6:27..6:27) _empty_/E#`<init>`(). -> 5:7
+(6:26..6:27) _empty_/E# -> 5:6
+(6:28..6:29) _empty_/E.C#x. -> 6:10
+

@@ -1,0 +1,38 @@
+Document tests/pos/byname-implicits-8.scala
+(3:19..3:20) _empty_/Lazy#[T] -> 2:12
+(7:40..7:41) _empty_/Lazy.apply().[T] -> 7:22
+(7:44..7:48) _empty_/Lazy# -> 2:7
+(7:49..7:50) _empty_/Lazy.apply().[T] -> 7:22
+(8:9..8:13) _empty_/Lazy# -> 2:7
+(8:14..8:15) _empty_/Lazy.apply().[T] -> 7:22
+(9:24..9:25) _empty_/Lazy.apply().(t) -> 7:34
+(12:22..12:26) _empty_/Lazy# -> 2:7
+(12:27..12:28) _empty_/Lazy.unapply().[T] -> 12:15
+(12:32..12:38) scala/Option#
+(12:39..12:40) _empty_/Lazy.unapply().[T] -> 12:15
+(12:48..12:48) scala/Some.apply().
+(12:44..12:48) scala/Some.
+(12:52..12:57) _empty_/Lazy#value. -> 3:12
+(12:49..12:51) _empty_/Lazy.unapply().(lt) -> 12:18
+(17:12..17:15) _empty_/Foo#Out# -> 16:8
+(21:20..21:23) _empty_/Foo# -> 15:7
+(21:37..21:41) _empty_/Foo.Aux#[Out0] -> 21:12
+(23:24..23:27) _empty_/Foo.Aux# -> 21:8
+(23:28..23:31) scala/Int#
+(23:39..23:42) _empty_/Foo# -> 15:7
+(23:56..23:59) scala/Int#
+(27:17..27:18) _empty_/Test.bar().[T] -> 27:11
+(27:34..27:38) _empty_/Lazy# -> 2:7
+(27:43..27:46) _empty_/Foo.Aux# -> 21:8
+(27:39..27:42) _empty_/Foo. -> 20:8
+(27:47..27:48) _empty_/Test.bar().[T] -> 27:11
+(27:53..27:54) _empty_/Test.bar().[T] -> 27:11
+(27:67..27:70) _empty_/Foo#out(). -> 17:7
+(27:61..27:66) _empty_/Lazy#value. -> 3:12
+(27:57..27:60) _empty_/Test.bar().(foo) -> 27:29
+(29:11..29:14) _empty_/Test.bar(). -> 27:7
+(29:18..29:18) _empty_/Lazy.apply(). -> 7:16
+(29:18..29:18) _empty_/Foo.fooInt. -> 23:16
+(30:3..30:4) _empty_/Test.i. -> 29:7
+(30:6..30:9) scala/Int#
+

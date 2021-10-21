@@ -1,0 +1,14 @@
+Document tests/pos/t3672.scala
+(2:14..2:17) scala/Int#
+(2:21..2:24) scala/Int#
+(2:33..2:36) _empty_/Test.foo(). -> 2:7
+(2:53..2:56) scala/Int#
+(2:63..2:64) scala/Int#`+`(+4).
+(2:61..2:62) local0 -> 2:49
+(3:14..3:17) scala/Int#
+(3:21..3:24) scala/Int#
+(3:33..3:36) _empty_/Test.foo(). -> 2:7
+(3:44..3:47) scala/Int#
+(3:54..3:55) scala/Int#`+`(+4).
+(3:52..3:53) local1 -> 3:40
+

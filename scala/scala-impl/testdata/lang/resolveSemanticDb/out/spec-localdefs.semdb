@@ -1,0 +1,11 @@
+Document tests/pos/spec-localdefs.scala
+(1:12..1:23) scala/specialized#
+(2:14..2:15) _empty_/Foo#[T] -> 1:24
+(4:7..4:19) scala/Any#asInstanceOf().
+(4:5..4:6) _empty_/Foo#foo().(x) -> 2:11
+(4:20..4:24) scala/package.List#
+(4:25..4:28) local0 -> 3:11
+(5:7..5:19) scala/Any#asInstanceOf().
+(5:5..5:6) _empty_/Foo#foo().(x) -> 2:11
+(5:20..5:23) local0 -> 3:11
+

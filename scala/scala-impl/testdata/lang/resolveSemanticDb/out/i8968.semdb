@@ -1,0 +1,6 @@
+Document tests/pos/i8968.scala
+(5:10..5:13) _empty_/Foo. -> 1:8
+(5:13..5:13) _empty_/Foo.get(). -> 2:14
+(7:13..7:16) _empty_/Bar.get(). -> 5:14
+(7:9..7:12) _empty_/Bar. -> 4:8
+

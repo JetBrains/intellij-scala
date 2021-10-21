@@ -1,0 +1,15 @@
+Document tests/pos/implicitonSelect.scala
+(4:23..4:24) _empty_/test.A# -> 2:9
+(4:27..4:28) _empty_/test.B# -> 3:9
+(4:36..4:36) _empty_/test.B#`<init>`(). -> 3:3
+(4:35..4:36) _empty_/test.B# -> 3:9
+(5:23..5:24) _empty_/test.A# -> 2:9
+(5:32..5:32) _empty_/test.A#`<init>`(). -> 2:3
+(5:31..5:32) _empty_/test.A# -> 2:9
+(6:19..6:19) _empty_/test.ARef#`<init>`(). -> 5:16
+(6:15..6:19) _empty_/test.ARef# -> 5:9
+(7:10..7:11) _empty_/test.B# -> 3:9
+(7:14..7:14) _empty_/test.a2b(). -> 4:16
+(7:16..7:17) _empty_/test.ARef#a. -> 5:20
+(7:14..7:15) _empty_/test.x. -> 6:7
+

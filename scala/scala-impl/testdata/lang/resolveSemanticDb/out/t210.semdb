@@ -1,0 +1,11 @@
+Document tests/pos/t210.scala
+(3:31..3:34) _empty_/Lang1#Exp# -> 2:9
+(3:37..3:41) scala/Unit#
+(4:23..4:30) _empty_/Lang1#Visitor# -> 3:9
+(4:39..4:46) _empty_/Lang1#Visitor# -> 3:9
+(5:17..5:20) _empty_/Lang1#Exp# -> 2:9
+(9:21..9:26) _empty_/Lang1# -> 1:7
+(10:28..10:28) _empty_/Lang1#Eval1#`<init>`(). -> 4:23
+(10:23..10:28) _empty_/Lang1#Eval1# -> 4:9
+(10:37..10:44) _empty_/Lang1#Visitor# -> 3:9
+

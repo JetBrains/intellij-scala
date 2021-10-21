@@ -1,0 +1,15 @@
+Document tests/pos/i880.scala
+(3:17..3:23) scala/Predef.String#
+(4:15..4:15) java/lang/Object#`<init>`().
+(4:9..4:15) scala/AnyRef#
+(5:20..5:20) java/lang/Exception#`<init>`().
+(5:11..5:20) scala/package.Exception#
+(6:20..6:26) local0 -> 3:9
+(9:15..9:15) java/lang/Object#`<init>`().
+(9:9..9:15) scala/AnyRef#
+(10:20..10:20) java/lang/Exception#`<init>`().
+(10:11..10:20) scala/package.Exception#
+(11:19..11:19) java/lang/Object#`<init>`().
+(11:13..11:19) scala/AnyRef#
+(12:22..12:28) local0 -> 3:9
+

@@ -1,0 +1,24 @@
+Document tests/pos/partialfun.scala
+(3:26..3:41) scala/PartialFunction#
+(3:42..3:48) scala/Option#
+(3:49..3:55) scala/Predef.String#
+(3:58..3:59) _empty_/partialfun.applyPartial().[b] -> 3:20
+(3:65..3:71) scala/Option#
+(3:72..3:78) scala/Predef.String#
+(4:11..4:22) scala/PartialFunction#isDefinedAt().
+(4:9..4:10) _empty_/partialfun.applyPartial().(f) -> 3:23
+(4:23..4:24) _empty_/partialfun.applyPartial().(x) -> 3:62
+(4:28..4:28) scala/Function1#apply().
+(4:27..4:28) _empty_/partialfun.applyPartial().(f) -> 3:23
+(4:29..4:30) _empty_/partialfun.applyPartial().(x) -> 3:62
+(6:3..6:15) _empty_/partialfun.applyPartial(). -> 3:7
+(7:5..7:5) local0
+(7:14..7:14) scala/Some.unapply().
+(7:10..7:14) scala/Some.
+(7:23..7:26) local1 -> 7:15
+(8:10..8:14) scala/None.
+(8:38..8:38) scala/MatchError#`<init>`().
+(8:28..8:38) scala/MatchError#
+(8:39..8:43) scala/None.
+(9:6..9:10) scala/None.
+

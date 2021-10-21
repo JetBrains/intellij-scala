@@ -1,0 +1,171 @@
+Document tests/pos/eff-compose.scala
+(7:17..7:23) _empty_/Test.Effect# -> 3:9
+(8:18..8:19) _empty_/Test.Fun#[X] -> 6:23
+(8:22..8:25) _empty_/Test.Fun#Eff# -> 7:10
+(8:30..8:31) _empty_/Test.Fun#[Y] -> 6:26
+(12:25..12:28) _empty_/Test.Fun# -> 6:18
+(12:29..12:30) _empty_/Test.PureFun#[X] -> 12:17
+(12:32..12:33) _empty_/Test.PureFun#[Y] -> 12:20
+(12:48..12:54) _empty_/Test.Effect# -> 3:9
+(15:22..15:28) _empty_/Test.Effect# -> 3:9
+(15:33..15:36) _empty_/Test.Fun# -> 6:18
+(15:37..15:38) _empty_/Test.map().[A] -> 15:11
+(15:40..15:41) _empty_/Test.map().[B] -> 15:14
+(15:56..15:57) _empty_/Test.map().[E] -> 15:17
+(15:64..15:68) scala/package.List#
+(15:69..15:70) _empty_/Test.map().[A] -> 15:11
+(16:7..16:8) _empty_/Test.map().[E] -> 15:17
+(16:13..16:17) scala/package.List#
+(16:18..16:19) _empty_/Test.map().[B] -> 15:14
+(17:8..17:11) scala/collection/immutable/List#map().
+(17:5..17:7) _empty_/Test.map().(xs) -> 15:60
+(17:19..17:19) scala/ContextFunction1#apply().
+(17:14..17:19) _empty_/Test.Fun#apply(). -> 8:9
+(17:12..17:13) _empty_/Test.map().(f) -> 15:30
+(17:12..17:12) local2
+(20:24..20:30) _empty_/Test.Effect# -> 3:9
+(21:5..21:12) _empty_/Test.PureFun# -> 12:8
+(22:7..22:10) _empty_/Test.Fun# -> 6:18
+(22:11..22:12) _empty_/Test.mapFn().[A] -> 20:13
+(22:14..22:15) _empty_/Test.mapFn().[B] -> 20:16
+(22:30..22:31) _empty_/Test.mapFn().[E] -> 20:19
+(23:7..23:10) _empty_/Test.Fun# -> 6:18
+(23:11..23:15) scala/package.List#
+(23:16..23:17) _empty_/Test.mapFn().[A] -> 20:13
+(23:20..23:24) scala/package.List#
+(23:25..23:26) _empty_/Test.mapFn().[B] -> 20:16
+(23:42..23:43) _empty_/Test.mapFn().[E] -> 20:19
+(29:6..29:6) _empty_/Test.Fun#`<init>`(). -> 6:21
+(25:9..25:12) _empty_/Test.Fun# -> 6:18
+(27:7..27:10) _empty_/Test.Fun# -> 6:18
+(27:11..27:12) _empty_/Test.mapFn().[A] -> 20:13
+(27:14..27:15) _empty_/Test.mapFn().[B] -> 20:16
+(27:30..27:31) _empty_/Test.mapFn().[E] -> 20:19
+(28:7..28:10) _empty_/Test.Fun# -> 6:18
+(28:11..28:15) scala/package.List#
+(28:16..28:17) _empty_/Test.mapFn().[A] -> 20:13
+(28:20..28:24) scala/package.List#
+(28:25..28:26) _empty_/Test.mapFn().[B] -> 20:16
+(28:42..28:43) _empty_/Test.mapFn().[E] -> 20:19
+(30:18..30:24) _empty_/Test.Effect# -> 3:9
+(31:20..31:23) _empty_/Test.Fun# -> 6:18
+(31:24..31:25) _empty_/Test.mapFn().[A] -> 20:13
+(31:27..31:28) _empty_/Test.mapFn().[B] -> 20:16
+(31:43..31:44) _empty_/Test.mapFn().[E] -> 20:19
+(32:34..32:34) _empty_/Test.Fun#`<init>`(). -> 6:21
+(32:13..32:16) _empty_/Test.Fun# -> 6:18
+(32:17..32:21) scala/package.List#
+(32:22..32:23) _empty_/Test.mapFn().[A] -> 20:13
+(32:26..32:30) scala/package.List#
+(32:31..32:32) _empty_/Test.mapFn().[B] -> 20:16
+(33:22..33:23) _empty_/Test.mapFn().[E] -> 20:19
+(34:25..34:29) scala/package.List#
+(34:30..34:31) _empty_/Test.mapFn().[A] -> 20:13
+(34:35..34:38) local13 -> 33:16
+(34:43..34:47) scala/package.List#
+(34:48..34:49) _empty_/Test.mapFn().[B] -> 20:16
+(35:23..35:23) scala/ContextFunction1#apply().
+(35:13..35:16) _empty_/Test.map(). -> 15:7
+(35:17..35:18) local10 -> 31:17
+(35:20..35:22) local15 -> 34:21
+(39:30..39:36) _empty_/Test.Effect# -> 3:9
+(39:44..39:50) _empty_/Test.Effect# -> 3:9
+(39:61..39:63) _empty_/Test.combine().[E1] -> 39:24
+(39:68..39:70) _empty_/Test.combine().[E2] -> 39:38
+(39:76..39:77) scala/`&`#
+(39:73..39:75) _empty_/Test.combine().[E1] -> 39:24
+(39:78..39:80) _empty_/Test.combine().[E2] -> 39:38
+(39:83..39:86) scala/Predef.`???`().
+(42:30..42:36) _empty_/Test.Effect# -> 3:9
+(42:44..42:50) _empty_/Test.Effect# -> 3:9
+(43:9..43:12) _empty_/Test.Fun# -> 6:18
+(43:13..43:14) _empty_/Test.compose().[A] -> 42:15
+(43:16..43:17) _empty_/Test.compose().[B] -> 42:18
+(43:32..43:34) _empty_/Test.compose().[E1] -> 42:24
+(44:9..44:12) _empty_/Test.Fun# -> 6:18
+(44:13..44:14) _empty_/Test.compose().[B] -> 42:18
+(44:16..44:17) _empty_/Test.compose().[C] -> 42:21
+(44:32..44:34) _empty_/Test.compose().[E2] -> 42:38
+(45:9..45:10) _empty_/Test.compose().[A] -> 42:15
+(45:17..45:18) scala/`&`#
+(45:14..45:16) _empty_/Test.compose().[E1] -> 42:24
+(45:19..45:21) _empty_/Test.compose().[E2] -> 42:38
+(45:27..45:28) _empty_/Test.compose().[C] -> 42:21
+(45:38..45:38) scala/ContextFunction1#apply().
+(45:32..45:32) _empty_/Test.Fun#apply(). -> 8:9
+(45:31..45:32) _empty_/Test.compose().(g) -> 44:6
+(45:37..45:37) scala/ContextFunction1#apply().
+(45:34..45:34) _empty_/Test.Fun#apply(). -> 8:9
+(45:33..45:34) _empty_/Test.compose().(f) -> 43:6
+(45:35..45:36) _empty_/Test.compose().(x) -> 45:6
+(48:32..48:38) _empty_/Test.Effect# -> 3:9
+(48:46..48:52) _empty_/Test.Effect# -> 3:9
+(49:5..49:12) _empty_/Test.PureFun# -> 12:8
+(50:7..50:10) _empty_/Test.Fun# -> 6:18
+(50:11..50:12) _empty_/Test.composeFn().[A] -> 48:17
+(50:14..50:15) _empty_/Test.composeFn().[B] -> 48:20
+(50:30..50:32) _empty_/Test.composeFn().[E1] -> 48:26
+(51:7..51:14) _empty_/Test.PureFun# -> 12:8
+(52:9..52:12) _empty_/Test.Fun# -> 6:18
+(52:13..52:14) _empty_/Test.composeFn().[B] -> 48:20
+(52:16..52:17) _empty_/Test.composeFn().[C] -> 48:23
+(52:32..52:34) _empty_/Test.composeFn().[E2] -> 48:40
+(53:9..53:12) _empty_/Test.Fun# -> 6:18
+(53:13..53:14) _empty_/Test.composeFn().[A] -> 48:17
+(53:16..53:17) _empty_/Test.composeFn().[C] -> 48:23
+(53:35..53:36) scala/`&`#
+(53:32..53:34) _empty_/Test.composeFn().[E1] -> 48:26
+(53:37..53:39) _empty_/Test.composeFn().[E2] -> 48:40
+(62:6..62:6) _empty_/Test.Fun#`<init>`(). -> 6:21
+(56:9..56:12) _empty_/Test.Fun# -> 6:18
+(57:7..57:10) _empty_/Test.Fun# -> 6:18
+(57:11..57:12) _empty_/Test.composeFn().[A] -> 48:17
+(57:14..57:15) _empty_/Test.composeFn().[B] -> 48:20
+(57:30..57:32) _empty_/Test.composeFn().[E1] -> 48:26
+(58:7..58:14) _empty_/Test.PureFun# -> 12:8
+(59:9..59:12) _empty_/Test.Fun# -> 6:18
+(59:13..59:14) _empty_/Test.composeFn().[B] -> 48:20
+(59:16..59:17) _empty_/Test.composeFn().[C] -> 48:23
+(59:32..59:34) _empty_/Test.composeFn().[E2] -> 48:40
+(60:9..60:12) _empty_/Test.Fun# -> 6:18
+(60:13..60:14) _empty_/Test.composeFn().[A] -> 48:17
+(60:16..60:17) _empty_/Test.composeFn().[C] -> 48:23
+(60:35..60:36) scala/`&`#
+(60:32..60:34) _empty_/Test.composeFn().[E1] -> 48:26
+(60:37..60:39) _empty_/Test.composeFn().[E2] -> 48:40
+(63:18..63:24) _empty_/Test.Effect# -> 3:9
+(64:20..64:23) _empty_/Test.Fun# -> 6:18
+(64:24..64:25) _empty_/Test.composeFn().[A] -> 48:17
+(64:27..64:28) _empty_/Test.composeFn().[B] -> 48:20
+(64:43..64:45) _empty_/Test.composeFn().[E1] -> 48:26
+(68:10..68:10) _empty_/Test.Fun#`<init>`(). -> 6:21
+(65:13..65:16) _empty_/Test.Fun# -> 6:18
+(66:11..66:14) _empty_/Test.Fun# -> 6:18
+(66:15..66:16) _empty_/Test.composeFn().[B] -> 48:20
+(66:18..66:19) _empty_/Test.composeFn().[C] -> 48:23
+(66:34..66:36) _empty_/Test.composeFn().[E2] -> 48:40
+(67:11..67:14) _empty_/Test.Fun# -> 6:18
+(67:15..67:16) _empty_/Test.composeFn().[A] -> 48:17
+(67:18..67:19) _empty_/Test.composeFn().[C] -> 48:23
+(67:37..67:38) scala/`&`#
+(67:34..67:36) _empty_/Test.composeFn().[E1] -> 48:26
+(67:39..67:41) _empty_/Test.composeFn().[E2] -> 48:40
+(69:22..69:28) _empty_/Test.Effect# -> 3:9
+(70:24..70:27) _empty_/Test.Fun# -> 6:18
+(70:28..70:29) _empty_/Test.composeFn().[B] -> 48:20
+(70:31..70:32) _empty_/Test.composeFn().[C] -> 48:23
+(70:47..70:49) _empty_/Test.composeFn().[E2] -> 48:40
+(71:26..71:26) _empty_/Test.Fun#`<init>`(). -> 6:21
+(71:17..71:20) _empty_/Test.Fun# -> 6:18
+(71:21..71:22) _empty_/Test.composeFn().[A] -> 48:17
+(71:24..71:25) _empty_/Test.composeFn().[C] -> 48:23
+(72:29..72:30) scala/`&`#
+(72:26..72:28) _empty_/Test.composeFn().[E1] -> 48:26
+(72:31..72:33) _empty_/Test.composeFn().[E2] -> 48:40
+(73:28..73:29) _empty_/Test.composeFn().[A] -> 48:17
+(73:49..73:49) scala/ContextFunction1#apply().
+(73:33..73:40) _empty_/Test.compose(). -> 42:7
+(73:41..73:42) local27 -> 64:17
+(73:44..73:45) local34 -> 70:21
+(73:47..73:48) local39 -> 73:25
+

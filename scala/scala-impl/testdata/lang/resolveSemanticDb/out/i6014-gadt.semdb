@@ -1,0 +1,59 @@
+Document tests/pos/i6014-gadt.scala
+(1:14..1:25) scala/compiletime/
+(1:8..1:13) scala/
+(5:17..5:18) _empty_/Test1.Bar#[T] -> 5:12
+(6:10..6:13) _empty_/Test1.Foo# -> 4:8
+(6:20..6:21) local0 -> 6:14
+(6:22..6:25) scala/Int#
+(9:11..9:14) _empty_/Test1.Bar# -> 5:8
+(9:15..9:18) _empty_/Test1.Foo# -> 4:8
+(9:19..9:23) scala/package.List#
+(9:32..9:32) scala/collection/IterableFactory#apply().
+(9:28..9:32) scala/package.List.
+(14:13..14:14) _empty_/Test2.summon().[T] -> 13:21
+(14:18..14:19) local1 -> 14:10
+(19:30..19:41) scala/compiletime/package$package.erasedValue().
+(19:42..19:43) _empty_/Test2.bar().[T] -> 19:18
+(20:13..20:16) _empty_/Test2.Foo# -> 17:9
+(20:23..20:29) _empty_/Test2.summon(). -> 13:14
+(20:30..20:31) local2 -> 20:17
+(20:32..20:35) scala/Int#
+(23:20..23:24) scala/package.List#
+(23:25..23:28) scala/Int#
+(23:36..23:36) scala/collection/IterableFactory#apply().
+(23:32..23:36) scala/package.List.
+(24:13..24:16) _empty_/Test2.bar(). -> 19:14
+(24:17..24:20) _empty_/Test2.Foo# -> 17:9
+(24:21..24:25) scala/package.List#
+(29:13..29:14) _empty_/Test3.summon().[T] -> 28:21
+(29:18..29:19) local3 -> 29:10
+(32:24..32:27) scala/Any#
+(36:30..36:41) scala/compiletime/package$package.erasedValue().
+(36:42..36:43) _empty_/Test3.bar().[T] -> 36:18
+(37:13..37:16) _empty_/Test3.Foo# -> 34:9
+(37:23..37:29) _empty_/Test3.summon(). -> 28:14
+(37:30..37:31) local4 -> 37:17
+(37:32..37:35) scala/Int#
+(40:20..40:24) scala/package.List#
+(40:25..40:28) scala/Int#
+(40:36..40:36) scala/collection/IterableFactory#apply().
+(40:32..40:36) scala/package.List.
+(41:13..41:16) _empty_/Test3.bar(). -> 36:14
+(41:17..41:20) _empty_/Test3.Foo# -> 34:9
+(41:21..41:25) scala/package.List#
+(46:13..46:14) _empty_/Test4.summon().[T] -> 45:21
+(46:18..46:19) local5 -> 46:10
+(51:30..51:41) scala/compiletime/package$package.erasedValue().
+(51:42..51:43) _empty_/Test4.bar().[T] -> 51:18
+(52:13..52:16) _empty_/Test4.Foo# -> 49:9
+(52:23..52:29) _empty_/Test4.summon(). -> 45:14
+(52:30..52:31) local6 -> 52:17
+(52:32..52:35) scala/Int#
+(55:20..55:24) scala/package.List#
+(55:25..55:28) scala/Int#
+(55:36..55:36) scala/collection/IterableFactory#apply().
+(55:32..55:36) scala/package.List.
+(56:13..56:16) _empty_/Test4.bar(). -> 51:14
+(56:17..56:20) _empty_/Test4.Foo# -> 49:9
+(56:21..56:25) scala/package.List#
+

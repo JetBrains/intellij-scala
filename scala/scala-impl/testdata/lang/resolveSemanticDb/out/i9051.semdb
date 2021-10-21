@@ -1,0 +1,14 @@
+Document tests/pos/i9051.scala
+(7:11..7:14) zio/ -> 1:9
+(7:60..7:64) zio/ZRef# -> 3:7
+(7:80..7:80) scala/AnyVal#`<init>`().
+(7:74..7:80) scala/AnyVal#
+(8:23..8:30) scala/Boolean#
+(12:21..12:24) scala/App#
+(13:21..13:21) zio/ZRef#`<init>`(). -> 3:1
+(13:17..13:21) zio/ZRef# -> 3:7
+(14:3..14:10) scala/Predef.println(+1).
+(14:15..14:27) zio/ZRef.ZRefSyntax#unsafeUpdate(). -> 8:9
+(14:11..14:11) zio/ZRef.ZRefSyntax(). -> 7:31
+(14:11..14:14) zio/Main.ref. -> 13:7
+

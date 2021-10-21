@@ -1,0 +1,25 @@
+Document tests/pos/infer1.scala
+(3:17..3:18) _empty_/TestInferrence#[T] -> 1:22
+(3:21..3:24) scala/Int#
+(7:34..7:48) _empty_/TestInferrence# -> 1:7
+(7:49..7:52) scala/Int#
+(8:26..8:29) scala/Int#
+(8:33..8:34) _empty_/TestIntInferrence.getInt().(i) -> 8:23
+(14:16..14:30) _empty_/TestInferrence# -> 1:7
+(14:31..14:32) _empty_/InferrenceTest.createNumberHandler().[T] -> 13:27
+(15:15..15:18) scala/Predef.Map#
+(15:19..15:25) scala/Predef.String#
+(15:27..15:28) _empty_/InferrenceTest.createNumberHandler().[T] -> 13:27
+(15:32..15:36) scala/Unit#
+(16:6..16:7) _empty_/InferrenceTest.createNumberHandler().[T] -> 13:27
+(16:11..16:15) scala/Unit#
+(18:9..18:10) _empty_/InferrenceTest.createNumberHandler().[T] -> 13:27
+(19:17..19:23) _empty_/TestInferrence#getInt(). -> 3:7
+(19:7..19:16) _empty_/InferrenceTest.createNumberHandler().(testInfer) -> 14:5
+(19:24..19:25) local0 -> 18:6
+(14:36..14:53) _empty_/TestIntInferrence. -> 7:8
+(15:45..15:50) scala/collection/immutable/Map.empty().
+(15:40..15:43) scala/Predef.Map.
+(28:32..28:51) _empty_/InferrenceTest.createNumberHandler(). -> 13:7
+(28:17..28:31) _empty_/InferrenceTest. -> 11:8
+

@@ -1,0 +1,11 @@
+Document tests/pos/i3495.scala
+(4:10..4:11) _empty_/A# -> 1:7
+(4:19..4:19) _empty_/A#`<init>`(). -> 1:1
+(4:18..4:19) _empty_/A# -> 1:7
+(6:13..6:21) scala/Any#getClass().
+(6:11..6:12) _empty_/Test.x. -> 4:7
+(8:10..8:15) scala/Predef.Class#
+(8:21..8:22) _empty_/A# -> 1:7
+(8:26..8:27) _empty_/Test.y(). -> 6:7
+(10:5..10:13) scala/Any#getClass().
+

@@ -1,0 +1,190 @@
+Document tests/pos/tcpoly_seq_typealias.scala
+(1:18..1:24) examples/tcpoly/
+(1:9..1:17) examples/
+(8:17..8:20) examples/tcpoly/collection/HOSeq#Accumulator#[elT] -> 7:31
+(8:23..8:27) scala/Unit#
+(9:17..9:21) examples/tcpoly/collection/HOSeq#Accumulator#[coll] -> 7:22
+(9:22..9:25) examples/tcpoly/collection/HOSeq#Accumulator#[elT] -> 7:31
+(21:19..21:27) scala/package.Iterator#
+(21:28..21:29) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(24:25..24:36) examples/tcpoly/collection/HOSeq#Accumulator# -> 7:9
+(24:37..24:38) examples/tcpoly/collection/HOSeq#Iterable#m# -> 18:10
+(24:40..24:41) examples/tcpoly/collection/HOSeq#Iterable#accumulator().[t] -> 24:21
+(26:19..26:20) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(26:24..26:31) scala/Boolean#
+(26:34..26:35) examples/tcpoly/collection/HOSeq#Iterable#m# -> 18:10
+(26:36..26:37) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(27:17..27:28) examples/tcpoly/collection/HOSeq#Iterable#accumulator(). -> 24:9
+(27:29..27:30) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(28:19..28:27) examples/tcpoly/collection/HOSeq#Iterable#iterator(). -> 21:9
+(29:20..29:27) scala/collection/Iterator#hasNext().
+(29:14..29:19) local1 -> 28:11
+(29:45..29:49) scala/collection/Iterator#next().
+(29:39..29:44) local1 -> 28:11
+(29:58..29:58) scala/Function1#apply().
+(29:57..29:58) examples/tcpoly/collection/HOSeq#Iterable#filter().(p) -> 26:16
+(29:59..29:60) local2 -> 29:35
+(29:67..29:69) examples/tcpoly/collection/HOSeq#Accumulator#`+=`(). -> 8:9
+(29:63..29:66) local0 -> 27:11
+(29:70..29:71) local2 -> 29:35
+(30:11..30:17) examples/tcpoly/collection/HOSeq#Accumulator#result(). -> 9:9
+(30:7..30:10) local0 -> 27:11
+(33:19..33:20) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(33:24..33:25) examples/tcpoly/collection/HOSeq#Iterable#map().[s] -> 33:13
+(33:28..33:29) examples/tcpoly/collection/HOSeq#Iterable#m# -> 18:10
+(33:30..33:31) examples/tcpoly/collection/HOSeq#Iterable#map().[s] -> 33:13
+(34:17..34:28) examples/tcpoly/collection/HOSeq#Iterable#accumulator(). -> 24:9
+(34:29..34:30) examples/tcpoly/collection/HOSeq#Iterable#map().[s] -> 33:13
+(35:19..35:27) examples/tcpoly/collection/HOSeq#Iterable#iterator(). -> 21:9
+(36:20..36:27) scala/collection/Iterator#hasNext().
+(36:14..36:19) local4 -> 35:11
+(36:33..36:35) examples/tcpoly/collection/HOSeq#Accumulator#`+=`(). -> 8:9
+(36:29..36:32) local3 -> 34:11
+(36:37..36:37) scala/Function1#apply().
+(36:36..36:37) examples/tcpoly/collection/HOSeq#Iterable#map().(f) -> 33:16
+(36:44..36:48) scala/collection/Iterator#next().
+(36:38..36:43) local4 -> 35:11
+(37:11..37:17) examples/tcpoly/collection/HOSeq#Accumulator#result(). -> 9:9
+(37:7..37:10) local3 -> 34:11
+(44:51..44:52) examples/tcpoly/collection/HOSeq#Iterable#[t] -> 17:19
+(44:56..44:63) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl] -> 44:17
+(44:64..44:65) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s] -> 44:45
+(44:82..44:93) examples/tcpoly/collection/HOSeq#Accumulator# -> 7:9
+(44:94..44:101) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl] -> 44:17
+(44:103..44:104) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s] -> 44:45
+(44:108..44:115) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl] -> 44:17
+(44:116..44:117) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s] -> 44:45
+(47:19..47:27) examples/tcpoly/collection/HOSeq#Iterable#iterator(). -> 21:9
+(48:20..48:27) scala/collection/Iterator#hasNext().
+(48:14..48:19) local5 -> 47:11
+(49:21..49:29) scala/package.Iterator#
+(49:30..49:31) examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s] -> 44:45
+(49:51..49:59) examples/tcpoly/collection/HOSeq#Iterable#iterator(). -> 21:9
+(49:36..49:36) scala/Function1#apply().
+(49:35..49:36) examples/tcpoly/collection/HOSeq#Iterable#flatMap().(f) -> 44:48
+(49:43..49:47) scala/collection/Iterator#next().
+(49:37..49:42) local5 -> 47:11
+(50:23..50:30) scala/collection/Iterator#hasNext().
+(50:16..50:22) local6 -> 49:13
+(50:36..50:38) examples/tcpoly/collection/HOSeq#Accumulator#`+=`(). -> 8:9
+(50:32..50:35) examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf) -> 44:77
+(50:46..50:50) scala/collection/Iterator#next().
+(50:39..50:45) local6 -> 49:13
+(52:11..52:17) examples/tcpoly/collection/HOSeq#Accumulator#result(). -> 9:9
+(52:7..52:10) examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf) -> 44:77
+(57:24..57:28) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(57:29..57:30) examples/tcpoly/collection/HOSeq#ListBuffer#[A] -> 56:26
+(57:34..57:37) examples/tcpoly/collection/HOSeq#Nil. -> 136:15
+(58:23..58:25) examples/tcpoly/collection/HOSeq#`::`# -> 130:20
+(58:26..58:27) examples/tcpoly/collection/HOSeq#ListBuffer#[A] -> 56:26
+(58:43..58:56) scala/compiletime/package$package.uninitialized().
+(58:31..58:42) scala/compiletime/
+(59:27..59:34) scala/Boolean#
+(65:16..65:17) examples/tcpoly/collection/HOSeq#ListBuffer#[A] -> 56:26
+(65:20..65:24) scala/Unit#
+(66:11..66:19) examples/tcpoly/collection/HOSeq#ListBuffer#exported(). -> 59:17
+(66:21..66:25) examples/tcpoly/collection/HOSeq#ListBuffer#copy(). -> 92:17
+(67:17..67:24) examples/tcpoly/collection/HOSeq#List#isEmpty(). -> 114:9
+(67:11..67:16) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(68:9..68:13) examples/tcpoly/collection/HOSeq#ListBuffer#last(). -> 58:17
+(68:33..68:33) examples/tcpoly/collection/HOSeq#`::`#`<init>`(). -> 130:22
+(68:35..68:36) examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x) -> 65:13
+(68:38..68:41) examples/tcpoly/collection/HOSeq#Nil. -> 136:15
+(69:9..69:14) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(69:17..69:21) examples/tcpoly/collection/HOSeq#ListBuffer#last(). -> 58:17
+(71:21..71:25) examples/tcpoly/collection/HOSeq#ListBuffer#last(). -> 58:17
+(72:9..72:13) examples/tcpoly/collection/HOSeq#ListBuffer#last(). -> 58:17
+(72:33..72:33) examples/tcpoly/collection/HOSeq#`::`#`<init>`(). -> 130:22
+(72:35..72:36) examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x) -> 65:13
+(79:17..79:21) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(79:22..79:23) examples/tcpoly/collection/HOSeq#ListBuffer#[A] -> 56:26
+(80:7..80:15) examples/tcpoly/collection/HOSeq#ListBuffer#exported(). -> 59:17
+(80:32..80:32) scala/Boolean#`unary_!`().
+(80:25..80:32) examples/tcpoly/collection/HOSeq#List#isEmpty(). -> 114:9
+(80:19..80:24) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(81:7..81:12) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(86:16..86:20) scala/Unit#
+(87:7..87:12) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(87:15..87:18) examples/tcpoly/collection/HOSeq#Nil. -> 136:15
+(88:7..88:15) examples/tcpoly/collection/HOSeq#ListBuffer#exported(). -> 59:17
+(92:23..92:27) scala/Unit#
+(93:20..93:25) examples/tcpoly/collection/HOSeq#ListBuffer#start(). -> 57:17
+(94:24..94:28) examples/tcpoly/collection/HOSeq#`::`#tail(). -> 132:9
+(94:19..94:23) examples/tcpoly/collection/HOSeq#ListBuffer#last(). -> 58:17
+(95:7..95:12) examples/tcpoly/collection/HOSeq#ListBuffer#clear(). -> 86:9
+(96:21..96:23) java/lang/Object#ne().
+(96:14..96:20) local8 -> 93:11
+(96:24..96:29) local9 -> 94:11
+(97:14..97:16) examples/tcpoly/collection/HOSeq#ListBuffer#`+=`(). -> 65:9
+(97:24..97:28) examples/tcpoly/collection/HOSeq#List#head(). -> 112:9
+(97:17..97:23) local8 -> 93:11
+(98:9..98:15) local8 -> 93:11
+(98:25..98:29) examples/tcpoly/collection/HOSeq#List#tail(). -> 113:9
+(98:18..98:24) local8 -> 93:11
+(103:38..103:49) examples/tcpoly/collection/HOSeq#Accumulator# -> 7:9
+(103:56..103:59) examples/tcpoly/collection/HOSeq#listAccumulator().[elT] -> 103:32
+(103:67..103:78) examples/tcpoly/collection/HOSeq#Accumulator# -> 7:9
+(103:85..103:88) examples/tcpoly/collection/HOSeq#listAccumulator().[elT] -> 103:32
+(104:49..104:49) examples/tcpoly/collection/HOSeq#ListBuffer#`<init>`(). -> 56:25
+(104:34..104:44) examples/tcpoly/collection/HOSeq#ListBuffer# -> 56:15
+(104:45..104:48) examples/tcpoly/collection/HOSeq#listAccumulator().[elT] -> 103:32
+(105:17..105:20) examples/tcpoly/collection/HOSeq#listAccumulator().[elT] -> 103:32
+(105:23..105:27) scala/Unit#
+(105:35..105:37) examples/tcpoly/collection/HOSeq#ListBuffer#`+=`(). -> 65:9
+(105:30..105:34) local11 -> 104:23
+(105:38..105:40) local13 -> 105:13
+(106:17..106:21) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(106:22..106:25) examples/tcpoly/collection/HOSeq#listAccumulator().[elT] -> 103:32
+(106:34..106:40) examples/tcpoly/collection/HOSeq#ListBuffer#toList(). -> 79:9
+(106:29..106:33) local11 -> 104:23
+(109:26..109:34) examples/tcpoly/collection/HOSeq#Iterable# -> 17:9
+(109:35..109:36) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(110:18..110:22) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(110:23..110:24) examples/tcpoly/collection/HOSeq#List#m#[x] -> 110:13
+(112:15..112:16) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(113:15..113:19) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(113:20..113:21) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(114:18..114:25) scala/Boolean#
+(115:19..115:27) scala/package.Iterator#
+(115:28..115:29) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(115:37..115:45) scala/package.Iterator#
+(115:46..115:47) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(117:20..117:27) scala/Boolean#
+(117:44..117:44) scala/Boolean#`unary_!`().
+(117:37..117:44) examples/tcpoly/collection/HOSeq#List#isEmpty(). -> 114:9
+(117:31..117:36) local16 -> 116:11
+(118:19..118:20) examples/tcpoly/collection/HOSeq#List#[t] -> 109:15
+(119:21..119:21) scala/Boolean#`unary_!`().
+(119:14..119:21) local19 -> 117:11
+(120:43..120:43) java/util/NoSuchElementException#`<init>`(+1).
+(120:21..120:43) scala/package.NoSuchElementException#
+(122:30..122:34) examples/tcpoly/collection/HOSeq#List#head(). -> 112:9
+(122:24..122:29) local16 -> 116:11
+(122:36..122:41) local17 -> 116:11
+(122:50..122:54) examples/tcpoly/collection/HOSeq#List#tail(). -> 113:9
+(122:44..122:49) local16 -> 116:11
+(122:56..122:62) local21 -> 122:15
+(126:25..126:36) examples/tcpoly/collection/HOSeq#Accumulator# -> 7:9
+(126:43..126:44) examples/tcpoly/collection/HOSeq#List#accumulator().[t] -> 126:21
+(126:48..126:63) examples/tcpoly/collection/HOSeq#listAccumulator(). -> 103:16
+(126:64..126:65) examples/tcpoly/collection/HOSeq#List#accumulator().[t] -> 126:21
+(130:31..130:32) examples/tcpoly/collection/HOSeq#`::`#[b] -> 130:24
+(130:50..130:54) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(130:55..130:56) examples/tcpoly/collection/HOSeq#`::`#[b] -> 130:24
+(130:67..130:71) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(130:72..130:73) examples/tcpoly/collection/HOSeq#`::`#[b] -> 130:24
+(131:16..131:18) examples/tcpoly/collection/HOSeq#`::`#hd. -> 130:27
+(132:22..132:24) scala/Any#`==`().
+(132:20..132:22) examples/tcpoly/collection/HOSeq#`::`#tl. -> 130:46
+(132:40..132:42) examples/tcpoly/collection/HOSeq#`::`#tl. -> 130:46
+(133:27..133:34) scala/Boolean#
+(136:27..136:31) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(136:32..136:39) scala/Nothing#
+(138:15..138:22) scala/Nothing#
+(139:39..139:39) java/util/NoSuchElementException#`<init>`(+1).
+(139:17..139:39) scala/package.NoSuchElementException#
+(140:15..140:19) examples/tcpoly/collection/HOSeq#List# -> 109:9
+(140:20..140:27) scala/Nothing#
+(141:39..141:39) java/util/NoSuchElementException#`<init>`(+1).
+(141:17..141:39) scala/package.NoSuchElementException#
+

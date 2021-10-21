@@ -1,0 +1,73 @@
+Document tests/pos/conversion-function-prototype.scala
+(19:11..19:29) scala/`conversion-function-prototype$package`.ConversionFunction# -> 13:6
+(19:30..19:33) scala/Int#
+(19:37..19:43) scala/Predef.String#
+(19:65..19:65) scala/`conversion-function-prototype$package`.ConversionFunction.apply(). -> 8:7
+(19:47..19:65) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(19:68..19:76) scala/Any#toString().
+(21:12..21:18) scala/Predef.String#
+(21:57..21:62) scala/Function1#apply().
+(21:40..21:43) scala/`conversion-function-prototype$package`.ConversionFunction.get(). -> 9:7
+(21:21..21:39) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(21:49..21:55) scala/Predef.String#
+(21:56..21:56) local0 -> 19:11
+(26:12..26:13) scala/Test.X#T# -> 25:10
+(28:10..28:11) scala/Test.X# -> 24:9
+(28:14..28:17) scala/Predef.`???`().
+(31:11..31:29) scala/`conversion-function-prototype$package`.ConversionFunction# -> 13:6
+(31:34..31:35) scala/Test.X# -> 24:9
+(31:42..31:43) scala/Test.X#T# -> 25:10
+(31:40..31:41) local4 -> 31:31
+(31:65..31:65) scala/`conversion-function-prototype$package`.ConversionFunction.apply(). -> 8:7
+(31:47..31:65) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(31:70..31:71) scala/Test.X# -> 24:9
+(31:78..31:79) scala/Test.X#t(). -> 26:9
+(31:76..31:77) local5 -> 31:67
+(33:14..33:15) scala/Test.X#T# -> 25:10
+(33:12..33:13) scala/Test.x. -> 28:7
+(33:56..33:61) scala/Function1#apply().
+(33:37..33:40) scala/`conversion-function-prototype$package`.ConversionFunction.get(). -> 9:7
+(33:18..33:36) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(33:45..33:46) scala/Test.X# -> 24:9
+(33:53..33:54) scala/Test.X#T# -> 25:10
+(33:51..33:52) local8 -> 33:42
+(33:55..33:55) local2 -> 31:11
+(33:62..33:63) scala/Test.x. -> 28:7
+(37:11..37:29) scala/`conversion-function-prototype$package`.ConversionFunction# -> 13:6
+(37:34..37:35) scala/Test.X# -> 24:9
+(37:42..37:43) scala/Test.X#T# -> 25:10
+(37:40..37:41) local11 -> 37:31
+(37:65..37:65) scala/`conversion-function-prototype$package`.ConversionFunction.apply(). -> 8:7
+(37:47..37:65) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(37:68..37:69) scala/Test.X#t(). -> 26:9
+(39:14..39:15) scala/Test.X#T# -> 25:10
+(39:12..39:13) scala/Test.x. -> 28:7
+(39:56..39:61) scala/Function1#apply().
+(39:37..39:40) scala/`conversion-function-prototype$package`.ConversionFunction.get(). -> 9:7
+(39:18..39:36) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(39:45..39:46) scala/Test.X# -> 24:9
+(39:53..39:54) scala/Test.X#T# -> 25:10
+(39:51..39:52) local14 -> 39:42
+(39:55..39:55) local9 -> 37:11
+(39:62..39:63) scala/Test.x. -> 28:7
+(6:40..6:47) scala/Nothing#
+(6:51..6:54) scala/Any#
+(6:58..6:59) scala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#[F] -> 6:35
+(8:18..8:25) scala/Nothing#
+(8:29..8:32) scala/Any#
+(8:37..8:38) scala/`conversion-function-prototype$package`.ConversionFunction.apply().[F] -> 8:13
+(8:41..8:59) scala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction# -> 6:15
+(8:60..8:61) scala/`conversion-function-prototype$package`.ConversionFunction.apply().[F] -> 8:13
+(8:65..8:66) scala/`conversion-function-prototype$package`.ConversionFunction.apply().(f) -> 8:34
+(9:16..9:23) scala/Nothing#
+(9:27..9:30) scala/Any#
+(9:41..9:59) scala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction# -> 6:15
+(9:60..9:61) scala/`conversion-function-prototype$package`.ConversionFunction.get().[F] -> 9:11
+(9:65..9:66) scala/`conversion-function-prototype$package`.ConversionFunction.get().[F] -> 9:11
+(9:69..9:70) scala/`conversion-function-prototype$package`.ConversionFunction.get().(f) -> 9:38
+(13:31..13:38) scala/Nothing#
+(13:42..13:45) scala/Any#
+(14:22..14:40) scala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction# -> 6:15
+(14:3..14:21) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
+(14:41..14:42) scala/`conversion-function-prototype$package`.ConversionFunction#[F] -> 13:26
+

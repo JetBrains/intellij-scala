@@ -1,0 +1,25 @@
+Document tests/pos/i7392.scala
+(6:16..6:23) _empty_/Test.ZStream# -> 3:9
+(6:24..6:27) scala/Any#
+(6:29..6:36) scala/Nothing#
+(6:38..6:45) scala/Nothing#
+(7:7..7:10) scala/Predef.`???`().
+(10:29..10:36) _empty_/Test.ZStream# -> 3:9
+(10:37..10:38) _empty_/Test.Gen#[R] -> 10:14
+(10:40..10:47) scala/Nothing#
+(10:49..10:50) _empty_/Test.Gen#[A] -> 10:18
+(13:9..13:17) scala/package.Iterable#
+(13:18..13:19) _empty_/Test.fromIterable().[A] -> 12:23
+(14:16..14:17) _empty_/Test.fromIterable().[A] -> 12:23
+(14:21..14:28) _empty_/Test.ZStream# -> 3:9
+(14:29..14:30) _empty_/Test.fromIterable().[R] -> 12:20
+(14:32..14:39) scala/Nothing#
+(14:41..14:42) _empty_/Test.fromIterable().[A] -> 12:23
+(15:6..15:9) _empty_/Test.Gen# -> 10:9
+(15:10..15:11) _empty_/Test.fromIterable().[R] -> 12:20
+(15:13..15:14) _empty_/Test.fromIterable().[A] -> 12:23
+(15:18..15:21) scala/Predef.`???`().
+(14:51..14:52) _empty_/Test.fromIterable$default$2().[A] -> 12:23
+(14:65..14:70) _empty_/Test.ZStream.empty(). -> 6:9
+(14:57..14:64) _empty_/Test.ZStream. -> 5:10
+

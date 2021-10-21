@@ -1,0 +1,9 @@
+Document tests/pos/i9749.scala
+(2:12..2:15) scala/Any#
+(3:12..3:18) scala/Predef.String#
+(5:14..5:18) scala/package.List#
+(5:19..5:25) scala/Predef.String#
+(5:29..5:33) scala/Unit#
+(6:5..6:6) _empty_/A#f(+1). -> 3:7
+(6:7..6:8) _empty_/A#foo().(x) -> 5:11
+

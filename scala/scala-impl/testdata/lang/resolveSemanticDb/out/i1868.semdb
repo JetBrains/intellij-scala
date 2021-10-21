@@ -1,0 +1,10 @@
+Document tests/pos/i1868.scala
+(1:18..1:19) _empty_/Test#[X] -> 1:12
+(2:33..2:34) _empty_/Test#checkSpecialization().[Y] -> 2:27
+(2:37..2:38) _empty_/Test#[X] -> 1:12
+(3:17..3:28) scala/specialized#
+(4:5..4:6) _empty_/Test#x. -> 1:15
+(6:43..6:49) scala/Predef.String#
+(6:69..6:69) java/lang/Exception#`<init>`().
+(6:60..6:69) scala/package.Exception#
+

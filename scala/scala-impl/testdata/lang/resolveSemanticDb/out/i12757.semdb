@@ -1,0 +1,10 @@
+Document tests/pos/i12757.scala
+(1:13..1:13) scala/Some.apply().
+(1:9..1:13) scala/Some.
+(4:9..4:15) scala/Option#exists().
+(4:7..4:8) _empty_/i12757$package.x. -> 1:5
+(5:18..5:20) scala/Int#`==`(+3).
+(5:16..5:17) local0 -> 5:11
+(6:7..6:14) scala/Predef.println(+1).
+(8:7..8:14) scala/Predef.println(+1).
+

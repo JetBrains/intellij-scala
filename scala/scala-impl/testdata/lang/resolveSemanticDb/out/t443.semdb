@@ -1,0 +1,23 @@
+Document tests/pos/t443.scala
+(3:17..3:23) scala/Option#
+(3:24..3:30) scala/Tuple2#
+(3:31..3:37) scala/Predef.String#
+(3:39..3:45) scala/Predef.String#
+(4:13..4:19) scala/Option#
+(4:20..4:26) scala/Tuple2#
+(4:27..4:33) scala/Predef.String#
+(4:35..4:41) scala/Predef.String#
+(5:16..5:16) scala/Some.unapply().
+(5:12..5:16) scala/Some.
+(5:18..5:18) scala/Tuple2.unapply().
+(7:15..7:15) scala/Some.apply().
+(7:11..7:15) scala/Some.
+(7:17..7:17) scala/Tuple2.apply().
+(9:11..9:17) _empty_/Test.lookup(). -> 3:7
+(10:22..10:22) scala/Some.unapply().
+(10:18..10:22) scala/Some.
+(10:33..10:33) scala/Some.apply().
+(10:29..10:33) scala/Some.
+(11:18..11:22) scala/None.
+(11:26..11:30) scala/None.
+

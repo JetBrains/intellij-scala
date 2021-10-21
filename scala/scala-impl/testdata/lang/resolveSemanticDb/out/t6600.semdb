@@ -1,0 +1,14 @@
+Document tests/pos/t6600.scala
+(1:51..1:51) scala/math/ScalaNumber#`<init>`().
+(1:40..1:51) scala/math/ScalaNumber#
+(1:35..1:39) scala/math/
+(1:29..1:34) scala/
+(1:68..1:91) scala/math/ScalaNumericConversions#
+(1:63..1:67) scala/math/
+(1:57..1:62) scala/
+(2:19..2:22) scala/Int#
+(3:20..3:24) scala/Long#
+(4:21..4:26) scala/Float#
+(5:22..5:28) scala/Double#
+(6:18..6:25) scala/Boolean#
+

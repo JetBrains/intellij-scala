@@ -1,0 +1,10 @@
+Document tests/pos/i7078.scala
+(2:17..2:18) _empty_/A# -> 1:7
+(4:35..4:35) _empty_/B#`<init>`(). -> 2:17
+(4:34..4:35) _empty_/B# -> 2:7
+(4:30..4:31) _empty_/A# -> 1:7
+(6:8..6:9) _empty_/B# -> 2:7
+(6:12..6:18) scala/Predef.summon().
+(6:19..6:20) _empty_/A# -> 1:7
+(6:21..6:21) _empty_/i7078$package.tc(). -> 4:26
+

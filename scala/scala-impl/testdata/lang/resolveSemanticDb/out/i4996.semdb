@@ -1,0 +1,8 @@
+Document tests/pos/i4996.scala
+(3:25..3:29) scala/package.List#
+(3:30..3:36) scala/Predef.String#
+(3:19..3:20) _empty_/Foo#M# -> 2:9
+(3:20..3:20) _empty_/Foo#foo().[i0] -> 3:11
+(3:47..3:50) scala/Predef.`???`().
+(3:40..3:43) scala/Predef.`???`().
+

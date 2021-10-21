@@ -1,0 +1,25 @@
+Document tests/pos/i2397.scala
+(4:17..4:20) _empty_/Foo# -> 1:7
+(4:21..4:22) _empty_/Test.foo().[T] -> 4:11
+(4:27..4:28) _empty_/Test.foo().(x) -> 4:14
+(6:3..6:6) _empty_/Test.foo(). -> 4:7
+(6:20..6:20) _empty_/Foo#`<init>`(). -> 1:10
+(6:12..6:15) _empty_/Foo# -> 1:7
+(6:16..6:19) scala/Int#
+(6:22..6:25) _empty_/Foo# -> 1:7
+(9:17..9:21) java/nio/file/
+(9:13..9:16) java/nio/
+(9:8..9:12) java/
+(10:25..10:35) java/util/stream/Collectors#
+(10:18..10:24) java/util/stream/
+(10:13..10:17) java/util/
+(10:8..10:12) java/
+(13:29..13:36) java/util/stream/Stream#collect(+1).
+(13:9..13:13) java/nio/file/Files#walk(+1).
+(13:3..13:8) java/nio/file/Files#
+(13:20..13:23) java/nio/file/Paths#get().
+(13:14..13:19) java/nio/file/Paths#
+(13:48..13:54) java/util/stream/Collectors#toList().
+(13:37..13:47) java/util/stream/Collectors#
+(13:55..13:59) java/nio/file/Path#
+

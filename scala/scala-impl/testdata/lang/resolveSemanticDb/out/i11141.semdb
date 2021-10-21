@@ -1,0 +1,4 @@
+Document tests/pos/i11141.scala
+(2:8..2:9) p/X. -> 4:8
+(2:9..2:9) p/X.A. -> 5:7
+

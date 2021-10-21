@@ -1,0 +1,13 @@
+Document tests/pos/i2198.scala
+(2:40..2:43) scala/collection/immutable/Nil.
+(2:30..2:39) scala/collection/immutable/
+(2:19..2:29) scala/collection/
+(2:13..2:18) scala/
+(3:12..3:15) _empty_/Test.nil. -> 2:7
+(3:23..3:26) scala/Int#
+(5:3..5:4) _empty_/Test.f(). -> 3:7
+(5:32..5:35) scala/collection/immutable/Nil.
+(5:22..5:31) scala/collection/immutable/
+(5:11..5:21) scala/collection/
+(5:5..5:10) scala/
+

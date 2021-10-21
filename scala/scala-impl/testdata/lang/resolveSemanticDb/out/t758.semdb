@@ -1,0 +1,10 @@
+Document tests/pos/t758.scala
+(1:29..1:30) _empty_/A#T# -> 1:16
+(2:17..2:18) _empty_/A# -> 1:7
+(3:11..3:17) scala/Predef.String#
+(4:11..4:12) _empty_/A# -> 1:7
+(4:31..4:32) _empty_/B#T# -> 5:8
+(5:12..5:13) _empty_/B#x. -> 3:7
+(6:14..6:15) _empty_/A#M# -> 1:24
+(6:12..6:13) _empty_/B#u. -> 4:7
+

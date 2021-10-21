@@ -1,0 +1,24 @@
+Document tests/pos/virtpatmat_castbinder.scala
+(2:23..2:29) _empty_/IntMap# -> 1:7
+(2:30..2:31) _empty_/Bin#[T] -> 2:17
+(2:51..2:51) _empty_/IntMap#`<init>`(). -> 1:13
+(2:42..2:48) _empty_/IntMap# -> 1:7
+(2:49..2:50) _empty_/Bin#[T] -> 2:17
+(3:23..3:24) _empty_/Tip#[T] -> 3:17
+(3:43..3:43) _empty_/IntMap#`<init>`(). -> 1:13
+(3:34..3:40) _empty_/IntMap# -> 1:7
+(3:41..3:42) _empty_/Tip#[T] -> 3:17
+(6:20..6:23) _empty_/Tip# -> 3:12
+(6:24..6:25) _empty_/IntMapIterator#[V] -> 5:22
+(6:29..6:30) _empty_/IntMapIterator#[T] -> 5:25
+(7:12..7:18) _empty_/IntMap# -> 1:7
+(7:19..7:20) _empty_/IntMapIterator#[V] -> 5:22
+(9:13..9:14) _empty_/IntMapIterator#[T] -> 5:25
+(10:5..10:8) _empty_/IntMapIterator#pop(). -> 7:7
+(11:15..11:15) _empty_/Bin.unapply(). -> 2:1
+(11:12..11:15) _empty_/Bin. -> 2:12
+(11:21..11:21) _empty_/Tip.unapply(). -> 3:1
+(11:18..11:21) _empty_/Tip. -> 3:12
+(12:9..12:16) _empty_/IntMapIterator#valueOf(). -> 6:7
+(12:17..12:18) local0 -> 11:16
+

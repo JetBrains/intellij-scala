@@ -1,0 +1,10 @@
+Document tests/pos/i10521.scala
+(2:18..2:20) scala/Any#`==`().
+(2:13..2:17) _empty_/i10521$package.default().(name) -> 1:39
+(3:23..3:25) scala/Any#`==`().
+(3:18..3:22) _empty_/i10521$package.default().(name) -> 1:39
+(4:8..4:11) scala/Predef.`???`().
+(1:45..1:51) scala/Predef.String#
+(1:54..1:57) scala/Any#
+(8:3..8:10) _empty_/i10521$package.default(). -> 1:24
+

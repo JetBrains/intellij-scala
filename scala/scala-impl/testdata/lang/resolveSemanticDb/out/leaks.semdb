@@ -1,0 +1,14 @@
+Document tests/pos/leaks.scala
+(2:18..2:21) scala/Int#
+(5:14..5:15) _empty_/Outer1#x. -> 2:15
+(5:23..5:24) _empty_/Outer1#x. -> 2:15
+(10:18..10:21) scala/Int#
+(15:21..15:22) _empty_/Outer2.x. -> 10:15
+(15:14..15:20) _empty_/Outer2. -> 9:8
+(15:37..15:38) _empty_/Outer2.x. -> 10:15
+(15:30..15:36) _empty_/Outer2. -> 9:8
+(20:18..20:21) scala/Int#
+(22:13..22:17) scala/Unit#
+(24:16..24:17) _empty_/Outer3#x. -> 20:15
+(24:25..24:26) _empty_/Outer3#x. -> 20:15
+

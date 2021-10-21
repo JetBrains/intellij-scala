@@ -1,0 +1,64 @@
+Document tests/pos/t1513b.scala
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
+(1:17..1:29) scala/language.experimental.
+(1:8..1:16) scala/language.
+(4:11..4:17) scala/Predef.String#
+(5:11..5:14) scala/Int#
+(6:11..6:18) scala/Boolean#
+(7:9..7:11) _empty_/Test.f().[T1] -> 4:5
+(7:17..7:19) _empty_/Test.f().[T2] -> 5:5
+(7:25..7:27) _empty_/Test.f().[T3] -> 6:5
+(9:3..9:4) _empty_/Test.f(). -> 3:7
+(10:3..10:4) _empty_/Test.f(). -> 3:7
+(10:10..10:16) scala/Predef.String#
+(11:3..11:4) _empty_/Test.f(). -> 3:7
+(11:10..11:13) scala/Int#
+(12:3..12:4) _empty_/Test.f(). -> 3:7
+(12:10..12:17) scala/Boolean#
+(13:3..13:4) _empty_/Test.f(). -> 3:7
+(13:10..13:16) scala/Predef.String#
+(13:24..13:27) scala/Int#
+(14:3..14:4) _empty_/Test.f(). -> 3:7
+(14:10..14:16) scala/Predef.String#
+(14:24..14:31) scala/Boolean#
+(15:3..15:4) _empty_/Test.f(). -> 3:7
+(15:10..15:13) scala/Int#
+(15:24..15:30) scala/Predef.String#
+(16:3..16:4) _empty_/Test.f(). -> 3:7
+(16:10..16:13) scala/Int#
+(16:24..16:31) scala/Boolean#
+(17:3..17:4) _empty_/Test.f(). -> 3:7
+(17:10..17:17) scala/Boolean#
+(17:24..17:27) scala/Int#
+(18:3..18:4) _empty_/Test.f(). -> 3:7
+(18:10..18:17) scala/Boolean#
+(18:24..18:30) scala/Predef.String#
+(19:3..19:4) _empty_/Test.f(). -> 3:7
+(19:10..19:16) scala/Predef.String#
+(19:24..19:27) scala/Int#
+(19:38..19:45) scala/Boolean#
+(20:3..20:4) _empty_/Test.f(). -> 3:7
+(20:10..20:16) scala/Predef.String#
+(20:24..20:31) scala/Boolean#
+(20:38..20:41) scala/Int#
+(21:3..21:4) _empty_/Test.f(). -> 3:7
+(21:10..21:13) scala/Int#
+(21:24..21:30) scala/Predef.String#
+(21:38..21:45) scala/Boolean#
+(22:3..22:4) _empty_/Test.f(). -> 3:7
+(22:10..22:13) scala/Int#
+(22:24..22:31) scala/Boolean#
+(22:38..22:44) scala/Predef.String#
+(23:3..23:4) _empty_/Test.f(). -> 3:7
+(23:10..23:17) scala/Boolean#
+(23:24..23:30) scala/Predef.String#
+(23:38..23:41) scala/Int#
+(24:3..24:4) _empty_/Test.f(). -> 3:7
+(24:10..24:17) scala/Boolean#
+(24:24..24:27) scala/Int#
+(24:38..24:44) scala/Predef.String#
+(25:3..25:4) _empty_/Test.f(). -> 3:7
+(25:5..25:11) scala/Predef.String#
+(25:19..25:22) scala/Int#
+(25:33..25:40) scala/Boolean#
+

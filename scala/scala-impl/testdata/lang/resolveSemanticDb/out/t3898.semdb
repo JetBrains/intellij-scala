@@ -1,0 +1,16 @@
+Document tests/pos/t3898.scala
+(1:15..1:26) scala/specialized#
+(1:27..1:34) scala/Boolean.
+(2:10..2:11) _empty_/Atomic#[T] -> 1:36
+(4:13..4:14) _empty_/Atomic#[T] -> 1:36
+(4:18..4:19) _empty_/Atomic#[T] -> 1:36
+(4:22..4:29) scala/Boolean#
+(4:32..4:33) _empty_/Atomic#f(+1). -> 5:7
+(4:36..4:36) scala/Function1#apply().
+(4:34..4:36) _empty_/Atomic#f().(fn) -> 4:9
+(4:37..4:38) _empty_/Atomic#x(). -> 2:7
+(5:15..5:16) _empty_/Atomic#[T] -> 1:36
+(5:21..5:22) _empty_/Atomic#f(+1).[R] -> 5:9
+(5:25..5:26) _empty_/Atomic#f(+1).[R] -> 5:9
+(5:29..5:30) _empty_/Atomic#f(+1).(b) -> 5:18
+

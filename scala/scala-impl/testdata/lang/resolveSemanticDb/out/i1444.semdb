@@ -1,0 +1,15 @@
+Document tests/pos/i1444.scala
+(3:22..3:23) _empty_/Test.X# -> 12:7
+(4:26..4:26) _empty_/Test.Cls#`<init>`(). -> 3:10
+(4:23..4:26) _empty_/Test.Cls# -> 3:7
+(4:26..4:26) _empty_/Test.AnX. -> 13:17
+(6:22..6:23) _empty_/Test.X# -> 12:7
+(7:26..7:26) _empty_/Test.Tr1#`<init>`(). -> 6:10
+(7:23..7:26) _empty_/Test.Tr1# -> 6:7
+(7:26..7:26) _empty_/Test.AnX. -> 13:17
+(9:24..9:25) _empty_/Test.X# -> 12:7
+(10:26..10:26) _empty_/Test.Tr2#`<init>`(). -> 9:10
+(10:23..10:26) _empty_/Test.Tr2# -> 9:7
+(10:28..10:28) _empty_/Test.AnX. -> 13:17
+(13:29..13:30) _empty_/Test.X# -> 12:7
+

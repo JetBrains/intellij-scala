@@ -1,0 +1,13 @@
+Document tests/pos/t6091.scala
+(1:23..1:26) scala/Int#
+(1:30..1:31) _empty_/Foo.eq().(x) -> 1:21
+(3:25..3:31) scala/Predef.String#
+(6:18..6:23) scala/Array#
+(6:24..6:30) scala/Predef.String#
+(6:34..6:38) scala/Unit#
+(7:9..7:11) _empty_/Foo.eq(). -> 1:18
+(7:5..7:8) _empty_/Foo. -> 1:8
+(8:11..8:13) _empty_/X#`==`(). -> 3:15
+(8:10..8:10) _empty_/X#`<init>`(). -> 3:11
+(8:9..8:10) _empty_/X# -> 3:7
+

@@ -1,0 +1,11 @@
+Document tests/pos/sort.scala
+(3:11..3:16) scala/Array#
+(3:17..3:23) scala/Predef.String#
+(3:27..3:30) scala/Predef.`???`().
+(5:20..5:24) java/util/Arrays#sort(+16).
+(5:13..5:19) java/util/Arrays#
+(5:8..5:12) java/util/
+(5:3..5:7) java/
+(5:25..5:27) _empty_/sorting.xs. -> 3:7
+(5:29..5:32) scala/Predef.`???`().
+

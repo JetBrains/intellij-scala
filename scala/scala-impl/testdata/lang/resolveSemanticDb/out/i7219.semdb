@@ -1,0 +1,60 @@
+Document tests/pos/i7219.scala
+(5:10..5:16) _empty_/Foo#MyEnum. -> 2:10
+(7:17..7:21) _empty_/Foo#MyEnum.Blue# -> 3:11
+(7:10..7:16) _empty_/Foo#MyEnum. -> 2:10
+(7:24..7:27) scala/Predef.`???`().
+(8:3..8:4) _empty_/Foo#a. -> 7:7
+(8:7..8:11) _empty_/Foo#Blue# -> 5:17
+(13:15..13:21) scala/AnyRef#
+(14:14..14:15) _empty_/Test.Types.T# -> 13:10
+(15:19..15:25) scala/AnyRef#
+(16:18..16:20) _empty_/Test.Types.TC# -> 15:10
+(16:22..16:23) _empty_/Test.Types.UC#[X] -> 16:13
+(16:25..16:26) _empty_/Test.Types.UC#[X] -> 16:13
+(18:25..18:25) _empty_/Test.Types.C#`<init>`(). -> 17:5
+(18:24..18:25) _empty_/Test.Types.C# -> 17:11
+(19:13..19:14) _empty_/Test.Types.T# -> 13:10
+(19:17..19:20) scala/Predef.`???`().
+(20:13..20:14) _empty_/Test.Types.U# -> 14:10
+(20:17..20:20) scala/Predef.`???`().
+(21:13..21:15) _empty_/Test.Types.TC# -> 15:10
+(21:16..21:19) scala/Int#
+(21:23..21:26) scala/Predef.`???`().
+(22:13..22:15) _empty_/Test.Types.UC# -> 16:10
+(22:16..22:19) scala/Int#
+(22:23..22:26) scala/Predef.`???`().
+(23:13..23:14) _empty_/Test.Types.C# -> 17:11
+(23:18..23:18) _empty_/Test.Types.C#`<init>`(). -> 17:5
+(23:17..23:18) _empty_/Test.Types.C# -> 17:11
+(24:13..24:14) _empty_/Test.Types.D# -> 18:11
+(24:15..24:18) scala/Int#
+(24:23..24:23) _empty_/Test.Types.D#`<init>`(). -> 18:12
+(26:10..26:15) _empty_/Test.Types. -> 12:10
+(26:15..26:15) _empty_/Test.Types.x4(). -> 22:9
+(26:15..26:15) _empty_/Test.Types.x3(). -> 21:9
+(26:15..26:15) _empty_/Test.Types.x1(). -> 19:9
+(26:15..26:15) _empty_/Test.Types.x2(). -> 20:9
+(26:15..26:15) _empty_/Test.Types.x5(). -> 23:9
+(26:15..26:15) _empty_/Test.Types.x6(). -> 24:9
+(27:22..27:23) _empty_/Test.Types.D# -> 18:11
+(27:16..27:21) _empty_/Test.Types. -> 12:10
+(27:24..27:25) _empty_/Test.D1#[X] -> 27:11
+(28:22..28:24) _empty_/Test.Types.UC# -> 16:10
+(28:16..28:21) _empty_/Test.Types. -> 12:10
+(28:25..28:26) _empty_/Test.U1#[X] -> 28:11
+(30:11..30:12) _empty_/Test.T# -> 26:16
+(30:15..30:17) _empty_/Test.x1(). -> 26:16
+(31:11..31:12) _empty_/Test.U# -> 26:16
+(31:15..31:17) _empty_/Test.x2(). -> 26:16
+(32:11..32:13) _empty_/Test.TC# -> 26:16
+(32:14..32:17) scala/Int#
+(32:21..32:23) _empty_/Test.x3(). -> 26:16
+(33:11..33:13) _empty_/Test.UC# -> 26:16
+(33:14..33:17) scala/Int#
+(33:21..33:23) _empty_/Test.x4(). -> 26:16
+(34:11..34:12) _empty_/Test.C# -> 26:16
+(34:15..34:17) _empty_/Test.x5(). -> 26:16
+(35:11..35:12) _empty_/Test.D# -> 26:16
+(35:13..35:16) scala/Int#
+(35:20..35:22) _empty_/Test.x6(). -> 26:16
+

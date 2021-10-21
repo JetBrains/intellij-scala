@@ -1,0 +1,27 @@
+Document tests/pos/t2425.scala
+(2:17..2:18) _empty_/B# -> 1:7
+(3:21..3:24) scala/App#
+(4:19..4:20) _empty_/Test.foo().[T] -> 4:11
+(5:5..5:8) _empty_/Test.foo().(bar) -> 4:14
+(6:15..6:20) scala/Array#
+(6:21..6:26) scala/Array#
+(6:34..6:41) scala/Predef.println(+1).
+(7:15..7:20) scala/Array#
+(7:27..7:34) scala/Predef.println(+1).
+(8:17..8:24) scala/Predef.println(+1).
+(11:3..11:6) _empty_/Test.foo(). -> 4:7
+(11:13..11:17) scala/Array.fill().
+(11:7..11:12) scala/Array.
+(11:24..11:24) scala/reflect/ClassTag.apply().
+(12:3..12:6) _empty_/Test.foo(). -> 4:7
+(12:13..12:17) scala/Array.fill(+1).
+(12:7..12:12) scala/Array.
+(12:28..12:28) scala/reflect/ClassTag.apply().
+(13:3..13:6) _empty_/Test.foo(). -> 4:7
+(13:13..13:17) scala/Array.fill(+2).
+(13:7..13:12) scala/Array.
+(13:32..13:32) scala/reflect/ClassTag.apply().
+(14:3..14:6) _empty_/Test.foo(). -> 4:7
+(14:11..14:11) scala/collection/IterableFactory#apply().
+(14:7..14:11) scala/package.List.
+

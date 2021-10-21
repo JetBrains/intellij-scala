@@ -1,0 +1,30 @@
+Document tests/pos/11463.scala
+(1:20..1:21) _empty_/`11463$package`.LeafElem#[X] -> 1:15
+(2:9..2:15) scala/Predef.String#
+(2:19..2:23) scala/Char#
+(3:9..3:14) scala/Array#
+(3:21..3:29) _empty_/`11463$package`.LeafElem# -> 1:6
+(3:30..3:31) local0 -> 3:15
+(4:9..4:17) scala/package.Iterable#
+(4:24..4:32) _empty_/`11463$package`.LeafElem# -> 1:6
+(4:33..4:34) local1 -> 4:18
+(5:9..5:15) scala/AnyVal#
+(5:19..5:20) _empty_/`11463$package`.LeafElem#[X] -> 1:15
+(7:20..7:21) _empty_/`11463$package`.leafElem().[X] -> 7:14
+(7:24..7:32) _empty_/`11463$package`.LeafElem# -> 1:6
+(7:33..7:34) _empty_/`11463$package`.leafElem().[X] -> 7:14
+(7:38..7:39) _empty_/`11463$package`.leafElem().(x) -> 7:17
+(8:12..8:18) scala/Predef.String#
+(8:29..8:35) java/lang/String#charAt().
+(8:27..8:28) local2 -> 8:9
+(9:12..9:17) scala/Array#
+(9:27..9:35) _empty_/`11463$package`.leafElem(). -> 7:5
+(9:37..9:37) scala/Array#apply().
+(9:36..9:37) local3 -> 9:9
+(10:12..10:20) scala/package.Iterable#
+(10:27..10:35) _empty_/`11463$package`.leafElem(). -> 7:5
+(10:38..10:42) scala/collection/IterableOps#head().
+(10:36..10:37) local5 -> 10:9
+(11:12..11:18) scala/AnyVal#
+(11:27..11:28) local7 -> 11:9
+

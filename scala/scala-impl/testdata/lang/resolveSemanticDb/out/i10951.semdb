@@ -1,0 +1,32 @@
+Document tests/pos/i10951.scala
+(1:23..1:31) scala/language.dynamics.
+(1:14..1:22) scala/language.
+(1:8..1:13) scala/
+(3:20..3:27) scala/Dynamic#
+(4:30..4:36) scala/Predef.String#
+(4:39..4:45) scala/Option#
+(4:46..4:47) _empty_/Dyn.selectDynamic().[T] -> 4:21
+(4:51..4:55) scala/None.
+(6:8..6:14) scala/Option#
+(6:16..6:19) scala/Int#
+(6:21..6:24) scala/Int#
+(6:32..6:37) _empty_/Dyn.selectDynamic(). -> 4:7
+(6:29..6:32) _empty_/Dyn. -> 3:8
+(6:38..6:44) scala/Tuple2#
+(6:45..6:48) scala/Int#
+(6:50..6:53) scala/Int#
+(7:8..7:14) scala/Option#
+(7:16..7:19) scala/Int#
+(7:21..7:24) scala/Int#
+(7:33..7:46) _empty_/Dyn.selectDynamic(). -> 4:7
+(7:29..7:32) _empty_/Dyn. -> 3:8
+(7:48..7:51) scala/Int#
+(7:53..7:56) scala/Int#
+(8:8..8:14) scala/Option#
+(8:16..8:19) scala/Int#
+(8:21..8:24) scala/Int#
+(8:32..8:37) _empty_/Dyn.selectDynamic(). -> 4:7
+(8:29..8:32) _empty_/Dyn. -> 3:8
+(8:39..8:42) scala/Int#
+(8:44..8:47) scala/Int#
+

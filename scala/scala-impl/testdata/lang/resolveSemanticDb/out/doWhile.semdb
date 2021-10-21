@@ -1,0 +1,13 @@
+Document tests/pos/doWhile.scala
+(1:17..1:32) scala/language.`3.0-migration`.
+(1:8..1:16) scala/language.
+(5:5..5:12) scala/Predef.println(+1).
+(5:13..5:14) local0 -> 4:9
+(8:5..8:12) scala/Predef.println(+1).
+(8:13..8:14) local1 -> 7:9
+(20:10..20:13) scala/Int#
+(23:14..23:16) scala/Int#`==`(+3).
+(23:12..23:13) _empty_/Test2#x. -> 20:7
+(25:9..25:11) scala/Int#`==`(+3).
+(25:7..25:8) _empty_/Test2#x. -> 20:7
+

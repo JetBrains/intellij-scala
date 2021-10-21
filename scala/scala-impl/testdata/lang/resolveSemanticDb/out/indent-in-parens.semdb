@@ -1,0 +1,51 @@
+Document tests/pos/indent-in-parens.scala
+(1:10..1:13) scala/Int#
+(1:19..1:22) scala/Int#
+(1:26..1:29) scala/Int#
+(1:35..1:35) scala/Function1#apply().
+(1:33..1:35) _empty_/`indent-in-parens$package`.g().(op) -> 1:15
+(1:36..1:37) _empty_/`indent-in-parens$package`.g().(x) -> 1:7
+(3:13..3:14) _empty_/`indent-in-parens$package`.g(). -> 1:5
+(4:15..4:16) scala/Int#`*`(+3).
+(4:13..4:14) local0 -> 3:18
+(4:17..4:18) local0 -> 3:18
+(5:7..5:8) scala/Int#`*`(+3).
+(5:5..5:6) local1 -> 4:9
+(5:9..5:10) local1 -> 4:9
+(8:13..8:14) _empty_/`indent-in-parens$package`.g(). -> 1:5
+(10:15..10:16) scala/Int#`*`(+3).
+(10:13..10:14) local2 -> 9:3
+(10:17..10:18) local2 -> 9:3
+(11:7..11:8) scala/Int#`*`(+3).
+(11:5..11:6) local3 -> 10:9
+(11:9..11:10) local3 -> 10:9
+(14:10..14:13) scala/Int#
+(15:3..15:9) scala/Predef.assert(+1).
+(16:10..16:11) scala/Int#`>`(+3).
+(16:8..16:9) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(21:3..21:9) scala/Predef.assert(+1).
+(22:10..22:11) scala/Int#`>`(+3).
+(22:8..22:9) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(26:3..26:9) scala/Predef.assert().
+(27:10..27:11) scala/Int#`>`(+3).
+(27:8..27:9) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(31:3..31:9) scala/Predef.assert().
+(32:10..32:11) scala/Int#`>`(+3).
+(32:8..32:9) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(35:12..35:13) scala/Int#`<`(+3).
+(35:10..35:11) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(40:10..40:11) scala/Int#`>`(+3).
+(40:8..40:9) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(41:7..41:14) scala/Predef.println(+1).
+(41:15..41:16) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(42:7..42:8) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(50:12..50:13) scala/StringContext#s().
+(44:11..44:11) scala/StringContext.apply().
+(45:14..45:15) scala/Int#`>`(+3).
+(45:12..45:13) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(46:11..46:18) scala/Predef.println(+1).
+(46:19..46:20) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(47:11..47:12) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+(49:13..49:13) scala/Int#`unary_-`().
+(49:12..49:13) _empty_/`indent-in-parens$package`.f().(x) -> 14:7
+

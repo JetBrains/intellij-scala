@@ -1,0 +1,12 @@
+Document tests/pos/i9999a.scala
+(3:16..3:20) scala/package.List#
+(3:21..3:25) scala/package.List#
+(3:26..3:27) _empty_/Test.T#[X] -> 3:10
+(6:12..6:15) scala/Any#
+(7:5..7:8) scala/Predef.`???`().
+(7:11..7:12) _empty_/Test.T# -> 3:8
+(7:13..7:14) local0 -> 6:9
+(9:3..9:4) _empty_/Test.`y_=`(). -> 5:7
+(9:8..9:11) scala/Predef.`???`().
+(9:14..9:17) scala/Any#
+

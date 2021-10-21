@@ -1,0 +1,11 @@
+Document tests/pos/tcpoly_subst.scala
+(2:22..2:23) _empty_/test.make().[m] -> 2:12
+(2:24..2:25) _empty_/test.make().[b] -> 2:18
+(2:33..2:38) scala/sys/package.error().
+(2:29..2:32) scala/sys/
+(3:12..3:16) scala/package.List#
+(3:17..3:20) scala/Int#
+(3:24..3:28) _empty_/test.make(). -> 2:7
+(3:29..3:33) scala/package.List#
+(3:35..3:38) scala/Int#
+

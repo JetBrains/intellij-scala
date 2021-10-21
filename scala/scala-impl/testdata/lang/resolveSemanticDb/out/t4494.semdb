@@ -1,0 +1,4 @@
+Document tests/pos/t4494.scala
+(2:7..2:7) scala/collection/IterableFactory#apply().
+(2:3..2:7) scala/package.List.
+

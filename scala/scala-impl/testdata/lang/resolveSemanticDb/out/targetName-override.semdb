@@ -1,0 +1,23 @@
+Document tests/pos/targetName-override.scala
+(1:25..1:35) scala/annotation/targetName#
+(1:14..1:24) scala/annotation/
+(1:8..1:13) scala/
+(4:4..4:14) scala/annotation/targetName#
+(4:33..4:36) scala/Int#
+(4:39..4:42) scala/Int#
+(4:45..4:46) _empty_/A#f().(x) -> 5:9
+(5:15..5:21) scala/Predef.String#
+(5:24..5:27) scala/Int#
+(5:32..5:38) java/lang/String#length().
+(5:30..5:31) _empty_/A#f().(x) -> 5:9
+(8:18..8:18) _empty_/A#`<init>`(). -> 4:3
+(8:17..8:18) _empty_/A# -> 3:7
+(9:4..9:14) scala/annotation/targetName#
+(9:42..9:45) scala/Int#
+(9:48..9:51) scala/Int#
+(9:54..9:55) _empty_/B#f().(x) -> 10:18
+(10:24..10:30) scala/Predef.String#
+(10:33..10:36) scala/Int#
+(10:41..10:47) java/lang/String#length().
+(10:39..10:40) _empty_/B#f().(x) -> 10:18
+

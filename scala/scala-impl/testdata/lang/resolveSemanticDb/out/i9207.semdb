@@ -1,0 +1,6 @@
+Document tests/pos/i9207.scala
+(3:21..3:25) scala/Unit#
+(5:13..5:18) _empty_/Child# -> 1:7
+(6:22..6:25) scala/Int#
+(6:28..6:31) local1 -> 6:17
+

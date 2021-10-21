@@ -1,0 +1,21 @@
+Document tests/pos/tasty-reflect-opaque-api-proto.scala
+(4:16..4:20) _empty_/CompilerInterface#Tree# -> 3:8
+(7:29..7:46) _empty_/CompilerInterface# -> 2:7
+(9:31..9:35) _empty_/CompilerInterface#Tree# -> 3:8
+(9:22..9:30) _empty_/Reflect#internal. -> 7:19
+(10:23..10:27) _empty_/Reflect#Tree# -> 9:15
+(10:39..10:43) _empty_/CompilerInterface#Term# -> 4:8
+(10:30..10:38) _empty_/Reflect#internal. -> 7:19
+(13:22..13:26) _empty_/Reflect#Tree# -> 9:15
+(14:17..14:23) scala/Predef.String#
+(14:26..14:29) scala/Predef.`???`().
+(21:13..21:20) _empty_/Reflect# -> 7:7
+(21:23..21:26) scala/Predef.`???`().
+(22:10..22:14) _empty_/App.refl. -> 21:7
+(24:20..24:23) scala/Predef.`???`().
+(25:3..25:3) _empty_/Reflect#Tree.show(). -> 14:11
+(25:3..25:7) _empty_/App.tree. -> 24:7
+(27:20..27:23) scala/Predef.`???`().
+(28:3..28:3) _empty_/Reflect#Tree.show(). -> 14:11
+(28:3..28:7) _empty_/App.tree. -> 24:7
+

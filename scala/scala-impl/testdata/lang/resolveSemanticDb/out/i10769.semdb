@@ -1,0 +1,16 @@
+Document tests/pos/i10769.scala
+(4:10..4:19) stm/STMLike#Internals. -> 12:10
+(9:21..9:30) scala/package.Throwable#
+(9:33..9:36) stm/STMLike#Txn# -> 6:25
+(9:37..9:38) stm/STMLike#Txn.abort().[A] -> 9:15
+(9:47..9:47) stm/STMLike#Internals.Abort.apply(). -> 13:5
+(9:42..9:47) stm/STMLike#Internals.Abort. -> 13:16
+(9:48..9:49) stm/STMLike#Txn.abort().(e) -> 9:18
+(13:29..13:38) scala/package.Throwable#
+(13:60..13:60) stm/STMLike#Txn#`<init>`(). -> 6:28
+(13:48..13:51) stm/STMLike#Txn# -> 6:25
+(13:52..13:59) scala/Nothing#
+(14:42..14:42) stm/STMLike#Txn#`<init>`(). -> 6:28
+(14:30..14:33) stm/STMLike#Txn# -> 6:25
+(14:34..14:41) scala/Nothing#
+

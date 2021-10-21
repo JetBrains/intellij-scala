@@ -1,0 +1,12 @@
+Document tests/pos/i4180.scala
+(2:14..2:21) scala/Boolean#
+(2:36..2:43) java/lang/Boolean#
+(2:31..2:35) java/lang/
+(2:26..2:30) java/
+(3:15..3:17) scala/Any#`==`().
+(3:13..3:14) _empty_/Test.foo().(s) -> 2:11
+(3:18..3:19) _empty_/Test.foo().(j) -> 2:23
+(4:15..4:17) scala/Any#`==`().
+(4:13..4:14) _empty_/Test.foo().(j) -> 2:23
+(4:18..4:19) _empty_/Test.foo().(s) -> 2:11
+

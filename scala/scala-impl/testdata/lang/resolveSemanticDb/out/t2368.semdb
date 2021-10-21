@@ -1,0 +1,5 @@
+Document tests/pos/t2368.scala
+(3:10..3:16) scala/Predef.String#
+(3:31..3:44) scala/compiletime/package$package.uninitialized().
+(3:19..3:30) scala/compiletime/
+

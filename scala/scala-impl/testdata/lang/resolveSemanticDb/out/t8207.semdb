@@ -1,0 +1,8 @@
+Document tests/pos/t8207.scala
+(2:13..2:21) scala/Any#toString().
+(2:10..2:12) _empty_/C# -> 1:7
+(3:3..3:10) scala/Predef.locally().
+(3:17..3:19) _empty_/C# -> 1:7
+(5:15..5:16) _empty_/C#T# -> 4:9
+(5:12..5:14) _empty_/C# -> 1:7
+

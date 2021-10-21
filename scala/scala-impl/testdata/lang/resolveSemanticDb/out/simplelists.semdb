@@ -1,0 +1,40 @@
+Document tests/pos/simplelists.scala
+(2:13..2:14) _empty_/List#[a] -> 1:22
+(3:13..3:17) _empty_/List# -> 1:16
+(3:18..3:19) _empty_/List#[a] -> 1:22
+(4:17..4:18) _empty_/List#[a] -> 1:22
+(4:23..4:24) _empty_/List#cons().[b] -> 4:12
+(4:27..4:31) _empty_/List# -> 1:16
+(4:32..4:33) _empty_/List#cons().[b] -> 4:12
+(4:51..4:51) _empty_/Cons#`<init>`(). -> 13:11
+(4:41..4:45) _empty_/Cons# -> 13:7
+(4:46..4:47) _empty_/List#cons().[b] -> 4:12
+(4:49..4:50) _empty_/List#[a] -> 1:22
+(4:52..4:53) _empty_/List#cons().(x) -> 4:20
+(7:33..7:33) _empty_/List#`<init>`(). -> 1:20
+(7:20..7:24) _empty_/List# -> 1:16
+(7:25..7:32) scala/Nothing#
+(8:18..8:24) scala/Predef.String#
+(8:27..8:34) scala/Nothing#
+(8:62..8:62) java/lang/Error#`<init>`(+1).
+(8:57..8:62) java/lang/Error#
+(8:52..8:56) java/lang/
+(8:47..8:51) java/
+(8:63..8:66) _empty_/Nil.error().(msg) -> 8:13
+(9:13..9:20) scala/Nothing#
+(9:23..9:28) _empty_/Nil.error(). -> 8:7
+(10:13..10:17) _empty_/List# -> 1:16
+(10:18..10:25) scala/Nothing#
+(10:29..10:34) _empty_/Nil.error(). -> 8:7
+(13:26..13:27) _empty_/Cons#[c] -> 13:12
+(13:33..13:37) _empty_/List# -> 1:16
+(13:38..13:39) _empty_/Cons#[d] -> 13:15
+(13:57..13:57) _empty_/List#`<init>`(). -> 1:20
+(13:50..13:54) _empty_/List# -> 1:16
+(13:55..13:56) _empty_/Cons#[c] -> 13:12
+(14:13..14:14) _empty_/Cons#[c] -> 13:12
+(14:17..14:18) _empty_/Cons#x. -> 13:23
+(15:13..15:17) _empty_/List# -> 1:16
+(15:18..15:19) _empty_/Cons#[c] -> 13:12
+(15:23..15:25) _empty_/Cons#xs. -> 13:29
+

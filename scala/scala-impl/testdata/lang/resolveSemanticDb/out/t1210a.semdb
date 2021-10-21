@@ -1,0 +1,12 @@
+Document tests/pos/t1210a.scala
+(7:12..7:16) _empty_/OO#Test# -> 4:18
+(7:32..7:33) _empty_/OO#Test#T# -> 5:10
+(7:27..7:31) _empty_/OO#Test# -> 4:18
+(7:44..7:45) _empty_/OO#Test#v. -> 7:9
+(7:42..7:43) _empty_/OO#Test#v. -> 7:9
+(7:37..7:41) _empty_/OO#Test# -> 4:18
+(13:12..13:16) _empty_/FP#Test# -> 12:18
+(13:17..13:18) _empty_/FP#Test#[T] -> 12:23
+(13:24..13:25) _empty_/FP#Test#v. -> 13:9
+(13:22..13:23) _empty_/FP#Test#v. -> 13:9
+

@@ -1,0 +1,16 @@
+Document tests/pos/t7264/B_2.scala
+(6:14..6:17) _empty_/Foo# -> 7:13
+(6:23..6:26) _empty_/Foo#bar(). -> 8:7
+(6:21..6:22) _empty_/Test.foo().(f) -> 6:11
+(6:27..6:27) _empty_/Foo.Values.fromInt(). -> 3:18
+
+Document tests/pos/t7264/A_1.scala
+(3:29..3:32) scala/Int#
+(3:35..3:41) _empty_/Foo.Values# -> 5:9
+(3:44..3:47) scala/Predef.`???`().
+(7:23..7:29) scala/Predef.String#
+(8:23..8:29) _empty_/Foo.Values# -> 5:9
+(8:19..8:22) _empty_/Foo. -> 1:8
+(8:32..8:35) _empty_/Bar# -> 11:7
+(8:38..8:41) scala/Predef.`???`().
+

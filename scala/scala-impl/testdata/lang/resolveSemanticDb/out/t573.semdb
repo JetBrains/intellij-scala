@@ -1,0 +1,59 @@
+Document tests/pos/t573.scala
+(1:9..1:16) lampion/
+(5:19..5:22) lampion/collections/DirX.Dir# -> 4:18
+(7:28..7:28) lampion/collections/DirX.Dir#`<init>`(). -> 5:5
+(7:25..7:28) lampion/collections/DirX.Dir# -> 4:18
+(8:19..8:24) lampion/collections/DirX.AFTER. -> 10:10
+(10:28..10:28) lampion/collections/DirX.Dir#`<init>`(). -> 5:5
+(10:25..10:28) lampion/collections/DirX.Dir# -> 4:18
+(11:19..11:25) lampion/collections/DirX.BEFORE. -> 7:10
+(15:8..15:12) lampion/collections/DirX. -> 3:8
+(18:16..18:21) lampion/collections/Linked#Node0# -> 20:18
+(21:11..21:15) lampion/collections/Linked#Node# -> 18:8
+(23:16..23:20) lampion/collections/Linked#Node# -> 18:8
+(24:16..24:20) lampion/collections/Linked#Node# -> 18:8
+(26:19..26:22) lampion/collections/DirX.Dir# -> 4:18
+(26:34..26:36) scala/Any#`==`().
+(26:30..26:33) lampion/collections/Linked#Node0#get().(dir) -> 26:13
+(26:37..26:43) lampion/collections/DirX.BEFORE. -> 7:10
+(26:46..26:50) lampion/collections/Linked#Node0#prev(). -> 24:9
+(26:56..26:60) lampion/collections/Linked#Node0#next(). -> 23:9
+(27:27..27:30) lampion/collections/DirX.Dir# -> 4:18
+(27:39..27:43) lampion/collections/Linked#Node# -> 18:8
+(28:15..28:17) scala/Any#`==`().
+(28:11..28:14) lampion/collections/Linked#Node0#set().(dir) -> 27:21
+(28:18..28:24) lampion/collections/DirX.BEFORE. -> 7:10
+(28:26..28:30) lampion/collections/Linked#Node0#`prev_=`(). -> 24:9
+(28:33..28:38) lampion/collections/Linked#Node0#set().(node) -> 27:32
+(28:44..28:48) lampion/collections/Linked#Node0#`next_=`(). -> 23:9
+(28:51..28:55) lampion/collections/Linked#Node0#set().(node) -> 27:32
+(30:20..30:23) lampion/collections/DirX.Dir# -> 4:18
+(30:32..30:36) lampion/collections/Linked#Node# -> 18:8
+(31:7..31:13) scala/Predef.assert(+1).
+(31:23..31:25) scala/Any#`==`().
+(31:14..31:17) lampion/collections/Linked#Node0#get(). -> 26:9
+(31:18..31:21) lampion/collections/Linked#Node0#link().(dir) -> 30:14
+(32:7..32:13) scala/Predef.assert(+1).
+(32:36..32:38) scala/Any#`==`().
+(32:19..32:22) lampion/collections/Linked#Node0#get(). -> 26:9
+(32:14..32:18) lampion/collections/Linked#Node0#link().(node) -> 30:25
+(32:27..32:34) lampion/collections/DirX.Dir#reverse(). -> 5:9
+(32:23..32:26) lampion/collections/Linked#Node0#link().(dir) -> 30:14
+(33:7..33:10) lampion/collections/Linked#Node0#set(). -> 27:17
+(33:11..33:14) lampion/collections/Linked#Node0#link().(dir) -> 30:14
+(33:16..33:20) lampion/collections/Linked#Node0#link().(node) -> 30:25
+(34:12..34:15) lampion/collections/Linked#Node0#set(). -> 27:17
+(34:7..34:11) lampion/collections/Linked#Node0#link().(node) -> 30:25
+(34:20..34:27) lampion/collections/DirX.Dir#reverse(). -> 5:9
+(34:16..34:19) lampion/collections/Linked#Node0#link().(dir) -> 30:14
+(34:29..34:33) lampion/collections/Linked#Node0# -> 20:18
+(38:19..38:22) lampion/collections/DirX.Dir# -> 4:18
+(38:26..38:30) lampion/collections/Linked#Node# -> 18:8
+(39:20..39:22) scala/Any#`==`().
+(39:11..39:14) lampion/collections/Linked#Node0#get(). -> 26:9
+(39:15..39:18) lampion/collections/Linked#Node0#end().(dir) -> 38:13
+(40:21..40:24) lampion/collections/Linked#Node0#end(). -> 38:9
+(40:12..40:15) lampion/collections/Linked#Node0#get(). -> 26:9
+(40:16..40:19) lampion/collections/Linked#Node0#end().(dir) -> 38:13
+(40:25..40:28) lampion/collections/Linked#Node0#end().(dir) -> 38:13
+

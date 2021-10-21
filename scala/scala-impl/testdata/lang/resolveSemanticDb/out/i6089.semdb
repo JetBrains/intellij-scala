@@ -1,0 +1,8 @@
+Document tests/pos/i6089.scala
+(1:50..1:51) java/lang/String#`+`().
+(1:41..1:49) scala/Any#toString().
+(2:50..2:51) java/lang/String#`+`().
+(2:41..2:49) scala/Any#toString().
+(3:17..3:18) _empty_/X# -> 1:7
+(3:24..3:25) _empty_/Y# -> 2:7
+

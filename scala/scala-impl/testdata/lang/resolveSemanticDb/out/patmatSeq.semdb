@@ -1,0 +1,19 @@
+Document tests/pos/patmatSeq.scala
+(3:16..3:16) scala/collection/IterableFactory#apply().
+(3:12..3:16) scala/package.List.
+(5:4..5:6) _empty_/Test.xs. -> 3:7
+(5:8..5:11) scala/Any#
+(6:13..6:13) scala/collection/SeqFactory#unapplySeq().
+(6:10..6:13) scala/package.Seq.
+(6:23..6:30) scala/Predef.println(+1).
+(6:39..6:40) scala/StringContext#s().
+(6:33..6:33) scala/StringContext.apply().
+(6:34..6:35) local0 -> 6:14
+(6:38..6:39) local1 -> 6:17
+(7:13..7:13) scala/collection/SeqFactory#unapplySeq().
+(7:10..7:13) scala/package.Seq.
+(7:21..7:28) scala/Predef.println(+1).
+(7:45..7:46) scala/StringContext#s().
+(7:31..7:31) scala/StringContext.apply().
+(8:15..8:22) scala/Predef.println(+1).
+

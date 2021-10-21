@@ -1,0 +1,69 @@
+Document tests/pos/hk.scala
+(1:17..1:28) scala/language.higherKinds.
+(1:8..1:16) scala/language.
+(7:17..7:20) _empty_/hk0.Base#Rep# -> 6:10
+(7:21..7:27) scala/Predef.String#
+(10:25..10:25) _empty_/hk0.Base#`<init>`(). -> 6:5
+(10:21..10:25) _empty_/hk0.Base# -> 5:18
+(11:19..11:20) _empty_/hk0.Sub#Rep#[T] -> 11:14
+(13:13..13:16) _empty_/hk0.Sub#Rep# -> 11:10
+(13:17..13:23) scala/Predef.String#
+(17:22..17:23) _empty_/hk0.Functor#map().[A] -> 17:13
+(17:27..17:28) _empty_/hk0.Functor#map().[B] -> 17:16
+(17:31..17:32) _empty_/hk0.Functor#[F] -> 16:26
+(17:33..17:34) _empty_/hk0.Functor#map().[A] -> 17:13
+(17:39..17:40) _empty_/hk0.Functor#[F] -> 16:26
+(17:41..17:42) _empty_/hk0.Functor#map().[B] -> 17:16
+(19:11..19:18) _empty_/hk0.Functor# -> 16:18
+(19:19..19:23) scala/package.List#
+(19:27..19:30) scala/Predef.`???`().
+(20:12..20:14) _empty_/hk0.ml. -> 19:7
+(21:12..21:15) scala/Int#
+(21:19..21:26) scala/Boolean#
+(21:31..21:35) scala/package.List#
+(21:36..21:39) scala/Int#
+(21:44..21:48) scala/package.List#
+(21:49..21:56) scala/Boolean#
+(21:63..21:66) _empty_/hk0.Functor#map(). -> 17:9
+(21:60..21:62) _empty_/hk0.mx. -> 20:7
+(21:60..21:60) local0
+(26:18..26:22) scala/Null#
+(29:25..29:32) _empty_/higherKinded.Untyped# -> 26:8
+(29:37..29:41) _empty_/higherKinded.Tree# -> 28:9
+(29:42..29:43) _empty_/higherKinded.Tree#ThisType#[U] -> 29:20
+(30:23..30:29) scala/Predef.String#
+(30:32..30:40) _empty_/higherKinded.Tree#ThisType# -> 29:10
+(30:41..30:47) scala/Predef.String#
+(30:51..30:61) _empty_/higherKinded.Tree#withString(). -> 30:9
+(30:62..30:63) _empty_/higherKinded.Tree#withString().(s) -> 30:20
+(33:45..33:45) _empty_/higherKinded.Tree#`<init>`(). -> 28:13
+(33:38..33:42) _empty_/higherKinded.Tree# -> 28:9
+(33:43..33:44) _empty_/higherKinded.Ident#[T] -> 33:16
+(34:25..34:32) _empty_/higherKinded.Untyped# -> 26:8
+(34:36..34:41) _empty_/higherKinded.Ident# -> 33:9
+(34:42..34:43) _empty_/higherKinded.Ident#ThisType#[U] -> 34:20
+(37:30..37:30) _empty_/higherKinded.Ident#`<init>`(). -> 33:14
+(37:16..37:21) _empty_/higherKinded.Ident# -> 33:9
+(37:22..37:29) java/lang/Integer#
+(39:14..39:24) _empty_/higherKinded.Tree#withString(). -> 30:9
+(39:11..39:13) _empty_/higherKinded.id. -> 37:7
+(41:10..41:15) _empty_/higherKinded.Ident# -> 33:9
+(41:16..41:22) scala/Predef.String#
+(41:26..41:27) _empty_/higherKinded.y. -> 39:7
+(43:15..43:19) _empty_/higherKinded.Instance#Tree# -> 46:10
+(43:11..43:14) _empty_/higherKinded.tpd. -> 49:10
+(43:22..43:23) _empty_/higherKinded.y. -> 39:7
+(46:30..46:34) _empty_/higherKinded.Tree# -> 28:9
+(46:17..46:29) _empty_/higherKinded. -> 24:8
+(46:35..46:36) _empty_/higherKinded.Instance#[T] -> 45:27
+(49:38..49:38) _empty_/higherKinded.Instance#`<init>`(). -> 45:26
+(49:22..49:30) _empty_/higherKinded.Instance# -> 45:18
+(49:31..49:37) scala/Predef.String#
+(51:23..51:27) _empty_/higherKinded.Tree# -> 28:9
+(51:28..51:34) scala/Predef.String#
+(52:22..52:32) _empty_/higherKinded.Tree#withString(). -> 30:9
+(52:17..52:21) _empty_/higherKinded.transform().(tree) -> 51:17
+(53:5..53:10) local1 -> 52:9
+(53:12..53:16) _empty_/higherKinded.Tree# -> 28:9
+(53:17..53:23) scala/Predef.String#
+

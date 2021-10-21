@@ -1,0 +1,9 @@
+Document tests/pos/i2250.scala
+(2:16..2:22) scala/AnyRef#
+(2:25..2:29) scala/Unit#
+(3:32..3:40) scala/collection/ArrayOps#iterator().
+(3:5..3:5) scala/Predef.genericArrayOps().
+(3:9..3:21) scala/Any#asInstanceOf().
+(3:5..3:8) _empty_/T#foo().(any) -> 2:11
+(3:22..3:27) scala/Array#
+

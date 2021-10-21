@@ -1,0 +1,19 @@
+Document tests/pos/apply-equiv.scala
+(2:22..2:35) scala/compiletime/package$package.uninitialized().
+(2:10..2:21) scala/compiletime/
+(6:70..6:75) _empty_/Test#Lambda#Apply# -> 4:33
+(6:14..6:20) _empty_/Test#Lambda# -> 4:9
+(6:34..6:37) scala/Int#
+(6:55..6:59) scala/package.List#
+(6:60..6:63) _empty_/Test#Lambda#Arg# -> 4:23
+(7:13..7:17) scala/package.List#
+(7:18..7:21) scala/Int#
+(9:10..9:12) _empty_/Test#T1# -> 6:8
+(9:15..9:28) scala/compiletime/package$package.uninitialized().
+(10:10..10:12) _empty_/Test#T2# -> 7:8
+(10:15..10:28) scala/compiletime/package$package.uninitialized().
+(12:3..12:4) _empty_/Test#`x_=`(). -> 9:7
+(12:7..12:8) _empty_/Test#y(). -> 10:7
+(13:3..13:4) _empty_/Test#`y_=`(). -> 10:7
+(13:7..13:8) _empty_/Test#x(). -> 9:7
+

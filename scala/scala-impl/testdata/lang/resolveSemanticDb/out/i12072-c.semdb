@@ -1,0 +1,71 @@
+Document tests/pos/i12072-c.scala
+(3:38..3:44) scala/Predef.String#
+(3:54..3:55) scala/`|`#
+(3:47..3:53) scala/Predef.String#
+(3:56..3:60) scala/Null#
+(9:24..9:30) scala/Predef.String#
+(15:17..15:19) scala/Any#`==`().
+(15:15..15:16) _empty_/T.V. -> 6:14
+(14:32..14:38) scala/Predef.String#
+(18:17..18:19) scala/Any#`==`().
+(18:15..18:16) _empty_/T.D(). -> 7:14
+(17:32..17:38) scala/Predef.String#
+(21:12..21:13) _empty_/T.V. -> 6:14
+(20:35..20:41) scala/Predef.String#
+(24:12..24:13) _empty_/T.D(). -> 7:14
+(23:35..23:41) scala/Predef.String#
+(30:20..30:22) scala/Any#`==`().
+(30:15..30:16) _empty_/T.f(). -> 3:26
+(30:17..30:18) _empty_/T.V. -> 6:14
+(29:33..29:39) scala/Predef.String#
+(33:20..33:22) scala/Any#`==`().
+(33:15..33:16) _empty_/T.f(). -> 3:26
+(33:17..33:18) _empty_/T.D(). -> 7:14
+(32:33..32:39) scala/Predef.String#
+(36:12..36:13) _empty_/T.f(). -> 3:26
+(36:14..36:15) _empty_/T.V. -> 6:14
+(35:36..35:42) scala/Predef.String#
+(39:12..39:13) _empty_/T.f(). -> 3:26
+(39:14..39:15) _empty_/T.D(). -> 7:14
+(38:36..38:42) scala/Predef.String#
+(44:22..44:27) _empty_/T.Trait# -> 9:9
+(46:19..46:21) scala/Any#`==`().
+(46:17..46:18) _empty_/T.V. -> 6:14
+(45:40..45:46) scala/Predef.String#
+(46:7..46:7) _empty_/T.IfV.s(). -> 45:37
+(49:22..49:27) _empty_/T.Trait# -> 9:9
+(51:19..51:21) scala/Any#`==`().
+(51:17..51:18) _empty_/T.D(). -> 7:14
+(50:40..50:46) scala/Predef.String#
+(51:7..51:7) _empty_/T.IfD.s(). -> 50:37
+(54:25..54:30) _empty_/T.Trait# -> 9:9
+(56:14..56:15) _empty_/T.V. -> 6:14
+(55:40..55:46) scala/Predef.String#
+(56:14..56:14) _empty_/T.MatchV.s(). -> 55:37
+(59:25..59:30) _empty_/T.Trait# -> 9:9
+(61:14..61:15) _empty_/T.D(). -> 7:14
+(60:40..60:46) scala/Predef.String#
+(61:14..61:14) _empty_/T.MatchD.s(). -> 60:37
+(67:23..67:28) _empty_/T.Trait# -> 9:9
+(69:22..69:24) scala/Any#`==`().
+(69:17..69:18) _empty_/T.f(). -> 3:26
+(69:19..69:20) _empty_/T.V. -> 6:14
+(68:40..68:46) scala/Predef.String#
+(69:7..69:7) _empty_/T.IfFV.s(). -> 68:37
+(72:23..72:28) _empty_/T.Trait# -> 9:9
+(74:22..74:24) scala/Any#`==`().
+(74:17..74:18) _empty_/T.f(). -> 3:26
+(74:19..74:20) _empty_/T.D(). -> 7:14
+(73:40..73:46) scala/Predef.String#
+(74:7..74:7) _empty_/T.IfFD.s(). -> 73:37
+(77:26..77:31) _empty_/T.Trait# -> 9:9
+(79:14..79:15) _empty_/T.f(). -> 3:26
+(79:16..79:17) _empty_/T.V. -> 6:14
+(78:40..78:46) scala/Predef.String#
+(79:14..79:14) _empty_/T.MatchFV.s(). -> 78:37
+(82:26..82:31) _empty_/T.Trait# -> 9:9
+(84:14..84:15) _empty_/T.f(). -> 3:26
+(84:16..84:17) _empty_/T.D(). -> 7:14
+(83:40..83:46) scala/Predef.String#
+(84:14..84:14) _empty_/T.MatchFD.s(). -> 83:37
+

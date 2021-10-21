@@ -1,0 +1,53 @@
+Document tests/pos/t5508.scala
+(4:27..4:30) scala/Int#
+(5:15..5:30) scala/PartialFunction#
+(5:31..5:34) scala/Any#
+(5:35..5:38) scala/Any#
+(6:5..6:5) local0
+(6:14..6:17) scala/Int#
+(7:7..7:10) TestTestters/Test1#`_st_=`(). -> 4:21
+(7:13..7:21) scala/Predef.identity().
+(7:22..7:25) TestTestters/Test1#_st(). -> 4:21
+(13:29..13:32) scala/Int#
+(14:17..14:32) scala/PartialFunction#
+(14:33..14:36) scala/Any#
+(14:37..14:40) scala/Any#
+(15:7..15:7) local2
+(15:16..15:19) scala/Int#
+(16:9..16:12) TestTestters/Base1.Test2#`_st_=`(). -> 13:23
+(16:15..16:23) scala/Predef.identity().
+(16:24..16:27) TestTestters/Base1.Test2#_st(). -> 13:23
+(22:27..22:30) scala/Int#
+(23:15..23:30) scala/PartialFunction#
+(23:31..23:34) scala/Any#
+(23:35..23:38) scala/Any#
+(24:5..24:5) local4
+(24:14..24:17) scala/Int#
+(25:7..25:10) TestTestters/Test3#_st(). -> 22:21
+(31:29..31:32) scala/Int#
+(32:17..32:32) scala/PartialFunction#
+(32:33..32:36) scala/Any#
+(32:37..32:40) scala/Any#
+(33:7..33:7) local6
+(33:16..33:19) scala/Int#
+(34:9..34:12) TestTestters/Base2.Test4#_st(). -> 31:23
+(41:29..41:32) scala/Int#
+(42:17..42:32) scala/PartialFunction#
+(42:33..42:36) scala/Any#
+(42:37..42:40) scala/Any#
+(43:7..43:7) local8
+(43:16..43:19) scala/Int#
+(44:9..44:12) TestTestters/Base3#Test5#`_st_=`(). -> 41:23
+(51:29..51:32) scala/Int#
+(52:17..52:32) scala/PartialFunction#
+(52:33..52:36) scala/Any#
+(52:37..52:40) scala/Any#
+(53:7..53:7) local10
+(53:16..53:19) scala/Int#
+(60:29..60:32) scala/Int#
+(62:7..62:10) TestTestters/Base5.Test7#`_st_=`(). -> 60:23
+(69:29..69:32) scala/Int#
+(71:7..71:10) TestTestters/Base6.Test8#_st(). -> 69:23
+(78:14..78:17) scala/Int#
+(80:7..80:9) TestTestters/Base7.Test9#`st_=`(). -> 78:9
+

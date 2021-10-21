@@ -1,0 +1,4 @@
+Document tests/pos/t3374.scala
+(4:19..4:25) _empty_/Parent# -> 1:7
+(5:31..5:33) _empty_/Sub#Test#[AS] -> 5:12
+

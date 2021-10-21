@@ -1,0 +1,15 @@
+Document tests/pos/t2261.scala
+(3:31..3:35) scala/package.List#
+(3:36..3:37) _empty_/Test.foo2bar().[T] -> 3:24
+(3:41..3:44) _empty_/Bob# -> 1:7
+(3:45..3:46) _empty_/Test.foo2bar().[T] -> 3:24
+(3:60..3:60) _empty_/Bob#`<init>`(). -> 1:10
+(3:54..3:57) _empty_/Bob# -> 1:7
+(3:58..3:59) _empty_/Test.foo2bar().[T] -> 3:24
+(4:10..4:13) _empty_/Bob# -> 1:7
+(4:14..4:17) scala/Int#
+(5:3..5:4) _empty_/Test.`x_=`(). -> 4:7
+(5:7..5:7) _empty_/Test.foo2bar(). -> 3:16
+(5:11..5:11) scala/collection/IterableFactory#apply().
+(5:7..5:11) scala/package.List.
+

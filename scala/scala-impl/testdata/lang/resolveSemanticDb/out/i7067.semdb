@@ -1,0 +1,10 @@
+Document tests/pos/i7067.scala
+(3:14..3:21) _empty_/Foo#Species# -> 2:8
+(3:24..3:31) scala/Nothing#
+(3:34..3:37) scala/Predef.`???`().
+(8:28..8:28) _empty_/Foo#`<init>`(). -> 1:19
+(8:22..8:25) _empty_/Foo# -> 1:16
+(8:26..8:27) _empty_/Test#species().[T] -> 7:13
+(9:20..9:24) local0 -> 8:9
+(11:7..11:11) local0 -> 8:9
+

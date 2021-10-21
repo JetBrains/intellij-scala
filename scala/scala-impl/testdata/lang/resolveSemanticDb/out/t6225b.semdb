@@ -1,0 +1,7 @@
+Document tests/pos/t6225b.scala
+(2:9..2:16) library/ -> 7:9
+(8:39..8:39) library/x/X#`<init>`(). -> 4:5
+(8:38..8:39) library/x/X# -> 3:9
+(8:36..8:37) library/x/ -> 2:17
+(8:28..8:35) library/ -> 7:9
+

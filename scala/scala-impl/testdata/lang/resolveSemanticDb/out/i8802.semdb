@@ -1,0 +1,30 @@
+Document tests/pos/i8802.scala
+(9:13..9:16) _empty_/Test.Bar# -> 7:8
+(9:17..9:21) scala/Unit#
+(9:25..9:28) scala/Predef.`???`().
+(10:26..10:29) _empty_/Test.Bar# -> 7:8
+(10:30..10:31) _empty_/Test.product().[A] -> 10:15
+(10:39..10:42) _empty_/Test.Bar# -> 7:8
+(10:43..10:44) _empty_/Test.product().[B] -> 10:18
+(10:61..10:64) _empty_/Foo# -> 1:7
+(10:65..10:66) _empty_/Test.product().[A] -> 10:15
+(10:68..10:69) _empty_/Test.product().[B] -> 10:18
+(10:73..10:76) _empty_/Test.Bar# -> 7:8
+(10:81..10:84) _empty_/Foo#Out# -> 2:8
+(10:77..10:80) _empty_/Test.product().(foo) -> 10:56
+(10:88..10:91) scala/Predef.`???`().
+(12:24..12:27) _empty_/Foo# -> 1:7
+(12:28..12:29) _empty_/Test.foo().[A] -> 12:20
+(12:31..12:35) scala/Unit#
+(12:50..12:51) _empty_/Test.foo().[A] -> 12:20
+(12:56..12:59) scala/Predef.`???`().
+(14:21..14:24) _empty_/Test.Bar# -> 7:8
+(14:25..14:26) _empty_/Test.check().[A] -> 14:13
+(14:32..14:33) _empty_/Test.check().[A] -> 14:13
+(14:36..14:40) scala/Unit#
+(16:3..16:8) _empty_/Test.check(). -> 14:7
+(16:9..16:16) _empty_/Test.product(). -> 10:7
+(16:17..16:21) _empty_/Test.unit(). -> 9:7
+(16:23..16:27) _empty_/Test.unit(). -> 9:7
+(16:28..16:28) _empty_/Test.foo(). -> 12:16
+

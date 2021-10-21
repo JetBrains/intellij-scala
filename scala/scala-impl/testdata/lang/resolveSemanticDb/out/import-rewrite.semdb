@@ -1,0 +1,23 @@
+Document tests/pos/import-rewrite/file.scala
+(3:30..3:36) scala/Predef.String#
+(4:13..4:19) scala/Predef.String#
+(8:18..8:24) scala/Predef.String#
+(8:27..8:31) file/File# -> 3:7
+(8:42..8:42) file/File#`<init>`(). -> 3:11
+(8:38..8:42) file/File# -> 3:7
+(8:43..8:46) file/File.apply().(str) -> 8:13
+
+Document tests/pos/import-rewrite/rewrite.scala
+(2:17..2:21) java/io/File.
+(2:17..2:21) java/io/File#
+(2:13..2:15) java/io/
+(2:8..2:12) java/
+(2:52..2:58) java/io/StreamTokenizer#TT_EOF.
+(2:36..2:51) java/io/StreamTokenizer#
+(5:11..5:14) scala/collection/IterableOps#map().
+(5:6..5:6) scala/collection/SeqFactory.Delegate#apply().
+(5:3..5:6) scala/package.Seq.
+(5:20..5:25) file/File.apply(). -> 8:7
+(5:15..5:19) file/File. -> 7:8
+(5:15..5:15) local0
+

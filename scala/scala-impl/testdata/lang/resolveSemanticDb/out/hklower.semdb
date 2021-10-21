@@ -1,0 +1,54 @@
+Document tests/pos/hklower.scala
+(4:15..4:16) _empty_/Test#T# -> 3:8
+(4:17..4:18) _empty_/Test#U#[X] -> 4:10
+(6:16..6:17) _empty_/Test#T# -> 3:8
+(6:18..6:19) _empty_/Test#V#[X] -> 6:10
+(7:16..7:17) _empty_/Test#T# -> 3:8
+(7:18..7:19) _empty_/Test#W#[X] -> 7:10
+(7:24..7:25) _empty_/Test#T# -> 3:8
+(7:26..7:27) _empty_/Test#W#[X] -> 7:10
+(9:26..9:27) _empty_/Test#f().[C] -> 9:9
+(9:28..9:31) scala/Int#
+(9:36..9:39) scala/Predef.`???`().
+(11:10..11:11) _empty_/Test#V# -> 6:8
+(11:12..11:15) scala/Int#
+(11:19..11:22) scala/Predef.`???`().
+(12:10..12:11) _empty_/Test#T# -> 3:8
+(12:12..12:15) scala/Int#
+(12:19..12:22) scala/Predef.`???`().
+(14:3..14:4) _empty_/Test#f(). -> 9:7
+(14:5..14:6) _empty_/Test#V# -> 6:8
+(14:8..14:9) _empty_/Test#v. -> 11:7
+(16:3..16:4) _empty_/Test#f(). -> 9:7
+(16:5..16:6) _empty_/Test#V# -> 6:8
+(16:8..16:9) _empty_/Test#t. -> 12:7
+(23:15..23:16) _empty_/Test2#T# -> 22:9
+(23:17..23:18) _empty_/Test2#U#[X] -> 23:10
+(25:16..25:17) _empty_/Test2#T# -> 22:9
+(25:18..25:19) _empty_/Test2#V#[X] -> 25:10
+(26:16..26:17) _empty_/Test2#T# -> 22:9
+(26:18..26:19) _empty_/Test2#W#[X] -> 26:10
+(26:24..26:25) _empty_/Test2#T# -> 22:9
+(26:26..26:27) _empty_/Test2#W#[X] -> 26:10
+(28:26..28:27) _empty_/Test2#f().[C] -> 28:9
+(28:28..28:31) scala/Int#
+(28:36..28:39) scala/Predef.`???`().
+(30:10..30:11) _empty_/Test2#V# -> 25:8
+(30:12..30:15) scala/Int#
+(30:19..30:22) scala/Predef.`???`().
+(31:10..31:11) _empty_/Test2#T# -> 22:9
+(31:12..31:15) scala/Int#
+(31:19..31:22) scala/Predef.`???`().
+(33:3..33:4) _empty_/Test2#f(). -> 28:7
+(33:5..33:6) _empty_/Test2#V# -> 25:8
+(33:8..33:9) _empty_/Test2#v. -> 30:7
+(35:3..35:4) _empty_/Test2#f(). -> 28:7
+(35:5..35:6) _empty_/Test2#V# -> 25:8
+(35:8..35:9) _empty_/Test2#t. -> 31:7
+(37:10..37:11) _empty_/Test2#V# -> 25:8
+(37:12..37:15) scala/Int#
+(37:31..37:44) scala/compiletime/package$package.uninitialized().
+(37:19..37:30) scala/compiletime/
+(38:3..38:4) _empty_/Test2#`x_=`(). -> 37:7
+(38:7..38:8) _empty_/Test2#t. -> 31:7
+

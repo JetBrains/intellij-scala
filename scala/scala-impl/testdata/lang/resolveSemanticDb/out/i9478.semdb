@@ -1,0 +1,16 @@
+Document tests/pos/i9478.scala
+(1:40..1:41) _empty_/Foo#[T] -> 1:11
+(1:42..1:43) _empty_/Foo#[F] -> 1:20
+(1:44..1:45) _empty_/Foo#[A] -> 1:26
+(1:48..1:49) _empty_/Foo#[F] -> 1:20
+(1:50..1:51) _empty_/Foo#[B] -> 1:29
+(4:24..4:25) _empty_/Test.x().[T] -> 4:9
+(4:26..4:32) scala/package.Either#
+(4:33..4:36) scala/Int#
+(4:38..4:44) scala/Predef.String#
+(4:47..4:53) scala/package.Either#
+(4:54..4:57) scala/Int#
+(4:59..4:62) scala/Int#
+(5:12..5:12) _empty_/Foo#`<init>`(). -> 1:10
+(5:13..5:17) _empty_/Test.x().(tmab) -> 4:18
+

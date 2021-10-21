@@ -1,0 +1,6 @@
+Document tests/pos/t5330b.scala
+(4:26..4:30) _empty_/Base# -> 1:16
+(5:12..5:19) scala/Nothing#
+(5:26..5:31) scala/sys/package.error().
+(5:22..5:25) scala/sys/
+

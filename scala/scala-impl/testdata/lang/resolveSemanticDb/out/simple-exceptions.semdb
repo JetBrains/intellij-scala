@@ -1,0 +1,21 @@
+Document tests/pos/simple-exceptions.scala
+(1:16..1:27) java/io/IOException.
+(1:16..1:27) java/io/IOException#
+(1:13..1:15) java/io/
+(1:8..1:12) java/
+(7:18..7:23) scala/Array#
+(7:24..7:30) scala/Predef.String#
+(7:34..7:38) scala/Unit#
+(10:17..10:24) scala/Console.println(+1).
+(10:9..10:16) scala/Console.
+(11:13..11:18) scala/sys/package.error().
+(11:9..11:12) scala/sys/
+(13:23..13:30) scala/Console.println(+1).
+(13:15..13:22) scala/Console.
+(16:16..16:27) java/io/IOException#
+(16:39..16:46) scala/Console.println(+1).
+(16:31..16:38) scala/Console.
+(17:39..17:46) scala/Console.println(+1).
+(17:31..17:38) scala/Console.
+(17:47..17:49) local1 -> 17:12
+

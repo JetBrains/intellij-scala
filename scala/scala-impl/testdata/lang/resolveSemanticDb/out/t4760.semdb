@@ -1,0 +1,22 @@
+Document tests/pos/t4760.scala
+(5:12..5:17) scala/
+(12:12..12:17) scala/
+(15:37..15:40) scala/collection/mutable/Map.
+(15:37..15:40) scala/collection/mutable/Map#
+(15:29..15:36) scala/collection/mutable/
+(15:18..15:28) scala/collection/
+(15:12..15:17) scala/
+(17:12..17:16) scala/Unit#
+(18:5..18:12) scala/Predef.locally().
+(19:36..19:49) scala/util/PropertiesTrait#lineSeparator().
+(19:25..19:35) scala/util/Properties.
+(19:20..19:24) scala/util/
+(19:14..19:19) scala/
+(25:12..25:17) scala/
+(28:3..28:10) scala/Predef.locally().
+(28:17..28:20) scala/Int#
+(29:18..29:22) scala/util/
+(29:12..29:17) scala/
+(32:28..32:38) scala/concurrent/
+(32:22..32:27) scala/
+

@@ -1,0 +1,4 @@
+Document tests/pos/null.scala
+(2:10..2:17) scala/Boolean#
+(2:25..2:27) scala/Any#`==`().
+

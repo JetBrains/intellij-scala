@@ -1,0 +1,20 @@
+Document tests/pos/t3174b.scala
+(1:26..1:29) scala/Predef.Map#
+(1:30..1:36) scala/Predef.String#
+(1:37..1:40) _empty_/Foo# -> 1:7
+(1:41..1:42) _empty_/Foo#[X] -> 1:11
+(4:16..4:19) _empty_/Foo# -> 1:7
+(4:20..4:21) _empty_/Test.f().[T] -> 4:9
+(5:24..5:27) _empty_/Foo# -> 1:7
+(5:28..5:29) _empty_/Test.f().[T] -> 4:9
+(6:16..6:19) scala/Predef.Map#
+(6:20..6:26) scala/Predef.String#
+(6:28..6:31) _empty_/Foo# -> 1:7
+(6:32..6:33) _empty_/Test.f().[T] -> 4:9
+(6:41..6:41) scala/collection/MapFactory#apply().
+(6:38..6:41) scala/Predef.Map.
+(6:42..6:48) scala/Predef.String#
+(6:49..6:52) _empty_/Foo# -> 1:7
+(6:53..6:54) _empty_/Test.f().[T] -> 4:9
+(10:9..10:13) local0 -> 5:11
+

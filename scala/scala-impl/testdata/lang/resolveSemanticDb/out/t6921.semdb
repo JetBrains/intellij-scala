@@ -1,0 +1,10 @@
+Document tests/pos/t6921.scala
+(1:28..1:34) scala/Predef.String#
+(1:44..1:50) scala/Option#
+(1:51..1:57) scala/Predef.String#
+(8:23..8:27) scala/None.
+(9:16..9:16) _empty_/Message#`<init>`(). -> 1:14
+(9:9..9:16) _empty_/Message# -> 1:7
+(9:21..9:27) _empty_/Message#`<init>`().(reason)
+(9:30..9:41) local0 -> 8:9
+

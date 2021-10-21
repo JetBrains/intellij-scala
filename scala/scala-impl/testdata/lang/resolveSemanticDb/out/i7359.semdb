@@ -1,0 +1,159 @@
+Document tests/pos/i7359.scala
+(4:19..4:22) scala/Any#
+(4:25..4:32) scala/Boolean#
+(5:19..5:22) scala/Int#
+(6:19..6:25) scala/Predef.String#
+(9:16..9:22) scala/Predef.String#
+(12:16..12:22) scala/Predef.String#
+(13:19..13:22) scala/Any#
+(13:25..13:32) scala/Boolean#
+(14:19..14:22) scala/Int#
+(15:19..15:25) scala/Predef.String#
+(17:35..17:50) test/ObjectInterface# -> 3:7
+(18:16..18:22) scala/Predef.String#
+(20:46..20:61) test/ObjectInterface# -> 3:7
+(21:16..21:22) scala/Predef.String#
+(22:28..22:31) scala/Any#
+(22:34..22:41) scala/Boolean#
+(23:28..23:31) scala/Int#
+(24:28..24:34) scala/Predef.String#
+(27:16..27:17) test/SAMPlainCovariantOut#[O] -> 26:29
+(30:16..30:17) test/SAMCovariantOut#[O] -> 29:24
+(31:19..31:22) scala/Any#
+(31:25..31:32) scala/Boolean#
+(32:19..32:22) scala/Int#
+(33:19..33:25) scala/Predef.String#
+(35:42..35:57) test/ObjectInterface# -> 3:7
+(36:16..36:17) test/SAMCovariantOutExtends#[O] -> 35:31
+(38:53..38:68) test/ObjectInterface# -> 3:7
+(39:16..39:17) test/SAMCovariantOutExtendsAndOverride#[O] -> 38:42
+(40:28..40:31) scala/Any#
+(40:34..40:41) scala/Boolean#
+(41:28..41:31) scala/Int#
+(42:28..42:34) scala/Predef.String#
+(45:17..45:18) test/SAMPlainContravariantIn#[I] -> 44:32
+(45:21..45:25) scala/Unit#
+(48:17..48:18) test/SAMContravariantIn#[I] -> 47:27
+(48:21..48:25) scala/Unit#
+(49:19..49:22) scala/Any#
+(49:25..49:32) scala/Boolean#
+(50:19..50:22) scala/Int#
+(51:19..51:25) scala/Predef.String#
+(53:45..53:60) test/ObjectInterface# -> 3:7
+(54:17..54:18) test/SAMContravariantInExtends#[I] -> 53:34
+(54:21..54:25) scala/Unit#
+(56:56..56:71) test/ObjectInterface# -> 3:7
+(57:17..57:18) test/SAMContravariantInExtendsAndOverride#[I] -> 56:45
+(57:21..57:25) scala/Unit#
+(58:28..58:31) scala/Any#
+(58:34..58:41) scala/Boolean#
+(59:28..59:31) scala/Int#
+(60:28..60:34) scala/Predef.String#
+(63:17..63:18) test/SAMPlainInvariant#[T] -> 62:25
+(63:21..63:22) test/SAMPlainInvariant#[T] -> 62:25
+(66:17..66:18) test/SAMInvariant#[T] -> 65:20
+(66:21..66:22) test/SAMInvariant#[T] -> 65:20
+(67:19..67:22) scala/Any#
+(67:25..67:32) scala/Boolean#
+(68:19..68:22) scala/Int#
+(69:19..69:25) scala/Predef.String#
+(71:38..71:53) test/ObjectInterface# -> 3:7
+(72:17..72:18) test/SAMInvariantExtends#[T] -> 71:27
+(72:21..72:22) test/SAMInvariantExtends#[T] -> 71:27
+(74:49..74:64) test/ObjectInterface# -> 3:7
+(75:17..75:18) test/SAMInvariantExtendsAndOverride#[T] -> 74:38
+(75:21..75:22) test/SAMInvariantExtendsAndOverride#[T] -> 74:38
+(76:28..76:31) scala/Any#
+(76:34..76:41) scala/Boolean#
+(77:28..77:31) scala/Int#
+(78:28..78:34) scala/Predef.String#
+(81:17..81:18) test/SAMPlainInOut#[I] -> 80:22
+(81:21..81:22) test/SAMPlainInOut#[O] -> 80:26
+(84:17..84:18) test/SAMInOut#[I] -> 83:17
+(84:21..84:22) test/SAMInOut#[O] -> 83:21
+(85:19..85:22) scala/Any#
+(85:25..85:32) scala/Boolean#
+(86:19..86:22) scala/Int#
+(87:19..87:25) scala/Predef.String#
+(89:39..89:54) test/ObjectInterface# -> 3:7
+(90:17..90:18) test/SAMInOutExtends#[I] -> 89:24
+(90:21..90:22) test/SAMInOutExtends#[O] -> 89:28
+(92:50..92:65) test/ObjectInterface# -> 3:7
+(93:17..93:18) test/SAMInOutExtendsAndOverride#[I] -> 92:35
+(93:21..93:22) test/SAMInOutExtendsAndOverride#[O] -> 92:39
+(94:28..94:31) scala/Any#
+(94:34..94:41) scala/Boolean#
+(95:28..95:31) scala/Int#
+(96:28..96:34) scala/Predef.String#
+(103:16..103:22) scala/Predef.String#
+(104:19..104:22) scala/Any#
+(104:25..104:38) test/i7359$package.CustomBoolean# -> 99:6
+(105:19..105:28) test/i7359$package.CustomInt# -> 100:6
+(106:19..106:31) test/i7359$package.CustomString# -> 98:6
+(109:18..109:23) scala/Array#
+(109:24..109:30) scala/Predef.String#
+(110:20..110:28) test/SAMPlain# -> 8:7
+(111:46..111:81) test/SAMPlainWithOverriddenObjectMethods# -> 11:7
+(112:31..112:50) test/SAMPlainWithExtends# -> 17:7
+(113:42..113:72) test/SAMPlainWithExtendsAndOverride# -> 20:7
+(115:32..115:52) test/SAMPlainCovariantOut# -> 26:7
+(116:27..116:42) test/SAMCovariantOut# -> 29:7
+(117:34..117:56) test/SAMCovariantOutExtends# -> 35:7
+(118:45..118:78) test/SAMCovariantOutExtendsAndOverride# -> 38:7
+(120:35..120:58) test/SAMPlainContravariantIn# -> 44:7
+(120:59..120:62) scala/Int#
+(120:70..120:73) scala/Int#
+(121:30..121:48) test/SAMContravariantIn# -> 47:7
+(121:49..121:52) scala/Int#
+(121:60..121:63) scala/Int#
+(122:37..122:62) test/SAMContravariantInExtends# -> 53:7
+(122:63..122:66) scala/Int#
+(122:74..122:77) scala/Int#
+(123:48..123:84) test/SAMContravariantInExtendsAndOverride# -> 56:7
+(123:85..123:88) scala/Int#
+(123:96..123:99) scala/Int#
+(125:29..125:46) test/SAMPlainInvariant# -> 62:7
+(125:47..125:53) scala/Predef.String#
+(125:61..125:67) scala/Predef.String#
+(125:72..125:73) local17 -> 125:58
+(126:24..126:36) test/SAMInvariant# -> 65:7
+(126:37..126:43) scala/Predef.String#
+(126:51..126:57) scala/Predef.String#
+(126:62..126:63) local19 -> 126:48
+(127:31..127:50) test/SAMInvariantExtends# -> 71:7
+(127:51..127:57) scala/Predef.String#
+(127:65..127:71) scala/Predef.String#
+(127:76..127:77) local21 -> 127:62
+(128:42..128:72) test/SAMInvariantExtendsAndOverride# -> 74:7
+(128:73..128:79) scala/Predef.String#
+(128:87..128:93) scala/Predef.String#
+(128:98..128:99) local23 -> 128:84
+(130:25..130:38) test/SAMPlainInOut# -> 80:7
+(130:39..130:42) scala/Int#
+(130:44..130:50) scala/Predef.String#
+(130:58..130:61) scala/Int#
+(130:68..130:76) scala/Any#toString().
+(130:66..130:67) local25 -> 130:55
+(131:20..131:28) test/SAMInOut# -> 83:7
+(131:29..131:32) scala/Int#
+(131:34..131:40) scala/Predef.String#
+(131:48..131:51) scala/Int#
+(131:58..131:66) scala/Any#toString().
+(131:56..131:57) local27 -> 131:45
+(132:27..132:42) test/SAMInOutExtends# -> 89:7
+(132:43..132:46) scala/Int#
+(132:48..132:54) scala/Predef.String#
+(132:62..132:65) scala/Int#
+(132:72..132:80) scala/Any#toString().
+(132:70..132:71) local29 -> 132:59
+(133:38..133:64) test/SAMInOutExtendsAndOverride# -> 92:7
+(133:65..133:68) scala/Int#
+(133:70..133:76) scala/Predef.String#
+(133:84..133:87) scala/Int#
+(133:94..133:102) scala/Any#toString().
+(133:92..133:93) local31 -> 133:81
+(135:32..135:52) test/SAMWithCustomAliases# -> 102:7
+(98:21..98:27) scala/Predef.String#
+(99:22..99:29) scala/Boolean#
+(100:18..100:21) scala/Int#
+

@@ -1,0 +1,25 @@
+Document tests/pos/t8046c.scala
+(3:19..3:21) _empty_/One#Op# -> 2:8
+(3:22..3:23) _empty_/One#Alias#[A] -> 3:14
+(6:21..6:24) _empty_/One# -> 1:7
+(7:24..7:25) _empty_/Three#Op#[A] -> 7:12
+(7:29..7:30) _empty_/Three#Op#[A] -> 7:12
+(9:13..9:15) _empty_/Three#Op# -> 7:9
+(9:16..9:19) scala/Int#
+(9:36..9:36) scala/Function1#apply().
+(9:35..9:36) _empty_/Three#f1().(f) -> 9:10
+(10:13..10:18) _empty_/One#Alias# -> 3:8
+(10:19..10:22) scala/Int#
+(10:36..10:36) scala/Function1#apply().
+(10:35..10:36) _empty_/Three#f2().(f) -> 10:10
+(11:15..11:17) _empty_/Three#Op# -> 7:9
+(11:18..11:21) scala/Int#
+(11:27..11:28) _empty_/Three#f3().[T] -> 11:10
+(11:36..11:36) scala/Function1#apply().
+(11:35..11:36) _empty_/Three#f3().(f) -> 11:24
+(12:15..12:20) _empty_/One#Alias# -> 3:8
+(12:21..12:24) scala/Int#
+(12:30..12:31) _empty_/Three#f4().[T] -> 12:10
+(12:36..12:36) scala/Function1#apply().
+(12:35..12:36) _empty_/Three#f4().(f) -> 12:27
+

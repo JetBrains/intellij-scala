@@ -1,0 +1,20 @@
+Document tests/pos/t8315b.scala
+(1:27..1:27) java/lang/Object#`<init>`().
+(1:21..1:27) java/lang/Object#
+(2:14..2:18) scala/Unit#
+(4:9..4:12) _empty_/Test.map(). -> 7:13
+(4:18..4:18) _empty_/F#`<init>`(). -> 9:14
+(4:17..4:18) _empty_/F# -> 9:13
+(4:19..4:22) local0 -> 3:9
+(5:21..5:30) scala/package.Throwable#
+(7:20..7:21) _empty_/F# -> 9:13
+(7:24..7:27) scala/Any#
+(7:32..7:37) _empty_/F#apply(). -> 10:13
+(7:30..7:31) _empty_/Test.map().(f) -> 7:17
+(9:20..9:26) scala/Predef.String#
+(10:22..10:25) scala/Any#
+(10:28..10:31) scala/Any#
+(10:60..10:60) java/lang/RuntimeException#`<init>`(+1).
+(10:44..10:60) scala/package.RuntimeException#
+(10:61..10:64) _empty_/F#key. -> 9:15
+

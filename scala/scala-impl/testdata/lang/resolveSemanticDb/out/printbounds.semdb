@@ -1,0 +1,5 @@
+Document tests/pos/printbounds.scala
+(6:10..6:14) _empty_/Tree# -> 1:7
+(6:20..6:23) scala/Predef.`???`().
+(8:11..8:12) _empty_/Test#x. -> 6:7
+

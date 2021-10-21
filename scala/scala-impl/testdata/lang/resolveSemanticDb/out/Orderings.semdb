@@ -1,0 +1,53 @@
+Document tests/pos/Orderings.scala
+(4:30..4:31) _empty_/Orderings.Ord#[T] -> 4:13
+(4:36..4:37) _empty_/Orderings.Ord#[T] -> 4:13
+(4:40..4:47) scala/Boolean#
+(6:24..6:27) _empty_/Orderings.Ord# -> 4:9
+(6:28..6:31) scala/Int#
+(7:17..7:20) scala/Int#
+(7:25..7:28) scala/Int#
+(7:34..7:35) scala/Int#`<`(+3).
+(7:32..7:33) local2 -> 7:14
+(7:36..7:37) local3 -> 7:22
+(10:40..10:43) _empty_/Orderings.Ord# -> 4:9
+(10:44..10:45) _empty_/Orderings.listOrd().[T] -> 10:24
+(10:49..10:52) _empty_/Orderings.Ord# -> 4:9
+(10:53..10:57) scala/package.List#
+(10:58..10:59) _empty_/Orderings.listOrd().[T] -> 10:24
+(11:18..11:22) scala/package.List#
+(11:23..11:24) _empty_/Orderings.listOrd().[T] -> 10:24
+(11:31..11:35) scala/package.List#
+(11:36..11:37) _empty_/Orderings.listOrd().[T] -> 10:24
+(11:41..11:48) scala/Boolean#
+(12:13..12:20) scala/collection/immutable/List#isEmpty().
+(12:10..12:12) local7 -> 11:27
+(13:18..13:25) scala/collection/immutable/List#isEmpty().
+(13:15..13:17) local6 -> 11:14
+(14:23..14:25) scala/Any#`==`().
+(14:18..14:22) scala/collection/IterableOps#head().
+(14:15..14:17) local6 -> 11:14
+(14:29..14:33) scala/collection/IterableOps#head().
+(14:26..14:28) local7 -> 11:27
+(14:39..14:43) local5 -> 11:9
+(14:47..14:51) scala/collection/IterableOps#tail().
+(14:44..14:46) local6 -> 11:14
+(14:56..14:60) scala/collection/IterableOps#tail().
+(14:53..14:55) local7 -> 11:27
+(15:15..15:19) _empty_/Orderings.Ord#less(). -> 4:22
+(15:12..15:14) _empty_/Orderings.listOrd().(ev) -> 10:36
+(15:23..15:27) scala/collection/IterableOps#head().
+(15:20..15:22) local6 -> 11:14
+(15:32..15:36) scala/collection/IterableOps#head().
+(15:29..15:31) local7 -> 11:27
+(18:18..18:19) _empty_/Orderings.isLess().[T] -> 18:14
+(18:23..18:24) _empty_/Orderings.isLess().[T] -> 18:14
+(18:28..18:31) _empty_/Orderings.Ord# -> 4:9
+(18:32..18:33) _empty_/Orderings.isLess().[T] -> 18:14
+(18:39..18:46) scala/Boolean#
+(19:34..19:38) _empty_/Orderings.Ord#less(). -> 4:22
+(19:15..19:25) scala/Predef.implicitly().
+(19:26..19:29) _empty_/Orderings.Ord# -> 4:9
+(19:30..19:31) _empty_/Orderings.isLess().[T] -> 18:14
+(19:39..19:40) local8 -> 19:5
+(19:42..19:43) local9 -> 19:10
+

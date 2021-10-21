@@ -1,0 +1,16 @@
+Document tests/pos/t6201.scala
+(6:13..6:17) _empty_/Elem# -> 3:7
+(6:20..6:23) scala/Predef.`???`().
+(9:17..9:21) _empty_/Elem# -> 3:7
+(13:17..13:20) scala/Int#
+(15:26..15:30) _empty_/Elem# -> 3:7
+(15:43..15:47) _empty_/Test#Foo1# -> 8:9
+(15:58..15:58) _empty_/Test#Foo1#`<init>`(). -> 9:5
+(15:54..15:58) _empty_/Test#Foo1# -> 8:9
+(16:26..16:30) _empty_/Elem# -> 3:7
+(16:43..16:47) _empty_/Test#Foo2# -> 12:9
+(16:58..16:58) _empty_/Test#Foo2#`<init>`(). -> 13:5
+(16:54..16:58) _empty_/Test#Foo2# -> 12:9
+(18:11..18:15) scala/Unit#
+(18:21..18:25) _empty_/Test#elem(). -> 6:7
+

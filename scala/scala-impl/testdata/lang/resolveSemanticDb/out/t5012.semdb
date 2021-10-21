@@ -1,0 +1,5 @@
+Document tests/pos/t5012.scala
+(6:10..6:11) _empty_/D# -> 1:7
+(7:22..7:24) scala/Int#`==`(+3).
+(7:15..7:21) java/lang/String#length().
+

@@ -1,0 +1,15 @@
+Document tests/pos/scoping3.scala
+(3:22..3:31) _empty_/CI.TreeDisplay#ITreeNode# -> 4:11
+(5:22..5:26) scala/Unit#
+(10:20..10:28) _empty_/CI.TreeDisplayExp#TreeNode# -> 11:10
+(11:22..11:34) _empty_/CI.TreeDisplayExp#ITreeNodeExp# -> 12:11
+(15:34..15:45) _empty_/CI.TreeDisplay# -> 2:9
+(15:51..15:65) _empty_/CI.TreeDisplayExp# -> 9:9
+(16:22..16:31) _empty_/CI.TreeDisplay#ITreeNode# -> 4:11
+(16:37..16:49) _empty_/CI.TreeDisplayExp#ITreeNodeExp# -> 12:11
+(18:44..18:55) _empty_/CI.TreeDisplay# -> 2:9
+(18:64..18:80) _empty_/CI.TreeDisplayFinal# -> 15:9
+(19:20..19:24) scala/Unit#
+(19:44..19:51) _empty_/CI.TreeDisplay#ITreeNode#display(). -> 5:11
+(19:34..19:41) _empty_/CI.TreeDisplayExp#getRoot(). -> 10:9
+

@@ -1,0 +1,37 @@
+Document tests/pos/t5727.scala
+(8:30..8:38) _empty_/Test.SomeInfo# -> 7:9
+(11:42..11:42) _empty_/Test.Res#`<init>`(). -> 10:28
+(11:30..11:33) _empty_/Test.Res# -> 10:25
+(11:34..11:41) scala/Nothing#
+(15:18..15:24) scala/Predef.String#
+(15:27..15:30) _empty_/Test.Res# -> 10:25
+(15:31..15:32) _empty_/Test.Base#[T] -> 14:24
+(18:18..18:19) _empty_/Test.Base#[T] -> 14:24
+(18:27..18:31) _empty_/Test.Base# -> 14:18
+(18:32..18:33) _empty_/Test.Base#bar().[U] -> 18:13
+(18:39..18:47) _empty_/Test.SomeInfo# -> 7:9
+(18:59..18:63) _empty_/Test.Base# -> 14:18
+(18:64..18:65) _empty_/Test.Base#bar().[U] -> 18:13
+(18:50..18:56) _empty_/Test.NoInfo. -> 8:15
+(21:36..21:42) scala/Predef.String#
+(21:45..21:49) _empty_/Test.Base# -> 14:18
+(21:50..21:56) scala/Predef.String#
+(21:76..21:76) _empty_/Test.Base#`<init>`(). -> 14:22
+(21:64..21:68) _empty_/Test.Base# -> 14:18
+(21:69..21:75) scala/Predef.String#
+(21:93..21:99) scala/Predef.String#
+(21:103..21:109) _empty_/Test.NotRes. -> 11:15
+(25:15..25:19) _empty_/Test.Base# -> 14:18
+(25:20..25:23) scala/Any#
+(25:29..25:32) _empty_/Test.rep(). -> 27:7
+(25:33..25:33) _empty_/Test.fromStringToBase(). -> 21:16
+(25:43..25:43) _empty_/Test.fromStringToBase(). -> 21:16
+(25:54..25:54) _empty_/Test.fromStringToBase(). -> 21:16
+(27:20..27:24) _empty_/Test.Base# -> 14:18
+(27:25..27:26) _empty_/Test.rep().[T] -> 27:11
+(27:30..27:34) _empty_/Test.Base# -> 14:18
+(27:35..27:36) _empty_/Test.rep().[T] -> 27:11
+(29:18..29:23) scala/Array#
+(29:24..29:30) scala/Predef.String#
+(29:34..29:38) scala/Unit#
+

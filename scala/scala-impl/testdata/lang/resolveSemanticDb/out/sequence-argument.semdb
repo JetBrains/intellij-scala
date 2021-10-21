@@ -1,0 +1,90 @@
+Document tests/pos/sequence-argument/B_2.scala
+(1:22..1:30) scala/reflect/ClassTag.
+(1:22..1:30) scala/reflect/ClassTag#
+(1:14..1:21) scala/reflect/
+(1:8..1:13) scala/
+(2:23..2:42) scala/language.implicitConversions.
+(2:14..2:22) scala/language.
+(2:8..2:13) scala/
+(5:23..5:24) _empty_/B.doubleSeq().[T] -> 5:17
+(5:27..5:30) scala/package.Seq#
+(5:31..5:32) _empty_/B.doubleSeq().[T] -> 5:17
+(5:39..5:39) scala/collection/SeqFactory.Delegate#apply().
+(5:36..5:39) scala/package.Seq.
+(5:40..5:41) _empty_/B.doubleSeq().(x) -> 5:20
+(5:43..5:44) _empty_/B.doubleSeq().(x) -> 5:20
+(6:35..6:36) _empty_/B.doubleArray().[T] -> 6:19
+(6:22..6:30) scala/reflect/ClassTag#
+(6:30..6:30) _empty_/B.doubleArray().[T] -> 6:19
+(6:39..6:44) scala/Array#
+(6:45..6:46) _empty_/B.doubleArray().[T] -> 6:19
+(6:55..6:55) scala/Array.apply().
+(6:50..6:55) scala/Array.
+(6:56..6:57) _empty_/B.doubleArray().(x) -> 6:32
+(6:59..6:60) _empty_/B.doubleArray().(x) -> 6:32
+(8:17..8:24) java/lang/Integer#
+(8:28..8:32) scala/Unit#
+(9:19..9:23) scala/Long#
+(9:27..9:31) scala/Unit#
+(10:18..10:19) _empty_/Y# -> 2:7
+(10:23..10:27) scala/Unit#
+(12:3..12:6) _empty_/B.box(). -> 8:7
+(12:7..12:16) _empty_/B.doubleSeq(). -> 5:7
+(12:17..12:17) scala/Predef.int2Integer().
+(13:3..13:6) _empty_/B.box(). -> 8:7
+(13:7..13:18) _empty_/B.doubleArray(). -> 6:7
+(13:19..13:19) scala/Predef.int2Integer().
+(13:21..13:21) scala/reflect/ClassTag.apply().
+(14:10..14:13) _empty_/Java_2#box().
+(14:3..14:9) _empty_/Java_2#
+(14:14..14:23) _empty_/B.doubleSeq(). -> 5:7
+(14:24..14:24) scala/Predef.int2Integer().
+(15:10..15:13) _empty_/Java_2#box().
+(15:3..15:9) _empty_/Java_2#
+(15:14..15:25) _empty_/B.doubleArray(). -> 6:7
+(15:26..15:26) scala/Predef.int2Integer().
+(15:28..15:28) scala/reflect/ClassTag.apply().
+(17:3..17:8) _empty_/B.widen(). -> 9:7
+(17:9..17:18) _empty_/B.doubleSeq(). -> 5:7
+(18:3..18:8) _empty_/B.widen(). -> 9:7
+(18:9..18:20) _empty_/B.doubleArray(). -> 6:7
+(18:23..18:23) scala/reflect/ClassTag.apply().
+(19:10..19:15) _empty_/Java_2#widen().
+(19:3..19:9) _empty_/Java_2#
+(19:16..19:25) _empty_/B.doubleSeq(). -> 5:7
+(19:26..19:26) scala/Predef.long2Long().
+(20:10..20:15) _empty_/Java_2#widen().
+(20:3..20:9) _empty_/Java_2#
+(20:16..20:27) _empty_/B.doubleArray(). -> 6:7
+(20:28..20:28) scala/Predef.long2Long().
+(20:30..20:30) scala/reflect/ClassTag.apply().
+(22:24..22:25) _empty_/X# -> 1:7
+(22:28..22:29) _empty_/Y# -> 2:7
+(22:37..22:37) _empty_/Y#`<init>`(). -> 2:1
+(22:36..22:37) _empty_/Y# -> 2:7
+(23:10..23:11) _empty_/X# -> 1:7
+(23:19..23:19) _empty_/X#`<init>`(). -> 1:1
+(23:18..23:19) _empty_/X# -> 1:7
+(24:3..24:7) _empty_/B.conv(). -> 10:7
+(24:8..24:17) _empty_/B.doubleSeq(). -> 5:7
+(24:18..24:18) _empty_/B.xToY(). -> 22:16
+(24:18..24:19) _empty_/B.x. -> 23:7
+(25:3..25:7) _empty_/B.conv(). -> 10:7
+(25:8..25:19) _empty_/B.doubleArray(). -> 6:7
+(25:20..25:20) _empty_/B.xToY(). -> 22:16
+(25:20..25:21) _empty_/B.x. -> 23:7
+(25:22..25:22) scala/reflect/ClassTag.apply().
+(26:10..26:14) _empty_/Java_2#conv().
+(26:3..26:9) _empty_/Java_2#
+(26:15..26:24) _empty_/B.doubleSeq(). -> 5:7
+(26:25..26:25) _empty_/B.xToY(). -> 22:16
+(26:25..26:26) _empty_/B.x. -> 23:7
+(27:10..27:14) _empty_/Java_2#conv().
+(27:3..27:9) _empty_/Java_2#
+(27:15..27:26) _empty_/B.doubleArray(). -> 6:7
+(27:27..27:27) _empty_/B.xToY(). -> 22:16
+(27:27..27:28) _empty_/B.x. -> 23:7
+(27:29..27:29) scala/reflect/ClassTag.apply().
+
+Document tests/pos/sequence-argument/XY_1.scala
+

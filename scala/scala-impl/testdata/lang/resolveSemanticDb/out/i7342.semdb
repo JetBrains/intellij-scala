@@ -1,0 +1,12 @@
+Document tests/pos/i7342/First_1.scala
+(1:18..1:21) scala/Int#
+(1:42..1:47) scala/Function1#apply().
+(1:30..1:33) scala/Int#
+(1:38..1:40) _empty_/First_1$package.g().(em) -> 1:14
+(1:49..1:56) scala/Predef.println(+1).
+
+Document tests/pos/i7342/Second_2.scala
+(1:10..1:13) scala/Int#
+(1:17..1:18) _empty_/First_1$package.g(). -> 1:12
+(1:19..1:20) _empty_/Second_2$package.h().(m) -> 1:7
+

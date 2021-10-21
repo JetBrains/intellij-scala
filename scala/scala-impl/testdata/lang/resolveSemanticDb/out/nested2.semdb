@@ -1,0 +1,13 @@
+Document tests/pos/nested2.scala
+(7:24..7:24) _empty_/C#`<init>`(). -> 1:8
+(7:15..7:16) _empty_/C# -> 1:7
+(7:17..7:23) scala/Predef.String#
+(8:20..8:21) _empty_/C#D# -> 2:9
+(8:10..8:11) _empty_/C# -> 1:7
+(8:12..8:18) scala/Predef.String#
+(8:22..8:25) scala/Int#
+(8:41..8:41) _empty_/C#D#`<init>`(). -> 2:10
+(8:35..8:36) _empty_/C#D# -> 2:9
+(8:33..8:34) _empty_/Test.x. -> 7:7
+(8:37..8:40) scala/Int#
+

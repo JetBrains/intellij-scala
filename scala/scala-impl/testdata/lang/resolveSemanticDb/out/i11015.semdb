@@ -1,0 +1,12 @@
+Document tests/pos/i11015.scala
+(1:19..1:29) scala/annotation/targetName#
+(1:8..1:18) scala/annotation/
+(3:19..3:22) scala/Int#
+(3:25..3:28) scala/Int#
+(4:5..4:15) scala/annotation/targetName#
+(4:41..4:47) scala/Predef.String#
+(4:50..4:56) scala/Predef.String#
+(6:15..6:15) _empty_/Foo.apply(). -> 3:8
+(6:12..6:15) _empty_/Foo. -> 2:8
+(6:16..6:19) scala/Int#
+

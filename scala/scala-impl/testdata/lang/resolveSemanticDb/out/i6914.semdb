@@ -1,0 +1,60 @@
+Document tests/pos/i6914.scala
+(5:25..5:33) _empty_/Liftable# -> 2:7
+(5:34..5:35) _empty_/test1.ToExpr#[T] -> 5:16
+(5:68..5:68) scala/Conversion#`<init>`().
+(5:46..5:56) scala/Conversion#
+(5:57..5:58) _empty_/test1.ToExpr#[T] -> 5:16
+(5:60..5:64) _empty_/Expr# -> 1:7
+(5:65..5:66) _empty_/test1.ToExpr#[T] -> 5:16
+(6:18..6:19) _empty_/test1.ToExpr#[T] -> 5:16
+(6:22..6:26) _empty_/Expr# -> 1:7
+(6:27..6:28) _empty_/test1.ToExpr#[T] -> 5:16
+(6:32..6:35) scala/Predef.`???`().
+(8:25..8:33) _empty_/Liftable# -> 2:7
+(8:34..8:35) _empty_/test1.toExpr#[T] -> 8:16
+(8:48..8:48) _empty_/test1.ToExpr#`<init>`(). -> 5:15
+(8:39..8:45) _empty_/test1.ToExpr# -> 5:9
+(8:46..8:47) _empty_/test1.toExpr#[T] -> 8:16
+(8:48..8:48) _empty_/test1.toExpr#x$1. -> 8:25
+(10:9..10:17) _empty_/Liftable# -> 2:7
+(10:18..10:21) scala/Int#
+(10:25..10:28) scala/Predef.`???`().
+(11:9..11:17) _empty_/Liftable# -> 2:7
+(11:18..11:24) scala/Predef.String#
+(11:28..11:31) scala/Predef.`???`().
+(13:11..13:17) scala/Predef.summon().
+(13:18..13:24) _empty_/test1.ToExpr# -> 5:9
+(13:25..13:31) scala/Predef.String#
+(13:33..13:33) _empty_/test1.toExpr(). -> 8:9
+(13:33..13:33) _empty_/test1.given_Liftable_String. -> 11:9
+(14:11..14:17) scala/Predef.summon().
+(14:18..14:28) scala/Conversion#
+(14:29..14:35) scala/Predef.String#
+(14:37..14:41) _empty_/Expr# -> 1:7
+(14:42..14:48) scala/Predef.String#
+(14:51..14:51) _empty_/test1.toExpr(). -> 8:9
+(14:51..14:51) _empty_/test1.given_Liftable_String. -> 11:9
+(16:10..16:14) _empty_/Expr# -> 1:7
+(16:15..16:21) scala/Predef.String#
+(16:25..16:25) _empty_/test1.ToExpr#apply(). -> 6:9
+(21:29..21:37) _empty_/Liftable# -> 2:7
+(21:38..21:39) _empty_/test2.autoToExpr#[T] -> 21:20
+(21:65..21:65) scala/Conversion#`<init>`().
+(21:43..21:53) scala/Conversion#
+(21:54..21:55) _empty_/test2.autoToExpr#[T] -> 21:20
+(21:57..21:61) _empty_/Expr# -> 1:7
+(21:62..21:63) _empty_/test2.autoToExpr#[T] -> 21:20
+(22:18..22:19) _empty_/test2.autoToExpr#[T] -> 21:20
+(22:22..22:26) _empty_/Expr# -> 1:7
+(22:27..22:28) _empty_/test2.autoToExpr#[T] -> 21:20
+(22:32..22:35) scala/Predef.`???`().
+(25:9..25:17) _empty_/Liftable# -> 2:7
+(25:18..25:21) scala/Int#
+(25:25..25:28) scala/Predef.`???`().
+(26:9..26:17) _empty_/Liftable# -> 2:7
+(26:18..26:24) scala/Predef.String#
+(26:28..26:31) scala/Predef.`???`().
+(28:10..28:14) _empty_/Expr# -> 1:7
+(28:15..28:21) scala/Predef.String#
+(28:25..28:25) _empty_/test2.autoToExpr#apply(). -> 22:9
+

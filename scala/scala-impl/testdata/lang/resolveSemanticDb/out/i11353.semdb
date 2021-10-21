@@ -1,0 +1,20 @@
+Document tests/pos/i11353.scala
+(1:18..1:18) scala/IArray$package.IArray.apply(+9).
+(1:12..1:18) scala/IArray$package.IArray.
+(2:9..2:9) scala/IArray$package.IArray.apply(+14).
+(2:3..2:9) scala/IArray$package.IArray.
+(3:9..3:9) scala/IArray$package.IArray.apply(+14).
+(3:3..3:9) scala/IArray$package.IArray.
+(4:9..4:9) scala/IArray$package.IArray.apply(+14).
+(4:3..4:9) scala/IArray$package.IArray.
+(5:2..5:2) scala/reflect/ClassTag.apply().
+(6:16..6:16) scala/Array.apply().
+(6:11..6:16) scala/Array.
+(7:9..7:9) scala/IArray$package.IArray.apply(+14).
+(7:3..7:9) scala/IArray$package.IArray.
+(8:8..8:8) scala/Array.apply(+5).
+(8:3..8:8) scala/Array.
+(9:8..9:8) scala/Array.apply(+5).
+(9:3..9:8) scala/Array.
+(10:2..10:2) scala/reflect/ClassTag.Any.
+

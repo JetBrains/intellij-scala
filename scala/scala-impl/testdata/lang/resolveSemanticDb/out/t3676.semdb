@@ -1,0 +1,8 @@
+Document tests/pos/t3676.scala
+(2:19..2:26) _empty_/SeqLike# -> 1:7
+(2:27..2:30) _empty_/Seq# -> 2:7
+(4:21..4:24) _empty_/Seq# -> 2:7
+(4:30..4:37) _empty_/SeqLike# -> 1:7
+(4:38..4:43) _empty_/MySub# -> 5:7
+(5:21..5:26) _empty_/MySeq# -> 4:7
+

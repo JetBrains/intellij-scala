@@ -1,0 +1,89 @@
+Document tests/pos/zipper.scala
+(2:21..2:25) _empty_/Tree# -> 1:6
+(2:26..2:27) _empty_/Tree.Branch#[A]
+(2:37..2:41) _empty_/Tree# -> 1:6
+(2:42..2:43) _empty_/Tree.Branch#[A]
+(3:20..3:21) _empty_/Tree.Leaf#[A]
+(7:22..7:26) _empty_/Tree# -> 1:6
+(7:27..7:28) _empty_/Context.InLeft#[A]
+(7:39..7:46) _empty_/Context# -> 5:6
+(7:47..7:48) _empty_/Context.InLeft#[A]
+(8:22..8:26) _empty_/Tree# -> 1:6
+(8:27..8:28) _empty_/Context.InRight#[A]
+(8:39..8:46) _empty_/Context# -> 5:6
+(8:47..8:48) _empty_/Context.InRight#[A]
+(10:8..10:12) _empty_/Tree. -> 1:6
+(10:16..10:23) _empty_/Context. -> 5:6
+(12:29..12:33) _empty_/Tree# -> 1:6
+(12:34..12:35) _empty_/Zipper#[A] -> 12:15
+(12:51..12:58) _empty_/Context# -> 5:6
+(12:59..12:60) _empty_/Zipper#[A] -> 12:15
+(13:16..13:20) _empty_/Tree# -> 1:6
+(13:21..13:22) _empty_/Zipper#[A] -> 12:15
+(13:26..13:33) _empty_/Zipper#context. -> 12:42
+(14:10..14:15) _empty_/Context.Empty. -> 6:8
+(14:19..14:24) _empty_/Zipper#focus. -> 12:22
+(15:22..15:29) _empty_/Zipper#unfocus(). -> 13:7
+(15:15..15:21) _empty_/Zipper#moveUp(). -> 16:7
+(16:15..16:21) _empty_/Zipper# -> 12:7
+(16:22..16:23) _empty_/Zipper#[A] -> 12:15
+(16:27..16:34) _empty_/Zipper#context. -> 12:42
+(17:10..17:15) _empty_/Context.Empty. -> 6:8
+(18:16..18:16) _empty_/Context.InLeft.unapply().
+(18:10..18:16) _empty_/Context.InLeft. -> 7:8
+(18:41..18:41) _empty_/Zipper#`<init>`(). -> 12:13
+(18:48..18:48) _empty_/Tree.Branch.apply(). -> 2:3
+(18:42..18:48) _empty_/Tree.Branch. -> 2:8
+(18:49..18:54) _empty_/Zipper#focus. -> 12:22
+(18:56..18:61) local0 -> 18:17
+(18:64..18:70) local1 -> 18:24
+(19:17..19:17) _empty_/Context.InRight.unapply().
+(19:10..19:17) _empty_/Context.InRight. -> 8:8
+(19:41..19:41) _empty_/Zipper#`<init>`(). -> 12:13
+(19:48..19:48) _empty_/Tree.Branch.apply(). -> 2:3
+(19:42..19:48) _empty_/Tree.Branch. -> 2:8
+(19:49..19:53) local2 -> 19:18
+(19:55..19:60) _empty_/Zipper#focus. -> 12:22
+(19:63..19:69) local3 -> 19:24
+(20:17..20:23) _empty_/Zipper# -> 12:7
+(20:24..20:25) _empty_/Zipper#[A] -> 12:15
+(20:29..20:34) _empty_/Zipper#focus. -> 12:22
+(21:14..21:14) _empty_/Tree.Leaf.unapply().
+(21:10..21:14) _empty_/Tree.Leaf. -> 3:8
+(22:16..22:16) _empty_/Tree.Branch.unapply().
+(22:10..22:16) _empty_/Tree.Branch. -> 2:8
+(22:39..22:39) _empty_/Zipper#`<init>`(). -> 12:13
+(22:40..22:44) local4 -> 22:17
+(22:52..22:52) _empty_/Context.InLeft.apply(). -> 7:3
+(22:46..22:52) _empty_/Context.InLeft. -> 7:8
+(22:53..22:58) local5 -> 22:23
+(22:60..22:67) _empty_/Zipper#context. -> 12:42
+(23:18..23:24) _empty_/Zipper# -> 12:7
+(23:25..23:26) _empty_/Zipper#[A] -> 12:15
+(23:30..23:35) _empty_/Zipper#focus. -> 12:22
+(24:14..24:14) _empty_/Tree.Leaf.unapply().
+(24:10..24:14) _empty_/Tree.Leaf. -> 3:8
+(25:16..25:16) _empty_/Tree.Branch.unapply().
+(25:10..25:16) _empty_/Tree.Branch. -> 2:8
+(25:39..25:39) _empty_/Zipper#`<init>`(). -> 12:13
+(25:40..25:45) local7 -> 25:23
+(25:54..25:54) _empty_/Context.InRight.apply(). -> 8:3
+(25:47..25:54) _empty_/Context.InRight. -> 8:8
+(25:55..25:59) local6 -> 25:17
+(25:61..25:68) _empty_/Zipper#context. -> 12:42
+(26:25..26:26) _empty_/Zipper#[A] -> 12:15
+(26:38..26:42) _empty_/Tree# -> 1:6
+(26:43..26:44) _empty_/Zipper#replaceFocus().[B] -> 26:20
+(26:48..26:54) _empty_/Zipper# -> 12:7
+(26:55..26:56) _empty_/Zipper#replaceFocus().[B] -> 26:20
+(27:11..27:11) _empty_/Zipper#`<init>`(). -> 12:13
+(27:12..27:20) _empty_/Zipper#replaceFocus().(newFocus) -> 26:28
+(27:22..27:29) _empty_/Zipper#context. -> 12:42
+(29:20..29:24) _empty_/Tree# -> 1:6
+(29:25..29:26) _empty_/zipper$package.focus().[A] -> 29:11
+(29:40..29:46) _empty_/Zipper# -> 12:7
+(29:47..29:48) _empty_/zipper$package.focus().[A] -> 29:11
+(29:58..29:58) _empty_/Zipper#`<init>`(). -> 12:13
+(29:59..29:63) _empty_/zipper$package.focus().(tree) -> 29:14
+(29:65..29:70) _empty_/Context.Empty. -> 6:8
+

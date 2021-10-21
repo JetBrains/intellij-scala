@@ -1,0 +1,27 @@
+Document tests/pos/t3866.scala
+(5:17..5:21) scala/package.List#
+(5:33..5:34) _empty_/ImplicitRepeated#T# -> 2:9
+(5:35..5:36) _empty_/ImplicitRepeated#f().[N] -> 5:9
+(5:38..5:39) _empty_/ImplicitRepeated#f().[R] -> 5:12
+(5:44..5:48) scala/Unit#
+(6:17..6:21) scala/package.List#
+(6:33..6:39) scala/Predef.String#
+(6:48..6:49) _empty_/ImplicitRepeated#T# -> 2:9
+(6:50..6:51) _empty_/ImplicitRepeated#f(+1).[N] -> 6:9
+(6:53..6:54) _empty_/ImplicitRepeated#f(+1).[R] -> 6:12
+(6:59..6:63) scala/Unit#
+(9:28..9:29) _empty_/ImplicitRepeated#X# -> 3:9
+(9:32..9:33) _empty_/ImplicitRepeated#T# -> 2:9
+(9:34..9:41) scala/Nothing#
+(9:43..9:44) _empty_/ImplicitRepeated#X# -> 3:9
+(10:29..10:30) _empty_/ImplicitRepeated#anyToN().[N] -> 10:23
+(10:33..10:34) _empty_/ImplicitRepeated#T# -> 2:9
+(10:35..10:36) _empty_/ImplicitRepeated#anyToN().[N] -> 10:23
+(10:38..10:45) scala/Nothing#
+(13:3..13:4) _empty_/ImplicitRepeated#f(+1). -> 6:7
+(13:10..13:10) _empty_/ImplicitRepeated#anyToN(). -> 10:16
+(13:13..13:13) _empty_/ImplicitRepeated#anyToN(). -> 10:16
+(14:3..14:4) _empty_/ImplicitRepeated#f(). -> 5:7
+(14:6..14:6) _empty_/ImplicitRepeated#anyToN(). -> 10:16
+(14:9..14:9) _empty_/ImplicitRepeated#anyToN(). -> 10:16
+

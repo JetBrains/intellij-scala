@@ -1,0 +1,17 @@
+Document tests/pos/selfSym.scala
+(13:19..13:22) scala/Int#
+(15:26..15:29) scala/Int#
+(15:43..15:43) test/Base#`<init>`(). -> 13:11
+(15:39..15:43) test/Base# -> 13:7
+(15:44..15:45) test/Middle#x. -> 15:23
+(15:55..15:58) test/Sub# -> 21:7
+(17:12..17:15) scala/Int#
+(17:18..17:21) scala/Int#
+(17:26..17:27) scala/Int#`+`(+4).
+(17:24..17:25) test/Middle#x. -> 15:23
+(17:28..17:29) test/Middle#f().(y) -> 17:9
+(21:25..21:25) test/Middle#`<init>`(). -> 15:22
+(21:19..21:25) test/Middle# -> 15:16
+(23:21..23:24) scala/Int#
+(23:28..23:29) test/Sub#f().(x) -> 23:18
+

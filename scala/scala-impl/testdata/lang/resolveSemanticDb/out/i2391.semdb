@@ -1,0 +1,8 @@
+Document tests/pos/i2391/Containers.scala
+(8:30..8:45) foo/ParentContainer# -> 4:7
+(9:27..9:32) foo/ParentContainer#Entry# -> 5:16
+
+Document tests/pos/i2391/User.scala
+(5:32..5:37) foo/ParentContainer#Entry# -> 5:16
+(5:17..5:31) foo/ChildContainer# -> 8:7
+

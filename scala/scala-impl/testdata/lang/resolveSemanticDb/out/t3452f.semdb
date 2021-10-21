@@ -1,0 +1,9 @@
+Document tests/pos/t3452f.scala
+(3:26..3:30) _empty_/Base#[Coll] -> 1:12
+(3:33..3:36) scala/Predef.`???`().
+(7:35..7:35) _empty_/Base#`<init>`(). -> 1:11
+(7:23..7:27) _empty_/Base# -> 1:7
+(7:28..7:34) scala/Predef.String#
+(8:19..8:30) _empty_/Base#Transformed# -> 2:9
+(8:31..8:34) scala/Any#
+

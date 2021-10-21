@@ -1,0 +1,18 @@
+Document tests/pos/z1720.scala
+(4:13..4:17) test/Info# -> 11:7
+(4:46..4:53) test/InfoRepository.getInfo(). -> 15:7
+(4:31..4:45) test/InfoRepository. -> 14:8
+(5:14..5:18) test/Info# -> 11:7
+(7:20..7:27) test/InfoRepository.getInfo(). -> 15:7
+(7:5..7:19) test/InfoRepository. -> 14:8
+(7:28..7:32) local0 -> 6:9
+(12:31..12:32) test/InfoImpl#[T] -> 12:21
+(12:42..12:46) test/Info# -> 11:7
+(12:47..12:48) test/InfoImpl#[T] -> 12:21
+(15:18..15:23) test/Thing# -> 3:7
+(15:26..15:30) test/Info# -> 11:7
+(15:31..15:32) test/InfoRepository.getInfo().(t) -> 15:15
+(15:49..15:49) test/InfoImpl.apply(). -> 12:1
+(15:41..15:49) test/InfoImpl. -> 12:12
+(15:50..15:51) test/InfoRepository.getInfo().(t) -> 15:15
+

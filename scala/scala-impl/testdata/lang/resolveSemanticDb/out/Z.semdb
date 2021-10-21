@@ -1,0 +1,9 @@
+Document tests/pos/Z.scala
+(2:13..2:16) scala/Int#
+(7:12..7:13) _empty_/X# -> 1:7
+(7:19..7:23) _empty_/X#elem. -> 2:7
+(7:17..7:18) _empty_/test.g().(x) -> 7:9
+(8:12..8:18) scala/AnyRef#
+(8:24..8:32) scala/Any#toString().
+(8:22..8:23) _empty_/test.f().(x) -> 8:9
+

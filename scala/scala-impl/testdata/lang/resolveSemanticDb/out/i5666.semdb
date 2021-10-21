@@ -1,0 +1,29 @@
+Document tests/pos/i5666.scala
+(3:20..3:25) _empty_/HList# -> 2:14
+(4:29..4:34) _empty_/HList# -> 2:14
+(9:5..9:11) _empty_/Concat# -> 6:7
+(9:12..9:16) _empty_/HNil# -> 3:7
+(9:18..9:19) _empty_/Concat.i0().[L] -> 8:19
+(9:34..9:35) _empty_/Concat.i0().[L] -> 8:19
+(12:18..12:24) _empty_/Concat# -> 6:7
+(12:25..12:26) _empty_/Concat.i1().[T] -> 11:22
+(12:28..12:29) _empty_/Concat.i1().[L] -> 11:25
+(12:44..12:45) _empty_/Concat.i1().[O] -> 11:28
+(13:7..13:13) _empty_/Concat# -> 6:7
+(13:14..13:19) _empty_/HCons# -> 4:7
+(13:20..13:21) _empty_/Concat.i1().[H] -> 11:19
+(13:23..13:24) _empty_/Concat.i1().[T] -> 11:22
+(13:27..13:28) _empty_/Concat.i1().[L] -> 11:25
+(13:43..13:48) _empty_/HCons# -> 4:7
+(13:49..13:50) _empty_/Concat.i1().[H] -> 11:19
+(13:52..13:53) _empty_/Concat.i1().[O] -> 11:28
+(17:13..17:18) _empty_/HCons# -> 4:7
+(17:19..17:23) scala/Unit#
+(17:25..17:29) _empty_/HNil# -> 3:7
+(19:3..19:13) scala/Predef.implicitly().
+(19:14..19:20) _empty_/Concat# -> 6:7
+(19:21..19:23) _empty_/Test.L1# -> 17:8
+(19:25..19:27) _empty_/Test.L1# -> 17:8
+(19:29..19:29) _empty_/Concat.i1(). -> 11:16
+(19:29..19:29) _empty_/Concat.i0(). -> 8:16
+

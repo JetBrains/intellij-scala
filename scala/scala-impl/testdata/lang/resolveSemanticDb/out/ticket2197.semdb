@@ -1,0 +1,9 @@
+Document tests/pos/ticket2197.scala
+(2:19..2:20) _empty_/PartialType#[T] -> 1:19
+(2:21..2:22) _empty_/PartialType#[A] -> 1:28
+(2:24..2:25) _empty_/PartialType#Apply#[B] -> 2:14
+(7:28..7:32) _empty_/Pure# -> 6:7
+(7:55..7:60) _empty_/PartialType#Apply# -> 2:8
+(7:33..7:44) _empty_/PartialType# -> 1:7
+(7:52..7:53) _empty_/StatePure#[X] -> 7:17
+

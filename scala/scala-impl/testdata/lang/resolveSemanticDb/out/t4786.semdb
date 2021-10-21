@@ -1,0 +1,29 @@
+Document tests/pos/t4786.scala
+(1:15..1:26) scala/specialized#
+(2:21..2:34) _empty_/MatrixBuilder# -> 9:7
+(2:35..2:36) _empty_/Matrix#[A] -> 1:27
+(2:38..2:42) _empty_/Matrix#[Repr] -> 1:30
+(2:46..2:50) _empty_/Matrix#[Repr] -> 1:30
+(2:51..2:52) _empty_/Matrix#[A] -> 1:27
+(3:8..3:13) _empty_/MatrixBuilder#zeros(). -> 10:7
+(3:5..3:7) _empty_/Matrix#duplicate().(mb) -> 2:17
+(6:43..6:49) _empty_/Matrix# -> 1:7
+(6:50..6:51) _empty_/DenseMatrix#[A] -> 6:32
+(6:20..6:31) scala/specialized#
+(7:30..7:41) _empty_/DenseMatrix# -> 6:7
+(7:42..7:47) scala/Float#
+(9:22..9:33) scala/specialized#
+(10:14..10:18) _empty_/MatrixBuilder#[Repr] -> 9:37
+(10:19..10:20) _empty_/MatrixBuilder#[A] -> 9:34
+(12:34..12:47) _empty_/MatrixBuilder# -> 9:7
+(12:48..12:53) scala/Float#
+(13:25..13:25) java/lang/Object#`<init>`().
+(13:19..13:25) java/lang/Object#
+(13:31..13:45) _empty_/DenseMatrixFlt# -> 7:7
+(20:21..20:24) scala/App#
+(21:30..21:35) _empty_/DenseFloatBuilder.zeros. -> 13:7
+(21:12..21:29) _empty_/DenseFloatBuilder. -> 12:8
+(22:15..22:24) _empty_/Matrix#duplicate(). -> 2:7
+(22:12..22:14) _empty_/Test.m1. -> 21:7
+(22:25..22:42) _empty_/DenseFloatBuilder. -> 12:8
+

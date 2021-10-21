@@ -1,0 +1,10 @@
+Document tests/pos/i3083.scala
+(6:26..6:33) _empty_/Minimized.Literal# -> 2:9
+(7:14..7:15) _empty_/Minimized.Literal#F# -> 3:10
+(7:16..7:19) scala/Int#
+(11:36..11:37) scala/`&`#
+(11:27..11:35) _empty_/Minimized.Addition# -> 6:9
+(11:38..11:45) _empty_/Minimized.Literal# -> 2:9
+(12:13..12:16) _empty_/Minimized.Addition#foo(). -> 7:9
+(12:7..12:12) _empty_/Minimized.Main.expression().(adder) -> 11:20
+

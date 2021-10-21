@@ -1,0 +1,18 @@
+Document tests/pos/testCoercionThis.scala
+(2:29..2:32) _empty_/Test.Foo# -> 4:9
+(2:35..2:38) _empty_/Test.Bar# -> 18:9
+(2:45..2:48) _empty_/Test.Foo#bar. -> 4:17
+(2:41..2:44) _empty_/Test.foo2bar().(foo) -> 2:24
+(4:22..4:25) _empty_/Test.Bar# -> 18:9
+(7:9..7:12) _empty_/Test.Bar#baz(). -> 18:19
+(7:7..7:7) _empty_/Test.foo2bar(). -> 2:16
+(7:7..7:8) local0 -> 6:11
+(14:34..14:37) _empty_/Test.Bar#baz(). -> 18:19
+(14:29..14:29) _empty_/Test.foo2bar(). -> 2:16
+(15:41..15:44) _empty_/Test.Bar#baz(). -> 18:19
+(15:30..15:30) _empty_/Test.foo2bar(). -> 2:16
+(15:36..15:39) _empty_/Test.Foo# -> 4:9
+(18:36..18:43) java/io/PrintStream#println(+8).
+(18:32..18:35) java/lang/System#out.
+(18:25..18:31) java/lang/System#
+

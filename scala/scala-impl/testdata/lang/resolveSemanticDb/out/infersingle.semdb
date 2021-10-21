@@ -1,0 +1,61 @@
+Document tests/pos/infersingle.scala
+(2:17..2:18) _empty_/Test1.one().[T] -> 2:11
+(2:21..2:27) scala/Option#
+(2:28..2:29) _empty_/Test1.one().[T] -> 2:11
+(2:37..2:37) scala/Some.apply().
+(2:33..2:37) scala/Some.
+(2:38..2:39) _empty_/Test1.one().(x) -> 2:14
+(4:10..4:16) scala/Option#
+(4:17..4:18) _empty_/Test1.x. -> 3:7
+(4:27..4:30) _empty_/Test1.one(). -> 2:7
+(4:31..4:32) _empty_/Test1.x. -> 3:7
+(12:23..12:26) scala/Any#
+(12:29..12:33) scala/Some#
+(12:34..12:35) _empty_/Test2.a. -> 10:7
+(12:48..12:48) scala/Some.apply().
+(12:44..12:48) scala/Some.
+(12:49..12:50) _empty_/Test2.a. -> 10:7
+(12:57..12:58) _empty_/Test2.a. -> 10:7
+(14:10..14:11) _empty_/Test2.a. -> 10:7
+(14:20..14:21) _empty_/Test2.a. -> 10:7
+(14:23..14:24) _empty_/Test2.a. -> 10:7
+(15:12..15:12) _empty_/Test2.Id.unapply(). -> 12:9
+(15:10..15:12) _empty_/Test2.Id. -> 11:10
+(15:19..15:20) local0 -> 15:13
+(22:23..22:26) scala/Any#
+(22:29..22:33) scala/Some#
+(22:34..22:39) _empty_/Test3. -> 19:8
+(22:52..22:52) scala/Some.apply().
+(22:48..22:52) scala/Some.
+(22:53..22:58) _empty_/Test3. -> 19:8
+(22:65..22:70) _empty_/Test3. -> 19:8
+(24:10..24:15) _empty_/Test3. -> 19:8
+(24:23..24:24) _empty_/Test3.a. -> 20:7
+(25:12..25:12) _empty_/Test3.Id.unapply(). -> 22:9
+(25:10..25:12) _empty_/Test3.Id. -> 21:10
+(25:19..25:20) local1 -> 25:13
+(32:23..32:26) scala/Any#
+(32:29..32:33) scala/Some#
+(32:57..32:57) scala/Some.apply().
+(32:53..32:57) scala/Some.
+(34:28..34:29) _empty_/Test4#a. -> 30:7
+(35:12..35:12) _empty_/Test4#Id.unapply(). -> 32:9
+(35:10..35:12) _empty_/Test4#Id. -> 31:10
+(35:19..35:20) local2 -> 35:13
+(41:11..41:12) _empty_/Super5#q. -> 40:13
+(41:20..41:21) _empty_/Super5#q. -> 40:13
+(44:27..44:27) _empty_/Super5#`<init>`(). -> 40:3
+(44:21..44:27) _empty_/Super5# -> 39:7
+(47:23..47:26) scala/Any#
+(47:29..47:33) scala/Some#
+(47:46..47:47) _empty_/Super5#q. -> 40:13
+(47:60..47:60) scala/Some.apply().
+(47:56..47:60) scala/Some.
+(47:73..47:74) _empty_/Super5#q. -> 40:13
+(47:81..47:83) _empty_/Super5#q1(). -> 41:7
+(49:22..49:23) _empty_/Super5#q. -> 40:13
+(49:31..49:32) _empty_/Test5#a. -> 45:7
+(50:12..50:12) _empty_/Test5#Id.unapply(). -> 47:9
+(50:10..50:12) _empty_/Test5#Id. -> 46:10
+(50:19..50:20) local3 -> 50:13
+

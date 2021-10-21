@@ -1,0 +1,17 @@
+Document tests/pos/compile.scala
+(5:18..5:24) java/lang/System.
+(5:18..5:24) java/lang/System#
+(5:13..5:17) java/lang/
+(5:8..5:12) java/
+(138:12..138:13) _empty_/Test3A#[T] -> 137:14
+(138:16..138:19) _empty_/Test3A#fun(). -> 138:7
+(141:22..141:28) _empty_/Test3A# -> 137:7
+(141:29..141:37) _empty_/Test3Foo# -> 135:7
+(143:22..143:28) _empty_/Test3A# -> 137:7
+(143:29..143:37) _empty_/Test3Foo# -> 135:7
+(144:21..144:29) _empty_/Test3Foo# -> 135:7
+(144:38..144:41) _empty_/Test3A#fun(). -> 138:7
+(147:28..147:28) _empty_/Test3B#`<init>`(). -> 141:22
+(147:22..147:28) _empty_/Test3B# -> 141:7
+(147:34..147:40) _empty_/Test3M# -> 143:7
+

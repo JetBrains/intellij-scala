@@ -1,0 +1,17 @@
+Document tests/pos/i5572.scala
+(2:16..2:17) _empty_/Foo#Id#[t] -> 2:11
+(4:12..4:13) _empty_/Foo#foo().(t) -> 3:33
+(5:15..5:18) scala/Int#
+(5:28..5:40) scala/Any#asInstanceOf().
+(5:24..5:25) scala/Int#`+`(+4).
+(5:23..5:24) local0 -> 5:12
+(5:41..5:43) _empty_/Foo#Id# -> 2:8
+(5:44..5:45) _empty_/Foo#foo().[T] -> 3:30
+(6:17..6:18) _empty_/Foo#foo().(t) -> 3:33
+(3:36..3:37) _empty_/Foo#foo().[T] -> 3:30
+(3:40..3:42) _empty_/Foo#Id# -> 2:8
+(3:43..3:44) _empty_/Foo#foo().[T] -> 3:30
+(10:20..10:23) _empty_/Foo# -> 1:7
+(13:7..13:10) _empty_/Foo#foo(). -> 3:26
+(13:3..13:6) _empty_/Bar. -> 10:8
+

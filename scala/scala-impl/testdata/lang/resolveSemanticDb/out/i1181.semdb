@@ -1,0 +1,15 @@
+Document tests/pos/i1181.scala
+(2:20..2:21) _empty_/Test.foo().[M] -> 2:11
+(2:22..2:25) scala/Int#
+(2:30..2:31) _empty_/Test.foo().(x) -> 2:17
+(4:20..4:21) _empty_/Test.Alias#[A] -> 4:14
+(4:23..4:24) _empty_/Test.Alias#[A] -> 4:14
+(5:10..5:15) _empty_/Test.Alias# -> 4:8
+(5:16..5:19) scala/Int#
+(5:24..5:24) scala/Tuple2.apply().
+(7:3..7:6) _empty_/Test.foo(). -> 2:7
+(7:7..7:12) _empty_/Test.Alias# -> 4:8
+(7:14..7:15) _empty_/Test.x. -> 5:7
+(8:3..8:6) _empty_/Test.foo(). -> 2:7
+(8:7..8:8) _empty_/Test.x. -> 5:7
+

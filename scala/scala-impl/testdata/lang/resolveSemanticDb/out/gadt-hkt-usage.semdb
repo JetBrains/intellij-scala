@@ -1,0 +1,13 @@
+Document tests/pos/gadt-hkt-usage.scala
+(4:32..4:32) _empty_/test.Inv#`<init>`(). -> 3:12
+(4:24..4:27) _empty_/test.Inv# -> 3:9
+(7:22..7:25) _empty_/test.Inv# -> 3:9
+(7:26..7:27) _empty_/test.Test.foo().[F] -> 7:13
+(7:32..7:33) _empty_/test.Test.foo().(x) -> 7:19
+(8:15..8:21) _empty_/test.InvFoo# -> 4:9
+(9:16..9:17) _empty_/test.Test.foo().[F] -> 7:13
+(9:18..9:21) scala/Int#
+(9:25..9:28) scala/Predef.`???`().
+(9:31..9:34) _empty_/test.Foo# -> 2:9
+(9:35..9:38) scala/Int#
+

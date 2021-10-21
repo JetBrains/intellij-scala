@@ -1,0 +1,15 @@
+Document tests/pos/i6854.scala
+(2:10..2:13) _empty_/Lib. -> 6:8
+(3:11..3:18) _empty_/Lib.IArray2# -> 7:15
+(3:19..3:22) scala/Int#
+(3:33..3:33) _empty_/Lib.IArray2.apply(). -> 10:16
+(3:26..3:33) _empty_/Lib.IArray2. -> 9:10
+(7:29..7:34) scala/Array#
+(7:40..7:41) _empty_/Lib.IArray2#[T] -> 7:24
+(10:27..10:30) scala/Int#
+(10:33..10:40) _empty_/Lib.IArray2# -> 7:15
+(10:41..10:44) scala/Int#
+(10:53..10:53) scala/Array.apply(+5).
+(10:48..10:53) scala/Array.
+(10:54..10:55) _empty_/Lib.IArray2.apply().(x) -> 10:22
+

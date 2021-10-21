@@ -1,0 +1,107 @@
+Document tests/pos/spec-funs.scala
+(1:21..1:32) scala/specialized#
+(1:38..1:49) scala/specialized#
+(2:16..2:17) _empty_/AbsFunction1#[T] -> 1:34
+(2:20..2:21) _empty_/AbsFunction1#[U] -> 1:51
+(9:18..9:23) scala/Array#
+(9:24..9:27) scala/Int#
+(9:33..9:45) _empty_/AbsFunction1# -> 1:7
+(9:46..9:49) scala/Int#
+(9:51..9:54) scala/Int#
+(12:14..12:15) scala/Int#`<`(+3).
+(12:12..12:13) local0 -> 10:9
+(12:19..12:25) scala/Array#length().
+(12:16..12:18) _empty_/IntTest#transF().(xs) -> 9:14
+(13:9..13:9) scala/Array#update().
+(13:7..13:9) _empty_/IntTest#transF().(xs) -> 9:14
+(13:10..13:11) local0 -> 10:9
+(13:24..13:25) scala/Int#`+`(+4).
+(13:16..13:16) _empty_/AbsFunction1#apply(). -> 2:7
+(13:15..13:16) _empty_/IntTest#transF().(f) -> 9:30
+(13:19..13:19) scala/Array#apply().
+(13:17..13:19) _empty_/IntTest#transF().(xs) -> 9:14
+(13:20..13:21) local0 -> 10:9
+(14:7..14:8) local0 -> 10:9
+(14:8..14:8) scala/Int#`+`(+4).
+(18:14..18:18) scala/Unit#
+(19:28..19:28) scala/Array#`<init>`().
+(19:18..19:23) scala/Array#
+(19:24..19:27) scala/Int#
+(20:17..20:29) _empty_/AbsFunction1# -> 1:7
+(20:30..20:33) scala/Int#
+(20:35..20:38) scala/Int#
+(21:20..21:23) scala/Int#
+(21:26..21:29) scala/Int#
+(21:34..21:35) scala/Int#`*`(+3).
+(21:32..21:33) local6 -> 21:17
+(21:36..21:37) local6 -> 21:17
+(23:29..23:29) scala/collection/immutable/Range#foreach().
+(23:17..23:22) scala/runtime/RichInt#until().
+(23:15..23:15) scala/LowPriorityImplicits#intWrapper().
+(23:23..23:29) _empty_/IntTest#niters. -> 7:7
+(24:7..24:13) _empty_/IntTest#transF(). -> 9:7
+(24:14..24:16) local2 -> 19:9
+(24:18..24:19) local3 -> 20:9
+(27:32..27:32) scala/collection/immutable/Range#foreach().
+(27:17..27:22) scala/runtime/RichInt#until().
+(27:15..27:15) scala/LowPriorityImplicits#intWrapper().
+(27:26..27:32) scala/Array#length().
+(27:23..27:25) local2 -> 19:9
+(27:34..27:37) local8 -> 26:9
+(27:37..27:37) scala/Int#`+`(+4).
+(27:43..27:43) scala/Array#apply().
+(27:41..27:43) local2 -> 19:9
+(27:44..27:45) local9 -> 27:10
+(28:5..28:12) scala/Predef.println(+1).
+(28:13..28:16) local8 -> 26:9
+(36:18..36:23) scala/Array#
+(36:24..36:27) scala/Int#
+(36:33..36:36) scala/Int#
+(36:40..36:43) scala/Int#
+(39:14..39:15) scala/Int#`<`(+3).
+(39:12..39:13) local10 -> 37:9
+(39:19..39:25) scala/Array#length().
+(39:16..39:18) _empty_/ClosureTest#transF().(xs) -> 36:14
+(40:9..40:9) scala/Array#update().
+(40:7..40:9) _empty_/ClosureTest#transF().(xs) -> 36:14
+(40:10..40:11) local10 -> 37:9
+(40:30..40:31) scala/Int#`+`(+4).
+(40:17..40:22) scala/Function1#apply().
+(40:15..40:16) _empty_/ClosureTest#transF().(f) -> 36:30
+(40:25..40:25) scala/Array#apply().
+(40:23..40:25) _empty_/ClosureTest#transF().(xs) -> 36:14
+(40:26..40:27) local10 -> 37:9
+(41:7..41:8) local10 -> 37:9
+(41:8..41:8) scala/Int#`+`(+4).
+(45:14..45:18) scala/Unit#
+(46:28..46:28) scala/Array#`<init>`().
+(46:18..46:23) scala/Array#
+(46:24..46:27) scala/Int#
+(48:29..48:29) scala/collection/immutable/Range#foreach().
+(48:17..48:22) scala/runtime/RichInt#until().
+(48:15..48:15) scala/LowPriorityImplicits#intWrapper().
+(48:23..48:29) _empty_/ClosureTest#niters. -> 34:7
+(49:7..49:13) _empty_/ClosureTest#transF(). -> 36:7
+(49:14..49:16) local12 -> 46:9
+(49:25..49:26) scala/Int#`*`(+3).
+(49:23..49:24) local14 -> 49:18
+(49:27..49:28) local14 -> 49:18
+(52:32..52:32) scala/collection/immutable/Range#foreach().
+(52:17..52:22) scala/runtime/RichInt#until().
+(52:15..52:15) scala/LowPriorityImplicits#intWrapper().
+(52:26..52:32) scala/Array#length().
+(52:23..52:25) local12 -> 46:9
+(52:34..52:37) local15 -> 51:9
+(52:37..52:37) scala/Int#`+`(+4).
+(52:43..52:43) scala/Array#apply().
+(52:41..52:43) local12 -> 46:9
+(52:44..52:45) local16 -> 52:10
+(53:5..53:12) scala/Predef.println(+1).
+(53:13..53:16) local15 -> 51:9
+(58:17..58:20) _empty_/IntTest#run(). -> 18:7
+(58:15..58:15) _empty_/IntTest#`<init>`(). -> 7:3
+(58:8..58:15) _empty_/IntTest# -> 5:13
+(59:21..59:24) _empty_/ClosureTest#run(). -> 45:7
+(59:19..59:19) _empty_/ClosureTest#`<init>`(). -> 34:3
+(59:8..59:19) _empty_/ClosureTest# -> 32:13
+

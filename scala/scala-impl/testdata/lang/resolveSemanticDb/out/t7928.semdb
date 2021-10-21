@@ -1,0 +1,12 @@
+Document tests/pos/t7928.scala
+(4:24..4:32) scala/package.Iterable#
+(4:39..4:46) _empty_/OuterTrait#InnerTrait#Element# -> 3:10
+(4:33..4:38) _empty_/OuterTrait#Inner. -> 7:7
+(7:14..7:24) _empty_/OuterTrait#InnerTrait# -> 2:9
+(11:28..11:38) _empty_/OuterTrait# -> 1:7
+(12:24..12:34) _empty_/OuterTrait#InnerTrait# -> 2:9
+(13:20..13:26) scala/Predef.String#
+(14:32..14:35) scala/package.Seq#
+(14:42..14:49) _empty_/OuterObject.Inner.Element# -> 13:10
+(14:36..14:41) _empty_/OuterObject.Inner. -> 12:10
+

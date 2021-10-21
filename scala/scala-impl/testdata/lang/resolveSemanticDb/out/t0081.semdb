@@ -1,0 +1,6 @@
+Document tests/pos/t0081.scala
+(2:14..2:15) _empty_/A#B# -> 3:11
+(2:12..2:13) _empty_/A# -> 1:7
+(2:23..2:23) _empty_/A#B#`<init>`(). -> 3:5
+(2:22..2:23) _empty_/A#B# -> 3:11
+

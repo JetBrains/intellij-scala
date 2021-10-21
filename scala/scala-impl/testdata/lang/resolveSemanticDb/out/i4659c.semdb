@@ -1,0 +1,9 @@
+Document tests/pos/i4659c.scala
+(1:34..1:48) _empty_/SourcePosition# -> 1:12
+(2:3..2:9) scala/Predef.assert(+1).
+(2:16..2:18) scala/Any#`!=`().
+(2:10..2:15) _empty_/SourcePosition#outer. -> 1:27
+(1:51..1:67) _empty_/NoSourcePosition. -> 5:8
+(5:47..5:47) _empty_/SourcePosition#`<init>`(). -> 1:26
+(5:33..5:47) _empty_/SourcePosition# -> 1:12
+

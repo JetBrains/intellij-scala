@@ -1,0 +1,105 @@
+Document tests/pos/t1001.scala
+(5:43..5:43) scala/Array#apply().
+(5:26..5:41) java/lang/Class#getConstructors().
+(5:13..5:20) scala/Predef.classOf().
+(5:21..5:24) _empty_/Foo# -> 2:7
+(6:7..6:24) java/lang/reflect/Constructor#getDeclaringClass().
+(6:3..6:6) _empty_/Overload.foo. -> 5:7
+(17:25..17:29) scala/package.List#
+(17:30..17:31) _empty_/A# -> 14:16
+(20:28..20:29) _empty_/A# -> 14:16
+(20:38..20:39) _empty_/B#[T] -> 20:9
+(22:27..22:27) _empty_/A#`<init>`(). -> 17:5
+(22:26..22:27) _empty_/A# -> 14:16
+(25:25..25:29) scala/package.List#
+(25:30..25:31) _empty_/C# -> 22:16
+(28:27..28:27) _empty_/C#`<init>`(). -> 22:26
+(28:26..28:27) _empty_/C# -> 22:16
+(28:33..28:34) _empty_/B# -> 20:7
+(28:35..28:36) _empty_/D# -> 28:16
+(30:28..30:28) _empty_/C#`<init>`(). -> 22:26
+(30:27..30:28) _empty_/C# -> 22:16
+(30:34..30:35) _empty_/B# -> 20:7
+(30:36..30:38) _empty_/Ee# -> 30:16
+(35:20..35:20) _empty_/D#`<init>`(). -> 28:26
+(35:19..35:20) _empty_/D# -> 28:16
+(37:16..37:19) scala/package.Nil.
+(40:20..40:20) _empty_/D#`<init>`(). -> 28:26
+(40:19..40:20) _empty_/D# -> 28:16
+(42:16..42:19) scala/package.Nil.
+(45:20..45:20) _empty_/D#`<init>`(). -> 28:26
+(45:19..45:20) _empty_/D# -> 28:16
+(47:20..47:20) scala/collection/IterableFactory#apply().
+(47:16..47:20) scala/package.List.
+(47:21..47:23) _empty_/N1. -> 35:8
+(50:20..50:20) _empty_/D#`<init>`(). -> 28:26
+(50:19..50:20) _empty_/D# -> 28:16
+(52:20..52:20) scala/collection/IterableFactory#apply().
+(52:16..52:20) scala/package.List.
+(52:21..52:23) _empty_/N1. -> 35:8
+(55:20..55:20) _empty_/D#`<init>`(). -> 28:26
+(55:19..55:20) _empty_/D# -> 28:16
+(57:20..57:20) scala/collection/IterableFactory#apply().
+(57:16..57:20) scala/package.List.
+(57:21..57:23) _empty_/N1. -> 35:8
+(60:21..60:21) _empty_/D#`<init>`(). -> 28:26
+(60:20..60:21) _empty_/D# -> 28:16
+(62:16..62:19) scala/package.Nil.
+(65:21..65:21) _empty_/D#`<init>`(). -> 28:26
+(65:20..65:21) _empty_/D# -> 28:16
+(67:20..67:20) scala/collection/IterableFactory#apply().
+(67:16..67:20) scala/package.List.
+(67:21..67:23) _empty_/N2. -> 40:8
+(70:21..70:21) _empty_/D#`<init>`(). -> 28:26
+(70:20..70:21) _empty_/D# -> 28:16
+(72:20..72:20) scala/collection/IterableFactory#apply().
+(72:16..72:20) scala/package.List.
+(72:21..72:23) _empty_/N5. -> 45:8
+(72:24..72:27) _empty_/N10. -> 60:8
+(72:28..72:30) _empty_/N8. -> 55:8
+(75:21..75:21) _empty_/D#`<init>`(). -> 28:26
+(75:20..75:21) _empty_/D# -> 28:16
+(77:20..77:20) scala/collection/IterableFactory#apply().
+(77:16..77:20) scala/package.List.
+(77:21..77:24) _empty_/N14. -> 70:8
+(80:21..80:21) _empty_/D#`<init>`(). -> 28:26
+(80:20..80:21) _empty_/D# -> 28:16
+(82:20..82:20) scala/collection/IterableFactory#apply().
+(82:16..82:20) scala/package.List.
+(82:21..82:24) _empty_/N13. -> 65:8
+(82:25..82:27) _empty_/N6. -> 50:8
+(82:28..82:31) _empty_/N15. -> 75:8
+(85:21..85:21) _empty_/D#`<init>`(). -> 28:26
+(85:20..85:21) _empty_/D# -> 28:16
+(87:20..87:20) scala/collection/IterableFactory#apply().
+(87:16..87:20) scala/package.List.
+(87:21..87:24) _empty_/N16. -> 80:8
+(90:21..90:21) _empty_/D#`<init>`(). -> 28:26
+(90:20..90:21) _empty_/D# -> 28:16
+(92:20..92:20) scala/collection/IterableFactory#apply().
+(92:16..92:20) scala/package.List.
+(92:21..92:24) _empty_/N16. -> 80:8
+(95:21..95:21) _empty_/D#`<init>`(). -> 28:26
+(95:20..95:21) _empty_/D# -> 28:16
+(97:20..97:20) scala/collection/IterableFactory#apply().
+(97:16..97:20) scala/package.List.
+(97:21..97:24) _empty_/N17. -> 85:8
+(100:21..100:21) _empty_/D#`<init>`(). -> 28:26
+(100:20..100:21) _empty_/D# -> 28:16
+(102:20..102:20) scala/collection/IterableFactory#apply().
+(102:16..102:20) scala/package.List.
+(102:21..102:24) _empty_/N22. -> 95:8
+(105:22..105:22) _empty_/Ee#`<init>`(). -> 30:27
+(105:20..105:22) _empty_/Ee# -> 30:16
+(107:20..107:20) scala/collection/IterableFactory#apply().
+(107:16..107:20) scala/package.List.
+(107:21..107:24) _empty_/N21. -> 90:8
+(107:25..107:28) _empty_/N17. -> 85:8
+(111:22..111:22) _empty_/Ee#`<init>`(). -> 30:27
+(111:20..111:22) _empty_/Ee# -> 30:16
+(114:20..114:20) scala/collection/IterableFactory#apply().
+(114:16..114:20) scala/package.List.
+(114:21..114:22) _empty_/C# -> 22:16
+(114:24..114:27) _empty_/N26. -> 105:8
+(114:28..114:31) _empty_/N25. -> 100:8
+

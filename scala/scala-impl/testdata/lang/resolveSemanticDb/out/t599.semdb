@@ -1,0 +1,19 @@
+Document tests/pos/t599.scala
+(2:15..2:18) _empty_/FooA#AxA# -> 3:20
+(5:17..5:18) _empty_/FooA#A# -> 2:10
+(6:17..6:18) _empty_/FooA#InnerA#B# -> 5:12
+(9:22..9:26) _empty_/FooA# -> 1:16
+(10:15..10:18) _empty_/FooB#AxB# -> 11:11
+(11:23..11:26) _empty_/FooA#AxA# -> 3:20
+(11:39..11:42) scala/Int#
+(12:41..12:41) _empty_/FooA#InnerA#`<init>`(). -> 5:7
+(12:35..12:41) _empty_/FooA#InnerA# -> 4:20
+(14:15..14:16) _empty_/FooB#A# -> 10:10
+(14:19..14:22) _empty_/FooA#InnerA#doB(). -> 6:11
+(15:9..15:12) _empty_/FooB#AxB#xxx(). -> 11:33
+(15:7..15:8) _empty_/FooB#InnerB#a. -> 14:11
+(16:28..16:29) _empty_/FooA#InnerA#B# -> 5:12
+(16:32..16:35) _empty_/FooA#InnerA#doB(). -> 6:11
+(17:11..17:14) _empty_/FooB#AxB#xxx(). -> 11:33
+(17:7..17:10) _empty_/FooB#InnerB#aaa. -> 16:11
+

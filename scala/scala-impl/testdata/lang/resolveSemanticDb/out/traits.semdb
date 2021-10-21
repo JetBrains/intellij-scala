@@ -1,0 +1,8 @@
+Document tests/pos/traits.scala
+(1:17..1:23) java/lang/Object#
+(3:10..3:13) scala/Int#
+(7:17..7:18) _empty_/B# -> 1:7
+(19:3..19:4) _empty_/T#`x_=`(). -> 9:7
+(21:3..21:5) _empty_/T#`xp_=`(). -> 11:15
+(25:17..25:18) _empty_/T# -> 7:7
+

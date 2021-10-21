@@ -1,0 +1,51 @@
+Document tests/pos/derive-eq.scala
+(2:26..2:26) scala/CanEqual.derived.
+(3:26..3:26) scala/CanEqual.derived.
+(8:16..8:17) _empty_/Lst.Cons#[T]
+(8:23..8:26) _empty_/Lst# -> 7:6
+(8:27..8:28) _empty_/Lst.Cons#[T]
+(7:21..7:21) scala/CanEqual.derived.
+(12:31..12:31) scala/CanEqual.derived.
+(16:3..16:13) scala/Predef.implicitly().
+(16:14..16:22) scala/CanEqual#
+(16:23..16:26) _empty_/Lst# -> 7:6
+(16:27..16:30) _empty_/Lst# -> 7:6
+(16:31..16:34) _empty_/One# -> 2:12
+(16:38..16:41) _empty_/Lst# -> 7:6
+(16:42..16:45) _empty_/Lst# -> 7:6
+(16:46..16:49) _empty_/Two# -> 3:12
+(16:53..16:53) _empty_/Lst.derived$CanEqual().
+(16:53..16:53) _empty_/`derive-eq$package`.given_CanEqual_One_Two. -> 5:7
+(17:3..17:13) scala/Predef.implicitly().
+(17:14..17:22) scala/CanEqual#
+(17:23..17:29) _empty_/Triple# -> 12:7
+(17:30..17:33) _empty_/One# -> 2:12
+(17:35..17:38) _empty_/One# -> 2:12
+(17:40..17:43) _empty_/One# -> 2:12
+(18:17..18:23) _empty_/Triple# -> 12:7
+(18:24..18:27) _empty_/Two# -> 3:12
+(18:29..18:32) _empty_/Two# -> 3:12
+(18:34..18:37) _empty_/Two# -> 3:12
+(18:40..18:40) _empty_/Triple.derived$CanEqual().
+(18:40..18:40) _empty_/`derive-eq$package`.given_CanEqual_One_Two. -> 5:7
+(20:10..20:16) _empty_/Triple# -> 12:7
+(20:17..20:20) _empty_/Lst# -> 7:6
+(20:21..20:24) _empty_/One# -> 2:12
+(20:27..20:30) _empty_/One# -> 2:12
+(20:32..20:35) _empty_/Two# -> 3:12
+(20:39..20:42) scala/Predef.`???`().
+(21:10..21:16) _empty_/Triple# -> 12:7
+(21:17..21:20) _empty_/Lst# -> 7:6
+(21:21..21:24) _empty_/Two# -> 3:12
+(21:27..21:30) _empty_/One# -> 2:12
+(21:32..21:35) _empty_/Two# -> 3:12
+(21:39..21:42) scala/Predef.`???`().
+(22:5..22:7) scala/Any#`==`().
+(22:3..22:4) _empty_/Test.x. -> 20:7
+(22:8..22:9) _empty_/Test.y. -> 21:7
+(5:7..5:15) scala/CanEqual#
+(5:16..5:19) _empty_/One# -> 2:12
+(5:21..5:24) _empty_/Two# -> 3:12
+(5:37..5:44) scala/CanEqual.derived.
+(5:28..5:36) scala/CanEqual.
+

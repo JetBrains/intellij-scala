@@ -1,0 +1,56 @@
+Document tests/pos/i9841b.scala
+(8:58..8:63) _empty_/Tree.Child# -> 6:16
+(8:64..8:65) _empty_/Tree.Branch#[T] -> 8:23
+(8:67..8:69) _empty_/Tree.Branch#[PL] -> 8:37
+(8:71..8:72) _empty_/Tree.Branch#[P] -> 8:41
+(8:74..8:75) _empty_/Tree.Branch#[H] -> 8:44
+(8:77..8:78) _empty_/Tree.Branch#[A] -> 8:47
+(8:85..8:93) _empty_/Tree.NonEmpty# -> 10:16
+(8:94..8:95) _empty_/Tree.Branch#[T] -> 8:23
+(8:97..8:99) _empty_/Tree.Branch#[PL] -> 8:37
+(8:101..8:102) _empty_/Tree.Branch#[P] -> 8:41
+(8:104..8:105) _empty_/Tree.Branch#[H] -> 8:44
+(12:29..12:33) _empty_/Tree.Next# -> 4:16
+(12:34..12:41) scala/Nothing#
+(12:43..12:50) scala/Nothing#
+(12:52..12:59) scala/Nothing#
+(12:61..12:68) scala/Nothing#
+(12:70..12:77) scala/Nothing#
+(14:63..14:67) _empty_/Tree.Next# -> 4:16
+(14:68..14:69) _empty_/Tree.RightBranch#[T] -> 14:28
+(14:71..14:73) _empty_/Tree.RightBranch#[PL] -> 14:42
+(14:75..14:76) _empty_/Tree.RightBranch#[P] -> 14:46
+(14:78..14:79) _empty_/Tree.RightBranch#[H] -> 14:49
+(14:81..14:82) _empty_/Tree.RightBranch#[A] -> 14:52
+(14:89..14:95) _empty_/Tree.Branch# -> 8:16
+(14:96..14:97) _empty_/Tree.RightBranch#[T] -> 14:28
+(14:99..14:101) _empty_/Tree.RightBranch#[PL] -> 14:42
+(14:103..14:104) _empty_/Tree.RightBranch#[P] -> 14:46
+(14:106..14:107) _empty_/Tree.RightBranch#[H] -> 14:49
+(14:109..14:110) _empty_/Tree.RightBranch#[A] -> 14:52
+(17:15..17:19) _empty_/Tree.Next# -> 4:16
+(17:20..17:21) _empty_/Tree.BranchImpl#[T] -> 16:20
+(17:23..17:25) _empty_/Tree.BranchImpl#[PL] -> 16:34
+(17:27..17:28) _empty_/Tree.BranchImpl#[P] -> 16:38
+(17:30..17:31) _empty_/Tree.BranchImpl#[H] -> 16:41
+(17:33..17:34) _empty_/Tree.BranchImpl#[A] -> 16:44
+(19:21..19:27) scala/Option#
+(19:28..19:34) _empty_/Tree.Branch# -> 8:16
+(19:35..19:36) _empty_/Tree.BranchImpl#[T] -> 16:20
+(19:38..19:40) _empty_/Tree.BranchImpl#[PL] -> 16:34
+(19:42..19:43) _empty_/Tree.BranchImpl#[P] -> 16:38
+(19:45..19:46) _empty_/Tree.BranchImpl#[H] -> 16:41
+(19:48..19:49) _empty_/Tree.BranchImpl#[A] -> 16:44
+(20:7..20:11) _empty_/Tree.BranchImpl#next(). -> 17:9
+(21:17..21:28) _empty_/Tree.RightBranch# -> 14:16
+(21:29..21:30) _empty_/Tree.BranchImpl#[T] -> 16:20
+(21:32..21:34) _empty_/Tree.BranchImpl#[PL] -> 16:34
+(21:36..21:37) _empty_/Tree.BranchImpl#[P] -> 16:38
+(21:39..21:40) _empty_/Tree.BranchImpl#[H] -> 16:41
+(21:42..21:43) _empty_/Tree.BranchImpl#[A] -> 16:44
+(21:52..21:52) scala/Some.apply().
+(21:48..21:52) scala/Some.
+(21:53..21:54) local0 -> 21:14
+(22:14..22:19) _empty_/Tree.Empty. -> 12:15
+(22:48..22:52) scala/None.
+

@@ -1,0 +1,4 @@
+Document tests/pos/i12396.scala
+(6:13..6:14) _empty_/`+`.x. -> 2:7
+(6:11..6:12) _empty_/`+`. -> 1:8
+

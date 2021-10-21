@@ -1,0 +1,7 @@
+Document tests/pos/t295.scala
+(1:56..1:56) java/rmi/server/UnicastRemoteObject#`<init>`().
+(1:37..1:56) java/rmi/server/UnicastRemoteObject#
+(1:30..1:36) java/rmi/server/
+(1:26..1:29) java/rmi/
+(1:21..1:25) java/
+

@@ -1,0 +1,7 @@
+Document tests/pos/tcpoly_typeapp.scala
+(3:9..3:10) _empty_/x#t# -> 2:7
+(3:28..3:35) scala/collection/mutable/
+(3:17..3:27) scala/collection/
+(3:11..3:16) scala/
+(3:43..3:51) scala/package.Iterable#
+

@@ -1,0 +1,9 @@
+Document tests/pos/t3582.scala
+(3:46..3:47) _empty_/C# -> 1:7
+(3:48..3:49) _empty_/Test.ImplicitParamCA().[A] -> 3:30
+(3:53..3:57) scala/Unit#
+(3:61..3:71) scala/Predef.implicitly().
+(3:72..3:73) _empty_/C# -> 1:7
+(3:74..3:75) _empty_/Test.ImplicitParamCA().[A] -> 3:30
+(3:77..3:77) _empty_/Test.ImplicitParamCA().(ev) -> 3:42
+

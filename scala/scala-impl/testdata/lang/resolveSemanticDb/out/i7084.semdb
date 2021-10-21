@@ -1,0 +1,20 @@
+Document tests/pos/i7084.scala
+(5:17..5:20) scala/Any#
+(6:17..6:20) _empty_/Test.Foo# -> 3:8
+(6:23..6:26) scala/Any#
+(6:29..6:32) scala/Predef.`???`().
+(9:12..9:15) scala/Any#
+(9:23..9:26) _empty_/Test.Foo# -> 3:8
+(9:29..9:32) scala/Any#
+(10:15..10:16) _empty_/Test.g(). -> 6:9
+(10:13..10:14) _empty_/Test.f().(x) -> 9:9
+(10:16..10:16) _empty_/Test.f().(x$2) -> 9:23
+(11:7..11:8) _empty_/Test.g(). -> 6:9
+(11:5..11:6) local0 -> 10:9
+(11:8..11:8) _empty_/Test.f().(x$2) -> 9:23
+(13:9..13:10) _empty_/Test.g(). -> 6:9
+(13:7..13:8) _empty_/Test.g(). -> 6:9
+(13:5..13:6) _empty_/Test.f().(x) -> 9:9
+(13:8..13:8) _empty_/Test.f().(x$2) -> 9:23
+(13:10..13:10) _empty_/Test.f().(x$2) -> 9:23
+

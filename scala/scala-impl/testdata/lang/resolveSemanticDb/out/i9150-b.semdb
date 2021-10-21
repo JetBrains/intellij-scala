@@ -1,0 +1,10 @@
+Document tests/pos/i9150-b.scala
+(1:26..1:37) scala/compiletime/package$package.erasedValue().
+(1:14..1:25) scala/compiletime/
+(1:8..1:13) scala/
+(3:12..3:15) _empty_/`i9150-b$package`.Foo. -> 4:8
+(6:34..6:45) scala/compiletime/package$package.erasedValue().
+(6:46..6:47) _empty_/`i9150-b$package`.fooErased().[T] -> 6:22
+(7:9..7:18) _empty_/`i9150-b$package`.fooErased(). -> 6:12
+(7:19..7:22) _empty_/`i9150-b$package`.Foo# -> 3:6
+

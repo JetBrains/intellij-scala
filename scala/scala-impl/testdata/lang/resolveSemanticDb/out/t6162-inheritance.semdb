@@ -1,0 +1,10 @@
+Document tests/pos/t6162-inheritance.scala
+(1:9..1:14) scala/
+(6:2..6:23) scala/deprecatedInheritance#
+(9:25..9:25) scala/t6126/Foo#`<init>`(). -> 6:1
+(9:22..9:25) scala/t6126/Foo# -> 7:7
+(11:2..11:23) scala/deprecatedInheritance#
+(14:21..14:22) scala/t6126/T# -> 12:7
+(16:2..16:23) scala/deprecatedInheritance#
+(20:7..20:8) scala/t6126/S# -> 17:7
+

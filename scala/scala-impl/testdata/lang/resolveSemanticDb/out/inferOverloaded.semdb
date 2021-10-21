@@ -1,0 +1,150 @@
+Document tests/pos/inferOverloaded.scala
+(2:18..2:19) _empty_/MySeq#[T] -> 1:13
+(2:23..2:24) _empty_/MySeq#map1().[U] -> 2:12
+(2:27..2:32) _empty_/MySeq# -> 1:7
+(2:33..2:34) _empty_/MySeq#map1().[U] -> 2:12
+(2:50..2:50) _empty_/MySeq#`<init>`(). -> 1:12
+(2:42..2:47) _empty_/MySeq# -> 1:7
+(2:48..2:49) _empty_/MySeq#map1().[U] -> 2:12
+(3:18..3:19) _empty_/MySeq#[T] -> 1:13
+(3:23..3:24) _empty_/MySeq#map2().[U] -> 3:12
+(3:27..3:32) _empty_/MySeq# -> 1:7
+(3:33..3:34) _empty_/MySeq#map2().[U] -> 3:12
+(3:50..3:50) _empty_/MySeq#`<init>`(). -> 1:12
+(3:42..3:47) _empty_/MySeq# -> 1:7
+(3:48..3:49) _empty_/MySeq#map2().[U] -> 3:12
+(6:40..6:40) _empty_/MySeq#`<init>`(). -> 1:12
+(6:27..6:32) _empty_/MySeq# -> 1:7
+(6:34..6:35) _empty_/MyMap#[A] -> 6:13
+(6:37..6:38) _empty_/MyMap#[B] -> 6:16
+(7:19..7:20) _empty_/MyMap#[A] -> 6:13
+(7:22..7:23) _empty_/MyMap#[B] -> 6:16
+(7:28..7:29) _empty_/MyMap#map1().[C] -> 7:12
+(7:32..7:37) _empty_/MySeq# -> 1:7
+(7:38..7:39) _empty_/MyMap#map1().[C] -> 7:12
+(7:55..7:55) _empty_/MySeq#`<init>`(). -> 1:12
+(7:47..7:52) _empty_/MySeq# -> 1:7
+(7:53..7:54) _empty_/MyMap#map1().[C] -> 7:12
+(8:22..8:23) _empty_/MyMap#[A] -> 6:13
+(8:25..8:26) _empty_/MyMap#[B] -> 6:16
+(8:32..8:33) _empty_/MyMap#map1(+1).[C] -> 8:12
+(8:35..8:36) _empty_/MyMap#map1(+1).[D] -> 8:15
+(8:40..8:45) _empty_/MyMap# -> 6:7
+(8:46..8:47) _empty_/MyMap#map1(+1).[C] -> 8:12
+(8:49..8:50) _empty_/MyMap#map1(+1).[D] -> 8:15
+(8:69..8:69) _empty_/MyMap#`<init>`(). -> 6:12
+(8:58..8:63) _empty_/MyMap# -> 6:7
+(8:64..8:65) _empty_/MyMap#map1(+1).[C] -> 8:12
+(8:67..8:68) _empty_/MyMap#map1(+1).[D] -> 8:15
+(9:23..9:24) _empty_/MyMap#[A] -> 6:13
+(9:26..9:27) _empty_/MyMap#[B] -> 6:16
+(9:34..9:35) _empty_/MyMap#map1(+2).[C] -> 9:12
+(9:37..9:38) _empty_/MyMap#map1(+2).[D] -> 9:15
+(9:42..9:47) _empty_/MyMap# -> 6:7
+(9:48..9:49) _empty_/MyMap#map1(+2).[C] -> 9:12
+(9:51..9:52) _empty_/MyMap#map1(+2).[D] -> 9:15
+(9:71..9:71) _empty_/MyMap#`<init>`(). -> 6:12
+(9:60..9:65) _empty_/MyMap# -> 6:7
+(9:66..9:67) _empty_/MyMap#map1(+2).[C] -> 9:12
+(9:69..9:70) _empty_/MyMap#map1(+2).[D] -> 9:15
+(11:14..11:23) scala/Function2#
+(11:24..11:27) scala/Int#
+(11:29..11:32) scala/Int#
+(11:34..11:37) scala/Int#
+(11:41..11:45) scala/Unit#
+(12:18..12:33) scala/PartialFunction#
+(12:35..12:36) _empty_/MyMap#[A] -> 6:13
+(12:38..12:39) _empty_/MyMap#[B] -> 6:16
+(12:42..12:43) _empty_/MyMap#foo(+1).[R] -> 12:11
+(12:47..12:52) _empty_/MySeq# -> 1:7
+(12:53..12:54) _empty_/MyMap#foo(+1).[R] -> 12:11
+(12:70..12:70) _empty_/MySeq#`<init>`(). -> 1:12
+(12:62..12:67) _empty_/MySeq# -> 1:7
+(12:68..12:69) _empty_/MyMap#foo(+1).[R] -> 12:11
+(16:33..16:33) _empty_/MyMap#`<init>`(). -> 6:12
+(16:15..16:20) _empty_/MyMap# -> 6:7
+(16:21..16:24) scala/Int#
+(16:26..16:32) scala/Predef.String#
+(19:5..19:9) _empty_/MySeq#map2(). -> 3:7
+(19:3..19:4) _empty_/Test.m. -> 16:7
+(19:12..19:12) local0
+(19:18..19:18) scala/Tuple2.unapply().
+(19:29..19:30) scala/Int#`-`(+3).
+(19:27..19:28) local1 -> 19:18
+(22:5..22:9) _empty_/MySeq#map1(). -> 2:7
+(22:3..22:4) _empty_/Test.m. -> 16:7
+(22:17..22:19) scala/Tuple2#_1.
+(22:15..22:16) local3 -> 22:10
+(23:5..23:9) _empty_/MyMap#map1(). -> 7:7
+(23:3..23:4) _empty_/Test.m. -> 16:7
+(23:52..23:53) scala/Int#`-`(+3).
+(23:40..23:51) local4 -> 23:11
+(24:14..24:18) _empty_/MyMap#map1(+2). -> 9:7
+(24:12..24:13) _empty_/Test.m. -> 16:7
+(24:25..24:25) scala/Tuple2.apply().
+(24:27..24:29) scala/Tuple2#_1.
+(24:25..24:26) local6 -> 24:19
+(25:12..25:17) _empty_/MyMap# -> 6:7
+(25:18..25:21) scala/Int#
+(25:23..25:29) scala/Double#
+(25:33..25:35) _empty_/Test.r1. -> 24:7
+(28:5..28:9) _empty_/MySeq#map1(). -> 2:7
+(28:3..28:4) _empty_/Test.m. -> 16:7
+(28:12..28:12) local7
+(28:18..28:18) scala/Tuple2.unapply().
+(28:29..28:30) scala/Int#`-`(+3).
+(28:27..28:28) local8 -> 28:18
+(28:36..28:51) scala/PartialFunction#
+(28:53..28:56) scala/Int#
+(28:58..28:64) scala/Predef.String#
+(28:67..28:70) scala/Int#
+(29:5..29:9) _empty_/MySeq#map2(). -> 3:7
+(29:3..29:4) _empty_/Test.m. -> 16:7
+(29:12..29:12) local10
+(29:18..29:18) scala/Tuple2.unapply().
+(29:29..29:30) scala/Int#`-`(+3).
+(29:27..29:28) local11 -> 29:18
+(29:36..29:51) scala/PartialFunction#
+(29:53..29:56) scala/Int#
+(29:58..29:64) scala/Predef.String#
+(29:67..29:70) scala/Int#
+(32:5..32:9) _empty_/MySeq#map1(). -> 2:7
+(32:3..32:4) _empty_/Test.m. -> 16:7
+(32:12..32:12) local13
+(32:18..32:18) scala/Tuple2.unapply().
+(32:27..32:28) local14 -> 32:18
+(33:13..33:17) _empty_/MyMap#map1(+2). -> 9:7
+(33:11..33:12) _empty_/Test.m. -> 16:7
+(33:20..33:20) local16
+(33:26..33:26) scala/Tuple2.unapply().
+(33:36..33:36) scala/Tuple2.apply().
+(33:36..33:37) local17 -> 33:26
+(33:40..33:41) scala/Int#`*`(+3).
+(33:39..33:40) local17 -> 33:26
+(34:11..34:16) _empty_/MyMap# -> 6:7
+(34:17..34:20) scala/Int#
+(34:22..34:25) scala/Int#
+(34:29..34:30) _empty_/Test.r. -> 33:7
+(35:5..35:8) _empty_/MyMap#foo(+1). -> 12:7
+(35:3..35:4) _empty_/Test.m. -> 16:7
+(35:11..35:11) local19
+(35:17..35:17) scala/Tuple2.unapply().
+(35:28..35:29) scala/Int#`-`(+3).
+(35:26..35:27) local20 -> 35:17
+(38:16..38:25) scala/Function2#
+(38:26..38:29) scala/Int#
+(38:31..38:37) scala/Predef.String#
+(38:39..38:40) _empty_/Test.h().[R] -> 38:9
+(38:44..38:48) scala/Unit#
+(39:16..39:31) scala/PartialFunction#
+(39:33..39:39) scala/Double#
+(39:41..39:47) scala/Double#
+(39:50..39:51) _empty_/Test.h(+1).[R] -> 39:9
+(39:55..39:59) scala/Unit#
+(40:3..40:4) _empty_/Test.h(+1). -> 39:7
+(40:7..40:7) local22
+(40:13..40:13) scala/Tuple2.unapply().
+(40:16..40:22) scala/Double#
+(40:27..40:33) scala/Double#
+(40:42..40:45) scala/Int#
+

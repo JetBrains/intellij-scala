@@ -1,0 +1,32 @@
+Document tests/pos/t6210.scala
+(2:54..2:57) _empty_/AST# -> 1:23
+(3:26..3:32) scala/Predef.String#
+(3:37..3:42) _empty_/AExpr# -> 2:23
+(3:54..3:59) _empty_/AExpr# -> 2:23
+(4:26..4:33) scala/Boolean#
+(4:54..4:59) _empty_/AExpr# -> 2:23
+(7:27..7:29) _empty_/Ty# -> 6:7
+(8:28..8:30) _empty_/Ty# -> 6:7
+(11:22..11:27) _empty_/AExpr# -> 2:23
+(11:30..11:32) _empty_/Ty# -> 6:7
+(12:15..12:17) _empty_/Ty# -> 6:7
+(12:20..12:23) _empty_/Foo.checkExpr().(ast) -> 11:17
+(13:19..13:19) _empty_/AAssign.unapply().
+(13:12..13:19) _empty_/AAssign. -> 3:12
+(13:24..13:30) scala/Predef.String#
+(13:34..13:39) _empty_/AExpr# -> 2:23
+(13:49..13:49) _empty_/TBool.apply().
+(13:44..13:49) _empty_/TBool. -> 8:12
+(15:22..15:22) _empty_/AConstBool.unapply().
+(15:12..15:22) _empty_/AConstBool. -> 4:12
+(15:26..15:33) scala/Boolean#
+(15:43..15:43) _empty_/TBool.apply().
+(15:38..15:43) _empty_/TBool. -> 8:12
+(17:61..17:61) java/lang/Exception#`<init>`(+1).
+(17:52..17:61) scala/package.Exception#
+(17:106..17:107) scala/StringContext#s().
+(17:64..17:64) scala/StringContext.apply().
+(17:96..17:104) scala/Any#getClass().
+(17:92..17:95) _empty_/Foo.checkExpr().(ast) -> 11:17
+(19:5..19:10) local0 -> 12:9
+

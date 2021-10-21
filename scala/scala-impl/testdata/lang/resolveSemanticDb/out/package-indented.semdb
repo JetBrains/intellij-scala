@@ -1,0 +1,7 @@
+Document tests/pos/package-indented.scala
+(8:16..8:17) scala/Int#`+`(+4).
+(8:14..8:15) p/`package-indented$package`.f(). -> 3:7
+(8:12..8:13) p/ -> 2:9
+(8:20..8:21) q/`package-indented$package`.g(). -> 6:7
+(8:18..8:19) q/ -> 5:9
+

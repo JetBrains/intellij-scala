@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import org.jetbrains.kotlin.utils.fileUtils.FileUtilsKt
+
 import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.meta.internal.semanticdb.Locator
+import scala.reflect.io.Directory
 
 
 case class SDbRef(symbol: String, position: TextPos, endPosition: TextPos, targetPosition: Option[TextPos]) {
@@ -78,6 +81,9 @@ object SemanticDbStore {
     SemanticDbStore(files)
   }
 
+  def fromTextFile(path: Path): SemanticDbStore =
+    fromText(Files.readString(path))
+
   def fromText(text: String): SemanticDbStore = {
     val lines = text.linesIterator
     val files = Seq.newBuilder[SDbFile]
@@ -115,4 +121,19 @@ object SemanticDbStore {
       }
     }
   }
+
+
+
+  /* Code to convert semanticdb binary data to new text based format
+
+  def main(args: Array[String]): Unit = {
+    val main = Path.of("/home/tobi/workspace/intellij-scala/community/scala/scala-impl/testdata/lang/resolveSemanticDb/out")
+    Files.list(main)
+      .filter(Files.isDirectory(_))
+      .forEach { path =>
+        val store = SemanticDbStore.fromSemanticDbPath(path)
+        Files.writeString(main.resolve(path.getFileName.toString + ".semdb"), store.serialized)
+      }
+  }
+  */
 }

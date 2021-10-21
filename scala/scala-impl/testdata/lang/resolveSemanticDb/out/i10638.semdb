@@ -1,0 +1,4 @@
+Document tests/pos/i10638.scala
+(6:20..6:29) woes/Extension# -> 9:7
+(6:30..6:34) woes/Impl#[Repr] -> 5:12
+

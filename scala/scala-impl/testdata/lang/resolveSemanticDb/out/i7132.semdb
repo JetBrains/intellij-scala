@@ -1,0 +1,7 @@
+Document tests/pos/i7132.scala
+(2:35..2:45) java/nio/Buffer#isReadOnly().
+(2:23..2:31) java/nio/ByteBuffer#allocate().
+(2:12..2:22) java/nio/ByteBuffer#
+(2:8..2:11) java/nio/
+(2:3..2:7) java/
+

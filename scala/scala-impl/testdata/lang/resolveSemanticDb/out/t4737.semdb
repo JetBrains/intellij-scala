@@ -1,0 +1,11 @@
+Document tests/pos/t4737/S_2.scala
+(3:10..3:13) j/J_1.
+(3:10..3:13) j/J_1#
+(3:8..3:9) j/
+(5:32..5:32) j/J_1#`<init>`().
+(5:29..5:32) j/J_1#
+(6:43..6:57) j/J_1#JavaInnerClass#
+(6:39..6:42) j/J_1#
+(6:60..6:64) scala/Unit#
+(7:5..7:12) scala/Predef.println(+1).
+

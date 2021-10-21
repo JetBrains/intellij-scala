@@ -1,0 +1,22 @@
+Document tests/pos/singlesubtypes.scala
+(2:10..2:16) scala/Predef.String#
+(2:19..2:22) scala/Predef.`???`().
+(3:10..3:16) scala/Predef.String#
+(3:19..3:22) scala/Predef.`???`().
+(8:12..8:13) _empty_/E.a. -> 2:7
+(8:10..8:11) _empty_/E. -> 1:8
+(8:23..8:24) _empty_/E.a. -> 2:7
+(8:21..8:22) _empty_/E. -> 1:8
+(9:12..9:13) _empty_/E.b. -> 3:7
+(9:10..9:11) _empty_/E. -> 1:8
+(9:23..9:24) _empty_/E.b. -> 3:7
+(9:21..9:22) _empty_/E. -> 1:8
+(11:17..11:18) scala/`|`#
+(11:10..11:11) _empty_/Test.a. -> 8:7
+(11:19..11:20) _empty_/Test.b. -> 9:7
+(11:28..11:31) scala/Predef.`???`().
+(12:17..12:18) scala/`|`#
+(12:10..12:11) _empty_/Test.a. -> 8:7
+(12:19..12:20) _empty_/Test.b. -> 9:7
+(12:28..12:29) _empty_/Test.c. -> 11:7
+

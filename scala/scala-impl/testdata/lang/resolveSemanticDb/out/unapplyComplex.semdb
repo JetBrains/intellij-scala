@@ -1,0 +1,113 @@
+Document tests/pos/unapplyComplex.scala
+(1:23..1:31) scala/Product2#
+(1:32..1:38) scala/Double#
+(1:40..1:46) scala/Double#
+(2:23..2:26) scala/Any#
+(2:36..2:48) scala/Any#isInstanceOf().
+(2:30..2:35) _empty_/Complex#canEqual().(other) -> 2:16
+(2:49..2:56) _empty_/Complex# -> 1:7
+(5:27..5:33) scala/Double#
+(5:43..5:49) scala/Double#
+(5:59..5:66) _empty_/Complex# -> 1:7
+(6:51..6:52) java/lang/String#`+`().
+(6:48..6:49) java/lang/String#`+`().
+(6:44..6:45) java/lang/String#`+`().
+(6:41..6:42) java/lang/String#`+`().
+(6:42..6:44) _empty_/ComplexRect#_1. -> 5:23
+(6:49..6:51) _empty_/ComplexRect#_2. -> 5:39
+(9:28..9:34) scala/Double#
+(9:44..9:50) scala/Double#
+(9:60..9:67) _empty_/Complex# -> 1:7
+(10:52..10:53) java/lang/String#`+`().
+(10:49..10:50) java/lang/String#`+`().
+(10:45..10:46) java/lang/String#`+`().
+(10:42..10:43) java/lang/String#`+`().
+(10:43..10:45) _empty_/ComplexPolar#_1. -> 9:24
+(10:50..10:52) _empty_/ComplexPolar#_2. -> 9:40
+(14:17..14:24) _empty_/Complex# -> 1:7
+(14:27..14:33) scala/Option#
+(14:34..14:41) _empty_/Complex# -> 1:7
+(15:11..15:23) scala/Any#isInstanceOf().
+(15:9..15:10) _empty_/ComplexRect.unapply().(z) -> 14:15
+(15:24..15:35) _empty_/ComplexRect# -> 5:7
+(15:42..15:42) scala/Some.apply().
+(15:38..15:42) scala/Some.
+(15:43..15:44) _empty_/ComplexRect.unapply().(z) -> 14:15
+(15:51..15:52) _empty_/ComplexRect.unapply().(z) -> 14:15
+(16:24..16:24) _empty_/ComplexPolar.unapply(). -> 21:7
+(16:12..16:24) _empty_/ComplexPolar. -> 20:8
+(17:13..17:13) scala/Some.apply().
+(17:9..17:13) scala/Some.
+(17:29..17:29) _empty_/ComplexRect#`<init>`(). -> 5:18
+(17:18..17:29) _empty_/ComplexRect# -> 5:7
+(17:33..17:34) scala/Double#`*`(+6).
+(17:30..17:33) local0 -> 16:25
+(17:39..17:42) scala/math/package.cos().
+(17:34..17:38) scala/math/
+(17:43..17:46) local1 -> 16:30
+(17:52..17:53) scala/Double#`*`(+6).
+(17:49..17:52) local0 -> 16:25
+(17:58..17:61) scala/math/package.sin().
+(17:53..17:57) scala/math/
+(17:62..17:65) local1 -> 16:30
+(21:17..21:24) _empty_/Complex# -> 1:7
+(21:27..21:33) scala/Option#
+(21:34..21:41) _empty_/Complex# -> 1:7
+(22:11..22:23) scala/Any#isInstanceOf().
+(22:9..22:10) _empty_/ComplexPolar.unapply().(z) -> 21:15
+(22:24..22:36) _empty_/ComplexPolar# -> 9:7
+(22:43..22:43) scala/Some.apply().
+(22:39..22:43) scala/Some.
+(22:44..22:45) _empty_/ComplexPolar.unapply().(z) -> 21:15
+(22:52..22:53) _empty_/ComplexPolar.unapply().(z) -> 21:15
+(23:23..23:23) _empty_/ComplexRect.unapply(). -> 14:7
+(23:12..23:23) _empty_/ComplexRect. -> 13:8
+(24:13..24:13) scala/Some.apply().
+(24:9..24:13) scala/Some.
+(24:30..24:30) _empty_/ComplexPolar#`<init>`(). -> 9:19
+(24:18..24:30) _empty_/ComplexPolar# -> 9:7
+(24:36..24:40) scala/math/package.sqrt().
+(24:31..24:35) scala/math/
+(24:47..24:48) scala/Double#`+`(+7).
+(24:43..24:44) scala/Double#`*`(+6).
+(24:41..24:43) local2 -> 23:24
+(24:44..24:46) local2 -> 23:24
+(24:51..24:52) scala/Double#`*`(+6).
+(24:49..24:51) local3 -> 23:27
+(24:52..24:54) local3 -> 23:27
+(24:62..24:66) scala/math/package.atan().
+(24:57..24:61) scala/math/
+(24:69..24:70) scala/Double#`/`(+6).
+(24:67..24:69) local2 -> 23:24
+(24:70..24:72) local3 -> 23:27
+(28:17..28:22) scala/Array#
+(28:23..28:29) scala/Predef.String#
+(29:20..29:20) _empty_/ComplexRect#`<init>`(). -> 5:18
+(29:9..29:20) _empty_/ComplexRect# -> 5:7
+(30:24..30:24) _empty_/ComplexPolar.unapply(). -> 21:7
+(30:12..30:24) _empty_/ComplexPolar. -> 20:8
+(31:17..31:24) scala/Console.println(+1).
+(31:9..31:16) scala/Console.
+(31:40..31:41) java/lang/String#`+`().
+(31:34..31:35) java/lang/String#`+`().
+(31:30..31:31) java/lang/String#`+`().
+(31:31..31:34) local4 -> 30:25
+(31:41..31:44) local5 -> 30:29
+(33:19..33:30) _empty_/ComplexRect. -> 13:8
+(34:21..34:21) _empty_/ComplexPolar#`<init>`(). -> 9:19
+(34:9..34:21) _empty_/ComplexPolar# -> 9:7
+(34:27..34:31) scala/math/package.sqrt().
+(34:22..34:26) scala/math/
+(34:43..34:44) scala/Double#`/`(+6).
+(34:40..34:42) scala/math/package.Pi.
+(34:35..34:39) scala/math/
+(35:19..35:19) _empty_/ComplexRect.unapply(). -> 14:7
+(35:12..35:19) local6 -> 33:9
+(36:17..36:24) scala/Console.println(+1).
+(36:9..36:16) scala/Console.
+(36:38..36:39) java/lang/String#`+`().
+(36:32..36:33) java/lang/String#`+`().
+(36:29..36:30) java/lang/String#`+`().
+(36:30..36:32) local7 -> 35:20
+(36:39..36:41) local8 -> 35:23
+

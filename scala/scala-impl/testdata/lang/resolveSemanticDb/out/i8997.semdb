@@ -1,0 +1,13 @@
+Document tests/pos/i8997.scala
+(2:18..2:21) scala/Int#
+(2:32..2:45) scala/DummyImplicit#
+(2:56..2:59) scala/Int#
+(2:62..2:68) scala/Option#
+(2:69..2:72) scala/Int#
+(2:76..2:79) scala/Predef.`???`().
+(5:9..5:12) scala/Int#
+(7:13..7:13) _empty_/Foo.unapply(). -> 2:7
+(7:10..7:13) _empty_/Foo. -> 1:8
+(7:13..7:13) scala/DummyImplicit.dummyImplicit.
+(7:13..7:13) local0 -> 5:9
+

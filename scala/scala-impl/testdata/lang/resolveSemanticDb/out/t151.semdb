@@ -1,0 +1,8 @@
+Document tests/pos/t151.scala
+(3:14..3:15) _empty_/Foo#T# -> 2:8
+(3:18..3:21) scala/Int#
+(4:12..4:15) _empty_/Foo# -> 1:16
+(5:14..5:15) _empty_/Foo#T# -> 2:8
+(5:10..5:13) _empty_/Foo#foo. -> 4:7
+(5:18..5:19) _empty_/Foo#a(). -> 5:7
+

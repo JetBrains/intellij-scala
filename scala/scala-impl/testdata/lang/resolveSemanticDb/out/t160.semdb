@@ -1,0 +1,4 @@
+Document tests/pos/t160.scala
+(1:13..1:19) scala/Predef.String#
+(2:23..2:23) _empty_/Foo#`<init>`(). -> 1:10
+

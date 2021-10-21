@@ -1,0 +1,9 @@
+Document tests/pos/i12072.scala
+(4:10..4:14) scala/Unit#
+(6:17..6:18) _empty_/A# -> 3:7
+(7:26..7:30) scala/Unit#
+(8:17..8:19) scala/Int#`==`(+3).
+(8:15..8:16) _empty_/i12072$package.c(). -> 1:12
+(8:5..8:5) _empty_/B#f(). -> 7:23
+(1:15..1:18) scala/Int#
+

@@ -1,0 +1,12 @@
+Document tests/pos/i3637.scala
+(1:16..1:24) scala/reflect/ClassTag.
+(1:16..1:24) scala/reflect/ClassTag#
+(1:8..1:15) scala/reflect/
+(4:30..4:31) _empty_/Demo.summon().[T] -> 4:14
+(4:34..4:36) _empty_/Demo.summon().(ev) -> 4:26
+(4:44..4:46) _empty_/Demo.summon().(ev) -> 4:26
+(8:5..8:11) _empty_/Demo.summon(). -> 4:7
+(8:12..8:20) scala/reflect/ClassTag#
+(8:21..8:22) local0 -> 7:16
+(8:24..8:24) scala/reflect/ClassTag.apply().
+

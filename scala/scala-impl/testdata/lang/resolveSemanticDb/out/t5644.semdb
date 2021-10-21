@@ -1,0 +1,7 @@
+Document tests/pos/t5644/other.scala
+(2:11..2:17) scala/collection/immutable/List#exists().
+(2:7..2:7) scala/collection/IterableFactory#apply().
+(2:3..2:7) scala/package.List.
+(2:20..2:22) scala/Any#`==`().
+(2:30..2:33) scala/Any#
+

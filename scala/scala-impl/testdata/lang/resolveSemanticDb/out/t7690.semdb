@@ -1,0 +1,29 @@
+Document tests/pos/t7690.scala
+(5:34..5:35) _empty_/C.notUsed().[L] -> 5:24
+(5:36..5:39) scala/Int#
+(5:43..5:44) _empty_/B# -> 2:7
+(5:45..5:46) _empty_/C.notUsed().[L] -> 5:24
+(5:47..5:50) scala/Int#
+(5:55..5:58) scala/Predef.`???`().
+(7:19..7:22) scala/Int#
+(8:14..8:17) scala/Int#
+(8:21..8:28) scala/Boolean#
+(8:31..8:38) scala/Boolean#
+(8:42..8:42) scala/Function1#apply().
+(8:41..8:42) _empty_/C.E#x().(f) -> 8:11
+(8:43..8:45) _empty_/C.E#ls. -> 7:15
+(10:27..10:30) scala/Int#
+(10:33..10:34) _empty_/C.E# -> 7:9
+(10:42..10:42) _empty_/C.E#`<init>`(). -> 7:10
+(10:41..10:42) _empty_/C.E# -> 7:9
+(10:43..10:45) _empty_/C.isUsed().(ls) -> 10:23
+(12:19..12:22) scala/Int#
+(12:25..12:32) scala/Boolean#
+(13:8..13:9) _empty_/C.E#x(). -> 8:9
+(13:5..13:5) _empty_/C.isUsed(). -> 10:16
+(13:5..13:7) _empty_/C.amethod().(in) -> 12:15
+(14:14..14:15) _empty_/A. -> 1:8
+(15:14..15:16) scala/Any#`==`().
+(15:19..15:27) scala/Any#toString().
+(15:17..15:18) local0 -> 13:12
+

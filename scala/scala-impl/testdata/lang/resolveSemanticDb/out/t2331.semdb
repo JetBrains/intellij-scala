@@ -1,0 +1,10 @@
+Document tests/pos/t2331.scala
+(2:13..2:14) _empty_/C#m().[T] -> 2:9
+(6:36..6:37) _empty_/C# -> 1:7
+(7:15..7:22) scala/Nothing#
+(7:50..7:55) scala/sys/package.error().
+(7:46..7:49) scala/sys/
+(10:5..10:6) _empty_/C#m(). -> 2:7
+(10:3..10:4) _empty_/Test.o. -> 6:7
+(10:7..10:14) scala/Nothing#
+

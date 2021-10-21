@@ -1,0 +1,12 @@
+Document tests/pos/t607.scala
+(4:29..4:32) _empty_/Test.Foo# -> 3:15
+(4:44..4:45) _empty_/Test.FooX.X# -> 4:53
+(6:22..6:25) _empty_/Test.Foo# -> 3:15
+(6:42..6:43) _empty_/Test.FooX.X# -> 4:53
+(6:37..6:41) _empty_/Test.FooX. -> 4:16
+(8:25..8:30) scala/Array#
+(8:31..8:37) scala/Predef.String#
+(8:42..8:46) scala/Unit#
+(9:17..9:21) _empty_/Test.test(). -> 6:13
+(9:22..9:26) _empty_/Test.FooX. -> 4:16
+

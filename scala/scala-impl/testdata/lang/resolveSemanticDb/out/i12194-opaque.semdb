@@ -1,0 +1,16 @@
+Document tests/pos/i12194-opaque.scala
+(1:33..1:38) scala/Tuple#
+(1:48..1:51) scala/Tuple.Map#
+(1:42..1:47) scala/Tuple.
+(1:52..1:53) _empty_/`i12194-opaque$package`.ProductK#[T] -> 1:28
+(1:55..1:56) _empty_/`i12194-opaque$package`.ProductK#[F] -> 1:22
+(3:21..3:26) scala/Tuple#
+(3:37..3:40) scala/Tuple.Map#
+(3:31..3:36) scala/Tuple.
+(3:41..3:42) _empty_/`i12194-opaque$package`.ProductK.of().[T] -> 3:16
+(3:44..3:45) _empty_/`i12194-opaque$package`.ProductK.of().[F] -> 3:10
+(3:49..3:57) _empty_/`i12194-opaque$package`.ProductK# -> 1:13
+(3:58..3:59) _empty_/`i12194-opaque$package`.ProductK.of().[F] -> 3:10
+(3:61..3:62) _empty_/`i12194-opaque$package`.ProductK.of().[T] -> 3:16
+(3:66..3:67) _empty_/`i12194-opaque$package`.ProductK.of().(t) -> 3:28
+

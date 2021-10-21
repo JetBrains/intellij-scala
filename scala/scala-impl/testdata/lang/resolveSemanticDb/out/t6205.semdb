@@ -1,0 +1,34 @@
+Document tests/pos/t6205.scala
+(4:18..4:21) scala/Predef.Map#
+(4:22..4:23) _empty_/A# -> 2:7
+(4:28..4:31) scala/Any#
+(5:34..5:34) scala/collection/IterableOps.WithFilter#map().
+(5:34..5:34) scala/collection/MapFactoryDefaults#withFilter().
+(5:27..5:34) _empty_/Test1#x().(backing) -> 4:9
+(5:10..5:10) local0
+(5:11..5:11) scala/Tuple2.unapply().
+(5:14..5:15) _empty_/A# -> 2:7
+(6:14..6:15) local1 -> 5:11
+(6:17..6:18) _empty_/A# -> 2:7
+(6:19..6:21) local2 -> 5:16
+(11:25..11:26) _empty_/Holder#[A] -> 11:19
+(12:33..12:39) _empty_/Holder# -> 11:12
+(12:40..12:41) _empty_/Mapped#[A] -> 12:14
+(12:46..12:47) _empty_/Mapped#map().[T] -> 12:27
+(12:50..12:58) scala/package.Iterable#
+(12:59..12:60) _empty_/Mapped#map().[T] -> 12:27
+(12:64..12:67) scala/Predef.`???`().
+(14:22..14:28) _empty_/Mapped# -> 12:7
+(14:29..14:30) _empty_/A# -> 2:7
+(14:37..14:45) scala/package.Iterable#
+(14:46..14:47) _empty_/A# -> 2:7
+(15:15..15:18) _empty_/Mapped#map(). -> 12:23
+(15:7..15:14) _empty_/Test2#works().(backing) -> 14:13
+(16:10..16:11) local4 -> 15:19
+(16:30..16:30) _empty_/Holder.unapply(). -> 11:1
+(16:24..16:30) _empty_/Holder. -> 11:12
+(16:34..16:35) _empty_/A# -> 2:7
+(16:45..16:46) local5 -> 16:31
+(16:48..16:49) _empty_/A# -> 2:7
+(16:50..16:52) local6 -> 16:36
+

@@ -1,0 +1,5 @@
+Document tests/pos/t304.scala
+(3:13..3:14) scala/Int#`-`(+3).
+(4:15..4:15) scala/Int#`unary_-`().
+(4:13..4:15) _empty_/O.f1(). -> 2:7
+

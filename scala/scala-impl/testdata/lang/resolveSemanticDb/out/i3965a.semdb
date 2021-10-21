@@ -1,0 +1,22 @@
+Document tests/pos/i3965a.scala
+(1:28..1:40) _empty_/SortedSetOps# -> 3:7
+(1:41..1:42) _empty_/SortedSet#[A] -> 1:17
+(1:55..1:64) _empty_/SortedSet# -> 1:7
+(1:65..1:66) _empty_/SortedSet#[A] -> 1:17
+(6:11..6:20) _empty_/SortedSet# -> 1:7
+(6:21..6:22) _empty_/TreeSet#[A] -> 5:15
+(7:10..7:22) _empty_/SortedSetOps# -> 3:7
+(7:23..7:24) _empty_/TreeSet#[A] -> 5:15
+(7:35..7:42) _empty_/TreeSet# -> 5:7
+(7:43..7:44) _empty_/TreeSet#[A] -> 5:15
+(10:96..10:98) _empty_/Test#optionSequence1().[CC] -> 10:23
+(10:99..10:100) _empty_/Test#optionSequence1().[A] -> 10:78
+(10:82..10:90) scala/package.Ordering#
+(10:90..10:90) _empty_/Test#optionSequence1().[A] -> 10:78
+(10:104..10:108) scala/Unit#
+(12:17..12:24) _empty_/TreeSet# -> 5:7
+(12:25..12:31) scala/Predef.String#
+(13:5..13:20) _empty_/Test#optionSequence1(). -> 10:7
+(13:21..13:24) _empty_/Test#test().(xs2) -> 12:12
+(13:25..13:25) scala/math/Ordering.String.
+

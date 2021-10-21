@@ -1,0 +1,39 @@
+Document tests/pos/chan.scala
+(3:19..3:27) scala/package.Ordering#
+(3:28..3:29) _empty_/Comparator#T# -> 2:10
+(4:20..4:21) _empty_/Comparator#T# -> 2:10
+(4:26..4:27) _empty_/Comparator#T# -> 2:10
+(4:30..4:33) scala/Int#
+(4:45..4:52) scala/math/Ordering#compare().
+(4:36..4:44) _empty_/Comparator#ordering(). -> 3:9
+(4:53..4:54) _empty_/Comparator#compare().(a) -> 4:17
+(4:56..4:57) _empty_/Comparator#compare().(b) -> 4:23
+(7:30..7:40) _empty_/Comparator# -> 1:7
+(8:14..8:17) scala/Int#
+(9:19..9:27) scala/package.Ordering#
+(9:28..9:31) scala/Int#
+(9:44..9:47) scala/math/Ordering.Int.
+(9:35..9:43) scala/package.Ordering.
+(12:18..12:28) _empty_/Comparator# -> 1:7
+(12:37..12:40) scala/package.Seq#
+(12:43..12:44) _empty_/Comparator#T# -> 2:10
+(12:41..12:42) _empty_/Test.process().(c) -> 12:15
+(12:48..12:51) scala/Int#
+(13:7..13:14) _empty_/Comparator#compare(). -> 4:9
+(13:5..13:6) _empty_/Test.process().(c) -> 12:15
+(13:20..13:20) scala/collection/SeqOps#apply().
+(13:15..13:20) _empty_/Test.process().(items) -> 12:30
+(13:30..13:30) scala/collection/SeqOps#apply().
+(13:25..13:30) _empty_/Test.process().(items) -> 12:30
+(16:23..16:33) _empty_/Comparator# -> 1:7
+(16:45..16:46) _empty_/Processor#[K] -> 16:17
+(17:22..17:25) scala/package.Seq#
+(17:26..17:27) _empty_/Processor#[K] -> 16:17
+(17:31..17:34) scala/Int#
+(18:7..18:14) _empty_/Comparator#compare(). -> 4:9
+(18:5..18:6) _empty_/Processor#c. -> 16:20
+(18:20..18:20) scala/collection/SeqOps#apply().
+(18:15..18:20) _empty_/Processor#process().(items) -> 17:15
+(18:30..18:30) scala/collection/SeqOps#apply().
+(18:25..18:30) _empty_/Processor#process().(items) -> 17:15
+

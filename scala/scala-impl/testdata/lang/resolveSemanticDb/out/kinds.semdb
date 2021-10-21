@@ -1,0 +1,21 @@
+Document tests/pos/kinds.scala
+(2:12..2:18) scala/Predef.String#
+(2:21..2:27) scala/Predef.String#
+(2:30..2:31) _empty_/IllKind1#g().(s) -> 2:9
+(3:10..3:16) scala/Predef.String#
+(3:19..3:22) scala/Predef.`???`().
+(4:15..4:16) _empty_/IllKind1#f(+1).[C] -> 4:9
+(4:19..4:25) scala/Predef.String#
+(4:28..4:29) _empty_/IllKind1#g(). -> 2:7
+(4:30..4:31) _empty_/IllKind1#f(). -> 3:7
+(8:11..8:15) scala/Char#
+(8:18..8:21) scala/Predef.`???`().
+(9:11..9:15) scala/Byte#
+(9:18..9:21) scala/Predef.`???`().
+(11:18..11:26) scala/collection/StringOps#contains().
+(11:12..11:12) scala/Predef.augmentString().
+(11:27..11:29) _empty_/IllKind2#b1(). -> 8:7
+(12:18..12:26) scala/collection/SeqOps#contains().
+(12:12..12:12) scala/LowPriorityImplicits#wrapString().
+(12:27..12:29) _empty_/IllKind2#b2(). -> 9:7
+

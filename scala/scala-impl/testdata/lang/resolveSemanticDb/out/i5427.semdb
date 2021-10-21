@@ -1,0 +1,108 @@
+Document tests/pos/i5427.scala
+(4:24..4:27) _empty_/Foo# -> 1:7
+(4:28..4:31) scala/Int#
+(4:46..4:52) scala/Predef.String#
+(4:57..4:60) scala/Predef.`???`().
+(5:21..5:27) scala/Predef.String#
+(5:30..5:33) scala/Predef.`???`().
+(7:20..7:23) _empty_/Foo# -> 1:7
+(7:24..7:25) _empty_/Test.test1().[A] -> 7:13
+(7:44..7:47) _empty_/Foo#Out# -> 1:22
+(7:41..7:43) _empty_/Test.test1().(f1) -> 7:16
+(7:51..7:54) scala/Predef.`???`().
+(8:29..8:32) _empty_/Foo# -> 1:7
+(8:33..8:34) _empty_/Test.test2().[A] -> 8:13
+(8:44..8:47) _empty_/Foo#Out# -> 1:22
+(8:41..8:43) _empty_/Test.test2().(f1) -> 8:25
+(8:51..8:54) scala/Predef.`???`().
+(10:3..10:8) _empty_/Test.test1(). -> 7:7
+(10:9..10:15) _empty_/Test.fooInt(). -> 4:16
+(10:16..10:16) _empty_/Test.str(). -> 5:16
+(11:3..11:8) _empty_/Test.test2(). -> 8:7
+(11:8..11:8) _empty_/Test.fooInt(). -> 4:16
+(11:8..11:8) _empty_/Test.str(). -> 5:16
+(15:24..15:27) _empty_/Foo# -> 1:7
+(15:28..15:31) scala/Int#
+(15:46..15:52) scala/Predef.String#
+(15:57..15:60) scala/Predef.`???`().
+(16:27..16:30) _empty_/Foo# -> 1:7
+(16:31..16:37) scala/Predef.String#
+(16:52..16:59) scala/Boolean#
+(16:64..16:67) scala/Predef.`???`().
+(17:28..17:31) _empty_/Foo# -> 1:7
+(17:32..17:39) scala/Boolean#
+(17:54..17:60) scala/Double#
+(17:65..17:68) scala/Predef.`???`().
+(19:20..19:23) _empty_/Foo# -> 1:7
+(19:24..19:25) _empty_/Test2.test3().[A] -> 19:13
+(19:32..19:35) _empty_/Foo# -> 1:7
+(19:39..19:42) _empty_/Foo#Out# -> 1:22
+(19:36..19:38) _empty_/Test2.test3().(f1) -> 19:16
+(19:58..19:61) _empty_/Foo# -> 1:7
+(19:65..19:68) _empty_/Foo#Out# -> 1:22
+(19:62..19:64) _empty_/Test2.test3().(f2) -> 19:28
+(19:75..19:78) _empty_/Foo#Out# -> 1:22
+(19:72..19:74) _empty_/Test2.test3().(f3) -> 19:54
+(19:81..19:84) scala/Predef.`???`().
+(20:29..20:32) _empty_/Foo# -> 1:7
+(20:33..20:34) _empty_/Test2.test4().[A] -> 20:13
+(20:41..20:44) _empty_/Foo# -> 1:7
+(20:48..20:51) _empty_/Foo#Out# -> 1:22
+(20:45..20:47) _empty_/Test2.test4().(f1) -> 20:25
+(20:58..20:61) _empty_/Foo# -> 1:7
+(20:65..20:68) _empty_/Foo#Out# -> 1:22
+(20:62..20:64) _empty_/Test2.test4().(f2) -> 20:37
+(20:75..20:78) _empty_/Foo#Out# -> 1:22
+(20:72..20:74) _empty_/Test2.test4().(f3) -> 20:54
+(20:81..20:84) scala/Predef.`???`().
+(22:12..22:17) _empty_/Test2.test3(). -> 19:7
+(22:18..22:24) _empty_/Test2.fooInt(). -> 15:16
+(22:26..22:35) _empty_/Test2.fooString(). -> 16:16
+(22:36..22:36) _empty_/Test2.fooBoolean(). -> 17:16
+(23:3..23:5) _empty_/Test2.t3. -> 22:7
+(23:7..23:13) scala/Double#
+(24:12..24:17) _empty_/Test2.test4(). -> 20:7
+(24:18..24:21) scala/Int#
+(24:22..24:22) _empty_/Test2.fooInt(). -> 15:16
+(24:22..24:22) _empty_/Test2.fooString(). -> 16:16
+(24:22..24:22) _empty_/Test2.fooBoolean(). -> 17:16
+(25:3..25:5) _empty_/Test2.t4. -> 24:7
+(25:7..25:13) scala/Double#
+(29:15..29:18) _empty_/Foo# -> 1:7
+(29:19..29:22) scala/Int#
+(29:37..29:43) scala/Predef.String#
+(29:48..29:51) scala/Predef.`???`().
+(30:22..30:28) scala/Predef.String#
+(30:31..30:34) scala/Predef.`???`().
+(31:22..31:25) scala/Int#
+(31:28..31:31) scala/Predef.`???`().
+(33:29..33:32) _empty_/Foo# -> 1:7
+(33:33..33:34) _empty_/Test3.test5().[A] -> 33:13
+(33:53..33:56) _empty_/Foo#Out# -> 1:22
+(33:50..33:52) _empty_/Test3.test5().(f1) -> 33:25
+(33:60..33:62) _empty_/Test3.test5().(f2) -> 33:46
+(33:38..33:44) _empty_/Test3.fooInt(). -> 29:7
+(35:12..35:17) _empty_/Test3.test5(). -> 33:7
+(35:12..35:12) local6 -> 35:12
+(35:17..36:2) _empty_/Test3.test5().(f2) -> 33:46
+(35:17..35:17) _empty_/Test3.istr(). -> 30:16
+(38:3..38:5) _empty_/Test3.t5. -> 35:7
+(38:7..38:13) scala/Predef.String#
+(42:24..42:27) _empty_/Foo# -> 1:7
+(42:28..42:31) scala/Int#
+(42:46..42:52) scala/Predef.String#
+(42:57..42:60) scala/Predef.`???`().
+(43:12..43:18) scala/Predef.String#
+(43:21..43:24) scala/Predef.`???`().
+(45:29..45:32) _empty_/Foo# -> 1:7
+(45:33..45:34) _empty_/Test4.test6().[A] -> 45:13
+(45:44..45:47) _empty_/Foo#Out# -> 1:22
+(45:41..45:43) _empty_/Test4.test6().(f1) -> 45:25
+(45:57..45:59) _empty_/Test4.test6().(f2) -> 45:37
+(45:50..45:53) _empty_/Test4.str(). -> 43:7
+(47:12..47:17) _empty_/Test4.test6(). -> 45:7
+(47:17..48:2) _empty_/Test4.test6().(f1) -> 45:25
+(47:17..47:17) _empty_/Test4.fooInt(). -> 42:16
+(48:3..48:5) _empty_/Test4.t6. -> 47:7
+(48:7..48:13) scala/Predef.String#
+

@@ -1,0 +1,20 @@
+Document tests/pos/unapplyGeneric.scala
+(2:24..2:27) _empty_/Bar# -> 5:7
+(2:28..2:29) _empty_/Bar.unapply().[A] -> 2:15
+(2:30..2:31) _empty_/Bar.unapply().[B] -> 2:17
+(2:40..2:40) scala/Some.apply().
+(2:36..2:40) scala/Some.
+(2:41..2:44) _empty_/Bar.unapply().(bar) -> 2:20
+(5:23..5:24) _empty_/Bar#[A] -> 5:11
+(5:33..5:34) _empty_/Bar#[B] -> 5:13
+(5:44..5:52) scala/Product2#
+(5:53..5:54) _empty_/Bar#[A] -> 5:11
+(5:55..5:56) _empty_/Bar#[B] -> 5:13
+(6:23..6:26) scala/Any#
+(6:36..6:48) scala/Any#isInstanceOf().
+(6:30..6:35) _empty_/Bar#canEqual().(other) -> 6:16
+(6:49..6:52) _empty_/Bar# -> 5:7
+(10:10..10:10) _empty_/Bar#`<init>`(). -> 5:10
+(11:13..11:13) _empty_/Bar.unapply(). -> 2:7
+(11:10..11:13) _empty_/Bar. -> 1:8
+

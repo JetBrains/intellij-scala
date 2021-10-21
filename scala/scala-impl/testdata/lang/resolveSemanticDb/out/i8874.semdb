@@ -1,0 +1,6 @@
+Document tests/pos/i8874.scala
+(2:21..2:27) scala/Double#
+(4:24..4:27) _empty_/Abc# -> 1:7
+(6:21..6:21) _empty_/AbcClass#`<init>`(). -> 4:24
+(6:13..6:21) _empty_/AbcClass# -> 4:7
+

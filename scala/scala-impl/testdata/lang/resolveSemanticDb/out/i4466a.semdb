@@ -1,0 +1,13 @@
+Document tests/pos/i4466a.scala
+(2:18..2:21) _empty_/Bar# -> 6:7
+(2:22..2:25) scala/Int#
+(2:29..2:33) scala/Unit#
+(3:16..3:19) scala/Int#
+(3:22..3:26) scala/Unit#
+(6:17..6:18) _empty_/Bar#[X] -> 6:11
+(9:20..9:20) _empty_/Foo#`<init>`(). -> 2:3
+(9:17..9:20) _empty_/Foo# -> 1:7
+(10:6..10:6) _empty_/Foo#apply(). -> 2:7
+(10:3..10:6) _empty_/Main#foo. -> 9:7
+(10:14..10:14) _empty_/Bar#`<init>`(). -> 6:10
+

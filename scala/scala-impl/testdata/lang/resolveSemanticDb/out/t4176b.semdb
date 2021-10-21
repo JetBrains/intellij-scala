@@ -1,0 +1,10 @@
+Document tests/pos/t4176b.scala
+(2:18..2:24) scala/Predef.String#
+(2:29..2:31) _empty_/Test.foo().(a1) -> 2:14
+(4:7..4:10) _empty_/Test.foo(). -> 2:10
+(4:7..4:7) local0
+(4:12..4:15) scala/package.Seq#
+(4:16..4:22) scala/Predef.String#
+(4:27..4:30) scala/package.Seq#
+(4:31..4:37) scala/Predef.String#
+

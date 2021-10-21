@@ -1,0 +1,8 @@
+Document tests/pos/i4557.scala
+(4:15..4:21) _empty_/Parser# -> 1:7
+(4:22..4:23) _empty_/Test.P#[T] -> 4:10
+(4:25..4:29) scala/Char#
+(5:37..5:37) _empty_/Parser#`<init>`(). -> 1:13
+(5:30..5:31) _empty_/Test.P# -> 4:8
+(5:32..5:36) scala/Unit#
+

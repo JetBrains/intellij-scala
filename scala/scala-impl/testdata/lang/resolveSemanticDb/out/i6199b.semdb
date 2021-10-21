@@ -1,0 +1,14 @@
+Document tests/pos/i6199b.scala
+(3:14..3:17) _empty_/Bar# -> 11:7
+(3:18..3:23) _empty_/Foo#State# -> 2:8
+(3:28..3:31) _empty_/Bar# -> 11:7
+(3:32..3:37) _empty_/Foo#State# -> 2:8
+(3:41..3:44) _empty_/Foo# -> 1:7
+(6:13..6:16) _empty_/Foo# -> 1:7
+(6:23..6:26) _empty_/Foo# -> 1:7
+(7:18..7:21) scala/Any#
+(9:14..9:17) _empty_/Foo# -> 1:7
+(9:25..9:28) _empty_/Foo#bar(). -> 3:7
+(9:20..9:24) _empty_/Foo.unit(). -> 6:7
+(9:36..9:39) local2 -> 9:29
+

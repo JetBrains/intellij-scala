@@ -1,0 +1,41 @@
+Document tests/pos/constraining-lub.scala
+(1:17..1:18) _empty_/Inv#[A] -> 1:11
+(3:17..3:20) _empty_/Inv# -> 1:7
+(3:21..3:22) _empty_/Inv.empty().[A] -> 3:13
+(3:33..3:33) _empty_/Inv#`<init>`(). -> 1:10
+(3:34..3:37) scala/Predef.`???`().
+(6:18..6:19) _empty_/Inv2#[A] -> 6:12
+(8:17..8:21) _empty_/Inv2# -> 6:7
+(8:22..8:23) _empty_/Inv2.empty().[A] -> 8:13
+(8:35..8:35) _empty_/Inv2#`<init>`(). -> 6:11
+(8:36..8:39) scala/Predef.`???`().
+(12:17..12:24) scala/Boolean#
+(13:9..13:13) _empty_/Test.inv().(cond) -> 12:11
+(14:14..14:14) _empty_/Inv#`<init>`(). -> 1:10
+(16:11..16:16) _empty_/Inv.empty(). -> 3:7
+(16:7..16:10) _empty_/Inv. -> 2:8
+(18:10..18:13) _empty_/Inv# -> 1:7
+(18:14..18:17) scala/Int#
+(18:21..18:24) _empty_/Test.inv(). -> 12:7
+(20:18..20:25) scala/Boolean#
+(20:37..20:38) scala/`|`#
+(20:28..20:31) _empty_/Inv# -> 1:7
+(20:32..20:35) scala/Int#
+(20:39..20:43) _empty_/Inv2# -> 6:7
+(20:44..20:47) scala/Int#
+(21:9..21:13) _empty_/Test.inv2().(cond) -> 20:12
+(22:11..22:15) _empty_/Test.inv2().(cond) -> 20:12
+(23:16..23:16) _empty_/Inv#`<init>`(). -> 1:10
+(25:13..25:18) _empty_/Inv.empty(). -> 3:7
+(25:9..25:12) _empty_/Inv. -> 2:8
+(27:11..27:15) _empty_/Test.inv2().(cond) -> 20:12
+(28:17..28:17) _empty_/Inv2#`<init>`(). -> 6:11
+(30:14..30:19) _empty_/Inv2.empty(). -> 8:7
+(30:9..30:13) _empty_/Inv2. -> 7:8
+(33:19..33:20) scala/`|`#
+(33:10..33:13) _empty_/Inv# -> 1:7
+(33:14..33:17) scala/Int#
+(33:21..33:25) _empty_/Inv2# -> 6:7
+(33:26..33:29) scala/Int#
+(33:33..33:37) _empty_/Test.inv2(). -> 20:7
+

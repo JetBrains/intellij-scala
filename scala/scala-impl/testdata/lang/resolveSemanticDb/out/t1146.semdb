@@ -1,0 +1,6 @@
+Document tests/pos/t1146.scala
+(3:19..3:19) scala/Array.apply().
+(3:14..3:19) scala/Array.
+(3:20..3:26) scala/Predef.String#
+(3:29..3:29) scala/reflect/ClassTag.apply().
+

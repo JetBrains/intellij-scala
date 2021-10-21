@@ -1,0 +1,15 @@
+Document tests/pos/t7853-partial-function.scala
+(3:17..3:21) scala/Unit#
+(4:17..4:32) scala/PartialFunction#
+(4:33..4:36) scala/Any#
+(4:38..4:39) local1 -> 4:11
+(4:43..4:44) local1 -> 4:11
+(4:48..4:48) scala/Function1#apply().
+(4:47..4:48) local2 -> 4:14
+(5:17..5:18) local0 -> 4:9
+(5:21..5:21) local4
+(5:32..5:36) scala/package.List#
+(5:37..5:40) scala/Int#
+(5:42..5:51) scala/unchecked#
+(5:56..5:60) local5 -> 5:26
+

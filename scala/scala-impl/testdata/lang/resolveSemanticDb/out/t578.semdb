@@ -1,0 +1,10 @@
+Document tests/pos/t578.scala
+(2:11..2:14) scala/package.Nil.
+(3:11..3:14) scala/package.Nil.
+(3:22..3:23) _empty_/Test.x. -> 2:7
+(4:11..4:15) scala/None.
+(5:11..5:15) scala/None.
+(5:23..5:24) _empty_/Test.y. -> 4:7
+(6:11..6:18) scala/Console.println(+1).
+(6:3..6:10) scala/Console.
+

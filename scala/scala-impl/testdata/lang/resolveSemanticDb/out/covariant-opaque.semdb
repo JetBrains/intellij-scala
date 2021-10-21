@@ -1,0 +1,8 @@
+Document tests/pos/covariant-opaque.scala
+(1:29..1:46) scala/annotation/unchecked/uncheckedVariance#
+(1:19..1:28) scala/annotation/unchecked/
+(1:8..1:18) scala/annotation/
+(3:21..3:26) scala/Array#
+(3:27..3:28) _empty_/`covariant-opaque$package`.O#[T] -> 3:16
+(3:30..3:47) scala/annotation/unchecked/uncheckedVariance#
+

@@ -1,0 +1,9 @@
+Document tests/pos/scala2-creators.scala
+(2:2..2:6) scala/main#
+(3:23..3:23) scala/sys/SystemProperties#`<init>`().
+(3:7..3:23) scala/sys/SystemProperties#
+(3:3..3:6) scala/sys/
+(2:1..2:1) _empty_/`scala2-creators$package`.Test(). -> 2:11
+(2:1..2:1) scala/util/CommandLineParser.showError().
+(2:1..2:1) local0
+

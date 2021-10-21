@@ -1,0 +1,22 @@
+Document tests/pos/i1786.scala
+(4:16..4:19) scala/Int#
+(4:22..4:25) scala/Int#
+(4:30..4:31) scala/Int#`*`(+3).
+(4:28..4:29) scala/meta/package.apply().(x) -> 4:13
+(4:32..4:33) scala/meta/package.apply().(x) -> 4:13
+(8:7..8:7) scala/meta/package.apply(). -> 4:7
+(8:3..8:7) scala/meta/
+(8:12..8:13) scala/Int#`+`(+4).
+(10:13..10:13) scala/meta/package.apply(). -> 4:7
+(10:9..10:13) scala/meta/
+(10:3..10:8) scala/ -> 1:9
+(12:23..12:23) scala/meta/package.apply(). -> 4:7
+(12:14..12:23) scala/meta/package. -> 3:16
+(12:9..12:13) scala/meta/
+(12:3..12:8) scala/ -> 1:9
+(16:23..16:32) scala/meta/package. -> 3:16
+(16:18..16:22) scala/meta/
+(16:12..16:17) scala/ -> 1:9
+(17:17..17:26) scala/meta/package. -> 3:16
+(17:12..17:16) scala/meta/
+

@@ -1,0 +1,12 @@
+Document tests/pos/i11421.scala
+(2:14..2:20) scala/Predef.String#
+(2:23..2:26) _empty_/Foo# -> 1:7
+(2:29..2:32) scala/Predef.`???`().
+(3:14..3:21) scala/Boolean#
+(3:24..3:27) _empty_/Foo# -> 1:7
+(3:31..3:34) scala/Predef.`???`().
+(5:7..5:7) scala/collection/IterableFactory#apply().
+(5:3..5:7) scala/package.List.
+(6:14..6:14) scala/collection/immutable/`::`.unapply().
+(6:12..6:14) scala/package.`::`.
+

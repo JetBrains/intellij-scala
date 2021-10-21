@@ -1,0 +1,7 @@
+Document tests/pos/implicit-dep.scala
+(8:12..8:15) scala/Int#
+(8:24..8:28) _empty_/HasT# -> 1:7
+(8:36..8:37) _empty_/HasT#T# -> 2:8
+(8:34..8:35) local1 -> 8:21
+(8:40..8:43) scala/Predef.`???`().
+

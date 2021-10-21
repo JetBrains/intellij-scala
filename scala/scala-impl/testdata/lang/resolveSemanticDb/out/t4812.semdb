@@ -1,0 +1,8 @@
+Document tests/pos/t4812.scala
+(2:15..2:21) scala/Symbol#
+(2:44..2:48) scala/Unit#
+(2:30..2:30) scala/Symbol.apply().
+(2:24..2:30) scala/Symbol.
+(3:13..3:19) scala/Predef.String#
+(3:37..3:41) scala/Unit#
+
