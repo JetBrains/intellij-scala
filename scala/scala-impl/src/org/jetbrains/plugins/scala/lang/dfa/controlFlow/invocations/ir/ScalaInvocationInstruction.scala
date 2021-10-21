@@ -1,22 +1,25 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir
 
 import com.intellij.codeInspection.dataFlow.CustomMethodHandlers.CustomMethodHandler
-import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
+import com.intellij.codeInspection.dataFlow.interpreter.{DataFlowInterpreter, RunnerResult, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
 import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, ExpressionPushingInstruction, SimpleAssignmentInstruction}
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
-import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaAnchor
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
+import com.intellij.psi.{PsiMethod, PsiModifier}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.{DummyDfaListener, ScalaDfaAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
@@ -52,17 +55,63 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
       stateBefore.flushFields()
     }
 
+    val returnValue = if (!methodEffect.handledSpecially) {
+      tryInterpretExternalMethod(invocationInfo, stateBefore, factory) match {
+        case Some(returnValue) => returnValue
+        case _ => methodEffect.returnValue.getDfType
+      }
+    } else methodEffect.returnValue.getDfType
+
+    returnFromInvocation(returnValue, stateBefore, interpreter)
+  }
+
+  private def returnFromInvocation(returnValue: DfType, stateBefore: DfaMemoryState,
+                                   interpreter: DataFlowInterpreter): Array[DfaInstructionState] = {
     val exceptionalState = stateBefore.createCopy()
     val exceptionalResult = exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala)
       .getOrElse(Nil)
 
-    val normalResult = methodEffect.returnValue.getDfType match {
+    val normalResult = returnValue match {
       case DfType.BOTTOM => None
-      case _ => pushResult(interpreter, stateBefore, methodEffect.returnValue)
+      case _ => pushResult(interpreter, stateBefore, returnValue)
         Some(nextState(interpreter, stateBefore))
     }
 
     (exceptionalResult ++ normalResult).toArray
+  }
+
+  // TODO refactor a lot, extract to a new class
+  // TODO add evaluated arguments to the stack
+  // TODO add limitations on depth, size, recursion etc. + add a flag to not report anything in an nested call
+  private def tryInterpretExternalMethod(invocationInfo: InvocationInfo, stateBefore: DfaMemoryState,
+                                         factory: DfaValueFactory): Option[DfType] = {
+    invocationInfo.invokedElement match {
+      case Some(InvokedElement(function: ScFunctionDefinition))
+        if supportsInterproceduralAnalysis(function) => function.body match {
+        case Some(body) => analyseExternalMethodBody(body, stateBefore, factory)
+        case _ => None
+      }
+      case _ => None
+    }
+  }
+
+  private def supportsInterproceduralAnalysis(function: ScFunctionDefinition): Boolean = {
+    function.hasModifierPropertyScala(PsiModifier.FINAL) || function.hasModifierPropertyScala(PsiModifier.PRIVATE)
+  }
+
+  private def analyseExternalMethodBody(body: ScExpression, stateBefore: DfaMemoryState,
+                                        factory: DfaValueFactory): Option[DfType] = {
+    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
+
+    val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor())
+    val flow = controlFlowBuilder.buildAndReturn(resultDestination)
+
+    val listener = new DummyDfaListener
+    val interpreter = new StandardDataFlowInterpreter(flow, listener)
+
+    if (interpreter.interpret(stateBefore) != RunnerResult.OK) None
+    else Some(stateBefore.getDfType(resultDestination))
   }
 
   private def unknownValue(implicit factory: DfaValueFactory): DfaValue = factory.fromDfType(DfType.TOP)
@@ -77,7 +126,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
   private def findMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState, argumentValues: Map[Argument, DfaValue])
                               (implicit factory: DfaValueFactory): MethodEffect = {
     invocationInfo.invokedElement match {
-      case None => MethodEffect(unknownValue, isPure = false)
+      case None => MethodEffect(unknownValue, isPure = false, handledSpecially = false)
       case Some(invokedElement) =>
         implicit val projectContext: ProjectContext = invokedElement.psiElement.getProject
 
@@ -124,7 +173,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
     val enhancement = classesEnhancement.orElse(collectionsEnhancement)
     enhancement.map(enhanceReturnType(returnType, _))
-      .getOrElse(MethodEffect(factory.fromDfType(returnType), isPure = false))
+      .getOrElse(MethodEffect(factory.fromDfType(returnType), isPure = false, handledSpecially = false))
   }
 
   private def enhanceReturnType(returnType: DfType, methodEffect: MethodEffect)
@@ -159,6 +208,6 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
     val returnValue = dfaReturnValue.getOrElse(unknownValue)
     val isPure = mutationSignature.isPure && !JavaDfaHelpers.mayLeakFromType(returnValue.getDfType)
-    MethodEffect(returnValue, isPure)
+    MethodEffect(returnValue, isPure, handledSpecially = returnValue != unknownValue)
   }
 }

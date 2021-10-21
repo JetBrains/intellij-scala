@@ -46,6 +46,12 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
     flow
   }
 
+  def buildAndReturn(returnDestination: DfaVariableValue): ControlFlow = {
+    pushInstruction(new SimpleAssignmentInstruction(null, returnDestination))
+    flow.finish()
+    flow
+  }
+
   def pushInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
 
   def pushUnknownValue(): Unit = pushInstruction(new PushValueInstruction(DfType.TOP))

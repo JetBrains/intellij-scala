@@ -17,7 +17,7 @@ package object dfa {
     val InvocationNullPointer = "Invocation will produce NullPointerException. Object is always null"
   }
 
-  def defaultCodeTemplate(returnType: String)(body: String): String =
+  def commonCodeTemplate(returnType: String)(body: String): String =
     s"""
        |import java.util
        |import java.lang.Math
@@ -35,7 +35,11 @@ package object dfa {
        |    $body
        |  }
        |
-       |  def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
+       |  final def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
+       |
+       |  private def verySimpleMethod(): Int = {
+       |    if (2 > 3) 3 + 4 else 3 + 2
+       |  }
        |}
        |""".stripMargin
 }

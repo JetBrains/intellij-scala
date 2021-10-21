@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.defaultCodeTemplate
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.junit.Assert.assertTrue
@@ -13,7 +13,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ScalaDfaControlFlowBuilderTestBase])
 
-  protected def codeFromMethodBody(returnType: String)(body: String): String = defaultCodeTemplate(returnType)(body)
+  protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
 
   def test(code: String)(expectedResult: String): Unit = {
     val actualFile = configureFromFileText(code)

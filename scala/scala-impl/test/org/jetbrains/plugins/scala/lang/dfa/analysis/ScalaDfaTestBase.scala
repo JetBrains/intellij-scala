@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis
 import com.intellij.codeInspection.InspectionManager
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.lang.dfa.defaultCodeTemplate
+import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
@@ -17,7 +17,7 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestAdapter 
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken((classOf[ScalaDfaTestBase], version))
 
-  protected def codeFromMethodBody(returnType: String)(body: String): String = defaultCodeTemplate(returnType)(body)
+  protected def codeFromMethodBody(returnType: String)(body: String): String = commonCodeTemplate(returnType)(body)
 
   def test(code: String)(expectedResult: (String, String)*): Unit = {
     val actualFile = configureFromFileText(code)
