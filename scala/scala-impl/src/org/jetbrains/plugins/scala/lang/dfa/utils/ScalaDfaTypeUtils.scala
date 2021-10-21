@@ -4,7 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
-import com.intellij.codeInspection.dataFlow.value.DfaValue
+import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.annotations.Nls
@@ -25,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
+
+  def unknownDfaValue(implicit factory: DfaValueFactory): DfaValue = factory.fromDfType(DfType.TOP)
 
   def dfTypeImmutableCollectionFromSizeDfType(sizeDfType: DfType): DfType = {
     SpecialField.COLLECTION_SIZE.asDfType(sizeDfType)

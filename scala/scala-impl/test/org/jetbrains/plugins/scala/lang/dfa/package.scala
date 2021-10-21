@@ -35,10 +35,12 @@ package object dfa {
        |    $body
        |  }
        |
-       |  final def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
+       |  def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
        |
-       |  private def verySimpleMethod(): Int = {
-       |    if (2 > 3) 3 + 4 else 3 + 2
+       |  private def verySimpleMethod(): Int = 3 + 2
+       |
+       |  final def simpleMethodWithArgs(arg1: Int, arg2: Int): Int = {
+       |    if (arg1 < arg2) arg2 - arg1 else arg1 - arg2
        |  }
        |}
        |""".stripMargin
