@@ -1,0 +1,30 @@
+Document tests/pos/t2712-7.scala
+(4:43..4:50) scala/Product#
+(4:56..4:68) scala/package.Serializable#
+(6:32..6:33) test/Xor.Left#[A] -> 6:26
+(6:44..6:45) test/Xor.Left#[A] -> 6:26
+(6:46..6:49) test/Xor# -> 4:23
+(6:50..6:57) scala/Nothing#
+(7:33..7:34) test/Xor.Right#[B] -> 7:27
+(7:45..7:52) scala/Nothing#
+(7:53..7:56) test/Xor# -> 4:23
+(7:57..7:58) test/Xor.Right#[B] -> 7:27
+(11:10..11:13) test/Xor. -> 5:8
+(12:27..12:28) test/TestXor.meh().[F] -> 12:11
+(12:29..12:30) test/TestXor.meh().[A] -> 12:17
+(12:36..12:37) test/TestXor.meh().[A] -> 12:17
+(12:41..12:42) test/TestXor.meh().[B] -> 12:20
+(12:45..12:46) test/TestXor.meh().[F] -> 12:11
+(12:47..12:48) test/TestXor.meh().[B] -> 12:20
+(12:52..12:55) scala/Predef.`???`().
+(13:3..13:6) test/TestXor.meh(). -> 12:7
+(13:22..13:25) test/Xor# -> 4:23
+(13:26..13:33) scala/Boolean#
+(13:35..13:38) scala/Int#
+(13:43..13:44) scala/Int#`<`(+3).
+(14:3..14:6) test/TestXor.meh(). -> 12:7
+(14:23..14:26) test/Xor# -> 4:23
+(14:27..14:34) scala/Boolean#
+(14:36..14:39) scala/Int#
+(14:44..14:45) scala/Int#`<`(+3).
+

@@ -1,0 +1,63 @@
+Document tests/pos/i3945.scala
+(2:17..2:23) scala/Predef.String#
+(2:27..2:28) _empty_/Test.int().[A] -> 2:11
+(2:33..2:39) scala/Predef.String#
+(2:44..2:47) scala/Int#
+(2:50..2:51) _empty_/Test.int().[A] -> 2:11
+(2:54..2:57) scala/Predef.`???`().
+(5:11..5:17) scala/Predef.String#
+(5:21..5:27) scala/Predef.String#
+(5:33..5:39) scala/Predef.String#
+(5:45..5:48) scala/Int#
+(5:54..5:57) scala/Int#
+(5:62..5:68) scala/Predef.String#
+(5:72..5:75) _empty_/Test.int(). -> 2:7
+(5:76..5:79) scala/Int#
+(5:83..5:89) scala/Predef.String#
+(5:95..5:102) scala/Function1#compose().
+(5:103..5:106) _empty_/Test.int(). -> 2:7
+(5:107..5:113) scala/Predef.String#
+(8:11..8:17) scala/Predef.String#
+(8:21..8:24) scala/Int#
+(8:28..8:34) scala/Predef.String#
+(8:40..8:46) scala/Predef.String#
+(8:52..8:55) scala/Int#
+(8:61..8:64) scala/Int#
+(8:68..8:74) scala/Predef.String#
+(8:78..8:81) _empty_/Test.int(). -> 2:7
+(8:82..8:85) scala/Int#
+(8:89..8:95) scala/Predef.String#
+(9:11..9:17) scala/Predef.String#
+(9:21..9:27) scala/Predef.String#
+(9:33..9:39) scala/Predef.String#
+(9:45..9:48) scala/Int#
+(9:53..9:59) scala/Predef.String#
+(9:62..9:65) _empty_/Test.int(). -> 2:7
+(10:12..10:18) scala/Predef.String#
+(10:22..10:28) scala/Predef.String#
+(10:34..10:40) scala/Predef.String#
+(10:46..10:49) scala/Int#
+(10:55..10:58) scala/Int#
+(10:63..10:69) scala/Predef.String#
+(10:72..10:73) _empty_/Test.q. -> 8:7
+(10:74..10:81) scala/Function1#compose().
+(10:82..10:83) _empty_/Test.p. -> 9:7
+(13:19..13:20) _empty_/Test.B# -> 12:9
+(14:20..14:21) _empty_/Test.C# -> 13:9
+(14:25..14:29) scala/Unit#
+(14:32..14:35) scala/Predef.`???`().
+(17:15..17:21) scala/Predef.String#
+(17:25..17:26) _empty_/Test.f().[A] -> 17:9
+(17:31..17:37) scala/Predef.String#
+(17:42..17:45) scala/Int#
+(17:59..17:60) _empty_/Test.f().[A] -> 17:9
+(17:64..17:68) scala/Unit#
+(17:71..17:72) _empty_/Test.f().[A] -> 17:9
+(17:75..17:78) scala/Predef.`???`().
+(18:11..18:17) scala/Predef.String#
+(18:21..18:22) _empty_/Test.C# -> 13:9
+(18:28..18:34) scala/Predef.String#
+(18:40..18:43) scala/Int#
+(18:48..18:49) _empty_/Test.B# -> 12:9
+(18:52..18:53) _empty_/Test.f(). -> 17:7
+

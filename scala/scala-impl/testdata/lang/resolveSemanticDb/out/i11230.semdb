@@ -1,0 +1,5 @@
+Document tests/pos/i11230.scala
+(2:23..2:26) scala/Int#
+(4:15..4:25) _empty_/TyperCrasher#CrashTyper# -> 2:9
+(4:28..4:38) _empty_/TyperCrasher#CrashTyper# -> 2:9
+

@@ -1,0 +1,16 @@
+Document tests/pos/t8364.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
+(3:26..3:33) scala/Dynamic#
+(4:27..4:33) scala/Predef.String#
+(4:36..4:39) scala/Any#
+(4:42..4:45) scala/Predef.`???`().
+(7:21..7:24) scala/App#
+(8:3..8:10) scala/Predef.locally().
+(9:12..9:16) java/
+(9:17..9:21) java/lang/
+(9:22..9:28) java/lang/String#
+(10:5..10:14) _empty_/MyDynamic. -> 3:8
+(10:14..10:17) _empty_/MyDynamic.selectDynamic(). -> 4:7
+

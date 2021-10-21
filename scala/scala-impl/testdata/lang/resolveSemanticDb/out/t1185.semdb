@@ -1,0 +1,14 @@
+Document tests/pos/t1185.scala
+(4:12..4:18) _empty_/Test#member(). -> 2:21
+(6:12..6:18) _empty_/Test#member(). -> 2:21
+(10:19..10:24) scala/Array#
+(10:25..10:31) scala/Predef.String#
+(10:35..10:39) scala/Unit#
+(11:17..11:21) _empty_/Test# -> 1:7
+(12:5..12:8) local0 -> 11:9
+(12:9..12:12) _empty_/Test#foo(). -> 3:7
+(13:5..13:11) scala/Predef.assert(+1).
+(13:13..13:15) scala/Int#`==`(+3).
+(13:15..13:18) local0 -> 11:9
+(13:19..13:23) _empty_/Test#look(). -> 6:7
+

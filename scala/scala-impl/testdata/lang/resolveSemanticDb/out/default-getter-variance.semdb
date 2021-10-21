@@ -1,0 +1,28 @@
+Document tests/pos/default-getter-variance.scala
+(2:16..2:17) _empty_/Foo#[A] -> 1:12
+(2:21..2:28) scala/Boolean#
+(2:43..2:47) scala/Unit#
+(6:17..6:18) _empty_/Foo#[A] -> 1:12
+(6:22..6:29) scala/Boolean#
+(6:32..6:36) scala/Unit#
+(7:17..7:21) scala/Unit#
+(7:24..7:29) _empty_/Foo#count(). -> 2:7
+(10:24..10:27) _empty_/Foo# -> 1:7
+(10:28..10:29) _empty_/Bar1#[A] -> 10:13
+(11:25..11:26) _empty_/Bar1#[A] -> 10:13
+(11:30..11:37) scala/Boolean#
+(11:40..11:44) scala/Unit#
+(13:26..13:27) _empty_/Bar1#[A] -> 10:13
+(13:31..13:38) scala/Boolean#
+(13:41..13:45) scala/Unit#
+(16:24..16:27) _empty_/Foo# -> 1:7
+(16:28..16:29) _empty_/Bar2#[A] -> 16:13
+(17:25..17:26) _empty_/Bar2#[A] -> 16:13
+(17:30..17:37) scala/Boolean#
+(17:52..17:56) scala/Unit#
+(19:26..19:27) _empty_/Bar2#[A] -> 16:13
+(19:31..19:38) scala/Boolean#
+(19:41..19:45) scala/Unit#
+(20:26..20:30) scala/Unit#
+(20:33..20:38) _empty_/Bar2#count(). -> 17:16
+

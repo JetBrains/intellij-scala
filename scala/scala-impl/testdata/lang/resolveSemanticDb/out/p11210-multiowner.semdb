@@ -1,0 +1,21 @@
+Document tests/pos/p11210-multiowner.scala
+(2:20..2:21) _empty_/Foo#[A] -> 1:11
+(2:24..2:28) scala/Unit#
+(5:21..5:22) _empty_/Bar#[A] -> 4:11
+(5:26..5:30) scala/Unit#
+(8:2..8:6) scala/main#
+(9:15..9:18) _empty_/Foo# -> 1:7
+(9:19..9:22) scala/package.Seq#
+(9:23..9:29) scala/Double#
+(9:32..9:33) scala/`&`#
+(9:34..9:37) _empty_/Bar# -> 4:7
+(9:38..9:41) scala/package.Seq#
+(9:42..9:48) scala/Double#
+(9:53..9:56) scala/Predef.`???`().
+(10:13..10:16) scala/package.Seq.
+(10:17..10:22) scala/collection/SeqFactory.Delegate#empty().
+(10:23..10:29) scala/Double#
+(11:3..11:9) local0 -> 9:7
+(11:10..11:16) _empty_/Foo#append(). -> 2:7
+(11:17..11:20) local1 -> 10:7
+

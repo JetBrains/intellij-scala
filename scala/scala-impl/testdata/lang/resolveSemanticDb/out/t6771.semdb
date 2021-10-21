@@ -1,0 +1,12 @@
+Document tests/pos/t6771.scala
+(2:16..2:17) _empty_/Test.Id#[X] -> 2:11
+(3:10..3:12) _empty_/Test.Id# -> 2:8
+(3:13..3:19) scala/Option#
+(3:20..3:23) scala/Int#
+(3:28..3:32) scala/None.
+(5:3..5:4) _empty_/Test.a. -> 3:7
+(6:11..6:15) scala/Some.
+(6:22..6:29) scala/Predef.println(+1).
+(6:30..6:31) local0 -> 6:16
+(7:11..7:15) scala/None.
+

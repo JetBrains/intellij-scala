@@ -1,0 +1,4 @@
+Document tests/pos/t1147.scala
+(1:16..1:22) scala/Predef.String#
+(2:4..2:14) scala/deprecated#
+

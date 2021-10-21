@@ -1,0 +1,9 @@
+Document tests/pos/implicit_tparam.scala
+(2:19..2:22) _empty_/Foo# -> 1:7
+(2:23..2:24) _empty_/A# -> 4:7
+(6:21..6:24) _empty_/Bar# -> 2:7
+(6:31..6:34) _empty_/Bar# -> 2:7
+(10:28..10:31) _empty_/Bar# -> 2:7
+(10:35..10:38) _empty_/Test.getBar().(bar) -> 10:23
+(11:3..11:9) _empty_/Test.getBar(). -> 10:7
+

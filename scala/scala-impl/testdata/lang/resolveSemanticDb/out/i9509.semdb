@@ -1,0 +1,23 @@
+Document tests/pos/i9509.scala
+(2:22..2:23) _empty_/AList.Cons#[X] -> 2:13
+(2:31..2:36) _empty_/AList# -> 1:6
+(2:37..2:38) _empty_/AList.Cons#[X] -> 2:13
+(2:49..2:54) _empty_/AList# -> 1:6
+(2:55..2:56) _empty_/AList.Cons#[X] -> 2:13
+(7:20..7:25) _empty_/AList# -> 1:6
+(7:26..7:27) _empty_/AList.sum().[A] -> 7:14
+(7:53..7:60) scala/package.Numeric#
+(7:61..7:62) _empty_/AList.sum().[A] -> 7:14
+(7:66..7:67) _empty_/AList.sum().[A] -> 7:14
+(7:70..7:71) _empty_/AList.sum().(l) -> 7:17
+(8:10..8:14) _empty_/AList.Cons.
+(8:25..8:32) _empty_/AList.sum().(numeric) -> 7:44
+(8:33..8:37) scala/math/Numeric#plus().
+(8:38..8:39) local1 -> 8:15
+(8:41..8:43) local2 -> 8:18
+(8:44..8:47) _empty_/AList.sum(). -> 7:34
+(8:54..8:61) _empty_/AList.sum().(numeric) -> 7:44
+(9:10..9:13) _empty_/AList.Nil. -> 3:8
+(9:25..9:32) _empty_/AList.sum().(numeric) -> 7:44
+(9:33..9:37) scala/math/Numeric#zero().
+

@@ -1,0 +1,7 @@
+Document tests/pos/i5039.scala
+(2:3..2:7) scala/package.List.
+(3:3..3:7) scala/package.List.
+(3:8..3:12) scala/Null#
+(4:3..4:7) scala/package.List.
+(4:8..4:15) scala/Nothing#
+

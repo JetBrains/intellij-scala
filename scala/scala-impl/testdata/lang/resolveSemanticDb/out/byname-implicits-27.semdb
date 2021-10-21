@@ -1,0 +1,65 @@
+Document tests/pos/byname-implicits-27.scala
+(6:22..6:29) _empty_/Test.Generic# -> 2:9
+(6:30..6:31) _empty_/Test.Generic.Aux#[T] -> 6:14
+(6:47..6:48) _empty_/Test.Generic.Aux#[R] -> 6:17
+(13:27..13:30) _empty_/Test.Foo# -> 11:9
+(13:31..13:35) scala/Unit#
+(13:39..13:42) scala/Predef.`???`().
+(14:26..14:29) _empty_/Test.Foo# -> 11:9
+(14:30..14:33) scala/Int#
+(14:37..14:40) scala/Predef.`???`().
+(15:29..15:32) _empty_/Test.Foo# -> 11:9
+(15:33..15:39) scala/Predef.String#
+(15:43..15:46) scala/Predef.`???`().
+(16:30..16:33) _empty_/Test.Foo# -> 11:9
+(16:34..16:41) scala/Boolean#
+(16:45..16:48) scala/Predef.`???`().
+(17:47..17:50) _empty_/Test.Foo# -> 11:9
+(17:51..17:52) _empty_/Test.Foo.fooPair().[T] -> 17:26
+(17:61..17:64) _empty_/Test.Foo# -> 11:9
+(17:65..17:66) _empty_/Test.Foo.fooPair().[U] -> 17:29
+(17:70..17:73) _empty_/Test.Foo# -> 11:9
+(17:75..17:76) _empty_/Test.Foo.fooPair().[T] -> 17:26
+(17:78..17:79) _empty_/Test.Foo.fooPair().[U] -> 17:29
+(17:84..17:87) scala/Predef.`???`().
+(18:45..18:52) _empty_/Test.Generic. -> 5:10
+(18:53..18:56) _empty_/Test.Generic.Aux# -> 6:10
+(18:57..18:58) _empty_/Test.Foo.fooGen().[T] -> 18:25
+(18:60..18:61) _empty_/Test.Foo.fooGen().[R] -> 18:28
+(18:68..18:71) _empty_/Test.Foo# -> 11:9
+(18:72..18:73) _empty_/Test.Foo.fooGen().[R] -> 18:28
+(18:77..18:80) _empty_/Test.Foo# -> 11:9
+(18:81..18:82) _empty_/Test.Foo.fooGen().[T] -> 18:25
+(18:86..18:89) scala/Predef.`???`().
+(21:19..21:20) _empty_/Test.B# -> 26:14
+(21:25..21:28) scala/Int#
+(23:24..23:31) _empty_/Test.Generic# -> 2:9
+(23:32..23:33) _empty_/Test.A# -> 21:14
+(23:50..23:51) _empty_/Test.B# -> 26:14
+(23:54..23:57) scala/Int#
+(23:59..23:63) scala/Unit#
+(23:70..23:73) scala/Predef.`???`().
+(26:19..26:20) _empty_/Test.C# -> 31:14
+(26:25..26:28) scala/Int#
+(26:33..26:40) scala/Boolean#
+(28:24..28:31) _empty_/Test.Generic# -> 2:9
+(28:32..28:33) _empty_/Test.B# -> 26:14
+(28:50..28:51) _empty_/Test.C# -> 31:14
+(28:54..28:57) scala/Int#
+(28:60..28:67) scala/Boolean#
+(28:69..28:73) scala/Unit#
+(28:81..28:84) scala/Predef.`???`().
+(31:19..31:22) scala/Int#
+(31:27..31:33) scala/Predef.String#
+(31:38..31:45) scala/Boolean#
+(33:24..33:31) _empty_/Test.Generic# -> 2:9
+(33:32..33:33) _empty_/Test.C# -> 31:14
+(33:50..33:53) scala/Int#
+(33:56..33:62) scala/Predef.String#
+(33:65..33:72) scala/Boolean#
+(33:74..33:78) scala/Unit#
+(33:86..33:89) scala/Predef.`???`().
+(36:3..36:13) scala/Predef.implicitly().
+(36:14..36:17) _empty_/Test.Foo# -> 11:9
+(36:18..36:19) _empty_/Test.A# -> 21:14
+

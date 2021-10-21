@@ -1,0 +1,6 @@
+Document tests/pos/i8715.scala
+(1:2..1:6) scala/main#
+(2:12..2:16) scala/package.List.
+(2:34..2:38) scala/package.List.
+(2:54..2:56) local1 -> 2:39
+

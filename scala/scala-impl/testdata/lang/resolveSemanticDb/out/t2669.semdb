@@ -1,0 +1,29 @@
+Document tests/pos/t2669.scala
+(5:18..5:22) java/
+(5:23..5:27) java/util/
+(5:28..5:37) java/util/ArrayList#
+(5:43..5:44) _empty_/Test2669.test().[T] -> 5:12
+(6:3..6:7) _empty_/Test2669.test(). -> 5:7
+(6:12..6:16) java/
+(6:17..6:21) java/util/
+(6:22..6:31) java/util/ArrayList#
+(6:32..6:38) scala/Predef.String#
+(10:8..10:12) java/
+(10:13..10:17) java/util/
+(10:18..10:27) java/util/ArrayList#
+(13:18..13:23) scala/Array#
+(13:24..13:30) scala/Predef.String#
+(13:34..13:38) scala/Unit#
+(14:17..14:26) java/util/ArrayList#
+(14:27..14:33) scala/Predef.String#
+(15:27..15:28) local0 -> 14:9
+(17:5..17:12) scala/Predef.println(+1).
+(17:13..17:14) local0 -> 14:9
+(17:15..17:19) java/util/ArrayList#size().
+(18:5..18:12) scala/Predef.println(+1).
+(18:13..18:14) local1 -> 15:9
+(18:15..18:19) java/util/ArrayList#size().
+(23:8..23:12) java/
+(23:13..23:17) java/util/
+(23:18..23:24) java/util/Vector#
+

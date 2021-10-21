@@ -1,0 +1,20 @@
+Document tests/pos/i11371.scala
+(2:18..2:21) scala/Int#
+(5:12..5:13) local0 -> 3:9
+(5:14..5:15) scala/Int#`<`(+3).
+(7:14..7:18) local2 -> 6:12
+(7:19..7:20) scala/Int#`<`(+3).
+(8:9..8:12) local1 -> 4:9
+(8:17..8:18) local0 -> 3:9
+(8:19..8:20) scala/Int#`*`(+3).
+(8:21..8:25) local2 -> 6:12
+(9:9..9:13) local2 -> 6:12
+(11:7..11:8) local0 -> 3:9
+(13:5..13:8) local1 -> 4:9
+(16:18..16:23) scala/Array#
+(16:24..16:30) scala/Predef.String#
+(16:34..16:38) scala/Unit#
+(17:5..17:12) scala/Predef.println(+1).
+(17:30..17:39) _empty_/HelloWorld.whileLoop(). -> 2:7
+(17:40..17:41) scala/StringContext#s().
+

@@ -1,0 +1,37 @@
+Document tests/pos/i7477.scala
+(2:19..2:23) scala/Unit#
+(2:33..2:36) scala/Int#
+(2:43..2:47) scala/Unit#
+(2:50..2:53) scala/Predef.`???`().
+(3:15..3:19) scala/Unit#
+(3:22..3:27) _empty_/Test1#spawn(). -> 2:7
+(10:10..10:15) scala/
+(10:16..10:26) scala/concurrent/
+(11:10..11:15) scala/
+(11:16..11:26) scala/concurrent/
+(11:27..11:35) scala/concurrent/duration/
+(13:10..13:15) scala/
+(13:16..13:26) scala/concurrent/
+(13:27..13:43) scala/concurrent/ExecutionContext.
+(13:44..13:53) scala/concurrent/ExecutionContext.Implicits.
+(17:24..17:25) X/Test1#spawn$default$3().[T] -> 17:15
+(17:24..17:25) X/Test1#spawn().[T] -> 17:15
+(17:36..17:52) scala/concurrent/ExecutionContext#
+(17:63..17:66) scala/Int#
+(17:73..17:79) scala/concurrent/Future#
+(17:80..17:81) X/Test1#spawn().[T] -> 17:15
+(17:85..17:88) scala/Predef.`???`().
+(19:20..19:26) scala/concurrent/Future#
+(19:27..19:28) X/Test1#await().[T] -> 19:15
+(19:39..19:47) scala/concurrent/duration/Duration#
+(19:50..19:58) scala/concurrent/duration/Duration.
+(19:59..19:62) scala/concurrent/duration/Duration.Inf.
+(19:74..19:90) scala/concurrent/ExecutionContext#
+(19:92..19:93) X/Test1#await().[T] -> 19:15
+(19:96..19:99) scala/Predef.`???`().
+(21:17..21:21) scala/Unit#
+(22:27..22:34) scala/concurrent/Promise.
+(22:35..22:38) scala/Int#
+(23:21..23:26) X/Test1#spawn(). -> 17:9
+(26:8..27:2) X/Test1#spawn().(ec) -> 17:33
+

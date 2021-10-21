@@ -1,0 +1,11 @@
+Document tests/pos/lazyvals.scala
+(6:15..6:18) scala/Int#
+(8:21..8:25) scala/Unit#
+(8:28..8:35) scala/Predef.println(+1).
+(10:23..10:30) local2 -> 7:11
+(13:21..13:28) local4 -> 10:9
+(13:29..13:35) local1 -> 8:11
+(15:24..15:32) local6 -> 12:11
+(16:6..16:13) local4 -> 10:9
+(16:15..16:23) local8 -> 15:9
+

@@ -1,0 +1,10 @@
+Document tests/pos/3190.scala
+(1:21..1:24) scala/App#
+(3:21..3:24) _empty_/Test.Foo# -> 2:9
+(5:30..5:33) _empty_/Test.Foo# -> 2:9
+(5:36..5:40) scala/Unit#
+(6:30..6:33) _empty_/Test.Bar# -> 3:9
+(6:36..6:40) scala/Unit#
+(8:3..8:11) _empty_/Test.overload(+1). -> 6:7
+(8:16..8:19) _empty_/Test.Bar# -> 3:9
+

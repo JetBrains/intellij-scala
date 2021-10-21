@@ -1,0 +1,6 @@
+Document tests/pos/flatten.scala
+(5:15..5:16) _empty_/A1.B# -> 2:23
+(5:23..5:24) _empty_/A1.B# -> 2:23
+(13:15..13:16) _empty_/A2#B# -> 10:23
+(13:23..13:24) _empty_/A2#B# -> 10:23
+

@@ -1,0 +1,31 @@
+Document tests/pos/i5773a.scala
+(2:17..2:18) _empty_/Semigroup#[T] -> 1:17
+(2:35..2:36) _empty_/Semigroup#[T] -> 1:17
+(2:39..2:40) _empty_/Semigroup#[T] -> 1:17
+(5:30..5:39) _empty_/Semigroup# -> 1:7
+(5:40..5:43) scala/Int#
+(6:19..6:22) scala/Int#
+(6:39..6:42) scala/Int#
+(6:45..6:48) scala/Int#
+(6:51..6:52) local0 -> 6:16
+(6:53..6:54) scala/Int#`+`(+4).
+(6:55..6:56) local1 -> 6:36
+(8:35..8:44) _empty_/Semigroup# -> 1:7
+(8:47..8:56) _empty_/Semigroup# -> 1:7
+(8:57..8:63) scala/Option#
+(8:64..8:65) _empty_/Test.OptionSemigroup().[T] -> 8:32
+(9:19..9:25) scala/Option#
+(9:26..9:27) _empty_/Test.OptionSemigroup().[T] -> 8:32
+(9:45..9:51) scala/Option#
+(9:52..9:53) _empty_/Test.OptionSemigroup().[T] -> 8:32
+(9:57..9:63) scala/Option#
+(9:64..9:65) _empty_/Test.OptionSemigroup().[T] -> 8:32
+(10:13..10:14) local5 -> 9:16
+(11:13..11:14) local6 -> 9:42
+(12:13..12:15) local7 -> 10:7
+(12:24..12:26) local8 -> 11:7
+(15:3..15:7) scala/Some.
+(15:19..15:23) scala/Some.
+(16:3..16:9) scala/Option.
+(16:21..16:27) scala/Option.
+

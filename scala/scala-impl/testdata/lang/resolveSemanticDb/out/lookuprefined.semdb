@@ -1,0 +1,14 @@
+Document tests/pos/lookuprefined.scala
+(5:12..5:13) _empty_/C# -> 1:7
+(5:25..5:26) local0 -> 5:33
+(5:37..5:43) scala/Predef.String#
+(5:49..5:50) _empty_/C#U# -> 1:24
+(6:12..6:13) _empty_/C# -> 1:7
+(6:25..6:26) _empty_/C#T# -> 1:16
+(6:39..6:45) scala/Predef.String#
+(6:51..6:52) _empty_/C#U# -> 1:24
+(8:11..8:17) scala/Predef.String#
+(8:20..8:22) _empty_/Test#x1. -> 5:7
+(9:11..9:17) scala/Predef.String#
+(9:20..9:22) _empty_/Test#x2. -> 6:7
+

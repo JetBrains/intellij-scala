@@ -1,0 +1,11 @@
+Document tests/pos/i4466b.scala
+(2:23..2:26) scala/Predef.Map#
+(2:27..2:33) scala/Predef.String#
+(2:35..2:41) scala/Predef.String#
+(5:20..5:26) scala/Predef.String#
+(5:29..5:32) _empty_/Foo.Bar# -> 2:14
+(5:35..5:38) scala/Predef.`???`().
+(8:3..8:6) _empty_/Foo.Bar. -> 4:10
+(8:7..8:10) scala/Predef.Map.
+(8:15..8:17) scala/Predef.ArrowAssoc#`->`().
+

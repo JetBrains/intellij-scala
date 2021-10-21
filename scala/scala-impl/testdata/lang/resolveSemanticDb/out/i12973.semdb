@@ -1,0 +1,4 @@
+Document tests/pos/i12973.scala
+(4:18..4:31) scala/Product#productPrefix().
+(4:40..4:41) scala/StringContext#s().
+

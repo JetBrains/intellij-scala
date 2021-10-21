@@ -1,0 +1,26 @@
+Document tests/pos/object-union-inf.scala
+(2:21..2:22) _empty_/A# -> 1:7
+(4:21..4:22) _empty_/B# -> 3:7
+(7:16..7:17) _empty_/A# -> 1:7
+(7:18..7:19) scala/`|`#
+(7:20..7:21) _empty_/B# -> 3:7
+(7:26..7:27) _empty_/Test.foo().[T] -> 7:11
+(7:30..7:34) scala/package.List#
+(7:35..7:36) _empty_/Test.foo().[T] -> 7:11
+(7:40..7:44) scala/package.List.
+(7:45..7:46) _empty_/Test.foo().(t) -> 7:23
+(8:10..8:14) _empty_/ObjA. -> 2:8
+(8:20..8:21) scala/`|`#
+(8:22..8:26) _empty_/ObjB. -> 4:8
+(8:34..8:38) _empty_/ObjA. -> 2:8
+(13:11..13:14) _empty_/Test.foo(). -> 7:7
+(13:15..13:19) _empty_/ObjA. -> 2:8
+(13:22..13:26) _empty_/ObjA. -> 2:8
+(13:32..13:33) scala/`|`#
+(13:34..13:38) _empty_/ObjB. -> 4:8
+(18:10..18:14) scala/package.List#
+(18:15..18:19) _empty_/ObjA. -> 2:8
+(18:25..18:26) scala/`|`#
+(18:27..18:31) _empty_/ObjB. -> 4:8
+(18:40..18:41) _empty_/Test.y. -> 13:7
+

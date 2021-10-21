@@ -1,0 +1,12 @@
+Document tests/pos/i13331.scala
+(1:18..1:21) scala/Any#
+(1:36..1:39) scala/Int.
+(1:43..1:47) scala/Long.
+(1:54..1:58) scala/Long.
+(1:62..1:65) scala/Int.
+(3:18..3:19) _empty_/i13331$package.Choice#[A] -> 3:13
+(3:33..3:36) scala/Int#
+(3:40..3:44) scala/Long#
+(3:52..3:56) scala/Long#
+(3:60..3:63) scala/Int#
+

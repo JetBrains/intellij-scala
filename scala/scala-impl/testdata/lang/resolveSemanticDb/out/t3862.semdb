@@ -1,0 +1,9 @@
+Document tests/pos/t3862.scala
+(5:16..5:22) scala/Predef.String#
+(5:25..5:29) scala/Unit#
+(7:25..7:26) _empty_/OverloadingShapeType.blerg(+1).[M] -> 7:13
+(7:27..7:28) _empty_/OverloadingShapeType.blerg(+1).[T] -> 7:19
+(7:32..7:36) scala/Unit#
+(9:3..9:8) _empty_/OverloadingShapeType.blerg(+1). -> 7:7
+(9:9..9:13) scala/package.List.
+

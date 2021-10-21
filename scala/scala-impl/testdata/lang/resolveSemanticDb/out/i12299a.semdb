@@ -1,0 +1,5 @@
+Document tests/pos/i12299a.scala
+(4:12..4:17) _empty_/Outer. -> 1:8
+(9:17..9:21) _empty_/Outer.Wrap. -> 3:10
+(9:22..9:25) _empty_/Outer.Bar# -> 7:9
+

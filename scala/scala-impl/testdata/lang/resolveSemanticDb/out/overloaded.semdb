@@ -1,0 +1,132 @@
+Document tests/pos/overloaded.scala
+(3:12..3:18) scala/Predef.String#
+(3:21..3:27) scala/Predef.String#
+(3:30..3:31) _empty_/overloaded.f().(x) -> 3:9
+(4:14..4:18) scala/Null#
+(4:23..4:24) _empty_/overloaded.f(+1).[T] -> 4:9
+(4:27..4:30) scala/Int#
+(6:12..6:13) _empty_/overloaded.f(). -> 3:7
+(7:12..7:13) _empty_/overloaded.f(+1). -> 4:7
+(7:18..7:25) java/lang/Integer#
+(8:12..8:13) _empty_/overloaded.f(). -> 3:7
+(10:11..10:17) scala/Predef.String#
+(10:21..10:27) scala/Predef.String#
+(10:30..10:31) _empty_/overloaded.f(). -> 3:7
+(11:11..11:17) scala/Predef.String#
+(11:21..11:24) scala/Any#
+(11:27..11:28) _empty_/overloaded.f(). -> 3:7
+(12:11..12:14) scala/Any#
+(12:17..12:18) _empty_/overloaded.f(). -> 3:7
+(14:12..14:15) scala/Int#
+(15:12..15:15) scala/Int#
+(15:18..15:21) scala/Int#
+(17:11..17:14) scala/Int#
+(17:18..17:21) scala/Int#
+(17:24..17:25) _empty_/overloaded.g(+1). -> 15:7
+(18:11..18:14) scala/Any#
+(18:17..18:18) _empty_/overloaded.g(). -> 14:7
+(20:3..20:10) scala/Predef.println(+1).
+(20:11..20:12) _empty_/overloaded.g(). -> 14:7
+(22:12..22:16) scala/package.List.
+(23:3..23:5) _empty_/overloaded.xs. -> 22:7
+(23:6..23:14) scala/collection/IterableOnceOps#mkString(+2).
+(25:14..25:18) scala/Char#
+(25:22..25:26) scala/Char#
+(25:29..25:35) scala/Predef.String#
+(25:38..25:41) scala/Predef.`???`().
+(26:17..26:21) scala/Char#
+(26:25..26:26) _empty_/overloaded.map(+1).[U] -> 26:11
+(26:29..26:32) scala/package.Seq#
+(26:33..26:34) _empty_/overloaded.map(+1).[U] -> 26:11
+(26:38..26:41) scala/Predef.`???`().
+(27:12..27:15) _empty_/overloaded.map(). -> 25:7
+(27:21..27:22) local4 -> 27:16
+(27:23..27:30) scala/runtime/RichChar#toUpper().
+(28:11..28:17) scala/Predef.String#
+(28:20..28:22) _empty_/overloaded.r1. -> 27:7
+(29:12..29:15) _empty_/overloaded.map(+1). -> 26:7
+(29:21..29:22) local5 -> 29:16
+(29:23..29:28) scala/Char#toInt().
+(30:11..30:14) scala/package.Seq#
+(30:15..30:18) scala/Int#
+(30:22..30:24) _empty_/overloaded.r2. -> 29:7
+(32:13..32:16) _empty_/overloaded.map(). -> 25:7
+(32:29..32:30) local7 -> 32:24
+(32:31..32:38) scala/runtime/RichChar#toUpper().
+(33:12..33:18) scala/Predef.String#
+(33:21..33:24) _empty_/overloaded.rp1. -> 32:7
+(34:13..34:16) _empty_/overloaded.map(+1). -> 26:7
+(34:29..34:30) local9 -> 34:24
+(34:31..34:36) scala/Char#toInt().
+(35:12..35:15) scala/package.Seq#
+(35:16..35:19) scala/Int#
+(35:23..35:26) _empty_/overloaded.rp2. -> 34:7
+(37:18..37:22) scala/Char#
+(37:26..37:32) scala/Predef.String#
+(37:35..37:41) scala/Predef.String#
+(37:44..37:47) scala/Predef.`???`().
+(38:21..38:25) scala/Char#
+(38:29..38:32) scala/package.Seq#
+(38:33..38:34) _empty_/overloaded.flatMap(+1).[U] -> 38:15
+(38:38..38:41) scala/package.Seq#
+(38:42..38:43) _empty_/overloaded.flatMap(+1).[U] -> 38:15
+(38:47..38:50) scala/Predef.`???`().
+(39:12..39:19) _empty_/overloaded.flatMap(). -> 37:7
+(39:25..39:26) local10 -> 39:20
+(39:27..39:35) scala/Any#toString().
+(40:11..40:17) scala/Predef.String#
+(40:20..40:22) _empty_/overloaded.r3. -> 39:7
+(41:12..41:19) _empty_/overloaded.flatMap(+1). -> 38:7
+(41:25..41:29) scala/package.List.
+(41:30..41:31) local11 -> 41:20
+(42:11..42:14) scala/package.Seq#
+(42:15..42:19) scala/Char#
+(42:23..42:25) _empty_/overloaded.r4. -> 41:7
+(44:13..44:20) _empty_/overloaded.flatMap(). -> 37:7
+(44:33..44:34) local13 -> 44:28
+(44:35..44:43) scala/Any#toString().
+(45:12..45:18) scala/Predef.String#
+(45:21..45:24) _empty_/overloaded.rp3. -> 44:7
+(46:13..46:20) _empty_/overloaded.flatMap(+1). -> 38:7
+(46:33..46:37) scala/package.List.
+(46:38..46:39) local15 -> 46:28
+(47:12..47:15) scala/package.Seq#
+(47:16..47:20) scala/Char#
+(47:24..47:27) _empty_/overloaded.rp4. -> 46:7
+(49:15..49:19) scala/Char#
+(49:21..49:25) scala/Char#
+(49:30..49:34) scala/Unit#
+(49:37..49:41) scala/Unit#
+(49:44..49:47) scala/Predef.`???`().
+(50:14..50:18) scala/Char#
+(50:22..50:26) scala/Unit#
+(50:30..50:33) scala/Predef.`???`().
+(51:3..51:6) _empty_/overloaded.bar(). -> 49:7
+(52:3..52:6) _empty_/overloaded.bar(+1). -> 50:7
+(54:3..54:6) _empty_/overloaded.bar(+1). -> 50:7
+(56:19..56:23) scala/Char#
+(56:25..56:28) scala/Int#
+(56:33..56:36) scala/Int#
+(56:39..56:42) scala/Int#
+(56:45..56:48) scala/Predef.`???`().
+(57:19..57:25) scala/Predef.String#
+(57:27..57:30) scala/Int#
+(57:35..57:41) scala/Predef.String#
+(57:44..57:50) scala/Predef.String#
+(57:53..57:56) scala/Predef.`???`().
+(58:12..58:19) _empty_/overloaded.combine(). -> 56:7
+(58:24..58:28) scala/Char#
+(58:36..58:37) local21 -> 58:21
+(58:38..58:39) scala/Char#`+`(+4).
+(58:40..58:41) local22 -> 58:30
+(59:11..59:14) scala/Int#
+(59:17..59:19) _empty_/overloaded.r5. -> 58:7
+(60:12..60:19) _empty_/overloaded.combine(+1). -> 57:7
+(60:24..60:30) scala/Predef.String#
+(60:38..60:39) local23 -> 60:21
+(60:40..60:42) scala/collection/StringOps#`++`(+2).
+(60:43..60:44) local24 -> 60:32
+(60:45..60:53) scala/Any#toString().
+(61:11..61:17) scala/Predef.String#
+(61:20..61:22) _empty_/overloaded.r6. -> 60:7
+

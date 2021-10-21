@@ -1,0 +1,62 @@
+Document tests/pos/i6662.scala
+(2:26..2:30) scala/Null#
+(2:34..2:35) _empty_/opt.Opt#[A] -> 2:21
+(4:31..4:35) scala/Null#
+(4:40..4:43) _empty_/opt.Opt# -> 2:17
+(4:44..4:45) _empty_/opt.Opt.unOpt().[A] -> 4:26
+(4:49..4:50) _empty_/opt.Opt.unOpt().[A] -> 4:26
+(4:53..4:54) _empty_/opt.Opt.unOpt().(x) -> 4:37
+(5:31..5:35) scala/Null#
+(5:40..5:41) _empty_/opt.Opt.apply().[A] -> 5:26
+(5:44..5:47) _empty_/opt.Opt# -> 2:17
+(5:48..5:49) _empty_/opt.Opt.apply().[A] -> 5:26
+(5:53..5:54) _empty_/opt.Opt.apply().(x) -> 5:37
+(6:30..6:34) scala/Null#
+(6:39..6:40) _empty_/opt.Opt.some().[A] -> 6:25
+(6:43..6:46) _empty_/opt.Opt# -> 2:17
+(6:47..6:48) _empty_/opt.Opt.some().[A] -> 6:25
+(6:52..6:53) _empty_/opt.Opt.some().(x) -> 6:36
+(7:30..7:34) scala/Null#
+(7:37..7:40) _empty_/opt.Opt# -> 2:17
+(7:41..7:42) _empty_/opt.Opt.none().[A] -> 7:25
+(8:36..8:40) scala/Null#
+(8:45..8:51) scala/Option#
+(8:52..8:53) _empty_/opt.Opt.fromOption().[A] -> 8:31
+(8:58..8:59) _empty_/opt.Opt.fromOption().(x) -> 8:42
+(8:60..8:66) scala/Option#orNull().
+(10:8..10:11) _empty_/opt. -> 1:8
+(10:12..10:15) _empty_/opt.Opt. -> 3:12
+(11:17..11:21) scala/Null#
+(11:26..11:29) _empty_/opt.Opt# -> 2:17
+(11:30..11:31) _empty_/i6662$package.get().[A] -> 11:12
+(11:30..11:31) _empty_/i6662$package.isDefined().[A] -> 11:12
+(11:30..11:31) _empty_/i6662$package.isEmpty().[A] -> 11:12
+(11:30..11:31) _empty_/i6662$package.nonEmpty().[A] -> 11:12
+(12:27..12:34) scala/Boolean#
+(12:37..12:38) _empty_/i6662$package.nonEmpty().(x) -> 11:23
+(12:39..12:42) _empty_/i6662$package.get(). -> 15:16
+(12:43..12:45) scala/Any#`!=`().
+(13:27..13:34) scala/Boolean#
+(13:37..13:38) _empty_/i6662$package.isEmpty().(x) -> 11:23
+(13:39..13:42) _empty_/i6662$package.get(). -> 15:16
+(13:43..13:45) scala/Any#`==`().
+(14:27..14:34) scala/Boolean#
+(14:37..14:38) _empty_/i6662$package.isDefined().(x) -> 11:23
+(14:39..14:47) _empty_/i6662$package.nonEmpty(). -> 12:16
+(15:27..15:28) _empty_/i6662$package.get().[A] -> 11:12
+(15:37..15:40) _empty_/opt.Opt. -> 3:12
+(15:41..15:46) _empty_/opt.Opt.unOpt(). -> 4:20
+(15:47..15:48) _empty_/i6662$package.get().(x) -> 11:23
+(17:2..17:6) scala/main#
+(18:10..18:13) _empty_/opt.Opt# -> 2:17
+(18:14..18:20) scala/Predef.String#
+(18:24..18:27) _empty_/opt.Opt. -> 3:12
+(18:28..18:32) _empty_/opt.Opt.some(). -> 6:20
+(19:3..19:9) scala/Predef.assert(+1).
+(19:10..19:11) local0 -> 18:7
+(19:12..19:20) _empty_/i6662$package.nonEmpty(). -> 12:16
+(20:10..20:16) scala/Predef.String#
+(20:19..20:22) _empty_/opt.Opt. -> 3:12
+(20:23..20:28) _empty_/opt.Opt.unOpt(). -> 4:20
+(20:29..20:30) local0 -> 18:7
+

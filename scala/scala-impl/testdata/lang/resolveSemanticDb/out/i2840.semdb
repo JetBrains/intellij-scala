@@ -1,0 +1,14 @@
+Document tests/pos/i2840.scala
+(3:12..3:16) _empty_/Test.Type# -> 2:9
+(3:19..3:23) _empty_/Test.Type# -> 2:9
+(3:26..3:29) scala/Predef.`???`().
+(4:13..4:17) scala/package.List#
+(4:18..4:22) _empty_/Test.Type# -> 2:9
+(4:26..4:29) scala/Int#
+(5:14..5:16) _empty_/Test.g().(xs) -> 4:9
+(5:17..5:20) scala/collection/immutable/List#map().
+(5:21..5:22) _empty_/Test.f(). -> 3:7
+(6:5..6:7) local1 -> 5:9
+(6:8..6:13) scala/collection/IterableOnceOps#toSet().
+(6:14..6:18) scala/collection/IterableOnceOps#size().
+

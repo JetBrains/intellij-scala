@@ -1,0 +1,12 @@
+Document tests/pos/i1307.scala
+(2:21..2:24) scala/Int#
+(2:34..2:38) _empty_/Term# -> 1:7
+(2:39..2:42) scala/Int#
+(4:15..4:19) _empty_/Term# -> 1:7
+(4:20..4:21) _empty_/Test.f().[B] -> 4:9
+(4:25..4:26) _empty_/Test.f().[B] -> 4:9
+(4:29..4:30) _empty_/Test.f().(t) -> 4:12
+(5:13..5:19) _empty_/Number# -> 2:7
+(5:23..5:24) local0 -> 5:10
+(5:25..5:26) _empty_/Number#n. -> 2:18
+

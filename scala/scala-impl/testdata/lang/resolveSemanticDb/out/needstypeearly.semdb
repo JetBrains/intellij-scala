@@ -1,0 +1,4 @@
+Document tests/pos/needstypeearly.scala
+(2:10..2:13) scala/Int#
+(4:19..4:30) _empty_/NeedsXEarly# -> 1:16
+

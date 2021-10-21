@@ -1,0 +1,21 @@
+Document tests/pos/inline-rewrite.scala
+(3:31..3:34) scala/Int#
+(3:45..3:46) _empty_/Test.f().(x) -> 3:28
+(8:10..8:16) scala/Predef.String#
+(8:19..8:20) _empty_/Test.f(). -> 3:26
+(9:11..9:12) _empty_/Test.f(). -> 3:26
+(10:11..10:14) scala/Int#
+(10:17..10:18) _empty_/Test.y. -> 9:7
+(12:31..12:34) scala/Any#
+(12:45..12:46) _empty_/Test.g().(x) -> 12:28
+(13:13..13:19) scala/Predef.String#
+(13:24..13:25) local0 -> 13:10
+(13:27..13:28) local0 -> 13:10
+(14:13..14:19) scala/Double#
+(14:23..14:24) local1 -> 14:10
+(17:11..17:17) scala/Predef.String#
+(17:19..17:25) scala/Predef.String#
+(17:29..17:30) _empty_/Test.g(). -> 12:26
+(18:10..18:16) scala/Double#
+(18:19..18:20) _empty_/Test.g(). -> 12:26
+

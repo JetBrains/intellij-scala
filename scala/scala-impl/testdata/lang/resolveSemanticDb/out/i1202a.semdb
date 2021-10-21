@@ -1,0 +1,5 @@
+Document tests/pos/i1202a.scala
+(4:19..4:23) scala/Unit#
+(8:16..8:20) i1202a/Test# -> 3:7
+(8:21..8:22) i1202a/Foo#[T] -> 7:11
+

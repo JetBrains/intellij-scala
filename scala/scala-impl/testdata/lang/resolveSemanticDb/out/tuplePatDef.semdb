@@ -1,0 +1,4 @@
+Document tests/pos/tuplePatDef.scala
+(3:15..3:21) scala/Predef.String#
+(3:23..3:26) scala/Int#
+

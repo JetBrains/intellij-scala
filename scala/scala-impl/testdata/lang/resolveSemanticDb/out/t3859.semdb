@@ -1,0 +1,8 @@
+Document tests/pos/t3859.scala
+(2:12..2:16) scala/Unit#
+(2:19..2:22) _empty_/Test#bar(). -> 3:7
+(2:23..2:28) scala/Array.
+(2:29..2:35) scala/AnyRef#
+(3:19..3:25) scala/AnyRef#
+(3:29..3:33) scala/Unit#
+

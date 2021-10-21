@@ -1,0 +1,480 @@
+Document tests/pos/Iter2.scala
+(1:9..1:15) dotty1/
+(4:8..4:18) scala/annotation/
+(4:19..4:28) scala/annotation/unchecked/
+(4:29..4:46) scala/annotation/unchecked/uncheckedVariance#
+(8:30..8:42) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(8:43..8:44) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(9:18..9:25) scala/Boolean#
+(10:15..10:16) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(12:20..12:21) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(12:25..12:29) scala/Unit#
+(12:32..12:36) scala/Unit#
+(12:39..12:42) scala/Predef.`???`().
+(13:19..13:20) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(13:24..13:25) dotty1/collections/immutable/Iter2.Iterator#map().[B] -> 13:13
+(13:28..13:36) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(13:37..13:38) dotty1/collections/immutable/Iter2.Iterator#map().[B] -> 13:13
+(13:42..13:45) scala/Predef.`???`().
+(14:23..14:24) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(14:28..14:40) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(14:41..14:42) dotty1/collections/immutable/Iter2.Iterator#flatMap().[B] -> 14:17
+(14:46..14:54) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(14:55..14:56) dotty1/collections/immutable/Iter2.Iterator#flatMap().[B] -> 14:17
+(14:60..14:63) scala/Predef.`???`().
+(15:17..15:18) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(15:24..15:36) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(15:37..15:38) dotty1/collections/immutable/Iter2.Iterator#`++`().[B] -> 15:12
+(15:42..15:50) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(15:51..15:52) dotty1/collections/immutable/Iter2.Iterator#`++`().[B] -> 15:12
+(15:56..15:59) scala/Predef.`???`().
+(16:17..16:20) scala/Int#
+(16:23..16:31) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(16:32..16:33) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(16:37..16:40) scala/Predef.`???`().
+(17:23..17:24) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(17:28..17:35) scala/Boolean#
+(17:38..17:41) scala/Int#
+(19:14..19:21) dotty1/collections/immutable/Iter2.Iterator#hasNext(). -> 9:9
+(20:13..20:14) dotty1/collections/immutable/Iter2.Iterator#indexWhere().(p) -> 17:20
+(20:15..20:19) dotty1/collections/immutable/Iter2.Iterator#next(). -> 10:9
+(20:29..20:30) local0 -> 18:11
+(21:9..21:10) local0 -> 18:11
+(25:22..25:30) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(25:31..25:32) dotty1/collections/immutable/Iter2.Iterator#zip().[B] -> 25:13
+(25:36..25:44) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(25:46..25:47) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(25:49..25:50) dotty1/collections/immutable/Iter2.Iterator#zip().[B] -> 25:13
+(25:55..25:58) scala/Predef.`???`().
+(26:15..26:23) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(26:24..26:25) dotty1/collections/immutable/Iter2.Iterator#[A] -> 8:19
+(26:29..26:32) scala/Predef.`???`().
+(53:19..53:27) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(53:28..53:29) dotty1/collections/immutable/Iter2.IterableOnce#[A] -> 52:23
+(54:24..54:32) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(54:33..54:34) dotty1/collections/immutable/Iter2.IterableOnce#[A] -> 52:23
+(54:38..54:46) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(57:31..57:39) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
+(57:40..57:41) dotty1/collections/immutable/Iter2.FromIterator#`<init>`().[C][X] -> 57:25
+(58:29..58:37) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(58:38..58:39) dotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B] -> 58:22
+(58:43..58:44) dotty1/collections/immutable/Iter2.FromIterator#[C] -> 57:23
+(58:45..58:46) dotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B] -> 58:22
+(61:31..61:43) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(61:44..61:46) dotty1/collections/immutable/Iter2.Iterable#[IA] -> 61:19
+(61:49..61:61) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(62:15..62:19) dotty1/collections/immutable/Iter2.View# -> 87:9
+(62:20..62:22) dotty1/collections/immutable/Iter2.Iterable#[IA] -> 61:19
+(62:35..62:43) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(65:26..65:34) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
+(65:35..65:37) dotty1/collections/immutable/Iter2.Seq#[AA] -> 65:14
+(65:40..65:52) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(66:18..66:21) scala/Int#
+(66:24..66:26) dotty1/collections/immutable/Iter2.Seq#[AA] -> 65:14
+(67:17..67:20) scala/Int#
+(70:33..70:36) dotty1/collections/immutable/Iter2.Seq# -> 65:9
+(70:37..70:38) dotty1/collections/immutable/Iter2.List#[A] -> 70:22
+(70:41..70:53) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(71:18..71:25) scala/Boolean#
+(72:15..72:16) dotty1/collections/immutable/Iter2.List#[A] -> 70:22
+(73:15..73:19) dotty1/collections/immutable/Iter2.List# -> 70:16
+(73:20..73:21) dotty1/collections/immutable/Iter2.List#[A] -> 70:22
+(74:24..74:36) dotty1/collections/immutable/Iter2.ListIterator# -> 159:14
+(74:37..74:38) dotty1/collections/immutable/Iter2.List#[A] -> 70:22
+(75:29..75:37) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(75:38..75:39) dotty1/collections/immutable/Iter2.List#fromIterator().[B] -> 75:22
+(75:43..75:47) dotty1/collections/immutable/Iter2.List# -> 70:16
+(75:48..75:49) dotty1/collections/immutable/Iter2.List#fromIterator().[B] -> 75:22
+(75:53..75:55) dotty1/collections/immutable/Iter2.List#fromIterator().(it) -> 75:25
+(76:12..76:24) dotty1/collections/immutable/Iter2.ListIterator.
+(76:32..76:34) local1 -> 76:25
+(77:21..77:23) dotty1/collections/immutable/Iter2.List#fromIterator().(it) -> 75:25
+(77:24..77:31) dotty1/collections/immutable/Iter2.Iterator#hasNext(). -> 9:9
+(77:33..77:37) dotty1/collections/immutable/Iter2.Cons.
+(77:38..77:40) dotty1/collections/immutable/Iter2.List#fromIterator().(it) -> 75:25
+(77:41..77:45) dotty1/collections/immutable/Iter2.Iterator#next(). -> 10:9
+(77:47..77:59) dotty1/collections/immutable/Iter2.List#fromIterator(). -> 75:9
+(77:60..77:62) dotty1/collections/immutable/Iter2.List#fromIterator().(it) -> 75:25
+(77:70..77:73) dotty1/collections/immutable/Iter2.Nil. -> 98:15
+(79:18..79:21) scala/Int#
+(79:24..79:25) dotty1/collections/immutable/Iter2.List#[A] -> 70:22
+(80:7..80:14) scala/Predef.require().
+(80:16..80:23) dotty1/collections/immutable/Iter2.List#isEmpty(). -> 71:9
+(81:11..81:12) dotty1/collections/immutable/Iter2.List#apply().(i) -> 79:15
+(81:13..81:15) scala/Int#`==`(+3).
+(81:19..81:23) dotty1/collections/immutable/Iter2.List#head(). -> 72:9
+(81:29..81:33) dotty1/collections/immutable/Iter2.List#tail(). -> 73:9
+(81:34..81:39) dotty1/collections/immutable/Iter2.List#apply(). -> 79:9
+(81:40..81:41) dotty1/collections/immutable/Iter2.List#apply().(i) -> 79:15
+(81:42..81:43) scala/Int#`-`(+3).
+(83:17..83:20) scala/Int#
+(84:11..84:18) dotty1/collections/immutable/Iter2.List#isEmpty(). -> 71:9
+(84:29..84:30) scala/Int#`+`(+4).
+(84:31..84:35) dotty1/collections/immutable/Iter2.List#tail(). -> 73:9
+(84:36..84:42) dotty1/collections/immutable/Iter2.List#length(). -> 83:9
+(87:22..87:30) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(87:31..87:32) dotty1/collections/immutable/Iter2.View#[A] -> 87:15
+(87:43..87:51) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
+(87:52..87:53) dotty1/collections/immutable/Iter2.View#[A] -> 87:15
+(87:56..87:68) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(88:19..88:27) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(88:28..88:29) dotty1/collections/immutable/Iter2.View#[A] -> 87:15
+(88:33..88:35) dotty1/collections/immutable/Iter2.View#it. -> 87:18
+(88:36..88:40) dotty1/collections/immutable/Iter2.Iterator#copy(). -> 26:9
+(89:29..89:37) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(89:38..89:39) dotty1/collections/immutable/Iter2.View#fromIterator().[B] -> 89:22
+(89:43..89:47) dotty1/collections/immutable/Iter2.View# -> 87:9
+(89:48..89:49) dotty1/collections/immutable/Iter2.View#fromIterator().[B] -> 89:22
+(89:62..89:64) dotty1/collections/immutable/Iter2.View#fromIterator().(it) -> 89:25
+(92:26..92:27) dotty1/collections/immutable/Iter2.Cons#[A] -> 92:20
+(92:33..92:37) dotty1/collections/immutable/Iter2.List# -> 70:16
+(92:38..92:39) dotty1/collections/immutable/Iter2.Cons#[A] -> 92:20
+(92:50..92:54) dotty1/collections/immutable/Iter2.List# -> 70:16
+(92:55..92:56) dotty1/collections/immutable/Iter2.Cons#[A] -> 92:20
+(94:16..94:17) dotty1/collections/immutable/Iter2.Cons#x. -> 92:23
+(95:16..95:18) dotty1/collections/immutable/Iter2.Cons#xs. -> 92:29
+(98:27..98:31) dotty1/collections/immutable/Iter2.List# -> 70:16
+(98:32..98:39) scala/Nothing#
+(100:16..100:19) scala/Predef.`???`().
+(101:16..101:19) scala/Predef.`???`().
+(104:44..104:49) scala/Array#
+(104:50..104:56) scala/AnyRef#
+(104:68..104:71) scala/Int#
+(104:81..104:84) dotty1/collections/immutable/Iter2.Seq# -> 65:9
+(104:85..104:86) dotty1/collections/immutable/Iter2.ArrayBuffer#[A] -> 104:21
+(104:89..104:101) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(105:27..105:32) scala/Array#
+(105:33..105:39) scala/AnyRef#
+(106:18..106:31) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(106:32..106:33) dotty1/collections/immutable/Iter2.ArrayBuffer#[A] -> 104:21
+(106:43..106:45) dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it) -> 106:14
+(106:46..106:51) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(106:53..106:55) dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it) -> 106:14
+(106:56..106:59) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(107:24..107:29) scala/Array#
+(107:30..107:36) scala/AnyRef#
+(107:40..107:49) dotty1/collections/immutable/Iter2.ArrayBuffer#initElems. -> 104:33
+(110:7..110:12) dotty1/collections/immutable/Iter2.ArrayBuffer#elems(). -> 107:17
+(110:13..110:21) scala/collection/ArrayOps#iterator().
+(110:22..110:26) scala/collection/Iterator#take().
+(110:27..110:30) dotty1/collections/immutable/Iter2.ArrayBuffer#len(). -> 108:17
+(110:32..110:44) scala/Any#asInstanceOf().
+(110:45..110:53) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(110:54..110:55) dotty1/collections/immutable/Iter2.ArrayBuffer#[A] -> 104:21
+(112:25..112:30) dotty1/collections/immutable/Iter2.ArrayBuffer#elems(). -> 107:17
+(112:32..112:35) dotty1/collections/immutable/Iter2.ArrayBuffer#len(). -> 108:17
+(112:37..112:49) scala/Any#asInstanceOf().
+(112:50..112:58) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(112:59..112:60) dotty1/collections/immutable/Iter2.ArrayBuffer#[A] -> 104:21
+(113:29..113:37) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(113:38..113:39) dotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B] -> 113:22
+(113:43..113:54) dotty1/collections/immutable/Iter2.ArrayBuffer# -> 104:9
+(113:55..113:56) dotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B] -> 113:22
+(114:23..114:36) dotty1/collections/immutable/Iter2.ArrayIterator. -> 209:10
+(114:37..114:49) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator(). -> 212:9
+(114:50..114:52) dotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().(it) -> 113:25
+(115:18..115:21) scala/Int#
+(115:25..115:30) dotty1/collections/immutable/Iter2.ArrayBuffer#elems(). -> 107:17
+(115:31..115:32) dotty1/collections/immutable/Iter2.ArrayBuffer#apply().(i) -> 115:15
+(115:34..115:46) scala/Any#asInstanceOf().
+(115:47..115:48) dotty1/collections/immutable/Iter2.ArrayBuffer#[A] -> 104:21
+(116:18..116:21) dotty1/collections/immutable/Iter2.ArrayBuffer#len(). -> 108:17
+(127:48..127:56) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
+(127:57..127:58) dotty1/collections/immutable/Iter2.IterableTransforms#`<init>`().[C][X] -> 127:42
+(127:68..127:76) dotty1/collections/immutable/Iter2.Iterable# -> 61:9
+(127:77..127:78) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(127:85..127:97) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(127:98..127:99) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(127:110..127:116) scala/AnyVal#
+(128:19..128:20) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(128:24..128:25) dotty1/collections/immutable/Iter2.IterableTransforms#map().[B] -> 128:13
+(128:28..128:29) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(128:30..128:31) dotty1/collections/immutable/Iter2.IterableTransforms#map().[B] -> 128:13
+(128:35..128:36) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(128:37..128:49) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(128:50..128:51) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(128:52..128:65) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(128:66..128:69) dotty1/collections/immutable/Iter2.Iterator#map(). -> 13:9
+(128:70..128:71) dotty1/collections/immutable/Iter2.IterableTransforms#map().(f) -> 128:16
+(129:23..129:24) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(129:28..129:40) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(129:41..129:42) dotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B] -> 129:17
+(129:46..129:47) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(129:48..129:49) dotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B] -> 129:17
+(129:53..129:54) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(129:55..129:67) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(129:68..129:69) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(129:70..129:83) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(129:84..129:91) dotty1/collections/immutable/Iter2.Iterator#flatMap(). -> 14:9
+(129:92..129:93) dotty1/collections/immutable/Iter2.IterableTransforms#flatMap().(f) -> 129:20
+(129:97..129:110) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(130:17..130:18) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(130:24..130:36) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(130:37..130:38) dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B] -> 130:12
+(130:42..130:43) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(130:44..130:45) dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B] -> 130:12
+(130:49..130:50) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(130:51..130:63) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(130:64..130:65) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(130:66..130:79) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(130:80..130:82) dotty1/collections/immutable/Iter2.Iterator#`++`(). -> 15:9
+(130:83..130:85) dotty1/collections/immutable/Iter2.IterableTransforms#`++`().(xs) -> 130:20
+(130:86..130:99) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(131:17..131:20) scala/Int#
+(131:23..131:24) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(131:25..131:26) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(131:30..131:31) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(131:32..131:44) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(131:45..131:46) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(131:47..131:60) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(131:61..131:65) dotty1/collections/immutable/Iter2.Iterator#drop(). -> 16:9
+(131:66..131:67) dotty1/collections/immutable/Iter2.IterableTransforms#drop().(n) -> 131:14
+(132:15..132:16) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(132:19..132:20) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(132:21..132:29) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(132:30..132:34) dotty1/collections/immutable/Iter2.Iterator#next(). -> 10:9
+(133:20..133:32) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(133:33..133:34) dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B] -> 133:13
+(133:38..133:39) dotty1/collections/immutable/Iter2.IterableTransforms#[C] -> 127:40
+(133:41..133:42) dotty1/collections/immutable/Iter2.IterableTransforms#[A] -> 127:37
+(133:44..133:45) dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B] -> 133:13
+(133:50..133:51) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(133:52..133:64) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(133:65..133:66) dotty1/collections/immutable/Iter2.IterableTransforms#c. -> 127:65
+(133:67..133:75) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(133:76..133:79) dotty1/collections/immutable/Iter2.Iterator#zip(). -> 25:9
+(133:80..133:82) dotty1/collections/immutable/Iter2.IterableTransforms#zip().(xs) -> 133:16
+(133:83..133:91) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(136:44..136:47) dotty1/collections/immutable/Iter2.Seq# -> 65:9
+(136:48..136:49) dotty1/collections/immutable/Iter2.SeqTransforms#`<init>`().[C][X] -> 136:38
+(136:59..136:62) dotty1/collections/immutable/Iter2.Seq# -> 65:9
+(136:63..136:65) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
+(136:72..136:84) dotty1/collections/immutable/Iter2.FromIterator# -> 57:9
+(136:85..136:86) dotty1/collections/immutable/Iter2.SeqTransforms#[C] -> 136:36
+(136:97..136:103) scala/AnyVal#
+(137:18..137:19) dotty1/collections/immutable/Iter2.SeqTransforms#[C] -> 136:36
+(137:20..137:22) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
+(138:23..138:28) scala/Array#
+(138:29..138:35) scala/AnyRef#
+(138:37..138:38) dotty1/collections/immutable/Iter2.SeqTransforms#c. -> 136:56
+(138:39..138:45) dotty1/collections/immutable/Iter2.Seq#length(). -> 67:9
+(139:15..139:20) local2 -> 138:11
+(139:21..139:27) scala/Array#length().
+(140:16..140:17) dotty1/collections/immutable/Iter2.SeqTransforms#c. -> 136:56
+(140:18..140:26) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(141:14..141:16) local4 -> 140:11
+(141:17..141:24) dotty1/collections/immutable/Iter2.Iterator#hasNext(). -> 9:9
+(142:9..142:10) local3 -> 139:11
+(143:9..143:14) local2 -> 138:11
+(143:15..143:16) local3 -> 139:11
+(143:20..143:22) local4 -> 140:11
+(143:23..143:27) dotty1/collections/immutable/Iter2.Iterator#next(). -> 10:9
+(143:28..143:40) scala/Any#asInstanceOf().
+(143:41..143:47) scala/AnyRef#
+(145:17..145:18) dotty1/collections/immutable/Iter2.SeqTransforms#c. -> 136:56
+(145:19..145:31) dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). -> 58:9
+(145:32..145:45) dotty1/collections/immutable/Iter2.ArrayIterator. -> 209:10
+(145:46..145:48) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
+(145:50..145:55) local2 -> 138:11
+(145:57..145:58) dotty1/collections/immutable/Iter2.SeqTransforms#c. -> 136:56
+(145:59..145:65) dotty1/collections/immutable/Iter2.Seq#length(). -> 67:9
+(146:7..146:10) local5 -> 145:11
+(148:23..148:25) dotty1/collections/immutable/Iter2.SeqTransforms#[SA] -> 136:32
+(148:29..148:36) scala/Boolean#
+(148:39..148:42) scala/Int#
+(148:45..148:46) dotty1/collections/immutable/Iter2.SeqTransforms#c. -> 136:56
+(148:47..148:55) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(148:56..148:66) dotty1/collections/immutable/Iter2.Iterator#indexWhere(). -> 17:9
+(148:67..148:68) dotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().(p) -> 148:20
+(159:35..159:39) dotty1/collections/immutable/Iter2.List# -> 70:16
+(159:40..159:41) dotty1/collections/immutable/Iter2.ListIterator#[A] -> 159:28
+(159:52..159:60) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(159:61..159:62) dotty1/collections/immutable/Iter2.ListIterator#[A] -> 159:28
+(160:32..160:36) dotty1/collections/immutable/Iter2.List# -> 70:16
+(160:37..160:38) dotty1/collections/immutable/Iter2.ListIterator#[A] -> 159:28
+(160:42..160:44) dotty1/collections/immutable/Iter2.ListIterator#xs. -> 159:31
+(161:20..161:27) dotty1/collections/immutable/Iter2.ListIterator#current(). -> 160:23
+(161:28..161:35) dotty1/collections/immutable/Iter2.List#isEmpty(). -> 71:9
+(162:28..162:35) dotty1/collections/immutable/Iter2.ListIterator#current(). -> 160:23
+(162:36..162:40) dotty1/collections/immutable/Iter2.List#head(). -> 72:9
+(162:42..162:49) dotty1/collections/immutable/Iter2.ListIterator#current(). -> 160:23
+(162:52..162:59) dotty1/collections/immutable/Iter2.ListIterator#current(). -> 160:23
+(162:60..162:64) dotty1/collections/immutable/Iter2.List#tail(). -> 73:9
+(162:66..162:69) local6 -> 162:22
+(165:39..165:44) scala/Array#
+(165:45..165:51) scala/AnyRef#
+(165:59..165:62) scala/Int#
+(165:72..165:80) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(165:81..165:82) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(166:12..166:25) dotty1/collections/immutable/Iter2.ArrayIterator. -> 209:10
+(168:25..168:28) scala/Int#
+(168:32..168:37) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(168:38..168:39) dotty1/collections/immutable/Iter2.ArrayIterator#elem().(i) -> 168:22
+(168:41..168:53) scala/Any#asInstanceOf().
+(168:54..168:55) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(172:19..172:22) dotty1/collections/immutable/Iter2.ArrayIterator#cur(). -> 170:17
+(172:23..172:24) scala/Int#`<`(+3).
+(172:25..172:28) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(173:28..173:32) dotty1/collections/immutable/Iter2.ArrayIterator#elem(). -> 168:17
+(173:33..173:36) dotty1/collections/immutable/Iter2.ArrayIterator#cur(). -> 170:17
+(173:39..173:42) dotty1/collections/immutable/Iter2.ArrayIterator#cur(). -> 170:17
+(173:49..173:52) local7 -> 173:22
+(175:29..175:30) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(175:34..175:38) scala/Unit#
+(175:41..175:45) scala/Unit#
+(176:19..176:24) scala/runtime/RichInt#until().
+(176:25..176:28) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(176:30..176:31) dotty1/collections/immutable/Iter2.ArrayIterator#foreach().(f) -> 175:26
+(176:32..176:36) dotty1/collections/immutable/Iter2.ArrayIterator#elem(). -> 168:17
+(176:37..176:38) local8 -> 176:12
+(178:28..178:29) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(178:33..178:34) dotty1/collections/immutable/Iter2.ArrayIterator#map().[B] -> 178:22
+(178:37..178:50) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(178:51..178:52) dotty1/collections/immutable/Iter2.ArrayIterator#map().[B] -> 178:22
+(179:20..179:25) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(180:19..180:24) scala/runtime/RichInt#until().
+(180:25..180:28) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(181:17..181:21) dotty1/collections/immutable/Iter2.ArrayIterator#elem(). -> 168:17
+(181:22..181:23) local10 -> 180:12
+(182:17..182:22) dotty1/collections/immutable/Iter2.ArrayIterator.widen(). -> 210:17
+(182:23..182:24) dotty1/collections/immutable/Iter2.ArrayIterator#map().(f) -> 178:25
+(182:25..182:26) local11 -> 181:13
+(183:13..183:18) dotty1/collections/immutable/Iter2.ArrayIterator.widen(). -> 210:17
+(183:19..183:20) local11 -> 181:13
+(183:22..183:24) java/lang/Object#ne().
+(183:25..183:26) local12 -> 182:13
+(184:15..184:21) local9 -> 179:11
+(184:22..184:24) java/lang/Object#eq().
+(184:25..184:30) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(184:32..184:38) local9 -> 179:11
+(184:45..184:50) scala/Array#
+(184:51..184:57) scala/AnyRef#
+(184:59..184:62) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(185:11..185:17) local9 -> 179:11
+(185:18..185:19) local10 -> 180:12
+(185:23..185:24) local12 -> 182:13
+(188:11..188:17) local9 -> 179:11
+(188:18..188:20) java/lang/Object#eq().
+(188:21..188:26) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(188:33..188:45) scala/Any#asInstanceOf().
+(188:46..188:59) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(188:60..188:61) dotty1/collections/immutable/Iter2.ArrayIterator#map().[B] -> 178:22
+(189:30..189:36) local9 -> 179:11
+(189:38..189:41) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(192:32..192:33) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(192:37..192:49) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(192:50..192:51) dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B] -> 192:26
+(192:55..192:68) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(192:69..192:70) dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B] -> 192:26
+(193:7..193:14) dotty1/collections/immutable/Iter2.ArrayIterator.flatten(). -> 232:9
+(193:15..193:18) dotty1/collections/immutable/Iter2.ArrayIterator#map(). -> 178:18
+(193:19..193:20) dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().(f) -> 192:29
+(193:24..193:37) dotty1/collections/immutable/Iter2.IterableOnce#buildIterator(). -> 54:9
+(195:26..195:27) dotty1/collections/immutable/Iter2.ArrayIterator#[A] -> 165:29
+(195:35..195:47) dotty1/collections/immutable/Iter2.IterableOnce# -> 52:9
+(195:48..195:49) dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B] -> 195:21
+(195:53..195:66) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(195:67..195:68) dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B] -> 195:21
+(196:56..196:68) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator(). -> 212:9
+(196:69..196:73) dotty1/collections/immutable/Iter2.ArrayIterator#`++`().(that) -> 195:29
+(196:74..196:82) dotty1/collections/immutable/Iter2.IterableOnce#iterator(). -> 53:9
+(197:11..197:14) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(197:15..197:17) scala/Int#`==`(+3).
+(197:21..197:33) local13 -> 196:11
+(198:16..198:20) local15 -> 196:48
+(198:21..198:23) scala/Int#`==`(+3).
+(200:22..200:25) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(200:26..200:27) scala/Int#`+`(+4).
+(200:28..200:32) local15 -> 196:48
+(201:28..201:33) scala/Array#
+(201:34..201:40) scala/AnyRef#
+(201:42..201:48) local16 -> 200:13
+(202:9..202:14) scala/Array.
+(202:15..202:19) scala/Array.copy().
+(202:20..202:25) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(202:30..202:38) local17 -> 201:13
+(202:43..202:46) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(203:9..203:14) scala/Array.
+(203:15..203:19) scala/Array.copy().
+(203:20..203:26) local14 -> 196:40
+(203:31..203:39) local17 -> 201:13
+(203:41..203:44) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(203:46..203:50) local15 -> 196:48
+(204:27..204:35) local17 -> 201:13
+(204:37..204:43) local16 -> 200:13
+(210:26..210:29) scala/Any#
+(210:32..210:38) scala/AnyRef#
+(210:41..210:42) dotty1/collections/immutable/Iter2.ArrayIterator.widen().(x) -> 210:23
+(210:43..210:55) scala/Any#asInstanceOf().
+(210:56..210:62) scala/AnyRef#
+(212:29..212:37) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(212:38..212:39) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A] -> 212:22
+(212:43..212:56) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(212:57..212:58) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A] -> 212:22
+(212:62..212:64) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it) -> 212:25
+(213:16..213:29) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(213:30..213:31) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A] -> 212:22
+(213:36..213:38) local18 -> 213:12
+(215:25..215:30) scala/Array#
+(215:31..215:37) scala/AnyRef#
+(218:18..218:21) local20 -> 216:13
+(218:22..218:23) scala/Int#`>`(+3).
+(218:24..218:29) local19 -> 215:13
+(218:30..218:36) scala/Array#length().
+(219:32..219:37) scala/Array#
+(219:38..219:44) scala/AnyRef#
+(219:46..219:51) local19 -> 215:13
+(219:52..219:58) scala/Array#length().
+(219:59..219:60) scala/Int#`*`(+3).
+(220:13..220:18) scala/Array.
+(220:19..220:23) scala/Array.copy().
+(220:24..220:29) local19 -> 215:13
+(220:34..220:42) local21 -> 219:17
+(220:47..220:52) local19 -> 215:13
+(220:53..220:59) scala/Array#length().
+(221:13..221:18) local19 -> 215:13
+(221:21..221:29) local21 -> 219:17
+(224:16..224:18) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it) -> 212:25
+(224:19..224:26) dotty1/collections/immutable/Iter2.Iterator#hasNext(). -> 9:9
+(225:11..225:14) local20 -> 216:13
+(226:11..226:25) local22 -> 217:13
+(227:11..227:16) local19 -> 215:13
+(227:17..227:20) local20 -> 216:13
+(227:21..227:22) scala/Int#`-`(+3).
+(227:28..227:33) dotty1/collections/immutable/Iter2.ArrayIterator.widen(). -> 210:17
+(227:34..227:36) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it) -> 212:25
+(227:37..227:41) dotty1/collections/immutable/Iter2.Iterator#next(). -> 10:9
+(229:9..229:22) dotty1/collections/immutable/Iter2.ArrayIterator. -> 209:10
+(229:23..229:28) local19 -> 215:13
+(229:30..229:33) local20 -> 216:13
+(232:25..232:38) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(232:39..232:47) dotty1/collections/immutable/Iter2.Iterator# -> 8:9
+(232:48..232:49) dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A] -> 232:17
+(232:54..232:67) dotty1/collections/immutable/Iter2.ArrayIterator# -> 165:14
+(232:68..232:69) dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A] -> 232:17
+(233:22..233:25) dotty1/collections/immutable/Iter2.ArrayIterator.flatten().(its) -> 232:20
+(233:26..233:29) dotty1/collections/immutable/Iter2.ArrayIterator#map(). -> 178:18
+(233:30..233:42) dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator(). -> 212:9
+(235:7..235:15) local24 -> 233:11
+(235:16..235:23) dotty1/collections/immutable/Iter2.ArrayIterator#foreach(). -> 175:18
+(235:24..235:32) local25 -> 234:11
+(235:38..235:41) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(236:26..236:31) scala/Array#
+(236:32..236:38) scala/AnyRef#
+(236:40..236:48) local25 -> 234:11
+(238:7..238:15) local24 -> 233:11
+(238:16..238:23) dotty1/collections/immutable/Iter2.ArrayIterator#foreach(). -> 175:18
+(239:9..239:14) scala/Array.
+(239:15..239:19) scala/Array.copy().
+(239:20..239:22) local28 -> 238:26
+(239:23..239:28) dotty1/collections/immutable/Iter2.ArrayIterator#elems. -> 165:32
+(239:33..239:41) local26 -> 236:11
+(239:43..239:44) local27 -> 237:11
+(239:46..239:48) local28 -> 238:26
+(239:49..239:52) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(240:9..240:10) local27 -> 237:11
+(240:14..240:16) local28 -> 238:26
+(240:17..240:20) dotty1/collections/immutable/Iter2.ArrayIterator#len. -> 165:54
+(242:25..242:33) local26 -> 236:11
+(242:35..242:43) local25 -> 234:11
+

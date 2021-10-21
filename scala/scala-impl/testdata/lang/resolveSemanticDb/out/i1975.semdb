@@ -1,0 +1,6 @@
+Document tests/pos/i1975.scala
+(2:11..2:14) scala/package.Seq.
+(4:13..4:16) scala/package.Seq.
+(4:30..4:37) scala/Predef.println(+1).
+(4:38..4:39) local0 -> 4:8
+

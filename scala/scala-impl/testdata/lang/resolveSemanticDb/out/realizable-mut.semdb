@@ -1,0 +1,9 @@
+Document tests/pos/realizable-mut.scala
+(2:15..2:21) java/lang/Object#
+(4:18..4:19) _empty_/Foo.x. -> 2:7
+(6:15..6:16) _empty_/Foo.A# -> 4:9
+(6:17..6:18) _empty_/Foo.x. -> 2:7
+(8:10..8:11) _empty_/Foo.a. -> 6:7
+(8:12..8:13) _empty_/Foo.A#y(). -> 4:15
+(8:21..8:22) _empty_/Foo.x. -> 2:7
+

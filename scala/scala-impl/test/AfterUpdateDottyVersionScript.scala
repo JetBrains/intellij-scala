@@ -6,7 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3, SemanticDbStore}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -229,7 +229,7 @@ object AfterUpdateDottyVersionScript {
    *
    * @author tobias.kahlert
    */
-  private class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory
+  class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory
     extends TestCase {
 
     def test(): Unit = {
@@ -249,6 +249,8 @@ object AfterUpdateDottyVersionScript {
           |      || sym.isLocalDummy
           |      || sym.is(Synthetic)
           |      || sym.isSetter
+          |      || sym.isOldStyleImplicitConversion(forImplicitClassOnly = true)
+          |      || sym.owner.isGivenInstanceSummoner
           |      || excludeDefOrUse(sym)
           |""".stripMargin,
         """    private def excludeDef(sym: Symbol)(using Context): Boolean =
@@ -256,6 +258,8 @@ object AfterUpdateDottyVersionScript {
           |      || sym.isLocalDummy
           |      //|| sym.is(Synthetic)
           |      //|| sym.isSetter
+          |      //|| sym.isOldStyleImplicitConversion(forImplicitClassOnly = true)
+          |      //|| sym.owner.isGivenInstanceSummoner
           |      || excludeDefOrUse(sym)
           |""".stripMargin
       )
@@ -319,16 +323,14 @@ object AfterUpdateDottyVersionScript {
       val posOutDir = repoPath.resolve("out/posTestFromTasty/pos")
       assert(Files.isDirectory(posOutDir))
 
-      for {
-        testOutPath <- Files.list(posOutDir).iterator().asScala
-        file <- allFilesIn(testOutPath.toFile)
-        if file.getName.endsWith(".semanticdb")
-      } {
+      for (testOutPath <- Files.list(posOutDir).iterator().asScala) {
         val dirName = testOutPath.getFileName.toString
-        val dirPath = ComparisonTestBase.outPath.resolve(dirName)
-        val targetFilePath = dirPath.resolve(file.getName)
-        Files.createDirectories(dirPath)
-        Files.copy(file.toPath, targetFilePath)
+        val storePath = ComparisonTestBase.outPath.resolve(dirName + ".semdb")
+
+        val store = SemanticDbStore.fromSemanticDbPath(testOutPath)
+
+        if (store.files.nonEmpty)
+          Files.writeString(storePath, store.serialized)
       }
 
       ReferenceComparisonTestsGenerator_Scala3.run()

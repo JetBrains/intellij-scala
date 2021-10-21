@@ -1,0 +1,19 @@
+Document tests/pos/templateParents.scala
+(4:18..4:19) _empty_/templateParents.C#[T] -> 4:12
+(5:19..5:20) _empty_/templateParents.C# -> 4:9
+(5:21..5:27) scala/Predef.String#
+(6:19..6:20) _empty_/templateParents.C# -> 4:9
+(6:21..6:24) scala/Int#
+(7:21..7:22) _empty_/templateParents.D# -> 5:9
+(14:19..14:20) _empty_/templateParents1.C# -> 13:9
+(14:21..14:27) scala/Predef.String#
+(15:19..15:20) _empty_/templateParents1.C# -> 13:9
+(15:21..15:24) scala/Int#
+(17:15..17:16) _empty_/templateParents1.D# -> 14:9
+(17:22..17:23) _empty_/templateParents1.E# -> 15:9
+(19:10..19:11) _empty_/templateParents1.C# -> 13:9
+(19:12..19:15) scala/Int#
+(19:16..19:17) scala/`&`#
+(19:18..19:24) scala/Predef.String#
+(19:28..19:29) _empty_/templateParents1.x. -> 17:7
+

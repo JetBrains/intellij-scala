@@ -1,0 +1,7 @@
+Document tests/pos/t0055.scala
+(1:13..1:16) scala/Any#
+(3:7..3:8) _empty_/X# -> 1:7
+(3:13..3:14) _empty_/Z# -> 6:7
+(3:22..3:23) _empty_/W#Y# -> 4:9
+(6:13..6:16) scala/Any#
+

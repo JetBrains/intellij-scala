@@ -1,0 +1,10 @@
+Document tests/pos/t5406.scala
+(3:12..3:16) scala/Some.
+(3:17..3:24) _empty_/Wuffles. -> 1:8
+(3:27..3:33) scala/Option#
+(3:34..3:41) _empty_/Wuffles. -> 1:8
+(3:62..3:66) scala/Some.
+(3:67..3:74) _empty_/Wuffles. -> 1:8
+(3:79..3:86) scala/Predef.println(+1).
+(3:106..3:113) scala/Predef.println(+1).
+

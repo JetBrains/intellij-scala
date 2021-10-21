@@ -1,0 +1,13 @@
+Document tests/pos/i6507b.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(4:43..4:48) scala/Tuple#
+(4:58..4:69) scala/compiletime/package$package.erasedValue().
+(4:70..4:71) _empty_/Test.summonValues().[T] -> 4:39
+(5:13..5:23) scala/Tuple$package.EmptyTuple#
+(5:27..5:37) scala/Tuple$package.EmptyTuple.
+(6:16..6:18) scala/`*:`#
+(6:42..6:54) _empty_/Test.summonValues(). -> 4:26
+(6:55..6:56) local1 -> 6:19
+(9:3..9:15) _empty_/Test.summonValues(). -> 4:26
+

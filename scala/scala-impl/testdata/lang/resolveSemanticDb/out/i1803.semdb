@@ -1,0 +1,6 @@
+Document tests/pos/i1803.scala
+(4:12..4:13) _empty_/C# -> 1:7
+(4:14..4:17) scala/Int#
+(4:22..4:25) scala/Predef.`???`().
+(6:3..6:4) _empty_/Test.f(). -> 4:7
+

@@ -1,0 +1,12 @@
+Document tests/pos/i1103.scala
+(2:16..2:19) _empty_/Sys# -> 1:7
+(2:20..2:21) _empty_/Foo#[T] -> 2:11
+(3:10..3:11) _empty_/Foo#[T] -> 2:11
+(3:14..3:17) scala/Predef.`???`().
+(4:16..4:19) _empty_/Sys# -> 1:7
+(4:20..4:21) _empty_/Foo#foo$default$1().[A] -> 4:11
+(4:20..4:21) _empty_/Foo#foo().[A] -> 4:11
+(4:27..4:28) _empty_/Foo#foo().[A] -> 4:11
+(4:31..4:32) _empty_/Foo#t. -> 3:7
+(4:36..4:37) _empty_/Foo#foo().(x) -> 4:24
+

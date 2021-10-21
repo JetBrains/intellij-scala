@@ -1,0 +1,6 @@
+Document tests/pos/t5542.scala
+(2:3..2:9) scala/Option.
+(2:26..2:30) scala/Some.
+(2:37..2:38) local0 -> 2:31
+(2:45..2:49) scala/None.
+

@@ -1,0 +1,9 @@
+Document tests/pos/t3528.scala
+(5:12..5:16) scala/package.List.
+(5:17..5:20) scala/Predef.Set.
+(5:29..5:33) scala/package.List.
+(7:12..7:16) scala/package.List.
+(7:23..7:28) scala/package.Range#
+(7:36..7:40) scala/package.List#
+(7:41..7:44) scala/Int#
+

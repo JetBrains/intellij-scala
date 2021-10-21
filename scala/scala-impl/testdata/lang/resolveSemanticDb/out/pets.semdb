@@ -1,0 +1,36 @@
+Document tests/pos/pets.scala
+(3:16..3:19) _empty_/Pet# -> 2:7
+(4:13..4:19) scala/Predef.String#
+(5:24..5:30) scala/Predef.String#
+(5:33..5:37) _empty_/Pet#This# -> 3:8
+(8:23..8:29) scala/Predef.String#
+(8:36..8:39) scala/Int#
+(8:49..8:52) _empty_/Pet# -> 2:7
+(9:15..9:19) _empty_/Fish# -> 8:12
+(10:24..10:30) scala/Predef.String#
+(10:33..10:37) _empty_/Fish# -> 8:12
+(10:40..10:44) _empty_/Fish#copy().
+(10:45..10:49) _empty_/Fish#copy().(name)
+(10:52..10:59) _empty_/Fish#renamed().(newName) -> 10:15
+(13:24..13:30) scala/Predef.String#
+(13:37..13:40) scala/Int#
+(13:50..13:53) _empty_/Pet# -> 2:7
+(14:15..14:20) _empty_/Kitty# -> 13:12
+(15:24..15:30) scala/Predef.String#
+(15:33..15:38) _empty_/Kitty# -> 13:12
+(15:41..15:45) _empty_/Kitty#copy().
+(15:46..15:50) _empty_/Kitty#copy().(name)
+(15:53..15:60) _empty_/Kitty#renamed().(newName) -> 15:15
+(19:20..19:23) _empty_/Pet# -> 2:7
+(19:28..19:29) _empty_/Test.esquire().[A] -> 19:15
+(19:32..19:33) _empty_/Test.esquire().(a) -> 19:25
+(19:34..19:38) _empty_/Pet#This# -> 3:8
+(19:41..19:42) _empty_/Test.esquire().(a) -> 19:25
+(19:43..19:50) _empty_/Pet#renamed(). -> 5:7
+(19:51..19:52) _empty_/Test.esquire().(a) -> 19:25
+(19:53..19:57) _empty_/Pet#name(). -> 4:7
+(19:58..19:59) java/lang/String#`+`().
+(20:10..20:14) _empty_/Fish# -> 8:12
+(20:17..20:24) _empty_/Test.esquire(). -> 19:7
+(20:29..20:33) _empty_/Fish# -> 8:12
+

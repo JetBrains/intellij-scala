@@ -1,0 +1,29 @@
+Document tests/pos/8649.scala
+(2:13..2:15) _empty_/OK# -> 10:12
+(2:16..2:19) scala/Int#
+(2:21..2:25) scala/Unit#
+(3:11..3:18) _empty_/`8649$package`.Handler# -> 7:6
+(3:19..3:23) _empty_/`8649$package`.Get0# -> 2:6
+(3:27..3:29) _empty_/IO.
+(3:30..3:34) scala/Unit#
+(5:33..5:40) _empty_/`8649$package`.Handler# -> 7:6
+(5:41..5:42) _empty_/HandlerAlt#[A] -> 5:23
+(7:21..7:28) _empty_/handler. -> 12:8
+(7:29..7:31) _empty_/handler.Go# -> 14:8
+(7:32..7:35) _empty_/`8649$package`.Handler#[API] -> 7:14
+(14:18..14:21) _empty_/handler.Go#[API] -> 14:11
+(16:7..16:20) _empty_/handler.HandlerSingle# -> 18:8
+(16:21..16:24) _empty_/handler.Go#[API] -> 14:11
+(18:27..18:28) _empty_/handler.HandlerSingle#[X] -> 18:22
+(19:10..19:12) _empty_/OK# -> 10:12
+(20:7..20:9) _empty_/IO# -> 9:12
+(20:10..20:18) local0 -> 19:16
+(23:35..23:37) _empty_/Minimized.M2# -> 29:8
+(23:38..23:39) _empty_/Minimized.HandlerAlt#[A] -> 23:25
+(25:16..25:17) _empty_/Minimized.M1#[X] -> 25:11
+(26:15..26:17) _empty_/Minimized.M2# -> 29:8
+(26:18..26:19) _empty_/Minimized.M1#[X] -> 25:11
+(29:16..29:17) _empty_/Minimized.M2#[X] -> 29:11
+(30:10..30:13) scala/Int#
+(30:17..30:23) scala/Predef.String#
+

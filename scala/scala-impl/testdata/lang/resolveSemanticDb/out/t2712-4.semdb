@@ -1,0 +1,26 @@
+Document tests/pos/t2712-4.scala
+(5:19..5:20) test/Test1.X# -> 4:9
+(6:21..6:22) test/Test1.X# -> 4:9
+(7:18..7:19) test/Test1.meh().[A] -> 7:22
+(7:28..7:29) test/Test1.meh().[M] -> 7:11
+(7:30..7:31) test/Test1.meh().[A] -> 7:22
+(7:35..7:36) test/Test1.meh().[M] -> 7:11
+(7:37..7:38) test/Test1.meh().[A] -> 7:22
+(7:42..7:43) test/Test1.meh().(x) -> 7:25
+(8:3..8:6) test/Test1.meh(). -> 7:7
+(8:11..8:14) test/Test1.Foo# -> 6:9
+(8:15..8:18) scala/Int#
+(8:20..8:21) test/Test1.Y# -> 5:9
+(13:19..13:20) test/Test2.X# -> 12:9
+(14:21..14:22) test/Test2.Y# -> 13:9
+(15:18..15:19) test/Test2.meh().[A] -> 15:22
+(15:28..15:29) test/Test2.meh().[M] -> 15:11
+(15:30..15:31) test/Test2.meh().[A] -> 15:22
+(15:35..15:36) test/Test2.meh().[M] -> 15:11
+(15:37..15:38) test/Test2.meh().[A] -> 15:22
+(15:42..15:43) test/Test2.meh().(x) -> 15:25
+(16:3..16:6) test/Test2.meh(). -> 15:7
+(16:11..16:14) test/Test2.Foo# -> 14:9
+(16:15..16:18) scala/Int#
+(16:20..16:21) test/Test2.X# -> 12:9
+

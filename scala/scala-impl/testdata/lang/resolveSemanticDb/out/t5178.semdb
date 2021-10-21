@@ -1,0 +1,12 @@
+Document tests/pos/t5178.scala
+(2:26..2:30) scala/Long#
+(2:37..2:43) scala/Option#
+(2:44..2:45) _empty_/FileOps#withLock().[R] -> 2:16
+(6:9..6:20) _empty_/DefaultPath# -> 11:7
+(8:35..8:39) scala/Long#
+(8:46..8:52) scala/Option#
+(8:53..8:54) _empty_/DefaultFileOps#withLock().[R] -> 8:25
+(8:58..8:62) scala/None.
+(11:27..11:34) _empty_/FileOps# -> 1:16
+(11:40..11:54) _empty_/DefaultFileOps# -> 5:7
+

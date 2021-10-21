@@ -1,0 +1,32 @@
+Document tests/pos/i11464.scala
+(1:16..1:19) _empty_/Txn# -> 1:7
+(1:20..1:21) _empty_/Txn#[T] -> 1:11
+(6:26..6:29) _empty_/Txn# -> 1:7
+(6:30..6:31) _empty_/Type#`<init>`().[Repr][`~`] -> 6:21
+(6:37..6:41) _empty_/Expr# -> 14:7
+(6:42..6:43) _empty_/Type#`<init>`().[Repr][`~`] -> 6:21
+(6:45..6:47) _empty_/Type#[A1] -> 6:12
+(6:58..6:63) _empty_/Type0# -> 5:7
+(9:18..9:23) _empty_/Type0# -> 5:7
+(9:26..9:33) _empty_/Adjunct# -> 3:7
+(10:21..10:25) _empty_/Expr.test().(peer) -> 9:12
+(10:26..10:38) scala/Any#asInstanceOf().
+(10:39..10:43) _empty_/Type# -> 6:7
+(10:44..10:47) scala/Any#
+(10:64..10:67) _empty_/Txn# -> 1:7
+(10:68..10:69) local0 -> 10:59
+(10:75..10:79) _empty_/Expr# -> 14:7
+(10:80..10:81) local0 -> 10:59
+(10:83..10:86) scala/Any#
+(14:17..14:20) _empty_/Txn# -> 1:7
+(14:21..14:22) _empty_/Expr#[T] -> 14:12
+(16:29..16:32) _empty_/Txn# -> 1:7
+(16:33..16:34) _empty_/AdjunctImpl#`<init>`().[E][`~`] -> 16:24
+(16:40..16:44) _empty_/Expr# -> 14:7
+(16:45..16:46) _empty_/AdjunctImpl#`<init>`().[E][`~`] -> 16:24
+(16:48..16:49) _empty_/AdjunctImpl#[A] -> 16:19
+(16:57..16:61) _empty_/Type# -> 6:7
+(16:62..16:63) _empty_/AdjunctImpl#[A] -> 16:19
+(16:65..16:66) _empty_/AdjunctImpl#[E] -> 16:22
+(16:77..16:84) _empty_/Adjunct# -> 3:7
+

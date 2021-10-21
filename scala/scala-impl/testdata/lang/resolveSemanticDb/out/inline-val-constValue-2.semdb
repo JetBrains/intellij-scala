@@ -1,0 +1,18 @@
+Document tests/pos/inline-val-constValue-2.scala
+(1:8..1:19) scala/compiletime/
+(4:13..4:16) scala/Int#
+(6:11..6:15) scala/Unit#
+(7:10..7:11) _empty_/C# -> 3:7
+(7:29..7:32) scala/Predef.`???`().
+(8:3..8:4) _empty_/`inline-val-constValue-2$package`.f(). -> 10:12
+(8:5..8:6) local1 -> 7:7
+(10:17..10:18) _empty_/C# -> 3:7
+(10:21..10:25) scala/Unit#
+(11:21..11:31) scala/compiletime/package$package.constValue().
+(11:32..11:33) _empty_/`inline-val-constValue-2$package`.f().(c) -> 10:14
+(11:34..11:35) _empty_/C#N# -> 4:8
+(12:11..12:15) local2 -> 11:14
+(13:10..13:13) scala/Int#
+(13:16..13:17) local3 -> 12:7
+(14:3..14:6) scala/Predef.`???`().
+

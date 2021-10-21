@@ -1,0 +1,9 @@
+Document tests/pos/i12739-fallout.scala
+(5:17..5:20) _empty_/`i12739-fallout$package`.Foo# -> 3:6
+(6:16..6:19) _empty_/`i12739-fallout$package`.toBar().(foo) -> 5:12
+(6:26..6:29) scala/Predef.`???`().
+(8:15..8:18) _empty_/`i12739-fallout$package`.Foo# -> 3:6
+(8:21..8:24) _empty_/`i12739-fallout$package`.test().(foo) -> 8:10
+(8:31..8:34) _empty_/`i12739-fallout$package`.test().(foo) -> 8:10
+(8:35..8:40) _empty_/`i12739-fallout$package`.toBar(). -> 6:7
+

@@ -1,0 +1,49 @@
+Document tests/pos/i11057.scala
+(4:30..4:36) _empty_/data.OfType# -> 3:11
+(4:37..4:40) scala/Int#
+(5:33..5:39) _empty_/data.OfType# -> 3:11
+(5:40..5:46) scala/Double#
+(6:32..6:38) _empty_/data.OfType# -> 3:11
+(6:39..6:44) scala/Float#
+(8:20..8:25) scala/
+(8:26..8:36) scala/collection/
+(8:37..8:46) scala/collection/immutable/
+(8:47..8:58) scala/collection/immutable/AbstractSeq#
+(8:59..8:60) _empty_/data.DSeq#[X] -> 8:15
+(10:32..10:38) scala/Predef.String#
+(10:43..10:49) _empty_/data.OfType# -> 3:11
+(10:50..10:51) _empty_/data.ColumnName#[T] -> 10:27
+(11:31..11:35) _empty_/data.DSeq# -> 8:10
+(11:42..11:43) _empty_/data.Column#[F] -> 11:25
+(11:44..11:45) _empty_/data.Column#[T] -> 11:23
+(11:52..11:62) _empty_/data.ColumnName# -> 10:16
+(11:63..11:64) _empty_/data.Column#[T] -> 11:23
+(14:20..14:24) _empty_/data. -> 1:8
+(14:25..14:29) _empty_/data.DSeq# -> 8:10
+(14:30..14:31) _empty_/i11057$package.min4().[T] -> 14:12
+(14:39..14:43) _empty_/data. -> 1:8
+(14:44..14:50) _empty_/data.Column# -> 11:16
+(14:51..14:52) _empty_/i11057$package.min4().[T] -> 14:12
+(14:53..14:54) _empty_/i11057$package.min4().[F] -> 14:14
+(14:63..14:71) scala/package.Ordering#
+(14:72..14:73) _empty_/i11057$package.min4().[T] -> 14:12
+(14:77..14:78) _empty_/i11057$package.min4().[T] -> 14:12
+(15:5..15:8) _empty_/i11057$package.min4().(col) -> 14:34
+(16:14..16:18) _empty_/data. -> 1:8
+(16:19..16:25) _empty_/data.Column# -> 11:16
+(16:26..16:29) scala/Int#
+(16:36..16:37) local0 -> 16:12
+(16:38..16:39) _empty_/data.Column#n. -> 11:40
+(16:40..16:43) scala/collection/IterableOnceOps#min().
+(16:44..16:45) _empty_/i11057$package.min4().[T] -> 14:12
+(16:47..16:55) scala/package.Ordering.
+(16:56..16:57) _empty_/i11057$package.min4().[T] -> 14:12
+(17:14..17:18) _empty_/data. -> 1:8
+(17:19..17:25) _empty_/data.Column# -> 11:16
+(17:26..17:32) scala/Double#
+(17:39..17:42) scala/Predef.`???`().
+(18:14..18:18) _empty_/data. -> 1:8
+(18:19..18:25) _empty_/data.Column# -> 11:16
+(18:26..18:31) scala/Float#
+(18:38..18:41) scala/Predef.`???`().
+

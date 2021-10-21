@@ -45,27 +45,28 @@ object ReferenceComparisonTestsGenerator_Scala3 {
         |class ReferenceComparisonTest extends ReferenceComparisonTestBase {
         |""".stripMargin
 
-    var cases = 0
+    var testedCases = 0
     var successes = 0
     var result = Result.empty
 
-
+    def testNameFromFilePath(path: Path): String =
+      path.getFileName.toString.stripSuffix(".semdb")
     val testOutPaths = Files.list(ComparisonTestBase.outPath).iterator().asScala.toSeq
-      .sortBy(_.getFileName.toString)((x, y) => StringUtil.naturalCompare(x, y))
+      .sortBy(testNameFromFilePath)((x, y) => StringUtil.naturalCompare(x, y))
 
-    val originalTestNames = testOutPaths.map(_.getFileName.toString).toSet
+    val originalTestNames = testOutPaths.map(testNameFromFilePath).toSet
     val usedTestNames = mutable.Set.empty[String]
 
     for {
       testOutPath <- testOutPaths
-      testName = testOutPath.getFileName.toString
+      testName = testNameFromFilePath(testOutPath)
       if !excluded(testName)
     } {
 
       val test: ReferenceComparisonTestBase = new ReferenceComparisonTestBase_Scala3 {
         override  def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-          cases += 1
           val res = runTestToResult(testName)
+          testedCases += 1
           val success = res.problems.isEmpty
           if (success)
             successes += 1
@@ -81,11 +82,11 @@ object ReferenceComparisonTestsGenerator_Scala3 {
           builder ++= raw"""  def $testId(): Unit = doTest("$testName", $success)"""
           builder += '\n'
 
-          val progress = cases.toDouble / testOutPaths.size.toDouble * 100
-          val successRate = (successes.toDouble / cases.toDouble) * 100
+          val progress = testedCases.toDouble / testOutPaths.size.toDouble * 100
+          val successRate = (successes.toDouble / testedCases.toDouble) * 100
           println(
             s"(${progress.toInt}%) " +
-              s"$testName: $success (${successRate.toInt}% $successes/$cases) " +
+              s"$testName: $success (${successRate.toInt}% $successes/$testedCases) " +
               s"| problems: ${result.problems.size} " +
               s"| refs: ${result.refCount} " +
               s"| failed to resolve: ${result.failedToResolve} (${(result.failedToResolve.toDouble / result.refCount * 100.0).toInt}%) " +
@@ -98,6 +99,11 @@ object ReferenceComparisonTestsGenerator_Scala3 {
       }
 
       test.run()
+    }
+
+    if (testedCases < 100) {
+      System.err.println("Did not execute any generator tests... try setting module to scalaCommunity/scalaUltimate and copy vm options from one of the run configurations")
+      System.exit(1)
     }
 
     builder ++= "}\n"
