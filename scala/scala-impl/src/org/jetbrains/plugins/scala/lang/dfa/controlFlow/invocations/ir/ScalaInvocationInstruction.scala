@@ -45,7 +45,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     }
 
     val returnValue = if (!methodEffect.handledSpecially) {
-      tryInterpretExternalMethod(invocationInfo, stateBefore, factory) match {
+      tryInterpretExternalMethod(invocationInfo) match {
         case Some(returnValue) => returnValue
         case _ => methodEffect.returnValue.getDfType
       }
