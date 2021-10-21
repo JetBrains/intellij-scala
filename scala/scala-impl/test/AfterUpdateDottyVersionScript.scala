@@ -39,6 +39,7 @@ class AfterUpdateDottyVersionScript
       Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
       Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
       Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
+      Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3]) #::
         LazyList.empty
     tests.foreach(runScript)
   }
@@ -332,8 +333,6 @@ object AfterUpdateDottyVersionScript {
         if (store.files.nonEmpty)
           Files.writeString(storePath, store.serialized)
       }
-
-      ReferenceComparisonTestsGenerator_Scala3.run()
     }
   }
 

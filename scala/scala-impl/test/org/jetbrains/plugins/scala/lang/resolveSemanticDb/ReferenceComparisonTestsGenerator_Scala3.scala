@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ThrowableRunnable
+import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.Result
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -9,11 +10,12 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import java.nio.file.{Files, Path, Paths}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IteratorHasAsScala
+import scala.util.control.NonFatal
 
 /**
  * Generates [[org.jetbrains.plugins.scala.lang.resolveSemanticDb.generated.ReferenceComparisonTest_Scala3]]
  */
-object ReferenceComparisonTestsGenerator_Scala3 {
+class ReferenceComparisonTestsGenerator_Scala3 extends TestCase {
   val excluded: Set[String] = Set(
     "large", "large2" // they're just very large with ~10k references/definitions
   )
@@ -22,12 +24,7 @@ object ReferenceComparisonTestsGenerator_Scala3 {
     Paths.get(TestUtils.findCommunityRoot())
       .resolve("scala/scala-impl/test/org/jetbrains/plugins/scala/lang/resolveSemanticDb/generated/ReferenceComparisonTest_Scala3.scala")
 
-  def main(args: Array[String]): Unit = {
-    run()
-    System.exit(0)
-  }
-
-  def run(): Unit = {
+  def test_run_generator(): Unit = {
 
     val builder = new StringBuilder
 
