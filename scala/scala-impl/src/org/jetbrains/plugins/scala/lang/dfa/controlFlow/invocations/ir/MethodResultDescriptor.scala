@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 case class MethodResultDescriptor(method: ScFunction) extends JvmVariableDescriptor {
 
-  override def toString: String = "RESULT OF" + method.name
+  override def toString: String = "METHOD_RESULT" + method.name
 
   override def getDfType(qualifier: DfaVariableValue): DfType = scTypeToDfType(method.returnType.getOrAny)
 

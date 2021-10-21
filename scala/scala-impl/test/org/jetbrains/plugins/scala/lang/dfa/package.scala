@@ -28,6 +28,7 @@ package object dfa {
        |  val yetAnotherField: String = "Hello again"
        |}
        |
+       |class Person(val id: Int)
        |case class Student(age: Int, grades: List[Int])
        |
        |class TestClass {

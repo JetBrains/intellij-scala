@@ -110,4 +110,70 @@ class ReferenceExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestB
       |28: RETURN
       |""".stripMargin
   }
+
+  def testCreatingAndAccessingCaseClasses(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val grades = Nil
+      |val s1 = Student(22, grades)
+      |s1.age >= 20
+      |s1.grades(5)
+      |""".stripMargin
+  }) {
+    """
+      |0: PUSH Nil
+      |1: ASSIGN_TO grades
+      |2: POP
+      |3: PUSH_VAL TOP
+      |4: CALL Student#apply
+      |5: PUSH_VAL 22
+      |6: PUSH grades
+      |7: CALL Student#apply
+      |8: ASSIGN_TO s1
+      |9: POP
+      |10: PUSH s1
+      |11: POP
+      |12: PUSH age
+      |13: PUSH_VAL 20
+      |14: BOOLEAN_OP >=
+      |15: POP
+      |16: PUSH s1
+      |17: POP
+      |18: PUSH grades
+      |19: PUSH_VAL 5
+      |20: ENSURE_INDEX size
+      |21: PUSH s1
+      |22: POP
+      |23: PUSH grades
+      |24: PUSH_VAL 5
+      |25: CALL LinearSeqOptimized#apply
+      |26: FINISH BlockExpression
+      |27: RETURN
+      |28: POP
+      |29: RETURN
+      |""".stripMargin
+  }
+
+  def testCreatingAndAccessingRegularClasses(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val p1 = new Person(33)
+      |p1.id < 20
+      |""".stripMargin
+  }) {
+    """
+      |0: PUSH_VAL TOP
+      |1: PUSH_VAL 33
+      |2: CALL Person#Person
+      |3: ASSIGN_TO p1
+      |4: POP
+      |5: PUSH p1
+      |6: POP
+      |7: PUSH id
+      |8: PUSH_VAL 20
+      |9: BOOLEAN_OP <
+      |10: FINISH BlockExpression
+      |11: RETURN
+      |12: POP
+      |13: RETURN
+      |""".stripMargin
+  }
 }
