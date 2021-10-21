@@ -35,6 +35,5 @@ Document tests/pos/i12286.scala
 (12:5..12:12) scala/Predef.println(+1).
 (12:13..12:18) _empty_/i12286$package.doWithItemId().(value) -> 11:20
 (12:19..12:22) _empty_/Base#str(). -> 1:25
-(13:5..13:9) _empty_/Item. -> 6:12
-(13:9..13:9) _empty_/Item.apply(). -> 6:1
+(13:5..13:9) _empty_/Item.
 

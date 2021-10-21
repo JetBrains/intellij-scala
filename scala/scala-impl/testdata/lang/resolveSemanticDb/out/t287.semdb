@@ -2,16 +2,13 @@ Document tests/pos/t287.scala
 (2:26..2:30) java/
 (2:31..2:33) java/io/
 (2:34..2:54) java/io/BufferedOutputStream#
-(2:54..2:54) java/io/BufferedOutputStream#`<init>`().
 (2:59..2:63) java/
 (2:64..2:66) java/io/
 (2:67..2:83) java/io/FileOutputStream#
-(2:83..2:83) java/io/FileOutputStream#`<init>`().
 (3:14..3:20) scala/Predef.String#
 (3:23..3:27) scala/Unit#
 (4:21..4:26) scala/Array#
 (4:27..4:31) scala/Byte#
-(4:32..4:32) scala/Array#`<init>`().
 (7:13..7:18) java/io/FilterOutputStream#write(+1).
 (7:20..7:23) local0 -> 4:11
 (9:13..9:18) java/io/BufferedOutputStream#write(+1).

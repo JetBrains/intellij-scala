@@ -3,6 +3,7 @@ Document tests/pos/t7983.scala
 (1:13..1:16) foo/bar/
 (8:22..8:32) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
 (9:23..9:27) foo/bar/baz/DivergenceTest#Flat# -> 8:9
+(11:25..11:35) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
 (13:47..13:51) foo/bar/baz/DivergenceTest#Flat# -> 8:9
 (13:55..13:65) foo/bar/baz/DivergenceTest#ShapeLevel# -> 7:9
 (13:75..13:85) foo/bar/baz/DivergenceTest#ColumnBase# -> 5:9
@@ -46,20 +47,8 @@ Document tests/pos/t7983.scala
 (26:60..26:61) local2 -> 26:14
 (26:63..26:64) local3 -> 26:17
 (26:69..26:72) scala/Predef.`???`().
-(28:5..28:9) local1 -> 26:9
-(28:11..28:11) scala/Tuple2.apply().
-(28:12..28:12) scala/Tuple2.apply().
+(28:5..28:9) local6 -> 26:9
 (28:21..28:28) local0 -> 24:11
-(28:34..28:34) foo/bar/baz/DivergenceTest#columnBaseShape(). -> 13:22
-(28:34..28:34) foo/bar/baz/DivergenceTest#intShape(). -> 17:22
-(28:34..28:34) foo/bar/baz/DivergenceTest#tuple2Shape(). -> 18:22
-(28:34..28:34) scala/`<:<`.refl().
-(29:5..29:9) local1 -> 26:9
-(29:11..29:11) scala/Tuple2.apply().
-(29:12..29:12) scala/Tuple2.apply().
+(29:5..29:9) local6 -> 26:9
 (29:18..29:25) local0 -> 24:11
-(29:34..29:34) foo/bar/baz/DivergenceTest#columnBaseShape(). -> 13:22
-(29:34..29:34) foo/bar/baz/DivergenceTest#intShape(). -> 17:22
-(29:34..29:34) foo/bar/baz/DivergenceTest#tuple2Shape(). -> 18:22
-(29:34..29:34) scala/`<:<`.refl().
 

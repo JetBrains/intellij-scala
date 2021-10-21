@@ -1,5 +1,4 @@
 Document tests/pos/i9769.scala
-(3:25..3:25) scala/StringContext.apply().
 (3:57..3:65) _empty_/Main.lifeOfPi. -> 2:7
 (3:70..3:71) scala/StringContext#f().
 (5:18..5:23) scala/Array#

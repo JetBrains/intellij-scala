@@ -5,7 +5,6 @@ Document tests/pos/depmet_1_pos.scala
 (2:47..2:48) _empty_/Test.precise().(y) -> 2:26
 (4:13..4:16) _empty_/Test.foo. -> 3:7
 (4:25..4:28) _empty_/Test.foo. -> 3:7
-(4:36..4:36) local0
 (4:36..4:43) _empty_/Test.precise(). -> 2:7
 (4:44..4:47) _empty_/Test.foo. -> 3:7
 (5:13..5:16) _empty_/Test.foo. -> 3:7

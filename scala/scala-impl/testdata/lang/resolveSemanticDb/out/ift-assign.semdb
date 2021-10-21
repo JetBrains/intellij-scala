@@ -1,7 +1,6 @@
 Document tests/pos/ift-assign.scala
 (4:10..4:17) _empty_/Context# -> 1:7
 (4:22..4:28) scala/Predef.String#
-(6:3..6:4) _empty_/Test.`f_=`(). -> 4:7
+(6:3..6:4) _empty_/Test.`f_=`().
 (6:7..6:8) _empty_/Test.f(). -> 4:7
-(6:8..6:8) scala/ContextFunction1#apply().
 

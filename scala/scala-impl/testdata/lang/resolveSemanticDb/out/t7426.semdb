@@ -4,6 +4,4 @@ Document tests/pos/t7426.scala
 (1:38..1:54) scala/annotation/StaticAnnotation#
 (3:2..3:5) _empty_/foo# -> 1:7
 (3:10..3:16) scala/AnyRef#
-(3:16..3:16) java/lang/Object#`<init>`().
-(3:20..3:20) _empty_/$anon#`<init>`(). -> 3:10
 

@@ -1,4 +1,6 @@
 Document tests/pos/t892.scala
+(4:33..4:40) test/Test.Core#Visitor# -> 4:20
+(4:41..4:42) test/Test.Core#Visitor#[T] -> 4:28
 (6:22..6:29) test/Test.Core#Visitor# -> 4:20
 (6:30..6:31) test/Test.Core#HasVisitor#visit().[T] -> 6:17
 (6:44..6:45) test/Test.Core#HasVisitor#visit().[T] -> 6:17

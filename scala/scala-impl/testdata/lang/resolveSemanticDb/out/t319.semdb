@@ -11,10 +11,9 @@ Document tests/pos/t319.scala
 (16:10..16:11) _empty_/test.B# -> 5:9
 (16:23..16:29) scala/Predef.String#
 (17:19..17:26) _empty_/test.functor# -> 8:18
-(17:26..17:26) _empty_/test.functor#`<init>`(). -> 8:25
 (17:40..17:41) _empty_/test.A# -> 3:9
 (17:53..17:59) scala/Predef.String#
 (17:64..17:65) _empty_/test.a. -> 14:7
-(19:5..19:8) local6 -> 17:9
+(19:5..19:8) local13 -> 17:9
 (19:9..19:12) _empty_/test.functor#res. -> 10:9
 

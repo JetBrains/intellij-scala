@@ -34,7 +34,6 @@ Document tests/pos/i4032.scala
 (18:37..18:46) _empty_/Arbitrary.arbitrary(). -> 15:7
 (18:47..18:56) scala/package.Throwable#
 (18:58..18:61) _empty_/Gen#map(). -> 4:7
-(18:62..18:62) local0
 (18:62..18:68) scala/concurrent/Future.
 (18:69..18:75) scala/concurrent/Future.failed().
 

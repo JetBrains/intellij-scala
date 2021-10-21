@@ -16,14 +16,14 @@ Document tests/pos/i1047.scala
 (13:19..13:26) hello/world.AnimalPackage#AnimalU# -> 8:10
 (14:31..14:38) hello/world.AnimalPackage#AnimalU# -> 8:10
 (14:41..14:47) local3 -> 13:10
-(14:50..14:51) local5 -> 14:28
+(14:50..14:51) local4 -> 14:28
 (15:37..15:44) hello/world.AnimalPackage#AnimalU# -> 8:10
 (15:45..15:46) scala/`&`#
-(15:47..15:48) local7 -> 15:31
+(15:47..15:48) local6 -> 15:31
 (15:51..15:57) local3 -> 13:10
 (15:58..15:59) scala/`&`#
-(15:60..15:61) local7 -> 15:31
-(15:64..15:65) local8 -> 15:34
+(15:60..15:61) local6 -> 15:31
+(15:64..15:65) local7 -> 15:34
 (17:15..17:16) hello/world.p. -> 12:7
 (17:17..17:23) hello/world.AnimalPackage#Animal# -> 7:10
 (17:26..17:27) hello/world.p. -> 12:7
@@ -52,28 +52,28 @@ Document tests/pos/i1047.scala
 (26:16..26:17) hello/world.p. -> 12:7
 (26:18..26:24) hello/world.AnimalPackage#Animal# -> 7:10
 (26:25..26:26) scala/`&`#
-(26:27..26:29) local13 -> 25:24
+(26:27..26:29) local16
 (26:30..26:38) hello/world.CatPackage#CatDelta# -> 20:10
 (27:19..27:23) hello/world.CatPackage#CatU# -> 21:10
-(27:26..27:29) local15 -> 26:10
+(27:26..27:29) local17 -> 26:10
 (27:32..27:33) hello/world.p. -> 12:7
 (27:34..27:46) hello/world.AnimalPackage#newSubAnimal(). -> 10:9
-(27:47..27:49) local13 -> 25:24
+(27:47..27:49) local16
 (27:50..27:58) hello/world.CatPackage#CatDelta# -> 20:10
-(27:60..27:61) local17 -> 27:16
+(27:60..27:61) local18 -> 27:16
 (28:25..28:29) hello/world.CatPackage#CatU# -> 21:10
 (28:30..28:31) scala/`&`#
-(28:32..28:33) local19 -> 28:19
-(28:36..28:39) local15 -> 26:10
+(28:32..28:33) local20 -> 28:19
+(28:36..28:39) local17 -> 26:10
 (28:40..28:41) scala/`&`#
-(28:42..28:43) local19 -> 28:19
+(28:42..28:43) local20 -> 28:19
 (28:46..28:47) hello/world.p. -> 12:7
 (28:48..28:60) hello/world.AnimalPackage#newSubAnimal(). -> 10:9
-(28:61..28:63) local13 -> 25:24
+(28:61..28:63) local16
 (28:64..28:72) hello/world.CatPackage#CatDelta# -> 20:10
 (28:73..28:74) scala/`&`#
-(28:75..28:76) local19 -> 28:19
-(28:78..28:79) local20 -> 28:22
+(28:75..28:76) local20 -> 28:19
+(28:78..28:79) local21 -> 28:22
 (30:14..30:16) hello/world.pc. -> 25:7
 (30:17..30:20) hello/world.CatPackage#Cat# -> 19:10
 (30:23..30:25) hello/world.pc. -> 25:7

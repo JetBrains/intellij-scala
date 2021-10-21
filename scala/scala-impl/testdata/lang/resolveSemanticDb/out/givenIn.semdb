@@ -6,11 +6,8 @@ Document tests/pos/givenIn.scala
 (5:46..5:47) _empty_/Test.Context#givenIn().[T] -> 5:24
 (6:13..6:20) _empty_/Test.Context# -> 4:9
 (7:7..7:9) _empty_/Test.Context#givenIn().(op) -> 5:27
-(7:9..7:9) local0 -> 6:13
-(7:9..7:9) scala/ContextFunction1#apply().
 (11:12..11:19) _empty_/Test.Context# -> 4:9
 (11:26..11:33) _empty_/Test.Context# -> 4:9
-(11:33..11:33) _empty_/Test.Context#`<init>`(). -> 5:5
 (12:15..12:22) _empty_/Test.Context# -> 4:9
 (13:3..13:6) _empty_/Test.ctx(). -> 11:7
 (13:7..13:14) _empty_/Test.Context#givenIn(). -> 5:16

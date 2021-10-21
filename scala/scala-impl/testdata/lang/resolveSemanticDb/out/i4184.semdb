@@ -1,6 +1,5 @@
 Document tests/pos/i4184.scala
 (2:8..2:10) scala/Any#`==`().
-(2:12..2:12) scala/Predef.boolean2Boolean().
 (2:18..2:22) java/
 (2:23..2:27) java/lang/
 (2:28..2:35) java/lang/Boolean#

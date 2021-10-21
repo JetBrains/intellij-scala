@@ -24,7 +24,6 @@ Document tests/pos/range.scala
 (6:85..6:94) scala/collection/immutable/NumericRange.Exclusive#
 (6:95..6:105) scala/math/BigDecimal#
 (7:9..7:14) scala/package.Range.
-(7:22..7:22) scala/collection/immutable/Range.Partial#`<init>`().
 (7:23..7:28) _empty_/Test.until(+1). -> 8:7
 (7:29..7:30) _empty_/Test.until().(d) -> 6:13
 (7:32..7:35) _empty_/Test.until().(end) -> 6:28
@@ -33,7 +32,6 @@ Document tests/pos/range.scala
 (8:51..8:61) scala/math/BigDecimal#
 (8:65..8:70) scala/package.Range.
 (8:71..8:81) scala/collection/immutable/Range.BigDecimal.
-(8:81..8:81) scala/collection/immutable/Range.BigDecimal.apply().
 (8:82..8:83) _empty_/Test.until(+1).(d) -> 8:13
 (8:85..8:88) _empty_/Test.until(+1).(end) -> 8:28
 (8:90..8:94) _empty_/Test.until(+1).(step) -> 8:45

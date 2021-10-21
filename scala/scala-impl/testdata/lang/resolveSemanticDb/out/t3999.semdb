@@ -6,17 +6,13 @@ Document tests/pos/t3999/a_1.scala
 (7:49..7:58) foo/bar/package. -> 5:16
 (7:59..7:62) foo/bar/package.Val# -> 6:9
 (7:69..7:72) foo/bar/package.Val# -> 6:9
-(7:72..7:72) foo/bar/package.Val#`<init>`(). -> 6:12
 (7:73..7:74) foo/bar/package.boolean2Val().(b) -> 7:28
 (8:35..8:42) scala/Boolean#
 (8:45..8:48) foo/ -> 1:9
 (8:49..8:56) foo/Outside# -> 3:7
 (8:63..8:70) foo/Outside# -> 3:7
-(8:70..8:70) foo/Outside#`<init>`(). -> 3:1
 
 Document tests/pos/t3999/b_2.scala
 (5:10..5:13) foo/bar/package.Val# -> 6:9
-(5:16..5:16) foo/bar/package.boolean2Val(). -> 7:16
 (6:10..6:17) foo/Outside# -> 3:7
-(6:20..6:20) foo/bar/package.boolean2Outside(). -> 8:16
 

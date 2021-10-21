@@ -6,7 +6,6 @@ Document tests/pos/multiLineOps.scala
 (7:20..7:26) scala/Predef.String#
 (7:29..7:36) _empty_/Channel# -> 5:7
 (10:9..10:16) _empty_/Channel# -> 5:7
-(10:16..10:16) _empty_/Channel#`<init>`(). -> 6:3
 (13:3..13:4) _empty_/multiLineOps$package.c. -> 10:5
 (13:5..13:6) _empty_/Channel#`!`(). -> 6:7
 (14:5..14:6) _empty_/Channel#`!`(). -> 6:7
@@ -16,11 +15,9 @@ Document tests/pos/multiLineOps.scala
 (19:3..19:5) scala/Boolean#`&&`().
 (19:11..19:13) scala/Boolean#`&&`().
 (20:12..20:19) java/lang/String#isEmpty().
-(20:19..20:19) scala/Boolean#`unary_!`().
 (22:9..22:16) scala/Boolean#
 (23:3..23:10) scala/Predef.println(+1).
 (23:11..23:12) _empty_/multiLineOps$package.x. -> 1:5
 (24:12..24:19) java/lang/String#isEmpty().
-(24:19..24:19) scala/Boolean#`unary_!`().
 (25:3..25:6) scala/Predef.`???`().
 

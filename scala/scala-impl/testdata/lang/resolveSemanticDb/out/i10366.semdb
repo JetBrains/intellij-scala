@@ -6,6 +6,5 @@ Document tests/pos/i10366.scala
 (5:23..5:30) scala/Boolean#
 (5:33..5:37) scala/Unit#
 (5:40..5:43) scala/Predef.`???`().
-(7:3..7:3) _empty_/Test.ShouldWrapper(). -> 4:18
 (7:27..7:35) _empty_/Test.ShouldWrapper#shouldBe(). -> 5:9
 

@@ -6,7 +6,6 @@ Document tests/pos/i9780.scala
 (2:8..2:12) java/
 (2:13..2:16) java/awt/
 (2:17..2:23) java/awt/Window#
-(2:17..2:23) java/awt/Window.
 (5:13..5:22) java/awt/Window#
 (5:28..5:42) _empty_/Window#InterfaceMixin# -> 7:19
 (7:42..7:47) javax/

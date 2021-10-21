@@ -1,14 +1,13 @@
 Document tests/pos/existentials-harmful.scala
 (5:26..5:32) scala/Predef.String#
 (6:22..6:28) _empty_/ExistentialsConsideredHarmful.Animal# -> 5:9
-(6:28..6:28) _empty_/ExistentialsConsideredHarmful.Animal#`<init>`(). -> 5:15
 (7:24..7:30) _empty_/ExistentialsConsideredHarmful.Animal# -> 5:9
-(7:30..7:30) _empty_/ExistentialsConsideredHarmful.Animal#`<init>`(). -> 5:15
 (10:18..10:19) _empty_/ExistentialsConsideredHarmful.Tools#[A] -> 9:15
 (10:22..10:23) _empty_/ExistentialsConsideredHarmful.Tools#[A] -> 9:15
 (12:19..12:20) _empty_/ExistentialsConsideredHarmful.tools().[A] -> 12:13
 (12:23..12:28) _empty_/ExistentialsConsideredHarmful.Tools# -> 9:9
 (12:29..12:30) _empty_/ExistentialsConsideredHarmful.tools().[A] -> 12:13
+(14:32..14:38) _empty_/ExistentialsConsideredHarmful.Animal# -> 5:9
 (14:48..14:49) _empty_/ExistentialsConsideredHarmful.TransportBox#[A] -> 14:27
 (14:58..14:63) _empty_/ExistentialsConsideredHarmful.Tools# -> 9:9
 (14:64..14:65) _empty_/ExistentialsConsideredHarmful.TransportBox#[A] -> 14:27
@@ -27,22 +26,20 @@ Document tests/pos/existentials-harmful.scala
 (24:9..24:13) scala/math/
 (24:14..24:20) scala/math/package.random().
 (24:21..24:22) scala/Double#`<`(+6).
-(25:7..25:19) _empty_/ExistentialsConsideredHarmful.TransportBox. -> 14:14
-(25:19..25:19) _empty_/ExistentialsConsideredHarmful.TransportBox.apply(). -> 14:3
+(25:7..25:19) _empty_/ExistentialsConsideredHarmful.TransportBox.
 (25:20..25:23) _empty_/ExistentialsConsideredHarmful.Dog. -> 6:10
 (25:25..25:30) _empty_/ExistentialsConsideredHarmful.tools(). -> 12:7
 (25:31..25:34) _empty_/ExistentialsConsideredHarmful.Dog. -> 6:10
-(27:7..27:19) _empty_/ExistentialsConsideredHarmful.TransportBox. -> 14:14
-(27:19..27:19) _empty_/ExistentialsConsideredHarmful.TransportBox.apply(). -> 14:3
+(27:7..27:19) _empty_/ExistentialsConsideredHarmful.TransportBox.
 (27:20..27:25) _empty_/ExistentialsConsideredHarmful.Sheep. -> 7:10
 (27:27..27:32) _empty_/ExistentialsConsideredHarmful.tools(). -> 12:7
 (27:33..27:38) _empty_/ExistentialsConsideredHarmful.Sheep. -> 7:10
 (33:3..33:7) _empty_/ExistentialsConsideredHarmful.aBox. -> 23:7
-(34:10..34:22) _empty_/ExistentialsConsideredHarmful.TransportBox. -> 14:14
-(34:22..34:22) _empty_/ExistentialsConsideredHarmful.TransportBox.unapply(). -> 14:3
+(34:10..34:22) _empty_/ExistentialsConsideredHarmful.TransportBox.
 (34:41..34:46) local1 -> 34:31
 (34:47..34:52) _empty_/ExistentialsConsideredHarmful.Tools#shave(). -> 10:9
 (34:53..34:59) local0 -> 34:23
+(37:34..37:40) _empty_/ExistentialsConsideredHarmful.Animal# -> 5:9
 (37:47..37:59) _empty_/ExistentialsConsideredHarmful.TransportBox# -> 14:14
 (37:60..37:61) _empty_/ExistentialsConsideredHarmful.BoxCarrier#[R] -> 37:29
 (38:16..38:19) scala/Int#
@@ -54,7 +51,6 @@ Document tests/pos/existentials-harmful.scala
 (40:79..40:83) _empty_/ExistentialsConsideredHarmful.Animal#name. -> 5:20
 (49:12..49:16) _empty_/ExistentialsConsideredHarmful.aBox. -> 23:7
 (50:15..50:27) _empty_/ExistentialsConsideredHarmful.TransportBox# -> 14:14
-(50:48..50:48) _empty_/ExistentialsConsideredHarmful.BoxCarrier#`<init>`(). -> 37:28
-(50:49..50:51) local2 -> 50:10
+(50:49..50:51) local3 -> 50:10
 (51:18..51:21) scala/Int#
 

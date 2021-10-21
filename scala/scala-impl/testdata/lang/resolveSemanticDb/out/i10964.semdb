@@ -88,9 +88,6 @@ Document tests/pos/i10964.scala
 (44:47..44:48) _empty_/Resource#[F] -> 41:16
 (45:5..45:8) _empty_/Ref. -> 26:8
 (45:9..45:11) _empty_/Ref.of(). -> 38:7
-(45:42..45:42) scala/Tuple2.apply().
 (45:42..45:43) _empty_/Resource#foo().(x) -> 44:11
 (45:45..45:46) _empty_/Resource#foo().(x) -> 44:11
-(45:48..45:48) _empty_/Ref.MakeInstances#applicativeInstance(). -> 31:18
-(45:48..45:48) _empty_/Resource#foo().(F) -> 44:32
 

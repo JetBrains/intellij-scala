@@ -3,5 +3,5 @@ Document tests/pos/NoCyclicReference.scala
 (5:26..5:27) test/Iterable#CC#[B] -> 5:11
 (5:44..5:48) test/Iterable# -> 3:7
 (5:49..5:51) test/Iterable#CC# -> 5:8
-(5:52..5:53) local2 -> 5:39
+(5:52..5:53) local1 -> 5:39
 

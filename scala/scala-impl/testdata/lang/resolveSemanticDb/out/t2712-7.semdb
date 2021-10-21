@@ -5,12 +5,10 @@ Document tests/pos/t2712-7.scala
 (6:44..6:45) test/Xor.Left#[A] -> 6:26
 (6:46..6:49) test/Xor# -> 4:23
 (6:50..6:57) scala/Nothing#
-(6:57..6:57) test/Xor#`<init>`(). -> 4:26
 (7:33..7:34) test/Xor.Right#[B] -> 7:27
 (7:45..7:52) scala/Nothing#
 (7:53..7:56) test/Xor# -> 4:23
 (7:57..7:58) test/Xor.Right#[B] -> 7:27
-(7:58..7:58) test/Xor#`<init>`(). -> 4:26
 (11:10..11:13) test/Xor. -> 5:8
 (12:27..12:28) test/TestXor.meh().[F] -> 12:11
 (12:29..12:30) test/TestXor.meh().[A] -> 12:17
@@ -20,13 +18,11 @@ Document tests/pos/t2712-7.scala
 (12:47..12:48) test/TestXor.meh().[B] -> 12:20
 (12:52..12:55) scala/Predef.`???`().
 (13:3..13:6) test/TestXor.meh(). -> 12:7
-(13:16..13:16) test/Xor.Right#`<init>`(). -> 7:25
 (13:22..13:25) test/Xor# -> 4:23
 (13:26..13:33) scala/Boolean#
 (13:35..13:38) scala/Int#
 (13:43..13:44) scala/Int#`<`(+3).
 (14:3..14:6) test/TestXor.meh(). -> 12:7
-(14:15..14:15) test/Xor.Left#`<init>`(). -> 6:24
 (14:23..14:26) test/Xor# -> 4:23
 (14:27..14:34) scala/Boolean#
 (14:36..14:39) scala/Int#

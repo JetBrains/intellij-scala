@@ -1,6 +1,5 @@
 Document tests/pos/i3130a.scala
 (2:7..2:8) _empty_/D# -> 5:8
-(2:8..2:8) _empty_/D#`<init>`(). -> 5:9
 (2:12..2:14) _empty_/D#DD. -> 7:10
 (2:15..2:20) _empty_/D#DD.apply(). -> 8:15
 (5:17..5:20) scala/Int#

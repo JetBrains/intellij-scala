@@ -14,7 +14,6 @@ Document tests/pos/injectivity-gadt.scala
 (7:15..7:19) _empty_/injectivity.Refl# -> 3:20
 (8:18..8:19) _empty_/injectivity.conform().[A] -> 5:15
 (8:21..8:22) _empty_/injectivity.conform().[B] -> 5:18
-(8:27..8:27) scala/Tuple2.apply().
 (8:27..8:28) _empty_/injectivity.conform().(a) -> 5:27
 (8:30..8:31) _empty_/injectivity.conform().(b) -> 5:33
 (9:18..9:19) _empty_/injectivity.conform().[C] -> 5:21

@@ -2,7 +2,6 @@ Document tests/pos/gadt-variant-hkt.scala
 (4:31..4:35) _empty_/test.KSUB# -> 3:8
 (4:36..4:37) _empty_/test.KSUB.Refl#[S] -> 4:15
 (4:39..4:40) _empty_/test.KSUB.Refl#[S] -> 4:15
-(4:41..4:41) _empty_/test.KSUB#`<init>`(). -> 3:12
 (8:18..8:19) _empty_/test.Mkr#mk().[T] -> 8:12
 (8:22..8:23) _empty_/test.Mkr#[F] -> 7:13
 (8:24..8:25) _empty_/test.Mkr#mk().[T] -> 8:12
@@ -13,16 +12,13 @@ Document tests/pos/gadt-variant-hkt.scala
 (11:51..11:57) scala/Option#
 (11:58..11:61) scala/Int#
 (12:5..12:8) _empty_/test.foo().(sub) -> 11:30
-(13:12..13:16) _empty_/test.KSUB. -> 3:8
-(13:17..13:21) _empty_/test.KSUB.Refl. -> 4:10
-(13:21..13:21) _empty_/test.KSUB.Refl.unapply(). -> 4:5
-(13:21..13:21) local0
+(13:12..13:16) _empty_/test.KSUB.
+(13:17..13:21) _empty_/test.KSUB.Refl.
 (14:9..14:12) _empty_/test.foo().(mkr) -> 11:17
 (14:13..14:15) _empty_/test.Mkr#mk(). -> 8:9
 (18:28..18:31) _empty_/test.SUB# -> 17:8
 (18:32..18:33) _empty_/test.SUB.Refl#[S] -> 18:15
 (18:35..18:36) _empty_/test.SUB.Refl#[S] -> 18:15
-(18:37..18:37) _empty_/test.SUB#`<init>`(). -> 17:11
 (22:30..22:31) _empty_/test.bar().[F] -> 22:11
 (22:32..22:33) _empty_/test.bar().[X] -> 22:23
 (22:42..22:43) _empty_/test.bar().[F] -> 22:11
@@ -32,12 +28,11 @@ Document tests/pos/gadt-variant-hkt.scala
 (22:59..22:62) _empty_/test.SUB# -> 17:8
 (22:63..22:66) scala/Int#
 (23:5..23:9) _empty_/test.bar().(ksub) -> 22:36
-(24:15..24:19) _empty_/test.KSUB. -> 3:8
+(24:15..24:19) _empty_/test.KSUB.
 (24:20..24:24) _empty_/test.KSUB.Refl# -> 4:10
 (25:9..25:12) _empty_/test.bar().(sub) -> 22:52
-(26:16..26:19) _empty_/test.SUB. -> 17:8
-(26:20..26:24) _empty_/test.SUB.Refl. -> 18:10
-(26:24..26:24) _empty_/test.SUB.Refl.unapply(). -> 18:5
+(26:16..26:19) _empty_/test.SUB.
+(26:20..26:24) _empty_/test.SUB.Refl.
 (27:21..27:22) _empty_/test.bar().[G] -> 22:17
 (27:23..27:26) scala/Int#
 (27:30..27:32) _empty_/test.bar().(fx) -> 22:26

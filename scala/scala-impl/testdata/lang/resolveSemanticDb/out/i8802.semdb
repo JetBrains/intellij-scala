@@ -26,5 +26,4 @@ Document tests/pos/i8802.scala
 (16:9..16:16) _empty_/Test.product(). -> 10:7
 (16:17..16:21) _empty_/Test.unit(). -> 9:7
 (16:23..16:27) _empty_/Test.unit(). -> 9:7
-(16:28..16:28) _empty_/Test.foo(). -> 12:16
 

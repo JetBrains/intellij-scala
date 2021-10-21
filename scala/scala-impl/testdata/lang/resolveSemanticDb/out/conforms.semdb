@@ -4,6 +4,5 @@ Document tests/pos/conforms.scala
 (2:37..2:38) _empty_/Test.f().[A] -> 2:9
 (2:40..2:41) _empty_/Test.f().[B] -> 2:12
 (2:45..2:46) _empty_/Test.f().[B] -> 2:12
-(2:49..2:49) scala/`<:<`#apply().
 (2:49..2:50) _empty_/Test.f().(x) -> 2:15
 

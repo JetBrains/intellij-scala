@@ -5,6 +5,5 @@ Document tests/pos/t0305.scala
 (6:3..6:9) scala/Predef.assert(+1).
 (6:10..6:13) _empty_/Test.foo(). -> 3:7
 (6:15..6:19) scala/package.List.
-(6:19..6:19) scala/collection/IterableFactory#apply().
 (6:28..6:30) scala/Int#`==`(+3).
 

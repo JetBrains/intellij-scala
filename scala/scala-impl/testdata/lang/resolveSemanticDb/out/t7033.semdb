@@ -13,9 +13,7 @@ Document tests/pos/t7033.scala
 (12:3..12:4) _empty_/Wrap#Z(). -> 11:18
 (12:5..12:9) scala/package.List#
 (12:11..12:15) scala/package.List.
-(12:15..12:15) scala/collection/IterableFactory#apply().
 (12:20..12:21) _empty_/Wrap#Z# -> 11:18
 (12:22..12:26) scala/package.List#
-(12:27..12:27) _empty_/Wrap#Z#`<init>`(). -> 11:19
 (15:24..15:25) _empty_/X#[X] -> 15:14
 

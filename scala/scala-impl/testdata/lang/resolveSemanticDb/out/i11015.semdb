@@ -7,6 +7,5 @@ Document tests/pos/i11015.scala
 (4:41..4:47) scala/Predef.String#
 (4:50..4:56) scala/Predef.String#
 (6:12..6:15) _empty_/Foo. -> 2:8
-(6:15..6:15) _empty_/Foo.apply(). -> 3:8
 (6:16..6:19) scala/Int#
 

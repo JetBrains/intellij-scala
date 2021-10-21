@@ -9,5 +9,5 @@ Document tests/pos/t3419/C_2.scala
 (2:18..2:21) scala/Int#
 (2:36..2:39) scala/Int#
 (2:48..2:51) scala/Int#
-(2:55..2:58) local2 -> 2:41
+(2:55..2:58) local1 -> 2:41
 

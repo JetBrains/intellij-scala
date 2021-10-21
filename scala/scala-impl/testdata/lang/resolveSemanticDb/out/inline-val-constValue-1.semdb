@@ -7,7 +7,7 @@ Document tests/pos/inline-val-constValue-1.scala
 (7:30..7:33) scala/Any#
 (7:39..7:42) scala/Predef.`???`().
 (8:3..8:4) _empty_/`inline-val-constValue-1$package`.f(). -> 10:12
-(8:5..8:6) local0 -> 7:7
+(8:5..8:6) local1 -> 7:7
 (10:17..10:18) _empty_/C# -> 3:7
 (10:21..10:25) scala/Unit#
 (11:21..11:31) scala/compiletime/package$package.constValue().

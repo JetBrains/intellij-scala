@@ -1,17 +1,13 @@
 Document tests/pos/t4842.scala
 (1:15..1:21) scala/AnyRef#
-(3:10..3:10) _empty_/Foo#`<init>`(). -> 1:10
 (8:17..8:23) scala/AnyRef#
-(10:11..10:11) _empty_/Blerg#`<init>`(). -> 8:12
 (10:29..10:36) scala/Predef.println(+1).
 (10:54..10:61) scala/Predef.println(+1).
-(10:81..10:84) local2 -> 10:23
+(10:81..10:84) local4 -> 10:23
 (16:21..16:27) scala/AnyRef#
-(18:14..18:14) _empty_/Outer#Inner#`<init>`(). -> 16:16
 (18:32..18:39) scala/Predef.println(+1).
 (18:57..18:64) scala/Predef.println(+1).
-(18:84..18:87) local5 -> 18:26
+(18:84..18:87) local12 -> 18:26
 (21:19..21:26) scala/Boolean#
-(22:14..22:14) _empty_/Outer#Inner#`<init>`(). -> 16:16
 (22:20..22:27) scala/Predef.println(+1).
 

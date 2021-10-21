@@ -21,19 +21,15 @@ Document tests/pos/i7993.scala
 (16:18..16:24) scala/Predef.String#
 (16:27..16:30) scala/Int#
 (16:34..16:37) _empty_/Foo. -> 9:8
-(16:37..16:37) _empty_/Foo.apply(). -> 7:1
 (17:9..17:12) _empty_/Foo. -> 9:8
 (17:13..17:21) _empty_/Foo.WithList# -> 10:8
 (17:22..17:28) scala/Predef.String#
 (17:30..17:33) scala/Int#
 (17:37..17:40) _empty_/Foo. -> 9:8
-(17:40..17:40) _empty_/Foo.apply(). -> 7:1
 (20:3..20:5) _empty_/TC. -> 3:8
 (20:6..20:11) _empty_/TC.check(). -> 4:7
 (20:12..20:14) _empty_/i7993$package.x1. -> 16:5
-(20:15..20:15) _empty_/Foo.instance(). -> 12:16
 (21:3..21:5) _empty_/TC. -> 3:8
 (21:6..21:11) _empty_/TC.check(). -> 4:7
 (21:12..21:14) _empty_/i7993$package.x2. -> 17:5
-(21:15..21:15) _empty_/Foo.instance(). -> 12:16
 

@@ -9,12 +9,10 @@ Document tests/pos/inf.scala
 (4:29..4:30) _empty_/Test.g().(x) -> 4:12
 (6:10..6:13) scala/Int#
 (7:10..7:14) scala/Long#
-(7:17..7:17) scala/Int.int2long().
 (7:17..7:18) _empty_/Test.x. -> 6:7
 (9:11..9:14) scala/package.Seq#
 (9:15..9:18) scala/Int#
 (9:22..9:25) scala/package.Seq.
-(9:25..9:25) scala/collection/SeqFactory.Delegate#apply().
 (10:11..10:22) scala/package.Traversable#
 (10:23..10:26) scala/Int#
 (10:30..10:32) _empty_/Test.xs. -> 9:7

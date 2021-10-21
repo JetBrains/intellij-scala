@@ -5,7 +5,6 @@ Document tests/pos/i1045.scala
 (3:37..3:44) scala/collection/mutable/HashMap#
 (3:45..3:52) scala/Nothing#
 (3:54..3:61) scala/Nothing#
-(3:62..3:62) scala/collection/mutable/HashMap#`<init>`(+1).
 (5:21..5:28) scala/collection/mutable/
 (5:29..5:36) scala/collection/mutable/HashMap#
 (5:37..5:43) scala/Predef.String#
@@ -26,13 +25,14 @@ Document tests/pos/i1045.scala
 (8:3..8:15) _empty_/T.newSymbolMap. -> 5:7
 (8:16..8:19) scala/collection/mutable/HashMap#put().
 (8:25..8:28) _empty_/T.map. -> 6:7
+(15:19..15:23) scala/Null#
 (15:36..15:37) _empty_/T.Tree#[X] -> 15:14
+(16:20..16:24) scala/Null#
 (16:34..16:38) _empty_/T.Tree# -> 15:9
 (16:39..16:40) _empty_/T.Ident#[X] -> 16:15
-(16:41..16:41) _empty_/T.Tree#`<init>`(). -> 15:13
+(17:20..17:24) scala/Null#
 (17:34..17:38) _empty_/T.Tree# -> 15:9
 (17:39..17:40) _empty_/T.Apply#[X] -> 17:15
-(17:41..17:41) _empty_/T.Tree#`<init>`(). -> 15:13
 (19:10..19:15) _empty_/T.Ident# -> 16:9
 (19:16..19:22) scala/Symbol#
 (19:24..19:25) scala/`|`#

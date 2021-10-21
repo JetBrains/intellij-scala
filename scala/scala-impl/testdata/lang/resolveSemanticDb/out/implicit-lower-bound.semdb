@@ -1,6 +1,5 @@
 Document tests/pos/implicit-lower-bound.scala
 (3:19..3:22) _empty_/Foo# -> 1:7
-(3:22..3:22) _empty_/Foo#`<init>`(). -> 1:1
 (5:25..5:29) scala/package.List#
 (5:30..5:33) _empty_/Bar# -> 3:7
 (5:37..5:40) scala/Predef.`???`().
@@ -9,7 +8,5 @@ Document tests/pos/implicit-lower-bound.scala
 (10:25..10:29) scala/package.List#
 (10:35..10:38) _empty_/Bar# -> 3:7
 (12:3..12:7) _empty_/Test#get1(). -> 9:7
-(12:7..12:7) _empty_/Bar.listbar. -> 5:16
 (13:3..13:7) _empty_/Test#get2(). -> 10:7
-(13:7..13:7) _empty_/Bar.listbar. -> 5:16
 

@@ -16,6 +16,4 @@ Document tests/pos/relax_implicit_divergence.scala
 (6:3..6:13) scala/Predef.implicitly().
 (6:14..6:19) scala/package.Equiv#
 (6:20..6:21) _empty_/A# -> 1:7
-(6:23..6:23) _empty_/Test.equivA(). -> 5:16
-(6:23..6:23) _empty_/Test.ss(). -> 4:16
 

@@ -1,5 +1,8 @@
 Document tests/pos/i9567.scala
+(5:25..5:26) _empty_/Foo#`<init>`().[I][X] -> 5:19
 (6:17..6:18) _empty_/Foo#Id#[X] -> 6:11
+(7:19..7:20) _empty_/Foo#[F] -> 5:11
+(7:21..7:22) _empty_/Foo#foo().[G][x] -> 7:13
 (7:26..7:27) _empty_/Foo#foo().[G] -> 7:11
 (7:28..7:32) scala/Unit#
 (8:17..8:18) _empty_/Foo#[F] -> 5:11
@@ -15,7 +18,6 @@ Document tests/pos/i9567.scala
 (14:21..14:24) scala/Int#
 (14:27..14:30) scala/Int#
 (14:33..14:34) _empty_/M#baz().(f) -> 14:11
-(14:34..14:34) scala/Function1#apply().
 (18:14..18:17) _empty_/Foo# -> 5:7
 (18:29..18:30) _empty_/Test.bar().(x)[X] -> 18:22
 (18:34..18:38) scala/Unit#

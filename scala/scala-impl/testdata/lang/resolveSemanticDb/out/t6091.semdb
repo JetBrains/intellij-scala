@@ -8,6 +8,5 @@ Document tests/pos/t6091.scala
 (7:5..7:8) _empty_/Foo. -> 1:8
 (7:9..7:11) _empty_/Foo.eq(). -> 1:18
 (8:9..8:10) _empty_/X# -> 3:7
-(8:10..8:10) _empty_/X#`<init>`(). -> 3:11
 (8:11..8:13) _empty_/X#`==`(). -> 3:15
 

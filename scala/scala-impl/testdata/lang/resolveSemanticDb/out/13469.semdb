@@ -1,0 +1,112 @@
+Document tests/pos/13469.scala
+(2:16..2:22) scala/Predef.String#
+(2:23..2:24) scala/`|`#
+(2:25..2:30) scala/Tuple#
+(4:20..4:25) scala/Tuple#
+(4:29..4:34) _empty_/Meta.Shape# -> 2:8
+(4:37..4:38) _empty_/Meta.Demote#[S] -> 4:15
+(5:10..5:16) scala/Tuple1#
+(5:23..5:24) local0 -> 5:17
+(5:25..5:26) scala/`&`#
+(5:27..5:32) _empty_/Meta.Shape# -> 2:8
+(6:10..6:15) scala/Tuple#
+(6:19..6:20) _empty_/Meta.Demote#[S] -> 4:15
+(8:16..8:23) scala/Boolean#
+(8:36..8:38) _empty_/Meta.If#[R1] -> 8:25
+(8:39..8:40) scala/`|`#
+(8:41..8:43) _empty_/Meta.If#[R2] -> 8:29
+(8:46..8:47) _empty_/Meta.If#[T] -> 8:11
+(9:18..9:20) _empty_/Meta.If#[R1] -> 8:25
+(10:19..10:21) _empty_/Meta.If#[R2] -> 8:29
+(12:22..12:27) scala/Tuple#
+(12:35..12:42) scala/Boolean#
+(12:45..12:46) _empty_/Meta.Contains#[T] -> 12:17
+(13:10..13:11) _empty_/Meta.Contains#[X] -> 12:29
+(13:12..13:14) scala/`*:`#
+(14:12..14:14) scala/`*:`#
+(14:20..14:28) _empty_/Meta.Contains# -> 12:8
+(14:29..14:30) local2 -> 14:15
+(14:32..14:33) _empty_/Meta.Contains#[X] -> 12:29
+(17:26..17:31) scala/Tuple#
+(17:39..17:44) scala/Tuple#
+(17:47..17:48) _empty_/Meta.RemoveStrict#[T] -> 17:21
+(18:15..18:17) scala/`*:`#
+(18:26..18:30) local3 -> 18:10
+(19:12..19:13) _empty_/Meta.RemoveStrict#[X] -> 17:33
+(19:17..19:21) local4 -> 18:18
+(20:17..20:21) local3 -> 18:10
+(20:22..20:24) scala/`*:`#
+(20:25..20:37) _empty_/Meta.RemoveStrict# -> 17:8
+(20:38..20:42) local4 -> 18:18
+(20:44..20:45) _empty_/Meta.RemoveStrict#[X] -> 17:33
+(22:27..22:32) scala/Tuple#
+(22:40..22:45) scala/Tuple#
+(22:50..22:55) scala/Tuple#
+(22:58..22:60) _empty_/Meta.WithoutStrict#[T2] -> 22:34
+(23:15..23:17) scala/`*:`#
+(23:26..23:39) _empty_/Meta.WithoutStrict# -> 22:8
+(23:40..23:52) _empty_/Meta.RemoveStrict# -> 17:8
+(23:53..23:54) _empty_/Meta.WithoutStrict#[T] -> 22:22
+(23:56..23:60) local5 -> 23:10
+(23:63..23:67) local6 -> 23:18
+(24:10..24:20) scala/Tuple$package.EmptyTuple#
+(24:24..24:25) _empty_/Meta.WithoutStrict#[T] -> 22:22
+(27:30..27:35) scala/Tuple#
+(27:50..27:55) scala/Tuple#
+(27:73..27:78) scala/Tuple#
+(27:81..27:82) _empty_/Meta.ReplaceAllStrict#[T] -> 27:25
+(28:15..28:17) scala/`*:`#
+(29:7..29:9) _empty_/Meta.If# -> 8:8
+(29:10..29:18) _empty_/Meta.Contains# -> 12:8
+(29:19..29:28) _empty_/Meta.ReplaceAllStrict#[ToReplace] -> 27:37
+(29:30..29:34) local7 -> 28:10
+(30:11..30:22) _empty_/Meta.ReplaceAllStrict#[Replacement] -> 27:57
+(30:23..30:25) scala/`*:`#
+(30:26..30:39) _empty_/Meta.WithoutStrict# -> 22:8
+(30:40..30:44) local8 -> 28:18
+(30:46..30:58) _empty_/Meta.RemoveStrict# -> 17:8
+(30:59..30:68) _empty_/Meta.ReplaceAllStrict#[ToReplace] -> 27:37
+(30:70..30:74) local7 -> 28:10
+(31:11..31:15) local7 -> 28:10
+(31:16..31:18) scala/`*:`#
+(31:19..31:35) _empty_/Meta.ReplaceAllStrict# -> 27:8
+(31:36..31:40) local8 -> 28:18
+(31:42..31:51) _empty_/Meta.ReplaceAllStrict#[ToReplace] -> 27:37
+(31:53..31:64) _empty_/Meta.ReplaceAllStrict#[Replacement] -> 27:57
+(32:10..32:20) scala/Tuple$package.EmptyTuple#
+(32:24..32:25) _empty_/Meta.ReplaceAllStrict#[T] -> 27:25
+(34:17..34:22) scala/Tuple#
+(34:37..34:42) scala/Tuple#
+(34:59..34:65) scala/Predef.String#
+(35:5..35:11) _empty_/Meta.Demote# -> 4:8
+(35:12..35:28) _empty_/Meta.ReplaceAllStrict# -> 27:8
+(35:29..35:30) _empty_/Meta.Sub#[S] -> 34:12
+(35:32..35:41) _empty_/Meta.Sub#[ToReplace] -> 34:24
+(35:43..35:54) _empty_/Meta.Sub#[Replacement] -> 34:44
+(38:10..38:14) _empty_/Meta. -> 1:8
+(39:11..39:14) _empty_/Meta.Sub# -> 34:8
+(39:23..39:25) scala/`*:`#
+(39:26..39:36) scala/Tuple$package.EmptyTuple#
+(39:38..39:41) scala/Int#
+(39:42..39:44) scala/`*:`#
+(39:45..39:55) scala/Tuple$package.EmptyTuple#
+(40:11..40:14) _empty_/Meta.Sub# -> 34:8
+(41:12..41:28) _empty_/Meta.ReplaceAllStrict# -> 27:8
+(41:64..41:66) scala/`*:`#
+(41:67..41:77) scala/Tuple$package.EmptyTuple#
+(43:28..43:30) scala/`*:`#
+(43:31..43:41) scala/Tuple$package.EmptyTuple#
+(45:12..45:28) _empty_/Meta.ReplaceAllStrict# -> 27:8
+(45:29..45:30) _empty_/Foo.S# -> 42:8
+(45:32..45:41) _empty_/Foo.ToReplace# -> 43:8
+(45:43..45:54) _empty_/Foo.Replacement# -> 44:8
+(46:12..46:18) _empty_/Meta.Demote# -> 4:8
+(46:19..46:35) _empty_/Meta.ReplaceAllStrict# -> 27:8
+(46:36..46:37) _empty_/Foo.S# -> 42:8
+(46:39..46:48) _empty_/Foo.ToReplace# -> 43:8
+(46:50..46:61) _empty_/Foo.Replacement# -> 44:8
+(47:12..47:15) _empty_/Meta.Sub# -> 34:8
+(47:16..47:17) _empty_/Foo.S# -> 42:8
+(47:19..47:28) _empty_/Foo.ToReplace# -> 43:8
+(47:30..47:41) _empty_/Foo.Replacement# -> 44:8
+

@@ -4,9 +4,6 @@ Document tests/pos/t3972.scala
 (2:34..2:38) scala/Unit#
 (3:5..3:9) _empty_/CompilerCrash.main().(args) -> 2:12
 (4:12..4:17) scala/Array.
-(4:17..4:17) scala/Array.unapplySeq().
 (5:12..5:17) scala/Array.
-(5:17..5:17) scala/Array.unapplySeq().
 (6:12..6:17) scala/Array.
-(6:17..6:17) scala/Array.unapplySeq().
 

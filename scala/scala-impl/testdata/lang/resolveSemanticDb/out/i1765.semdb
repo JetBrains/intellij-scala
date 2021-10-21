@@ -1,6 +1,5 @@
 Document tests/pos/i1765.scala
 (6:17..6:19) _empty_/TC# -> 5:7
-(6:19..6:19) _empty_/TC#foo().[M] -> 6:11
 (6:28..6:29) _empty_/U# -> 3:7
 (6:30..6:31) _empty_/TC#foo().[A] -> 6:21
 (7:23..7:25) _empty_/TC# -> 5:7
@@ -17,10 +16,7 @@ Document tests/pos/i1765.scala
 (9:45..9:46) _empty_/TC#any2U().[A] -> 9:22
 (10:11..10:14) _empty_/TC#foo(). -> 6:7
 (10:18..10:21) scala/Int#
-(10:23..10:23) _empty_/TC#any2U(). -> 9:16
-(10:25..10:25) _empty_/TC#TCofT. -> 7:16
 (17:14..17:20) java/lang/Object#
 (18:21..18:24) _empty_/TC2# -> 15:7
 (19:9..19:15) java/lang/Object#
-(19:15..19:15) java/lang/Object#`<init>`().
 

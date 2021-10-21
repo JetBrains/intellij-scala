@@ -17,15 +17,10 @@ Document tests/pos/i12379a.scala
 (7:31..7:32) _empty_/i12379a$package.given_Conversion_T_Bar().[T] -> 7:8
 (7:34..7:37) _empty_/Bar# -> 6:7
 (7:38..7:39) _empty_/i12379a$package.given_Conversion_T_Bar().[T] -> 7:8
-(7:47..7:47) _empty_/Bar#`<init>`(). -> 6:10
-(9:1..9:1) _empty_/i12379a$package.main(). -> 9:11
-(9:1..9:1) local1
-(9:1..9:1) scala/util/CommandLineParser.showError().
 (9:2..9:6) scala/main#
 (9:18..9:22) scala/Unit#
 (10:3..10:9) _empty_/i12379a$package.convOK(). -> 4:12
 (10:10..10:13) _empty_/Bar# -> 6:7
-(10:22..10:22) _empty_/i12379a$package.given_Conversion_T_Bar(). -> 7:7
 (11:3..11:11) _empty_/i12379a$package.convFail(). -> 1:12
 (11:12..11:15) _empty_/Bar# -> 6:7
 

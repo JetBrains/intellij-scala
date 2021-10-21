@@ -3,12 +3,10 @@ Document tests/pos/t5399.scala
 (3:23..3:24) _empty_/Test#B#[T] -> 3:11
 (5:30..5:31) _empty_/Test#CaseClass#[T] -> 5:24
 (7:21..7:22) _empty_/Test#B# -> 3:9
-(8:5..8:14) _empty_/Test#CaseClass. -> 5:14
-(8:14..8:14) _empty_/Test#CaseClass.apply(). -> 5:3
+(8:5..8:14) _empty_/Test#CaseClass.
 (8:15..8:21) _empty_/Test#break().(existB) -> 7:13
 (8:22..8:23) _empty_/Test#B#a. -> 3:18
-(8:38..8:47) _empty_/Test#CaseClass. -> 5:14
-(8:47..8:47) _empty_/Test#CaseClass.unapply(). -> 5:3
+(8:38..8:47) _empty_/Test#CaseClass.
 (13:30..13:34) _empty_/Foo#Init# -> 12:9
 (13:35..13:36) _empty_/Foo#ScopedKey#[T] -> 13:19
 (16:14..16:23) _empty_/Foo#ScopedKey# -> 13:9
@@ -17,7 +15,6 @@ Document tests/pos/t5399.scala
 (19:42..19:43) _empty_/Foo#ScopedKey1#[T] -> 19:25
 (19:54..19:63) _empty_/Foo#ScopedKey# -> 13:9
 (19:64..19:65) _empty_/Foo#ScopedKey1#[T] -> 19:25
-(19:66..19:66) _empty_/Foo#ScopedKey#`<init>`(). -> 13:18
 (21:18..21:25) _empty_/Foo#Setting# -> 15:9
 (21:26..21:32) scala/Option#
 (21:33..21:39) scala/Predef.String#
@@ -27,26 +24,24 @@ Document tests/pos/t5399.scala
 (24:40..24:44) scala/Unit#
 (25:5..25:6) _empty_/Foo#testPatternMatch().(s) -> 24:24
 (25:7..25:10) _empty_/Foo#Setting#key. -> 16:9
-(26:12..26:22) _empty_/Foo#ScopedKey1. -> 19:14
-(26:22..26:22) _empty_/Foo#ScopedKey1.unapply(). -> 19:3
+(26:12..26:22) _empty_/Foo#ScopedKey1.
 (26:23..26:32) _empty_/Foo#scalaHome. -> 21:7
 (26:33..26:36) _empty_/Foo#Setting#key. -> 16:9
 (26:39..26:51) _empty_/Foo#scalaVersion. -> 22:7
 (26:52..26:55) _empty_/Foo#Setting#key. -> 16:9
 (32:20..32:27) _empty_/Test2#Execute# -> 36:9
 (32:34..32:49) _empty_/Test2#Execute#CyclicException# -> 37:11
+(36:25..36:31) scala/AnyRef#
 (37:42..37:43) _empty_/Test2#Execute#[A] -> 36:17
 (37:44..37:45) _empty_/Test2#Execute#CyclicException#[T] -> 37:27
 (37:60..37:61) _empty_/Test2#Execute#[A] -> 36:17
 (37:62..37:63) _empty_/Test2#Execute#CyclicException#[T] -> 37:27
 (40:24..40:33) _empty_/Test2#AnyCyclic# -> 32:8
 (40:36..40:42) scala/Predef.String#
-(41:6..41:6) scala/Tuple2.apply().
 (41:6..41:7) _empty_/Test2#convertCyclic().(c) -> 40:21
 (41:8..41:14) _empty_/Test2#Execute#CyclicException#caller. -> 37:34
 (41:16..41:17) _empty_/Test2#convertCyclic().(c) -> 40:21
 (41:18..41:24) _empty_/Test2#Execute#CyclicException#target. -> 37:52
-(42:13..42:13) scala/Tuple2.unapply().
 (42:21..42:25) _empty_/Test2#Task# -> 34:9
 (42:38..42:42) _empty_/Test2#Task# -> 34:9
 

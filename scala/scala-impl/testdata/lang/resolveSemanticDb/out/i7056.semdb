@@ -20,6 +20,5 @@ Document tests/pos/i7056.scala
 (16:22..16:25) scala/Predef.`???`().
 (18:8..18:9) _empty_/i7056$package.B# -> 2:6
 (18:12..18:15) scala/Predef.`???`().
-(19:9..19:9) _empty_/T1#idnt1(). -> 9:25
 (19:9..19:10) _empty_/i7056$package.x. -> 18:5
 

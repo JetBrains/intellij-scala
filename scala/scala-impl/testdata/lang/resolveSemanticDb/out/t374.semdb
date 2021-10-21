@@ -1,12 +1,10 @@
 Document tests/pos/t374.scala
 (1:23..1:34) scala/Enumeration#
-(1:34..1:34) scala/Enumeration#`<init>`(+1).
 (2:16..2:21) scala/Enumeration#Value#
 (3:17..3:22) scala/Enumeration#Value(+2).
 (4:17..4:22) scala/Enumeration#Value(+2).
 (5:17..5:22) scala/Enumeration#Value(+2).
 (8:21..8:27) scala/AnyRef#
-(8:27..8:27) java/lang/Object#`<init>`().
 (8:33..8:36) scala/App#
 (9:10..9:16) _empty_/tokens. -> 1:8
 (11:22..11:27) scala/
@@ -15,13 +13,11 @@ Document tests/pos/t374.scala
 (11:47..11:54) scala/collection/mutable/HashMap#
 (11:55..11:61) scala/Predef.String#
 (11:63..11:68) _empty_/tokens.Token# -> 2:8
-(11:69..11:69) scala/collection/mutable/HashMap#`<init>`(+1).
 (14:5..14:13) _empty_/test.reserved. -> 11:7
 (14:14..14:17) scala/collection/mutable/HashMap#get().
 (15:12..15:16) scala/None.
 (15:24..15:29) _empty_/tokens.IDENT. -> 4:7
 (16:12..16:16) scala/Some.
-(16:16..16:16) scala/Some.unapply().
 (16:24..16:26) local0 -> 16:17
 (20:5..20:8) _empty_/tokens.BAD. -> 3:7
 

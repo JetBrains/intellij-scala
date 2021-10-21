@@ -1,4 +1,8 @@
 Document tests/pos/f-bounded-case-class.scala
+(1:22..1:26) scala/package.List#
+(1:27..1:28) _empty_/Test#[Y] -> 1:31
+(1:36..1:40) scala/package.List#
+(1:41..1:42) _empty_/Test#[X] -> 1:17
 (1:48..1:49) _empty_/Test#[X] -> 1:17
 (1:54..1:55) _empty_/Test#[Y] -> 1:31
 

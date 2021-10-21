@@ -6,8 +6,6 @@ Document tests/pos/t2591.scala
 (12:10..12:19) _empty_/Implicits. -> 4:8
 (12:20..12:23) _empty_/Implicits.imp(). -> 5:16
 (12:20..12:23) _empty_/Implicits.imp(+1). -> 6:16
-(14:4..14:4) _empty_/Implicits.imp(). -> 5:16
 (14:8..14:9) _empty_/A# -> 1:7
-(14:9..14:9) _empty_/A#`<init>`(). -> 1:1
 (14:13..14:16) scala/Int#
 

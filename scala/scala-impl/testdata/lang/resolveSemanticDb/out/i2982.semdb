@@ -5,5 +5,4 @@ Document tests/pos/i2982.scala
 (4:3..4:6) _empty_/A.fun(). -> 3:7
 (4:11..4:12) _empty_/A# -> 6:7
 (4:13..4:16) scala/Int#
-(4:17..4:17) _empty_/A#`<init>`(). -> 6:8
 

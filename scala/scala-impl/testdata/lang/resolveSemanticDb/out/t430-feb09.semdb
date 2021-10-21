@@ -4,7 +4,10 @@ Document tests/pos/t430-feb09.scala
 (17:9..17:10) d/
 (17:11..17:16) d/scala/
 (22:9..22:10) e/
+(23:21..23:28) scala/Nothing#
 (27:9..27:10) f/
+(28:21..28:28) scala/Nothing#
+(28:32..28:35) scala/Any#
 (32:9..32:10) h/
 (33:19..33:25) scala/Predef.String#
 (33:32..33:38) scala/Predef.String#

@@ -6,6 +6,6 @@ Document tests/pos/trait-access.scala
 (7:21..7:22) foo/B# -> 5:9
 (9:13..9:17) scala/Unit#
 (10:17..10:18) _empty_/C# -> 7:7
-(11:5..11:6) local0 -> 10:9
+(11:5..11:6) local2 -> 10:9
 (11:7..11:8) foo/A#a(). -> 3:9
 

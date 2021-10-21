@@ -4,8 +4,6 @@ Document tests/pos/i3168.scala
 (7:30..7:31) _empty_/Test.C# -> 2:9
 (8:16..8:22) scala/Predef.String#
 (11:13..11:17) scala/Unit#
-(12:6..12:6) _empty_/Test.COps(). -> 7:18
 (12:10..12:11) _empty_/Test.C# -> 2:9
-(12:11..12:11) _empty_/Test.C#`<init>`(). -> 3:5
 (12:13..12:16) _empty_/Test.COps#foo(). -> 8:9
 

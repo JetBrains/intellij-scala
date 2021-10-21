@@ -6,8 +6,6 @@ Document tests/pos/i6828.scala
 (2:64..2:68) scala/Unit#
 (3:3..3:6) _empty_/Foo#foo(). -> 2:14
 (3:7..3:10) scala/Int#
-(3:11..3:11) scala/reflect/ClassTag.apply().
 (4:3..4:6) _empty_/Foo#foo(). -> 2:14
 (4:7..4:13) scala/Predef.String#
-(4:14..4:14) scala/reflect/ClassTag.apply().
 

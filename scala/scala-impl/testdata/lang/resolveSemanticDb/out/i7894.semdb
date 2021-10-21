@@ -11,6 +11,7 @@ Document tests/pos/i7894.scala
 (5:25..5:27) scala/`*:`#
 (5:28..5:33) _empty_/i7894$package.Boxed# -> 3:6
 (5:34..5:35) local1 -> 5:13
+(8:16..8:21) scala/Tuple#
 (8:36..8:37) _empty_/Cmp#[T] -> 8:11
 (8:42..8:47) _empty_/i7894$package.Boxed# -> 3:6
 (8:48..8:49) _empty_/Cmp#[T] -> 8:11

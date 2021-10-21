@@ -3,8 +3,6 @@ Document tests/pos/i2192.scala
 (2:20..2:23) scala/Int#
 (2:26..2:27) _empty_/Test.foo().(x) -> 2:11
 (4:3..4:7) scala/Some.
-(4:7..4:7) scala/Some.apply().
-(4:8..4:8) local0
 (4:8..4:11) _empty_/Test.foo(). -> 2:7
 (4:14..4:20) scala/Option#
 (4:21..4:24) scala/Int#

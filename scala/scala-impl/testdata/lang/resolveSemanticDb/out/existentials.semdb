@@ -1,5 +1,5 @@
 Document tests/pos/existentials.scala
-(5:33..5:36) local7
+(5:33..5:36) local8
 (7:15..7:16) _empty_/A#f(). -> 5:7
 (8:15..8:16) _empty_/A#f(). -> 5:7
 (15:16..15:17) _empty_/A#f(). -> 5:7

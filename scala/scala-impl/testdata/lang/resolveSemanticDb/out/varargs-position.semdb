@@ -7,7 +7,6 @@ Document tests/pos/varargs-position.scala
 (2:34..2:40) scala/collection/SeqOps#length().
 (3:3..3:4) _empty_/varargspos.g(). -> 2:7
 (4:22..4:25) scala/package.Nil.
-(4:25..4:25) scala/collection/immutable/List#`::`().
 (7:3..7:4) _empty_/varargspos.g(). -> 2:7
 (7:8..7:10) _empty_/varargspos.xs. -> 4:7
 (8:3..8:4) _empty_/varargspos.g(). -> 2:7

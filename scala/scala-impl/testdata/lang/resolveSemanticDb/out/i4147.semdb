@@ -11,5 +11,4 @@ Document tests/pos/i4147.scala
 (9:10..9:15) _empty_/Super# -> 2:7
 (9:16..9:22) scala/Predef.String#
 (9:26..9:31) _empty_/Test.deriv(). -> 7:16
-(9:31..9:31) _empty_/Test.higherSub(). -> 6:16
 

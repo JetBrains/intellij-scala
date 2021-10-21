@@ -1,5 +1,7 @@
 Document tests/pos/t4070b.scala
 (4:37..4:38) a/Exp#[T] -> 4:22
+(6:33..6:49) a/DeliteCollection# -> 3:18
+(6:50..6:51) a/DeliteOpMap#`<init>`().[C][X] -> 6:27
 (6:62..6:70) a/DeliteOp# -> 2:18
 (6:71..6:72) a/DeliteOpMap#[C] -> 6:25
 (6:73..6:74) a/DeliteOpMap#[B] -> 6:23
@@ -20,10 +22,12 @@ Document tests/pos/t4070b.scala
 (21:14..21:22) b/DeliteOp# -> 26:18
 (21:29..21:30) b/Test.f().(x) -> 21:11
 (22:17..22:28) b/DeliteOpMap# -> 30:9
-(22:39..22:42) local1 -> 22:12
+(22:39..22:42) local3 -> 22:12
 (22:43..22:48) b/DeliteOpMap#alloc. -> 33:9
 (22:49..22:53) b/Exp#Type(). -> 28:31
 (28:37..28:38) b/Exp#[T] -> 28:22
+(30:33..30:49) b/DeliteCollection# -> 27:18
+(30:50..30:51) b/DeliteOpMap#`<init>`().[C][X] -> 30:27
 (30:62..30:70) b/DeliteOp# -> 26:18
 (30:71..30:72) b/DeliteOpMap#[C] -> 30:25
 (30:73..30:74) b/DeliteOpMap#[B] -> 30:23

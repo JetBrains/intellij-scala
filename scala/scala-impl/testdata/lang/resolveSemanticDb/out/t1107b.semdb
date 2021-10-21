@@ -6,13 +6,12 @@ Document tests/pos/t1107b/O.scala
 (8:24..8:30) scala/Predef.String#
 (8:34..8:38) scala/Unit#
 (9:17..9:23) scala/AnyRef#
-(9:23..9:23) java/lang/Object#`<init>`().
 (9:29..9:30) _empty_/C# -> 3:7
-(11:5..11:6) local1 -> 9:9
+(11:5..11:6) local3 -> 9:9
 (11:7..11:10) _empty_/C#bob(). -> 5:7
 (11:13..11:21) java/lang/Class#toString().
 (11:22..11:23) java/lang/String#`+`().
-(11:24..11:25) local1 -> 9:9
+(11:24..11:25) local3 -> 9:9
 (11:26..11:30) _empty_/C#bob2(). -> 6:7
 (11:33..11:41) scala/Any#toString().
 

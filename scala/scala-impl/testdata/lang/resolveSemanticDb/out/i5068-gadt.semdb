@@ -12,8 +12,7 @@ Document tests/pos/i5068-gadt.scala
 (6:47..6:50) _empty_/i5068.Box# -> 2:14
 (6:51..6:52) _empty_/i5068.foo().[G] -> 6:17
 (6:56..6:57) _empty_/i5068.foo().(r) -> 6:23
-(6:71..6:76) _empty_/i5068.ReflK. -> 4:20
-(6:76..6:76) _empty_/i5068.ReflK.unapply(). -> 4:3
+(6:71..6:76) _empty_/i5068.ReflK.
 (6:82..6:83) _empty_/i5068.foo().(a) -> 6:35
 (10:30..10:31) _empty_/i5068b.WeirdShape#[A] -> 10:19
 (10:32..10:33) _empty_/i5068b.WeirdShape#[B] -> 10:25
@@ -31,7 +30,6 @@ Document tests/pos/i5068-gadt.scala
 (19:6..19:9) _empty_/i5068b.Box# -> 12:14
 (19:10..19:11) _empty_/i5068b.foo().[G] -> 16:35
 (19:15..19:16) _empty_/i5068b.foo().(r) -> 17:5
-(19:30..19:35) _empty_/i5068b.ReflK. -> 14:20
-(19:35..19:35) _empty_/i5068b.ReflK.unapply(). -> 14:3
+(19:30..19:35) _empty_/i5068b.ReflK.
 (19:41..19:42) _empty_/i5068b.foo().(a) -> 18:5
 

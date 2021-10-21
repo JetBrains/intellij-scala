@@ -5,7 +5,6 @@ Document tests/pos/i3208.scala
 (5:31..5:32) _empty_/Test#E# -> 2:9
 (5:36..5:38) _empty_/Test#test().(es) -> 5:12
 (5:39..5:46) scala/collection/immutable/List#collect().
-(5:49..5:49) local0
 (5:57..5:63) _empty_/Test#Marker# -> 3:9
 (5:67..5:68) local1 -> 5:54
 

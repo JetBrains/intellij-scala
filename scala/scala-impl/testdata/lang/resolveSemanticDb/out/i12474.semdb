@@ -17,13 +17,10 @@ Document tests/pos/i12474.scala
 (13:32..13:34) scala/`*:`#
 (13:35..13:39) local1 -> 10:22
 (13:42..13:48) scala/Predef.String#
-(14:7..14:15) local2 -> 11:11
+(14:7..14:15) local6 -> 11:11
 (14:16..14:28) scala/Any#asInstanceOf().
 (14:29..14:33) bugreport/Show# -> 5:7
 (14:34..14:39) bugreport/i12474$package.showTuple().[Types] -> 8:22
-(16:1..16:1) bugreport/i12474$package.run(). -> 16:11
-(16:1..16:1) local6
-(16:1..16:1) scala/util/CommandLineParser.showError().
 (16:2..16:6) scala/main#
 (17:3..17:12) bugreport/i12474$package.showTuple(). -> 8:12
 (17:14..17:17) scala/Int#

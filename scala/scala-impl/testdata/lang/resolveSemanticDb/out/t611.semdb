@@ -3,13 +3,11 @@ Document tests/pos/t611.scala
 (6:22..6:31) bug/contrib_60/Field#FieldType# -> 4:8
 (9:28..9:31) scala/Int#
 (9:41..9:46) bug/contrib_60/Field# -> 3:16
-(9:46..9:46) bug/contrib_60/Field#`<init>`(). -> 4:3
 (10:20..10:23) scala/Int#
 (12:22..12:31) bug/contrib_60/IntField#FieldType# -> 10:8
 (12:34..12:39) bug/contrib_60/IntField#value. -> 9:21
 (15:31..15:37) scala/Predef.String#
 (15:47..15:52) bug/contrib_60/Field# -> 3:16
-(15:52..15:52) bug/contrib_60/Field#`<init>`(). -> 4:3
 (16:20..16:26) scala/Predef.String#
 (18:22..18:31) bug/contrib_60/StringField#FieldType# -> 16:8
 (18:34..18:39) bug/contrib_60/StringField#value. -> 15:24
@@ -20,9 +18,6 @@ Document tests/pos/t611.scala
 (23:5..23:12) scala/Console.
 (23:13..23:20) scala/Console.println(+1).
 (23:21..23:25) scala/package.List.
-(23:25..23:25) scala/collection/IterableFactory#apply().
 (23:30..23:41) bug/contrib_60/StringField# -> 15:12
-(23:41..23:41) bug/contrib_60/StringField#`<init>`(). -> 15:23
 (23:55..23:63) bug/contrib_60/IntField# -> 9:12
-(23:63..23:63) bug/contrib_60/IntField#`<init>`(). -> 9:20
 

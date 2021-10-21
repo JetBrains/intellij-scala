@@ -4,9 +4,6 @@ Document tests/pos/i12180b.scala
 (3:31..3:33) scala/Any#`==`().
 (3:34..3:35) _empty_/i12180b$package.n(). -> 1:12
 (4:23..4:24) _empty_/i12180b$package.n(). -> 1:12
-(6:1..6:1) _empty_/i12180b$package.main(). -> 6:11
-(6:1..6:1) local0
-(6:1..6:1) scala/util/CommandLineParser.showError().
 (6:2..6:6) scala/main#
 (7:3..7:10) scala/Predef.println(+1).
 (7:11..7:12) _empty_/i12180b$package.f(). -> 2:12

@@ -1,6 +1,5 @@
 Document tests/pos/i11128.scala
 (4:10..4:13) foo/ -> 1:9
 (9:19..9:23) foo/Wrap. -> 3:8
-(9:24..9:27) foo/Wrap.Bar# -> 4:14
-(9:27..9:27) foo/Bar#`<init>`(). -> 7:1
+(9:24..9:27) foo/Wrap.Bar#
 

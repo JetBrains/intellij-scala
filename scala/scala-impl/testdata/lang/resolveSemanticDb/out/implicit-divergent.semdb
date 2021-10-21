@@ -12,5 +12,4 @@ Document tests/pos/implicit-divergent.scala
 (10:5..10:15) scala/Predef.implicitly().
 (10:16..10:19) _empty_/Foo# -> 1:7
 (10:20..10:23) scala/Int#
-(10:25..10:25) _empty_/Foo.intFoo(). -> 3:16
 

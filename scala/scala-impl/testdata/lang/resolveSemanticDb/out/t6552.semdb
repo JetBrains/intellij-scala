@@ -2,5 +2,4 @@ Document tests/pos/t6552.scala
 (3:24..3:27) _empty_/Repros.Foo# -> 4:9
 (5:11..5:14) _empty_/Repros.Bar# -> 2:9
 (6:21..6:24) _empty_/Repros.Baz# -> 3:9
-(6:24..6:24) _empty_/Repros.Baz#`<init>`(). -> 3:12
 

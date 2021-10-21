@@ -6,7 +6,6 @@ Document tests/pos/spec-t3497.scala
 (5:21..5:26) scala/Array#
 (5:27..5:31) scala/Byte#
 (5:34..5:37) scala/Int#
-(5:39..5:39) _empty_/A#`<init>`(). -> 1:17
 (6:20..6:25) scala/Array#
 (6:26..6:30) scala/Byte#
 (6:34..6:37) scala/Int#
@@ -15,9 +14,6 @@ Document tests/pos/spec-t3497.scala
 (8:20..8:25) _empty_/B.score().(state) -> 6:13
 (8:26..8:32) scala/Array#length().
 (9:11..9:16) _empty_/B.score().(state) -> 6:13
-(9:16..9:16) scala/Array#apply().
 (9:17..9:22) local0 -> 7:9
 (9:24..9:26) scala/Byte#`==`(+3).
-(10:18..10:18) _empty_/B.score(). -> 6:7
-(14:13..14:13) _empty_/B.score(). -> 6:7
 

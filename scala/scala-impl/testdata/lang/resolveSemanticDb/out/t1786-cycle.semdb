@@ -4,6 +4,8 @@ Document tests/pos/t1786-cycle.scala
 (5:13..5:32) _empty_/LongTraversableLike# -> 11:7
 (9:31..9:50) _empty_/LongTraversableLike# -> 11:7
 (9:51..9:66) _empty_/LongTraversable# -> 9:7
+(11:36..11:55) _empty_/LongTraversableLike# -> 11:7
+(11:56..11:60) _empty_/LongTraversableLike#[Repr] -> 11:28
 (11:71..11:89) _empty_/GenTraversableLike# -> 1:7
 (11:90..11:93) scala/Any#
 (11:95..11:99) _empty_/LongTraversableLike#[Repr] -> 11:28

@@ -1,4 +1,7 @@
 Document tests/pos/tcpoly_ticket2096.scala
+(2:22..2:28) _empty_/MBrace# -> 2:7
+(2:29..2:30) _empty_/MBrace#[C] -> 2:14
+(2:31..2:32) _empty_/MBrace#`<init>`().[C][X] -> 2:16
 (3:16..3:17) _empty_/MBrace#[A] -> 2:34
 (3:22..3:23) _empty_/MBrace#[C] -> 2:14
 (3:24..3:25) _empty_/MBrace#[A] -> 2:34
@@ -8,6 +11,11 @@ Document tests/pos/tcpoly_ticket2096.scala
 (4:35..4:36) _empty_/MBrace#flatten().[T] -> 4:14
 (4:41..4:42) _empty_/MBrace#[C] -> 2:14
 (4:43..4:44) _empty_/MBrace#[A] -> 2:34
+(8:25..8:31) _empty_/MBrace# -> 2:7
+(8:32..8:33) _empty_/MBraceSeq#[C] -> 8:17
+(8:34..8:35) _empty_/MBraceSeq#`<init>`().[C][X] -> 8:19
+(8:42..8:45) scala/package.Seq#
+(8:46..8:47) _empty_/MBraceSeq#`<init>`().[C][X] -> 8:19
 (8:60..8:66) _empty_/MBrace# -> 2:7
 (8:67..8:68) _empty_/MBraceSeq#[C] -> 8:17
 (8:69..8:70) _empty_/MBraceSeq#[A] -> 8:49
@@ -19,7 +27,6 @@ Document tests/pos/tcpoly_ticket2096.scala
 (13:25..13:26) _empty_/MSequitor#[A] -> 11:22
 (13:35..13:44) _empty_/MSequitor# -> 11:12
 (13:45..13:46) _empty_/MSequitor#[A] -> 11:22
-(13:47..13:47) _empty_/MSequitor#`<init>`(). -> 11:21
 (13:49..13:50) _empty_/MSequitor#nest().(a) -> 13:21
 (14:28..14:37) _empty_/MSequitor# -> 11:12
 (14:38..14:47) _empty_/MSequitor# -> 11:12
@@ -31,7 +38,6 @@ Document tests/pos/tcpoly_ticket2096.scala
 (15:8..15:16) scala/collection/IterableOnceOps#foldLeft().
 (15:21..15:30) _empty_/MSequitor# -> 11:12
 (15:31..15:32) _empty_/MSequitor#[A] -> 11:22
-(15:33..15:33) _empty_/MSequitor#`<init>`(). -> 11:21
 (16:14..16:23) _empty_/MSequitor# -> 11:12
 (16:24..16:25) _empty_/MSequitor#[A] -> 11:22
 (16:32..16:41) _empty_/MSequitor# -> 11:12
@@ -56,7 +62,6 @@ Document tests/pos/tcpoly_ticket2096.scala
 (27:24..27:25) _empty_/MBraceSequitor#[A] -> 26:22
 (27:33..27:42) _empty_/MSequitor# -> 11:12
 (27:43..27:44) _empty_/MBraceSequitor#[A] -> 26:22
-(27:45..27:45) _empty_/MSequitor#`<init>`(). -> 11:21
 (28:25..28:26) _empty_/MBraceSequitor#[A] -> 26:22
 (28:31..28:36) _empty_/MBraceSequitor#empty. -> 27:6
 (28:37..28:41) _empty_/MSequitor#nest(). -> 13:15

@@ -10,5 +10,4 @@ Document tests/pos/i9464.scala
 (6:20..6:21) _empty_/T#X# -> 2:8
 (6:31..6:32) _empty_/i9464$package.test2().(t) -> 6:11
 (6:33..6:34) _empty_/T#x(). -> 3:7
-(6:34..6:34) _empty_/i9464$package.test2(). -> 6:5
 

@@ -4,5 +4,4 @@ Document tests/pos/i3607.scala
 (4:12..4:13) _empty_/A.x. -> 1:25
 (5:3..5:13) scala/Predef.implicitly().
 (5:14..5:17) scala/Int#
-(5:18..5:18) _empty_/A.x. -> 1:25
 

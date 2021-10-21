@@ -1,5 +1,6 @@
 Document tests/pos/inline-caseclass.scala
 (2:23..2:26) _empty_/Nat# -> 1:7
+(3:19..3:22) _empty_/Nat# -> 1:7
 (3:27..3:28) _empty_/S#[N] -> 3:14
 (3:38..3:41) _empty_/Nat# -> 1:7
 (6:12..6:13) _empty_/Z. -> 2:13
@@ -9,17 +10,13 @@ Document tests/pos/inline-caseclass.scala
 (8:60..8:61) _empty_/Test.add().(x) -> 8:30
 (9:10..9:11) _empty_/Z. -> 2:13
 (9:15..9:16) _empty_/Test.add().(y) -> 8:38
-(10:10..10:11) _empty_/S. -> 3:12
-(10:11..10:11) _empty_/S.unapply(). -> 3:1
-(10:11..10:11) local0
+(10:10..10:11) _empty_/S.
 (10:19..10:22) _empty_/Test.add(). -> 8:26
 (10:23..10:25) local1 -> 10:12
 (10:27..10:28) _empty_/Test.add().(y) -> 8:38
 (10:30..10:31) scala/Int#`+`(+4).
-(13:11..13:12) _empty_/S. -> 3:12
-(13:12..13:12) _empty_/S.apply(). -> 3:1
-(13:13..13:14) _empty_/S. -> 3:12
-(13:14..13:14) _empty_/S.apply(). -> 3:1
+(13:11..13:12) _empty_/S.
+(13:13..13:14) _empty_/S.
 (13:15..13:16) _empty_/Z. -> 2:13
 (14:14..14:17) _empty_/Test.add(). -> 8:26
 (14:18..14:19) _empty_/Z. -> 2:13

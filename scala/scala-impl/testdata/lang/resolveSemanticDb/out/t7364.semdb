@@ -1,6 +1,5 @@
 Document tests/pos/t7364/UseIt.scala
 (2:18..2:25) _empty_/BadList#
-(2:25..2:25) _empty_/BadList#`<init>`(+1).
 (3:3..3:7) _empty_/UseIt#list. -> 2:7
 (3:8..3:11) _empty_/BadList#foo().
 

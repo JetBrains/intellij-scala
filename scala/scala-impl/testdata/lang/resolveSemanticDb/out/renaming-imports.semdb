@@ -12,7 +12,6 @@ Document tests/pos/renaming-imports.scala
 (7:12..7:23) scala/collection/mutable/ArrayBuffer#
 (7:12..7:23) scala/collection/mutable/ArrayBuffer.
 (9:9..9:12) scala/collection/mutable/ArrayBuffer.
-(9:12..9:12) scala/collection/IterableFactory#apply().
 (12:18..12:24) scala/Predef.String#
 (13:16..13:19) scala/Int#
 (13:23..13:24) _empty_/O.foo22().(x) -> 13:13
@@ -30,6 +29,5 @@ Document tests/pos/renaming-imports.scala
 (24:10..24:11) _empty_/C# -> 15:7
 (25:3..25:10) scala/Predef.println(+1).
 (25:11..25:12) _empty_/C# -> 15:7
-(25:12..25:12) _empty_/C#`<init>`(). -> 16:3
 (25:15..25:16) _empty_/C#s. -> 21:7
 

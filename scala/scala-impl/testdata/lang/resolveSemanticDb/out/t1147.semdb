@@ -1,5 +1,4 @@
 Document tests/pos/t1147.scala
 (1:16..1:22) scala/Predef.String#
 (2:4..2:14) scala/deprecated#
-(3:10..3:10) _empty_/App#`<init>`(). -> 1:10
 

@@ -9,13 +9,10 @@ Document tests/pos/i5309.scala
 (3:37..3:38) _empty_/A.bar().(x) -> 3:14
 (3:42..3:43) _empty_/A.bar().(y) -> 3:20
 (3:47..3:50) scala/package.Nil.
-(3:50..3:50) scala/collection/immutable/List#`::`().
 (4:11..4:14) _empty_/A.foo(). -> 2:7
 (5:11..5:14) _empty_/A.bar(). -> 3:7
 (6:11..6:15) scala/package.List.
-(6:15..6:15) scala/collection/IterableFactory#apply().
 (7:12..7:15) _empty_/A.foo(). -> 2:7
 (8:12..8:15) _empty_/A.bar(). -> 3:7
 (9:12..9:16) scala/package.List.
-(9:16..9:16) scala/collection/IterableFactory#apply().
 

@@ -1,5 +1,4 @@
 Document tests/pos/t3249/a.scala
 (1:43..1:44) _empty_/A# -> 1:7
 (1:45..1:46) _empty_/A#f().[T] -> 1:20
-(1:47..1:47) _empty_/A#`<init>`(). -> 1:8
 

@@ -1,6 +1,5 @@
 Document tests/pos/t2683.scala
 (2:17..2:18) _empty_/A# -> 1:7
-(2:18..2:18) _empty_/A#`<init>`(). -> 1:1
 (5:10..5:15) scala/Predef.Class#
 (5:21..5:22) _empty_/A# -> 1:7
 (5:26..5:31) java/lang/Class#
@@ -12,8 +11,6 @@ Document tests/pos/t2683.scala
 (6:17..6:22) scala/Predef.Class#
 (6:28..6:29) _empty_/A# -> 1:7
 (6:34..6:38) scala/Some.
-(6:38..6:38) scala/Some.apply().
 (6:42..6:45) scala/Option#map().
-(6:48..6:48) local0
 (6:58..6:59) _empty_/Test.c. -> 5:7
 

@@ -4,5 +4,4 @@ Document tests/pos/t3384.scala
 (8:14..8:15) test/p/A# -> 4:9
 (11:8..11:10) test/po/
 (13:15..13:16) test/po/package.A# -> 8:8
-(13:16..13:16) test/p/A#`<init>`(). -> 4:10
 

@@ -13,9 +13,8 @@ Document tests/pos/opaque-groups.scala
 (9:30..9:31) groups/package.Semigroup.inst().[A] -> 7:14
 (9:34..9:35) groups/package.Semigroup.inst().[A] -> 7:14
 (9:38..9:39) groups/package.Semigroup.inst().(f) -> 7:17
-(9:39..9:39) scala/Function2#apply().
-(9:40..9:41) local2 -> 9:21
-(9:43..9:44) local3 -> 9:27
+(9:40..9:41) local0 -> 9:21
+(9:43..9:44) local1 -> 9:27
 (13:16..13:17) groups/package.Id#[A] -> 13:11
 (16:28..16:29) groups/package.Wrapping#wraps().[G] -> 16:15
 (16:30..16:31) groups/package.Wrapping#wraps().[A] -> 16:21
@@ -64,7 +63,6 @@ Document tests/pos/opaque-groups.scala
 (29:60..29:62) groups/package.Wrapper#WrapperWrapping.unwrap().(ga) -> 29:27
 (33:26..33:27) groups/package.First#[A] -> 33:21
 (34:24..34:31) groups/package.Wrapper# -> 20:18
-(34:31..34:31) groups/package.Wrapper#`<init>`(). -> 20:28
 (35:17..35:22) groups/package.First# -> 33:15
 (35:23..35:24) groups/package.First.F#[A] -> 35:12
 (36:28..36:29) groups/package.First.wraps().[G] -> 36:15
@@ -84,10 +82,9 @@ Document tests/pos/opaque-groups.scala
 (38:53..38:54) groups/package.First.firstSemigroup().[A] -> 38:33
 (39:7..39:16) groups/package.Semigroup. -> 6:10
 (39:17..39:21) groups/package.Semigroup.inst(). -> 7:9
-(39:32..39:33) local5 -> 39:23
+(39:32..39:33) local6 -> 39:23
 (42:25..42:26) groups/package.Last#[A] -> 42:20
 (43:23..43:30) groups/package.Wrapper# -> 20:18
-(43:30..43:30) groups/package.Wrapper#`<init>`(). -> 20:28
 (44:17..44:21) groups/package.Last# -> 42:15
 (44:22..44:23) groups/package.Last.F#[A] -> 44:12
 (45:28..45:29) groups/package.Last.wraps().[G] -> 45:15
@@ -107,10 +104,9 @@ Document tests/pos/opaque-groups.scala
 (47:51..47:52) groups/package.Last.lastSemigroup().[A] -> 47:32
 (48:7..48:16) groups/package.Semigroup. -> 6:10
 (48:17..48:21) groups/package.Semigroup.inst(). -> 7:9
-(48:32..48:33) local8 -> 48:26
+(48:32..48:33) local9 -> 48:26
 (51:24..51:25) groups/package.Min#[A] -> 51:19
 (52:22..52:29) groups/package.Wrapper# -> 20:18
-(52:29..52:29) groups/package.Wrapper#`<init>`(). -> 20:28
 (53:17..53:20) groups/package.Min# -> 51:15
 (53:21..53:22) groups/package.Min.F#[A] -> 53:12
 (54:28..54:29) groups/package.Min.wraps().[G] -> 54:15
@@ -132,13 +128,10 @@ Document tests/pos/opaque-groups.scala
 (56:74..56:75) groups/package.Min.minSemigroup().[A] -> 56:31
 (57:7..57:16) groups/package.Semigroup. -> 6:10
 (57:17..57:21) groups/package.Semigroup.inst(). -> 7:9
-(57:22..57:22) local10
-(57:22..57:22) local9
 (57:22..57:23) groups/package.Min.minSemigroup().(o) -> 56:43
 (57:24..57:27) scala/math/Ordering#min().
 (60:24..60:25) groups/package.Max#[A] -> 60:19
 (61:22..61:29) groups/package.Wrapper# -> 20:18
-(61:29..61:29) groups/package.Wrapper#`<init>`(). -> 20:28
 (62:17..62:20) groups/package.Max# -> 60:15
 (62:21..62:22) groups/package.Max.F#[A] -> 62:12
 (63:28..63:29) groups/package.Max.wraps().[G] -> 63:15
@@ -160,13 +153,10 @@ Document tests/pos/opaque-groups.scala
 (65:74..65:75) groups/package.Max.maxSemigroup().[A] -> 65:31
 (66:7..66:16) groups/package.Semigroup. -> 6:10
 (66:17..66:21) groups/package.Semigroup.inst(). -> 7:9
-(66:22..66:22) local11
-(66:22..66:22) local12
 (66:22..66:23) groups/package.Max.maxSemigroup().(o) -> 65:43
 (66:24..66:27) scala/math/Ordering#max().
 (69:25..69:26) groups/package.Plus#[A] -> 69:20
 (70:23..70:30) groups/package.Wrapper# -> 20:18
-(70:30..70:30) groups/package.Wrapper#`<init>`(). -> 20:28
 (71:17..71:21) groups/package.Plus# -> 69:15
 (71:22..71:23) groups/package.Plus.F#[A] -> 71:12
 (72:28..72:29) groups/package.Plus.wraps().[G] -> 72:15
@@ -188,13 +178,10 @@ Document tests/pos/opaque-groups.scala
 (74:75..74:76) groups/package.Plus.plusSemigroup().[A] -> 74:32
 (75:7..75:16) groups/package.Semigroup. -> 6:10
 (75:17..75:21) groups/package.Semigroup.inst(). -> 7:9
-(75:22..75:22) local13
-(75:22..75:22) local14
 (75:22..75:23) groups/package.Plus.plusSemigroup().(n) -> 74:44
 (75:24..75:28) scala/math/Numeric#plus().
 (78:26..78:27) groups/package.Times#[A] -> 78:21
 (79:24..79:31) groups/package.Wrapper# -> 20:18
-(79:31..79:31) groups/package.Wrapper#`<init>`(). -> 20:28
 (80:17..80:22) groups/package.Times# -> 78:15
 (80:23..80:24) groups/package.Times.F#[A] -> 80:12
 (81:28..81:29) groups/package.Times.wraps().[G] -> 81:15
@@ -216,13 +203,10 @@ Document tests/pos/opaque-groups.scala
 (83:77..83:78) groups/package.Times.timesSemigroup().[A] -> 83:33
 (84:7..84:16) groups/package.Semigroup. -> 6:10
 (84:17..84:21) groups/package.Semigroup.inst(). -> 7:9
-(84:22..84:22) local15
-(84:22..84:22) local16
 (84:22..84:23) groups/package.Times.timesSemigroup().(n) -> 83:45
 (84:24..84:29) scala/math/Numeric#times().
 (87:29..87:30) groups/package.Reversed#[A] -> 87:24
 (88:27..88:34) groups/package.Wrapper# -> 20:18
-(88:34..88:34) groups/package.Wrapper#`<init>`(). -> 20:28
 (89:17..89:25) groups/package.Reversed# -> 87:15
 (89:26..89:27) groups/package.Reversed.F#[A] -> 89:12
 (90:28..90:29) groups/package.Reversed.wraps().[G] -> 90:15
@@ -246,7 +230,6 @@ Document tests/pos/opaque-groups.scala
 (93:9..93:16) scala/math/Ordering#reverse().
 (96:30..96:31) groups/package.Unordered#[A] -> 96:25
 (97:28..97:35) groups/package.Wrapper# -> 20:18
-(97:35..97:35) groups/package.Wrapper#`<init>`(). -> 20:28
 (98:17..98:26) groups/package.Unordered# -> 96:15
 (98:27..98:28) groups/package.Unordered.F#[A] -> 98:12
 (99:28..99:29) groups/package.Unordered.wraps().[G] -> 99:15
@@ -266,5 +249,4 @@ Document tests/pos/opaque-groups.scala
 (101:59..101:60) groups/package.Unordered.unorderedOrdering().[A] -> 101:36
 (102:7..102:15) scala/package.Ordering.
 (102:16..102:18) scala/math/Ordering.by().
-(102:27..102:27) groups/package.Unordered.unorderedOrdering(). -> 101:18
 

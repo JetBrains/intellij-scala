@@ -14,8 +14,6 @@ Document tests/pos/i4725.scala
 (7:3..7:6) _empty_/Test1.foo(). -> 4:7
 (7:7..7:11) scala/package.List#
 (7:13..7:16) scala/Int#
-(7:17..7:17) _empty_/Test1.bar(). -> 5:16
-(7:17..7:17) local0
 (14:21..14:22) _empty_/Test2.T# -> 11:9
 (14:27..14:28) _empty_/Test2.S# -> 12:9
 (14:31..14:35) scala/Unit#
@@ -23,6 +21,4 @@ Document tests/pos/i4725.scala
 (15:34..15:35) _empty_/Test2.S# -> 12:9
 (15:38..15:41) scala/Predef.`???`().
 (17:3..17:6) _empty_/Test2.foo(). -> 14:7
-(17:6..17:6) _empty_/Test2.bar(). -> 15:16
-(17:6..17:6) local1
 

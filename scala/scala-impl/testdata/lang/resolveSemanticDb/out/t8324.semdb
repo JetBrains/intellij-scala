@@ -6,6 +6,5 @@ Document tests/pos/t8324.scala
 (9:11..9:13) p1/ -> 1:9
 (9:32..9:35) scala/Any#
 (15:7..15:17) p1/ProjectDef# -> 3:24
-(15:17..15:17) p1/ProjectDef#`<init>`(). -> 3:34
 (15:29..15:44) p1/ResolvedProject# -> 4:14
 

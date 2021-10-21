@@ -16,7 +16,8 @@ Document tests/pos/mirror-implicit-scope.scala
 (12:26..12:32) scala/deriving/Mirror#
 (12:48..12:50) _empty_/Test.K1. -> 11:10
 (12:86..12:87) _empty_/Test.K1.Generic#[F] -> 12:18
-(12:88..12:89) local5 -> 12:79
+(12:88..12:89) local4 -> 12:79
+(13:24..13:31) scala/Product#
 (13:41..13:48) _empty_/Test.K1.Generic# -> 12:10
 (13:49..13:50) _empty_/Test.K1.toRepr().[F] -> 13:16
 (14:29..14:30) _empty_/Test.K1.toRepr().[F] -> 13:16
@@ -34,10 +35,8 @@ Document tests/pos/mirror-implicit-scope.scala
 (19:19..19:21) _empty_/Test.K0. -> 4:10
 (19:22..19:29) _empty_/Test.K0.Generic# -> 5:10
 (19:30..19:33) _empty_/Test.ISB# -> 18:14
-(20:12..20:12) _empty_/Test.K0.toRepr(). -> 7:18
 (20:12..20:14) _empty_/Test.v0. -> 19:7
-(20:22..20:25) _empty_/Test.ISB. -> 18:14
-(20:25..20:25) _empty_/Test.ISB.apply(). -> 18:3
+(20:22..20:25) _empty_/Test.ISB.
 (21:12..21:15) scala/Int#
 (21:17..21:23) scala/Predef.String#
 (21:25..21:32) scala/Boolean#
@@ -46,10 +45,8 @@ Document tests/pos/mirror-implicit-scope.scala
 (24:12..24:18) scala/Predef.summon().
 (24:19..24:21) _empty_/Test.K1. -> 11:10
 (24:22..24:29) _empty_/Test.K1.Generic# -> 12:10
-(25:12..25:12) _empty_/Test.K1.toRepr(). -> 14:18
 (25:12..25:14) _empty_/Test.v3. -> 24:7
-(25:22..25:25) _empty_/Test.Box. -> 23:14
-(25:25..25:25) _empty_/Test.Box.apply(). -> 23:3
+(25:22..25:25) _empty_/Test.Box.
 (26:11..26:17) scala/Tuple1#
 (26:18..26:21) scala/Int#
 (26:25..26:27) _empty_/Test.v4. -> 25:7

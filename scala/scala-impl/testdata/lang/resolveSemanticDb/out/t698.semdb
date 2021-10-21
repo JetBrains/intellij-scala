@@ -1,8 +1,6 @@
 Document tests/pos/t698.scala
 (3:17..3:20) _empty_/Bar# -> 6:16
 (9:17..9:20) _empty_/Foo# -> 1:16
-(9:20..9:20) _empty_/Foo#`<init>`(). -> 3:9
 (9:26..9:29) scala/App#
 (11:26..11:29) _empty_/Bar# -> 6:16
-(11:29..11:29) _empty_/Bar#`<init>`(). -> 6:1
 

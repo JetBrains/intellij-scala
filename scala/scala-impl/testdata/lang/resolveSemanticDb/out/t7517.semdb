@@ -36,7 +36,7 @@ Document tests/pos/t7517.scala
 (20:43..20:46) _empty_/Box.Composed#box. -> 14:11
 (21:15..21:18) _empty_/Box# -> 2:7
 (21:38..21:39) _empty_/Box.Composed#[L] -> 13:25
-(21:42..21:43) local3 -> 21:30
+(21:42..21:43) local4 -> 21:30
 (21:44..21:45) _empty_/Box.`∙`# -> 6:17
 (21:46..21:47) _empty_/Box.Composed#[B] -> 13:19
 (21:49..21:50) _empty_/Box.`∙`#l# -> 6:38

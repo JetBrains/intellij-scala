@@ -669,7 +669,6 @@ Document tests/pos/Repeated.scala
 (88:50..88:52) scala/collection/immutable/Repeated$package.Repeated.max().(xs) -> 17:17
 (88:53..88:56) scala/collection/IterableOnceOps#max().
 (88:57..88:58) scala/collection/immutable/Repeated$package.Repeated.max().[B] -> 88:13
-(88:59..88:59) scala/collection/immutable/Repeated$package.Repeated.max().(x$2) -> 88:27
 (89:21..89:22) scala/collection/immutable/Repeated$package.Repeated.maxBy().[A] -> 17:14
 (89:26..89:27) scala/collection/immutable/Repeated$package.Repeated.maxBy().[B] -> 89:15
 (89:35..89:39) scala/math/
@@ -679,7 +678,6 @@ Document tests/pos/Repeated.scala
 (89:58..89:60) scala/collection/immutable/Repeated$package.Repeated.maxBy().(xs) -> 17:17
 (89:61..89:66) scala/collection/IterableOnceOps#maxBy().
 (89:67..89:68) scala/collection/immutable/Repeated$package.Repeated.maxBy().(f) -> 89:18
-(89:69..89:69) scala/collection/immutable/Repeated$package.Repeated.maxBy().(x$3) -> 89:35
 (90:27..90:28) scala/collection/immutable/Repeated$package.Repeated.maxByOption().[A] -> 17:14
 (90:32..90:33) scala/collection/immutable/Repeated$package.Repeated.maxByOption().[B] -> 90:21
 (90:41..90:45) scala/math/
@@ -690,7 +688,6 @@ Document tests/pos/Repeated.scala
 (90:72..90:74) scala/collection/immutable/Repeated$package.Repeated.maxByOption().(xs) -> 17:17
 (90:75..90:86) scala/collection/IterableOnceOps#maxByOption().
 (90:87..90:88) scala/collection/immutable/Repeated$package.Repeated.maxByOption().(f) -> 90:24
-(90:89..90:89) scala/collection/immutable/Repeated$package.Repeated.maxByOption().(x$3) -> 90:41
 (91:24..91:25) scala/collection/immutable/Repeated$package.Repeated.maxOption().[A] -> 17:14
 (91:33..91:37) scala/math/
 (91:38..91:46) scala/math/Ordering#
@@ -700,7 +697,6 @@ Document tests/pos/Repeated.scala
 (91:64..91:66) scala/collection/immutable/Repeated$package.Repeated.maxOption().(xs) -> 17:17
 (91:67..91:76) scala/collection/IterableOnceOps#maxOption().
 (91:77..91:78) scala/collection/immutable/Repeated$package.Repeated.maxOption().[B] -> 91:19
-(91:79..91:79) scala/collection/immutable/Repeated$package.Repeated.maxOption().(x$2) -> 91:33
 (92:18..92:19) scala/collection/immutable/Repeated$package.Repeated.min().[A] -> 17:14
 (92:27..92:31) scala/math/
 (92:32..92:40) scala/math/Ordering#
@@ -709,7 +705,6 @@ Document tests/pos/Repeated.scala
 (92:50..92:52) scala/collection/immutable/Repeated$package.Repeated.min().(xs) -> 17:17
 (92:53..92:56) scala/collection/IterableOnceOps#min().
 (92:57..92:58) scala/collection/immutable/Repeated$package.Repeated.min().[B] -> 92:13
-(92:59..92:59) scala/collection/immutable/Repeated$package.Repeated.min().(x$2) -> 92:27
 (93:21..93:22) scala/collection/immutable/Repeated$package.Repeated.minBy().[A] -> 17:14
 (93:26..93:27) scala/collection/immutable/Repeated$package.Repeated.minBy().[B] -> 93:15
 (93:35..93:39) scala/math/
@@ -719,7 +714,6 @@ Document tests/pos/Repeated.scala
 (93:58..93:60) scala/collection/immutable/Repeated$package.Repeated.minBy().(xs) -> 17:17
 (93:61..93:66) scala/collection/IterableOnceOps#minBy().
 (93:67..93:68) scala/collection/immutable/Repeated$package.Repeated.minBy().(f) -> 93:18
-(93:69..93:69) scala/collection/immutable/Repeated$package.Repeated.minBy().(x$3) -> 93:35
 (94:27..94:28) scala/collection/immutable/Repeated$package.Repeated.minByOption().[A] -> 17:14
 (94:32..94:33) scala/collection/immutable/Repeated$package.Repeated.minByOption().[B] -> 94:21
 (94:41..94:45) scala/math/
@@ -730,7 +724,6 @@ Document tests/pos/Repeated.scala
 (94:72..94:74) scala/collection/immutable/Repeated$package.Repeated.minByOption().(xs) -> 17:17
 (94:75..94:86) scala/collection/IterableOnceOps#minByOption().
 (94:87..94:88) scala/collection/immutable/Repeated$package.Repeated.minByOption().(f) -> 94:24
-(94:89..94:89) scala/collection/immutable/Repeated$package.Repeated.minByOption().(x$3) -> 94:41
 (95:24..95:25) scala/collection/immutable/Repeated$package.Repeated.minOption().[A] -> 17:14
 (95:33..95:37) scala/math/
 (95:38..95:46) scala/math/Ordering#
@@ -740,7 +733,6 @@ Document tests/pos/Repeated.scala
 (95:64..95:66) scala/collection/immutable/Repeated$package.Repeated.minOption().(xs) -> 17:17
 (95:67..95:76) scala/collection/IterableOnceOps#minOption().
 (95:77..95:78) scala/collection/immutable/Repeated$package.Repeated.minOption().[B] -> 95:19
-(95:79..95:79) scala/collection/immutable/Repeated$package.Repeated.minOption().(x$2) -> 95:33
 (96:19..96:25) scala/Predef.String#
 (96:28..96:30) scala/collection/immutable/Repeated$package.Repeated.mkString().(xs) -> 17:17
 (96:31..96:39) scala/collection/IterableOnceOps#mkString(+2).
@@ -830,7 +822,6 @@ Document tests/pos/Repeated.scala
 (107:53..107:55) scala/collection/immutable/Repeated$package.Repeated.product().(xs) -> 17:17
 (107:56..107:63) scala/collection/IterableOnceOps#product().
 (107:64..107:65) scala/collection/immutable/Repeated$package.Repeated.product().[B] -> 107:17
-(107:66..107:66) scala/collection/immutable/Repeated$package.Repeated.product().(x$2) -> 107:31
 (108:21..108:22) scala/collection/immutable/Repeated$package.Repeated.reduce().[A] -> 17:14
 (108:29..108:30) scala/collection/immutable/Repeated$package.Repeated.reduce().[B] -> 108:16
 (108:32..108:33) scala/collection/immutable/Repeated$package.Repeated.reduce().[B] -> 108:16
@@ -909,7 +900,6 @@ Document tests/pos/Repeated.scala
 (117:68..117:70) scala/collection/immutable/Repeated$package.Repeated.search().(xs) -> 17:17
 (117:71..117:77) scala/collection/SeqOps#search().
 (117:78..117:82) scala/collection/immutable/Repeated$package.Repeated.search().(elem) -> 117:24
-(117:83..117:83) scala/collection/immutable/Repeated$package.Repeated.search().(x$3) -> 117:39
 (118:21..118:22) scala/collection/immutable/Repeated$package.Repeated.search(+1).[A] -> 17:14
 (118:30..118:31) scala/collection/immutable/Repeated$package.Repeated.search(+1).[B] -> 118:16
 (118:39..118:42) scala/Int#
@@ -922,7 +912,6 @@ Document tests/pos/Repeated.scala
 (118:98..118:102) scala/collection/immutable/Repeated$package.Repeated.search(+1).(elem) -> 118:24
 (118:104..118:108) scala/collection/immutable/Repeated$package.Repeated.search(+1).(from) -> 118:33
 (118:110..118:112) scala/collection/immutable/Repeated$package.Repeated.search(+1).(to) -> 118:44
-(118:113..118:113) scala/collection/immutable/Repeated$package.Repeated.search(+1).(x$5) -> 118:59
 (119:27..119:28) scala/collection/immutable/Repeated$package.Repeated.segmentLength().[A] -> 17:14
 (119:33..119:40) scala/Boolean#
 (119:48..119:51) scala/Int#
@@ -979,7 +968,6 @@ Document tests/pos/Repeated.scala
 (127:72..127:74) scala/collection/immutable/Repeated$package.Repeated.sortBy().(xs) -> 17:17
 (127:75..127:81) scala/collection/SeqOps#sortBy().
 (127:82..127:83) scala/collection/immutable/Repeated$package.Repeated.sortBy().(f) -> 127:19
-(127:84..127:84) scala/collection/immutable/Repeated$package.Repeated.sortBy().(ord) -> 127:39
 (128:23..128:24) scala/collection/immutable/Repeated$package.Repeated.sortWith().[A] -> 17:14
 (128:26..128:27) scala/collection/immutable/Repeated$package.Repeated.sortWith().[A] -> 17:14
 (128:32..128:39) scala/Boolean#
@@ -996,7 +984,6 @@ Document tests/pos/Repeated.scala
 (129:66..129:68) scala/collection/immutable/Repeated$package.Repeated.sorted().(xs) -> 17:17
 (129:69..129:75) scala/collection/SeqOps#sorted().
 (129:76..129:77) scala/collection/immutable/Repeated$package.Repeated.sorted().[B] -> 129:16
-(129:78..129:78) scala/collection/immutable/Repeated$package.Repeated.sorted().(ord) -> 129:33
 (130:17..130:18) scala/collection/immutable/Repeated$package.Repeated.span().[A] -> 17:14
 (130:22..130:29) scala/Boolean#
 (130:33..130:41) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
@@ -1031,7 +1018,6 @@ Document tests/pos/Repeated.scala
 (133:65..133:67) scala/collection/immutable/Repeated$package.Repeated.stepper().(xs) -> 17:17
 (133:68..133:75) scala/collection/IterableOnce#stepper().
 (133:76..133:77) scala/collection/immutable/Repeated$package.Repeated.stepper().[S] -> 133:17
-(133:78..133:78) scala/collection/immutable/Repeated$package.Repeated.stepper().(x$2) -> 133:40
 (134:18..134:19) scala/collection/immutable/Repeated$package.Repeated.sum().[A] -> 17:14
 (134:27..134:31) scala/math/
 (134:32..134:39) scala/math/Numeric#
@@ -1040,7 +1026,6 @@ Document tests/pos/Repeated.scala
 (134:49..134:51) scala/collection/immutable/Repeated$package.Repeated.sum().(xs) -> 17:17
 (134:52..134:55) scala/collection/IterableOnceOps#sum().
 (134:56..134:57) scala/collection/immutable/Repeated$package.Repeated.sum().[B] -> 134:13
-(134:58..134:58) scala/collection/immutable/Repeated$package.Repeated.sum().(x$2) -> 134:27
 (135:15..135:23) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
 (135:24..135:25) scala/collection/immutable/Repeated$package.Repeated.tail().[A] -> 17:14
 (135:29..135:31) scala/collection/immutable/Repeated$package.Repeated.tail().(xs) -> 17:17
@@ -1085,7 +1070,6 @@ Document tests/pos/Repeated.scala
 (141:53..141:60) scala/collection/immutable/Repeated$package.Repeated.to().(factory) -> 141:16
 (142:22..142:23) scala/collection/immutable/Repeated$package.Repeated.toArray().[A] -> 17:14
 (142:25..142:33) scala/reflect/ClassTag#
-(142:33..142:33) scala/collection/immutable/Repeated$package.Repeated.toArray().[B] -> 142:17
 (142:36..142:41) scala/Array#
 (142:42..142:43) scala/collection/immutable/Repeated$package.Repeated.toArray().[B] -> 142:17
 (142:47..142:49) scala/collection/immutable/Repeated$package.Repeated.toArray().(xs) -> 17:17
@@ -1176,7 +1160,6 @@ Document tests/pos/Repeated.scala
 (158:27..158:28) scala/collection/immutable/Repeated$package.Repeated.flatten().[A] -> 157:14
 (158:32..158:34) scala/collection/immutable/Repeated$package.Repeated.flatten().(xs) -> 157:17
 (158:35..158:42) scala/collection/IterableOps#flatten().
-(158:42..158:42) scala/Predef.$conforms().
 (160:25..160:37) scala/collection/IterableOnce#
 (160:38..160:39) scala/collection/immutable/Repeated$package.Repeated.`++:`().[A] -> 160:14
 (161:18..161:26) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
@@ -1205,13 +1188,11 @@ Document tests/pos/Repeated.scala
 (167:40..167:42) scala/collection/immutable/Repeated$package.Repeated.unzip().[A2] -> 166:18
 (167:47..167:49) scala/collection/immutable/Repeated$package.Repeated.unzip().(xs) -> 166:22
 (167:50..167:55) scala/collection/IterableOps#unzip().
-(167:55..167:55) scala/Predef.$conforms().
 (168:16..168:19) scala/collection/immutable/Map#
 (168:20..168:22) scala/collection/immutable/Repeated$package.Repeated.toMap().[A1] -> 166:14
 (168:24..168:26) scala/collection/immutable/Repeated$package.Repeated.toMap().[A2] -> 166:18
 (168:30..168:32) scala/collection/immutable/Repeated$package.Repeated.toMap().(xs) -> 166:22
 (168:33..168:38) scala/collection/IterableOnceOps#toMap().
-(168:38..168:38) scala/`<:<`.refl().
 (170:30..170:38) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
 (170:40..170:42) scala/collection/immutable/Repeated$package.Repeated.unzip3().[A1] -> 170:14
 (170:44..170:46) scala/collection/immutable/Repeated$package.Repeated.unzip3().[A2] -> 170:18
@@ -1224,7 +1205,6 @@ Document tests/pos/Repeated.scala
 (171:55..171:57) scala/collection/immutable/Repeated$package.Repeated.unzip3().[A3] -> 170:22
 (171:62..171:64) scala/collection/immutable/Repeated$package.Repeated.unzip3().(xs) -> 170:26
 (171:65..171:71) scala/collection/IterableOps#unzip3().
-(171:71..171:71) scala/Predef.$conforms().
 (173:21..173:29) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
 (173:30..173:38) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
 (173:39..173:40) scala/collection/immutable/Repeated$package.Repeated.transpose().[A] -> 173:14
@@ -1233,8 +1213,6 @@ Document tests/pos/Repeated.scala
 (174:38..174:39) scala/collection/immutable/Repeated$package.Repeated.transpose().[A] -> 173:14
 (174:44..174:46) scala/collection/immutable/Repeated$package.Repeated.transpose().(xs) -> 173:17
 (174:47..174:56) scala/collection/IterableOps#transpose().
-(174:56..174:56) local0
-(174:56..174:56) scala/collection/immutable/Repeated$package.Repeated.repeatedToSeq(). -> 176:16
 (176:37..176:45) scala/collection/immutable/Repeated$package.Repeated# -> 14:13
 (176:46..176:47) scala/collection/immutable/Repeated$package.Repeated.repeatedToSeq().[A] -> 176:30
 (176:51..176:54) scala/collection/immutable/Seq#

@@ -8,29 +8,21 @@ Document tests/pos/t0082.scala
 (4:63..4:64) _empty_/Main.min0().[A] -> 4:14
 (4:68..4:70) _empty_/Main.min0().(xs) -> 4:42
 (5:14..5:18) scala/package.List.
-(5:18..5:18) scala/collection/SeqFactory#unapplySeq().
 (5:25..5:29) scala/None.
 (6:14..6:18) scala/package.List.
-(6:18..6:18) scala/collection/SeqFactory#unapplySeq().
 (6:25..6:29) scala/Some.
-(6:29..6:29) scala/Some.apply().
 (6:30..6:31) local0 -> 6:19
 (7:16..7:18) scala/package.`::`.
-(7:18..7:18) scala/collection/immutable/`::`.unapply().
 (7:26..7:30) _empty_/Main.min0(). -> 4:9
 (7:31..7:35) _empty_/Main.min0().(less) -> 4:17
 (7:37..7:39) local2 -> 7:19
 (8:18..8:22) scala/Some.
-(8:22..8:22) scala/Some.unapply().
 (8:33..8:37) _empty_/Main.min0().(less) -> 4:17
-(8:37..8:37) scala/Function2#apply().
 (8:38..8:39) local1 -> 7:14
 (8:41..8:42) local3 -> 8:23
 (8:45..8:49) scala/Some.
-(8:49..8:49) scala/Some.apply().
 (8:50..8:51) local1 -> 7:14
 (8:58..8:62) scala/Some.
-(8:62..8:62) scala/Some.apply().
 (8:63..8:64) local3 -> 8:23
 (12:17..12:21) scala/package.List#
 (12:22..12:25) scala/Int#
@@ -47,5 +39,4 @@ Document tests/pos/t0082.scala
 (15:17..15:24) scala/Console.println(+1).
 (15:25..15:28) _empty_/Main.min(). -> 12:9
 (15:29..15:33) scala/package.List.
-(15:33..15:33) scala/collection/IterableFactory#apply().
 

@@ -1,6 +1,5 @@
 Document tests/pos/given-constrapps.scala
 (2:10..2:12) _empty_/TC# -> 1:7
-(2:12..2:12) _empty_/TC#`<init>`(). -> 1:1
 (3:18..3:20) _empty_/TC# -> 1:7
 (4:3..4:9) scala/Predef.assert(+1).
 (4:10..4:11) _empty_/C#x. -> 3:15
@@ -17,7 +16,6 @@ Document tests/pos/given-constrapps.scala
 (8:3..8:9) scala/Predef.summon().
 (8:10..8:14) scala/package.List#
 (8:15..8:17) _empty_/TC# -> 1:7
-(8:19..8:19) _empty_/C2#x$3. -> 6:37
 (8:20..8:27) scala/collection/immutable/List#foreach().
 (8:33..8:39) scala/Predef.assert(+1).
 (8:40..8:41) local0 -> 8:28
@@ -26,49 +24,34 @@ Document tests/pos/given-constrapps.scala
 (10:20..10:22) _empty_/TC# -> 1:7
 (10:30..10:34) scala/package.List#
 (10:35..10:37) _empty_/TC# -> 1:7
-(10:47..10:47) _empty_/C2#`<init>`(). -> 6:9
-(10:49..10:49) _empty_/C2#`<init>`(+1).(x$1) -> 10:20
-(10:49..10:49) _empty_/C2#`<init>`(+1).(x$2) -> 10:30
 (13:17..13:18) _empty_/C# -> 3:7
-(13:18..13:18) _empty_/C#`<init>`(). -> 3:8
 (13:25..13:27) _empty_/`given-constrapps$package`.tc. -> 2:5
 (14:18..14:20) _empty_/C2# -> 6:7
-(14:20..14:20) _empty_/C2#`<init>`(). -> 6:9
 (14:30..14:32) _empty_/`given-constrapps$package`.tc. -> 2:5
 (14:40..14:43) scala/package.Nil.
 (16:17..16:19) _empty_/TC# -> 1:7
 (17:3..17:9) scala/Predef.assert(+1).
 (17:10..17:16) scala/Predef.summon().
 (17:17..17:19) _empty_/TC# -> 1:7
-(17:20..17:20) _empty_/Foo#x$1. -> 16:17
 (17:21..17:23) scala/Any#`!=`().
 (20:21..20:24) scala/App#
 (21:7..21:8) _empty_/C# -> 3:7
-(21:8..21:8) _empty_/C#`<init>`(). -> 3:8
 (21:15..21:17) _empty_/`given-constrapps$package`.tc. -> 2:5
 (22:7..22:8) _empty_/C# -> 3:7
-(22:8..22:8) _empty_/C#`<init>`(). -> 3:8
 (22:17..22:19) _empty_/`given-constrapps$package`.tc. -> 2:5
 (23:7..23:8) _empty_/C# -> 3:7
-(23:8..23:8) _empty_/C#`<init>`(). -> 3:8
 (23:15..23:17) _empty_/`given-constrapps$package`.tc. -> 2:5
 (24:7..24:9) _empty_/C2# -> 6:7
-(24:9..24:9) _empty_/C2#`<init>`(). -> 6:9
 (24:19..24:21) _empty_/`given-constrapps$package`.tc. -> 2:5
 (24:29..24:33) scala/package.List.
-(24:33..24:33) scala/collection/IterableFactory#apply().
 (24:34..24:36) _empty_/`given-constrapps$package`.tc. -> 2:5
 (25:7..25:9) _empty_/C2# -> 6:7
-(25:9..25:9) _empty_/C2#`<init>`(). -> 6:9
 (25:19..25:21) _empty_/`given-constrapps$package`.tc. -> 2:5
 (25:29..25:33) scala/package.List.
-(25:33..25:33) scala/collection/IterableFactory#apply().
 (25:34..25:36) _empty_/`given-constrapps$package`.tc. -> 2:5
 (26:7..26:9) _empty_/C2# -> 6:7
-(26:9..26:9) _empty_/C2#`<init>`(+1). -> 10:7
 (26:18..26:20) _empty_/`given-constrapps$package`.tc. -> 2:5
 (26:28..26:32) scala/package.List.
-(26:32..26:32) scala/collection/IterableFactory#apply().
 (26:33..26:35) _empty_/`given-constrapps$package`.tc. -> 2:5
 (27:17..27:19) _empty_/TC# -> 1:7
 (28:3..28:6) _empty_/Test.foo(). -> 27:7

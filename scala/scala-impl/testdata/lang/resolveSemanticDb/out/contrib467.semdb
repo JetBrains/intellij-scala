@@ -5,12 +5,8 @@ Document tests/pos/contrib467.scala
 (8:26..8:32) scala/Predef.String#
 (8:36..8:40) scala/Unit#
 (10:27..10:28) _empty_/M# -> 1:16
-(10:28..10:28) _empty_/M#`<init>`(). -> 3:5
 (12:24..12:28) scala/package.List.
-(12:28..12:28) scala/collection/IterableFactory#apply().
 (15:27..15:28) _empty_/M# -> 1:16
-(15:28..15:28) _empty_/M#`<init>`(). -> 3:5
 (17:24..17:28) scala/package.List.
-(17:28..17:28) scala/collection/IterableFactory#apply().
-(17:29..17:31) local4
+(17:29..17:31) local2
 

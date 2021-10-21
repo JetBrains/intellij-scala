@@ -6,7 +6,6 @@ Document tests/pos/i4590.scala
 (12:21..12:25) test/List. -> 16:8
 (12:26..12:30) test/List.Cons# -> 17:14
 (12:33..12:37) scala/Unit#
-(13:5..13:5) test/List#`inline$next_=$i1`().
 (13:5..13:6) test/List#foo().(x) -> 12:18
 (17:25..17:28) scala/Int#
 (17:38..17:42) test/List. -> 16:8

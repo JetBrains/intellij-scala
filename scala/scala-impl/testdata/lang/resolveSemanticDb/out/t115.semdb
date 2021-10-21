@@ -5,24 +5,19 @@ Document tests/pos/t115.scala
 (2:3..2:10) scala/Console.
 (2:11..2:18) scala/Console.println(+1).
 (2:19..2:20) _empty_/S#f. -> 1:12
-(2:20..2:20) scala/Function1#apply().
 (2:21..2:22) _empty_/S#x. -> 1:23
 (4:15..4:16) _empty_/T#[B] -> 4:9
 (4:20..4:21) _empty_/T#[B] -> 4:9
 (4:26..4:27) _empty_/T#[B] -> 4:9
-(4:38..4:38) _empty_/S#`<init>`(). -> 1:8
 (4:43..4:44) _empty_/T#[B] -> 4:9
 (4:49..4:50) _empty_/T#f. -> 4:12
-(4:50..4:50) scala/Function1#apply().
 (4:51..4:52) local0 -> 4:40
 (4:55..4:56) _empty_/T#y. -> 4:23
 (6:21..6:24) scala/App#
 (7:7..7:8) _empty_/T# -> 4:7
 (7:9..7:12) scala/Int#
-(7:13..7:13) _empty_/T#`<init>`(). -> 4:8
 (7:19..7:20) local1 -> 7:14
 (7:21..7:22) scala/Int#`*`(+3).
-(8:16..8:16) _empty_/S#`<init>`(). -> 1:8
 (8:21..8:24) scala/Int#
 (8:29..8:30) local2 -> 8:18
 

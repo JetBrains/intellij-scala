@@ -1,7 +1,5 @@
 Document tests/pos/t5877.scala
-(5:5..5:5) foo/package.EnrichedFoo2(). -> 11:18
 (5:9..5:12) foo/Foo# -> 2:9
-(5:12..5:12) foo/Foo#`<init>`(). -> 2:3
 (5:15..5:21) foo/package.EnrichedFoo2#huzzah(). -> 12:9
 (11:38..11:41) foo/Foo# -> 2:9
 

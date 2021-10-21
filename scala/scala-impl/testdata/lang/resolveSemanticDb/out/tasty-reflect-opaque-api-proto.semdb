@@ -12,10 +12,10 @@ Document tests/pos/tasty-reflect-opaque-api-proto.scala
 (21:13..21:20) _empty_/Reflect# -> 7:7
 (21:23..21:26) scala/Predef.`???`().
 (22:10..22:14) _empty_/App.refl. -> 21:7
+(24:13..24:17) _empty_/Reflect#Tree# -> 9:15
 (24:20..24:23) scala/Predef.`???`().
-(25:3..25:3) _empty_/Reflect#Tree.show(). -> 14:11
 (25:3..25:7) _empty_/App.tree. -> 24:7
+(27:13..27:17) _empty_/Reflect#Term# -> 10:15
 (27:20..27:23) scala/Predef.`???`().
-(28:3..28:3) _empty_/Reflect#Tree.show(). -> 14:11
 (28:3..28:7) _empty_/App.tree. -> 24:7
 

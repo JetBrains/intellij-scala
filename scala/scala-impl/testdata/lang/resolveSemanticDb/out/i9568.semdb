@@ -8,17 +8,15 @@ Document tests/pos/i9568.scala
 (10:20..10:24) scala/Unit#
 (10:28..10:31) scala/Predef.`???`().
 (11:31..11:36) _empty_/Monad# -> 1:7
-(11:36..11:36) _empty_/Test1.blaMonad().[F] -> 11:25
 (11:42..11:47) _empty_/Monad# -> 1:7
 (11:62..11:65) _empty_/Bla# -> 5:7
 (11:66..11:67) _empty_/Test1.blaMonad().[F] -> 11:25
-(11:69..11:70) local1 -> 11:57
+(11:69..11:70) local0 -> 11:57
 (11:79..11:82) scala/Predef.`???`().
 (12:25..12:30) _empty_/Monad# -> 1:7
 (12:31..12:33) _empty_/Test1.Id# -> 8:8
 (12:37..12:40) scala/Predef.`???`().
 (14:3..14:11) _empty_/Test1.blaMonad(). -> 11:16
-(14:11..14:11) _empty_/Test1.idMonad(). -> 12:16
 (14:12..14:15) _empty_/Monad#foo(). -> 2:7
 (14:16..14:19) _empty_/Test1.bla. -> 10:7
 (18:16..18:17) _empty_/Test2.Id#[A] -> 18:11
@@ -31,13 +29,12 @@ Document tests/pos/i9568.scala
 (21:61..21:66) _empty_/Monad# -> 1:7
 (21:81..21:84) _empty_/Bla# -> 5:7
 (21:85..21:86) _empty_/Test2.blaMonad().[F] -> 21:25
-(21:88..21:89) local3 -> 21:76
+(21:88..21:89) local2 -> 21:76
 (21:98..21:101) scala/Predef.`???`().
 (22:25..22:30) _empty_/Monad# -> 1:7
 (22:31..22:33) _empty_/Test2.Id# -> 18:8
 (22:37..22:40) scala/Predef.`???`().
 (24:3..24:11) _empty_/Test2.blaMonad(). -> 21:16
-(24:11..24:11) _empty_/Test2.idMonad(). -> 22:16
 (24:12..24:15) _empty_/Monad#foo(). -> 2:7
 (24:16..24:19) _empty_/Test2.bla. -> 20:7
 

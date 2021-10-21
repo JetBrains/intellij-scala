@@ -1,6 +1,5 @@
 Document tests/pos/t1565.scala
 (9:12..9:16) scala/package.List.
-(9:16..9:16) scala/collection/IterableFactory#apply().
 (10:3..10:5) _empty_/Bug1565.xs. -> 9:7
 (10:6..10:12) scala/collection/immutable/List#filter().
 (10:18..10:19) local0 -> 10:13

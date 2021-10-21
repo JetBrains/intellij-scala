@@ -9,47 +9,34 @@ Document tests/pos/exhaust_2.scala
 (10:13..10:17) scala/Some#
 (17:11..17:15) scala/Some#
 (17:20..17:29) _empty_/ExhaustivityWarnBugReportMinimal.FoundNode# -> 3:16
-(17:37..17:37) scala/Tuple2.apply().
 (17:37..17:40) scala/Predef.`???`().
 (17:42..17:45) scala/Predef.`???`().
 (19:3..19:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(20:11..20:11) scala/Tuple2.unapply().
 (20:14..20:18) scala/Some#
 (20:26..20:35) _empty_/ExhaustivityWarnBugReportMinimal.FoundNode# -> 3:16
 (22:3..22:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(23:11..23:11) scala/Tuple2.unapply().
 (23:14..23:18) scala/Some#
 (26:3..26:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(27:11..27:11) scala/Tuple2.unapply().
 (27:14..27:18) scala/Some#
 (31:12..31:15) _empty_/ExhaustivityWarnBugReportMinimal.Foo# -> 29:14
 (31:20..31:29) _empty_/ExhaustivityWarnBugReportMinimal.FoundNode# -> 3:16
-(31:37..31:37) scala/Tuple2.apply().
 (31:37..31:40) scala/Predef.`???`().
 (31:42..31:45) scala/Predef.`???`().
 (32:3..32:5) _empty_/ExhaustivityWarnBugReportMinimal.vp. -> 31:7
-(33:11..33:11) scala/Tuple2.unapply().
 (33:14..33:17) _empty_/ExhaustivityWarnBugReportMinimal.Foo# -> 29:14
 (37:3..37:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(38:11..38:11) scala/Tuple2.unapply().
 (38:11..38:15) scala/Some.
-(38:15..38:15) scala/Some.unapply().
 (41:3..41:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(42:11..42:11) scala/Tuple2.unapply().
 (45:12..45:16) scala/Some#
 (45:21..45:24) scala/Int#
-(45:29..45:29) scala/Tuple2.apply().
 (45:29..45:32) scala/Predef.`???`().
 (45:34..45:37) scala/Predef.`???`().
 (46:3..46:5) _empty_/ExhaustivityWarnBugReportMinimal.v2. -> 45:7
-(47:11..47:11) scala/Tuple2.unapply().
 (47:14..47:18) scala/Some#
 (50:12..50:18) scala/Option#
 (50:23..50:32) _empty_/ExhaustivityWarnBugReportMinimal.FoundNode# -> 3:16
-(50:40..50:40) scala/Tuple2.apply().
 (50:40..50:43) scala/Predef.`???`().
 (50:45..50:48) scala/Predef.`???`().
 (51:3..51:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
-(52:11..52:11) scala/Tuple2.unapply().
 (52:14..52:20) scala/Option#
 

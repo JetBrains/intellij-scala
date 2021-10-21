@@ -2,7 +2,6 @@ Document tests/pos/t6208.scala
 (2:13..2:23) scala/collection/
 (2:24..2:31) scala/collection/mutable/
 (2:32..2:37) scala/collection/mutable/Queue.
-(2:37..2:37) scala/collection/IterableFactory#apply().
 (3:13..3:23) scala/collection/
 (3:24..3:31) scala/collection/mutable/
 (3:32..3:37) scala/collection/mutable/Queue#

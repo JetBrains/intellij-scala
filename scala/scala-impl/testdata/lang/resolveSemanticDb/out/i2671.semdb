@@ -12,7 +12,4 @@ Document tests/pos/i2671.scala
 (9:10..9:13) scala/Int#
 (9:16..9:19) _empty_/Foo.map(). -> 3:7
 (9:20..9:21) _empty_/Foo.f(). -> 7:7
-(9:21..9:21) scala/ContextFunction1#apply().
-(9:22..9:22) _empty_/Foo.i(). -> 5:16
-(9:22..9:22) scala/ContextFunction1#apply().
 

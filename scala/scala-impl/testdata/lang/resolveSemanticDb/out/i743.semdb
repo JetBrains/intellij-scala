@@ -5,5 +5,4 @@ Document tests/pos/i743.scala
 (3:4..3:5) _empty_/NonLocalReturn.foo().(a) -> 2:10
 (3:6..3:13) scala/collection/immutable/List#foreach().
 (3:26..3:27) local0 -> 3:14
-(3:27..3:27) _empty_/NonLocalReturn.foo(). -> 2:6
 

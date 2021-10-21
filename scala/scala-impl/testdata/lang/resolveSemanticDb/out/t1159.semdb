@@ -4,15 +4,12 @@ Document tests/pos/t1159.scala
 (5:13..5:17) java/
 (5:18..5:22) java/lang/
 (5:23..5:28) java/lang/Float#
-(5:28..5:28) java/lang/Float#`<init>`().
 (7:13..7:17) java/
 (7:18..7:22) java/lang/
 (7:23..7:27) java/lang/Long#
-(7:27..7:27) java/lang/Long#`<init>`().
 (9:13..9:17) java/
 (9:18..9:22) java/lang/
 (9:23..9:30) java/lang/Integer#
-(9:30..9:30) java/lang/Integer#`<init>`().
 (11:5..11:12) scala/Predef.println(+1).
 (11:13..11:18) local0 -> 3:9
 

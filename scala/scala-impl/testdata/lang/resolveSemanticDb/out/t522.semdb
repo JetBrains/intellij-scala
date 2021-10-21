@@ -2,7 +2,6 @@ Document tests/pos/t522.scala
 (3:23..3:29) scala/Predef.String#
 (6:14..6:20) scala/Predef.String#
 (6:28..6:31) imptwice/foo# -> 3:16
-(6:31..6:31) imptwice/foo#`<init>`(). -> 3:19
 (6:32..6:33) imptwice/Util.foo().(s) -> 6:11
 (9:8..9:16) imptwice/ -> 1:9
 (9:17..9:21) imptwice/Util. -> 5:8

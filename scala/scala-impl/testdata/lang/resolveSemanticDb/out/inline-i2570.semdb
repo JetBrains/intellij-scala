@@ -3,7 +3,6 @@ Document tests/pos/inline-i2570.scala
 (2:28..2:31) scala/Int#
 (2:35..2:38) scala/Int#
 (2:47..2:49) _empty_/Test.sum2().(ys) -> 2:19
-(2:49..2:49) scala/collection/IterableOnceOps#`/:`().
 (2:53..2:54) scala/Int#`+`(+4).
 (3:18..3:22) scala/package.List#
 (3:23..3:26) scala/Int#

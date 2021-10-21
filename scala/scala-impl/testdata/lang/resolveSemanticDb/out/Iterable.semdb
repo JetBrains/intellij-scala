@@ -3,6 +3,9 @@ Document tests/pos/Iterable.scala
 (4:8..4:18) scala/annotation/
 (4:19..4:28) scala/annotation/unchecked/
 (4:29..4:46) scala/annotation/unchecked/uncheckedVariance#
+(6:28..6:38) dotty/collections/immutable/Collection# -> 6:7
+(6:39..6:41) dotty/collections/immutable/Collection#[CC] -> 6:19
+(6:43..6:44) dotty/collections/immutable/Collection#`<init>`().[CC][X] -> 6:22
 (7:18..7:37) dotty/collections/immutable/CollectionCompanion# -> 20:16
 (7:38..7:40) dotty/collections/immutable/Collection#[CC] -> 6:19
 (10:27..10:37) dotty/collections/immutable/Collection# -> 6:7
@@ -19,6 +22,9 @@ Document tests/pos/Iterable.scala
 (16:22..16:23) dotty/collections/immutable/Seq#[T] -> 15:11
 (17:27..17:44) dotty/collections/immutable/IterableCompanion# -> 33:16
 (17:52..17:55) dotty/collections/immutable/Seq. -> 49:8
+(20:46..20:56) dotty/collections/immutable/Collection# -> 6:7
+(20:57..20:59) dotty/collections/immutable/CollectionCompanion#[CC] -> 20:37
+(20:61..20:62) dotty/collections/immutable/CollectionCompanion#`<init>`().[CC][X] -> 20:40
 (23:27..23:35) scala/package.Iterator#
 (23:36..23:37) dotty/collections/immutable/IterableImpls#fromIterator().[T] -> 23:20
 (23:41..23:43) dotty/collections/immutable/IterableImpls#[CC] -> 22:21
@@ -61,9 +67,13 @@ Document tests/pos/Iterable.scala
 (30:29..30:31) dotty/collections/immutable/IterableImpls#flatMap().(xs) -> 29:21
 (30:33..30:40) scala/collection/Iterator#flatMap().
 (30:41..30:42) dotty/collections/immutable/IterableImpls#flatMap().(f) -> 29:32
+(33:44..33:52) dotty/collections/immutable/Iterable# -> 10:7
+(33:53..33:54) dotty/collections/immutable/IterableCompanion#`<init>`().[CC][X] -> 33:38
+(33:61..33:71) dotty/collections/immutable/Collection# -> 6:7
+(33:72..33:74) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
+(33:76..33:77) dotty/collections/immutable/IterableCompanion#`<init>`().[CC][X] -> 33:38
 (34:9..34:28) dotty/collections/immutable/CollectionCompanion# -> 20:16
 (34:29..34:31) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
-(34:32..34:32) dotty/collections/immutable/CollectionCompanion#`<init>`(). -> 20:35
 (34:38..34:51) dotty/collections/immutable/IterableImpls# -> 22:7
 (34:52..34:54) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
 (34:57..34:74) scala/annotation/unchecked/uncheckedVariance#
@@ -81,12 +91,15 @@ Document tests/pos/Iterable.scala
 (36:89..36:101) dotty/collections/immutable/TransformOps# -> 39:7
 (36:102..36:104) dotty/collections/immutable/IterableCompanion#[CC] -> 33:35
 (36:106..36:107) dotty/collections/immutable/IterableCompanion#transformOps().[T] -> 36:29
-(36:108..36:108) dotty/collections/immutable/TransformOps#`<init>`(). -> 39:19
 (36:109..36:111) dotty/collections/immutable/IterableCompanion#transformOps().(xs) -> 36:32
+(39:30..39:38) dotty/collections/immutable/Iterable# -> 10:7
+(39:39..39:40) dotty/collections/immutable/TransformOps#`<init>`().[CC][X] -> 39:24
+(39:47..39:57) dotty/collections/immutable/Collection# -> 6:7
+(39:58..39:60) dotty/collections/immutable/TransformOps#[CC] -> 39:21
+(39:62..39:63) dotty/collections/immutable/TransformOps#`<init>`().[CC][X] -> 39:24
 (39:78..39:80) dotty/collections/immutable/TransformOps#[CC] -> 39:21
 (39:81..39:82) dotty/collections/immutable/TransformOps#[T] -> 39:66
 (39:93..39:99) scala/AnyVal#
-(39:99..39:99) scala/AnyVal#`<init>`().
 (40:24..40:26) dotty/collections/immutable/TransformOps#[CC] -> 39:21
 (40:27..40:28) dotty/collections/immutable/TransformOps#companion().[T] -> 40:17
 (40:31..40:48) scala/annotation/unchecked/uncheckedVariance#
@@ -124,14 +137,12 @@ Document tests/pos/Iterable.scala
 (43:77..43:79) dotty/collections/immutable/TransformOps#xs. -> 39:74
 (43:81..43:82) dotty/collections/immutable/TransformOps#flatMap().(f) -> 43:18
 (46:25..46:42) dotty/collections/immutable/IterableCompanion# -> 33:16
-(46:52..46:52) dotty/collections/immutable/IterableCompanion#`<init>`(). -> 33:33
 (47:27..47:35) scala/package.Iterator#
 (47:36..47:37) dotty/collections/immutable/Iterable.fromIterator().[T] -> 47:20
 (47:41..47:49) dotty/collections/immutable/Iterable# -> 10:7
 (47:50..47:51) dotty/collections/immutable/Iterable.fromIterator().[T] -> 47:20
 (47:55..47:58) scala/Predef.`???`().
 (49:20..49:37) dotty/collections/immutable/IterableCompanion# -> 33:16
-(49:42..49:42) dotty/collections/immutable/IterableCompanion#`<init>`(). -> 33:33
 (50:27..50:35) scala/package.Iterator#
 (50:36..50:37) dotty/collections/immutable/Seq.fromIterator().[T] -> 50:20
 (50:41..50:44) dotty/collections/immutable/Seq# -> 15:7

@@ -24,8 +24,4 @@ Document tests/pos/byname-implicits-12.scala
 (14:14..14:17) _empty_/Foo# -> 1:7
 (14:19..14:22) _empty_/Bar# -> 8:7
 (14:24..14:28) scala/Unit#
-(14:31..14:31) _empty_/Bar.bar(). -> 10:16
-(14:31..14:31) _empty_/Foo.int(). -> 4:16
-(14:31..14:31) _empty_/Foo.pair(). -> 5:16
-(14:31..14:31) _empty_/Foo.unit(). -> 3:16
 

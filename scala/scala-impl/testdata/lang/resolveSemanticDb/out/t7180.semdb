@@ -3,11 +3,9 @@ Document tests/pos/t7180.scala
 (5:45..5:51) _empty_/Higher# -> 1:7
 (9:13..9:23) scala/Predef.implicitly().
 (9:24..9:30) _empty_/Higher# -> 1:7
-(9:36..9:36) _empty_/Box.HigherBox(). -> 5:16
 (11:17..11:20) _empty_/Box# -> 3:7
 (11:21..11:22) _empty_/Foo.Bar#[A] -> 11:12
 (12:13..12:23) scala/Predef.implicitly().
 (12:24..12:30) _empty_/Higher# -> 1:7
 (12:31..12:34) _empty_/Foo.Bar# -> 11:8
-(12:36..12:36) _empty_/Box.HigherBox(). -> 5:16
 

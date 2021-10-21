@@ -1,8 +1,6 @@
 Document tests/pos/object-union-inf.scala
 (2:21..2:22) _empty_/A# -> 1:7
-(2:22..2:22) _empty_/A#`<init>`(). -> 1:1
 (4:21..4:22) _empty_/B# -> 3:7
-(4:22..4:22) _empty_/B#`<init>`(). -> 3:1
 (7:16..7:17) _empty_/A# -> 1:7
 (7:18..7:19) scala/`|`#
 (7:20..7:21) _empty_/B# -> 3:7
@@ -10,7 +8,6 @@ Document tests/pos/object-union-inf.scala
 (7:30..7:34) scala/package.List#
 (7:35..7:36) _empty_/Test.foo().[T] -> 7:11
 (7:40..7:44) scala/package.List.
-(7:44..7:44) scala/collection/IterableFactory#apply().
 (7:45..7:46) _empty_/Test.foo().(t) -> 7:23
 (8:10..8:14) _empty_/ObjA. -> 2:8
 (8:20..8:21) scala/`|`#

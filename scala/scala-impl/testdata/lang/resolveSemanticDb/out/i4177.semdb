@@ -3,7 +3,6 @@ Document tests/pos/i4177.scala
 (3:42..3:43) _empty_/Test#Foo.unapply().(x) -> 3:28
 (3:44..3:46) scala/Int#`==`(+3).
 (3:50..3:54) scala/Some.
-(3:54..3:54) scala/Some.apply().
 (3:55..3:56) _empty_/Test#Foo.unapply().(x) -> 3:28
 (3:57..3:65) scala/Any#toString().
 (3:72..3:76) scala/None.
@@ -11,43 +10,38 @@ Document tests/pos/i4177.scala
 (6:12..6:27) scala/PartialFunction#
 (6:28..6:31) scala/Int#
 (6:33..6:39) scala/Predef.String#
-(6:45..6:45) local1
 (6:50..6:53) _empty_/Test#Foo. -> 3:10
-(6:53..6:53) _empty_/Test#Foo.unapply(). -> 3:20
-(6:60..6:61) local2 -> 6:54
+(6:60..6:61) local1 -> 6:54
 (7:12..7:27) scala/PartialFunction#
 (7:28..7:31) scala/Int#
 (7:33..7:39) scala/Predef.String#
-(7:45..7:45) local4
-(7:55..7:56) local5 -> 7:50
+(7:55..7:56) local4 -> 7:50
 (7:57..7:65) scala/Any#toString().
 (9:12..9:27) scala/PartialFunction#
 (9:28..9:34) scala/Predef.String#
 (9:36..9:42) scala/Predef.String#
-(9:48..9:48) local7
-(9:66..9:67) local8 -> 9:53
+(9:66..9:67) local7 -> 9:53
 (10:12..10:27) scala/PartialFunction#
 (10:28..10:34) scala/Predef.String#
 (10:36..10:42) scala/Predef.String#
-(10:51..10:52) local10 -> 10:46
-(10:75..10:76) local10 -> 10:46
+(10:51..10:52) local9 -> 10:46
+(10:75..10:76) local9 -> 10:46
 (11:12..11:27) scala/PartialFunction#
 (11:28..11:34) scala/Predef.String#
 (11:36..11:42) scala/Predef.String#
-(11:51..11:52) local12 -> 11:46
-(11:75..11:76) local12 -> 11:46
+(11:51..11:52) local11 -> 11:46
+(11:75..11:76) local11 -> 11:46
 (11:77..11:84) java/lang/String#isEmpty().
-(11:88..11:89) local12 -> 11:46
+(11:88..11:89) local11 -> 11:46
 (13:14..13:29) scala/PartialFunction#
 (13:30..13:36) scala/Predef.String#
 (13:37..13:43) scala/Predef.String#
 (14:12..14:13) local13 -> 13:10
-(14:18..14:18) local15
-(14:28..14:29) local16 -> 14:23
+(14:28..14:29) local15 -> 14:23
 (14:30..14:38) java/lang/String#toString().
 (16:12..16:27) scala/PartialFunction#
 (16:28..16:31) scala/Int#
 (16:33..16:36) scala/Int#
-(16:47..16:48) local18 -> 16:42
-(16:67..16:68) local19 -> 16:62
+(16:47..16:48) local17 -> 16:42
+(16:67..16:68) local18 -> 16:62
 

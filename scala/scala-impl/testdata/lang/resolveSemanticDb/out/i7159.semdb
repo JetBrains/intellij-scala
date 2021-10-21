@@ -10,4 +10,5 @@ Document tests/pos/i7159.scala
 (12:10..12:14) _empty_/App.refl. -> 11:7
 (14:3..14:7) _empty_/Reflect#show(). -> 7:7
 (14:8..14:11) scala/Predef.`???`().
+(14:14..14:20) _empty_/Reflect#Tree22# -> 6:15
 

@@ -7,7 +7,4 @@ Document tests/pos/i8997.scala
 (2:76..2:79) scala/Predef.`???`().
 (5:9..5:12) scala/Int#
 (7:10..7:13) _empty_/Foo. -> 1:8
-(7:13..7:13) _empty_/Foo.unapply(). -> 2:7
-(7:13..7:13) local0 -> 5:9
-(7:13..7:13) scala/DummyImplicit.dummyImplicit.
 

@@ -24,7 +24,6 @@ Document tests/pos/i10477/A.scala
 (9:63..9:64) gopher/CpsAsyncMonad#[F] -> 7:21
 (9:65..9:66) gopher/CpsAsyncMonad#adoptCallbackStyle().[A] -> 9:27
 (11:21..11:34) gopher/CpsAsyncMonad# -> 7:7
-(11:34..11:34) gopher/IChannel#[F] -> 11:16
 (13:14..13:15) gopher/IChannel#[F] -> 11:16
 (13:16..13:17) gopher/IChannel#[A] -> 11:36
 (14:7..14:13) scala/Predef.summon().
@@ -36,13 +35,11 @@ Document tests/pos/i10477/A.scala
 (16:21..16:22) gopher/IChannel#[A] -> 11:36
 (16:25..16:30) gopher/A$package.await(). -> 5:5
 (16:31..16:36) gopher/IChannel#aread(). -> 13:8
-(16:37..16:37) gopher/IChannel#gopher$IChannel$$inline$evidence$1().
 (18:21..18:24) scala/util/Try#
 (18:25..18:26) gopher/IChannel#[A] -> 11:36
 (18:29..18:33) scala/Unit#
 (18:36..18:40) scala/Unit#
 (21:22..21:35) gopher/CpsAsyncMonad# -> 7:7
-(21:35..21:35) gopher/IOChannel#[F] -> 21:17
 (21:49..21:57) gopher/IChannel# -> 11:7
 (21:58..21:59) gopher/IOChannel#[F] -> 21:17
 (21:60..21:61) gopher/IOChannel#[I] -> 21:36
@@ -56,7 +53,6 @@ Document tests/pos/i10477/Test.scala
 (3:19..3:22) scala/util/Try#
 (3:19..3:22) scala/util/Try.
 (5:21..5:34) gopher/CpsAsyncMonad# -> 7:7
-(5:34..5:34) gopher/OChannel#[F] -> 5:16
 (7:17..7:18) gopher/OChannel#[A] -> 5:36
 (7:20..7:21) gopher/OChannel#[F] -> 5:16
 (7:22..7:26) scala/Unit#
@@ -72,7 +68,6 @@ Document tests/pos/i10477/Test.scala
 (12:34..12:39) gopher/A$package.await(). -> 5:5
 (12:40..12:46) gopher/OChannel#awrite(). -> 7:8
 (12:47..12:48) gopher/OChannel#write().(a) -> 12:21
-(12:50..12:50) gopher/OChannel#gopher$OChannel$$inline$evidence$1().
 (14:20..14:21) gopher/OChannel#[A] -> 5:36
 (14:26..14:29) scala/util/Try#
 (14:30..14:34) scala/Unit#

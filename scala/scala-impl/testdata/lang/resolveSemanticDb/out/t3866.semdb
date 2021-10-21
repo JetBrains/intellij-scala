@@ -19,9 +19,5 @@ Document tests/pos/t3866.scala
 (10:35..10:36) _empty_/ImplicitRepeated#anyToN().[N] -> 10:23
 (10:38..10:45) scala/Nothing#
 (13:3..13:4) _empty_/ImplicitRepeated#f(+1). -> 6:7
-(13:10..13:10) _empty_/ImplicitRepeated#anyToN(). -> 10:16
-(13:13..13:13) _empty_/ImplicitRepeated#anyToN(). -> 10:16
 (14:3..14:4) _empty_/ImplicitRepeated#f(). -> 5:7
-(14:6..14:6) _empty_/ImplicitRepeated#anyToN(). -> 10:16
-(14:9..14:9) _empty_/ImplicitRepeated#anyToN(). -> 10:16
 

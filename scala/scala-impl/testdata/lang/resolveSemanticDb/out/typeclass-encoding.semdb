@@ -42,12 +42,10 @@ Document tests/pos/typeclass-encoding.scala
 (63:39..63:40) local5 -> 63:21
 (64:11..64:22) _empty_/runtime.CompanionOf# -> 38:9
 (64:23..64:29) _empty_/semiGroups.Monoid# -> 57:9
-(64:30..64:30) _empty_/runtime.CompanionOf#`<init>`(). -> 38:20
 (65:26..65:38) _empty_/semiGroups.MonoidStatic# -> 60:18
-(65:39..65:40) local8 -> 65:21
+(65:39..65:40) local7 -> 65:21
 (68:45..68:57) _empty_/semiGroups.MonoidStatic# -> 60:18
 (68:58..68:61) scala/Int#
-(68:62..68:62) _empty_/semiGroups.MonoidStatic#`<init>`(). -> 60:30
 (68:64..68:78) _empty_/runtime.Implementation# -> 32:9
 (68:79..68:82) scala/Int#
 (69:24..69:30) _empty_/semiGroups.Monoid# -> 57:9
@@ -55,14 +53,13 @@ Document tests/pos/typeclass-encoding.scala
 (71:23..71:26) scala/Int#
 (71:34..71:40) _empty_/semiGroups.Monoid# -> 57:9
 (72:19..72:22) scala/Int#
-(73:21..73:25) local10 -> 72:12
-(73:28..73:32) local10 -> 72:12
+(73:21..73:25) local11 -> 72:12
+(73:28..73:32) local11 -> 72:12
 (73:35..73:40) _empty_/semiGroups.extend_Int_Monoid.inject().($this) -> 71:16
 (73:41..73:42) scala/Int#`+`(+4).
 (73:43..73:47) local12 -> 73:15
 (77:48..77:60) _empty_/semiGroups.MonoidStatic# -> 60:18
 (77:61..77:67) scala/Predef.String#
-(77:68..77:68) _empty_/semiGroups.MonoidStatic#`<init>`(). -> 60:30
 (77:70..77:84) _empty_/runtime.Implementation# -> 32:9
 (77:85..77:91) scala/Predef.String#
 (78:24..78:30) _empty_/semiGroups.Monoid# -> 57:9
@@ -71,12 +68,11 @@ Document tests/pos/typeclass-encoding.scala
 (80:53..80:59) scala/Predef.String#
 (81:11..81:17) _empty_/semiGroups.Monoid# -> 57:9
 (82:21..82:27) scala/Predef.String#
-(83:23..83:27) local15 -> 82:14
-(83:30..83:34) local15 -> 82:14
-(83:37..83:37) scala/Predef.augmentString().
+(83:23..83:27) local18 -> 82:14
+(83:30..83:34) local18 -> 82:14
 (83:37..83:42) _empty_/semiGroups.extend_String_Monoid.inject().($this) -> 80:16
 (83:43..83:45) scala/collection/StringOps#`++`(+2).
-(83:46..83:50) local17 -> 83:17
+(83:46..83:50) local19 -> 83:17
 (87:18..87:22) scala/package.List#
 (87:23..87:24) _empty_/semiGroups.sum().[T] -> 87:11
 (87:41..87:55) _empty_/runtime.Implementation# -> 32:9
@@ -87,25 +83,18 @@ Document tests/pos/typeclass-encoding.scala
 (88:17..88:21) _empty_/runtime.inst(). -> 40:7
 (88:22..88:23) _empty_/semiGroups.sum().[T] -> 87:11
 (88:25..88:31) _empty_/semiGroups.Monoid# -> 57:9
-(88:32..88:32) _empty_/semiGroups.companionOfMonoid(). -> 62:16
-(88:32..88:32) _empty_/semiGroups.sum().($ev) -> 87:36
 (88:33..88:37) _empty_/semiGroups.MonoidStatic#unit(). -> 60:43
 (88:49..88:55) _empty_/runtime.inject(). -> 45:16
-(88:56..88:57) local19 -> 88:40
-(88:58..88:58) _empty_/semiGroups.sum().($ev) -> 87:36
+(88:56..88:57) local24 -> 88:40
 (88:59..88:64) _empty_/semiGroups.SemiGroup#add(). -> 54:9
-(88:65..88:66) local20 -> 88:43
+(88:65..88:66) local25 -> 88:43
 (89:5..89:7) _empty_/semiGroups.sum().(xs) -> 87:14
 (89:8..89:16) scala/collection/LinearSeqOps#foldLeft().
 (89:17..89:21) _empty_/runtime.inst(). -> 40:7
 (89:22..89:23) _empty_/semiGroups.sum().[T] -> 87:11
 (89:25..89:31) _empty_/semiGroups.Monoid# -> 57:9
-(89:32..89:32) _empty_/semiGroups.companionOfMonoid(). -> 62:16
-(89:32..89:32) _empty_/semiGroups.sum().($ev) -> 87:36
 (89:33..89:37) _empty_/semiGroups.MonoidStatic#unit(). -> 60:43
-(89:49..89:49) _empty_/runtime.inject(). -> 45:16
-(89:49..89:50) local21 -> 89:40
-(89:50..89:50) _empty_/semiGroups.sum().($ev) -> 87:36
+(89:49..89:50) local26 -> 89:40
 (89:51..89:56) _empty_/semiGroups.SemiGroup#add(). -> 54:9
-(89:57..89:58) local22 -> 89:43
+(89:57..89:58) local27 -> 89:43
 

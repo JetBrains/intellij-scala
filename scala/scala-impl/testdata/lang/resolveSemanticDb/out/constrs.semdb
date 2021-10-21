@@ -11,7 +11,6 @@ Document tests/pos/constrs.scala
 (16:33..16:39) scala/Predef.String#
 (16:48..16:51) scala/Int#
 (16:61..16:64) _empty_/Baz# -> 11:7
-(16:64..16:64) _empty_/Baz#`<init>`(). -> 11:10
 (16:65..16:69) _empty_/Bar#base. -> 16:11
 (16:70..16:71) scala/Int#`+`(+4).
 (16:72..16:77) _empty_/Bar#local. -> 16:41

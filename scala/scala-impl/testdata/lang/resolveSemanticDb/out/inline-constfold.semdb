@@ -2,7 +2,6 @@ Document tests/pos/inline-constfold.scala
 (2:33..2:40) scala/Boolean#
 (2:43..2:50) scala/Boolean#
 (3:6..3:7) _empty_/Test.not().(x) -> 2:30
-(3:7..3:7) scala/Boolean#`unary_!`().
 (6:17..6:20) _empty_/Test.not(). -> 2:26
 (7:18..7:19) _empty_/Test.a. -> 6:13
 (9:33..9:36) scala/Int#

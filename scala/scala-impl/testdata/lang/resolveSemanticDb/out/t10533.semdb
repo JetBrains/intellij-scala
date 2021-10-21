@@ -1,6 +1,5 @@
 Document tests/pos/t10533.scala
-(2:20..2:23) _empty_/Bar. -> 5:12
-(2:23..2:23) _empty_/Bar.apply(). -> 5:1
+(2:20..2:23) _empty_/Bar.
 (5:19..5:22) scala/Int#
 (5:27..5:30) scala/Int#
 (5:35..5:38) scala/Int#

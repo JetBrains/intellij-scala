@@ -12,7 +12,6 @@ Document tests/pos/z1720.scala
 (15:18..15:23) test/Thing# -> 3:7
 (15:26..15:30) test/Info# -> 11:7
 (15:31..15:32) test/InfoRepository.getInfo().(t) -> 15:15
-(15:41..15:49) test/InfoImpl. -> 12:12
-(15:49..15:49) test/InfoImpl.apply(). -> 12:1
+(15:41..15:49) test/InfoImpl.
 (15:50..15:51) test/InfoRepository.getInfo().(t) -> 15:15
 

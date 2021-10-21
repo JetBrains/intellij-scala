@@ -8,7 +8,6 @@ Document tests/pos/t3498-new.scala
 (3:34..3:39) scala/
 (3:40..3:43) scala/Int.
 (3:49..3:57) scala/reflect/ClassTag#
-(3:57..3:57) _empty_/A#[U] -> 3:45
 (4:18..4:19) _empty_/A#[T] -> 3:18
 (4:22..4:27) scala/Array#
 (4:28..4:29) _empty_/A#[U] -> 3:45
@@ -16,8 +15,6 @@ Document tests/pos/t3498-new.scala
 (7:29..7:34) scala/Array#
 (7:35..7:39) scala/Byte#
 (7:42..7:45) scala/Int#
-(7:47..7:47) _empty_/A#`<init>`(). -> 3:17
-(7:47..7:47) scala/reflect/ClassTag.apply().
 (8:14..8:19) scala/Array#
 (8:20..8:24) scala/Byte#
 (9:14..9:17) scala/Int#
@@ -26,10 +23,8 @@ Document tests/pos/t3498-new.scala
 (13:28..13:29) _empty_/B#U# -> 9:10
 (15:13..15:18) scala/Array#
 (15:19..15:20) _empty_/B#U# -> 9:10
-(15:21..15:21) scala/Array#`<init>`().
 (15:22..15:23) _empty_/B#N. -> 11:9
 (15:24..15:25) scala/Int#`+`(+1).
 (15:26..15:31) _empty_/B#f().(state) -> 13:11
-(15:31..15:31) scala/Array#apply().
 (15:32..15:33) _empty_/B#N. -> 11:9
 

@@ -17,10 +17,7 @@ Document tests/pos/i5427.scala
 (8:51..8:54) scala/Predef.`???`().
 (10:3..10:8) _empty_/Test.test1(). -> 7:7
 (10:9..10:15) _empty_/Test.fooInt(). -> 4:16
-(10:16..10:16) _empty_/Test.str(). -> 5:16
 (11:3..11:8) _empty_/Test.test2(). -> 8:7
-(11:8..11:8) _empty_/Test.fooInt(). -> 4:16
-(11:8..11:8) _empty_/Test.str(). -> 5:16
 (15:24..15:27) _empty_/Foo# -> 1:7
 (15:28..15:31) scala/Int#
 (15:46..15:52) scala/Predef.String#
@@ -58,14 +55,10 @@ Document tests/pos/i5427.scala
 (22:12..22:17) _empty_/Test2.test3(). -> 19:7
 (22:18..22:24) _empty_/Test2.fooInt(). -> 15:16
 (22:26..22:35) _empty_/Test2.fooString(). -> 16:16
-(22:36..22:36) _empty_/Test2.fooBoolean(). -> 17:16
 (23:3..23:5) _empty_/Test2.t3. -> 22:7
 (23:7..23:13) scala/Double#
 (24:12..24:17) _empty_/Test2.test4(). -> 20:7
 (24:18..24:21) scala/Int#
-(24:22..24:22) _empty_/Test2.fooBoolean(). -> 17:16
-(24:22..24:22) _empty_/Test2.fooInt(). -> 15:16
-(24:22..24:22) _empty_/Test2.fooString(). -> 16:16
 (25:3..25:5) _empty_/Test2.t4. -> 24:7
 (25:7..25:13) scala/Double#
 (29:15..29:18) _empty_/Foo# -> 1:7
@@ -82,9 +75,7 @@ Document tests/pos/i5427.scala
 (33:50..33:52) _empty_/Test3.test5().(f1) -> 33:25
 (33:53..33:56) _empty_/Foo#Out# -> 1:22
 (33:60..33:62) _empty_/Test3.test5().(f2) -> 33:46
-(35:12..35:12) local6 -> 35:12
 (35:12..35:17) _empty_/Test3.test5(). -> 33:7
-(35:17..35:17) _empty_/Test3.istr(). -> 30:16
 (35:17..36:2) _empty_/Test3.test5().(f2) -> 33:46
 (38:3..38:5) _empty_/Test3.t5. -> 35:7
 (38:7..38:13) scala/Predef.String#
@@ -101,7 +92,6 @@ Document tests/pos/i5427.scala
 (45:50..45:53) _empty_/Test4.str(). -> 43:7
 (45:57..45:59) _empty_/Test4.test6().(f2) -> 45:37
 (47:12..47:17) _empty_/Test4.test6(). -> 45:7
-(47:17..47:17) _empty_/Test4.fooInt(). -> 42:16
 (47:17..48:2) _empty_/Test4.test6().(f1) -> 45:25
 (48:3..48:5) _empty_/Test4.t6. -> 47:7
 (48:7..48:13) scala/Predef.String#

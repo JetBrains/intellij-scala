@@ -1,8 +1,6 @@
 Document tests/pos/matches.scala
-(3:3..3:3) scala/LowPriorityImplicits#intWrapper().
 (3:5..3:8) scala/runtime/RichInt#min().
 (8:27..8:41) java/lang/AssertionError#
-(8:41..8:41) java/lang/AssertionError#`<init>`().
 (11:8..11:9) scala/Int#`<`(+3).
 (12:6..12:8) scala/Boolean#`||`().
 (12:9..12:10) matches/Test.x. -> 10:7

@@ -7,7 +7,6 @@ Document tests/pos/i2858.scala
 (5:12..5:16) _empty_/Cont# -> 1:7
 (5:20..5:21) scala/`&`#
 (5:33..5:36) scala/Int#
-(5:49..5:49) _empty_/Cont#`<init>`(). -> 1:11
-(6:5..6:6) local0 -> 5:9
+(6:5..6:6) local1 -> 5:9
 (6:7..6:8) _empty_/Cont#x. -> 1:43
 

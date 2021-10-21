@@ -1,10 +1,7 @@
 Document tests/pos/t7532/B_2.scala
 (2:15..2:16) _empty_/R#
-(2:16..2:16) _empty_/R#`<init>`().
 (3:7..3:8) _empty_/Test.r. -> 2:7
 (3:9..3:13) _empty_/R#attr#
-(3:13..3:13) _empty_/R#attr#`<init>`().
 (4:7..4:8) _empty_/R#
 (4:9..4:14) _empty_/R#attr1#
-(4:14..4:14) _empty_/R#attr1#`<init>`().
 

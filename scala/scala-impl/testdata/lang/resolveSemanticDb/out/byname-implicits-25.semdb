@@ -64,11 +64,4 @@ Document tests/pos/byname-implicits-25.scala
 (34:3..34:13) scala/Predef.implicitly().
 (34:14..34:17) _empty_/Test.Foo# -> 11:9
 (34:18..34:19) _empty_/Test.A# -> 19:14
-(34:21..34:21) _empty_/Test.A.genA. -> 21:18
-(34:21..34:21) _empty_/Test.B.genB. -> 26:18
-(34:21..34:21) _empty_/Test.C.genC. -> 31:18
-(34:21..34:21) _empty_/Test.Foo.fooGen(). -> 16:18
-(34:21..34:21) _empty_/Test.Foo.fooInt. -> 14:18
-(34:21..34:21) _empty_/Test.Foo.fooPair(). -> 15:18
-(34:21..34:21) _empty_/Test.Foo.fooUnit. -> 13:18
 

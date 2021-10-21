@@ -1,4 +1,8 @@
 Document tests/pos/cyclics-pos.scala
+(3:20..3:25) _empty_/Param# -> 1:7
+(3:26..3:27) _empty_/Cyclic1#[A] -> 3:15
+(4:20..4:23) _empty_/Abs# -> 2:7
+(4:36..4:37) _empty_/Cyclic2#[A] -> 4:15
 (5:27..5:30) _empty_/Abs# -> 2:7
 (5:42..5:43) _empty_/Cyclic3#A# -> 5:22
 (6:27..6:32) _empty_/Param# -> 1:7

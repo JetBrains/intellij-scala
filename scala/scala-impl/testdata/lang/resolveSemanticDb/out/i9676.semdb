@@ -1,4 +1,6 @@
 Document tests/pos/i9676.scala
+(4:30..4:31) _empty_/Test1.instance().[F] -> 4:16
+(4:32..4:33) _empty_/Test1.instance().[G][a] -> 4:24
 (4:37..4:46) _empty_/SubtypeOf# -> 1:7
 (4:47..4:48) _empty_/Test1.instance().[F] -> 4:16
 (4:50..4:51) _empty_/Test1.instance().[G] -> 4:22
@@ -9,6 +11,8 @@ Document tests/pos/i9676.scala
 (6:20..6:24) scala/package.List#
 (6:26..6:29) scala/package.Seq#
 (6:33..6:41) _empty_/Test1.instance(). -> 4:7
+(10:30..10:31) _empty_/Test2.instance().[G] -> 10:16
+(10:32..10:33) _empty_/Test2.instance().[F][a] -> 10:24
 (10:37..10:46) _empty_/SubtypeOf# -> 1:7
 (10:47..10:48) _empty_/Test2.instance().[F] -> 10:22
 (10:50..10:51) _empty_/Test2.instance().[G] -> 10:16

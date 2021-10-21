@@ -3,7 +3,6 @@ Document tests/pos/gadt-infer-ascription.scala
 (4:33..4:34) _empty_/GadtAscription.Var.Z#[A] -> 4:15
 (4:36..4:37) _empty_/GadtAscription.Var.Z#[G] -> 4:12
 (4:40..4:41) _empty_/GadtAscription.Var.Z#[A] -> 4:15
-(4:42..4:42) _empty_/GadtAscription.Var#`<init>`(). -> 3:11
 (5:24..5:27) _empty_/GadtAscription.Var# -> 3:8
 (5:28..5:29) _empty_/GadtAscription.Var.S#[G] -> 5:12
 (5:31..5:32) _empty_/GadtAscription.Var.S#[A] -> 5:15
@@ -11,8 +10,7 @@ Document tests/pos/gadt-infer-ascription.scala
 (5:48..5:49) _empty_/GadtAscription.Var.S#[B] -> 5:18
 (5:51..5:52) _empty_/GadtAscription.Var.S#[G] -> 5:12
 (5:55..5:56) _empty_/GadtAscription.Var.S#[A] -> 5:15
-(5:57..5:57) _empty_/GadtAscription.Var#`<init>`(). -> 3:11
-(8:10..8:13) _empty_/GadtAscription.Var. -> 3:8
+(8:10..8:13) _empty_/GadtAscription.Var.
 (9:24..9:27) _empty_/GadtAscription.Var# -> 3:8
 (9:28..9:29) _empty_/GadtAscription.evalVar().[G] -> 9:15
 (9:31..9:32) _empty_/GadtAscription.evalVar().[A] -> 9:18
@@ -21,11 +19,9 @@ Document tests/pos/gadt-infer-ascription.scala
 (9:48..9:49) _empty_/GadtAscription.evalVar().(x) -> 9:21
 (10:13..10:14) _empty_/GadtAscription.Var.Z# -> 4:10
 (11:7..11:10) _empty_/GadtAscription.evalVar().(rho) -> 9:35
-(11:10..11:10) scala/NonEmptyTuple#apply().
 (12:13..12:14) _empty_/GadtAscription.Var.S# -> 5:10
 (13:7..13:14) _empty_/GadtAscription.evalVar(). -> 9:7
-(13:15..13:16) local2 -> 12:10
+(13:15..13:16) local5 -> 12:10
 (13:17..13:18) _empty_/GadtAscription.Var.S#x. -> 5:21
 (13:20..13:23) _empty_/GadtAscription.evalVar().(rho) -> 9:35
-(13:23..13:23) scala/NonEmptyTuple#apply().
 

@@ -7,7 +7,6 @@ Document tests/pos/polyalias.scala
 (6:17..6:20) scala/Predef.`???`().
 (9:19..9:20) _empty_/Test.Pair#[T] -> 9:13
 (9:22..9:23) _empty_/Test.Pair#[T] -> 9:13
-(10:12..10:12) scala/Tuple2.apply().
 (11:11..11:15) _empty_/Test.Pair# -> 9:8
 (11:16..11:19) scala/Int#
 (11:23..11:24) _empty_/Test.x. -> 10:7
@@ -15,7 +14,6 @@ Document tests/pos/polyalias.scala
 (14:21..14:22) _empty_/Test.Config#[T] -> 14:15
 (14:26..14:27) _empty_/Test.Config#[T] -> 14:15
 (14:29..14:35) scala/Predef.String#
-(16:12..16:12) scala/Tuple2.apply().
 (16:16..16:22) scala/Predef.String#
 (16:27..16:28) local0 -> 16:13
 (17:11..17:17) _empty_/Test.Config# -> 14:8
@@ -32,24 +30,20 @@ Document tests/pos/polyalias.scala
 (23:16..23:19) scala/Int#
 (23:21..23:27) scala/Predef.String#
 (23:31..23:34) scala/Predef.Map.
-(23:34..23:34) scala/collection/MapFactory#apply().
 (23:35..23:41) scala/Predef.String#
 (23:43..23:46) scala/Int#
 (24:12..24:17) _empty_/Test.RRMap# -> 21:8
 (24:18..24:21) scala/Int#
 (24:23..24:29) scala/Predef.String#
 (24:33..24:36) scala/Predef.Map.
-(24:36..24:36) scala/collection/MapFactory#apply().
 (24:37..24:40) scala/Int#
 (24:42..24:48) scala/Predef.String#
 (26:11..26:15) _empty_/Test.RMap# -> 20:8
 (26:19..26:22) scala/Int#
 (26:26..26:29) scala/Predef.Map.
-(26:29..26:29) scala/collection/MapFactory#apply().
 (26:30..26:33) scala/Int#
 (26:35..26:41) scala/Predef.String#
 (27:11..27:14) scala/Predef.Map.
-(27:14..27:14) scala/collection/MapFactory#apply().
 (27:15..27:18) scala/Int#
 (27:20..27:26) scala/Predef.String#
 (28:11..28:15) _empty_/Test.RMap# -> 20:8

@@ -1,4 +1,6 @@
 Document tests/pos/t4063.scala
+(2:34..2:42) _empty_/Parallel# -> 1:7
+(4:34..4:42) _empty_/Parallel# -> 1:7
 (4:52..4:60) _empty_/Parallel# -> 1:7
 (4:66..4:80) _empty_/Parallelizable# -> 2:7
 (4:81..4:94) _empty_/PIterableLike# -> 4:7
@@ -44,10 +46,10 @@ Document tests/pos/t4063.scala
 (20:19..20:22) scala/Int#
 (20:30..20:34) _empty_/CSet# -> 11:7
 (20:35..20:38) scala/Int#
-(29:5..29:8) local0 -> 19:9
+(29:5..29:8) local2 -> 19:9
 (29:9..29:21) java/lang/Object#synchronized().
 (30:11..30:12) _empty_/Test.x(). -> 16:7
 (30:13..30:15) scala/Int#`==`(+3).
-(31:9..31:12) local0 -> 19:9
-(33:9..33:12) local2 -> 20:9
+(31:9..31:12) local2 -> 19:9
+(33:9..33:12) local5 -> 20:9
 

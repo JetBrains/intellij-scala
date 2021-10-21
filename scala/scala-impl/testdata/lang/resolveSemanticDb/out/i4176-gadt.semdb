@@ -1,10 +1,13 @@
 Document tests/pos/i4176-gadt.scala
 (3:30..3:34) _empty_/i4176.TNat# -> 2:16
+(4:25..4:29) _empty_/i4176.TNat# -> 2:16
 (4:41..4:45) _empty_/i4176.TNat# -> 2:16
 (8:38..8:42) _empty_/i4176.TNatSum.TSum# -> 7:18
 (8:43..8:48) _empty_/i4176.TZero# -> 3:14
 (8:50..8:51) _empty_/i4176.TNatSum.TSumZero#[N] -> 8:25
 (8:53..8:54) _empty_/i4176.TNatSum.TSumZero#[N] -> 8:25
+(9:27..9:31) _empty_/i4176.TNat# -> 2:16
+(9:41..9:45) _empty_/i4176.TNat# -> 2:16
 (9:52..9:56) _empty_/i4176.TNatSum.TSum# -> 7:18
 (9:57..9:58) _empty_/i4176.TNatSum.TSumM#[M] -> 9:22
 (9:60..9:61) _empty_/i4176.TNatSum.TSumM#[N] -> 9:33
@@ -20,8 +23,7 @@ Document tests/pos/i4176-gadt.scala
 (13:34..13:39) _empty_/i4176.TZero# -> 3:14
 (13:41..13:42) _empty_/i4176.tSumZero().[N] -> 13:25
 (13:44..13:45) _empty_/i4176.tSumZero().[N] -> 13:25
-(14:5..14:13) _empty_/i4176.TNatSum.TSumZero. -> 8:16
-(14:13..14:13) _empty_/i4176.TNatSum.TSumZero.apply(). -> 8:5
+(14:5..14:13) _empty_/i4176.TNatSum.TSumZero.
 (15:27..15:31) _empty_/i4176.TNat# -> 2:16
 (15:41..15:45) _empty_/i4176.TNat# -> 2:16
 (15:61..15:65) _empty_/i4176.TNatSum.TSum# -> 7:18
@@ -34,12 +36,13 @@ Document tests/pos/i4176-gadt.scala
 (15:92..15:93) _empty_/i4176.tSumM().[N] -> 15:33
 (15:95..15:100) _empty_/i4176.TSucc# -> 4:14
 (15:101..15:102) _empty_/i4176.tSumM().[R] -> 15:36
-(16:5..16:10) _empty_/i4176.TNatSum.TSumM. -> 9:16
-(16:10..16:10) _empty_/i4176.TNatSum.TSumM.apply(). -> 9:5
+(16:5..16:10) _empty_/i4176.TNatSum.TSumM.
 (16:11..16:14) _empty_/i4176.tSumM().(sum) -> 15:56
+(18:28..18:32) _empty_/i4176.TNat# -> 2:16
 (19:28..19:31) _empty_/i4176.Vec# -> 18:16
 (19:32..19:39) scala/Nothing#
 (19:41..19:46) _empty_/i4176.TZero# -> 3:14
+(20:28..20:32) _empty_/i4176.TNat# -> 2:16
 (20:37..20:38) _empty_/i4176.VCons#[T] -> 20:20
 (20:44..20:47) _empty_/i4176.Vec# -> 18:16
 (20:48..20:49) _empty_/i4176.VCons#[T] -> 20:20
@@ -64,23 +67,14 @@ Document tests/pos/i4176-gadt.scala
 (22:117..22:120) _empty_/i4176.Vec# -> 18:16
 (22:121..22:122) _empty_/i4176.append0().[T] -> 22:15
 (22:124..22:125) _empty_/i4176.append0().[R] -> 22:40
-(23:6..23:6) scala/Tuple2.apply().
 (23:6..23:11) _empty_/i4176.append0().($this) -> 22:51
 (23:13..23:17) _empty_/i4176.append0().(tsum) -> 22:95
-(24:13..24:13) scala/Tuple2.unapply().
 (24:13..24:17) _empty_/i4176.VNil. -> 19:15
-(24:19..24:27) _empty_/i4176.TNatSum.TSumZero. -> 8:16
-(24:27..24:27) _empty_/i4176.TNatSum.TSumZero.unapply(). -> 8:5
+(24:19..24:27) _empty_/i4176.TNatSum.TSumZero.
 (24:34..24:38) _empty_/i4176.append0().(that) -> 22:69
-(25:13..25:13) scala/Tuple2.unapply().
-(25:13..25:18) _empty_/i4176.VCons. -> 20:14
-(25:18..25:18) _empty_/i4176.VCons.unapply(). -> 20:3
-(25:18..25:18) local0
-(25:27..25:32) _empty_/i4176.TNatSum.TSumM. -> 9:16
-(25:32..25:32) _empty_/i4176.TNatSum.TSumM.unapply(). -> 9:5
-(25:32..25:32) local3
-(25:42..25:47) _empty_/i4176.VCons. -> 20:14
-(25:47..25:47) _empty_/i4176.VCons.apply(). -> 20:3
+(25:13..25:18) _empty_/i4176.VCons.
+(25:27..25:32) _empty_/i4176.TNatSum.TSumM.
+(25:42..25:47) _empty_/i4176.VCons.
 (25:48..25:49) local1 -> 25:19
 (25:51..25:58) _empty_/i4176.append0(). -> 22:7
 (25:59..25:61) local2 -> 25:22
@@ -103,20 +97,14 @@ Document tests/pos/i4176-gadt.scala
 (28:120..28:121) _empty_/i4176.append().[T] -> 28:14
 (28:123..28:124) _empty_/i4176.append().[R] -> 28:39
 (29:7..29:11) _empty_/i4176.append().(tsum) -> 28:94
-(30:14..30:22) _empty_/i4176.TNatSum.TSumZero. -> 8:16
-(30:22..30:22) _empty_/i4176.TNatSum.TSumZero.unapply(). -> 8:5
+(30:14..30:22) _empty_/i4176.TNatSum.TSumZero.
 (31:11..31:16) _empty_/i4176.append().($this) -> 28:50
 (31:30..31:34) _empty_/i4176.VNil. -> 19:15
 (31:38..31:42) _empty_/i4176.append().(that) -> 28:68
-(32:14..32:19) _empty_/i4176.TNatSum.TSumM. -> 9:16
-(32:19..32:19) _empty_/i4176.TNatSum.TSumM.unapply(). -> 9:5
-(32:19..32:19) local5
-(32:19..32:19) local6
+(32:14..32:19) _empty_/i4176.TNatSum.TSumM.
 (33:11..33:16) _empty_/i4176.append().($this) -> 28:50
-(33:30..33:35) _empty_/i4176.VCons. -> 20:14
-(33:35..33:35) _empty_/i4176.VCons.unapply(). -> 20:3
-(33:46..33:51) _empty_/i4176.VCons. -> 20:14
-(33:51..33:51) _empty_/i4176.VCons.apply(). -> 20:3
+(33:30..33:35) _empty_/i4176.VCons.
+(33:46..33:51) _empty_/i4176.VCons.
 (33:52..33:53) local8 -> 33:36
 (33:55..33:61) _empty_/i4176.append(). -> 28:7
 (33:62..33:64) local9 -> 33:39

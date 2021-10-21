@@ -18,14 +18,10 @@ Document tests/pos/gadt-upcast.scala
 (7:39..7:40) _empty_/`gadt-upcast$package`.get().[A] -> 7:9
 (7:42..7:43) _empty_/`gadt-upcast$package`.get().[B] -> 7:12
 (7:45..7:46) _empty_/`gadt-upcast$package`.get().[C] -> 7:15
-(8:2..8:2) local1
 (8:10..8:23) _empty_/IntStrCharTag# -> 5:7
-(8:28..8:28) scala/Tuple3.apply().
 (11:27..11:30) scala/App#
 (12:13..12:16) _empty_/`gadt-upcast$package`.get(). -> 7:5
-(12:16..12:16) scala/Function1#apply().
 (12:21..12:34) _empty_/IntStrCharTag# -> 5:7
-(12:34..12:34) _empty_/IntStrCharTag#`<init>`(). -> 5:29
 (12:40..12:46) _empty_/TriTag# -> 4:7
 (12:47..12:50) scala/Int#
 (12:52..12:58) scala/Predef.String#

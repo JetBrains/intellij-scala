@@ -4,11 +4,9 @@ Document tests/pos/pat_gilles.scala
 (4:30..4:33) scala/Any#
 (5:5..5:7) local0 -> 4:27
 (6:10..6:16) _empty_/Table2. -> 14:8
-(6:17..6:28) _empty_/Table2.CellUpdated. -> 16:14
-(6:28..6:28) _empty_/Table2.CellUpdated.unapply().
+(6:17..6:28) _empty_/Table2.CellUpdated.
 (7:17..7:23) _empty_/Table2. -> 14:8
-(7:24..7:35) _empty_/Table2.CellUpdated. -> 16:14
-(7:35..7:35) _empty_/Table2.CellUpdated.apply(). -> 16:3
+(7:24..7:35) _empty_/Table2.CellUpdated.
 (8:7..8:14) scala/Console.
 (8:15..8:22) scala/Console.println(+1).
 (9:10..9:16) _empty_/Table2. -> 14:8

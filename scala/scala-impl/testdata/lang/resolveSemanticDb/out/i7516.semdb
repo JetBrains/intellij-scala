@@ -2,12 +2,9 @@ Document tests/pos/i7516.scala
 (1:10..1:13) scala/Int#
 (1:17..1:20) scala/Int#
 (1:23..1:29) scala/Option.
-(1:29..1:29) scala/Option.apply().
 (2:8..2:12) scala/Some.
-(2:12..2:12) scala/Some.unapply().
 (2:24..2:25) local0 -> 2:13
 (3:8..3:12) scala/None.
-(3:16..3:16) local2
 (3:16..3:24) scala/Predef.identity().
 (3:25..3:28) scala/Int#
 

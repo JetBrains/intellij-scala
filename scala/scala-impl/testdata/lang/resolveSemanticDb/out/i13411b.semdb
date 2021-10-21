@@ -1,0 +1,37 @@
+Document tests/pos/i13411b/Test.scala
+(3:25..3:28) _empty_/broken#Foo# -> 2:16
+(4:25..4:28) _empty_/broken#Foo# -> 2:16
+(5:25..5:28) _empty_/broken#Foo# -> 2:16
+(6:25..6:28) _empty_/broken#Foo# -> 2:16
+(8:28..8:31) _empty_/broken#Foo# -> 2:16
+(8:42..8:43) _empty_/broken#foo().(f) -> 8:25
+(9:13..9:14) _empty_/broken#A. -> 3:15
+(10:13..10:14) _empty_/broken#B. -> 4:15
+(11:13..11:14) _empty_/broken#C. -> 5:15
+(12:13..12:14) _empty_/broken#D. -> 6:15
+(16:23..16:30) scala/Boolean#
+(17:30..17:37) scala/Boolean#
+(18:18..18:21) scala/Int#
+(19:15..19:18) scala/Int#
+(20:16..20:19) scala/Int#
+(21:22..21:29) scala/Boolean#
+(22:30..22:35) scala/Float#
+(23:21..23:26) scala/Float#
+(24:27..24:32) scala/Float#
+(25:16..25:21) scala/Float#
+(26:15..26:18) _empty_/broken#Foo# -> 2:16
+(26:22..26:23) _empty_/broken#A. -> 3:15
+(28:5..28:8) _empty_/broken#foo(). -> 8:14
+(28:9..28:10) _empty_/broken#thingy().(f) -> 26:12
+(31:3..31:9) _empty_/broken#thingy(). -> 15:14
+(31:10..31:21) _empty_/broken#thingy().(polygonMode) -> 18:5
+(31:24..31:33) _empty_/Constants#
+(31:34..31:35) _empty_/Constants#A.
+(31:37..31:45) _empty_/broken#thingy().(cullMode) -> 19:5
+(31:48..31:57) _empty_/Constants#
+(31:58..31:59) _empty_/Constants#B.
+(31:61..31:70) _empty_/broken#thingy().(frontFace) -> 20:5
+(31:73..31:82) _empty_/Constants#
+(31:83..31:84) _empty_/Constants#C.
+(31:86..31:95) _empty_/broken#thingy().(lineWidth) -> 25:5
+

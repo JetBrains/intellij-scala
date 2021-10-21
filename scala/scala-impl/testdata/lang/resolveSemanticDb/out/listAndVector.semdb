@@ -1,10 +1,7 @@
 Document tests/pos/listAndVector.scala
 (1:10..1:13) scala/Predef.Set.
-(1:13..1:13) scala/collection/IterableFactory#apply().
 (1:14..1:18) scala/package.List.
-(1:18..1:18) scala/collection/IterableFactory#apply().
 (1:23..1:29) scala/package.Vector.
-(1:29..1:29) scala/collection/IterableFactory#apply().
 (2:9..2:12) scala/Predef.Set#
 (2:13..2:23) scala/collection/
 (2:24..2:33) scala/collection/immutable/

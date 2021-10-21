@@ -3,19 +3,14 @@ Document tests/pos/test-implicits2.scala
 (17:16..17:26) scala/collection/
 (17:27..17:36) scala/collection/immutable/
 (17:37..17:50) scala/collection/immutable/WrappedString#
-(17:53..17:53) scala/LowPriorityImplicits#wrapString().
-(19:17..19:17) scala/Tuple2.unapply().
 (19:21..19:27) scala/Predef.String#
 (19:32..19:35) scala/Int#
-(19:40..19:40) scala/Tuple2.apply().
 (21:18..21:23) scala/Array#
 (21:24..21:30) scala/Predef.String#
 (22:5..22:12) scala/Predef.println(+1).
 (22:13..22:23) scala/Predef.implicitly().
 (22:24..22:30) scala/Predef.String#
-(22:31..22:31) _empty_/implicits2.xx. -> 19:17
 (23:5..23:12) scala/Predef.println(+1).
 (23:13..23:23) scala/Predef.implicitly().
 (23:24..23:27) scala/Int#
-(23:28..23:28) _empty_/implicits2.y. -> 19:29
 

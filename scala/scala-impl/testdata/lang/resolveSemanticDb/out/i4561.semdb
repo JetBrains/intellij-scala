@@ -20,20 +20,16 @@ Document tests/pos/i4561.scala
 (12:35..12:38) scala/Predef.`???`().
 (14:3..14:4) _empty_/abc.v(+1). -> 8:7
 (14:5..14:8) scala/Any#
-(14:9..14:9) _empty_/abc.Test1#apply(). -> 4:9
 (14:15..14:16) local0 -> 14:10
 (15:11..15:16) _empty_/abc.Test0# -> 2:9
 (15:19..15:20) _empty_/abc.v(). -> 7:7
 (16:3..16:4) _empty_/abc.v(+1). -> 8:7
-(16:4..16:4) _empty_/abc.Test1#apply(). -> 4:9
 (16:10..16:11) local1 -> 16:5
 (16:12..16:13) scala/Int#`+`(+4).
 (18:3..18:4) _empty_/abc.w(+1). -> 11:7
 (18:5..18:8) scala/Int#
-(18:9..18:9) _empty_/abc.Test1#apply(). -> 4:9
 (18:12..18:13) scala/Int#`+`(+4).
 (20:3..20:4) _empty_/abc.w(+2). -> 12:7
 (20:5..20:8) scala/Int#
-(20:14..20:14) _empty_/abc.Test1#apply(). -> 4:9
 (20:17..20:18) scala/Int#`+`(+4).
 

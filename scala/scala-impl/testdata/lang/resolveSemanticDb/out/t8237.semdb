@@ -2,6 +2,8 @@ Document tests/pos/t8237.scala
 (1:8..1:13) scala/
 (1:14..1:22) scala/language.
 (1:23..1:34) scala/language.higherKinds.
+(5:21..5:25) scala/package.List#
+(5:26..5:27) _empty_/TestExplicit.fTt().[E][X] -> 5:15
 (5:33..5:34) _empty_/TestExplicit.fTt().[A] -> 5:11
 (5:49..5:51) _empty_/TestExplicit.TC# -> 4:9
 (5:52..5:53) _empty_/TestExplicit.fTt().[E] -> 5:13
@@ -12,6 +14,8 @@ Document tests/pos/t8237.scala
 (6:31..6:34) scala/Predef.`???`().
 (9:3..9:6) _empty_/TestExplicit.fTt(). -> 5:7
 (9:10..9:12) _empty_/TestExplicit.tc(). -> 6:16
+(24:21..24:25) scala/package.List#
+(24:26..24:27) _empty_/TestImplicit.fTt().[E][X] -> 24:15
 (24:33..24:34) _empty_/TestImplicit.fTt().[A] -> 24:11
 (24:49..24:51) _empty_/TestImplicit.TC# -> 23:9
 (24:52..24:53) _empty_/TestImplicit.fTt().[E] -> 24:13
@@ -21,5 +25,4 @@ Document tests/pos/t8237.scala
 (25:26..25:27) _empty_/TestImplicit.tc().[T] -> 25:19
 (25:31..25:34) scala/Predef.`???`().
 (28:3..28:6) _empty_/TestImplicit.fTt(). -> 24:7
-(28:9..28:9) _empty_/TestImplicit.tc(). -> 25:16
 

@@ -12,7 +12,6 @@ Document tests/pos/gosh.scala
 (11:17..11:22) _empty_/ShapeTest.Point# -> 3:9
 (11:27..11:32) _empty_/ShapeTest.Point# -> 3:9
 (11:42..11:47) _empty_/ShapeTest.Shape# -> 7:18
-(11:47..11:47) _empty_/ShapeTest.Shape#`<init>`(). -> 8:5
 (12:17..12:21) scala/Unit#
 (12:26..12:33) scala/Console.
 (12:34..12:41) scala/Console.println(+1).
@@ -28,7 +27,6 @@ Document tests/pos/gosh.scala
 (19:27..19:34) scala/Console.
 (19:35..19:42) scala/Console.println(+1).
 (22:35..22:38) _empty_/ShapeTest.Foo# -> 15:18
-(22:38..22:38) _empty_/ShapeTest.Foo#`<init>`(). -> 16:5
 (23:15..23:20) _empty_/ShapeTest.Shape# -> 7:18
 (24:17..24:18) _empty_/ShapeTest.ShapeFoo#T# -> 23:10
 (24:21..24:25) scala/Unit#
@@ -38,21 +36,16 @@ Document tests/pos/gosh.scala
 (25:36..25:43) scala/Console.
 (25:44..25:51) scala/Console.println(+1).
 (28:25..28:33) _empty_/ShapeTest.ShapeFoo# -> 22:18
-(28:33..28:33) _empty_/ShapeTest.ShapeFoo#`<init>`(). -> 22:35
 (29:14..29:18) _empty_/ShapeTest.Line# -> 11:9
 (30:27..30:31) scala/Unit#
 (30:36..30:43) scala/Console.
 (30:44..30:51) scala/Console.println(+1).
 (33:16..33:21) _empty_/ShapeTest.Point# -> 3:9
-(33:21..33:21) _empty_/ShapeTest.Point#`<init>`(). -> 3:14
 (34:16..34:21) _empty_/ShapeTest.Point# -> 3:9
-(34:21..34:21) _empty_/ShapeTest.Point#`<init>`(). -> 3:14
 (36:16..36:20) _empty_/ShapeTest.Line# -> 11:9
-(36:20..36:20) _empty_/ShapeTest.Line#`<init>`(). -> 11:13
 (36:21..36:23) _empty_/ShapeTest.p1. -> 33:7
 (36:25..36:27) _empty_/ShapeTest.p2. -> 34:7
 (39:15..39:23) _empty_/ShapeTest.ShapeFoo# -> 22:18
-(39:23..39:23) _empty_/ShapeTest.ShapeFoo#`<init>`(). -> 22:35
 (40:14..40:18) _empty_/ShapeTest.Line# -> 11:9
 (41:27..41:31) scala/Unit#
 (41:36..41:43) scala/Console.

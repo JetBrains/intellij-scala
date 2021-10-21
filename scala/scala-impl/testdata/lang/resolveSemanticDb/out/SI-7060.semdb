@@ -8,12 +8,10 @@ Document tests/pos/SI-7060.scala
 (5:13..5:25) scala/Any#asInstanceOf().
 (5:26..5:31) scala/Array#
 (5:32..5:36) scala/Long#
-(5:38..5:38) scala/Array#apply().
 (7:7..7:12) _empty_/Test.mbarray_apply_minibox().(array) -> 3:42
 (7:13..7:25) scala/Any#asInstanceOf().
 (7:26..7:31) scala/Array#
 (7:32..7:36) scala/Byte#
-(7:38..7:38) scala/Array#apply().
 (7:42..7:48) scala/Byte#toLong().
 (9:23..9:27) scala/Unit#
 (10:5..10:26) _empty_/Test.mbarray_apply_minibox(). -> 3:20

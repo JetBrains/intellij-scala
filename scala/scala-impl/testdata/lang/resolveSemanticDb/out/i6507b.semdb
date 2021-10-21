@@ -7,9 +7,7 @@ Document tests/pos/i6507b.scala
 (5:13..5:23) scala/Tuple$package.EmptyTuple#
 (5:27..5:37) scala/Tuple$package.EmptyTuple.
 (6:16..6:18) scala/`*:`#
-(6:35..6:35) local2 -> 6:35
 (6:42..6:54) _empty_/Test.summonValues(). -> 4:26
 (6:55..6:56) local1 -> 6:19
-(6:57..6:57) scala/Tuple#`*:`().
 (9:3..9:15) _empty_/Test.summonValues(). -> 4:26
 

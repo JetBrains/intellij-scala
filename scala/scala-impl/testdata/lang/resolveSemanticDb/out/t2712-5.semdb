@@ -10,19 +10,19 @@ Document tests/pos/t2712-5.scala
 (6:41..6:42) test/Functor#map().[B] -> 6:14
 (10:29..10:36) test/Functor# -> 5:7
 (10:52..10:53) test/Functor.function().[A] -> 10:25
-(10:57..10:58) local1 -> 10:47
+(10:57..10:58) local0 -> 10:47
 (11:9..11:16) test/Functor# -> 5:7
 (11:32..11:33) test/Functor.function().[A] -> 10:25
-(11:37..11:38) local4 -> 11:27
-(12:25..12:26) local6 -> 12:15
-(12:30..12:31) local7 -> 12:18
+(11:37..11:38) local2 -> 11:27
+(12:25..12:26) local4 -> 12:15
+(12:30..12:31) local5 -> 12:18
 (12:37..12:38) test/Functor.function().[A] -> 10:25
-(12:42..12:43) local6 -> 12:15
+(12:42..12:43) local4 -> 12:15
 (12:46..12:47) test/Functor.function().[A] -> 10:25
-(12:51..12:52) local7 -> 12:18
-(12:55..12:57) local8 -> 12:21
+(12:51..12:52) local5 -> 12:18
+(12:55..12:57) local6 -> 12:21
 (12:58..12:65) scala/Function1#compose().
-(12:66..12:68) local9 -> 12:33
+(12:66..12:68) local7 -> 12:33
 (17:42..17:43) test/FunctorSyntax.FunctorOps#[F] -> 17:29
 (17:44..17:45) test/FunctorSyntax.FunctorOps#[A] -> 17:35
 (17:60..17:67) test/Functor# -> 5:7
@@ -39,12 +39,9 @@ Document tests/pos/t2712-5.scala
 (24:17..24:23) scala/Predef.String#
 (24:28..24:36) scala/Any#toString().
 (26:10..26:23) test/FunctorSyntax. -> 16:8
-(28:3..28:3) test/FunctorSyntax.FunctorOps(). -> 17:18
 (28:3..28:4) test/Test.f. -> 24:7
-(28:4..28:4) test/Functor.function(). -> 10:16
 (28:5..28:8) test/FunctorSyntax.FunctorOps#map(). -> 18:9
 (28:13..28:19) scala/Predef.String#
-(28:24..28:24) scala/Predef.augmentString().
-(28:24..28:25) local10 -> 28:10
+(28:24..28:25) local11 -> 28:10
 (28:26..28:33) scala/collection/StringOps#reverse().
 

@@ -1,10 +1,5 @@
 Document tests/pos/t756.scala
 (3:10..3:14) scala/Some.
-(3:14..3:14) scala/Some.apply().
-(3:18..3:18) scala/Option#flatMap().
-(4:5..4:5) local1
 (4:10..4:14) scala/Some.
-(4:14..4:14) scala/Some.apply().
-(4:18..4:18) scala/Option#map().
 (5:11..5:12) local0 -> 3:5
 

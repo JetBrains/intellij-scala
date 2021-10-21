@@ -4,7 +4,6 @@ Document tests/pos/inline-access-levels/A_1.scala
 (7:31..7:34) scala/Int#
 (8:5..8:6) test/A.`inline$x_=`().
 (8:9..8:10) test/A.actOnX().(f) -> 7:21
-(8:10..8:10) scala/Function1#apply().
 (8:11..8:12) test/A.inline$x().
 
 Document tests/pos/inline-access-levels/Test_2.scala

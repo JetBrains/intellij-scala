@@ -7,5 +7,4 @@ Document tests/pos/i2732.scala
 (2:56..2:59) scala/Int#
 (4:10..4:13) scala/Int#
 (4:16..4:17) _empty_/Test.f. -> 2:7
-(4:17..4:17) java/util/function/Function#apply().
 

@@ -22,7 +22,6 @@ Document tests/pos/i10997.scala
 (13:42..13:43) _empty_/Test2.i. -> 15:7
 (13:44..13:50) _empty_/Test2.Inner#Parent# -> 19:18
 (15:11..15:16) _empty_/Test2.Inner# -> 17:9
-(15:16..15:16) _empty_/Test2.Inner#`<init>`(). -> 19:5
 (21:5..21:12) scala/Predef.println(+1).
 (21:13..21:19) scala/Predef.summon().
 (21:20..21:28) scala/deriving/

@@ -4,7 +4,6 @@ Document tests/pos/t8315.scala
 (3:5..3:8) _empty_/Test.map(). -> 6:13
 (3:9..3:11) _empty_/Test.crash().(as) -> 2:13
 (3:17..3:20) scala/Any#
-(3:31..3:31) _empty_/Test.crash(). -> 2:7
 (6:20..6:25) _empty_/Listt# -> 12:7
 (6:30..6:33) scala/Any#
 (6:37..6:40) scala/Any#
@@ -13,7 +12,5 @@ Document tests/pos/t8315.scala
 (7:11..7:13) java/lang/Object#eq().
 (7:14..7:18) _empty_/Nill. -> 11:8
 (7:28..7:29) _empty_/Test.map().(f) -> 6:27
-(7:29..7:29) scala/Function1#apply().
 (11:21..11:26) _empty_/Listt# -> 12:7
-(11:26..11:26) _empty_/Listt#`<init>`(). -> 12:1
 

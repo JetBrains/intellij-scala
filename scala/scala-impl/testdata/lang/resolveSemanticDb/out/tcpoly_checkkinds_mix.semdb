@@ -1,4 +1,6 @@
 Document tests/pos/tcpoly_checkkinds_mix.scala
+(1:21..1:26) _empty_/Iterable#[Bound] -> 1:31
+(1:27..1:28) _empty_/Iterable#[A] -> 1:16
 (2:20..2:25) _empty_/Iterable#[Bound] -> 1:31
 (2:26..2:27) _empty_/Iterable#MyType#[x] -> 2:15
 (2:33..2:41) _empty_/Iterable# -> 1:7
@@ -21,6 +23,8 @@ Document tests/pos/tcpoly_checkkinds_mix.scala
 (5:22..5:29) scala/Boolean#
 (5:32..5:38) _empty_/Iterable#MyType# -> 2:8
 (5:39..5:40) _empty_/Iterable#[A] -> 1:16
+(8:23..8:30) scala/package.Ordered#
+(8:31..8:32) _empty_/OrderedSet#[T] -> 8:18
 (8:43..8:51) _empty_/Iterable# -> 1:7
 (8:52..8:53) _empty_/OrderedSet#[T] -> 8:18
 (8:55..8:62) scala/package.Ordered#

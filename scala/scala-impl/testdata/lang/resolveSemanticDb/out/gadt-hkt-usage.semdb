@@ -1,6 +1,5 @@
 Document tests/pos/gadt-hkt-usage.scala
 (4:24..4:27) _empty_/test.Inv# -> 3:9
-(4:32..4:32) _empty_/test.Inv#`<init>`(). -> 3:12
 (7:22..7:25) _empty_/test.Inv# -> 3:9
 (7:26..7:27) _empty_/test.Test.foo().[F] -> 7:13
 (7:32..7:33) _empty_/test.Test.foo().(x) -> 7:19

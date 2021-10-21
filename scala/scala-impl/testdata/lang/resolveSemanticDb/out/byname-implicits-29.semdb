@@ -13,5 +13,4 @@ Document tests/pos/byname-implicits-29.scala
 (7:14..7:18) _empty_/Test.Loop# -> 2:9
 (7:19..7:22) scala/Int#
 (7:24..7:30) scala/Predef.String#
-(7:32..7:32) _empty_/Test.Loop.mkLoop(). -> 4:18
 

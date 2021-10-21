@@ -24,6 +24,4 @@ Document tests/pos/i5666.scala
 (19:14..19:20) _empty_/Concat# -> 6:7
 (19:21..19:23) _empty_/Test.L1# -> 17:8
 (19:25..19:27) _empty_/Test.L1# -> 17:8
-(19:29..19:29) _empty_/Concat.i0(). -> 8:16
-(19:29..19:29) _empty_/Concat.i1(). -> 11:16
 

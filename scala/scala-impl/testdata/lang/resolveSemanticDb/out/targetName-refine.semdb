@@ -9,5 +9,4 @@ Document tests/pos/targetName-refine.scala
 (7:8..7:9) _empty_/T# -> 2:7
 (7:19..7:22) scala/Int#
 (7:27..7:28) _empty_/C# -> 4:7
-(7:28..7:28) _empty_/C#`<init>`(). -> 4:17
 

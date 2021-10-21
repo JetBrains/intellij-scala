@@ -5,17 +5,13 @@ Document tests/pos/varargs-annot-override.scala
 (5:15..5:21) scala/Predef.String#
 (5:25..5:29) scala/Unit#
 (7:18..7:25) _empty_/NoAnnot# -> 3:16
-(7:25..7:25) _empty_/NoAnnot#`<init>`(). -> 5:3
 (9:24..9:30) scala/Predef.String#
 (11:18..11:25) _empty_/NoAnnot# -> 3:16
-(11:25..11:25) _empty_/NoAnnot#`<init>`(). -> 5:3
 (13:4..13:11) scala/annotation/varargs#
 (14:24..14:30) scala/Predef.String#
 (16:18..16:20) _empty_/B2# -> 11:7
-(16:20..16:20) _empty_/B2#`<init>`(). -> 11:18
 (18:24..18:30) scala/Predef.String#
 (20:18..20:20) _empty_/B2# -> 11:7
-(20:20..20:20) _empty_/B2#`<init>`(). -> 11:18
 (22:4..22:11) scala/annotation/varargs#
 (23:24..23:30) scala/Predef.String#
 

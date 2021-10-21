@@ -1,6 +1,5 @@
 Document tests/pos/varargs.scala
 (2:3..2:7) scala/package.List.
-(2:7..2:7) scala/collection/IterableFactory#apply().
 (3:12..3:15) scala/Int#
 (3:20..3:21) _empty_/varargs.g().(x) -> 3:9
 (3:22..3:28) scala/collection/SeqOps#length().
@@ -11,7 +10,6 @@ Document tests/pos/varargs.scala
 (6:31..6:32) _empty_/varargs.foo().(x) -> 6:14
 (7:3..7:6) _empty_/varargs.foo(). -> 6:7
 (8:22..8:25) scala/package.Nil.
-(8:25..8:25) scala/collection/immutable/List#`::`().
 (9:3..9:4) _empty_/varargs.g(). -> 3:7
 (9:5..9:7) _empty_/varargs.xs. -> 8:7
 (10:3..10:4) _empty_/varargs.g(). -> 3:7

@@ -3,7 +3,6 @@ Document tests/pos/overzealous-assert-genbcode.scala
 (3:24..3:30) scala/Predef.String#
 (3:34..3:38) scala/Unit#
 (4:5..4:9) _empty_/Test.main().(args) -> 3:12
-(4:9..4:9) scala/Array#apply().
 (5:15..5:21) scala/Predef.String#
 (5:31..5:32) local0 -> 5:12
 (5:33..5:35) scala/Any#`==`().

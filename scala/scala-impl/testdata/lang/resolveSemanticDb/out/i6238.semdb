@@ -9,24 +9,36 @@ Document tests/pos/i6238.scala
 (11:58..11:59) _empty_/K1.A.fooA().[F] -> 11:23
 (16:33..16:36) _empty_/K1.Foo# -> 2:9
 (16:37..16:38) _empty_/K1.B.fooB().[F] -> 16:23
+(23:20..23:23) scala/Int#
+(25:30..25:33) scala/Int#
 (25:51..25:54) _empty_/K1U.Foo# -> 21:9
 (25:55..25:58) _empty_/K1U.Bar# -> 23:9
 (25:59..25:60) _empty_/K1U.Bar.barF().[F] -> 25:23
 (25:65..25:68) _empty_/K1U.Bar# -> 23:9
 (25:69..25:70) _empty_/K1U.Bar.barF().[F] -> 25:23
+(28:16..28:19) scala/Int#
+(30:32..30:35) scala/Int#
 (30:54..30:55) _empty_/K1U.A.fooA().[F] -> 30:23
 (30:61..30:64) _empty_/K1U.Foo# -> 21:9
 (30:65..30:66) _empty_/K1U.A.fooA().[F] -> 30:23
+(33:16..33:19) scala/Int#
+(35:32..35:35) scala/Int#
 (35:40..35:43) _empty_/K1U.Foo# -> 21:9
 (35:44..35:45) _empty_/K1U.B.fooB().[F] -> 35:23
+(42:20..42:23) scala/Int#
+(44:30..44:33) scala/Int#
 (44:51..44:54) _empty_/K1L.Foo# -> 40:9
 (44:55..44:58) _empty_/K1L.Bar# -> 42:9
 (44:59..44:60) _empty_/K1L.Bar.barF().[F] -> 44:23
 (44:65..44:68) _empty_/K1L.Bar# -> 42:9
 (44:69..44:70) _empty_/K1L.Bar.barF().[F] -> 44:23
+(47:16..47:19) scala/Int#
+(49:32..49:35) scala/Int#
 (49:54..49:55) _empty_/K1L.A.fooA().[F] -> 49:23
 (49:61..49:64) _empty_/K1L.Foo# -> 40:9
 (49:65..49:66) _empty_/K1L.A.fooA().[F] -> 49:23
+(52:16..52:19) scala/Int#
+(54:32..54:35) scala/Int#
 (54:40..54:43) _empty_/K1L.Foo# -> 40:9
 (54:44..54:45) _empty_/K1L.B.fooB().[F] -> 54:23
 (63:47..63:50) _empty_/K11.Foo# -> 59:9
@@ -52,31 +64,16 @@ Document tests/pos/i6238.scala
 (98:12..98:14) _empty_/K1. -> 1:8
 (99:5..99:15) scala/Predef.implicitly().
 (99:16..99:19) _empty_/K1.Bar# -> 4:9
-(99:23..99:23) _empty_/K1.A.fooA(). -> 11:18
-(99:23..99:23) _empty_/K1.B.fooB(). -> 16:18
-(99:23..99:23) _empty_/K1.Bar.barF(). -> 6:18
 (103:12..103:15) _empty_/K1U. -> 20:8
 (104:5..104:15) scala/Predef.implicitly().
 (104:16..104:19) _empty_/K1U.Bar# -> 23:9
-(104:23..104:23) _empty_/K1U.A.fooA(). -> 30:18
-(104:23..104:23) _empty_/K1U.B.fooB(). -> 35:18
-(104:23..104:23) _empty_/K1U.Bar.barF(). -> 25:18
 (108:12..108:15) _empty_/K1L. -> 39:8
 (109:5..109:15) scala/Predef.implicitly().
 (109:16..109:19) _empty_/K1L.Bar# -> 42:9
-(109:23..109:23) _empty_/K1L.A.fooA(). -> 49:18
-(109:23..109:23) _empty_/K1L.B.fooB(). -> 54:18
-(109:23..109:23) _empty_/K1L.Bar.barF(). -> 44:18
 (113:12..113:15) _empty_/K11. -> 58:8
 (114:5..114:15) scala/Predef.implicitly().
 (114:16..114:19) _empty_/K11.Bar# -> 61:9
-(114:23..114:23) _empty_/K11.A.fooA(). -> 68:18
-(114:23..114:23) _empty_/K11.B.fooB(). -> 73:18
-(114:23..114:23) _empty_/K11.Bar.barF(). -> 63:18
 (118:12..118:14) _empty_/K2. -> 77:8
 (119:5..119:15) scala/Predef.implicitly().
 (119:16..119:19) _empty_/K2.Bar# -> 80:9
-(119:23..119:23) _empty_/K2.A.fooA(). -> 87:18
-(119:23..119:23) _empty_/K2.B.fooB(). -> 92:18
-(119:23..119:23) _empty_/K2.Bar.barF(). -> 82:18
 

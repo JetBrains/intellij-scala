@@ -5,7 +5,6 @@ Document tests/pos/i583a.scala
 (6:20..6:21) _empty_/Test.C#T# -> 4:10
 (6:24..6:25) _empty_/Test.C#foo().(x) -> 6:13
 (9:15..9:16) _empty_/Test.C# -> 3:9
-(9:16..9:16) _empty_/Test.C#`<init>`(). -> 4:5
 (10:11..10:12) _empty_/Test.x(). -> 9:7
 (10:13..10:16) _empty_/Test.C#foo(). -> 6:9
 (10:17..10:20) scala/Predef.`???`().
@@ -20,9 +19,7 @@ Document tests/pos/i583a.scala
 (21:16..21:19) scala/Predef.`???`().
 (24:10..24:11) _empty_/Test1.C# -> 17:9
 (24:18..24:19) _empty_/Test1.C# -> 17:9
-(24:19..24:19) _empty_/Test1.C#`<init>`(). -> 18:5
 (26:11..26:12) _empty_/Test1.c(). -> 24:7
 (26:13..26:16) _empty_/Test1.C#box. -> 19:9
-(28:11..28:11) local0
 (28:11..28:12) _empty_/Test1.c(). -> 24:7
 

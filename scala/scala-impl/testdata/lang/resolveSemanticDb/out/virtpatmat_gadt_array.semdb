@@ -24,6 +24,5 @@ Document tests/pos/virtpatmat_gadt_array.scala
 (14:42..14:43) _empty_/Test.refArrayOps().[T] -> 14:19
 (14:47..14:55) scala/collection/ArrayOps#
 (14:56..14:57) _empty_/Test.refArrayOps().[T] -> 14:19
-(14:73..14:73) scala/collection/ArrayOps#`<init>`().
 (14:74..14:76) _empty_/Test.refArrayOps().(xs) -> 14:32
 

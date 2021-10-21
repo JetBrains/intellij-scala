@@ -6,7 +6,6 @@ Document tests/pos/t1858.scala
 (1:33..1:38) scala/collection/mutable/Stack.
 (6:17..6:22) scala/collection/mutable/Stack#
 (6:23..6:26) scala/Int#
-(6:27..6:27) scala/collection/mutable/Stack#`<init>`(+1).
 (7:5..7:6) local0 -> 6:9
 (7:7..7:11) scala/collection/mutable/Stack#push().
 (8:5..8:6) local0 -> 6:9

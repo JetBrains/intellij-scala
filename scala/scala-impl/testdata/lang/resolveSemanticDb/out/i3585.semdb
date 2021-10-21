@@ -20,5 +20,4 @@ Document tests/pos/i3585.scala
 (15:14..15:17) _empty_/Foo# -> 1:7
 (15:19..15:22) scala/Int#
 (15:24..15:30) scala/Predef.String#
-(15:33..15:33) _empty_/Foo.pair(). -> 4:16
 

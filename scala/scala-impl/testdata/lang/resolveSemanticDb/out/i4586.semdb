@@ -3,7 +3,6 @@ Document tests/pos/i4586.scala
 (2:32..2:35) scala/Int#
 (2:38..2:41) scala/Int#
 (2:44..2:45) _empty_/Foo#foo1().(f) -> 2:19
-(2:45..2:45) scala/Function1#apply().
 (3:14..3:18) _empty_/Foo#foo1(). -> 2:14
 (3:24..3:25) local0 -> 3:19
 (3:26..3:27) scala/Int#`+`(+4).

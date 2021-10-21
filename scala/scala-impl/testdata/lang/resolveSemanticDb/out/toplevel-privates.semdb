@@ -12,5 +12,4 @@ Document tests/pos/toplevel-privates/Test.scala
 (7:11..7:13) p/A$package.xx. -> 7:16
 (9:11..9:13) p/A$package.yy. -> 9:5
 (11:13..11:14) p/C# -> 11:15
-(11:14..11:14) p/C#`<init>`(). -> 12:3
 

@@ -8,5 +8,4 @@ Document tests/pos/8905.scala
 (2:56..2:60) scala/Unit#
 (3:5..3:6) _empty_/Test.f().(o) -> 2:22
 (3:20..3:24) scala/Some.
-(3:24..3:24) scala/Some.unapply().
 

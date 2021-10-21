@@ -31,14 +31,12 @@ Document tests/pos/test5.scala
 (30:24..30:25) _empty_/test.M# -> 13:9
 (30:26..30:27) _empty_/test.F# -> 5:9
 (30:28..30:29) _empty_/test.N#[Q] -> 30:11
-(30:31..30:31) _empty_/test.M#`<init>`(). -> 13:10
 (31:13..31:14) _empty_/test.N#J# -> 33:22
 (31:15..31:16) _empty_/test.G# -> 9:9
 (31:17..31:18) _empty_/test.N#[Q] -> 30:11
 (33:37..33:38) _empty_/test.M#I# -> 14:22
 (33:39..33:40) _empty_/test.G# -> 9:9
 (33:41..33:42) _empty_/test.N#J#[Y] -> 33:24
-(33:44..33:44) _empty_/test.M#I#`<init>`(). -> 14:23
 (35:19..35:20) _empty_/test.N#J#[Y] -> 33:24
 (35:23..35:29) _empty_/test.N#J#val_jy(). -> 35:11
 (36:19..36:20) _empty_/test.G# -> 9:9

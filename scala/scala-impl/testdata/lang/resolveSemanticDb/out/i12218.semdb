@@ -2,19 +2,13 @@ Document tests/pos/i12218.scala
 (1:8..1:16) scala/language.
 (1:17..1:29) scala/language.experimental.
 (1:30..1:41) scala/language.experimental.fewerBraces.
-(2:1..2:1) _empty_/i12218$package.runTest(). -> 2:11
-(2:1..2:1) local2
-(2:1..2:1) scala/util/CommandLineParser.showError().
 (2:2..2:6) scala/main#
 (2:22..2:26) scala/Unit#
 (3:13..3:18) scala/Array.
-(3:18..3:18) scala/Array.apply(+5).
-(5:5..5:5) scala/Predef.intArrayOps().
 (5:5..5:8) local0 -> 3:7
 (5:9..5:16) scala/collection/ArrayOps#isEmpty().
 (6:5..6:7) scala/Boolean#`||`().
 (7:19..7:22) local0 -> 3:7
-(7:22..7:22) scala/Array#apply().
 (8:7..8:12) local1 -> 7:11
 (8:13..8:15) scala/Int#`!=`(+3).
 (9:8..9:15) scala/Predef.println(+1).

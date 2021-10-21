@@ -3,7 +3,7 @@ Document tests/pos/i7452.scala
 (5:44..5:45) _empty_/Abstract.Aux#[F] -> 5:12
 (5:47..5:48) _empty_/Abstract.Aux#[A] -> 5:18
 (5:69..5:73) _empty_/Abstract.Aux#[Out0] -> 5:21
-(5:74..5:75) local1 -> 5:61
+(5:74..5:75) local0 -> 5:61
 (7:40..7:43) _empty_/Abstract.Aux# -> 5:8
 (7:44..7:45) _empty_/Abstract.valueAbstract().[F] -> 7:30
 (7:47..7:48) _empty_/Abstract.valueAbstract().[F] -> 7:30
@@ -14,7 +14,7 @@ Document tests/pos/i7452.scala
 (7:85..7:86) _empty_/Abstract.valueAbstract().[F] -> 7:30
 (7:88..7:89) _empty_/Abstract.valueAbstract().[F] -> 7:30
 (7:90..7:91) _empty_/Abstract.valueAbstract().[A] -> 7:36
-(8:22..8:23) local4 -> 8:14
+(8:22..8:23) local2 -> 8:14
 (8:24..8:25) _empty_/Abstract.valueAbstract().[A] -> 7:36
 (11:44..11:47) _empty_/Abstract.Aux# -> 5:8
 (11:48..11:49) _empty_/Abstract.hkdAbstract().[F] -> 11:28
@@ -27,7 +27,7 @@ Document tests/pos/i7452.scala
 (11:92..11:93) _empty_/Abstract.hkdAbstract().[A] -> 11:34
 (11:94..11:95) _empty_/Abstract.hkdAbstract().[F] -> 11:28
 (12:22..12:23) _empty_/Abstract.hkdAbstract().[A] -> 11:34
-(12:24..12:25) local7 -> 12:14
+(12:24..12:25) local6 -> 12:14
 (16:29..16:30) _empty_/StringF#[F] -> 16:20
 (16:31..16:37) scala/Predef.String#
 (19:27..19:28) _empty_/Q#[M] -> 18:9
@@ -44,12 +44,9 @@ Document tests/pos/i7452.scala
 (22:34..22:37) scala/Predef.`???`().
 (23:10..23:11) _empty_/i7452$package.q. -> 22:5
 (23:12..23:15) _empty_/Q#map(). -> 19:7
-(23:21..23:22) local8 -> 23:16
-(23:23..23:23) _empty_/Abstract.valueAbstract(). -> 7:16
+(23:21..23:22) local10 -> 23:16
 (24:10..24:11) _empty_/i7452$package.q. -> 22:5
 (24:12..24:15) _empty_/Q#map(). -> 19:7
-(24:21..24:28) _empty_/StringF. -> 16:12
-(24:28..24:28) _empty_/StringF.apply(). -> 16:1
-(24:29..24:30) local9 -> 24:16
-(24:32..24:32) _empty_/Abstract.hkdAbstract(). -> 11:16
+(24:21..24:28) _empty_/StringF.
+(24:29..24:30) local11 -> 24:16
 

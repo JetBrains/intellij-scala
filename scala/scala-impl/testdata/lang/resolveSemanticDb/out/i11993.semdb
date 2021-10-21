@@ -3,14 +3,10 @@ Document tests/pos/i11993.scala
 (4:12..4:18) scala/Option#
 (4:19..4:20) _empty_/test1.Foo#`<init>`().(x)
 (7:21..7:24) _empty_/test1.Foo# -> 2:9
-(7:24..7:24) _empty_/test1.Foo#`<init>`(). -> 2:12
 (7:32..7:36) scala/Some.
-(7:36..7:36) scala/Some.apply().
 (11:12..11:18) scala/Predef.String#
 (12:12..12:18) scala/Option#
 (12:19..12:20) _empty_/test2.Foo#`<init>`().(x)
 (15:21..15:24) _empty_/test2.Foo# -> 10:9
-(15:24..15:24) _empty_/test2.Foo#`<init>`(). -> 10:12
 (15:32..15:36) scala/Some.
-(15:36..15:36) scala/Some.apply().
 

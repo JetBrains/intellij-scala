@@ -6,8 +6,7 @@ Document tests/pos/i5794.scala
 (3:37..3:38) _empty_/Test.extractKey().(e) -> 3:18
 (3:39..3:42) _empty_/Test.Entry#key. -> 2:31
 (4:22..4:27) _empty_/Test.Entry# -> 2:9
-(4:32..4:33) local1 -> 4:19
+(4:32..4:33) local0 -> 4:19
 (4:34..4:37) _empty_/Test.Entry#Key# -> 2:22
-(4:40..4:40) local2
 (4:40..4:50) _empty_/Test.extractKey(). -> 3:7
 

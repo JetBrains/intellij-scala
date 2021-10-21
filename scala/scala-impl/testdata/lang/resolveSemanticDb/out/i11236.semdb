@@ -43,5 +43,6 @@ Document tests/pos/i11236.scala
 (19:68..19:72) _empty_/TupleK.Tail# -> 13:8
 (19:73..19:77) _empty_/NonEmptyTupleK#tail().[This] -> 19:23
 (19:81..19:84) scala/Predef.`???`().
+(22:29..22:35) _empty_/TupleK# -> 10:7
 (22:45..22:59) _empty_/NonEmptyTupleK# -> 18:7
 

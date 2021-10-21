@@ -5,14 +5,12 @@ Document tests/pos/Meter.scala
 (4:26..4:33) a/BoxingConversions#[Unboxed] -> 2:43
 (7:31..7:37) scala/Double#
 (7:47..7:53) scala/AnyVal#
-(7:53..7:53) scala/AnyVal#`<init>`().
 (7:59..7:65) _root_/
 (7:66..7:67) b/ -> 43:9
 (7:68..7:77) b/Printable# -> 44:9
 (8:19..8:24) a/Meter# -> 7:9
 (8:27..8:32) a/Meter# -> 7:9
 (9:11..9:16) a/Meter# -> 7:9
-(9:16..9:16) a/Meter#`<init>`(). -> 7:14
 (9:22..9:32) a/Meter#underlying. -> 7:19
 (9:33..9:34) scala/Double#`+`(+7).
 (9:35..9:40) a/Meter#`+`().(other) -> 8:12
@@ -28,7 +26,6 @@ Document tests/pos/Meter.scala
 (11:20..11:26) scala/Double#
 (11:29..11:34) a/Meter# -> 7:9
 (11:41..11:46) a/Meter# -> 7:9
-(11:46..11:46) a/Meter#`<init>`(). -> 7:14
 (11:52..11:62) a/Meter#underlying. -> 7:19
 (11:63..11:64) scala/Double#`/`(+6).
 (11:65..11:71) a/Meter#`/`(+1).(factor) -> 11:12
@@ -40,7 +37,6 @@ Document tests/pos/Meter.scala
 (12:61..12:71) a/Meter#underlying. -> 7:19
 (13:17..13:21) a/Foot# -> 30:9
 (13:28..13:32) a/Foot# -> 30:9
-(13:32..13:32) a/Foot#`<init>`(). -> 30:13
 (13:38..13:48) a/Meter#underlying. -> 7:19
 (13:49..13:50) scala/Double#`*`(+6).
 (14:28..14:35) scala/Console.
@@ -57,7 +53,6 @@ Document tests/pos/Meter.scala
 (22:18..22:24) scala/Double#
 (22:27..22:32) a/Meter# -> 7:9
 (22:39..22:44) a/Meter# -> 7:9
-(22:44..22:44) a/Meter#`<init>`(). -> 7:14
 (22:45..22:46) a/Meter.apply().(x) -> 22:15
 (24:27..24:44) a/BoxingConversions# -> 2:18
 (24:45..24:50) a/Meter# -> 7:9
@@ -65,21 +60,17 @@ Document tests/pos/Meter.scala
 (24:66..24:83) a/BoxingConversions# -> 2:18
 (24:84..24:89) a/Meter# -> 7:9
 (24:91..24:97) scala/Double#
-(24:98..24:98) a/BoxingConversions#`<init>`(). -> 2:35
 (25:18..25:24) scala/Double#
 (25:32..25:37) a/Meter# -> 7:9
-(25:37..25:37) a/Meter#`<init>`(). -> 7:14
-(25:38..25:39) local2 -> 25:15
+(25:38..25:39) local0 -> 25:15
 (26:20..26:25) a/Meter# -> 7:9
-(26:29..26:30) local4 -> 26:17
+(26:29..26:30) local2 -> 26:17
 (26:31..26:41) a/Meter#underlying. -> 7:19
 (30:25..30:31) scala/Double#
 (30:41..30:47) scala/AnyVal#
-(30:47..30:47) scala/AnyVal#`<init>`().
 (31:19..31:23) a/Foot# -> 30:9
 (31:26..31:30) a/Foot# -> 30:9
 (32:11..32:15) a/Foot# -> 30:9
-(32:15..32:15) a/Foot#`<init>`(). -> 30:13
 (32:21..32:26) a/Foot#unbox. -> 30:18
 (32:27..32:28) scala/Double#`+`(+7).
 (32:29..32:34) a/Foot#`+`().(other) -> 31:12
@@ -93,13 +84,11 @@ Document tests/pos/Meter.scala
 (36:65..36:82) a/BoxingConversions# -> 2:18
 (36:83..36:87) a/Foot# -> 30:9
 (36:89..36:95) scala/Double#
-(36:96..36:96) a/BoxingConversions#`<init>`(). -> 2:35
 (37:18..37:24) scala/Double#
 (37:32..37:36) a/Foot# -> 30:9
-(37:36..37:36) a/Foot#`<init>`(). -> 30:13
-(37:37..37:38) local7 -> 37:15
+(37:37..37:38) local6 -> 37:15
 (38:20..38:24) a/Foot# -> 30:9
-(38:28..38:29) local9 -> 38:17
+(38:28..38:29) local8 -> 38:17
 (38:30..38:35) a/Foot#unbox. -> 30:18
 (44:27..44:30) scala/Any#
 (45:16..45:20) scala/Unit#
@@ -113,26 +102,24 @@ Document tests/pos/Meter.scala
 (51:21..51:24) scala/App#
 (54:10..54:15) a/Meter# -> 7:9
 (54:22..54:27) a/Meter# -> 7:9
-(54:27..54:27) a/Meter#`<init>`(). -> 7:14
 (55:10..55:16) java/lang/Object#
-(55:19..55:20) local10 -> 54:7
+(55:19..55:20) local12 -> 54:7
 (55:21..55:33) scala/Any#asInstanceOf().
 (55:34..55:40) java/lang/Object#
 (56:10..56:15) a/Meter# -> 7:9
-(56:18..56:19) local11 -> 55:7
+(56:18..56:19) local13 -> 55:7
 (56:20..56:32) scala/Any#asInstanceOf().
 (56:33..56:38) a/Meter# -> 7:9
 (58:10..58:16) scala/Double#
 (59:10..59:16) java/lang/Object#
-(59:19..59:20) local13 -> 58:7
+(59:19..59:20) local15 -> 58:7
 (59:21..59:33) scala/Any#asInstanceOf().
 (59:34..59:40) java/lang/Object#
 (60:10..60:16) scala/Double#
-(60:19..60:20) local14 -> 59:7
+(60:19..60:20) local16 -> 59:7
 (60:21..60:33) scala/Any#asInstanceOf().
 (60:34..60:40) scala/Double#
 (63:15..63:20) a/Meter# -> 7:9
-(63:20..63:20) a/Meter#`<init>`(). -> 7:14
 (64:11..64:12) _empty_/Test.x. -> 63:7
 (66:3..66:10) scala/Predef.println(+1).
 (66:12..66:13) _empty_/Test.x. -> 63:7
@@ -179,37 +166,29 @@ Document tests/pos/Meter.scala
 (78:29..78:30) _empty_/Test.b. -> 77:7
 (80:5..80:12) scala/Predef.println(+1).
 (81:15..81:20) scala/Array.
-(81:20..81:20) scala/Array.apply().
 (81:21..81:22) _empty_/Test.x. -> 63:7
 (81:24..81:25) _empty_/Test.y. -> 64:7
 (81:26..81:27) a/Meter#`+`(). -> 8:9
 (81:28..81:29) _empty_/Test.x. -> 63:7
-(81:30..81:30) scala/reflect/ClassTag.apply().
 (82:5..82:12) scala/Predef.println(+1).
-(82:13..82:13) scala/LowPriorityImplicits#genericWrapArray().
-(82:13..82:16) local16 -> 81:9
+(82:13..82:16) local18 -> 81:9
 (82:17..82:23) scala/collection/IterableOnceOps#toList().
 (83:18..83:27) b/Printable# -> 44:9
 (83:32..83:37) scala/Array#
-(83:38..83:39) local18 -> 83:13
-(84:17..84:17) scala/LowPriorityImplicits#intWrapper().
+(83:38..83:39) local19 -> 83:13
 (84:19..84:24) scala/runtime/RichInt#until().
-(84:25..84:26) local19 -> 83:29
+(84:25..84:26) local20 -> 83:29
 (84:27..84:33) scala/Array#length().
-(84:33..84:33) scala/collection/immutable/Range#foreach().
-(84:37..84:38) local19 -> 83:29
-(84:38..84:38) scala/Array#apply().
-(84:39..84:40) local20 -> 84:12
+(84:37..84:38) local20 -> 83:29
+(84:39..84:40) local21 -> 84:12
 (84:42..84:47) b/Printable#print(). -> 45:9
 (84:49..84:56) scala/Predef.println(+1).
 (84:61..84:62) java/lang/String#`+`().
-(84:63..84:64) local19 -> 83:29
-(84:64..84:64) scala/Array#apply().
-(84:65..84:66) local20 -> 84:12
-(86:13..86:16) local16 -> 81:9
-(86:16..86:16) scala/Array#apply().
+(84:63..84:64) local20 -> 83:29
+(84:65..84:66) local21 -> 84:12
+(86:13..86:16) local18 -> 81:9
 (87:5..87:12) scala/Predef.println(+1).
-(87:13..87:14) local21 -> 86:9
-(88:5..88:8) local17 -> 83:9
-(88:9..88:12) local16 -> 81:9
+(87:13..87:14) local23 -> 86:9
+(88:5..88:8) local22 -> 83:9
+(88:9..88:12) local18 -> 81:9
 

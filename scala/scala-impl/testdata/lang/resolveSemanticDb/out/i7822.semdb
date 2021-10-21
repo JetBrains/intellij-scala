@@ -2,7 +2,6 @@ Document tests/pos/i7822.scala
 (4:12..4:16) _empty_/Code# -> 1:7
 (4:20..4:24) _empty_/Code# -> 1:7
 (4:32..4:36) _empty_/Code# -> 1:7
-(4:36..4:36) _empty_/Code#`<init>`(). -> 2:3
 (4:50..4:52) _empty_/i7822$package.foo().(o0) -> 4:9
 (4:53..4:56) _empty_/Code#Ctx# -> 2:8
 (4:57..4:58) scala/`&`#

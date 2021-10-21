@@ -1,9 +1,7 @@
 Document tests/pos/t5359.scala
-(8:12..8:14) _empty_/test.S1. -> 11:14
-(8:14..8:14) _empty_/test.S1.unapply(). -> 11:3
+(8:12..8:14) _empty_/test.S1.
 (11:33..11:37) _empty_/test.Step# -> 5:9
 (11:38..11:39) _empty_/test.S1#[F] -> 11:17
 (14:10..14:14) _empty_/test.Step# -> 5:9
-(15:10..15:12) _empty_/test.S1. -> 11:14
-(15:12..15:12) _empty_/test.S1.unapply(). -> 11:3
+(15:10..15:12) _empty_/test.S1.
 

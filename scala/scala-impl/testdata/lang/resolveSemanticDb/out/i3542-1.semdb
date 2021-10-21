@@ -9,5 +9,4 @@ Document tests/pos/i3542-1.scala
 (6:23..6:33) scala/Predef.implicitly().
 (6:34..6:37) _empty_/Foo# -> 1:7
 (6:38..6:41) scala/Int#
-(6:43..6:43) _empty_/Test.foo(). -> 4:16
 

@@ -58,6 +58,5 @@ Document tests/pos/depmet_implicit_chaining_zw.scala
 (30:19..30:21) _empty_/ZipWith._0# -> 25:8
 (30:23..30:29) scala/Predef.String#
 (30:31..30:38) scala/Boolean#
-(30:39..30:39) _empty_/ZipWith.ZeroZipWith(). -> 10:16
 (30:42..30:43) _empty_/ZipWith#x. -> 6:7
 

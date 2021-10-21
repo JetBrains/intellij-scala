@@ -2,17 +2,11 @@ Document tests/pos/i8069.scala
 (5:16..5:17) _empty_/A# -> 1:7
 (5:26..5:27) _empty_/C#`<init>`().(a)
 (5:28..5:29) _empty_/A#B# -> 2:9
-(7:1..7:1) _empty_/i8069$package.Test(). -> 7:11
-(7:1..7:1) local5
-(7:1..7:1) scala/util/CommandLineParser.showError().
 (7:2..7:6) scala/main#
 (8:11..8:12) _empty_/A# -> 1:7
-(8:12..8:12) _empty_/A#`<init>`(). -> 2:3
 (9:11..9:12) local0 -> 8:7
 (9:13..9:14) _empty_/A#B# -> 2:9
-(9:14..9:14) _empty_/A#B#`<init>`(). -> 2:3
 (10:11..10:12) _empty_/C# -> 5:7
-(10:12..10:12) _empty_/C#`<init>`(). -> 5:8
 (10:13..10:14) local0 -> 8:7
 (10:16..10:17) local1 -> 9:7
 (11:11..11:12) local2 -> 10:7

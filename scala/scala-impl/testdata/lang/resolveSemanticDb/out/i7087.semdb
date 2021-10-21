@@ -11,5 +11,4 @@ Document tests/pos/i7087.scala
 (13:29..13:35) scala/Predef.String#
 (13:39..13:40) _empty_/i7087$package.f().(x) -> 13:7
 (13:41..13:42) _empty_/i7087$package.g(). -> 10:7
-(13:42..13:42) _empty_/i7087$package.f().(Foo) -> 13:24
 

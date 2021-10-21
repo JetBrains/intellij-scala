@@ -14,12 +14,6 @@ Document tests/pos/combine.scala
 (5:63..5:64) _empty_/combine$package.given_Semigroup_A_B().[B] -> 5:11
 (5:70..5:73) scala/Predef.`???`().
 (6:21..6:24) scala/App#
-(7:4..7:4) _empty_/Semigroup#combine(). -> 2:24
-(7:5..7:5) scala/Tuple2.apply().
-(7:22..7:22) scala/Tuple2.apply().
-(8:4..8:4) _empty_/Semigroup#combine(). -> 2:24
-(8:5..8:5) scala/Tuple2.apply().
 (8:13..8:16) scala/Int#
 (8:18..8:21) scala/Int#
-(8:33..8:33) scala/Tuple2.apply().
 

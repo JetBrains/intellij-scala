@@ -1,10 +1,8 @@
 Document tests/pos/wildcards.scala
 (2:11..2:15) scala/package.List#
 (2:21..2:25) scala/package.List.
-(2:25..2:25) scala/collection/IterableFactory#apply().
 (3:11..3:14) scala/Predef.Map#
 (3:20..3:26) scala/AnyRef#
 (3:33..3:37) scala/Null#
 (3:41..3:44) scala/Predef.Map.
-(3:44..3:44) scala/collection/MapFactory#apply().
 

@@ -4,7 +4,6 @@ Document tests/pos/i5139.scala
 (5:15..5:16) _empty_/B# -> 2:7
 (5:20..5:22) _empty_/Base#m().(ab) -> 5:9
 (7:23..7:27) _empty_/Base# -> 4:7
-(7:27..7:27) _empty_/Base#`<init>`(). -> 5:3
 (8:22..8:23) _empty_/B# -> 2:7
 (8:23..8:24) scala/`&`#
 (8:24..8:25) _empty_/A# -> 1:7

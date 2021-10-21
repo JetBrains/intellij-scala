@@ -43,7 +43,6 @@ Document tests/pos/tagging.scala
 (20:39..20:41) _empty_/tagging.`@@`# -> 18:8
 (20:42..20:43) _empty_/tagging.UntagOps#[T] -> 20:30
 (20:53..20:59) scala/AnyVal#
-(20:59..20:59) scala/AnyVal#`<init>`().
 (21:16..21:17) _empty_/tagging.UntagOps#[S] -> 20:27
 (21:20..21:26) _empty_/tagging.Tagged. -> 7:10
 (21:27..21:32) _empty_/tagging.Tagged.untag(). -> 9:9
@@ -53,7 +52,6 @@ Document tests/pos/tagging.scala
 (24:48..24:50) _empty_/tagging.`@@`# -> 18:8
 (24:51..24:52) _empty_/tagging.UntagsOps#[T] -> 24:37
 (24:63..24:69) scala/AnyVal#
-(24:69..24:69) scala/AnyVal#`<init>`().
 (25:17..25:18) _empty_/tagging.UntagsOps#[F] -> 24:28
 (25:19..25:20) _empty_/tagging.UntagsOps#[S] -> 24:34
 (25:24..25:30) _empty_/tagging.Tagged. -> 7:10
@@ -61,7 +59,6 @@ Document tests/pos/tagging.scala
 (25:38..25:40) _empty_/tagging.UntagsOps#fs. -> 24:40
 (28:31..28:32) _empty_/tagging.TagOps#[S] -> 28:25
 (28:42..28:48) scala/AnyVal#
-(28:48..28:48) scala/AnyVal#`<init>`().
 (29:17..29:18) _empty_/tagging.TagOps#[S] -> 28:25
 (29:19..29:21) _empty_/tagging.`@@`# -> 18:8
 (29:22..29:23) _empty_/tagging.TagOps#tag().[T] -> 29:13
@@ -71,7 +68,6 @@ Document tests/pos/tagging.scala
 (32:39..32:40) _empty_/tagging.TagsOps#[F] -> 32:26
 (32:41..32:42) _empty_/tagging.TagsOps#[S] -> 32:32
 (32:53..32:59) scala/AnyVal#
-(32:59..32:59) scala/AnyVal#`<init>`().
 (33:18..33:19) _empty_/tagging.TagsOps#[F] -> 32:26
 (33:20..33:21) _empty_/tagging.TagsOps#[S] -> 32:32
 (33:22..33:24) _empty_/tagging.`@@`# -> 18:8
@@ -82,33 +78,27 @@ Document tests/pos/tagging.scala
 (40:10..40:16) scala/Double#
 (40:17..40:19) _empty_/tagging.`@@`# -> 18:8
 (40:20..40:25) _empty_/tagging.Meter# -> 36:9
-(40:29..40:29) _empty_/tagging.TagOps(). -> 28:18
 (40:34..40:37) _empty_/tagging.TagOps#tag(). -> 29:9
 (40:38..40:43) _empty_/tagging.Meter# -> 36:9
 (41:10..41:16) scala/Double#
 (41:17..41:19) _empty_/tagging.`@@`# -> 18:8
 (41:20..41:24) _empty_/tagging.Foot# -> 37:9
-(41:28..41:28) _empty_/tagging.TagOps(). -> 28:18
 (41:35..41:38) _empty_/tagging.TagOps#tag(). -> 29:9
 (41:39..41:43) _empty_/tagging.Foot# -> 37:9
 (42:11..42:16) scala/Array#
 (42:17..42:23) scala/Double#
 (42:24..42:26) _empty_/tagging.`@@`# -> 18:8
 (42:27..42:32) _empty_/tagging.Meter# -> 36:9
-(42:36..42:36) _empty_/tagging.TagsOps(). -> 32:18
 (42:36..42:41) scala/Array.
-(42:41..42:41) scala/Array.apply(+8).
 (42:57..42:61) _empty_/tagging.TagsOps#tags(). -> 33:9
 (42:62..42:67) _empty_/tagging.Meter# -> 36:9
 (44:10..44:18) scala/package.Ordering#
 (44:19..44:25) scala/Double#
 (44:29..44:39) scala/Predef.implicitly().
-(44:39..44:39) scala/math/Ordering.DeprecatedDoubleOrdering.
 (45:11..45:19) scala/package.Ordering#
 (45:20..45:26) scala/Double#
 (45:27..45:29) _empty_/tagging.`@@`# -> 18:8
 (45:30..45:35) _empty_/tagging.Meter# -> 36:9
-(45:39..45:39) _empty_/tagging.TagsOps(). -> 32:18
 (45:39..45:40) _empty_/tagging.o. -> 44:7
 (45:41..45:45) _empty_/tagging.TagsOps#tags(). -> 33:9
 (45:46..45:51) _empty_/tagging.Meter# -> 36:9
@@ -116,7 +106,6 @@ Document tests/pos/tagging.scala
 (46:6..46:13) scala/math/Ordering#compare().
 (46:14..46:15) _empty_/tagging.x. -> 40:7
 (46:17..46:18) _empty_/tagging.x. -> 40:7
-(48:3..48:3) scala/LowPriorityImplicits#wrapDoubleArray().
 (48:3..48:5) _empty_/tagging.xs. -> 42:7
 (48:6..48:9) scala/collection/IterableOnceOps#min().
 (48:10..48:12) _empty_/tagging.om. -> 45:7
@@ -124,8 +113,6 @@ Document tests/pos/tagging.scala
 (52:22..52:28) scala/Double#
 (52:29..52:31) _empty_/tagging.`@@`# -> 18:8
 (52:32..52:36) _empty_/tagging.Foot# -> 37:9
-(52:37..52:37) scala/Array#`<init>`().
 (53:17..53:22) scala/Array#
 (53:23..53:29) scala/Double#
-(53:30..53:30) scala/Array#`<init>`().
 

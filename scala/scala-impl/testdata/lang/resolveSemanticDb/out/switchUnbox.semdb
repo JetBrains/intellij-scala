@@ -1,7 +1,6 @@
 Document tests/pos/switchUnbox.scala
 (2:13..2:16) scala/Int#
 (2:18..2:24) scala/Predef.String#
-(2:29..2:29) scala/Tuple2.apply().
 (3:3..3:6) _empty_/Foo.xyz(). -> 2:7
 (3:7..3:9) scala/Tuple2#_1.
 (4:15..4:22) scala/Console.

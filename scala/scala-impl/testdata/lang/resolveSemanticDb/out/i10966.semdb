@@ -5,12 +5,12 @@ Document tests/pos/i10966.scala
 (3:18..3:21) scala/Int#
 (3:26..3:29) scala/Int#
 (3:32..3:36) scala/Unit#
-(4:5..4:10) local0 -> 3:9
+(4:5..4:10) local2 -> 3:9
 (7:14..7:17) scala/Int#
 (7:22..7:25) scala/Int#
 (7:28..7:32) scala/Unit#
-(8:5..8:6) local3 -> 7:9
+(8:5..8:6) local5 -> 7:9
 (13:20..13:23) scala/Int#
 (13:26..13:30) scala/Unit#
-(14:5..14:12) local6 -> 13:10
+(14:5..14:12) local7 -> 13:10
 

@@ -13,14 +13,9 @@ Document tests/pos/gadt-eval.scala
 (6:22..6:23) _empty_/Test.eval().[T] -> 6:12
 (6:27..6:28) _empty_/Test.eval().[T] -> 6:12
 (6:31..6:32) _empty_/Test.eval().(e) -> 6:15
-(7:10..7:13) _empty_/Lit. -> 2:12
-(7:13..7:13) _empty_/Lit.unapply().
+(7:10..7:13) _empty_/Lit.
 (8:7..8:8) local0 -> 7:14
-(9:10..9:14) _empty_/Pair. -> 3:12
-(9:14..9:14) _empty_/Pair.unapply(). -> 3:1
-(9:14..9:14) local1
-(9:14..9:14) local2
-(10:8..10:8) scala/Tuple2.apply().
+(9:10..9:14) _empty_/Pair.
 (10:8..10:12) _empty_/Test.eval(). -> 6:7
 (10:13..10:14) local3 -> 9:15
 (10:17..10:21) _empty_/Test.eval(). -> 6:7
@@ -33,11 +28,10 @@ Document tests/pos/gadt-eval.scala
 (15:7..15:8) local5 -> 14:10
 (15:9..15:14) _empty_/Lit#value. -> 2:16
 (16:13..16:17) _empty_/Pair# -> 3:12
-(17:8..17:8) scala/Tuple2.apply().
 (17:8..17:12) _empty_/Test.eval(). -> 6:7
-(17:13..17:14) local6 -> 16:10
+(17:13..17:14) local8 -> 16:10
 (17:15..17:18) _empty_/Pair#fst. -> 3:23
 (17:21..17:25) _empty_/Test.eval(). -> 6:7
-(17:26..17:27) local6 -> 16:10
+(17:26..17:27) local8 -> 16:10
 (17:28..17:31) _empty_/Pair#snd. -> 3:36
 

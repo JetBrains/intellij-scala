@@ -3,7 +3,5 @@ Document tests/pos/t2187-2.scala
 (2:26..2:27) _empty_/Test#test().[A] -> 2:12
 (2:32..2:36) _empty_/Test#test().(list) -> 2:15
 (3:10..3:13) scala/package.Seq.
-(3:13..3:13) scala/collection/SeqFactory#unapplySeq().
 (4:10..4:13) scala/package.Seq.
-(4:13..4:13) scala/collection/SeqFactory#unapplySeq().
 

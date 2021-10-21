@@ -17,7 +17,6 @@ Document tests/pos/9871.scala
 (7:40..7:43) scala/`=:=`#
 (7:45..7:48) scala/Int#
 (7:50..7:56) scala/Predef.String#
-(7:58..7:58) scala/`<:<`.refl().
 (8:3..8:9) scala/Predef.summon().
 (8:10..8:23) _empty_/Test.IsTypeInTuple# -> 2:8
 (8:24..8:30) scala/Predef.String#
@@ -27,12 +26,10 @@ Document tests/pos/9871.scala
 (8:46..8:48) scala/`*:`#
 (8:49..8:59) scala/Tuple$package.EmptyTuple#
 (8:61..8:64) scala/`=:=`#
-(8:70..8:70) scala/`<:<`.refl().
 (9:3..9:9) scala/Predef.summon().
 (9:10..9:23) _empty_/Test.IsTypeInTuple# -> 2:8
 (9:24..9:30) scala/Predef.String#
 (9:33..9:36) scala/Int#
 (9:38..9:44) scala/Predef.String#
 (9:47..9:50) scala/`=:=`#
-(9:56..9:56) scala/`<:<`.refl().
 

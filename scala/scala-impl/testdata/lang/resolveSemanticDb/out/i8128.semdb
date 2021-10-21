@@ -1,29 +1,26 @@
 Document tests/pos/i8128.scala
 (2:17..2:18) scala/`|`#
-(2:25..2:26) local1 -> 2:12
+(2:25..2:26) local0 -> 2:12
 (2:39..2:40) local2 -> 2:34
 (3:3..3:5) _empty_/Test.id(). -> 2:7
-(3:5..3:5) scala/Function1#apply().
 (5:12..5:21) scala/Function1#
 (5:24..5:25) scala/`|`#
 (5:31..5:32) scala/`|`#
 (6:20..6:21) scala/`|`#
-(6:26..6:27) local4 -> 6:15
+(6:26..6:27) local3 -> 6:15
 (7:7..7:10) scala/Predef.`???`().
 (8:3..8:6) _empty_/Test.id2(). -> 5:7
-(8:6..8:6) scala/Function1#apply().
 (10:12..10:21) scala/Function1#
 (10:24..10:25) scala/`|`#
 (10:29..10:32) scala/Int#
 (11:20..11:21) scala/`|`#
-(11:26..11:27) local6 -> 11:15
+(11:26..11:27) local5 -> 11:15
 (12:7..12:10) scala/Predef.`???`().
 (13:3..13:6) _empty_/Test.id3(). -> 10:7
-(13:6..13:6) scala/Function1#apply().
 (16:13..16:14) scala/`&`#
 (16:18..16:19) scala/`|`#
-(17:3..17:4) _empty_/Test.`x_=`(). -> 15:7
+(17:3..17:4) _empty_/Test.`x_=`().
 (17:7..17:8) _empty_/Test.y(). -> 16:7
-(18:3..18:4) _empty_/Test.`y_=`(). -> 16:7
+(18:3..18:4) _empty_/Test.`y_=`().
 (18:7..18:8) _empty_/Test.x(). -> 15:7
 

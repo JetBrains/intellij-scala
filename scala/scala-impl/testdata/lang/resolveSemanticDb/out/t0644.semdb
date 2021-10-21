@@ -3,9 +3,6 @@ Document tests/pos/t0644.scala
 (3:17..3:20) scala/Int#
 (3:23..3:27) scala/Unit#
 (6:17..6:18) _empty_/A# -> 1:7
-(6:18..6:18) _empty_/A#`<init>`(). -> 2:3
-(7:7..7:7) _empty_/A#apply(). -> 2:7
-(8:7..8:7) _empty_/A#update(). -> 3:7
 (10:9..10:14) _empty_/A#apply(). -> 2:7
 (11:9..11:15) _empty_/A#update(). -> 3:7
 

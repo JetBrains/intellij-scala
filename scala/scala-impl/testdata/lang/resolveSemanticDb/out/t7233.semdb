@@ -10,13 +10,11 @@ Document tests/pos/t7233.scala
 (8:29..8:37) scala/Any#toString().
 (8:46..8:48) _empty_/Foo.ol(). -> 4:7
 (8:46..8:48) _empty_/Foo.ol(+1). -> 5:7
-(10:12..10:12) local0
 (10:12..10:16) _empty_/Foo.bar(). -> 2:7
 (11:17..11:20) scala/Int#
 (11:24..11:27) scala/Int#
 (11:31..11:33) _empty_/Test.f1. -> 10:7
 (13:11..13:17) scala/Predef.String#
 (13:21..13:27) scala/Predef.String#
-(13:30..13:30) local1
 (13:30..13:39) _empty_/Foo.ol(+1). -> 5:7
 

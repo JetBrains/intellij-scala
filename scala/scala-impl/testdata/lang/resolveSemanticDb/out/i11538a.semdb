@@ -17,6 +17,5 @@ Document tests/pos/i11538a.scala
 (22:20..22:26) scala/Predef.summon().
 (22:27..22:34) a/Printer# -> 3:9
 (22:35..22:41) scala/Predef.String#
-(22:43..22:43) a/i11538a$package.given_Printer_String. -> 6:9
 (23:24..23:43) b/test.summonStringPrinter(). -> 16:16
 

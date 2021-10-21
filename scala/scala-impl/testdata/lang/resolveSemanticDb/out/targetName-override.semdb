@@ -11,7 +11,6 @@ Document tests/pos/targetName-override.scala
 (5:30..5:31) _empty_/A#f().(x) -> 5:9
 (5:32..5:38) java/lang/String#length().
 (8:17..8:18) _empty_/A# -> 3:7
-(8:18..8:18) _empty_/A#`<init>`(). -> 4:3
 (9:4..9:14) scala/annotation/targetName#
 (9:42..9:45) scala/Int#
 (9:48..9:51) scala/Int#

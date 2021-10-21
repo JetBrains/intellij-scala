@@ -35,9 +35,7 @@ Document tests/pos/tparam_inf.scala
 (19:14..19:18) scala/Unit#
 (20:22..20:25) scala/Int#
 (22:5..22:9) _empty_/Test.foo1(). -> 16:7
-(22:13..22:13) local0 -> 20:18
 (23:5..23:9) _empty_/Test.foo2(). -> 17:7
-(23:13..23:13) local0 -> 20:18
 (26:14..26:20) _empty_/HasFoo# -> 1:7
 (26:21..26:22) _empty_/Test.hf().[T] -> 26:10
 (26:26..26:29) scala/Predef.`???`().
@@ -52,17 +50,13 @@ Document tests/pos/tparam_inf.scala
 (33:5..33:7) _empty_/Test.hf(). -> 26:7
 (33:8..33:9) _empty_/HasFoo#x. -> 2:7
 (33:10..33:14) _empty_/Foo#foo1(). -> 8:7
-(33:18..33:18) local1 -> 28:18
 (34:5..34:7) _empty_/Test.hf(). -> 26:7
 (34:8..34:9) _empty_/HasFoo#x. -> 2:7
 (34:10..34:14) _empty_/Foo#foo2(). -> 9:7
-(34:18..34:18) local1 -> 28:18
 (35:5..35:7) _empty_/Test.hf(). -> 26:7
 (35:8..35:9) _empty_/HasFoo#x. -> 2:7
 (35:10..35:14) _empty_/Foo#foo3(). -> 10:7
-(35:18..35:18) local1 -> 28:18
 (36:5..36:7) _empty_/Test.hf(). -> 26:7
 (36:8..36:9) _empty_/HasFoo#x. -> 2:7
 (36:10..36:14) _empty_/Foo#foo4(). -> 11:7
-(36:18..36:18) local1 -> 28:18
 

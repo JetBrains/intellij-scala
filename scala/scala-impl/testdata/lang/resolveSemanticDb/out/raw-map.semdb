@@ -5,5 +5,4 @@ Document tests/pos/raw-map/S_2.scala
 (4:7..4:17) _empty_/J_1#setRawType().
 (4:22..4:26) java/
 (4:27..4:31) java/util/
-(4:39..4:39) java/util/HashMap#`<init>`(+2).
 

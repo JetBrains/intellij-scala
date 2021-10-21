@@ -7,7 +7,6 @@ Document tests/pos/implicit-unwrap-tc.scala
 (6:20..6:23) scala/Int#
 (7:15..7:22) _empty_/NewType# -> 1:7
 (7:23..7:26) _empty_/Test.Foo# -> 6:9
-(7:31..7:31) _empty_/Test.Unwrap(). -> 5:16
 (7:31..7:32) _empty_/Test.test().(f) -> 7:12
 (7:33..7:34) _empty_/Test.Foo#a. -> 6:17
 

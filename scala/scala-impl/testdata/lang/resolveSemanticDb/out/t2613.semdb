@@ -1,10 +1,13 @@
 Document tests/pos/t2613.scala
 (1:8..1:16) scala/language.
 (1:17..1:29) scala/language.existentials.
+(6:35..6:38) _empty_/Test.Row# -> 4:9
+(6:53..6:63) _empty_/Test.MyRelation# -> 6:18
+(6:64..6:65) _empty_/Test.MyRelation#[R] -> 6:30
+(6:67..6:75) _empty_/Test.MyRelation#[Relation] -> 6:41
 (8:12..8:22) _empty_/Test.MyRelation# -> 6:18
 (8:28..8:31) _empty_/Test.Row# -> 4:9
 (8:38..8:48) _empty_/Test.MyRelation# -> 6:18
-(10:8..10:8) scala/Tuple2.unapply().
 (10:15..10:21) scala/Predef.String#
 (10:23..10:24) _empty_/Test.M# -> 8:8
 

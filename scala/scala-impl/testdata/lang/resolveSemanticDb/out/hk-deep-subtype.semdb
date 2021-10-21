@@ -5,10 +5,17 @@ Document tests/pos/hk-deep-subtype.scala
 (2:35..2:52) scala/annotation/unchecked/uncheckedVariance#
 (4:21..4:24) _empty_/GTT# -> 7:7
 (4:25..4:26) _empty_/GT#[A] -> 4:10
+(7:24..7:26) _empty_/GT# -> 4:7
+(7:27..7:28) _empty_/GTT#`<init>`().[DD][X] -> 7:18
 (7:39..7:42) _empty_/HNB# -> 6:7
 (7:43..7:45) _empty_/GTT#[DD] -> 7:15
 (7:46..7:47) _empty_/GTT#[C] -> 7:12
 (7:50..7:67) scala/annotation/unchecked/uncheckedVariance#
+(9:20..9:22) _empty_/GT# -> 4:7
+(9:23..9:24) _empty_/GTF#`<init>`().[EE][X] -> 9:14
+(9:31..9:34) _empty_/GTT# -> 7:7
+(9:35..9:36) _empty_/GTF#`<init>`().[EE][X] -> 9:14
+(9:38..9:40) _empty_/GTF#[EE] -> 9:11
 (11:15..11:17) _empty_/GTF#[EE] -> 9:11
 (11:18..11:19) _empty_/GTF#foo().[F] -> 11:11
 (11:23..11:26) scala/Predef.`???`().

@@ -4,5 +4,4 @@ Document tests/pos/i7778b.scala
 (2:17..2:18) _empty_/Foo#foo().[T] -> 2:11
 (2:23..2:26) scala/Int#
 (2:29..2:32) _empty_/Foo#run. -> 1:14
-(2:32..2:32) scala/ContextFunction1#apply().
 

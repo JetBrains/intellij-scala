@@ -4,6 +4,5 @@ Document tests/pos/rangepos-anonapply.scala
 (6:17..6:20) scala/Int#
 (6:23..6:27) scala/Unit#
 (7:10..7:23) _empty_/Test#PropTraverser# -> 2:9
-(7:26..7:26) _empty_/Test#PropTraverser#apply(). -> 3:9
 (7:28..7:29) _empty_/Test#gather().(x) -> 6:14
 

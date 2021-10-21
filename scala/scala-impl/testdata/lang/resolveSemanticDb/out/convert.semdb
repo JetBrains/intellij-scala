@@ -2,7 +2,6 @@ Document tests/pos/convert.scala
 (1:8..1:12) java/
 (1:13..1:17) java/util/
 (1:18..1:22) java/util/Date#
-(1:18..1:22) java/util/Date.
 (3:7..3:17) scala/Conversion#
 (3:18..3:24) scala/Predef.String#
 (3:26..3:29) scala/Int#
@@ -15,18 +14,13 @@ Document tests/pos/convert.scala
 (5:18..5:21) scala/Int#
 (5:23..5:27) java/util/Date#
 (5:35..5:39) java/util/Date#
-(5:39..5:39) java/util/Date#`<init>`(+1).
-(5:40..5:40) scala/Int.int2long().
 (7:10..7:16) scala/Predef.String#
 (7:19..7:22) scala/Int#
-(7:25..7:25) scala/Conversion#convert().
 (7:25..7:26) _empty_/convert$package.f().(x) -> 7:7
 (8:10..8:13) scala/Int#
 (8:16..8:22) scala/Predef.String#
-(8:25..8:25) scala/Conversion#convert().
 (8:25..8:26) _empty_/convert$package.g().(x) -> 8:7
 (9:10..9:13) scala/Int#
 (9:16..9:20) java/util/Date#
-(9:23..9:23) scala/Conversion#convert().
 (9:23..9:24) _empty_/convert$package.h().(x) -> 9:7
 

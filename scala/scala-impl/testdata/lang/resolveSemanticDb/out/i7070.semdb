@@ -6,6 +6,4 @@ Document tests/pos/i7070.scala
 (7:9..7:10) _empty_/Test.C# -> 3:9
 (7:13..7:16) scala/Predef.`???`().
 (9:19..9:22) _empty_/Test.foo(). -> 5:31
-(9:22..9:22) _empty_/Test.given_C. -> 7:9
-(9:22..9:22) scala/ContextFunction1#apply().
 

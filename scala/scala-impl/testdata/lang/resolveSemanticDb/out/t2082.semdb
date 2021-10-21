@@ -1,6 +1,19 @@
 Document tests/pos/t2082.scala
+(2:19..2:25) _empty_/Mapper# -> 2:7
+(2:26..2:27) _empty_/Mapper#[T] -> 2:14
+(4:33..4:44) _empty_/KeyedMapper# -> 4:7
+(4:45..4:52) _empty_/KeyedMapper#[KeyType] -> 4:19
+(4:54..4:55) _empty_/KeyedMapper#[T] -> 4:28
 (4:66..4:72) _empty_/Mapper# -> 2:7
 (4:73..4:74) _empty_/KeyedMapper#[T] -> 4:28
+(7:37..7:48) _empty_/KeyedMapper# -> 4:7
+(7:49..7:56) _empty_/KeyedMetaMapper#[KeyType] -> 7:23
+(7:58..7:59) _empty_/KeyedMetaMapper#[T] -> 7:32
+(9:42..9:48) _empty_/Mapper# -> 2:7
+(9:49..9:54) _empty_/MappedForeignKey#[Owner] -> 9:33
+(9:66..9:77) _empty_/KeyedMapper# -> 4:7
+(9:78..9:85) _empty_/MappedForeignKey#[KeyType] -> 9:24
+(9:87..9:92) _empty_/MappedForeignKey#[Other] -> 9:57
 (13:27..13:38) _empty_/KeyedMapper# -> 4:7
 (13:39..13:43) scala/Long#
 (13:45..13:56) _empty_/TestSubject# -> 13:7
@@ -14,17 +27,14 @@ Document tests/pos/t2082.scala
 (16:55..16:62) _empty_/TestRun# -> 15:7
 (16:64..16:75) _empty_/TestSubject# -> 13:7
 (19:24..19:31) _empty_/TestRun# -> 15:7
-(19:31..19:31) _empty_/TestRun#`<init>`(). -> 15:23
 (19:37..19:52) _empty_/KeyedMetaMapper# -> 7:7
 (19:53..19:57) scala/Long#
 (19:59..19:66) _empty_/TestRun# -> 15:7
 (21:31..21:42) _empty_/TestSubject# -> 13:7
-(21:42..21:42) _empty_/TestSubject#`<init>`(). -> 13:27
 (21:48..21:63) _empty_/KeyedMetaMapper# -> 7:7
 (21:64..21:68) scala/Long#
 (21:70..21:81) _empty_/TestSubject# -> 13:7
 (22:28..22:43) _empty_/MetaTestSubject# -> 21:7
-(22:43..22:43) _empty_/MetaTestSubject#`<init>`(). -> 21:31
 (26:29..26:40) _empty_/KeyedMapper# -> 4:7
 (26:41..26:45) scala/Long#
 (26:47..26:52) _empty_/Main.oneToOneJoin().[PType] -> 26:20
@@ -61,7 +71,6 @@ Document tests/pos/t2082.scala
 (35:41..35:48) _empty_/TestRun# -> 15:7
 (35:50..35:61) _empty_/TestSubject# -> 13:7
 (36:5..36:9) scala/package.List.
-(36:9..36:9) scala/collection/IterableFactory#apply().
 (36:13..36:24) _empty_/TestSubject. -> 22:8
 (36:31..36:38) _empty_/TestRun# -> 15:7
 (36:43..36:45) local0 -> 36:27

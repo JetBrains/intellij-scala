@@ -10,19 +10,15 @@ Document tests/pos/i3692.scala
 (10:14..10:15) _empty_/C# -> 1:7
 (10:20..10:23) scala/Predef.Set#
 (10:24..10:27) scala/Int#
-(10:31..10:37) local0 -> 9:9
-(10:37..10:37) scala/ContextFunction1#apply().
+(10:31..10:37) local3 -> 9:9
 (11:17..11:18) _empty_/C# -> 1:7
 (11:23..11:26) scala/Predef.Set#
 (11:27..11:30) scala/Int#
-(11:34..11:40) local0 -> 9:9
-(11:40..11:40) scala/ContextFunction1#apply().
+(11:34..11:40) local3 -> 9:9
 (12:23..12:24) _empty_/C# -> 1:7
 (12:29..12:32) scala/Predef.Set#
 (12:33..12:36) scala/Int#
-(12:41..12:42) local8 -> 12:16
-(12:42..12:42) scala/Function1#apply().
+(12:41..12:42) local10 -> 12:16
 (12:47..12:48) _empty_/C# -> 1:7
-(12:48..12:48) _empty_/C#`<init>`(). -> 1:11
 (12:56..12:59) scala/Int#
 

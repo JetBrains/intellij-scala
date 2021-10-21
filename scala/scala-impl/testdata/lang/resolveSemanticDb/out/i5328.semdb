@@ -5,7 +5,6 @@ Document tests/pos/i5328.scala
 (2:33..2:34) _empty_/C#[X] -> 2:9
 (2:39..2:40) _empty_/C#[Y] -> 2:12
 (2:45..2:46) _empty_/C#apply().[Z] -> 2:27
-(2:51..2:51) scala/Tuple3.apply().
 (2:51..2:52) _empty_/C#apply().(x) -> 2:30
 (2:54..2:55) _empty_/C#apply().(y) -> 2:36
 (2:57..2:58) _empty_/C#apply().(z) -> 2:42
@@ -15,18 +14,14 @@ Document tests/pos/i5328.scala
 (5:33..5:34) _empty_/C# -> 2:7
 (5:35..5:36) _empty_/Test.f().[X] -> 5:9
 (5:38..5:39) _empty_/Test.f().[Y] -> 5:12
-(5:40..5:40) _empty_/C#`<init>`(). -> 2:8
 (6:3..6:4) _empty_/Test.f(). -> 5:7
 (6:5..6:8) scala/Int#
 (6:10..6:17) scala/Boolean#
 (6:19..6:22) scala/Any#
-(6:23..6:23) _empty_/C#apply(). -> 2:21
 (6:24..6:30) scala/Predef.String#
 (7:3..7:4) _empty_/Test.f(). -> 5:7
 (7:9..7:12) scala/Int#
-(7:13..7:13) _empty_/C#apply(). -> 2:21
 (8:3..8:4) _empty_/Test.f(). -> 5:7
 (8:9..8:12) scala/Any#
 (8:18..8:21) scala/Int#
-(8:22..8:22) _empty_/C#apply(). -> 2:21
 

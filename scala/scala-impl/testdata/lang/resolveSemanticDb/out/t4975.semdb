@@ -5,9 +5,7 @@ Document tests/pos/t4975.scala
 (7:40..7:41) local0 -> 5:11
 (7:49..7:50) _empty_/ImplicitScope.A# -> 2:9
 (7:51..7:52) local0 -> 5:11
-(7:53..7:53) _empty_/ImplicitScope.A#`<init>`(). -> 2:10
 (10:5..10:15) scala/Predef.implicitly().
 (10:16..10:17) _empty_/ImplicitScope.A# -> 2:9
 (10:18..10:19) local0 -> 5:11
-(10:21..10:21) local2 -> 7:20
 

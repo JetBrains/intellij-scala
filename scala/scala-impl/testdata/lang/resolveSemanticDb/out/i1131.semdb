@@ -1,11 +1,8 @@
 Document tests/pos/i1131.scala
 (6:15..6:20) _empty_/Outer# -> 1:7
-(6:20..6:20) _empty_/Outer#`<init>`(). -> 2:3
 (9:11..9:12) _empty_/MustBeATrait#o. -> 6:7
 (9:13..9:18) _empty_/Outer#Inner# -> 2:9
-(9:18..9:18) _empty_/Outer#Inner#`<init>`(). -> 2:3
 (11:9..11:10) local0 -> 8:11
 (13:20..13:21) _empty_/MustBeATrait#o. -> 6:7
 (13:22..13:27) _empty_/Outer#Inner# -> 2:9
-(13:27..13:27) _empty_/Outer#Inner#`<init>`(). -> 2:3
 

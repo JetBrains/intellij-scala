@@ -2,7 +2,6 @@ Document tests/pos/i3467/Test_2.scala
 (4:16..4:21) scala/Array#
 (4:22..4:25) scala/Int#
 (4:29..4:33) scala/Unit#
-(5:17..5:17) collection/ArrayOps#`<init>`(). -> 19:15
 (5:18..5:20) collection/Test#test().(xs) -> 4:12
 
 Document tests/pos/i3467/collection_1.scala
@@ -11,6 +10,8 @@ Document tests/pos/i3467/collection_1.scala
 (5:53..5:54) collection/IndexedSeq#[A] -> 5:19
 (5:68..5:78) collection/IndexedSeq# -> 5:7
 (5:79..5:80) collection/IndexedSeq#[A] -> 5:19
+(7:35..7:45) collection/IndexedSeq# -> 5:7
+(7:46..7:47) collection/IndexedSeqOps#`<init>`().[CC][X] -> 7:29
 (7:62..7:65) scala/Any#
 (8:21..8:22) collection/IndexedSeqOps#[A] -> 7:22
 (8:26..8:33) scala/Boolean#
@@ -30,11 +31,9 @@ Document tests/pos/i3467/collection_1.scala
 (16:51..16:61) collection/WithFilter# -> 3:16
 (16:62..16:63) collection/ArrayOps.WithFilter#[A] -> 16:29
 (16:65..16:74) collection/immutable/ -> 11:9
-(16:86..16:86) collection/WithFilter#`<init>`(). -> 3:26
 (19:27..19:32) scala/Array#
 (19:33..19:34) collection/ArrayOps#[A] -> 19:16
 (19:45..19:51) scala/AnyVal#
-(19:51..19:51) scala/AnyVal#`<init>`().
 (19:57..19:70) collection/IndexedSeqOps# -> 7:7
 (19:71..19:72) collection/ArrayOps#[A] -> 19:16
 (19:74..19:83) collection/immutable/ -> 11:9

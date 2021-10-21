@@ -4,5 +4,4 @@ Document tests/pos/i4557.scala
 (4:25..4:29) scala/Char#
 (5:30..5:31) _empty_/Test.P# -> 4:8
 (5:32..5:36) scala/Unit#
-(5:37..5:37) _empty_/Parser#`<init>`(). -> 1:13
 

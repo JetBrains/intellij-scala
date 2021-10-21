@@ -18,6 +18,7 @@ Document tests/pos/i12373.scala
 (14:53..14:59) _empty_/ColumnSet.Empty.Append# -> 13:10
 (14:60..14:64) _empty_/ColumnSet.Empty.`++`().[That] -> 14:21
 (14:68..14:72) _empty_/ColumnSet.Empty.`++`().(that) -> 14:40
+(17:34..17:43) _empty_/ColumnSet# -> 3:14
 (17:51..17:57) _empty_/Column# -> 1:19
 (17:58..17:59) _empty_/ColumnSet.Cons#[A] -> 17:26
 (17:68..17:69) _empty_/ColumnSet.Cons#[B] -> 17:29
@@ -32,8 +33,7 @@ Document tests/pos/i12373.scala
 (19:46..19:50) _empty_/ColumnSet.Cons#`++`().[That] -> 19:21
 (19:53..19:59) _empty_/ColumnSet.Cons#Append# -> 18:10
 (19:60..19:64) _empty_/ColumnSet.Cons#`++`().[That] -> 19:21
-(19:68..19:72) _empty_/ColumnSet.Cons. -> 17:21
-(19:72..19:72) _empty_/ColumnSet.Cons.apply(). -> 17:3
+(19:68..19:72) _empty_/ColumnSet.Cons.
 (19:73..19:77) _empty_/ColumnSet.Cons#head. -> 17:45
 (19:79..19:83) _empty_/ColumnSet.Cons#tail. -> 17:62
 (19:84..19:86) _empty_/ColumnSet#`++`(). -> 5:7
@@ -41,20 +41,16 @@ Document tests/pos/i12373.scala
 (22:18..22:24) scala/Predef.String#
 (22:27..22:36) _empty_/ColumnSet.Singleton# -> 10:8
 (22:37..22:41) scala/Long#
-(22:49..22:53) _empty_/ColumnSet.Cons. -> 17:21
-(22:53..22:53) _empty_/ColumnSet.Cons.apply(). -> 17:3
-(22:54..22:60) _empty_/Column. -> 1:19
-(22:60..22:60) _empty_/Column.apply(). -> 1:1
+(22:49..22:53) _empty_/ColumnSet.Cons.
+(22:54..22:60) _empty_/Column.
 (22:61..22:65) scala/Long#
 (22:67..22:71) _empty_/ColumnSet.long().(name) -> 22:12
 (22:74..22:79) _empty_/ColumnSet.Empty. -> 12:15
 (23:20..23:26) scala/Predef.String#
 (23:29..23:38) _empty_/ColumnSet.Singleton# -> 10:8
 (23:39..23:45) scala/Predef.String#
-(23:49..23:53) _empty_/ColumnSet.Cons. -> 17:21
-(23:53..23:53) _empty_/ColumnSet.Cons.apply(). -> 17:3
-(23:54..23:60) _empty_/Column. -> 1:19
-(23:60..23:60) _empty_/Column.apply(). -> 1:1
+(23:49..23:53) _empty_/ColumnSet.Cons.
+(23:54..23:60) _empty_/Column.
 (23:61..23:67) scala/Predef.String#
 (23:69..23:73) _empty_/ColumnSet.string().(name) -> 23:14
 (23:76..23:81) _empty_/ColumnSet.Empty. -> 12:15

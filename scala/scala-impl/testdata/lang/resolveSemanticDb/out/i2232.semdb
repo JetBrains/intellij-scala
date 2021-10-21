@@ -20,7 +20,6 @@ Document tests/pos/i2232.scala
 (12:28..12:29) _empty_/Cats.Category#[C] -> 10:18
 (12:31..12:32) _empty_/Cats.Category#Obj#[X] -> 12:14
 (14:15..14:18) _empty_/Cats.Category#Obj# -> 12:10
-(14:18..14:18) _empty_/Cats.Category#id().[A] -> 14:12
 (14:21..14:22) _empty_/Cats.Category#id().[A] -> 14:12
 (14:23..14:25) _empty_/Cats.Category#`->`# -> 11:10
 (14:26..14:27) _empty_/Cats.Category#id().[A] -> 14:12
@@ -43,10 +42,9 @@ Document tests/pos/i2232.scala
 (24:43..24:51) _empty_/Cats.Category# -> 10:9
 (24:52..24:56) _empty_/Cats.Scal# -> 22:8
 (25:20..25:23) _empty_/Cats.Category#Obj# -> 12:10
-(25:23..25:23) local12 -> 25:12
-(25:26..25:27) local12 -> 25:12
+(25:26..25:27) local11 -> 25:12
 (25:28..25:30) _empty_/Cats.Category#`->`# -> 11:10
-(25:31..25:32) local12 -> 25:12
+(25:31..25:32) local11 -> 25:12
 (25:40..25:41) local13 -> 25:35
 (26:30..26:31) local15 -> 26:17
 (26:32..26:34) _empty_/Cats.Category#`->`# -> 11:10
@@ -79,9 +77,7 @@ Document tests/pos/i2232.scala
 (35:10..35:13) scala/Int#
 (35:17..35:23) scala/Predef.String#
 (35:28..35:36) scala/Any#toString().
-(36:3..36:3) _empty_/Cats.CategoryOps(). -> 29:18
 (36:3..36:4) _empty_/Cats.f. -> 34:7
 (36:5..36:8) _empty_/Cats.CategoryOps#`>>>`(). -> 30:9
 (36:9..36:10) _empty_/Cats.g. -> 35:7
-(36:10..36:10) _empty_/Cats.scal. -> 24:16
 

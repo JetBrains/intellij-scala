@@ -50,12 +50,10 @@ Document tests/pos/i7877.scala
 (17:25..17:31) _empty_/Example.ZSink#orElse(). -> 4:9
 (17:32..17:37) _empty_/Example.ZSink. -> 10:10
 (17:38..17:42) _empty_/Example.ZSink.fail(). -> 12:9
-(17:51..17:51) scala/`<:<`.refl().
 (20:3..20:8) _empty_/Example.ZSink. -> 10:10
 (20:9..20:17) _empty_/Example.ZSink.identity(). -> 11:9
 (20:18..20:21) scala/Int#
 (20:23..20:29) _empty_/Example.ZSink#orElse(). -> 4:9
 (20:30..20:35) _empty_/Example.ZSink. -> 10:10
 (20:36..20:40) _empty_/Example.ZSink.fail(). -> 12:9
-(20:49..20:49) scala/`<:<`.refl().
 

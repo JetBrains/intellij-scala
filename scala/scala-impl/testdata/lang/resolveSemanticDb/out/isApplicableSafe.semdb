@@ -5,7 +5,6 @@ Document tests/pos/isApplicableSafe.scala
 (2:8..2:19) scala/compiletime/
 (2:20..2:33) scala/compiletime/package$package.uninitialized().
 (8:18..8:26) scala/reflect/ClassTag#
-(8:26..8:26) _empty_/A#Array.apply().[T] -> 8:15
 (8:32..8:33) _empty_/A#Array.apply().[T] -> 8:15
 (8:37..8:42) _empty_/A#Array# -> 6:9
 (8:43..8:44) _empty_/A#Array.apply().[T] -> 8:15
@@ -25,17 +24,10 @@ Document tests/pos/isApplicableSafe.scala
 (14:29..14:32) scala/Predef.Set#
 (14:33..14:39) scala/Symbol#
 (14:45..14:58) scala/compiletime/package$package.uninitialized().
-(51:3..51:5) _empty_/A#`ys_=`(). -> 14:7
+(51:3..51:5) _empty_/A#`ys_=`().
 (51:8..51:13) _empty_/A#Array. -> 7:10
-(51:13..51:13) _empty_/A#Array.apply(). -> 8:9
 (51:14..51:17) scala/Predef.Map.
-(51:17..51:17) scala/collection/MapFactory#apply().
 (51:21..51:24) scala/Predef.Map.
-(51:24..51:24) scala/collection/MapFactory#apply().
-(51:27..51:27) scala/reflect/ClassTag.apply().
 (53:12..53:17) _empty_/A#Array. -> 7:10
-(53:17..53:17) _empty_/A#Array.apply(). -> 8:9
 (53:18..53:21) scala/Predef.Map.
-(53:21..53:21) scala/collection/MapFactory#apply().
-(53:24..53:24) scala/reflect/ClassTag.apply().
 

@@ -1,6 +1,18 @@
 Document tests/pos/tcpoly_overloaded.scala
+(1:18..1:23) _empty_/Monad#[Bound] -> 1:51
+(1:24..1:25) _empty_/Monad#[T] -> 1:13
+(1:40..1:45) _empty_/Monad#[Bound] -> 1:51
+(1:46..1:47) _empty_/Monad#`<init>`().[MyType][x] -> 1:35
 (2:20..2:26) _empty_/Monad#flatMap().[RBound] -> 2:59
 (2:27..2:28) _empty_/Monad#flatMap().[S] -> 2:15
+(2:47..2:53) _empty_/Monad#flatMap().[RBound] -> 2:59
+(2:54..2:55) _empty_/Monad#flatMap().[RContainer][x] -> 2:42
+(3:27..3:33) _empty_/Monad#flatMap().[RBound] -> 2:59
+(3:34..3:35) _empty_/Monad#flatMap().[Result][x] -> 3:22
+(3:41..3:46) _empty_/Monad# -> 1:7
+(3:47..3:48) _empty_/Monad#flatMap().[Result][x] -> 3:22
+(3:50..3:60) _empty_/Monad#flatMap().[RContainer] -> 2:31
+(3:62..3:68) _empty_/Monad#flatMap().[RBound] -> 2:59
 (4:19..4:20) _empty_/Monad#[T] -> 1:13
 (4:24..4:30) _empty_/Monad#flatMap().[Result] -> 3:15
 (4:31..4:32) _empty_/Monad#flatMap().[S] -> 2:15
@@ -8,6 +20,14 @@ Document tests/pos/tcpoly_overloaded.scala
 (4:43..4:44) _empty_/Monad#flatMap().[S] -> 2:15
 (5:20..5:26) _empty_/Monad#flatMap(+1).[RBound] -> 5:59
 (5:27..5:28) _empty_/Monad#flatMap(+1).[S] -> 5:15
+(5:47..5:53) _empty_/Monad#flatMap(+1).[RBound] -> 5:59
+(5:54..5:55) _empty_/Monad#flatMap(+1).[RContainer][x] -> 5:42
+(6:27..6:33) _empty_/Monad#flatMap(+1).[RBound] -> 5:59
+(6:34..6:35) _empty_/Monad#flatMap(+1).[Result][x] -> 6:22
+(6:41..6:46) _empty_/Monad# -> 1:7
+(6:47..6:48) _empty_/Monad#flatMap(+1).[Result][x] -> 6:22
+(6:50..6:60) _empty_/Monad#flatMap(+1).[RContainer] -> 5:31
+(6:62..6:68) _empty_/Monad#flatMap(+1).[RBound] -> 5:59
 (7:19..7:20) _empty_/Monad#[T] -> 1:13
 (7:24..7:30) _empty_/Monad#flatMap(+1).[Result] -> 6:15
 (7:31..7:32) _empty_/Monad#flatMap(+1).[S] -> 5:15
@@ -31,6 +51,14 @@ Document tests/pos/tcpoly_overloaded.scala
 (14:56..14:59) scala/Any#
 (15:22..15:28) _empty_/Test#MList#flatMap().[RBound] -> 15:61
 (15:29..15:30) _empty_/Test#MList#flatMap().[S] -> 15:17
+(15:49..15:55) _empty_/Test#MList#flatMap().[RBound] -> 15:61
+(15:56..15:57) _empty_/Test#MList#flatMap().[RContainer][x] -> 15:44
+(16:25..16:31) _empty_/Test#MList#flatMap().[RBound] -> 15:61
+(16:32..16:33) _empty_/Test#MList#flatMap().[Result][x] -> 16:20
+(16:39..16:44) _empty_/Monad# -> 1:7
+(16:45..16:46) _empty_/Test#MList#flatMap().[Result][x] -> 16:20
+(16:48..16:58) _empty_/Test#MList#flatMap().[RContainer] -> 15:33
+(16:60..16:66) _empty_/Test#MList#flatMap().[RBound] -> 15:61
 (17:17..17:18) _empty_/Test#MList#[T] -> 14:15
 (17:22..17:28) _empty_/Test#MList#flatMap().[Result] -> 16:13
 (17:29..17:30) _empty_/Test#MList#flatMap().[S] -> 15:17
@@ -40,6 +68,14 @@ Document tests/pos/tcpoly_overloaded.scala
 (17:50..17:55) scala/sys/package.error().
 (18:22..18:28) _empty_/Test#MList#flatMap(+1).[RBound] -> 18:61
 (18:29..18:30) _empty_/Test#MList#flatMap(+1).[S] -> 18:17
+(18:49..18:55) _empty_/Test#MList#flatMap(+1).[RBound] -> 18:61
+(18:56..18:57) _empty_/Test#MList#flatMap(+1).[RContainer][x] -> 18:44
+(19:25..19:31) _empty_/Test#MList#flatMap(+1).[RBound] -> 18:61
+(19:32..19:33) _empty_/Test#MList#flatMap(+1).[Result][x] -> 19:20
+(19:39..19:44) _empty_/Monad# -> 1:7
+(19:45..19:46) _empty_/Test#MList#flatMap(+1).[Result][x] -> 19:20
+(19:48..19:58) _empty_/Test#MList#flatMap(+1).[RContainer] -> 18:33
+(19:60..19:66) _empty_/Test#MList#flatMap(+1).[RBound] -> 18:61
 (20:17..20:18) _empty_/Test#MList#[T] -> 14:15
 (20:22..20:28) _empty_/Test#MList#flatMap(+1).[Result] -> 19:13
 (20:29..20:30) _empty_/Test#MList#flatMap(+1).[S] -> 18:17
@@ -64,5 +100,4 @@ Document tests/pos/tcpoly_overloaded.scala
 (24:46..24:50) scala/package.List#
 (24:60..24:63) scala/Any#
 (24:76..24:79) scala/Int#
-(24:93..24:93) _empty_/Test#MList#`<init>`(). -> 14:14
 

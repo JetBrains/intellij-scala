@@ -10,9 +10,7 @@ Document tests/pos/class-refinement.scala
 (25:25..25:26) _empty_/B#T# -> 21:9
 (25:31..25:34) scala/Predef.`???`().
 (28:22..28:23) _empty_/B# -> 17:7
-(28:23..28:23) _empty_/B#`<init>`(). -> 18:3
 (30:20..30:21) _empty_/B#C# -> 18:9
-(30:21..30:21) _empty_/B#C#`<init>`(). -> 19:5
 (32:10..32:11) _empty_/B#x. -> 25:7
 (32:12..32:13) _empty_/Test2.CC#I# -> 30:30
 (32:16..32:19) scala/Predef.`???`().

@@ -10,5 +10,4 @@ Document tests/pos/t2795-old.scala
 (14:33..14:34) t1/Config#T# -> 7:8
 (14:38..14:42) scala/Unit#
 (15:13..15:28) scala/runtime/Arrays.newGenericArray().
-(15:28..15:28) t1/Config#m. -> 8:16
 

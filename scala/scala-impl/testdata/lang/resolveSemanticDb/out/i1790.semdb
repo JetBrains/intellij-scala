@@ -11,29 +11,21 @@ Document tests/pos/i1790.scala
 (4:56..4:57) _empty_/Try#transform().[U] -> 4:17
 (4:61..4:64) _empty_/Try# -> 3:7
 (4:65..4:66) _empty_/Try#transform().[U] -> 4:17
-(6:12..6:19) _empty_/Success. -> 12:18
-(6:19..6:19) _empty_/Success.unapply(). -> 12:1
+(6:12..6:19) _empty_/Success.
 (6:26..6:27) _empty_/Try#transform().(s) -> 4:20
-(6:27..6:27) scala/Function1#apply().
 (6:28..6:29) local0 -> 6:20
-(7:12..7:19) _empty_/Failure. -> 13:18
-(7:19..7:19) _empty_/Failure.unapply(). -> 13:1
+(7:12..7:19) _empty_/Failure.
 (7:26..7:27) _empty_/Try#transform().(f) -> 4:36
-(7:27..7:27) scala/Function1#apply().
 (7:28..7:29) local1 -> 7:20
 (9:12..9:20) scala/util/control/NonFatal.
-(9:20..9:20) scala/util/control/NonFatal.unapply().
-(9:27..9:34) _empty_/Failure. -> 13:18
-(9:34..9:34) _empty_/Failure.apply(). -> 13:1
+(9:27..9:34) _empty_/Failure.
 (9:35..9:36) local2 -> 9:21
 (12:37..12:38) _empty_/Success#[T] -> 12:27
 (12:48..12:51) _empty_/Try# -> 3:7
 (12:52..12:53) _empty_/Success#[T] -> 12:27
-(12:54..12:54) _empty_/Try#`<init>`(). -> 3:10
 (13:41..13:50) scala/package.Throwable#
 (13:60..13:63) _empty_/Try# -> 3:7
 (13:64..13:65) _empty_/Failure#[T] -> 13:27
-(13:66..13:66) _empty_/Try#`<init>`(). -> 3:10
 (14:12..14:13) _empty_/Failure#[T] -> 13:27
 (14:22..14:31) _empty_/Failure#exception. -> 13:30
 

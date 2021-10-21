@@ -5,6 +5,5 @@ Document tests/pos/sammy_single.scala
 (8:24..8:25) _empty_/Test.s. -> 4:7
 (8:40..8:41) local0 -> 8:35
 (8:44..8:45) _empty_/Test.T# -> 6:9
-(8:45..8:45) _empty_/Test.T#apply(). -> 6:17
 (8:47..8:48) _empty_/Test.s. -> 4:7
 

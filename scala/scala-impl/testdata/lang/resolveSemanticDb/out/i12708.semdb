@@ -11,11 +11,9 @@ Document tests/pos/i12708.scala
 (7:18..7:19) _empty_/AdditiveSemigroupOps#[A] -> 5:34
 (7:22..7:25) scala/Predef.`???`().
 (11:40..11:57) _empty_/AdditiveSemigroup# -> 3:7
-(11:57..11:57) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A] -> 11:37
 (11:62..11:63) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A] -> 11:37
 (11:66..11:86) _empty_/AdditiveSemigroupOps# -> 5:13
 (11:87..11:88) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A] -> 11:37
-(12:30..12:30) _empty_/AdditiveSemigroupOps#`<init>`(). -> 5:33
 (12:31..12:32) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().(a) -> 11:59
 (16:36..16:59) _empty_/AdditiveSemigroupSyntax# -> 10:7
 (21:18..21:23) scala/Array#
@@ -26,29 +24,25 @@ Document tests/pos/i12708.scala
 (24:33..24:50) _empty_/AdditiveSemigroup# -> 3:7
 (24:51..24:54) scala/Predef.Map#
 (24:55..24:58) scala/Int#
-(24:60..24:61) local1 -> 24:29
+(24:60..24:61) local0 -> 24:29
 (24:66..24:69) scala/Predef.`???`().
 (26:17..26:20) scala/Predef.Map#
 (26:21..26:24) scala/Int#
-(26:26..26:27) local3 -> 26:13
+(26:26..26:27) local2 -> 26:13
 (27:14..27:17) scala/Predef.Map#
 (27:18..27:21) scala/Int#
-(27:23..27:24) local3 -> 26:13
+(27:23..27:24) local2 -> 26:13
 (27:28..27:31) scala/Predef.Map.
 (27:32..27:37) scala/collection/immutable/Map.empty().
 (28:14..28:17) scala/Predef.Map#
 (28:18..28:21) scala/Int#
-(28:23..28:24) local3 -> 26:13
+(28:23..28:24) local2 -> 26:13
 (28:28..28:31) scala/Predef.Map.
 (28:32..28:37) scala/collection/immutable/Map.empty().
-(30:7..30:7) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps(). -> 11:16
-(30:7..30:8) local4 -> 27:11
-(30:8..30:8) local0 -> 24:18
+(30:7..30:8) local3 -> 27:11
 (30:9..30:10) _empty_/AdditiveSemigroupOps#`^`(). -> 7:7
-(30:11..30:12) local5 -> 28:11
-(33:7..33:7) _empty_/AdditiveSemigroupSyntax#additiveSemigroupOps(). -> 11:16
-(33:7..33:8) local4 -> 27:11
-(33:8..33:8) local0 -> 24:18
+(30:11..30:12) local4 -> 28:11
+(33:7..33:8) local3 -> 27:11
 (33:9..33:10) _empty_/AdditiveSemigroupOps#`+`(). -> 6:7
-(33:11..33:12) local5 -> 28:11
+(33:11..33:12) local4 -> 28:11
 

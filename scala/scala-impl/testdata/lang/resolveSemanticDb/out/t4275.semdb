@@ -1,17 +1,13 @@
 Document tests/pos/t4275.scala
-(2:11..2:11) scala/Predef.augmentString().
 (2:17..2:22) scala/collection/StringOps#count().
 (2:25..2:26) scala/Char#`>`(+2).
 (5:24..5:27) scala/Int#
 (7:19..7:20) _empty_/Test.A# -> 4:9
-(7:20..7:20) _empty_/Test.A#`<init>`(). -> 5:5
 (9:27..9:28) _empty_/Test.B# -> 7:9
 (9:31..9:34) scala/package.Seq#
 (9:35..9:38) scala/Int#
 (9:42..9:45) scala/package.Nil.
-(11:14..11:14) _empty_/Test.B.b2seq(). -> 9:18
 (11:18..11:19) _empty_/Test.B# -> 7:9
-(11:19..11:19) _empty_/Test.B#`<init>`(). -> 7:19
 (11:21..11:26) scala/collection/IterableOnceOps#count().
 (11:30..11:31) scala/Int#`>`(+3).
 

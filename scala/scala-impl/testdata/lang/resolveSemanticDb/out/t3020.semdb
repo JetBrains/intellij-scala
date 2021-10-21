@@ -6,7 +6,6 @@ Document tests/pos/t3020.scala
 (5:20..5:25) scala/
 (5:26..5:30) scala/util/
 (5:31..5:37) scala/util/Random#
-(5:37..5:37) scala/util/Random#`<init>`(+3).
 (5:43..5:55) scala/Any#asInstanceOf().
 (5:56..5:64) java/lang/Runnable#
 

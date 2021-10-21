@@ -22,16 +22,13 @@ Document tests/pos/i11415.scala
 (23:15..23:18) scala/Int#
 (23:45..23:49) example/MacroCompat.Macros2.MacroImpl#mono(). -> 31:11
 (24:22..24:25) scala/Int#
-(24:31..24:31) scala/quoted/runtime/Expr.splice().
 (24:31..24:38) example/MacroCompat.Macros3. -> 35:10
 (24:39..24:47) example/MacroCompat.Macros3.monoImpl(). -> 38:9
 (28:28..28:35) example/Context# -> 5:7
 (29:14..29:15) example/MacroCompat.Macros2.MacroImpl#c. -> 28:25
 (29:16..29:24) example/Context#universe. -> 7:7
+(31:17..31:24) example/Context#Universe#Literal# -> 11:10
 (31:27..31:30) scala/Predef.`???`().
 (36:12..36:18) scala/quoted/
 (38:24..38:30) scala/quoted/Quotes#
-(38:34..38:34) example/MacroCompat.Macros3.monoImpl().(x$1) -> 38:24
-(38:36..38:36) scala/quoted/runtime/Expr.quote().
-(38:37..38:37) scala/ContextFunction1#apply().
 

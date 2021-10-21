@@ -4,6 +4,4 @@ Document tests/pos/export-opaque.scala
 (5:30..5:37) _empty_/A.opaques.FlagSet# -> 4:17
 (5:40..5:44) _empty_/A.opaques.FlagSet().(bits) -> 5:17
 (9:10..9:17) _empty_/A.opaques. -> 3:10
-(9:17..9:17) _empty_/A.FlagSet().(bits)
-(9:17..9:17) _empty_/A.opaques.FlagSet(). -> 5:9
 

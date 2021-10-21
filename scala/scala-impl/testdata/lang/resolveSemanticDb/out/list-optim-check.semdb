@@ -2,14 +2,10 @@ Document tests/pos/list-optim-check.scala
 (7:10..7:17) scala/Boolean#
 (8:14..8:17) scala/package.Nil.
 (8:18..8:21) scala/collection/immutable/List#map().
-(8:40..8:40) _empty_/A#f(). -> 7:7
 (12:10..12:17) scala/Boolean#
 (13:14..13:17) scala/package.Nil.
 (13:18..13:25) scala/collection/immutable/List#collect().
-(13:28..13:28) local2
-(13:50..13:50) _empty_/A#g(). -> 12:7
 (17:10..17:17) scala/Boolean#
 (18:14..18:17) scala/package.Nil.
 (18:18..18:25) scala/collection/immutable/List#flatMap().
-(18:45..18:45) _empty_/A#h(). -> 17:7
 

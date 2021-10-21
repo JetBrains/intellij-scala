@@ -2,7 +2,6 @@ Document tests/pos/simple-exceptions.scala
 (1:8..1:12) java/
 (1:13..1:15) java/io/
 (1:16..1:27) java/io/IOException#
-(1:16..1:27) java/io/IOException.
 (7:18..7:23) scala/Array#
 (7:24..7:30) scala/Predef.String#
 (7:34..7:38) scala/Unit#

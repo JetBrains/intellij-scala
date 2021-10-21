@@ -6,7 +6,6 @@ Document tests/pos/i4188/Test_2.scala
 (7:5..7:17) collections/decorators.MapDecorator(). -> 40:7
 (7:18..7:21) collections/Test.test().(map) -> 6:12
 (7:22..7:26) collections/MapOps#view(). -> 17:7
-(7:27..7:27) collections/decorators.mapHasMapOps(). -> 42:16
 
 Document tests/pos/i4188/collections_1.scala
 (4:23..4:26) scala/Any#
@@ -21,6 +20,8 @@ Document tests/pos/i4188/collections_1.scala
 (13:44..13:47) collections/Map# -> 13:7
 (13:48..13:49) collections/Map#[K] -> 13:11
 (13:51..13:52) collections/Map#[V] -> 13:15
+(15:34..15:45) collections/IterableOps# -> 11:7
+(15:49..15:58) collections/collections.AnyConstr# -> 4:8
 (16:11..16:22) collections/IterableOps# -> 11:7
 (16:24..16:25) collections/MapOps#[K] -> 15:14
 (16:27..16:28) collections/MapOps#[V] -> 15:18
@@ -39,14 +40,16 @@ Document tests/pos/i4188/collections_1.scala
 (23:18..23:19) collections/MapView#[K] -> 22:15
 (23:21..23:22) collections/MapView#[V] -> 22:19
 (23:42..23:46) collections/View# -> 20:7
-(23:48..23:49) local1 -> 23:34
-(23:51..23:52) local2 -> 23:37
+(23:48..23:49) local0 -> 23:34
+(23:51..23:52) local1 -> 23:37
 (23:61..23:65) collections/View# -> 20:7
 (23:67..23:68) collections/MapView#[K] -> 22:15
 (23:70..23:71) collections/MapView#[V] -> 22:19
 (24:8..24:12) collections/View# -> 20:7
 (24:14..24:15) collections/MapView#[K] -> 22:15
 (24:17..24:18) collections/MapView#[V] -> 22:19
+(26:28..26:37) collections/HasMapOps# -> 28:7
+(26:38..26:39) collections/MapDecorator#[C] -> 26:20
 (36:13..36:14) collections/HasMapOps#K# -> 31:8
 (36:16..36:17) collections/HasMapOps#V# -> 34:8
 (40:29..40:30) collections/decorators.MapDecorator().[C] -> 40:20
@@ -56,6 +59,11 @@ Document tests/pos/i4188/collections_1.scala
 (40:74..40:75) collections/decorators.MapDecorator().[C] -> 40:20
 (40:77..40:80) collections/decorators.MapDecorator().(map) -> 40:41
 (40:89..40:92) scala/Predef.`???`().
+(42:42..42:48) collections/MapOps# -> 15:7
+(42:49..42:50) collections/decorators.mapHasMapOps().[CC][X] -> 42:32
+(42:52..42:53) collections/decorators.mapHasMapOps().[CC][Y] -> 42:36
+(42:74..42:85) collections/IterableOps# -> 11:7
+(42:89..42:98) collections/collections.AnyConstr# -> 4:8
 (42:122..42:131) collections/HasMapOps# -> 28:7
 (42:132..42:134) collections/decorators.mapHasMapOps().[CC] -> 42:29
 (42:135..42:137) collections/decorators.mapHasMapOps().[K0] -> 42:113

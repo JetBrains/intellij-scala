@@ -4,12 +4,10 @@ Document tests/pos/t1164.scala
 (6:39..6:40) _empty_/test.Foo.apply().[a] -> 6:20
 (6:48..6:51) _empty_/test.Foo# -> 3:11
 (6:52..6:53) _empty_/test.Foo.apply().[a] -> 6:20
-(6:54..6:54) _empty_/test.Foo#`<init>`(). -> 3:14
 (6:55..6:58) _empty_/test.Foo.apply().(arg) -> 6:23
 (7:29..7:32) _empty_/test.Foo# -> 3:11
 (7:33..7:34) _empty_/test.Foo.unapply().[a] -> 7:22
 (7:39..7:43) scala/Some.
-(7:43..7:43) scala/Some.apply().
 (7:45..7:46) _empty_/test.Foo.unapply().(m) -> 7:25
 (7:47..7:50) _empty_/test.Foo#arg. -> 3:22
 (10:37..10:40) _empty_/test.Foo# -> 3:11
@@ -17,7 +15,6 @@ Document tests/pos/t1164.scala
 (10:45..10:46) _empty_/test.matchAndGetArgFromFoo().[a] -> 10:31
 (10:50..10:51) _empty_/test.matchAndGetArgFromFoo().(e) -> 10:35
 (10:65..10:68) _empty_/test.Foo. -> 5:12
-(10:68..10:68) _empty_/test.Foo.unapply(). -> 7:13
 (10:75..10:76) local0 -> 10:69
 (20:27..20:30) scala/Int#
 (20:35..20:36) _empty_/test.FunIntToA#[a] -> 20:21
@@ -27,12 +24,10 @@ Document tests/pos/t1164.scala
 (24:35..24:36) _empty_/test.Bar.apply().[a] -> 24:19
 (24:45..24:48) _empty_/test.Bar# -> 21:11
 (24:49..24:50) _empty_/test.Bar.apply().[a] -> 24:19
-(24:51..24:51) _empty_/test.Bar#`<init>`(). -> 21:14
 (24:52..24:53) _empty_/test.Bar.apply().(f) -> 24:22
 (25:27..25:30) _empty_/test.Bar# -> 21:11
 (25:31..25:32) _empty_/test.Bar.unapply().[a] -> 25:21
 (25:37..25:41) scala/Some.
-(25:41..25:41) scala/Some.apply().
 (25:43..25:44) _empty_/test.Bar.unapply().(m) -> 25:24
 (25:45..25:46) _empty_/test.Bar#f(). -> 21:23
 (28:36..28:39) _empty_/test.Bar# -> 21:11
@@ -41,6 +36,5 @@ Document tests/pos/t1164.scala
 (28:56..28:57) _empty_/test.matchAndGetFunFromBar().[a] -> 28:31
 (28:63..28:64) _empty_/test.matchAndGetFunFromBar().(b) -> 28:34
 (28:78..28:81) _empty_/test.Bar. -> 23:12
-(28:81..28:81) _empty_/test.Bar.unapply(). -> 25:13
 (28:88..28:89) local1 -> 28:82
 

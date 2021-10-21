@@ -1,7 +1,9 @@
 Document tests/pos/i7383.scala
 (5:12..5:17) _empty_/ZSink# -> 1:7
 (6:24..6:29) _empty_/ZSink# -> 1:7
-(9:9..9:13) local0 -> 6:11
+(7:27..7:30) scala/Int#
+(9:9..9:13) local13 -> 6:11
 (11:13..11:18) _empty_/ZSink# -> 1:7
 (12:9..12:14) _empty_/ZSink# -> 1:7
+(13:27..13:30) scala/Int#
 

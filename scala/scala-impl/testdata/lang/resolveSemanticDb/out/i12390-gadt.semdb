@@ -2,11 +2,9 @@ Document tests/pos/i12390-gadt.scala
 (2:23..2:27) _empty_/Func# -> 1:6
 (2:28..2:31) scala/Int#
 (2:33..2:36) scala/Int#
-(2:37..2:37) _empty_/Func#`<init>`(). -> 1:10
 (3:25..3:29) _empty_/Func# -> 1:6
 (3:30..3:35) scala/Float#
 (3:37..3:43) scala/Predef.String#
-(3:44..3:44) _empty_/Func#`<init>`(). -> 1:10
 (5:12..5:13) _empty_/Func#[A] -> 1:12
 (5:17..5:18) _empty_/Func#[B] -> 1:16
 (6:10..6:16) _empty_/Func.Double. -> 2:8

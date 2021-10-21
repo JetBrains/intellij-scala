@@ -6,7 +6,6 @@ Document tests/pos/i11894a.scala
 (3:45..3:46) _empty_/CallbackTo.asOption().[A] -> 2:14
 (4:7..4:11) _empty_/CallbackTo.asOption().(self) -> 2:17
 (4:12..4:21) _empty_/CallbackTo#toScalaFn(). -> 13:26
-(4:21..4:21) scala/Function0#apply().
 (8:35..8:39) scala/package.List#
 (8:40..8:41) _empty_/CallbackTo#[A] -> 8:24
 (10:36..10:37) _empty_/CallbackTo#[A] -> 8:24
@@ -25,11 +24,9 @@ Document tests/pos/i11894a.scala
 (20:17..20:23) scala/Option#
 (20:24..20:25) _empty_/CallbackTo#[A] -> 8:24
 (20:28..20:32) scala/Some.
-(20:32..20:32) scala/Some.apply().
 (21:13..21:14) local0 -> 20:9
 (21:16..21:26) _empty_/CallbackTo# -> 8:13
 (21:27..21:33) scala/Option#
 (21:34..21:35) _empty_/CallbackTo#[A] -> 8:24
-(22:5..22:5) _empty_/CallbackTo.asOption(). -> 3:28
 (22:5..22:6) local1 -> 21:9
 

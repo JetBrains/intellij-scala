@@ -9,8 +9,6 @@ Document tests/pos/t5769.scala
 (7:12..7:20) scala/reflect/package.classTag().
 (7:21..7:26) scala/Array#
 (7:27..7:30) scala/Int#
-(7:32..7:32) scala/reflect/ClassTag#wrap().
 (8:12..8:20) scala/reflect/package.classTag().
 (8:21..8:23) _empty_/A#AI# -> 5:8
-(8:24..8:24) scala/reflect/ClassTag#wrap().
 

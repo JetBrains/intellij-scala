@@ -8,7 +8,6 @@ Document tests/pos/scala2traits/dotty-subclass.scala
 (16:24..16:30) scala/Predef.String#
 (16:34..16:38) scala/Unit#
 (17:19..17:22) _empty_/Sub# -> 2:7
-(17:22..17:22) _empty_/Sub#`<init>`(). -> 2:19
 (18:5..18:12) scala/Predef.println(+1).
 (18:13..18:16) local0 -> 17:9
 (18:17..18:18) _empty_/T#d(). -> 3:7
@@ -22,11 +21,9 @@ Document tests/pos/scala2traits/dotty-subclass.scala
 (21:13..21:16) local0 -> 17:9
 (21:17..21:18) _empty_/T#w. -> 6:13
 (23:17..23:18) _empty_/A# -> 10:7
-(23:18..23:18) _empty_/A#`<init>`(). -> 10:17
 (24:5..24:6) local1 -> 23:9
-(24:7..24:8) _empty_/S2T#`x_=`(). -> 10:7
+(24:7..24:8) _empty_/S2T#`x_=`().
 (24:7..24:8) _empty_/S2T#x(). -> 10:7
-(24:8..24:8) scala/Int#`+`(+4).
 (24:12..24:13) local1 -> 23:9
 (24:14..24:15) _empty_/S2T#y. -> 11:12
 (25:5..25:12) scala/Predef.println(+1).
@@ -43,7 +40,6 @@ Document tests/pos/scala2traits/dotty-subclass.scala
 (28:5..28:6) local1 -> 23:9
 (28:6..28:9) _empty_/S2Tprivate#`xx_=`(). -> 26:7
 (28:7..28:9) _empty_/S2Tprivate#xx(). -> 25:7
-(28:9..28:9) scala/Int#`+`(+4).
 (28:13..28:14) local1 -> 23:9
 (28:15..28:17) _empty_/S2Tprivate#yy(). -> 27:7
 (29:5..29:12) scala/Predef.println(+1).
@@ -76,7 +72,7 @@ Document tests/pos/scala2traits/scala-trait.scala
 (24:36..24:37) _empty_/S2Tprivate#y. -> 21:20
 (25:12..25:13) _empty_/S2Tprivate#x(). -> 20:15
 (26:15..26:18) scala/Int#
-(26:27..26:28) _empty_/S2Tprivate#`x_=`(). -> 20:15
+(26:27..26:28) _empty_/S2Tprivate#`x_=`().
 (26:31..26:32) _empty_/S2Tprivate#`xx_=`().(x) -> 26:12
 (27:12..27:13) _empty_/S2Tprivate#y. -> 21:20
 (28:12..28:13) _empty_/S2Tprivate#z. -> 22:15

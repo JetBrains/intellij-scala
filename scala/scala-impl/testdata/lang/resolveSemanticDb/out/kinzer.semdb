@@ -5,11 +5,9 @@ Document tests/pos/kinzer.scala
 (4:17..4:22) javax/
 (4:23..4:28) javax/swing/
 (4:29..4:34) javax/swing/JMenu#
-(4:34..4:34) javax/swing/JMenu#`<init>`().
 (5:5..5:6) local0 -> 4:9
 (5:7..5:10) javax/swing/JMenu#add().
 (5:15..5:20) javax/
 (5:21..5:26) javax/swing/
 (5:27..5:36) javax/swing/JMenuItem#
-(5:36..5:36) javax/swing/JMenuItem#`<init>`().
 

@@ -9,6 +9,5 @@ Document tests/pos/i2201a.scala
 (7:18..7:23) _empty_/DocTree.Const# -> 5:8
 (7:24..7:32) _empty_/DocTree.FixConst# -> 6:8
 (7:36..7:44) _empty_/DocTree.FixConst# -> 6:8
-(7:54..7:54) _empty_/Fix#`<init>`(). -> 3:10
 (7:55..7:56) _empty_/DocTree.docTree().(s) -> 7:15
 

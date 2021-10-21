@@ -3,7 +3,6 @@ Document tests/pos/enum-companion-first.scala
 (4:35..4:41) scala/Double#
 (4:51..4:55) java/lang/Enum#
 (4:56..4:62) _empty_/Planet# -> 4:6
-(4:63..4:63) java/lang/Enum#`<init>`().
 (5:24..5:30) _empty_/Planet. -> 1:8
 (5:31..5:32) _empty_/Planet.G. -> 2:13
 (5:33..5:34) scala/Double#`*`(+6).
@@ -17,7 +16,5 @@ Document tests/pos/enum-companion-first.scala
 (6:53..6:54) scala/Double#`*`(+6).
 (6:55..6:69) _empty_/Planet#surfaceGravity(). -> 5:7
 (8:24..8:30) _empty_/Planet# -> 4:6
-(8:30..8:30) _empty_/Planet#`<init>`(). -> 4:12
 (9:24..9:30) _empty_/Planet# -> 4:6
-(9:30..9:30) _empty_/Planet#`<init>`(). -> 4:12
 

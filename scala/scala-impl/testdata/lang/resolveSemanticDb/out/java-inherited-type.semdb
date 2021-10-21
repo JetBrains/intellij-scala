@@ -13,34 +13,25 @@ Document tests/pos/java-inherited-type/Client.scala
 (5:23..5:27) _empty_/Test#Outer#Nested#sig2().
 (6:17..6:21) _empty_/Test#
 (6:22..6:27) _empty_/Test#Outer#
-(6:27..6:27) _empty_/Test#Outer#`<init>`(+1).
 (7:9..7:10) local0 -> 6:9
 (7:11..7:18) _empty_/Test#Outer#Nested1#
-(7:18..7:18) _empty_/Test#Outer#Nested1#`<init>`(+1).
 (7:21..7:24) _empty_/Test#Outer#Nested1#sig().
 (8:9..8:10) local0 -> 6:9
 (8:11..8:18) _empty_/Test#Outer#Nested1#
-(8:18..8:18) _empty_/Test#Outer#Nested1#`<init>`(+1).
 (8:21..8:25) _empty_/Test#Outer#Nested1#sig1().
 (9:9..9:10) local0 -> 6:9
 (9:11..9:18) _empty_/Test#Outer#Nested1#
-(9:18..9:18) _empty_/Test#Outer#Nested1#`<init>`(+1).
 (9:21..9:25) _empty_/Test#Outer#Nested1#sig2().
 (13:17..13:21) _empty_/Test#
-(13:21..13:21) _empty_/Test#`<init>`(+1).
 (14:17..14:18) local1 -> 13:9
 (14:19..14:25) _empty_/Test#Outer1#
-(14:25..14:25) _empty_/Test#Outer1#`<init>`(+1).
 (15:9..15:10) local2 -> 14:9
 (15:11..15:18) _empty_/Test#Outer1#Nested1#
-(15:18..15:18) _empty_/Test#Outer1#Nested1#`<init>`(+1).
 (15:21..15:24) _empty_/Test#Outer1#Nested1#sig().
 (16:9..16:10) local2 -> 14:9
 (16:11..16:18) _empty_/Test#Outer1#Nested1#
-(16:18..16:18) _empty_/Test#Outer1#Nested1#`<init>`(+1).
 (16:21..16:25) _empty_/Test#Outer1#Nested1#sig1().
 (17:9..17:10) local2 -> 14:9
 (17:11..17:18) _empty_/Test#Outer1#Nested1#
-(17:18..17:18) _empty_/Test#Outer1#Nested1#`<init>`(+1).
 (17:21..17:25) _empty_/Test#Outer1#Nested1#sig2().
 

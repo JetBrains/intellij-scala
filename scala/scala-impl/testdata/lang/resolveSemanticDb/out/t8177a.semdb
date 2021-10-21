@@ -7,7 +7,6 @@ Document tests/pos/t8177a.scala
 (4:18..4:21) scala/Predef.`???`().
 (7:17..7:19) _empty_/AA# -> 3:7
 (7:20..7:23) scala/Int#
-(7:24..7:24) _empty_/AA#`<init>`(). -> 3:9
 (8:28..8:29) _empty_/AA#x. -> 3:23
 (8:30..8:31) _empty_/Thing#A# -> 2:20
 (8:40..8:43) _empty_/AA#foo(). -> 4:7

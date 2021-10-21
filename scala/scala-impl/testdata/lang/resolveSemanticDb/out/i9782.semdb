@@ -1,10 +1,28 @@
 Document tests/pos/i9782.scala
+(1:16..1:19) _empty_/Txn# -> 1:7
+(1:20..1:21) _empty_/Txn#[T] -> 1:11
+(3:17..3:20) _empty_/Txn# -> 1:7
+(3:21..3:22) _empty_/Elem#[T] -> 3:12
+(5:16..5:19) _empty_/Txn# -> 1:7
+(5:20..5:21) _empty_/Obj#[T] -> 5:11
 (5:32..5:36) _empty_/Elem# -> 3:7
 (5:37..5:38) _empty_/Obj#[T] -> 5:11
+(7:18..7:21) _empty_/Txn# -> 1:7
+(7:22..7:24) _empty_/Copy#[In] -> 7:12
+(7:34..7:37) _empty_/Txn# -> 1:7
+(7:38..7:41) _empty_/Copy#[Out] -> 7:27
+(8:26..8:29) _empty_/Txn# -> 1:7
+(8:30..8:31) _empty_/Copy#copyImpl().[Repr][`~`] -> 8:21
+(8:37..8:41) _empty_/Elem# -> 3:7
+(8:42..8:43) _empty_/Copy#copyImpl().[Repr][`~`] -> 8:21
 (8:50..8:54) _empty_/Copy#copyImpl().[Repr] -> 8:16
 (8:55..8:57) _empty_/Copy#[In] -> 7:12
 (8:61..8:65) _empty_/Copy#copyImpl().[Repr] -> 8:16
 (8:66..8:69) _empty_/Copy#[Out] -> 7:27
+(10:23..10:26) _empty_/Txn# -> 1:7
+(10:27..10:28) _empty_/Copy#apply().[Repr][`~`] -> 10:18
+(10:34..10:38) _empty_/Elem# -> 3:7
+(10:39..10:40) _empty_/Copy#apply().[Repr][`~`] -> 10:18
 (10:47..10:51) _empty_/Copy#apply().[Repr] -> 10:13
 (10:52..10:54) _empty_/Copy#[In] -> 7:12
 (10:58..10:62) _empty_/Copy#apply().[Repr] -> 10:13
@@ -12,10 +30,8 @@ Document tests/pos/i9782.scala
 (11:15..11:23) _empty_/Copy#copyImpl(). -> 8:7
 (11:24..11:28) _empty_/Copy#apply().[Repr] -> 10:13
 (11:30..11:32) _empty_/Copy#apply().(in) -> 10:43
-(12:6..12:6) scala/Tuple2.apply().
 (12:6..12:8) _empty_/Copy#apply().(in) -> 10:43
 (12:10..12:13) local0 -> 11:9
-(13:13..13:13) scala/Tuple2.unapply().
 (13:20..13:23) _empty_/Obj# -> 5:7
 (13:24..13:26) _empty_/Copy#[In] -> 7:12
 (13:37..13:40) _empty_/Obj# -> 5:7

@@ -12,8 +12,8 @@ Document tests/pos/apply-equiv.scala
 (9:15..9:28) scala/compiletime/package$package.uninitialized().
 (10:10..10:12) _empty_/Test#T2# -> 7:8
 (10:15..10:28) scala/compiletime/package$package.uninitialized().
-(12:3..12:4) _empty_/Test#`x_=`(). -> 9:7
+(12:3..12:4) _empty_/Test#`x_=`().
 (12:7..12:8) _empty_/Test#y(). -> 10:7
-(13:3..13:4) _empty_/Test#`y_=`(). -> 10:7
+(13:3..13:4) _empty_/Test#`y_=`().
 (13:7..13:8) _empty_/Test#x(). -> 9:7
 

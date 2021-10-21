@@ -13,20 +13,15 @@ Document tests/pos/unapplyNeedsMemberType.scala
 (17:22..17:25) _empty_/Join#Seq# -> 14:8
 (17:31..17:34) _empty_/Join#Seq# -> 14:8
 (17:44..17:51) _empty_/Join#JoinSeq# -> 16:18
-(17:51..17:51) _empty_/Join#JoinSeq#`<init>`(). -> 16:3
 (19:18..19:21) _empty_/Join#Seq# -> 14:8
 (19:27..19:30) _empty_/Join#Seq# -> 14:8
 (19:33..19:36) _empty_/Join#Seq# -> 14:8
 (19:39..19:41) _empty_/Join#append().(s1) -> 19:14
 (21:23..21:26) scala/Any#
 (21:30..21:31) _empty_/Join#unapply_Cons().(s) -> 21:20
-(22:10..22:13) _empty_/Join#App. -> 17:14
-(22:13..22:13) _empty_/Join#App.unapply().
+(22:10..22:13) _empty_/Join#App.
 (22:14..22:18) _empty_/Gunk#Cons. -> 7:10
-(22:18..22:18) _empty_/Gunk#Cons.unapply(). -> 8:9
 (22:34..22:38) scala/Some.
-(22:38..22:38) scala/Some.apply().
-(22:40..22:40) scala/Tuple2.apply().
 (22:40..22:41) local0 -> 22:19
 (22:43..22:49) _empty_/Join#append(). -> 19:7
 (22:50..22:52) local1 -> 22:22

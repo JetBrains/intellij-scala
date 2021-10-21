@@ -10,17 +10,12 @@ Document tests/pos/spec-maps.scala
 (6:50..6:51) _empty_/Main.mapA().[B] -> 6:25
 (6:53..6:54) _empty_/Main.mapA().[B] -> 6:25
 (6:58..6:62) scala/Unit#
-(7:15..7:15) scala/LowPriorityImplicits#intWrapper().
 (7:17..7:22) scala/runtime/RichInt#until().
 (7:23..7:25) _empty_/Main.mapA().(xs) -> 6:28
 (7:26..7:32) scala/Array#length().
-(7:32..7:32) scala/collection/immutable/Range#foreach().
 (8:7..8:9) _empty_/Main.mapA().(xs) -> 6:28
-(8:9..8:9) scala/Array#update().
 (8:10..8:11) local0 -> 7:10
 (8:15..8:16) _empty_/Main.mapA().(f) -> 6:42
-(8:16..8:16) _empty_/Fun1#apply(). -> 2:7
 (8:17..8:19) _empty_/Main.mapA().(xs) -> 6:28
-(8:19..8:19) scala/Array#apply().
 (8:20..8:21) local0 -> 7:10
 

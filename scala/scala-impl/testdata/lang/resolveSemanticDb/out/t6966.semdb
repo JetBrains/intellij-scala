@@ -35,13 +35,9 @@ Document tests/pos/t6966.scala
 (11:16..11:21) scala/Array#
 (11:22..11:26) scala/Byte#
 (11:29..11:33) _empty_/HNil# -> 15:14
-(11:34..11:34) _empty_/CacheIvy.ByteArrayFormat(). -> 8:18
-(11:34..11:34) _empty_/CacheIvy.arrEquiv(). -> 6:18
-(11:34..11:34) _empty_/CacheIvy.basicInputCache(). -> 5:18
-(11:34..11:34) _empty_/CacheIvy.hNilCache(). -> 7:18
-(11:34..11:34) scala/math/Ordering.Byte.
 (15:27..15:32) _empty_/HList# -> 14:14
 (16:21..16:25) _empty_/HNil# -> 15:14
+(17:27..17:32) _empty_/HList# -> 14:14
 (17:41..17:42) _empty_/HCons#[H] -> 17:19
 (17:51..17:52) _empty_/HCons#[T] -> 17:22
 (17:62..17:67) _empty_/HList# -> 14:14

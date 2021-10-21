@@ -1,4 +1,4 @@
 Document tests/pos/t5796.scala
 (2:14..2:18) scala/Unit#
-(5:7..5:8) local1 -> 4:16
+(5:7..5:8) local0 -> 4:16
 

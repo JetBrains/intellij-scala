@@ -8,15 +8,11 @@ Document tests/pos/t6780.scala
 (14:20..14:23) _empty_/Foo# -> 7:7
 (15:27..15:37) scala/Predef.implicitly().
 (15:38..15:41) scala/Int#
-(15:42..15:42) _empty_/O.i(). -> 2:16
 (16:27..16:37) scala/Predef.implicitly().
 (16:38..16:41) scala/Int#
-(16:42..16:42) _empty_/O.i(). -> 2:16
 (17:27..17:37) scala/Predef.implicitly().
 (17:38..17:41) scala/Int#
-(17:42..17:42) _empty_/O.i(). -> 2:16
 (18:20..18:23) scala/Any#
 (18:27..18:37) scala/Predef.implicitly().
 (18:38..18:41) scala/Int#
-(18:42..18:42) _empty_/O.i(). -> 2:16
 

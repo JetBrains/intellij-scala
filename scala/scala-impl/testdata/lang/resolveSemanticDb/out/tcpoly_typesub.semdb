@@ -8,23 +8,22 @@ Document tests/pos/tcpoly_typesub.scala
 (6:37..6:38) _empty_/TypeSub#castSuper().[f] -> 6:17
 (6:39..6:40) _empty_/TypeSub#l# -> 3:8
 (7:18..7:19) _empty_/TypeSub#castSuper().[f] -> 6:17
-(7:20..7:21) local1 -> 7:13
+(7:20..7:21) local0 -> 7:13
 (7:26..7:27) _empty_/TypeSub#castSuper().[f] -> 6:17
 (7:28..7:29) _empty_/TypeSub#l# -> 3:8
 (8:5..8:12) _empty_/TypeSub#castSub(). -> 5:7
-(8:13..8:14) local0 -> 7:10
+(8:13..8:14) local1 -> 7:10
 (8:23..8:24) _empty_/TypeSub#castSuper().[f] -> 6:17
 (8:25..8:26) _empty_/TypeSub#l# -> 3:8
 (8:32..8:34) local2 -> 8:18
-(8:36..8:36) scala/Function1#apply().
 (8:37..8:39) _empty_/TypeSub#castSuper().(fu) -> 6:24
 (10:25..10:26) _empty_/TypeSub#l# -> 3:8
 (10:32..10:33) _empty_/TypeSub#castValue().[t] -> 10:17
 (10:37..10:38) _empty_/TypeSub#u# -> 4:8
 (10:44..10:45) _empty_/TypeSub#castValue().[t] -> 10:17
-(11:18..11:19) local4 -> 11:13
+(11:18..11:19) local3 -> 11:13
 (11:25..11:26) _empty_/TypeSub#castValue().[t] -> 10:17
 (12:5..12:12) _empty_/TypeSub#castSub(). -> 5:7
-(12:13..12:14) local3 -> 11:10
+(12:13..12:14) local4 -> 11:10
 (12:16..12:18) _empty_/TypeSub#castValue().(lt) -> 10:20
 

@@ -4,7 +4,6 @@ Document tests/pos/preserve-union.scala
 (2:16..2:22) scala/Predef.String#
 (3:10..3:16) scala/AnyVal#
 (5:11..5:15) scala/package.List.
-(5:15..5:15) scala/collection/IterableFactory#apply().
 (5:16..5:17) _empty_/A#a. -> 2:7
 (5:19..5:20) _empty_/A#b. -> 3:7
 (6:11..6:15) scala/package.List#

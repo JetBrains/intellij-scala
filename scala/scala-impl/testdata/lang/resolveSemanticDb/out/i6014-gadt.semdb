@@ -9,7 +9,6 @@ Document tests/pos/i6014-gadt.scala
 (9:15..9:18) _empty_/Test1.Foo# -> 4:8
 (9:19..9:23) scala/package.List#
 (9:28..9:32) scala/package.List.
-(9:32..9:32) scala/collection/IterableFactory#apply().
 (14:13..14:14) _empty_/Test2.summon().[T] -> 13:21
 (14:18..14:19) local1 -> 14:10
 (19:30..19:41) scala/compiletime/package$package.erasedValue().
@@ -21,13 +20,14 @@ Document tests/pos/i6014-gadt.scala
 (23:20..23:24) scala/package.List#
 (23:25..23:28) scala/Int#
 (23:32..23:36) scala/package.List.
-(23:36..23:36) scala/collection/IterableFactory#apply().
 (24:13..24:16) _empty_/Test2.bar(). -> 19:14
 (24:17..24:20) _empty_/Test2.Foo# -> 17:9
 (24:21..24:25) scala/package.List#
 (29:13..29:14) _empty_/Test3.summon().[T] -> 28:21
 (29:18..29:19) local3 -> 29:10
 (32:24..32:27) scala/Any#
+(34:21..34:26) _empty_/Test3.K1Top# -> 32:8
+(34:27..34:28) _empty_/Test3.Foo#`<init>`().[F][X] -> 34:15
 (36:30..36:41) scala/compiletime/package$package.erasedValue().
 (36:42..36:43) _empty_/Test3.bar().[T] -> 36:18
 (37:13..37:16) _empty_/Test3.Foo# -> 34:9
@@ -37,12 +37,13 @@ Document tests/pos/i6014-gadt.scala
 (40:20..40:24) scala/package.List#
 (40:25..40:28) scala/Int#
 (40:32..40:36) scala/package.List.
-(40:36..40:36) scala/collection/IterableFactory#apply().
 (41:13..41:16) _empty_/Test3.bar(). -> 36:14
 (41:17..41:20) _empty_/Test3.Foo# -> 34:9
 (41:21..41:25) scala/package.List#
 (46:13..46:14) _empty_/Test4.summon().[T] -> 45:21
 (46:18..46:19) local5 -> 46:10
+(49:21..49:25) scala/package.List#
+(49:26..49:27) _empty_/Test4.Foo#`<init>`().[F][t] -> 49:15
 (51:30..51:41) scala/compiletime/package$package.erasedValue().
 (51:42..51:43) _empty_/Test4.bar().[T] -> 51:18
 (52:13..52:16) _empty_/Test4.Foo# -> 49:9
@@ -52,7 +53,6 @@ Document tests/pos/i6014-gadt.scala
 (55:20..55:24) scala/package.List#
 (55:25..55:28) scala/Int#
 (55:32..55:36) scala/package.List.
-(55:36..55:36) scala/collection/IterableFactory#apply().
 (56:13..56:16) _empty_/Test4.bar(). -> 51:14
 (56:17..56:20) _empty_/Test4.Foo# -> 49:9
 (56:21..56:25) scala/package.List#

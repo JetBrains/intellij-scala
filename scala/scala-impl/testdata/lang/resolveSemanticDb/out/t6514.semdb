@@ -1,7 +1,6 @@
 Document tests/pos/t6514.scala
 (2:14..2:20) scala/Predef.String#
 (2:28..2:37) scala/package.Exception#
-(2:37..2:37) java/lang/Exception#`<init>`(+1).
 (2:38..2:41) _empty_/Test.e().(msg) -> 2:9
 (5:12..5:19) scala/Boolean#
 (6:5..6:6) _empty_/Test.a().(b) -> 5:9

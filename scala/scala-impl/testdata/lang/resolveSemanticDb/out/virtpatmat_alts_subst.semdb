@@ -2,8 +2,7 @@ Document tests/pos/virtpatmat_alts_subst.scala
 (1:19..1:25) scala/Predef.String#
 (2:26..2:29) scala/Any#
 (3:5..3:10) _empty_/Foo#appliedType().(tycon) -> 2:19
-(4:14..4:17) _empty_/Foo. -> 1:12
-(4:17..4:17) _empty_/Foo.unapply().
+(4:14..4:17) _empty_/Foo.
 (4:58..4:65) scala/Predef.println(+1).
 (4:66..4:69) local0 -> 4:18
 

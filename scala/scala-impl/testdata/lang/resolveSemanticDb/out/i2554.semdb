@@ -1,6 +1,7 @@
 Document tests/pos/i2554.scala
 (3:32..3:42) _empty_/foo.ShapeLevel# -> 2:9
 (4:35..4:49) _empty_/foo.FlatShapeLevel# -> 3:9
+(5:33..5:43) _empty_/foo.ShapeLevel# -> 2:9
 (6:24..6:43) _empty_/foo.TupleShapeImplicits# -> 7:9
 (8:45..8:55) _empty_/foo.ShapeLevel# -> 2:9
 (9:20..9:25) _empty_/foo.Shape# -> 5:18

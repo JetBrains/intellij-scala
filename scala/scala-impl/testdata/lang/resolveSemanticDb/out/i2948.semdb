@@ -13,5 +13,4 @@ Document tests/pos/i2948.scala
 (4:50..4:53) scala/Int#
 (4:58..4:64) _empty_/Foo#zipped. -> 3:7
 (4:65..4:70) scala/collection/StrictOptimizedIterableOps#unzip().
-(4:70..4:70) scala/Predef.$conforms().
 

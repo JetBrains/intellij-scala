@@ -8,12 +8,10 @@ Document tests/pos/matrixOps.scala
 (7:17..7:18) _empty_/Test.nRows().(m) -> 6:14
 (7:19..7:25) scala/Array#length().
 (8:17..8:18) _empty_/Test.nCols().(m) -> 6:14
-(8:18..8:18) scala/Array#apply().
 (8:22..8:28) scala/Array#length().
 (9:16..9:19) scala/Int#
 (9:22..9:28) _empty_/Test.Vector# -> 4:8
 (9:31..9:32) _empty_/Test.row().(m) -> 6:14
-(9:32..9:32) scala/Array#apply().
 (9:33..9:34) _empty_/Test.row().(i) -> 9:13
 (10:16..10:19) scala/Int#
 (10:22..10:28) _empty_/Test.Vector# -> 4:8
@@ -22,38 +20,23 @@ Document tests/pos/matrixOps.scala
 (10:46..10:47) _empty_/Test.col().(m) -> 6:14
 (10:48..10:54) scala/Array#length().
 (10:61..10:62) _empty_/Test.col().(m) -> 6:14
-(10:62..10:62) scala/Array#apply().
 (10:63..10:64) local0 -> 10:56
-(10:65..10:65) scala/Array#apply().
 (10:66..10:67) _empty_/Test.col().(j) -> 10:13
-(10:69..10:69) scala/reflect/ClassTag.apply().
 (12:19..12:25) _empty_/Test.Matrix# -> 3:8
-(14:12..14:12) scala/LowPriorityImplicits#intWrapper().
 (14:14..14:19) scala/runtime/RichInt#until().
 (14:20..14:21) _empty_/Test.pairwise().(m) -> 12:16
 (14:22..14:27) _empty_/Test.nRows(). -> 7:9
-(14:27..14:27) scala/collection/StrictOptimizedIterableOps#flatMap().
-(15:12..15:12) scala/LowPriorityImplicits#intWrapper().
 (15:14..15:19) scala/runtime/RichInt#until().
 (15:20..15:21) _empty_/Test.pairwise().(m) -> 12:16
 (15:22..15:27) _empty_/Test.nCols(). -> 8:9
-(15:27..15:27) scala/collection/immutable/Range#map().
-(17:7..17:7) scala/LowPriorityImplicits#wrapDoubleArray().
-(17:7..17:7) scala/Predef.doubleArrayOps().
-(17:7..17:7) scala/Predef.refArrayOps().
 (17:7..17:8) _empty_/Test.pairwise().(m) -> 12:16
 (17:9..17:12) _empty_/Test.row(). -> 9:9
 (17:13..17:14) local1 -> 14:7
 (17:16..17:19) scala/collection/ArrayOps#zip().
-(17:20..17:20) scala/LowPriorityImplicits#wrapDoubleArray().
 (17:20..17:21) _empty_/Test.pairwise().(m) -> 12:16
 (17:22..17:25) _empty_/Test.row(). -> 9:9
 (17:26..17:27) local2 -> 15:7
 (17:30..17:33) scala/collection/ArrayOps#map().
-(17:34..17:34) scala/Tuple2#_1.
 (17:36..17:37) scala/Double#`-`(+6).
-(17:38..17:38) scala/Tuple2#_2.
-(17:40..17:40) scala/reflect/ClassTag.apply().
 (17:41..17:44) scala/collection/IterableOnceOps#sum().
-(17:44..17:44) scala/math/Numeric.DoubleIsFractional.
 

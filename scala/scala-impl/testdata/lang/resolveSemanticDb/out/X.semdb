@@ -3,14 +3,12 @@ Document tests/pos/X.scala
 (1:14..1:22) scala/deriving/
 (5:14..5:22) _empty_/FunctorK# -> 3:7
 (5:34..5:35) _empty_/FunctorK.given_FunctorK_C#[C] -> 5:10
-(5:36..5:36) _empty_/FunctorK#`<init>`(). -> 3:15
 (6:14..6:22) _empty_/FunctorK# -> 3:7
 (6:34..6:40) scala/Tuple1#
 (6:43..6:44) _empty_/FunctorK.given_FunctorK_Tuple1#[T] -> 6:10
-(6:47..6:47) _empty_/FunctorK#`<init>`(). -> 3:15
 (8:33..8:39) scala/deriving/Mirror#
 (8:68..8:69) _empty_/FunctorK.derived().[F] -> 8:15
-(8:70..8:71) local1 -> 8:60
+(8:70..8:71) local0 -> 8:60
 (8:110..8:118) _empty_/FunctorK# -> 3:7
 (8:119..8:120) _empty_/FunctorK.derived().(m) -> 8:30
 (8:142..8:150) _empty_/FunctorK# -> 3:7

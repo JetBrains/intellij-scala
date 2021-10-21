@@ -1,0 +1,12 @@
+Document tests/pos/unary-eq.scala
+(1:33..1:36) scala/Int#
+(1:46..1:52) scala/AnyVal#
+(2:23..2:26) _empty_/Baz# -> 1:13
+(2:29..2:32) scala/Predef.`???`().
+(3:23..3:26) _empty_/Baz# -> 1:13
+(3:29..3:32) scala/Predef.`???`().
+(4:23..4:26) _empty_/Baz# -> 1:13
+(4:29..4:32) scala/Predef.`???`().
+(5:23..5:26) _empty_/Baz# -> 1:13
+(5:29..5:32) scala/Predef.`???`().
+

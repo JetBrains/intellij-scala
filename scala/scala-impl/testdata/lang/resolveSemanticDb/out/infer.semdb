@@ -3,17 +3,15 @@ Document tests/pos/infer.scala
 (3:23..3:24) _empty_/test.List#`::`().[b] -> 3:12
 (3:27..3:31) _empty_/test.List# -> 2:9
 (3:32..3:33) _empty_/test.List#`::`().[b] -> 3:12
-(3:45..3:45) _empty_/test.Cons#`<init>`(). -> 5:18
 (3:46..3:47) _empty_/test.List#`::`().(x) -> 3:20
+(5:27..5:28) _empty_/test.Cons#[a] -> 5:19
 (5:33..5:34) _empty_/test.Cons#[a] -> 5:19
 (5:40..5:44) _empty_/test.List# -> 2:9
 (5:45..5:46) _empty_/test.Cons#[b] -> 5:22
 (5:57..5:61) _empty_/test.List# -> 2:9
 (5:62..5:63) _empty_/test.Cons#[a] -> 5:19
-(5:64..5:64) _empty_/test.List#`<init>`(). -> 2:13
 (6:27..6:31) _empty_/test.List# -> 2:9
 (6:32..6:39) scala/Nothing#
-(6:40..6:40) _empty_/test.List#`<init>`(). -> 2:13
 (7:15..7:19) _empty_/test.List# -> 2:9
 (7:20..7:21) _empty_/test.nil().[n] -> 7:11
 (7:25..7:28) _empty_/test.Nil. -> 6:15

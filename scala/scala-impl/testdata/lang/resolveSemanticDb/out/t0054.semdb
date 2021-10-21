@@ -1,7 +1,6 @@
 Document tests/pos/t0054.scala
 (2:19..2:20) _empty_/A#C# -> 3:9
 (2:30..2:31) _empty_/A# -> 1:7
-(2:31..2:31) _empty_/A#`<init>`(). -> 2:3
 (2:48..2:49) _empty_/A#C# -> 3:9
 (2:52..2:53) _empty_/A#B#x. -> 2:16
 

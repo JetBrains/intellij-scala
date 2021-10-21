@@ -10,7 +10,6 @@ Document tests/pos/t8177.scala
 (11:83..11:84) _empty_/View#f().(p) -> 11:66
 (12:23..12:27) _empty_/View# -> 11:7
 (12:28..12:31) scala/Int#
-(12:32..12:32) _empty_/View#`<init>`(). -> 11:11
 (12:33..12:41) _empty_/IntThing. -> 3:8
 (12:69..12:71) _empty_/View#in. -> 11:21
 (12:72..12:73) _empty_/Thing#A# -> 2:20

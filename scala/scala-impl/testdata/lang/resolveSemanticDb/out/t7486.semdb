@@ -1,6 +1,5 @@
 Document tests/pos/t7486.scala
 (4:28..4:31) scala/Int#
-(5:5..5:11) _empty_/Test.`locker_=`(). -> 2:7
+(5:5..5:11) _empty_/Test.`locker_=`().
 (5:5..5:11) _empty_/Test.locker(). -> 2:7
-(5:11..5:11) scala/Int#`+`(+4).
 

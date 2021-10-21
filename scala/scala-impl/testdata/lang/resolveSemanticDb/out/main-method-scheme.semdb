@@ -24,8 +24,6 @@ Document tests/pos/main-method-scheme.scala
 (21:63..21:69) scala/Predef.String#
 (21:79..21:93) _empty_/MainAnnotation# -> 4:7
 (23:25..23:30) scala/Array.
-(23:30..23:30) scala/Array.apply().
-(23:32..23:32) scala/reflect/ClassTag.apply().
 (25:28..25:32) scala/util/
 (25:33..25:50) scala/util/CommandLineParser.
 (25:51..25:61) scala/util/CommandLineParser.FromString#
@@ -34,11 +32,9 @@ Document tests/pos/main-method-scheme.scala
 (32:38..32:48) scala/collection/mutable/ListBuffer#
 (32:50..32:56) scala/Predef.String#
 (32:58..32:64) scala/Predef.String#
-(32:66..32:66) scala/collection/mutable/ListBuffer#`<init>`().
 (35:28..35:35) scala/collection/mutable/
 (35:36..35:46) scala/collection/mutable/ListBuffer#
 (35:47..35:53) scala/Predef.String#
-(35:54..35:54) scala/collection/mutable/ListBuffer#`<init>`().
 (38:18..38:21) scala/Int#
 (40:26..40:32) scala/Predef.String#
 (40:41..40:48) scala/Nothing#
@@ -54,9 +50,7 @@ Document tests/pos/main-method-scheme.scala
 (45:14..45:18) _empty_/main#args. -> 21:30
 (45:19..45:25) scala/Array#length().
 (45:31..45:35) scala/Some.
-(45:35..45:35) scala/Some.apply().
 (45:36..45:40) _empty_/main#args. -> 21:30
-(45:40..45:40) scala/Array#apply().
 (45:41..45:44) _empty_/main#argAt().(idx) -> 44:21
 (45:52..45:56) scala/None.
 (47:36..47:42) scala/Option#
@@ -67,15 +61,12 @@ Document tests/pos/main-method-scheme.scala
 (48:20..48:26) scala/Array#length().
 (48:27..48:29) scala/Boolean#`&&`().
 (48:30..48:34) _empty_/main#args. -> 21:30
-(48:34..48:34) scala/Array#apply().
 (48:35..48:36) _empty_/main#n(). -> 38:15
 (48:38..48:48) java/lang/String#startsWith(+1).
 (48:58..48:59) _empty_/main#n(). -> 38:15
-(48:59..48:59) scala/Int#`+`(+4).
 (49:18..49:23) _empty_/main#argAt(). -> 44:15
 (49:24..49:25) _empty_/main#n(). -> 38:15
 (50:5..50:6) _empty_/main#n(). -> 38:15
-(50:6..50:6) scala/Int#`+`(+4).
 (51:5..51:11) local0 -> 49:9
 (53:35..53:41) scala/Predef.String#
 (53:48..53:54) scala/Predef.String#
@@ -86,11 +77,9 @@ Document tests/pos/main-method-scheme.scala
 (54:7..54:23) scala/util/CommandLineParser.FromString#fromStringOption().
 (54:24..54:27) _empty_/main#convert().(arg) -> 53:43
 (55:12..55:16) scala/Some.
-(55:16..55:16) scala/Some.unapply().
 (55:29..55:30) local1 -> 55:17
 (56:12..56:16) scala/None.
 (56:20..56:25) _empty_/main#error(). -> 40:15
-(56:28..56:28) scala/StringContext.apply().
 (56:50..56:57) _empty_/main#convert().(argName) -> 53:26
 (56:60..56:63) _empty_/main#convert().(arg) -> 53:43
 (56:63..56:64) scala/StringContext#s().
@@ -103,13 +92,10 @@ Document tests/pos/main-method-scheme.scala
 (58:95..58:96) _empty_/main#getArg().[T] -> 58:14
 (59:5..59:13) _empty_/main#argInfos(). -> 32:15
 (59:14..59:16) scala/collection/mutable/Growable#`+=`().
-(59:19..59:19) scala/Tuple2.apply().
 (59:19..59:26) _empty_/main#getArg().(argName) -> 58:17
 (59:31..59:43) _empty_/main#getArg().(defaultValue) -> 58:56
 (59:44..59:53) scala/Option#isDefined().
-(60:15..60:15) scala/Predef.refArrayOps().
 (60:15..60:19) _empty_/main#args. -> 21:30
-(60:30..60:30) scala/StringContext.apply().
 (60:33..60:40) _empty_/main#getArg().(argName) -> 58:17
 (60:40..60:41) scala/StringContext#s().
 (61:21..61:24) local2 -> 60:9
@@ -120,7 +106,6 @@ Document tests/pos/main-method-scheme.scala
 (61:55..61:72) _empty_/main#nextPositionalArg(). -> 47:15
 (62:5..62:11) local3 -> 61:9
 (63:12..63:16) scala/Some.
-(63:16..63:16) scala/Some.unapply().
 (63:25..63:32) _empty_/main#convert(). -> 53:15
 (63:33..63:40) _empty_/main#getArg().(argName) -> 58:17
 (63:42..63:45) local4 -> 63:17
@@ -128,11 +113,9 @@ Document tests/pos/main-method-scheme.scala
 (64:12..64:16) scala/None.
 (64:20..64:32) _empty_/main#getArg().(defaultValue) -> 58:56
 (65:14..65:18) scala/Some.
-(65:18..65:18) scala/Some.unapply().
 (65:31..65:32) local5 -> 65:19
 (66:14..66:18) scala/None.
 (66:22..66:27) _empty_/main#error(). -> 40:15
-(66:30..66:30) scala/StringContext.apply().
 (66:52..66:59) _empty_/main#getArg().(argName) -> 58:17
 (66:59..66:60) scala/StringContext#s().
 (68:27..68:33) scala/Predef.String#
@@ -142,34 +125,25 @@ Document tests/pos/main-method-scheme.scala
 (68:78..68:79) _empty_/main#getArgs().[T] -> 68:15
 (69:5..69:13) _empty_/main#argInfos(). -> 32:15
 (69:14..69:16) scala/collection/mutable/Growable#`+=`().
-(69:19..69:19) scala/Tuple2.apply().
 (69:19..69:26) _empty_/main#getArgs().(argName) -> 68:18
 (70:18..70:22) scala/package.List#
 (70:29..70:30) _empty_/main#getArgs().[T] -> 68:15
 (70:34..70:51) _empty_/main#nextPositionalArg(). -> 47:15
 (71:12..71:16) scala/Some.
-(71:16..71:16) scala/Some.unapply().
-(71:32..71:32) local8 -> 71:32
-(71:62..71:67) local6 -> 70:9
-(71:69..71:69) scala/collection/immutable/List#`::`().
+(71:62..71:67) local8 -> 70:9
 (72:12..72:16) scala/None.
 (72:20..72:23) scala/package.Nil.
-(73:15..73:20) local6 -> 70:9
+(73:15..73:20) local8 -> 70:9
 (74:11..74:14) local9 -> 73:9
 (74:15..74:18) scala/collection/immutable/List#map().
-(74:20..74:20) scala/Function0#apply().
 (76:16..76:23) scala/Boolean#
 (77:5..77:12) scala/Predef.println(+1).
-(77:15..77:15) scala/StringContext.apply().
 (77:23..77:31) _empty_/main#progName. -> 21:12
 (77:34..77:42) _empty_/main#argInfos(). -> 32:15
 (77:43..77:46) scala/collection/StrictOptimizedIterableOps#map().
-(77:47..77:47) scala/Tuple2#_1.
 (77:49..77:50) java/lang/String#`+`().
-(77:51..77:51) scala/Tuple2#_2.
 (77:54..77:62) scala/collection/IterableOnceOps#mkString(+1).
 (77:68..77:69) scala/StringContext#s().
-(78:8..78:8) scala/Predef.augmentString().
 (78:8..78:18) _empty_/main#docComment. -> 21:51
 (78:19..78:27) scala/collection/StringOps#nonEmpty().
 (79:7..79:14) scala/Predef.println(+1).
@@ -177,16 +151,12 @@ Document tests/pos/main-method-scheme.scala
 (82:21..82:25) scala/Unit#
 (82:28..82:45) _empty_/main#nextPositionalArg(). -> 47:15
 (83:10..83:14) scala/Some.
-(83:14..83:14) scala/Some.unapply().
 (84:7..84:12) _empty_/main#error(). -> 40:15
-(84:15..84:15) scala/StringContext.apply().
 (84:33..84:36) local11 -> 83:15
 (84:36..84:37) scala/StringContext#s().
 (85:7..85:17) _empty_/main#showUnused(). -> 82:7
 (86:10..86:14) scala/None.
-(88:16..88:16) scala/Predef.refArrayOps().
 (88:16..88:20) _empty_/main#args. -> 21:30
-(88:20..88:20) scala/collection/ArrayOps#withFilter().
 (89:12..89:15) local12 -> 88:9
 (89:16..89:26) java/lang/String#startsWith(+1).
 (89:33..89:35) scala/Boolean#`&&`().
@@ -194,18 +164,13 @@ Document tests/pos/main-method-scheme.scala
 (89:46..89:49) scala/collection/StrictOptimizedIterableOps#map().
 (89:52..89:54) scala/Tuple2#_1.
 (89:56..89:64) scala/collection/SeqOps#contains().
-(89:65..89:65) scala/Predef.augmentString().
 (89:65..89:68) local12 -> 88:9
 (89:69..89:73) scala/collection/StringOps#drop().
-(89:77..89:77) scala/Boolean#`unary_!`().
-(89:77..89:77) scala/collection/ArrayOps.WithFilter#foreach().
 (91:9..91:14) _empty_/main#error(). -> 40:15
-(91:17..91:17) scala/StringContext.apply().
 (91:41..91:44) local12 -> 88:9
 (91:44..91:45) scala/StringContext#s().
 (92:7..92:17) _empty_/main#showUnused(). -> 82:7
 (94:15..94:22) scala/Boolean#
-(95:8..95:8) scala/Predef.refArrayOps().
 (95:8..95:12) _empty_/main#args. -> 21:30
 (95:13..95:21) scala/collection/ArrayOps#contains().
 (96:7..96:12) _empty_/main#usage(). -> 76:7
@@ -213,9 +178,7 @@ Document tests/pos/main-method-scheme.scala
 (99:10..99:16) _empty_/main#errors(). -> 35:15
 (99:17..99:25) scala/collection/IterableOnceOps#nonEmpty().
 (100:20..100:26) _empty_/main#errors(). -> 35:15
-(100:26..100:26) scala/collection/IterableOnceOps#foreach().
 (100:30..100:37) scala/Predef.println(+1).
-(100:40..100:40) scala/StringContext.apply().
 (100:48..100:51) local13 -> 100:13
 (100:51..100:52) scala/StringContext#s().
 (101:9..101:14) _empty_/main#usage(). -> 76:7
@@ -225,7 +188,6 @@ Document tests/pos/main-method-scheme.scala
 (112:22..112:25) scala/Int#
 (112:32..112:35) scala/Int#
 (113:5..113:12) scala/Predef.println(+1).
-(113:15..113:15) scala/StringContext.apply().
 (113:16..113:19) _empty_/myProgram.add().(num) -> 112:17
 (113:23..113:26) _empty_/myProgram.add().(inc) -> 112:27
 (113:31..113:34) _empty_/myProgram.add().(num) -> 112:17
@@ -244,7 +206,6 @@ Document tests/pos/main-method-scheme.scala
 (122:46..122:49) local14 -> 121:9
 (122:50..122:64) _empty_/main#ArgumentParser# -> 25:8
 (122:65..122:68) scala/Int#
-(122:70..122:70) scala/util/CommandLineParser.FromString.given_FromString_Int.
 (123:16..123:19) local14 -> 121:9
 (123:20..123:26) _empty_/main#getArg(). -> 58:7
 (123:27..123:30) scala/Int#
@@ -252,16 +213,12 @@ Document tests/pos/main-method-scheme.scala
 (123:46..123:49) local14 -> 121:9
 (123:50..123:64) _empty_/main#ArgumentParser# -> 25:8
 (123:65..123:68) scala/Int#
-(123:70..123:70) scala/util/CommandLineParser.FromString.given_FromString_Int.
 (123:72..123:76) scala/Some.
-(123:76..123:76) scala/Some.apply().
 (124:8..124:11) local14 -> 121:9
 (124:12..124:16) _empty_/main#done(). -> 94:7
 (124:24..124:33) _empty_/myProgram. -> 109:8
 (124:34..124:37) _empty_/myProgram.add(). -> 112:13
 (124:38..124:42) local15 -> 122:9
-(124:42..124:42) scala/Function0#apply().
 (124:46..124:50) local16 -> 123:9
-(124:50..124:50) scala/Function0#apply().
 (125:5..125:8) _empty_/add. -> 119:8
 

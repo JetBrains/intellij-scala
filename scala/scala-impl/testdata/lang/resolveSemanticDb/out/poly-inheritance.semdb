@@ -23,7 +23,6 @@ Document tests/pos/poly-inheritance.scala
 (10:22..10:25) scala/Predef.`???`().
 (13:27..13:29) _empty_/It# -> 5:7
 (13:30..13:31) _empty_/ArraySeq#[A] -> 13:16
-(13:32..13:32) _empty_/It#`<init>`(). -> 5:9
 (13:38..13:41) _empty_/Ops# -> 7:7
 (13:42..13:43) _empty_/ArraySeq#[A] -> 13:16
 (13:55..13:63) _empty_/ArraySeq# -> 13:7
@@ -34,17 +33,14 @@ Document tests/pos/poly-inheritance.scala
 (17:54..17:55) _empty_/LP#arrayToSeq().[A] -> 17:27
 (17:59..17:62) scala/Predef.`???`().
 (19:21..19:23) _empty_/LP# -> 16:7
-(19:23..19:23) _empty_/LP#`<init>`(). -> 17:3
 (21:36..21:41) scala/Array#
 (21:42..21:43) _empty_/Test.ArrOps#[A] -> 21:25
 (21:54..21:60) scala/AnyVal#
-(21:60..21:60) scala/AnyVal#`<init>`().
 (21:66..21:69) _empty_/Ops# -> 7:7
 (21:70..21:71) _empty_/Test.ArrOps#[A] -> 21:25
 (21:83..21:88) scala/Array#
 (21:89..21:90) _empty_/Test.ArrOps#[A] -> 21:25
 (22:16..22:24) scala/reflect/ClassTag#
-(22:24..22:24) _empty_/Test.ArrOps#map().[B] -> 22:13
 (22:29..22:30) _empty_/Test.ArrOps#[A] -> 21:25
 (22:34..22:35) _empty_/Test.ArrOps#map().[B] -> 22:13
 (22:38..22:43) scala/Array#
@@ -55,8 +51,6 @@ Document tests/pos/poly-inheritance.scala
 (23:39..23:49) _empty_/LP#arrayToSeq(). -> 17:16
 (23:50..23:52) _empty_/Test.ArrOps#xs. -> 21:32
 (26:13..26:18) scala/Array.
-(26:18..26:18) scala/Array.apply(+5).
-(27:13..27:13) _empty_/Test.ArrOps(). -> 21:18
 (27:13..27:16) _empty_/Test.xs1. -> 26:7
 (27:17..27:23) _empty_/Ops#filter(). -> 8:7
 (27:26..27:27) scala/Int#`%`(+3).
@@ -64,19 +58,15 @@ Document tests/pos/poly-inheritance.scala
 (28:13..28:18) scala/Array#
 (28:19..28:22) scala/Int#
 (28:26..28:29) _empty_/Test.xs2. -> 27:7
-(29:13..29:13) _empty_/Test.ArrOps(). -> 21:18
 (29:13..29:16) _empty_/Test.xs1. -> 26:7
 (29:17..29:20) _empty_/Test.ArrOps#map(). -> 22:9
 (29:23..29:24) scala/Int#`+`().
-(29:29..29:29) scala/reflect/ClassTag.apply().
 (30:13..30:18) scala/Array#
 (30:19..30:25) java/lang/String#
 (30:29..30:32) _empty_/Test.xs3. -> 29:7
 (32:15..32:18) scala/Int#
 (32:22..32:23) _empty_/Test.f().[T] -> 32:9
 (33:15..33:20) scala/Array.
-(33:20..33:20) scala/Array.apply(+5).
-(34:15..34:15) _empty_/Test.ArrOps(). -> 21:18
 (34:15..34:18) local0 -> 33:9
 (34:19..34:25) _empty_/Ops#filter(). -> 8:7
 (34:28..34:29) scala/Int#`%`(+3).
@@ -84,7 +74,6 @@ Document tests/pos/poly-inheritance.scala
 (35:15..35:20) scala/Array#
 (35:21..35:24) scala/Int#
 (35:28..35:31) local1 -> 34:9
-(36:15..36:15) _empty_/Test.ArrOps(). -> 21:18
 (36:15..36:18) local0 -> 33:9
 (36:19..36:24) _empty_/Test.ArrOps#toSeq(). -> 23:18
 (36:25..36:28) _empty_/Ops#map(). -> 9:7

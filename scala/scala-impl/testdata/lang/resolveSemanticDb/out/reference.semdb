@@ -2,29 +2,21 @@ Document tests/pos/reference/adts.scala
 (5:21..5:22) adts/t1.Option.Some#[T] -> 5:15
 (5:32..5:38) adts/t1.Option# -> 4:8
 (5:39..5:40) adts/t1.Option.Some#[T] -> 5:15
-(5:41..5:41) adts/t1.Option#`<init>`(). -> 4:14
 (11:21..11:22) adts/t2.Option.Some#[T] -> 11:15
 (11:32..11:38) adts/t2.Option# -> 10:8
 (11:39..11:40) adts/t2.Option.Some#[T] -> 11:15
-(11:41..11:41) adts/t2.Option#`<init>`(). -> 10:14
 (12:32..12:38) adts/t2.Option# -> 10:8
 (12:39..12:46) scala/Nothing#
-(12:47..12:47) adts/t2.Option#`<init>`(). -> 10:14
 (14:21..14:24) scala/Int#
 (15:22..15:27) adts/Color# -> 14:6
-(15:27..15:27) adts/Color#`<init>`(). -> 14:11
 (16:22..16:27) adts/Color# -> 14:6
-(16:27..16:27) adts/Color#`<init>`(). -> 14:11
 (17:22..17:27) adts/Color# -> 14:6
-(17:27..17:27) adts/Color#`<init>`(). -> 14:11
 (18:17..18:20) scala/Int#
 (18:30..18:35) adts/Color# -> 14:6
-(18:35..18:35) adts/Color#`<init>`(). -> 14:11
 (18:36..18:39) adts/Color.Mix#mix. -> 18:12
 (23:21..23:22) adts/t3.Option.Some#[T] -> 23:15
 (23:32..23:38) adts/t3.Option# -> 22:8
 (23:39..23:40) adts/t3.Option.Some#[T] -> 23:15
-(23:41..23:41) adts/t3.Option#`<init>`(). -> 22:14
 (26:20..26:27) scala/Boolean#
 (27:12..27:16) adts/t3.Option.None. -> 24:10
 (31:20..31:24) scala/Null#
@@ -34,8 +26,7 @@ Document tests/pos/reference/adts.scala
 (32:11..32:12) adts/t3.Option.apply().(x) -> 31:26
 (32:13..32:15) scala/Any#`==`().
 (32:22..32:26) adts/t3.Option.None. -> 24:10
-(32:32..32:36) adts/t3.Option.Some. -> 23:10
-(32:36..32:36) adts/t3.Option.Some.apply(). -> 23:5
+(32:32..32:36) adts/t3.Option.Some.
 (32:37..32:38) adts/t3.Option.apply().(x) -> 31:26
 
 Document tests/pos/reference/auto-param-tupling.scala
@@ -45,23 +36,17 @@ Document tests/pos/reference/auto-param-tupling.scala
 (4:30..4:33) scala/Predef.`???`().
 (6:3..6:5) autoParamTupling/t1.xs. -> 4:7
 (6:6..6:9) scala/collection/immutable/List#map().
-(7:5..7:5) local0 -> 8:7
-(7:11..7:11) scala/Tuple2.unapply().
 (7:20..7:21) local1 -> 9:7
 (7:22..7:23) scala/Int#`+`(+4).
 (7:24..7:25) local2 -> 11:21
 (10:3..10:5) autoParamTupling/t1.xs. -> 4:7
 (10:6..10:9) scala/collection/immutable/List#map().
-(11:6..11:6) scala/Tuple2#_1.
-(11:9..11:9) scala/Tuple2#_2.
 (11:15..11:16) local4 -> 45:42
 (11:17..11:18) scala/Int#`+`(+4).
 (11:19..11:20) local5 -> 68:20
 (14:3..14:5) autoParamTupling/t1.xs. -> 4:7
 (14:6..14:9) scala/collection/immutable/List#map().
-(14:10..14:10) scala/Tuple2#_1.
 (14:12..14:13) scala/Int#`+`(+4).
-(14:14..14:14) scala/Tuple2#_2.
 
 Document tests/pos/reference/compile-time.scala
 (4:10..4:15) scala/
@@ -73,6 +58,7 @@ Document tests/pos/reference/compile-time.scala
 (5:28..5:31) scala/compiletime/ops/
 (5:32..5:35) scala/compiletime/ops/int.
 (8:28..8:31) compiletime/Test#Nat# -> 7:9
+(9:24..9:27) compiletime/Test#Nat# -> 7:9
 (9:32..9:33) compiletime/Test#Succ#[N] -> 9:19
 (9:43..9:46) compiletime/Test#Nat# -> 7:9
 (11:37..11:40) scala/Int#
@@ -89,34 +75,25 @@ Document tests/pos/reference/compile-time.scala
 (18:76..18:77) compiletime/Test#defaultValue().[T] -> 18:39
 (19:13..19:17) scala/Byte#
 (19:21..19:25) scala/Some.
-(19:25..19:25) scala/Some.apply().
 (19:29..19:33) scala/Byte#
 (20:13..20:17) scala/Char#
 (20:21..20:25) scala/Some.
-(20:25..20:25) scala/Some.apply().
 (20:29..20:33) scala/Char#
 (21:13..21:18) scala/Short#
 (21:22..21:26) scala/Some.
-(21:26..21:26) scala/Some.apply().
 (21:30..21:35) scala/Short#
 (22:13..22:16) scala/Int#
 (22:20..22:24) scala/Some.
-(22:24..22:24) scala/Some.apply().
 (23:13..23:17) scala/Long#
 (23:21..23:25) scala/Some.
-(23:25..23:25) scala/Some.apply().
 (24:13..24:18) scala/Float#
 (24:22..24:26) scala/Some.
-(24:26..24:26) scala/Some.apply().
 (25:13..25:19) scala/Double#
 (25:23..25:27) scala/Some.
-(25:27..25:27) scala/Some.apply().
 (26:13..26:20) scala/Boolean#
 (26:24..26:28) scala/Some.
-(26:28..26:28) scala/Some.apply().
 (27:13..27:17) scala/Unit#
 (27:21..27:25) scala/Some.
-(27:25..27:25) scala/Some.apply().
 (28:15..28:19) scala/None.
 (30:13..30:17) scala/Some#
 (30:18..30:21) scala/Int#
@@ -171,15 +148,11 @@ Document tests/pos/reference/delegate-match.scala
 (8:31..8:32) implicitmatch/Test#setFor().[T] -> 7:33
 (8:41..8:48) scala/collection/immutable/TreeSet#
 (8:49..8:50) implicitmatch/Test#setFor().[T] -> 7:33
-(8:51..8:51) local0 -> 8:7
-(8:51..8:51) scala/collection/immutable/TreeSet#`<init>`(+1).
 (9:41..9:48) scala/collection/immutable/HashSet#
 (9:49..9:50) implicitmatch/Test#setFor().[T] -> 7:33
-(9:51..9:51) scala/collection/immutable/HashSet#`<init>`(+1).
 (12:3..12:9) scala/Predef.summon().
 (12:10..12:18) scala/package.Ordering#
 (12:19..12:25) scala/Predef.String#
-(12:27..12:27) scala/math/Ordering.String.
 (14:12..14:18) implicitmatch/Test#setFor(). -> 7:26
 (14:19..14:25) scala/Predef.String#
 (16:3..16:10) scala/Predef.println(+1).
@@ -188,10 +161,8 @@ Document tests/pos/reference/delegate-match.scala
 (18:18..18:24) scala/Predef.String#
 (19:20..19:21) implicitmatch/Test#A# -> 18:9
 (19:28..19:29) implicitmatch/Test#A# -> 18:9
-(19:29..19:29) implicitmatch/Test#A#`<init>`(). -> 18:10
 (20:20..20:21) implicitmatch/Test#A# -> 18:9
 (20:28..20:29) implicitmatch/Test#A# -> 18:9
-(20:29..20:29) implicitmatch/Test#A#`<init>`(). -> 18:10
 (22:17..22:20) scala/Any#
 (23:14..23:15) implicitmatch/Test#A# -> 18:9
 (23:19..23:26) scala/Predef.println(+1).
@@ -245,14 +216,12 @@ Document tests/pos/reference/delegates.scala
 (22:54..22:61) _empty_/Common#Monad#flatMap(). -> 21:32
 (22:62..22:63) _empty_/Common#Monad#map().(f) -> 22:39
 (22:64..22:73) scala/Function1#andThen().
-(22:74..22:74) local0 -> 8:7
 (22:74..22:78) _empty_/Common#Monad#pure(). -> 24:9
 (24:20..24:21) _empty_/Common#Monad#pure().[A] -> 24:14
 (24:24..24:25) _empty_/Common#Monad#[F] -> 20:15
 (24:26..24:27) _empty_/Common#Monad#pure().[A] -> 24:14
 (25:5..25:11) _empty_/Common# -> 1:7
 (27:26..27:32) _empty_/Common# -> 1:7
-(27:32..27:32) _empty_/Common#`<init>`(). -> 3:3
 (29:17..29:20) _empty_/Common#Ord# -> 3:9
 (29:21..29:24) scala/Int#
 (30:19..30:22) scala/Int#
@@ -263,9 +232,9 @@ Document tests/pos/reference/delegates.scala
 (31:30..31:31) _empty_/Instances.intOrd.compareTo().(x) -> 30:16
 (31:32..31:33) scala/Int#`>`(+3).
 (31:34..31:35) _empty_/Instances.intOrd.compareTo().(y) -> 30:38
-(31:39..31:39) scala/Int#`unary_+`().
 (33:26..33:29) _empty_/Common#Ord# -> 3:9
 (33:30..33:31) _empty_/Instances.listOrd#[T] -> 33:17
+(33:30..33:31) _empty_/Instances.listOrd().[T] -> 33:17
 (33:35..33:38) _empty_/Common#Ord# -> 3:9
 (33:39..33:43) scala/package.List#
 (33:44..33:45) _empty_/Instances.listOrd#[T] -> 33:17
@@ -274,32 +243,23 @@ Document tests/pos/reference/delegates.scala
 (34:47..34:51) scala/package.List#
 (34:52..34:53) _empty_/Instances.listOrd#[T] -> 33:17
 (34:57..34:60) scala/Int#
-(34:64..34:64) scala/Tuple2.apply().
 (34:64..34:66) _empty_/Instances.listOrd#compareTo().(xs) -> 34:16
 (34:68..34:70) _empty_/Instances.listOrd#compareTo().(ys) -> 34:43
-(35:13..35:13) scala/Tuple2.unapply().
 (35:13..35:16) scala/package.Nil.
 (35:18..35:21) scala/package.Nil.
-(36:13..36:13) scala/Tuple2.unapply().
 (36:13..36:16) scala/package.Nil.
-(37:13..37:13) scala/Tuple2.unapply().
 (37:16..37:19) scala/package.Nil.
-(37:26..37:26) scala/Int#`unary_+`().
-(38:13..38:13) scala/Tuple2.unapply().
 (38:15..38:17) scala/package.`::`.
-(38:17..38:17) scala/collection/immutable/`::`.unapply().
 (38:25..38:27) scala/package.`::`.
-(38:27..38:27) scala/collection/immutable/`::`.unapply().
-(39:19..39:19) _empty_/Common#Ord#compareTo(). -> 4:26
 (39:19..39:20) local1 -> 9:7
-(39:31..39:32) local3 -> 19:15
+(39:31..39:32) local3 -> 13:14
 (40:13..40:16) local5 -> 68:20
 (40:17..40:19) scala/Int#`!=`(+3).
 (40:23..40:26) local5 -> 68:20
 (40:32..40:35) local2 -> 11:21
 (40:36..40:45) _empty_/Instances.listOrd#compareTo(). -> 34:33
 (40:46..40:49) local4 -> 45:42
-(41:7..41:14) _empty_/Instances.listOrd# -> 33:9
+(41:7..41:14) _empty_/Instances.listOrd#
 (43:18..43:21) scala/package.Seq#
 (43:22..43:28) scala/Predef.String#
 (44:25..44:28) scala/package.Seq#
@@ -308,7 +268,6 @@ Document tests/pos/reference/delegates.scala
 (45:26..45:29) scala/collection/IterableOps#map().
 (45:32..45:38) java/lang/String#length().
 (45:40..45:43) scala/collection/IterableOnceOps#max().
-(45:43..45:43) scala/math/Ordering.Int.
 (46:7..46:9) _empty_/Instances.longestStrings().(xs) -> 43:14
 (46:10..46:16) scala/collection/IterableOps#filter().
 (46:19..46:25) java/lang/String#length().
@@ -340,7 +299,6 @@ Document tests/pos/reference/delegates.scala
 (55:24..55:28) scala/package.List#
 (55:29..55:30) _empty_/Instances.listMonad.pure().[A] -> 55:14
 (56:7..56:11) scala/package.List.
-(56:11..56:11) scala/collection/IterableFactory#apply().
 (56:12..56:13) _empty_/Instances.listMonad.pure().(x) -> 55:17
 (58:27..58:32) _empty_/Common#Monad# -> 20:9
 (58:41..58:44) _empty_/Instances.readerMonad#[Ctx] -> 58:21
@@ -352,11 +310,8 @@ Document tests/pos/reference/delegates.scala
 (59:66..59:69) _empty_/Instances.readerMonad#[Ctx] -> 58:21
 (59:73..59:74) _empty_/Instances.readerMonad#flatMap().[B] -> 59:44
 (60:14..60:15) _empty_/Instances.readerMonad#flatMap().(f) -> 59:47
-(60:15..60:15) scala/Function1#apply().
 (60:16..60:17) _empty_/Instances.readerMonad#flatMap().(r) -> 59:19
-(60:17..60:17) scala/Function1#apply().
 (60:18..60:21) local7 -> 73:11
-(60:23..60:23) scala/Function1#apply().
 (60:24..60:27) local7 -> 73:11
 (61:20..61:21) _empty_/Instances.readerMonad#pure().[A] -> 61:14
 (61:24..61:27) _empty_/Instances.readerMonad#[Ctx] -> 58:21
@@ -369,11 +324,10 @@ Document tests/pos/reference/delegates.scala
 (64:46..64:47) _empty_/Instances.maximum().[T] -> 64:15
 (65:5..65:7) _empty_/Instances.maximum().(xs) -> 64:18
 (65:8..65:18) scala/collection/IterableOnceOps#reduceLeft().
-(65:33..65:33) _empty_/Common#Ord#`<`(). -> 5:26
-(65:33..65:34) local9 -> 100:9
-(65:37..65:38) local10 -> 65:23
-(65:40..65:41) local10 -> 65:23
-(65:47..65:48) local9 -> 100:9
+(65:33..65:34) local9 -> 65:20
+(65:37..65:38) local10 -> 99:9
+(65:40..65:41) local10 -> 99:9
+(65:47..65:48) local9 -> 65:20
 (67:32..67:35) _empty_/Common#Ord# -> 3:9
 (67:36..67:37) _empty_/Instances.descending().[T] -> 67:18
 (67:41..67:44) _empty_/Common#Ord# -> 3:9
@@ -384,8 +338,8 @@ Document tests/pos/reference/delegates.scala
 (68:39..68:40) _empty_/Instances.descending().[T] -> 67:18
 (68:44..68:47) _empty_/Instances.descending().(asc) -> 67:27
 (68:48..68:57) _empty_/Common#Ord#compareTo(). -> 4:26
-(68:58..68:59) local14 -> 68:36
-(68:61..68:62) local13 -> 68:16
+(68:58..68:59) local12 -> 68:36
+(68:61..68:62) local11 -> 100:9
 (70:22..70:26) scala/package.List#
 (70:27..70:28) _empty_/Instances.minimum().[T] -> 70:15
 (70:37..70:40) _empty_/Common#Ord# -> 3:9
@@ -393,37 +347,32 @@ Document tests/pos/reference/delegates.scala
 (71:5..71:12) _empty_/Instances.maximum(). -> 64:7
 (71:13..71:15) _empty_/Instances.minimum().(xs) -> 70:18
 (71:23..71:33) _empty_/Instances.descending(). -> 67:7
-(71:33..71:33) _empty_/Instances.minimum().(x$2) -> 70:37
 (73:15..73:19) scala/Unit#
 (74:14..74:18) scala/package.List.
-(74:18..74:18) scala/collection/IterableFactory#apply().
 (75:5..75:12) scala/Predef.println(+1).
 (75:13..75:20) _empty_/Instances.maximum(). -> 64:7
-(75:21..75:23) local15 -> 74:9
-(75:24..75:24) _empty_/Instances.intOrd. -> 29:9
+(75:21..75:23) local16 -> 74:9
 (76:5..76:12) scala/Predef.println(+1).
 (76:13..76:20) _empty_/Instances.maximum(). -> 64:7
-(76:21..76:23) local15 -> 74:9
+(76:21..76:23) local16 -> 74:9
 (76:31..76:41) _empty_/Instances.descending(). -> 67:7
-(76:41..76:41) _empty_/Instances.intOrd. -> 29:9
 (77:5..77:12) scala/Predef.println(+1).
 (77:13..77:20) _empty_/Instances.maximum(). -> 64:7
-(77:21..77:23) local15 -> 74:9
+(77:21..77:23) local16 -> 74:9
 (77:31..77:41) _empty_/Instances.descending(). -> 67:7
 (77:48..77:54) _empty_/Instances.intOrd. -> 29:9
 (78:5..78:12) scala/Predef.println(+1).
 (78:13..78:20) _empty_/Instances.minimum(). -> 70:7
-(78:21..78:23) local15 -> 74:9
-(78:24..78:24) _empty_/Instances.intOrd. -> 29:9
+(78:21..78:23) local16 -> 74:9
 (80:29..80:35) scala/Predef.String#
 (81:11..81:18) _empty_/Instances.Context# -> 80:14
 (81:23..81:29) scala/Predef.String#
-(81:40..81:43) local16 -> 81:32
+(81:40..81:43) local17 -> 81:32
 (81:44..81:49) _empty_/Instances.Context#value. -> 80:22
 (82:11..82:18) _empty_/Instances.Context# -> 80:14
 (82:23..82:29) scala/Predef.String#
 (82:38..82:45) _empty_/Instances.Context# -> 80:14
-(82:51..82:54) local17 -> 82:33
+(82:51..82:54) local18 -> 82:33
 (82:55..82:60) _empty_/Instances.Context#value. -> 80:22
 (86:15..86:16) _empty_/Instances.A# -> 84:9
 (86:21..86:22) _empty_/Instances.B# -> 85:9
@@ -445,49 +394,40 @@ Document tests/pos/reference/delegates.scala
 (105:9..105:16) scala/Predef.println(+1).
 (105:17..105:23) scala/Predef.summon().
 (105:24..105:31) _empty_/Instances.Context# -> 80:14
-(105:32..105:32) local23 -> 104:15
 (105:33..105:38) _empty_/Instances.Context#value. -> 80:22
 (107:7..107:14) scala/Predef.locally().
 (108:30..108:33) _empty_/Instances.C#ctx. -> 101:17
 (109:15..109:22) _empty_/Instances.Context# -> 80:14
-(109:25..109:29) local24 -> 108:18
+(109:25..109:29) local25 -> 108:18
 (110:9..110:16) scala/Predef.println(+1).
 (110:17..110:23) scala/Predef.summon().
 (110:24..110:31) _empty_/Instances.Context# -> 80:14
-(110:32..110:32) local25 -> 109:15
 (110:33..110:38) _empty_/Instances.Context#value. -> 80:22
 (112:7..112:14) scala/Predef.locally().
 (113:21..113:22) _empty_/Instances.D# -> 99:9
 (113:23..113:24) local27 -> 113:17
-(113:25..113:25) _empty_/Instances.D#`<init>`(). -> 99:10
 (114:9..114:16) scala/Predef.println(+1).
 (114:17..114:23) scala/Predef.summon().
 (114:24..114:25) _empty_/Instances.D# -> 99:9
 (114:26..114:29) scala/Int#
-(114:31..114:31) local28 -> 113:15
 (116:7..116:14) scala/Predef.locally().
+(117:22..117:29) _empty_/Instances.Context# -> 80:14
 (117:32..117:33) _empty_/Instances.D# -> 99:9
 (117:34..117:37) scala/Int#
-(117:38..117:38) _empty_/Instances.D#`<init>`(). -> 99:10
 (118:9..118:16) scala/Predef.println(+1).
 (118:17..118:23) scala/Predef.summon().
 (118:24..118:25) _empty_/Instances.D# -> 99:9
 (118:26..118:29) scala/Int#
-(118:31..118:31) _empty_/Instances.C#ctx. -> 101:17
-(118:31..118:31) local31 -> 117:15
 (120:7..120:8) _empty_/Instances.C# -> 101:9
 (122:20..122:26) scala/Predef.String#
 (125:26..125:36) scala/Conversion#
 (125:37..125:43) scala/Predef.String#
 (125:45..125:50) _empty_/Instances.Token# -> 122:9
-(125:51..125:51) scala/Conversion#`<init>`().
 (126:22..126:28) scala/Predef.String#
 (126:31..126:36) _empty_/Instances.Token# -> 122:9
 (126:43..126:48) _empty_/Instances.Token# -> 122:9
-(126:48..126:48) _empty_/Instances.Token#`<init>`(). -> 122:14
 (126:49..126:52) _empty_/Instances.Token.StringToToken.apply().(str) -> 126:17
 (128:10..128:15) _empty_/Instances.Token# -> 122:9
-(128:18..128:18) _empty_/Instances.Token.StringToToken.apply(). -> 126:11
 (129:5..129:14) _empty_/Instances. -> 27:8
 (132:34..132:35) _empty_/PostConditions.WrappedResult#[T] -> 132:29
 (134:26..134:39) _empty_/PostConditions.WrappedResult# -> 132:15
@@ -501,12 +441,10 @@ Document tests/pos/reference/delegates.scala
 (137:60..137:61) _empty_/PostConditions.ensuring().[T] -> 136:14
 (138:7..138:13) scala/Predef.assert(+1).
 (138:14..138:23) _empty_/PostConditions.ensuring().(condition) -> 137:18
-(138:23..138:23) scala/ContextFunction1#apply().
 (138:30..138:31) _empty_/PostConditions.ensuring().(x) -> 136:17
 (139:7..139:8) _empty_/PostConditions.ensuring().(x) -> 136:17
 (140:5..140:19) _empty_/PostConditions. -> 131:8
 (142:35..142:41) _empty_/Common# -> 1:7
-(142:41..142:41) _empty_/Common#`<init>`(). -> 3:3
 (143:9..143:12) _empty_/Common#Ord# -> 3:9
 (143:13..143:16) scala/Int#
 (144:19..144:22) scala/Int#
@@ -517,9 +455,7 @@ Document tests/pos/reference/delegates.scala
 (145:30..145:31) _empty_/AnonymousInstances.given_Ord_Int.compareTo().(x) -> 144:16
 (145:32..145:33) scala/Int#`>`(+3).
 (145:34..145:35) _empty_/AnonymousInstances.given_Ord_Int.compareTo().(y) -> 144:38
-(145:39..145:39) scala/Int#`unary_+`().
 (147:13..147:16) _empty_/Common#Ord# -> 3:9
-(147:16..147:16) _empty_/AnonymousInstances.given_Ord_List#[T] -> 147:10
 (147:19..147:22) _empty_/Common#Ord# -> 3:9
 (147:23..147:27) scala/package.List#
 (147:28..147:29) _empty_/AnonymousInstances.given_Ord_List#[T] -> 147:10
@@ -528,30 +464,22 @@ Document tests/pos/reference/delegates.scala
 (148:47..148:51) scala/package.List#
 (148:52..148:53) _empty_/AnonymousInstances.given_Ord_List#[T] -> 147:10
 (148:57..148:60) scala/Int#
-(148:64..148:64) scala/Tuple2.apply().
 (148:64..148:66) _empty_/AnonymousInstances.given_Ord_List#compareTo().(xs) -> 148:16
 (148:68..148:70) _empty_/AnonymousInstances.given_Ord_List#compareTo().(ys) -> 148:43
-(149:13..149:13) scala/Tuple2.unapply().
 (149:13..149:16) scala/package.Nil.
 (149:18..149:21) scala/package.Nil.
-(150:13..150:13) scala/Tuple2.unapply().
 (150:13..150:16) scala/package.Nil.
-(151:13..151:13) scala/Tuple2.unapply().
 (151:16..151:19) scala/package.Nil.
-(151:26..151:26) scala/Int#`unary_+`().
-(152:13..152:13) scala/Tuple2.unapply().
 (152:15..152:17) scala/package.`::`.
-(152:17..152:17) scala/collection/immutable/`::`.unapply().
 (152:25..152:27) scala/package.`::`.
-(152:27..152:27) scala/collection/immutable/`::`.unapply().
-(153:19..153:20) local32 -> 152:13
-(153:31..153:32) local34 -> 152:23
-(154:13..154:16) local36 -> 153:13
+(153:19..153:20) local35 -> 152:13
+(153:31..153:32) local37 -> 152:23
+(154:13..154:16) local39 -> 153:13
 (154:17..154:19) scala/Int#`!=`(+3).
-(154:23..154:26) local36 -> 153:13
-(154:32..154:35) local33 -> 152:18
+(154:23..154:26) local39 -> 153:13
+(154:32..154:35) local36 -> 152:18
 (154:36..154:45) _empty_/AnonymousInstances.given_Ord_List#compareTo(). -> 148:33
-(154:46..154:49) local35 -> 152:28
+(154:46..154:49) local38 -> 152:28
 (156:18..156:21) scala/package.Seq#
 (156:22..156:28) scala/Predef.String#
 (157:25..157:28) scala/package.Seq#
@@ -560,12 +488,11 @@ Document tests/pos/reference/delegates.scala
 (158:26..158:29) scala/collection/IterableOps#map().
 (158:32..158:38) java/lang/String#length().
 (158:40..158:43) scala/collection/IterableOnceOps#max().
-(158:43..158:43) scala/math/Ordering.Int.
 (159:7..159:9) _empty_/AnonymousInstances.longestStrings().(xs) -> 156:14
 (159:10..159:16) scala/collection/IterableOps#filter().
 (159:19..159:25) java/lang/String#length().
 (159:26..159:28) scala/Int#`==`(+3).
-(159:29..159:38) local37 -> 158:11
+(159:29..159:38) local40 -> 158:11
 (161:21..161:25) scala/package.List#
 (161:26..161:27) _empty_/AnonymousInstances.second().[T] -> 161:14
 (162:18..162:20) _empty_/AnonymousInstances.second().(xs) -> 161:17
@@ -573,7 +500,9 @@ Document tests/pos/reference/delegates.scala
 (162:26..162:30) scala/collection/IterableOps#head().
 (164:29..164:40) _empty_/Common#Convertible# -> 8:9
 (164:41..164:45) _empty_/AnonymousInstances.given_Convertible_List_List#[From] -> 164:10
+(164:41..164:45) _empty_/AnonymousInstances.given_Convertible_List_List().[From] -> 164:10
 (164:47..164:49) _empty_/AnonymousInstances.given_Convertible_List_List#[To] -> 164:16
+(164:47..164:49) _empty_/AnonymousInstances.given_Convertible_List_List().[To] -> 164:16
 (165:9..165:20) _empty_/Common#Convertible# -> 8:9
 (165:21..165:25) scala/package.List#
 (165:26..165:30) _empty_/AnonymousInstances.given_Convertible_List_List#[From] -> 164:10
@@ -585,7 +514,6 @@ Document tests/pos/reference/delegates.scala
 (166:49..166:51) _empty_/AnonymousInstances.given_Convertible_List_List#[To] -> 164:16
 (166:55..166:56) _empty_/AnonymousInstances.given_Convertible_List_List#convert().(x) -> 166:16
 (166:57..166:60) scala/collection/immutable/List#map().
-(166:61..166:61) local38
 (166:61..166:62) _empty_/AnonymousInstances.given_Convertible_List_List#c. -> 164:26
 (166:63..166:70) _empty_/Common#Convertible#convert(). -> 9:29
 (168:9..168:15) _empty_/Common#Monoid# -> 14:9
@@ -598,7 +526,6 @@ Document tests/pos/reference/delegates.scala
 (169:69..169:70) _empty_/AnonymousInstances.given_Monoid_String.combine().(y) -> 169:39
 (170:15..170:21) scala/Predef.String#
 (172:14..172:20) _empty_/Common#Monoid# -> 14:9
-(172:20..172:20) _empty_/AnonymousInstances.sum().[T] -> 172:11
 (172:26..172:30) scala/package.List#
 (172:31..172:32) _empty_/AnonymousInstances.sum().[T] -> 172:11
 (172:36..172:37) _empty_/AnonymousInstances.sum().[T] -> 172:11
@@ -610,7 +537,6 @@ Document tests/pos/reference/delegates.scala
 (173:37..173:41) _empty_/Common#Monoid#unit(). -> 15:9
 (174:5..174:23) _empty_/AnonymousInstances. -> 142:8
 (176:26..176:32) _empty_/Common# -> 1:7
-(176:32..176:32) _empty_/Common#`<init>`(). -> 3:3
 (177:34..177:37) _empty_/Common#Ord# -> 3:9
 (177:38..177:41) scala/Int#
 (178:19..178:22) scala/Int#
@@ -621,9 +547,7 @@ Document tests/pos/reference/delegates.scala
 (179:30..179:31) _empty_/Implicits.IntOrd.compareTo().(x) -> 178:16
 (179:32..179:33) scala/Int#`>`(+3).
 (179:34..179:35) _empty_/Implicits.IntOrd.compareTo().(y) -> 178:38
-(179:39..179:39) scala/Int#`unary_+`().
 (181:20..181:23) _empty_/Common#Ord# -> 3:9
-(181:23..181:23) _empty_/Implicits.ListOrd#[T] -> 181:17
 (181:33..181:36) _empty_/Common#Ord# -> 3:9
 (181:37..181:41) scala/package.List#
 (181:42..181:43) _empty_/Implicits.ListOrd#[T] -> 181:17
@@ -632,38 +556,28 @@ Document tests/pos/reference/delegates.scala
 (182:47..182:51) scala/package.List#
 (182:52..182:53) _empty_/Implicits.ListOrd#[T] -> 181:17
 (182:57..182:60) scala/Int#
-(182:64..182:64) scala/Tuple2.apply().
 (182:64..182:66) _empty_/Implicits.ListOrd#compareTo().(xs) -> 182:16
 (182:68..182:70) _empty_/Implicits.ListOrd#compareTo().(ys) -> 182:43
-(183:13..183:13) scala/Tuple2.unapply().
 (183:13..183:16) scala/package.Nil.
 (183:18..183:21) scala/package.Nil.
-(184:13..184:13) scala/Tuple2.unapply().
 (184:13..184:16) scala/package.Nil.
-(185:13..185:13) scala/Tuple2.unapply().
 (185:16..185:19) scala/package.Nil.
-(185:26..185:26) scala/Int#`unary_+`().
-(186:13..186:13) scala/Tuple2.unapply().
 (186:15..186:17) scala/package.`::`.
-(186:17..186:17) scala/collection/immutable/`::`.unapply().
 (186:25..186:27) scala/package.`::`.
-(186:27..186:27) scala/collection/immutable/`::`.unapply().
-(187:19..187:20) local39 -> 186:13
-(187:31..187:32) local41 -> 186:23
-(188:13..188:16) local43 -> 187:13
+(187:19..187:20) local42 -> 186:13
+(187:31..187:32) local44 -> 186:23
+(188:13..188:16) local46 -> 187:13
 (188:17..188:19) scala/Int#`!=`(+3).
-(188:23..188:26) local43 -> 187:13
-(188:32..188:35) local40 -> 186:18
+(188:23..188:26) local46 -> 187:13
+(188:32..188:35) local43 -> 186:18
 (188:36..188:45) _empty_/Implicits.ListOrd#compareTo(). -> 182:33
-(188:46..188:49) local42 -> 186:28
+(188:46..188:49) local45 -> 186:28
 (189:27..189:30) _empty_/Common#Ord# -> 3:9
-(189:30..189:30) _empty_/Implicits.ListOrd().[T] -> 189:24
 (189:33..189:36) _empty_/Common#Ord# -> 3:9
 (189:37..189:41) scala/package.List#
 (189:42..189:43) _empty_/Implicits.ListOrd().[T] -> 189:24
 (189:52..189:59) _empty_/Implicits.ListOrd# -> 181:9
 (189:60..189:61) _empty_/Implicits.ListOrd().[T] -> 189:24
-(189:62..189:62) _empty_/Implicits.ListOrd#`<init>`(). -> 181:16
 (191:59..191:70) _empty_/Common#Convertible# -> 8:9
 (191:71..191:75) _empty_/Implicits.given_Convertible_List_List#[From] -> 191:37
 (191:77..191:79) _empty_/Implicits.given_Convertible_List_List#[To] -> 191:43
@@ -678,7 +592,6 @@ Document tests/pos/reference/delegates.scala
 (193:49..193:51) _empty_/Implicits.given_Convertible_List_List#[To] -> 191:43
 (193:55..193:56) _empty_/Implicits.given_Convertible_List_List#convert().(x) -> 193:16
 (193:57..193:60) scala/collection/immutable/List#map().
-(193:61..193:61) local44
 (193:61..193:62) _empty_/Implicits.given_Convertible_List_List#c. -> 191:56
 (193:63..193:70) _empty_/Common#Convertible#convert(). -> 9:29
 (194:66..194:77) _empty_/Common#Convertible# -> 8:9
@@ -692,8 +605,6 @@ Document tests/pos/reference/delegates.scala
 (196:9..196:36) _empty_/Implicits.given_Convertible_List_List# -> 191:9
 (196:37..196:41) _empty_/Implicits.given_Convertible_List_List().[From] -> 194:44
 (196:43..196:45) _empty_/Implicits.given_Convertible_List_List().[To] -> 194:50
-(196:46..196:46) _empty_/Implicits.given_Convertible_List_List#`<init>`(). -> 191:36
-(196:46..196:46) _empty_/Implicits.given_Convertible_List_List().(c) -> 194:63
 (198:22..198:26) scala/package.List#
 (198:27..198:28) _empty_/Implicits.maximum().[T] -> 198:15
 (199:32..199:35) _empty_/Common#Ord# -> 3:9
@@ -701,11 +612,10 @@ Document tests/pos/reference/delegates.scala
 (199:41..199:42) _empty_/Implicits.maximum().[T] -> 198:15
 (200:5..200:7) _empty_/Implicits.maximum().(xs) -> 198:18
 (200:8..200:18) scala/collection/IterableOnceOps#reduceLeft().
-(200:33..200:33) _empty_/Common#Ord#`<`(). -> 5:26
-(200:33..200:34) local45 -> 200:20
-(200:37..200:38) local46 -> 200:23
-(200:40..200:41) local46 -> 200:23
-(200:47..200:48) local45 -> 200:20
+(200:33..200:34) local48 -> 200:20
+(200:37..200:38) local49 -> 200:23
+(200:40..200:41) local49 -> 200:23
+(200:47..200:48) local48 -> 200:20
 (202:35..202:38) _empty_/Common#Ord# -> 3:9
 (202:39..202:40) _empty_/Implicits.descending().[T] -> 202:18
 (202:44..202:47) _empty_/Common#Ord# -> 3:9
@@ -716,8 +626,8 @@ Document tests/pos/reference/delegates.scala
 (203:39..203:40) _empty_/Implicits.descending().[T] -> 202:18
 (203:44..203:47) _empty_/Implicits.descending().(asc) -> 202:30
 (203:48..203:57) _empty_/Common#Ord#compareTo(). -> 4:26
-(203:58..203:59) local50 -> 203:36
-(203:61..203:62) local49 -> 203:16
+(203:58..203:59) local51 -> 203:36
+(203:61..203:62) local50 -> 203:16
 (205:22..205:26) scala/package.List#
 (205:27..205:28) _empty_/Implicits.minimum().[T] -> 205:15
 (205:45..205:48) _empty_/Common#Ord# -> 3:9
@@ -725,7 +635,6 @@ Document tests/pos/reference/delegates.scala
 (206:5..206:12) _empty_/Implicits.maximum(). -> 198:7
 (206:13..206:15) _empty_/Implicits.minimum().(xs) -> 205:18
 (206:17..206:27) _empty_/Implicits.descending(). -> 202:7
-(206:27..206:27) _empty_/Implicits.minimum().(cmp) -> 205:40
 (208:21..208:24) scala/App#
 (209:3..209:12) _empty_/Instances. -> 27:8
 (209:13..209:17) _empty_/Instances.test(). -> 73:7
@@ -733,9 +642,7 @@ Document tests/pos/reference/delegates.scala
 (210:26..210:32) _empty_/PostConditions.result(). -> 134:7
 (210:34..210:42) _empty_/PostConditions.ensuring(). -> 137:9
 (211:11..211:15) scala/package.List.
-(211:15..211:15) scala/collection/IterableFactory#apply().
 (211:25..211:28) scala/collection/IterableOnceOps#sum().
-(211:28..211:28) scala/math/Numeric.IntIsIntegral.
 (212:3..212:4) _empty_/Test.s. -> 211:7
 (212:5..212:13) _empty_/PostConditions.ensuring(). -> 137:9
 (212:14..212:20) _empty_/PostConditions.result(). -> 134:7
@@ -749,49 +656,39 @@ Document tests/pos/reference/delegates.scala
 (234:27..234:37) scala/Conversion#
 (234:38..234:44) scala/Predef.String#
 (234:46..234:59) _empty_/Completions.CompletionArg# -> 222:8
-(234:63..234:68) _empty_/Completions.CompletionArg.Error. -> 223:10
-(234:68..234:68) _empty_/Completions.CompletionArg.Error.apply(). -> 223:5
+(234:63..234:68) _empty_/Completions.CompletionArg.Error.
 (235:27..235:37) scala/Conversion#
 (235:38..235:44) _empty_/Completions.Future# -> 217:9
 (235:45..235:57) _empty_/Completions.HttpResponse# -> 218:9
 (235:60..235:73) _empty_/Completions.CompletionArg# -> 222:8
-(235:77..235:85) _empty_/Completions.CompletionArg.Response. -> 224:10
-(235:85..235:85) _empty_/Completions.CompletionArg.Response.apply(). -> 224:5
+(235:77..235:85) _empty_/Completions.CompletionArg.Response.
 (236:27..236:37) scala/Conversion#
 (236:38..236:44) _empty_/Completions.Future# -> 217:9
 (236:45..236:55) _empty_/Completions.StatusCode# -> 219:9
 (236:58..236:71) _empty_/Completions.CompletionArg# -> 222:8
-(236:75..236:81) _empty_/Completions.CompletionArg.Status. -> 225:10
-(236:81..236:81) _empty_/Completions.CompletionArg.Status.apply(). -> 225:5
+(236:75..236:81) _empty_/Completions.CompletionArg.Status.
 (237:10..237:23) _empty_/Completions.CompletionArg. -> 226:10
 (239:24..239:37) _empty_/Completions.CompletionArg# -> 222:8
 (239:41..239:44) _empty_/Completions.complete().(arg) -> 239:19
-(240:10..240:15) _empty_/Completions.CompletionArg.Error. -> 223:10
-(240:15..240:15) _empty_/Completions.CompletionArg.Error.unapply().
+(240:10..240:15) _empty_/Completions.CompletionArg.Error.
 (240:22..240:25) scala/Predef.`???`().
-(241:10..241:18) _empty_/Completions.CompletionArg.Response. -> 224:10
-(241:18..241:18) _empty_/Completions.CompletionArg.Response.unapply().
+(241:10..241:18) _empty_/Completions.CompletionArg.Response.
 (241:25..241:28) scala/Predef.`???`().
-(242:10..242:16) _empty_/Completions.CompletionArg.Status. -> 225:10
-(242:16..242:16) _empty_/Completions.CompletionArg.Status.unapply().
+(242:10..242:16) _empty_/Completions.CompletionArg.Status.
 (242:26..242:29) scala/Predef.`???`().
 (243:5..243:16) _empty_/Completions. -> 215:8
 
 Document tests/pos/reference/enums.scala
 (22:21..22:24) scala/Int#
 (23:22..23:27) enums/t3.Color# -> 22:6
-(23:27..23:27) enums/t3.Color#`<init>`(). -> 22:11
 (24:22..24:27) enums/t3.Color# -> 22:6
-(24:27..24:27) enums/t3.Color#`<init>`(). -> 22:11
 (25:22..25:27) enums/t3.Color# -> 22:6
-(25:27..25:27) enums/t3.Color#`<init>`(). -> 22:11
 (31:19..31:25) scala/Double#
 (31:35..31:41) scala/Double#
 (32:9..32:13) java/
 (32:14..32:18) java/lang/
 (32:19..32:23) java/lang/Enum#
 (32:24..32:30) enums/Planet# -> 31:6
-(32:31..32:31) java/lang/Enum#`<init>`().
 (34:24..34:25) enums/Planet#G. -> 33:21
 (34:26..34:27) scala/Double#`*`(+6).
 (34:28..34:32) enums/Planet#mass. -> 31:13
@@ -804,36 +701,23 @@ Document tests/pos/reference/enums.scala
 (35:53..35:54) scala/Double#`*`(+6).
 (35:55..35:69) enums/Planet#surfaceGravity(). -> 34:7
 (37:24..37:30) enums/Planet# -> 31:6
-(37:30..37:30) enums/Planet#`<init>`(). -> 31:12
 (38:24..38:30) enums/Planet# -> 31:6
-(38:30..38:30) enums/Planet#`<init>`(). -> 31:12
 (39:24..39:30) enums/Planet# -> 31:6
-(39:30..39:30) enums/Planet#`<init>`(). -> 31:12
 (40:24..40:30) enums/Planet# -> 31:6
-(40:30..40:30) enums/Planet#`<init>`(). -> 31:12
 (41:24..41:30) enums/Planet# -> 31:6
-(41:30..41:30) enums/Planet#`<init>`(). -> 31:12
 (42:24..42:30) enums/Planet# -> 31:6
-(42:30..42:30) enums/Planet#`<init>`(). -> 31:12
 (43:24..43:30) enums/Planet# -> 31:6
-(43:30..43:30) enums/Planet#`<init>`(). -> 31:12
 (44:24..44:30) enums/Planet# -> 31:6
-(44:30..44:30) enums/Planet#`<init>`(). -> 31:12
 (48:18..48:23) scala/Array#
 (48:24..48:30) scala/Predef.String#
-(49:23..49:23) scala/Predef.augmentString().
 (49:23..49:27) enums/Planet.main().(args) -> 48:12
-(49:27..49:27) scala/Array#apply().
 (49:31..49:39) scala/collection/StringOps#toDouble().
 (50:16..50:27) local0 -> 8:7
 (50:27..50:28) scala/Double#`/`(+6).
 (50:28..50:33) enums/Planet.EARTH. -> 39:8
 (50:34..50:48) enums/Planet#surfaceGravity(). -> 34:7
-(51:15..51:15) scala/Predef.refArrayOps().
-(51:15..51:21) enums/Planet.values(). -> 44:8
-(51:21..51:21) scala/collection/ArrayOps#foreach().
+(51:15..51:21) enums/Planet.values().
 (52:7..52:14) scala/Predef.println(+1).
-(52:17..52:17) scala/StringContext.apply().
 (52:33..52:34) local2 -> 11:21
 (52:40..52:41) local2 -> 11:21
 (52:42..52:55) enums/Planet#surfaceWeight(). -> 35:7
@@ -853,15 +737,10 @@ Document tests/pos/reference/exports.scala
 (12:22..12:28) scala/Predef.String#
 (12:32..12:35) scala/Predef.`???`().
 (16:33..16:40) _empty_/Printer# -> 4:9
-(16:40..16:40) _empty_/Printer#`<init>`(). -> 5:5
 (16:62..16:68) _empty_/InkJet# -> 2:9
 (17:32..17:39) _empty_/Scanner# -> 10:9
-(17:39..17:39) _empty_/Scanner#`<init>`(). -> 11:5
 (19:12..19:20) _empty_/Copier#scanUnit. -> 17:17
-(19:20..19:20) _empty_/Scanner#scan(). -> 11:9
 (20:12..20:21) _empty_/Copier#printUnit. -> 16:17
-(20:21..20:21) _empty_/Copier#print().(bits)
-(20:21..20:21) _empty_/Printer#print(). -> 6:9
 (22:17..22:21) scala/package.List#
 (22:22..22:28) scala/Predef.String#
 (22:32..22:41) _empty_/Copier#printUnit. -> 16:17
@@ -872,8 +751,7 @@ Document tests/pos/reference/exports.scala
 (26:23..26:26) _empty_/C22# -> 25:9
 (26:29..26:32) scala/Predef.`???`().
 (27:10..27:13) _empty_/O22. -> 26:10
-(27:13..27:13) _empty_/O22.c. -> 26:20
-(28:12..28:13) _empty_/exports$package.c. -> 27:14
+(28:12..28:13) _empty_/exports$package.c.
 (28:14..28:15) _empty_/C22#T# -> 25:20
 (28:18..28:21) scala/Predef.`???`().
 
@@ -889,8 +767,7 @@ Document tests/pos/reference/extension-methods.scala
 (6:44..6:48) scala/math/
 (6:49..6:51) scala/math/package.Pi.
 (6:52..6:53) scala/Double#`*`(+3).
-(8:16..8:22) _empty_/ExtMethods.Circle. -> 3:14
-(8:22..8:22) _empty_/ExtMethods.Circle.apply(). -> 3:3
+(8:16..8:22) _empty_/ExtMethods.Circle.
 (9:3..9:9) _empty_/ExtMethods.circle. -> 8:7
 (9:10..9:23) _empty_/ExtMethods.circumference(). -> 6:9
 (10:3..10:9) scala/Predef.assert(+1).
@@ -910,7 +787,6 @@ Document tests/pos/reference/extension-methods.scala
 (13:45..13:49) _empty_/ExtMethods.`#:`().[Elem] -> 13:14
 (13:54..13:55) _empty_/ExtMethods.`#:`().(x) -> 13:20
 (13:59..13:61) _empty_/ExtMethods.`#:`().(xs) -> 13:37
-(13:61..13:61) scala/collection/SeqOps#`+:`().
 (14:17..14:23) java/lang/Number#
 (14:43..14:49) java/lang/Number#
 (14:53..14:54) _empty_/ExtMethods.min().(x) -> 14:14
@@ -918,16 +794,13 @@ Document tests/pos/reference/extension-methods.scala
 (16:14..16:15) _empty_/ExtMethods.`<`(). -> 12:29
 (17:14..17:16) _empty_/ExtMethods.`#:`(). -> 13:33
 (17:17..17:23) scala/package.Vector.
-(17:23..17:23) scala/collection/IterableFactory#apply().
 (18:11..18:15) java/
 (18:16..18:20) java/lang/
 (18:21..18:28) java/lang/Integer#
-(18:28..18:28) java/lang/Integer#`<init>`().
 (18:32..18:35) _empty_/ExtMethods.min(). -> 14:35
 (18:36..18:40) java/
 (18:41..18:45) java/lang/
 (18:46..18:52) java/lang/Double#
-(18:52..18:52) java/lang/Double#`<init>`().
 (20:21..20:25) scala/package.List#
 (20:26..20:27) _empty_/ExtMethods.second().[T] -> 20:14
 (21:18..21:20) _empty_/ExtMethods.second().(xs) -> 20:17
@@ -937,13 +810,10 @@ Document tests/pos/reference/extension-methods.scala
 (23:10..23:16) _empty_/ExtMethods.second(). -> 21:9
 (23:17..23:20) scala/Int#
 (23:22..23:26) scala/package.List.
-(23:26..23:26) scala/collection/IterableFactory#apply().
 (23:37..23:39) scala/Int#`==`(+3).
 (23:40..23:44) scala/package.List.
-(23:44..23:44) scala/collection/IterableFactory#apply().
 (23:54..23:60) _empty_/ExtMethods.second(). -> 21:9
 (25:17..25:24) scala/package.Numeric#
-(25:24..25:24) _empty_/ExtMethods.`+`().[T] -> 25:14
 (25:29..25:30) _empty_/ExtMethods.`+`().[T] -> 25:14
 (26:15..26:16) _empty_/ExtMethods.`+`().[T] -> 25:14
 (26:19..26:20) _empty_/ExtMethods.`+`().[T] -> 25:14
@@ -970,14 +840,12 @@ Document tests/pos/reference/extension-methods.scala
 (34:26..34:29) scala/collection/IterableOps#map().
 (34:32..34:38) java/lang/String#length().
 (34:40..34:43) scala/collection/IterableOnceOps#max().
-(34:43..34:43) scala/math/Ordering.Int.
 (35:7..35:9) _empty_/ExtMethods.longestStrings().(ss) -> 31:14
 (35:10..35:16) scala/collection/IterableOps#filter().
 (35:19..35:25) java/lang/String#length().
 (35:26..35:28) scala/Int#`==`(+3).
 (35:29..35:38) local0 -> 8:7
 (37:24..37:30) scala/Predef.String#
-(37:33..37:33) _empty_/ExtMethods.longestString().(ss) -> 31:14
 (37:33..37:47) _empty_/ExtMethods.longestStrings(). -> 33:9
 (37:48..37:52) scala/collection/IterableOps#head().
 (39:10..39:14) scala/math/
@@ -994,26 +862,18 @@ Document tests/pos/reference/extension-methods.scala
 (42:32..42:33) _empty_/ExtMethods.smallest().[T] -> 41:14
 (42:37..42:39) _empty_/ExtMethods.smallest().(xs) -> 41:17
 (42:40..42:46) scala/collection/immutable/StrictOptimizedSeqOps#sorted().
-(42:46..42:46) _empty_/ExtMethods.smallest().(x$2) -> 41:36
 (42:47..42:51) scala/collection/immutable/List#take().
 (42:52..42:53) _empty_/ExtMethods.smallest().(n) -> 42:18
 (43:28..43:31) scala/Int#
 (43:34..43:38) scala/package.List#
 (43:39..43:42) scala/Int#
-(44:19..44:19) _empty_/ExtMethods.smallestIndices().(xs) -> 41:17
 (44:19..44:27) _empty_/ExtMethods.smallest(). -> 42:9
-(44:27..44:27) _empty_/ExtMethods.smallestIndices().(x$2) -> 41:36
 (44:28..44:29) _empty_/ExtMethods.smallestIndices().(n) -> 43:25
 (44:31..44:34) scala/collection/IterableOnceOps#max().
-(44:34..44:34) _empty_/ExtMethods.smallestIndices().(x$2) -> 41:36
 (45:7..45:9) _empty_/ExtMethods.smallestIndices().(xs) -> 41:17
 (45:10..45:22) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
 (45:23..45:30) scala/collection/immutable/List#collect().
-(45:33..45:33) local2 -> 11:21
-(45:39..45:39) scala/Tuple2.unapply().
-(45:48..45:48) scala/math/Ordered.orderingToOrdered().
-(45:48..45:49) local3 -> 19:15
-(45:49..45:49) _empty_/ExtMethods.smallestIndices().(x$2) -> 41:36
+(45:48..45:49) local3 -> 13:14
 (45:50..45:52) scala/math/Ordered#`<=`().
 (45:53..45:58) local1 -> 9:7
 (45:62..45:63) local4 -> 45:42
@@ -1029,7 +889,6 @@ Document tests/pos/reference/extension-methods.scala
 (52:12..52:18) _empty_/ExtMethods.IntOps#isZero(). -> 48:28
 (52:24..52:28) scala/None.
 (53:12..53:16) scala/Some.
-(53:16..53:16) scala/Some.apply().
 (53:17..53:18) _empty_/ExtMethods.IntOps#safeMod().(i) -> 50:16
 (53:19..53:20) scala/Int#`%`(+3).
 (53:21..53:22) _empty_/ExtMethods.IntOps#safeMod().(x) -> 50:36
@@ -1043,7 +902,6 @@ Document tests/pos/reference/extension-methods.scala
 (59:12..59:18) _empty_/ExtMethods.IntOps#isZero(). -> 48:28
 (59:24..59:28) scala/None.
 (60:12..60:16) scala/Some.
-(60:16..60:16) scala/Some.apply().
 (60:17..60:18) _empty_/ExtMethods.IntOpsEx.safeDiv().(i) -> 57:16
 (60:19..60:20) scala/Int#`/`(+3).
 (60:21..60:22) _empty_/ExtMethods.IntOpsEx.safeDiv().(x) -> 57:36
@@ -1053,28 +911,20 @@ Document tests/pos/reference/extension-methods.scala
 (65:45..65:51) scala/Option#
 (65:53..65:56) scala/Int#
 (65:58..65:61) scala/Int#
-(67:8..67:8) scala/Tuple2.apply().
 (67:8..67:9) _empty_/ExtMethods.SafeDiv#divide().(i) -> 65:16
 (67:10..67:17) _empty_/ExtMethods.IntOpsEx.safeDiv(). -> 57:28
 (67:18..67:19) _empty_/ExtMethods.SafeDiv#divide().(d) -> 65:35
 (67:22..67:23) _empty_/ExtMethods.SafeDiv#divide().(i) -> 65:16
 (67:24..67:31) _empty_/ExtMethods.IntOps#safeMod(). -> 50:28
 (67:32..67:33) _empty_/ExtMethods.SafeDiv#divide().(d) -> 65:35
-(68:15..68:15) scala/Tuple2.unapply().
 (68:15..68:19) scala/Some.
-(68:19..68:19) scala/Some.unapply().
 (68:24..68:28) scala/Some.
-(68:28..68:28) scala/Some.unapply().
 (68:36..68:40) scala/Some.
-(68:40..68:40) scala/Some.apply().
-(68:42..68:42) scala/Tuple2.apply().
 (68:42..68:43) local5 -> 68:20
 (68:45..68:46) local6 -> 68:29
 (69:19..69:23) scala/None.
 (70:7..70:14) _empty_/ExtMethods.SafeDiv# -> 62:9
 (73:17..73:23) _empty_/ExtMethods.IntOps# -> 47:9
-(73:23..73:23) _empty_/ExtMethods.IntOps#`<init>`(). -> 48:5
-(74:5..74:5) _empty_/ExtMethods.IntOps#safeMod(). -> 50:28
 (76:20..76:21) _empty_/ExtMethods.Lst#[T] -> 76:13
 (77:25..77:27) _empty_/ExtMethods.Lst#xs. -> 76:16
 (77:28..77:34) scala/collection/IterableOnceOps#toList().
@@ -1091,7 +941,6 @@ Document tests/pos/reference/extension-methods.scala
 (79:24..79:25) _empty_/ExtMethods.Lst#[T] -> 76:13
 (79:29..79:32) _empty_/ExtMethods.Lst# -> 76:9
 (79:33..79:34) _empty_/ExtMethods.Lst#[T] -> 76:13
-(79:41..79:41) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
 (79:43..79:48) _empty_/ExtMethods.Lst#elems. -> 77:17
 (79:49..79:51) scala/collection/IterableOps#`++`().
 (79:52..79:57) _empty_/ExtMethods.Lst#`++`().(other) -> 79:13
@@ -1115,10 +964,8 @@ Document tests/pos/reference/extension-methods.scala
 (91:24..91:25) _empty_/ExtMethods.Lst.flatten().[T] -> 90:16
 (91:29..91:31) _empty_/ExtMethods.Lst.flatten().(xs) -> 90:19
 (91:32..91:40) _empty_/ExtMethods.Lst#foldLeft(). -> 78:9
-(91:44..91:44) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
 (91:50..91:52) _empty_/ExtMethods.Lst#`++`(). -> 79:9
 (93:18..93:21) _empty_/ExtMethods.Ord# -> 81:9
-(93:21..93:21) _empty_/ExtMethods.Lst.ord#[T] -> 93:15
 (93:24..93:27) _empty_/ExtMethods.Ord# -> 81:9
 (93:28..93:31) _empty_/ExtMethods.Lst# -> 76:9
 (93:32..93:33) _empty_/ExtMethods.Lst.ord#[T] -> 93:15
@@ -1129,41 +976,25 @@ Document tests/pos/reference/extension-methods.scala
 (95:32..95:39) scala/Boolean#
 (95:42..95:45) scala/Predef.`???`().
 (96:7..96:10) _empty_/ExtMethods.Lst. -> 88:10
-(99:18..99:18) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
-(99:22..99:22) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
-(99:33..99:33) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
 (100:13..100:16) _empty_/ExtMethods.Lst# -> 76:9
 (100:17..100:20) scala/Int#
-(100:24..100:24) _empty_/ExtMethods.Lst.flatten(). -> 91:11
-(100:24..100:27) local8 -> 99:9
+(100:24..100:27) local10 -> 99:9
 (102:5..102:11) scala/Predef.summon().
 (102:12..102:15) _empty_/ExtMethods.Ord# -> 81:9
 (102:16..102:19) _empty_/ExtMethods.Lst# -> 76:9
 (102:20..102:23) _empty_/ExtMethods.Lst# -> 76:9
 (102:24..102:27) scala/Int#
-(102:31..102:31) _empty_/ExtMethods.Lst.ord(). -> 93:11
-(102:31..102:31) _empty_/ExtMethods.Ord.given_Ord_Int. -> 84:11
 (104:5..104:11) scala/Predef.assert(+1).
 (104:12..104:15) _empty_/ExtMethods.Lst. -> 88:10
 (104:16..104:19) _empty_/ExtMethods.Lst.ord(). -> 93:11
 (104:20..104:23) _empty_/ExtMethods.Lst# -> 76:9
 (104:24..104:27) scala/Int#
-(104:29..104:29) _empty_/ExtMethods.Lst.ord(). -> 93:11
-(104:29..104:29) _empty_/ExtMethods.Ord.given_Ord_Int. -> 84:11
 (104:30..104:34) _empty_/ExtMethods.Lst.ord#less(). -> 95:13
-(104:35..104:38) local8 -> 99:9
-(104:43..104:43) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
-(104:47..104:47) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
+(104:35..104:38) local10 -> 99:9
 (105:5..105:11) scala/Predef.assert(+1).
-(105:12..105:12) _empty_/ExtMethods.Lst.ord#less(). -> 95:13
-(105:12..105:15) local8 -> 99:9
-(105:26..105:26) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
-(105:30..105:30) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
+(105:12..105:15) local10 -> 99:9
 (106:5..106:11) scala/Predef.assert(+1).
-(106:12..106:12) _empty_/ExtMethods.Lst.flatten(). -> 91:11
-(106:12..106:12) _empty_/ExtMethods.Lst.ord#less(). -> 95:13
-(106:12..106:15) local8 -> 99:9
-(106:34..106:34) _empty_/ExtMethods.Lst#`<init>`(). -> 76:12
+(106:12..106:15) local10 -> 99:9
 (108:17..108:23) scala/Predef.String#
 (109:22..109:26) scala/Char#
 (109:31..109:34) scala/Int#
@@ -1173,13 +1004,10 @@ Document tests/pos/reference/extension-methods.scala
 (110:14..110:15) _empty_/ExtMethods.position().(s) -> 108:14
 (110:16..110:22) java/lang/String#length().
 (110:23..110:25) scala/Boolean#`&&`().
-(110:26..110:26) scala/Predef.augmentString().
 (110:26..110:27) _empty_/ExtMethods.position().(s) -> 108:14
-(110:27..110:27) scala/collection/StringOps#apply().
 (110:28..110:29) _empty_/ExtMethods.position().(n) -> 109:28
 (110:31..110:33) scala/Char#`!=`(+2).
 (110:34..110:36) _empty_/ExtMethods.position().(ch) -> 109:18
-(110:42..110:42) _empty_/ExtMethods.position().(s) -> 108:14
 (110:42..110:50) _empty_/ExtMethods.position(). -> 109:9
 (110:51..110:53) _empty_/ExtMethods.position().(ch) -> 109:18
 (110:55..110:56) _empty_/ExtMethods.position().(n) -> 109:28
@@ -1220,23 +1048,19 @@ Document tests/pos/reference/implicit-byname-parameters.scala
 (12:46..12:47) implicitByName/Test.optionCodec().[T] -> 11:26
 (14:19..14:25) scala/Option#
 (14:26..14:27) implicitByName/Test.optionCodec().[T] -> 11:26
-(14:32..14:34) local2 -> 11:21
+(14:32..14:34) local0 -> 8:7
 (15:12..15:16) scala/Some.
-(15:16..15:16) scala/Some.unapply().
 (15:23..15:25) implicitByName/Test.optionCodec().(ev) -> 12:15
 (15:26..15:31) implicitByName/Test.Codec#write(). -> 6:7
-(15:32..15:33) local3 -> 19:15
+(15:32..15:33) local1 -> 9:7
 (16:12..16:16) scala/None.
 (20:9..20:19) scala/Predef.implicitly().
 (20:20..20:25) implicitByName/Test.Codec# -> 5:7
 (20:26..20:32) scala/Option#
 (20:33..20:36) scala/Int#
-(20:39..20:39) implicitByName/Test.intCodec(). -> 9:14
-(20:39..20:39) implicitByName/Test.optionCodec(). -> 11:14
 (22:1..22:2) implicitByName/Test.s. -> 20:5
 (22:3..22:8) implicitByName/Test.Codec#write(). -> 6:7
 (22:9..22:13) scala/Some.
-(22:13..22:13) scala/Some.apply().
 (23:1..23:2) implicitByName/Test.s. -> 20:5
 (23:3..23:8) implicitByName/Test.Codec#write(). -> 6:7
 (23:9..23:13) scala/None.
@@ -1246,7 +1070,6 @@ Document tests/pos/reference/inline-match.scala
 (5:37..5:40) scala/Any#
 (5:50..5:51) inlinematch/Test#g().(x) -> 5:28
 (6:13..6:19) scala/Predef.String#
-(6:24..6:24) scala/Tuple2.apply().
 (6:24..6:25) local0 -> 8:7
 (6:27..6:28) local0 -> 8:7
 (7:13..7:19) scala/Double#
@@ -1256,36 +1079,30 @@ Document tests/pos/reference/inline-match.scala
 (11:20..11:26) scala/Predef.String#
 (11:30..11:31) inlinematch/Test#g(). -> 5:26
 (14:28..14:31) inlinematch/Test#Nat# -> 13:9
+(15:24..15:27) inlinematch/Test#Nat# -> 13:9
 (15:32..15:33) inlinematch/Test#Succ#[N] -> 15:19
 (15:43..15:46) inlinematch/Test#Nat# -> 13:9
 (17:35..17:38) inlinematch/Test#Nat# -> 13:9
 (17:41..17:44) scala/Int#
 (17:54..17:55) inlinematch/Test#toInt().(n) -> 17:32
 (18:10..18:14) inlinematch/Test#Zero. -> 14:15
-(19:10..19:14) inlinematch/Test#Succ. -> 15:14
-(19:14..19:14) inlinematch/Test#Succ.unapply(). -> 15:3
-(19:14..19:14) local2 -> 11:21
+(19:10..19:14) inlinematch/Test#Succ.
 (19:22..19:27) inlinematch/Test#toInt(). -> 17:26
-(19:28..19:30) local3 -> 19:15
+(19:28..19:30) local3 -> 13:14
 (19:32..19:33) scala/Int#`+`(+4).
 (22:22..22:27) inlinematch/Test#toInt(). -> 17:26
-(22:28..22:32) inlinematch/Test#Succ. -> 15:14
-(22:32..22:32) inlinematch/Test#Succ.apply(). -> 15:3
-(22:33..22:37) inlinematch/Test#Succ. -> 15:14
-(22:37..22:37) inlinematch/Test#Succ.apply(). -> 15:3
+(22:28..22:32) inlinematch/Test#Succ.
+(22:33..22:37) inlinematch/Test#Succ.
 (22:38..22:42) inlinematch/Test#Zero. -> 14:15
 (23:19..23:25) inlinematch/Test#natTwo. -> 22:13
 
 Document tests/pos/reference/inline-specializing.scala
 (5:19..5:20) inlinespecializing/Test.A# -> 4:9
-(5:20..5:20) inlinespecializing/Test.A#`<init>`(). -> 4:3
 (9:36..9:43) scala/Boolean#
 (9:46..9:47) inlinespecializing/Test.A# -> 4:9
 (10:7..10:8) inlinespecializing/Test.choose().(b) -> 9:33
 (10:14..10:15) inlinespecializing/Test.A# -> 4:9
-(10:15..10:15) inlinespecializing/Test.A#`<init>`(). -> 4:3
 (11:12..11:13) inlinespecializing/Test.B# -> 5:9
-(11:13..11:13) inlinespecializing/Test.B#`<init>`(). -> 5:19
 (14:14..14:20) inlinespecializing/Test.choose(). -> 9:26
 (15:14..15:20) inlinespecializing/Test.choose(). -> 9:26
 (18:3..18:7) inlinespecializing/Test.obj2. -> 15:7
@@ -1301,24 +1118,18 @@ Document tests/pos/reference/inlines.scala
 (21:9..21:15) inlines/Config. -> 3:8
 (21:16..21:23) inlines/Config.logging. -> 4:14
 (22:7..22:14) scala/Predef.println(+1).
-(22:17..22:17) scala/StringContext.apply().
-(22:19..22:19) scala/Predef.augmentString().
 (22:24..22:25) scala/collection/StringOps#`*`().
 (22:26..22:32) inlines/Logger.inline$indent().
 (22:40..22:43) inlines/Logger.log().(msg) -> 20:21
 (22:43..22:44) scala/StringContext#s().
 (23:7..23:13) inlines/Logger.`inline$indent_=`().
 (23:7..23:13) inlines/Logger.inline$indent().
-(23:13..23:13) scala/Int#`+`(+4).
 (23:17..23:29) inlines/Logger.log().(indentMargin) -> 20:34
 (24:20..24:22) inlines/Logger.log().(op) -> 20:56
 (25:7..25:13) inlines/Logger.`inline$indent_=`().
 (25:7..25:13) inlines/Logger.inline$indent().
-(25:13..25:13) scala/Int#`-`(+3).
 (25:17..25:29) inlines/Logger.log().(indentMargin) -> 20:34
 (26:7..26:14) scala/Predef.println(+1).
-(26:17..26:17) scala/StringContext.apply().
-(26:19..26:19) scala/Predef.augmentString().
 (26:24..26:25) scala/collection/StringOps#`*`().
 (26:26..26:32) inlines/Logger.inline$indent().
 (26:34..26:37) inlines/Logger.log().(msg) -> 20:21
@@ -1330,25 +1141,21 @@ Document tests/pos/reference/inlines.scala
 (37:20..37:26) scala/package.BigInt#
 (37:29..37:35) scala/package.BigInt#
 (38:5..38:8) inlines/Logger.log(). -> 20:14
-(38:11..38:11) scala/StringContext.apply().
 (38:22..38:23) inlines/Test.factorial().(n) -> 37:17
 (38:24..38:25) scala/StringContext#s().
 (38:27..38:40) inlines/Test.indentSetting(). -> 35:7
 (39:11..39:12) inlines/Test.factorial().(n) -> 37:17
 (39:13..39:15) scala/Any#`==`().
-(39:19..39:19) scala/math/BigInt.int2bigInt().
 (40:12..40:13) inlines/Test.factorial().(n) -> 37:17
 (40:14..40:15) scala/math/BigInt#`*`().
 (40:16..40:25) inlines/Test.factorial(). -> 37:7
 (40:26..40:27) inlines/Test.factorial().(n) -> 37:17
 (40:28..40:29) scala/math/BigInt#`-`().
-(40:30..40:30) scala/math/BigInt.int2bigInt().
 (44:18..44:23) scala/Array#
 (44:24..44:30) scala/Predef.String#
 (44:34..44:38) scala/Unit#
 (45:5..45:12) scala/Predef.println(+1).
 (45:13..45:22) inlines/Test.factorial(). -> 37:7
-(45:23..45:23) scala/math/BigInt.int2bigInt().
 
 Document tests/pos/reference/intersection-types.scala
 (9:16..9:17) intersectionTypes/t1.Growable#[T] -> 8:18
@@ -1368,7 +1175,6 @@ Document tests/pos/reference/intersection-types.scala
 (28:12..28:13) scala/`&`#
 (28:14..28:15) intersectionTypes/t2.B# -> 24:9
 (28:22..28:23) intersectionTypes/t2.C# -> 31:9
-(28:23..28:23) intersectionTypes/t2.C#`<init>`(). -> 31:19
 (29:11..29:15) scala/package.List#
 (29:16..29:17) intersectionTypes/t2.A# -> 20:9
 (29:18..29:19) scala/`&`#
@@ -1388,14 +1194,6 @@ Document tests/pos/reference/intersection-types.scala
 (35:18..35:19) intersectionTypes/t2.x. -> 28:7
 
 Document tests/pos/reference/main-functions.scala
-(1:1..1:1) _empty_/`main-functions$package`.happyBirthday(). -> 1:11
-(1:1..1:1) _empty_/happyBirthday#main().(args)
-(1:1..1:1) local3 -> 19:15
-(1:1..1:1) scala/util/CommandLineParser.FromString.given_FromString_Int.
-(1:1..1:1) scala/util/CommandLineParser.FromString.given_FromString_String.
-(1:1..1:1) scala/util/CommandLineParser.parseArgument().
-(1:1..1:1) scala/util/CommandLineParser.parseRemainingArguments().
-(1:1..1:1) scala/util/CommandLineParser.showError().
 (1:2..1:6) scala/main#
 (1:30..1:33) scala/Int#
 (1:41..1:47) scala/Predef.String#
@@ -1405,14 +1203,11 @@ Document tests/pos/reference/main-functions.scala
 (6:10..6:13) _empty_/`main-functions$package`.happyBirthday().(age) -> 1:25
 (6:14..6:15) scala/Int#`%`(+3).
 (13:18..13:31) scala/package.StringBuilder#
-(13:31..13:31) scala/collection/mutable/StringBuilder#`<init>`(+3).
-(13:34..13:34) scala/StringContext.apply().
 (13:41..13:44) _empty_/`main-functions$package`.happyBirthday().(age) -> 1:25
 (13:45..13:51) local0 -> 8:7
 (13:63..13:67) _empty_/`main-functions$package`.happyBirthday().(name) -> 1:35
 (13:67..13:68) scala/StringContext#s().
 (14:16..14:22) _empty_/`main-functions$package`.happyBirthday().(others) -> 1:49
-(14:22..14:22) scala/collection/IterableOnceOps#foreach().
 (14:26..14:30) local1 -> 9:7
 (14:31..14:37) scala/collection/mutable/StringBuilder#append(+1).
 (14:47..14:53) scala/collection/mutable/StringBuilder#append(+1).
@@ -1433,7 +1228,6 @@ Document tests/pos/reference/opaque.scala
 (11:11..11:12) _empty_/Logarithms.Logarithm.safe().(d) -> 10:14
 (11:13..11:14) scala/Double#`>`(+6).
 (11:20..11:24) scala/Some.
-(11:24..11:24) scala/Some.apply().
 (11:25..11:29) scala/math/
 (11:30..11:33) scala/math/package.log().
 (11:34..11:35) _empty_/Logarithms.Logarithm.safe().(d) -> 10:14
@@ -1446,7 +1240,6 @@ Document tests/pos/reference/opaque.scala
 (17:15..17:24) _empty_/Logarithms.Logarithm# -> 3:15
 (17:27..17:36) _empty_/Logarithms.Logarithm# -> 3:15
 (17:39..17:48) _empty_/Logarithms.Logarithm. -> 5:10
-(17:48..17:48) _empty_/Logarithms.Logarithm.apply(). -> 8:9
 (17:49..17:53) scala/math/
 (17:54..17:57) scala/math/package.exp().
 (17:58..17:59) _empty_/Logarithms.`+`().(x) -> 15:14
@@ -1465,9 +1258,7 @@ Document tests/pos/reference/opaque.scala
 (23:18..23:31) scala/Predef.any2stringadd().
 (23:18..23:31) scala/Predef.any2stringadd.
 (25:11..25:20) _empty_/Logarithms.Logarithm. -> 5:10
-(25:20..25:20) _empty_/Logarithms.Logarithm.apply(). -> 8:9
 (26:12..26:21) _empty_/Logarithms.Logarithm. -> 5:10
-(26:21..26:21) _empty_/Logarithms.Logarithm.apply(). -> 8:9
 (27:12..27:13) _empty_/LogTest.l. -> 25:7
 (27:14..27:15) _empty_/Logarithms.`*`(). -> 18:9
 (27:16..27:18) _empty_/LogTest.l2. -> 26:7
@@ -1518,14 +1309,11 @@ Document tests/pos/reference/opaque.scala
 (51:46..51:51) _empty_/Access.Write. -> 49:7
 (55:10..55:16) _empty_/Access. -> 32:8
 (57:27..57:38) _empty_/Access.Permissions# -> 34:15
-(59:16..59:20) _empty_/User.Item. -> 57:14
-(59:20..59:20) _empty_/User.Item.apply(). -> 57:3
+(59:16..59:20) _empty_/User.Item.
 (59:21..59:25) _empty_/Access.Read. -> 48:7
-(60:16..60:20) _empty_/User.Item. -> 57:14
-(60:20..60:20) _empty_/User.Item.apply(). -> 57:3
+(60:16..60:20) _empty_/User.Item.
 (60:21..60:30) _empty_/Access.ReadWrite. -> 50:7
-(61:16..61:20) _empty_/User.Item. -> 57:14
-(61:20..61:20) _empty_/User.Item.apply(). -> 57:3
+(61:16..61:20) _empty_/User.Item.
 (61:21..61:33) _empty_/Access.NoPermission. -> 47:7
 (63:3..63:9) scala/Predef.assert(+1).
 (63:11..63:17) _empty_/User.roItem. -> 59:7
@@ -1574,6 +1362,31 @@ Document tests/pos/reference/opaque.scala
 (81:19..81:20) _empty_/o.T# -> 77:15
 (81:23..81:24) _empty_/opaque$package.id().(x) -> 81:8
 
+Document tests/pos/reference/saferExceptions.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:45) scala/language.experimental.saferExceptions.
+(4:29..4:38) scala/package.Exception#
+(8:10..8:16) scala/Double#
+(8:19..8:25) scala/Double#
+(8:33..8:46) _empty_/LimitExceeded# -> 4:7
+(9:6..9:7) _empty_/saferExceptions$package.f().(x) -> 8:7
+(9:8..9:9) scala/Double#`<`(+6).
+(9:10..9:15) _empty_/saferExceptions$package.limit. -> 6:5
+(9:21..9:22) _empty_/saferExceptions$package.f().(x) -> 8:7
+(9:23..9:24) scala/Double#`*`(+6).
+(9:25..9:26) _empty_/saferExceptions$package.f().(x) -> 8:7
+(9:38..9:51) _empty_/LimitExceeded# -> 4:7
+(11:2..11:6) scala/main#
+(11:20..11:26) scala/Double#
+(12:7..12:14) scala/Predef.println(+1).
+(12:15..12:17) _empty_/saferExceptions$package.test().(xs) -> 11:16
+(12:18..12:21) scala/collection/IterableOps#map().
+(12:22..12:23) _empty_/saferExceptions$package.f(). -> 8:5
+(12:25..12:28) scala/collection/IterableOnceOps#sum().
+(13:18..13:31) _empty_/LimitExceeded# -> 4:7
+(13:35..13:42) scala/Predef.println(+1).
+
 Document tests/pos/reference/structural-closeable.scala
 (2:16..2:20) scala/Unit#
 (6:16..6:20) scala/Unit#
@@ -1587,39 +1400,29 @@ Document tests/pos/reference/structural-closeable.scala
 (13:46..13:50) scala/Unit#
 (13:53..13:57) scala/Unit#
 (14:7..14:9) _empty_/`structural-closeable$package`.autoClose().(op) -> 13:29
-(14:9..14:9) scala/Function1#apply().
 (14:10..14:11) _empty_/`structural-closeable$package`.autoClose().(f) -> 13:15
-(14:21..14:21) scala/reflect/Selectable.reflectiveSelectable().
 (14:21..14:22) _empty_/`structural-closeable$package`.autoClose().(f) -> 13:15
-(14:22..14:22) scala/reflect/Selectable#applyDynamic().
 
 Document tests/pos/reference/trait-parameters.scala
 (1:26..1:32) scala/Predef.String#
-(2:15..2:15) scala/StringContext.apply().
 (2:29..2:33) _empty_/Greeting#name. -> 1:20
 (2:33..2:34) scala/StringContext#s().
 (5:30..5:38) _empty_/Greeting# -> 1:7
-(6:24..6:24) scala/StringContext.apply().
 (6:40..6:44) _empty_/Greeting#name. -> 1:20
 (6:44..6:45) scala/StringContext#s().
 (9:17..9:25) _empty_/Greeting# -> 1:7
-(9:25..9:25) _empty_/Greeting#`<init>`(). -> 1:15
 (10:3..10:10) scala/Predef.println(+1).
 (10:11..10:14) _empty_/Greeting#msg(). -> 2:7
 (13:17..13:18) _empty_/C# -> 9:7
-(13:18..13:18) _empty_/C#`<init>`(). -> 9:17
 (13:24..13:32) _empty_/Greeting# -> 1:7
 (15:17..15:25) _empty_/Greeting# -> 1:7
-(15:25..15:25) _empty_/Greeting#`<init>`(). -> 1:15
 (15:38..15:52) _empty_/FormalGreeting# -> 5:7
 (19:30..19:36) scala/Predef.String#
 (20:27..20:31) _empty_/ImpliedName#name. -> 19:24
 (22:40..22:51) _empty_/ImpliedName# -> 19:12
-(23:16..23:16) scala/StringContext.apply().
 (23:30..23:35) _empty_/ImpliedGreeting#iname. -> 22:33
 (23:35..23:36) scala/StringContext#s().
 (25:37..25:52) _empty_/ImpliedGreeting# -> 22:7
-(26:25..26:25) scala/StringContext.apply().
 (26:41..26:46) _empty_/ImpliedGreeting#iname. -> 22:33
 (26:46..26:47) scala/StringContext#s().
 (28:22..28:33) _empty_/ImpliedName# -> 19:12
@@ -1646,14 +1449,12 @@ Document tests/pos/reference/union-types.scala
 (10:25..10:26) scala/`|`#
 (10:27..10:35) unionTypes/t1.Password# -> 8:14
 (11:16..11:18) unionTypes/t1.help().(id) -> 10:12
-(12:12..12:20) unionTypes/t1.UserName. -> 7:14
-(12:20..12:20) unionTypes/t1.UserName.unapply().
+(12:12..12:20) unionTypes/t1.UserName.
 (12:30..12:40) unionTypes/t1.lookupName(). -> 17:7
-(12:41..12:45) local1 -> 9:7
-(13:12..13:20) unionTypes/t1.Password. -> 8:14
-(13:20..13:20) unionTypes/t1.Password.unapply().
+(12:41..12:45) local0 -> 8:7
+(13:12..13:20) unionTypes/t1.Password.
 (13:30..13:44) unionTypes/t1.lookupPassword(). -> 18:7
-(13:45..13:49) local2 -> 11:21
+(13:45..13:49) local1 -> 9:7
 (17:24..17:30) scala/Predef.String#
 (17:34..17:37) scala/Predef.`???`().
 (18:28..18:32) unionTypes/t1.Hash# -> 5:8
@@ -1675,29 +1476,18 @@ Document tests/pos/reference/union-types.scala
 Document tests/pos/reference/vararg-patterns.scala
 (2:19..2:22) scala/App#
 (3:7..3:11) scala/package.List.
-(3:11..3:11) scala/collection/SeqFactory#unapplySeq().
 (3:26..3:30) scala/package.List.
-(3:30..3:30) scala/collection/IterableFactory#apply().
 (4:3..4:10) scala/Predef.println(+1).
 (4:11..4:13) varargPatterns/t1.xs. -> 3:18
 (5:7..5:11) scala/package.List.
-(5:11..5:11) scala/collection/SeqFactory#unapplySeq().
 (5:25..5:29) scala/package.List.
-(5:29..5:29) scala/collection/IterableFactory#apply().
-(7:1..7:1) local3 -> 19:15
-(7:1..7:1) scala/util/CommandLineParser.showError().
-(7:1..7:1) varargPatterns/`vararg-patterns$package`.Test(). -> 7:11
 (7:2..7:6) scala/main#
 (8:13..8:18) scala/Array.
-(8:18..8:18) scala/Array.apply(+5).
 (9:13..9:17) scala/package.List.
-(9:17..9:17) scala/collection/IterableFactory#apply().
 (9:18..9:21) local0 -> 8:7
 (10:3..10:6) local1 -> 9:7
 (11:10..11:14) scala/package.List.
-(11:14..11:14) scala/collection/SeqFactory#unapplySeq().
 (11:29..11:36) scala/Predef.println(+1).
 (11:37..11:39) local2 -> 11:21
 (12:10..12:14) scala/package.List.
-(12:14..12:14) scala/collection/SeqFactory#unapplySeq().
 

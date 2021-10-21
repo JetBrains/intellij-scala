@@ -12,7 +12,6 @@ Document tests/pos/t2797.scala
 (6:55..6:56) _empty_/Test.unzip().[B] -> 6:13
 (6:59..6:67) _empty_/MyVector# -> 1:7
 (6:68..6:69) _empty_/Test.unzip().[C] -> 6:16
-(7:6..7:6) scala/Tuple2.apply().
 (7:6..7:11) _empty_/Test.unzip().(_this) -> 6:19
 (7:12..7:15) _empty_/MyVector#map(). -> 2:7
 (7:23..7:25) local0 -> 7:17

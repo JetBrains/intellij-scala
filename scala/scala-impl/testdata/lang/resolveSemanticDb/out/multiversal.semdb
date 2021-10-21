@@ -17,63 +17,46 @@ Document tests/pos/multiversal.scala
 (8:10..8:13) scala/Int#
 (9:10..9:14) scala/Long#
 (10:11..10:18) java/lang/Integer#
-(10:21..10:21) scala/Predef.int2Integer().
 (10:21..10:22) _empty_/Test.i. -> 8:7
 (12:3..12:7) scala/package.List.
-(12:7..12:7) scala/collection/IterableFactory#apply().
 (12:8..12:9) _empty_/Test.b. -> 6:7
 (12:11..12:13) scala/Any#`==`().
 (12:14..12:18) scala/package.List.
-(12:18..12:18) scala/collection/IterableFactory#apply().
 (12:19..12:20) _empty_/Test.l. -> 9:7
 (13:3..13:7) scala/package.List.
-(13:7..13:7) scala/collection/IterableFactory#apply().
 (13:8..13:9) _empty_/Test.l. -> 9:7
 (13:11..13:13) scala/Any#`==`().
 (13:14..13:18) scala/package.List.
-(13:18..13:18) scala/collection/IterableFactory#apply().
 (13:19..13:20) _empty_/Test.c. -> 7:7
 (14:3..14:7) scala/package.List.
-(14:7..14:7) scala/collection/IterableFactory#apply().
 (14:8..14:9) _empty_/Test.b. -> 6:7
 (14:11..14:13) scala/Any#`!=`().
 (14:14..14:18) scala/package.List.
-(14:18..14:18) scala/collection/IterableFactory#apply().
 (14:19..14:20) _empty_/Test.c. -> 7:7
 (15:3..15:7) scala/package.List.
-(15:7..15:7) scala/collection/IterableFactory#apply().
 (15:8..15:9) _empty_/Test.i. -> 8:7
 (15:11..15:13) scala/Any#`==`().
 (15:14..15:18) scala/package.List.
-(15:18..15:18) scala/collection/IterableFactory#apply().
 (15:19..15:20) _empty_/Test.l. -> 9:7
 (16:3..16:7) scala/package.List.
-(16:7..16:7) scala/collection/IterableFactory#apply().
 (16:8..16:9) _empty_/Test.i. -> 8:7
 (16:11..16:13) scala/Any#`==`().
 (16:14..16:18) scala/package.List.
-(16:18..16:18) scala/collection/IterableFactory#apply().
 (16:19..16:21) _empty_/Test.ii. -> 10:7
 (17:3..17:7) scala/package.List.
-(17:7..17:7) scala/collection/IterableFactory#apply().
 (17:8..17:10) _empty_/Test.ii. -> 10:7
 (17:12..17:14) scala/Any#`==`().
 (17:15..17:19) scala/package.List.
-(17:19..17:19) scala/collection/IterableFactory#apply().
 (17:20..17:21) _empty_/Test.l. -> 9:7
 (18:3..18:7) scala/package.List.
-(18:7..18:7) scala/collection/IterableFactory#apply().
 (18:8..18:9) _empty_/Test.b. -> 6:7
 (18:11..18:13) scala/Any#`==`().
 (18:14..18:18) scala/package.List.
-(18:18..18:18) scala/collection/IterableFactory#apply().
 (18:19..18:21) _empty_/Test.ii. -> 10:7
 (19:3..19:7) scala/package.List.
-(19:7..19:7) scala/collection/IterableFactory#apply().
 (19:8..19:10) _empty_/Test.ii. -> 10:7
 (19:12..19:14) scala/Any#`==`().
 (19:15..19:19) scala/package.List.
-(19:19..19:19) scala/collection/IterableFactory#apply().
 (19:20..19:21) _empty_/Test.l. -> 9:7
 (21:10..21:17) scala/reflect/
 (21:18..21:26) scala/reflect/ClassTag#
@@ -83,7 +66,6 @@ Document tests/pos/multiversal.scala
 (22:44..22:52) scala/reflect/ClassTag.
 (22:53..22:60) scala/reflect/ClassTag.Boolean.
 (24:20..24:28) scala/reflect/ClassTag#
-(24:28..24:28) _empty_/Test.Setting#[T] -> 24:17
 (25:19..25:29) scala/Predef.implicitly().
 (25:30..25:38) scala/reflect/ClassTag#
 (25:39..25:40) _empty_/Test.Setting#[T] -> 24:17

@@ -3,6 +3,8 @@ Document tests/pos/type-projection.scala
 (3:13..3:17) java/lang/
 (4:8..4:16) scala/language.
 (4:17..4:32) scala/language.`3.0-migration`.
+(6:16..6:19) p/q/Sys# -> 20:7
+(6:20..6:21) p/q/Txn#[S] -> 6:11
 (7:15..7:16) p/q/Txn#[S] -> 6:11
 (9:16..9:17) p/q/Txn#[S] -> 6:11
 (9:18..9:20) p/q/Sys#Id# -> 22:8
@@ -17,12 +19,16 @@ Document tests/pos/type-projection.scala
 (17:17..17:18) p/q/Var#[A] -> 14:15
 (17:33..17:35) p/q/Var#[Tx] -> 14:11
 (17:38..17:42) scala/Unit#
+(20:16..20:19) p/q/Sys# -> 20:7
+(20:20..20:21) p/q/Sys#[S] -> 20:11
 (21:14..21:17) p/q/Txn# -> 6:7
 (21:18..21:19) p/q/Sys#[S] -> 20:11
 (23:17..23:20) p/q/Var# -> 14:7
 (23:21..23:22) p/q/Sys#[S] -> 20:11
 (23:23..23:25) p/q/Sys#Tx# -> 21:8
 (23:27..23:28) p/q/Sys#Vr#[A] -> 23:11
+(26:29..26:32) p/q/Sys# -> 20:7
+(26:33..26:34) p/q/UseCase#[S] -> 26:24
 (26:41..26:42) p/q/UseCase#[S] -> 26:24
 (26:43..26:45) p/q/Sys#Id# -> 22:8
 (27:13..27:16) scala/Int#
@@ -44,6 +50,4 @@ Document tests/pos/type-projection.scala
 (32:40..32:42) p/q/Sys#Tx# -> 21:8
 (32:45..32:48) scala/Int#
 (32:51..32:53) p/q/UseCase#rd().(vr) -> 32:10
-(32:53..32:53) p/q/Var#apply(). -> 15:7
-(32:55..32:55) p/q/UseCase#rd().(tx) -> 32:34
 

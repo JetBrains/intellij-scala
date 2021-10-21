@@ -39,7 +39,6 @@ Document tests/pos/t3864/tuples_1.scala
 (9:74..9:75) _empty_/Tuples#Tuple15W#fold().[Z] -> 9:12
 (9:86..9:91) _empty_/EnrichedType#value. -> 2:7
 (9:95..9:96) _empty_/Tuples#Tuple15W#fold().(f) -> 9:15
-(9:96..9:96) scala/Function15#apply().
 (9:97..9:99) scala/Tuple15#_1.
 (9:101..9:103) scala/Tuple15#_2.
 (9:105..9:107) scala/Tuple15#_3.
@@ -76,11 +75,9 @@ Document tests/pos/t3864/tuples_1.scala
 (10:106..10:116) scala/package.IndexedSeq#
 (10:117..10:118) _empty_/Tuples#Tuple15W#toIndexedSeq().[Z] -> 10:20
 (10:132..10:134) _empty_/Tuples#Tuple15W#toIndexedSeq().(ev) -> 10:32
-(10:134..10:134) scala/`<:<`#apply().
 (10:135..10:140) _empty_/EnrichedType#value. -> 2:7
 (10:150..10:152) local0 -> 10:127
 (10:156..10:166) scala/package.IndexedSeq.
-(10:166..10:166) scala/collection/SeqFactory.Delegate#apply().
 (10:167..10:169) scala/Tuple15#_1.
 (10:171..10:173) scala/Tuple15#_2.
 (10:175..10:177) scala/Tuple15#_3.
@@ -98,77 +95,62 @@ Document tests/pos/t3864/tuples_1.scala
 (10:228..10:231) scala/Tuple15#_15.
 (11:84..11:85) _empty_/Tuples#Tuple15W#[A] -> 8:16
 (11:89..11:91) _empty_/Tuples#Tuple15W#mapElements().[AA] -> 11:19
-(11:95..11:95) local1
 (11:95..11:103) scala/Predef.identity().
 (11:104..11:105) _empty_/Tuples#Tuple15W#[A] -> 8:16
 (11:115..11:116) _empty_/Tuples#Tuple15W#[B] -> 8:19
 (11:120..11:122) _empty_/Tuples#Tuple15W#mapElements().[BB] -> 11:23
-(11:126..11:126) local2
 (11:126..11:134) scala/Predef.identity().
 (11:135..11:136) _empty_/Tuples#Tuple15W#[B] -> 8:19
 (11:146..11:147) _empty_/Tuples#Tuple15W#[C] -> 8:22
 (11:151..11:153) _empty_/Tuples#Tuple15W#mapElements().[CC] -> 11:27
-(11:157..11:157) local3
 (11:157..11:165) scala/Predef.identity().
 (11:166..11:167) _empty_/Tuples#Tuple15W#[C] -> 8:22
 (11:177..11:178) _empty_/Tuples#Tuple15W#[D] -> 8:25
 (11:182..11:184) _empty_/Tuples#Tuple15W#mapElements().[DD] -> 11:31
-(11:188..11:188) local4
 (11:188..11:196) scala/Predef.identity().
 (11:197..11:198) _empty_/Tuples#Tuple15W#[D] -> 8:25
 (11:208..11:209) _empty_/Tuples#Tuple15W#[E] -> 8:28
 (11:213..11:215) _empty_/Tuples#Tuple15W#mapElements().[EE] -> 11:35
-(11:219..11:219) local5
 (11:219..11:227) scala/Predef.identity().
 (11:228..11:229) _empty_/Tuples#Tuple15W#[E] -> 8:28
 (11:239..11:240) _empty_/Tuples#Tuple15W#[F] -> 8:31
 (11:244..11:246) _empty_/Tuples#Tuple15W#mapElements().[FF] -> 11:39
-(11:250..11:250) local6
 (11:250..11:258) scala/Predef.identity().
 (11:259..11:260) _empty_/Tuples#Tuple15W#[F] -> 8:31
 (11:270..11:271) _empty_/Tuples#Tuple15W#[G] -> 8:34
 (11:275..11:277) _empty_/Tuples#Tuple15W#mapElements().[GG] -> 11:43
-(11:281..11:281) local7
 (11:281..11:289) scala/Predef.identity().
 (11:290..11:291) _empty_/Tuples#Tuple15W#[G] -> 8:34
 (11:301..11:302) _empty_/Tuples#Tuple15W#[H] -> 8:37
 (11:306..11:308) _empty_/Tuples#Tuple15W#mapElements().[HH] -> 11:47
-(11:312..11:312) local8
 (11:312..11:320) scala/Predef.identity().
 (11:321..11:322) _empty_/Tuples#Tuple15W#[H] -> 8:37
 (11:332..11:333) _empty_/Tuples#Tuple15W#[I] -> 8:40
 (11:337..11:339) _empty_/Tuples#Tuple15W#mapElements().[II] -> 11:51
-(11:343..11:343) local9
 (11:343..11:351) scala/Predef.identity().
 (11:352..11:353) _empty_/Tuples#Tuple15W#[I] -> 8:40
 (11:364..11:365) _empty_/Tuples#Tuple15W#[J] -> 8:43
 (11:369..11:371) _empty_/Tuples#Tuple15W#mapElements().[JJ] -> 11:55
-(11:375..11:375) local10
 (11:375..11:383) scala/Predef.identity().
 (11:384..11:385) _empty_/Tuples#Tuple15W#[J] -> 8:43
 (11:396..11:397) _empty_/Tuples#Tuple15W#[K] -> 8:46
 (11:401..11:403) _empty_/Tuples#Tuple15W#mapElements().[KK] -> 11:59
-(11:407..11:407) local11
 (11:407..11:415) scala/Predef.identity().
 (11:416..11:417) _empty_/Tuples#Tuple15W#[K] -> 8:46
 (11:428..11:429) _empty_/Tuples#Tuple15W#[L] -> 8:49
 (11:433..11:435) _empty_/Tuples#Tuple15W#mapElements().[LL] -> 11:63
-(11:439..11:439) local12
 (11:439..11:447) scala/Predef.identity().
 (11:448..11:449) _empty_/Tuples#Tuple15W#[L] -> 8:49
 (11:460..11:461) _empty_/Tuples#Tuple15W#[M] -> 8:52
 (11:465..11:467) _empty_/Tuples#Tuple15W#mapElements().[MM] -> 11:67
-(11:471..11:471) local13
 (11:471..11:479) scala/Predef.identity().
 (11:480..11:481) _empty_/Tuples#Tuple15W#[M] -> 8:52
 (11:492..11:493) _empty_/Tuples#Tuple15W#[N] -> 8:55
 (11:497..11:499) _empty_/Tuples#Tuple15W#mapElements().[NN] -> 11:71
-(11:503..11:503) local14
 (11:503..11:511) scala/Predef.identity().
 (11:512..11:513) _empty_/Tuples#Tuple15W#[N] -> 8:55
 (11:524..11:525) _empty_/Tuples#Tuple15W#[O] -> 8:58
 (11:529..11:531) _empty_/Tuples#Tuple15W#mapElements().[OO] -> 11:75
-(11:535..11:535) local15
 (11:535..11:543) scala/Predef.identity().
 (11:544..11:545) _empty_/Tuples#Tuple15W#[O] -> 8:58
 (11:552..11:554) _empty_/Tuples#Tuple15W#mapElements().[AA] -> 11:19
@@ -186,65 +168,49 @@ Document tests/pos/t3864/tuples_1.scala
 (11:600..11:602) _empty_/Tuples#Tuple15W#mapElements().[MM] -> 11:67
 (11:604..11:606) _empty_/Tuples#Tuple15W#mapElements().[NN] -> 11:71
 (11:608..11:610) _empty_/Tuples#Tuple15W#mapElements().[OO] -> 11:75
-(11:615..11:615) scala/Tuple15.apply().
 (11:615..11:617) _empty_/Tuples#Tuple15W#mapElements().(_1) -> 11:79
-(11:617..11:617) scala/Function1#apply().
 (11:618..11:623) _empty_/EnrichedType#value. -> 2:7
 (11:624..11:626) scala/Tuple15#_1.
 (11:629..11:631) _empty_/Tuples#Tuple15W#mapElements().(_2) -> 11:110
-(11:631..11:631) scala/Function1#apply().
 (11:632..11:637) _empty_/EnrichedType#value. -> 2:7
 (11:638..11:640) scala/Tuple15#_2.
 (11:643..11:645) _empty_/Tuples#Tuple15W#mapElements().(_3) -> 11:141
-(11:645..11:645) scala/Function1#apply().
 (11:646..11:651) _empty_/EnrichedType#value. -> 2:7
 (11:652..11:654) scala/Tuple15#_3.
 (11:657..11:659) _empty_/Tuples#Tuple15W#mapElements().(_4) -> 11:172
-(11:659..11:659) scala/Function1#apply().
 (11:660..11:665) _empty_/EnrichedType#value. -> 2:7
 (11:666..11:668) scala/Tuple15#_4.
 (11:671..11:673) _empty_/Tuples#Tuple15W#mapElements().(_5) -> 11:203
-(11:673..11:673) scala/Function1#apply().
 (11:674..11:679) _empty_/EnrichedType#value. -> 2:7
 (11:680..11:682) scala/Tuple15#_5.
 (11:685..11:687) _empty_/Tuples#Tuple15W#mapElements().(_6) -> 11:234
-(11:687..11:687) scala/Function1#apply().
 (11:688..11:693) _empty_/EnrichedType#value. -> 2:7
 (11:694..11:696) scala/Tuple15#_6.
 (11:699..11:701) _empty_/Tuples#Tuple15W#mapElements().(_7) -> 11:265
-(11:701..11:701) scala/Function1#apply().
 (11:702..11:707) _empty_/EnrichedType#value. -> 2:7
 (11:708..11:710) scala/Tuple15#_7.
 (11:713..11:715) _empty_/Tuples#Tuple15W#mapElements().(_8) -> 11:296
-(11:715..11:715) scala/Function1#apply().
 (11:716..11:721) _empty_/EnrichedType#value. -> 2:7
 (11:722..11:724) scala/Tuple15#_8.
 (11:727..11:729) _empty_/Tuples#Tuple15W#mapElements().(_9) -> 11:327
-(11:729..11:729) scala/Function1#apply().
 (11:730..11:735) _empty_/EnrichedType#value. -> 2:7
 (11:736..11:738) scala/Tuple15#_9.
 (11:741..11:744) _empty_/Tuples#Tuple15W#mapElements().(_10) -> 11:358
-(11:744..11:744) scala/Function1#apply().
 (11:745..11:750) _empty_/EnrichedType#value. -> 2:7
 (11:751..11:754) scala/Tuple15#_10.
 (11:757..11:760) _empty_/Tuples#Tuple15W#mapElements().(_11) -> 11:390
-(11:760..11:760) scala/Function1#apply().
 (11:761..11:766) _empty_/EnrichedType#value. -> 2:7
 (11:767..11:770) scala/Tuple15#_11.
 (11:773..11:776) _empty_/Tuples#Tuple15W#mapElements().(_12) -> 11:422
-(11:776..11:776) scala/Function1#apply().
 (11:777..11:782) _empty_/EnrichedType#value. -> 2:7
 (11:783..11:786) scala/Tuple15#_12.
 (11:789..11:792) _empty_/Tuples#Tuple15W#mapElements().(_13) -> 11:454
-(11:792..11:792) scala/Function1#apply().
 (11:793..11:798) _empty_/EnrichedType#value. -> 2:7
 (11:799..11:802) scala/Tuple15#_13.
 (11:805..11:808) _empty_/Tuples#Tuple15W#mapElements().(_14) -> 11:486
-(11:808..11:808) scala/Function1#apply().
 (11:809..11:814) _empty_/EnrichedType#value. -> 2:7
 (11:815..11:818) scala/Tuple15#_14.
 (11:821..11:824) _empty_/Tuples#Tuple15W#mapElements().(_15) -> 11:518
-(11:824..11:824) scala/Function1#apply().
 (11:825..11:830) _empty_/EnrichedType#value. -> 2:7
 (11:831..11:834) scala/Tuple15#_15.
 (14:74..14:75) _empty_/Tuples#ToTuple15W().[A] -> 14:25
@@ -333,7 +299,6 @@ Document tests/pos/t3864/tuples_1.scala
 (23:77..23:78) _empty_/Tuples#Tuple16W#fold().[Z] -> 23:12
 (23:89..23:94) _empty_/EnrichedType#value. -> 2:7
 (23:98..23:99) _empty_/Tuples#Tuple16W#fold().(f) -> 23:15
-(23:99..23:99) scala/Function16#apply().
 (23:100..23:102) scala/Tuple16#_1.
 (23:104..23:106) scala/Tuple16#_2.
 (23:108..23:110) scala/Tuple16#_3.
@@ -372,11 +337,9 @@ Document tests/pos/t3864/tuples_1.scala
 (24:109..24:119) scala/package.IndexedSeq#
 (24:120..24:121) _empty_/Tuples#Tuple16W#toIndexedSeq().[Z] -> 24:20
 (24:135..24:137) _empty_/Tuples#Tuple16W#toIndexedSeq().(ev) -> 24:32
-(24:137..24:137) scala/`<:<`#apply().
 (24:138..24:143) _empty_/EnrichedType#value. -> 2:7
-(24:153..24:155) local18 -> 24:130
+(24:153..24:155) local19 -> 24:130
 (24:159..24:169) scala/package.IndexedSeq.
-(24:169..24:169) scala/collection/SeqFactory.Delegate#apply().
 (24:170..24:172) scala/Tuple16#_1.
 (24:174..24:176) scala/Tuple16#_2.
 (24:178..24:180) scala/Tuple16#_3.
@@ -395,82 +358,66 @@ Document tests/pos/t3864/tuples_1.scala
 (24:236..24:239) scala/Tuple16#_16.
 (25:88..25:89) _empty_/Tuples#Tuple16W#[A] -> 22:16
 (25:93..25:95) _empty_/Tuples#Tuple16W#mapElements().[AA] -> 25:19
-(25:99..25:99) local19
 (25:99..25:107) scala/Predef.identity().
 (25:108..25:109) _empty_/Tuples#Tuple16W#[A] -> 22:16
 (25:119..25:120) _empty_/Tuples#Tuple16W#[B] -> 22:19
 (25:124..25:126) _empty_/Tuples#Tuple16W#mapElements().[BB] -> 25:23
-(25:130..25:130) local20
 (25:130..25:138) scala/Predef.identity().
 (25:139..25:140) _empty_/Tuples#Tuple16W#[B] -> 22:19
 (25:150..25:151) _empty_/Tuples#Tuple16W#[C] -> 22:22
 (25:155..25:157) _empty_/Tuples#Tuple16W#mapElements().[CC] -> 25:27
-(25:161..25:161) local21
 (25:161..25:169) scala/Predef.identity().
 (25:170..25:171) _empty_/Tuples#Tuple16W#[C] -> 22:22
 (25:181..25:182) _empty_/Tuples#Tuple16W#[D] -> 22:25
 (25:186..25:188) _empty_/Tuples#Tuple16W#mapElements().[DD] -> 25:31
-(25:192..25:192) local22
 (25:192..25:200) scala/Predef.identity().
 (25:201..25:202) _empty_/Tuples#Tuple16W#[D] -> 22:25
 (25:212..25:213) _empty_/Tuples#Tuple16W#[E] -> 22:28
 (25:217..25:219) _empty_/Tuples#Tuple16W#mapElements().[EE] -> 25:35
-(25:223..25:223) local23
 (25:223..25:231) scala/Predef.identity().
 (25:232..25:233) _empty_/Tuples#Tuple16W#[E] -> 22:28
 (25:243..25:244) _empty_/Tuples#Tuple16W#[F] -> 22:31
 (25:248..25:250) _empty_/Tuples#Tuple16W#mapElements().[FF] -> 25:39
-(25:254..25:254) local24
 (25:254..25:262) scala/Predef.identity().
 (25:263..25:264) _empty_/Tuples#Tuple16W#[F] -> 22:31
 (25:274..25:275) _empty_/Tuples#Tuple16W#[G] -> 22:34
 (25:279..25:281) _empty_/Tuples#Tuple16W#mapElements().[GG] -> 25:43
-(25:285..25:285) local25
 (25:285..25:293) scala/Predef.identity().
 (25:294..25:295) _empty_/Tuples#Tuple16W#[G] -> 22:34
 (25:305..25:306) _empty_/Tuples#Tuple16W#[H] -> 22:37
 (25:310..25:312) _empty_/Tuples#Tuple16W#mapElements().[HH] -> 25:47
-(25:316..25:316) local26
 (25:316..25:324) scala/Predef.identity().
 (25:325..25:326) _empty_/Tuples#Tuple16W#[H] -> 22:37
 (25:336..25:337) _empty_/Tuples#Tuple16W#[I] -> 22:40
 (25:341..25:343) _empty_/Tuples#Tuple16W#mapElements().[II] -> 25:51
-(25:347..25:347) local27
 (25:347..25:355) scala/Predef.identity().
 (25:356..25:357) _empty_/Tuples#Tuple16W#[I] -> 22:40
 (25:368..25:369) _empty_/Tuples#Tuple16W#[J] -> 22:43
 (25:373..25:375) _empty_/Tuples#Tuple16W#mapElements().[JJ] -> 25:55
-(25:379..25:379) local28
 (25:379..25:387) scala/Predef.identity().
 (25:388..25:389) _empty_/Tuples#Tuple16W#[J] -> 22:43
 (25:400..25:401) _empty_/Tuples#Tuple16W#[K] -> 22:46
 (25:405..25:407) _empty_/Tuples#Tuple16W#mapElements().[KK] -> 25:59
-(25:411..25:411) local29
 (25:411..25:419) scala/Predef.identity().
 (25:420..25:421) _empty_/Tuples#Tuple16W#[K] -> 22:46
 (25:432..25:433) _empty_/Tuples#Tuple16W#[L] -> 22:49
 (25:437..25:439) _empty_/Tuples#Tuple16W#mapElements().[LL] -> 25:63
-(25:443..25:443) local30
 (25:443..25:451) scala/Predef.identity().
 (25:452..25:453) _empty_/Tuples#Tuple16W#[L] -> 22:49
 (25:464..25:465) _empty_/Tuples#Tuple16W#[M] -> 22:52
 (25:469..25:471) _empty_/Tuples#Tuple16W#mapElements().[MM] -> 25:67
-(25:475..25:475) local31
 (25:475..25:483) scala/Predef.identity().
 (25:484..25:485) _empty_/Tuples#Tuple16W#[M] -> 22:52
 (25:496..25:497) _empty_/Tuples#Tuple16W#[N] -> 22:55
 (25:501..25:503) _empty_/Tuples#Tuple16W#mapElements().[NN] -> 25:71
-(25:507..25:507) local32
 (25:507..25:515) scala/Predef.identity().
 (25:516..25:517) _empty_/Tuples#Tuple16W#[N] -> 22:55
 (25:528..25:529) _empty_/Tuples#Tuple16W#[O] -> 22:58
 (25:533..25:535) _empty_/Tuples#Tuple16W#mapElements().[OO] -> 25:75
-(25:539..25:539) local33
 (25:539..25:547) scala/Predef.identity().
 (25:548..25:549) _empty_/Tuples#Tuple16W#[O] -> 22:58
 (25:560..25:561) _empty_/Tuples#Tuple16W#[P] -> 22:61
 (25:565..25:567) _empty_/Tuples#Tuple16W#mapElements().[PP] -> 25:79
-(25:571..25:571) local34
 (25:571..25:579) scala/Predef.identity().
 (25:580..25:581) _empty_/Tuples#Tuple16W#[P] -> 22:61
 (25:588..25:590) _empty_/Tuples#Tuple16W#mapElements().[AA] -> 25:19
@@ -489,69 +436,52 @@ Document tests/pos/t3864/tuples_1.scala
 (25:640..25:642) _empty_/Tuples#Tuple16W#mapElements().[NN] -> 25:71
 (25:644..25:646) _empty_/Tuples#Tuple16W#mapElements().[OO] -> 25:75
 (25:648..25:650) _empty_/Tuples#Tuple16W#mapElements().[PP] -> 25:79
-(25:655..25:655) scala/Tuple16.apply().
 (25:655..25:657) _empty_/Tuples#Tuple16W#mapElements().(_1) -> 25:83
-(25:657..25:657) scala/Function1#apply().
 (25:658..25:663) _empty_/EnrichedType#value. -> 2:7
 (25:664..25:666) scala/Tuple16#_1.
 (25:669..25:671) _empty_/Tuples#Tuple16W#mapElements().(_2) -> 25:114
-(25:671..25:671) scala/Function1#apply().
 (25:672..25:677) _empty_/EnrichedType#value. -> 2:7
 (25:678..25:680) scala/Tuple16#_2.
 (25:683..25:685) _empty_/Tuples#Tuple16W#mapElements().(_3) -> 25:145
-(25:685..25:685) scala/Function1#apply().
 (25:686..25:691) _empty_/EnrichedType#value. -> 2:7
 (25:692..25:694) scala/Tuple16#_3.
 (25:697..25:699) _empty_/Tuples#Tuple16W#mapElements().(_4) -> 25:176
-(25:699..25:699) scala/Function1#apply().
 (25:700..25:705) _empty_/EnrichedType#value. -> 2:7
 (25:706..25:708) scala/Tuple16#_4.
 (25:711..25:713) _empty_/Tuples#Tuple16W#mapElements().(_5) -> 25:207
-(25:713..25:713) scala/Function1#apply().
 (25:714..25:719) _empty_/EnrichedType#value. -> 2:7
 (25:720..25:722) scala/Tuple16#_5.
 (25:725..25:727) _empty_/Tuples#Tuple16W#mapElements().(_6) -> 25:238
-(25:727..25:727) scala/Function1#apply().
 (25:728..25:733) _empty_/EnrichedType#value. -> 2:7
 (25:734..25:736) scala/Tuple16#_6.
 (25:739..25:741) _empty_/Tuples#Tuple16W#mapElements().(_7) -> 25:269
-(25:741..25:741) scala/Function1#apply().
 (25:742..25:747) _empty_/EnrichedType#value. -> 2:7
 (25:748..25:750) scala/Tuple16#_7.
 (25:753..25:755) _empty_/Tuples#Tuple16W#mapElements().(_8) -> 25:300
-(25:755..25:755) scala/Function1#apply().
 (25:756..25:761) _empty_/EnrichedType#value. -> 2:7
 (25:762..25:764) scala/Tuple16#_8.
 (25:767..25:769) _empty_/Tuples#Tuple16W#mapElements().(_9) -> 25:331
-(25:769..25:769) scala/Function1#apply().
 (25:770..25:775) _empty_/EnrichedType#value. -> 2:7
 (25:776..25:778) scala/Tuple16#_9.
 (25:781..25:784) _empty_/Tuples#Tuple16W#mapElements().(_10) -> 25:362
-(25:784..25:784) scala/Function1#apply().
 (25:785..25:790) _empty_/EnrichedType#value. -> 2:7
 (25:791..25:794) scala/Tuple16#_10.
 (25:797..25:800) _empty_/Tuples#Tuple16W#mapElements().(_11) -> 25:394
-(25:800..25:800) scala/Function1#apply().
 (25:801..25:806) _empty_/EnrichedType#value. -> 2:7
 (25:807..25:810) scala/Tuple16#_11.
 (25:813..25:816) _empty_/Tuples#Tuple16W#mapElements().(_12) -> 25:426
-(25:816..25:816) scala/Function1#apply().
 (25:817..25:822) _empty_/EnrichedType#value. -> 2:7
 (25:823..25:826) scala/Tuple16#_12.
 (25:829..25:832) _empty_/Tuples#Tuple16W#mapElements().(_13) -> 25:458
-(25:832..25:832) scala/Function1#apply().
 (25:833..25:838) _empty_/EnrichedType#value. -> 2:7
 (25:839..25:842) scala/Tuple16#_13.
 (25:845..25:848) _empty_/Tuples#Tuple16W#mapElements().(_14) -> 25:490
-(25:848..25:848) scala/Function1#apply().
 (25:849..25:854) _empty_/EnrichedType#value. -> 2:7
 (25:855..25:858) scala/Tuple16#_14.
 (25:861..25:864) _empty_/Tuples#Tuple16W#mapElements().(_15) -> 25:522
-(25:864..25:864) scala/Function1#apply().
 (25:865..25:870) _empty_/EnrichedType#value. -> 2:7
 (25:871..25:874) scala/Tuple16#_15.
 (25:877..25:880) _empty_/Tuples#Tuple16W#mapElements().(_16) -> 25:554
-(25:880..25:880) scala/Function1#apply().
 (25:881..25:886) _empty_/EnrichedType#value. -> 2:7
 (25:887..25:890) scala/Tuple16#_16.
 (28:77..28:78) _empty_/Tuples#ToTuple16W().[A] -> 28:25
@@ -645,7 +575,6 @@ Document tests/pos/t3864/tuples_1.scala
 (37:80..37:81) _empty_/Tuples#Tuple17W#fold().[Z] -> 37:12
 (37:92..37:97) _empty_/EnrichedType#value. -> 2:7
 (37:101..37:102) _empty_/Tuples#Tuple17W#fold().(f) -> 37:15
-(37:102..37:102) scala/Function17#apply().
 (37:103..37:105) scala/Tuple17#_1.
 (37:107..37:109) scala/Tuple17#_2.
 (37:111..37:113) scala/Tuple17#_3.
@@ -686,11 +615,9 @@ Document tests/pos/t3864/tuples_1.scala
 (38:112..38:122) scala/package.IndexedSeq#
 (38:123..38:124) _empty_/Tuples#Tuple17W#toIndexedSeq().[Z] -> 38:20
 (38:138..38:140) _empty_/Tuples#Tuple17W#toIndexedSeq().(ev) -> 38:32
-(38:140..38:140) scala/`<:<`#apply().
 (38:141..38:146) _empty_/EnrichedType#value. -> 2:7
-(38:156..38:158) local37 -> 38:133
+(38:156..38:158) local39 -> 38:133
 (38:162..38:172) scala/package.IndexedSeq.
-(38:172..38:172) scala/collection/SeqFactory.Delegate#apply().
 (38:173..38:175) scala/Tuple17#_1.
 (38:177..38:179) scala/Tuple17#_2.
 (38:181..38:183) scala/Tuple17#_3.
@@ -710,87 +637,70 @@ Document tests/pos/t3864/tuples_1.scala
 (38:244..38:247) scala/Tuple17#_17.
 (39:92..39:93) _empty_/Tuples#Tuple17W#[A] -> 36:16
 (39:97..39:99) _empty_/Tuples#Tuple17W#mapElements().[AA] -> 39:19
-(39:103..39:103) local38
 (39:103..39:111) scala/Predef.identity().
 (39:112..39:113) _empty_/Tuples#Tuple17W#[A] -> 36:16
 (39:123..39:124) _empty_/Tuples#Tuple17W#[B] -> 36:19
 (39:128..39:130) _empty_/Tuples#Tuple17W#mapElements().[BB] -> 39:23
-(39:134..39:134) local39
 (39:134..39:142) scala/Predef.identity().
 (39:143..39:144) _empty_/Tuples#Tuple17W#[B] -> 36:19
 (39:154..39:155) _empty_/Tuples#Tuple17W#[C] -> 36:22
 (39:159..39:161) _empty_/Tuples#Tuple17W#mapElements().[CC] -> 39:27
-(39:165..39:165) local40
 (39:165..39:173) scala/Predef.identity().
 (39:174..39:175) _empty_/Tuples#Tuple17W#[C] -> 36:22
 (39:185..39:186) _empty_/Tuples#Tuple17W#[D] -> 36:25
 (39:190..39:192) _empty_/Tuples#Tuple17W#mapElements().[DD] -> 39:31
-(39:196..39:196) local41
 (39:196..39:204) scala/Predef.identity().
 (39:205..39:206) _empty_/Tuples#Tuple17W#[D] -> 36:25
 (39:216..39:217) _empty_/Tuples#Tuple17W#[E] -> 36:28
 (39:221..39:223) _empty_/Tuples#Tuple17W#mapElements().[EE] -> 39:35
-(39:227..39:227) local42
 (39:227..39:235) scala/Predef.identity().
 (39:236..39:237) _empty_/Tuples#Tuple17W#[E] -> 36:28
 (39:247..39:248) _empty_/Tuples#Tuple17W#[F] -> 36:31
 (39:252..39:254) _empty_/Tuples#Tuple17W#mapElements().[FF] -> 39:39
-(39:258..39:258) local43
 (39:258..39:266) scala/Predef.identity().
 (39:267..39:268) _empty_/Tuples#Tuple17W#[F] -> 36:31
 (39:278..39:279) _empty_/Tuples#Tuple17W#[G] -> 36:34
 (39:283..39:285) _empty_/Tuples#Tuple17W#mapElements().[GG] -> 39:43
-(39:289..39:289) local44
 (39:289..39:297) scala/Predef.identity().
 (39:298..39:299) _empty_/Tuples#Tuple17W#[G] -> 36:34
 (39:309..39:310) _empty_/Tuples#Tuple17W#[H] -> 36:37
 (39:314..39:316) _empty_/Tuples#Tuple17W#mapElements().[HH] -> 39:47
-(39:320..39:320) local45
 (39:320..39:328) scala/Predef.identity().
 (39:329..39:330) _empty_/Tuples#Tuple17W#[H] -> 36:37
 (39:340..39:341) _empty_/Tuples#Tuple17W#[I] -> 36:40
 (39:345..39:347) _empty_/Tuples#Tuple17W#mapElements().[II] -> 39:51
-(39:351..39:351) local46
 (39:351..39:359) scala/Predef.identity().
 (39:360..39:361) _empty_/Tuples#Tuple17W#[I] -> 36:40
 (39:372..39:373) _empty_/Tuples#Tuple17W#[J] -> 36:43
 (39:377..39:379) _empty_/Tuples#Tuple17W#mapElements().[JJ] -> 39:55
-(39:383..39:383) local47
 (39:383..39:391) scala/Predef.identity().
 (39:392..39:393) _empty_/Tuples#Tuple17W#[J] -> 36:43
 (39:404..39:405) _empty_/Tuples#Tuple17W#[K] -> 36:46
 (39:409..39:411) _empty_/Tuples#Tuple17W#mapElements().[KK] -> 39:59
-(39:415..39:415) local48
 (39:415..39:423) scala/Predef.identity().
 (39:424..39:425) _empty_/Tuples#Tuple17W#[K] -> 36:46
 (39:436..39:437) _empty_/Tuples#Tuple17W#[L] -> 36:49
 (39:441..39:443) _empty_/Tuples#Tuple17W#mapElements().[LL] -> 39:63
-(39:447..39:447) local49
 (39:447..39:455) scala/Predef.identity().
 (39:456..39:457) _empty_/Tuples#Tuple17W#[L] -> 36:49
 (39:468..39:469) _empty_/Tuples#Tuple17W#[M] -> 36:52
 (39:473..39:475) _empty_/Tuples#Tuple17W#mapElements().[MM] -> 39:67
-(39:479..39:479) local50
 (39:479..39:487) scala/Predef.identity().
 (39:488..39:489) _empty_/Tuples#Tuple17W#[M] -> 36:52
 (39:500..39:501) _empty_/Tuples#Tuple17W#[N] -> 36:55
 (39:505..39:507) _empty_/Tuples#Tuple17W#mapElements().[NN] -> 39:71
-(39:511..39:511) local51
 (39:511..39:519) scala/Predef.identity().
 (39:520..39:521) _empty_/Tuples#Tuple17W#[N] -> 36:55
 (39:532..39:533) _empty_/Tuples#Tuple17W#[O] -> 36:58
 (39:537..39:539) _empty_/Tuples#Tuple17W#mapElements().[OO] -> 39:75
-(39:543..39:543) local52
 (39:543..39:551) scala/Predef.identity().
 (39:552..39:553) _empty_/Tuples#Tuple17W#[O] -> 36:58
 (39:564..39:565) _empty_/Tuples#Tuple17W#[P] -> 36:61
 (39:569..39:571) _empty_/Tuples#Tuple17W#mapElements().[PP] -> 39:79
-(39:575..39:575) local53
 (39:575..39:583) scala/Predef.identity().
 (39:584..39:585) _empty_/Tuples#Tuple17W#[P] -> 36:61
 (39:596..39:597) _empty_/Tuples#Tuple17W#[Q] -> 36:64
 (39:601..39:603) _empty_/Tuples#Tuple17W#mapElements().[QQ] -> 39:83
-(39:607..39:607) local54
 (39:607..39:615) scala/Predef.identity().
 (39:616..39:617) _empty_/Tuples#Tuple17W#[Q] -> 36:64
 (39:624..39:626) _empty_/Tuples#Tuple17W#mapElements().[AA] -> 39:19
@@ -810,73 +720,55 @@ Document tests/pos/t3864/tuples_1.scala
 (39:680..39:682) _empty_/Tuples#Tuple17W#mapElements().[OO] -> 39:75
 (39:684..39:686) _empty_/Tuples#Tuple17W#mapElements().[PP] -> 39:79
 (39:688..39:690) _empty_/Tuples#Tuple17W#mapElements().[QQ] -> 39:83
-(39:695..39:695) scala/Tuple17.apply().
 (39:695..39:697) _empty_/Tuples#Tuple17W#mapElements().(_1) -> 39:87
-(39:697..39:697) scala/Function1#apply().
 (39:698..39:703) _empty_/EnrichedType#value. -> 2:7
 (39:704..39:706) scala/Tuple17#_1.
 (39:709..39:711) _empty_/Tuples#Tuple17W#mapElements().(_2) -> 39:118
-(39:711..39:711) scala/Function1#apply().
 (39:712..39:717) _empty_/EnrichedType#value. -> 2:7
 (39:718..39:720) scala/Tuple17#_2.
 (39:723..39:725) _empty_/Tuples#Tuple17W#mapElements().(_3) -> 39:149
-(39:725..39:725) scala/Function1#apply().
 (39:726..39:731) _empty_/EnrichedType#value. -> 2:7
 (39:732..39:734) scala/Tuple17#_3.
 (39:737..39:739) _empty_/Tuples#Tuple17W#mapElements().(_4) -> 39:180
-(39:739..39:739) scala/Function1#apply().
 (39:740..39:745) _empty_/EnrichedType#value. -> 2:7
 (39:746..39:748) scala/Tuple17#_4.
 (39:751..39:753) _empty_/Tuples#Tuple17W#mapElements().(_5) -> 39:211
-(39:753..39:753) scala/Function1#apply().
 (39:754..39:759) _empty_/EnrichedType#value. -> 2:7
 (39:760..39:762) scala/Tuple17#_5.
 (39:765..39:767) _empty_/Tuples#Tuple17W#mapElements().(_6) -> 39:242
-(39:767..39:767) scala/Function1#apply().
 (39:768..39:773) _empty_/EnrichedType#value. -> 2:7
 (39:774..39:776) scala/Tuple17#_6.
 (39:779..39:781) _empty_/Tuples#Tuple17W#mapElements().(_7) -> 39:273
-(39:781..39:781) scala/Function1#apply().
 (39:782..39:787) _empty_/EnrichedType#value. -> 2:7
 (39:788..39:790) scala/Tuple17#_7.
 (39:793..39:795) _empty_/Tuples#Tuple17W#mapElements().(_8) -> 39:304
-(39:795..39:795) scala/Function1#apply().
 (39:796..39:801) _empty_/EnrichedType#value. -> 2:7
 (39:802..39:804) scala/Tuple17#_8.
 (39:807..39:809) _empty_/Tuples#Tuple17W#mapElements().(_9) -> 39:335
-(39:809..39:809) scala/Function1#apply().
 (39:810..39:815) _empty_/EnrichedType#value. -> 2:7
 (39:816..39:818) scala/Tuple17#_9.
 (39:821..39:824) _empty_/Tuples#Tuple17W#mapElements().(_10) -> 39:366
-(39:824..39:824) scala/Function1#apply().
 (39:825..39:830) _empty_/EnrichedType#value. -> 2:7
 (39:831..39:834) scala/Tuple17#_10.
 (39:837..39:840) _empty_/Tuples#Tuple17W#mapElements().(_11) -> 39:398
-(39:840..39:840) scala/Function1#apply().
 (39:841..39:846) _empty_/EnrichedType#value. -> 2:7
 (39:847..39:850) scala/Tuple17#_11.
 (39:853..39:856) _empty_/Tuples#Tuple17W#mapElements().(_12) -> 39:430
-(39:856..39:856) scala/Function1#apply().
 (39:857..39:862) _empty_/EnrichedType#value. -> 2:7
 (39:863..39:866) scala/Tuple17#_12.
 (39:869..39:872) _empty_/Tuples#Tuple17W#mapElements().(_13) -> 39:462
-(39:872..39:872) scala/Function1#apply().
 (39:873..39:878) _empty_/EnrichedType#value. -> 2:7
 (39:879..39:882) scala/Tuple17#_13.
 (39:885..39:888) _empty_/Tuples#Tuple17W#mapElements().(_14) -> 39:494
-(39:888..39:888) scala/Function1#apply().
 (39:889..39:894) _empty_/EnrichedType#value. -> 2:7
 (39:895..39:898) scala/Tuple17#_14.
 (39:901..39:904) _empty_/Tuples#Tuple17W#mapElements().(_15) -> 39:526
-(39:904..39:904) scala/Function1#apply().
 (39:905..39:910) _empty_/EnrichedType#value. -> 2:7
 (39:911..39:914) scala/Tuple17#_15.
 (39:917..39:920) _empty_/Tuples#Tuple17W#mapElements().(_16) -> 39:558
-(39:920..39:920) scala/Function1#apply().
 (39:921..39:926) _empty_/EnrichedType#value. -> 2:7
 (39:927..39:930) scala/Tuple17#_16.
 (39:933..39:936) _empty_/Tuples#Tuple17W#mapElements().(_17) -> 39:590
-(39:936..39:936) scala/Function1#apply().
 (39:937..39:942) _empty_/EnrichedType#value. -> 2:7
 (39:943..39:946) scala/Tuple17#_17.
 (42:80..42:81) _empty_/Tuples#ToTuple17W().[A] -> 42:25
@@ -975,7 +867,6 @@ Document tests/pos/t3864/tuples_1.scala
 (51:83..51:84) _empty_/Tuples#Tuple18W#fold().[Z] -> 51:12
 (51:95..51:100) _empty_/EnrichedType#value. -> 2:7
 (51:104..51:105) _empty_/Tuples#Tuple18W#fold().(f) -> 51:15
-(51:105..51:105) scala/Function18#apply().
 (51:106..51:108) scala/Tuple18#_1.
 (51:110..51:112) scala/Tuple18#_2.
 (51:114..51:116) scala/Tuple18#_3.
@@ -1018,11 +909,9 @@ Document tests/pos/t3864/tuples_1.scala
 (52:115..52:125) scala/package.IndexedSeq#
 (52:126..52:127) _empty_/Tuples#Tuple18W#toIndexedSeq().[Z] -> 52:20
 (52:141..52:143) _empty_/Tuples#Tuple18W#toIndexedSeq().(ev) -> 52:32
-(52:143..52:143) scala/`<:<`#apply().
 (52:144..52:149) _empty_/EnrichedType#value. -> 2:7
-(52:159..52:161) local57 -> 52:136
+(52:159..52:161) local60 -> 52:136
 (52:165..52:175) scala/package.IndexedSeq.
-(52:175..52:175) scala/collection/SeqFactory.Delegate#apply().
 (52:176..52:178) scala/Tuple18#_1.
 (52:180..52:182) scala/Tuple18#_2.
 (52:184..52:186) scala/Tuple18#_3.
@@ -1043,92 +932,74 @@ Document tests/pos/t3864/tuples_1.scala
 (52:252..52:255) scala/Tuple18#_18.
 (53:96..53:97) _empty_/Tuples#Tuple18W#[A] -> 50:16
 (53:101..53:103) _empty_/Tuples#Tuple18W#mapElements().[AA] -> 53:19
-(53:107..53:107) local58
 (53:107..53:115) scala/Predef.identity().
 (53:116..53:117) _empty_/Tuples#Tuple18W#[A] -> 50:16
 (53:127..53:128) _empty_/Tuples#Tuple18W#[B] -> 50:19
 (53:132..53:134) _empty_/Tuples#Tuple18W#mapElements().[BB] -> 53:23
-(53:138..53:138) local59
 (53:138..53:146) scala/Predef.identity().
 (53:147..53:148) _empty_/Tuples#Tuple18W#[B] -> 50:19
 (53:158..53:159) _empty_/Tuples#Tuple18W#[C] -> 50:22
 (53:163..53:165) _empty_/Tuples#Tuple18W#mapElements().[CC] -> 53:27
-(53:169..53:169) local60
 (53:169..53:177) scala/Predef.identity().
 (53:178..53:179) _empty_/Tuples#Tuple18W#[C] -> 50:22
 (53:189..53:190) _empty_/Tuples#Tuple18W#[D] -> 50:25
 (53:194..53:196) _empty_/Tuples#Tuple18W#mapElements().[DD] -> 53:31
-(53:200..53:200) local61
 (53:200..53:208) scala/Predef.identity().
 (53:209..53:210) _empty_/Tuples#Tuple18W#[D] -> 50:25
 (53:220..53:221) _empty_/Tuples#Tuple18W#[E] -> 50:28
 (53:225..53:227) _empty_/Tuples#Tuple18W#mapElements().[EE] -> 53:35
-(53:231..53:231) local62
 (53:231..53:239) scala/Predef.identity().
 (53:240..53:241) _empty_/Tuples#Tuple18W#[E] -> 50:28
 (53:251..53:252) _empty_/Tuples#Tuple18W#[F] -> 50:31
 (53:256..53:258) _empty_/Tuples#Tuple18W#mapElements().[FF] -> 53:39
-(53:262..53:262) local63
 (53:262..53:270) scala/Predef.identity().
 (53:271..53:272) _empty_/Tuples#Tuple18W#[F] -> 50:31
 (53:282..53:283) _empty_/Tuples#Tuple18W#[G] -> 50:34
 (53:287..53:289) _empty_/Tuples#Tuple18W#mapElements().[GG] -> 53:43
-(53:293..53:293) local64
 (53:293..53:301) scala/Predef.identity().
 (53:302..53:303) _empty_/Tuples#Tuple18W#[G] -> 50:34
 (53:313..53:314) _empty_/Tuples#Tuple18W#[H] -> 50:37
 (53:318..53:320) _empty_/Tuples#Tuple18W#mapElements().[HH] -> 53:47
-(53:324..53:324) local65
 (53:324..53:332) scala/Predef.identity().
 (53:333..53:334) _empty_/Tuples#Tuple18W#[H] -> 50:37
 (53:344..53:345) _empty_/Tuples#Tuple18W#[I] -> 50:40
 (53:349..53:351) _empty_/Tuples#Tuple18W#mapElements().[II] -> 53:51
-(53:355..53:355) local66
 (53:355..53:363) scala/Predef.identity().
 (53:364..53:365) _empty_/Tuples#Tuple18W#[I] -> 50:40
 (53:376..53:377) _empty_/Tuples#Tuple18W#[J] -> 50:43
 (53:381..53:383) _empty_/Tuples#Tuple18W#mapElements().[JJ] -> 53:55
-(53:387..53:387) local67
 (53:387..53:395) scala/Predef.identity().
 (53:396..53:397) _empty_/Tuples#Tuple18W#[J] -> 50:43
 (53:408..53:409) _empty_/Tuples#Tuple18W#[K] -> 50:46
 (53:413..53:415) _empty_/Tuples#Tuple18W#mapElements().[KK] -> 53:59
-(53:419..53:419) local68
 (53:419..53:427) scala/Predef.identity().
 (53:428..53:429) _empty_/Tuples#Tuple18W#[K] -> 50:46
 (53:440..53:441) _empty_/Tuples#Tuple18W#[L] -> 50:49
 (53:445..53:447) _empty_/Tuples#Tuple18W#mapElements().[LL] -> 53:63
-(53:451..53:451) local69
 (53:451..53:459) scala/Predef.identity().
 (53:460..53:461) _empty_/Tuples#Tuple18W#[L] -> 50:49
 (53:472..53:473) _empty_/Tuples#Tuple18W#[M] -> 50:52
 (53:477..53:479) _empty_/Tuples#Tuple18W#mapElements().[MM] -> 53:67
-(53:483..53:483) local70
 (53:483..53:491) scala/Predef.identity().
 (53:492..53:493) _empty_/Tuples#Tuple18W#[M] -> 50:52
 (53:504..53:505) _empty_/Tuples#Tuple18W#[N] -> 50:55
 (53:509..53:511) _empty_/Tuples#Tuple18W#mapElements().[NN] -> 53:71
-(53:515..53:515) local71
 (53:515..53:523) scala/Predef.identity().
 (53:524..53:525) _empty_/Tuples#Tuple18W#[N] -> 50:55
 (53:536..53:537) _empty_/Tuples#Tuple18W#[O] -> 50:58
 (53:541..53:543) _empty_/Tuples#Tuple18W#mapElements().[OO] -> 53:75
-(53:547..53:547) local72
 (53:547..53:555) scala/Predef.identity().
 (53:556..53:557) _empty_/Tuples#Tuple18W#[O] -> 50:58
 (53:568..53:569) _empty_/Tuples#Tuple18W#[P] -> 50:61
 (53:573..53:575) _empty_/Tuples#Tuple18W#mapElements().[PP] -> 53:79
-(53:579..53:579) local73
 (53:579..53:587) scala/Predef.identity().
 (53:588..53:589) _empty_/Tuples#Tuple18W#[P] -> 50:61
 (53:600..53:601) _empty_/Tuples#Tuple18W#[Q] -> 50:64
 (53:605..53:607) _empty_/Tuples#Tuple18W#mapElements().[QQ] -> 53:83
-(53:611..53:611) local74
 (53:611..53:619) scala/Predef.identity().
 (53:620..53:621) _empty_/Tuples#Tuple18W#[Q] -> 50:64
 (53:632..53:633) _empty_/Tuples#Tuple18W#[R] -> 50:67
 (53:637..53:639) _empty_/Tuples#Tuple18W#mapElements().[RR] -> 53:87
-(53:643..53:643) local75
 (53:643..53:651) scala/Predef.identity().
 (53:652..53:653) _empty_/Tuples#Tuple18W#[R] -> 50:67
 (53:660..53:662) _empty_/Tuples#Tuple18W#mapElements().[AA] -> 53:19
@@ -1149,77 +1020,58 @@ Document tests/pos/t3864/tuples_1.scala
 (53:720..53:722) _empty_/Tuples#Tuple18W#mapElements().[PP] -> 53:79
 (53:724..53:726) _empty_/Tuples#Tuple18W#mapElements().[QQ] -> 53:83
 (53:728..53:730) _empty_/Tuples#Tuple18W#mapElements().[RR] -> 53:87
-(53:735..53:735) scala/Tuple18.apply().
 (53:735..53:737) _empty_/Tuples#Tuple18W#mapElements().(_1) -> 53:91
-(53:737..53:737) scala/Function1#apply().
 (53:738..53:743) _empty_/EnrichedType#value. -> 2:7
 (53:744..53:746) scala/Tuple18#_1.
 (53:749..53:751) _empty_/Tuples#Tuple18W#mapElements().(_2) -> 53:122
-(53:751..53:751) scala/Function1#apply().
 (53:752..53:757) _empty_/EnrichedType#value. -> 2:7
 (53:758..53:760) scala/Tuple18#_2.
 (53:763..53:765) _empty_/Tuples#Tuple18W#mapElements().(_3) -> 53:153
-(53:765..53:765) scala/Function1#apply().
 (53:766..53:771) _empty_/EnrichedType#value. -> 2:7
 (53:772..53:774) scala/Tuple18#_3.
 (53:777..53:779) _empty_/Tuples#Tuple18W#mapElements().(_4) -> 53:184
-(53:779..53:779) scala/Function1#apply().
 (53:780..53:785) _empty_/EnrichedType#value. -> 2:7
 (53:786..53:788) scala/Tuple18#_4.
 (53:791..53:793) _empty_/Tuples#Tuple18W#mapElements().(_5) -> 53:215
-(53:793..53:793) scala/Function1#apply().
 (53:794..53:799) _empty_/EnrichedType#value. -> 2:7
 (53:800..53:802) scala/Tuple18#_5.
 (53:805..53:807) _empty_/Tuples#Tuple18W#mapElements().(_6) -> 53:246
-(53:807..53:807) scala/Function1#apply().
 (53:808..53:813) _empty_/EnrichedType#value. -> 2:7
 (53:814..53:816) scala/Tuple18#_6.
 (53:819..53:821) _empty_/Tuples#Tuple18W#mapElements().(_7) -> 53:277
-(53:821..53:821) scala/Function1#apply().
 (53:822..53:827) _empty_/EnrichedType#value. -> 2:7
 (53:828..53:830) scala/Tuple18#_7.
 (53:833..53:835) _empty_/Tuples#Tuple18W#mapElements().(_8) -> 53:308
-(53:835..53:835) scala/Function1#apply().
 (53:836..53:841) _empty_/EnrichedType#value. -> 2:7
 (53:842..53:844) scala/Tuple18#_8.
 (53:847..53:849) _empty_/Tuples#Tuple18W#mapElements().(_9) -> 53:339
-(53:849..53:849) scala/Function1#apply().
 (53:850..53:855) _empty_/EnrichedType#value. -> 2:7
 (53:856..53:858) scala/Tuple18#_9.
 (53:861..53:864) _empty_/Tuples#Tuple18W#mapElements().(_10) -> 53:370
-(53:864..53:864) scala/Function1#apply().
 (53:865..53:870) _empty_/EnrichedType#value. -> 2:7
 (53:871..53:874) scala/Tuple18#_10.
 (53:877..53:880) _empty_/Tuples#Tuple18W#mapElements().(_11) -> 53:402
-(53:880..53:880) scala/Function1#apply().
 (53:881..53:886) _empty_/EnrichedType#value. -> 2:7
 (53:887..53:890) scala/Tuple18#_11.
 (53:893..53:896) _empty_/Tuples#Tuple18W#mapElements().(_12) -> 53:434
-(53:896..53:896) scala/Function1#apply().
 (53:897..53:902) _empty_/EnrichedType#value. -> 2:7
 (53:903..53:906) scala/Tuple18#_12.
 (53:909..53:912) _empty_/Tuples#Tuple18W#mapElements().(_13) -> 53:466
-(53:912..53:912) scala/Function1#apply().
 (53:913..53:918) _empty_/EnrichedType#value. -> 2:7
 (53:919..53:922) scala/Tuple18#_13.
 (53:925..53:928) _empty_/Tuples#Tuple18W#mapElements().(_14) -> 53:498
-(53:928..53:928) scala/Function1#apply().
 (53:929..53:934) _empty_/EnrichedType#value. -> 2:7
 (53:935..53:938) scala/Tuple18#_14.
 (53:941..53:944) _empty_/Tuples#Tuple18W#mapElements().(_15) -> 53:530
-(53:944..53:944) scala/Function1#apply().
 (53:945..53:950) _empty_/EnrichedType#value. -> 2:7
 (53:951..53:954) scala/Tuple18#_15.
 (53:957..53:960) _empty_/Tuples#Tuple18W#mapElements().(_16) -> 53:562
-(53:960..53:960) scala/Function1#apply().
 (53:961..53:966) _empty_/EnrichedType#value. -> 2:7
 (53:967..53:970) scala/Tuple18#_16.
 (53:973..53:976) _empty_/Tuples#Tuple18W#mapElements().(_17) -> 53:594
-(53:976..53:976) scala/Function1#apply().
 (53:977..53:982) _empty_/EnrichedType#value. -> 2:7
 (53:983..53:986) scala/Tuple18#_17.
 (53:989..53:992) _empty_/Tuples#Tuple18W#mapElements().(_18) -> 53:626
-(53:992..53:992) scala/Function1#apply().
 (53:993..53:998) _empty_/EnrichedType#value. -> 2:7
 (53:999..53:1002) scala/Tuple18#_18.
 (56:83..56:84) _empty_/Tuples#ToTuple18W().[A] -> 56:25
@@ -1323,7 +1175,6 @@ Document tests/pos/t3864/tuples_1.scala
 (65:86..65:87) _empty_/Tuples#Tuple19W#fold().[Z] -> 65:12
 (65:98..65:103) _empty_/EnrichedType#value. -> 2:7
 (65:107..65:108) _empty_/Tuples#Tuple19W#fold().(f) -> 65:15
-(65:108..65:108) scala/Function19#apply().
 (65:109..65:111) scala/Tuple19#_1.
 (65:113..65:115) scala/Tuple19#_2.
 (65:117..65:119) scala/Tuple19#_3.
@@ -1368,11 +1219,9 @@ Document tests/pos/t3864/tuples_1.scala
 (66:118..66:128) scala/package.IndexedSeq#
 (66:129..66:130) _empty_/Tuples#Tuple19W#toIndexedSeq().[Z] -> 66:20
 (66:144..66:146) _empty_/Tuples#Tuple19W#toIndexedSeq().(ev) -> 66:32
-(66:146..66:146) scala/`<:<`#apply().
 (66:147..66:152) _empty_/EnrichedType#value. -> 2:7
-(66:162..66:164) local78 -> 66:139
+(66:162..66:164) local82 -> 66:139
 (66:168..66:178) scala/package.IndexedSeq.
-(66:178..66:178) scala/collection/SeqFactory.Delegate#apply().
 (66:179..66:181) scala/Tuple19#_1.
 (66:183..66:185) scala/Tuple19#_2.
 (66:187..66:189) scala/Tuple19#_3.
@@ -1394,97 +1243,78 @@ Document tests/pos/t3864/tuples_1.scala
 (66:260..66:263) scala/Tuple19#_19.
 (67:100..67:101) _empty_/Tuples#Tuple19W#[A] -> 64:16
 (67:105..67:107) _empty_/Tuples#Tuple19W#mapElements().[AA] -> 67:19
-(67:111..67:111) local79
 (67:111..67:119) scala/Predef.identity().
 (67:120..67:121) _empty_/Tuples#Tuple19W#[A] -> 64:16
 (67:131..67:132) _empty_/Tuples#Tuple19W#[B] -> 64:19
 (67:136..67:138) _empty_/Tuples#Tuple19W#mapElements().[BB] -> 67:23
-(67:142..67:142) local80
 (67:142..67:150) scala/Predef.identity().
 (67:151..67:152) _empty_/Tuples#Tuple19W#[B] -> 64:19
 (67:162..67:163) _empty_/Tuples#Tuple19W#[C] -> 64:22
 (67:167..67:169) _empty_/Tuples#Tuple19W#mapElements().[CC] -> 67:27
-(67:173..67:173) local81
 (67:173..67:181) scala/Predef.identity().
 (67:182..67:183) _empty_/Tuples#Tuple19W#[C] -> 64:22
 (67:193..67:194) _empty_/Tuples#Tuple19W#[D] -> 64:25
 (67:198..67:200) _empty_/Tuples#Tuple19W#mapElements().[DD] -> 67:31
-(67:204..67:204) local82
 (67:204..67:212) scala/Predef.identity().
 (67:213..67:214) _empty_/Tuples#Tuple19W#[D] -> 64:25
 (67:224..67:225) _empty_/Tuples#Tuple19W#[E] -> 64:28
 (67:229..67:231) _empty_/Tuples#Tuple19W#mapElements().[EE] -> 67:35
-(67:235..67:235) local83
 (67:235..67:243) scala/Predef.identity().
 (67:244..67:245) _empty_/Tuples#Tuple19W#[E] -> 64:28
 (67:255..67:256) _empty_/Tuples#Tuple19W#[F] -> 64:31
 (67:260..67:262) _empty_/Tuples#Tuple19W#mapElements().[FF] -> 67:39
-(67:266..67:266) local84
 (67:266..67:274) scala/Predef.identity().
 (67:275..67:276) _empty_/Tuples#Tuple19W#[F] -> 64:31
 (67:286..67:287) _empty_/Tuples#Tuple19W#[G] -> 64:34
 (67:291..67:293) _empty_/Tuples#Tuple19W#mapElements().[GG] -> 67:43
-(67:297..67:297) local85
 (67:297..67:305) scala/Predef.identity().
 (67:306..67:307) _empty_/Tuples#Tuple19W#[G] -> 64:34
 (67:317..67:318) _empty_/Tuples#Tuple19W#[H] -> 64:37
 (67:322..67:324) _empty_/Tuples#Tuple19W#mapElements().[HH] -> 67:47
-(67:328..67:328) local86
 (67:328..67:336) scala/Predef.identity().
 (67:337..67:338) _empty_/Tuples#Tuple19W#[H] -> 64:37
 (67:348..67:349) _empty_/Tuples#Tuple19W#[I] -> 64:40
 (67:353..67:355) _empty_/Tuples#Tuple19W#mapElements().[II] -> 67:51
-(67:359..67:359) local87
 (67:359..67:367) scala/Predef.identity().
 (67:368..67:369) _empty_/Tuples#Tuple19W#[I] -> 64:40
 (67:380..67:381) _empty_/Tuples#Tuple19W#[J] -> 64:43
 (67:385..67:387) _empty_/Tuples#Tuple19W#mapElements().[JJ] -> 67:55
-(67:391..67:391) local88
 (67:391..67:399) scala/Predef.identity().
 (67:400..67:401) _empty_/Tuples#Tuple19W#[J] -> 64:43
 (67:412..67:413) _empty_/Tuples#Tuple19W#[K] -> 64:46
 (67:417..67:419) _empty_/Tuples#Tuple19W#mapElements().[KK] -> 67:59
-(67:423..67:423) local89
 (67:423..67:431) scala/Predef.identity().
 (67:432..67:433) _empty_/Tuples#Tuple19W#[K] -> 64:46
 (67:444..67:445) _empty_/Tuples#Tuple19W#[L] -> 64:49
 (67:449..67:451) _empty_/Tuples#Tuple19W#mapElements().[LL] -> 67:63
-(67:455..67:455) local90
 (67:455..67:463) scala/Predef.identity().
 (67:464..67:465) _empty_/Tuples#Tuple19W#[L] -> 64:49
 (67:476..67:477) _empty_/Tuples#Tuple19W#[M] -> 64:52
 (67:481..67:483) _empty_/Tuples#Tuple19W#mapElements().[MM] -> 67:67
-(67:487..67:487) local91
 (67:487..67:495) scala/Predef.identity().
 (67:496..67:497) _empty_/Tuples#Tuple19W#[M] -> 64:52
 (67:508..67:509) _empty_/Tuples#Tuple19W#[N] -> 64:55
 (67:513..67:515) _empty_/Tuples#Tuple19W#mapElements().[NN] -> 67:71
-(67:519..67:519) local92
 (67:519..67:527) scala/Predef.identity().
 (67:528..67:529) _empty_/Tuples#Tuple19W#[N] -> 64:55
 (67:540..67:541) _empty_/Tuples#Tuple19W#[O] -> 64:58
 (67:545..67:547) _empty_/Tuples#Tuple19W#mapElements().[OO] -> 67:75
-(67:551..67:551) local93
 (67:551..67:559) scala/Predef.identity().
 (67:560..67:561) _empty_/Tuples#Tuple19W#[O] -> 64:58
 (67:572..67:573) _empty_/Tuples#Tuple19W#[P] -> 64:61
 (67:577..67:579) _empty_/Tuples#Tuple19W#mapElements().[PP] -> 67:79
-(67:583..67:583) local94
 (67:583..67:591) scala/Predef.identity().
 (67:592..67:593) _empty_/Tuples#Tuple19W#[P] -> 64:61
 (67:604..67:605) _empty_/Tuples#Tuple19W#[Q] -> 64:64
 (67:609..67:611) _empty_/Tuples#Tuple19W#mapElements().[QQ] -> 67:83
-(67:615..67:615) local95
 (67:615..67:623) scala/Predef.identity().
 (67:624..67:625) _empty_/Tuples#Tuple19W#[Q] -> 64:64
 (67:636..67:637) _empty_/Tuples#Tuple19W#[R] -> 64:67
 (67:641..67:643) _empty_/Tuples#Tuple19W#mapElements().[RR] -> 67:87
-(67:647..67:647) local96
 (67:647..67:655) scala/Predef.identity().
 (67:656..67:657) _empty_/Tuples#Tuple19W#[R] -> 64:67
 (67:668..67:669) _empty_/Tuples#Tuple19W#[S] -> 64:70
 (67:673..67:675) _empty_/Tuples#Tuple19W#mapElements().[SS] -> 67:91
-(67:679..67:679) local97
 (67:679..67:687) scala/Predef.identity().
 (67:688..67:689) _empty_/Tuples#Tuple19W#[S] -> 64:70
 (67:696..67:698) _empty_/Tuples#Tuple19W#mapElements().[AA] -> 67:19
@@ -1506,81 +1336,61 @@ Document tests/pos/t3864/tuples_1.scala
 (67:760..67:762) _empty_/Tuples#Tuple19W#mapElements().[QQ] -> 67:83
 (67:764..67:766) _empty_/Tuples#Tuple19W#mapElements().[RR] -> 67:87
 (67:768..67:770) _empty_/Tuples#Tuple19W#mapElements().[SS] -> 67:91
-(67:775..67:775) scala/Tuple19.apply().
 (67:775..67:777) _empty_/Tuples#Tuple19W#mapElements().(_1) -> 67:95
-(67:777..67:777) scala/Function1#apply().
 (67:778..67:783) _empty_/EnrichedType#value. -> 2:7
 (67:784..67:786) scala/Tuple19#_1.
 (67:789..67:791) _empty_/Tuples#Tuple19W#mapElements().(_2) -> 67:126
-(67:791..67:791) scala/Function1#apply().
 (67:792..67:797) _empty_/EnrichedType#value. -> 2:7
 (67:798..67:800) scala/Tuple19#_2.
 (67:803..67:805) _empty_/Tuples#Tuple19W#mapElements().(_3) -> 67:157
-(67:805..67:805) scala/Function1#apply().
 (67:806..67:811) _empty_/EnrichedType#value. -> 2:7
 (67:812..67:814) scala/Tuple19#_3.
 (67:817..67:819) _empty_/Tuples#Tuple19W#mapElements().(_4) -> 67:188
-(67:819..67:819) scala/Function1#apply().
 (67:820..67:825) _empty_/EnrichedType#value. -> 2:7
 (67:826..67:828) scala/Tuple19#_4.
 (67:831..67:833) _empty_/Tuples#Tuple19W#mapElements().(_5) -> 67:219
-(67:833..67:833) scala/Function1#apply().
 (67:834..67:839) _empty_/EnrichedType#value. -> 2:7
 (67:840..67:842) scala/Tuple19#_5.
 (67:845..67:847) _empty_/Tuples#Tuple19W#mapElements().(_6) -> 67:250
-(67:847..67:847) scala/Function1#apply().
 (67:848..67:853) _empty_/EnrichedType#value. -> 2:7
 (67:854..67:856) scala/Tuple19#_6.
 (67:859..67:861) _empty_/Tuples#Tuple19W#mapElements().(_7) -> 67:281
-(67:861..67:861) scala/Function1#apply().
 (67:862..67:867) _empty_/EnrichedType#value. -> 2:7
 (67:868..67:870) scala/Tuple19#_7.
 (67:873..67:875) _empty_/Tuples#Tuple19W#mapElements().(_8) -> 67:312
-(67:875..67:875) scala/Function1#apply().
 (67:876..67:881) _empty_/EnrichedType#value. -> 2:7
 (67:882..67:884) scala/Tuple19#_8.
 (67:887..67:889) _empty_/Tuples#Tuple19W#mapElements().(_9) -> 67:343
-(67:889..67:889) scala/Function1#apply().
 (67:890..67:895) _empty_/EnrichedType#value. -> 2:7
 (67:896..67:898) scala/Tuple19#_9.
 (67:901..67:904) _empty_/Tuples#Tuple19W#mapElements().(_10) -> 67:374
-(67:904..67:904) scala/Function1#apply().
 (67:905..67:910) _empty_/EnrichedType#value. -> 2:7
 (67:911..67:914) scala/Tuple19#_10.
 (67:917..67:920) _empty_/Tuples#Tuple19W#mapElements().(_11) -> 67:406
-(67:920..67:920) scala/Function1#apply().
 (67:921..67:926) _empty_/EnrichedType#value. -> 2:7
 (67:927..67:930) scala/Tuple19#_11.
 (67:933..67:936) _empty_/Tuples#Tuple19W#mapElements().(_12) -> 67:438
-(67:936..67:936) scala/Function1#apply().
 (67:937..67:942) _empty_/EnrichedType#value. -> 2:7
 (67:943..67:946) scala/Tuple19#_12.
 (67:949..67:952) _empty_/Tuples#Tuple19W#mapElements().(_13) -> 67:470
-(67:952..67:952) scala/Function1#apply().
 (67:953..67:958) _empty_/EnrichedType#value. -> 2:7
 (67:959..67:962) scala/Tuple19#_13.
 (67:965..67:968) _empty_/Tuples#Tuple19W#mapElements().(_14) -> 67:502
-(67:968..67:968) scala/Function1#apply().
 (67:969..67:974) _empty_/EnrichedType#value. -> 2:7
 (67:975..67:978) scala/Tuple19#_14.
 (67:981..67:984) _empty_/Tuples#Tuple19W#mapElements().(_15) -> 67:534
-(67:984..67:984) scala/Function1#apply().
 (67:985..67:990) _empty_/EnrichedType#value. -> 2:7
 (67:991..67:994) scala/Tuple19#_15.
 (67:997..67:1000) _empty_/Tuples#Tuple19W#mapElements().(_16) -> 67:566
-(67:1000..67:1000) scala/Function1#apply().
 (67:1001..67:1006) _empty_/EnrichedType#value. -> 2:7
 (67:1007..67:1010) scala/Tuple19#_16.
 (67:1013..67:1016) _empty_/Tuples#Tuple19W#mapElements().(_17) -> 67:598
-(67:1016..67:1016) scala/Function1#apply().
 (67:1017..67:1022) _empty_/EnrichedType#value. -> 2:7
 (67:1023..67:1026) scala/Tuple19#_17.
 (67:1029..67:1032) _empty_/Tuples#Tuple19W#mapElements().(_18) -> 67:630
-(67:1032..67:1032) scala/Function1#apply().
 (67:1033..67:1038) _empty_/EnrichedType#value. -> 2:7
 (67:1039..67:1042) scala/Tuple19#_18.
 (67:1045..67:1048) _empty_/Tuples#Tuple19W#mapElements().(_19) -> 67:662
-(67:1048..67:1048) scala/Function1#apply().
 (67:1049..67:1054) _empty_/EnrichedType#value. -> 2:7
 (67:1055..67:1058) scala/Tuple19#_19.
 (70:86..70:87) _empty_/Tuples#ToTuple19W().[A] -> 70:25
@@ -1689,7 +1499,6 @@ Document tests/pos/t3864/tuples_1.scala
 (79:89..79:90) _empty_/Tuples#Tuple20W#fold().[Z] -> 79:12
 (79:101..79:106) _empty_/EnrichedType#value. -> 2:7
 (79:110..79:111) _empty_/Tuples#Tuple20W#fold().(f) -> 79:15
-(79:111..79:111) scala/Function20#apply().
 (79:112..79:114) scala/Tuple20#_1.
 (79:116..79:118) scala/Tuple20#_2.
 (79:120..79:122) scala/Tuple20#_3.
@@ -1736,11 +1545,9 @@ Document tests/pos/t3864/tuples_1.scala
 (80:121..80:131) scala/package.IndexedSeq#
 (80:132..80:133) _empty_/Tuples#Tuple20W#toIndexedSeq().[Z] -> 80:20
 (80:147..80:149) _empty_/Tuples#Tuple20W#toIndexedSeq().(ev) -> 80:32
-(80:149..80:149) scala/`<:<`#apply().
 (80:150..80:155) _empty_/EnrichedType#value. -> 2:7
-(80:165..80:167) local100 -> 80:142
+(80:165..80:167) local105 -> 80:142
 (80:171..80:181) scala/package.IndexedSeq.
-(80:181..80:181) scala/collection/SeqFactory.Delegate#apply().
 (80:182..80:184) scala/Tuple20#_1.
 (80:186..80:188) scala/Tuple20#_2.
 (80:190..80:192) scala/Tuple20#_3.
@@ -1763,102 +1570,82 @@ Document tests/pos/t3864/tuples_1.scala
 (80:268..80:271) scala/Tuple20#_20.
 (81:104..81:105) _empty_/Tuples#Tuple20W#[A] -> 78:16
 (81:109..81:111) _empty_/Tuples#Tuple20W#mapElements().[AA] -> 81:19
-(81:115..81:115) local101
 (81:115..81:123) scala/Predef.identity().
 (81:124..81:125) _empty_/Tuples#Tuple20W#[A] -> 78:16
 (81:135..81:136) _empty_/Tuples#Tuple20W#[B] -> 78:19
 (81:140..81:142) _empty_/Tuples#Tuple20W#mapElements().[BB] -> 81:23
-(81:146..81:146) local102
 (81:146..81:154) scala/Predef.identity().
 (81:155..81:156) _empty_/Tuples#Tuple20W#[B] -> 78:19
 (81:166..81:167) _empty_/Tuples#Tuple20W#[C] -> 78:22
 (81:171..81:173) _empty_/Tuples#Tuple20W#mapElements().[CC] -> 81:27
-(81:177..81:177) local103
 (81:177..81:185) scala/Predef.identity().
 (81:186..81:187) _empty_/Tuples#Tuple20W#[C] -> 78:22
 (81:197..81:198) _empty_/Tuples#Tuple20W#[D] -> 78:25
 (81:202..81:204) _empty_/Tuples#Tuple20W#mapElements().[DD] -> 81:31
-(81:208..81:208) local104
 (81:208..81:216) scala/Predef.identity().
 (81:217..81:218) _empty_/Tuples#Tuple20W#[D] -> 78:25
 (81:228..81:229) _empty_/Tuples#Tuple20W#[E] -> 78:28
 (81:233..81:235) _empty_/Tuples#Tuple20W#mapElements().[EE] -> 81:35
-(81:239..81:239) local105
 (81:239..81:247) scala/Predef.identity().
 (81:248..81:249) _empty_/Tuples#Tuple20W#[E] -> 78:28
 (81:259..81:260) _empty_/Tuples#Tuple20W#[F] -> 78:31
 (81:264..81:266) _empty_/Tuples#Tuple20W#mapElements().[FF] -> 81:39
-(81:270..81:270) local106
 (81:270..81:278) scala/Predef.identity().
 (81:279..81:280) _empty_/Tuples#Tuple20W#[F] -> 78:31
 (81:290..81:291) _empty_/Tuples#Tuple20W#[G] -> 78:34
 (81:295..81:297) _empty_/Tuples#Tuple20W#mapElements().[GG] -> 81:43
-(81:301..81:301) local107
 (81:301..81:309) scala/Predef.identity().
 (81:310..81:311) _empty_/Tuples#Tuple20W#[G] -> 78:34
 (81:321..81:322) _empty_/Tuples#Tuple20W#[H] -> 78:37
 (81:326..81:328) _empty_/Tuples#Tuple20W#mapElements().[HH] -> 81:47
-(81:332..81:332) local108
 (81:332..81:340) scala/Predef.identity().
 (81:341..81:342) _empty_/Tuples#Tuple20W#[H] -> 78:37
 (81:352..81:353) _empty_/Tuples#Tuple20W#[I] -> 78:40
 (81:357..81:359) _empty_/Tuples#Tuple20W#mapElements().[II] -> 81:51
-(81:363..81:363) local109
 (81:363..81:371) scala/Predef.identity().
 (81:372..81:373) _empty_/Tuples#Tuple20W#[I] -> 78:40
 (81:384..81:385) _empty_/Tuples#Tuple20W#[J] -> 78:43
 (81:389..81:391) _empty_/Tuples#Tuple20W#mapElements().[JJ] -> 81:55
-(81:395..81:395) local110
 (81:395..81:403) scala/Predef.identity().
 (81:404..81:405) _empty_/Tuples#Tuple20W#[J] -> 78:43
 (81:416..81:417) _empty_/Tuples#Tuple20W#[K] -> 78:46
 (81:421..81:423) _empty_/Tuples#Tuple20W#mapElements().[KK] -> 81:59
-(81:427..81:427) local111
 (81:427..81:435) scala/Predef.identity().
 (81:436..81:437) _empty_/Tuples#Tuple20W#[K] -> 78:46
 (81:448..81:449) _empty_/Tuples#Tuple20W#[L] -> 78:49
 (81:453..81:455) _empty_/Tuples#Tuple20W#mapElements().[LL] -> 81:63
-(81:459..81:459) local112
 (81:459..81:467) scala/Predef.identity().
 (81:468..81:469) _empty_/Tuples#Tuple20W#[L] -> 78:49
 (81:480..81:481) _empty_/Tuples#Tuple20W#[M] -> 78:52
 (81:485..81:487) _empty_/Tuples#Tuple20W#mapElements().[MM] -> 81:67
-(81:491..81:491) local113
 (81:491..81:499) scala/Predef.identity().
 (81:500..81:501) _empty_/Tuples#Tuple20W#[M] -> 78:52
 (81:512..81:513) _empty_/Tuples#Tuple20W#[N] -> 78:55
 (81:517..81:519) _empty_/Tuples#Tuple20W#mapElements().[NN] -> 81:71
-(81:523..81:523) local114
 (81:523..81:531) scala/Predef.identity().
 (81:532..81:533) _empty_/Tuples#Tuple20W#[N] -> 78:55
 (81:544..81:545) _empty_/Tuples#Tuple20W#[O] -> 78:58
 (81:549..81:551) _empty_/Tuples#Tuple20W#mapElements().[OO] -> 81:75
-(81:555..81:555) local115
 (81:555..81:563) scala/Predef.identity().
 (81:564..81:565) _empty_/Tuples#Tuple20W#[O] -> 78:58
 (81:576..81:577) _empty_/Tuples#Tuple20W#[P] -> 78:61
 (81:581..81:583) _empty_/Tuples#Tuple20W#mapElements().[PP] -> 81:79
-(81:587..81:587) local116
 (81:587..81:595) scala/Predef.identity().
 (81:596..81:597) _empty_/Tuples#Tuple20W#[P] -> 78:61
 (81:608..81:609) _empty_/Tuples#Tuple20W#[Q] -> 78:64
 (81:613..81:615) _empty_/Tuples#Tuple20W#mapElements().[QQ] -> 81:83
-(81:619..81:619) local117
 (81:619..81:627) scala/Predef.identity().
 (81:628..81:629) _empty_/Tuples#Tuple20W#[Q] -> 78:64
 (81:640..81:641) _empty_/Tuples#Tuple20W#[R] -> 78:67
 (81:645..81:647) _empty_/Tuples#Tuple20W#mapElements().[RR] -> 81:87
-(81:651..81:651) local118
 (81:651..81:659) scala/Predef.identity().
 (81:660..81:661) _empty_/Tuples#Tuple20W#[R] -> 78:67
 (81:672..81:673) _empty_/Tuples#Tuple20W#[S] -> 78:70
 (81:677..81:679) _empty_/Tuples#Tuple20W#mapElements().[SS] -> 81:91
-(81:683..81:683) local119
 (81:683..81:691) scala/Predef.identity().
 (81:692..81:693) _empty_/Tuples#Tuple20W#[S] -> 78:70
 (81:704..81:705) _empty_/Tuples#Tuple20W#[T] -> 78:73
 (81:709..81:711) _empty_/Tuples#Tuple20W#mapElements().[TT] -> 81:95
-(81:715..81:715) local120
 (81:715..81:723) scala/Predef.identity().
 (81:724..81:725) _empty_/Tuples#Tuple20W#[T] -> 78:73
 (81:732..81:734) _empty_/Tuples#Tuple20W#mapElements().[AA] -> 81:19
@@ -1881,85 +1668,64 @@ Document tests/pos/t3864/tuples_1.scala
 (81:800..81:802) _empty_/Tuples#Tuple20W#mapElements().[RR] -> 81:87
 (81:804..81:806) _empty_/Tuples#Tuple20W#mapElements().[SS] -> 81:91
 (81:808..81:810) _empty_/Tuples#Tuple20W#mapElements().[TT] -> 81:95
-(81:815..81:815) scala/Tuple20.apply().
 (81:815..81:817) _empty_/Tuples#Tuple20W#mapElements().(_1) -> 81:99
-(81:817..81:817) scala/Function1#apply().
 (81:818..81:823) _empty_/EnrichedType#value. -> 2:7
 (81:824..81:826) scala/Tuple20#_1.
 (81:829..81:831) _empty_/Tuples#Tuple20W#mapElements().(_2) -> 81:130
-(81:831..81:831) scala/Function1#apply().
 (81:832..81:837) _empty_/EnrichedType#value. -> 2:7
 (81:838..81:840) scala/Tuple20#_2.
 (81:843..81:845) _empty_/Tuples#Tuple20W#mapElements().(_3) -> 81:161
-(81:845..81:845) scala/Function1#apply().
 (81:846..81:851) _empty_/EnrichedType#value. -> 2:7
 (81:852..81:854) scala/Tuple20#_3.
 (81:857..81:859) _empty_/Tuples#Tuple20W#mapElements().(_4) -> 81:192
-(81:859..81:859) scala/Function1#apply().
 (81:860..81:865) _empty_/EnrichedType#value. -> 2:7
 (81:866..81:868) scala/Tuple20#_4.
 (81:871..81:873) _empty_/Tuples#Tuple20W#mapElements().(_5) -> 81:223
-(81:873..81:873) scala/Function1#apply().
 (81:874..81:879) _empty_/EnrichedType#value. -> 2:7
 (81:880..81:882) scala/Tuple20#_5.
 (81:885..81:887) _empty_/Tuples#Tuple20W#mapElements().(_6) -> 81:254
-(81:887..81:887) scala/Function1#apply().
 (81:888..81:893) _empty_/EnrichedType#value. -> 2:7
 (81:894..81:896) scala/Tuple20#_6.
 (81:899..81:901) _empty_/Tuples#Tuple20W#mapElements().(_7) -> 81:285
-(81:901..81:901) scala/Function1#apply().
 (81:902..81:907) _empty_/EnrichedType#value. -> 2:7
 (81:908..81:910) scala/Tuple20#_7.
 (81:913..81:915) _empty_/Tuples#Tuple20W#mapElements().(_8) -> 81:316
-(81:915..81:915) scala/Function1#apply().
 (81:916..81:921) _empty_/EnrichedType#value. -> 2:7
 (81:922..81:924) scala/Tuple20#_8.
 (81:927..81:929) _empty_/Tuples#Tuple20W#mapElements().(_9) -> 81:347
-(81:929..81:929) scala/Function1#apply().
 (81:930..81:935) _empty_/EnrichedType#value. -> 2:7
 (81:936..81:938) scala/Tuple20#_9.
 (81:941..81:944) _empty_/Tuples#Tuple20W#mapElements().(_10) -> 81:378
-(81:944..81:944) scala/Function1#apply().
 (81:945..81:950) _empty_/EnrichedType#value. -> 2:7
 (81:951..81:954) scala/Tuple20#_10.
 (81:957..81:960) _empty_/Tuples#Tuple20W#mapElements().(_11) -> 81:410
-(81:960..81:960) scala/Function1#apply().
 (81:961..81:966) _empty_/EnrichedType#value. -> 2:7
 (81:967..81:970) scala/Tuple20#_11.
 (81:973..81:976) _empty_/Tuples#Tuple20W#mapElements().(_12) -> 81:442
-(81:976..81:976) scala/Function1#apply().
 (81:977..81:982) _empty_/EnrichedType#value. -> 2:7
 (81:983..81:986) scala/Tuple20#_12.
 (81:989..81:992) _empty_/Tuples#Tuple20W#mapElements().(_13) -> 81:474
-(81:992..81:992) scala/Function1#apply().
 (81:993..81:998) _empty_/EnrichedType#value. -> 2:7
 (81:999..81:1002) scala/Tuple20#_13.
 (81:1005..81:1008) _empty_/Tuples#Tuple20W#mapElements().(_14) -> 81:506
-(81:1008..81:1008) scala/Function1#apply().
 (81:1009..81:1014) _empty_/EnrichedType#value. -> 2:7
 (81:1015..81:1018) scala/Tuple20#_14.
 (81:1021..81:1024) _empty_/Tuples#Tuple20W#mapElements().(_15) -> 81:538
-(81:1024..81:1024) scala/Function1#apply().
 (81:1025..81:1030) _empty_/EnrichedType#value. -> 2:7
 (81:1031..81:1034) scala/Tuple20#_15.
 (81:1037..81:1040) _empty_/Tuples#Tuple20W#mapElements().(_16) -> 81:570
-(81:1040..81:1040) scala/Function1#apply().
 (81:1041..81:1046) _empty_/EnrichedType#value. -> 2:7
 (81:1047..81:1050) scala/Tuple20#_16.
 (81:1053..81:1056) _empty_/Tuples#Tuple20W#mapElements().(_17) -> 81:602
-(81:1056..81:1056) scala/Function1#apply().
 (81:1057..81:1062) _empty_/EnrichedType#value. -> 2:7
 (81:1063..81:1066) scala/Tuple20#_17.
 (81:1069..81:1072) _empty_/Tuples#Tuple20W#mapElements().(_18) -> 81:634
-(81:1072..81:1072) scala/Function1#apply().
 (81:1073..81:1078) _empty_/EnrichedType#value. -> 2:7
 (81:1079..81:1082) scala/Tuple20#_18.
 (81:1085..81:1088) _empty_/Tuples#Tuple20W#mapElements().(_19) -> 81:666
-(81:1088..81:1088) scala/Function1#apply().
 (81:1089..81:1094) _empty_/EnrichedType#value. -> 2:7
 (81:1095..81:1098) scala/Tuple20#_19.
 (81:1101..81:1104) _empty_/Tuples#Tuple20W#mapElements().(_20) -> 81:698
-(81:1104..81:1104) scala/Function1#apply().
 (81:1105..81:1110) _empty_/EnrichedType#value. -> 2:7
 (81:1111..81:1114) scala/Tuple20#_20.
 (84:89..84:90) _empty_/Tuples#ToTuple20W().[A] -> 84:25
@@ -2073,7 +1839,6 @@ Document tests/pos/t3864/tuples_1.scala
 (93:92..93:93) _empty_/Tuples#Tuple21W#fold().[Z] -> 93:12
 (93:104..93:109) _empty_/EnrichedType#value. -> 2:7
 (93:113..93:114) _empty_/Tuples#Tuple21W#fold().(f) -> 93:15
-(93:114..93:114) scala/Function21#apply().
 (93:115..93:117) scala/Tuple21#_1.
 (93:119..93:121) scala/Tuple21#_2.
 (93:123..93:125) scala/Tuple21#_3.
@@ -2122,11 +1887,9 @@ Document tests/pos/t3864/tuples_1.scala
 (94:124..94:134) scala/package.IndexedSeq#
 (94:135..94:136) _empty_/Tuples#Tuple21W#toIndexedSeq().[Z] -> 94:20
 (94:150..94:152) _empty_/Tuples#Tuple21W#toIndexedSeq().(ev) -> 94:32
-(94:152..94:152) scala/`<:<`#apply().
 (94:153..94:158) _empty_/EnrichedType#value. -> 2:7
-(94:168..94:170) local123 -> 94:145
+(94:168..94:170) local129 -> 94:145
 (94:174..94:184) scala/package.IndexedSeq.
-(94:184..94:184) scala/collection/SeqFactory.Delegate#apply().
 (94:185..94:187) scala/Tuple21#_1.
 (94:189..94:191) scala/Tuple21#_2.
 (94:193..94:195) scala/Tuple21#_3.
@@ -2150,107 +1913,86 @@ Document tests/pos/t3864/tuples_1.scala
 (94:276..94:279) scala/Tuple21#_21.
 (95:108..95:109) _empty_/Tuples#Tuple21W#[A] -> 92:16
 (95:113..95:115) _empty_/Tuples#Tuple21W#mapElements().[AA] -> 95:19
-(95:119..95:119) local124
 (95:119..95:127) scala/Predef.identity().
 (95:128..95:129) _empty_/Tuples#Tuple21W#[A] -> 92:16
 (95:139..95:140) _empty_/Tuples#Tuple21W#[B] -> 92:19
 (95:144..95:146) _empty_/Tuples#Tuple21W#mapElements().[BB] -> 95:23
-(95:150..95:150) local125
 (95:150..95:158) scala/Predef.identity().
 (95:159..95:160) _empty_/Tuples#Tuple21W#[B] -> 92:19
 (95:170..95:171) _empty_/Tuples#Tuple21W#[C] -> 92:22
 (95:175..95:177) _empty_/Tuples#Tuple21W#mapElements().[CC] -> 95:27
-(95:181..95:181) local126
 (95:181..95:189) scala/Predef.identity().
 (95:190..95:191) _empty_/Tuples#Tuple21W#[C] -> 92:22
 (95:201..95:202) _empty_/Tuples#Tuple21W#[D] -> 92:25
 (95:206..95:208) _empty_/Tuples#Tuple21W#mapElements().[DD] -> 95:31
-(95:212..95:212) local127
 (95:212..95:220) scala/Predef.identity().
 (95:221..95:222) _empty_/Tuples#Tuple21W#[D] -> 92:25
 (95:232..95:233) _empty_/Tuples#Tuple21W#[E] -> 92:28
 (95:237..95:239) _empty_/Tuples#Tuple21W#mapElements().[EE] -> 95:35
-(95:243..95:243) local128
 (95:243..95:251) scala/Predef.identity().
 (95:252..95:253) _empty_/Tuples#Tuple21W#[E] -> 92:28
 (95:263..95:264) _empty_/Tuples#Tuple21W#[F] -> 92:31
 (95:268..95:270) _empty_/Tuples#Tuple21W#mapElements().[FF] -> 95:39
-(95:274..95:274) local129
 (95:274..95:282) scala/Predef.identity().
 (95:283..95:284) _empty_/Tuples#Tuple21W#[F] -> 92:31
 (95:294..95:295) _empty_/Tuples#Tuple21W#[G] -> 92:34
 (95:299..95:301) _empty_/Tuples#Tuple21W#mapElements().[GG] -> 95:43
-(95:305..95:305) local130
 (95:305..95:313) scala/Predef.identity().
 (95:314..95:315) _empty_/Tuples#Tuple21W#[G] -> 92:34
 (95:325..95:326) _empty_/Tuples#Tuple21W#[H] -> 92:37
 (95:330..95:332) _empty_/Tuples#Tuple21W#mapElements().[HH] -> 95:47
-(95:336..95:336) local131
 (95:336..95:344) scala/Predef.identity().
 (95:345..95:346) _empty_/Tuples#Tuple21W#[H] -> 92:37
 (95:356..95:357) _empty_/Tuples#Tuple21W#[I] -> 92:40
 (95:361..95:363) _empty_/Tuples#Tuple21W#mapElements().[II] -> 95:51
-(95:367..95:367) local132
 (95:367..95:375) scala/Predef.identity().
 (95:376..95:377) _empty_/Tuples#Tuple21W#[I] -> 92:40
 (95:388..95:389) _empty_/Tuples#Tuple21W#[J] -> 92:43
 (95:393..95:395) _empty_/Tuples#Tuple21W#mapElements().[JJ] -> 95:55
-(95:399..95:399) local133
 (95:399..95:407) scala/Predef.identity().
 (95:408..95:409) _empty_/Tuples#Tuple21W#[J] -> 92:43
 (95:420..95:421) _empty_/Tuples#Tuple21W#[K] -> 92:46
 (95:425..95:427) _empty_/Tuples#Tuple21W#mapElements().[KK] -> 95:59
-(95:431..95:431) local134
 (95:431..95:439) scala/Predef.identity().
 (95:440..95:441) _empty_/Tuples#Tuple21W#[K] -> 92:46
 (95:452..95:453) _empty_/Tuples#Tuple21W#[L] -> 92:49
 (95:457..95:459) _empty_/Tuples#Tuple21W#mapElements().[LL] -> 95:63
-(95:463..95:463) local135
 (95:463..95:471) scala/Predef.identity().
 (95:472..95:473) _empty_/Tuples#Tuple21W#[L] -> 92:49
 (95:484..95:485) _empty_/Tuples#Tuple21W#[M] -> 92:52
 (95:489..95:491) _empty_/Tuples#Tuple21W#mapElements().[MM] -> 95:67
-(95:495..95:495) local136
 (95:495..95:503) scala/Predef.identity().
 (95:504..95:505) _empty_/Tuples#Tuple21W#[M] -> 92:52
 (95:516..95:517) _empty_/Tuples#Tuple21W#[N] -> 92:55
 (95:521..95:523) _empty_/Tuples#Tuple21W#mapElements().[NN] -> 95:71
-(95:527..95:527) local137
 (95:527..95:535) scala/Predef.identity().
 (95:536..95:537) _empty_/Tuples#Tuple21W#[N] -> 92:55
 (95:548..95:549) _empty_/Tuples#Tuple21W#[O] -> 92:58
 (95:553..95:555) _empty_/Tuples#Tuple21W#mapElements().[OO] -> 95:75
-(95:559..95:559) local138
 (95:559..95:567) scala/Predef.identity().
 (95:568..95:569) _empty_/Tuples#Tuple21W#[O] -> 92:58
 (95:580..95:581) _empty_/Tuples#Tuple21W#[P] -> 92:61
 (95:585..95:587) _empty_/Tuples#Tuple21W#mapElements().[PP] -> 95:79
-(95:591..95:591) local139
 (95:591..95:599) scala/Predef.identity().
 (95:600..95:601) _empty_/Tuples#Tuple21W#[P] -> 92:61
 (95:612..95:613) _empty_/Tuples#Tuple21W#[Q] -> 92:64
 (95:617..95:619) _empty_/Tuples#Tuple21W#mapElements().[QQ] -> 95:83
-(95:623..95:623) local140
 (95:623..95:631) scala/Predef.identity().
 (95:632..95:633) _empty_/Tuples#Tuple21W#[Q] -> 92:64
 (95:644..95:645) _empty_/Tuples#Tuple21W#[R] -> 92:67
 (95:649..95:651) _empty_/Tuples#Tuple21W#mapElements().[RR] -> 95:87
-(95:655..95:655) local141
 (95:655..95:663) scala/Predef.identity().
 (95:664..95:665) _empty_/Tuples#Tuple21W#[R] -> 92:67
 (95:676..95:677) _empty_/Tuples#Tuple21W#[S] -> 92:70
 (95:681..95:683) _empty_/Tuples#Tuple21W#mapElements().[SS] -> 95:91
-(95:687..95:687) local142
 (95:687..95:695) scala/Predef.identity().
 (95:696..95:697) _empty_/Tuples#Tuple21W#[S] -> 92:70
 (95:708..95:709) _empty_/Tuples#Tuple21W#[T] -> 92:73
 (95:713..95:715) _empty_/Tuples#Tuple21W#mapElements().[TT] -> 95:95
-(95:719..95:719) local143
 (95:719..95:727) scala/Predef.identity().
 (95:728..95:729) _empty_/Tuples#Tuple21W#[T] -> 92:73
 (95:740..95:741) _empty_/Tuples#Tuple21W#[U] -> 92:76
 (95:745..95:747) _empty_/Tuples#Tuple21W#mapElements().[UU] -> 95:99
-(95:751..95:751) local144
 (95:751..95:759) scala/Predef.identity().
 (95:760..95:761) _empty_/Tuples#Tuple21W#[U] -> 92:76
 (95:768..95:770) _empty_/Tuples#Tuple21W#mapElements().[AA] -> 95:19
@@ -2274,89 +2016,67 @@ Document tests/pos/t3864/tuples_1.scala
 (95:840..95:842) _empty_/Tuples#Tuple21W#mapElements().[SS] -> 95:91
 (95:844..95:846) _empty_/Tuples#Tuple21W#mapElements().[TT] -> 95:95
 (95:848..95:850) _empty_/Tuples#Tuple21W#mapElements().[UU] -> 95:99
-(95:855..95:855) scala/Tuple21.apply().
 (95:855..95:857) _empty_/Tuples#Tuple21W#mapElements().(_1) -> 95:103
-(95:857..95:857) scala/Function1#apply().
 (95:858..95:863) _empty_/EnrichedType#value. -> 2:7
 (95:864..95:866) scala/Tuple21#_1.
 (95:869..95:871) _empty_/Tuples#Tuple21W#mapElements().(_2) -> 95:134
-(95:871..95:871) scala/Function1#apply().
 (95:872..95:877) _empty_/EnrichedType#value. -> 2:7
 (95:878..95:880) scala/Tuple21#_2.
 (95:883..95:885) _empty_/Tuples#Tuple21W#mapElements().(_3) -> 95:165
-(95:885..95:885) scala/Function1#apply().
 (95:886..95:891) _empty_/EnrichedType#value. -> 2:7
 (95:892..95:894) scala/Tuple21#_3.
 (95:897..95:899) _empty_/Tuples#Tuple21W#mapElements().(_4) -> 95:196
-(95:899..95:899) scala/Function1#apply().
 (95:900..95:905) _empty_/EnrichedType#value. -> 2:7
 (95:906..95:908) scala/Tuple21#_4.
 (95:911..95:913) _empty_/Tuples#Tuple21W#mapElements().(_5) -> 95:227
-(95:913..95:913) scala/Function1#apply().
 (95:914..95:919) _empty_/EnrichedType#value. -> 2:7
 (95:920..95:922) scala/Tuple21#_5.
 (95:925..95:927) _empty_/Tuples#Tuple21W#mapElements().(_6) -> 95:258
-(95:927..95:927) scala/Function1#apply().
 (95:928..95:933) _empty_/EnrichedType#value. -> 2:7
 (95:934..95:936) scala/Tuple21#_6.
 (95:939..95:941) _empty_/Tuples#Tuple21W#mapElements().(_7) -> 95:289
-(95:941..95:941) scala/Function1#apply().
 (95:942..95:947) _empty_/EnrichedType#value. -> 2:7
 (95:948..95:950) scala/Tuple21#_7.
 (95:953..95:955) _empty_/Tuples#Tuple21W#mapElements().(_8) -> 95:320
-(95:955..95:955) scala/Function1#apply().
 (95:956..95:961) _empty_/EnrichedType#value. -> 2:7
 (95:962..95:964) scala/Tuple21#_8.
 (95:967..95:969) _empty_/Tuples#Tuple21W#mapElements().(_9) -> 95:351
-(95:969..95:969) scala/Function1#apply().
 (95:970..95:975) _empty_/EnrichedType#value. -> 2:7
 (95:976..95:978) scala/Tuple21#_9.
 (95:981..95:984) _empty_/Tuples#Tuple21W#mapElements().(_10) -> 95:382
-(95:984..95:984) scala/Function1#apply().
 (95:985..95:990) _empty_/EnrichedType#value. -> 2:7
 (95:991..95:994) scala/Tuple21#_10.
 (95:997..95:1000) _empty_/Tuples#Tuple21W#mapElements().(_11) -> 95:414
-(95:1000..95:1000) scala/Function1#apply().
 (95:1001..95:1006) _empty_/EnrichedType#value. -> 2:7
 (95:1007..95:1010) scala/Tuple21#_11.
 (95:1013..95:1016) _empty_/Tuples#Tuple21W#mapElements().(_12) -> 95:446
-(95:1016..95:1016) scala/Function1#apply().
 (95:1017..95:1022) _empty_/EnrichedType#value. -> 2:7
 (95:1023..95:1026) scala/Tuple21#_12.
 (95:1029..95:1032) _empty_/Tuples#Tuple21W#mapElements().(_13) -> 95:478
-(95:1032..95:1032) scala/Function1#apply().
 (95:1033..95:1038) _empty_/EnrichedType#value. -> 2:7
 (95:1039..95:1042) scala/Tuple21#_13.
 (95:1045..95:1048) _empty_/Tuples#Tuple21W#mapElements().(_14) -> 95:510
-(95:1048..95:1048) scala/Function1#apply().
 (95:1049..95:1054) _empty_/EnrichedType#value. -> 2:7
 (95:1055..95:1058) scala/Tuple21#_14.
 (95:1061..95:1064) _empty_/Tuples#Tuple21W#mapElements().(_15) -> 95:542
-(95:1064..95:1064) scala/Function1#apply().
 (95:1065..95:1070) _empty_/EnrichedType#value. -> 2:7
 (95:1071..95:1074) scala/Tuple21#_15.
 (95:1077..95:1080) _empty_/Tuples#Tuple21W#mapElements().(_16) -> 95:574
-(95:1080..95:1080) scala/Function1#apply().
 (95:1081..95:1086) _empty_/EnrichedType#value. -> 2:7
 (95:1087..95:1090) scala/Tuple21#_16.
 (95:1093..95:1096) _empty_/Tuples#Tuple21W#mapElements().(_17) -> 95:606
-(95:1096..95:1096) scala/Function1#apply().
 (95:1097..95:1102) _empty_/EnrichedType#value. -> 2:7
 (95:1103..95:1106) scala/Tuple21#_17.
 (95:1109..95:1112) _empty_/Tuples#Tuple21W#mapElements().(_18) -> 95:638
-(95:1112..95:1112) scala/Function1#apply().
 (95:1113..95:1118) _empty_/EnrichedType#value. -> 2:7
 (95:1119..95:1122) scala/Tuple21#_18.
 (95:1125..95:1128) _empty_/Tuples#Tuple21W#mapElements().(_19) -> 95:670
-(95:1128..95:1128) scala/Function1#apply().
 (95:1129..95:1134) _empty_/EnrichedType#value. -> 2:7
 (95:1135..95:1138) scala/Tuple21#_19.
 (95:1141..95:1144) _empty_/Tuples#Tuple21W#mapElements().(_20) -> 95:702
-(95:1144..95:1144) scala/Function1#apply().
 (95:1145..95:1150) _empty_/EnrichedType#value. -> 2:7
 (95:1151..95:1154) scala/Tuple21#_20.
 (95:1157..95:1160) _empty_/Tuples#Tuple21W#mapElements().(_21) -> 95:734
-(95:1160..95:1160) scala/Function1#apply().
 (95:1161..95:1166) _empty_/EnrichedType#value. -> 2:7
 (95:1167..95:1170) scala/Tuple21#_21.
 (98:92..98:93) _empty_/Tuples#ToTuple21W().[A] -> 98:25
@@ -2475,7 +2195,6 @@ Document tests/pos/t3864/tuples_1.scala
 (107:95..107:96) _empty_/Tuples#Tuple22W#fold().[Z] -> 107:12
 (107:107..107:112) _empty_/EnrichedType#value. -> 2:7
 (107:116..107:117) _empty_/Tuples#Tuple22W#fold().(f) -> 107:15
-(107:117..107:117) scala/Function22#apply().
 (107:118..107:120) scala/Tuple22#_1.
 (107:122..107:124) scala/Tuple22#_2.
 (107:126..107:128) scala/Tuple22#_3.
@@ -2526,11 +2245,9 @@ Document tests/pos/t3864/tuples_1.scala
 (108:127..108:137) scala/package.IndexedSeq#
 (108:138..108:139) _empty_/Tuples#Tuple22W#toIndexedSeq().[Z] -> 108:20
 (108:153..108:155) _empty_/Tuples#Tuple22W#toIndexedSeq().(ev) -> 108:32
-(108:155..108:155) scala/`<:<`#apply().
 (108:156..108:161) _empty_/EnrichedType#value. -> 2:7
-(108:171..108:173) local147 -> 108:148
+(108:171..108:173) local154 -> 108:148
 (108:177..108:187) scala/package.IndexedSeq.
-(108:187..108:187) scala/collection/SeqFactory.Delegate#apply().
 (108:188..108:190) scala/Tuple22#_1.
 (108:192..108:194) scala/Tuple22#_2.
 (108:196..108:198) scala/Tuple22#_3.
@@ -2555,112 +2272,90 @@ Document tests/pos/t3864/tuples_1.scala
 (108:284..108:287) scala/Tuple22#_22.
 (109:112..109:113) _empty_/Tuples#Tuple22W#[A] -> 106:16
 (109:117..109:119) _empty_/Tuples#Tuple22W#mapElements().[AA] -> 109:19
-(109:123..109:123) local148
 (109:123..109:131) scala/Predef.identity().
 (109:132..109:133) _empty_/Tuples#Tuple22W#[A] -> 106:16
 (109:143..109:144) _empty_/Tuples#Tuple22W#[B] -> 106:19
 (109:148..109:150) _empty_/Tuples#Tuple22W#mapElements().[BB] -> 109:23
-(109:154..109:154) local149
 (109:154..109:162) scala/Predef.identity().
 (109:163..109:164) _empty_/Tuples#Tuple22W#[B] -> 106:19
 (109:174..109:175) _empty_/Tuples#Tuple22W#[C] -> 106:22
 (109:179..109:181) _empty_/Tuples#Tuple22W#mapElements().[CC] -> 109:27
-(109:185..109:185) local150
 (109:185..109:193) scala/Predef.identity().
 (109:194..109:195) _empty_/Tuples#Tuple22W#[C] -> 106:22
 (109:205..109:206) _empty_/Tuples#Tuple22W#[D] -> 106:25
 (109:210..109:212) _empty_/Tuples#Tuple22W#mapElements().[DD] -> 109:31
-(109:216..109:216) local151
 (109:216..109:224) scala/Predef.identity().
 (109:225..109:226) _empty_/Tuples#Tuple22W#[D] -> 106:25
 (109:236..109:237) _empty_/Tuples#Tuple22W#[E] -> 106:28
 (109:241..109:243) _empty_/Tuples#Tuple22W#mapElements().[EE] -> 109:35
-(109:247..109:247) local152
 (109:247..109:255) scala/Predef.identity().
 (109:256..109:257) _empty_/Tuples#Tuple22W#[E] -> 106:28
 (109:267..109:268) _empty_/Tuples#Tuple22W#[F] -> 106:31
 (109:272..109:274) _empty_/Tuples#Tuple22W#mapElements().[FF] -> 109:39
-(109:278..109:278) local153
 (109:278..109:286) scala/Predef.identity().
 (109:287..109:288) _empty_/Tuples#Tuple22W#[F] -> 106:31
 (109:298..109:299) _empty_/Tuples#Tuple22W#[G] -> 106:34
 (109:303..109:305) _empty_/Tuples#Tuple22W#mapElements().[GG] -> 109:43
-(109:309..109:309) local154
 (109:309..109:317) scala/Predef.identity().
 (109:318..109:319) _empty_/Tuples#Tuple22W#[G] -> 106:34
 (109:329..109:330) _empty_/Tuples#Tuple22W#[H] -> 106:37
 (109:334..109:336) _empty_/Tuples#Tuple22W#mapElements().[HH] -> 109:47
-(109:340..109:340) local155
 (109:340..109:348) scala/Predef.identity().
 (109:349..109:350) _empty_/Tuples#Tuple22W#[H] -> 106:37
 (109:360..109:361) _empty_/Tuples#Tuple22W#[I] -> 106:40
 (109:365..109:367) _empty_/Tuples#Tuple22W#mapElements().[II] -> 109:51
-(109:371..109:371) local156
 (109:371..109:379) scala/Predef.identity().
 (109:380..109:381) _empty_/Tuples#Tuple22W#[I] -> 106:40
 (109:392..109:393) _empty_/Tuples#Tuple22W#[J] -> 106:43
 (109:397..109:399) _empty_/Tuples#Tuple22W#mapElements().[JJ] -> 109:55
-(109:403..109:403) local157
 (109:403..109:411) scala/Predef.identity().
 (109:412..109:413) _empty_/Tuples#Tuple22W#[J] -> 106:43
 (109:424..109:425) _empty_/Tuples#Tuple22W#[K] -> 106:46
 (109:429..109:431) _empty_/Tuples#Tuple22W#mapElements().[KK] -> 109:59
-(109:435..109:435) local158
 (109:435..109:443) scala/Predef.identity().
 (109:444..109:445) _empty_/Tuples#Tuple22W#[K] -> 106:46
 (109:456..109:457) _empty_/Tuples#Tuple22W#[L] -> 106:49
 (109:461..109:463) _empty_/Tuples#Tuple22W#mapElements().[LL] -> 109:63
-(109:467..109:467) local159
 (109:467..109:475) scala/Predef.identity().
 (109:476..109:477) _empty_/Tuples#Tuple22W#[L] -> 106:49
 (109:488..109:489) _empty_/Tuples#Tuple22W#[M] -> 106:52
 (109:493..109:495) _empty_/Tuples#Tuple22W#mapElements().[MM] -> 109:67
-(109:499..109:499) local160
 (109:499..109:507) scala/Predef.identity().
 (109:508..109:509) _empty_/Tuples#Tuple22W#[M] -> 106:52
 (109:520..109:521) _empty_/Tuples#Tuple22W#[N] -> 106:55
 (109:525..109:527) _empty_/Tuples#Tuple22W#mapElements().[NN] -> 109:71
-(109:531..109:531) local161
 (109:531..109:539) scala/Predef.identity().
 (109:540..109:541) _empty_/Tuples#Tuple22W#[N] -> 106:55
 (109:552..109:553) _empty_/Tuples#Tuple22W#[O] -> 106:58
 (109:557..109:559) _empty_/Tuples#Tuple22W#mapElements().[OO] -> 109:75
-(109:563..109:563) local162
 (109:563..109:571) scala/Predef.identity().
 (109:572..109:573) _empty_/Tuples#Tuple22W#[O] -> 106:58
 (109:584..109:585) _empty_/Tuples#Tuple22W#[P] -> 106:61
 (109:589..109:591) _empty_/Tuples#Tuple22W#mapElements().[PP] -> 109:79
-(109:595..109:595) local163
 (109:595..109:603) scala/Predef.identity().
 (109:604..109:605) _empty_/Tuples#Tuple22W#[P] -> 106:61
 (109:616..109:617) _empty_/Tuples#Tuple22W#[Q] -> 106:64
 (109:621..109:623) _empty_/Tuples#Tuple22W#mapElements().[QQ] -> 109:83
-(109:627..109:627) local164
 (109:627..109:635) scala/Predef.identity().
 (109:636..109:637) _empty_/Tuples#Tuple22W#[Q] -> 106:64
 (109:648..109:649) _empty_/Tuples#Tuple22W#[R] -> 106:67
 (109:653..109:655) _empty_/Tuples#Tuple22W#mapElements().[RR] -> 109:87
-(109:659..109:659) local165
 (109:659..109:667) scala/Predef.identity().
 (109:668..109:669) _empty_/Tuples#Tuple22W#[R] -> 106:67
 (109:680..109:681) _empty_/Tuples#Tuple22W#[S] -> 106:70
 (109:685..109:687) _empty_/Tuples#Tuple22W#mapElements().[SS] -> 109:91
-(109:691..109:691) local166
 (109:691..109:699) scala/Predef.identity().
 (109:700..109:701) _empty_/Tuples#Tuple22W#[S] -> 106:70
 (109:712..109:713) _empty_/Tuples#Tuple22W#[T] -> 106:73
 (109:717..109:719) _empty_/Tuples#Tuple22W#mapElements().[TT] -> 109:95
-(109:723..109:723) local167
 (109:723..109:731) scala/Predef.identity().
 (109:732..109:733) _empty_/Tuples#Tuple22W#[T] -> 106:73
 (109:744..109:745) _empty_/Tuples#Tuple22W#[U] -> 106:76
 (109:749..109:751) _empty_/Tuples#Tuple22W#mapElements().[UU] -> 109:99
-(109:755..109:755) local168
 (109:755..109:763) scala/Predef.identity().
 (109:764..109:765) _empty_/Tuples#Tuple22W#[U] -> 106:76
 (109:776..109:777) _empty_/Tuples#Tuple22W#[V] -> 106:79
 (109:781..109:783) _empty_/Tuples#Tuple22W#mapElements().[VV] -> 109:103
-(109:787..109:787) local169
 (109:787..109:795) scala/Predef.identity().
 (109:796..109:797) _empty_/Tuples#Tuple22W#[V] -> 106:79
 (109:804..109:806) _empty_/Tuples#Tuple22W#mapElements().[AA] -> 109:19
@@ -2685,93 +2380,70 @@ Document tests/pos/t3864/tuples_1.scala
 (109:880..109:882) _empty_/Tuples#Tuple22W#mapElements().[TT] -> 109:95
 (109:884..109:886) _empty_/Tuples#Tuple22W#mapElements().[UU] -> 109:99
 (109:888..109:890) _empty_/Tuples#Tuple22W#mapElements().[VV] -> 109:103
-(109:895..109:895) scala/Tuple22.apply().
 (109:895..109:897) _empty_/Tuples#Tuple22W#mapElements().(_1) -> 109:107
-(109:897..109:897) scala/Function1#apply().
 (109:898..109:903) _empty_/EnrichedType#value. -> 2:7
 (109:904..109:906) scala/Tuple22#_1.
 (109:909..109:911) _empty_/Tuples#Tuple22W#mapElements().(_2) -> 109:138
-(109:911..109:911) scala/Function1#apply().
 (109:912..109:917) _empty_/EnrichedType#value. -> 2:7
 (109:918..109:920) scala/Tuple22#_2.
 (109:923..109:925) _empty_/Tuples#Tuple22W#mapElements().(_3) -> 109:169
-(109:925..109:925) scala/Function1#apply().
 (109:926..109:931) _empty_/EnrichedType#value. -> 2:7
 (109:932..109:934) scala/Tuple22#_3.
 (109:937..109:939) _empty_/Tuples#Tuple22W#mapElements().(_4) -> 109:200
-(109:939..109:939) scala/Function1#apply().
 (109:940..109:945) _empty_/EnrichedType#value. -> 2:7
 (109:946..109:948) scala/Tuple22#_4.
 (109:951..109:953) _empty_/Tuples#Tuple22W#mapElements().(_5) -> 109:231
-(109:953..109:953) scala/Function1#apply().
 (109:954..109:959) _empty_/EnrichedType#value. -> 2:7
 (109:960..109:962) scala/Tuple22#_5.
 (109:965..109:967) _empty_/Tuples#Tuple22W#mapElements().(_6) -> 109:262
-(109:967..109:967) scala/Function1#apply().
 (109:968..109:973) _empty_/EnrichedType#value. -> 2:7
 (109:974..109:976) scala/Tuple22#_6.
 (109:979..109:981) _empty_/Tuples#Tuple22W#mapElements().(_7) -> 109:293
-(109:981..109:981) scala/Function1#apply().
 (109:982..109:987) _empty_/EnrichedType#value. -> 2:7
 (109:988..109:990) scala/Tuple22#_7.
 (109:993..109:995) _empty_/Tuples#Tuple22W#mapElements().(_8) -> 109:324
-(109:995..109:995) scala/Function1#apply().
 (109:996..109:1001) _empty_/EnrichedType#value. -> 2:7
 (109:1002..109:1004) scala/Tuple22#_8.
 (109:1007..109:1009) _empty_/Tuples#Tuple22W#mapElements().(_9) -> 109:355
-(109:1009..109:1009) scala/Function1#apply().
 (109:1010..109:1015) _empty_/EnrichedType#value. -> 2:7
 (109:1016..109:1018) scala/Tuple22#_9.
 (109:1021..109:1024) _empty_/Tuples#Tuple22W#mapElements().(_10) -> 109:386
-(109:1024..109:1024) scala/Function1#apply().
 (109:1025..109:1030) _empty_/EnrichedType#value. -> 2:7
 (109:1031..109:1034) scala/Tuple22#_10.
 (109:1037..109:1040) _empty_/Tuples#Tuple22W#mapElements().(_11) -> 109:418
-(109:1040..109:1040) scala/Function1#apply().
 (109:1041..109:1046) _empty_/EnrichedType#value. -> 2:7
 (109:1047..109:1050) scala/Tuple22#_11.
 (109:1053..109:1056) _empty_/Tuples#Tuple22W#mapElements().(_12) -> 109:450
-(109:1056..109:1056) scala/Function1#apply().
 (109:1057..109:1062) _empty_/EnrichedType#value. -> 2:7
 (109:1063..109:1066) scala/Tuple22#_12.
 (109:1069..109:1072) _empty_/Tuples#Tuple22W#mapElements().(_13) -> 109:482
-(109:1072..109:1072) scala/Function1#apply().
 (109:1073..109:1078) _empty_/EnrichedType#value. -> 2:7
 (109:1079..109:1082) scala/Tuple22#_13.
 (109:1085..109:1088) _empty_/Tuples#Tuple22W#mapElements().(_14) -> 109:514
-(109:1088..109:1088) scala/Function1#apply().
 (109:1089..109:1094) _empty_/EnrichedType#value. -> 2:7
 (109:1095..109:1098) scala/Tuple22#_14.
 (109:1101..109:1104) _empty_/Tuples#Tuple22W#mapElements().(_15) -> 109:546
-(109:1104..109:1104) scala/Function1#apply().
 (109:1105..109:1110) _empty_/EnrichedType#value. -> 2:7
 (109:1111..109:1114) scala/Tuple22#_15.
 (109:1117..109:1120) _empty_/Tuples#Tuple22W#mapElements().(_16) -> 109:578
-(109:1120..109:1120) scala/Function1#apply().
 (109:1121..109:1126) _empty_/EnrichedType#value. -> 2:7
 (109:1127..109:1130) scala/Tuple22#_16.
 (109:1133..109:1136) _empty_/Tuples#Tuple22W#mapElements().(_17) -> 109:610
-(109:1136..109:1136) scala/Function1#apply().
 (109:1137..109:1142) _empty_/EnrichedType#value. -> 2:7
 (109:1143..109:1146) scala/Tuple22#_17.
 (109:1149..109:1152) _empty_/Tuples#Tuple22W#mapElements().(_18) -> 109:642
-(109:1152..109:1152) scala/Function1#apply().
 (109:1153..109:1158) _empty_/EnrichedType#value. -> 2:7
 (109:1159..109:1162) scala/Tuple22#_18.
 (109:1165..109:1168) _empty_/Tuples#Tuple22W#mapElements().(_19) -> 109:674
-(109:1168..109:1168) scala/Function1#apply().
 (109:1169..109:1174) _empty_/EnrichedType#value. -> 2:7
 (109:1175..109:1178) scala/Tuple22#_19.
 (109:1181..109:1184) _empty_/Tuples#Tuple22W#mapElements().(_20) -> 109:706
-(109:1184..109:1184) scala/Function1#apply().
 (109:1185..109:1190) _empty_/EnrichedType#value. -> 2:7
 (109:1191..109:1194) scala/Tuple22#_20.
 (109:1197..109:1200) _empty_/Tuples#Tuple22W#mapElements().(_21) -> 109:738
-(109:1200..109:1200) scala/Function1#apply().
 (109:1201..109:1206) _empty_/EnrichedType#value. -> 2:7
 (109:1207..109:1210) scala/Tuple22#_21.
 (109:1213..109:1216) _empty_/Tuples#Tuple22W#mapElements().(_22) -> 109:770
-(109:1216..109:1216) scala/Function1#apply().
 (109:1217..109:1222) _empty_/EnrichedType#value. -> 2:7
 (109:1223..109:1226) scala/Tuple22#_22.
 (112:95..112:96) _empty_/Tuples#ToTuple22W().[A] -> 112:25

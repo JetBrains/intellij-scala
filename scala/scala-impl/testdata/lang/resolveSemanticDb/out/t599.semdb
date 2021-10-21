@@ -7,7 +7,6 @@ Document tests/pos/t599.scala
 (11:23..11:26) _empty_/FooA#AxA# -> 3:20
 (11:39..11:42) scala/Int#
 (12:35..12:41) _empty_/FooA#InnerA# -> 4:20
-(12:41..12:41) _empty_/FooA#InnerA#`<init>`(). -> 5:7
 (14:15..14:16) _empty_/FooB#A# -> 10:10
 (14:19..14:22) _empty_/FooA#InnerA#doB(). -> 6:11
 (15:7..15:8) _empty_/FooB#InnerB#a. -> 14:11

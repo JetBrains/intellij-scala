@@ -1,8 +1,6 @@
 Document tests/pos/t0068.scala
 (3:11..3:13) scala/package.`::`.
-(3:13..3:13) scala/collection/immutable/`::`.unapply().
 (3:19..3:23) scala/package.List.
-(3:23..3:23) scala/collection/IterableFactory#apply().
 (4:5..4:7) local0 -> 3:13
 (4:8..4:12) scala/collection/IterableOps#tail().
 

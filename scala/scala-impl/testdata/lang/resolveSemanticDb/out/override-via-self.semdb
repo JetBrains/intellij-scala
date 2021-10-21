@@ -3,6 +3,5 @@ Document tests/pos/override-via-self.scala
 (9:18..9:25) _empty_/TCommon# -> 6:7
 (13:26..13:33) _empty_/TCommon# -> 6:7
 (17:18..17:20) _empty_/C1# -> 9:7
-(17:20..17:20) _empty_/C1#`<init>`(). -> 9:18
 (17:26..17:36) _empty_/TOverrider# -> 13:7
 

@@ -1,5 +1,6 @@
 Document tests/pos/i7744.scala
+(1:20..1:21) _empty_/A#[F] -> 1:9
+(1:22..1:25) scala/Int#
 (1:31..1:32) _empty_/A#[X] -> 1:15
 (1:42..1:48) scala/AnyVal#
-(1:48..1:48) scala/AnyVal#`<init>`().
 

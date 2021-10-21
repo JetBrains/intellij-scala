@@ -11,13 +11,11 @@ Document tests/pos/trailingCommas/trailingCommas.scala
 (15:3..15:4) foo/ArgumentExprs1#g(). -> 14:7
 (17:3..17:4) foo/ArgumentExprs1#g(). -> 14:7
 (17:7..17:11) scala/package.List.
-(17:11..17:11) scala/collection/IterableFactory#apply().
 (22:16..22:19) scala/Int#
 (22:26..22:32) scala/Predef.String#
 (22:48..22:51) foo/package.Ev0# -> 153:16
 (22:58..22:61) foo/package.Ev1# -> 154:16
 (23:7..23:8) foo/ArgumentExprs2#C# -> 22:9
-(23:8..23:8) foo/ArgumentExprs2#C#`<init>`(). -> 22:10
 (27:5..27:8) foo/package.Ev0. -> 153:37
 (28:5..28:9) foo/package.Ev1. -> 154:37
 (34:15..34:18) scala/Int#
@@ -32,7 +30,6 @@ Document tests/pos/trailingCommas/trailingCommas.scala
 (52:19..52:22) scala/Int#
 (57:11..57:14) scala/Int#
 (57:16..57:22) scala/Predef.String#
-(58:5..58:5) scala/Tuple2.apply().
 (63:10..63:13) scala/Int#
 (70:10..70:11) foo/TypeArgs#C# -> 69:9
 (71:5..71:8) scala/Int#
@@ -44,21 +41,14 @@ Document tests/pos/trailingCommas/trailingCommas.scala
 (104:5..104:8) scala/Int#
 (105:7..105:14) scala/Predef.String#
 (106:10..106:17) scala/Boolean#
-(111:5..111:5) scala/Tuple2.unapply().
 (113:15..113:18) scala/Any#
 (116:3..116:7) scala/Some.
-(116:7..116:7) scala/Some.apply().
 (117:10..117:14) scala/Some.
-(117:14..117:14) scala/Some.unapply().
 (118:10..118:11) local0 -> 117:15
 (122:3..122:7) scala/package.List.
-(122:7..122:7) scala/collection/IterableFactory#apply().
 (123:10..123:14) scala/package.List.
-(123:14..123:14) scala/collection/SeqFactory#unapplySeq().
 (128:7..128:11) scala/package.List.
-(128:11..128:11) scala/collection/SeqFactory#unapplySeq().
 (129:19..129:22) scala/package.Nil.
-(129:22..129:22) scala/collection/immutable/List#`::`().
 (133:10..133:13) foo/ -> 1:9
 (134:5..134:8) foo/package.Ev0# -> 153:16
 (134:5..134:8) foo/package.Ev0. -> 153:37

@@ -15,5 +15,4 @@ Document tests/pos/i830.scala
 (5:16..5:17) scala/`|`#
 (5:20..5:21) scala/`&`#
 (5:26..5:27) _empty_/C.y(). -> 4:7
-(5:27..5:27) _empty_/C.u(). -> 3:16
 

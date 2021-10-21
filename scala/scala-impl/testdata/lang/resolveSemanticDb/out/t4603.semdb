@@ -1,7 +1,6 @@
 Document tests/pos/t4603/S.scala
 (2:17..2:18) _empty_/J#
 (2:19..2:25) scala/AnyRef#
-(2:26..2:26) _empty_/J#`<init>`(+1).
 (5:17..5:22) scala/Array#
 (5:23..5:29) scala/Predef.String#
 (5:33..5:37) scala/Unit#

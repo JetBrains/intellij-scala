@@ -2,14 +2,9 @@ Document tests/pos/ted.scala
 (3:27..3:33) scala/Double#
 (3:46..3:52) scala/Double#
 (3:56..3:62) scala/Double#
-(4:8..4:8) scala/Tuple2.apply().
 (4:8..4:12) _empty_/App.exponentiate().(base) -> 3:20
 (4:14..4:22) _empty_/App.exponentiate().(exponent) -> 3:35
-(6:15..6:15) scala/Tuple2.unapply().
-(7:15..7:15) scala/Tuple2.unapply().
-(8:15..8:15) scala/Tuple2.unapply().
 (8:24..8:25) local1 -> 8:15
-(9:15..9:15) scala/Tuple2.unapply().
 (9:24..9:25) local2 -> 9:15
 (9:26..9:27) scala/Double#`*`(+6).
 (9:28..9:40) _empty_/App.exponentiate(). -> 3:7

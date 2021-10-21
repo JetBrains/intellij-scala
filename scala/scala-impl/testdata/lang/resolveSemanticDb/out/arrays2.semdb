@@ -8,22 +8,13 @@ Document tests/pos/arrays2.scala
 (6:34..6:39) scala/Array#
 (6:40..6:45) scala/Array#
 (6:46..6:47) _empty_/C# -> 1:12
-(6:49..6:49) scala/Array#`<init>`().
 (7:5..7:6) local0 -> 6:9
-(7:6..7:6) scala/Array#update().
 (7:16..7:21) scala/Array#
 (7:22..7:23) _empty_/C# -> 1:12
-(7:24..7:24) scala/Array#`<init>`().
 (8:5..8:6) local0 -> 6:9
-(8:6..8:6) scala/Array#apply().
-(8:9..8:9) scala/Array#update().
 (8:19..8:20) _empty_/C# -> 1:12
-(8:20..8:20) _empty_/C#`<init>`(). -> 1:13
 (14:14..14:19) scala/Array.
-(14:19..14:19) scala/Array.apply().
 (14:20..14:26) scala/Predef.String#
-(14:36..14:36) scala/reflect/ClassTag.apply().
-(15:3..15:3) scala/Predef.augmentString().
 (15:16..15:22) scala/collection/StringOps#format().
 (15:23..15:27) _empty_/arrays4.args. -> 14:7
 (26:18..26:24) scala/AnyRef#

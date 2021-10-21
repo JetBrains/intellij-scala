@@ -7,5 +7,4 @@ Document tests/pos/virtpatmat_binding_opt.scala
 (7:15..7:18) scala/sys/
 (7:19..7:24) scala/sys/package.error().
 (11:21..11:25) _empty_/Test# -> 1:7
-(11:25..11:25) _empty_/Test#`<init>`(). -> 2:3
 

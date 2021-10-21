@@ -1,7 +1,4 @@
 Document tests/pos/i12395.scala
-(1:1..1:1) _empty_/i12395$package.main(). -> 1:11
-(1:1..1:1) local2
-(1:1..1:1) scala/util/CommandLineParser.showError().
 (1:2..1:6) scala/main#
 (1:18..1:22) scala/Unit#
 (4:11..4:12) local0 -> 2:7

@@ -8,7 +8,6 @@ Document tests/pos/t7022.scala
 (6:40..6:45) _empty_/Catch# -> 1:7
 (6:46..6:47) _empty_/Test.RichCatch#[T] -> 6:30
 (6:58..6:64) scala/AnyVal#
-(6:64..6:64) scala/AnyVal#`<init>`().
 (7:27..7:28) _empty_/Test.RichCatch#[T] -> 6:30
 (7:36..7:37) _empty_/Test.RichCatch#validation().[U] -> 7:22
 (7:40..7:46) scala/package.Either#

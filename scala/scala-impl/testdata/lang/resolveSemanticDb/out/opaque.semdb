@@ -15,7 +15,6 @@ Document tests/pos/opaque.scala
 (11:11..11:12) _empty_/opaquetypes.Logarithm.safe().(d) -> 10:14
 (11:13..11:14) scala/Double#`>`(+6).
 (11:20..11:24) scala/Some.
-(11:24..11:24) scala/Some.apply().
 (11:25..11:29) scala/math/
 (11:30..11:33) scala/math/package.log().
 (11:34..11:35) _empty_/opaquetypes.Logarithm.safe().(d) -> 10:14
@@ -29,7 +28,6 @@ Document tests/pos/opaque.scala
 (16:25..16:27) scala/Double#`==`(+6).
 (20:43..20:52) _empty_/opaquetypes.Logarithm# -> 3:15
 (20:62..20:68) scala/AnyVal#
-(20:68..20:68) scala/AnyVal#`<init>`().
 (22:19..22:25) scala/Double#
 (22:28..22:32) scala/math/
 (22:33..22:36) scala/math/package.exp().
@@ -37,7 +35,6 @@ Document tests/pos/opaque.scala
 (23:17..23:26) _empty_/opaquetypes.Logarithm# -> 3:15
 (23:29..23:38) _empty_/opaquetypes.Logarithm# -> 3:15
 (23:41..23:50) _empty_/opaquetypes.Logarithm. -> 5:10
-(23:50..23:50) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
 (23:51..23:55) scala/math/
 (23:56..23:59) scala/math/package.exp().
 (23:60..23:66) _empty_/opaquetypes.LogarithmOps#this. -> 20:36
@@ -48,23 +45,17 @@ Document tests/pos/opaque.scala
 (24:17..24:26) _empty_/opaquetypes.Logarithm# -> 3:15
 (24:29..24:38) _empty_/opaquetypes.Logarithm# -> 3:15
 (24:41..24:50) _empty_/opaquetypes.Logarithm. -> 5:10
-(24:50..24:50) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
 (24:51..24:57) _empty_/opaquetypes.LogarithmOps#this. -> 20:36
 (24:58..24:59) scala/Double#`+`(+7).
 (24:60..24:64) _empty_/opaquetypes.LogarithmOps#`*`().(that) -> 24:11
 (27:11..27:20) _empty_/opaquetypes.Logarithm# -> 3:15
 (27:23..27:32) _empty_/opaquetypes.Logarithm. -> 5:10
-(27:32..27:32) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
 (30:10..30:21) _empty_/opaquetypes. -> 2:8
 (31:11..31:20) _empty_/opaquetypes.Logarithm. -> 5:10
-(31:20..31:20) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
 (32:12..32:21) _empty_/opaquetypes.Logarithm. -> 5:10
-(32:21..32:21) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
-(33:12..33:12) _empty_/opaquetypes.LogarithmOps(). -> 20:18
 (33:12..33:13) _empty_/usesites.l. -> 31:7
 (33:14..33:15) _empty_/opaquetypes.LogarithmOps#`*`(). -> 24:9
 (33:16..33:18) _empty_/usesites.l2. -> 32:7
-(34:12..34:12) _empty_/opaquetypes.LogarithmOps(). -> 20:18
 (34:12..34:13) _empty_/usesites.l. -> 31:7
 (34:14..34:15) _empty_/opaquetypes.LogarithmOps#`+`(). -> 23:9
 (34:16..34:18) _empty_/usesites.l2. -> 32:7
@@ -72,12 +63,10 @@ Document tests/pos/opaque.scala
 (38:10..38:11) _empty_/usesites.l. -> 31:7
 (38:12..38:14) scala/Any#`==`().
 (38:15..38:24) _empty_/opaquetypes.Logarithm. -> 5:10
-(38:24..38:24) _empty_/opaquetypes.Logarithm.apply(). -> 8:9
 (39:3..39:9) scala/Predef.assert(+1).
 (39:10..39:11) _empty_/usesites.l. -> 31:7
 (39:12..39:14) scala/Any#`!=`().
 (39:15..39:17) _empty_/usesites.l2. -> 32:7
-(40:11..40:11) _empty_/opaquetypes.LogarithmOps(). -> 20:18
 (40:11..40:13) _empty_/usesites.l3. -> 33:7
 (40:14..40:22) _empty_/opaquetypes.LogarithmOps#toDouble(). -> 22:9
 (41:11..41:20) _empty_/opaquetypes.Logarithm# -> 3:15

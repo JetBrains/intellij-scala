@@ -3,7 +3,6 @@ Document tests/pos/t6245/Foo.scala
 (1:11..1:14) t1/Vis#
 (3:28..3:30) t1/
 (3:31..3:35) t1/Base#
-(3:35..3:35) t1/Base#`<init>`(+1).
 (5:18..5:22) scala/Unit#
 (6:7..6:12) t1/Base#inner().
 

@@ -11,6 +11,5 @@ Document tests/pos/i9478.scala
 (4:47..4:53) scala/package.Either#
 (4:54..4:57) scala/Int#
 (4:59..4:62) scala/Int#
-(5:12..5:12) _empty_/Foo#`<init>`(). -> 1:10
 (5:13..5:17) _empty_/Test.x().(tmab) -> 4:18
 

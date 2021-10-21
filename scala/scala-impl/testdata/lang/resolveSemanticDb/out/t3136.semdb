@@ -3,15 +3,11 @@ Document tests/pos/t3136.scala
 (3:31..3:37) _empty_/Symbol# -> 2:7
 (3:45..3:49) _empty_/Type# -> 1:7
 (3:59..3:63) _empty_/Type# -> 1:7
-(3:63..3:63) _empty_/Type#`<init>`(). -> 1:1
 (4:25..4:29) _empty_/Type# -> 1:7
-(4:29..4:29) _empty_/Type#`<init>`(). -> 1:1
 (9:21..9:25) _empty_/Type# -> 1:7
 (9:28..9:32) _empty_/Type# -> 1:7
-(9:35..9:43) _empty_/PolyType. -> 3:12
-(9:43..9:43) _empty_/PolyType.apply(). -> 3:1
+(9:35..9:43) _empty_/PolyType.
 (9:44..9:48) scala/package.List.
-(9:48..9:48) scala/collection/IterableFactory#apply().
 (9:52..9:58) _empty_/NullaryMethodType.apply().(resTpe) -> 9:13
 (10:19..10:23) _empty_/Type# -> 1:7
 (10:26..10:32) scala/Option#
@@ -20,16 +16,12 @@ Document tests/pos/t3136.scala
 (14:16..14:20) _empty_/Type# -> 1:7
 (14:23..14:29) scala/Predef.String#
 (15:5..15:7) _empty_/Test.TEST().(tp) -> 14:12
-(16:12..16:20) _empty_/PolyType. -> 3:12
-(16:20..16:20) _empty_/PolyType.unapply().
-(16:26..16:34) _empty_/PolyType. -> 3:12
-(16:34..16:34) _empty_/PolyType.unapply().
-(16:46..16:54) _empty_/PolyType. -> 3:12
-(16:54..16:54) _empty_/PolyType.unapply().
+(16:12..16:20) _empty_/PolyType.
+(16:26..16:34) _empty_/PolyType.
+(16:46..16:54) _empty_/PolyType.
 (16:70..16:71) java/lang/String#`+`().
 (16:72..16:74) _empty_/Test.TEST().(tp) -> 14:12
 (17:12..17:29) _empty_/NullaryMethodType. -> 8:8
-(17:29..17:29) _empty_/NullaryMethodType.unapply(). -> 10:7
 (17:42..17:43) java/lang/String#`+`().
 (17:44..17:47) local5 -> 17:30
 

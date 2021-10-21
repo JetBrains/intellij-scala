@@ -22,7 +22,7 @@ Document tests/pos/kindPolySemiGroup.scala
 (17:18..17:20) _empty_/Test.Kinder.kinder1().[M0] -> 16:26
 (17:21..17:23) _empty_/Test.Kinder.kinder1().[A0] -> 16:33
 (17:40..17:42) _empty_/Test.Kinder.kinder1().[M0] -> 16:26
-(17:43..17:44) local3 -> 17:35
+(17:43..17:44) local1 -> 17:35
 (18:45..18:51) _empty_/Test.Kinder. -> 13:10
 (18:52..18:55) _empty_/Test.Kinder.Aux# -> 14:10
 (18:56..18:58) _empty_/Test.Kinder.kinder2().[M0] -> 18:26
@@ -34,8 +34,8 @@ Document tests/pos/kindPolySemiGroup.scala
 (19:21..19:23) _empty_/Test.Kinder.kinder2().[A0] -> 18:36
 (19:25..19:27) _empty_/Test.Kinder.kinder2().[B0] -> 18:40
 (19:47..19:49) _empty_/Test.Kinder.kinder2().[M0] -> 18:26
-(19:50..19:51) local6 -> 19:39
-(19:53..19:54) local7 -> 19:42
+(19:50..19:51) local5 -> 19:39
+(19:53..19:54) local6 -> 19:42
 (19:69..19:74) _empty_/HCons# -> 4:12
 (19:75..19:77) _empty_/Test.Kinder.kinder2().[A0] -> 18:36
 (19:79..19:84) _empty_/HCons# -> 4:12
@@ -49,6 +49,7 @@ Document tests/pos/kindPolySemiGroup.scala
 (22:60..22:61) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 22:26
 (22:74..22:75) _empty_/Test.KinderLowerImplicits#kinder0().[A] -> 22:26
 (22:89..22:93) _empty_/Test.HNil# -> 9:8
+(26:24..26:31) scala/AnyKind#
 (30:24..30:26) _empty_/Test.SemiGroup#append().[MA] -> 30:16
 (30:32..30:34) _empty_/Test.SemiGroup#append().[MA] -> 30:16
 (30:55..30:64) _empty_/Test.SemiGroup. -> 33:10
@@ -57,13 +58,13 @@ Document tests/pos/kindPolySemiGroup.scala
 (30:86..30:88) _empty_/Test.SemiGroup#append().[MA] -> 30:16
 (30:90..30:91) _empty_/Test.SemiGroup#[M] -> 26:19
 (30:96..30:104) _empty_/Test.SemiGroup#append().(appender) -> 30:45
-(30:104..30:104) _empty_/Test.SemiGroup.AppendFunction#apply(). -> 38:11
 (30:105..30:107) _empty_/Test.SemiGroup#append().(m1) -> 30:20
 (30:109..30:111) _empty_/Test.SemiGroup#append().(m2) -> 30:28
 (34:19..34:26) scala/AnyKind#
 (34:37..34:46) _empty_/Test.SemiGroup# -> 26:9
 (34:47..34:48) _empty_/Test.SemiGroup.Aux#[M] -> 34:14
 (34:64..34:69) _empty_/Test.SemiGroup.Aux#[Self0] -> 34:28
+(37:38..37:45) scala/AnyKind#
 (38:21..38:23) _empty_/Test.SemiGroup.AppendFunction#[FA] -> 37:29
 (38:29..38:31) _empty_/Test.SemiGroup.AppendFunction#[FA] -> 37:29
 (38:34..38:36) _empty_/Test.SemiGroup.AppendFunction#[FA] -> 37:29
@@ -81,9 +82,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (45:110..45:113) scala/Int#
 (46:21..46:24) scala/Int#
 (46:30..46:33) scala/Int#
-(46:37..46:39) local15 -> 46:17
+(46:37..46:39) local16 -> 46:17
 (46:40..46:41) scala/Int#`+`(+4).
-(46:42..46:44) local16 -> 46:26
+(46:42..46:44) local17 -> 46:26
 (51:41..51:50) _empty_/Test.SemiGroup# -> 26:9
 (51:51..51:55) scala/package.List#
 (53:31..53:40) _empty_/Test.SemiGroup. -> 33:10
@@ -96,9 +97,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (54:26..54:27) _empty_/Test.SemiGroupList.appender().[A] -> 53:27
 (54:34..54:38) scala/package.List#
 (54:39..54:40) _empty_/Test.SemiGroupList.appender().[A] -> 53:27
-(54:45..54:47) local19 -> 54:17
+(54:45..54:47) local21 -> 54:17
 (54:48..54:50) scala/collection/IterableOps#`++`().
-(54:51..54:53) local20 -> 54:30
+(54:51..54:53) local22 -> 54:30
 (59:40..59:49) _empty_/Test.SemiGroup# -> 26:9
 (59:50..59:53) scala/Predef.Map#
 (61:34..61:43) _empty_/Test.SemiGroup. -> 33:10
@@ -114,9 +115,9 @@ Document tests/pos/kindPolySemiGroup.scala
 (62:36..62:39) scala/Predef.Map#
 (62:40..62:41) _empty_/Test.SemiGroupMap.appender().[A] -> 61:27
 (62:43..62:44) _empty_/Test.SemiGroupMap.appender().[B] -> 61:30
-(62:49..62:51) local23 -> 62:17
+(62:49..62:51) local26 -> 62:17
 (62:52..62:54) scala/collection/MapOps#`++`().
-(62:55..62:57) local24 -> 62:32
+(62:55..62:57) local27 -> 62:32
 (67:22..67:29) scala/AnyKind#
 (67:44..67:53) _empty_/Test.SemiGroup# -> 26:9
 (67:54..67:55) _empty_/Test.semiGroup().[M] -> 67:17
@@ -128,31 +129,19 @@ Document tests/pos/kindPolySemiGroup.scala
 (67:87..67:89) _empty_/Test.semiGroup().(sg) -> 67:40
 (69:3..69:12) _empty_/Test.semiGroup(). -> 67:7
 (69:13..69:16) scala/Int#
-(69:17..69:17) _empty_/Test.SemiGroupInt. -> 43:19
 (69:18..69:24) _empty_/Test.SemiGroup#append(). -> 30:9
-(69:30..69:30) _empty_/Test.SemiGroupInt.appender. -> 45:18
 (70:3..70:12) _empty_/Test.semiGroup(). -> 67:7
 (70:13..70:17) scala/package.List#
-(70:18..70:18) _empty_/Test.SemiGroupList. -> 51:19
 (70:19..70:25) _empty_/Test.SemiGroup#append(). -> 30:9
 (70:26..70:30) scala/package.List.
-(70:30..70:30) scala/collection/IterableFactory#apply().
 (70:35..70:39) scala/package.List.
-(70:39..70:39) scala/collection/IterableFactory#apply().
-(70:43..70:43) _empty_/Test.SemiGroupList.appender(). -> 53:18
 (71:3..71:12) _empty_/Test.semiGroup(). -> 67:7
 (71:13..71:16) scala/Predef.Map#
-(71:17..71:17) _empty_/Test.SemiGroupMap. -> 59:19
 (71:18..71:24) _empty_/Test.SemiGroup#append(). -> 30:9
 (71:25..71:28) scala/Predef.Map.
-(71:28..71:28) scala/collection/MapFactory#apply().
-(71:29..71:29) scala/Predef.ArrowAssoc().
 (71:36..71:38) scala/Predef.ArrowAssoc#`->`().
 (71:44..71:47) scala/Predef.Map.
-(71:47..71:47) scala/collection/MapFactory#apply().
-(71:48..71:48) scala/Predef.ArrowAssoc().
 (71:55..71:57) scala/Predef.ArrowAssoc#`->`().
-(71:62..71:62) _empty_/Test.SemiGroupMap.appender(). -> 61:18
 (74:23..74:30) scala/AnyKind#
 (74:42..74:44) _empty_/Test.append().[MA] -> 74:14
 (74:50..74:52) _empty_/Test.append().[MA] -> 74:14
@@ -174,41 +163,25 @@ Document tests/pos/kindPolySemiGroup.scala
 (76:21..76:27) _empty_/Test.SemiGroup#append(). -> 30:9
 (76:28..76:30) _empty_/Test.append().(m1) -> 74:38
 (76:32..76:34) _empty_/Test.append().(m2) -> 74:46
-(76:35..76:35) _empty_/Test.append().(appender) -> 75:76
 (78:10..78:23) _empty_/Test.SemiGroupList. -> 51:19
 (78:24..78:32) _empty_/Test.SemiGroupList.appender(). -> 53:18
 (79:10..79:22) _empty_/Test.SemiGroupMap. -> 59:19
 (79:23..79:31) _empty_/Test.SemiGroupMap.appender(). -> 61:18
 (81:11..81:14) scala/Int#
 (81:17..81:23) _empty_/Test.append(). -> 74:7
-(81:29..81:29) _empty_/Test.KinderLowerImplicits#kinder0(). -> 22:18
-(81:29..81:29) _empty_/Test.SemiGroupInt. -> 43:19
-(81:29..81:29) _empty_/Test.SemiGroupInt.appender. -> 45:18
 (84:11..84:15) scala/package.List#
 (84:16..84:19) scala/Int#
 (84:23..84:29) _empty_/Test.append(). -> 74:7
 (84:34..84:38) scala/package.List#
 (84:40..84:44) scala/package.List.
-(84:44..84:44) scala/collection/IterableFactory#apply().
 (84:49..84:53) scala/package.List.
-(84:53..84:53) scala/collection/IterableFactory#apply().
-(84:57..84:57) _empty_/Test.Kinder.kinder1(). -> 16:18
-(84:57..84:57) _empty_/Test.SemiGroupList. -> 51:19
-(84:57..84:57) _empty_/Test.SemiGroupList.appender(). -> 53:18
 (85:11..85:14) scala/Predef.Map#
 (85:15..85:21) scala/Predef.String#
 (85:23..85:27) scala/Long#
 (85:31..85:37) _empty_/Test.append(). -> 74:7
 (85:42..85:45) scala/Predef.Map#
 (85:47..85:50) scala/Predef.Map.
-(85:50..85:50) scala/collection/MapFactory#apply().
-(85:51..85:51) scala/Predef.ArrowAssoc().
 (85:58..85:60) scala/Predef.ArrowAssoc#`->`().
 (85:66..85:69) scala/Predef.Map.
-(85:69..85:69) scala/collection/MapFactory#apply().
-(85:70..85:70) scala/Predef.ArrowAssoc().
 (85:77..85:79) scala/Predef.ArrowAssoc#`->`().
-(85:84..85:84) _empty_/Test.Kinder.kinder2(). -> 18:18
-(85:84..85:84) _empty_/Test.SemiGroupMap. -> 59:19
-(85:84..85:84) _empty_/Test.SemiGroupMap.appender(). -> 61:18
 

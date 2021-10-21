@@ -1,5 +1,7 @@
 Document tests/pos/t2712-4.scala
 (5:19..5:20) test/Test1.X# -> 4:9
+(6:21..6:22) test/Test1.X# -> 4:9
+(7:18..7:19) test/Test1.meh().[A] -> 7:22
 (7:28..7:29) test/Test1.meh().[M] -> 7:11
 (7:30..7:31) test/Test1.meh().[A] -> 7:22
 (7:35..7:36) test/Test1.meh().[M] -> 7:11
@@ -9,8 +11,9 @@ Document tests/pos/t2712-4.scala
 (8:11..8:14) test/Test1.Foo# -> 6:9
 (8:15..8:18) scala/Int#
 (8:20..8:21) test/Test1.Y# -> 5:9
-(8:22..8:22) test/Test1.Foo#`<init>`(). -> 6:12
 (13:19..13:20) test/Test2.X# -> 12:9
+(14:21..14:22) test/Test2.Y# -> 13:9
+(15:18..15:19) test/Test2.meh().[A] -> 15:22
 (15:28..15:29) test/Test2.meh().[M] -> 15:11
 (15:30..15:31) test/Test2.meh().[A] -> 15:22
 (15:35..15:36) test/Test2.meh().[M] -> 15:11
@@ -20,5 +23,4 @@ Document tests/pos/t2712-4.scala
 (16:11..16:14) test/Test2.Foo# -> 14:9
 (16:15..16:18) scala/Int#
 (16:20..16:21) test/Test2.X# -> 12:9
-(16:22..16:22) test/Test2.Foo#`<init>`(). -> 14:12
 

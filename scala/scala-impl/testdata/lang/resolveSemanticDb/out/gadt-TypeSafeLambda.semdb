@@ -152,12 +152,11 @@ Document tests/pos/gadt-TypeSafeLambda.scala
 (55:10..55:11) _empty_/TypeSafeLambda.interp().[S] -> 52:54
 (55:13..55:14) _empty_/TypeSafeLambda.interp().[T] -> 52:57
 (55:18..55:21) _empty_/TypeSafeLambda.interp().(exp) -> 54:5
-(56:10..56:15) _empty_/TypeSafeLambda.LUnit. -> 36:14
-(56:15..56:15) _empty_/TypeSafeLambda.LUnit.unapply(). -> 36:3
+(56:10..56:15) _empty_/TypeSafeLambda.LUnit.
 (56:21..56:22) _empty_/TypeSafeLambda.interp().(c) -> 53:5
 (56:23..56:31) _empty_/TypeSafeLambda.Terminal#terminal(). -> 10:9
 (57:13..57:16) _empty_/TypeSafeLambda.Var# -> 39:14
-(57:41..57:42) local0 -> 57:10
+(57:41..57:42) local5 -> 57:10
 (57:43..57:44) _empty_/TypeSafeLambda.Var#v. -> 40:5
 (58:15..58:19) _empty_/TypeSafeLambda.Zero# -> 29:14
 (58:40..58:41) _empty_/TypeSafeLambda.interp().(c) -> 53:5
@@ -167,27 +166,23 @@ Document tests/pos/gadt-TypeSafeLambda.scala
 (59:15..59:19) _empty_/TypeSafeLambda.Succ# -> 30:14
 (60:9..60:10) _empty_/TypeSafeLambda.interp().(c) -> 53:5
 (60:11..60:15) _empty_/TypeSafeLambda.Category#comp(). -> 6:9
-(60:20..60:26) local10 -> 59:20
-(60:27..60:32) local11 -> 59:28
-(60:34..60:35) local13 -> 59:40
-(60:42..60:45) local12 -> 59:35
+(60:20..60:26) local9 -> 59:20
+(60:27..60:32) local10 -> 59:28
+(60:34..60:35) local12 -> 59:40
+(60:42..60:45) local11 -> 59:35
 (61:11..61:12) _empty_/TypeSafeLambda.interp().(c) -> 53:5
 (61:13..61:18) _empty_/TypeSafeLambda.ProductCategory#first(). -> 14:9
 (62:11..62:17) _empty_/TypeSafeLambda.interp(). -> 52:7
 (62:18..62:19) _empty_/TypeSafeLambda.interp().(c) -> 53:5
-(62:21..62:24) _empty_/TypeSafeLambda.Var. -> 39:14
-(62:24..62:24) _empty_/TypeSafeLambda.Var.apply(). -> 39:3
+(62:21..62:24) _empty_/TypeSafeLambda.Var.
 (62:25..62:29) _empty_/TypeSafeLambda.interp().[Term] -> 52:14
 (62:31..62:34) _empty_/TypeSafeLambda.interp().[Exp] -> 52:20
 (62:36..62:40) _empty_/TypeSafeLambda.interp().[Prod] -> 52:31
-(62:42..62:47) local11 -> 59:28
-(62:49..62:52) local12 -> 59:35
-(62:54..62:55) local9 -> 59:12
+(62:42..62:47) local10 -> 59:28
+(62:49..62:52) local11 -> 59:35
+(62:54..62:55) local13 -> 59:12
 (62:56..62:57) _empty_/TypeSafeLambda.Succ#v. -> 31:5
-(65:10..65:13) _empty_/TypeSafeLambda.Lam. -> 43:14
-(65:13..65:13) _empty_/TypeSafeLambda.Lam.unapply(). -> 43:3
-(65:13..65:13) local14
-(65:13..65:13) local15
+(65:10..65:13) _empty_/TypeSafeLambda.Lam.
 (65:22..65:23) _empty_/TypeSafeLambda.interp().(c) -> 53:5
 (65:24..65:29) _empty_/TypeSafeLambda.Exponential#curry(). -> 22:9
 (65:30..65:36) _empty_/TypeSafeLambda.interp(). -> 52:7
@@ -200,16 +195,16 @@ Document tests/pos/gadt-TypeSafeLambda.scala
 (68:11..68:15) _empty_/TypeSafeLambda.ProductCategory#pair(). -> 16:9
 (69:11..69:17) _empty_/TypeSafeLambda.interp(). -> 52:7
 (69:18..69:19) _empty_/TypeSafeLambda.interp().(c) -> 53:5
-(69:21..69:24) local17 -> 66:10
+(69:21..69:24) local23 -> 66:10
 (69:25..69:26) _empty_/TypeSafeLambda.App#f. -> 48:5
 (70:11..70:17) _empty_/TypeSafeLambda.interp(). -> 52:7
 (70:18..70:19) _empty_/TypeSafeLambda.interp().(c) -> 53:5
-(70:21..70:24) local17 -> 66:10
+(70:21..70:24) local23 -> 66:10
 (70:25..70:26) _empty_/TypeSafeLambda.App#a. -> 49:5
 (71:9..71:10) _empty_/TypeSafeLambda.interp().(c) -> 53:5
 (71:11..71:15) _empty_/TypeSafeLambda.Exponential#eval(). -> 21:9
-(71:16..71:17) local22 -> 66:33
-(71:19..71:21) local23 -> 66:36
+(71:16..71:17) local21 -> 66:33
+(71:19..71:21) local22 -> 66:36
 (76:17..76:21) scala/Unit#
 (77:24..77:25) _empty_/TypeSafeLambda.example.Prod#[A] -> 77:15
 (77:27..77:28) _empty_/TypeSafeLambda.example.Prod#[B] -> 77:18
@@ -222,90 +217,72 @@ Document tests/pos/gadt-TypeSafeLambda.scala
 (81:39..81:42) _empty_/TypeSafeLambda.example.Exp# -> 78:10
 (81:44..81:48) _empty_/TypeSafeLambda.example.Prod# -> 77:10
 (81:50..81:53) _empty_/TypeSafeLambda.example.Arr# -> 79:10
-(82:18..82:19) local26 -> 82:14
-(82:23..82:24) local26 -> 82:14
-(82:32..82:33) local27 -> 82:27
-(83:28..83:29) local29 -> 83:16
-(83:33..83:34) local30 -> 83:19
-(83:39..83:40) local30 -> 83:19
-(83:44..83:45) local31 -> 83:22
-(83:48..83:49) local29 -> 83:16
-(83:53..83:54) local31 -> 83:22
-(83:57..83:58) local32 -> 83:25
+(82:18..82:19) local24 -> 82:14
+(82:23..82:24) local24 -> 82:14
+(82:32..82:33) local25 -> 82:27
+(83:28..83:29) local27 -> 83:16
+(83:33..83:34) local28 -> 83:19
+(83:39..83:40) local28 -> 83:19
+(83:44..83:45) local29 -> 83:22
+(83:48..83:49) local27 -> 83:16
+(83:53..83:54) local29 -> 83:22
+(83:57..83:58) local30 -> 83:25
 (83:59..83:66) scala/Function1#andThen().
-(83:67..83:68) local33 -> 83:36
-(85:24..85:25) local35 -> 85:20
+(83:67..83:68) local31 -> 83:36
+(85:24..85:25) local33 -> 85:20
 (85:29..85:33) scala/Unit#
-(87:26..87:27) local38 -> 87:17
-(87:29..87:30) local39 -> 87:20
-(87:36..87:37) local38 -> 87:17
-(87:42..87:42) local40
-(87:48..87:48) scala/Tuple2.unapply().
-(87:57..87:58) local41 -> 87:48
-(88:27..88:28) local43 -> 88:18
-(88:30..88:31) local44 -> 88:21
-(88:37..88:38) local44 -> 88:21
-(88:43..88:43) local45
-(88:49..88:49) scala/Tuple2.unapply().
-(88:58..88:59) local46 -> 88:52
-(89:28..89:29) local48 -> 89:16
-(89:33..89:34) local49 -> 89:19
-(89:39..89:40) local48 -> 89:16
-(89:44..89:45) local50 -> 89:22
-(89:48..89:49) local48 -> 89:16
-(89:54..89:55) local49 -> 89:19
-(89:57..89:58) local50 -> 89:22
-(90:15..90:15) scala/Tuple2.apply().
-(90:15..90:16) local51 -> 89:25
-(90:16..90:16) scala/Function1#apply().
-(90:17..90:18) local53 -> 90:9
-(90:21..90:22) local52 -> 89:36
-(90:22..90:22) scala/Function1#apply().
-(90:23..90:24) local53 -> 90:9
-(92:25..92:26) local55 -> 92:16
-(92:30..92:31) local56 -> 92:19
-(92:33..92:34) local55 -> 92:16
-(92:40..92:41) local56 -> 92:19
-(92:46..92:46) local57
-(92:52..92:52) scala/Tuple2.unapply().
-(92:61..92:62) local58 -> 92:52
-(92:62..92:62) scala/Function1#apply().
-(92:63..92:64) local59 -> 92:55
-(93:31..93:32) local63 -> 93:23
-(93:34..93:35) local61 -> 93:17
-(93:41..93:42) local62 -> 93:20
-(93:45..93:46) local63 -> 93:23
-(93:50..93:51) local61 -> 93:17
-(93:55..93:56) local62 -> 93:20
-(94:19..94:20) local64 -> 93:26
-(94:20..94:20) scala/Function1#apply().
-(94:22..94:22) scala/Tuple2.apply().
-(94:22..94:23) local65 -> 94:9
-(94:25..94:26) local66 -> 94:14
+(87:26..87:27) local36 -> 87:17
+(87:29..87:30) local37 -> 87:20
+(87:36..87:37) local36 -> 87:17
+(87:57..87:58) local39 -> 87:48
+(88:27..88:28) local41 -> 88:18
+(88:30..88:31) local42 -> 88:21
+(88:37..88:38) local42 -> 88:21
+(88:58..88:59) local44 -> 88:52
+(89:28..89:29) local46 -> 89:16
+(89:33..89:34) local47 -> 89:19
+(89:39..89:40) local46 -> 89:16
+(89:44..89:45) local48 -> 89:22
+(89:48..89:49) local46 -> 89:16
+(89:54..89:55) local47 -> 89:19
+(89:57..89:58) local48 -> 89:22
+(90:15..90:16) local49 -> 89:25
+(90:17..90:18) local51 -> 90:9
+(90:21..90:22) local50 -> 89:36
+(90:23..90:24) local51 -> 90:9
+(92:25..92:26) local53 -> 92:16
+(92:30..92:31) local54 -> 92:19
+(92:33..92:34) local53 -> 92:16
+(92:40..92:41) local54 -> 92:19
+(92:61..92:62) local56 -> 92:52
+(92:63..92:64) local57 -> 92:55
+(93:31..93:32) local61 -> 93:23
+(93:34..93:35) local59 -> 93:17
+(93:41..93:42) local60 -> 93:20
+(93:45..93:46) local61 -> 93:23
+(93:50..93:51) local59 -> 93:17
+(93:55..93:56) local60 -> 93:20
+(94:19..94:20) local62 -> 93:26
+(94:22..94:23) local63 -> 94:9
+(94:25..94:26) local64 -> 94:14
 (97:16..97:20) scala/Unit#
 (97:21..97:25) _empty_/TypeSafeLambda.example.Prod# -> 77:10
 (97:26..97:29) scala/Int#
 (97:30..97:34) _empty_/TypeSafeLambda.example.Prod# -> 77:10
 (97:36..97:39) scala/Int#
 (97:43..97:49) scala/Predef.String#
-(98:15..98:18) _empty_/TypeSafeLambda.App. -> 47:14
-(98:18..98:18) _empty_/TypeSafeLambda.App.apply(). -> 47:3
+(98:15..98:18) _empty_/TypeSafeLambda.App.
 (98:19..98:23) _empty_/TypeSafeLambda.example.Term# -> 76:10
 (98:25..98:28) _empty_/TypeSafeLambda.example.Exp# -> 78:10
 (98:30..98:34) _empty_/TypeSafeLambda.example.Prod# -> 77:10
 (98:36..98:39) _empty_/TypeSafeLambda.example.Env# -> 97:10
 (98:41..98:44) scala/Int#
 (98:46..98:52) scala/Predef.String#
-(100:7..100:10) _empty_/TypeSafeLambda.Var. -> 39:14
-(100:10..100:10) _empty_/TypeSafeLambda.Var.apply(). -> 39:3
-(100:11..100:15) _empty_/TypeSafeLambda.Zero. -> 29:14
-(100:15..100:15) _empty_/TypeSafeLambda.Zero.apply(). -> 29:3
-(101:7..101:10) _empty_/TypeSafeLambda.Var. -> 39:14
-(101:10..101:10) _empty_/TypeSafeLambda.Var.apply(). -> 39:3
-(101:11..101:15) _empty_/TypeSafeLambda.Succ. -> 30:14
-(101:15..101:15) _empty_/TypeSafeLambda.Succ.apply(). -> 30:3
-(101:16..101:20) _empty_/TypeSafeLambda.Zero. -> 29:14
-(101:20..101:20) _empty_/TypeSafeLambda.Zero.apply(). -> 29:3
+(100:7..100:10) _empty_/TypeSafeLambda.Var.
+(100:11..100:15) _empty_/TypeSafeLambda.Zero.
+(101:7..101:10) _empty_/TypeSafeLambda.Var.
+(101:11..101:15) _empty_/TypeSafeLambda.Succ.
+(101:16..101:20) _empty_/TypeSafeLambda.Zero.
 (104:20..104:23) _empty_/TypeSafeLambda.example.Env# -> 97:10
 (104:28..104:34) scala/Predef.String#
 (105:7..105:13) _empty_/TypeSafeLambda.interp(). -> 52:7
@@ -318,11 +295,8 @@ Document tests/pos/gadt-TypeSafeLambda.scala
 (105:50..105:51) _empty_/TypeSafeLambda.example.c. -> 81:9
 (105:53..105:56) _empty_/TypeSafeLambda.example.exp. -> 98:9
 (107:5..107:13) _empty_/TypeSafeLambda.example.interped. -> 104:9
-(107:13..107:13) scala/Function1#apply().
-(107:15..107:15) scala/Tuple2.apply().
-(107:16..107:16) scala/Tuple2.apply().
 (107:30..107:33) scala/Int#
-(107:38..107:39) local67 -> 107:27
+(107:38..107:39) local68 -> 107:27
 (107:40..107:48) scala/Any#toString().
 (107:55..107:61) scala/Predef.String#
 

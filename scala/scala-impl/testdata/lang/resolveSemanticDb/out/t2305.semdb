@@ -12,9 +12,7 @@ Document tests/pos/t2305.scala
 (14:32..14:36) _empty_/Bind# -> 3:7
 (14:55..14:59) scala/Unit#
 (15:5..15:12) _empty_/works.runbind(). -> 14:9
-(15:12..15:12) _empty_/Bind.MySerializableBind. -> 9:18
 (19:32..19:36) _empty_/Bind# -> 3:7
 (19:50..19:54) scala/Unit#
 (20:9..20:16) _empty_/breaks.runbind(). -> 19:9
-(20:16..20:16) _empty_/Bind.JavaArrayListBind. -> 8:18
 

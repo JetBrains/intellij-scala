@@ -5,18 +5,11 @@ Document tests/pos/t4112.scala
 (8:24..8:30) scala/Predef.String#
 (8:34..8:38) scala/Unit#
 (9:19..9:26) scala/collection/immutable/TreeMap.
-(9:26..9:26) scala/collection/SortedMapFactory#apply().
-(9:27..9:27) scala/Predef.ArrowAssoc().
 (9:29..9:31) scala/Predef.ArrowAssoc#`->`().
-(9:35..9:35) scala/Predef.ArrowAssoc().
 (9:37..9:39) scala/Predef.ArrowAssoc#`->`().
-(9:42..9:42) scala/math/Ordering.Int.
 (9:43..9:45) scala/collection/SortedMapOps#`++`().
 (9:46..9:53) scala/collection/immutable/TreeMap.
-(9:53..9:53) scala/collection/SortedMapFactory#apply().
-(9:54..9:54) scala/Predef.ArrowAssoc().
 (9:56..9:58) scala/Predef.ArrowAssoc#`->`().
-(9:61..9:61) scala/math/Ordering.Int.
 (10:6..10:13) local0 -> 9:9
 (10:15..10:22) scala/collection/immutable/TreeMap#
 (10:23..10:26) scala/Int#

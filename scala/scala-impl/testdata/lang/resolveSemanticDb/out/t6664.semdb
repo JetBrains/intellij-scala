@@ -3,14 +3,12 @@ Document tests/pos/t6664.scala
 (1:31..1:37) scala/Predef.String#
 (2:28..2:34) scala/Predef.String#
 (2:37..2:38) _empty_/A# -> 1:18
-(2:41..2:42) _empty_/A. -> 1:18
-(2:42..2:42) _empty_/A.apply(). -> 1:1
+(2:41..2:42) _empty_/A.
 (2:43..2:44) _empty_/A#i. -> 1:20
 (2:46..2:48) _empty_/A#copy().(s2) -> 2:24
 (3:28..3:31) scala/Int#
 (3:34..3:35) _empty_/A# -> 1:18
-(3:38..3:39) _empty_/A. -> 1:18
-(3:39..3:39) _empty_/A.apply(). -> 1:1
+(3:38..3:39) _empty_/A.
 (3:40..3:42) _empty_/A#copy(+1).(i2) -> 3:24
 (3:44..3:45) _empty_/A#s. -> 1:28
 

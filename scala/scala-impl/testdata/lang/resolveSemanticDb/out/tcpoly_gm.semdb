@@ -13,6 +13,5 @@ Document tests/pos/tcpoly_gm.scala
 (11:27..11:30) _empty_/Rep#rep(). -> 2:7
 (12:5..12:6) local0 -> 11:9
 (12:7..12:10) _empty_/ShowBin#app. -> 7:23
-(12:10..12:10) scala/Function1#apply().
 (12:11..12:12) _empty_/foo.showBin().(y) -> 10:29
 

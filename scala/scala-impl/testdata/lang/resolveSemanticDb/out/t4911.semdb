@@ -4,34 +4,27 @@ Document tests/pos/t4911.scala
 (4:59..4:62) _empty_/Test.Foo# -> 4:9
 (4:63..4:64) _empty_/Test.Foo.unapply().[T] -> 4:53
 (4:69..4:73) scala/Some.
-(4:73..4:73) scala/Some.apply().
 (4:74..4:75) _empty_/Test.Foo.unapply().(x) -> 4:56
 (4:76..4:77) _empty_/Test.Foo#x. -> 4:20
 (5:16..5:19) _empty_/Test.Foo# -> 4:9
 (5:20..5:21) _empty_/Test.f1().[T] -> 5:10
 (5:26..5:27) _empty_/Test.f1().(x) -> 5:13
 (5:41..5:44) _empty_/Test.Foo. -> 4:35
-(5:44..5:44) _empty_/Test.Foo.unapply(). -> 4:45
 (5:51..5:52) local0 -> 5:45
 (6:22..6:23) _empty_/Test.f2().[M] -> 6:10
 (6:24..6:25) _empty_/Test.f2().[T] -> 6:16
 (6:30..6:31) _empty_/Test.f2().(x) -> 6:19
 (6:45..6:48) _empty_/Test.Foo. -> 4:35
-(6:48..6:48) _empty_/Test.Foo.unapply(). -> 4:45
-(6:48..6:48) local1
 (6:55..6:56) local2 -> 6:49
 (8:24..8:25) _empty_/Test.Bar#[T] -> 8:18
 (9:16..9:19) _empty_/Test.Bar# -> 8:14
 (9:20..9:21) _empty_/Test.f3().[T] -> 9:10
 (9:26..9:27) _empty_/Test.f3().(x) -> 9:13
-(9:41..9:44) _empty_/Test.Bar. -> 8:14
-(9:44..9:44) _empty_/Test.Bar.unapply(). -> 8:3
+(9:41..9:44) _empty_/Test.Bar.
 (9:51..9:52) local3 -> 9:45
 (10:22..10:23) _empty_/Test.f4().[M] -> 10:10
 (10:24..10:25) _empty_/Test.f4().[T] -> 10:16
 (10:30..10:31) _empty_/Test.f4().(x) -> 10:19
-(10:45..10:48) _empty_/Test.Bar. -> 8:14
-(10:48..10:48) _empty_/Test.Bar.unapply(). -> 8:3
-(10:48..10:48) local4
+(10:45..10:48) _empty_/Test.Bar.
 (10:55..10:56) local5 -> 10:49
 

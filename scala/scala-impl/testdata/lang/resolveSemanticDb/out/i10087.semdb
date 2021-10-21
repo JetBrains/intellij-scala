@@ -8,39 +8,26 @@ Document tests/pos/i10087.scala
 (2:29..2:36) scala/collection/immutable/TreeSet.
 (4:14..4:22) scala/math/Ordering#
 (4:23..4:24) _empty_/i10087$package.f1().[T] -> 4:8
-(4:30..4:30) scala/Tuple2.apply().
 (4:30..4:31) _empty_/i10087$package.f1().(x) -> 4:11
 (4:33..4:34) _empty_/i10087$package.f1().(x) -> 4:11
-(5:9..5:9) scala/Tuple2.unapply().
 (5:15..5:23) scala/math/Ordering#
 (5:24..5:25) _empty_/i10087$package.f1().[T] -> 4:8
 (5:38..5:45) scala/collection/immutable/TreeSet#
 (5:46..5:47) _empty_/i10087$package.f1().[T] -> 4:8
-(5:48..5:48) local0 -> 5:9
-(5:48..5:48) scala/collection/immutable/TreeSet#`<init>`(+1).
 (7:14..7:22) scala/math/Ordering#
 (7:23..7:24) _empty_/i10087$package.f4().[T] -> 7:8
 (8:12..8:16) scala/package.List.
-(8:16..8:16) scala/collection/IterableFactory#apply().
 (8:17..8:18) _empty_/i10087$package.f4().(x) -> 7:11
 (8:20..8:21) _empty_/i10087$package.f4().(x) -> 7:11
 (8:23..8:24) _empty_/i10087$package.f4().(x) -> 7:11
-(9:7..9:7) local2
 (9:13..9:21) scala/math/Ordering#
 (9:22..9:23) _empty_/i10087$package.f4().[T] -> 7:8
 (9:28..9:30) local1 -> 8:7
-(9:30..9:30) scala/collection/immutable/List#map().
 (10:13..10:20) scala/collection/immutable/TreeSet#
 (10:21..10:22) _empty_/i10087$package.f4().[T] -> 7:8
-(10:23..10:23) local3 -> 9:7
-(10:23..10:23) scala/collection/immutable/TreeSet#`<init>`(+1).
-(11:7..11:7) local4
 (11:17..11:25) scala/math/Ordering#
 (11:26..11:27) _empty_/i10087$package.f4().[T] -> 7:8
 (11:32..11:34) local1 -> 8:7
-(11:34..11:34) scala/collection/immutable/List#map().
 (12:13..12:20) scala/collection/immutable/TreeSet#
 (12:21..12:22) _empty_/i10087$package.f4().[T] -> 7:8
-(12:23..12:23) local5 -> 11:7
-(12:23..12:23) scala/collection/immutable/TreeSet#`<init>`(+1).
 

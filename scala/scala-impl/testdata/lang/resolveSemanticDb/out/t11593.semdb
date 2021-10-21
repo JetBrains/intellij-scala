@@ -11,7 +11,6 @@ Document tests/pos/t11593/Test.scala
 (4:55..4:62) java/lang/Class#getName().
 (5:5..5:8) foo/X.bar(). -> 4:9
 (5:13..5:23) java/util/Properties#
-(5:23..5:23) java/util/Properties#`<init>`().
 (8:21..8:24) scala/App#
 (9:3..9:6) foo/ -> 1:9
 (9:7..9:8) foo/X. -> 3:10

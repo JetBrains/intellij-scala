@@ -10,7 +10,6 @@ Document tests/pos/i9069/Test.scala
 (3:40..3:43) _empty_/Foo. -> 2:8
 (3:44..3:47) _empty_/Foo.Baz. -> 3:15
 (3:54..3:57) _empty_/Bar# -> 4:12
-(3:59..3:59) scala/`<:<`.refl().
 
 Document tests/pos/i9069/Wrapper.scala
 (3:27..3:30) _empty_/Foo# -> 1:14

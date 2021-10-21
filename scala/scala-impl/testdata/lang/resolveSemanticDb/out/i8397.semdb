@@ -1,8 +1,11 @@
 Document tests/pos/i8397.scala
 (1:20..1:23) scala/Int#
 (1:26..1:32) scala/AnyRef#
-(1:32..1:32) java/lang/Object#`<init>`().
 (2:12..2:13) _empty_/i8397$package.foo#x. -> 1:17
+(9:13..9:14) _empty_/i8397$package.given_Lub2_A_B#[C] -> 9:24
+(9:13..9:14) _empty_/i8397$package.given_Lub2_A_B().[C] -> 9:24
+(9:21..9:22) _empty_/i8397$package.given_Lub2_A_B#[C] -> 9:24
+(9:21..9:22) _empty_/i8397$package.given_Lub2_A_B().[C] -> 9:24
 (9:28..9:32) _empty_/Lub2# -> 6:7
 (9:33..9:34) _empty_/i8397$package.given_Lub2_A_B#[A] -> 9:8
 (9:36..9:37) _empty_/i8397$package.given_Lub2_A_B#[B] -> 9:16
@@ -12,12 +15,16 @@ Document tests/pos/i8397.scala
 (16:17..16:18) _empty_/i8397$package.given_Lub_A#[A] -> 15:8
 (19:20..19:23) _empty_/Lub# -> 12:7
 (19:24..19:29) _empty_/i8397$package.`given_Lub_|`#[Right] -> 18:14
+(19:24..19:29) _empty_/i8397$package.`given_Lub_|`().[Right] -> 18:14
 (19:42..19:45) _empty_/Lub# -> 12:7
 (19:46..19:51) _empty_/i8397$package.`given_Lub_|`#[Right] -> 18:14
+(19:46..19:51) _empty_/i8397$package.`given_Lub_|`().[Right] -> 18:14
 (20:17..20:21) _empty_/Lub2# -> 6:7
 (20:22..20:29) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubLeft)
+(20:22..20:29) _empty_/i8397$package.`given_Lub_|`().(lubLeft) -> 19:11
 (20:30..20:36) _empty_/Lub#Output# -> 13:8
 (20:38..20:46) _empty_/i8397$package.`given_Lub_|`#`<init>`().(lubRight)
+(20:38..20:46) _empty_/i8397$package.`given_Lub_|`().(lubRight) -> 19:32
 (20:47..20:53) _empty_/Lub#Output# -> 13:8
 (21:5..21:8) _empty_/Lub# -> 12:7
 (21:9..21:13) _empty_/i8397$package.`given_Lub_|`#[Left] -> 18:8

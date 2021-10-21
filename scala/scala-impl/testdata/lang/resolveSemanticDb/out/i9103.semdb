@@ -7,11 +7,8 @@ Document tests/pos/i9103.scala
 (7:20..7:21) _empty_/i9103$package.b. -> 5:5
 (7:22..7:25) _empty_/a.Foo# -> 2:9
 (7:26..7:30) scala/Unit#
-(7:32..7:32) _empty_/a.given_Foo_Unit. -> 3:9
 (9:8..9:12) scala/Long#
 (10:12..10:18) scala/package.BigInt#
-(10:21..10:21) scala/math/BigInt.int2bigInt().
-(11:17..11:17) scala/math/BigInt.long2bigInt().
 (11:17..11:18) _empty_/i9103$package.n. -> 9:5
 (11:19..11:20) scala/math/BigInt#`%`().
 (11:21..11:29) scala/Predef.identity().
@@ -29,11 +26,9 @@ Document tests/pos/i9103.scala
 (26:11..26:21) scala/Predef.implicitly().
 (26:22..26:23) _empty_/S. -> 15:8
 (26:24..26:35) _empty_/S.Permissions# -> 16:9
-(26:36..26:36) _empty_/LowPriorityInstances.given_Permissions. -> 21:9
 (27:3..27:10) scala/Predef.println(+1).
 (27:11..27:21) scala/Predef.implicitly().
 (27:22..27:26) _empty_/Show# -> 13:7
 (27:27..27:28) _empty_/S. -> 15:8
 (27:29..27:40) _empty_/S.Permissions# -> 16:9
-(27:42..27:42) _empty_/LowPriorityInstances.given_Show_Permissions. -> 22:9
 

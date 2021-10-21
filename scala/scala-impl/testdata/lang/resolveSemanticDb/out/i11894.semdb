@@ -15,5 +15,4 @@ Document tests/pos/i11894.scala
 (6:30..6:31) local0 -> 5:9
 (6:32..6:41) _empty_/CallbackTo#toScalaFn(). -> 3:14
 (7:5..7:6) local1 -> 6:9
-(7:6..7:6) scala/Function0#apply().
 

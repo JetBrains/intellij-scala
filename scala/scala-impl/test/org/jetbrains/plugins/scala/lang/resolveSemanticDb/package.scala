@@ -43,6 +43,8 @@ package object resolveSemanticDb {
       val col = offset - lastLineStart
       TextPos.fromZeroBased(line, col)
     }
+
+    implicit val ordering: Ordering[TextPos] = Ordering.by[TextPos, Int](_.line).orElseBy(_.col)
   }
 
   def isInRefinement(e: PsiElement): Boolean = e.contexts.exists(_.is[ScRefinement])

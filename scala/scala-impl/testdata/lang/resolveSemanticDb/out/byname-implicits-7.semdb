@@ -14,7 +14,6 @@ Document tests/pos/byname-implicits-7.scala
 (13:54..13:57) _empty_/Test.bar().(foo) -> 13:29
 (13:58..13:61) _empty_/Foo#out(). -> 3:7
 (15:11..15:14) _empty_/Test.bar(). -> 13:7
-(15:18..15:18) _empty_/Foo.fooInt. -> 9:16
 (16:3..16:4) _empty_/Test.i. -> 15:7
 (16:6..16:9) scala/Int#
 

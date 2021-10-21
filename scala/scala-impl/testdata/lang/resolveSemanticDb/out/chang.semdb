@@ -5,5 +5,4 @@ Document tests/pos/chang/Test.scala
 (2:20..2:25) com/netgents/hello/
 (2:26..2:31) com/netgents/hello/Outer#
 (2:32..2:38) scala/Predef.String#
-(2:39..2:39) com/netgents/hello/Outer#`<init>`(+1).
 

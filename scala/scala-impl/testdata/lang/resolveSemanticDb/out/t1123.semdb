@@ -6,6 +6,5 @@ Document tests/pos/t1123.scala
 (10:25..10:31) scala/Predef.String#
 (10:35..10:39) scala/Unit#
 (10:47..10:53) test/Test.Editor# -> 4:9
-(10:53..10:53) test/Test.Editor#`<init>`(). -> 5:5
 (10:55..10:56) test/Test.Editor#f(). -> 8:9
 

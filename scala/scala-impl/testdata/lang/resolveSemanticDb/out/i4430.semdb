@@ -5,13 +5,10 @@ Document tests/pos/i4430.scala
 (3:18..3:22) java/
 (3:23..3:27) java/lang/
 (3:28..3:41) java/lang/StringBuilder#
-(3:41..3:41) java/lang/StringBuilder#`<init>`().
 (4:5..4:7) local0 -> 3:9
 (4:8..4:14) java/lang/StringBuilder#append(+6).
 (4:15..4:20) scala/Array.
-(4:20..4:20) scala/Array.apply().
 (4:21..4:25) scala/Char#
-(4:28..4:28) scala/reflect/ClassTag.apply().
 (5:5..5:7) local0 -> 3:9
 (5:8..5:14) java/lang/AbstractStringBuilder#length().
 

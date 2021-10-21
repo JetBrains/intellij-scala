@@ -12,8 +12,5 @@ Document tests/pos/i8182.scala
 (8:42..8:48) scala/Option#
 (8:49..8:55) scala/Predef.String#
 (8:60..8:63) scala/Predef.`???`().
-(10:12..10:12) example/Show#show(). -> 4:24
-(10:12..10:12) example/i8182$package.given_Show_String(). -> 6:7
 (10:12..10:18) scala/Option.
-(10:18..10:18) scala/Option.apply().
 

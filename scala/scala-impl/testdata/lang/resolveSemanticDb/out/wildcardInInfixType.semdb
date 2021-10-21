@@ -5,5 +5,4 @@ Document tests/pos/wildcardInInfixType.scala
 (7:15..7:18) scala/Int#
 (7:19..7:25) scala/package.Either#
 (7:30..7:34) scala/package.Left.
-(7:34..7:34) scala/util/Left.apply().
 

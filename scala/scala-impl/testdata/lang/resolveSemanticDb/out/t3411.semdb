@@ -5,6 +5,5 @@ Document tests/pos/t3411.scala
 (2:40..2:44) scala/Unit#
 (4:10..4:14) scala/Unit#
 (6:5..6:6) _empty_/A.g(). -> 2:7
-(6:9..6:9) local1
 (6:14..6:17) local0 -> 5:14
 

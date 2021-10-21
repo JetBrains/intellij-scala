@@ -1,10 +1,8 @@
 Document tests/pos/t5856b.scala
 (2:14..2:15) _empty_/Test#f(). -> 3:14
 (2:20..2:22) scala/Any#`==`().
-(2:25..2:25) scala/StringContext.apply().
 (2:26..2:27) scala/StringContext#s().
 (3:26..3:33) scala/Boolean#
 (3:36..3:43) scala/Boolean#
 (3:47..3:48) _empty_/Test#f().(b) -> 3:23
-(3:48..3:48) scala/Boolean#`unary_!`().
 

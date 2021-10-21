@@ -1,5 +1,6 @@
 Document tests/pos/9623.scala
 (3:29..3:34) _empty_/A.TList# -> 2:16
+(4:28..4:33) _empty_/A.TList# -> 2:16
 (4:43..4:48) _empty_/A.TList# -> 2:16
 (6:17..6:22) _empty_/A.TList# -> 2:16
 (6:30..6:35) _empty_/A.TList# -> 2:16
@@ -32,5 +33,4 @@ Document tests/pos/9623.scala
 (21:19..21:25) scala/Double#
 (21:26..21:29) _empty_/A.`++:`# -> 4:16
 (21:30..21:34) _empty_/A.TNil# -> 3:16
-(21:35..21:35) _empty_/B.T#`<init>`(). -> 17:10
 

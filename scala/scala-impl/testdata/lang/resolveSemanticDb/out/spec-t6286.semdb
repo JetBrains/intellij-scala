@@ -21,8 +21,6 @@ Document tests/pos/spec-t6286.scala
 (6:60..6:61) _empty_/Bar#fun().[C] -> 6:29
 (7:15..7:21) _empty_/Bar#values. -> 5:11
 (8:5..8:6) _empty_/Bar#fun().(f) -> 6:41
-(8:6..8:6) scala/Function2#apply().
 (8:7..8:11) _empty_/Bar#fun().(init) -> 6:32
 (8:13..8:16) local0 -> 7:9
-(8:16..8:16) scala/Array#apply().
 

@@ -1,9 +1,6 @@
 Document tests/pos/i1975.scala
 (2:11..2:14) scala/package.Seq.
-(2:14..2:14) scala/collection/SeqFactory.Delegate#apply().
 (4:13..4:16) scala/package.Seq.
-(4:16..4:16) scala/collection/SeqFactory.Delegate#apply().
-(4:22..4:22) scala/collection/IterableOps#map().
 (4:30..4:37) scala/Predef.println(+1).
 (4:38..4:39) local0 -> 4:8
 

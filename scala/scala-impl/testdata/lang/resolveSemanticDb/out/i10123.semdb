@@ -8,15 +8,9 @@ Document tests/pos/i10123.scala
 (10:37..10:38) _empty_/Main.RichC#[T] -> 9:24
 (10:41..10:44) scala/Predef.`???`().
 (13:14..13:17) scala/Int#
-(14:15..14:15) _empty_/Main.RichC(). -> 9:18
-(14:20..14:20) _empty_/C#`<init>`(). -> 2:8
 (14:25..14:28) _empty_/Foo# -> 4:7
-(14:28..14:28) _empty_/Foo#`<init>`(). -> 4:10
 (15:5..15:8) local0 -> 14:9
 (15:9..15:15) _empty_/Foo#status. -> 5:7
-(18:15..18:15) _empty_/Main.RichC(). -> 9:18
-(18:20..18:20) _empty_/C#`<init>`(). -> 2:8
 (18:25..18:28) _empty_/Foo# -> 4:7
-(18:28..18:28) _empty_/Foo#`<init>`(). -> 4:10
 (18:38..18:44) _empty_/Foo#status. -> 5:7
 

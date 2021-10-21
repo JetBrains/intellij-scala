@@ -5,7 +5,5 @@ Document tests/pos/i7734.scala
 (1:41..1:45) java/lang/
 (1:46..1:50) java/lang/Enum#
 (1:51..1:52) _empty_/A# -> 1:6
-(1:53..1:53) java/lang/Enum#`<init>`().
 (2:20..2:21) _empty_/A# -> 1:6
-(2:21..2:21) _empty_/A#`<init>`(). -> 1:7
 

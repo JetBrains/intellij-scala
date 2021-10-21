@@ -20,25 +20,18 @@ Document tests/pos/t3152.scala
 (10:20..10:31) _empty_/Applicative# -> 1:7
 (10:42..10:45) scala/sys/
 (10:46..10:51) scala/sys/package.error().
-(18:4..18:4) _empty_/test.ListMA(). -> 9:16
 (18:4..18:7) scala/package.Nil.
 (18:9..18:13) scala/package.List#
 (18:14..18:20) scala/Option#
 (18:21..18:24) scala/Int#
 (18:28..18:36) _empty_/MA#sequence(). -> 4:7
-(18:36..18:36) _empty_/test.ao. -> 10:16
-(18:36..18:36) scala/`<:<`.refl().
 (18:38..18:44) scala/Option#
 (18:45..18:49) scala/package.List#
 (18:50..18:53) scala/Int#
-(19:4..19:4) _empty_/test.ListMA(). -> 9:16
 (19:4..19:8) scala/package.List.
-(19:8..19:8) scala/collection/IterableFactory#apply().
 (19:9..19:15) scala/Option#
 (19:16..19:19) scala/Int#
 (19:25..19:33) _empty_/MA#sequence(). -> 4:7
-(19:33..19:33) _empty_/test.ao. -> 10:16
-(19:33..19:33) scala/`<:<`.refl().
 (19:35..19:41) scala/Option#
 (19:42..19:46) scala/package.List#
 (19:47..19:50) scala/Int#

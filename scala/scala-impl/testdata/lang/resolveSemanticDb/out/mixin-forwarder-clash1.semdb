@@ -2,13 +2,13 @@ Document tests/pos/mixin-forwarder-clash1.scala
 (8:22..8:25) scala/Int#
 (8:28..8:29) _empty_/One#[X] -> 7:11
 (8:32..8:35) scala/Predef.`???`().
+(11:16..11:19) _empty_/Foo# -> 5:7
 (12:29..12:32) scala/Int#
 (12:35..12:36) _empty_/Two#[Y] -> 11:11
 (12:39..12:42) scala/Predef.`???`().
 (15:20..15:23) _empty_/One# -> 7:7
 (15:24..15:27) _empty_/Foo# -> 5:7
 (19:20..19:24) _empty_/Bar1# -> 15:7
-(19:24..19:24) _empty_/Bar1#`<init>`(). -> 15:20
 (19:30..19:33) _empty_/Two# -> 11:7
 (19:34..19:37) _empty_/Foo# -> 5:7
 

@@ -2,76 +2,49 @@ Document tests/pos/i11358.scala
 (3:14..3:20) scala/IArray$package.IArray#
 (3:21..3:24) scala/Int#
 (3:28..3:34) scala/IArray$package.IArray.
-(3:34..3:34) scala/IArray$package.IArray.apply(+14).
 (3:41..3:44) _empty_/Test.`+++`(). -> 13:9
 (3:45..3:51) scala/IArray$package.IArray.
-(3:51..3:51) scala/IArray$package.IArray.apply(+14).
-(3:57..3:57) scala/reflect/ClassTag.apply().
 (4:14..4:20) scala/IArray$package.IArray#
 (4:21..4:24) scala/Int#
 (4:28..4:34) scala/IArray$package.IArray.
-(4:34..4:34) scala/IArray$package.IArray.apply(+14).
 (4:41..4:44) _empty_/Test.`+++`(+1). -> 14:9
 (4:45..4:49) scala/package.List.
-(4:49..4:49) scala/collection/IterableFactory#apply().
-(4:55..4:55) scala/reflect/ClassTag.apply().
 (5:15..5:18) _empty_/Test.`+++`(). -> 13:9
 (5:19..5:22) scala/Int#
 (5:24..5:30) scala/IArray$package.IArray.
-(5:30..5:30) scala/IArray$package.IArray.apply(+14).
 (5:38..5:44) scala/IArray$package.IArray.
-(5:44..5:44) scala/IArray$package.IArray.apply(+14).
-(5:51..5:51) scala/reflect/ClassTag.apply().
 (6:15..6:18) _empty_/Test.`+++`(+1). -> 14:9
 (6:19..6:22) scala/Int#
 (6:24..6:30) scala/IArray$package.IArray.
-(6:30..6:30) scala/IArray$package.IArray.apply(+14).
 (6:38..6:42) scala/package.List.
-(6:42..6:42) scala/collection/IterableFactory#apply().
-(6:49..6:49) scala/reflect/ClassTag.apply().
 (7:14..7:20) scala/IArray$package.IArray#
 (7:21..7:24) scala/Int#
 (7:28..7:34) scala/IArray$package.IArray.
-(7:34..7:34) scala/IArray$package.IArray.apply(+14).
 (7:41..7:44) _empty_/Test.`+++`(). -> 13:9
 (7:45..7:48) scala/Int#
 (7:50..7:56) scala/IArray$package.IArray.
-(7:56..7:56) scala/IArray$package.IArray.apply(+14).
-(7:63..7:63) scala/reflect/ClassTag.apply().
 (8:14..8:20) scala/IArray$package.IArray#
 (8:21..8:24) scala/Int#
 (8:28..8:34) scala/IArray$package.IArray.
-(8:34..8:34) scala/IArray$package.IArray.apply(+14).
 (8:41..8:44) _empty_/Test.`+++`(+1). -> 14:9
 (8:45..8:48) scala/Int#
 (8:50..8:54) scala/package.List.
-(8:54..8:54) scala/collection/IterableFactory#apply().
-(8:61..8:61) scala/reflect/ClassTag.apply().
 (9:15..9:18) _empty_/Test.`+++`(). -> 13:9
 (9:19..9:25) scala/IArray$package.IArray.
-(9:25..9:25) scala/IArray$package.IArray.apply(+14).
 (9:33..9:36) scala/Int#
 (9:38..9:44) scala/IArray$package.IArray.
-(9:44..9:44) scala/IArray$package.IArray.apply(+14).
-(9:51..9:51) scala/reflect/ClassTag.apply().
 (10:15..10:18) _empty_/Test.`+++`(+1). -> 14:9
 (10:19..10:25) scala/IArray$package.IArray.
-(10:25..10:25) scala/IArray$package.IArray.apply(+14).
 (10:33..10:36) scala/Int#
 (10:38..10:42) scala/package.List.
-(10:42..10:42) scala/collection/IterableFactory#apply().
-(10:49..10:49) scala/reflect/ClassTag.apply().
 (12:17..12:24) scala/reflect/
 (12:25..12:33) scala/reflect/ClassTag#
-(12:33..12:33) _empty_/Test.`+++`().[A] -> 12:14
-(12:33..12:33) _empty_/Test.`+++`(+1).[A] -> 12:14
 (12:40..12:46) scala/IArray$package.IArray#
 (12:47..12:48) _empty_/Test.`+++`().[A] -> 12:14
 (12:47..12:48) _empty_/Test.`+++`(+1).[A] -> 12:14
 (13:18..13:19) _empty_/Test.`+++`().[A] -> 12:14
 (13:21..13:28) scala/reflect/
 (13:29..13:37) scala/reflect/ClassTag#
-(13:37..13:37) _empty_/Test.`+++`().[B] -> 13:13
 (13:47..13:53) scala/IArray$package.IArray#
 (13:54..13:55) _empty_/Test.`+++`().[B] -> 13:13
 (13:59..13:65) scala/IArray$package.IArray#
@@ -80,7 +53,6 @@ Document tests/pos/i11358.scala
 (14:18..14:19) _empty_/Test.`+++`(+1).[A] -> 12:14
 (14:21..14:28) scala/reflect/
 (14:29..14:37) scala/reflect/ClassTag#
-(14:37..14:37) _empty_/Test.`+++`(+1).[B] -> 14:13
 (14:47..14:59) scala/package.IterableOnce#
 (14:60..14:61) _empty_/Test.`+++`(+1).[B] -> 14:13
 (14:65..14:71) scala/IArray$package.IArray#

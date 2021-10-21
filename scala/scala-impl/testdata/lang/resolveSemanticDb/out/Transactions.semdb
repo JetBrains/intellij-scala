@@ -1,18 +1,15 @@
 Document tests/pos/Transactions.scala
 (1:9..1:14) scala/
 (3:30..3:46) scala/package.RuntimeException#
-(3:46..3:46) java/lang/RuntimeException#`<init>`().
 (7:15..7:19) scala/Long#
 (7:22..7:34) java/lang/Object#synchronized().
 (8:5..8:8) scala/concurrent1/Transaction.cnt(). -> 6:15
-(8:8..8:8) scala/Long#`+`(+4).
 (8:15..8:18) scala/concurrent1/Transaction.cnt(). -> 6:15
 (18:20..18:31) scala/concurrent1/Transaction# -> 22:7
 (18:35..18:36) scala/concurrent1/Transaction.atomic().[T] -> 18:14
 (18:39..18:45) scala/Option#
 (18:46..18:47) scala/concurrent1/Transaction.atomic().[T] -> 18:14
 (19:10..19:21) scala/concurrent1/Transaction# -> 22:7
-(19:21..19:21) scala/concurrent1/Transaction#`<init>`(). -> 23:3
 (19:23..19:26) scala/concurrent1/Transaction#run(). -> 40:7
 (19:27..19:28) scala/concurrent1/Transaction.atomic().(b) -> 18:17
 (23:15..23:18) scala/Int#
@@ -23,10 +20,9 @@ Document tests/pos/Transactions.scala
 (28:13..28:24) scala/concurrent1/Transaction# -> 22:7
 (30:16..30:27) scala/concurrent1/Transaction# -> 22:7
 (30:33..30:44) scala/concurrent1/Transaction# -> 22:7
-(30:50..30:50) scala/concurrent1/Transaction#`<init>`(). -> 23:3
-(30:63..30:67) scala/concurrent1/Transaction#`head_=`(). -> 27:7
+(30:63..30:67) scala/concurrent1/Transaction#`head_=`().
 (30:70..30:74) scala/concurrent1/Transaction#head(). -> 27:7
-(30:81..30:85) scala/concurrent1/Transaction#`next_=`(). -> 28:7
+(30:81..30:85) scala/concurrent1/Transaction#`next_=`().
 (30:88..30:92) scala/concurrent1/Transaction#next(). -> 28:7
 (32:21..32:33) java/lang/Object#synchronized().
 (33:12..33:18) scala/concurrent1/Transaction#status(). -> 23:7
@@ -38,17 +34,17 @@ Document tests/pos/Transactions.scala
 (33:52..33:54) scala/Int#`!=`(+3).
 (33:55..33:66) scala/concurrent1/Transaction. -> 5:8
 (33:67..33:76) scala/concurrent1/Transaction.Committed. -> 13:7
-(34:7..34:13) scala/concurrent1/Transaction#`status_=`(). -> 23:7
+(34:7..34:13) scala/concurrent1/Transaction#`status_=`().
 (34:16..34:27) scala/concurrent1/Transaction. -> 5:8
 (34:28..34:37) scala/concurrent1/Transaction.Abortable. -> 14:7
 (35:7..35:11) java/lang/Object#wait().
 (38:25..38:37) java/lang/Object#synchronized().
-(38:40..38:46) scala/concurrent1/Transaction#`status_=`(). -> 23:7
+(38:40..38:46) scala/concurrent1/Transaction#`status_=`().
 (38:49..38:60) scala/concurrent1/Transaction. -> 5:8
 (38:61..38:68) scala/concurrent1/Transaction.Aborted. -> 15:7
 (38:70..38:79) java/lang/Object#notifyAll().
 (39:26..39:38) java/lang/Object#synchronized().
-(39:41..39:47) scala/concurrent1/Transaction#`status_=`(). -> 23:7
+(39:41..39:47) scala/concurrent1/Transaction#`status_=`().
 (39:50..39:61) scala/concurrent1/Transaction. -> 5:8
 (39:62..39:71) scala/concurrent1/Transaction.Committed. -> 13:7
 (39:73..39:82) java/lang/Object#notifyAll().
@@ -56,16 +52,14 @@ Document tests/pos/Transactions.scala
 (40:32..40:33) scala/concurrent1/Transaction#run().[T] -> 40:11
 (40:36..40:42) scala/Option#
 (40:43..40:44) scala/concurrent1/Transaction#run().[T] -> 40:11
-(42:7..42:13) scala/concurrent1/Transaction#`status_=`(). -> 23:7
+(42:7..42:13) scala/concurrent1/Transaction#`status_=`().
 (42:16..42:27) scala/concurrent1/Transaction. -> 5:8
 (42:28..42:35) scala/concurrent1/Transaction.Running. -> 12:7
-(43:7..43:9) scala/concurrent1/Transaction#`id_=`(). -> 25:7
+(43:7..43:9) scala/concurrent1/Transaction#`id_=`().
 (43:12..43:23) scala/concurrent1/Transaction. -> 5:8
 (43:24..43:30) scala/concurrent1/Transaction.nextId(). -> 7:7
 (44:20..44:24) scala/Some.
-(44:24..44:24) scala/Some.apply().
 (44:25..44:26) scala/concurrent1/Transaction#run().(b) -> 40:14
-(44:26..44:26) scala/Function1#apply().
 (45:7..45:13) scala/concurrent1/Transaction#commit(). -> 39:15
 (46:7..46:13) local0 -> 44:11
 (48:16..48:30) scala/concurrent1/AbortException# -> 3:7
@@ -93,13 +87,12 @@ Document tests/pos/Transactions.scala
 (69:28..69:39) scala/concurrent1/Transaction. -> 5:8
 (69:40..69:49) scala/concurrent1/Transaction.Committed. -> 13:7
 (69:51..69:59) scala/concurrent1/Transactional#rollBack(). -> 60:7
-(70:7..70:13) scala/concurrent1/Transactional#`writer_=`(). -> 63:7
+(70:7..70:13) scala/concurrent1/Transactional#`writer_=`().
 (74:25..74:36) scala/concurrent1/Transaction# -> 22:7
 (74:39..74:43) scala/Unit#
 (75:9..75:15) scala/concurrent1/Transactional#writer(). -> 63:7
 (75:16..75:18) scala/Any#`==`().
 (75:19..75:28) scala/concurrent1/Transactional#getter().(thisTrans) -> 74:14
-(75:36..75:36) scala/concurrent1/Transactional#getter(). -> 74:7
 (76:13..76:20) scala/concurrent1/Transactional#readers(). -> 62:7
 (77:12..77:13) local3 -> 76:9
 (77:14..77:16) scala/Any#`!=`().
@@ -113,7 +106,7 @@ Document tests/pos/Transactions.scala
 (77:65..77:66) local3 -> 76:9
 (77:69..77:70) local3 -> 76:9
 (77:71..77:75) scala/concurrent1/Transaction#next(). -> 28:7
-(77:77..77:84) scala/concurrent1/Transactional#`readers_=`(). -> 62:7
+(77:77..77:84) scala/concurrent1/Transactional#`readers_=`().
 (77:87..77:88) local3 -> 76:9
 (78:12..78:13) local3 -> 76:9
 (78:14..78:16) scala/Any#`!=`().
@@ -121,7 +114,6 @@ Document tests/pos/Transactions.scala
 (79:13..79:17) scala/concurrent1/Transaction#head(). -> 27:7
 (79:18..79:20) scala/Any#`==`().
 (79:21..79:30) scala/concurrent1/Transactional#getter().(thisTrans) -> 74:14
-(79:38..79:38) scala/concurrent1/Transactional#getter(). -> 74:7
 (80:18..80:19) local3 -> 76:9
 (81:7..81:8) local3 -> 76:9
 (81:11..81:12) local3 -> 76:9
@@ -139,7 +131,7 @@ Document tests/pos/Transactions.scala
 (82:71..82:72) local3 -> 76:9
 (82:73..82:77) scala/concurrent1/Transaction#next(). -> 28:7
 (82:79..82:83) local4 -> 80:11
-(82:84..82:88) scala/concurrent1/Transaction#`next_=`(). -> 28:7
+(82:84..82:88) scala/concurrent1/Transaction#`next_=`().
 (82:91..82:92) local3 -> 76:9
 (84:5..84:17) java/lang/Object#synchronized().
 (85:11..85:20) scala/concurrent1/Transactional#getter().(thisTrans) -> 74:14
@@ -148,7 +140,6 @@ Document tests/pos/Transactions.scala
 (85:31..85:42) scala/concurrent1/Transaction. -> 5:8
 (85:43..85:52) scala/concurrent1/Transaction.Abortable. -> 14:7
 (85:64..85:78) scala/concurrent1/AbortException# -> 3:7
-(85:78..85:78) scala/concurrent1/AbortException#`<init>`(). -> 3:30
 (86:15..86:28) scala/concurrent1/Transactional#currentWriter(). -> 65:7
 (87:11..87:12) local5 -> 86:11
 (87:13..87:15) scala/Any#`!=`().
@@ -160,15 +151,13 @@ Document tests/pos/Transactions.scala
 (88:36..88:37) local5 -> 86:11
 (88:38..88:47) scala/concurrent1/Transaction#makeAbort(). -> 32:7
 (88:51..88:59) scala/concurrent1/Transactional#rollBack(). -> 60:7
-(88:63..88:69) scala/concurrent1/Transactional#`writer_=`(). -> 63:7
+(88:63..88:69) scala/concurrent1/Transactional#`writer_=`().
 (89:24..89:38) scala/concurrent1/AbortException# -> 3:7
-(89:38..89:38) scala/concurrent1/AbortException#`<init>`(). -> 3:30
-(90:7..90:14) scala/concurrent1/Transactional#`readers_=`(). -> 62:7
+(90:7..90:14) scala/concurrent1/Transactional#`readers_=`().
 (90:21..90:28) scala/concurrent1/Transactional#readers(). -> 62:7
 (90:29..90:31) scala/Any#`==`().
 (90:38..90:47) scala/concurrent1/Transactional#getter().(thisTrans) -> 74:14
 (90:57..90:68) scala/concurrent1/Transaction# -> 22:7
-(90:68..90:68) scala/concurrent1/Transaction#`<init>`(+1). -> 30:7
 (90:69..90:78) scala/concurrent1/Transactional#getter().(thisTrans) -> 74:14
 (90:80..90:87) scala/concurrent1/Transactional#readers(). -> 62:7
 (94:25..94:36) scala/concurrent1/Transaction# -> 22:7
@@ -176,7 +165,6 @@ Document tests/pos/Transactions.scala
 (95:9..95:15) scala/concurrent1/Transactional#writer(). -> 63:7
 (95:16..95:18) scala/Any#`==`().
 (95:19..95:28) scala/concurrent1/Transactional#setter().(thisTrans) -> 94:14
-(95:36..95:36) scala/concurrent1/Transactional#setter(). -> 94:7
 (96:5..96:17) java/lang/Object#synchronized().
 (97:15..97:28) scala/concurrent1/Transactional#currentWriter(). -> 65:7
 (98:11..98:12) local6 -> 97:11
@@ -190,7 +178,6 @@ Document tests/pos/Transactions.scala
 (99:38..99:47) scala/concurrent1/Transaction#makeAbort(). -> 32:7
 (99:51..99:59) scala/concurrent1/Transactional#rollBack(). -> 60:7
 (100:24..100:38) scala/concurrent1/AbortException# -> 3:7
-(100:38..100:38) scala/concurrent1/AbortException#`<init>`(). -> 3:30
 (101:15..101:22) scala/concurrent1/Transactional#readers(). -> 62:7
 (102:14..102:15) local7 -> 101:11
 (102:16..102:18) scala/Any#`!=`().
@@ -204,7 +191,7 @@ Document tests/pos/Transactions.scala
 (102:67..102:68) local7 -> 101:11
 (102:71..102:72) local7 -> 101:11
 (102:73..102:77) scala/concurrent1/Transaction#next(). -> 28:7
-(102:79..102:86) scala/concurrent1/Transactional#`readers_=`(). -> 62:7
+(102:79..102:86) scala/concurrent1/Transactional#`readers_=`().
 (102:89..102:90) local7 -> 101:11
 (103:14..103:15) local7 -> 101:11
 (103:16..103:18) scala/Any#`!=`().
@@ -214,7 +201,6 @@ Document tests/pos/Transactions.scala
 (104:20..104:29) scala/concurrent1/Transactional#setter().(thisTrans) -> 94:14
 (104:30..104:32) scala/concurrent1/Transaction#id(). -> 25:7
 (104:44..104:58) scala/concurrent1/AbortException# -> 3:7
-(104:58..104:58) scala/concurrent1/AbortException#`<init>`(). -> 3:30
 (105:14..105:15) local6 -> 97:11
 (105:16..105:25) scala/concurrent1/Transaction#makeAbort(). -> 32:7
 (106:20..106:21) local7 -> 101:11
@@ -234,7 +220,7 @@ Document tests/pos/Transactions.scala
 (108:73..108:74) local7 -> 101:11
 (108:75..108:79) scala/concurrent1/Transaction#next(). -> 28:7
 (108:81..108:85) local8 -> 106:13
-(108:86..108:90) scala/concurrent1/Transaction#`next_=`(). -> 28:7
+(108:86..108:90) scala/concurrent1/Transaction#`next_=`().
 (108:93..108:94) local7 -> 101:11
 (110:7..110:17) scala/concurrent1/Transactional#checkPoint(). -> 57:7
 

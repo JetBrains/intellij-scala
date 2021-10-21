@@ -1,14 +1,11 @@
 Document tests/pos/i6635.scala
 (6:30..6:38) _empty_/Test.ExprBase# -> 2:18
-(6:38..6:38) _empty_/Test.ExprBase#`<init>`(). -> 2:29
 (7:14..7:17) scala/Int#
 (8:12..8:13) _empty_/Test.Lit#A# -> 7:10
 (11:31..11:39) _empty_/Test.ExprBase# -> 2:18
-(11:39..11:39) _empty_/Test.ExprBase#`<init>`(). -> 2:29
 (12:15..12:18) scala/Int#
 (13:12..13:13) _empty_/Test.LitU#A# -> 12:10
 (16:31..16:39) _empty_/Test.ExprBase# -> 2:18
-(16:39..16:39) _empty_/Test.ExprBase#`<init>`(). -> 2:29
 (17:15..17:18) scala/Int#
 (18:12..18:13) _empty_/Test.LitL#A# -> 17:10
 (21:21..21:29) _empty_/Test.ExprBase# -> 2:18

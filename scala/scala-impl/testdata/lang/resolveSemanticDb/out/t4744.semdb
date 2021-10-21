@@ -3,5 +3,4 @@ Document tests/pos/t4744/Bar.scala
 (1:32..1:36) java/
 (1:37..1:41) java/lang/
 (1:42..1:49) java/lang/Integer#
-(1:50..1:50) _empty_/Foo#`<init>`(+1).
 

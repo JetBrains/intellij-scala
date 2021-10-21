@@ -5,5 +5,4 @@ Document tests/pos/i2071_1.scala
 (4:10..4:12) _empty_/Test.PF# -> 2:8
 (4:13..4:16) scala/Int#
 (4:18..4:24) scala/Predef.String#
-(5:5..5:5) local0
 

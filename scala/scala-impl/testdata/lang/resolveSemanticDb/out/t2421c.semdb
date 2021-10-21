@@ -7,13 +7,11 @@ Document tests/pos/t2421c.scala
 (9:22..9:23) _empty_/Test.A# -> 2:9
 (9:31..9:32) _empty_/Test.F# -> 5:9
 (9:33..9:34) _empty_/Test.A# -> 2:9
-(9:35..9:35) _empty_/Test.F#`<init>`(). -> 5:10
 (13:22..13:26) _empty_/Test. -> 1:8
 (13:27..13:28) _empty_/Test.G# -> 12:9
 (13:29..13:30) _empty_/Test.g().[X] -> 13:18
 (13:38..13:39) _empty_/Test.G# -> 12:9
 (13:40..13:41) _empty_/Test.g().[X] -> 13:18
-(13:42..13:42) _empty_/Test.G#`<init>`(). -> 12:10
 (14:23..14:24) _empty_/Test.B# -> 3:9
 (14:39..14:40) _empty_/Test.G# -> 12:9
 (14:41..14:42) _empty_/Test.b().[X] -> 14:18
@@ -22,7 +20,5 @@ Document tests/pos/t2421c.scala
 (14:53..14:54) _empty_/Test.b().[X] -> 14:18
 (14:62..14:63) _empty_/Test.F# -> 5:9
 (14:64..14:65) _empty_/Test.b().[X] -> 14:18
-(14:66..14:66) _empty_/Test.F#`<init>`(). -> 5:10
 (16:3..16:4) _empty_/Test.f(). -> 7:7
-(16:4..16:4) _empty_/Test.a(). -> 9:16
 

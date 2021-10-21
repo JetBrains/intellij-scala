@@ -11,7 +11,6 @@ Document tests/pos/i9228.scala
 (7:42..7:46) _empty_/ABug.Graph#Node# -> 3:23
 (7:51..7:54) scala/Predef.`???`().
 (9:24..9:29) _empty_/ABug.Graph# -> 3:9
-(9:29..9:29) _empty_/ABug.Graph#`<init>`(). -> 3:17
 (10:10..10:15) _empty_/ABug.graph. -> 9:10
 (11:9..11:14) _empty_/ABug.graph. -> 9:10
 (11:22..11:27) _empty_/ABug.graph. -> 9:10
@@ -19,17 +18,14 @@ Document tests/pos/i9228.scala
 (13:17..13:21) scala/package.List#
 (13:22..13:26) _empty_/ABug.Graph#Node# -> 3:23
 (13:31..13:36) _empty_/ABug.gtoll(). -> 7:7
-(13:36..13:36) _empty_/ABug.given_graph_type. -> 11:9
 (15:10..15:14) scala/package.List#
 (15:15..15:19) scala/package.List#
 (15:20..15:23) scala/Any#
 (15:29..15:33) _empty_/ABug.ltol(). -> 5:7
 (15:34..15:39) _empty_/ABug.gtoll(). -> 7:7
-(15:39..15:39) _empty_/ABug.given_graph_type. -> 11:9
 (16:10..16:14) scala/package.List#
 (16:15..16:19) scala/package.List#
 (16:20..16:24) _empty_/ABug.Graph#Node# -> 3:23
 (16:29..16:33) _empty_/ABug.ltol(). -> 5:7
 (16:34..16:39) _empty_/ABug.gtoll(). -> 7:7
-(16:39..16:39) _empty_/ABug.given_graph_type. -> 11:9
 

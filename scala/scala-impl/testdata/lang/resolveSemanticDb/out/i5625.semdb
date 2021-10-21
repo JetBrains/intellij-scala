@@ -15,25 +15,21 @@ Document tests/pos/i5625.scala
 (10:19..10:25) scala/Predef.String#
 (10:27..10:30) scala/`=:=`#
 (10:31..10:35) scala/Char#
-(10:36..10:36) scala/`<:<`.refl().
 (11:3..11:9) scala/Predef.summon().
 (11:10..11:18) _empty_/Test.LeafElem# -> 3:8
 (11:19..11:24) scala/Array#
 (11:25..11:28) scala/Int#
 (11:31..11:34) scala/`=:=`#
 (11:35..11:38) scala/Int#
-(11:39..11:39) scala/`<:<`.refl().
 (12:3..12:9) scala/Predef.summon().
 (12:10..12:18) _empty_/Test.LeafElem# -> 3:8
 (12:19..12:27) scala/package.Iterable#
 (12:28..12:31) scala/Int#
 (12:34..12:37) scala/`=:=`#
 (12:38..12:41) scala/Int#
-(12:42..12:42) scala/`<:<`.refl().
 (13:3..13:9) scala/Predef.summon().
 (13:10..13:18) _empty_/Test.LeafElem# -> 3:8
 (13:19..13:22) scala/Int#
 (13:24..13:27) scala/`=:=`#
 (13:28..13:31) scala/Int#
-(13:32..13:32) scala/`<:<`.refl().
 

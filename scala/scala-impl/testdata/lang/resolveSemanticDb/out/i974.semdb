@@ -1,2 +1,5 @@
 Document tests/pos/i974.scala
+(2:20..2:23) _empty_/Foo# -> 1:7
+(2:24..2:26) _empty_/Bar#[CC] -> 2:11
+(2:27..2:28) _empty_/Bar#`<init>`().[CC][X] -> 2:14
 

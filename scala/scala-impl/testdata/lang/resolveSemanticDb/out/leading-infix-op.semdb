@@ -13,7 +13,6 @@ Document tests/pos/leading-infix-op.scala
 (8:17..8:20) scala/Int#
 (8:25..8:26) _empty_/`leading-infix-op$package`.g().(x) -> 8:7
 (9:8..9:12) scala/Some.
-(9:12..9:12) scala/Some.unapply().
 (10:5..10:12) scala/Predef.println(+1).
 (11:5..11:8) scala/Predef.`???`().
 (12:8..12:12) scala/None.

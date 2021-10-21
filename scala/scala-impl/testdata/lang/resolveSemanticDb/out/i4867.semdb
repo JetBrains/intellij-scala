@@ -5,16 +5,13 @@ Document tests/pos/i4867.scala
 (2:44..2:50) scala/Double#
 (3:8..3:14) _empty_/UnionMapping.parse().(string) -> 2:21
 (3:15..3:23) java/lang/String#contains().
-(4:7..4:7) scala/Predef.augmentString().
 (4:7..4:13) _empty_/UnionMapping.parse().(string) -> 2:21
 (4:14..4:22) scala/collection/StringOps#toDouble().
-(6:7..6:7) scala/Predef.augmentString().
 (6:7..6:13) _empty_/UnionMapping.parse().(string) -> 2:21
 (6:14..6:19) scala/collection/StringOps#toInt().
 (10:18..10:21) scala/package.Seq#
 (10:22..10:28) scala/Predef.String#
 (10:32..10:35) scala/package.Seq.
-(10:35..10:35) scala/collection/SeqFactory.Delegate#apply().
 (12:15..12:18) scala/package.Seq#
 (12:19..12:25) scala/AnyVal#
 (12:29..12:36) local0 -> 10:9

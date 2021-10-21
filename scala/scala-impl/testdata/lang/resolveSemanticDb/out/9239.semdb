@@ -2,6 +2,8 @@ Document tests/pos/9239.scala
 (3:27..3:30) _empty_/ABug.Bit# -> 2:16
 (4:27..4:30) _empty_/ABug.Bit# -> 2:16
 (7:28..7:31) _empty_/ABug.Bin# -> 6:16
+(8:24..8:27) _empty_/ABug.Bit# -> 2:16
+(8:34..8:37) _empty_/ABug.Bin# -> 6:16
 (8:47..8:50) _empty_/ABug.Bin# -> 6:16
 (10:15..10:17) _empty_/ABug.B0# -> 3:16
 (10:18..10:20) _empty_/ABug.`::`# -> 8:16

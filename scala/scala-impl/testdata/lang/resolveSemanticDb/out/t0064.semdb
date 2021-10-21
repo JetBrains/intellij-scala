@@ -1,7 +1,6 @@
 Document tests/pos/t0064.scala
 (2:17..2:22) scala/Array#
 (2:23..2:29) scala/Predef.String#
-(3:18..3:18) scala/Tuple2.apply().
 (4:5..4:6) local0 -> 3:12
 (4:7..4:8) scala/Int#`+`(+4).
 

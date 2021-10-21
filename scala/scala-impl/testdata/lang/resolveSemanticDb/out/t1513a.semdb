@@ -2,10 +2,14 @@ Document tests/pos/t1513a.scala
 (1:8..1:16) scala/language.
 (1:17..1:29) scala/language.experimental.
 (1:30..1:48) scala/language.experimental.namedTypeArguments.
+(6:27..6:32) _empty_/Test.HList# -> 5:16
 (6:42..6:47) _empty_/Test.HList# -> 5:16
 (7:29..7:34) _empty_/Test.HList# -> 5:16
+(10:26..10:29) _empty_/Test.Nat# -> 9:16
 (10:39..10:42) _empty_/Test.Nat# -> 9:16
 (11:29..11:32) _empty_/Test.Nat# -> 9:16
+(15:23..15:28) _empty_/Test.HList# -> 5:16
+(15:35..15:38) _empty_/Test.Nat# -> 9:16
 (17:19..17:24) _empty_/Test.HList# -> 5:16
 (17:31..17:34) _empty_/Test.Nat# -> 9:16
 (17:41..17:49) _empty_/Test.Accessor# -> 15:9
@@ -57,13 +61,10 @@ Document tests/pos/t1513a.scala
 (30:91..30:93) _empty_/Test.at2().[OO] -> 30:22
 (30:96..30:99) scala/Predef.`???`().
 (33:3..33:6) _empty_/Test.at2(). -> 30:7
-(33:7..33:12) _empty_/Test.Proxy. -> 27:14
-(33:12..33:12) _empty_/Test.Proxy.apply(). -> 27:3
+(33:7..33:12) _empty_/Test.Proxy.
 (33:13..33:17) _empty_/Test.Zero# -> 11:16
-(33:21..33:21) _empty_/Test.Accessor.caseZero(). -> 20:18
 (33:23..33:29) scala/Predef.String#
 (36:3..36:6) _empty_/Test.at1(). -> 29:7
 (36:12..36:16) _empty_/Test.Zero# -> 11:16
-(36:17..36:17) _empty_/Test.Accessor.caseZero(). -> 20:18
 (36:19..36:25) scala/Predef.String#
 

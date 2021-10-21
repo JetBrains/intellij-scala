@@ -13,10 +13,14 @@ Document tests/pos/i11057.scala
 (10:32..10:38) scala/Predef.String#
 (10:43..10:49) _empty_/data.OfType# -> 3:11
 (10:50..10:51) _empty_/data.ColumnName#[T] -> 10:27
+(11:31..11:35) _empty_/data.DSeq# -> 8:10
 (11:42..11:43) _empty_/data.Column#[F] -> 11:25
 (11:44..11:45) _empty_/data.Column#[T] -> 11:23
 (11:52..11:62) _empty_/data.ColumnName# -> 10:16
 (11:63..11:64) _empty_/data.Column#[T] -> 11:23
+(14:20..14:24) _empty_/data. -> 1:8
+(14:25..14:29) _empty_/data.DSeq# -> 8:10
+(14:30..14:31) _empty_/i11057$package.min4().[T] -> 14:12
 (14:39..14:43) _empty_/data. -> 1:8
 (14:44..14:50) _empty_/data.Column# -> 11:16
 (14:51..14:52) _empty_/i11057$package.min4().[T] -> 14:12
@@ -33,9 +37,7 @@ Document tests/pos/i11057.scala
 (16:40..16:43) scala/collection/IterableOnceOps#min().
 (16:44..16:45) _empty_/i11057$package.min4().[T] -> 14:12
 (16:47..16:55) scala/package.Ordering.
-(16:55..16:55) scala/math/Ordering.apply().
 (16:56..16:57) _empty_/i11057$package.min4().[T] -> 14:12
-(16:58..16:58) _empty_/i11057$package.min4().(x$2) -> 14:63
 (17:14..17:18) _empty_/data. -> 1:8
 (17:19..17:25) _empty_/data.Column# -> 11:16
 (17:26..17:32) scala/Double#

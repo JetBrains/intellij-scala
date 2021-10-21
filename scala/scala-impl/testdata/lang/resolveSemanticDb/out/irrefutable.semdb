@@ -3,23 +3,15 @@ Document tests/pos/irrefutable.scala
 (16:14..16:18) scala/package.List#
 (16:19..16:22) _empty_/A#Foo# -> 14:14
 (16:23..16:26) scala/Int#
-(17:10..17:10) local0
-(17:10..17:13) _empty_/A#Foo. -> 14:14
-(17:13..17:13) _empty_/A#Foo.unapply(). -> 14:3
+(17:10..17:13) _empty_/A#Foo.
 (17:17..17:20) scala/Int#
 (17:25..17:27) _empty_/A#f1().(xs) -> 16:10
-(17:27..17:27) scala/collection/IterableOps#withFilter().
-(17:27..17:27) scala/collection/WithFilter#map().
 (17:35..17:36) local1 -> 17:14
 (19:14..19:18) scala/package.List#
 (19:19..19:22) _empty_/A#Foo# -> 14:14
 (19:23..19:26) scala/Any#
-(20:10..20:10) local2
-(20:10..20:13) _empty_/A#Foo. -> 14:14
-(20:13..20:13) _empty_/A#Foo.unapply(). -> 14:3
+(20:10..20:13) _empty_/A#Foo.
 (20:17..20:20) scala/Int#
 (20:25..20:27) _empty_/A#f2().(xs) -> 19:10
-(20:27..20:27) scala/collection/IterableOps#withFilter().
-(20:27..20:27) scala/collection/WithFilter#map().
 (20:35..20:36) local3 -> 20:14
 

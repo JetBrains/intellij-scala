@@ -11,5 +11,5 @@ Document tests/pos/gadt-foo.scala
 (7:28..7:29) _empty_/foo.eval().(e) -> 7:15
 (8:13..8:16) _empty_/foo.Var# -> 3:14
 (9:7..9:10) _empty_/foo.env(). -> 5:7
-(9:11..9:12) local0 -> 8:10
+(9:11..9:12) local1 -> 8:10
 

@@ -13,7 +13,6 @@ Document tests/pos/varargs-separate/Impl_2.scala
 (1:14..1:24) scala/annotation/
 (1:25..1:32) scala/annotation/varargs#
 (3:20..3:23) _empty_/Abs# -> 3:16
-(3:23..3:23) _empty_/Abs#`<init>`(). -> 4:3
 (4:27..4:33) scala/Predef.String#
 (4:37..4:41) scala/Unit#
 (7:17..7:18) _empty_/T# -> 7:7

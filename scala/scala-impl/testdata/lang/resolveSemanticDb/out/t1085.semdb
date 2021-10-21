@@ -2,9 +2,9 @@ Document tests/pos/t1085.scala
 (6:23..6:30) _empty_/Functor# -> 1:7
 (6:31..6:32) _empty_/Test.listFunctor().[a] -> 6:19
 (6:49..6:53) scala/package.List#
-(6:54..6:55) local1 -> 6:46
+(6:54..6:55) local0 -> 6:46
 (6:64..6:71) _empty_/Functor# -> 1:7
 (6:72..6:73) _empty_/Test.listFunctor().[a] -> 6:19
 (7:20..7:24) scala/package.List#
-(7:25..7:26) local4 -> 7:17
+(7:25..7:26) local2 -> 7:17
 

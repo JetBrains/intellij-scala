@@ -5,9 +5,6 @@ Document tests/pos/indented-parens.scala
 (2:22..2:23) _empty_/`indented-parens$package`.f().(x) -> 1:7
 (2:24..2:25) scala/Int#`+`(+4).
 (2:26..2:27) _empty_/`indented-parens$package`.f().(y) -> 2:7
-(5:1..5:1) _empty_/`indented-parens$package`.Test(). -> 5:11
-(5:1..5:1) local1
-(5:1..5:1) scala/util/CommandLineParser.showError().
 (5:2..5:6) scala/main#
 (6:11..6:12) _empty_/`indented-parens$package`.f(). -> 1:5
 (8:5..8:6) scala/Int#`+`(+4).

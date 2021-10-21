@@ -10,7 +10,6 @@ Document tests/pos/spec-example1.scala
 (5:14..5:16) _empty_/C#_f. -> 1:34
 (15:17..15:18) _empty_/C# -> 1:16
 (15:19..15:22) scala/Int#
-(15:23..15:23) _empty_/C#`<init>`(). -> 1:17
 (16:12..16:15) scala/Int#
 (16:18..16:21) scala/Int#
 (16:24..16:25) _empty_/D#m().(x) -> 16:9

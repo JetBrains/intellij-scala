@@ -2,11 +2,9 @@ Document tests/pos/t5862.scala
 (3:8..3:12) java/
 (3:13..3:15) java/io/
 (3:16..3:26) java/io/DataOutput#
-(3:16..3:26) java/io/DataOutput.
 (4:8..4:12) java/
 (4:13..4:15) java/io/
 (4:16..4:25) java/io/DataInput#
-(4:16..4:25) java/io/DataInput.
 (8:19..8:20) test/Emitter#[A] -> 7:15
 (8:23..8:27) scala/Unit#
 (13:16..13:19) scala/Predef.Set#
@@ -48,17 +46,13 @@ Document tests/pos/t5862.scala
 (30:10..30:17) test/MapReduceJob#mappers. -> 27:15
 (30:18..30:26) scala/collection/MapOps#contains().
 (30:27..30:32) test/MapReduceJob#addTaggedMapper().(input) -> 29:32
-(30:33..30:33) scala/Boolean#`unary_!`().
 (31:7..31:14) test/MapReduceJob#mappers. -> 27:15
 (31:15..31:17) scala/collection/mutable/Growable#`+=`().
-(31:19..31:19) scala/Predef.ArrowAssoc().
 (31:19..31:24) test/MapReduceJob#addTaggedMapper().(input) -> 29:32
 (31:25..31:27) scala/Predef.ArrowAssoc#`->`().
 (31:28..31:32) scala/collection/mutable/Set.
-(31:32..31:32) scala/collection/IterableFactory.Delegate#apply().
 (31:33..31:34) test/MapReduceJob#addTaggedMapper().(m) -> 29:51
 (33:7..33:14) test/MapReduceJob#mappers. -> 27:15
-(33:14..33:14) scala/collection/MapOps#apply().
 (33:15..33:20) test/MapReduceJob#addTaggedMapper().(input) -> 29:32
 (33:22..33:24) scala/collection/mutable/Growable#`+=`().
 (33:25..33:26) test/MapReduceJob#addTaggedMapper().(m) -> 29:51

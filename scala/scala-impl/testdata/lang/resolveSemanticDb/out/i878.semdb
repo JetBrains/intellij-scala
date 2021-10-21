@@ -20,5 +20,4 @@ Document tests/pos/i878.scala
 (15:5..15:7) local1 -> 12:9
 (15:8..15:11) _empty_/IChan#add(). -> 6:7
 (15:12..15:14) local2 -> 13:9
-(15:15..15:15) local0 -> 11:18
 

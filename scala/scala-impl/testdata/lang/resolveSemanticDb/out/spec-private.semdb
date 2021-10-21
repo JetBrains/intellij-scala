@@ -3,9 +3,7 @@ Document tests/pos/spec-private.scala
 (3:24..3:27) scala/Int.
 (3:35..3:36) _empty_/Foo#foo().[T] -> 3:29
 (3:44..3:50) java/lang/Object#
-(3:50..3:50) java/lang/Object#`<init>`().
 (4:33..4:37) scala/package.List.
-(4:37..4:37) scala/collection/IterableFactory#apply().
 (6:14..6:18) scala/Unit#
-(7:7..7:14) local1 -> 4:23
+(7:7..7:14) local0 -> 4:23
 

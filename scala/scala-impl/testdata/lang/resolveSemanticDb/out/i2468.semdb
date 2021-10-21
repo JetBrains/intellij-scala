@@ -28,5 +28,4 @@ Document tests/pos/i2468.scala
 (24:32..24:45) scala/compiletime/package$package.uninitialized().
 (27:14..27:17) scala/Int#
 (27:27..27:33) scala/AnyVal#
-(27:33..27:33) scala/AnyVal#`<init>`().
 

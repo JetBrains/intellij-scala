@@ -1,6 +1,8 @@
 Document tests/pos/t4243.scala
 (7:21..7:32) scala/specialized#
 (7:33..7:36) scala/Int.
+(7:50..7:56) _empty_/wrap.Domain# -> 9:9
+(7:57..7:58) _empty_/wrap.DomainLike#[A] -> 7:38
 (9:17..9:28) scala/specialized#
 (9:29..9:32) scala/Int.
 (10:11..10:21) _empty_/wrap.DomainLike# -> 7:9
@@ -9,6 +11,8 @@ Document tests/pos/t4243.scala
 (10:32..10:33) _empty_/wrap.Domain#[B] -> 9:34
 (12:29..12:40) scala/specialized#
 (12:41..12:44) scala/Int.
+(12:58..12:72) _empty_/wrap.IterableDomain# -> 15:9
+(12:73..12:74) _empty_/wrap.IterableDomainLike#[C] -> 12:46
 (13:11..13:21) _empty_/wrap.DomainLike# -> 7:9
 (13:22..13:23) _empty_/wrap.IterableDomainLike#[C] -> 12:46
 (13:25..13:29) _empty_/wrap.IterableDomainLike#[This] -> 12:50

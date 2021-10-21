@@ -2,7 +2,7 @@ Document tests/pos/t5816-noclash.scala
 (6:38..6:41) _empty_/Foo# -> 13:12
 (6:42..6:43) _empty_/Foo.referToPolyOverloadedApply().[A] -> 6:34
 (6:47..6:50) _empty_/Foo. -> 1:8
-(6:51..6:56) _empty_/Foo.apply(). -> 13:1
+(6:51..6:56) _empty_/Foo.apply().
 (6:57..6:58) _empty_/Foo.referToPolyOverloadedApply().[A] -> 6:34
 (11:19..11:22) scala/Int#
 (11:25..11:28) _empty_/Foo# -> 13:12

@@ -16,7 +16,6 @@ Document tests/pos/t1203a.scala
 (9:35..9:39) scala/Unit#
 (10:13..10:20) _empty_/NodeSeq# -> 5:16
 (10:22..10:25) _empty_/ant# -> 7:12
-(10:34..10:34) _empty_/NodeSeq.seqToNodeSeq(). -> 3:16
 (10:34..10:37) scala/package.Nil.
 (11:6..11:13) scala/Predef.println(+1).
 (11:14..11:15) local0 -> 10:10

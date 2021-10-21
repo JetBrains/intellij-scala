@@ -4,5 +4,4 @@ Document tests/pos/t2726/SQLBuilder_1.scala
 
 Document tests/pos/t2726/t2726_2.scala
 (2:7..2:17) _empty_/SQLBuilder# -> 1:7
-(2:17..2:17) _empty_/SQLBuilder#`<init>`(). -> 1:26
 

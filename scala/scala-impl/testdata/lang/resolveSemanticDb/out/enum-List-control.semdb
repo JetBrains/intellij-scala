@@ -6,7 +6,6 @@ Document tests/pos/enum-List-control.scala
 (3:38..3:39) _empty_/List.Cons#[T] -> 3:20
 (3:50..3:54) _empty_/List# -> 1:23
 (3:55..3:56) _empty_/List.Cons#[T] -> 3:20
-(3:57..3:57) _empty_/List#`<init>`(). -> 1:27
 (5:24..5:27) scala/Any#
 (5:30..5:37) scala/Boolean#
 (5:40..5:44) _empty_/List.Cons#canEqual().(that) -> 5:18
@@ -23,26 +22,19 @@ Document tests/pos/enum-List-control.scala
 (12:33..12:34) _empty_/List.Cons.apply().[T] -> 12:15
 (12:38..12:42) _empty_/List# -> 1:23
 (12:43..12:44) _empty_/List.Cons.apply().[T] -> 12:15
-(12:56..12:56) _empty_/List.Cons#`<init>`(). -> 3:19
 (12:57..12:58) _empty_/List.Cons.apply().(x) -> 12:18
 (12:60..12:62) _empty_/List.Cons.apply().(xs) -> 12:24
 (14:32..14:36) _empty_/List# -> 1:23
 (14:37..14:38) _empty_/List.Nil#[T] -> 14:19
-(14:39..14:39) _empty_/List#`<init>`(). -> 1:27
 (14:41..14:48) scala/runtime/
 (14:49..14:58) scala/runtime/EnumValue#
 (18:21..18:25) _empty_/List# -> 1:23
 (18:26..18:27) _empty_/List.Nil.apply().[T] -> 18:15
-(18:38..18:38) _empty_/List.Nil#`<init>`(). -> 14:18
 (22:10..22:14) _empty_/List. -> 2:8
 (23:12..23:16) _empty_/List.Cons. -> 11:10
-(23:16..23:16) _empty_/List.Cons.apply(). -> 12:9
 (23:20..23:24) _empty_/List.Cons. -> 11:10
-(23:24..23:24) _empty_/List.Cons.apply(). -> 12:9
 (23:28..23:32) _empty_/List.Cons. -> 11:10
-(23:32..23:32) _empty_/List.Cons.apply(). -> 12:9
 (23:36..23:39) _empty_/List.Nil. -> 17:10
-(23:39..23:39) _empty_/List.Nil.apply(). -> 18:9
 (24:18..24:23) scala/Array#
 (24:24..24:30) scala/Predef.String#
 (24:35..24:42) scala/Predef.println(+1).

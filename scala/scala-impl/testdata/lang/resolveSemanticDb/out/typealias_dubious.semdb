@@ -1,7 +1,6 @@
 Document tests/pos/typealias_dubious.scala
 (3:18..3:24) scala/AnyRef#
 (7:24..7:31) _empty_/MailBox# -> 1:7
-(7:31..7:31) _empty_/MailBox#`<init>`(). -> 3:3
 (9:17..9:19) _empty_/Actor#in. -> 7:15
 (9:20..9:27) _empty_/MailBox#Message# -> 3:8
 (9:32..9:35) scala/sys/

@@ -1,6 +1,5 @@
 Document tests/pos/sets.scala
 (3:23..3:27) scala/package.List.
-(3:27..3:27) scala/collection/IterableFactory#apply().
 (3:28..3:34) scala/Symbol#
 (5:27..5:30) scala/Predef.Set#
 (5:31..5:37) scala/Symbol#

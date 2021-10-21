@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
@@ -64,7 +66,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
           var allSuccess = true
           var newProblems = List.empty[String]
 
-          if (!ref.targets.exists(target => isInRefinement(target.e))) {
+          if (!ref.targets.exists(target => isInRefinement(target.element))) {
             def ignoreSemanticDbRef(ref: SDbRef): Boolean = {
               // ignore locals and implicits involving ClassTag
               ref.pointsToLocal || ref.symbol.contains("ClassTag")
@@ -137,10 +139,20 @@ object ReferenceComparisonTestBase {
     else pos
   }
 
-  case class RefTarget(e: PsiNamedElement) {
-    lazy val symbol: String = ComparisonSymbol.fromPsi(e)
-    def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(e)
-    def position: TextPos = TextPos.of(e.getNavigationElement)
+  trait RefTarget {
+    def element: PsiNamedElement
+    lazy val symbol: String = ComparisonSymbol.fromPsi(element)
+    def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(element)
+    def position: TextPos = TextPos.of(element.getNavigationElement)
+  }
+
+  case class PhysicalRefTarget(element: PsiNamedElement) extends RefTarget
+  case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
+    override lazy val symbol: String =
+      ComparisonSymbol.fromPsi(element)
+        .stripSuffix(s"${element.name}.")
+        .stripSuffix(s"`${element.name}`.")
+        .appendedAll(s"`${element.name}_=`().")
   }
 
   case class RefInfo(name: String,
@@ -155,12 +167,18 @@ object ReferenceComparisonTestBase {
       .flatMap(r => Seq(r.element) ++ r.parentElement)
       .filterByType[PsiNamedElement]
       .flatMap {
+        case td: ScReferencePattern if td.isVar && td.containingClass != null =>
+          Seq(PhysicalRefTarget(td), AssignmentRefTarget(td))
+        case field: ScFieldId if field.isVar =>
+          Seq(PhysicalRefTarget(field), AssignmentRefTarget(field))
+        case param: ScClassParameter if param.isVar =>
+          Seq(PhysicalRefTarget(param), AssignmentRefTarget(param))
         case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
-          Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
+          val defs = Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
+          defs.map(PhysicalRefTarget)
         case x =>
-          Seq(x)
+          Seq(PhysicalRefTarget(x))
       }
-      .map(RefTarget)
 
     /*lazy val problems: Option[String] = {
       val resultsWithProblems = resolved.filter(_.problems.nonEmpty)

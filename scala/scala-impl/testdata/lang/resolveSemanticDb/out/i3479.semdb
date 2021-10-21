@@ -1,11 +1,9 @@
 Document tests/pos/i3479.scala
 (2:18..2:32) _empty_/TermConstraint# -> 1:14
-(3:10..3:13) _empty_/Neg. -> 7:12
-(3:13..3:13) _empty_/Neg.unapply().
+(3:10..3:13) _empty_/Neg.
 (3:20..3:21) local0 -> 3:14
 (4:13..4:35) _empty_/PositiveTermConstraint# -> 8:14
-(4:39..4:42) _empty_/Neg. -> 7:12
-(4:42..4:42) _empty_/Neg.apply(). -> 7:1
+(4:39..4:42) _empty_/Neg.
 (4:43..4:44) local1 -> 4:10
 (7:19..7:41) _empty_/PositiveTermConstraint# -> 8:14
 (7:51..7:65) _empty_/TermConstraint# -> 1:14

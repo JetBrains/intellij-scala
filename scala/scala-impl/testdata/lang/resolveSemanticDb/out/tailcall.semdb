@@ -6,28 +6,26 @@ Document tests/pos/tailcall/i1089.scala
 (8:19..8:23) scala/Unit#
 (9:19..9:27) hello/Enclosing#SomeData# -> 6:9
 (9:30..9:33) scala/Int#
-(9:36..9:40) local1 -> 6:25
+(9:36..9:40) local0 -> 6:25
 (9:41..9:42) hello/Enclosing#SomeData#x. -> 6:22
 (11:6..11:13) scala/annotation/tailrec#
 (12:17..12:20) scala/Int#
 (12:28..12:36) hello/Enclosing#SomeData# -> 6:9
 (12:39..12:43) scala/Unit#
-(13:11..13:12) local3 -> 11:25
+(13:11..13:12) local2 -> 11:25
 (13:13..13:15) scala/Int#`!=`(+3).
 (14:9..14:16) scala/Predef.println(+1).
-(14:17..14:20) local0 -> 6:20
-(14:21..14:25) local4 -> 17:20
-(15:9..15:13) local2 -> 11:20
-(15:14..15:15) local3 -> 11:25
+(14:17..14:20) local1 -> 6:20
+(14:21..14:25) local3 -> 11:20
+(15:9..15:13) local4 -> 17:25
+(15:14..15:15) local2 -> 11:25
 (15:16..15:17) scala/Int#`-`(+3).
-(15:21..15:25) local4 -> 17:20
-(19:5..19:9) local2 -> 11:20
+(15:21..15:25) local3 -> 11:20
+(19:5..19:9) local4 -> 17:25
 (19:17..19:25) hello/Enclosing#SomeData# -> 6:9
-(19:25..19:25) hello/Enclosing#SomeData#`<init>`(). -> 6:17
 (23:22..23:25) scala/App#
 (24:3..24:10) scala/Predef.println(+1).
 (25:7..25:16) hello/Enclosing# -> 5:7
-(25:16..25:16) hello/Enclosing#`<init>`(). -> 6:3
 (25:19..25:27) hello/Enclosing#localDef(). -> 8:7
 
 Document tests/pos/tailcall/i1614.scala
@@ -35,20 +33,18 @@ Document tests/pos/tailcall/i1614.scala
 (2:23..2:29) scala/Predef.String#
 (3:23..3:29) scala/Predef.String#
 (3:31..3:37) scala/Predef.String#
-(3:42..3:43) local1 -> 6:25
+(3:42..3:43) local0 -> 6:25
 (3:46..3:50) scala/package.List#
-(3:51..3:52) local1 -> 6:25
+(3:51..3:52) local0 -> 6:25
 (3:56..3:60) scala/package.List.
-(3:60..3:60) scala/collection/IterableFactory#apply().
 (3:61..3:67) scala/Predef.String#
 (4:14..4:16) scala/package.`::`.
-(4:16..4:16) scala/collection/immutable/`::`.unapply().
-(4:23..4:29) local0 -> 6:20
-(4:30..4:31) local2 -> 11:20
-(6:5..6:11) local0 -> 6:20
-(6:25..6:27) local4 -> 17:20
+(4:23..4:29) local3 -> 11:20
+(4:30..4:31) local1 -> 6:20
+(6:5..6:11) local3 -> 11:20
+(6:25..6:27) local4 -> 17:25
 (6:28..6:29) java/lang/String#`+`().
-(6:30..6:32) local5 -> 17:25
+(6:30..6:32) local5 -> 17:20
 (6:35..6:45) scala/collection/LinearSeqOps#headOption().
 
 Document tests/pos/tailcall/i2024.scala
@@ -59,6 +55,8 @@ Document tests/pos/tailcall/i321.scala
 (1:8..1:13) scala/
 (1:14..1:24) scala/annotation/
 (1:25..1:32) scala/annotation/tailrec#
+(14:17..14:21) scala/Null#
+(14:25..14:31) scala/AnyRef#
 (16:14..16:15) _empty_/i321#[T] -> 14:12
 (16:19..16:22) scala/Int#
 (16:25..16:28) scala/Int#
@@ -66,11 +64,10 @@ Document tests/pos/tailcall/i321.scala
 (17:32..17:33) _empty_/i321#[T] -> 14:12
 (17:36..17:39) scala/Int#
 (18:19..18:20) _empty_/i321#go1().(f) -> 16:11
-(18:20..18:20) scala/Function1#apply().
-(18:21..18:28) local1 -> 6:25
-(19:7..19:11) local0 -> 6:20
-(19:12..19:19) local1 -> 6:25
-(21:5..21:9) local0 -> 6:20
+(18:21..18:28) local0 -> 6:25
+(19:7..19:11) local2 -> 11:25
+(19:12..19:19) local0 -> 6:25
+(21:5..21:9) local2 -> 11:25
 (24:22..24:26) scala/Null#
 (24:30..24:36) scala/AnyRef#
 (24:41..24:45) _empty_/i321# -> 14:7
@@ -100,7 +97,6 @@ Document tests/pos/tailcall/i5163.scala
 Document tests/pos/tailcall/return.scala
 (3:14..3:17) scala/Int#
 (3:20..3:23) scala/Int#
-(3:34..3:34) _empty_/Return.foo(). -> 3:7
 
 Document tests/pos/tailcall/t1672.scala
 (28:4..28:14) scala/annotation/
@@ -109,7 +105,6 @@ Document tests/pos/tailcall/t1672.scala
 (29:22..29:25) scala/Int#
 (29:29..29:36) scala/Nothing#
 (31:17..31:33) scala/package.RuntimeException#
-(31:33..31:33) java/lang/RuntimeException#`<init>`().
 (33:15..33:24) scala/package.Throwable#
 (33:28..33:31) _empty_/Test1672.bar(). -> 29:7
 (33:32..33:33) _empty_/Test1672.bar().(x) -> 29:11
@@ -124,26 +119,22 @@ Document tests/pos/tailcall/t6479.scala
 (17:4..17:14) scala/annotation/
 (17:15..17:22) scala/annotation/tailrec#
 (18:22..18:26) scala/Unit#
-(22:17..22:17) _empty_/TailrecAfterTryCatch.good2(). -> 18:13
 (24:19..24:41) java/lang/ClassNotFoundException#
 (26:9..26:14) _empty_/TailrecAfterTryCatch.good2(). -> 18:13
 (31:4..31:14) scala/annotation/
 (31:15..31:22) scala/annotation/tailrec#
 (32:22..32:26) scala/Unit#
-(35:13..35:13) _empty_/TailrecAfterTryCatch.good3(). -> 32:13
 (37:15..37:37) java/lang/ClassNotFoundException#
 (39:5..39:10) _empty_/TailrecAfterTryCatch.good3(). -> 32:13
 (42:4..42:14) scala/annotation/
 (42:15..42:22) scala/annotation/tailrec#
 (43:20..43:24) scala/Unit#
-(47:17..47:17) _empty_/TailrecAfterTryCatch.bad(). -> 43:13
 (49:19..49:41) java/lang/ClassNotFoundException#
 (51:9..51:12) _empty_/TailrecAfterTryCatch.bad(). -> 43:13
 
 Document tests/pos/tailcall/t6574.scala
 (1:24..1:27) scala/Int#
 (1:37..1:43) scala/AnyVal#
-(1:43..1:43) scala/AnyVal#`<init>`().
 (2:12..2:13) _empty_/Bad#v. -> 1:21
 (3:4..3:14) scala/annotation/
 (3:15..3:22) scala/annotation/tailrec#
@@ -160,7 +151,6 @@ Document tests/pos/tailcall/t6574.scala
 (8:13..8:16) _empty_/Bad# -> 1:7
 (8:17..8:18) _empty_/Bad#[X] -> 1:11
 (8:20..8:21) _empty_/Bad#[Y] -> 1:14
-(8:22..8:22) _empty_/Bad#`<init>`(). -> 1:10
 (8:27..8:44) _empty_/Bad#differentReceiver(). -> 7:33
 (10:4..10:14) scala/annotation/
 (10:15..10:22) scala/annotation/tailrec#
@@ -168,12 +158,10 @@ Document tests/pos/tailcall/t6574.scala
 (11:24..11:27) _empty_/Bad# -> 1:7
 (11:28..11:29) _empty_/Bad#[X] -> 1:11
 (11:31..11:32) _empty_/Bad#[Y] -> 1:14
-(11:33..11:33) _empty_/Bad#`<init>`(). -> 1:10
 (11:38..11:56) _empty_/Bad#differentReceiver2(). -> 10:33
 (12:19..12:22) _empty_/Bad# -> 1:7
 (12:23..12:24) _empty_/Bad#[X] -> 1:11
 (12:26..12:27) _empty_/Bad#[Y] -> 1:14
-(12:28..12:28) _empty_/Bad#`<init>`(). -> 1:10
 (12:33..12:51) _empty_/Bad#differentReceiver2(). -> 10:33
 (15:4..15:14) scala/annotation/
 (15:15..15:22) scala/annotation/tailrec#
@@ -186,7 +174,6 @@ Document tests/pos/tailcall/t6574.scala
 (16:26..16:27) _empty_/Bad#dependent().(b) -> 15:54
 (20:23..20:26) scala/Int#
 (20:36..20:42) scala/AnyVal#
-(20:42..20:42) scala/AnyVal#`<init>`().
 (21:17..21:21) scala/Unit#
 (21:35..21:37) _empty_/HK#hk(). -> 21:7
 (21:38..21:39) _empty_/HK#[M] -> 20:10
@@ -196,24 +183,23 @@ Document tests/pos/tailcall/t6891.scala
 (1:19..1:26) scala/annotation/tailrec#
 (4:36..4:42) scala/Predef.String#
 (4:52..4:58) scala/AnyVal#
-(4:58..4:58) scala/AnyVal#`<init>`().
 (6:8..6:15) scala/annotation/tailrec#
 (6:28..6:29) _empty_/O6891.Foo#[A] -> 4:22
 (6:32..6:36) scala/Unit#
-(6:39..6:43) local0 -> 6:20
-(6:44..6:45) local1 -> 6:25
+(6:39..6:43) local1 -> 6:20
+(6:44..6:45) local0 -> 6:25
 (11:8..11:15) scala/annotation/tailrec#
 (11:28..11:33) _empty_/O6891.Foo#value. -> 4:29
 (11:41..11:45) scala/Unit#
-(11:48..11:52) local2 -> 11:20
-(11:53..11:54) local3 -> 11:25
+(11:48..11:52) local3 -> 11:20
+(11:53..11:54) local2 -> 11:25
 (15:24..15:25) _empty_/O6891.Foo#beppy().[C] -> 15:15
 (16:13..16:14) _empty_/O6891.Foo#beppy().(c) -> 15:18
 (17:8..17:15) scala/annotation/tailrec#
 (17:28..17:33) _empty_/O6891.Foo#value. -> 4:29
 (17:41..17:45) scala/Unit#
-(17:48..17:52) local4 -> 17:20
-(17:53..17:54) local5 -> 17:25
+(17:48..17:52) local5 -> 17:20
+(17:53..17:54) local4 -> 17:25
 (18:13..18:14) _empty_/O6891.Foo#beppy().(c) -> 15:18
 
 Document tests/pos/tailcall/tailcall.scala

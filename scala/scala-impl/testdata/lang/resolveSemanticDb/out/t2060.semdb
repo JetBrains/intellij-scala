@@ -1,7 +1,6 @@
 Document tests/pos/t2060.scala
 (19:23..19:25) _empty_/Test.Op# -> 18:9
 (19:26..19:29) scala/Int#
-(19:30..19:30) _empty_/Test.Op#`<init>`(). -> 18:11
 (21:18..21:24) scala/Double#
 (22:23..22:28) _empty_/Test.IntOp# -> 19:9
 (22:31..22:36) _empty_/Test.IntOp# -> 19:9
@@ -20,25 +19,17 @@ Document tests/pos/t2060.scala
 (27:37..27:41) _empty_/Test. -> 17:8
 (27:42..27:46) _empty_/Test.Rich# -> 21:9
 (28:9..28:13) _empty_/Test.Rich# -> 21:9
-(28:13..28:13) _empty_/Test.Rich#`<init>`(). -> 21:13
 (28:14..28:15) _empty_/Test.iToRich().(x) -> 27:24
-(31:11..31:11) _empty_/Test.iToRich(). -> 27:16
 (31:15..31:16) _empty_/Test.Rich#`+`(+1). -> 23:9
 (31:21..31:23) _empty_/Test.Op# -> 18:9
 (31:24..31:27) scala/Int#
-(31:28..31:28) _empty_/Test.Op#`<init>`(). -> 18:11
-(35:11..35:11) _empty_/Test.iToRich(). -> 27:16
 (35:15..35:16) _empty_/Test.Rich#`+`(). -> 22:9
 (35:21..35:26) _empty_/Test.IntOp# -> 19:9
-(35:26..35:26) _empty_/Test.IntOp#`<init>`(). -> 19:23
-(39:11..39:11) _empty_/Test.iToRich(). -> 27:16
 (39:15..39:19) _empty_/Test.Rich#plus(). -> 24:9
 (39:24..39:26) _empty_/Test.Op# -> 18:9
 (39:27..39:30) scala/Int#
-(39:31..39:31) _empty_/Test.Op#`<init>`(). -> 18:11
 (43:11..43:18) _empty_/Test.iToRich(). -> 27:16
 (43:24..43:25) _empty_/Test.Rich#`+`(+1). -> 23:9
 (43:30..43:32) _empty_/Test.Op# -> 18:9
 (43:33..43:36) scala/Int#
-(43:37..43:37) _empty_/Test.Op#`<init>`(). -> 18:11
 

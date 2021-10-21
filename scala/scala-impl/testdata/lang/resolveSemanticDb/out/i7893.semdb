@@ -1,6 +1,5 @@
 Document tests/pos/i7893.scala
 (2:12..2:16) scala/package.List.
-(2:16..2:16) scala/collection/IterableFactory#apply().
 (2:17..2:23) scala/Predef.
 (2:24..2:32) scala/Predef.identity().
 (2:33..2:36) scala/Int#
@@ -9,8 +8,6 @@ Document tests/pos/i7893.scala
 (3:24..3:27) scala/Int#
 (3:31..3:33) _empty_/Test.l1. -> 2:7
 (5:12..5:16) scala/package.List.
-(5:16..5:16) scala/collection/IterableFactory#apply().
-(5:17..5:17) local0
 (5:17..5:23) scala/Predef.
 (5:24..5:32) scala/Predef.identity().
 (5:33..5:36) scala/Int#

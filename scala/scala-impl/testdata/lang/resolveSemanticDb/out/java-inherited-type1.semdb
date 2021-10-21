@@ -1,10 +1,8 @@
 Document tests/pos/java-inherited-type1/S.scala
 (1:17..1:19) _empty_/S1# -> 6:7
-(1:19..1:19) _empty_/S1#`<init>`(). -> 6:1
 
 Document tests/pos/java-inherited-type1/Test.scala
 (2:15..2:16) _empty_/J#
-(2:16..2:16) _empty_/J#`<init>`(+1).
 (4:3..4:4) _empty_/Test.j. -> 2:7
 (4:5..4:10) _empty_/J#ident().
 (5:3..5:4) _empty_/Test.j. -> 2:7

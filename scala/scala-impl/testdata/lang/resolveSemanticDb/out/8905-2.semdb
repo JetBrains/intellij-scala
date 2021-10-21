@@ -1,4 +1,6 @@
 Document tests/pos/8905-2.scala
+(1:18..1:23) scala/Tuple#
+(1:31..1:36) scala/Tuple#
 (2:18..2:21) scala/Int#
 (2:28..2:37) scala/Function1#
 (2:38..2:43) scala/Tuple.

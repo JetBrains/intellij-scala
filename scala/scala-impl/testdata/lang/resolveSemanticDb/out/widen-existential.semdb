@@ -4,7 +4,6 @@ Document tests/pos/widen-existential.scala
 (4:13..4:20) scala/Predef.classOf().
 (4:21..4:25) scala/package.List#
 (5:5..5:9) scala/package.List.
-(5:9..5:9) scala/collection/IterableFactory#apply().
 (5:10..5:11) local1 -> 4:9
 (5:13..5:14) local1 -> 4:9
 

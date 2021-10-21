@@ -11,16 +11,13 @@ Document tests/pos/i6384.scala
 (12:3..12:13) scala/Predef.implicitly().
 (12:14..12:17) _empty_/Tc1# -> 1:7
 (12:18..12:19) _empty_/X# -> 4:7
-(12:21..12:21) _empty_/X.catchAll(). -> 6:16
 (13:3..13:13) scala/Predef.implicitly().
 (13:14..13:26) _empty_/i6384$package.ManualLambda# -> 9:6
 (13:27..13:28) _empty_/X# -> 4:7
-(13:30..13:30) _empty_/X.catchAll(). -> 6:16
 (14:3..14:13) scala/Predef.implicitly().
 (14:14..14:17) _empty_/Tc1# -> 1:7
 (14:18..14:19) _empty_/X# -> 4:7
 (14:21..14:22) scala/`&`#
 (14:23..14:26) _empty_/Tc2# -> 2:7
 (14:27..14:28) _empty_/X# -> 4:7
-(14:30..14:30) _empty_/X.catchAll(). -> 6:16
 

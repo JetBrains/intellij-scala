@@ -10,7 +10,6 @@ Document tests/pos/i3538.scala
 (12:21..12:24) _empty_/Inv# -> 2:7
 (12:25..12:26) _empty_/Test#inv().[T] -> 12:11
 (12:30..12:33) scala/Predef.`???`().
-(14:4..14:4) _empty_/Test#Right(). -> 8:18
 (14:10..14:15) _empty_/Test#Right#right(). -> 9:9
 (14:16..14:19) _empty_/Test#inv(). -> 12:7
 

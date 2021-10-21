@@ -1,2 +1,4 @@
 Document tests/pos/itay.scala
+(3:21..3:28) _empty_/Message# -> 1:16
+(3:29..3:30) _empty_/InPort#[V] -> 3:34
 

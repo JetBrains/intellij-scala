@@ -20,11 +20,8 @@ Document tests/pos/t7785.scala
 (19:11..19:12) _empty_/TraversableOps#ct2ops().[T] -> 18:23
 (21:19..21:25) scala/Option#
 (21:26..21:27) _empty_/TraversableOps#force().[T] -> 21:13
-(23:5..23:5) _empty_/TraversableOps#ct2ops(). -> 18:16
 (23:5..23:6) _empty_/TraversableOps#force().(t) -> 21:16
 (23:7..23:12) _empty_/TraversableOps#Ops#force(). -> 15:9
-(23:12..23:12) _empty_/TraversableOps#R. -> 6:16
-(23:12..23:12) scala/DummyImplicit.dummyImplicit.
 (33:22..33:25) _empty_/TraversableOps#Ops# -> 14:9
 (33:26..33:27) _empty_/TraversableOps#foo().[C] -> 33:14
 (33:28..33:29) _empty_/TraversableOps#foo().[T] -> 33:11

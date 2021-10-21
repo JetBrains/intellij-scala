@@ -1,23 +1,27 @@
 Document tests/pos/i9781.scala
+(1:16..1:19) _empty_/Txn# -> 1:7
+(1:20..1:21) _empty_/Txn#[T] -> 1:11
+(3:17..3:20) _empty_/Txn# -> 1:7
+(3:21..3:22) _empty_/Elem#[T] -> 3:12
+(6:28..6:31) _empty_/Txn# -> 1:7
+(6:32..6:33) _empty_/Done#[T] -> 6:23
 (6:42..6:46) _empty_/Elem# -> 3:7
 (6:47..6:48) _empty_/Done#[T] -> 6:23
 (6:59..6:64) _empty_/State# -> 5:14
 (6:65..6:66) _empty_/Done#[T] -> 6:23
 (7:26..7:31) _empty_/State# -> 5:14
 (7:32..7:39) scala/Nothing#
+(9:19..9:22) _empty_/Txn# -> 1:7
+(9:23..9:26) _empty_/Test#[Out] -> 9:12
 (10:18..10:24) scala/Option#
 (10:25..10:30) _empty_/State# -> 5:14
 (10:31..10:34) _empty_/Test#[Out] -> 9:12
 (10:39..10:42) scala/Any#
 (10:45..10:48) _empty_/Test#apply().(opt) -> 10:13
 (11:10..11:14) scala/Some.
-(11:14..11:14) scala/Some.unapply().
 (12:7..12:12) local0 -> 11:15
-(13:14..13:18) _empty_/Done. -> 6:18
-(13:18..13:18) _empty_/Done.unapply(). -> 6:1
-(13:18..13:18) local1
+(13:14..13:18) _empty_/Done.
 (14:14..14:18) _empty_/Busy. -> 7:13
 (14:38..14:59) java/lang/IllegalStateException#
-(14:59..14:59) java/lang/IllegalStateException#`<init>`(+1).
 (17:10..17:14) scala/None.
 

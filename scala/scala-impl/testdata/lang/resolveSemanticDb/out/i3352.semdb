@@ -7,6 +7,5 @@ Document tests/pos/i3352.scala
 (7:34..7:37) scala/Int#
 (10:17..10:20) _empty_/Test#Foo# -> 2:9
 (10:23..10:27) scala/Unit#
-(11:5..11:5) _empty_/Test#FooOps(). -> 6:18
 (11:5..11:8) _empty_/Test#test().(foo) -> 10:12
 

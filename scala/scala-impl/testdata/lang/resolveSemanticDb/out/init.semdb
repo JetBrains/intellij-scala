@@ -1,15 +1,13 @@
 Document tests/pos/init.scala
-(6:5..6:8) _empty_/Foo#`cnt_=`(). -> 3:7
+(6:5..6:8) _empty_/Foo#`cnt_=`().
 (6:11..6:14) _empty_/Foo#cnt(). -> 3:7
 (6:15..6:16) scala/Int#`+`(+4).
 (7:14..7:17) _empty_/Foo#cnt(). -> 3:7
 (11:21..11:24) scala/App#
 (12:17..12:20) _empty_/Foo# -> 1:7
-(12:20..12:20) _empty_/Foo#`<init>`(). -> 3:3
 (13:3..13:10) scala/Console.
 (13:11..13:18) scala/Console.println(+1).
 (13:24..13:27) _empty_/Test.foo. -> 12:7
 (13:28..13:31) _empty_/Foo#Bar# -> 5:9
-(13:31..13:31) _empty_/Foo#Bar#`<init>`(). -> 6:5
 (13:33..13:35) _empty_/Foo#Bar#id. -> 7:9
 

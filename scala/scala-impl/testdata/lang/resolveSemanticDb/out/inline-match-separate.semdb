@@ -12,5 +12,4 @@ Document tests/pos/inline-match-separate/inline-match-separate_2.scala
 (1:8..1:13) _empty_/Utils. -> 1:8
 (4:11..4:14) _empty_/Utils.foo(). -> 3:26
 (4:19..4:22) _empty_/Utils.Box# -> 2:9
-(4:27..4:27) _empty_/Utils.Box#`<init>`(). -> 2:12
 

@@ -1,22 +1,20 @@
 Document tests/pos/lambdalift-1.scala
 (1:16..1:19) scala/Int#
 (3:19..3:24) _empty_/Super# -> 1:7
-(3:24..3:24) _empty_/Super#`<init>`(). -> 1:12
 (4:15..4:18) scala/Int#
 (7:22..7:28) scala/Predef.String#
 (9:18..9:21) scala/Int#
 (9:24..9:30) scala/Predef.String#
 (9:34..9:37) scala/Int#
-(10:19..10:20) local1 -> 4:12
+(10:19..10:20) local0 -> 4:12
 (10:21..10:22) scala/Int#`+`(+4).
-(10:23..10:24) local6 -> 9:15
-(11:14..11:17) local7 -> 10:13
+(10:23..10:24) local4 -> 9:15
+(11:14..11:17) local5 -> 10:13
 (11:18..11:19) scala/Int#`*`(+3).
-(11:20..11:21) local8 -> 11:9
+(11:20..11:21) local6 -> 11:9
 (11:22..11:28) java/lang/String#length().
-(15:19..15:20) local2 -> 6:11
-(15:30..15:33) local5 -> 9:11
+(15:19..15:20) local3 -> 6:11
+(15:30..15:33) local7 -> 9:11
 (16:5..16:8) local9 -> 15:9
-(16:8..16:8) scala/Function1#apply().
-(19:3..19:7) local0 -> 4:7
+(19:3..19:7) local10 -> 4:7
 

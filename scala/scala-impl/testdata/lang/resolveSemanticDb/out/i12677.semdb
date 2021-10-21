@@ -2,7 +2,6 @@ Document tests/pos/i12677.scala
 (3:22..3:23) _empty_/F.apply().[A] -> 3:13
 (3:31..3:32) _empty_/F# -> 1:7
 (3:33..3:34) _empty_/F.apply().[A] -> 3:13
-(3:35..3:35) _empty_/F#`<init>`(). -> 1:8
 (8:23..8:25) _empty_/TC# -> 6:7
 (8:26..8:27) _empty_/TC.tc().[A] -> 8:19
 (8:42..8:48) scala/Predef.String#
@@ -17,10 +16,8 @@ Document tests/pos/i12677.scala
 (17:21..17:24) scala/Int#
 (17:28..17:31) scala/Predef.`???`().
 (18:11..18:12) _empty_/F. -> 2:8
-(18:12..18:12) _empty_/F.apply(). -> 3:7
 (18:13..18:14) _empty_/Bug.i(). -> 17:7
 (18:15..18:19) _empty_/Bug.CustomHook#blah(). -> 14:9
-(18:19..18:19) _empty_/TC.tc(). -> 8:16
 (19:3..19:4) _empty_/Bug.f. -> 18:7
 (19:6..19:7) _empty_/F# -> 1:7
 (19:8..19:18) _empty_/Bug.CustomHook# -> 13:15
@@ -35,10 +32,8 @@ Document tests/pos/i12677.scala
 (28:21..28:24) scala/Int#
 (28:28..28:31) scala/Predef.`???`().
 (29:11..29:12) _empty_/F. -> 2:8
-(29:12..29:12) _empty_/F.apply(). -> 3:7
 (29:13..29:14) _empty_/Workaround.i(). -> 28:7
 (29:15..29:19) _empty_/Workaround.CustomHook#blah(). -> 25:9
-(29:19..29:19) _empty_/TC.tc(). -> 8:16
 (30:3..30:4) _empty_/Workaround.f. -> 29:7
 (30:6..30:7) _empty_/F# -> 1:7
 (30:8..30:18) _empty_/Workaround.CustomHook# -> 24:15

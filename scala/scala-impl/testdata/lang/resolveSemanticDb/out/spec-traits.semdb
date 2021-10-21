@@ -5,7 +5,6 @@ Document tests/pos/spec-traits.scala
 (2:17..2:18) _empty_/A# -> 1:7
 (2:19..2:22) scala/Int#
 (3:17..3:18) _empty_/B# -> 2:7
-(3:18..3:18) _empty_/B#`<init>`(). -> 2:17
 (7:25..7:26) _empty_/Lazy#test().[U] -> 7:12
 (7:29..7:33) scala/Unit#
 (7:38..7:43) _empty_/Lazy#test().(block) -> 7:15
@@ -14,26 +13,20 @@ Document tests/pos/spec-traits.scala
 (14:29..14:30) _empty_/Bug3307#f().[Z] -> 14:9
 (14:33..14:37) scala/Unit#
 (15:5..15:10) _empty_/Bug3307#f().(block) -> 14:12
-(15:10..15:10) scala/Function1#apply().
 (19:5..19:6) _empty_/Bug3307#f(). -> 14:7
 (19:23..19:30) scala/Predef.println(+1).
 (19:31..19:32) local1 -> 19:18
-(19:37..19:37) scala/Function0#apply().
 (26:13..26:14) _empty_/T# -> 23:9
 (26:15..26:16) _empty_/Bug3301#t().[A] -> 26:9
 (26:20..26:23) scala/sys/
 (26:24..26:29) scala/sys/package.error().
 (29:14..29:17) scala/Int#
 (31:18..31:19) _empty_/Bug3301#t(). -> 26:7
-(31:20..31:21) local4 -> 31:13
+(31:20..31:21) local3 -> 31:13
 (37:16..37:20) scala/Unit#
-(38:15..38:15) scala/LowPriorityImplicits#intWrapper().
 (38:17..38:19) scala/runtime/RichInt#to().
-(38:21..38:21) scala/collection/immutable/Range#foreach().
 (39:11..39:16) scala/Array.
-(39:16..39:16) scala/Array.unapplySeq().
 (39:25..39:30) scala/Array.
-(39:30..39:30) scala/Array.apply(+5).
 (49:21..49:25) scala/Unit#
 (49:28..49:32) scala/Unit#
 (53:9..53:10) _empty_/AA.f(). -> 49:9
@@ -43,5 +36,4 @@ Document tests/pos/spec-traits.scala
 (64:53..64:56) scala/package.Nil.
 (64:58..64:62) scala/package.List#
 (64:63..64:64) _empty_/O.f().[T] -> 64:31
-(64:65..64:65) scala/collection/immutable/List#foreach().
 

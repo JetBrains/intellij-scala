@@ -1,4 +1,6 @@
 Document tests/pos/i11078b.scala
+(2:18..2:21) _empty_/Test#Foo# -> 2:9
+(2:22..2:23) _empty_/Test#Foo#[A] -> 2:13
 (6:15..6:18) _empty_/Test#Foo# -> 2:9
 (6:19..6:20) _empty_/Test#FooWrapper#A# -> 6:10
 (7:22..7:32) _empty_/Test#FooWrapper# -> 4:9

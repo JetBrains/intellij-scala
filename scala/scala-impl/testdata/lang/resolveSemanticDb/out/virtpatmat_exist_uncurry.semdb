@@ -8,7 +8,6 @@ Document tests/pos/virtpatmat_exist_uncurry.scala
 (4:22..4:26) _empty_/Test.Leaf# -> 2:9
 (4:27..4:28) _empty_/Test.Leaf#[T] -> 2:14
 (4:33..4:40) _empty_/Test.Leaf#collect(). -> 3:9
-(4:43..4:43) local0
 (4:51..4:55) _empty_/Test.Leaf# -> 2:9
 (4:56..4:57) _empty_/Test.Leaf#[T] -> 2:14
 (4:62..4:63) local1 -> 4:48

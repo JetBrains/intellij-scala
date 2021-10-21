@@ -17,7 +17,6 @@ Document tests/pos/i7532.scala
 (14:34..14:38) scala/Unit#
 (15:12..15:17) _empty_/Foo.impl().(tasty) -> 14:18
 (16:9..16:15) _empty_/Tasty#Select. -> 8:10
-(16:15..16:15) _empty_/Tasty#Select.unapply(). -> 9:9
-(16:17..16:17) scala/reflect/ClassTag#unapply().
 (16:21..16:24) scala/Predef.`???`().
+(16:27..16:31) _empty_/Tasty#Term# -> 3:8
 

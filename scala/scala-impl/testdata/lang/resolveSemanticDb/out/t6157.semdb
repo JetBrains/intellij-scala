@@ -9,7 +9,6 @@ Document tests/pos/t6157.scala
 (11:8..11:12) java/
 (11:13..11:15) java/io/
 (11:16..11:27) java/io/IOException#
-(11:16..11:27) java/io/IOException.
 (15:50..15:51) _empty_/ErrorHandler.defaultIfIOException().[T] -> 15:35
 (15:65..15:66) _empty_/ErrorHandler.defaultIfIOException().[T] -> 15:35
 (15:69..15:70) _empty_/ErrorHandler.defaultIfIOException().[T] -> 15:35

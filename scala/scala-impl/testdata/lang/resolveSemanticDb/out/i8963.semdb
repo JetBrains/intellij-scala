@@ -2,6 +2,9 @@ Document tests/pos/i8963.scala
 (1:16..1:22) scala/Double#
 (1:23..1:24) scala/`|`#
 (1:25..1:28) scala/Int#
+(3:32..3:41) _empty_/VarValues# -> 3:14
+(3:42..3:43) _empty_/VarValues#[T] -> 3:24
+(3:44..3:45) _empty_/VarValues#[C] -> 3:27
 (4:9..4:10) _empty_/VarValues#[C] -> 3:27
 (5:12..5:17) scala/Array#
 (5:18..5:19) _empty_/VarValues#[T] -> 3:24
@@ -23,10 +26,8 @@ Document tests/pos/i8963.scala
 (11:15..11:24) _empty_/VarValues# -> 3:14
 (11:34..11:43) _empty_/VarValues# -> 3:14
 (11:51..11:55) scala/Unit#
-(12:4..12:4) scala/Tuple2.apply().
 (12:4..12:5) _empty_/i8963$package.check7().(a) -> 11:12
 (12:6..12:7) _empty_/i8963$package.check7().(b) -> 11:31
-(13:11..13:11) scala/Tuple2.unapply().
 (13:14..13:24) _empty_/VarDoubles# -> 7:18
 (13:24..13:25) scala/`|`#
 (13:25..13:32) _empty_/VarInts# -> 8:18
@@ -35,13 +36,11 @@ Document tests/pos/i8963.scala
 (13:49..13:56) _empty_/VarInts# -> 8:18
 (14:15..14:23) scala/package.Iterator#
 (14:24..14:31) _empty_/i8963$package.Numeric# -> 1:6
-(14:35..14:35) scala/Predef.genericArrayOps().
 (14:35..14:36) local0 -> 13:11
 (14:37..14:40) _empty_/VarValues#arr. -> 5:7
 (14:41..14:49) scala/collection/ArrayOps#iterator().
 (15:15..15:23) scala/package.Iterator#
 (15:24..15:31) _empty_/i8963$package.Numeric# -> 1:6
-(15:35..15:35) scala/Predef.genericArrayOps().
 (15:35..15:36) local1 -> 13:35
 (15:37..15:40) _empty_/VarValues#arr. -> 5:7
 (15:41..15:49) scala/collection/ArrayOps#iterator().

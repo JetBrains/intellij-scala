@@ -7,9 +7,7 @@ Document tests/pos/i4419.scala
 (9:27..9:30) _empty_/Test.test().(foo) -> 9:12
 (9:31..9:34) _empty_/Foo#Bar# -> 2:14
 (9:37..9:40) _empty_/Test.test$default$2().(foo) -> 9:12
-(9:41..9:44) _empty_/Foo#Bar. -> 2:14
-(9:44..9:44) _empty_/Foo#Bar.apply(). -> 2:3
+(9:41..9:44) _empty_/Foo#Bar.
 (9:51..9:54) scala/Predef.`???`().
 (11:3..11:7) _empty_/Test.test(). -> 9:7
-(11:8..11:8) local0 -> 11:8
 

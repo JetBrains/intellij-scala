@@ -7,5 +7,4 @@ Document tests/pos/i7745.scala
 (2:60..2:61) _empty_/i7745$package.foo().[x] -> 2:27
 (2:65..2:68) scala/Predef.`???`().
 (3:12..3:22) scala/Predef.implicitly().
-(3:22..3:22) scala/Predef.$conforms().
 

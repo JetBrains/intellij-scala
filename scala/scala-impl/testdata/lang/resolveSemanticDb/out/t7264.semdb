@@ -12,5 +12,4 @@ Document tests/pos/t7264/B_2.scala
 (6:14..6:17) _empty_/Foo# -> 7:13
 (6:21..6:22) _empty_/Test.foo().(f) -> 6:11
 (6:23..6:26) _empty_/Foo#bar(). -> 8:7
-(6:27..6:27) _empty_/Foo.Values.fromInt(). -> 3:18
 

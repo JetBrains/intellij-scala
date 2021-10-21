@@ -16,12 +16,11 @@ Document tests/pos/tcpoly_infer_ticket474.scala
 (14:38..14:45) scala/collection/mutable/
 (14:46..14:56) scala/collection/mutable/ListBuffer#
 (14:57..14:58) _empty_/Test.buildableList.builder().[T] -> 13:17
-(14:59..14:59) scala/collection/mutable/ListBuffer#`<init>`().
 (15:17..15:18) _empty_/Test.buildableList.builder().[T] -> 13:17
-(15:22..15:25) local1 -> 14:11
+(15:22..15:25) local0 -> 14:11
 (15:26..15:28) scala/collection/mutable/Growable#`+=`().
-(15:29..15:30) local3 -> 15:14
-(16:22..16:25) local1 -> 14:11
+(15:29..15:30) local1 -> 15:14
+(16:22..16:25) local0 -> 14:11
 (16:26..16:32) scala/collection/mutable/ListBuffer#toList().
 (20:22..20:23) _empty_/Test.foo().[T] -> 20:16
 (20:37..20:46) _empty_/Buildable# -> 6:7
@@ -31,13 +30,12 @@ Document tests/pos/tcpoly_infer_ticket474.scala
 (21:19..21:20) _empty_/Test.foo().(b) -> 20:34
 (21:21..21:28) _empty_/Buildable#builder(). -> 7:7
 (21:29..21:30) _empty_/Test.foo().[T] -> 20:16
-(22:5..22:12) local5 -> 21:9
+(22:5..22:12) local6 -> 21:9
 (22:13..22:15) _empty_/Builder#`+=`(). -> 2:7
 (22:16..22:17) _empty_/Test.foo().(x) -> 20:19
-(23:5..23:12) local5 -> 21:9
+(23:5..23:12) local6 -> 21:9
 (23:13..23:21) _empty_/Builder#finalise(). -> 3:7
 (26:10..26:14) scala/package.List#
 (26:15..26:18) scala/Int#
 (26:22..26:25) _empty_/Test.foo(). -> 20:7
-(26:28..26:28) _empty_/Test.buildableList. -> 12:19
 

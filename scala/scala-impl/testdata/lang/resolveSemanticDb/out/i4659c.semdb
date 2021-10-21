@@ -5,5 +5,4 @@ Document tests/pos/i4659c.scala
 (2:10..2:15) _empty_/SourcePosition#outer. -> 1:27
 (2:16..2:18) scala/Any#`!=`().
 (5:33..5:47) _empty_/SourcePosition# -> 1:12
-(5:47..5:47) _empty_/SourcePosition#`<init>`(). -> 1:26
 

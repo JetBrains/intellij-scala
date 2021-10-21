@@ -1,6 +1,5 @@
 Document tests/pos/t3869.scala
 (4:10..4:14) scala/Unit#
-(5:15..5:15) _empty_/Test.f(). -> 4:7
 (7:18..7:23) scala/Array#
 (7:24..7:30) scala/Predef.String#
 (7:34..7:38) scala/Unit#

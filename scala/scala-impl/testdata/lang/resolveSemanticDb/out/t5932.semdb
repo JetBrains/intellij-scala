@@ -1,6 +1,5 @@
 Document tests/pos/t5932.scala
 (3:23..3:24) _empty_/A# -> 1:7
-(3:24..3:24) _empty_/A#`<init>`(). -> 1:1
 (6:13..6:14) _empty_/B. -> 3:13
 (6:16..6:17) _empty_/A# -> 1:7
 (8:3..8:10) scala/Predef.println(+1).

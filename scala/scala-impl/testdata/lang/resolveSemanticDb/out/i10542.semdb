@@ -11,12 +11,10 @@ Document tests/pos/i10542.scala
 (25:5..25:8) test_10540/Bar. -> 22:10
 (25:9..25:12) test_10540/Foo#foo(). -> 19:16
 (27:19..27:24) scala/Array.
-(27:24..27:24) scala/Array.apply().
-(27:29..27:31) local2 -> 26:13
-(27:35..27:35) scala/reflect/ClassTag.apply().
+(27:29..27:31) local5 -> 26:13
 (33:34..33:35) test_9655/i10542$package.foo().[T] -> 33:18
 (33:38..33:39) test_9655/i10542$package.foo().[T] -> 33:18
 (33:42..33:46) test_9655/i10542$package.foo().(body) -> 33:28
 (35:14..35:17) test_9655/i10542$package.foo(). -> 33:14
-(37:27..37:33) local5 -> 36:18
+(37:27..37:33) local10 -> 36:18
 

@@ -27,7 +27,6 @@ Document tests/pos/8778.scala
 (17:60..17:63) scala/Int#
 (17:64..17:67) scala/`=:=`#
 (17:68..17:71) scala/Int#
-(17:72..17:72) scala/`<:<`.refl().
 (17:74..17:86) scala/Any#asInstanceOf().
 (19:13..19:16) _empty_/Inv# -> 1:7
 (19:17..19:24) scala/Nothing#
@@ -37,6 +36,5 @@ Document tests/pos/8778.scala
 (20:5..20:9) _empty_/Test.invN. -> 19:7
 (21:3..21:4) _empty_/Test.m(). -> 11:7
 (21:5..21:7) _empty_/Test.ev. -> 17:7
-(21:7..21:7) scala/`=:=`#apply().
 (21:8..21:12) _empty_/Test.invN. -> 19:7
 

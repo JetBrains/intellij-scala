@@ -8,7 +8,6 @@ Document tests/pos/i11225.scala
 (5:27..5:40) scala/compiletime/package$package.uninitialized().
 (6:22..6:29) scala/Boolean#
 (8:9..8:14) _empty_/Memo#known(). -> 6:15
-(8:14..8:14) scala/Boolean#`unary_!`().
 (9:7..9:12) _empty_/Memo#known(). -> 6:15
 (10:7..10:13) _empty_/Memo#cached(). -> 5:15
 (10:16..10:17) _empty_/Memo#x. -> 3:15

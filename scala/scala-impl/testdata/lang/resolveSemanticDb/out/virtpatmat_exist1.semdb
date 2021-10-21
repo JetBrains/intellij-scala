@@ -28,7 +28,6 @@ Document tests/pos/virtpatmat_exist1.scala
 (4:70..4:76) scala/collection/mutable/SetOps.
 (8:11..8:22) scala/collection/mutable/AbstractSet#
 (8:23..8:24) _empty_/HS#[A] -> 7:10
-(8:25..8:25) scala/collection/mutable/AbstractSet#`<init>`().
 (9:10..9:16) scala/collection/mutable/SetOps#
 (9:17..9:18) _empty_/HS#[A] -> 7:10
 (9:24..9:26) _empty_/HS# -> 7:7
@@ -68,19 +67,16 @@ Document tests/pos/virtpatmat_exist1.scala
 (23:93..23:94) _empty_/Test.HashMapCollision1#[A] -> 23:27
 (23:96..23:97) _empty_/Test.HashMapCollision1#[B] -> 23:31
 (23:99..23:101) scala/annotation/unchecked/uncheckedVariance#
-(23:102..23:102) scala/collection/mutable/HashMap#`<init>`(+1).
 (24:40..24:43) scala/Int#
 (24:53..24:60) scala/collection/immutable/ListSet#
 (24:61..24:62) _empty_/Test.HashSetCollision1#[A] -> 24:27
 (24:73..24:75) _empty_/HS# -> 7:7
 (24:76..24:77) _empty_/Test.HashSetCollision1#[A] -> 24:27
-(24:78..24:78) _empty_/HS#`<init>`(). -> 7:9
 (26:25..26:30) scala/Array#
 (26:31..26:39) scala/package.Iterable#
 (26:40..26:41) _empty_/Test.splitArray().[T] -> 26:18
 (26:46..26:49) scala/Any#
 (27:5..27:7) _empty_/Test.splitArray().(ad) -> 26:21
-(27:7..27:7) scala/Array#apply().
 (28:15..28:32) _empty_/Test.HashMapCollision1# -> 23:9
 (28:44..28:61) _empty_/Test.HashSetCollision1# -> 24:9
 

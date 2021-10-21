@@ -2,21 +2,21 @@ Document tests/pos/i12141.scala
 (5:32..5:35) _empty_/DSL# -> 4:23
 (5:43..5:46) _empty_/DSL# -> 4:23
 (5:65..5:67) _empty_/DSL#cont().[P2] -> 5:37
-(6:5..6:13) _empty_/Continue. -> 8:12
-(6:13..6:13) _empty_/Continue.apply(). -> 8:1
+(6:5..6:13) _empty_/Continue.
 (6:14..6:16) _empty_/DSL#cont().[P1] -> 5:13
 (6:18..6:20) _empty_/DSL#cont().[P2] -> 5:37
 (6:40..6:52) _empty_/DSL#cont().(continuation) -> 5:48
+(8:28..8:31) _empty_/DSL# -> 4:23
+(8:39..8:42) _empty_/DSL# -> 4:23
 (8:54..8:56) _empty_/Continue#[P1] -> 8:22
 (8:68..8:70) _empty_/Continue#[P2] -> 8:33
 (8:80..8:83) _empty_/DSL# -> 4:23
-(8:83..8:83) _empty_/DSL#`<init>`(). -> 5:3
+(11:21..11:25) _empty_/More# -> 10:7
+(11:26..11:27) _empty_/Out#[A] -> 11:30
 (11:36..11:37) _empty_/Out#[C] -> 11:16
 (11:42..11:43) _empty_/Out#[A] -> 11:30
 (11:53..11:56) _empty_/DSL# -> 4:23
-(11:56..11:56) _empty_/DSL#`<init>`(). -> 5:3
 (12:26..12:29) _empty_/DSL# -> 4:23
-(12:29..12:29) _empty_/DSL#`<init>`(). -> 5:3
 (14:15..14:22) scala/Boolean#
 (15:15..15:22) scala/Boolean#
 (18:10..18:14) _empty_/More# -> 10:7
@@ -79,50 +79,34 @@ Document tests/pos/i12141.scala
 (26:16..26:21) _empty_/i12141$package.p().(chanB) -> 25:34
 (26:27..26:32) _empty_/i12141$package.p().(chanC) -> 25:60
 (27:10..27:19) _empty_/i12141$package.decision1. -> 14:5
-(28:10..28:13) _empty_/Out. -> 11:12
-(28:13..28:13) _empty_/Out.apply(). -> 11:1
+(28:10..28:13) _empty_/Out.
 (28:14..28:19) _empty_/i12141$package.p().(chanA) -> 25:8
-(28:20..28:25) _empty_/Test1. -> 1:12
-(28:25..28:25) _empty_/Test1.apply().
+(28:20..28:25) _empty_/Test1.
 (28:29..28:33) _empty_/DSL#cont(). -> 5:7
 (29:16..29:25) _empty_/i12141$package.decision2. -> 15:5
-(30:16..30:19) _empty_/Out. -> 11:12
-(30:19..30:19) _empty_/Out.apply(). -> 11:1
+(30:16..30:19) _empty_/Out.
 (30:20..30:25) _empty_/i12141$package.p().(chanB) -> 25:34
-(30:26..30:31) _empty_/Test3. -> 1:52
-(30:31..30:31) _empty_/Test3.apply().
+(30:26..30:31) _empty_/Test3.
 (30:35..30:39) _empty_/DSL#cont(). -> 5:7
-(30:40..30:43) _empty_/Nop. -> 12:12
-(30:43..30:43) _empty_/Nop.apply().
-(33:16..33:19) _empty_/Out. -> 11:12
-(33:19..33:19) _empty_/Out.apply(). -> 11:1
+(30:40..30:43) _empty_/Nop.
+(33:16..33:19) _empty_/Out.
 (33:20..33:25) _empty_/i12141$package.p().(chanB) -> 25:34
-(33:26..33:31) _empty_/Test4. -> 2:12
-(33:31..33:31) _empty_/Test4.apply().
+(33:26..33:31) _empty_/Test4.
 (33:35..33:39) _empty_/DSL#cont(). -> 5:7
-(33:40..33:43) _empty_/Nop. -> 12:12
-(33:43..33:43) _empty_/Nop.apply().
-(38:10..38:13) _empty_/Out. -> 11:12
-(38:13..38:13) _empty_/Out.apply(). -> 11:1
+(33:40..33:43) _empty_/Nop.
+(38:10..38:13) _empty_/Out.
 (38:14..38:19) _empty_/i12141$package.p().(chanA) -> 25:8
-(38:20..38:25) _empty_/Test2. -> 1:32
-(38:25..38:25) _empty_/Test2.apply().
+(38:20..38:25) _empty_/Test2.
 (38:29..38:33) _empty_/DSL#cont(). -> 5:7
 (39:16..39:25) _empty_/i12141$package.decision2. -> 15:5
-(40:16..40:19) _empty_/Out. -> 11:12
-(40:19..40:19) _empty_/Out.apply(). -> 11:1
+(40:16..40:19) _empty_/Out.
 (40:20..40:25) _empty_/i12141$package.p().(chanC) -> 25:60
-(40:26..40:31) _empty_/Test5. -> 2:32
-(40:31..40:31) _empty_/Test5.apply().
+(40:26..40:31) _empty_/Test5.
 (40:35..40:39) _empty_/DSL#cont(). -> 5:7
-(40:40..40:43) _empty_/Nop. -> 12:12
-(40:43..40:43) _empty_/Nop.apply().
-(43:16..43:19) _empty_/Out. -> 11:12
-(43:19..43:19) _empty_/Out.apply(). -> 11:1
+(40:40..40:43) _empty_/Nop.
+(43:16..43:19) _empty_/Out.
 (43:20..43:25) _empty_/i12141$package.p().(chanC) -> 25:60
-(43:26..43:31) _empty_/Test6. -> 2:52
-(43:31..43:31) _empty_/Test6.apply().
+(43:26..43:31) _empty_/Test6.
 (43:35..43:39) _empty_/DSL#cont(). -> 5:7
-(43:40..43:43) _empty_/Nop. -> 12:12
-(43:43..43:43) _empty_/Nop.apply().
+(43:40..43:43) _empty_/Nop.
 

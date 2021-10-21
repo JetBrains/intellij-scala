@@ -1,8 +1,8 @@
 Document tests/pos/t4036.scala
 (2:10..2:14) scala/Unit#
+(3:21..3:28) scala/Boolean#
 (4:13..4:14) local12
-(4:14..4:14) local6 -> 3:5
 (9:16..9:19) scala/Int#
-(9:22..9:23) local14 -> 8:9
-(11:5..11:8) local15 -> 9:9
+(9:22..9:23) local16 -> 8:9
+(11:5..11:8) local18 -> 9:9
 

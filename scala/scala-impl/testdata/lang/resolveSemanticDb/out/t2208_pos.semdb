@@ -6,5 +6,4 @@ Document tests/pos/t2208_pos.scala
 (7:16..7:17) _empty_/Test.A# -> 2:11
 (7:25..7:30) _empty_/Test.Alias# -> 5:10
 (7:31..7:32) _empty_/Test.A# -> 2:11
-(7:33..7:33) _empty_/Test.B#`<init>`(). -> 4:12
 

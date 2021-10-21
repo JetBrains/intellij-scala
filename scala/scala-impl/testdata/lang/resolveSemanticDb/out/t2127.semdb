@@ -3,7 +3,5 @@ Document tests/pos/t2127.scala
 (3:32..3:35) scala/Int#
 (3:40..3:43) _empty_/Foo# -> 1:7
 (5:20..5:23) _empty_/Bar# -> 3:16
-(5:23..5:23) _empty_/Bar#`<init>`(). -> 3:19
 (5:28..5:31) _empty_/Foo# -> 1:7
-(5:31..5:31) _empty_/Foo#`<init>`(). -> 1:10
 

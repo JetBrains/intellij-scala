@@ -1,9 +1,8 @@
 Document tests/pos/i3129.scala
 (4:7..4:14) scala/Predef.println(+1).
-(4:15..4:16) local2
+(4:15..4:16) local0
 (4:17..4:18) local1 -> 8:19
 (14:15..14:16) _empty_/A#B# -> 16:9
-(14:16..14:16) _empty_/A#B#`<init>`(). -> 17:5
 (17:33..17:34) _empty_/A# -> 13:7
 (17:37..17:38) _empty_/A# -> 13:7
 (17:41..17:42) _empty_/A#B#getAncestor2().(p) -> 17:30

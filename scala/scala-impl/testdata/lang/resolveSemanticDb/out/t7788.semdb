@@ -9,5 +9,4 @@ Document tests/pos/t7788.scala
 (6:39..6:42) scala/Predef.`???`().
 (7:3..7:6) _empty_/Test#foo(). -> 6:7
 (7:7..7:10) scala/Int#
-(7:11..7:11) scala/Predef.$conforms().
 

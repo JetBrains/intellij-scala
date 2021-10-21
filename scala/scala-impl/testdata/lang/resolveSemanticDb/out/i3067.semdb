@@ -5,15 +5,11 @@ Document tests/pos/i3067.scala
 (4:29..4:33) _empty_/Test# -> 1:7
 (4:34..4:38) scala/package.List#
 (4:39..4:45) scala/Predef.String#
-(4:47..4:47) _empty_/Test#`<init>`(). -> 1:11
 (4:50..4:53) scala/collection/immutable/List#map().
-(4:54..4:54) local0
 (4:54..4:62) scala/Predef.identity().
 (5:29..5:33) _empty_/Test# -> 1:7
 (5:34..5:38) scala/package.List#
 (5:39..5:45) scala/Predef.String#
-(5:47..5:47) _empty_/Test#`<init>`(). -> 1:11
 (5:50..5:53) scala/collection/immutable/List#map().
-(5:54..5:54) local1
 (5:54..5:62) scala/Predef.identity().
 

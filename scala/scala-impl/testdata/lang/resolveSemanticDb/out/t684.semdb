@@ -3,10 +3,8 @@ Document tests/pos/t684.scala
 (5:21..5:22) test/Test#foo().(t) -> 5:11
 (6:12..6:15) test/Test#Foo# -> 4:9
 (9:21..9:24) test/Test#Foo# -> 4:9
-(9:24..9:24) test/Test#Foo#`<init>`(). -> 4:3
 (9:30..9:32) test/Test#Ti# -> 3:9
 (10:3..10:9) scala/Predef.assert(+1).
 (10:10..10:13) test/Test#foo(). -> 5:7
 (10:18..10:21) test/Test#Bar# -> 9:9
-(10:21..10:21) test/Test#Bar#`<init>`(). -> 9:21
 

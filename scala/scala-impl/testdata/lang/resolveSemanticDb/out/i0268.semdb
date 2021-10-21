@@ -12,16 +12,13 @@ Document tests/pos/i0268.scala
 (10:26..10:27) typespatmat/Box2.double2().[T] -> 10:15
 (10:31..10:32) typespatmat/Box2.double2().[T] -> 10:15
 (10:35..10:36) typespatmat/Box2.double2().(x) -> 10:18
-(11:10..11:14) typespatmat/Int2. -> 4:18
-(11:14..11:14) typespatmat/Int2.unapply().
+(11:10..11:14) typespatmat/Int2.
 (11:21..11:22) local0 -> 11:15
 (11:23..11:24) scala/Int#`*`(+3).
-(12:10..12:14) typespatmat/Str2. -> 5:18
-(12:14..12:14) typespatmat/Str2.unapply().
+(12:10..12:14) typespatmat/Str2.
 (12:21..12:22) local1 -> 12:15
 (12:23..12:24) java/lang/String#`+`().
 (12:25..12:26) local1 -> 12:15
-(13:10..13:13) typespatmat/Gen. -> 7:18
-(13:13..13:13) typespatmat/Gen.unapply(). -> 7:1
+(13:10..13:13) typespatmat/Gen.
 (13:20..13:21) local2 -> 13:14
 

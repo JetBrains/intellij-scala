@@ -10,12 +10,8 @@ Document tests/pos/t4501.scala
 (5:28..5:29) _empty_/A#foo().(a) -> 5:14
 (8:12..8:15) _empty_/A#foo(). -> 5:7
 (8:16..8:26) scala/collection/mutable/ListBuffer.
-(8:26..8:26) scala/collection/IterableFactory#apply().
 (8:30..8:40) scala/collection/mutable/ListBuffer.
-(8:40..8:40) scala/collection/IterableFactory#apply().
 (9:12..9:15) _empty_/A#foo(). -> 5:7
 (9:16..9:20) scala/package.List.
-(9:20..9:20) scala/collection/IterableFactory#apply().
 (9:24..9:28) scala/package.List.
-(9:28..9:28) scala/collection/IterableFactory#apply().
 

@@ -1,7 +1,6 @@
 Document tests/pos/i6745.scala
-(3:37..3:38) local2 -> 3:20
+(3:37..3:38) local1 -> 3:20
 (3:39..3:40) _empty_/Foo#M# -> 2:8
 (3:43..3:44) _empty_/Foo#M# -> 2:8
 (3:47..3:51) _empty_/Foo#apply().(prog) -> 3:13
-(3:51..3:51) scala/Function1#apply().
 

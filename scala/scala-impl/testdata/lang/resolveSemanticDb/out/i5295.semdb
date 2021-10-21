@@ -1,7 +1,6 @@
 Document tests/pos/i5295.scala
 (1:17..1:23) scala/Predef.String#
 (1:26..1:29) _empty_/i5295$package.inline$bar().
-(1:29..1:29) scala/ContextFunction1#apply().
 (2:1..2:8) _empty_/
 (2:18..2:21) scala/Int#
 (2:26..2:32) scala/Predef.String#

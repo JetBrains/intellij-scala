@@ -14,7 +14,6 @@ Document tests/pos/spec-asseenfrom.scala
 (10:37..10:39) scala/collection/MapOps#`++`().
 (10:40..10:49) _empty_/Automaton#allStates(). -> 5:7
 (10:50..10:53) scala/collection/IterableOps#map().
-(10:62..10:62) scala/Tuple2.apply().
 (10:62..10:63) local0 -> 10:56
 (10:64..10:75) _empty_/Automaton#finalWeight(). -> 3:7
 (10:76..10:77) local0 -> 10:56
@@ -25,6 +24,5 @@ Document tests/pos/spec-asseenfrom.scala
 (26:22..26:24) _empty_/Automaton2#[T2] -> 24:44
 (28:11..28:20) _empty_/Automaton2#allStates(). -> 26:7
 (28:21..28:24) scala/collection/IterableOps#map().
-(28:25..28:25) local1
 (28:25..28:36) _empty_/Automaton2#finalWeight(). -> 25:7
 

@@ -5,17 +5,9 @@ Document tests/pos/i4449.scala
 (4:12..4:19) _empty_/TreeAccumulator2#foo().(reflect) -> 3:11
 (5:5..5:9) _empty_/TreeAccumulator2#foo().(tree) -> 3:33
 (6:12..6:13) _empty_/Reflection2#A. -> 23:7
-(6:13..6:13) _empty_/Reflection2#AExtractor#unapply(). -> 25:9
-(6:15..6:15) scala/reflect/ClassTag#unapply().
 (7:12..7:13) _empty_/Reflection2#B. -> 28:7
-(7:13..7:13) _empty_/Reflection2#BExtractor#unapply(). -> 30:9
-(7:15..7:15) scala/reflect/ClassTag#unapply().
 (8:12..8:13) _empty_/Reflection2#C. -> 33:7
-(8:13..8:13) _empty_/Reflection2#CExtractor#unapply(). -> 35:9
-(8:15..8:15) scala/reflect/ClassTag#unapply().
 (9:12..9:13) _empty_/Reflection2#D. -> 38:7
-(9:13..9:13) _empty_/Reflection2#DExtractor#unapply(). -> 40:9
-(9:15..9:15) scala/reflect/ClassTag#unapply().
 (20:21..20:26) scala/
 (20:27..20:34) scala/reflect/
 (20:35..20:43) scala/reflect/ClassTag#

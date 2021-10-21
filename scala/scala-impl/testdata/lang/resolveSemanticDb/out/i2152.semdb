@@ -3,7 +3,6 @@ Document tests/pos/i2152.scala
 (3:20..3:26) scala/AnyRef#
 (3:29..3:35) _empty_/Contra# -> 1:7
 (3:36..3:40) _empty_/Test.narrow().(task) -> 3:14
-(3:59..3:59) _empty_/Contra#`<init>`(). -> 1:13
 (3:60..3:64) _empty_/Test.narrow().(task) -> 3:14
 (4:28..4:34) _empty_/Contra# -> 1:7
 (4:35..4:41) _empty_/Test.ident().[Before] -> 4:13

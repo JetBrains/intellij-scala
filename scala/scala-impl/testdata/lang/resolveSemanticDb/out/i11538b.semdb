@@ -8,6 +8,5 @@ Document tests/pos/i11538b.scala
 (7:63..7:66) a/i11538b$package.Foo# -> 2:8
 (8:18..8:24) scala/Predef.summon().
 (8:25..8:28) a/i11538b$package.Foo# -> 2:8
-(8:29..8:29) a/i11538b$package.foo. -> 3:9
 (9:24..9:39) _empty_/test.summonInlineFoo(). -> 7:14
 

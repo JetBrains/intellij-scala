@@ -6,10 +6,8 @@ Document tests/pos/erasure-array.scala
 (6:16..6:18) scala/Int#`==`(+3).
 (6:26..6:31) scala/Array#
 (6:32..6:35) scala/Int#
-(6:36..6:36) scala/Array#`<init>`().
 (6:50..6:55) scala/Array#
 (6:56..6:61) scala/Float#
-(6:62..6:62) scala/Array#`<init>`().
 (9:18..9:23) scala/Array#
 (9:24..9:30) scala/Predef.String#
 (9:34..9:38) scala/Unit#

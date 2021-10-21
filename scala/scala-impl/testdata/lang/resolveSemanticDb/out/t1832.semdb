@@ -7,14 +7,11 @@ Document tests/pos/t1832.scala
 (7:26..7:29) scala/Int#
 (7:32..7:36) _empty_/Cloning#Star# -> 5:18
 (7:43..7:47) _empty_/Cloning#Star# -> 5:18
-(7:47..7:47) _empty_/Cloning#Star#`<init>`(). -> 5:25
 (7:59..7:62) _empty_/Cloning#Foo# -> 2:9
 (7:65..7:68) _empty_/Cloning#Foo# -> 2:9
-(9:14..9:14) _empty_/Cloning#mkStar(). -> 7:16
 (9:16..9:17) _empty_/Cloning#Star#`*`(). -> 5:29
 (9:18..9:20) _empty_/Cloning#fn(). -> 3:7
-(9:23..9:23) local3
 (9:41..9:44) scala/Int#
-(9:48..9:59) local4 -> 9:28
+(9:48..9:59) local5 -> 9:28
 (9:60..9:61) scala/Int#`*`(+3).
 

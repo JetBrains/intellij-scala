@@ -10,14 +10,12 @@ Document tests/pos/spec-Function1.scala
 (41:36..41:37) scalabip/Function1#[R] -> 35:49
 (41:47..41:52) scalabip/Function1#apply(). -> 36:7
 (41:53..41:54) scalabip/Function1#compose().(g) -> 41:18
-(41:54..41:54) scala/Function1#apply().
 (41:55..41:56) local1 -> 41:42
 (45:21..45:22) scalabip/Function1#[R] -> 35:49
 (45:26..45:27) scalabip/Function1#andThen().[A] -> 45:15
 (45:30..45:32) scalabip/Function1#[T1] -> 35:31
 (45:36..45:37) scalabip/Function1#andThen().[A] -> 45:15
 (45:47..45:48) scalabip/Function1#andThen().(g) -> 45:18
-(45:48..45:48) scala/Function1#apply().
 (45:49..45:54) scalabip/Function1#apply(). -> 36:7
 (45:55..45:56) local2 -> 45:42
 

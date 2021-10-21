@@ -12,12 +12,13 @@ Document tests/pos/t4717.scala
 (3:69..3:70) _empty_/Bug1#`++`().[B] -> 3:10
 (4:19..4:23) _empty_/Bug1#`++`().(that) -> 3:18
 (4:24..4:32) scala/collection/IterableOnce#iterator().
-(5:19..5:21) local1 -> 4:14
+(5:19..5:21) local0 -> 4:14
 (5:22..5:29) scala/collection/Iterator#hasNext().
-(6:16..6:18) local1 -> 4:14
+(6:16..6:18) local0 -> 4:14
 (6:19..6:23) scala/collection/Iterator#next().
 (11:18..11:29) scala/specialized#
 (11:30..11:37) scala/Boolean.
+(12:24..12:25) _empty_/WorksFine#[A] -> 11:39
 (12:35..12:41) _empty_/Bounds# -> 18:7
 (12:42..12:43) _empty_/WorksFine#SubBounds#[B] -> 12:19
 (13:19..13:22) scala/Predef.`???`().
@@ -25,7 +26,6 @@ Document tests/pos/t4717.scala
 (15:18..15:22) scala/Unit#
 (15:29..15:38) _empty_/WorksFine#SubBounds# -> 12:9
 (15:39..15:40) _empty_/WorksFine#x().[B] -> 15:9
-(15:41..15:41) _empty_/WorksFine#SubBounds#`<init>`(). -> 12:18
 (18:15..18:26) scala/specialized#
 (18:27..18:34) scala/Boolean.
 (20:14..20:15) _empty_/Bounds#[A] -> 18:36

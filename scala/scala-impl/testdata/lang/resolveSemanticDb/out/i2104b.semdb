@@ -19,13 +19,9 @@ Document tests/pos/i2104b.scala
 (11:24..11:30) scala/Predef.String#
 (11:34..11:38) scala/Unit#
 (12:5..12:9) _empty_/Cons. -> 5:8
-(12:9..12:9) _empty_/Cons.apply(). -> 6:7
 (12:10..12:16) scala/Option.
-(12:16..12:16) scala/Option.apply().
 (12:21..12:25) scala/None.
 (13:12..13:16) _empty_/Cons. -> 5:8
-(13:16..13:16) _empty_/Cons.unapply(). -> 7:7
 (13:17..13:21) scala/Some.
-(13:21..13:21) scala/Some.unapply().
 (13:26..13:30) scala/None.
 

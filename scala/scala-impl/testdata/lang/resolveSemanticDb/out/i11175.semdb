@@ -8,7 +8,6 @@ Document tests/pos/i11175.scala
 (7:24..7:30) scala/Predef.summon().
 (7:31..7:38) x/Printer# -> 3:7
 (7:39..7:40) x/i11175$package.print().[T] -> 6:11
-(7:42..7:42) x/i11175$package.print().(x$2) -> 6:25
 (7:43..7:48) x/Printer#print(). -> 4:7
 (7:49..7:50) x/i11175$package.print().(t) -> 6:14
 (13:7..13:14) x/Printer# -> 3:7
@@ -27,5 +26,4 @@ Document tests/pos/i11175.scala
 (23:16..23:23) java/io/PrintStream#println(+8).
 (23:24..23:25) x/B. -> 11:8
 (23:26..23:31) x/i11175$package.print(). -> 7:7
-(23:31..23:31) x/i11175$package.given_Printer_B_type. -> 16:7
 

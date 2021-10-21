@@ -3,77 +3,58 @@ Document tests/pos/exponential-spec.scala
 (7:21..7:22) _empty_/Test.f().[T] -> 7:9
 (7:26..7:29) _empty_/Exp# -> 4:7
 (7:30..7:31) _empty_/Test.f().[T] -> 7:9
-(8:5..8:5) local0
 (8:5..8:6) _empty_/Test.f(). -> 7:7
 (8:7..8:8) _empty_/Test.f().[T] -> 7:9
 (9:7..9:14) scala/Function1#compose().
-(9:15..9:15) local1
 (9:15..9:16) _empty_/Test.f(). -> 7:7
 (9:17..9:18) _empty_/Test.f().[T] -> 7:9
 (10:7..10:14) scala/Function1#compose().
-(10:15..10:15) local2
 (10:15..10:16) _empty_/Test.f(). -> 7:7
 (10:17..10:18) _empty_/Test.f().[T] -> 7:9
 (11:7..11:14) scala/Function1#compose().
-(11:15..11:15) local3
 (11:15..11:16) _empty_/Test.f(). -> 7:7
 (11:17..11:18) _empty_/Test.f().[T] -> 7:9
 (12:7..12:14) scala/Function1#compose().
-(12:15..12:15) local4
 (12:15..12:16) _empty_/Test.f(). -> 7:7
 (12:17..12:18) _empty_/Test.f().[T] -> 7:9
 (13:7..13:14) scala/Function1#compose().
-(13:15..13:15) local5
 (13:15..13:16) _empty_/Test.f(). -> 7:7
 (13:17..13:18) _empty_/Test.f().[T] -> 7:9
 (14:7..14:14) scala/Function1#compose().
-(14:15..14:15) local6
 (14:15..14:16) _empty_/Test.f(). -> 7:7
 (14:17..14:18) _empty_/Test.f().[T] -> 7:9
 (15:7..15:14) scala/Function1#compose().
-(15:15..15:15) local7
 (15:15..15:16) _empty_/Test.f(). -> 7:7
 (15:17..15:18) _empty_/Test.f().[T] -> 7:9
 (16:7..16:14) scala/Function1#compose().
-(16:15..16:15) local8
 (16:15..16:16) _empty_/Test.f(). -> 7:7
 (16:17..16:18) _empty_/Test.f().[T] -> 7:9
 (17:7..17:14) scala/Function1#compose().
-(17:15..17:15) local9
 (17:15..17:16) _empty_/Test.f(). -> 7:7
 (17:17..17:18) _empty_/Test.f().[T] -> 7:9
 (18:7..18:14) scala/Function1#compose().
-(18:15..18:15) local10
 (18:15..18:16) _empty_/Test.f(). -> 7:7
 (18:17..18:18) _empty_/Test.f().[T] -> 7:9
 (19:7..19:14) scala/Function1#compose().
-(19:15..19:15) local11
 (19:15..19:16) _empty_/Test.f(). -> 7:7
 (19:17..19:18) _empty_/Test.f().[T] -> 7:9
 (20:7..20:14) scala/Function1#compose().
-(20:15..20:15) local12
 (20:15..20:16) _empty_/Test.f(). -> 7:7
 (20:17..20:18) _empty_/Test.f().[T] -> 7:9
 (21:7..21:14) scala/Function1#compose().
-(21:15..21:15) local13
 (21:15..21:16) _empty_/Test.f(). -> 7:7
 (21:17..21:18) _empty_/Test.f().[T] -> 7:9
 (22:7..22:14) scala/Function1#compose().
-(22:15..22:15) local14
 (22:15..22:16) _empty_/Test.f(). -> 7:7
 (22:17..22:18) _empty_/Test.f().[T] -> 7:9
 (23:7..23:14) scala/Function1#compose().
-(23:15..23:15) local15
 (23:15..23:16) _empty_/Test.f(). -> 7:7
 (23:17..23:18) _empty_/Test.f().[T] -> 7:9
 (24:7..24:14) scala/Function1#compose().
-(24:15..24:15) local16
 (24:15..24:16) _empty_/Test.f(). -> 7:7
 (24:17..24:18) _empty_/Test.f().[T] -> 7:9
 (25:7..25:14) scala/Function1#compose().
-(25:15..25:15) local17
 (25:15..25:16) _empty_/Test.f(). -> 7:7
 (25:17..25:18) _empty_/Test.f().[T] -> 7:9
-(25:19..25:19) scala/Function1#apply().
 (46:7..46:10) _empty_/Test.f().(exp) -> 7:12
 

@@ -1,6 +1,8 @@
 Document tests/pos/tcpoly_late_method_params.scala
 (2:21..2:27) _empty_/Foo#flatMap().[RBound] -> 2:33
 (2:28..2:30) _empty_/Foo#flatMap().[RT] -> 2:15
+(2:56..2:62) _empty_/Foo#flatMap().[RBound] -> 2:33
+(2:63..2:64) _empty_/Foo#flatMap().[Result][x] -> 2:51
 (2:69..2:75) _empty_/Foo#flatMap().[Result] -> 2:44
 (2:76..2:78) _empty_/Foo#flatMap().[RT] -> 2:15
 

@@ -4,10 +4,7 @@ Document tests/pos/t2130-2.scala
 (12:26..12:31) scala/Float#
 (14:19..14:22) scala/Int#
 (14:31..14:36) foo/bar/package.Bippy# -> 4:9
-(14:36..14:36) foo/bar/package.Bippy#`<init>`(). -> 4:14
 (14:37..14:39) foo/bar/package.Bippy.apply().(xs) -> 14:15
 (14:40..14:43) scala/collection/IterableOnceOps#sum().
-(14:43..14:43) scala/math/Numeric.IntIsIntegral.
 (15:23..15:28) foo/bar/package.Bippy# -> 4:9
-(15:28..15:28) foo/bar/package.Bippy#`<init>`(). -> 4:14
 

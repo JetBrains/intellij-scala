@@ -9,9 +9,7 @@ Document tests/pos/lexical.scala
 (7:27..7:30) scala/Int#
 (7:33..7:40) _empty_/RichInt# -> 2:7
 (7:47..7:54) _empty_/RichInt# -> 2:7
-(7:54..7:54) _empty_/RichInt#`<init>`(). -> 2:14
 (7:55..7:56) _empty_/Test.RichInt().(n) -> 7:24
 (8:3..8:10) scala/Predef.println(+1).
-(8:11..8:11) _empty_/Test.RichInt(). -> 7:16
 (8:14..8:18) _empty_/RichInt#days(). -> 3:7
 

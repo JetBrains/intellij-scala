@@ -29,14 +29,12 @@ Document tests/pos/test5refine.scala
 (30:42..30:43) _empty_/test.M#P# -> 14:12
 (30:45..30:51) _empty_/test.M#val_mp(). -> 29:11
 (33:30..33:31) _empty_/test.M# -> 13:18
-(33:31..33:31) _empty_/test.M#`<init>`(). -> 13:19
 (35:16..35:17) _empty_/test.F# -> 5:18
 (35:30..35:31) _empty_/test.N#Q# -> 34:12
 (36:13..36:14) _empty_/test.N#J# -> 38:22
 (36:26..36:27) _empty_/test.G# -> 9:18
 (36:40..36:41) _empty_/test.N#Q# -> 34:12
 (38:34..38:35) _empty_/test.M#I# -> 15:22
-(38:35..38:35) _empty_/test.M#I#`<init>`(). -> 15:23
 (40:16..40:17) _empty_/test.G# -> 9:18
 (40:30..40:31) _empty_/test.N#J#Y# -> 39:12
 (42:19..42:20) _empty_/test.N#J#Y# -> 39:12

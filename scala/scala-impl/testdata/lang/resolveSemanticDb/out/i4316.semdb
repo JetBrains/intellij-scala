@@ -9,6 +9,5 @@ Document tests/pos/i4316.scala
 (8:9..8:13) _empty_/Test.meth(). -> 5:7
 (8:14..8:22) _empty_/Test.meth().(consumer) -> 5:15
 (8:28..8:31) _empty_/Test.Bar# -> 3:14
-(8:32..8:33) local1 -> 7:21
-(8:34..8:34) _empty_/Test.Bar#`<init>`(). -> 3:17
+(8:32..8:33) local0 -> 7:21
 

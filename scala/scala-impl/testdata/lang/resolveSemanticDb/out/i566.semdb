@@ -3,5 +3,4 @@ Document tests/pos/i566.scala
 (4:3..4:10) scala/reflect/
 (4:11..4:19) scala/reflect/package.classTag().
 (4:20..4:21) _empty_/Test#T# -> 2:8
-(4:22..4:22) scala/reflect/ClassTag.apply().
 

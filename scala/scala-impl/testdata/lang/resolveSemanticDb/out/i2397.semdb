@@ -5,7 +5,6 @@ Document tests/pos/i2397.scala
 (6:3..6:6) _empty_/Test.foo(). -> 4:7
 (6:12..6:15) _empty_/Foo# -> 1:7
 (6:16..6:19) scala/Int#
-(6:20..6:20) _empty_/Foo#`<init>`(). -> 1:10
 (6:22..6:25) _empty_/Foo# -> 1:7
 (9:8..9:12) java/
 (9:13..9:16) java/nio/

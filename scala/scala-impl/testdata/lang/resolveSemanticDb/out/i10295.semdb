@@ -7,17 +7,16 @@ Document tests/pos/i10295.scala
 (8:23..8:24) _empty_/M# -> 1:7
 (8:29..8:33) scala/Unit#
 (8:37..8:41) _empty_/i10295$package.doSomething().(body) -> 8:17
-(8:41..8:41) scala/ContextFunction1#apply().
 (8:52..8:53) _empty_/M# -> 1:7
 (12:9..12:10) _empty_/M# -> 1:7
 (12:17..12:18) _empty_/M# -> 1:7
 (13:3..13:10) scala/Predef.locally().
 (14:12..14:13) _empty_/i10295$package.m(). -> 6:24
-(14:13..14:13) local1 -> 12:9
+(15:12..15:13) _empty_/M#X# -> 2:8
 (15:16..15:17) _empty_/M#X. -> 3:10
 (15:18..15:21) _empty_/M#X.foo(). -> 4:9
 (16:5..16:12) scala/Predef.println(+1).
-(16:13..16:14) local3 -> 15:9
+(16:13..16:14) local5 -> 15:9
 (21:3..21:14) _empty_/i10295$package.doSomething(). -> 8:5
 (22:12..22:13) _empty_/i10295$package.m(). -> 6:24
 (22:14..22:15) _empty_/M#X# -> 2:8
@@ -25,17 +24,20 @@ Document tests/pos/i10295.scala
 (22:20..22:21) _empty_/M#X. -> 3:10
 (22:22..22:25) _empty_/M#X.foo(). -> 4:9
 (23:5..23:12) scala/Predef.println(+1).
-(23:13..23:14) local4 -> 22:9
+(23:13..23:14) local7 -> 22:9
 (26:3..26:14) _empty_/i10295$package.doSomething(). -> 8:5
 (27:12..27:13) _empty_/i10295$package.m(). -> 6:24
+(28:12..28:13) _empty_/M#X# -> 2:8
+(28:16..28:17) _empty_/M#X. -> 3:10
 (28:18..28:21) _empty_/M#X.foo(). -> 4:9
 (29:5..29:12) scala/Predef.println(+1).
-(29:13..29:14) local5 -> 28:9
+(29:13..29:14) local9 -> 28:9
 (32:3..32:14) _empty_/i10295$package.doSomething(). -> 8:5
 (34:15..34:16) _empty_/i10295$package.m(). -> 6:24
-(35:12..35:15) local6 -> 34:9
+(35:12..35:15) local11 -> 34:9
+(36:12..36:13) _empty_/M#X# -> 2:8
 (36:16..36:17) _empty_/M#X. -> 3:10
 (36:18..36:21) _empty_/M#X.foo(). -> 4:9
 (37:5..37:12) scala/Predef.println(+1).
-(37:13..37:14) local7 -> 36:9
+(37:13..37:14) local12 -> 36:9
 

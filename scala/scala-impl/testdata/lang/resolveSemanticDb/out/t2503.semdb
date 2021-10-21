@@ -22,7 +22,6 @@ Document tests/pos/t2503.scala
 (13:21..13:24) scala/App#
 (14:7..14:18) scala/collection/mutable/ArrayBuffer#
 (14:19..14:22) scala/Int#
-(14:23..14:23) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
 (14:29..14:31) _empty_/SB# -> 3:7
 (14:32..14:35) scala/Int#
 

@@ -15,7 +15,6 @@ Document tests/pos/i10129.scala
 (6:64..6:67) scala/Predef.`???`().
 (8:12..8:15) _empty_/Err# -> 1:7
 (8:18..8:21) _empty_/Err# -> 1:7
-(8:21..8:21) _empty_/Err#`<init>`(). -> 1:1
 (10:9..10:12) scala/Int#
 (10:13..10:14) scala/`|`#
 (10:15..10:18) _empty_/Err# -> 1:7

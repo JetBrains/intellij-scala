@@ -7,57 +7,39 @@ Document tests/pos/i12073.scala
 (12:24..12:30) scala/Predef.String#
 (14:21..14:26) _empty_/Override.Trait# -> 12:9
 (15:40..15:46) scala/Predef.String#
-(16:14..16:14) _empty_/Override.OK.s(). -> 15:37
 (16:14..16:15) _empty_/i12073$package.f(). -> 7:24
 (17:14..17:18) scala/Some.
-(17:18..17:18) scala/Some.unapply().
 (18:14..18:18) scala/Some.
-(18:18..18:18) scala/Some.unapply().
 (19:14..19:18) scala/None.
 (23:23..23:28) _empty_/Override.Trait# -> 12:9
 (24:40..24:46) scala/Predef.String#
-(25:14..25:14) _empty_/Override.KO_1.s(). -> 24:37
 (25:14..25:15) _empty_/i12073$package.f(). -> 7:24
 (26:14..26:18) scala/Some.
-(26:18..26:18) scala/Some.unapply().
 (27:14..27:18) scala/Some.
-(27:18..27:18) scala/Some.unapply().
 (28:14..28:18) scala/None.
 (32:23..32:28) _empty_/Override.Trait# -> 12:9
 (33:40..33:46) scala/Predef.String#
-(34:14..34:14) _empty_/Override.KO_2.s(). -> 33:37
 (34:14..34:15) _empty_/i12073$package.f(). -> 7:24
 (35:14..35:18) scala/Some.
-(35:18..35:18) scala/Some.unapply().
 (36:14..36:18) scala/Some.
-(36:18..36:18) scala/Some.unapply().
 (37:14..37:18) scala/Some.
-(37:18..37:18) scala/Some.unapply().
 (38:14..38:18) scala/None.
 (45:32..45:38) scala/Predef.String#
 (46:12..46:13) _empty_/i12073$package.f(). -> 7:24
 (47:12..47:16) scala/Some.
-(47:16..47:16) scala/Some.unapply().
 (48:12..48:16) scala/Some.
-(48:16..48:16) scala/Some.unapply().
 (49:12..49:16) scala/None.
 (53:32..53:38) scala/Predef.String#
 (54:12..54:13) _empty_/i12073$package.f(). -> 7:24
 (55:12..55:16) scala/Some.
-(55:16..55:16) scala/Some.unapply().
 (56:12..56:16) scala/Some.
-(56:16..56:16) scala/Some.unapply().
 (57:12..57:16) scala/None.
 (61:32..61:38) scala/Predef.String#
 (62:12..62:13) _empty_/i12073$package.f(). -> 7:24
 (63:12..63:16) scala/Some.
-(63:16..63:16) scala/Some.unapply().
 (64:12..64:16) scala/Some.
-(64:16..64:16) scala/Some.unapply().
 (65:12..65:16) scala/Some.
-(65:16..65:16) scala/Some.unapply().
 (66:12..66:16) scala/None.
-(69:3..69:3) scala/Predef.augmentString().
 (69:3..69:7) _empty_/NonOverride.ok_1(). -> 45:26
 (69:8..69:9) java/lang/String#`+`().
 (69:10..69:14) _empty_/NonOverride.ok_2(). -> 53:26

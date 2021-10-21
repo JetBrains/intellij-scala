@@ -8,7 +8,6 @@ Document tests/pos/i12133.scala
 (11:37..11:38) _empty_/i12133$package.foo().(s) -> 11:26
 (11:39..11:43) scala/collection/SeqOps#size().
 (13:13..13:14) _empty_/A# -> 3:7
-(13:14..13:14) _empty_/A#`<init>`(). -> 4:3
 (15:11..15:15) scala/Unit#
 (15:18..15:19) _empty_/i12133$package.a. -> 13:5
 (15:20..15:23) _empty_/i12133$package.foo(). -> 11:22

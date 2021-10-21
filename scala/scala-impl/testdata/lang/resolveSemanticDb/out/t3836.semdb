@@ -7,5 +7,4 @@ Document tests/pos/t3836.scala
 (9:10..9:13) foo/ -> 1:9
 (9:14..9:17) foo/bar/
 (12:17..12:28) java/io/IOException#
-(12:28..12:28) java/io/IOException#`<init>`().
 

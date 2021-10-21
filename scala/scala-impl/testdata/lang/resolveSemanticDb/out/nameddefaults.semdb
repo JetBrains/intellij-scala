@@ -24,63 +24,47 @@ Document tests/pos/nameddefaults.scala
 (26:15..26:16) _empty_/nameddefaults.x(). -> 5:7
 (26:18..26:24) _empty_/nameddefaults.foo().(second) -> 3:23
 (26:27..26:28) _empty_/nameddefaults.y(). -> 6:7
-(28:3..28:3) local2 -> 28:3
 (28:3..28:6) _empty_/nameddefaults.foo(). -> 3:7
 (28:7..28:13) _empty_/nameddefaults.foo().(second) -> 3:23
 (28:16..28:17) _empty_/nameddefaults.x(). -> 5:7
 (28:19..28:24) _empty_/nameddefaults.foo().(first) -> 3:11
 (28:27..28:28) _empty_/nameddefaults.y(). -> 6:7
-(30:3..30:3) local5 -> 30:3
 (30:3..30:6) _empty_/nameddefaults.foo(). -> 3:7
 (30:7..30:12) _empty_/nameddefaults.foo().(first) -> 3:11
 (30:15..30:16) _empty_/nameddefaults.x(). -> 5:7
 (30:18..30:23) _empty_/nameddefaults.foo().(third) -> 3:40
 (30:26..30:27) _empty_/nameddefaults.y(). -> 6:7
-(32:3..32:3) local8 -> 32:3
 (32:3..32:6) _empty_/nameddefaults.foo(). -> 3:7
-(32:7..32:7) local6 -> 32:7
 (32:10..32:15) _empty_/nameddefaults.foo().(third) -> 3:40
 (32:18..32:19) _empty_/nameddefaults.y(). -> 6:7
 (36:18..36:21) scala/Int#
 (36:31..36:34) scala/Int#
 (36:47..36:50) scala/Int#
 (38:7..38:8) _empty_/nameddefaults.C# -> 36:9
-(38:8..38:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (40:7..40:8) _empty_/nameddefaults.C# -> 36:9
-(40:8..40:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (42:7..42:8) _empty_/nameddefaults.C# -> 36:9
-(42:8..42:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (46:7..46:8) _empty_/nameddefaults.C# -> 36:9
-(46:8..46:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (46:9..46:14) _empty_/nameddefaults.C#`<init>`().(first)
 (46:20..46:26) _empty_/nameddefaults.C#`<init>`().(second)
 (48:7..48:8) _empty_/nameddefaults.C# -> 36:9
-(48:8..48:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (48:9..48:15) _empty_/nameddefaults.C#`<init>`().(second)
 (48:21..48:26) _empty_/nameddefaults.C#`<init>`().(first)
 (50:7..50:8) _empty_/nameddefaults.C# -> 36:9
-(50:8..50:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (50:9..50:14) _empty_/nameddefaults.C#`<init>`().(first)
 (50:20..50:25) _empty_/nameddefaults.C#`<init>`().(third)
 (52:7..52:8) _empty_/nameddefaults.C# -> 36:9
-(52:8..52:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (52:12..52:17) _empty_/nameddefaults.C#`<init>`().(third)
 (56:7..56:8) _empty_/nameddefaults.C# -> 36:9
-(56:8..56:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (56:9..56:14) _empty_/nameddefaults.C#`<init>`().(first)
 (56:17..56:18) _empty_/nameddefaults.x(). -> 5:7
 (56:20..56:26) _empty_/nameddefaults.C#`<init>`().(second)
 (56:29..56:30) _empty_/nameddefaults.y(). -> 6:7
-(58:7..58:7) local11 -> 58:7
 (58:7..58:8) _empty_/nameddefaults.C# -> 36:9
-(58:8..58:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (58:9..58:15) _empty_/nameddefaults.C#`<init>`().(second)
 (58:18..58:19) _empty_/nameddefaults.x(). -> 5:7
 (58:21..58:26) _empty_/nameddefaults.C#`<init>`().(first)
 (58:29..58:30) _empty_/nameddefaults.y(). -> 6:7
-(60:7..60:7) local14 -> 60:7
 (60:7..60:8) _empty_/nameddefaults.C# -> 36:9
-(60:8..60:8) _empty_/nameddefaults.C#`<init>`(). -> 36:10
 (60:9..60:14) _empty_/nameddefaults.C#`<init>`().(first)
 (60:17..60:18) _empty_/nameddefaults.x(). -> 5:7
 (60:20..60:25) _empty_/nameddefaults.C#`<init>`().(third)

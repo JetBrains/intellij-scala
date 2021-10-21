@@ -11,8 +11,6 @@ Document tests/pos/t2698.scala
 (12:45..12:58) scala/compiletime/package$package.uninitialized().
 (13:17..13:26) scala/collection/immutable/
 (13:27..13:30) scala/collection/immutable/Map.
-(13:30..13:30) scala/collection/MapFactory#apply().
-(13:31..13:31) scala/Predef.refArrayOps().
 (13:31..13:37) _empty_/S2#deltaq(). -> 12:7
 (13:38..13:50) scala/collection/ArrayOps#zipWithIndex().
 

@@ -1,20 +1,9 @@
 Document tests/pos/t2504.scala
 (2:12..2:17) scala/Array.
-(2:17..2:17) scala/Array.apply().
-(2:24..2:24) scala/reflect/ClassTag.apply().
 (3:11..3:19) scala/package.Iterable#
-(3:25..3:25) scala/LowPriorityImplicits#wrapRefArray().
 (3:25..3:30) scala/Array.
-(3:30..3:30) scala/Array.apply().
-(3:37..3:37) scala/reflect/ClassTag.apply().
 (4:12..4:17) scala/Array.
-(4:17..4:17) scala/Array.apply().
-(4:24..4:24) scala/reflect/ClassTag.apply().
-(5:3..5:3) scala/LowPriorityImplicits#wrapRefArray().
 (5:3..5:5) _empty_/Test.xs. -> 4:7
 (5:6..5:18) scala/collection/SeqOps#sameElements().
-(5:19..5:19) scala/LowPriorityImplicits#wrapRefArray().
 (5:19..5:24) scala/Array.
-(5:24..5:24) scala/Array.apply().
-(5:31..5:31) scala/reflect/ClassTag.apply().
 

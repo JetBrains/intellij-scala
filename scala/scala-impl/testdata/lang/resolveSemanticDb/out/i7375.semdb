@@ -23,9 +23,7 @@ Document tests/pos/i7375.scala
 (9:128..9:134) scala/Predef.String#
 (9:138..9:142) scala/Unit#
 (10:8..10:15) scala/Predef.println(+1).
-(10:18..10:18) scala/StringContext.apply().
 (10:37..10:40) _empty_/GreetingPerson.GreetingPersonEntity.receive().(msg) -> 9:71
-(10:44..10:44) _empty_/Entity#name(). -> 3:25
 (10:44..10:50) _empty_/GreetingPerson.GreetingPersonEntity.receive().(sender) -> 9:48
 (10:58..10:59) scala/StringContext#f().
 (12:20..12:34) _empty_/GreetingPerson# -> 5:7
@@ -45,9 +43,7 @@ Document tests/pos/i7375.scala
 (19:128..19:134) scala/Predef.String#
 (19:138..19:142) scala/Unit#
 (20:7..20:14) scala/Predef.println(+1).
-(20:17..20:17) scala/StringContext.apply().
 (20:36..20:39) _empty_/GreetedPerson.GreetedPersonEntity.receive().(msg) -> 19:71
-(20:43..20:43) _empty_/Entity#name(). -> 3:25
 (20:43..20:49) _empty_/GreetedPerson.GreetedPersonEntity.receive().(sender) -> 19:47
 (20:57..20:58) scala/StringContext#f().
 (22:20..22:33) _empty_/GreetedPerson# -> 15:7

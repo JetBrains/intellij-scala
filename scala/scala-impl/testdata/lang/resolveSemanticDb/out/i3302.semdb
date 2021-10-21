@@ -4,5 +4,4 @@ Document tests/pos/i3302/A.scala
 
 Document tests/pos/i3302/B.scala
 (3:3..3:4) test/A. -> 3:16
-(3:4..3:4) test/A.apply(). -> 3:24
 

@@ -3,14 +3,12 @@ Document tests/pos/i3935.scala
 (2:21..2:22) _empty_/Foo3.Bar#[T] -> 2:15
 (2:32..2:36) _empty_/Foo3# -> 1:6
 (2:37..2:38) _empty_/Foo3.Bar#y. -> 2:18
-(2:44..2:44) _empty_/Foo3#`<init>`(). -> 1:10
 (2:45..2:46) _empty_/Foo3.Bar#y. -> 2:18
-(5:10..5:14) _empty_/Foo3. -> 1:6
+(5:10..5:14) _empty_/Foo3.
 (5:15..5:18) _empty_/Foo3.Bar# -> 2:8
 (5:19..5:26) scala/Nothing#
-(5:33..5:37) _empty_/Foo3. -> 1:6
-(5:38..5:41) _empty_/Foo3.Bar. -> 2:8
-(5:41..5:41) _empty_/Foo3.Bar.apply(). -> 2:3
+(5:33..5:37) _empty_/Foo3.
+(5:38..5:41) _empty_/Foo3.Bar.
 (6:11..6:14) _empty_/i3935$package.foo. -> 5:5
 (8:15..8:19) _empty_/Foo3# -> 1:6
 (8:20..8:21) _empty_/i3935$package.baz().[T] -> 8:9

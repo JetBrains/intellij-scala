@@ -34,7 +34,8 @@ object ComparisonSymbol {
     def escaped(s: String): String = {
       def isStart(c: Char): Boolean = c.isUnicodeIdentifierStart || c == '_' || c == '$'
       def isPart(c: Char): Boolean = c.isUnicodeIdentifierPart || c == '$'
-      if (s.headOption.forall(isStart) && s.forall(isPart)) s
+      if (s.headOption.contains('`')) s
+      else if (s.headOption.forall(isStart) && s.forall(isPart)) s
       else s"`$s`"
     }
 

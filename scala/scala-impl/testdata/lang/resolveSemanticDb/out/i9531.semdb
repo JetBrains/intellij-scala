@@ -19,9 +19,7 @@ Document tests/pos/i9531.scala
 (8:11..8:12) _empty_/i9531$package.test().(s) -> 7:16
 (8:13..8:17) _empty_/Scope#Expr# -> 2:8
 (8:23..8:32) _empty_/i9531$package.exprQuote(+1). -> 5:5
-(8:35..8:35) _empty_/i9531$package.test().(s) -> 7:16
 (9:12..9:21) _empty_/i9531$package.exprQuote(+1). -> 5:5
-(9:24..9:24) _empty_/i9531$package.test().(s) -> 7:16
 (10:11..10:12) _empty_/i9531$package.test().(s) -> 7:16
 (10:13..10:17) _empty_/Scope#Expr# -> 2:8
 (10:23..10:25) local1 -> 9:7

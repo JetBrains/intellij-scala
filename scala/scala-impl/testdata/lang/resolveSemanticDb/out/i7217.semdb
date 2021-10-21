@@ -2,10 +2,7 @@ Document tests/pos/i7217.scala
 (1:15..1:21) scala/Predef.String#
 (1:27..1:33) scala/Predef.String#
 (2:16..2:22) scala/Predef.String#
-(2:31..2:31) _empty_/Foo#`<init>`(). -> 1:10
 (2:31..2:33) _empty_/Foo#`<init>`(+1).(p1) -> 2:12
 (4:11..4:14) _empty_/Foo# -> 1:7
-(4:14..4:14) _empty_/Foo#`<init>`(). -> 1:10
 (5:11..5:14) _empty_/Foo# -> 1:7
-(5:14..5:14) _empty_/Foo#`<init>`(+1). -> 2:7
 

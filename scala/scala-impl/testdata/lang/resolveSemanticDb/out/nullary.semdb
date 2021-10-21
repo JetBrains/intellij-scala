@@ -9,13 +9,9 @@ Document tests/pos/nullary.scala
 (12:24..12:35) _empty_/NullaryTest# -> 1:16
 (12:36..12:39) scala/Int#
 (12:41..12:45) scala/package.List#
-(12:46..12:46) _empty_/NullaryTest#`<init>`(). -> 1:27
 (14:24..14:28) scala/package.List.
-(14:28..14:28) scala/collection/IterableFactory#apply().
 (18:14..18:22) _empty_/Concrete# -> 12:7
-(18:22..18:22) _empty_/Concrete#`<init>`(). -> 12:24
 (18:24..18:32) _empty_/Concrete#nullary2(). -> 13:13
 (19:14..19:22) _empty_/Concrete# -> 12:7
-(19:22..19:22) _empty_/Concrete#`<init>`(). -> 12:24
 (19:24..19:32) _empty_/Concrete#nullary3(). -> 14:13
 

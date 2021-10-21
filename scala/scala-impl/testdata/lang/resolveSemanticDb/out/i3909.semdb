@@ -1,9 +1,7 @@
 Document tests/pos/i3909.scala
 (1:12..1:15) scala/Int#
 (3:7..3:8) _empty_/`~`# -> 1:7
-(3:8..3:8) _empty_/`~`#`<init>`(). -> 1:8
 (4:7..4:10) _empty_/`~`# -> 1:7
-(4:10..4:10) _empty_/`~`#`<init>`(). -> 1:8
 (6:12..6:15) scala/Int#
 (7:6..7:7) scala/Int#`unary_~`().
 

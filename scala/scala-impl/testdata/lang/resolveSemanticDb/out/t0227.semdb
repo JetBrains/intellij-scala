@@ -14,16 +14,11 @@ Document tests/pos/t0227.scala
 (14:44..14:47) scala/package.Nil.
 (17:24..17:32) _empty_/Settings# -> 1:13
 (17:42..17:46) _empty_/Base# -> 11:16
-(17:46..17:46) _empty_/Base#`<init>`(). -> 12:5
-(18:33..18:33) local0 -> 18:33
 (20:16..20:24) _empty_/SA#settings. -> 17:14
 (20:25..20:26) _empty_/Settings#f(). -> 2:9
 (21:13..21:15) _empty_/SC. -> 25:8
-(22:10..22:10) scala/collection/immutable/List#`:::`().
 (25:19..25:26) _empty_/Factory# -> 5:16
-(25:26..25:26) _empty_/Factory#`<init>`(). -> 6:5
 (26:24..26:28) _empty_/Base# -> 11:16
 (29:19..29:26) _empty_/Factory# -> 5:16
-(29:26..29:26) _empty_/Factory#`<init>`(). -> 6:5
 (30:24..30:26) _empty_/SA# -> 17:7
 

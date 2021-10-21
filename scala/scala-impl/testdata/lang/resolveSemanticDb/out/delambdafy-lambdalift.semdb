@@ -3,10 +3,10 @@ Document tests/pos/delambdafy-lambdalift.scala
 (3:42..3:46) scala/Unit#
 (4:24..4:27) scala/Int#
 (4:30..4:33) scala/Int#
-(4:36..4:37) local1 -> 4:21
+(4:36..4:37) local0 -> 4:21
 (4:38..4:39) scala/Int#`+`(+4).
 (4:40..4:51) _empty_/LambdaLift#enclosingMethod().(capturedArg) -> 3:23
 (5:17..5:20) scala/Int#
-(5:25..5:36) local0 -> 4:9
-(5:37..5:38) local3 -> 5:14
+(5:25..5:36) local1 -> 4:9
+(5:37..5:38) local2 -> 5:14
 

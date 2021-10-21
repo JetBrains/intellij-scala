@@ -1,6 +1,5 @@
 Document tests/pos/merge-constraint.scala
 (2:18..2:20) _empty_/Hi# -> 1:7
-(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
 (5:19..5:20) _empty_/Test.foo().[T] -> 5:11
 (5:25..5:26) _empty_/Test.foo().[T] -> 5:11
 (5:31..5:32) _empty_/Test.foo().[T] -> 5:11
@@ -14,5 +13,5 @@ Document tests/pos/merge-constraint.scala
 (8:19..8:21) _empty_/Test.test().(hi) -> 7:12
 (8:28..8:30) _empty_/Test.test().(lo) -> 7:20
 (9:12..9:14) _empty_/Lo# -> 2:7
-(9:17..9:20) local0 -> 8:9
+(9:17..9:20) local1 -> 8:9
 

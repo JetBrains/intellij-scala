@@ -22,11 +22,8 @@ Document tests/pos/single-unions.scala
 (12:64..12:69) _empty_/Test1.Fence# -> 9:16
 (12:70..12:71) _empty_/Test1.Panel#[T] -> 12:21
 (12:73..12:74) _empty_/Test1.Panel#[S] -> 12:25
-(14:15..14:19) _empty_/Test1.Post. -> 11:14
-(14:19..14:19) _empty_/Test1.Post.apply(). -> 11:3
-(14:23..14:28) _empty_/Test1.Panel. -> 12:14
-(14:28..14:28) _empty_/Test1.Panel.apply(). -> 12:3
-(14:36..14:40) _empty_/Test1.Post. -> 11:14
-(14:40..14:40) _empty_/Test1.Post.apply(). -> 11:3
+(14:15..14:19) _empty_/Test1.Post.
+(14:23..14:28) _empty_/Test1.Panel.
+(14:36..14:40) _empty_/Test1.Post.
 (14:44..14:47) _empty_/Test1.End. -> 10:15
 

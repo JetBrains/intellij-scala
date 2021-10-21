@@ -1,6 +1,5 @@
 Document tests/pos/t0301.scala
 (4:26..4:30) fos/Expr# -> 3:16
-(4:30..4:30) fos/Expr#`<init>`(). -> 3:1
 (7:26..7:30) fos/Expr# -> 3:16
 (7:38..7:41) fos/Var# -> 4:12
 (7:42..7:45) fos/Var# -> 4:12

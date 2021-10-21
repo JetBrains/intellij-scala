@@ -2,7 +2,6 @@ Document tests/pos/i4753.scala
 (4:12..4:13) _empty_/A# -> 1:7
 (4:18..4:21) scala/Int#
 (8:7..8:11) _empty_/FooI# -> 11:7
-(8:11..8:11) _empty_/FooI#`<init>`(). -> 11:20
 (11:20..11:23) _empty_/Foo# -> 3:7
 (12:12..12:13) _empty_/A# -> 1:7
 (12:18..12:21) scala/Int#

@@ -7,6 +7,8 @@ Document tests/pos/hklower.scala
 (7:18..7:19) _empty_/Test#W#[X] -> 7:10
 (7:24..7:25) _empty_/Test#T# -> 3:8
 (7:26..7:27) _empty_/Test#W#[X] -> 7:10
+(9:17..9:18) _empty_/Test#T# -> 3:8
+(9:19..9:20) _empty_/Test#f().[C][X] -> 9:11
 (9:26..9:27) _empty_/Test#f().[C] -> 9:9
 (9:28..9:31) scala/Int#
 (9:36..9:39) scala/Predef.`???`().
@@ -30,6 +32,8 @@ Document tests/pos/hklower.scala
 (26:18..26:19) _empty_/Test2#W#[X] -> 26:10
 (26:24..26:25) _empty_/Test2#T# -> 22:9
 (26:26..26:27) _empty_/Test2#W#[X] -> 26:10
+(28:17..28:18) _empty_/Test2#T# -> 22:9
+(28:19..28:20) _empty_/Test2#f().[C][X] -> 28:11
 (28:26..28:27) _empty_/Test2#f().[C] -> 28:9
 (28:28..28:31) scala/Int#
 (28:36..28:39) scala/Predef.`???`().
@@ -49,6 +53,6 @@ Document tests/pos/hklower.scala
 (37:12..37:15) scala/Int#
 (37:19..37:30) scala/compiletime/
 (37:31..37:44) scala/compiletime/package$package.uninitialized().
-(38:3..38:4) _empty_/Test2#`x_=`(). -> 37:7
+(38:3..38:4) _empty_/Test2#`x_=`().
 (38:7..38:8) _empty_/Test2#t. -> 31:7
 

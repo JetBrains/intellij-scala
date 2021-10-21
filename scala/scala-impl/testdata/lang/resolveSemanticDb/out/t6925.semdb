@@ -3,7 +3,6 @@ Document tests/pos/t6925.scala
 (2:20..2:21) _empty_/Test#f().[T] -> 2:9
 (3:5..3:7) _empty_/Test#f().(xs) -> 2:12
 (3:8..3:15) scala/collection/IterableOps#collect().
-(3:18..3:18) local0
 (3:28..3:29) local1 -> 3:23
 (5:16..5:19) scala/Predef.Set#
 (5:20..5:21) _empty_/Test#g().[T] -> 5:9
@@ -13,11 +12,8 @@ Document tests/pos/t6925.scala
 (5:36..5:37) _empty_/Test#g().[T] -> 5:9
 (5:39..5:41) _empty_/Test#g().(xs) -> 5:12
 (8:3..8:7) scala/package.List.
-(8:7..8:7) scala/collection/IterableFactory#apply().
 (8:11..8:18) scala/collection/immutable/List#flatMap().
 (8:24..8:27) scala/Predef.Set.
-(8:27..8:27) scala/collection/IterableFactory#apply().
 (8:31..8:38) scala/collection/IterableOps#collect().
-(8:41..8:41) local3
 (8:51..8:52) local4 -> 8:46
 

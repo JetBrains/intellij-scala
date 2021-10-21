@@ -113,20 +113,16 @@ Document tests/pos/t3236/Test.scala
 (11:24..11:39) _empty_/Test.check().(annotationClass) -> 10:76
 (11:41..11:51) _empty_/Test.check().(methodName) -> 10:103
 (12:5..12:11) scala/Predef.assert().
-(12:12..12:13) local1 -> 11:9
+(12:12..12:13) local2 -> 11:9
 (12:14..12:16) scala/Any#`!=`().
-(12:25..12:25) scala/StringContext.apply().
 (12:48..12:63) _empty_/Test.check().(annotationClass) -> 10:76
 (12:81..12:91) _empty_/Test.check().(methodName) -> 10:103
 (12:91..12:92) scala/StringContext#s().
 (13:5..13:11) scala/Predef.assert().
-(13:12..13:12) scala/reflect/Selectable.reflectiveSelectable().
-(13:12..13:13) local1 -> 11:9
-(13:13..13:13) scala/reflect/Selectable#applyDynamic().
+(13:12..13:13) local2 -> 11:9
 (13:22..13:24) scala/Any#`==`().
 (13:25..13:33) _empty_/Test.check().(expected) -> 10:123
-(13:37..13:37) scala/StringContext.apply().
-(13:65..13:66) local1 -> 11:9
+(13:65..13:66) local2 -> 11:9
 (13:71..13:81) _empty_/Test.check().(methodName) -> 10:103
 (13:109..13:117) _empty_/Test.check().(expected) -> 10:123
 (13:117..13:118) scala/StringContext#s().

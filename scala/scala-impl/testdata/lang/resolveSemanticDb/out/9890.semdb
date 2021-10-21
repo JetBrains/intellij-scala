@@ -16,6 +16,7 @@ Document tests/pos/9890.scala
 (8:32..8:33) scala/compiletime/ops/int.`+`#
 (8:37..8:40) _empty_/Test.Range#[Max] -> 6:26
 (11:24..11:29) scala/Tuple#
+(11:45..11:50) _empty_/Test.TupleMap#[Bound] -> 11:31
 (11:56..11:61) scala/Tuple#
 (11:64..11:67) _empty_/Test.TupleMap#[Tup] -> 11:17
 (12:10..12:20) scala/Tuple$package.EmptyTuple#
@@ -129,7 +130,6 @@ Document tests/pos/9890.scala
 (44:56..44:57) _empty_/Test.x# -> 4:9
 (44:59..44:60) _empty_/Test.x# -> 4:9
 (44:63..44:64) _empty_/Test.x# -> 4:9
-(44:72..44:72) scala/`<:<`.refl().
 (46:3..46:9) scala/Predef.summon().
 (46:10..46:20) _empty_/Test.TupleDedup# -> 15:8
 (46:22..46:23) _empty_/Test.x# -> 4:9
@@ -140,7 +140,6 @@ Document tests/pos/9890.scala
 (46:52..46:59) scala/Nothing#
 (46:61..46:64) scala/`=:=`#
 (46:66..46:67) _empty_/Test.x# -> 4:9
-(46:81..46:81) scala/`<:<`.refl().
 (48:3..48:9) scala/Predef.summon().
 (48:10..48:20) _empty_/Test.TupleDedup# -> 15:8
 (48:21..48:24) _empty_/Test.Col# -> 25:8
@@ -149,5 +148,4 @@ Document tests/pos/9890.scala
 (48:50..48:57) scala/Nothing#
 (48:59..48:62) scala/`=:=`#
 (48:64..48:65) _empty_/Test.x# -> 4:9
-(48:79..48:79) scala/`<:<`.refl().
 

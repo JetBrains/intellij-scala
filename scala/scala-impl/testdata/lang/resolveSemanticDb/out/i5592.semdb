@@ -1,7 +1,7 @@
 Document tests/pos/i5592.scala
 (3:27..3:30) _empty_/Test.Obj# -> 2:8
 (3:35..3:36) _empty_/Test.Forall#[F] -> 3:15
-(3:37..3:38) local1 -> 3:24
+(3:37..3:38) local0 -> 3:24
 (6:20..6:21) _empty_/Test.EQ#sub().[F] -> 6:13
 (6:22..6:23) _empty_/Test.EQ#[A] -> 5:12
 (6:28..6:29) _empty_/Test.EQ#sub().[F] -> 6:13
@@ -13,23 +13,20 @@ Document tests/pos/i5592.scala
 (7:46..7:48) _empty_/Test.EQ# -> 5:9
 (7:49..7:50) _empty_/Test.EQ#commute().[b] -> 7:39
 (7:52..7:53) _empty_/Test.EQ#[A] -> 5:12
-(7:55..7:55) scala/Function1#apply().
 (7:56..7:66) scala/Predef.implicitly().
 (7:67..7:69) _empty_/Test.EQ# -> 5:9
 (7:70..7:71) _empty_/Test.EQ#[A] -> 5:12
 (7:73..7:74) _empty_/Test.EQ#[A] -> 5:12
-(7:76..7:76) _empty_/Test.typeEq(). -> 9:16
 (9:27..9:29) _empty_/Test.EQ# -> 5:9
 (9:30..9:31) _empty_/Test.typeEq().[A] -> 9:23
 (9:33..9:34) _empty_/Test.typeEq().[A] -> 9:23
 (9:42..9:44) _empty_/Test.EQ# -> 5:9
 (9:45..9:46) _empty_/Test.typeEq().[A] -> 9:23
 (9:48..9:49) _empty_/Test.typeEq().[A] -> 9:23
-(10:20..10:21) local4 -> 10:13
+(10:20..10:21) local2 -> 10:13
 (10:22..10:23) _empty_/Test.typeEq().[A] -> 9:23
-(10:28..10:29) local4 -> 10:13
+(10:28..10:29) local2 -> 10:13
 (10:30..10:31) _empty_/Test.typeEq().[A] -> 9:23
-(10:35..10:35) local5
 (10:35..10:43) scala/Predef.identity().
 (14:25..14:28) _empty_/Test.Obj# -> 2:8
 (14:34..14:36) _empty_/Test.EQ# -> 5:9
@@ -37,43 +34,41 @@ Document tests/pos/i5592.scala
 (14:45..14:46) local7 -> 14:22
 (14:62..14:65) _empty_/Test.Obj# -> 2:8
 (14:70..14:80) scala/Predef.implicitly().
-(14:80..14:80) _empty_/Test.typeEq(). -> 9:16
 (15:21..15:27) _empty_/Test.Forall# -> 3:8
 (15:36..15:38) _empty_/Test.EQ# -> 5:9
 (15:39..15:40) _empty_/Test.eqReflexive2.[x] -> 15:29
 (15:42..15:43) _empty_/Test.eqReflexive2.[x] -> 15:29
 (15:54..15:57) _empty_/Test.Obj# -> 2:8
 (15:62..15:72) scala/Predef.implicitly().
-(15:72..15:72) _empty_/Test.typeEq(). -> 9:16
 (18:25..18:28) _empty_/Test.Obj# -> 2:8
 (18:37..18:40) _empty_/Test.Obj# -> 2:8
 (18:45..18:47) _empty_/Test.EQ# -> 5:9
 (18:48..18:49) local11 -> 18:22
-(18:56..18:57) local13 -> 18:34
+(18:56..18:57) local12 -> 18:34
 (18:67..18:69) _empty_/Test.EQ# -> 5:9
-(18:70..18:71) local13 -> 18:34
+(18:70..18:71) local12 -> 18:34
 (18:78..18:79) local11 -> 18:22
 (19:11..19:14) _empty_/Test.Obj# -> 2:8
 (19:25..19:28) _empty_/Test.Obj# -> 2:8
 (19:42..19:44) _empty_/Test.EQ# -> 5:9
-(19:45..19:46) local14 -> 19:8
-(19:53..19:54) local15 -> 19:22
-(19:65..19:69) local16 -> 19:36
+(19:45..19:46) local15 -> 19:8
+(19:53..19:54) local16 -> 19:22
+(19:65..19:69) local17 -> 19:36
 (19:70..19:77) _empty_/Test.EQ#commute(). -> 7:9
 (22:21..22:27) _empty_/Test.Forall# -> 3:8
 (22:40..22:43) _empty_/Test.Obj# -> 2:8
 (22:49..22:51) _empty_/Test.EQ# -> 5:9
 (22:52..22:53) _empty_/Test.eqSymmetric2.[x] -> 22:29
-(22:55..22:56) local18 -> 22:37
+(22:55..22:56) local19 -> 22:37
 (22:68..22:70) _empty_/Test.EQ# -> 5:9
-(22:71..22:72) local18 -> 22:37
+(22:71..22:72) local19 -> 22:37
 (22:79..22:80) _empty_/Test.eqSymmetric2.[x] -> 22:29
 (23:11..23:14) _empty_/Test.Obj# -> 2:8
 (23:25..23:28) _empty_/Test.Obj# -> 2:8
 (23:42..23:44) _empty_/Test.EQ# -> 5:9
-(23:45..23:46) local19 -> 23:8
-(23:53..23:54) local20 -> 23:22
-(23:65..23:69) local21 -> 23:36
+(23:45..23:46) local21 -> 23:8
+(23:53..23:54) local22 -> 23:22
+(23:65..23:69) local23 -> 23:36
 (23:70..23:77) _empty_/Test.EQ#commute(). -> 7:9
 (26:21..26:27) _empty_/Test.Forall# -> 3:8
 (26:36..26:42) _empty_/Test.Forall# -> 3:8
@@ -86,8 +81,8 @@ Document tests/pos/i5592.scala
 (27:11..27:14) _empty_/Test.Obj# -> 2:8
 (27:25..27:28) _empty_/Test.Obj# -> 2:8
 (27:42..27:44) _empty_/Test.EQ# -> 5:9
-(27:45..27:46) local22 -> 27:8
-(27:53..27:54) local23 -> 27:22
-(27:65..27:69) local24 -> 27:36
+(27:45..27:46) local24 -> 27:8
+(27:53..27:54) local25 -> 27:22
+(27:65..27:69) local26 -> 27:36
 (27:70..27:77) _empty_/Test.EQ#commute(). -> 7:9
 

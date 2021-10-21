@@ -8,7 +8,6 @@ Document tests/pos/i2200/Hello.scala
 (5:18..5:28) bar/package.StreamTree# -> 2:8
 (5:29..5:36) bar/package.DocTree# -> 3:8
 (5:40..5:47) bar/package.DocTree# -> 3:8
-(5:57..5:57) bar/Fix#`<init>`(). -> 3:10
 (5:58..5:59) bar/DocTree.docTree().(s) -> 5:15
 (5:61..5:71) bar/package.StreamTree# -> 2:8
 (5:72..5:79) bar/package.DocTree# -> 3:8

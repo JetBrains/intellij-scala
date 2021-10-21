@@ -9,10 +9,8 @@ Document tests/pos/mixins.scala
 (11:27..11:35) mixins/MixinSub# -> 8:7
 (12:37..12:40) mixins/MixinSub#foo(). -> 9:25
 (14:19..14:24) mixins/Super# -> 2:16
-(14:24..14:24) mixins/Super#`<init>`(). -> 3:3
 (15:12..15:15) scala/Int#
 (17:20..17:23) mixins/Sub# -> 14:7
-(17:23..17:23) mixins/Sub#`<init>`(). -> 14:19
 (17:29..17:40) mixins/MixinSubSub# -> 11:7
 (18:28..18:31) mixins/MixinSubSub#foo(). -> 12:25
 (20:22..20:25) mixins/Sub# -> 14:7

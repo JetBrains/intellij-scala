@@ -2,6 +2,8 @@ Document tests/pos/t6123-explaintypes-implicits.scala
 (3:42..3:45) _empty_/ImplicitBugReport.Exp# -> 2:9
 (3:46..3:50) _empty_/ImplicitBugReport.CanBuildExp#[Elem] -> 3:22
 (3:55..3:57) _empty_/ImplicitBugReport.CanBuildExp#[To] -> 3:29
+(4:35..4:38) _empty_/ImplicitBugReport.Exp# -> 2:9
+(4:39..4:40) _empty_/ImplicitBugReport.TraversableExp#[T] -> 4:24
 (4:51..4:54) _empty_/ImplicitBugReport.Exp# -> 2:9
 (4:55..4:66) scala/package.Traversable#
 (4:67..4:68) _empty_/ImplicitBugReport.TraversableExp#[T] -> 4:24
@@ -31,7 +33,4 @@ Document tests/pos/t6123-explaintypes-implicits.scala
 (10:18..10:22) scala/Unit#
 (11:14..11:24) _empty_/ImplicitBugReport.toExpTempl(). -> 8:7
 (11:25..11:28) scala/package.Seq.
-(11:28..11:28) scala/collection/SeqFactory.Delegate#apply().
-(11:41..11:41) _empty_/ImplicitBugReport.canBuildExp(). -> 6:16
-(11:41..11:41) _empty_/ImplicitBugReport.canBuildExpTrav(). -> 7:16
 

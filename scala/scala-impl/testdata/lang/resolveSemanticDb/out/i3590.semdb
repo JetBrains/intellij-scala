@@ -27,8 +27,6 @@ Document tests/pos/i3590.scala
 (32:14..32:20) _empty_/FunDemo.summon(). -> 30:7
 (32:21..32:24) _empty_/Fun# -> 7:7
 (32:25..32:26) _empty_/FunDemo.A# -> 24:14
-(32:28..32:28) _empty_/Fun.tagged(). -> 16:16
-(32:28..32:28) _empty_/FunDemo.A.tag. -> 26:18
 (38:3..38:11) scala/Predef.identity().
 (38:12..38:15) _empty_/Fun# -> 7:7
 (38:16..38:17) _empty_/FunDemo.A# -> 24:14

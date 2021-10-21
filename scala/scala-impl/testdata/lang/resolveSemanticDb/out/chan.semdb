@@ -22,9 +22,7 @@ Document tests/pos/chan.scala
 (13:5..13:6) _empty_/Test.process().(c) -> 12:15
 (13:7..13:14) _empty_/Comparator#compare(). -> 4:9
 (13:15..13:20) _empty_/Test.process().(items) -> 12:30
-(13:20..13:20) scala/collection/SeqOps#apply().
 (13:25..13:30) _empty_/Test.process().(items) -> 12:30
-(13:30..13:30) scala/collection/SeqOps#apply().
 (16:23..16:33) _empty_/Comparator# -> 1:7
 (16:45..16:46) _empty_/Processor#[K] -> 16:17
 (17:22..17:25) scala/package.Seq#
@@ -33,7 +31,5 @@ Document tests/pos/chan.scala
 (18:5..18:6) _empty_/Processor#c. -> 16:20
 (18:7..18:14) _empty_/Comparator#compare(). -> 4:9
 (18:15..18:20) _empty_/Processor#process().(items) -> 17:15
-(18:20..18:20) scala/collection/SeqOps#apply().
 (18:25..18:30) _empty_/Processor#process().(items) -> 17:15
-(18:30..18:30) scala/collection/SeqOps#apply().
 

@@ -14,13 +14,9 @@ Document tests/pos/i8712.scala
 (9:22..9:23) _empty_/Test.runT().[A] -> 9:12
 (9:27..9:28) _empty_/Test.runT().[A] -> 9:12
 (9:31..9:32) _empty_/Test.runT().(c) -> 9:15
-(10:10..10:13) _empty_/Bar. -> 4:12
-(10:13..10:13) _empty_/Bar.unapply(). -> 4:1
-(10:13..10:13) local0
+(10:10..10:13) _empty_/Bar.
 (10:20..10:24) _empty_/Test.runT(). -> 9:7
 (10:25..10:26) local1 -> 10:14
-(11:10..11:14) _empty_/Done. -> 5:12
-(11:14..11:14) _empty_/Done.unapply(). -> 5:1
-(11:14..11:14) local2
+(11:10..11:14) _empty_/Done.
 (11:21..11:22) local3 -> 11:15
 

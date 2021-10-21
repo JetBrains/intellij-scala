@@ -1,3 +1,5 @@
 Document tests/pos/exbound.scala
+(1:14..1:15) _empty_/A# -> 1:7
+(1:16..1:17) _empty_/A#[T] -> 1:9
 (6:10..6:11) _empty_/A# -> 1:7
 

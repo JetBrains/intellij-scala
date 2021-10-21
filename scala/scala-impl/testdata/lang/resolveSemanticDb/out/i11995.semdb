@@ -9,13 +9,12 @@ Document tests/pos/i11995.scala
 (13:29..13:36) _empty_/Console# -> 10:7
 (13:43..13:46) _empty_/Has# -> 8:7
 (13:47..13:52) _empty_/Clock# -> 11:7
+(15:17..15:20) _empty_/Has# -> 8:7
 (17:24..17:28) _empty_/Spec# -> 15:7
 (17:29..17:32) _empty_/Has# -> 8:7
 (17:33..17:40) _empty_/Console# -> 10:7
 (17:47..17:50) _empty_/Has# -> 8:7
 (17:51..17:56) _empty_/Clock# -> 11:7
-(17:58..17:58) _empty_/Spec#`<init>`(). -> 15:11
 (18:24..18:28) _empty_/Spec# -> 15:7
 (18:29..18:45) _empty_/i11995$package.ConsoleWithClock# -> 13:6
-(18:46..18:46) _empty_/Spec#`<init>`(). -> 15:11
 

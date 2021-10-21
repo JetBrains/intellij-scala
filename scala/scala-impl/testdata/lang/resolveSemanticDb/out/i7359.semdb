@@ -118,42 +118,42 @@ Document tests/pos/i7359.scala
 (125:29..125:46) test/SAMPlainInvariant# -> 62:7
 (125:47..125:53) scala/Predef.String#
 (125:61..125:67) scala/Predef.String#
-(125:72..125:73) local17 -> 125:58
+(125:72..125:73) local16 -> 125:58
 (126:24..126:36) test/SAMInvariant# -> 65:7
 (126:37..126:43) scala/Predef.String#
 (126:51..126:57) scala/Predef.String#
-(126:62..126:63) local19 -> 126:48
+(126:62..126:63) local18 -> 126:48
 (127:31..127:50) test/SAMInvariantExtends# -> 71:7
 (127:51..127:57) scala/Predef.String#
 (127:65..127:71) scala/Predef.String#
-(127:76..127:77) local21 -> 127:62
+(127:76..127:77) local20 -> 127:62
 (128:42..128:72) test/SAMInvariantExtendsAndOverride# -> 74:7
 (128:73..128:79) scala/Predef.String#
 (128:87..128:93) scala/Predef.String#
-(128:98..128:99) local23 -> 128:84
+(128:98..128:99) local22 -> 128:84
 (130:25..130:38) test/SAMPlainInOut# -> 80:7
 (130:39..130:42) scala/Int#
 (130:44..130:50) scala/Predef.String#
 (130:58..130:61) scala/Int#
-(130:66..130:67) local25 -> 130:55
+(130:66..130:67) local24 -> 130:55
 (130:68..130:76) scala/Any#toString().
 (131:20..131:28) test/SAMInOut# -> 83:7
 (131:29..131:32) scala/Int#
 (131:34..131:40) scala/Predef.String#
 (131:48..131:51) scala/Int#
-(131:56..131:57) local27 -> 131:45
+(131:56..131:57) local26 -> 131:45
 (131:58..131:66) scala/Any#toString().
 (132:27..132:42) test/SAMInOutExtends# -> 89:7
 (132:43..132:46) scala/Int#
 (132:48..132:54) scala/Predef.String#
 (132:62..132:65) scala/Int#
-(132:70..132:71) local29 -> 132:59
+(132:70..132:71) local28 -> 132:59
 (132:72..132:80) scala/Any#toString().
 (133:38..133:64) test/SAMInOutExtendsAndOverride# -> 92:7
 (133:65..133:68) scala/Int#
 (133:70..133:76) scala/Predef.String#
 (133:84..133:87) scala/Int#
-(133:92..133:93) local31 -> 133:81
+(133:92..133:93) local30 -> 133:81
 (133:94..133:102) scala/Any#toString().
 (135:32..135:52) test/SAMWithCustomAliases# -> 102:7
 

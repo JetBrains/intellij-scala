@@ -6,7 +6,6 @@ Document tests/pos/t4692.scala
 (4:31..4:32) _empty_/TypeAliasVsImplicitTest#For#[m] -> 3:15
 (4:33..4:34) _empty_/TypeAliasVsImplicitTest#For#map().[b] -> 4:16
 (4:48..4:53) scala/package.Error#
-(4:53..4:53) java/lang/Error#`<init>`().
 (6:36..6:37) _empty_/TypeAliasVsImplicitTest#toFor().[m] -> 6:24
 (6:38..6:39) _empty_/TypeAliasVsImplicitTest#toFor().[a] -> 6:30
 (6:43..6:46) _empty_/TypeAliasVsImplicitTest#For# -> 3:11
@@ -15,18 +14,15 @@ Document tests/pos/t4692.scala
 (6:59..6:62) _empty_/TypeAliasVsImplicitTest#For# -> 3:11
 (6:63..6:64) _empty_/TypeAliasVsImplicitTest#toFor().[m] -> 6:24
 (6:66..6:67) _empty_/TypeAliasVsImplicitTest#toFor().[a] -> 6:30
-(6:68..6:68) _empty_/TypeAliasVsImplicitTest#For#`<init>`(). -> 3:14
 (6:69..6:70) _empty_/TypeAliasVsImplicitTest#toFor().(x) -> 6:33
 (10:17..10:23) _empty_/TypeAliasVsImplicitTest#MyList# -> 8:11
 (10:24..10:27) scala/Int#
-(10:32..10:32) _empty_/TypeAliasVsImplicitTest#toFor(). -> 6:18
 (10:32..10:34) _empty_/TypeAliasVsImplicitTest#foo().(xs) -> 10:13
 (10:35..10:38) _empty_/TypeAliasVsImplicitTest#For#map(). -> 4:12
 (10:44..10:45) local0 -> 10:39
 (12:24..12:30) _empty_/TypeAliasVsImplicitTest#MyList# -> 8:11
 (12:31..12:34) scala/Int#
 (13:17..13:28) _empty_/TypeAliasVsImplicitTest#MyListOfInt# -> 12:10
-(13:32..13:32) _empty_/TypeAliasVsImplicitTest#toFor(). -> 6:18
 (13:32..13:34) _empty_/TypeAliasVsImplicitTest#bar().(xs) -> 13:13
 (13:35..13:38) _empty_/TypeAliasVsImplicitTest#For#map(). -> 4:12
 (13:44..13:45) local1 -> 13:39

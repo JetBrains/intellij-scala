@@ -19,22 +19,19 @@ Document tests/pos/i11732.scala
 (11:24..11:25) _empty_/TupleConversion.autoTupleConversion().(m) -> 9:59
 (11:46..11:51) scala/Tuple.
 (11:52..11:68) scala/Tuple.fromProductTyped().
-(11:69..11:70) local2 -> 11:14
-(11:71..11:71) _empty_/TupleConversion.autoTupleConversion().(m) -> 9:59
+(11:69..11:70) local0 -> 11:14
 (12:19..12:20) _empty_/TupleConversion.autoTupleConversion().(m) -> 9:59
 (12:41..12:45) _empty_/TupleConversion.autoTupleConversion().[Prod] -> 9:36
 (12:48..12:49) _empty_/TupleConversion.autoTupleConversion().(m) -> 9:59
 (12:50..12:61) scala/deriving/Mirror.Product#fromProduct().
-(12:62..12:63) local4 -> 12:16
+(12:62..12:63) local2 -> 12:16
 (16:27..16:30) scala/Int#
 (16:36..16:39) scala/Int#
 (18:34..18:38) scala/Unit#
 (21:11..21:19) _empty_/BaseSpec# -> 18:16
-(21:19..21:19) _empty_/BaseSpec#`<init>`(). -> 18:24
 (22:16..22:26) scala/Predef.implicitly().
 (22:27..22:42) _empty_/TupleConversion# -> 3:7
 (22:43..22:47) _empty_/Data# -> 16:18
 (22:50..22:53) scala/Int#
 (22:55..22:58) scala/Int#
-(22:61..22:61) _empty_/TupleConversion.autoTupleConversion(). -> 9:16
 

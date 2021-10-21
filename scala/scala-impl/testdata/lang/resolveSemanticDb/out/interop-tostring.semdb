@@ -2,7 +2,6 @@ Document tests/pos/interop-tostring.scala
 (5:10..5:14) java/
 (5:15..5:19) java/lang/
 (5:20..5:27) java/lang/Integer#
-(5:30..5:30) scala/Predef.int2Integer().
 (6:10..6:16) scala/Predef.String#
 (6:19..6:20) _empty_/Foo#x. -> 5:7
 (6:21..6:29) java/lang/Integer#toString().

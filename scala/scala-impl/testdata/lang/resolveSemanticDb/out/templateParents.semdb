@@ -4,7 +4,6 @@ Document tests/pos/templateParents.scala
 (5:21..5:27) scala/Predef.String#
 (6:19..6:20) _empty_/templateParents.C# -> 4:9
 (6:21..6:24) scala/Int#
-(7:8..7:8) _empty_/templateParents.C#`<init>`(). -> 4:10
 (7:21..7:22) _empty_/templateParents.D# -> 5:9
 (14:19..14:20) _empty_/templateParents1.C# -> 13:9
 (14:21..14:27) scala/Predef.String#

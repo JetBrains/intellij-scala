@@ -8,7 +8,6 @@ Document tests/pos/dependent-implicits.scala
 (4:15..4:16) _empty_/Test.T# -> 2:9
 (4:28..4:34) scala/Predef.String#
 (5:10..5:16) scala/Predef.String#
-(5:19..5:19) _empty_/Test.f(). -> 3:16
 (5:19..5:20) _empty_/Test.t. -> 4:7
 (6:11..6:17) scala/Predef.String#
 (6:20..6:21) _empty_/Test.f(). -> 3:16

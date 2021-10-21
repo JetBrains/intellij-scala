@@ -2,7 +2,6 @@ Document tests/pos/t6482.scala
 (1:49..1:57) scala/package.Iterable#
 (1:58..1:59) _empty_/IterableOnceOps#[A] -> 1:30
 (1:70..1:76) scala/AnyVal#
-(1:76..1:76) scala/AnyVal#`<init>`().
 (2:29..2:30) _empty_/IterableOnceOps#[A] -> 1:30
 (2:37..2:38) _empty_/IterableOnceOps#reduceLeftOption().[B] -> 2:24
 (2:40..2:41) _empty_/IterableOnceOps#[A] -> 1:30
@@ -13,20 +12,18 @@ Document tests/pos/t6482.scala
 (3:20..3:27) scala/collection/IterableOnceOps#isEmpty().
 (3:29..3:33) scala/None.
 (3:39..3:43) scala/Some.
-(3:43..3:43) scala/Some.apply().
 (3:44..3:54) _empty_/IterableOnceOps#collection. -> 1:37
 (3:55..3:65) scala/collection/IterableOnceOps#reduceLeft().
 (3:66..3:67) _empty_/IterableOnceOps#reduceLeftOption().[B] -> 2:24
 (3:69..3:71) _empty_/IterableOnceOps#reduceLeftOption().(op) -> 2:32
+(9:17..9:23) scala/AnyRef#
 (9:33..9:37) scala/package.List#
 (9:38..9:39) _empty_/Foo#[A] -> 9:12
 (9:50..9:56) scala/AnyVal#
-(9:56..9:56) scala/AnyVal#`<init>`().
 (10:16..10:17) _empty_/Foo#[A] -> 9:12
 (10:22..10:23) _empty_/Foo#baz().[B] -> 10:11
 (10:26..10:30) scala/package.List#
 (10:31..10:32) _empty_/Foo#baz().[B] -> 10:11
 (10:36..10:37) _empty_/Foo#baz().(x) -> 10:19
 (10:41..10:43) _empty_/Foo#xs. -> 9:29
-(10:43..10:43) scala/collection/immutable/List#`::`().
 

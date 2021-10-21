@@ -15,7 +15,6 @@ Document tests/pos/i1540.scala
 (10:24..10:30) scala/Predef.String#
 (10:34..10:38) scala/Unit#
 (11:29..11:35) _empty_/Casey1# -> 1:7
-(11:35..11:35) _empty_/Casey1#`<init>`(). -> 1:13
 (12:5..12:11) scala/Predef.assert(+1).
 (12:12..12:13) local1 -> 11:20
 (12:14..12:16) scala/Int#`==`(+3).

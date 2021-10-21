@@ -61,18 +61,16 @@ Document tests/pos/bubbleUpNothing.scala
 (44:62..44:70) java/lang/CharSequence#toString().
 (46:15..46:19) scala/Unit#
 (47:26..47:50) scala/package.IllegalArgumentException#
-(47:50..47:50) java/lang/IllegalArgumentException#`<init>`(+1).
 (50:15..50:19) scala/Unit#
-(54:25..54:29) local6 -> 52:11
-(54:45..54:52) local5 -> 51:11
-(54:55..54:59) local7 -> 53:11
-(57:34..57:41) local5 -> 51:11
+(54:25..54:29) local11 -> 52:11
+(54:45..54:52) local9 -> 51:11
+(54:55..54:59) local15 -> 53:11
+(57:34..57:41) local9 -> 51:11
 (57:44..57:47) scala/Any#
-(58:12..58:16) local7 -> 53:11
-(58:21..58:29) local8 -> 54:11
+(58:12..58:16) local15 -> 53:11
+(58:21..58:29) local16 -> 54:11
 (58:30..58:33) scala/Predef.`???`().
-(58:35..58:38) local12 -> 57:29
-(58:40..58:48) local8 -> 54:11
+(58:35..58:38) local18 -> 57:29
+(58:40..58:48) local16 -> 54:11
 (58:49..58:52) scala/Predef.`???`().
-(58:53..58:53) local12 -> 57:29
 

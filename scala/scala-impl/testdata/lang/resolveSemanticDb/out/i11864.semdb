@@ -43,7 +43,6 @@ Document tests/pos/i11864.scala
 (23:38..23:44) scala/Option#
 (23:45..23:47) _empty_/test3.bar().(ev) -> 23:18
 (23:55..23:59) scala/Some.
-(23:59..23:59) scala/Some.apply().
 (23:60..23:61) _empty_/test3.bar().(x) -> 23:26
 (24:10..24:12) _empty_/i11864$package.Ev# -> 3:6
 (24:26..24:29) scala/Int#
@@ -59,7 +58,6 @@ Document tests/pos/i11864.scala
 (30:38..30:44) scala/Option#
 (30:45..30:47) _empty_/test4.bar().(ev) -> 30:18
 (30:55..30:59) scala/Some.
-(30:59..30:59) scala/Some.apply().
 (30:60..30:61) _empty_/test4.bar().(x) -> 30:26
 (31:10..31:12) _empty_/i11864$package.Ev# -> 3:6
 (31:26..31:29) scala/Int#
@@ -95,7 +93,5 @@ Document tests/pos/i11864.scala
 (46:45..46:48) scala/Predef.`???`().
 (47:5..47:6) local7 -> 46:9
 (47:7..47:10) _empty_/CallbackTo#map(). -> 37:14
-(47:12..47:12) scala/Function1#apply().
 (47:13..47:15) _empty_/CallbackTo.traverse().(ta) -> 45:22
-(47:17..47:17) _empty_/CallbackTo.MapGuard(). -> 43:16
 

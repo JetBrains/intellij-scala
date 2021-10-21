@@ -9,8 +9,5 @@ Document tests/pos/eta.scala
 (4:25..4:28) scala/Int#
 (4:30..4:33) scala/Int#
 (4:38..4:41) scala/Int#
-(4:44..4:44) local0
-(4:44..4:44) local1
-(4:44..4:44) local2
 (4:44..4:47) _empty_/test.sum(). -> 3:5
 

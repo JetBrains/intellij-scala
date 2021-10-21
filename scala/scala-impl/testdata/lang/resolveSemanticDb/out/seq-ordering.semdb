@@ -7,22 +7,14 @@ Document tests/pos/seq-ordering.scala
 (6:5..6:13) scala/package.Ordering#
 (6:14..6:18) scala/package.List#
 (6:19..6:22) scala/Int#
-(6:25..6:25) scala/math/Ordering.ExtraImplicits#seqOrdering().
-(6:25..6:25) scala/math/Ordering.Int.
 (7:3..7:4) scala/Predef.implicitly().
 (7:5..7:13) scala/package.Ordering#
 (7:14..7:24) scala/package.IndexedSeq#
 (7:26..7:29) scala/Int#
 (7:31..7:37) java/lang/String#
-(7:41..7:41) scala/math/Ordering.ExtraImplicits#seqOrdering().
-(7:41..7:41) scala/math/Ordering.Int.
-(7:41..7:41) scala/math/Ordering.String.
-(7:41..7:41) scala/math/Ordering.Tuple2().
 (8:3..8:4) scala/Predef.implicitly().
 (8:5..8:13) scala/package.Ordering#
 (8:14..8:17) scala/package.Seq#
 (8:18..8:21) scala/package.Seq#
 (8:22..8:25) scala/Int#
-(8:29..8:29) scala/math/Ordering.ExtraImplicits#seqOrdering().
-(8:29..8:29) scala/math/Ordering.Int.
 

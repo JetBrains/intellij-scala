@@ -1,8 +1,5 @@
 Document tests/pos/i3149.scala
 (5:23..5:26) _empty_/Foo# -> 1:14
-(5:26..5:26) _empty_/Foo#`<init>`(). -> 1:1
 (8:23..8:26) _empty_/Foo# -> 1:14
-(8:26..8:26) _empty_/Foo#`<init>`(). -> 1:1
 (11:23..11:26) _empty_/Foo# -> 1:14
-(11:26..11:26) _empty_/Foo#`<init>`(). -> 1:1
 

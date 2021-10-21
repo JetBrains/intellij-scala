@@ -5,12 +5,10 @@ Document tests/pos/gadt-accumulatable.scala
 (3:43..3:45) _empty_/`gadt-accumulatable`.Or# -> 2:25
 (3:46..3:47) _empty_/`gadt-accumulatable`.Good#[G] -> 3:26
 (3:48..3:55) scala/Nothing#
-(3:56..3:56) _empty_/`gadt-accumulatable`.Or#`<init>`(). -> 2:27
 (4:31..4:32) _empty_/`gadt-accumulatable`.Bad#[B] -> 4:25
 (4:42..4:44) _empty_/`gadt-accumulatable`.Or# -> 2:25
 (4:45..4:52) scala/Nothing#
 (4:53..4:54) _empty_/`gadt-accumulatable`.Bad#[B] -> 4:25
-(4:55..4:55) _empty_/`gadt-accumulatable`.Or#`<init>`(). -> 2:27
 (6:39..6:46) scala/Product#
 (6:52..6:64) scala/package.Serializable#
 (7:28..7:38) _empty_/`gadt-accumulatable`.Validation# -> 6:16
@@ -25,22 +23,19 @@ Document tests/pos/gadt-accumulatable.scala
 (11:41..11:42) _empty_/`gadt-accumulatable`.One#[T] -> 11:25
 (11:52..11:57) _empty_/`gadt-accumulatable`.Every# -> 10:25
 (11:58..11:59) _empty_/`gadt-accumulatable`.One#[T] -> 11:25
-(11:60..11:60) _empty_/`gadt-accumulatable`.Every#`<init>`(). -> 10:30
 (11:61..11:67) scala/package.Vector.
-(11:67..11:67) scala/collection/IterableFactory#apply().
 (11:68..11:79) _empty_/`gadt-accumulatable`.One#loneElement. -> 11:28
 (12:43..12:44) _empty_/`gadt-accumulatable`.Many#[T] -> 12:26
 (12:61..12:62) _empty_/`gadt-accumulatable`.Many#[T] -> 12:26
 (12:79..12:80) _empty_/`gadt-accumulatable`.Many#[T] -> 12:26
 (12:91..12:96) _empty_/`gadt-accumulatable`.Every# -> 10:25
 (12:97..12:98) _empty_/`gadt-accumulatable`.Many#[T] -> 12:26
-(12:99..12:99) _empty_/`gadt-accumulatable`.Every#`<init>`(). -> 10:30
 (12:100..12:112) _empty_/`gadt-accumulatable`.Many#firstElement. -> 12:29
 (12:116..12:129) _empty_/`gadt-accumulatable`.Many#secondElement. -> 12:46
 (12:133..12:139) scala/package.Vector.
-(12:139..12:139) scala/collection/IterableFactory#apply().
 (12:140..12:153) _empty_/`gadt-accumulatable`.Many#otherElements. -> 12:64
-(12:155..12:155) scala/collection/SeqOps#`+:`().
+(16:52..16:57) _empty_/`gadt-accumulatable`.Every# -> 10:25
+(16:58..16:59) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY][b] -> 16:46
 (16:77..16:78) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G] -> 16:32
 (16:79..16:81) _empty_/`gadt-accumulatable`.Or# -> 2:25
 (16:82..16:87) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY] -> 16:40
@@ -53,62 +48,49 @@ Document tests/pos/gadt-accumulatable.scala
 (17:23..17:24) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G] -> 16:32
 (17:26..17:29) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR] -> 16:35
 (17:31..17:36) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY] -> 16:40
-(17:37..17:37) _empty_/`gadt-accumulatable`.Accumulatable#`<init>`(). -> 14:22
 (18:28..18:31) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR] -> 16:35
 (18:47..18:48) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G] -> 16:32
 (18:52..18:62) _empty_/`gadt-accumulatable`.Validation# -> 6:16
-(18:63..18:71) local2 -> 18:16
+(18:63..18:71) local0 -> 18:16
 (18:77..18:78) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G] -> 16:32
 (18:79..18:81) _empty_/`gadt-accumulatable`.Or# -> 2:25
 (18:82..18:87) _empty_/`gadt-accumulatable`.Every# -> 10:25
-(18:88..18:96) local2 -> 18:16
+(18:88..18:96) local0 -> 18:16
 (19:9..19:22) _empty_/`gadt-accumulatable`.convertOrToAccumulatable().(accumulatable) -> 16:62
-(20:16..20:20) _empty_/`gadt-accumulatable`.Good. -> 3:20
-(20:20..20:20) _empty_/`gadt-accumulatable`.Good.unapply(). -> 3:3
-(21:27..21:38) local3 -> 18:33
+(20:16..20:20) _empty_/`gadt-accumulatable`.Good.
+(21:27..21:38) local1 -> 18:33
 (21:39..21:46) scala/collection/IterableOps#flatMap().
-(21:49..21:49) scala/Function1#apply().
-(21:50..21:51) local4 -> 20:21
-(21:66..21:70) _empty_/`gadt-accumulatable`.Fail. -> 8:14
-(21:70..21:70) _empty_/`gadt-accumulatable`.Fail.unapply(). -> 8:3
-(21:70..21:70) local6
-(21:84..21:92) local2 -> 18:16
-(21:95..21:96) local7 -> 21:71
+(21:50..21:51) local2 -> 20:21
+(21:66..21:70) _empty_/`gadt-accumulatable`.Fail.
+(21:84..21:92) local0 -> 18:16
+(21:95..21:96) local4 -> 21:71
 (21:98..21:101) scala/package.Seq.
-(21:101..21:101) scala/collection/SeqFactory.Delegate#apply().
-(21:102..21:103) local7 -> 21:71
+(21:102..21:103) local4 -> 21:71
 (21:111..21:115) _empty_/`gadt-accumulatable`.Pass. -> 7:15
 (21:119..21:122) scala/package.Seq.
 (21:123..21:128) scala/collection/SeqFactory.Delegate#empty().
-(22:13..22:20) local5 -> 21:17
+(22:13..22:20) local6 -> 21:17
 (22:21..22:27) scala/collection/SeqOps#length().
-(23:25..23:29) _empty_/`gadt-accumulatable`.Good. -> 3:20
-(23:29..23:29) _empty_/`gadt-accumulatable`.Good.apply(). -> 3:3
-(23:30..23:31) local4 -> 20:21
-(24:25..24:28) _empty_/`gadt-accumulatable`.Bad. -> 4:20
-(24:28..24:28) _empty_/`gadt-accumulatable`.Bad.apply(). -> 4:3
-(24:29..24:32) _empty_/`gadt-accumulatable`.One. -> 11:20
-(24:32..24:32) _empty_/`gadt-accumulatable`.One.apply(). -> 11:3
-(24:33..24:40) local5 -> 21:17
+(23:25..23:29) _empty_/`gadt-accumulatable`.Good.
+(23:30..23:31) local2 -> 20:21
+(24:25..24:28) _empty_/`gadt-accumulatable`.Bad.
+(24:29..24:32) _empty_/`gadt-accumulatable`.One.
+(24:33..24:40) local6 -> 21:17
 (24:41..24:45) scala/collection/IterableOps#head().
-(26:29..26:36) local5 -> 21:17
+(26:29..26:36) local6 -> 21:17
 (26:37..26:41) scala/collection/IterableOps#head().
-(27:28..27:35) local5 -> 21:17
+(27:28..27:35) local6 -> 21:17
 (27:36..27:40) scala/collection/IterableOps#tail().
-(28:30..28:34) local10 -> 27:21
+(28:30..28:34) local8 -> 27:21
 (28:35..28:39) scala/collection/IterableOps#head().
-(29:28..29:32) local10 -> 27:21
+(29:28..29:32) local8 -> 27:21
 (29:33..29:37) scala/collection/IterableOps#tail().
-(30:17..30:20) _empty_/`gadt-accumulatable`.Bad. -> 4:20
-(30:20..30:20) _empty_/`gadt-accumulatable`.Bad.apply(). -> 4:3
-(30:21..30:25) _empty_/`gadt-accumulatable`.Many. -> 12:20
-(30:25..30:25) _empty_/`gadt-accumulatable`.Many.apply(). -> 12:3
-(30:26..30:31) local9 -> 26:21
-(30:33..30:39) local11 -> 28:21
-(30:41..30:45) local12 -> 29:21
-(32:16..32:19) _empty_/`gadt-accumulatable`.Bad. -> 4:20
-(32:19..32:19) _empty_/`gadt-accumulatable`.Bad.unapply(). -> 4:3
-(32:30..32:33) _empty_/`gadt-accumulatable`.Bad. -> 4:20
-(32:33..32:33) _empty_/`gadt-accumulatable`.Bad.apply(). -> 4:3
-(32:34..32:39) local13 -> 32:20
+(30:17..30:20) _empty_/`gadt-accumulatable`.Bad.
+(30:21..30:25) _empty_/`gadt-accumulatable`.Many.
+(30:26..30:31) local7 -> 26:21
+(30:33..30:39) local9 -> 28:21
+(30:41..30:45) local10 -> 29:21
+(32:16..32:19) _empty_/`gadt-accumulatable`.Bad.
+(32:30..32:33) _empty_/`gadt-accumulatable`.Bad.
+(32:34..32:39) local11 -> 32:20
 

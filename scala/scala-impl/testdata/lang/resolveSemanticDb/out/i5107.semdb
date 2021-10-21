@@ -12,6 +12,4 @@ Document tests/pos/i5107.scala
 (4:14..4:15) _empty_/Test#foo().(y) -> 2:39
 (6:19..6:22) scala/Int#
 (8:8..8:12) _empty_/Test# -> 1:7
-(8:12..8:12) _empty_/Test#`<init>`(). -> 2:3
-(8:19..8:19) _empty_/Test#m. -> 6:16
 

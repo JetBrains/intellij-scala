@@ -6,26 +6,26 @@ Document tests/pos/i12019.scala
 (4:32..4:33) _empty_/A#X# -> 2:8
 (5:16..5:17) _empty_/A# -> 1:7
 (5:23..5:26) scala/Int#
-(5:30..5:31) local9 -> 5:13
+(5:30..5:31) local10 -> 5:13
 (5:32..5:33) _empty_/A#X# -> 2:8
 (5:40..5:41) _empty_/A# -> 1:7
 (6:16..6:17) _empty_/A# -> 1:7
-(6:22..6:23) local11 -> 6:13
+(6:22..6:23) local12 -> 6:13
 (6:24..6:25) _empty_/A#X# -> 2:8
 (9:8..9:13) scala/
 (9:14..9:20) scala/quoted/
 (14:19..14:25) scala/quoted/Quotes#
-(14:31..14:32) local1 -> 14:16
+(14:31..14:32) local0 -> 14:16
 (14:33..14:40) scala/quoted/Quotes#reflect.
 (14:41..14:47) scala/quoted/Quotes#reflectModule#ValDef#
-(14:51..14:52) local1 -> 14:16
+(14:51..14:52) local0 -> 14:16
 (14:53..14:60) scala/quoted/Quotes#reflect.
 (14:61..14:65) scala/quoted/Quotes#reflectModule#Term#
 (17:19..17:25) scala/quoted/Quotes#
-(17:31..17:32) local3 -> 17:16
+(17:31..17:32) local2 -> 17:16
 (17:33..17:40) scala/quoted/Quotes#reflect.
 (17:41..17:47) scala/quoted/Quotes#reflectModule#ValDef#
-(17:51..17:52) local3 -> 17:16
+(17:51..17:52) local2 -> 17:16
 (17:53..17:60) scala/quoted/Quotes#reflect.
 (17:61..17:65) scala/quoted/Quotes#reflectModule#Term#
 (20:19..20:25) scala/quoted/Quotes#

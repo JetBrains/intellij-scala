@@ -30,34 +30,26 @@ Document tests/pos/byname-implicits-9.scala
 (17:23..17:24) _empty_/ListInstances.genList().[T] -> 16:24
 (18:15..18:19) scala/package.List#
 (18:20..18:21) _empty_/ListInstances.genList().[T] -> 16:24
-(18:25..18:29) local2 -> 17:10
-(18:32..18:33) local4 -> 18:12
+(18:25..18:29) local1 -> 17:10
+(18:32..18:33) local2 -> 18:12
 (19:15..19:17) scala/package.`::`.
-(19:17..19:17) scala/collection/immutable/`::`.unapply().
 (19:24..19:28) scala/package.Left.
-(19:28..19:28) scala/util/Left.apply().
 (19:29..19:31) scala/package.`::`.
-(19:31..19:31) scala/collection/immutable/`::`.apply().
-(19:32..19:34) local5 -> 19:12
-(19:36..19:38) local6 -> 19:18
+(19:32..19:34) local3 -> 19:12
+(19:36..19:38) local4 -> 19:18
 (20:14..20:17) scala/package.Nil.
 (20:21..20:26) scala/package.Right.
-(20:26..20:26) scala/util/Right.apply().
 (20:27..20:31) scala/package.Left.
-(20:31..20:31) scala/util/Left.apply().
 (20:32..20:35) scala/package.Nil.
-(22:17..22:21) local2 -> 17:10
+(22:17..22:21) local1 -> 17:10
 (22:24..22:28) scala/package.List#
 (22:29..22:30) _empty_/ListInstances.genList().[T] -> 16:24
-(22:35..22:36) local9 -> 22:14
+(22:35..22:36) local7 -> 22:14
 (23:12..23:16) scala/package.Left.
-(23:16..23:16) scala/util/Left.unapply().
-(23:23..23:24) local10 -> 23:17
+(23:23..23:24) local8 -> 23:17
 (24:12..24:17) scala/package.Right.
-(24:17..24:17) scala/util/Right.unapply().
 (24:18..24:22) scala/package.Left.
-(24:22..24:22) scala/util/Left.unapply().
-(24:30..24:31) local11 -> 24:23
+(24:30..24:31) local9 -> 24:23
 (28:28..28:35) _empty_/Generic. -> 7:8
 (28:36..28:39) _empty_/Generic.Aux# -> 8:8
 (28:40..28:42) scala/package.`::`#
@@ -72,20 +64,17 @@ Document tests/pos/byname-implicits-9.scala
 (30:15..30:17) scala/package.`::`#
 (30:18..30:19) _empty_/ListInstances.genCons().[T] -> 28:24
 (30:23..30:27) local13 -> 29:10
-(30:31..30:31) scala/Tuple2.apply().
-(30:31..30:32) local15 -> 30:12
+(30:31..30:32) local14 -> 30:12
 (30:33..30:37) scala/collection/immutable/`::`#head.
-(30:40..30:40) scala/Tuple2.apply().
-(30:40..30:41) local15 -> 30:12
+(30:40..30:41) local14 -> 30:12
 (30:42..30:46) scala/collection/immutable/`::`#tail().
 (31:17..31:21) local13 -> 29:10
 (31:24..31:26) scala/package.`::`#
 (31:27..31:28) _empty_/ListInstances.genCons().[T] -> 28:24
 (31:32..31:34) scala/package.`::`.
-(31:34..31:34) scala/collection/immutable/`::`.apply().
-(31:35..31:36) local17 -> 31:14
+(31:35..31:36) local16 -> 31:14
 (31:37..31:39) scala/Tuple2#_1.
-(31:41..31:42) local17 -> 31:14
+(31:41..31:42) local16 -> 31:14
 (31:43..31:45) scala/Tuple2#_2.
 (31:46..31:48) scala/Tuple2#_1.
 (34:24..34:31) _empty_/Generic. -> 7:8
@@ -96,8 +85,8 @@ Document tests/pos/byname-implicits-9.scala
 (34:67..34:70) scala/package.Nil.
 (35:17..35:22) _empty_/ListInstances.NRepr# -> 14:8
 (36:15..36:18) scala/package.Nil.
-(36:26..36:30) local19 -> 35:10
-(37:17..37:21) local19 -> 35:10
+(36:26..36:30) local20 -> 35:10
+(37:17..37:21) local20 -> 35:10
 (37:24..37:27) scala/package.Nil.
 (37:35..37:38) scala/package.Nil.
 (42:15..42:16) _empty_/Show#[T] -> 41:12
@@ -114,7 +103,7 @@ Document tests/pos/byname-implicits-9.scala
 (50:46..50:49) scala/Int#
 (51:17..51:20) scala/Int#
 (51:23..51:29) scala/Predef.String#
-(51:32..51:33) local29 -> 51:14
+(51:32..51:33) local31 -> 51:14
 (51:34..51:42) scala/Any#toString().
 (54:44..54:48) _empty_/Show# -> 41:7
 (54:49..54:50) _empty_/Show.showPair().[T] -> 54:25
@@ -129,14 +118,13 @@ Document tests/pos/byname-implicits-9.scala
 (55:18..55:19) _empty_/Show.showPair().[T] -> 54:25
 (55:21..55:22) _empty_/Show.showPair().[U] -> 54:28
 (55:26..55:32) scala/Predef.String#
-(55:37..55:37) scala/StringContext.apply().
 (55:40..55:42) _empty_/Show.showPair().(st) -> 54:40
 (55:43..55:47) _empty_/Show#show(). -> 42:7
-(55:48..55:49) local32 -> 55:14
+(55:48..55:49) local35 -> 55:14
 (55:50..55:52) scala/Tuple2#_1.
 (55:58..55:60) _empty_/Show.showPair().(su) -> 54:53
 (55:61..55:65) _empty_/Show#show(). -> 42:7
-(55:66..55:67) local32 -> 55:14
+(55:66..55:67) local35 -> 55:14
 (55:68..55:70) scala/Tuple2#_2.
 (55:72..55:73) scala/StringContext#s().
 (58:46..58:50) _empty_/Show# -> 41:7
@@ -155,20 +143,16 @@ Document tests/pos/byname-implicits-9.scala
 (59:24..59:25) _empty_/Show.showEither().[T] -> 58:27
 (59:27..59:28) _empty_/Show.showEither().[U] -> 58:30
 (59:32..59:38) scala/Predef.String#
-(59:41..59:42) local35 -> 59:14
+(59:41..59:42) local39 -> 59:14
 (60:12..60:16) scala/package.Left.
-(60:16..60:16) scala/util/Left.unapply().
-(60:25..60:25) scala/StringContext.apply().
 (60:32..60:34) _empty_/Show.showEither().(st) -> 58:42
 (60:35..60:39) _empty_/Show#show(). -> 42:7
-(60:40..60:41) local36 -> 60:17
+(60:40..60:41) local40 -> 60:17
 (60:44..60:45) scala/StringContext#s().
 (61:12..61:17) scala/package.Right.
-(61:17..61:17) scala/util/Right.unapply().
-(61:26..61:26) scala/StringContext.apply().
 (61:34..61:36) _empty_/Show.showEither().(su) -> 58:55
 (61:37..61:41) _empty_/Show#show(). -> 42:7
-(61:42..61:43) local37 -> 61:18
+(61:42..61:43) local41 -> 61:18
 (61:46..61:47) scala/StringContext#s().
 (65:44..65:51) _empty_/Generic. -> 7:8
 (65:52..65:55) _empty_/Generic.Aux# -> 8:8
@@ -185,18 +169,10 @@ Document tests/pos/byname-implicits-9.scala
 (66:25..66:29) _empty_/Show#show(). -> 42:7
 (66:30..66:33) _empty_/Show.showGen().(gen) -> 65:39
 (66:34..66:36) _empty_/Generic#to(). -> 3:7
-(66:37..66:38) local40 -> 66:14
+(66:37..66:38) local45 -> 66:14
 (71:10..71:23) _empty_/ListInstances. -> 11:8
 (72:3..72:13) scala/Predef.implicitly().
 (72:14..72:18) _empty_/Show# -> 41:7
 (72:19..72:23) scala/package.List#
 (72:24..72:27) scala/Int#
-(72:30..72:30) _empty_/ListInstances.genCons(). -> 28:16
-(72:30..72:30) _empty_/ListInstances.genList(). -> 16:16
-(72:30..72:30) _empty_/ListInstances.genNil(). -> 34:16
-(72:30..72:30) _empty_/Show.showEither(). -> 58:16
-(72:30..72:30) _empty_/Show.showGen(). -> 65:16
-(72:30..72:30) _empty_/Show.showInt(). -> 50:16
-(72:30..72:30) _empty_/Show.showPair(). -> 54:16
-(72:30..72:30) _empty_/Show.showUnit(). -> 46:16
 

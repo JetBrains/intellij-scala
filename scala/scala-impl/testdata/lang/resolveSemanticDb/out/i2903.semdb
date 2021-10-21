@@ -402,124 +402,84 @@ Document tests/pos/i2903.scala
 (45:15..45:18) scala/Any#
 (45:21..45:25) scala/Unit#
 (45:28..45:29) _empty_/Test.test().(x) -> 45:12
-(46:10..46:14) _empty_/Foo1. -> 1:12
-(46:14..46:14) _empty_/Foo1.unapply().
+(46:10..46:14) _empty_/Foo1.
 (46:49..46:54) _empty_/Test.stuff(). -> 43:7
-(47:10..47:14) _empty_/Foo2. -> 2:12
-(47:14..47:14) _empty_/Foo2.unapply().
+(47:10..47:14) _empty_/Foo2.
 (47:49..47:54) _empty_/Test.stuff(). -> 43:7
-(48:10..48:14) _empty_/Foo3. -> 3:12
-(48:14..48:14) _empty_/Foo3.unapply().
+(48:10..48:14) _empty_/Foo3.
 (48:49..48:54) _empty_/Test.stuff(). -> 43:7
-(49:10..49:14) _empty_/Foo4. -> 4:12
-(49:14..49:14) _empty_/Foo4.unapply().
+(49:10..49:14) _empty_/Foo4.
 (49:49..49:54) _empty_/Test.stuff(). -> 43:7
-(50:10..50:14) _empty_/Foo5. -> 5:12
-(50:14..50:14) _empty_/Foo5.unapply().
+(50:10..50:14) _empty_/Foo5.
 (50:49..50:54) _empty_/Test.stuff(). -> 43:7
-(51:10..51:14) _empty_/Foo6. -> 6:12
-(51:14..51:14) _empty_/Foo6.unapply().
+(51:10..51:14) _empty_/Foo6.
 (51:49..51:54) _empty_/Test.stuff(). -> 43:7
-(52:10..52:14) _empty_/Foo7. -> 7:12
-(52:14..52:14) _empty_/Foo7.unapply().
+(52:10..52:14) _empty_/Foo7.
 (52:49..52:54) _empty_/Test.stuff(). -> 43:7
-(53:10..53:14) _empty_/Foo8. -> 8:12
-(53:14..53:14) _empty_/Foo8.unapply().
+(53:10..53:14) _empty_/Foo8.
 (53:49..53:54) _empty_/Test.stuff(). -> 43:7
-(54:10..54:14) _empty_/Foo9. -> 9:12
-(54:14..54:14) _empty_/Foo9.unapply().
+(54:10..54:14) _empty_/Foo9.
 (54:49..54:54) _empty_/Test.stuff(). -> 43:7
-(55:10..55:15) _empty_/Foo10. -> 10:12
-(55:15..55:15) _empty_/Foo10.unapply().
+(55:10..55:15) _empty_/Foo10.
 (55:50..55:55) _empty_/Test.stuff(). -> 43:7
-(56:10..56:15) _empty_/Foo11. -> 11:12
-(56:15..56:15) _empty_/Foo11.unapply().
+(56:10..56:15) _empty_/Foo11.
 (56:50..56:55) _empty_/Test.stuff(). -> 43:7
-(57:10..57:15) _empty_/Foo12. -> 12:12
-(57:15..57:15) _empty_/Foo12.unapply().
+(57:10..57:15) _empty_/Foo12.
 (57:50..57:55) _empty_/Test.stuff(). -> 43:7
-(58:10..58:15) _empty_/Foo13. -> 13:12
-(58:15..58:15) _empty_/Foo13.unapply().
+(58:10..58:15) _empty_/Foo13.
 (58:50..58:55) _empty_/Test.stuff(). -> 43:7
-(59:10..59:15) _empty_/Foo14. -> 14:12
-(59:15..59:15) _empty_/Foo14.unapply().
+(59:10..59:15) _empty_/Foo14.
 (59:50..59:55) _empty_/Test.stuff(). -> 43:7
-(60:10..60:15) _empty_/Foo15. -> 15:12
-(60:15..60:15) _empty_/Foo15.unapply().
+(60:10..60:15) _empty_/Foo15.
 (60:50..60:55) _empty_/Test.stuff(). -> 43:7
-(61:10..61:15) _empty_/Foo16. -> 16:12
-(61:15..61:15) _empty_/Foo16.unapply().
+(61:10..61:15) _empty_/Foo16.
 (61:50..61:55) _empty_/Test.stuff(). -> 43:7
-(62:10..62:15) _empty_/Foo17. -> 17:12
-(62:15..62:15) _empty_/Foo17.unapply().
+(62:10..62:15) _empty_/Foo17.
 (62:50..62:55) _empty_/Test.stuff(). -> 43:7
-(63:10..63:15) _empty_/Foo18. -> 18:12
-(63:15..63:15) _empty_/Foo18.unapply().
+(63:10..63:15) _empty_/Foo18.
 (63:50..63:55) _empty_/Test.stuff(). -> 43:7
-(64:10..64:15) _empty_/Foo19. -> 19:12
-(64:15..64:15) _empty_/Foo19.unapply().
+(64:10..64:15) _empty_/Foo19.
 (64:50..64:55) _empty_/Test.stuff(). -> 43:7
-(65:10..65:15) _empty_/Foo20. -> 20:12
-(65:15..65:15) _empty_/Foo20.unapply().
+(65:10..65:15) _empty_/Foo20.
 (65:50..65:55) _empty_/Test.stuff(). -> 43:7
-(66:10..66:15) _empty_/Foo21. -> 21:12
-(66:15..66:15) _empty_/Foo21.unapply().
+(66:10..66:15) _empty_/Foo21.
 (66:50..66:55) _empty_/Test.stuff(). -> 43:7
-(67:10..67:15) _empty_/Foo22. -> 22:12
-(67:15..67:15) _empty_/Foo22.unapply().
+(67:10..67:15) _empty_/Foo22.
 (67:50..67:55) _empty_/Test.stuff(). -> 43:7
-(68:10..68:15) _empty_/Foo23. -> 23:12
-(68:15..68:15) _empty_/Foo23.unapply().
+(68:10..68:15) _empty_/Foo23.
 (68:50..68:55) _empty_/Test.stuff(). -> 43:7
-(69:10..69:15) _empty_/Foo24. -> 24:12
-(69:15..69:15) _empty_/Foo24.unapply().
+(69:10..69:15) _empty_/Foo24.
 (69:50..69:55) _empty_/Test.stuff(). -> 43:7
-(70:10..70:15) _empty_/Foo25. -> 25:12
-(70:15..70:15) _empty_/Foo25.unapply().
+(70:10..70:15) _empty_/Foo25.
 (70:50..70:55) _empty_/Test.stuff(). -> 43:7
-(71:10..71:15) _empty_/Foo26. -> 26:12
-(71:15..71:15) _empty_/Foo26.unapply().
+(71:10..71:15) _empty_/Foo26.
 (71:50..71:55) _empty_/Test.stuff(). -> 43:7
-(72:10..72:15) _empty_/Foo27. -> 27:12
-(72:15..72:15) _empty_/Foo27.unapply().
+(72:10..72:15) _empty_/Foo27.
 (72:50..72:55) _empty_/Test.stuff(). -> 43:7
-(73:10..73:15) _empty_/Foo28. -> 28:12
-(73:15..73:15) _empty_/Foo28.unapply().
+(73:10..73:15) _empty_/Foo28.
 (73:50..73:55) _empty_/Test.stuff(). -> 43:7
-(74:10..74:15) _empty_/Foo29. -> 29:12
-(74:15..74:15) _empty_/Foo29.unapply().
+(74:10..74:15) _empty_/Foo29.
 (74:50..74:55) _empty_/Test.stuff(). -> 43:7
-(75:10..75:15) _empty_/Foo30. -> 30:12
-(75:15..75:15) _empty_/Foo30.unapply().
+(75:10..75:15) _empty_/Foo30.
 (75:50..75:55) _empty_/Test.stuff(). -> 43:7
-(76:10..76:15) _empty_/Foo31. -> 31:12
-(76:15..76:15) _empty_/Foo31.unapply().
+(76:10..76:15) _empty_/Foo31.
 (76:50..76:55) _empty_/Test.stuff(). -> 43:7
-(77:10..77:15) _empty_/Foo32. -> 32:12
-(77:15..77:15) _empty_/Foo32.unapply().
+(77:10..77:15) _empty_/Foo32.
 (77:50..77:55) _empty_/Test.stuff(). -> 43:7
-(78:10..78:15) _empty_/Foo33. -> 33:12
-(78:15..78:15) _empty_/Foo33.unapply().
+(78:10..78:15) _empty_/Foo33.
 (78:50..78:55) _empty_/Test.stuff(). -> 43:7
-(79:10..79:15) _empty_/Foo34. -> 34:12
-(79:15..79:15) _empty_/Foo34.unapply().
+(79:10..79:15) _empty_/Foo34.
 (79:50..79:55) _empty_/Test.stuff(). -> 43:7
-(80:10..80:15) _empty_/Foo35. -> 35:12
-(80:15..80:15) _empty_/Foo35.unapply().
+(80:10..80:15) _empty_/Foo35.
 (80:50..80:55) _empty_/Test.stuff(). -> 43:7
-(81:10..81:15) _empty_/Foo36. -> 36:12
-(81:15..81:15) _empty_/Foo36.unapply().
+(81:10..81:15) _empty_/Foo36.
 (81:50..81:55) _empty_/Test.stuff(). -> 43:7
-(82:10..82:15) _empty_/Foo37. -> 37:12
-(82:15..82:15) _empty_/Foo37.unapply().
+(82:10..82:15) _empty_/Foo37.
 (82:50..82:55) _empty_/Test.stuff(). -> 43:7
-(83:10..83:15) _empty_/Foo38. -> 38:12
-(83:15..83:15) _empty_/Foo38.unapply().
+(83:10..83:15) _empty_/Foo38.
 (83:50..83:55) _empty_/Test.stuff(). -> 43:7
-(84:10..84:15) _empty_/Foo39. -> 39:12
-(84:15..84:15) _empty_/Foo39.unapply().
+(84:10..84:15) _empty_/Foo39.
 (84:50..84:55) _empty_/Test.stuff(). -> 43:7
-(85:10..85:15) _empty_/Foo40. -> 40:12
-(85:15..85:15) _empty_/Foo40.unapply().
+(85:10..85:15) _empty_/Foo40.
 (85:50..85:55) _empty_/Test.stuff(). -> 43:7
 

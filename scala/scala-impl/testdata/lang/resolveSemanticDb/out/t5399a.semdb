@@ -7,7 +7,6 @@ Document tests/pos/t5399a.scala
 (9:42..9:43) _empty_/Foo#ScopedKey1#[T] -> 9:25
 (9:54..9:63) _empty_/Foo#ScopedKey# -> 3:9
 (9:64..9:65) _empty_/Foo#ScopedKey1#[T] -> 9:25
-(9:66..9:66) _empty_/Foo#ScopedKey#`<init>`(). -> 3:18
 (11:18..11:25) _empty_/Foo#Setting# -> 5:9
 (11:26..11:32) scala/Option#
 (11:33..11:39) scala/Predef.String#
@@ -17,8 +16,7 @@ Document tests/pos/t5399a.scala
 (14:40..14:44) scala/Unit#
 (15:5..15:6) _empty_/Foo#testPatternMatch().(s) -> 14:24
 (15:7..15:10) _empty_/Foo#Setting#key. -> 6:9
-(16:12..16:22) _empty_/Foo#ScopedKey1. -> 9:14
-(16:22..16:22) _empty_/Foo#ScopedKey1.unapply(). -> 9:3
+(16:12..16:22) _empty_/Foo#ScopedKey1.
 (16:23..16:32) _empty_/Foo#scalaHome. -> 11:7
 (16:33..16:36) _empty_/Foo#Setting#key. -> 6:9
 (16:39..16:51) _empty_/Foo#scalaVersion. -> 12:7

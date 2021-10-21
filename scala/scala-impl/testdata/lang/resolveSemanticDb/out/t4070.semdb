@@ -3,14 +3,16 @@ Document tests/pos/t4070.scala
 (4:30..4:34) scala/Unit#
 (4:37..4:38) a/Foo#crash().(x) -> 4:15
 (4:55..4:60) a/Foo#Bippy# -> 7:11
+(7:26..7:29) scala/package.Seq#
+(7:30..7:31) a/Foo#Bippy#`<init>`().[CC][X] -> 7:20
 (7:44..7:50) a/Foo#Dingus# -> 6:11
 (7:51..7:53) a/Foo#Bippy#[CC] -> 7:17
 (7:54..7:57) scala/Int#
-(7:59..7:59) a/Foo#Dingus#`<init>`(). -> 6:17
+(15:26..15:29) scala/package.Seq#
+(15:30..15:31) b/Foo#Bippy#`<init>`().[CC][X] -> 15:20
 (15:44..15:50) b/Foo#Dingus# -> 14:11
 (15:51..15:53) b/Foo#Bippy#[CC] -> 15:17
 (15:54..15:57) scala/Int#
-(15:59..15:59) b/Foo#Dingus#`<init>`(). -> 14:17
 (17:18..17:24) b/Foo#Dingus# -> 14:11
 (17:30..17:34) scala/Unit#
 (17:37..17:38) b/Foo#crash().(x) -> 17:15

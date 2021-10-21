@@ -2,7 +2,6 @@ Document tests/pos/i9977.scala
 (1:10..1:25) scala/PartialFunction#
 (1:26..1:32) scala/AnyVal#
 (1:34..1:37) scala/Int#
-(1:43..1:43) local0
 (1:51..1:54) scala/Int#
 (1:58..1:59) local1 -> 1:48
 

@@ -8,37 +8,34 @@ Document tests/pos/padTo.scala
 (3:61..3:62) _empty_/Test.AbstractIterator#padTo().[B] -> 3:24
 (5:11..5:27) _empty_/Test.AbstractIterator# -> 2:18
 (5:28..5:29) _empty_/Test.AbstractIterator#padTo().[B] -> 3:24
-(5:30..5:30) _empty_/Test.AbstractIterator#`<init>`(). -> 2:34
 (12:21..12:22) _empty_/Test.AbstractIterator#padTo().[B] -> 3:24
 (14:17..14:19) local0 -> 4:11
 (14:20..14:27) scala/collection/Iterator#hasNext().
 (14:29..14:31) local0 -> 4:11
 (14:32..14:36) scala/collection/Iterator#next().
-(15:22..15:23) local2 -> 6:27
+(15:22..15:23) local1 -> 6:27
 (15:24..15:25) scala/Int#`<`(+3).
 (15:26..15:29) _empty_/Test.AbstractIterator#padTo().(len) -> 3:32
 (15:31..15:35) _empty_/Test.AbstractIterator#padTo().(elem) -> 3:42
 (16:18..16:26) scala/package.Iterator.
 (16:27..16:32) scala/collection/Iterator.empty().
 (16:33..16:37) scala/collection/Iterator#next().
-(17:11..17:12) local2 -> 6:27
-(17:12..17:12) scala/Int#`+`(+4).
-(18:11..18:12) local4 -> 13:15
+(17:11..17:12) local1 -> 6:27
+(18:11..18:12) local2 -> 13:15
 (23:20..23:21) _empty_/Test.AbstractIterator#padTo().[B] -> 3:24
-(23:32..23:33) local6 -> 23:15
+(23:32..23:33) local4 -> 23:15
 (23:36..23:37) _empty_/Test.AbstractIterator#padTo().[B] -> 3:24
 (25:17..25:19) local0 -> 4:11
 (25:20..25:27) scala/collection/Iterator#hasNext().
 (25:29..25:31) local0 -> 4:11
 (25:32..25:36) scala/collection/Iterator#next().
-(26:18..26:19) local7 -> 23:23
-(26:19..26:19) scala/Function0#apply().
-(27:11..27:12) local8 -> 24:15
+(26:18..26:19) local5 -> 23:23
+(27:11..27:12) local6 -> 24:15
 (30:22..30:29) scala/Boolean#
 (30:32..30:34) local0 -> 4:11
 (30:35..30:42) scala/collection/Iterator#hasNext().
 (30:43..30:45) scala/Boolean#`||`().
-(30:46..30:47) local2 -> 6:27
+(30:46..30:47) local1 -> 6:27
 (30:48..30:49) scala/Int#`<`(+3).
 (30:50..30:53) _empty_/Test.AbstractIterator#padTo().(len) -> 3:32
 

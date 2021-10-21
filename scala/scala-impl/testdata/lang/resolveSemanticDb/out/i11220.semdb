@@ -6,9 +6,9 @@ Document tests/pos/i11220.scala
 (6:34..6:38) scala/Unit#
 (7:4..7:11) scala/annotation/tailrec#
 (8:18..8:19) _empty_/i11220$package.loop3().[C] -> 6:17
-(8:24..8:25) local1 -> 8:13
-(8:28..8:29) local2 -> 8:21
+(8:24..8:25) local0 -> 8:13
+(8:28..8:29) local1 -> 8:21
 (8:30..8:34) _empty_/Context#Tree# -> 3:8
-(8:37..8:42) local0 -> 8:7
-(8:43..8:44) local2 -> 8:21
+(8:37..8:42) local2 -> 8:7
+(8:43..8:44) local1 -> 8:21
 

@@ -1,8 +1,6 @@
 Document tests/pos/t0049.scala
 (1:13..1:19) scala/AnyRef#
 (3:18..3:20) _empty_/C1# -> 1:7
-(3:20..3:20) _empty_/C1#`<init>`(). -> 1:9
 (3:39..3:45) scala/AnyRef#
-(3:45..3:45) java/lang/Object#`<init>`().
 (3:60..3:66) scala/AnyRef#
 

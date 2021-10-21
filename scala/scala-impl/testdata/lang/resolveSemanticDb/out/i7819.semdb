@@ -1,5 +1,4 @@
 Document tests/pos/i7819.scala
 (1:20..1:23) scala/Any#
 (1:33..1:39) scala/AnyVal#
-(1:39..1:39) scala/AnyVal#`<init>`().
 

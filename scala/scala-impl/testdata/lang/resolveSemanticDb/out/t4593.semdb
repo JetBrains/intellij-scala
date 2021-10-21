@@ -1,6 +1,5 @@
 Document tests/pos/t4593.scala
 (5:25..5:26) _empty_/A#B# -> 4:9
-(5:26..5:26) _empty_/A#B#`<init>`(). -> 4:3
 (9:12..9:13) _empty_/A#B# -> 4:9
 (9:16..9:17) _empty_/A#D. -> 5:15
 (11:13..11:25) java/lang/Object#synchronized().

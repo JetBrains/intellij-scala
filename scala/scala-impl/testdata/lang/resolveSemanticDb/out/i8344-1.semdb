@@ -2,12 +2,12 @@ Document tests/pos/i8344-1.scala
 (1:8..1:13) scala/
 (1:14..1:19) scala/Tuple#
 (1:14..1:19) scala/Tuple.
+(4:19..4:25) scala/Tuple#
 (4:34..4:40) scala/Tuple.
 (4:41..4:44) scala/Tuple.Map#
 (4:45..4:46) _empty_/Datatype.Tuple#[T] -> 4:14
 (4:67..4:75) _empty_/Datatype# -> 3:6
 (4:76..4:77) _empty_/Datatype.Tuple#[T] -> 4:14
-(4:78..4:78) _empty_/Datatype#`<init>`(). -> 3:14
 (8:18..8:24) scala/Tuple#
 (8:36..8:44) _empty_/Datatype# -> 3:6
 (8:45..8:46) _empty_/Datatype.`given_Datatype_*:`().[H] -> 8:10
@@ -19,12 +19,9 @@ Document tests/pos/i8344-1.scala
 (8:81..8:82) _empty_/Datatype.`given_Datatype_*:`().[T] -> 8:13
 (8:86..8:88) _empty_/Datatype.`given_Datatype_*:`().(tt) -> 8:49
 (9:10..9:18) _empty_/Datatype. -> 7:8
-(9:19..9:24) _empty_/Datatype.Tuple. -> 4:8
-(9:24..9:24) _empty_/Datatype.Tuple.unapply(). -> 4:3
+(9:19..9:24) _empty_/Datatype.Tuple.
 (9:35..9:43) _empty_/Datatype. -> 7:8
-(9:44..9:49) _empty_/Datatype.Tuple. -> 4:8
-(9:49..9:49) _empty_/Datatype.Tuple.apply(). -> 4:3
+(9:44..9:49) _empty_/Datatype.Tuple.
 (9:50..9:52) _empty_/Datatype.`given_Datatype_*:`().(ht) -> 8:32
 (9:56..9:61) local0 -> 9:25
-(9:61..9:61) scala/Tuple#`*:`().
 

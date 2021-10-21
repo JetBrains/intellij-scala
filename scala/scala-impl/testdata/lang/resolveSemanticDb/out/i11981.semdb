@@ -17,14 +17,10 @@ Document tests/pos/i11981.scala
 (14:57..14:60) scala/Predef.`???`().
 (16:5..16:13) _empty_/Main.summonTC(). -> 14:9
 (16:14..16:20) scala/Option.
-(16:20..16:20) scala/Option.apply().
-(16:25..16:25) _empty_/Main.g2. -> 12:11
 (18:5..18:13) _empty_/Main.summonTC(). -> 14:9
 (18:14..18:22) _empty_/Main.Optional# -> 3:10
 (18:24..18:27) scala/Int#
 (18:29..18:37) _empty_/Main.maybeInt. -> 5:9
-(18:38..18:38) _empty_/Main.g1. -> 11:11
 (20:5..20:13) _empty_/Main.summonTC(). -> 14:9
 (20:14..20:22) _empty_/Main.maybeInt. -> 5:9
-(20:23..20:23) _empty_/Main.g1. -> 11:11
 

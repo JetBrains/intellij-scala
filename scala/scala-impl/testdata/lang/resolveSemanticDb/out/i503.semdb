@@ -3,7 +3,7 @@ Document tests/pos/i503.scala
 (2:24..2:30) scala/Predef.String#
 (2:34..2:38) scala/Unit#
 (6:17..6:20) scala/Int#
-(6:24..6:32) local4
+(6:24..6:32) local1
 (10:17..10:20) scala/Int#
-(10:24..10:32) local4
+(10:24..10:32) local1
 

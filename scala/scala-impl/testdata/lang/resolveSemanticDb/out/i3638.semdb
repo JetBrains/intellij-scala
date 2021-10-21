@@ -4,7 +4,6 @@ Document tests/pos/i3638.scala
 (4:17..4:21) java/
 (4:22..4:24) java/io/
 (4:25..4:40) java/io/CharArrayReader#
-(4:40..4:40) java/io/CharArrayReader#`<init>`().
 (4:41..4:44) p/a/JavaInteraction#arr. -> 3:27
 (7:11..7:16) java/io/CharArrayReader#count().
 (7:19..7:24) java/io/CharArrayReader#count().

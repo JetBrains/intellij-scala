@@ -2,7 +2,6 @@ Document tests/pos/i4753b.scala
 (2:12..2:18) scala/Predef.String#
 (2:23..2:26) scala/Int#
 (5:20..5:24) _empty_/Foo1# -> 1:7
-(5:24..5:24) _empty_/Foo1#`<init>`(). -> 2:3
 (6:21..6:27) scala/Predef.String#
 (6:32..6:35) scala/Int#
 

@@ -1,5 +1,4 @@
 Document tests/pos/tcpoly_poly.scala
 (3:19..3:24) _empty_/Monad# -> 1:7
 (3:25..3:29) scala/package.List#
-(3:30..3:30) _empty_/Monad#`<init>`(). -> 1:12
 

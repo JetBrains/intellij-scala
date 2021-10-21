@@ -8,5 +8,4 @@ Document tests/pos/i1637.scala
 (4:5..4:6) local0 -> 3:40
 (4:7..4:12) _empty_/Main.Foo#field. -> 2:18
 (5:12..5:16) scala/Some.
-(5:16..5:16) scala/Some.unapply().
 

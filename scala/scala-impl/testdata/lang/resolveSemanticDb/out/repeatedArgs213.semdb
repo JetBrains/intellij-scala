@@ -29,7 +29,6 @@ Document tests/pos/repeatedArgs213.scala
 (13:11..13:14) java/nio/file/Paths#get().
 (13:24..13:26) _empty_/repeatedArgs#test().(xs) -> 8:12
 (15:9..15:13) scala/package.List.
-(15:13..15:13) scala/collection/SeqFactory#unapplySeq().
 (15:28..15:30) _empty_/repeatedArgs#test().(xs) -> 8:12
 (15:31..15:37) scala/collection/IterableOnceOps#toList().
 (16:12..16:21) scala/collection/immutable/
@@ -51,7 +50,6 @@ Document tests/pos/repeatedArgs213.scala
 (24:11..24:14) java/nio/file/Paths#get().
 (24:24..24:26) _empty_/repeatedArgs#test2().(xs) -> 19:13
 (26:9..26:13) scala/package.List.
-(26:13..26:13) scala/collection/SeqFactory#unapplySeq().
 (26:28..26:30) _empty_/repeatedArgs#test2().(xs) -> 19:13
 (26:31..26:37) scala/collection/IterableOnceOps#toList().
 (27:12..27:21) scala/collection/immutable/

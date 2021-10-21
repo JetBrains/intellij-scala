@@ -6,6 +6,5 @@ Document tests/pos/objXfun.scala
 (5:11..5:14) scala/Int#
 (6:13..6:16) scala/Int#
 (6:26..6:27) _empty_/E# -> 5:6
-(6:27..6:27) _empty_/E#`<init>`(). -> 5:7
 (6:28..6:29) _empty_/E.C#x. -> 6:10
 

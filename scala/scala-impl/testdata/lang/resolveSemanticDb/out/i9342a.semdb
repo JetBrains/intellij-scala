@@ -4,7 +4,6 @@ Document tests/pos/i9342a.scala
 (1:43..1:49) scala/Predef.String#
 (1:52..1:58) scala/Predef.String#
 (1:61..1:62) _empty_/i9342a$package.label().(g) -> 1:33
-(1:62..1:62) scala/Function1#apply().
 (1:63..1:64) _empty_/i9342a$package.label().(x) -> 1:18
 (2:8..2:11) scala/Int#
 (2:15..2:21) scala/Predef.String#

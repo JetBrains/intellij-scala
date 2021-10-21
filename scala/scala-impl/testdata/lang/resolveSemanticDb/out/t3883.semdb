@@ -14,7 +14,6 @@ Document tests/pos/t3883.scala
 (6:3..6:13) scala/Predef.implicitly().
 (6:14..6:19) scala/package.Equiv#
 (6:20..6:27) scala/Boolean#
-(6:29..6:29) _empty_/A1.i(). -> 3:16
 (10:38..10:39) _empty_/A2.div().[T] -> 10:20
 (10:43..10:44) _empty_/A2.div().[A] -> 10:23
 (10:50..10:55) scala/package.Equiv#
@@ -30,5 +29,4 @@ Document tests/pos/t3883.scala
 (13:3..13:13) scala/Predef.implicitly().
 (13:14..13:19) scala/package.Equiv#
 (13:20..13:27) scala/Boolean#
-(13:29..13:29) _empty_/A2.i(). -> 11:16
 

@@ -19,11 +19,10 @@ Document tests/pos/11463.scala
 (8:29..8:35) java/lang/String#charAt().
 (9:12..9:17) scala/Array#
 (9:27..9:35) _empty_/`11463$package`.leafElem(). -> 7:5
-(9:36..9:37) local3 -> 9:9
-(9:37..9:37) scala/Array#apply().
+(9:36..9:37) local4 -> 9:9
 (10:12..10:20) scala/package.Iterable#
 (10:27..10:35) _empty_/`11463$package`.leafElem(). -> 7:5
-(10:36..10:37) local5 -> 10:9
+(10:36..10:37) local6 -> 10:9
 (10:38..10:42) scala/collection/IterableOps#head().
 (11:12..11:18) scala/AnyVal#
 (11:27..11:28) local7 -> 11:9

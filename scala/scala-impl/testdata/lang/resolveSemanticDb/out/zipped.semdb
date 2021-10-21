@@ -2,7 +2,6 @@ Document tests/pos/zipped.scala
 (3:11..3:15) scala/package.List#
 (3:16..3:19) scala/Int#
 (3:23..3:26) scala/Predef.`???`().
-(8:3..8:3) scala/collection/LazyZip3.lazyZip3ToIterable().
 (8:3..8:5) _empty_/Test.xs. -> 3:7
 (8:6..8:13) scala/collection/Iterable#lazyZip().
 (8:14..8:16) _empty_/Test.xs. -> 3:7
@@ -13,19 +12,16 @@ Document tests/pos/zipped.scala
 (9:28..9:31) scala/Int#
 (9:33..9:36) scala/Int#
 (9:42..9:43) local0 -> 9:19
-(9:58..9:58) scala/Tuple3.unapply().
 (10:6..10:9) scala/collection/WithFilter#map().
 (10:16..10:19) scala/Int#
 (10:21..10:24) scala/Int#
 (10:26..10:29) scala/Int#
 (10:35..10:36) local4 -> 10:12
-(10:51..10:51) scala/Tuple3.unapply().
 (10:63..10:64) local5 -> 10:51
 (10:65..10:66) scala/Int#`+`(+4).
 (10:67..10:68) local6 -> 10:54
 (10:69..10:70) scala/Int#`+`(+4).
 (10:71..10:72) local7 -> 10:57
-(15:3..15:3) scala/collection/LazyZip3.lazyZip3ToIterable().
 (15:3..15:5) _empty_/Test.xs. -> 3:7
 (15:6..15:13) scala/collection/Iterable#lazyZip().
 (15:14..15:16) _empty_/Test.xs. -> 3:7
@@ -36,14 +32,10 @@ Document tests/pos/zipped.scala
 (16:26..16:29) scala/Int#
 (16:31..16:34) scala/Int#
 (16:40..16:41) local8 -> 16:17
-(16:56..16:56) scala/Tuple3.unapply().
 (17:4..17:7) scala/collection/WithFilter#map().
 (17:13..17:16) scala/Int#
-(17:16..17:16) scala/Tuple3#_1.
 (17:21..17:24) scala/Int#
-(17:24..17:24) scala/Tuple3#_2.
 (17:29..17:32) scala/Int#
-(17:32..17:32) scala/Tuple3#_3.
 (17:37..17:38) local13 -> 17:10
 (17:39..17:40) scala/Int#`+`(+4).
 (17:41..17:42) local14 -> 17:18
@@ -63,8 +55,6 @@ Document tests/pos/zipped.scala
 (23:43..23:44) local17 -> 23:20
 (23:45..23:46) scala/Int#`+`(+4).
 (23:47..23:48) local18 -> 23:28
-(23:50..23:50) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
-(26:3..26:3) scala/collection/LazyZip3.lazyZip3ToIterable().
 (26:3..26:5) _empty_/Test.xs. -> 3:7
 (26:6..26:13) scala/collection/Iterable#lazyZip().
 (26:14..26:16) _empty_/Test.xs. -> 3:7
@@ -75,13 +65,11 @@ Document tests/pos/zipped.scala
 (27:21..27:24) scala/Int#
 (27:26..27:29) scala/Int#
 (27:35..27:36) local19 -> 27:12
-(27:51..27:51) scala/Tuple3.unapply().
 (27:63..27:64) local20 -> 27:51
 (27:65..27:66) scala/Int#`+`(+4).
 (27:67..27:68) local21 -> 27:54
 (27:69..27:70) scala/Int#`+`(+4).
 (27:71..27:72) local22 -> 27:57
-(30:3..30:3) scala/collection/LazyZip3.lazyZip3ToIterable().
 (30:3..30:5) _empty_/Test.xs. -> 3:7
 (30:6..30:13) scala/collection/Iterable#lazyZip().
 (30:14..30:16) _empty_/Test.xs. -> 3:7
@@ -89,22 +77,16 @@ Document tests/pos/zipped.scala
 (30:26..30:28) _empty_/Test.xs. -> 3:7
 (31:6..31:9) scala/collection/IterableOps#map().
 (31:16..31:17) local23 -> 31:11
-(31:32..31:32) scala/Tuple3.unapply().
 (31:44..31:45) local24 -> 31:32
 (31:46..31:47) scala/Int#`+`(+4).
 (31:48..31:49) local25 -> 31:35
 (31:50..31:51) scala/Int#`+`(+4).
 (31:52..31:53) local26 -> 31:38
-(34:8..34:8) local27
-(34:9..34:9) scala/Tuple3.unapply().
-(34:21..34:21) scala/collection/LazyZip3.lazyZip3ToIterable().
 (34:21..34:23) _empty_/Test.xs. -> 3:7
 (34:24..34:31) scala/collection/Iterable#lazyZip().
 (34:32..34:34) _empty_/Test.xs. -> 3:7
 (34:36..34:43) scala/collection/LazyZip2#lazyZip().
 (34:44..34:46) _empty_/Test.xs. -> 3:7
-(34:47..34:47) scala/collection/IterableOps#withFilter().
-(34:47..34:47) scala/collection/WithFilter#map().
 (34:55..34:56) local28 -> 34:9
 (34:57..34:58) scala/Int#`+`(+4).
 (34:59..34:60) local29 -> 34:12

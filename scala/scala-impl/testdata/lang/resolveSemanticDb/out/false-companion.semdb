@@ -1,7 +1,6 @@
 Document tests/pos/false-companion/00_outerinnerTest_2.scala
 (4:10..4:13) outer/Foo# -> 2:7
 (4:20..4:23) outer/Foo# -> 2:7
-(4:23..4:23) outer/Foo#`<init>`(). -> 2:1
 
 Document tests/pos/false-companion/01_outerinnerFoo_2.scala
 

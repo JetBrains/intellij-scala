@@ -14,7 +14,6 @@ Document tests/pos/tangledCompanion.scala
 (18:46..18:47) _empty_/Coll.LazyList.Evaluated#[A] -> 18:21
 (20:26..20:34) _empty_/Coll.LazyList# -> 14:9
 (20:35..20:42) scala/Nothing#
-(20:43..20:43) _empty_/Coll.LazyList#`<init>`(). -> 14:17
 (20:44..20:48) scala/None.
 (23:25..23:33) _empty_/Coll.LazyList# -> 14:9
 (23:34..23:35) _empty_/Coll.LazyList.`#::`.unapply().[A] -> 23:19

@@ -13,22 +13,16 @@ Document tests/pos/i7044.scala
 (10:21..10:22) _empty_/i7044.test().[T] -> 10:12
 (10:25..10:28) scala/Int#
 (10:31..10:32) _empty_/i7044.test().(s) -> 10:15
-(11:10..11:13) _empty_/i7044.Seg. -> 2:14
-(11:13..11:13) _empty_/i7044.Seg.unapply(). -> 2:3
+(11:10..11:13) _empty_/i7044.Seg.
 (11:14..11:17) _empty_/i7044.Pat. -> 5:10
-(11:18..11:22) _empty_/i7044.Pat.Expr. -> 6:16
-(11:22..11:22) _empty_/i7044.Pat.Expr.unapply().
+(11:18..11:22) _empty_/i7044.Pat.Expr.
 (11:43..11:47) local0 -> 11:25
 (11:48..11:49) scala/Int#`+`(+4).
-(12:10..12:13) _empty_/i7044.Seg. -> 2:14
-(12:13..12:13) _empty_/i7044.Seg.unapply(). -> 2:3
+(12:10..12:13) _empty_/i7044.Seg.
 (12:14..12:17) _empty_/i7044.Pat. -> 5:10
-(12:18..12:21) _empty_/i7044.Pat.Opt. -> 7:16
-(12:21..12:21) _empty_/i7044.Pat.Opt.unapply(). -> 7:5
-(12:21..12:21) local1
+(12:18..12:21) _empty_/i7044.Pat.Opt.
 (12:22..12:25) _empty_/i7044.Pat. -> 5:10
-(12:26..12:30) _empty_/i7044.Pat.Expr. -> 6:16
-(12:30..12:30) _empty_/i7044.Pat.Expr.unapply().
+(12:26..12:30) _empty_/i7044.Pat.Expr.
 (12:43..12:47) local2 -> 12:34
 (12:48..12:51) scala/Option#get().
 

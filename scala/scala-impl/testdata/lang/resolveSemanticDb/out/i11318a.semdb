@@ -1,0 +1,8 @@
+Document tests/pos/i11318a.scala
+(1:14..1:17) scala/Int#
+(2:10..2:13) scala/Int#
+(2:16..2:19) scala/Predef.`???`().
+(3:10..3:14) scala/Unit#
+(4:16..4:19) scala/Int#
+(4:24..4:25) _empty_/i11318a$package.b(). -> 2:7
+

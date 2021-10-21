@@ -6,10 +6,8 @@ Document tests/pos/virtpatmat_exist2.scala
 (5:28..5:29) _empty_/Test.grow().[T] -> 5:12
 (5:40..5:49) _empty_/MemoEntry# -> 2:12
 (5:50..5:51) _empty_/Test.grow().[T] -> 5:12
-(6:10..6:19) _empty_/MemoEntry. -> 2:12
-(6:19..6:19) _empty_/MemoEntry.unapply(). -> 2:1
+(6:10..6:19) _empty_/MemoEntry.
 (6:20..6:25) scala/package.Right.
-(6:25..6:25) scala/util/Right.unapply().
 (6:29..6:40) _empty_/ParseResult# -> 1:7
 (6:49..6:50) local0 -> 6:26
 (6:51..6:63) scala/Any#asInstanceOf().

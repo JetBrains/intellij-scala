@@ -2,7 +2,6 @@ Document tests/pos/t1168.scala
 (1:21..1:24) scala/App#
 (3:34..3:43) scala/package.Throwable#
 (6:15..6:24) scala/package.Exception#
-(6:24..6:24) java/lang/Exception#`<init>`().
 (8:14..8:30) _empty_/Test.SpecialException# -> 3:9
 (9:7..9:14) scala/Predef.println(+1).
 (9:44..9:45) java/lang/String#`+`().

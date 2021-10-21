@@ -7,21 +7,16 @@ Document tests/pos/inline-match-gadt-nested.scala
 (5:45..5:49) _empty_/`inline-match-gadt-nested`.Gadt# -> 4:8
 (5:50..5:51) _empty_/`inline-match-gadt-nested`.Gadt.Nested#[A]
 (5:53..5:56) scala/Int#
-(5:57..5:57) _empty_/`inline-match-gadt-nested`.Gadt#`<init>`(). -> 4:12
 (6:25..6:29) _empty_/`inline-match-gadt-nested`.Gadt# -> 4:8
 (6:30..6:36) scala/Predef.String#
 (6:38..6:41) scala/Int#
-(6:42..6:42) _empty_/`inline-match-gadt-nested`.Gadt#`<init>`(). -> 4:12
-(8:10..8:14) _empty_/`inline-match-gadt-nested`.Gadt. -> 4:8
+(8:10..8:14) _empty_/`inline-match-gadt-nested`.Gadt.
 (10:27..10:31) _empty_/`inline-match-gadt-nested`.Gadt# -> 4:8
 (10:32..10:33) _empty_/`inline-match-gadt-nested`.foo().[A] -> 10:18
 (10:35..10:36) _empty_/`inline-match-gadt-nested`.foo().[B] -> 10:21
 (10:41..10:42) _empty_/`inline-match-gadt-nested`.foo().[A] -> 10:18
 (10:44..10:45) _empty_/`inline-match-gadt-nested`.foo().[B] -> 10:21
 (11:12..11:13) _empty_/`inline-match-gadt-nested`.foo().(g) -> 10:24
-(12:12..12:18) _empty_/`inline-match-gadt-nested`.Gadt.Nested. -> 5:10
-(12:18..12:18) _empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().
-(12:18..12:18) local0
+(12:12..12:18) _empty_/`inline-match-gadt-nested`.Gadt.Nested.
 (12:19..12:25) _empty_/`inline-match-gadt-nested`.Gadt.Simple. -> 6:10
-(12:31..12:31) scala/Tuple2.apply().
 

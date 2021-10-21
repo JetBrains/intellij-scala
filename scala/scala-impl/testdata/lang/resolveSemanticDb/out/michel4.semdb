@@ -1,7 +1,6 @@
 Document tests/pos/michel4.scala
 (2:11..2:14) scala/Int#
 (5:19..5:20) _empty_/A# -> 1:7
-(5:20..5:20) _empty_/A#`<init>`(). -> 1:8
 (6:20..6:23) scala/Int#
 (6:32..6:33) _empty_/A#f(). -> 2:7
 

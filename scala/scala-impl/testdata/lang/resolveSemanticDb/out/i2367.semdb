@@ -1,6 +1,5 @@
 Document tests/pos/i2367.scala
 (2:7..2:13) java/lang/Thread#
-(2:13..2:13) java/lang/Thread#`<init>`(+2).
 (2:20..2:27) scala/Predef.println(+1).
 (4:14..4:17) scala/Int#
 (4:21..4:24) scala/Int#

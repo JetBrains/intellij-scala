@@ -12,8 +12,8 @@ Document tests/pos/t8301.scala
 (14:10..14:18) _empty_/Universe# -> 1:7
 (14:21..14:24) scala/Predef.`???`().
 (15:10..15:11) _empty_/Test.u. -> 14:7
+(17:12..17:18) _empty_/Universe#Symbol# -> 2:8
 (17:21..17:24) scala/Predef.`???`().
-(18:3..18:3) _empty_/Universe#CompatibleSymbol(). -> 8:18
 (18:3..18:6) _empty_/Test.sym. -> 17:7
 (18:7..18:17) _empty_/Universe#CompatibleSymbol#asFreeType(). -> 9:9
 

@@ -1,6 +1,5 @@
 Document tests/pos/t3622/Test.scala
 (3:20..3:31) test/MyAsyncTask#
-(3:31..3:31) test/MyAsyncTask#`<init>`(+1).
 (4:13..4:17) test/ -> 1:9
 (4:45..4:50) scala/Array#
 (4:51..4:57) scala/Predef.String#

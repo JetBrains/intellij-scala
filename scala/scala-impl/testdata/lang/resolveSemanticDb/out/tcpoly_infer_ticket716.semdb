@@ -9,15 +9,15 @@ Document tests/pos/tcpoly_infer_ticket716.scala
 (6:37..6:41) scala/package.List#
 (6:49..6:56) _empty_/Functor# -> 2:7
 (6:57..6:61) scala/package.List#
-(7:23..7:24) local2 -> 7:14
-(7:28..7:29) local3 -> 7:17
+(7:23..7:24) local0 -> 7:14
+(7:28..7:29) local1 -> 7:17
 (7:36..7:40) scala/package.List#
-(7:41..7:42) local2 -> 7:14
+(7:41..7:42) local0 -> 7:14
 (7:45..7:49) scala/package.List#
-(7:50..7:51) local3 -> 7:17
-(7:55..7:58) local5 -> 7:31
+(7:50..7:51) local1 -> 7:17
+(7:55..7:58) local3 -> 7:31
 (7:59..7:62) scala/collection/immutable/List#map().
-(7:63..7:64) local4 -> 7:20
+(7:63..7:64) local2 -> 7:20
 (10:37..10:38) _empty_/Functor.OOFunctor#[F] -> 10:25
 (10:39..10:40) _empty_/Functor.OOFunctor#[A] -> 10:30
 (10:57..10:64) _empty_/Functor# -> 2:7
@@ -40,16 +40,12 @@ Document tests/pos/tcpoly_infer_ticket716.scala
 (15:91..15:100) _empty_/Functor.OOFunctor# -> 10:15
 (15:101..15:102) _empty_/Functor.lifttoOO().[F] -> 15:25
 (15:103..15:104) _empty_/Functor.lifttoOO().[A] -> 15:30
-(15:105..15:105) _empty_/Functor.OOFunctor#`<init>`(). -> 10:24
 (15:106..15:109) _empty_/Functor.lifttoOO().(arg) -> 15:33
 (15:111..15:114) _empty_/Functor.lifttoOO().(ftr) -> 15:52
 (21:35..21:38) scala/App#
 (22:10..22:17) _empty_/Functor. -> 5:8
 (23:11..23:15) scala/package.List.
-(23:15..23:15) scala/collection/IterableFactory#apply().
-(24:13..24:13) _empty_/Functor.lifttoOO(). -> 15:16
 (24:13..24:14) _empty_/GeneralLiftingDemo.l. -> 23:7
-(24:14..24:14) _empty_/Functor.ListFunctor. -> 6:16
 (24:15..24:19) _empty_/Functor.OOFunctor#fmap(). -> 11:9
 (24:22..24:23) scala/Int#`+`(+4).
 (25:3..25:10) scala/Predef.println(+1).

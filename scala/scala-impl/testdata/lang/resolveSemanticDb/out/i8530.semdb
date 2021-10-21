@@ -5,55 +5,40 @@ Document tests/pos/i8530.scala
 (5:31..5:37) scala/Option#
 (5:38..5:42) scala/Long#
 (5:46..5:50) scala/Some.
-(5:50..5:50) scala/Some.apply().
-(5:51..5:51) scala/Int.int2long().
 (5:51..5:52) _empty_/MyOptionUnapply.unapply().(x) -> 5:22
 (8:25..8:28) scala/Int#
 (8:36..8:49) scala/DummyImplicit#
 (8:52..8:58) scala/Option#
 (8:59..8:63) scala/Long#
 (8:67..8:71) scala/Some.
-(8:71..8:71) scala/Some.apply().
-(8:72..8:72) scala/Int.int2long().
 (8:72..8:73) _empty_/MyUnapplyImplicits.unapply().(x) -> 8:22
 (11:28..11:29) _empty_/MyPolyUnapply.unapply().[T] -> 11:22
 (11:32..11:38) scala/Option#
 (11:39..11:40) _empty_/MyPolyUnapply.unapply().[T] -> 11:22
 (11:44..11:48) scala/Some.
-(11:48..11:48) scala/Some.apply().
 (11:49..11:50) _empty_/MyPolyUnapply.unapply().(x) -> 11:25
 (14:28..14:31) scala/Int#
 (14:34..14:37) scala/package.Seq#
 (14:38..14:41) scala/Int#
 (14:45..14:48) scala/package.Seq.
-(14:48..14:48) scala/collection/SeqFactory.Delegate#apply().
 (14:49..14:50) _empty_/MySeqUnapply.unapplySeq().(x) -> 14:25
 (14:52..14:53) _empty_/MySeqUnapply.unapplySeq().(x) -> 14:25
 (17:37..17:40) scala/Int#
 (17:43..17:49) scala/Option#
 (17:50..17:53) scala/Any#
 (17:57..17:61) scala/Some.
-(17:61..17:61) scala/Some.apply().
 (17:62..17:63) _empty_/MyWhiteboxUnapply.unapply().(x) -> 17:34
 (19:11..19:15) scala/Unit#
-(21:29..21:29) local1 -> 2:14
-(22:28..22:28) local4 -> 5:14
-(22:32..22:33) local7 -> 22:26
+(22:32..22:33) local8 -> 22:26
 (22:35..22:39) scala/Long#
-(23:28..23:28) scala/DummyImplicit.dummyImplicit.
-(23:31..23:31) local8 -> 8:14
-(23:35..23:36) local12 -> 23:29
+(23:35..23:36) local14 -> 23:29
 (23:38..23:42) scala/Long#
-(24:26..24:26) local13 -> 11:14
-(24:30..24:31) local16 -> 24:24
+(24:30..24:31) local19 -> 24:24
 (24:33..24:36) scala/Int#
-(25:28..25:28) local17 -> 14:14
-(25:33..25:33) scala/Tuple2.apply().
-(25:33..25:34) local20 -> 25:23
+(25:33..25:34) local24 -> 25:23
 (25:36..25:39) scala/Int#
-(25:41..25:42) local21 -> 25:26
+(25:41..25:42) local25 -> 25:26
 (25:44..25:47) scala/Int#
-(26:30..26:30) local22 -> 17:26
-(26:34..26:35) local25 -> 26:28
+(26:34..26:35) local30 -> 26:28
 (26:37..26:40) scala/Int#
 

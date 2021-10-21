@@ -5,21 +5,18 @@ Document tests/pos/t0872.scala
 (3:19..3:22) scala/Int#
 (3:30..3:36) scala/Predef.String#
 (3:47..3:48) java/lang/String#`+`().
-(3:49..3:50) local1 -> 3:15
+(3:49..3:50) local0 -> 3:15
 (3:51..3:52) java/lang/String#`+`().
 (3:63..3:64) java/lang/String#`+`().
-(3:65..3:68) local2 -> 3:24
-(4:29..4:30) local4 -> 4:21
+(3:65..3:68) local1 -> 3:24
+(4:29..4:30) local3 -> 4:21
 (4:31..4:37) scala/Predef.String#
 (4:42..4:48) scala/Predef.String#
-(4:51..4:52) local4 -> 4:21
+(4:51..4:52) local3 -> 4:21
 (4:56..4:62) scala/Predef.String#
-(4:68..4:69) local4 -> 4:21
-(4:74..4:75) local5 -> 4:24
-(4:75..4:75) scala/Function2#apply().
-(4:76..4:77) local6 -> 4:66
+(4:68..4:69) local3 -> 4:21
+(4:74..4:75) local4 -> 4:24
+(4:76..4:77) local5 -> 4:66
 (5:5..5:12) scala/Predef.println(+1).
-(5:13..5:13) local3 -> 4:18
-(5:13..5:15) local0 -> 3:9
-(5:15..5:15) scala/Function1#apply().
+(5:13..5:15) local2 -> 3:9
 

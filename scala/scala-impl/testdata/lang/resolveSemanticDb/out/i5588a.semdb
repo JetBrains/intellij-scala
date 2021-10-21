@@ -12,12 +12,11 @@ Document tests/pos/i5588a.scala
 (11:51..11:57) scala/Predef.String#
 (11:60..11:64) scala/Unit#
 (11:69..11:76) _empty_/TestMain.fooExt.`fooExt_=`().(thisFoo) -> 11:16
-(11:77..11:80) _empty_/TestMain.Foo#`foo_=`(). -> 6:22
+(11:77..11:80) _empty_/TestMain.Foo#`foo_=`().
 (11:83..11:88) _empty_/TestMain.fooExt.`fooExt_=`().(value) -> 11:44
 (14:32..14:36) scala/Unit#
 (15:12..15:18) _empty_/TestMain.fooExt. -> 8:10
-(16:15..16:18) _empty_/TestMain.Foo. -> 6:14
-(16:18..16:18) _empty_/TestMain.Foo.apply(). -> 6:3
+(16:15..16:18) _empty_/TestMain.Foo.
 (17:5..17:11) scala/Predef.assert(+1).
 (17:12..17:15) local0 -> 16:9
 (17:16..17:22) _empty_/TestMain.fooExt.fooExt(). -> 10:34

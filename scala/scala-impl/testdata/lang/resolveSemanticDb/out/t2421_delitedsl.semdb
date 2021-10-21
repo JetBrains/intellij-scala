@@ -7,9 +7,8 @@ Document tests/pos/t2421_delitedsl.scala
 (3:43..3:44) _empty_/DeliteDSL#trivial().[A] -> 3:24
 (3:45..3:48) _empty_/DeliteDSL#`<~<`# -> 2:18
 (3:49..3:50) _empty_/DeliteDSL#trivial().[A] -> 3:24
-(3:50..3:50) _empty_/DeliteDSL#`<~<`#`<init>`(). -> 2:21
 (3:66..3:67) _empty_/DeliteDSL#trivial().[A] -> 3:24
-(3:71..3:72) local2 -> 3:63
+(3:71..3:72) local0 -> 3:63
 (7:23..7:24) _empty_/DeliteDSL#Forcible.factory().[T] -> 7:17
 (7:28..7:36) _empty_/DeliteDSL#Forcible# -> 5:9
 (7:37..7:38) _empty_/DeliteDSL#Forcible.factory().[T] -> 7:17
@@ -17,11 +16,9 @@ Document tests/pos/t2421_delitedsl.scala
 (7:50..7:53) _empty_/DeliteDSL#`<~<`# -> 2:18
 (7:54..7:62) _empty_/DeliteDSL#Forcible# -> 5:9
 (7:63..7:64) _empty_/DeliteDSL#Forcible.factory().[T] -> 7:17
-(7:65..7:65) _empty_/DeliteDSL#`<~<`#`<init>`(). -> 2:21
 (7:80..7:81) _empty_/DeliteDSL#Forcible.factory().[T] -> 7:17
 (7:85..7:86) _empty_/DeliteDSL#Forcible.factory().(f) -> 7:20
-(7:86..7:86) scala/Function1#apply().
-(7:87..7:88) local5 -> 7:77
+(7:87..7:88) local4 -> 7:77
 (10:27..10:30) scala/Int#
 (10:40..10:48) _empty_/DeliteDSL#Forcible# -> 5:9
 (10:49..10:52) scala/Int#
@@ -31,8 +28,7 @@ Document tests/pos/t2421_delitedsl.scala
 (11:46..11:49) scala/Int#
 (11:53..11:61) _empty_/DeliteDSL#Forcible. -> 6:10
 (11:62..11:69) _empty_/DeliteDSL#Forcible.factory(). -> 7:9
-(11:70..11:79) _empty_/DeliteDSL#DeliteInt. -> 10:14
-(11:79..11:79) _empty_/DeliteDSL#DeliteInt.apply(). -> 10:3
+(11:70..11:79) _empty_/DeliteDSL#DeliteInt.
 (11:83..11:86) scala/Int#
 (13:37..13:45) scala/package.Iterable#
 (13:46..13:47) _empty_/DeliteDSL#DeliteCollection#[T] -> 13:26
@@ -42,23 +38,13 @@ Document tests/pos/t2421_delitedsl.scala
 (19:55..19:56) _empty_/DeliteDSL#DeliteCollection#headProxy().[P] -> 19:19
 (19:59..19:60) _empty_/DeliteDSL#DeliteCollection#headProxy().[P] -> 19:19
 (19:63..19:64) _empty_/DeliteDSL#DeliteCollection#headProxy().(w) -> 19:46
-(19:64..19:64) scala/Function1#apply().
 (19:65..19:67) _empty_/DeliteDSL#DeliteCollection#xs. -> 13:33
 (19:68..19:72) scala/collection/IterableOps#head().
-(30:33..30:33) _empty_/DeliteDSL#DeliteCollection#`<init>`(). -> 13:25
 (30:34..30:38) scala/package.List.
-(30:38..30:38) scala/collection/IterableFactory#apply().
 (30:47..30:56) _empty_/DeliteDSL#DeliteCollection#headProxy(). -> 19:9
-(30:56..30:56) _empty_/DeliteDSL#forcibleInt. -> 11:16
-(33:40..33:40) _empty_/DeliteDSL#DeliteCollection#`<init>`(). -> 13:25
 (33:41..33:45) scala/package.List.
-(33:45..33:45) scala/collection/IterableFactory#apply().
-(33:46..33:55) _empty_/DeliteDSL#DeliteInt. -> 10:14
-(33:55..33:55) _empty_/DeliteDSL#DeliteInt.apply(). -> 10:3
-(33:59..33:68) _empty_/DeliteDSL#DeliteInt. -> 10:14
-(33:68..33:68) _empty_/DeliteDSL#DeliteInt.apply(). -> 10:3
-(33:72..33:81) _empty_/DeliteDSL#DeliteInt. -> 10:14
-(33:81..33:81) _empty_/DeliteDSL#DeliteInt.apply(). -> 10:3
+(33:46..33:55) _empty_/DeliteDSL#DeliteInt.
+(33:59..33:68) _empty_/DeliteDSL#DeliteInt.
+(33:72..33:81) _empty_/DeliteDSL#DeliteInt.
 (33:87..33:96) _empty_/DeliteDSL#DeliteCollection#headProxy(). -> 19:9
-(33:96..33:96) _empty_/DeliteDSL#trivial(). -> 3:16
 

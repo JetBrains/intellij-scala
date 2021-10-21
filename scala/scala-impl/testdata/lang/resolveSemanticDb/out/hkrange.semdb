@@ -1,7 +1,8 @@
 Document tests/pos/hkrange.scala
+(2:18..2:29) scala/package.Traversable#
+(2:30..2:31) _empty_/A#f().[CC][X] -> 2:12
 (2:37..2:39) _empty_/A#f().[CC] -> 2:9
 (2:40..2:43) scala/Int#
 (4:3..4:4) _empty_/A#f(). -> 2:7
-(4:5..4:5) scala/LowPriorityImplicits#intWrapper().
 (4:7..4:9) scala/runtime/RichInt#to().
 

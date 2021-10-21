@@ -6,7 +6,7 @@ Document tests/pos/compound.scala
 (7:11..7:12) _empty_/A# -> 1:16
 (7:18..7:19) _empty_/B# -> 3:16
 (7:38..7:39) local2 -> 7:27
-(8:3..8:5) _empty_/Test#`xx_=`(). -> 7:7
+(8:3..8:5) _empty_/Test#`xx_=`().
 (8:8..8:10) _empty_/Test#yy(). -> 6:7
 (12:11..12:12) _empty_/A# -> 1:16
 (12:18..12:19) _empty_/B# -> 3:16

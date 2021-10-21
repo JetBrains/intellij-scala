@@ -6,10 +6,8 @@ Document tests/pos/gui.scala
 (4:39..4:44) _empty_/Geom.Point# -> 3:14
 (4:54..4:59) _empty_/Geom.Shape# -> 2:9
 (5:22..5:25) scala/Int#
-(6:7..6:16) _empty_/Geom.Rectangle. -> 4:14
-(6:16..6:16) _empty_/Geom.Rectangle.apply(). -> 4:3
-(6:17..6:22) _empty_/Geom.Point. -> 3:14
-(6:22..6:22) _empty_/Geom.Point.apply(). -> 3:3
+(6:7..6:16) _empty_/Geom.Rectangle.
+(6:17..6:22) _empty_/Geom.Point.
 (6:23..6:25) _empty_/Geom.Rectangle#ll. -> 4:24
 (6:26..6:27) _empty_/Geom.Point#x. -> 3:20
 (6:28..6:29) scala/Int#`-`(+3).
@@ -18,8 +16,7 @@ Document tests/pos/gui.scala
 (6:40..6:41) _empty_/Geom.Point#y. -> 3:28
 (6:42..6:43) scala/Int#`-`(+3).
 (6:44..6:49) _empty_/Geom.Rectangle#inset().(delta) -> 5:15
-(6:52..6:57) _empty_/Geom.Point. -> 3:14
-(6:57..6:57) _empty_/Geom.Point.apply(). -> 3:3
+(6:52..6:57) _empty_/Geom.Point.
 (6:58..6:60) _empty_/Geom.Rectangle#ur. -> 4:35
 (6:61..6:62) _empty_/Geom.Point#x. -> 3:20
 (6:63..6:64) scala/Int#`+`(+4).
@@ -78,8 +75,7 @@ Document tests/pos/gui.scala
 (43:65..43:70) _empty_/GUI.Glyph# -> 37:9
 (44:26..44:27) _empty_/GUI.Label#p. -> 43:28
 (45:19..45:23) _empty_/Geom. -> 1:8
-(45:24..45:33) _empty_/Geom.Rectangle. -> 4:14
-(45:33..45:33) _empty_/Geom.Rectangle.apply(). -> 4:3
+(45:24..45:33) _empty_/Geom.Rectangle.
 (45:34..45:40) _empty_/GUI.Label#origin(). -> 44:17
 (45:42..45:48) _empty_/GUI.Label#origin(). -> 44:17
 (45:50..45:55) _empty_/Geom.Rectangle#inset(). -> 5:9
@@ -101,7 +97,6 @@ Document tests/pos/gui.scala
 (59:22..59:30) _empty_/GUI.MouseCtl# -> 54:9
 (60:18..60:25) scala/Boolean#
 (61:21..61:26) _empty_/GUI.Label# -> 43:9
-(61:26..61:26) _empty_/GUI.Label#`<init>`(). -> 43:14
 (61:27..61:30) _empty_/GUI.Button#scr. -> 58:25
 (61:32..61:33) _empty_/GUI.Button#p. -> 58:38
 (61:35..61:39) _empty_/GUI.Button#name. -> 58:53
@@ -128,7 +123,7 @@ Document tests/pos/gui.scala
 (70:25..70:32) _empty_/GUI.Label#getRect(). -> 45:9
 (70:33..70:38) _empty_/Geom.Rectangle#inset(). -> 5:9
 (73:19..73:26) scala/Boolean#
-(73:43..73:50) _empty_/GUI.Button#`enabled_=`(). -> 60:9
+(73:43..73:50) _empty_/GUI.Button#`enabled_=`().
 (73:53..73:54) _empty_/GUI.Button#enable().(b) -> 73:16
 (73:56..73:60) _empty_/GUI.Button#draw(). -> 64:18
 (74:20..74:25) _empty_/GUI.Button#label. -> 61:9
@@ -150,7 +145,6 @@ Document tests/pos/gui.scala
 (89:66..89:69) _empty_/GUIClient.App# -> 85:9
 (90:11..90:14) _empty_/GUI. -> 31:8
 (90:15..90:21) _empty_/GUI.Button# -> 58:18
-(90:21..90:21) _empty_/GUI.Button#`<init>`(). -> 58:24
 (90:22..90:25) _empty_/GUIClient.QuitButton#scr. -> 89:21
 (90:27..90:28) _empty_/GUIClient.QuitButton#p. -> 89:34
 (90:30..90:34) _empty_/GUIClient.QuitButton#name. -> 89:49
@@ -161,19 +155,15 @@ Document tests/pos/gui.scala
 (94:24..94:30) scala/Predef.String#
 (94:34..94:38) scala/Unit#
 (95:17..95:27) _empty_/GUIClient.QuitButton# -> 89:9
-(95:27..95:27) _empty_/GUIClient.QuitButton#`<init>`(). -> 89:19
 (96:7..96:18) _empty_/DummyScreen. -> 22:8
 (96:20..96:24) _empty_/Geom. -> 1:8
-(96:25..96:30) _empty_/Geom.Point. -> 3:14
-(96:30..96:30) _empty_/Geom.Point.apply(). -> 3:3
+(96:25..96:30) _empty_/Geom.Point.
 (96:50..96:53) _empty_/GUIClient.App# -> 85:9
-(96:53..96:53) _empty_/GUIClient.App#`<init>`(). -> 86:5
 (97:5..97:6) local0 -> 95:9
 (97:7..97:11) _empty_/GUI.Button#draw(). -> 64:18
 (98:5..98:6) local0 -> 95:9
 (98:7..98:13) _empty_/GUI.Button#enable(). -> 73:9
 (98:20..98:29) _empty_/GUI.Button#mouseDown(). -> 75:15
 (98:30..98:34) _empty_/Geom. -> 1:8
-(98:35..98:40) _empty_/Geom.Point. -> 3:14
-(98:40..98:40) _empty_/Geom.Point.apply(). -> 3:3
+(98:35..98:40) _empty_/Geom.Point.
 

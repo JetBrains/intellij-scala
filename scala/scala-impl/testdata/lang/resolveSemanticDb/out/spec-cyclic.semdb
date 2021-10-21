@@ -61,7 +61,6 @@ Document tests/pos/spec-cyclic.scala
 (31:30..31:33) _empty_/Foo# -> 26:7
 (31:34..31:37) scala/Int#
 (31:39..31:42) scala/Int#
-(31:43..31:43) _empty_/Foo#`<init>`(). -> 26:10
 (32:3..32:4) _empty_/Bar#x. -> 31:7
 (32:5..32:10) _empty_/Foo#apply(). -> 27:7
 

@@ -11,7 +11,6 @@ Document tests/pos/t8364.scala
 (9:12..9:16) java/
 (9:17..9:21) java/lang/
 (9:22..9:28) java/lang/String#
-(9:22..9:28) java/lang/String.
 (10:5..10:14) _empty_/MyDynamic. -> 3:8
 (10:14..10:17) _empty_/MyDynamic.selectDynamic(). -> 4:7
 

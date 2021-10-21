@@ -1,15 +1,12 @@
 Document tests/pos/t1014.scala
 (2:20..2:27) _empty_/NodeSeq# -> 1:7
-(2:27..2:27) _empty_/NodeSeq#`<init>`(). -> 1:1
 (4:18..4:21) scala/App#
 (4:27..4:30) _empty_/Moo# -> 12:7
-(7:14..7:14) _empty_/EO#nodeSeqToFlog(). -> 9:16
 (7:14..7:17) scala/Predef.`???`().
 (7:20..7:24) _empty_/Elem# -> 2:7
 (9:34..9:38) _empty_/Elem# -> 2:7
 (9:41..9:45) _empty_/Flog# -> 16:7
 (9:52..9:56) _empty_/Flog# -> 16:7
-(9:56..9:56) _empty_/Flog#`<init>`(). -> 16:11
 (9:57..9:59) _empty_/EO#nodeSeqToFlog().(in) -> 9:30
 (13:12..13:16) _empty_/Flog# -> 16:7
 (16:20..16:27) _empty_/NodeSeq# -> 1:7

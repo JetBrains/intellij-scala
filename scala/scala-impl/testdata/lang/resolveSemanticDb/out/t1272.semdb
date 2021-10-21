@@ -10,6 +10,4 @@ Document tests/pos/t1272.scala
 (8:11..8:13) _empty_/ImplicitTest.fn(). -> 6:7
 (8:14..8:19) scala/Array#
 (8:20..8:24) scala/Byte#
-(8:26..8:26) _empty_/ImplicitTest.a(). -> 3:16
-(8:26..8:26) _empty_/ImplicitTest.i. -> 2:16
 

@@ -2,11 +2,8 @@ Document tests/pos/ops.scala
 (3:13..3:23) scala/Predef.implicitly().
 (3:24..3:32) scala/package.Integral#
 (3:33..3:36) scala/Int#
-(3:38..3:38) scala/math/Numeric.IntIsIntegral.
-(4:13..4:13) local0
 (4:13..4:16) _empty_/Test.num. -> 3:7
 (4:17..4:30) scala/math/Ordering#mkOrderingOps().
 (5:3..5:6) _empty_/Test.ops. -> 4:7
-(5:6..5:6) scala/Function1#apply().
 (5:10..5:11) scala/math/Ordering#OrderingOps#`<`().
 

@@ -54,7 +54,7 @@ Document tests/pos/tuple-flatmap.scala
 (14:64..14:71) scala/Tuple.FlatMap#
 (14:73..14:76) scala/Int#
 (14:78..14:84) scala/Predef.String#
-(14:96..14:97) local7 -> 14:88
+(14:96..14:97) local6 -> 14:88
 (14:99..14:103) scala/package.List#
-(14:104..14:105) local7 -> 14:88
+(14:104..14:105) local6 -> 14:88
 

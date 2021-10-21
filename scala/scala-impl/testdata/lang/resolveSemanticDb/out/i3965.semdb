@@ -9,12 +9,21 @@ Document tests/pos/i3965.scala
 (4:58..4:59) _empty_/SortedSet#[A] -> 4:17
 (4:72..4:81) _empty_/SortedSet# -> 4:7
 (4:82..4:83) _empty_/SortedSet#[A] -> 4:17
+(6:35..6:44) _empty_/SortedSet# -> 4:7
+(6:45..6:46) _empty_/SortedSetOps#`<init>`().[CCss][X] -> 6:29
+(6:55..6:67) _empty_/SortedSetOps# -> 6:7
+(6:68..6:69) _empty_/SortedSetOps#[A] -> 6:20
+(6:71..6:75) _empty_/SortedSetOps#[CCss] -> 6:24
+(6:77..6:78) _empty_/SortedSetOps#[C] -> 6:50
 (9:11..9:20) _empty_/SortedSet# -> 4:7
 (9:21..9:22) _empty_/TreeSet#[A] -> 8:15
 (10:10..10:22) _empty_/SortedSetOps# -> 6:7
 (10:23..10:24) _empty_/TreeSet#[A] -> 8:15
 (10:35..10:42) _empty_/TreeSet# -> 8:7
 (10:43..10:44) _empty_/TreeSet#[A] -> 8:15
+(13:34..13:45) _empty_/IterableOps# -> 2:7
+(13:46..13:47) _empty_/Test#optionSequence1().[CCos][X] -> 13:28
+(13:49..13:53) _empty_/Test#optionSequence1().[CCos] -> 13:23
 (13:66..13:70) _empty_/Test#optionSequence1().[CCos] -> 13:23
 (13:71..13:77) scala/Option#
 (13:78..13:79) _empty_/Test#optionSequence1().[A] -> 13:59
@@ -22,8 +31,14 @@ Document tests/pos/i3965.scala
 (13:91..13:95) _empty_/Test#optionSequence1().[CCos] -> 13:23
 (13:96..13:97) _empty_/Test#optionSequence1().[A] -> 13:59
 (13:102..13:105) scala/Predef.`???`().
+(14:32..14:41) _empty_/SortedSet# -> 4:7
+(14:42..14:43) _empty_/Test#optionSequence1(+1).[CC][X] -> 14:26
+(14:50..14:62) _empty_/SortedSetOps# -> 6:7
+(14:63..14:64) _empty_/Test#optionSequence1(+1).[CC][X] -> 14:26
+(14:66..14:68) _empty_/Test#optionSequence1(+1).[CC] -> 14:23
+(14:70..14:72) _empty_/Test#optionSequence1(+1).[CC] -> 14:23
+(14:73..14:74) _empty_/Test#optionSequence1(+1).[CC][X] -> 14:26
 (14:82..14:90) scala/package.Ordering#
-(14:90..14:90) _empty_/Test#optionSequence1(+1).[A] -> 14:78
 (14:96..14:98) _empty_/Test#optionSequence1(+1).[CC] -> 14:23
 (14:99..14:105) scala/Option#
 (14:106..14:107) _empty_/Test#optionSequence1(+1).[A] -> 14:78
@@ -36,5 +51,4 @@ Document tests/pos/i3965.scala
 (16:32..16:38) scala/Predef.String#
 (17:5..17:20) _empty_/Test#optionSequence1(+1). -> 14:7
 (17:21..17:24) _empty_/Test#test().(xs2) -> 16:12
-(17:25..17:25) scala/math/Ordering.String.
 

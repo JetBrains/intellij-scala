@@ -19,20 +19,16 @@ Document tests/pos/attributes.scala
 (11:26..11:38) _empty_/serializable# -> 1:7
 (13:2..13:14) _empty_/serializable# -> 1:7
 (13:34..13:36) _empty_/C1# -> 3:22
-(13:36..13:36) _empty_/C1#`<init>`(). -> 3:1
 (14:2..14:14) _empty_/serializable# -> 1:7
 (14:16..14:24) scala/volatile#
 (14:43..14:45) _empty_/C2# -> 4:32
-(14:45..14:45) _empty_/C2#`<init>`(). -> 4:1
 (15:2..15:14) _empty_/serializable# -> 1:7
 (15:16..15:24) scala/volatile#
 (15:44..15:46) _empty_/C3# -> 5:32
-(15:46..15:46) _empty_/C3#`<init>`(). -> 5:1
 (16:2..16:14) _empty_/serializable# -> 1:7
 (16:16..16:24) scala/volatile#
 (16:26..16:38) _empty_/serializable# -> 1:7
 (16:57..16:59) _empty_/C4# -> 6:45
-(16:59..16:59) _empty_/C4#`<init>`(). -> 6:1
 (20:4..20:20) scala/SerialVersionUID#
 (21:4..21:20) scala/SerialVersionUID#
 (22:4..22:20) scala/SerialVersionUID#
@@ -65,16 +61,12 @@ Document tests/pos/attributes.scala
 (35:52..35:54) _empty_/C4# -> 6:45
 (39:4..39:16) _empty_/serializable# -> 1:7
 (39:31..39:33) _empty_/C1# -> 3:22
-(39:33..39:33) _empty_/C1#`<init>`(). -> 3:1
 (41:4..41:16) _empty_/serializable# -> 1:7
 (41:30..41:32) _empty_/C2# -> 4:32
-(41:32..41:32) _empty_/C2#`<init>`(). -> 4:1
 (42:4..42:16) _empty_/serializable# -> 1:7
 (42:30..42:32) _empty_/C3# -> 5:32
-(42:32..42:32) _empty_/C3#`<init>`(). -> 5:1
 (43:4..43:16) _empty_/serializable# -> 1:7
 (43:30..43:32) _empty_/C4# -> 6:45
-(43:32..43:32) _empty_/C4#`<init>`(). -> 6:1
 (45:4..45:16) _empty_/serializable# -> 1:7
 (45:26..45:28) _empty_/C1# -> 3:22
 (46:4..46:16) _empty_/serializable# -> 1:7
@@ -153,9 +145,6 @@ Document tests/pos/attributes.scala
 (76:40..76:42) _empty_/myAttrs.a3# -> 59:9
 (77:4..77:6) _empty_/a4# -> 61:7
 (77:7..77:12) scala/Array.
-(77:12..77:12) scala/Array.apply(+5).
 (78:4..78:6) _empty_/a4# -> 61:7
 (78:7..78:12) scala/Array.
-(78:12..78:12) scala/Array.apply().
-(78:14..78:14) scala/reflect/ClassTag.apply().
 

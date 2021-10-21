@@ -6,23 +6,17 @@ Document tests/pos/t5859.scala
 (6:3..6:4) _empty_/A#f(+1). -> 4:7
 (7:3..7:4) _empty_/A#f(+1). -> 4:7
 (7:5..7:9) scala/package.List.
-(7:9..7:9) scala/collection/IterableFactory#apply().
 (7:10..7:16) scala/AnyRef#
 (8:3..8:4) _empty_/A#f(+1). -> 4:7
 (8:5..8:9) scala/package.List.
-(8:9..8:9) scala/collection/IterableFactory#apply().
 (9:3..9:4) _empty_/A#f(+1). -> 4:7
 (9:5..9:8) scala/package.Nil.
 (11:3..11:4) _empty_/A#f(+1). -> 4:7
 (11:5..11:10) scala/Array.
-(11:10..11:10) scala/Array.apply().
 (11:11..11:17) scala/AnyRef#
-(11:20..11:20) scala/reflect/ClassTag.apply().
 (12:3..12:4) _empty_/A#f(). -> 3:7
 (12:5..12:9) scala/package.List.
-(12:9..12:9) scala/collection/IterableFactory#apply().
 (13:3..13:4) _empty_/A#f(). -> 3:7
 (13:5..13:9) scala/package.List.
-(13:9..13:9) scala/collection/IterableFactory#apply().
 (13:14..13:17) scala/package.Nil.
 

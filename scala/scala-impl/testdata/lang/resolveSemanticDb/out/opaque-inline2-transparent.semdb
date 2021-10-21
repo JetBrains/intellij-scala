@@ -18,20 +18,14 @@ Document tests/pos/opaque-inline2-transparent.scala
 (15:10..15:15) _empty_/refined.PositiveFactory#safe().(value) -> 14:33
 (15:16..15:17) scala/Int#`<`(+3).
 (15:25..15:49) java/lang/IllegalArgumentException#
-(15:49..15:49) java/lang/IllegalArgumentException#`<init>`(+1).
-(15:52..15:52) scala/StringContext.apply().
 (15:53..15:58) _empty_/refined.PositiveFactory#safe().(value) -> 14:33
 (15:74..15:75) scala/StringContext#s().
 (16:12..16:17) _empty_/refined.PositiveFactory#safe().(value) -> 14:33
 (16:19..16:27) _empty_/refined.Positive# -> 5:15
-(18:1..18:1) _empty_/`opaque-inline2-transparent$package`.Test(). -> 18:11
-(18:1..18:1) local4
-(18:1..18:1) scala/util/CommandLineParser.showError().
 (18:2..18:6) scala/main#
 (18:17..18:21) scala/Unit#
 (19:10..19:17) _empty_/refined. -> 4:8
 (20:15..20:23) _empty_/refined.Positive. -> 7:10
-(20:23..20:23) _empty_/refined.PositiveFactory#apply(). -> 10:28
 (23:16..23:24) _empty_/refined.Positive. -> 7:10
 (23:25..23:29) _empty_/refined.PositiveFactory#safe(). -> 14:28
 (23:30..23:35) scala/

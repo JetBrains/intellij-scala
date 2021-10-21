@@ -23,7 +23,6 @@ Document tests/pos/spec-short.scala
 (18:22..18:28) _empty_/AbsFun# -> 1:16
 (18:29..18:32) scala/Int#
 (18:34..18:37) scala/Int#
-(18:38..18:38) _empty_/AbsFun#`<init>`(). -> 1:22
 (19:16..19:19) scala/Int#
 (19:22..19:25) scala/Int#
 (19:28..19:29) _empty_/Square#apply().(x) -> 19:13
@@ -39,5 +38,4 @@ Document tests/pos/spec-short.scala
 (24:20..24:23) scala/Int#
 (25:5..25:8) _empty_/Square#sum(). -> 21:7
 (25:9..25:13) scala/package.List.
-(25:13..25:13) scala/collection/IterableFactory#apply().
 

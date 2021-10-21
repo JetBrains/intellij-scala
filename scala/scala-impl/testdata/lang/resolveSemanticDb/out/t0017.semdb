@@ -8,7 +8,6 @@ Document tests/pos/t0017.scala
 (8:7..8:14) _empty_/Quantity#connect(). -> 3:9
 (11:16..11:24) _empty_/Quantity# -> 1:7
 (11:34..11:44) _empty_/Constraint# -> 6:16
-(11:44..11:44) _empty_/Constraint#`<init>`(). -> 6:26
 (11:45..11:46) _empty_/Adder#q. -> 11:13
 (12:20..12:27) scala/Console.
 (12:28..12:35) scala/Console.println(+1).
@@ -18,8 +17,6 @@ Document tests/pos/t0017.scala
 (16:26..16:32) scala/Predef.String#
 (16:36..16:40) scala/Unit#
 (17:21..17:29) _empty_/Quantity# -> 1:7
-(17:29..17:29) _empty_/Quantity#`<init>`(). -> 2:5
 (18:13..18:18) _empty_/Adder# -> 11:7
-(18:18..18:18) _empty_/Adder#`<init>`(). -> 11:12
 (18:19..18:20) local0 -> 17:13
 

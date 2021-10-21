@@ -6,21 +6,17 @@ Document tests/pos/i6900.scala
 (6:34..6:35) _empty_/Test1.i2f().[A] -> 6:20
 (6:43..6:46) _empty_/Test1.Foo# -> 2:9
 (6:47..6:48) _empty_/Test1.i2f().[A] -> 6:20
-(7:17..7:18) local2 -> 7:13
+(7:17..7:18) local0 -> 7:13
 (7:22..7:23) _empty_/Test1.i2f().[A] -> 6:20
 (7:31..7:32) _empty_/Test1.i2f().(a) -> 6:23
-(16:3..16:3) _empty_/Test1.i2f(). -> 6:16
 (16:5..16:8) _empty_/Test1.Foo#foo(). -> 3:9
 (16:9..16:12) _empty_/Test1.Foo#foo(). -> 3:9
-(17:3..17:3) _empty_/Test1.i2f(). -> 6:16
 (17:5..17:8) _empty_/Test1.Foo#foo(). -> 3:9
 (17:9..17:12) _empty_/Test1.Foo#foo(). -> 3:9
 (17:13..17:19) scala/Predef.String#
-(18:3..18:3) _empty_/Test1.i2f(). -> 6:16
 (18:5..18:8) _empty_/Test1.Foo#foo(). -> 3:9
 (18:9..18:15) scala/Predef.String#
 (18:17..18:20) _empty_/Test1.Foo#foo(). -> 3:9
-(19:3..19:3) _empty_/Test1.i2f(). -> 6:16
 (19:5..19:8) _empty_/Test1.Foo#foo(). -> 3:9
 (19:9..19:15) scala/Predef.String#
 (19:17..19:20) _empty_/Test1.Foo#foo(). -> 3:9

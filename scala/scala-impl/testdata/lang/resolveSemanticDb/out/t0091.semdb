@@ -5,6 +5,5 @@ Document tests/pos/t0091.scala
 (4:13..4:28) scala/PartialFunction#
 (4:29..4:32) scala/Any#
 (4:34..4:38) scala/Unit#
-(4:44..4:44) local2
 (4:55..4:58) local0 -> 3:9
 

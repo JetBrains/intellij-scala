@@ -1,44 +1,32 @@
 Document tests/pos/opassign.scala
 (3:14..3:17) scala/Int#
-(5:16..5:21) _empty_/opassign.`count_=`(). -> 3:7
+(5:16..5:21) _empty_/opassign.`count_=`().
 (5:16..5:21) _empty_/opassign.count(). -> 3:7
-(5:21..5:21) scala/Int#`+`(+4).
 (5:28..5:33) _empty_/opassign.count(). -> 3:7
 (7:10..7:13) scala/Int#
-(8:3..8:4) _empty_/opassign.`x_=`(). -> 7:7
+(8:3..8:4) _empty_/opassign.`x_=`().
 (8:3..8:4) _empty_/opassign.x(). -> 7:7
-(8:4..8:4) scala/Int#`+`(+4).
 (10:12..10:15) scala/Int#
 (11:5..11:6) local0 -> 10:9
-(11:6..11:6) scala/Int#`+`(+4).
 (15:12..15:15) scala/Int#
 (15:18..15:29) scala/compiletime/
 (15:30..15:43) scala/compiletime/package$package.uninitialized().
 (17:15..17:18) _empty_/opassign.Ref# -> 14:9
-(17:18..17:18) _empty_/opassign.Ref#`<init>`(). -> 15:5
 (18:3..18:4) _empty_/opassign.r. -> 17:7
-(18:5..18:6) _empty_/opassign.Ref#`x_=`(). -> 15:9
+(18:5..18:6) _empty_/opassign.Ref#`x_=`().
 (18:5..18:6) _empty_/opassign.Ref#x(). -> 15:9
-(18:6..18:6) scala/Int#`+`(+4).
 (20:17..20:22) scala/Array#
 (20:23..20:26) scala/Int#
-(20:27..20:27) scala/Array#`<init>`().
 (21:3..21:6) _empty_/opassign.arr. -> 20:7
-(21:6..21:6) scala/Array#apply().
-(21:6..21:6) scala/Array#update().
-(21:9..21:9) scala/Int#`+`(+4).
 (23:12..23:15) scala/Int#
 (23:18..23:21) _empty_/opassign.Ref# -> 14:9
 (23:28..23:31) _empty_/opassign.Ref# -> 14:9
-(23:31..23:31) _empty_/opassign.Ref#`<init>`(). -> 15:5
 (24:3..24:4) _empty_/opassign.f(). -> 23:7
 (24:5..24:9) _empty_/opassign.next(). -> 5:7
-(24:12..24:12) scala/Int#`+`(+4).
 (26:17..26:27) scala/collection/
 (26:28..26:35) scala/collection/mutable/
 (26:36..26:46) scala/collection/mutable/ListBuffer#
 (26:47..26:50) scala/Int#
-(26:51..26:51) scala/collection/mutable/ListBuffer#`<init>`().
 (27:3..27:6) _empty_/opassign.buf. -> 26:7
 (27:7..27:9) scala/collection/mutable/Growable#`+=`().
 

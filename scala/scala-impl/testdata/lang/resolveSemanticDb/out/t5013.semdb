@@ -1,7 +1,6 @@
 Document tests/pos/t5013/Bar_2.scala
 (3:19..3:20) a/ -> 1:9
 (3:21..3:24) a/Foo# -> 3:7
-(3:24..3:24) a/Foo#`<init>`(). -> 4:3
 (4:3..4:10) scala/Predef.println(+1).
 (4:11..4:12) a/Foo#x(). -> 4:22
 

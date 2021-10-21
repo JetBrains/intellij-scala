@@ -11,6 +11,7 @@ Document tests/pos/t8300-patmat-a.scala
 (11:21..11:24) scala/Predef.`???`().
 (12:10..12:11) _empty_/Test.u. -> 11:7
 (14:3..14:10) scala/Predef.locally().
+(15:20..15:28) _empty_/Universe#TermName# -> 6:8
 (15:31..15:34) scala/Predef.`???`().
 (16:5..16:8) scala/Predef.`???`().
 (17:12..17:21) local0 -> 15:9

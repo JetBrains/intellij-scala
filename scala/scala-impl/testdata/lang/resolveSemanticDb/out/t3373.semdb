@@ -11,10 +11,9 @@ Document tests/pos/t3373.scala
 (8:61..8:66) _empty_/Entry# -> 1:7
 (9:23..9:28) _empty_/Entry# -> 1:7
 (9:38..9:43) _empty_/Entry# -> 1:7
-(9:47..9:47) scala/LowPriorityImplicits#longWrapper().
 (9:47..9:58) _empty_/Test.extractTime(). -> 6:7
-(9:59..9:64) local2 -> 9:16
+(9:59..9:64) local0 -> 9:16
 (9:66..9:73) scala/runtime/OrderedProxy#compare().
 (9:74..9:85) _empty_/Test.extractTime(). -> 6:7
-(9:86..9:92) local3 -> 9:30
+(9:86..9:92) local1 -> 9:30
 

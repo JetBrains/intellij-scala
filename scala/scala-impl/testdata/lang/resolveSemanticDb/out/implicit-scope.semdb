@@ -33,17 +33,13 @@ Document tests/pos/implicit-scope.scala
 (21:12..21:19) _empty_/A.FlagSet# -> 9:8
 (21:22..21:23) _empty_/A. -> 1:8
 (21:24..21:32) _empty_/A.someFlag. -> 8:7
-(22:3..22:3) _empty_/A.bits(). -> 13:9
 (22:3..22:4) _empty_/B.f. -> 21:7
 (24:10..24:18) _empty_/B.Variance# -> 19:8
 (24:21..24:22) _empty_/A. -> 1:8
 (24:23..24:31) _empty_/A.someFlag. -> 8:7
-(25:3..25:3) _empty_/A.bits(). -> 13:9
 (25:3..25:4) _empty_/B.v. -> 24:7
-(27:3..27:3) _empty_/A.bits(). -> 13:9
 (27:3..27:4) _empty_/A. -> 1:8
 (27:5..27:13) _empty_/A.someFlag. -> 8:7
-(29:4..29:4) _empty_/A.bits(). -> 13:9
 (29:8..29:9) _empty_/B.x(). -> 28:7
 (29:10..29:11) scala/Int#`>`(+3).
 (29:15..29:16) _empty_/A. -> 1:8

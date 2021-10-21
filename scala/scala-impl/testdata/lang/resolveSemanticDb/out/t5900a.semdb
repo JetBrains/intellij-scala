@@ -2,8 +2,6 @@ Document tests/pos/t5900a.scala
 (1:29..1:30) _empty_/Transition#[S] -> 1:23
 (6:4..6:7) scala/Predef.`???`().
 (6:10..6:13) scala/Any#
-(7:10..7:20) _empty_/Transition. -> 1:12
-(7:20..7:20) _empty_/Transition.unapply(). -> 1:1
-(7:20..7:20) local0
+(7:10..7:20) _empty_/Transition.
 (7:21..7:22) _empty_/C. -> 3:8
 

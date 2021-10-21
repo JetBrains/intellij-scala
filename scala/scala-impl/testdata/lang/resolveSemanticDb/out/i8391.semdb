@@ -5,9 +5,6 @@ Document tests/pos/i8391.scala
 (4:4..4:14) scala/annotation/targetName#
 (5:16..5:19) _empty_/Foo# -> 3:7
 (5:22..5:25) _empty_/Foo# -> 3:7
-(8:1..8:1) _empty_/i8391$package.Test(). -> 8:11
-(8:1..8:1) local1
-(8:1..8:1) scala/util/CommandLineParser.showError().
 (8:2..8:6) scala/main#
 (9:10..9:13) _empty_/Foo# -> 3:7
 (9:16..9:19) scala/Predef.`???`().

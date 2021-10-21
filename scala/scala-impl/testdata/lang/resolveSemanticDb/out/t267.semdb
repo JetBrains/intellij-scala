@@ -10,7 +10,6 @@ Document tests/pos/t267.scala
 (20:34..20:38) expAbstractData/Base# -> 8:7
 (21:14..21:17) expAbstractData/Base#Exp# -> 11:9
 (22:18..22:21) expAbstractData/Base#Num# -> 14:9
-(22:21..22:21) expAbstractData/Base#Num#`<init>`(). -> 14:12
 (23:3..23:10) scala/Console.
 (23:11..23:18) scala/Console.println(+1).
 (23:19..23:23) expAbstractData/testBase.term. -> 22:7
@@ -33,7 +32,6 @@ Document tests/pos/t267.scala
 (42:15..42:21) scala/Predef.String#
 (44:17..44:20) scala/Int#
 (44:30..44:33) expAbstractData/Base#Num# -> 14:9
-(44:33..44:33) expAbstractData/Base#Num#`<init>`(). -> 14:12
 (44:34..44:35) expAbstractData/Show#Num1#v. -> 44:14
 (44:42..44:46) expAbstractData/Show#Exp1# -> 41:9
 (44:55..44:58) expAbstractData/Show#exp# -> 39:8
@@ -45,7 +43,6 @@ Document tests/pos/t267.scala
 (52:18..52:21) expAbstractData/Show#exp# -> 39:8
 (52:26..52:29) expAbstractData/Show#exp# -> 39:8
 (52:39..52:43) expAbstractData/BasePlus#Plus# -> 29:9
-(52:43..52:43) expAbstractData/BasePlus#Plus#`<init>`(). -> 29:13
 (52:44..52:45) expAbstractData/ShowPlus#Plus1#l. -> 52:15
 (52:47..52:48) expAbstractData/ShowPlus#Plus1#r. -> 52:23
 (52:55..52:59) expAbstractData/Show#Exp1# -> 41:9

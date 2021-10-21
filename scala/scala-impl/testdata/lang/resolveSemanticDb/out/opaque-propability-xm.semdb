@@ -9,7 +9,6 @@ Document tests/pos/opaque-propability-xm.scala
 (6:23..6:24) _empty_/prob.Probability.apply().(n) -> 5:15
 (6:25..6:27) scala/Double#`<=`(+6).
 (6:33..6:37) scala/Some.
-(6:37..6:37) scala/Some.apply().
 (6:38..6:39) _empty_/prob.Probability.apply().(n) -> 5:15
 (6:46..6:50) scala/None.
 (8:19..8:25) scala/Double#
@@ -20,7 +19,6 @@ Document tests/pos/opaque-propability-xm.scala
 (9:24..9:26) scala/Boolean#`&&`().
 (9:27..9:28) _empty_/prob.Probability.unsafe().(p) -> 8:16
 (9:29..9:31) scala/Double#`<=`(+6).
-(9:39..9:39) scala/StringContext.apply().
 (9:73..9:74) _empty_/prob.Probability.unsafe().(p) -> 8:16
 (9:75..9:76) scala/StringContext#s().
 (10:7..10:8) _empty_/prob.Probability.unsafe().(p) -> 8:16
@@ -35,7 +33,6 @@ Document tests/pos/opaque-propability-xm.scala
 (20:7..20:17) scala/Predef.implicitly().
 (20:18..20:26) scala/package.Ordering#
 (20:27..20:33) scala/Double#
-(20:35..20:35) _empty_/prob.Probability.ordering. -> 19:18
 (22:20..22:31) _empty_/prob.Probability# -> 2:15
 (22:47..22:58) _empty_/prob.Probability# -> 2:15
 (22:61..22:68) _empty_/prob.Probability.Certain. -> 17:9
@@ -84,20 +81,15 @@ Document tests/pos/opaque-propability-xm.scala
 (32:56..32:58) _empty_/prob.Probability.toDouble().(p1) -> 32:16
 (35:21..35:32) _empty_/prob.Probability. -> 4:19
 (35:33..35:39) _empty_/prob.Probability.unsafe(). -> 8:9
-(36:22..36:22) _empty_/prob.Probability.`unary_~`(). -> 22:37
 (36:22..36:33) _empty_/prob.caughtTrain. -> 35:7
 (37:19..37:30) _empty_/prob.Probability. -> 4:19
 (37:31..37:39) _empty_/prob.Probability.CoinToss. -> 16:9
-(38:17..38:17) _empty_/prob.Probability.`|`(). -> 24:37
 (38:17..38:28) _empty_/prob.caughtTrain. -> 35:7
-(38:32..38:32) _empty_/prob.Probability.`&`(). -> 23:37
 (38:32..38:43) _empty_/prob.missedTrain. -> 36:7
 (38:46..38:55) _empty_/prob.caughtCab. -> 37:7
 (40:3..40:10) scala/Predef.println(+1).
-(40:12..40:12) scala/LowPriorityImplicits#intWrapper().
 (40:14..40:16) scala/runtime/RichInt#to().
 (40:20..40:23) scala/collection/immutable/Range#map().
-(40:29..40:29) _empty_/prob.Probability.sample(). -> 31:37
 (40:29..40:36) _empty_/prob.arrived. -> 38:7
 (40:47..40:53) scala/collection/IterableOnceOps#toList().
 

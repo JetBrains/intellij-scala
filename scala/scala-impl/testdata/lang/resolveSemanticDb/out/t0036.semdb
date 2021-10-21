@@ -5,6 +5,5 @@ Document tests/pos/t0036.scala
 (4:12..4:15) scala/Int#
 (5:11..5:13) _empty_/m.xs. -> 3:7
 (5:14..5:17) scala/collection/immutable/List#map().
-(5:18..5:18) local0
 (5:18..5:19) _empty_/m.f(). -> 4:7
 

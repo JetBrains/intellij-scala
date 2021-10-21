@@ -3,11 +3,8 @@ Document tests/pos/autoTuplingTest.scala
 (3:18..3:21) scala/Int#
 (3:23..3:26) scala/Int#
 (3:31..3:35) scala/Some.
-(3:35..3:35) scala/Some.apply().
-(3:36..3:36) scala/Tuple2.apply().
 (5:3..5:4) _empty_/autoTupling.x. -> 3:7
 (6:10..6:14) scala/Some.
-(6:14..6:14) scala/Some.unapply().
 (6:24..6:25) local0 -> 6:15
 (6:26..6:27) scala/Int#`+`(+4).
 (6:28..6:29) local1 -> 6:18

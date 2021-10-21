@@ -8,22 +8,18 @@ Document tests/pos/i12264.scala
 (9:24..9:27) _empty_/test1.Html.Tag# -> 4:23
 (9:28..9:31) scala/Int#
 (9:35..9:39) _empty_/test1.Html. -> 3:10
-(9:39..9:39) _empty_/test1.Html.apply(). -> 5:9
 (10:19..10:23) _empty_/test1.Html. -> 3:10
-(10:23..10:23) _empty_/test1.Html.apply(). -> 5:9
 (10:24..10:28) scala/Long#
 (14:19..14:23) _empty_/test1.Html. -> 3:10
 (14:24..14:27) _empty_/test1.Html.Tag# -> 4:23
 (14:28..14:31) scala/Any#
 (16:13..16:17) scala/package.List.
-(16:17..16:17) scala/collection/IterableFactory#apply().
 (16:18..16:24) _empty_/test1.Test.Expect# -> 14:10
 (16:26..16:34) _empty_/test1.HtmlTags. -> 8:10
 (16:35..16:37) _empty_/test1.HtmlTags.br(). -> 9:15
 (16:39..16:47) _empty_/test1.HtmlTags. -> 8:10
 (16:48..16:49) _empty_/test1.HtmlTags.p(). -> 10:15
 (18:13..18:17) scala/package.List.
-(18:17..18:17) scala/collection/IterableFactory#apply().
 (18:18..18:26) _empty_/test1.HtmlTags. -> 8:10
 (18:27..18:29) _empty_/test1.HtmlTags.br(). -> 9:15
 (18:31..18:39) _empty_/test1.HtmlTags. -> 8:10
@@ -38,21 +34,17 @@ Document tests/pos/i12264.scala
 (28:19..28:22) _empty_/test2#Tag# -> 23:8
 (28:23..28:26) scala/Int#
 (28:30..28:34) _empty_/test2#Html. -> 24:10
-(28:34..28:34) _empty_/test2#Html.apply(). -> 25:9
 (29:19..29:23) _empty_/test2#Html. -> 24:10
-(29:23..29:23) _empty_/test2#Html.apply(). -> 25:9
 (29:24..29:28) scala/Long#
 (33:19..33:22) _empty_/test2#Tag# -> 23:8
 (33:23..33:26) scala/Any#
 (35:13..35:17) scala/package.List.
-(35:17..35:17) scala/collection/IterableFactory#apply().
 (35:18..35:24) _empty_/test2#Test.Expect# -> 33:10
 (35:26..35:34) _empty_/test2#HtmlTags. -> 27:10
 (35:35..35:37) _empty_/test2#HtmlTags.br(). -> 28:15
 (35:39..35:47) _empty_/test2#HtmlTags. -> 27:10
 (35:48..35:49) _empty_/test2#HtmlTags.p(). -> 29:15
 (37:13..37:17) scala/package.List.
-(37:17..37:17) scala/collection/IterableFactory#apply().
 (37:18..37:26) _empty_/test2#HtmlTags. -> 27:10
 (37:27..37:29) _empty_/test2#HtmlTags.br(). -> 28:15
 (37:31..37:39) _empty_/test2#HtmlTags. -> 27:10

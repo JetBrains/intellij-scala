@@ -1,16 +1,11 @@
 Document tests/pos/i8833.scala
-(1:1..1:1) _empty_/i8833$package.Test(). -> 1:11
-(1:1..1:1) local0
-(1:1..1:1) scala/util/CommandLineParser.showError().
 (1:2..1:6) scala/main#
 (2:3..2:13) scala/Predef.implicitly().
 (2:19..2:20) scala/`|`#
 (2:26..2:29) scala/`<:<`#
 (2:35..2:36) scala/`|`#
-(2:42..2:42) scala/`<:<`.refl().
 (3:3..3:13) scala/Predef.implicitly().
 (3:19..3:20) scala/`|`#
 (3:26..3:29) scala/`=:=`#
 (3:35..3:36) scala/`|`#
-(3:42..3:42) scala/`<:<`.refl().
 

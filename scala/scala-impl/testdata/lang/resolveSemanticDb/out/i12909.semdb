@@ -28,12 +28,9 @@ Document tests/pos/i12909.scala
 (14:44..14:45) example/Main.x1().[A] -> 14:10
 (14:50..14:53) scala/Predef.`???`().
 (18:7..18:13) scala/Option.
-(18:13..18:13) scala/Option.apply().
 (19:14..19:18) scala/Some.
-(19:18..19:18) scala/Some.unapply().
 (20:11..20:13) example/Main.x1(). -> 14:7
 (20:14..20:21) scala/Boolean#
-(22:11..22:11) example/Main.WriterOps(). -> 10:18
 (22:11..22:17) scala/Option.
 (22:18..22:23) scala/Option.empty().
 (22:24..22:31) scala/Boolean#
@@ -41,17 +38,12 @@ Document tests/pos/i12909.scala
 (22:37..22:43) scala/package.Vector.
 (22:44..22:49) scala/collection/immutable/Vector.empty().
 (22:50..22:56) scala/Predef.String#
-(24:6..24:6) example/Writer#flatMap(). -> 6:7
 (25:11..25:13) example/Main.x1(). -> 14:7
 (25:14..25:20) scala/Predef.String#
-(25:21..25:21) example/Writer#map(). -> 4:7
 (30:18..30:24) scala/Option.
-(30:24..30:24) scala/Option.apply().
 (31:14..31:18) scala/Some.
-(31:18..31:18) scala/Some.unapply().
 (32:11..32:13) example/Main.x1(). -> 14:7
 (32:14..32:21) scala/Boolean#
-(34:11..34:11) example/Main.WriterOps(). -> 10:18
 (34:11..34:17) scala/Option.
 (34:18..34:23) scala/Option.empty().
 (34:24..34:31) scala/Boolean#
@@ -59,9 +51,7 @@ Document tests/pos/i12909.scala
 (34:37..34:43) scala/package.Vector.
 (34:44..34:49) scala/collection/immutable/Vector.empty().
 (34:50..34:56) scala/Predef.String#
-(37:7..37:11) local3 -> 30:11
-(38:6..38:6) example/Writer#flatMap(). -> 6:7
+(37:7..37:11) local4 -> 30:11
 (39:11..39:13) example/Main.x1(). -> 14:7
 (39:14..39:20) scala/Predef.String#
-(39:21..39:21) example/Writer#map(). -> 4:7
 

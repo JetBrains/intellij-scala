@@ -9,5 +9,4 @@ Document tests/pos/i3343.scala
 (4:10..4:14) scala/package.List#
 (4:15..4:19) scala/Char#
 (4:23..4:26) _empty_/Test.foo(). -> 2:7
-(4:26..4:26) scala/Predef.$conforms().
 

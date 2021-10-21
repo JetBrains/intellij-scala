@@ -6,7 +6,6 @@ Document tests/pos/gen-traversable-methods.scala
 (11:14..11:28) scala/collection/package.GenTraversable#
 (11:29..11:32) scala/Int#
 (11:36..11:40) scala/package.List.
-(11:40..11:40) scala/collection/IterableFactory#apply().
 (12:5..12:8) local0 -> 11:9
 (12:9..12:13) scala/collection/IterableOps#head().
 (13:5..13:8) local0 -> 11:9

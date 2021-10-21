@@ -13,7 +13,6 @@ Document tests/pos/8313.scala
 (5:25..5:27) scala/`*:`#
 (5:28..5:30) _empty_/Test.DU# -> 2:8
 (5:31..5:33) local2 -> 5:16
-(8:4..8:4) scala/Tuple2.apply().
 (8:11..8:13) _empty_/Test.DU# -> 2:8
 (8:14..8:17) scala/Int#
 (8:18..8:20) scala/`*:`#

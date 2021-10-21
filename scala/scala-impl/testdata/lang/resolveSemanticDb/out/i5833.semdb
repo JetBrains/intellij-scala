@@ -5,26 +5,22 @@ Document tests/pos/i5833.scala
 (3:14..3:17) scala/Int#
 (3:23..3:26) scala/Int#
 (3:29..3:30) _empty_/Dependent.x(). -> 2:7
-(3:30..3:30) scala/ContextFunction1#apply().
 (6:10..6:13) scala/Int#
 (6:18..6:21) scala/Int#
 (6:24..6:27) scala/Predef.`???`().
 (7:10..7:13) scala/Int#
 (7:18..7:21) scala/Int#
 (7:24..7:25) _empty_/Independent.x(). -> 6:7
-(7:25..7:25) scala/ContextFunction1#apply().
 (10:10..10:13) scala/Int#
 (10:18..10:21) scala/Int#
 (10:24..10:27) scala/Predef.`???`().
 (11:14..11:17) scala/Int#
 (11:23..11:26) scala/Int#
 (11:29..11:30) _empty_/NarrowDependent.x(). -> 10:7
-(11:30..11:30) scala/ContextFunction1#apply().
 (14:14..14:17) scala/Int#
 (14:23..14:26) scala/Int#
 (14:29..14:32) scala/Predef.`???`().
 (15:10..15:13) scala/Int#
 (15:18..15:21) scala/Int#
 (15:24..15:25) _empty_/WidenDependent.x(). -> 14:7
-(15:25..15:25) scala/ContextFunction1#apply().
 

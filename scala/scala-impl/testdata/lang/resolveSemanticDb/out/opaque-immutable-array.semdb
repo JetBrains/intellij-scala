@@ -9,11 +9,9 @@ Document tests/pos/opaque-immutable-array.scala
 (5:28..5:33) scala/Array#
 (5:34..5:36) _empty_/ia.IArray#[A1] -> 5:22
 (8:18..8:26) scala/reflect/ClassTag#
-(8:26..8:26) _empty_/ia.IArray.apply().[A] -> 8:15
 (8:32..8:33) _empty_/ia.IArray.apply().[A] -> 8:15
 (8:38..8:48) _empty_/ia.IArray.initialize(). -> 10:9
 (8:49..8:54) scala/Array.
-(8:54..8:54) scala/Array.apply().
 (8:55..8:57) _empty_/ia.IArray.apply().(xs) -> 8:28
 (10:32..10:37) scala/Array#
 (10:38..10:39) _empty_/ia.IArray.initialize().[A] -> 10:20
@@ -30,12 +28,10 @@ Document tests/pos/opaque-immutable-array.scala
 (12:34..12:37) scala/Int#
 (12:40..12:41) _empty_/ia.IArray.get().[A] -> 12:13
 (12:44..12:46) _empty_/ia.IArray.get().(ia) -> 12:16
-(12:46..12:46) scala/Array#apply().
 (12:47..12:48) _empty_/ia.IArray.get().(i) -> 12:31
 (15:21..15:27) scala/AnyRef#
 (15:30..15:34) scala/math/
 (15:35..15:43) scala/math/Ordering#
-(15:43..15:43) _empty_/ia.IArray.sorted().[A] -> 15:16
 (15:49..15:55) _empty_/ia.IArray# -> 5:15
 (15:56..15:57) _empty_/ia.IArray.sorted().[A] -> 15:16
 (15:61..15:67) _empty_/ia.IArray# -> 5:15
@@ -62,13 +58,10 @@ Document tests/pos/opaque-immutable-array.scala
 (26:5..26:11) scala/Predef.assert(+1).
 (26:12..26:16) _empty_/ia.IArray.size(). -> 11:9
 (26:17..26:22) _empty_/ia.IArray.apply(). -> 8:9
-(26:31..26:31) scala/reflect/ClassTag.apply().
 (26:33..26:35) scala/Int#`==`(+3).
 (27:5..27:11) scala/Predef.assert(+1).
 (27:12..27:16) _empty_/ia.IArray.size(). -> 11:9
 (27:17..27:23) _empty_/ia.IArray. -> 7:10
-(27:23..27:23) _empty_/ia.IArray.apply(). -> 8:9
-(27:32..27:32) scala/reflect/ClassTag.apply().
 (27:34..27:36) scala/Int#`==`(+3).
 (34:25..34:31) _empty_/ia.IArray# -> 5:15
 (34:32..34:36) scala/Long#
@@ -94,7 +87,6 @@ Document tests/pos/opaque-immutable-array.scala
 (41:13..41:15) scala/Long#`==`(+4).
 (41:16..41:20) _empty_/ia.binaryIndexOf().(elem) -> 34:39
 (41:29..41:35) local3 -> 38:11
-(41:35..41:35) _empty_/ia.binaryIndexOf(). -> 34:7
 (42:16..42:17) local4 -> 39:11
 (42:18..42:19) scala/Long#`<`(+4).
 (42:20..42:24) _empty_/ia.binaryIndexOf().(elem) -> 34:39
@@ -105,6 +97,5 @@ Document tests/pos/opaque-immutable-array.scala
 (43:20..43:26) local3 -> 38:11
 (43:27..43:28) scala/Int#`-`(+3).
 (45:6..45:11) local1 -> 35:9
-(45:11..45:11) scala/Int#`unary_-`().
 (45:12..45:13) scala/Int#`-`(+3).
 

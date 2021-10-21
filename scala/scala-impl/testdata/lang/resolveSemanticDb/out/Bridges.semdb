@@ -9,7 +9,6 @@ Document tests/pos/Bridges.scala
 (4:19..4:20) _empty_/X#go1().(x) -> 4:11
 (7:17..7:18) _empty_/X# -> 1:16
 (7:19..7:22) scala/Int#
-(7:23..7:23) _empty_/X#`<init>`(). -> 1:17
 (8:23..8:26) scala/Int#
 (8:31..8:34) scala/Int#
 (10:23..10:26) scala/Int#

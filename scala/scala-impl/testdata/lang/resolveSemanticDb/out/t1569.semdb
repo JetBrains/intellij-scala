@@ -6,10 +6,8 @@ Document tests/pos/t1569.scala
 (4:34..4:38) scala/Unit#
 (5:3..5:6) _empty_/Bug.foo(). -> 4:7
 (5:14..5:15) _empty_/Bug.C# -> 3:9
-(5:15..5:15) _empty_/Bug.C#`<init>`(). -> 3:13
 (5:27..5:33) scala/Predef.String#
 (9:19..9:20) _empty_/Bug2.C# -> 8:9
-(9:20..9:20) _empty_/Bug2.C#`<init>`(). -> 8:13
 (9:32..9:38) scala/Predef.String#
 (10:14..10:17) scala/Int#
 (10:22..10:23) _empty_/Bug2.C# -> 8:9
@@ -18,5 +16,4 @@ Document tests/pos/t1569.scala
 (10:34..10:38) scala/Unit#
 (11:3..11:6) _empty_/Bug2.foo(). -> 10:7
 (11:14..11:15) _empty_/Bug2.D# -> 9:9
-(11:15..11:15) _empty_/Bug2.D#`<init>`(). -> 9:19
 

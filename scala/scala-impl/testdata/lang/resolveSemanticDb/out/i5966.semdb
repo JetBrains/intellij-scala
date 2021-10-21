@@ -7,12 +7,6 @@ Document tests/pos/i5966.scala
 (3:16..3:19) scala/Int#
 (5:3..5:6) _empty_/Test.foo(). -> 2:7
 (5:7..5:12) scala/ContextFunction1#apply().
-(5:12..5:12) _empty_/Test.myInt. -> 3:9
-(5:12..5:12) scala/Function1#apply().
 (6:3..6:6) _empty_/Test.foo(). -> 2:7
-(6:6..6:6) scala/ContextFunction1#apply().
 (7:3..7:6) _empty_/Test.foo(). -> 2:7
-(7:6..7:6) _empty_/Test.myInt. -> 3:9
-(7:6..7:6) scala/ContextFunction1#apply().
-(7:6..7:6) scala/Function1#apply().
 

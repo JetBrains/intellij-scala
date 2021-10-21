@@ -1,6 +1,5 @@
 Document tests/pos/indent2.scala
 (6:15..6:16) _empty_/testindent.C# -> 3:9
-(6:16..6:16) _empty_/testindent.C#`<init>`(). -> 4:5
 (7:8..7:9) scala/Int#`>`(+3).
 (7:10..7:11) _empty_/testindent.c. -> 6:7
 (7:12..7:13) _empty_/testindent.C#x. -> 4:9

@@ -3,7 +3,8 @@ Document tests/pos/spec-fields-old.scala
 (1:36..1:41) scala/
 (1:42..1:49) scala/reflect/
 (1:50..1:63) scala/reflect/package.ClassManifest#
-(1:63..1:63) _empty_/Foo#[T] -> 1:33
+(1:70..1:77) scala/package.Ordered#
+(1:78..1:79) _empty_/Foo#[U] -> 1:65
 (1:85..1:86) _empty_/Foo#[T] -> 1:33
 (1:94..1:97) scala/Int#
 (2:10..2:11) _empty_/Foo#[T] -> 1:33
@@ -15,6 +16,6 @@ Document tests/pos/spec-fields-old.scala
 (6:42..6:46) _empty_/Foo#size. -> 1:88
 (8:14..8:15) _empty_/Foo#z(). -> 3:7
 (9:16..9:17) _empty_/Foo#[T] -> 1:33
-(9:21..9:22) _empty_/Foo#`z_=`(). -> 3:7
+(9:21..9:22) _empty_/Foo#`z_=`().
 (9:25..9:27) _empty_/Foo#setZ().(zz) -> 9:12
 

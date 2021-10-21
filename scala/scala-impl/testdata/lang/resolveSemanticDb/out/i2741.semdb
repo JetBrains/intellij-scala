@@ -10,7 +10,6 @@ Document tests/pos/i2741.scala
 (7:46..7:53) _empty_/Result.ResultF# -> 2:8
 (7:54..7:55) _empty_/Result.ResultFunctions#[A] -> 7:34
 (7:66..7:72) scala/AnyVal#
-(7:72..7:72) scala/AnyVal#`<init>`().
 (8:19..8:20) _empty_/Result.ResultFunctions#[A] -> 7:34
 (8:24..8:25) _empty_/Result.ResultFunctions#map().[B] -> 8:13
 (8:28..8:35) _empty_/Result.ResultF# -> 2:8
@@ -20,12 +19,10 @@ Document tests/pos/i2741.scala
 (9:28..9:32) local0 -> 9:12
 (10:15..10:16) _empty_/Result.ResultFunctions#[A] -> 7:34
 (10:20..10:21) _empty_/Result.ResultFunctions#map().(f) -> 8:16
-(10:21..10:21) scala/Function1#apply().
 (10:22..10:23) local1 -> 10:12
 (13:47..13:55) _empty_/Result.ResultF2# -> 3:8
 (13:56..13:57) _empty_/Result.ResultFunctions2#[A] -> 13:35
 (13:68..13:74) scala/AnyVal#
-(13:74..13:74) scala/AnyVal#`<init>`().
 (14:19..14:20) _empty_/Result.ResultFunctions2#[A] -> 13:35
 (14:24..14:25) _empty_/Result.ResultFunctions2#map().[B] -> 14:13
 (14:28..14:35) _empty_/Result.ResultF# -> 2:8

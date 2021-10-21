@@ -3,23 +3,20 @@ Document tests/pos/implicit-match-nested.scala
 (2:22..2:32) scala/compiletime/package$package.summonFrom().
 (7:19..7:20) _empty_/`implicit-match-nested`.A# -> 4:14
 (7:21..7:24) scala/Int#
-(7:28..7:29) _empty_/`implicit-match-nested`.A. -> 4:14
-(7:29..7:29) _empty_/`implicit-match-nested`.A.apply(). -> 4:3
+(7:28..7:29) _empty_/`implicit-match-nested`.A.
 (7:30..7:33) scala/Int#
 (8:20..8:21) _empty_/`implicit-match-nested`.B# -> 5:14
 (8:22..8:25) scala/Int#
-(8:29..8:30) _empty_/`implicit-match-nested`.B. -> 5:14
-(8:30..8:30) _empty_/`implicit-match-nested`.B.apply(). -> 5:3
+(8:29..8:30) _empty_/`implicit-match-nested`.B.
 (8:31..8:34) scala/Int#
 (9:20..9:21) _empty_/`implicit-match-nested`.B# -> 5:14
 (9:22..9:28) scala/Predef.String#
-(9:32..9:33) _empty_/`implicit-match-nested`.B. -> 5:14
-(9:33..9:33) _empty_/`implicit-match-nested`.B.apply(). -> 5:3
+(9:32..9:33) _empty_/`implicit-match-nested`.B.
 (9:34..9:40) scala/Predef.String#
 (11:35..11:36) _empty_/`implicit-match-nested`.B# -> 5:14
 (13:15..13:16) _empty_/`implicit-match-nested`.A# -> 4:14
 (15:19..15:20) _empty_/`implicit-match-nested`.B# -> 5:14
 (15:21..15:24) local0 -> 13:17
-(15:29..15:30) local1 -> 15:16
+(15:29..15:30) local2 -> 15:16
 (19:3..19:10) _empty_/`implicit-match-nested`.locateB(). -> 11:26
 

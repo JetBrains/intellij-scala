@@ -49,5 +49,4 @@ Document tests/pos/i7840.scala
 (16:55..16:61) scala/Predef.String#
 (16:63..16:64) local0 -> 16:31
 (16:65..16:73) scala/Any#toString().
-(16:75..16:75) scala/`<:<`.refl().
 

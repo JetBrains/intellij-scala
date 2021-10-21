@@ -30,8 +30,8 @@ Document tests/pos/pickleTypes.scala
 (10:39..10:45) scala/Predef.String#
 (10:56..10:62) scala/Predef.String#
 (10:65..10:71) scala/Predef.String#
-(10:85..10:86) local12 -> 10:79
+(10:85..10:86) local11 -> 10:79
 (10:91..10:92) local7 -> 10:20
-(10:95..10:96) local12 -> 10:79
+(10:95..10:96) local11 -> 10:79
 (10:101..10:104) scala/Predef.`???`().
 

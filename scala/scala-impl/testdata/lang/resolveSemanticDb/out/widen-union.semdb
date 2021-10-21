@@ -22,8 +22,6 @@ Document tests/pos/widen-union.scala
 (12:8..12:10) _empty_/Test2.consistentLists().(xs) -> 11:23
 (12:11..12:22) scala/collection/immutable/List#corresponds().
 (12:23..12:25) _empty_/Test2.consistentLists().(ys) -> 11:38
-(12:27..12:27) local0
-(12:27..12:27) local1
 (12:27..12:37) _empty_/Test2.consistent(). -> 9:7
 (13:5..13:7) scala/Boolean#`||`().
 (13:8..13:10) _empty_/Test2.consistentLists().(xs) -> 11:23

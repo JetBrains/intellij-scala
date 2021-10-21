@@ -11,20 +11,14 @@ Document tests/pos/sudoku.scala
 (7:31..7:36) scala/Array.
 (7:37..7:45) scala/Array.tabulate().
 (7:53..7:56) scala/Int#
-(7:61..7:61) scala/Predef.augmentString().
 (7:61..7:69) scala/io/StdIn#readLine().
 (7:70..7:77) scala/collection/StringOps#toArray().
-(7:77..7:77) scala/reflect/ClassTag.apply().
-(7:78..7:78) scala/reflect/ClassTag#wrap().
 (10:17..10:24) scala/Predef.println(+1).
-(10:30..10:30) scala/Predef.refArrayOps().
 (10:30..10:31) _empty_/SudokuSolver.m(). -> 7:7
 (10:32..10:35) scala/collection/ArrayOps#map().
 (10:45..10:52) scala/Predef.println(+1).
 (10:57..10:63) scala/Predef.String#
-(10:63..10:63) java/lang/String#`<init>`(+2).
 (10:64..10:68) local1 -> 10:37
-(10:70..10:70) scala/reflect/ClassTag.Unit.
 (15:18..15:21) scala/Int#
 (15:26..15:29) scala/Int#
 (15:34..15:37) scala/Int#
@@ -34,30 +28,24 @@ Document tests/pos/sudoku.scala
 (16:6..16:7) scala/Int#`<`(+3).
 (16:9..16:11) scala/Boolean#`&&`().
 (16:13..16:14) _empty_/SudokuSolver.m(). -> 7:7
-(16:14..16:14) scala/Array#apply().
 (16:15..16:16) _empty_/SudokuSolver.invalid().(y) -> 15:31
-(16:17..16:17) scala/Array#apply().
 (16:18..16:19) _empty_/SudokuSolver.invalid().(i) -> 15:15
 (16:21..16:23) scala/Char#`==`(+2).
 (16:24..16:25) _empty_/SudokuSolver.invalid().(n) -> 15:39
 (16:26..16:28) scala/Boolean#`||`().
 (16:29..16:30) _empty_/SudokuSolver.m(). -> 7:7
-(16:30..16:30) scala/Array#apply().
 (16:31..16:32) _empty_/SudokuSolver.invalid().(i) -> 15:15
-(16:33..16:33) scala/Array#apply().
 (16:34..16:35) _empty_/SudokuSolver.invalid().(x) -> 15:23
 (16:37..16:39) scala/Char#`==`(+2).
 (16:40..16:41) _empty_/SudokuSolver.invalid().(n) -> 15:39
 (16:42..16:44) scala/Boolean#`||`().
 (17:7..17:8) _empty_/SudokuSolver.m(). -> 7:7
-(17:8..17:8) scala/Array#apply().
 (17:9..17:10) _empty_/SudokuSolver.invalid().(y) -> 15:31
 (17:10..17:11) scala/Int#`/`(+3).
 (17:12..17:13) scala/Int#`*`(+3).
 (17:15..17:16) scala/Int#`+`(+4).
 (17:17..17:18) _empty_/SudokuSolver.invalid().(i) -> 15:15
 (17:18..17:19) scala/Int#`/`(+3).
-(17:21..17:21) scala/Array#apply().
 (17:22..17:23) _empty_/SudokuSolver.invalid().(x) -> 15:23
 (17:23..17:24) scala/Int#`/`(+3).
 (17:25..17:26) scala/Int#`*`(+3).
@@ -87,7 +75,6 @@ Document tests/pos/sudoku.scala
 (22:25..22:29) _empty_/SudokuSolver.fold(). -> 21:7
 (22:30..22:31) _empty_/SudokuSolver.fold().(f) -> 21:12
 (22:33..22:34) _empty_/SudokuSolver.fold().(f) -> 21:12
-(22:34..22:34) scala/Function2#apply().
 (22:35..22:39) _empty_/SudokuSolver.fold().(accu) -> 21:34
 (22:41..22:42) _empty_/SudokuSolver.fold().(l) -> 21:45
 (22:45..22:46) _empty_/SudokuSolver.fold().(l) -> 21:45
@@ -99,24 +86,17 @@ Document tests/pos/sudoku.scala
 (29:40..29:43) scala/Int#
 (29:51..29:54) scala/Int#
 (29:57..29:60) scala/Int#
-(29:64..29:64) scala/Tuple2.apply().
 (29:64..29:65) _empty_/SudokuSolver.search().(x) -> 29:14
 (29:67..29:68) _empty_/SudokuSolver.search().(y) -> 29:21
-(30:11..30:11) scala/Tuple2.unapply().
 (30:20..30:26) _empty_/SudokuSolver.search(). -> 29:7
 (30:30..30:31) local2 -> 30:14
 (30:32..30:33) scala/Int#`+`(+4).
 (30:37..30:38) _empty_/SudokuSolver.search().(f) -> 29:28
 (30:40..30:44) _empty_/SudokuSolver.search().(accu) -> 29:45
-(31:11..31:11) scala/Tuple2.unapply().
 (31:20..31:21) _empty_/SudokuSolver.search().(f) -> 29:28
-(31:21..31:21) scala/Function1#apply().
 (31:22..31:26) _empty_/SudokuSolver.search().(accu) -> 29:45
-(32:11..32:11) scala/Tuple2.unapply().
 (32:24..32:25) _empty_/SudokuSolver.m(). -> 7:7
-(32:25..32:25) scala/Array#apply().
 (32:26..32:27) local4 -> 32:14
-(32:28..32:28) scala/Array#apply().
 (32:29..32:30) local3 -> 32:11
 (32:32..32:34) scala/Char#`!=`(+2).
 (32:40..32:46) _empty_/SudokuSolver.search(). -> 29:7
@@ -136,9 +116,7 @@ Document tests/pos/sudoku.scala
 (34:42..34:48) scala/Int#toChar().
 (34:51..34:55) local5 -> 33:13
 (35:14..35:15) _empty_/SudokuSolver.m(). -> 7:7
-(35:15..35:15) scala/Array#apply().
 (35:16..35:17) local4 -> 32:14
-(35:18..35:18) scala/Array#update().
 (35:19..35:20) local3 -> 32:11
 (35:25..35:26) local6 -> 33:24
 (35:27..35:28) scala/Int#`+`(+4).
@@ -150,9 +128,7 @@ Document tests/pos/sudoku.scala
 (36:45..36:46) _empty_/SudokuSolver.search().(f) -> 29:28
 (36:48..36:52) local5 -> 33:13
 (37:14..37:15) _empty_/SudokuSolver.m(). -> 7:7
-(37:15..37:15) scala/Array#apply().
 (37:16..37:17) local4 -> 32:14
-(37:18..37:18) scala/Array#update().
 (37:19..37:20) local3 -> 32:11
 (38:14..38:21) local7 -> 36:18
 (38:24..38:28) _empty_/SudokuSolver.search().(accu) -> 29:45

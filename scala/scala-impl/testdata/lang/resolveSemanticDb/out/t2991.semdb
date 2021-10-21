@@ -19,12 +19,10 @@ Document tests/pos/t2991.scala
 (8:41..8:49) scala/Any#toString().
 (12:10..12:16) scala/AnyRef#
 (13:18..13:19) _empty_/X# -> 1:7
-(13:19..13:19) _empty_/X#`<init>`(). -> 2:3
 (14:3..14:7) _empty_/Test.res0. -> 13:7
 (14:8..14:9) _empty_/X#f(). -> 2:7
 (14:10..14:11) _empty_/Test.x. -> 12:7
 (15:18..15:19) _empty_/Y# -> 6:7
-(15:19..15:19) _empty_/Y#`<init>`(). -> 7:3
 (16:3..16:7) _empty_/Test.res1. -> 15:7
 (16:8..16:9) _empty_/Y#f(). -> 7:7
 

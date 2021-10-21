@@ -9,5 +9,4 @@ Document tests/pos/t5846.scala
 (8:74..8:79) scala/collection/SortedMapFactory.Delegate#empty().
 (8:80..8:86) scala/Predef.String#
 (8:88..8:94) scala/Predef.String#
-(8:95..8:95) scala/math/Ordering.String.
 

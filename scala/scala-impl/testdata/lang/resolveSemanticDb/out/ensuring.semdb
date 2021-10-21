@@ -1,6 +1,5 @@
 Document tests/pos/ensuring.scala
 (3:14..3:17) scala/Int#
-(3:21..3:21) scala/Predef.Ensuring().
 (3:21..3:22) _empty_/test.foo().(x) -> 3:11
 (3:23..3:24) scala/Int#`+`(+4).
 (3:27..3:35) scala/Predef.Ensuring#ensuring(+2).

@@ -1,6 +1,7 @@
 Document tests/pos/10510.scala
 (2:26..2:30) _empty_/Bool# -> 1:14
 (3:27..3:31) _empty_/Bool# -> 1:14
+(5:25..5:29) _empty_/Bool# -> 1:14
 (6:27..6:32) _empty_/SBool# -> 5:14
 (6:33..6:37) _empty_/True. -> 2:13
 (7:28..7:33) _empty_/SBool# -> 5:14

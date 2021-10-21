@@ -1,4 +1,5 @@
 Document tests/pos/t7694.scala
+(4:19..4:21) _empty_/L#[A2] -> 4:9
 (5:14..5:17) scala/Any#
 (5:22..5:25) scala/Any#
 (10:14..10:15) _empty_/L# -> 4:7

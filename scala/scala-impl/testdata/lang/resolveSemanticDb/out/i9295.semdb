@@ -11,7 +11,6 @@ Document tests/pos/i9295.scala
 (8:37..8:40) scala/Int#
 (8:44..8:47) scala/Predef.`???`().
 (11:15..11:18) _empty_/Foo# -> 3:7
-(11:18..11:18) _empty_/Foo#`<init>`(). -> 3:19
 (12:11..12:14) _empty_/i9295$package.foo. -> 11:5
 (12:14..12:19) _empty_/Foo#applyDynamic(). -> 4:7
 (12:19..12:27) _empty_/Bar#applyDynamic(). -> 8:7

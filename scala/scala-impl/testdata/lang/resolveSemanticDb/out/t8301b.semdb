@@ -10,6 +10,7 @@ Document tests/pos/t8301b.scala
 (11:10..11:18) _empty_/Universe# -> 2:7
 (11:21..11:24) scala/Predef.`???`().
 (12:10..12:11) _empty_/Test.u. -> 11:7
+(14:18..14:26) _empty_/Universe#TermName# -> 6:8
 (14:29..14:32) scala/Predef.`???`().
 (15:3..15:10) scala/Predef.locally().
 (17:5..17:8) scala/Predef.`???`().

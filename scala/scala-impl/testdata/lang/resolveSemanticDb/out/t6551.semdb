@@ -8,8 +8,8 @@ Document tests/pos/t6551.scala
 (5:29..5:36) scala/Dynamic#
 (6:35..6:41) scala/Predef.String#
 (6:45..6:48) scala/Predef.`???`().
-(9:23..9:29) local0 -> 5:11
+(9:23..9:29) local3 -> 5:11
 (9:30..9:31) local5 -> 9:14
-(11:14..11:18) local4 -> 9:9
+(11:14..11:18) local6 -> 9:9
 (11:19..11:25) scala/Predef.String#
 

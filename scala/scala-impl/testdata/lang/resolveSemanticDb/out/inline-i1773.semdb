@@ -5,23 +5,15 @@ Document tests/pos/inline-i1773.scala
 (4:38..4:41) scala/Any#
 (4:43..4:46) scala/Any#
 (5:9..5:13) scala/Some.
-(5:13..5:13) scala/Some.apply().
-(5:15..5:15) scala/Tuple2.apply().
 (5:15..5:17) _empty_/Test.Foo#sc. -> 2:22
 (5:18..5:23) scala/StringContext#parts.
-(5:23..5:23) scala/collection/SeqOps#apply().
 (5:28..5:30) _empty_/Test.Foo#sc. -> 2:22
 (5:31..5:36) scala/StringContext#parts.
-(5:36..5:36) scala/collection/SeqOps#apply().
 (9:18..9:23) scala/Array#
 (9:24..9:30) scala/Predef.String#
 (9:34..9:38) scala/Unit#
-(10:11..10:11) _empty_/Test.Foo(). -> 2:18
-(10:11..10:11) scala/StringContext.apply().
 (10:38..10:39) _empty_/Test.Foo#q. -> 3:12
-(10:39..10:39) _empty_/Test.Foo#q.unapply(). -> 4:11
 (10:46..10:52) java/lang/Object#
-(10:52..10:52) java/lang/Object#`<init>`().
 (11:5..11:12) scala/Predef.println(+1).
 (11:13..11:17) local0 -> 10:18
 (12:5..12:12) scala/Predef.println(+1).

@@ -1,7 +1,6 @@
 Document tests/pos/inline-case-intrinsics.scala
 (2:31..2:37) scala/Predef.String#
-(12:13..12:15) _empty_/Trait#CC. -> 2:22
-(12:15..12:15) _empty_/Trait#CC.apply(). -> 2:3
+(12:13..12:15) _empty_/Trait#CC.
 (13:5..13:12) scala/Predef.println(+1).
 (13:13..13:14) local1 -> 12:9
 

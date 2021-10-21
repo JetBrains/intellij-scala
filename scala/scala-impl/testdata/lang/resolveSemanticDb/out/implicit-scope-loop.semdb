@@ -15,7 +15,5 @@ Document tests/pos/implicit-scope-loop.scala
 (13:29..13:30) _empty_/Test.getA().[T] -> 13:12
 (13:35..13:36) _empty_/Test.getA().(a) -> 13:24
 (15:3..15:7) _empty_/Test.getB(). -> 12:7
-(15:7..15:7) _empty_/B.theA(). -> 8:16
 (16:3..16:7) _empty_/Test.getA(). -> 13:7
-(16:7..16:7) _empty_/B.theA(). -> 8:16
 

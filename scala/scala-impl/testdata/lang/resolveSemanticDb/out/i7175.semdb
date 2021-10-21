@@ -6,11 +6,9 @@ Document tests/pos/i7175.scala
 (4:10..4:14) java/
 (4:15..4:18) java/net/
 (4:19..4:22) java/net/URL#
-(4:19..4:22) java/net/URL.
 (5:10..5:14) java/
 (5:15..5:19) java/util/
 (5:20..5:24) java/util/List#
-(5:20..5:24) java/util/List.
 (8:22..8:28) scala/Predef.String#
 (9:19..9:25) scala/Predef.String#
 (10:14..10:17) java/net/URL#

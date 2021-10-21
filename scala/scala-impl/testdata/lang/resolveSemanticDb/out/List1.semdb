@@ -9,7 +9,6 @@ Document tests/pos/List1.scala
 (7:35..7:36) _empty_/lists.List#prepend().(x) -> 7:19
 (10:20..10:24) _empty_/lists.List# -> 3:18
 (10:25..10:26) _empty_/lists.Nil().[b] -> 10:11
-(10:27..10:27) _empty_/lists.List#`<init>`(). -> 3:22
 (11:18..11:25) scala/Boolean#
 (12:16..12:19) scala/sys/
 (12:20..12:25) scala/sys/package.error().
@@ -22,29 +21,27 @@ Document tests/pos/List1.scala
 (16:40..16:41) _empty_/lists.Cons().[c] -> 16:12
 (16:49..16:53) _empty_/lists.List# -> 3:18
 (16:54..16:55) _empty_/lists.Cons().[c] -> 16:12
-(16:56..16:56) _empty_/lists.List#`<init>`(). -> 3:22
 (18:16..18:17) _empty_/lists.Cons().(x) -> 16:15
 (19:16..19:18) _empty_/lists.Cons().(xs) -> 16:21
 (23:18..23:21) _empty_/lists.Nil(). -> 10:7
 (23:22..23:25) scala/Int#
-(24:19..24:25) local8 -> 23:9
+(24:19..24:25) local10 -> 23:9
 (24:26..24:33) _empty_/lists.List#prepend(). -> 7:11
 (24:37..24:44) _empty_/lists.List#prepend(). -> 7:11
 (24:47..24:48) scala/Int#`+`(+4).
 (25:12..25:15) scala/Int#
-(25:18..25:25) local9 -> 24:9
+(25:18..25:25) local11 -> 24:9
 (25:26..25:30) _empty_/lists.List#head(). -> 5:11
 (26:18..26:21) _empty_/lists.Nil(). -> 10:7
 (26:22..26:28) scala/Predef.String#
-(27:19..27:25) local11 -> 26:9
+(27:19..27:25) local13 -> 26:9
 (27:26..27:33) _empty_/lists.List#prepend(). -> 7:11
 (27:39..27:46) _empty_/lists.List#prepend(). -> 7:11
 (28:12..28:18) scala/Predef.String#
-(28:21..28:28) local12 -> 27:9
+(28:21..28:28) local14 -> 27:9
 (28:29..28:33) _empty_/lists.List#head(). -> 5:11
 (32:27..32:31) _empty_/lists.List# -> 3:18
 (32:32..32:35) scala/Int#
-(32:36..32:36) _empty_/lists.List#`<init>`(). -> 3:22
 (33:18..33:25) scala/Boolean#
 (34:15..34:18) scala/Int#
 (35:14..35:18) _empty_/lists.List# -> 3:18
@@ -69,8 +66,7 @@ Document tests/pos/List1.scala
 (37:47..37:54) _empty_/lists.List#prepend(). -> 7:11
 (37:57..37:58) scala/Int#`+`(+4).
 (41:19..41:26) _empty_/lists.IntList# -> 32:9
-(41:26..41:26) _empty_/lists.IntList#`<init>`(). -> 32:16
-(42:15..42:18) local17 -> 41:9
+(42:15..42:18) local19 -> 41:9
 (42:19..42:26) _empty_/lists.List#prepend(). -> 7:11
 (42:30..42:37) _empty_/lists.List#prepend(). -> 7:11
 

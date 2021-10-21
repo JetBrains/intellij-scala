@@ -1,27 +1,23 @@
 Document tests/pos/dependent-extractors.scala
 (3:37..3:38) _empty_/Test.C#T# -> 3:27
 (5:15..5:16) _empty_/Test.C# -> 3:18
-(5:16..5:16) _empty_/Test.C#`<init>`(). -> 3:22
 (5:28..5:31) scala/Int#
 (7:29..7:30) _empty_/Test.C# -> 3:18
 (7:33..7:37) scala/Some#
 (7:38..7:39) _empty_/Test.X.unapply().(x) -> 7:26
 (7:40..7:41) _empty_/Test.C#T# -> 3:27
 (7:45..7:49) scala/Some.
-(7:49..7:49) scala/Some.apply().
 (7:50..7:51) _empty_/Test.X.unapply().(x) -> 7:26
 (7:52..7:53) _empty_/Test.C#x. -> 3:34
 (9:11..9:12) _empty_/Test.c. -> 5:7
 (9:26..9:27) _empty_/Test.X. -> 7:10
-(9:27..9:27) _empty_/Test.X.unapply(). -> 7:18
-(9:34..9:35) local3 -> 9:28
+(9:34..9:35) local5 -> 9:28
 (10:11..10:14) scala/Int#
 (10:17..10:18) _empty_/Test.y. -> 9:7
 (12:12..12:13) _empty_/Test.c. -> 5:7
 (12:15..12:18) scala/Any#
 (12:34..12:35) _empty_/Test.X. -> 7:10
-(12:35..12:35) _empty_/Test.X.unapply(). -> 7:18
-(12:42..12:43) local4 -> 12:36
+(12:42..12:43) local6 -> 12:36
 (13:11..13:12) _empty_/Test.C# -> 3:18
 (13:13..13:14) _empty_/Test.C#T# -> 3:27
 (13:17..13:18) _empty_/Test.z. -> 12:7

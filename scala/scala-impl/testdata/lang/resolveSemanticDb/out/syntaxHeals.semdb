@@ -1,25 +1,18 @@
 Document tests/pos/syntaxHeals.scala
 (6:12..6:16) scala/package.List.
-(6:16..6:16) scala/collection/IterableFactory#apply().
 (8:12..8:14) _empty_/Test.xs. -> 6:7
-(8:14..8:14) scala/collection/immutable/List#map().
 (8:21..8:22) local0 -> 8:7
 (8:23..8:24) scala/Int#`*`(+3).
 (10:12..10:14) _empty_/Test.xs. -> 6:7
-(10:14..10:14) scala/collection/immutable/List#map().
 (11:9..11:10) local1 -> 10:7
 (11:11..11:12) scala/Int#`*`(+3).
 (13:13..13:15) _empty_/Test.xs. -> 6:7
-(13:15..13:15) scala/collection/immutable/List#flatMap().
 (13:22..13:24) _empty_/Test.xs. -> 6:7
-(13:24..13:24) scala/collection/immutable/List#map().
 (13:32..13:33) local2 -> 13:8
 (13:34..13:35) scala/Int#`*`(+3).
 (13:36..13:37) local3 -> 13:17
 (16:10..16:12) _empty_/Test.xs. -> 6:7
-(16:12..16:12) scala/collection/immutable/List#flatMap().
 (17:10..17:12) _empty_/Test.xs. -> 6:7
-(17:12..17:12) scala/collection/immutable/List#map().
 (18:10..18:11) local4 -> 16:5
 (18:12..18:13) scala/Int#`*`(+3).
 (18:14..18:15) local5 -> 17:5

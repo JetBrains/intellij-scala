@@ -8,7 +8,6 @@ Document tests/pos/i8276.scala
 (5:24..5:25) _empty_/i8276$package.apply().[A] -> 5:11
 (5:31..5:37) scala/Option#
 (5:38..5:39) _empty_/i8276$package.apply().[A] -> 5:11
-(5:43..5:43) scala/Conversion#apply().
 (5:43..5:50) _empty_/NOTHING. -> 1:8
 (5:53..5:57) scala/Unit#
 (5:60..5:63) scala/Predef.`???`().

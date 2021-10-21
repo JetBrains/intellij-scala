@@ -1,2 +1,5 @@
 Document tests/pos/fbounds.scala
+(1:16..1:17) _empty_/A# -> 1:7
+(1:21..1:22) scala/`&`#
+(1:23..1:29) java/lang/Number#
 
