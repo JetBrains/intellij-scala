@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class SequenceSpecialSupportDfaTest extends ScalaDfaTestBase {
+class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
 
   def testApplyFactoryForLists(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """

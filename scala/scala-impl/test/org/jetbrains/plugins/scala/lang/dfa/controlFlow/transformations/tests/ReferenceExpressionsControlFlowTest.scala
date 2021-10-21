@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilderTestBase
 
-class ReferenceExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
+class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
   def testReferencesToMethodArgs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests.i
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilderTestBase
 
-class RegularMethodCallControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
+class RegularMethodCallsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
   def testSimpleMethodCalls(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """

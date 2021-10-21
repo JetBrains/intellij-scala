@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysTrue, InvocationIndexOutOfBounds}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class ReferenceExpressionDfaTest extends ScalaDfaTestBase {
+class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
 
   def testIgnoringReferencesToMethodArgs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """

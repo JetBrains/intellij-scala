@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class DefinitionAndAssignmentDfaTest extends ScalaDfaTestBase {
+class DefinitionsAndAssignmentsDfaTest extends ScalaDfaTestBase {
 
   def testDefiningSimpleValuesAndVariables(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """

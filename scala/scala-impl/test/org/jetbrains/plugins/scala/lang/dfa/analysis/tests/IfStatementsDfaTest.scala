@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class IfStatementDfaTest extends ScalaDfaTestBase {
+class IfStatementsDfaTest extends ScalaDfaTestBase {
 
   def testRegularIfs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilderTestBase
 
-class LiteralAndSimpleExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
+class LiteralAndSimpleExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
   def testNullLiteral(): Unit = test(codeFromMethodBody(returnType = "Any") {
     """
