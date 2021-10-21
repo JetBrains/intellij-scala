@@ -10,7 +10,7 @@ Document tests/pos/i8111.scala
 (5:44..5:48) scala/Unit#
 (5:51..5:54) scala/Predef.`???`().
 (7:21..7:31) _empty_/Example.assertLazy(). -> 3:7
-(7:32..7:42) _empty_/Example.fromEither(). -> 5:7
 (7:32..7:32) local0
+(7:32..7:42) _empty_/Example.fromEither(). -> 5:7
 (9:3..9:10) scala/Predef.println(+1).
 

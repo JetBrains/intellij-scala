@@ -1,24 +1,24 @@
 Document tests/pos/end-nested.scala
-(7:11..7:11) scala/collection/IterableFactory#apply().
+(1:13..1:19) scala/Option#
+(1:20..1:21) _empty_/`end-nested$package`.f().[T] -> 1:7
+(1:26..1:27) _empty_/`end-nested$package`.f().(x) -> 1:10
+(2:8..2:12) scala/Some.
+(2:12..2:12) scala/Some.unapply().
+(3:8..3:12) scala/None.
+(4:5..4:6) _empty_/`end-nested$package`.f(). -> 1:5
 (7:7..7:11) scala/package.List.
-(8:12..8:12) scala/collection/immutable/`::`.unapply().
+(7:11..7:11) scala/collection/IterableFactory#apply().
 (8:10..8:12) scala/package.`::`.
+(8:12..8:12) scala/collection/immutable/`::`.unapply().
 (8:19..8:26) scala/Predef.println(+1).
 (8:27..8:28) local0 -> 8:8
 (9:8..9:11) scala/package.Nil.
 (9:15..9:22) scala/Predef.println(+1).
-(11:20..11:31) java/io/IOException#
-(11:17..11:19) java/io/
 (11:12..11:16) java/
+(11:17..11:19) java/io/
+(11:20..11:31) java/io/IOException#
 (11:35..11:42) scala/Predef.println(+1).
 (11:43..11:45) local2 -> 11:8
 (12:12..12:21) scala/package.Throwable#
 (12:31..12:33) local3 -> 12:8
-(1:13..1:19) scala/Option#
-(1:20..1:21) _empty_/`end-nested$package`.f().[T] -> 1:7
-(1:26..1:27) _empty_/`end-nested$package`.f().(x) -> 1:10
-(2:12..2:12) scala/Some.unapply().
-(2:8..2:12) scala/Some.
-(3:8..3:12) scala/None.
-(4:5..4:6) _empty_/`end-nested$package`.f(). -> 1:5
 

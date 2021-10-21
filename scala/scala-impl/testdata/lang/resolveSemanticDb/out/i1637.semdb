@@ -5,8 +5,8 @@ Document tests/pos/i1637.scala
 (3:10..3:25) scala/PartialFunction#
 (3:26..3:29) _empty_/Main.Foo# -> 2:14
 (3:31..3:34) scala/Int#
-(4:7..4:12) _empty_/Main.Foo#field. -> 2:18
 (4:5..4:6) local0 -> 3:40
-(5:16..5:16) scala/Some.unapply().
+(4:7..4:12) _empty_/Main.Foo#field. -> 2:18
 (5:12..5:16) scala/Some.
+(5:16..5:16) scala/Some.unapply().
 

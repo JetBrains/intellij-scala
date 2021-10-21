@@ -1,22 +1,22 @@
 Document tests/pos/t460.scala
 (2:19..2:22) scala/Int#
 (2:28..2:31) scala/Int#
-(2:37..2:38) scala/Int#`+`(+4).
 (2:35..2:36) _empty_/Bug460.testFun().(x) -> 2:15
+(2:37..2:38) scala/Int#`+`(+4).
 (2:39..2:40) _empty_/Bug460.testFun().(y) -> 2:24
-(3:12..3:19) _empty_/Bug460.testFun(). -> 2:7
 (3:12..3:12) local0
 (3:12..3:12) local1
-(5:5..5:5) scala/Function2#apply().
+(3:12..3:19) _empty_/Bug460.testFun(). -> 2:7
 (5:3..5:5) _empty_/Bug460.fn. -> 3:7
-(6:17..6:17) scala/Function2#apply().
+(5:5..5:5) scala/Function2#apply().
 (6:4..6:11) _empty_/Bug460.testFun(). -> 2:7
-(7:15..7:20) scala/Function2#apply().
-(7:4..7:11) _empty_/Bug460.testFun(). -> 2:7
+(6:17..6:17) scala/Function2#apply().
 (7:4..7:4) local2
 (7:4..7:4) local3
-(8:11..8:11) scala/Function2#apply().
-(8:4..8:11) _empty_/Bug460.testFun(). -> 2:7
+(7:4..7:11) _empty_/Bug460.testFun(). -> 2:7
+(7:15..7:20) scala/Function2#apply().
 (8:4..8:4) local4
 (8:4..8:4) local5
+(8:4..8:11) _empty_/Bug460.testFun(). -> 2:7
+(8:11..8:11) scala/Function2#apply().
 

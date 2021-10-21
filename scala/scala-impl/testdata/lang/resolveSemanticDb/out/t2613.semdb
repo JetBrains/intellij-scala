@@ -1,6 +1,6 @@
 Document tests/pos/t2613.scala
-(1:17..1:29) scala/language.existentials.
 (1:8..1:16) scala/language.
+(1:17..1:29) scala/language.existentials.
 (8:12..8:22) _empty_/Test.MyRelation# -> 6:18
 (8:28..8:31) _empty_/Test.Row# -> 4:9
 (8:38..8:48) _empty_/Test.MyRelation# -> 6:18

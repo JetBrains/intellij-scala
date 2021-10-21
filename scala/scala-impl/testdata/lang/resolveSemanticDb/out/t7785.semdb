@@ -1,6 +1,6 @@
 Document tests/pos/t7785.scala
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
 (6:19..6:20) _empty_/R# -> 3:7
 (6:21..6:28) scala/Nothing#
 (6:32..6:35) scala/Predef.`???`().
@@ -20,9 +20,9 @@ Document tests/pos/t7785.scala
 (19:11..19:12) _empty_/TraversableOps#ct2ops().[T] -> 18:23
 (21:19..21:25) scala/Option#
 (21:26..21:27) _empty_/TraversableOps#force().[T] -> 21:13
-(23:7..23:12) _empty_/TraversableOps#Ops#force(). -> 15:9
 (23:5..23:5) _empty_/TraversableOps#ct2ops(). -> 18:16
 (23:5..23:6) _empty_/TraversableOps#force().(t) -> 21:16
+(23:7..23:12) _empty_/TraversableOps#Ops#force(). -> 15:9
 (23:12..23:12) _empty_/TraversableOps#R. -> 6:16
 (23:12..23:12) scala/DummyImplicit.dummyImplicit.
 (33:22..33:25) _empty_/TraversableOps#Ops# -> 14:9

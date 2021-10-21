@@ -1,4 +1,4 @@
 Document tests/pos/i3412.scala
-(2:24..2:24) scala/collection/IterableFactory#apply().
 (2:20..2:24) scala/package.List.
+(2:24..2:24) scala/collection/IterableFactory#apply().
 

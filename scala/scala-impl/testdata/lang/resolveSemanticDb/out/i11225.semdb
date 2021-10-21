@@ -1,14 +1,14 @@
 Document tests/pos/i11225.scala
-(1:20..1:33) scala/compiletime/package$package.uninitialized().
 (1:8..1:19) scala/compiletime/
+(1:20..1:33) scala/compiletime/package$package.uninitialized().
 (3:21..3:22) _empty_/Memo#[A] -> 3:12
 (4:24..4:25) _empty_/Memo#[A] -> 3:12
 (4:28..4:41) scala/compiletime/package$package.uninitialized().
 (5:23..5:24) _empty_/Memo#[A] -> 3:12
 (5:27..5:40) scala/compiletime/package$package.uninitialized().
 (6:22..6:29) scala/Boolean#
-(8:14..8:14) scala/Boolean#`unary_!`().
 (8:9..8:14) _empty_/Memo#known(). -> 6:15
+(8:14..8:14) scala/Boolean#`unary_!`().
 (9:7..9:12) _empty_/Memo#known(). -> 6:15
 (10:7..10:13) _empty_/Memo#cached(). -> 5:15
 (10:16..10:17) _empty_/Memo#x. -> 3:15

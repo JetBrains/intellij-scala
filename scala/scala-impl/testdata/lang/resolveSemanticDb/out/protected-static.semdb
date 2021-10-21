@@ -1,19 +1,19 @@
-Document tests/pos/protected-static/ScalaClass.scala
-(1:14..1:23) bippy/JavaClass#
-(1:8..1:13) bippy/ -> 1:9
-(3:36..3:36) bippy/JavaClass#`<init>`(+1).
-(3:27..3:36) bippy/JavaClass#
-(4:20..4:25) bippy/JavaClass#Inner#
-(4:10..4:19) bippy/JavaClass#
-(5:17..5:22) bippy/JavaClass#Inner#
-
 Document tests/pos/protected-static/S.scala
-(3:22..3:22) bippy/J#`<init>`(+1).
 (3:21..3:22) bippy/J#
+(3:22..3:22) bippy/J#`<init>`(+1).
 (4:18..4:23) scala/Array#
 (4:24..4:30) scala/Predef.String#
 (4:34..4:38) scala/Unit#
-(5:13..5:14) bippy/J#f().
-(5:11..5:12) bippy/J#
 (5:5..5:10) bippy/ -> 1:9
+(5:11..5:12) bippy/J#
+(5:13..5:14) bippy/J#f().
+
+Document tests/pos/protected-static/ScalaClass.scala
+(1:8..1:13) bippy/ -> 1:9
+(1:14..1:23) bippy/JavaClass#
+(3:27..3:36) bippy/JavaClass#
+(3:36..3:36) bippy/JavaClass#`<init>`(+1).
+(4:10..4:19) bippy/JavaClass#
+(4:20..4:25) bippy/JavaClass#Inner#
+(5:17..5:22) bippy/JavaClass#Inner#
 

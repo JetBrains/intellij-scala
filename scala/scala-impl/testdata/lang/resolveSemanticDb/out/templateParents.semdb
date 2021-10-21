@@ -13,8 +13,8 @@ Document tests/pos/templateParents.scala
 (17:15..17:16) _empty_/templateParents1.D# -> 14:9
 (17:22..17:23) _empty_/templateParents1.E# -> 15:9
 (19:10..19:11) _empty_/templateParents1.C# -> 13:9
-(19:16..19:17) scala/`&`#
 (19:12..19:15) scala/Int#
+(19:16..19:17) scala/`&`#
 (19:18..19:24) scala/Predef.String#
 (19:28..19:29) _empty_/templateParents1.x. -> 17:7
 

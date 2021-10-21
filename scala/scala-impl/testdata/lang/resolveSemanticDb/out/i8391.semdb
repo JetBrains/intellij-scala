@@ -1,23 +1,23 @@
 Document tests/pos/i8391.scala
-(1:25..1:35) scala/annotation/targetName#
-(1:14..1:24) scala/annotation/
 (1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:35) scala/annotation/targetName#
 (4:4..4:14) scala/annotation/targetName#
 (5:16..5:19) _empty_/Foo# -> 3:7
 (5:22..5:25) _empty_/Foo# -> 3:7
+(8:1..8:1) _empty_/i8391$package.Test(). -> 8:11
+(8:1..8:1) local1
+(8:1..8:1) scala/util/CommandLineParser.showError().
 (8:2..8:6) scala/main#
 (9:10..9:13) _empty_/Foo# -> 3:7
 (9:16..9:19) scala/Predef.`???`().
-(10:5..10:6) _empty_/Foo#`*`(). -> 5:7
 (10:3..10:4) local0 -> 9:7
+(10:5..10:6) _empty_/Foo#`*`(). -> 5:7
 (10:7..10:8) local0 -> 9:7
-(11:5..11:6) _empty_/Foo#`*`(). -> 5:7
 (11:3..11:4) local0 -> 9:7
+(11:5..11:6) _empty_/Foo#`*`(). -> 5:7
 (11:7..11:8) local0 -> 9:7
-(12:5..12:6) _empty_/Foo#`*`(). -> 5:7
 (12:3..12:4) local0 -> 9:7
+(12:5..12:6) _empty_/Foo#`*`(). -> 5:7
 (12:7..12:8) local0 -> 9:7
-(8:1..8:1) _empty_/i8391$package.Test(). -> 8:11
-(8:1..8:1) scala/util/CommandLineParser.showError().
-(8:1..8:1) local1
 

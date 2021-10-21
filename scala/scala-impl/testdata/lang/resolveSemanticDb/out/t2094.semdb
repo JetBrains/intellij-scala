@@ -1,38 +1,38 @@
 Document tests/pos/t2094.scala
 (1:21..1:24) scala/App#
-(3:6..3:6) scala/collection/MapFactory#apply().
 (3:3..3:6) scala/Predef.Map.
+(3:6..3:6) scala/collection/MapFactory#apply().
 (3:7..3:10) scala/Int#
 (3:12..3:17) _empty_/Value# -> 19:14
-(4:7..4:9) scala/Predef.ArrowAssoc#`->`().
 (4:5..4:5) scala/Predef.ArrowAssoc().
-(4:19..4:19) _empty_/KnownType.apply(). -> 29:1
+(4:7..4:9) scala/Predef.ArrowAssoc#`->`().
 (4:10..4:19) _empty_/KnownType. -> 29:12
+(4:19..4:19) _empty_/KnownType.apply(). -> 29:1
 (4:20..4:27) scala/Predef.classOf().
 (4:28..4:34) java/lang/Object#
-(5:7..5:9) scala/Predef.ArrowAssoc#`->`().
 (5:5..5:5) scala/Predef.ArrowAssoc().
-(5:22..5:22) _empty_/UnknownValue.apply().
+(5:7..5:9) scala/Predef.ArrowAssoc#`->`().
 (5:10..5:22) _empty_/UnknownValue. -> 23:12
-(8:6..8:6) scala/collection/MapFactory#apply().
+(5:22..5:22) _empty_/UnknownValue.apply().
 (8:3..8:6) scala/Predef.Map.
-(9:7..9:9) scala/Predef.ArrowAssoc#`->`().
+(8:6..8:6) scala/collection/MapFactory#apply().
 (9:5..9:5) scala/Predef.ArrowAssoc().
-(9:19..9:19) _empty_/KnownType.apply(). -> 29:1
+(9:7..9:9) scala/Predef.ArrowAssoc#`->`().
 (9:10..9:19) _empty_/KnownType. -> 29:12
+(9:19..9:19) _empty_/KnownType.apply(). -> 29:1
 (9:20..9:27) scala/Predef.classOf().
 (9:28..9:34) java/lang/Object#
-(10:7..10:9) scala/Predef.ArrowAssoc#`->`().
 (10:5..10:5) scala/Predef.ArrowAssoc().
-(10:22..10:22) _empty_/UnknownValue.apply().
+(10:7..10:9) scala/Predef.ArrowAssoc#`->`().
 (10:10..10:22) _empty_/UnknownValue. -> 23:12
+(10:22..10:22) _empty_/UnknownValue.apply().
 (20:16..20:22) scala/Option#
 (20:23..20:28) scala/Predef.Class#
 (23:35..23:40) _empty_/Value# -> 19:14
 (24:17..24:21) scala/None.
 (29:27..29:32) scala/Predef.Class#
 (29:45..29:50) _empty_/Value# -> 19:14
-(30:21..30:21) scala/Some.apply().
 (30:17..30:21) scala/Some.
+(30:21..30:21) scala/Some.apply().
 (30:22..30:25) _empty_/KnownType#typ. -> 29:22
 

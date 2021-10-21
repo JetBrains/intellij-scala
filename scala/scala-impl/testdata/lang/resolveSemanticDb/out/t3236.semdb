@@ -1,30 +1,108 @@
+Document tests/pos/t3236/AnnotationTest.scala
+(2:4..2:21) _empty_/BooleanAnnotation#
+(2:22..2:31) _empty_/Constants#
+(2:32..2:43) _empty_/Constants#BooleanTrue.
+(3:4..3:18) _empty_/ByteAnnotation#
+(3:19..3:28) _empty_/Constants#
+(3:29..3:33) _empty_/Constants#Byte.
+(4:4..4:18) _empty_/CharAnnotation#
+(4:19..4:28) _empty_/Constants#
+(4:29..4:33) _empty_/Constants#Char.
+(5:4..5:19) _empty_/ShortAnnotation#
+(5:20..5:29) _empty_/Constants#
+(5:30..5:35) _empty_/Constants#Short.
+(6:4..6:17) _empty_/IntAnnotation#
+(6:18..6:27) _empty_/Constants#
+(6:28..6:31) _empty_/Constants#Int.
+(7:4..7:18) _empty_/LongAnnotation#
+(7:19..7:28) _empty_/Constants#
+(7:29..7:33) _empty_/Constants#Long.
+(8:4..8:19) _empty_/FloatAnnotation#
+(8:20..8:29) _empty_/Constants#
+(8:30..8:35) _empty_/Constants#Float.
+(9:4..9:20) _empty_/DoubleAnnotation#
+(9:21..9:30) _empty_/Constants#
+(9:31..9:37) _empty_/Constants#Double.
+(10:4..10:20) _empty_/StringAnnotation#
+(10:21..10:30) _empty_/Constants#
+(10:31..10:37) _empty_/Constants#String.
+(11:14..11:18) scala/Unit#
+(13:4..13:21) _empty_/BooleanAnnotation#
+(13:22..13:31) _empty_/Constants#
+(13:32..13:47) _empty_/Constants#InvertedBoolean.
+(14:4..14:18) _empty_/ByteAnnotation#
+(14:19..14:28) _empty_/Constants#
+(14:29..14:41) _empty_/Constants#NegativeByte.
+(15:4..15:19) _empty_/ShortAnnotation#
+(15:20..15:29) _empty_/Constants#
+(15:30..15:43) _empty_/Constants#NegativeShort.
+(16:4..16:17) _empty_/IntAnnotation#
+(16:18..16:27) _empty_/Constants#
+(16:28..16:39) _empty_/Constants#NegativeInt.
+(17:4..17:18) _empty_/LongAnnotation#
+(17:19..17:28) _empty_/Constants#
+(17:29..17:41) _empty_/Constants#NegativeLong.
+(18:4..18:19) _empty_/FloatAnnotation#
+(18:20..18:29) _empty_/Constants#
+(18:30..18:43) _empty_/Constants#NegativeFloat.
+(19:4..19:20) _empty_/DoubleAnnotation#
+(19:21..19:30) _empty_/Constants#
+(19:31..19:45) _empty_/Constants#NegativeDouble.
+(20:4..20:20) _empty_/StringAnnotation#
+(20:21..20:30) _empty_/Constants#
+(20:31..20:45) _empty_/Constants#NegativeString.
+(21:14..21:18) scala/Unit#
+(23:4..23:21) _empty_/BooleanAnnotation#
+(23:22..23:31) _empty_/Constants#
+(23:32..23:44) _empty_/Constants#BooleanFalse.
+(24:4..24:18) _empty_/ByteAnnotation#
+(24:19..24:28) _empty_/Constants#
+(24:29..24:46) _empty_/Constants#LiteralCharAsByte.
+(25:4..25:18) _empty_/CharAnnotation#
+(25:19..25:28) _empty_/Constants#
+(25:29..25:40) _empty_/Constants#LiteralChar.
+(26:4..26:19) _empty_/ShortAnnotation#
+(26:20..26:29) _empty_/Constants#
+(26:30..26:48) _empty_/Constants#LiteralCharAsShort.
+(27:4..27:17) _empty_/IntAnnotation#
+(27:18..27:27) _empty_/Constants#
+(27:28..27:44) _empty_/Constants#LiteralCharAsInt.
+(28:4..28:18) _empty_/LongAnnotation#
+(28:19..28:28) _empty_/Constants#
+(28:29..28:46) _empty_/Constants#LiteralCharAsLong.
+(29:14..29:18) scala/Unit#
+(31:4..31:18) _empty_/LongAnnotation#
+(31:19..31:28) _empty_/Constants#
+(31:29..31:45) _empty_/Constants#LiteralIntAsLong.
+(32:14..32:18) scala/Unit#
+
 Document tests/pos/t3236/Test.scala
-(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
-(1:22..1:32) scala/reflect/Selectable.
-(1:14..1:21) scala/reflect/
 (1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:32) scala/reflect/Selectable.
+(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
 (3:21..3:24) scala/App#
 (4:18..4:25) scala/Predef.classOf().
 (4:26..4:40) _empty_/AnnotationTest# -> 1:7
-(6:44..6:54) java/lang/annotation/Annotation#
-(6:33..6:43) java/lang/annotation/
-(6:28..6:32) java/lang/
 (6:23..6:27) java/
+(6:28..6:32) java/lang/
+(6:33..6:43) java/lang/annotation/
+(6:44..6:54) java/lang/annotation/Annotation#
 (6:73..6:78) scala/Predef.Class#
 (6:79..6:80) _empty_/Test.annotation().[T] -> 6:18
 (6:95..6:101) scala/Predef.String#
 (6:104..6:105) _empty_/Test.annotation().[T] -> 6:18
-(8:8..8:21) java/lang/reflect/Method#getAnnotation().
-(7:14..7:31) java/lang/Class#getDeclaredMethod().
 (7:5..7:13) _empty_/Test.theClass. -> 4:7
+(7:14..7:31) java/lang/Class#getDeclaredMethod().
 (7:32..7:42) _empty_/Test.annotation().(methodName) -> 6:83
+(8:8..8:21) java/lang/reflect/Method#getAnnotation().
 (8:22..8:23) _empty_/Test.annotation().[T] -> 6:18
 (8:25..8:40) _empty_/Test.annotation().(annotationClass) -> 6:56
-(10:53..10:54) scala/`&`#
-(10:42..10:52) java/lang/annotation/Annotation#
-(10:31..10:41) java/lang/annotation/
-(10:26..10:30) java/lang/
 (10:21..10:25) java/
+(10:26..10:30) java/lang/
+(10:31..10:41) java/lang/annotation/
+(10:42..10:52) java/lang/annotation/Annotation#
+(10:53..10:54) scala/`&`#
 (10:70..10:71) _empty_/Test.check().[T] -> 10:13
 (10:93..10:98) scala/Predef.Class#
 (10:99..10:100) _empty_/Test.check().[U] -> 10:16
@@ -35,219 +113,141 @@ Document tests/pos/t3236/Test.scala
 (11:24..11:39) _empty_/Test.check().(annotationClass) -> 10:76
 (11:41..11:51) _empty_/Test.check().(methodName) -> 10:103
 (12:5..12:11) scala/Predef.assert().
-(12:14..12:16) scala/Any#`!=`().
 (12:12..12:13) local1 -> 11:9
-(12:91..12:92) scala/StringContext#s().
+(12:14..12:16) scala/Any#`!=`().
 (12:25..12:25) scala/StringContext.apply().
 (12:48..12:63) _empty_/Test.check().(annotationClass) -> 10:76
 (12:81..12:91) _empty_/Test.check().(methodName) -> 10:103
+(12:91..12:92) scala/StringContext#s().
 (13:5..13:11) scala/Predef.assert().
-(13:22..13:24) scala/Any#`==`().
-(13:13..13:13) scala/reflect/Selectable#applyDynamic().
 (13:12..13:12) scala/reflect/Selectable.reflectiveSelectable().
 (13:12..13:13) local1 -> 11:9
+(13:13..13:13) scala/reflect/Selectable#applyDynamic().
+(13:22..13:24) scala/Any#`==`().
 (13:25..13:33) _empty_/Test.check().(expected) -> 10:123
-(13:117..13:118) scala/StringContext#s().
 (13:37..13:37) scala/StringContext.apply().
 (13:65..13:66) local1 -> 11:9
 (13:71..13:81) _empty_/Test.check().(methodName) -> 10:103
 (13:109..13:117) _empty_/Test.check().(expected) -> 10:123
+(13:117..13:118) scala/StringContext#s().
 (16:3..16:8) _empty_/Test.check(). -> 10:7
 (16:9..16:16) scala/Predef.classOf().
 (16:17..16:34) _empty_/BooleanAnnotation#
-(16:56..16:67) _empty_/Constants#BooleanTrue.
 (16:46..16:55) _empty_/Constants#
+(16:56..16:67) _empty_/Constants#BooleanTrue.
 (17:3..17:8) _empty_/Test.check(). -> 10:7
 (17:9..17:16) scala/Predef.classOf().
 (17:17..17:31) _empty_/ByteAnnotation#
-(17:53..17:57) _empty_/Constants#Byte.
 (17:43..17:52) _empty_/Constants#
+(17:53..17:57) _empty_/Constants#Byte.
 (18:3..18:8) _empty_/Test.check(). -> 10:7
 (18:9..18:16) scala/Predef.classOf().
 (18:17..18:31) _empty_/CharAnnotation#
-(18:53..18:57) _empty_/Constants#Char.
 (18:43..18:52) _empty_/Constants#
+(18:53..18:57) _empty_/Constants#Char.
 (19:3..19:8) _empty_/Test.check(). -> 10:7
 (19:9..19:16) scala/Predef.classOf().
 (19:17..19:32) _empty_/ShortAnnotation#
-(19:54..19:59) _empty_/Constants#Short.
 (19:44..19:53) _empty_/Constants#
+(19:54..19:59) _empty_/Constants#Short.
 (20:3..20:8) _empty_/Test.check(). -> 10:7
 (20:9..20:16) scala/Predef.classOf().
 (20:17..20:30) _empty_/IntAnnotation#
-(20:52..20:55) _empty_/Constants#Int.
 (20:42..20:51) _empty_/Constants#
+(20:52..20:55) _empty_/Constants#Int.
 (21:3..21:8) _empty_/Test.check(). -> 10:7
 (21:9..21:16) scala/Predef.classOf().
 (21:17..21:31) _empty_/LongAnnotation#
-(21:53..21:57) _empty_/Constants#Long.
 (21:43..21:52) _empty_/Constants#
+(21:53..21:57) _empty_/Constants#Long.
 (22:3..22:8) _empty_/Test.check(). -> 10:7
 (22:9..22:16) scala/Predef.classOf().
 (22:17..22:32) _empty_/FloatAnnotation#
-(22:54..22:59) _empty_/Constants#Float.
 (22:44..22:53) _empty_/Constants#
+(22:54..22:59) _empty_/Constants#Float.
 (23:3..23:8) _empty_/Test.check(). -> 10:7
 (23:9..23:16) scala/Predef.classOf().
 (23:17..23:33) _empty_/DoubleAnnotation#
-(23:55..23:61) _empty_/Constants#Double.
 (23:45..23:54) _empty_/Constants#
+(23:55..23:61) _empty_/Constants#Double.
 (24:3..24:8) _empty_/Test.check(). -> 10:7
 (24:9..24:16) scala/Predef.classOf().
 (24:17..24:33) _empty_/StringAnnotation#
-(24:55..24:61) _empty_/Constants#String.
 (24:45..24:54) _empty_/Constants#
+(24:55..24:61) _empty_/Constants#String.
 (26:3..26:8) _empty_/Test.check(). -> 10:7
 (26:9..26:16) scala/Predef.classOf().
 (26:17..26:34) _empty_/BooleanAnnotation#
-(26:56..26:71) _empty_/Constants#InvertedBoolean.
 (26:46..26:55) _empty_/Constants#
+(26:56..26:71) _empty_/Constants#InvertedBoolean.
 (27:3..27:8) _empty_/Test.check(). -> 10:7
 (27:9..27:16) scala/Predef.classOf().
 (27:17..27:31) _empty_/ByteAnnotation#
-(27:53..27:65) _empty_/Constants#NegativeByte.
 (27:43..27:52) _empty_/Constants#
+(27:53..27:65) _empty_/Constants#NegativeByte.
 (29:3..29:8) _empty_/Test.check(). -> 10:7
 (29:9..29:16) scala/Predef.classOf().
 (29:17..29:32) _empty_/ShortAnnotation#
-(29:54..29:67) _empty_/Constants#NegativeShort.
 (29:44..29:53) _empty_/Constants#
+(29:54..29:67) _empty_/Constants#NegativeShort.
 (30:3..30:8) _empty_/Test.check(). -> 10:7
 (30:9..30:16) scala/Predef.classOf().
 (30:17..30:30) _empty_/IntAnnotation#
-(30:52..30:63) _empty_/Constants#NegativeInt.
 (30:42..30:51) _empty_/Constants#
+(30:52..30:63) _empty_/Constants#NegativeInt.
 (31:3..31:8) _empty_/Test.check(). -> 10:7
 (31:9..31:16) scala/Predef.classOf().
 (31:17..31:31) _empty_/LongAnnotation#
-(31:53..31:65) _empty_/Constants#NegativeLong.
 (31:43..31:52) _empty_/Constants#
+(31:53..31:65) _empty_/Constants#NegativeLong.
 (32:3..32:8) _empty_/Test.check(). -> 10:7
 (32:9..32:16) scala/Predef.classOf().
 (32:17..32:32) _empty_/FloatAnnotation#
-(32:54..32:67) _empty_/Constants#NegativeFloat.
 (32:44..32:53) _empty_/Constants#
+(32:54..32:67) _empty_/Constants#NegativeFloat.
 (33:3..33:8) _empty_/Test.check(). -> 10:7
 (33:9..33:16) scala/Predef.classOf().
 (33:17..33:33) _empty_/DoubleAnnotation#
-(33:55..33:69) _empty_/Constants#NegativeDouble.
 (33:45..33:54) _empty_/Constants#
+(33:55..33:69) _empty_/Constants#NegativeDouble.
 (34:3..34:8) _empty_/Test.check(). -> 10:7
 (34:9..34:16) scala/Predef.classOf().
 (34:17..34:33) _empty_/StringAnnotation#
-(34:55..34:69) _empty_/Constants#NegativeString.
 (34:45..34:54) _empty_/Constants#
+(34:55..34:69) _empty_/Constants#NegativeString.
 (36:3..36:8) _empty_/Test.check(). -> 10:7
 (36:9..36:16) scala/Predef.classOf().
 (36:17..36:34) _empty_/BooleanAnnotation#
-(36:56..36:68) _empty_/Constants#BooleanFalse.
 (36:46..36:55) _empty_/Constants#
+(36:56..36:68) _empty_/Constants#BooleanFalse.
 (37:3..37:8) _empty_/Test.check(). -> 10:7
 (37:9..37:16) scala/Predef.classOf().
 (37:17..37:31) _empty_/ByteAnnotation#
-(37:53..37:70) _empty_/Constants#LiteralCharAsByte.
 (37:43..37:52) _empty_/Constants#
+(37:53..37:70) _empty_/Constants#LiteralCharAsByte.
 (38:3..38:8) _empty_/Test.check(). -> 10:7
 (38:9..38:16) scala/Predef.classOf().
 (38:17..38:31) _empty_/CharAnnotation#
-(38:53..38:64) _empty_/Constants#LiteralChar.
 (38:43..38:52) _empty_/Constants#
+(38:53..38:64) _empty_/Constants#LiteralChar.
 (39:3..39:8) _empty_/Test.check(). -> 10:7
 (39:9..39:16) scala/Predef.classOf().
 (39:17..39:32) _empty_/ShortAnnotation#
-(39:54..39:72) _empty_/Constants#LiteralCharAsShort.
 (39:44..39:53) _empty_/Constants#
+(39:54..39:72) _empty_/Constants#LiteralCharAsShort.
 (40:3..40:8) _empty_/Test.check(). -> 10:7
 (40:9..40:16) scala/Predef.classOf().
 (40:17..40:30) _empty_/IntAnnotation#
-(40:52..40:68) _empty_/Constants#LiteralCharAsInt.
 (40:42..40:51) _empty_/Constants#
+(40:52..40:68) _empty_/Constants#LiteralCharAsInt.
 (41:3..41:8) _empty_/Test.check(). -> 10:7
 (41:9..41:16) scala/Predef.classOf().
 (41:17..41:31) _empty_/LongAnnotation#
-(41:53..41:70) _empty_/Constants#LiteralCharAsLong.
 (41:43..41:52) _empty_/Constants#
+(41:53..41:70) _empty_/Constants#LiteralCharAsLong.
 (43:3..43:8) _empty_/Test.check(). -> 10:7
 (43:9..43:16) scala/Predef.classOf().
 (43:17..43:31) _empty_/LongAnnotation#
-(43:53..43:69) _empty_/Constants#LiteralIntAsLong.
 (43:43..43:52) _empty_/Constants#
-
-Document tests/pos/t3236/AnnotationTest.scala
-(10:4..10:20) _empty_/StringAnnotation#
-(10:31..10:37) _empty_/Constants#String.
-(10:21..10:30) _empty_/Constants#
-(9:4..9:20) _empty_/DoubleAnnotation#
-(9:31..9:37) _empty_/Constants#Double.
-(9:21..9:30) _empty_/Constants#
-(8:4..8:19) _empty_/FloatAnnotation#
-(8:30..8:35) _empty_/Constants#Float.
-(8:20..8:29) _empty_/Constants#
-(7:4..7:18) _empty_/LongAnnotation#
-(7:29..7:33) _empty_/Constants#Long.
-(7:19..7:28) _empty_/Constants#
-(6:4..6:17) _empty_/IntAnnotation#
-(6:28..6:31) _empty_/Constants#Int.
-(6:18..6:27) _empty_/Constants#
-(5:4..5:19) _empty_/ShortAnnotation#
-(5:30..5:35) _empty_/Constants#Short.
-(5:20..5:29) _empty_/Constants#
-(4:4..4:18) _empty_/CharAnnotation#
-(4:29..4:33) _empty_/Constants#Char.
-(4:19..4:28) _empty_/Constants#
-(3:4..3:18) _empty_/ByteAnnotation#
-(3:29..3:33) _empty_/Constants#Byte.
-(3:19..3:28) _empty_/Constants#
-(2:4..2:21) _empty_/BooleanAnnotation#
-(2:32..2:43) _empty_/Constants#BooleanTrue.
-(2:22..2:31) _empty_/Constants#
-(11:14..11:18) scala/Unit#
-(20:4..20:20) _empty_/StringAnnotation#
-(20:31..20:45) _empty_/Constants#NegativeString.
-(20:21..20:30) _empty_/Constants#
-(19:4..19:20) _empty_/DoubleAnnotation#
-(19:31..19:45) _empty_/Constants#NegativeDouble.
-(19:21..19:30) _empty_/Constants#
-(18:4..18:19) _empty_/FloatAnnotation#
-(18:30..18:43) _empty_/Constants#NegativeFloat.
-(18:20..18:29) _empty_/Constants#
-(17:4..17:18) _empty_/LongAnnotation#
-(17:29..17:41) _empty_/Constants#NegativeLong.
-(17:19..17:28) _empty_/Constants#
-(16:4..16:17) _empty_/IntAnnotation#
-(16:28..16:39) _empty_/Constants#NegativeInt.
-(16:18..16:27) _empty_/Constants#
-(15:4..15:19) _empty_/ShortAnnotation#
-(15:30..15:43) _empty_/Constants#NegativeShort.
-(15:20..15:29) _empty_/Constants#
-(14:4..14:18) _empty_/ByteAnnotation#
-(14:29..14:41) _empty_/Constants#NegativeByte.
-(14:19..14:28) _empty_/Constants#
-(13:4..13:21) _empty_/BooleanAnnotation#
-(13:32..13:47) _empty_/Constants#InvertedBoolean.
-(13:22..13:31) _empty_/Constants#
-(21:14..21:18) scala/Unit#
-(28:4..28:18) _empty_/LongAnnotation#
-(28:29..28:46) _empty_/Constants#LiteralCharAsLong.
-(28:19..28:28) _empty_/Constants#
-(27:4..27:17) _empty_/IntAnnotation#
-(27:28..27:44) _empty_/Constants#LiteralCharAsInt.
-(27:18..27:27) _empty_/Constants#
-(26:4..26:19) _empty_/ShortAnnotation#
-(26:30..26:48) _empty_/Constants#LiteralCharAsShort.
-(26:20..26:29) _empty_/Constants#
-(25:4..25:18) _empty_/CharAnnotation#
-(25:29..25:40) _empty_/Constants#LiteralChar.
-(25:19..25:28) _empty_/Constants#
-(24:4..24:18) _empty_/ByteAnnotation#
-(24:29..24:46) _empty_/Constants#LiteralCharAsByte.
-(24:19..24:28) _empty_/Constants#
-(23:4..23:21) _empty_/BooleanAnnotation#
-(23:32..23:44) _empty_/Constants#BooleanFalse.
-(23:22..23:31) _empty_/Constants#
-(29:14..29:18) scala/Unit#
-(31:4..31:18) _empty_/LongAnnotation#
-(31:29..31:45) _empty_/Constants#LiteralIntAsLong.
-(31:19..31:28) _empty_/Constants#
-(32:14..32:18) scala/Unit#
+(43:53..43:69) _empty_/Constants#LiteralIntAsLong.
 

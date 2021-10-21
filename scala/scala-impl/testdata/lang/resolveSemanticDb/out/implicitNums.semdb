@@ -6,9 +6,9 @@ Document tests/pos/implicitNums.scala
 (7:46..7:47) _empty_/Test.succ().[N] -> 7:21
 (7:50..7:54) _empty_/Test.Succ# -> 5:9
 (7:55..7:56) _empty_/Test.succ().[N] -> 7:21
-(7:71..7:71) _empty_/Test.Succ#`<init>`(). -> 5:13
 (7:64..7:68) _empty_/Test.Succ# -> 5:9
 (7:69..7:70) _empty_/Test.succ().[N] -> 7:21
+(7:71..7:71) _empty_/Test.Succ#`<init>`(). -> 5:13
 (7:72..7:73) _empty_/Test.succ().(n) -> 7:43
 (8:22..8:26) _empty_/Test.Zero# -> 4:9
 (8:33..8:37) _empty_/Test.Zero# -> 4:9

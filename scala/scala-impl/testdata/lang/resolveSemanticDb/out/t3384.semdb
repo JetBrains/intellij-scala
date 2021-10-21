@@ -1,8 +1,8 @@
 Document tests/pos/t3384.scala
 (4:14..4:20) scala/Predef.String#
-(8:14..8:15) test/p/A# -> 4:9
 (8:12..8:13) test/p/ -> 3:9
+(8:14..8:15) test/p/A# -> 4:9
 (11:8..11:10) test/po/
-(13:16..13:16) test/p/A#`<init>`(). -> 4:10
 (13:15..13:16) test/po/package.A# -> 8:8
+(13:16..13:16) test/p/A#`<init>`(). -> 4:10
 

@@ -1,28 +1,28 @@
 Document tests/pos/new-array.scala
-(2:28..2:28) scala/Array#`<init>`().
 (2:15..2:20) scala/Array#
 (2:21..2:27) scala/Predef.String#
-(3:25..3:25) scala/Array#`<init>`().
+(2:28..2:28) scala/Array#`<init>`().
 (3:15..3:20) scala/Array#
 (3:21..3:24) scala/Int#
-(4:20..4:28) scala/reflect/ClassTag#
+(3:25..3:25) scala/Array#`<init>`().
 (4:12..4:19) scala/reflect/
+(4:20..4:28) scala/reflect/ClassTag#
 (4:28..4:28) _empty_/Test.f().[T] -> 4:9
 (4:33..4:48) scala/runtime/Arrays.newGenericArray().
-(5:25..5:25) scala/Array#`<init>`().
 (5:15..5:20) scala/Array#
 (5:21..5:24) scala/Any#
-(6:26..6:26) scala/Array#`<init>`().
+(5:25..5:25) scala/Array#`<init>`().
 (6:15..6:20) scala/Array#
 (6:21..6:25) scala/Unit#
+(6:26..6:26) scala/Array#`<init>`().
 (9:10..9:15) scala/Array#
 (9:16..9:19) scala/Any#
 (9:32..9:32) scala/Array#`<init>`().
 (10:10..10:15) scala/Array#
 (10:16..10:19) scala/Int#
 (10:32..10:32) scala/Array#`<init>`().
-(11:20..11:28) scala/reflect/ClassTag#
 (11:12..11:19) scala/reflect/
+(11:20..11:28) scala/reflect/ClassTag#
 (11:28..11:28) _empty_/Test2.f().[T] -> 11:9
 (11:31..11:36) scala/Array#
 (11:37..11:38) _empty_/Test2.f().[T] -> 11:9

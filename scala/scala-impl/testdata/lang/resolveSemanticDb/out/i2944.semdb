@@ -4,8 +4,8 @@ Document tests/pos/i2944.scala
 (2:22..2:23) _empty_/Map2#get().(k) -> 2:11
 (3:12..3:13) _empty_/Map2#[K] -> 1:12
 (5:18..5:22) _empty_/Map2# -> 1:7
-(5:34..5:37) _empty_/Map2#get(). -> 2:7
 (5:29..5:33) local0 -> 5:12
+(5:34..5:37) _empty_/Map2#get(). -> 2:7
 (5:40..5:52) scala/Any#asInstanceOf().
 (5:53..5:54) local1 -> 5:23
 (7:17..7:20) _empty_/Map2#get(). -> 2:7

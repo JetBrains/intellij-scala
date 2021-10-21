@@ -1,8 +1,8 @@
 Document tests/pos/inlined-the.scala
 (7:7..7:14) scala/Predef.locally().
-(8:25..8:25) _empty_/Instances.D#`<init>`(). -> 3:10
 (8:21..8:22) _empty_/Instances.D# -> 3:9
 (8:23..8:24) local1 -> 8:17
+(8:25..8:25) _empty_/Instances.D#`<init>`(). -> 3:10
 (9:9..9:15) scala/Predef.summon().
 (9:16..9:17) _empty_/Instances.D# -> 3:9
 (9:18..9:21) scala/Int#
@@ -15,9 +15,9 @@ Document tests/pos/inlined-the.scala
 (12:32..12:33) local3 -> 10:22
 (12:39..12:39) local3 -> 10:22
 (16:7..16:14) scala/Predef.locally().
-(17:25..17:25) _empty_/Instances.D#`<init>`(). -> 3:10
 (17:21..17:22) _empty_/Instances.D# -> 3:9
 (17:23..17:24) local7 -> 17:17
+(17:25..17:25) _empty_/Instances.D#`<init>`(). -> 3:10
 (18:9..18:13) _empty_/Instances.the2(). -> 36:14
 (18:14..18:15) _empty_/Instances.D# -> 3:9
 (18:16..18:19) scala/Int#
@@ -51,8 +51,8 @@ Document tests/pos/inlined-the.scala
 (38:37..38:38) _empty_/Instances.theList().[T] -> 38:22
 (38:41..38:45) scala/package.List#
 (38:46..38:47) _empty_/Instances.theList().(x) -> 38:34
-(38:60..38:60) scala/collection/IterableFactory#apply().
 (38:56..38:60) scala/package.List.
+(38:60..38:60) scala/collection/IterableFactory#apply().
 (38:61..38:62) _empty_/Instances.theList().(x) -> 38:34
 (38:69..38:70) _empty_/Instances.theList().(x) -> 38:34
 

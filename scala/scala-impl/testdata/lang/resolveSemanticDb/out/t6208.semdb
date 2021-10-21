@@ -1,14 +1,14 @@
 Document tests/pos/t6208.scala
-(2:37..2:37) scala/collection/IterableFactory#apply().
-(2:32..2:37) scala/collection/mutable/Queue.
-(2:24..2:31) scala/collection/mutable/
 (2:13..2:23) scala/collection/
-(3:32..3:37) scala/collection/mutable/Queue#
-(3:24..3:31) scala/collection/mutable/
+(2:24..2:31) scala/collection/mutable/
+(2:32..2:37) scala/collection/mutable/Queue.
+(2:37..2:37) scala/collection/IterableFactory#apply().
 (3:13..3:23) scala/collection/
+(3:24..3:31) scala/collection/mutable/
+(3:32..3:37) scala/collection/mutable/Queue#
 (3:38..3:41) scala/Int#
-(3:49..3:58) scala/collection/StrictOptimizedIterableOps#filterNot().
 (3:45..3:48) _empty_/Test.col. -> 2:7
-(3:66..3:68) scala/Int#`==`(+3).
+(3:49..3:58) scala/collection/StrictOptimizedIterableOps#filterNot().
 (3:62..3:63) scala/Int#`%`(+3).
+(3:66..3:68) scala/Int#`==`(+3).
 

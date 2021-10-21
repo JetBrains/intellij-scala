@@ -11,6 +11,6 @@ Document tests/pos/tcpoly_return_overriding.scala
 (12:39..12:40) _empty_/foo.rep().[g] -> 12:11
 (12:44..12:45) _empty_/foo.rep().[g] -> 12:11
 (12:46..12:50) scala/Unit#
-(12:57..12:61) _empty_/Generic#unit(). -> 2:7
 (12:53..12:56) _empty_/foo.rep().(gen) -> 12:26
+(12:57..12:61) _empty_/Generic#unit(). -> 2:7
 

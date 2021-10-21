@@ -1,56 +1,56 @@
 Document tests/pos/classtag-typetest/3_0-migration.scala
-(1:23..1:38) scala/language.`3.0-migration`.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
-(2:22..2:30) scala/reflect/ClassTag.
-(2:22..2:30) scala/reflect/ClassTag#
-(2:14..2:21) scala/reflect/
+(1:14..1:22) scala/language.
+(1:23..1:38) scala/language.`3.0-migration`.
 (2:8..2:13) scala/
-(4:27..4:30) scala/Any#
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
 (4:14..4:22) scala/reflect/ClassTag#
 (4:22..4:22) _empty_/`3_0-migration$package`.f3_0m().[T] -> 4:11
+(4:27..4:30) scala/Any#
 (4:33..4:37) scala/Unit#
 (5:5..5:6) _empty_/`3_0-migration$package`.f3_0m().(x) -> 4:24
 
 Document tests/pos/classtag-typetest/3_0.scala
-(1:23..1:28) scala/language.`3.0`.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
-(2:22..2:30) scala/reflect/ClassTag.
-(2:22..2:30) scala/reflect/ClassTag#
-(2:14..2:21) scala/reflect/
+(1:14..1:22) scala/language.
+(1:23..1:28) scala/language.`3.0`.
 (2:8..2:13) scala/
-(4:26..4:29) scala/Any#
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
 (4:13..4:21) scala/reflect/ClassTag#
 (4:21..4:21) _empty_/`3_0$package`.f3_0().[T] -> 4:10
+(4:26..4:29) scala/Any#
 (4:32..4:36) scala/Unit#
 (5:3..5:4) _empty_/`3_0$package`.f3_0().(x) -> 4:23
 
-Document tests/pos/classtag-typetest/3_1.scala
-(1:23..1:29) scala/language.future.
-(1:14..1:22) scala/language.
-(1:8..1:13) scala/
-(2:22..2:30) scala/reflect/ClassTag.
-(2:22..2:30) scala/reflect/ClassTag#
-(2:14..2:21) scala/reflect/
-(2:8..2:13) scala/
-(4:26..4:29) scala/Any#
-(4:13..4:21) scala/reflect/ClassTag#
-(4:21..4:21) _empty_/`3_1$package`.f3_1().[T] -> 4:10
-(4:32..4:36) scala/Unit#
-(5:3..5:4) _empty_/`3_1$package`.f3_1().(x) -> 4:23
-
 Document tests/pos/classtag-typetest/3_1-migration.scala
-(1:23..1:41) scala/language.`future-migration`.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
-(2:22..2:30) scala/reflect/ClassTag.
-(2:22..2:30) scala/reflect/ClassTag#
-(2:14..2:21) scala/reflect/
+(1:14..1:22) scala/language.
+(1:23..1:41) scala/language.`future-migration`.
 (2:8..2:13) scala/
-(4:27..4:30) scala/Any#
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
 (4:14..4:22) scala/reflect/ClassTag#
 (4:22..4:22) _empty_/`3_1-migration$package`.f3_1m().[T] -> 4:11
+(4:27..4:30) scala/Any#
 (4:33..4:37) scala/Unit#
 (5:3..5:4) _empty_/`3_1-migration$package`.f3_1m().(x) -> 4:24
+
+Document tests/pos/classtag-typetest/3_1.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:29) scala/language.future.
+(2:8..2:13) scala/
+(2:14..2:21) scala/reflect/
+(2:22..2:30) scala/reflect/ClassTag#
+(2:22..2:30) scala/reflect/ClassTag.
+(4:13..4:21) scala/reflect/ClassTag#
+(4:21..4:21) _empty_/`3_1$package`.f3_1().[T] -> 4:10
+(4:26..4:29) scala/Any#
+(4:32..4:36) scala/Unit#
+(5:3..5:4) _empty_/`3_1$package`.f3_1().(x) -> 4:23
 

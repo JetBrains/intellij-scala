@@ -7,24 +7,24 @@ Document tests/pos/sammy_poly.scala
 (7:30..7:31) _empty_/T#app1().[T] -> 7:12
 (7:33..7:34) _empty_/T#app1().[U] -> 7:15
 (7:38..7:39) _empty_/T#app1().[U] -> 7:15
-(7:43..7:43) _empty_/F1#apply(). -> 3:22
 (7:42..7:43) _empty_/T#app1().(f) -> 7:24
+(7:43..7:43) _empty_/F1#apply(). -> 3:22
 (7:44..7:45) _empty_/T#app1().(x) -> 7:18
 (8:21..8:22) _empty_/T#app2().[T] -> 8:12
 (8:27..8:29) _empty_/T.F2# -> 13:9
 (8:30..8:31) _empty_/T#app2().[T] -> 8:12
 (8:33..8:34) _empty_/T#app2().[U] -> 8:15
 (8:38..8:39) _empty_/T#app2().[U] -> 8:15
-(8:43..8:43) _empty_/T.F2#apply(). -> 13:24
 (8:42..8:43) _empty_/T#app2().(f) -> 8:24
+(8:43..8:43) _empty_/T.F2#apply(). -> 13:24
 (8:44..8:45) _empty_/T#app2().(x) -> 8:18
 (9:3..9:7) _empty_/T#app1(). -> 7:7
-(9:20..9:20) scala/collection/IterableFactory#apply().
 (9:16..9:20) scala/package.List.
+(9:20..9:20) scala/collection/IterableFactory#apply().
 (9:21..9:22) local0 -> 9:11
 (10:3..10:7) _empty_/T#app2(). -> 8:7
-(10:20..10:20) scala/collection/IterableFactory#apply().
 (10:16..10:20) scala/package.List.
+(10:20..10:20) scala/collection/IterableFactory#apply().
 (10:21..10:22) local1 -> 10:11
 (13:33..13:34) _empty_/T.F2#[T] -> 13:12
 (13:37..13:38) _empty_/T.F2#[U] -> 13:15

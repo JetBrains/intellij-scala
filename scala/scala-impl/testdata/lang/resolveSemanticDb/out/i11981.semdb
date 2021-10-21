@@ -1,6 +1,6 @@
 Document tests/pos/i11981.scala
-(3:26..3:27) scala/`|`#
 (3:24..3:25) _empty_/Main.Optional#[A] -> 3:19
+(3:26..3:27) scala/`|`#
 (3:28..3:32) _empty_/Main.Null# -> 2:11
 (5:19..5:27) _empty_/Main.Optional# -> 3:10
 (5:28..5:31) scala/Int#
@@ -16,8 +16,8 @@ Document tests/pos/i11981.scala
 (14:50..14:54) scala/Unit#
 (14:57..14:60) scala/Predef.`???`().
 (16:5..16:13) _empty_/Main.summonTC(). -> 14:9
-(16:20..16:20) scala/Option.apply().
 (16:14..16:20) scala/Option.
+(16:20..16:20) scala/Option.apply().
 (16:25..16:25) _empty_/Main.g2. -> 12:11
 (18:5..18:13) _empty_/Main.summonTC(). -> 14:9
 (18:14..18:22) _empty_/Main.Optional# -> 3:10

@@ -1,25 +1,25 @@
 Document tests/pos/i2212.scala
-(2:28..2:32) squants/time/Time# -> 5:9
-(2:23..2:27) squants/time/ -> 4:17
 (2:15..2:22) squants/
+(2:23..2:27) squants/time/ -> 4:17
+(2:28..2:32) squants/time/Time# -> 5:9
 (4:9..4:16) squants/
 (8:9..8:16) squants/
-(9:18..9:22) squants/time/ -> 4:17
 (9:10..9:17) squants/
+(9:18..9:22) squants/time/ -> 4:17
 (10:10..10:17) squants/
-(11:26..11:27) squants/time/Time.x(). -> 6:21
 (11:21..11:25) squants/time/Time. -> 6:10
-(14:30..14:42) scala/math/BigDecimal.RoundingMode.
-(14:19..14:29) scala/math/BigDecimal.
-(14:14..14:18) scala/math/
+(11:26..11:27) squants/time/Time.x(). -> 6:21
 (14:8..14:13) scala/
-(15:30..15:42) scala/math/BigDecimal.RoundingMode.
-(15:19..15:29) scala/math/BigDecimal.
-(15:14..15:18) scala/math/
+(14:14..14:18) scala/math/
+(14:19..14:29) scala/math/BigDecimal.
+(14:30..14:42) scala/math/BigDecimal.RoundingMode.
 (15:8..15:13) scala/
+(15:14..15:18) scala/math/
+(15:19..15:29) scala/math/BigDecimal.
+(15:30..15:42) scala/math/BigDecimal.RoundingMode.
 (18:18..18:30) scala/math/BigDecimal.RoundingMode.RoundingMode#
+(18:33..18:45) scala/math/BigDecimal.RoundingMode.
+(18:46..18:55) scala/math/BigDecimal.RoundingMode.HALF_EVEN.
 (18:58..18:61) scala/Int#
 (18:64..18:67) scala/Predef.`???`().
-(18:46..18:55) scala/math/BigDecimal.RoundingMode.HALF_EVEN.
-(18:33..18:45) scala/math/BigDecimal.RoundingMode.
 

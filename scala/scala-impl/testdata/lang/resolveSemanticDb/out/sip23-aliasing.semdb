@@ -10,12 +10,12 @@ Document tests/pos/sip23-aliasing.scala
 (13:17..13:21) _empty_/Test.Foo0# -> 2:9
 (13:34..13:35) _empty_/Test.Foo#[T] -> 13:12
 (14:13..14:17) _empty_/Test.Foo0. -> 6:10
-(16:6..16:6) _empty_/Test.Foo0.apply(). -> 8:18
 (16:3..16:6) _empty_/Test.Foo. -> 14:7
+(16:6..16:6) _empty_/Test.Foo0.apply(). -> 8:18
 (16:9..16:9) scala/ValueOf#`<init>`().
 (17:3..17:13) scala/Predef.implicitly().
-(17:18..17:21) _empty_/Test.Foo0.Aux# -> 7:10
 (17:14..17:17) _empty_/Test.Foo. -> 14:7
+(17:18..17:21) _empty_/Test.Foo0.Aux# -> 7:10
 (17:25..17:25) _empty_/Test.Foo0.apply(). -> 8:18
 (17:25..17:25) scala/ValueOf#`<init>`().
 (18:3..18:13) scala/Predef.implicitly().
@@ -23,41 +23,41 @@ Document tests/pos/sip23-aliasing.scala
 (18:21..18:21) _empty_/Test.Foo0.apply(). -> 8:18
 (18:21..18:21) scala/ValueOf#`<init>`().
 (22:16..22:21) _empty_/Test.three. -> 21:7
-(23:6..23:6) _empty_/Test.Foo0.apply(). -> 8:18
 (23:3..23:6) _empty_/Test.Foo. -> 14:7
+(23:6..23:6) _empty_/Test.Foo0.apply(). -> 8:18
 (23:7..23:12) _empty_/Test.Three# -> 22:8
-(23:13..23:13) scala/ValueOf#`<init>`().
 (23:13..23:13) _empty_/Test.three. -> 21:7
+(23:13..23:13) scala/ValueOf#`<init>`().
 (24:3..24:13) scala/Predef.implicitly().
-(24:18..24:21) _empty_/Test.Foo0.Aux# -> 7:10
 (24:14..24:17) _empty_/Test.Foo. -> 14:7
+(24:18..24:21) _empty_/Test.Foo0.Aux# -> 7:10
 (24:22..24:27) _empty_/Test.Three# -> 22:8
 (24:29..24:29) _empty_/Test.Foo0.apply(). -> 8:18
-(24:29..24:29) scala/ValueOf#`<init>`().
 (24:29..24:29) _empty_/Test.three. -> 21:7
+(24:29..24:29) scala/ValueOf#`<init>`().
 (25:3..25:13) scala/Predef.implicitly().
 (25:14..25:17) _empty_/Test.Foo# -> 13:8
 (25:18..25:23) _empty_/Test.Three# -> 22:8
 (25:25..25:25) _empty_/Test.Foo0.apply(). -> 8:18
-(25:25..25:25) scala/ValueOf#`<init>`().
 (25:25..25:25) _empty_/Test.three. -> 21:7
+(25:25..25:25) scala/ValueOf#`<init>`().
 (28:14..28:17) _empty_/Test.bar. -> 27:16
-(29:6..29:6) _empty_/Test.Foo0.apply(). -> 8:18
 (29:3..29:6) _empty_/Test.Foo. -> 14:7
+(29:6..29:6) _empty_/Test.Foo0.apply(). -> 8:18
 (29:7..29:10) _empty_/Test.Bar# -> 28:8
-(29:11..29:11) scala/ValueOf#`<init>`().
 (29:11..29:11) _empty_/Test.bar. -> 27:16
+(29:11..29:11) scala/ValueOf#`<init>`().
 (30:3..30:13) scala/Predef.implicitly().
-(30:18..30:21) _empty_/Test.Foo0.Aux# -> 7:10
 (30:14..30:17) _empty_/Test.Foo. -> 14:7
+(30:18..30:21) _empty_/Test.Foo0.Aux# -> 7:10
 (30:22..30:25) _empty_/Test.Bar# -> 28:8
 (30:27..30:27) _empty_/Test.Foo0.apply(). -> 8:18
-(30:27..30:27) scala/ValueOf#`<init>`().
 (30:27..30:27) _empty_/Test.bar. -> 27:16
+(30:27..30:27) scala/ValueOf#`<init>`().
 (31:3..31:13) scala/Predef.implicitly().
 (31:14..31:17) _empty_/Test.Foo# -> 13:8
 (31:18..31:21) _empty_/Test.Bar# -> 28:8
 (31:23..31:23) _empty_/Test.Foo0.apply(). -> 8:18
-(31:23..31:23) scala/ValueOf#`<init>`().
 (31:23..31:23) _empty_/Test.bar. -> 27:16
+(31:23..31:23) scala/ValueOf#`<init>`().
 

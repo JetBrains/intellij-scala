@@ -2,8 +2,8 @@ Document tests/pos/devalify.scala
 (2:14..2:18) scala/Unit#
 (4:16..4:19) scala/Any#
 (6:12..6:13) local0 -> 3:11
-(7:7..7:10) local1 -> 4:11
 (7:5..7:6) local2 -> 6:9
+(7:7..7:10) local1 -> 4:11
 (10:14..10:18) scala/Unit#
 (13:13..13:19) scala/Predef.String#
 (14:13..14:15) local3 -> 13:9
@@ -19,8 +19,8 @@ Document tests/pos/devalify.scala
 (22:14..22:18) scala/Unit#
 (27:19..27:22) local6 -> 23:11
 (28:18..28:21) local8 -> 27:9
-(30:32..30:35) local7 -> 24:13
 (30:25..30:31) local9 -> 28:9
+(30:32..30:35) local7 -> 24:13
 (32:5..32:12) scala/Predef.println(+1).
 (32:13..32:22) local10 -> 30:9
 (35:14..35:18) scala/Unit#

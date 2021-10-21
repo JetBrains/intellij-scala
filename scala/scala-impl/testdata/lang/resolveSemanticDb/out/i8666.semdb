@@ -1,10 +1,10 @@
 Document tests/pos/i8666.scala
-(7:14..7:20) _empty_/i8666$package.FooSnd# -> 3:6
-(7:21..7:22) _empty_/Bar#[A] -> 6:11
-(7:26..7:29) scala/Int#
 (3:18..3:19) _empty_/i8666$package.FooSnd#[X] -> 3:13
 (4:8..4:11) _empty_/Foo# -> 1:7
 (4:21..4:22) local0 -> 4:15
+(7:14..7:20) _empty_/i8666$package.FooSnd# -> 3:6
+(7:21..7:22) _empty_/Bar#[A] -> 6:11
+(7:26..7:29) scala/Int#
 (9:10..9:13) _empty_/Bar# -> 6:7
 (9:14..9:17) _empty_/Foo# -> 1:7
 (9:18..9:24) scala/Predef.String#

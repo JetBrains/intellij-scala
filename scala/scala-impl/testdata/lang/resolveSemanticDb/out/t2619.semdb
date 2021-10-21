@@ -11,96 +11,96 @@ Document tests/pos/t2619.scala
 (8:15..8:18) scala/Int#
 (8:21..8:25) scala/package.List#
 (8:26..8:32) scala/AnyRef#
-(8:39..8:42) scala/collection/immutable/List#map().
 (8:36..8:38) _empty_/AbstractModule#fs(). -> 7:9
+(8:39..8:42) scala/collection/immutable/List#map().
 (8:44..8:44) _empty_/F#apply(). -> 2:15
 (8:45..8:46) _empty_/AbstractModule#rs().(x) -> 8:12
-(10:50..10:50) _empty_/AbstractModule#`<init>`(). -> 5:5
 (10:36..10:50) _empty_/AbstractModule# -> 4:16
-(11:50..11:50) _empty_/AbstractModule#`<init>`(). -> 5:5
+(10:50..10:50) _empty_/AbstractModule#`<init>`(). -> 5:5
 (11:36..11:50) _empty_/AbstractModule# -> 4:16
-(13:36..13:36) _empty_/ModuleType1#`<init>`(). -> 10:36
+(11:50..11:50) _empty_/AbstractModule#`<init>`(). -> 5:5
 (13:25..13:36) _empty_/ModuleType1# -> 10:16
+(13:36..13:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (14:14..14:17) scala/package.Nil.
 (15:14..15:17) scala/package.Nil.
-(17:36..17:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (17:25..17:36) _empty_/ModuleType2# -> 11:16
+(17:36..17:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (18:14..18:17) scala/package.Nil.
-(19:18..19:18) scala/collection/IterableFactory#apply().
 (19:14..19:18) scala/package.List.
+(19:18..19:18) scala/collection/IterableFactory#apply().
 (19:19..19:27) _empty_/ModuleAE. -> 13:8
-(21:36..21:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (21:25..21:36) _empty_/ModuleType1# -> 10:16
-(22:18..22:18) scala/collection/IterableFactory#apply().
+(21:36..21:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (22:14..22:18) scala/package.List.
+(22:18..22:18) scala/collection/IterableFactory#apply().
 (23:14..23:17) scala/package.Nil.
-(25:36..25:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (25:25..25:36) _empty_/ModuleType1# -> 10:16
+(25:36..25:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (26:14..26:17) scala/package.Nil.
-(27:18..27:18) scala/collection/IterableFactory#apply().
 (27:14..27:18) scala/package.List.
+(27:18..27:18) scala/collection/IterableFactory#apply().
 (27:19..27:27) _empty_/ModuleAE. -> 13:8
-(29:36..29:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (29:25..29:36) _empty_/ModuleType2# -> 11:16
+(29:36..29:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (30:14..30:17) scala/package.Nil.
-(31:18..31:18) scala/collection/IterableFactory#apply().
 (31:14..31:18) scala/package.List.
+(31:18..31:18) scala/collection/IterableFactory#apply().
 (31:19..31:27) _empty_/ModuleAF. -> 17:8
-(33:36..33:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (33:25..33:36) _empty_/ModuleType1# -> 10:16
+(33:36..33:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (34:14..34:17) scala/package.Nil.
-(35:18..35:18) scala/collection/IterableFactory#apply().
 (35:14..35:18) scala/package.List.
+(35:18..35:18) scala/collection/IterableFactory#apply().
 (36:9..36:17) _empty_/ModuleAG. -> 21:8
 (37:9..37:17) _empty_/ModuleAI. -> 25:8
-(40:36..40:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (40:25..40:36) _empty_/ModuleType1# -> 10:16
+(40:36..40:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (41:14..41:17) scala/package.Nil.
-(45:25..45:25) scala/collection/immutable/List#`:::`().
-(45:15..45:15) scala/collection/IterableFactory#apply().
-(45:11..45:15) scala/package.List.
-(45:16..45:24) _empty_/ModuleAK. -> 29:8
 (42:18..42:18) local0 -> 42:18
-(47:36..47:36) _empty_/ModuleType1#`<init>`(). -> 10:36
+(45:11..45:15) scala/package.List.
+(45:15..45:15) scala/collection/IterableFactory#apply().
+(45:16..45:24) _empty_/ModuleAK. -> 29:8
+(45:25..45:25) scala/collection/immutable/List#`:::`().
 (47:25..47:36) _empty_/ModuleType1# -> 10:16
+(47:36..47:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (48:14..48:17) scala/package.Nil.
 (49:14..49:17) scala/package.Nil.
-(51:36..51:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (51:25..51:36) _empty_/ModuleType2# -> 11:16
+(51:36..51:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (52:14..52:17) scala/package.Nil.
-(53:18..53:18) scala/collection/IterableFactory#apply().
 (53:14..53:18) scala/package.List.
+(53:18..53:18) scala/collection/IterableFactory#apply().
 (53:19..53:27) _empty_/ModuleBE. -> 47:8
-(55:36..55:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (55:25..55:36) _empty_/ModuleType1# -> 10:16
-(56:18..56:18) scala/collection/IterableFactory#apply().
+(55:36..55:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (56:14..56:18) scala/package.List.
+(56:18..56:18) scala/collection/IterableFactory#apply().
 (57:14..57:17) scala/package.Nil.
-(59:36..59:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (59:25..59:36) _empty_/ModuleType1# -> 10:16
+(59:36..59:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (60:14..60:17) scala/package.Nil.
-(61:18..61:18) scala/collection/IterableFactory#apply().
 (61:14..61:18) scala/package.List.
+(61:18..61:18) scala/collection/IterableFactory#apply().
 (61:19..61:27) _empty_/ModuleBE. -> 47:8
-(63:36..63:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (63:25..63:36) _empty_/ModuleType2# -> 11:16
+(63:36..63:36) _empty_/ModuleType2#`<init>`(). -> 11:36
 (64:14..64:17) scala/package.Nil.
-(65:18..65:18) scala/collection/IterableFactory#apply().
 (65:14..65:18) scala/package.List.
+(65:18..65:18) scala/collection/IterableFactory#apply().
 (65:19..65:27) _empty_/ModuleBF. -> 51:8
-(67:36..67:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (67:25..67:36) _empty_/ModuleType1# -> 10:16
+(67:36..67:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (68:14..68:17) scala/package.Nil.
-(69:18..69:18) scala/collection/IterableFactory#apply().
 (69:14..69:18) scala/package.List.
+(69:18..69:18) scala/collection/IterableFactory#apply().
 (70:9..70:17) _empty_/ModuleBG. -> 55:8
 (71:9..71:17) _empty_/ModuleBI. -> 59:8
-(74:36..74:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (74:25..74:36) _empty_/ModuleType1# -> 10:16
+(74:36..74:36) _empty_/ModuleType1#`<init>`(). -> 10:36
 (75:14..75:17) scala/package.Nil.
-(79:25..79:25) scala/collection/immutable/List#`:::`().
-(79:15..79:15) scala/collection/IterableFactory#apply().
-(79:11..79:15) scala/package.List.
-(79:16..79:24) _empty_/ModuleBK. -> 63:8
 (76:18..76:18) local1 -> 76:18
+(79:11..79:15) scala/package.List.
+(79:15..79:15) scala/collection/IterableFactory#apply().
+(79:16..79:24) _empty_/ModuleBK. -> 63:8
+(79:25..79:25) scala/collection/immutable/List#`:::`().
 

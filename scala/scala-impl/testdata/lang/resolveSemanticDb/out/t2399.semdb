@@ -4,22 +4,22 @@ Document tests/pos/t2399.scala
 (4:71..4:75) _empty_/T#[This] -> 4:12
 (5:9..5:13) _empty_/T#[This] -> 4:12
 (7:21..7:25) _empty_/T#[This] -> 4:12
-(7:40..7:53) scala/compiletime/package$package.uninitialized().
 (7:28..7:39) scala/compiletime/
-(8:22..8:24) java/lang/Object#eq().
+(7:40..7:53) scala/compiletime/package$package.uninitialized().
 (8:17..8:21) _empty_/T#next(). -> 7:15
+(8:22..8:24) java/lang/Object#eq().
 (10:15..10:18) scala/Int#
 (11:17..11:21) _empty_/T#[This] -> 4:12
 (11:28..11:31) scala/Int#
 (11:34..11:37) scala/Int#
-(11:46..11:53) _empty_/T#isEmpty(). -> 8:7
 (11:44..11:45) local2 -> 11:14
+(11:46..11:53) _empty_/T#isEmpty(). -> 8:7
 (11:55..11:58) local3 -> 11:23
 (11:64..11:68) local1 -> 11:9
-(11:71..11:75) _empty_/T#next(). -> 7:15
 (11:69..11:70) local2 -> 11:14
-(11:81..11:82) scala/Int#`+`(+4).
+(11:71..11:75) _empty_/T#next(). -> 7:15
 (11:77..11:80) local3 -> 11:23
+(11:81..11:82) scala/Int#`+`(+4).
 (12:5..12:9) local1 -> 11:9
 (12:10..12:14) _empty_/T# -> 4:7
 

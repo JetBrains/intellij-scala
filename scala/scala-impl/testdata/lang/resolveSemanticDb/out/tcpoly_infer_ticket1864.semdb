@@ -1,11 +1,11 @@
 Document tests/pos/tcpoly_infer_ticket1864.scala
-(1:34..1:40) scala/collection/mutable/Buffer.
-(1:34..1:40) scala/collection/mutable/Buffer#
-(1:42..1:53) scala/collection/mutable/ArrayBuffer.
-(1:42..1:53) scala/collection/mutable/ArrayBuffer#
-(1:25..1:32) scala/collection/mutable/
-(1:14..1:24) scala/collection/
 (1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(1:25..1:32) scala/collection/mutable/
+(1:34..1:40) scala/collection/mutable/Buffer#
+(1:34..1:40) scala/collection/mutable/Buffer.
+(1:42..1:53) scala/collection/mutable/ArrayBuffer#
+(1:42..1:53) scala/collection/mutable/ArrayBuffer.
 (3:48..3:54) scala/collection/mutable/Buffer#
 (3:55..3:56) _empty_/RichBuffer#[T] -> 3:18
 (4:19..4:20) _empty_/RichBuffer#[T] -> 3:18
@@ -14,12 +14,12 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (4:42..4:43) _empty_/RichBuffer#mymap().[S] -> 4:13
 (4:47..4:48) _empty_/RichBuffer#[B] -> 3:21
 (4:49..4:50) _empty_/RichBuffer#mymap().[S] -> 4:13
-(5:12..5:19) scala/collection/IterableOnceOps#foreach().
 (5:5..5:11) _empty_/RichBuffer#buffer. -> 3:40
-(6:10..6:12) scala/collection/mutable/Growable#`+=`().
+(5:12..5:19) scala/collection/IterableOnceOps#foreach().
 (6:7..6:9) _empty_/RichBuffer#mymap().(rv) -> 4:36
-(6:14..6:14) scala/Function1#apply().
+(6:10..6:12) scala/collection/mutable/Growable#`+=`().
 (6:13..6:14) _empty_/RichBuffer#mymap().(f) -> 4:16
+(6:14..6:14) scala/Function1#apply().
 (6:15..6:16) local0 -> 5:21
 (8:5..8:7) _empty_/RichBuffer#mymap().(rv) -> 4:36
 (13:47..13:48) _empty_/App.mymap2().[B] -> 13:17
@@ -30,12 +30,12 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (13:79..13:80) _empty_/App.mymap2().[S] -> 13:36
 (13:84..13:85) _empty_/App.mymap2().[B] -> 13:17
 (13:86..13:87) _empty_/App.mymap2().[S] -> 13:36
-(14:12..14:19) scala/collection/IterableOnceOps#foreach().
 (14:5..14:11) _empty_/App.mymap2().(buffer) -> 13:39
-(15:10..15:12) scala/collection/mutable/Growable#`+=`().
+(14:12..14:19) scala/collection/IterableOnceOps#foreach().
 (15:7..15:9) _empty_/App.mymap2().(rv) -> 13:73
-(15:14..15:14) scala/Function1#apply().
+(15:10..15:12) scala/collection/mutable/Growable#`+=`().
 (15:13..15:14) _empty_/App.mymap2().(f) -> 13:53
+(15:14..15:14) scala/Function1#apply().
 (15:15..15:16) local1 -> 14:21
 (17:5..17:7) _empty_/App.mymap2().(rv) -> 13:73
 (20:22..20:28) scala/collection/mutable/Buffer#
@@ -45,12 +45,12 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (20:55..20:56) _empty_/App.mymap3().[T] -> 20:14
 (20:71..20:72) _empty_/App.mymap3().[B] -> 20:17
 (20:75..20:76) _empty_/App.mymap3().[B] -> 20:17
-(21:12..21:19) scala/collection/IterableOnceOps#foreach().
 (21:5..21:11) _empty_/App.mymap3().(buffer) -> 20:36
-(22:10..22:12) scala/collection/mutable/Growable#`+=`().
+(21:12..21:19) scala/collection/IterableOnceOps#foreach().
 (22:7..22:9) _empty_/App.mymap3().(rv) -> 20:67
-(22:14..22:14) scala/Function1#apply().
+(22:10..22:12) scala/collection/mutable/Growable#`+=`().
 (22:13..22:14) _empty_/App.mymap3().(f) -> 20:47
+(22:14..22:14) scala/Function1#apply().
 (22:15..22:16) local2 -> 21:21
 (24:5..24:7) _empty_/App.mymap3().(rv) -> 20:67
 (27:47..27:48) _empty_/App.mymap4().[B] -> 27:17
@@ -61,12 +61,12 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (27:80..27:81) _empty_/App.mymap4().[S] -> 27:36
 (27:85..27:86) _empty_/App.mymap4().[B] -> 27:17
 (27:87..27:88) _empty_/App.mymap4().[S] -> 27:36
-(28:12..28:19) scala/collection/IterableOnceOps#foreach().
 (28:5..28:11) _empty_/App.mymap4().(buffer) -> 27:39
-(29:10..29:12) scala/collection/mutable/Growable#`+=`().
+(28:12..28:19) scala/collection/IterableOnceOps#foreach().
 (29:7..29:9) _empty_/App.mymap4().(rv) -> 27:74
-(29:14..29:14) scala/Function1#apply().
+(29:10..29:12) scala/collection/mutable/Growable#`+=`().
 (29:13..29:14) _empty_/App.mymap4().(f) -> 27:53
+(29:14..29:14) scala/Function1#apply().
 (29:15..29:16) local3 -> 28:21
 (31:5..31:7) _empty_/App.mymap4().(rv) -> 27:74
 (35:18..35:23) scala/Array#
@@ -77,56 +77,56 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (36:66..36:76) _empty_/RichBuffer# -> 3:7
 (36:77..36:78) local5 -> 36:29
 (36:80..36:81) local6 -> 36:32
-(37:27..37:27) _empty_/RichBuffer#`<init>`(). -> 3:17
 (37:11..37:21) _empty_/RichBuffer# -> 3:7
 (37:22..37:23) local5 -> 36:29
 (37:25..37:26) local6 -> 36:32
+(37:27..37:27) _empty_/RichBuffer#`<init>`(). -> 3:17
 (37:28..37:34) local7 -> 36:51
-(39:47..39:58) scala/collection/mutable/ArrayBuffer#
-(39:39..39:46) scala/collection/mutable/
-(39:28..39:38) scala/collection/
 (39:22..39:27) scala/
+(39:28..39:38) scala/collection/
+(39:39..39:46) scala/collection/mutable/
+(39:47..39:58) scala/collection/mutable/ArrayBuffer#
 (39:59..39:62) scala/Int#
-(39:86..39:86) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
 (39:70..39:81) scala/collection/mutable/ArrayBuffer#
 (39:82..39:85) scala/Int#
-(40:35..40:35) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
+(39:86..39:86) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
 (40:19..40:30) scala/collection/mutable/ArrayBuffer#
 (40:31..40:34) scala/Int#
-(41:14..41:21) scala/collection/immutable/Range#foreach().
-(41:8..41:10) scala/runtime/RichInt#to().
+(40:35..40:35) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
 (41:6..41:6) scala/LowPriorityImplicits#intWrapper().
-(41:26..41:28) scala/collection/mutable/Growable#`+=`().
+(41:8..41:10) scala/runtime/RichInt#to().
+(41:14..41:21) scala/collection/immutable/Range#foreach().
 (41:22..41:25) local9 -> 40:9
-(42:9..42:14) _empty_/RichBuffer#mymap(). -> 4:7
+(41:26..41:28) scala/collection/mutable/Growable#`+=`().
 (42:5..42:5) local4 -> 36:18
 (42:5..42:8) local9 -> 40:9
-(42:21..42:22) scala/Int#`*`(+3).
+(42:9..42:14) _empty_/RichBuffer#mymap(). -> 4:7
 (42:20..42:21) local10 -> 42:15
+(42:21..42:22) scala/Int#`*`(+3).
 (42:22..42:23) local10 -> 42:15
 (42:24..42:24) local8 -> 39:18
-(43:21..43:26) _empty_/RichBuffer#mymap(). -> 4:7
 (43:5..43:15) local4 -> 36:18
 (43:16..43:19) local9 -> 40:9
+(43:21..43:26) _empty_/RichBuffer#mymap(). -> 4:7
 (43:27..43:30) scala/Int#
-(43:38..43:39) scala/Int#`*`(+3).
 (43:37..43:38) local11 -> 43:32
+(43:38..43:39) scala/Int#`*`(+3).
 (43:39..43:40) local11 -> 43:32
 (43:41..43:41) local8 -> 39:18
-(44:39..44:44) _empty_/RichBuffer#mymap(). -> 4:7
 (44:5..44:15) local4 -> 36:18
 (44:16..44:19) scala/Int#
 (44:34..44:37) local9 -> 40:9
+(44:39..44:44) _empty_/RichBuffer#mymap(). -> 4:7
 (44:45..44:48) scala/Int#
-(44:56..44:57) scala/Int#`*`(+3).
 (44:55..44:56) local12 -> 44:50
+(44:56..44:57) scala/Int#`*`(+3).
 (44:57..44:58) local12 -> 44:50
 (44:59..44:59) local8 -> 39:18
 (45:5..45:11) _empty_/App.mymap2(). -> 13:7
 (45:12..45:15) local9 -> 40:9
 (45:21..45:24) scala/Int#
-(45:30..45:31) scala/Int#`*`(+3).
 (45:29..45:30) local13 -> 45:18
+(45:30..45:31) scala/Int#`*`(+3).
 (45:31..45:32) local13 -> 45:18
 (45:33..45:33) local8 -> 39:18
 (46:5..46:11) _empty_/App.mymap2(). -> 13:7
@@ -134,21 +134,21 @@ Document tests/pos/tcpoly_infer_ticket1864.scala
 (46:30..46:33) scala/Int#
 (46:35..46:38) local9 -> 40:9
 (46:44..46:47) scala/Int#
-(46:53..46:54) scala/Int#`*`(+3).
 (46:52..46:53) local14 -> 46:41
+(46:53..46:54) scala/Int#`*`(+3).
 (46:54..46:55) local14 -> 46:41
 (46:56..46:56) local8 -> 39:18
 (48:5..48:11) _empty_/App.mymap3(). -> 20:7
 (48:12..48:15) local9 -> 40:9
 (48:21..48:24) scala/Int#
-(48:30..48:31) scala/Int#`*`(+3).
 (48:29..48:30) local15 -> 48:18
+(48:30..48:31) scala/Int#`*`(+3).
 (48:31..48:32) local15 -> 48:18
 (48:33..48:33) local8 -> 39:18
 (49:5..49:11) _empty_/App.mymap4(). -> 27:7
 (49:12..49:15) local9 -> 40:9
-(49:23..49:24) scala/Int#`*`(+3).
 (49:22..49:23) local16 -> 49:17
+(49:23..49:24) scala/Int#`*`(+3).
 (49:24..49:25) local16 -> 49:17
 (49:26..49:26) local8 -> 39:18
 

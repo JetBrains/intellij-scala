@@ -1,3 +1,60 @@
+Document tests/pos/scala2traits/dotty-subclass.scala
+(2:19..2:20) _empty_/T# -> 2:7
+(10:17..10:20) _empty_/S2T# -> 9:7
+(10:26..10:36) _empty_/S2Tprivate# -> 19:7
+(10:42..10:44) _empty_/DT# -> 4:7
+(11:10..11:13) scala/Int#
+(16:18..16:23) scala/Array#
+(16:24..16:30) scala/Predef.String#
+(16:34..16:38) scala/Unit#
+(17:19..17:22) _empty_/Sub# -> 2:7
+(17:22..17:22) _empty_/Sub#`<init>`(). -> 2:19
+(18:5..18:12) scala/Predef.println(+1).
+(18:13..18:16) local0 -> 17:9
+(18:17..18:18) _empty_/T#d(). -> 3:7
+(19:5..19:12) scala/Predef.println(+1).
+(19:13..19:16) local0 -> 17:9
+(19:17..19:18) _empty_/T#v. -> 4:7
+(20:5..20:12) scala/Predef.println(+1).
+(20:13..20:16) local0 -> 17:9
+(20:17..20:18) _empty_/T#O. -> 5:10
+(21:5..21:12) scala/Predef.println(+1).
+(21:13..21:16) local0 -> 17:9
+(21:17..21:18) _empty_/T#w. -> 6:13
+(23:17..23:18) _empty_/A# -> 10:7
+(23:18..23:18) _empty_/A#`<init>`(). -> 10:17
+(24:5..24:6) local1 -> 23:9
+(24:7..24:8) _empty_/S2T#`x_=`(). -> 10:7
+(24:7..24:8) _empty_/S2T#x(). -> 10:7
+(24:8..24:8) scala/Int#`+`(+4).
+(24:12..24:13) local1 -> 23:9
+(24:14..24:15) _empty_/S2T#y. -> 11:12
+(25:5..25:12) scala/Predef.println(+1).
+(25:13..25:14) local1 -> 23:9
+(25:15..25:16) _empty_/S2T#x(). -> 10:7
+(26:5..26:12) scala/Predef.println(+1).
+(26:13..26:14) local1 -> 23:9
+(26:15..26:16) _empty_/S2T#f(). -> 16:7
+(26:17..26:18) local1 -> 23:9
+(26:19..26:20) _empty_/A#a. -> 11:7
+(26:21..26:22) scala/Int#`+`(+4).
+(26:23..26:24) local1 -> 23:9
+(26:25..26:26) _empty_/A#b(). -> 12:7
+(28:5..28:6) local1 -> 23:9
+(28:6..28:9) _empty_/S2Tprivate#`xx_=`(). -> 26:7
+(28:7..28:9) _empty_/S2Tprivate#xx(). -> 25:7
+(28:9..28:9) scala/Int#`+`(+4).
+(28:13..28:14) local1 -> 23:9
+(28:15..28:17) _empty_/S2Tprivate#yy(). -> 27:7
+(29:5..29:12) scala/Predef.println(+1).
+(29:13..29:14) local1 -> 23:9
+(29:15..29:16) _empty_/S2T#x(). -> 10:7
+(30:5..30:12) scala/Predef.println(+1).
+(30:13..30:14) local1 -> 23:9
+(30:15..30:17) _empty_/S2Tprivate#ff(). -> 29:7
+(30:18..30:19) local1 -> 23:9
+(30:20..30:22) _empty_/S2Tprivate#xx(). -> 25:7
+
 Document tests/pos/scala2traits/scala-trait.scala
 (10:10..10:13) scala/Int#
 (11:15..11:18) scala/Int#
@@ -6,16 +63,16 @@ Document tests/pos/scala2traits/scala-trait.scala
 (14:10..14:13) scala/Int#
 (16:12..16:15) scala/Int#
 (16:18..16:21) scala/Int#
-(16:26..16:27) scala/Int#`+`(+4).
 (16:24..16:25) _empty_/S2T#f().(x) -> 16:9
+(16:26..16:27) scala/Int#`+`(+4).
 (16:28..16:29) _empty_/S2T#y. -> 11:12
 (20:18..20:21) scala/Int#
 (21:23..21:26) scala/Int#
 (22:18..22:21) scala/Int#
 (24:20..24:23) scala/Int#
 (24:26..24:29) scala/Int#
-(24:34..24:35) scala/Int#`+`(+4).
 (24:32..24:33) _empty_/S2Tprivate#f().(x) -> 24:17
+(24:34..24:35) scala/Int#`+`(+4).
 (24:36..24:37) _empty_/S2Tprivate#y. -> 21:20
 (25:12..25:13) _empty_/S2Tprivate#x(). -> 20:15
 (26:15..26:18) scala/Int#
@@ -26,61 +83,4 @@ Document tests/pos/scala2traits/scala-trait.scala
 (29:13..29:16) scala/Int#
 (29:20..29:21) _empty_/S2Tprivate#f(). -> 24:15
 (29:22..29:23) _empty_/S2Tprivate#ff().(x) -> 29:10
-
-Document tests/pos/scala2traits/dotty-subclass.scala
-(2:19..2:20) _empty_/T# -> 2:7
-(10:17..10:20) _empty_/S2T# -> 9:7
-(10:26..10:36) _empty_/S2Tprivate# -> 19:7
-(10:42..10:44) _empty_/DT# -> 4:7
-(11:10..11:13) scala/Int#
-(16:18..16:23) scala/Array#
-(16:24..16:30) scala/Predef.String#
-(16:34..16:38) scala/Unit#
-(17:22..17:22) _empty_/Sub#`<init>`(). -> 2:19
-(17:19..17:22) _empty_/Sub# -> 2:7
-(18:5..18:12) scala/Predef.println(+1).
-(18:17..18:18) _empty_/T#d(). -> 3:7
-(18:13..18:16) local0 -> 17:9
-(19:5..19:12) scala/Predef.println(+1).
-(19:17..19:18) _empty_/T#v. -> 4:7
-(19:13..19:16) local0 -> 17:9
-(20:5..20:12) scala/Predef.println(+1).
-(20:17..20:18) _empty_/T#O. -> 5:10
-(20:13..20:16) local0 -> 17:9
-(21:5..21:12) scala/Predef.println(+1).
-(21:17..21:18) _empty_/T#w. -> 6:13
-(21:13..21:16) local0 -> 17:9
-(23:18..23:18) _empty_/A#`<init>`(). -> 10:17
-(23:17..23:18) _empty_/A# -> 10:7
-(24:7..24:8) _empty_/S2T#`x_=`(). -> 10:7
-(24:5..24:6) local1 -> 23:9
-(24:8..24:8) scala/Int#`+`(+4).
-(24:7..24:8) _empty_/S2T#x(). -> 10:7
-(24:14..24:15) _empty_/S2T#y. -> 11:12
-(24:12..24:13) local1 -> 23:9
-(25:5..25:12) scala/Predef.println(+1).
-(25:15..25:16) _empty_/S2T#x(). -> 10:7
-(25:13..25:14) local1 -> 23:9
-(26:5..26:12) scala/Predef.println(+1).
-(26:15..26:16) _empty_/S2T#f(). -> 16:7
-(26:13..26:14) local1 -> 23:9
-(26:21..26:22) scala/Int#`+`(+4).
-(26:19..26:20) _empty_/A#a. -> 11:7
-(26:17..26:18) local1 -> 23:9
-(26:25..26:26) _empty_/A#b(). -> 12:7
-(26:23..26:24) local1 -> 23:9
-(28:6..28:9) _empty_/S2Tprivate#`xx_=`(). -> 26:7
-(28:5..28:6) local1 -> 23:9
-(28:9..28:9) scala/Int#`+`(+4).
-(28:7..28:9) _empty_/S2Tprivate#xx(). -> 25:7
-(28:15..28:17) _empty_/S2Tprivate#yy(). -> 27:7
-(28:13..28:14) local1 -> 23:9
-(29:5..29:12) scala/Predef.println(+1).
-(29:15..29:16) _empty_/S2T#x(). -> 10:7
-(29:13..29:14) local1 -> 23:9
-(30:5..30:12) scala/Predef.println(+1).
-(30:15..30:17) _empty_/S2Tprivate#ff(). -> 29:7
-(30:13..30:14) local1 -> 23:9
-(30:20..30:22) _empty_/S2Tprivate#xx(). -> 25:7
-(30:18..30:19) local1 -> 23:9
 

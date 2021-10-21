@@ -3,8 +3,8 @@ Document tests/pos/lazyvals.scala
 (8:21..8:25) scala/Unit#
 (8:28..8:35) scala/Predef.println(+1).
 (10:23..10:30) local1 -> 7:11
-(13:29..13:35) local2 -> 8:11
 (13:21..13:28) local3 -> 10:9
+(13:29..13:35) local2 -> 8:11
 (15:24..15:32) local4 -> 12:11
 (16:6..16:6) scala/Tuple2.apply().
 (16:6..16:13) local3 -> 10:9

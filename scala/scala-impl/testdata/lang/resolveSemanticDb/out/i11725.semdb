@@ -4,26 +4,26 @@ Document tests/pos/i11725.scala
 (3:26..3:27) _empty_/Lit#[A] -> 3:16
 (3:37..3:41) _empty_/Expr# -> 1:14
 (3:42..3:43) _empty_/Lit#[A] -> 3:16
-(6:33..6:37) _empty_/ExprTuple.Has2# -> 11:9
 (6:23..6:32) _empty_/ExprTuple. -> 10:8
+(6:33..6:37) _empty_/ExprTuple.Has2# -> 11:9
 (6:38..6:39) _empty_/ExprTuple#[A] -> 5:18
 (6:43..6:47) _empty_/Expr# -> 1:14
-(6:51..6:53) _empty_/ExprTuple.Has2#_1# -> 11:25
 (6:48..6:50) _empty_/ExprTuple#_1().(ev) -> 6:19
+(6:51..6:53) _empty_/ExprTuple.Has2#_1# -> 11:25
 (6:57..6:60) scala/Predef.`???`().
-(7:33..7:37) _empty_/ExprTuple.Has2# -> 11:9
 (7:23..7:32) _empty_/ExprTuple. -> 10:8
+(7:33..7:37) _empty_/ExprTuple.Has2# -> 11:9
 (7:38..7:39) _empty_/ExprTuple#[A] -> 5:18
 (7:43..7:47) _empty_/Expr# -> 1:14
-(7:51..7:53) _empty_/ExprTuple.Has2#_2# -> 11:34
 (7:48..7:50) _empty_/ExprTuple#_2().(ev) -> 7:19
+(7:51..7:53) _empty_/ExprTuple.Has2#_2# -> 11:34
 (7:57..7:60) scala/Predef.`???`().
 (13:28..13:32) _empty_/ExprTuple.Has2# -> 11:9
 (13:33..13:34) _empty_/ExprTuple.Has2.Aux#[A] -> 13:15
 (13:48..13:50) _empty_/ExprTuple.Has2.Aux#[A1] -> 13:18
 (13:62..13:64) _empty_/ExprTuple.Has2.Aux#[A2] -> 13:22
-(16:35..16:38) _empty_/ExprTuple.Has2.Aux# -> 13:10
 (16:30..16:34) _empty_/ExprTuple.Has2. -> 12:10
+(16:35..16:38) _empty_/ExprTuple.Has2.Aux# -> 13:10
 (16:40..16:41) _empty_/ExprTuple.tuple2().[A] -> 16:23
 (16:43..16:44) _empty_/ExprTuple.tuple2().[B] -> 16:26
 (16:47..16:48) _empty_/ExprTuple.tuple2().[A] -> 16:23

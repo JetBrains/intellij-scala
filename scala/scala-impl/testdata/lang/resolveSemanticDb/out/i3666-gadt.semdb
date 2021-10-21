@@ -1,7 +1,7 @@
 Document tests/pos/i3666-gadt.scala
-(1:30..1:48) scala/language.experimental.namedTypeArguments.
-(1:17..1:29) scala/language.experimental.
 (1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
 (4:21..4:24) scala/Int#
 (4:34..4:37) _empty_/i3666.Exp# -> 3:16
 (4:38..4:41) scala/Int#
@@ -34,94 +34,94 @@ Document tests/pos/i3666-gadt.scala
 (13:20..13:23) _empty_/i3666.Var# -> 6:14
 (13:24..13:25) _empty_/i3666.Env#`+`().[T] -> 13:12
 (13:28..13:29) _empty_/i3666.Env#`+`().[T] -> 13:12
-(13:41..13:41) _empty_/i3666.Env#`<init>`(). -> 10:24
 (13:38..13:41) _empty_/i3666.Env# -> 10:18
+(13:41..13:41) _empty_/i3666.Env#`<init>`(). -> 10:24
 (14:23..14:26) _empty_/i3666.Var# -> 6:14
 (14:27..14:28) local3 -> 14:17
 (14:32..14:33) local3 -> 14:17
-(15:15..15:17) scala/Any#`==`().
 (15:13..15:14) local4 -> 14:20
-(15:21..15:23) scala/Tuple2#_1.
+(15:15..15:17) scala/Any#`==`().
 (15:18..15:20) _empty_/i3666.Env#`+`().(xe) -> 13:15
-(15:31..15:43) scala/Any#asInstanceOf().
-(15:28..15:30) scala/Tuple2#_2.
+(15:21..15:23) scala/Tuple2#_1.
 (15:25..15:27) _empty_/i3666.Env#`+`().(xe) -> 13:15
+(15:28..15:30) scala/Tuple2#_2.
+(15:31..15:43) scala/Any#asInstanceOf().
 (15:44..15:45) local3 -> 14:17
-(16:19..16:19) _empty_/i3666.Env#apply(). -> 11:9
 (16:14..16:19) _empty_/i3666.Env# -> 10:18
+(16:19..16:19) _empty_/i3666.Env#apply(). -> 11:9
 (16:20..16:21) local4 -> 14:20
-(21:24..21:24) _empty_/i3666.Env#`<init>`(). -> 10:24
 (21:21..21:24) _empty_/i3666.Env# -> 10:18
+(21:24..21:24) _empty_/i3666.Env#`<init>`(). -> 10:24
 (22:23..22:26) _empty_/i3666.Var# -> 6:14
 (22:27..22:28) local7 -> 22:17
 (22:32..22:33) local7 -> 22:17
 (22:36..22:39) scala/Predef.`???`().
-(28:18..28:18) _empty_/i3666.App.apply(). -> 8:3
 (28:15..28:18) _empty_/i3666.App. -> 8:14
-(28:25..28:25) _empty_/i3666.Lambda.apply(). -> 7:3
+(28:18..28:18) _empty_/i3666.App.apply(). -> 8:3
 (28:19..28:25) _empty_/i3666.Lambda. -> 7:14
-(28:29..28:29) _empty_/i3666.Var.apply(). -> 6:3
+(28:25..28:25) _empty_/i3666.Lambda.apply(). -> 7:3
 (28:26..28:29) _empty_/i3666.Var. -> 6:14
+(28:29..28:29) _empty_/i3666.Var.apply(). -> 6:3
 (28:30..28:33) scala/Int#
-(28:45..28:45) _empty_/i3666.Plus.apply(). -> 5:3
 (28:41..28:45) _empty_/i3666.Plus. -> 5:14
-(28:49..28:49) _empty_/i3666.Var.apply(). -> 6:3
+(28:45..28:45) _empty_/i3666.Plus.apply(). -> 5:3
 (28:46..28:49) _empty_/i3666.Var. -> 6:14
+(28:49..28:49) _empty_/i3666.Var.apply(). -> 6:3
 (28:50..28:53) scala/Int#
-(28:64..28:64) _empty_/i3666.Num.apply(). -> 4:3
 (28:61..28:64) _empty_/i3666.Num. -> 4:14
-(28:74..28:74) _empty_/i3666.Var.apply(). -> 6:3
+(28:64..28:64) _empty_/i3666.Num.apply(). -> 4:3
 (28:71..28:74) _empty_/i3666.Var. -> 6:14
+(28:74..28:74) _empty_/i3666.Var.apply(). -> 6:3
 (28:75..28:78) scala/Int#
 (30:20..30:23) _empty_/i3666.Exp# -> 3:16
 (30:24..30:25) _empty_/i3666.Test.eval().[T] -> 30:14
 (30:33..30:36) _empty_/i3666.Env# -> 10:18
 (30:39..30:40) _empty_/i3666.Test.eval().[T] -> 30:14
 (30:43..30:44) _empty_/i3666.Test.eval().(e) -> 30:17
-(31:15..31:15) _empty_/i3666.Num.unapply().
 (31:12..31:15) _empty_/i3666.Num. -> 4:14
+(31:15..31:15) _empty_/i3666.Num.unapply().
 (31:22..31:23) local9 -> 31:16
-(32:16..32:16) _empty_/i3666.Plus.unapply().
 (32:12..32:16) _empty_/i3666.Plus. -> 5:14
-(32:42..32:43) scala/Int#`+`(+4).
+(32:16..32:16) _empty_/i3666.Plus.unapply().
 (32:28..32:32) _empty_/i3666.Test.eval(). -> 30:9
 (32:33..32:35) local10 -> 32:17
 (32:37..32:40) _empty_/i3666.Test.eval().(env) -> 30:28
+(32:42..32:43) scala/Int#`+`(+4).
 (32:44..32:48) _empty_/i3666.Test.eval(). -> 30:9
 (32:49..32:51) local11 -> 32:21
 (32:53..32:56) _empty_/i3666.Test.eval().(env) -> 30:28
 (33:15..33:18) _empty_/i3666.Var# -> 6:14
-(33:28..33:28) _empty_/i3666.Env#apply(). -> 11:9
 (33:25..33:28) _empty_/i3666.Test.eval().(env) -> 30:28
+(33:28..33:28) _empty_/i3666.Env#apply(). -> 11:9
 (33:29..33:30) local12 -> 33:12
-(34:18..34:18) _empty_/i3666.Lambda.unapply(). -> 7:3
 (34:12..34:18) _empty_/i3666.Lambda. -> 7:14
+(34:18..34:18) _empty_/i3666.Lambda.unapply(). -> 7:3
 (34:18..34:18) local13
 (34:18..34:18) local14
 (34:22..34:25) _empty_/i3666.Var# -> 6:14
 (34:41..34:42) local16 -> 34:26
 (34:47..34:51) _empty_/i3666.Test.eval(). -> 30:9
 (34:52..34:53) local17 -> 34:30
-(34:59..34:60) _empty_/i3666.Env#`+`(). -> 13:9
 (34:55..34:58) _empty_/i3666.Test.eval().(env) -> 30:28
-(34:64..34:66) scala/Predef.ArrowAssoc#`->`().
+(34:59..34:60) _empty_/i3666.Env#`+`(). -> 13:9
 (34:62..34:62) scala/Predef.ArrowAssoc().
 (34:62..34:63) local15 -> 34:19
+(34:64..34:66) scala/Predef.ArrowAssoc#`->`().
 (34:67..34:68) local18 -> 34:38
-(35:15..35:15) _empty_/i3666.App.unapply(). -> 8:3
 (35:12..35:15) _empty_/i3666.App. -> 8:14
+(35:15..35:15) _empty_/i3666.App.unapply(). -> 8:3
 (35:15..35:15) local19
-(35:37..35:37) scala/Function1#apply().
 (35:25..35:29) _empty_/i3666.Test.eval(). -> 30:9
 (35:30..35:31) local20 -> 35:16
 (35:33..35:36) _empty_/i3666.Test.eval().(env) -> 30:28
+(35:37..35:37) scala/Function1#apply().
 (35:38..35:42) _empty_/i3666.Test.eval(). -> 30:9
 (35:43..35:44) local21 -> 35:19
 (35:46..35:49) _empty_/i3666.Test.eval().(env) -> 30:28
 (38:5..38:9) _empty_/i3666.Test.eval(). -> 30:9
 (38:10..38:13) _empty_/i3666.Test.exp. -> 28:9
-(38:19..38:24) _empty_/i3666.Env.empty. -> 21:9
 (38:15..38:18) _empty_/i3666.Env. -> 20:10
+(38:19..38:24) _empty_/i3666.Env.empty. -> 21:9
 (44:24..44:27) scala/Int#
 (44:37..44:40) _empty_/i3666Hoas.Exp# -> 43:16
 (44:41..44:44) scala/Int#
@@ -155,51 +155,51 @@ Document tests/pos/i3666-gadt.scala
 (53:22..53:23) _empty_/i3666Hoas.eval().[T] -> 53:12
 (53:27..53:28) _empty_/i3666Hoas.eval().[T] -> 53:12
 (53:31..53:32) _empty_/i3666Hoas.eval().(e) -> 53:15
-(54:16..54:16) _empty_/i3666Hoas.IntLit.unapply().
 (54:10..54:16) _empty_/i3666Hoas.IntLit. -> 44:14
+(54:16..54:16) _empty_/i3666Hoas.IntLit.unapply().
 (54:23..54:24) local22 -> 54:17
-(55:20..55:20) _empty_/i3666Hoas.BooleanLit.unapply().
 (55:10..55:20) _empty_/i3666Hoas.BooleanLit. -> 45:14
+(55:20..55:20) _empty_/i3666Hoas.BooleanLit.unapply().
 (55:27..55:28) local23 -> 55:21
-(56:16..56:16) _empty_/i3666Hoas.GenLit.unapply(). -> 47:3
 (56:10..56:16) _empty_/i3666Hoas.GenLit. -> 47:14
+(56:16..56:16) _empty_/i3666Hoas.GenLit.unapply(). -> 47:3
 (56:23..56:24) local24 -> 56:17
-(57:14..57:14) _empty_/i3666Hoas.Plus.unapply().
 (57:10..57:14) _empty_/i3666Hoas.Plus. -> 48:14
-(57:35..57:36) scala/Int#`+`(+4).
+(57:14..57:14) _empty_/i3666Hoas.Plus.unapply().
 (57:26..57:30) _empty_/i3666Hoas.eval(). -> 53:7
 (57:31..57:33) local25 -> 57:15
+(57:35..57:36) scala/Int#`+`(+4).
 (57:37..57:41) _empty_/i3666Hoas.eval(). -> 53:7
 (57:42..57:44) local26 -> 57:19
 (58:13..58:16) _empty_/i3666Hoas.Fun# -> 49:14
 (59:11..59:12) local28 -> 58:17
 (59:17..59:21) _empty_/i3666Hoas.eval(). -> 53:7
-(59:25..59:25) scala/Function1#apply().
-(59:24..59:25) _empty_/i3666Hoas.Fun#f. -> 49:24
 (59:22..59:23) local27 -> 58:10
-(59:32..59:32) _empty_/i3666Hoas.GenLit.apply(). -> 47:3
+(59:24..59:25) _empty_/i3666Hoas.Fun#f. -> 49:24
+(59:25..59:25) scala/Function1#apply().
 (59:26..59:32) _empty_/i3666Hoas.GenLit. -> 47:14
+(59:32..59:32) _empty_/i3666Hoas.GenLit.apply(). -> 47:3
 (59:33..59:34) local30 -> 59:8
-(60:13..60:13) _empty_/i3666Hoas.App.unapply(). -> 50:3
 (60:10..60:13) _empty_/i3666Hoas.App. -> 50:14
+(60:13..60:13) _empty_/i3666Hoas.App.unapply(). -> 50:3
 (60:13..60:13) local31
-(60:30..60:30) scala/Function1#apply().
 (60:23..60:27) _empty_/i3666Hoas.eval(). -> 53:7
 (60:28..60:29) local32 -> 60:14
+(60:30..60:30) scala/Function1#apply().
 (60:31..60:35) _empty_/i3666Hoas.eval(). -> 53:7
 (60:36..60:37) local33 -> 60:17
-(63:16..63:16) _empty_/i3666Hoas.App.apply(). -> 50:3
 (63:13..63:16) _empty_/i3666Hoas.App. -> 50:14
-(63:20..63:20) _empty_/i3666Hoas.Fun.apply(). -> 49:3
+(63:16..63:16) _empty_/i3666Hoas.App.apply(). -> 50:3
 (63:17..63:20) _empty_/i3666Hoas.Fun. -> 49:14
+(63:20..63:20) _empty_/i3666Hoas.Fun.apply(). -> 49:3
 (63:25..63:28) scala/Int#
-(63:39..63:39) _empty_/i3666Hoas.Plus.apply(). -> 48:3
 (63:35..63:39) _empty_/i3666Hoas.Plus. -> 48:14
+(63:39..63:39) _empty_/i3666Hoas.Plus.apply(). -> 48:3
 (63:40..63:41) local34 -> 63:30
-(63:49..63:49) _empty_/i3666Hoas.IntLit.apply(). -> 44:3
 (63:43..63:49) _empty_/i3666Hoas.IntLit. -> 44:14
-(63:62..63:62) _empty_/i3666Hoas.IntLit.apply(). -> 44:3
+(63:49..63:49) _empty_/i3666Hoas.IntLit.apply(). -> 44:3
 (63:56..63:62) _empty_/i3666Hoas.IntLit. -> 44:14
+(63:62..63:62) _empty_/i3666Hoas.IntLit.apply(). -> 44:3
 (65:3..65:7) _empty_/i3666Hoas.eval(). -> 53:7
 (65:8..65:11) _empty_/i3666Hoas.exp. -> 63:7
 

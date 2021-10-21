@@ -4,6 +4,6 @@ Document tests/pos/i6849b.scala
 (2:36..2:36) scala/LowPriorityImplicits#wrapString().
 (5:16..5:19) scala/Any#
 (5:23..5:24) _empty_/i6849b$package.unapply().(x) -> 5:13
-(5:39..5:39) _empty_/A.unapplySeq(). -> 2:7
 (5:38..5:39) _empty_/A. -> 1:8
+(5:39..5:39) _empty_/A.unapplySeq(). -> 2:7
 

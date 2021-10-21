@@ -32,8 +32,8 @@ Document tests/pos/exhaust_2.scala
 (33:14..33:17) _empty_/ExhaustivityWarnBugReportMinimal.Foo# -> 29:14
 (37:3..37:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
 (38:11..38:11) scala/Tuple2.unapply().
-(38:15..38:15) scala/Some.unapply().
 (38:11..38:15) scala/Some.
+(38:15..38:15) scala/Some.unapply().
 (41:3..41:4) _empty_/ExhaustivityWarnBugReportMinimal.v. -> 17:7
 (42:11..42:11) scala/Tuple2.unapply().
 (45:12..45:16) scala/Some#

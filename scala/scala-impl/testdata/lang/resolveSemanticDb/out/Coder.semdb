@@ -1,129 +1,129 @@
 Document tests/pos/Coder.scala
-(1:27..1:34) scala/collection/mutable/HashMap.
-(1:27..1:34) scala/collection/mutable/HashMap#
-(1:19..1:26) scala/collection/mutable/
 (1:8..1:18) scala/collection/
+(1:19..1:26) scala/collection/mutable/
+(1:27..1:34) scala/collection/mutable/HashMap#
+(1:27..1:34) scala/collection/mutable/HashMap.
 (3:20..3:24) scala/package.List#
 (3:25..3:31) scala/Predef.String#
+(5:4..5:4) scala/Predef.ArrowAssoc().
 (5:4..5:4) scala/Tuple2.apply().
 (5:6..5:8) scala/Predef.ArrowAssoc#`->`().
-(5:4..5:4) scala/Predef.ArrowAssoc().
-(5:37..5:39) scala/Predef.ArrowAssoc#`->`().
 (5:31..5:31) scala/Predef.ArrowAssoc#`<init>`().
-(7:30..7:30) scala/collection/MapFactory#apply().
+(5:37..5:39) scala/Predef.ArrowAssoc#`->`().
 (7:27..7:30) scala/Predef.Map.
-(8:11..8:13) scala/Predef.ArrowAssoc#`->`().
+(7:30..7:30) scala/collection/MapFactory#apply().
 (8:7..8:7) scala/Predef.ArrowAssoc().
-(8:25..8:27) scala/Predef.ArrowAssoc#`->`().
+(8:11..8:13) scala/Predef.ArrowAssoc#`->`().
 (8:21..8:21) scala/Predef.ArrowAssoc().
-(8:39..8:41) scala/Predef.ArrowAssoc#`->`().
+(8:25..8:27) scala/Predef.ArrowAssoc#`->`().
 (8:35..8:35) scala/Predef.ArrowAssoc().
-(8:53..8:55) scala/Predef.ArrowAssoc#`->`().
+(8:39..8:41) scala/Predef.ArrowAssoc#`->`().
 (8:49..8:49) scala/Predef.ArrowAssoc().
-(9:11..9:13) scala/Predef.ArrowAssoc#`->`().
+(8:53..8:55) scala/Predef.ArrowAssoc#`->`().
 (9:7..9:7) scala/Predef.ArrowAssoc().
-(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
+(9:11..9:13) scala/Predef.ArrowAssoc#`->`().
 (9:21..9:21) scala/Predef.ArrowAssoc().
-(9:40..9:42) scala/Predef.ArrowAssoc#`->`().
+(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
 (9:36..9:36) scala/Predef.ArrowAssoc().
-(9:54..9:56) scala/Predef.ArrowAssoc#`->`().
+(9:40..9:42) scala/Predef.ArrowAssoc#`->`().
 (9:50..9:50) scala/Predef.ArrowAssoc().
+(9:54..9:56) scala/Predef.ArrowAssoc#`->`().
 (12:4..12:4) scala/Tuple2.apply().
 (13:11..13:11) scala/Tuple2.unapply().
 (18:26..18:29) scala/Predef.Map#
 (18:30..18:34) scala/Char#
 (18:36..18:40) scala/Char#
-(23:6..23:13) scala/collection/MapOps.WithFilter#flatMap().
-(19:6..19:16) scala/collection/MapFactoryDefaults#withFilter().
 (18:44..18:53) _empty_/Coder#mnemonics. -> 7:15
+(19:6..19:16) scala/collection/MapFactoryDefaults#withFilter().
 (20:7..20:7) local2
 (20:13..20:13) scala/Tuple2.unapply().
+(23:6..23:13) scala/collection/MapOps.WithFilter#flatMap().
 (24:7..24:10) local5 -> 23:16
 (25:15..25:15) scala/Tuple2.unapply().
-(25:34..25:37) scala/collection/StringOps#map().
 (25:30..25:30) scala/Predef.augmentString().
 (25:30..25:33) local7 -> 25:22
-(25:50..25:52) scala/Predef.ArrowAssoc#`->`().
+(25:34..25:37) scala/collection/StringOps#map().
 (25:46..25:46) scala/Predef.ArrowAssoc().
 (25:46..25:49) local8 -> 25:39
+(25:50..25:52) scala/Predef.ArrowAssoc#`->`().
 (25:53..25:58) local6 -> 25:15
 (29:25..29:28) scala/Predef.Map#
 (29:29..29:33) scala/Char#
 (29:35..29:39) scala/Char#
-(30:35..30:35) scala/collection/MapOps.WithFilter#flatMap().
-(30:35..30:35) scala/collection/MapFactoryDefaults#withFilter().
-(30:26..30:35) _empty_/Coder#mnemonics. -> 7:15
 (30:10..30:10) local9
 (30:11..30:11) scala/Tuple2.unapply().
-(30:47..30:47) scala/collection/StringOps#map().
+(30:26..30:35) _empty_/Coder#mnemonics. -> 7:15
+(30:35..30:35) scala/collection/MapFactoryDefaults#withFilter().
+(30:35..30:35) scala/collection/MapOps.WithFilter#flatMap().
 (30:44..30:44) scala/Predef.augmentString().
 (30:44..30:47) local11 -> 30:18
-(30:59..30:61) scala/Predef.ArrowAssoc#`->`().
+(30:47..30:47) scala/collection/StringOps#map().
 (30:55..30:55) scala/Predef.ArrowAssoc().
 (30:55..30:58) local12 -> 30:37
+(30:59..30:61) scala/Predef.ArrowAssoc#`->`().
 (30:62..30:67) local10 -> 30:11
 (33:30..33:36) scala/Predef.String#
 (33:39..33:45) scala/Predef.String#
-(33:53..33:56) scala/collection/StringOps#map(+1).
 (33:48..33:48) scala/Predef.augmentString().
 (33:48..33:52) _empty_/Coder#wordCode().(word) -> 33:24
+(33:53..33:56) scala/collection/StringOps#map(+1).
 (33:57..33:65) _empty_/Coder#charCode. -> 29:15
 (36:28..36:31) scala/Predef.Map#
 (36:32..36:38) scala/Predef.String#
 (36:40..36:44) scala/package.List#
 (36:45..36:51) scala/Predef.String#
-(37:28..37:44) scala/collection/immutable/Map#withDefaultValue().
-(37:11..37:18) scala/collection/IterableOps#groupBy().
 (37:5..37:10) _empty_/Coder#words. -> 3:13
-(37:19..37:27) _empty_/Coder#wordCode(). -> 33:15
+(37:11..37:18) scala/collection/IterableOps#groupBy().
 (37:19..37:19) local13
+(37:19..37:27) _empty_/Coder#wordCode(). -> 33:15
+(37:28..37:44) scala/collection/immutable/Map#withDefaultValue().
 (37:45..37:48) scala/package.Nil.
 (40:22..40:28) scala/Predef.String#
 (40:31..40:34) scala/Predef.Set#
 (40:35..40:39) scala/package.List#
 (40:40..40:46) scala/Predef.String#
-(41:16..41:23) java/lang/String#isEmpty().
 (41:9..41:15) _empty_/Coder#encode().(number) -> 40:14
-(41:28..41:28) scala/collection/IterableFactory#apply().
+(41:16..41:23) java/lang/String#isEmpty().
 (41:25..41:28) scala/Predef.Set.
+(41:28..41:28) scala/collection/IterableFactory#apply().
 (41:29..41:32) scala/package.Nil.
-(49:7..49:12) scala/collection/IterableOnceOps#toSet().
-(44:41..44:41) scala/collection/StrictOptimizedIterableOps#flatMap().
-(44:25..44:27) scala/runtime/RichInt#to().
 (44:23..44:23) scala/LowPriorityImplicits#intWrapper().
-(44:35..44:41) java/lang/String#length().
+(44:25..44:27) scala/runtime/RichInt#to().
 (44:28..44:34) _empty_/Coder#encode().(number) -> 40:14
-(45:52..45:52) scala/collection/immutable/List#flatMap().
-(45:28..45:28) scala/collection/MapOps#apply().
+(44:35..44:41) java/lang/String#length().
+(44:41..44:41) scala/collection/StrictOptimizedIterableOps#flatMap().
 (45:17..45:28) _empty_/Coder#wordsForNum. -> 36:15
-(45:36..45:40) scala/collection/StringOps#take().
+(45:28..45:28) scala/collection/MapOps#apply().
 (45:29..45:29) scala/Predef.augmentString().
 (45:29..45:35) _empty_/Coder#encode().(number) -> 40:14
+(45:36..45:40) scala/collection/StringOps#take().
 (45:41..45:51) local14 -> 44:9
-(46:47..46:47) scala/collection/IterableOps#map().
+(45:52..45:52) scala/collection/immutable/List#flatMap().
 (46:17..46:23) _empty_/Coder#encode(). -> 40:7
-(46:31..46:35) scala/collection/StringOps#drop().
 (46:24..46:24) scala/Predef.augmentString().
 (46:24..46:30) _empty_/Coder#encode().(number) -> 40:14
+(46:31..46:35) scala/collection/StringOps#drop().
 (46:36..46:46) local14 -> 44:9
-(48:25..48:25) scala/collection/immutable/List#`::`().
-(48:21..48:25) local16 -> 46:9
+(46:47..46:47) scala/collection/IterableOps#map().
 (48:13..48:17) local15 -> 45:9
+(48:21..48:25) local16 -> 46:9
+(48:25..48:25) scala/collection/immutable/List#`::`().
+(49:7..49:12) scala/collection/IterableOnceOps#toSet().
 (52:25..52:31) scala/Predef.String#
 (52:34..52:37) scala/Predef.Set#
 (52:38..52:44) scala/Predef.String#
-(52:63..52:66) scala/collection/IterableOps#map().
 (52:48..52:54) _empty_/Coder#encode(). -> 40:7
 (52:55..52:61) _empty_/Coder#translate().(number) -> 52:17
+(52:63..52:66) scala/collection/IterableOps#map().
 (52:70..52:78) scala/collection/IterableOnceOps#mkString(+1).
 (56:19..56:24) scala/Array#
 (56:25..56:31) scala/Predef.String#
 (56:36..56:40) scala/Unit#
-(57:26..57:26) _empty_/Coder#`<init>`(). -> 3:12
 (57:21..57:26) _empty_/Coder# -> 3:7
-(57:31..57:31) scala/collection/IterableFactory#apply().
+(57:26..57:26) _empty_/Coder#`<init>`(). -> 3:12
 (57:27..57:31) scala/package.List.
+(57:31..57:31) scala/collection/IterableFactory#apply().
 (59:5..59:12) scala/Predef.println(+1).
-(59:19..59:28) _empty_/Coder#translate(). -> 52:7
 (59:13..59:18) local17 -> 57:9
+(59:19..59:28) _empty_/Coder#translate(). -> 52:7
 

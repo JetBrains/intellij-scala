@@ -1,13 +1,13 @@
 Document tests/pos/assignments.scala
-(3:16..3:16) scala/Array.apply(+5).
 (3:11..3:16) scala/Array.
-(5:4..5:4) scala/Array#update().
+(3:16..3:16) scala/Array.apply(+5).
 (5:3..5:4) _empty_/assignments.a(). -> 3:7
+(5:4..5:4) scala/Array#update().
 (5:5..5:6) _empty_/assignments.i(). -> 4:7
-(5:15..5:16) scala/Int#`*`(+3).
-(5:11..5:11) scala/Array#apply().
 (5:10..5:11) _empty_/assignments.a(). -> 3:7
+(5:11..5:11) scala/Array#apply().
 (5:12..5:13) _empty_/assignments.i(). -> 4:7
+(5:15..5:16) scala/Int#`*`(+3).
 (6:3..6:4) _empty_/assignments.a(). -> 3:7
 (6:5..6:5) local0 -> 6:5
 (6:11..6:11) scala/Int#`+`(+4).
@@ -16,26 +16,26 @@ Document tests/pos/assignments.scala
 (11:23..11:26) _empty_/assignments.C#`myX_=`(). -> 9:9
 (11:29..11:30) _empty_/assignments.C#`x_=`().(x) -> 11:13
 (13:5..13:6) _empty_/assignments.C#`x_=`(). -> 11:9
-(13:11..13:12) scala/Int#`+`(+4).
 (13:9..13:10) _empty_/assignments.C#x(). -> 10:9
+(13:11..13:12) scala/Int#`+`(+4).
 (14:5..14:6) _empty_/assignments.C#`x_=`(). -> 11:9
-(14:6..14:6) scala/Int#`*`(+3).
 (14:5..14:6) _empty_/assignments.C#x(). -> 10:9
-(17:16..17:16) _empty_/assignments.C#`<init>`(). -> 9:5
+(14:6..14:6) scala/Int#`*`(+3).
 (17:15..17:16) _empty_/assignments.C# -> 8:9
-(18:4..18:6) _empty_/assignments.C#`x_=`(). -> 11:9
+(17:16..17:16) _empty_/assignments.C#`<init>`(). -> 9:5
 (18:3..18:4) _empty_/assignments.c(). -> 17:7
-(18:12..18:13) scala/Int#`+`(+4).
-(18:10..18:11) _empty_/assignments.C#x(). -> 10:9
+(18:4..18:6) _empty_/assignments.C#`x_=`(). -> 11:9
 (18:8..18:9) _empty_/assignments.c(). -> 17:7
+(18:10..18:11) _empty_/assignments.C#x(). -> 10:9
+(18:12..18:13) scala/Int#`+`(+4).
 (19:3..19:4) _empty_/assignments.c(). -> 17:7
 (19:6..19:6) scala/Int#`*`(+3).
 (21:12..21:13) _empty_/assignments.c(). -> 17:7
 (22:10..22:12) _empty_/assignments.cc. -> 21:7
 (23:3..23:4) _empty_/assignments.C#`x_=`(). -> 11:9
-(23:9..23:10) scala/Int#`+`(+4).
 (23:7..23:8) _empty_/assignments.C#x(). -> 10:9
+(23:9..23:10) scala/Int#`+`(+4).
 (24:3..24:4) _empty_/assignments.C#`x_=`(). -> 11:9
-(24:4..24:4) scala/Int#`*`(+3).
 (24:3..24:4) _empty_/assignments.C#x(). -> 10:9
+(24:4..24:4) scala/Int#`*`(+3).
 

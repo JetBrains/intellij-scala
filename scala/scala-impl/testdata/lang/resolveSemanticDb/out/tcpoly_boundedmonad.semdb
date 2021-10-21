@@ -25,8 +25,8 @@ Document tests/pos/tcpoly_boundedmonad.scala
 (12:36..12:37) _empty_/Set#map().[S] -> 12:11
 (12:40..12:43) _empty_/Set# -> 11:7
 (12:44..12:45) _empty_/Set#map().[S] -> 12:11
-(12:53..12:58) scala/sys/package.error().
 (12:49..12:52) scala/sys/
+(12:53..12:58) scala/sys/package.error().
 (14:20..14:26) _empty_/Set#flatMap().[RBound] -> 14:59
 (14:27..14:28) _empty_/Set#flatMap().[S] -> 14:15
 (16:19..16:20) _empty_/Set#[T] -> 11:11
@@ -34,12 +34,12 @@ Document tests/pos/tcpoly_boundedmonad.scala
 (16:31..16:32) _empty_/Set#flatMap().[S] -> 14:15
 (16:36..16:42) _empty_/Set#flatMap().[Result] -> 15:15
 (16:43..16:44) _empty_/Set#flatMap().[S] -> 14:15
-(16:53..16:58) scala/sys/package.error().
 (16:49..16:52) scala/sys/
+(16:53..16:58) scala/sys/package.error().
 (18:17..18:18) _empty_/Set#[T] -> 11:11
 (18:22..18:29) scala/Boolean#
 (18:32..18:35) _empty_/Set# -> 11:7
 (18:36..18:37) _empty_/Set#[T] -> 11:11
-(18:45..18:50) scala/sys/package.error().
 (18:41..18:44) scala/sys/
+(18:45..18:50) scala/sys/package.error().
 

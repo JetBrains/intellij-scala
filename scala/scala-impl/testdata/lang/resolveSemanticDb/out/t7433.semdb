@@ -1,8 +1,8 @@
 Document tests/pos/t7433.scala
 (2:14..2:18) scala/Unit#
-(4:26..4:26) scala/collection/immutable/Range#foreach().
-(4:19..4:24) scala/runtime/RichInt#until().
 (4:17..4:17) scala/LowPriorityImplicits#intWrapper().
+(4:19..4:24) scala/runtime/RichInt#until().
+(4:26..4:26) scala/collection/immutable/Range#foreach().
 (4:34..4:34) _empty_/Test.foo(). -> 2:7
 (6:15..6:35) scala/package.NullPointerException#
 (6:41..6:57) scala/package.RuntimeException#

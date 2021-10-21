@@ -1,583 +1,583 @@
 Document tests/pos/i3857.scala
-(3:37..3:37) _empty_/foo.num#`<init>`(). -> 2:3
 (3:34..3:37) _empty_/foo.num# -> 2:25
+(3:37..3:37) _empty_/foo.num#`<init>`(). -> 2:3
 (4:28..4:31) _empty_/foo.num# -> 2:25
-(4:44..4:44) _empty_/foo.num#`<init>`(). -> 2:3
 (4:41..4:44) _empty_/foo.num# -> 2:25
+(4:44..4:44) _empty_/foo.num#`<init>`(). -> 2:3
 (5:28..5:31) _empty_/foo.num# -> 2:25
-(5:44..5:44) _empty_/foo.num#`<init>`(). -> 2:3
 (5:41..5:44) _empty_/foo.num# -> 2:25
-(8:47..8:47) _empty_/foo.abschar#`<init>`(). -> 7:3
+(5:44..5:44) _empty_/foo.num#`<init>`(). -> 2:3
 (8:40..8:47) _empty_/foo.abschar# -> 7:25
+(8:47..8:47) _empty_/foo.abschar#`<init>`(). -> 7:3
 (9:28..9:31) _empty_/foo.num# -> 2:25
-(9:48..9:48) _empty_/foo.abschar#`<init>`(). -> 7:3
 (9:41..9:48) _empty_/foo.abschar# -> 7:25
+(9:48..9:48) _empty_/foo.abschar#`<init>`(). -> 7:3
 (11:27..11:34) _empty_/foo.abschar# -> 7:25
 (11:37..11:43) scala/package.BigInt#
 (12:14..12:17) scala/Int#
 (12:20..12:23) scala/Int#
 (12:26..12:27) local1 -> 12:11
 (13:5..13:7) _empty_/foo.integer_of_char().(x0) -> 11:23
-(14:14..14:14) _empty_/foo.Char.unapply().
 (14:10..14:14) _empty_/foo.Char. -> 9:20
-(14:19..14:19) _empty_/foo.Bit0.unapply().
+(14:14..14:14) _empty_/foo.Char.unapply().
 (14:15..14:19) _empty_/foo.Bit0. -> 4:20
-(14:24..14:24) _empty_/foo.Bit1.unapply().
+(14:19..14:19) _empty_/foo.Bit0.unapply().
 (14:20..14:24) _empty_/foo.Bit1. -> 5:20
-(14:29..14:29) _empty_/foo.Bit0.unapply().
+(14:24..14:24) _empty_/foo.Bit1.unapply().
 (14:25..14:29) _empty_/foo.Bit0. -> 4:20
-(14:34..14:34) _empty_/foo.Bit1.unapply().
+(14:29..14:29) _empty_/foo.Bit0.unapply().
 (14:30..14:34) _empty_/foo.Bit1. -> 5:20
-(14:39..14:39) _empty_/foo.Bit0.unapply().
+(14:34..14:34) _empty_/foo.Bit1.unapply().
 (14:35..14:39) _empty_/foo.Bit0. -> 4:20
-(14:43..14:43) _empty_/foo.One.unapply().
+(14:39..14:39) _empty_/foo.Bit0.unapply().
 (14:40..14:43) _empty_/foo.One. -> 3:20
-(14:61..14:61) scala/math/BigInt.apply().
+(14:43..14:43) _empty_/foo.One.unapply().
 (14:55..14:61) scala/package.BigInt.
-(15:14..15:14) _empty_/foo.Char.unapply().
+(14:61..14:61) scala/math/BigInt.apply().
 (15:10..15:14) _empty_/foo.Char. -> 9:20
-(15:19..15:19) _empty_/foo.Bit1.unapply().
+(15:14..15:14) _empty_/foo.Char.unapply().
 (15:15..15:19) _empty_/foo.Bit1. -> 5:20
-(15:24..15:24) _empty_/foo.Bit0.unapply().
+(15:19..15:19) _empty_/foo.Bit1.unapply().
 (15:20..15:24) _empty_/foo.Bit0. -> 4:20
-(15:29..15:29) _empty_/foo.Bit0.unapply().
+(15:24..15:24) _empty_/foo.Bit0.unapply().
 (15:25..15:29) _empty_/foo.Bit0. -> 4:20
-(15:34..15:34) _empty_/foo.Bit1.unapply().
+(15:29..15:29) _empty_/foo.Bit0.unapply().
 (15:30..15:34) _empty_/foo.Bit1. -> 5:20
-(15:39..15:39) _empty_/foo.Bit0.unapply().
+(15:34..15:34) _empty_/foo.Bit1.unapply().
 (15:35..15:39) _empty_/foo.Bit0. -> 4:20
-(15:43..15:43) _empty_/foo.One.unapply().
+(15:39..15:39) _empty_/foo.Bit0.unapply().
 (15:40..15:43) _empty_/foo.One. -> 3:20
-(15:61..15:61) scala/math/BigInt.apply().
+(15:43..15:43) _empty_/foo.One.unapply().
 (15:55..15:61) scala/package.BigInt.
-(16:14..16:14) _empty_/foo.Char.unapply().
+(15:61..15:61) scala/math/BigInt.apply().
 (16:10..16:14) _empty_/foo.Char. -> 9:20
-(16:19..16:19) _empty_/foo.Bit0.unapply().
+(16:14..16:14) _empty_/foo.Char.unapply().
 (16:15..16:19) _empty_/foo.Bit0. -> 4:20
-(16:24..16:24) _empty_/foo.Bit0.unapply().
+(16:19..16:19) _empty_/foo.Bit0.unapply().
 (16:20..16:24) _empty_/foo.Bit0. -> 4:20
-(16:29..16:29) _empty_/foo.Bit0.unapply().
+(16:24..16:24) _empty_/foo.Bit0.unapply().
 (16:25..16:29) _empty_/foo.Bit0. -> 4:20
-(16:34..16:34) _empty_/foo.Bit1.unapply().
+(16:29..16:29) _empty_/foo.Bit0.unapply().
 (16:30..16:34) _empty_/foo.Bit1. -> 5:20
-(16:39..16:39) _empty_/foo.Bit0.unapply().
+(16:34..16:34) _empty_/foo.Bit1.unapply().
 (16:35..16:39) _empty_/foo.Bit0. -> 4:20
-(16:43..16:43) _empty_/foo.One.unapply().
+(16:39..16:39) _empty_/foo.Bit0.unapply().
 (16:40..16:43) _empty_/foo.One. -> 3:20
-(16:61..16:61) scala/math/BigInt.apply().
+(16:43..16:43) _empty_/foo.One.unapply().
 (16:55..16:61) scala/package.BigInt.
-(17:14..17:14) _empty_/foo.Char.unapply().
+(16:61..16:61) scala/math/BigInt.apply().
 (17:10..17:14) _empty_/foo.Char. -> 9:20
-(17:19..17:19) _empty_/foo.Bit1.unapply().
+(17:14..17:14) _empty_/foo.Char.unapply().
 (17:15..17:19) _empty_/foo.Bit1. -> 5:20
-(17:24..17:24) _empty_/foo.Bit1.unapply().
+(17:19..17:19) _empty_/foo.Bit1.unapply().
 (17:20..17:24) _empty_/foo.Bit1. -> 5:20
-(17:29..17:29) _empty_/foo.Bit1.unapply().
+(17:24..17:24) _empty_/foo.Bit1.unapply().
 (17:25..17:29) _empty_/foo.Bit1. -> 5:20
-(17:34..17:34) _empty_/foo.Bit0.unapply().
+(17:29..17:29) _empty_/foo.Bit1.unapply().
 (17:30..17:34) _empty_/foo.Bit0. -> 4:20
-(17:39..17:39) _empty_/foo.Bit0.unapply().
+(17:34..17:34) _empty_/foo.Bit0.unapply().
 (17:35..17:39) _empty_/foo.Bit0. -> 4:20
-(17:43..17:43) _empty_/foo.One.unapply().
+(17:39..17:39) _empty_/foo.Bit0.unapply().
 (17:40..17:43) _empty_/foo.One. -> 3:20
-(17:61..17:61) scala/math/BigInt.apply().
+(17:43..17:43) _empty_/foo.One.unapply().
 (17:55..17:61) scala/package.BigInt.
-(18:14..18:14) _empty_/foo.Char.unapply().
+(17:61..17:61) scala/math/BigInt.apply().
 (18:10..18:14) _empty_/foo.Char. -> 9:20
-(18:19..18:19) _empty_/foo.Bit0.unapply().
+(18:14..18:14) _empty_/foo.Char.unapply().
 (18:15..18:19) _empty_/foo.Bit0. -> 4:20
-(18:24..18:24) _empty_/foo.Bit1.unapply().
+(18:19..18:19) _empty_/foo.Bit0.unapply().
 (18:20..18:24) _empty_/foo.Bit1. -> 5:20
-(18:29..18:29) _empty_/foo.Bit1.unapply().
+(18:24..18:24) _empty_/foo.Bit1.unapply().
 (18:25..18:29) _empty_/foo.Bit1. -> 5:20
-(18:34..18:34) _empty_/foo.Bit0.unapply().
+(18:29..18:29) _empty_/foo.Bit1.unapply().
 (18:30..18:34) _empty_/foo.Bit0. -> 4:20
-(18:39..18:39) _empty_/foo.Bit0.unapply().
+(18:34..18:34) _empty_/foo.Bit0.unapply().
 (18:35..18:39) _empty_/foo.Bit0. -> 4:20
-(18:43..18:43) _empty_/foo.One.unapply().
+(18:39..18:39) _empty_/foo.Bit0.unapply().
 (18:40..18:43) _empty_/foo.One. -> 3:20
-(18:61..18:61) scala/math/BigInt.apply().
+(18:43..18:43) _empty_/foo.One.unapply().
 (18:55..18:61) scala/package.BigInt.
-(19:14..19:14) _empty_/foo.Char.unapply().
+(18:61..18:61) scala/math/BigInt.apply().
 (19:10..19:14) _empty_/foo.Char. -> 9:20
-(19:19..19:19) _empty_/foo.Bit1.unapply().
+(19:14..19:14) _empty_/foo.Char.unapply().
 (19:15..19:19) _empty_/foo.Bit1. -> 5:20
-(19:24..19:24) _empty_/foo.Bit0.unapply().
+(19:19..19:19) _empty_/foo.Bit1.unapply().
 (19:20..19:24) _empty_/foo.Bit0. -> 4:20
-(19:29..19:29) _empty_/foo.Bit1.unapply().
+(19:24..19:24) _empty_/foo.Bit0.unapply().
 (19:25..19:29) _empty_/foo.Bit1. -> 5:20
-(19:34..19:34) _empty_/foo.Bit0.unapply().
+(19:29..19:29) _empty_/foo.Bit1.unapply().
 (19:30..19:34) _empty_/foo.Bit0. -> 4:20
-(19:39..19:39) _empty_/foo.Bit0.unapply().
+(19:34..19:34) _empty_/foo.Bit0.unapply().
 (19:35..19:39) _empty_/foo.Bit0. -> 4:20
-(19:43..19:43) _empty_/foo.One.unapply().
+(19:39..19:39) _empty_/foo.Bit0.unapply().
 (19:40..19:43) _empty_/foo.One. -> 3:20
-(19:61..19:61) scala/math/BigInt.apply().
+(19:43..19:43) _empty_/foo.One.unapply().
 (19:55..19:61) scala/package.BigInt.
-(20:14..20:14) _empty_/foo.Char.unapply().
+(19:61..19:61) scala/math/BigInt.apply().
 (20:10..20:14) _empty_/foo.Char. -> 9:20
-(20:19..20:19) _empty_/foo.Bit0.unapply().
+(20:14..20:14) _empty_/foo.Char.unapply().
 (20:15..20:19) _empty_/foo.Bit0. -> 4:20
-(20:24..20:24) _empty_/foo.Bit0.unapply().
+(20:19..20:19) _empty_/foo.Bit0.unapply().
 (20:20..20:24) _empty_/foo.Bit0. -> 4:20
-(20:29..20:29) _empty_/foo.Bit1.unapply().
+(20:24..20:24) _empty_/foo.Bit0.unapply().
 (20:25..20:29) _empty_/foo.Bit1. -> 5:20
-(20:34..20:34) _empty_/foo.Bit0.unapply().
+(20:29..20:29) _empty_/foo.Bit1.unapply().
 (20:30..20:34) _empty_/foo.Bit0. -> 4:20
-(20:39..20:39) _empty_/foo.Bit0.unapply().
+(20:34..20:34) _empty_/foo.Bit0.unapply().
 (20:35..20:39) _empty_/foo.Bit0. -> 4:20
-(20:43..20:43) _empty_/foo.One.unapply().
+(20:39..20:39) _empty_/foo.Bit0.unapply().
 (20:40..20:43) _empty_/foo.One. -> 3:20
-(20:61..20:61) scala/math/BigInt.apply().
+(20:43..20:43) _empty_/foo.One.unapply().
 (20:55..20:61) scala/package.BigInt.
-(21:14..21:14) _empty_/foo.Char.unapply().
+(20:61..20:61) scala/math/BigInt.apply().
 (21:10..21:14) _empty_/foo.Char. -> 9:20
-(21:19..21:19) _empty_/foo.Bit1.unapply().
+(21:14..21:14) _empty_/foo.Char.unapply().
 (21:15..21:19) _empty_/foo.Bit1. -> 5:20
-(21:24..21:24) _empty_/foo.Bit1.unapply().
+(21:19..21:19) _empty_/foo.Bit1.unapply().
 (21:20..21:24) _empty_/foo.Bit1. -> 5:20
-(21:29..21:29) _empty_/foo.Bit0.unapply().
+(21:24..21:24) _empty_/foo.Bit1.unapply().
 (21:25..21:29) _empty_/foo.Bit0. -> 4:20
-(21:34..21:34) _empty_/foo.Bit0.unapply().
+(21:29..21:29) _empty_/foo.Bit0.unapply().
 (21:30..21:34) _empty_/foo.Bit0. -> 4:20
-(21:39..21:39) _empty_/foo.Bit0.unapply().
+(21:34..21:34) _empty_/foo.Bit0.unapply().
 (21:35..21:39) _empty_/foo.Bit0. -> 4:20
-(21:43..21:43) _empty_/foo.One.unapply().
+(21:39..21:39) _empty_/foo.Bit0.unapply().
 (21:40..21:43) _empty_/foo.One. -> 3:20
-(21:61..21:61) scala/math/BigInt.apply().
+(21:43..21:43) _empty_/foo.One.unapply().
 (21:55..21:61) scala/package.BigInt.
-(22:14..22:14) _empty_/foo.Char.unapply().
+(21:61..21:61) scala/math/BigInt.apply().
 (22:10..22:14) _empty_/foo.Char. -> 9:20
-(22:19..22:19) _empty_/foo.Bit0.unapply().
+(22:14..22:14) _empty_/foo.Char.unapply().
 (22:15..22:19) _empty_/foo.Bit0. -> 4:20
-(22:24..22:24) _empty_/foo.Bit1.unapply().
+(22:19..22:19) _empty_/foo.Bit0.unapply().
 (22:20..22:24) _empty_/foo.Bit1. -> 5:20
-(22:29..22:29) _empty_/foo.Bit0.unapply().
+(22:24..22:24) _empty_/foo.Bit1.unapply().
 (22:25..22:29) _empty_/foo.Bit0. -> 4:20
-(22:34..22:34) _empty_/foo.Bit0.unapply().
+(22:29..22:29) _empty_/foo.Bit0.unapply().
 (22:30..22:34) _empty_/foo.Bit0. -> 4:20
-(22:39..22:39) _empty_/foo.Bit0.unapply().
+(22:34..22:34) _empty_/foo.Bit0.unapply().
 (22:35..22:39) _empty_/foo.Bit0. -> 4:20
-(22:43..22:43) _empty_/foo.One.unapply().
+(22:39..22:39) _empty_/foo.Bit0.unapply().
 (22:40..22:43) _empty_/foo.One. -> 3:20
-(22:61..22:61) scala/math/BigInt.apply().
+(22:43..22:43) _empty_/foo.One.unapply().
 (22:55..22:61) scala/package.BigInt.
-(23:14..23:14) _empty_/foo.Char.unapply().
+(22:61..22:61) scala/math/BigInt.apply().
 (23:10..23:14) _empty_/foo.Char. -> 9:20
-(23:19..23:19) _empty_/foo.Bit1.unapply().
+(23:14..23:14) _empty_/foo.Char.unapply().
 (23:15..23:19) _empty_/foo.Bit1. -> 5:20
-(23:24..23:24) _empty_/foo.Bit0.unapply().
+(23:19..23:19) _empty_/foo.Bit1.unapply().
 (23:20..23:24) _empty_/foo.Bit0. -> 4:20
-(23:29..23:29) _empty_/foo.Bit0.unapply().
+(23:24..23:24) _empty_/foo.Bit0.unapply().
 (23:25..23:29) _empty_/foo.Bit0. -> 4:20
-(23:34..23:34) _empty_/foo.Bit0.unapply().
+(23:29..23:29) _empty_/foo.Bit0.unapply().
 (23:30..23:34) _empty_/foo.Bit0. -> 4:20
-(23:39..23:39) _empty_/foo.Bit0.unapply().
+(23:34..23:34) _empty_/foo.Bit0.unapply().
 (23:35..23:39) _empty_/foo.Bit0. -> 4:20
-(23:43..23:43) _empty_/foo.One.unapply().
+(23:39..23:39) _empty_/foo.Bit0.unapply().
 (23:40..23:43) _empty_/foo.One. -> 3:20
-(23:61..23:61) scala/math/BigInt.apply().
+(23:43..23:43) _empty_/foo.One.unapply().
 (23:55..23:61) scala/package.BigInt.
-(24:14..24:14) _empty_/foo.Char.unapply().
+(23:61..23:61) scala/math/BigInt.apply().
 (24:10..24:14) _empty_/foo.Char. -> 9:20
-(24:19..24:19) _empty_/foo.Bit0.unapply().
+(24:14..24:14) _empty_/foo.Char.unapply().
 (24:15..24:19) _empty_/foo.Bit0. -> 4:20
-(24:24..24:24) _empty_/foo.Bit0.unapply().
+(24:19..24:19) _empty_/foo.Bit0.unapply().
 (24:20..24:24) _empty_/foo.Bit0. -> 4:20
-(24:29..24:29) _empty_/foo.Bit0.unapply().
+(24:24..24:24) _empty_/foo.Bit0.unapply().
 (24:25..24:29) _empty_/foo.Bit0. -> 4:20
-(24:34..24:34) _empty_/foo.Bit0.unapply().
+(24:29..24:29) _empty_/foo.Bit0.unapply().
 (24:30..24:34) _empty_/foo.Bit0. -> 4:20
-(24:39..24:39) _empty_/foo.Bit0.unapply().
+(24:34..24:34) _empty_/foo.Bit0.unapply().
 (24:35..24:39) _empty_/foo.Bit0. -> 4:20
-(24:43..24:43) _empty_/foo.One.unapply().
+(24:39..24:39) _empty_/foo.Bit0.unapply().
 (24:40..24:43) _empty_/foo.One. -> 3:20
-(24:61..24:61) scala/math/BigInt.apply().
+(24:43..24:43) _empty_/foo.One.unapply().
 (24:55..24:61) scala/package.BigInt.
-(25:14..25:14) _empty_/foo.Char.unapply().
+(24:61..24:61) scala/math/BigInt.apply().
 (25:10..25:14) _empty_/foo.Char. -> 9:20
-(25:19..25:19) _empty_/foo.Bit1.unapply().
+(25:14..25:14) _empty_/foo.Char.unapply().
 (25:15..25:19) _empty_/foo.Bit1. -> 5:20
-(25:24..25:24) _empty_/foo.Bit1.unapply().
+(25:19..25:19) _empty_/foo.Bit1.unapply().
 (25:20..25:24) _empty_/foo.Bit1. -> 5:20
-(25:29..25:29) _empty_/foo.Bit1.unapply().
+(25:24..25:24) _empty_/foo.Bit1.unapply().
 (25:25..25:29) _empty_/foo.Bit1. -> 5:20
-(25:34..25:34) _empty_/foo.Bit1.unapply().
+(25:29..25:29) _empty_/foo.Bit1.unapply().
 (25:30..25:34) _empty_/foo.Bit1. -> 5:20
-(25:38..25:38) _empty_/foo.One.unapply().
+(25:34..25:34) _empty_/foo.Bit1.unapply().
 (25:35..25:38) _empty_/foo.One. -> 3:20
-(25:55..25:55) scala/math/BigInt.apply().
+(25:38..25:38) _empty_/foo.One.unapply().
 (25:49..25:55) scala/package.BigInt.
-(26:14..26:14) _empty_/foo.Char.unapply().
+(25:55..25:55) scala/math/BigInt.apply().
 (26:10..26:14) _empty_/foo.Char. -> 9:20
-(26:19..26:19) _empty_/foo.Bit0.unapply().
+(26:14..26:14) _empty_/foo.Char.unapply().
 (26:15..26:19) _empty_/foo.Bit0. -> 4:20
-(26:24..26:24) _empty_/foo.Bit1.unapply().
+(26:19..26:19) _empty_/foo.Bit0.unapply().
 (26:20..26:24) _empty_/foo.Bit1. -> 5:20
-(26:29..26:29) _empty_/foo.Bit1.unapply().
+(26:24..26:24) _empty_/foo.Bit1.unapply().
 (26:25..26:29) _empty_/foo.Bit1. -> 5:20
-(26:34..26:34) _empty_/foo.Bit1.unapply().
+(26:29..26:29) _empty_/foo.Bit1.unapply().
 (26:30..26:34) _empty_/foo.Bit1. -> 5:20
-(26:38..26:38) _empty_/foo.One.unapply().
+(26:34..26:34) _empty_/foo.Bit1.unapply().
 (26:35..26:38) _empty_/foo.One. -> 3:20
-(26:55..26:55) scala/math/BigInt.apply().
+(26:38..26:38) _empty_/foo.One.unapply().
 (26:49..26:55) scala/package.BigInt.
-(27:14..27:14) _empty_/foo.Char.unapply().
+(26:55..26:55) scala/math/BigInt.apply().
 (27:10..27:14) _empty_/foo.Char. -> 9:20
-(27:19..27:19) _empty_/foo.Bit1.unapply().
+(27:14..27:14) _empty_/foo.Char.unapply().
 (27:15..27:19) _empty_/foo.Bit1. -> 5:20
-(27:24..27:24) _empty_/foo.Bit0.unapply().
+(27:19..27:19) _empty_/foo.Bit1.unapply().
 (27:20..27:24) _empty_/foo.Bit0. -> 4:20
-(27:29..27:29) _empty_/foo.Bit1.unapply().
+(27:24..27:24) _empty_/foo.Bit0.unapply().
 (27:25..27:29) _empty_/foo.Bit1. -> 5:20
-(27:34..27:34) _empty_/foo.Bit1.unapply().
+(27:29..27:29) _empty_/foo.Bit1.unapply().
 (27:30..27:34) _empty_/foo.Bit1. -> 5:20
-(27:38..27:38) _empty_/foo.One.unapply().
+(27:34..27:34) _empty_/foo.Bit1.unapply().
 (27:35..27:38) _empty_/foo.One. -> 3:20
-(27:55..27:55) scala/math/BigInt.apply().
+(27:38..27:38) _empty_/foo.One.unapply().
 (27:49..27:55) scala/package.BigInt.
-(28:14..28:14) _empty_/foo.Char.unapply().
+(27:55..27:55) scala/math/BigInt.apply().
 (28:10..28:14) _empty_/foo.Char. -> 9:20
-(28:19..28:19) _empty_/foo.Bit0.unapply().
+(28:14..28:14) _empty_/foo.Char.unapply().
 (28:15..28:19) _empty_/foo.Bit0. -> 4:20
-(28:24..28:24) _empty_/foo.Bit0.unapply().
+(28:19..28:19) _empty_/foo.Bit0.unapply().
 (28:20..28:24) _empty_/foo.Bit0. -> 4:20
-(28:29..28:29) _empty_/foo.Bit1.unapply().
+(28:24..28:24) _empty_/foo.Bit0.unapply().
 (28:25..28:29) _empty_/foo.Bit1. -> 5:20
-(28:34..28:34) _empty_/foo.Bit1.unapply().
+(28:29..28:29) _empty_/foo.Bit1.unapply().
 (28:30..28:34) _empty_/foo.Bit1. -> 5:20
-(28:38..28:38) _empty_/foo.One.unapply().
+(28:34..28:34) _empty_/foo.Bit1.unapply().
 (28:35..28:38) _empty_/foo.One. -> 3:20
-(28:55..28:55) scala/math/BigInt.apply().
+(28:38..28:38) _empty_/foo.One.unapply().
 (28:49..28:55) scala/package.BigInt.
-(29:14..29:14) _empty_/foo.Char.unapply().
+(28:55..28:55) scala/math/BigInt.apply().
 (29:10..29:14) _empty_/foo.Char. -> 9:20
-(29:19..29:19) _empty_/foo.Bit1.unapply().
+(29:14..29:14) _empty_/foo.Char.unapply().
 (29:15..29:19) _empty_/foo.Bit1. -> 5:20
-(29:24..29:24) _empty_/foo.Bit1.unapply().
+(29:19..29:19) _empty_/foo.Bit1.unapply().
 (29:20..29:24) _empty_/foo.Bit1. -> 5:20
-(29:29..29:29) _empty_/foo.Bit0.unapply().
+(29:24..29:24) _empty_/foo.Bit1.unapply().
 (29:25..29:29) _empty_/foo.Bit0. -> 4:20
-(29:34..29:34) _empty_/foo.Bit1.unapply().
+(29:29..29:29) _empty_/foo.Bit0.unapply().
 (29:30..29:34) _empty_/foo.Bit1. -> 5:20
-(29:38..29:38) _empty_/foo.One.unapply().
+(29:34..29:34) _empty_/foo.Bit1.unapply().
 (29:35..29:38) _empty_/foo.One. -> 3:20
-(29:55..29:55) scala/math/BigInt.apply().
+(29:38..29:38) _empty_/foo.One.unapply().
 (29:49..29:55) scala/package.BigInt.
-(30:14..30:14) _empty_/foo.Char.unapply().
+(29:55..29:55) scala/math/BigInt.apply().
 (30:10..30:14) _empty_/foo.Char. -> 9:20
-(30:19..30:19) _empty_/foo.Bit0.unapply().
+(30:14..30:14) _empty_/foo.Char.unapply().
 (30:15..30:19) _empty_/foo.Bit0. -> 4:20
-(30:24..30:24) _empty_/foo.Bit1.unapply().
+(30:19..30:19) _empty_/foo.Bit0.unapply().
 (30:20..30:24) _empty_/foo.Bit1. -> 5:20
-(30:29..30:29) _empty_/foo.Bit0.unapply().
+(30:24..30:24) _empty_/foo.Bit1.unapply().
 (30:25..30:29) _empty_/foo.Bit0. -> 4:20
-(30:34..30:34) _empty_/foo.Bit1.unapply().
+(30:29..30:29) _empty_/foo.Bit0.unapply().
 (30:30..30:34) _empty_/foo.Bit1. -> 5:20
-(30:38..30:38) _empty_/foo.One.unapply().
+(30:34..30:34) _empty_/foo.Bit1.unapply().
 (30:35..30:38) _empty_/foo.One. -> 3:20
-(30:55..30:55) scala/math/BigInt.apply().
+(30:38..30:38) _empty_/foo.One.unapply().
 (30:49..30:55) scala/package.BigInt.
-(31:14..31:14) _empty_/foo.Char.unapply().
+(30:55..30:55) scala/math/BigInt.apply().
 (31:10..31:14) _empty_/foo.Char. -> 9:20
-(31:19..31:19) _empty_/foo.Bit1.unapply().
+(31:14..31:14) _empty_/foo.Char.unapply().
 (31:15..31:19) _empty_/foo.Bit1. -> 5:20
-(31:24..31:24) _empty_/foo.Bit0.unapply().
+(31:19..31:19) _empty_/foo.Bit1.unapply().
 (31:20..31:24) _empty_/foo.Bit0. -> 4:20
-(31:29..31:29) _empty_/foo.Bit0.unapply().
+(31:24..31:24) _empty_/foo.Bit0.unapply().
 (31:25..31:29) _empty_/foo.Bit0. -> 4:20
-(31:34..31:34) _empty_/foo.Bit1.unapply().
+(31:29..31:29) _empty_/foo.Bit0.unapply().
 (31:30..31:34) _empty_/foo.Bit1. -> 5:20
-(31:38..31:38) _empty_/foo.One.unapply().
+(31:34..31:34) _empty_/foo.Bit1.unapply().
 (31:35..31:38) _empty_/foo.One. -> 3:20
-(31:55..31:55) scala/math/BigInt.apply().
+(31:38..31:38) _empty_/foo.One.unapply().
 (31:49..31:55) scala/package.BigInt.
-(32:14..32:14) _empty_/foo.Char.unapply().
+(31:55..31:55) scala/math/BigInt.apply().
 (32:10..32:14) _empty_/foo.Char. -> 9:20
-(32:19..32:19) _empty_/foo.Bit0.unapply().
+(32:14..32:14) _empty_/foo.Char.unapply().
 (32:15..32:19) _empty_/foo.Bit0. -> 4:20
-(32:24..32:24) _empty_/foo.Bit0.unapply().
+(32:19..32:19) _empty_/foo.Bit0.unapply().
 (32:20..32:24) _empty_/foo.Bit0. -> 4:20
-(32:29..32:29) _empty_/foo.Bit0.unapply().
+(32:24..32:24) _empty_/foo.Bit0.unapply().
 (32:25..32:29) _empty_/foo.Bit0. -> 4:20
-(32:34..32:34) _empty_/foo.Bit1.unapply().
+(32:29..32:29) _empty_/foo.Bit0.unapply().
 (32:30..32:34) _empty_/foo.Bit1. -> 5:20
-(32:38..32:38) _empty_/foo.One.unapply().
+(32:34..32:34) _empty_/foo.Bit1.unapply().
 (32:35..32:38) _empty_/foo.One. -> 3:20
-(32:55..32:55) scala/math/BigInt.apply().
+(32:38..32:38) _empty_/foo.One.unapply().
 (32:49..32:55) scala/package.BigInt.
-(33:14..33:14) _empty_/foo.Char.unapply().
+(32:55..32:55) scala/math/BigInt.apply().
 (33:10..33:14) _empty_/foo.Char. -> 9:20
-(33:19..33:19) _empty_/foo.Bit1.unapply().
+(33:14..33:14) _empty_/foo.Char.unapply().
 (33:15..33:19) _empty_/foo.Bit1. -> 5:20
-(33:24..33:24) _empty_/foo.Bit1.unapply().
+(33:19..33:19) _empty_/foo.Bit1.unapply().
 (33:20..33:24) _empty_/foo.Bit1. -> 5:20
-(33:29..33:29) _empty_/foo.Bit1.unapply().
+(33:24..33:24) _empty_/foo.Bit1.unapply().
 (33:25..33:29) _empty_/foo.Bit1. -> 5:20
-(33:34..33:34) _empty_/foo.Bit0.unapply().
+(33:29..33:29) _empty_/foo.Bit1.unapply().
 (33:30..33:34) _empty_/foo.Bit0. -> 4:20
-(33:38..33:38) _empty_/foo.One.unapply().
+(33:34..33:34) _empty_/foo.Bit0.unapply().
 (33:35..33:38) _empty_/foo.One. -> 3:20
-(33:55..33:55) scala/math/BigInt.apply().
+(33:38..33:38) _empty_/foo.One.unapply().
 (33:49..33:55) scala/package.BigInt.
-(34:14..34:14) _empty_/foo.Char.unapply().
+(33:55..33:55) scala/math/BigInt.apply().
 (34:10..34:14) _empty_/foo.Char. -> 9:20
-(34:19..34:19) _empty_/foo.Bit0.unapply().
+(34:14..34:14) _empty_/foo.Char.unapply().
 (34:15..34:19) _empty_/foo.Bit0. -> 4:20
-(34:24..34:24) _empty_/foo.Bit1.unapply().
+(34:19..34:19) _empty_/foo.Bit0.unapply().
 (34:20..34:24) _empty_/foo.Bit1. -> 5:20
-(34:29..34:29) _empty_/foo.Bit1.unapply().
+(34:24..34:24) _empty_/foo.Bit1.unapply().
 (34:25..34:29) _empty_/foo.Bit1. -> 5:20
-(34:34..34:34) _empty_/foo.Bit0.unapply().
+(34:29..34:29) _empty_/foo.Bit1.unapply().
 (34:30..34:34) _empty_/foo.Bit0. -> 4:20
-(34:38..34:38) _empty_/foo.One.unapply().
+(34:34..34:34) _empty_/foo.Bit0.unapply().
 (34:35..34:38) _empty_/foo.One. -> 3:20
-(34:55..34:55) scala/math/BigInt.apply().
+(34:38..34:38) _empty_/foo.One.unapply().
 (34:49..34:55) scala/package.BigInt.
-(35:14..35:14) _empty_/foo.Char.unapply().
+(34:55..34:55) scala/math/BigInt.apply().
 (35:10..35:14) _empty_/foo.Char. -> 9:20
-(35:19..35:19) _empty_/foo.Bit1.unapply().
+(35:14..35:14) _empty_/foo.Char.unapply().
 (35:15..35:19) _empty_/foo.Bit1. -> 5:20
-(35:24..35:24) _empty_/foo.Bit0.unapply().
+(35:19..35:19) _empty_/foo.Bit1.unapply().
 (35:20..35:24) _empty_/foo.Bit0. -> 4:20
-(35:29..35:29) _empty_/foo.Bit1.unapply().
+(35:24..35:24) _empty_/foo.Bit0.unapply().
 (35:25..35:29) _empty_/foo.Bit1. -> 5:20
-(35:34..35:34) _empty_/foo.Bit0.unapply().
+(35:29..35:29) _empty_/foo.Bit1.unapply().
 (35:30..35:34) _empty_/foo.Bit0. -> 4:20
-(35:38..35:38) _empty_/foo.One.unapply().
+(35:34..35:34) _empty_/foo.Bit0.unapply().
 (35:35..35:38) _empty_/foo.One. -> 3:20
-(35:55..35:55) scala/math/BigInt.apply().
+(35:38..35:38) _empty_/foo.One.unapply().
 (35:49..35:55) scala/package.BigInt.
-(36:14..36:14) _empty_/foo.Char.unapply().
+(35:55..35:55) scala/math/BigInt.apply().
 (36:10..36:14) _empty_/foo.Char. -> 9:20
-(36:19..36:19) _empty_/foo.Bit0.unapply().
+(36:14..36:14) _empty_/foo.Char.unapply().
 (36:15..36:19) _empty_/foo.Bit0. -> 4:20
-(36:24..36:24) _empty_/foo.Bit0.unapply().
+(36:19..36:19) _empty_/foo.Bit0.unapply().
 (36:20..36:24) _empty_/foo.Bit0. -> 4:20
-(36:29..36:29) _empty_/foo.Bit1.unapply().
+(36:24..36:24) _empty_/foo.Bit0.unapply().
 (36:25..36:29) _empty_/foo.Bit1. -> 5:20
-(36:34..36:34) _empty_/foo.Bit0.unapply().
+(36:29..36:29) _empty_/foo.Bit1.unapply().
 (36:30..36:34) _empty_/foo.Bit0. -> 4:20
-(36:38..36:38) _empty_/foo.One.unapply().
+(36:34..36:34) _empty_/foo.Bit0.unapply().
 (36:35..36:38) _empty_/foo.One. -> 3:20
-(36:55..36:55) scala/math/BigInt.apply().
+(36:38..36:38) _empty_/foo.One.unapply().
 (36:49..36:55) scala/package.BigInt.
-(37:14..37:14) _empty_/foo.Char.unapply().
+(36:55..36:55) scala/math/BigInt.apply().
 (37:10..37:14) _empty_/foo.Char. -> 9:20
-(37:19..37:19) _empty_/foo.Bit1.unapply().
+(37:14..37:14) _empty_/foo.Char.unapply().
 (37:15..37:19) _empty_/foo.Bit1. -> 5:20
-(37:24..37:24) _empty_/foo.Bit1.unapply().
+(37:19..37:19) _empty_/foo.Bit1.unapply().
 (37:20..37:24) _empty_/foo.Bit1. -> 5:20
-(37:29..37:29) _empty_/foo.Bit0.unapply().
+(37:24..37:24) _empty_/foo.Bit1.unapply().
 (37:25..37:29) _empty_/foo.Bit0. -> 4:20
-(37:34..37:34) _empty_/foo.Bit0.unapply().
+(37:29..37:29) _empty_/foo.Bit0.unapply().
 (37:30..37:34) _empty_/foo.Bit0. -> 4:20
-(37:38..37:38) _empty_/foo.One.unapply().
+(37:34..37:34) _empty_/foo.Bit0.unapply().
 (37:35..37:38) _empty_/foo.One. -> 3:20
-(37:55..37:55) scala/math/BigInt.apply().
+(37:38..37:38) _empty_/foo.One.unapply().
 (37:49..37:55) scala/package.BigInt.
-(38:14..38:14) _empty_/foo.Char.unapply().
+(37:55..37:55) scala/math/BigInt.apply().
 (38:10..38:14) _empty_/foo.Char. -> 9:20
-(38:19..38:19) _empty_/foo.Bit0.unapply().
+(38:14..38:14) _empty_/foo.Char.unapply().
 (38:15..38:19) _empty_/foo.Bit0. -> 4:20
-(38:24..38:24) _empty_/foo.Bit1.unapply().
+(38:19..38:19) _empty_/foo.Bit0.unapply().
 (38:20..38:24) _empty_/foo.Bit1. -> 5:20
-(38:29..38:29) _empty_/foo.Bit0.unapply().
+(38:24..38:24) _empty_/foo.Bit1.unapply().
 (38:25..38:29) _empty_/foo.Bit0. -> 4:20
-(38:34..38:34) _empty_/foo.Bit0.unapply().
+(38:29..38:29) _empty_/foo.Bit0.unapply().
 (38:30..38:34) _empty_/foo.Bit0. -> 4:20
-(38:38..38:38) _empty_/foo.One.unapply().
+(38:34..38:34) _empty_/foo.Bit0.unapply().
 (38:35..38:38) _empty_/foo.One. -> 3:20
-(38:55..38:55) scala/math/BigInt.apply().
+(38:38..38:38) _empty_/foo.One.unapply().
 (38:49..38:55) scala/package.BigInt.
-(39:14..39:14) _empty_/foo.Char.unapply().
+(38:55..38:55) scala/math/BigInt.apply().
 (39:10..39:14) _empty_/foo.Char. -> 9:20
-(39:19..39:19) _empty_/foo.Bit1.unapply().
+(39:14..39:14) _empty_/foo.Char.unapply().
 (39:15..39:19) _empty_/foo.Bit1. -> 5:20
-(39:24..39:24) _empty_/foo.Bit0.unapply().
+(39:19..39:19) _empty_/foo.Bit1.unapply().
 (39:20..39:24) _empty_/foo.Bit0. -> 4:20
-(39:29..39:29) _empty_/foo.Bit0.unapply().
+(39:24..39:24) _empty_/foo.Bit0.unapply().
 (39:25..39:29) _empty_/foo.Bit0. -> 4:20
-(39:34..39:34) _empty_/foo.Bit0.unapply().
+(39:29..39:29) _empty_/foo.Bit0.unapply().
 (39:30..39:34) _empty_/foo.Bit0. -> 4:20
-(39:38..39:38) _empty_/foo.One.unapply().
+(39:34..39:34) _empty_/foo.Bit0.unapply().
 (39:35..39:38) _empty_/foo.One. -> 3:20
-(39:55..39:55) scala/math/BigInt.apply().
+(39:38..39:38) _empty_/foo.One.unapply().
 (39:49..39:55) scala/package.BigInt.
-(40:14..40:14) _empty_/foo.Char.unapply().
+(39:55..39:55) scala/math/BigInt.apply().
 (40:10..40:14) _empty_/foo.Char. -> 9:20
-(40:19..40:19) _empty_/foo.Bit0.unapply().
+(40:14..40:14) _empty_/foo.Char.unapply().
 (40:15..40:19) _empty_/foo.Bit0. -> 4:20
-(40:24..40:24) _empty_/foo.Bit0.unapply().
+(40:19..40:19) _empty_/foo.Bit0.unapply().
 (40:20..40:24) _empty_/foo.Bit0. -> 4:20
-(40:29..40:29) _empty_/foo.Bit0.unapply().
+(40:24..40:24) _empty_/foo.Bit0.unapply().
 (40:25..40:29) _empty_/foo.Bit0. -> 4:20
-(40:34..40:34) _empty_/foo.Bit0.unapply().
+(40:29..40:29) _empty_/foo.Bit0.unapply().
 (40:30..40:34) _empty_/foo.Bit0. -> 4:20
-(40:38..40:38) _empty_/foo.One.unapply().
+(40:34..40:34) _empty_/foo.Bit0.unapply().
 (40:35..40:38) _empty_/foo.One. -> 3:20
-(40:55..40:55) scala/math/BigInt.apply().
+(40:38..40:38) _empty_/foo.One.unapply().
 (40:49..40:55) scala/package.BigInt.
-(41:14..41:14) _empty_/foo.Char.unapply().
+(40:55..40:55) scala/math/BigInt.apply().
 (41:10..41:14) _empty_/foo.Char. -> 9:20
-(41:19..41:19) _empty_/foo.Bit1.unapply().
+(41:14..41:14) _empty_/foo.Char.unapply().
 (41:15..41:19) _empty_/foo.Bit1. -> 5:20
-(41:24..41:24) _empty_/foo.Bit1.unapply().
+(41:19..41:19) _empty_/foo.Bit1.unapply().
 (41:20..41:24) _empty_/foo.Bit1. -> 5:20
-(41:29..41:29) _empty_/foo.Bit1.unapply().
+(41:24..41:24) _empty_/foo.Bit1.unapply().
 (41:25..41:29) _empty_/foo.Bit1. -> 5:20
-(41:33..41:33) _empty_/foo.One.unapply().
+(41:29..41:29) _empty_/foo.Bit1.unapply().
 (41:30..41:33) _empty_/foo.One. -> 3:20
-(41:49..41:49) scala/math/BigInt.apply().
+(41:33..41:33) _empty_/foo.One.unapply().
 (41:43..41:49) scala/package.BigInt.
-(42:14..42:14) _empty_/foo.Char.unapply().
+(41:49..41:49) scala/math/BigInt.apply().
 (42:10..42:14) _empty_/foo.Char. -> 9:20
-(42:19..42:19) _empty_/foo.Bit0.unapply().
+(42:14..42:14) _empty_/foo.Char.unapply().
 (42:15..42:19) _empty_/foo.Bit0. -> 4:20
-(42:24..42:24) _empty_/foo.Bit1.unapply().
+(42:19..42:19) _empty_/foo.Bit0.unapply().
 (42:20..42:24) _empty_/foo.Bit1. -> 5:20
-(42:29..42:29) _empty_/foo.Bit1.unapply().
+(42:24..42:24) _empty_/foo.Bit1.unapply().
 (42:25..42:29) _empty_/foo.Bit1. -> 5:20
-(42:33..42:33) _empty_/foo.One.unapply().
+(42:29..42:29) _empty_/foo.Bit1.unapply().
 (42:30..42:33) _empty_/foo.One. -> 3:20
-(42:49..42:49) scala/math/BigInt.apply().
+(42:33..42:33) _empty_/foo.One.unapply().
 (42:43..42:49) scala/package.BigInt.
-(43:14..43:14) _empty_/foo.Char.unapply().
+(42:49..42:49) scala/math/BigInt.apply().
 (43:10..43:14) _empty_/foo.Char. -> 9:20
-(43:19..43:19) _empty_/foo.Bit1.unapply().
+(43:14..43:14) _empty_/foo.Char.unapply().
 (43:15..43:19) _empty_/foo.Bit1. -> 5:20
-(43:24..43:24) _empty_/foo.Bit0.unapply().
+(43:19..43:19) _empty_/foo.Bit1.unapply().
 (43:20..43:24) _empty_/foo.Bit0. -> 4:20
-(43:29..43:29) _empty_/foo.Bit1.unapply().
+(43:24..43:24) _empty_/foo.Bit0.unapply().
 (43:25..43:29) _empty_/foo.Bit1. -> 5:20
-(43:33..43:33) _empty_/foo.One.unapply().
+(43:29..43:29) _empty_/foo.Bit1.unapply().
 (43:30..43:33) _empty_/foo.One. -> 3:20
-(43:49..43:49) scala/math/BigInt.apply().
+(43:33..43:33) _empty_/foo.One.unapply().
 (43:43..43:49) scala/package.BigInt.
-(44:14..44:14) _empty_/foo.Char.unapply().
+(43:49..43:49) scala/math/BigInt.apply().
 (44:10..44:14) _empty_/foo.Char. -> 9:20
-(44:19..44:19) _empty_/foo.Bit0.unapply().
+(44:14..44:14) _empty_/foo.Char.unapply().
 (44:15..44:19) _empty_/foo.Bit0. -> 4:20
-(44:24..44:24) _empty_/foo.Bit0.unapply().
+(44:19..44:19) _empty_/foo.Bit0.unapply().
 (44:20..44:24) _empty_/foo.Bit0. -> 4:20
-(44:29..44:29) _empty_/foo.Bit1.unapply().
+(44:24..44:24) _empty_/foo.Bit0.unapply().
 (44:25..44:29) _empty_/foo.Bit1. -> 5:20
-(44:33..44:33) _empty_/foo.One.unapply().
+(44:29..44:29) _empty_/foo.Bit1.unapply().
 (44:30..44:33) _empty_/foo.One. -> 3:20
-(44:49..44:49) scala/math/BigInt.apply().
+(44:33..44:33) _empty_/foo.One.unapply().
 (44:43..44:49) scala/package.BigInt.
-(45:14..45:14) _empty_/foo.Char.unapply().
+(44:49..44:49) scala/math/BigInt.apply().
 (45:10..45:14) _empty_/foo.Char. -> 9:20
-(45:19..45:19) _empty_/foo.Bit1.unapply().
+(45:14..45:14) _empty_/foo.Char.unapply().
 (45:15..45:19) _empty_/foo.Bit1. -> 5:20
-(45:24..45:24) _empty_/foo.Bit1.unapply().
+(45:19..45:19) _empty_/foo.Bit1.unapply().
 (45:20..45:24) _empty_/foo.Bit1. -> 5:20
-(45:29..45:29) _empty_/foo.Bit0.unapply().
+(45:24..45:24) _empty_/foo.Bit1.unapply().
 (45:25..45:29) _empty_/foo.Bit0. -> 4:20
-(45:33..45:33) _empty_/foo.One.unapply().
+(45:29..45:29) _empty_/foo.Bit0.unapply().
 (45:30..45:33) _empty_/foo.One. -> 3:20
-(45:49..45:49) scala/math/BigInt.apply().
+(45:33..45:33) _empty_/foo.One.unapply().
 (45:43..45:49) scala/package.BigInt.
-(46:14..46:14) _empty_/foo.Char.unapply().
+(45:49..45:49) scala/math/BigInt.apply().
 (46:10..46:14) _empty_/foo.Char. -> 9:20
-(46:19..46:19) _empty_/foo.Bit0.unapply().
+(46:14..46:14) _empty_/foo.Char.unapply().
 (46:15..46:19) _empty_/foo.Bit0. -> 4:20
-(46:24..46:24) _empty_/foo.Bit1.unapply().
+(46:19..46:19) _empty_/foo.Bit0.unapply().
 (46:20..46:24) _empty_/foo.Bit1. -> 5:20
-(46:29..46:29) _empty_/foo.Bit0.unapply().
+(46:24..46:24) _empty_/foo.Bit1.unapply().
 (46:25..46:29) _empty_/foo.Bit0. -> 4:20
-(46:33..46:33) _empty_/foo.One.unapply().
+(46:29..46:29) _empty_/foo.Bit0.unapply().
 (46:30..46:33) _empty_/foo.One. -> 3:20
-(46:49..46:49) scala/math/BigInt.apply().
+(46:33..46:33) _empty_/foo.One.unapply().
 (46:43..46:49) scala/package.BigInt.
-(47:14..47:14) _empty_/foo.Char.unapply().
+(46:49..46:49) scala/math/BigInt.apply().
 (47:10..47:14) _empty_/foo.Char. -> 9:20
-(47:19..47:19) _empty_/foo.Bit1.unapply().
+(47:14..47:14) _empty_/foo.Char.unapply().
 (47:15..47:19) _empty_/foo.Bit1. -> 5:20
-(47:24..47:24) _empty_/foo.Bit0.unapply().
+(47:19..47:19) _empty_/foo.Bit1.unapply().
 (47:20..47:24) _empty_/foo.Bit0. -> 4:20
-(47:29..47:29) _empty_/foo.Bit0.unapply().
+(47:24..47:24) _empty_/foo.Bit0.unapply().
 (47:25..47:29) _empty_/foo.Bit0. -> 4:20
-(47:33..47:33) _empty_/foo.One.unapply().
+(47:29..47:29) _empty_/foo.Bit0.unapply().
 (47:30..47:33) _empty_/foo.One. -> 3:20
-(47:49..47:49) scala/math/BigInt.apply().
+(47:33..47:33) _empty_/foo.One.unapply().
 (47:43..47:49) scala/package.BigInt.
-(48:14..48:14) _empty_/foo.Char.unapply().
+(47:49..47:49) scala/math/BigInt.apply().
 (48:10..48:14) _empty_/foo.Char. -> 9:20
-(48:19..48:19) _empty_/foo.Bit0.unapply().
+(48:14..48:14) _empty_/foo.Char.unapply().
 (48:15..48:19) _empty_/foo.Bit0. -> 4:20
-(48:24..48:24) _empty_/foo.Bit0.unapply().
+(48:19..48:19) _empty_/foo.Bit0.unapply().
 (48:20..48:24) _empty_/foo.Bit0. -> 4:20
-(48:29..48:29) _empty_/foo.Bit0.unapply().
+(48:24..48:24) _empty_/foo.Bit0.unapply().
 (48:25..48:29) _empty_/foo.Bit0. -> 4:20
-(48:33..48:33) _empty_/foo.One.unapply().
+(48:29..48:29) _empty_/foo.Bit0.unapply().
 (48:30..48:33) _empty_/foo.One. -> 3:20
-(48:49..48:49) scala/math/BigInt.apply().
+(48:33..48:33) _empty_/foo.One.unapply().
 (48:43..48:49) scala/package.BigInt.
-(49:14..49:14) _empty_/foo.Char.unapply().
+(48:49..48:49) scala/math/BigInt.apply().
 (49:10..49:14) _empty_/foo.Char. -> 9:20
-(49:19..49:19) _empty_/foo.Bit1.unapply().
+(49:14..49:14) _empty_/foo.Char.unapply().
 (49:15..49:19) _empty_/foo.Bit1. -> 5:20
-(49:24..49:24) _empty_/foo.Bit1.unapply().
+(49:19..49:19) _empty_/foo.Bit1.unapply().
 (49:20..49:24) _empty_/foo.Bit1. -> 5:20
-(49:28..49:28) _empty_/foo.One.unapply().
+(49:24..49:24) _empty_/foo.Bit1.unapply().
 (49:25..49:28) _empty_/foo.One. -> 3:20
-(49:43..49:43) scala/math/BigInt.apply().
+(49:28..49:28) _empty_/foo.One.unapply().
 (49:37..49:43) scala/package.BigInt.
-(50:14..50:14) _empty_/foo.Char.unapply().
+(49:43..49:43) scala/math/BigInt.apply().
 (50:10..50:14) _empty_/foo.Char. -> 9:20
-(50:19..50:19) _empty_/foo.Bit0.unapply().
+(50:14..50:14) _empty_/foo.Char.unapply().
 (50:15..50:19) _empty_/foo.Bit0. -> 4:20
-(50:24..50:24) _empty_/foo.Bit1.unapply().
+(50:19..50:19) _empty_/foo.Bit0.unapply().
 (50:20..50:24) _empty_/foo.Bit1. -> 5:20
-(50:28..50:28) _empty_/foo.One.unapply().
+(50:24..50:24) _empty_/foo.Bit1.unapply().
 (50:25..50:28) _empty_/foo.One. -> 3:20
-(50:43..50:43) scala/math/BigInt.apply().
+(50:28..50:28) _empty_/foo.One.unapply().
 (50:37..50:43) scala/package.BigInt.
-(51:14..51:14) _empty_/foo.Char.unapply().
+(50:43..50:43) scala/math/BigInt.apply().
 (51:10..51:14) _empty_/foo.Char. -> 9:20
-(51:19..51:19) _empty_/foo.Bit1.unapply().
+(51:14..51:14) _empty_/foo.Char.unapply().
 (51:15..51:19) _empty_/foo.Bit1. -> 5:20
-(51:24..51:24) _empty_/foo.Bit0.unapply().
+(51:19..51:19) _empty_/foo.Bit1.unapply().
 (51:20..51:24) _empty_/foo.Bit0. -> 4:20
-(51:28..51:28) _empty_/foo.One.unapply().
+(51:24..51:24) _empty_/foo.Bit0.unapply().
 (51:25..51:28) _empty_/foo.One. -> 3:20
-(51:43..51:43) scala/math/BigInt.apply().
+(51:28..51:28) _empty_/foo.One.unapply().
 (51:37..51:43) scala/package.BigInt.
-(52:14..52:14) _empty_/foo.Char.unapply().
+(51:43..51:43) scala/math/BigInt.apply().
 (52:10..52:14) _empty_/foo.Char. -> 9:20
-(52:19..52:19) _empty_/foo.Bit0.unapply().
+(52:14..52:14) _empty_/foo.Char.unapply().
 (52:15..52:19) _empty_/foo.Bit0. -> 4:20
-(52:24..52:24) _empty_/foo.Bit0.unapply().
+(52:19..52:19) _empty_/foo.Bit0.unapply().
 (52:20..52:24) _empty_/foo.Bit0. -> 4:20
-(52:28..52:28) _empty_/foo.One.unapply().
+(52:24..52:24) _empty_/foo.Bit0.unapply().
 (52:25..52:28) _empty_/foo.One. -> 3:20
-(52:43..52:43) scala/math/BigInt.apply().
+(52:28..52:28) _empty_/foo.One.unapply().
 (52:37..52:43) scala/package.BigInt.
-(53:14..53:14) _empty_/foo.Char.unapply().
+(52:43..52:43) scala/math/BigInt.apply().
 (53:10..53:14) _empty_/foo.Char. -> 9:20
-(53:19..53:19) _empty_/foo.Bit1.unapply().
+(53:14..53:14) _empty_/foo.Char.unapply().
 (53:15..53:19) _empty_/foo.Bit1. -> 5:20
-(53:23..53:23) _empty_/foo.One.unapply().
+(53:19..53:19) _empty_/foo.Bit1.unapply().
 (53:20..53:23) _empty_/foo.One. -> 3:20
-(53:37..53:37) scala/math/BigInt.apply().
+(53:23..53:23) _empty_/foo.One.unapply().
 (53:31..53:37) scala/package.BigInt.
-(54:14..54:14) _empty_/foo.Char.unapply().
+(53:37..53:37) scala/math/BigInt.apply().
 (54:10..54:14) _empty_/foo.Char. -> 9:20
-(54:19..54:19) _empty_/foo.Bit0.unapply().
+(54:14..54:14) _empty_/foo.Char.unapply().
 (54:15..54:19) _empty_/foo.Bit0. -> 4:20
-(54:23..54:23) _empty_/foo.One.unapply().
+(54:19..54:19) _empty_/foo.Bit0.unapply().
 (54:20..54:23) _empty_/foo.One. -> 3:20
-(54:37..54:37) scala/math/BigInt.apply().
+(54:23..54:23) _empty_/foo.One.unapply().
 (54:31..54:37) scala/package.BigInt.
-(55:14..55:14) _empty_/foo.Char.unapply().
+(54:37..54:37) scala/math/BigInt.apply().
 (55:10..55:14) _empty_/foo.Char. -> 9:20
-(55:18..55:18) _empty_/foo.One.unapply().
+(55:14..55:14) _empty_/foo.Char.unapply().
 (55:15..55:18) _empty_/foo.One. -> 3:20
-(55:31..55:31) scala/math/BigInt.apply().
+(55:18..55:18) _empty_/foo.One.unapply().
 (55:25..55:31) scala/package.BigInt.
-(56:19..56:19) _empty_/foo.zero_char.unapply().
+(55:31..55:31) scala/math/BigInt.apply().
 (56:10..56:19) _empty_/foo.zero_char. -> 8:20
-(56:31..56:31) scala/math/BigInt.apply().
+(56:19..56:19) _empty_/foo.zero_char.unapply().
 (56:25..56:31) scala/package.BigInt.
+(56:31..56:31) scala/math/BigInt.apply().
 

@@ -1,6 +1,6 @@
 Document tests/pos/i1202d.scala
 (2:18..2:23) scala/Predef.Class#
 (2:29..2:32) scala/Predef.`???`().
-(3:32..3:41) java/lang/Class#getMethod().
 (3:22..3:31) _empty_/Fail5#someClass. -> 2:7
+(3:32..3:41) java/lang/Class#getMethod().
 

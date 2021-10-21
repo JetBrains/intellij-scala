@@ -1,39 +1,39 @@
 Document tests/pos/t6948.scala
-(2:35..2:35) scala/util/Random#`<init>`(+3).
-(2:29..2:35) scala/util/Random#
-(2:24..2:28) scala/util/
 (2:18..2:23) scala/
-(3:17..3:24) scala/util/Random#shuffle().
+(2:24..2:28) scala/util/
+(2:29..2:35) scala/util/Random#
+(2:35..2:35) scala/util/Random#`<init>`(+3).
 (3:12..3:16) _empty_/t6948.rand. -> 2:7
-(3:27..3:29) scala/runtime/RichInt#to().
+(3:17..3:24) scala/util/Random#shuffle().
 (3:25..3:25) scala/LowPriorityImplicits#intWrapper().
+(3:27..3:29) scala/runtime/RichInt#to().
 (3:32..3:32) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
-(6:17..6:24) scala/util/Random#shuffle().
 (6:12..6:16) _empty_/t6948.rand. -> 2:7
-(6:31..6:31) scala/collection/IterableFactory#apply().
+(6:17..6:24) scala/util/Random#shuffle().
 (6:25..6:31) scala/package.Vector.
+(6:31..6:31) scala/collection/IterableFactory#apply().
 (6:41..6:41) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
-(7:17..7:24) scala/util/Random#shuffle().
 (7:12..7:16) _empty_/t6948.rand. -> 2:7
-(7:45..7:45) scala/collection/SeqFactory.Delegate#apply().
-(7:42..7:45) scala/collection/Seq.
-(7:31..7:41) scala/collection/
+(7:17..7:24) scala/util/Random#shuffle().
 (7:25..7:30) scala/
+(7:31..7:41) scala/collection/
+(7:42..7:45) scala/collection/Seq.
+(7:45..7:45) scala/collection/SeqFactory.Delegate#apply().
 (7:55..7:55) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
-(8:17..8:24) scala/util/Random#shuffle().
 (8:12..8:16) _empty_/t6948.rand. -> 2:7
-(8:55..8:55) scala/collection/SeqFactory.Delegate#apply().
-(8:52..8:55) scala/collection/immutable/Seq.
-(8:42..8:51) scala/collection/immutable/
-(8:31..8:41) scala/collection/
+(8:17..8:24) scala/util/Random#shuffle().
 (8:25..8:30) scala/
+(8:31..8:41) scala/collection/
+(8:42..8:51) scala/collection/immutable/
+(8:52..8:55) scala/collection/immutable/Seq.
+(8:55..8:55) scala/collection/SeqFactory.Delegate#apply().
 (8:65..8:65) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
-(9:17..9:24) scala/util/Random#shuffle().
 (9:12..9:16) _empty_/t6948.rand. -> 2:7
-(9:53..9:53) scala/collection/SeqFactory.Delegate#apply().
-(9:50..9:53) scala/collection/mutable/Seq.
-(9:42..9:49) scala/collection/mutable/
-(9:31..9:41) scala/collection/
+(9:17..9:24) scala/util/Random#shuffle().
 (9:25..9:30) scala/
+(9:31..9:41) scala/collection/
+(9:42..9:49) scala/collection/mutable/
+(9:50..9:53) scala/collection/mutable/Seq.
+(9:53..9:53) scala/collection/SeqFactory.Delegate#apply().
 (9:63..9:63) scala/collection/BuildFromLowPriority2#buildFromIterableOps().
 

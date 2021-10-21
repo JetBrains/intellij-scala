@@ -1,17 +1,17 @@
 Document tests/pos/lexical.scala
 (2:18..2:21) scala/Int#
-(3:27..3:28) scala/Int#`*`(+3).
-(3:24..3:25) scala/Int#`*`(+3).
-(3:21..3:22) scala/Int#`*`(+3).
 (3:18..3:19) scala/Int#`*`(+3).
+(3:21..3:22) scala/Int#`*`(+3).
+(3:24..3:25) scala/Int#`*`(+3).
+(3:27..3:28) scala/Int#`*`(+3).
 (3:28..3:29) _empty_/RichInt#n. -> 2:15
 (6:21..6:24) scala/App#
 (7:27..7:30) scala/Int#
 (7:33..7:40) _empty_/RichInt# -> 2:7
-(7:54..7:54) _empty_/RichInt#`<init>`(). -> 2:14
 (7:47..7:54) _empty_/RichInt# -> 2:7
+(7:54..7:54) _empty_/RichInt#`<init>`(). -> 2:14
 (7:55..7:56) _empty_/Test.RichInt().(n) -> 7:24
 (8:3..8:10) scala/Predef.println(+1).
-(8:14..8:18) _empty_/RichInt#days(). -> 3:7
 (8:11..8:11) _empty_/Test.RichInt(). -> 7:16
+(8:14..8:18) _empty_/RichInt#days(). -> 3:7
 

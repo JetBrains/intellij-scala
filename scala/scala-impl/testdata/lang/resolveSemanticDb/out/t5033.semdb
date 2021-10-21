@@ -1,15 +1,15 @@
 Document tests/pos/t5033.scala
 (10:18..10:23) _empty_/Fruit# -> 5:7
 (10:28..10:33) _empty_/Eater# -> 1:7
-(10:38..10:42) _empty_/Eater#Food# -> 2:8
 (10:36..10:37) _empty_/PipExtractor#extract().(b) -> 10:25
-(10:45..10:49) _empty_/Fruit#Seed# -> 6:8
+(10:38..10:42) _empty_/Eater#Food# -> 2:8
 (10:43..10:44) _empty_/PipExtractor#extract().(a) -> 10:15
+(10:45..10:49) _empty_/Fruit#Seed# -> 6:8
 (13:39..13:51) _empty_/PipExtractor# -> 9:7
 (14:18..14:23) _empty_/Fruit# -> 5:7
 (14:28..14:33) _empty_/Eater# -> 1:7
-(14:38..14:42) _empty_/Eater#Food# -> 2:8
 (14:36..14:37) _empty_/LaserGuidedPipExtractor#extract().(g) -> 14:25
-(14:45..14:49) _empty_/Fruit#Seed# -> 6:8
+(14:38..14:42) _empty_/Eater#Food# -> 2:8
 (14:43..14:44) _empty_/LaserGuidedPipExtractor#extract().(f) -> 14:15
+(14:45..14:49) _empty_/Fruit#Seed# -> 6:8
 

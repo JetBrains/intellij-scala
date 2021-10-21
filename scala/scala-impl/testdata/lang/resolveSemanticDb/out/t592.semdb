@@ -13,25 +13,25 @@ Document tests/pos/t592.scala
 (19:38..19:42) _empty_/Graph#Node# -> 3:8
 (20:16..20:22) _empty_/DirectedGraph#EdgeImpl#origin. -> 19:18
 (21:14..21:18) _empty_/DirectedGraph#EdgeImpl#dest. -> 19:32
-(22:49..22:50) java/lang/String#`+`().
-(22:41..22:42) java/lang/String#`+`().
 (22:32..22:33) java/lang/String#`+`().
 (22:34..22:40) _empty_/DirectedGraph#EdgeImpl#origin. -> 19:18
+(22:41..22:42) java/lang/String#`+`().
+(22:49..22:50) java/lang/String#`+`().
 (22:51..22:55) _empty_/DirectedGraph#EdgeImpl#dest. -> 19:32
 (25:26..25:34) _empty_/Graph#NodeIntf# -> 5:9
 (25:43..25:47) _empty_/Graph#Node# -> 3:8
 (26:14..26:17) _empty_/Graph#ids(). -> 13:17
 (27:5..27:8) _empty_/Graph#`ids_=`(). -> 13:17
-(27:15..27:16) scala/Int#`+`(+4).
 (27:11..27:14) _empty_/Graph#ids(). -> 13:17
+(27:15..27:16) scala/Int#`+`(+4).
 (28:27..28:31) _empty_/Graph#Node# -> 3:8
 (28:34..28:38) _empty_/DirectedGraph#Edge# -> 17:8
 (29:18..29:25) _empty_/DirectedGraph#newEdge(). -> 37:17
 (29:32..29:36) _empty_/DirectedGraph#NodeImpl#connectWith().(node) -> 28:21
 (30:7..30:12) _empty_/DirectedGraph#`edges_=`(). -> 39:7
-(30:28..30:28) scala/collection/immutable/List#`::`().
-(30:23..30:28) _empty_/DirectedGraph#edges(). -> 39:7
 (30:15..30:19) local1 -> 29:11
+(30:23..30:28) _empty_/DirectedGraph#edges(). -> 39:7
+(30:28..30:28) scala/collection/immutable/List#`::`().
 (31:7..31:11) local1 -> 29:11
 (33:37..33:38) java/lang/String#`+`().
 (33:39..33:41) _empty_/DirectedGraph#NodeImpl#id. -> 26:9
@@ -48,49 +48,49 @@ Document tests/pos/t592.scala
 (41:16..41:20) _empty_/Graph#Node# -> 3:8
 (42:16..42:23) _empty_/DirectedGraph#newNode(). -> 36:17
 (43:5..43:10) _empty_/DirectedGraph#`nodes_=`(). -> 38:7
-(43:26..43:26) scala/collection/immutable/List#`::`().
-(43:21..43:26) _empty_/DirectedGraph#nodes(). -> 38:7
 (43:13..43:17) local2 -> 42:9
+(43:21..43:26) _empty_/DirectedGraph#nodes(). -> 38:7
+(43:26..43:26) scala/collection/immutable/List#`::`().
 (44:5..44:9) local2 -> 42:9
-(48:50..48:50) _empty_/DirectedGraph#`<init>`(). -> 16:38
 (48:37..48:50) _empty_/DirectedGraph# -> 16:16
+(48:50..48:50) _empty_/DirectedGraph#`<init>`(). -> 16:38
 (49:15..49:23) _empty_/DirectedGraph#EdgeImpl# -> 19:9
 (50:15..50:23) _empty_/DirectedGraph#NodeImpl# -> 25:9
 (52:26..52:30) _empty_/ConcreteDirectedGraph#Node# -> 50:8
-(53:17..53:17) _empty_/DirectedGraph#NodeImpl#`<init>`(). -> 25:26
 (53:9..53:17) _empty_/DirectedGraph#NodeImpl# -> 25:9
+(53:17..53:17) _empty_/DirectedGraph#NodeImpl#`<init>`(). -> 25:26
 (56:28..56:32) _empty_/ConcreteDirectedGraph#Node# -> 50:8
 (56:37..56:41) _empty_/ConcreteDirectedGraph#Node# -> 50:8
 (56:44..56:48) _empty_/ConcreteDirectedGraph#Edge# -> 49:8
-(57:17..57:17) _empty_/DirectedGraph#EdgeImpl#`<init>`(). -> 19:17
 (57:9..57:17) _empty_/DirectedGraph#EdgeImpl# -> 19:9
+(57:17..57:17) _empty_/DirectedGraph#EdgeImpl#`<init>`(). -> 19:17
 (57:18..57:19) _empty_/ConcreteDirectedGraph#newEdge().(f) -> 56:25
 (57:21..57:22) _empty_/ConcreteDirectedGraph#newEdge().(t) -> 56:34
 (62:18..62:23) scala/Array#
 (62:24..62:30) scala/Predef.String#
 (62:34..62:38) scala/Unit#
 (63:12..63:17) _empty_/Graph# -> 1:7
-(63:45..63:45) _empty_/ConcreteDirectedGraph#`<init>`(). -> 48:37
 (63:24..63:45) _empty_/ConcreteDirectedGraph# -> 48:7
-(64:16..64:23) _empty_/Graph#addNode(). -> 11:7
+(63:45..63:45) _empty_/ConcreteDirectedGraph#`<init>`(). -> 48:37
 (64:14..64:15) local3 -> 63:9
-(65:16..65:23) _empty_/Graph#addNode(). -> 11:7
+(64:16..64:23) _empty_/Graph#addNode(). -> 11:7
 (65:14..65:15) local3 -> 63:9
-(66:16..66:23) _empty_/Graph#addNode(). -> 11:7
+(65:16..65:23) _empty_/Graph#addNode(). -> 11:7
 (66:14..66:15) local3 -> 63:9
-(67:13..67:20) scala/Console.println(+1).
+(66:16..66:23) _empty_/Graph#addNode(). -> 11:7
 (67:5..67:12) scala/Console.
-(67:24..67:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
+(67:13..67:20) scala/Console.println(+1).
 (67:21..67:23) local4 -> 64:9
+(67:24..67:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
 (67:36..67:38) local5 -> 65:9
-(68:13..68:20) scala/Console.println(+1).
 (68:5..68:12) scala/Console.
-(68:24..68:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
+(68:13..68:20) scala/Console.println(+1).
 (68:21..68:23) local5 -> 65:9
+(68:24..68:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
 (68:36..68:38) local6 -> 66:9
-(69:13..69:20) scala/Console.println(+1).
 (69:5..69:12) scala/Console.
-(69:24..69:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
+(69:13..69:20) scala/Console.println(+1).
 (69:21..69:23) local4 -> 64:9
+(69:24..69:35) _empty_/Graph#NodeIntf#connectWith(). -> 6:9
 (69:36..69:38) local6 -> 66:9
 

@@ -1,6 +1,6 @@
 Document tests/pos/i6312.scala
 (2:19..2:23) scala/Unit#
-(3:23..3:28) scala/compiletime/package$package.error().
-(3:11..3:22) scala/compiletime/
 (3:5..3:10) scala/
+(3:11..3:22) scala/compiletime/
+(3:23..3:28) scala/compiletime/package$package.error().
 

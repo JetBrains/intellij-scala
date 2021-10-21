@@ -8,11 +8,11 @@ Document tests/pos/t0039.scala
 (4:19..4:20) _empty_/Fixed#[A] -> 4:13
 (4:26..4:31) _empty_/Fixed# -> 4:7
 (4:32..4:33) _empty_/Fixed#[A] -> 4:13
-(4:67..4:67) _empty_/Extensible#`<init>`(). -> 1:26
 (4:44..4:54) _empty_/Extensible# -> 1:16
 (4:55..4:56) _empty_/Fixed#[A] -> 4:13
 (4:58..4:63) _empty_/Fixed# -> 4:7
 (4:64..4:65) _empty_/Fixed#[A] -> 4:13
+(4:67..4:67) _empty_/Extensible#`<init>`(). -> 1:26
 (4:68..4:69) _empty_/Fixed#x. -> 4:16
 (4:71..4:73) _empty_/Fixed#xs. -> 4:22
 (5:18..5:19) _empty_/Fixed#[A] -> 4:13

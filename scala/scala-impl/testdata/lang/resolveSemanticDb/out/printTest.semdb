@@ -1,15 +1,15 @@
 Document tests/pos/printTest.scala
 (3:15..3:18) scala/Int#
 (3:27..3:33) scala/Predef.String#
-(7:30..7:30) _empty_/C#`<init>`(). -> 3:8
 (7:21..7:22) _empty_/C# -> 3:7
 (7:23..7:29) scala/Predef.String#
-(9:13..9:13) _empty_/C#`<init>`(). -> 3:8
+(7:30..7:30) _empty_/C#`<init>`(). -> 3:8
 (9:7..9:8) _empty_/C# -> 3:7
 (9:9..9:12) scala/Int#
+(9:13..9:13) _empty_/C#`<init>`(). -> 3:8
 (11:14..11:15) _empty_/C# -> 3:7
 (11:16..11:19) scala/Int#
-(11:37..11:37) _empty_/C#`<init>`(). -> 3:8
 (11:28..11:29) _empty_/C# -> 3:7
 (11:30..11:36) scala/Predef.String#
+(11:37..11:37) _empty_/C#`<init>`(). -> 3:8
 

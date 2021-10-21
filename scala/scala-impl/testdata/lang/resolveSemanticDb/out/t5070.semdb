@@ -1,20 +1,20 @@
 Document tests/pos/t5070.scala
 (6:30..6:31) _empty_/A# -> 1:7
-(6:36..6:37) _empty_/A#T# -> 2:8
 (6:34..6:35) _empty_/O.b().(x) -> 6:27
-(6:44..6:49) scala/sys/package.error().
+(6:36..6:37) _empty_/A#T# -> 2:8
 (6:40..6:43) scala/sys/
+(6:44..6:49) scala/sys/package.error().
 (10:10..10:11) _empty_/O. -> 5:8
 (11:19..11:20) _empty_/A# -> 1:7
 (11:27..11:28) _empty_/A# -> 1:7
 (12:3..12:13) scala/Predef.implicitly().
-(12:16..12:17) _empty_/A#T# -> 2:8
 (12:14..12:15) _empty_/Test#a. -> 11:16
+(12:16..12:17) _empty_/A#T# -> 2:8
 (12:18..12:18) _empty_/O.b(). -> 6:16
 (12:18..12:18) _empty_/Test#a. -> 11:16
 (14:3..14:13) scala/Predef.implicitly().
-(14:16..14:17) _empty_/A#T# -> 2:8
 (14:14..14:15) _empty_/Test#a. -> 11:16
+(14:16..14:17) _empty_/A#T# -> 2:8
 (14:19..14:20) _empty_/O.b(). -> 6:16
 (14:21..14:22) _empty_/Test#a. -> 11:16
 (21:23..21:27) _empty_/ImplicitVsTypeAliasTezt#_For# -> 26:11
@@ -24,8 +24,8 @@ Document tests/pos/t5070.scala
 (22:36..22:37) _empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a] -> 22:28
 (22:41..22:44) _empty_/ImplicitVsTypeAliasTezt#Monad#For# -> 21:14
 (22:45..22:46) _empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a] -> 22:28
-(22:65..22:65) java/lang/Error#`<init>`(+1).
 (22:60..22:65) scala/package.Error#
+(22:65..22:65) java/lang/Error#`<init>`(+1).
 (27:23..27:24) _empty_/ImplicitVsTypeAliasTezt#_For#[a] -> 26:22
 (27:28..27:29) _empty_/ImplicitVsTypeAliasTezt#_For#map().[b] -> 27:17
 (27:32..27:33) _empty_/ImplicitVsTypeAliasTezt#_For#[m] -> 26:16
@@ -35,9 +35,9 @@ Document tests/pos/t5070.scala
 (30:48..30:53) _empty_/ImplicitVsTypeAliasTezt#Monad# -> 20:11
 (30:54..30:55) _empty_/ImplicitVsTypeAliasTezt#useMonad().[m] -> 30:18
 (31:16..31:17) _empty_/ImplicitVsTypeAliasTezt#useMonad().(i) -> 30:45
-(35:19..35:19) _empty_/ImplicitVsTypeAliasTezt#_For#map(). -> 27:13
 (35:18..35:18) _empty_/ImplicitVsTypeAliasTezt#Monad#toFor(). -> 22:22
 (35:18..35:19) _empty_/ImplicitVsTypeAliasTezt#useMonad().(m) -> 30:27
-(36:19..36:27) scala/Any#toString().
+(35:19..35:19) _empty_/ImplicitVsTypeAliasTezt#_For#map(). -> 27:13
 (36:17..36:18) local1 -> 35:13
+(36:19..36:27) scala/Any#toString().
 

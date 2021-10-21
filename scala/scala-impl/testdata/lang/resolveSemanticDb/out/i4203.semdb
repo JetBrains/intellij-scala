@@ -5,10 +5,10 @@ Document tests/pos/i4203.scala
 (4:26..4:29) scala/Int#
 (4:33..4:36) scala/Int#
 (4:39..4:40) _empty_/Test.foo().(b) -> 4:11
-(5:13..5:13) _empty_/Box.unapply(). -> 1:1
 (5:10..5:13) _empty_/Box. -> 1:12
+(5:13..5:13) _empty_/Box.unapply(). -> 1:1
 (6:23..6:26) scala/Int#
-(7:8..7:8) scala/ContextFunction1#apply().
 (7:7..7:8) local0 -> 5:14
 (7:8..7:8) local1 -> 6:20
+(7:8..7:8) scala/ContextFunction1#apply().
 

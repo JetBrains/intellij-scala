@@ -1,7 +1,7 @@
 Document tests/pos/t1208.scala
 (3:10..3:16) scala/Option#
 (3:17..3:20) _empty_/Test.Foo. -> 2:10
-(3:33..3:33) scala/Some.apply().
 (3:29..3:33) scala/Some.
+(3:33..3:33) scala/Some.apply().
 (3:34..3:37) _empty_/Test.Foo. -> 2:10
 

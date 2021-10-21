@@ -1,4 +1,4 @@
 Document tests/pos/simpleClass-2.scala
-(5:18..5:18) foo/B#`<init>`(). -> 3:1
 (5:17..5:18) foo/B# -> 3:7
+(5:18..5:18) foo/B#`<init>`(). -> 3:1
 

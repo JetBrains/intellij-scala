@@ -13,11 +13,11 @@ Document tests/pos/gadt-complexEQ.scala
 (5:62..5:63) _empty_/complexEQ.m().[D] -> 5:18
 (5:66..5:67) _empty_/complexEQ.m().[A] -> 5:9
 (6:5..6:7) _empty_/complexEQ.m().(e1) -> 5:21
-(7:16..7:16) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (7:12..7:16) _empty_/complexEQ.Refl. -> 3:20
+(7:16..7:16) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (7:22..7:24) _empty_/complexEQ.m().(e2) -> 5:40
-(8:18..8:18) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (8:14..8:18) _empty_/complexEQ.Refl. -> 3:20
+(8:18..8:18) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (9:20..9:21) _empty_/complexEQ.m().[B] -> 5:12
 (9:23..9:24) _empty_/complexEQ.m().[B] -> 5:12
 (9:29..9:29) scala/Tuple2.apply().
@@ -48,12 +48,12 @@ Document tests/pos/gadt-complexEQ.scala
 (17:10..17:12) _empty_/complexEQ.m2().(e1) -> 16:39
 (17:14..17:16) _empty_/complexEQ.m2().(e2) -> 16:58
 (18:13..18:13) scala/Tuple3.unapply().
-(18:17..18:17) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (18:13..18:17) _empty_/complexEQ.Refl. -> 3:20
-(18:25..18:25) _empty_/complexEQ.Refl.unapply(). -> 3:3
+(18:17..18:17) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (18:21..18:25) _empty_/complexEQ.Refl. -> 3:20
-(18:33..18:33) _empty_/complexEQ.Refl.unapply(). -> 3:3
+(18:25..18:25) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (18:29..18:33) _empty_/complexEQ.Refl. -> 3:20
+(18:33..18:33) _empty_/complexEQ.Refl.unapply(). -> 3:3
 (19:20..19:21) _empty_/complexEQ.m2().[B] -> 16:16
 (19:23..19:24) _empty_/complexEQ.m2().[B] -> 16:16
 (19:29..19:29) scala/Tuple2.apply().

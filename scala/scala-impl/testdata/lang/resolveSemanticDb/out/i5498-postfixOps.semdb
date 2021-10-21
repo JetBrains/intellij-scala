@@ -1,13 +1,13 @@
 Document tests/pos/i5498-postfixOps.scala
-(1:25..1:33) scala/concurrent/duration/
-(1:14..1:24) scala/concurrent/
 (1:8..1:13) scala/
-(5:5..5:11) scala/concurrent/duration/DurationConversions#second().
+(1:14..1:24) scala/concurrent/
+(1:25..1:33) scala/concurrent/duration/
 (5:3..5:3) scala/concurrent/duration/package.DurationInt().
-(7:13..7:19) scala/collection/IterableOps#filter().
-(7:6..7:6) scala/collection/SeqFactory.Delegate#apply().
+(5:5..5:11) scala/concurrent/duration/DurationConversions#second().
 (7:3..7:6) scala/package.Seq.
-(7:24..7:24) scala/collection/IterableFactory#apply().
-(7:20..7:24) scala/package.List.
+(7:6..7:6) scala/collection/SeqFactory.Delegate#apply().
+(7:13..7:19) scala/collection/IterableOps#filter().
 (7:20..7:20) local0
+(7:20..7:24) scala/package.List.
+(7:24..7:24) scala/collection/IterableFactory#apply().
 

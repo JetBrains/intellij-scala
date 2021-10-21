@@ -7,7 +7,7 @@ Document tests/pos/t5178.scala
 (8:46..8:52) scala/Option#
 (8:53..8:54) _empty_/DefaultFileOps#withLock().[R] -> 8:25
 (8:58..8:62) scala/None.
-(11:34..11:34) _empty_/FileOps#`<init>`(). -> 2:3
 (11:27..11:34) _empty_/FileOps# -> 1:16
+(11:34..11:34) _empty_/FileOps#`<init>`(). -> 2:3
 (11:40..11:54) _empty_/DefaultFileOps# -> 5:7
 

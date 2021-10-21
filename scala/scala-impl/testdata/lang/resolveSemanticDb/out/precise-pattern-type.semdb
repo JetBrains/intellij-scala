@@ -1,49 +1,49 @@
 Document tests/pos/precise-pattern-type.scala
 (3:17..3:24) scala/Boolean#
 (7:14..7:15) _empty_/`precise-pattern-type`.Tree#[T] -> 6:15
-(7:38..7:55) scala/annotation/unchecked/uncheckedVariance#
-(7:28..7:37) scala/annotation/unchecked/
 (7:17..7:27) scala/annotation/
+(7:28..7:37) scala/annotation/unchecked/
+(7:38..7:55) scala/annotation/unchecked/uncheckedVariance#
 (7:58..7:61) scala/Predef.`???`().
 (10:39..10:43) _empty_/`precise-pattern-type`.Tree# -> 6:9
 (10:44..10:45) _empty_/`precise-pattern-type`.Select#[T] -> 10:22
-(10:63..10:63) _empty_/`precise-pattern-type`.Tree#`<init>`(). -> 6:13
 (10:56..10:60) _empty_/`precise-pattern-type`.Tree# -> 6:9
 (10:61..10:62) _empty_/`precise-pattern-type`.Select#[T] -> 10:22
+(10:63..10:63) _empty_/`precise-pattern-type`.Tree#`<init>`(). -> 6:13
 (12:17..12:21) _empty_/`precise-pattern-type`.Tree# -> 6:9
 (12:22..12:26) _empty_/`precise-pattern-type`.Type# -> 2:9
 (12:35..12:36) _empty_/`precise-pattern-type`.test().[T] -> 12:12
 (12:40..12:44) _empty_/`precise-pattern-type`.test().(tree) -> 12:29
-(13:16..13:16) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (13:10..13:16) _empty_/`precise-pattern-type`.Select. -> 10:14
-(14:13..14:19) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
-(14:9..14:12) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(13:16..13:16) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (14:7..14:8) local0 -> 13:17
+(14:9..14:12) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(14:13..14:19) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
 (18:22..18:26) _empty_/`precise-pattern-type`.Tree# -> 6:9
 (18:27..18:31) _empty_/`precise-pattern-type`.Type# -> 2:9
 (19:15..19:23) _empty_/`precise-pattern-type`.O#ThisTree# -> 18:10
 (20:16..20:20) _empty_/`precise-pattern-type`.O#tree. -> 19:9
-(21:18..21:18) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (21:12..21:18) _empty_/`precise-pattern-type`.Select. -> 10:14
-(21:31..21:37) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
-(21:27..21:30) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(21:18..21:18) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (21:25..21:26) local1 -> 21:19
+(21:27..21:30) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(21:31..21:37) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
 (22:19..22:25) _empty_/`precise-pattern-type`.Select# -> 10:14
-(22:64..22:70) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
-(22:60..22:63) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
-(22:55..22:59) _empty_/`precise-pattern-type`.Select#qual. -> 10:33
 (22:33..22:38) local2 -> 22:12
 (22:41..22:47) _empty_/`precise-pattern-type`.Select# -> 10:14
 (22:48..22:52) _empty_/`precise-pattern-type`.Type# -> 2:9
+(22:55..22:59) _empty_/`precise-pattern-type`.Select#qual. -> 10:33
+(22:60..22:63) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(22:64..22:70) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
 (27:24..27:28) scala/Null#
 (27:33..27:37) _empty_/`precise-pattern-type`.Tree# -> 6:9
 (27:38..27:39) _empty_/`precise-pattern-type`.OO#ThisTree#[T] -> 27:19
 (28:16..28:24) _empty_/`precise-pattern-type`.OO#ThisTree# -> 27:10
 (28:25..28:29) _empty_/`precise-pattern-type`.Type# -> 2:9
 (28:34..28:35) _empty_/`precise-pattern-type`.OO#foo().(t) -> 28:13
-(29:18..29:18) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (29:12..29:18) _empty_/`precise-pattern-type`.Select. -> 10:14
-(29:31..29:37) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
-(29:27..29:30) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(29:18..29:18) _empty_/`precise-pattern-type`.Select.unapply(). -> 10:3
 (29:25..29:26) local4 -> 29:19
+(29:27..29:30) _empty_/`precise-pattern-type`.Tree#tpe(). -> 7:9
+(29:31..29:37) _empty_/`precise-pattern-type`.Type#isType(). -> 3:9
 

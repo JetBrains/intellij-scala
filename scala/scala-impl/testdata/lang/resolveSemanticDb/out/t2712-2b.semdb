@@ -9,8 +9,8 @@ Document tests/pos/t2712-2b.scala
 (12:32..12:33) test/Test.test1().[M] -> 12:13
 (12:34..12:35) test/Test.test1().[A] -> 12:19
 (12:39..12:40) test/Test.test1().(x) -> 12:22
-(14:20..14:20) test/Foo#`<init>`(). -> 10:19
 (14:17..14:20) test/Foo# -> 10:7
+(14:20..14:20) test/Foo#`<init>`(). -> 10:19
 (16:3..16:8) test/Test.test1(). -> 12:7
 (16:9..16:12) test/Test.foo. -> 14:7
 (16:15..16:18) test/One# -> 7:7

@@ -2,8 +2,8 @@ Document tests/pos/test-implicits.scala
 (3:14..3:17) scala/Int#
 (5:25..5:28) scala/Int#
 (5:31..5:32) _empty_/Test.X# -> 3:9
-(5:40..5:40) _empty_/Test.X#`<init>`(). -> 3:10
 (5:39..5:40) _empty_/Test.X# -> 3:9
+(5:40..5:40) _empty_/Test.X#`<init>`(). -> 3:10
 (5:41..5:42) _empty_/Test.int2x().(i) -> 5:22
 (7:10..7:11) _empty_/Test.X# -> 3:9
 (7:14..7:14) _empty_/Test.int2x(). -> 5:16

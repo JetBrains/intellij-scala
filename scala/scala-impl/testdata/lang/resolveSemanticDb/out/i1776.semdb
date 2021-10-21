@@ -1,11 +1,11 @@
 Document tests/pos/i1776.scala
 (1:16..1:22) scala/Predef.String#
 (2:15..2:21) scala/Predef.String#
-(2:32..2:32) _empty_/X#`<init>`(). -> 1:8
 (2:31..2:32) _empty_/X# -> 1:7
+(2:32..2:32) _empty_/X#`<init>`(). -> 1:8
 (2:33..2:34) _empty_/Y#y. -> 2:9
 (3:15..3:21) scala/Predef.String#
-(3:32..3:32) _empty_/X#`<init>`(). -> 1:8
 (3:31..3:32) _empty_/X# -> 1:7
+(3:32..3:32) _empty_/X#`<init>`(). -> 1:8
 (3:33..3:34) _empty_/Z#z. -> 3:9
 

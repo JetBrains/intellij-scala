@@ -10,8 +10,8 @@ Document tests/pos/t5829.scala
 (14:10..14:18) _empty_/Test.universe. -> 13:7
 (15:24..15:27) scala/Predef.`???`().
 (16:22..16:25) scala/Predef.`???`().
-(17:7..17:7) scala/collection/IterableFactory#apply().
 (17:3..17:7) scala/package.List.
+(17:7..17:7) scala/collection/IterableFactory#apply().
 (17:8..17:14) _empty_/Test.select(). -> 15:7
 (17:16..17:21) _empty_/Test.ident(). -> 16:7
 

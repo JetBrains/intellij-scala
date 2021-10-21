@@ -10,14 +10,14 @@ Document tests/pos/t2023.scala
 (8:40..8:41) _empty_/P.foo().[A] -> 8:11
 (8:45..8:49) scala/Unit#
 (12:20..12:24) scala/Unit#
-(13:7..13:10) _empty_/P.foo(). -> 8:7
 (13:5..13:6) _empty_/P. -> 7:8
+(13:7..13:10) _empty_/P.foo(). -> 8:7
 (13:20..13:20) _empty_/C.ipl(). -> 4:16
-(13:20..13:20) scala/LowPriorityImplicits#charWrapper().
 (13:20..13:20) local0
-(14:7..14:10) _empty_/P.foo(). -> 8:7
+(13:20..13:20) scala/LowPriorityImplicits#charWrapper().
 (14:5..14:6) _empty_/P. -> 7:8
+(14:7..14:10) _empty_/P.foo(). -> 8:7
 (14:20..14:20) _empty_/C.ipl(). -> 4:16
-(14:20..14:20) scala/LowPriorityImplicits#charWrapper().
 (14:20..14:20) local1
+(14:20..14:20) scala/LowPriorityImplicits#charWrapper().
 

@@ -8,14 +8,14 @@ Document tests/pos/intersection.scala
 (9:15..9:18) scala/Predef.`???`().
 (9:20..9:21) _empty_/intersection.x. -> 6:7
 (9:27..9:28) _empty_/intersection.y. -> 7:7
-(11:12..11:13) scala/`&`#
 (11:10..11:11) _empty_/intersection.A# -> 3:9
+(11:12..11:13) scala/`&`#
 (11:14..11:15) _empty_/intersection.B# -> 4:9
 (11:19..11:23) scala/Unit#
 (11:26..11:27) _empty_/intersection.z. -> 9:7
-(14:22..14:23) scala/`|`#
 (14:11..14:12) _empty_/intersection.A# -> 3:9
 (14:16..14:20) scala/Unit#
+(14:22..14:23) scala/`|`#
 (14:25..14:26) _empty_/intersection.B# -> 4:9
 (14:30..14:34) scala/Unit#
 (14:42..14:45) scala/Predef.`???`().
@@ -25,20 +25,20 @@ Document tests/pos/intersection.scala
 (16:22..16:29) scala/Nothing#
 (17:17..17:18) _empty_/intersection.B# -> 4:9
 (17:22..17:29) scala/Nothing#
-(21:15..21:16) scala/`&`#
 (21:10..21:11) _empty_/intersection.C# -> 20:9
 (21:12..21:13) _empty_/intersection.A# -> 3:9
+(21:15..21:16) scala/`&`#
 (21:17..21:18) _empty_/intersection.C# -> 20:9
 (21:19..21:20) _empty_/intersection.B# -> 4:9
 (21:24..21:27) scala/Predef.`???`().
 (22:10..22:11) _empty_/intersection.C# -> 20:9
-(22:14..22:15) scala/`|`#
 (22:12..22:13) _empty_/intersection.A# -> 3:9
+(22:14..22:15) scala/`|`#
 (22:16..22:17) _empty_/intersection.B# -> 4:9
 (22:21..22:22) _empty_/intersection.f(). -> 21:7
-(23:15..23:16) scala/`&`#
 (23:10..23:11) _empty_/intersection.C# -> 20:9
 (23:12..23:13) _empty_/intersection.A# -> 3:9
+(23:15..23:16) scala/`&`#
 (23:17..23:18) _empty_/intersection.C# -> 20:9
 (23:19..23:20) _empty_/intersection.B# -> 4:9
 (23:24..23:25) _empty_/intersection.g(). -> 22:7
@@ -51,16 +51,16 @@ Document tests/pos/intersection.scala
 (37:18..37:19) _empty_/Test.C# -> 33:9
 (37:26..37:27) _empty_/Test.C# -> 33:9
 (37:33..37:34) _empty_/Test.B# -> 30:9
-(39:32..39:33) _empty_/Test.B#f(). -> 31:18
 (39:16..39:19) scala/Predef.`???`().
 (39:22..39:23) _empty_/Test.A# -> 27:9
 (39:29..39:30) _empty_/Test.B# -> 30:9
+(39:32..39:33) _empty_/Test.B#f(). -> 31:18
 (40:15..40:18) scala/Int#
 (40:21..40:26) _empty_/Test.fooAB(). -> 39:7
-(41:32..41:33) _empty_/Test.B#f(). -> 31:18
 (41:16..41:19) scala/Predef.`???`().
 (41:22..41:23) _empty_/Test.B# -> 30:9
 (41:29..41:30) _empty_/Test.A# -> 27:9
+(41:32..41:33) _empty_/Test.B#f(). -> 31:18
 (42:15..42:18) scala/Int#
 (42:21..42:26) _empty_/Test.fooBA(). -> 41:7
 

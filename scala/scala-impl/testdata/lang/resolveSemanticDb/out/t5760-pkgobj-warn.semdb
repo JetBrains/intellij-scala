@@ -1,9 +1,9 @@
-Document tests/pos/t5760-pkgobj-warn/stalepkg_2.scala
+Document tests/pos/t5760-pkgobj-warn/stalepkg_1.scala
 (8:20..8:25) scala/Array#
 (8:26..8:32) scala/Predef.String#
 (8:36..8:40) scala/Unit#
 
-Document tests/pos/t5760-pkgobj-warn/stalepkg_1.scala
+Document tests/pos/t5760-pkgobj-warn/stalepkg_2.scala
 (8:20..8:25) scala/Array#
 (8:26..8:32) scala/Predef.String#
 (8:36..8:40) scala/Unit#

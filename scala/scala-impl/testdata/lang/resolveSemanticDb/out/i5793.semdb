@@ -1,32 +1,32 @@
 Document tests/pos/i5793/A.scala
 (3:16..3:17) _empty_/exec.Runner#[T] -> 2:16
 (3:20..3:24) scala/Unit#
-(6:27..6:28) _empty_/exec.Runner.run().[T] -> 6:13
 (6:16..6:22) _empty_/exec.Runner# -> 2:9
 (6:22..6:22) _empty_/exec.Runner.run().[T] -> 6:13
+(6:27..6:28) _empty_/exec.Runner.run().[T] -> 6:13
 (6:31..6:35) scala/Unit#
-(6:60..6:63) _empty_/exec.Runner#run(). -> 3:9
 (6:38..6:48) scala/Predef.implicitly().
 (6:49..6:55) _empty_/exec.Runner# -> 2:9
 (6:56..6:57) _empty_/exec.Runner.run().[T] -> 6:13
+(6:60..6:63) _empty_/exec.Runner#run(). -> 3:9
 (6:64..6:65) _empty_/exec.Runner.run().(t) -> 6:24
 (7:43..7:49) _empty_/exec.Runner# -> 2:9
 (7:50..7:51) _empty_/exec.Runner.runImplicitly().[T] -> 7:39
 (8:18..8:19) _empty_/exec.Runner.runImplicitly().[T] -> 7:39
-(8:44..8:48) scala/collection/IterableOps#head().
-(8:32..8:35) scala/collection/immutable/List#map().
-(8:27..8:27) scala/collection/IterableFactory#apply().
 (8:23..8:27) scala/package.List.
+(8:27..8:27) scala/collection/IterableFactory#apply().
+(8:32..8:35) scala/collection/immutable/List#map().
 (8:41..8:42) local3 -> 8:36
+(8:44..8:48) scala/collection/IterableOps#head().
 
 Document tests/pos/i5793/B.scala
 (2:18..2:23) scala/Array#
 (2:24..2:30) scala/Predef.String#
 (2:34..2:38) scala/Unit#
 (3:12..3:16) _empty_/exec. -> 1:8
-(4:12..4:15) _empty_/exec.Runner.run(). -> 6:9
 (4:5..4:11) _empty_/exec.Runner. -> 5:10
-(4:20..4:20) scala/Some.apply().
+(4:12..4:15) _empty_/exec.Runner.run(). -> 6:9
 (4:16..4:20) scala/Some.
+(4:20..4:20) scala/Some.apply().
 (4:24..4:24) _empty_/exec.Runner.runImplicitly(). -> 7:25
 

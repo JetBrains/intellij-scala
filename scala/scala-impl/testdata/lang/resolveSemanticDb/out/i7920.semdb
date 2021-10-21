@@ -1,15 +1,15 @@
 Document tests/pos/i7920.scala
 (1:24..1:27) scala/Int#
 (2:21..2:24) _empty_/Bar# -> 1:7
-(2:48..2:58) scala/reflect/Selectable#
-(2:40..2:47) scala/reflect/
 (2:34..2:39) scala/
-(3:16..3:16) _empty_/Foo#`<init>`(). -> 2:10
+(2:40..2:47) scala/reflect/
+(2:48..2:58) scala/reflect/Selectable#
 (3:13..3:16) _empty_/Foo# -> 2:7
-(3:24..3:24) _empty_/Bar#`<init>`(). -> 1:12
+(3:16..3:16) _empty_/Foo#`<init>`(). -> 2:10
 (3:21..3:24) _empty_/Bar# -> 1:7
+(3:24..3:24) _empty_/Bar#`<init>`(). -> 1:12
 (4:10..4:13) _empty_/Foo#bar. -> 2:15
 (4:13..4:13) _empty_/Bar#glass. -> 1:16
-(6:15..6:15) scala/reflect/Selectable#selectDynamic().
 (6:14..6:15) _empty_/i7920$package.f. -> 3:5
+(6:15..6:15) scala/reflect/Selectable#selectDynamic().
 

@@ -6,7 +6,7 @@ Document tests/pos/t1987a.scala
 (3:22..3:25) scala/Int#
 (3:30..3:34) scala/Unit#
 (3:37..3:41) scala/Unit#
-(7:17..7:20) overloading/package.bar(). -> 2:9
 (7:5..7:16) overloading/
+(7:17..7:20) overloading/package.bar(). -> 2:9
 (7:26..7:29) scala/Int#
 

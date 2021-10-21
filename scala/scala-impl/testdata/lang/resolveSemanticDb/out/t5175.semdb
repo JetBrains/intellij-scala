@@ -3,6 +3,6 @@ Document tests/pos/t5175.scala
 (2:21..2:24) scala/Int#
 (4:12..4:16) scala/Unit#
 (5:5..5:7) _empty_/Test.`==`(). -> 2:7
-(5:17..5:17) _empty_/Phase#`<init>`(). -> 9:1
 (5:12..5:17) _empty_/Phase# -> 9:7
+(5:17..5:17) _empty_/Phase#`<init>`(). -> 9:1
 

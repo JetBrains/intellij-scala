@@ -2,26 +2,26 @@ Document tests/pos/i1235.scala
 (1:41..1:42) _empty_/LazyList#[T] -> 1:21
 (1:61..1:69) _empty_/LazyList# -> 1:12
 (1:70..1:71) _empty_/LazyList#[T] -> 1:21
-(2:28..2:28) scala/Function0#apply().
 (2:19..2:28) _empty_/LazyList#headThunk. -> 1:24
-(3:28..3:28) scala/Function0#apply().
+(2:28..2:28) scala/Function0#apply().
 (3:19..3:28) _empty_/LazyList#tailThunk. -> 1:44
+(3:28..3:28) scala/Function0#apply().
 (7:21..7:29) _empty_/LazyList# -> 1:12
 (7:30..7:31) _empty_/`~:`.unapply().[T] -> 7:15
-(7:40..7:40) scala/Some.apply().
 (7:36..7:40) scala/Some.
+(7:40..7:40) scala/Some.apply().
 (7:42..7:42) scala/Tuple2.apply().
-(7:44..7:48) _empty_/LazyList#head. -> 2:12
 (7:42..7:43) _empty_/`~:`.unapply().(x) -> 7:18
-(7:52..7:56) _empty_/LazyList#tail. -> 3:12
+(7:44..7:48) _empty_/LazyList#head. -> 2:12
 (7:50..7:51) _empty_/`~:`.unapply().(x) -> 7:18
-(11:20..11:20) _empty_/LazyList.apply(). -> 1:1
+(7:52..7:56) _empty_/LazyList#tail. -> 3:12
 (11:12..11:20) _empty_/LazyList. -> 1:12
-(11:44..11:44) _empty_/LazyList.apply(). -> 1:1
+(11:20..11:20) _empty_/LazyList.apply(). -> 1:1
 (11:36..11:44) _empty_/LazyList. -> 1:12
+(11:44..11:44) _empty_/LazyList.apply(). -> 1:1
 (11:60..11:63) scala/Predef.`???`().
 (13:3..13:5) _empty_/MinimizedMatchFail.ll. -> 11:7
-(14:15..14:15) _empty_/`~:`.unapply(). -> 7:7
 (14:13..14:15) _empty_/`~:`. -> 6:8
+(14:15..14:15) _empty_/`~:`.unapply(). -> 7:7
 (14:24..14:31) scala/Predef.println(+1).
 

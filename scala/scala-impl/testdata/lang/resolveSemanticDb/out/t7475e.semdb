@@ -1,8 +1,8 @@
 Document tests/pos/t7475e.scala
 (3:13..3:14) _empty_/U# -> 1:7
 (3:20..3:21) _empty_/T# -> 11:7
-(4:14..4:18) _empty_/U#priv. -> 2:15
 (4:4..4:7) scala/Predef.`???`().
 (4:10..4:12) _empty_/U#TT# -> 3:8
+(4:14..4:18) _empty_/U#priv. -> 2:15
 (11:17..11:21) _empty_/Base# -> 7:7
 

@@ -3,7 +3,7 @@ Document tests/pos/i2982.scala
 (3:19..3:20) _empty_/A.fun().[E] -> 3:11
 (3:24..3:28) scala/Unit#
 (4:3..4:6) _empty_/A.fun(). -> 3:7
-(4:17..4:17) _empty_/A#`<init>`(). -> 6:8
 (4:11..4:12) _empty_/A# -> 6:7
 (4:13..4:16) scala/Int#
+(4:17..4:17) _empty_/A#`<init>`(). -> 6:8
 

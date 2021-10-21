@@ -1,8 +1,8 @@
 Document tests/pos/t7788.scala
 (5:19..5:22) scala/Int#
 (5:27..5:30) scala/Int#
-(5:36..5:37) scala/Int#`<`(+3).
 (5:34..5:35) _empty_/Test#conforms().(x) -> 5:16
+(5:36..5:37) scala/Int#`<`(+3).
 (5:38..5:39) _empty_/Test#conforms().(y) -> 5:24
 (6:27..6:30) scala/Int#
 (6:34..6:35) _empty_/Test#foo().[A] -> 6:11

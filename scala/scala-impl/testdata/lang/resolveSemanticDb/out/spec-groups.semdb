@@ -1,8 +1,8 @@
 Document tests/pos/spec-groups.scala
 (1:8..1:21) scala/Specializable.
-(3:40..3:41) _empty_/A#[T] -> 3:34
 (3:10..3:21) scala/specialized#
 (3:22..3:32) scala/Specializable.Primitives.
+(3:40..3:41) _empty_/A#[T] -> 3:34
 (4:11..4:22) scala/specialized#
 (4:23..4:33) scala/Specializable.Primitives.
 (4:41..4:42) _empty_/A#[T] -> 3:34

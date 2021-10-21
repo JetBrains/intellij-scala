@@ -5,6 +5,6 @@ Document tests/pos/t3862.scala
 (7:27..7:28) _empty_/OverloadingShapeType.blerg(+1).[T] -> 7:19
 (7:32..7:36) scala/Unit#
 (9:3..9:8) _empty_/OverloadingShapeType.blerg(+1). -> 7:7
-(9:13..9:13) scala/collection/IterableFactory#apply().
 (9:9..9:13) scala/package.List.
+(9:13..9:13) scala/collection/IterableFactory#apply().
 

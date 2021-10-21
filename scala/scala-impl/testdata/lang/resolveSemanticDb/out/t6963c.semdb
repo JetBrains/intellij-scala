@@ -1,10 +1,10 @@
 Document tests/pos/t6963c.scala
-(3:19..3:22) scala/collection/Seq.
-(3:19..3:22) scala/collection/Seq#
 (3:8..3:18) scala/collection/
+(3:19..3:22) scala/collection/Seq#
+(3:19..3:22) scala/collection/Seq.
 (5:13..5:16) scala/Any#
-(5:22..5:34) scala/Any#isInstanceOf().
 (5:20..5:21) _empty_/Test.f1().(x) -> 5:10
+(5:22..5:34) scala/Any#isInstanceOf().
 (5:35..5:38) scala/collection/Seq#
 (6:13..6:16) scala/Any#
 (6:20..6:21) _empty_/Test.f2().(x) -> 6:10
@@ -13,8 +13,8 @@ Document tests/pos/t6963c.scala
 (11:20..11:21) _empty_/Test.f3().(x) -> 11:10
 (12:13..12:18) scala/Array#
 (16:13..16:16) scala/Any#
-(16:22..16:34) scala/Any#isInstanceOf().
 (16:20..16:21) _empty_/Test.f4().(x) -> 16:10
+(16:22..16:34) scala/Any#isInstanceOf().
 (16:35..16:43) scala/package.Iterable#
 (18:14..18:17) scala/Any#
 (18:23..18:26) scala/Any#
@@ -24,21 +24,21 @@ Document tests/pos/t6963c.scala
 (18:47..18:49) _empty_/Test.f5().(x2) -> 18:19
 (18:51..18:53) _empty_/Test.f5().(x3) -> 18:28
 (19:11..19:11) scala/Tuple3.unapply().
-(19:15..19:15) scala/Some.unapply().
 (19:11..19:15) scala/Some.
+(19:15..19:15) scala/Some.unapply().
 (19:19..19:22) scala/collection/Seq#
 (19:28..19:31) scala/package.Nil.
 (20:11..20:11) scala/Tuple3.unapply().
 (20:11..20:15) scala/None.
-(20:21..20:21) scala/collection/SeqFactory#unapplySeq().
 (20:17..20:21) scala/package.List.
+(20:21..20:21) scala/collection/SeqFactory#unapplySeq().
 (20:25..20:29) scala/package.List#
 (24:11..24:15) scala/Unit#
-(25:29..25:36) scala/collection/mutable/
-(25:18..25:28) scala/collection/
 (25:12..25:17) scala/
-(26:21..26:30) scala/collection/IterableOps#scanRight().
-(26:9..26:9) scala/collection/IterableFactory#apply().
+(25:18..25:28) scala/collection/
+(25:29..25:36) scala/collection/mutable/
 (26:5..26:9) scala/package.List.
+(26:9..26:9) scala/collection/IterableFactory#apply().
+(26:21..26:30) scala/collection/IterableOps#scanRight().
 (26:35..26:36) scala/Int#`+`(+4).
 

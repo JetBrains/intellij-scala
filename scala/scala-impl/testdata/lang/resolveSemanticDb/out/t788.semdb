@@ -12,6 +12,6 @@ Document tests/pos/t788.scala
 (14:42..14:47) test/Test#Named# -> 10:8
 (15:5..15:6) test/Test#asExpression().(e) -> 14:20
 (16:14..16:23) test/Test#NamedImpl# -> 11:9
-(16:29..16:33) test/Test#NamedImpl#self(). -> 12:9
 (16:27..16:28) local0 -> 16:10
+(16:29..16:33) test/Test#NamedImpl#self(). -> 12:9
 

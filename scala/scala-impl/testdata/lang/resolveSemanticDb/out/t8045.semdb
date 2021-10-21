@@ -6,20 +6,20 @@ Document tests/pos/t8045.scala
 (5:33..5:39) _empty_/Test.Number# -> 2:14
 (5:43..5:44) _empty_/Test.UnliftNumber.unapply().(t) -> 5:17
 (6:15..6:18) scala/Int#
-(6:26..6:26) scala/Some.apply().
 (6:22..6:26) scala/Some.
-(6:33..6:33) _empty_/Test.Number.apply(). -> 2:3
+(6:26..6:26) scala/Some.apply().
 (6:27..6:33) _empty_/Test.Number. -> 2:14
+(6:33..6:33) _empty_/Test.Number.apply(). -> 2:3
 (6:34..6:35) local0 -> 6:12
 (7:17..7:21) scala/None.
 (11:18..11:21) scala/Any#
 (11:24..11:30) scala/Option#
 (11:31..11:37) _empty_/Test.Number# -> 2:14
 (11:41..11:45) _empty_/Test.eval().(expr) -> 11:12
-(12:22..12:22) _empty_/Test.UnliftNumber.unapply(). -> 5:9
 (12:10..12:22) _empty_/Test.UnliftNumber. -> 4:10
-(12:33..12:33) scala/Some.apply().
+(12:22..12:22) _empty_/Test.UnliftNumber.unapply(). -> 5:9
 (12:29..12:33) scala/Some.
+(12:33..12:33) scala/Some.apply().
 (12:34..12:35) local1 -> 12:23
 (13:15..13:19) scala/None.
 (16:3..16:10) scala/Predef.println(+1).

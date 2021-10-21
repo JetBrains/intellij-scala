@@ -6,13 +6,13 @@ Document tests/pos/t3477.scala
 (2:40..2:43) scala/Predef.Map#
 (2:44..2:45) _empty_/J3#f().[K] -> 2:9
 (2:47..2:48) _empty_/J3#f().[V] -> 2:21
-(2:56..2:61) scala/sys/package.error().
 (2:52..2:55) scala/sys/
-(6:12..6:13) _empty_/J3#f(). -> 2:7
-(6:10..6:10) _empty_/J3#`<init>`(). -> 2:3
+(2:56..2:61) scala/sys/package.error().
 (6:8..6:10) _empty_/J3# -> 1:7
-(6:17..6:17) scala/collection/MapFactory#apply().
+(6:10..6:10) _empty_/J3#`<init>`(). -> 2:3
+(6:12..6:13) _empty_/J3#f(). -> 2:7
 (6:14..6:17) scala/Predef.Map.
+(6:17..6:17) scala/collection/MapFactory#apply().
 (6:18..6:21) scala/Int#
 (6:23..6:26) scala/Int#
 

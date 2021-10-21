@@ -1,10 +1,10 @@
 Document tests/pos/i12072-e.scala
 (1:11..1:18) scala/Boolean#
-(1:28..1:30) scala/Int#`==`(+3).
 (1:21..1:23) _empty_/`i12072-e$package`.nn(). -> 3:5
+(1:28..1:30) scala/Int#`==`(+3).
 (3:11..3:14) scala/Int#
-(3:24..3:25) scala/`&`#
 (3:17..3:18) _empty_/`i12072-e$package`.nn().(x) -> 3:8
+(3:24..3:25) scala/`&`#
 (3:26..3:29) scala/Int#
 (3:32..3:35) scala/Predef.`???`().
 

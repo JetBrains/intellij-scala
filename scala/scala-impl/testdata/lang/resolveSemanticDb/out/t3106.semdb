@@ -6,6 +6,6 @@ Document tests/pos/t3106.scala
 (4:32..4:38) _empty_/Sample# -> 1:7
 (4:39..4:40) _empty_/Sample.apply().[A] -> 4:22
 (5:15..5:15) _empty_/Sample#`<init>`(). -> 1:13
-(5:23..5:25) scala/Tuple2#_1.
 (5:21..5:22) local0 -> 5:16
+(5:23..5:25) scala/Tuple2#_1.
 

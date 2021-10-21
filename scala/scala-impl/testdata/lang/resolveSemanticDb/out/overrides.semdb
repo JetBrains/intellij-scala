@@ -1,11 +1,11 @@
 Document tests/pos/overrides.scala
 (3:12..3:13) _empty_/A#[T] -> 1:9
 (3:18..3:19) _empty_/A#[T] -> 1:9
-(3:27..3:28) _empty_/A#f().(y) -> 3:15
 (3:22..3:23) _empty_/A#f$default$2().(x) -> 3:9
-(7:23..7:23) _empty_/A#`<init>`(). -> 1:8
+(3:27..3:28) _empty_/A#f().(y) -> 3:15
 (7:17..7:18) _empty_/A# -> 1:7
 (7:19..7:22) scala/Int#
+(7:23..7:23) _empty_/A#`<init>`(). -> 1:8
 (9:21..9:24) scala/Int#
 (9:29..9:32) scala/Int#
 (9:36..9:37) _empty_/B#f().(y) -> 9:26

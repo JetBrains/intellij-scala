@@ -1,20 +1,20 @@
 Document tests/pos/tangledCompanion.scala
 (3:10..3:14) _empty_/Coll. -> 10:8
-(4:19..4:22) _empty_/Coll.LazyList.`#::`. -> 22:12
 (4:10..4:18) _empty_/Coll.LazyList. -> 16:10
-(6:21..6:26) _empty_/Coll.LazyList.Empty. -> 20:12
+(4:19..4:22) _empty_/Coll.LazyList.`#::`. -> 22:12
 (6:12..6:20) _empty_/Coll.LazyList. -> 16:10
-(14:40..14:49) _empty_/Coll.LazyList.Evaluated# -> 18:10
+(6:21..6:26) _empty_/Coll.LazyList.Empty. -> 20:12
 (14:31..14:39) _empty_/Coll.LazyList. -> 16:10
+(14:40..14:49) _empty_/Coll.LazyList.Evaluated# -> 18:10
 (14:50..14:51) _empty_/Coll.LazyList#[A] -> 14:19
 (16:27..16:42) _empty_/Coll.IterableFactory# -> 12:9
 (18:26..18:32) scala/Option#
 (18:34..18:35) _empty_/Coll.LazyList.Evaluated#[A] -> 18:21
 (18:37..18:45) _empty_/Coll.LazyList# -> 14:9
 (18:46..18:47) _empty_/Coll.LazyList.Evaluated#[A] -> 18:21
-(20:43..20:43) _empty_/Coll.LazyList#`<init>`(). -> 14:17
 (20:26..20:34) _empty_/Coll.LazyList# -> 14:9
 (20:35..20:42) scala/Nothing#
+(20:43..20:43) _empty_/Coll.LazyList#`<init>`(). -> 14:17
 (20:44..20:48) scala/None.
 (23:25..23:33) _empty_/Coll.LazyList# -> 14:9
 (23:34..23:35) _empty_/Coll.LazyList.`#::`.unapply().[A] -> 23:19

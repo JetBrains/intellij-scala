@@ -1,7 +1,7 @@
 Document tests/pos/i7711/crash1_1.scala
-(3:27..3:47) scala/reflect/Selectable.reflectiveSelectable().
-(3:16..3:26) scala/reflect/Selectable.
 (3:8..3:15) scala/reflect/
+(3:16..3:26) scala/reflect/Selectable.
+(3:27..3:47) scala/reflect/Selectable.reflectiveSelectable().
 (6:35..6:36) local2 -> 6:13
 (6:45..6:46) local2 -> 6:13
 (6:55..6:56) local2 -> 6:13

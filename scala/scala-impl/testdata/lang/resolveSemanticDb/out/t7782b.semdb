@@ -1,7 +1,7 @@
 Document tests/pos/t7782b.scala
-(4:12..4:17) pack/O.empty(+1). -> 14:7
-(4:12..4:17) pack/O.empty(). -> 13:7
 (4:10..4:11) pack/O. -> 9:8
+(4:12..4:17) pack/O.empty(). -> 13:7
+(4:12..4:17) pack/O.empty(+1). -> 14:7
 (5:3..5:8) pack/O.empty(+1). -> 14:7
 (13:25..13:28) scala/Any#
 (13:31..13:34) scala/Any#

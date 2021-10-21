@@ -1,41 +1,41 @@
 Document tests/pos/singleton-ops-dispatch.scala
-(1:26..1:29) scala/compiletime/ops/
-(1:14..1:25) scala/compiletime/
 (1:8..1:13) scala/
-(4:25..4:26) scala/`|`#
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
 (4:21..4:24) scala/Int#
+(4:25..4:26) scala/`|`#
 (4:27..4:33) scala/Predef.String#
-(4:44..4:45) scala/`|`#
 (4:40..4:43) scala/Int#
+(4:44..4:45) scala/`|`#
 (4:46..4:52) scala/Predef.String#
 (4:57..4:58) _empty_/Test.`+`#[X] -> 4:16
 (4:60..4:61) _empty_/Test.`+`#[Y] -> 4:35
 (5:11..5:14) scala/Int#
 (5:16..5:19) scala/Int#
-(5:28..5:29) scala/compiletime/ops/int.`+`#
 (5:24..5:27) scala/compiletime/ops/int.
+(5:28..5:29) scala/compiletime/ops/int.`+`#
 (5:30..5:31) _empty_/Test.`+`#[X] -> 4:16
 (5:33..5:34) _empty_/Test.`+`#[Y] -> 4:35
 (6:11..6:17) scala/Predef.String#
 (6:19..6:25) scala/Predef.String#
-(6:37..6:38) scala/compiletime/ops/string.`+`#
 (6:30..6:36) scala/compiletime/ops/string.
+(6:37..6:38) scala/compiletime/ops/string.`+`#
 (6:39..6:40) _empty_/Test.`+`#[X] -> 4:16
 (6:42..6:43) _empty_/Test.`+`#[Y] -> 4:35
 (7:11..7:17) scala/Predef.String#
 (7:19..7:22) scala/Int#
-(7:34..7:35) scala/compiletime/ops/string.`+`#
 (7:27..7:33) scala/compiletime/ops/string.
+(7:34..7:35) scala/compiletime/ops/string.`+`#
 (7:36..7:37) _empty_/Test.`+`#[X] -> 4:16
-(7:43..7:51) scala/compiletime/ops/int.ToString#
 (7:39..7:42) scala/compiletime/ops/int.
+(7:43..7:51) scala/compiletime/ops/int.ToString#
 (7:52..7:53) _empty_/Test.`+`#[Y] -> 4:35
 (8:11..8:14) scala/Int#
 (8:16..8:22) scala/Predef.String#
-(8:34..8:35) scala/compiletime/ops/string.`+`#
 (8:27..8:33) scala/compiletime/ops/string.
-(8:40..8:48) scala/compiletime/ops/int.ToString#
+(8:34..8:35) scala/compiletime/ops/string.`+`#
 (8:36..8:39) scala/compiletime/ops/int.
+(8:40..8:48) scala/compiletime/ops/int.ToString#
 (8:49..8:50) _empty_/Test.`+`#[X] -> 4:16
 (8:53..8:54) _empty_/Test.`+`#[Y] -> 4:35
 (11:15..11:16) _empty_/Test.`+`# -> 4:14

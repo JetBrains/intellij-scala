@@ -17,8 +17,8 @@ Document tests/pos/cyclics-pos.scala
 (17:40..17:41) _empty_/IterableTemplate#map().[B] -> 17:12
 (19:18..19:22) _empty_/IterableTemplate#Elem# -> 11:8
 (19:26..19:30) scala/Unit#
-(19:43..19:50) scala/collection/IterableOnceOps#foreach().
 (19:34..19:42) _empty_/IterableTemplate#iterator(). -> 15:7
+(19:43..19:50) scala/collection/IterableOnceOps#foreach().
 (19:51..19:52) _empty_/IterableTemplate#foreach().(f) -> 19:15
 (23:27..23:43) _empty_/IterableTemplate# -> 10:7
 (25:18..25:26) _empty_/Iterable# -> 23:7

@@ -1,29 +1,29 @@
 Document tests/pos/i9780.scala
-(1:23..1:34) java/awt/event/WindowEvent#
-(1:17..1:22) java/awt/event/
-(1:13..1:16) java/awt/
 (1:8..1:12) java/
-(2:17..2:23) java/awt/Window.
-(2:17..2:23) java/awt/Window#
-(2:13..2:16) java/awt/
+(1:13..1:16) java/awt/
+(1:17..1:22) java/awt/event/
+(1:23..1:34) java/awt/event/WindowEvent#
 (2:8..2:12) java/
+(2:13..2:16) java/awt/
+(2:17..2:23) java/awt/Window#
+(2:17..2:23) java/awt/Window.
 (5:13..5:22) java/awt/Window#
 (5:28..5:42) _empty_/Window#InterfaceMixin# -> 7:19
-(7:54..7:71) javax/swing/RootPaneContainer#
-(7:48..7:53) javax/swing/
 (7:42..7:47) javax/
-(9:47..9:53) java/awt/Window#
-(9:43..9:46) java/awt/
+(7:48..7:53) javax/swing/
+(7:54..7:71) javax/swing/RootPaneContainer#
 (9:38..9:42) java/
+(9:43..9:46) java/awt/
+(9:47..9:53) java/awt/Window#
 (10:50..10:61) java/awt/event/WindowEvent#
 (10:64..10:68) scala/Unit#
 (11:13..11:31) java/awt/Window#processWindowEvent().
 (11:32..11:33) _empty_/Window#SuperMixin#processWindowEvent().(e) -> 10:47
-(12:19..12:21) scala/Int#`==`(+3).
-(12:13..12:18) java/awt/AWTEvent#getID().
 (12:11..12:12) _empty_/Window#SuperMixin#processWindowEvent().(e) -> 10:47
-(12:34..12:48) java/awt/event/WindowEvent#WINDOW_CLOSING.
+(12:13..12:18) java/awt/AWTEvent#getID().
+(12:19..12:21) scala/Int#`==`(+3).
 (12:22..12:33) java/awt/event/WindowEvent#
+(12:34..12:48) java/awt/event/WindowEvent#WINDOW_CLOSING.
 (13:9..13:23) _empty_/Window#closeOperation(). -> 17:7
 (17:25..17:29) scala/Unit#
 

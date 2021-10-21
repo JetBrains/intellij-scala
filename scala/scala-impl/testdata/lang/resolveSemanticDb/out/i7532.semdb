@@ -1,13 +1,13 @@
 Document tests/pos/i7532.scala
 (4:18..4:22) _empty_/Tasty#Term# -> 3:8
-(6:23..6:31) scala/reflect/ClassTag#
-(6:15..6:22) scala/reflect/
 (6:9..6:14) scala/
+(6:15..6:22) scala/reflect/
+(6:23..6:31) scala/reflect/ClassTag#
 (6:32..6:36) _empty_/Tasty#Term# -> 3:8
 (6:40..6:43) scala/Predef.`???`().
-(7:23..7:31) scala/reflect/ClassTag#
-(7:15..7:22) scala/reflect/
 (7:9..7:14) scala/
+(7:15..7:22) scala/reflect/
+(7:23..7:31) scala/reflect/ClassTag#
 (7:32..7:38) _empty_/Tasty#Select# -> 4:8
 (7:42..7:45) scala/Predef.`???`().
 (9:20..9:26) _empty_/Tasty#Select# -> 4:8
@@ -16,8 +16,8 @@ Document tests/pos/i7532.scala
 (14:25..14:30) _empty_/Tasty# -> 2:7
 (14:34..14:38) scala/Unit#
 (15:12..15:17) _empty_/Foo.impl().(tasty) -> 14:18
-(16:21..16:24) scala/Predef.`???`().
-(16:17..16:17) scala/reflect/ClassTag#unapply().
-(16:15..16:15) _empty_/Tasty#Select.unapply(). -> 9:9
 (16:9..16:15) _empty_/Tasty#Select. -> 8:10
+(16:15..16:15) _empty_/Tasty#Select.unapply(). -> 9:9
+(16:17..16:17) scala/reflect/ClassTag#unapply().
+(16:21..16:24) scala/Predef.`???`().
 

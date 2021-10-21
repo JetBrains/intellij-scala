@@ -48,8 +48,8 @@ Document tests/pos/i9841b.scala
 (21:36..21:37) _empty_/Tree.BranchImpl#[P] -> 16:38
 (21:39..21:40) _empty_/Tree.BranchImpl#[H] -> 16:41
 (21:42..21:43) _empty_/Tree.BranchImpl#[A] -> 16:44
-(21:52..21:52) scala/Some.apply().
 (21:48..21:52) scala/Some.
+(21:52..21:52) scala/Some.apply().
 (21:53..21:54) local0 -> 21:14
 (22:14..22:19) _empty_/Tree.Empty. -> 12:15
 (22:48..22:52) scala/None.

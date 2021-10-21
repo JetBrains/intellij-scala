@@ -44,10 +44,10 @@ Document tests/pos/t4063.scala
 (20:19..20:22) scala/Int#
 (20:30..20:34) _empty_/CSet# -> 11:7
 (20:35..20:38) scala/Int#
-(29:9..29:21) java/lang/Object#synchronized().
 (29:5..29:8) local0 -> 19:9
-(30:13..30:15) scala/Int#`==`(+3).
+(29:9..29:21) java/lang/Object#synchronized().
 (30:11..30:12) _empty_/Test.x(). -> 16:7
+(30:13..30:15) scala/Int#`==`(+3).
 (31:9..31:12) local0 -> 19:9
 (33:9..33:12) local2 -> 20:9
 

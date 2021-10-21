@@ -3,10 +3,10 @@ Document tests/pos/rebind.scala
 (5:12..5:17) _empty_/Foo#Inner# -> 2:9
 (9:12..9:17) _empty_/Bar#Inner# -> 8:8
 (9:20..9:23) _empty_/Bar#foo(). -> 9:7
-(11:23..11:23) _empty_/Foo#`<init>`(). -> 2:3
 (11:20..11:23) _empty_/Foo# -> 1:16
+(11:23..11:23) _empty_/Foo#`<init>`(). -> 2:3
 (11:29..11:32) _empty_/Bar# -> 7:7
 (12:3..12:10) scala/Predef.println(+1).
-(12:15..12:20) _empty_/Foo#Inner#inner(). -> 3:9
 (12:11..12:14) _empty_/Bar#foo(). -> 9:7
+(12:15..12:20) _empty_/Foo#Inner#inner(). -> 3:9
 

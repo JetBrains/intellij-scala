@@ -1,153 +1,153 @@
 Document tests/pos/indent.scala
 (3:3..3:10) scala/Predef.locally().
-(5:13..5:14) scala/Int#`<`(+3).
 (5:11..5:12) local0 -> 4:9
+(5:13..5:14) scala/Int#`<`(+3).
 (5:21..5:22) local0 -> 4:9
 (5:22..5:22) scala/Int#`+`(+4).
 (8:7..8:8) local0 -> 4:9
 (8:8..8:8) scala/Int#`+`(+4).
-(9:9..9:10) scala/Int#`<`(+3).
 (9:7..9:8) local0 -> 4:9
+(9:9..9:10) scala/Int#`<`(+3).
 (13:12..13:15) scala/Int#
 (13:18..13:21) scala/Int#
-(15:12..15:13) scala/Int#`>`(+3).
 (15:10..15:11) _empty_/Test.f().(x) -> 13:9
+(15:12..15:13) scala/Int#`>`(+3).
 (16:9..16:16) scala/Predef.println(+1).
 (19:9..19:16) scala/Predef.println(+1).
-(22:12..22:13) scala/Int#`>`(+3).
 (22:10..22:11) _empty_/Test.f().(x) -> 13:9
-(27:18..27:20) scala/Boolean#`&&`().
-(27:13..27:14) scala/Int#`>`(+3).
+(22:12..22:13) scala/Int#`>`(+3).
 (27:11..27:12) local2 -> 14:9
-(27:23..27:24) scala/Int#`<`(+3).
+(27:13..27:14) scala/Int#`>`(+3).
+(27:18..27:20) scala/Boolean#`&&`().
 (27:21..27:22) local2 -> 14:9
+(27:23..27:24) scala/Int#`<`(+3).
 (31:19..31:22) scala/Int#
 (31:34..31:37) scala/Int#
-(31:43..31:44) scala/Int#`>`(+3).
 (31:41..31:42) local6 -> 31:16
+(31:43..31:44) scala/Int#`>`(+3).
 (31:45..31:46) local7 -> 31:31
-(33:21..33:23) local5 -> 31:28
-(33:14..33:17) scala/runtime/RichInt#max().
 (33:11..33:11) scala/LowPriorityImplicits#intWrapper().
+(33:14..33:17) scala/runtime/RichInt#max().
+(33:21..33:23) local5 -> 31:28
 (39:15..39:22) scala/Predef.println(+1).
-(41:11..41:12) scala/Int#`+`(+4).
-(41:7..41:8) scala/Int#`+`(+4).
 (41:5..41:6) _empty_/Test.f().(x) -> 13:9
+(41:7..41:8) scala/Int#`+`(+4).
 (41:9..41:10) local2 -> 14:9
+(41:11..41:12) scala/Int#`+`(+4).
 (41:13..41:14) local9 -> 40:9
 (42:7..42:8) _empty_/Test.f(). -> 13:7
-(46:16..46:16) scala/collection/IterableFactory#apply().
 (46:12..46:16) scala/package.List.
-(48:6..48:9) scala/collection/immutable/List#map().
+(46:16..46:16) scala/collection/IterableFactory#apply().
 (48:3..48:5) _empty_/Test.xs. -> 46:7
-(50:17..50:18) scala/Int#`*`(+3).
+(48:6..48:9) scala/collection/immutable/List#map().
 (50:15..50:16) local10 -> 49:5
+(50:17..50:18) scala/Int#`*`(+3).
 (50:19..50:20) local10 -> 49:5
-(51:9..51:10) scala/Int#`*`(+3).
 (51:7..51:8) local11 -> 50:11
+(51:9..51:10) scala/Int#`*`(+3).
 (51:11..51:12) local11 -> 50:11
 (54:16..54:19) scala/Int#
-(55:15..55:16) scala/Int#`+`(+4).
 (55:13..55:14) local12 -> 54:13
+(55:15..55:16) scala/Int#`+`(+4).
 (56:5..56:6) local13 -> 55:9
-(58:6..58:9) scala/collection/immutable/List#map().
 (58:3..58:5) _empty_/Test.xs. -> 46:7
-(60:15..60:16) scala/Int#`*`(+3).
+(58:6..58:9) scala/collection/immutable/List#map().
 (60:13..60:14) local14 -> 59:5
+(60:15..60:16) scala/Int#`*`(+3).
 (60:17..60:18) local14 -> 59:5
-(61:7..61:8) scala/Int#`+`(+4).
 (61:5..61:6) local15 -> 60:9
+(61:7..61:8) scala/Int#`+`(+4).
 (61:9..61:10) local15 -> 60:9
-(64:6..64:9) scala/collection/immutable/List#map().
 (64:3..64:5) _empty_/Test.xs. -> 46:7
-(65:15..65:16) scala/Int#`*`(+3).
+(64:6..64:9) scala/collection/immutable/List#map().
 (65:13..65:14) local16 -> 64:12
+(65:15..65:16) scala/Int#`*`(+3).
 (65:17..65:18) local16 -> 64:12
-(66:10..66:12) scala/Int#`>=`(+3).
 (66:8..66:9) local17 -> 65:9
-(67:17..67:18) scala/Int#`+`(+4).
+(66:10..66:12) scala/Int#`>=`(+3).
 (67:15..67:16) local17 -> 65:9
+(67:17..67:18) scala/Int#`+`(+4).
 (67:19..67:20) local17 -> 65:9
 (68:7..68:14) scala/Predef.println(+1).
 (68:15..68:16) local18 -> 67:11
-(69:7..69:8) scala/Int#`+`(+4).
 (69:5..69:6) local17 -> 65:9
+(69:7..69:8) scala/Int#`+`(+4).
 (72:3..72:10) scala/Predef.println(+1).
-(72:16..72:17) scala/Int#`+`().
 (72:11..72:12) _empty_/Test.f(). -> 13:7
+(72:16..72:17) scala/Int#`+`().
 (72:18..72:19) _empty_/Test.g(). -> 44:7
-(74:13..74:13) _empty_/Test2#`<init>`(). -> 86:3
-(74:8..74:13) _empty_/Test2# -> 85:7
 (74:3..74:3) local19
-(75:15..75:18) _empty_/Test3#foo(). -> 102:7
-(75:13..75:13) _empty_/Test3#`<init>`(). -> 101:2
+(74:8..74:13) _empty_/Test2# -> 85:7
+(74:13..74:13) _empty_/Test2#`<init>`(). -> 86:3
 (75:8..75:13) _empty_/Test3# -> 100:7
+(75:13..75:13) _empty_/Test3#`<init>`(). -> 101:2
+(75:15..75:18) _empty_/Test3#foo(). -> 102:7
 (79:5..79:6) _empty_/Test.`x_=`(). -> 77:7
-(79:6..79:6) scala/Int#`+`(+4).
 (79:5..79:6) _empty_/Test.x(). -> 77:7
+(79:6..79:6) scala/Int#`+`(+4).
 (80:13..80:14) _empty_/Test.x(). -> 77:7
 (81:5..81:12) scala/Predef.println(+1).
 (81:13..81:14) local20 -> 80:9
-(82:7..82:8) scala/Int#`<`(+3).
 (82:5..82:6) _empty_/Test.x(). -> 77:7
+(82:7..82:8) scala/Int#`<`(+3).
 (87:14..87:17) scala/Int#
-(88:10..88:11) scala/Int#`<`(+3).
 (88:8..88:9) _empty_/Test2#foo().(x) -> 87:11
-(89:34..89:34) java/lang/AssertionError#`<init>`().
+(88:10..88:11) scala/Int#`<`(+3).
 (89:20..89:34) java/lang/AssertionError#
+(89:34..89:34) java/lang/AssertionError#`<init>`().
 (90:7..90:9) local22 -> 89:11
 (91:5..91:6) _empty_/Test2#foo().(x) -> 87:11
-(94:14..94:14) _empty_/Test2#`<init>`(). -> 86:3
 (94:9..94:14) _empty_/Test2# -> 85:7
+(94:14..94:14) _empty_/Test2#`<init>`(). -> 86:3
 (95:27..95:30) scala/Int#
 (97:7..97:8) _empty_/Test2#x. -> 93:7
 (98:5..98:10) _empty_/Test2# -> 85:7
-(104:27..104:34) scala/collection/mutable/HashMap.
-(104:27..104:34) scala/collection/mutable/HashMap#
-(104:19..104:26) scala/collection/mutable/
 (104:8..104:18) scala/collection/
+(104:19..104:26) scala/collection/mutable/
+(104:27..104:34) scala/collection/mutable/HashMap#
+(104:27..104:34) scala/collection/mutable/HashMap.
 (106:20..106:24) scala/package.List#
 (106:25..106:31) scala/Predef.String#
 (109:5..109:12) scala/Predef.println().
 (110:7..110:10) _empty_/Coder#Foo# -> 108:9
+(114:4..114:4) scala/Predef.ArrowAssoc().
 (114:4..114:4) scala/Tuple2.apply().
 (114:6..114:8) scala/Predef.ArrowAssoc#`->`().
-(114:4..114:4) scala/Predef.ArrowAssoc().
-(114:37..114:39) scala/Predef.ArrowAssoc#`->`().
 (114:31..114:31) scala/Predef.ArrowAssoc#`<init>`().
-(116:30..116:30) scala/collection/MapFactory#apply().
+(114:37..114:39) scala/Predef.ArrowAssoc#`->`().
 (116:27..116:30) scala/Predef.Map.
-(117:11..117:13) scala/Predef.ArrowAssoc#`->`().
+(116:30..116:30) scala/collection/MapFactory#apply().
 (117:7..117:7) scala/Predef.ArrowAssoc().
-(117:25..117:27) scala/Predef.ArrowAssoc#`->`().
+(117:11..117:13) scala/Predef.ArrowAssoc#`->`().
 (117:21..117:21) scala/Predef.ArrowAssoc().
-(117:39..117:41) scala/Predef.ArrowAssoc#`->`().
+(117:25..117:27) scala/Predef.ArrowAssoc#`->`().
 (117:35..117:35) scala/Predef.ArrowAssoc().
-(117:53..117:55) scala/Predef.ArrowAssoc#`->`().
+(117:39..117:41) scala/Predef.ArrowAssoc#`->`().
 (117:49..117:49) scala/Predef.ArrowAssoc().
-(118:11..118:13) scala/Predef.ArrowAssoc#`->`().
+(117:53..117:55) scala/Predef.ArrowAssoc#`->`().
 (118:7..118:7) scala/Predef.ArrowAssoc().
-(118:25..118:27) scala/Predef.ArrowAssoc#`->`().
+(118:11..118:13) scala/Predef.ArrowAssoc#`->`().
 (118:21..118:21) scala/Predef.ArrowAssoc().
-(118:40..118:42) scala/Predef.ArrowAssoc#`->`().
+(118:25..118:27) scala/Predef.ArrowAssoc#`->`().
 (118:36..118:36) scala/Predef.ArrowAssoc().
-(118:54..118:56) scala/Predef.ArrowAssoc#`->`().
+(118:40..118:42) scala/Predef.ArrowAssoc#`->`().
 (118:50..118:50) scala/Predef.ArrowAssoc().
+(118:54..118:56) scala/Predef.ArrowAssoc#`->`().
 (120:4..120:4) scala/Tuple2.apply().
 (121:11..121:11) scala/Tuple2.unapply().
 (124:4..124:4) scala/Tuple2.apply().
 (125:9..125:9) scala/Tuple2.unapply().
-(128:11..128:11) scala/collection/IterableFactory#apply().
 (128:7..128:11) scala/package.List.
-(129:12..129:12) scala/collection/immutable/`::`.unapply().
+(128:11..128:11) scala/collection/IterableFactory#apply().
 (129:10..129:12) scala/package.`::`.
+(129:12..129:12) scala/collection/immutable/`::`.unapply().
 (129:19..129:26) scala/Predef.println(+1).
 (129:27..129:28) local31 -> 129:8
 (130:8..130:11) scala/package.Nil.
 (130:15..130:22) scala/Predef.println(+1).
-(132:20..132:31) java/io/IOException#
-(132:17..132:19) java/io/
 (132:12..132:16) java/
+(132:17..132:19) java/io/
+(132:20..132:31) java/io/IOException#
 (132:35..132:42) scala/Predef.println(+1).
 (132:43..132:45) local33 -> 132:8
 (133:12..133:21) scala/package.Throwable#
@@ -155,19 +155,19 @@ Document tests/pos/indent.scala
 (138:26..138:29) scala/Predef.Map#
 (138:30..138:34) scala/Char#
 (138:36..138:40) scala/Char#
-(144:8..144:15) scala/collection/MapOps.WithFilter#flatMap().
-(140:8..140:18) scala/collection/MapFactoryDefaults#withFilter().
 (139:5..139:14) _empty_/Coder#mnemonics. -> 116:15
+(140:8..140:18) scala/collection/MapFactoryDefaults#withFilter().
 (141:9..141:9) local35
 (141:15..141:15) scala/Tuple2.unapply().
+(144:8..144:15) scala/collection/MapOps.WithFilter#flatMap().
 (145:9..145:9) local38
 (145:15..145:15) scala/Tuple2.unapply().
-(145:34..145:37) scala/collection/StringOps#map().
 (145:30..145:30) scala/Predef.augmentString().
 (145:30..145:33) local40 -> 145:22
-(145:50..145:52) scala/Predef.ArrowAssoc#`->`().
+(145:34..145:37) scala/collection/StringOps#map().
 (145:46..145:46) scala/Predef.ArrowAssoc().
 (145:46..145:49) local41 -> 145:39
+(145:50..145:52) scala/Predef.ArrowAssoc#`->`().
 (145:53..145:58) local39 -> 145:15
 (147:5..147:10) _empty_/Coder# -> 106:7
 (150:12..150:15) scala/Int#

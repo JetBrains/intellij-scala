@@ -1,4 +1,7 @@
 Document tests/pos/i8963.scala
+(1:16..1:22) scala/Double#
+(1:23..1:24) scala/`|`#
+(1:25..1:28) scala/Int#
 (4:9..4:10) _empty_/VarValues#[C] -> 3:27
 (5:12..5:17) scala/Array#
 (5:18..5:19) _empty_/VarValues#[T] -> 3:24
@@ -17,9 +20,6 @@ Document tests/pos/i8963.scala
 (9:54..9:63) _empty_/VarValues# -> 3:14
 (9:64..9:70) scala/Predef.String#
 (9:72..9:79) _empty_/VarStrs# -> 9:18
-(1:23..1:24) scala/`|`#
-(1:16..1:22) scala/Double#
-(1:25..1:28) scala/Int#
 (11:15..11:24) _empty_/VarValues# -> 3:14
 (11:34..11:43) _empty_/VarValues# -> 3:14
 (11:51..11:55) scala/Unit#
@@ -27,40 +27,40 @@ Document tests/pos/i8963.scala
 (12:4..12:5) _empty_/i8963$package.check7().(a) -> 11:12
 (12:6..12:7) _empty_/i8963$package.check7().(b) -> 11:31
 (13:11..13:11) scala/Tuple2.unapply().
-(13:24..13:25) scala/`|`#
 (13:14..13:24) _empty_/VarDoubles# -> 7:18
+(13:24..13:25) scala/`|`#
 (13:25..13:32) _empty_/VarInts# -> 8:18
-(13:48..13:49) scala/`|`#
 (13:38..13:48) _empty_/VarDoubles# -> 7:18
+(13:48..13:49) scala/`|`#
 (13:49..13:56) _empty_/VarInts# -> 8:18
 (14:15..14:23) scala/package.Iterator#
 (14:24..14:31) _empty_/i8963$package.Numeric# -> 1:6
-(14:41..14:49) scala/collection/ArrayOps#iterator().
 (14:35..14:35) scala/Predef.genericArrayOps().
-(14:37..14:40) _empty_/VarValues#arr. -> 5:7
 (14:35..14:36) local0 -> 13:11
+(14:37..14:40) _empty_/VarValues#arr. -> 5:7
+(14:41..14:49) scala/collection/ArrayOps#iterator().
 (15:15..15:23) scala/package.Iterator#
 (15:24..15:31) _empty_/i8963$package.Numeric# -> 1:6
-(15:41..15:49) scala/collection/ArrayOps#iterator().
 (15:35..15:35) scala/Predef.genericArrayOps().
-(15:37..15:40) _empty_/VarValues#arr. -> 5:7
 (15:35..15:36) local1 -> 13:35
+(15:37..15:40) _empty_/VarValues#arr. -> 5:7
+(15:41..15:49) scala/collection/ArrayOps#iterator().
 (16:15..16:23) scala/package.Iterator#
 (16:25..16:32) _empty_/i8963$package.Numeric# -> 1:6
 (16:34..16:41) _empty_/i8963$package.Numeric# -> 1:6
-(16:49..16:52) scala/collection/Iterator#zip().
 (16:46..16:48) local2 -> 14:11
+(16:49..16:52) scala/collection/Iterator#zip().
 (16:53..16:55) local3 -> 15:11
-(17:45..17:60) scala/collection/Iterator#GroupedIterator#
 (17:16..17:24) scala/package.Iterator#
 (17:26..17:33) _empty_/i8963$package.Numeric# -> 1:6
 (17:35..17:42) _empty_/i8963$package.Numeric# -> 1:6
+(17:45..17:60) scala/collection/Iterator#GroupedIterator#
 (17:62..17:69) _empty_/i8963$package.Numeric# -> 1:6
 (17:71..17:78) _empty_/i8963$package.Numeric# -> 1:6
-(17:94..17:101) scala/collection/Iterator#sliding().
-(17:86..17:89) scala/collection/Iterator#zip().
 (17:83..17:85) local2 -> 14:11
+(17:86..17:89) scala/collection/Iterator#zip().
 (17:90..17:92) local3 -> 15:11
+(17:94..17:101) scala/collection/Iterator#sliding().
 (18:7..18:10) scala/Predef.`???`().
 (19:15..19:18) scala/Predef.`???`().
 

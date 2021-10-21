@@ -1,6 +1,6 @@
 Document tests/pos/tuple-isMappedBy.scala
-(2:14..2:19) scala/Tuple.
 (2:8..2:13) scala/
+(2:14..2:19) scala/Tuple.
 (6:23..6:28) scala/Tuple#
 (6:30..6:40) scala/Tuple.IsMappedBy#
 (6:41..6:42) _empty_/Test.test().[F] -> 6:12

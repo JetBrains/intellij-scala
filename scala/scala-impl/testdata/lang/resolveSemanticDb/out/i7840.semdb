@@ -11,11 +11,11 @@ Document tests/pos/i7840.scala
 (5:29..5:32) _empty_/Example.ZSink#flatMap().[A00] -> 4:35
 (5:34..5:36) _empty_/Example.ZSink#flatMap().[A1] -> 4:46
 (5:38..5:39) _empty_/Example.ZSink#flatMap().[C] -> 4:55
-(6:24..6:27) scala/`=:=`#
 (6:20..6:23) _empty_/Example.ZSink#flatMap().[A00] -> 4:35
+(6:24..6:27) scala/`=:=`#
 (6:28..6:30) _empty_/Example.ZSink#flatMap().[A1] -> 4:46
-(6:39..6:42) scala/`=:=`#
 (6:36..6:38) _empty_/Example.ZSink#flatMap().[A1] -> 4:46
+(6:39..6:42) scala/`=:=`#
 (6:43..6:46) _empty_/Example.ZSink#flatMap().[A00] -> 4:35
 (6:49..6:54) _empty_/Example.ZSink# -> 3:9
 (6:55..6:57) _empty_/Example.ZSink#flatMap().[R1] -> 4:17
@@ -39,15 +39,15 @@ Document tests/pos/i7840.scala
 (12:53..12:54) _empty_/Example.ZSink.succeed().[A] -> 12:17
 (12:56..12:57) _empty_/Example.ZSink.succeed().[B] -> 12:20
 (12:61..12:64) scala/Predef.`???`().
-(16:23..16:30) _empty_/Example.ZSink#flatMap(). -> 4:9
-(16:9..16:17) _empty_/Example.ZSink.identity(). -> 11:9
 (16:3..16:8) _empty_/Example.ZSink. -> 10:10
+(16:9..16:17) _empty_/Example.ZSink.identity(). -> 11:9
 (16:18..16:21) scala/Int#
-(16:42..16:49) _empty_/Example.ZSink.succeed(). -> 12:9
+(16:23..16:30) _empty_/Example.ZSink#flatMap(). -> 4:9
 (16:36..16:41) _empty_/Example.ZSink. -> 10:10
+(16:42..16:49) _empty_/Example.ZSink.succeed(). -> 12:9
 (16:50..16:53) scala/Int#
 (16:55..16:61) scala/Predef.String#
-(16:65..16:73) scala/Any#toString().
 (16:63..16:64) local0 -> 16:31
+(16:65..16:73) scala/Any#toString().
 (16:75..16:75) scala/`<:<`.refl().
 

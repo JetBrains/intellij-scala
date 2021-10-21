@@ -4,10 +4,10 @@ Document tests/pos/t8120.scala
 (5:29..5:32) scala/Any#
 (6:14..6:17) scala/Any#
 (6:20..6:23) scala/Int#
-(8:11..8:12) _empty_/A.RichAny#m(). -> 6:9
 (8:4..8:4) _empty_/A.RichAny(). -> 5:18
-(8:9..8:9) _empty_/A.C#`<init>`(). -> 3:5
 (8:8..8:9) _empty_/A.C# -> 2:9
+(8:9..8:9) _empty_/A.C#`<init>`(). -> 3:5
+(8:11..8:12) _empty_/A.RichAny#m(). -> 6:9
 (8:15..8:15) local0
 (8:21..8:21) scala/Tuple2.unapply().
 (8:30..8:31) local1 -> 8:21

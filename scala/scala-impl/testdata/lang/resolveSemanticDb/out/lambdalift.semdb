@@ -1,8 +1,8 @@
 Document tests/pos/lambdalift.scala
 (3:14..3:17) scala/Int#
 (5:16..5:19) scala/Int#
-(5:25..5:26) scala/Int#`+`(+4).
 (5:23..5:24) _empty_/test.foo().(x) -> 3:11
+(5:25..5:26) scala/Int#`+`(+4).
 (5:27..5:28) local1 -> 5:13
 (6:16..6:19) scala/Int#
 (6:23..6:26) local0 -> 5:9
@@ -12,15 +12,15 @@ Document tests/pos/lambdalift.scala
 (15:18..15:21) scala/Int#
 (15:24..15:30) scala/Predef.String#
 (15:34..15:37) scala/Int#
-(16:21..16:22) scala/Int#`+`(+4).
 (16:19..16:20) _empty_/test.foo2().(x) -> 12:12
+(16:21..16:22) scala/Int#`+`(+4).
 (16:23..16:24) local6 -> 15:15
-(17:18..17:19) scala/Int#`*`(+3).
 (17:14..17:17) local7 -> 16:13
-(17:22..17:28) java/lang/String#length().
+(17:18..17:19) scala/Int#`*`(+3).
 (17:20..17:21) local8 -> 17:9
-(21:23..21:26) local5 -> 15:11
+(17:22..17:28) java/lang/String#length().
 (21:19..21:20) local4 -> 14:11
-(22:8..22:8) scala/Function1#apply().
+(21:23..21:26) local5 -> 15:11
 (22:5..22:8) local9 -> 21:9
+(22:8..22:8) scala/Function1#apply().
 

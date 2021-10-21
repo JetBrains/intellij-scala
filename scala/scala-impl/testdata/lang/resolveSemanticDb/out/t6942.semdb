@@ -1,7 +1,7 @@
 Document tests/pos/t6942/t6942.scala
-(4:14..4:17) foo/Bar#
 (4:10..4:13) foo/
+(4:14..4:17) foo/Bar#
 (5:55..5:58) foo/Bar#
-(6:14..6:22) foo/Bar#BULGARIA.
 (6:10..6:13) foo/Bar#
+(6:14..6:22) foo/Bar#BULGARIA.
 

@@ -1,63 +1,63 @@
 Document tests/pos/t4457_1.scala
-(4:27..4:27) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (4:23..4:24) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (4:25..4:26) _empty_/ImplicitConvAmbiguity2.NE#[T] -> 4:12
-(5:27..5:27) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
+(4:27..4:27) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (5:23..5:24) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (5:25..5:26) _empty_/ImplicitConvAmbiguity2.NN#[T] -> 5:12
+(5:27..5:27) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (9:25..9:30) scala/Float#
-(9:56..9:58) _empty_/ImplicitConvAmbiguity2.NE# -> 4:9
 (9:33..9:55) _empty_/ImplicitConvAmbiguity2. -> 1:8
+(9:56..9:58) _empty_/ImplicitConvAmbiguity2.NE# -> 4:9
 (9:59..9:64) scala/Float#
-(9:81..9:81) _empty_/ImplicitConvAmbiguity2.NE#`<init>`(). -> 4:11
 (9:72..9:74) _empty_/ImplicitConvAmbiguity2.NE# -> 4:9
 (9:75..9:80) scala/Float#
+(9:81..9:81) _empty_/ImplicitConvAmbiguity2.NE#`<init>`(). -> 4:11
 (10:26..10:28) _empty_/ImplicitConvAmbiguity2.AA# -> 6:9
-(10:39..10:64) java/util/TooManyListenersException#
-(10:34..10:38) java/util/
 (10:29..10:33) java/
-(10:91..10:92) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
+(10:34..10:38) java/util/
+(10:39..10:64) java/util/TooManyListenersException#
 (10:68..10:90) _empty_/ImplicitConvAmbiguity2. -> 1:8
-(10:103..10:128) java/util/TooManyListenersException#
-(10:98..10:102) java/util/
+(10:91..10:92) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (10:93..10:97) java/
-(10:174..10:174) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
+(10:98..10:102) java/util/
+(10:103..10:128) java/util/TooManyListenersException#
 (10:136..10:137) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
-(10:148..10:173) java/util/TooManyListenersException#
-(10:143..10:147) java/util/
 (10:138..10:142) java/
+(10:143..10:147) java/util/
+(10:148..10:173) java/util/TooManyListenersException#
+(10:174..10:174) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (11:26..11:28) _empty_/ImplicitConvAmbiguity2.AA# -> 6:9
 (11:29..11:34) scala/Float#
-(11:61..11:62) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (11:38..11:60) _empty_/ImplicitConvAmbiguity2. -> 1:8
+(11:61..11:62) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (11:63..11:68) scala/Float#
-(11:84..11:84) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (11:76..11:77) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (11:78..11:83) scala/Float#
+(11:84..11:84) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (12:25..12:27) _empty_/ImplicitConvAmbiguity2.BB# -> 7:9
-(12:38..12:55) java/util/GregorianCalendar#
-(12:33..12:37) java/util/
 (12:28..12:32) java/
-(12:82..12:83) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
+(12:33..12:37) java/util/
+(12:38..12:55) java/util/GregorianCalendar#
 (12:59..12:81) _empty_/ImplicitConvAmbiguity2. -> 1:8
-(12:94..12:111) java/util/GregorianCalendar#
-(12:89..12:93) java/util/
+(12:82..12:83) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (12:84..12:88) java/
-(12:149..12:149) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
+(12:89..12:93) java/util/
+(12:94..12:111) java/util/GregorianCalendar#
 (12:119..12:120) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
-(12:131..12:148) java/util/GregorianCalendar#
-(12:126..12:130) java/util/
 (12:121..12:125) java/
+(12:126..12:130) java/util/
+(12:131..12:148) java/util/GregorianCalendar#
+(12:149..12:149) _empty_/ImplicitConvAmbiguity2.N#`<init>`(). -> 3:10
 (14:19..14:21) _empty_/ImplicitConvAmbiguity2.NE# -> 4:9
 (14:22..14:23) _empty_/ImplicitConvAmbiguity2.aFunc().[A] -> 14:13
-(14:37..14:37) _empty_/ImplicitConvAmbiguity2.AA#`<init>`(). -> 6:11
 (14:32..14:34) _empty_/ImplicitConvAmbiguity2.AA# -> 6:9
 (14:35..14:36) _empty_/ImplicitConvAmbiguity2.aFunc().[A] -> 14:13
+(14:37..14:37) _empty_/ImplicitConvAmbiguity2.AA#`<init>`(). -> 6:11
 (15:19..15:21) _empty_/ImplicitConvAmbiguity2.NN# -> 5:9
 (15:22..15:23) _empty_/ImplicitConvAmbiguity2.aFunc(+1).[A] -> 15:13
-(15:37..15:37) _empty_/ImplicitConvAmbiguity2.BB#`<init>`(). -> 7:11
 (15:32..15:34) _empty_/ImplicitConvAmbiguity2.BB# -> 7:9
 (15:35..15:36) _empty_/ImplicitConvAmbiguity2.aFunc(+1).[A] -> 15:13
+(15:37..15:37) _empty_/ImplicitConvAmbiguity2.BB#`<init>`(). -> 7:11
 (17:20..17:21) _empty_/ImplicitConvAmbiguity2.N# -> 3:9
 (17:22..17:23) _empty_/ImplicitConvAmbiguity2.bFunc().[T] -> 17:13
 (19:16..19:20) scala/Unit#

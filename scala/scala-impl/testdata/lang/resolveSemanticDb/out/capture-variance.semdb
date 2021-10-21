@@ -1,6 +1,6 @@
 Document tests/pos/capture-variance.scala
-(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
 (2:18..2:20) _empty_/Hi# -> 1:7
+(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
 (9:10..9:14) scala/package.List#
 (9:15..9:19) _empty_/Cov1# -> 3:7
 (9:20..9:23) scala/Any#

@@ -1,20 +1,20 @@
 Document tests/pos/i3130c.scala
 (4:14..4:18) _empty_/Test#Global#Tree# -> 3:10
 (8:17..8:23) _empty_/Test#Global# -> 2:9
-(9:33..9:37) _empty_/Test#Global#Tree# -> 3:10
 (9:26..9:32) _empty_/Test#TreeBuilder#global. -> 8:9
+(9:33..9:37) _empty_/Test#Global#Tree# -> 3:10
 (12:12..12:18) _empty_/Test#Global# -> 2:9
 (15:32..15:43) _empty_/Test#TreeBuilder# -> 7:9
 (16:19..16:22) _empty_/Test#nsc. -> 12:7
 (16:30..16:33) _empty_/Test#nsc. -> 12:7
-(18:17..18:20) _empty_/Test#TreeBuilder#set(). -> 9:16
 (18:5..18:16) _empty_/Test#FileImpl#treeBuilder. -> 15:12
-(18:25..18:28) _empty_/Test#Global#get(). -> 4:9
+(18:17..18:20) _empty_/Test#TreeBuilder#set(). -> 9:16
 (18:21..18:24) _empty_/Test#nsc. -> 12:7
+(18:25..18:28) _empty_/Test#Global#get(). -> 4:9
 (20:13..20:21) _empty_/Test#FileImpl# -> 14:9
-(22:20..22:23) _empty_/Test#TreeBuilder#set(). -> 9:16
-(22:8..22:19) _empty_/Test#FileImpl#treeBuilder. -> 15:12
 (22:3..22:7) _empty_/Test#file(). -> 20:7
-(22:28..22:31) _empty_/Test#Global#get(). -> 4:9
+(22:8..22:19) _empty_/Test#FileImpl#treeBuilder. -> 15:12
+(22:20..22:23) _empty_/Test#TreeBuilder#set(). -> 9:16
 (22:24..22:27) _empty_/Test#nsc. -> 12:7
+(22:28..22:31) _empty_/Test#Global#get(). -> 4:9
 

@@ -9,7 +9,7 @@ Document tests/pos/t6547.scala
 (3:19..3:22) scala/Int#
 (4:13..4:18) scala/Array#
 (4:19..4:23) scala/Long#
-(4:30..4:42) scala/Any#asInstanceOf().
 (4:28..4:29) _empty_/ConfigurableDefault#fillArray().(v) -> 2:32
+(4:30..4:42) scala/Any#asInstanceOf().
 (4:43..4:47) scala/Long#
 

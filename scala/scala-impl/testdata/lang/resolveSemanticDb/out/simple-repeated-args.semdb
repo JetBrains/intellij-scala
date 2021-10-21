@@ -1,6 +1,6 @@
 Document tests/pos/simple-repeated-args.scala
-(2:7..2:7) scala/collection/IterableFactory#apply().
 (2:3..2:7) scala/package.List.
-(3:8..3:8) scala/Array.apply(+5).
+(2:7..2:7) scala/collection/IterableFactory#apply().
 (3:3..3:8) scala/Array.
+(3:8..3:8) scala/Array.apply(+5).
 

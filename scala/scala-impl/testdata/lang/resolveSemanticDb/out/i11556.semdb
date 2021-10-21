@@ -1,40 +1,4 @@
 Document tests/pos/i11556.scala
-(7:24..7:25) _empty_/Path#[E] -> 7:18
-(13:30..13:30) _empty_/Graph#`<init>`(). -> 5:15
-(13:25..13:30) _empty_/Graph# -> 5:7
-(14:8..14:16) _empty_/graphObj. -> 13:8
-(18:11..18:16) _empty_/i11556$package.Query# -> 8:6
-(18:17..18:24) scala/Nothing#
-(18:26..18:30) _empty_/Graph#Node# -> 5:21
-(18:41..18:43) _empty_/i11556$package.`~>`(). -> 3:9
-(18:34..18:40) _empty_/i11556$package.nodesQ(). -> 10:5
-(18:40..18:40) _empty_/i11556$package.given_graphObj_type. -> 15:7
-(18:44..18:49) _empty_/i11556$package.outsQ(). -> 11:5
-(18:49..18:49) _empty_/i11556$package.given_graphObj_type. -> 15:7
-(19:3..19:13) scala/Predef.implicitly().
-(19:22..19:25) scala/`<:<`#
-(19:14..19:16) _empty_/Issue11556.q1. -> 18:7
-(19:26..19:31) _empty_/i11556$package.Query# -> 8:6
-(19:32..19:39) scala/Nothing#
-(19:41..19:45) _empty_/Graph#Node# -> 5:21
-(19:47..19:47) scala/`<:<`.refl().
-(21:19..21:21) _empty_/i11556$package.`~>`(). -> 3:9
-(21:12..21:18) _empty_/i11556$package.nodesQ(). -> 10:5
-(21:18..21:18) _empty_/i11556$package.given_graphObj_type. -> 15:7
-(21:22..21:27) _empty_/i11556$package.outsQ(). -> 11:5
-(21:27..21:27) _empty_/i11556$package.given_graphObj_type. -> 15:7
-(22:11..22:16) _empty_/i11556$package.Query# -> 8:6
-(22:17..22:24) scala/Nothing#
-(22:26..22:30) _empty_/Graph#Node# -> 5:21
-(22:34..22:36) _empty_/Issue11556.q2. -> 21:7
-(23:3..23:13) scala/Predef.implicitly().
-(23:22..23:25) scala/`<:<`#
-(23:14..23:16) _empty_/Issue11556.q2. -> 21:7
-(23:26..23:31) _empty_/i11556$package.Query# -> 8:6
-(23:32..23:39) scala/Nothing#
-(23:41..23:45) _empty_/Graph#Node# -> 5:21
-(23:47..23:47) scala/`<:<`.refl().
-(24:5..24:15) _empty_/Issue11556. -> 17:8
 (1:26..1:27) _empty_/i11556$package.Traverser#[I] -> 1:17
 (1:31..1:39) scala/package.LazyList#
 (1:41..1:42) _empty_/i11556$package.Traverser#[O] -> 1:21
@@ -48,6 +12,7 @@ Document tests/pos/i11556.scala
 (3:47..3:48) _empty_/i11556$package.`~>`().[I] -> 2:11
 (3:50..3:51) _empty_/i11556$package.`~>`().[P] -> 3:12
 (3:55..3:58) scala/Predef.`???`().
+(7:24..7:25) _empty_/Path#[E] -> 7:18
 (8:22..8:31) _empty_/i11556$package.Traverser# -> 1:6
 (8:32..8:36) _empty_/Path# -> 7:12
 (8:37..8:38) _empty_/i11556$package.Query#[I] -> 8:13
@@ -56,16 +21,51 @@ Document tests/pos/i11556.scala
 (10:21..10:26) _empty_/Graph# -> 5:7
 (10:29..10:34) _empty_/i11556$package.Query# -> 8:6
 (10:35..10:42) scala/Nothing#
-(10:46..10:50) _empty_/Graph#Node# -> 5:21
 (10:44..10:45) _empty_/i11556$package.nodesQ().(g) -> 10:18
+(10:46..10:50) _empty_/Graph#Node# -> 5:21
 (10:54..10:57) scala/Predef.`???`().
 (11:20..11:25) _empty_/Graph# -> 5:7
 (11:28..11:33) _empty_/i11556$package.Query# -> 8:6
-(11:36..11:40) _empty_/Graph#Node# -> 5:21
 (11:34..11:35) _empty_/i11556$package.outsQ().(g) -> 11:17
-(11:44..11:48) _empty_/Graph#Node# -> 5:21
+(11:36..11:40) _empty_/Graph#Node# -> 5:21
 (11:42..11:43) _empty_/i11556$package.outsQ().(g) -> 11:17
+(11:44..11:48) _empty_/Graph#Node# -> 5:21
 (11:52..11:55) scala/Predef.`???`().
+(13:25..13:30) _empty_/Graph# -> 5:7
+(13:30..13:30) _empty_/Graph#`<init>`(). -> 5:15
+(14:8..14:16) _empty_/graphObj. -> 13:8
 (15:7..15:15) _empty_/graphObj. -> 13:8
 (15:23..15:31) _empty_/graphObj. -> 13:8
+(18:11..18:16) _empty_/i11556$package.Query# -> 8:6
+(18:17..18:24) scala/Nothing#
+(18:26..18:30) _empty_/Graph#Node# -> 5:21
+(18:34..18:40) _empty_/i11556$package.nodesQ(). -> 10:5
+(18:40..18:40) _empty_/i11556$package.given_graphObj_type. -> 15:7
+(18:41..18:43) _empty_/i11556$package.`~>`(). -> 3:9
+(18:44..18:49) _empty_/i11556$package.outsQ(). -> 11:5
+(18:49..18:49) _empty_/i11556$package.given_graphObj_type. -> 15:7
+(19:3..19:13) scala/Predef.implicitly().
+(19:14..19:16) _empty_/Issue11556.q1. -> 18:7
+(19:22..19:25) scala/`<:<`#
+(19:26..19:31) _empty_/i11556$package.Query# -> 8:6
+(19:32..19:39) scala/Nothing#
+(19:41..19:45) _empty_/Graph#Node# -> 5:21
+(19:47..19:47) scala/`<:<`.refl().
+(21:12..21:18) _empty_/i11556$package.nodesQ(). -> 10:5
+(21:18..21:18) _empty_/i11556$package.given_graphObj_type. -> 15:7
+(21:19..21:21) _empty_/i11556$package.`~>`(). -> 3:9
+(21:22..21:27) _empty_/i11556$package.outsQ(). -> 11:5
+(21:27..21:27) _empty_/i11556$package.given_graphObj_type. -> 15:7
+(22:11..22:16) _empty_/i11556$package.Query# -> 8:6
+(22:17..22:24) scala/Nothing#
+(22:26..22:30) _empty_/Graph#Node# -> 5:21
+(22:34..22:36) _empty_/Issue11556.q2. -> 21:7
+(23:3..23:13) scala/Predef.implicitly().
+(23:14..23:16) _empty_/Issue11556.q2. -> 21:7
+(23:22..23:25) scala/`<:<`#
+(23:26..23:31) _empty_/i11556$package.Query# -> 8:6
+(23:32..23:39) scala/Nothing#
+(23:41..23:45) _empty_/Graph#Node# -> 5:21
+(23:47..23:47) scala/`<:<`.refl().
+(24:5..24:15) _empty_/Issue11556. -> 17:8
 

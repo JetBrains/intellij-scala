@@ -7,7 +7,7 @@ Document tests/pos/i7119.scala
 (6:32..6:36) scala/Unit#
 (7:9..7:12) scala/Int#
 (8:3..8:10) scala/Predef.println(+1).
-(8:22..8:26) _empty_/i7119$package.prop(). -> 3:28
-(8:19..8:19) _empty_/Impl#`<init>`(). -> 1:1
 (8:15..8:19) _empty_/Impl# -> 1:7
+(8:19..8:19) _empty_/Impl#`<init>`(). -> 1:1
+(8:22..8:26) _empty_/i7119$package.prop(). -> 3:28
 

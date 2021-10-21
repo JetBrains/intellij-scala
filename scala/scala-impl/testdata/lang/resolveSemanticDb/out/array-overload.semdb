@@ -11,6 +11,6 @@ Document tests/pos/array-overload.scala
 (4:47..4:50) scala/Predef.`???`().
 (7:10..7:15) scala/Array#
 (7:16..7:20) scala/Byte#
-(7:26..7:31) _empty_/Test#A.apply(). -> 3:9
 (7:24..7:25) _empty_/Test#A. -> 2:10
+(7:26..7:31) _empty_/Test#A.apply(). -> 3:9
 

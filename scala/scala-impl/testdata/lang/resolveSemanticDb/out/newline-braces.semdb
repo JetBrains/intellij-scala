@@ -5,13 +5,13 @@ Document tests/pos/newline-braces.scala
 (9:3..9:4) local0 -> 8:7
 (12:8..12:11) scala/Int#
 (12:15..12:18) scala/Int#
-(13:7..13:7) scala/collection/IterableFactory#apply().
-(13:3..13:7) scala/package.List.
 (13:3..13:3) local1
+(13:3..13:7) scala/package.List.
+(13:7..13:7) scala/collection/IterableFactory#apply().
 (14:9..14:12) scala/Int#
-(15:7..15:8) scala/Int#`+`(+4).
 (15:5..15:6) local2 -> 14:6
+(15:7..15:8) scala/Int#`+`(+4).
 (19:10..19:12) scala/Boolean#`&&`().
-(22:11..22:13) scala/Boolean#`&&`().
 (22:7..22:10) local3 -> 21:11
+(22:11..22:13) scala/Boolean#`&&`().
 

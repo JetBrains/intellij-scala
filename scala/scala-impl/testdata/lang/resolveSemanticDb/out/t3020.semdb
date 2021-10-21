@@ -2,11 +2,11 @@ Document tests/pos/t3020.scala
 (2:18..2:23) scala/Array#
 (2:24..2:30) scala/Predef.String#
 (2:34..2:38) scala/Unit#
-(5:43..5:55) scala/Any#asInstanceOf().
 (5:13..5:14) local0 -> 3:9
-(5:37..5:37) scala/util/Random#`<init>`(+3).
-(5:31..5:37) scala/util/Random#
-(5:26..5:30) scala/util/
 (5:20..5:25) scala/
+(5:26..5:30) scala/util/
+(5:31..5:37) scala/util/Random#
+(5:37..5:37) scala/util/Random#`<init>`(+3).
+(5:43..5:55) scala/Any#asInstanceOf().
 (5:56..5:64) java/lang/Runnable#
 

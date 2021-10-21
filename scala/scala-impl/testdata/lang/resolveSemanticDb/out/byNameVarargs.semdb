@@ -1,11 +1,11 @@
 Document tests/pos/byNameVarargs.scala
 (5:21..5:24) scala/Int#
-(5:32..5:35) scala/collection/IterableOnceOps#sum().
 (5:29..5:31) test/O.byname().(xs) -> 5:14
+(5:32..5:35) scala/collection/IterableOnceOps#sum().
 (5:35..5:35) scala/math/Numeric.IntIsIntegral.
 (6:17..6:20) scala/Int#
-(6:28..6:31) scala/collection/IterableOnceOps#sum().
 (6:25..6:27) test/O.byval().(xs) -> 6:13
+(6:28..6:31) scala/collection/IterableOnceOps#sum().
 (6:31..6:31) scala/math/Numeric.IntIsIntegral.
 (11:3..11:8) test/O.byval(). -> 6:7
 (11:9..11:10) test/O.a(). -> 8:7

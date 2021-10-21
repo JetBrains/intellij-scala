@@ -14,7 +14,7 @@ Document tests/pos/i2941.scala
 (13:26..13:33) _empty_/FooBase# -> 1:7
 (13:36..13:39) _empty_/Test.bad().(foo) -> 13:11
 (14:15..14:22) _empty_/FooBase# -> 1:7
-(15:11..15:18) _empty_/FooBase#derived(). -> 5:7
 (15:7..15:10) local3 -> 14:10
+(15:11..15:18) _empty_/FooBase#derived(). -> 5:7
 (15:19..15:22) scala/Predef.`???`().
 

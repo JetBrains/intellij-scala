@@ -1,7 +1,7 @@
 Document tests/pos/i3702.scala
-(2:40..2:50) scala/annotation/Annotation#
-(2:29..2:39) scala/annotation/
 (2:23..2:28) scala/
+(2:29..2:39) scala/annotation/
+(2:40..2:50) scala/annotation/Annotation#
 (4:16..4:19) scala/Int#
 (4:22..4:25) scala/Int#
 (4:28..4:29) local1 -> 4:13

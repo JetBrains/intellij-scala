@@ -1,8 +1,8 @@
 Document tests/pos/i3736.scala
-(1:23..1:31) scala/language.dynamics.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
-(2:14..2:17) scala/package.Nil.
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
 (2:8..2:13) scala/
+(2:14..2:17) scala/package.Nil.
 (3:21..3:28) scala/Dynamic#
 

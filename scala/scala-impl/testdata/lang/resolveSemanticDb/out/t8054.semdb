@@ -1,7 +1,7 @@
 Document tests/pos/t8054.scala
 (6:10..6:18) _empty_/D#Manifest# -> 2:9
-(8:12..8:17) _empty_/D#Manifest#Entry# -> 3:11
 (8:10..8:11) _empty_/D#M. -> 6:7
+(8:12..8:17) _empty_/D#Manifest#Entry# -> 3:11
 (8:20..8:23) scala/Predef.`???`().
 (11:19..11:20) _empty_/D# -> 1:7
 (12:20..12:28) _empty_/D#Manifest# -> 2:9
@@ -11,14 +11,14 @@ Document tests/pos/t8054.scala
 (21:18..21:23) scala/Array#
 (21:24..21:30) scala/Predef.String#
 (21:34..21:38) scala/Unit#
-(25:18..25:23) _empty_/D#Manifest#Entry# -> 3:11
-(25:16..25:17) _empty_/D1.M. -> 12:10
 (25:13..25:15) _empty_/D1. -> 11:8
-(25:29..25:30) _empty_/D#m(). -> 8:7
+(25:16..25:17) _empty_/D1.M. -> 12:10
+(25:18..25:23) _empty_/D#Manifest#Entry# -> 3:11
 (25:26..25:28) _empty_/D1. -> 11:8
-(29:18..29:23) _empty_/D#Manifest#Entry# -> 3:11
-(29:16..29:17) _empty_/D2.M. -> 16:7
+(25:29..25:30) _empty_/D#m(). -> 8:7
 (29:13..29:15) _empty_/D2. -> 15:8
-(29:29..29:30) _empty_/D#m(). -> 8:7
+(29:16..29:17) _empty_/D2.M. -> 16:7
+(29:18..29:23) _empty_/D#Manifest#Entry# -> 3:11
 (29:26..29:28) _empty_/D2. -> 15:8
+(29:29..29:30) _empty_/D#m(). -> 8:7
 

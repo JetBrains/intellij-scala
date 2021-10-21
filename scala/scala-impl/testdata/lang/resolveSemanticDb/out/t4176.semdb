@@ -1,7 +1,7 @@
 Document tests/pos/t4176.scala
 (4:13..4:16) scala/Int#
 (4:33..4:35) _empty_/A#xs. -> 4:9
-(6:18..6:18) _empty_/A#`<init>`(). -> 4:8
 (6:17..6:18) _empty_/A# -> 4:7
+(6:18..6:18) _empty_/A#`<init>`(). -> 4:8
 (6:42..6:45) scala/package.Nil.
 

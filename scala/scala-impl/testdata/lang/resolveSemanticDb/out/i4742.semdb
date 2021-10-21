@@ -1,13 +1,13 @@
 Document tests/pos/i4742.scala
-(1:22..1:30) scala/reflect/ClassTag.
-(1:22..1:30) scala/reflect/ClassTag#
-(1:14..1:21) scala/reflect/
 (1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:30) scala/reflect/ClassTag#
+(1:22..1:30) scala/reflect/ClassTag.
 (4:16..4:22) scala/Predef.String#
-(4:37..4:38) _empty_/Test#foo().[T] -> 4:11
-(4:42..4:45) scala/Int#
 (4:24..4:32) scala/reflect/ClassTag#
 (4:32..4:32) _empty_/Test#foo().[T] -> 4:11
+(4:37..4:38) _empty_/Test#foo().[T] -> 4:11
+(4:42..4:45) scala/Int#
 (5:14..5:20) scala/Predef.String#
 (5:24..5:27) scala/Int#
 (5:31..5:34) _empty_/Test#foo(). -> 4:7

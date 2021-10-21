@@ -1,8 +1,8 @@
 Document tests/pos/valdefs.scala
 (4:14..4:20) scala/Predef.String#
-(8:34..8:34) _empty_/test.Base#`<init>`(). -> 3:24
 (8:30..8:34) _empty_/test.Base# -> 3:20
-(13:39..13:39) _empty_/test.Base#`<init>`(). -> 3:24
+(8:34..8:34) _empty_/test.Base#`<init>`(). -> 3:24
 (13:35..13:39) _empty_/test.Base# -> 3:20
+(13:39..13:39) _empty_/test.Base#`<init>`(). -> 3:24
 (14:30..14:30) scala/Tuple2.apply().
 

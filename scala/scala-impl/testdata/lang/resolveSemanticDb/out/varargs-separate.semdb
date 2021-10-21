@@ -1,9 +1,19 @@
-Document tests/pos/varargs-separate/Impl_2.scala
-(1:25..1:32) scala/annotation/varargs#
-(1:14..1:24) scala/annotation/
+Document tests/pos/varargs-separate/Abstract_1.scala
 (1:8..1:13) scala/
-(3:23..3:23) _empty_/Abs#`<init>`(). -> 4:3
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/varargs#
+(4:4..4:11) scala/annotation/varargs#
+(4:27..4:33) scala/Predef.String#
+(8:4..8:11) scala/annotation/varargs#
+(8:27..8:33) scala/Predef.String#
+(8:37..8:41) scala/Unit#
+
+Document tests/pos/varargs-separate/Impl_2.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/varargs#
 (3:20..3:23) _empty_/Abs# -> 3:16
+(3:23..3:23) _empty_/Abs#`<init>`(). -> 4:3
 (4:27..4:33) scala/Predef.String#
 (4:37..4:41) scala/Unit#
 (7:17..7:18) _empty_/T# -> 7:7
@@ -11,14 +21,4 @@ Document tests/pos/varargs-separate/Impl_2.scala
 (8:37..8:41) scala/Unit#
 (11:17..11:18) _empty_/B# -> 7:7
 (12:27..12:33) scala/Predef.String#
-
-Document tests/pos/varargs-separate/Abstract_1.scala
-(1:25..1:32) scala/annotation/varargs#
-(1:14..1:24) scala/annotation/
-(1:8..1:13) scala/
-(4:4..4:11) scala/annotation/varargs#
-(4:27..4:33) scala/Predef.String#
-(8:4..8:11) scala/annotation/varargs#
-(8:27..8:33) scala/Predef.String#
-(8:37..8:41) scala/Unit#
 

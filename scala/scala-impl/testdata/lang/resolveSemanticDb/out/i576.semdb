@@ -10,6 +10,6 @@ Document tests/pos/i576.scala
 (14:13..14:16) scala/Int#
 (15:22..15:25) scala/Int#
 (16:5..16:8) _empty_/Impl2.foo(). -> 13:7
-(16:10..17:2) _empty_/Impl2.foo().(ev) -> 13:22
 (16:10..16:10) local0 -> 15:18
+(16:10..17:2) _empty_/Impl2.foo().(ev) -> 13:22
 

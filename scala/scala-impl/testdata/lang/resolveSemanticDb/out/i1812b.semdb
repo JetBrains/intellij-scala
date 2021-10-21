@@ -2,11 +2,11 @@ Document tests/pos/i1812b.scala
 (2:18..2:19) _empty_/FF#[R] -> 1:10
 (2:22..2:25) scala/Predef.`???`().
 (5:15..5:18) scala/Int#
-(5:34..5:34) scala/AnyVal#`<init>`().
 (5:28..5:34) scala/AnyVal#
+(5:34..5:34) scala/AnyVal#`<init>`().
 (6:15..6:19) scala/Unit#
-(7:26..7:27) local2 -> 8:21
 (7:24..7:25) local3 -> 9:9
+(7:26..7:27) local2 -> 8:21
 (7:30..7:33) scala/Predef.`???`().
 (9:12..9:15) local4 -> 8:11
 (9:18..9:21) scala/Predef.`???`().

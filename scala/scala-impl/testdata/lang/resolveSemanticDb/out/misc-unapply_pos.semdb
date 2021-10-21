@@ -1,29 +1,29 @@
 Document tests/pos/misc-unapply_pos.scala
-(2:16..2:16) scala/collection/IterableFactory#apply().
 (2:12..2:16) scala/package.List.
+(2:16..2:16) scala/collection/IterableFactory#apply().
 (3:10..3:13) scala/Int#
 (4:5..4:7) _empty_/Test.xs. -> 2:7
-(5:16..5:16) scala/collection/SeqFactory#unapplySeq().
 (5:12..5:16) scala/package.List.
+(5:16..5:16) scala/collection/SeqFactory#unapplySeq().
 (5:23..5:24) local0 -> 5:17
 (12:13..12:19) scala/Predef.String#
 (13:18..13:24) scala/Predef.String#
 (13:27..13:33) scala/Option#
 (13:34..13:38) scala/Unit#
-(14:11..14:13) scala/Any#`==`().
 (14:9..14:10) _empty_/Foo#unapply().(x) -> 13:15
+(14:11..14:13) scala/Any#`==`().
 (14:14..14:18) _empty_/Foo#name(). -> 12:7
-(14:24..14:24) scala/Some.apply().
 (14:20..14:24) scala/Some.
+(14:24..14:24) scala/Some.apply().
 (14:34..14:38) scala/None.
 (17:20..17:23) _empty_/Foo# -> 11:7
 (18:20..18:23) _empty_/Foo# -> 11:7
 (21:18..21:24) scala/Predef.String#
 (21:28..21:29) _empty_/Test_.matcher().(s) -> 21:15
-(22:13..22:13) _empty_/Foo#unapply(). -> 13:7
 (22:10..22:13) _empty_/Bar. -> 17:8
+(22:13..22:13) _empty_/Foo#unapply(). -> 13:7
 (22:20..22:27) scala/Predef.println(+1).
-(23:13..23:13) _empty_/Foo#unapply(). -> 13:7
 (23:10..23:13) _empty_/Baz. -> 18:8
+(23:13..23:13) _empty_/Foo#unapply(). -> 13:7
 (23:20..23:27) scala/Predef.println(+1).
 

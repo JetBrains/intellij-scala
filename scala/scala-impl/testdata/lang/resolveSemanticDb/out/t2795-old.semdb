@@ -1,9 +1,9 @@
 Document tests/pos/t2795-old.scala
 (7:13..7:20) t1/Element# -> 3:7
 (7:21..7:22) t1/Config#T# -> 7:8
-(8:33..8:46) scala/reflect/package.ClassManifest#
-(8:25..8:32) scala/reflect/
 (8:19..8:24) scala/
+(8:25..8:32) scala/reflect/
+(8:33..8:46) scala/reflect/package.ClassManifest#
 (8:47..8:48) t1/Config#T# -> 7:8
 (13:25..13:31) t1/Config# -> 6:7
 (14:27..14:32) scala/Array#

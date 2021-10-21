@@ -17,6 +17,6 @@ Document tests/pos/t245.scala
 (16:7..16:7) _empty_/Test.view(). -> 5:16
 (16:7..16:11) _empty_/Test.fun1(). -> 12:7
 (16:12..16:12) _empty_/Test.view(). -> 5:16
-(16:21..16:21) _empty_/Value#`<init>`(). -> 1:1
 (16:16..16:21) _empty_/Value# -> 1:7
+(16:21..16:21) _empty_/Value#`<init>`(). -> 1:1
 

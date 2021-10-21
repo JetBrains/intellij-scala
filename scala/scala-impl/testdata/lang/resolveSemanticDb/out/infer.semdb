@@ -8,12 +8,12 @@ Document tests/pos/infer.scala
 (5:33..5:34) _empty_/test.Cons#[a] -> 5:19
 (5:40..5:44) _empty_/test.List# -> 2:9
 (5:45..5:46) _empty_/test.Cons#[b] -> 5:22
-(5:64..5:64) _empty_/test.List#`<init>`(). -> 2:13
 (5:57..5:61) _empty_/test.List# -> 2:9
 (5:62..5:63) _empty_/test.Cons#[a] -> 5:19
-(6:40..6:40) _empty_/test.List#`<init>`(). -> 2:13
+(5:64..5:64) _empty_/test.List#`<init>`(). -> 2:13
 (6:27..6:31) _empty_/test.List# -> 2:9
 (6:32..6:39) scala/Nothing#
+(6:40..6:40) _empty_/test.List#`<init>`(). -> 2:13
 (7:15..7:19) _empty_/test.List# -> 2:9
 (7:20..7:21) _empty_/test.nil().[n] -> 7:11
 (7:25..7:28) _empty_/test.Nil. -> 6:15
@@ -24,10 +24,10 @@ Document tests/pos/infer.scala
 (8:40..8:41) _empty_/test.cons().[a] -> 8:12
 (9:10..9:14) _empty_/test.List# -> 2:9
 (9:15..9:18) scala/Int#
-(9:26..9:28) _empty_/test.List#`::`(). -> 3:9
 (9:22..9:25) _empty_/test.Nil. -> 6:15
+(9:26..9:28) _empty_/test.List#`::`(). -> 3:9
 (10:10..10:14) _empty_/test.List# -> 2:9
 (10:15..10:18) scala/Int#
-(10:26..10:28) _empty_/test.List#`::`(). -> 3:9
 (10:22..10:25) _empty_/test.nil(). -> 7:7
+(10:26..10:28) _empty_/test.List#`::`(). -> 3:9
 

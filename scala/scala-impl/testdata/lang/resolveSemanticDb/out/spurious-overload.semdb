@@ -12,8 +12,8 @@ Document tests/pos/spurious-overload.scala
 (9:32..9:36) local4 -> 11:22
 (9:37..9:38) local7 -> 9:26
 (9:42..9:43) local7 -> 9:26
-(9:47..9:47) scala/Function0#apply().
 (9:46..9:47) local8 -> 9:29
+(9:47..9:47) scala/Function0#apply().
 (11:39..11:48) scala/Function0#
 (11:49..11:50) local9 -> 11:28
 (13:50..13:54) local4 -> 11:22
@@ -25,12 +25,12 @@ Document tests/pos/spurious-overload.scala
 (17:16..17:20) scala/None.
 (18:25..18:34) local11 -> 13:25
 (19:13..19:23) local12 -> 14:21
-(19:30..19:30) scala/Some.apply().
 (19:26..19:30) scala/Some.
+(19:30..19:30) scala/Some.apply().
 (19:31..19:36) local14 -> 18:17
 (20:13..20:18) local14 -> 18:17
-(21:20..21:20) scala/Some.unapply().
 (21:16..21:20) scala/Some.
+(21:20..21:20) scala/Some.unapply().
 (22:13..22:18) local15 -> 21:21
 (27:12..27:19) local16
 (29:17..29:20) scala/Int#

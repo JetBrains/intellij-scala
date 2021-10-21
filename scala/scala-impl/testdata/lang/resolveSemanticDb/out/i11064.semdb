@@ -2,6 +2,6 @@ Document tests/pos/i11064.scala
 (4:21..4:22) _empty_/Ops#[T] -> 3:11
 (8:17..8:20) _empty_/Ops# -> 3:7
 (8:26..8:36) _empty_/TypedArray# -> 1:7
-(8:51..8:61) _empty_/Ops#typedArray(). -> 4:7
 (8:47..8:50) _empty_/Test.test().(ops) -> 8:12
+(8:51..8:61) _empty_/Ops#typedArray(). -> 4:7
 

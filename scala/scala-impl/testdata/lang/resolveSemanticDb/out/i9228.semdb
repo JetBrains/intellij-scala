@@ -7,11 +7,11 @@ Document tests/pos/i9228.scala
 (7:22..7:27) _empty_/ABug.Graph# -> 3:9
 (7:30..7:34) scala/package.List#
 (7:35..7:39) scala/package.List#
-(7:42..7:46) _empty_/ABug.Graph#Node# -> 3:23
 (7:40..7:41) _empty_/ABug.gtoll().(g) -> 7:19
+(7:42..7:46) _empty_/ABug.Graph#Node# -> 3:23
 (7:51..7:54) scala/Predef.`???`().
-(9:29..9:29) _empty_/ABug.Graph#`<init>`(). -> 3:17
 (9:24..9:29) _empty_/ABug.Graph# -> 3:9
+(9:29..9:29) _empty_/ABug.Graph#`<init>`(). -> 3:17
 (10:10..10:15) _empty_/ABug.graph. -> 9:10
 (11:9..11:14) _empty_/ABug.graph. -> 9:10
 (11:22..11:27) _empty_/ABug.graph. -> 9:10

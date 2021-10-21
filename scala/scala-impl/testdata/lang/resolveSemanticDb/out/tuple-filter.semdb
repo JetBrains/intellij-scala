@@ -2,24 +2,24 @@ Document tests/pos/tuple-filter.scala
 (1:14..1:21) scala/Boolean#
 (1:24..1:25) _empty_/`tuple-filter$package`.P#[x] -> 1:8
 (8:3..8:9) scala/Predef.summon().
-(8:40..8:43) scala/`=:=`#
-(8:16..8:22) scala/Tuple.Filter#
 (8:10..8:15) scala/Tuple.
+(8:16..8:22) scala/Tuple.Filter#
 (8:37..8:38) _empty_/`tuple-filter$package`.P# -> 1:6
+(8:40..8:43) scala/`=:=`#
 (8:54..8:54) scala/`<:<`.refl().
 (9:3..9:9) scala/Predef.summon().
-(9:48..9:51) scala/`=:=`#
-(9:16..9:22) scala/Tuple.Filter#
 (9:10..9:15) scala/Tuple.
+(9:16..9:22) scala/Tuple.Filter#
 (9:37..9:46) _empty_/`tuple-filter$package`.RejectAll# -> 5:6
+(9:48..9:51) scala/`=:=`#
 (9:52..9:62) scala/Tuple$package.EmptyTuple#
 (9:63..9:63) scala/`<:<`.refl().
 (10:3..10:9) scala/Predef.summon().
-(10:38..10:41) scala/`=:=`#
-(10:16..10:22) scala/Tuple.Filter#
 (10:10..10:15) scala/Tuple.
+(10:16..10:22) scala/Tuple.Filter#
 (10:23..10:33) scala/Tuple$package.EmptyTuple#
 (10:35..10:36) _empty_/`tuple-filter$package`.P# -> 1:6
+(10:38..10:41) scala/`=:=`#
 (10:42..10:52) scala/Tuple$package.EmptyTuple#
 (10:53..10:53) scala/`<:<`.refl().
 

@@ -1,6 +1,6 @@
 Document tests/pos/alpha.scala
-(1:19..1:29) scala/annotation/targetName#
 (1:8..1:18) scala/annotation/
+(1:19..1:29) scala/annotation/targetName#
 (7:4..7:14) scala/annotation/targetName#
 (7:33..7:36) scala/Int#
 

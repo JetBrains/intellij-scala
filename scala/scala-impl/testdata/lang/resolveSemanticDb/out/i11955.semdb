@@ -3,22 +3,22 @@ Document tests/pos/i11955.scala
 (4:24..4:25) _empty_/Hello.X#This#[A] -> 4:16
 (5:17..5:21) _empty_/Hello.X#This# -> 4:10
 (5:22..5:23) _empty_/Hello.X#[A] -> 3:28
-(8:27..8:27) _empty_/Hello.X#`<init>`(). -> 3:26
 (8:23..8:24) _empty_/Hello.X# -> 3:25
 (8:25..8:26) _empty_/Hello.Y#[A] -> 8:12
+(8:27..8:27) _empty_/Hello.X#`<init>`(). -> 3:26
 (9:31..9:32) _empty_/Hello.Y# -> 8:9
 (9:33..9:35) _empty_/Hello.Y#This#[AA] -> 9:25
 (10:26..10:30) _empty_/Hello.Y#This# -> 9:19
 (10:31..10:32) _empty_/Hello.Y#[A] -> 8:12
 (13:43..13:44) _empty_/Hello.hackBackToSelf().[F] -> 13:22
 (13:45..13:48) scala/Any#
-(13:57..13:61) _empty_/Hello.X#This# -> 4:10
 (13:55..13:56) _empty_/Hello.hackBackToSelf().(f) -> 13:40
+(13:57..13:61) _empty_/Hello.X#This# -> 4:10
 (13:62..13:63) _empty_/Hello.hackBackToSelf().[A] -> 13:37
 (13:67..13:68) _empty_/Hello.hackBackToSelf().[F] -> 13:22
 (13:69..13:70) _empty_/Hello.hackBackToSelf().[A] -> 13:37
-(14:8..14:20) scala/Any#asInstanceOf().
 (14:5..14:7) _empty_/Hello.hackBackToSelf().(f2) -> 13:51
+(14:8..14:20) scala/Any#asInstanceOf().
 (14:21..14:22) _empty_/Hello.hackBackToSelf().[F] -> 13:22
 (14:23..14:24) _empty_/Hello.hackBackToSelf().[A] -> 13:37
 (16:43..16:44) _empty_/Hello.G#[F] -> 16:16
@@ -30,12 +30,12 @@ Document tests/pos/i11955.scala
 (18:49..18:50) _empty_/Hello.G# -> 16:14
 (18:51..18:53) _empty_/Hello.G#mapF().[F2] -> 18:14
 (18:55..18:56) _empty_/Hello.G#[A] -> 16:31
-(19:8..19:8) _empty_/Hello.G.apply(). -> 16:3
 (19:7..19:8) _empty_/Hello.G. -> 16:14
+(19:8..19:8) _empty_/Hello.G.apply(). -> 16:3
 (19:9..19:11) _empty_/Hello.G#mapF().[F2] -> 18:14
 (19:13..19:14) _empty_/Hello.G#[A] -> 16:31
-(19:17..19:17) scala/Function1#apply().
 (19:16..19:17) _empty_/Hello.G#mapF().(f) -> 18:30
+(19:17..19:17) scala/Function1#apply().
 (19:18..19:25) _empty_/Hello.G#wrapped. -> 16:34
 (21:20..21:21) _empty_/Hello.G# -> 16:14
 (21:22..21:23) _empty_/Hello.G#[F] -> 16:16
@@ -43,8 +43,8 @@ Document tests/pos/i11955.scala
 (21:30..21:34) _empty_/Hello.G#mapF(). -> 18:9
 (21:41..21:55) _empty_/Hello.hackBackToSelf(). -> 13:7
 (21:56..21:58) local0 -> 21:35
-(21:63..21:69) _empty_/Hello.X#asThis(). -> 5:9
 (21:60..21:62) local0 -> 21:35
+(21:63..21:69) _empty_/Hello.X#asThis(). -> 5:9
 (22:20..22:21) _empty_/Hello.G# -> 16:14
 (22:22..22:23) _empty_/Hello.G#[F] -> 16:16
 (22:25..22:26) _empty_/Hello.G#[A] -> 16:31
@@ -52,8 +52,8 @@ Document tests/pos/i11955.scala
 (22:35..22:36) _empty_/Hello.G#[F] -> 16:16
 (22:44..22:58) _empty_/Hello.hackBackToSelf(). -> 13:7
 (22:59..22:61) local1 -> 22:38
-(22:66..22:72) _empty_/Hello.X#asThis(). -> 5:9
 (22:63..22:65) local1 -> 22:38
+(22:66..22:72) _empty_/Hello.X#asThis(). -> 5:9
 (23:20..23:21) _empty_/Hello.G# -> 16:14
 (23:22..23:23) _empty_/Hello.G#[F] -> 16:16
 (23:25..23:26) _empty_/Hello.G#[A] -> 16:31
@@ -62,6 +62,6 @@ Document tests/pos/i11955.scala
 (23:56..23:57) _empty_/Hello.G#[F] -> 16:16
 (23:59..23:60) _empty_/Hello.G#[A] -> 16:31
 (23:62..23:64) local2 -> 23:35
-(23:69..23:75) _empty_/Hello.X#asThis(). -> 5:9
 (23:66..23:68) local2 -> 23:35
+(23:69..23:75) _empty_/Hello.X#asThis(). -> 5:9
 

@@ -1,10 +1,10 @@
 Document tests/pos/i12178.scala
-(1:45..1:46) scala/`&`#
 (1:35..1:44) scala/Singleton#
+(1:45..1:46) scala/`&`#
 (1:47..1:53) scala/Predef.String#
 (1:65..1:71) _empty_/i12178$package.LabelTagged#[TValue] -> 1:55
-(4:33..4:34) scala/`&`#
 (4:23..4:32) scala/Singleton#
+(4:33..4:34) scala/`&`#
 (4:35..4:41) scala/Predef.String#
 (6:12..6:18) _empty_/i12178$package.LabelTagged.apply().[TLabel] -> 4:13
 (7:12..7:19) _empty_/i12178$package.LabelTagged.apply().[TValue] -> 4:43
@@ -12,32 +12,32 @@ Document tests/pos/i12178.scala
 (9:17..9:23) _empty_/i12178$package.LabelTagged.apply().[TLabel] -> 4:13
 (9:25..9:31) _empty_/i12178$package.LabelTagged.apply().[TValue] -> 4:43
 (9:35..9:40) _empty_/i12178$package.LabelTagged.apply().(value) -> 7:5
-(11:31..11:32) scala/`&`#
 (11:21..11:30) scala/Singleton#
+(11:31..11:32) scala/`&`#
 (11:33..11:39) scala/Predef.String#
 (11:63..11:74) _empty_/i12178$package.LabelTagged# -> 1:13
+(11:75..11:81) _empty_/i12178$package.label().[TLabel] -> 11:11
 (11:75..11:81) _empty_/i12178$package.value().[TLabel] -> 11:11
+(11:83..11:89) _empty_/i12178$package.label().[TValue] -> 11:41
 (11:83..11:89) _empty_/i12178$package.value().[TValue] -> 11:41
 (13:5..13:11) _empty_/i12178$package.value().[TValue] -> 11:41
 (13:14..13:25) _empty_/i12178$package.value().(labelTagged) -> 11:50
-(11:75..11:81) _empty_/i12178$package.label().[TLabel] -> 11:11
-(11:83..11:89) _empty_/i12178$package.label().[TValue] -> 11:41
 (16:17..16:24) scala/ValueOf#
 (16:25..16:31) _empty_/i12178$package.label().[TLabel] -> 11:11
 (17:5..17:11) _empty_/i12178$package.label().[TLabel] -> 11:11
-(18:11..18:16) scala/ValueOf#value.
 (18:5..18:10) _empty_/i12178$package.label().(label) -> 16:10
+(18:11..18:16) scala/ValueOf#value.
+(20:1..20:1) _empty_/i12178$package.hello(). -> 20:11
+(20:1..20:1) local1
+(20:1..20:1) scala/util/CommandLineParser.showError().
 (20:2..20:6) scala/main#
 (20:20..20:24) scala/Unit#
 (21:12..21:23) _empty_/i12178$package.LabelTagged# -> 1:13
 (21:31..21:34) scala/Int#
-(21:49..21:49) _empty_/i12178$package.LabelTagged.apply(). -> 4:7
 (21:38..21:49) _empty_/i12178$package.LabelTagged. -> 3:8
+(21:49..21:49) _empty_/i12178$package.LabelTagged.apply(). -> 4:7
 (22:3..22:10) scala/Predef.println(+1).
 (22:11..22:16) _empty_/i12178$package.label(). -> 15:7
 (22:17..22:20) local0 -> 21:7
 (22:21..22:21) scala/ValueOf#`<init>`().
-(20:1..20:1) _empty_/i12178$package.hello(). -> 20:11
-(20:1..20:1) scala/util/CommandLineParser.showError().
-(20:1..20:1) local1
 

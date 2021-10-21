@@ -1,12 +1,12 @@
 Document tests/pos/t2179.scala
-(2:28..2:38) scala/collection/IterableOnceOps#reduceLeft().
 (2:4..2:7) scala/package.Nil.
 (2:8..2:12) scala/package.List#
 (2:13..2:17) scala/package.List#
 (2:18..2:24) scala/Double#
+(2:28..2:38) scala/collection/IterableOnceOps#reduceLeft().
 (2:43..2:46) scala/Any#
 (2:51..2:54) scala/Any#
-(2:71..2:74) scala/collection/immutable/Range#map().
-(2:63..2:70) scala/collection/SeqOps#indices().
 (2:59..2:62) scala/package.Nil.
+(2:63..2:70) scala/collection/SeqOps#indices().
+(2:71..2:74) scala/collection/immutable/Range#map().
 

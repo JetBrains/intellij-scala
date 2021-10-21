@@ -1,10 +1,10 @@
 Document tests/pos/dynamicExtendsNoImport.scala
-(3:25..3:33) scala/language.dynamics.
-(3:16..3:24) scala/language.
 (3:10..3:15) scala/
-(4:27..4:34) scala/Dynamic#
+(3:16..3:24) scala/language.
+(3:25..3:33) scala/language.dynamics.
 (4:21..4:26) scala/
-(7:26..7:26) foo/Bar#`<init>`(). -> 4:21
-(7:23..7:26) foo/Bar# -> 4:9
+(4:27..4:34) scala/Dynamic#
 (7:19..7:22) foo/ -> 2:9
+(7:23..7:26) foo/Bar# -> 4:9
+(7:26..7:26) foo/Bar#`<init>`(). -> 4:21
 

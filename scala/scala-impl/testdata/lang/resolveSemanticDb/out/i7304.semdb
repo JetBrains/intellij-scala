@@ -1,24 +1,24 @@
 Document tests/pos/i7304.scala
+(1:1..1:1) _empty_/i7304$package.test(). -> 1:11
+(1:1..1:1) local4
+(1:1..1:1) scala/util/CommandLineParser.showError().
 (1:2..1:6) scala/main#
-(2:26..2:27) scala/collection/StringOps#r().
 (2:19..2:19) scala/Predef.augmentString().
-(4:13..4:29) scala/util/matching/Regex#findFirstMatchIn().
+(2:26..2:27) scala/collection/StringOps#r().
 (4:3..4:12) local0 -> 2:7
+(4:13..4:29) scala/util/matching/Regex#findFirstMatchIn().
 (4:30..4:34) local1 -> 3:7
-(5:8..5:17) scala/collection/StringOps#takeRight().
 (5:3..5:3) scala/Predef.augmentString().
 (5:3..5:7) local1 -> 3:7
+(5:8..5:17) scala/collection/StringOps#takeRight().
 (6:18..6:21) scala/Int#
-(6:28..6:29) scala/Int#`+`(+4).
 (6:26..6:27) local3 -> 6:15
-(7:16..7:19) scala/collection/immutable/List#map().
-(7:7..7:7) scala/collection/IterableFactory#apply().
+(6:28..6:29) scala/Int#`+`(+4).
 (7:3..7:7) scala/package.List.
+(7:7..7:7) scala/collection/IterableFactory#apply().
+(7:16..7:19) scala/collection/immutable/List#map().
 (7:20..7:24) local2 -> 6:7
-(8:8..8:19) scala/collection/StringOps#stripPrefix().
 (8:3..8:3) scala/Predef.augmentString().
 (8:3..8:7) local1 -> 3:7
-(1:1..1:1) _empty_/i7304$package.test(). -> 1:11
-(1:1..1:1) scala/util/CommandLineParser.showError().
-(1:1..1:1) local4
+(8:8..8:19) scala/collection/StringOps#stripPrefix().
 

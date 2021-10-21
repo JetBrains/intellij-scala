@@ -11,18 +11,18 @@ Document tests/pos/i12226.scala
 (6:27..6:28) _empty_/Test.test().[T] -> 6:12
 (6:31..6:35) scala/Unit#
 (6:38..6:39) _empty_/Test.test().(p) -> 6:15
-(7:12..7:12) _empty_/Test.C1.unapply(). -> 3:3
 (7:10..7:12) _empty_/Test.C1. -> 3:14
+(7:12..7:12) _empty_/Test.C1.unapply(). -> 3:3
 (9:15..9:16) _empty_/Test.test().[T] -> 6:12
 (9:19..9:22) scala/Predef.`???`().
 (10:15..10:21) scala/Predef.String#
 (10:24..10:25) local0 -> 9:11
-(11:27..11:27) _empty_/Test.C1#`<init>`(). -> 3:16
 (11:22..11:24) _empty_/Test.C1# -> 3:14
 (11:25..11:26) _empty_/Test.test().[T] -> 6:12
+(11:27..11:27) _empty_/Test.C1#`<init>`(). -> 3:16
 (11:28..11:29) local0 -> 9:11
 (12:7..12:14) scala/Predef.println(+1).
-(14:12..14:12) _empty_/Test.C2.unapply(). -> 4:3
 (14:10..14:12) _empty_/Test.C2. -> 4:14
+(14:12..14:12) _empty_/Test.C2.unapply(). -> 4:3
 (14:19..14:26) scala/Predef.println(+1).
 

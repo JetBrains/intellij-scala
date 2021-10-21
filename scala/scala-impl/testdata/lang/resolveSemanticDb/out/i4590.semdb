@@ -1,14 +1,14 @@
 Document tests/pos/i4590.scala
 (4:37..4:40) scala/Int#
-(4:48..4:49) scala/Int#`>`(+3).
 (4:44..4:47) test/ArrayDeque#isResizeNecessary().(len) -> 4:32
+(4:48..4:49) scala/Int#`>`(+3).
 (4:54..4:71) test/ArrayDeque#inline$StableSize().
-(12:26..12:30) test/List.Cons# -> 17:14
 (12:21..12:25) test/List. -> 16:8
+(12:26..12:30) test/List.Cons# -> 17:14
 (12:33..12:37) scala/Unit#
 (13:5..13:5) test/List#`inline$next_=$i1`().
 (13:5..13:6) test/List#foo().(x) -> 12:18
 (17:25..17:28) scala/Int#
-(17:54..17:58) test/List# -> 11:7
 (17:38..17:42) test/List. -> 16:8
+(17:54..17:58) test/List# -> 11:7
 

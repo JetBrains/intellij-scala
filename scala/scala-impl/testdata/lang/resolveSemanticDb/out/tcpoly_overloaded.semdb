@@ -36,8 +36,8 @@ Document tests/pos/tcpoly_overloaded.scala
 (17:29..17:30) _empty_/Test#MList#flatMap().[S] -> 15:17
 (17:34..17:40) _empty_/Test#MList#flatMap().[Result] -> 16:13
 (17:41..17:42) _empty_/Test#MList#flatMap().[S] -> 15:17
-(17:50..17:55) scala/sys/package.error().
 (17:46..17:49) scala/sys/
+(17:50..17:55) scala/sys/package.error().
 (18:22..18:28) _empty_/Test#MList#flatMap(+1).[RBound] -> 18:61
 (18:29..18:30) _empty_/Test#MList#flatMap(+1).[S] -> 18:17
 (20:17..20:18) _empty_/Test#MList#[T] -> 14:15
@@ -46,20 +46,20 @@ Document tests/pos/tcpoly_overloaded.scala
 (20:38..20:44) scala/Predef.String#
 (20:47..20:53) _empty_/Test#MList#flatMap(+1).[Result] -> 19:13
 (20:54..20:55) _empty_/Test#MList#flatMap(+1).[S] -> 18:17
-(20:64..20:69) scala/sys/package.error().
 (20:60..20:63) scala/sys/
+(20:64..20:69) scala/sys/package.error().
 (22:17..22:18) _empty_/Test#MList#[T] -> 14:15
 (22:22..22:26) scala/package.List#
 (22:27..22:28) _empty_/Test#MList#flatMap(+2).[S] -> 21:17
 (22:36..22:39) scala/Int#
 (22:42..22:46) scala/package.List#
 (22:47..22:48) _empty_/Test#MList#flatMap(+2).[S] -> 21:17
-(22:57..22:62) scala/sys/package.error().
 (22:53..22:56) scala/sys/
+(22:57..22:62) scala/sys/package.error().
 (24:10..24:15) _empty_/Test#MList# -> 14:9
 (24:16..24:22) scala/Predef.String#
-(24:30..24:37) _empty_/Test#MList#flatMap(). -> 15:9
 (24:26..24:29) _empty_/Test#moo(). -> 13:7
+(24:30..24:37) _empty_/Test#MList#flatMap(). -> 15:9
 (24:38..24:44) scala/Predef.String#
 (24:46..24:50) scala/package.List#
 (24:60..24:63) scala/Any#

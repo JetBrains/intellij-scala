@@ -1,17 +1,17 @@
 Document tests/pos/t2405.scala
 (1:28..1:31) scala/Int#
-(5:14..5:15) _empty_/A.x. -> 1:25
 (5:12..5:13) _empty_/A. -> 1:8
+(5:14..5:15) _empty_/A.x. -> 1:25
 (6:5..6:15) scala/Predef.implicitly().
 (6:16..6:19) scala/Int#
 (6:20..6:20) _empty_/A.x. -> 1:25
-(11:14..11:15) _empty_/A.x. -> 1:25
 (11:12..11:13) _empty_/A. -> 1:8
+(11:14..11:15) _empty_/A.x. -> 1:25
 (13:5..13:15) scala/Predef.implicitly().
 (13:16..13:19) scala/Int#
 (13:20..13:20) _empty_/A.x. -> 1:25
-(19:18..19:19) _empty_/A.x. -> 1:25
 (19:16..19:17) _empty_/A. -> 1:8
+(19:18..19:19) _empty_/A.x. -> 1:25
 (20:16..20:19) scala/Int#
 (21:9..21:19) scala/Predef.implicitly().
 (21:20..21:23) scala/Int#

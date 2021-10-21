@@ -3,10 +3,10 @@ Document tests/pos/scoping1.scala
 (3:16..3:20) scala/Unit#
 (5:28..5:29) _empty_/This.A# -> 2:9
 (6:22..6:25) _empty_/This.A#foo(). -> 3:9
-(8:20..8:20) _empty_/This.C#`<init>`(). -> 5:22
 (8:19..8:20) _empty_/This.C# -> 5:18
+(8:20..8:20) _empty_/This.C#`<init>`(). -> 5:22
 (8:26..8:27) _empty_/This.A# -> 2:9
 (11:10..11:11) _empty_/This.C# -> 5:18
-(11:19..11:19) _empty_/This.D#`<init>`(). -> 8:19
 (11:18..11:19) _empty_/This.D# -> 8:9
+(11:19..11:19) _empty_/This.D#`<init>`(). -> 8:19
 

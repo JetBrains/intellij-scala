@@ -7,12 +7,12 @@ Document tests/pos/byname-implicits-7.scala
 (9:39..9:42) _empty_/Foo# -> 1:7
 (9:56..9:59) scala/Int#
 (13:17..13:18) _empty_/Test.bar().[T] -> 13:11
-(13:41..13:44) _empty_/Foo.Aux# -> 7:8
 (13:37..13:40) _empty_/Foo. -> 6:8
+(13:41..13:44) _empty_/Foo.Aux# -> 7:8
 (13:45..13:46) _empty_/Test.bar().[T] -> 13:11
 (13:50..13:51) _empty_/Test.bar().[T] -> 13:11
-(13:58..13:61) _empty_/Foo#out(). -> 3:7
 (13:54..13:57) _empty_/Test.bar().(foo) -> 13:29
+(13:58..13:61) _empty_/Foo#out(). -> 3:7
 (15:11..15:14) _empty_/Test.bar(). -> 13:7
 (15:18..15:18) _empty_/Foo.fooInt. -> 9:16
 (16:3..16:4) _empty_/Test.i. -> 15:7

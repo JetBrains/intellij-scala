@@ -7,17 +7,17 @@ Document tests/pos/endmarkers.scala
 (14:9..14:11) p1/
 (18:17..18:20) scala/Int#
 (19:7..19:7) p1/p2/C#`<init>`(). -> 16:19
-(20:12..20:13) scala/Int#`>`(+3).
 (20:10..20:11) p1/p2/C#`<init>`(+1).(x) -> 18:14
-(22:19..22:19) scala/collection/immutable/List#`::`().
-(22:16..22:19) scala/package.Nil.
-(22:11..22:12) p1/p2/C#`<init>`(+1).(x) -> 18:14
-(21:17..21:17) scala/collection/immutable/`::`.unapply().
+(20:12..20:13) scala/Int#`>`(+3).
 (21:15..21:17) scala/package.`::`.
+(21:17..21:17) scala/collection/immutable/`::`.unapply().
+(22:11..22:12) p1/p2/C#`<init>`(+1).(x) -> 18:14
+(22:16..22:19) scala/package.Nil.
+(22:19..22:19) scala/collection/immutable/List#`::`().
 (25:11..25:12) p1/p2/C#`<init>`(+1).(x) -> 18:14
 (26:13..26:14) local2 -> 24:13
-(27:17..27:18) scala/Int#`>`(+3).
 (27:15..27:16) local2 -> 24:13
+(27:17..27:18) scala/Int#`>`(+3).
 (28:11..28:18) scala/Predef.println(+1).
 (28:19..28:20) local2 -> 24:13
 (29:11..29:12) local2 -> 24:13
@@ -29,14 +29,14 @@ Document tests/pos/endmarkers.scala
 (42:12..42:18) scala/Predef.String#
 (43:7..43:8) p1/p2/C# -> 16:18
 (46:11..46:12) p1/p2/C# -> 16:18
-(47:12..47:12) p1/p2/C#`<init>`(). -> 16:19
 (47:11..47:12) p1/p2/C# -> 16:18
+(47:12..47:12) p1/p2/C#`<init>`(). -> 16:19
 (49:13..49:14) local4 -> 48:13
 (51:7..51:14) p1/p2/C.given_C. -> 46:11
 (52:7..52:8) p1/p2/C. -> 45:10
 (54:17..54:18) p1/p2/C# -> 16:18
 (55:13..55:19) scala/Predef.String#
-(55:24..55:25) p1/p2/C#f(). -> 42:9
 (55:22..55:23) p1/p2/endmarkers$package.ff().(x) -> 54:14
+(55:24..55:25) p1/p2/C#f(). -> 42:9
 (58:5..58:7) p1/p2/ -> 14:12
 

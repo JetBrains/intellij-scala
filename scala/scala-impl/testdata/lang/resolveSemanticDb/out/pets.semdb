@@ -23,15 +23,15 @@ Document tests/pos/pets.scala
 (15:53..15:60) _empty_/Kitty#renamed().(newName) -> 15:15
 (19:20..19:23) _empty_/Pet# -> 2:7
 (19:28..19:29) _empty_/Test.esquire().[A] -> 19:15
-(19:34..19:38) _empty_/Pet#This# -> 3:8
 (19:32..19:33) _empty_/Test.esquire().(a) -> 19:25
-(19:43..19:50) _empty_/Pet#renamed(). -> 5:7
+(19:34..19:38) _empty_/Pet#This# -> 3:8
 (19:41..19:42) _empty_/Test.esquire().(a) -> 19:25
-(19:58..19:59) java/lang/String#`+`().
-(19:53..19:57) _empty_/Pet#name(). -> 4:7
+(19:43..19:50) _empty_/Pet#renamed(). -> 5:7
 (19:51..19:52) _empty_/Test.esquire().(a) -> 19:25
+(19:53..19:57) _empty_/Pet#name(). -> 4:7
+(19:58..19:59) java/lang/String#`+`().
 (20:10..20:14) _empty_/Fish# -> 8:12
 (20:17..20:24) _empty_/Test.esquire(). -> 19:7
-(20:33..20:33) _empty_/Fish#`<init>`(). -> 8:16
 (20:29..20:33) _empty_/Fish# -> 8:12
+(20:33..20:33) _empty_/Fish#`<init>`(). -> 8:16
 

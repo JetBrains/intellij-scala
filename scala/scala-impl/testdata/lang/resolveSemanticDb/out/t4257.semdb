@@ -11,10 +11,10 @@ Document tests/pos/t4257.scala
 (9:12..9:23) scala/specialized#
 (9:24..9:27) scala/Int.
 (10:14..10:15) _empty_/Test.X#[B] -> 9:29
-(11:19..11:20) _empty_/Test.SA#o(+1). -> 6:9
-(11:16..11:16) _empty_/Test.SA#`<init>`(). -> 3:11
 (11:11..11:13) _empty_/Test.SA# -> 3:9
 (11:14..11:15) _empty_/Test.X#[B] -> 9:29
+(11:16..11:16) _empty_/Test.SA#`<init>`(). -> 3:11
+(11:19..11:20) _empty_/Test.SA#o(+1). -> 6:9
 (11:25..11:28) scala/Any#
 (11:33..11:34) local0 -> 11:22
 

@@ -17,12 +17,12 @@ Document tests/pos/strawman-i79.scala
 (18:20..18:23) scala/Any#
 (18:26..18:34) _empty_/Empty.LazyList# -> 13:9
 (18:35..18:36) _empty_/Empty.LazyList.empty().[A] -> 18:15
-(18:55..18:55) _empty_/Empty.LazyList#`<init>`(). -> 13:17
 (18:44..18:52) _empty_/Empty.LazyList# -> 13:9
 (18:53..18:54) _empty_/Empty.LazyList.empty().[A] -> 18:15
-(21:18..21:20) _empty_/Empty.IterableOps#`++`(). -> 8:9
-(21:12..21:17) _empty_/Empty.LazyList.empty(). -> 18:9
+(18:55..18:55) _empty_/Empty.LazyList#`<init>`(). -> 13:17
 (21:3..21:11) _empty_/Empty.LazyList. -> 17:10
-(21:30..21:35) _empty_/Empty.LazyList.empty(). -> 18:9
+(21:12..21:17) _empty_/Empty.LazyList.empty(). -> 18:9
+(21:18..21:20) _empty_/Empty.IterableOps#`++`(). -> 8:9
 (21:21..21:29) _empty_/Empty.LazyList. -> 17:10
+(21:30..21:35) _empty_/Empty.LazyList.empty(). -> 18:9
 

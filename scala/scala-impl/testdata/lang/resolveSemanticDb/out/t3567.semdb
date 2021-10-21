@@ -1,4 +1,4 @@
 Document tests/pos/t3567/Foo.scala
-(2:19..2:20) _empty_/Outer#f().
 (2:13..2:18) _empty_/Outer#
+(2:19..2:20) _empty_/Outer#f().
 

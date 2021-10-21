@@ -1,15 +1,15 @@
 Document tests/pos/i4758/Test1.scala
 (1:9..1:12) foo/ -> 1:9
-(3:30..3:46) scala/annotation/StaticAnnotation#
 (3:19..3:29) scala/annotation/
+(3:30..3:46) scala/annotation/StaticAnnotation#
 
 Document tests/pos/i4758/Test2.scala
-(3:16..3:19) foo/bar/Bar# -> 3:7
-(3:12..3:15) foo/bar/ -> 1:13
 (3:8..3:11) foo/ -> 1:9
+(3:12..3:15) foo/bar/ -> 1:13
+(3:16..3:19) foo/bar/Bar# -> 3:7
 (5:2..5:5) foo/bar/Bar# -> 3:7
-(6:30..6:46) scala/annotation/StaticAnnotation#
 (6:19..6:29) scala/annotation/
+(6:30..6:46) scala/annotation/StaticAnnotation#
 
 Document tests/pos/i4758/Test3.scala
 (2:4..2:7) foo/Foo# -> 6:7

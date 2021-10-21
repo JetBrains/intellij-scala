@@ -2,14 +2,14 @@ Document tests/pos/i3606.scala
 (2:12..2:16) scala/Unit#
 (3:12..3:29) _empty_/GenericCompanion2# -> 9:7
 (4:12..4:29) _empty_/GenericCompanion2# -> 9:7
-(5:9..5:9) scala/collection/IterableFactory#apply().
 (5:5..5:9) scala/package.List.
+(5:9..5:9) scala/collection/IterableFactory#apply().
 (5:10..5:11) local0 -> 3:9
 (5:13..5:14) local1 -> 4:9
-(13:28..13:28) _empty_/Foo#`<init>`(). -> 11:10
 (13:22..13:25) _empty_/Foo# -> 11:7
 (13:26..13:27) _empty_/Bar#[A] -> 13:11
-(14:28..14:28) _empty_/Foo#`<init>`(). -> 11:10
+(13:28..13:28) _empty_/Foo#`<init>`(). -> 11:10
 (14:22..14:25) _empty_/Foo# -> 11:7
 (14:26..14:27) _empty_/Baz#[A] -> 14:11
+(14:28..14:28) _empty_/Foo#`<init>`(). -> 11:10
 

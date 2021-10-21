@@ -5,6 +5,6 @@ Document tests/pos/t5041.scala
 (4:27..4:33) scala/Option#
 (4:34..4:39) _empty_/Token# -> 1:12
 (4:43..4:47) scala/None.
-(8:29..8:29) _empty_/Comment.unapply(). -> 4:7
 (8:22..8:29) _empty_/Comment. -> 3:8
+(8:29..8:29) _empty_/Comment.unapply(). -> 4:7
 

@@ -1,5 +1,5 @@
 Document tests/pos/t0093.scala
 (2:18..2:25) scala/Boolean#
-(2:41..2:43) scala/Boolean#`==`().
 (2:36..2:40) _empty_/Bug.f().(cond) -> 2:9
+(2:41..2:43) scala/Boolean#`==`().
 

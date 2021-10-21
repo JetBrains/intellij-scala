@@ -1,7 +1,7 @@
 Document tests/pos/i7515.scala
 (1:8..1:11) scala/Int#
 (1:15..1:18) scala/Int#
+(1:22..1:22) local0
 (1:22..1:30) scala/Predef.identity().
 (1:31..1:34) scala/Int#
-(1:22..1:22) local0
 

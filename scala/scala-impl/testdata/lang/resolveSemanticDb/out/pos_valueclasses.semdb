@@ -1,38 +1,70 @@
-Document tests/pos/pos_valueclasses/xlint1.scala
-(4:32..4:33) xlint1/foo/package.Bar#[T] -> 4:22
-(4:49..4:49) scala/AnyVal#`<init>`().
-(4:43..4:49) scala/AnyVal#
-(11:20..11:25) scala/Array#
-(11:26..11:32) scala/Predef.String#
-(11:36..11:40) scala/Unit#
-(12:13..12:18) xlint1/foo/package.Bar#bippy(). -> 5:9
-(12:7..12:7) xlint1/foo/package.Bar(). -> 4:18
+Document tests/pos/pos_valueclasses/nullAsInstanceOfVC.scala
+(7:21..7:27) scala/Double#
+(7:37..7:43) scala/AnyVal#
+(7:43..7:43) scala/AnyVal#`<init>`().
+(8:31..8:31) scala/StringContext.apply().
+(8:36..8:37) nullAsInstanceOfVC/VCNull.Foo#d. -> 7:18
+(8:38..8:39) scala/StringContext#s().
+(10:21..10:27) scala/Predef.String#
+(10:37..10:43) scala/AnyVal#
+(10:43..10:43) scala/AnyVal#`<init>`().
+(11:31..11:31) scala/StringContext.apply().
+(11:36..11:37) nullAsInstanceOfVC/VCNull.Bar#s. -> 10:18
+(11:38..11:39) scala/StringContext#s().
+(14:21..14:25) scala/Unit#
+(15:20..15:23) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(15:31..15:43) scala/Any#asInstanceOf().
+(15:44..15:47) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(16:20..16:23) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
+(16:31..16:43) scala/Any#asInstanceOf().
+(16:44..16:47) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
+(19:23..19:27) scala/Unit#
+(20:22..20:25) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(20:37..20:40) scala/Any#
+(20:49..20:50) local3 -> 13:14
+(20:51..20:63) scala/Any#asInstanceOf().
+(20:64..20:67) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(21:22..21:25) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
+(21:37..21:40) scala/Any#
+(21:49..21:50) local5 -> 14:14
+(21:51..21:63) scala/Any#asInstanceOf().
+(21:64..21:67) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
+(24:18..24:19) nullAsInstanceOfVC/VCNull.nullOf().[T] -> 24:14
+(24:27..24:39) scala/Any#asInstanceOf().
+(24:40..24:41) nullAsInstanceOfVC/VCNull.nullOf().[T] -> 24:14
+(25:22..25:26) scala/Unit#
+(26:21..26:24) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(26:27..26:33) nullAsInstanceOfVC/VCNull.nullOf(). -> 24:7
+(26:34..26:37) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
+(27:21..27:24) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
+(27:27..27:33) nullAsInstanceOfVC/VCNull.nullOf(). -> 24:7
+(27:34..27:37) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
 
 Document tests/pos/pos_valueclasses/optmatch.scala
 (8:30..8:34) scala/Long#
-(8:50..8:50) scala/AnyVal#`<init>`().
 (8:44..8:50) scala/AnyVal#
+(8:50..8:50) scala/AnyVal#`<init>`().
 (9:12..9:16) scala/Long#
 (9:19..9:24) optmatch/NonZeroLong#value. -> 8:23
 (10:16..10:23) scala/Boolean#
-(10:30..10:32) scala/Long#`==`(+4).
 (10:26..10:29) optmatch/NonZeroLong#get(). -> 9:7
+(10:30..10:32) scala/Long#`==`(+4).
 (13:22..13:26) scala/Long#
 (13:29..13:40) optmatch/NonZeroLong# -> 8:7
-(13:58..13:58) optmatch/NonZeroLong#`<init>`(). -> 8:18
 (13:47..13:58) optmatch/NonZeroLong# -> 8:7
+(13:58..13:58) optmatch/NonZeroLong#`<init>`(). -> 8:18
 (13:59..13:64) optmatch/NonZeroLong.unapply().(value) -> 13:15
 (18:18..18:21) scala/Int#
 (18:24..18:35) optmatch/NonZeroLong# -> 8:7
-(18:53..18:53) optmatch/NonZeroLong#`<init>`(). -> 8:18
 (18:42..18:53) optmatch/NonZeroLong# -> 8:7
+(18:53..18:53) optmatch/NonZeroLong#`<init>`(). -> 8:18
 (18:57..18:59) scala/Long#`<<`().
 (18:60..18:61) optmatch/Foo.unapply().(x) -> 18:15
 (27:12..27:15) scala/Int#
 (27:18..27:21) scala/Int#
 (27:24..27:25) optmatch/Test.f().(x) -> 27:9
-(28:13..28:13) optmatch/Foo.unapply(). -> 18:7
 (28:10..28:13) optmatch/Foo. -> 17:8
+(28:13..28:13) optmatch/Foo.unapply(). -> 18:7
 (31:18..31:23) scala/Array#
 (31:24..31:30) scala/Predef.String#
 (31:34..31:38) scala/Unit#
@@ -41,72 +73,10 @@ Document tests/pos/pos_valueclasses/optmatch.scala
 (33:5..33:12) scala/Predef.println(+1).
 (33:13..33:14) optmatch/Test.f(). -> 27:7
 
-Document tests/pos/pos_valueclasses/privatethisparam.scala
-(3:19..3:20) privatethisparam/Meter#[T] -> 3:13
-(3:36..3:36) scala/AnyVal#`<init>`().
-(3:30..3:36) scala/AnyVal#
-(4:13..4:14) privatethisparam/Meter#[T] -> 3:13
-(4:17..4:18) privatethisparam/Meter#x. -> 3:16
-(7:35..7:38) scala/Int#
-(7:54..7:54) scala/AnyVal#`<init>`().
-(7:48..7:54) scala/AnyVal#
-(8:13..8:14) privatethisparam/Meter2#x. -> 7:32
-(12:23..12:23) privatethisparam/Meter2#`<init>`(). -> 7:13
-(12:17..12:23) privatethisparam/Meter2# -> 7:7
-(13:30..13:34) privatethisparam/Meter#zero(). -> 4:7
-(13:26..13:26) privatethisparam/Meter#`<init>`(). -> 3:12
-(14:13..14:17) scala/Unit#
-(15:23..15:23) privatethisparam/Meter#`<init>`(). -> 3:12
-(16:8..16:12) privatethisparam/Meter#zero(). -> 4:7
-(16:5..16:7) local0 -> 5:5
-
-Document tests/pos/pos_valueclasses/t6260b.scala
-(4:20..4:26) java/lang/Object#
-(4:42..4:42) scala/AnyVal#`<init>`().
-(4:36..4:42) scala/AnyVal#
-(4:60..4:61) t6260b/X# -> 4:7
-(4:64..4:65) t6260b/X# -> 4:7
-(5:29..5:31) t6260b/X#or(). -> 4:49
-(5:24..5:24) t6260b/X#`<init>`(). -> 4:8
-(5:23..5:24) t6260b/X# -> 4:7
-(5:37..5:37) t6260b/X#`<init>`(). -> 4:8
-(5:36..5:37) t6260b/X# -> 4:7
-
-Document tests/pos/pos_valueclasses/t5953.scala
-(3:31..3:45) _empty_/GenTraversable# -> 2:7
-(3:46..3:47) _empty_/Traversable#[A] -> 3:20
-(4:25..4:36) _empty_/Traversable# -> 3:7
-(4:37..4:38) _empty_/Vector#[A] -> 4:14
-(6:24..6:27) _empty_/CBF# -> 1:7
-(6:28..6:34) _empty_/Vector# -> 4:7
-(6:39..6:40) _empty_/Vector.cbf().[A] -> 6:20
-(6:42..6:48) _empty_/Vector# -> 4:7
-(6:49..6:50) _empty_/Vector.cbf().[A] -> 6:20
-(6:55..6:58) scala/Predef.`???`().
-(10:4..10:10) scala/inline#
-(10:75..10:77) foo/package.TravOps#[CC] -> 10:37
-(10:78..10:79) foo/package.TravOps#[A] -> 10:34
-(10:96..10:96) scala/AnyVal#`<init>`().
-(10:90..10:96) scala/AnyVal#
-(11:37..11:40) _empty_/CBF# -> 1:7
-(11:41..11:48) scala/Nothing#
-(11:50..11:51) foo/package.TravOps#[A] -> 10:34
-(11:53..11:56) foo/package.TravOps#build().[CC2] -> 11:15
-(11:57..11:58) foo/package.TravOps#[A] -> 10:34
-(11:63..11:66) foo/package.TravOps#build().[CC2] -> 11:15
-(11:67..11:68) foo/package.TravOps#[A] -> 10:34
-(11:72..11:75) scala/Predef.`???`().
-(17:19..17:30) _empty_/Traversable# -> 3:7
-(17:31..17:32) foo/Test.f2().[T] -> 17:12
-(17:40..17:45) foo/package.TravOps#build(). -> 11:9
-(17:37..17:37) foo/package.TravOps(). -> 10:26
-(17:37..17:39) foo/Test.f2().(xs) -> 17:15
-(17:53..17:53) _empty_/Vector.cbf(). -> 6:16
-
 Document tests/pos/pos_valueclasses/paramlists.scala
 (3:23..3:24) paramlists/Meter#[T] -> 3:13
-(3:40..3:40) scala/AnyVal#`<init>`().
 (3:34..3:40) scala/AnyVal#
+(3:40..3:40) scala/AnyVal#`<init>`().
 (4:13..4:14) paramlists/Meter#[T] -> 3:13
 (4:17..4:18) paramlists/Meter#x. -> 3:20
 (5:18..5:19) paramlists/Meter#[T] -> 3:13
@@ -135,20 +105,20 @@ Document tests/pos/pos_valueclasses/paramlists.scala
 (11:37..11:38) paramlists/Meter#two2().(y) -> 11:26
 (15:13..15:17) scala/Unit#
 (16:23..16:23) paramlists/Meter#`<init>`(). -> 3:12
-(17:8..17:12) paramlists/Meter#zero(). -> 4:7
 (17:5..17:7) local0 -> 5:5
-(18:8..18:13) paramlists/Meter#zero2(). -> 5:7
+(17:8..17:12) paramlists/Meter#zero(). -> 4:7
 (18:5..18:7) local0 -> 5:5
-(19:8..19:11) paramlists/Meter#one(). -> 6:7
+(18:8..18:13) paramlists/Meter#zero2(). -> 5:7
 (19:5..19:7) local0 -> 5:5
-(20:8..20:12) paramlists/Meter#one2(). -> 7:7
+(19:8..19:11) paramlists/Meter#one(). -> 6:7
 (20:5..20:7) local0 -> 5:5
-(21:8..21:12) paramlists/Meter#one3(). -> 8:7
+(20:8..20:12) paramlists/Meter#one2(). -> 7:7
 (21:5..21:7) local0 -> 5:5
-(22:8..22:11) paramlists/Meter#two(). -> 10:7
+(21:8..21:12) paramlists/Meter#one3(). -> 8:7
 (22:5..22:7) local0 -> 5:5
-(23:8..23:12) paramlists/Meter#two2(). -> 11:7
+(22:8..22:11) paramlists/Meter#two(). -> 10:7
 (23:5..23:7) local0 -> 5:5
+(23:8..23:12) paramlists/Meter#two2(). -> 11:7
 (26:14..26:16) local0 -> 5:5
 (28:7..28:11) paramlists/Meter#zero(). -> 4:7
 (29:7..29:12) paramlists/Meter#zero2(). -> 5:7
@@ -158,152 +128,282 @@ Document tests/pos/pos_valueclasses/paramlists.scala
 (33:7..33:10) paramlists/Meter#two(). -> 10:7
 (34:7..34:11) paramlists/Meter#two2(). -> 11:7
 
+Document tests/pos/pos_valueclasses/privatethisparam.scala
+(3:19..3:20) privatethisparam/Meter#[T] -> 3:13
+(3:30..3:36) scala/AnyVal#
+(3:36..3:36) scala/AnyVal#`<init>`().
+(4:13..4:14) privatethisparam/Meter#[T] -> 3:13
+(4:17..4:18) privatethisparam/Meter#x. -> 3:16
+(7:35..7:38) scala/Int#
+(7:48..7:54) scala/AnyVal#
+(7:54..7:54) scala/AnyVal#`<init>`().
+(8:13..8:14) privatethisparam/Meter2#x. -> 7:32
+(12:17..12:23) privatethisparam/Meter2# -> 7:7
+(12:23..12:23) privatethisparam/Meter2#`<init>`(). -> 7:13
+(13:26..13:26) privatethisparam/Meter#`<init>`(). -> 3:12
+(13:30..13:34) privatethisparam/Meter#zero(). -> 4:7
+(14:13..14:17) scala/Unit#
+(15:23..15:23) privatethisparam/Meter#`<init>`(). -> 3:12
+(16:5..16:7) local0 -> 5:5
+(16:8..16:12) privatethisparam/Meter#zero(). -> 4:7
+
+Document tests/pos/pos_valueclasses/t5667.scala
+(4:27..4:33) scala/Predef.String#
+(4:43..4:49) scala/AnyVal#
+(4:49..4:49) scala/AnyVal#`<init>`().
+(5:28..5:34) scala/Predef.String#
+(5:44..5:50) scala/AnyRef#
+(5:50..5:50) java/lang/Object#`<init>`().
+
 Document tests/pos/pos_valueclasses/t5853.scala
 (10:22..10:25) scala/Int#
-(10:41..10:41) scala/AnyVal#`<init>`().
 (10:35..10:41) scala/AnyVal#
+(10:41..10:41) scala/AnyVal#`<init>`().
 (11:12..11:23) scala/specialized#
 (11:24..11:27) scala/Int.
 (11:35..11:36) t5853/C#ppp().[T] -> 11:29
-(16:20..16:23) t5853/C#ppp(). -> 11:7
-(16:16..16:16) t5853/C#`<init>`(). -> 10:14
 (16:15..16:16) t5853/C# -> 10:13
+(16:16..16:16) t5853/C#`<init>`(). -> 10:14
+(16:20..16:23) t5853/C#ppp(). -> 11:7
 (23:33..23:36) scala/Int#
-(23:52..23:52) scala/AnyVal#`<init>`().
 (23:46..23:52) scala/AnyVal#
+(23:52..23:52) scala/AnyVal#`<init>`().
 (24:14..24:25) scala/specialized#
 (24:32..24:33) t5853/Bippy.C#`+++`().[T] -> 24:26
-(26:13..26:16) t5853/Bippy.C#`+++`(). -> 24:9
 (26:11..26:11) t5853/Bippy.C(). -> 23:24
+(26:13..26:16) t5853/Bippy.C#`+++`(). -> 24:9
 (32:23..32:26) scala/Int#
-(32:42..32:42) scala/AnyVal#`<init>`().
 (32:36..32:42) scala/AnyVal#
+(32:42..32:42) scala/AnyVal#`<init>`().
 (33:12..33:23) scala/specialized#
 (33:24..33:27) scala/Int.
 (33:35..33:36) t5853/C2#`+++`().[T] -> 33:29
-(38:21..38:24) t5853/C2#`+++`(). -> 33:7
-(38:17..38:17) t5853/C2#`<init>`(). -> 32:15
 (38:15..38:17) t5853/C2# -> 32:13
+(38:17..38:17) t5853/C2#`<init>`(). -> 32:15
+(38:21..38:24) t5853/C2#`+++`(). -> 33:7
 (43:57..43:58) t5853/Arrow.ArrowAssoc#[A] -> 43:35
-(43:74..43:74) scala/AnyVal#`<init>`().
 (43:68..43:74) scala/AnyVal#
+(43:74..43:74) scala/AnyVal#`<init>`().
 (44:26..44:27) t5853/Arrow.ArrowAssoc#`->>`().[B] -> 44:20
 (44:30..44:36) scala/Tuple2#
 (44:37..44:38) t5853/Arrow.ArrowAssoc#[A] -> 43:35
 (44:40..44:41) t5853/Arrow.ArrowAssoc#`->>`().[B] -> 44:20
-(44:51..44:51) scala/Tuple2.apply().
 (44:45..44:51) scala/Tuple2.
+(44:51..44:51) scala/Tuple2.apply().
 (44:52..44:65) t5853/Arrow.ArrowAssoc#__leftOfArrow. -> 43:42
 (44:67..44:68) t5853/Arrow.ArrowAssoc#`->>`().(y) -> 44:23
-(47:15..47:18) t5853/Arrow.ArrowAssoc#`->>`(). -> 44:16
 (47:13..47:13) t5853/Arrow.ArrowAssoc(). -> 43:24
+(47:15..47:18) t5853/Arrow.ArrowAssoc#`->>`(). -> 44:16
 (52:57..52:58) t5853/SpecArrow.ArrowAssoc#[A] -> 52:35
-(52:74..52:74) scala/AnyVal#`<init>`().
 (52:68..52:74) scala/AnyVal#
+(52:74..52:74) scala/AnyVal#`<init>`().
 (53:22..53:33) scala/specialized#
 (53:34..53:37) scala/Int.
 (53:45..53:46) t5853/SpecArrow.ArrowAssoc#`->>`().[B] -> 53:39
 (53:49..53:55) scala/Tuple2#
 (53:56..53:57) t5853/SpecArrow.ArrowAssoc#[A] -> 52:35
 (53:59..53:60) t5853/SpecArrow.ArrowAssoc#`->>`().[B] -> 53:39
-(53:70..53:70) scala/Tuple2.apply().
 (53:64..53:70) scala/Tuple2.
+(53:70..53:70) scala/Tuple2.apply().
 (53:71..53:84) t5853/SpecArrow.ArrowAssoc#__leftOfArrow. -> 52:42
 (53:86..53:87) t5853/SpecArrow.ArrowAssoc#`->>`().(y) -> 53:42
-(56:15..56:18) t5853/SpecArrow.ArrowAssoc#`->>`(). -> 53:16
 (56:13..56:13) t5853/SpecArrow.ArrowAssoc(). -> 52:24
+(56:15..56:18) t5853/SpecArrow.ArrowAssoc#`->>`(). -> 53:16
 
-Document tests/pos/pos_valueclasses/t8011.scala
-(3:24..3:30) scala/Predef.String#
-(3:46..3:46) scala/AnyVal#`<init>`().
-(3:40..3:46) scala/AnyVal#
-(4:14..4:17) scala/Any#
-(5:9..5:10) t8011/X# -> 10:7
-(5:11..5:12) t8011/ThingOps1#fn().[A] -> 4:10
-(5:27..5:28) t8011/ThingOps1#fn().[A] -> 4:10
-(5:32..5:33) local2 -> 5:24
-(10:25..10:26) t8011/X#[B] -> 10:9
-(10:29..10:32) scala/Any#
-
-Document tests/pos/pos_valueclasses/nullAsInstanceOfVC.scala
-(7:21..7:27) scala/Double#
-(7:43..7:43) scala/AnyVal#`<init>`().
-(7:37..7:43) scala/AnyVal#
-(8:38..8:39) scala/StringContext#s().
-(8:31..8:31) scala/StringContext.apply().
-(8:36..8:37) nullAsInstanceOfVC/VCNull.Foo#d. -> 7:18
-(10:21..10:27) scala/Predef.String#
-(10:43..10:43) scala/AnyVal#`<init>`().
-(10:37..10:43) scala/AnyVal#
-(11:38..11:39) scala/StringContext#s().
-(11:31..11:31) scala/StringContext.apply().
-(11:36..11:37) nullAsInstanceOfVC/VCNull.Bar#s. -> 10:18
-(14:21..14:25) scala/Unit#
-(15:20..15:23) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(15:31..15:43) scala/Any#asInstanceOf().
-(15:44..15:47) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(16:20..16:23) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-(16:31..16:43) scala/Any#asInstanceOf().
-(16:44..16:47) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-(19:23..19:27) scala/Unit#
-(20:22..20:25) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(20:37..20:40) scala/Any#
-(20:51..20:63) scala/Any#asInstanceOf().
-(20:49..20:50) local3 -> 13:14
-(20:64..20:67) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(21:22..21:25) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-(21:37..21:40) scala/Any#
-(21:51..21:63) scala/Any#asInstanceOf().
-(21:49..21:50) local5 -> 14:14
-(21:64..21:67) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-(24:18..24:19) nullAsInstanceOfVC/VCNull.nullOf().[T] -> 24:14
-(24:27..24:39) scala/Any#asInstanceOf().
-(24:40..24:41) nullAsInstanceOfVC/VCNull.nullOf().[T] -> 24:14
-(25:22..25:26) scala/Unit#
-(26:21..26:24) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(26:27..26:33) nullAsInstanceOfVC/VCNull.nullOf(). -> 24:7
-(26:34..26:37) nullAsInstanceOfVC/VCNull.Foo# -> 7:14
-(27:21..27:24) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-(27:27..27:33) nullAsInstanceOfVC/VCNull.nullOf(). -> 24:7
-(27:34..27:37) nullAsInstanceOfVC/VCNull.Bar# -> 10:14
-
-Document tests/pos/pos_valueclasses/t6034.scala
-(3:32..3:33) t6034/OptPlus#[A] -> 3:22
-(3:49..3:49) scala/AnyVal#`<init>`().
-(3:43..3:49) scala/AnyVal#
-
-Document tests/pos/pos_valueclasses/t5667.scala
-(4:27..4:33) scala/Predef.String#
-(4:49..4:49) scala/AnyVal#`<init>`().
-(4:43..4:49) scala/AnyVal#
-(5:28..5:34) scala/Predef.String#
-(5:50..5:50) java/lang/Object#`<init>`().
-(5:44..5:50) scala/AnyRef#
-
-Document tests/pos/pos_valueclasses/value-class-override-spec.scala
-(5:17..5:20) scala/Any#
-(6:10..6:13) scala/Any#
-(9:34..9:40) scala/Predef.String#
-(9:56..9:56) scala/AnyVal#`<init>`().
-(9:50..9:56) scala/AnyVal#
-(9:62..9:63) value_class_override_spec/T# -> 5:7
+Document tests/pos/pos_valueclasses/t5953.scala
+(3:31..3:45) _empty_/GenTraversable# -> 2:7
+(3:46..3:47) _empty_/Traversable#[A] -> 3:20
+(4:25..4:36) _empty_/Traversable# -> 3:7
+(4:37..4:38) _empty_/Vector#[A] -> 4:14
+(6:24..6:27) _empty_/CBF# -> 1:7
+(6:28..6:34) _empty_/Vector# -> 4:7
+(6:39..6:40) _empty_/Vector.cbf().[A] -> 6:20
+(6:42..6:48) _empty_/Vector# -> 4:7
+(6:49..6:50) _empty_/Vector.cbf().[A] -> 6:20
+(6:55..6:58) scala/Predef.`???`().
+(10:4..10:10) scala/inline#
+(10:75..10:77) foo/package.TravOps#[CC] -> 10:37
+(10:78..10:79) foo/package.TravOps#[A] -> 10:34
+(10:90..10:96) scala/AnyVal#
+(10:96..10:96) scala/AnyVal#`<init>`().
+(11:37..11:40) _empty_/CBF# -> 1:7
+(11:41..11:48) scala/Nothing#
+(11:50..11:51) foo/package.TravOps#[A] -> 10:34
+(11:53..11:56) foo/package.TravOps#build().[CC2] -> 11:15
+(11:57..11:58) foo/package.TravOps#[A] -> 10:34
+(11:63..11:66) foo/package.TravOps#build().[CC2] -> 11:15
+(11:67..11:68) foo/package.TravOps#[A] -> 10:34
+(11:72..11:75) scala/Predef.`???`().
+(17:19..17:30) _empty_/Traversable# -> 3:7
+(17:31..17:32) foo/Test.f2().[T] -> 17:12
+(17:37..17:37) foo/package.TravOps(). -> 10:26
+(17:37..17:39) foo/Test.f2().(xs) -> 17:15
+(17:40..17:45) foo/package.TravOps#build(). -> 11:9
+(17:53..17:53) _empty_/Vector.cbf(). -> 6:16
 
 Document tests/pos/pos_valueclasses/t6029.scala
 (3:26..3:27) t6029/V#[A] -> 3:20
-(3:43..3:43) scala/AnyVal#`<init>`().
 (3:37..3:43) scala/AnyVal#
+(3:43..3:43) scala/AnyVal#`<init>`().
 (4:21..4:22) t6029/V#[A] -> 3:20
 (4:26..4:27) t6029/V# -> 3:18
 (4:28..4:29) t6029/V#flatMap().[B] -> 4:15
-(4:55..4:55) scala/Function1#apply().
 (4:54..4:55) t6029/V#flatMap().(f) -> 4:18
+(4:55..4:55) scala/Function1#apply().
 (4:56..4:57) t6029/V#x. -> 3:23
+
+Document tests/pos/pos_valueclasses/t6034.scala
+(3:32..3:33) t6034/OptPlus#[A] -> 3:22
+(3:43..3:49) scala/AnyVal#
+(3:49..3:49) scala/AnyVal#`<init>`().
+
+Document tests/pos/pos_valueclasses/t6215.scala
+(3:18..3:24) scala/Predef.String#
+(3:34..3:40) scala/AnyVal#
+(3:40..3:40) scala/AnyVal#`<init>`().
+(3:61..3:62) t6215/Foo#v. -> 3:15
+(3:63..3:69) java/lang/String#length().
+(3:80..3:83) t6215/Foo#len(). -> 3:55
+
+Document tests/pos/pos_valueclasses/t6260.scala
+(3:21..3:22) t6260/Box#[X] -> 3:11
+(3:32..3:38) scala/AnyVal#
+(3:38..3:38) scala/AnyVal#`<init>`().
+(4:17..4:18) t6260/Box#[X] -> 3:11
+(4:22..4:23) t6260/Box#map().[Y] -> 4:11
+(4:26..4:29) t6260/Box# -> 3:7
+(4:30..4:31) t6260/Box#map().[Y] -> 4:11
+(5:11..5:14) t6260/Box# -> 3:7
+(5:15..5:16) t6260/Box#[X] -> 3:11
+(5:29..5:29) t6260/Box#`<init>`(). -> 3:10
+(5:30..5:31) t6260/Box#map().(f) -> 4:14
+(5:31..5:31) scala/Function1#apply().
+(5:32..5:34) local0 -> 5:5
+(5:35..5:36) t6260/Box#x. -> 3:18
+(5:38..5:38) scala/Function1#apply().
+(9:24..9:27) t6260/Box# -> 3:7
+(9:28..9:29) t6260/Test.map2().[X] -> 9:12
+(9:35..9:36) t6260/Test.map2().[X] -> 9:12
+(9:40..9:41) t6260/Test.map2().[Y] -> 9:15
+(9:44..9:47) t6260/Box# -> 3:7
+(9:48..9:49) t6260/Test.map2().[Y] -> 9:15
+(10:11..10:14) t6260/Box# -> 3:7
+(10:15..10:16) t6260/Test.map2().[X] -> 9:12
+(10:29..10:29) t6260/Box#`<init>`(). -> 3:10
+(10:30..10:31) t6260/Test.map2().(f) -> 9:32
+(10:31..10:31) scala/Function1#apply().
+(10:32..10:34) local1 -> 5:20
+(10:35..10:36) t6260/Box#x. -> 3:18
+(10:38..10:38) scala/Function1#apply().
+(10:40..10:44) t6260/Test.map2().(self) -> 9:18
+(12:18..12:23) scala/Array#
+(12:24..12:30) scala/Predef.String#
+(12:34..12:38) scala/Unit#
+(13:17..13:20) scala/Int#
+(13:25..13:26) local3 -> 13:14
+(13:27..13:28) scala/Int#`+`(+4).
+(14:17..14:23) scala/Predef.String#
+(14:28..14:29) local5 -> 14:14
+(14:30..14:31) java/lang/String#`+`().
+(14:32..14:33) local5 -> 14:14
+(16:5..16:9) t6260/Test.map2(). -> 9:7
+(16:17..16:17) t6260/Box#`<init>`(). -> 3:10
+(16:23..16:24) local2 -> 5:24
+(17:12..17:12) t6260/Box#`<init>`(). -> 3:10
+(17:20..17:23) t6260/Box#map(). -> 4:7
+(17:24..17:25) local4 -> 14:9
+
+Document tests/pos/pos_valueclasses/t6260a.scala
+(3:35..3:36) t6260a/Option#[A] -> 3:21
+(3:46..3:52) scala/AnyVal#
+(3:52..3:52) scala/AnyVal#`<init>`().
+(7:49..7:55) t6260a/Option# -> 3:13
+(7:56..7:57) t6260a/Foo#[A] -> 7:20
+(8:31..8:34) t6260a/Foo# -> 7:16
+(8:35..8:36) t6260a/Bar#[A] -> 8:20
+(8:37..8:37) t6260a/Foo#`<init>`(). -> 7:19
+(8:49..8:55) t6260a/Option# -> 3:13
+(8:56..8:57) t6260a/Bar#[A] -> 8:20
+(8:61..8:64) scala/Predef.`???`().
+(13:26..13:29) scala/Int#
+(13:39..13:45) scala/AnyVal#
+(13:45..13:45) scala/AnyVal#`<init>`().
+(14:38..14:45) t6260a/Wrapper# -> 13:7
+(14:48..14:55) scala/Boolean#
+(16:7..16:11) t6260a/Test# -> 14:16
+(16:11..16:11) t6260a/Test#`<init>`(). -> 14:23
+(16:29..16:36) t6260a/Wrapper# -> 13:7
+
+Document tests/pos/pos_valueclasses/t6260b.scala
+(4:20..4:26) java/lang/Object#
+(4:36..4:42) scala/AnyVal#
+(4:42..4:42) scala/AnyVal#`<init>`().
+(4:60..4:61) t6260b/X# -> 4:7
+(4:64..4:65) t6260b/X# -> 4:7
+(5:23..5:24) t6260b/X# -> 4:7
+(5:24..5:24) t6260b/X#`<init>`(). -> 4:8
+(5:29..5:31) t6260b/X#or(). -> 4:49
+(5:36..5:37) t6260b/X# -> 4:7
+(5:37..5:37) t6260b/X#`<init>`(). -> 4:8
+
+Document tests/pos/pos_valueclasses/t6358.scala
+(3:16..3:19) scala/Int#
+(3:29..3:35) scala/AnyVal#
+(3:35..3:35) scala/AnyVal#`<init>`().
+(5:20..5:21) t6358/L#t. -> 3:13
+(5:22..5:30) scala/Any#toString().
+(6:13..6:14) local0 -> 5:5
+
+Document tests/pos/pos_valueclasses/t6358_2.scala
+(3:19..3:25) scala/Option#
+(3:26..3:27) t6358_2/Y#[T] -> 3:9
+(3:38..3:44) scala/AnyVal#
+(3:44..3:44) scala/AnyVal#`<init>`().
+(4:11..4:15) scala/package.List#
+(4:16..4:17) t6358_2/Y#[T] -> 3:9
+(5:19..5:23) scala/package.List#
+(5:24..5:25) t6358_2/Y#[T] -> 3:9
+(5:29..5:30) t6358_2/Y#i. -> 3:16
+(5:31..5:37) scala/Option#toList().
+(6:7..6:8) local0 -> 5:5
+
+Document tests/pos/pos_valueclasses/t6651.scala
+(3:44..3:45) t6651/YouAreYourself#[A] -> 3:22
+(3:55..3:61) scala/AnyVal#
+(3:61..3:61) scala/AnyVal#`<init>`().
+(4:17..4:20) t6651/YouAreYourself#you. -> 3:39
+(4:28..4:31) t6651/YouAreYourself#you. -> 3:39
+(9:11..9:12) t6651/Test.s. -> 8:7
+(9:24..9:38) t6651/YouAreYourself# -> 3:7
+(9:39..9:40) t6651/Test.s. -> 8:7
+(9:46..9:46) t6651/YouAreYourself#`<init>`(). -> 3:21
+(9:47..9:48) t6651/Test.s. -> 8:7
+(9:50..9:58) t6651/YouAreYourself#yourself(). -> 4:7
+(13:15..13:21) scala/AnyRef#
+(16:45..16:46) t6651/ValueClass#[P] -> 16:24
+(16:56..16:62) scala/AnyVal#
+(16:62..16:62) scala/AnyVal#`<init>`().
+(17:10..17:14) t6651/ValueClass#path. -> 16:39
+(19:27..19:30) t6651/ValueClass#apply().(dep) -> 19:13
+(19:42..19:45) scala/Int#
+(19:54..19:56) t6651/ValueClass#apply().(d2) -> 19:23
+(19:66..19:66) scala/Tuple2.apply().
+(19:66..19:68) t6651/ValueClass#apply().(d2) -> 19:23
+(19:70..19:72) t6651/ValueClass#apply().(d2) -> 19:23
+(33:29..33:30) t6651/ValueClass#bounds().[D] -> 33:14
+(33:36..33:39) t6651/ValueClass#bounds().(dep) -> 33:24
+(33:51..33:54) scala/Int#
+(33:58..33:59) t6651/ValueClass#bounds().[D] -> 33:14
+(33:61..33:63) t6651/ValueClass#bounds().(d2) -> 33:32
+(33:73..33:73) scala/Tuple2.apply().
+(33:73..33:75) t6651/ValueClass#bounds().(d2) -> 33:32
+(33:77..33:79) t6651/ValueClass#bounds().(d2) -> 33:32
 
 Document tests/pos/pos_valueclasses/t7818.scala
 (3:35..3:46) t7818/JObservable# -> 17:7
 (3:52..3:53) t7818/Observable1#[T] -> 3:20
-(3:70..3:70) scala/AnyVal#`<init>`().
 (3:64..3:70) scala/AnyVal#
+(3:70..3:70) scala/AnyVal#`<init>`().
 (4:25..4:36) t7818/JObservable# -> 17:7
 (4:37..4:38) t7818/Observable1#foo().[X] -> 4:19
 (4:42..4:53) t7818/JObservable# -> 17:7
@@ -324,141 +424,41 @@ Document tests/pos/pos_valueclasses/t7818.scala
 (14:58..14:60) t7818/Observable1#id(). -> 13:21
 (14:61..14:67) t7818/Observable1#asJava. -> 3:27
 
+Document tests/pos/pos_valueclasses/t8011.scala
+(3:24..3:30) scala/Predef.String#
+(3:40..3:46) scala/AnyVal#
+(3:46..3:46) scala/AnyVal#`<init>`().
+(4:14..4:17) scala/Any#
+(5:9..5:10) t8011/X# -> 10:7
+(5:11..5:12) t8011/ThingOps1#fn().[A] -> 4:10
+(5:27..5:28) t8011/ThingOps1#fn().[A] -> 4:10
+(5:32..5:33) local2 -> 5:24
+(10:25..10:26) t8011/X#[B] -> 10:9
+(10:29..10:32) scala/Any#
+
 Document tests/pos/pos_valueclasses/value-class-override-no-spec.scala
 (5:17..5:20) scala/Any#
 (6:10..6:13) scala/Any#
 (9:34..9:40) scala/Predef.String#
-(9:56..9:56) scala/AnyVal#`<init>`().
 (9:50..9:56) scala/AnyVal#
+(9:56..9:56) scala/AnyVal#`<init>`().
 (9:62..9:63) value_class_override_no_spec/T# -> 5:7
 
-Document tests/pos/pos_valueclasses/t6215.scala
-(3:18..3:24) scala/Predef.String#
-(3:40..3:40) scala/AnyVal#`<init>`().
-(3:34..3:40) scala/AnyVal#
-(3:63..3:69) java/lang/String#length().
-(3:61..3:62) t6215/Foo#v. -> 3:15
-(3:80..3:83) t6215/Foo#len(). -> 3:55
+Document tests/pos/pos_valueclasses/value-class-override-spec.scala
+(5:17..5:20) scala/Any#
+(6:10..6:13) scala/Any#
+(9:34..9:40) scala/Predef.String#
+(9:50..9:56) scala/AnyVal#
+(9:56..9:56) scala/AnyVal#`<init>`().
+(9:62..9:63) value_class_override_spec/T# -> 5:7
 
-Document tests/pos/pos_valueclasses/t6260.scala
-(3:21..3:22) t6260/Box#[X] -> 3:11
-(3:38..3:38) scala/AnyVal#`<init>`().
-(3:32..3:38) scala/AnyVal#
-(4:17..4:18) t6260/Box#[X] -> 3:11
-(4:22..4:23) t6260/Box#map().[Y] -> 4:11
-(4:26..4:29) t6260/Box# -> 3:7
-(4:30..4:31) t6260/Box#map().[Y] -> 4:11
-(5:38..5:38) scala/Function1#apply().
-(5:11..5:14) t6260/Box# -> 3:7
-(5:15..5:16) t6260/Box#[X] -> 3:11
-(5:29..5:29) t6260/Box#`<init>`(). -> 3:10
-(5:31..5:31) scala/Function1#apply().
-(5:30..5:31) t6260/Box#map().(f) -> 4:14
-(5:35..5:36) t6260/Box#x. -> 3:18
-(5:32..5:34) local0 -> 5:5
-(9:24..9:27) t6260/Box# -> 3:7
-(9:28..9:29) t6260/Test.map2().[X] -> 9:12
-(9:35..9:36) t6260/Test.map2().[X] -> 9:12
-(9:40..9:41) t6260/Test.map2().[Y] -> 9:15
-(9:44..9:47) t6260/Box# -> 3:7
-(9:48..9:49) t6260/Test.map2().[Y] -> 9:15
-(10:38..10:38) scala/Function1#apply().
-(10:11..10:14) t6260/Box# -> 3:7
-(10:15..10:16) t6260/Test.map2().[X] -> 9:12
-(10:29..10:29) t6260/Box#`<init>`(). -> 3:10
-(10:31..10:31) scala/Function1#apply().
-(10:30..10:31) t6260/Test.map2().(f) -> 9:32
-(10:35..10:36) t6260/Box#x. -> 3:18
-(10:32..10:34) local1 -> 5:20
-(10:40..10:44) t6260/Test.map2().(self) -> 9:18
-(12:18..12:23) scala/Array#
-(12:24..12:30) scala/Predef.String#
-(12:34..12:38) scala/Unit#
-(13:17..13:20) scala/Int#
-(13:27..13:28) scala/Int#`+`(+4).
-(13:25..13:26) local3 -> 13:14
-(14:17..14:23) scala/Predef.String#
-(14:30..14:31) java/lang/String#`+`().
-(14:28..14:29) local5 -> 14:14
-(14:32..14:33) local5 -> 14:14
-(16:5..16:9) t6260/Test.map2(). -> 9:7
-(16:17..16:17) t6260/Box#`<init>`(). -> 3:10
-(16:23..16:24) local2 -> 5:24
-(17:20..17:23) t6260/Box#map(). -> 4:7
-(17:12..17:12) t6260/Box#`<init>`(). -> 3:10
-(17:24..17:25) local4 -> 14:9
-
-Document tests/pos/pos_valueclasses/t6358.scala
-(3:16..3:19) scala/Int#
-(3:35..3:35) scala/AnyVal#`<init>`().
-(3:29..3:35) scala/AnyVal#
-(5:22..5:30) scala/Any#toString().
-(5:20..5:21) t6358/L#t. -> 3:13
-(6:13..6:14) local0 -> 5:5
-
-Document tests/pos/pos_valueclasses/t6260a.scala
-(3:35..3:36) t6260a/Option#[A] -> 3:21
-(3:52..3:52) scala/AnyVal#`<init>`().
-(3:46..3:52) scala/AnyVal#
-(7:49..7:55) t6260a/Option# -> 3:13
-(7:56..7:57) t6260a/Foo#[A] -> 7:20
-(8:37..8:37) t6260a/Foo#`<init>`(). -> 7:19
-(8:31..8:34) t6260a/Foo# -> 7:16
-(8:35..8:36) t6260a/Bar#[A] -> 8:20
-(8:49..8:55) t6260a/Option# -> 3:13
-(8:56..8:57) t6260a/Bar#[A] -> 8:20
-(8:61..8:64) scala/Predef.`???`().
-(13:26..13:29) scala/Int#
-(13:45..13:45) scala/AnyVal#`<init>`().
-(13:39..13:45) scala/AnyVal#
-(14:38..14:45) t6260a/Wrapper# -> 13:7
-(14:48..14:55) scala/Boolean#
-(16:11..16:11) t6260a/Test#`<init>`(). -> 14:23
-(16:7..16:11) t6260a/Test# -> 14:16
-(16:29..16:36) t6260a/Wrapper# -> 13:7
-
-Document tests/pos/pos_valueclasses/t6651.scala
-(3:44..3:45) t6651/YouAreYourself#[A] -> 3:22
-(3:61..3:61) scala/AnyVal#`<init>`().
-(3:55..3:61) scala/AnyVal#
-(4:17..4:20) t6651/YouAreYourself#you. -> 3:39
-(4:28..4:31) t6651/YouAreYourself#you. -> 3:39
-(9:11..9:12) t6651/Test.s. -> 8:7
-(9:50..9:58) t6651/YouAreYourself#yourself(). -> 4:7
-(9:46..9:46) t6651/YouAreYourself#`<init>`(). -> 3:21
-(9:24..9:38) t6651/YouAreYourself# -> 3:7
-(9:39..9:40) t6651/Test.s. -> 8:7
-(9:47..9:48) t6651/Test.s. -> 8:7
-(13:15..13:21) scala/AnyRef#
-(16:45..16:46) t6651/ValueClass#[P] -> 16:24
-(16:62..16:62) scala/AnyVal#`<init>`().
-(16:56..16:62) scala/AnyVal#
-(17:10..17:14) t6651/ValueClass#path. -> 16:39
-(19:27..19:30) t6651/ValueClass#apply().(dep) -> 19:13
-(19:42..19:45) scala/Int#
-(19:54..19:56) t6651/ValueClass#apply().(d2) -> 19:23
-(19:66..19:66) scala/Tuple2.apply().
-(19:66..19:68) t6651/ValueClass#apply().(d2) -> 19:23
-(19:70..19:72) t6651/ValueClass#apply().(d2) -> 19:23
-(33:29..33:30) t6651/ValueClass#bounds().[D] -> 33:14
-(33:36..33:39) t6651/ValueClass#bounds().(dep) -> 33:24
-(33:51..33:54) scala/Int#
-(33:58..33:59) t6651/ValueClass#bounds().[D] -> 33:14
-(33:61..33:63) t6651/ValueClass#bounds().(d2) -> 33:32
-(33:73..33:73) scala/Tuple2.apply().
-(33:73..33:75) t6651/ValueClass#bounds().(d2) -> 33:32
-(33:77..33:79) t6651/ValueClass#bounds().(d2) -> 33:32
-
-Document tests/pos/pos_valueclasses/t6358_2.scala
-(3:19..3:25) scala/Option#
-(3:26..3:27) t6358_2/Y#[T] -> 3:9
-(3:44..3:44) scala/AnyVal#`<init>`().
-(3:38..3:44) scala/AnyVal#
-(4:11..4:15) scala/package.List#
-(4:16..4:17) t6358_2/Y#[T] -> 3:9
-(5:19..5:23) scala/package.List#
-(5:24..5:25) t6358_2/Y#[T] -> 3:9
-(5:31..5:37) scala/Option#toList().
-(5:29..5:30) t6358_2/Y#i. -> 3:16
-(6:7..6:8) local0 -> 5:5
+Document tests/pos/pos_valueclasses/xlint1.scala
+(4:32..4:33) xlint1/foo/package.Bar#[T] -> 4:22
+(4:43..4:49) scala/AnyVal#
+(4:49..4:49) scala/AnyVal#`<init>`().
+(11:20..11:25) scala/Array#
+(11:26..11:32) scala/Predef.String#
+(11:36..11:40) scala/Unit#
+(12:7..12:7) xlint1/foo/package.Bar(). -> 4:18
+(12:13..12:18) xlint1/foo/package.Bar#bippy(). -> 5:9
 

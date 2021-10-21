@@ -1,34 +1,34 @@
 Document tests/pos/virtpatmat_exist1.scala
-(1:29..1:46) scala/annotation/unchecked/uncheckedVariance#
-(1:19..1:28) scala/annotation/unchecked/
 (1:8..1:18) scala/annotation/
-(2:26..2:41) scala/collection/IterableFactory.
+(1:19..1:28) scala/annotation/unchecked/
+(1:29..1:46) scala/annotation/unchecked/uncheckedVariance#
+(2:8..2:13) scala/
+(2:14..2:24) scala/collection/
 (2:26..2:41) scala/collection/IterableFactory#
+(2:26..2:41) scala/collection/IterableFactory.
 (2:43..2:69) scala/collection/StrictOptimizedIterableOps.
 (2:71..2:78) scala/collection/mutable/
-(2:14..2:24) scala/collection/
-(2:8..2:13) scala/
-(3:36..3:43) scala/collection/immutable/ListMap.
-(3:36..3:43) scala/collection/immutable/ListMap#
-(3:45..3:52) scala/collection/immutable/ListSet.
-(3:45..3:52) scala/collection/immutable/ListSet#
-(3:25..3:34) scala/collection/immutable/
-(3:14..3:24) scala/collection/
 (3:8..3:13) scala/
-(4:34..4:45) scala/collection/mutable/AbstractSet.
-(4:47..4:54) scala/collection/mutable/HashMap.
-(4:47..4:54) scala/collection/mutable/HashMap#
-(4:56..4:63) scala/collection/mutable/HashSet.
-(4:56..4:63) scala/collection/mutable/HashSet#
-(4:65..4:68) scala/collection/mutable/Set.
-(4:65..4:68) scala/collection/mutable/Set#
-(4:70..4:76) scala/collection/mutable/SetOps.
-(4:25..4:32) scala/collection/mutable/
-(4:14..4:24) scala/collection/
+(3:14..3:24) scala/collection/
+(3:25..3:34) scala/collection/immutable/
+(3:36..3:43) scala/collection/immutable/ListMap#
+(3:36..3:43) scala/collection/immutable/ListMap.
+(3:45..3:52) scala/collection/immutable/ListSet#
+(3:45..3:52) scala/collection/immutable/ListSet.
 (4:8..4:13) scala/
-(8:25..8:25) scala/collection/mutable/AbstractSet#`<init>`().
+(4:14..4:24) scala/collection/
+(4:25..4:32) scala/collection/mutable/
+(4:34..4:45) scala/collection/mutable/AbstractSet.
+(4:47..4:54) scala/collection/mutable/HashMap#
+(4:47..4:54) scala/collection/mutable/HashMap.
+(4:56..4:63) scala/collection/mutable/HashSet#
+(4:56..4:63) scala/collection/mutable/HashSet.
+(4:65..4:68) scala/collection/mutable/Set#
+(4:65..4:68) scala/collection/mutable/Set.
+(4:70..4:76) scala/collection/mutable/SetOps.
 (8:11..8:22) scala/collection/mutable/AbstractSet#
 (8:23..8:24) _empty_/HS#[A] -> 7:10
+(8:25..8:25) scala/collection/mutable/AbstractSet#`<init>`().
 (9:10..9:16) scala/collection/mutable/SetOps#
 (9:17..9:18) _empty_/HS#[A] -> 7:10
 (9:24..9:26) _empty_/HS# -> 7:7
@@ -37,8 +37,8 @@ Document tests/pos/virtpatmat_exist1.scala
 (10:37..10:38) _empty_/HS#[A] -> 7:10
 (10:44..10:46) _empty_/HS# -> 7:7
 (10:47..10:48) _empty_/HS#[A] -> 7:10
-(11:21..11:44) scala/collection/IterableFactoryDefaults#
 (11:10..11:20) scala/collection/
+(11:21..11:44) scala/collection/IterableFactoryDefaults#
 (11:45..11:46) _empty_/HS#[A] -> 7:10
 (12:10..12:22) scala/package.Serializable#
 (13:33..13:48) scala/collection/IterableFactory#
@@ -64,23 +64,23 @@ Document tests/pos/virtpatmat_exist1.scala
 (23:66..23:67) _empty_/Test.HashMapCollision1#[A] -> 23:27
 (23:69..23:70) _empty_/Test.HashMapCollision1#[B] -> 23:31
 (23:72..23:74) scala/annotation/unchecked/uncheckedVariance#
-(23:102..23:102) scala/collection/mutable/HashMap#`<init>`(+1).
 (23:85..23:92) scala/collection/mutable/HashMap#
 (23:93..23:94) _empty_/Test.HashMapCollision1#[A] -> 23:27
 (23:96..23:97) _empty_/Test.HashMapCollision1#[B] -> 23:31
 (23:99..23:101) scala/annotation/unchecked/uncheckedVariance#
+(23:102..23:102) scala/collection/mutable/HashMap#`<init>`(+1).
 (24:40..24:43) scala/Int#
 (24:53..24:60) scala/collection/immutable/ListSet#
 (24:61..24:62) _empty_/Test.HashSetCollision1#[A] -> 24:27
-(24:78..24:78) _empty_/HS#`<init>`(). -> 7:9
 (24:73..24:75) _empty_/HS# -> 7:7
 (24:76..24:77) _empty_/Test.HashSetCollision1#[A] -> 24:27
+(24:78..24:78) _empty_/HS#`<init>`(). -> 7:9
 (26:25..26:30) scala/Array#
 (26:31..26:39) scala/package.Iterable#
 (26:40..26:41) _empty_/Test.splitArray().[T] -> 26:18
 (26:46..26:49) scala/Any#
-(27:7..27:7) scala/Array#apply().
 (27:5..27:7) _empty_/Test.splitArray().(ad) -> 26:21
+(27:7..27:7) scala/Array#apply().
 (28:15..28:32) _empty_/Test.HashMapCollision1# -> 23:9
 (28:44..28:61) _empty_/Test.HashSetCollision1# -> 24:9
 

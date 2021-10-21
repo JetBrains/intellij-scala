@@ -1,8 +1,8 @@
 Document tests/pos/i3506.scala
 (1:11..1:22) _empty_/specialized# -> 2:7
-(2:44..2:60) scala/annotation/StaticAnnotation#
-(2:33..2:43) scala/annotation/
 (2:27..2:32) scala/
+(2:33..2:43) scala/annotation/
+(2:44..2:60) scala/annotation/StaticAnnotation#
 (2:66..2:68) _empty_/C2# -> 1:7
 (2:69..2:73) scala/Char#
 

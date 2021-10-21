@@ -3,23 +3,23 @@ Document tests/pos/t2691.scala
 (2:27..2:31) scala/Some#
 (2:32..2:36) scala/package.List#
 (2:37..2:43) scala/Predef.String#
-(2:52..2:52) scala/Some.apply().
 (2:48..2:52) scala/Some.
-(2:57..2:57) scala/collection/IterableFactory#apply().
+(2:52..2:52) scala/Some.apply().
 (2:53..2:57) scala/package.List.
-(6:19..6:19) _empty_/Breakdown.unapplySeq(). -> 2:7
+(2:57..2:57) scala/collection/IterableFactory#apply().
 (6:10..6:19) _empty_/Breakdown. -> 1:8
-(7:19..7:19) _empty_/Breakdown.unapplySeq(). -> 2:7
+(6:19..6:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (7:10..7:19) _empty_/Breakdown. -> 1:8
+(7:19..7:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (7:32..7:39) scala/Predef.println(+1).
 (7:50..7:51) java/lang/String#`+`().
 (7:52..7:55) local0 -> 7:24
-(12:19..12:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (12:10..12:19) _empty_/Breakdown. -> 1:8
-(13:19..13:19) _empty_/Breakdown.unapplySeq(). -> 2:7
+(12:19..12:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (13:10..13:19) _empty_/Breakdown. -> 1:8
-(14:19..14:19) _empty_/Breakdown.unapplySeq(). -> 2:7
+(13:19..13:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (14:10..14:19) _empty_/Breakdown. -> 1:8
+(14:19..14:19) _empty_/Breakdown.unapplySeq(). -> 2:7
 (14:32..14:39) scala/Predef.println(+1).
 (14:50..14:51) java/lang/String#`+`().
 (14:52..14:55) local1 -> 14:24

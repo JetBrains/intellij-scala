@@ -11,7 +11,7 @@ Document tests/pos/i8925.scala
 (15:12..15:15) _empty_/Demo.params().(arr) -> 6:14
 (15:18..15:30) _empty_/Demo.parametersOf(). -> 8:7
 (15:31..15:37) _empty_/Parent# -> 1:7
-(15:41..15:46) _empty_/Parent#Child# -> 2:8
 (15:39..15:40) _empty_/Demo.combineInternal().(p) -> 10:29
+(15:41..15:46) _empty_/Parent#Child# -> 2:8
 (15:49..15:49) local0 -> 12:18
 

@@ -1,4 +1,6 @@
 Document tests/pos/i11866.scala
+(1:17..1:27) _empty_/CallbackTo# -> 3:13
+(1:28..1:32) scala/Unit#
 (5:16..5:26) _empty_/CallbackTo# -> 3:13
 (5:27..5:28) _empty_/CallbackTo#`>>`().[B] -> 5:10
 (5:32..5:42) _empty_/CallbackTo# -> 3:13
@@ -14,15 +16,13 @@ Document tests/pos/i11866.scala
 (11:23..11:24) _empty_/CallbackTo#[A] -> 3:25
 (12:12..12:20) _empty_/i11866$package.Callback# -> 1:6
 (12:23..12:26) scala/Predef.`???`().
-(15:7..15:9) _empty_/CallbackTo#`*>`(). -> 8:14
 (15:5..15:6) local1 -> 12:9
-(16:7..16:9) _empty_/CallbackTo#`*>`(). -> 8:14
+(15:7..15:9) _empty_/CallbackTo#`*>`(). -> 8:14
 (16:5..16:6) local1 -> 12:9
+(16:7..16:9) _empty_/CallbackTo#`*>`(). -> 8:14
 (16:10..16:14) _empty_/CallbackTo# -> 3:13
-(17:7..17:9) _empty_/CallbackTo#`*>`(). -> 8:14
 (17:5..17:6) local1 -> 12:9
+(17:7..17:9) _empty_/CallbackTo#`*>`(). -> 8:14
 (17:10..17:14) local2 -> 13:9
 (19:5..19:8) scala/Predef.`???`().
-(1:17..1:27) _empty_/CallbackTo# -> 3:13
-(1:28..1:32) scala/Unit#
 

@@ -1,45 +1,45 @@
 Document tests/pos/t1786-counter.scala
-(4:112..4:112) _empty_/Fail.Shape#`<init>`(). -> 8:23
 (4:91..4:96) _empty_/Fail.Shape# -> 8:18
 (4:97..4:102) _empty_/Fail.ProductNodeShape#[Level] -> 4:35
 (4:104..4:105) _empty_/Fail.ProductNodeShape#[M] -> 4:59
 (4:107..4:108) _empty_/Fail.ProductNodeShape#[U] -> 4:67
 (4:110..4:111) _empty_/Fail.ProductNodeShape#[P] -> 4:75
+(4:112..4:112) _empty_/Fail.Shape#`<init>`(). -> 8:23
 (5:22..5:25) scala/package.Seq#
 (5:26..5:31) _empty_/Fail.Shape# -> 8:18
 (5:47..5:52) _empty_/Fail.Shape# -> 8:18
 (5:53..5:58) _empty_/Fail.ProductNodeShape#[Level] -> 4:35
 (10:101..10:106) _empty_/Fail.Shape# -> 8:18
-(10:170..10:170) _empty_/Fail.ProductNodeShape#`<init>`(). -> 4:34
 (10:129..10:145) _empty_/Fail.ProductNodeShape# -> 4:18
 (10:146..10:151) _empty_/Fail.TupleShape#[Level] -> 10:26
 (10:153..10:160) scala/Product#
 (10:162..10:163) _empty_/Fail.TupleShape#[M] -> 10:47
 (10:165..10:166) _empty_/Fail.TupleShape#[U] -> 10:61
 (10:168..10:169) _empty_/Fail.TupleShape#[P] -> 10:75
+(10:170..10:170) _empty_/Fail.ProductNodeShape#`<init>`(). -> 4:34
 (11:22..11:25) scala/package.Seq#
 (11:26..11:31) _empty_/Fail.Shape# -> 8:18
 (11:47..11:52) _empty_/Fail.Shape# -> 8:18
 (11:53..11:58) _empty_/Fail.TupleShape#[Level] -> 10:26
 (11:71..11:74) scala/Predef.`???`().
-(20:112..20:112) _empty_/Ok.Shape#`<init>`(). -> 18:23
 (20:91..20:96) _empty_/Ok.Shape# -> 18:18
 (20:97..20:102) _empty_/Ok.ProductNodeShape#[Level] -> 20:35
 (20:104..20:105) _empty_/Ok.ProductNodeShape#[M] -> 20:59
 (20:107..20:108) _empty_/Ok.ProductNodeShape#[U] -> 20:67
 (20:110..20:111) _empty_/Ok.ProductNodeShape#[P] -> 20:75
+(20:112..20:112) _empty_/Ok.Shape#`<init>`(). -> 18:23
 (21:22..21:25) scala/package.Seq#
 (21:26..21:31) _empty_/Ok.Shape# -> 18:18
 (21:47..21:52) _empty_/Ok.Shape# -> 18:18
 (21:53..21:58) _empty_/Ok.ProductNodeShape#[Level] -> 20:35
 (24:101..24:106) _empty_/Ok.Shape# -> 18:18
-(24:170..24:170) _empty_/Ok.ProductNodeShape#`<init>`(). -> 20:34
 (24:129..24:145) _empty_/Ok.ProductNodeShape# -> 20:18
 (24:146..24:151) _empty_/Ok.TupleShape#[Level] -> 24:26
 (24:153..24:160) scala/Product#
 (24:162..24:163) _empty_/Ok.TupleShape#[M] -> 24:47
 (24:165..24:166) _empty_/Ok.TupleShape#[U] -> 24:61
 (24:168..24:169) _empty_/Ok.TupleShape#[P] -> 24:75
+(24:170..24:170) _empty_/Ok.ProductNodeShape#`<init>`(). -> 20:34
 (25:22..25:25) scala/package.Seq#
 (25:26..25:31) _empty_/Ok.Shape# -> 18:18
 (25:47..25:52) _empty_/Ok.Shape# -> 18:18

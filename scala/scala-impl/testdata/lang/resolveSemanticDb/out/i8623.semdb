@@ -5,18 +5,18 @@ Document tests/pos/i8623.scala
 (9:9..9:11) _empty_/QC# -> 2:7
 (9:14..9:17) scala/Predef.`???`().
 (10:26..10:28) _empty_/QC# -> 2:7
-(10:42..10:46) _empty_/QC#tasty.Tree# -> 4:10
-(10:36..10:41) _empty_/QC#tasty. -> 3:10
 (10:31..10:35) local2 -> 10:20
+(10:36..10:41) _empty_/QC#tasty. -> 3:10
+(10:42..10:46) _empty_/QC#tasty.Tree# -> 4:10
 (10:49..10:52) scala/Predef.`???`().
 (11:3..11:3) _empty_/QC#tasty.pos(). -> 6:11
 (11:3..11:9) local1 -> 10:7
 (11:9..11:9) local0 -> 9:9
 (14:9..14:11) _empty_/QC# -> 2:7
 (15:26..15:28) _empty_/QC# -> 2:7
-(15:42..15:46) _empty_/QC#tasty.Tree# -> 4:10
-(15:36..15:41) _empty_/QC#tasty. -> 3:10
 (15:31..15:35) local5 -> 15:20
+(15:36..15:41) _empty_/QC#tasty. -> 3:10
+(15:42..15:46) _empty_/QC#tasty.Tree# -> 4:10
 (15:49..15:52) scala/Predef.`???`().
 (16:3..16:3) _empty_/QC#tasty.pos(). -> 6:11
 (16:3..16:9) local4 -> 15:7

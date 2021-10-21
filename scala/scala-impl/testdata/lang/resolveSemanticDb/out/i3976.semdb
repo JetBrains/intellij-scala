@@ -1,16 +1,16 @@
 Document tests/pos/i3976.scala
-(3:30..3:30) _empty_/Test.Hoge#`<init>`(). -> 2:12
 (3:20..3:24) _empty_/Test.Hoge# -> 2:8
 (3:25..3:29) scala/package.List#
-(4:40..4:40) _empty_/Test.Hoge#`<init>`(). -> 2:12
+(3:30..3:30) _empty_/Test.Hoge#`<init>`(). -> 2:12
 (4:20..4:24) _empty_/Test.Hoge# -> 2:8
 (4:33..4:39) scala/Predef.String#
+(4:40..4:40) _empty_/Test.Hoge#`<init>`(). -> 2:12
 (6:10..6:14) _empty_/Test.Hoge. -> 2:8
-(8:5..8:7) scala/Any#`==`().
 (8:3..8:4) _empty_/Test.Hoge.A. -> 3:10
+(8:5..8:7) scala/Any#`==`().
 (8:8..8:9) _empty_/Test.Hoge.A. -> 3:10
-(9:5..9:7) scala/Any#`==`().
 (9:3..9:4) _empty_/Test.Hoge.A. -> 3:10
+(9:5..9:7) scala/Any#`==`().
 (9:9..9:10) _empty_/Test.Hoge.B. -> 4:10
 (9:12..9:16) _empty_/Test.Hoge# -> 2:8
 

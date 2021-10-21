@@ -2,8 +2,8 @@ Document tests/pos/extractor-types.scala
 (2:31..2:34) scala/Any#
 (2:37..2:43) scala/Option#
 (2:49..2:52) scala/Int#
-(3:22..3:22) p1/Ex.unapply(). -> 2:20
 (3:20..3:22) p1/Ex. -> 2:10
+(3:22..3:22) p1/Ex.unapply(). -> 2:20
 (16:33..16:36) scala/Any#
 (16:39..16:45) scala/Option#
 (16:46..16:50) p2/Other#Quux# -> 15:11
@@ -11,9 +11,9 @@ Document tests/pos/extractor-types.scala
 (19:14..19:18) scala/Unit#
 (20:15..20:20) p2/Other# -> 14:9
 (21:14..21:17) scala/Any#
-(21:38..21:38) p2/Other#Baz.unapply(). -> 16:22
-(21:35..21:38) p2/Other#Baz. -> 16:12
 (21:32..21:34) local0 -> 20:11
+(21:35..21:38) p2/Other#Baz. -> 16:12
+(21:38..21:38) p2/Other#Baz.unapply(). -> 16:22
 (21:45..21:52) scala/Predef.println(+1).
 (21:53..21:54) local1 -> 21:39
 

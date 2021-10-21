@@ -2,13 +2,13 @@ Document tests/pos/enums-capture.scala
 (3:22..3:25) scala/Any#
 (4:17..4:20) scala/Int#
 (4:33..4:33) _empty_/Foo#`<init>`(). -> 3:9
-(4:39..4:39) _empty_/T#`<init>`(). -> 1:1
 (4:38..4:39) _empty_/T# -> 1:7
+(4:39..4:39) _empty_/T#`<init>`(). -> 1:1
 (5:20..5:21) _empty_/Foo.Case2#[U] -> 5:14
 (5:34..5:34) _empty_/Foo#`<init>`(). -> 3:9
-(5:40..5:40) _empty_/T#`<init>`(). -> 1:1
 (5:39..5:40) _empty_/T# -> 1:7
+(5:40..5:40) _empty_/T#`<init>`(). -> 1:1
 (6:25..6:25) _empty_/Foo#`<init>`(). -> 3:9
-(6:31..6:31) _empty_/T#`<init>`(). -> 1:1
 (6:30..6:31) _empty_/T# -> 1:7
+(6:31..6:31) _empty_/T#`<init>`(). -> 1:1
 

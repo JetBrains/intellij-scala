@@ -2,12 +2,12 @@ Document tests/pos/i6375.scala
 (32:9..32:12) scala/Int#
 (34:12..34:15) scala/Int#
 (34:20..34:27) scala/Boolean#
-(34:54..34:54) scala/ContextFunction1#apply().
 (34:38..34:41) scala/Int#
 (34:46..34:53) scala/Boolean#
+(34:54..34:54) scala/ContextFunction1#apply().
 (36:19..36:22) scala/Int#
 (36:27..36:34) scala/Boolean#
-(37:6..37:6) scala/ContextFunction1#apply().
 (37:3..37:4) _empty_/Test#g(). -> 36:14
 (37:6..37:6) _empty_/Test#given_Int. -> 32:9
+(37:6..37:6) scala/ContextFunction1#apply().
 

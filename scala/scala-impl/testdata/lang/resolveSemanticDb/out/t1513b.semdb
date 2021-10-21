@@ -1,7 +1,7 @@
 Document tests/pos/t1513b.scala
-(1:30..1:48) scala/language.experimental.namedTypeArguments.
-(1:17..1:29) scala/language.experimental.
 (1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
 (4:11..4:17) scala/Predef.String#
 (5:11..5:14) scala/Int#
 (6:11..6:18) scala/Boolean#

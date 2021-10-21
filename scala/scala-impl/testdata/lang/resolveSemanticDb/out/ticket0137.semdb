@@ -1,6 +1,6 @@
 Document tests/pos/ticket0137.scala
-(3:62..3:62) _empty_/AbsM#MonadCompanion#`<init>`(). -> 2:32
 (3:44..3:58) _empty_/AbsM#MonadCompanion# -> 2:18
 (3:59..3:61) _empty_/AbsM#AM# -> 7:8
+(3:62..3:62) _empty_/AbsM#MonadCompanion#`<init>`(). -> 2:32
 (4:17..4:20) scala/Int#
 

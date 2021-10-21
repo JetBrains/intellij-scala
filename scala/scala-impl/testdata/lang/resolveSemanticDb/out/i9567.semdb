@@ -14,22 +14,22 @@ Document tests/pos/i9567.scala
 (14:14..14:17) scala/Int#
 (14:21..14:24) scala/Int#
 (14:27..14:30) scala/Int#
-(14:34..14:34) scala/Function1#apply().
 (14:33..14:34) _empty_/M#baz().(f) -> 14:11
+(14:34..14:34) scala/Function1#apply().
 (18:14..18:17) _empty_/Foo# -> 5:7
 (18:29..18:30) _empty_/Test.bar().(x)[X] -> 18:22
 (18:34..18:38) scala/Unit#
-(19:11..19:14) _empty_/M#bla(). -> 13:7
-(19:7..19:10) _empty_/Foo#foo(). -> 7:7
 (19:5..19:6) _empty_/Test.bar().(x) -> 18:11
-(20:11..20:14) _empty_/M#baz(). -> 14:7
-(20:7..20:10) _empty_/Foo#foo(). -> 7:7
+(19:7..19:10) _empty_/Foo#foo(). -> 7:7
+(19:11..19:14) _empty_/M#bla(). -> 13:7
 (20:5..20:6) _empty_/Test.bar().(x) -> 18:11
+(20:7..20:10) _empty_/Foo#foo(). -> 7:7
+(20:11..20:14) _empty_/M#baz(). -> 14:7
 (20:20..20:21) local0 -> 20:15
-(21:12..21:15) _empty_/M#bla(). -> 13:7
-(21:7..21:11) _empty_/Foo#foo2(). -> 8:7
 (21:5..21:6) _empty_/Test.bar().(x) -> 18:11
-(22:12..22:15) _empty_/M#bla(). -> 13:7
-(22:7..22:11) _empty_/Foo#foo3(). -> 9:7
+(21:7..21:11) _empty_/Foo#foo2(). -> 8:7
+(21:12..21:15) _empty_/M#bla(). -> 13:7
 (22:5..22:6) _empty_/Test.bar().(x) -> 18:11
+(22:7..22:11) _empty_/Foo#foo3(). -> 9:7
+(22:12..22:15) _empty_/M#bla(). -> 13:7
 

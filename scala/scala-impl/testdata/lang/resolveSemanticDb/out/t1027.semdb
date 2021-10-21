@@ -5,54 +5,54 @@ Document tests/pos/t1027.scala
 (3:22..3:29) scala/Boolean#
 (4:18..4:19) _empty_/T1027.Comparable#[T] -> 2:20
 (4:22..4:29) scala/Boolean#
-(4:44..4:46) scala/Boolean#`||`().
 (4:37..4:38) _empty_/T1027.Comparable#`<`(). -> 3:9
 (4:39..4:43) _empty_/T1027.Comparable#`<=`().(that) -> 4:12
+(4:44..4:46) scala/Boolean#`||`().
 (4:52..4:54) scala/Any#`==`().
 (4:55..4:59) _empty_/T1027.Comparable#`<=`().(that) -> 4:12
 (5:18..5:19) _empty_/T1027.Comparable#[T] -> 2:20
 (5:22..5:29) scala/Boolean#
-(5:37..5:38) _empty_/T1027.Comparable#`<`(). -> 3:9
 (5:32..5:36) _empty_/T1027.Comparable#`>`().(that) -> 5:12
+(5:37..5:38) _empty_/T1027.Comparable#`<`(). -> 3:9
 (6:18..6:19) _empty_/T1027.Comparable#[T] -> 2:20
 (6:22..6:29) scala/Boolean#
-(6:37..6:39) _empty_/T1027.Comparable#`<=`(). -> 4:9
 (6:32..6:36) _empty_/T1027.Comparable#`>=`().(that) -> 6:12
+(6:37..6:39) _empty_/T1027.Comparable#`<=`(). -> 4:9
 (8:18..8:24) scala/Predef.String#
 (8:34..8:44) _empty_/T1027.Comparable# -> 2:9
 (8:45..8:46) _empty_/T1027.A# -> 8:9
 (9:18..9:19) _empty_/T1027.A# -> 8:9
-(9:30..9:31) scala/collection/StringOps#`<`().
 (9:23..9:23) scala/Predef.augmentString().
 (9:28..9:29) _empty_/T1027.A#x. -> 8:15
-(9:37..9:38) _empty_/T1027.A#x. -> 8:15
+(9:30..9:31) scala/collection/StringOps#`<`().
 (9:32..9:36) _empty_/T1027.A#`<`().(that) -> 9:12
-(11:16..11:16) _empty_/T1027.A#`<init>`(). -> 8:10
+(9:37..9:38) _empty_/T1027.A#x. -> 8:15
 (11:15..11:16) _empty_/T1027.A# -> 8:9
-(12:16..12:16) _empty_/T1027.A#`<init>`(). -> 8:10
+(11:16..11:16) _empty_/T1027.A#`<init>`(). -> 8:10
 (12:15..12:16) _empty_/T1027.A# -> 8:9
+(12:16..12:16) _empty_/T1027.A#`<init>`(). -> 8:10
 (13:3..13:10) scala/Predef.println(+1).
-(13:13..13:14) _empty_/T1027.A#`<`(). -> 9:9
 (13:11..13:12) _empty_/T1027.a. -> 11:7
+(13:13..13:14) _empty_/T1027.A#`<`(). -> 9:9
 (13:15..13:16) _empty_/T1027.b. -> 12:7
 (14:3..14:10) scala/Predef.println(+1).
-(14:13..14:14) _empty_/T1027.Comparable#`>`(). -> 5:9
 (14:11..14:12) _empty_/T1027.a. -> 11:7
+(14:13..14:14) _empty_/T1027.Comparable#`>`(). -> 5:9
 (14:15..14:16) _empty_/T1027.b. -> 12:7
 (15:3..15:10) scala/Predef.println(+1).
-(15:13..15:15) _empty_/T1027.Comparable#`<=`(). -> 4:9
 (15:11..15:12) _empty_/T1027.a. -> 11:7
+(15:13..15:15) _empty_/T1027.Comparable#`<=`(). -> 4:9
 (15:16..15:17) _empty_/T1027.b. -> 12:7
 (16:3..16:10) scala/Predef.println(+1).
-(16:13..16:15) _empty_/T1027.Comparable#`>=`(). -> 6:9
 (16:11..16:12) _empty_/T1027.a. -> 11:7
+(16:13..16:15) _empty_/T1027.Comparable#`>=`(). -> 6:9
 (16:16..16:17) _empty_/T1027.b. -> 12:7
 (17:3..17:10) scala/Predef.println(+1).
 (17:34..17:35) java/lang/String#`+`().
-(17:62..17:70) scala/Any#toString().
-(17:48..17:49) _empty_/T1027.Comparable#`>`(). -> 5:9
-(17:42..17:42) _empty_/T1027.A#`<init>`(). -> 8:10
 (17:41..17:42) _empty_/T1027.A# -> 8:9
-(17:55..17:55) _empty_/T1027.A#`<init>`(). -> 8:10
+(17:42..17:42) _empty_/T1027.A#`<init>`(). -> 8:10
+(17:48..17:49) _empty_/T1027.Comparable#`>`(). -> 5:9
 (17:54..17:55) _empty_/T1027.A# -> 8:9
+(17:55..17:55) _empty_/T1027.A#`<init>`(). -> 8:10
+(17:62..17:70) scala/Any#toString().
 

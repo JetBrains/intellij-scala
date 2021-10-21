@@ -6,11 +6,11 @@ Document tests/pos/t8170.scala
 (12:10..12:11) _empty_/O. -> 1:8
 (13:10..13:11) _empty_/O.B# -> 3:9
 (13:14..13:17) scala/Predef.`???`().
-(14:12..14:13) _empty_/O.B#T# -> 4:19
 (14:10..14:11) _empty_/Test.a. -> 13:7
+(14:12..14:13) _empty_/O.B#T# -> 4:19
 (14:14..14:15) _empty_/O.X# -> 2:9
 (14:19..14:22) scala/Predef.`???`().
-(15:5..15:13) scala/Predef.Ensuring#ensuring(+2).
 (15:3..15:3) scala/Predef.Ensuring().
 (15:3..15:4) _empty_/Test.b. -> 14:7
+(15:5..15:13) scala/Predef.Ensuring#ensuring(+2).
 

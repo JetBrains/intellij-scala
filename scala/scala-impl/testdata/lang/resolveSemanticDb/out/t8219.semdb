@@ -9,7 +9,7 @@ Document tests/pos/t8219.scala
 (6:63..6:66) scala/Predef.`???`().
 (8:13..8:16) scala/Any#
 (9:3..9:5) _empty_/Broken#in(). -> 8:7
-(10:18..10:22) scala/None.
 (10:12..10:17) scala/
+(10:18..10:22) scala/None.
 (11:8..11:10) scala/Any#`==`().
 

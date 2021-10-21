@@ -1,8 +1,8 @@
-Document tests/pos/t2726/t2726_2.scala
-(2:17..2:17) _empty_/SQLBuilder#`<init>`(). -> 1:26
-(2:7..2:17) _empty_/SQLBuilder# -> 1:7
-
 Document tests/pos/t2726/SQLBuilder_1.scala
-(1:37..1:44) _empty_/SQLBuilder.Segment# -> 4:9
 (1:26..1:36) _empty_/SQLBuilder. -> 3:8
+(1:37..1:44) _empty_/SQLBuilder.Segment# -> 4:9
+
+Document tests/pos/t2726/t2726_2.scala
+(2:7..2:17) _empty_/SQLBuilder# -> 1:7
+(2:17..2:17) _empty_/SQLBuilder#`<init>`(). -> 1:26
 

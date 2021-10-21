@@ -1,15 +1,15 @@
 Document tests/pos/i2973.scala
-(1:29..1:46) scala/annotation/unchecked/uncheckedVariance#
-(1:19..1:28) scala/annotation/unchecked/
 (1:8..1:18) scala/annotation/
-(21:56..21:56) _empty_/InvClass#`<init>`(). -> 3:15
+(1:19..1:28) scala/annotation/unchecked/
+(1:29..1:46) scala/annotation/unchecked/uncheckedVariance#
 (21:26..21:34) _empty_/InvClass# -> 3:7
 (21:35..21:36) _empty_/Contra#[T] -> 21:15
 (21:39..21:56) scala/annotation/unchecked/uncheckedVariance#
-(22:52..22:52) _empty_/InvClass#`<init>`(). -> 3:15
+(21:56..21:56) _empty_/InvClass#`<init>`(). -> 3:15
 (22:22..22:30) _empty_/InvClass# -> 3:7
 (22:31..22:32) _empty_/Co#[T] -> 22:11
 (22:35..22:52) scala/annotation/unchecked/uncheckedVariance#
+(22:52..22:52) _empty_/InvClass#`<init>`(). -> 3:15
 (24:30..24:38) _empty_/InvTrait# -> 4:7
 (24:39..24:40) _empty_/ContraInvT#[T] -> 24:19
 (24:43..24:60) scala/annotation/unchecked/uncheckedVariance#
@@ -32,49 +32,49 @@ Document tests/pos/i2973.scala
 (29:47..29:64) scala/annotation/unchecked/uncheckedVariance#
 (29:70..29:77) _empty_/CoTrait# -> 8:7
 (29:78..29:79) _empty_/CoContraCoT#[T] -> 29:20
-(31:49..31:49) _empty_/ContraClass#`<init>`(). -> 5:18
 (31:35..31:46) _empty_/ContraClass# -> 5:7
 (31:47..31:48) _empty_/ContraContraInv#[T] -> 31:24
+(31:49..31:49) _empty_/ContraClass#`<init>`(). -> 5:18
 (31:55..31:63) _empty_/InvTrait# -> 4:7
 (31:64..31:65) _empty_/ContraContraInv#[T] -> 31:24
 (31:68..31:85) scala/annotation/unchecked/uncheckedVariance#
-(32:60..32:60) _empty_/CoClass#`<init>`(). -> 7:14
 (32:31..32:38) _empty_/CoClass# -> 7:7
 (32:39..32:40) _empty_/ContraCoInv#[T] -> 32:20
 (32:43..32:60) scala/annotation/unchecked/uncheckedVariance#
+(32:60..32:60) _empty_/CoClass#`<init>`(). -> 7:14
 (32:66..32:74) _empty_/InvTrait# -> 4:7
 (32:75..32:76) _empty_/ContraCoInv#[T] -> 32:20
 (32:79..32:96) scala/annotation/unchecked/uncheckedVariance#
-(33:37..33:37) _empty_/CoClass#`<init>`(). -> 7:14
 (33:27..33:34) _empty_/CoClass# -> 7:7
 (33:35..33:36) _empty_/CoCoInv#[T] -> 33:16
+(33:37..33:37) _empty_/CoClass#`<init>`(). -> 7:14
 (33:43..33:51) _empty_/InvTrait# -> 4:7
 (33:52..33:53) _empty_/CoCoInv#[T] -> 33:16
 (33:56..33:73) scala/annotation/unchecked/uncheckedVariance#
-(35:65..35:65) _empty_/InvClass#`<init>`(). -> 3:15
 (35:35..35:43) _empty_/InvClass# -> 3:7
 (35:44..35:45) _empty_/ContraInvContra#[T] -> 35:24
 (35:48..35:65) scala/annotation/unchecked/uncheckedVariance#
+(35:65..35:65) _empty_/InvClass#`<init>`(). -> 3:15
 (35:71..35:82) _empty_/ContraTrait# -> 6:7
 (35:83..35:84) _empty_/ContraInvContra#[T] -> 35:24
-(36:61..36:61) _empty_/InvClass#`<init>`(). -> 3:15
 (36:31..36:39) _empty_/InvClass# -> 3:7
 (36:40..36:41) _empty_/CoInvContra#[T] -> 36:20
 (36:44..36:61) scala/annotation/unchecked/uncheckedVariance#
+(36:61..36:61) _empty_/InvClass#`<init>`(). -> 3:15
 (36:67..36:78) _empty_/ContraTrait# -> 6:7
 (36:79..36:80) _empty_/CoInvContra#[T] -> 36:20
 (36:83..36:100) scala/annotation/unchecked/uncheckedVariance#
-(37:61..37:61) _empty_/InvClass#`<init>`(). -> 3:15
 (37:31..37:39) _empty_/InvClass# -> 3:7
 (37:40..37:41) _empty_/ContraInvCo#[T] -> 37:20
 (37:44..37:61) scala/annotation/unchecked/uncheckedVariance#
+(37:61..37:61) _empty_/InvClass#`<init>`(). -> 3:15
 (37:67..37:74) _empty_/CoTrait# -> 8:7
 (37:75..37:76) _empty_/ContraInvCo#[T] -> 37:20
 (37:79..37:96) scala/annotation/unchecked/uncheckedVariance#
-(38:57..38:57) _empty_/InvClass#`<init>`(). -> 3:15
 (38:27..38:35) _empty_/InvClass# -> 3:7
 (38:36..38:37) _empty_/CoInvCo#[T] -> 38:16
 (38:40..38:57) scala/annotation/unchecked/uncheckedVariance#
+(38:57..38:57) _empty_/InvClass#`<init>`(). -> 3:15
 (38:63..38:70) _empty_/CoTrait# -> 8:7
 (38:71..38:72) _empty_/CoInvCo#[T] -> 38:16
 (41:29..41:37) _empty_/InvTrait# -> 4:7
@@ -83,32 +83,32 @@ Document tests/pos/i2973.scala
 (41:65..41:72) _empty_/CoTrait# -> 8:7
 (41:73..41:74) _empty_/CoInvCoT2#[T] -> 41:18
 (41:77..41:94) scala/annotation/unchecked/uncheckedVariance#
-(42:69..42:69) _empty_/ContraClass#`<init>`(). -> 5:18
 (42:36..42:47) _empty_/ContraClass# -> 5:7
 (42:48..42:49) _empty_/ContraContraInv2#[T] -> 42:25
 (42:52..42:69) scala/annotation/unchecked/uncheckedVariance#
+(42:69..42:69) _empty_/ContraClass#`<init>`(). -> 5:18
 (42:75..42:83) _empty_/InvTrait# -> 4:7
 (42:84..42:85) _empty_/ContraContraInv2#[T] -> 42:25
 (42:88..42:105) scala/annotation/unchecked/uncheckedVariance#
-(43:61..43:61) _empty_/CoClass#`<init>`(). -> 7:14
 (43:32..43:39) _empty_/CoClass# -> 7:7
 (43:40..43:41) _empty_/ContraCoInv2#[T] -> 43:21
 (43:44..43:61) scala/annotation/unchecked/uncheckedVariance#
+(43:61..43:61) _empty_/CoClass#`<init>`(). -> 7:14
 (43:67..43:75) _empty_/InvTrait# -> 4:7
 (43:76..43:77) _empty_/ContraCoInv2#[T] -> 43:21
 (43:80..43:97) scala/annotation/unchecked/uncheckedVariance#
 (46:13..46:20) _empty_/Prefix1# -> 10:7
-(46:29..46:36) _empty_/Prefix1#Prefix2# -> 11:9
 (46:26..46:28) _empty_/Prefix3#f().(v1) -> 46:9
+(46:29..46:36) _empty_/Prefix1#Prefix2# -> 11:9
 (46:39..46:43) scala/Unit#
-(47:60..47:60) _empty_/InvClass#`<init>`(). -> 3:15
 (47:30..47:38) _empty_/InvClass# -> 3:7
 (47:39..47:40) local1 -> 47:19
 (47:43..47:60) scala/annotation/unchecked/uncheckedVariance#
-(48:56..48:56) _empty_/InvClass#`<init>`(). -> 3:15
+(47:60..47:60) _empty_/InvClass#`<init>`(). -> 3:15
 (48:26..48:34) _empty_/InvClass# -> 3:7
 (48:35..48:36) local3 -> 48:15
 (48:39..48:56) scala/annotation/unchecked/uncheckedVariance#
+(48:56..48:56) _empty_/InvClass#`<init>`(). -> 3:15
 (50:34..50:42) _empty_/InvTrait# -> 4:7
 (50:43..50:44) local5 -> 50:23
 (50:47..50:64) scala/annotation/unchecked/uncheckedVariance#
@@ -131,49 +131,49 @@ Document tests/pos/i2973.scala
 (55:51..55:68) scala/annotation/unchecked/uncheckedVariance#
 (55:74..55:81) _empty_/CoTrait# -> 8:7
 (55:82..55:83) local15 -> 55:24
-(57:53..57:53) _empty_/ContraClass#`<init>`(). -> 5:18
 (57:39..57:50) _empty_/ContraClass# -> 5:7
 (57:51..57:52) local17 -> 57:28
+(57:53..57:53) _empty_/ContraClass#`<init>`(). -> 5:18
 (57:59..57:67) _empty_/InvTrait# -> 4:7
 (57:68..57:69) local17 -> 57:28
 (57:72..57:89) scala/annotation/unchecked/uncheckedVariance#
-(58:64..58:64) _empty_/CoClass#`<init>`(). -> 7:14
 (58:35..58:42) _empty_/CoClass# -> 7:7
 (58:43..58:44) local19 -> 58:24
 (58:47..58:64) scala/annotation/unchecked/uncheckedVariance#
+(58:64..58:64) _empty_/CoClass#`<init>`(). -> 7:14
 (58:70..58:78) _empty_/InvTrait# -> 4:7
 (58:79..58:80) local19 -> 58:24
 (58:83..58:100) scala/annotation/unchecked/uncheckedVariance#
-(59:41..59:41) _empty_/CoClass#`<init>`(). -> 7:14
 (59:31..59:38) _empty_/CoClass# -> 7:7
 (59:39..59:40) local21 -> 59:20
+(59:41..59:41) _empty_/CoClass#`<init>`(). -> 7:14
 (59:47..59:55) _empty_/InvTrait# -> 4:7
 (59:56..59:57) local21 -> 59:20
 (59:60..59:77) scala/annotation/unchecked/uncheckedVariance#
-(61:69..61:69) _empty_/InvClass#`<init>`(). -> 3:15
 (61:39..61:47) _empty_/InvClass# -> 3:7
 (61:48..61:49) local23 -> 61:28
 (61:52..61:69) scala/annotation/unchecked/uncheckedVariance#
+(61:69..61:69) _empty_/InvClass#`<init>`(). -> 3:15
 (61:75..61:86) _empty_/ContraTrait# -> 6:7
 (61:87..61:88) local23 -> 61:28
-(62:65..62:65) _empty_/InvClass#`<init>`(). -> 3:15
 (62:35..62:43) _empty_/InvClass# -> 3:7
 (62:44..62:45) local25 -> 62:24
 (62:48..62:65) scala/annotation/unchecked/uncheckedVariance#
+(62:65..62:65) _empty_/InvClass#`<init>`(). -> 3:15
 (62:71..62:82) _empty_/ContraTrait# -> 6:7
 (62:83..62:84) local25 -> 62:24
 (62:87..62:104) scala/annotation/unchecked/uncheckedVariance#
-(63:65..63:65) _empty_/InvClass#`<init>`(). -> 3:15
 (63:35..63:43) _empty_/InvClass# -> 3:7
 (63:44..63:45) local27 -> 63:24
 (63:48..63:65) scala/annotation/unchecked/uncheckedVariance#
+(63:65..63:65) _empty_/InvClass#`<init>`(). -> 3:15
 (63:71..63:78) _empty_/CoTrait# -> 8:7
 (63:79..63:80) local27 -> 63:24
 (63:83..63:100) scala/annotation/unchecked/uncheckedVariance#
-(64:61..64:61) _empty_/InvClass#`<init>`(). -> 3:15
 (64:31..64:39) _empty_/InvClass# -> 3:7
 (64:40..64:41) local29 -> 64:20
 (64:44..64:61) scala/annotation/unchecked/uncheckedVariance#
+(64:61..64:61) _empty_/InvClass#`<init>`(). -> 3:15
 (64:67..64:74) _empty_/CoTrait# -> 8:7
 (64:75..64:76) local29 -> 64:20
 (67:33..67:41) _empty_/InvTrait# -> 4:7
@@ -182,17 +182,17 @@ Document tests/pos/i2973.scala
 (67:69..67:76) _empty_/CoTrait# -> 8:7
 (67:77..67:78) local31 -> 67:22
 (67:81..67:98) scala/annotation/unchecked/uncheckedVariance#
-(68:73..68:73) _empty_/ContraClass#`<init>`(). -> 5:18
 (68:40..68:51) _empty_/ContraClass# -> 5:7
 (68:52..68:53) local33 -> 68:29
 (68:56..68:73) scala/annotation/unchecked/uncheckedVariance#
+(68:73..68:73) _empty_/ContraClass#`<init>`(). -> 5:18
 (68:79..68:87) _empty_/InvTrait# -> 4:7
 (68:88..68:89) local33 -> 68:29
 (68:92..68:109) scala/annotation/unchecked/uncheckedVariance#
-(69:65..69:65) _empty_/CoClass#`<init>`(). -> 7:14
 (69:36..69:43) _empty_/CoClass# -> 7:7
 (69:44..69:45) local35 -> 69:25
 (69:48..69:65) scala/annotation/unchecked/uncheckedVariance#
+(69:65..69:65) _empty_/CoClass#`<init>`(). -> 7:14
 (69:71..69:79) _empty_/InvTrait# -> 4:7
 (69:80..69:81) local35 -> 69:25
 (69:84..69:101) scala/annotation/unchecked/uncheckedVariance#

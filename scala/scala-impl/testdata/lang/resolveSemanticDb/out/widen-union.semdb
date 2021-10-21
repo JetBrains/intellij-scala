@@ -1,14 +1,14 @@
 Document tests/pos/widen-union.scala
-(3:14..3:15) scala/`|`#
 (3:10..3:13) scala/Int#
+(3:14..3:15) scala/`|`#
 (3:16..3:22) scala/Predef.String#
 (4:11..4:12) _empty_/Test1.x. -> 3:7
-(5:14..5:15) scala/`|`#
 (5:10..5:13) scala/Int#
+(5:14..5:15) scala/`|`#
 (5:16..5:22) scala/Predef.String#
 (5:25..5:26) _empty_/Test1.y. -> 4:7
-(8:18..8:19) scala/`|`#
 (8:14..8:17) scala/Int#
+(8:18..8:19) scala/`|`#
 (8:20..8:26) scala/Predef.String#
 (9:21..9:24) _empty_/Test2.Sig# -> 8:8
 (9:29..9:32) _empty_/Test2.Sig# -> 8:8
@@ -19,24 +19,24 @@ Document tests/pos/widen-union.scala
 (11:42..11:46) scala/package.List#
 (11:47..11:50) _empty_/Test2.Sig# -> 8:8
 (11:54..11:61) scala/Boolean#
-(13:5..13:7) scala/Boolean#`||`().
-(12:11..12:22) scala/collection/immutable/List#corresponds().
 (12:8..12:10) _empty_/Test2.consistentLists().(xs) -> 11:23
+(12:11..12:22) scala/collection/immutable/List#corresponds().
 (12:23..12:25) _empty_/Test2.consistentLists().(ys) -> 11:38
-(12:27..12:37) _empty_/Test2.consistent(). -> 9:7
 (12:27..12:27) local0
 (12:27..12:27) local1
-(13:11..13:22) scala/collection/immutable/List#corresponds().
+(12:27..12:37) _empty_/Test2.consistent(). -> 9:7
+(13:5..13:7) scala/Boolean#`||`().
 (13:8..13:10) _empty_/Test2.consistentLists().(xs) -> 11:23
+(13:11..13:22) scala/collection/immutable/List#corresponds().
 (13:23..13:25) _empty_/Test2.consistentLists().(ys) -> 11:38
 (13:27..13:37) _empty_/Test2.consistent(). -> 9:7
-(17:17..17:18) scala/`|`#
 (17:15..17:16) _empty_/Test3.g().[X] -> 17:9
+(17:17..17:18) scala/`|`#
 (17:19..17:25) scala/Predef.String#
 (17:28..17:31) scala/Int#
 (17:34..17:37) scala/Predef.`???`().
-(18:18..18:19) scala/`|`#
 (18:10..18:17) scala/Boolean#
+(18:18..18:19) scala/`|`#
 (18:20..18:26) scala/Predef.String#
 (18:29..18:32) scala/Predef.`???`().
 (19:3..19:4) _empty_/Test3.g(). -> 17:7

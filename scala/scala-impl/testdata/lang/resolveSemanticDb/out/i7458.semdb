@@ -15,6 +15,6 @@ Document tests/pos/i7458.scala
 (3:40..3:42) _empty_/i7458$package.Tr# -> 1:6
 (3:43..3:45) _empty_/i7458$package.as().[V3] -> 3:8
 (3:47..3:49) _empty_/i7458$package.as().[O3] -> 3:12
-(3:56..3:58) _empty_/i7458$package.sl(). -> 2:46
 (3:53..3:55) _empty_/i7458$package.as().(tr) -> 3:22
+(3:56..3:58) _empty_/i7458$package.sl(). -> 2:46
 

@@ -1,30 +1,30 @@
 Document tests/pos/i4867.scala
 (2:29..2:35) scala/Predef.String#
-(2:42..2:43) scala/`|`#
 (2:38..2:41) scala/Int#
+(2:42..2:43) scala/`|`#
 (2:44..2:50) scala/Double#
-(3:15..3:23) java/lang/String#contains().
 (3:8..3:14) _empty_/UnionMapping.parse().(string) -> 2:21
-(4:14..4:22) scala/collection/StringOps#toDouble().
+(3:15..3:23) java/lang/String#contains().
 (4:7..4:7) scala/Predef.augmentString().
 (4:7..4:13) _empty_/UnionMapping.parse().(string) -> 2:21
-(6:14..6:19) scala/collection/StringOps#toInt().
+(4:14..4:22) scala/collection/StringOps#toDouble().
 (6:7..6:7) scala/Predef.augmentString().
 (6:7..6:13) _empty_/UnionMapping.parse().(string) -> 2:21
+(6:14..6:19) scala/collection/StringOps#toInt().
 (10:18..10:21) scala/package.Seq#
 (10:22..10:28) scala/Predef.String#
-(10:35..10:35) scala/collection/SeqFactory.Delegate#apply().
 (10:32..10:35) scala/package.Seq.
+(10:35..10:35) scala/collection/SeqFactory.Delegate#apply().
 (12:15..12:18) scala/package.Seq#
 (12:19..12:25) scala/AnyVal#
-(12:37..12:40) scala/collection/IterableOps#map().
 (12:29..12:36) local0 -> 10:9
+(12:37..12:40) scala/collection/IterableOps#map().
 (12:41..12:46) _empty_/UnionMapping.parse(). -> 2:15
 (14:16..14:19) scala/package.Seq#
-(14:24..14:25) scala/`|`#
 (14:20..14:23) scala/Int#
+(14:24..14:25) scala/`|`#
 (14:26..14:32) scala/Double#
-(14:44..14:47) scala/collection/IterableOps#map().
 (14:36..14:43) local0 -> 10:9
+(14:44..14:47) scala/collection/IterableOps#map().
 (14:48..14:53) _empty_/UnionMapping.parse(). -> 2:15
 

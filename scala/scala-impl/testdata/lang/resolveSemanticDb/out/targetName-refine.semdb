@@ -1,6 +1,6 @@
 Document tests/pos/targetName-refine.scala
-(1:19..1:29) scala/annotation/targetName#
 (1:8..1:18) scala/annotation/
+(1:19..1:29) scala/annotation/targetName#
 (3:4..3:14) scala/annotation/targetName#
 (3:28..3:31) scala/Any#
 (4:17..4:18) _empty_/T# -> 2:7
@@ -8,6 +8,6 @@ Document tests/pos/targetName-refine.scala
 (5:28..5:31) scala/Int#
 (7:8..7:9) _empty_/T# -> 2:7
 (7:19..7:22) scala/Int#
-(7:28..7:28) _empty_/C#`<init>`(). -> 4:17
 (7:27..7:28) _empty_/C# -> 4:7
+(7:28..7:28) _empty_/C#`<init>`(). -> 4:17
 

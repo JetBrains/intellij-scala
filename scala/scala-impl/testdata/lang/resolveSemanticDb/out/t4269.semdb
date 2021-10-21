@@ -1,8 +1,8 @@
 Document tests/pos/t4269.scala
-(2:19..2:26) scala/PartialFunction.condOpt().
 (2:3..2:18) scala/PartialFunction.
+(2:19..2:26) scala/PartialFunction.condOpt().
 (2:27..2:30) scala/package.Nil.
 (3:5..3:5) local0
-(3:20..3:20) scala/collection/SeqFactory#unapplySeq().
 (3:16..3:20) scala/package.List.
+(3:20..3:20) scala/collection/SeqFactory#unapplySeq().
 

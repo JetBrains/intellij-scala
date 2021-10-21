@@ -7,49 +7,6 @@ Document tests/pos/opaques-queue.scala
 (6:22..6:28) scala/Option#
 (6:30..6:34) _empty_/Elem# -> 1:7
 (6:36..6:41) _empty_/QueueSignature#Queue# -> 3:8
-(19:24..19:28) scala/package.List#
-(19:29..19:33) _empty_/Elem# -> 1:7
-(19:36..19:40) scala/package.List#
-(19:41..19:45) _empty_/Elem# -> 1:7
-(20:16..20:16) scala/Tuple2.apply().
-(20:16..20:19) scala/package.Nil.
-(20:21..20:24) scala/package.Nil.
-(21:17..21:22) _empty_/queues.Queue# -> 19:15
-(21:27..21:31) _empty_/Elem# -> 1:7
-(21:34..21:39) _empty_/queues.Queue# -> 19:15
-(21:43..21:43) scala/Tuple2.apply().
-(21:45..21:47) scala/Tuple2#_1.
-(21:43..21:44) _empty_/queues.append().(q) -> 21:14
-(21:58..21:58) scala/collection/immutable/List#`::`().
-(21:56..21:58) scala/Tuple2#_2.
-(21:54..21:55) _empty_/queues.append().(q) -> 21:14
-(21:49..21:50) _empty_/queues.append().(e) -> 21:24
-(22:14..22:19) _empty_/queues.Queue# -> 19:15
-(22:22..22:28) scala/Option#
-(22:30..22:34) _empty_/Elem# -> 1:7
-(22:36..22:41) _empty_/queues.Queue# -> 19:15
-(22:46..22:47) _empty_/queues.pop().(q) -> 22:11
-(23:11..23:11) scala/Tuple2.unapply().
-(23:11..23:14) scala/package.Nil.
-(23:16..23:19) scala/package.Nil.
-(23:24..23:28) scala/None.
-(24:11..24:11) scala/Tuple2.unapply().
-(24:15..24:15) scala/collection/immutable/`::`.unapply().
-(24:13..24:15) scala/package.`::`.
-(24:31..24:31) scala/Some.apply().
-(24:27..24:31) scala/Some.
-(24:33..24:33) scala/Tuple2.apply().
-(24:33..24:34) local0 -> 24:11
-(24:37..24:37) scala/Tuple2.apply().
-(24:37..24:39) local1 -> 24:16
-(24:41..24:43) local2 -> 24:20
-(25:11..25:11) scala/Tuple2.unapply().
-(25:11..25:14) scala/package.Nil.
-(25:23..25:26) _empty_/queues.pop(). -> 22:7
-(25:28..25:28) scala/Tuple2.apply().
-(25:31..25:38) scala/collection/immutable/List#reverse().
-(25:28..25:30) local3 -> 25:16
-(25:40..25:43) scala/package.Nil.
 (7:18..7:32) _empty_/QueueSignature# -> 2:7
 (8:28..8:42) _empty_/QueueSignature# -> 2:7
 (9:19..9:23) scala/package.List#
@@ -63,12 +20,12 @@ Document tests/pos/opaques-queue.scala
 (11:29..11:33) _empty_/Elem# -> 1:7
 (11:36..11:41) local5 -> 9:10
 (11:45..11:45) scala/Tuple2.apply().
-(11:47..11:49) scala/Tuple2#_1.
 (11:45..11:46) local8 -> 11:16
-(11:60..11:60) scala/collection/immutable/List#`::`().
-(11:58..11:60) scala/Tuple2#_2.
-(11:56..11:57) local8 -> 11:16
+(11:47..11:49) scala/Tuple2#_1.
 (11:51..11:52) local9 -> 11:26
+(11:56..11:57) local8 -> 11:16
+(11:58..11:60) scala/Tuple2#_2.
+(11:60..11:60) scala/collection/immutable/List#`::`().
 (12:16..12:21) local5 -> 9:10
 (12:24..12:30) scala/Option#
 (12:32..12:36) _empty_/Elem# -> 1:7
@@ -79,10 +36,10 @@ Document tests/pos/opaques-queue.scala
 (13:18..13:21) scala/package.Nil.
 (13:26..13:30) scala/None.
 (14:13..14:13) scala/Tuple2.unapply().
-(14:17..14:17) scala/collection/immutable/`::`.unapply().
 (14:15..14:17) scala/package.`::`.
-(14:33..14:33) scala/Some.apply().
+(14:17..14:17) scala/collection/immutable/`::`.unapply().
 (14:29..14:33) scala/Some.
+(14:33..14:33) scala/Some.apply().
 (14:35..14:35) scala/Tuple2.apply().
 (14:35..14:36) local12 -> 14:13
 (14:39..14:39) scala/Tuple2.apply().
@@ -92,8 +49,51 @@ Document tests/pos/opaques-queue.scala
 (15:13..15:16) scala/package.Nil.
 (15:25..15:28) local10 -> 12:9
 (15:30..15:30) scala/Tuple2.apply().
-(15:33..15:40) scala/collection/immutable/List#reverse().
 (15:30..15:32) local15 -> 15:18
+(15:33..15:40) scala/collection/immutable/List#reverse().
 (15:42..15:45) scala/package.Nil.
 (16:3..16:12) local16
+(19:24..19:28) scala/package.List#
+(19:29..19:33) _empty_/Elem# -> 1:7
+(19:36..19:40) scala/package.List#
+(19:41..19:45) _empty_/Elem# -> 1:7
+(20:16..20:16) scala/Tuple2.apply().
+(20:16..20:19) scala/package.Nil.
+(20:21..20:24) scala/package.Nil.
+(21:17..21:22) _empty_/queues.Queue# -> 19:15
+(21:27..21:31) _empty_/Elem# -> 1:7
+(21:34..21:39) _empty_/queues.Queue# -> 19:15
+(21:43..21:43) scala/Tuple2.apply().
+(21:43..21:44) _empty_/queues.append().(q) -> 21:14
+(21:45..21:47) scala/Tuple2#_1.
+(21:49..21:50) _empty_/queues.append().(e) -> 21:24
+(21:54..21:55) _empty_/queues.append().(q) -> 21:14
+(21:56..21:58) scala/Tuple2#_2.
+(21:58..21:58) scala/collection/immutable/List#`::`().
+(22:14..22:19) _empty_/queues.Queue# -> 19:15
+(22:22..22:28) scala/Option#
+(22:30..22:34) _empty_/Elem# -> 1:7
+(22:36..22:41) _empty_/queues.Queue# -> 19:15
+(22:46..22:47) _empty_/queues.pop().(q) -> 22:11
+(23:11..23:11) scala/Tuple2.unapply().
+(23:11..23:14) scala/package.Nil.
+(23:16..23:19) scala/package.Nil.
+(23:24..23:28) scala/None.
+(24:11..24:11) scala/Tuple2.unapply().
+(24:13..24:15) scala/package.`::`.
+(24:15..24:15) scala/collection/immutable/`::`.unapply().
+(24:27..24:31) scala/Some.
+(24:31..24:31) scala/Some.apply().
+(24:33..24:33) scala/Tuple2.apply().
+(24:33..24:34) local0 -> 24:11
+(24:37..24:37) scala/Tuple2.apply().
+(24:37..24:39) local1 -> 24:16
+(24:41..24:43) local2 -> 24:20
+(25:11..25:11) scala/Tuple2.unapply().
+(25:11..25:14) scala/package.Nil.
+(25:23..25:26) _empty_/queues.pop(). -> 22:7
+(25:28..25:28) scala/Tuple2.apply().
+(25:28..25:30) local3 -> 25:16
+(25:31..25:38) scala/collection/immutable/List#reverse().
+(25:40..25:43) scala/package.Nil.
 

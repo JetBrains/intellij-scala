@@ -4,25 +4,25 @@ Document tests/pos/i4449.scala
 (3:45..3:49) scala/Unit#
 (4:12..4:19) _empty_/TreeAccumulator2#foo().(reflect) -> 3:11
 (5:5..5:9) _empty_/TreeAccumulator2#foo().(tree) -> 3:33
-(6:15..6:15) scala/reflect/ClassTag#unapply().
-(6:13..6:13) _empty_/Reflection2#AExtractor#unapply(). -> 25:9
 (6:12..6:13) _empty_/Reflection2#A. -> 23:7
-(7:15..7:15) scala/reflect/ClassTag#unapply().
-(7:13..7:13) _empty_/Reflection2#BExtractor#unapply(). -> 30:9
+(6:13..6:13) _empty_/Reflection2#AExtractor#unapply(). -> 25:9
+(6:15..6:15) scala/reflect/ClassTag#unapply().
 (7:12..7:13) _empty_/Reflection2#B. -> 28:7
-(8:15..8:15) scala/reflect/ClassTag#unapply().
-(8:13..8:13) _empty_/Reflection2#CExtractor#unapply(). -> 35:9
+(7:13..7:13) _empty_/Reflection2#BExtractor#unapply(). -> 30:9
+(7:15..7:15) scala/reflect/ClassTag#unapply().
 (8:12..8:13) _empty_/Reflection2#C. -> 33:7
-(9:15..9:15) scala/reflect/ClassTag#unapply().
-(9:13..9:13) _empty_/Reflection2#DExtractor#unapply(). -> 40:9
+(8:13..8:13) _empty_/Reflection2#CExtractor#unapply(). -> 35:9
+(8:15..8:15) scala/reflect/ClassTag#unapply().
 (9:12..9:13) _empty_/Reflection2#D. -> 38:7
-(20:35..20:43) scala/reflect/ClassTag#
-(20:27..20:34) scala/reflect/
+(9:13..9:13) _empty_/Reflection2#DExtractor#unapply(). -> 40:9
+(9:15..9:15) scala/reflect/ClassTag#unapply().
 (20:21..20:26) scala/
+(20:27..20:34) scala/reflect/
+(20:35..20:43) scala/reflect/ClassTag#
 (20:44..20:45) _empty_/Reflection2#X# -> 17:8
-(21:35..21:43) scala/reflect/ClassTag#
-(21:27..21:34) scala/reflect/
 (21:21..21:26) scala/
+(21:27..21:34) scala/reflect/
+(21:35..21:43) scala/reflect/ClassTag#
 (21:44..21:45) _empty_/Reflection2#Y# -> 18:8
 (23:10..23:20) _empty_/Reflection2#AExtractor# -> 24:9
 (25:20..25:21) _empty_/Reflection2#X# -> 17:8

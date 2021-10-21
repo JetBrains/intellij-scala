@@ -4,20 +4,20 @@ Document tests/pos/opaque-inline1.scala
 (4:36..4:44) _empty_/refined.Positive# -> 3:15
 (4:47..4:48) _empty_/refined.f(). -> 6:7
 (4:49..4:54) _empty_/refined.Positive().(value) -> 4:23
-(5:60..5:61) _empty_/refined.f(). -> 6:7
-(5:62..5:67) _empty_/refined.TPositive().(value) -> 5:36
 (5:43..5:46) scala/Int#
 (5:49..5:57) _empty_/refined.Positive# -> 3:15
+(5:60..5:61) _empty_/refined.f(). -> 6:7
+(5:62..5:67) _empty_/refined.TPositive().(value) -> 5:36
 (6:12..6:20) _empty_/refined.Positive# -> 3:15
 (6:23..6:31) _empty_/refined.Positive# -> 3:15
 (6:34..6:35) _empty_/refined.f().(x) -> 6:9
 (9:12..9:16) scala/Unit#
-(11:24..11:32) _empty_/refined.Positive(). -> 4:14
 (11:16..11:23) _empty_/refined. -> 2:8
+(11:24..11:32) _empty_/refined.Positive(). -> 4:14
 (11:33..11:34) local0 -> 10:9
-(12:24..12:32) _empty_/refined.Positive# -> 3:15
 (12:16..12:23) _empty_/refined. -> 2:8
-(12:43..12:52) _empty_/refined.TPositive(). -> 5:26
+(12:24..12:32) _empty_/refined.Positive# -> 3:15
 (12:35..12:42) _empty_/refined. -> 2:8
+(12:43..12:52) _empty_/refined.TPositive(). -> 5:26
 (12:53..12:54) local0 -> 10:9
 

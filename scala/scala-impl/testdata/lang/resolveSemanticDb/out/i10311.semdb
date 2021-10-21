@@ -2,21 +2,21 @@ Document tests/pos/i10311.scala
 (2:30..2:33) scala/Int#
 (2:50..2:53) scala/Int#
 (4:30..4:35) _empty_/Module.MyInt# -> 2:9
-(4:51..4:51) scala/AnyVal#`<init>`().
 (4:45..4:51) scala/AnyVal#
+(4:51..4:51) scala/AnyVal#`<init>`().
 (5:14..5:17) scala/Int#
-(5:25..5:26) _empty_/Module.MyInt#x. -> 2:27
 (5:20..5:24) _empty_/Module.MyInt.Ops#self. -> 4:24
+(5:25..5:26) _empty_/Module.MyInt#x. -> 2:27
 (7:22..7:27) _empty_/Module.MyInt# -> 2:9
 (7:36..7:39) scala/Int#
-(7:47..7:48) _empty_/Module.MyInt#y. -> 2:47
 (7:42..7:46) _empty_/Module.MyInt.y().(self) -> 7:16
+(7:47..7:48) _empty_/Module.MyInt#y. -> 2:47
 (11:10..11:16) _empty_/Module. -> 1:8
-(13:20..13:20) _empty_/Module.MyInt#`<init>`(). -> 2:14
 (13:15..13:20) _empty_/Module.MyInt# -> 2:9
-(14:13..14:14) _empty_/Module.MyInt.Ops#x(). -> 5:11
+(13:20..13:20) _empty_/Module.MyInt#`<init>`(). -> 2:14
 (14:11..14:11) _empty_/Module.MyInt.Ops(). -> 4:20
 (14:11..14:12) _empty_/test.a. -> 13:7
+(14:13..14:14) _empty_/Module.MyInt.Ops#x(). -> 5:11
 (15:11..15:11) _empty_/Module.MyInt.y(). -> 7:33
 (15:11..15:12) _empty_/test.a. -> 13:7
 

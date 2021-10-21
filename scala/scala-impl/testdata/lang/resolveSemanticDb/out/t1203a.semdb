@@ -3,14 +3,14 @@ Document tests/pos/t1203a.scala
 (3:36..3:40) _empty_/Node# -> 1:7
 (3:44..3:51) _empty_/NodeSeq# -> 5:16
 (3:54..3:57) scala/Predef.`???`().
-(5:53..5:56) scala/collection/immutable/Seq#
-(5:43..5:52) scala/collection/immutable/
 (5:32..5:42) scala/collection/
+(5:43..5:52) scala/collection/immutable/
+(5:53..5:56) scala/collection/immutable/Seq#
 (5:57..5:61) _empty_/Node# -> 1:7
 (7:19..7:25) scala/Predef.String#
-(7:52..7:62) scala/annotation/Annotation#
-(7:41..7:51) scala/annotation/
 (7:35..7:40) scala/
+(7:41..7:51) scala/annotation/
+(7:52..7:62) scala/annotation/Annotation#
 (9:19..9:24) scala/Array#
 (9:25..9:31) scala/Predef.String#
 (9:35..9:39) scala/Unit#

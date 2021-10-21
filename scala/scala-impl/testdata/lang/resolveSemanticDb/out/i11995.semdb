@@ -1,21 +1,21 @@
 Document tests/pos/i11995.scala
 (2:12..2:18) scala/Predef.String#
 (5:38..5:44) _empty_/MyBase# -> 1:7
-(5:47..5:48) scala/`&`#
 (5:45..5:46) _empty_/BothThing#[L] -> 5:22
+(5:47..5:48) scala/`&`#
 (5:49..5:50) _empty_/BothThing#[R] -> 5:25
 (6:12..6:18) scala/Predef.String#
-(17:58..17:58) _empty_/Spec#`<init>`(). -> 15:11
+(13:25..13:28) _empty_/Has# -> 8:7
+(13:29..13:36) _empty_/Console# -> 10:7
+(13:43..13:46) _empty_/Has# -> 8:7
+(13:47..13:52) _empty_/Clock# -> 11:7
 (17:24..17:28) _empty_/Spec# -> 15:7
 (17:29..17:32) _empty_/Has# -> 8:7
 (17:33..17:40) _empty_/Console# -> 10:7
 (17:47..17:50) _empty_/Has# -> 8:7
 (17:51..17:56) _empty_/Clock# -> 11:7
-(18:46..18:46) _empty_/Spec#`<init>`(). -> 15:11
+(17:58..17:58) _empty_/Spec#`<init>`(). -> 15:11
 (18:24..18:28) _empty_/Spec# -> 15:7
 (18:29..18:45) _empty_/i11995$package.ConsoleWithClock# -> 13:6
-(13:25..13:28) _empty_/Has# -> 8:7
-(13:29..13:36) _empty_/Console# -> 10:7
-(13:43..13:46) _empty_/Has# -> 8:7
-(13:47..13:52) _empty_/Clock# -> 11:7
+(18:46..18:46) _empty_/Spec#`<init>`(). -> 15:11
 

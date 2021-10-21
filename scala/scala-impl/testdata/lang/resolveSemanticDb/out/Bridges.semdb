@@ -1,15 +1,15 @@
 Document tests/pos/Bridges.scala
 (2:13..2:14) _empty_/X#[T] -> 1:18
 (2:18..2:19) _empty_/X#[T] -> 1:18
+(2:22..2:23) _empty_/X#go2$default$2().(x) -> 2:11
 (2:26..2:27) _empty_/X#[T] -> 1:18
 (2:30..2:31) _empty_/X#go2().(y) -> 2:16
-(2:22..2:23) _empty_/X#go2$default$2().(x) -> 2:11
 (3:11..3:12) _empty_/X#[T] -> 1:18
 (4:14..4:15) _empty_/X#[T] -> 1:18
 (4:19..4:20) _empty_/X#go1().(x) -> 4:11
-(7:23..7:23) _empty_/X#`<init>`(). -> 1:17
 (7:17..7:18) _empty_/X# -> 1:16
 (7:19..7:22) scala/Int#
+(7:23..7:23) _empty_/X#`<init>`(). -> 1:17
 (8:23..8:26) scala/Int#
 (8:31..8:34) scala/Int#
 (10:23..10:26) scala/Int#

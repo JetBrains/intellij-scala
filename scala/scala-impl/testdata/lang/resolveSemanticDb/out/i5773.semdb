@@ -7,8 +7,8 @@ Document tests/pos/i5773.scala
 (7:21..7:27) scala/Predef.String#
 (7:54..7:60) scala/Predef.String#
 (7:63..7:69) scala/Predef.String#
-(7:76..7:77) java/lang/String#`+`().
 (7:72..7:75) _empty_/Semigroup.stringAppend.append().(lhs) -> 7:16
+(7:76..7:77) java/lang/String#`+`().
 (7:78..7:81) _empty_/Semigroup.stringAppend.append().(rhs) -> 7:49
 (10:44..10:51) scala/package.Numeric#
 (10:52..10:53) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
@@ -26,10 +26,10 @@ Document tests/pos/i5773.scala
 (15:49..15:50) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
 (15:53..15:54) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
 (15:57..15:60) scala/Predef.`???`().
-(20:20..20:32) _empty_/Semigroup.sumSemigroup(). -> 10:16
 (20:10..20:19) _empty_/Semigroup. -> 5:8
-(22:22..22:34) _empty_/Semigroup.stringAppend. -> 6:19
+(20:20..20:32) _empty_/Semigroup.sumSemigroup(). -> 10:16
 (22:12..22:21) _empty_/Semigroup. -> 5:8
+(22:22..22:34) _empty_/Semigroup.stringAppend. -> 6:19
 (23:5..23:12) scala/Predef.println(+1).
 (23:13..23:13) _empty_/Semigroup.stringAppend.append(). -> 7:42
 (24:5..24:12) scala/Predef.println(+1).
@@ -41,9 +41,9 @@ Document tests/pos/i5773.scala
 (28:66..28:66) scala/math/Numeric.IntIsIntegral.
 (29:5..29:12) scala/Predef.println(+1).
 (29:13..29:13) _empty_/Semigroup#append(). -> 2:26
-(33:22..33:38) _empty_/Semigroup.SumSemiGroupDeco(). -> 14:18
 (33:12..33:21) _empty_/Semigroup. -> 5:8
-(34:18..34:24) _empty_/Semigroup#append(). -> 2:26
+(33:22..33:38) _empty_/Semigroup.SumSemiGroupDeco(). -> 14:18
 (34:5..34:17) _empty_/Semigroup.sumSemigroup(). -> 10:16
 (34:17..34:17) scala/math/Numeric.IntIsIntegral.
+(34:18..34:24) _empty_/Semigroup#append(). -> 2:26
 

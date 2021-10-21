@@ -1,7 +1,7 @@
 Document tests/pos/i10964a.scala
 (11:48..11:49) _empty_/ApplicativeIdOps#[A] -> 11:30
-(11:65..11:65) scala/AnyVal#`<init>`().
 (11:59..11:65) scala/AnyVal#
+(11:65..11:65) scala/AnyVal#`<init>`().
 (12:30..12:41) _empty_/Applicative# -> 3:7
 (12:42..12:43) _empty_/ApplicativeIdOps#pure().[F] -> 12:12
 (12:47..12:48) _empty_/ApplicativeIdOps#pure().[F] -> 12:12
@@ -10,9 +10,9 @@ Document tests/pos/i10964a.scala
 (16:48..16:49) _empty_/ApplicativeSyntax.syntaxApplicativeId().[A] -> 16:42
 (16:52..16:68) _empty_/ApplicativeIdOps# -> 11:13
 (16:69..16:70) _empty_/ApplicativeSyntax.syntaxApplicativeId().[A] -> 16:42
-(16:97..16:97) _empty_/ApplicativeIdOps#`<init>`(). -> 11:29
 (16:78..16:94) _empty_/ApplicativeIdOps# -> 11:13
 (16:95..16:96) _empty_/ApplicativeSyntax.syntaxApplicativeId().[A] -> 16:42
+(16:97..16:97) _empty_/ApplicativeIdOps#`<init>`(). -> 11:29
 (16:98..16:99) _empty_/ApplicativeSyntax.syntaxApplicativeId().(a) -> 16:45
 (22:50..22:54) _empty_/Sync# -> 19:7
 (22:55..22:56) _empty_/Sync.syncForOptionT().[F] -> 22:31
@@ -135,16 +135,16 @@ Document tests/pos/i10964a.scala
 (64:26..64:36) _empty_/Concurrent# -> 39:7
 (64:37..64:38) _empty_/Resource#[F] -> 59:16
 (64:40..64:49) scala/package.Throwable#
-(65:9..65:11) _empty_/Ref.of(). -> 55:7
 (65:5..65:8) _empty_/Ref. -> 43:8
-(65:52..65:54) scala/Predef.ArrowAssoc#`->`().
+(65:9..65:11) _empty_/Ref.of(). -> 55:7
+(65:41..65:41) _empty_/ApplicativeSyntax.syntaxApplicativeId(). -> 16:22
 (65:41..65:41) scala/Predef.ArrowAssoc().
 (65:44..65:48) _empty_/ApplicativeIdOps#pure(). -> 12:7
-(65:41..65:41) _empty_/ApplicativeSyntax.syntaxApplicativeId(). -> 16:22
 (65:49..65:50) _empty_/Resource#[F] -> 59:16
 (65:51..65:51) _empty_/Resource#parZip().(F) -> 64:23
-(65:58..65:62) _empty_/ApplicativeIdOps#pure(). -> 12:7
+(65:52..65:54) scala/Predef.ArrowAssoc#`->`().
 (65:55..65:55) _empty_/ApplicativeSyntax.syntaxApplicativeId(). -> 16:22
+(65:58..65:62) _empty_/ApplicativeIdOps#pure(). -> 12:7
 (65:63..65:64) _empty_/Resource#[F] -> 59:16
 (65:65..65:65) _empty_/Resource#parZip().(F) -> 64:23
 (65:66..65:66) _empty_/Ref.MakeInstances#concurrentInstance(). -> 48:18

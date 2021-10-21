@@ -2,22 +2,22 @@ Document tests/pos/t2429.scala
 (7:29..7:32) scala/package.Seq#
 (7:33..7:34) _empty_/Msg.T# -> 2:9
 (7:38..7:42) _empty_/Msg.TSeq# -> 4:9
-(7:49..7:54) scala/sys/package.error().
 (7:45..7:48) scala/sys/
+(7:49..7:54) scala/sys/package.error().
 (10:15..10:19) scala/Unit#
 (11:15..11:19) _empty_/Msg.TSeq# -> 4:9
 (11:23..11:23) _empty_/Msg.TSeq.fromSeq(). -> 7:18
-(11:42..11:49) scala/collection/immutable/List#flatMap().
-(11:27..11:27) scala/collection/IterableFactory#apply().
 (11:23..11:27) scala/package.List.
+(11:27..11:27) scala/collection/IterableFactory#apply().
 (11:29..11:32) scala/Any#
 (11:34..11:37) scala/Any#
+(11:42..11:49) scala/collection/immutable/List#flatMap().
 (12:7..12:7) local1
 (12:13..12:13) scala/Tuple2.unapply().
 (13:9..13:10) local2 -> 12:13
 (14:21..14:22) local3 -> 12:16
-(15:27..15:32) scala/sys/package.error().
 (15:23..15:26) scala/sys/
+(15:27..15:32) scala/sys/package.error().
 (19:8..19:11) scala/package.Seq#
 (19:12..19:13) _empty_/Msg.T# -> 2:9
 

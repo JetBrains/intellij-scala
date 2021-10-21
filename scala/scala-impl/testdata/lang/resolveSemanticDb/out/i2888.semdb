@@ -3,8 +3,8 @@ Document tests/pos/i2888.scala
 (3:14..3:15) _empty_/Foo#[A] -> 1:11
 (5:12..5:16) scala/Unit#
 (7:12..7:16) scala/Unit#
-(7:22..7:25) _empty_/Foo#foo(). -> 5:7
 (7:19..7:21) _empty_/Foo#cc(). -> 3:7
+(7:22..7:25) _empty_/Foo#foo(). -> 5:7
 (12:18..12:23) scala/Array#
 (12:24..12:30) scala/Predef.String#
 (12:34..12:38) scala/Unit#

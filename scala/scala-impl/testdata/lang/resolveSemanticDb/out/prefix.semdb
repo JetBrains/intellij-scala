@@ -1,4 +1,4 @@
 Document tests/pos/prefix.scala
-(3:32..3:40) _empty_/ClassPath#ClassRep# -> 4:8
 (3:22..3:31) _empty_/ClassPath# -> 2:16
+(3:32..3:40) _empty_/ClassPath#ClassRep# -> 4:8
 

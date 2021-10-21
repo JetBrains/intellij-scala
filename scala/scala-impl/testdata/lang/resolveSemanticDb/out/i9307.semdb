@@ -1,6 +1,6 @@
 Document tests/pos/i9307.scala
-(1:20..1:33) scala/compiletime/package$package.uninitialized().
 (1:8..1:19) scala/compiletime/
+(1:20..1:33) scala/compiletime/package$package.uninitialized().
 (3:21..3:24) scala/Int#
 (3:27..3:40) scala/compiletime/package$package.uninitialized().
 (4:21..4:26) scala/Array#

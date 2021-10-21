@@ -1,14 +1,14 @@
 Document tests/pos/t616.scala
 (2:29..2:32) _empty_/testImplicit.Foo# -> 3:9
 (2:35..2:38) _empty_/testImplicit.Bar# -> 8:9
-(2:45..2:48) _empty_/testImplicit.Foo#bar. -> 3:17
 (2:41..2:44) _empty_/testImplicit.foo2bar().(foo) -> 2:24
+(2:45..2:48) _empty_/testImplicit.Foo#bar. -> 3:17
 (3:22..3:25) _empty_/testImplicit.Bar# -> 8:9
-(4:41..4:44) _empty_/testImplicit.Bar#baz(). -> 8:19
 (4:39..4:39) _empty_/testImplicit.foo2bar(). -> 2:16
 (4:39..4:40) local0 -> 4:29
+(4:41..4:44) _empty_/testImplicit.Bar#baz(). -> 8:19
 (6:35..6:38) scala/Any#
-(6:46..6:49) _empty_/testImplicit.Bar#baz(). -> 8:19
 (6:41..6:41) _empty_/testImplicit.foo2bar(). -> 2:16
+(6:46..6:49) _empty_/testImplicit.Bar#baz(). -> 8:19
 (8:24..8:28) scala/Unit#
 

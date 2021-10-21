@@ -1,4 +1,4 @@
 Document tests/pos/i831.scala
-(3:8..3:9) _empty_/Test.a(). -> 2:7
 (3:3..3:7) _empty_/Test. -> 1:8
+(3:8..3:9) _empty_/Test.a(). -> 2:7
 

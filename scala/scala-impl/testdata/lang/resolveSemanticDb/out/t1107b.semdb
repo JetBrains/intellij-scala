@@ -5,24 +5,24 @@ Document tests/pos/t1107b/O.scala
 (8:18..8:23) scala/Array#
 (8:24..8:30) scala/Predef.String#
 (8:34..8:38) scala/Unit#
-(9:23..9:23) java/lang/Object#`<init>`().
 (9:17..9:23) scala/AnyRef#
+(9:23..9:23) java/lang/Object#`<init>`().
 (9:29..9:30) _empty_/C# -> 3:7
-(11:22..11:23) java/lang/String#`+`().
-(11:13..11:21) java/lang/Class#toString().
-(11:7..11:10) _empty_/C#bob(). -> 5:7
 (11:5..11:6) local1 -> 9:9
-(11:33..11:41) scala/Any#toString().
-(11:26..11:30) _empty_/C#bob2(). -> 6:7
+(11:7..11:10) _empty_/C#bob(). -> 5:7
+(11:13..11:21) java/lang/Class#toString().
+(11:22..11:23) java/lang/String#`+`().
 (11:24..11:25) local1 -> 9:9
+(11:26..11:30) _empty_/C#bob2(). -> 6:7
+(11:33..11:41) scala/Any#toString().
 
 Document tests/pos/t1107b/T.scala
 (2:26..2:29) _empty_/Top# -> 1:14
 (4:28..4:31) _empty_/Sub# -> 2:14
 (5:14..5:19) scala/Predef.Class#
-(5:27..5:35) scala/Any#getClass().
 (5:25..5:26) _empty_/C#P. -> 4:18
-(6:18..6:19) _empty_/O.d(). -> 3:7
+(5:27..5:35) scala/Any#getClass().
 (6:16..6:17) _empty_/O. -> 1:8
+(6:18..6:19) _empty_/O.d(). -> 3:7
 (6:20..6:21) _empty_/C#P. -> 4:18
 

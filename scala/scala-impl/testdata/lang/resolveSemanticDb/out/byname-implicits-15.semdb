@@ -38,8 +38,8 @@ Document tests/pos/byname-implicits-15.scala
 (16:75..16:76) _empty_/Test.Show.showPair().[T] -> 16:27
 (16:78..16:79) _empty_/Test.Show.showPair().[U] -> 16:30
 (16:84..16:87) scala/Predef.`???`().
-(17:54..17:57) _empty_/Test.Generic.Aux# -> 7:10
 (17:46..17:53) _empty_/Test.Generic. -> 6:10
+(17:54..17:57) _empty_/Test.Generic.Aux# -> 7:10
 (17:58..17:59) _empty_/Test.Show.showGen().[T] -> 17:26
 (17:61..17:62) _empty_/Test.Show.showGen().[R] -> 17:29
 (17:72..17:76) _empty_/Test.Show# -> 12:9
@@ -57,22 +57,22 @@ Document tests/pos/byname-implicits-15.scala
 (24:20..24:22) _empty_/Test.I5# -> 20:8
 (24:24..24:26) _empty_/Test.I5# -> 20:8
 (24:28..24:30) _empty_/Test.I5# -> 20:8
-(24:33..24:33) _empty_/Test.Show.showGen(). -> 17:18
 (24:33..24:33) _empty_/Test.Generic.genTuple3(). -> 8:18
-(24:33..24:33) _empty_/Test.Show.showPair(). -> 16:18
 (24:33..24:33) _empty_/Test.Generic.genTuple5(). -> 9:18
+(24:33..24:33) _empty_/Test.Show.showGen(). -> 17:18
 (24:33..24:33) _empty_/Test.Show.showInt. -> 15:18
+(24:33..24:33) _empty_/Test.Show.showPair(). -> 16:18
 (24:33..24:33) _empty_/Test.Show.showUnit. -> 14:18
 (25:3..25:13) scala/Predef.implicitly().
 (25:14..25:18) _empty_/Test.Show# -> 12:9
 (25:20..25:23) scala/Int#
 (25:25..25:27) _empty_/Test.I5# -> 20:8
 (25:29..25:32) scala/Int#
-(25:35..25:35) _empty_/Test.Show.showGen(). -> 17:18
 (25:35..25:35) _empty_/Test.Generic.genTuple3(). -> 8:18
-(25:35..25:35) _empty_/Test.Show.showPair(). -> 16:18
-(25:35..25:35) _empty_/Test.Show.showInt. -> 15:18
 (25:35..25:35) _empty_/Test.Generic.genTuple5(). -> 9:18
+(25:35..25:35) _empty_/Test.Show.showGen(). -> 17:18
+(25:35..25:35) _empty_/Test.Show.showInt. -> 15:18
+(25:35..25:35) _empty_/Test.Show.showPair(). -> 16:18
 (25:35..25:35) _empty_/Test.Show.showUnit. -> 14:18
 (26:3..26:13) scala/Predef.implicitly().
 (26:14..26:18) _empty_/Test.Show# -> 12:9
@@ -81,10 +81,10 @@ Document tests/pos/byname-implicits-15.scala
 (26:29..26:31) _empty_/Test.I5# -> 20:8
 (26:33..26:35) _empty_/Test.I5# -> 20:8
 (26:38..26:41) scala/Int#
-(26:44..26:44) _empty_/Test.Show.showGen(). -> 17:18
 (26:44..26:44) _empty_/Test.Generic.genTuple3(). -> 8:18
-(26:44..26:44) _empty_/Test.Show.showPair(). -> 16:18
 (26:44..26:44) _empty_/Test.Generic.genTuple5(). -> 9:18
+(26:44..26:44) _empty_/Test.Show.showGen(). -> 17:18
 (26:44..26:44) _empty_/Test.Show.showInt. -> 15:18
+(26:44..26:44) _empty_/Test.Show.showPair(). -> 16:18
 (26:44..26:44) _empty_/Test.Show.showUnit. -> 14:18
 

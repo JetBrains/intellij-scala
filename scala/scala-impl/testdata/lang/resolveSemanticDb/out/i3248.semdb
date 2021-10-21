@@ -2,29 +2,29 @@ Document tests/pos/i3248.scala
 (2:23..2:29) scala/Predef.String#
 (2:45..2:48) scala/Int#
 (4:20..4:23) _empty_/Test.Foo# -> 2:9
-(4:31..4:31) scala/Some.apply().
 (4:27..4:31) scala/Some.
+(4:31..4:31) scala/Some.apply().
 (4:33..4:33) scala/Tuple2.apply().
-(4:35..4:39) _empty_/Test.Foo#name. -> 2:17
 (4:33..4:34) _empty_/Test.Foo.unapply().(f) -> 4:17
-(4:43..4:51) _empty_/Test.Foo#children. -> 2:35
+(4:35..4:39) _empty_/Test.Foo#name. -> 2:17
 (4:41..4:42) _empty_/Test.Foo.unapply().(f) -> 4:17
+(4:43..4:51) _empty_/Test.Foo#children. -> 2:35
 (7:14..7:17) _empty_/Test.Foo# -> 2:9
 (7:21..7:22) _empty_/Test.foo().(f) -> 7:11
-(8:13..8:13) _empty_/Test.Foo.unapply(). -> 4:9
 (8:10..8:13) _empty_/Test.Foo. -> 3:10
-(8:70..8:70) scala/collection/immutable/List#`::`().
-(8:55..8:58) scala/collection/immutable/List#map().
-(8:48..8:54) scala/collection/IterableOnceOps#toList().
-(8:40..8:47) scala/collection/SeqOps#reverse().
-(8:37..8:39) local1 -> 8:20
-(8:61..8:69) scala/collection/Seq#toString().
+(8:13..8:13) _empty_/Test.Foo.unapply(). -> 4:9
 (8:29..8:33) local0 -> 8:14
+(8:37..8:39) local1 -> 8:20
+(8:40..8:47) scala/collection/SeqOps#reverse().
+(8:48..8:54) scala/collection/IterableOnceOps#toList().
+(8:55..8:58) scala/collection/immutable/List#map().
+(8:61..8:69) scala/collection/Seq#toString().
+(8:70..8:70) scala/collection/immutable/List#`::`().
 (10:18..10:23) scala/Array#
 (10:24..10:30) scala/Predef.String#
 (11:5..11:12) scala/Predef.println(+1).
-(11:41..11:49) scala/collection/IterableOnceOps#mkString(+1).
 (11:13..11:16) _empty_/Test.foo(). -> 7:7
-(11:24..11:24) _empty_/Test.Foo#`<init>`(). -> 2:12
 (11:21..11:24) _empty_/Test.Foo# -> 2:9
+(11:24..11:24) _empty_/Test.Foo#`<init>`(). -> 2:12
+(11:41..11:49) scala/collection/IterableOnceOps#mkString(+1).
 

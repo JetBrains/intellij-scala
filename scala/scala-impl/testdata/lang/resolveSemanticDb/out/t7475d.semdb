@@ -1,12 +1,12 @@
 Document tests/pos/t7475d.scala
 (2:13..2:14) _empty_/T# -> 1:7
 (2:20..2:23) scala/Any#
-(4:14..4:18) _empty_/T#priv. -> 3:15
 (4:4..4:7) scala/Predef.`???`().
 (4:10..4:12) _empty_/T#TT# -> 2:8
+(4:14..4:18) _empty_/T#priv. -> 3:15
 (8:13..8:16) scala/Any#
 (8:22..8:23) _empty_/U# -> 7:7
-(10:14..10:18) _empty_/U#priv. -> 9:15
 (10:4..10:7) scala/Predef.`???`().
 (10:10..10:12) _empty_/U#UU# -> 8:8
+(10:14..10:18) _empty_/U#priv. -> 9:15
 

@@ -1,7 +1,7 @@
 Document tests/pos/capturedVars.scala
 (3:14..3:17) scala/Int#
-(3:32..3:45) scala/compiletime/package$package.uninitialized().
 (3:20..3:31) scala/compiletime/
+(3:32..3:45) scala/compiletime/package$package.uninitialized().
 (7:12..7:15) scala/Int#
 (8:12..8:18) scala/Predef.String#
 (9:6..9:14) scala/volatile#
@@ -10,30 +10,30 @@ Document tests/pos/capturedVars.scala
 (10:23..10:32) scala/package.Exception#
 (11:13..11:18) scala/Array#
 (11:19..11:22) scala/Int#
-(11:31..11:31) scala/Array.apply(+5).
 (11:26..11:31) scala/Array.
+(11:31..11:31) scala/Array.apply(+5).
 (12:14..12:20) java/lang/Object#
 (12:23..12:25) local4 -> 11:9
 (15:7..15:12) _empty_/Test#`field_=`(). -> 3:7
 (15:15..15:16) local0 -> 7:9
 (16:7..16:8) local0 -> 7:9
-(16:17..16:18) scala/Int#`+`(+4).
-(16:13..16:14) scala/Int#`+`(+4).
 (16:11..16:12) local0 -> 7:9
+(16:13..16:14) scala/Int#`+`(+4).
+(16:17..16:18) scala/Int#`+`(+4).
 (16:19..16:24) _empty_/Test#field(). -> 3:7
 (17:7..17:8) local1 -> 8:9
 (17:8..17:8) java/lang/String#`+`().
 (18:7..18:9) local2 -> 9:19
 (18:12..18:12) scala/Int.int2double().
-(18:14..18:15) scala/Int#`*`(+3).
 (18:12..18:13) local0 -> 7:9
+(18:14..18:15) scala/Int#`*`(+3).
 (19:7..19:9) local3 -> 10:19
 (19:12..19:14) local3 -> 10:19
-(20:9..20:9) scala/Array#update().
 (20:7..20:9) local4 -> 11:9
-(20:17..20:17) scala/Array#apply().
+(20:9..20:9) scala/Array#update().
 (20:15..20:17) local4 -> 11:9
+(20:17..20:17) scala/Array#apply().
 (21:7..21:9) local4 -> 11:9
-(21:15..21:20) scala/Array#clone().
 (21:12..21:14) local4 -> 11:9
+(21:15..21:20) scala/Array#clone().
 

@@ -1,5 +1,5 @@
 Document tests/pos/t183.scala
-(2:10..2:10) _empty_/Test.Foo#`<init>`(). -> 3:12
 (2:7..2:10) _empty_/Test.Foo# -> 3:9
+(2:10..2:10) _empty_/Test.Foo#`<init>`(). -> 3:12
 (3:16..3:19) scala/Int#
 

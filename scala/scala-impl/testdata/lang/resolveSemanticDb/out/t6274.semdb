@@ -2,7 +2,7 @@ Document tests/pos/t6274.scala
 (3:19..3:22) scala/Int#
 (3:28..3:31) scala/Int#
 (3:34..3:37) scala/Int#
+(7:9..7:9) local0
 (7:9..7:12) _empty_/Crash#foo(). -> 3:9
 (9:13..9:18) local1 -> 8:17
-(7:9..7:9) local0
 

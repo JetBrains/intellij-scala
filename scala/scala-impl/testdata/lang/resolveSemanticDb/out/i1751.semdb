@@ -4,25 +4,25 @@ Document tests/pos/i1751.scala
 (2:56..2:61) _empty_/Break# -> 1:7
 (4:13..4:18) _empty_/Break# -> 1:7
 (4:22..4:23) _empty_/Test.f2().(x) -> 4:10
-(5:19..5:19) _empty_/BreakImpl.unapply().
 (5:10..5:19) _empty_/BreakImpl. -> 2:12
+(5:19..5:19) _empty_/BreakImpl.unapply().
 (5:26..5:35) _empty_/BreakImpl. -> 2:12
 (8:13..8:16) scala/Any#
 (8:20..8:21) _empty_/Test.f4().(x) -> 8:10
-(9:19..9:19) _empty_/BreakImpl.unapply().
 (9:10..9:19) _empty_/BreakImpl. -> 2:12
+(9:19..9:19) _empty_/BreakImpl.unapply().
 (9:26..9:27) local1 -> 9:20
 (12:18..12:23) scala/Array#
 (12:24..12:30) scala/Predef.String#
 (12:34..12:38) scala/Unit#
-(13:26..13:26) _empty_/BreakImpl.apply(). -> 2:1
 (13:17..13:26) _empty_/BreakImpl. -> 2:12
+(13:26..13:26) _empty_/BreakImpl.apply(). -> 2:1
 (14:5..14:11) scala/Predef.assert(+1).
-(14:22..14:24) scala/Any#`==`().
 (14:12..14:14) _empty_/Test.f2(). -> 4:7
 (14:15..14:20) local2 -> 13:9
+(14:22..14:24) scala/Any#`==`().
 (15:5..15:11) scala/Predef.assert(+1).
-(15:22..15:24) scala/Int#`==`(+3).
 (15:12..15:14) _empty_/Test.f4(). -> 8:7
 (15:15..15:20) local2 -> 13:9
+(15:22..15:24) scala/Int#`==`(+3).
 

@@ -9,6 +9,6 @@ Document tests/pos/poly-signature.scala
 (6:26..6:27) _empty_/C#foo().(x) -> 6:11
 (10:15..10:16) _empty_/C# -> 5:7
 (10:19..10:23) scala/Unit#
-(11:7..11:10) _empty_/C#foo(). -> 6:7
 (11:5..11:6) _empty_/Test.test().(p) -> 10:12
+(11:7..11:10) _empty_/C#foo(). -> 6:7
 

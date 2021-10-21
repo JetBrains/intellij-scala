@@ -13,32 +13,32 @@ Document tests/pos/t0031.scala
 (10:44..10:51) scala/Boolean#
 (10:54..10:55) _empty_/Main.require().[a] -> 7:17
 (11:30..11:37) _empty_/Main.require().(command) -> 7:46
-(12:34..12:34) scala/Function1#apply().
 (12:21..12:34) local2 -> 10:24
+(12:34..12:34) scala/Function1#apply().
 (12:35..12:41) local3 -> 11:21
 (12:44..12:50) local3 -> 11:21
-(13:26..13:31) scala/sys/package.error().
 (13:22..13:25) scala/sys/
-(17:17..17:22) scala/sys/package.error().
+(13:26..13:31) scala/sys/package.error().
 (17:13..17:16) scala/sys/
+(17:17..17:22) scala/sys/package.error().
 (19:19..19:23) scala/package.List#
 (19:24..19:25) _empty_/Main.arb().[a] -> 19:13
-(22:11..22:17) _empty_/Main.Ensure#ensure(). -> 4:13
 (20:9..20:16) _empty_/Main.require(). -> 7:9
-(20:29..20:29) scala/Boolean#`unary_!`().
-(20:22..20:29) scala/collection/immutable/List#isEmpty().
 (20:20..20:21) _empty_/Main.arb().(s) -> 19:16
-(21:14..21:18) scala/collection/IterableOps#head().
+(20:22..20:29) scala/collection/immutable/List#isEmpty().
+(20:29..20:29) scala/Boolean#`unary_!`().
 (21:12..21:13) _empty_/Main.arb().(s) -> 19:16
-(22:31..22:39) scala/collection/immutable/List#contains().
+(21:14..21:18) scala/collection/IterableOps#head().
+(22:11..22:17) _empty_/Main.Ensure#ensure(). -> 4:13
 (22:29..22:30) _empty_/Main.arb().(s) -> 19:16
+(22:31..22:39) scala/collection/immutable/List#contains().
 (22:40..22:46) local4 -> 22:19
 (24:20..24:25) scala/Array#
 (24:26..24:32) scala/Predef.String#
-(25:21..25:21) scala/collection/IterableFactory#apply().
 (25:17..25:21) scala/package.List.
-(26:17..26:24) scala/Console.println(+1).
+(25:21..25:21) scala/collection/IterableFactory#apply().
 (26:9..26:16) scala/Console.
+(26:17..26:24) scala/Console.println(+1).
 (26:25..26:28) _empty_/Main.arb(). -> 19:9
 (26:29..26:30) local5 -> 25:13
 

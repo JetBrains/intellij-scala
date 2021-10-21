@@ -1,10 +1,10 @@
 Document tests/pos/i7467.scala
-(1:14..1:19) javax/swing/
 (1:8..1:13) javax/
-(2:13..2:16) java/awt/
+(1:14..1:19) javax/swing/
 (2:8..2:12) java/
-(4:76..4:76) javax/swing/DefaultListCellRenderer#`<init>`().
+(2:13..2:16) java/awt/
 (4:53..4:76) javax/swing/DefaultListCellRenderer#
+(4:76..4:76) javax/swing/DefaultListCellRenderer#`<init>`().
 (5:51..5:56) javax/swing/JList#
 (5:62..5:68) java/lang/Object#
 (5:78..5:84) java/lang/Object#
@@ -13,8 +13,8 @@ Document tests/pos/i7467.scala
 (5:133..5:140) scala/Boolean#
 (5:143..5:152) java/awt/Component#
 (5:155..5:158) scala/Predef.`???`().
-(8:77..8:77) javax/swing/DefaultListCellRenderer#`<init>`().
 (8:54..8:77) javax/swing/DefaultListCellRenderer#
+(8:77..8:77) javax/swing/DefaultListCellRenderer#`<init>`().
 (9:51..9:56) javax/swing/JList#
 (9:68..9:74) java/lang/Object#
 (9:83..9:86) scala/Int#

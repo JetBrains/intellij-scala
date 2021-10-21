@@ -17,9 +17,9 @@ Document tests/pos/i9568.scala
 (12:25..12:30) _empty_/Monad# -> 1:7
 (12:31..12:33) _empty_/Test1.Id# -> 8:8
 (12:37..12:40) scala/Predef.`???`().
-(14:12..14:15) _empty_/Monad#foo(). -> 2:7
 (14:3..14:11) _empty_/Test1.blaMonad(). -> 11:16
 (14:11..14:11) _empty_/Test1.idMonad(). -> 12:16
+(14:12..14:15) _empty_/Monad#foo(). -> 2:7
 (14:16..14:19) _empty_/Test1.bla. -> 10:7
 (18:16..18:17) _empty_/Test2.Id#[A] -> 18:11
 (20:12..20:15) _empty_/Bla# -> 5:7
@@ -36,8 +36,8 @@ Document tests/pos/i9568.scala
 (22:25..22:30) _empty_/Monad# -> 1:7
 (22:31..22:33) _empty_/Test2.Id# -> 18:8
 (22:37..22:40) scala/Predef.`???`().
-(24:12..24:15) _empty_/Monad#foo(). -> 2:7
 (24:3..24:11) _empty_/Test2.blaMonad(). -> 21:16
 (24:11..24:11) _empty_/Test2.idMonad(). -> 22:16
+(24:12..24:15) _empty_/Monad#foo(). -> 2:7
 (24:16..24:19) _empty_/Test2.bla. -> 20:7
 

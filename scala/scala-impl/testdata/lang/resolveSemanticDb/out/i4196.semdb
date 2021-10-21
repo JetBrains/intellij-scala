@@ -1,16 +1,16 @@
 Document tests/pos/i4196.scala
-(2:15..2:22) scala/annotation/tailrec#
 (2:4..2:14) scala/annotation/
+(2:15..2:22) scala/annotation/tailrec#
 (3:14..3:18) scala/Unit#
 (3:23..3:26) scala/Int#
 (3:29..3:33) scala/Unit#
 (3:38..3:41) scala/Int#
-(4:11..4:13) scala/Int#`==`(+3).
-(4:10..4:10) scala/ContextFunction1#apply().
 (4:9..4:10) _empty_/Test.foo().(i) -> 3:11
-(7:17..7:17) scala/ContextFunction1#apply().
+(4:10..4:10) scala/ContextFunction1#apply().
+(4:11..4:13) scala/Int#`==`(+3).
 (7:7..7:10) _empty_/Test.foo(). -> 3:7
-(7:13..7:14) scala/Int#`-`(+3).
-(7:12..7:12) scala/ContextFunction1#apply().
 (7:11..7:12) _empty_/Test.foo().(i) -> 3:11
+(7:12..7:12) scala/ContextFunction1#apply().
+(7:13..7:14) scala/Int#`-`(+3).
+(7:17..7:17) scala/ContextFunction1#apply().
 

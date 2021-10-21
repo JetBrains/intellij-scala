@@ -1,5 +1,5 @@
 Document tests/pos/spec-partially.scala
+(3:19..3:30) scala/specialized#
 (3:41..3:42) _empty_/Arc#[T] -> 3:31
 (3:48..3:53) _empty_/Arc#[State] -> 3:11
-(3:19..3:30) scala/specialized#
 

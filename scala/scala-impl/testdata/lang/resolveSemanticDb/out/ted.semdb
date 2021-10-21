@@ -10,16 +10,16 @@ Document tests/pos/ted.scala
 (8:15..8:15) scala/Tuple2.unapply().
 (8:24..8:25) local1 -> 8:15
 (9:15..9:15) scala/Tuple2.unapply().
-(9:26..9:27) scala/Double#`*`(+6).
 (9:24..9:25) local2 -> 9:15
+(9:26..9:27) scala/Double#`*`(+6).
 (9:28..9:40) _empty_/App.exponentiate(). -> 3:7
 (9:41..9:42) local2 -> 9:15
-(9:46..9:47) scala/Double#`-`(+3).
 (9:44..9:45) local3 -> 9:18
+(9:46..9:47) scala/Double#`-`(+3).
 (14:19..14:24) scala/Array#
 (14:25..14:31) scala/Predef.String#
-(15:16..15:23) java/io/PrintStream#println(+6).
-(15:12..15:15) java/lang/System#out.
 (15:5..15:11) java/lang/System#
+(15:12..15:15) java/lang/System#out.
+(15:16..15:23) java/io/PrintStream#println(+6).
 (15:24..15:36) _empty_/App.exponentiate(). -> 3:7
 

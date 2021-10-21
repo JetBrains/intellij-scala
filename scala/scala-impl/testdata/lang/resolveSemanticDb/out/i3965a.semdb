@@ -9,10 +9,10 @@ Document tests/pos/i3965a.scala
 (7:23..7:24) _empty_/TreeSet#[A] -> 5:15
 (7:35..7:42) _empty_/TreeSet# -> 5:7
 (7:43..7:44) _empty_/TreeSet#[A] -> 5:15
-(10:96..10:98) _empty_/Test#optionSequence1().[CC] -> 10:23
-(10:99..10:100) _empty_/Test#optionSequence1().[A] -> 10:78
 (10:82..10:90) scala/package.Ordering#
 (10:90..10:90) _empty_/Test#optionSequence1().[A] -> 10:78
+(10:96..10:98) _empty_/Test#optionSequence1().[CC] -> 10:23
+(10:99..10:100) _empty_/Test#optionSequence1().[A] -> 10:78
 (10:104..10:108) scala/Unit#
 (12:17..12:24) _empty_/TreeSet# -> 5:7
 (12:25..12:31) scala/Predef.String#

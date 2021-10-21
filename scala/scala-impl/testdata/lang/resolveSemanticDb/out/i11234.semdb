@@ -17,9 +17,9 @@ Document tests/pos/i11234.scala
 (18:56..18:57) local5 -> 18:47
 (18:68..18:69) local5 -> 18:47
 (18:72..18:82) _empty_/FooWrapper# -> 6:7
-(19:13..19:13) _empty_/FooWrapper.apply(). -> 12:7
 (19:3..19:13) _empty_/FooWrapper. -> 11:8
+(19:13..19:13) _empty_/FooWrapper.apply(). -> 12:7
 (19:14..19:23) _empty_/i11234$package.error().(processor) -> 18:35
-(19:35..19:38) _empty_/FooWrapper#foo(). -> 8:7
 (19:24..19:34) _empty_/i11234$package.error().(fooWrapper) -> 18:11
+(19:35..19:38) _empty_/FooWrapper#foo(). -> 8:7
 

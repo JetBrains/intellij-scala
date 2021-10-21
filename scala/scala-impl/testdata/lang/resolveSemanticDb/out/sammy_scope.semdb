@@ -8,7 +8,7 @@ Document tests/pos/sammy_scope.scala
 (7:44..7:45) _empty_/SamFun#compose().[A] -> 7:15
 (7:47..7:48) _empty_/SamFun#[R] -> 2:27
 (7:59..7:64) _empty_/SamFun#apply(). -> 3:7
-(7:66..7:66) _empty_/SamFun#apply(). -> 3:7
 (7:65..7:66) _empty_/SamFun#compose().(g) -> 7:18
+(7:66..7:66) _empty_/SamFun#apply(). -> 3:7
 (7:67..7:68) local1 -> 7:54
 

@@ -1,81 +1,79 @@
-Document tests/pos/scala-days-2019-slides/metaprogramming-1-power.scala
-(3:23..3:27) scala/Long#
-(3:32..3:35) scala/Int#
-(3:38..3:42) scala/Long#
-(4:11..4:13) scala/Int#`==`(+3).
-(4:9..4:10) _empty_/App2.power().(n) -> 3:29
-(6:20..6:22) scala/Int#`==`(+3).
-(6:16..6:17) scala/Int#`%`(+3).
-(6:14..6:15) _empty_/App2.power().(n) -> 3:29
-(7:9..7:10) scala/Long#`*`(+4).
-(7:7..7:8) _empty_/App2.power().(x) -> 3:20
-(7:11..7:16) _empty_/App2.power(). -> 3:14
-(7:17..7:18) _empty_/App2.power().(x) -> 3:20
-(7:22..7:23) scala/Int#`-`(+3).
-(7:20..7:21) _empty_/App2.power().(n) -> 3:29
-(9:14..9:18) scala/Long#
-(9:23..9:24) scala/Long#`*`(+4).
-(9:21..9:22) _empty_/App2.power().(x) -> 3:20
-(9:25..9:26) _empty_/App2.power().(x) -> 3:20
-(10:7..10:12) _empty_/App2.power(). -> 3:14
-(10:13..10:14) local0 -> 5:16
-(10:18..10:19) scala/Int#`/`(+3).
-(10:16..10:17) _empty_/App2.power().(n) -> 3:29
-(14:10..14:14) scala/Long#
-(16:3..16:8) _empty_/App2.power(). -> 3:14
-(16:9..16:10) _empty_/App2.x. -> 14:7
-(26:23..26:27) scala/Long#
-(26:39..26:42) scala/Int#
-(26:45..26:49) scala/Long#
-(27:11..27:13) scala/Int#`==`(+3).
-(27:9..27:10) _empty_/App3.power().(n) -> 26:36
-(29:20..29:22) scala/Int#`==`(+3).
-(29:16..29:17) scala/Int#`%`(+3).
-(29:14..29:15) _empty_/App3.power().(n) -> 26:36
-(30:9..30:10) scala/Long#`*`(+4).
-(30:7..30:8) _empty_/App3.power().(x) -> 26:20
-(30:11..30:16) _empty_/App3.power(). -> 26:14
-(30:17..30:18) _empty_/App3.power().(x) -> 26:20
-(30:22..30:23) scala/Int#`-`(+3).
-(30:20..30:21) _empty_/App3.power().(n) -> 26:36
-(32:14..32:18) scala/Long#
-(32:23..32:24) scala/Long#`*`(+4).
-(32:21..32:22) _empty_/App3.power().(x) -> 26:20
-(32:25..32:26) _empty_/App3.power().(x) -> 26:20
-(33:7..33:12) _empty_/App3.power(). -> 26:14
-(33:13..33:14) local1 -> 6:19
-(33:18..33:19) scala/Int#`/`(+3).
-(33:16..33:17) _empty_/App3.power().(n) -> 26:36
-(37:10..37:14) scala/Long#
-(38:10..38:13) scala/Int#
-(40:3..40:8) _empty_/App3.power(). -> 26:14
-(40:9..40:10) _empty_/App3.x. -> 37:7
-(51:23..51:27) scala/Long#
-(51:32..51:35) scala/Int#
-(51:38..51:42) scala/Long#
-(52:18..52:20) scala/Int#`==`(+3).
-(52:16..52:17) _empty_/App4.power().(n) -> 51:29
-(54:27..54:29) scala/Int#`==`(+3).
-(54:23..54:24) scala/Int#`%`(+3).
-(54:21..54:22) _empty_/App4.power().(n) -> 51:29
-(55:9..55:10) scala/Long#`*`(+4).
-(55:7..55:8) _empty_/App4.power().(x) -> 51:20
-(55:11..55:16) _empty_/App4.power(). -> 51:14
-(55:17..55:18) _empty_/App4.power().(x) -> 51:20
-(55:22..55:23) scala/Int#`-`(+3).
-(55:20..55:21) _empty_/App4.power().(n) -> 51:29
-(57:14..57:18) scala/Long#
-(57:23..57:24) scala/Long#`*`(+4).
-(57:21..57:22) _empty_/App4.power().(x) -> 51:20
-(57:25..57:26) _empty_/App4.power().(x) -> 51:20
-(58:7..58:12) _empty_/App4.power(). -> 51:14
-(58:13..58:14) local2 -> 57:11
-(58:18..58:19) scala/Int#`/`(+3).
-(58:16..58:17) _empty_/App4.power().(n) -> 51:29
-(62:10..62:14) scala/Long#
-(63:10..63:13) scala/Int#
-(65:3..65:8) _empty_/App4.power(). -> 51:14
-(65:9..65:10) _empty_/App4.x. -> 62:7
+Document tests/pos/scala-days-2019-slides/metaprogramming-1-forset.scala
+(3:10..3:15) scala/
+(3:16..3:26) scala/collection/
+(3:27..3:36) scala/collection/immutable/
+(4:10..4:15) scala/
+(4:16..4:27) scala/compiletime/
+(4:28..4:38) scala/compiletime/package$package.summonFrom().
+(6:25..6:28) scala/collection/immutable/Set#
+(6:29..6:30) _empty_/ForSetExample.setFor().[T] -> 6:21
+(8:17..8:25) scala/package.Ordering#
+(8:26..8:27) _empty_/ForSetExample.setFor().[T] -> 6:21
+(8:36..8:43) scala/collection/immutable/TreeSet#
+(8:44..8:45) _empty_/ForSetExample.setFor().[T] -> 6:21
+(8:46..8:46) local0 -> 5:16
+(8:46..8:46) scala/collection/immutable/TreeSet#`<init>`(+1).
+(9:36..9:43) scala/collection/immutable/HashSet#
+(9:44..9:45) _empty_/ForSetExample.setFor().[T] -> 6:21
+(9:46..9:46) scala/collection/immutable/HashSet#`<init>`(+1).
+(12:3..12:9) _empty_/ForSetExample.setFor(). -> 6:14
+(12:10..12:16) scala/Predef.String#
+(13:3..13:9) _empty_/ForSetExample.setFor(). -> 6:14
+(13:10..13:16) java/lang/Object#
+
+Document tests/pos/scala-days-2019-slides/metaprogramming-1-logger.scala
+(5:26..5:32) scala/Predef.String#
+(5:41..5:42) _empty_/Logger.log().[T] -> 5:18
+(5:45..5:46) _empty_/Logger.log().[T] -> 5:18
+(6:5..6:12) scala/Predef.println(+1).
+(6:15..6:15) scala/StringContext.apply().
+(6:17..6:17) scala/Predef.augmentString().
+(6:22..6:23) scala/collection/StringOps#`*`().
+(6:24..6:30) _empty_/Logger.indent(). -> 3:7
+(6:38..6:41) _empty_/Logger.log().(msg) -> 5:21
+(6:41..6:42) scala/StringContext#s().
+(7:5..7:11) _empty_/Logger.`indent_=`(). -> 3:7
+(7:5..7:11) _empty_/Logger.indent(). -> 3:7
+(7:11..7:11) scala/Int#`+`(+4).
+(8:18..8:20) _empty_/Logger.log().(op) -> 5:34
+(9:5..9:11) _empty_/Logger.`indent_=`(). -> 3:7
+(9:5..9:11) _empty_/Logger.indent(). -> 3:7
+(9:11..9:11) scala/Int#`-`(+3).
+(10:5..10:12) scala/Predef.println(+1).
+(10:15..10:15) scala/StringContext.apply().
+(10:17..10:17) scala/Predef.augmentString().
+(10:22..10:23) scala/collection/StringOps#`*`().
+(10:24..10:30) _empty_/Logger.indent(). -> 3:7
+(10:32..10:35) _empty_/Logger.log().(msg) -> 5:21
+(10:39..10:45) local0 -> 5:16
+(10:45..10:46) scala/StringContext#s().
+(11:5..11:11) local0 -> 5:16
+(21:26..21:32) scala/Predef.String#
+(21:41..21:42) _empty_/Logger2.log().[T] -> 21:18
+(21:45..21:46) _empty_/Logger2.log().[T] -> 21:18
+(22:5..22:12) scala/Predef.println(+1).
+(22:15..22:15) scala/StringContext.apply().
+(22:17..22:17) scala/Predef.augmentString().
+(22:22..22:23) scala/collection/StringOps#`*`().
+(22:24..22:30) _empty_/Logger2.inline$indent().
+(22:38..22:41) _empty_/Logger2.log().(msg) -> 21:21
+(22:41..22:42) scala/StringContext#s().
+(23:5..23:11) _empty_/Logger2.`inline$indent_=`().
+(23:5..23:11) _empty_/Logger2.inline$indent().
+(23:11..23:11) scala/Int#`+`(+4).
+(25:18..25:20) _empty_/Logger2.log().(op) -> 21:34
+(26:5..26:11) _empty_/Logger2.`inline$indent_=`().
+(26:5..26:11) _empty_/Logger2.inline$indent().
+(26:11..26:11) scala/Int#`-`(+3).
+(27:5..27:12) scala/Predef.println(+1).
+(27:15..27:15) scala/StringContext.apply().
+(27:17..27:17) scala/Predef.augmentString().
+(27:22..27:23) scala/collection/StringOps#`*`().
+(27:24..27:30) _empty_/Logger2.inline$indent().
+(27:32..27:35) _empty_/Logger2.log().(msg) -> 21:21
+(27:39..27:45) local1 -> 6:19
+(27:45..27:46) scala/StringContext#s().
+(28:5..28:11) local1 -> 6:19
 
 Document tests/pos/scala-days-2019-slides/metaprogramming-1-match.scala
 (4:28..4:31) _empty_/App.Nat# -> 3:9
@@ -85,130 +83,120 @@ Document tests/pos/scala-days-2019-slides/metaprogramming-1-match.scala
 (7:32..7:35) scala/Int#
 (7:45..7:46) _empty_/App.toInt().(n) -> 7:20
 (8:10..8:14) _empty_/App.Zero. -> 4:15
-(9:14..9:14) _empty_/App.Succ.unapply(). -> 5:3
 (9:10..9:14) _empty_/App.Succ. -> 5:14
+(9:14..9:14) _empty_/App.Succ.unapply(). -> 5:3
 (9:14..9:14) local0 -> 5:16
-(9:32..9:33) scala/Int#`+`(+4).
 (9:22..9:27) _empty_/App.toInt(). -> 7:14
 (9:28..9:30) local1 -> 6:19
+(9:32..9:33) scala/Int#`+`(+4).
 (12:16..12:21) _empty_/App.toInt(). -> 7:14
-(12:26..12:26) _empty_/App.Succ.apply(). -> 5:3
 (12:22..12:26) _empty_/App.Succ. -> 5:14
-(12:31..12:31) _empty_/App.Succ.apply(). -> 5:3
+(12:26..12:26) _empty_/App.Succ.apply(). -> 5:3
 (12:27..12:31) _empty_/App.Succ. -> 5:14
+(12:31..12:31) _empty_/App.Succ.apply(). -> 5:3
 (12:32..12:36) _empty_/App.Zero. -> 4:15
 
-Document tests/pos/scala-days-2019-slides/metaprogramming-1-logger.scala
-(5:26..5:32) scala/Predef.String#
-(5:41..5:42) _empty_/Logger.log().[T] -> 5:18
-(5:45..5:46) _empty_/Logger.log().[T] -> 5:18
-(6:5..6:12) scala/Predef.println(+1).
-(6:41..6:42) scala/StringContext#s().
-(6:15..6:15) scala/StringContext.apply().
-(6:22..6:23) scala/collection/StringOps#`*`().
-(6:17..6:17) scala/Predef.augmentString().
-(6:24..6:30) _empty_/Logger.indent(). -> 3:7
-(6:38..6:41) _empty_/Logger.log().(msg) -> 5:21
-(7:5..7:11) _empty_/Logger.`indent_=`(). -> 3:7
-(7:11..7:11) scala/Int#`+`(+4).
-(7:5..7:11) _empty_/Logger.indent(). -> 3:7
-(8:18..8:20) _empty_/Logger.log().(op) -> 5:34
-(9:5..9:11) _empty_/Logger.`indent_=`(). -> 3:7
-(9:11..9:11) scala/Int#`-`(+3).
-(9:5..9:11) _empty_/Logger.indent(). -> 3:7
-(10:5..10:12) scala/Predef.println(+1).
-(10:45..10:46) scala/StringContext#s().
-(10:15..10:15) scala/StringContext.apply().
-(10:22..10:23) scala/collection/StringOps#`*`().
-(10:17..10:17) scala/Predef.augmentString().
-(10:24..10:30) _empty_/Logger.indent(). -> 3:7
-(10:32..10:35) _empty_/Logger.log().(msg) -> 5:21
-(10:39..10:45) local0 -> 5:16
-(11:5..11:11) local0 -> 5:16
-(21:26..21:32) scala/Predef.String#
-(21:41..21:42) _empty_/Logger2.log().[T] -> 21:18
-(21:45..21:46) _empty_/Logger2.log().[T] -> 21:18
-(22:5..22:12) scala/Predef.println(+1).
-(22:41..22:42) scala/StringContext#s().
-(22:15..22:15) scala/StringContext.apply().
-(22:22..22:23) scala/collection/StringOps#`*`().
-(22:17..22:17) scala/Predef.augmentString().
-(22:24..22:30) _empty_/Logger2.inline$indent().
-(22:38..22:41) _empty_/Logger2.log().(msg) -> 21:21
-(23:5..23:11) _empty_/Logger2.`inline$indent_=`().
-(23:11..23:11) scala/Int#`+`(+4).
-(23:5..23:11) _empty_/Logger2.inline$indent().
-(25:18..25:20) _empty_/Logger2.log().(op) -> 21:34
-(26:5..26:11) _empty_/Logger2.`inline$indent_=`().
-(26:11..26:11) scala/Int#`-`(+3).
-(26:5..26:11) _empty_/Logger2.inline$indent().
-(27:5..27:12) scala/Predef.println(+1).
-(27:45..27:46) scala/StringContext#s().
-(27:15..27:15) scala/StringContext.apply().
-(27:22..27:23) scala/collection/StringOps#`*`().
-(27:17..27:17) scala/Predef.augmentString().
-(27:24..27:30) _empty_/Logger2.inline$indent().
-(27:32..27:35) _empty_/Logger2.log().(msg) -> 21:21
-(27:39..27:45) local1 -> 6:19
-(28:5..28:11) local1 -> 6:19
+Document tests/pos/scala-days-2019-slides/metaprogramming-1-power.scala
+(3:23..3:27) scala/Long#
+(3:32..3:35) scala/Int#
+(3:38..3:42) scala/Long#
+(4:9..4:10) _empty_/App2.power().(n) -> 3:29
+(4:11..4:13) scala/Int#`==`(+3).
+(6:14..6:15) _empty_/App2.power().(n) -> 3:29
+(6:16..6:17) scala/Int#`%`(+3).
+(6:20..6:22) scala/Int#`==`(+3).
+(7:7..7:8) _empty_/App2.power().(x) -> 3:20
+(7:9..7:10) scala/Long#`*`(+4).
+(7:11..7:16) _empty_/App2.power(). -> 3:14
+(7:17..7:18) _empty_/App2.power().(x) -> 3:20
+(7:20..7:21) _empty_/App2.power().(n) -> 3:29
+(7:22..7:23) scala/Int#`-`(+3).
+(9:14..9:18) scala/Long#
+(9:21..9:22) _empty_/App2.power().(x) -> 3:20
+(9:23..9:24) scala/Long#`*`(+4).
+(9:25..9:26) _empty_/App2.power().(x) -> 3:20
+(10:7..10:12) _empty_/App2.power(). -> 3:14
+(10:13..10:14) local0 -> 5:16
+(10:16..10:17) _empty_/App2.power().(n) -> 3:29
+(10:18..10:19) scala/Int#`/`(+3).
+(14:10..14:14) scala/Long#
+(16:3..16:8) _empty_/App2.power(). -> 3:14
+(16:9..16:10) _empty_/App2.x. -> 14:7
+(26:23..26:27) scala/Long#
+(26:39..26:42) scala/Int#
+(26:45..26:49) scala/Long#
+(27:9..27:10) _empty_/App3.power().(n) -> 26:36
+(27:11..27:13) scala/Int#`==`(+3).
+(29:14..29:15) _empty_/App3.power().(n) -> 26:36
+(29:16..29:17) scala/Int#`%`(+3).
+(29:20..29:22) scala/Int#`==`(+3).
+(30:7..30:8) _empty_/App3.power().(x) -> 26:20
+(30:9..30:10) scala/Long#`*`(+4).
+(30:11..30:16) _empty_/App3.power(). -> 26:14
+(30:17..30:18) _empty_/App3.power().(x) -> 26:20
+(30:20..30:21) _empty_/App3.power().(n) -> 26:36
+(30:22..30:23) scala/Int#`-`(+3).
+(32:14..32:18) scala/Long#
+(32:21..32:22) _empty_/App3.power().(x) -> 26:20
+(32:23..32:24) scala/Long#`*`(+4).
+(32:25..32:26) _empty_/App3.power().(x) -> 26:20
+(33:7..33:12) _empty_/App3.power(). -> 26:14
+(33:13..33:14) local1 -> 6:19
+(33:16..33:17) _empty_/App3.power().(n) -> 26:36
+(33:18..33:19) scala/Int#`/`(+3).
+(37:10..37:14) scala/Long#
+(38:10..38:13) scala/Int#
+(40:3..40:8) _empty_/App3.power(). -> 26:14
+(40:9..40:10) _empty_/App3.x. -> 37:7
+(51:23..51:27) scala/Long#
+(51:32..51:35) scala/Int#
+(51:38..51:42) scala/Long#
+(52:16..52:17) _empty_/App4.power().(n) -> 51:29
+(52:18..52:20) scala/Int#`==`(+3).
+(54:21..54:22) _empty_/App4.power().(n) -> 51:29
+(54:23..54:24) scala/Int#`%`(+3).
+(54:27..54:29) scala/Int#`==`(+3).
+(55:7..55:8) _empty_/App4.power().(x) -> 51:20
+(55:9..55:10) scala/Long#`*`(+4).
+(55:11..55:16) _empty_/App4.power(). -> 51:14
+(55:17..55:18) _empty_/App4.power().(x) -> 51:20
+(55:20..55:21) _empty_/App4.power().(n) -> 51:29
+(55:22..55:23) scala/Int#`-`(+3).
+(57:14..57:18) scala/Long#
+(57:21..57:22) _empty_/App4.power().(x) -> 51:20
+(57:23..57:24) scala/Long#`*`(+4).
+(57:25..57:26) _empty_/App4.power().(x) -> 51:20
+(58:7..58:12) _empty_/App4.power(). -> 51:14
+(58:13..58:14) local2 -> 57:11
+(58:16..58:17) _empty_/App4.power().(n) -> 51:29
+(58:18..58:19) scala/Int#`/`(+3).
+(62:10..62:14) scala/Long#
+(63:10..63:13) scala/Int#
+(65:3..65:8) _empty_/App4.power(). -> 51:14
+(65:9..65:10) _empty_/App4.x. -> 62:7
 
-Document tests/pos/scala-days-2019-slides/metaprogramming-2-tuple.scala
-(2:10..2:15) scala/Tuple.
-(8:3..8:9) scala/Predef.summon().
-(8:59..8:62) scala/`=:=`#
-(8:10..8:16) scala/Tuple.Concat#
-(8:19..8:21) scala/`*:`#
-(8:17..8:18) _empty_/TupleExample.A# -> 4:8
-(8:24..8:26) scala/`*:`#
-(8:22..8:23) _empty_/TupleExample.B# -> 5:8
-(8:27..8:37) scala/Tuple$package.EmptyTuple#
-(8:41..8:43) scala/`*:`#
-(8:39..8:40) _empty_/TupleExample.C# -> 6:8
-(8:44..8:54) scala/Tuple$package.EmptyTuple#
-(8:68..8:70) scala/`*:`#
-(8:66..8:67) _empty_/TupleExample.A# -> 4:8
-(8:73..8:75) scala/`*:`#
-(8:71..8:72) _empty_/TupleExample.B# -> 5:8
-(8:78..8:80) scala/`*:`#
-(8:76..8:77) _empty_/TupleExample.C# -> 6:8
-(8:81..8:91) scala/Tuple$package.EmptyTuple#
-(8:92..8:92) scala/`<:<`.refl().
-(10:3..10:9) scala/Predef.summon().
-(10:53..10:56) scala/`=:=`#
-(10:10..10:16) scala/Tuple.Concat#
-(10:19..10:21) scala/`*:`#
-(10:17..10:18) _empty_/TupleExample.A# -> 4:8
-(10:24..10:26) scala/`*:`#
-(10:22..10:23) _empty_/TupleExample.B# -> 5:8
-(10:27..10:37) scala/Tuple$package.EmptyTuple#
-(10:41..10:43) scala/`*:`#
-(10:39..10:40) _empty_/TupleExample.C# -> 6:8
-(10:44..10:49) scala/Tuple#
-(10:62..10:64) scala/`*:`#
-(10:60..10:61) _empty_/TupleExample.A# -> 4:8
-(10:67..10:69) scala/`*:`#
-(10:65..10:66) _empty_/TupleExample.B# -> 5:8
-(10:72..10:74) scala/`*:`#
-(10:70..10:71) _empty_/TupleExample.C# -> 6:8
-(10:75..10:80) scala/Tuple#
-(10:81..10:81) scala/`<:<`.refl().
-(12:3..12:9) scala/Predef.summon().
-(12:53..12:56) scala/`<:<`#
-(12:10..12:16) scala/Tuple.Concat#
-(12:19..12:21) scala/`*:`#
-(12:17..12:18) _empty_/TupleExample.A# -> 4:8
-(12:24..12:26) scala/`*:`#
-(12:22..12:23) _empty_/TupleExample.B# -> 5:8
-(12:27..12:32) scala/Tuple#
-(12:36..12:38) scala/`*:`#
-(12:34..12:35) _empty_/TupleExample.C# -> 6:8
-(12:39..12:49) scala/Tuple$package.EmptyTuple#
-(12:62..12:64) scala/`*:`#
-(12:60..12:61) _empty_/TupleExample.A# -> 4:8
-(12:67..12:69) scala/`*:`#
-(12:65..12:66) _empty_/TupleExample.B# -> 5:8
-(12:70..12:75) scala/Tuple#
-(12:76..12:76) scala/`<:<`.refl().
+Document tests/pos/scala-days-2019-slides/metaprogramming-2-addEventListener.scala
+(5:24..5:29) _empty_/JS.dom.Event# -> 4:10
+(8:26..8:32) scala/Predef.String#
+(8:37..8:40) _empty_/JS.dom. -> 3:10
+(8:41..8:46) _empty_/JS.dom.Event# -> 4:10
+(8:49..8:51) _empty_/JS.EventTypeOf#[Tp] -> 8:20
+(9:21..9:24) _empty_/JS.dom. -> 3:10
+(9:25..9:35) _empty_/JS.dom.MouseEvent# -> 5:10
+(10:15..10:18) _empty_/JS.dom. -> 3:10
+(10:19..10:24) _empty_/JS.dom.Event# -> 4:10
+(13:30..13:36) scala/Predef.String#
+(13:44..13:55) _empty_/JS.EventTypeOf# -> 8:8
+(13:56..13:58) _empty_/JS.addEventListener().[Tp] -> 13:24
+(13:66..13:68) _empty_/JS.addEventListener().[Tp] -> 13:24
+(13:73..13:75) _empty_/JS.addEventListener().[Ev] -> 13:38
+(13:79..13:82) scala/Any#
+(13:85..13:89) scala/Unit#
+(13:92..13:95) scala/Predef.`???`().
+(15:3..15:19) _empty_/JS.addEventListener(). -> 13:7
+(15:35..15:38) _empty_/JS.dom. -> 3:10
+(15:39..15:49) _empty_/JS.dom.MouseEvent# -> 5:10
+(15:54..15:57) scala/Predef.`???`().
 
 Document tests/pos/scala-days-2019-slides/metaprogramming-2-elem.scala
 (3:18..3:19) _empty_/ElemExample.Elem#[X] -> 3:13
@@ -219,75 +207,87 @@ Document tests/pos/scala-days-2019-slides/metaprogramming-2-elem.scala
 (6:10..6:18) scala/package.Iterable#
 (6:25..6:26) local1 -> 6:19
 (10:3..10:9) scala/Predef.summon().
-(10:29..10:32) scala/`=:=`#
 (10:10..10:14) _empty_/ElemExample.Elem# -> 3:8
 (10:15..10:21) scala/Predef.String#
+(10:29..10:32) scala/`=:=`#
 (10:34..10:38) scala/Char#
 (10:39..10:39) scala/`<:<`.refl().
 (11:3..11:9) scala/Predef.summon().
-(11:29..11:32) scala/`=:=`#
 (11:10..11:14) _empty_/ElemExample.Elem# -> 3:8
 (11:15..11:20) scala/Array#
 (11:21..11:24) scala/Int#
+(11:29..11:32) scala/`=:=`#
 (11:34..11:37) scala/Int#
 (11:38..11:38) scala/`<:<`.refl().
 (12:3..12:9) scala/Predef.summon().
-(12:29..12:32) scala/`=:=`#
 (12:10..12:14) _empty_/ElemExample.Elem# -> 3:8
 (12:15..12:19) scala/package.List#
 (12:20..12:25) scala/Float#
+(12:29..12:32) scala/`=:=`#
 (12:34..12:39) scala/Float#
 (12:40..12:40) scala/`<:<`.refl().
 (13:3..13:9) scala/Predef.summon().
-(13:29..13:32) scala/`=:=`#
 (13:10..13:14) _empty_/ElemExample.Elem# -> 3:8
 (13:15..13:18) scala/package.Nil.
+(13:29..13:32) scala/`=:=`#
 (13:34..13:41) scala/Nothing#
 (13:42..13:42) scala/`<:<`.refl().
 
-Document tests/pos/scala-days-2019-slides/metaprogramming-1-forset.scala
-(3:27..3:36) scala/collection/immutable/
-(3:16..3:26) scala/collection/
-(3:10..3:15) scala/
-(4:28..4:38) scala/compiletime/package$package.summonFrom().
-(4:16..4:27) scala/compiletime/
-(4:10..4:15) scala/
-(6:25..6:28) scala/collection/immutable/Set#
-(6:29..6:30) _empty_/ForSetExample.setFor().[T] -> 6:21
-(8:17..8:25) scala/package.Ordering#
-(8:26..8:27) _empty_/ForSetExample.setFor().[T] -> 6:21
-(8:46..8:46) scala/collection/immutable/TreeSet#`<init>`(+1).
-(8:36..8:43) scala/collection/immutable/TreeSet#
-(8:44..8:45) _empty_/ForSetExample.setFor().[T] -> 6:21
-(8:46..8:46) local0 -> 5:16
-(9:46..9:46) scala/collection/immutable/HashSet#`<init>`(+1).
-(9:36..9:43) scala/collection/immutable/HashSet#
-(9:44..9:45) _empty_/ForSetExample.setFor().[T] -> 6:21
-(12:3..12:9) _empty_/ForSetExample.setFor(). -> 6:14
-(12:10..12:16) scala/Predef.String#
-(13:3..13:9) _empty_/ForSetExample.setFor(). -> 6:14
-(13:10..13:16) java/lang/Object#
-
-Document tests/pos/scala-days-2019-slides/metaprogramming-2-addEventListener.scala
-(5:24..5:29) _empty_/JS.dom.Event# -> 4:10
-(8:26..8:32) scala/Predef.String#
-(8:41..8:46) _empty_/JS.dom.Event# -> 4:10
-(8:37..8:40) _empty_/JS.dom. -> 3:10
-(8:49..8:51) _empty_/JS.EventTypeOf#[Tp] -> 8:20
-(9:25..9:35) _empty_/JS.dom.MouseEvent# -> 5:10
-(9:21..9:24) _empty_/JS.dom. -> 3:10
-(10:19..10:24) _empty_/JS.dom.Event# -> 4:10
-(10:15..10:18) _empty_/JS.dom. -> 3:10
-(13:30..13:36) scala/Predef.String#
-(13:44..13:55) _empty_/JS.EventTypeOf# -> 8:8
-(13:56..13:58) _empty_/JS.addEventListener().[Tp] -> 13:24
-(13:66..13:68) _empty_/JS.addEventListener().[Tp] -> 13:24
-(13:73..13:75) _empty_/JS.addEventListener().[Ev] -> 13:38
-(13:79..13:82) scala/Any#
-(13:85..13:89) scala/Unit#
-(13:92..13:95) scala/Predef.`???`().
-(15:3..15:19) _empty_/JS.addEventListener(). -> 13:7
-(15:39..15:49) _empty_/JS.dom.MouseEvent# -> 5:10
-(15:35..15:38) _empty_/JS.dom. -> 3:10
-(15:54..15:57) scala/Predef.`???`().
+Document tests/pos/scala-days-2019-slides/metaprogramming-2-tuple.scala
+(2:10..2:15) scala/Tuple.
+(8:3..8:9) scala/Predef.summon().
+(8:10..8:16) scala/Tuple.Concat#
+(8:17..8:18) _empty_/TupleExample.A# -> 4:8
+(8:19..8:21) scala/`*:`#
+(8:22..8:23) _empty_/TupleExample.B# -> 5:8
+(8:24..8:26) scala/`*:`#
+(8:27..8:37) scala/Tuple$package.EmptyTuple#
+(8:39..8:40) _empty_/TupleExample.C# -> 6:8
+(8:41..8:43) scala/`*:`#
+(8:44..8:54) scala/Tuple$package.EmptyTuple#
+(8:59..8:62) scala/`=:=`#
+(8:66..8:67) _empty_/TupleExample.A# -> 4:8
+(8:68..8:70) scala/`*:`#
+(8:71..8:72) _empty_/TupleExample.B# -> 5:8
+(8:73..8:75) scala/`*:`#
+(8:76..8:77) _empty_/TupleExample.C# -> 6:8
+(8:78..8:80) scala/`*:`#
+(8:81..8:91) scala/Tuple$package.EmptyTuple#
+(8:92..8:92) scala/`<:<`.refl().
+(10:3..10:9) scala/Predef.summon().
+(10:10..10:16) scala/Tuple.Concat#
+(10:17..10:18) _empty_/TupleExample.A# -> 4:8
+(10:19..10:21) scala/`*:`#
+(10:22..10:23) _empty_/TupleExample.B# -> 5:8
+(10:24..10:26) scala/`*:`#
+(10:27..10:37) scala/Tuple$package.EmptyTuple#
+(10:39..10:40) _empty_/TupleExample.C# -> 6:8
+(10:41..10:43) scala/`*:`#
+(10:44..10:49) scala/Tuple#
+(10:53..10:56) scala/`=:=`#
+(10:60..10:61) _empty_/TupleExample.A# -> 4:8
+(10:62..10:64) scala/`*:`#
+(10:65..10:66) _empty_/TupleExample.B# -> 5:8
+(10:67..10:69) scala/`*:`#
+(10:70..10:71) _empty_/TupleExample.C# -> 6:8
+(10:72..10:74) scala/`*:`#
+(10:75..10:80) scala/Tuple#
+(10:81..10:81) scala/`<:<`.refl().
+(12:3..12:9) scala/Predef.summon().
+(12:10..12:16) scala/Tuple.Concat#
+(12:17..12:18) _empty_/TupleExample.A# -> 4:8
+(12:19..12:21) scala/`*:`#
+(12:22..12:23) _empty_/TupleExample.B# -> 5:8
+(12:24..12:26) scala/`*:`#
+(12:27..12:32) scala/Tuple#
+(12:34..12:35) _empty_/TupleExample.C# -> 6:8
+(12:36..12:38) scala/`*:`#
+(12:39..12:49) scala/Tuple$package.EmptyTuple#
+(12:53..12:56) scala/`<:<`#
+(12:60..12:61) _empty_/TupleExample.A# -> 4:8
+(12:62..12:64) scala/`*:`#
+(12:65..12:66) _empty_/TupleExample.B# -> 5:8
+(12:67..12:69) scala/`*:`#
+(12:70..12:75) scala/Tuple#
+(12:76..12:76) scala/`<:<`.refl().
 

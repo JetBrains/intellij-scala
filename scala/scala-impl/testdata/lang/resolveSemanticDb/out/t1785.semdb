@@ -1,7 +1,7 @@
 Document tests/pos/t1785.scala
 (2:19..2:22) scala/Int#
-(6:13..6:13) _empty_/t1785#apply(). -> 2:7
-(6:13..6:13) _empty_/t1785#`<init>`(). -> 2:3
 (6:8..6:13) _empty_/t1785# -> 1:7
+(6:13..6:13) _empty_/t1785#`<init>`(). -> 2:3
+(6:13..6:13) _empty_/t1785#apply(). -> 2:7
 (6:15..6:18) scala/Int#
 

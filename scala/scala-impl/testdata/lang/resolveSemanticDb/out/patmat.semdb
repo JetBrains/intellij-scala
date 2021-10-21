@@ -1,17 +1,17 @@
 Document tests/pos/patmat.scala
-(2:16..2:16) scala/collection/IterableFactory#apply().
 (2:12..2:16) scala/package.List.
+(2:16..2:16) scala/collection/IterableFactory#apply().
 (4:3..4:5) _empty_/Test.xs. -> 2:7
-(5:14..5:14) scala/collection/immutable/`::`.unapply().
 (5:12..5:14) scala/package.`::`.
+(5:14..5:14) scala/collection/immutable/`::`.unapply().
 (5:22..5:29) scala/Predef.println(+1).
 (5:30..5:31) local0 -> 5:10
 (5:34..5:41) scala/Predef.println(+1).
 (5:42..5:45) local1 -> 5:15
 (6:10..6:13) scala/package.Nil.
 (6:17..6:24) scala/Predef.println(+1).
-(9:6..9:12) scala/collection/immutable/List#length().
 (9:3..9:5) _empty_/Test.xs. -> 2:7
+(9:6..9:12) scala/collection/immutable/List#length().
 (10:15..10:22) scala/Predef.println(+1).
 (11:13..11:16) scala/Int#
 (11:20..11:27) scala/Predef.println(+1).
@@ -20,8 +20,8 @@ Document tests/pos/patmat.scala
 (14:15..14:22) scala/Predef.println(+1).
 (15:15..15:22) scala/Predef.println(+1).
 (18:4..18:4) scala/Tuple2.apply().
-(18:7..18:13) scala/collection/immutable/List#length().
 (18:4..18:6) _empty_/Test.xs. -> 2:7
+(18:7..18:13) scala/collection/immutable/List#length().
 (18:15..18:17) _empty_/Test.xs. -> 2:7
 (19:11..19:11) scala/Tuple2.unapply().
 (19:14..19:17) scala/package.Nil.
@@ -36,23 +36,23 @@ Document tests/pos/patmat.scala
 (22:11..22:11) scala/Tuple2.unapply().
 (22:22..22:29) scala/Predef.println(+1).
 (25:3..25:5) _empty_/Test.xs. -> 2:7
-(26:14..26:14) scala/collection/immutable/`::`.unapply().
 (26:12..26:14) scala/package.`::`.
+(26:14..26:14) scala/collection/immutable/`::`.unapply().
 (26:15..26:18) scala/package.Nil.
 (26:22..26:29) scala/Predef.println(+1).
-(27:14..27:14) scala/collection/immutable/`::`.unapply().
 (27:12..27:14) scala/package.`::`.
+(27:14..27:14) scala/collection/immutable/`::`.unapply().
 (27:15..27:18) scala/package.Nil.
 (27:22..27:29) scala/Predef.println(+1).
-(28:14..28:14) scala/collection/immutable/`::`.unapply().
 (28:12..28:14) scala/package.`::`.
+(28:14..28:14) scala/collection/immutable/`::`.unapply().
 (28:22..28:29) scala/Predef.println(+1).
-(29:14..29:14) scala/collection/immutable/`::`.unapply().
 (29:12..29:14) scala/package.`::`.
+(29:14..29:14) scala/collection/immutable/`::`.unapply().
 (29:22..29:29) scala/Predef.println(+1).
 (32:4..32:4) scala/Tuple2.apply().
-(32:7..32:13) scala/collection/immutable/List#length().
 (32:4..32:6) _empty_/Test.xs. -> 2:7
+(32:7..32:13) scala/collection/immutable/List#length().
 (32:15..32:17) _empty_/Test.xs. -> 2:7
 (33:11..33:11) scala/Tuple2.unapply().
 (33:14..33:17) scala/package.Nil.
@@ -61,17 +61,17 @@ Document tests/pos/patmat.scala
 (34:11..34:11) scala/Tuple2.unapply().
 (34:22..34:29) scala/Predef.println(+1).
 (38:25..38:26) _empty_/Test.Option.Some#[T] -> 38:15
-(38:45..38:45) _empty_/Test.Option#`<init>`(). -> 37:14
 (38:36..38:42) _empty_/Test.Option# -> 37:8
 (38:43..38:44) _empty_/Test.Option.Some#[T] -> 38:15
+(38:45..38:45) _empty_/Test.Option#`<init>`(). -> 37:14
 (41:10..41:16) _empty_/Test.Option. -> 37:8
 (43:10..43:16) _empty_/Test.Option# -> 37:8
 (43:17..43:23) scala/Predef.String#
-(43:31..43:31) _empty_/Test.Option.Some.apply(). -> 38:5
 (43:27..43:31) _empty_/Test.Option.Some. -> 38:10
+(43:31..43:31) _empty_/Test.Option.Some.apply(). -> 38:5
 (45:3..45:4) _empty_/Test.x. -> 43:7
-(46:14..46:14) _empty_/Test.Option.Some.unapply(). -> 38:5
 (46:10..46:14) _empty_/Test.Option.Some. -> 38:10
+(46:14..46:14) _empty_/Test.Option.Some.unapply(). -> 38:5
 (46:21..46:28) scala/Predef.println(+1).
 (46:29..46:30) local8 -> 46:15
 (47:10..47:14) _empty_/Test.Option.None. -> 39:10
@@ -81,7 +81,7 @@ Document tests/pos/patmat.scala
 (51:3..51:6) scala/Predef.`???`().
 (52:11..52:11) scala/Tuple2.unapply().
 (52:18..52:25) _empty_/Test.IntPair# -> 50:8
-(52:31..52:32) scala/Int#`*`(+3).
 (52:29..52:30) local9 -> 52:11
+(52:31..52:32) scala/Int#`*`(+3).
 (52:33..52:34) local10 -> 52:14
 

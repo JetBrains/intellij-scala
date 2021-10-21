@@ -1,7 +1,7 @@
 Document tests/pos/varargs-annot-generics.scala
-(1:25..1:32) scala/annotation/varargs#
-(1:14..1:24) scala/annotation/
 (1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/varargs#
 (4:5..4:12) scala/annotation/varargs#
 (5:19..5:20) _empty_/VarArgs.foo1().[A] -> 5:13
 (5:26..5:32) scala/Predef.String#

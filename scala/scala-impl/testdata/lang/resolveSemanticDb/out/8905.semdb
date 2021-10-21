@@ -1,12 +1,12 @@
 Document tests/pos/8905.scala
 (2:15..2:20) scala/Tuple#
 (2:25..2:31) scala/Option#
-(2:38..2:44) scala/Tuple.Concat#
 (2:32..2:37) scala/Tuple.
+(2:38..2:44) scala/Tuple.Concat#
 (2:45..2:47) _empty_/Test.f().[T1] -> 2:9
 (2:49..2:51) _empty_/Test.f().[T1] -> 2:9
 (2:56..2:60) scala/Unit#
 (3:5..3:6) _empty_/Test.f().(o) -> 2:22
-(3:24..3:24) scala/Some.unapply().
 (3:20..3:24) scala/Some.
+(3:24..3:24) scala/Some.unapply().
 

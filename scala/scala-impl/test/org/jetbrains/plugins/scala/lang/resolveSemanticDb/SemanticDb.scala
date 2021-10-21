@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
-import org.jetbrains.kotlin.utils.fileUtils.FileUtilsKt
-
 import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.meta.internal.semanticdb.Locator
-import scala.reflect.io.Directory
 
 
 case class SDbRef(symbol: String, position: TextPos, endPosition: TextPos, targetPosition: Option[TextPos]) {
@@ -14,6 +11,13 @@ case class SDbRef(symbol: String, position: TextPos, endPosition: TextPos, targe
 
   override def toString: String =
     s"$symbol($position..$endPosition) -> ${targetPosition.fold("<no position>")(_.toString)}"
+}
+
+object SDbRef {
+  implicit val ordering: Ordering[SDbRef] =
+    Ordering.by[SDbRef, TextPos](_.position)
+      .orElseBy(_.endPosition)
+      .orElseBy(_.symbol)
 }
 
 case class SDbFile(path: String, references: Seq[SDbRef]) {
@@ -74,9 +78,10 @@ object SemanticDbStore {
           val refs =
             for ((symbol, start, end) <- unfinishedRefs)
               yield SDbRef(symbol, start, end, targetPosition = positionOfSymbols.get(symbol))
-          SDbFile(path, refs)
+          SDbFile(path, refs.sorted)
       }
       .toSeq
+      .sortBy(_.path)
 
     SemanticDbStore(files)
   }

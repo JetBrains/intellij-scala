@@ -2,6 +2,6 @@ Document tests/pos/t1280.scala
 (1:26..1:30) scala/Null#
 (1:36..1:37) _empty_/X# -> 1:7
 (1:49..1:52) scala/Any#
-(1:60..1:61) _empty_/X#T# -> 1:21
 (1:58..1:59) _empty_/X# -> 1:7
+(1:60..1:61) _empty_/X#T# -> 1:21
 

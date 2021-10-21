@@ -1,22 +1,22 @@
 Document tests/pos/spec-constr-new.scala
-(1:23..1:31) scala/reflect/ClassTag.
-(1:23..1:31) scala/reflect/ClassTag#
-(1:33..1:41) scala/reflect/package.classTag().
-(1:14..1:21) scala/reflect/
 (1:8..1:13) scala/
-(3:63..3:66) scala/Int#
-(3:82..3:85) scala/Int#
-(3:40..3:48) scala/reflect/ClassTag#
-(3:48..3:48) _empty_/SparseArray2#[T] -> 3:38
+(1:14..1:21) scala/reflect/
+(1:23..1:31) scala/reflect/ClassTag#
+(1:23..1:31) scala/reflect/ClassTag.
+(1:33..1:41) scala/reflect/package.classTag().
 (3:21..3:32) scala/specialized#
 (3:33..3:36) scala/Int.
+(3:40..3:48) scala/reflect/ClassTag#
+(3:48..3:48) _empty_/SparseArray2#[T] -> 3:38
+(3:63..3:66) scala/Int#
+(3:82..3:85) scala/Int#
 (4:34..4:49) scala/runtime/Arrays.newGenericArray().
 (4:35..4:48) _empty_/SparseArray2#initialLength. -> 3:68
-(5:37..5:37) scala/Array#`<init>`().
 (5:27..5:32) scala/Array#
 (5:33..5:36) scala/Int#
+(5:37..5:37) scala/Array#`<init>`().
 (5:38..5:51) _empty_/SparseArray2#initialLength. -> 3:68
-(8:15..8:16) scala/Int#`+`(+4).
-(8:8..8:14) scala/Array#length().
 (8:3..8:7) _empty_/SparseArray2#data(). -> 4:15
+(8:8..8:14) scala/Array#length().
+(8:15..8:16) scala/Int#`+`(+4).
 

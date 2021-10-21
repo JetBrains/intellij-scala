@@ -25,33 +25,33 @@ Document tests/pos/t1500a.scala
 (22:20..22:20) _empty_/Steps.Step0. -> 10:16
 (23:3..23:13) scala/Predef.implicitly().
 (23:14..23:19) _empty_/Step1# -> 2:7
-(23:20..23:20) _empty_/Steps.Step1(). -> 11:16
 (23:20..23:20) _empty_/Steps.Step0. -> 10:16
+(23:20..23:20) _empty_/Steps.Step1(). -> 11:16
 (24:3..24:13) scala/Predef.implicitly().
 (24:14..24:19) _empty_/Step2# -> 3:7
-(24:20..24:20) _empty_/Steps.Step2(). -> 12:16
-(24:20..24:20) _empty_/Steps.Step1(). -> 11:16
 (24:20..24:20) _empty_/Steps.Step0. -> 10:16
+(24:20..24:20) _empty_/Steps.Step1(). -> 11:16
+(24:20..24:20) _empty_/Steps.Step2(). -> 12:16
 (25:3..25:13) scala/Predef.implicitly().
 (25:14..25:19) _empty_/Step3# -> 4:7
-(25:20..25:20) _empty_/Steps.Step3(). -> 13:16
-(25:20..25:20) _empty_/Steps.Step2(). -> 12:16
-(25:20..25:20) _empty_/Steps.Step1(). -> 11:16
 (25:20..25:20) _empty_/Steps.Step0. -> 10:16
+(25:20..25:20) _empty_/Steps.Step1(). -> 11:16
+(25:20..25:20) _empty_/Steps.Step2(). -> 12:16
+(25:20..25:20) _empty_/Steps.Step3(). -> 13:16
 (26:3..26:13) scala/Predef.implicitly().
 (26:14..26:19) _empty_/Step4# -> 5:7
-(26:20..26:20) _empty_/Steps.Step4(). -> 14:16
-(26:20..26:20) _empty_/Steps.Step3(). -> 13:16
-(26:20..26:20) _empty_/Steps.Step2(). -> 12:16
-(26:20..26:20) _empty_/Steps.Step1(). -> 11:16
 (26:20..26:20) _empty_/Steps.Step0. -> 10:16
+(26:20..26:20) _empty_/Steps.Step1(). -> 11:16
+(26:20..26:20) _empty_/Steps.Step2(). -> 12:16
+(26:20..26:20) _empty_/Steps.Step3(). -> 13:16
+(26:20..26:20) _empty_/Steps.Step4(). -> 14:16
 (27:3..27:13) scala/Predef.implicitly().
 (27:14..27:19) _empty_/Step6# -> 7:7
-(27:20..27:20) _empty_/Steps.Step6(). -> 16:16
-(27:20..27:20) _empty_/Steps.Step5(). -> 15:16
-(27:20..27:20) _empty_/Steps.Step4(). -> 14:16
-(27:20..27:20) _empty_/Steps.Step3(). -> 13:16
-(27:20..27:20) _empty_/Steps.Step2(). -> 12:16
-(27:20..27:20) _empty_/Steps.Step1(). -> 11:16
 (27:20..27:20) _empty_/Steps.Step0. -> 10:16
+(27:20..27:20) _empty_/Steps.Step1(). -> 11:16
+(27:20..27:20) _empty_/Steps.Step2(). -> 12:16
+(27:20..27:20) _empty_/Steps.Step3(). -> 13:16
+(27:20..27:20) _empty_/Steps.Step4(). -> 14:16
+(27:20..27:20) _empty_/Steps.Step5(). -> 15:16
+(27:20..27:20) _empty_/Steps.Step6(). -> 16:16
 

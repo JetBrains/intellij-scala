@@ -18,8 +18,8 @@ Document tests/pos/i536.scala
 (8:12..8:15) _empty_/Max.max(). -> 5:7
 (8:16..8:18) _empty_/Max.xs. -> 7:7
 (9:12..9:15) _empty_/Max.max(). -> 5:7
-(11:25..11:28) java/util/Collections#max().
-(11:13..11:24) java/util/Collections#
-(11:8..11:12) java/util/
 (11:3..11:7) java/
+(11:8..11:12) java/util/
+(11:13..11:24) java/util/Collections#
+(11:25..11:28) java/util/Collections#max().
 

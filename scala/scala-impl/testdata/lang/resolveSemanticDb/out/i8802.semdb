@@ -10,8 +10,8 @@ Document tests/pos/i8802.scala
 (10:65..10:66) _empty_/Test.product().[A] -> 10:15
 (10:68..10:69) _empty_/Test.product().[B] -> 10:18
 (10:73..10:76) _empty_/Test.Bar# -> 7:8
-(10:81..10:84) _empty_/Foo#Out# -> 2:8
 (10:77..10:80) _empty_/Test.product().(foo) -> 10:56
+(10:81..10:84) _empty_/Foo#Out# -> 2:8
 (10:88..10:91) scala/Predef.`???`().
 (12:24..12:27) _empty_/Foo# -> 1:7
 (12:28..12:29) _empty_/Test.foo().[A] -> 12:20

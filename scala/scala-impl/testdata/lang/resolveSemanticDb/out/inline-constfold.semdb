@@ -1,16 +1,16 @@
 Document tests/pos/inline-constfold.scala
-(3:7..3:7) scala/Boolean#`unary_!`().
-(3:6..3:7) _empty_/Test.not().(x) -> 2:30
 (2:33..2:40) scala/Boolean#
 (2:43..2:50) scala/Boolean#
+(3:6..3:7) _empty_/Test.not().(x) -> 2:30
+(3:7..3:7) scala/Boolean#`unary_!`().
 (6:17..6:20) _empty_/Test.not(). -> 2:26
 (7:18..7:19) _empty_/Test.a. -> 6:13
-(10:7..10:8) scala/Int#`+`(+4).
-(10:5..10:6) _empty_/Test.add().(x) -> 9:30
-(10:9..10:10) _empty_/Test.add().(y) -> 9:38
 (9:33..9:36) scala/Int#
 (9:41..9:44) scala/Int#
 (9:47..9:50) scala/Int#
+(10:5..10:6) _empty_/Test.add().(x) -> 9:30
+(10:7..10:8) scala/Int#`+`(+4).
+(10:9..10:10) _empty_/Test.add().(y) -> 9:38
 (13:17..13:20) _empty_/Test.add(). -> 9:26
 (14:14..14:15) _empty_/Test.c. -> 13:13
 

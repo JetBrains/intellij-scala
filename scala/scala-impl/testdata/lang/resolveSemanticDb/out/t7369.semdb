@@ -1,27 +1,27 @@
 Document tests/pos/t7369.scala
 (3:10..3:16) scala/Tuple1#
 (3:17..3:24) scala/Boolean#
-(4:16..4:16) scala/Tuple1.unapply().
 (4:10..4:16) scala/Tuple1.
+(4:16..4:16) scala/Tuple1.unapply().
 (4:17..4:18) _empty_/Test.X. -> 2:7
-(5:16..5:16) scala/Tuple1.unapply().
 (5:10..5:16) scala/Tuple1.
+(5:16..5:16) scala/Tuple1.unapply().
 (5:17..5:18) _empty_/Test.Y. -> 2:10
-(12:27..12:27) _empty_/B#`<init>`(). -> 11:1
 (12:26..12:27) _empty_/B# -> 11:23
-(13:28..13:28) _empty_/B#`<init>`(). -> 11:1
+(12:27..12:27) _empty_/B#`<init>`(). -> 11:1
 (13:27..13:28) _empty_/B# -> 11:23
+(13:28..13:28) _empty_/B#`<init>`(). -> 11:1
 (17:10..17:11) _empty_/B# -> 11:23
 (17:14..17:18) _empty_/True. -> 12:13
 (18:10..18:11) _empty_/B# -> 11:23
 (18:14..18:19) _empty_/False. -> 13:13
 (20:10..20:16) scala/Tuple1#
 (20:17..20:18) _empty_/B# -> 11:23
-(21:16..21:16) scala/Tuple1.unapply().
 (21:10..21:16) scala/Tuple1.
+(21:16..21:16) scala/Tuple1.unapply().
 (21:17..21:18) _empty_/Test2.X. -> 17:7
-(22:16..22:16) scala/Tuple1.unapply().
 (22:10..22:16) scala/Tuple1.
+(22:16..22:16) scala/Tuple1.unapply().
 (22:17..22:18) _empty_/Test2.Y. -> 18:7
 (29:32..29:39) scala/Boolean#
 (29:41..29:48) scala/Boolean#
@@ -40,6 +40,6 @@ Document tests/pos/t7369.scala
 (33:13..33:14) _empty_/Test3.O. -> 28:10
 (33:16..33:17) _empty_/Test3.X. -> 28:7
 (33:19..33:20) _empty_/Test3.X. -> 28:7
-(34:51..34:51) java/lang/IllegalArgumentException#`<init>`(+1).
 (34:27..34:51) scala/package.IllegalArgumentException#
+(34:51..34:51) java/lang/IllegalArgumentException#`<init>`(+1).
 

@@ -2,12 +2,12 @@ Document tests/pos/i8843.scala
 (2:13..2:18) scala/Tuple#
 (4:17..4:18) _empty_/C# -> 1:7
 (4:21..4:25) scala/Unit#
-(5:33..5:43) scala/compiletime/package$package.constValue().
 (5:21..5:32) scala/compiletime/
-(5:50..5:54) scala/Tuple.Size#
+(5:33..5:43) scala/compiletime/package$package.constValue().
 (5:44..5:49) scala/Tuple.
-(5:57..5:58) _empty_/C#X# -> 2:8
+(5:50..5:54) scala/Tuple.Size#
 (5:55..5:56) _empty_/i8843$package.f().(c) -> 4:14
+(5:57..5:58) _empty_/C#X# -> 2:8
 (6:11..6:15) local0 -> 5:14
 (7:10..7:13) scala/Int#
 (7:16..7:17) local1 -> 6:7

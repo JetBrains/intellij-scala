@@ -6,7 +6,7 @@ Document tests/pos/i2278.scala
 (7:57..7:58) _empty_/Fluent.Context#[E] -> 7:37
 (9:20..9:27) _empty_/Fluent.Context# -> 7:8
 (9:33..9:34) _empty_/Fluent.meth1().[T] -> 9:13
-(10:25..10:30) _empty_/Fluent.Foo#meth1(). -> 3:9
 (10:5..10:15) scala/Predef.implicitly().
 (10:16..10:19) _empty_/Fluent.Foo# -> 2:9
+(10:25..10:30) _empty_/Fluent.Foo#meth1(). -> 3:9
 

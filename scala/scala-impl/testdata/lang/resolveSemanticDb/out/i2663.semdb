@@ -17,24 +17,24 @@ Document tests/pos/i2663.scala
 (9:10..9:13) _empty_/Foo. -> 2:6
 (10:12..10:15) _empty_/Foo# -> 2:6
 (10:16..10:23) scala/Boolean#
-(10:30..10:30) _empty_/Foo.Bar.apply(). -> 3:3
 (10:27..10:30) _empty_/Foo.Bar. -> 3:8
+(10:30..10:30) _empty_/Foo.Bar.apply(). -> 3:3
 (11:12..11:15) _empty_/Foo# -> 2:6
 (11:16..11:19) scala/Int#
-(11:26..11:26) _empty_/Foo.Bas.apply(). -> 4:3
 (11:23..11:26) _empty_/Foo.Bas. -> 4:8
-(12:24..12:25) scala/`&`#
+(11:26..11:26) _empty_/Foo.Bas.apply(). -> 4:3
 (12:12..12:15) _empty_/Foo# -> 2:6
 (12:16..12:22) scala/Predef.String#
+(12:24..12:25) scala/`&`#
 (12:26..12:28) _empty_/Tr# -> 1:7
-(12:34..12:34) _empty_/Foo.Bam.apply(). -> 5:3
 (12:31..12:34) _empty_/Foo.Bam. -> 5:8
-(13:24..13:25) scala/`&`#
+(12:34..12:34) _empty_/Foo.Bam.apply(). -> 5:3
 (13:12..13:15) _empty_/Foo# -> 2:6
 (13:16..13:22) scala/Predef.String#
+(13:24..13:25) scala/`&`#
 (13:26..13:28) _empty_/Tr# -> 1:7
-(13:34..13:34) _empty_/Foo.Baz.apply(). -> 6:3
 (13:31..13:34) _empty_/Foo.Baz. -> 6:8
+(13:34..13:34) _empty_/Foo.Baz.apply(). -> 6:3
 (16:26..16:27) _empty_/Foo2#[S] -> 16:11
 (16:33..16:34) _empty_/Foo2#[T] -> 16:19
 (17:18..17:19) _empty_/Foo2.Bar#[T] -> 17:12
@@ -59,25 +59,25 @@ Document tests/pos/i2663.scala
 (24:12..24:16) _empty_/Foo2# -> 16:6
 (24:17..24:24) scala/Boolean#
 (24:26..24:33) scala/Boolean#
-(24:40..24:40) _empty_/Foo2.Bar.apply(). -> 17:3
 (24:37..24:40) _empty_/Foo2.Bar. -> 17:8
+(24:40..24:40) _empty_/Foo2.Bar.apply(). -> 17:3
 (25:12..25:16) _empty_/Foo2# -> 16:6
 (25:17..25:20) scala/Int#
 (25:22..25:25) scala/Int#
-(25:32..25:32) _empty_/Foo2.Bas.apply(). -> 18:3
 (25:29..25:32) _empty_/Foo2.Bas. -> 18:8
-(26:33..26:34) scala/`&`#
+(25:32..25:32) _empty_/Foo2.Bas.apply(). -> 18:3
 (26:12..26:16) _empty_/Foo2# -> 16:6
 (26:17..26:23) scala/Predef.String#
 (26:25..26:31) scala/Predef.String#
+(26:33..26:34) scala/`&`#
 (26:35..26:37) _empty_/Tr# -> 1:7
-(26:43..26:43) _empty_/Foo2.Bam.apply(). -> 19:3
 (26:40..26:43) _empty_/Foo2.Bam. -> 19:8
-(27:33..27:34) scala/`&`#
+(26:43..26:43) _empty_/Foo2.Bam.apply(). -> 19:3
 (27:12..27:16) _empty_/Foo2# -> 16:6
 (27:17..27:23) scala/Predef.String#
 (27:25..27:31) scala/Predef.String#
+(27:33..27:34) scala/`&`#
 (27:35..27:37) _empty_/Tr# -> 1:7
-(27:43..27:43) _empty_/Foo2.Baz.apply(). -> 20:3
 (27:40..27:43) _empty_/Foo2.Baz. -> 20:8
+(27:43..27:43) _empty_/Foo2.Baz.apply(). -> 20:3
 

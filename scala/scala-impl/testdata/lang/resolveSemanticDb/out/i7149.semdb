@@ -12,25 +12,25 @@ Document tests/pos/i7149.scala
 (3:79..3:85) scala/package.Either#
 (3:86..3:87) _empty_/ZIO#[A] -> 1:20
 (3:89..3:90) _empty_/ZIO#`+++`().[B] -> 3:21
-(5:42..5:42) _empty_/ZIO#flatMap(). -> 11:7
-(5:16..5:27) _empty_/ZIO.environment(). -> 19:7
 (5:12..5:15) _empty_/ZIO. -> 18:8
+(5:16..5:27) _empty_/ZIO.environment(). -> 19:7
 (5:28..5:34) scala/package.Either#
 (5:35..5:36) _empty_/ZIO#[R] -> 1:12
 (5:38..5:40) _empty_/ZIO#`+++`().[R1] -> 3:17
-(6:77..6:77) _empty_/ZIO#map(). -> 13:7
-(6:14..6:18) scala/util/Either#fold().
+(5:42..5:42) _empty_/ZIO#flatMap(). -> 11:7
 (6:12..6:13) local1 -> 5:7
-(6:37..6:44) _empty_/ZIO#provide(). -> 15:7
-(6:24..6:27) _empty_/ZIO#map(). -> 13:7
+(6:14..6:18) scala/util/Either#fold().
 (6:19..6:23) _empty_/ZIO# -> 1:7
-(6:32..6:32) scala/util/Left.apply().
+(6:24..6:27) _empty_/ZIO#map(). -> 13:7
 (6:28..6:32) scala/package.Left.
-(6:67..6:74) _empty_/ZIO#provide(). -> 15:7
-(6:53..6:56) _empty_/ZIO#map(). -> 13:7
+(6:32..6:32) scala/util/Left.apply().
+(6:37..6:44) _empty_/ZIO#provide(). -> 15:7
 (6:48..6:52) _empty_/ZIO#`+++`().(that) -> 3:33
-(6:62..6:62) scala/util/Right.apply().
+(6:53..6:56) _empty_/ZIO#map(). -> 13:7
 (6:57..6:62) scala/package.Right.
+(6:62..6:62) scala/util/Right.apply().
+(6:67..6:74) _empty_/ZIO#provide(). -> 15:7
+(6:77..6:77) _empty_/ZIO#map(). -> 13:7
 (7:13..7:14) local2 -> 6:7
 (11:21..11:22) _empty_/ZIO#[R] -> 1:12
 (11:30..11:31) _empty_/ZIO#[E] -> 1:16

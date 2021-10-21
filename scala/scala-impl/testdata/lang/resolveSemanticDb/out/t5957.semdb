@@ -1,6 +1,6 @@
 Document tests/pos/t5957/T_1.scala
-(4:16..4:19) _empty_/Test#Bar#
 (4:11..4:15) _empty_/Test#
-(7:16..7:19) _empty_/Test#Baz#
+(4:16..4:19) _empty_/Test#Bar#
 (7:11..7:15) _empty_/Test#
+(7:16..7:19) _empty_/Test#Baz#
 

@@ -13,15 +13,15 @@ Document tests/pos/typealiases.scala
 (10:23..10:24) foo/Test#[T] -> 3:12
 (10:30..10:35) foo/Test#Check# -> 4:8
 (10:36..10:37) foo/Test#[T] -> 3:12
-(10:43..10:43) scala/Function1#apply().
 (10:42..10:43) foo/Test#check().(c) -> 10:27
+(10:43..10:43) scala/Function1#apply().
 (10:44..10:46) foo/Test#check().(xs) -> 10:13
 (11:21..11:26) scala/Array#
 (11:27..11:28) foo/Test#check2().[S] -> 11:14
 (11:34..11:39) foo/Test#Check# -> 4:8
 (11:40..11:41) foo/Test#check2().[S] -> 11:14
-(11:47..11:47) scala/Function1#apply().
 (11:46..11:47) foo/Test#check2().(c) -> 11:31
+(11:47..11:47) scala/Function1#apply().
 (11:48..11:50) foo/Test#check2().(xs) -> 11:17
 (14:22..14:26) foo/Test# -> 3:7
 (14:27..14:30) scala/Int#

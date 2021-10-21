@@ -7,10 +7,10 @@ Document tests/pos/single-unions.scala
 (10:33..10:40) scala/Nothing#
 (10:42..10:49) scala/Nothing#
 (11:34..11:35) _empty_/Test1.Post#[T] -> 11:20
-(11:55..11:56) scala/`|`#
 (11:43..11:48) _empty_/Test1.Panel# -> 12:14
 (11:49..11:50) _empty_/Test1.Post#[T] -> 11:20
 (11:52..11:53) _empty_/Test1.Post#[S] -> 11:24
+(11:55..11:56) scala/`|`#
 (11:57..11:60) _empty_/Test1.End. -> 10:15
 (11:75..11:80) _empty_/Test1.Fence# -> 9:16
 (11:81..11:82) _empty_/Test1.Post#[T] -> 11:20
@@ -22,11 +22,11 @@ Document tests/pos/single-unions.scala
 (12:64..12:69) _empty_/Test1.Fence# -> 9:16
 (12:70..12:71) _empty_/Test1.Panel#[T] -> 12:21
 (12:73..12:74) _empty_/Test1.Panel#[S] -> 12:25
-(14:19..14:19) _empty_/Test1.Post.apply(). -> 11:3
 (14:15..14:19) _empty_/Test1.Post. -> 11:14
-(14:28..14:28) _empty_/Test1.Panel.apply(). -> 12:3
+(14:19..14:19) _empty_/Test1.Post.apply(). -> 11:3
 (14:23..14:28) _empty_/Test1.Panel. -> 12:14
-(14:40..14:40) _empty_/Test1.Post.apply(). -> 11:3
+(14:28..14:28) _empty_/Test1.Panel.apply(). -> 12:3
 (14:36..14:40) _empty_/Test1.Post. -> 11:14
+(14:40..14:40) _empty_/Test1.Post.apply(). -> 11:3
 (14:44..14:47) _empty_/Test1.End. -> 10:15
 

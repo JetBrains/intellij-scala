@@ -1,15 +1,14 @@
 Document tests/pos/tasty-named-arguments.scala
 (1:32..1:33) _empty_/Fn#[T] -> 1:11
 (1:36..1:37) _empty_/Fn#[R] -> 1:14
-(9:45..9:50) _empty_/KeyValuePair#Value# -> 9:27
 (3:8..3:10) _empty_/Fn# -> 1:7
 (3:11..3:14) scala/Int#
 (3:16..3:19) scala/Int#
 (3:38..3:41) scala/Int#
 (3:44..3:47) scala/Int#
 (3:57..3:58) local2 -> 3:52
-(4:11..4:16) _empty_/Fn#apply(). -> 1:23
 (4:9..4:10) _empty_/`tasty-named-arguments$package`.f. -> 3:5
+(4:11..4:16) _empty_/Fn#apply(). -> 1:23
 (4:17..4:20) _empty_/Fn#apply().(arg)
 (6:21..6:22) local4 -> 6:9
 (6:27..6:28) local4 -> 6:9
@@ -17,17 +16,18 @@ Document tests/pos/tasty-named-arguments.scala
 (6:50..6:53) local9 -> 6:39
 (7:9..7:10) _empty_/`tasty-named-arguments$package`.m. -> 6:5
 (7:17..7:20) <?>
+(9:45..9:50) _empty_/KeyValuePair#Value# -> 9:27
 (11:14..11:26) _empty_/KeyValuePair# -> 9:7
-(11:35..11:40) _empty_/KeyValuePair#Value# -> 9:27
 (11:31..11:34) local11 -> 11:9
+(11:35..11:40) _empty_/KeyValuePair#Value# -> 9:27
 (11:45..11:50) _empty_/KeyValuePair#value(). -> 9:38
-(12:11..12:16) scala/Function1#apply().
 (12:9..12:10) _empty_/`tasty-named-arguments$package`.d. -> 11:5
+(12:11..12:16) scala/Function1#apply().
 (12:17..12:20) scala/Function1#apply().(kvp)
 (12:42..12:45) scala/Int#
 (14:12..14:15) scala/Int#
 (14:21..14:22) local16 -> 14:9
 (14:36..14:37) local17 -> 14:30
-(15:11..15:16) scala/ContextFunction1#apply().
 (15:9..15:10) _empty_/`tasty-named-arguments$package`.c. -> 14:5
+(15:11..15:16) scala/ContextFunction1#apply().
 

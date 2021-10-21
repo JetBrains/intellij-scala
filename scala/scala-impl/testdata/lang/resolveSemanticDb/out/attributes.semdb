@@ -1,161 +1,161 @@
 Document tests/pos/attributes.scala
-(1:39..1:55) scala/annotation/StaticAnnotation#
 (1:28..1:38) scala/annotation/
+(1:39..1:55) scala/annotation/StaticAnnotation#
 (3:2..3:14) _empty_/serializable# -> 1:7
-(4:16..4:24) scala/volatile#
 (4:2..4:14) _empty_/serializable# -> 1:7
-(5:16..5:24) scala/volatile#
+(4:16..4:24) scala/volatile#
 (5:2..5:14) _empty_/serializable# -> 1:7
-(6:26..6:38) _empty_/serializable# -> 1:7
-(6:16..6:24) scala/volatile#
+(5:16..5:24) scala/volatile#
 (6:2..6:14) _empty_/serializable# -> 1:7
+(6:16..6:24) scala/volatile#
+(6:26..6:38) _empty_/serializable# -> 1:7
 (8:2..8:14) _empty_/serializable# -> 1:7
-(9:16..9:24) scala/volatile#
 (9:2..9:14) _empty_/serializable# -> 1:7
-(10:16..10:24) scala/volatile#
+(9:16..9:24) scala/volatile#
 (10:2..10:14) _empty_/serializable# -> 1:7
-(11:26..11:38) _empty_/serializable# -> 1:7
-(11:16..11:24) scala/volatile#
+(10:16..10:24) scala/volatile#
 (11:2..11:14) _empty_/serializable# -> 1:7
+(11:16..11:24) scala/volatile#
+(11:26..11:38) _empty_/serializable# -> 1:7
 (13:2..13:14) _empty_/serializable# -> 1:7
-(13:36..13:36) _empty_/C1#`<init>`(). -> 3:1
 (13:34..13:36) _empty_/C1# -> 3:22
-(14:16..14:24) scala/volatile#
+(13:36..13:36) _empty_/C1#`<init>`(). -> 3:1
 (14:2..14:14) _empty_/serializable# -> 1:7
-(14:45..14:45) _empty_/C2#`<init>`(). -> 4:1
+(14:16..14:24) scala/volatile#
 (14:43..14:45) _empty_/C2# -> 4:32
-(15:16..15:24) scala/volatile#
+(14:45..14:45) _empty_/C2#`<init>`(). -> 4:1
 (15:2..15:14) _empty_/serializable# -> 1:7
-(15:46..15:46) _empty_/C3#`<init>`(). -> 5:1
+(15:16..15:24) scala/volatile#
 (15:44..15:46) _empty_/C3# -> 5:32
-(16:26..16:38) _empty_/serializable# -> 1:7
-(16:16..16:24) scala/volatile#
+(15:46..15:46) _empty_/C3#`<init>`(). -> 5:1
 (16:2..16:14) _empty_/serializable# -> 1:7
-(16:59..16:59) _empty_/C4#`<init>`(). -> 6:1
+(16:16..16:24) scala/volatile#
+(16:26..16:38) _empty_/serializable# -> 1:7
 (16:57..16:59) _empty_/C4# -> 6:45
+(16:59..16:59) _empty_/C4#`<init>`(). -> 6:1
 (20:4..20:20) scala/SerialVersionUID#
 (21:4..21:20) scala/SerialVersionUID#
-(22:25..22:41) scala/SerialVersionUID#
 (22:4..22:20) scala/SerialVersionUID#
-(23:25..23:41) scala/SerialVersionUID#
+(22:25..22:41) scala/SerialVersionUID#
 (23:4..23:20) scala/SerialVersionUID#
+(23:25..23:41) scala/SerialVersionUID#
 (27:4..27:16) _empty_/serializable# -> 1:7
 (27:26..27:28) _empty_/C1# -> 3:22
-(28:18..28:26) scala/volatile#
 (28:4..28:16) _empty_/serializable# -> 1:7
+(28:18..28:26) scala/volatile#
 (28:36..28:38) _empty_/C2# -> 4:32
-(29:18..29:26) scala/volatile#
 (29:4..29:16) _empty_/serializable# -> 1:7
+(29:18..29:26) scala/volatile#
 (29:36..29:38) _empty_/C3# -> 5:32
-(30:28..30:40) _empty_/serializable# -> 1:7
-(30:18..30:26) scala/volatile#
 (30:4..30:16) _empty_/serializable# -> 1:7
+(30:18..30:26) scala/volatile#
+(30:28..30:40) _empty_/serializable# -> 1:7
 (30:50..30:52) _empty_/C4# -> 6:45
 (32:4..32:16) _empty_/serializable# -> 1:7
 (32:28..32:30) _empty_/C1# -> 3:22
-(33:18..33:26) scala/volatile#
 (33:4..33:16) _empty_/serializable# -> 1:7
+(33:18..33:26) scala/volatile#
 (33:38..33:40) _empty_/C2# -> 4:32
-(34:18..34:26) scala/volatile#
 (34:4..34:16) _empty_/serializable# -> 1:7
+(34:18..34:26) scala/volatile#
 (34:38..34:40) _empty_/C3# -> 5:32
-(35:28..35:40) _empty_/serializable# -> 1:7
-(35:18..35:26) scala/volatile#
 (35:4..35:16) _empty_/serializable# -> 1:7
+(35:18..35:26) scala/volatile#
+(35:28..35:40) _empty_/serializable# -> 1:7
 (35:52..35:54) _empty_/C4# -> 6:45
 (39:4..39:16) _empty_/serializable# -> 1:7
-(39:33..39:33) _empty_/C1#`<init>`(). -> 3:1
 (39:31..39:33) _empty_/C1# -> 3:22
+(39:33..39:33) _empty_/C1#`<init>`(). -> 3:1
 (41:4..41:16) _empty_/serializable# -> 1:7
-(41:32..41:32) _empty_/C2#`<init>`(). -> 4:1
 (41:30..41:32) _empty_/C2# -> 4:32
+(41:32..41:32) _empty_/C2#`<init>`(). -> 4:1
 (42:4..42:16) _empty_/serializable# -> 1:7
-(42:32..42:32) _empty_/C3#`<init>`(). -> 5:1
 (42:30..42:32) _empty_/C3# -> 5:32
+(42:32..42:32) _empty_/C3#`<init>`(). -> 5:1
 (43:4..43:16) _empty_/serializable# -> 1:7
-(43:32..43:32) _empty_/C4#`<init>`(). -> 6:1
 (43:30..43:32) _empty_/C4# -> 6:45
+(43:32..43:32) _empty_/C4#`<init>`(). -> 6:1
 (45:4..45:16) _empty_/serializable# -> 1:7
 (45:26..45:28) _empty_/C1# -> 3:22
-(46:18..46:26) scala/volatile#
 (46:4..46:16) _empty_/serializable# -> 1:7
+(46:18..46:26) scala/volatile#
 (46:36..46:38) _empty_/C2# -> 4:32
-(47:18..47:26) scala/volatile#
 (47:4..47:16) _empty_/serializable# -> 1:7
+(47:18..47:26) scala/volatile#
 (47:36..47:38) _empty_/C3# -> 5:32
-(48:28..48:40) _empty_/serializable# -> 1:7
-(48:18..48:26) scala/volatile#
 (48:4..48:16) _empty_/serializable# -> 1:7
+(48:18..48:26) scala/volatile#
+(48:28..48:40) _empty_/serializable# -> 1:7
 (48:50..48:52) _empty_/C4# -> 6:45
 (50:4..50:16) _empty_/serializable# -> 1:7
 (50:37..50:39) _empty_/O6.x1. -> 39:22
-(51:18..51:26) scala/volatile#
 (51:4..51:16) _empty_/serializable# -> 1:7
+(51:18..51:26) scala/volatile#
 (51:47..51:49) _empty_/O6.x2. -> 41:21
-(52:18..52:26) scala/volatile#
 (52:4..52:16) _empty_/serializable# -> 1:7
+(52:18..52:26) scala/volatile#
 (52:49..52:51) _empty_/O6.x3. -> 42:21
-(53:28..53:40) _empty_/serializable# -> 1:7
-(53:18..53:26) scala/volatile#
 (53:4..53:16) _empty_/serializable# -> 1:7
+(53:18..53:26) scala/volatile#
+(53:28..53:40) _empty_/serializable# -> 1:7
 (53:63..53:65) _empty_/O6.x4. -> 43:21
-(57:37..57:47) scala/annotation/Annotation#
-(57:26..57:36) scala/annotation/
 (57:20..57:25) scala/
+(57:26..57:36) scala/annotation/
+(57:37..57:47) scala/annotation/Annotation#
 (58:15..58:18) scala/Int#
-(58:45..58:55) scala/annotation/Annotation#
-(58:34..58:44) scala/annotation/
 (58:28..58:33) scala/
+(58:34..58:44) scala/annotation/
+(58:45..58:55) scala/annotation/Annotation#
 (59:15..59:17) _empty_/myAttrs.a1# -> 57:9
-(59:44..59:54) scala/annotation/Annotation#
-(59:33..59:43) scala/annotation/
 (59:27..59:32) scala/
+(59:33..59:43) scala/annotation/
+(59:44..59:54) scala/annotation/Annotation#
 (61:14..61:19) scala/Array#
 (61:20..61:23) scala/Int#
-(61:51..61:61) scala/annotation/Annotation#
-(61:40..61:50) scala/annotation/
 (61:34..61:39) scala/
-(63:37..63:47) scala/annotation/Annotation#
-(63:26..63:36) scala/annotation/
+(61:40..61:50) scala/annotation/
+(61:51..61:61) scala/annotation/Annotation#
 (63:20..63:25) scala/
+(63:26..63:36) scala/annotation/
+(63:37..63:47) scala/annotation/Annotation#
 (64:15..64:18) scala/Int#
-(64:45..64:55) scala/annotation/Annotation#
-(64:34..64:44) scala/annotation/
 (64:28..64:33) scala/
+(64:34..64:44) scala/annotation/
+(64:45..64:55) scala/annotation/Annotation#
 (65:15..65:17) _empty_/O7.a1# -> 63:9
-(65:44..65:54) scala/annotation/Annotation#
-(65:33..65:43) scala/annotation/
 (65:27..65:32) scala/
+(65:33..65:43) scala/annotation/
+(65:44..65:54) scala/annotation/Annotation#
 (67:21..67:23) _empty_/O7.a1# -> 63:9
 (68:4..68:6) _empty_/O7.a1# -> 63:9
-(69:8..69:10) _empty_/O7.a2# -> 64:9
 (69:4..69:6) _empty_/O7.a1# -> 63:9
-(70:8..70:10) _empty_/O7.a2# -> 64:9
+(69:8..69:10) _empty_/O7.a2# -> 64:9
 (70:4..70:6) _empty_/O7.a1# -> 63:9
-(71:16..71:18) _empty_/O7.a3# -> 65:9
-(71:8..71:10) _empty_/O7.a2# -> 64:9
+(70:8..70:10) _empty_/O7.a2# -> 64:9
 (71:4..71:6) _empty_/O7.a1# -> 63:9
-(73:12..73:14) _empty_/myAttrs.a1# -> 57:9
+(71:8..71:10) _empty_/O7.a2# -> 64:9
+(71:16..71:18) _empty_/O7.a3# -> 65:9
 (73:4..73:11) _empty_/myAttrs. -> 56:8
-(74:24..74:26) _empty_/myAttrs.a2# -> 58:9
-(74:16..74:23) _empty_/myAttrs. -> 56:8
-(74:12..74:14) _empty_/myAttrs.a1# -> 57:9
+(73:12..73:14) _empty_/myAttrs.a1# -> 57:9
 (74:4..74:11) _empty_/myAttrs. -> 56:8
-(75:24..75:26) _empty_/myAttrs.a2# -> 58:9
-(75:16..75:23) _empty_/myAttrs. -> 56:8
-(75:12..75:14) _empty_/myAttrs.a1# -> 57:9
+(74:12..74:14) _empty_/myAttrs.a1# -> 57:9
+(74:16..74:23) _empty_/myAttrs. -> 56:8
+(74:24..74:26) _empty_/myAttrs.a2# -> 58:9
 (75:4..75:11) _empty_/myAttrs. -> 56:8
-(76:40..76:42) _empty_/myAttrs.a3# -> 59:9
-(76:32..76:39) _empty_/myAttrs. -> 56:8
-(76:24..76:26) _empty_/myAttrs.a2# -> 58:9
-(76:16..76:23) _empty_/myAttrs. -> 56:8
-(76:12..76:14) _empty_/myAttrs.a1# -> 57:9
+(75:12..75:14) _empty_/myAttrs.a1# -> 57:9
+(75:16..75:23) _empty_/myAttrs. -> 56:8
+(75:24..75:26) _empty_/myAttrs.a2# -> 58:9
 (76:4..76:11) _empty_/myAttrs. -> 56:8
+(76:12..76:14) _empty_/myAttrs.a1# -> 57:9
+(76:16..76:23) _empty_/myAttrs. -> 56:8
+(76:24..76:26) _empty_/myAttrs.a2# -> 58:9
+(76:32..76:39) _empty_/myAttrs. -> 56:8
+(76:40..76:42) _empty_/myAttrs.a3# -> 59:9
 (77:4..77:6) _empty_/a4# -> 61:7
-(77:12..77:12) scala/Array.apply(+5).
 (77:7..77:12) scala/Array.
+(77:12..77:12) scala/Array.apply(+5).
 (78:4..78:6) _empty_/a4# -> 61:7
-(78:12..78:12) scala/Array.apply().
 (78:7..78:12) scala/Array.
+(78:12..78:12) scala/Array.apply().
 (78:14..78:14) scala/reflect/ClassTag.apply().
 

@@ -1,8 +1,8 @@
 Document tests/pos/compile1.scala
-(5:18..5:24) java/lang/System.
-(5:18..5:24) java/lang/System#
-(5:13..5:17) java/lang/
 (5:8..5:12) java/
+(5:13..5:17) java/lang/
+(5:18..5:24) java/lang/System#
+(5:18..5:24) java/lang/System.
 (10:18..10:21) scala/Int#
 (15:19..15:20) _empty_/Test2_2#i. -> 10:15
 (16:11..16:12) local3 -> 15:15

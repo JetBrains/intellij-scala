@@ -6,8 +6,8 @@ Document tests/pos/i2788.scala
 (4:28..4:31) scala/Int#
 (5:17..5:20) scala/Int#
 (5:25..5:28) scala/Int#
-(5:34..5:35) scala/Int#`<`(+3).
 (5:32..5:33) local2 -> 5:14
+(5:34..5:35) scala/Int#`<`(+3).
 (5:36..5:37) local3 -> 5:22
 (8:18..8:23) scala/Array#
 (8:24..8:30) scala/Predef.String#

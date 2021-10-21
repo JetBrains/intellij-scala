@@ -1,7 +1,7 @@
 Document tests/pos/i7413.scala
-(1:23..1:42) scala/language.implicitConversions.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
 (3:26..3:36) scala/Conversion#
 (3:40..3:41) _empty_/Fixture#[A] -> 3:15
 (6:24..6:30) scala/Predef.String#
@@ -12,14 +12,14 @@ Document tests/pos/i7413.scala
 (6:74..6:77) scala/Predef.`???`().
 (9:19..9:25) scala/Predef.String#
 (9:28..9:34) scala/Predef.String#
-(9:50..9:51) scala/StringContext#s().
 (9:39..9:39) scala/StringContext.apply().
 (9:46..9:50) _empty_/Greeter#greet().(name) -> 9:13
+(9:50..9:51) scala/StringContext#s().
 (11:28..11:34) scala/Predef.String#
 (11:45..11:52) _empty_/Greeter# -> 8:7
-(14:37..14:37) scala/Conversion#`<init>`().
 (14:15..14:25) scala/Conversion#
 (14:29..14:36) _empty_/Greeter# -> 8:7
+(14:37..14:37) scala/Conversion#`<init>`().
 (15:22..15:29) _empty_/Greeter# -> 8:7
 (15:32..15:35) scala/Predef.`???`().
 (16:10..16:17) _empty_/Greeter# -> 8:7
@@ -28,11 +28,11 @@ Document tests/pos/i7413.scala
 (18:36..18:45) _empty_/MyFixture# -> 11:12
 (19:15..19:17) _empty_/TestFramework#in(). -> 6:36
 (20:5..20:11) scala/Predef.assert(+1).
-(20:36..20:38) scala/Any#`==`().
-(20:22..20:27) _empty_/Greeter#greet(). -> 9:7
 (20:14..20:21) _empty_/MyFixture#greeter. -> 11:36
+(20:22..20:27) _empty_/Greeter#greet(). -> 9:7
 (20:30..20:34) _empty_/MyFixture#name. -> 11:22
-(20:56..20:57) scala/StringContext#s().
+(20:36..20:38) scala/Any#`==`().
 (20:41..20:41) scala/StringContext.apply().
 (20:51..20:55) _empty_/MyFixture#name. -> 11:22
+(20:56..20:57) scala/StringContext#s().
 

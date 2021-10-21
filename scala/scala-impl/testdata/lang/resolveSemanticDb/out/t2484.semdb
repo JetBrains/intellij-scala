@@ -1,74 +1,74 @@
 Document tests/pos/t2484.scala
-(1:46..1:52) scala/concurrent/ExecutionContext.Implicits.global().
-(1:36..1:45) scala/concurrent/ExecutionContext.Implicits.
-(1:19..1:35) scala/concurrent/ExecutionContext.
 (1:8..1:18) scala/concurrent/
-(3:40..3:40) javax/swing/JApplet#`<init>`().
-(3:33..3:40) javax/swing/JApplet#
-(3:27..3:32) javax/swing/
+(1:19..1:35) scala/concurrent/ExecutionContext.
+(1:36..1:45) scala/concurrent/ExecutionContext.Implicits.
+(1:46..1:52) scala/concurrent/ExecutionContext.Implicits.global().
 (3:21..3:26) javax/
-(4:48..4:48) javax/swing/JScrollPane#`<init>`().
-(4:37..4:48) javax/swing/JScrollPane#
-(4:31..4:36) javax/swing/
+(3:27..3:32) javax/swing/
+(3:33..3:40) javax/swing/JApplet#
+(3:40..3:40) javax/swing/JApplet#`<init>`().
 (4:25..4:30) javax/
+(4:31..4:36) javax/swing/
+(4:37..4:48) javax/swing/JScrollPane#
+(4:48..4:48) javax/swing/JScrollPane#`<init>`().
 (5:14..5:18) scala/Unit#
-(6:28..6:28) scala/concurrent/Future.apply().
-(6:22..6:28) scala/concurrent/Future.
-(6:11..6:21) scala/concurrent/
 (6:5..6:10) scala/
-(6:42..6:54) java/lang/Object#synchronized().
+(6:11..6:21) scala/concurrent/
+(6:22..6:28) scala/concurrent/Future.
+(6:28..6:28) scala/concurrent/Future.apply().
 (6:30..6:41) _empty_/Admin#jScrollPane. -> 4:7
-(9:19..9:39) java/awt/Component#addComponentListener().
+(6:42..6:54) java/lang/Object#synchronized().
 (9:7..9:18) _empty_/Admin#jScrollPane. -> 4:7
-(10:61..10:61) java/awt/event/ComponentAdapter#`<init>`().
-(10:45..10:61) java/awt/event/ComponentAdapter#
-(10:39..10:44) java/awt/event/
-(10:35..10:38) java/awt/
+(9:19..9:39) java/awt/Component#addComponentListener().
 (10:30..10:34) java/
-(11:58..11:72) java/awt/event/ComponentEvent#
-(11:52..11:57) java/awt/event/
-(11:48..11:51) java/awt/
+(10:35..10:38) java/awt/
+(10:39..10:44) java/awt/event/
+(10:45..10:61) java/awt/event/ComponentAdapter#
+(10:61..10:61) java/awt/event/ComponentAdapter#`<init>`().
 (11:43..11:47) java/
+(11:48..11:51) java/awt/
+(11:52..11:57) java/awt/event/
+(11:58..11:72) java/awt/event/ComponentEvent#
 (12:13..12:25) local0 -> 7:11
-(13:25..13:48) java/awt/Component#removeComponentListener().
 (13:13..13:24) _empty_/Admin#jScrollPane. -> 4:7
+(13:25..13:48) java/awt/Component#removeComponentListener().
 (16:13..16:19) local1 -> 10:15
 (18:7..18:7) scala/concurrent/ExecutionContext.Implicits.global().
-(23:41..23:41) javax/swing/JApplet#`<init>`().
-(23:34..23:41) javax/swing/JApplet#
-(23:28..23:33) javax/swing/
 (23:22..23:27) javax/
-(24:48..24:48) javax/swing/JScrollPane#`<init>`().
-(24:37..24:48) javax/swing/JScrollPane#
-(24:31..24:36) javax/swing/
+(23:28..23:33) javax/swing/
+(23:34..23:41) javax/swing/JApplet#
+(23:41..23:41) javax/swing/JApplet#`<init>`().
 (24:25..24:30) javax/
+(24:31..24:36) javax/swing/
+(24:37..24:48) javax/swing/JScrollPane#
+(24:48..24:48) javax/swing/JScrollPane#`<init>`().
 (25:14..25:18) scala/Unit#
-(26:28..26:28) scala/concurrent/Future.apply().
-(26:22..26:28) scala/concurrent/Future.
-(26:11..26:21) scala/concurrent/
 (26:5..26:10) scala/
-(26:42..26:54) java/lang/Object#synchronized().
+(26:11..26:21) scala/concurrent/
+(26:22..26:28) scala/concurrent/Future.
+(26:28..26:28) scala/concurrent/Future.apply().
 (26:30..26:41) _empty_/Admin2#jScrollPane. -> 24:7
-(29:19..29:39) java/awt/Component#addComponentListener().
+(26:42..26:54) java/lang/Object#synchronized().
 (29:7..29:18) _empty_/Admin2#jScrollPane. -> 24:7
-(29:76..29:76) java/awt/event/ComponentAdapter#`<init>`().
-(29:60..29:76) java/awt/event/ComponentAdapter#
-(29:54..29:59) java/awt/event/
-(29:50..29:53) java/awt/
+(29:19..29:39) java/awt/Component#addComponentListener().
 (29:45..29:49) java/
-(29:125..29:139) java/awt/event/ComponentEvent#
-(29:119..29:124) java/awt/event/
-(29:115..29:118) java/awt/
+(29:50..29:53) java/awt/
+(29:54..29:59) java/awt/event/
+(29:60..29:76) java/awt/event/ComponentAdapter#
+(29:76..29:76) java/awt/event/ComponentAdapter#`<init>`().
 (29:110..29:114) java/
+(29:115..29:118) java/awt/
+(29:119..29:124) java/awt/event/
+(29:125..29:139) java/awt/event/ComponentEvent#
 (30:9..30:21) local4 -> 27:11
-(30:38..30:61) java/awt/Component#removeComponentListener().
 (30:26..30:37) _empty_/Admin2#jScrollPane. -> 24:7
+(30:38..30:61) java/awt/Component#removeComponentListener().
 (31:7..31:7) scala/concurrent/ExecutionContext.Implicits.global().
 (37:15..37:19) scala/package.List#
 (37:20..37:23) scala/Any#
 (37:27..37:31) scala/Unit#
-(38:8..38:11) scala/collection/immutable/List#map().
 (38:5..38:7) _empty_/Test.meh().(xs) -> 37:11
-(38:31..38:31) java/lang/Object#`<init>`().
+(38:8..38:11) scala/collection/immutable/List#map().
 (38:25..38:31) scala/AnyRef#
+(38:31..38:31) java/lang/Object#`<init>`().
 

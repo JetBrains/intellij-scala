@@ -4,7 +4,7 @@ Document tests/pos/t2208_pos.scala
 (5:28..5:29) _empty_/Test.Alias#[X] -> 5:16
 (7:14..7:15) _empty_/Test.B# -> 4:11
 (7:16..7:17) _empty_/Test.A# -> 2:11
-(7:33..7:33) _empty_/Test.B#`<init>`(). -> 4:12
 (7:25..7:30) _empty_/Test.Alias# -> 5:10
 (7:31..7:32) _empty_/Test.A# -> 2:11
+(7:33..7:33) _empty_/Test.B#`<init>`(). -> 4:12
 

@@ -1,6 +1,6 @@
 Document tests/pos/hk-reduce-variance.scala
 (1:18..1:19) _empty_/Cov#[A] -> 1:12
-(2:16..2:16) scala/collection/SeqFactory.Delegate#apply().
 (2:13..2:16) scala/package.Seq.
+(2:16..2:16) scala/collection/SeqFactory.Delegate#apply().
 (2:17..2:18) _empty_/Cov#a. -> 1:15
 

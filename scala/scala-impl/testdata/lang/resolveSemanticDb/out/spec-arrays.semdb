@@ -7,126 +7,126 @@ Document tests/pos/spec-arrays.scala
 (4:15..4:18) scala/Int#
 (5:22..5:25) scala/Int#
 (5:28..5:32) scala/Byte#
-(5:46..5:58) scala/Any#asInstanceOf().
 (5:35..5:40) _empty_/AbsArray#apply(). -> 2:7
 (5:41..5:44) _empty_/AbsArray#applyByte().(idx) -> 5:17
+(5:46..5:58) scala/Any#asInstanceOf().
 (5:59..5:63) scala/Byte#
 (6:23..6:26) scala/Int#
 (6:34..6:38) scala/Byte#
 (6:42..6:48) _empty_/AbsArray#update(). -> 3:7
 (6:49..6:52) _empty_/AbsArray#updateByte().(idx) -> 6:18
-(6:59..6:71) scala/Any#asInstanceOf().
 (6:54..6:58) _empty_/AbsArray#updateByte().(elem) -> 6:28
+(6:59..6:71) scala/Any#asInstanceOf().
 (6:72..6:73) _empty_/AbsArray#[T] -> 1:25
 (7:22..7:25) scala/Int#
 (7:28..7:32) scala/Char#
-(7:46..7:58) scala/Any#asInstanceOf().
 (7:35..7:40) _empty_/AbsArray#apply(). -> 2:7
 (7:41..7:44) _empty_/AbsArray#applyChar().(idx) -> 7:17
+(7:46..7:58) scala/Any#asInstanceOf().
 (7:59..7:63) scala/Char#
 (8:23..8:26) scala/Int#
 (8:34..8:38) scala/Char#
 (8:42..8:48) _empty_/AbsArray#update(). -> 3:7
 (8:49..8:52) _empty_/AbsArray#updateChar().(idx) -> 8:18
-(8:59..8:71) scala/Any#asInstanceOf().
 (8:54..8:58) _empty_/AbsArray#updateChar().(elem) -> 8:28
+(8:59..8:71) scala/Any#asInstanceOf().
 (8:72..8:73) _empty_/AbsArray#[T] -> 1:25
 (9:23..9:26) scala/Int#
 (9:29..9:34) scala/Short#
-(9:48..9:60) scala/Any#asInstanceOf().
 (9:37..9:42) _empty_/AbsArray#apply(). -> 2:7
 (9:43..9:46) _empty_/AbsArray#applyShort().(idx) -> 9:18
+(9:48..9:60) scala/Any#asInstanceOf().
 (9:61..9:66) scala/Short#
 (10:24..10:27) scala/Int#
 (10:35..10:40) scala/Short#
 (10:44..10:50) _empty_/AbsArray#update(). -> 3:7
 (10:51..10:54) _empty_/AbsArray#updateShort().(idx) -> 10:19
-(10:61..10:73) scala/Any#asInstanceOf().
 (10:56..10:60) _empty_/AbsArray#updateShort().(elem) -> 10:29
+(10:61..10:73) scala/Any#asInstanceOf().
 (10:74..10:75) _empty_/AbsArray#[T] -> 1:25
 (11:21..11:24) scala/Int#
 (11:27..11:30) scala/Int#
-(11:44..11:56) scala/Any#asInstanceOf().
 (11:33..11:38) _empty_/AbsArray#apply(). -> 2:7
 (11:39..11:42) _empty_/AbsArray#applyInt().(idx) -> 11:16
+(11:44..11:56) scala/Any#asInstanceOf().
 (11:57..11:60) scala/Int#
 (12:22..12:25) scala/Int#
 (12:33..12:36) scala/Int#
 (12:40..12:46) _empty_/AbsArray#update(). -> 3:7
 (12:47..12:50) _empty_/AbsArray#updateInt().(idx) -> 12:17
-(12:57..12:69) scala/Any#asInstanceOf().
 (12:52..12:56) _empty_/AbsArray#updateInt().(elem) -> 12:27
+(12:57..12:69) scala/Any#asInstanceOf().
 (12:70..12:71) _empty_/AbsArray#[T] -> 1:25
 (13:22..13:25) scala/Int#
 (13:28..13:32) scala/Long#
-(13:46..13:58) scala/Any#asInstanceOf().
 (13:35..13:40) _empty_/AbsArray#apply(). -> 2:7
 (13:41..13:44) _empty_/AbsArray#applyLong().(idx) -> 13:17
+(13:46..13:58) scala/Any#asInstanceOf().
 (13:59..13:63) scala/Long#
 (14:23..14:26) scala/Int#
 (14:34..14:38) scala/Long#
 (14:42..14:48) _empty_/AbsArray#update(). -> 3:7
 (14:49..14:52) _empty_/AbsArray#updateLong().(idx) -> 14:18
-(14:59..14:71) scala/Any#asInstanceOf().
 (14:54..14:58) _empty_/AbsArray#updateLong().(elem) -> 14:28
+(14:59..14:71) scala/Any#asInstanceOf().
 (14:72..14:73) _empty_/AbsArray#[T] -> 1:25
 (15:23..15:26) scala/Int#
 (15:29..15:34) scala/Float#
-(15:48..15:60) scala/Any#asInstanceOf().
 (15:37..15:42) _empty_/AbsArray#apply(). -> 2:7
 (15:43..15:46) _empty_/AbsArray#applyFloat().(idx) -> 15:18
+(15:48..15:60) scala/Any#asInstanceOf().
 (15:61..15:66) scala/Float#
 (16:24..16:27) scala/Int#
 (16:35..16:40) scala/Float#
 (16:44..16:50) _empty_/AbsArray#update(). -> 3:7
 (16:51..16:54) _empty_/AbsArray#updateFloat().(idx) -> 16:19
-(16:61..16:73) scala/Any#asInstanceOf().
 (16:56..16:60) _empty_/AbsArray#updateFloat().(elem) -> 16:29
+(16:61..16:73) scala/Any#asInstanceOf().
 (16:74..16:75) _empty_/AbsArray#[T] -> 1:25
 (17:24..17:27) scala/Int#
 (17:30..17:36) scala/Double#
-(17:50..17:62) scala/Any#asInstanceOf().
 (17:39..17:44) _empty_/AbsArray#apply(). -> 2:7
 (17:45..17:48) _empty_/AbsArray#applyDouble().(idx) -> 17:19
+(17:50..17:62) scala/Any#asInstanceOf().
 (17:63..17:69) scala/Double#
 (18:25..18:28) scala/Int#
 (18:36..18:42) scala/Double#
 (18:46..18:52) _empty_/AbsArray#update(). -> 3:7
 (18:53..18:56) _empty_/AbsArray#updateDouble().(idx) -> 18:20
-(18:63..18:75) scala/Any#asInstanceOf().
 (18:58..18:62) _empty_/AbsArray#updateDouble().(elem) -> 18:30
+(18:63..18:75) scala/Any#asInstanceOf().
 (18:76..18:77) _empty_/AbsArray#[T] -> 1:25
 (19:25..19:28) scala/Int#
 (19:31..19:38) scala/Boolean#
-(19:52..19:64) scala/Any#asInstanceOf().
 (19:41..19:46) _empty_/AbsArray#apply(). -> 2:7
 (19:47..19:50) _empty_/AbsArray#applyBoolean().(idx) -> 19:20
+(19:52..19:64) scala/Any#asInstanceOf().
 (19:65..19:72) scala/Boolean#
 (20:26..20:29) scala/Int#
 (20:37..20:44) scala/Boolean#
 (20:48..20:54) _empty_/AbsArray#update(). -> 3:7
 (20:55..20:58) _empty_/AbsArray#updateBoolean().(idx) -> 20:21
-(20:65..20:77) scala/Any#asInstanceOf().
 (20:60..20:64) _empty_/AbsArray#updateBoolean().(elem) -> 20:31
+(20:65..20:77) scala/Any#asInstanceOf().
 (20:78..20:79) _empty_/AbsArray#[T] -> 1:25
 (21:24..21:27) scala/Int#
 (21:30..21:36) java/lang/Object#
-(21:50..21:62) scala/Any#asInstanceOf().
 (21:39..21:44) _empty_/AbsArray#apply(). -> 2:7
 (21:45..21:48) _empty_/AbsArray#applyObject().(idx) -> 21:19
+(21:50..21:62) scala/Any#asInstanceOf().
 (21:63..21:69) java/lang/Object#
 (22:25..22:28) scala/Int#
 (22:36..22:42) java/lang/Object#
 (22:46..22:52) _empty_/AbsArray#update(). -> 3:7
 (22:53..22:56) _empty_/AbsArray#updateObject().(idx) -> 22:20
-(22:63..22:75) scala/Any#asInstanceOf().
 (22:58..22:62) _empty_/AbsArray#updateObject().(elem) -> 22:30
+(22:63..22:75) scala/Any#asInstanceOf().
 (22:76..22:77) _empty_/AbsArray#[T] -> 1:25
 (25:27..25:32) scala/Array#
 (25:33..25:36) scala/Int#
-(25:60..25:60) _empty_/AbsArray#`<init>`(). -> 1:24
 (25:47..25:55) _empty_/AbsArray# -> 1:16
 (25:56..25:59) scala/Int#
+(25:60..25:60) _empty_/AbsArray#`<init>`(). -> 1:24
 (26:18..26:21) scala/Int#
 (26:24..26:27) scala/Int#
 (26:30..26:38) _empty_/IntArray#applyInt(). -> 28:16
@@ -138,64 +138,64 @@ Document tests/pos/spec-arrays.scala
 (27:52..27:56) _empty_/IntArray#update().(elem) -> 27:24
 (28:30..28:33) scala/Int#
 (28:36..28:39) scala/Int#
-(28:45..28:45) scala/Array#apply().
 (28:42..28:45) _empty_/IntArray#arr. -> 25:22
+(28:45..28:45) scala/Array#apply().
 (28:46..28:49) _empty_/IntArray#applyInt().(idx) -> 28:25
 (29:31..29:34) scala/Int#
 (29:42..29:45) scala/Int#
-(29:52..29:52) scala/Array#update().
 (29:49..29:52) _empty_/IntArray#arr. -> 25:22
+(29:52..29:52) scala/Array#update().
 (29:53..29:56) _empty_/IntArray#updateInt().(idx) -> 29:26
 (29:60..29:64) _empty_/IntArray#updateInt().(elem) -> 29:36
 (30:15..30:18) scala/Int#
-(30:25..30:31) scala/Array#length().
 (30:21..30:24) _empty_/IntArray#arr. -> 25:22
+(30:25..30:31) scala/Array#length().
 (33:30..33:35) scala/Array#
 (33:36..33:37) _empty_/ArraySeq#[T] -> 33:22
-(33:59..33:59) _empty_/AbsArray#`<init>`(). -> 1:24
 (33:48..33:56) _empty_/AbsArray# -> 1:16
 (33:57..33:58) _empty_/ArraySeq#[T] -> 33:22
+(33:59..33:59) _empty_/AbsArray#`<init>`(). -> 1:24
 (34:18..34:21) scala/Int#
 (34:24..34:25) _empty_/ArraySeq#[T] -> 33:22
-(34:31..34:31) scala/Array#apply().
 (34:28..34:31) _empty_/ArraySeq#arr. -> 33:25
+(34:31..34:31) scala/Array#apply().
 (34:32..34:35) _empty_/ArraySeq#apply().(idx) -> 34:13
 (35:19..35:22) scala/Int#
 (35:30..35:31) _empty_/ArraySeq#[T] -> 33:22
-(35:38..35:38) scala/Array#update().
 (35:35..35:38) _empty_/ArraySeq#arr. -> 33:25
+(35:38..35:38) scala/Array#update().
 (35:39..35:42) _empty_/ArraySeq#update().(idx) -> 35:14
 (35:46..35:50) _empty_/ArraySeq#update().(elem) -> 35:24
 (36:15..36:18) scala/Int#
-(36:25..36:31) scala/Array#length().
 (36:21..36:24) _empty_/ArraySeq#arr. -> 33:25
+(36:25..36:31) scala/Array#length().
+(39:18..39:29) scala/specialized#
 (39:38..39:43) scala/Array#
 (39:44..39:45) _empty_/SpecArray#[T] -> 39:30
-(39:67..39:67) _empty_/AbsArray#`<init>`(). -> 1:24
 (39:56..39:64) _empty_/AbsArray# -> 1:16
 (39:65..39:66) _empty_/SpecArray#[T] -> 39:30
-(39:18..39:29) scala/specialized#
+(39:67..39:67) _empty_/AbsArray#`<init>`(). -> 1:24
 (40:18..40:21) scala/Int#
 (40:24..40:25) _empty_/SpecArray#[T] -> 39:30
-(40:31..40:31) scala/Array#apply().
 (40:28..40:31) _empty_/SpecArray#arr. -> 39:33
+(40:31..40:31) scala/Array#apply().
 (40:32..40:35) _empty_/SpecArray#apply().(idx) -> 40:13
 (41:19..41:22) scala/Int#
 (41:30..41:31) _empty_/SpecArray#[T] -> 39:30
-(41:38..41:38) scala/Array#update().
 (41:35..41:38) _empty_/SpecArray#arr. -> 39:33
+(41:38..41:38) scala/Array#update().
 (41:39..41:42) _empty_/SpecArray#update().(idx) -> 41:14
 (41:46..41:50) _empty_/SpecArray#update().(elem) -> 41:24
 (42:15..42:18) scala/Int#
-(42:25..42:31) scala/Array#length().
 (42:21..42:24) _empty_/SpecArray#arr. -> 39:33
+(42:25..42:31) scala/Array#length().
 (46:14..46:17) scala/Int#
 (47:17..47:20) scala/Int#
 (47:23..47:27) scala/Unit#
 (48:14..48:18) scala/Unit#
-(50:27..50:27) scala/collection/immutable/Range#foreach().
-(50:17..50:19) scala/runtime/RichInt#to().
 (50:15..50:15) scala/LowPriorityImplicits#intWrapper().
+(50:17..50:19) scala/runtime/RichInt#to().
+(50:27..50:27) scala/collection/immutable/Range#foreach().
 (51:7..51:8) local0 -> 49:9
 (51:8..51:8) scala/Int#`+`(+4).
 (51:12..51:15) _empty_/Test#sum(). -> 46:7
@@ -203,273 +203,273 @@ Document tests/pos/spec-arrays.scala
 (52:14..52:15) local1 -> 50:10
 (54:5..54:12) scala/Predef.println(+1).
 (54:13..54:14) local0 -> 49:9
-(58:33..58:33) _empty_/Test#`<init>`(). -> 46:3
 (58:29..58:33) _empty_/Test# -> 45:16
-(59:25..59:25) _empty_/IntArray#`<init>`(). -> 25:21
+(58:33..58:33) _empty_/Test#`<init>`(). -> 46:3
 (59:17..59:25) _empty_/IntArray# -> 25:13
-(59:40..59:40) scala/Array#`<init>`().
+(59:25..59:25) _empty_/IntArray#`<init>`(). -> 25:21
 (59:30..59:35) scala/Array#
 (59:36..59:39) scala/Int#
+(59:40..59:40) scala/Array#`<init>`().
 (61:14..61:17) scala/Int#
-(64:14..64:15) scala/Int#`<`(+3).
 (64:12..64:13) local3 -> 63:9
-(64:20..64:26) _empty_/IntArray#length(). -> 30:7
+(64:14..64:15) scala/Int#`<`(+3).
 (64:16..64:19) _empty_/ScalaSpecTest#arr. -> 59:7
+(64:20..64:26) _empty_/IntArray#length(). -> 30:7
 (64:30..64:33) local2 -> 62:9
-(64:40..64:41) scala/Int#`+`(+4).
 (64:36..64:39) local2 -> 62:9
-(64:46..64:54) _empty_/IntArray#applyInt(). -> 28:16
+(64:40..64:41) scala/Int#`+`(+4).
 (64:42..64:45) _empty_/ScalaSpecTest#arr. -> 59:7
+(64:46..64:54) _empty_/IntArray#applyInt(). -> 28:16
 (64:55..64:56) local3 -> 63:9
 (64:59..64:60) local3 -> 63:9
 (64:60..64:60) scala/Int#`+`(+4).
 (65:5..65:8) local2 -> 62:9
 (68:17..68:20) scala/Int#
-(69:24..69:25) scala/Int#`%`(+3).
-(69:18..69:19) scala/Int#`*`(+3).
 (69:16..69:17) _empty_/ScalaSpecTest#modify().(j) -> 68:14
-(71:14..71:15) scala/Int#`<`(+3).
+(69:18..69:19) scala/Int#`*`(+3).
+(69:24..69:25) scala/Int#`%`(+3).
 (71:12..71:13) local5 -> 70:9
-(72:11..72:20) _empty_/IntArray#updateInt(). -> 29:16
+(71:14..71:15) scala/Int#`<`(+3).
 (72:7..72:10) _empty_/ScalaSpecTest#arr. -> 59:7
-(72:23..72:24) scala/Int#`+`(+4).
+(72:11..72:20) _empty_/IntArray#updateInt(). -> 29:16
 (72:21..72:22) local5 -> 70:9
+(72:23..72:24) scala/Int#`+`(+4).
 (72:25..72:29) local4 -> 69:9
-(72:54..72:55) scala/Int#`+`(+4).
-(72:35..72:43) _empty_/IntArray#applyInt(). -> 28:16
 (72:31..72:34) _empty_/ScalaSpecTest#arr. -> 59:7
-(72:46..72:47) scala/Int#`+`(+4).
+(72:35..72:43) _empty_/IntArray#applyInt(). -> 28:16
 (72:44..72:45) local5 -> 70:9
+(72:46..72:47) scala/Int#`+`(+4).
 (72:48..72:52) local4 -> 69:9
+(72:54..72:55) scala/Int#`+`(+4).
 (73:7..73:8) local5 -> 70:9
 (73:8..73:8) scala/Int#`+`(+4).
-(78:34..78:34) _empty_/Test#`<init>`(). -> 46:3
 (78:30..78:34) _empty_/Test# -> 45:16
+(78:34..78:34) _empty_/Test#`<init>`(). -> 46:3
 (79:12..79:20) _empty_/AbsArray# -> 1:16
 (79:21..79:24) scala/Int#
-(79:40..79:40) _empty_/IntArray#`<init>`(). -> 25:21
 (79:32..79:40) _empty_/IntArray# -> 25:13
-(79:55..79:55) scala/Array#`<init>`().
+(79:40..79:40) _empty_/IntArray#`<init>`(). -> 25:21
 (79:45..79:50) scala/Array#
 (79:51..79:54) scala/Int#
+(79:55..79:55) scala/Array#`<init>`().
 (81:14..81:17) scala/Int#
-(84:14..84:15) scala/Int#`<`(+3).
 (84:12..84:13) local7 -> 83:9
-(84:20..84:26) _empty_/AbsArray#length(). -> 4:7
+(84:14..84:15) scala/Int#`<`(+3).
 (84:16..84:19) _empty_/ScalaSpec2Test#arr. -> 79:7
+(84:20..84:26) _empty_/AbsArray#length(). -> 4:7
 (84:30..84:33) local6 -> 82:9
-(84:40..84:41) scala/Int#`+`(+4).
 (84:36..84:39) local6 -> 82:9
-(84:46..84:54) _empty_/AbsArray#applyInt(). -> 11:7
+(84:40..84:41) scala/Int#`+`(+4).
 (84:42..84:45) _empty_/ScalaSpec2Test#arr. -> 79:7
+(84:46..84:54) _empty_/AbsArray#applyInt(). -> 11:7
 (84:55..84:56) local7 -> 83:9
 (84:59..84:60) local7 -> 83:9
 (84:60..84:60) scala/Int#`+`(+4).
 (85:5..85:8) local6 -> 82:9
 (88:17..88:20) scala/Int#
-(89:24..89:25) scala/Int#`%`(+3).
-(89:18..89:19) scala/Int#`*`(+3).
 (89:16..89:17) _empty_/ScalaSpec2Test#modify().(j) -> 88:14
-(91:14..91:15) scala/Int#`<`(+3).
+(89:18..89:19) scala/Int#`*`(+3).
+(89:24..89:25) scala/Int#`%`(+3).
 (91:12..91:13) local9 -> 90:9
-(92:11..92:20) _empty_/AbsArray#updateInt(). -> 12:7
+(91:14..91:15) scala/Int#`<`(+3).
 (92:7..92:10) _empty_/ScalaSpec2Test#arr. -> 79:7
-(92:23..92:24) scala/Int#`+`(+4).
+(92:11..92:20) _empty_/AbsArray#updateInt(). -> 12:7
 (92:21..92:22) local9 -> 90:9
+(92:23..92:24) scala/Int#`+`(+4).
 (92:25..92:29) local8 -> 89:9
-(92:54..92:55) scala/Int#`+`(+4).
-(92:35..92:43) _empty_/AbsArray#applyInt(). -> 11:7
 (92:31..92:34) _empty_/ScalaSpec2Test#arr. -> 79:7
-(92:46..92:47) scala/Int#`+`(+4).
+(92:35..92:43) _empty_/AbsArray#applyInt(). -> 11:7
 (92:44..92:45) local9 -> 90:9
+(92:46..92:47) scala/Int#`+`(+4).
 (92:48..92:52) local8 -> 89:9
+(92:54..92:55) scala/Int#`+`(+4).
 (93:7..93:8) local9 -> 90:9
 (93:8..93:8) scala/Int#`+`(+4).
-(98:33..98:33) _empty_/Test#`<init>`(). -> 46:3
 (98:29..98:33) _empty_/Test# -> 45:16
+(98:33..98:33) _empty_/Test#`<init>`(). -> 46:3
 (99:12..99:20) _empty_/AbsArray# -> 1:16
 (99:21..99:24) scala/Int#
 (99:40..99:40) _empty_/ArraySeq#`<init>`(). -> 33:21
-(99:55..99:55) scala/Array#`<init>`().
 (99:45..99:50) scala/Array#
 (99:51..99:54) scala/Int#
+(99:55..99:55) scala/Array#`<init>`().
 (101:14..101:17) scala/Int#
-(104:14..104:15) scala/Int#`<`(+3).
 (104:12..104:13) local11 -> 103:9
-(104:20..104:26) _empty_/AbsArray#length(). -> 4:7
+(104:14..104:15) scala/Int#`<`(+3).
 (104:16..104:19) _empty_/ScalaWrapTest#arr. -> 99:7
+(104:20..104:26) _empty_/AbsArray#length(). -> 4:7
 (104:30..104:33) local10 -> 102:9
-(104:40..104:41) scala/Int#`+`(+4).
 (104:36..104:39) local10 -> 102:9
-(104:46..104:54) _empty_/AbsArray#applyInt(). -> 11:7
+(104:40..104:41) scala/Int#`+`(+4).
 (104:42..104:45) _empty_/ScalaWrapTest#arr. -> 99:7
+(104:46..104:54) _empty_/AbsArray#applyInt(). -> 11:7
 (104:55..104:56) local11 -> 103:9
 (104:59..104:60) local11 -> 103:9
 (104:60..104:60) scala/Int#`+`(+4).
 (105:5..105:8) local10 -> 102:9
 (108:17..108:20) scala/Int#
-(109:24..109:25) scala/Int#`%`(+3).
-(109:18..109:19) scala/Int#`*`(+3).
 (109:16..109:17) _empty_/ScalaWrapTest#modify().(j) -> 108:14
-(111:14..111:15) scala/Int#`<`(+3).
+(109:18..109:19) scala/Int#`*`(+3).
+(109:24..109:25) scala/Int#`%`(+3).
 (111:12..111:13) local13 -> 110:9
-(112:11..112:20) _empty_/AbsArray#updateInt(). -> 12:7
+(111:14..111:15) scala/Int#`<`(+3).
 (112:7..112:10) _empty_/ScalaWrapTest#arr. -> 99:7
-(112:23..112:24) scala/Int#`+`(+4).
+(112:11..112:20) _empty_/AbsArray#updateInt(). -> 12:7
 (112:21..112:22) local13 -> 110:9
+(112:23..112:24) scala/Int#`+`(+4).
 (112:25..112:29) local12 -> 109:9
-(112:54..112:55) scala/Int#`+`(+4).
-(112:35..112:43) _empty_/AbsArray#applyInt(). -> 11:7
 (112:31..112:34) _empty_/ScalaWrapTest#arr. -> 99:7
-(112:46..112:47) scala/Int#`+`(+4).
+(112:35..112:43) _empty_/AbsArray#applyInt(). -> 11:7
 (112:44..112:45) local13 -> 110:9
+(112:46..112:47) scala/Int#`+`(+4).
 (112:48..112:52) local12 -> 109:9
+(112:54..112:55) scala/Int#`+`(+4).
 (113:7..113:8) local13 -> 110:9
 (113:8..113:8) scala/Int#`+`(+4).
-(118:32..118:32) _empty_/Test#`<init>`(). -> 46:3
 (118:28..118:32) _empty_/Test# -> 45:16
+(118:32..118:32) _empty_/Test#`<init>`(). -> 46:3
 (119:12..119:20) _empty_/AbsArray# -> 1:16
 (119:21..119:28) java/lang/Integer#
 (119:44..119:44) _empty_/ArraySeq#`<init>`(). -> 33:21
-(119:63..119:63) scala/Array#`<init>`().
 (119:49..119:54) scala/Array#
 (119:55..119:62) java/lang/Integer#
-(120:31..120:31) scala/collection/immutable/Range#foreach().
-(120:15..120:20) scala/runtime/RichInt#until().
+(119:63..119:63) scala/Array#`<init>`().
 (120:13..120:13) scala/LowPriorityImplicits#intWrapper().
-(120:25..120:31) _empty_/AbsArray#length(). -> 4:7
+(120:15..120:20) scala/runtime/RichInt#until().
 (120:21..120:24) _empty_/ScalaGenTest#arr. -> 119:7
-(120:36..120:36) _empty_/AbsArray#update(). -> 3:7
+(120:25..120:31) _empty_/AbsArray#length(). -> 4:7
+(120:31..120:31) scala/collection/immutable/Range#foreach().
 (120:33..120:36) _empty_/ScalaGenTest#arr. -> 119:7
+(120:36..120:36) _empty_/AbsArray#update(). -> 3:7
 (120:37..120:38) local14 -> 120:8
-(120:53..120:53) java/lang/Integer#`<init>`().
 (120:46..120:53) java/lang/Integer#
+(120:53..120:53) java/lang/Integer#`<init>`().
 (122:14..122:17) scala/Int#
-(125:14..125:15) scala/Int#`<`(+3).
 (125:12..125:13) local16 -> 124:9
-(125:20..125:26) _empty_/AbsArray#length(). -> 4:7
+(125:14..125:15) scala/Int#`<`(+3).
 (125:16..125:19) _empty_/ScalaGenTest#arr. -> 119:7
+(125:20..125:26) _empty_/AbsArray#length(). -> 4:7
 (125:30..125:33) local15 -> 123:9
-(125:40..125:41) scala/Int#`+`(+4).
 (125:36..125:39) local15 -> 123:9
-(125:55..125:63) java/lang/Integer#intValue().
-(125:46..125:51) _empty_/AbsArray#apply(). -> 2:7
+(125:40..125:41) scala/Int#`+`(+4).
 (125:42..125:45) _empty_/ScalaGenTest#arr. -> 119:7
+(125:46..125:51) _empty_/AbsArray#apply(). -> 2:7
 (125:52..125:53) local16 -> 124:9
+(125:55..125:63) java/lang/Integer#intValue().
 (125:65..125:66) local16 -> 124:9
 (125:66..125:66) scala/Int#`+`(+4).
 (126:5..126:8) local15 -> 123:9
 (129:17..129:20) scala/Int#
-(130:24..130:25) scala/Int#`%`(+3).
-(130:18..130:19) scala/Int#`*`(+3).
 (130:16..130:17) _empty_/ScalaGenTest#modify().(j) -> 129:14
-(132:14..132:15) scala/Int#`<`(+3).
+(130:18..130:19) scala/Int#`*`(+3).
+(130:24..130:25) scala/Int#`%`(+3).
 (132:12..132:13) local18 -> 131:9
-(133:11..133:17) _empty_/AbsArray#update(). -> 3:7
+(132:14..132:15) scala/Int#`<`(+3).
 (133:7..133:10) _empty_/ScalaGenTest#arr. -> 119:7
-(133:20..133:21) scala/Int#`+`(+4).
+(133:11..133:17) _empty_/AbsArray#update(). -> 3:7
 (133:18..133:19) local18 -> 131:9
+(133:20..133:21) scala/Int#`+`(+4).
 (133:22..133:26) local17 -> 130:9
-(133:39..133:39) java/lang/Integer#`<init>`().
 (133:32..133:39) java/lang/Integer#
-(133:69..133:70) scala/Int#`+`(+4).
-(133:60..133:68) java/lang/Integer#intValue().
-(133:44..133:49) _empty_/AbsArray#apply(). -> 2:7
+(133:39..133:39) java/lang/Integer#`<init>`().
 (133:40..133:43) _empty_/ScalaGenTest#arr. -> 119:7
-(133:52..133:53) scala/Int#`+`(+4).
+(133:44..133:49) _empty_/AbsArray#apply(). -> 2:7
 (133:50..133:51) local18 -> 131:9
+(133:52..133:53) scala/Int#`+`(+4).
 (133:54..133:58) local17 -> 130:9
+(133:60..133:68) java/lang/Integer#intValue().
+(133:69..133:70) scala/Int#`+`(+4).
 (134:7..134:8) local18 -> 131:9
 (134:8..134:8) scala/Int#`+`(+4).
-(139:28..139:28) _empty_/Test#`<init>`(). -> 46:3
 (139:24..139:28) _empty_/Test# -> 45:16
-(140:27..140:27) scala/Array#`<init>`().
+(139:28..139:28) _empty_/Test#`<init>`(). -> 46:3
 (140:17..140:22) scala/Array#
 (140:23..140:26) scala/Int#
+(140:27..140:27) scala/Array#`<init>`().
 (142:14..142:17) scala/Int#
-(145:14..145:15) scala/Int#`<`(+3).
 (145:12..145:13) local20 -> 144:9
-(145:20..145:26) scala/Array#length().
+(145:14..145:15) scala/Int#`<`(+3).
 (145:16..145:19) _empty_/JavaTest#arr. -> 140:7
+(145:20..145:26) scala/Array#length().
 (145:30..145:33) local19 -> 143:9
-(145:40..145:41) scala/Int#`+`(+4).
 (145:36..145:39) local19 -> 143:9
-(145:45..145:45) scala/Array#apply().
+(145:40..145:41) scala/Int#`+`(+4).
 (145:42..145:45) _empty_/JavaTest#arr. -> 140:7
+(145:45..145:45) scala/Array#apply().
 (145:46..145:47) local20 -> 144:9
 (145:50..145:51) local20 -> 144:9
 (145:51..145:51) scala/Int#`+`(+4).
 (146:5..146:8) local19 -> 143:9
 (149:17..149:20) scala/Int#
-(150:24..150:25) scala/Int#`%`(+3).
-(150:18..150:19) scala/Int#`*`(+3).
 (150:16..150:17) _empty_/JavaTest#modify().(j) -> 149:14
-(152:14..152:15) scala/Int#`<`(+3).
+(150:18..150:19) scala/Int#`*`(+3).
+(150:24..150:25) scala/Int#`%`(+3).
 (152:12..152:13) local22 -> 151:9
-(153:10..153:10) scala/Array#update().
+(152:14..152:15) scala/Int#`<`(+3).
 (153:7..153:10) _empty_/JavaTest#arr. -> 140:7
+(153:10..153:10) scala/Array#apply().
+(153:10..153:10) scala/Array#update().
 (153:11..153:11) local23 -> 153:11
 (153:20..153:20) scala/Int#`+`(+4).
-(153:10..153:10) scala/Array#apply().
 (154:7..154:8) local22 -> 151:9
 (154:8..154:8) scala/Int#`+`(+4).
-(160:34..160:34) _empty_/Test#`<init>`(). -> 46:3
 (160:30..160:34) _empty_/Test# -> 45:16
+(160:34..160:34) _empty_/Test#`<init>`(). -> 46:3
 (161:12..161:21) _empty_/SpecArray# -> 39:7
 (161:22..161:25) scala/Int#
 (161:42..161:42) _empty_/SpecArray#`<init>`(). -> 39:16
-(161:57..161:57) scala/Array#`<init>`().
 (161:47..161:52) scala/Array#
 (161:53..161:56) scala/Int#
+(161:57..161:57) scala/Array#`<init>`().
 (163:14..163:17) scala/Int#
-(166:14..166:15) scala/Int#`<`(+3).
 (166:12..166:13) local25 -> 165:9
-(166:20..166:26) _empty_/SpecArray#length(). -> 42:7
+(166:14..166:15) scala/Int#`<`(+3).
 (166:16..166:19) _empty_/ScalaSpec3Test#arr. -> 161:7
+(166:20..166:26) _empty_/SpecArray#length(). -> 42:7
 (166:30..166:33) local24 -> 164:9
-(166:40..166:41) scala/Int#`+`(+4).
 (166:36..166:39) local24 -> 164:9
-(166:45..166:45) _empty_/SpecArray#apply(). -> 40:7
+(166:40..166:41) scala/Int#`+`(+4).
 (166:42..166:45) _empty_/ScalaSpec3Test#arr. -> 161:7
+(166:45..166:45) _empty_/SpecArray#apply(). -> 40:7
 (166:46..166:47) local25 -> 165:9
 (166:50..166:51) local25 -> 165:9
 (166:51..166:51) scala/Int#`+`(+4).
 (167:5..167:8) local24 -> 164:9
 (170:17..170:20) scala/Int#
-(171:24..171:25) scala/Int#`%`(+3).
-(171:18..171:19) scala/Int#`*`(+3).
 (171:16..171:17) _empty_/ScalaSpec3Test#modify().(j) -> 170:14
-(173:14..173:15) scala/Int#`<`(+3).
+(171:18..171:19) scala/Int#`*`(+3).
+(171:24..171:25) scala/Int#`%`(+3).
 (173:12..173:13) local27 -> 172:9
-(174:10..174:10) _empty_/SpecArray#update(). -> 41:7
+(173:14..173:15) scala/Int#`<`(+3).
 (174:7..174:10) _empty_/ScalaSpec3Test#arr. -> 161:7
-(174:13..174:14) scala/Int#`+`(+4).
+(174:10..174:10) _empty_/SpecArray#update(). -> 41:7
 (174:11..174:12) local27 -> 172:9
+(174:13..174:14) scala/Int#`+`(+4).
 (174:15..174:19) local26 -> 171:9
-(174:37..174:38) scala/Int#`+`(+4).
-(174:26..174:26) _empty_/SpecArray#apply(). -> 40:7
 (174:23..174:26) _empty_/ScalaSpec3Test#arr. -> 161:7
-(174:29..174:30) scala/Int#`+`(+4).
+(174:26..174:26) _empty_/SpecArray#apply(). -> 40:7
 (174:27..174:28) local27 -> 172:9
+(174:29..174:30) scala/Int#`+`(+4).
 (174:31..174:35) local26 -> 171:9
+(174:37..174:38) scala/Int#`+`(+4).
 (175:7..175:8) local27 -> 172:9
 (175:8..175:8) scala/Int#`+`(+4).
-(181:18..181:21) _empty_/Test#run(). -> 48:7
-(181:16..181:16) _empty_/JavaTest#`<init>`(). -> 139:24
 (181:8..181:16) _empty_/JavaTest# -> 139:7
-(182:23..182:26) _empty_/Test#run(). -> 48:7
-(182:21..182:21) _empty_/ScalaSpecTest#`<init>`(). -> 58:29
+(181:16..181:16) _empty_/JavaTest#`<init>`(). -> 139:24
+(181:18..181:21) _empty_/Test#run(). -> 48:7
 (182:8..182:21) _empty_/ScalaSpecTest# -> 58:7
-(183:24..183:27) _empty_/Test#run(). -> 48:7
-(183:22..183:22) _empty_/ScalaSpec2Test#`<init>`(). -> 78:30
+(182:21..182:21) _empty_/ScalaSpecTest#`<init>`(). -> 58:29
+(182:23..182:26) _empty_/Test#run(). -> 48:7
 (183:8..183:22) _empty_/ScalaSpec2Test# -> 78:7
-(184:22..184:25) _empty_/Test#run(). -> 48:7
-(184:20..184:20) _empty_/ScalaGenTest#`<init>`(). -> 118:28
+(183:22..183:22) _empty_/ScalaSpec2Test#`<init>`(). -> 78:30
+(183:24..183:27) _empty_/Test#run(). -> 48:7
 (184:8..184:20) _empty_/ScalaGenTest# -> 118:7
-(185:23..185:26) _empty_/Test#run(). -> 48:7
-(185:21..185:21) _empty_/ScalaWrapTest#`<init>`(). -> 98:29
+(184:20..184:20) _empty_/ScalaGenTest#`<init>`(). -> 118:28
+(184:22..184:25) _empty_/Test#run(). -> 48:7
 (185:8..185:21) _empty_/ScalaWrapTest# -> 98:7
-(186:24..186:27) _empty_/Test#run(). -> 48:7
-(186:22..186:22) _empty_/ScalaSpec3Test#`<init>`(). -> 160:30
+(185:21..185:21) _empty_/ScalaWrapTest#`<init>`(). -> 98:29
+(185:23..185:26) _empty_/Test#run(). -> 48:7
 (186:8..186:22) _empty_/ScalaSpec3Test# -> 160:7
+(186:22..186:22) _empty_/ScalaSpec3Test#`<init>`(). -> 160:30
+(186:24..186:27) _empty_/Test#run(). -> 48:7
 

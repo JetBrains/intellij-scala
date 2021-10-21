@@ -1,8 +1,8 @@
 Document tests/pos/i4032.scala
-(1:25..1:31) scala/concurrent/Future.
-(1:25..1:31) scala/concurrent/Future#
-(1:14..1:24) scala/concurrent/
 (1:8..1:13) scala/
+(1:14..1:24) scala/concurrent/
+(1:25..1:31) scala/concurrent/Future#
+(1:25..1:31) scala/concurrent/Future.
 (4:17..4:18) _empty_/Gen#[T] -> 3:12
 (4:22..4:23) _empty_/Gen#map().[U] -> 4:11
 (4:26..4:29) _empty_/Gen# -> 3:7
@@ -26,15 +26,15 @@ Document tests/pos/i4032.scala
 (17:21..17:24) _empty_/Gen# -> 3:7
 (17:25..17:31) scala/concurrent/Future#
 (17:32..17:33) _empty_/Arbitrary.arbFuture().[X] -> 17:17
-(18:9..18:14) _empty_/Gen.oneOf(+1). -> 9:7
 (18:5..18:8) _empty_/Gen. -> 7:8
+(18:9..18:14) _empty_/Gen.oneOf(+1). -> 9:7
 (18:15..18:24) _empty_/Arbitrary.arbitrary(). -> 15:7
 (18:25..18:31) scala/concurrent/Future#
 (18:32..18:33) _empty_/Arbitrary.arbFuture().[X] -> 17:17
-(18:58..18:61) _empty_/Gen#map(). -> 4:7
 (18:37..18:46) _empty_/Arbitrary.arbitrary(). -> 15:7
 (18:47..18:56) scala/package.Throwable#
-(18:69..18:75) scala/concurrent/Future.failed().
-(18:62..18:68) scala/concurrent/Future.
+(18:58..18:61) _empty_/Gen#map(). -> 4:7
 (18:62..18:62) local0
+(18:62..18:68) scala/concurrent/Future.
+(18:69..18:75) scala/concurrent/Future.failed().
 

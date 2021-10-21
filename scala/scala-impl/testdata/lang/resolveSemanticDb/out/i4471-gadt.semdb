@@ -5,8 +5,8 @@ Document tests/pos/i4471-gadt.scala
 (3:45..3:52) _empty_/i4471.Shuffle# -> 2:16
 (3:53..3:55) _empty_/i4471.Shuffle#[A1] -> 2:24
 (3:57..3:59) _empty_/i4471.Shuffle#andThen().[A3] -> 3:17
-(3:70..3:70) _empty_/i4471.AndThen.apply(). -> 11:3
 (3:63..3:70) _empty_/i4471.AndThen. -> 11:14
+(3:70..3:70) _empty_/i4471.AndThen.apply(). -> 11:3
 (3:77..3:81) _empty_/i4471.Shuffle#andThen().(that) -> 3:21
 (6:30..6:37) _empty_/i4471.Shuffle# -> 2:16
 (6:38..6:39) _empty_/i4471.Id#[A] -> 6:17
@@ -72,30 +72,30 @@ Document tests/pos/i4471-gadt.scala
 (20:10..20:17) _empty_/i4471.AssocRL# -> 9:14
 (21:14..21:17) _empty_/i4471.Par# -> 10:14
 (22:10..22:14) local5 -> 21:7
-(23:15..23:15) _empty_/i4471.Par.unapply(). -> 10:3
 (23:12..23:15) _empty_/i4471.Par. -> 10:14
+(23:15..23:15) _empty_/i4471.Par.unapply(). -> 10:3
 (23:19..23:23) _empty_/i4471.Swap# -> 7:14
 (23:34..23:36) _empty_/i4471.Id# -> 6:14
-(24:13..24:13) scala/Some.apply().
 (24:9..24:13) scala/Some.
-(25:65..25:72) _empty_/i4471.Shuffle#andThen(). -> 3:9
-(25:30..25:37) _empty_/i4471.Shuffle#andThen(). -> 3:9
-(25:18..25:18) _empty_/i4471.AssocLR.apply(). -> 8:3
+(24:13..24:13) scala/Some.apply().
 (25:11..25:18) _empty_/i4471.AssocLR. -> 8:14
+(25:18..25:18) _empty_/i4471.AssocLR.apply(). -> 8:3
 (25:19..25:20) local3 -> 20:21
 (25:22..25:23) local4 -> 20:24
 (25:25..25:26) local2 -> 20:18
-(25:41..25:41) _empty_/i4471.Par.apply(). -> 10:3
+(25:30..25:37) _empty_/i4471.Shuffle#andThen(). -> 3:9
 (25:38..25:41) _empty_/i4471.Par. -> 10:14
-(25:44..25:44) _empty_/i4471.Id.apply(). -> 6:3
+(25:41..25:41) _empty_/i4471.Par.apply(). -> 10:3
 (25:42..25:44) _empty_/i4471.Id. -> 6:14
+(25:44..25:44) _empty_/i4471.Id.apply(). -> 6:3
 (25:45..25:46) local3 -> 20:21
-(25:55..25:55) _empty_/i4471.Swap.apply(). -> 7:3
 (25:51..25:55) _empty_/i4471.Swap. -> 7:14
+(25:55..25:55) _empty_/i4471.Swap.apply(). -> 7:3
 (25:56..25:57) local4 -> 20:24
 (25:59..25:60) local2 -> 20:18
-(25:80..25:80) _empty_/i4471.AssocRL.apply(). -> 9:3
+(25:65..25:72) _empty_/i4471.Shuffle#andThen(). -> 3:9
 (25:73..25:80) _empty_/i4471.AssocRL. -> 9:14
+(25:80..25:80) _empty_/i4471.AssocRL.apply(). -> 9:3
 (25:81..25:82) local3 -> 20:21
 (25:84..25:85) local2 -> 20:18
 (25:87..25:88) local4 -> 20:24

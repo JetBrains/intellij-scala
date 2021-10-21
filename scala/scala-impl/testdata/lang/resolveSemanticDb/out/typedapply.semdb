@@ -8,9 +8,9 @@ Document tests/pos/typedapply.scala
 (7:3..7:6) _empty_/typedapply.foo(). -> 3:7
 (7:7..7:10) scala/Int#
 (7:12..7:18) scala/Predef.String#
+(9:11..9:11) local0
+(9:11..9:11) local1
 (9:11..9:14) _empty_/typedapply.foo(). -> 3:7
 (9:15..9:18) scala/Int#
 (9:20..9:26) scala/Predef.String#
-(9:11..9:11) local0
-(9:11..9:11) local1
 

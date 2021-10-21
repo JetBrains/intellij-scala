@@ -1,22 +1,22 @@
 Document tests/pos/t361.scala
-(1:39..1:39) _empty_/Bug361Trees#`<init>`(). -> 3:30
 (1:28..1:39) _empty_/Bug361Trees# -> 3:16
+(1:39..1:39) _empty_/Bug361Trees#`<init>`(). -> 3:30
 (3:36..3:48) _empty_/Bug361Global# -> 1:7
 (6:14..6:17) scala/Int#
 (10:20..10:24) _empty_/Bug361Trees#Tree# -> 5:18
 (10:31..10:34) scala/Int#
 (10:42..10:43) _empty_/Bug361Trees#posAssigner.atPos().[T] -> 10:15
 (10:46..10:47) _empty_/Bug361Trees#posAssigner.atPos().[T] -> 10:15
-(11:12..11:15) _empty_/Bug361Trees#Tree#`pos_=`(). -> 6:9
 (11:7..11:11) _empty_/Bug361Trees#posAssigner.atPos().(tree) -> 10:36
+(11:12..11:15) _empty_/Bug361Trees#Tree#`pos_=`(). -> 6:9
 (11:18..11:21) _empty_/Bug361Trees#posAssigner.atPos().(pos) -> 10:26
 (11:23..11:27) _empty_/Bug361Trees#posAssigner.atPos().(tree) -> 10:36
 (15:18..15:22) _empty_/Bug361Trees#Tree# -> 5:18
 (15:29..15:32) scala/Int#
 (15:40..15:41) _empty_/Bug361Trees#atPos().[T] -> 15:13
 (15:44..15:45) _empty_/Bug361Trees#atPos().[T] -> 15:13
-(15:60..15:65) _empty_/Bug361Trees#posAssigner.atPos(). -> 10:9
 (15:48..15:59) _empty_/Bug361Trees#posAssigner. -> 9:10
+(15:60..15:65) _empty_/Bug361Trees#posAssigner.atPos(). -> 10:9
 (15:66..15:69) _empty_/Bug361Trees#atPos().(pos) -> 15:24
 (15:71..15:75) _empty_/Bug361Trees#atPos().(tree) -> 15:34
 

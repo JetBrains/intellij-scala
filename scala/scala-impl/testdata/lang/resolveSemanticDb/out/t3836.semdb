@@ -1,11 +1,11 @@
 Document tests/pos/t3836.scala
-(4:30..4:41) java/io/IOException#
-(4:27..4:29) java/io/
 (4:22..4:26) java/
-(8:15..8:17) java/io/
+(4:27..4:29) java/io/
+(4:30..4:41) java/io/IOException#
 (8:10..8:14) java/
-(9:14..9:17) foo/bar/
+(8:15..8:17) java/io/
 (9:10..9:13) foo/ -> 1:9
-(12:28..12:28) java/io/IOException#`<init>`().
+(9:14..9:17) foo/bar/
 (12:17..12:28) java/io/IOException#
+(12:28..12:28) java/io/IOException#`<init>`().
 

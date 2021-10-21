@@ -20,13 +20,13 @@ Document tests/pos/t3177.scala
 (9:61..9:62) local3 -> 9:17
 (9:66..9:66) _empty_/Endo.EndoTo(). -> 34:16
 (9:70..9:71) local3 -> 9:17
-(9:77..9:77) scala/Function1#apply().
 (9:76..9:77) local5 -> 9:33
-(9:80..9:80) scala/Function1#apply().
+(9:77..9:77) scala/Function1#apply().
 (9:78..9:78) _empty_/Endo.EndoFrom(). -> 38:16
 (9:78..9:80) local4 -> 9:20
-(9:82..9:82) scala/Function1#apply().
+(9:80..9:80) scala/Function1#apply().
 (9:81..9:82) local6 -> 9:44
+(9:82..9:82) scala/Function1#apply().
 (9:83..9:84) local7 -> 9:67
 (34:29..34:30) _empty_/Endo.EndoTo().[A] -> 34:23
 (34:34..34:35) _empty_/Endo.EndoTo().[A] -> 34:23
@@ -35,14 +35,14 @@ Document tests/pos/t3177.scala
 (34:52..34:56) _empty_/Endo# -> 31:7
 (34:57..34:58) _empty_/Endo.EndoTo().[A] -> 34:23
 (35:18..35:19) _empty_/Endo.EndoTo().[A] -> 34:23
-(35:24..35:24) scala/Function1#apply().
 (35:23..35:24) _empty_/Endo.EndoTo().(f) -> 34:26
+(35:24..35:24) scala/Function1#apply().
 (35:25..35:26) local10 -> 35:15
 (38:31..38:35) _empty_/Endo# -> 31:7
 (38:36..38:37) _empty_/Endo.EndoFrom().[A] -> 38:25
 (38:41..38:42) _empty_/Endo.EndoFrom().[A] -> 38:25
 (38:46..38:47) _empty_/Endo.EndoFrom().[A] -> 38:25
-(38:52..38:57) scala/Function1#apply().
 (38:50..38:50) _empty_/Endo.EndoFrom(). -> 38:16
 (38:50..38:51) _empty_/Endo.EndoFrom().(e) -> 38:28
+(38:52..38:57) scala/Function1#apply().
 

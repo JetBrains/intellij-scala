@@ -7,8 +7,8 @@ Document tests/pos/mixin-forwarder-clash1.scala
 (12:39..12:42) scala/Predef.`???`().
 (15:20..15:23) _empty_/One# -> 7:7
 (15:24..15:27) _empty_/Foo# -> 5:7
-(19:24..19:24) _empty_/Bar1#`<init>`(). -> 15:20
 (19:20..19:24) _empty_/Bar1# -> 15:7
+(19:24..19:24) _empty_/Bar1#`<init>`(). -> 15:20
 (19:30..19:33) _empty_/Two# -> 11:7
 (19:34..19:37) _empty_/Foo# -> 5:7
 

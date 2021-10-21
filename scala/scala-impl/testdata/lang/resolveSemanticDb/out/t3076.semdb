@@ -5,7 +5,7 @@ Document tests/pos/t3076/C2.scala
 (3:26..3:27) _empty_/T# -> 1:7
 
 Document tests/pos/t3076/T.scala
-(1:33..1:33) _empty_/C1#`<init>`(). -> 2:1
 (1:31..1:33) _empty_/C1# -> 2:15
+(1:33..1:33) _empty_/C1#`<init>`(). -> 2:1
 (2:1..2:8) _empty_/
 

@@ -1,6 +1,6 @@
 Document tests/pos/t3570.scala
-(2:35..2:35) java/lang/Throwable#`<init>`().
 (2:26..2:35) scala/package.Throwable#
+(2:35..2:35) java/lang/Throwable#`<init>`().
 (3:23..3:28) _empty_/test#Break. -> 2:12
 (4:21..4:25) scala/Unit#
 (4:28..4:32) scala/Unit#

@@ -9,6 +9,6 @@ Document tests/pos/t11437.scala
 (5:22..5:25) scala/Int#
 (5:30..5:31) scala/Int#`+`(+4).
 (8:10..8:13) scala/Int#
-(8:28..8:41) scala/compiletime/package$package.uninitialized().
 (8:16..8:27) scala/compiletime/
+(8:28..8:41) scala/compiletime/package$package.uninitialized().
 

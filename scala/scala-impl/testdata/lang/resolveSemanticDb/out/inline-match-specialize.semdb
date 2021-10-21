@@ -1,16 +1,16 @@
 Document tests/pos/inline-match-specialize.scala
 (2:29..2:30) _empty_/`inline-match-specialize`.Box#[T] -> 2:19
-(3:70..3:73) _empty_/`inline-match-specialize`.specialize().(box) -> 3:40
-(4:15..4:18) _empty_/`inline-match-specialize`.Box# -> 2:14
-(4:25..4:28) local0 -> 4:10
 (3:45..3:48) _empty_/`inline-match-specialize`.Box# -> 2:14
 (3:49..3:50) _empty_/`inline-match-specialize`.specialize().[T] -> 3:37
 (3:54..3:57) _empty_/`inline-match-specialize`.Box# -> 2:14
 (3:58..3:59) _empty_/`inline-match-specialize`.specialize().[T] -> 3:37
+(3:70..3:73) _empty_/`inline-match-specialize`.specialize().(box) -> 3:40
+(4:15..4:18) _empty_/`inline-match-specialize`.Box# -> 2:14
+(4:25..4:28) local0 -> 4:10
 (7:13..7:16) _empty_/`inline-match-specialize`.Box# -> 2:14
 (7:17..7:20) scala/Int#
 (7:24..7:34) _empty_/`inline-match-specialize`.specialize(). -> 3:26
 (7:35..7:38) scala/Any#
-(7:43..7:43) _empty_/`inline-match-specialize`.Box.apply(). -> 2:3
 (7:40..7:43) _empty_/`inline-match-specialize`.Box. -> 2:14
+(7:43..7:43) _empty_/`inline-match-specialize`.Box.apply(). -> 2:3
 

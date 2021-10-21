@@ -1,15 +1,15 @@
 Document tests/pos/i2697.scala
-(3:20..3:25) scala/collection/immutable/Map.empty().
 (3:16..3:19) scala/Predef.Map.
+(3:20..3:25) scala/collection/immutable/Map.empty().
 (3:26..3:32) scala/Predef.String#
 (3:34..3:40) scala/Predef.String#
-(4:21..4:26) scala/collection/immutable/List.empty().
 (4:16..4:20) scala/package.List.
+(4:21..4:26) scala/collection/immutable/List.empty().
 (4:27..4:30) scala/Predef.Map#
 (4:31..4:37) scala/Predef.String#
 (4:39..4:45) scala/Predef.String#
-(5:10..5:13) scala/collection/immutable/List#map().
 (5:5..5:9) local1 -> 4:9
+(5:10..5:13) scala/collection/immutable/List#map().
 (5:16..5:18) scala/collection/MapOps#`++`().
 (5:19..5:23) local0 -> 3:9
 

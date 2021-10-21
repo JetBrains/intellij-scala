@@ -1,7 +1,13 @@
 Document tests/pos/t4757/A_2.scala
-(2:14..2:15) _empty_/P.x(). -> 4:7
 (2:12..2:13) _empty_/P. -> 3:8
+(2:14..2:15) _empty_/P.x(). -> 4:7
 (2:19..2:22) scala/package.Nil.
+
+Document tests/pos/t4757/B_3.scala
+(2:10..2:13) scala/package.Seq#
+(2:14..2:15) _empty_/S# -> 1:7
+(2:22..2:23) _empty_/A. -> 1:8
+(2:24..2:26) _empty_/A.ss(). -> 2:7
 
 Document tests/pos/t4757/P_1.scala
 (4:12..4:15) scala/Int#
@@ -10,10 +16,4 @@ Document tests/pos/t4757/P_1.scala
 (4:33..4:36) scala/package.Seq#
 (4:37..4:38) _empty_/S# -> 1:7
 (4:45..4:47) _empty_/P.x().(ss) -> 4:17
-
-Document tests/pos/t4757/B_3.scala
-(2:10..2:13) scala/package.Seq#
-(2:14..2:15) _empty_/S# -> 1:7
-(2:24..2:26) _empty_/A.ss(). -> 2:7
-(2:22..2:23) _empty_/A. -> 1:8
 

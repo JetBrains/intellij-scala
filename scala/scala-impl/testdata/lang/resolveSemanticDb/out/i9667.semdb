@@ -1,24 +1,24 @@
 Document tests/pos/i9667.scala
-(2:23..2:33) scala/reflect/Selectable#
 (2:15..2:22) scala/reflect/
-(6:23..6:33) scala/reflect/Selectable#
+(2:23..2:33) scala/reflect/Selectable#
 (6:15..6:22) scala/reflect/
+(6:23..6:33) scala/reflect/Selectable#
 (7:19..7:20) _empty_/A# -> 4:7
 (9:12..9:13) local3 -> 7:9
 (10:10..10:11) local3 -> 7:9
 (10:14..10:17) scala/Predef.`???`().
-(11:13..11:14) _empty_/A#M# -> 4:16
 (11:11..11:12) local6 -> 10:7
+(11:13..11:14) _empty_/A#M# -> 4:16
 (11:17..11:20) scala/Predef.`???`().
 (12:10..12:11) local4 -> 8:8
 (12:14..12:17) scala/Predef.`???`().
 (13:10..13:11) local3 -> 7:9
 (13:14..13:17) scala/Predef.`???`().
-(14:13..14:14) _empty_/A#M# -> 4:16
 (14:11..14:12) local9 -> 13:7
+(14:13..14:14) _empty_/A#M# -> 4:16
 (14:17..14:20) scala/Predef.`???`().
-(16:19..16:29) scala/reflect/Selectable#
 (16:11..16:18) scala/reflect/
+(16:19..16:29) scala/reflect/Selectable#
 (18:13..18:14) _empty_/A# -> 4:7
 (19:10..19:11) _empty_/A# -> 4:7
 (20:11..20:14) scala/Any#

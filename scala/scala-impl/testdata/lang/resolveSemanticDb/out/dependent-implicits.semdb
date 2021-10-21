@@ -1,10 +1,10 @@
 Document tests/pos/dependent-implicits.scala
 (2:28..2:29) _empty_/Test.T#X# -> 2:18
 (3:21..3:22) _empty_/Test.T# -> 2:9
-(3:27..3:28) _empty_/Test.T#X# -> 2:18
 (3:25..3:26) _empty_/Test.f().(x) -> 3:18
-(3:33..3:34) _empty_/Test.T#x. -> 2:25
+(3:27..3:28) _empty_/Test.T#X# -> 2:18
 (3:31..3:32) _empty_/Test.f().(x) -> 3:18
+(3:33..3:34) _empty_/Test.T#x. -> 2:25
 (4:15..4:16) _empty_/Test.T# -> 2:9
 (4:28..4:34) scala/Predef.String#
 (5:10..5:16) scala/Predef.String#

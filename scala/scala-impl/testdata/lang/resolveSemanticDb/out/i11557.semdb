@@ -9,7 +9,7 @@ Document tests/pos/i11557.scala
 (8:20..8:20) _empty_/MyContext#intEncoder. -> 4:9
 (9:3..9:24) _empty_/i11557$package.summonInlineMyEncoder(). -> 11:12
 (11:37..11:41) scala/Unit#
-(12:15..12:27) scala/compiletime/package$package.summonInline().
 (12:3..12:14) scala/compiletime/
+(12:15..12:27) scala/compiletime/package$package.summonInline().
 (12:28..12:37) _empty_/i11557$package.MyEncoder# -> 1:6
 

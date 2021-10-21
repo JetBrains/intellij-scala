@@ -6,9 +6,9 @@ Document tests/pos/tryTyping.scala
 (10:14..10:23) scala/package.Throwable#
 (10:27..10:30) scala/Int#
 (11:9..11:12) scala/Predef.`???`().
-(12:13..12:13) scala/Function1#apply().
 (12:11..12:13) local1 -> 10:9
 (12:13..12:13) local2
+(12:13..12:13) scala/Function1#apply().
 (15:13..15:16) scala/Int#
 (16:14..16:17) scala/Int#
 (16:21..16:30) scala/package.Throwable#
@@ -16,8 +16,8 @@ Document tests/pos/tryTyping.scala
 (16:45..16:48) scala/Int#
 (16:72..16:73) local4 -> 16:42
 (17:9..17:12) scala/Predef.`???`().
-(18:16..18:16) scala/Function1#apply().
-(18:13..18:13) scala/Function1#apply().
 (18:11..18:13) local3 -> 16:9
+(18:13..18:13) scala/Function1#apply().
 (18:16..18:16) local5
+(18:16..18:16) scala/Function1#apply().
 

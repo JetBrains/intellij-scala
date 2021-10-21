@@ -1,6 +1,6 @@
 Document tests/pos/t5071.scala
-(3:9..3:13) _empty_/Foo#[Repr] -> 2:27
 (2:12..2:23) scala/specialized#
+(3:9..3:13) _empty_/Foo#[Repr] -> 2:27
 (5:22..5:25) _empty_/Foo# -> 2:7
 (5:26..5:27) _empty_/Bar#[A] -> 5:11
 (5:29..5:35) java/lang/Object#
@@ -8,8 +8,8 @@ Document tests/pos/t5071.scala
 (6:23..6:26) scala/Int#
 (6:28..6:31) _empty_/Baz# -> 6:7
 (10:12..10:15) scala/Int#
-(13:9..13:14) _empty_/Bippy# -> 9:7
 (12:13..12:24) scala/specialized#
+(13:9..13:14) _empty_/Bippy# -> 9:7
 (15:3..15:4) _empty_/Bippy#f(). -> 10:7
 (18:20..18:24) _empty_/FooC# -> 12:7
 (18:25..18:28) scala/Int#

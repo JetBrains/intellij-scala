@@ -1,6 +1,6 @@
 Document tests/pos/t116.scala
 (2:15..2:18) scala/Int#
 (3:5..3:5) _empty_/C#`<init>`(). -> 2:3
-(4:22..4:22) _empty_/C#`<init>`(). -> 2:3
 (4:21..4:22) _empty_/C# -> 1:7
+(4:22..4:22) _empty_/C#`<init>`(). -> 2:3
 

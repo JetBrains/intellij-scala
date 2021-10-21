@@ -6,7 +6,7 @@ Document tests/pos/i8516.scala
 (1:51..1:54) scala/Int#
 (1:64..1:65) local2 -> 1:59
 (2:10..2:11) _empty_/i8516$package.x. -> 1:5
-(3:11..3:16) scala/Function1#apply().
 (3:9..3:10) _empty_/i8516$package.x. -> 1:5
+(3:11..3:16) scala/Function1#apply().
 (3:17..3:20) scala/Function1#apply().(arg)
 

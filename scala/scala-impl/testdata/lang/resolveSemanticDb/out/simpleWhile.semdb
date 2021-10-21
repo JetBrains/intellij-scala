@@ -1,5 +1,5 @@
 Document tests/pos/simpleWhile.scala
-(4:14..4:16) scala/Int#`!=`(+3).
 (4:12..4:13) local0 -> 3:9
+(4:14..4:16) scala/Int#`!=`(+3).
 (5:7..5:8) local0 -> 3:9
 

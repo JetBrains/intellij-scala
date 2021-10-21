@@ -1,5 +1,5 @@
 Document tests/pos/t5084.scala
-(1:31..1:36) _empty_/Search.Value# -> 4:9
 (1:24..1:30) _empty_/Search. -> 3:8
+(1:31..1:36) _empty_/Search.Value# -> 4:9
 (4:17..4:23) scala/Predef.String#
 

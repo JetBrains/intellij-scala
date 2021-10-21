@@ -1,19 +1,19 @@
 Document tests/pos/12278.scala
-(1:30..1:33) scala/compiletime/ops/int.
-(1:26..1:29) scala/compiletime/ops/
-(1:14..1:25) scala/compiletime/
 (1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(1:26..1:29) scala/compiletime/ops/
+(1:30..1:33) scala/compiletime/ops/int.
 (4:17..4:20) scala/Int#
 (4:25..4:28) scala/Int#
 (4:31..4:32) _empty_/Test.Fib#[N] -> 4:12
 (7:10..7:13) scala/Any#
-(7:28..7:29) scala/compiletime/ops/int.`+`#
 (7:17..7:20) _empty_/Test.Fib# -> 4:8
-(7:23..7:24) scala/compiletime/ops/int.`-`#
 (7:21..7:22) _empty_/Test.Fib#[N] -> 4:12
+(7:23..7:24) scala/compiletime/ops/int.`-`#
+(7:28..7:29) scala/compiletime/ops/int.`+`#
 (7:30..7:33) _empty_/Test.Fib# -> 4:8
-(7:36..7:37) scala/compiletime/ops/int.`-`#
 (7:34..7:35) _empty_/Test.Fib#[N] -> 4:12
+(7:36..7:37) scala/compiletime/ops/int.`-`#
 (9:13..9:16) _empty_/Test.Fib# -> 4:8
 (10:13..10:16) _empty_/Test.Fib# -> 4:8
 (11:13..11:16) _empty_/Test.Fib# -> 4:8

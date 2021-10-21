@@ -1,6 +1,6 @@
 Document tests/pos/i12958.scala
-(1:14..1:20) scala/quoted/
 (1:8..1:13) scala/
+(1:14..1:20) scala/quoted/
 (5:38..5:41) scala/Any#
 (8:38..8:41) scala/Any#
 (10:10..10:16) mylib/Export. -> 4:10

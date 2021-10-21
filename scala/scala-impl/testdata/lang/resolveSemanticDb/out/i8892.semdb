@@ -3,40 +3,40 @@ Document tests/pos/i8892.scala
 (2:26..2:30) scala/Unit#
 (4:21..4:29) _empty_/Reporter# -> 1:7
 (5:17..5:23) scala/Predef.String#
-(9:57..9:57) _empty_/Dummy#ABug.Succ.apply(). -> 19:5
-(9:53..9:57) _empty_/Dummy#ABug.Succ. -> 19:16
 (9:35..9:39) _empty_/Dummy#ABug.Succ# -> 19:16
-(13:16..13:20) _empty_/Dummy#ABug.Zero. -> 18:17
-(13:27..13:31) _empty_/Dummy#ABug.Nat#`+`().(that) -> 11:39
-(14:20..14:20) _empty_/Dummy#ABug.Succ.unapply(). -> 19:5
-(14:16..14:20) _empty_/Dummy#ABug.Succ. -> 19:16
-(14:20..14:20) local0
-(14:29..14:30) _empty_/Dummy#ABug.Nat#`+`(). -> 11:30
-(14:27..14:28) local1 -> 14:21
-(14:36..14:38) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
-(14:31..14:35) _empty_/Dummy#ABug.Nat#`+`().(that) -> 11:39
+(9:53..9:57) _empty_/Dummy#ABug.Succ. -> 19:16
+(9:57..9:57) _empty_/Dummy#ABug.Succ.apply(). -> 19:5
 (11:45..11:48) _empty_/Dummy#ABug.Nat# -> 8:18
 (11:51..11:54) _empty_/Dummy#ABug.Nat# -> 8:18
+(13:16..13:20) _empty_/Dummy#ABug.Zero. -> 18:17
+(13:27..13:31) _empty_/Dummy#ABug.Nat#`+`().(that) -> 11:39
+(14:16..14:20) _empty_/Dummy#ABug.Succ. -> 19:16
+(14:20..14:20) _empty_/Dummy#ABug.Succ.unapply(). -> 19:5
+(14:20..14:20) local0
+(14:27..14:28) local1 -> 14:21
+(14:29..14:30) _empty_/Dummy#ABug.Nat#`+`(). -> 11:30
+(14:31..14:35) _empty_/Dummy#ABug.Nat#`+`().(that) -> 11:39
+(14:36..14:38) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
 (18:30..18:33) _empty_/Dummy#ABug.Nat# -> 8:18
 (19:34..19:35) _empty_/Dummy#ABug.Succ#[N] -> 19:21
 (19:45..19:48) _empty_/Dummy#ABug.Nat# -> 8:18
-(22:14..22:15) _empty_/Dummy#ABug.toIntg().(n) -> 21:42
-(23:14..23:18) _empty_/Dummy#ABug.Zero. -> 18:17
-(24:18..24:18) _empty_/Dummy#ABug.Succ.unapply(). -> 19:5
-(24:14..24:18) _empty_/Dummy#ABug.Succ. -> 19:16
-(24:18..24:18) local2
-(24:35..24:36) scala/Int#`+`(+4).
-(24:25..24:31) _empty_/Dummy#ABug.toIntg(). -> 21:28
-(24:32..24:33) local3 -> 24:19
 (21:45..21:48) _empty_/Dummy#ABug.Nat# -> 8:18
 (21:51..21:54) scala/Int#
+(22:14..22:15) _empty_/Dummy#ABug.toIntg().(n) -> 21:42
+(23:14..23:18) _empty_/Dummy#ABug.Zero. -> 18:17
+(24:14..24:18) _empty_/Dummy#ABug.Succ. -> 19:16
+(24:18..24:18) _empty_/Dummy#ABug.Succ.unapply(). -> 19:5
+(24:18..24:18) local2
+(24:25..24:31) _empty_/Dummy#ABug.toIntg(). -> 21:28
+(24:32..24:33) local3 -> 24:19
+(24:35..24:36) scala/Int#`+`(+4).
 (27:15..27:21) _empty_/Dummy#ABug.toIntg(). -> 21:28
+(27:22..27:26) _empty_/Dummy#ABug.Zero. -> 18:17
 (27:27..27:27) _empty_/Dummy#ABug.Zero. -> 18:17
 (27:27..27:29) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
-(27:22..27:26) _empty_/Dummy#ABug.Zero. -> 18:17
 (27:30..27:32) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
-(27:36..27:37) _empty_/Dummy#ABug.Nat#`+`(). -> 11:30
 (27:33..27:35) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
-(27:43..27:45) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
+(27:36..27:37) _empty_/Dummy#ABug.Nat#`+`(). -> 11:30
 (27:38..27:42) _empty_/Dummy#ABug.Zero. -> 18:17
+(27:43..27:45) _empty_/Dummy#ABug.Nat#`++`(). -> 9:30
 

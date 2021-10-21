@@ -5,11 +5,11 @@ Document tests/pos/tcpoly_infer_easy.scala
 (2:55..2:56) _empty_/Test.test().[A] -> 2:37
 (2:60..2:62) _empty_/Test.test().(xs) -> 2:40
 (3:14..3:18) _empty_/Test.test(). -> 2:9
-(3:23..3:23) scala/collection/IterableFactory#apply().
 (3:19..3:23) scala/package.List.
+(3:23..3:23) scala/collection/IterableFactory#apply().
 (4:14..4:18) scala/package.List#
 (4:19..4:22) scala/Int#
 (4:26..4:30) _empty_/Test.test(). -> 2:9
-(4:35..4:35) scala/collection/IterableFactory#apply().
 (4:31..4:35) scala/package.List.
+(4:35..4:35) scala/collection/IterableFactory#apply().
 

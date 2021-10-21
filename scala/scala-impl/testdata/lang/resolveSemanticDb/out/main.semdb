@@ -1,14 +1,14 @@
 Document tests/pos/main.scala
+(2:3..2:3) foo/main$package.main(). -> 2:13
+(2:3..2:3) local0
+(2:3..2:3) scala/util/CommandLineParser.showError().
 (2:4..2:8) scala/main#
 (2:21..2:25) scala/Unit#
 (2:28..2:35) scala/Predef.println(+1).
-(2:3..2:3) foo/main$package.main(). -> 2:13
-(2:3..2:3) scala/util/CommandLineParser.showError().
-(2:3..2:3) local0
+(4:1..4:1) _empty_/main$package.List(). -> 4:11
+(4:1..4:1) local1
+(4:1..4:1) scala/util/CommandLineParser.showError().
 (4:2..4:6) scala/main#
 (4:19..4:23) scala/Unit#
 (4:26..4:33) scala/Predef.println(+1).
-(4:1..4:1) _empty_/main$package.List(). -> 4:11
-(4:1..4:1) scala/util/CommandLineParser.showError().
-(4:1..4:1) local1
 

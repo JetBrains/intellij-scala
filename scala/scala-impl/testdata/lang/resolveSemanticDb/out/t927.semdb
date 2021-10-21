@@ -3,23 +3,23 @@ Document tests/pos/t927.scala
 (3:26..3:29) scala/Int#
 (3:33..3:36) scala/Int#
 (4:5..4:11) _empty_/Test.sum().(stream) -> 3:11
-(5:19..5:24) scala/collection/immutable/Stream.Empty.
 (5:12..5:18) scala/package.Stream.
-(6:23..6:23) scala/collection/immutable/Stream.cons.unapply().
-(6:19..6:23) scala/collection/immutable/Stream.cons.
+(5:19..5:24) scala/collection/immutable/Stream.Empty.
 (6:12..6:18) scala/package.Stream.
-(6:38..6:39) scala/Int#`+`(+4).
+(6:19..6:23) scala/collection/immutable/Stream.cons.
+(6:23..6:23) scala/collection/immutable/Stream.cons.unapply().
 (6:35..6:37) local0 -> 6:24
+(6:38..6:39) scala/Int#`+`(+4).
 (6:40..6:43) _empty_/Test.sum(). -> 3:7
 (6:44..6:46) local1 -> 6:28
 (8:12..8:18) scala/package.Stream#
 (8:19..8:22) scala/Int#
-(8:47..8:55) scala/collection/IterableOnceOps#toStream().
-(8:38..8:46) scala/collection/StrictOptimizedLinearSeqOps#iterator().
-(8:30..8:30) scala/collection/IterableFactory#apply().
 (8:26..8:30) scala/package.List.
+(8:30..8:30) scala/collection/IterableFactory#apply().
+(8:38..8:46) scala/collection/StrictOptimizedLinearSeqOps#iterator().
+(8:47..8:55) scala/collection/IterableOnceOps#toStream().
 (9:3..9:9) scala/Predef.assert(+1).
-(9:19..9:21) scala/Int#`==`(+3).
 (9:10..9:13) _empty_/Test.sum(). -> 3:7
 (9:14..9:17) _empty_/Test.str. -> 8:7
+(9:19..9:21) scala/Int#`==`(+3).
 

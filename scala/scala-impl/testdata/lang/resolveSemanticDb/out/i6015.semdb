@@ -1,9 +1,9 @@
 Document tests/pos/i6015.scala
-(1:14..1:25) scala/compiletime/
 (1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
 (4:19..4:22) scala/Int#
-(7:10..7:10) scala/Array.apply().
 (7:5..7:10) scala/Array.
+(7:10..7:10) scala/Array.apply().
 (7:11..7:14) scala/Int#
 (7:16..7:26) scala/Predef.implicitly().
 (7:27..7:30) scala/Int#

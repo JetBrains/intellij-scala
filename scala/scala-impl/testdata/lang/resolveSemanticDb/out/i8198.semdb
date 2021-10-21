@@ -4,10 +4,10 @@ Document tests/pos/i8198.scala
 (3:21..3:28) scala/Boolean#
 (4:17..4:18) _empty_/Eq#[A] -> 1:10
 (4:21..4:28) scala/Boolean#
-(4:40..4:41) scala/Boolean#`unary_!`().
-(4:35..4:38) _empty_/Eq#`===`(). -> 3:9
 (4:33..4:34) _empty_/Eq#`/==`().(x) -> 2:14
+(4:35..4:38) _empty_/Eq#`===`(). -> 3:9
 (4:39..4:40) _empty_/Eq#`/==`().(y) -> 4:14
+(4:40..4:41) scala/Boolean#`unary_!`().
 (7:22..7:23) _empty_/Id#[T] -> 7:15
 (9:26..9:28) _empty_/Eq# -> 1:7
 (9:29..9:30) _empty_/i8198$package.idEq().[A] -> 9:12
@@ -18,10 +18,10 @@ Document tests/pos/i8198.scala
 (10:21..10:22) _empty_/i8198$package.idEq().[A] -> 9:12
 (10:38..10:40) _empty_/Id# -> 7:12
 (10:41..10:42) _empty_/i8198$package.idEq().[A] -> 9:12
-(10:64..10:65) scala/Boolean#`unary_!`().
 (10:49..10:49) _empty_/Eq#`/==`(). -> 4:9
-(10:52..10:54) _empty_/Id#id. -> 7:18
 (10:49..10:51) local2 -> 10:14
-(10:62..10:64) _empty_/Id#id. -> 7:18
+(10:52..10:54) _empty_/Id#id. -> 7:18
 (10:59..10:61) local3 -> 10:34
+(10:62..10:64) _empty_/Id#id. -> 7:18
+(10:64..10:65) scala/Boolean#`unary_!`().
 

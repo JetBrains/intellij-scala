@@ -7,11 +7,11 @@ Document tests/pos/i11020.scala
 (5:26..5:32) scala/Predef.String#
 (5:48..5:51) _empty_/Baz# -> 2:7
 (5:55..5:58) scala/Predef.`???`().
-(6:21..6:22) _empty_/i11020$package.baz().[T] -> 6:12
-(6:42..6:45) scala/Int#
 (6:15..6:16) _empty_/B# -> 3:7
 (6:16..6:16) _empty_/i11020$package.baz().[T] -> 6:12
+(6:21..6:22) _empty_/i11020$package.baz().[T] -> 6:12
 (6:36..6:37) _empty_/B# -> 3:7
 (6:37..6:37) _empty_/i11020$package.baz().[U] -> 6:33
+(6:42..6:45) scala/Int#
 (6:49..6:52) scala/Predef.`???`().
 

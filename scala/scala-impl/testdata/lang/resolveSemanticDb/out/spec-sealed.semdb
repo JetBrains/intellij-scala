@@ -8,32 +8,32 @@ Document tests/pos/spec-sealed.scala
 (5:34..5:35) _empty_/MyList#`::`().[B] -> 5:23
 (5:38..5:44) _empty_/MyList# -> 1:23
 (5:45..5:46) _empty_/MyList#`::`().[B] -> 5:23
-(6:16..6:16) _empty_/Cons#`<init>`(). -> 14:16
 (6:9..6:13) _empty_/Cons# -> 14:12
 (6:14..6:15) _empty_/MyList#`::`().[B] -> 5:23
+(6:16..6:16) _empty_/Cons#`<init>`(). -> 14:16
 (6:17..6:18) _empty_/MyList#`::`().(x) -> 5:31
-(9:42..9:42) _empty_/MyList#`<init>`(). -> 1:29
 (9:27..9:33) _empty_/MyList# -> 1:23
 (9:34..9:41) scala/Nothing#
-(10:18..10:23) scala/sys/package.error().
+(9:42..9:42) _empty_/MyList#`<init>`(). -> 1:29
 (10:14..10:17) scala/sys/
-(11:18..11:23) scala/sys/package.error().
+(10:18..10:23) scala/sys/package.error().
 (11:14..11:17) scala/sys/
+(11:18..11:23) scala/sys/package.error().
+(14:18..14:29) scala/specialized#
 (14:49..14:50) _empty_/Cons#[a] -> 14:30
 (14:56..14:62) _empty_/MyList# -> 1:23
 (14:63..14:64) _empty_/Cons#[a] -> 14:30
-(14:84..14:84) _empty_/MyList#`<init>`(). -> 1:29
 (14:75..14:81) _empty_/MyList# -> 1:23
 (14:82..14:83) _empty_/Cons#[a] -> 14:30
-(14:18..14:29) scala/specialized#
+(14:84..14:84) _empty_/MyList#`<init>`(). -> 1:29
 (15:14..15:16) _empty_/Cons#hd. -> 14:45
 (16:14..16:16) _empty_/Cons#tl. -> 14:52
-(19:43..19:43) _empty_/MyList#`<init>`(). -> 1:29
 (19:32..19:38) _empty_/MyList# -> 1:23
 (19:39..19:42) scala/Int#
+(19:43..19:43) _empty_/MyList#`<init>`(). -> 1:29
 (21:21..21:24) scala/App#
-(22:32..22:32) _empty_/MyList#`::`(). -> 5:7
 (22:27..22:32) _empty_/MyNil. -> 9:13
+(22:32..22:32) _empty_/MyList#`::`(). -> 5:7
 (23:3..23:10) scala/Predef.println(+1).
 (23:11..23:13) _empty_/Main.xs. -> 22:7
 

@@ -14,23 +14,23 @@ Document tests/pos/implicitDivergenc.scala
 (7:3..7:13) scala/Predef.implicitly().
 (7:14..7:15) _empty_/Test.C# -> 2:9
 (7:16..7:22) scala/Predef.String#
-(7:24..7:24) _empty_/Test.fString(). -> 4:16
 (7:24..7:24) _empty_/Test.fInt(). -> 5:16
+(7:24..7:24) _empty_/Test.fString(). -> 4:16
 (8:3..8:13) scala/Predef.implicitly().
 (8:14..8:15) _empty_/Test.C# -> 2:9
 (8:16..8:17) _empty_/Test.C# -> 2:9
 (8:18..8:24) scala/Predef.String#
 (8:27..8:27) _empty_/Test.fGen(). -> 3:16
-(8:27..8:27) _empty_/Test.fString(). -> 4:16
 (8:27..8:27) _empty_/Test.fInt(). -> 5:16
+(8:27..8:27) _empty_/Test.fString(). -> 4:16
 (9:3..9:13) scala/Predef.implicitly().
 (9:14..9:15) _empty_/Test.C# -> 2:9
 (9:16..9:17) _empty_/Test.C# -> 2:9
 (9:18..9:19) _empty_/Test.C# -> 2:9
 (9:20..9:26) scala/Predef.String#
 (9:30..9:30) _empty_/Test.fGen(). -> 3:16
-(9:30..9:30) _empty_/Test.fString(). -> 4:16
 (9:30..9:30) _empty_/Test.fInt(). -> 5:16
+(9:30..9:30) _empty_/Test.fString(). -> 4:16
 (10:3..10:13) scala/Predef.implicitly().
 (10:14..10:15) _empty_/Test.C# -> 2:9
 (10:16..10:17) _empty_/Test.C# -> 2:9
@@ -38,8 +38,8 @@ Document tests/pos/implicitDivergenc.scala
 (10:20..10:21) _empty_/Test.C# -> 2:9
 (10:22..10:28) scala/Predef.String#
 (10:33..10:33) _empty_/Test.fGen(). -> 3:16
-(10:33..10:33) _empty_/Test.fString(). -> 4:16
 (10:33..10:33) _empty_/Test.fInt(). -> 5:16
+(10:33..10:33) _empty_/Test.fString(). -> 4:16
 (11:3..11:13) scala/Predef.implicitly().
 (11:14..11:15) _empty_/Test.C# -> 2:9
 (11:16..11:17) _empty_/Test.C# -> 2:9
@@ -48,8 +48,8 @@ Document tests/pos/implicitDivergenc.scala
 (11:22..11:23) _empty_/Test.C# -> 2:9
 (11:24..11:30) scala/Predef.String#
 (11:36..11:36) _empty_/Test.fGen(). -> 3:16
-(11:36..11:36) _empty_/Test.fString(). -> 4:16
 (11:36..11:36) _empty_/Test.fInt(). -> 5:16
+(11:36..11:36) _empty_/Test.fString(). -> 4:16
 (12:3..12:13) scala/Predef.implicitly().
 (12:14..12:15) _empty_/Test.C# -> 2:9
 (12:16..12:17) _empty_/Test.C# -> 2:9
@@ -59,6 +59,6 @@ Document tests/pos/implicitDivergenc.scala
 (12:24..12:25) _empty_/Test.C# -> 2:9
 (12:26..12:32) scala/Predef.String#
 (12:39..12:39) _empty_/Test.fGen(). -> 3:16
-(12:39..12:39) _empty_/Test.fString(). -> 4:16
 (12:39..12:39) _empty_/Test.fInt(). -> 5:16
+(12:39..12:39) _empty_/Test.fString(). -> 4:16
 

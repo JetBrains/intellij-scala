@@ -12,13 +12,13 @@ Document tests/pos/t767.scala
 (14:18..14:23) scala/Array#
 (14:24..14:30) scala/Predef.String#
 (14:34..14:38) scala/Unit#
-(15:27..15:27) _empty_/AbsCell#`<init>`(). -> 2:3
 (15:20..15:27) _empty_/AbsCell# -> 1:16
-(15:49..15:49) _empty_/AbsCell#Node#`<init>`(). -> 9:5
+(15:27..15:27) _empty_/AbsCell#`<init>`(). -> 2:3
 (15:45..15:49) _empty_/AbsCell#Node# -> 8:9
-(16:10..16:13) _empty_/AbsCell#set(). -> 6:7
+(15:49..15:49) _empty_/AbsCell#Node#`<init>`(). -> 9:5
 (16:5..16:9) local0 -> 15:9
-(16:29..16:29) _empty_/AbsCell#Node#`<init>`(). -> 9:5
-(16:28..16:29) _empty_/AbsCell#T# -> 2:8
+(16:10..16:13) _empty_/AbsCell#set(). -> 6:7
 (16:18..16:22) local0 -> 15:9
+(16:28..16:29) _empty_/AbsCell#T# -> 2:8
+(16:29..16:29) _empty_/AbsCell#Node#`<init>`(). -> 9:5
 

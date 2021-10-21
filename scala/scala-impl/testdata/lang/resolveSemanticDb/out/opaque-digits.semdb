@@ -1,35 +1,35 @@
 Document tests/pos/opaque-digits.scala
-(3:21..3:33) java/lang/Character#isAlphabetic().
-(3:35..3:42) java/lang/Character#isDigit(+1).
-(3:35..3:42) java/lang/Character#isDigit().
 (3:10..3:19) java/lang/Character#
+(3:21..3:33) java/lang/Character#isAlphabetic().
+(3:35..3:42) java/lang/Character#isDigit().
+(3:35..3:42) java/lang/Character#isDigit(+1).
 (5:45..5:51) scala/Predef.String#
-(5:67..5:67) scala/AnyVal#`<init>`().
 (5:61..5:67) scala/AnyVal#
+(5:67..5:67) scala/AnyVal#`<init>`().
 (8:23..8:29) scala/Predef.String#
 (8:32..8:38) scala/Option#
 (8:39..8:49) _empty_/pkg.Alphabetic# -> 5:9
-(9:13..9:19) scala/collection/StringOps#forall().
 (9:11..9:11) scala/Predef.augmentString().
 (9:11..9:12) _empty_/pkg.Alphabetic.fromString().(s) -> 8:20
+(9:13..9:19) scala/collection/StringOps#forall().
 (9:20..9:32) java/lang/Character#isAlphabetic().
 (9:33..9:33) scala/Char.char2int().
-(9:42..9:42) scala/Some.apply().
 (9:38..9:42) scala/Some.
-(9:57..9:57) _empty_/pkg.Alphabetic#`<init>`(). -> 5:19
+(9:42..9:42) scala/Some.apply().
 (9:47..9:57) _empty_/pkg.Alphabetic# -> 5:9
+(9:57..9:57) _empty_/pkg.Alphabetic#`<init>`(). -> 5:19
 (9:58..9:59) _empty_/pkg.Alphabetic.fromString().(s) -> 8:20
 (10:12..10:16) scala/None.
 (13:24..13:30) scala/Predef.String#
 (16:23..16:29) scala/Predef.String#
 (16:32..16:38) scala/Option#
 (16:39..16:45) _empty_/pkg.Digits# -> 13:15
-(17:13..17:19) scala/collection/StringOps#forall().
 (17:11..17:11) scala/Predef.augmentString().
 (17:11..17:12) _empty_/pkg.Digits.fromString().(s) -> 16:20
+(17:13..17:19) scala/collection/StringOps#forall().
 (17:20..17:27) java/lang/Character#isDigit().
-(17:37..17:37) scala/Some.apply().
 (17:33..17:37) scala/Some.
+(17:37..17:37) scala/Some.apply().
 (17:38..17:39) _empty_/pkg.Digits.fromString().(s) -> 16:20
 (18:12..18:16) scala/None.
 (20:21..20:27) _empty_/pkg.Digits# -> 13:15

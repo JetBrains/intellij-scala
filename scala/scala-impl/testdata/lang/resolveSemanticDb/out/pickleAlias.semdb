@@ -1,5 +1,5 @@
 Document tests/pos/pickleAlias.scala
-(2:24..2:24) java/lang/Error#`<init>`().
-(2:19..2:24) scala/package.Error#
 (2:13..2:18) scala/
+(2:19..2:24) scala/package.Error#
+(2:24..2:24) java/lang/Error#`<init>`().
 

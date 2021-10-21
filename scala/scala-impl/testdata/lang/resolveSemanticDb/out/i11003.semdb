@@ -1,8 +1,8 @@
 Document tests/pos/i11003.scala
 (3:8..3:11) _empty_/Foo. -> 1:8
 (3:19..3:22) _empty_/Foo. -> 1:8
-(4:17..4:18) scala/`|`#
 (4:8..4:11) _empty_/Foo. -> 1:8
+(4:17..4:18) scala/`|`#
 (4:19..4:26) scala/Nothing#
 (4:29..4:30) _empty_/i11003$package.x. -> 3:5
 (5:8..5:11) _empty_/Foo. -> 1:8
@@ -11,51 +11,51 @@ Document tests/pos/i11003.scala
 (6:12..6:19) scala/Nothing#
 (7:12..7:13) _empty_/i11003$package.a. -> 6:5
 (9:16..9:22) scala/Predef.summon().
-(9:39..9:42) scala/`<:<`#
-(9:28..9:29) scala/`|`#
 (9:24..9:27) scala/Int#
+(9:28..9:29) scala/`|`#
 (9:30..9:37) scala/Nothing#
+(9:39..9:42) scala/`<:<`#
 (9:43..9:46) scala/Int#
 (9:47..9:47) scala/`<:<`.refl().
 (10:14..10:20) scala/Predef.summon().
-(10:25..10:28) scala/`<:<`#
 (10:21..10:24) scala/Int#
-(10:34..10:35) scala/`|`#
+(10:25..10:28) scala/`<:<`#
 (10:30..10:33) scala/Int#
+(10:34..10:35) scala/`|`#
 (10:36..10:43) scala/Nothing#
 (10:45..10:45) scala/`<:<`.refl().
 (11:13..11:19) scala/Predef.summon().
-(11:24..11:27) scala/`=:=`#
 (11:20..11:23) scala/Int#
-(11:33..11:34) scala/`|`#
+(11:24..11:27) scala/`=:=`#
 (11:29..11:32) scala/Int#
+(11:33..11:34) scala/`|`#
 (11:35..11:42) scala/Nothing#
 (11:44..11:44) scala/`<:<`.refl().
 (13:16..13:22) scala/Predef.summon().
-(13:44..13:47) scala/`<:<`#
-(13:33..13:34) scala/`|`#
 (13:24..13:27) _empty_/Foo. -> 1:8
+(13:33..13:34) scala/`|`#
 (13:35..13:42) scala/Nothing#
+(13:44..13:47) scala/`<:<`#
 (13:48..13:51) _empty_/Foo. -> 1:8
 (13:57..13:57) scala/`<:<`.refl().
 (14:14..14:20) scala/Predef.summon().
-(14:30..14:33) scala/`<:<`#
 (14:21..14:24) _empty_/Foo. -> 1:8
-(14:44..14:45) scala/`|`#
+(14:30..14:33) scala/`<:<`#
 (14:35..14:38) _empty_/Foo. -> 1:8
+(14:44..14:45) scala/`|`#
 (14:46..14:53) scala/Nothing#
 (14:55..14:55) scala/`<:<`.refl().
 (15:13..15:19) scala/Predef.summon().
-(15:29..15:32) scala/`=:=`#
 (15:20..15:23) _empty_/Foo. -> 1:8
-(15:43..15:44) scala/`|`#
+(15:29..15:32) scala/`=:=`#
 (15:34..15:37) _empty_/Foo. -> 1:8
+(15:43..15:44) scala/`|`#
 (15:45..15:52) scala/Nothing#
 (15:54..15:54) scala/`<:<`.refl().
 (17:16..17:22) scala/Predef.summon().
-(17:37..17:40) scala/`<:<`#
 (17:26..17:27) scala/`|`#
 (17:28..17:35) scala/Nothing#
+(17:37..17:40) scala/`<:<`#
 (17:43..17:43) scala/`<:<`.refl().
 (18:14..18:20) scala/Predef.summon().
 (18:23..18:26) scala/`<:<`#

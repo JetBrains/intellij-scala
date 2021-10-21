@@ -9,7 +9,7 @@ Document tests/pos/simpleAnnot.scala
 (5:23..5:26) scala/Predef.`???`().
 (6:12..6:15) scala/Int#
 (6:20..6:21) _empty_/Foo#c().(x) -> 6:9
-(9:38..9:48) scala/annotation/Annotation#
-(9:27..9:37) scala/annotation/
 (9:21..9:26) scala/
+(9:27..9:37) scala/annotation/
+(9:38..9:48) scala/annotation/Annotation#
 

@@ -1,7 +1,7 @@
 Document tests/pos/t6966.scala
+(1:8..1:16) scala/package.Ordering.
 (1:18..1:22) scala/math/Ordering.Byte.
 (1:24..1:44) scala/math/LowPriorityOrderingImplicits#comparatorToOrdering().
-(1:8..1:16) scala/package.Ordering.
 (5:51..5:57) _empty_/Format# -> 2:7
 (5:58..5:59) _empty_/CacheIvy.basicInputCache().[I] -> 5:34
 (5:67..5:72) scala/package.Equiv#
@@ -28,18 +28,18 @@ Document tests/pos/t6966.scala
 (10:80..10:90) _empty_/InputCache# -> 3:7
 (10:91..10:92) _empty_/CacheIvy.hConsCache().[T] -> 10:32
 (10:96..10:106) _empty_/InputCache# -> 3:7
-(10:109..10:112) _empty_/CacheIvy.`:+:`# -> 9:10
 (10:107..10:108) _empty_/CacheIvy.hConsCache().[H] -> 10:29
+(10:109..10:112) _empty_/CacheIvy.`:+:`# -> 9:10
 (10:113..10:114) _empty_/CacheIvy.hConsCache().[T] -> 10:32
 (11:5..11:15) _empty_/CacheIvy.hConsCache(). -> 10:18
 (11:16..11:21) scala/Array#
 (11:22..11:26) scala/Byte#
 (11:29..11:33) _empty_/HNil# -> 15:14
-(11:34..11:34) _empty_/CacheIvy.basicInputCache(). -> 5:18
 (11:34..11:34) _empty_/CacheIvy.ByteArrayFormat(). -> 8:18
 (11:34..11:34) _empty_/CacheIvy.arrEquiv(). -> 6:18
-(11:34..11:34) scala/math/Ordering.Byte.
+(11:34..11:34) _empty_/CacheIvy.basicInputCache(). -> 5:18
 (11:34..11:34) _empty_/CacheIvy.hNilCache(). -> 7:18
+(11:34..11:34) scala/math/Ordering.Byte.
 (15:27..15:32) _empty_/HList# -> 14:14
 (16:21..16:25) _empty_/HNil# -> 15:14
 (17:41..17:42) _empty_/HCons#[H] -> 17:19

@@ -4,10 +4,10 @@ Document tests/pos/t8369a.scala
 (3:27..3:31) _empty_/Bug.read(). -> 4:7
 (3:32..3:33) _empty_/Bug.test().[S] -> 3:12
 (4:17..4:20) _empty_/Bug.Sys# -> 2:9
+(4:21..4:22) _empty_/Bug.read$default$1().[S] -> 4:12
 (4:21..4:22) _empty_/Bug.read().[S] -> 4:12
 (4:30..4:33) scala/Any#
 (4:40..4:44) scala/Some#
 (4:45..4:46) _empty_/Bug.read().[S] -> 4:12
 (4:50..4:53) scala/Predef.`???`().
-(4:21..4:22) _empty_/Bug.read$default$1().[S] -> 4:12
 

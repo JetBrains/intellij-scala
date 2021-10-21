@@ -1,6 +1,6 @@
 Document tests/pos/t3152.scala
-(4:39..4:42) scala/`<:<`#
 (4:37..4:38) _empty_/MA#[A] -> 3:23
+(4:39..4:42) scala/`<:<`#
 (4:43..4:44) _empty_/MA#sequence().[N] -> 4:16
 (4:45..4:46) _empty_/MA#sequence().[B] -> 4:22
 (4:52..4:63) _empty_/Applicative# -> 1:7
@@ -8,37 +8,37 @@ Document tests/pos/t3152.scala
 (4:69..4:70) _empty_/MA#sequence().[N] -> 4:16
 (4:71..4:72) _empty_/MA#[M] -> 3:17
 (4:73..4:74) _empty_/MA#sequence().[B] -> 4:22
-(4:83..4:88) scala/sys/package.error().
 (4:79..4:82) scala/sys/
+(4:83..4:88) scala/sys/package.error().
 (9:29..9:33) scala/package.List#
 (9:34..9:35) _empty_/test.ListMA().[A] -> 9:23
 (9:39..9:41) _empty_/MA# -> 3:14
 (9:42..9:46) scala/package.List#
 (9:48..9:49) _empty_/test.ListMA().[A] -> 9:23
-(9:57..9:62) scala/sys/package.error().
 (9:53..9:56) scala/sys/
+(9:57..9:62) scala/sys/package.error().
 (10:20..10:31) _empty_/Applicative# -> 1:7
-(10:46..10:51) scala/sys/package.error().
 (10:42..10:45) scala/sys/
-(18:28..18:36) _empty_/MA#sequence(). -> 4:7
+(10:46..10:51) scala/sys/package.error().
 (18:4..18:4) _empty_/test.ListMA(). -> 9:16
 (18:4..18:7) scala/package.Nil.
 (18:9..18:13) scala/package.List#
 (18:14..18:20) scala/Option#
 (18:21..18:24) scala/Int#
-(18:36..18:36) scala/`<:<`.refl().
+(18:28..18:36) _empty_/MA#sequence(). -> 4:7
 (18:36..18:36) _empty_/test.ao. -> 10:16
+(18:36..18:36) scala/`<:<`.refl().
 (18:38..18:44) scala/Option#
 (18:45..18:49) scala/package.List#
 (18:50..18:53) scala/Int#
-(19:25..19:33) _empty_/MA#sequence(). -> 4:7
 (19:4..19:4) _empty_/test.ListMA(). -> 9:16
-(19:8..19:8) scala/collection/IterableFactory#apply().
 (19:4..19:8) scala/package.List.
+(19:8..19:8) scala/collection/IterableFactory#apply().
 (19:9..19:15) scala/Option#
 (19:16..19:19) scala/Int#
-(19:33..19:33) scala/`<:<`.refl().
+(19:25..19:33) _empty_/MA#sequence(). -> 4:7
 (19:33..19:33) _empty_/test.ao. -> 10:16
+(19:33..19:33) scala/`<:<`.refl().
 (19:35..19:41) scala/Option#
 (19:42..19:46) scala/package.List#
 (19:47..19:50) scala/Int#

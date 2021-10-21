@@ -3,10 +3,10 @@ Document tests/pos/i947.scala
 (7:32..7:35) scala/Any#
 (7:39..7:44) _empty_/Test.c#equals().(other) -> 7:25
 (8:15..8:16) _empty_/Test.c# -> 3:9
-(8:22..8:24) scala/Int#`==`(+3).
 (8:20..8:21) _empty_/Test.c#x(). -> 5:17
-(8:27..8:28) _empty_/Test.c#x(). -> 5:17
+(8:22..8:24) scala/Int#`==`(+3).
 (8:25..8:26) local0 -> 8:12
+(8:27..8:28) _empty_/Test.c#x(). -> 5:17
 (9:16..9:20) scala/package.List#
 (10:16..10:20) scala/package.List#
 

@@ -1,3 +1,10 @@
+Document tests/pos/i3467/Test_2.scala
+(4:16..4:21) scala/Array#
+(4:22..4:25) scala/Int#
+(4:29..4:33) scala/Unit#
+(5:17..5:17) collection/ArrayOps#`<init>`(). -> 19:15
+(5:18..5:20) collection/Test#test().(xs) -> 4:12
+
 Document tests/pos/i3467/collection_1.scala
 (5:30..5:33) scala/Any#
 (5:39..5:52) collection/IndexedSeqOps# -> 7:7
@@ -11,23 +18,23 @@ Document tests/pos/i3467/collection_1.scala
 (8:47..8:48) collection/IndexedSeqOps#[A] -> 7:22
 (8:50..8:52) collection/IndexedSeqOps#[CC] -> 7:26
 (8:56..8:59) scala/Predef.`???`().
-(12:43..12:53) collection/IndexedSeq# -> 5:7
 (12:32..12:42) collection/ -> 1:9
+(12:43..12:53) collection/IndexedSeq# -> 5:7
 (12:54..12:55) collection/immutable/IndexedSeq#[A] -> 12:21
-(12:73..12:86) collection/IndexedSeqOps# -> 7:7
 (12:62..12:72) collection/ -> 1:9
+(12:73..12:86) collection/IndexedSeqOps# -> 7:7
 (12:87..12:88) collection/immutable/IndexedSeq#[A] -> 12:21
 (12:102..12:112) collection/immutable/IndexedSeq# -> 12:9
 (12:113..12:114) collection/immutable/IndexedSeq#[A] -> 12:21
-(16:86..16:86) collection/WithFilter#`<init>`(). -> 3:26
-(16:51..16:61) collection/WithFilter# -> 3:16
 (16:40..16:50) collection/ -> 1:9
+(16:51..16:61) collection/WithFilter# -> 3:16
 (16:62..16:63) collection/ArrayOps.WithFilter#[A] -> 16:29
 (16:65..16:74) collection/immutable/ -> 11:9
+(16:86..16:86) collection/WithFilter#`<init>`(). -> 3:26
 (19:27..19:32) scala/Array#
 (19:33..19:34) collection/ArrayOps#[A] -> 19:16
-(19:51..19:51) scala/AnyVal#`<init>`().
 (19:45..19:51) scala/AnyVal#
+(19:51..19:51) scala/AnyVal#`<init>`().
 (19:57..19:70) collection/IndexedSeqOps# -> 7:7
 (19:71..19:72) collection/ArrayOps#[A] -> 19:16
 (19:74..19:83) collection/immutable/ -> 11:9
@@ -35,15 +42,8 @@ Document tests/pos/i3467/collection_1.scala
 (19:102..19:103) collection/ArrayOps#[A] -> 19:16
 (20:30..20:31) collection/ArrayOps#[A] -> 19:16
 (20:35..20:42) scala/Boolean#
-(20:54..20:64) collection/ArrayOps.WithFilter# -> 16:18
 (20:45..20:53) collection/ArrayOps. -> 15:8
+(20:54..20:64) collection/ArrayOps.WithFilter# -> 16:18
 (20:65..20:66) collection/ArrayOps#[A] -> 19:16
 (20:70..20:73) scala/Predef.`???`().
-
-Document tests/pos/i3467/Test_2.scala
-(4:16..4:21) scala/Array#
-(4:22..4:25) scala/Int#
-(4:29..4:33) scala/Unit#
-(5:17..5:17) collection/ArrayOps#`<init>`(). -> 19:15
-(5:18..5:20) collection/Test#test().(xs) -> 4:12
 

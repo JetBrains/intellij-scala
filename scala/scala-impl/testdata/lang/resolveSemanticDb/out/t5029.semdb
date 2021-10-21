@@ -1,8 +1,8 @@
 Document tests/pos/t5029.scala
-(2:12..2:12) scala/collection/IterableFactory#apply().
 (2:6..2:12) scala/package.Vector.
+(2:12..2:12) scala/collection/IterableFactory#apply().
 (2:16..2:19) scala/package.Seq#
-(2:41..2:41) scala/collection/SeqFactory#unapplySeq().
 (2:37..2:41) scala/package.List.
+(2:41..2:41) scala/collection/SeqFactory#unapplySeq().
 (2:58..2:61) scala/package.Nil.
 

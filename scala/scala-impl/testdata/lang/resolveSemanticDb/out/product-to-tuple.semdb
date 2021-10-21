@@ -1,19 +1,19 @@
 Document tests/pos/product-to-tuple.scala
 (1:19..1:22) scala/Int#
 (1:27..1:33) scala/Predef.String#
-(6:42..6:43) _empty_/Bar#[I] -> 6:16
-(6:48..6:49) _empty_/Bar#[S] -> 6:26
-(3:12..3:12) _empty_/Foo.apply(). -> 1:1
 (3:9..3:12) _empty_/Foo. -> 1:12
+(3:12..3:12) _empty_/Foo.apply(). -> 1:1
 (4:9..4:12) scala/Int#
 (4:14..4:20) scala/Predef.String#
-(4:30..4:46) scala/Tuple.fromProductTyped().
 (4:24..4:29) scala/Tuple.
+(4:30..4:46) scala/Tuple.fromProductTyped().
 (4:47..4:48) _empty_/`product-to-tuple$package`.x. -> 3:5
+(6:42..6:43) _empty_/Bar#[I] -> 6:16
+(6:48..6:49) _empty_/Bar#[S] -> 6:26
 (7:8..7:11) _empty_/Bar# -> 6:12
-(7:25..7:25) _empty_/Bar.apply(). -> 6:1
 (7:22..7:25) _empty_/Bar. -> 6:12
-(8:25..8:41) scala/Tuple.fromProductTyped().
+(7:25..7:25) _empty_/Bar.apply(). -> 6:1
 (8:19..8:24) scala/Tuple.
+(8:25..8:41) scala/Tuple.fromProductTyped().
 (8:42..8:43) _empty_/`product-to-tuple$package`.a. -> 7:5
 

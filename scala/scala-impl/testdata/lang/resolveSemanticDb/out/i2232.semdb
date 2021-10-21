@@ -10,28 +10,28 @@ Document tests/pos/i2232.scala
 (8:46..8:48) local6 -> 8:34
 (8:49..8:50) _empty_/Cats.Cat#[A] -> 8:6
 (8:52..8:53) _empty_/Cats.Cat#[B] -> 8:9
-(11:27..11:30) _empty_/Cats.Cat# -> 7:8
 (11:22..11:26) _empty_/Cats. -> 1:8
+(11:27..11:30) _empty_/Cats.Cat# -> 7:8
 (11:31..11:32) _empty_/Cats.Category#[C] -> 10:18
 (11:34..11:35) _empty_/Cats.Category#`->`#[X] -> 11:14
 (11:37..11:38) _empty_/Cats.Category#`->`#[Y] -> 11:17
-(12:24..12:27) _empty_/Cats.Obj# -> 5:8
 (12:19..12:23) _empty_/Cats. -> 1:8
+(12:24..12:27) _empty_/Cats.Obj# -> 5:8
 (12:28..12:29) _empty_/Cats.Category#[C] -> 10:18
 (12:31..12:32) _empty_/Cats.Category#Obj#[X] -> 12:14
 (14:15..14:18) _empty_/Cats.Category#Obj# -> 12:10
 (14:18..14:18) _empty_/Cats.Category#id().[A] -> 14:12
-(14:23..14:25) _empty_/Cats.Category#`->`# -> 11:10
 (14:21..14:22) _empty_/Cats.Category#id().[A] -> 14:12
+(14:23..14:25) _empty_/Cats.Category#`->`# -> 11:10
 (14:26..14:27) _empty_/Cats.Category#id().[A] -> 14:12
-(15:32..15:34) _empty_/Cats.Category#`->`# -> 11:10
 (15:30..15:31) _empty_/Cats.Category#andThen().[A] -> 15:17
+(15:32..15:34) _empty_/Cats.Category#`->`# -> 11:10
 (15:35..15:36) _empty_/Cats.Category#andThen().[B] -> 15:20
-(15:44..15:46) _empty_/Cats.Category#`->`# -> 11:10
 (15:42..15:43) _empty_/Cats.Category#andThen().[B] -> 15:20
+(15:44..15:46) _empty_/Cats.Category#`->`# -> 11:10
 (15:47..15:48) _empty_/Cats.Category#andThen().[C] -> 15:23
-(15:53..15:55) _empty_/Cats.Category#`->`# -> 11:10
 (15:51..15:52) _empty_/Cats.Category#andThen().[A] -> 15:17
+(15:53..15:55) _empty_/Cats.Category#`->`# -> 11:10
 (15:56..15:57) _empty_/Cats.Category#andThen().[C] -> 15:23
 (19:25..19:33) _empty_/Cats.Category# -> 10:9
 (19:56..19:57) _empty_/Cats.Category.ByF#[F] -> 19:14
@@ -44,21 +44,21 @@ Document tests/pos/i2232.scala
 (24:52..24:56) _empty_/Cats.Scal# -> 22:8
 (25:20..25:23) _empty_/Cats.Category#Obj# -> 12:10
 (25:23..25:23) local12 -> 25:12
-(25:28..25:30) _empty_/Cats.Category#`->`# -> 11:10
 (25:26..25:27) local12 -> 25:12
+(25:28..25:30) _empty_/Cats.Category#`->`# -> 11:10
 (25:31..25:32) local12 -> 25:12
 (25:40..25:41) local13 -> 25:35
-(26:32..26:34) _empty_/Cats.Category#`->`# -> 11:10
 (26:30..26:31) local15 -> 26:17
+(26:32..26:34) _empty_/Cats.Category#`->`# -> 11:10
 (26:35..26:36) local16 -> 26:20
-(26:44..26:46) _empty_/Cats.Category#`->`# -> 11:10
 (26:42..26:43) local16 -> 26:20
+(26:44..26:46) _empty_/Cats.Category#`->`# -> 11:10
 (26:47..26:48) local17 -> 26:23
-(26:53..26:55) _empty_/Cats.Category#`->`# -> 11:10
 (26:51..26:52) local15 -> 26:17
+(26:53..26:55) _empty_/Cats.Category#`->`# -> 11:10
 (26:56..26:57) local17 -> 26:23
-(26:63..26:70) scala/Function1#andThen().
 (26:60..26:62) local18 -> 26:26
+(26:63..26:70) scala/Function1#andThen().
 (26:71..26:73) local19 -> 26:38
 (29:49..29:50) _empty_/Cats.CategoryOps#[F] -> 29:30
 (29:51..29:52) _empty_/Cats.CategoryOps#[A] -> 29:39
@@ -66,8 +66,8 @@ Document tests/pos/i2232.scala
 (30:20..30:21) _empty_/Cats.CategoryOps#[F] -> 29:30
 (30:22..30:23) _empty_/Cats.CategoryOps#[B] -> 29:42
 (30:25..30:26) _empty_/Cats.CategoryOps#`>>>`().[C] -> 30:13
-(30:50..30:53) _empty_/Cats.Category.ByF# -> 19:10
 (30:41..30:49) _empty_/Cats.Category. -> 18:10
+(30:50..30:53) _empty_/Cats.Category.ByF# -> 19:10
 (30:54..30:55) _empty_/Cats.CategoryOps#[F] -> 29:30
 (30:59..30:60) _empty_/Cats.CategoryOps#[F] -> 29:30
 (30:61..30:62) _empty_/Cats.CategoryOps#[A] -> 29:39
@@ -79,9 +79,9 @@ Document tests/pos/i2232.scala
 (35:10..35:13) scala/Int#
 (35:17..35:23) scala/Predef.String#
 (35:28..35:36) scala/Any#toString().
-(36:5..36:8) _empty_/Cats.CategoryOps#`>>>`(). -> 30:9
 (36:3..36:3) _empty_/Cats.CategoryOps(). -> 29:18
 (36:3..36:4) _empty_/Cats.f. -> 34:7
+(36:5..36:8) _empty_/Cats.CategoryOps#`>>>`(). -> 30:9
 (36:9..36:10) _empty_/Cats.g. -> 35:7
 (36:10..36:10) _empty_/Cats.scal. -> 24:16
 

@@ -2,8 +2,8 @@ Document tests/pos/virtpatmat_reach_const.scala
 (3:18..3:22) scala/package.List#
 (3:23..3:29) scala/Predef.String#
 (4:14..4:21) _empty_/Test.Formula# -> 3:8
-(4:28..4:28) scala/collection/IterableFactory#apply().
 (4:24..4:28) scala/package.List.
+(4:28..4:28) scala/collection/IterableFactory#apply().
 (5:21..5:28) _empty_/Test.Formula# -> 3:8
 (5:33..5:40) _empty_/Test.Formula# -> 3:8
 (5:45..5:45) scala/Tuple2.apply().
@@ -14,10 +14,10 @@ Document tests/pos/virtpatmat_reach_const.scala
 (7:11..7:11) scala/Tuple2.unapply().
 (7:14..7:19) _empty_/Test.TrueF. -> 4:7
 (8:11..8:11) scala/Tuple2.unapply().
-(8:15..8:15) scala/collection/immutable/`::`.unapply().
 (8:13..8:15) scala/package.`::`.
+(8:15..8:15) scala/collection/immutable/`::`.unapply().
 (8:16..8:19) scala/package.Nil.
-(8:25..8:25) scala/collection/immutable/`::`.unapply().
 (8:23..8:25) scala/package.`::`.
+(8:25..8:25) scala/collection/immutable/`::`.unapply().
 (8:26..8:29) scala/package.Nil.
 

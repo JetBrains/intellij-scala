@@ -11,16 +11,16 @@ Document tests/pos/i3945.scala
 (5:45..5:48) scala/Int#
 (5:54..5:57) scala/Int#
 (5:62..5:68) scala/Predef.String#
-(5:95..5:102) scala/Function1#compose().
+(5:72..5:72) local0
+(5:72..5:72) local1
 (5:72..5:75) _empty_/Test.int(). -> 2:7
 (5:76..5:79) scala/Int#
 (5:83..5:89) scala/Predef.String#
-(5:72..5:72) local0
-(5:72..5:72) local1
-(5:103..5:106) _empty_/Test.int(). -> 2:7
-(5:107..5:113) scala/Predef.String#
+(5:95..5:102) scala/Function1#compose().
 (5:103..5:103) local2
 (5:103..5:103) local3
+(5:103..5:106) _empty_/Test.int(). -> 2:7
+(5:107..5:113) scala/Predef.String#
 (8:11..8:17) scala/Predef.String#
 (8:21..8:24) scala/Int#
 (8:28..8:34) scala/Predef.String#
@@ -28,32 +28,32 @@ Document tests/pos/i3945.scala
 (8:52..8:55) scala/Int#
 (8:61..8:64) scala/Int#
 (8:68..8:74) scala/Predef.String#
-(8:78..8:81) _empty_/Test.int(). -> 2:7
-(8:82..8:85) scala/Int#
-(8:89..8:95) scala/Predef.String#
 (8:78..8:78) local4
 (8:78..8:78) local5
 (8:78..8:78) local6
+(8:78..8:81) _empty_/Test.int(). -> 2:7
+(8:82..8:85) scala/Int#
+(8:89..8:95) scala/Predef.String#
 (9:11..9:17) scala/Predef.String#
 (9:21..9:27) scala/Predef.String#
 (9:33..9:39) scala/Predef.String#
 (9:45..9:48) scala/Int#
 (9:53..9:59) scala/Predef.String#
-(9:62..9:65) _empty_/Test.int(). -> 2:7
 (9:62..9:62) local7
 (9:62..9:62) local8
 (9:62..9:62) local9
+(9:62..9:65) _empty_/Test.int(). -> 2:7
 (10:12..10:18) scala/Predef.String#
 (10:22..10:28) scala/Predef.String#
 (10:34..10:40) scala/Predef.String#
 (10:46..10:49) scala/Int#
 (10:55..10:58) scala/Int#
 (10:63..10:69) scala/Predef.String#
-(10:74..10:81) scala/Function1#compose().
 (10:72..10:73) _empty_/Test.q. -> 8:7
+(10:74..10:81) scala/Function1#compose().
 (10:82..10:83) _empty_/Test.p. -> 9:7
-(13:20..13:20) _empty_/Test.B#`<init>`(). -> 12:3
 (13:19..13:20) _empty_/Test.B# -> 12:9
+(13:20..13:20) _empty_/Test.B#`<init>`(). -> 12:3
 (14:20..14:21) _empty_/Test.C# -> 13:9
 (14:25..14:29) scala/Unit#
 (14:32..14:35) scala/Predef.`???`().
@@ -70,9 +70,9 @@ Document tests/pos/i3945.scala
 (18:28..18:34) scala/Predef.String#
 (18:40..18:43) scala/Int#
 (18:48..18:49) _empty_/Test.B# -> 12:9
-(18:52..18:53) _empty_/Test.f(). -> 17:7
 (18:52..18:52) local10
 (18:52..18:52) local11
 (18:52..18:52) local12
+(18:52..18:53) _empty_/Test.f(). -> 17:7
 (18:53..18:53) _empty_/Test.iC(). -> 14:16
 

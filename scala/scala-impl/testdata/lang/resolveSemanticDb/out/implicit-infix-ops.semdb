@@ -1,104 +1,104 @@
 Document tests/pos/implicit-infix-ops.scala
-(2:19..2:28) scala/math/Ordering.Implicits.
 (2:10..2:18) scala/package.Ordering.
-(3:18..3:27) scala/math/Numeric.Implicits.
+(2:19..2:28) scala/math/Ordering.Implicits.
 (3:10..3:17) scala/package.Numeric.
+(3:18..3:27) scala/math/Numeric.Implicits.
+(5:13..5:20) scala/package.Numeric#
+(5:20..5:20) _empty_/Test.f1().[T] -> 5:10
 (5:25..5:26) _empty_/Test.f1().[T] -> 5:10
 (5:31..5:32) _empty_/Test.f1().[T] -> 5:10
 (5:37..5:38) _empty_/Test.f1().[T] -> 5:10
-(5:13..5:20) scala/package.Numeric#
-(5:20..5:20) _empty_/Test.f1().[T] -> 5:10
-(5:49..5:50) scala/math/Numeric#NumericOps#`+`().
 (5:43..5:43) scala/math/Numeric.ExtraImplicits#infixNumericOps().
-(5:45..5:46) scala/math/Numeric#NumericOps#`+`().
 (5:43..5:44) _empty_/Test.f1().(x) -> 5:22
+(5:45..5:46) scala/math/Numeric#NumericOps#`+`().
 (5:47..5:48) _empty_/Test.f1().(y) -> 5:28
+(5:49..5:50) scala/math/Numeric#NumericOps#`+`().
 (5:51..5:52) _empty_/Test.f1().(z) -> 5:34
+(6:13..6:21) scala/package.Ordering#
+(6:21..6:21) _empty_/Test.f2().[T] -> 6:10
 (6:26..6:27) _empty_/Test.f2().[T] -> 6:10
 (6:32..6:33) _empty_/Test.f2().[T] -> 6:10
 (6:38..6:39) _empty_/Test.f2().[T] -> 6:10
-(6:13..6:21) scala/package.Ordering#
-(6:21..6:21) _empty_/Test.f2().[T] -> 6:10
-(6:49..6:50) scala/math/Ordering#OrderingOps#`<`().
 (6:47..6:47) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (6:47..6:48) _empty_/Test.f2().(x) -> 6:23
+(6:49..6:50) scala/math/Ordering#OrderingOps#`<`().
 (6:51..6:52) _empty_/Test.f2().(y) -> 6:29
-(6:57..6:58) scala/math/Ordering#OrderingOps#`>`().
 (6:55..6:55) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (6:55..6:56) _empty_/Test.f2().(z) -> 6:35
+(6:57..6:58) scala/math/Ordering#OrderingOps#`>`().
 (6:59..6:60) _empty_/Test.f2().(y) -> 6:29
-(6:70..6:71) scala/math/Ordering#OrderingOps#`<`().
 (6:68..6:68) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (6:68..6:69) _empty_/Test.f2().(x) -> 6:23
+(6:70..6:71) scala/math/Ordering#OrderingOps#`<`().
 (6:72..6:73) _empty_/Test.f2().(z) -> 6:35
-(10:19..10:28) scala/math/Ordering.Implicits.
 (10:10..10:18) scala/package.Ordering.
-(11:24..11:33) scala/math/Integral.Implicits.
-(11:15..11:23) scala/math/Integral.
+(10:19..10:28) scala/math/Ordering.Implicits.
 (11:10..11:14) scala/math/
+(11:15..11:23) scala/math/Integral.
+(11:24..11:33) scala/math/Integral.Implicits.
+(13:13..13:21) scala/package.Integral#
+(13:21..13:21) _empty_/Int.f1().[T] -> 13:10
 (13:26..13:27) _empty_/Int.f1().[T] -> 13:10
 (13:32..13:33) _empty_/Int.f1().[T] -> 13:10
 (13:38..13:39) _empty_/Int.f1().[T] -> 13:10
-(13:13..13:21) scala/package.Integral#
-(13:21..13:21) _empty_/Int.f1().[T] -> 13:10
-(13:56..13:57) scala/math/Integral#IntegralOps#`/`().
 (13:45..13:45) scala/math/Integral.ExtraImplicits#infixIntegralOps().
-(13:51..13:52) scala/math/Numeric#NumericOps#`+`().
-(13:47..13:48) scala/math/Numeric#NumericOps#`+`().
 (13:45..13:46) _empty_/Int.f1().(x) -> 13:23
+(13:47..13:48) scala/math/Numeric#NumericOps#`+`().
 (13:49..13:50) _empty_/Int.f1().(y) -> 13:29
+(13:51..13:52) scala/math/Numeric#NumericOps#`+`().
 (13:53..13:54) _empty_/Int.f1().(z) -> 13:35
+(13:56..13:57) scala/math/Integral#IntegralOps#`/`().
 (13:58..13:59) _empty_/Int.f1().(z) -> 13:35
+(14:13..14:21) scala/package.Ordering#
+(14:21..14:21) _empty_/Int.f2().[T] -> 14:10
 (14:26..14:27) _empty_/Int.f2().[T] -> 14:10
 (14:32..14:33) _empty_/Int.f2().[T] -> 14:10
 (14:38..14:39) _empty_/Int.f2().[T] -> 14:10
-(14:13..14:21) scala/package.Ordering#
-(14:21..14:21) _empty_/Int.f2().[T] -> 14:10
-(14:49..14:50) scala/math/Ordering#OrderingOps#`<`().
 (14:47..14:47) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (14:47..14:48) _empty_/Int.f2().(x) -> 14:23
+(14:49..14:50) scala/math/Ordering#OrderingOps#`<`().
 (14:51..14:52) _empty_/Int.f2().(y) -> 14:29
-(14:57..14:58) scala/math/Ordering#OrderingOps#`>`().
 (14:55..14:55) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (14:55..14:56) _empty_/Int.f2().(z) -> 14:35
+(14:57..14:58) scala/math/Ordering#OrderingOps#`>`().
 (14:59..14:60) _empty_/Int.f2().(y) -> 14:29
-(14:70..14:71) scala/math/Ordering#OrderingOps#`<`().
 (14:68..14:68) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (14:68..14:69) _empty_/Int.f2().(x) -> 14:23
+(14:70..14:71) scala/math/Ordering#OrderingOps#`<`().
 (14:72..14:73) _empty_/Int.f2().(z) -> 14:35
-(18:19..18:28) scala/math/Ordering.Implicits.
 (18:10..18:18) scala/package.Ordering.
-(19:26..19:35) scala/math/Fractional.Implicits.
-(19:15..19:25) scala/math/Fractional.
+(18:19..18:28) scala/math/Ordering.Implicits.
 (19:10..19:14) scala/math/
+(19:15..19:25) scala/math/Fractional.
+(19:26..19:35) scala/math/Fractional.Implicits.
+(21:13..21:23) scala/package.Fractional#
+(21:23..21:23) _empty_/Frac.f1().[T] -> 21:10
 (21:28..21:29) _empty_/Frac.f1().[T] -> 21:10
 (21:34..21:35) _empty_/Frac.f1().[T] -> 21:10
 (21:40..21:41) _empty_/Frac.f1().[T] -> 21:10
-(21:13..21:23) scala/package.Fractional#
-(21:23..21:23) _empty_/Frac.f1().[T] -> 21:10
-(21:58..21:59) scala/math/Fractional#FractionalOps#`/`().
 (21:47..21:47) scala/math/Fractional.ExtraImplicits#infixFractionalOps().
-(21:53..21:54) scala/math/Numeric#NumericOps#`+`().
-(21:49..21:50) scala/math/Numeric#NumericOps#`+`().
 (21:47..21:48) _empty_/Frac.f1().(x) -> 21:25
+(21:49..21:50) scala/math/Numeric#NumericOps#`+`().
 (21:51..21:52) _empty_/Frac.f1().(y) -> 21:31
+(21:53..21:54) scala/math/Numeric#NumericOps#`+`().
 (21:55..21:56) _empty_/Frac.f1().(z) -> 21:37
+(21:58..21:59) scala/math/Fractional#FractionalOps#`/`().
 (21:60..21:61) _empty_/Frac.f1().(z) -> 21:37
+(22:13..22:21) scala/package.Ordering#
+(22:21..22:21) _empty_/Frac.f2().[T] -> 22:10
 (22:26..22:27) _empty_/Frac.f2().[T] -> 22:10
 (22:32..22:33) _empty_/Frac.f2().[T] -> 22:10
 (22:38..22:39) _empty_/Frac.f2().[T] -> 22:10
-(22:13..22:21) scala/package.Ordering#
-(22:21..22:21) _empty_/Frac.f2().[T] -> 22:10
-(22:49..22:50) scala/math/Ordering#OrderingOps#`<`().
 (22:47..22:47) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (22:47..22:48) _empty_/Frac.f2().(x) -> 22:23
+(22:49..22:50) scala/math/Ordering#OrderingOps#`<`().
 (22:51..22:52) _empty_/Frac.f2().(y) -> 22:29
-(22:57..22:58) scala/math/Ordering#OrderingOps#`>`().
 (22:55..22:55) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (22:55..22:56) _empty_/Frac.f2().(z) -> 22:35
+(22:57..22:58) scala/math/Ordering#OrderingOps#`>`().
 (22:59..22:60) _empty_/Frac.f2().(y) -> 22:29
-(22:70..22:71) scala/math/Ordering#OrderingOps#`<`().
 (22:68..22:68) scala/math/Ordering.ExtraImplicits#infixOrderingOps().
 (22:68..22:69) _empty_/Frac.f2().(x) -> 22:23
+(22:70..22:71) scala/math/Ordering#OrderingOps#`<`().
 (22:72..22:73) _empty_/Frac.f2().(z) -> 22:35
 

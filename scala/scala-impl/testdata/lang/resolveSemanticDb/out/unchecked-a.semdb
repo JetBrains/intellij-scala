@@ -11,11 +11,11 @@ Document tests/pos/unchecked-a.scala
 (10:13..10:14) _empty_/X# -> 3:7
 (10:15..10:16) _empty_/Y# -> 1:7
 (14:12..14:15) scala/Int#
-(14:26..14:34) scala/collection/LinearSeqOps#foldLeft().
-(14:22..14:22) scala/collection/IterableFactory#apply().
 (14:18..14:22) scala/package.List.
-(14:38..14:38) scala/Tuple2.apply().
+(14:22..14:22) scala/collection/IterableFactory#apply().
+(14:26..14:34) scala/collection/LinearSeqOps#foldLeft().
 (14:38..14:38) local0
 (14:38..14:38) local1
+(14:38..14:38) scala/Tuple2.apply().
 (14:56..14:56) _empty_/Test.foo(). -> 14:7
 

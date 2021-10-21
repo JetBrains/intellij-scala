@@ -1,13 +1,13 @@
 Document tests/pos/t8177d.scala
 (4:11..4:18) _empty_/HasElem# -> 2:7
 (4:30..4:33) _empty_/View#[AIn] -> 3:12
-(5:16..5:17) _empty_/HasElem#A# -> 2:22
 (5:13..5:15) _empty_/View#tc. -> 4:7
-(5:23..5:24) _empty_/HasElem#A# -> 2:22
+(5:16..5:17) _empty_/HasElem#A# -> 2:22
 (5:20..5:22) _empty_/View#tc. -> 4:7
+(5:23..5:24) _empty_/HasElem#A# -> 2:22
 (5:27..5:28) _empty_/View#f2().(p) -> 5:10
 (9:13..9:17) _empty_/View# -> 3:7
 (9:18..9:21) scala/Int#
-(11:8..11:10) _empty_/View#f2(). -> 5:7
 (11:3..11:7) _empty_/Test.view. -> 9:7
+(11:8..11:10) _empty_/View#f2(). -> 5:7
 

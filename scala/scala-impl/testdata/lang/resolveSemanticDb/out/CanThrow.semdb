@@ -1,26 +1,26 @@
 Document tests/pos/CanThrow.scala
-(2:30..2:47) scala/language.experimental.erasedDefinitions.
-(2:17..2:29) scala/language.experimental.
 (2:8..2:16) scala/language.
-(8:29..8:29) java/lang/Exception#`<init>`().
-(8:20..8:29) scala/package.Exception#
+(2:17..2:29) scala/language.experimental.
+(2:30..2:47) scala/language.experimental.erasedDefinitions.
 (6:27..6:36) scala/package.Exception#
 (6:48..6:56) canThrowStrawman/CanThrow# -> 4:7
 (6:57..6:58) canThrowStrawman/CanThrow$package.throws#[E] -> 6:22
 (6:65..6:66) canThrowStrawman/CanThrow$package.throws#[R] -> 6:19
+(8:20..8:29) scala/package.Exception#
+(8:29..8:29) java/lang/Exception#`<init>`().
 (10:16..10:25) scala/package.Exception#
 (10:30..10:31) canThrowStrawman/CanThrow$package.raise().[E] -> 10:11
-(10:42..10:48) canThrowStrawman/CanThrow$package.throws# -> 6:12
 (10:34..10:41) scala/Nothing#
+(10:42..10:48) canThrowStrawman/CanThrow$package.throws# -> 6:12
 (10:49..10:50) canThrowStrawman/CanThrow$package.raise().[E] -> 10:11
 (10:59..10:60) canThrowStrawman/CanThrow$package.raise().(e) -> 10:27
 (12:12..12:19) scala/Boolean#
-(12:26..12:32) canThrowStrawman/CanThrow$package.throws# -> 6:12
 (12:22..12:25) scala/Int#
+(12:26..12:32) canThrowStrawman/CanThrow$package.throws# -> 6:12
 (12:33..12:37) canThrowStrawman/Fail# -> 8:7
 (13:6..13:7) canThrowStrawman/CanThrow$package.foo().(x) -> 12:9
-(13:33..13:33) scala/ErasedContextFunction1#apply().
 (13:20..13:25) canThrowStrawman/CanThrow$package.raise(). -> 10:5
-(13:30..13:30) canThrowStrawman/Fail#`<init>`(). -> 8:20
 (13:26..13:30) canThrowStrawman/Fail# -> 8:7
+(13:30..13:30) canThrowStrawman/Fail#`<init>`(). -> 8:20
+(13:33..13:33) scala/ErasedContextFunction1#apply().
 

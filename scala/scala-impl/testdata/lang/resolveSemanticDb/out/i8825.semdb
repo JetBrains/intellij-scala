@@ -1,9 +1,15 @@
 Document tests/pos/i8825.scala
 (2:30..2:31) _empty_/Succ#[N] -> 2:17
 (2:41..2:44) _empty_/Nat# -> 1:14
+(3:26..3:29) _empty_/Nat# -> 1:14
+(4:13..4:17) _empty_/i8825$package.Zero. -> 3:13
+(5:12..5:16) _empty_/Succ# -> 2:12
+(5:17..5:21) _empty_/i8825$package.Zero# -> 4:6
 (8:41..8:42) _empty_/HCons#[H] -> 8:19
 (8:50..8:51) _empty_/HCons#[T] -> 8:23
 (8:61..8:66) _empty_/HList# -> 7:14
+(9:26..9:31) _empty_/HList# -> 7:14
+(10:13..10:17) _empty_/i8825$package.HNil. -> 9:13
 (13:15..13:18) _empty_/Nat# -> 1:14
 (16:17..16:22) _empty_/HList# -> 7:14
 (16:32..16:35) _empty_/Nat# -> 1:14
@@ -30,18 +36,12 @@ Document tests/pos/i8825.scala
 (20:73..20:74) _empty_/Length.hconsLength().[H] -> 20:21
 (20:76..20:77) _empty_/Length.hconsLength().[T] -> 20:24
 (20:80..20:84) _empty_/Succ# -> 2:12
-(20:92..20:95) _empty_/Length#Out# -> 13:8
 (20:85..20:91) _empty_/Length.hconsLength().(length) -> 20:43
+(20:92..20:95) _empty_/Length#Out# -> 13:8
 (20:100..20:108) _empty_/Length.instance(). -> 17:7
-(3:26..3:29) _empty_/Nat# -> 1:14
-(4:13..4:17) _empty_/i8825$package.Zero. -> 3:13
-(5:12..5:16) _empty_/Succ# -> 2:12
-(5:17..5:21) _empty_/i8825$package.Zero# -> 4:6
-(9:26..9:31) _empty_/HList# -> 7:14
-(10:13..10:17) _empty_/i8825$package.HNil. -> 9:13
 (24:12..24:18) scala/Predef.summon().
-(24:26..24:29) _empty_/Length.Aux# -> 16:8
 (24:19..24:25) _empty_/Length. -> 15:8
+(24:26..24:29) _empty_/Length.Aux# -> 16:8
 (24:30..24:35) _empty_/HCons# -> 8:12
 (24:36..24:39) scala/Int#
 (24:41..24:45) _empty_/i8825$package.HNil# -> 10:6

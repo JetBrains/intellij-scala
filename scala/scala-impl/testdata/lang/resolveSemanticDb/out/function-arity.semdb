@@ -5,9 +5,9 @@ Document tests/pos/function-arity.scala
 (2:36..2:40) scala/Unit#
 (2:43..2:46) scala/Predef.`???`().
 (3:14..3:18) _empty_/Test.call(). -> 2:7
-(3:21..3:21) scala/Tuple2.apply().
 (3:21..3:21) local0
 (3:21..3:21) local1
+(3:21..3:21) scala/Tuple2.apply().
 (3:27..3:27) scala/Tuple2.unapply().
 (5:19..5:28) scala/Function1#
 (5:29..5:32) scala/Int#
@@ -26,8 +26,8 @@ Document tests/pos/function-arity.scala
 (11:36..11:37) _empty_/Test.unary().[T] -> 11:13
 (11:43..11:44) _empty_/Test.unary().[T] -> 11:13
 (11:47..11:48) _empty_/Test.unary().[T] -> 11:13
-(11:52..11:52) scala/Function1#apply().
 (11:51..11:52) _empty_/Test.unary().(f) -> 11:28
+(11:52..11:52) scala/Function1#apply().
 (11:54..11:54) scala/Tuple2.apply().
 (11:54..11:55) _empty_/Test.unary().(a) -> 11:16
 (11:57..11:58) _empty_/Test.unary().(b) -> 11:22
@@ -46,25 +46,25 @@ Document tests/pos/function-arity.scala
 (14:27..14:30) scala/Int#
 (14:30..14:30) scala/Tuple2#_2.
 (14:35..14:36) local12 -> 14:16
-(16:16..16:16) scala/collection/IterableFactory#apply().
 (16:12..16:16) scala/package.List.
+(16:16..16:16) scala/collection/IterableFactory#apply().
 (17:12..17:15) scala/Int#
 (17:20..17:23) scala/Int#
-(17:29..17:30) scala/Int#`*`(+3).
 (17:27..17:28) _empty_/Test.f().(x) -> 17:9
+(17:29..17:30) scala/Int#`*`(+3).
 (17:31..17:32) _empty_/Test.f().(y) -> 17:17
-(18:19..18:22) scala/collection/immutable/List#map().
-(18:6..18:18) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
 (18:3..18:5) _empty_/Test.xs. -> 16:7
+(18:6..18:18) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(18:19..18:22) scala/collection/immutable/List#map().
 (18:23..18:23) scala/Tuple2#_1.
-(18:27..18:27) scala/Tuple2#_2.
 (18:25..18:26) scala/Int#`+`(+4).
-(19:19..19:22) scala/collection/immutable/List#map().
-(19:6..19:18) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(18:27..18:27) scala/Tuple2#_2.
 (19:3..19:5) _empty_/Test.xs. -> 16:7
+(19:6..19:18) scala/collection/StrictOptimizedIterableOps#zipWithIndex().
+(19:19..19:22) scala/collection/immutable/List#map().
+(19:23..19:23) local16
+(19:23..19:23) local17
 (19:23..19:23) scala/Tuple2#_1.
 (19:23..19:23) scala/Tuple2#_2.
 (19:23..19:24) _empty_/Test.f(). -> 17:7
-(19:23..19:23) local16
-(19:23..19:23) local17
 

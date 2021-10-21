@@ -1,6 +1,6 @@
 Document tests/pos/i2468.scala
-(2:20..2:33) scala/compiletime/package$package.uninitialized().
 (2:8..2:19) scala/compiletime/
+(2:20..2:33) scala/compiletime/package$package.uninitialized().
 (6:26..6:32) scala/Predef.String#
 (6:35..6:48) scala/compiletime/package$package.uninitialized().
 (10:26..10:32) scala/Predef.String#
@@ -27,6 +27,6 @@ Document tests/pos/i2468.scala
 (24:28..24:29) _empty_/Test.D# -> 27:9
 (24:32..24:45) scala/compiletime/package$package.uninitialized().
 (27:14..27:17) scala/Int#
-(27:33..27:33) scala/AnyVal#`<init>`().
 (27:27..27:33) scala/AnyVal#
+(27:33..27:33) scala/AnyVal#`<init>`().
 

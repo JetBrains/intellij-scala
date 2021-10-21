@@ -1,7 +1,7 @@
 Document tests/pos/t7902.scala
-(2:23..2:34) scala/language.higherKinds.
-(2:14..2:22) scala/language.
 (2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:34) scala/language.higherKinds.
 (7:26..7:29) _empty_/Bug.Tag# -> 5:9
 (7:30..7:31) _empty_/Bug.ofType().[W] -> 7:14
 (7:35..7:38) scala/Predef.`???`().

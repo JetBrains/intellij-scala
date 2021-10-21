@@ -5,9 +5,9 @@ Document tests/pos/t247.scala
 (1:45..1:46) _empty_/Order#[t] -> 1:13
 (1:47..1:48) _empty_/Order#[t] -> 1:13
 (1:53..1:60) scala/Boolean#
-(3:42..3:45) scala/collection/Map#
-(3:31..3:41) scala/collection/
 (3:25..3:30) scala/
+(3:31..3:41) scala/collection/
+(3:42..3:45) scala/collection/Map#
 (3:46..3:47) _empty_/Map#[A] -> 3:11
 (3:49..3:50) _empty_/Map#[B] -> 3:14
 (4:15..4:25) _empty_/MapFactory# -> 8:16
@@ -27,47 +27,47 @@ Document tests/pos/t247.scala
 (9:22..9:23) _empty_/MapFactory#Empty().[B] -> 9:13
 (12:36..12:41) _empty_/Order# -> 1:7
 (12:42..12:45) _empty_/TreeMapFactory#[KEY] -> 12:22
-(12:71..12:71) _empty_/MapFactory#`<init>`(). -> 8:26
 (12:56..12:66) _empty_/MapFactory# -> 8:16
 (12:67..12:70) _empty_/TreeMapFactory#[KEY] -> 12:22
+(12:71..12:71) _empty_/MapFactory#`<init>`(). -> 8:26
 (13:15..13:23) _empty_/TreeMapFactory#newOrder. -> 12:27
-(14:36..14:36) _empty_/TreeMap#`<init>`(). -> 21:14
 (14:22..14:29) _empty_/TreeMap# -> 21:7
 (14:30..14:33) _empty_/TreeMapFactory#[KEY] -> 12:22
 (14:34..14:35) _empty_/TreeMapFactory#Empty().[V] -> 14:13
-(14:60..14:60) _empty_/TreeMapFactory#`<init>`(). -> 12:21
+(14:36..14:36) _empty_/TreeMap#`<init>`(). -> 21:14
 (14:41..14:55) _empty_/TreeMapFactory# -> 12:7
 (14:56..14:59) _empty_/TreeMapFactory#[KEY] -> 12:22
+(14:60..14:60) _empty_/TreeMapFactory#`<init>`(). -> 12:21
 (14:61..14:66) _empty_/TreeMapFactory#order. -> 13:7
 (17:29..17:34) _empty_/Order# -> 1:7
 (17:35..17:38) _empty_/Tree#[KEY] -> 17:12
 (21:35..21:49) _empty_/TreeMapFactory# -> 12:7
 (21:50..21:53) _empty_/TreeMap#[KEY] -> 21:15
-(21:91..21:91) _empty_/Tree#`<init>`(). -> 17:11
 (21:64..21:68) _empty_/Tree# -> 17:7
 (21:69..21:72) _empty_/TreeMap#[KEY] -> 21:15
 (21:73..21:79) scala/Tuple2#
 (21:80..21:83) _empty_/TreeMap#[KEY] -> 21:15
 (21:84..21:89) _empty_/TreeMap#[VALUE] -> 21:19
-(21:101..21:106) _empty_/TreeMapFactory#order. -> 13:7
+(21:91..21:91) _empty_/Tree#`<init>`(). -> 17:11
 (21:92..21:100) _empty_/TreeMap#_factory. -> 21:26
-(21:130..21:140) scala/collection/DefaultMap#
-(21:119..21:129) scala/collection/
+(21:101..21:106) _empty_/TreeMapFactory#order. -> 13:7
 (21:113..21:118) scala/
+(21:119..21:129) scala/collection/
+(21:130..21:140) scala/collection/DefaultMap#
 (21:141..21:144) _empty_/TreeMap#[KEY] -> 21:15
 (21:146..21:151) _empty_/TreeMap#[VALUE] -> 21:19
 (21:158..21:161) _empty_/Map# -> 3:7
 (21:162..21:165) _empty_/TreeMap#[KEY] -> 21:15
 (21:167..21:172) _empty_/TreeMap#[VALUE] -> 21:19
 (22:17..22:25) _empty_/TreeMap#_factory. -> 21:26
-(23:24..23:29) _empty_/TreeMapFactory#order. -> 13:7
 (23:15..23:23) _empty_/TreeMap#_factory. -> 21:26
+(23:24..23:29) _empty_/TreeMapFactory#order. -> 13:7
 (24:21..24:26) _empty_/Order# -> 1:7
 (24:27..24:30) _empty_/TreeMap#[KEY] -> 21:15
 (24:40..24:40) _empty_/TreeMap#`<init>`(). -> 21:14
-(24:63..24:63) _empty_/TreeMapFactory#`<init>`(). -> 12:21
 (24:44..24:58) _empty_/TreeMapFactory# -> 12:7
 (24:59..24:62) _empty_/TreeMap#[KEY] -> 21:15
+(24:63..24:63) _empty_/TreeMapFactory#`<init>`(). -> 12:21
 (24:64..24:72) _empty_/TreeMap#`<init>`(+1).(newOrder) -> 24:12
 (25:15..25:18) _empty_/TreeMap#[KEY] -> 21:15
 (26:16..26:24) scala/package.Iterator#

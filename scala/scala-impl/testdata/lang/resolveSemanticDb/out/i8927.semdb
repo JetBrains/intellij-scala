@@ -1,27 +1,27 @@
 Document tests/pos/i8927.scala
-(1:23..1:42) scala/language.implicitConversions.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
 (4:19..4:20) _empty_/Eq#[k] -> 3:10
 (4:27..4:28) _empty_/Eq#[k] -> 3:10
 (4:33..4:34) _empty_/Eq#[K] -> 3:24
 (4:35..4:36) _empty_/Eq#isEq().[A] -> 4:14
 (4:53..4:54) _empty_/Eq#[K] -> 3:24
 (4:55..4:56) _empty_/Eq#isEq().[B] -> 4:22
-(4:63..4:66) _empty_/Eq.GEQ# -> 7:8
 (4:60..4:62) _empty_/Eq. -> 6:8
+(4:63..4:66) _empty_/Eq.GEQ# -> 7:8
 (4:67..4:68) _empty_/Eq#[k] -> 3:10
 (4:70..4:71) _empty_/Eq#[K] -> 3:24
 (4:73..4:74) _empty_/Eq#isEq().[A] -> 4:14
 (4:76..4:77) _empty_/Eq#isEq().[B] -> 4:22
 (8:50..8:51) _empty_/Eq.GEQ.Y#[K] -> 8:26
 (8:52..8:53) _empty_/Eq.GEQ.Y#[A] -> 8:37
-(8:79..8:79) _empty_/Eq.GEQ#`<init>`(). -> 7:11
 (8:64..8:67) _empty_/Eq.GEQ# -> 7:8
 (8:68..8:69) _empty_/Eq.GEQ.Y#[k] -> 8:12
 (8:71..8:72) _empty_/Eq.GEQ.Y#[K] -> 8:26
 (8:74..8:75) _empty_/Eq.GEQ.Y#[A] -> 8:37
 (8:77..8:78) _empty_/Eq.GEQ.Y#[A] -> 8:37
+(8:79..8:79) _empty_/Eq.GEQ#`<init>`(). -> 7:11
 (12:13..12:14) _empty_/DPair#[k] -> 11:20
 (13:12..13:13) _empty_/DPair#[K] -> 11:34
 (13:14..13:15) _empty_/DPair#A# -> 12:8
@@ -39,13 +39,13 @@ Document tests/pos/i8927.scala
 (15:70..15:70) _empty_/Eq#isEq(). -> 4:43
 (15:70..15:73) _empty_/DPair#key. -> 13:7
 (15:79..15:80) _empty_/DPair#extract().(k) -> 15:29
-(16:20..16:21) _empty_/Eq.GEQ.Y# -> 8:10
-(16:16..16:19) _empty_/Eq.GEQ. -> 7:8
 (16:13..16:15) _empty_/Eq. -> 6:8
+(16:16..16:19) _empty_/Eq.GEQ. -> 7:8
+(16:20..16:21) _empty_/Eq.GEQ.Y# -> 8:10
 (16:25..16:26) _empty_/DPair#[K] -> 11:34
 (16:28..16:29) _empty_/DPair#A# -> 12:8
-(16:38..16:38) scala/Some.apply().
 (16:34..16:38) scala/Some.
+(16:38..16:38) scala/Some.apply().
 (16:39..16:44) _empty_/DPair#value. -> 14:7
 (17:18..17:22) scala/None.
 (20:45..20:46) _empty_/DPair.pair().[k] -> 20:15
@@ -63,10 +63,10 @@ Document tests/pos/i8927.scala
 (21:63..21:64) _empty_/DPair.pair().[K] -> 20:18
 (21:66..21:67) _empty_/DPair.pair().[V] -> 20:29
 (22:16..22:17) _empty_/DPair.pair().[C] -> 20:40
-(23:10..23:10) local13 -> 21:5
 (23:5..23:10) local17
-(23:15..23:17) scala/Tuple2#_1.
+(23:10..23:10) local13 -> 21:5
 (23:11..23:14) local2 -> 20:92
-(23:23..23:25) scala/Tuple2#_2.
+(23:15..23:17) scala/Tuple2#_1.
 (23:19..23:22) local2 -> 20:92
+(23:23..23:25) scala/Tuple2#_2.
 

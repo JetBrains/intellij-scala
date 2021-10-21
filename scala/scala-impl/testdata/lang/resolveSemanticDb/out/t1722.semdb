@@ -1,6 +1,6 @@
 Document tests/pos/t1722/Test.scala
-(4:21..4:21) java/lang/Object#`<init>`().
 (4:15..4:21) scala/AnyRef#
+(4:21..4:21) java/lang/Object#`<init>`().
 (4:27..4:28) t1722/C# -> 4:7
 
 Document tests/pos/t1722/Top.scala

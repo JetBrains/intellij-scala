@@ -1,6 +1,6 @@
 Document tests/pos/t6145.scala
-(4:15..4:22) scala/annotation/tailrec#
 (4:4..4:14) scala/annotation/
+(4:15..4:22) scala/annotation/tailrec#
 (5:26..5:31) scala/Predef.Class#
 (8:9..8:20) _empty_/Test.searchClass(). -> 5:13
 

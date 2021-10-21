@@ -1,13 +1,13 @@
 Document tests/pos/maxim1.scala
 (2:12..2:15) scala/Int#
 (2:20..2:23) scala/Int#
-(2:29..2:30) scala/Int#`+`(+4).
 (2:27..2:28) _empty_/test.f().(x) -> 2:9
+(2:29..2:30) scala/Int#`+`(+4).
 (2:31..2:32) _empty_/test.f().(y) -> 2:17
 (3:10..3:13) scala/Int#
 (3:17..3:20) scala/Int#
-(3:23..3:24) _empty_/test.f(). -> 2:7
 (3:23..3:23) local0
-(4:15..4:15) scala/Function1#apply().
+(3:23..3:24) _empty_/test.f(). -> 2:7
 (4:14..4:15) _empty_/test.y(). -> 3:7
+(4:15..4:15) scala/Function1#apply().
 

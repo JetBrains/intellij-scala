@@ -1,18 +1,18 @@
 Document tests/pos/selectinalways.scala
 (2:17..2:18) _empty_/Buf#[A] -> 1:11
 (3:17..3:18) _empty_/Buf#[A] -> 1:11
+(6:1..6:1) _empty_/selectinalways$package.Test(). -> 6:11
+(6:1..6:1) local2
+(6:1..6:1) scala/util/CommandLineParser.showError().
 (6:2..6:6) scala/main#
-(7:33..7:33) _empty_/Buf#`<init>`(). -> 1:10
 (7:17..7:20) _empty_/Buf# -> 1:7
 (7:21..7:24) scala/package.Seq#
 (7:25..7:31) scala/Double#
-(8:17..8:22) scala/collection/SeqFactory.Delegate#empty().
+(7:33..7:33) _empty_/Buf#`<init>`(). -> 1:10
 (8:13..8:16) scala/package.Seq.
+(8:17..8:22) scala/collection/SeqFactory.Delegate#empty().
 (8:23..8:29) scala/Double#
-(9:7..9:13) _empty_/Buf#append(). -> 2:7
 (9:3..9:6) local0 -> 7:7
+(9:7..9:13) _empty_/Buf#append(). -> 2:7
 (9:14..9:17) local1 -> 8:7
-(6:1..6:1) _empty_/selectinalways$package.Test(). -> 6:11
-(6:1..6:1) scala/util/CommandLineParser.showError().
-(6:1..6:1) local2
 

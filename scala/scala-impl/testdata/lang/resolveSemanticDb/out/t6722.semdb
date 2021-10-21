@@ -1,21 +1,21 @@
 Document tests/pos/t6722.scala
-(1:23..1:31) scala/language.dynamics.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
 (3:19..3:26) scala/Dynamic#
 (4:24..4:30) scala/Predef.String#
 (4:33..4:36) _empty_/Dyn# -> 3:7
-(4:46..4:46) _empty_/Dyn#`<init>`(). -> 3:19
 (4:43..4:46) _empty_/Dyn# -> 3:7
+(4:46..4:46) _empty_/Dyn#`<init>`(). -> 3:19
 (5:15..5:16) _empty_/Dyn#get().[T] -> 5:11
 (5:24..5:36) scala/Any#asInstanceOf().
 (5:37..5:38) _empty_/Dyn#get().[T] -> 5:11
-(9:20..9:20) _empty_/Dyn#`<init>`(). -> 3:19
 (9:17..9:20) _empty_/Dyn# -> 3:7
-(10:19..10:22) _empty_/Dyn#get(). -> 5:7
-(10:14..10:18) _empty_/Dyn#selectDynamic(). -> 4:7
-(10:10..10:14) _empty_/Dyn#selectDynamic(). -> 4:7
-(10:6..10:10) _empty_/Dyn#selectDynamic(). -> 4:7
+(9:20..9:20) _empty_/Dyn#`<init>`(). -> 3:19
 (10:3..10:6) _empty_/Foo.dyn. -> 9:7
+(10:6..10:10) _empty_/Dyn#selectDynamic(). -> 4:7
+(10:10..10:14) _empty_/Dyn#selectDynamic(). -> 4:7
+(10:14..10:18) _empty_/Dyn#selectDynamic(). -> 4:7
+(10:19..10:22) _empty_/Dyn#get(). -> 5:7
 (10:23..10:29) scala/Predef.String#
 

@@ -1,11 +1,11 @@
 Document tests/pos/t8324.scala
-(9:11..9:13) p1/ -> 1:9
 (3:52..3:55) scala/Any#
 (3:65..3:82) p1/ProjectDefinition# -> 8:14
 (4:38..4:55) p1/ProjectDefinition# -> 8:14
 (5:20..5:23) scala/Any#
+(9:11..9:13) p1/ -> 1:9
 (9:32..9:35) scala/Any#
-(15:17..15:17) p1/ProjectDef#`<init>`(). -> 3:34
 (15:7..15:17) p1/ProjectDef# -> 3:24
+(15:17..15:17) p1/ProjectDef#`<init>`(). -> 3:34
 (15:29..15:44) p1/ResolvedProject# -> 4:14
 

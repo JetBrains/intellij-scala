@@ -4,8 +4,8 @@ Document tests/pos/i4188/Test_2.scala
 (6:21..6:24) scala/Int#
 (6:26..6:32) scala/Predef.String#
 (7:5..7:17) collections/decorators.MapDecorator(). -> 40:7
-(7:22..7:26) collections/MapOps#view(). -> 17:7
 (7:18..7:21) collections/Test.test().(map) -> 6:12
+(7:22..7:26) collections/MapOps#view(). -> 17:7
 (7:27..7:27) collections/decorators.mapHasMapOps(). -> 42:16
 
 Document tests/pos/i4188/collections_1.scala

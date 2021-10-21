@@ -1,7 +1,7 @@
 Document tests/pos/i618.scala
 (1:16..1:19) scala/Any#
 (3:25..3:32) scala/Nothing#
-(3:43..3:43) _empty_/C#`<init>`(). -> 1:8
 (3:42..3:43) _empty_/C# -> 1:7
+(3:43..3:43) _empty_/C#`<init>`(). -> 1:8
 (3:44..3:45) _empty_/D#f. -> 3:22
 

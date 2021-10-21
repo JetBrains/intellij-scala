@@ -1,15 +1,15 @@
 Document tests/pos/i2112.scala
-(1:25..1:39) scala/collection/JavaConverters.
-(1:14..1:24) scala/collection/
 (1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(1:25..1:39) scala/collection/JavaConverters.
 (4:15..4:18) scala/Any#
 (4:21..4:25) scala/Unit#
-(5:47..5:53) scala/collection/IterableOnceOps#toList().
-(5:39..5:46) scala/collection/JavaConverters.AsScala#asScala().
 (5:5..5:5) scala/collection/JavaConverters.asScalaBufferConverter().
-(5:7..5:19) scala/Any#asInstanceOf().
 (5:5..5:6) _empty_/Test.test().(x) -> 4:12
-(5:30..5:34) java/util/List#
-(5:25..5:29) java/util/
+(5:7..5:19) scala/Any#asInstanceOf().
 (5:20..5:24) java/
+(5:25..5:29) java/util/
+(5:30..5:34) java/util/List#
+(5:39..5:46) scala/collection/JavaConverters.AsScala#asScala().
+(5:47..5:53) scala/collection/IterableOnceOps#toList().
 

@@ -1,8 +1,8 @@
 Document tests/pos/inline-val-constValue-3.scala
 (2:19..2:22) scala/Int#
 (2:25..2:29) scala/Unit#
-(3:33..3:43) scala/compiletime/package$package.constValue().
 (3:21..3:32) scala/compiletime/
+(3:33..3:43) scala/compiletime/package$package.constValue().
 (3:44..3:45) _empty_/`inline-val-constValue-3$package`.f().[N] -> 2:14
 (4:18..4:22) local0 -> 3:14
 (5:10..5:13) scala/Int#

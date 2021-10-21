@@ -2,8 +2,8 @@ Document tests/pos/i3590.scala
 (4:25..4:31) _empty_/Tagged# -> 1:7
 (4:32..4:33) _empty_/Tagged.Aux#[T] -> 4:12
 (11:20..11:24) _empty_/Fun0# -> 19:7
-(16:45..16:48) _empty_/Tagged.Aux# -> 4:8
 (16:38..16:44) _empty_/Tagged. -> 3:8
+(16:45..16:48) _empty_/Tagged.Aux# -> 4:8
 (16:49..16:50) _empty_/Fun.tagged().[T] -> 16:23
 (16:52..16:55) scala/Int#
 (16:59..16:62) _empty_/Fun# -> 7:7

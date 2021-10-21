@@ -1,22 +1,22 @@
 Document tests/pos/t1974.scala
-(2:24..2:24) scala/collection/MapFactory#apply().
 (2:21..2:24) scala/Predef.Map.
+(2:24..2:24) scala/collection/MapFactory#apply().
 (2:25..2:30) scala/Predef.Class#
 (2:35..2:41) scala/Predef.String#
 (4:20..4:25) scala/Predef.Class#
 (4:34..4:40) scala/Predef.String#
 (4:44..4:47) _empty_/Broken.map(). -> 2:15
 (4:47..4:47) scala/collection/immutable/MapOps#`+`().
-(4:54..4:56) scala/Predef.ArrowAssoc#`->`().
 (4:52..4:52) scala/Predef.ArrowAssoc().
 (4:52..4:53) _empty_/Broken.addToMap().(c) -> 4:16
+(4:54..4:56) scala/Predef.ArrowAssoc#`->`().
 (4:57..4:58) _empty_/Broken.addToMap().(s) -> 4:30
 (5:17..5:22) scala/Predef.Class#
-(5:32..5:32) scala/collection/MapOps#apply().
 (5:29..5:32) _empty_/Broken.map(). -> 2:15
+(5:32..5:32) scala/collection/MapOps#apply().
 (5:33..5:34) _empty_/Broken.fetch().(c) -> 5:13
-(9:24..9:24) scala/collection/MapFactory#apply().
 (9:21..9:24) scala/Predef.Map.
+(9:24..9:24) scala/collection/MapFactory#apply().
 (9:25..9:30) scala/Predef.Class#
 (9:35..9:41) scala/Predef.String#
 (11:20..11:25) scala/Predef.Class#
@@ -27,24 +27,24 @@ Document tests/pos/t1974.scala
 (11:53..11:54) _empty_/Works.addToMap().(c) -> 11:16
 (11:56..11:57) _empty_/Works.addToMap().(s) -> 11:30
 (12:17..12:22) scala/Predef.Class#
-(12:32..12:32) scala/collection/MapOps#apply().
 (12:29..12:32) _empty_/Works.map(). -> 9:15
+(12:32..12:32) scala/collection/MapOps#apply().
 (12:33..12:34) _empty_/Works.fetch().(c) -> 12:13
-(16:24..16:24) scala/collection/MapFactory#apply().
 (16:21..16:24) scala/Predef.Map.
+(16:24..16:24) scala/collection/MapFactory#apply().
 (16:25..16:30) scala/Predef.Class#
 (16:35..16:41) scala/Predef.String#
 (18:20..18:25) scala/Predef.Class#
 (18:34..18:40) scala/Predef.String#
 (18:44..18:47) _empty_/Works2.map(). -> 16:15
 (18:47..18:47) scala/collection/immutable/MapOps#`+`().
-(18:67..18:69) scala/Predef.ArrowAssoc#`->`().
 (18:53..18:53) scala/Predef.ArrowAssoc().
 (18:53..18:54) _empty_/Works2.addToMap().(c) -> 18:16
 (18:57..18:62) scala/Predef.Class#
+(18:67..18:69) scala/Predef.ArrowAssoc#`->`().
 (18:70..18:71) _empty_/Works2.addToMap().(s) -> 18:30
 (19:17..19:22) scala/Predef.Class#
-(19:32..19:32) scala/collection/MapOps#apply().
 (19:29..19:32) _empty_/Works2.map(). -> 16:15
+(19:32..19:32) scala/collection/MapOps#apply().
 (19:33..19:34) _empty_/Works2.fetch().(c) -> 19:13
 

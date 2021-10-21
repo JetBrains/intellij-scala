@@ -25,29 +25,29 @@ Document tests/pos/t2712-2.scala
 (15:32..15:33) test/Test.meh().[A] -> 15:17
 (15:37..15:38) test/Test.meh().(x) -> 15:20
 (17:12..17:15) test/Test.meh(). -> 15:7
-(17:30..17:30) test/Test.C#`<init>`(). -> 7:10
 (17:20..17:21) test/Test.C# -> 7:9
 (17:22..17:29) scala/Boolean#
+(17:30..17:30) test/Test.C#`<init>`(). -> 7:10
 (18:3..18:5) test/Test.m0. -> 17:7
 (18:7..18:8) test/Test.C# -> 7:9
 (18:9..18:16) scala/Boolean#
 (19:12..19:15) test/Test.meh(). -> 15:7
-(19:22..19:22) test/Test.CB#`<init>`(). -> 8:20
 (19:20..19:22) test/Test.CB# -> 8:9
+(19:22..19:22) test/Test.CB#`<init>`(). -> 8:20
 (20:3..20:5) test/Test.m1. -> 19:7
 (20:7..20:8) test/Test.B# -> 6:9
 (20:9..20:16) scala/Boolean#
 (20:18..20:24) scala/Double#
 (21:12..21:15) test/Test.meh(). -> 15:7
-(21:31..21:31) test/Test.C2#`<init>`(). -> 12:11
 (21:20..21:22) test/Test.C2# -> 12:9
 (21:23..21:30) scala/Boolean#
+(21:31..21:31) test/Test.C2#`<init>`(). -> 12:11
 (22:3..22:5) test/Test.m2. -> 21:7
 (22:7..22:9) test/Test.C2# -> 12:9
 (22:10..22:17) scala/Boolean#
 (23:12..23:15) test/Test.meh(). -> 15:7
-(23:23..23:23) test/Test.CB2#`<init>`(). -> 13:21
 (23:20..23:23) test/Test.CB2# -> 13:9
+(23:23..23:23) test/Test.CB2#`<init>`(). -> 13:21
 (24:3..24:5) test/Test.m3. -> 23:7
 (24:7..24:9) test/Test.B2# -> 11:9
 (24:10..24:17) scala/Boolean#

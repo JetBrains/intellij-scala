@@ -2,25 +2,25 @@ Document tests/pos/concats.scala
 (2:15..2:21) scala/Predef.String#
 (3:22..3:25) scala/Predef.Set#
 (3:26..3:30) _empty_/Test.Name# -> 2:8
-(3:39..3:39) scala/collection/IterableFactory#apply().
 (3:36..3:39) scala/Predef.Set.
+(3:39..3:39) scala/collection/IterableFactory#apply().
 (4:24..4:27) scala/Predef.Set#
 (4:28..4:32) _empty_/Test.Name# -> 2:8
-(4:39..4:39) scala/collection/IterableFactory#apply().
 (4:36..4:39) scala/Predef.Set.
+(4:39..4:39) scala/collection/IterableFactory#apply().
 (5:23..5:26) scala/Predef.Set#
 (5:27..5:31) _empty_/Test.Name# -> 2:8
-(5:47..5:49) scala/collection/SetOps#`++`().
-(5:39..5:39) scala/collection/IterableFactory#apply().
 (5:36..5:39) scala/Predef.Set.
+(5:39..5:39) scala/collection/IterableFactory#apply().
+(5:47..5:49) scala/collection/SetOps#`++`().
 (5:50..5:63) _empty_/Test.CommonOpNames. -> 3:7
 (6:22..6:25) scala/Predef.Set#
 (6:26..6:30) _empty_/Test.Name# -> 2:8
-(9:5..9:7) scala/collection/SetOps#`++`().
-(8:5..8:7) scala/collection/SetOps#`++`().
-(7:11..7:11) scala/collection/IterableFactory#apply().
 (7:8..7:11) scala/Predef.Set.
-(8:11..8:11) scala/collection/IterableFactory#apply().
+(7:11..7:11) scala/collection/IterableFactory#apply().
+(8:5..8:7) scala/collection/SetOps#`++`().
 (8:8..8:11) scala/Predef.Set.
+(8:11..8:11) scala/collection/IterableFactory#apply().
+(9:5..9:7) scala/collection/SetOps#`++`().
 (9:8..9:21) _empty_/Test.CommonOpNames. -> 3:7
 

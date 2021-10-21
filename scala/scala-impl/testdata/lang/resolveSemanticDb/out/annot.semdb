@@ -1,24 +1,24 @@
 Document tests/pos/annot.scala
-(1:19..1:28) java/beans/Transient.
-(1:19..1:28) java/beans/Transient#
-(1:13..1:18) java/beans/
 (1:8..1:12) java/
-(2:29..2:46) scala/annotation/unchecked/uncheckedVariance#
-(2:19..2:28) scala/annotation/unchecked/
+(1:13..1:18) java/beans/
+(1:19..1:28) java/beans/Transient#
+(1:19..1:28) java/beans/Transient.
 (2:8..2:18) scala/annotation/
+(2:19..2:28) scala/annotation/unchecked/
+(2:29..2:46) scala/annotation/unchecked/uncheckedVariance#
 (8:4..8:20) java/lang/SuppressWarnings#
-(8:26..8:26) scala/Array.apply().
 (8:21..8:26) scala/Array.
+(8:26..8:26) scala/Array.apply().
 (8:32..8:32) scala/reflect/ClassTag.apply().
 (8:46..8:49) scala/Predef.`???`().
 (10:4..10:20) java/lang/SuppressWarnings#
-(10:26..10:26) scala/Array.apply().
 (10:21..10:26) scala/Array.
+(10:26..10:26) scala/Array.apply().
 (10:39..10:39) scala/reflect/ClassTag.apply().
 (10:54..10:57) scala/Predef.`???`().
 (12:4..12:20) java/lang/SuppressWarnings#
-(12:26..12:26) scala/Array.apply().
 (12:21..12:26) scala/Array.
+(12:26..12:26) scala/Array.apply().
 (12:32..12:32) scala/reflect/ClassTag.apply().
 (12:47..12:50) scala/Predef.`???`().
 (14:4..14:13) java/beans/Transient#
@@ -30,9 +30,9 @@ Document tests/pos/annot.scala
 (23:36..23:37) _empty_/Test#B# -> 21:9
 (23:39..23:56) scala/annotation/unchecked/uncheckedVariance#
 (23:59..23:62) scala/Predef.`???`().
-(25:42..25:42) _empty_/Test#A#`<init>`(). -> 20:3
 (25:19..25:20) _empty_/Test#A# -> 20:9
 (25:22..25:39) scala/annotation/unchecked/uncheckedVariance#
+(25:42..25:42) _empty_/Test#A#`<init>`(). -> 20:3
 (25:48..25:49) _empty_/Test#B# -> 21:9
 (25:51..25:68) scala/annotation/unchecked/uncheckedVariance#
 (27:11..27:14) scala/Int#

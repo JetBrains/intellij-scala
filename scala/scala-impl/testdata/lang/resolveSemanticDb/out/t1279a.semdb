@@ -1,49 +1,49 @@
 Document tests/pos/t1279a.scala
 (3:9..3:10) _empty_/M# -> 2:16
 (6:25..6:26) _empty_/M# -> 2:16
-(6:43..6:44) _empty_/M#T# -> 5:8
 (6:38..6:42) _empty_/M# -> 2:16
+(6:43..6:44) _empty_/M#T# -> 5:8
 (7:26..7:30) _empty_/M# -> 2:16
 (7:39..7:47) _empty_/M#selfType# -> 6:14
 (9:13..9:21) _empty_/M#selfType# -> 6:14
 (15:13..15:19) scala/package.Stream#
 (15:20..15:21) _empty_/M# -> 2:16
-(15:38..15:39) _empty_/M#T# -> 5:8
 (15:33..15:37) _empty_/M# -> 2:16
-(15:55..15:55) scala/collection/immutable/Stream.cons.apply().
-(15:51..15:55) scala/collection/immutable/Stream.cons.
+(15:38..15:39) _empty_/M#T# -> 5:8
 (15:44..15:50) scala/package.Stream.
+(15:51..15:55) scala/collection/immutable/Stream.cons.
+(15:55..15:55) scala/collection/immutable/Stream.cons.apply().
 (15:56..15:60) _empty_/M# -> 2:16
 (15:62..15:76) _empty_/M#actualSelfType# -> 7:8
-(15:83..15:87) _empty_/M#all2(). -> 15:7
 (15:78..15:82) _empty_/M#next(). -> 9:7
+(15:83..15:87) _empty_/M#all2(). -> 15:7
 (18:13..18:19) scala/package.Stream#
 (18:20..18:21) _empty_/M# -> 2:16
-(18:38..18:39) _empty_/M#T# -> 5:8
 (18:33..18:37) _empty_/M# -> 2:16
+(18:38..18:39) _empty_/M#T# -> 5:8
 (18:44..18:52) _empty_/M#all3Impl(). -> 19:15
 (18:53..18:57) _empty_/M# -> 2:16
 (18:59..18:73) _empty_/M#actualSelfType# -> 7:8
 (19:31..19:32) _empty_/M# -> 2:16
-(19:49..19:50) _empty_/M#T# -> 5:8
 (19:44..19:48) _empty_/M# -> 2:16
+(19:49..19:50) _empty_/M#T# -> 5:8
 (19:54..19:60) scala/package.Stream#
 (19:61..19:62) _empty_/M# -> 2:16
-(19:79..19:80) _empty_/M#T# -> 5:8
 (19:74..19:78) _empty_/M# -> 2:16
-(19:96..19:96) scala/collection/immutable/Stream.cons.apply().
-(19:92..19:96) scala/collection/immutable/Stream.cons.
+(19:79..19:80) _empty_/M#T# -> 5:8
 (19:85..19:91) scala/package.Stream.
+(19:92..19:96) scala/collection/immutable/Stream.cons.
+(19:96..19:96) scala/collection/immutable/Stream.cons.apply().
 (19:97..19:102) _empty_/M#all3Impl().(first) -> 19:24
 (19:104..19:112) _empty_/M#all3Impl(). -> 19:15
-(19:119..19:123) _empty_/M#next(). -> 9:7
 (19:113..19:118) _empty_/M#all3Impl().(first) -> 19:24
+(19:119..19:123) _empty_/M#next(). -> 9:7
 (21:13..21:19) scala/package.Stream#
 (21:20..21:21) _empty_/M# -> 2:16
-(21:38..21:39) _empty_/M#T# -> 5:8
 (21:33..21:37) _empty_/M# -> 2:16
-(21:54..21:62) _empty_/Unrelated.all4Impl(). -> 27:7
+(21:38..21:39) _empty_/M#T# -> 5:8
 (21:44..21:53) _empty_/Unrelated. -> 25:8
+(21:54..21:62) _empty_/Unrelated.all4Impl(). -> 27:7
 (21:63..21:64) _empty_/M#T# -> 5:8
 (21:66..21:70) _empty_/M# -> 2:16
 (21:72..21:86) _empty_/M#actualSelfType# -> 7:8
@@ -52,12 +52,12 @@ Document tests/pos/t1279a.scala
 (27:44..27:50) scala/package.Stream#
 (27:51..27:52) _empty_/M# -> 2:16
 (27:64..27:65) _empty_/Unrelated.all4Impl().[U] -> 27:16
-(27:81..27:81) scala/collection/immutable/Stream.cons.apply().
-(27:77..27:81) scala/collection/immutable/Stream.cons.
 (27:70..27:76) scala/package.Stream.
+(27:77..27:81) scala/collection/immutable/Stream.cons.
+(27:81..27:81) scala/collection/immutable/Stream.cons.apply().
 (27:82..27:87) _empty_/Unrelated.all4Impl().(first) -> 27:19
 (27:89..27:97) _empty_/Unrelated.all4Impl(). -> 27:7
 (27:98..27:99) _empty_/Unrelated.all4Impl().[U] -> 27:16
-(27:107..27:111) _empty_/M#next(). -> 9:7
 (27:101..27:106) _empty_/Unrelated.all4Impl().(first) -> 27:19
+(27:107..27:111) _empty_/M#next(). -> 9:7
 

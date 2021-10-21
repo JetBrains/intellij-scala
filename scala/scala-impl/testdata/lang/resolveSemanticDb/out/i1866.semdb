@@ -1,12 +1,12 @@
 Document tests/pos/i1866.scala
-(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
-(1:22..1:32) scala/reflect/Selectable.
-(1:14..1:21) scala/reflect/
 (1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:32) scala/reflect/Selectable.
+(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
 (3:26..3:30) scala/Unit#
-(3:37..3:37) scala/reflect/Selectable#selectDynamic().
 (3:36..3:36) scala/reflect/Selectable.reflectiveSelectable().
 (3:36..3:37) _empty_/Test.f().(g) -> 3:9
+(3:37..3:37) scala/reflect/Selectable#selectDynamic().
 (4:20..4:25) scala/Array#
 (4:26..4:32) scala/Predef.String#
 

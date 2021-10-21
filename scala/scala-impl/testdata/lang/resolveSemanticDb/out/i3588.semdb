@@ -9,16 +9,16 @@ Document tests/pos/i3588.scala
 (32:10..32:16) scala/AnyVal#
 (33:3..33:4) _empty_/Foo2#a. -> 32:7
 (42:17..42:20) scala/Int#
-(42:36..42:36) scala/AnyVal#`<init>`().
 (42:30..42:36) scala/AnyVal#
+(42:36..42:36) scala/AnyVal#`<init>`().
 (44:10..44:11) _empty_/A# -> 42:12
-(44:19..44:19) _empty_/A#`<init>`(). -> 42:13
 (44:18..44:19) _empty_/A# -> 42:12
+(44:19..44:19) _empty_/A#`<init>`(). -> 42:13
 (45:3..45:4) _empty_/Foo3#a. -> 44:7
-(46:11..46:11) _empty_/A.unapply().
 (46:10..46:11) _empty_/A. -> 42:12
-(47:11..47:11) _empty_/A.unapply().
+(46:11..46:11) _empty_/A.unapply().
 (47:10..47:11) _empty_/A. -> 42:12
-(48:11..48:11) _empty_/A.unapply().
+(47:11..47:11) _empty_/A.unapply().
 (48:10..48:11) _empty_/A. -> 42:12
+(48:11..48:11) _empty_/A.unapply().
 

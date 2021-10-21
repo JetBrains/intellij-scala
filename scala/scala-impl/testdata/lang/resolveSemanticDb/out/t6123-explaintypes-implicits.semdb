@@ -30,8 +30,8 @@ Document tests/pos/t6123-explaintypes-implicits.scala
 (8:75..8:78) scala/Predef.`???`().
 (10:18..10:22) scala/Unit#
 (11:14..11:24) _empty_/ImplicitBugReport.toExpTempl(). -> 8:7
-(11:28..11:28) scala/collection/SeqFactory.Delegate#apply().
 (11:25..11:28) scala/package.Seq.
-(11:41..11:41) _empty_/ImplicitBugReport.canBuildExpTrav(). -> 7:16
+(11:28..11:28) scala/collection/SeqFactory.Delegate#apply().
 (11:41..11:41) _empty_/ImplicitBugReport.canBuildExp(). -> 6:16
+(11:41..11:41) _empty_/ImplicitBugReport.canBuildExpTrav(). -> 7:16
 

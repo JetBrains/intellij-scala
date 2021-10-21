@@ -1,34 +1,34 @@
 Document tests/pos/t1957.scala
 (7:30..7:38) _empty_/Test.Settings# -> 3:20
 (8:28..8:34) _empty_/Test.Module# -> 21:20
-(8:61..8:73) _empty_/Test.Grist#settingsType# -> 7:14
 (8:56..8:60) _empty_/Test.Grist# -> 5:20
+(8:61..8:73) _empty_/Test.Grist#settingsType# -> 7:14
 (9:21..9:31) _empty_/Test.Grist#moduleType# -> 8:14
 (14:30..14:38) _empty_/Test.Settings# -> 3:20
 (15:27..15:33) _empty_/Test.Module# -> 21:20
-(15:61..15:73) _empty_/Test.Tool#settingsType# -> 14:14
 (15:56..15:60) _empty_/Test.Tool# -> 12:20
+(15:61..15:73) _empty_/Test.Tool#settingsType# -> 14:14
 (16:26..16:31) _empty_/Test.Grist# -> 5:20
-(16:58..16:68) _empty_/Test.Tool#moduleType# -> 15:14
 (16:53..16:57) _empty_/Test.Tool# -> 12:20
-(16:96..16:108) _empty_/Test.Tool#settingsType# -> 14:14
+(16:58..16:68) _empty_/Test.Tool#moduleType# -> 15:14
 (16:91..16:95) _empty_/Test.Tool# -> 12:20
+(16:96..16:108) _empty_/Test.Tool#settingsType# -> 14:14
 (18:25..18:29) scala/package.List#
 (18:30..18:39) _empty_/Test.Tool#gristType# -> 16:14
 (23:30..23:38) _empty_/Test.Settings# -> 3:20
 (24:39..24:45) _empty_/Test.Module# -> 21:20
-(24:72..24:84) _empty_/Test.Module#settingsType# -> 23:14
 (24:67..24:71) _empty_/Test.Module# -> 21:20
+(24:72..24:84) _empty_/Test.Module#settingsType# -> 23:14
 (25:26..25:30) _empty_/Test.Module# -> 21:20
 (25:39..25:55) _empty_/Test.Module#commonModuleType# -> 24:20
 (30:20..30:24) scala/package.List#
 (30:25..30:29) _empty_/Test.Tool# -> 12:20
-(30:56..30:68) _empty_/Test.Module#settingsType# -> 23:14
 (30:51..30:55) _empty_/Test.Module# -> 21:20
+(30:56..30:68) _empty_/Test.Module#settingsType# -> 23:14
 (32:26..32:30) scala/package.List#
 (32:31..32:47) _empty_/Test.Module#commonModuleType# -> 24:20
-(34:37..34:44) scala/collection/immutable/List#flatMap().
 (34:31..34:36) _empty_/Test.Module#tools. -> 30:13
+(34:37..34:44) scala/collection/immutable/List#flatMap().
 (34:47..34:57) _empty_/Test.Tool#inputGrist(). -> 18:13
 (58:15..58:18) scala/Predef.`???`().
 

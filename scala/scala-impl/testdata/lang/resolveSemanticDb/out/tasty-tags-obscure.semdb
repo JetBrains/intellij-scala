@@ -11,13 +11,13 @@ Document tests/pos/tasty-tags-obscure.scala
 (6:15..6:18) _empty_/ObscureTasty.bar(). -> 5:7
 (6:30..6:34) scala/package.List#
 (6:35..6:36) local12 -> 6:20
-(11:24..11:24) _empty_/ObscureTasty.Bar#`<init>`(). -> 9:5
 (11:21..11:24) _empty_/ObscureTasty.Bar# -> 8:9
+(11:24..11:24) _empty_/ObscureTasty.Bar#`<init>`(). -> 9:5
 (13:22..13:25) scala/Any#
 (13:28..13:32) scala/Some#
 (13:43..13:46) _empty_/ObscureTasty.Bar#bar. -> 9:15
 (13:55..13:58) scala/Predef.`???`().
-(17:15..17:15) _empty_/ObscureTasty.Foo#A.unapply(). -> 13:11
 (17:14..17:15) _empty_/ObscureTasty.Foo#A. -> 12:12
+(17:15..17:15) _empty_/ObscureTasty.Foo#A.unapply(). -> 13:11
 (17:22..17:23) local14 -> 17:16
 

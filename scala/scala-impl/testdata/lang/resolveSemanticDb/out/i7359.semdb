@@ -85,6 +85,9 @@ Document tests/pos/i7359.scala
 (94:34..94:41) scala/Boolean#
 (95:28..95:31) scala/Int#
 (96:28..96:34) scala/Predef.String#
+(98:21..98:27) scala/Predef.String#
+(99:22..99:29) scala/Boolean#
+(100:18..100:21) scala/Int#
 (103:16..103:22) scala/Predef.String#
 (104:19..104:22) scala/Any#
 (104:25..104:38) test/i7359$package.CustomBoolean# -> 99:6
@@ -132,28 +135,25 @@ Document tests/pos/i7359.scala
 (130:39..130:42) scala/Int#
 (130:44..130:50) scala/Predef.String#
 (130:58..130:61) scala/Int#
-(130:68..130:76) scala/Any#toString().
 (130:66..130:67) local25 -> 130:55
+(130:68..130:76) scala/Any#toString().
 (131:20..131:28) test/SAMInOut# -> 83:7
 (131:29..131:32) scala/Int#
 (131:34..131:40) scala/Predef.String#
 (131:48..131:51) scala/Int#
-(131:58..131:66) scala/Any#toString().
 (131:56..131:57) local27 -> 131:45
+(131:58..131:66) scala/Any#toString().
 (132:27..132:42) test/SAMInOutExtends# -> 89:7
 (132:43..132:46) scala/Int#
 (132:48..132:54) scala/Predef.String#
 (132:62..132:65) scala/Int#
-(132:72..132:80) scala/Any#toString().
 (132:70..132:71) local29 -> 132:59
+(132:72..132:80) scala/Any#toString().
 (133:38..133:64) test/SAMInOutExtendsAndOverride# -> 92:7
 (133:65..133:68) scala/Int#
 (133:70..133:76) scala/Predef.String#
 (133:84..133:87) scala/Int#
-(133:94..133:102) scala/Any#toString().
 (133:92..133:93) local31 -> 133:81
+(133:94..133:102) scala/Any#toString().
 (135:32..135:52) test/SAMWithCustomAliases# -> 102:7
-(98:21..98:27) scala/Predef.String#
-(99:22..99:29) scala/Boolean#
-(100:18..100:21) scala/Int#
 

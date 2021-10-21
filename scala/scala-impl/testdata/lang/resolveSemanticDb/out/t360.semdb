@@ -2,10 +2,10 @@ Document tests/pos/t360.scala
 (1:32..1:39) _empty_/Bug360C# -> 9:16
 (2:10..2:16) scala/Predef.String#
 (4:23..4:30) _empty_/Bug360C# -> 9:16
-(6:13..6:20) scala/Console.println(+1).
 (6:5..6:12) scala/Console.
+(6:13..6:20) scala/Console.println(+1).
 (6:21..6:22) _empty_/Bug360A#f(). -> 2:7
-(9:39..9:39) _empty_/Bug360A#`<init>`(). -> 1:26
 (9:32..9:39) _empty_/Bug360A# -> 1:16
+(9:39..9:39) _empty_/Bug360A#`<init>`(). -> 1:26
 (9:45..9:52) _empty_/Bug360B# -> 4:7
 

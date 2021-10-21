@@ -11,21 +11,21 @@ Document tests/pos/i8955.scala
 (4:22..4:23) _empty_/i8955$package.tost().[A] -> 4:10
 (4:28..4:35) scala/Predef.println(+1).
 (4:36..4:37) _empty_/i8955$package.tost().(a) -> 4:13
+(6:1..6:1) _empty_/i8955$package.main(). -> 6:11
+(6:1..6:1) local2
+(6:1..6:1) scala/util/CommandLineParser.showError().
 (6:2..6:6) scala/main#
 (7:12..7:15) _empty_/One# -> 1:7
 (7:28..7:28) _empty_/One#`<init>`(). -> 1:10
 (8:3..8:7) _empty_/i8955$package.test(). -> 2:5
-(8:12..8:20) scala/Any#getClass().
 (8:8..8:11) local0 -> 7:7
+(8:12..8:20) scala/Any#getClass().
 (8:24..8:29) scala/Predef.Class#
-(9:17..9:25) scala/Any#getClass().
 (9:13..9:16) local0 -> 7:7
+(9:17..9:25) scala/Any#getClass().
 (10:3..10:7) _empty_/i8955$package.test(). -> 2:5
 (10:8..10:11) local1 -> 9:7
 (11:3..11:7) _empty_/i8955$package.tost(). -> 4:5
-(11:12..11:20) scala/Any#getClass().
 (11:8..11:11) local0 -> 7:7
-(6:1..6:1) _empty_/i8955$package.main(). -> 6:11
-(6:1..6:1) scala/util/CommandLineParser.showError().
-(6:1..6:1) local2
+(11:12..11:20) scala/Any#getClass().
 

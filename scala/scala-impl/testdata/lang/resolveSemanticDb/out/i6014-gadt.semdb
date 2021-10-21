@@ -1,6 +1,6 @@
 Document tests/pos/i6014-gadt.scala
-(1:14..1:25) scala/compiletime/
 (1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
 (5:17..5:18) _empty_/Test1.Bar#[T] -> 5:12
 (6:10..6:13) _empty_/Test1.Foo# -> 4:8
 (6:20..6:21) local0 -> 6:14
@@ -8,8 +8,8 @@ Document tests/pos/i6014-gadt.scala
 (9:11..9:14) _empty_/Test1.Bar# -> 5:8
 (9:15..9:18) _empty_/Test1.Foo# -> 4:8
 (9:19..9:23) scala/package.List#
-(9:32..9:32) scala/collection/IterableFactory#apply().
 (9:28..9:32) scala/package.List.
+(9:32..9:32) scala/collection/IterableFactory#apply().
 (14:13..14:14) _empty_/Test2.summon().[T] -> 13:21
 (14:18..14:19) local1 -> 14:10
 (19:30..19:41) scala/compiletime/package$package.erasedValue().
@@ -20,8 +20,8 @@ Document tests/pos/i6014-gadt.scala
 (20:32..20:35) scala/Int#
 (23:20..23:24) scala/package.List#
 (23:25..23:28) scala/Int#
-(23:36..23:36) scala/collection/IterableFactory#apply().
 (23:32..23:36) scala/package.List.
+(23:36..23:36) scala/collection/IterableFactory#apply().
 (24:13..24:16) _empty_/Test2.bar(). -> 19:14
 (24:17..24:20) _empty_/Test2.Foo# -> 17:9
 (24:21..24:25) scala/package.List#
@@ -36,8 +36,8 @@ Document tests/pos/i6014-gadt.scala
 (37:32..37:35) scala/Int#
 (40:20..40:24) scala/package.List#
 (40:25..40:28) scala/Int#
-(40:36..40:36) scala/collection/IterableFactory#apply().
 (40:32..40:36) scala/package.List.
+(40:36..40:36) scala/collection/IterableFactory#apply().
 (41:13..41:16) _empty_/Test3.bar(). -> 36:14
 (41:17..41:20) _empty_/Test3.Foo# -> 34:9
 (41:21..41:25) scala/package.List#
@@ -51,8 +51,8 @@ Document tests/pos/i6014-gadt.scala
 (52:32..52:35) scala/Int#
 (55:20..55:24) scala/package.List#
 (55:25..55:28) scala/Int#
-(55:36..55:36) scala/collection/IterableFactory#apply().
 (55:32..55:36) scala/package.List.
+(55:36..55:36) scala/collection/IterableFactory#apply().
 (56:13..56:16) _empty_/Test4.bar(). -> 51:14
 (56:17..56:20) _empty_/Test4.Foo# -> 49:9
 (56:21..56:25) scala/package.List#

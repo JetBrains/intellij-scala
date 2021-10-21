@@ -1,23 +1,23 @@
 Document tests/pos/i1865.scala
 (2:12..2:16) _empty_/AbsCell#Node# -> 3:9
 (7:13..7:17) scala/Unit#
-(8:27..8:27) _empty_/AbsCell#`<init>`(). -> 2:3
 (8:20..8:27) _empty_/AbsCell# -> 1:7
-(9:15..9:15) _empty_/AbsCell#Node#`<init>`(). -> 3:3
-(9:14..9:15) _empty_/AbsCell#T# -> 2:8
+(8:27..8:27) _empty_/AbsCell#`<init>`(). -> 2:3
 (9:9..9:13) local0 -> 8:9
+(9:14..9:15) _empty_/AbsCell#T# -> 2:8
+(9:15..9:15) _empty_/AbsCell#Node#`<init>`(). -> 3:3
 (14:12..14:16) _empty_/AbsCell2#Node# -> 17:9
 (15:14..15:15) _empty_/AbsCell2#T# -> 14:8
 (15:18..15:23) _empty_/AbsCell2#value. -> 15:7
 (16:14..16:15) _empty_/AbsCell2#T# -> 14:8
 (16:18..16:22) scala/Unit#
-(21:28..21:28) _empty_/AbsCell2#`<init>`(). -> 14:3
 (21:20..21:28) _empty_/AbsCell2# -> 13:7
-(21:50..21:50) _empty_/AbsCell2#Node#`<init>`(). -> 17:3
+(21:28..21:28) _empty_/AbsCell2#`<init>`(). -> 14:3
 (21:46..21:50) _empty_/AbsCell2#Node# -> 17:9
-(22:10..22:13) _empty_/AbsCell2#set(). -> 16:7
+(21:50..21:50) _empty_/AbsCell2#Node#`<init>`(). -> 17:3
 (22:5..22:9) local1 -> 21:9
-(22:25..22:25) _empty_/AbsCell2#Node#`<init>`(). -> 17:3
-(22:24..22:25) _empty_/AbsCell2#T# -> 14:8
+(22:10..22:13) _empty_/AbsCell2#set(). -> 16:7
 (22:19..22:23) local1 -> 21:9
+(22:24..22:25) _empty_/AbsCell2#T# -> 14:8
+(22:25..22:25) _empty_/AbsCell2#Node#`<init>`(). -> 17:3
 

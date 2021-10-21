@@ -9,10 +9,10 @@ Document tests/pos/i2998.scala
 (8:25..8:28) _empty_/Foo# -> 1:11
 (8:29..8:30) _empty_/Test.foo().[T] -> 8:15
 (8:41..8:41) _empty_/Foo#`<init>`(). -> 1:14
-(10:25..10:28) _empty_/Foo#one(). -> 3:11
 (10:18..10:21) _empty_/Test.foo(). -> 8:11
-(11:25..11:29) _empty_/Foo#zero(). -> 2:11
+(10:25..10:28) _empty_/Foo#one(). -> 3:11
 (11:18..11:21) _empty_/Test.foo(). -> 8:11
-(12:25..12:28) _empty_/Foo#two. -> 4:11
+(11:25..11:29) _empty_/Foo#zero(). -> 2:11
 (12:18..12:21) _empty_/Test.foo(). -> 8:11
+(12:25..12:28) _empty_/Foo#two. -> 4:11
 

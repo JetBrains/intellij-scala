@@ -1,10 +1,10 @@
 Document tests/pos/i5039.scala
-(2:7..2:7) scala/collection/IterableFactory#apply().
 (2:3..2:7) scala/package.List.
-(3:7..3:7) scala/collection/IterableFactory#apply().
+(2:7..2:7) scala/collection/IterableFactory#apply().
 (3:3..3:7) scala/package.List.
+(3:7..3:7) scala/collection/IterableFactory#apply().
 (3:8..3:12) scala/Null#
-(4:7..4:7) scala/collection/IterableFactory#apply().
 (4:3..4:7) scala/package.List.
+(4:7..4:7) scala/collection/IterableFactory#apply().
 (4:8..4:15) scala/Nothing#
 

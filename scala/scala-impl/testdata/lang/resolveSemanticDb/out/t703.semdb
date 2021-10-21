@@ -2,25 +2,25 @@ Document tests/pos/t703.scala
 (3:13..3:17) scala/Unit#
 (5:19..5:20) _empty_/Go.A# -> 2:9
 (7:13..7:14) _empty_/Go.A#f(). -> 3:9
-(8:15..8:22) scala/Console.println(+1).
 (8:7..8:14) scala/Console.
+(8:15..8:22) scala/Console.println(+1).
 (11:19..11:20) _empty_/Go.A# -> 2:9
 (13:13..13:14) _empty_/Go.A#f(). -> 3:9
-(14:15..14:22) scala/Console.println(+1).
 (14:7..14:14) scala/Console.
+(14:15..14:22) scala/Console.println(+1).
 (17:19..17:20) _empty_/Go.B# -> 5:9
 (17:26..17:27) _empty_/Go.C# -> 11:9
 (19:13..19:14) _empty_/Go.C#f(). -> 12:27
 (22:23..22:24) _empty_/Go.A# -> 2:9
 (23:12..23:16) scala/Unit#
-(23:27..23:34) scala/Console.println(+1).
 (23:19..23:26) scala/Console.
+(23:27..23:34) scala/Console.println(+1).
 (25:19..25:24) scala/Array#
 (25:25..25:31) scala/Predef.String#
 (25:36..25:40) scala/Unit#
-(26:27..26:27) _empty_/Go.Super#`<init>`(). -> 22:23
 (26:22..26:27) _empty_/Go.Super# -> 22:9
+(26:27..26:27) _empty_/Go.Super#`<init>`(). -> 22:23
 (26:33..26:34) _empty_/Go.D# -> 17:9
-(27:7..27:8) _empty_/Go.D#f(). -> 18:27
 (27:5..27:6) local1
+(27:7..27:8) _empty_/Go.D#f(). -> 18:27
 

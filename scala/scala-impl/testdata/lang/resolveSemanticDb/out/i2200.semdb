@@ -1,13 +1,7 @@
-Document tests/pos/i2200/package.scala
-(2:24..2:30) scala/package.Stream#
-(2:31..2:34) scala/Int#
-(3:18..3:21) bar/Fix# -> 3:7
-(3:22..3:32) bar/package.StreamTree# -> 2:8
-
 Document tests/pos/i2200/Hello.scala
-(2:23..2:34) scala/language.higherKinds.
-(2:14..2:22) scala/language.
 (2:8..2:13) scala/
+(2:14..2:22) scala/language.
+(2:23..2:34) scala/language.higherKinds.
 (3:24..3:25) bar/Fix#[F] -> 3:11
 (3:26..3:29) bar/Fix# -> 3:7
 (3:30..3:31) bar/Fix#[F] -> 3:11
@@ -18,4 +12,10 @@ Document tests/pos/i2200/Hello.scala
 (5:58..5:59) bar/DocTree.docTree().(s) -> 5:15
 (5:61..5:71) bar/package.StreamTree# -> 2:8
 (5:72..5:79) bar/package.DocTree# -> 3:8
+
+Document tests/pos/i2200/package.scala
+(2:24..2:30) scala/package.Stream#
+(2:31..2:34) scala/Int#
+(3:18..3:21) bar/Fix# -> 3:7
+(3:22..3:32) bar/package.StreamTree# -> 2:8
 

@@ -1,6 +1,6 @@
 Document tests/pos/t1050.scala
-(4:19..4:25) scala/AnyRef#
 (4:13..4:18) scala/
+(4:19..4:25) scala/AnyRef#
 (5:19..5:20) t1050/A#T# -> 4:8
 (7:13..7:14) t1050/A#A#b(). -> 6:9
 (8:5..8:6) t1050/A#A#b(). -> 6:9

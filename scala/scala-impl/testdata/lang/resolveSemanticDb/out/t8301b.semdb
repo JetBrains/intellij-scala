@@ -13,11 +13,11 @@ Document tests/pos/t8301b.scala
 (14:29..14:32) scala/Predef.`???`().
 (15:3..15:10) scala/Predef.locally().
 (17:5..17:8) scala/Predef.`???`().
-(18:17..18:26) _empty_/Test.ScalaName. -> 14:7
 (18:12..18:16) _empty_/Test. -> 10:8
+(18:17..18:26) _empty_/Test.ScalaName. -> 14:7
 (18:30..18:33) scala/Predef.`???`().
-(20:17..20:26) _empty_/Test.ScalaName. -> 14:7
 (20:12..20:16) _empty_/Test. -> 10:8
+(20:17..20:26) _empty_/Test.ScalaName. -> 14:7
 (22:5..22:8) scala/Predef.`???`().
 (23:12..23:21) _empty_/Test.ScalaName. -> 14:7
 (23:25..23:28) scala/Predef.`???`().

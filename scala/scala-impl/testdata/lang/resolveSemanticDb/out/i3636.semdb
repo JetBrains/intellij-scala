@@ -27,7 +27,7 @@ Document tests/pos/i3636.scala
 (12:26..12:34) _empty_/Iterable# -> 1:7
 (12:35..12:38) scala/Int#
 (12:42..12:46) scala/Unit#
-(13:17..13:19) _empty_/BitSet#`++`(). -> 8:20
 (13:15..13:16) _empty_/Test#test().(x) -> 12:12
+(13:17..13:19) _empty_/BitSet#`++`(). -> 8:20
 (13:20..13:21) _empty_/Test#test().(y) -> 12:23
 

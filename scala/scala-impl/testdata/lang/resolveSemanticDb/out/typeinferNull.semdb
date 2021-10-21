@@ -1,8 +1,8 @@
 Document tests/pos/typeinferNull.scala
-(3:23..3:23) scala/collection/immutable/List#`::`().
 (3:20..3:23) scala/package.Nil.
-(4:16..4:16) scala/collection/IterableFactory#apply().
+(3:23..3:23) scala/collection/immutable/List#`::`().
 (4:12..4:16) scala/package.List.
+(4:16..4:16) scala/collection/IterableFactory#apply().
 (6:11..6:15) scala/package.List#
 (6:16..6:20) scala/Null#
 (6:24..6:26) _empty_/typeinferNull.x1. -> 3:7

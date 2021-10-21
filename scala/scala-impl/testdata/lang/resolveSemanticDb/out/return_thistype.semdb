@@ -1,7 +1,7 @@
 Document tests/pos/return_thistype.scala
-(4:32..4:44) scala/Any#asInstanceOf().
 (4:28..4:31) _empty_/As#A#bar(). -> 6:9
-(5:31..5:43) scala/Any#asInstanceOf().
+(4:32..4:44) scala/Any#asInstanceOf().
 (5:27..5:30) _empty_/As#A#bar(). -> 6:9
+(5:31..5:43) scala/Any#asInstanceOf().
 (6:14..6:15) _empty_/As#A# -> 3:9
 

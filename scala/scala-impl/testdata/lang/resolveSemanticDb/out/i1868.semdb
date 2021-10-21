@@ -5,6 +5,6 @@ Document tests/pos/i1868.scala
 (3:17..3:28) scala/specialized#
 (4:5..4:6) _empty_/Test#x. -> 1:15
 (6:43..6:49) scala/Predef.String#
-(6:69..6:69) java/lang/Exception#`<init>`().
 (6:60..6:69) scala/package.Exception#
+(6:69..6:69) java/lang/Exception#`<init>`().
 

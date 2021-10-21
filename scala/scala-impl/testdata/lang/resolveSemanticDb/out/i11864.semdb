@@ -1,16 +1,18 @@
 Document tests/pos/i11864.scala
-(1:30..1:47) scala/language.experimental.erasedDefinitions.
-(1:17..1:29) scala/language.experimental.
 (1:8..1:16) scala/language.
-(7:56..7:59) scala/Predef.`???`().
+(1:17..1:29) scala/language.experimental.
+(1:30..1:47) scala/language.experimental.erasedDefinitions.
+(4:15..4:17) _empty_/i11864$package.Ev# -> 3:6
+(4:31..4:32) _empty_/i11864$package.Sub#[X] -> 4:10
 (7:34..7:36) _empty_/i11864$package.Ev# -> 3:6
 (7:39..7:45) scala/Option#
 (7:46..7:48) _empty_/test1.foo().(ev) -> 7:30
-(8:63..8:66) scala/Predef.`???`().
+(7:56..7:59) scala/Predef.`???`().
 (8:37..8:40) _empty_/i11864$package.Sub# -> 4:6
 (8:41..8:42) _empty_/test1.bar().[X] -> 8:30
 (8:46..8:52) scala/Option#
 (8:53..8:55) _empty_/test1.bar().(ev) -> 8:33
+(8:63..8:66) scala/Predef.`???`().
 (10:5..10:8) _empty_/test1.foo(). -> 7:26
 (10:9..10:12) scala/Predef.`???`().
 (11:13..11:16) _empty_/test1.bar(). -> 8:26
@@ -40,8 +42,8 @@ Document tests/pos/i11864.scala
 (23:29..23:31) _empty_/test3.bar().(ev) -> 23:18
 (23:38..23:44) scala/Option#
 (23:45..23:47) _empty_/test3.bar().(ev) -> 23:18
-(23:59..23:59) scala/Some.apply().
 (23:55..23:59) scala/Some.
+(23:59..23:59) scala/Some.apply().
 (23:60..23:61) _empty_/test3.bar().(x) -> 23:26
 (24:10..24:12) _empty_/i11864$package.Ev# -> 3:6
 (24:26..24:29) scala/Int#
@@ -56,8 +58,8 @@ Document tests/pos/i11864.scala
 (30:29..30:31) _empty_/test4.bar().(ev) -> 30:18
 (30:38..30:44) scala/Option#
 (30:45..30:47) _empty_/test4.bar().(ev) -> 30:18
-(30:59..30:59) scala/Some.apply().
 (30:55..30:59) scala/Some.
+(30:59..30:59) scala/Some.apply().
 (30:60..30:61) _empty_/test4.bar().(x) -> 30:26
 (31:10..31:12) _empty_/i11864$package.Ev# -> 3:6
 (31:26..31:29) scala/Int#
@@ -70,8 +72,8 @@ Document tests/pos/i11864.scala
 (34:15..34:18) scala/Int#
 (37:24..37:25) _empty_/CallbackTo#[A] -> 36:25
 (37:29..37:30) _empty_/CallbackTo#map().[B] -> 37:18
-(37:60..37:68) _empty_/CallbackTo.MapGuard# -> 42:8
 (37:49..37:59) _empty_/CallbackTo. -> 40:8
+(37:60..37:68) _empty_/CallbackTo.MapGuard# -> 42:8
 (37:69..37:70) _empty_/CallbackTo#map().[B] -> 37:18
 (37:74..37:84) _empty_/CallbackTo# -> 36:13
 (37:85..37:87) _empty_/CallbackTo#map().(ev) -> 37:45
@@ -91,11 +93,9 @@ Document tests/pos/i11864.scala
 (46:34..46:38) scala/package.List#
 (46:39..46:40) _empty_/CallbackTo.traverse().[B] -> 45:19
 (46:45..46:48) scala/Predef.`???`().
-(47:7..47:10) _empty_/CallbackTo#map(). -> 37:14
 (47:5..47:6) local7 -> 46:9
+(47:7..47:10) _empty_/CallbackTo#map(). -> 37:14
 (47:12..47:12) scala/Function1#apply().
 (47:13..47:15) _empty_/CallbackTo.traverse().(ta) -> 45:22
 (47:17..47:17) _empty_/CallbackTo.MapGuard(). -> 43:16
-(4:15..4:17) _empty_/i11864$package.Ev# -> 3:6
-(4:31..4:32) _empty_/i11864$package.Sub#[X] -> 4:10
 

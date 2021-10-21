@@ -4,24 +4,24 @@ Document tests/pos/t6575a.scala
 (1:41..1:44) scala/Int#
 (3:17..3:18) _empty_/X# -> 1:7
 (5:33..5:33) local0
-(5:56..5:57) scala/Int#`*`(+3).
-(5:52..5:52) scala/Function1#apply().
 (5:49..5:52) _empty_/X#foo(). -> 1:15
+(5:52..5:52) scala/Function1#apply().
 (5:53..5:54) local1 -> 5:38
+(5:56..5:57) scala/Int#`*`(+3).
 (7:17..7:18) _empty_/X# -> 1:7
 (9:33..9:33) local2
-(9:56..9:57) scala/Int#`+`(+4).
-(9:52..9:52) scala/Function1#apply().
 (9:49..9:52) _empty_/X#foo(). -> 1:15
+(9:52..9:52) scala/Function1#apply().
 (9:53..9:54) local3 -> 9:38
+(9:56..9:57) scala/Int#`+`(+4).
 (12:20..12:21) _empty_/Y# -> 3:7
 (12:27..12:28) _empty_/Z# -> 7:7
 (14:30..14:45) scala/PartialFunction#
 (14:46..14:49) scala/Int#
 (14:51..14:54) scala/Int#
 (14:60..14:60) local4
-(14:83..14:84) scala/Int#`-`(+3).
-(14:79..14:79) scala/Function1#apply().
 (14:76..14:79) _empty_/Z#foo(). -> 9:25
+(14:79..14:79) scala/Function1#apply().
 (14:80..14:81) local5 -> 14:65
+(14:83..14:84) scala/Int#`-`(+3).
 

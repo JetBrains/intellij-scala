@@ -1,19 +1,19 @@
 Document tests/pos/i11894a.scala
-(4:21..4:21) scala/Function0#apply().
-(4:12..4:21) _empty_/CallbackTo#toScalaFn(). -> 13:26
-(4:7..4:11) _empty_/CallbackTo.asOption().(self) -> 2:17
 (2:23..2:33) _empty_/CallbackTo# -> 8:13
 (2:34..2:40) scala/Option#
 (2:41..2:42) _empty_/CallbackTo.asOption().[A] -> 2:14
 (3:38..3:44) scala/Option#
 (3:45..3:46) _empty_/CallbackTo.asOption().[A] -> 2:14
+(4:7..4:11) _empty_/CallbackTo.asOption().(self) -> 2:17
+(4:12..4:21) _empty_/CallbackTo#toScalaFn(). -> 13:26
+(4:21..4:21) scala/Function0#apply().
 (8:35..8:39) scala/package.List#
 (8:40..8:41) _empty_/CallbackTo#[A] -> 8:24
-(11:7..11:11) scala/collection/IterableOps#head().
-(11:5..11:6) _empty_/CallbackTo#x. -> 8:32
 (10:36..10:37) _empty_/CallbackTo#[A] -> 8:24
-(14:11..14:17) _empty_/CallbackTo#runNow(). -> 10:26
+(11:5..11:6) _empty_/CallbackTo#x. -> 8:32
+(11:7..11:11) scala/collection/IterableOps#head().
 (13:43..13:44) _empty_/CallbackTo#[A] -> 8:24
+(14:11..14:17) _empty_/CallbackTo#runNow(). -> 10:26
 (16:17..16:18) _empty_/CallbackTo#[A] -> 8:24
 (16:22..16:23) _empty_/CallbackTo#map().[B] -> 16:11
 (16:26..16:36) _empty_/CallbackTo# -> 8:13
@@ -24,8 +24,8 @@ Document tests/pos/i11894a.scala
 (20:13..20:16) _empty_/CallbackTo#map(). -> 16:7
 (20:17..20:23) scala/Option#
 (20:24..20:25) _empty_/CallbackTo#[A] -> 8:24
-(20:32..20:32) scala/Some.apply().
 (20:28..20:32) scala/Some.
+(20:32..20:32) scala/Some.apply().
 (21:13..21:14) local0 -> 20:9
 (21:16..21:26) _empty_/CallbackTo# -> 8:13
 (21:27..21:33) scala/Option#

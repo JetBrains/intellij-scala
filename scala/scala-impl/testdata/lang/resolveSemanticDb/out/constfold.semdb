@@ -1,30 +1,30 @@
 Document tests/pos/constfold.scala
-(3:13..3:25) scala/Any#asInstanceOf().
 (3:11..3:12) _empty_/A.x. -> 2:7
+(3:13..3:25) scala/Any#asInstanceOf().
 (3:26..3:30) scala/Byte#
 (4:15..4:16) scala/Double#`/`(+3).
 (5:19..5:20) java/lang/String#`+`().
 (5:21..5:22) _empty_/A.z. -> 4:7
 (7:13..7:14) scala/Int#`+`(+4).
 (8:16..8:17) scala/Int#`unary_-`().
-(9:22..9:23) scala/Int#`unary_-`().
 (9:17..9:18) scala/`&`#
 (9:19..9:22) scala/Any#
+(9:22..9:23) scala/Int#`unary_-`().
 (12:21..12:24) scala/App#
-(14:13..14:20) scala/Console.println(+1).
 (14:5..14:12) scala/Console.
-(14:23..14:24) _empty_/A.x. -> 2:7
+(14:13..14:20) scala/Console.println(+1).
 (14:21..14:22) _empty_/A. -> 1:8
-(15:13..15:20) scala/Console.println(+1).
+(14:23..14:24) _empty_/A.x. -> 2:7
 (15:5..15:12) scala/Console.
-(15:23..15:24) _empty_/A.y. -> 3:7
+(15:13..15:20) scala/Console.println(+1).
 (15:21..15:22) _empty_/A. -> 1:8
-(16:13..16:20) scala/Console.println(+1).
+(15:23..15:24) _empty_/A.y. -> 3:7
 (16:5..16:12) scala/Console.
-(16:23..16:24) _empty_/A.z. -> 4:7
+(16:13..16:20) scala/Console.println(+1).
 (16:21..16:22) _empty_/A. -> 1:8
-(17:13..17:20) scala/Console.println(+1).
+(16:23..16:24) _empty_/A.z. -> 4:7
 (17:5..17:12) scala/Console.
-(17:23..17:24) _empty_/A.s. -> 5:7
+(17:13..17:20) scala/Console.println(+1).
 (17:21..17:22) _empty_/A. -> 1:8
+(17:23..17:24) _empty_/A.s. -> 5:7
 

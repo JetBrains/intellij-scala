@@ -6,16 +6,16 @@ Document tests/pos/t1048.scala
 (6:28..6:34) scala/Option#
 (6:35..6:36) _empty_/T# -> 1:7
 (6:42..6:43) _empty_/T.unapply().[U] -> 6:15
-(6:52..6:52) scala/Some.apply().
 (6:48..6:52) scala/Some.
-(6:55..6:56) _empty_/T#x(). -> 2:7
+(6:52..6:52) scala/Some.apply().
 (6:53..6:54) _empty_/T.unapply().(t) -> 6:18
+(6:55..6:56) _empty_/T#x(). -> 2:7
 (10:15..10:16) _empty_/T# -> 1:7
 (10:17..10:18) _empty_/Test.f().[W] -> 10:9
 (10:23..10:24) _empty_/Test.f().(t) -> 10:12
-(11:11..11:11) _empty_/T.unapply(). -> 6:7
 (11:10..11:11) _empty_/T. -> 5:8
-(11:13..11:13) _empty_/T.unapply(). -> 6:7
+(11:11..11:11) _empty_/T.unapply(). -> 6:7
 (11:12..11:13) _empty_/T. -> 5:8
+(11:13..11:13) _empty_/T.unapply(). -> 6:7
 (11:13..11:13) local0
 

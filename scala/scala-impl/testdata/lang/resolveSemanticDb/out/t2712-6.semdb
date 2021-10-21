@@ -10,7 +10,7 @@ Document tests/pos/t2712-6.scala
 (10:33..10:34) test/Tags.meh().[A] -> 10:17
 (10:38..10:40) test/Tags.meh().(ma) -> 10:20
 (11:3..11:6) test/Tags.meh(). -> 10:7
-(11:17..11:19) test/Tags.`@@`# -> 6:8
 (11:13..11:16) scala/Int#
+(11:17..11:19) test/Tags.`@@`# -> 6:8
 (11:20..11:31) test/Tags.Disjunction# -> 8:9
 

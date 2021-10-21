@@ -10,17 +10,17 @@ Document tests/pos/t5120.scala
 (12:28..12:29) _empty_/Test#transform().(x) -> 12:20
 (14:30..14:33) scala/package.Seq#
 (14:34..14:42) _empty_/Test#Compiled# -> 8:9
-(15:22..15:29) scala/collection/IterableOps#flatMap().
 (15:5..15:21) _empty_/Test#test().(compiledSettings) -> 14:12
-(16:21..16:24) scala/collection/IterableOps#map().
-(16:11..16:19) _empty_/Test#Compiled#settings. -> 8:25
+(15:22..15:29) scala/collection/IterableOps#flatMap().
 (16:8..16:10) local0 -> 15:32
+(16:11..16:19) _empty_/Test#Compiled#settings. -> 8:25
+(16:21..16:24) scala/collection/IterableOps#map().
 (18:17..18:26) _empty_/Test#transform(). -> 12:7
-(18:29..18:30) _empty_/Test#Tuple2#v. -> 10:41
 (18:27..18:28) local1 -> 16:27
+(18:29..18:30) _empty_/Test#Tuple2#v. -> 10:41
 (19:9..19:12) _empty_/Test#foo(). -> 25:7
-(19:15..19:16) _empty_/Test#Tuple2#k. -> 10:24
 (19:13..19:14) local1 -> 16:27
+(19:15..19:16) _empty_/Test#Tuple2#k. -> 10:24
 (19:18..19:19) local2 -> 18:13
 (20:9..20:10) local2 -> 18:13
 (21:11..21:14) scala/package.Seq#

@@ -1,3 +1,5 @@
+Document tests/pos/typedIdents/PQ.scala
+
 Document tests/pos/typedIdents/typedIdents.scala
 (2:10..2:17) scala/Console.
 (4:5..4:12) scala/Console.println(+1).
@@ -15,19 +17,17 @@ Document tests/pos/typedIdents/typedIdents.scala
 (12:25..12:26) java/lang/String#`+`().
 (12:27..12:28) P/A.B.C.x. -> 11:13
 (13:9..13:16) scala/Predef.locally().
-(14:20..14:21) Q/X. -> 5:10
 (14:18..14:19) Q/ -> 4:9
-(16:20..16:21) Q/X.y. -> 5:32
+(14:20..14:21) Q/X. -> 5:10
 (16:18..16:19) Q/X. -> 5:10
+(16:20..16:21) Q/X.y. -> 5:32
 (17:11..17:18) scala/Console.println(+1).
 (17:27..17:28) java/lang/String#`+`().
 (17:29..17:30) Q/X.y. -> 5:32
 (18:11..18:18) scala/Predef.locally().
-(20:22..20:23) P/X. -> 2:10
 (20:20..20:21) P/ -> 1:9
+(20:22..20:23) P/X. -> 2:10
 (22:13..22:20) scala/Console.println(+1).
 (22:29..22:30) java/lang/String#`+`().
 (22:31..22:32) local0 -> 19:17
-
-Document tests/pos/typedIdents/PQ.scala
 

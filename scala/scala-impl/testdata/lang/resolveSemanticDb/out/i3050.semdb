@@ -5,16 +5,16 @@ Document tests/pos/i3050.scala
 (4:37..4:43) _empty_/Test.Option# -> 2:9
 (4:44..4:45) _empty_/Test.Some#[T] -> 4:20
 (6:26..6:29) scala/Int#
-(7:9..7:9) _empty_/Test.Some.apply(). -> 4:3
 (7:5..7:9) _empty_/Test.Some. -> 4:14
-(7:31..7:31) _empty_/Test.Some.unapply(). -> 4:3
+(7:9..7:9) _empty_/Test.Some.apply(). -> 4:3
 (7:27..7:31) _empty_/Test.Some. -> 4:14
+(7:31..7:31) _empty_/Test.Some.unapply(). -> 4:3
 (7:38..7:39) local0 -> 7:32
 (9:16..9:24) _empty_/Test.openImpl(). -> 6:14
 (11:27..11:30) scala/Int#
 (12:13..12:13) _empty_/Test.Some#`<init>`(). -> 4:18
-(12:35..12:35) _empty_/Test.Some.unapply(). -> 4:3
 (12:31..12:35) _empty_/Test.Some. -> 4:14
+(12:35..12:35) _empty_/Test.Some.unapply(). -> 4:3
 (12:42..12:43) local1 -> 12:36
 (14:17..14:26) _empty_/Test.openImpl1(). -> 11:14
 (16:27..16:30) scala/Int#
@@ -23,16 +23,16 @@ Document tests/pos/i3050.scala
 (19:16..19:19) scala/Int#
 (19:22..19:31) _empty_/Test.openImpl2(). -> 16:14
 (24:26..24:29) scala/Int#
-(25:9..25:9) scala/Some.apply().
 (25:5..25:9) scala/Some.
-(25:31..25:31) scala/Some.unapply().
+(25:9..25:9) scala/Some.apply().
 (25:27..25:31) scala/Some.
+(25:31..25:31) scala/Some.unapply().
 (25:38..25:39) local2 -> 25:32
 (27:16..27:24) _empty_/Test2.openImpl(). -> 24:14
 (29:27..29:30) scala/Int#
 (30:13..30:13) scala/Some#`<init>`().
-(30:35..30:35) scala/Some.unapply().
 (30:31..30:35) scala/Some.
+(30:35..30:35) scala/Some.unapply().
 (30:42..30:43) local3 -> 30:36
 (32:17..32:26) _empty_/Test2.openImpl1(). -> 29:14
 (34:27..34:30) scala/Int#

@@ -1,6 +1,6 @@
 Document tests/pos/i7740b.scala
 (1:12..1:15) scala/Any#
-(1:36..1:52) scala/annotation/StaticAnnotation#
 (1:25..1:35) scala/annotation/
+(1:36..1:52) scala/annotation/StaticAnnotation#
 (2:2..2:3) _empty_/A# -> 1:7
 

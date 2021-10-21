@@ -7,8 +7,8 @@ Document tests/pos/partialApplications.scala
 (5:51..5:52) _empty_/Test.StringlyHistogram#[X] -> 5:26
 (7:11..7:20) _empty_/Test.Histogram# -> 3:8
 (7:21..7:27) scala/Predef.String#
-(7:34..7:34) scala/collection/MapFactory#apply().
 (7:31..7:34) scala/Predef.Map.
+(7:34..7:34) scala/collection/MapFactory#apply().
 (7:35..7:41) scala/Predef.String#
 (7:43..7:46) scala/Int#
 (9:11..9:28) _empty_/Test.StringlyHistogram# -> 5:8
@@ -20,8 +20,8 @@ Document tests/pos/partialApplications.scala
 (15:20..15:23) scala/Predef.Map#
 (15:24..15:27) scala/Int#
 (15:29..15:30) _empty_/Test.IntMap#[Y] -> 15:15
-(17:15..17:15) scala/collection/MapFactory#apply().
 (17:12..17:15) scala/Predef.Map.
+(17:15..17:15) scala/collection/MapFactory#apply().
 (17:16..17:19) scala/Int#
 (17:21..17:28) scala/Boolean#
 (19:11..19:17) _empty_/Test.IntMap# -> 15:8
@@ -32,8 +32,8 @@ Document tests/pos/partialApplications.scala
 (23:21..23:24) scala/Predef.Map#
 (23:25..23:26) _empty_/Test.RMap#[Y] -> 23:16
 (23:28..23:29) _empty_/Test.RMap#[X] -> 23:13
-(25:15..25:15) scala/collection/MapFactory#apply().
 (25:12..25:15) scala/Predef.Map.
+(25:15..25:15) scala/collection/MapFactory#apply().
 (25:16..25:19) scala/Int#
 (25:21..25:26) scala/Float#
 (27:11..27:15) _empty_/Test.RMap# -> 23:8

@@ -1,9 +1,9 @@
 Document tests/pos/i2345.scala
-(1:25..1:32) scala/collection/mutable/
-(1:14..1:24) scala/collection/
 (1:8..1:13) scala/
-(3:44..3:47) scala/collection/mutable/Set#
+(1:14..1:24) scala/collection/
+(1:25..1:32) scala/collection/mutable/
 (3:36..3:43) scala/collection/mutable/
+(3:44..3:47) scala/collection/mutable/Set#
 (3:48..3:49) _empty_/Whatever#[A] -> 3:25
 (5:3..5:8) _empty_/Whatever#count(). -> 4:21
 

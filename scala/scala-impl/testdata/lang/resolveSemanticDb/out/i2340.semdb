@@ -1,6 +1,6 @@
 Document tests/pos/i2340.scala
 (1:26..1:29) scala/Int#
-(5:36..5:36) _empty_/Entry#`<init>`(). -> 1:19
 (5:31..5:36) _empty_/Entry# -> 1:14
+(5:36..5:36) _empty_/Entry#`<init>`(). -> 1:19
 (6:17..6:26) local0 -> 5:11
 

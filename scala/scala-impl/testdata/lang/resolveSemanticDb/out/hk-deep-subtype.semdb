@@ -1,8 +1,8 @@
 Document tests/pos/hk-deep-subtype.scala
-(2:35..2:52) scala/annotation/unchecked/uncheckedVariance#
-(2:25..2:34) scala/annotation/unchecked/
-(2:14..2:24) scala/annotation/
 (2:8..2:13) scala/
+(2:14..2:24) scala/annotation/
+(2:25..2:34) scala/annotation/unchecked/
+(2:35..2:52) scala/annotation/unchecked/uncheckedVariance#
 (4:21..4:24) _empty_/GTT# -> 7:7
 (4:25..4:26) _empty_/GT#[A] -> 4:10
 (7:39..7:42) _empty_/HNB# -> 6:7

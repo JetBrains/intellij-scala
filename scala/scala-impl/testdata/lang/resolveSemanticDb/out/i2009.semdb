@@ -8,6 +8,6 @@ Document tests/pos/i2009.scala
 (7:28..7:29) _empty_/Test.f().[T] -> 7:9
 (7:33..7:36) _empty_/Test.Gen# -> 3:9
 (7:43..7:44) _empty_/Test.f().[T] -> 7:9
-(8:7..8:10) _empty_/Test.Gen#map(). -> 4:9
 (8:5..8:6) _empty_/Test.f().(g) -> 7:21
+(8:7..8:10) _empty_/Test.Gen#map(). -> 4:9
 

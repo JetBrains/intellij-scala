@@ -7,8 +7,8 @@ Document tests/pos/i2749.scala
 (4:19..4:22) scala/Int#
 (4:27..4:31) scala/Char#
 (4:34..4:37) scala/Predef.`???`().
-(6:4..6:4) scala/ContextFunction1#apply().
 (6:3..6:4) _empty_/Test.f. -> 2:7
+(6:4..6:4) scala/ContextFunction1#apply().
 (6:7..6:14) scala/Boolean#
 (10:11..10:14) scala/Int#
 (10:19..10:23) scala/Char#
@@ -19,9 +19,9 @@ Document tests/pos/i2749.scala
 (12:27..12:33) scala/Predef.String#
 (12:38..12:42) scala/Char#
 (12:45..12:48) scala/Predef.`???`().
-(14:4..14:4) scala/ContextFunction1#apply().
 (14:3..14:4) _empty_/Test2.f. -> 10:7
 (14:4..14:4) _empty_/Test2.s. -> 11:16
+(14:4..14:4) scala/ContextFunction1#apply().
 (14:7..14:14) scala/Boolean#
 (18:11..18:14) scala/Int#
 (18:19..18:25) scala/Predef.String#
@@ -32,7 +32,7 @@ Document tests/pos/i2749.scala
 (20:19..20:22) scala/Int#
 (20:27..20:31) scala/Char#
 (20:34..20:37) scala/Predef.`???`().
-(22:4..22:4) scala/ContextFunction1#apply().
 (22:3..22:4) _empty_/Test3.f. -> 18:7
+(22:4..22:4) scala/ContextFunction1#apply().
 (22:7..22:14) scala/Boolean#
 

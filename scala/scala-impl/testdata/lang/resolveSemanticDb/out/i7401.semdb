@@ -4,12 +4,12 @@ Document tests/pos/i7401.scala
 (3:22..3:26) scala/Unit#
 (4:14..4:18) scala/Unit#
 (6:10..6:13) scala/Int#
-(7:5..7:8) _empty_/Test.foo(). -> 3:9
 (7:3..7:4) _empty_/Test.x. -> 6:7
-(8:5..8:8) _empty_/Test.foo(+1). -> 4:9
+(7:5..7:8) _empty_/Test.foo(). -> 3:9
 (8:3..8:4) _empty_/Test.x. -> 6:7
-(9:8..9:11) _empty_/Test.foo(). -> 3:9
+(8:5..8:8) _empty_/Test.foo(+1). -> 4:9
 (9:3..9:7) _empty_/Test. -> 1:8
+(9:8..9:11) _empty_/Test.foo(). -> 3:9
 (9:12..9:13) _empty_/Test.x. -> 6:7
 (10:3..10:6) _empty_/Test.foo(+1). -> 4:9
 (10:7..10:8) _empty_/Test.x. -> 6:7

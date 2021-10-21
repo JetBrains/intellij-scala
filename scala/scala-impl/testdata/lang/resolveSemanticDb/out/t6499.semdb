@@ -1,6 +1,6 @@
 Document tests/pos/t6499.scala
-(2:6..2:6) scala/collection/MapFactory#apply().
 (2:3..2:6) scala/Predef.Map.
+(2:6..2:6) scala/collection/MapFactory#apply().
 (2:10..2:13) scala/Predef.Map#
 (2:17..2:20) scala/Int#
 (2:27..2:30) scala/Predef.Map#

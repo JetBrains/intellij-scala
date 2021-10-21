@@ -1,34 +1,34 @@
 Document tests/pos/t6089b.scala
-(4:14..4:21) scala/annotation/tailrec#
 (4:3..4:13) scala/annotation/
+(4:14..4:21) scala/annotation/tailrec#
 (5:23..5:25) _empty_/BKTree#`-?-`().[AA] -> 5:16
 (5:28..5:35) scala/Boolean#
 (6:10..6:21) _empty_/BKTreeEmpty. -> 17:8
-(7:20..7:20) _empty_/BKTreeNode.unapply(). -> 18:1
 (7:10..7:20) _empty_/BKTreeNode. -> 18:12
+(7:20..7:20) _empty_/BKTreeNode.unapply(). -> 18:1
 (7:20..7:20) local0
-(9:14..9:16) scala/Boolean#`||`().
-(9:9..9:11) scala/Int#`==`(+3).
 (9:7..9:8) local2 -> 8:11
-(9:55..9:58) scala/collection/MapOps#get().
-(9:22..9:22) scala/collection/MapFactory#apply().
+(9:9..9:11) scala/Int#`==`(+3).
+(9:14..9:16) scala/Boolean#`||`().
 (9:19..9:22) scala/Predef.Map.
-(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
+(9:22..9:22) scala/collection/MapFactory#apply().
 (9:23..9:23) scala/Predef.ArrowAssoc().
-(9:36..9:38) scala/Predef.ArrowAssoc#`->`().
+(9:25..9:27) scala/Predef.ArrowAssoc#`->`().
 (9:33..9:33) scala/Predef.ArrowAssoc().
-(9:46..9:48) scala/Predef.ArrowAssoc#`->`().
+(9:36..9:38) scala/Predef.ArrowAssoc#`->`().
 (9:44..9:44) scala/Predef.ArrowAssoc().
+(9:46..9:48) scala/Predef.ArrowAssoc#`->`().
+(9:55..9:58) scala/collection/MapOps#get().
 (9:59..9:60) local2 -> 8:11
 (10:14..10:18) scala/None.
-(11:18..11:18) scala/Some.unapply().
 (11:14..11:18) scala/Some.
-(11:27..11:30) _empty_/BKTree#`-?-`(). -> 5:12
+(11:18..11:18) scala/Some.unapply().
 (11:25..11:26) local3 -> 11:19
+(11:27..11:30) _empty_/BKTree#`-?-`(). -> 5:12
 (11:31..11:32) _empty_/BKTree#`-?-`().(a) -> 5:20
-(17:34..17:34) _empty_/BKTree#`<init>`(). -> 4:2
 (17:28..17:34) _empty_/BKTree# -> 3:7
+(17:34..17:34) _empty_/BKTree#`<init>`(). -> 4:2
 (18:29..18:30) _empty_/BKTreeNode#[A] -> 18:23
-(18:46..18:46) _empty_/BKTree#`<init>`(). -> 4:2
 (18:40..18:46) _empty_/BKTree# -> 3:7
+(18:46..18:46) _empty_/BKTree#`<init>`(). -> 4:2
 

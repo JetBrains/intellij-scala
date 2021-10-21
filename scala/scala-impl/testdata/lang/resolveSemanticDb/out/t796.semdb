@@ -1,32 +1,32 @@
 Document tests/pos/t796.scala
 (9:21..9:24) scala/App#
 (12:18..12:21) scala/Int#
-(12:27..12:28) scala/Int#`*`(+3).
 (12:25..12:26) _empty_/Test.Twice.apply().(x) -> 12:15
+(12:27..12:28) scala/Int#`*`(+3).
 (13:20..13:23) scala/Int#
 (13:26..13:32) scala/Option#
 (13:33..13:39) scala/Tuple1#
 (13:40..13:43) scala/Int#
-(14:17..14:19) scala/Int#`==`(+3).
-(14:13..14:14) scala/Int#`%`(+3).
 (14:11..14:12) _empty_/Test.Twice.unapply().(x) -> 13:17
-(14:27..14:27) scala/Some.apply().
+(14:13..14:14) scala/Int#`%`(+3).
+(14:17..14:19) scala/Int#`==`(+3).
 (14:23..14:27) scala/Some.
-(14:34..14:34) scala/Tuple1.apply().
+(14:27..14:27) scala/Some.apply().
 (14:28..14:34) scala/Tuple1.
-(14:37..14:38) scala/Int#`/`(+3).
+(14:34..14:34) scala/Tuple1.apply().
 (14:35..14:36) _empty_/Test.Twice.unapply().(x) -> 13:17
+(14:37..14:38) scala/Int#`/`(+3).
 (15:12..15:16) scala/None.
 (18:15..18:18) scala/Int#
 (18:22..18:23) _empty_/Test.test().(x) -> 18:12
-(19:15..19:15) _empty_/Test.Twice.unapply(). -> 13:9
 (19:10..19:15) _empty_/Test.Twice. -> 11:10
+(19:15..19:15) _empty_/Test.Twice.unapply(). -> 13:9
 (19:40..19:41) java/lang/String#`+`().
 (19:42..19:43) local0 -> 19:16
-(23:11..23:18) scala/Console.println(+1).
 (23:3..23:10) scala/Console.
+(23:11..23:18) scala/Console.println(+1).
 (23:19..23:23) _empty_/Test.test(). -> 18:7
-(24:11..24:18) scala/Console.println(+1).
 (24:3..24:10) scala/Console.
+(24:11..24:18) scala/Console.println(+1).
 (24:19..24:23) _empty_/Test.test(). -> 18:7
 

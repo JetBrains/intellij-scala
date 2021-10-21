@@ -1,11 +1,11 @@
 Document tests/pos/i0290-type-bind.scala
-(2:15..2:15) scala/collection/IterableFactory#apply().
 (2:11..2:15) scala/package.List.
+(2:15..2:15) scala/collection/IterableFactory#apply().
 (3:3..3:4) _empty_/foo.x. -> 2:7
 (4:13..4:17) scala/package.List#
-(4:32..4:44) scala/Any#asInstanceOf().
-(4:27..4:31) scala/collection/IterableOps#head().
 (4:25..4:26) local0 -> 4:10
+(4:27..4:31) scala/collection/IterableOps#head().
+(4:32..4:44) scala/Any#asInstanceOf().
 (4:45..4:47) local1 -> 4:18
 (12:10..12:16) scala/AnyRef#
 (12:24..12:24) _empty_/bar.C#`<init>`(). -> 10:10

@@ -22,11 +22,11 @@ Document tests/pos/i3965.scala
 (13:91..13:95) _empty_/Test#optionSequence1().[CCos] -> 13:23
 (13:96..13:97) _empty_/Test#optionSequence1().[A] -> 13:59
 (13:102..13:105) scala/Predef.`???`().
+(14:82..14:90) scala/package.Ordering#
+(14:90..14:90) _empty_/Test#optionSequence1(+1).[A] -> 14:78
 (14:96..14:98) _empty_/Test#optionSequence1(+1).[CC] -> 14:23
 (14:99..14:105) scala/Option#
 (14:106..14:107) _empty_/Test#optionSequence1(+1).[A] -> 14:78
-(14:82..14:90) scala/package.Ordering#
-(14:90..14:90) _empty_/Test#optionSequence1(+1).[A] -> 14:78
 (14:112..14:118) scala/Option#
 (14:119..14:121) _empty_/Test#optionSequence1(+1).[CC] -> 14:23
 (14:122..14:123) _empty_/Test#optionSequence1(+1).[A] -> 14:78

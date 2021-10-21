@@ -4,8 +4,8 @@ Document tests/pos/t7853-partial-function.scala
 (4:33..4:36) scala/Any#
 (4:38..4:39) local1 -> 4:11
 (4:43..4:44) local1 -> 4:11
-(4:48..4:48) scala/Function1#apply().
 (4:47..4:48) local2 -> 4:14
+(4:48..4:48) scala/Function1#apply().
 (5:17..5:18) local0 -> 4:9
 (5:21..5:21) local4
 (5:32..5:36) scala/package.List#

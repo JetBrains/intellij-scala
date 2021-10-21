@@ -4,30 +4,30 @@ Document tests/pos/t1260.scala
 (4:18..4:24) scala/Predef.String#
 (4:27..4:33) scala/Option#
 (4:34..4:38) scala/Long#
-(5:15..5:15) scala/Some.apply().
 (5:11..5:15) scala/Some.
-(5:18..5:24) scala/collection/StringOps#toLong().
+(5:15..5:15) scala/Some.apply().
 (5:16..5:16) scala/Predef.augmentString().
 (5:16..5:17) _empty_/Bar.unapply().(s) -> 4:15
+(5:18..5:24) scala/collection/StringOps#toLong().
 (5:46..5:50) scala/None.
 (9:18..9:23) scala/Array#
 (9:24..9:30) scala/Predef.String#
 (9:34..9:38) scala/Unit#
-(10:16..10:16) _empty_/Foo.apply(). -> 1:1
 (10:13..10:16) _empty_/Foo. -> 1:12
+(10:16..10:16) _empty_/Foo.apply(). -> 1:1
 (11:5..11:6) local0 -> 10:9
-(12:15..12:15) _empty_/Foo.unapply().
 (12:12..12:15) _empty_/Foo. -> 1:12
-(12:19..12:19) _empty_/Bar.unapply(). -> 4:7
+(12:15..12:15) _empty_/Foo.unapply().
 (12:16..12:19) _empty_/Bar. -> 3:8
-(12:27..12:27) _empty_/Bar.unapply(). -> 4:7
+(12:19..12:19) _empty_/Bar.unapply(). -> 4:7
 (12:24..12:27) _empty_/Bar. -> 3:8
-(13:15..13:15) _empty_/Foo.unapply().
+(12:27..12:27) _empty_/Bar.unapply(). -> 4:7
 (13:12..13:15) _empty_/Foo. -> 1:12
-(13:19..13:19) _empty_/Bar.unapply(). -> 4:7
+(13:15..13:15) _empty_/Foo.unapply().
 (13:16..13:19) _empty_/Bar. -> 3:8
-(13:27..13:27) _empty_/Bar.unapply(). -> 4:7
+(13:19..13:19) _empty_/Bar.unapply(). -> 4:7
 (13:24..13:27) _empty_/Bar. -> 3:8
-(13:37..13:39) scala/Long#`>=`(+3).
+(13:27..13:27) _empty_/Bar.unapply(). -> 4:7
 (13:35..13:36) local1 -> 13:20
+(13:37..13:39) scala/Long#`>=`(+3).
 

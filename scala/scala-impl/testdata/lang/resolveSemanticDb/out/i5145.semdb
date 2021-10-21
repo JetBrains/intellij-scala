@@ -12,8 +12,8 @@ Document tests/pos/i5145.scala
 (11:3..11:10) scala/Predef.locally().
 (12:5..12:8) _empty_/Test#bar(). -> 8:7
 (12:9..12:15) _empty_/Test#bar().(inline) -> 8:11
-(12:18..12:26) scala/Predef.identity().
 (12:18..12:18) local3
+(12:18..12:26) scala/Predef.identity().
 (13:5..13:8) _empty_/Test#bar(). -> 8:7
 (13:19..13:25) local4 -> 13:9
 (14:5..14:8) _empty_/Test#bar(). -> 8:7

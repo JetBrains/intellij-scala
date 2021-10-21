@@ -4,11 +4,11 @@ Document tests/pos/t2794.scala
 (3:38..3:39) _empty_/Entry#[T] -> 3:13
 (7:26..7:30) scala/Null#
 (7:34..7:40) scala/AnyRef#
-(7:56..7:56) _empty_/Entry#`<init>`(). -> 3:12
 (7:48..7:53) _empty_/Entry# -> 3:7
 (7:54..7:55) _empty_/Entry.makeDefault().[T] -> 7:21
-(7:67..7:67) _empty_/Key#`<init>`(). -> 1:10
+(7:56..7:56) _empty_/Entry#`<init>`(). -> 3:12
 (7:61..7:64) _empty_/Key# -> 1:7
 (7:65..7:66) _empty_/Entry.makeDefault().[T] -> 7:21
+(7:67..7:67) _empty_/Key#`<init>`(). -> 1:10
 (7:75..7:76) _empty_/Entry.makeDefault().[T] -> 7:21
 

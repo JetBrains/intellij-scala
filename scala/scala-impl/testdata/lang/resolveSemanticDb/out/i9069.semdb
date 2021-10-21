@@ -1,14 +1,14 @@
 Document tests/pos/i9069/Test.scala
 (2:16..2:22) scala/Predef.summon().
-(2:39..2:44) scala/deriving/Mirror.SumOf#
-(2:32..2:38) scala/deriving/Mirror.
 (2:23..2:31) scala/deriving/
+(2:32..2:38) scala/deriving/Mirror.
+(2:39..2:44) scala/deriving/Mirror.SumOf#
 (2:45..2:48) _empty_/Foo# -> 1:14
 (3:3..3:9) scala/Predef.summon().
-(3:35..3:38) scala/`=:=`#
 (3:10..3:16) local0 -> 2:7
-(3:44..3:47) _empty_/Foo.Baz. -> 3:15
+(3:35..3:38) scala/`=:=`#
 (3:40..3:43) _empty_/Foo. -> 2:8
+(3:44..3:47) _empty_/Foo.Baz. -> 3:15
 (3:54..3:57) _empty_/Bar# -> 4:12
 (3:59..3:59) scala/`<:<`.refl().
 

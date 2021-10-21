@@ -8,8 +8,8 @@ Document tests/pos/t6815.scala
 (8:20..8:26) _empty_/U#ValDef# -> 6:8
 (12:10..12:11) _empty_/U# -> 1:7
 (12:14..12:17) scala/Predef.`???`().
-(14:5..14:16) _empty_/U#emptyValDef. -> 8:7
 (14:3..14:4) _empty_/Test.u. -> 12:7
-(15:12..15:23) _empty_/U#emptyValDef. -> 8:7
+(14:5..14:16) _empty_/U#emptyValDef. -> 8:7
 (15:10..15:11) _empty_/Test.u. -> 12:7
+(15:12..15:23) _empty_/U#emptyValDef. -> 8:7
 

@@ -1,6 +1,6 @@
 Document tests/pos/nonlocal-unchecked.scala
 (2:10..2:17) scala/Boolean#
-(3:18..3:21) scala/collection/immutable/List#map().
 (3:14..3:17) scala/package.Nil.
+(3:18..3:21) scala/collection/immutable/List#map().
 (3:40..3:40) _empty_/A#f(). -> 2:7
 

@@ -1,4 +1,4 @@
 Document tests/pos/i5001.scala
-(1:31..1:31) java/lang/Object#`<init>`().
 (1:25..1:31) scala/AnyRef#
+(1:31..1:31) java/lang/Object#`<init>`().
 

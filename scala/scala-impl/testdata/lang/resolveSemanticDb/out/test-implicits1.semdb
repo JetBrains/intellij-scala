@@ -2,32 +2,32 @@ Document tests/pos/test-implicits1.scala
 (1:19..1:22) scala/Int#
 (2:14..2:20) scala/Predef.String#
 (2:23..2:26) scala/Int#
-(2:38..2:39) scala/Int#`+`(+4).
-(2:31..2:37) java/lang/String#length().
 (2:29..2:30) _empty_/X#foo().(y) -> 2:11
+(2:31..2:37) java/lang/String#length().
+(2:38..2:39) scala/Int#`+`(+4).
 (2:40..2:44) _empty_/X#elem. -> 1:13
 (6:29..6:30) _empty_/X# -> 1:7
 (7:14..7:20) scala/Predef.String#
 (13:22..13:23) _empty_/X# -> 1:7
-(13:31..13:31) _empty_/X#`<init>`(). -> 1:8
 (13:30..13:31) _empty_/X# -> 1:7
+(13:31..13:31) _empty_/X#`<init>`(). -> 1:8
 (15:24..15:27) scala/Int#
 (15:30..15:31) _empty_/X# -> 1:7
-(15:39..15:39) _empty_/X#`<init>`(). -> 1:8
 (15:38..15:39) _empty_/X# -> 1:7
+(15:39..15:39) _empty_/X#`<init>`(). -> 1:8
 (15:40..15:41) _empty_/Implicits.conv().(x) -> 15:21
 (17:23..17:24) _empty_/X# -> 1:7
-(17:40..17:40) java/lang/Object#`<init>`().
 (17:34..17:40) java/lang/Object#
+(17:40..17:40) java/lang/Object#`<init>`().
 (18:19..18:26) scala/Boolean#
 (18:29..18:32) scala/Int#
 (18:39..18:43) _empty_/Implicits.Xdecorator#foo().(cond) -> 18:13
-(18:47..18:50) _empty_/X#foo(). -> 2:7
 (18:45..18:46) _empty_/Implicits.Xdecorator#x. -> 17:20
+(18:47..18:50) _empty_/X#foo(). -> 2:7
 (21:30..21:31) _empty_/X# -> 1:7
 (21:34..21:44) _empty_/Implicits.Xdecorator# -> 17:9
-(21:61..21:61) _empty_/Implicits.Xdecorator#`<init>`(). -> 17:19
 (21:51..21:61) _empty_/Implicits.Xdecorator# -> 17:9
+(21:61..21:61) _empty_/Implicits.Xdecorator#`<init>`(). -> 17:19
 (21:62..21:63) _empty_/Implicits.XDecorator().(x) -> 21:27
 (23:10..23:16) java/lang/Object#
 (24:10..24:13) scala/Any#
@@ -43,41 +43,41 @@ Document tests/pos/test-implicits1.scala
 (33:10..33:11) _empty_/X# -> 1:7
 (33:14..33:14) _empty_/Implicits.conv(). -> 15:16
 (35:10..35:13) scala/Int#
-(35:18..35:22) _empty_/X#elem. -> 1:13
 (35:16..35:16) _empty_/Implicits.conv(). -> 15:16
 (35:16..35:17) _empty_/Implicits.y. -> 31:7
+(35:18..35:22) _empty_/X#elem. -> 1:13
 (37:10..37:13) scala/Int#
-(37:18..37:21) _empty_/X#foo(). -> 2:7
 (37:16..37:17) _empty_/Implicits.z. -> 33:7
+(37:18..37:21) _empty_/X#foo(). -> 2:7
 (39:10..39:11) _empty_/X# -> 1:7
 (39:14..39:14) _empty_/Implicits.conv(). -> 15:16
 (43:3..43:10) scala/Predef.println(+1).
-(43:13..43:16) _empty_/X.BarDeco#bar(). -> 7:9
 (43:11..43:11) _empty_/X.BarDeco(). -> 6:18
 (43:11..43:12) _empty_/Implicits.z. -> 33:7
+(43:13..43:16) _empty_/X.BarDeco#bar(). -> 7:9
 (45:10..45:13) scala/Int#
-(45:18..45:21) _empty_/Implicits.Xdecorator#foo(). -> 18:9
 (45:16..45:16) _empty_/Implicits.XDecorator(). -> 21:16
 (45:16..45:17) _empty_/Implicits.z. -> 33:7
+(45:18..45:21) _empty_/Implicits.Xdecorator#foo(). -> 18:9
 (51:30..51:36) scala/Predef.String#
 (51:39..51:47) _empty_/Implicits.Modifier# -> 49:9
 (51:54..51:62) _empty_/Implicits.Modifier# -> 49:9
 (53:10..53:18) _empty_/Implicits.Modifier# -> 49:9
 (53:21..53:21) _empty_/Implicits.stringNode(). -> 51:16
-(53:32..53:41) scala/Option#getOrElse().
-(53:25..53:25) scala/Some.apply().
 (53:21..53:25) scala/Some.
+(53:25..53:25) scala/Some.apply().
+(53:32..53:41) scala/Option#getOrElse().
 (55:11..55:14) scala/Int#
 (55:18..55:18) scala/Byte.byte2int().
 (55:21..55:25) scala/Byte#
-(58:36..58:37) _empty_/Implicits.useOrd().[T] -> 58:14
-(58:22..58:30) scala/math/Ordering#
 (58:17..58:21) scala/math/
+(58:22..58:30) scala/math/Ordering#
 (58:30..58:30) _empty_/Implicits.useOrd().[T] -> 58:14
+(58:36..58:37) _empty_/Implicits.useOrd().[T] -> 58:14
 (59:3..59:9) _empty_/Implicits.useOrd(). -> 58:7
-(59:14..59:14) scala/Some.apply().
 (59:10..59:14) scala/Some.
+(59:14..59:14) scala/Some.apply().
 (59:19..59:23) scala/None.
-(59:24..59:24) scala/math/Ordering.Option().
 (59:24..59:24) scala/math/Ordering.Int.
+(59:24..59:24) scala/math/Ordering.Option().
 

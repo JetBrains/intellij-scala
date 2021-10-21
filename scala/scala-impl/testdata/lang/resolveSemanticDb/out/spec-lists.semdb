@@ -1,7 +1,7 @@
 Document tests/pos/spec-lists.scala
 (1:21..1:24) scala/App#
-(3:40..3:40) scala/collection/immutable/List#`::`().
 (3:37..3:40) scala/package.Nil.
+(3:40..3:40) scala/collection/immutable/List#`::`().
 (5:3..5:10) scala/Predef.println(+1).
 (5:11..5:13) _empty_/Main.xs. -> 3:7
 

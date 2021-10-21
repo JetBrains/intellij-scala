@@ -1,9 +1,9 @@
 Document tests/pos/spec-params-old.scala
-(1:41..1:54) scala/reflect/package.ClassManifest#
-(1:33..1:40) scala/reflect/
-(1:27..1:32) scala/
-(1:54..1:54) _empty_/Foo#[A] -> 1:24
 (1:12..1:23) scala/specialized#
+(1:27..1:32) scala/
+(1:33..1:40) scala/reflect/
+(1:41..1:54) scala/reflect/package.ClassManifest#
+(1:54..1:54) _empty_/Foo#[A] -> 1:24
 (6:11..6:22) scala/specialized#
 (6:28..6:29) _empty_/Foo#[A] -> 1:24
 (6:34..6:35) _empty_/Foo#m1().[B] -> 6:23
@@ -13,8 +13,8 @@ Document tests/pos/spec-params-old.scala
 (10:11..10:22) scala/specialized#
 (10:28..10:34) scala/Predef.String#
 (10:39..10:40) _empty_/Foo#m2().[B] -> 10:23
-(10:46..10:52) java/lang/String#concat().
 (10:44..10:45) _empty_/Foo#m2().(x) -> 10:36
+(10:46..10:52) java/lang/String#concat().
 (15:11..15:22) scala/specialized#
 (15:28..15:29) _empty_/Foo#[A] -> 1:24
 (15:34..15:35) _empty_/Foo#m3().[B] -> 15:23
@@ -33,7 +33,7 @@ Document tests/pos/spec-params-old.scala
 (26:10..26:11) _empty_/Foo#m6().(y) -> 25:32
 (28:15..28:16) _empty_/Foo#[A] -> 1:24
 (29:14..29:29) scala/runtime/Arrays.newGenericArray().
-(30:7..30:7) scala/Array#update().
 (30:5..30:7) local0 -> 29:9
+(30:7..30:7) scala/Array#update().
 (30:13..30:14) _empty_/Foo#goal().(x) -> 28:12
 

@@ -1,22 +1,22 @@
 Document tests/pos/i6199a.scala
 (1:34..1:35) _empty_/Encoder#[T] -> 1:15
 (1:38..1:44) scala/Predef.String#
-(1:49..1:57) scala/Any#toString().
 (1:47..1:48) _empty_/Encoder#encode().(v) -> 1:31
+(1:49..1:57) scala/Any#toString().
 (2:39..2:40) _empty_/ValueWithEncoder#[T] -> 2:29
 (2:51..2:58) _empty_/Encoder# -> 1:7
 (2:59..2:60) _empty_/ValueWithEncoder#[T] -> 2:29
 (5:10..5:13) scala/package.Seq#
 (5:14..5:30) _empty_/ValueWithEncoder# -> 2:12
-(5:41..5:46) scala/collection/SeqFactory.Delegate#empty().
 (5:37..5:40) scala/package.Seq.
-(6:13..6:16) scala/collection/IterableOps#map().
+(5:41..5:46) scala/collection/SeqFactory.Delegate#empty().
 (6:11..6:12) _empty_/Test.a. -> 5:7
-(6:34..6:40) _empty_/Encoder#encode(). -> 1:24
-(6:26..6:33) _empty_/ValueWithEncoder#encoder. -> 2:42
+(6:13..6:16) scala/collection/IterableOps#map().
 (6:23..6:25) local0 -> 6:17
-(6:44..6:49) _empty_/ValueWithEncoder#value. -> 2:32
+(6:26..6:33) _empty_/ValueWithEncoder#encoder. -> 2:42
+(6:34..6:40) _empty_/Encoder#encode(). -> 1:24
 (6:41..6:43) local0 -> 6:17
+(6:44..6:49) _empty_/ValueWithEncoder#value. -> 2:32
 (7:10..7:13) scala/package.Seq#
 (7:14..7:20) scala/Predef.String#
 (7:24..7:25) _empty_/Test.b. -> 6:7

@@ -9,8 +9,8 @@ Document tests/pos/i1870.scala
 (5:19..5:25) _empty_/Stream# -> 1:7
 (5:26..5:27) _empty_/Test.unbox().[A] -> 5:13
 (5:32..5:33) _empty_/Test.unbox().(s) -> 5:16
-(6:16..6:16) _empty_/Unfold.unapply(). -> 2:1
 (6:10..6:16) _empty_/Unfold. -> 2:12
+(6:16..6:16) _empty_/Unfold.unapply(). -> 2:1
 (6:16..6:16) local0
 (7:16..7:17) local1 -> 6:17
 (8:16..8:17) local2 -> 6:20

@@ -3,10 +3,10 @@ Document tests/pos/capturedVars2.scala
 (4:15..4:18) scala/Int#
 (8:12..8:15) scala/Int#
 (11:7..11:8) local0 -> 8:9
-(11:25..11:26) scala/Int#`+`(+4).
-(11:17..11:18) scala/Int#`+`(+4).
-(11:13..11:14) scala/Int#`+`(+4).
 (11:11..11:12) local0 -> 8:9
+(11:13..11:14) scala/Int#`+`(+4).
+(11:17..11:18) scala/Int#`+`(+4).
 (11:19..11:24) _empty_/Test#field(). -> 3:7
+(11:25..11:26) scala/Int#`+`(+4).
 (11:27..11:33) _empty_/Test#field2. -> 4:7
 

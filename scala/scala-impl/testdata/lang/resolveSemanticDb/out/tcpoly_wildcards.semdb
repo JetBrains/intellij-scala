@@ -1,4 +1,4 @@
 Document tests/pos/tcpoly_wildcards.scala
-(2:26..2:31) scala/sys/package.error().
 (2:22..2:25) scala/sys/
+(2:26..2:31) scala/sys/package.error().
 

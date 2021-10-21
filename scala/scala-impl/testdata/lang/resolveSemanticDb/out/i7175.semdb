@@ -3,14 +3,14 @@ Document tests/pos/i7175.scala
 (2:24..2:30) scala/Predef.String#
 (2:34..2:38) scala/Unit#
 (2:41..2:48) scala/Predef.println(+1).
-(4:19..4:22) java/net/URL.
-(4:19..4:22) java/net/URL#
-(4:15..4:18) java/net/
 (4:10..4:14) java/
-(5:20..5:24) java/util/List.
-(5:20..5:24) java/util/List#
-(5:15..5:19) java/util/
+(4:15..4:18) java/net/
+(4:19..4:22) java/net/URL#
+(4:19..4:22) java/net/URL.
 (5:10..5:14) java/
+(5:15..5:19) java/util/
+(5:20..5:24) java/util/List#
+(5:20..5:24) java/util/List.
 (8:22..8:28) scala/Predef.String#
 (9:19..9:25) scala/Predef.String#
 (10:14..10:17) java/net/URL#
@@ -36,9 +36,9 @@ Document tests/pos/i7175.scala
 (36:32..36:47) _empty_/foo.ConfigMergeable# -> 32:9
 (37:28..37:39) _empty_/foo.ConfigValue# -> 19:9
 (41:42..41:54) _empty_/foo.ConfigOrigin# -> 7:9
-(42:29..42:33) java/util/List#
-(42:24..42:28) java/util/
 (42:19..42:23) java/
+(42:24..42:28) java/util/
+(42:29..42:33) java/util/List#
 (42:34..42:40) scala/Predef.String#
 (42:44..42:47) scala/Predef.`???`().
 (43:22..43:28) scala/Predef.String#
@@ -49,26 +49,26 @@ Document tests/pos/i7175.scala
 (45:27..45:30) scala/Predef.`???`().
 (46:19..46:25) scala/Predef.String#
 (46:28..46:31) scala/Predef.`???`().
-(47:23..47:26) java/net/URL#
-(47:19..47:22) java/net/
 (47:14..47:18) java/
+(47:19..47:22) java/net/
+(47:23..47:26) java/net/URL#
 (47:29..47:32) scala/Predef.`???`().
-(48:42..48:46) java/util/List#
-(48:37..48:41) java/util/
 (48:32..48:36) java/
+(48:37..48:41) java/util/
+(48:42..48:46) java/util/List#
 (48:47..48:53) scala/Predef.String#
-(48:61..48:73) _empty_/foo.ConfigOrigin# -> 7:9
 (48:57..48:60) _empty_/foo. -> 1:8
+(48:61..48:73) _empty_/foo.ConfigOrigin# -> 7:9
 (48:76..48:79) scala/Predef.`???`().
 (49:36..49:39) scala/Int#
-(49:46..49:58) _empty_/foo.ConfigOrigin# -> 7:9
 (49:42..49:45) _empty_/foo. -> 1:8
+(49:46..49:58) _empty_/foo.ConfigOrigin# -> 7:9
 (49:61..49:64) scala/Predef.`???`().
 (52:52..52:64) _empty_/foo.ConfigOrigin# -> 7:9
 (53:13..53:24) _empty_/foo.ConfigValue# -> 19:9
 (54:10..54:24) _empty_/foo.MergeableValue# -> 36:9
 (56:24..56:42) _empty_/foo.SimpleConfigOrigin# -> 41:15
-(57:18..57:30) scala/Any#asInstanceOf().
 (57:10..57:17) _empty_/foo.AbstractConfigValue#_origin. -> 52:43
+(57:18..57:30) scala/Any#asInstanceOf().
 (57:31..57:49) _empty_/foo.SimpleConfigOrigin# -> 41:15
 

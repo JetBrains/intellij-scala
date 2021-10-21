@@ -1,12 +1,12 @@
-Document tests/pos/i9717/js.scala
-(3:15..3:22) scala/Nothing#
-(3:25..3:28) scala/Predef.`???`().
-
 Document tests/pos/i9717/Test.scala
 (3:28..3:29) _empty_/Object.assign().[T] -> 3:14
 (3:39..3:40) _empty_/Object.assign().[U] -> 3:17
 (3:43..3:44) _empty_/Object.assign().[T] -> 3:14
 (3:50..3:51) _empty_/Object.assign().[U] -> 3:17
-(3:57..3:63) js/package.native(). -> 3:7
 (3:54..3:56) js/
+(3:57..3:63) js/package.native(). -> 3:7
+
+Document tests/pos/i9717/js.scala
+(3:15..3:22) scala/Nothing#
+(3:25..3:28) scala/Predef.`???`().
 

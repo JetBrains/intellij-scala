@@ -1,9 +1,9 @@
 Document tests/pos/t2795-new.scala
-(3:23..3:31) scala/reflect/ClassTag.
-(3:23..3:31) scala/reflect/ClassTag#
-(3:33..3:41) scala/reflect/package.classTag().
-(3:14..3:21) scala/reflect/
 (3:8..3:13) scala/
+(3:14..3:21) scala/reflect/
+(3:23..3:31) scala/reflect/ClassTag#
+(3:23..3:31) scala/reflect/ClassTag.
+(3:33..3:41) scala/reflect/package.classTag().
 (9:13..9:20) t1/Element# -> 5:7
 (9:21..9:22) t1/Config#T# -> 9:8
 (10:19..10:27) scala/reflect/ClassTag#

@@ -7,18 +7,18 @@ Document tests/pos/default-getter-variance.scala
 (6:32..6:36) scala/Unit#
 (7:17..7:21) scala/Unit#
 (7:24..7:29) _empty_/Foo#count(). -> 2:7
-(10:30..10:30) _empty_/Foo#`<init>`(). -> 1:10
 (10:24..10:27) _empty_/Foo# -> 1:7
 (10:28..10:29) _empty_/Bar1#[A] -> 10:13
+(10:30..10:30) _empty_/Foo#`<init>`(). -> 1:10
 (11:25..11:26) _empty_/Bar1#[A] -> 10:13
 (11:30..11:37) scala/Boolean#
 (11:40..11:44) scala/Unit#
 (13:26..13:27) _empty_/Bar1#[A] -> 10:13
 (13:31..13:38) scala/Boolean#
 (13:41..13:45) scala/Unit#
-(16:30..16:30) _empty_/Foo#`<init>`(). -> 1:10
 (16:24..16:27) _empty_/Foo# -> 1:7
 (16:28..16:29) _empty_/Bar2#[A] -> 16:13
+(16:30..16:30) _empty_/Foo#`<init>`(). -> 1:10
 (17:25..17:26) _empty_/Bar2#[A] -> 16:13
 (17:30..17:37) scala/Boolean#
 (17:52..17:56) scala/Unit#

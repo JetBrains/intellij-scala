@@ -1,23 +1,10 @@
-Document tests/pos/i11250/2.scala
-(1:9..1:19) shapeless3/
-(4:13..4:16) scala/Int#
-(4:19..4:25) scala/Predef.String#
-(4:28..4:35) scala/Boolean#
-(4:37..4:41) scala/Unit#
-(5:3..5:9) scala/Predef.summon().
-(5:26..5:29) scala/`=:=`#
-(5:16..5:22) shapeless3/data/Monoidal#length# -> 7:8
-(5:10..5:15) shapeless3/data/pairs. -> 23:8
-(5:23..5:24) shapeless3/data/MonoidalTest2.p# -> 4:8
-(5:32..5:32) scala/`<:<`.refl().
-
 Document tests/pos/i11250/1.scala
 (1:9..1:19) shapeless3/
-(3:14..3:25) scala/compiletime/
 (3:8..3:13) scala/
+(3:14..3:25) scala/compiletime/
 (6:17..6:22) scala/Tuple#
-(7:29..7:35) shapeless3/data/Monoidal.length# -> 13:8
 (7:20..7:28) shapeless3/data/Monoidal. -> 10:8
+(7:29..7:35) shapeless3/data/Monoidal.length# -> 13:8
 (7:36..7:38) shapeless3/data/Monoidal#to# -> 6:8
 (7:39..7:40) shapeless3/data/Monoidal#length#[m] -> 7:15
 (11:10..11:15) scala/Tuple.
@@ -28,8 +15,8 @@ Document tests/pos/i11250/1.scala
 (17:17..17:22) scala/Tuple#
 (17:25..17:26) shapeless3/data/UnboundedMonoidal#to#[t] -> 17:11
 (18:10..18:12) shapeless3/data/UnboundedMonoidal#[T0] -> 16:25
-(18:27..18:29) scala/`*:`#
 (18:24..18:26) local0 -> 18:13
+(18:27..18:29) scala/`*:`#
 (18:30..18:32) shapeless3/data/UnboundedMonoidal#to# -> 17:8
 (18:33..18:35) local1 -> 18:17
 (19:10..19:12) shapeless3/data/UnboundedMonoidal#[U0] -> 16:35
@@ -41,9 +28,22 @@ Document tests/pos/i11250/1.scala
 (26:28..26:35) scala/Boolean#
 (26:37..26:41) scala/Unit#
 (27:3..27:9) scala/Predef.summon().
-(27:26..27:29) scala/`=:=`#
-(27:16..27:22) shapeless3/data/Monoidal#length# -> 7:8
 (27:10..27:15) shapeless3/data/pairs. -> 23:8
+(27:16..27:22) shapeless3/data/Monoidal#length# -> 7:8
 (27:23..27:24) shapeless3/data/MonoidalTest.p# -> 26:8
+(27:26..27:29) scala/`=:=`#
 (27:32..27:32) scala/`<:<`.refl().
+
+Document tests/pos/i11250/2.scala
+(1:9..1:19) shapeless3/
+(4:13..4:16) scala/Int#
+(4:19..4:25) scala/Predef.String#
+(4:28..4:35) scala/Boolean#
+(4:37..4:41) scala/Unit#
+(5:3..5:9) scala/Predef.summon().
+(5:10..5:15) shapeless3/data/pairs. -> 23:8
+(5:16..5:22) shapeless3/data/Monoidal#length# -> 7:8
+(5:23..5:24) shapeless3/data/MonoidalTest2.p# -> 4:8
+(5:26..5:29) scala/`=:=`#
+(5:32..5:32) scala/`<:<`.refl().
 

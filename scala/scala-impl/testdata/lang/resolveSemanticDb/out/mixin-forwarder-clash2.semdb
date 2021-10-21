@@ -9,8 +9,8 @@ Document tests/pos/mixin-forwarder-clash2/A_1.scala
 (16:24..16:27) _empty_/Foo# -> 6:7
 
 Document tests/pos/mixin-forwarder-clash2/B_2.scala
-(6:24..6:24) _empty_/Bar1#`<init>`(). -> 16:20
 (6:20..6:24) _empty_/Bar1# -> 16:7
+(6:24..6:24) _empty_/Bar1#`<init>`(). -> 16:20
 (6:30..6:33) _empty_/Two# -> 12:7
 (6:34..6:37) _empty_/Foo# -> 6:7
 

@@ -1,9 +1,9 @@
 Document tests/pos/i10253.scala
 (2:15..2:17) _empty_/QC# -> 5:7
 (2:20..2:24) scala/Unit#
-(3:39..3:46) _empty_/QC#Reflection#TreeMap# -> 8:11
-(3:31..3:38) _empty_/QC#reflect. -> 6:7
 (3:28..3:30) _empty_/test.foo().(qc) -> 2:11
+(3:31..3:38) _empty_/QC#reflect. -> 6:7
+(3:39..3:46) _empty_/QC#Reflection#TreeMap# -> 8:11
 (6:16..6:26) _empty_/QC#Reflection# -> 7:9
 (9:26..9:30) scala/Unit#
 (9:33..9:36) scala/Predef.`???`().

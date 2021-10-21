@@ -5,10 +5,10 @@ Document tests/pos/cls.scala
 (5:29..5:31) scalac/util/A#[X2] -> 5:13
 (6:16..6:17) scalac/util/B#[Y] -> 6:9
 (6:23..6:24) scalac/util/B#[Y] -> 6:9
-(6:41..6:41) scalac/util/A#`<init>`(). -> 5:8
 (6:34..6:35) scalac/util/A# -> 5:7
 (6:36..6:37) scalac/util/B#[Y] -> 6:9
 (6:39..6:40) scalac/util/B#[Y] -> 6:9
+(6:41..6:41) scalac/util/A#`<init>`(). -> 5:8
 (6:42..6:44) scalac/util/B#y1. -> 6:12
 (6:46..6:48) scalac/util/B#y2. -> 6:19
 (7:12..7:13) scalac/util/B#[Y] -> 6:9
@@ -19,9 +19,9 @@ Document tests/pos/cls.scala
 (8:15..8:17) scalac/util/B#y1. -> 6:12
 (12:10..12:11) scalac/util/B# -> 6:7
 (12:12..12:15) scala/Int#
-(12:29..12:29) scalac/util/B#`<init>`(). -> 6:8
 (12:23..12:24) scalac/util/B# -> 6:7
 (12:25..12:28) scala/Int#
+(12:29..12:29) scalac/util/B#`<init>`(). -> 6:8
 (13:10..13:11) scalac/util/A# -> 5:7
 (13:12..13:15) scala/Int#
 (13:17..13:20) scala/Int#

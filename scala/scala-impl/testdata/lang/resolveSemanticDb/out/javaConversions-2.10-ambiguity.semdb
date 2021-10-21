@@ -1,27 +1,27 @@
 Document tests/pos/javaConversions-2.10-ambiguity.scala
+(1:8..1:18) scala/collection/
 (1:20..1:27) scala/collection/mutable/
 (1:29..1:39) scala/collection/concurrent/
-(1:8..1:18) scala/collection/
-(2:19..2:33) scala/collection/JavaConverters.
 (2:8..2:18) scala/collection/
-(3:29..3:46) java/util/concurrent/ConcurrentHashMap.
-(3:29..3:46) java/util/concurrent/ConcurrentHashMap#
-(3:18..3:28) java/util/concurrent/
-(3:13..3:17) java/util/
+(2:19..2:33) scala/collection/JavaConverters.
 (3:8..3:12) java/
+(3:13..3:17) java/util/
+(3:18..3:28) java/util/concurrent/
+(3:29..3:46) java/util/concurrent/ConcurrentHashMap#
+(3:29..3:46) java/util/concurrent/ConcurrentHashMap.
 (6:24..6:25) _empty_/Bar.assertType().[T] -> 6:18
 (6:29..6:30) _empty_/Bar.assertType().(t) -> 6:21
-(7:45..7:47) scala/collection/mutable/Growable#`+=`().
-(7:37..7:44) scala/collection/JavaConverters.AsScala#asScala().
 (7:11..7:11) scala/collection/JavaConverters.mapAsScalaConcurrentMapConverter().
-(7:34..7:34) java/util/concurrent/ConcurrentHashMap#`<init>`().
 (7:15..7:18) java/util/concurrent/ConcurrentHashMap#
 (7:19..7:25) scala/Predef.String#
 (7:27..7:33) scala/Predef.String#
+(7:34..7:34) java/util/concurrent/ConcurrentHashMap#`<init>`().
+(7:37..7:44) scala/collection/JavaConverters.AsScala#asScala().
+(7:45..7:47) scala/collection/mutable/Growable#`+=`().
 (7:50..7:50) scala/Tuple2.apply().
 (8:3..8:13) _empty_/Bar.assertType(). -> 6:7
-(8:25..8:28) scala/collection/concurrent/Map#
 (8:14..8:24) scala/collection/concurrent/
+(8:25..8:28) scala/collection/concurrent/Map#
 (8:29..8:35) scala/Predef.String#
 (8:37..8:43) scala/Predef.String#
 (8:46..8:47) _empty_/Bar.a. -> 7:7

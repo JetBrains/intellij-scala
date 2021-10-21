@@ -1,19 +1,19 @@
 Document tests/pos/leading-infix-op.scala
 (1:10..1:13) scala/Int#
 (1:16..1:23) scala/Boolean#
-(3:3..3:5) scala/Boolean#`||`().
-(2:5..2:6) scala/Int#`<`(+3).
 (2:3..2:4) _empty_/`leading-infix-op$package`.f().(x) -> 1:7
-(5:3..5:5) scala/Boolean#`&&`().
-(4:5..4:6) scala/Int#`>`(+3).
+(2:5..2:6) scala/Int#`<`(+3).
+(3:3..3:5) scala/Boolean#`||`().
 (4:3..4:4) _empty_/`leading-infix-op$package`.f().(x) -> 1:7
-(6:5..6:7) scala/Int#`!=`(+3).
+(4:5..4:6) scala/Int#`>`(+3).
+(5:3..5:5) scala/Boolean#`&&`().
 (6:3..6:4) _empty_/`leading-infix-op$package`.f().(x) -> 1:7
+(6:5..6:7) scala/Int#`!=`(+3).
 (8:10..8:16) scala/Option#
 (8:17..8:20) scala/Int#
 (8:25..8:26) _empty_/`leading-infix-op$package`.g().(x) -> 8:7
-(9:12..9:12) scala/Some.unapply().
 (9:8..9:12) scala/Some.
+(9:12..9:12) scala/Some.unapply().
 (10:5..10:12) scala/Predef.println(+1).
 (11:5..11:8) scala/Predef.`???`().
 (12:8..12:12) scala/None.

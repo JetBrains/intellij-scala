@@ -1,19 +1,19 @@
-Document tests/pos/i6989/SimpleTest_2.scala
-(3:26..3:35) mypkg/Container# -> 9:7
-(4:9..4:11) mypkg/Container.StringExtras#op(). -> 5:9
-(4:3..4:3) mypkg/Container#mkStringExtras(). -> 11:16
-
 Document tests/pos/i6989/Container_1.scala
 (4:29..4:35) scala/Predef.String#
-(4:51..4:51) scala/AnyVal#`<init>`().
 (4:45..4:51) scala/AnyVal#
+(4:51..4:51) scala/AnyVal#`<init>`().
 (5:18..5:21) scala/Int#
 (5:24..5:27) scala/Int#
 (5:30..5:33) scala/Predef.`???`().
 (10:10..10:19) mypkg/Container. -> 3:8
 (11:34..11:40) scala/Predef.String#
 (11:43..11:55) mypkg/Container.StringExtras# -> 4:9
-(11:74..11:74) mypkg/Container.StringExtras#`<init>`(). -> 4:21
 (11:62..11:74) mypkg/Container.StringExtras# -> 4:9
+(11:74..11:74) mypkg/Container.StringExtras#`<init>`(). -> 4:21
 (11:75..11:76) mypkg/Container#mkStringExtras().(s) -> 11:31
+
+Document tests/pos/i6989/SimpleTest_2.scala
+(3:26..3:35) mypkg/Container# -> 9:7
+(4:3..4:3) mypkg/Container#mkStringExtras(). -> 11:16
+(4:9..4:11) mypkg/Container.StringExtras#op(). -> 5:9
 

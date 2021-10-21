@@ -11,17 +11,6 @@ Document tests/pos/gadt-upcast.scala
 (5:49..5:55) scala/Predef.String#
 (5:62..5:66) _empty_/TagC# -> 3:7
 (5:67..5:71) scala/Char#
-(11:27..11:30) scala/App#
-(12:16..12:16) scala/Function1#apply().
-(12:13..12:16) _empty_/`gadt-upcast$package`.get(). -> 7:5
-(12:34..12:34) _empty_/IntStrCharTag#`<init>`(). -> 5:29
-(12:21..12:34) _empty_/IntStrCharTag# -> 5:7
-(12:40..12:46) _empty_/TriTag# -> 4:7
-(12:47..12:50) scala/Int#
-(12:52..12:58) scala/Predef.String#
-(12:60..12:64) scala/Char#
-(13:3..13:10) scala/Predef.println(+1).
-(13:11..13:14) _empty_/GadtUpcast.ret. -> 12:7
 (7:19..7:25) _empty_/TriTag# -> 4:7
 (7:26..7:27) _empty_/`gadt-upcast$package`.get().[A] -> 7:9
 (7:29..7:30) _empty_/`gadt-upcast$package`.get().[B] -> 7:12
@@ -32,4 +21,15 @@ Document tests/pos/gadt-upcast.scala
 (8:2..8:2) local1
 (8:10..8:23) _empty_/IntStrCharTag# -> 5:7
 (8:28..8:28) scala/Tuple3.apply().
+(11:27..11:30) scala/App#
+(12:13..12:16) _empty_/`gadt-upcast$package`.get(). -> 7:5
+(12:16..12:16) scala/Function1#apply().
+(12:21..12:34) _empty_/IntStrCharTag# -> 5:7
+(12:34..12:34) _empty_/IntStrCharTag#`<init>`(). -> 5:29
+(12:40..12:46) _empty_/TriTag# -> 4:7
+(12:47..12:50) scala/Int#
+(12:52..12:58) scala/Predef.String#
+(12:60..12:64) scala/Char#
+(13:3..13:10) scala/Predef.println(+1).
+(13:11..13:14) _empty_/GadtUpcast.ret. -> 12:7
 

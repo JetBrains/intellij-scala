@@ -3,10 +3,10 @@ Document tests/pos/i3082.scala
 (2:31..2:34) scala/Int#
 (3:21..3:24) scala/Int#
 (3:27..3:30) _empty_/Test.foo(). -> 2:15
-(4:14..4:16) scala/Int#`==`(+3).
 (4:9..4:13) _empty_/Test.foo().(arg1) -> 2:19
+(4:14..4:16) scala/Int#`==`(+3).
 (4:27..4:30) local0 -> 3:16
 (6:3..6:9) scala/Predef.assert(+1).
-(6:18..6:20) scala/Int#`==`(+3).
 (6:10..6:13) _empty_/Test.foo(). -> 2:15
+(6:18..6:20) scala/Int#`==`(+3).
 

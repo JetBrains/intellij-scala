@@ -1,4 +1,4 @@
 Document tests/pos/i3633.scala
-(3:18..3:18) scala/Int#`unary_-`().
 (3:15..3:18) _empty_/Test#foo(). -> 2:14
+(3:18..3:18) scala/Int#`unary_-`().
 

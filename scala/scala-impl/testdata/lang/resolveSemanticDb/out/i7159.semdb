@@ -1,7 +1,7 @@
 Document tests/pos/i7159.scala
 (5:29..5:46) _empty_/CompilerInterface# -> 1:7
-(6:33..6:39) _empty_/CompilerInterface#Tree22# -> 2:8
 (6:24..6:32) _empty_/Reflect#internal. -> 5:19
+(6:33..6:39) _empty_/CompilerInterface#Tree22# -> 2:8
 (7:15..7:21) _empty_/Reflect#Tree22# -> 6:15
 (7:24..7:30) scala/Predef.String#
 (7:33..7:36) scala/Predef.`???`().

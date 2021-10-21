@@ -1,7 +1,7 @@
 Document tests/pos/namedTypeParams.scala
-(1:30..1:48) scala/language.experimental.namedTypeArguments.
-(1:17..1:29) scala/language.experimental.
 (1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:48) scala/language.experimental.namedTypeArguments.
 (4:18..4:19) _empty_/Test.f().[X] -> 4:9
 (4:24..4:25) _empty_/Test.f().[Y] -> 4:12
 (4:28..4:31) scala/Int#

@@ -1,17 +1,17 @@
-Document tests/pos/t1942/Test_2.scala
-(2:3..2:10) scala/Predef.println(+1).
-(2:16..2:16) _empty_/t#`<init>`(). -> 9:3
-(2:15..2:16) _empty_/t# -> 8:7
-
 Document tests/pos/t1942/A_1.scala
 (2:14..2:17) scala/Int#
 (3:14..3:20) scala/Predef.String#
 (6:14..6:17) scala/Int#
-(6:38..6:54) scala/annotation/StaticAnnotation#
 (6:27..6:37) scala/annotation/
-(9:16..9:16) _empty_/A#`<init>`(). -> 2:3
+(6:38..6:54) scala/annotation/StaticAnnotation#
 (9:15..9:16) _empty_/A# -> 1:7
+(9:16..9:16) _empty_/A#`<init>`(). -> 2:3
 (10:4..10:7) _empty_/ann# -> 6:7
-(10:10..10:13) _empty_/A#foo(). -> 2:7
 (10:8..10:9) _empty_/t#a. -> 9:7
+(10:10..10:13) _empty_/A#foo(). -> 2:7
+
+Document tests/pos/t1942/Test_2.scala
+(2:3..2:10) scala/Predef.println(+1).
+(2:15..2:16) _empty_/t# -> 8:7
+(2:16..2:16) _empty_/t#`<init>`(). -> 9:3
 

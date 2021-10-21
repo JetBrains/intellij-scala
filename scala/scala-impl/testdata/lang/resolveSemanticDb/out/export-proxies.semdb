@@ -9,6 +9,6 @@ Document tests/pos/export-proxies.scala
 (9:17..9:17) _empty_/Session#call3(). -> 4:7
 (11:16..11:20) scala/Unit#
 (12:5..12:12) scala/Predef.println(+1).
-(13:13..13:18) _empty_/Session#call1(). -> 2:7
 (13:5..13:12) _empty_/SessionProxy#session. -> 8:24
+(13:13..13:18) _empty_/Session#call1(). -> 2:7
 

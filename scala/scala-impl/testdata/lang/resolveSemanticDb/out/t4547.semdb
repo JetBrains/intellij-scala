@@ -1,11 +1,11 @@
 Document tests/pos/t4547.scala
 (2:10..2:16) scala/package.BigInt#
-(2:21..2:22) scala/math/BigInt#`+`().
 (2:19..2:19) scala/math/BigInt.int2bigInt().
-(2:29..2:29) scala/math/BigInt.apply().
+(2:21..2:22) scala/math/BigInt#`+`().
 (2:23..2:29) scala/package.BigInt.
-(3:14..3:15) scala/math/BigInt#`+`().
+(2:29..2:29) scala/math/BigInt.apply().
 (3:12..3:12) scala/math/BigInt.int2bigInt().
-(3:22..3:22) scala/math/BigInt.apply().
+(3:14..3:15) scala/math/BigInt#`+`().
 (3:16..3:22) scala/package.BigInt.
+(3:22..3:22) scala/math/BigInt.apply().
 

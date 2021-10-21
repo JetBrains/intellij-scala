@@ -16,8 +16,8 @@ Document tests/pos/byname-implicits-20.scala
 (13:75..13:76) _empty_/Test.Foo.fooPair().[T] -> 13:26
 (13:78..13:79) _empty_/Test.Foo.fooPair().[U] -> 13:29
 (13:84..13:87) scala/Predef.`???`().
-(14:53..14:56) _empty_/Test.Generic.Aux# -> 6:10
 (14:45..14:52) _empty_/Test.Generic. -> 5:10
+(14:53..14:56) _empty_/Test.Generic.Aux# -> 6:10
 (14:57..14:58) _empty_/Test.Foo.fooGen().[T] -> 14:25
 (14:60..14:61) _empty_/Test.Foo.fooGen().[R] -> 14:28
 (14:71..14:74) _empty_/Test.Foo# -> 9:9
@@ -39,10 +39,10 @@ Document tests/pos/byname-implicits-20.scala
 (27:3..27:13) scala/Predef.implicitly().
 (27:14..27:17) _empty_/Test.Foo# -> 9:9
 (27:18..27:19) _empty_/Test.A# -> 17:9
-(27:21..27:21) _empty_/Test.Foo.fooGen(). -> 14:18
 (27:21..27:21) _empty_/Test.A.genA. -> 19:18
-(27:21..27:21) _empty_/Test.Foo.fooPair(). -> 13:18
 (27:21..27:21) _empty_/Test.B.genB. -> 24:18
+(27:21..27:21) _empty_/Test.Foo.fooGen(). -> 14:18
 (27:21..27:21) _empty_/Test.Foo.fooInt. -> 12:18
+(27:21..27:21) _empty_/Test.Foo.fooPair(). -> 13:18
 (27:21..27:21) _empty_/Test.Foo.fooUnit. -> 11:18
 

@@ -3,8 +3,8 @@ Document tests/pos/i11464.scala
 (9:18..9:23) _empty_/Type0# -> 5:7
 (9:26..9:33) _empty_/Adjunct# -> 3:7
 (10:20..10:20) _empty_/AdjunctImpl#`<init>`(). -> 16:18
-(10:26..10:38) scala/Any#asInstanceOf().
 (10:21..10:25) _empty_/Expr.test().(peer) -> 9:12
+(10:26..10:38) scala/Any#asInstanceOf().
 (10:39..10:43) _empty_/Type# -> 6:7
 (10:44..10:47) scala/Any#
 (10:64..10:67) _empty_/Txn# -> 1:7

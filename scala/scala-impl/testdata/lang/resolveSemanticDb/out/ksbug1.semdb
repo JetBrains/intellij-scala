@@ -4,6 +4,6 @@ Document tests/pos/ksbug1.scala
 (3:11..3:12) _empty_/test.z# -> 2:8
 (3:13..3:16) scala/Int#
 (3:18..3:21) scala/Int#
-(3:33..3:34) scala/Int#`+`(+4).
 (3:31..3:32) local0 -> 3:26
+(3:33..3:34) scala/Int#`+`(+4).
 

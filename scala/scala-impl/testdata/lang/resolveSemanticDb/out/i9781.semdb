@@ -10,14 +10,14 @@ Document tests/pos/i9781.scala
 (10:31..10:34) _empty_/Test#[Out] -> 9:12
 (10:39..10:42) scala/Any#
 (10:45..10:48) _empty_/Test#apply().(opt) -> 10:13
-(11:14..11:14) scala/Some.unapply().
 (11:10..11:14) scala/Some.
+(11:14..11:14) scala/Some.unapply().
 (12:7..12:12) local0 -> 11:15
-(13:18..13:18) _empty_/Done.unapply(). -> 6:1
 (13:14..13:18) _empty_/Done. -> 6:18
+(13:18..13:18) _empty_/Done.unapply(). -> 6:1
 (13:18..13:18) local1
 (14:14..14:18) _empty_/Busy. -> 7:13
-(14:59..14:59) java/lang/IllegalStateException#`<init>`(+1).
 (14:38..14:59) java/lang/IllegalStateException#
+(14:59..14:59) java/lang/IllegalStateException#`<init>`(+1).
 (17:10..17:14) scala/None.
 

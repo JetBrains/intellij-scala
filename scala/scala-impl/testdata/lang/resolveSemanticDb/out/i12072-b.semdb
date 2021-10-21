@@ -1,10 +1,10 @@
 Document tests/pos/i12072-b.scala
 (1:27..1:31) scala/Null#
 (3:15..3:19) scala/Unit#
-(4:15..4:17) scala/Any#`==`().
 (4:13..4:14) _empty_/`i12072-b$package`.f(). -> 1:24
-(5:15..5:17) scala/Any#`!=`().
+(4:15..4:17) scala/Any#`==`().
 (5:13..5:14) _empty_/`i12072-b$package`.f(). -> 1:24
+(5:15..5:17) scala/Any#`!=`().
 (6:17..6:19) scala/Any#`==`().
 (6:20..6:21) _empty_/`i12072-b$package`.f(). -> 1:24
 (7:17..7:19) scala/Any#`!=`().

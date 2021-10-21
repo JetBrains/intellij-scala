@@ -53,15 +53,15 @@ Document tests/pos/spec-cyclic.scala
 (26:41..26:42) _empty_/Foo#[B] -> 26:14
 (27:16..27:17) _empty_/Foo#[A] -> 26:11
 (27:20..27:21) _empty_/Foo#[B] -> 26:14
-(27:28..27:33) scala/sys/package.error().
 (27:24..27:27) scala/sys/
+(27:28..27:33) scala/sys/package.error().
 (31:10..31:13) _empty_/Foo# -> 26:7
 (31:14..31:17) scala/Int#
 (31:19..31:22) scala/Int#
-(31:43..31:43) _empty_/Foo#`<init>`(). -> 26:10
 (31:30..31:33) _empty_/Foo# -> 26:7
 (31:34..31:37) scala/Int#
 (31:39..31:42) scala/Int#
-(32:5..32:10) _empty_/Foo#apply(). -> 27:7
+(31:43..31:43) _empty_/Foo#`<init>`(). -> 26:10
 (32:3..32:4) _empty_/Bar#x. -> 31:7
+(32:5..32:10) _empty_/Foo#apply(). -> 27:7
 

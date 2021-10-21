@@ -1,20 +1,20 @@
 Document tests/pos/i10897.scala
 (1:8..1:13) scala/Tuple.
 (5:9..5:15) scala/Predef.summon().
-(5:37..5:40) scala/`=:=`#
 (5:16..5:21) scala/Tuple.Union#
 (5:23..5:26) _empty_/Foo. -> 3:8
-(5:51..5:52) scala/`|`#
+(5:37..5:40) scala/`=:=`#
 (5:42..5:45) _empty_/Foo. -> 3:8
+(5:51..5:52) scala/`|`#
 (5:56..5:56) scala/`<:<`.refl().
 (6:9..6:15) scala/Predef.summon().
-(6:45..6:48) scala/`=:=`#
 (6:16..6:21) scala/Tuple.Union#
 (6:23..6:26) _empty_/Foo. -> 3:8
 (6:36..6:42) scala/Predef.String#
-(6:63..6:64) scala/`|`#
-(6:59..6:60) scala/`|`#
+(6:45..6:48) scala/`=:=`#
 (6:50..6:53) _empty_/Foo. -> 3:8
+(6:59..6:60) scala/`|`#
+(6:63..6:64) scala/`|`#
 (6:65..6:71) scala/Predef.String#
 (6:73..6:73) scala/`<:<`.refl().
 

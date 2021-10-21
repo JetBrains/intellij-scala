@@ -15,11 +15,11 @@ Document tests/pos/i7392.scala
 (14:29..14:30) _empty_/Test.fromIterable().[R] -> 12:20
 (14:32..14:39) scala/Nothing#
 (14:41..14:42) _empty_/Test.fromIterable().[A] -> 12:23
+(14:51..14:52) _empty_/Test.fromIterable$default$2().[A] -> 12:23
+(14:57..14:64) _empty_/Test.ZStream. -> 5:10
+(14:65..14:70) _empty_/Test.ZStream.empty(). -> 6:9
 (15:6..15:9) _empty_/Test.Gen# -> 10:9
 (15:10..15:11) _empty_/Test.fromIterable().[R] -> 12:20
 (15:13..15:14) _empty_/Test.fromIterable().[A] -> 12:23
 (15:18..15:21) scala/Predef.`???`().
-(14:51..14:52) _empty_/Test.fromIterable$default$2().[A] -> 12:23
-(14:65..14:70) _empty_/Test.ZStream.empty(). -> 6:9
-(14:57..14:64) _empty_/Test.ZStream. -> 5:10
 

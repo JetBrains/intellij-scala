@@ -1,10 +1,10 @@
 Document tests/pos/t2305.scala
-(1:18..1:27) java/util/ArrayList#
-(1:13..1:17) java/util/
 (1:8..1:12) java/
-(5:41..5:53) java/io/Serializable#
-(5:38..5:40) java/io/
+(1:13..1:17) java/util/
+(1:18..1:27) java/util/ArrayList#
 (5:33..5:37) java/
+(5:38..5:40) java/io/
+(5:41..5:53) java/io/Serializable#
 (8:37..8:41) _empty_/Bind# -> 3:7
 (8:59..8:63) _empty_/Bind# -> 3:7
 (9:38..9:42) _empty_/Bind# -> 3:7

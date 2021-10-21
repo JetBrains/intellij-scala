@@ -1,20 +1,20 @@
 Document tests/pos/pat_iuli.scala
 (1:19..1:26) _empty_/MyCodes# -> 21:16
 (4:25..4:28) scala/Int#
-(4:44..4:44) _empty_/Ops#Instru#`<init>`(). -> 2:3
 (4:38..4:44) _empty_/Ops#Instru# -> 2:18
-(5:42..5:42) _empty_/Ops#Instru#`<init>`(). -> 2:3
+(4:44..4:44) _empty_/Ops#Instru#`<init>`(). -> 2:3
 (5:36..5:42) _empty_/Ops#Instru# -> 2:18
+(5:42..5:42) _empty_/Ops#Instru#`<init>`(). -> 2:3
 (9:20..9:27) _empty_/MyCodes# -> 21:16
 (10:10..10:17) _empty_/Ops#opcodes. -> 3:10
 (12:14..12:20) _empty_/Ops#Instru# -> 2:18
 (14:15..14:18) _empty_/Blox#Basick#foo(). -> 12:9
-(15:18..15:18) _empty_/Ops#opcodes.SWITCH.unapply().
 (15:12..15:18) _empty_/Ops#opcodes.SWITCH. -> 4:16
+(15:18..15:18) _empty_/Ops#opcodes.SWITCH.unapply().
 (15:25..15:26) local2 -> 15:19
 (16:12..16:22) _empty_/Ops#opcodes.EmptyInstr. -> 5:17
-(21:38..21:38) java/lang/Object#`<init>`().
 (21:32..21:38) scala/AnyRef#
+(21:38..21:38) java/lang/Object#`<init>`().
 (21:44..21:47) _empty_/Ops# -> 1:7
 (21:53..21:57) _empty_/Blox# -> 9:7
 

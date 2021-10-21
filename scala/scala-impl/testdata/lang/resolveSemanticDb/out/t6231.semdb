@@ -1,9 +1,9 @@
 Document tests/pos/t6231.scala
 (2:15..2:18) scala/Any#
 (4:25..4:27) _empty_/Bug.bar().(ev) -> 2:11
-(6:17..6:17) scala/Function0#apply().
-(6:14..6:17) local1 -> 4:11
 (6:9..6:10) local0 -> 3:11
+(6:14..6:17) local1 -> 4:11
+(6:17..6:17) scala/Function0#apply().
 (10:17..10:19) _empty_/Bug.bar().(ev) -> 2:11
 (11:25..11:28) local4 -> 10:11
 

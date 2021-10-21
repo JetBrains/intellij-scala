@@ -1,6 +1,6 @@
 Document tests/pos/i11081.scala
 (5:23..5:26) _empty_/Outer.Bar# -> 4:9
 (6:23..6:26) _empty_/Outer.Bar# -> 4:9
-(6:36..6:36) _empty_/Outer.Bar#`<init>`(). -> 4:3
 (6:33..6:36) _empty_/Outer.Bar# -> 4:9
+(6:36..6:36) _empty_/Outer.Bar#`<init>`(). -> 4:3
 

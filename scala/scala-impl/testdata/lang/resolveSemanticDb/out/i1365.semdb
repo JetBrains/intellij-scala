@@ -1,13 +1,13 @@
 Document tests/pos/i1365.scala
-(1:33..1:44) scala/collection/mutable/ArrayBuffer.
-(1:33..1:44) scala/collection/mutable/ArrayBuffer#
-(1:25..1:32) scala/collection/mutable/
-(1:14..1:24) scala/collection/
 (1:8..1:13) scala/
-(4:48..4:48) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
+(1:14..1:24) scala/collection/
+(1:25..1:32) scala/collection/mutable/
+(1:33..1:44) scala/collection/mutable/ArrayBuffer#
+(1:33..1:44) scala/collection/mutable/ArrayBuffer.
 (4:25..4:36) scala/collection/mutable/ArrayBuffer#
 (4:37..4:44) _empty_/Message# -> 3:7
 (4:45..4:46) _empty_/Script#[S] -> 4:14
+(4:48..4:48) scala/collection/mutable/ArrayBuffer#`<init>`(+1).
 (4:54..4:61) _empty_/Message# -> 3:7
 (4:62..4:63) _empty_/Script#[S] -> 4:14
 (7:14..7:21) _empty_/Message# -> 3:7
@@ -15,9 +15,9 @@ Document tests/pos/i1365.scala
 (7:27..7:31) scala/Unit#
 (7:34..7:37) _empty_/Test#f().(cmd) -> 7:9
 (8:13..8:19) _empty_/Script# -> 4:7
-(8:37..8:44) scala/collection/IterableOnceOps#foreach().
-(8:28..8:36) scala/collection/IndexedSeqOps#iterator().
 (8:26..8:27) local0 -> 8:10
+(8:28..8:36) scala/collection/IndexedSeqOps#iterator().
+(8:37..8:44) scala/collection/IterableOnceOps#foreach().
 (8:50..8:51) _empty_/Test#f(). -> 7:7
 (8:52..8:53) local1 -> 8:45
 (10:14..10:21) _empty_/Message# -> 3:7
@@ -25,9 +25,9 @@ Document tests/pos/i1365.scala
 (10:27..10:31) scala/Unit#
 (10:34..10:37) _empty_/Test#g().(cmd) -> 10:9
 (11:13..11:19) _empty_/Script# -> 4:7
-(11:37..11:44) scala/collection/IterableOnceOps#foreach().
-(11:28..11:36) scala/collection/IndexedSeqOps#iterator().
 (11:26..11:27) local2 -> 11:10
+(11:28..11:36) scala/collection/IndexedSeqOps#iterator().
+(11:37..11:44) scala/collection/IterableOnceOps#foreach().
 (11:50..11:51) _empty_/Test#g(). -> 10:7
 (11:52..11:53) local4 -> 11:45
 

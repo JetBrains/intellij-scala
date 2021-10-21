@@ -1,14 +1,14 @@
 Document tests/pos/typetestcast.scala
 (3:10..3:16) java/lang/Object#
 (5:3..5:10) scala/Predef.println(+1).
-(5:13..5:25) scala/Any#isInstanceOf().
 (5:11..5:12) _empty_/Test.o. -> 3:7
+(5:13..5:25) scala/Any#isInstanceOf().
 (5:26..5:29) scala/Int#
 (7:10..7:13) scala/Int#
-(7:18..7:30) scala/Any#asInstanceOf().
 (7:16..7:17) _empty_/Test.o. -> 3:7
+(7:18..7:30) scala/Any#asInstanceOf().
 (7:31..7:34) scala/Int#
-(9:14..9:26) scala/Any#asInstanceOf().
 (9:12..9:13) _empty_/Test.i. -> 7:7
+(9:14..9:26) scala/Any#asInstanceOf().
 (9:27..9:33) java/lang/Object#
 

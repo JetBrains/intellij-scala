@@ -18,19 +18,19 @@ Document tests/pos/i2104.scala
 (13:18..13:23) scala/Array#
 (13:24..13:30) scala/Predef.String#
 (13:34..13:38) scala/Unit#
-(14:9..14:9) _empty_/Cons.apply(). -> 6:7
 (14:5..14:9) _empty_/Cons. -> 5:8
-(14:16..14:16) scala/Option.apply().
+(14:9..14:9) _empty_/Cons.apply(). -> 6:7
 (14:10..14:16) scala/Option.
+(14:16..14:16) scala/Option.apply().
 (14:21..14:25) scala/None.
-(15:16..15:16) _empty_/Cons.unapply(). -> 7:7
 (15:12..15:16) _empty_/Cons. -> 5:8
-(15:21..15:21) scala/Some.unapply().
+(15:16..15:16) _empty_/Cons.unapply(). -> 7:7
 (15:17..15:21) scala/Some.
+(15:21..15:21) scala/Some.unapply().
 (15:26..15:30) scala/None.
 (16:9..16:10) local0 -> 15:22
 (16:12..16:15) scala/Int#
 (17:9..17:15) scala/Predef.assert(+1).
-(17:18..17:20) scala/Int#`==`(+3).
 (17:16..17:17) local0 -> 15:22
+(17:18..17:20) scala/Int#`==`(+3).
 

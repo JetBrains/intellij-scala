@@ -2,14 +2,14 @@ Document tests/pos/t3671.scala
 (2:20..2:23) scala/Int#
 (2:26..2:30) scala/Unit#
 (3:7..3:12) _empty_/Crash.crash().(value) -> 2:13
-(4:32..4:41) java/lang/Integer#MAX_VALUE.
-(4:24..4:31) java/lang/Integer#
-(4:19..4:23) java/lang/
 (4:14..4:18) java/
+(4:19..4:23) java/lang/
+(4:24..4:31) java/lang/Integer#
+(4:32..4:41) java/lang/Integer#MAX_VALUE.
 (4:45..4:52) scala/Predef.println(+1).
-(5:32..5:41) java/lang/Integer#MIN_VALUE.
-(5:24..5:31) java/lang/Integer#
-(5:19..5:23) java/lang/
 (5:14..5:18) java/
+(5:19..5:23) java/lang/
+(5:24..5:31) java/lang/Integer#
+(5:32..5:41) java/lang/Integer#MIN_VALUE.
 (5:45..5:52) scala/Predef.println(+1).
 

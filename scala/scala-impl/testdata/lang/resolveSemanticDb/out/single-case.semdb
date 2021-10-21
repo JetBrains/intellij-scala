@@ -1,7 +1,7 @@
 Document tests/pos/single-case.scala
 (4:5..4:12) scala/Predef.println(+1).
-(5:26..5:37) java/io/IOException#
-(5:23..5:25) java/io/
 (5:18..5:22) java/
+(5:23..5:25) java/io/
+(5:26..5:37) java/io/IOException#
 (5:41..5:48) scala/Predef.println(+1).
 

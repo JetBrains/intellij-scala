@@ -11,8 +11,8 @@ Document tests/pos/i2981.scala
 (12:44..12:59) _empty_/FromTraversable# -> 4:7
 (12:60..12:61) _empty_/Filter.apply().[O] -> 11:25
 (12:65..12:69) scala/Unit#
-(15:20..15:20) _empty_/Filter.apply(). -> 11:7
 (15:14..15:20) _empty_/Filter. -> 10:8
+(15:20..15:20) _empty_/Filter.apply(). -> 11:7
 (15:21..15:25) _empty_/HNil# -> 2:7
 (15:27..15:31) _empty_/HNil# -> 2:7
 (15:34..15:34) _empty_/FromTraversable.hnilFromTraversable(). -> 6:16

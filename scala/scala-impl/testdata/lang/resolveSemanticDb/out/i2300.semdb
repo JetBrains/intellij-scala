@@ -7,23 +7,23 @@ Document tests/pos/i2300.scala
 (5:40..5:41) _empty_/hlists.HList#merge().[L] -> 5:15
 (7:48..7:49) _empty_/hlists.HCons#[H] -> 7:26
 (7:58..7:59) _empty_/hlists.HCons#[T] -> 7:29
-(7:74..7:74) _empty_/hlists.HList#`<init>`(). -> 3:5
 (7:69..7:74) _empty_/hlists.HList# -> 2:25
+(7:74..7:74) _empty_/hlists.HList#`<init>`(). -> 3:5
 (8:21..8:26) _empty_/hlists.HList# -> 2:25
 (8:30..8:35) _empty_/hlists.HCons# -> 7:20
 (8:36..8:37) _empty_/hlists.HCons#[H] -> 7:26
-(8:44..8:49) _empty_/hlists.HList#Merge# -> 3:10
 (8:39..8:43) _empty_/hlists.HCons#tail. -> 7:51
+(8:44..8:49) _empty_/hlists.HList#Merge# -> 3:10
 (8:50..8:51) _empty_/hlists.HCons#Merge#[L] -> 8:16
 (10:20..10:25) _empty_/hlists.HList# -> 2:25
 (10:30..10:31) _empty_/hlists.HCons#merge().[L] -> 10:15
 (10:34..10:39) _empty_/hlists.HCons#Merge# -> 8:10
 (10:40..10:41) _empty_/hlists.HCons#merge().[L] -> 10:15
-(10:50..10:50) _empty_/hlists.HCons.apply(). -> 7:3
 (10:45..10:50) _empty_/hlists.HCons. -> 7:20
+(10:50..10:50) _empty_/hlists.HCons.apply(). -> 7:3
 (10:51..10:55) _empty_/hlists.HCons#head. -> 7:41
-(10:62..10:67) _empty_/hlists.HList#merge(). -> 5:9
 (10:57..10:61) _empty_/hlists.HCons#tail. -> 7:51
+(10:62..10:67) _empty_/hlists.HList#merge(). -> 5:9
 (10:68..10:69) _empty_/hlists.HCons#merge().(l) -> 10:27
 (12:29..12:34) _empty_/hlists.HList# -> 2:25
 (13:21..13:26) _empty_/hlists.HList# -> 2:25
@@ -42,11 +42,11 @@ Document tests/pos/i2300.scala
 (23:25..23:30) _empty_/hlists.HCons# -> 7:20
 (23:31..23:37) scala/Predef.String#
 (23:38..23:42) _empty_/hlists.HNil# -> 12:16
-(24:21..24:26) _empty_/hlists.HCons#merge(). -> 10:9
-(24:10..24:10) _empty_/hlists.HCons.apply(). -> 7:3
 (24:5..24:10) _empty_/hlists.HCons. -> 7:20
+(24:10..24:10) _empty_/hlists.HCons.apply(). -> 7:3
 (24:15..24:19) _empty_/hlists.HNil. -> 17:13
-(24:32..24:32) _empty_/hlists.HCons.apply(). -> 7:3
+(24:21..24:26) _empty_/hlists.HCons#merge(). -> 10:9
 (24:27..24:32) _empty_/hlists.HCons. -> 7:20
+(24:32..24:32) _empty_/hlists.HCons.apply(). -> 7:3
 (24:40..24:44) _empty_/hlists.HNil. -> 17:13
 

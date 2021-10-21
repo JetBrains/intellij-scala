@@ -19,14 +19,14 @@ Document tests/pos/scala-singleton.scala
 (16:18..16:24) scala/AnyRef#
 (16:27..16:33) scala/AnyRef#
 (16:39..16:48) scala/Singleton#
-(16:53..16:65) scala/Any#asInstanceOf().
 (16:51..16:52) _empty_/Test.narrow2().(x) -> 16:15
+(16:53..16:65) scala/Any#asInstanceOf().
 (16:66..16:67) _empty_/Test.narrow2().(x) -> 16:15
 (19:18..19:24) scala/AnyRef#
 (19:27..19:33) scala/AnyRef#
 (19:39..19:48) scala/Singleton#
-(19:53..19:65) scala/Any#asInstanceOf().
 (19:51..19:52) _empty_/Test.narrow3().(x) -> 19:15
+(19:53..19:65) scala/Any#asInstanceOf().
 (19:66..19:72) scala/AnyRef#
 (19:78..19:87) scala/Singleton#
 (22:20..22:26) scala/AnyRef#

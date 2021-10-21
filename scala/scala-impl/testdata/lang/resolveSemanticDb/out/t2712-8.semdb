@@ -1,8 +1,8 @@
 Document tests/pos/t2712-8.scala
-(2:31..2:31) _empty_/Two#`<init>`(). -> 1:10
 (2:22..2:25) _empty_/Two# -> 1:7
 (2:26..2:27) _empty_/One#[A] -> 2:11
 (2:29..2:30) _empty_/One#[A] -> 2:11
+(2:31..2:31) _empty_/Two#`<init>`(). -> 1:10
 (5:23..5:24) _empty_/Test.foo().[F] -> 5:11
 (5:25..5:28) scala/Int#
 (5:30..5:33) scala/Int#

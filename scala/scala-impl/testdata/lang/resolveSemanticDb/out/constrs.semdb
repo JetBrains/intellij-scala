@@ -3,22 +3,22 @@ Document tests/pos/constrs.scala
 (1:26..1:29) scala/Int#
 (3:10..3:13) scala/Int#
 (5:10..5:13) scala/Int#
-(5:28..5:41) scala/compiletime/package$package.uninitialized().
 (5:16..5:27) scala/compiletime/
+(5:28..5:41) scala/compiletime/package$package.uninitialized().
 (7:11..7:12) _empty_/Foo#x. -> 1:11
 (11:21..11:24) scala/Int#
 (16:17..16:20) scala/Int#
 (16:33..16:39) scala/Predef.String#
 (16:48..16:51) scala/Int#
-(16:64..16:64) _empty_/Baz#`<init>`(). -> 11:10
 (16:61..16:64) _empty_/Baz# -> 11:7
-(16:70..16:71) scala/Int#`+`(+4).
+(16:64..16:64) _empty_/Baz#`<init>`(). -> 11:10
 (16:65..16:69) _empty_/Bar#base. -> 16:11
+(16:70..16:71) scala/Int#`+`(+4).
 (16:72..16:77) _empty_/Bar#local. -> 16:41
 (18:13..18:20) scala/Predef.println(+1).
-(18:35..18:36) java/lang/String#`+`().
-(18:26..18:34) scala/Any#toString().
 (18:21..18:25) _empty_/Bar#base. -> 16:11
+(18:26..18:34) scala/Any#toString().
+(18:35..18:36) java/lang/String#`+`().
 (18:37..18:43) _empty_/Bar#byName. -> 16:22
 (22:19..22:22) scala/Int#
 (22:27..22:30) scala/Int#
@@ -29,11 +29,11 @@ Document tests/pos/constrs.scala
 (24:19..24:22) _empty_/Rational#gcd(). -> 23:7
 (24:23..24:24) _empty_/Rational#n. -> 22:16
 (24:26..24:27) _empty_/Rational#d. -> 22:24
-(25:17..25:18) scala/Int#`/`(+3).
 (25:15..25:16) _empty_/Rational#n. -> 22:16
+(25:17..25:18) scala/Int#`/`(+3).
 (25:19..25:20) _empty_/Rational#x. -> 24:15
-(26:17..26:18) scala/Int#`/`(+3).
 (26:15..26:16) _empty_/Rational#d. -> 22:24
+(26:17..26:18) scala/Int#`/`(+3).
 (26:19..26:20) _empty_/Rational#x. -> 24:15
 (28:20..28:23) scala/Int#
 (28:28..28:31) scala/Int#
@@ -44,10 +44,10 @@ Document tests/pos/constrs.scala
 (30:19..30:22) _empty_/Rational2#gcd(). -> 29:7
 (30:23..30:24) _empty_/Rational2#n. -> 28:17
 (30:26..30:27) _empty_/Rational2#d. -> 28:25
-(31:17..31:18) scala/Int#`/`(+3).
 (31:15..31:16) _empty_/Rational2#n. -> 28:17
+(31:17..31:18) scala/Int#`/`(+3).
 (31:19..31:20) _empty_/Rational2#x. -> 30:15
-(32:17..32:18) scala/Int#`/`(+3).
 (32:15..32:16) _empty_/Rational2#d. -> 28:25
+(32:17..32:18) scala/Int#`/`(+3).
 (32:19..32:20) _empty_/Rational2#x. -> 30:15
 

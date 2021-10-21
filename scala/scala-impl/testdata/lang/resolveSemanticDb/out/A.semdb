@@ -1,7 +1,7 @@
 Document tests/pos/A.scala
-(1:27..1:33) java/lang/Object#
-(1:22..1:26) java/lang/
 (1:17..1:21) java/
+(1:22..1:26) java/lang/
+(1:27..1:33) java/lang/Object#
 (5:10..5:11) _empty_/A# -> 1:7
 (5:14..5:15) _empty_/test.x(). -> 5:7
 

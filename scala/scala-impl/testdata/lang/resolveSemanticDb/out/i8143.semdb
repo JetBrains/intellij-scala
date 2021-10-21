@@ -1,9 +1,9 @@
 Document tests/pos/i8143.scala
 (1:32..1:49) _empty_/CompilerInterface# -> 8:7
-(2:32..2:37) _empty_/CompilerInterface#Flags# -> 9:8
 (2:23..2:31) _empty_/Reflection#internal. -> 1:22
+(2:32..2:37) _empty_/CompilerInterface#Flags# -> 9:8
 (4:21..4:26) _empty_/Reflection#Flags# -> 2:15
-(4:38..4:54) _empty_/CompilerInterface#Flags_EmptyFlags(). -> 10:7
 (4:29..4:37) _empty_/Reflection#internal. -> 1:22
+(4:38..4:54) _empty_/CompilerInterface#Flags_EmptyFlags(). -> 10:7
 (10:25..10:30) _empty_/CompilerInterface#Flags# -> 9:8
 

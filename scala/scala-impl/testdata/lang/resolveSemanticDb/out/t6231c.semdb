@@ -4,7 +4,7 @@ Document tests/pos/t6231c.scala
 (4:39..4:46) scala/Predef.println(+1).
 (4:47..4:49) _empty_/Bug.bar().(ev) -> 2:11
 (4:52..4:53) local1 -> 3:17
-(6:22..6:22) scala/Function0#apply().
-(6:19..6:22) local2 -> 4:11
 (6:10..6:11) local0 -> 3:11
+(6:19..6:22) local2 -> 4:11
+(6:22..6:22) scala/Function0#apply().
 

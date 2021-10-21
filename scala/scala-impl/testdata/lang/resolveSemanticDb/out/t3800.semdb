@@ -1,6 +1,6 @@
 Document tests/pos/t3800.scala
-(1:30..1:46) scala/annotation/StaticAnnotation#
 (1:19..1:29) scala/annotation/
+(1:30..1:46) scala/annotation/StaticAnnotation#
 (5:20..5:28) _empty_/AFactory# -> 4:16
 (5:29..5:31) _empty_/AFactory#[CC] -> 4:25
 (5:33..5:36) _empty_/meh# -> 1:7

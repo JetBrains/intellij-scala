@@ -5,20 +5,20 @@ Document tests/pos/t2712-3.scala
 (5:38..5:39) test/Test1.meh().[F] -> 5:20
 (5:43..5:44) test/Test1.meh().(x) -> 5:26
 (6:3..6:6) test/Test1.meh(). -> 5:7
-(6:25..6:25) test/Test1.Foo#`<init>`(). -> 4:12
 (6:11..6:14) test/Test1.Foo# -> 4:9
 (6:15..6:18) scala/Int#
 (6:20..6:24) scala/package.List#
+(6:25..6:25) test/Test1.Foo#`<init>`(). -> 4:12
 (12:24..12:26) test/Test2.meh().[GG] -> 12:11
 (12:34..12:37) scala/Predef.`???`().
 (13:3..13:6) test/Test2.meh(). -> 12:7
-(13:22..13:22) test/Test2.Foo#`<init>`(). -> 11:12
 (13:11..13:14) test/Test2.Foo# -> 11:9
-(20:19..20:19) test/Test3.Foo#`<init>`(). -> 19:12
+(13:22..13:22) test/Test2.Foo#`<init>`(). -> 11:12
 (20:7..20:10) test/Test3.Foo# -> 19:9
+(20:19..20:19) test/Test3.Foo#`<init>`(). -> 19:12
 (22:26..22:27) test/Test3.meh().[G] -> 22:11
 (22:36..22:39) scala/Predef.`???`().
 (23:3..23:6) test/Test3.meh(). -> 22:7
-(23:23..23:23) test/Test3.Foo#`<init>`(). -> 19:12
 (23:11..23:14) test/Test3.Foo# -> 19:9
+(23:23..23:23) test/Test3.Foo#`<init>`(). -> 19:12
 

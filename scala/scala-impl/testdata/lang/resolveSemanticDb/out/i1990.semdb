@@ -1,10 +1,10 @@
 Document tests/pos/i1990.scala
 (3:28..3:32) scala/Unit#
-(4:14..4:14) _empty_/A#Bar#`<init>`(). -> 7:3
 (4:11..4:14) _empty_/A#Bar# -> 7:9
-(10:18..10:18) _empty_/A#`<init>`(). -> 2:3
+(4:14..4:14) _empty_/A#Bar#`<init>`(). -> 7:3
 (10:17..10:18) _empty_/A# -> 1:7
-(11:13..11:23) _empty_/A#Foo#inlineMeth(). -> 3:16
-(11:11..11:11) _empty_/A#Foo#`<init>`(). -> 3:5
+(10:18..10:18) _empty_/A#`<init>`(). -> 2:3
 (11:8..11:11) _empty_/A#Foo# -> 2:9
+(11:11..11:11) _empty_/A#Foo#`<init>`(). -> 3:5
+(11:13..11:23) _empty_/A#Foo#inlineMeth(). -> 3:16
 

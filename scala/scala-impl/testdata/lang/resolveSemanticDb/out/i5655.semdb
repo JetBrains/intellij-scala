@@ -1,13 +1,13 @@
 Document tests/pos/i5655/S_2.scala
 (2:18..2:23) scala/Array#
 (2:24..2:30) scala/Predef.String#
-(3:20..3:20) _empty_/J_1#`<init>`().
 (3:17..3:20) _empty_/J_1#
-(4:27..4:28) _empty_/J_1#A#B#
-(4:17..4:18) _empty_/J_1#A#
+(3:20..3:20) _empty_/J_1#`<init>`().
 (4:13..4:16) _empty_/J_1#
+(4:17..4:18) _empty_/J_1#A#
 (4:19..4:25) scala/Predef.String#
+(4:27..4:28) _empty_/J_1#A#B#
 (4:29..4:35) scala/Predef.String#
-(4:41..4:42) _empty_/J_1#m().
 (4:39..4:40) local0 -> 3:9
+(4:41..4:42) _empty_/J_1#m().
 

@@ -4,64 +4,64 @@ Document tests/pos/i1500.scala
 (5:36..5:39) scala/Int#
 (8:26..8:30) _empty_/Size# -> 5:12
 (8:31..8:35) _empty_/HNil# -> 2:14
-(8:43..8:43) _empty_/Size.apply(). -> 5:1
 (8:39..8:43) _empty_/Size. -> 7:8
+(8:43..8:43) _empty_/Size.apply(). -> 5:1
 (9:34..9:39) _empty_/HList# -> 1:14
 (9:53..9:57) _empty_/Size# -> 5:12
 (9:58..9:59) _empty_/Size.caseHCons().[T] -> 9:29
 (9:63..9:67) _empty_/Size# -> 5:12
-(9:70..9:72) _empty_/`::`# -> 3:14
 (9:68..9:69) _empty_/Size.caseHCons().[H] -> 9:26
+(9:70..9:72) _empty_/`::`# -> 3:14
 (9:73..9:74) _empty_/Size.caseHCons().[T] -> 9:29
-(9:82..9:82) _empty_/Size.apply(). -> 5:1
 (9:78..9:82) _empty_/Size. -> 7:8
-(9:91..9:92) scala/Int#`+`(+4).
-(9:85..9:90) _empty_/Size#value. -> 5:29
+(9:82..9:82) _empty_/Size.apply(). -> 5:1
 (9:83..9:84) _empty_/Size.caseHCons().(e) -> 9:50
+(9:85..9:90) _empty_/Size#value. -> 5:29
+(9:91..9:92) scala/Int#`+`(+4).
 (13:18..13:23) scala/Array#
 (13:24..13:30) scala/Predef.String#
 (13:34..13:38) scala/Unit#
 (14:5..14:11) scala/Predef.assert(+1).
-(14:41..14:43) scala/Int#`==`(+3).
-(14:35..14:40) _empty_/Size#value. -> 5:29
 (14:12..14:22) scala/Predef.implicitly().
 (14:23..14:27) _empty_/Size# -> 5:12
 (14:28..14:32) _empty_/HNil# -> 2:14
 (14:34..14:34) _empty_/Size.caseHNil. -> 8:16
+(14:35..14:40) _empty_/Size#value. -> 5:29
+(14:41..14:43) scala/Int#`==`(+3).
 (15:5..15:11) scala/Predef.assert(+1).
-(15:48..15:50) scala/Int#`==`(+3).
-(15:42..15:47) _empty_/Size#value. -> 5:29
 (15:12..15:22) scala/Predef.implicitly().
 (15:23..15:27) _empty_/Size# -> 5:12
-(15:32..15:34) _empty_/`::`# -> 3:14
 (15:28..15:31) scala/Int#
+(15:32..15:34) _empty_/`::`# -> 3:14
 (15:35..15:39) _empty_/HNil# -> 2:14
 (15:41..15:41) _empty_/Size.caseHCons(). -> 9:16
 (15:41..15:41) _empty_/Size.caseHNil. -> 8:16
+(15:42..15:47) _empty_/Size#value. -> 5:29
+(15:48..15:50) scala/Int#`==`(+3).
 (16:5..16:11) scala/Predef.assert(+1).
-(16:55..16:57) scala/Int#`==`(+3).
-(16:49..16:54) _empty_/Size#value. -> 5:29
 (16:12..16:22) scala/Predef.implicitly().
 (16:23..16:27) _empty_/Size# -> 5:12
-(16:32..16:34) _empty_/`::`# -> 3:14
 (16:28..16:31) scala/Int#
-(16:39..16:41) _empty_/`::`# -> 3:14
+(16:32..16:34) _empty_/`::`# -> 3:14
 (16:35..16:38) scala/Int#
+(16:39..16:41) _empty_/`::`# -> 3:14
 (16:42..16:46) _empty_/HNil# -> 2:14
 (16:48..16:48) _empty_/Size.caseHCons(). -> 9:16
 (16:48..16:48) _empty_/Size.caseHNil. -> 8:16
+(16:49..16:54) _empty_/Size#value. -> 5:29
+(16:55..16:57) scala/Int#`==`(+3).
 (17:5..17:11) scala/Predef.assert(+1).
-(17:62..17:64) scala/Int#`==`(+3).
-(17:56..17:61) _empty_/Size#value. -> 5:29
 (17:12..17:22) scala/Predef.implicitly().
 (17:23..17:27) _empty_/Size# -> 5:12
-(17:32..17:34) _empty_/`::`# -> 3:14
 (17:28..17:31) scala/Int#
-(17:39..17:41) _empty_/`::`# -> 3:14
+(17:32..17:34) _empty_/`::`# -> 3:14
 (17:35..17:38) scala/Int#
-(17:46..17:48) _empty_/`::`# -> 3:14
+(17:39..17:41) _empty_/`::`# -> 3:14
 (17:42..17:45) scala/Int#
+(17:46..17:48) _empty_/`::`# -> 3:14
 (17:49..17:53) _empty_/HNil# -> 2:14
 (17:55..17:55) _empty_/Size.caseHCons(). -> 9:16
 (17:55..17:55) _empty_/Size.caseHNil. -> 8:16
+(17:56..17:61) _empty_/Size#value. -> 5:29
+(17:62..17:64) scala/Int#`==`(+3).
 

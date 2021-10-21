@@ -1,19 +1,19 @@
 Document tests/pos/9890.scala
-(2:32..2:35) scala/compiletime/ops/int.
-(2:28..2:31) scala/compiletime/ops/
-(2:16..2:27) scala/compiletime/
 (2:10..2:15) scala/
+(2:16..2:27) scala/compiletime/
+(2:28..2:31) scala/compiletime/ops/
+(2:32..2:35) scala/compiletime/ops/int.
 (6:21..6:24) scala/Int#
 (6:33..6:36) scala/Int#
 (6:41..6:46) scala/Tuple#
 (6:49..6:52) _empty_/Test.Range#[Min] -> 6:14
 (7:10..7:13) _empty_/Test.Range#[Max] -> 6:26
 (7:17..7:27) scala/Tuple$package.EmptyTuple#
-(8:19..8:21) scala/`*:`#
 (8:15..8:18) _empty_/Test.Range#[Min] -> 6:14
+(8:19..8:21) scala/`*:`#
 (8:22..8:27) _empty_/Test.Range# -> 6:8
-(8:32..8:33) scala/compiletime/ops/int.`+`#
 (8:28..8:31) _empty_/Test.Range#[Min] -> 6:14
+(8:32..8:33) scala/compiletime/ops/int.`+`#
 (8:37..8:40) _empty_/Test.Range#[Max] -> 6:26
 (11:24..11:29) scala/Tuple#
 (11:56..11:61) scala/Tuple#
@@ -21,9 +21,9 @@ Document tests/pos/9890.scala
 (12:10..12:20) scala/Tuple$package.EmptyTuple#
 (12:24..12:34) scala/Tuple$package.EmptyTuple#
 (13:12..13:14) scala/`*:`#
-(13:25..13:27) scala/`*:`#
 (13:20..13:21) _empty_/Test.TupleMap#[F] -> 11:38
 (13:22..13:23) local0 -> 13:10
+(13:25..13:27) scala/`*:`#
 (13:28..13:36) _empty_/Test.TupleMap# -> 11:8
 (13:37..13:38) local1 -> 13:15
 (13:40..13:45) _empty_/Test.TupleMap#[Bound] -> 11:31
@@ -39,24 +39,24 @@ Document tests/pos/9890.scala
 (18:20..18:30) _empty_/Test.TupleDedup# -> 15:8
 (18:31..18:32) local3 -> 17:15
 (18:34..18:38) _empty_/Test.TupleDedup#[Mask] -> 15:33
-(19:19..19:21) scala/`*:`#
 (19:17..19:18) local2 -> 17:10
+(19:19..19:21) scala/`*:`#
 (19:22..19:32) _empty_/Test.TupleDedup# -> 15:8
 (19:33..19:34) local3 -> 17:15
-(19:38..19:39) scala/`|`#
 (19:36..19:37) local2 -> 17:10
+(19:38..19:39) scala/`|`#
 (19:40..19:44) _empty_/Test.TupleDedup#[Mask] -> 15:33
 (23:24..23:27) scala/Int#
 (23:34..23:37) scala/Int#
-(23:47..23:48) scala/compiletime/ops/int.`+`#
-(23:43..23:44) scala/compiletime/ops/int.`*`#
 (23:41..23:42) _empty_/Test.CoordToPos#[r] -> 23:19
+(23:43..23:44) scala/compiletime/ops/int.`*`#
+(23:47..23:48) scala/compiletime/ops/int.`+`#
 (23:49..23:50) _empty_/Test.CoordToPos#[c] -> 23:29
 (24:18..24:21) scala/Int#
 (24:28..24:31) scala/Int#
 (24:42..24:47) scala/Tuple#
-(24:57..24:61) scala/Tuple.Elem#
 (24:51..24:56) scala/Tuple.
+(24:57..24:61) scala/Tuple.Elem#
 (24:62..24:67) _empty_/Test.Cell#[Board] -> 24:33
 (24:69..24:79) _empty_/Test.CoordToPos# -> 23:8
 (24:80..24:81) _empty_/Test.Cell#[r] -> 24:13
@@ -72,8 +72,8 @@ Document tests/pos/9890.scala
 (25:90..25:91) _empty_/Test.Col#[c] -> 25:12
 (25:93..25:98) _empty_/Test.Col#[Board] -> 25:22
 (27:26..27:29) scala/Int#
-(27:37..27:38) scala/compiletime/ops/int.`%`#
 (27:33..27:36) _empty_/Test.ColFromPos#[Pos] -> 27:19
+(27:37..27:38) scala/compiletime/ops/int.`%`#
 (30:5..30:6) _empty_/Test.x# -> 4:9
 (30:8..30:9) _empty_/Test.x# -> 4:9
 (30:11..30:12) _empty_/Test.x# -> 4:9
@@ -120,10 +120,10 @@ Document tests/pos/9890.scala
 (40:28..40:29) _empty_/Test.x# -> 4:9
 (40:31..40:33) _empty_/Test.x# -> 4:9
 (44:3..44:9) scala/Predef.summon().
-(44:38..44:41) scala/`=:=`#
 (44:10..44:13) _empty_/Test.Col# -> 25:8
 (44:14..44:24) _empty_/Test.ColFromPos# -> 27:8
 (44:29..44:36) _empty_/Test.Sudoku1# -> 29:8
+(44:38..44:41) scala/`=:=`#
 (44:43..44:44) _empty_/Test.x# -> 4:9
 (44:49..44:50) _empty_/Test.x# -> 4:9
 (44:56..44:57) _empty_/Test.x# -> 4:9
@@ -131,7 +131,6 @@ Document tests/pos/9890.scala
 (44:63..44:64) _empty_/Test.x# -> 4:9
 (44:72..44:72) scala/`<:<`.refl().
 (46:3..46:9) scala/Predef.summon().
-(46:61..46:64) scala/`=:=`#
 (46:10..46:20) _empty_/Test.TupleDedup# -> 15:8
 (46:22..46:23) _empty_/Test.x# -> 4:9
 (46:28..46:29) _empty_/Test.x# -> 4:9
@@ -139,15 +138,16 @@ Document tests/pos/9890.scala
 (46:38..46:39) _empty_/Test.x# -> 4:9
 (46:42..46:43) _empty_/Test.x# -> 4:9
 (46:52..46:59) scala/Nothing#
+(46:61..46:64) scala/`=:=`#
 (46:66..46:67) _empty_/Test.x# -> 4:9
 (46:81..46:81) scala/`<:<`.refl().
 (48:3..48:9) scala/Predef.summon().
-(48:59..48:62) scala/`=:=`#
 (48:10..48:20) _empty_/Test.TupleDedup# -> 15:8
 (48:21..48:24) _empty_/Test.Col# -> 25:8
 (48:25..48:35) _empty_/Test.ColFromPos# -> 27:8
 (48:40..48:47) _empty_/Test.Sudoku1# -> 29:8
 (48:50..48:57) scala/Nothing#
+(48:59..48:62) scala/`=:=`#
 (48:64..48:65) _empty_/Test.x# -> 4:9
 (48:79..48:79) scala/`<:<`.refl().
 

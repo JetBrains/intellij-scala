@@ -8,6 +8,6 @@ Document tests/pos/t2444.scala
 (11:34..11:38) scala/Unit#
 (12:5..12:9) _empty_/Test.frob(). -> 9:7
 (12:13..12:16) _empty_/Test.Bar# -> 5:9
-(12:23..12:26) _empty_/Test.Bar#baz. -> 6:12
 (12:21..12:22) local0 -> 12:11
+(12:23..12:26) _empty_/Test.Bar#baz. -> 6:12
 

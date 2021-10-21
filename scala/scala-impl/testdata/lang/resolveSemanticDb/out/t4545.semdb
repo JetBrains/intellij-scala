@@ -89,17 +89,8 @@ Document tests/pos/t4545.scala
 (4:230..4:234) scala/Unit#
 (7:13..7:14) _empty_/Test.f(). -> 2:7
 (8:8..8:8) scala/Tuple20.apply().
-(9:7..9:7) scala/Tuple20.apply().
 (9:7..9:7) local0
 (9:7..9:7) local1
-(9:7..9:7) local2
-(9:7..9:7) local3
-(9:7..9:7) local4
-(9:7..9:7) local5
-(9:7..9:7) local6
-(9:7..9:7) local7
-(9:7..9:7) local8
-(9:7..9:7) local9
 (9:7..9:7) local10
 (9:7..9:7) local11
 (9:7..9:7) local12
@@ -110,10 +101,18 @@ Document tests/pos/t4545.scala
 (9:7..9:7) local17
 (9:7..9:7) local18
 (9:7..9:7) local19
+(9:7..9:7) local2
+(9:7..9:7) local3
+(9:7..9:7) local4
+(9:7..9:7) local5
+(9:7..9:7) local6
+(9:7..9:7) local7
+(9:7..9:7) local8
+(9:7..9:7) local9
+(9:7..9:7) scala/Tuple20.apply().
 (9:14..9:14) scala/Tuple20.unapply().
 (11:13..11:14) _empty_/Test.g(). -> 4:7
 (12:8..12:8) scala/Tuple21.apply().
-(13:7..13:7) scala/Tuple21.apply().
 (13:7..13:7) local40
 (13:7..13:7) local41
 (13:7..13:7) local42
@@ -135,5 +134,6 @@ Document tests/pos/t4545.scala
 (13:7..13:7) local58
 (13:7..13:7) local59
 (13:7..13:7) local60
+(13:7..13:7) scala/Tuple21.apply().
 (13:14..13:14) scala/Tuple21.unapply().
 

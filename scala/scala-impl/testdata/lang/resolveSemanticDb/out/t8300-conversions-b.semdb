@@ -18,7 +18,7 @@ Document tests/pos/t8300-conversions-b.scala
 (18:21..18:24) scala/Predef.`???`().
 (19:10..19:11) _empty_/Test.u. -> 18:7
 (21:21..21:24) scala/Predef.`???`().
-(22:7..22:17) _empty_/Universe#CompatibleSymbol#asFreeType(). -> 13:9
 (22:3..22:3) _empty_/Universe#CompatibleSymbol(). -> 12:18
 (22:3..22:6) _empty_/Test.sym. -> 21:7
+(22:7..22:17) _empty_/Universe#CompatibleSymbol#asFreeType(). -> 13:9
 

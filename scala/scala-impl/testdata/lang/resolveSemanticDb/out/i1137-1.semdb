@@ -1,10 +1,10 @@
-Document tests/pos/i1137-1/B_2.scala
-(2:12..2:13) _empty_/A# -> 1:7
-(2:21..2:21) _empty_/A#`<init>`(). -> 1:8
-(2:20..2:21) _empty_/A# -> 1:7
-
 Document tests/pos/i1137-1/A_1.scala
 (1:19..1:25) scala/Double#
-(1:41..1:41) scala/AnyVal#`<init>`().
 (1:35..1:41) scala/AnyVal#
+(1:41..1:41) scala/AnyVal#`<init>`().
+
+Document tests/pos/i1137-1/B_2.scala
+(2:12..2:13) _empty_/A# -> 1:7
+(2:20..2:21) _empty_/A# -> 1:7
+(2:21..2:21) _empty_/A#`<init>`(). -> 1:8
 

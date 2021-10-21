@@ -1,13 +1,13 @@
 Document tests/pos/t1000.scala
 (2:3..2:10) scala/Predef.println(+1).
 (5:21..5:24) scala/App#
-(6:17..6:17) scala/Array.apply(+5).
 (6:12..6:17) scala/Array.
-(7:11..7:18) scala/Console.println(+1).
+(6:17..6:17) scala/Array.apply(+5).
 (7:3..7:10) scala/Console.
-(7:37..7:43) scala/Array#length().
-(7:22..7:28) scala/collection/ArrayOps#filter().
+(7:11..7:18) scala/Console.println(+1).
 (7:19..7:19) scala/Predef.intArrayOps().
 (7:19..7:21) _empty_/Test.xs. -> 6:7
+(7:22..7:28) scala/collection/ArrayOps#filter().
 (7:31..7:33) scala/Int#`>=`(+3).
+(7:37..7:43) scala/Array#length().
 

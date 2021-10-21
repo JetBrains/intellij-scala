@@ -4,8 +4,8 @@ Document tests/pos/i8031.scala
 (7:16..7:22) _empty_/Example.ZLayer# -> 12:9
 (7:23..7:25) _empty_/Example.ZIO#provideLayer().[R0] -> 6:22
 (7:27..7:29) _empty_/Example.ZIO#provideLayer().[R1] -> 6:26
-(8:23..8:26) scala/`<:<`#
 (8:20..8:22) _empty_/Example.ZIO#provideLayer().[R1] -> 6:26
+(8:23..8:26) scala/`<:<`#
 (8:27..8:28) _empty_/Example.ZIO#[R] -> 5:14
 (8:31..8:34) _empty_/Example.ZIO# -> 5:9
 (8:35..8:37) _empty_/Example.ZIO#provideLayer().[R0] -> 6:22
@@ -40,21 +40,21 @@ Document tests/pos/i8031.scala
 (27:42..27:45) scala/Predef.`???`().
 (30:24..30:27) _empty_/Example.ZIO# -> 5:9
 (30:28..30:34) _empty_/Example.Random# -> 21:8
-(31:9..31:21) _empty_/Example.ZIO#provideLayer(). -> 6:9
 (31:5..31:8) _empty_/Example.zio. -> 27:12
-(31:29..31:31) _empty_/Example.ZLayer#`++`(). -> 13:9
+(31:9..31:21) _empty_/Example.ZIO#provideLayer(). -> 6:9
 (31:22..31:28) _empty_/Example.random(). -> 24:7
+(31:29..31:31) _empty_/Example.ZLayer#`++`(). -> 13:9
 (31:32..31:37) _empty_/Example.sized(). -> 25:7
 (31:38..31:38) scala/`<:<`.refl().
 (34:25..34:28) _empty_/Example.ZIO# -> 5:9
 (34:29..34:35) _empty_/Example.Random# -> 21:8
-(35:9..35:21) _empty_/Example.ZIO#provideLayer(). -> 6:9
 (35:5..35:8) _empty_/Example.zio. -> 27:12
+(35:9..35:21) _empty_/Example.ZIO#provideLayer(). -> 6:9
 (35:22..35:28) _empty_/Example.Random# -> 21:8
 (35:30..35:36) _empty_/Example.Random# -> 21:8
 (35:42..35:47) _empty_/Example.Sized# -> 22:8
-(35:56..35:58) _empty_/Example.ZLayer#`++`(). -> 13:9
 (35:49..35:55) _empty_/Example.random(). -> 24:7
+(35:56..35:58) _empty_/Example.ZLayer#`++`(). -> 13:9
 (35:59..35:64) _empty_/Example.sized(). -> 25:7
 (35:65..35:65) scala/`<:<`.refl().
 (37:3..37:10) scala/Predef.println(+1).

@@ -5,12 +5,12 @@ Document tests/pos/andtypes.scala
 (8:28..8:33) _empty_/Outer# -> 1:7
 (8:38..8:39) _empty_/Test.bla().[A] -> 8:11
 (8:44..8:45) _empty_/Test.bla().[B] -> 8:23
-(9:23..9:24) scala/`&`#
-(9:14..9:17) _empty_/Outer#Foo# -> 2:8
 (9:12..9:13) _empty_/Test.bla().(a) -> 8:35
+(9:14..9:17) _empty_/Outer#Foo# -> 2:8
 (9:18..9:21) scala/Int#
-(9:27..9:30) _empty_/Outer#Foo# -> 2:8
+(9:23..9:24) scala/`&`#
 (9:25..9:26) _empty_/Test.bla().(b) -> 8:41
+(9:27..9:30) _empty_/Outer#Foo# -> 2:8
 (9:31..9:34) scala/Int#
 (9:38..9:41) scala/Predef.`???`().
 (10:5..10:8) _empty_/Test.foo(). -> 6:7

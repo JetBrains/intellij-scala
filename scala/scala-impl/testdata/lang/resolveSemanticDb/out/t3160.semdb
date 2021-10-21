@@ -1,7 +1,7 @@
 Document tests/pos/t3160.scala
-(1:25..1:32) scala/collection/mutable/
-(1:14..1:24) scala/collection/
 (1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(1:25..1:32) scala/collection/mutable/
 (5:12..5:16) _empty_/Node# -> 2:7
 (5:19..5:23) _empty_/Node# -> 2:7
 (5:26..5:29) scala/Predef.`???`().

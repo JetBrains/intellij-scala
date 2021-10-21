@@ -1,8 +1,8 @@
 Document tests/pos/interop-type-field.scala
 (4:10..4:15) scala/Predef.Class#
 (4:16..4:23) java/lang/Integer#
-(4:45..4:49) java/lang/Integer#TYPE.
-(4:37..4:44) java/lang/Integer#
-(4:32..4:36) java/lang/
 (4:27..4:31) java/
+(4:32..4:36) java/lang/
+(4:37..4:44) java/lang/Integer#
+(4:45..4:49) java/lang/Integer#TYPE.
 

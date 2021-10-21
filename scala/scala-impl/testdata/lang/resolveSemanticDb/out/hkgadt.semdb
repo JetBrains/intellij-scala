@@ -4,6 +4,6 @@ Document tests/pos/hkgadt.scala
 (5:23..5:26) _empty_/HKGADT.Foo# -> 2:16
 (5:27..5:28) _empty_/HKGADT.frob().[F] -> 5:12
 (6:5..6:8) _empty_/HKGADT.frob().(foo) -> 5:18
-(7:15..7:15) _empty_/HKGADT.Bar.unapply().
 (7:12..7:15) _empty_/HKGADT.Bar. -> 3:20
+(7:15..7:15) _empty_/HKGADT.Bar.unapply().
 

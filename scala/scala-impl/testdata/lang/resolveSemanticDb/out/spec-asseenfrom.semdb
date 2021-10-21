@@ -3,17 +3,17 @@ Document tests/pos/spec-asseenfrom.scala
 (1:30..1:36) scala/Double.
 (3:22..3:27) _empty_/Automaton#[State] -> 1:40
 (3:30..3:31) _empty_/Automaton#[W] -> 1:38
-(3:38..3:43) scala/sys/package.error().
 (3:34..3:37) scala/sys/
+(3:38..3:43) scala/sys/package.error().
 (5:18..5:21) scala/Predef.Set#
 (5:22..5:27) _empty_/Automaton#[State] -> 1:40
-(5:35..5:40) scala/sys/package.error().
 (5:31..5:34) scala/sys/
-(10:37..10:39) scala/collection/MapOps#`++`().
-(10:31..10:36) scala/collection/immutable/Map.empty().
+(5:35..5:40) scala/sys/package.error().
 (10:27..10:30) scala/Predef.Map.
-(10:50..10:53) scala/collection/IterableOps#map().
+(10:31..10:36) scala/collection/immutable/Map.empty().
+(10:37..10:39) scala/collection/MapOps#`++`().
 (10:40..10:49) _empty_/Automaton#allStates(). -> 5:7
+(10:50..10:53) scala/collection/IterableOps#map().
 (10:62..10:62) scala/Tuple2.apply().
 (10:62..10:63) local0 -> 10:56
 (10:64..10:75) _empty_/Automaton#finalWeight(). -> 3:7
@@ -23,8 +23,8 @@ Document tests/pos/spec-asseenfrom.scala
 (25:27..25:29) _empty_/Automaton2#[T1] -> 24:40
 (26:18..26:21) scala/Predef.Set#
 (26:22..26:24) _empty_/Automaton2#[T2] -> 24:44
-(28:21..28:24) scala/collection/IterableOps#map().
 (28:11..28:20) _empty_/Automaton2#allStates(). -> 26:7
-(28:25..28:36) _empty_/Automaton2#finalWeight(). -> 25:7
+(28:21..28:24) scala/collection/IterableOps#map().
 (28:25..28:25) local1
+(28:25..28:36) _empty_/Automaton2#finalWeight(). -> 25:7
 

@@ -1,25 +1,25 @@
 Document tests/pos/t5726.scala
-(1:23..1:31) scala/language.dynamics.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
 (3:27..3:34) scala/Dynamic#
 (4:27..4:33) scala/Predef.String#
-(4:53..4:54) scala/StringContext#s().
 (4:39..4:39) scala/StringContext.apply().
 (4:49..4:53) _empty_/DynamicTest#selectDynamic().(name) -> 4:21
+(4:53..4:54) scala/StringContext#s().
 (5:27..5:33) scala/Predef.String#
 (5:42..5:45) scala/Any#
 (5:48..5:52) scala/Unit#
 (6:5..6:12) scala/Predef.println(+1).
-(6:72..6:73) scala/StringContext#s().
 (6:15..6:15) scala/StringContext.apply().
 (6:48..6:52) _empty_/DynamicTest#updateDynamic().(name) -> 5:21
 (6:67..6:72) _empty_/DynamicTest#updateDynamic().(value) -> 5:35
+(6:72..6:73) scala/StringContext#s().
 (10:22..10:25) scala/App#
 (11:18..11:22) scala/Unit#
-(12:31..12:31) _empty_/DynamicTest#`<init>`(). -> 3:27
 (12:20..12:31) _empty_/DynamicTest# -> 3:7
-(13:9..13:19) _empty_/DynamicTest#updateDynamic(). -> 5:7
+(12:31..12:31) _empty_/DynamicTest#`<init>`(). -> 3:27
 (13:5..13:9) local0 -> 12:9
+(13:9..13:19) _empty_/DynamicTest#updateDynamic(). -> 5:7
 (16:3..16:10) _empty_/MyApp.testing(). -> 11:7
 

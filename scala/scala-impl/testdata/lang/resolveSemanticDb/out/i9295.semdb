@@ -1,7 +1,7 @@
 Document tests/pos/i9295.scala
-(1:23..1:31) scala/language.dynamics.
-(1:14..1:22) scala/language.
 (1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:31) scala/language.dynamics.
 (3:19..3:26) scala/Dynamic#
 (4:26..4:32) scala/Predef.String#
 (4:37..4:40) _empty_/Bar# -> 7:7
@@ -10,9 +10,9 @@ Document tests/pos/i9295.scala
 (8:26..8:32) scala/Predef.String#
 (8:37..8:40) scala/Int#
 (8:44..8:47) scala/Predef.`???`().
-(11:18..11:18) _empty_/Foo#`<init>`(). -> 3:19
 (11:15..11:18) _empty_/Foo# -> 3:7
-(12:19..12:27) _empty_/Bar#applyDynamic(). -> 8:7
-(12:14..12:19) _empty_/Foo#applyDynamic(). -> 4:7
+(11:18..11:18) _empty_/Foo#`<init>`(). -> 3:19
 (12:11..12:14) _empty_/i9295$package.foo. -> 11:5
+(12:14..12:19) _empty_/Foo#applyDynamic(). -> 4:7
+(12:19..12:27) _empty_/Bar#applyDynamic(). -> 8:7
 

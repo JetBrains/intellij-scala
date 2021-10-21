@@ -15,16 +15,16 @@ Document tests/pos/6709.scala
 (9:35..9:36) _empty_/Foo.leafElem().[X] -> 9:16
 (10:5..10:6) _empty_/Foo.leafElem().(x) -> 9:19
 (11:15..11:21) scala/Predef.String#
-(11:32..11:38) java/lang/String#charAt().
 (11:30..11:31) local2 -> 11:12
+(11:32..11:38) java/lang/String#charAt().
 (12:15..12:20) scala/Array#
 (12:30..12:38) _empty_/Foo.leafElem(). -> 9:7
-(12:40..12:40) scala/Array#apply().
 (12:39..12:40) local3 -> 12:12
+(12:40..12:40) scala/Array#apply().
 (13:15..13:23) scala/package.Iterable#
 (13:30..13:38) _empty_/Foo.leafElem(). -> 9:7
-(13:41..13:45) scala/collection/IterableOps#head().
 (13:39..13:40) local5 -> 13:12
+(13:41..13:45) scala/collection/IterableOps#head().
 (14:15..14:21) scala/AnyVal#
 (14:30..14:31) _empty_/Foo.leafElem().(x) -> 9:19
 (17:23..17:24) _empty_/Foo.leafElem2().[X] -> 17:17
@@ -39,9 +39,9 @@ Document tests/pos/6709.scala
 (20:27..20:35) _empty_/Foo.leafElem(). -> 9:7
 (20:36..20:37) _empty_/Foo.leafElem2().[X] -> 17:17
 (20:39..20:40) _empty_/Foo.leafElem2().(x) -> 17:20
-(25:26..25:29) scala/compiletime/ops/int.
-(25:22..25:25) scala/compiletime/ops/
 (25:10..25:21) scala/compiletime/
+(25:22..25:25) scala/compiletime/ops/
+(25:26..25:29) scala/compiletime/ops/int.
 (27:18..27:21) scala/Int#
 (27:28..27:31) scala/Int#
 (27:36..27:39) scala/Int#
@@ -71,16 +71,16 @@ Document tests/pos/6709.scala
 (39:25..39:26) scala/compiletime/ops/int.S#
 (39:27..39:28) _empty_/Bar.pred().[X] -> 39:12
 (39:32..39:33) _empty_/Bar.pred().[X] -> 39:12
-(39:44..39:56) scala/Any#asInstanceOf().
-(39:39..39:40) scala/Int#`-`(+3).
 (39:37..39:38) _empty_/Bar.pred().(x) -> 39:22
+(39:39..39:40) scala/Int#`-`(+3).
+(39:44..39:56) scala/Any#asInstanceOf().
 (40:17..40:20) scala/Int#
 (40:25..40:26) _empty_/Bar.succ().[X] -> 40:12
 (40:29..40:30) scala/compiletime/ops/int.S#
 (40:31..40:32) _empty_/Bar.succ().[X] -> 40:12
-(40:44..40:56) scala/Any#asInstanceOf().
-(40:39..40:40) scala/Int#`+`(+4).
 (40:37..40:38) _empty_/Bar.succ().(x) -> 40:22
+(40:39..40:40) scala/Int#`+`(+4).
+(40:44..40:56) scala/Any#asInstanceOf().
 (42:17..42:21) _empty_/Bar.plus(). -> 33:7
 (49:30..49:31) _empty_/Main.BinNat.Odd#[N] -> 49:14
 (51:31..51:32) _empty_/Main.BinNat.Even#[N] -> 51:15
@@ -108,11 +108,11 @@ Document tests/pos/6709.scala
 (65:36..65:40) _empty_/Main.BinNat.Zero. -> 47:10
 (66:15..66:18) _empty_/Main.BinNat.Odd# -> 49:10
 (66:36..66:36) _empty_/Main.BinNat.Even#`<init>`(). -> 51:14
-(66:39..66:40) _empty_/Main.BinNat.Odd#n. -> 49:27
 (66:37..66:38) local14 -> 66:12
+(66:39..66:40) _empty_/Main.BinNat.Odd#n. -> 49:27
 (67:15..67:19) _empty_/Main.BinNat.Even# -> 51:10
 (69:16..69:16) _empty_/Main.BinNat.Odd#`<init>`(). -> 49:13
 (69:17..69:20) _empty_/Main.inc(). -> 63:7
-(69:23..69:24) _empty_/Main.BinNat.Even#n. -> 51:28
 (69:21..69:22) local16 -> 67:12
+(69:23..69:24) _empty_/Main.BinNat.Even#n. -> 51:28
 

@@ -1,20 +1,20 @@
 Document tests/pos/t319.scala
 (9:14..9:15) _empty_/test.A# -> 3:9
 (10:14..10:15) _empty_/test.B# -> 5:9
-(10:31..10:32) _empty_/test.A#T# -> 3:18
 (10:27..10:30) _empty_/test.functor#arg. -> 9:9
+(10:31..10:32) _empty_/test.A#T# -> 3:18
 (11:11..11:12) _empty_/test.B# -> 5:9
-(11:28..11:29) _empty_/test.A#T# -> 3:18
 (11:24..11:27) _empty_/test.functor#arg. -> 9:9
+(11:28..11:29) _empty_/test.A#T# -> 3:18
 (14:16..14:17) _empty_/test.A# -> 3:9
 (14:29..14:35) scala/Predef.String#
 (16:10..16:11) _empty_/test.B# -> 5:9
 (16:23..16:29) scala/Predef.String#
-(17:26..17:26) _empty_/test.functor#`<init>`(). -> 8:25
 (17:19..17:26) _empty_/test.functor# -> 8:18
+(17:26..17:26) _empty_/test.functor#`<init>`(). -> 8:25
 (17:40..17:41) _empty_/test.A# -> 3:9
 (17:53..17:59) scala/Predef.String#
 (17:64..17:65) _empty_/test.a. -> 14:7
-(19:9..19:12) _empty_/test.functor#res. -> 10:9
 (19:5..19:8) local6 -> 17:9
+(19:9..19:12) _empty_/test.functor#res. -> 10:9
 

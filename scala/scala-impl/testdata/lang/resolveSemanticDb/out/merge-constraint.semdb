@@ -1,6 +1,6 @@
 Document tests/pos/merge-constraint.scala
-(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
 (2:18..2:20) _empty_/Hi# -> 1:7
+(2:20..2:20) _empty_/Hi#`<init>`(). -> 1:1
 (5:19..5:20) _empty_/Test.foo().[T] -> 5:11
 (5:25..5:26) _empty_/Test.foo().[T] -> 5:11
 (5:31..5:32) _empty_/Test.foo().[T] -> 5:11

@@ -1,7 +1,7 @@
 Document tests/pos/t7782.scala
-(4:12..4:17) pack/O.empty(+1). -> 14:7
-(4:12..4:17) pack/O.empty(). -> 13:7
 (4:10..4:11) pack/O. -> 9:8
+(4:12..4:17) pack/O.empty(). -> 13:7
+(4:12..4:17) pack/O.empty(+1). -> 14:7
 (5:3..5:8) pack/O.empty(). -> 13:7
 (13:17..13:18) pack/C# -> 17:16
 (13:19..13:20) pack/O.empty().[E] -> 13:13

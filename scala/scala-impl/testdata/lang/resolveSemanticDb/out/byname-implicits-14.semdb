@@ -38,280 +38,280 @@ Document tests/pos/byname-implicits-14.scala
 (27:22..27:23) _empty_/Generic#[T] -> 24:15
 (33:25..33:32) _empty_/Generic# -> 24:7
 (33:33..33:37) _empty_/AABB# -> 2:14
-(33:56..33:59) _empty_/`:+:`# -> 19:14
 (33:53..33:55) _empty_/AA# -> 3:12
-(33:63..33:66) _empty_/`:+:`# -> 19:14
+(33:56..33:59) _empty_/`:+:`# -> 19:14
 (33:60..33:62) _empty_/BB# -> 4:12
+(33:63..33:66) _empty_/`:+:`# -> 19:14
 (33:67..33:71) _empty_/CNil# -> 22:14
 (34:9..34:16) _empty_/Generic# -> 24:7
 (34:17..34:21) _empty_/AABB# -> 2:14
-(35:22..35:25) _empty_/`:+:`# -> 19:14
 (35:19..35:21) _empty_/AA# -> 3:12
-(35:29..35:32) _empty_/`:+:`# -> 19:14
+(35:22..35:25) _empty_/`:+:`# -> 19:14
 (35:26..35:28) _empty_/BB# -> 4:12
+(35:29..35:32) _empty_/`:+:`# -> 19:14
 (35:33..35:37) _empty_/CNil# -> 22:14
 (36:17..36:21) _empty_/AABB# -> 2:14
 (36:24..36:28) local2 -> 35:12
 (36:31..36:32) local4 -> 36:14
 (37:17..37:19) _empty_/AA# -> 3:12
-(37:26..37:26) _empty_/Inl.apply(). -> 20:1
 (37:23..37:26) _empty_/Inl. -> 20:18
+(37:26..37:26) _empty_/Inl.apply(). -> 20:1
 (37:27..37:28) local5 -> 37:14
 (38:17..38:19) _empty_/BB# -> 4:12
-(38:26..38:26) _empty_/Inr.apply(). -> 21:1
 (38:23..38:26) _empty_/Inr. -> 21:18
-(38:30..38:30) _empty_/Inl.apply(). -> 20:1
+(38:26..38:26) _empty_/Inr.apply(). -> 21:1
 (38:27..38:30) _empty_/Inl. -> 20:18
+(38:30..38:30) _empty_/Inl.apply(). -> 20:1
 (38:31..38:32) local6 -> 38:14
 (40:19..40:23) local2 -> 35:12
 (40:26..40:30) _empty_/AABB# -> 2:14
 (40:33..40:34) local8 -> 40:16
-(41:17..41:17) _empty_/Inl.unapply(). -> 20:1
 (41:14..41:17) _empty_/Inl. -> 20:18
+(41:17..41:17) _empty_/Inl.unapply(). -> 20:1
 (41:24..41:25) local9 -> 41:18
-(42:17..42:17) _empty_/Inr.unapply(). -> 21:1
 (42:14..42:17) _empty_/Inr. -> 21:18
-(42:21..42:21) _empty_/Inl.unapply(). -> 20:1
+(42:17..42:17) _empty_/Inr.unapply(). -> 21:1
 (42:18..42:21) _empty_/Inl. -> 20:18
+(42:21..42:21) _empty_/Inl.unapply(). -> 20:1
 (42:29..42:30) local10 -> 42:22
 (43:19..43:22) scala/Predef.`???`().
 (47:23..47:30) _empty_/Generic# -> 24:7
 (47:31..47:33) _empty_/AA# -> 3:12
-(47:56..47:58) _empty_/`::`# -> 14:18
 (47:49..47:55) scala/Predef.String#
+(47:56..47:58) _empty_/`::`# -> 14:18
 (47:59..47:63) _empty_/HNil# -> 15:14
 (48:9..48:16) _empty_/Generic# -> 24:7
 (48:17..48:19) _empty_/AA# -> 3:12
-(49:26..49:28) _empty_/`::`# -> 14:18
 (49:19..49:25) scala/Predef.String#
+(49:26..49:28) _empty_/`::`# -> 14:18
 (49:29..49:33) _empty_/HNil# -> 15:14
 (50:17..50:19) _empty_/AA# -> 3:12
 (50:22..50:26) local13 -> 49:12
 (50:29..50:30) local15 -> 50:14
-(50:46..50:46) _empty_/AA.unapply().
 (50:44..50:46) _empty_/AA. -> 3:12
-(50:55..50:55) _empty_/`::`.apply(). -> 14:1
+(50:46..50:46) _empty_/AA.unapply().
 (50:53..50:55) _empty_/`::`. -> 14:18
+(50:55..50:55) _empty_/`::`.apply(). -> 14:1
 (50:56..50:57) local16 -> 50:47
 (50:59..50:63) _empty_/HNil. -> 16:13
 (51:19..51:23) local13 -> 49:12
 (51:26..51:28) _empty_/AA# -> 3:12
 (51:31..51:32) local18 -> 51:16
-(51:48..51:48) _empty_/`::`.unapply(). -> 14:1
 (51:46..51:48) _empty_/`::`. -> 14:18
+(51:48..51:48) _empty_/`::`.unapply(). -> 14:1
 (51:52..51:56) _empty_/HNil. -> 16:13
-(51:63..51:63) _empty_/AA.apply(). -> 3:1
 (51:61..51:63) _empty_/AA. -> 3:12
+(51:63..51:63) _empty_/AA.apply(). -> 3:1
 (51:64..51:65) local19 -> 51:49
 (54:23..54:30) _empty_/Generic# -> 24:7
 (54:31..54:33) _empty_/BB# -> 4:12
-(54:56..54:58) _empty_/`::`# -> 14:18
 (54:49..54:55) scala/Predef.String#
+(54:56..54:58) _empty_/`::`# -> 14:18
 (54:59..54:63) _empty_/HNil# -> 15:14
 (55:9..55:16) _empty_/Generic# -> 24:7
 (55:17..55:19) _empty_/BB# -> 4:12
-(56:26..56:28) _empty_/`::`# -> 14:18
 (56:19..56:25) scala/Predef.String#
+(56:26..56:28) _empty_/`::`# -> 14:18
 (56:29..56:33) _empty_/HNil# -> 15:14
 (57:17..57:19) _empty_/BB# -> 4:12
 (57:22..57:26) local22 -> 56:12
 (57:29..57:30) local24 -> 57:14
-(57:46..57:46) _empty_/BB.unapply().
 (57:44..57:46) _empty_/BB. -> 4:12
-(57:55..57:55) _empty_/`::`.apply(). -> 14:1
+(57:46..57:46) _empty_/BB.unapply().
 (57:53..57:55) _empty_/`::`. -> 14:18
+(57:55..57:55) _empty_/`::`.apply(). -> 14:1
 (57:56..57:57) local25 -> 57:47
 (57:59..57:63) _empty_/HNil. -> 16:13
 (58:19..58:23) local22 -> 56:12
 (58:26..58:28) _empty_/BB# -> 4:12
 (58:31..58:32) local27 -> 58:16
-(58:48..58:48) _empty_/`::`.unapply(). -> 14:1
 (58:46..58:48) _empty_/`::`. -> 14:18
+(58:48..58:48) _empty_/`::`.unapply(). -> 14:1
 (58:52..58:56) _empty_/HNil. -> 16:13
-(58:63..58:63) _empty_/BB.apply(). -> 4:1
 (58:61..58:63) _empty_/BB. -> 4:12
+(58:63..58:63) _empty_/BB.apply(). -> 4:1
 (58:64..58:65) local28 -> 58:49
 (61:26..61:33) _empty_/Generic# -> 24:7
 (61:34..61:39) _empty_/DAABB# -> 5:12
-(61:62..61:64) _empty_/`::`# -> 14:18
 (61:55..61:61) scala/Double#
-(61:70..61:72) _empty_/`::`# -> 14:18
+(61:62..61:64) _empty_/`::`# -> 14:18
 (61:65..61:69) _empty_/AABB# -> 2:14
+(61:70..61:72) _empty_/`::`# -> 14:18
 (61:73..61:77) _empty_/HNil# -> 15:14
 (62:9..62:16) _empty_/Generic# -> 24:7
 (62:17..62:22) _empty_/DAABB# -> 5:12
-(63:26..63:28) _empty_/`::`# -> 14:18
 (63:19..63:25) scala/Double#
-(63:34..63:36) _empty_/`::`# -> 14:18
+(63:26..63:28) _empty_/`::`# -> 14:18
 (63:29..63:33) _empty_/AABB# -> 2:14
+(63:34..63:36) _empty_/`::`# -> 14:18
 (63:37..63:41) _empty_/HNil# -> 15:14
 (64:17..64:22) _empty_/DAABB# -> 5:12
 (64:25..64:29) local31 -> 63:12
 (64:32..64:33) local33 -> 64:14
-(64:52..64:52) _empty_/DAABB.unapply().
 (64:47..64:52) _empty_/DAABB. -> 5:12
-(64:64..64:64) _empty_/`::`.apply(). -> 14:1
+(64:52..64:52) _empty_/DAABB.unapply().
 (64:62..64:64) _empty_/`::`. -> 14:18
+(64:64..64:64) _empty_/`::`.apply(). -> 14:1
 (64:65..64:66) local34 -> 64:53
-(64:70..64:70) _empty_/`::`.apply(). -> 14:1
 (64:68..64:70) _empty_/`::`. -> 14:18
+(64:70..64:70) _empty_/`::`.apply(). -> 14:1
 (64:71..64:72) local35 -> 64:56
 (64:74..64:78) _empty_/HNil. -> 16:13
 (65:19..65:23) local31 -> 63:12
 (65:26..65:31) _empty_/DAABB# -> 5:12
 (65:34..65:35) local37 -> 65:16
-(65:51..65:51) _empty_/`::`.unapply(). -> 14:1
 (65:49..65:51) _empty_/`::`. -> 14:18
-(65:57..65:57) _empty_/`::`.unapply(). -> 14:1
+(65:51..65:51) _empty_/`::`.unapply(). -> 14:1
 (65:55..65:57) _empty_/`::`. -> 14:18
+(65:57..65:57) _empty_/`::`.unapply(). -> 14:1
 (65:61..65:65) _empty_/HNil. -> 16:13
-(65:76..65:76) _empty_/DAABB.apply(). -> 5:1
 (65:71..65:76) _empty_/DAABB. -> 5:12
+(65:76..65:76) _empty_/DAABB.apply(). -> 5:1
 (65:77..65:78) local38 -> 65:52
 (65:80..65:81) local39 -> 65:58
 (68:28..68:35) _empty_/Generic# -> 24:7
 (68:36..68:43) _empty_/IDAABBS# -> 6:12
-(68:63..68:65) _empty_/`::`# -> 14:18
 (68:59..68:62) scala/Int#
-(68:72..68:74) _empty_/`::`# -> 14:18
+(68:63..68:65) _empty_/`::`# -> 14:18
 (68:66..68:71) _empty_/DAABB# -> 5:12
-(68:82..68:84) _empty_/`::`# -> 14:18
+(68:72..68:74) _empty_/`::`# -> 14:18
 (68:75..68:81) scala/Predef.String#
+(68:82..68:84) _empty_/`::`# -> 14:18
 (68:85..68:89) _empty_/HNil# -> 15:14
 (69:9..69:16) _empty_/Generic# -> 24:7
 (69:17..69:24) _empty_/IDAABBS# -> 6:12
-(70:23..70:25) _empty_/`::`# -> 14:18
 (70:19..70:22) scala/Int#
-(70:32..70:34) _empty_/`::`# -> 14:18
+(70:23..70:25) _empty_/`::`# -> 14:18
 (70:26..70:31) _empty_/DAABB# -> 5:12
-(70:42..70:44) _empty_/`::`# -> 14:18
+(70:32..70:34) _empty_/`::`# -> 14:18
 (70:35..70:41) scala/Predef.String#
+(70:42..70:44) _empty_/`::`# -> 14:18
 (70:45..70:49) _empty_/HNil# -> 15:14
 (71:17..71:24) _empty_/IDAABBS# -> 6:12
 (71:27..71:31) local42 -> 70:12
 (71:34..71:35) local44 -> 71:14
-(71:56..71:56) _empty_/IDAABBS.unapply().
 (71:49..71:56) _empty_/IDAABBS. -> 6:12
-(71:71..71:71) _empty_/`::`.apply(). -> 14:1
+(71:56..71:56) _empty_/IDAABBS.unapply().
 (71:69..71:71) _empty_/`::`. -> 14:18
+(71:71..71:71) _empty_/`::`.apply(). -> 14:1
 (71:72..71:73) local45 -> 71:57
-(71:77..71:77) _empty_/`::`.apply(). -> 14:1
 (71:75..71:77) _empty_/`::`. -> 14:18
+(71:77..71:77) _empty_/`::`.apply(). -> 14:1
 (71:78..71:79) local46 -> 71:60
-(71:83..71:83) _empty_/`::`.apply(). -> 14:1
 (71:81..71:83) _empty_/`::`. -> 14:18
+(71:83..71:83) _empty_/`::`.apply(). -> 14:1
 (71:84..71:85) local47 -> 71:63
 (71:87..71:91) _empty_/HNil. -> 16:13
 (72:19..72:23) local42 -> 70:12
 (72:26..72:33) _empty_/IDAABBS# -> 6:12
 (72:36..72:37) local49 -> 72:16
-(72:53..72:53) _empty_/`::`.unapply(). -> 14:1
 (72:51..72:53) _empty_/`::`. -> 14:18
-(72:59..72:59) _empty_/`::`.unapply(). -> 14:1
+(72:53..72:53) _empty_/`::`.unapply(). -> 14:1
 (72:57..72:59) _empty_/`::`. -> 14:18
-(72:65..72:65) _empty_/`::`.unapply(). -> 14:1
+(72:59..72:59) _empty_/`::`.unapply(). -> 14:1
 (72:63..72:65) _empty_/`::`. -> 14:18
+(72:65..72:65) _empty_/`::`.unapply(). -> 14:1
 (72:69..72:73) _empty_/HNil. -> 16:13
-(72:87..72:87) _empty_/IDAABBS.apply(). -> 6:1
 (72:80..72:87) _empty_/IDAABBS. -> 6:12
+(72:87..72:87) _empty_/IDAABBS.apply(). -> 6:1
 (72:88..72:89) local50 -> 72:54
 (72:91..72:92) local51 -> 72:60
 (72:94..72:95) local52 -> 72:66
 (75:24..75:31) _empty_/Generic# -> 24:7
 (75:32..75:35) _empty_/Dog# -> 8:12
-(75:56..75:58) _empty_/`::`# -> 14:18
 (75:51..75:55) scala/Long#
+(75:56..75:58) _empty_/`::`# -> 14:18
 (75:59..75:63) _empty_/HNil# -> 15:14
 (76:9..76:16) _empty_/Generic# -> 24:7
 (76:17..76:20) _empty_/Dog# -> 8:12
-(77:24..77:26) _empty_/`::`# -> 14:18
 (77:19..77:23) scala/Long#
+(77:24..77:26) _empty_/`::`# -> 14:18
 (77:27..77:31) _empty_/HNil# -> 15:14
 (78:17..78:20) _empty_/Dog# -> 8:12
 (78:23..78:27) local55 -> 77:12
 (78:30..78:31) local57 -> 78:14
-(78:48..78:48) _empty_/Dog.unapply().
 (78:45..78:48) _empty_/Dog. -> 8:12
-(78:57..78:57) _empty_/`::`.apply(). -> 14:1
+(78:48..78:48) _empty_/Dog.unapply().
 (78:55..78:57) _empty_/`::`. -> 14:18
+(78:57..78:57) _empty_/`::`.apply(). -> 14:1
 (78:58..78:59) local58 -> 78:49
 (78:61..78:65) _empty_/HNil. -> 16:13
 (79:19..79:23) local55 -> 77:12
 (79:26..79:29) _empty_/Dog# -> 8:12
 (79:32..79:33) local60 -> 79:16
-(79:49..79:49) _empty_/`::`.unapply(). -> 14:1
 (79:47..79:49) _empty_/`::`. -> 14:18
+(79:49..79:49) _empty_/`::`.unapply(). -> 14:1
 (79:53..79:57) _empty_/HNil. -> 16:13
-(79:65..79:65) _empty_/Dog.apply(). -> 8:1
 (79:62..79:65) _empty_/Dog. -> 8:12
+(79:65..79:65) _empty_/Dog.apply(). -> 8:1
 (79:66..79:67) local61 -> 79:50
 (82:24..82:31) _empty_/Generic# -> 24:7
 (82:32..82:35) _empty_/Cat# -> 9:12
-(82:58..82:60) _empty_/`::`# -> 14:18
 (82:51..82:57) scala/Predef.String#
-(82:78..82:80) _empty_/`::`# -> 14:18
+(82:58..82:60) _empty_/`::`# -> 14:18
 (82:61..82:67) scala/package.Either#
 (82:68..82:71) _empty_/Cat# -> 9:12
 (82:73..82:76) _empty_/Dog# -> 8:12
+(82:78..82:80) _empty_/`::`# -> 14:18
 (82:81..82:85) _empty_/HNil# -> 15:14
 (83:9..83:16) _empty_/Generic# -> 24:7
 (83:17..83:20) _empty_/Cat# -> 9:12
-(84:26..84:28) _empty_/`::`# -> 14:18
 (84:19..84:25) scala/Predef.String#
-(84:46..84:48) _empty_/`::`# -> 14:18
+(84:26..84:28) _empty_/`::`# -> 14:18
 (84:29..84:35) scala/package.Either#
 (84:36..84:39) _empty_/Cat# -> 9:12
 (84:41..84:44) _empty_/Dog# -> 8:12
+(84:46..84:48) _empty_/`::`# -> 14:18
 (84:49..84:53) _empty_/HNil# -> 15:14
 (85:17..85:20) _empty_/Cat# -> 9:12
 (85:23..85:27) local64 -> 84:12
 (85:30..85:31) local66 -> 85:14
-(85:48..85:48) _empty_/Cat.unapply().
 (85:45..85:48) _empty_/Cat. -> 9:12
-(85:60..85:60) _empty_/`::`.apply(). -> 14:1
+(85:48..85:48) _empty_/Cat.unapply().
 (85:58..85:60) _empty_/`::`. -> 14:18
+(85:60..85:60) _empty_/`::`.apply(). -> 14:1
 (85:61..85:62) local67 -> 85:49
-(85:66..85:66) _empty_/`::`.apply(). -> 14:1
 (85:64..85:66) _empty_/`::`. -> 14:18
+(85:66..85:66) _empty_/`::`.apply(). -> 14:1
 (85:67..85:68) local68 -> 85:52
 (85:70..85:74) _empty_/HNil. -> 16:13
 (86:19..86:23) local64 -> 84:12
 (86:26..86:29) _empty_/Cat# -> 9:12
 (86:32..86:33) local70 -> 86:16
-(86:49..86:49) _empty_/`::`.unapply(). -> 14:1
 (86:47..86:49) _empty_/`::`. -> 14:18
-(86:55..86:55) _empty_/`::`.unapply(). -> 14:1
+(86:49..86:49) _empty_/`::`.unapply(). -> 14:1
 (86:53..86:55) _empty_/`::`. -> 14:18
+(86:55..86:55) _empty_/`::`.unapply(). -> 14:1
 (86:59..86:63) _empty_/HNil. -> 16:13
-(86:72..86:72) _empty_/Cat.apply(). -> 9:1
 (86:69..86:72) _empty_/Cat. -> 9:12
+(86:72..86:72) _empty_/Cat.apply(). -> 9:1
 (86:73..86:74) local71 -> 86:50
 (86:76..86:77) local72 -> 86:56
 (89:33..89:40) _empty_/Generic# -> 24:7
 (89:41..89:47) scala/package.Either#
 (89:48..89:49) _empty_/GenericInstances.genEither().[A] -> 89:26
 (89:51..89:52) _empty_/GenericInstances.genEither().[B] -> 89:29
-(89:80..89:83) _empty_/`:+:`# -> 19:14
 (89:69..89:73) scala/package.Left#
 (89:74..89:75) _empty_/GenericInstances.genEither().[A] -> 89:26
 (89:77..89:78) _empty_/GenericInstances.genEither().[B] -> 89:29
-(89:96..89:99) _empty_/`:+:`# -> 19:14
+(89:80..89:83) _empty_/`:+:`# -> 19:14
 (89:84..89:89) scala/package.Right#
 (89:90..89:91) _empty_/GenericInstances.genEither().[A] -> 89:26
 (89:93..89:94) _empty_/GenericInstances.genEither().[B] -> 89:29
+(89:96..89:99) _empty_/`:+:`# -> 19:14
 (89:100..89:104) _empty_/CNil# -> 22:14
 (90:9..90:16) _empty_/Generic# -> 24:7
 (90:17..90:23) scala/package.Either#
 (90:24..90:25) _empty_/GenericInstances.genEither().[A] -> 89:26
 (90:27..90:28) _empty_/GenericInstances.genEither().[B] -> 89:29
-(91:30..91:33) _empty_/`:+:`# -> 19:14
 (91:19..91:23) scala/package.Left#
 (91:24..91:25) _empty_/GenericInstances.genEither().[A] -> 89:26
 (91:27..91:28) _empty_/GenericInstances.genEither().[B] -> 89:29
-(91:46..91:49) _empty_/`:+:`# -> 19:14
+(91:30..91:33) _empty_/`:+:`# -> 19:14
 (91:34..91:39) scala/package.Right#
 (91:40..91:41) _empty_/GenericInstances.genEither().[A] -> 89:26
 (91:43..91:44) _empty_/GenericInstances.genEither().[B] -> 89:29
+(91:46..91:49) _empty_/`:+:`# -> 19:14
 (91:50..91:54) _empty_/CNil# -> 22:14
 (92:17..92:23) scala/package.Either#
 (92:24..92:25) _empty_/GenericInstances.genEither().[A] -> 89:26
@@ -322,55 +322,55 @@ Document tests/pos/byname-implicits-14.scala
 (93:23..93:24) _empty_/GenericInstances.genEither().[A] -> 89:26
 (93:26..93:27) _empty_/GenericInstances.genEither().[B] -> 89:29
 (93:31..93:40) scala/unchecked#
-(93:48..93:48) _empty_/Inl.apply(). -> 20:1
 (93:45..93:48) _empty_/Inl. -> 20:18
+(93:48..93:48) _empty_/Inl.apply(). -> 20:1
 (93:49..93:50) local78 -> 93:15
 (94:18..94:23) scala/package.Right#
 (94:24..94:25) _empty_/GenericInstances.genEither().[A] -> 89:26
 (94:27..94:28) _empty_/GenericInstances.genEither().[B] -> 89:29
 (94:31..94:40) scala/unchecked#
-(94:48..94:48) _empty_/Inr.apply(). -> 21:1
 (94:45..94:48) _empty_/Inr. -> 21:18
-(94:52..94:52) _empty_/Inl.apply(). -> 20:1
+(94:48..94:48) _empty_/Inr.apply(). -> 21:1
 (94:49..94:52) _empty_/Inl. -> 20:18
+(94:52..94:52) _empty_/Inl.apply(). -> 20:1
 (94:53..94:54) local79 -> 94:15
 (96:19..96:23) local75 -> 91:12
 (96:26..96:32) scala/package.Either#
 (96:33..96:34) _empty_/GenericInstances.genEither().[A] -> 89:26
 (96:36..96:37) _empty_/GenericInstances.genEither().[B] -> 89:29
 (96:41..96:42) local81 -> 96:16
-(97:17..97:17) _empty_/Inl.unapply(). -> 20:1
 (97:14..97:17) _empty_/Inl. -> 20:18
+(97:17..97:17) _empty_/Inl.unapply(). -> 20:1
 (97:24..97:25) local82 -> 97:18
-(98:17..98:17) _empty_/Inr.unapply(). -> 21:1
 (98:14..98:17) _empty_/Inr. -> 21:18
-(98:21..98:21) _empty_/Inl.unapply(). -> 20:1
+(98:17..98:17) _empty_/Inr.unapply(). -> 21:1
 (98:18..98:21) _empty_/Inl. -> 20:18
+(98:21..98:21) _empty_/Inl.unapply(). -> 20:1
 (98:29..98:30) local83 -> 98:22
 (99:19..99:22) scala/Predef.`???`().
 (103:31..103:38) _empty_/Generic# -> 24:7
 (103:39..103:43) scala/package.Left#
 (103:44..103:45) _empty_/GenericInstances.genLeft().[A] -> 103:24
 (103:47..103:48) _empty_/GenericInstances.genLeft().[B] -> 103:27
-(103:67..103:69) _empty_/`::`# -> 14:18
 (103:65..103:66) _empty_/GenericInstances.genLeft().[A] -> 103:24
+(103:67..103:69) _empty_/`::`# -> 14:18
 (103:70..103:74) _empty_/HNil# -> 15:14
 (104:9..104:16) _empty_/Generic# -> 24:7
 (104:17..104:21) scala/package.Left#
 (104:22..104:23) _empty_/GenericInstances.genLeft().[A] -> 103:24
 (104:25..104:26) _empty_/GenericInstances.genLeft().[B] -> 103:27
-(105:21..105:23) _empty_/`::`# -> 14:18
 (105:19..105:20) _empty_/GenericInstances.genLeft().[A] -> 103:24
+(105:21..105:23) _empty_/`::`# -> 14:18
 (105:24..105:28) _empty_/HNil# -> 15:14
 (106:17..106:21) scala/package.Left#
 (106:22..106:23) _empty_/GenericInstances.genLeft().[A] -> 103:24
 (106:25..106:26) _empty_/GenericInstances.genLeft().[B] -> 103:27
 (106:30..106:34) local86 -> 105:12
 (106:37..106:38) local88 -> 106:14
-(106:56..106:56) scala/util/Left.unapply().
 (106:52..106:56) scala/package.Left.
-(106:65..106:65) _empty_/`::`.apply(). -> 14:1
+(106:56..106:56) scala/util/Left.unapply().
 (106:63..106:65) _empty_/`::`. -> 14:18
+(106:65..106:65) _empty_/`::`.apply(). -> 14:1
 (106:66..106:67) local89 -> 106:57
 (106:69..106:73) _empty_/HNil. -> 16:13
 (107:19..107:23) local86 -> 105:12
@@ -378,35 +378,35 @@ Document tests/pos/byname-implicits-14.scala
 (107:31..107:32) _empty_/GenericInstances.genLeft().[A] -> 103:24
 (107:34..107:35) _empty_/GenericInstances.genLeft().[B] -> 103:27
 (107:39..107:40) local91 -> 107:16
-(107:56..107:56) _empty_/`::`.unapply(). -> 14:1
 (107:54..107:56) _empty_/`::`. -> 14:18
+(107:56..107:56) _empty_/`::`.unapply(). -> 14:1
 (107:60..107:64) _empty_/HNil. -> 16:13
-(107:73..107:73) scala/util/Left.apply().
 (107:69..107:73) scala/package.Left.
+(107:73..107:73) scala/util/Left.apply().
 (107:74..107:75) local92 -> 107:57
 (110:32..110:39) _empty_/Generic# -> 24:7
 (110:40..110:45) scala/package.Right#
 (110:46..110:47) _empty_/GenericInstances.genRight().[A] -> 110:25
 (110:49..110:50) _empty_/GenericInstances.genRight().[B] -> 110:28
-(110:69..110:71) _empty_/`::`# -> 14:18
 (110:67..110:68) _empty_/GenericInstances.genRight().[B] -> 110:28
+(110:69..110:71) _empty_/`::`# -> 14:18
 (110:72..110:76) _empty_/HNil# -> 15:14
 (111:9..111:16) _empty_/Generic# -> 24:7
 (111:17..111:22) scala/package.Right#
 (111:23..111:24) _empty_/GenericInstances.genRight().[A] -> 110:25
 (111:26..111:27) _empty_/GenericInstances.genRight().[B] -> 110:28
-(112:21..112:23) _empty_/`::`# -> 14:18
 (112:19..112:20) _empty_/GenericInstances.genRight().[B] -> 110:28
+(112:21..112:23) _empty_/`::`# -> 14:18
 (112:24..112:28) _empty_/HNil# -> 15:14
 (113:17..113:22) scala/package.Right#
 (113:23..113:24) _empty_/GenericInstances.genRight().[A] -> 110:25
 (113:26..113:27) _empty_/GenericInstances.genRight().[B] -> 110:28
 (113:31..113:35) local95 -> 112:12
 (113:38..113:39) local97 -> 113:14
-(113:58..113:58) scala/util/Right.unapply().
 (113:53..113:58) scala/package.Right.
-(113:67..113:67) _empty_/`::`.apply(). -> 14:1
+(113:58..113:58) scala/util/Right.unapply().
 (113:65..113:67) _empty_/`::`. -> 14:18
+(113:67..113:67) _empty_/`::`.apply(). -> 14:1
 (113:68..113:69) local98 -> 113:59
 (113:71..113:75) _empty_/HNil. -> 16:13
 (114:19..114:23) local95 -> 112:12
@@ -414,11 +414,11 @@ Document tests/pos/byname-implicits-14.scala
 (114:32..114:33) _empty_/GenericInstances.genRight().[A] -> 110:25
 (114:35..114:36) _empty_/GenericInstances.genRight().[B] -> 110:28
 (114:40..114:41) local100 -> 114:16
-(114:57..114:57) _empty_/`::`.unapply(). -> 14:1
 (114:55..114:57) _empty_/`::`. -> 14:18
+(114:57..114:57) _empty_/`::`.unapply(). -> 14:1
 (114:61..114:65) _empty_/HNil. -> 16:13
-(114:75..114:75) scala/util/Right.apply().
 (114:70..114:75) scala/package.Right.
+(114:75..114:75) scala/util/Right.apply().
 (114:76..114:77) local101 -> 114:58
 (121:16..121:17) _empty_/equal.Eq#[T] -> 120:12
 (121:22..121:23) _empty_/equal.Eq#[T] -> 120:12
@@ -430,8 +430,8 @@ Document tests/pos/byname-implicits-14.scala
 (127:20..127:23) scala/Int#
 (127:28..127:31) scala/Int#
 (127:34..127:41) scala/Boolean#
-(127:46..127:48) scala/Int#`==`(+3).
 (127:44..127:45) local104 -> 127:17
+(127:46..127:48) scala/Int#`==`(+3).
 (127:49..127:50) local105 -> 127:25
 (130:28..130:30) _empty_/equal.Eq# -> 120:9
 (130:31..130:37) scala/Predef.String#
@@ -440,8 +440,8 @@ Document tests/pos/byname-implicits-14.scala
 (132:20..132:26) scala/Predef.String#
 (132:31..132:37) scala/Predef.String#
 (132:40..132:47) scala/Boolean#
-(132:52..132:54) scala/Any#`==`().
 (132:50..132:51) local108 -> 132:17
+(132:52..132:54) scala/Any#`==`().
 (132:55..132:56) local109 -> 132:28
 (137:14..137:21) _empty_/Generic# -> 24:7
 (137:22..137:23) _empty_/equal.Eq.eqGeneric().[T] -> 135:28
@@ -455,13 +455,13 @@ Document tests/pos/byname-implicits-14.scala
 (141:22..141:23) _empty_/equal.Eq.eqGeneric().[T] -> 135:28
 (141:28..141:29) _empty_/equal.Eq.eqGeneric().[T] -> 135:28
 (141:32..141:39) scala/Boolean#
-(142:20..142:23) _empty_/equal.Eq#eqv(). -> 121:9
 (142:13..142:19) _empty_/equal.Eq.eqGeneric().(eqRepr) -> 138:9
-(142:28..142:30) _empty_/Generic#to(). -> 26:7
+(142:20..142:23) _empty_/equal.Eq#eqv(). -> 121:9
 (142:24..142:27) _empty_/equal.Eq.eqGeneric().(gen) -> 137:9
+(142:28..142:30) _empty_/Generic#to(). -> 26:7
 (142:31..142:32) local113 -> 141:19
-(142:39..142:41) _empty_/Generic#to(). -> 26:7
 (142:35..142:38) _empty_/equal.Eq.eqGeneric().(gen) -> 137:9
+(142:39..142:41) _empty_/Generic#to(). -> 26:7
 (142:42..142:43) local114 -> 141:25
 (145:26..145:28) _empty_/equal.Eq# -> 120:9
 (145:29..145:33) _empty_/HNil# -> 15:14
@@ -476,33 +476,33 @@ Document tests/pos/byname-implicits-14.scala
 (152:17..152:19) _empty_/equal.Eq# -> 120:9
 (152:20..152:21) _empty_/equal.Eq.eqHCons().[T] -> 149:29
 (153:10..153:12) _empty_/equal.Eq# -> 120:9
-(153:15..153:17) _empty_/`::`# -> 14:18
 (153:13..153:14) _empty_/equal.Eq.eqHCons().[H] -> 149:26
+(153:15..153:17) _empty_/`::`# -> 14:18
 (153:18..153:19) _empty_/equal.Eq.eqHCons().[T] -> 149:29
 (154:13..154:15) _empty_/equal.Eq# -> 120:9
-(154:18..154:20) _empty_/`::`# -> 14:18
 (154:16..154:17) _empty_/equal.Eq.eqHCons().[H] -> 149:26
+(154:18..154:20) _empty_/`::`# -> 14:18
 (154:21..154:22) _empty_/equal.Eq.eqHCons().[T] -> 149:29
-(155:24..155:26) _empty_/`::`# -> 14:18
 (155:22..155:23) _empty_/equal.Eq.eqHCons().[H] -> 149:26
+(155:24..155:26) _empty_/`::`# -> 14:18
 (155:27..155:28) _empty_/equal.Eq.eqHCons().[T] -> 149:29
-(155:35..155:37) _empty_/`::`# -> 14:18
 (155:33..155:34) _empty_/equal.Eq.eqHCons().[H] -> 149:26
+(155:35..155:37) _empty_/`::`# -> 14:18
 (155:38..155:39) _empty_/equal.Eq.eqHCons().[T] -> 149:29
 (155:42..155:49) scala/Boolean#
-(156:37..156:39) scala/Boolean#`&&`().
-(156:17..156:20) _empty_/equal.Eq#eqv(). -> 121:9
 (156:13..156:16) _empty_/equal.Eq.eqHCons().(eqH) -> 151:9
-(156:23..156:27) _empty_/`::`#head. -> 14:38
+(156:17..156:20) _empty_/equal.Eq#eqv(). -> 121:9
 (156:21..156:22) local121 -> 155:19
-(156:31..156:35) _empty_/`::`#head. -> 14:38
+(156:23..156:27) _empty_/`::`#head. -> 14:38
 (156:29..156:30) local122 -> 155:30
-(156:44..156:47) _empty_/equal.Eq#eqv(). -> 121:9
+(156:31..156:35) _empty_/`::`#head. -> 14:38
+(156:37..156:39) scala/Boolean#`&&`().
 (156:40..156:43) _empty_/equal.Eq.eqHCons().(eqT) -> 152:9
-(156:50..156:54) _empty_/`::`#tail. -> 14:47
+(156:44..156:47) _empty_/equal.Eq#eqv(). -> 121:9
 (156:48..156:49) local121 -> 155:19
-(156:58..156:62) _empty_/`::`#tail. -> 14:47
+(156:50..156:54) _empty_/`::`#tail. -> 14:47
 (156:56..156:57) local122 -> 155:30
+(156:58..156:62) _empty_/`::`#tail. -> 14:47
 (159:26..159:28) _empty_/equal.Eq# -> 120:9
 (159:29..159:33) _empty_/CNil# -> 22:14
 (159:41..159:43) _empty_/equal.Eq# -> 120:9
@@ -516,39 +516,39 @@ Document tests/pos/byname-implicits-14.scala
 (166:17..166:19) _empty_/equal.Eq# -> 120:9
 (166:20..166:21) _empty_/equal.Eq.eqCNCons().[T] -> 163:30
 (167:10..167:12) _empty_/equal.Eq# -> 120:9
-(167:15..167:18) _empty_/`:+:`# -> 19:14
 (167:13..167:14) _empty_/equal.Eq.eqCNCons().[H] -> 163:27
+(167:15..167:18) _empty_/`:+:`# -> 19:14
 (167:19..167:20) _empty_/equal.Eq.eqCNCons().[T] -> 163:30
 (168:13..168:15) _empty_/equal.Eq# -> 120:9
-(168:18..168:21) _empty_/`:+:`# -> 19:14
 (168:16..168:17) _empty_/equal.Eq.eqCNCons().[H] -> 163:27
+(168:18..168:21) _empty_/`:+:`# -> 19:14
 (168:22..168:23) _empty_/equal.Eq.eqCNCons().[T] -> 163:30
-(169:24..169:27) _empty_/`:+:`# -> 19:14
 (169:22..169:23) _empty_/equal.Eq.eqCNCons().[H] -> 163:27
+(169:24..169:27) _empty_/`:+:`# -> 19:14
 (169:28..169:29) _empty_/equal.Eq.eqCNCons().[T] -> 163:30
-(169:36..169:39) _empty_/`:+:`# -> 19:14
 (169:34..169:35) _empty_/equal.Eq.eqCNCons().[H] -> 163:27
+(169:36..169:39) _empty_/`:+:`# -> 19:14
 (169:40..169:41) _empty_/equal.Eq.eqCNCons().[T] -> 163:30
 (169:44..169:51) scala/Boolean#
 (170:14..170:14) scala/Tuple2.apply().
 (170:14..170:15) local129 -> 169:19
 (170:17..170:18) local130 -> 169:31
 (171:21..171:21) scala/Tuple2.unapply().
-(171:24..171:24) _empty_/Inl.unapply(). -> 20:1
 (171:21..171:24) _empty_/Inl. -> 20:18
-(171:33..171:33) _empty_/Inl.unapply(). -> 20:1
+(171:24..171:24) _empty_/Inl.unapply(). -> 20:1
 (171:30..171:33) _empty_/Inl. -> 20:18
-(171:46..171:49) _empty_/equal.Eq#eqv(). -> 121:9
+(171:33..171:33) _empty_/Inl.unapply(). -> 20:1
 (171:42..171:45) _empty_/equal.Eq.eqCNCons().(eqH) -> 165:9
+(171:46..171:49) _empty_/equal.Eq#eqv(). -> 121:9
 (171:50..171:52) local131 -> 171:25
 (171:54..171:56) local132 -> 171:34
 (172:21..172:21) scala/Tuple2.unapply().
-(172:24..172:24) _empty_/Inr.unapply(). -> 21:1
 (172:21..172:24) _empty_/Inr. -> 21:18
-(172:33..172:33) _empty_/Inr.unapply(). -> 21:1
+(172:24..172:24) _empty_/Inr.unapply(). -> 21:1
 (172:30..172:33) _empty_/Inr. -> 21:18
-(172:46..172:49) _empty_/equal.Eq#eqv(). -> 121:9
+(172:33..172:33) _empty_/Inr.unapply(). -> 21:1
 (172:42..172:45) _empty_/equal.Eq.eqCNCons().(eqT) -> 166:9
+(172:46..172:49) _empty_/equal.Eq#eqv(). -> 121:9
 (172:50..172:52) local133 -> 172:25
 (172:54..172:56) local134 -> 172:34
 (178:30..178:31) _empty_/equal.EqOps#[T] -> 178:24
@@ -556,8 +556,8 @@ Document tests/pos/byname-implicits-14.scala
 (178:50..178:51) _empty_/equal.EqOps#[T] -> 178:24
 (179:16..179:17) _empty_/equal.EqOps#[T] -> 178:24
 (179:20..179:27) scala/Boolean#
-(179:34..179:37) _empty_/equal.Eq#eqv(). -> 121:9
 (179:30..179:33) _empty_/equal.EqOps#eqT. -> 178:42
+(179:34..179:37) _empty_/equal.Eq#eqv(). -> 121:9
 (179:38..179:39) _empty_/equal.EqOps#x. -> 178:27
 (179:41..179:42) _empty_/equal.EqOps#`===`().(y) -> 179:13
 (182:10..182:26) _empty_/GenericInstances. -> 32:8
@@ -568,8 +568,8 @@ Document tests/pos/byname-implicits-14.scala
 (184:75..184:79) scala/Long#
 (184:84..184:88) scala/Long#
 (184:95..184:102) scala/Boolean#
-(184:107..184:109) scala/Long#`==`(+4).
 (184:105..184:106) local137 -> 184:72
+(184:107..184:109) scala/Long#`==`(+4).
 (184:110..184:111) local138 -> 184:81
 (185:34..185:36) _empty_/equal.Eq# -> 120:9
 (185:37..185:43) scala/Double#
@@ -578,8 +578,8 @@ Document tests/pos/byname-implicits-14.scala
 (185:75..185:81) scala/Double#
 (185:86..185:92) scala/Double#
 (185:95..185:102) scala/Boolean#
-(185:107..185:109) scala/Double#`==`(+6).
 (185:105..185:106) local141 -> 185:72
+(185:107..185:109) scala/Double#`==`(+6).
 (185:110..185:111) local142 -> 185:83
 (186:34..186:36) _empty_/equal.Eq# -> 120:9
 (186:37..186:40) scala/Int#
@@ -588,8 +588,8 @@ Document tests/pos/byname-implicits-14.scala
 (186:75..186:78) scala/Int#
 (186:83..186:86) scala/Int#
 (186:95..186:102) scala/Boolean#
-(186:107..186:109) scala/Int#`==`(+3).
 (186:105..186:106) local145 -> 186:72
+(186:107..186:109) scala/Int#`==`(+3).
 (186:110..186:111) local146 -> 186:80
 (187:34..187:36) _empty_/equal.Eq# -> 120:9
 (187:37..187:43) scala/Predef.String#
@@ -598,46 +598,46 @@ Document tests/pos/byname-implicits-14.scala
 (187:75..187:81) scala/Predef.String#
 (187:86..187:92) scala/Predef.String#
 (187:95..187:102) scala/Boolean#
-(187:107..187:109) scala/Any#`==`().
 (187:105..187:106) local149 -> 187:72
+(187:107..187:109) scala/Any#`==`().
 (187:110..187:111) local150 -> 187:83
 (189:3..189:13) scala/Predef.implicitly().
 (189:14..189:16) _empty_/equal.Eq# -> 120:9
 (189:17..189:20) _empty_/Dog# -> 8:12
-(189:22..189:22) _empty_/equal.Eq.eqGeneric(). -> 135:18
 (189:22..189:22) _empty_/GenericInstances.genDog. -> 75:16
+(189:22..189:22) _empty_/equal.Eq.eqGeneric(). -> 135:18
 (189:22..189:22) _empty_/equal.Eq.eqHCons(). -> 149:18
-(189:22..189:22) _empty_/equal.EqLongInstance. -> 184:16
 (189:22..189:22) _empty_/equal.Eq.eqHNil. -> 145:18
+(189:22..189:22) _empty_/equal.EqLongInstance. -> 184:16
 (190:3..190:13) scala/Predef.implicitly().
 (190:14..190:16) _empty_/equal.Eq# -> 120:9
 (190:17..190:20) _empty_/Cat# -> 9:12
-(190:22..190:22) _empty_/equal.Eq.eqGeneric(). -> 135:18
 (190:22..190:22) _empty_/GenericInstances.genCat. -> 82:16
-(190:22..190:22) _empty_/equal.Eq.eqHCons(). -> 149:18
-(190:22..190:22) _empty_/equal.EqStringInstance. -> 187:16
-(190:22..190:22) _empty_/GenericInstances.genEither(). -> 89:16
-(190:22..190:22) _empty_/equal.Eq.eqCNCons(). -> 163:18
-(190:22..190:22) _empty_/GenericInstances.genLeft(). -> 103:16
-(190:22..190:22) _empty_/equal.Eq.eqHNil. -> 145:18
-(190:22..190:22) _empty_/GenericInstances.genRight(). -> 110:16
 (190:22..190:22) _empty_/GenericInstances.genDog. -> 75:16
-(190:22..190:22) _empty_/equal.EqLongInstance. -> 184:16
+(190:22..190:22) _empty_/GenericInstances.genEither(). -> 89:16
+(190:22..190:22) _empty_/GenericInstances.genLeft(). -> 103:16
+(190:22..190:22) _empty_/GenericInstances.genRight(). -> 110:16
+(190:22..190:22) _empty_/equal.Eq.eqCNCons(). -> 163:18
 (190:22..190:22) _empty_/equal.Eq.eqCNil. -> 159:18
+(190:22..190:22) _empty_/equal.Eq.eqGeneric(). -> 135:18
+(190:22..190:22) _empty_/equal.Eq.eqHCons(). -> 149:18
+(190:22..190:22) _empty_/equal.Eq.eqHNil. -> 145:18
+(190:22..190:22) _empty_/equal.EqLongInstance. -> 184:16
+(190:22..190:22) _empty_/equal.EqStringInstance. -> 187:16
 (191:3..191:13) scala/Predef.implicitly().
 (191:14..191:16) _empty_/equal.Eq# -> 120:9
 (191:17..191:24) _empty_/IDAABBS# -> 6:12
-(191:26..191:26) _empty_/equal.Eq.eqGeneric(). -> 135:18
-(191:26..191:26) _empty_/GenericInstances.genIDAABBS. -> 68:16
-(191:26..191:26) _empty_/equal.Eq.eqHCons(). -> 149:18
-(191:26..191:26) _empty_/equal.EqIntInstance. -> 186:16
-(191:26..191:26) _empty_/GenericInstances.genDAABB. -> 61:16
-(191:26..191:26) _empty_/equal.EqDoubleInstance. -> 185:16
-(191:26..191:26) _empty_/GenericInstances.genAABB. -> 33:16
-(191:26..191:26) _empty_/equal.Eq.eqCNCons(). -> 163:18
 (191:26..191:26) _empty_/GenericInstances.genAA. -> 47:16
-(191:26..191:26) _empty_/equal.EqStringInstance. -> 187:16
-(191:26..191:26) _empty_/equal.Eq.eqHNil. -> 145:18
+(191:26..191:26) _empty_/GenericInstances.genAABB. -> 33:16
 (191:26..191:26) _empty_/GenericInstances.genBB. -> 54:16
+(191:26..191:26) _empty_/GenericInstances.genDAABB. -> 61:16
+(191:26..191:26) _empty_/GenericInstances.genIDAABBS. -> 68:16
+(191:26..191:26) _empty_/equal.Eq.eqCNCons(). -> 163:18
 (191:26..191:26) _empty_/equal.Eq.eqCNil. -> 159:18
+(191:26..191:26) _empty_/equal.Eq.eqGeneric(). -> 135:18
+(191:26..191:26) _empty_/equal.Eq.eqHCons(). -> 149:18
+(191:26..191:26) _empty_/equal.Eq.eqHNil. -> 145:18
+(191:26..191:26) _empty_/equal.EqDoubleInstance. -> 185:16
+(191:26..191:26) _empty_/equal.EqIntInstance. -> 186:16
+(191:26..191:26) _empty_/equal.EqStringInstance. -> 187:16
 

@@ -7,8 +7,8 @@ Document tests/pos/t5886.scala
 (3:27..3:28) _empty_/A.f1().(x) -> 3:13
 (4:22..4:23) _empty_/A.f2().[T] -> 4:10
 (4:26..4:27) _empty_/A.f2().[T] -> 4:10
-(4:31..4:31) scala/Function0#apply().
 (4:30..4:31) _empty_/A.f2().(x) -> 4:13
+(4:31..4:31) scala/Function0#apply().
 (6:3..6:5) _empty_/A.f0(). -> 2:7
 (6:11..6:19) scala/Any#getClass().
 (7:3..7:5) _empty_/A.f1(). -> 3:7
