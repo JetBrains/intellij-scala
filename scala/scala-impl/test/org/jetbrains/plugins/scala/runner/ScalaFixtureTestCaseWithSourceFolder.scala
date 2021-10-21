@@ -37,11 +37,8 @@ abstract class ScalaFixtureTestCaseWithSourceFolder extends ScalaFixtureTestCase
 
   protected def getSourceRootDir: VirtualFile = getBaseDir.findChild("src")
 
-  protected def scalaLanguage: Language = {
-    val languageLevel = version.languageLevel
-    if (languageLevel >= ScalaLanguageLevel.Scala_3_0) Scala3Language.INSTANCE
-    else ScalaLanguage.INSTANCE
-  }
+  protected def scalaLanguage: Language =
+    version.language
 
   protected def getBaseDir: VirtualFile = {
     getProject.baseDir.ensuring(_ != null, "project base directory is null")

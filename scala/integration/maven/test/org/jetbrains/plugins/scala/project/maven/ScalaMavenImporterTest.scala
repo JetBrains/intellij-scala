@@ -90,8 +90,8 @@ class ScalaMavenImporterTest
       }
     ))
 
-  def testWithScala3(): Unit =
-    runImportingTest_Common("testWithScala3", "projectWithScala3", Seq(
+  def testWithScala3_0(): Unit =
+    runImportingTest_Common("testWithScala3_0", "projectWithScala3_0", Seq(
       new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.5").get)}") {
         classes := Seq("org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar").map(mavenLocalArtifact)
         scalaSdkSettings := None
@@ -110,6 +110,32 @@ class ScalaMavenImporterTest
           "org/scala-lang/scala3-interfaces/3.0.0/scala3-interfaces-3.0.0.jar",
           "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
           "org/scala-lang/tasty-core_3/3.0.0/tasty-core_3-3.0.0.jar",
+          "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
+          "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
+        ).map(mavenLocalArtifact)))
+      }
+    ))
+
+  def testWithScala3_1(): Unit =
+    runImportingTest_Common("testWithScala3_1", "projectWithScala3_1", Seq(
+      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.6").get)}") {
+        classes := Seq("org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar").map(mavenLocalArtifact)
+        scalaSdkSettings := None
+      },
+      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("3.1.0").get)}") {
+        classes := Seq("org/scala-lang/scala3-library_3/3.1.0/scala3-library_3-3.1.0.jar").map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_1, Seq(
+          "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
+          "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
+          "org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar",
+          "org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar",
+          "org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar",
+          "org/scala-lang/modules/scala-asm/9.1.0-scala-1/scala-asm-9.1.0-scala-1.jar",
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar",
+          "org/scala-lang/scala3-compiler_3/3.1.0/scala3-compiler_3-3.1.0.jar",
+          "org/scala-lang/scala3-interfaces/3.1.0/scala3-interfaces-3.1.0.jar",
+          "org/scala-lang/scala3-library_3/3.1.0/scala3-library_3-3.1.0.jar",
+          "org/scala-lang/tasty-core_3/3.1.0/tasty-core_3-3.1.0.jar",
           "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
           "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
         ).map(mavenLocalArtifact)))

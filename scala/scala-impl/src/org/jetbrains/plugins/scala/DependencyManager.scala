@@ -255,19 +255,14 @@ object DependencyManagerBase {
     def scalaArtifact(kind: String, scalaVersion: ScalaVersion): DependencyDescription = {
       /**
        * Examples:
-       *  - https://mvnrepository.com/artifact/ch.epfl.lamp/dotty-library_0.27/0.27.0-RC1
-       *  - https://mvnrepository.com/artifact/org.scala-lang/scala3-library_3.0.0-M1/3.0.0-M1
-       *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.3
+       *  - https://mvnrepository.com/artifact/org.scala-lang/scala3-library_3/3.0.0
+       *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.6
        */
-      val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
-        case ScalaLanguageLevel.Scala_3_0 =>
-          val minorSuffix = scalaVersion.minorSuffix
-          if (minorSuffix.startsWith("0") && minorSuffix.contains("-")) // e.g. 3.0.0-RC3
-            ("org.scala-lang", "scala3", "_" + scalaVersion.major)
-          else
-            ("org.scala-lang", "scala3", "_3")
-        case _                            => ("org.scala-lang", "scala", "")
-      }
+      val (org, idPrefix, idSuffix) =
+        if (scalaVersion.isScala3)
+          ("org.scala-lang", "scala3", "_3")
+        else
+          ("org.scala-lang", "scala", "")
 
       DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)
     }

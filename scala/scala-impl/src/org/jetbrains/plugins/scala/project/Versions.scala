@@ -109,7 +109,7 @@ object Versions {
     val Scala3Entity: Entity = Entity(
       url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
       minVersion = Scala_3_0.major + ".0",
-      hardcodedVersions = Scala_3_0.minor :: Nil
+      hardcodedVersions = Scala_3_1.minor :: Scala_3_0.minor :: Nil
     )
 
     private val CandidateVersionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r

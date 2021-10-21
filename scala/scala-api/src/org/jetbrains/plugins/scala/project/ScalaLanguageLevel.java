@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala.project;
 
+import com.intellij.lang.Language;
 import com.intellij.openapi.util.Key;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.Scala3Language;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import scala.Option;
 import scala.math.Ordered;
 
@@ -16,13 +19,25 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
     Scala_3_0("3.0"),
+    Scala_3_1("3.1"),
     //not yet released scala versions
     //(added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
-    Scala_3_1("3.1"),
     Scala_3_2("3.2"),
+    Scala_3_3("3.3"),
     ;
 
-    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_0;
+    public boolean isScala3() {
+        return this.compare(Scala_3_0) >= 0;
+    }
+    public boolean isScala2() {
+        return this.compare(Scala_3_0) < 0;
+    }
+
+    public Language getLanguage() {
+        return isScala3() ? Scala3Language.INSTANCE : ScalaLanguage.INSTANCE;
+    }
+
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_1;
     public static final ScalaLanguageLevel[] publishedVersions;
 
     static {
