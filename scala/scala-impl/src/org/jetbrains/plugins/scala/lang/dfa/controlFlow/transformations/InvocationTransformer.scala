@@ -8,12 +8,12 @@ import com.intellij.codeInspection.dataFlow.types.{DfIntegralType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._

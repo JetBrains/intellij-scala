@@ -9,8 +9,9 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.LogicalBinary

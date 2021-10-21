@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
 class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)

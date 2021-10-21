@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 
 /**
  * Interface for abstractions over Scala PSI elements that can be transformed into Intermediate Representation

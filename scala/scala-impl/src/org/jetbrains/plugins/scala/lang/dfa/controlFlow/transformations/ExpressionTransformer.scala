@@ -5,8 +5,8 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.psi.{PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

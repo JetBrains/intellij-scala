@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaDfaControlFlowBuilderTestBase
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilderTestBase
 
 class IfStatementControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
