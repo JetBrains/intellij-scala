@@ -43,7 +43,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     val langLevel = getVersion.languageLevel
 
     val description = langLevel match {
-      case Scala_2_11 | Scala_3_0 =>
+      case Scala_2_11 | Scala_3_0 | Scala_3_1 =>
         "Emit warning and location for usages of deprecated APIs."
       case Scala_2_12 | Scala_2_13 =>
         "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]"

@@ -70,14 +70,16 @@ val artifactsWithLanguageLevel = latestVersions
 
     val compilerArtifact = DependencyDescription.scalaArtifact("compiler", version)
     val libraryArtifact = DependencyDescription.scalaArtifact("library", version)
-    val maybeReflectArtifact = Option.when(langLevel < ScalaLanguageLevel.Scala_3_0 &&
-      langLevel >= ScalaLanguageLevel.Scala_2_10)(DependencyDescription.scalaArtifact("reflect", version))
+    val maybeReflectArtifact = Option.when(
+      ScalaLanguageLevel.Scala_2_10 <= langLevel && langLevel < ScalaLanguageLevel.Scala_3_0
+    )(DependencyDescription.scalaArtifact("reflect", version))
 
     val artifactsList = List(compilerArtifact, libraryArtifact) ++ maybeReflectArtifact
 
-    val artifacts = if (langLevel >= ScalaLanguageLevel.Scala_3_0)
+    val artifacts = if (langLevel.isScala3)
       artifactsList.map(_.transitive())
-    else artifactsList
+    else
+      artifactsList
 
     (artifacts, langLevel)
   }
@@ -314,9 +316,10 @@ def convertSettings(list: List[Any], additionalMapping: Option[Any => Any])
                    (implicit classLoader: ClassLoader, langLevel: ScalaLanguageLevel): List[SbtScalacOptionInfo] = {
   val settings = additionalMapping.fold(list)(list.map)
 
-  if (langLevel >= ScalaLanguageLevel.Scala_3_0)
+  if (langLevel.isScala3)
     convertScala3Settings(settings)
-  else convertScala2Settings(settings)
+  else
+    convertScala2Settings(settings)
 }
 
 /** Get all compiler settings for the given lang level via reflection.
@@ -325,12 +328,12 @@ def convertSettings(list: List[Any], additionalMapping: Option[Any => Any])
  * the class loader with artifacts for the given lang level
  * */
 def getScalacOptions(implicit classLoader: ClassLoader, langLevel: ScalaLanguageLevel): List[SbtScalacOptionInfo] = {
-  val isDotty = langLevel >= ScalaLanguageLevel.Scala_3_0
+  val isScala3 = langLevel.isScala3
   val additionalMapping =
-    Option.when(!isDotty && langLevel > ScalaLanguageLevel.Scala_2_11)(getSecondElementOfTuple2(_))
+    Option.when(!isScala3 && langLevel > ScalaLanguageLevel.Scala_2_11)(getSecondElementOfTuple2(_))
 
   val settingsClassName =
-    if (isDotty) "dotty.tools.dotc.config.ScalaSettings"
+    if (isScala3) "dotty.tools.dotc.config.ScalaSettings"
     else "scala.tools.nsc.doc.Settings"
   val settingsClass = loadClass(settingsClassName)
 

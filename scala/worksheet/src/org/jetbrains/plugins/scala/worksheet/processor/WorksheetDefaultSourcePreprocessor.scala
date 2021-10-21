@@ -74,11 +74,10 @@ object WorksheetDefaultSourcePreprocessor {
     val packageOpt: Option[String] = packageForFile(srcFile)
 
     val sourceBuilder =
-      if (languageLevel >= ScalaLanguageLevel.Scala_3_0) {
+      if (languageLevel.isScala3)
         new Scala3SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
-      } else {
+      else
         new Scala2SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
-      }
 
     val (root, preDeclarations, postDeclarations) =
       if (isForObject(srcFile)) {

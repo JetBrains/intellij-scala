@@ -17,10 +17,7 @@ import java.io.File
 
 trait RunConfigurationCreationOps extends ScalaSdkOwner {
 
-  private def scalaLanguage: Language = {
-    if (this.version.languageLevel >= ScalaLanguageLevel.Scala_3_0) Scala3Language.INSTANCE
-    else ScalaLanguage.INSTANCE
-  }
+  private def scalaLanguage: Language = this.version.language
 
   protected final def createPsiLocation(
     caretLocation: CaretLocation,

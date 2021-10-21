@@ -12,8 +12,17 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
 }
 
 @Category(Array(classOf[SlowTests]))
-class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
+class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
+}
+
+@Category(Array(classOf[SlowTests]))
+class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
+}
+
+@Category(Array(classOf[SlowTests]))
+abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
 
   def testImportTypeFix(): Unit = runTestCase(
     fileName = "ImportTypeFix.scala",
@@ -49,7 +58,6 @@ class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTestBas
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
   self: ScalaCompilerHighlightingTestBase =>
-
 
   def testWarningHighlighting(): Unit = runTestCase(
     fileName = "ExhaustiveMatchWarning.scala",

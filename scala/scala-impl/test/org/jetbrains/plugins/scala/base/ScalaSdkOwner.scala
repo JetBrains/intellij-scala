@@ -72,8 +72,6 @@ trait ScalaSdkOwner extends Test
 
 object ScalaSdkOwner {
 
-  private val Scala3Versions = Seq(LatestScalaVersions.Scala_3_0)
-
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)
   //       for now just use defaultVersionOverride with Some(preferableSdkVersion) for test-(base)classes
@@ -82,11 +80,11 @@ object ScalaSdkOwner {
   val preferableSdkVersion: ScalaVersion = LatestScalaVersions.Scala_2_13
   val allTestVersions: SortedSet[ScalaVersion] = {
     val allScalaMinorVersions = for {
-      latestVersion <- LatestScalaVersions.all.filterNot(Scala3Versions.contains)
+      latestVersion <- LatestScalaVersions.all
       minor <- 0 to latestVersion.minorSuffix.toInt
     } yield latestVersion.withMinor(minor)
 
-    SortedSet(allScalaMinorVersions ++ Scala3Versions: _*)
+    SortedSet.from(allScalaMinorVersions)
   }
 
 

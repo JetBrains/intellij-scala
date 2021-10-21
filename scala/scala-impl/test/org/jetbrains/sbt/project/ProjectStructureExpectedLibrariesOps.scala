@@ -69,7 +69,7 @@ trait ProjectStructureExpectedLibrariesOps {
     val scalaVersionStr = scalaVersion.minor
     val dependency = scalaLibraryDescription(scalaVersion)
 
-    if (scalaVersion.languageLevel < ScalaLanguageLevel.Scala_3_0) {
+    if (scalaVersion.languageLevel.isScala2) {
       new library(s"sbt: $dependency:jar") {
         libClasses  := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar")
         libSources  := coursierCacheArtifacts(s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr-sources.jar")

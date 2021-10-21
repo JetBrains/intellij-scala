@@ -21,7 +21,7 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
 
 
   def languageLevel: ScalaLanguageLevel = Bits.languageLevel.read(bits)
-  def isScala3: Boolean = languageLevel >= ScalaLanguageLevel.Scala_3_0
+  def isScala3: Boolean = languageLevel.isScala3
 
   private def hasSource3Flag: Boolean = Bits.hasSource3Flag.read(bits)
   private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
@@ -67,7 +67,7 @@ object ScalaFeatures {
             hasNoIndentFlag: Boolean,
             hasOldSyntaxFlag: Boolean): ScalaFeatures = {
     val languageLevel = version.languageLevel
-    val isScala3 = languageLevel >= ScalaLanguageLevel.Scala_3_0
+    val isScala3 = languageLevel.isScala3
 
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean =
       forMinorVersion(version, isScala3, _ >= minorVersion14 && hasSource3Flag, _ >= minorVersion6 && hasSource3Flag)

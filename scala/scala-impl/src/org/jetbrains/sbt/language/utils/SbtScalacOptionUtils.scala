@@ -116,7 +116,7 @@ object SbtScalacOptionUtils {
     import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
     import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 
-    val versions = Set(Scala_2_11, Scala_2_12, Scala_2_13, Scala_3_0)
+    val versions = Set(Scala_2_11, Scala_2_12, Scala_2_13, Scala_3_0, Scala_3_1)
 
     Seq(
       SbtScalacOptionInfo(
@@ -125,7 +125,8 @@ object SbtScalacOptionUtils {
           Scala_2_11 -> "Emit warning and location for usages of deprecated APIs.",
           Scala_2_12 -> "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
           Scala_2_13 -> "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]",
-          Scala_3_0 -> "Emit warning and location for usages of deprecated APIs."
+          Scala_3_0 -> "Emit warning and location for usages of deprecated APIs.",
+          Scala_3_1 -> "Emit warning and location for usages of deprecated APIs.",
         ),
         choices = Map.empty,
         argType = ArgType.No,
@@ -162,7 +163,8 @@ object SbtScalacOptionUtils {
           Scala_2_11 -> "Suppress generation of generic signatures for Java.",
           Scala_2_12 -> "Suppress generation of generic signatures for Java. [false]",
           Scala_2_13 -> "Suppress generation of generic signatures for Java. [false]",
-          Scala_3_0 -> "Suppress generation of generic signatures for Java."
+          Scala_3_0 -> "Suppress generation of generic signatures for Java.",
+          Scala_3_1 -> "Suppress generation of generic signatures for Java.",
         ),
         choices = Map.empty,
         argType = ArgType.No,
@@ -177,7 +179,8 @@ object SbtScalacOptionUtils {
           Scala_2_11 -> "Print out program after <phases>",
           Scala_2_12 -> "Print out program after <phases>",
           Scala_2_13 -> "Print out program after <phases>",
-          Scala_3_0 -> "Print out program after"
+          Scala_3_0 -> "Print out program after",
+          Scala_3_1 -> "Print out program after",
         ),
         scalaVersions = versions,
         defaultValue = None,
@@ -218,7 +221,8 @@ object SbtScalacOptionUtils {
           Scala_2_11 -> "Enable or disable language features: `_' for all, `-language:help' to list",
           Scala_2_12 -> "Enable or disable language features: `_' for all, `-language:help' to list choices.",
           Scala_2_13 -> "Enable or disable language features",
-          Scala_3_0 -> "Enable one or more language features."
+          Scala_3_0 -> "Enable one or more language features.",
+          Scala_3_1 -> "Enable one or more language features.",
         ),
         scalaVersions = versions,
         defaultValue = None
