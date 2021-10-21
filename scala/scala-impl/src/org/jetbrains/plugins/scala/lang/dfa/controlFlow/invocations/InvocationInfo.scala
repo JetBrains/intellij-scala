@@ -38,16 +38,17 @@ case class InvocationInfo(invokedElement: Option[InvokedElement],
   val properArguments: List[List[Argument]] = argListsInEvaluationOrder.map(_.filter(_.kind.is[ProperArgument]))
 
   /**
-   * If ```paramToArgMapping(paramIndex) == argIndex```, then the returned mapping maps
+   * If ```paramToProperArgMapping(paramIndex) == argIndex```, then the returned mapping maps
    * the parameter on position ```paramIndex``` in order in the function's parameter sequence
-   * to the argument on position ```argIndex``` in the evaluation order of arguments in an invocation of this function.
+   * to the argument on position ```argIndex``` in the evaluation order of proper arguments
+   * (ignoring the "this" argument) in an invocation of this function.
    *
    * If the function has multiple parameter/argument lists, the lists are flattened and the indices are counted
    * disregarding the boundaries between the lists.
    *
-   * @return list representing parameter-to-argument mapping for this invocation
+   * @return list representing parameter-to-proper-argument mapping for this invocation
    */
-  val paramToArgMapping: List[Option[Int]] = generateParamToArgMapping(invokedElement, properArguments)
+  val paramToProperArgMapping: List[Option[Int]] = generateParamToArgMapping(invokedElement, properArguments)
 }
 
 object InvocationInfo {

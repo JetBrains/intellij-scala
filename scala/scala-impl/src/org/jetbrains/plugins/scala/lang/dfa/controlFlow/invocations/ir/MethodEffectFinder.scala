@@ -3,20 +3,18 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir
 import com.intellij.codeInspection.dataFlow.CustomMethodHandlers.CustomMethodHandler
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.JavaDfaHelpers
-import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.InterproceduralAnalysis.registerParameterValues
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType, unknownDfaValue}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
@@ -68,7 +66,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
       .getOrElse(DfType.TOP)
 
     val classesEnhancement = findSpecialSupportForClasses(invocationInfo, argumentValues) match {
-      case Some((classParamValues, methodEffect)) => assignClassParameterValues(classParamValues, interpreter, stateBefore)
+      case Some((classParamValues, methodEffect)) => registerParameterValues(classParamValues, interpreter, stateBefore)
         Some(methodEffect)
       case _ => None
     }
@@ -83,17 +81,6 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
                                (implicit factory: DfaValueFactory): MethodEffect = {
     val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
     methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
-  }
-
-  private def assignClassParameterValues(classParameterValues: Map[ScClassParameter, DfaValue],
-                                         interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState)
-                                        (implicit factory: DfaValueFactory): Unit = {
-    classParameterValues.foreach { case (parameter, value) =>
-      val dfaVariable = factory.getVarFactory.createVariableValue(ScalaDfaVariableDescriptor(parameter, parameter.isStable))
-      stateBefore.push(value)
-      val assignment = new SimpleAssignmentInstruction(null, dfaVariable)
-      assignment.accept(interpreter, stateBefore)
-    }
   }
 
   private def findMethodEffectWithJavaCustomHandler(stateBefore: DfaMemoryState,

@@ -3,12 +3,14 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir
 import com.intellij.codeInspection.dataFlow.jvm.descriptors.JvmVariableDescriptor
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.DfaVariableValue
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-case class MethodResultDescriptor() extends JvmVariableDescriptor {
+case class MethodResultDescriptor(method: ScFunction) extends JvmVariableDescriptor {
 
-  override def toString: String = "RESULT"
+  override def toString: String = "RESULT OF" + method.name
 
-  override def getDfType(qualifier: DfaVariableValue): DfType = DfType.TOP
+  override def getDfType(qualifier: DfaVariableValue): DfType = scTypeToDfType(method.returnType.getOrAny)
 
   override def isStable: Boolean = true
 }

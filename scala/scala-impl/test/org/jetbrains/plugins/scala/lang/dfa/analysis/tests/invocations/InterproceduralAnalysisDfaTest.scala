@@ -16,4 +16,13 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
     "x == 5" -> ConditionAlwaysTrue,
     "y == 5" -> ConditionAlwaysTrue
   )
+
+  def testSimpleCallsWithArguments(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val z = simpleMethodWithArgs(15, 12) + simpleMethodWithArgs(2, 9)
+      |z == 10
+      |""".stripMargin
+  })(
+    "z == 10" -> ConditionAlwaysTrue
+  )
 }

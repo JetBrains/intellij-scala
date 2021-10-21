@@ -53,4 +53,15 @@ class ReferenceExpressionDfaTest extends ScalaDfaTestBase {
     "p1.age >= 20" -> ConditionAlwaysTrue,
     "p1.grades(5)" -> InvocationIndexOutOfBounds
   )
+
+  def testCopyingReferenceValueDirectly(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val x = 15
+      |val y = x
+      |val z = y
+      |z == 15
+      |""".stripMargin
+  })(
+    "z == 15" -> ConditionAlwaysTrue
+  )
 }
