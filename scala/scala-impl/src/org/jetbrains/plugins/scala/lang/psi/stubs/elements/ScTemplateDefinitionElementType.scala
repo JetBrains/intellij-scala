@@ -12,6 +12,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -92,7 +93,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     }
 
     val isLocal = definition.containingClass == null &&
-      PsiTreeUtil.getParentOfType(definition, classOf[ScTemplateDefinition]) != null
+      PsiTreeUtil.getContextOfType(definition, classOf[ScTemplateDefinition], classOf[ScFunctionDefinition]) != null
 
     val isVisibleInJava = definition.parents.forall {
       case o: ScObject => !o.isPackageObject

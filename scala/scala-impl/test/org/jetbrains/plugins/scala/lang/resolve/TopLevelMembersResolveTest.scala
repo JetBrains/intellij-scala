@@ -169,6 +169,60 @@ class TopLevelMembersResolveTest extends ScalaLightCodeInsightFixtureTestAdapter
     )
   }
 
+  def testSCL19625(): Unit = {
+    addFileToProject(
+      s"""
+         |package foo
+         |def wrapperFunction(): Unit = {
+         |  class MyClassInner1()
+         |  trait MyTraitInner1()
+         |  object MyObjectInner1
+         |  def myInnerFoo: String = ???
+         |  val myValueInner1: Int = ???
+         |  type myTypeInner1 = String
+         |}
+         |
+         |""".stripMargin,
+      "toplevel.scala"
+    )
+
+    testNoResolve(
+      s"""
+         |package foo
+         |object A {
+         |  new MyCla${REFSRC}ssInner1()
+         |}
+         |""".stripMargin -> "noresolveclass.scala"
+    )
+
+    testNoResolve(
+      s"""
+         |package foo
+         |object A {
+         |  new MyTra${REFSRC}itInner1 {}
+         |}
+         |""".stripMargin -> "noresolvetrait.scala"
+    )
+
+    testNoResolve(
+      s"""
+         |package foo
+         |object A {
+         |  println(MyObjectInn${REFSRC}er1)
+         |}
+         |""".stripMargin -> "noresolveobject.scala"
+    )
+
+    testNoResolve(
+      s"""
+         |package foo
+         |object A {
+         |  println(MyObjectInn${REFSRC}er1)
+         |}
+         |""".stripMargin -> "noresolveobject.scala"
+    )
+  }
+
   private def addFileToProject(text: String, name: String): Unit =
     getFixture.addFileToProject(name, text)
 }
