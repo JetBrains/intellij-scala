@@ -97,6 +97,7 @@ object TastyReaderTest {
       "parameter/ExtensionMethod",
       "parameter/Given",
       "parameter/HKT",
+      "parameter/HKTBounds",
       "parameter/HKTVariance",
       "parameter/InlineModifier",
       "parameter/Modifiers",
