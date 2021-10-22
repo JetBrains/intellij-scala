@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScForBinding, ScFunctionExpr, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScExpression, ScForBinding, ScFunctionExpr, ScGenerator, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
@@ -77,8 +77,9 @@ object ImplicitSearchScope {
     case p: ScParameter                                                 => p.isImplicitOrContextParameter
     case m: ScMember                                                    => m.hasModifierProperty("implicit")
     case _: ScTemplateParents                                           => true
-    case expr: ScExpression if expr.contextFunctionParameters.nonEmpty  => true
-    case _                                                              => false
+    case (expr: ScExpression) childOf (_: ScArgumentExprList) if expr.contextFunctionParameters.nonEmpty => true
+    case (block: ScBlockExpr) childOf (_: ScInfixExpr) if block.contextFunctionParameters.nonEmpty       => true
+    case _                                                                                               => false
   }
 
   private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicitOrUsing)
