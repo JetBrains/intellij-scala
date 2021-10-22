@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationExtractors.{extractExpressionFromArgument, extractInvocationUnderMarker}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassingMechanism, ProperArgument, ThisArgument}
@@ -19,7 +19,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
   protected def markerEnd: String = MarkersUtils.end()
 
   protected def generateInvocationInfoFor(code: String, assertSingleInvocation: Boolean = true): InvocationInfo = {
-    val (codeWithoutMarkers, ranges) = MarkersUtils.extractNumberedMarkers(code.strip)
+    val (codeWithoutMarkers, ranges) = MarkersUtils.extractNumberedMarkers(code.strip.withNormalizedSeparator)
     val actualFile = configureFromFileText(codeWithoutMarkers)
 
     extractInvocationUnderMarker(actualFile, ranges) match {
