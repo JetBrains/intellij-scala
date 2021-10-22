@@ -1,0 +1,40 @@
+Document tests/pos/i1857.scala
+(6:17..6:26) commandeer/CommandeerDSL#Operation# -> 5:9
+(6:27..6:28) commandeer/CommandeerDSL#Op#[T] -> 6:11
+(10:26..10:39) commandeer/CommandeerDSL# -> 4:7
+(10:40..10:44) commandeer/CommandeerDSL.apply().[Host] -> 10:13
+(10:53..10:57) commandeer/CommandeerDSL.apply().[Host] -> 10:13
+(10:73..10:76) commandeer/CommandeerDSL.apply().[DSL] -> 10:19
+(10:79..10:82) commandeer/CommandeerDSL.apply().[DSL] -> 10:19
+(10:85..10:88) commandeer/CommandeerDSL.apply().(dsl) -> 10:68
+(14:14..14:20) scala/Predef.String#
+(14:25..14:28) scala/Int#
+(14:31..14:37) scala/Double#
+(18:24..18:30) commandeer/FooDSL# -> 21:7
+(18:37..18:43) commandeer/FooDSL# -> 21:7
+(21:22..21:35) commandeer/CommandeerDSL# -> 4:7
+(21:36..21:39) commandeer/Foo# -> 13:7
+(22:40..22:49) commandeer/CommandeerDSL#Operation# -> 5:9
+(22:50..22:51) commandeer/FooDSL#FooOperation#[T] -> 22:29
+(23:16..23:28) commandeer/FooDSL#FooOperation# -> 22:16
+(23:29..23:30) commandeer/FooDSL#Op#[T] -> 23:11
+(25:21..25:27) scala/Predef.String#
+(25:32..25:35) scala/Int#
+(25:45..25:57) commandeer/FooDSL#FooOperation# -> 22:16
+(25:58..25:64) scala/Double#
+(30:18..30:23) scala/Array#
+(30:24..30:30) scala/Predef.String#
+(30:34..30:38) scala/Unit#
+(31:5..31:12) scala/Predef.println(+1).
+(33:17..33:30) commandeer/CommandeerDSL. -> 9:8
+(33:36..33:48) scala/Any#asInstanceOf().
+(33:49..33:52) commandeer/Foo# -> 13:7
+(34:5..34:12) scala/Predef.println(+1).
+(34:35..34:40) local2 -> 33:9
+(34:40..34:41) scala/StringContext#s().
+(35:15..35:20) local2 -> 33:9
+(35:21..35:24) commandeer/FooDSL#Bar.
+(36:5..36:12) scala/Predef.println(+1).
+(36:28..36:31) local3 -> 35:9
+(36:31..36:32) scala/StringContext#s().
+

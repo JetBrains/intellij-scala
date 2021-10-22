@@ -1,0 +1,45 @@
+Document tests/pos/i5773.scala
+(2:19..2:20) _empty_/Semigroup#[T] -> 1:17
+(2:38..2:39) _empty_/Semigroup#[T] -> 1:17
+(2:42..2:43) _empty_/Semigroup#[T] -> 1:17
+(6:40..6:49) _empty_/Semigroup# -> 1:7
+(6:50..6:56) scala/Predef.String#
+(7:21..7:27) scala/Predef.String#
+(7:54..7:60) scala/Predef.String#
+(7:63..7:69) scala/Predef.String#
+(7:72..7:75) _empty_/Semigroup.stringAppend.append().(lhs) -> 7:16
+(7:76..7:77) java/lang/String#`+`().
+(7:78..7:81) _empty_/Semigroup.stringAppend.append().(rhs) -> 7:49
+(10:44..10:51) scala/package.Numeric#
+(10:52..10:53) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
+(10:57..10:66) _empty_/Semigroup# -> 1:7
+(10:67..10:68) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
+(11:21..11:22) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
+(11:49..11:50) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
+(11:53..11:54) _empty_/Semigroup.sumSemigroup().[N] -> 10:29
+(11:57..11:60) scala/Predef.`???`().
+(14:50..14:57) scala/package.Numeric#
+(14:58..14:59) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
+(14:58..14:59) _empty_/Semigroup.SumSemiGroupDeco().[N] -> 14:35
+(14:70..14:79) _empty_/Semigroup# -> 1:7
+(14:80..14:81) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
+(15:21..15:22) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
+(15:49..15:50) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
+(15:53..15:54) _empty_/Semigroup.SumSemiGroupDeco#[N] -> 14:35
+(15:57..15:60) scala/Predef.`???`().
+(20:10..20:19) _empty_/Semigroup. -> 5:8
+(20:20..20:32) _empty_/Semigroup.sumSemigroup(). -> 10:16
+(22:12..22:21) _empty_/Semigroup. -> 5:8
+(22:22..22:34) _empty_/Semigroup.stringAppend. -> 6:19
+(23:5..23:12) scala/Predef.println(+1).
+(24:5..24:12) scala/Predef.println(+1).
+(28:32..28:41) _empty_/Semigroup# -> 1:7
+(28:42..28:45) scala/Int#
+(28:49..28:61) _empty_/Semigroup.sumSemigroup(). -> 10:16
+(28:62..28:65) scala/Int#
+(29:5..29:12) scala/Predef.println(+1).
+(33:12..33:21) _empty_/Semigroup. -> 5:8
+(33:22..33:38) _empty_/Semigroup.SumSemiGroupDeco(). -> 14:18
+(34:5..34:17) _empty_/Semigroup.sumSemigroup(). -> 10:16
+(34:18..34:24) _empty_/Semigroup#append(). -> 2:26
+

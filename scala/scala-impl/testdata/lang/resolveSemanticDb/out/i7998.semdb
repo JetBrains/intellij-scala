@@ -1,0 +1,4 @@
+Document tests/pos/i7998.scala
+(1:2..1:6) scala/main#
+(5:15..5:24) scala/package.Throwable#
+

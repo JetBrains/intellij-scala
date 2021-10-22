@@ -1,0 +1,20 @@
+Document tests/pos/i941.scala
+(5:17..5:18) _empty_/Test.C#[A] -> 3:11
+(5:32..5:35) _empty_/Test.C#foo(). -> 7:9
+(5:36..5:37) _empty_/Test.C#`<init>`(+1).(y) -> 5:14
+(7:16..7:17) _empty_/Test.C#[A] -> 3:11
+(7:20..7:24) scala/Unit#
+(10:17..10:18) _empty_/Test.D#[A] -> 10:11
+(12:13..12:14) _empty_/Test.D#x. -> 10:14
+(14:18..14:19) _empty_/Test.D#[A] -> 10:11
+(14:25..14:26) _empty_/Test.D#[A] -> 10:11
+(15:12..15:14) _empty_/Test.D#`<init>`(+1).(y1) -> 14:14
+(16:7..16:8) _empty_/Test.D#`f_=`().
+(16:11..16:13) _empty_/Test.D#`<init>`(+1).(y2) -> 14:21
+(17:14..17:15) _empty_/Test.D#[A] -> 10:11
+(17:18..17:19) _empty_/Test.D#f(). -> 12:9
+(18:7..18:10) _empty_/Test.D#foo(). -> 21:9
+(18:11..18:13) _empty_/Test.D#`<init>`(+1).(y2) -> 14:21
+(21:16..21:17) _empty_/Test.D#[A] -> 10:11
+(21:20..21:24) scala/Unit#
+

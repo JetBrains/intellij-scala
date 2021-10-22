@@ -1,0 +1,6 @@
+Document tests/pos/i8241.scala
+(1:18..1:24) scala/Predef.String#
+(2:20..2:23) scala/Predef.`???`().
+(5:18..5:24) scala/Predef.String#
+(6:11..6:14) scala/Predef.`???`().
+

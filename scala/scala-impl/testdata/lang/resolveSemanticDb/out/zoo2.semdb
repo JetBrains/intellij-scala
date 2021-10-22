@@ -1,0 +1,37 @@
+Document tests/pos/zoo2.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:32) scala/reflect/Selectable.
+(1:33..1:53) scala/reflect/Selectable.reflectiveSelectable().
+(4:17..4:20) scala/Any#
+(7:18..7:21) scala/Any#
+(11:18..11:22) local2 -> 10:8
+(11:25..11:29) scala/Unit#
+(12:13..12:17) local2 -> 10:8
+(15:17..15:20) scala/Any#
+(16:16..16:21) _empty_/Test.Grass# -> 6:6
+(17:18..17:23) _empty_/Test.Grass# -> 6:6
+(17:26..17:30) scala/Unit#
+(18:13..18:18) _empty_/Test.Grass# -> 6:6
+(21:15..21:19) _empty_/Test.Meat# -> 3:6
+(22:18..22:22) _empty_/Test.Meat# -> 3:6
+(22:25..22:29) scala/Unit#
+(23:13..23:17) _empty_/Test.Meat# -> 3:6
+(25:14..25:18) _empty_/Test.Meat# -> 3:6
+(26:17..26:20) scala/Any#
+(28:15..28:20) _empty_/Test.Grass# -> 6:6
+(29:18..29:21) scala/Any#
+(31:13..31:16) _empty_/Test.Cow# -> 14:6
+(32:17..32:20) scala/Any#
+(33:15..33:20) _empty_/Test.Grass# -> 6:6
+(34:18..34:23) _empty_/Test.Grass# -> 6:6
+(35:14..35:22) _empty_/Test.newGrass(). -> 28:5
+(37:14..37:18) _empty_/Test.Lion# -> 20:6
+(38:15..38:19) _empty_/Test.Meat# -> 3:6
+(39:18..39:22) _empty_/Test.Meat# -> 3:6
+(40:14..40:21) _empty_/Test.newMeat(). -> 25:5
+(42:13..42:19) _empty_/Test.newCow(). -> 31:5
+(43:11..43:18) _empty_/Test.newLion(). -> 37:5
+(44:1..44:4) _empty_/Test.leo. -> 43:5
+(44:10..44:15) _empty_/Test.milka. -> 42:5
+

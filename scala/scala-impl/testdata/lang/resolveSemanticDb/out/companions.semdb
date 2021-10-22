@@ -1,0 +1,11 @@
+Document tests/pos/companions.scala
+(6:7..6:14) scala/Predef.println(+1).
+(6:15..6:16) local0
+(6:17..6:18) local1 -> 11:19
+(12:7..12:14) scala/Predef.println(+1).
+(12:19..12:20) local3 -> 5:11
+(12:23..12:24) local2 -> 7:19
+(21:9..21:16) scala/Predef.println(+1).
+(21:17..21:18) local8
+(21:19..21:20) local9 -> 24:21
+

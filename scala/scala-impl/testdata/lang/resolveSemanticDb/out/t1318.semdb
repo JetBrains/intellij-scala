@@ -1,0 +1,23 @@
+Document tests/pos/t1318.scala
+(2:19..2:20) _empty_/M# -> 5:16
+(7:19..7:20) _empty_/M# -> 5:16
+(9:18..9:19) _empty_/F# -> 1:16
+(9:35..9:39) _empty_/M# -> 5:16
+(9:40..9:45) _empty_/M#mType# -> 7:10
+(10:13..10:17) scala/package.List#
+(10:18..10:23) _empty_/M#fType# -> 9:10
+(13:27..13:28) _empty_/M# -> 5:16
+(14:18..14:20) _empty_/A0# -> 13:16
+(15:13..15:17) scala/package.List#
+(15:18..15:23) _empty_/M#fType# -> 9:10
+(15:27..15:30) scala/package.Nil.
+(18:18..18:20) _empty_/A0# -> 13:16
+(20:27..20:28) _empty_/M# -> 5:16
+(21:18..21:20) _empty_/B0# -> 20:16
+(22:13..22:17) scala/package.List#
+(22:18..22:23) _empty_/M#fType# -> 9:10
+(22:27..22:30) scala/package.Nil.
+(25:18..25:20) _empty_/B0# -> 20:16
+(28:26..28:30) scala/package.List.
+(28:31..28:32) _empty_/B. -> 25:8
+

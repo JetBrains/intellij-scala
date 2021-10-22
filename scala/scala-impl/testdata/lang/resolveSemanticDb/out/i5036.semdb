@@ -1,0 +1,5 @@
+Document tests/pos/i5036.scala
+(1:18..1:22) scala/Unit#
+(2:18..2:22) scala/Null#
+(3:18..3:25) scala/Nothing#
+

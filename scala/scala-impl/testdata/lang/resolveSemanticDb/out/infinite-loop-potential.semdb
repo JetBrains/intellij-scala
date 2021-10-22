@@ -1,0 +1,11 @@
+Document tests/pos/infinite-loop-potential.scala
+(3:19..3:20) _empty_/InfiniteSubtypingLoopPossibility.A# -> 2:9
+(3:21..3:22) _empty_/InfiniteSubtypingLoopPossibility.B# -> 3:9
+(4:19..4:20) _empty_/InfiniteSubtypingLoopPossibility.B# -> 3:9
+(4:26..4:27) _empty_/InfiniteSubtypingLoopPossibility.A# -> 2:9
+(4:28..4:29) _empty_/InfiniteSubtypingLoopPossibility.Min#[S] -> 4:14
+(6:10..6:13) scala/Any#
+(6:16..6:19) scala/Predef.`???`().
+(7:3..7:4) _empty_/InfiniteSubtypingLoopPossibility.c(). -> 6:7
+(8:14..8:17) _empty_/InfiniteSubtypingLoopPossibility.Min# -> 4:9
+

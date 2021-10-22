@@ -1,0 +1,219 @@
+Document tests/pos/13491.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:34) scala/annotation/unchecked/
+(1:35..1:52) scala/annotation/unchecked/uncheckedVariance#
+(3:8..3:13) scala/
+(3:14..3:22) scala/language.
+(3:23..3:42) scala/language.implicitConversions.
+(5:28..5:35) scala/Product#
+(5:41..5:53) scala/package.Serializable#
+(6:31..6:36) _empty_/HList# -> 5:14
+(6:44..6:45) _empty_/`::`#[H] -> 6:22
+(6:53..6:54) _empty_/`::`#[T] -> 6:26
+(6:64..6:69) _empty_/HList# -> 5:14
+(8:27..8:32) _empty_/HList# -> 5:14
+(9:26..9:30) _empty_/HNil# -> 8:14
+(12:15..12:20) _empty_/HList# -> 5:14
+(16:18..16:23) _empty_/HList# -> 5:14
+(16:26..16:27) _empty_/HListable.HL0#[T] -> 16:12
+(17:10..17:14) scala/Unit#
+(17:22..17:26) _empty_/HNil# -> 8:14
+(18:10..18:14) _empty_/HNil# -> 8:14
+(18:22..18:26) _empty_/HNil# -> 8:14
+(19:10..19:12) _empty_/`::`# -> 6:18
+(19:22..19:24) _empty_/`::`# -> 6:18
+(19:25..19:26) local0 -> 19:13
+(19:28..19:29) local1 -> 19:16
+(20:22..20:23) _empty_/HListable.HL0#[T] -> 16:12
+(20:24..20:26) _empty_/`::`# -> 6:18
+(20:27..20:31) _empty_/HNil# -> 8:14
+(23:25..23:34) _empty_/HListable# -> 11:7
+(23:35..23:36) _empty_/HListable.calc().[T] -> 23:21
+(23:51..23:54) _empty_/HListable.HL0# -> 16:8
+(23:55..23:56) _empty_/HListable.calc().[T] -> 23:21
+(23:62..23:65) scala/Predef.`???`().
+(26:30..26:35) _empty_/HList# -> 5:14
+(26:42..26:47) _empty_/HList# -> 5:14
+(26:54..26:59) _empty_/HList# -> 5:14
+(27:15..27:20) _empty_/HList# -> 5:14
+(30:24..30:29) _empty_/HList# -> 5:14
+(30:36..30:41) _empty_/HList# -> 5:14
+(30:46..30:51) _empty_/HList# -> 5:14
+(30:54..30:55) _empty_/TailSwitch.Reverse0#[L] -> 30:31
+(31:10..31:14) _empty_/HNil# -> 8:14
+(31:22..31:25) _empty_/TailSwitch.Reverse0#[Acc] -> 30:17
+(32:10..32:12) _empty_/`::`# -> 6:18
+(32:22..32:30) _empty_/TailSwitch.Reverse0# -> 30:8
+(32:31..32:32) local3 -> 32:13
+(32:33..32:35) _empty_/`::`# -> 6:18
+(32:36..32:39) _empty_/TailSwitch.Reverse0#[Acc] -> 30:17
+(32:41..32:42) local4 -> 32:16
+(35:22..35:27) _empty_/HList# -> 5:14
+(35:32..35:37) _empty_/HList# -> 5:14
+(35:40..35:41) _empty_/TailSwitch.Reverse1#[L] -> 35:17
+(36:10..36:14) _empty_/HNil# -> 8:14
+(36:22..36:26) _empty_/HNil# -> 8:14
+(37:10..37:12) _empty_/`::`# -> 6:18
+(37:22..37:30) _empty_/TailSwitch.Reverse0# -> 30:8
+(37:31..37:32) local5 -> 37:13
+(37:33..37:35) _empty_/`::`# -> 6:18
+(37:36..37:40) _empty_/HNil# -> 8:14
+(37:42..37:43) local6 -> 37:16
+(40:22..40:27) _empty_/HList# -> 5:14
+(40:34..40:39) _empty_/HList# -> 5:14
+(40:44..40:49) _empty_/HList# -> 5:14
+(40:52..40:53) _empty_/TailSwitch.Prepend0#[A] -> 40:17
+(41:10..41:14) _empty_/HNil# -> 8:14
+(41:22..41:23) _empty_/TailSwitch.Prepend0#[B] -> 40:29
+(42:10..42:12) _empty_/`::`# -> 6:18
+(42:22..42:24) _empty_/`::`# -> 6:18
+(42:25..42:26) local7 -> 42:13
+(42:28..42:36) _empty_/TailSwitch.Prepend0# -> 40:8
+(42:37..42:38) local8 -> 42:16
+(42:40..42:41) _empty_/TailSwitch.Prepend0#[B] -> 40:29
+(53:25..53:30) _empty_/HList# -> 5:14
+(53:38..53:43) _empty_/HList# -> 5:14
+(53:50..53:55) _empty_/HList# -> 5:14
+(53:63..53:68) _empty_/HList# -> 5:14
+(53:75..53:80) _empty_/HList# -> 5:14
+(53:88..53:93) _empty_/HList# -> 5:14
+(53:98..53:103) _empty_/HList# -> 5:14
+(53:106..53:108) _empty_/TailSwitch.TailSwitch0#[TI] -> 53:57
+(54:10..54:11) _empty_/TailSwitch.TailSwitch0#[L] -> 53:20
+(54:15..54:16) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(56:5..56:7) _empty_/TailSwitch.TailSwitch0#[LI] -> 53:32
+(57:12..57:13) _empty_/TailSwitch.TailSwitch0#[T] -> 53:45
+(57:17..57:25) _empty_/TailSwitch.Prepend0# -> 40:8
+(57:26..57:34) _empty_/TailSwitch.Reverse1# -> 35:8
+(57:35..57:37) _empty_/TailSwitch.TailSwitch0#[RI] -> 53:82
+(57:40..57:41) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(58:12..58:16) _empty_/HNil# -> 8:14
+(59:7..59:9) _empty_/TailSwitch.TailSwitch0#[TI] -> 53:57
+(60:14..60:16) _empty_/`::`# -> 6:18
+(60:26..60:37) _empty_/TailSwitch.TailSwitch0# -> 53:8
+(60:38..60:39) _empty_/TailSwitch.TailSwitch0#[L] -> 53:20
+(60:41..60:45) _empty_/HNil# -> 8:14
+(60:47..60:48) _empty_/TailSwitch.TailSwitch0#[T] -> 53:45
+(60:50..60:51) local9 -> 60:20
+(60:53..60:54) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(60:56..60:58) _empty_/TailSwitch.TailSwitch0#[RI] -> 53:82
+(62:12..62:14) _empty_/`::`# -> 6:18
+(63:7..63:9) _empty_/TailSwitch.TailSwitch0#[TI] -> 53:57
+(64:14..64:18) _empty_/HNil# -> 8:14
+(64:27..64:38) _empty_/TailSwitch.TailSwitch0# -> 53:8
+(64:39..64:40) _empty_/TailSwitch.TailSwitch0#[L] -> 53:20
+(64:42..64:43) local11 -> 62:18
+(64:45..64:46) _empty_/TailSwitch.TailSwitch0#[T] -> 53:45
+(64:48..64:52) _empty_/HNil# -> 8:14
+(64:54..64:55) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(64:57..64:58) local10 -> 62:15
+(64:59..64:61) _empty_/`::`# -> 6:18
+(64:62..64:64) _empty_/TailSwitch.TailSwitch0#[RI] -> 53:82
+(65:14..65:16) _empty_/`::`# -> 6:18
+(65:27..65:38) _empty_/TailSwitch.TailSwitch0# -> 53:8
+(65:39..65:40) _empty_/TailSwitch.TailSwitch0#[L] -> 53:20
+(65:42..65:43) local11 -> 62:18
+(65:45..65:46) _empty_/TailSwitch.TailSwitch0#[T] -> 53:45
+(65:48..65:50) local12 -> 65:20
+(65:52..65:53) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(65:55..65:56) local10 -> 62:15
+(65:57..65:59) _empty_/`::`# -> 6:18
+(65:60..65:62) _empty_/TailSwitch.TailSwitch0#[RI] -> 53:82
+(70:17..70:22) _empty_/HList# -> 5:14
+(70:30..70:35) _empty_/HList# -> 5:14
+(70:42..70:47) _empty_/HList# -> 5:14
+(70:55..70:60) _empty_/HList# -> 5:14
+(70:67..70:72) _empty_/HList# -> 5:14
+(70:80..70:85) _empty_/HList# -> 5:14
+(70:94..70:99) _empty_/HList# -> 5:14
+(71:5..71:15) _empty_/TailSwitch# -> 26:14
+(71:16..71:17) _empty_/TailSwitch.Aux#[L] -> 70:12
+(71:19..71:20) _empty_/TailSwitch.Aux#[T] -> 70:37
+(71:22..71:23) _empty_/TailSwitch.Aux#[R] -> 70:62
+(71:38..71:49) _empty_/TailSwitch.TailSwitch0# -> 53:8
+(71:50..71:51) _empty_/TailSwitch.Aux#[L] -> 70:12
+(71:53..71:54) _empty_/TailSwitch.Aux#[L] -> 70:12
+(71:56..71:57) _empty_/TailSwitch.Aux#[T] -> 70:37
+(71:59..71:60) _empty_/TailSwitch.Aux#[T] -> 70:37
+(71:62..71:63) _empty_/TailSwitch.Aux#[R] -> 70:62
+(71:65..71:69) _empty_/HNil# -> 8:14
+(73:32..73:37) _empty_/HList# -> 5:14
+(73:44..73:49) _empty_/HList# -> 5:14
+(73:56..73:61) _empty_/HList# -> 5:14
+(74:5..74:15) _empty_/TailSwitch# -> 26:14
+(74:16..74:17) _empty_/TailSwitch.tailSwitch().[L] -> 73:27
+(74:19..74:20) _empty_/TailSwitch.tailSwitch().[T] -> 73:39
+(74:22..74:23) _empty_/TailSwitch.tailSwitch().[R] -> 73:51
+(74:38..74:49) _empty_/TailSwitch.TailSwitch0# -> 53:8
+(74:50..74:51) _empty_/TailSwitch.tailSwitch().[L] -> 73:27
+(74:53..74:54) _empty_/TailSwitch.tailSwitch().[L] -> 73:27
+(74:56..74:57) _empty_/TailSwitch.tailSwitch().[T] -> 73:39
+(74:59..74:60) _empty_/TailSwitch.tailSwitch().[T] -> 73:39
+(74:62..74:63) _empty_/TailSwitch.tailSwitch().[R] -> 73:51
+(74:65..74:69) _empty_/HNil# -> 8:14
+(74:75..74:78) scala/Predef.`???`().
+(77:25..77:30) _empty_/HList# -> 5:14
+(77:38..77:43) _empty_/HList# -> 5:14
+(78:15..78:20) _empty_/HList# -> 5:14
+(78:28..78:33) _empty_/HList# -> 5:14
+(78:41..78:45) _empty_/Rule# -> 77:14
+(78:46..78:48) _empty_/Rule#`~`().[I2] -> 78:9
+(78:50..78:52) _empty_/Rule#`~`().[O2] -> 78:22
+(79:58..79:68) _empty_/TailSwitch# -> 26:14
+(79:69..79:71) _empty_/Rule#`~`().[I2] -> 78:9
+(79:73..79:74) _empty_/Rule#[O] -> 77:33
+(79:75..79:92) scala/annotation/unchecked/uncheckedVariance#
+(79:94..79:95) _empty_/Rule#[I] -> 77:20
+(79:96..79:113) scala/annotation/unchecked/uncheckedVariance#
+(80:58..80:68) _empty_/TailSwitch# -> 26:14
+(80:69..80:70) _empty_/Rule#[O] -> 77:33
+(80:71..80:88) scala/annotation/unchecked/uncheckedVariance#
+(80:90..80:92) _empty_/Rule#`~`().[I2] -> 78:9
+(80:94..80:96) _empty_/Rule#`~`().[O2] -> 78:22
+(81:6..81:10) _empty_/Rule# -> 77:14
+(81:11..81:12) _empty_/Rule#`~`().(i) -> 79:55
+(81:13..81:16) _empty_/TailSwitch#Out# -> 27:8
+(81:18..81:19) _empty_/Rule#`~`().(o) -> 80:55
+(81:20..81:23) _empty_/TailSwitch#Out# -> 27:8
+(81:27..81:30) scala/Predef.`???`().
+(85:16..85:20) _empty_/Rule# -> 77:14
+(85:21..85:25) _empty_/HNil# -> 8:14
+(85:27..85:31) _empty_/HNil# -> 8:14
+(86:20..86:25) _empty_/HList# -> 5:14
+(86:31..86:35) _empty_/Rule# -> 77:14
+(86:36..86:40) _empty_/HNil# -> 8:14
+(86:42..86:43) _empty_/Rule.RuleN#[L] -> 86:15
+(88:17..88:22) _empty_/HList# -> 5:14
+(88:29..88:34) _empty_/HList# -> 5:14
+(88:39..88:43) _empty_/Rule# -> 77:14
+(88:44..88:45) _empty_/Rule.rule().[I] -> 88:12
+(88:47..88:48) _empty_/Rule.rule().[O] -> 88:24
+(88:52..88:56) _empty_/Rule# -> 77:14
+(88:57..88:58) _empty_/Rule.rule().[I] -> 88:12
+(88:60..88:61) _empty_/Rule.rule().[O] -> 88:24
+(88:65..88:68) scala/Predef.`???`().
+(89:31..89:34) scala/Predef.Map#
+(89:35..89:41) scala/Predef.String#
+(89:43..89:44) _empty_/Rule.valueMap().[T] -> 89:25
+(89:59..89:68) _empty_/HListable# -> 11:7
+(89:69..89:70) _empty_/Rule.valueMap().[T] -> 89:25
+(89:74..89:79) _empty_/Rule.RuleN# -> 86:8
+(89:80..89:81) _empty_/Rule.valueMap().(h) -> 89:56
+(89:82..89:85) _empty_/HListable#Out# -> 12:8
+(89:89..89:92) scala/Predef.`???`().
+(93:10..93:14) _empty_/Rule. -> 84:8
+(94:15..94:18) scala/Predef.Map#
+(94:19..94:25) scala/Predef.String#
+(94:27..94:30) scala/Int#
+(94:34..94:37) scala/Predef.Map.
+(94:44..94:46) scala/Predef.ArrowAssoc#`->`().
+(94:58..94:60) scala/Predef.ArrowAssoc#`->`().
+(94:71..94:73) scala/Predef.ArrowAssoc#`->`().
+(95:12..95:17) _empty_/Rule.Rule0# -> 85:8
+(95:19..95:22) scala/Predef.`???`().
+(96:11..96:15) _empty_/Rule.rule(). -> 88:7
+(96:16..96:22) _empty_/Test.colors. -> 94:7
+(96:23..96:24) _empty_/Rule#`~`(). -> 78:7
+(96:25..96:28) _empty_/Test.EOI(). -> 95:7
+

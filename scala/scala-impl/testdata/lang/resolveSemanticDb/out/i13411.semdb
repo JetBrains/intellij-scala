@@ -1,0 +1,12 @@
+Document tests/pos/i13411.scala
+(2:19..2:22) _empty_/Foo# -> 1:7
+(4:22..4:25) scala/Int#
+(4:34..4:37) scala/Int#
+(4:53..4:56) _empty_/Foo# -> 1:7
+(4:63..4:66) _empty_/Bar# -> 2:7
+(5:10..5:11) _empty_/i13411$package.thingy().(c) -> 4:50
+(6:13..6:16) _empty_/Bar# -> 2:7
+(12:12..12:18) _empty_/i13411$package.thingy(). -> 4:12
+(12:19..12:20) _empty_/i13411$package.thingy().(b) -> 4:31
+(12:23..12:24) _empty_/i13411$package.x(). -> 10:5
+

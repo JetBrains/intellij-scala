@@ -1,0 +1,48 @@
+Document tests/pos/i11236.scala
+(2:12..2:16) scala/Char#
+(2:17..2:19) _empty_/`#:`# -> 22:16
+(2:20..2:23) scala/Int#
+(2:24..2:26) _empty_/`#:`# -> 22:16
+(2:27..2:33) scala/Predef.String#
+(2:34..2:36) _empty_/`#:`# -> 22:16
+(2:37..2:43) _empty_/TupleK# -> 10:7
+(2:46..2:49) scala/Predef.`???`().
+(3:10..3:16) scala/Predef.String#
+(3:17..3:19) _empty_/`#:`# -> 22:16
+(3:20..3:26) _empty_/TupleK# -> 10:7
+(3:30..3:33) _empty_/Test#tup. -> 2:7
+(3:34..3:38) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(3:40..3:43) scala/Int#
+(3:44..3:46) _empty_/`#:`# -> 22:16
+(3:47..3:53) scala/Predef.String#
+(3:54..3:56) _empty_/`#:`# -> 22:16
+(3:57..3:63) _empty_/TupleK# -> 10:7
+(3:65..3:69) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(4:11..4:14) _empty_/Test#tup. -> 2:7
+(4:15..4:19) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(5:11..5:12) _empty_/Test#a. -> 4:7
+(5:13..5:17) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(6:10..6:16) scala/Predef.String#
+(6:17..6:19) _empty_/`#:`# -> 22:16
+(6:20..6:26) _empty_/TupleK# -> 10:7
+(6:29..6:32) _empty_/Test#tup. -> 2:7
+(6:33..6:37) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(6:38..6:42) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(7:10..7:14) scala/Unit#
+(7:17..7:20) _empty_/Test#tup. -> 2:7
+(7:21..7:25) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(7:26..7:30) _empty_/NonEmptyTupleK#tail(). -> 19:18
+(13:18..13:32) _empty_/NonEmptyTupleK# -> 18:7
+(13:37..13:43) _empty_/TupleK# -> 10:7
+(13:46..13:47) _empty_/TupleK.Tail#[X] -> 13:13
+(14:12..14:14) _empty_/`#:`# -> 22:16
+(14:21..14:23) local0 -> 14:15
+(18:30..18:36) _empty_/TupleK# -> 10:7
+(19:44..19:58) _empty_/NonEmptyTupleK# -> 18:7
+(19:61..19:67) _empty_/TupleK. -> 12:8
+(19:68..19:72) _empty_/TupleK.Tail# -> 13:8
+(19:73..19:77) _empty_/NonEmptyTupleK#tail().[This] -> 19:23
+(19:81..19:84) scala/Predef.`???`().
+(22:29..22:35) _empty_/TupleK# -> 10:7
+(22:45..22:59) _empty_/NonEmptyTupleK# -> 18:7
+

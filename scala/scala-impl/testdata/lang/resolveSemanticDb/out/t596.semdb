@@ -1,0 +1,4 @@
+Document tests/pos/t596.scala
+(5:18..5:20) _empty_/T1# -> 1:7
+(6:19..6:20) _empty_/T1#C# -> 2:28
+

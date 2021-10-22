@@ -1,0 +1,26 @@
+Document tests/pos/postconditions.scala
+(2:34..2:35) _empty_/PostConditions.WrappedResult#[T] -> 2:29
+(4:26..4:39) _empty_/PostConditions.WrappedResult# -> 2:15
+(4:40..4:41) _empty_/PostConditions.result().[T] -> 4:14
+(4:45..4:46) _empty_/PostConditions.result().[T] -> 4:14
+(4:49..4:50) _empty_/PostConditions.result().(r) -> 4:23
+(6:20..6:21) _empty_/PostConditions.ensuring().[T] -> 6:14
+(6:48..6:61) _empty_/PostConditions.WrappedResult# -> 2:15
+(6:62..6:63) _empty_/PostConditions.ensuring().[T] -> 6:14
+(6:69..6:76) scala/Boolean#
+(6:79..6:80) _empty_/PostConditions.ensuring().[T] -> 6:14
+(7:11..7:24) _empty_/PostConditions.WrappedResult# -> 2:15
+(7:25..7:26) _empty_/PostConditions.ensuring().[T] -> 6:14
+(7:30..7:31) _empty_/PostConditions.ensuring().(x) -> 6:17
+(8:5..8:11) scala/Predef.assert(+1).
+(8:12..8:21) _empty_/PostConditions.ensuring().(condition) -> 6:37
+(9:5..9:6) _empty_/PostConditions.ensuring().(x) -> 6:17
+(12:10..12:24) _empty_/PostConditions. -> 1:8
+(12:26..12:34) _empty_/PostConditions.ensuring(). -> 6:27
+(12:36..12:42) _empty_/PostConditions.result(). -> 4:7
+(13:11..13:15) scala/package.List.
+(13:25..13:28) scala/collection/IterableOnceOps#sum().
+(13:29..13:37) _empty_/PostConditions.ensuring(). -> 6:27
+(13:38..13:44) _empty_/PostConditions.result(). -> 4:7
+(13:45..13:47) scala/Int#`==`(+3).
+

@@ -1,0 +1,4 @@
+Document tests/pos/i10107.scala
+(2:19..2:26) scala/Boolean#
+(4:12..4:13) _empty_/i10107$package.f(). -> 1:12
+

@@ -1,0 +1,7 @@
+Document tests/pos/t2545.scala
+(2:18..2:19) _empty_/Frog#[T] -> 1:12
+(3:17..3:20) scala/Int#
+(7:13..7:17) _empty_/Frog# -> 1:7
+(9:23..9:27) _empty_/Frog#size(). -> 3:11
+(9:28..9:36) scala/Any#toString().
+

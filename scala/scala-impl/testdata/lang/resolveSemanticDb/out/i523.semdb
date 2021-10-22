@@ -1,0 +1,7 @@
+Document tests/pos/i523.scala
+(3:21..3:23) _empty_/A#foo().[T1] -> 3:11
+(3:26..3:30) scala/Unit#
+(6:5..6:8) _empty_/A#foo(). -> 3:7
+(6:9..6:10) _empty_/X# -> 1:7
+(6:12..6:13) _empty_/X# -> 1:7
+

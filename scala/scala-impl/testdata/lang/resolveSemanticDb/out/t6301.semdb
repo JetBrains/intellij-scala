@@ -1,0 +1,15 @@
+Document tests/pos/t6301.scala
+(1:19..1:30) scala/specialized#
+(1:31..1:34) scala/Int.
+(2:14..2:17) scala/Any#
+(2:20..2:21) _empty_/LoadedOver#[A] -> 1:36
+(3:15..3:21) scala/Predef.String#
+(3:24..3:25) _empty_/LoadedOver#[A] -> 1:36
+(7:15..7:21) scala/AnyRef#
+(7:27..7:37) _empty_/LoadedOver# -> 1:7
+(7:38..7:41) scala/Int#
+(7:45..7:48) scala/sys/
+(7:49..7:54) scala/sys/package.error().
+(8:3..8:9) _empty_/Test.loaded(). -> 7:7
+(8:10..8:13) _empty_/LoadedOver#foo(+1). -> 3:7
+

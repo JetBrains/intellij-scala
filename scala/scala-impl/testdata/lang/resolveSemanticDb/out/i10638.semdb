@@ -1,0 +1,10 @@
+Document tests/pos/i10638.scala
+(3:16..3:19) woes/Txn# -> 3:7
+(3:20..3:21) woes/Txn#[T] -> 3:11
+(5:22..5:25) woes/Txn# -> 3:7
+(5:26..5:27) woes/Impl#`<init>`().[Repr][`~`] -> 5:17
+(6:20..6:29) woes/Extension# -> 9:7
+(6:30..6:34) woes/Impl#[Repr] -> 5:12
+(9:27..9:30) woes/Txn# -> 3:7
+(9:31..9:32) woes/Extension#`<init>`().[Repr][`~`] -> 9:22
+

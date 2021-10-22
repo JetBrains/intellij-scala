@@ -1,0 +1,31 @@
+Document tests/pos/i4449.scala
+(3:20..3:31) _empty_/Reflection2# -> 15:16
+(3:39..3:42) scala/Any#
+(3:45..3:49) scala/Unit#
+(4:12..4:19) _empty_/TreeAccumulator2#foo().(reflect) -> 3:11
+(5:5..5:9) _empty_/TreeAccumulator2#foo().(tree) -> 3:33
+(6:12..6:13) _empty_/Reflection2#A. -> 23:7
+(7:12..7:13) _empty_/Reflection2#B. -> 28:7
+(8:12..8:13) _empty_/Reflection2#C. -> 33:7
+(9:12..9:13) _empty_/Reflection2#D. -> 38:7
+(20:21..20:26) scala/
+(20:27..20:34) scala/reflect/
+(20:35..20:43) scala/reflect/ClassTag#
+(20:44..20:45) _empty_/Reflection2#X# -> 17:8
+(21:21..21:26) scala/
+(21:27..21:34) scala/reflect/
+(21:35..21:43) scala/reflect/ClassTag#
+(21:44..21:45) _empty_/Reflection2#Y# -> 18:8
+(23:10..23:20) _empty_/Reflection2#AExtractor# -> 24:9
+(25:20..25:21) _empty_/Reflection2#X# -> 17:8
+(25:24..25:31) scala/Boolean#
+(28:10..28:20) _empty_/Reflection2#BExtractor# -> 29:9
+(30:20..30:21) _empty_/Reflection2#X# -> 17:8
+(30:24..30:31) scala/Boolean#
+(33:10..33:20) _empty_/Reflection2#CExtractor# -> 34:9
+(35:20..35:21) _empty_/Reflection2#Y# -> 18:8
+(35:24..35:31) scala/Boolean#
+(38:10..38:20) _empty_/Reflection2#DExtractor# -> 39:9
+(40:20..40:21) _empty_/Reflection2#X# -> 17:8
+(40:24..40:31) scala/Boolean#
+

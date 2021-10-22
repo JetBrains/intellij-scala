@@ -1,0 +1,8 @@
+Document tests/pos/t8177e.scala
+(2:34..2:35) _empty_/T#[A] -> 2:9
+(2:40..2:43) scala/Predef.`???`().
+(2:56..2:59) _empty_/T#foo. -> 2:18
+(3:18..3:19) _empty_/T# -> 2:7
+(3:20..3:23) scala/Int#
+(3:27..3:30) _empty_/T#bar(). -> 2:49
+

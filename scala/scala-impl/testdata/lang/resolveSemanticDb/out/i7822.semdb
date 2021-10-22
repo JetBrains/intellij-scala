@@ -1,0 +1,21 @@
+Document tests/pos/i7822.scala
+(4:12..4:16) _empty_/Code# -> 1:7
+(4:20..4:24) _empty_/Code# -> 1:7
+(4:32..4:36) _empty_/Code# -> 1:7
+(4:50..4:52) _empty_/i7822$package.foo().(o0) -> 4:9
+(4:53..4:56) _empty_/Code#Ctx# -> 2:8
+(4:57..4:58) scala/`&`#
+(4:59..4:61) _empty_/i7822$package.foo().(o1) -> 4:17
+(4:62..4:65) _empty_/Code#Ctx# -> 2:8
+(5:13..5:17) _empty_/Code# -> 1:7
+(5:21..5:25) _empty_/Code# -> 1:7
+(5:28..5:32) _empty_/Code# -> 1:7
+(5:46..5:48) _empty_/i7822$package.foo0().(o0) -> 5:10
+(5:49..5:52) _empty_/Code#Ctx# -> 2:8
+(5:53..5:54) scala/`&`#
+(5:55..5:57) _empty_/i7822$package.foo0().(o1) -> 5:18
+(5:58..5:61) _empty_/Code#Ctx# -> 2:8
+(5:66..5:69) _empty_/i7822$package.foo(). -> 4:5
+(5:70..5:72) _empty_/i7822$package.foo0().(o0) -> 5:10
+(5:73..5:75) _empty_/i7822$package.foo0().(o1) -> 5:18
+

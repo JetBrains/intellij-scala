@@ -1,0 +1,11 @@
+Document tests/pos/t0030.scala
+(2:12..2:15) scala/Int#
+(2:18..2:22) scala/Unit#
+(3:12..3:18) scala/Predef.String#
+(3:21..3:25) scala/Unit#
+(6:17..6:18) _empty_/A# -> 1:7
+(7:12..7:15) scala/Int#
+(7:18..7:22) scala/Unit#
+(8:12..8:18) scala/Predef.String#
+(8:21..8:25) scala/Unit#
+

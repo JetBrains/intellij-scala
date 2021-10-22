@@ -1,0 +1,4 @@
+Document tests/pos/i10080.scala
+(2:5..2:8) _empty_/Foo# -> 1:7
+(5:5..5:8) _empty_/Bar# -> 4:7
+

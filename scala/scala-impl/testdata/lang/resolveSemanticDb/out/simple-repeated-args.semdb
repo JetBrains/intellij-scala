@@ -1,0 +1,4 @@
+Document tests/pos/simple-repeated-args.scala
+(2:3..2:7) scala/package.List.
+(3:3..3:8) scala/Array.
+

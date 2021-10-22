@@ -1,0 +1,16 @@
+Document tests/pos/implicit-match-and-inline-match.scala
+(2:10..2:15) scala/
+(2:16..2:27) scala/compiletime/
+(4:28..4:29) _empty_/`implicit-match-and-inline-match`.Box#[T] -> 4:18
+(5:22..5:25) _empty_/`implicit-match-and-inline-match`.Box# -> 4:14
+(5:26..5:29) scala/Int#
+(5:33..5:36) _empty_/`implicit-match-and-inline-match`.Box.
+(9:15..9:18) _empty_/`implicit-match-and-inline-match`.Box# -> 4:14
+(9:32..9:43) scala/compiletime/package$package.erasedValue().
+(9:44..9:45) local0 -> 9:19
+(10:17..10:20) scala/Int#
+(13:20..13:40) _empty_/`implicit-match-and-inline-match`.a.isTheBoxInScopeAnInt(). -> 8:16
+(18:15..18:18) _empty_/`implicit-match-and-inline-match`.Box# -> 4:14
+(19:17..19:18) local2 -> 18:19
+(22:20..22:40) _empty_/`implicit-match-and-inline-match`.b.isTheBoxInScopeAnInt(). -> 17:16
+

@@ -1,0 +1,4 @@
+Document tests/pos/i4006c.scala
+(2:19..2:22) scala/Int#
+(3:3..3:6) _empty_/Foo#foo(). -> 2:14
+

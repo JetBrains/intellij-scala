@@ -1,0 +1,5 @@
+Document tests/pos/i9529.scala
+(1:9..1:13) scala/Unit#
+(2:9..2:13) scala/Unit#
+(2:32..2:35) scala/Int#
+

@@ -1,0 +1,7 @@
+Document tests/pos/t7426.scala
+(1:14..1:17) scala/Any#
+(1:27..1:37) scala/annotation/
+(1:38..1:54) scala/annotation/StaticAnnotation#
+(3:2..3:5) _empty_/foo# -> 1:7
+(3:10..3:16) scala/AnyRef#
+

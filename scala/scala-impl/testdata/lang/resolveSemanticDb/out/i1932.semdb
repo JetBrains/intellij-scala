@@ -1,0 +1,9 @@
+Document tests/pos/i1932/Filter.scala
+(2:13..2:17) _empty_/Info# -> 1:7
+
+Document tests/pos/i1932/Info.scala
+(1:15..1:23) _empty_/Keyboard# -> 4:7
+(4:35..4:40) _empty_/Thing# -> 3:14
+(5:17..5:25) _empty_/Keyboard# -> 4:7
+(5:35..5:40) _empty_/Thing# -> 3:14
+

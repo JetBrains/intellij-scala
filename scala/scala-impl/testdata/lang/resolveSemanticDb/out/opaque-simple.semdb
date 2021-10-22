@@ -1,0 +1,4 @@
+Document tests/pos/opaque-simple.scala
+(2:27..2:29) _empty_/O.First#[A1] -> 2:21
+(3:25..3:26) _empty_/O.Last#[A] -> 3:20
+

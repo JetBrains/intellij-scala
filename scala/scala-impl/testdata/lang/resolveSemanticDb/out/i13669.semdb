@@ -1,0 +1,7 @@
+Document tests/pos/i13669.scala
+(2:19..2:22) scala/Int#
+(2:34..2:38) scala/Unit#
+(3:29..3:41) _empty_/MyExtensions# -> 1:7
+(5:8..5:20) _empty_/MyExtensions. -> 3:8
+(6:15..6:19) _empty_/i13669$package.bash().
+

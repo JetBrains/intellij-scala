@@ -1,0 +1,8 @@
+Document tests/pos/scoping2.scala
+(3:20..3:21) _empty_/That.A#I# -> 4:16
+(7:19..7:20) _empty_/That.B#J# -> 8:15
+(10:22..10:23) _empty_/That.A# -> 2:12
+(10:29..10:30) _empty_/That.B# -> 6:12
+(11:20..11:21) _empty_/That.A#I# -> 4:16
+(11:27..11:28) _empty_/That.B#J# -> 8:15
+

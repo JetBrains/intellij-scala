@@ -1,0 +1,8 @@
+Document tests/pos/i1447.scala
+(4:15..4:16) _empty_/X. -> 1:13
+(6:10..6:11) _empty_/X. -> 1:13
+(6:19..6:24) _empty_/Test.Alias. -> 4:7
+(8:16..8:17) _empty_/X. -> 1:13
+(9:10..9:15) _empty_/Test.Alias# -> 8:8
+(9:18..9:23) _empty_/Test.Alias. -> 4:7
+

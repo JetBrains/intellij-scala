@@ -1,0 +1,10 @@
+Document tests/pos/i11311.scala
+(1:8..1:16) scala/language.
+(1:17..1:23) scala/language.future.
+(4:16..4:22) scala/Predef.String#
+(4:28..4:34) scala/Predef.String#
+(4:38..4:40) _empty_/Test.cat1().(s1) -> 4:12
+(4:41..4:42) java/lang/String#`+`().
+(4:43..4:45) _empty_/Test.cat1().(s2) -> 4:24
+(5:15..5:19) _empty_/Test.cat1(). -> 4:7
+

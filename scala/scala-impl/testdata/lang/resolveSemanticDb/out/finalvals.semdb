@@ -1,0 +1,8 @@
+Document tests/pos/finalvals.scala
+(3:19..3:26) scala/Predef.println(+1).
+(4:12..4:13) _empty_/Test.x. -> 2:13
+(5:12..5:13) _empty_/Test.y. -> 3:13
+(7:3..7:10) scala/Predef.println(+1).
+(7:11..7:12) _empty_/Test.O. -> 6:10
+(7:13..7:14) _empty_/Test.O.x. -> 6:18
+

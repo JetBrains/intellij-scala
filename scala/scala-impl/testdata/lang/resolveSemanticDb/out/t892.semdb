@@ -1,0 +1,14 @@
+Document tests/pos/t892.scala
+(4:33..4:40) test/Test.Core#Visitor# -> 4:20
+(4:41..4:42) test/Test.Core#Visitor#[T] -> 4:28
+(6:22..6:29) test/Test.Core#Visitor# -> 4:20
+(6:30..6:31) test/Test.Core#HasVisitor#visit().[T] -> 6:17
+(6:44..6:45) test/Test.Core#HasVisitor#visit().[T] -> 6:17
+(6:49..6:50) test/Test.Core#HasVisitor#visit().[T] -> 6:17
+(9:21..9:25) test/Test.Core# -> 3:9
+(11:22..11:29) test/Test.Core#Visitor# -> 4:20
+(11:30..11:31) test/Test.Ext#Foo#visit().[T] -> 11:17
+(11:44..11:45) test/Test.Ext#Foo#visit().[T] -> 11:17
+(11:49..11:50) test/Test.Ext#Foo#visit().[T] -> 11:17
+(11:53..11:60) test/Test.Ext#Foo#visit().(initial) -> 11:34
+

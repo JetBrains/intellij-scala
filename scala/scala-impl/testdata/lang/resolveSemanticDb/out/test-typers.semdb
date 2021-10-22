@@ -1,0 +1,115 @@
+Document tests/pos/test-typers.scala
+(3:8..3:18) scala/annotation/
+(3:20..3:27) scala/annotation/tailrec#
+(3:29..3:35) scala/annotation/switch#
+(4:8..4:18) scala/collection/
+(4:19..4:26) scala/collection/mutable/
+(8:15..8:19) scala/package.List.
+(9:14..9:18) scala/package.List.
+(13:23..13:28) test/typers.names. -> 8:7
+(13:29..13:36) scala/collection/Iterable#lazyZip().
+(13:37..13:41) test/typers.ints. -> 9:7
+(14:7..14:14) scala/Predef.println(+1).
+(14:15..14:19) local1 -> 13:11
+(14:20..14:26) java/lang/String#length().
+(14:27..14:28) scala/Int#`+`(+4).
+(14:29..14:30) local2 -> 13:17
+(16:19..16:23) scala/Char#
+(16:26..16:32) scala/Predef.String#
+(16:38..16:39) test/typers.Inference.double().(x) -> 16:16
+(16:40..16:41) test/typers.Inference.double().(x) -> 16:16
+(16:41..16:42) scala/StringContext#s().
+(18:11..18:18) scala/collection/StringOps#flatMap(+1).
+(18:19..18:25) test/typers.Inference.double(). -> 16:9
+(23:16..23:19) scala/Int#
+(23:22..23:25) scala/Int#
+(23:28..23:29) test/typers.Eta.fun().(x) -> 23:13
+(23:30..23:31) scala/Int#`+`(+4).
+(24:15..24:18) test/typers.Eta.fun(). -> 23:9
+(27:34..27:40) scala/Predef.String#
+(27:44..27:50) scala/Predef.String#
+(27:53..27:61) scala/Predef.identity().
+(29:16..29:22) scala/Predef.String#
+(29:26..29:32) scala/Predef.String#
+(29:35..29:43) scala/Predef.identity().
+(29:47..29:48) test/typers.DefaultParams.foo().(x) -> 29:13
+(31:5..31:8) test/typers.DefaultParams.foo(). -> 29:9
+(34:18..34:22) scala/package.List#
+(34:23..34:24) test/typers.len().[U] -> 34:11
+(34:28..34:31) scala/Int#
+(34:34..34:36) test/typers.len().(xs) -> 34:14
+(35:12..35:14) scala/package.`::`.
+(35:24..35:25) scala/Int#`+`(+4).
+(35:26..35:29) test/typers.len(). -> 34:7
+(35:30..35:33) local7 -> 35:15
+(36:10..36:13) scala/package.Nil.
+(41:16..41:19) scala/Int#
+(41:22..41:25) scala/Int#
+(51:16..51:20) java/
+(51:21..51:23) java/io/
+(51:24..51:35) java/io/IOException#
+(54:7..54:14) scala/Predef.println(+1).
+(57:25..57:31) scala/Predef.
+(57:32..57:40) scala/Predef.identity().
+(61:5..61:12) scala/Predef.println(+1).
+(61:19..61:27) java/lang/String#toString().
+(67:6..67:13) scala/annotation/tailrec#
+(67:39..67:42) scala/Int#
+(67:47..67:50) scala/Int#
+(67:53..67:56) scala/Int#
+(67:59..67:60) test/typers.C#factorial().(n) -> 67:44
+(68:17..68:20) test/typers.C#factorial().(acc) -> 67:34
+(69:17..69:26) test/typers.C#factorial(). -> 67:24
+(69:27..69:30) test/typers.C#factorial().(acc) -> 67:34
+(69:31..69:32) scala/Int#`*`(+3).
+(69:33..69:34) test/typers.C#factorial().(n) -> 67:44
+(69:36..69:37) test/typers.C#factorial().(n) -> 67:44
+(69:38..69:39) scala/Int#`-`(+3).
+(72:5..72:12) scala/Predef.println(+1).
+(72:13..72:22) test/typers.C#factorial(). -> 67:24
+(78:38..78:39) test/typers.Refinements#C#T# -> 78:20
+(78:42..78:45) scala/Int#
+(79:12..79:13) test/typers.Refinements#C# -> 78:11
+(79:33..79:34) local11 -> 79:21
+(79:51..79:52) local11 -> 79:21
+(79:55..79:58) scala/Int#
+(79:63..79:66) scala/Predef.`???`().
+(85:14..85:20) scala/Predef.String#
+(88:21..88:22) test/typers.Accessibility.A# -> 84:11
+(89:22..89:25) scala/Int#
+(92:12..92:13) test/typers.Accessibility.B# -> 88:11
+(92:20..92:21) test/typers.Accessibility.B# -> 88:11
+(93:13..93:14) test/typers.Accessibility.b. -> 92:9
+(93:15..93:16) test/typers.Accessibility.A#x. -> 85:11
+(94:12..94:18) scala/Predef.String#
+(94:21..94:22) test/typers.Accessibility.y. -> 93:9
+(100:20..100:23) scala/Int#
+(102:20..102:23) scala/Int#
+(102:27..102:28) test/typers.Self.A#self1().(x) -> 102:17
+(105:17..105:21) test/typers.Self.A# -> 100:11
+(106:16..106:17) test/typers.Self.A# -> 100:11
+(106:20..106:21) test/typers.Self.A#B#b. -> 105:13
+(109:15..109:19) test/typers.Self.A# -> 100:11
+(110:14..110:15) test/typers.Self.A# -> 100:11
+(110:18..110:19) test/typers.Self.A#a. -> 109:11
+(118:15..118:19) scala/package.List.
+(118:35..118:42) scala/collection/IterableOnceOps#toArray().
+(120:5..120:8) test/typers.Arrays.arr. -> 118:9
+(120:9..120:10) test/typers.Arrays.i. -> 119:9
+(120:12..120:18) java/lang/String#charAt().
+(122:17..122:28) scala/collection/mutable/ArrayBuffer#
+(122:29..122:35) scala/Predef.String#
+(124:19..124:24) scala/Array.
+(126:20..126:27) test/typers.Arrays.entries. -> 124:9
+(126:28..126:40) scala/collection/ArrayOps#zipWithIndex().
+(127:7..127:14) scala/Predef.println(+1).
+(127:15..127:16) local17 -> 126:11
+(131:13..131:18) test/typers.names. -> 8:7
+(132:12..132:16) scala/package.List.
+(132:26..132:27) local19 -> 132:17
+(133:12..133:16) scala/package.List.
+(133:23..133:24) local21 -> 133:17
+(134:12..134:16) scala/package.List.
+(136:13..136:19) scala/Predef.String#
+(136:22..136:23) test/typers.SeqExtractors.y. -> 131:9
+

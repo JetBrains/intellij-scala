@@ -1,0 +1,27 @@
+Document tests/pos/injectivity-gadt.scala
+(3:38..3:40) _empty_/injectivity.EQ# -> 2:16
+(3:41..3:42) _empty_/injectivity.Refl#[A] -> 3:25
+(3:44..3:45) _empty_/injectivity.Refl#[A] -> 3:25
+(5:30..5:31) _empty_/injectivity.conform().[A] -> 5:15
+(5:36..5:37) _empty_/injectivity.conform().[B] -> 5:18
+(5:43..5:45) _empty_/injectivity.EQ# -> 2:16
+(5:47..5:48) _empty_/injectivity.conform().[A] -> 5:15
+(5:50..5:51) _empty_/injectivity.conform().[B] -> 5:18
+(5:55..5:56) _empty_/injectivity.conform().[C] -> 5:21
+(5:58..5:59) _empty_/injectivity.conform().[D] -> 5:24
+(5:64..5:65) _empty_/injectivity.conform().[C] -> 5:21
+(6:5..6:7) _empty_/injectivity.conform().(eq) -> 5:39
+(7:15..7:19) _empty_/injectivity.Refl# -> 3:20
+(8:18..8:19) _empty_/injectivity.conform().[A] -> 5:15
+(8:21..8:22) _empty_/injectivity.conform().[B] -> 5:18
+(8:27..8:28) _empty_/injectivity.conform().(a) -> 5:27
+(8:30..8:31) _empty_/injectivity.conform().(b) -> 5:33
+(9:18..9:19) _empty_/injectivity.conform().[C] -> 5:21
+(9:21..9:22) _empty_/injectivity.conform().[D] -> 5:24
+(9:26..9:28) local1 -> 8:13
+(10:18..10:19) local0 -> 7:20
+(10:22..10:24) local1 -> 8:13
+(11:18..11:19) local0 -> 7:20
+(11:22..11:24) local2 -> 9:13
+(12:9..12:10) _empty_/injectivity.conform().(a) -> 5:27
+

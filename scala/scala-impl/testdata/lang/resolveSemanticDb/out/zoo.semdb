@@ -1,0 +1,36 @@
+Document tests/pos/zoo.scala
+(3:20..3:29) _empty_/Test.FoodStuff# -> 2:7
+(4:17..4:20) scala/Any#
+(6:21..6:30) _empty_/Test.FoodStuff# -> 2:7
+(7:18..7:21) scala/Any#
+(10:16..10:25) _empty_/Test.FoodStuff# -> 2:7
+(11:18..11:22) _empty_/Test.Animal#Food# -> 10:8
+(11:25..11:29) scala/Unit#
+(12:13..12:17) _empty_/Test.Animal#Food# -> 10:8
+(14:19..14:25) _empty_/Test.Animal# -> 9:7
+(15:17..15:20) scala/Any#
+(16:16..16:21) _empty_/Test.Grass# -> 6:7
+(17:18..17:22) _empty_/Test.Cow#Food# -> 16:8
+(17:25..17:29) scala/Unit#
+(18:13..18:17) _empty_/Test.Cow#Food# -> 16:8
+(20:20..20:26) _empty_/Test.Animal# -> 9:7
+(21:15..21:19) _empty_/Test.Meat# -> 3:7
+(22:18..22:22) _empty_/Test.Meat# -> 3:7
+(22:25..22:29) scala/Unit#
+(23:13..23:17) _empty_/Test.Meat# -> 3:7
+(25:14..25:18) _empty_/Test.Meat# -> 3:7
+(25:25..25:29) _empty_/Test.Meat# -> 3:7
+(27:15..27:20) _empty_/Test.Grass# -> 6:7
+(27:27..27:32) _empty_/Test.Grass# -> 6:7
+(29:13..29:16) _empty_/Test.Cow# -> 14:7
+(29:23..29:26) _empty_/Test.Cow# -> 14:7
+(30:15..30:20) _empty_/Test.Grass# -> 6:7
+(31:18..31:23) _empty_/Test.Grass# -> 6:7
+(32:14..32:22) _empty_/Test.newGrass(). -> 27:5
+(34:14..34:18) _empty_/Test.Lion# -> 20:7
+(34:25..34:29) _empty_/Test.Lion# -> 20:7
+(35:18..35:22) _empty_/Test.Meat# -> 3:7
+(36:14..36:21) _empty_/Test.newMeat(). -> 25:5
+(38:13..38:19) _empty_/Test.newCow(). -> 29:5
+(39:11..39:18) _empty_/Test.newLion(). -> 34:5
+

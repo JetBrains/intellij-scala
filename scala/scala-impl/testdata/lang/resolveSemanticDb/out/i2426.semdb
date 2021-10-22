@@ -1,0 +1,32 @@
+Document tests/pos/i2426.scala
+(1:12..1:22) scala/deprecated#
+(1:44..1:47) scala/Int#
+(3:12..3:22) scala/deprecated#
+(3:26..3:29) scala/Int#
+(5:13..5:23) scala/deprecated#
+(5:36..5:37) _empty_/C# -> 18:7
+(6:13..6:23) scala/deprecated#
+(6:38..6:39) _empty_/C# -> 18:7
+(7:13..7:23) scala/deprecated#
+(7:40..7:41) _empty_/C# -> 18:7
+(10:19..10:20) _empty_/C# -> 18:7
+(10:23..10:26) _empty_/obj. -> 19:8
+(11:7..11:11) _empty_/Baz1# -> 5:7
+(12:7..12:11) _empty_/Baz2# -> 6:7
+(13:7..13:11) _empty_/Baz3# -> 7:7
+(16:21..16:22) _empty_/C# -> 18:7
+(19:20..19:21) _empty_/C# -> 18:7
+(21:14..21:15) _empty_/C# -> 18:7
+(21:20..21:21) _empty_/C# -> 18:7
+(21:26..21:32) scala/Predef.String#
+(21:42..21:47) scala/
+(21:48..21:58) scala/annotation/
+(21:59..21:69) scala/annotation/Annotation#
+(23:12..23:15) _empty_/ann# -> 21:7
+(23:16..23:19) _empty_/obj. -> 19:8
+(23:21..23:24) _empty_/obj. -> 19:8
+(23:34..23:40) scala/Predef.String#
+(26:13..26:23) scala/deprecated#
+(26:28..26:38) scala/deprecated#
+(26:45..26:51) scala/Predef.String#
+

@@ -1,0 +1,501 @@
+Document tests/pos/StringContext.scala
+(15:8..15:12) java/
+(15:13..15:17) java/lang/
+(15:18..15:31) java/lang/StringBuilder#
+(16:8..16:13) scala/ -> 13:9
+(16:14..16:24) scala/annotation/
+(16:25..16:32) scala/annotation/tailrec#
+(57:33..57:39) scala/Predef.String#
+(59:10..59:23) scala/StringContext. -> 198:8
+(59:25..59:37) scala/StringContext.checkLengths(). -> 483:7
+(59:57..59:61) scala/StringContext.glob(). -> 209:7
+(59:63..59:83) scala/StringContext.standardInterpolator(). -> 466:7
+(61:4..61:14) scala/deprecated#
+(62:26..62:31) scala/ -> 13:9
+(62:32..62:42) scala/collection/
+(62:43..62:46) scala/collection/Seq#
+(62:47..62:50) scala/Any#
+(62:54..62:58) scala/Unit#
+(62:61..62:75) scala/StringContext.checkLengths(). -> 483:7
+(62:76..62:80) scala/StringContext#checkLengths().(args) -> 62:20
+(62:82..62:87) scala/StringContext#parts. -> 57:26
+(92:15..92:18) scala/Any#
+(92:22..92:28) scala/Predef.String#
+(92:31..92:34) scala/Predef.`???`().
+(129:23..129:29) scala/Predef.String#
+(129:32..129:38) scala/Option#
+(129:39..129:42) scala/package.Seq#
+(129:43..129:49) scala/Predef.String#
+(129:54..129:58) scala/StringContext.glob(). -> 209:7
+(129:59..129:64) scala/StringContext#parts. -> 57:26
+(129:66..129:67) scala/StringContext#s.unapplySeq().(s) -> 129:20
+(155:17..155:20) scala/Any#
+(155:24..155:30) scala/Predef.String#
+(155:33..155:36) scala/Predef.`???`().
+(157:4..157:14) scala/deprecated#
+(158:37..158:43) scala/Predef.String#
+(158:47..158:53) scala/Predef.String#
+(158:61..158:64) scala/package.Seq#
+(158:65..158:68) scala/Any#
+(158:72..158:78) scala/Predef.String#
+(158:81..158:103) scala/StringContext.standardInterpolator(). -> 466:7
+(158:104..158:111) scala/StringContext#standardInterpolator().(process) -> 158:28
+(158:113..158:117) scala/StringContext#standardInterpolator().(args) -> 158:55
+(158:119..158:124) scala/StringContext#parts. -> 57:26
+(195:14..195:17) scala/Any#
+(195:25..195:26) scala/StringContext#f().[A] -> 195:9
+(195:30..195:36) scala/Predef.String#
+(195:39..195:42) scala/Predef.`???`().
+(209:27..209:30) scala/package.Seq#
+(209:31..209:37) scala/Predef.String#
+(209:47..209:53) scala/Predef.String#
+(209:56..209:62) scala/Option#
+(209:63..209:66) scala/package.Seq#
+(209:67..209:73) scala/Predef.String#
+(215:24..215:37) scala/StringContext.glob().(patternChunks) -> 209:12
+(215:38..215:44) scala/collection/SeqOps#length().
+(215:45..215:46) scala/Int#`-`(+3).
+(216:23..216:28) scala/Array.
+(216:29..216:33) scala/Array.fill().
+(216:34..216:46) local4 -> 215:9
+(217:21..217:26) scala/Array.
+(217:27..217:31) scala/Array.fill().
+(217:32..217:44) local4 -> 215:9
+(219:22..219:27) scala/StringContext.glob().(input) -> 209:40
+(219:28..219:34) java/lang/String#length().
+(223:15..223:27) local4 -> 215:9
+(224:20..224:33) scala/StringContext.glob().(patternChunks) -> 209:12
+(225:9..225:10) local8 -> 223:11
+(225:14..225:19) local9 -> 224:11
+(225:20..225:26) java/lang/String#length().
+(227:7..227:8) local8 -> 223:11
+(233:21..233:26) scala/Array#
+(233:27..233:32) scala/Short#
+(233:34..233:47) local10 -> 222:9
+(236:20..236:33) scala/StringContext.glob().(patternChunks) -> 209:12
+(237:13..237:18) local13 -> 235:11
+(237:20..237:25) local13 -> 235:11
+(239:11..239:14) local11 -> 233:11
+(239:15..239:16) local12 -> 234:11
+(240:11..240:12) local12 -> 234:11
+(242:18..242:23) local14 -> 236:11
+(243:11..243:14) local11 -> 233:11
+(243:15..243:16) local12 -> 234:11
+(243:20..243:21) local15 -> 242:13
+(243:22..243:29) scala/Char#toShort().
+(244:11..244:12) local12 -> 234:11
+(247:7..247:10) local11 -> 233:11
+(254:17..254:22) scala/Array.
+(254:23..254:27) scala/Array.fill().
+(254:28..254:41) local10 -> 222:9
+(254:42..254:43) scala/Int#`+`(+4).
+(257:20..257:33) scala/StringContext.glob().(patternChunks) -> 209:12
+(258:13..258:14) local19 -> 256:11
+(258:15..258:16) scala/Int#`<`(+3).
+(258:17..258:29) local4 -> 215:9
+(259:11..259:12) local18 -> 255:11
+(259:16..259:21) local20 -> 257:11
+(259:22..259:28) java/lang/String#length().
+(260:11..260:14) local17 -> 254:11
+(260:15..260:16) local18 -> 255:11
+(260:20..260:21) local19 -> 256:11
+(261:11..261:12) local18 -> 255:11
+(262:11..262:12) local19 -> 256:11
+(265:7..265:10) local17 -> 254:11
+(268:11..268:23) local0 -> 210:9
+(268:24..268:25) scala/Int#`<`(+3).
+(268:26..268:39) local10 -> 222:9
+(268:40..268:42) scala/Boolean#`||`().
+(268:43..268:53) local1 -> 211:9
+(268:54..268:55) scala/Int#`<`(+3).
+(268:56..268:66) local7 -> 219:9
+(269:7..269:19) local21 -> 253:9
+(269:20..269:32) local0 -> 210:9
+(272:11..272:22) local5 -> 216:9
+(272:23..272:24) local22 -> 271:14
+(272:28..272:39) local5 -> 216:9
+(272:40..272:41) local22 -> 271:14
+(273:24..273:34) local1 -> 211:9
+(274:23..274:27) scala/math/
+(274:28..274:31) scala/math/package.min().
+(274:32..274:33) local23 -> 274:18
+(274:35..274:45) local1 -> 211:9
+(276:11..276:20) local6 -> 217:9
+(276:21..276:22) local22 -> 271:14
+(276:26..276:35) local6 -> 217:9
+(276:36..276:37) local22 -> 271:14
+(277:24..277:34) local1 -> 211:9
+(278:23..278:27) scala/math/
+(278:28..278:31) scala/math/package.max().
+(278:32..278:33) local24 -> 278:18
+(278:35..278:45) local1 -> 211:9
+(282:26..282:38) local0 -> 210:9
+(282:39..282:40) scala/Int#`<`(+3).
+(282:41..282:54) local10 -> 222:9
+(283:17..283:24) local16 -> 232:9
+(283:25..283:37) local0 -> 210:9
+(284:9..284:10) local25 -> 283:13
+(287:13..287:29) local2 -> 212:9
+(287:32..287:44) local0 -> 210:9
+(288:13..288:27) local3 -> 213:9
+(288:30..288:40) local1 -> 211:9
+(288:41..288:42) scala/Int#`+`(+4).
+(289:13..289:25) local0 -> 210:9
+(292:17..292:27) local1 -> 211:9
+(292:28..292:29) scala/Int#`<`(+3).
+(292:30..292:40) local7 -> 219:9
+(292:41..292:43) scala/Boolean#`&&`().
+(292:44..292:49) scala/StringContext.glob().(input) -> 209:40
+(292:50..292:60) local1 -> 211:9
+(292:62..292:64) scala/Char#`==`(+1).
+(292:65..292:66) local25 -> 283:13
+(293:15..293:27) local0 -> 210:9
+(294:15..294:25) local1 -> 211:9
+(303:12..303:20) local26 -> 282:11
+(304:15..304:16) scala/Int#`<`(+3).
+(304:17..304:31) local3 -> 213:9
+(304:32..304:34) scala/Boolean#`&&`().
+(304:35..304:49) local3 -> 213:9
+(304:50..304:52) scala/Int#`<=`(+3).
+(304:53..304:63) local7 -> 219:9
+(305:11..305:23) local0 -> 210:9
+(305:26..305:42) local2 -> 212:9
+(306:11..306:21) local1 -> 211:9
+(306:24..306:38) local3 -> 213:9
+(308:18..308:22) scala/None.
+(314:5..314:9) scala/Some.
+(314:10..314:20) scala/collection/
+(314:21..314:30) scala/collection/immutable/
+(314:31..314:39) scala/collection/immutable/ArraySeq.
+(314:40..314:55) scala/collection/immutable/ArraySeq.unsafeWrapArray().
+(315:7..315:12) scala/Array.
+(315:13..315:21) scala/Array.tabulate().
+(315:22..315:35) scala/StringContext.glob().(patternChunks) -> 209:12
+(315:36..315:42) scala/collection/SeqOps#length().
+(315:43..315:44) scala/Int#`-`(+3).
+(315:53..315:58) scala/StringContext.glob().(input) -> 209:40
+(315:59..315:64) scala/collection/StringOps#slice().
+(315:65..315:76) local5 -> 216:9
+(315:77..315:78) local27 -> 315:48
+(315:81..315:90) local6 -> 217:9
+(315:91..315:92) local27 -> 315:48
+(324:37..324:43) scala/Predef.String#
+(324:56..324:59) scala/Int#
+(324:69..324:93) scala/package.IllegalArgumentException#
+(326:7..326:14) scala/Predef.require().
+(326:15..326:20) scala/StringContext.InvalidEscapeException#index. -> 324:49
+(326:21..326:23) scala/Int#`>=`(+3).
+(326:26..326:28) scala/Boolean#`&&`().
+(326:29..326:34) scala/StringContext.InvalidEscapeException#index. -> 324:49
+(326:35..326:36) scala/Int#`<`(+3).
+(326:37..326:40) scala/StringContext.InvalidEscapeException#str. -> 324:32
+(326:41..326:47) java/lang/String#length().
+(327:72..327:73) scala/StringContext#s(). -> 92:7
+(328:11..328:16) scala/StringContext.InvalidEscapeException#index. -> 324:49
+(328:17..328:19) scala/Int#`==`(+3).
+(328:20..328:23) scala/StringContext.InvalidEscapeException#str. -> 324:32
+(328:24..328:30) java/lang/String#length().
+(328:31..328:32) scala/Int#`-`(+3).
+(328:62..328:65) scala/StringContext.InvalidEscapeException#str. -> 324:32
+(328:66..328:71) scala/StringContext.InvalidEscapeException#index. -> 324:49
+(328:72..328:73) scala/Int#`+`(+4).
+(328:91..328:93) local28 -> 327:11
+(328:96..328:97) scala/StringContext#s(). -> 92:7
+(329:14..329:19) scala/StringContext.InvalidEscapeException#index. -> 324:49
+(329:25..329:28) scala/StringContext.InvalidEscapeException#str. -> 324:32
+(329:57..329:58) scala/StringContext#s(). -> 92:7
+(332:13..332:18) scala/ -> 13:9
+(332:61..332:67) scala/Predef.String#
+(332:86..332:89) scala/Int#
+(332:102..332:105) scala/Int#
+(332:115..332:139) scala/package.IllegalArgumentException#
+(333:42..333:47) scala/StringContext.InvalidUnicodeEscapeException#index. -> 332:95
+(333:52..333:55) scala/StringContext.InvalidUnicodeEscapeException#str. -> 332:56
+(333:57..333:58) scala/StringContext#s(). -> 92:7
+(336:38..336:44) scala/Predef.String#
+(336:58..336:61) scala/Int#
+(336:65..336:69) scala/Char#
+(336:71..336:74) scala/Int#
+(337:15..337:18) scala/StringContext.readUEscape().(src) -> 336:33
+(337:19..337:25) java/lang/String#length().
+(338:22..338:25) scala/Int#
+(338:29..338:33) scala/Char#
+(338:35..338:38) scala/Int#
+(339:26..339:29) scala/Int#
+(339:42..339:45) scala/Int#
+(339:49..339:53) scala/Char#
+(339:55..339:58) scala/Int#
+(342:12..342:18) local31 -> 339:18
+(342:19..342:21) scala/Int#`>=`(+3).
+(343:24..343:30) local30 -> 338:14
+(343:31..343:32) scala/Int#`-`(+3).
+(343:33..343:43) scala/StringContext.readUEscape().(startindex) -> 336:46
+(344:28..344:34) local31 -> 339:18
+(345:12..345:21) local32 -> 339:31
+(345:22..345:34) scala/Any#asInstanceOf().
+(345:35..345:39) scala/Char#
+(345:42..345:48) local33 -> 343:15
+(345:49..345:50) scala/Int#`+`(+4).
+(345:51..345:61) local34 -> 344:15
+(347:18..347:24) local31 -> 339:18
+(347:25..347:26) scala/Int#`+`(+4).
+(347:27..347:33) local30 -> 338:14
+(347:34..347:36) scala/Int#`>=`(+3).
+(347:37..347:40) local29 -> 337:9
+(348:21..348:50) scala/StringContext.InvalidUnicodeEscapeException# -> 332:26
+(348:51..348:54) scala/StringContext.readUEscape().(src) -> 336:33
+(348:56..348:66) scala/StringContext.readUEscape().(startindex) -> 336:46
+(348:68..348:74) local30 -> 338:14
+(348:75..348:76) scala/Int#`+`(+4).
+(348:77..348:83) local31 -> 339:18
+(350:20..350:23) scala/StringContext.readUEscape().(src) -> 336:33
+(350:24..350:30) local31 -> 339:18
+(350:31..350:32) scala/Int#`+`(+4).
+(350:33..350:39) local30 -> 338:14
+(351:19..351:21) local35 -> 350:15
+(351:22..351:29) scala/runtime/RichChar#asDigit().
+(352:14..352:15) local36 -> 351:15
+(352:16..352:18) scala/Int#`>=`(+3).
+(352:21..352:23) scala/Boolean#`&&`().
+(352:24..352:25) local36 -> 351:15
+(352:26..352:28) scala/Int#`<=`(+3).
+(352:33..352:39) local37 -> 339:11
+(352:40..352:46) local31 -> 339:18
+(352:47..352:48) scala/Int#`+`(+4).
+(352:53..352:62) local32 -> 339:31
+(352:63..352:65) scala/Int#`<<`().
+(352:69..352:70) scala/Int#`+`(+4).
+(352:71..352:72) local36 -> 351:15
+(353:26..353:55) scala/StringContext.InvalidUnicodeEscapeException# -> 332:26
+(353:56..353:59) scala/StringContext.readUEscape().(src) -> 336:33
+(353:61..353:71) scala/StringContext.readUEscape().(startindex) -> 336:46
+(353:73..353:79) local30 -> 338:14
+(353:80..353:81) scala/Int#`+`(+4).
+(353:82..353:88) local31 -> 339:18
+(356:10..356:16) local30 -> 338:14
+(356:17..356:19) scala/Int#`>=`(+3).
+(356:20..356:23) local29 -> 337:9
+(356:35..356:64) scala/StringContext.InvalidUnicodeEscapeException# -> 332:26
+(356:65..356:68) scala/StringContext.readUEscape().(src) -> 336:33
+(356:70..356:80) scala/StringContext.readUEscape().(startindex) -> 336:46
+(356:82..356:88) local30 -> 338:14
+(356:89..356:90) scala/Int#`-`(+3).
+(359:15..359:18) scala/StringContext.readUEscape().(src) -> 336:33
+(359:19..359:25) local30 -> 338:14
+(359:27..359:29) scala/Char#`==`(+2).
+(359:35..359:39) local38 -> 338:9
+(359:40..359:46) local30 -> 338:14
+(359:47..359:48) scala/Int#`+`(+4).
+(360:12..360:18) local37 -> 339:11
+(362:5..362:9) local38 -> 338:9
+(362:10..362:20) scala/StringContext.readUEscape().(startindex) -> 336:46
+(373:4..373:14) scala/deprecated#
+(374:25..374:31) scala/Predef.String#
+(374:34..374:40) scala/Predef.String#
+(374:43..374:57) scala/StringContext.processEscapes(). -> 384:7
+(374:58..374:61) scala/StringContext.treatEscapes().(str) -> 374:20
+(384:27..384:33) scala/Predef.String#
+(384:36..384:42) scala/Predef.String#
+(385:5..385:8) scala/StringContext.processEscapes().(str) -> 384:22
+(385:9..385:16) java/lang/String#indexOf().
+(386:18..386:21) scala/StringContext.processEscapes().(str) -> 384:22
+(387:18..387:25) scala/StringContext.replace(). -> 397:21
+(387:26..387:29) scala/StringContext.processEscapes().(str) -> 384:22
+(387:31..387:32) local39 -> 387:13
+(390:13..390:18) scala/ -> 13:9
+(390:44..390:50) scala/Predef.String#
+(390:53..390:59) scala/Predef.String#
+(391:5..391:8) scala/StringContext.processUnicode().(str) -> 390:39
+(391:9..391:16) java/lang/String#indexOf(+2).
+(392:17..392:18) local40 -> 392:12
+(392:19..392:21) scala/Int#`==`(+3).
+(392:25..392:27) scala/Boolean#`||`().
+(392:28..392:29) local40 -> 392:12
+(392:30..392:32) scala/Int#`>=`(+3).
+(392:34..392:37) scala/StringContext.processUnicode().(str) -> 390:39
+(392:38..392:44) java/lang/String#length().
+(392:47..392:48) scala/Int#`-`(+3).
+(392:55..392:58) scala/StringContext.processUnicode().(str) -> 390:39
+(393:17..393:25) scala/StringContext.replaceU(). -> 433:21
+(393:26..393:29) scala/StringContext.processUnicode().(str) -> 390:39
+(393:31..393:32) local41 -> 393:12
+(397:34..397:40) scala/Predef.String#
+(397:49..397:52) scala/Int#
+(397:55..397:61) scala/Predef.String#
+(398:15..398:18) scala/StringContext.replace().(str) -> 397:29
+(398:19..398:25) java/lang/String#length().
+(399:17..399:27) java/lang/StringBuilder#
+(401:6..401:13) scala/annotation/tailrec#
+(401:26..401:29) scala/Int#
+(401:37..401:40) scala/Int#
+(401:43..401:49) scala/Predef.String#
+(402:11..402:15) local45 -> 401:31
+(402:16..402:18) scala/Int#`>=`(+3).
+(404:13..404:17) local45 -> 401:31
+(404:18..404:19) scala/Int#`>`(+3).
+(404:20..404:21) local44 -> 401:23
+(404:23..404:24) local43 -> 399:9
+(404:25..404:31) java/lang/StringBuilder#append(+4).
+(404:32..404:35) scala/StringContext.replace().(str) -> 397:29
+(404:37..404:38) local44 -> 401:23
+(404:40..404:44) local45 -> 401:31
+(405:21..405:25) local45 -> 401:31
+(405:26..405:27) scala/Int#`+`(+4).
+(406:15..406:18) local46 -> 405:15
+(406:19..406:21) scala/Int#`>=`(+3).
+(406:22..406:25) local42 -> 398:9
+(406:37..406:59) scala/StringContext.InvalidEscapeException# -> 324:9
+(406:60..406:63) scala/StringContext.replace().(str) -> 397:29
+(406:65..406:69) local45 -> 401:31
+(407:19..407:22) scala/StringContext.replace().(str) -> 397:29
+(407:23..407:26) local46 -> 405:15
+(417:36..417:58) scala/StringContext.InvalidEscapeException# -> 324:9
+(417:59..417:62) scala/StringContext.replace().(str) -> 397:29
+(417:64..417:68) local45 -> 401:31
+(419:35..419:36) local47 -> 407:15
+(419:37..419:39) scala/Char#`==`(+2).
+(419:45..419:56) scala/StringContext.readUEscape(). -> 336:21
+(419:57..419:60) scala/StringContext.replace().(str) -> 397:29
+(419:62..419:65) local46 -> 405:15
+(420:37..420:38) local47 -> 407:15
+(421:11..421:14) local46 -> 405:15
+(421:18..421:25) local49 -> 419:20
+(422:11..422:12) local43 -> 399:9
+(422:13..422:19) java/lang/StringBuilder#append(+8).
+(422:20..422:22) local48 -> 419:16
+(423:11..423:15) local50 -> 401:18
+(423:16..423:19) local46 -> 405:15
+(423:21..423:24) scala/StringContext.replace().(str) -> 397:29
+(423:25..423:32) java/lang/String#indexOf(+1).
+(423:39..423:42) local46 -> 405:15
+(425:15..425:16) local44 -> 401:23
+(425:17..425:18) scala/Int#`<`(+3).
+(425:19..425:22) local42 -> 398:9
+(425:24..425:25) local43 -> 399:9
+(425:26..425:32) java/lang/StringBuilder#append(+4).
+(425:33..425:36) scala/StringContext.replace().(str) -> 397:29
+(425:38..425:39) local44 -> 401:23
+(425:41..425:44) local42 -> 398:9
+(426:11..426:12) local43 -> 399:9
+(426:13..426:21) java/lang/StringBuilder#toString().
+(429:7..429:11) local50 -> 401:18
+(429:15..429:20) scala/StringContext.replace().(first) -> 397:42
+(433:35..433:41) scala/Predef.String#
+(433:50..433:53) scala/Int#
+(433:56..433:62) scala/Predef.String#
+(434:15..434:18) scala/StringContext.replaceU().(str) -> 433:30
+(434:19..434:25) java/lang/String#length().
+(435:17..435:27) java/lang/StringBuilder#
+(437:6..437:13) scala/annotation/tailrec#
+(437:26..437:29) scala/Int#
+(437:37..437:40) scala/Int#
+(437:43..437:49) scala/Predef.String#
+(438:11..438:15) local54 -> 437:31
+(438:16..438:18) scala/Int#`>=`(+3).
+(440:13..440:17) local54 -> 437:31
+(440:18..440:19) scala/Int#`>`(+3).
+(440:20..440:21) local53 -> 437:23
+(440:23..440:24) local52 -> 435:9
+(440:25..440:31) java/lang/StringBuilder#append(+4).
+(440:32..440:35) scala/StringContext.replaceU().(str) -> 433:30
+(440:37..440:38) local53 -> 437:23
+(440:40..440:44) local54 -> 437:31
+(441:19..441:23) local54 -> 437:31
+(441:24..441:25) scala/Int#`+`(+4).
+(442:13..442:16) local55 -> 441:13
+(442:17..442:19) scala/Int#`>=`(+3).
+(442:20..442:23) local51 -> 434:9
+(443:15..443:18) local55 -> 441:13
+(443:19..443:21) scala/Int#`==`(+3).
+(443:22..443:25) local51 -> 434:9
+(443:27..443:28) local52 -> 435:9
+(443:29..443:35) java/lang/StringBuilder#append(+8).
+(444:11..444:12) local52 -> 435:9
+(444:13..444:21) java/lang/StringBuilder#toString().
+(447:31..447:34) scala/StringContext.replaceU().(str) -> 433:30
+(447:35..447:38) local55 -> 441:13
+(448:26..448:37) scala/StringContext.readUEscape(). -> 336:21
+(448:38..448:41) scala/StringContext.replaceU().(str) -> 433:30
+(448:43..448:46) local55 -> 441:13
+(450:15..450:16) local52 -> 435:9
+(450:17..450:23) java/lang/StringBuilder#append(+8).
+(451:16..451:19) local56 -> 449:18
+(454:11..454:14) local55 -> 441:13
+(454:18..454:25) local58 -> 447:20
+(455:11..455:12) local52 -> 435:9
+(455:13..455:19) java/lang/StringBuilder#append(+8).
+(455:20..455:22) local57 -> 447:16
+(456:11..456:15) local59 -> 437:18
+(456:16..456:19) local55 -> 441:13
+(456:21..456:24) scala/StringContext.replaceU().(str) -> 433:30
+(456:25..456:32) java/lang/String#indexOf(+1).
+(456:39..456:42) local55 -> 441:13
+(459:13..459:14) local53 -> 437:23
+(459:15..459:16) scala/Int#`<`(+3).
+(459:17..459:20) local51 -> 434:9
+(459:22..459:23) local52 -> 435:9
+(459:24..459:30) java/lang/StringBuilder#append(+4).
+(459:31..459:34) scala/StringContext.replaceU().(str) -> 433:30
+(459:36..459:37) local53 -> 437:23
+(459:39..459:42) local51 -> 434:9
+(460:9..460:10) local52 -> 435:9
+(460:11..460:19) java/lang/StringBuilder#toString().
+(463:5..463:9) local59 -> 437:18
+(463:13..463:18) scala/StringContext.replaceU().(first) -> 433:43
+(466:37..466:43) scala/Predef.String#
+(466:47..466:53) scala/Predef.String#
+(466:61..466:66) scala/ -> 13:9
+(466:67..466:77) scala/collection/
+(466:78..466:81) scala/collection/Seq#
+(466:82..466:85) scala/Any#
+(466:95..466:98) scala/package.Seq#
+(466:99..466:105) scala/Predef.String#
+(466:109..466:115) scala/Predef.String#
+(467:5..467:18) scala/StringContext. -> 198:8
+(467:19..467:31) scala/StringContext.checkLengths(). -> 483:7
+(467:32..467:36) scala/StringContext.standardInterpolator().(args) -> 466:55
+(467:38..467:43) scala/StringContext.standardInterpolator().(parts) -> 466:88
+(468:14..468:19) scala/StringContext.standardInterpolator().(parts) -> 466:88
+(468:20..468:28) scala/collection/IterableOnce#iterator().
+(469:14..469:18) scala/StringContext.standardInterpolator().(args) -> 466:55
+(469:19..469:27) scala/collection/IterableOnce#iterator().
+(470:20..470:30) java/lang/StringBuilder#
+(470:31..470:38) scala/StringContext.standardInterpolator().(process) -> 466:28
+(470:39..470:41) local60 -> 468:9
+(470:42..470:46) scala/collection/Iterator#next().
+(471:12..471:14) local61 -> 469:9
+(471:15..471:22) scala/collection/Iterator#hasNext().
+(472:7..472:11) local62 -> 470:9
+(472:12..472:18) java/lang/StringBuilder#append().
+(472:19..472:21) local61 -> 469:9
+(472:22..472:26) scala/collection/Iterator#next().
+(473:7..473:11) local62 -> 470:9
+(473:12..473:18) java/lang/StringBuilder#append(+1).
+(473:19..473:26) scala/StringContext.standardInterpolator().(process) -> 466:28
+(473:27..473:29) local60 -> 468:9
+(473:30..473:34) scala/collection/Iterator#next().
+(475:5..475:9) local62 -> 470:9
+(475:10..475:18) java/lang/StringBuilder#toString().
+(483:26..483:31) scala/ -> 13:9
+(483:32..483:42) scala/collection/
+(483:43..483:46) scala/collection/Seq#
+(483:47..483:50) scala/Any#
+(483:60..483:63) scala/package.Seq#
+(483:64..483:70) scala/Predef.String#
+(483:74..483:78) scala/Unit#
+(484:9..484:14) scala/StringContext.checkLengths().(parts) -> 483:53
+(484:15..484:21) scala/collection/SeqOps#length().
+(484:22..484:24) scala/Int#`!=`(+3).
+(484:25..484:29) scala/StringContext.checkLengths().(args) -> 483:20
+(484:30..484:36) scala/collection/SeqOps#length().
+(484:37..484:38) scala/Int#`+`(+4).
+(485:17..485:41) scala/package.IllegalArgumentException#
+(485:71..485:72) java/lang/String#`+`().
+(485:73..485:77) scala/StringContext.checkLengths().(args) -> 483:20
+(485:78..485:84) scala/collection/SeqOps#length().
+(486:9..486:10) java/lang/String#`+`().
+(486:43..486:44) java/lang/String#`+`().
+(486:45..486:50) scala/StringContext.checkLengths().(parts) -> 483:53
+(486:51..486:57) scala/collection/SeqOps#length().
+(486:58..486:59) java/lang/String#`+`().
+

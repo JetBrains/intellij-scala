@@ -1,0 +1,4 @@
+Document tests/pos/i7809.scala
+(2:21..2:24) scala/Any#
+(3:9..3:16) scala/Predef.println().
+

@@ -1,0 +1,14 @@
+Document tests/pos/i877.scala
+(5:14..5:19) _empty_/First# -> 1:7
+(6:16..6:22) _empty_/Second# -> 2:7
+(7:16..7:21) _empty_/First# -> 1:7
+(7:22..7:23) _empty_/Foo#foo().[A] -> 5:11
+(7:27..7:37) scala/Predef.implicitly().
+(7:38..7:43) _empty_/First# -> 1:7
+(7:44..7:45) _empty_/Foo#foo().[A] -> 5:11
+(8:16..8:22) _empty_/Second# -> 2:7
+(8:23..8:24) local0 -> 6:13
+(8:28..8:38) scala/Predef.implicitly().
+(8:39..8:45) _empty_/Second# -> 2:7
+(8:46..8:47) local0 -> 6:13
+

@@ -1,0 +1,5 @@
+Document tests/pos/t756.scala
+(3:10..3:14) scala/Some.
+(4:10..4:14) scala/Some.
+(5:11..5:12) local0 -> 3:5
+

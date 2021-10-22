@@ -1,0 +1,13 @@
+Document tests/pos/t1236.scala
+(2:13..2:14) _empty_/Empty#[E] -> 1:13
+(2:15..2:16) _empty_/Empty#e().[A] -> 2:9
+(6:23..6:28) _empty_/Empty# -> 1:7
+(6:29..6:33) scala/package.List#
+(7:16..7:19) scala/package.Nil.
+(10:20..10:26) scala/Predef.String#
+(10:27..10:33) scala/Predef.String#
+(11:20..11:25) _empty_/Empty# -> 1:7
+(11:26..11:27) _empty_/T.foo(+1).[F] -> 11:11
+(13:11..13:14) _empty_/T.foo(+1). -> 11:7
+(13:15..13:24) _empty_/T.ListEmpty. -> 6:7
+

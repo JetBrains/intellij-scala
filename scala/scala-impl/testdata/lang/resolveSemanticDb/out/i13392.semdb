@@ -1,0 +1,15 @@
+Document tests/pos/i13392.scala
+(2:8..2:16) scala/language.
+(2:17..2:29) scala/language.experimental.
+(2:30..2:47) scala/language.experimental.erasedDefinitions.
+(3:8..3:18) scala/annotation/
+(3:20..3:36) scala/annotation/implicitNotFound#
+(3:38..3:50) scala/annotation/experimental#
+(5:2..5:14) scala/annotation/experimental#
+(6:2..6:18) scala/annotation/implicitNotFound#
+(7:29..7:38) scala/package.Exception#
+(9:2..9:14) scala/annotation/experimental#
+(11:22..11:30) scala/CanThrow# -> 7:14
+(11:31..11:40) scala/package.Exception#
+(11:44..11:47) scala/Predef.`???`().
+

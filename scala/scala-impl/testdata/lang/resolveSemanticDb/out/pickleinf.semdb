@@ -1,0 +1,8 @@
+Document tests/pos/pickleinf.scala
+(2:17..2:18) _empty_/Bar#[N] -> 1:11
+(2:27..2:30) scala/Int#
+(2:38..2:39) _empty_/Bar#[N] -> 1:11
+(2:42..2:46) _empty_/Bar#bar().(name) -> 2:11
+(6:15..6:19) scala/Unit#
+(7:15..7:18) _empty_/Bar#bar(). -> 2:7
+

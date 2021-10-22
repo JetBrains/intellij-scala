@@ -1,0 +1,80 @@
+Document tests/pos/opaque-nullable.scala
+(2:29..2:33) scala/Null#
+(2:37..2:43) scala/AnyRef#
+(2:47..2:48) _empty_/nullable.Nullable#[A] -> 2:24
+(5:20..5:24) scala/Null#
+(5:28..5:34) scala/AnyRef#
+(5:39..5:40) _empty_/nullable.Nullable.apply().[A] -> 5:15
+(5:43..5:51) _empty_/nullable.Nullable# -> 2:15
+(5:52..5:53) _empty_/nullable.Nullable.apply().[A] -> 5:15
+(5:57..5:58) _empty_/nullable.Nullable.apply().(a) -> 5:36
+(7:37..7:41) scala/Null#
+(7:45..7:51) scala/AnyRef#
+(7:57..7:65) _empty_/nullable.Nullable# -> 2:15
+(7:66..7:67) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(8:21..8:22) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(8:26..8:33) scala/Boolean#
+(8:36..8:43) scala/Boolean#
+(9:9..9:11) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(9:12..9:14) scala/Any#`!=`().
+(9:20..9:22) scala/Boolean#`&&`().
+(9:23..9:24) _empty_/nullable.Nullable.NullableOps#exists().(p) -> 8:18
+(9:25..9:27) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(10:21..10:22) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(10:26..10:33) scala/Boolean#
+(10:36..10:44) _empty_/nullable.Nullable# -> 2:15
+(10:45..10:46) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(11:13..11:15) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(11:16..11:18) scala/Any#`!=`().
+(11:24..11:26) scala/Boolean#`&&`().
+(11:27..11:28) _empty_/nullable.Nullable.NullableOps#filter().(p) -> 10:18
+(11:29..11:31) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(11:34..11:36) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(12:24..12:28) scala/Null#
+(12:32..12:38) scala/AnyRef#
+(12:43..12:44) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(12:48..12:56) _empty_/nullable.Nullable# -> 2:15
+(12:57..12:58) _empty_/nullable.Nullable.NullableOps#flatMap().[B] -> 12:19
+(12:62..12:70) _empty_/nullable.Nullable# -> 2:15
+(12:71..12:72) _empty_/nullable.Nullable.NullableOps#flatMap().[B] -> 12:19
+(13:13..13:15) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(13:16..13:18) scala/Any#`==`().
+(13:35..13:36) _empty_/nullable.Nullable.NullableOps#flatMap().(f) -> 12:40
+(13:37..13:39) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(14:21..14:22) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(14:26..14:33) scala/Boolean#
+(14:36..14:43) scala/Boolean#
+(15:9..15:11) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(15:12..15:14) scala/Any#`==`().
+(15:20..15:22) scala/Boolean#`||`().
+(15:23..15:24) _empty_/nullable.Nullable.NullableOps#forall().(p) -> 14:18
+(15:25..15:27) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(16:27..16:28) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(16:31..16:32) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(17:13..17:15) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(17:16..17:18) scala/Any#`==`().
+(17:25..17:26) _empty_/nullable.Nullable.NullableOps#getOrElse().(a) -> 16:21
+(17:32..17:34) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(18:20..18:24) scala/Null#
+(18:28..18:34) scala/AnyRef#
+(18:39..18:40) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(18:44..18:45) _empty_/nullable.Nullable.NullableOps#map().[B] -> 18:15
+(18:48..18:56) _empty_/nullable.Nullable# -> 2:15
+(18:57..18:58) _empty_/nullable.Nullable.NullableOps#map().[B] -> 18:15
+(19:13..19:15) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(19:16..19:18) scala/Any#`==`().
+(19:35..19:36) _empty_/nullable.Nullable.NullableOps#map().(f) -> 18:36
+(19:37..19:39) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(20:26..20:34) _empty_/nullable.Nullable# -> 2:15
+(20:35..20:36) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(20:40..20:48) _empty_/nullable.Nullable# -> 2:15
+(20:49..20:50) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(21:13..21:15) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(21:16..21:18) scala/Any#`==`().
+(21:25..21:28) _empty_/nullable.Nullable.NullableOps#orElse().(na2) -> 20:18
+(21:34..21:36) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+(22:21..22:27) scala/Option#
+(22:28..22:29) _empty_/nullable.Nullable.NullableOps#[A] -> 7:32
+(23:9..23:15) scala/Option.
+(23:16..23:18) _empty_/nullable.Nullable.NullableOps#na. -> 7:53
+

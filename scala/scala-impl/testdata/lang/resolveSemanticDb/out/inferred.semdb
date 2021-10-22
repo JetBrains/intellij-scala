@@ -1,0 +1,79 @@
+Document tests/pos/inferred.scala
+(3:16..3:23) scala/Boolean#
+(4:13..4:14) _empty_/LIST#[T] -> 1:22
+(5:13..5:17) _empty_/LIST# -> 1:16
+(5:18..5:19) _empty_/LIST#[T] -> 1:22
+(7:21..7:22) _empty_/LIST#[T] -> 1:22
+(7:28..7:29) _empty_/LIST#prepend().[U] -> 7:16
+(7:32..7:36) _empty_/LIST# -> 1:16
+(7:37..7:38) _empty_/LIST#prepend().[U] -> 7:16
+(7:51..7:52) _empty_/LIST#prepend().(x) -> 7:25
+(9:17..9:18) _empty_/LIST#[T] -> 1:22
+(9:22..9:23) _empty_/LIST#map().[U] -> 9:11
+(9:26..9:30) _empty_/LIST# -> 1:16
+(9:31..9:32) _empty_/LIST#map().[U] -> 9:11
+(9:40..9:47) _empty_/LIST#isEmpty(). -> 3:7
+(9:49..9:52) _empty_/NIL. -> 13:8
+(9:58..9:62) _empty_/LIST#tail(). -> 5:7
+(9:63..9:66) _empty_/LIST#map(). -> 9:7
+(9:67..9:68) _empty_/LIST#map().(f) -> 9:14
+(9:70..9:77) _empty_/LIST#prepend(). -> 7:7
+(9:78..9:79) _empty_/LIST#map().(f) -> 9:14
+(9:80..9:84) _empty_/LIST#head(). -> 4:7
+(13:20..13:24) _empty_/LIST# -> 1:16
+(13:25..13:32) scala/Nothing#
+(15:24..15:29) scala/package.Error#
+(16:14..16:17) scala/Predef.`???`().
+(19:19..19:20) _empty_/CONS#[U] -> 19:12
+(19:26..19:30) _empty_/LIST# -> 1:16
+(19:31..19:32) _empty_/CONS#[U] -> 19:12
+(19:43..19:47) _empty_/LIST# -> 1:16
+(19:48..19:49) _empty_/CONS#[U] -> 19:12
+(21:13..21:14) _empty_/CONS#[U] -> 19:12
+(21:17..21:19) _empty_/CONS#hd. -> 19:15
+(22:14..22:16) _empty_/CONS#tl. -> 19:22
+(27:17..27:18) _empty_/Inferred.foo().[T] -> 27:11
+(27:21..27:22) _empty_/Inferred.foo().[T] -> 27:11
+(27:25..27:26) _empty_/Inferred.foo().(x) -> 27:14
+(29:11..29:14) _empty_/Inferred.foo(). -> 27:7
+(31:11..31:14) _empty_/Inferred.foo(). -> 27:7
+(33:18..33:22) _empty_/LIST# -> 1:16
+(33:23..33:24) _empty_/Inferred.bar().[U] -> 33:11
+(33:28..33:32) _empty_/LIST# -> 1:16
+(33:33..33:34) _empty_/Inferred.bar().[U] -> 33:11
+(33:38..33:40) _empty_/Inferred.bar().(xs) -> 33:14
+(35:11..35:14) _empty_/NIL. -> 13:8
+(37:12..37:15) _empty_/Inferred.bar(). -> 33:7
+(37:16..37:19) _empty_/NIL. -> 13:8
+(39:13..39:17) _empty_/LIST# -> 1:16
+(39:18..39:21) scala/Int#
+(39:25..39:28) _empty_/NIL. -> 13:8
+(39:29..39:36) _empty_/LIST#prepend(). -> 7:7
+(41:15..41:18) _empty_/NIL. -> 13:8
+(41:19..41:26) _empty_/LIST#prepend(). -> 7:7
+(41:29..41:36) _empty_/LIST#prepend(). -> 7:7
+(43:17..43:19) scala/Int#`==`(+3).
+(43:23..43:26) _empty_/NIL. -> 13:8
+(43:32..43:36) _empty_/Inferred.ints. -> 39:7
+(45:12..45:17) scala/
+(45:18..45:28) scala/collection/
+(45:29..45:38) scala/collection/immutable/
+(45:39..45:42) scala/collection/immutable/Nil.
+(47:12..47:17) scala/
+(47:18..47:28) scala/collection/
+(47:29..47:38) scala/collection/immutable/
+(47:39..47:43) scala/collection/immutable/List#
+(47:44..47:50) scala/Predef.String#
+(47:63..47:65) _empty_/Inferred.n2. -> 45:7
+(49:22..49:24) _empty_/Inferred.n2. -> 45:7
+(51:17..51:20) scala/Int#
+(51:25..51:26) local0 -> 51:14
+(51:27..51:28) scala/Int#`+`(+4).
+(53:15..53:19) _empty_/Inferred.ints. -> 39:7
+(53:20..53:23) _empty_/LIST#map(). -> 9:7
+(53:27..53:28) scala/Int#`+`(+4).
+(55:19..55:23) _empty_/CONS# -> 19:7
+(55:24..55:27) scala/Int#
+(55:32..55:35) _empty_/NIL. -> 13:8
+(57:27..57:30) _empty_/NIL. -> 13:8
+

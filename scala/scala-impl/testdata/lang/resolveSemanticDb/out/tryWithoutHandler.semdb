@@ -1,0 +1,6 @@
+Document tests/pos/tryWithoutHandler.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(4:7..4:14) scala/Predef.println(+1).
+

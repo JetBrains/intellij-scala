@@ -1,0 +1,8 @@
+Document tests/pos/t1675.scala
+(2:20..2:24) a/pack/ -> 7:9
+(2:25..2:28) a/pack/Bar# -> 8:9
+(3:13..3:15) scala/runtime/RichInt#to().
+(4:4..4:8) a/pack/Bar#test(). -> 9:19
+(9:27..9:33) scala/Predef.String#
+(9:37..9:41) scala/Unit#
+

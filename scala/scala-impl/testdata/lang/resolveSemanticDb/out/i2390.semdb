@@ -1,0 +1,9 @@
+Document tests/pos/i2390.scala
+(5:30..5:39) _empty_/TestSuite# -> 1:7
+(6:17..6:21) _empty_/TestSuiteMixin# -> 5:7
+(6:22..6:31) _empty_/TestSuite#NoArgTest# -> 2:9
+(9:34..9:48) _empty_/TestSuiteMixin# -> 5:7
+(9:57..9:66) _empty_/TestSuite# -> 1:7
+(10:26..10:30) _empty_/CancelAfterFailure# -> 9:7
+(10:31..10:40) _empty_/TestSuite#NoArgTest# -> 2:9
+

@@ -1,0 +1,10 @@
+Document tests/pos/i1756.scala
+(2:12..2:15) scala/Int#
+(3:14..3:17) scala/Int#
+(4:15..4:16) _empty_/B# -> 2:7
+(6:9..6:10) _empty_/B#C#x. -> 3:11
+(17:12..17:15) scala/Int#
+(18:14..18:17) scala/Int#
+(18:27..18:28) _empty_/D# -> 17:7
+(18:49..18:50) _empty_/D#E#x. -> 18:11
+

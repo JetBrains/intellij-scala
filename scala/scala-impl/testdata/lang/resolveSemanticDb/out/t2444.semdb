@@ -1,0 +1,13 @@
+Document tests/pos/t2444.scala
+(6:24..6:27) _empty_/Test.Foo# -> 3:9
+(9:20..9:23) _empty_/Test.Foo# -> 3:9
+(9:27..9:29) _empty_/Test.frob().[P1] -> 9:12
+(9:33..9:35) _empty_/Test.frob().[P2] -> 9:16
+(11:17..11:22) scala/Array#
+(11:23..11:29) scala/Predef.String#
+(11:34..11:38) scala/Unit#
+(12:5..12:9) _empty_/Test.frob(). -> 9:7
+(12:13..12:16) _empty_/Test.Bar# -> 5:9
+(12:21..12:22) local0 -> 12:11
+(12:23..12:26) _empty_/Test.Bar#baz. -> 6:12
+

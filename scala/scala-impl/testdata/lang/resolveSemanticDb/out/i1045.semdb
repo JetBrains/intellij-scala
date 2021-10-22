@@ -1,0 +1,46 @@
+Document tests/pos/i1045.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(3:29..3:36) scala/collection/mutable/
+(3:37..3:44) scala/collection/mutable/HashMap#
+(3:45..3:52) scala/Nothing#
+(3:54..3:61) scala/Nothing#
+(5:21..5:28) scala/collection/mutable/
+(5:29..5:36) scala/collection/mutable/HashMap#
+(5:37..5:43) scala/Predef.String#
+(5:45..5:52) scala/collection/mutable/
+(5:53..5:60) scala/collection/mutable/HashMap#
+(5:61..5:64) scala/Int#
+(5:66..5:72) scala/Double#
+(5:77..5:84) scala/collection/mutable/
+(5:85..5:92) scala/collection/mutable/HashMap.
+(5:93..5:98) scala/collection/mutable/HashMap.empty().
+(6:13..6:25) _empty_/T.newSymbolMap. -> 5:7
+(6:26..6:35) scala/collection/mutable/HashMap#getOrElse().
+(6:41..6:48) scala/collection/mutable/
+(6:49..6:56) scala/collection/mutable/HashMap.
+(6:57..6:62) scala/collection/mutable/HashMap.empty().
+(7:3..7:6) _empty_/T.map. -> 6:7
+(7:7..7:10) scala/collection/mutable/HashMap#put().
+(8:3..8:15) _empty_/T.newSymbolMap. -> 5:7
+(8:16..8:19) scala/collection/mutable/HashMap#put().
+(8:25..8:28) _empty_/T.map. -> 6:7
+(15:19..15:23) scala/Null#
+(15:36..15:37) _empty_/T.Tree#[X] -> 15:14
+(16:20..16:24) scala/Null#
+(16:34..16:38) _empty_/T.Tree# -> 15:9
+(16:39..16:40) _empty_/T.Ident#[X] -> 16:15
+(17:20..17:24) scala/Null#
+(17:34..17:38) _empty_/T.Tree# -> 15:9
+(17:39..17:40) _empty_/T.Apply#[X] -> 17:15
+(19:10..19:15) _empty_/T.Ident# -> 16:9
+(19:16..19:22) scala/Symbol#
+(19:24..19:25) scala/`|`#
+(19:26..19:31) _empty_/T.Apply# -> 17:9
+(19:32..19:38) scala/Symbol#
+(19:42..19:45) scala/Predef.`???`().
+(20:11..20:12) _empty_/T.x. -> 19:7
+(20:13..20:16) _empty_/T.Tree#tpe(). -> 15:31
+(21:10..21:16) scala/Symbol#
+(21:19..21:20) _empty_/T.y. -> 20:7
+

@@ -1,0 +1,6 @@
+Document tests/pos/checkInstantiable.scala
+(2:21..2:23) _empty_/LS# -> 2:7
+(2:24..2:25) _empty_/LS#[T] -> 2:10
+(4:7..4:9) _empty_/LS# -> 2:7
+(4:10..4:13) scala/Int#
+

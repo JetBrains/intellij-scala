@@ -1,0 +1,48 @@
+Document tests/pos/t7815.scala
+(1:8..1:16) scala/language.
+(1:17..1:28) scala/language.higherKinds.
+(3:16..3:22) scala/AnyRef#
+(5:12..5:13) _empty_/Foo#[A] -> 3:11
+(5:16..5:20) _empty_/Foo#Repr# -> 4:8
+(6:12..6:13) _empty_/Foo#[A] -> 3:11
+(6:16..6:22) scala/Option#
+(6:23..6:27) _empty_/Foo#Repr# -> 4:8
+(9:12..9:13) _empty_/Foo#[A] -> 3:11
+(9:16..9:17) _empty_/Foo#M# -> 8:8
+(9:18..9:19) _empty_/Foo#m().(a) -> 9:9
+(11:16..11:17) _empty_/Foo#Id#[X] -> 11:11
+(12:12..12:13) _empty_/Foo#[A] -> 3:11
+(12:16..12:18) _empty_/Foo#Id# -> 11:8
+(12:20..12:24) _empty_/Foo#Repr# -> 4:8
+(12:26..12:27) _empty_/Foo#M# -> 8:8
+(12:28..12:29) _empty_/Foo#n().(a) -> 12:9
+(17:17..17:23) scala/AnyRef#
+(17:30..17:33) _empty_/Foo# -> 3:7
+(17:34..17:35) _empty_/Foo.Aux#[A] -> 17:12
+(17:51..17:52) _empty_/Foo.Aux#[B] -> 17:25
+(17:66..17:69) scala/Int#
+(21:21..21:24) scala/App#
+(22:23..22:29) scala/AnyRef#
+(22:38..22:42) scala/package.List#
+(22:43..22:44) _empty_/Main.mapWithFoo().[A] -> 22:18
+(22:61..22:64) _empty_/Foo. -> 16:8
+(22:65..22:68) _empty_/Foo.Aux# -> 17:8
+(22:69..22:70) _empty_/Main.mapWithFoo().[A] -> 22:18
+(22:72..22:73) _empty_/Main.mapWithFoo().[B] -> 22:31
+(25:5..25:7) _empty_/Main.mapWithFoo().(as) -> 22:34
+(25:8..25:11) scala/collection/immutable/List#map().
+(25:12..25:15) _empty_/Main.mapWithFoo().(foo) -> 22:56
+(25:16..25:17) _empty_/Foo#f(). -> 5:7
+(26:5..26:7) _empty_/Main.mapWithFoo().(as) -> 22:34
+(26:8..26:11) scala/collection/immutable/List#map().
+(26:12..26:15) _empty_/Main.mapWithFoo().(foo) -> 22:56
+(26:16..26:17) _empty_/Foo#g(). -> 6:7
+(27:5..27:7) _empty_/Main.mapWithFoo().(as) -> 22:34
+(27:8..27:11) scala/collection/immutable/List#map().
+(27:12..27:15) _empty_/Main.mapWithFoo().(foo) -> 22:56
+(27:16..27:17) _empty_/Foo#m(). -> 9:7
+(28:5..28:7) _empty_/Main.mapWithFoo().(as) -> 22:34
+(28:8..28:11) scala/collection/immutable/List#map().
+(28:12..28:15) _empty_/Main.mapWithFoo().(foo) -> 22:56
+(28:16..28:17) _empty_/Foo#n(). -> 12:7
+

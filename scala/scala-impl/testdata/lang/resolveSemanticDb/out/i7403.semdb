@@ -1,0 +1,8 @@
+Document tests/pos/i7403.scala
+(3:17..3:20) scala/Int#
+(4:16..4:17) _empty_/Test.pow2().(i) -> 3:14
+(4:18..4:19) scala/Int#`*`(+3).
+(4:20..4:21) _empty_/Test.pow2().(i) -> 3:14
+(6:3..6:10) scala/Predef.println(+1).
+(6:13..6:17) _empty_/Test.pow2(). -> 4:9
+

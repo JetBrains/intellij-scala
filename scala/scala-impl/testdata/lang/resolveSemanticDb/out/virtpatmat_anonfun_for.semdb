@@ -1,0 +1,7 @@
+Document tests/pos/virtpatmat_anonfun_for.scala
+(4:5..4:8) scala/package.Nil.
+(4:9..4:16) scala/collection/immutable/List#foreach().
+(4:22..4:23) local1 -> 4:17
+(5:17..5:24) scala/Predef.println(+1).
+(5:25..5:28) local0 -> 3:9
+

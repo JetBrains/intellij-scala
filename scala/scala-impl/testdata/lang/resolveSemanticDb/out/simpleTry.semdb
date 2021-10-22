@@ -1,0 +1,4 @@
+Document tests/pos/simpleTry.scala
+(5:13..5:22) scala/package.Throwable#
+(6:13..6:20) scala/Predef.println(+1).
+

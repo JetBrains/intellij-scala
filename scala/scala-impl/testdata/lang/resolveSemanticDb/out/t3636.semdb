@@ -1,0 +1,80 @@
+Document tests/pos/t3636.scala
+(2:17..2:18) _empty_/CTxnLocal#[T] -> 1:18
+(2:34..2:37) _empty_/Txn# -> 7:7
+(2:41..2:45) scala/Unit#
+(3:26..3:29) _empty_/Txn# -> 7:7
+(3:34..3:35) _empty_/CTxnLocal#[T] -> 1:18
+(3:43..3:55) scala/Any#asInstanceOf().
+(3:57..3:58) _empty_/CTxnLocal#[T] -> 1:18
+(4:26..4:29) _empty_/Txn# -> 7:7
+(4:34..4:35) _empty_/CTxnLocal#[T] -> 1:18
+(4:43..4:55) scala/Any#asInstanceOf().
+(4:57..4:58) _empty_/CTxnLocal#[T] -> 1:18
+(10:16..10:19) _empty_/Txn# -> 7:7
+(13:18..13:29) scala/specialized#
+(14:30..14:37) _empty_/ProcTxn# -> 9:7
+(14:42..14:43) _empty_/TxnLocal#[T] -> 13:30
+(15:16..15:17) _empty_/TxnLocal#[T] -> 13:30
+(15:34..15:41) _empty_/ProcTxn# -> 9:7
+(15:46..15:50) scala/Unit#
+(16:17..16:18) _empty_/TxnLocal#[T] -> 13:30
+(16:35..16:42) _empty_/ProcTxn# -> 9:7
+(16:47..16:48) _empty_/TxnLocal#[T] -> 13:30
+(17:22..17:23) _empty_/TxnLocal#[T] -> 13:30
+(17:27..17:28) _empty_/TxnLocal#[T] -> 13:30
+(17:45..17:52) _empty_/ProcTxn# -> 9:7
+(17:57..17:61) scala/Unit#
+(21:16..21:27) scala/specialized#
+(21:34..21:42) _empty_/TxnLocal# -> 13:7
+(21:44..21:45) _empty_/TxnLocal.apply().[T] -> 21:28
+(21:64..21:73) _empty_/CTxnLocal# -> 1:7
+(21:75..21:76) _empty_/TxnLocal.apply().[T] -> 21:28
+(22:16..22:27) scala/specialized#
+(22:47..22:48) _empty_/TxnLocal.apply(+1).[T] -> 22:28
+(22:53..22:61) _empty_/TxnLocal# -> 13:7
+(22:63..22:64) _empty_/TxnLocal.apply(+1).[T] -> 22:28
+(22:83..22:92) _empty_/CTxnLocal# -> 1:7
+(22:94..22:95) _empty_/TxnLocal.apply(+1).[T] -> 22:28
+(23:38..23:41) _empty_/Txn# -> 7:7
+(23:45..23:46) _empty_/TxnLocal.apply(+1).[T] -> 22:28
+(23:49..23:58) _empty_/TxnLocal.apply(+1).(initValue) -> 22:33
+(26:32..26:41) _empty_/CTxnLocal# -> 1:7
+(26:43..26:44) _empty_/TxnLocal.Impl#[T] -> 26:24
+(26:56..26:64) _empty_/TxnLocal# -> 13:7
+(26:66..26:67) _empty_/TxnLocal.Impl#[T] -> 26:24
+(27:33..27:40) _empty_/ProcTxn# -> 9:7
+(27:45..27:46) _empty_/TxnLocal.Impl#[T] -> 26:24
+(27:49..27:50) _empty_/TxnLocal.Impl#c. -> 26:29
+(27:51..27:54) _empty_/CTxnLocal#get(). -> 3:9
+(27:56..27:58) _empty_/TxnLocal.Impl#apply().(tx) -> 27:29
+(27:59..27:64) _empty_/ProcTxn#ccstm(). -> 10:9
+(28:19..28:20) _empty_/TxnLocal.Impl#[T] -> 26:24
+(28:37..28:44) _empty_/ProcTxn# -> 9:7
+(28:49..28:53) scala/Unit#
+(28:56..28:57) _empty_/TxnLocal.Impl#c. -> 26:29
+(28:58..28:61) _empty_/CTxnLocal#set(). -> 2:9
+(28:63..28:64) _empty_/TxnLocal.Impl#set().(v) -> 28:16
+(28:68..28:70) _empty_/TxnLocal.Impl#set().(tx) -> 28:33
+(28:71..28:76) _empty_/ProcTxn#ccstm(). -> 10:9
+(29:20..29:21) _empty_/TxnLocal.Impl#[T] -> 26:24
+(29:38..29:45) _empty_/ProcTxn# -> 9:7
+(29:50..29:51) _empty_/TxnLocal.Impl#[T] -> 26:24
+(31:21..31:26) _empty_/TxnLocal.Impl#apply(). -> 27:11
+(32:10..32:13) _empty_/TxnLocal.Impl#set(). -> 28:11
+(32:15..32:16) _empty_/TxnLocal.Impl#swap().(v) -> 29:17
+(33:10..33:14) local4 -> 31:14
+(35:25..35:26) _empty_/TxnLocal.Impl#[T] -> 26:24
+(35:30..35:31) _empty_/TxnLocal.Impl#[T] -> 26:24
+(35:48..35:55) _empty_/ProcTxn# -> 9:7
+(35:59..35:63) scala/Unit#
+(36:10..36:13) _empty_/TxnLocal.Impl#set(). -> 28:11
+(36:15..36:16) _empty_/TxnLocal.Impl#transform().(f) -> 35:22
+(36:18..36:23) _empty_/TxnLocal.Impl#apply(). -> 27:11
+(43:29..43:37) _empty_/TxnLocal. -> 20:8
+(43:39..43:49) _empty_/Transition# -> 47:23
+(43:53..43:60) _empty_/Instant. -> 48:13
+(44:30..44:37) _empty_/ProcTxn# -> 9:7
+(44:42..44:52) _empty_/Transition# -> 47:23
+(44:55..44:65) _empty_/Transition.currentRef. -> 43:16
+(48:29..48:39) _empty_/Transition# -> 47:23
+

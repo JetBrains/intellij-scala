@@ -1,0 +1,26 @@
+Document tests/pos/t112606A.scala
+(5:15..5:19) test/Test#Global#Tree# -> 4:10
+(8:18..8:24) test/Test#Global# -> 3:9
+(9:20..9:26) test/Test#TreeBuilder#global. -> 8:9
+(9:27..9:31) test/Test#Global#Tree# -> 4:10
+(11:13..11:19) test/Test#Global# -> 3:9
+(13:32..13:43) test/Test#TreeBuilder# -> 7:9
+(14:20..14:23) test/Test#nsc. -> 11:7
+(14:31..14:34) test/Test#nsc. -> 11:7
+(17:5..17:16) test/Test#FileImpl#treeBuilder. -> 13:12
+(17:17..17:20) test/Test#TreeBuilder#set(). -> 9:9
+(17:21..17:24) test/Test#nsc. -> 11:7
+(17:25..17:28) test/Test#Global#get(). -> 5:9
+(19:15..19:23) test/Test#FileImpl# -> 12:9
+(21:3..21:8) test/Test#file0. -> 19:7
+(21:9..21:20) test/Test#FileImpl#treeBuilder. -> 13:12
+(21:21..21:24) test/Test#TreeBuilder#set(). -> 9:9
+(21:25..21:28) test/Test#nsc. -> 11:7
+(21:29..21:32) test/Test#Global#get(). -> 5:9
+(22:14..22:22) test/Test#FileImpl# -> 12:9
+(24:3..24:7) test/Test#file(). -> 22:7
+(24:8..24:19) test/Test#FileImpl#treeBuilder. -> 13:12
+(24:20..24:23) test/Test#TreeBuilder#set(). -> 9:9
+(24:24..24:27) test/Test#nsc. -> 11:7
+(24:28..24:31) test/Test#Global#get(). -> 5:9
+

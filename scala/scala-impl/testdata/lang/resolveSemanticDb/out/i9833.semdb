@@ -1,0 +1,12 @@
+Document tests/pos/i9833.scala
+(1:21..1:24) scala/App#
+(3:21..3:22) _empty_/Main.Extends.Ev#[B] -> 3:13
+(3:35..3:36) _empty_/Main.Extends.Ev#[A] -> 3:16
+(3:37..3:44) _empty_/Main.Extends# -> 2:8
+(3:45..3:46) _empty_/Main.Extends.Ev#[B] -> 3:13
+(5:17..5:18) _empty_/Main.Extends#[A] -> 2:16
+(5:21..5:22) _empty_/Main.Extends#[B] -> 2:19
+(6:12..6:19) _empty_/Main.Extends.
+(6:20..6:22) _empty_/Main.Extends.Ev.
+(6:28..6:29) _empty_/Main.Extends#cast().(a) -> 5:14
+

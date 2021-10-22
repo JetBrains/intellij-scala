@@ -1,0 +1,18 @@
+Document tests/pos/i9967.scala
+(1:8..1:18) scala/collection/
+(1:19..1:26) scala/collection/mutable/
+(3:33..3:36) scala/Int#
+(3:47..3:55) scala/package.Ordering#
+(3:56..3:57) _empty_/MaxSizeMap#[K] -> 3:18
+(4:18..4:25) scala/collection/mutable/
+(4:26..4:33) scala/collection/mutable/TreeMap#
+(4:34..4:35) _empty_/MaxSizeMap#[K] -> 3:18
+(4:37..4:38) _empty_/MaxSizeMap#[V] -> 3:21
+(4:42..4:49) scala/collection/mutable/
+(4:50..4:57) scala/collection/mutable/TreeMap.
+(4:58..4:63) scala/collection/mutable/TreeMap.empty().
+(4:64..4:65) _empty_/MaxSizeMap#[K] -> 3:18
+(4:67..4:68) _empty_/MaxSizeMap#[V] -> 3:21
+(4:70..4:71) _empty_/MaxSizeMap#o. -> 3:44
+(6:10..6:19) _empty_/MaxSizeMap#sortedMap. -> 4:7
+

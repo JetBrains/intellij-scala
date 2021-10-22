@@ -1,0 +1,27 @@
+Document tests/pos/syntaxHeals.scala
+(6:12..6:16) scala/package.List.
+(8:12..8:14) _empty_/Test.xs. -> 6:7
+(8:21..8:22) local0 -> 8:7
+(8:23..8:24) scala/Int#`*`(+3).
+(10:12..10:14) _empty_/Test.xs. -> 6:7
+(11:9..11:10) local1 -> 10:7
+(11:11..11:12) scala/Int#`*`(+3).
+(13:13..13:15) _empty_/Test.xs. -> 6:7
+(13:22..13:24) _empty_/Test.xs. -> 6:7
+(13:32..13:33) local2 -> 13:8
+(13:34..13:35) scala/Int#`*`(+3).
+(13:36..13:37) local3 -> 13:17
+(16:10..16:12) _empty_/Test.xs. -> 6:7
+(17:10..17:12) _empty_/Test.xs. -> 6:7
+(18:10..18:11) local4 -> 16:5
+(18:12..18:13) scala/Int#`*`(+3).
+(18:14..18:15) local5 -> 17:5
+(20:6..20:8) _empty_/Test.xs. -> 6:7
+(20:9..20:11) scala/Any#`==`().
+(20:12..20:15) scala/package.Nil.
+(20:16..20:23) scala/Predef.println(+1).
+(22:6..22:8) _empty_/Test.xs. -> 6:7
+(22:9..22:11) scala/Any#`==`().
+(22:12..22:15) scala/package.Nil.
+(23:5..23:12) scala/Predef.println(+1).
+

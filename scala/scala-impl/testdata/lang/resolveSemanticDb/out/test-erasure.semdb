@@ -1,0 +1,10 @@
+Document tests/pos/test-erasure.scala
+(3:14..3:17) scala/Int#
+(8:10..8:14) java/
+(8:15..8:19) java/lang/
+(10:19..10:20) _empty_/erasure.const().[T] -> 10:13
+(10:25..10:26) _empty_/erasure.const().[T] -> 10:13
+(10:30..10:31) _empty_/erasure.const().(x) -> 10:16
+(13:11..13:16) _empty_/erasure.const(). -> 10:7
+(13:17..13:18) _empty_/erasure.x. -> 12:7
+

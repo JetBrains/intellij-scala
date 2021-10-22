@@ -1,0 +1,14 @@
+Document tests/pos/t3960.scala
+(3:16..3:21) scala/
+(3:22..3:32) scala/collection/
+(3:33..3:40) scala/collection/mutable/
+(3:41..3:48) scala/collection/mutable/HashMap#
+(3:49..3:50) _empty_/A#C# -> 2:9
+(3:55..3:58) scala/Int#
+(4:10..4:11) _empty_/A#C# -> 2:9
+(4:17..4:20) scala/sys/
+(4:21..4:26) scala/sys/package.error().
+(5:13..5:14) _empty_/A#C# -> 2:9
+(5:20..5:21) _empty_/A#c(). -> 4:7
+(6:3..6:5) _empty_/A#cs. -> 3:7
+

@@ -1,0 +1,37 @@
+Document tests/pos/spec-params-old.scala
+(1:12..1:23) scala/specialized#
+(1:27..1:32) scala/
+(1:33..1:40) scala/reflect/
+(1:41..1:54) scala/reflect/package.ClassManifest#
+(6:11..6:22) scala/specialized#
+(6:28..6:29) _empty_/Foo#[A] -> 1:24
+(6:34..6:35) _empty_/Foo#m1().[B] -> 6:23
+(6:40..6:41) _empty_/Foo#[A] -> 1:24
+(7:5..7:9) _empty_/Foo#goal(). -> 28:7
+(7:10..7:11) _empty_/Foo#m1().(x) -> 6:31
+(10:11..10:22) scala/specialized#
+(10:28..10:34) scala/Predef.String#
+(10:39..10:40) _empty_/Foo#m2().[B] -> 10:23
+(10:44..10:45) _empty_/Foo#m2().(x) -> 10:36
+(10:46..10:52) java/lang/String#concat().
+(15:11..15:22) scala/specialized#
+(15:28..15:29) _empty_/Foo#[A] -> 1:24
+(15:34..15:35) _empty_/Foo#m3().[B] -> 15:23
+(18:11..18:22) scala/specialized#
+(18:31..18:38) scala/package.Ordered#
+(18:39..18:40) _empty_/Foo#m4().[T] -> 18:23
+(18:46..18:47) _empty_/Foo#m4().[T] -> 18:23
+(18:52..18:53) _empty_/Foo#m4().[U] -> 18:26
+(21:11..21:22) scala/specialized#
+(21:29..21:30) _empty_/Foo#m5().[B] -> 21:23
+(21:34..21:35) _empty_/Foo#m5().(x) -> 21:26
+(25:11..25:22) scala/specialized#
+(25:29..25:30) _empty_/Foo#m6().[B] -> 25:23
+(25:35..25:36) _empty_/Foo#[A] -> 1:24
+(26:5..26:9) _empty_/Foo#goal(). -> 28:7
+(26:10..26:11) _empty_/Foo#m6().(y) -> 25:32
+(28:15..28:16) _empty_/Foo#[A] -> 1:24
+(29:14..29:29) scala/runtime/Arrays.newGenericArray().
+(30:5..30:7) local0 -> 29:9
+(30:13..30:14) _empty_/Foo#goal().(x) -> 28:12
+

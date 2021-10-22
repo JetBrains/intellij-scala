@@ -1,0 +1,15 @@
+Document tests/pos/ho-implicits.scala
+(3:21..3:24) scala/Int#
+(3:29..3:35) scala/Predef.String#
+(3:52..3:62) scala/Predef.implicitly().
+(3:63..3:66) scala/Int#
+(3:68..3:69) scala/StringContext#s().
+(4:21..4:24) scala/Int#
+(6:10..6:16) scala/Predef.String#
+(6:21..6:24) scala/Int#
+(6:27..6:37) scala/Predef.implicitly().
+(6:38..6:44) scala/Predef.String#
+(6:46..6:52) java/lang/String#length().
+(8:3..8:4) _empty_/Test2.f(). -> 6:7
+(8:6..8:9) scala/Int#
+

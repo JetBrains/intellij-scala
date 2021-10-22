@@ -1,0 +1,4 @@
+Document tests/pos/i6287.scala
+(2:21..2:24) scala/Int#
+(4:5..4:12) scala/Predef.println().
+

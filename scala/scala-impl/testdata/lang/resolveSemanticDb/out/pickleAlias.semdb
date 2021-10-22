@@ -1,0 +1,4 @@
+Document tests/pos/pickleAlias.scala
+(2:13..2:18) scala/
+(2:19..2:24) scala/package.Error#
+

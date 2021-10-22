@@ -1,0 +1,17 @@
+Document tests/pos/i6847.scala
+(2:20..2:21) _empty_/Syntax#ret().[A] -> 2:14
+(2:32..2:33) _empty_/Syntax#[F] -> 1:14
+(2:34..2:35) _empty_/Syntax#ret().[A] -> 2:14
+(7:30..7:36) _empty_/Syntax# -> 1:7
+(7:53..7:59) _empty_/Syntax# -> 1:7
+(8:20..8:21) local2 -> 8:14
+(8:32..8:40) _empty_/Instance# -> 5:7
+(8:41..8:42) local2 -> 8:14
+(8:50..8:58) _empty_/Instance# -> 5:7
+(8:59..8:60) local2 -> 8:14
+(12:22..12:23) _empty_/Instance.defer().[A] -> 12:13
+(12:26..12:34) _empty_/Instance# -> 5:7
+(12:35..12:36) _empty_/Instance.defer().[A] -> 12:13
+(14:9..14:17) _empty_/Instance# -> 5:7
+(14:18..14:19) _empty_/Instance.defer().[A] -> 12:13
+

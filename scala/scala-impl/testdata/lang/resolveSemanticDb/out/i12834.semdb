@@ -1,0 +1,6 @@
+Document tests/pos/i12834.scala
+(1:18..1:24) scala/Option#
+(1:25..1:26) _empty_/B# -> 2:7
+(2:17..2:18) _empty_/A# -> 1:7
+(2:19..2:23) scala/None.
+

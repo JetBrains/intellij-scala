@@ -1,0 +1,6 @@
+Document tests/pos/i6750.scala
+(1:26..1:29) scala/Int#
+(1:34..1:37) scala/Predef.`???`().
+(2:26..2:30) scala/Long#
+(2:34..2:37) scala/Predef.`???`().
+

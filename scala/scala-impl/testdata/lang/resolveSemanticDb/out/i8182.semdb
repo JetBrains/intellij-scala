@@ -1,0 +1,16 @@
+Document tests/pos/i8182.scala
+(4:17..4:18) example/Show#[A] -> 3:13
+(4:30..4:36) scala/Predef.String#
+(6:19..6:23) example/Show# -> 3:7
+(6:24..6:30) scala/Predef.String#
+(6:34..6:38) example/Show# -> 3:7
+(6:39..6:45) scala/Predef.String#
+(6:49..6:52) scala/Predef.`???`().
+(8:22..8:26) example/Show# -> 3:7
+(8:27..8:33) scala/Predef.String#
+(8:37..8:41) example/Show# -> 3:7
+(8:42..8:48) scala/Option#
+(8:49..8:55) scala/Predef.String#
+(8:60..8:63) scala/Predef.`???`().
+(10:12..10:18) scala/Option.
+

@@ -1,0 +1,49 @@
+Document tests/pos/implicit-scope.scala
+(4:27..4:31) scala/Long#
+(5:23..5:27) scala/Long#
+(5:30..5:37) _empty_/A.opaques.FlagSet# -> 4:17
+(5:40..5:44) _empty_/A.opaques.FlagSet().(bits) -> 5:17
+(6:20..6:27) _empty_/A.opaques.FlagSet# -> 4:17
+(6:30..6:34) scala/Long#
+(6:37..6:39) _empty_/A.opaques.toBits().(fs) -> 6:16
+(8:18..8:25) _empty_/A.FlagSet(). -> 10:7
+(9:18..9:25) _empty_/A.opaques. -> 3:10
+(9:26..9:33) _empty_/A.opaques.FlagSet# -> 4:17
+(10:21..10:25) scala/Long#
+(10:28..10:35) _empty_/A.FlagSet# -> 9:8
+(10:38..10:45) _empty_/A.opaques. -> 3:10
+(10:46..10:53) _empty_/A.opaques.FlagSet(). -> 5:9
+(10:54..10:58) _empty_/A.FlagSet().(bits) -> 10:15
+(12:18..12:25) _empty_/A.FlagSet# -> 9:8
+(13:15..13:19) scala/Long#
+(13:22..13:29) _empty_/A.opaques. -> 3:10
+(13:30..13:36) _empty_/A.opaques.toBits(). -> 6:9
+(13:37..13:39) _empty_/A.bits().(xs) -> 12:14
+(14:16..14:23) _empty_/A.FlagSet# -> 9:8
+(14:26..14:33) _empty_/A.FlagSet# -> 9:8
+(14:36..14:43) _empty_/A.FlagSet(). -> 10:7
+(14:44..14:46) _empty_/A.`|`().(xs) -> 12:14
+(14:47..14:51) _empty_/A.bits(). -> 13:9
+(14:52..14:53) scala/Long#`|`(+4).
+(14:54..14:56) _empty_/A.`|`().(ys) -> 14:12
+(14:57..14:61) _empty_/A.bits(). -> 13:9
+(19:19..19:20) _empty_/A. -> 1:8
+(19:21..19:28) _empty_/A.FlagSet# -> 9:8
+(21:10..21:11) _empty_/A. -> 1:8
+(21:12..21:19) _empty_/A.FlagSet# -> 9:8
+(21:22..21:23) _empty_/A. -> 1:8
+(21:24..21:32) _empty_/A.someFlag. -> 8:7
+(22:3..22:4) _empty_/B.f. -> 21:7
+(24:10..24:18) _empty_/B.Variance# -> 19:8
+(24:21..24:22) _empty_/A. -> 1:8
+(24:23..24:31) _empty_/A.someFlag. -> 8:7
+(25:3..25:4) _empty_/B.v. -> 24:7
+(27:3..27:4) _empty_/A. -> 1:8
+(27:5..27:13) _empty_/A.someFlag. -> 8:7
+(29:8..29:9) _empty_/B.x(). -> 28:7
+(29:10..29:11) scala/Int#`>`(+3).
+(29:15..29:16) _empty_/A. -> 1:8
+(29:17..29:25) _empty_/A.someFlag. -> 8:7
+(29:31..29:32) _empty_/A. -> 1:8
+(29:33..29:41) _empty_/A.someFlag. -> 8:7
+

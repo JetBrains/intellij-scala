@@ -1,0 +1,5 @@
+Document tests/pos/S1.scala
+(11:32..11:33) _empty_/S1#foo().[T] -> 11:13
+(11:37..11:38) _empty_/S1#foo().(x) -> 11:29
+(12:5..12:8) _empty_/S1#foo(). -> 11:9
+

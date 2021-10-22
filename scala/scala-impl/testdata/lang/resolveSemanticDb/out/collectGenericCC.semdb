@@ -1,0 +1,38 @@
+Document tests/pos/collectGenericCC.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/collection/
+(4:26..4:34) scala/collection/Iterable#
+(4:35..4:36) _empty_/Test.collect().[A] -> 4:15
+(4:52..4:59) scala/collection/Factory#
+(4:60..4:61) _empty_/Test.collect().[A] -> 4:15
+(4:63..4:66) _empty_/Test.collect().[Res] -> 4:18
+(5:12..5:22) scala/collection/
+(5:23..5:30) scala/collection/mutable/
+(5:31..5:38) scala/collection/mutable/Builder#
+(5:39..5:40) _empty_/Test.collect().[A] -> 4:15
+(5:42..5:45) _empty_/Test.collect().[Res] -> 4:18
+(5:49..5:51) _empty_/Test.collect().(bf) -> 4:48
+(5:52..5:62) scala/collection/Factory#newBuilder().
+(6:5..6:6) _empty_/Test.collect().(r) -> 4:23
+(6:7..6:14) scala/collection/IterableOnceOps#foreach().
+(6:20..6:21) _empty_/Test.collect().[A] -> 4:15
+(6:26..6:27) local0 -> 5:9
+(6:28..6:30) scala/collection/mutable/Growable#`+=`().
+(6:31..6:32) local1 -> 6:17
+(7:5..7:6) local0 -> 5:9
+(7:7..7:13) scala/collection/mutable/Builder#result().
+(10:3..10:10) _empty_/Test.collect(). -> 4:7
+(10:11..10:14) scala/Int#
+(10:16..10:22) scala/package.Vector#
+(10:23..10:26) scala/Int#
+(10:29..10:33) scala/package.List.
+(11:3..11:10) _empty_/Test.collect(). -> 4:7
+(11:11..11:15) scala/Char#
+(11:17..11:23) scala/Predef.String#
+(11:25..11:29) scala/package.List.
+(12:3..12:10) _empty_/Test.collect(). -> 4:7
+(12:11..12:15) scala/Char#
+(12:17..12:22) scala/Array#
+(12:23..12:27) scala/Char#
+(12:30..12:34) scala/package.List.
+

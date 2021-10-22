@@ -1,0 +1,4 @@
+Document tests/pos/strings.scala
+(4:21..4:27) java/lang/String#concat().
+(9:3..9:10) scala/Predef.println(+1).
+

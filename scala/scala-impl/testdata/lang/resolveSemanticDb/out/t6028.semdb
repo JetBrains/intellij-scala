@@ -1,0 +1,10 @@
+Document tests/pos/t6028/t6028_1.scala
+(2:16..2:19) scala/Int#
+(2:22..2:26) scala/Unit#
+(2:35..2:36) _empty_/C#foo().(a) -> 2:13
+
+Document tests/pos/t6028/t6028_2.scala
+(3:9..3:10) _empty_/C# -> 1:7
+(3:13..3:16) _empty_/C#foo(). -> 2:9
+(3:17..3:18) _empty_/C#foo().(a) -> 2:13
+

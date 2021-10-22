@@ -1,0 +1,9 @@
+Document tests/pos/i6864.scala
+(4:7..4:8) _empty_/A# -> 1:7
+(5:7..5:8) _empty_/B# -> 2:7
+(10:7..10:10) _empty_/Foo# -> 7:7
+(11:7..11:10) _empty_/Bar# -> 8:7
+(16:7..16:8) _empty_/C# -> 13:7
+(17:12..17:15) _empty_/Baz# -> 14:7
+(17:16..17:17) _empty_/i6864$package.given_Baz_A#[A] -> 17:8
+

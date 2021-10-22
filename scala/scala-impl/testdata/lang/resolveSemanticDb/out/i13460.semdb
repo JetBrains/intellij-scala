@@ -1,0 +1,88 @@
+Document tests/pos/i13460.scala
+(1:8..1:13) scala/
+(1:14..1:25) scala/compiletime/
+(2:8..2:13) scala/
+(2:14..2:22) scala/deriving/
+(2:23..2:29) scala/deriving/Mirror#
+(2:23..2:29) scala/deriving/Mirror.
+(4:23..4:24) _empty_/Lazy#[A] -> 4:12
+(5:19..5:20) _empty_/Lazy#[A] -> 4:12
+(5:23..5:26) _empty_/Lazy#obj. -> 4:15
+(8:27..8:28) _empty_/Lazy.given_Lazy_A().[A] -> 8:10
+(8:32..8:36) _empty_/Lazy# -> 4:7
+(8:37..8:38) _empty_/Lazy.given_Lazy_A().[A] -> 8:10
+(8:51..8:54) _empty_/Lazy.given_Lazy_A().(obj) -> 8:19
+(12:21..12:22) _empty_/MyTypeClass#[A] -> 11:19
+(12:25..12:31) scala/Predef.String#
+(16:23..16:34) _empty_/MyTypeClass# -> 11:7
+(16:35..16:38) scala/Int#
+(17:23..17:26) scala/Int#
+(17:29..17:35) scala/Predef.String#
+(17:38..17:39) _empty_/MyTypeClass.IntTypeClass.makeString().(a) -> 17:20
+(17:40..17:48) scala/Any#toString().
+(19:36..19:42) scala/deriving/Mirror.
+(19:43..19:45) scala/deriving/Mirror.Of#
+(19:46..19:47) _empty_/MyTypeClass.derived().[A] -> 19:24
+(19:51..19:62) _empty_/MyTypeClass# -> 11:7
+(19:63..19:64) _empty_/MyTypeClass.derived().[A] -> 19:24
+(20:12..20:13) _empty_/MyTypeClass.derived().(m) -> 19:33
+(21:15..21:21) scala/deriving/Mirror.
+(21:22..21:31) scala/deriving/Mirror.ProductOf#
+(21:32..21:33) _empty_/MyTypeClass.derived().[A] -> 19:24
+(21:38..21:54) _empty_/MyTypeClass.productConverter(). -> 30:22
+(21:55..21:56) local0 -> 21:12
+(24:53..24:59) scala/deriving/Mirror.
+(24:60..24:62) scala/deriving/Mirror.Of#
+(24:63..24:64) _empty_/MyTypeClass.summonElementTypeClasses().[A] -> 26:47
+(24:68..24:74) scala/IArray$package.IArray#
+(24:75..24:81) java/lang/Object#
+(26:5..26:14) scala/compiletime/package$package.summonAll().
+(26:15..26:20) scala/Tuple.
+(26:21..26:24) scala/Tuple.Map#
+(26:25..26:26) _empty_/MyTypeClass.summonElementTypeClasses().(m) -> 24:50
+(26:54..26:58) _empty_/Lazy# -> 4:7
+(26:59..26:70) _empty_/MyTypeClass# -> 11:7
+(26:71..26:72) _empty_/MyTypeClass.summonElementTypeClasses().[A] -> 26:47
+(26:77..26:85) scala/Tuple#toIArray().
+(30:45..30:51) scala/deriving/Mirror.
+(30:52..30:61) scala/deriving/Mirror.ProductOf#
+(30:62..30:63) _empty_/MyTypeClass.productConverter().[A] -> 30:39
+(30:67..30:78) _empty_/MyTypeClass# -> 11:7
+(30:79..30:80) _empty_/MyTypeClass.productConverter().[A] -> 30:39
+(31:30..31:54) _empty_/MyTypeClass.summonElementTypeClasses(). -> 24:22
+(31:55..31:56) _empty_/MyTypeClass.productConverter().(m) -> 30:42
+(32:9..32:20) _empty_/MyTypeClass# -> 11:7
+(32:21..32:22) _empty_/MyTypeClass.productConverter().[A] -> 30:39
+(33:25..33:26) _empty_/MyTypeClass.productConverter().[A] -> 30:39
+(33:29..33:35) scala/Predef.String#
+(34:23..34:24) local2 -> 33:22
+(34:25..34:37) scala/Any#asInstanceOf().
+(34:38..34:45) scala/Product#
+(35:9..35:27) local1 -> 31:9
+(37:12..37:24) scala/collection/IterableOps#zipWithIndex().
+(38:12..38:15) scala/collection/IterableOps#map().
+(39:22..39:25) local5 -> 38:17
+(39:26..39:38) scala/Any#asInstanceOf().
+(39:39..39:43) _empty_/Lazy# -> 4:7
+(39:44..39:55) _empty_/MyTypeClass# -> 11:7
+(39:56..39:59) scala/Any#
+(39:63..39:68) _empty_/Lazy#value. -> 5:12
+(40:13..40:15) local7 -> 39:17
+(40:16..40:26) _empty_/MyTypeClass#makeString(). -> 12:7
+(40:27..40:34) local3 -> 34:13
+(40:35..40:49) scala/Product#productElement().
+(40:50..40:51) local6 -> 38:22
+(42:12..42:20) scala/collection/IterableOnceOps#mkString().
+(48:23..48:26) scala/Int#
+(48:31..48:34) scala/Int#
+(51:18..51:23) scala/Array#
+(51:24..51:30) scala/Predef.String#
+(51:34..51:38) scala/Unit#
+(52:5..52:12) scala/Predef.println(+1).
+(53:5..53:12) scala/Predef.println(+1).
+(53:13..53:19) scala/Predef.summon().
+(53:20..53:31) _empty_/MyTypeClass# -> 11:7
+(53:32..53:39) _empty_/Example# -> 48:12
+(53:42..53:52) _empty_/MyTypeClass#makeString(). -> 12:7
+(53:53..53:60) _empty_/Example. -> 48:12
+

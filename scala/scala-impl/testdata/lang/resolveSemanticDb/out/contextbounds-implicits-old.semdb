@@ -1,0 +1,8 @@
+Document tests/pos/contextbounds-implicits-old.scala
+(6:12..6:20) scala/Predef.Manifest#
+(6:25..6:33) scala/Predef.Manifest#
+(6:38..6:39) _empty_/C#f().[T] -> 6:9
+(6:44..6:45) _empty_/C#f().[S] -> 6:22
+(6:59..6:60) _empty_/C# -> 4:7
+(6:63..6:67) scala/Unit#
+

@@ -1,0 +1,18 @@
+Document tests/pos/i13532/Bar.scala
+(3:8..3:16) testcode/ -> 1:9
+(5:14..5:17) testcode/Foo# -> 3:7
+(6:1..6:10) testcode/TestMacro. -> 5:8
+(6:11..6:15) testcode/TestMacro.call(). -> 7:16
+
+Document tests/pos/i13532/Foo.scala
+(4:1..4:10) testcode/TestMacro. -> 5:8
+(4:11..4:15) testcode/TestMacro.call(). -> 7:16
+
+Document tests/pos/i13532/TestMacro.scala
+(3:8..3:13) scala/
+(3:14..3:20) scala/quoted/
+(3:21..3:27) scala/quoted/Quotes.
+(6:30..6:36) scala/quoted/Quotes#
+(7:24..7:27) scala/Int#
+(7:33..7:37) testcode/TestMacro.inline$impl().
+

@@ -1,0 +1,5 @@
+Document tests/pos/i1378.scala
+(2:17..2:20) scala/Int#
+(2:22..2:25) scala/Int#
+(2:29..2:32) scala/Int#
+
