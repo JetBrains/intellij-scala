@@ -272,6 +272,14 @@ object TreePrinter {
           params += ", "
         }
         params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
+        if (template.isEmpty) { // TODO deduplicate
+          if (node.hasFlag(COVARIANT)) {
+            params += "+"
+          }
+          if (node.hasFlag(CONTRAVARIANT)) {
+            params += "-"
+          }
+        }
         templateTypeParams.map(_.next()).foreach { typeParam =>
           params += textOfAnnotationIn(typeParam).replace("\n", " ") // TODO Handle in the method
           if (typeParam.hasFlag(COVARIANT)) {
