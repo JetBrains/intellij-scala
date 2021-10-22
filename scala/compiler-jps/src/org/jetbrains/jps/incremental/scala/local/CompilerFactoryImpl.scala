@@ -59,8 +59,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         interfaceJars = Seq(sbtData.sbtInterfaceJar, sbtData.compilerInterfaceJar),
         scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
-        client = Option(client),
-        isScala3 = compilerJars.exists(_.hasScala3),
+        client = Option(client)
       )
 
       new AnalyzingCompiler(
@@ -137,23 +136,23 @@ object CompilerFactoryImpl {
                                        interfaceJars: Seq[File],
                                        scalaInstance: ScalaInstance,
                                        javaClassVersion: String,
-                                       client: Option[Client],
-                                       isScala3: Boolean): File =
-    if (isScala3)
-      compilerBridges.scala3.scala3
+                                       client: Option[Client]): File = {
+    val scalaVersion = scalaInstance.actualVersion
+    if (is3_0(scalaVersion))
+      compilerBridges.scala3._3_0
+    else if (isAfter3_1(scalaVersion))
+      compilerBridges.scala3._3_1
     else {
-      val scalaVersion = scalaInstance.actualVersion
-
-      val sourceJar =
+      val sourceJar: File =
         if (isBefore_2_11(scalaVersion)) compilerBridges.scala._2_10
         else if (isBefore_2_13(scalaVersion)) compilerBridges.scala._2_11
         else compilerBridges.scala._2_13
 
-      val interfaceId = "compiler-interface-" + scalaVersion + "-" + javaClassVersion
+      val interfaceId = s"compiler-interface-$scalaVersion-$javaClassVersion"
       val targetJar = new File(home, interfaceId + ".jar")
 
       if (!targetJar.exists) {
-        client.foreach(_.progress("Compiling Scalac " + scalaVersion + " interface"))
+        client.foreach(_.progress(s"Compiling Scalac $scalaVersion interface"))
         home.mkdirs()
         val raw = new RawCompiler(scalaInstance, ClasspathOptionsUtil.auto, NullLogger)
         AnalyzingCompiler.compileSources(
@@ -168,10 +167,12 @@ object CompilerFactoryImpl {
 
       targetJar
     }
+  }
 
   private def isBefore_2_11(version: String): Boolean = version.startsWith("2.10") || !version.startsWith("2.1")
-
   private def isBefore_2_13(version: String): Boolean = version.startsWith("2.11") || version.startsWith("2.12")
+  private def is3_0(version: String): Boolean = version.startsWith("3.0")
+  private def isAfter3_1(version: String): Boolean = version.startsWith("3.")
 }
 
 object NullLogger extends Logger {

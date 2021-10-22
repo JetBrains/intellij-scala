@@ -474,7 +474,10 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
   }
 
   // TODO: it flickers in WorksheetPlainCompileOnServerRunLocallyIntegrationTest, but works fine in prod
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_3_0,
+    TestScalaVersion.Scala_3_1,
+  ))
   def testScala3_AllInOne(): Unit = {
     val before =
       """import java.io.PrintStream
@@ -587,7 +590,10 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     doRenderTest(before, after)
   }
 
-  @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_0))
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_3_0,
+    TestScalaVersion.Scala_3_1,
+  ))
   def testScala3_WithBracelessSyntax(): Unit = {
     val before =
       """def foo42(x: Int) =

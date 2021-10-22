@@ -32,7 +32,7 @@ object SbtData {
   /**
    * Contains already compiled dotty/scala3 compiler bridges.
    */
-  case class Scala3Jars(scala3: File)
+  case class Scala3Jars(_3_0: File, _3_1: File)
 
   val compilerInterfacesKey = "scala.compiler.interfaces.dir"
 
@@ -61,7 +61,8 @@ object SbtData {
       scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
       scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
       scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
-      scala3Bridge         <- fileWithName("scala3-sbt-bridge.jar")
+      scalaBridge_3_0      <- fileWithName("scala3-sbt-bridge_3.0.0.jar")
+      scalaBridge_3_1      <- fileWithName("scala3-sbt-bridge_3.1.0.jar")
       sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
     } yield {
       val checksum = encodeHex(md5(scalaBridge_2_10))
@@ -71,10 +72,11 @@ object SbtData {
         _2_11 = scalaBridge_2_11,
         _2_13 = scalaBridge_2_13
       )
-      val dottyBridges = Scala3Jars(
-        scala3 = scala3Bridge
+      val scala3Bridges = Scala3Jars(
+        _3_0 = scalaBridge_3_0,
+        _3_1 = scalaBridge_3_1
       )
-      val compilerBridges = CompilerBridges(scalaBridgeSources, dottyBridges)
+      val compilerBridges = CompilerBridges(scalaBridgeSources, scala3Bridges)
 
       new SbtData(sbtInterfaceJar, compilerInterfaceJar, compilerBridges, interfacesHome, javaClassVersion)
     }
