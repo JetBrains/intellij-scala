@@ -8,13 +8,12 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTemplateDefinition, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ConstructorInvocationLikeImpl
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -54,10 +53,9 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
     }
 
   private def multiResolveInternal(shapeResolve: Boolean): Array[ScalaResolveResult] = {
-    val psiClass = PsiTreeUtil.getContextOfType(this, classOf[PsiClass])
-    if (psiClass == null) return Array.empty
-    if (!psiClass.is[ScClass]) return Array.empty
-    val clazz = psiClass.asInstanceOf[ScClass]
+    val consOwner = PsiTreeUtil.getContextOfType(this, classOf[ScClass], classOf[ScEnum], classOf[ScTrait])
+    if (consOwner == null) return Array.empty
+
     val method = PsiTreeUtil.getContextOfType(this, classOf[ScFunction])
     if (method == null) return Array.empty
 
@@ -66,16 +64,28 @@ class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) wit
       case None            => Seq.empty
     }
 
-    val proc = new MethodResolveProcessor(this, "this", List(expressions), Seq.empty,
-      Seq.empty /*todo: ? */ , StdKinds.methodsOnly, constructorResolve = true, isShapeResolve = shapeResolve,
-      enableTupling = true, selfConstructorResolve = true)
-    for (constr <- clazz.secondaryConstructors.filter(_ != method) if constr != method) {
+    val proc = new MethodResolveProcessor(
+      this,
+      "this",
+      List(expressions),
+      Seq.empty,
+      Seq.empty /*todo: ? */,
+      StdKinds.methodsOnly,
+      constructorResolve     = true,
+      isShapeResolve         = shapeResolve,
+      enableTupling          = true,
+      selfConstructorResolve = true
+    )
+
+    for (constr <- consOwner.secondaryConstructors.filter(_ != method)) {
       proc.execute(constr, ScalaResolveState.empty)
     }
-    clazz.constructor match {
+
+    consOwner.constructor match {
       case Some(constr) => proc.execute(constr, ScalaResolveState.empty)
-      case _ =>
+      case _            =>
     }
+
     proc.candidates
   }
 

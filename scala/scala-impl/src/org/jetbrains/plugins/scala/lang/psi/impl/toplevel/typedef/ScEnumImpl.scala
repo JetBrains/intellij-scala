@@ -25,12 +25,17 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
     extendsBlock.cases.flatMap(_.declaredElements)
 
   private[this] def syntheticClassText = {
-    val typeParametersText = typeParametersClause.fold("")(_.getTextByStub)
-    val supersText         = superTypes.map(_.canonicalText).mkString(" with ")
-    val constructorText    = constructor.fold("")(_.getText)
-    val derivesText        = derivesClause.fold("")(_.getText)
+    val typeParametersText        = typeParametersClause.fold("")(_.getTextByStub)
+    val supersText                = superTypes.map(_.canonicalText).mkString(" with ")
+    val constructorText           = constructor.fold("")(_.getText)
+    val secondaryConstructorsText = secondaryConstructors.map(_.getText).mkString("\n")
+    val derivesText               = derivesClause.fold("")(_.getText)
 
-    s"sealed abstract class $name$typeParametersText$constructorText extends $supersText $derivesText"
+    s"""
+       |sealed abstract class $name$typeParametersText$constructorText extends $supersText $derivesText {
+       |  $secondaryConstructorsText
+       |}
+       |""".stripMargin
   }
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
