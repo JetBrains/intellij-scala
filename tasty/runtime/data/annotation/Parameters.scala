@@ -32,6 +32,8 @@ trait Parameters {
 
   class ClassTypeVariance[@inline +A]
 
+  class ClassHKTVariance[A[@inline X]]
+
   class ClassValue(@inline x: Int)
 
   class ClassVal(@inline val x: Int)

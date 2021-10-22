@@ -293,11 +293,15 @@ object TreePrinter {
         node.children match {
           case Seq(lambda @ Node(LAMBDAtpt, _, _: _*), _: _*) =>
             params += parametersIn(lambda)
+            lambda.children.lastOption match { // TODO deduplicate somehow?
+              case Some(bounds @ Node(TYPEBOUNDStpt, _, _: _*)) =>
+                params += boundsIn(bounds)
+              case _ =>
+            }
           case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
             params += boundsIn(bounds)
           case _ =>
         }
-
         next = true
       case _ =>
     }
