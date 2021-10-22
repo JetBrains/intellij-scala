@@ -74,7 +74,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         SbtModuleData(_, buildURI) <- SbtUtil.getSbtModuleData(module)
 
         module <- manager.getModules.find { module =>
-          Build(module) == buildURI
+          Build(module) == buildURI.uri
         }
       } yield module
 

@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project.data
 import java.io.File
 import java.net.URI
 import java.util.{HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
-
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
@@ -45,29 +44,35 @@ object SbtEntityData {
   * @param resolvers resolvers for this build project
   * @param buildFor id of the project that this module describes the build for
   */
-@SerialVersionUID(2)
+@SerialVersionUID(3)
 case class SbtBuildModuleData @PropertyMapping(Array("imports", "resolvers", "buildFor"))(
   imports: JList[String],
   resolvers: JSet[SbtResolver],
-  buildFor: URI
+  buildFor: MyURI
 ) extends SbtEntityData
 
 object SbtBuildModuleData {
   val Key: Key[SbtBuildModuleData] = datakey(classOf[SbtBuildModuleData])
 
   def apply(imports: Seq[String], resolvers: Set[SbtResolver], buildFor: URI): SbtBuildModuleData =
-    SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
+    new SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), new MyURI(buildFor))
+
+  def apply(imports: Seq[String], resolvers: Set[SbtResolver], buildFor: MyURI): SbtBuildModuleData =
+    new SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
 }
 
 /** Data describing a project which is part of an sbt build. */
-@SerialVersionUID(1)
+@SerialVersionUID(2)
 case class SbtModuleData @PropertyMapping(Array("id", "buildURI")) (
   id: String,
-  buildURI: URI
+  buildURI: MyURI
 ) extends SbtEntityData
 
 object SbtModuleData {
   val Key: Key[SbtModuleData] = datakey(classOf[SbtModuleData])
+
+  def apply(id: String, buildURI: URI): SbtModuleData =
+    new SbtModuleData(id, new MyURI(buildURI))
 }
 
 @SerialVersionUID(1)
@@ -241,4 +246,17 @@ object SbtAndroidFacetData {
     isLibrary: Boolean, proguardConfig: Seq[String]
   ): SbtAndroidFacetData =
     SbtAndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
+}
+
+/** TODO: this URI wrapper is a workaround for IDEA-221074, remove when issue is fixed */
+@SerialVersionUID(1)
+final class MyURI @PropertyMapping(Array("uri"))(_uri: URI) extends Serializable {
+  val uri: URI = {
+    //if scheme is null, assume that the URI is being deserialized
+    if (_uri.getScheme == null) new URI(_uri.toString)
+    else _uri
+  }
+
+  // some places rely in URI.toString
+  override def toString: String = uri.toString
 }
