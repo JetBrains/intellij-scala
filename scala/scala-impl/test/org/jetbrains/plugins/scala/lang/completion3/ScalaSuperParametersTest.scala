@@ -2,16 +2,13 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import com.intellij.codeInsight.completion.{CompletionType, JavaCompletionUtil}
-import com.intellij.ui.LayeredIcon
-import com.intellij.ui.icons.RowIcon
-import javax.swing.Icon
+import com.intellij.codeInsight.completion.CompletionType
 
 /**
  * @author Alefas
  * @since 04.09.13
  */
-class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
+class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBase {
 
   import ScalaCodeInsightTestBase._
   import icons.Icons.{PARAMETER, PATTERN_VAL}
@@ -130,26 +127,24 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
   )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoNameMatchingConstructor(): Unit = super.checkNoCompletion(
+  def testNoNameMatchingConstructor(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""class A(x: Int, y: Int)
          |
          |class B(x: Int, z: Int) extends A($CARET)
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoTypeMatchingConstructor(): Unit = super.checkNoCompletion(
+  def testNoTypeMatchingConstructor(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""class A(x: Int, y: Int)
          |
          |class B(x: Int, y: String) extends A($CARET)
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   def testConstructorAssignment(): Unit = doRawCompletionTest(
     fileText =
@@ -380,7 +375,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
   )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoNameMatchingConstructorAfterNew(): Unit = super.checkNoCompletion(
+  def testNoNameMatchingConstructorAfterNew(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""class A(x: Int, y: Int)
          |
@@ -388,13 +383,12 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |val z: Int = ???
          |
          |new A($CARET)
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoTypeMatchingConstructorAfterNew(): Unit = super.checkNoCompletion(
+  def testNoTypeMatchingConstructorAfterNew(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""class A(x: Int, y: Int)
          |
@@ -402,10 +396,9 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |val y: String = ???
          |
          |new A($CARET)
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   def testConstructorAssignmentAfterNew(): Unit = doRawCompletionTest(
     fileText =
@@ -422,7 +415,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     hasItemText(_, "x, y")(tailText = " = ")
   }
 
-  def testPositionInContructorAssignmentAfterNew(): Unit = doCompletionTest(
+  def testPositionInConstructorAssignmentAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int, z: Int)
          |
@@ -451,8 +444,6 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     isSuper = false,
     icons = PARAMETER, PARAMETER
   )
-
-  ////////////////////
 
   def testSuperCall(): Unit = doCompletionTest(
     fileText =
@@ -940,7 +931,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
   )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoNameMatchingCaseClass(): Unit = super.checkNoCompletion(
+  def testNoNameMatchingCaseClass(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""case class A(x: Int, y: Int)
          |
@@ -948,13 +939,12 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |  def bar(x: Int, z: Int) =
          |    A($CARET)
          |}
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   // should have (x = ???, y = ???) but not (x, y)
-  def testNoTypeMatchingCaseClass(): Unit = super.checkNoCompletion(
+  def testNoTypeMatchingCaseClass(): Unit = checkNoCompletionWithoutTailText(
     fileText =
       s"""case class A(x: Int, y: Int)
          |
@@ -962,10 +952,9 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
          |  def bar(x: Int, y: String) =
          |    A($CARET)
          |}
-         |""".stripMargin
-  ) {
-    hasItemText(_, "x, y")(tailText = null)
-  }
+         |""".stripMargin,
+    lookupString = "x, y"
+  )
 
   def testCaseClassAssignment(): Unit = doRawCompletionTest(
     fileText =
@@ -1320,33 +1309,4 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |}
        |""".stripMargin
   )
-
-  private def checkLookupElement(fileText: String,
-                                 resultText: String,
-                                 item: String,
-                                 isSuper: Boolean,
-                                 icons: Icon*): Unit =
-    super.doRawCompletionTest(fileText, resultText) { lookup =>
-      hasLookupString(lookup, item) &&
-        lookup.getUserData(JavaCompletionUtil.SUPER_METHOD_PARAMETERS) == (if (isSuper) java.lang.Boolean.TRUE else null) &&
-        allIcons(createPresentation(lookup).getIcon) == icons
-    }
-
-  private def checkNoCompletion(fileText: String): Unit =
-    super.checkNoCompletion(fileText) {
-      _.getLookupString.contains(", ")
-    }
-
-  private def allIcons(icon: Icon): Seq[Icon] = icon match {
-    case icon: LayeredIcon =>
-      icon
-        .getAllLayers
-        .reverse
-        .toSeq
-        .flatMap {
-          case layer: RowIcon => layer.getAllIcons
-          case layer => Seq(layer)
-        }
-    case _ => Seq(icon)
-  }
 }

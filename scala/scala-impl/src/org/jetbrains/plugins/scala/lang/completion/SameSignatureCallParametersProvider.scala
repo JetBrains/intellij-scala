@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -117,16 +117,20 @@ object SameSignatureCallParametersProvider {
             case typeElement@Typeable(tp) =>
               tp.extractClassType match {
                 //noinspection ScalaUnnecessaryParentheses
-                case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
+                case Some((constructorOwner: ScConstructorOwner, substitutor))
+                  if (if (constructorOwner.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
                   val argumentToStart = new ArgumentToStart(argumentsList)(constructorInvocation.arguments.indexOf(argumentsList))
 
-                  createConstructorArgumentsElements(
+                  val constructorArgsElements = createConstructorArgumentsElements(
                     position,
-                    clazz,
+                    constructorOwner,
                     argumentToStart,
                     substitutor,
                     parameters.getInvocationCount
-                  ) ++ createAssignmentElements(clazz, argumentToStart, substitutor)
+                  )
+
+                  if (constructorOwner.is[ScTrait]) constructorArgsElements
+                  else constructorArgsElements ++ createAssignmentElements(constructorOwner, argumentToStart, substitutor)
                 case _ => Iterable.empty
               }
             case _ => Iterable.empty
@@ -135,15 +139,15 @@ object SameSignatureCallParametersProvider {
       }
     }
 
-    private def createConstructorArgumentsElements(context: PsiElement, clazz: ScClass, argumentToStart: ArgumentToStart,
+    private def createConstructorArgumentsElements(context: PsiElement, constructorOwner: ScConstructorOwner, argumentToStart: ArgumentToStart,
                                                    substitutor: ScSubstitutor, invocationCount: Int) =
-      clazz.constructors.flatMap { extractedClassConstructor =>
+      constructorOwner.constructors.flatMap { extractedClassConstructor =>
         createFunctionLookupElement(context, extractedClassConstructor, argumentToStart, substitutor,
           invocationCount, hasSuperQualifier = true)
       }
 
-    private def createAssignmentElements(clazz: ScClass, argumentToStart: ArgumentToStart, substitutor: ScSubstitutor) =
-      clazz.constructors.flatMap { extractedClassConstructor =>
+    private def createAssignmentElements(constructorOwner: ScConstructorOwner, argumentToStart: ArgumentToStart, substitutor: ScSubstitutor) =
+      constructorOwner.constructors.flatMap { extractedClassConstructor =>
         createAssignmentLookupElement(extractedClassConstructor, argumentToStart, substitutor)
       }
   }
