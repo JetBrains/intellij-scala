@@ -107,16 +107,20 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   override def isImplicitProcessor: Boolean = true
 
   final def candidatesByPlace: Set[ScalaResolveResult] = {
+    val isScala3 = getPlace.isInScala3File
+
     @tailrec
     def treeWalkUp(element: PsiElement, lastParent: PsiElement): Unit =
       if (element != null &&
         element.processDeclarations(this, ScalaResolveState.empty, lastParent, getPlace)) {
 
-        val shouldStop = element match {
-          case expr: ScExpression =>
-            !expr.contextFunctionParameters.forall(this.execute(_, ScalaResolveState.empty))
-          case _ => false
-        }
+        val shouldStop =
+          element match {
+            case expr: ScExpression =>
+              isScala3 &&
+                !expr.contextFunctionParameters.forall(this.execute(_, ScalaResolveState.empty))
+            case _ => false
+          }
 
         val isNewLevel = element match {
           case _: ScTemplateBody | _: ScExtendsBlock => true // template body and inherited members are at the same level
