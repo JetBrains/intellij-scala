@@ -111,7 +111,7 @@ trait ProjectStructureMatcher {
       fail(s"Can't get module data for module: $actual (${actual.getModuleFilePath})").asInstanceOf[Nothing]
     }
     expected.foreach(sbtBuildURI)(buildURI => _ => {
-      assertEquals(s"SBT build URI (module $actual)", buildURI, sbtModuleData.buildURI)
+      assertEquals(s"SBT build URI (module $actual)", buildURI, sbtModuleData.buildURI.uri)
     })
     expected.foreach(sbtProjectId)(projectId => _ => {
       assertEquals(s"SBT project module id (module $actual)", projectId, sbtModuleData.id)

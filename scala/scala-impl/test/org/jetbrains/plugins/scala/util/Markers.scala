@@ -173,9 +173,9 @@ trait Markers {
   private def assertNoWindowsLineSeparator(text: String): Unit = {
     assertFalse(
       """Windows line separator '\r' detected in test data. Please normalise your test data using one of the following helpers:
-        |  org.jetbrains.plugins.scala.extensions.StringExt.withNormalizedSeparator
-        |  com.intellij.openapi.util.text.StringUtil.convertLineSeparators(java.lang.String)
-        |  text.replace("\r", "")
+        |  1. org.jetbrains.plugins.scala.extensions.StringExt.withNormalizedSeparator
+        |  2. com.intellij.openapi.util.text.StringUtil.convertLineSeparators(java.lang.String)
+        |  3. text.replace("\r", "")
         |""".stripMargin,
       text.contains("\r")
     )

@@ -1,23 +1,23 @@
-package org.jetbrains.sbt
-package project
-package template
+package org.jetbrains.sbt.project.template
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.io
-import com.intellij.util.ui.UI
+import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.{NonNls, TestOnly}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.template.{FileExt, patchProjectLabels}
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
+import org.jetbrains.sbt.project.template.SbtModuleBuilder._
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{DefaultModuleContentEntryFolders, doSetupModule}
-import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, SbtModuleStepSelections}
+import org.jetbrains.sbt.project.template.wizard.SbtModuleStepLike
+import org.jetbrains.sbt.{Sbt, SbtBundle}
 
-import java.awt.{Container, FlowLayout}
+import java.awt.FlowLayout
 import java.io.File
 import javax.swing._
 import scala.math.Ordering.Implicits.infixOrderingOps
@@ -27,7 +27,7 @@ import scala.math.Ordering.Implicits.infixOrderingOps
  *                    The parameter value is copied copied, changes to the original object do not effect the builder
  */
 final class SbtModuleBuilder(
-  _selections: SbtModuleStepSelections
+  _selections: SbtModuleBuilderSelections
 ) extends SbtModuleBuilderBase {
 
   private val selections = _selections.copy() // Selections is mutable data structure
@@ -36,9 +36,7 @@ final class SbtModuleBuilder(
   private lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
   private lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
 
-  def this() = this(SbtModuleStepSelections.default)
-
-  import SbtModuleBuilder._
+  def this() = this(SbtModuleBuilderSelections.default)
 
   override def getNodeIcon: Icon = Sbt.Icon
 
@@ -63,11 +61,12 @@ final class SbtModuleBuilder(
     } {
       val root = new File(contentPath)
 
+      val name = getName
       val sbtVersion = selections.sbtVersion.getOrElse(Versions.SBT.LatestSbtVersion)
       val scalaVersion = selections.scalaVersion.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
       val packagePrefix = selections.packagePrefix
 
-      val contentEntryFolders = createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
+      val contentEntryFolders = createProjectTemplateIn(root, name, scalaVersion, sbtVersion, packagePrefix)
       SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath, contentEntryFolders)
     }
   }
@@ -85,7 +84,7 @@ object SbtModuleBuilder {
 
   final class Step(
     settingsStep: SettingsStep,
-    override protected val selections: SbtModuleStepSelections,
+    override protected val selections: SbtModuleBuilderSelections,
     sbtModuleBuilder: SbtModuleBuilder
   ) extends ScalaSettingsStepBase(settingsStep, sbtModuleBuilder)
     with SbtModuleStepLike {
@@ -116,28 +115,11 @@ object SbtModuleBuilder {
         _.add(downloadScalaSourcesCheckbox),
       )
 
-      val packagePrefixPanel: JPanel = UI.PanelFactory
-        .panel(packagePrefixField)
-        .withTooltip(ScalaBundle.message("package.prefix.help"))
-        .createPanel()
+      settingsStep.addSettingsField(sbtLabelText, sbtVersionPanel)
+      settingsStep.addSettingsField(scalaLabelText, scalaVersionPanel)
+      settingsStep.addSettingsField(packagePrefixLabelText, packagePrefixPanelWithTooltip)
 
-      settingsStep.addSettingsField(SbtBundle.message("sbt.settings.sbt"), sbtVersionPanel)
-      settingsStep.addSettingsField(SbtBundle.message("sbt.settings.scala"), scalaVersionPanel)
-      settingsStep.addSettingsField(ScalaBundle.message("package.prefix.label"), packagePrefixPanel)
-
-      Option(sbtVersionPanel.getParent).foreach(patchProjectSdkLabel)
-    }
-
-    // TODO Remove the label patching when the External System will use the concise and proper labels natively
-    private def patchProjectSdkLabel(parent: Container): Unit = {
-      parent.getComponents.toSeq.foreachDefined {
-        case label: JLabel if label.getText == "Project SDK:" =>
-          label.setText("JDK:")
-          label.setDisplayedMnemonic('J')
-
-        case label: JLabel if label.getText.startsWith("Project ") && label.getText.length > 8 =>
-          label.setText(label.getText.substring(8) |> (s => s.substring(0, 1).toUpperCase + s.substring(1)))
-      }
+      Option(sbtVersionPanel.getParent).foreach(patchProjectLabels)
     }
 
     override def updateDataModel(): Unit = {
@@ -170,8 +152,8 @@ object SbtModuleBuilder {
 
       //https://docs.scala-lang.org/overviews/jdk-compatibility/overview.html
       // TODO (minor) carefully update for other JDK versions, but maybe show a warning instead of error, cause the site states:
-      //  "Even when a version combination isn’t listed as supported, most features may still work.
-      //   (But Scala 2.12+ definitely doesn’t work at all on JDK 6 or 7.)"
+      //  "Even when a version combination isn't listed as supported, most features may still work.
+      //   (But Scala 2.12+ definitely doesn't work at all on JDK 6 or 7.)"
       //
       val jdk = JavaSdk.getInstance().getVersion(sdk)
       if (jdk < JDK_1_8 && languageLevel >= Scala_2_12) {
@@ -207,30 +189,31 @@ object SbtModuleBuilder {
       (root / mainSourcesPath).mkdirs()
       (root / testSourcesPath).mkdirs()
 
-      import io.FileUtil.writeToFile
+      val packagePrefixContent = packagePrefix.fold("")({ prefix =>
+        s"""
+           |idePackagePrefix := Some("$prefix")
+           |""".stripMargin
+      })
 
-      writeToFile(
-        buildFile,
+      val buildSbtContent =
         s"""name := "$name"
            |
-           |version := "0.1"
+           |version := "0.1.0-SNAPSHOT"
            |
            |scalaVersion := "$scalaVersion"
-           |""".stripMargin +
-          packagePrefix.map(prefix =>
-            s"""
-               |idePackagePrefix := Some("$prefix")
-               |""".stripMargin).getOrElse("")
-      )
-      writeToFile(
-        projectDir / Sbt.PropertiesFile,
-        "sbt.version = " + sbtVersion
-      )
+           |""".stripMargin + packagePrefixContent
+
+      val buildPropertiesContent = s"""sbt.version = $sbtVersion"""
+
+      val pluginsSbtContent = """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.1")"""
+
+      def ensureSingleNewLineAfter(text: String): String = text.stripTrailing() + "\n"
+
+      FileUtil.writeToFile(buildFile, ensureSingleNewLineAfter(buildSbtContent))
+      FileUtil.writeToFile(projectDir / Sbt.PropertiesFile, ensureSingleNewLineAfter(buildPropertiesContent))
+
       if (packagePrefix.isDefined) {
-        writeToFile(
-          projectDir / Sbt.PluginsFile,
-          """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.0")"""
-        )
+        FileUtil.writeToFile(projectDir / Sbt.PluginsFile, ensureSingleNewLineAfter(pluginsSbtContent))
       }
 
       Some(DefaultModuleContentEntryFolders(

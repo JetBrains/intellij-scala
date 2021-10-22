@@ -35,7 +35,7 @@ final class SbtBuildModuleDataService extends ScalaAbstractProjectDataService[Sb
     Imports(sbtModule) = imports
     Resolvers(sbtModule) = resolvers.asScala.toSet
     setLocalIvyCache(resolvers)(sbtModule.getProject)
-    Build(sbtModule) = buildFor
+    Build(sbtModule) = buildFor.uri
   }
 
   private[this] def setLocalIvyCache(resolvers: java.util.Set[SbtResolver])

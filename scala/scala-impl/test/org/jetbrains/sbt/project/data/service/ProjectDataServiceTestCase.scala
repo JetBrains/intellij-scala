@@ -20,13 +20,7 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
 
   protected def importProjectData(projectData: DataNode[ProjectData]): Unit =
-    ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(getProject) {
-      override def execute(): Unit =
-        ProjectRootManagerEx.getInstanceEx(getProject).mergeRootsChangesDuring(() => {
-          val projectDataManager = ApplicationManager.getApplication.getService(classOf[ProjectDataManager])
-          projectDataManager.importData(projectData, getProject, new IdeModifiableModelsProviderImpl(getProject), true)
-        })
-    })
+    ProjectDataServiceTestCase.importProjectData(projectData, getProject)
 
   protected def assertScalaLibraryWarningNotificationShown(project: Project, systemId: ProjectSystemId): Unit = {
     val actualNotifications = Option(project.getUserData(ShownNotificationsKey)).getOrElse(Nil).map(ExpectedNotificationData.apply)
@@ -52,4 +46,16 @@ abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
     def apply(notification: ShownNotification): ExpectedNotificationData =
       ExpectedNotificationData(notification.id, notification.data.getNotificationSource, notification.data.getNotificationCategory)
   }
+}
+
+object ProjectDataServiceTestCase {
+
+  def importProjectData(projectData: DataNode[ProjectData], project: Project): Unit =
+    ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(project) {
+      override def execute(): Unit =
+        ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(() => {
+          val projectDataManager = ApplicationManager.getApplication.getService(classOf[ProjectDataManager])
+          projectDataManager.importData(projectData, project, new IdeModifiableModelsProviderImpl(project), true)
+        })
+    })
 }

@@ -2,12 +2,16 @@ package org.jetbrains.plugins.scala
 package project
 
 import com.intellij.openapi.util.io
+import com.intellij.openapi.util.text.Strings
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
+import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 
+import java.awt.Container
 import java.io._
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
+import javax.swing.JLabel
 import scala.util.Using
 
 /**
@@ -82,6 +86,27 @@ package object template {
     def toVirtualFile: Option[VirtualFile] = {
       val url = URLDecoder.decode(delegate.toPath.toUri.toString, StandardCharsets.UTF_8.name())
       Option(VirtualFileManager.getInstance.findFileByUrl(url))
+    }
+  }
+
+  /**
+   * Examples: {{{
+   *    "Project SDK:"       -> "JDK:"
+   *    "Project name:"     -> "Name:"
+   *    "Project location:" -> "Location:"
+   * }}}
+   *
+   * TODO: Remove the label patching when the External System will use the concise and proper labels natively
+   */
+  def patchProjectLabels(parent: Container): Unit = {
+    parent.getComponents.toSeq.foreachDefined {
+      case label: JLabel if label.getText == "Project SDK:" =>
+        label.setText("JDK:")
+        label.setDisplayedMnemonic('J')
+
+      case label: JLabel if label.getText.startsWith("Project ") && label.getText.length > 8 =>
+        val newText = Strings.capitalize(label.getText.substring(8))
+        label.setText(newText)
     }
   }
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -29,7 +30,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
           val flow = controlFlowBuilder.build()
 
-          flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim
+          flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim.withNormalizedSeparator
         }
       }
     })

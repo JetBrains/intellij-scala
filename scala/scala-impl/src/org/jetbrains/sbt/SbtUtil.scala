@@ -169,7 +169,7 @@ object SbtUtil {
     val emptyURI = new URI("")
 
     val moduleDataSeq = getModuleData(project, moduleId, SbtModuleData.Key)
-    moduleDataSeq.find(_.buildURI != emptyURI)
+    moduleDataSeq.find(_.buildURI.uri != emptyURI)
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
