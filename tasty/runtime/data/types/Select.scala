@@ -10,4 +10,6 @@ trait Select {
   type T4 = /**//*scala.*/math.BigInt
 
   type T5 = scala.math.BigInt
+
+  type T6 = EmptyTuple
 }
