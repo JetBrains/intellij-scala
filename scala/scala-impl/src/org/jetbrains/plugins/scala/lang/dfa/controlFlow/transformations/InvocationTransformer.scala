@@ -56,7 +56,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
     args.foreach(_.content.transform(builder))
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
-    builder.pushInstruction(new ScalaInvocationInstruction(invocationInfo,
+    builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,
       ScalaStatementAnchor(wrappedInvocation), transfer))
   }
 
@@ -120,7 +120,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
         // TODO check implicit conversions etc.
         // TODO check division by zero
         rightArg.content.transform(builder)
-        builder.pushInstruction(new NumericBinaryInstruction(NumericBinary(operationName), ScalaStatementAnchor(wrappedInvocation)))
+        builder.addInstruction(new NumericBinaryInstruction(NumericBinary(operationName), ScalaStatementAnchor(wrappedInvocation)))
         return true
       }
     }
@@ -139,7 +139,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
         // TODO check implicit conversions etc.
         // TODO check division by zero
         rightArg.content.transform(builder)
-        builder.pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
+        builder.addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
           ScalaStatementAnchor(wrappedInvocation)))
         return true
       }
@@ -161,16 +161,16 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
         leftArg.content.transform(builder)
 
         val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-        builder.pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
+        builder.addInstruction(new ConditionalGotoInstruction(nextConditionOffset,
           DfTypes.booleanValue(valueNeededToContinue)))
-        builder.pushInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
-        builder.pushInstruction(new GotoInstruction(endOffset))
+        builder.addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
+        builder.addInstruction(new GotoInstruction(endOffset))
 
         builder.setOffset(nextConditionOffset)
-        builder.pushInstruction(new FinishElementInstruction(null))
+        builder.addInstruction(new FinishElementInstruction(null))
         rightArg.content.transform(builder)
         builder.setOffset(endOffset)
-        builder.pushInstruction(new ResultOfInstruction(anchor))
+        builder.addInstruction(new ResultOfInstruction(anchor))
         return true
       }
     }
@@ -185,10 +185,10 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
         val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
         val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
 
-        builder.pushInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
+        builder.addInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
         singleThisArg.content.transform(builder)
 
-        builder.pushInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(wrappedInvocation)))
+        builder.addInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(wrappedInvocation)))
         return true
       }
     }
@@ -204,7 +204,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
         singleThisArg.content.transform(builder)
 
         LogicalUnary(operationName) match {
-          case LogicalOperation.Not => builder.pushInstruction(new NotInstruction(ScalaStatementAnchor(wrappedInvocation)))
+          case LogicalOperation.Not => builder.addInstruction(new NotInstruction(ScalaStatementAnchor(wrappedInvocation)))
             return true
           case _ =>
         }

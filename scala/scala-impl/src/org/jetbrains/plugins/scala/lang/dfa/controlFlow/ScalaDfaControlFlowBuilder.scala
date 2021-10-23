@@ -14,7 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 
 /**
- * Stack-based bytecode-like control flow builder for Scala that supports analysis of dataflow.
+ * Stack-based control flow builder for Scala, similar that supports analysis of dataflow.
+ * It transforms Scala PSI elements into DFA-compatible Intermediate Representation, similar to Java bytecode.
  *
  * '''Usage:''' This builder can be either used directly manually or as a visitor to instances of
  * [[Transformable]].
@@ -40,35 +41,44 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
    *         of instructions that have been pushed to this builder's stack.
    */
   def build(): ControlFlow = {
-    pushInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), null))
+    addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), null))
     popReturnValue()
     flow.finish()
     flow
   }
 
+  /**
+   * Same as [[build]] but instead of popping the return value, it assigns it
+   * to the place specified in the parameter.
+   *
+   * @param returnDestination DFA value to which the result of the transformed method
+   *                          will be assigned after it is executed.
+   * @return [[com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow]] representation
+   *         of instructions that have been pushed to this builder's stack.
+   */
   def buildAndReturn(returnDestination: DfaVariableValue): ControlFlow = {
-    pushInstruction(new SimpleAssignmentInstruction(null, returnDestination))
+    addInstruction(new SimpleAssignmentInstruction(null, returnDestination))
     flow.finish()
     flow
   }
 
-  def pushInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
+  def addInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
 
-  def pushUnknownValue(): Unit = pushInstruction(new PushValueInstruction(DfType.TOP))
+  def pushUnknownValue(): Unit = addInstruction(new PushValueInstruction(DfType.TOP))
 
   def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
     popArguments(argCount)
-    pushInstruction(new PushValueInstruction(DfType.TOP, ScalaStatementAnchor(statement)))
-    pushInstruction(new FlushFieldsInstruction)
+    addInstruction(new PushValueInstruction(DfType.TOP, ScalaStatementAnchor(statement)))
+    addInstruction(new FlushFieldsInstruction)
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     Option(transfer).foreach(transfer =>
-      pushInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
+      addInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
   }
 
   def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): Unit = {
     val dfaVariable = createVariable(descriptor)
-    pushInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
+    addInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
 
   def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression]): Unit = {
@@ -80,16 +90,16 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
       case _ => pushUnknownValue()
     }
 
-    pushInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
+    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
   }
 
-  def popReturnValue(): Unit = pushInstruction(new PopInstruction)
+  def popReturnValue(): Unit = addInstruction(new PopInstruction)
 
   def popArguments(argCount: Int): Unit = {
     if (argCount > 1) {
-      pushInstruction(new SpliceInstruction(argCount))
+      addInstruction(new SpliceInstruction(argCount))
     } else if (argCount == 1) {
-      pushInstruction(new PopInstruction)
+      addInstruction(new PopInstruction)
     }
   }
 

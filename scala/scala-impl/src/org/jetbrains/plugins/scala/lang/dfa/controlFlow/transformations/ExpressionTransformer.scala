@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 class ExpressionTransformer(val wrappedExpression: ScExpression)
   extends ScalaPsiElementTransformer(wrappedExpression) {
@@ -28,8 +27,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
     case newTemplateDefinition: ScNewTemplateDefinition => transformNewTemplateDefinition(newTemplateDefinition, builder)
     case assignment: ScAssignment => transformAssignment(assignment, builder)
-    case underscoreSection: ScUnderscoreSection => builder.pushUnknownValue()
-    case functionExpression: ScFunctionExpr => builder.pushUnknownValue()
+    case underscoreSection: ScUnderscoreSection => builder.pushUnknownCall(underscoreSection, 0)
+    case functionExpression: ScFunctionExpr => builder.pushUnknownCall(functionExpression, 0)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -38,7 +37,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
-    expression.bind().map(_.element).exists(element => element.is[ScFunction] || element.is[PsiMethod])
+    expression.bind().map(_.element).exists(_.is[PsiMethod])
   }
 
   private def transformBlock(block: ScBlockExpr, builder: ScalaDfaControlFlowBuilder): Unit = {
@@ -52,7 +51,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
       }
 
       transformPsiElement(statements.last, builder)
-      builder.pushInstruction(new FinishElementInstruction(block))
+      builder.addInstruction(new FinishElementInstruction(block))
     }
   }
 
@@ -61,7 +60,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformLiteral(literal: ScLiteral, builder: ScalaDfaControlFlowBuilder): Unit = {
-    builder.pushInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
+    builder.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
   }
 
   private def transformUnitExpression(builder: ScalaDfaControlFlowBuilder): Unit = builder.pushUnknownValue()
@@ -71,18 +70,18 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     val skipElseOffset = new DeferredOffset
 
     transformIfPresent(ifExpression.condition, builder)
-    builder.pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, ifExpression.condition.orNull))
+    builder.addInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, ifExpression.condition.orNull))
 
-    builder.pushInstruction(new FinishElementInstruction(null))
+    builder.addInstruction(new FinishElementInstruction(null))
     transformIfPresent(ifExpression.thenExpression, builder)
-    builder.pushInstruction(new GotoInstruction(skipElseOffset))
+    builder.addInstruction(new GotoInstruction(skipElseOffset))
     builder.setOffset(skipThenOffset)
 
-    builder.pushInstruction(new FinishElementInstruction(null))
+    builder.addInstruction(new FinishElementInstruction(null))
     transformIfPresent(ifExpression.elseExpression, builder)
     builder.setOffset(skipElseOffset)
 
-    builder.pushInstruction(new FinishElementInstruction(ifExpression))
+    builder.addInstruction(new FinishElementInstruction(ifExpression))
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {

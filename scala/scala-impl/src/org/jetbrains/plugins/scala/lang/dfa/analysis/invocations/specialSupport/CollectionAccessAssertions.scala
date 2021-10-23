@@ -25,7 +25,7 @@ object CollectionAccessAssertions {
 
         val problem = ScalaCollectionAccessProblem(SpecialField.COLLECTION_SIZE, invocationExpression, exceptionName)
         val transfer = builder.maybeTransferValue(exceptionName)
-        builder.pushInstruction(new EnsureIndexInBoundsInstruction(problem, transfer.orNull))
+        builder.addInstruction(new EnsureIndexInBoundsInstruction(problem, transfer.orNull))
       }
     }
   }
