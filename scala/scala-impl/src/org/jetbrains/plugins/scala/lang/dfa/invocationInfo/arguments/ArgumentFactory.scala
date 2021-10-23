@@ -62,7 +62,6 @@ object ArgumentFactory {
   }
 
   private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)]): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
-    // TODO implicit parameters don't work properly, left for later
     val maybeVarargParam = matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
     maybeVarargParam match {
       case Some(varargParam) =>

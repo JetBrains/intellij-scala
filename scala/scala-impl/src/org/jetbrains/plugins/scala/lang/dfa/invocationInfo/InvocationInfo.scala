@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
  * @param invokedElement            ```None``` if the call is unresolved or there are any applicability problems, otherwise
  *                                  ```Some(psiElement)```, where ```psiElement``` is the resolved function/element that was invoked
  * @param argListsInEvaluationOrder arguments (split into original argument lists) in the order in which they should
- *                                  be evaluated, including those not passed explictly, like default parameters,
+ *                                  be evaluated, including those not passed explicitly, like default parameters,
  *                                  '''this''' argument etc.
  * @author Gerard Dróżdż
  */
