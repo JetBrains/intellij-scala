@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnc
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.NumericBinary
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -22,10 +22,10 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
       case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
       case referenceExpression: ScReferenceExpression => List(InvocationInfo.fromReferenceExpression(referenceExpression))
       case constructorInvocation: ScNewTemplateDefinition => List(InvocationInfo.fromConstructorInvocation(constructorInvocation))
-      case _ => throw TransformationFailedException(wrappedInvocation, "Expression of this type cannot be transformed as an invocation.")
+      case _ => Nil
     }
 
-    if (isUnsupportedInvocationExpression(wrappedInvocation)) {
+    if (invocationsInfo.isEmpty || isUnsupportedInvocationExpression(wrappedInvocation)) {
       builder.pushUnknownCall(wrappedInvocation, 0)
     } else if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
       invocationsInfo.tail.foreach(invocation => {
