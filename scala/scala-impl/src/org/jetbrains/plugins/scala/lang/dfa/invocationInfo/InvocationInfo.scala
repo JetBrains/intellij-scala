@@ -64,7 +64,7 @@ object InvocationInfo {
 
     val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
     val properArguments = buildAllArguments(List(invocation.matchedParameters),
-      List(invocation.argumentExpressions), invocation, isTupled).head
+      List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
     val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
 
     InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
@@ -88,7 +88,7 @@ object InvocationInfo {
       val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
       val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
         constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
-      val allArguments = (thisArgument :: properArguments.head) :: properArguments.tail
+      val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.tail
 
       InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
     }

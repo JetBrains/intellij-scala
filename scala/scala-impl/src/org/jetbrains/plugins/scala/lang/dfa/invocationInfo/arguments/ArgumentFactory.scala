@@ -44,6 +44,7 @@ object ArgumentFactory {
   private def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
                                               invocation: ImplicitArgumentsOwner,
                                               isTupled: Boolean): List[Argument] = {
+    implicit val context: ProjectContext = invocation.getProject
     val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(matchedParameters)
     invocation match {
       case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
@@ -61,7 +62,8 @@ object ArgumentFactory {
     case _ => thisArgument :: properArgs
   }
 
-  private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)]): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
+  private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)])
+                                          (implicit context: ProjectContext): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
     val maybeVarargParam = matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
     maybeVarargParam match {
       case Some(varargParam) =>
@@ -73,7 +75,7 @@ object ArgumentFactory {
   }
 
   private def buildTupledArgument(invocation: MethodInvocation): Argument = {
-    implicit val projectContext: ProjectContext = invocation.getProject
+    implicit val context: ProjectContext = invocation.getProject
     val tupleArgument = wrapInTupleExpression(invocation.argumentExpressions)
     val tupleParameter = Parameter(invocation.target.get.element match {
       case function: ScFunction => function.parameters.head
@@ -82,10 +84,9 @@ object ArgumentFactory {
     Argument.fromArgParamMapping((tupleArgument, tupleParameter))
   }
 
-  private def buildSplatListArgument(varargContents: Seq[ScExpression], varargParam: Parameter): Argument = {
-    implicit val projectContext: ProjectContext = varargContents.head.getProject
+  private def buildSplatListArgument(varargContents: Seq[ScExpression], varargParam: Parameter)
+                                    (implicit context: ProjectContext): Argument = {
     val splatListArgument = wrapInSplatListExpression(varargContents)
-
     Argument.fromArgParamMapping((splatListArgument, varargParam))
   }
 }

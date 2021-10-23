@@ -41,6 +41,8 @@ object ScalaDfaTypeConstants {
 
     val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
 
+    val ScalaCollectionMutable = s"$ScalaCollection.mutable"
+
     val ScalaMath = "scala.math"
 
     val JavaLangMath = "java.lang.Math"

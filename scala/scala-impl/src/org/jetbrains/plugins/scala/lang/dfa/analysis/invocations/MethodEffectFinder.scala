@@ -33,7 +33,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
   private def findCommonMethodEffect(invokedElement: InvokedElement,
                                      argumentValues: Map[Argument, DfaValue],
                                      stateBefore: DfaMemoryState): Option[MethodEffect] = {
-    implicit val projectContext: ProjectContext = invokedElement.psiElement.getProject
+    implicit val context: ProjectContext = invokedElement.psiElement.getProject
     val commonHandler = findArgumentsPrimitiveType(argumentValues).flatMap { argumentsType =>
       invokedElement.qualifiedName
         .flatMap(CommonMethodsMapping.get(_, argumentsType))

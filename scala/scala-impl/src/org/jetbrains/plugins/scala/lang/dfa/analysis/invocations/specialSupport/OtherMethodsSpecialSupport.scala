@@ -28,7 +28,7 @@ object OtherMethodsSpecialSupport {
     (s"$ScalaMath.$functionName", ScalaFloat) -> s"$JavaLangMath.$functionName(0.0F, 0.0F)"
   )
 
-  def psiMethodFromText(text: String)(implicit projectContext: ProjectContext): Option[PsiMethod] = {
+  def psiMethodFromText(text: String)(implicit context: ProjectContext): Option[PsiMethod] = {
     code"$text".asInstanceOf[MethodInvocation].target.map(_.element) match {
       case Some(method: PsiMethod) => Some(method)
       case _ => None
