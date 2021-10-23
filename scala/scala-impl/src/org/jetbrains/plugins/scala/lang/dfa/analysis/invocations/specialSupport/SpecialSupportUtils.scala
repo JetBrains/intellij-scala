@@ -7,7 +7,10 @@ import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfIntegral
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByName
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 
 object SpecialSupportUtils {
@@ -71,5 +74,14 @@ object SpecialSupportUtils {
       case _ => None
     }
     case _ => None
+  }
+
+  def implicitParametersPresent(invocationInfo: InvocationInfo): Boolean = invocationInfo.invokedElement match {
+    case Some(method: ScFunction) => method.parameters.exists(_.isImplicitParameter)
+    case _ => false
+  }
+
+  def byNameParametersPresent(invocationInfo: InvocationInfo): Boolean = {
+    invocationInfo.argListsInEvaluationOrder.flatten.exists(_.passingMechanism == PassByName)
   }
 }

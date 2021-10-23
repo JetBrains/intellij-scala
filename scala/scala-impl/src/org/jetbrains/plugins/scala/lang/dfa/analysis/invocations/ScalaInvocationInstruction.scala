@@ -8,6 +8,7 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 
@@ -39,7 +40,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     val finder = MethodEffectFinder(invocationInfo)
     val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues)
 
-    if (!methodEffect.isPure) {
+    if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || implicitParametersPresent(invocationInfo)) {
       argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
       stateBefore.flushFields()
     }

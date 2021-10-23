@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocation
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.NumericBinary
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -58,8 +59,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
   private def transformMethodInvocation(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
     addAdditionalAssertions(invocationInfo, builder)
 
-    val args = invocationInfo.argListsInEvaluationOrder.flatten
-    args.foreach(_.content.transform(builder))
+    val byValueArgs = invocationInfo.argListsInEvaluationOrder.flatMap(_.filter(_.passingMechanism == PassByValue))
+    byValueArgs.foreach(_.content.transform(builder))
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,

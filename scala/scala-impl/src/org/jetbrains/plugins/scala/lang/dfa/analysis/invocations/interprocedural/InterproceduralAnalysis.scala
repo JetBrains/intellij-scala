@@ -7,6 +7,8 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.PsiModifier
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -15,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaVa
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 object InterproceduralAnalysis {
 
@@ -23,7 +26,7 @@ object InterproceduralAnalysis {
                                 (implicit factory: DfaValueFactory): Option[DfType] = {
     invocationInfo.invokedElement match {
       case Some(InvokedElement(function: ScFunctionDefinition))
-        if supportsInterproceduralAnalysis(function) => function.body match {
+        if supportsInterproceduralAnalysis(function, invocationInfo) => function.body match {
         case Some(body) => val paramValues = mapArgumentValuesToParams(invocationInfo, function, argumentValues)
           analyseExternalMethodBody(function, body, paramValues)
         case _ => None
@@ -44,9 +47,16 @@ object InterproceduralAnalysis {
     }
   }
 
-  private def supportsInterproceduralAnalysis(function: ScFunctionDefinition): Boolean = {
-    // TODO add other cases, also exclude dangerous cases like implicit parameters etc.
-    function.hasModifierPropertyScala(PsiModifier.FINAL) || function.hasModifierPropertyScala(PsiModifier.PRIVATE)
+  private def supportsInterproceduralAnalysis(function: ScFunctionDefinition, invocationInfo: InvocationInfo): Boolean = {
+    val isInsideFinalClassOrObject = hasFinalOrPrivateModifier(function.containingClass) || function.containingClass.is[ScObject]
+    val isEffectivelyFinal = hasFinalOrPrivateModifier(function) || isInsideFinalClassOrObject
+    val containsUnsupportedFeatures = implicitParametersPresent(invocationInfo) || byNameParametersPresent(invocationInfo)
+
+    isEffectivelyFinal && !containsUnsupportedFeatures
+  }
+
+  private def hasFinalOrPrivateModifier(element: PsiModifierListOwnerExt): Boolean = {
+    element.hasModifierPropertyScala(PsiModifier.FINAL) || element.hasModifierPropertyScala(PsiModifier.PRIVATE)
   }
 
   private def mapArgumentValuesToParams(invocationInfo: InvocationInfo, function: ScFunctionDefinition,
