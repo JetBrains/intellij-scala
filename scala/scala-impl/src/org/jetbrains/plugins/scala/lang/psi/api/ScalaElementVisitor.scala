@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStar
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScParameterClause, ScParameters, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateDerives, ScTemplateParents}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
@@ -122,7 +122,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitSelfInvocation(self: ScSelfInvocation): Unit = {visitScalaElement(self)}
   def visitAnnotation(annotation: ScAnnotation): Unit = {visitScalaElement(annotation)}
   def visitTemplateParents(cp: ScTemplateParents): Unit = {visitScalaElement(cp)}
-  def visitTemplateDerives(td: ScTemplateDerives): Unit = {visitScalaElement(td)}
+  def visitDerivesClause(td: ScDerivesClause): Unit = {visitScalaElement(td)}
 
   def visitEnumCases(cases: ScEnumCases): Unit = visitScalaElement(cases)
 

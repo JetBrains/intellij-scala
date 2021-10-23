@@ -58,8 +58,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     }
   }
 
-  override final lazy val kindProjectUnderscorePlaceholdersOptionEnabled: Boolean =
-    containingFile.exists(_.kindProjectorUnderscorePlaceholdersEnabled)
+  override final lazy val underscoreWildcardsDisabled: Boolean =
+    containingFile.exists(_.underscoreWidlcardsDisabled)
 
   private lazy val _isTrailingCommasEnabled =
     containingFile.exists(_.isTrailingCommasEnabled)

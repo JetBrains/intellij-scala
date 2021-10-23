@@ -36,6 +36,7 @@
         <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CaseClassAndCompanionMembersInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.DerivesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.monocle.MonocleInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.scalazDeriving.ScalazDerivingInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.circe.CirceCodecInjector"/>
@@ -424,7 +425,7 @@
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"/>
 
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClassFinder"/>
         <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>

@@ -97,8 +97,14 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     case _ => false
   }
 
-  def checkExpressionType(element: ScExpression, typeAware: Boolean, fromFunctionLiteral: Boolean = false)
-                         (implicit holder: ScalaAnnotationHolder): Unit = {
+  def checkExpressionType(
+    element:             ScExpression,
+    typeAware:           Boolean,
+    fromFunctionLiteral: Boolean = false,
+    inDesugaring:        Boolean = false
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit = {
     implicit val ctx: ProjectContext = element
 
     @tailrec
@@ -227,7 +233,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               }
 
               TypeMismatchError.register(target, tp, exprType.getOrNothing,
-                blockLevel = 2, canBeHint = !element.is[ScTypedExpression], fixes) { (expected, actual) =>
+                blockLevel = 2, canBeHint = !element.is[ScTypedExpression] && !inDesugaring, fixes) { (expected, actual) =>
                 ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
               }
 

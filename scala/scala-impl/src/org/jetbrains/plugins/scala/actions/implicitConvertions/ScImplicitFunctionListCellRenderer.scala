@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala.actions.implicitConvertions
 
-import java.awt.{BorderLayout, Component, Container}
-
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
+import com.intellij.util.TextWithIcon
 import com.intellij.util.ui.UIUtil
-import javax.swing._
 import org.jetbrains.plugins.scala.actions.Parameters
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.lang.refactoring.util.DefaultListCellRendererAdapter
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import java.awt.{BorderLayout, Component, Container}
+import javax.swing._
 import scala.annotation.nowarn
 
 /**
@@ -27,6 +27,12 @@ import scala.annotation.nowarn
  */
 private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
   extends ScImplicitFunctionListCellRendererAdapter {
+
+  override def getItemLocation(value: Any): TextWithIcon =
+    value match {
+      case e: ScMember if e.isSynthetic => super.getItemLocation(e.syntheticNavigationElement)
+      case _                            => super.getItemLocation(value)
+    }
 
   override def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
                                                    value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {

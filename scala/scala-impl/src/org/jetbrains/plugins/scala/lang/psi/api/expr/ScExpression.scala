@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -176,6 +177,16 @@ object ScExpression {
 
     private def project = elementScope.projectContext
 
+    def contextFunctionParameters: Seq[LightContextFunctionParameter] =
+      expr match {
+        case fun: ScFunctionExpr if fun.isContext => Seq.empty
+        case _ =>
+          expectedType().toSeq.flatMap {
+            case p: ParameterizedType => p.contextParameters
+            case _                    => Seq.empty
+          }
+      }
+
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)
 
@@ -251,7 +262,8 @@ object ScExpression {
                 widened
                   .dropMethodTypeEmptyParams(expr, expectedType)
                   .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
-              ).unpackedType
+              ).synthesizeContextFunctionType(expectedType, expr)
+               .unpackedType
                .synthesizePartialFunctionType(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
@@ -384,11 +396,13 @@ object ScExpression {
     expr match {
       case _: ScPrefixExpr                    => true
       case _: ScPostfixExpr                   => true
+      case _: ScPolyFunctionExpr              => false
       case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
       case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
       case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
       case _: MethodInvocation                => false
       case ScParenthesisedExpr(inner)         => shouldUpdateImplicitParams(inner)
+      case fn: ScFunctionExpr if fn.isContext => false
       case _                                  => true
     }
   }
@@ -402,6 +416,35 @@ object ScExpression {
           lt.wideType
         case _ => scType
       }
+    }
+
+    /**
+     * if the expected type of an expression E is a context function type (T_1, ..., T_n) ?=> U and
+     * E is not already an context function literal, E is converted to a context function literal by rewriting it to
+     * (x_1: T1, ..., x_n: Tn) ?=> E
+     */
+    final def synthesizeContextFunctionType(pt: Option[ScType], expr: ScExpression)(implicit scope: ElementScope): ScType =
+      scType match {
+        case cft @ ContextFunctionType(_, _) => cft
+        case _ =>
+          pt.map(_.removeAliasDefinitions()) match {
+            case Some(cft: ParameterizedType) if ContextFunctionType.isContextFunctionType(cft) =>
+              //Trigger all usages by traversing ImplicitArgumentOwner children of this expr
+              expr.acceptChildren(new ScalaRecursiveElementVisitor {
+                override def visitScalaElement(element: ScalaPsiElement): Unit = {
+                  element match {
+                    case implicitOwner: ImplicitArgumentsOwner => implicitOwner.findImplicitArguments
+                    case _                                     => ()
+                  }
+
+                  super.visitScalaElement(element)
+                }
+              })
+
+              val actualParamTypes = expr.contextFunctionParameters.map(_.contextFunctionParameterType.getOrAny)
+              ContextFunctionType((scType, actualParamTypes))
+            case _ => scType
+          }
     }
 
     /**
@@ -467,7 +510,14 @@ object ScExpression {
           case _                            => None
         }
 
+      def isTrivialSAM: Boolean = expected match {
+        case FunctionType(_, _)        => true
+        case ContextFunctionType(_, _) => true
+        case _                         => false
+      }
+
       if (!expr.isSAMEnabled) None
+      else if (isTrivialSAM) None
       else expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
         case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
@@ -476,8 +526,14 @@ object ScExpression {
       }
     }
 
+    private def isContextFunctionExpected(pt: ScType): Boolean =
+      (scType, pt) match {
+        case (ContextFunctionType(_, _), ContextFunctionType(_, _)) => false
+        case _                                                      => true
+      }
+
     def updateWithExpected(expr: ScExpression, expectedType: Option[ScType], fromUnderscore: Boolean): ScType =
-      if (shouldUpdateImplicitParams(expr)) {
+      if (shouldUpdateImplicitParams(expr) && expectedType.forall(isContextFunctionExpected)) {
         try {
           val updatedWithExpected =
             InferUtil.updateAccordingToExpectedType(

@@ -4,10 +4,8 @@ package template
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.annotator.hints
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner

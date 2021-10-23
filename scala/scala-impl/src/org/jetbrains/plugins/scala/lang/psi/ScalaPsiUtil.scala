@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package psi
 
-import java.{util => ju}
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
@@ -30,18 +29,18 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPattern, ScPatternArgumentList}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -61,6 +60,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScEquivalenceUtil}
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.{ClassTag, NameTransformer}
@@ -948,7 +948,7 @@ object ScalaPsiUtil {
         case _ if !parent.is[ScExpression] => false
         case _ if expr.textMatches("_") => false
         case (_: ScTuple | _: ScBlock | _: ScXmlExpr, _) => false
-        case (infix: ScInfixExpr, tuple: ScTuple) => tupleInInfixNeedParentheses(infix, from)
+        case (infix: ScInfixExpr, _: ScTuple) => tupleInInfixNeedParentheses(infix, from)
         case (_: ScSugarCallExpr |
               _: ScReferenceExpression, elem: PsiElement) if ScUnderScoreSectionUtil.isUnderscoreFunction(elem) => true
         case (_, _: ScReferenceExpression | _: ScMethodCall |
@@ -1634,4 +1634,14 @@ object ScalaPsiUtil {
           )
         else designator
     }
+}
+
+
+object A {
+  def foo(s: Int)(implicit ss: String): Int = 123
+
+  //  val ff = (s1: String) ?=> foo(123)
+  //  val ff2 = implicit (s1: String) => foo(123)
+
+  val ff2: String => Int = implicit s1 => foo(123)
 }

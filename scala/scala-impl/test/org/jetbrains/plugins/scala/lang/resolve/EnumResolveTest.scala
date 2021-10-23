@@ -196,6 +196,43 @@ class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Simpl
         |""".stripMargin
     )
 
+  def testResolveEnumCaseParameters(): Unit =
+    checkTextHasNoErrors(
+      """
+        |enum Foo(x: Int, y: Int):
+        |  case Bar(x1: Int, y1: Int) extends Foo(x1, y1)
+        |""".stripMargin
+    )
+
+  def testSCL19627(): Unit =
+    checkHasErrorAroundCaret(
+      s"""
+         |enum Foo(x: Int):
+         |  case Bar extends Foo(${CARET}x)
+         |
+         |""".stripMargin
+    )
+    
+  def testEnumConstructorParameters(): Unit =
+    checkTextHasNoErrors(
+      """
+        |enum Foo(x: Int):
+        |  def foo: Int = x
+        |  case Bar
+        |
+        |""".stripMargin
+    )
+
+  def testSCL19628(): Unit =
+    checkTextHasNoErrors(
+      """
+        |enum ExampleEnum(p1: Int, p2: String):
+        |  def this(p1: Int) = this(p1, "p2")
+        |  case SomeEnumCase extends ExampleEnum(1, "p2")
+        |  case AnotherEnumCase(p1: Int) extends ExampleEnum(p1)
+        |""".stripMargin
+    )
+
   def testCreateBaseClassInstance(): Unit = {
   //@TODO: prohibit extending from enum class
 //    checkHasErrorAroundCaret(

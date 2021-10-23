@@ -9,6 +9,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
@@ -30,7 +31,7 @@ import scala.annotation.tailrec
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
   override def desugarizedText: String = {
-    val inlineSyntaxIds = Set("?", "+?", "-?", "*", "+*", "-*", "_", "+_", "-_")
+    val inlineSyntaxIds = KindProjectorUtil.syntaxIdsFor(this).toSet
 
     def kindProjectorFunctionSyntax(elem: ScTypeElement): String = {
       def convertParameterized(param: ScParameterizedTypeElement): String = {
@@ -38,7 +39,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
           case v@("+" | "-") => //λ[(-[A], +[B]) => Function2[A, Int, B]]
             param.typeArgList.typeArgs match {
               case Seq(simple) => v ++ simple.getText
-              case _ => "" //should have only one type arg
+              case _           => "" //should have only one type arg
             }
           case _ => param.getText //it's a higher kind type
         }
@@ -70,7 +71,7 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       }
     }
 
-    def kindProjectorInlineSyntax(e: PsiElement) = {
+    def kindProjectorInlineSyntax = {
       def generateName(i: Int): String = {
         //kind projector generates names the same way
         val res = ('α' + (i % 25)).toChar.toString
@@ -115,13 +116,12 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
       s"(${typeElement.getText}${typeElements.mkString("[", ", ", "]")} ${forSomeBuilder.toString()})"
     }
 
-    val kindProjectorEnabled = this.kindProjectorPluginEnabled
-    def isKindProjectorFunctionSyntax(element: PsiElement): Boolean = {
+    val kindProjectorEnabled = this.kindProjectorEnabled
+    val isKindProjectorFunctionSyntax =
       typeElement.getText match {
         case "Lambda" | "λ" if kindProjectorEnabled => true
-        case _ => false
+        case _                                      => false
       }
-    }
 
     @tailrec
     def isKindProjectorInlineSyntax(element: PsiElement): Boolean = {
@@ -134,15 +134,15 @@ class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
 
     typeArgList.typeArgs.find {
-      case e: ScFunctionalTypeElement if isKindProjectorFunctionSyntax(e) => true
-      case e if isKindProjectorInlineSyntax(e) => true
-      case _: ScWildcardTypeElementImpl => true
-      case _ => false
+      case e: ScFunctionalTypeElement if isKindProjectorFunctionSyntax => true
+      case e if isKindProjectorInlineSyntax(e)                         => true
+      case _: ScWildcardTypeElementImpl                                => true
+      case _                                                           => false
     } match {
-      case Some(fun) if isKindProjectorFunctionSyntax(fun) => kindProjectorFunctionSyntax(fun)
-      case Some(e) if isKindProjectorInlineSyntax(e) => kindProjectorInlineSyntax(e)
-      case Some(_) => existentialType
-      case _ => null
+      case Some(fun) if isKindProjectorFunctionSyntax => kindProjectorFunctionSyntax(fun)
+      case Some(e) if isKindProjectorInlineSyntax(e)       => kindProjectorInlineSyntax
+      case Some(_)                                         => existentialType
+      case _                                               => null
     }
   }
 

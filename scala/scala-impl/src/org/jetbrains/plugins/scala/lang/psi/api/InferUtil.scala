@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitsRecursionGuard}
+import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.{ConformanceExtResult, Expression}
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -86,7 +87,7 @@ object InferUtil {
     var constraints = ConstraintSystem.empty
 
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
+      case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps, constraintsRec) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, canThrowSCE, fullInfo = fullInfo)
@@ -104,11 +105,19 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(result = updatedType))
         }
-      case ScTypePolymorphicType(mt@ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
-        implicit val elementScope: ElementScope = mt.elementScope
-
-        val splitMethodType = params.reverse.foldLeft(retType) {
-          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)
+      //@TODO: multiple using clauses and nested context function types
+      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams) =>
+        val splitMethodType = internal match {
+          case cft @ ContextFunctionType(_, _) => cft
+          case mt: ScMethodType =>
+            params.reverse.foldLeft(retType) {
+              case (tp: ScType, param: Parameter) =>
+                ScMethodType(tp, Seq(param), isImplicit = true)(mt.elementScope)
+            }
+          case other =>
+            throw new IllegalStateException(
+              s"Non context-function/method type returned from ImplicitMethodOrFunctionType: $other"
+            )
         }
 
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
@@ -121,7 +130,7 @@ object InferUtil {
         while (i < params.size) {
           i += 1
           resInner match {
-            case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
+            case t @ ScTypePolymorphicType(ImplicitMethodOrFunctionType(retTypeSingle, paramsSingle), typeParamsSingle) =>
               val abstractSubstitutor = t.abstractOrLowerTypeSubstitutor
 
               val (paramsForInfer, exprs, resolveResults) =
@@ -155,7 +164,7 @@ object InferUtil {
 
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer.result(), exprsBuffer.result())
         resInner = dependentSubst(resInner)
-      case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
+      case mt @ ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps, _) =
           updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
@@ -164,11 +173,12 @@ object InferUtil {
         implicit val elementScope: ElementScope = mt.elementScope
 
         resInner = mt.copy(result = updatedType)
-      case ScMethodType(retType, params, isImplicit) if isImplicit =>
+      //@TODO: multiple using clauses and nested context function types
+      case ImplicitMethodOrFunctionType(retType, params) =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, canThrowSCE, searchImplicitsRecursively)
 
-        implicitParameters = Some(resolveResults)
+        implicitParameters = Option(resolveResults)
         resInner = retType
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInfer, exprs)
         resInner = dependentSubst(resInner)
@@ -300,6 +310,11 @@ object InferUtil {
     implicit val ctx: ProjectContext = expr
     val Unit = ctx.stdTypes.Unit
 
+    val shouldTruncateImplicitParameters = expectedType match {
+      case Some(ContextFunctionType(_, _)) => false
+      case _                               => true
+    }
+
     @tailrec
     def shouldSearchImplicit(t: ScType, first: Boolean = true): Boolean = t match {
       case ScMethodType(_, _, isImplicit) if isImplicit => !first  // implicit method type on top level means explicit implicit argument
@@ -327,7 +342,7 @@ object InferUtil {
       val ScTypePolymorphicType(internal, typeParams) = tpt
 
       val sameDepth = internal match {
-        case m: ScMethodType => truncateMethodType(m, expr)
+        case m: ScMethodType => truncateMethodType(m, expr, shouldTruncateImplicitParameters)
         case _               => internal
       }
 
@@ -429,8 +444,8 @@ object InferUtil {
         val canConform = if (!filterTypeParams) {
           val subst         = tpt.abstractTypeSubstitutor
           val withAbstracts = subst(mt).asInstanceOf[ScMethodType]
-          truncateMethodType(withAbstracts, expr)
-        } else truncateMethodType(mt, expr)
+          truncateMethodType(withAbstracts, expr, shouldTruncateImplicitParameters)
+        } else truncateMethodType(mt, expr, shouldTruncateImplicitParameters)
 
         if (expectedType.forall(canConform.conforms)) tpt
         else tpt.copy(internalType = applyImplicitViewToResult(mt, expectedType))
@@ -441,15 +456,19 @@ object InferUtil {
   }
 
   //truncate method type to have a chance to conform to expected
-  private[this] def truncateMethodType(tpe: ScType, expr: PsiElement): ScType = {
-    def withoutImplicitClause(internal: ScType): ScType = {
+  private[this] def truncateMethodType(
+    tpe:                              ScType,
+    expr:                             PsiElement,
+    shouldTruncateImplicitParameters: Boolean
+  ): ScType = {
+    def withoutImplicitClause(internal: ScType): ScType = if (shouldTruncateImplicitParameters) {
       internal match {
         case ScMethodType(retType, _, true) => retType
         case m @ ScMethodType(retType, params, false) =>
           ScMethodType(withoutImplicitClause(retType), params, isImplicit = false)(m.elementScope)
         case other => other
       }
-    }
+    } else internal
 
     @tailrec
     def countParameterLists(invocation: MethodInvocation, acc: Int = 1): Int =
@@ -477,6 +496,8 @@ object InferUtil {
       val ScalaResolveResult(element, substitutor) = result
 
       val maybeType = element match {
+        case lightParam: LightContextFunctionParameter =>
+          lightParam.contextFunctionParameterType.toOption
         case _: ScObject |
              _: ScParameter |
              _: patterns.ScBindingPattern |

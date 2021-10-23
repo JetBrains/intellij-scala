@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation.shouldExp
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdType.Name
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, _}
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, ScMethodType, ScTypePolymorphicType}
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{NonValueType, Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -385,6 +385,15 @@ package object types {
 
   private object RecursionException extends NoStackTrace
 
+  object ImplicitMethodOrFunctionType {
+    def unapply(tpe: ScType): Option[(ScType, Seq[Parameter])] = tpe match {
+      case ContextFunctionType(retTpe, paramTpes) =>
+        Option((retTpe, paramTpes.mapWithIndex((tp, i) => Parameter(tp, isRepeated = false, i, s"evidence$$$i"))))
+      case ScMethodType(retType, params, isImplicit) if isImplicit => Option((retType, params))
+      case _                                                       => None
+    }
+  }
+
   /**
    * Extractor for types, which are function-like
    * (i.e. FunctionN types, PartialFunction types and SAM traits).
@@ -441,19 +450,19 @@ package object types {
     }
   }
 
-  def extractTypeParameters(ty: ScType): Option[Seq[TypeParameter]] = ty match {
+  def extractTypeParameters(ty: ScType): Seq[TypeParameter] = ty match {
     case designatorOwner: DesignatorOwner =>
       designatorOwner.extractDesignated(false) match {
         case Some(ta: ScTypeAlias) =>
-          if (ta.typeParameters.isEmpty) ta.lowerBound.toOption.flatMap(extractTypeParameters)
-          else                           Option(ta.typeParameters.map(TypeParameter(_)))
-        case Some(cls: PsiClass)   => Option(cls.getTypeParameters.instantiate)
-        case _                     => None
+          if (ta.typeParameters.isEmpty) ta.lowerBound.toSeq.flatMap(extractTypeParameters)
+          else                           ta.typeParameters.map(TypeParameter(_))
+        case Some(cls: PsiClass) => cls.getTypeParameters.instantiate
+        case _                   => Seq.empty
       }
-    case typeParameter: TypeParameterType                          => Option(typeParameter.typeParameters)
-    case u: UndefinedType                                          => Option(u.typeParameter.typeParameters)
-    case tpt: ScTypePolymorphicType                                => Option(tpt.typeParameters)
+    case typeParameter: TypeParameterType                          => typeParameter.typeParameters
+    case u: UndefinedType                                          => u.typeParameter.typeParameters
+    case tpt: ScTypePolymorphicType                                => tpt.typeParameters
     case (_: ScParameterizedType) && AliasType(_, Right(lower), _) => extractTypeParameters(lower)
-    case _                                                         => None
+    case _                                                         => Seq.empty
   }
 }

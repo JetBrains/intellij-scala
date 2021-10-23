@@ -28,7 +28,7 @@ sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
   protected final def apply(parameters: Seq[ScType], suffix: String)
                            (implicit scope: ElementScope, tag: ClassTag[D]): ValueType =
     scope.getCachedClass(TypeName + suffix).collect {
-      case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters.toSeq)
+      case definition: D => ScParameterizedType(ScalaType.designator(definition), parameters)
     }.getOrElse(api.Nothing)
 
   protected def unapplyCollector: PartialFunction[Seq[ScType], T]
@@ -56,26 +56,29 @@ object FunctionTypeFactory {
       case _                                                    => None
     }
   }
-
 }
 
-object FunctionType extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] {
-
-  override val TypeName = "scala.Function"
-
-  def traitsNames: Seq[String] = (0 to 22).map(TypeName + _)
-
-  override def apply(pair: (ScType, Seq[ScType]))
-                    (implicit scope: ElementScope): ValueType = {
+trait FunctionTypeBase extends FunctionTypeFactory[ScTrait, (ScType, Seq[ScType])] {
+  override def apply(pair: (ScType, Seq[ScType]))(implicit scope: ElementScope): ValueType = {
     val (returnType, parameters) = pair
     apply(parameters :+ returnType, parameters.length.toString)
   }
 
-  def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
-
   override protected def unapplyCollector: PartialFunction[Seq[ScType], (ScType, Seq[ScType])] = {
     case types => (types.last, types.dropRight(1))
   }
+}
+
+object FunctionType extends FunctionTypeBase {
+  override val TypeName = "scala.Function"
+
+  def isFunctionType(`type`: ScType): Boolean = unapply(`type`).isDefined
+}
+
+object ContextFunctionType extends FunctionTypeBase {
+  override val TypeName: String = "scala.ContextFunction"
+
+  def isContextFunctionType(tpe: ScType): Boolean = unapply(tpe).isDefined
 }
 
 object PartialFunctionType extends FunctionTypeFactory[ScTrait, (ScType, ScType)] {

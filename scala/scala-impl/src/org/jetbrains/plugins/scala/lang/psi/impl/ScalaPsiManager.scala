@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticPackage
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.TermNodes.{Map => SMap}
@@ -258,11 +258,12 @@ class ScalaPsiManager(implicit val project: Project) {
     def getCachedFacadeClasses(scope: GlobalSearchScope, fqn: String): Array[PsiClass] = {
       inJavaPsiFacade.set(true)
       try {
-        val classes = JavaPsiFacade.getInstance(project).findClasses(fqn, new DelegatingGlobalSearchScope(scope) {
-          override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
-        }).filterNot { p =>
-          p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper]
-        }
+        val classes = JavaPsiFacade
+          .getInstance(project)
+          .findClasses(fqn, new DelegatingGlobalSearchScope(scope) {
+            override def compare(file1: VirtualFile, file2: VirtualFile): Int = 0
+          })
+          .filterNot(p => p.isInstanceOf[ScTemplateDefinition] || p.isInstanceOf[PsiClassWrapper])
 
         classes ++ SyntheticClassProducer.getAllClasses(fqn, scope)
       } finally {
@@ -272,10 +273,11 @@ class ScalaPsiManager(implicit val project: Project) {
 
     if (DumbService.getInstance(project).isDumb) return Array.empty
 
-    val classes = getCachedFacadeClasses(scope, cleanFqn(fqn))
-    val fromScala = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
-    val synthetic = SyntheticClassProducer.getAllClasses(fqn, scope)
-    Array.concat(classes, fromScala.toArray, synthetic)
+    val classes        = getCachedFacadeClasses(scope, cleanFqn(fqn))
+    val fromScala      = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
+    val scalaSynthetic = SyntheticClasses.get(scope.getProject).findClasses(fqn)
+    val synthetic      = SyntheticClassProducer.getAllClasses(fqn, scope)
+    Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
   }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)

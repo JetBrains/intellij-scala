@@ -20,18 +20,20 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project._
 
 /**
-  * Partially based on and inspired by contribution from @vovapolu
-  * (https://github.com/JetBrains/intellij-scala/pull/435).
-  */
+ * Partially based on and inspired by contribution from @vovapolu
+ * (https://github.com/JetBrains/intellij-scala/pull/435).
+ */
 class KindProjectorUtil(project: Project) {
   import KindProjectorUtil._
 
   /**
-    * Synthetic top level declarations required to make kind-projector
-    * specific syntax (e.g. `Lambda`, `λ`, `?`) resolvable.
-    */
-  val syntheticDeclarations: Seq[PsiElement] = {
+   * Synthetic top level declarations required to make kind-projector
+   * specific syntax (e.g. `Lambda`, `λ`, `?`) resolvable.
+   */
+  def syntheticDeclarations(place: PsiElement): Seq[PsiElement] = {
     implicit val projectContext: Project = project
+
+    val inlineSyntaxIds = syntaxIdsFor(place)
 
     // used in type-level lambdas
     val syntheticClasses =
@@ -48,18 +50,37 @@ class KindProjectorUtil(project: Project) {
 }
 
 object KindProjectorUtil {
-  val Lambda: String               = "Lambda"
-  val LambdaSymbolic: String       = "λ"
-  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?", "*", "+*", "-*", "_", "-_", "+_")
+  sealed trait KindProjectorMode
+
+  def syntaxIdsFor(e: PsiElement): Seq[String] =
+    if (e.kindProjectorEnabled) {
+      val underscoreSyntax =
+        if (e.underscoreWidlcardsDisabled) underscoreInlineSyntax
+        else                               Seq.empty
+
+      underscoreSyntax ++ (
+        if (e.YKindProjectorOptionEnabled) starInlineSyntax
+        else                               qMarkInlineSyntax ++ starInlineSyntax
+      )
+    } else Seq.empty
+
+  val Lambda: String         = "Lambda"
+  val LambdaSymbolic: String = "λ"
+
+  val qMarkInlineSyntax: Seq[String]      = Seq("?", "-?", "+?")
+  val starInlineSyntax: Seq[String]       = Seq("*", "-*", "+*")
+  val underscoreInlineSyntax: Seq[String] = Seq("_", "-_", "+_")
 
   def apply(project: Project): KindProjectorUtil = project.getService(classOf[KindProjectorUtil])
 
   private[this] val newSyntaxVersion = new ComparableVersion("0.10.0")
-  private[this] val VersionPattern = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
+  private[this] val VersionPattern   = "(?:.+?)(?:-(\\d.*?))?\\.jar".r
 
-  def placeholderSymbolFor(e: PsiElement): String =
-    if (isQuestionMarkSyntaxDeprecatedFor(e)) "*"
-    else                                      "?"
+  def placeholderSymbolFor(e: PsiElement): String = {
+    if (e.YKindProjectorUnderscoresOptionEnabled)  "_"
+    else if (isQuestionMarkSyntaxDeprecatedFor(e)) "*"
+    else                                           "?"
+  }
 
   /**
    * Usage of `?` placeholder is going to be deprecated, since it will be used in Dotty
@@ -76,11 +97,11 @@ object KindProjectorUtil {
     new ComparableVersion(version).compareTo(newSyntaxVersion) >= 0
 
   /**
-    * Creates synhtetic companion object used in value-level polymorphic lambdas
-    * (e.g. `val a: PF[List, Option] = λ[PF[List, Option]].run(_.headOption)`).
-    * Apply method return type is computed in an ad-hoc manner in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]]
-    * See usages of [[PolymorphicLambda]] extractor.
-    */
+   * Creates synhtetic companion object used in value-level polymorphic lambdas
+   * (e.g. `val a: PF[List, Option] = λ[PF[List, Option]].run(_.headOption)`).
+   * Apply method return type is computed in an ad-hoc manner in [[org.jetbrains.plugins.scala.lang.psi.impl.expr.ScGenericCallImpl]]
+   * See usages of [[PolymorphicLambda]] extractor.
+   */
   private def createPolyLambdaSyntheticObject(objectName: String)(implicit cxt: ProjectContext) = {
     val text =
       s"""
@@ -93,14 +114,14 @@ object KindProjectorUtil {
   }
 
   /**
-    * As per kind-projector README:
-    *
-    *  This rewrite requires that the following are true:
-    *    1) F and G are unary type constructors (i.e. of shape F[_] and G[_]).
-    *    2) <expr> is an expression of type Function1[_, _].
-    *    3) Op is parameterized on two unary type constructors.
-    *    4) someMethod is parametric (for any type A it takes F[A] and returns G[A]).
-    */
+   * As per kind-projector README:
+   *
+   *  This rewrite requires that the following are true:
+   *    1) F and G are unary type constructors (i.e. of shape F[_] and G[_]).
+   *    2) <expr> is an expression of type Function1[_, _].
+   *    3) Op is parameterized on two unary type constructors.
+   *    4) someMethod is parametric (for any type A it takes F[A] and returns G[A]).
+   */
   private[this] def canBeRewritten(fn: ScFunction, tparams: Seq[ScTypeParam]): Boolean = {
     val isAbstract     = fn.isAbstractMember
     val singleArgument = fn.parameters.size == 1
@@ -144,6 +165,7 @@ object KindProjectorUtil {
   }
 
   implicit class `synthetic poly-lambda builder ext`(private val tdef: ScTypeDefinition) extends AnyVal {
+
     /**
     * Creates an intermidiate "Builder" trait which represents the type of an
     * expression of shape `Lambda[Op[F, G]]`, i.e. suppose we have the following definitions

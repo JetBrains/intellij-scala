@@ -23,13 +23,12 @@ final case class ScMethodType(result: ScType,
 
   override def typeDepth: Int = result.typeDepth
 
-  override def inferValueType: api.ValueType = {
+  override def inferValueType: api.ValueType =
     api.FunctionType(result.inferValueType, params.map(p => {
       val inferredParamType = p.paramType.inferValueType
       if (!p.isRepeated) inferredParamType
-      else inferredParamType.tryWrapIntoSeqType
+      else               inferredParamType.tryWrapIntoSeqType
     }))
-  }
 
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     var lastConstraints = constraints

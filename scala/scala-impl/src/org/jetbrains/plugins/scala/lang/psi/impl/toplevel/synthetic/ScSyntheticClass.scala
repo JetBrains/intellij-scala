@@ -13,6 +13,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
+import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
@@ -28,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Resolv
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import javax.swing.Icon
-import scala.annotation.nowarn
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class SyntheticNamedElement(name: String)
                                     (implicit projectContext: ProjectContext)
@@ -101,17 +102,9 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
 
   override def toString = "Synthetic class"
 
-  def syntheticMethods(scope: GlobalSearchScope): List[ScSyntheticFunction] = methods.values.flatten.toList ++
-          specialMethods.values.flatMap(s => s.map(_(scope))).toList
+  val syntheticMethods = new MultiMap[String, ScSyntheticFunction]()
 
-  @nowarn("cat=deprecation")
-  protected object methods extends mutable.HashMap[String, mutable.Set[ScSyntheticFunction]] with mutable.MultiMap[String, ScSyntheticFunction]
-  @nowarn("cat=deprecation")
-  protected object specialMethods extends mutable.HashMap[String, mutable.Set[GlobalSearchScope => ScSyntheticFunction]] with
-          mutable.MultiMap[String, GlobalSearchScope => ScSyntheticFunction]
-
-  def addMethod(method: ScSyntheticFunction): methods.type = methods.addBinding(method.name, method)
-  def addMethod(method: GlobalSearchScope => ScSyntheticFunction, methodName: String): specialMethods.type = specialMethods.addBinding(methodName, method)
+  def addMethod(method: ScSyntheticFunction): Unit = syntheticMethods.putValue(method.name, method)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -121,16 +114,13 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
     processor match {
       case p: ResolveProcessor =>
         val name = ScalaNamesUtil.clean(state.renamed.getOrElse(p.name))
-        methods.get(name) match {
-          case Some(ms) => for (method <- ms) {
-            if (!processor.execute(method, state)) return false
-          }
-          case None =>
+        syntheticMethods.get(name).forEach { method =>
+          if (!processor.execute(method, state)) return false
         }
       case _: implicits.ImplicitProcessor => //do nothing, there is no implicit synthetic methods
       case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
-        for (p <- methods; method <- p._2) {
+        syntheticMethods.values().forEach { method =>
           if (!processor.execute(method, state)) return false
         }
       case _ => //do not execute synthetic methods to not Scala processors.
@@ -202,7 +192,7 @@ class ScSyntheticValue(val name: String, val tp: ScType)
 
 import com.intellij.openapi.project.Project
 
-class SyntheticClasses(project: Project) extends PsiElementFinder {
+class SyntheticClasses(project: Project) {
   implicit def ctx: ProjectContext = project
 
   private[synthetic] def clear(): Unit = {
@@ -227,10 +217,10 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
 
   var stringPlusMethod: ScType => ScSyntheticFunction = _
 
-  var all             : mutable.Map[String, ScSyntheticClass] = new mutable.HashMap[String, ScSyntheticClass]
-  var numeric         : mutable.Set[ScSyntheticClass]         = new mutable.HashSet[ScSyntheticClass]
-  var integer         : mutable.Set[ScSyntheticClass]         = new mutable.HashSet[ScSyntheticClass]
-  val syntheticObjects: mutable.Map[String, ScObject]         = new mutable.HashMap[String, ScObject]
+  var all: mutable.Map[String, PsiClass]              = new mutable.HashMap[String, PsiClass]
+  var numeric: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
+  var integer: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
+  val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
 
   var file : PsiFile = _
 
@@ -239,7 +229,7 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
     import stdTypes._
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
-    all = new mutable.HashMap[String, ScSyntheticClass]
+    all = new mutable.HashMap[String, PsiClass]
     file = PsiFileFactory.getInstance(project).createFileFromText(
       "dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, "")
 
@@ -317,11 +307,38 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
 
     //register synthetic objects
     def registerObject(fileText: String): Unit = {
-      val dummyFile = PsiFileFactory.getInstance(project).
-        createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension,
-          ScalaFileType.INSTANCE, fileText).asInstanceOf[ScalaFile]
+      val dummyFile = PsiFileFactory
+        .getInstance(project)
+        .createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, fileText)
+        .asInstanceOf[ScalaFile]
+
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects.put(obj.qualifiedName, obj)
+    }
+
+    def createAndRegisterClass(fileText: String): Unit = {
+      val dummyFile = PsiFileFactory
+        .getInstance(project)
+        .createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, fileText)
+        .asInstanceOf[ScalaFile]
+
+      val cls = dummyFile.typeDefinitions.head.asInstanceOf[PsiClass]
+      all.put(cls.name, cls)
+    }
+
+    (1 to 22).foreach { n =>
+      val typeParameters    = (1 to n).map(i => s"-T$i").mkString(", ")
+      val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
+
+      createAndRegisterClass(
+       s"""
+           |package scala
+           |
+           |trait ContextFunction$n[$typeParameters, +R] {
+           |  def apply(implicit $contextParameters): R
+           |}
+           |""".stripMargin
+      )
     }
 
     registerObject(
@@ -479,13 +496,13 @@ object Unit
   def registerIntegerClass(clazz : ScSyntheticClass): ScSyntheticClass = {integer += clazz; clazz}
   def registerNumericClass(clazz : ScSyntheticClass): ScSyntheticClass = {numeric += clazz; clazz}
 
+  def getAll: Iterable[PsiClass] = all.values
 
-  def getAll: Iterable[ScSyntheticClass] = all.values
-
-  def byName(name: String): Option[ScSyntheticClass] = all.get(name)
+  def byName(name: String): Option[PsiClass] = all.get(name)
 
   val prefix = "scala."
-  override def findClass(qName: String, scope: GlobalSearchScope): PsiClass = {
+
+  def findClass(qName: String): PsiClass = {
     if (qName.startsWith(prefix)) {
       byName(qName.substring(prefix.length)) match {
         case Some(c) => return c
@@ -495,8 +512,8 @@ object Unit
     syntheticObjects.get(qName).orNull
   }
 
-  override def findClasses(qName: String, scope: GlobalSearchScope): Array[PsiClass] = {
-    val c = findClass(qName, scope)
+  def findClasses(qName: String): Array[PsiClass] = {
+    val c = findClass(qName)
     val obj = syntheticObjects.get(qName).orNull
 
     if (c != null && obj != null && c != obj)
@@ -506,8 +523,20 @@ object Unit
     else
       Array.empty
   }
+}
 
-  override def getClasses(p : PsiPackage, scope : GlobalSearchScope): Array[PsiClass] = findClasses(p.getQualifiedName, scope)
+class SyntheticClassElementFinder(project: Project) extends PsiElementFinder {
+  private[this] val instance = SyntheticClasses.get(project)
+
+  override def findClass(
+    qualifiedName: String,
+    scope:         GlobalSearchScope
+  ): PsiClass = instance.findClass(qualifiedName)
+
+  override def findClasses(
+    qualifiedName: String,
+    scope:         GlobalSearchScope
+  ): Array[PsiClass] = instance.findClasses(qualifiedName)
 }
 
 object SyntheticClasses {

@@ -32,7 +32,7 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   @Cached(ModTracker.anyScalaPsiChange, this)
   def name: String = {
     this match {
-      case st: StubBasedPsiElementBase[_] =>  st.getGreenStub match {
+      case st: StubBasedPsiElementBase[_] => st.getGreenStub match {
         case namedStub: NamedStub[_] => namedStub.getName
         case _ => nameInner
       }

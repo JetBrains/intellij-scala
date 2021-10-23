@@ -5,13 +5,17 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProcessCanceledException
-import com.intellij.psi.PsiClass
+import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.project.DumbService
+import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -19,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionE
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
@@ -30,9 +35,43 @@ final class ScEnumCaseImpl(
   node:      ASTNode,
   debugName: String
 ) extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
+    with ScTypeParametersOwner
     with ScEnumCase {
 
   import lexer.ScalaTokenTypes.kCASE
+
+  override def processDeclarations(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean =
+    processDeclarationsImpl(processor, state, lastParent, place)
+
+  override def processDeclarationsForTemplateBody(
+    processor:  PsiScopeProcessor,
+    state:      ResolveState,
+    lastParent: PsiElement,
+    place:      PsiElement
+  ): Boolean = {
+    if (DumbService.getInstance(getProject).isDumb) return true
+
+    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
+
+    constructor match {
+      case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
+      //ignore, should be processed in ScParameters
+      case _ =>
+        for (p <- parameters) {
+          ProgressManager.checkCanceled()
+          if (processor.isInstanceOf[BaseProcessor]) {
+            if (!processor.execute(p, state)) return false
+          }
+        }
+    }
+
+    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
+  }
 
   override def getModifierList: ScModifierList = getParentByStub match {
     case cases: ScEnumCases => cases.getModifierList

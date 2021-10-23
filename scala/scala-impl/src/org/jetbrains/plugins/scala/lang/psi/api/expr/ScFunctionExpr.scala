@@ -24,6 +24,8 @@ trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
   def rightParen: Option[PsiElement]
 
+  def isContext: Boolean
+
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFunctionExpression(this)
   }

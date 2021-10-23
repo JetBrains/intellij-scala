@@ -255,6 +255,12 @@ package object project {
     def kindProjectorUnderscorePlaceholdersEnabled: Boolean =
       scalaModuleSettings.exists(_.kindProjectorUnderscorePlaceholdersEnabled)
 
+    def YKindProjectorOptionEnabled: Boolean =
+      scalaModuleSettings.exists(_.YKindProjectorOptionEnabled)
+
+    def YKindProjectorUnderscoresOptionEnabled: Boolean =
+      scalaModuleSettings.exists(_.YKindProjectorUnderscoresOptionEnabled)
+
     def betterMonadicForPluginEnabled: Boolean =
       scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
 
@@ -463,11 +469,24 @@ package object project {
 
     def scalaMinorVersionOrDefault: ScalaVersion = scalaMinorVersion.getOrElse(ScalaVersion.default)
 
+    /**
+     * Is kind-projector plugin enabled or is -Ykind-projector scala 3 compiler option set.
+     */
+    def kindProjectorEnabled: Boolean =
+      kindProjectorPluginEnabled || YKindProjectorOptionEnabled || YKindProjectorUnderscoresOptionEnabled
+
+    def underscoreWidlcardsDisabled: Boolean =
+      kindProjectorUnderscorePlaceholdersEnabled || YKindProjectorUnderscoresOptionEnabled
+
     def kindProjectorPluginEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorPluginEnabled)
 
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
 
     def kindProjectorUnderscorePlaceholdersEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorUnderscorePlaceholdersEnabled)
+
+    def YKindProjectorOptionEnabled: Boolean = isDefinedInModuleOrProject(_.YKindProjectorOptionEnabled)
+
+    def YKindProjectorUnderscoresOptionEnabled: Boolean = isDefinedInModuleOrProject(_.YKindProjectorUnderscoresOptionEnabled)
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
 

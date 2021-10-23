@@ -61,6 +61,25 @@ class KindProjectorHighlightingTestXSource3 extends KindProjectorHighlightingTes
         |""".stripMargin
     )
   }
+
+  def testSCL19486(): Unit = checkTextHasNoErrors(
+    """
+      |object example {
+      |  type Const[F[_], A]
+      |  class Transformer[T[_[_]]]
+      |  new Transformer[Const[_[_], Int]]
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL19471(): Unit = checkTextHasNoErrors(
+    """
+      |object App extends App {
+      |  def x[A: _ <:< Int](a: A): Int = a
+      |  println(x(5: 5))
+      |}
+      |""".stripMargin
+  )
 }
 
 

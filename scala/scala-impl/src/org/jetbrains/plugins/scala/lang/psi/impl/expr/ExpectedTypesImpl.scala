@@ -267,6 +267,14 @@ class ExpectedTypesImpl extends ExpectedTypes {
       }
     }
 
+    def extractContextFunctionReturnType(tp: ParameterType): ParameterType = tp match {
+      case (ContextFunctionType(resTpe, _), _) => resTpe -> None
+      case other                               => other
+    }
+
+    def expectedTypesUnwrapContextFunction(e: ScExpression, fromUnderscore: Boolean): Array[ParameterType] =
+      e.expectedTypesEx(fromUnderscore).map(extractContextFunctionReturnType)
+
     def mapResolves(resolves: Array[ScalaResolveResult], types: Array[TypeResult]): Array[(TypeResult, Boolean)] =
       resolves.zip(types).map {
         case (r, tp) => (tp, isApplyDynamicNamed(r))
@@ -308,24 +316,24 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     val result: Array[ParameterType] = sameInContext.getContext match {
-      case p: ScParenthesisedExpr => p.expectedTypesEx(fromUnderscore = false)
+      case p: ScParenthesisedExpr => expectedTypesUnwrapContextFunction(p, fromUnderscore = false)
       //see SLS[6.11]
-      case b: ScBlockExpr => b.resultExpression match {
-        case Some(e) if b.needCheckExpectedType && e == sameInContext => b.expectedTypesEx(fromUnderscore = true)
-        case _ => Array.empty
-      }
+      case b: ScBlockExpr =>
+        b.resultExpression match {
+          case Some(e) if b.needCheckExpectedType && e == sameInContext => expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
+          case _                                                        => Array.empty
+        }
       //see SLS[6.16]
-      case cond: ScIf if cond.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case cond: ScIf if cond.elseExpression.isDefined => cond.expectedTypesEx(fromUnderscore = true)
+      case ifExpr: ScIf if ifExpr.condition.contains(sameInContext) => Array((api.Boolean, None))
+      case ifExpr: ScIf if ifExpr.elseExpression.isDefined => expectedTypesUnwrapContextFunction(ifExpr, fromUnderscore = true)
       //see SLA[6.22]
-      case tr@ScTry(Some(e), _, _) if e == expr =>
-        tr.expectedTypesEx(fromUnderscore = true)
-      case wh: ScWhile if wh.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case _: ScWhile => Array((Unit, None))
-      case d: ScDo if d.condition.getOrElse(null: ScExpression) == sameInContext => Array((api.Boolean, None))
-      case _: ScDo => Array((api.Unit, None))
-      case _: ScFinallyBlock => Array((api.Unit, None))
-      case _: ScCatchBlock => Array.empty
+      case tr @ ScTry(Some(`sameInContext`), _, _) => expectedTypesUnwrapContextFunction(tr, fromUnderscore = true)
+      case wh: ScWhile if wh.condition.contains(sameInContext) => Array((api.Boolean, None))
+      case _: ScWhile                                          => Array((Unit, None))
+      case d: ScDo if d.condition.contains(sameInContext)      => Array((api.Boolean, None))
+      case _: ScDo                                             => Array((api.Unit, None))
+      case _: ScFinallyBlock                                   => Array((api.Unit, None))
+      case _: ScCatchBlock                                     => Array.empty
       case te: ScThrow =>
         // Not in the SLS, but in the implementation.
         val throwableClass = ScalaPsiManager.instance(te.getProject).getCachedClass(te.resolveScope, "java.lang.Throwable")
@@ -337,11 +345,11 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isAnonymousFunction =>
-          b.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
+          b.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction)
         case _ => Array.empty
       }
       //see SLS[6.23]
-      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(tp => fromFunction(tp))
+      case f: ScFunctionExpr => f.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction)
       case t: ScTypedExpression if t.getLastChild.isInstanceOf[ScSequenceArg] =>
         t.expectedTypesEx(fromUnderscore = true)
       //SLS[6.13]

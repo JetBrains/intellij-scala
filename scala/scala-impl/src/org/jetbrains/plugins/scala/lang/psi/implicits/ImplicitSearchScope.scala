@@ -5,12 +5,13 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScForBinding, ScFunctionExpr, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScExpression, ScForBinding, ScFunctionExpr, ScGenerator, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -44,6 +45,8 @@ object ImplicitSearchScope {
   }
 
   private def representative(e: PsiElement): Option[PsiElement] = {
+    val isScala3 = e.isInScala3File
+
     val elements = e.withContexts
       .takeWhile(e => e != null && !e.isInstanceOf[PsiFile])
       .flatMap(_.withPrevSiblings)
@@ -51,7 +54,7 @@ object ImplicitSearchScope {
     var nonBorder: Option[PsiElement] = None
     while (elements.hasNext) {
       val next = elements.next()
-      if (isImplicitSearchBorder(next))
+      if (isImplicitSearchBorder(next, isScala3))
         return nonBorder
       else if (maySearchImplicitsFor(next)) {
         nonBorder = Some(next)
@@ -63,21 +66,27 @@ object ImplicitSearchScope {
   private def maySearchImplicitsFor(element: PsiElement): Boolean =
     element.isInstanceOf[ImplicitArgumentsOwner]
 
-  private def isImplicitSearchBorder(elem: PsiElement): Boolean = elem match {
-    //special treatment for case clauses and for comprehensions to
-    //support `implicit0` from betterMonadicFor compiler plugin
-    case _: ScForBinding                                => elem.isInScala3File || elem.betterMonadicForEnabled
-    case _: ScGenerator                                 => elem.isInScala3File || elem.betterMonadicForEnabled
-    case _: ScCaseClause                                => elem.isInScala3File || elem.betterMonadicForEnabled
-    case _: ScImportStmt | _: ScPackaging               => true
-    case (_: ScParameters) childOf (m: ScMethodLike)    => hasImplicitClause(m)
-    case pc: ScPrimaryConstructor                       => hasImplicitClause(pc)
-    case (ps: ScParameters) childOf (_: ScFunctionExpr) => ps.params.exists(_.isImplicitParameter)
-    case p: ScParameter                                 => p.isImplicitParameter
-    case m: ScMember                                    => m.hasModifierProperty("implicit")
-    case _: ScTemplateParents                           => true
-    case _                                              => false
-  }
+  private def isImplicitSearchBorder(elem: PsiElement, isScala3: Boolean): Boolean = elem match {
+      //special treatment for case clauses and for comprehensions to
+      //support `implicit0` from betterMonadicFor compiler plugin
+      case _: ScForBinding                                                => isScala3 || elem.betterMonadicForEnabled
+      case _: ScGenerator                                                 => isScala3 || elem.betterMonadicForEnabled
+      case _: ScCaseClause                                                => isScala3 || elem.betterMonadicForEnabled
+      case _: ScImportStmt | _: ScPackaging | _: ScExtension | _: ScGiven => true
+      case (_: ScParameters) childOf (m: ScMethodLike)                    => hasImplicitClause(m)
+      case pc: ScPrimaryConstructor                                       => hasImplicitClause(pc)
+      case (ps: ScParameters) childOf (_: ScFunctionExpr)                 => ps.params.exists(_.isImplicitOrContextParameter)
+      case p: ScParameter                                                 => p.isImplicitOrContextParameter
+      case m: ScMember                                                    => m.hasModifierProperty("implicit")
+      case _: ScTemplateParents                                           => true
+      case (expr: ScExpression) childOf (_: ScArgumentExprList | _: ScFunctionExpr)
+          if isScala3 && expr.contextFunctionParameters.nonEmpty =>
+        true
+      case (block: ScBlockExpr) childOf (_: ScInfixExpr)
+        if isScala3 && block.contextFunctionParameters.nonEmpty =>
+        true
+      case _ => false
+    }
 
-  private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicit)
+  private def hasImplicitClause(m: ScMethodLike): Boolean = m.effectiveParameterClauses.exists(_.isImplicitOrUsing)
 }

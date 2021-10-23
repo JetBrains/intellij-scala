@@ -9,6 +9,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.scope.{ElementClassHint, NameHint, PsiScopeProcessor}
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
@@ -301,7 +302,14 @@ object TypeDefinitionMembers {
         case p: ScClassParameter if processValsForScala && !p.isClassMember =>
           //this is member only for class scope
           val clazz = p.containingClass
-          if (clazz != null && isContextAncestor(clazz, place, false)) {
+
+          val isAccesible = clazz != null && isContextAncestor(clazz, place, false) && {
+            //enum constructor parameters cannot be accessed inside enum cases
+            !clazz.is[ScEnum] ||
+              PsiTreeUtil.getContextOfType(place, classOf[ScEnumCase], classOf[ScEnum]) == clazz
+          }
+
+          if (isAccesible) {
             if (!process(node.info))
               return false
           }

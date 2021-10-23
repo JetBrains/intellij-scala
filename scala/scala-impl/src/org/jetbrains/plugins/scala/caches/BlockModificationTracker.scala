@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.caches
 
 import com.intellij.openapi.util.{Key, ModificationTracker, SimpleModificationTracker}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -101,8 +102,12 @@ object BlockModificationTracker {
 // TODO enable (SmartIfCondition test needs to be fixed)
 //    case `if`: ScIf if `if`.condition.contains(expr) => false
     case guard: ScGuard if guard.getContext.isInstanceOf[ScCaseClause] && guard.expr.contains(expr) => false
-    //expression is not last in a block and not assigned to anything, cannot affect type inference outside
-    case block: ScBlock => block.resultExpression.contains(expr)
+    case block: ScBlock =>
+      //if an expression is not the last one in a block and is not assigned to anything,
+      //it cannot affect type inference outside, unless block's expected type is a context function
+      //with a not-fully inferred argument types
+      block.resultExpression.contains(expr) ||
+        block.getContext.is[ScArgumentExprList]
     case _ => true
   }
 }

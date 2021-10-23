@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
   override def annotate(
-    cse:   ScEnumCase,
+    cse:       ScEnumCase,
     typeAware: Boolean
   )(implicit
     holder: ScalaAnnotationHolder
@@ -26,12 +26,19 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     //invariant type parameters in enum class require explicit
     //extends clause for each enum case, while covariant/contravariant ones
     //are just minimized/maximized implicitly
-    nonVariantTypeParameter.foreach { tp =>
-      if (parents.isEmpty)
-        holder.createErrorAnnotation(
-          cse.nameId,
-          ScalaBundle.message("annotator.error.enum.nonvariant.type.param,in.enum", enum.name, tp.name)
-        )
+    val isSingletonCase = cse match {
+      case ScEnumCase.SingletonCase(_, _) => true
+      case _                              => false
+    }
+
+    if (isSingletonCase) {
+      nonVariantTypeParameter.foreach { tp =>
+        if (parents.isEmpty)
+          holder.createErrorAnnotation(
+            cse.nameId,
+            ScalaBundle.message("annotator.error.enum.nonvariant.type.param,in.enum", enum.name, tp.name)
+          )
+      }
     }
 
     val needsExplicitExtendsParent =

@@ -67,19 +67,16 @@ final class ScExistentialType private (
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, constraints, falseUndef)
         if (res.isLeft) return res
-        extractTypeParameters(rType) match {
-          case Some(iter) =>
-            val (names, existArgsBounds) =
-              args.zip(iter.toList).collect {
-                case (arg: ScExistentialArgument, rParam: ScTypeParam)
-                  if rParam.isCovariant && wildcards.contains(arg) => (arg.name, arg.upper)
-                case (arg: ScExistentialArgument, rParam: ScTypeParam)
-                  if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
-              }.unzip
-            val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
-            return subst(quantified).equiv(r, constraints, falseUndef)
-          case _ =>
-        }
+        val iter = extractTypeParameters(rType)
+        val (names, existArgsBounds) =
+          args.zip(iter.toList).collect {
+            case (arg: ScExistentialArgument, rParam: ScTypeParam)
+              if rParam.isCovariant && wildcards.contains(arg) => (arg.name, arg.upper)
+            case (arg: ScExistentialArgument, rParam: ScTypeParam)
+              if rParam.isContravariant && wildcards.contains(arg) => (arg.name, arg.lower)
+          }.unzip
+        val subst = ScSubstitutor.bind(names, existArgsBounds)(TypeParamId.nameBased)
+        return subst(quantified).equiv(r, constraints, falseUndef)
       case _ =>
     }
     r.unpackedType match {

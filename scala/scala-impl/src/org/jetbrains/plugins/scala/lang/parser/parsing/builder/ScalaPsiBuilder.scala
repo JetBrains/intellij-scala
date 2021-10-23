@@ -35,7 +35,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def features: ScalaFeatures
 
-  def kindProjectUnderscorePlaceholdersOptionEnabled: Boolean
+  def underscoreWildcardsDisabled: Boolean
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 

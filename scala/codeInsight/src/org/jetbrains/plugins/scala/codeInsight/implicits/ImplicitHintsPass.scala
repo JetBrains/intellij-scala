@@ -138,7 +138,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
     val inlayModel = myEditor.getInlayModel
     val existingInlays = inlayModel.inlaysIn(rootElement.getTextRange)
 
-    val bulkChange = existingInlays.length + hints.length  > BulkChangeThreshold
+    val bulkChange = existingInlays.length + hints.length > BulkChangeThreshold
 
     DocumentUtil.executeInBulk(myEditor.getDocument, bulkChange, () => {
       existingInlays.foreach(Disposer.dispose)
@@ -156,11 +156,11 @@ private object ImplicitHintsPass {
   private def implicitConversionHint(e: ScExpression, conversion: ScalaResolveResult)
                                     (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] =
     Seq(Hint(namedBasicPresentation(conversion) :+ Text("("), e, suffix = false, menu = Some(menu.ImplicitConversion)),
-      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters).toSeq, e, suffix = true, menu = Some(menu.ImplicitArguments)))
+      Hint(Text(")") +: collapsedPresentationOf(conversion.implicitParameters), e, suffix = true, menu = Some(menu.ImplicitArguments)))
 
   private def implicitArgumentsHint(e: ImplicitArgumentsOwner, arguments: Seq[ScalaResolveResult])
                                    (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Hint] = {
-    Seq(Hint(presentationOf(arguments).toSeq, e, suffix = true, menu = Some(menu.ImplicitArguments)))
+    Seq(Hint(presentationOf(arguments), e, suffix = true, menu = Some(menu.ImplicitArguments)))
   }
 
   private def explicitImplicitArgumentsHint(args: ScArgumentExprList): Seq[Hint] =
@@ -182,7 +182,7 @@ private object ImplicitHintsPass {
       val problems = arguments.filter(_.isImplicitParameterProblem)
       val folding = Text(foldedString,
         attributes = foldedAttributes(error = problems.nonEmpty),
-        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1).toSeq)
+        expansion = Some(() => expandedPresentationOf(arguments).drop(1).dropRight(1))
       )
 
       Seq(
@@ -208,7 +208,7 @@ private object ImplicitHintsPass {
     val result = argument.isImplicitParameterProblem
       .option(problemPresentation(parameter = argument))
       .getOrElse(namedBasicPresentation(argument) ++ collapsedPresentationOf(argument.implicitParameters))
-    result.toSeq
+    result
   }
 
   private def namedBasicPresentation(result: ScalaResolveResult): Seq[Text] = {
@@ -225,7 +225,7 @@ private object ImplicitHintsPass {
 
   private def problemPresentation(parameter: ScalaResolveResult)
                                  (implicit scheme: EditorColorsScheme, owner: ImplicitArgumentsOwner): Seq[Text] = {
-    probableArgumentsFor(parameter).toSeq match {
+    probableArgumentsFor(parameter) match {
       case Seq()                                                => noApplicableExpandedPresentation(parameter)
       case Seq((arg, result)) if arg.implicitParameters.isEmpty => presentationOfProbable(arg, result)
       case args                                                 => collapsedProblemPresentation(parameter, args)
@@ -321,7 +321,7 @@ private object ImplicitHintsPass {
 
   private def notFoundTooltip(parameters: Seq[ScalaResolveResult])
                              (implicit owner: ImplicitArgumentsOwner): Option[ErrorTooltip] =
-    parameters.toSeq match {
+    parameters match {
       case Seq()  => None
       case Seq(p) => Some(notFoundTooltip(p))
       case ps     =>

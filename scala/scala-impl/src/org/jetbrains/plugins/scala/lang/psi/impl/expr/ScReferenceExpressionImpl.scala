@@ -294,7 +294,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           case _ =>
             val result = refPatt.`type`()
 
-            refPatt.`type`().map { tp =>
+            result.map { tp =>
               if (isStableContext(tp) && refPatt.isStable) {
                 r.fromType match {
                   case Some(fT) => ScProjectionType(fT, refPatt)

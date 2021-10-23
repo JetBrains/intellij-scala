@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
@@ -355,15 +356,29 @@ class ImplicitCollector(
     proc.candidatesS
   }
 
+
+  //@TODO: apply context function to implicit args if type of `c` does not conform
+  //       to expected type
   private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = TraceLogger.func {
     c.element match {
       case typeable: Typeable =>
         val subst = c.substitutor
         typeable.`type`() match {
           case Right(t) =>
-            if (!subst(t).conforms(tp)) {
-              reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
-            } else Option(c.copy(implicitReason = OkResult))
+            val conformance = subst(t).conforms(tp, ConstraintSystem.empty)
+            conformance match {
+              case ConstraintSystem(subst) =>
+                //Update synthetic parameters, coming from expected context-function type
+                typeable match {
+                  case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
+                    contextParam.updateWithSubst(subst)
+                  case _ => ()
+                }
+
+                Option(c.copy(implicitReason = OkResult))
+              case _ =>
+                reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
+            }
           case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
         }
       case _ => None
@@ -456,8 +471,9 @@ class ImplicitCollector(
       checkConformance: Boolean = false
     ): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(resType)
+      val allConstraints = constraints + expectedTypeConstraints
 
-      val constraintSubst = constraints + expectedTypeConstraints match {
+      val constraintSubst = allConstraints match {
         case ConstraintSystem(subst) => Option(subst)
         case _                       => None
       }

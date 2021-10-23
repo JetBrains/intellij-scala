@@ -139,14 +139,14 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     visited:     Set[PsiClass],
     checkWeak:   Boolean
   ): ConstraintsResult =
-      unifyTypeVariable(hkTv, tpe, constraints, boundKind, visited, checkWeak) match {
-        case ConstraintsResult.Left => tpe match {
-          case AliasType(_, Right(lower: ParameterizedType), _) =>
-            unifyHK(hkTv, lower, constraints, boundKind, visited, checkWeak)
-          case _ => tryUnifyParent(hkTv, tpe, constraints, boundKind, visited, checkWeak)
-        }
-        case unified => unified
+    unifyTypeVariable(hkTv, tpe, constraints, boundKind, visited, checkWeak) match {
+      case ConstraintsResult.Left => tpe match {
+        case AliasType(_, Right(lower: ParameterizedType), _) =>
+          unifyHK(hkTv, lower, constraints, boundKind, visited, checkWeak)
+        case _ => tryUnifyParent(hkTv, tpe, constraints, boundKind, visited, checkWeak)
       }
+      case unified => unified
+    }
 }
 
 object TypeVariableUnification {
@@ -159,7 +159,7 @@ object TypeVariableUnification {
     case UndefinedOrWildcard(tparam, _)    => tparam.typeParameters
     case tpt: TypeParameterType            => tpt.typeParameters
     case other =>
-      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.map(TypeParameter(_)).toSeq)
+      other.extractClass.fold(Seq.empty[TypeParameter])(_.getTypeParameters.instantiate)
   }
 
   private[psi] def unifiableKinds(lhs: ScType, rhs: ScType): Boolean =  {
@@ -168,7 +168,7 @@ object TypeVariableUnification {
     unifiableKinds(lhsParams, rhsParams)
   }
 
-  private[psi] def unifiableKinds(lhsParams: Iterable[TypeParameter], rhsParams: Iterable[TypeParameter]): Boolean = {
+  def unifiableKinds(lhsParams: Iterable[TypeParameter], rhsParams: Iterable[TypeParameter]): Boolean = {
     lhsParams.size == rhsParams.size && lhsParams.zip(rhsParams).forall {
       case (l, r) => unifiableKinds(l.typeParameters, r.typeParameters)
     }

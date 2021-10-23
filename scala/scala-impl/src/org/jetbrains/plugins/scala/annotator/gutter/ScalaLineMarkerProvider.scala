@@ -103,7 +103,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
       case e @ SAMTypeImplementation(sam) => Option(e -> sam)
     }.flatten
 
-  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function")
+  private[this] val trivialSAMs: Set[String] = Set("scala.Function", "scala.PartialFunction", "java.util.function", "scala.ContextFunction")
   private[this] def isInterestingSAM(sam: PsiClass): Boolean = !trivialSAMs.exists(sam.qualifiedName.startsWith)
 
   private[this] def getImplementsSAMTypeMarker(element: PsiElement): Option[LineMarkerInfo[_ <: PsiElement]] = {
