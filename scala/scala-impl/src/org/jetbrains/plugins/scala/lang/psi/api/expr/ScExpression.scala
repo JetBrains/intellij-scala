@@ -396,6 +396,7 @@ object ScExpression {
     expr match {
       case _: ScPrefixExpr                    => true
       case _: ScPostfixExpr                   => true
+      case _: ScPolyFunctionExpr              => false
       case ChildOf(ScInfixExpr(_, `expr`, _)) => false //implicit parameters are in infix expression
       case ChildOf(_: ScGenericCall)          => false //implicit parameters are in generic call
       case ChildOf(ScAssignment(`expr`, _))   => false //simple var cannot have implicit parameters, otherwise it's for assignment
