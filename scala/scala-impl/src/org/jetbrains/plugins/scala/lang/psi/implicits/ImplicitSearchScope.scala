@@ -79,7 +79,7 @@ object ImplicitSearchScope {
       case p: ScParameter                                                 => p.isImplicitOrContextParameter
       case m: ScMember                                                    => m.hasModifierProperty("implicit")
       case _: ScTemplateParents                                           => true
-      case (expr: ScExpression) childOf (_: ScArgumentExprList)
+      case (expr: ScExpression) childOf (_: ScArgumentExprList | _: ScFunctionExpr)
           if isScala3 && expr.contextFunctionParameters.nonEmpty =>
         true
       case (block: ScBlockExpr) childOf (_: ScInfixExpr)

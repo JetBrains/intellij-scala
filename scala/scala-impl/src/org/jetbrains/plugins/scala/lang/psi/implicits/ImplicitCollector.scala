@@ -356,6 +356,9 @@ class ImplicitCollector(
     proc.candidatesS
   }
 
+
+  //@TODO: apply context function to implicit args if type of `c` does not conform
+  //       to expected type
   private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = TraceLogger.func {
     c.element match {
       case typeable: Typeable =>

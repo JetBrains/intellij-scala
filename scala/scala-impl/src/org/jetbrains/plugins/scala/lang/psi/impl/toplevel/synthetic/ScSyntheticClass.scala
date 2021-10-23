@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import javax.swing.Icon
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class SyntheticNamedElement(name: String)
                                     (implicit projectContext: ProjectContext)
@@ -101,7 +102,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
 
   override def toString = "Synthetic class"
 
-  private val syntheticMethods = new MultiMap[String, ScSyntheticFunction]()
+  val syntheticMethods = new MultiMap[String, ScSyntheticFunction]()
 
   def addMethod(method: ScSyntheticFunction): Unit = syntheticMethods.putValue(method.name, method)
 

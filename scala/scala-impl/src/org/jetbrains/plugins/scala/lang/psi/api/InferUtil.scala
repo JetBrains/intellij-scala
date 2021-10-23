@@ -105,11 +105,19 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(result = updatedType))
         }
-      case ScTypePolymorphicType(mt @ ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
-        implicit val elementScope: ElementScope = mt.elementScope
-
-        val splitMethodType = params.reverse.foldLeft(retType) {
-          case (tp: ScType, param: Parameter) => ScMethodType(tp, Seq(param), isImplicit = true)
+      //@TODO: multiple using clauses and nested context function types
+      case ScTypePolymorphicType(internal @ ImplicitMethodOrFunctionType(retType, params), typeParams) =>
+        val splitMethodType = internal match {
+          case cft @ ContextFunctionType(_, _) => cft
+          case mt: ScMethodType =>
+            params.reverse.foldLeft(retType) {
+              case (tp: ScType, param: Parameter) =>
+                ScMethodType(tp, Seq(param), isImplicit = true)(mt.elementScope)
+            }
+          case other =>
+            throw new IllegalStateException(
+              s"Non context-function/method type returned from ImplicitMethodOrFunctionType: $other"
+            )
         }
 
         resInner = ScTypePolymorphicType(splitMethodType, typeParams)
@@ -122,7 +130,7 @@ object InferUtil {
         while (i < params.size) {
           i += 1
           resInner match {
-            case t@ScTypePolymorphicType(ScMethodType(retTypeSingle, paramsSingle, _), typeParamsSingle) =>
+            case t @ ScTypePolymorphicType(ImplicitMethodOrFunctionType(retTypeSingle, paramsSingle), typeParamsSingle) =>
               val abstractSubstitutor = t.abstractOrLowerTypeSubstitutor
 
               val (paramsForInfer, exprs, resolveResults) =
@@ -165,6 +173,7 @@ object InferUtil {
         implicit val elementScope: ElementScope = mt.elementScope
 
         resInner = mt.copy(result = updatedType)
+      //@TODO: multiple using clauses and nested context function types
       case ImplicitMethodOrFunctionType(retType, params) =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, canThrowSCE, searchImplicitsRecursively)
