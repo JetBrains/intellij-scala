@@ -147,8 +147,10 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformForExpression(forExpression: ScFor, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO implement transformation
-    builder.pushUnknownCall(forExpression, 0)
+    forExpression.desugared() match {
+      case Some(desugared) => transformExpression(desugared, builder)
+      case _ => builder.pushUnknownCall(forExpression, 0)
+    }
   }
 
   private def transformMatchExpression(matchExpression: ScMatch, builder: ScalaDfaControlFlowBuilder): Unit = {
