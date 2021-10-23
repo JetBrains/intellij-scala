@@ -31,6 +31,10 @@ package object dfa {
        |class Person(val id: Int)
        |case class Student(age: Int, grades: List[Int])
        |
+       |implicit class IntWrapper(wrapped: Int) {
+       |  def timesAndPlus(other: Int): Int = wrapped * other + other
+       |}
+       |
        |class TestClass {
        |  def testMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): $returnType = {
        |    $body

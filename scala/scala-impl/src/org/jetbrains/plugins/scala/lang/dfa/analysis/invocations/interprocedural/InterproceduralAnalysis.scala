@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.psi.PsiModifier
+import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
@@ -55,7 +55,7 @@ object InterproceduralAnalysis {
     isEffectivelyFinal && !containsUnsupportedFeatures
   }
 
-  private def hasFinalOrPrivateModifier(element: PsiModifierListOwnerExt): Boolean = {
+  private def hasFinalOrPrivateModifier(element: PsiModifierListOwner): Boolean = {
     element.hasModifierPropertyScala(PsiModifier.FINAL) || element.hasModifierPropertyScala(PsiModifier.PRIVATE)
   }
 

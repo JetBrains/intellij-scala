@@ -12,7 +12,10 @@ case class InvokedElement(psiElement: PsiElement) {
 
   override def toString: String = psiElement match {
     case synthetic: ScSyntheticFunction => s"$synthetic: ${synthetic.name}"
-    case namedMember: PsiNamedElement with PsiMember => s"${namedMember.containingClass.name}#${namedMember.name}"
+    case namedMember: PsiNamedElement with PsiMember => Option(namedMember.containingClass) match {
+      case Some(containingClass) => s"${containingClass.name}#${namedMember.name}"
+      case _ => s"${namedMember.name}"
+    }
     case _ => s"Invoked element of unknown type: $psiElement"
   }
 

@@ -33,10 +33,9 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case matchExpression: ScMatch => transformMatchExpression(matchExpression, builder)
     case throwStatement: ScThrow => transformThrowStatement(throwStatement, builder)
     case returnStatement: ScReturn => transformReturnStatement(returnStatement, builder)
-    case _: ScUnitExpr => builder.pushUnknownValue()
-    case _: ScTuple => builder.pushUnknownValue()
     case _: ScTemplateDefinition => builder.pushUnknownValue()
-    case otherExpression if isUnsupportedExpressionType(otherExpression) => builder.pushUnknownCall(otherExpression, 0)
+    case otherExpression if isUnsupportedPureExpressionType(otherExpression) => builder.pushUnknownValue()
+    case otherExpression if isUnsupportedImpureExpressionType(otherExpression) => builder.pushUnknownCall(otherExpression, 0)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -44,7 +43,11 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     new ExpressionTransformer(expression).transform(builder)
   }
 
-  private def isUnsupportedExpressionType(expression: ScExpression): Boolean = {
+  private def isUnsupportedPureExpressionType(expression: ScExpression): Boolean = {
+    expression.is[ScUnitExpr, ScTuple, ScThisReference, ScSuperReference]
+  }
+
+  private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
     expression.is[ScTry, ScFunctionExpr, ScUnderscoreSection, ScGenericCall]
   }
 

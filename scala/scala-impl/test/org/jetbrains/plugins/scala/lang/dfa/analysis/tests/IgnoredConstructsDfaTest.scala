@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
 class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
 
-  def testIgnoredConstructsNotAffectingRestOfAnalysis(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testDefinitionsNotAffectingRestOfAnalysis(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val x = 2
       |
@@ -29,6 +29,18 @@ class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
       |  private def something: String = "Hi"
       |}
       |
+      |
+      |x == 2
+      |""".stripMargin
+  })(
+    "x == 2" -> ConditionAlwaysTrue
+  )
+
+  def testIgnoringImplicitConversions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val x = 2
+      |val y = x.timesAndPlus(5)
+      |y == 13
       |
       |x == 2
       |""".stripMargin

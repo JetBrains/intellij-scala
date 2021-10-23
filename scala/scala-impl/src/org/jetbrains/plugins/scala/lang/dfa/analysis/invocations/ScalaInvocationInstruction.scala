@@ -70,10 +70,15 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     (exceptionalResult ++ normalResult).toArray
   }
 
-  private def collectArgumentValuesFromStack(stateBefore: DfaMemoryState): Map[Argument, DfaValue] = {
+  private def collectArgumentValuesFromStack(stateBefore: DfaMemoryState)
+                                            (implicit factory: DfaValueFactory): Map[Argument, DfaValue] = {
     invocationInfo.argListsInEvaluationOrder.flatten
       .reverseIterator
-      .map((_, stateBefore.pop()))
+      .map(arg => (arg, popValueFromStack(stateBefore)))
       .toMap
+  }
+
+  private def popValueFromStack(stateBefore: DfaMemoryState)(implicit factory: DfaValueFactory): DfaValue = {
+    if (stateBefore.isEmptyStack) factory.fromDfType(DfType.TOP) else stateBefore.pop()
   }
 }
