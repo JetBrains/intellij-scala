@@ -7,6 +7,7 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
@@ -23,7 +24,8 @@ import scala.language.postfixOps
  * on the stack that is the return value of this invocation.
  */
 class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAnchor: ScalaDfaAnchor,
-                                 exceptionTransfer: Option[DfaControlTransferValue])
+                                 exceptionTransfer: Option[DfaControlTransferValue],
+                                 currentAnalysedMethodInfo: AnalysedMethodInfo)
   extends ExpressionPushingInstruction(invocationAnchor) {
 
   override def toString: String = {
@@ -46,7 +48,8 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     }
 
     val returnValue = if (!methodEffect.handledSpecially) {
-      tryInterpretExternalMethod(invocationInfo, argumentValues) match {
+      tryInterpretExternalMethod(invocationInfo, evaluateArgumentsInCurrentState(argumentValues, stateBefore),
+        currentAnalysedMethodInfo) match {
         case Some(returnValue) => returnValue
         case _ => methodEffect.returnValue.getDfType
       }
@@ -80,5 +83,11 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
   private def popValueFromStack(stateBefore: DfaMemoryState)(implicit factory: DfaValueFactory): DfaValue = {
     if (stateBefore.isEmptyStack) factory.fromDfType(DfType.TOP) else stateBefore.pop()
+  }
+
+  private def evaluateArgumentsInCurrentState(argumentValues: Map[Argument, DfaValue],
+                                              stateBefore: DfaMemoryState)
+                                             (implicit factory: DfaValueFactory): Map[Argument, DfaValue] = {
+    argumentValues.view.mapValues(value => factory.fromDfType(stateBefore.getDfType(value))).toMap
   }
 }

@@ -7,6 +7,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstruction
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
@@ -22,7 +23,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
 
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
     try {
-      function.body.foreach(executeDataFlowAnalysis)
+      function.body.foreach(executeDataFlowAnalysis(_, function))
     } catch {
       case transformationFailed: TransformationFailedException =>
         Log.info(errorMessage(function.name, transformationFailed.toString))
@@ -35,11 +36,12 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     s"Dataflow analysis failed for function definition $functionName. Reason: $reason"
   }
 
-  private def executeDataFlowAnalysis(body: ScBlockStatement): Unit = {
+  private def executeDataFlowAnalysis(body: ScBlockStatement, function: ScFunctionDefinition): Unit = {
     val factory = new DfaValueFactory(problemsHolder.getProject)
     val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
 
-    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+    val analysedMethodInfo = AnalysedMethodInfo(function, 1)
+    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
     val flow = controlFlowBuilder.build()
 

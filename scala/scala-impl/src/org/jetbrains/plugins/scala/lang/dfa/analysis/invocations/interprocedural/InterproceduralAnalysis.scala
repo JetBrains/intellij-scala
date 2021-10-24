@@ -15,20 +15,22 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaValue
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
 object InterproceduralAnalysis {
 
-  // TODO add limitations on depth, size, recursion etc. + add a flag to not report anything in an nested call
-  def tryInterpretExternalMethod(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue])
+  val InterproceduralAnalysisDepthLimit = 3
+
+  def tryInterpretExternalMethod(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
+                                 currentAnalysedMethodInfo: AnalysedMethodInfo)
                                 (implicit factory: DfaValueFactory): Option[DfType] = {
     invocationInfo.invokedElement match {
       case Some(InvokedElement(function: ScFunctionDefinition))
-        if supportsInterproceduralAnalysis(function, invocationInfo) => function.body match {
+        if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) => function.body match {
         case Some(body) => val paramValues = mapArgumentValuesToParams(invocationInfo, function, argumentValues)
-          analyseExternalMethodBody(function, body, paramValues)
+          analyseExternalMethodBody(function, body, paramValues, currentAnalysedMethodInfo)
         case _ => None
       }
       case _ => None
@@ -36,27 +38,31 @@ object InterproceduralAnalysis {
   }
 
   def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue],
-                              interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState)
+                              interpreter: DataFlowInterpreter, newState: DfaMemoryState)
                              (implicit factory: DfaValueFactory): Unit = {
     parameterValues.foreach { case (parameter, value) =>
       val dfaVariable = factory.getVarFactory.createVariableValue(ScalaDfaVariableDescriptor(parameter, parameter.isStable))
-      stateBefore.push(value)
+      newState.push(value)
       val assignment = new SimpleAssignmentInstruction(null, dfaVariable)
-      assignment.accept(interpreter, stateBefore)
-      stateBefore.pop()
+      assignment.accept(interpreter, newState)
+      newState.pop()
     }
   }
 
-  private def supportsInterproceduralAnalysis(function: ScFunctionDefinition, invocationInfo: InvocationInfo): Boolean = {
+  private def supportsInterproceduralAnalysis(function: ScFunctionDefinition, invocationInfo: InvocationInfo,
+                                              currentAnalysedMethodInfo: AnalysedMethodInfo): Boolean = {
     val isInsideFinalClassOrObject = hasFinalOrPrivateModifier(function.containingClass) || function.containingClass.is[ScObject]
     val isEffectivelyFinal = hasFinalOrPrivateModifier(function) || isInsideFinalClassOrObject
     val containsUnsupportedFeatures = implicitParametersPresent(invocationInfo) || byNameParametersPresent(invocationInfo)
+    val isRecursionOrToDeep = function == currentAnalysedMethodInfo.method ||
+      currentAnalysedMethodInfo.invocationDepth + 1 > InterproceduralAnalysisDepthLimit
 
-    isEffectivelyFinal && !containsUnsupportedFeatures
+    isEffectivelyFinal && !containsUnsupportedFeatures && !isRecursionOrToDeep && !function.isSynthetic
   }
 
   private def hasFinalOrPrivateModifier(element: PsiModifierListOwner): Boolean = {
-    element.hasModifierPropertyScala(PsiModifier.FINAL) || element.hasModifierPropertyScala(PsiModifier.PRIVATE)
+    Option(element).exists(_.hasModifierPropertyScala(PsiModifier.FINAL)) ||
+      Option(element).exists(_.hasModifierPropertyScala(PsiModifier.PRIVATE))
   }
 
   private def mapArgumentValuesToParams(invocationInfo: InvocationInfo, function: ScFunctionDefinition,
@@ -71,10 +77,12 @@ object InterproceduralAnalysis {
     }.toMap
   }
 
-  private def analyseExternalMethodBody(method: ScFunction, body: ScExpression,
-                                        mappedParameters: Map[ScParameter, DfaValue])
+  private def analyseExternalMethodBody(method: ScFunctionDefinition, body: ScExpression,
+                                        mappedParameters: Map[ScParameter, DfaValue],
+                                        currentAnalysedMethodInfo: AnalysedMethodInfo)
                                        (implicit factory: DfaValueFactory): Option[DfType] = {
-    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+    val newAnalysedInfo = AnalysedMethodInfo(method, currentAnalysedMethodInfo.invocationDepth + 1)
+    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(newAnalysedInfo, factory, body)
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
 
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))

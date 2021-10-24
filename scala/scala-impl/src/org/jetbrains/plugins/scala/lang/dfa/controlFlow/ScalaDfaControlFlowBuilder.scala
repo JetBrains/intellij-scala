@@ -9,6 +9,7 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, Transformable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
@@ -27,7 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpres
  *
  * @author Gerard Dróżdż
  */
-class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: ScalaPsiElement) {
+class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, private val factory: DfaValueFactory,
+                                 context: ScalaPsiElement) {
 
   private val flow = new ControlFlow(factory, context)
   private val trapTracker = new TrapTracker(factory, context)

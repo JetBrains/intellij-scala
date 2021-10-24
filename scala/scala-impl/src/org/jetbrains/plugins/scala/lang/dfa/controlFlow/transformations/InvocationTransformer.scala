@@ -64,7 +64,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,
-      ScalaStatementAnchor(wrappedInvocation), transfer))
+      ScalaStatementAnchor(wrappedInvocation), transfer, builder.analysedMethodInfo))
   }
 
   private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
