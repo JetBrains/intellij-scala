@@ -38,7 +38,6 @@ class AlwaysZeroDfaTest extends ScalaDfaTestBase {
     "w" -> ExpressionAlwaysZero,
     "y" -> ExpressionAlwaysZero,
     "y" -> ExpressionAlwaysZero,
-    "y" -> ExpressionAlwaysZero,
     "t" -> ExpressionAlwaysZero,
     "t != 0" -> ConditionAlwaysFalse,
     "z / 2 - 1" -> ExpressionAlwaysZero,

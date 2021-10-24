@@ -29,7 +29,7 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
       case statementAnchor: ScalaStatementAnchor =>
         val statement = statementAnchor.statement
         val message = constantValueToProblemMessage(value, getProblemTypeForStatement(statementAnchor.statement))
-        if (!shouldSuppress(statement)) {
+        if (!shouldSuppress(statement, value)) {
           problemsHolder.registerProblem(statement, message)
         }
       case _ =>
@@ -53,16 +53,22 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 
-  private def shouldSuppress(statement: ScBlockStatement): Boolean = {
+  private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
     val parent = findProperParent(statement)
     statement match {
+      case _: ScLiteral => true
+      // Warning will be reported for the prefix expression
       case _: ScExpression if parent.exists(_.is[ScPrefixExpr]) => true
       case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
-      case _: ScLiteral => true
+      // Warning will be reported for the parent expression
       case infix: ScInfixExpr if LogicalBinary.contains(infix.operation.refName) => parent match {
         case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
         case _ => false
       }
+      // Sometimes we pass constant values to methods just to name them, highlighting this could be annoying
+      case _: ScReferenceExpression if parent.exists(_.is[ScArgumentExprList]) => true
+      // Sometimes we create constant boolean values just to name them, highlighting this could be annoying
+      case _: ScReferenceExpression if value == DfaConstantValue.True || value == DfaConstantValue.False => true
       case _ => false
     }
   }

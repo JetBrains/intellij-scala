@@ -26,7 +26,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
       case _ => Nil
     }
 
-    if (invocationsInfo.isEmpty || isUnsupportedInvocationExpression(wrappedInvocation)) {
+    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo)) {
       builder.pushUnknownCall(wrappedInvocation, 0)
     } else if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
       invocationsInfo.tail.foreach(invocation => {
@@ -38,9 +38,16 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
     }
   }
 
-  private def isUnsupportedInvocationExpression(invocation: ScExpression): Boolean = invocation match {
-    case infix: ScInfixExpr => isUnsupportedInfixSyntheticAssignment(infix.operation.getText)
-    case _ => false
+  private def isUnsupportedInvocation(invocation: ScExpression, invocationsInfo: Seq[InvocationInfo]): Boolean = {
+    val unsupportedExpression = invocation match {
+      case infix: ScInfixExpr => isUnsupportedInfixSyntheticAssignment(infix.operation.getText)
+      case _ => false
+    }
+
+    val unsupportedInvokedElement = invocationsInfo.flatMap(_.invokedElement).flatMap(_.simpleName)
+      .exists(name => name.startsWith("assert") || name == "require")
+
+    unsupportedExpression || unsupportedInvokedElement
   }
 
   private def isUnsupportedInfixSyntheticAssignment(operation: String): Boolean = {

@@ -9,14 +9,14 @@ class DefinitionsAndAssignmentsDfaTest extends ScalaDfaTestBase {
     """
       |val booleanVal = 3 > 2
       |var x = 3 * 8 + 15 // 39
-      |val z = if (booleanVal) x * 7 + 3 // 276
+      |val z = if (booleanVal == true) x * 7 + 3 // 276
       |else 5 - x
       |z == 276
       |z > 300
       |""".stripMargin
   })(
     "3 > 2" -> ConditionAlwaysTrue,
-    "booleanVal" -> ConditionAlwaysTrue,
+    "booleanVal == true" -> ConditionAlwaysTrue,
     "z == 276" -> ConditionAlwaysTrue,
     "z > 300" -> ConditionAlwaysFalse
   )

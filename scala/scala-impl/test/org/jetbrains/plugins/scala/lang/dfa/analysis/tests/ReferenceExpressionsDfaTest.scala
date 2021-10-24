@@ -64,4 +64,22 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
   })(
     "z == 15" -> ConditionAlwaysTrue
   )
+
+  def testSuppressingWarningsForSomeNamedReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val x = 2
+      |
+      |val verbose = true
+      |if (verbose) {
+      |  val argCount = 0
+      |  foo(verbose, argCount)
+      |} else {
+      |  3
+      |}
+      |
+      |x == 2
+      |""".stripMargin
+  })(
+    "x == 2" -> ConditionAlwaysTrue
+  )
 }
