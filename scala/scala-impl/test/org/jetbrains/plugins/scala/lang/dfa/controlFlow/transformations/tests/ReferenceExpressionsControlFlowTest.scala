@@ -132,18 +132,18 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |9: POP
       |10: PUSH s1
       |11: POP
-      |12: PUSH age
+      |12: PUSH s1.age
       |13: PUSH_VAL 20
       |14: BOOLEAN_OP >=
       |15: POP
       |16: PUSH s1
       |17: POP
-      |18: PUSH grades
+      |18: PUSH s1.grades
       |19: PUSH_VAL 5
       |20: ENSURE_INDEX size
       |21: PUSH s1
       |22: POP
-      |23: PUSH grades
+      |23: PUSH s1.grades
       |24: PUSH_VAL 5
       |25: CALL LinearSeqOptimized#apply
       |26: FINISH BlockExpression
@@ -167,7 +167,7 @@ class ReferenceExpressionsControlFlowTest extends ScalaDfaControlFlowBuilderTest
       |4: POP
       |5: PUSH p1
       |6: POP
-      |7: PUSH id
+      |7: PUSH p1.id
       |8: PUSH_VAL 20
       |9: BOOLEAN_OP <
       |10: FINISH BlockExpression

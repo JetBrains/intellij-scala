@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.psi.CommonClassNames
+import com.intellij.psi.{CommonClassNames, PsiElement}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Syntheti
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val wrappedInvocation: ScExpression)
+class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[PsiElement] = None)
   extends ExpressionTransformer(wrappedInvocation) {
 
   override def toString: String = s"InvocationTransformer: $wrappedInvocation"
@@ -71,7 +71,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     builder.addInstruction(new ScalaInvocationInstruction(invocationInfo,
-      ScalaStatementAnchor(wrappedInvocation), transfer, builder.analysedMethodInfo))
+      ScalaStatementAnchor(wrappedInvocation), instanceQualifier, transfer, builder.analysedMethodInfo))
   }
 
   private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {

@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
+import com.intellij.psi.{PsiElement, PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
@@ -37,15 +37,16 @@ object InterproceduralAnalysis {
     }
   }
 
-  def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue],
-                              interpreter: DataFlowInterpreter, newState: DfaMemoryState)
+  def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue], qualifier: Option[PsiElement],
+                              interpreter: DataFlowInterpreter, state: DfaMemoryState)
                              (implicit factory: DfaValueFactory): Unit = {
     parameterValues.foreach { case (parameter, value) =>
-      val dfaVariable = factory.getVarFactory.createVariableValue(ScalaDfaVariableDescriptor(parameter, parameter.isStable))
-      newState.push(value)
+      val variableDescriptor = ScalaDfaVariableDescriptor(parameter, qualifier, parameter.isStable)
+      val dfaVariable = factory.getVarFactory.createVariableValue(variableDescriptor)
+      state.push(value)
       val assignment = new SimpleAssignmentInstruction(null, dfaVariable)
-      assignment.accept(interpreter, newState)
-      newState.pop()
+      assignment.accept(interpreter, state)
+      state.pop()
     }
   }
 
@@ -92,7 +93,7 @@ object InterproceduralAnalysis {
     val interpreter = new StandardDataFlowInterpreter(flow, listener)
 
     val startingState = new JvmDfaMemoryStateImpl(factory)
-    registerParameterValues(mappedParameters, interpreter, startingState)
+    registerParameterValues(mappedParameters, None, interpreter, startingState)
 
     if (interpreter.interpret(startingState) != RunnerResult.OK) None
     else Some(listener.resultValue)

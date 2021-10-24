@@ -6,6 +6,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, Expres
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
@@ -24,6 +25,7 @@ import scala.language.postfixOps
  * on the stack that is the return value of this invocation.
  */
 class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAnchor: ScalaDfaAnchor,
+                                 qualifier: Option[PsiElement],
                                  exceptionTransfer: Option[DfaControlTransferValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
   extends ExpressionPushingInstruction(invocationAnchor) {
@@ -40,7 +42,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     val argumentValues = collectArgumentValuesFromStack(stateBefore)
 
     val finder = MethodEffectFinder(invocationInfo)
-    val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues)
+    val methodEffect = finder.findMethodEffect(interpreter, stateBefore, argumentValues, qualifier)
 
     if (!methodEffect.isPure || byNameParametersPresent(invocationInfo) || implicitParametersPresent(invocationInfo)) {
       argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))

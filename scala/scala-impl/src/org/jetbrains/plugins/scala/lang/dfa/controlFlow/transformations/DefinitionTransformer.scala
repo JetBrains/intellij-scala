@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockStatement, ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
 class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
@@ -31,8 +32,17 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
       builder.pushUnknownCall(definition, 0)
     } else {
       val binding = definition.bindings.head
-      val descriptor = ScalaDfaVariableDescriptor(binding, isStable && binding.isStable)
-      builder.assignVariableValue(descriptor, definition.expr)
+      val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
+
+      if (definition.expr.exists(canBeClassInstantiationExpression)) {
+        builder.assignVariableValueWithInstanceQualifier(descriptor, definition.expr, binding)
+      } else {
+        builder.assignVariableValue(descriptor, definition.expr)
+      }
     }
+  }
+
+  private def canBeClassInstantiationExpression(expression: ScExpression): Boolean = {
+    expression.is[ScNewTemplateDefinition, MethodInvocation]
   }
 }

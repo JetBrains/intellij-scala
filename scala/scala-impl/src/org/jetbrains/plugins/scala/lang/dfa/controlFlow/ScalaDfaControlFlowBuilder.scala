@@ -7,10 +7,10 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.CommonClassNames
+import com.intellij.psi.{CommonClassNames, PsiElement}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, Transformable}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{InvocationTransformer, ScalaPsiElementTransformer, Transformable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 
@@ -89,6 +89,20 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
 
     valueExpression match {
       case Some(element) => new ScalaPsiElementTransformer(element).transform(this)
+      case _ => pushUnknownValue()
+    }
+
+    addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
+  }
+
+  def assignVariableValueWithInstanceQualifier(descriptor: ScalaDfaVariableDescriptor,
+                                               instantiationExpression: Option[ScExpression],
+                                               instanceQualifier: PsiElement): Unit = {
+    val dfaVariable = createVariable(descriptor)
+    val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
+
+    instantiationExpression match {
+      case Some(expression) => new InvocationTransformer(expression, Some(instanceQualifier)).transform(this)
       case _ => pushUnknownValue()
     }
 

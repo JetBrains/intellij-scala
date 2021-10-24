@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
-import com.intellij.psi.{PsiMethod, PsiNamedElement}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
@@ -129,10 +129,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
 
   private def transformAssignment(assignment: ScAssignment, builder: ScalaDfaControlFlowBuilder): Unit = {
     assignment.leftExpression match {
-      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
-        case Some(element: PsiNamedElement) =>
-          val descriptor = ScalaDfaVariableDescriptor(element, isStable = false)
-          builder.assignVariableValue(descriptor, assignment.rightExpression)
+      case reference: ScReferenceExpression => ScalaDfaVariableDescriptor.fromReferenceExpression(reference) match {
+        case Some(descriptor) => builder.assignVariableValue(descriptor, assignment.rightExpression)
         case _ => builder.pushUnknownCall(assignment, 0)
       }
       case _ => builder.pushUnknownCall(assignment, 0)
