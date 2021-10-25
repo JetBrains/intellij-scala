@@ -2,7 +2,6 @@ package scala.meta
 package annotations
 
 import java.io.File
-
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
@@ -11,7 +10,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import org.jetbrains.plugins.scala.{TestDependencyManager, NlsString}
+import org.jetbrains.plugins.scala.{NlsString, TestDependencyManager}
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
-import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, PARADISE_VERSION}
+import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, MetaAnnotationError, PARADISE_VERSION}
 
 abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase with ScalaMetaTestBase {
 
@@ -90,9 +89,9 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
     myFixture.configureByText(s"Usage${getTestName(false)}.scala", code)
     val holder = elementAtCaret.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
     holder.metaExpand match {
-      case Right(tree)         => assertEquals(expectedExpansion, tree.toString())
-      case Left(NlsString("")) => fail("Expansion was empty - did annotation even run?")
-      case Left(reason)        => fail(reason)
+      case Right(tree)                                 => assertEquals(expectedExpansion, tree.toString())
+      case Left(MetaAnnotationError(NlsString(""), _)) => fail("Expansion was empty - did annotation even run?")
+      case Left(reason)                                => throw new AssertionError(reason.message, reason.cause.orNull)
     }
   }
 
@@ -107,7 +106,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
 
   protected def checkExpandsNoError(): Unit =
     testClass.metaExpand match {
-      case Left(error) => fail(s"Expansion failed: $error")
+      case Left(error) => throw new AssertionError(s"Expansion failed: ${error.message}", error.cause.orNull)
       case _ =>
     }
 

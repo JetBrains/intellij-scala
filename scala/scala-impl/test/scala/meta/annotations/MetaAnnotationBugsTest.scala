@@ -9,6 +9,7 @@ import org.junit.{Assert, Ignore}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
 
 import scala.jdk.CollectionConverters._
+import scala.meta.intellij.MetaExpansionsManager.MetaAnnotationError
 
 @Ignore("Deprecated logic") // TODO remove deprecated logic and test
 class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
@@ -38,9 +39,9 @@ class MetaAnnotationBugsTest extends MetaAnnotationTestBase {
         |  }
         |}""".stripMargin
     myFixture.findClass("FooOp").asInstanceOf[ScTypeDefinition].metaExpand match {
-      case Right(tree)         => assertEquals(expectedExpansion, tree.toString())
-      case Left(NlsString("")) => fail("Expansion was empty - did annotation even run?")
-      case Left(reason)        => fail(reason)
+      case Right(tree)                                 => assertEquals(expectedExpansion, tree.toString())
+      case Left(MetaAnnotationError(NlsString(""), _)) => fail("Expansion was empty - did annotation even run?")
+      case Left(reason)                                => throw new AssertionError(reason.message, reason.cause.orNull)
     }
   }
 

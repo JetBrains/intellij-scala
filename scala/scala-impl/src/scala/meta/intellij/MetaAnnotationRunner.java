@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
  * @author mutcianm
  * @since 26.03.17.
  */
+// TODO: remove somewhere in 2022.1 / 2022.2 SCL-19637
 public class MetaAnnotationRunner {
     public static byte[] run(Class<?> clazz, int argc, byte[] data) throws Exception {
         Object[] args = new Object[argc];

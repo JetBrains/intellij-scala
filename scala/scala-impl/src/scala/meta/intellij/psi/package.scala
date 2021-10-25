@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.meta.intellij.MetaExpansionsManager.MetaAnnotationError
+
 package object psi {
 
   implicit class AnnotationExt(private val repr: ScAnnotation) extends AnyVal {
@@ -31,19 +33,20 @@ package object psi {
 
   implicit class AnnotationHolderExt(private val repr: ScAnnotationsHolder) extends AnyVal {
 
-    def metaExpand: Either[NlsString, Tree] =
-      if (repr.isMetaEnabled) cached
-      else Left(NlsString.force(""))
+    def metaExpand: Either[MetaAnnotationError, Tree] =
+      if (repr.isMetaEnabled && isMetaAnnotationExpansionEnabled) cached
+      else Left(MetaAnnotationError(NlsString.force("")))
 
-    @CachedWithRecursionGuard(repr, Left(ScalaMetaBundle.nls("recursive.meta.expansion")), BlockModificationTracker(repr))
-    private def cached: Either[NlsString, Tree] = {
+    @CachedWithRecursionGuard(repr, Left(MetaAnnotationError(ScalaMetaBundle.nls("recursive.meta.expansion"), None)), BlockModificationTracker(repr))
+    private def cached: Either[MetaAnnotationError, Tree] = {
       import ScalaProjectSettings.ScalaMetaMode.Enabled
       ScalaProjectSettings.getInstance(repr.getProject).getScalaMetaMode match {
         case Enabled =>
           repr.annotations.find(_.isMetaMacro)
-            .toRight(ScalaMetaBundle.nls("no.meta.annotation"))
+            .toRight(MetaAnnotationError(ScalaMetaBundle.nls("no.meta.annotation")))
             .flatMap(MetaExpansionsManager.runMetaAnnotation)
-        case _ => Left(ScalaMetaBundle.nls("meta.expansions.disabled.in.settings"))
+        case _ =>
+          Left(MetaAnnotationError(ScalaMetaBundle.nls("meta.expansions.disabled.in.settings")))
       }
     }
   }

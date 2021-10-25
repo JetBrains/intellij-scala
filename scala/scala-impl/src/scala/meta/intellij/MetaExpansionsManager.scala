@@ -1,9 +1,5 @@
 package scala.meta.intellij
 
-import java.io._
-import java.lang.reflect.InvocationTargetException
-import java.net.URL
-
 import com.intellij.openapi.compiler._
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
@@ -12,24 +8,24 @@ import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.{NlsString, extensions}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
+import org.jetbrains.plugins.scala.{NlsString, extensions}
 
+import java.io._
+import java.lang.reflect.InvocationTargetException
+import java.net.URL
 import scala.jdk.CollectionConverters._
 import scala.meta.parsers.Parse
 import scala.meta.trees.{AbortException, ScalaMetaException, TreeConverter}
 import scala.meta.{Dialect, ScalaMetaBundle, Tree}
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
 
-/**
-  * @author Mikhail Mutcianko
-  * @since 20.09.16
-  */
+// TODO: remove somewhere in 2022.1 / 2022.2 SCL-19637
 class MetaExpansionsManager {
   import org.jetbrains.plugins.scala.project._
 
@@ -46,10 +42,16 @@ class MetaExpansionsManager {
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
 
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
-    def pluginCP = new URL(getClass.getResource(".").toString
-      .replaceAll("^jar:", "")
-      .replaceAll("!/.+$", "")
-      .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", ""))
+    def pluginCP: URL = {
+      val resource = Option(getClass.getResource(".")).orElse(Option(getClass.getResource(""))).orNull
+      if (resource == null)
+        throw new AssertionError("Can't determine plugin classpath location")
+      val url = resource.toString
+        .replaceAll("^jar:", "")
+        .replaceAll("!/.+$", "")
+        .replaceAll(getClass.getPackage.getName.replace(".", "/") + "/$", "")
+      new URL(url)
+    }
     def outputDirs(module: Module) = (ModuleRootManager.getInstance(module).getDependencies :+ module)
       .map(m => CompilerPaths.getModuleOutputPath(m, false)).filter(_ != null).toList
 
@@ -106,7 +108,7 @@ class ClearMetaExpansionManagerListener extends CompilationStatusListener {
 
 object MetaExpansionsManager {
 
-  // TODO 2.13 Need update to 4.3.12?
+  // TODO 2.13 Need update to 4.4.9?
   val META_MAJOR_VERSION  = "1.8"
   val META_MINOR_VERSION  = "1.8.0"
   val PARADISE_VERSION    = "3.0.0-M10"
@@ -131,13 +133,15 @@ object MetaExpansionsManager {
     }
   }
 
+  final case class MetaAnnotationError(message: NlsString, cause: Option[Throwable] = None)
 
-  def runMetaAnnotation(annot: ScAnnotation): Either[NlsString, Tree] = {
+  def runMetaAnnotation(annot: ScAnnotation): Either[MetaAnnotationError, Tree] = {
     val holder = annot.parentOfType(classOf[ScAnnotationsHolder], strict = false).orNull
 
-    @CachedInUserData(annot, BlockModificationTracker(annot))
-    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[NlsString, Tree] = {
+    def err(message: NlsString, cause: Throwable = null) = MetaAnnotationError(message, Option(cause))
 
+    @CachedInUserData(annot, BlockModificationTracker(annot))
+    def runMetaAnnotationsImpl(annot: ScAnnotation): Either[MetaAnnotationError, Tree] = {
       val converter = new TreeConverter {
         override def getCurrentProject: Project = annot.getProject
         override def dumbMode: Boolean = true
@@ -157,17 +161,17 @@ object MetaExpansionsManager {
         val errorOrTree = (maybeClass, maybeClass.map(_.getClassLoader)) match {
           case (Some(clazz), Some(_: MetaClassLoader)) => Right(runAdapterString(clazz, compiledArgs))
           case (Some(clazz), _) => Right(runDirect(clazz, compiledArgs))
-          case (None, _)        => Left(ScalaMetaBundle.nls("meta.annotation.class.could.not.be.found"))
+          case (None, _)        => Left(err(ScalaMetaBundle.nls("meta.annotation.class.could.not.be.found")))
         }
         errorOrTree.map(fixTree)
       } catch {
-        case pc: ProcessCanceledException => throw pc
-        case me: AbortException           => Left(ScalaMetaBundle.nls("tree.conversion.error", me.getMessage))
-        case sm: ScalaMetaException       => Left(ScalaMetaBundle.nls("semantic.error", sm.getMessage))
-        case so: StackOverflowError       => Left(ScalaMetaBundle.nls("stack.overflow.during.expansion", holder.getText))
-        case mw: MetaWrappedException     => Left(NlsString.force(mw.target.toString))
-        case e: Exception                 => Left(NlsString.force(e.getMessage))
-        case e: Error                     => Left(ScalaMetaBundle.nls("internal.error.getmessage", e.getMessage)) // class loading issues?
+        case e: ProcessCanceledException => throw e
+        case e: AbortException           => Left(err(ScalaMetaBundle.nls("tree.conversion.error", e.getMessage), e))
+        case e: ScalaMetaException       => Left(err(ScalaMetaBundle.nls("semantic.error", e.getMessage), e))
+        case e: StackOverflowError       => Left(err(ScalaMetaBundle.nls("stack.overflow.during.expansion", holder.getText), e))
+        case e: MetaWrappedException     => Left(err(NlsString.force(e.target.toString), e))
+        case e: Exception                => Left(err(NlsString.force(e.getMessage), e))
+        case e: Error                    => Left(err(ScalaMetaBundle.nls("internal.error.getmessage", e.getMessage), e)) // class loading issues?
       }
     }
 
@@ -229,7 +233,8 @@ object MetaExpansionsManager {
     try {
       method.invoke(inst, args: _*).asInstanceOf[Tree]
     } catch {
-      case e: InvocationTargetException => throw new MetaWrappedException(e.getTargetException)
+      case e: InvocationTargetException =>
+        throw new MetaWrappedException(e.getTargetException)
     }
   }
 

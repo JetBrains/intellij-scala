@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationActi
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.meta.intellij.MetaExpansionsManager
+import scala.meta.intellij.{MetaExpansionsManager, isMetaAnnotationExpansionEnabled}
 
 object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
 
@@ -26,6 +26,8 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
 
   private def checkMetaAnnotation(element: ScAnnotation)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!isMetaAnnotationExpansionEnabled)
+      return
     import ScalaProjectSettings.ScalaMetaMode
 
     import scala.meta.intellij.psi._
@@ -43,8 +45,8 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
       }
       val settings = ScalaProjectSettings.getInstance(element.getProject)
       result match {
-        case Left(errorMsg) if settings.getScalaMetaMode == ScalaMetaMode.Enabled =>
-          holder.createErrorAnnotation(element, ScalaBundle.message("scala.meta.expandfailed", errorMsg))
+        case Left(error) if settings.getScalaMetaMode == ScalaMetaMode.Enabled =>
+          holder.createErrorAnnotation(element, ScalaBundle.message("scala.meta.expandfailed", error.message))
         case _ =>
       }
     }

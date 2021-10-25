@@ -21,6 +21,8 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
   private val LOG = Logger.getInstance(getClass)
 
   override protected def getExpandMarker(element: PsiElement): Option[Marker] = {
+    if (!isMetaAnnotationExpansionEnabled)
+      return None
     import intellij.psi._
 
     val maybeAnnotation = element.getParent match {
@@ -36,6 +38,8 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
   }
 
   override protected def getUndoMarker(element: PsiElement): Option[Marker] = {
+    if (!isMetaAnnotationExpansionEnabled)
+      return None
     element.getParent.getCopyableUserData(EXPANDED_KEY) match {
       case null => None
       case _ => Some(createUndoMarker(element))
@@ -43,6 +47,8 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
   }
 
   def expandMetaAnnotation(annot: ScAnnotation): Unit = {
+    if (!isMetaAnnotationExpansionEnabled)
+      return
     MetaExpansionsManager.runMetaAnnotation(annot) match {
       case Right(tree) =>
         val removeCompanionObject = tree match {
@@ -55,14 +61,14 @@ class MetaExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {
         inWriteCommandAction {
           expandAnnotation(annot, MacroExpansion(null, tree.toString.trim, "", removeCompanionObject))
         }(annot.getProject)
-      case Left(errorMsg) =>
+      case Left(error) =>
         messageGroup.createNotification(
-          s"Macro expansion failed: $errorMsg", NotificationType.ERROR
+          s"Macro expansion failed: ${error.message}", NotificationType.ERROR
         ).notify(annot.getProject)
     }
   }
 
-  def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion): Unit = {
+  private def expandAnnotation(place: ScAnnotation, expansion: MacroExpansion): Unit = {
     import place.projectContext
 
     def filter(elt: PsiElement) = elt.isInstanceOf[LeafPsiElement]
