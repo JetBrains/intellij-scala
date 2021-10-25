@@ -4,6 +4,7 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
+import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3, SemanticDbStore}
@@ -16,8 +17,7 @@ import org.junit.runner.JUnitCore
 
 import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.attribute.FileAttribute
-import java.nio.file.{CopyOption, Files, Path, Paths, StandardCopyOption}
+import java.nio.file.{Files, Path, Paths, StandardCopyOption}
 import scala.io.Source
 import scala.jdk.CollectionConverters.{EnumerationHasAsScala, IteratorHasAsScala, ListHasAsScala}
 import scala.sys.process.Process
@@ -97,11 +97,14 @@ object AfterUpdateDottyVersionScript {
    *
    * @author artyom.semyonov
    */
-  private class RecompileMacroPrinter3
+  class RecompileMacroPrinter3
     extends ScalaCompilerTestBase {
 
+    /** For now looks like MacroPrinter3 compiled for Scala 3.0 works for Scala 3.1 automatically */
     override protected def supportedIn(version: ScalaVersion): Boolean =
-      version == LatestScalaVersions.Scala_3_0 // TODO: ATTENTION! ENSURE VERSION IS UPDATED ON RUN
+      version == LatestScalaVersions.Scala_3_0
+
+    override protected val includeCompilerAsLibrary: Boolean = true
 
     override def testProjectJdkVersion = LanguageLevel.JDK_1_8
 
@@ -157,7 +160,7 @@ object AfterUpdateDottyVersionScript {
    *
    * @author tobias.kahlert
    */
-  private class Scala3ImportedParserTest_Import_FromDottyDirectory
+  class Scala3ImportedParserTest_Import_FromDottyDirectory
     extends TestCase {
 
     def test(): Unit = {
@@ -445,7 +448,8 @@ object AfterUpdateDottyVersionScript {
          |  if (!source.path.contains("${normalisedPathSeparator1(testFilePath)}") &&
          |      !source.path.contains("${normalisedPathSeparator2(testFilePath)}"))
          |    return t
-         |  val w = new java.io.PrintWriter("${normalisedPathSeparator1(targetRangeDirectory)}/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
+         |  val fileName = "${normalisedPathSeparator1(targetRangeDirectory)}/" + source.name.replace(".scala", ".ranges")
+         |  val w = new java.io.PrintWriter(fileName, java.nio.charset.StandardCharsets.UTF_8)
          |  val traverser = new dotty.tools.dotc.ast.untpd.UntypedTreeTraverser {
          |    def traverse(tree: Tree)(using Context) = {
          |      val span = tree.span
@@ -469,7 +473,11 @@ object AfterUpdateDottyVersionScript {
     )
 
     {
-      new File(rangesDirectory).mkdirs()
+      println(s"# Ranges directory: $rangesDirectory")
+      val file = new File(rangesDirectory)
+      if (!file.exists()) {
+        assert(file.mkdirs() && file.exists(), "Can't create ranges directory")
+      }
       clearDirectory(rangesDirectory)
     }
 

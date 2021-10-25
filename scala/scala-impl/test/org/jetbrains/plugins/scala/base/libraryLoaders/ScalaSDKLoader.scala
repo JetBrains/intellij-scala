@@ -2,18 +2,17 @@ package org.jetbrains.plugins.scala
 package base
 package libraryLoaders
 
-import java.io.File
-import java.{util => ju}
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.junit.Assert._
+
+import java.io.File
+import java.{util => ju}
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaCompiler: Boolean = false) extends LibraryLoader {
 
@@ -79,11 +78,11 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
       fail(s"Local SDK files should contain compiler jar for : $version\n${compilerClasspath.mkString("\n")}").asInstanceOf[Nothing]
     }
 
-    val classesRoots = {
+    val scalaLibraryClasses: ju.List[VirtualFile] = {
       import scala.jdk.CollectionConverters._
       val files =
         if (includeScalaCompiler) compilerClasspath
-        else compilerClasspath.filterNot(compilerFile == _)
+        else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
       files.map(findJarFile).asJava
     }
 
@@ -93,7 +92,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
     def createNewLibrary = PsiTestUtil.addProjectLibrary(
       module,
       scalaSdkName,
-      classesRoots,
+      scalaLibraryClasses,
       ju.Collections.singletonList(sourceRoot)
     )
 

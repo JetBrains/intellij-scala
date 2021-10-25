@@ -102,8 +102,11 @@ abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwn
     }
   }
 
+  protected val includeReflectLibrary: Boolean = true
+  protected val includeCompilerAsLibrary: Boolean = false
+
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader(includeScalaReflect = true),
+    ScalaSDKLoader(includeReflectLibrary, includeCompilerAsLibrary),
     HeavyJDKLoader(testProjectJdkVersion),
     SourcesLoader(getSourceRootDir.getCanonicalPath)
   ) ++ additionalLibraries
