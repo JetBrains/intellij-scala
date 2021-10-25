@@ -293,8 +293,9 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
           }
         }
         true
-      case comp: ScCompoundType =>
-        processDeclarations(comp, this, state, null, place)
+      case comp: ScCompoundType => processDeclarations(comp, this, state, null, place)
+      case and: ScAndType       => processDeclarations(and, this, state, null, place)
+      case or: ScOrType         => processTypeImpl(or.join, place, state, updateWithProjectionSubst)
       case ex: ScExistentialType =>
         processTypeImpl(ex.quantified, place, state.withSubstitutor(ScSubstitutor.empty))
       case ScExistentialArgument(_, _, _, upper) =>
