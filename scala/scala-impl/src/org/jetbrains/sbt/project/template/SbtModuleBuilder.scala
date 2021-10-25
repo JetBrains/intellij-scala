@@ -205,7 +205,7 @@ object SbtModuleBuilder {
 
       val buildPropertiesContent = s"""sbt.version = $sbtVersion"""
 
-      val pluginsSbtContent = """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.1")"""
+      val pluginsSbtContent = """addSbtPlugin("org.jetbrains.scala" % "sbt-ide-settings" % "1.1.1")"""
 
       def ensureSingleNewLineAfter(text: String): String = text.stripTrailing() + "\n"
 
