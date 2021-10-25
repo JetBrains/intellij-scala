@@ -76,6 +76,9 @@ trait ResolveStateOps extends Any {
   def withStableTypeExpected: ResolveState =
     resolveState.put(STABLE_TYPE_EXPECTED, TRUE)
 
+  def withIntersectedReturnType(tpe: ScType): ResolveState =
+    resolveState.put(INTERSECTED_RETURN_TYPE, tpe)
+
   //
   // Getters
   //
@@ -127,6 +130,9 @@ trait ResolveStateOps extends Any {
 
   def stableTypeExpected: Boolean =
     boolean(STABLE_TYPE_EXPECTED)
+
+  def intersectedReturnType: Option[ScType] =
+    option(INTERSECTED_RETURN_TYPE)
 }
 
 private object ResolveStateOps {
@@ -155,7 +161,7 @@ private object ResolveStateOps {
   //covers several cases like import alias, deprecated parameter names and default to "_root_" package
   private val RENAMED_KEY: Key[String] = Key.create("scala.renamed.key")
 
-  // specifies the designator type of an object in an implicit scope, which provided this resolve result
+  //specifies the designator type of an object in an implicit scope, which provided this resolve result
   private val IMPLICIT_SCOPE_OBJECT: Key[ScType] = Key.create("scala.implicit.scope.object")
 
   private val EXTENSION_METHOD: Key[TRUE.type] = Key.create("scala.extension.method.marker")
@@ -163,4 +169,7 @@ private object ResolveStateOps {
   private val EXTENSION_CONTEXT: Key[ScExtension] = Key.create("scala.extension.context")
 
   private val STABLE_TYPE_EXPECTED: Key[TRUE.type] = Key.create("scala.stable.type.expected")
+
+  //a result of merging same signature members coming from an intersection type
+  private val INTERSECTED_RETURN_TYPE: Key[ScType] = Key.create("scala.intersected.return.type")
 }

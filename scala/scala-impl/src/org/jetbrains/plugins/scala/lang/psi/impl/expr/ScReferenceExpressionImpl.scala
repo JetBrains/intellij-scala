@@ -319,7 +319,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case None => return Failure(ScalaBundle.message("no.declared.type.found"))
           }
           case _ =>
-            val result = refPatt.`type`()
+            val result = r.intersectedReturnType.asTypeResult.orElse(refPatt.`type`())
 
             result.map { tp =>
               if (isStableContext(tp) && refPatt.isStable) {
@@ -385,19 +385,23 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         }
       case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
       case result @ ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
-        val maybeResult = fun.definedReturnType.toOption
+        val maybeResult = result.intersectedReturnType.orElse(fun.definedReturnType.toOption)
         val dropExtensionClauses =
           result.isExtension ||
             (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
-        fun.polymorphicType(s, maybeResult, dropExtensionClauses = dropExtensionClauses)
+        fun.polymorphicType(
+          s,
+          maybeResult,
+          dropExtensionClauses = dropExtensionClauses
+        )
       case result @ ScalaResolveResult(fun: ScFunction, s) =>
         val dropExtensionClauses =
           result.isExtension ||
             (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
 
         fun
-          .polymorphicType(s, dropExtensionClauses = dropExtensionClauses)
+          .polymorphicType(s, result.intersectedReturnType, dropExtensionClauses = dropExtensionClauses)
           .updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
@@ -434,7 +438,7 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           }
         } else tail
       case r@ScalaResolveResult(f: ScFieldId, s) =>
-        val result = f.`type`()
+        val result = r.intersectedReturnType.asTypeResult.orElse(f.`type`())
 
         result.map { tp =>
           if (isStableContext(tp) && f.isStable) {
@@ -462,8 +466,9 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case ScalaResolveResult(clazz: PsiClass, _) => ScDesignatorType.static(clazz) //static Java class
       case ScalaResolveResult(field: PsiField, s) =>
         s(field.getType.toScType())
-      case ScalaResolveResult(method: PsiMethod, s) =>
-        val returnType = Option(method.containingClass).filter {
+      case srr @ ScalaResolveResult(method: PsiMethod, s) =>
+        val returnType = srr.intersectedReturnType.orElse(
+          Option(method.containingClass).filter {
           method.getName == "getClass" && _.getQualifiedName == "java.lang.Object"
         }.flatMap { _ =>
           val maybeReference = qualifier.orElse {
@@ -512,7 +517,8 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
           elementScope.getCachedClass("java.lang.Class")
             .map(convertQualifier)
-        }
+        })
+
         method
           .methodTypeProvider(elementScope)
           .polymorphicType(s, returnType)

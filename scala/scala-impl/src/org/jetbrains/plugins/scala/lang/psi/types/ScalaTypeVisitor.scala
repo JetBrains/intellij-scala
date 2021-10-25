@@ -36,4 +36,8 @@ trait ScalaTypeVisitor {
   def visitTypePolymorphicType(t: ScTypePolymorphicType): Unit = {}
 
   def visitMatchType(t: ScMatchType): Unit = {}
+
+  def visitOrType(t: ScOrType): Unit = {}
+
+  def visitAndType(t: ScAndType): Unit = {}
 }
