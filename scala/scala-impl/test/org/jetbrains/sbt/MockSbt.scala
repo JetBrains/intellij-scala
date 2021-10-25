@@ -15,7 +15,7 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
     super.buildVersionsDetailsMessage + s", sbt: $sbtVersion"
   }
 
-  protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(includeScalaReflect = true)
+  protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true)
 
   override def librariesLoaders: Seq[LibraryLoader] =
     Seq(

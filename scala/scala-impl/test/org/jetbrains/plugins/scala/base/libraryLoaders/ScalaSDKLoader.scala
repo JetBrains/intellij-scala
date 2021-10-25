@@ -14,7 +14,10 @@ import org.junit.Assert._
 import java.io.File
 import java.{util => ju}
 
-case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaCompiler: Boolean = false) extends LibraryLoader {
+case class ScalaSDKLoader(
+  includeScalaReflectIntoCompilerClasspath: Boolean = false,
+  includeScalaCompilerIntoLibraryClasspath: Boolean = false
+) extends LibraryLoader {
 
   protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
 
@@ -31,7 +34,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
       )
     }
     else {
-      val maybeScalaReflect = if (includeScalaReflect) Some(scalaReflectDescription) else None
+      val maybeScalaReflect = if (includeScalaReflectIntoCompilerClasspath) Some(scalaReflectDescription) else None
       List(
         scalaCompilerDescription,
         scalaLibraryDescription
@@ -81,7 +84,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
     val scalaLibraryClasses: ju.List[VirtualFile] = {
       import scala.jdk.CollectionConverters._
       val files =
-        if (includeScalaCompiler) compilerClasspath
+        if (includeScalaCompilerIntoLibraryClasspath) compilerClasspath
         else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
       files.map(findJarFile).asJava
     }
