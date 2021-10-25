@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScDefinitionWithAssignment}
 
 /**
  * [[Transformable]] wrapper for all Scala PSI elements.
@@ -19,6 +19,7 @@ class ScalaPsiElementTransformer(val wrappedElement: ScalaPsiElement) extends Tr
     val transformer = wrappedElement match {
       case expression: ScExpression => new ExpressionTransformer(expression)
       case definition: ScDefinitionWithAssignment => new DefinitionTransformer(definition)
+      case declarationStatement: ScDeclaration with ScBlockStatement => new UnknownCallTransformer(declarationStatement)
       case _ => throw TransformationFailedException(wrappedElement, "Unsupported PSI element.")
     }
 

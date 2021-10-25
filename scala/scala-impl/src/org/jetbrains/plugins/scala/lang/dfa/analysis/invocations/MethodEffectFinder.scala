@@ -7,9 +7,9 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiElement, PsiMethod}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.registerParameterValues
-import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
@@ -21,19 +21,20 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: DfaValueFactory) {
 
   def findMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
-                       argumentValues: Map[Argument, DfaValue]): MethodEffect = {
+                       argumentValues: Map[Argument, DfaValue],
+                       qualifier: Option[PsiElement]): MethodEffect = {
     invocationInfo.invokedElement match {
       case None => MethodEffect(unknownDfaValue, isPure = false, handledSpecially = false)
       case Some(invokedElement) =>
         findCommonMethodEffect(invokedElement, argumentValues, stateBefore)
-          .getOrElse(findScalaMethodEffect(interpreter, stateBefore, argumentValues))
+          .getOrElse(findScalaMethodEffect(interpreter, stateBefore, argumentValues, qualifier))
     }
   }
 
   private def findCommonMethodEffect(invokedElement: InvokedElement,
                                      argumentValues: Map[Argument, DfaValue],
                                      stateBefore: DfaMemoryState): Option[MethodEffect] = {
-    implicit val projectContext: ProjectContext = invokedElement.psiElement.getProject
+    implicit val context: ProjectContext = invokedElement.psiElement.getProject
     val commonHandler = findArgumentsPrimitiveType(argumentValues).flatMap { argumentsType =>
       invokedElement.qualifiedName
         .flatMap(CommonMethodsMapping.get(_, argumentsType))
@@ -59,14 +60,15 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
   }
 
   private def findScalaMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
-                                    argumentValues: Map[Argument, DfaValue])
+                                    argumentValues: Map[Argument, DfaValue], qualifier: Option[PsiElement])
                                    (implicit factory: DfaValueFactory): MethodEffect = {
     val returnType = invocationInfo.invokedElement
       .map(element => scTypeToDfType(element.returnType))
       .getOrElse(DfType.TOP)
 
     val classesEnhancement = findSpecialSupportForClasses(invocationInfo, argumentValues) match {
-      case Some((classParamValues, methodEffect)) => registerParameterValues(classParamValues, interpreter, stateBefore)
+      case Some((classParamValues, methodEffect)) =>
+        registerParameterValues(classParamValues, qualifier, interpreter, stateBefore)
         Some(methodEffect)
       case _ => None
     }

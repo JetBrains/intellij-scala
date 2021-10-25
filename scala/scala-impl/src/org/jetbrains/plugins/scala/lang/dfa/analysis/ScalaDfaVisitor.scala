@@ -1,23 +1,16 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis
 
+import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.dataFlow.interpreter.{RunnerResult, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState}
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.psi.PsiElement
-import com.intellij.util.ThreeState
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.LogicalBinary
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
@@ -30,7 +23,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
 
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
     try {
-      function.body.foreach(executeDataFlowAnalysis)
+      function.body.foreach(executeDataFlowAnalysis(_, function))
     } catch {
       case transformationFailed: TransformationFailedException =>
         Log.info(errorMessage(function.name, transformationFailed.toString))
@@ -43,87 +36,25 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     s"Dataflow analysis failed for function definition $functionName. Reason: $reason"
   }
 
-  private def executeDataFlowAnalysis(body: ScBlockStatement): Unit = {
+  private def executeDataFlowAnalysis(body: ScBlockStatement, function: ScFunctionDefinition): Unit = {
     val factory = new DfaValueFactory(problemsHolder.getProject)
     val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
 
-    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+    val analysedMethodInfo = AnalysedMethodInfo(function, 1)
+    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
     val flow = controlFlowBuilder.build()
 
     val listener = new ScalaDfaListener
     val interpreter = new StandardDataFlowInterpreter(flow, listener)
     if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
-      reportProblems(listener)
+      val problemReporter = new ScalaDfaProblemReporter(problemsHolder)
+      problemReporter.reportProblems(listener)
     }
   }
 
   private def buildInterpreterStates(memoryStates: Iterable[JvmDfaMemoryStateImpl],
                                      flow: ControlFlow): List[DfaInstructionState] = {
     memoryStates.map(new DfaInstructionState(flow.getInstruction(0), _)).toList
-  }
-
-  private def reportProblems(listener: ScalaDfaListener): Unit = {
-    listener.collectConstantConditions
-      .filter { case (_, value) => value != DfaConstantValue.Unknown }
-      .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
-
-    listener.collectUnsatisfiedConditions
-      .filter { case (_, occurred) => occurred == ThreeState.YES }
-      .foreach { case (problem, _) => reportUnsatisfiedProblem(problem) }
-  }
-
-  private def reportConstantCondition(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
-    anchor match {
-      case statementAnchor: ScalaStatementAnchor =>
-        val statement = statementAnchor.statement
-        val message = constantValueToProblemMessage(value, getProblemTypeForStatement(statementAnchor.statement))
-        if (!shouldSuppress(statement)) {
-          problemsHolder.registerProblem(statement, message)
-        }
-      case _ =>
-    }
-  }
-
-  private def reportUnsatisfiedProblem(problem: ScalaDfaProblem): Unit = {
-    problem match {
-      case ScalaCollectionAccessProblem(_, accessExpression, exceptionName) =>
-        val message = exceptionNameToProblemMessage(exceptionName)
-        problemsHolder.registerProblem(accessExpression, message)
-      case ScalaNullAccessProblem(accessExpression) =>
-        val message = exceptionNameToProblemMessage(NullPointerExceptionName)
-        problemsHolder.registerProblem(accessExpression, message)
-      case _ =>
-    }
-  }
-
-  private def getProblemTypeForStatement(statement: ScBlockStatement): ProblemHighlightType = statement match {
-    case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
-    case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-  }
-
-  private def shouldSuppress(statement: ScBlockStatement): Boolean = {
-    val parent = findProperParent(statement)
-    statement match {
-      case _: ScExpression if parent.exists(_.is[ScPrefixExpr]) => true
-      case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
-      case _: ScLiteral => true
-      case infix: ScInfixExpr if LogicalBinary.contains(infix.operation.refName) => parent match {
-        case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
-        case _ => false
-      }
-      case _ => false
-    }
-  }
-
-  private def findProperParent(statement: ScBlockStatement): Option[PsiElement] = {
-    var parent = statement.parent
-    while (parent match {
-      case Some(_: ScParenthesisedExpr) => true
-      case _ => false
-    }) {
-      parent = parent.get.parent
-    }
-    parent
   }
 }

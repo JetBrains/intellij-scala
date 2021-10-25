@@ -35,7 +35,7 @@ object CollectionAccessAssertions {
       invokedElement <- invocationInfo.invokedElement
       invokedName <- invokedElement.qualifiedName
     } yield {
-      implicit val projectContext: ProjectContext = invokedElement.psiElement.getProject
+      implicit val context: ProjectContext = invokedElement.psiElement.getProject
       val properArgs = invocationInfo.properArguments.flatten
 
       invokedName match {
@@ -50,7 +50,7 @@ object CollectionAccessAssertions {
     accessInfo.flatten
   }
 
-  private def indexZero(implicit projectContext: ProjectContext): Transformable = {
+  private def indexZero(implicit context: ProjectContext): Transformable = {
     new ExpressionTransformer(createIntegerLiteralExpression(0))
   }
 

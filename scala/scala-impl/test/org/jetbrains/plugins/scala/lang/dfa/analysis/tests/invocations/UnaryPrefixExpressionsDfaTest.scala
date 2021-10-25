@@ -53,8 +53,6 @@ class UnaryPrefixExpressionsDfaTest extends ScalaDfaTestBase {
     "3 > 99" -> ConditionAlwaysFalse,
     "9 >= 9" -> ConditionAlwaysTrue,
     "if (!p1) 9 >= 9 else 9 > 9" -> ConditionAlwaysTrue,
-    "p2" -> ConditionAlwaysTrue,
-    "p2" -> ConditionAlwaysTrue,
     "u == 1" -> ConditionAlwaysFalse,
     "x != -9" -> ConditionAlwaysFalse,
     "y < 100" -> ConditionAlwaysFalse,

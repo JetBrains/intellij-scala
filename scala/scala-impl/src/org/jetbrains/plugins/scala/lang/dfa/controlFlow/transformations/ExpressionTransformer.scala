@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
-import com.intellij.psi.{PsiMethod, PsiNamedElement}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class ExpressionTransformer(val wrappedExpression: ScExpression)
   extends ScalaPsiElementTransformer(wrappedExpression) {
@@ -21,19 +22,33 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, builder)
     case invocation: MethodInvocation => transformInvocation(invocation, builder)
     case literal: ScLiteral => transformLiteral(literal, builder)
-    case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => transformReference(reference, builder)
     case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
     case newTemplateDefinition: ScNewTemplateDefinition => transformNewTemplateDefinition(newTemplateDefinition, builder)
     case assignment: ScAssignment => transformAssignment(assignment, builder)
-    case underscoreSection: ScUnderscoreSection => builder.pushUnknownCall(underscoreSection, 0)
-    case functionExpression: ScFunctionExpr => builder.pushUnknownCall(functionExpression, 0)
+    case doWhileLoop: ScDo => transformDoWhileLoop(doWhileLoop, builder)
+    case whileLoop: ScWhile => transformWhileLoop(whileLoop, builder)
+    case forExpression: ScFor => transformForExpression(forExpression, builder)
+    case matchExpression: ScMatch => transformMatchExpression(matchExpression, builder)
+    case throwStatement: ScThrow => transformThrowStatement(throwStatement, builder)
+    case returnStatement: ScReturn => transformReturnStatement(returnStatement, builder)
+    case _: ScTemplateDefinition => builder.pushUnknownValue()
+    case otherExpression if isUnsupportedPureExpressionType(otherExpression) => builder.pushUnknownValue()
+    case otherExpression if isUnsupportedImpureExpressionType(otherExpression) => builder.pushUnknownCall(otherExpression, 0)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
   protected def transformExpression(expression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
     new ExpressionTransformer(expression).transform(builder)
+  }
+
+  private def isUnsupportedPureExpressionType(expression: ScExpression): Boolean = {
+    expression.is[ScUnitExpr, ScTuple, ScThisReference, ScSuperReference]
+  }
+
+  private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
+    expression.is[ScTry, ScFunctionExpr, ScUnderscoreSection, ScGenericCall]
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
@@ -60,10 +75,9 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformLiteral(literal: ScLiteral, builder: ScalaDfaControlFlowBuilder): Unit = {
-    builder.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
+    if (literal.is[ScInterpolatedStringLiteral]) builder.pushUnknownCall(literal, 0)
+    else builder.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
   }
-
-  private def transformUnitExpression(builder: ScalaDfaControlFlowBuilder): Unit = builder.pushUnknownValue()
 
   private def transformIfExpression(ifExpression: ScIf, builder: ScalaDfaControlFlowBuilder): Unit = {
     val skipThenOffset = new DeferredOffset
@@ -115,13 +129,43 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
 
   private def transformAssignment(assignment: ScAssignment, builder: ScalaDfaControlFlowBuilder): Unit = {
     assignment.leftExpression match {
-      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
-        case Some(element: PsiNamedElement) =>
-          val descriptor = ScalaDfaVariableDescriptor(element, isStable = false)
-          builder.assignVariableValue(descriptor, assignment.rightExpression)
+      case reference: ScReferenceExpression => ScalaDfaVariableDescriptor.fromReferenceExpression(reference) match {
+        case Some(descriptor) => builder.assignVariableValue(descriptor, assignment.rightExpression)
         case _ => builder.pushUnknownCall(assignment, 0)
       }
       case _ => builder.pushUnknownCall(assignment, 0)
     }
+  }
+
+  private def transformDoWhileLoop(doWhileLoop: ScDo, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement transformation
+    builder.pushUnknownCall(doWhileLoop, 0)
+  }
+
+  private def transformWhileLoop(whileLoop: ScWhile, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement transformation
+    builder.pushUnknownCall(whileLoop, 0)
+  }
+
+  private def transformForExpression(forExpression: ScFor, builder: ScalaDfaControlFlowBuilder): Unit = {
+    forExpression.desugared() match {
+      case Some(desugared) => transformExpression(desugared, builder)
+      case _ => builder.pushUnknownCall(forExpression, 0)
+    }
+  }
+
+  private def transformMatchExpression(matchExpression: ScMatch, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement transformation
+    builder.pushUnknownCall(matchExpression, 0)
+  }
+
+  private def transformThrowStatement(throwStatement: ScThrow, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement transformation
+    throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
+  }
+
+  private def transformReturnStatement(returnStatement: ScReturn, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement transformation
+    throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 }

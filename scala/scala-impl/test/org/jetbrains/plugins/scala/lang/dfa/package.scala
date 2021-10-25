@@ -47,6 +47,10 @@ package object dfa {
        |  final def methodWithDefaultParam(arg1: Int, arg2: Int, arg3: Int = 7): Int = {
        |    if (arg1 < arg2) arg3 + arg2 - arg1 else arg3 + arg1 - arg2
        |  }
+       |
+       |  implicit class IntWrapper(wrapped: Int) {
+       |    def timesAndPlus(other: Int): Int = wrapped * other + other
+       |  }
        |}
        |""".stripMargin
 }

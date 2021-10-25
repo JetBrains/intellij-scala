@@ -21,6 +21,7 @@ object CollectionsSpecialSupport {
       invokedName <- invokedElement.qualifiedName
     } yield invokedName match {
       case name if !name.startsWith(ScalaCollection) => (None, false)
+      case name if name.startsWith(ScalaCollectionMutable) => (None, false)
       case name if name.endsWith("immutable.List.::") =>
         (supportConsOperator(invocationInfo, argumentValues, state), true)
       case name if name.endsWith("immutable.List.apply") || name.endsWith("IterableFactory.apply") =>

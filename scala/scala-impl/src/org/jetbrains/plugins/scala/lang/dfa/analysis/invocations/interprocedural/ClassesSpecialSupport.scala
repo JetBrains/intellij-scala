@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport
+package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural
 
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}

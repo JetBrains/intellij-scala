@@ -25,13 +25,16 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
       |  def main(): Int = {
       |    val grades = List(3, 4, 1)
       |    val p1 = Person(22, grades)
-      |    p1.age >= 20
+      |    val p2 = Person(30, grades)
+      |    p1.age == 22
+      |    p2.age == 30
       |    p1.grades(5)
       |  }
       |}
       |""".stripMargin
   }(
-    "p1.age >= 20" -> ConditionAlwaysTrue,
+    "p1.age == 22" -> ConditionAlwaysTrue,
+    "p2.age == 30" -> ConditionAlwaysTrue,
     "p1.grades(5)" -> InvocationIndexOutOfBounds
   )
 
@@ -43,14 +46,17 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
       |  def main(p2: Person): Int = {
       |    val grades = List(3, 4, 1)
       |    val p1 = new Person(22, grades)
+      |    val p2 = new Person(30, grades)
       |    p1 == p2 // test if p1 is not assigned with a wrong type
-      |    p1.age >= 20
+      |    p2.age == 30
+      |    p1.age == 22
       |    p1.grades(5)
       |  }
       |}
       |""".stripMargin
   }(
-    "p1.age >= 20" -> ConditionAlwaysTrue,
+    "p2.age == 30" -> ConditionAlwaysTrue,
+    "p1.age == 22" -> ConditionAlwaysTrue,
     "p1.grades(5)" -> InvocationIndexOutOfBounds
   )
 
@@ -63,5 +69,23 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
       |""".stripMargin
   })(
     "z == 15" -> ConditionAlwaysTrue
+  )
+
+  def testSuppressingWarningsForSomeNamedReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val x = 2
+      |
+      |val verbose = true
+      |if (verbose) {
+      |  val argCount = 0
+      |  foo(verbose, argCount)
+      |} else {
+      |  3
+      |}
+      |
+      |x == 2
+      |""".stripMargin
+  })(
+    "x == 2" -> ConditionAlwaysTrue
   )
 }

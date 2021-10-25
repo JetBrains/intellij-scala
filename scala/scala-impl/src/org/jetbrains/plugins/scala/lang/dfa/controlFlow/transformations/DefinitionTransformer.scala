@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockStatement, ScExpression, ScNewTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScFunctionDefinition, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
 class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
   extends ScalaPsiElementTransformer(wrappedDefinition) {
@@ -11,26 +13,36 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = wrappedDefinition match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition, builder)
     case variableDefinition: ScVariableDefinition => transformVariableDefinition(variableDefinition, builder)
+    case _: ScFunctionDefinition => builder.pushUnknownValue()
+    case otherStatementDefinition: ScBlockStatement => builder.pushUnknownCall(otherStatementDefinition, 0)
     case _ => throw TransformationFailedException(wrappedDefinition, "Unsupported definition.")
   }
 
   private def transformPatternDefinition(definition: ScPatternDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
-    transformSimpleDefinition(definition, builder, definition.isStable)
+    transformDefinitionIfSimple(definition, builder, definition.isStable)
   }
 
   private def transformVariableDefinition(definition: ScVariableDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
-    transformSimpleDefinition(definition, builder, isStable = false)
+    transformDefinitionIfSimple(definition, builder, isStable = false)
   }
 
-  private def transformSimpleDefinition(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder,
-                                        isStable: Boolean): Unit = {
+  private def transformDefinitionIfSimple(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder,
+                                          isStable: Boolean): Unit = {
     if (!definition.isSimple) {
       builder.pushUnknownCall(definition, 0)
-      return
-    }
+    } else {
+      val binding = definition.bindings.head
+      val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
 
-    val binding = definition.bindings.head
-    val descriptor = ScalaDfaVariableDescriptor(binding, isStable && binding.isStable)
-    builder.assignVariableValue(descriptor, definition.expr)
+      if (definition.expr.exists(canBeClassInstantiationExpression)) {
+        builder.assignVariableValueWithInstanceQualifier(descriptor, definition.expr, binding)
+      } else {
+        builder.assignVariableValue(descriptor, definition.expr)
+      }
+    }
+  }
+
+  private def canBeClassInstantiationExpression(expression: ScExpression): Boolean = {
+    expression.is[ScNewTemplateDefinition, MethodInvocation]
   }
 }

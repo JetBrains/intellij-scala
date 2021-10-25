@@ -4,6 +4,7 @@ import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.commonCodeTemplate
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
@@ -26,7 +27,8 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           functionVisited = true
 
           val factory = new DfaValueFactory(getProject)
-          val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+          val analysedMethodInfo = AnalysedMethodInfo(function, 1)
+          val controlFlowBuilder = new ScalaDfaControlFlowBuilder(analysedMethodInfo, factory, body)
           new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
           val flow = controlFlowBuilder.build()
 

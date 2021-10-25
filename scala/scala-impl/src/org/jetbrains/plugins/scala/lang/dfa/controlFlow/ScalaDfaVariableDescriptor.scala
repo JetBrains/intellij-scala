@@ -9,11 +9,13 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableEle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-case class ScalaDfaVariableDescriptor(variable: PsiElement, override val isStable: Boolean)
+case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[PsiElement], override val isStable: Boolean)
   extends JvmVariableDescriptor {
 
-  override def toString: String = variable match {
-    case namedElement: PsiNamedElement => namedElement.name
+  override def toString: String = (qualifier, variable) match {
+    case (Some(qualifierExpression), namedElement: PsiNamedElement) =>
+      s"${qualifierExpression.getText}.${namedElement.name}"
+    case (None, namedElement: PsiNamedElement) => namedElement.name
     case _ => "<unknown>"
   }
 
@@ -26,8 +28,13 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement, override val isStabl
 object ScalaDfaVariableDescriptor {
 
   def fromReferenceExpression(expression: ScReferenceExpression): Option[ScalaDfaVariableDescriptor] = {
+    val qualifier = expression.qualifier match {
+      case Some(reference: ScReferenceExpression) => reference.bind().map(_.element)
+      case _ => None
+    }
+
     expression.getReference.bind()
       .map(_.element)
-      .map(element => ScalaDfaVariableDescriptor(element, isStableElement(element)))
+      .map(element => ScalaDfaVariableDescriptor(element, qualifier, isStableElement(element)))
   }
 }
