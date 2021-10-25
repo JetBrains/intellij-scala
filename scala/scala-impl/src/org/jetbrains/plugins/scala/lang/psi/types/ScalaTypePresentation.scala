@@ -326,6 +326,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
+      case ScAndType(lhs, rhs) => innerTypeText(lhs) + " & " + innerTypeText(rhs)
+      case ScOrType(lhs, rhs) => innerTypeText(lhs) + " | " + innerTypeText(rhs)
       case c: ScCompoundType =>
         compoundTypeText(c)
       case ex: ScExistentialType =>

@@ -65,6 +65,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def forwardReference: Boolean = state.isForwardRef
     def extensionMethod: Boolean = state.isExtensionMethod
     def extensionContext: Option[ScExtension] = state.extensionContext
+    def intersectedReturnType: Option[ScType] = state.intersectedReturnType
     def importsUsed = state.importsUsed
 
     if (nameMatches(namedElement) || constructorResolve) {
@@ -88,7 +89,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
               isForwardReference       = forwardReference,
               unresolvedTypeParameters = unresolvedTypeParameters,
               isExtension              = extensionMethod,
-              extensionContext         = extensionContext
+              extensionContext         = extensionContext,
+              intersectedReturnType    = intersectedReturnType
             )
           )
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
@@ -168,7 +170,7 @@ class MethodResolveProcessor(override val ref: PsiElement,
           addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
-            unresolvedTypeParameters = unresolvedTypeParameters))
+            unresolvedTypeParameters = unresolvedTypeParameters, intersectedReturnType = intersectedReturnType))
       }
     }
     true
