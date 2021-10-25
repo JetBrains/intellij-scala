@@ -4,13 +4,13 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3, SemanticDbStore}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
@@ -40,6 +40,7 @@ class AfterUpdateDottyVersionScript
       Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
       Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
       Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3]) #::
+      Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]) #::
         LazyList.empty
     tests.foreach(runScript)
   }
