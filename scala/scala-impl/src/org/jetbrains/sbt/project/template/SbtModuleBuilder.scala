@@ -10,7 +10,7 @@ import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.template.{FileExt, patchProjectLabels}
-import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Versions}
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.SbtModuleBuilder._
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{DefaultModuleContentEntryFolders, doSetupModule}
@@ -189,19 +189,34 @@ object SbtModuleBuilder {
       (root / mainSourcesPath).mkdirs()
       (root / testSourcesPath).mkdirs()
 
-      val packagePrefixContent = packagePrefix.fold("")({ prefix =>
-        s"""
-           |idePackagePrefix := Some("$prefix")
-           |""".stripMargin
-      })
+      val rootProjectSettings: Seq[String] = Seq(
+        s"""name := "$name""""
+      ) ++ packagePrefix.map { p =>
+        s"""idePackagePrefix := Some("$p")""".stripMargin
+      }
 
+      val version = """0.1.0-SNAPSHOT"""
+
+      // Slash syntax was introduced in sbt 1.1 (https://www.scala-sbt.org/1.x/docs/Migrating-from-sbt-013x.html)
+      val isAtLeastSbt_1_1 = Version(sbtVersion) >= Version("1.1")
+      val buildSbtBaseContent = if (isAtLeastSbt_1_1)
+        s"""ThisBuild / version := "$version"
+           |
+           |ThisBuild / scalaVersion := "$scalaVersion""""
+      else
+        s"""version in ThisBuild := "$version"
+           |
+           |scalaVersion in ThisBuild := "$scalaVersion""""
+
+      val indent = "    "
       val buildSbtContent =
-        s"""name := "$name"
+        s"""$buildSbtBaseContent
            |
-           |version := "0.1.0-SNAPSHOT"
-           |
-           |scalaVersion := "$scalaVersion"
-           |""".stripMargin + packagePrefixContent
+           |lazy val root = (project in file("."))
+           |  .settings(
+           |$indent${rootProjectSettings.mkString("", s"\n$indent", "")}
+           |  )
+           |""".stripMargin
 
       val buildPropertiesContent = s"""sbt.version = $sbtVersion"""
 
