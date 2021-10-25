@@ -24,6 +24,7 @@ import java.nio.file.Paths
 (Global / javacOptions) := globalJavacOptions
 
 (Global / scalacOptions) := globalScalacOptions
+(Global / compile / inputFileStamper) := sbt.nio.FileStamper.LastModified
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
