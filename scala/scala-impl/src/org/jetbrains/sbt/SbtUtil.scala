@@ -176,7 +176,7 @@ object SbtUtil {
     val emptyURI = new URI("")
 
     getModuleData(project, moduleId, SbtBuildModuleData.Key)
-      .find(_.buildFor != emptyURI)
+      .find(_.buildFor.uri != emptyURI)
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
