@@ -420,10 +420,11 @@ class ReturnExpressionAnnotatorTest extends AnnotatorSimpleTestCase {
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(parse)
 
     parse.depthFirst().filterByType[ScFunctionDefinition].foreach { fun =>
-      fun.returnUsages.flatMap {
+      val returnUsages = fun.returnUsages.flatMap {
         case r: ScReturn => Set(r) ++ r.expr
-        case e           => Set(e)
-      }.foreach(annotator.annotate)
+        case e => Set(e)
+      }
+      (fun.body.toSet ++ returnUsages).foreach(annotator.annotate)
     }
 
     mock.annotations.filter(_.message != null)
