@@ -10,8 +10,13 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription,
 import scala.annotation.nowarn
 import scala.collection.mutable
 
-case class IvyManagedLoader(dependencies: DependencyDescription*) extends LibraryLoader {
-  protected lazy val dependencyManager: DependencyManagerBase = TestDependencyManager
+final class IvyManagedLoader(
+  dependencyManager: DependencyManagerBase,
+  dependencies: DependencyDescription*
+) extends LibraryLoader {
+
+  def this(dependencies: DependencyDescription*) =
+    this(TestDependencyManager, dependencies: _*)
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val resolved = IvyManagedLoader.cache.getOrElseUpdate(
@@ -26,6 +31,12 @@ case class IvyManagedLoader(dependencies: DependencyDescription*) extends Librar
 }
 
 object IvyManagedLoader {
+
+  def apply(dependencies: DependencyDescription*): IvyManagedLoader =
+    new IvyManagedLoader(dependencies: _*)
+
+  def apply(dependencyManager: DependencyManagerBase, dependencies: DependencyDescription*): IvyManagedLoader =
+    new IvyManagedLoader(dependencyManager, dependencies: _*)
 
   private val cache: mutable.Map[
     Seq[DependencyDescription],

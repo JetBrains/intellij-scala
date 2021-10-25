@@ -26,7 +26,7 @@ import scala.util.control.NonFatal
 abstract class ScalaCompilerReferenceServiceFixture extends JavaCodeInsightFixtureTestCase with ScalaSdkOwner {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflect = true))
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(HeavyJDKLoader(), ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true))
 
   private[this] val compilerIndexLock: Lock                = new ReentrantLock()
   private[this] val indexReady: Condition                  = compilerIndexLock.newCondition()
