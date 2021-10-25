@@ -27,16 +27,21 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 import scala.annotation.tailrec
 
 object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
-
   override def annotate(element: ScExpression, typeAware: Boolean)
-                       (implicit holder: ScalaAnnotationHolder): Unit = {
+                       (implicit holder: ScalaAnnotationHolder): Unit =
+    annotateImpl(element, typeAware)
+
+  private[annotator] def annotateImpl(element: ScExpression, typeAware: Boolean, fromBlock: Boolean = false)
+                                     (implicit holder: ScalaAnnotationHolder): Unit = {
     // TODO Annotating ScUnderscoreSection is technically correct, but reveals previously hidden red code in ScalacTestdataHighlightingTest.tuples_1.scala
     // TODO see visitUnderscoreExpression in ScalaAnnotator
     //  EDIT: the only failing test was scala/scala-impl/testdata/scalacTests/pos/t3864/tuples_1.scala
     //  it was extracted to https://youtrack.jetbrains.com/issue/SCL-18683
-    if (element.is[ScUnderscoreSection] && element.getParent.is[ScParameter]) {
+    if (element.is[ScUnderscoreSection] && element.getParent.is[ScParameter])
       return
-    }
+
+    if (!fromBlock && annotatedByBlockExpr(element))
+      return
 
     val compiled = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
 

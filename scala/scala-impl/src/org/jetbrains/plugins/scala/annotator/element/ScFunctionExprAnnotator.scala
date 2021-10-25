@@ -16,10 +16,18 @@ import org.jetbrains.plugins.scala.util.SAMUtil.toSAMType
 
 object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
 
-  override def annotate(literal: ScFunctionExpr, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!typeAware || isImplicitlyConverted(literal)) {
+  override def annotate(literal: ScFunctionExpr, typeAware: Boolean)
+                       (implicit holder: ScalaAnnotationHolder): Unit =
+    annotateImpl(literal, typeAware)
+
+
+  private[annotator] def annotateImpl(literal: ScFunctionExpr, typeAware: Boolean, fromBlock: Boolean = false)
+                                     (implicit holder: ScalaAnnotationHolder): Unit = {
+    if (!typeAware || isImplicitlyConverted(literal))
       return
-    }
+
+    if (!fromBlock && annotatedByBlockExpr(literal))
+      return
 
     val parameters = literal.parameters
 

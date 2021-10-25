@@ -48,6 +48,20 @@ class ScalaAnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVisi
     "val foo = 42",
     "worksheet.sc"
   )()
+
+  //SCL-19631
+  def testNoExternalAnnotations(): Unit = doTest(
+    fileText = """trait MyIterable[+A] {
+                 |  def map[B](f: A => B): MyIterable[B] = ???
+                 |}
+                 |object Foo {
+                 |  val myIterable: MyIterable[Boolean] = ???
+                 |  collectAllParN(1)(myIterable.map { it =>
+                 |    ???
+                 |    it
+                 |  }) // we were trying to highlight closing brace when annotating the function expression
+                 |  def collectAllParN[A](n: Int)(as: MyIterable[Int]) = ???
+                 |}""".stripMargin)()
 }
 
 class Scala3AnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVisitorTestBase {
@@ -58,3 +72,4 @@ class Scala3AnnotatorHighlighterVisitorTest extends ScalaAnnotatorHighlighterVis
     "trait Foo() {}"
   )()
 }
+

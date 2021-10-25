@@ -21,6 +21,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
   private val Instances =
     ScAnnotationAnnotator ::
       ScAssignmentAnnotator ::
+      ScBlockExprAnnotator ::
       ScCatchBlockAnnotator ::
       ScCharLiteralAnnotator ::
       ScClassAnnotator ::
