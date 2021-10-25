@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -199,6 +199,7 @@ final class SyntheticClasses(project: Project) {
       numeric.clear()
       integer.clear()
       syntheticObjects.clear()
+      syntheticAliases.clear()
     }
 
     stringPlusMethod = null
@@ -219,6 +220,7 @@ final class SyntheticClasses(project: Project) {
   var numeric: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
   var integer: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
   val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
+  val syntheticAliases: mutable.Set[ScTypeAlias]      = new mutable.HashSet[ScTypeAlias]
 
   private[synthetic]
   var file : PsiFile = _
@@ -315,13 +317,13 @@ final class SyntheticClasses(project: Project) {
 
     //register synthetic objects
     def registerObject(debugName: String, fileText: String): Unit = {
-      val dummyFile = createDummyFile(debugName: String, fileText)
+      val dummyFile = createDummyFile(debugName, fileText)
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects.put(obj.qualifiedName, obj)
     }
 
     def createAndRegisterClass(debugName: String, fileText: String): Unit = {
-      val dummyFile = createDummyFile(debugName: String, fileText)
+      val dummyFile = createDummyFile(debugName, fileText)
       val cls = dummyFile.typeDefinitions.head.asInstanceOf[PsiClass]
       all.put(cls.name, cls)
     }
@@ -466,6 +468,29 @@ package scala
 object Unit
 """
     )
+
+    def registerAlias(text: String): Unit = {
+      val file  = ScalaPsiElementFactory.createScalaFileFromText(text, language = Option(Scala3Language.INSTANCE))
+      val alias = file.members.head.asInstanceOf[ScTypeAlias]
+      syntheticAliases += alias
+    }
+
+    registerAlias(
+      """
+        |package scala
+        |
+        |type &[A, B]
+        |""".stripMargin
+    )
+
+    registerAlias(
+      """
+        |package scala
+        |
+        |type |[A, B]
+        |""".stripMargin
+    )
+
 
     classesInitialized = true
   }
