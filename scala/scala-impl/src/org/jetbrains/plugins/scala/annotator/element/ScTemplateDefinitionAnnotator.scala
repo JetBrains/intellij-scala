@@ -376,7 +376,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
                             (implicit holder: ScalaAnnotationHolder): Unit = {
     if (element.is[ScTrait]) return
 
-    val nodes = TypeDefinitionMembers.getSignatures(element).allNodesIterator
+    val nodes = TypeDefinitionMembers.getSignatures(element).allNodes
 
     def isOverrideAndAbstract(definition: ScFunctionDefinition) =
       definition.hasModifierPropertyScala(PsiModifier.ABSTRACT) &&

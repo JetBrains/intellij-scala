@@ -76,33 +76,67 @@ class ScalaPsiManager(implicit val project: Project) {
     else getStableSignaturesCached(tp, compoundTypeThisType)
   }
 
-  private val getStableSignaturesCached = cachedWithoutModificationCount("ScalaPsiManager.getStableSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
-    StableNodes.build(tp, compoundTypeThisType)
-  })
+  private val getStableSignaturesCached =
+    cachedWithoutModificationCount("ScalaPsiManager.getStableSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
+      StableNodes.build(tp, compoundTypeThisType)
+    })
 
   def getTypes(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): TMap = {
     if (dontCacheCompound) TypeNodes.build(tp, compoundTypeThisType)
     else getTypesCached(tp, compoundTypeThisType)
   }
 
-  private val getTypesCached = cachedWithoutModificationCount("ScalaPsiManager.getTypesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
-    TypeNodes.build(tp, compoundTypeThisType)
-  })
+  private val getTypesCached =
+    cachedWithoutModificationCount("ScalaPsiManager.getTypesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
+      TypeNodes.build(tp, compoundTypeThisType)
+    })
 
   def getSignatures(tp: ScCompoundType, compoundTypeThisType: Option[ScType]): SMap = {
     if (dontCacheCompound) return TermNodes.build(tp, compoundTypeThisType)
     getSignaturesCached(tp, compoundTypeThisType)
   }
 
-  private val getSignaturesCached = cachedWithoutModificationCount("ScalaPsiManager.getSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
-    TermNodes.build(tp, compoundTypeThisType)
-  })
+  private val getSignaturesCached =
+    cachedWithoutModificationCount("ScalaPsiManager.getSignaturesCached", ValueWrapper.SofterReference, clearCacheOnChange, (tp: ScCompoundType, compoundTypeThisType: Option[ScType]) => {
+      TermNodes.build(tp, compoundTypeThisType)
+    })
+
+  def getStableSignatures(tp: ScAndType): PMap = {
+    if (dontCacheCompound) StableNodes.build(tp)
+    else getIntersectionStableSignaturesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionStableSignaturesCached(tp: ScAndType): PMap = {
+    StableNodes.build(tp)
+  }
+
+  def getTypes(tp: ScAndType): TMap = {
+    if (dontCacheCompound) TypeNodes.build(tp)
+    else getIntersectionTypesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionTypesCached(tp: ScAndType): TMap = {
+    TypeNodes.build(tp)
+  }
+
+  def getSignatures(tp: ScAndType): SMap = {
+    if (dontCacheCompound) return TermNodes.build(tp)
+    getIntersectionSignaturesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionSignaturesCached(tp: ScAndType): SMap = {
+    TermNodes.build(tp)
+  }
 
   def simpleAliasProjectionCached(projection: ScProjectionType): ScType = _simpleAliasProjectionCached(projection)
 
-  private val _simpleAliasProjectionCached = cachedWithoutModificationCount("ScalaPsiManager.simpleAliasProjectionCached", ValueWrapper.SofterReference, clearCacheOnChange, (projection: ScProjectionType) => {
-    ScProjectionType.simpleAliasProjection(projection)
-  })
+  private val _simpleAliasProjectionCached =
+    cachedWithoutModificationCount("ScalaPsiManager.simpleAliasProjectionCached", ValueWrapper.SofterReference, clearCacheOnChange, (projection: ScProjectionType) => {
+      ScProjectionType.simpleAliasProjection(projection)
+    })
 
   def getPackageImplicitObjects(fqn: String, scope: GlobalSearchScope): Seq[ScObject] = {
     if (DumbService.getInstance(project).isDumb) Seq.empty
