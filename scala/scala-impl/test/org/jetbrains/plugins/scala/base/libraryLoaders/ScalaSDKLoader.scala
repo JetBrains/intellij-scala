@@ -1,19 +1,19 @@
-package org.jetbrains.plugins.scala
-package base
-package libraryLoaders
+package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 import org.junit.Assert._
 
 import java.io.File
 import java.{util => ju}
 
+/** @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]] */
 case class ScalaSDKLoader(
   includeScalaReflectIntoCompilerClasspath: Boolean = false,
   includeScalaCompilerIntoLibraryClasspath: Boolean = false
