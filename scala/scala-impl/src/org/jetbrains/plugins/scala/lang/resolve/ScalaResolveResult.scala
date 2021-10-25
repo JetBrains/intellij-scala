@@ -59,7 +59,8 @@ class ScalaResolveResult(
   val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
   val implicitScopeObject:      Option[ScType] = None,
   val isExtension:              Boolean = false, /** true, if resolved reference was an extension method */
-  val extensionContext:         Option[ScExtension] = None /** enclosing extension, important for resolving extension methods */
+  val extensionContext:         Option[ScExtension] = None /** enclosing extension, important for resolving extension methods */,
+  val intersectedReturnType:    Option[ScType] = None /** if this result was created from an intersected signature, it's return type */
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -120,7 +121,8 @@ class ScalaResolveResult(
     unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
     implicitScopeObject:      Option[ScType]             = implicitScopeObject,
     isExtension:              Boolean                    = isExtension,
-    extensionContext:         Option[ScExtension]        = extensionContext
+    extensionContext:         Option[ScExtension]        = extensionContext,
+    intersectedReturnType:    Option[ScType]             = intersectedReturnType
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -149,7 +151,8 @@ class ScalaResolveResult(
       unresolvedTypeParameters = unresolvedTypeParameters,
       implicitScopeObject      = implicitScopeObject,
       isExtension              = isExtension,
-      extensionContext         = extensionContext
+      extensionContext         = extensionContext,
+      intersectedReturnType    = intersectedReturnType
     )
 
   override def equals(other: Any): Boolean = other match {

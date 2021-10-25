@@ -8,23 +8,24 @@ package impl
 package toplevel
 package typedef
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.{List => JList}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiClassType, PsiMethod, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
 import com.intellij.util.{AstLoadingFilter, SmartList}
 import gnu.trove.{THashMap, THashSet, TObjectHashingStrategy}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.SuperTypesData
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.{MapImpl, SuperTypesData, extractClassOrUpperBoundClass}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
-import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -32,22 +33,24 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWit
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.{List => JList}
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.collection.immutable.{ArraySeq, SeqMap}
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
   type Map = MixinNodes.Map[T]
 
-  def build(clazz: PsiClass, withSupers: Boolean): Map = {
+  def build(clazz: PsiClass, withSupers: Boolean, subst: ScSubstitutor = ScSubstitutor.empty): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
     else {
       AstLoadingFilter.disallowTreeLoading { () =>
 
-        val map = new Map
+        val map = new MapImpl[T]
 
-        signatureCollector.processAll(clazz, ScSubstitutor.empty, map)
+        signatureCollector.processAll(clazz, subst, map)
         map.thisFinished()
 
         if (withSupers) addSuperSignatures(SuperTypesData(clazz), map)
@@ -56,10 +59,28 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
     }
   }
 
-  def build(cp: ScCompoundType, compoundThisType: Option[ScType] = None): Map = {
-    val map = new Map
+  def build(andTpe: ScAndType): Map = {
+    def collectChildrenNodes(tp: ScType): Seq[Map] = tp match {
+      case ScAndType(lhs, rhs) => collectChildrenNodes(lhs) ++ collectChildrenNodes(rhs)
+      case other               =>
+        extractClassOrUpperBoundClass(other) match {
+          case Some((cls, subst)) => Seq(build(cls, withSupers = true, subst = subst))
+          case _                  => Seq.empty
+        }
+    }
 
-    signatureCollector.processRefinement(cp, map)
+    val maps = collectChildrenNodes(andTpe)
+    maps.reduce(_ intersect _)
+  }
+
+  def build(cp: ScCompoundType, compoundThisType: Option[ScType]): Map = {
+    val map = new MapImpl[T]
+
+    cp match {
+      case comp: ScCompoundType => signatureCollector.processRefinement(comp, map)
+      case _                    => ()
+    }
+
     map.thisFinished()
 
     addSuperSignatures(SuperTypesData(cp, compoundThisType), map)
@@ -112,9 +133,9 @@ object MixinNodes {
         superType.extractClassType match {
           case Some((superClass, s)) =>
             val dependentSubst = superType match {
-              case p@ScProjectionType(proj, _) => ScSubstitutor(proj).followed(p.actualSubst)
-              case ParameterizedType(p@ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
-              case _ => ScSubstitutor.empty
+              case p @ ScProjectionType(proj, _)                       => ScSubstitutor(proj).followed(p.actualSubst)
+              case ParameterizedType(p @ ScProjectionType(proj, _), _) => ScSubstitutor(proj).followed(p.actualSubst)
+              case _                                                   => ScSubstitutor.empty
             }
             val newSubst = combine(s, superClass).followed(thisTypeSubst).followed(dependentSubst)
             substitutorsBuilder += superClass -> newSubst
@@ -129,12 +150,11 @@ object MixinNodes {
       SuperTypesData(substitutorsBuilder.result(), refinementsBuilder.result())
     }
 
-    private def combine(superSubst: ScSubstitutor, superClass : PsiClass): ScSubstitutor = {
+    private def combine(superSubst: ScSubstitutor, superClass: PsiClass): ScSubstitutor = {
       val typeParameters = superClass.getTypeParameters
       val substedTpts = typeParameters.map(tp => superSubst(TypeParameterType(tp)))
       ScSubstitutor.bind(typeParameters, substedTpts)
     }
-
   }
 
   def allSuperClasses(clazz: PsiClass): Set[PsiClass] =
@@ -161,17 +181,41 @@ object MixinNodes {
     def primarySuper: Option[Node[T]] = concreteSuper.orElse(supers.headOption)
   }
 
-  class Map[T <: Signature] extends SignatureSink[T] {
+  trait Map[T <: Signature] extends SignatureSink[T] {
+    def forName(name: String): AllNodes[T]
+    def allNodes: Iterator[Node[T]]
+    def implicitNodes: Iterator[Node[T]]
 
+    def nodesIterator(
+      decodedName:  String,
+      isSupers:     Boolean,
+      onlyImplicit: Boolean = false
+    ): Iterator[Node[T]] = {
+
+      val allIterator =
+        if (decodedName != "") forName(decodedName).nodesIterator
+        else if (onlyImplicit) implicitNodes
+        else                   allNodes
+
+      if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
+      else          allIterator
+    }
+
+    def allSignatures: Iterator[T] = allNodes.map(_.info)
+
+    def intersect(other: Map[T]): Map[T] = new IntersectionMap(this,  other)
+  }
+
+  class MapImpl[T <: Signature] extends Map[T] {
     private val allNames: THashSet[String] = new THashSet[String]
-    private[Map] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
+    private[MapImpl] val implicitNames: SmartHashSet[String] = new SmartHashSet[String]
 
     private val thisSignaturesByName: THashMap[String, JList[T]] = new THashMap()
     private val supersSignaturesByName: THashMap[String, JList[T]] = new THashMap()
 
     private val forNameCache = new ConcurrentHashMap[String, AllNodes[T]]()
 
-    private lazy val implicitNodes: Seq[Node[T]] = {
+    override lazy val implicitNodes: Iterator[Node[T]] = {
       val builder = ArraySeq.newBuilder[Node[T]]
       builder.sizeHint(implicitNames.size)
       val iterator = implicitNames.iterator()
@@ -183,7 +227,7 @@ object MixinNodes {
           }
         }
       }
-      builder.result()
+      builder.result().iterator
     }
 
     private var fromSuper: Boolean = false
@@ -196,7 +240,7 @@ object MixinNodes {
       val name = signature.name
       val buffer =
         if (fromSuper) supersSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
-        else thisSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
+        else           thisSignaturesByName.computeIfAbsent(name, _ => new SmartList[T])
 
       buffer.add(signature)
 
@@ -204,35 +248,14 @@ object MixinNodes {
 
       if (signature.isImplicit || signature.isExtensionMethod)
         implicitNames.add(name)
-
     }
 
-    def nameCount: Int = allNames.size
+    def allNodes: Iterator[Node[T]] = allNames.iterator().asScala.map(forName).flatMap(_.nodesIterator)
 
-    def nodesIterator(decodedName: String,
-                      isSupers: Boolean,
-                      onlyImplicit: Boolean = false): Iterator[Node[T]] = {
-
-      val allIterator =
-        if (decodedName != "")
-          forName(decodedName).nodesIterator
-        else if (onlyImplicit)
-          implicitNodes.iterator
-        else
-          allNodesIterator
-
-      if (isSupers) allIterator.flatMap(node => if (node.fromSuper) Iterator(node) else node.primarySuper.iterator)
-      else allIterator
-    }
-
-    def allNodesIterator: Iterator[Node[T]] = allNames.iterator().asScala.map(forName).flatMap(_.nodesIterator)
-
-    def allSignatures: Iterator[T] = allNodesIterator.map(_.info)
-
-    def forName(name: String): AllNodes[T] = {
+    override def forName(name: String): AllNodes[T] = {
       val cleanName = ScalaNamesUtil.clean(name)
       def calculate: AllNodes[T] = {
-        val thisSignatures = thisSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
+        val thisSignatures  = thisSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
         val superSignatures = supersSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
         merge(thisSignatures, superSignatures)
       }
@@ -240,7 +263,6 @@ object MixinNodes {
     }
 
     private def merge(thisSignatures: JList[T], superSignatures: JList[T]): AllNodes[T] = {
-
       val nodesMap = NodesMap.empty[T]
       val privates = PrivateNodes.empty[T]
 
@@ -292,9 +314,67 @@ object MixinNodes {
     }
   }
 
-  def emptyMap[T <: Signature]: MixinNodes.Map[T] = new MixinNodes.Map[T]
+  class IntersectionMap[T <: Signature](lhsMap: Map[T], rhsMap: Map[T]) extends Map[T] {
+    override def forName(name: String): AllNodes[T] = {
+      val fromLhs = lhsMap.forName(name)
+      val fromRhs = rhsMap.forName(name)
+      fromLhs.merge(fromRhs)
+    }
 
-  class AllNodes[T <: Signature](publics: NodesMap[T], privates: PrivateNodes[T]) {
+    override def allNodes: Iterator[Node[T]] =
+      lhsMap.allNodes ++ rhsMap.allNodes
+
+    override def implicitNodes: Iterator[Node[T]] =
+      lhsMap.implicitNodes ++ rhsMap.implicitNodes
+
+    override def put(signature: T): Unit = ()
+  }
+
+  def emptyMap[T <: Signature]: MixinNodes.Map[T] = new MixinNodes.MapImpl[T]
+
+  class AllNodes[T <: Signature](private val publics: NodesMap[T], private val privates: PrivateNodes[T]) {
+
+    def merge(other: AllNodes[T]): AllNodes[T] = {
+      val newPublics  = NodesMap.empty[T]
+      val newPrivates = PrivateNodes.empty[T]
+
+      def returnType(e: PsiNamedElement): ScType = e match {
+        case fn: ScFunction         => fn.returnType.getOrAny
+        case m: PsiMethod           => m.getReturnType.toScType()(e.projectContext)
+        case tpd: ScTypedDefinition => tpd.`type`().getOrAny
+        case other                  => throw new IllegalArgumentException(s"Unexpected signature element of class ${other.getClass}")
+      }
+
+      def addNode(node: Node[T]): Unit = {
+        node.info match {
+          case sig if sig.isPrivate => newPrivates.add(node)
+          case _: TypeSignature     => newPublics.put(node.info, node) // todo: merge alias bounds
+          case sig: TermSignature   =>
+            newPublics.merge(node.info, node, (oldNode, _) => {
+              val currentSig     = oldNode.info
+              val currentElement = currentSig.namedElement
+
+              currentElement match {
+                case e @ (_: PsiMethod | _: ScBindingPattern | _: ScFieldId) =>
+                  //intersect return types of same-signature members
+                  val combinedSubst         = currentSig.substitutor.followed(sig.substitutor)
+                  val intersectedReturnType = ScAndType(returnType(e), returnType(sig.namedElement))
+
+                  val intersectedSig =
+                    sig.copy(substitutor = combinedSubst, intersectedReturnType = intersectedReturnType.toOption)
+
+                  new Node(intersectedSig, fromSuper = true).asInstanceOf[Node[T]]
+                case _ => oldNode
+              }
+            })
+        }
+      }
+
+      nodesIterator.foreach(addNode)
+      other.nodesIterator.foreach(addNode)
+
+      new AllNodes(newPublics, newPrivates)
+    }
 
     def get(s: T): Option[Node[T]] = {
       publics.get(s) match {
@@ -386,8 +466,9 @@ object MixinNodes {
 
           val classType = clazz match {
             case td: ScTypeDefinition => td.`type`().getOrElse(default)
-            case _ => default
+            case _                    => default
           }
+
           val supers: Seq[ScType] = {
             clazz match {
               case td: ScTemplateDefinition => td.superTypes
@@ -411,43 +492,43 @@ object MixinNodes {
     res
   }
 
-
   def linearization(compound: ScCompoundType, addTp: Boolean = false): Seq[ScType] = {
-    val comps = compound.components
-    val classType = if (addTp) Some(compound) else None
-    generalLinearization(classType, comps)
+    val comps     = compound.components
+    val classType = Option.when(addTp)(compound)
+    val res  = generalLinearization(classType, comps)
+    res
   }
 
-
   private def generalLinearization(classType: Option[ScType], supers: Iterable[ScType]): Seq[ScType] = {
-    val buffer = mutable.ArrayBuffer.empty[ScType]
-    val set: mutable.HashSet[String] = new mutable.HashSet //to add here qualified names of classes
-    def classString(clazz: PsiClass): String = {
+    val baseTypes      = mutable.ArrayBuffer.empty[ScType]
+    val qualifiedNames = mutable.HashSet.empty[String]
+
+    def classString(clazz: PsiClass): String =
       clazz match {
         case obj: ScObject => "Object: " + obj.qualifiedName
-        case tra: ScTrait => "Trait: " + tra.qualifiedName
-        case _ => "Class: " + clazz.qualifiedName
+        case tra: ScTrait  => "Trait: " + tra.qualifiedName
+        case _             => "Class: " + clazz.qualifiedName
       }
-    }
+
     def add(tp: ScType): Unit = {
       extractClassOrUpperBoundClass(tp) match {
-        case Some((clazz, _)) if clazz.qualifiedName != null && !set.contains(classString(clazz)) =>
-          tp +=: buffer
-          set += classString(clazz)
+        case Some((clazz, _)) if clazz.qualifiedName != null && !qualifiedNames.contains(classString(clazz)) =>
+          tp +=: baseTypes
+          qualifiedNames += classString(clazz)
         case Some((clazz, _)) if clazz.getTypeParameters.nonEmpty =>
-          val i = buffer.indexWhere(_.extractClass match {
-            case Some(newClazz) if ScEquivalenceUtil.areClassesEquivalent(newClazz, clazz) => true
-            case _ => false
+          val idx = baseTypes.indexWhere {
+            case ExtractClass(cls) if ScEquivalenceUtil.areClassesEquivalent(cls, clazz) => true
+            case _                                                                       => false
           }
-          )
-          if (i != -1) {
-            val newTp = buffer(i)
-            if (tp.conforms(newTp)) buffer.update(i, tp)
+
+          if (idx != -1) {
+            val newTp = baseTypes(idx)
+            if (tp.conforms(newTp)) baseTypes.update(idx, tp)
           }
         case _ =>
           dealias(tp) match {
-            case c: ScCompoundType => c +=: buffer
-            case _ =>
+            case c: ScCompoundType => c +=: baseTypes
+            case _                 =>
           }
       }
     }
@@ -455,6 +536,7 @@ object MixinNodes {
     val iterator = supers.iterator
     while (iterator.hasNext) {
       var tp = iterator.next()
+
       @tailrec
       def updateTp(tp: ScType, depth: Int = 0): ScType = {
         tp match {
@@ -469,11 +551,13 @@ object MixinNodes {
             }
         }
       }
+
       tp = updateTp(tp)
       extractClassOrUpperBoundClass(tp) match {
         case Some((clazz, subst)) =>
-          val lin = linearization(clazz)
+          val lin         = linearization(clazz)
           val newIterator = lin.reverseIterator
+
           while (newIterator.hasNext) {
             val tp = newIterator.next()
             add(subst(tp))
@@ -481,8 +565,9 @@ object MixinNodes {
         case _ =>
           dealias(tp) match {
             case c: ScCompoundType =>
-              val lin = linearization(c, addTp = true)
+              val lin         = linearization(c, addTp = true)
               val newIterator = lin.reverseIterator
+
               while (newIterator.hasNext) {
                 val tp = newIterator.next()
                 add(tp)
@@ -493,7 +578,7 @@ object MixinNodes {
       }
     }
     classType.foreach(add)
-    buffer.to(ArraySeq)
+    baseTypes.to(ArraySeq)
   }
 
   private def dealias(tp: ScType) = tp match {

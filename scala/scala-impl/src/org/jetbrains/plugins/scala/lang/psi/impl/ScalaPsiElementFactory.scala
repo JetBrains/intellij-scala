@@ -4,7 +4,7 @@ package psi
 package impl
 
 import java.{util => ju}
-import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
+import com.intellij.lang.{ASTNode, Language, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
@@ -158,12 +158,12 @@ object ScalaPsiElementFactory {
     }
   }
 
-  def createScalaFileFromText(@NonNls text: String)
+  def createScalaFileFromText(@NonNls text: String, language: Option[Language] = None)
                              (implicit ctx: ProjectContext): ScalaFile =
     PsiFileFactory.getInstance(ctx)
       .createFileFromText(
         s"dummy.${ScalaFileType.INSTANCE.getDefaultExtension}",
-        if (ctx.project.hasScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
+        language.getOrElse(if (ctx.project.hasScala3) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE),
         convertLineSeparators(text),
         false, true
       )

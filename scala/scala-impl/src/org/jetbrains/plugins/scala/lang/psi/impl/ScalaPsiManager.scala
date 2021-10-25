@@ -100,6 +100,36 @@ class ScalaPsiManager(implicit val project: Project) {
     TermNodes.build(tp, compoundTypeThisType)
   }
 
+  def getStableSignatures(tp: ScAndType): PMap = {
+    if (dontCacheCompound) StableNodes.build(tp)
+    else getIntersectionStableSignaturesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(valueWrapper = ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionStableSignaturesCached(tp: ScAndType): PMap = {
+    StableNodes.build(tp)
+  }
+
+  def getTypes(tp: ScAndType): TMap = {
+    if (dontCacheCompound) TypeNodes.build(tp)
+    else getIntersectionTypesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionTypesCached(tp: ScAndType): TMap = {
+    TypeNodes.build(tp)
+  }
+
+  def getSignatures(tp: ScAndType): SMap = {
+    if (dontCacheCompound) return TermNodes.build(tp)
+    getIntersectionSignaturesCached(tp)
+  }
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
+  private def getIntersectionSignaturesCached(tp: ScAndType): SMap = {
+    TermNodes.build(tp)
+  }
+
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
   def simpleAliasProjectionCached(projection: ScProjectionType): ScType = {
     ScProjectionType.simpleAliasProjection(projection)
