@@ -139,7 +139,7 @@ object ScalaDfaTypeUtils {
     }
   }
 
-  private def isPrimitiveType(scType: ScType): Boolean = scTypeToDfType(scType).is[DfPrimitiveType]
+  def isPrimitiveType(scType: ScType): Boolean = scTypeToDfType(scType).is[DfPrimitiveType]
 
   private def balanceTypeForEqualityByContent(leftType: ScType, rightType: ScType): Option[ScType] = {
     if (leftType conforms rightType) Some(rightType)

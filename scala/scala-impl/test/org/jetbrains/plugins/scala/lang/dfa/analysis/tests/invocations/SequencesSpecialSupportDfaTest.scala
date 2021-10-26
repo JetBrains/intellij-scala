@@ -131,7 +131,7 @@ class SequencesSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list1.filter(x => x == 4) == list2" -> ConditionAlwaysFalse
   )
 
-  def testSizeMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testSizeMethod(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
       |val list1 = List(4, 6, 20, 55)
       |val list2 = 30 :: list1

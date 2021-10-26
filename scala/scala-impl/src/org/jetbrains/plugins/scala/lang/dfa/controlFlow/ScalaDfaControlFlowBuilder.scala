@@ -139,7 +139,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
         balancedType.toPsiType match {
           case balancedPrimitiveType: PsiPrimitiveType =>
             addInstruction(new PrimitiveConversionInstruction(balancedPrimitiveType, null))
-          case _ =>
+          case otherType =>
         }
       }
     }
