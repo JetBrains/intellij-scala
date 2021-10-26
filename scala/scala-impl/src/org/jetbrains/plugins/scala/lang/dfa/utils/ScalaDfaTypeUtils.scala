@@ -17,11 +17,14 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
@@ -148,7 +151,7 @@ object ScalaDfaTypeUtils {
     val leftDfType = scTypeToDfType(leftType)
     val rightDfType = scTypeToDfType(rightType)
 
-    if (leftType == rightType) Some(leftType)
+    if (leftType == rightType) None
     else (leftDfType, rightDfType) match {
       case (DfTypes.DOUBLE, _) => Some(leftType)
       case (_, DfTypes.DOUBLE) => Some(rightType)
@@ -157,6 +160,22 @@ object ScalaDfaTypeUtils {
       case (DfTypes.LONG, _) => Some(leftType)
       case (_, DfTypes.LONG) => Some(rightType)
       case _ => None
+    }
+  }
+
+  def resolveExpressionType(expression: ScExpression): ScType = {
+    implicit val context: ProjectContext = expression.getProject
+    expression match {
+      // Fix for very weird behaviour of literals in some specific cases
+      case _: ScIntegerLiteral => code"0".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScLongLiteral => code"0L".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScDoubleLiteral => code"0.0".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScFloatLiteral => code"0.0F".asInstanceOf[ScExpression].`type`().getOrAny
+      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
+        case Some(resolved: Typeable) => resolved.`type`().getOrAny
+        case _ => expression.`type`().getOrAny
+      }
+      case _ => expression.`type`().getOrAny
     }
   }
 }

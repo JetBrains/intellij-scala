@@ -10,7 +10,8 @@ import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaV
 import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{InvocationTransformer, ScalaPsiElementTransformer, Transformable}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, InvocationTransformer, Transformable}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.resolveExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -84,12 +85,14 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     addInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
 
-  def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression]): Unit = {
+  def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression],
+                          definedType: ScType): Unit = {
     val dfaVariable = createVariable(descriptor)
     val anchor = valueExpression.map(ScalaStatementAnchor(_)).orNull
 
     valueExpression match {
-      case Some(element) => new ScalaPsiElementTransformer(element).transform(this)
+      case Some(expression) => new ExpressionTransformer(expression).transform(this)
+        addImplicitConversion(Some(expression), Some(definedType))
       case _ => pushUnknownValue()
     }
 
@@ -98,12 +101,13 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
 
   def assignVariableValueWithInstanceQualifier(descriptor: ScalaDfaVariableDescriptor,
                                                instantiationExpression: Option[ScExpression],
-                                               instanceQualifier: PsiElement): Unit = {
+                                               instanceQualifier: PsiElement, definedType: ScType): Unit = {
     val dfaVariable = createVariable(descriptor)
     val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
 
     instantiationExpression match {
       case Some(expression) => new InvocationTransformer(expression, Some(instanceQualifier)).transform(this)
+        addImplicitConversion(Some(expression), Some(definedType))
       case _ => pushUnknownValue()
     }
 
@@ -129,7 +133,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
 
   def addImplicitConversion(expression: Option[ScExpression], balancedType: Option[ScType]): Unit = {
-    val actualType = expression.map(_.`type`().getOrAny)
+    val actualType = expression.map(resolveExpressionType)
     for (balancedType <- balancedType; actualType <- actualType) {
       if (actualType != balancedType) {
         balancedType.toPsiType match {

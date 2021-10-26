@@ -31,4 +31,42 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
     "5 == 5L" -> ConditionAlwaysTrue,
     "2.5 > 2" -> ConditionAlwaysTrue
   )
+
+  def testImplicitConversionsInOtherExpressions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val y: Long = 3
+      |y == 3L
+      |y == 3
+      |y < 2L
+      |y == 3L
+      |
+      |val w = 3
+      |w == 3L
+      |w == 3
+      |w < 2L
+      |w == 3L
+      |
+      |val x = if (arg1 > 2) 3 else 3L
+      |x == 3
+      |x == 3L
+      |
+      |var z = 3
+      |z = 4L
+      |z == 4
+      |z == 4L
+      |""".stripMargin
+  })(
+    "y == 3L" -> ConditionAlwaysTrue,
+    "y == 3" -> ConditionAlwaysTrue,
+    "y < 2L" -> ConditionAlwaysFalse,
+    "y == 3L" -> ConditionAlwaysTrue,
+    "w == 3L" -> ConditionAlwaysTrue,
+    "w == 3" -> ConditionAlwaysTrue,
+    "w < 2L" -> ConditionAlwaysFalse,
+    "w == 3L" -> ConditionAlwaysTrue,
+    "x == 3" -> ConditionAlwaysTrue,
+    "x == 3L" -> ConditionAlwaysTrue,
+    "z == 4" -> ConditionAlwaysTrue,
+    "z == 4L" -> ConditionAlwaysTrue
+  )
 }

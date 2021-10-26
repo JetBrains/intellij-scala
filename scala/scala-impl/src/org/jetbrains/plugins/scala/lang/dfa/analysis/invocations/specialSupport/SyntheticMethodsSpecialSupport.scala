@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{balanceType, extractExpressionFromArgument, scTypeToDfType}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{balanceType, extractExpressionFromArgument, resolveExpressionType, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -64,9 +64,8 @@ object SyntheticMethodsSpecialSupport {
                                       builder: ScalaDfaControlFlowBuilder): Unit = {
     val leftExpression = extractExpressionFromArgument(leftArg)
     val rightExpression = extractExpressionFromArgument(rightArg)
-    val balancedType = balanceType(leftExpression.map(_.`type`().getOrAny),
-      rightExpression.map(_.`type`().getOrAny),
-      forceEqualityByContent)
+    val balancedType = balanceType(leftExpression.map(resolveExpressionType),
+      rightExpression.map(resolveExpressionType), forceEqualityByContent)
 
     leftArg.content.transform(builder)
     builder.addImplicitConversion(leftExpression, balancedType)
