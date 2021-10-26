@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
@@ -80,22 +80,29 @@ object ScalaDfaTypeUtils {
   }
 
   //noinspection UnstableApiUsage
-  def scTypeToDfType(scType: ScType): DfType = scType.extractClass match {
-    case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
-      dfTypeImmutableCollectionFromSize(0)
-    case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
-    case Some(psiClass) => psiClass.qualifiedName match {
-      case "scala.Int" => DfTypes.INT
-      case "scala.Long" => DfTypes.LONG
-      case "scala.Float" => DfTypes.FLOAT
-      case "scala.Double" => DfTypes.DOUBLE
-      case "scala.Boolean" => DfTypes.BOOLEAN
-      case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
-      case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
-      case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
-      case _ => TypeConstraints.exactClass(psiClass).asDfType().meet(DfTypes.OBJECT_OR_NULL)
+  def scTypeToDfType(scType: ScType): DfType = {
+    val extractedClass = scType match {
+      case literalType: ScLiteralType => literalType.wideType.extractClass
+      case _ => scType.extractClass
     }
-    case _ => DfType.TOP
+
+    extractedClass match {
+      case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
+        dfTypeImmutableCollectionFromSize(0)
+      case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
+      case Some(psiClass) => psiClass.qualifiedName match {
+        case "scala.Int" => DfTypes.INT
+        case "scala.Long" => DfTypes.LONG
+        case "scala.Float" => DfTypes.FLOAT
+        case "scala.Double" => DfTypes.DOUBLE
+        case "scala.Boolean" => DfTypes.BOOLEAN
+        case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
+        case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
+        case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
+        case _ => TypeConstraints.exactClass(psiClass).asDfType().meet(DfTypes.OBJECT_OR_NULL)
+      }
+      case _ => DfType.TOP
+    }
   }
 
   def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
@@ -117,5 +124,39 @@ object ScalaDfaTypeUtils {
   def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
     case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
     case _ => None
+  }
+
+  def balanceType(leftType: Option[ScType], rightType: Option[ScType],
+                  forceEqualityByContent: Boolean): Option[ScType] = {
+    (leftType, rightType) match {
+      case (Some(leftType), Some(rightType)) if forceEqualityByContent &&
+        !isPrimitiveType(leftType) && !isPrimitiveType(rightType) => balanceTypeForEqualityByContent(leftType, rightType)
+      case (Some(leftType), Some(rightType)) => lookForStandardBalancing(leftType, rightType)
+      case _ => None
+    }
+  }
+
+  private def isPrimitiveType(scType: ScType): Boolean = scTypeToDfType(scType).is[DfPrimitiveType]
+
+  private def balanceTypeForEqualityByContent(leftType: ScType, rightType: ScType): Option[ScType] = {
+    if (leftType conforms rightType) Some(rightType)
+    else if (rightType conforms leftType) Some(leftType)
+    else None
+  }
+
+  private def lookForStandardBalancing(leftType: ScType, rightType: ScType): Option[ScType] = {
+    val leftDfType = scTypeToDfType(leftType)
+    val rightDfType = scTypeToDfType(rightType)
+
+    if (leftType == rightType) Some(leftType)
+    else (leftDfType, rightDfType) match {
+      case (DfTypes.DOUBLE, _) => Some(leftType)
+      case (_, DfTypes.DOUBLE) => Some(rightType)
+      case (DfTypes.FLOAT, _) => Some(leftType)
+      case (_, DfTypes.FLOAT) => Some(rightType)
+      case (DfTypes.LONG, _) => Some(leftType)
+      case (_, DfTypes.LONG) => Some(rightType)
+      case _ => None
+    }
   }
 }

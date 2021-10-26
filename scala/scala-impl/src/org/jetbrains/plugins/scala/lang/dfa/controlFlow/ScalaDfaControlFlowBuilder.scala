@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
-import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
+import com.intellij.codeInspection.dataFlow.java.inst.{JvmPushInstruction, PrimitiveConversionInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.{CommonClassNames, PsiElement}
+import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{InvocationTransformer, ScalaPsiElementTransformer, Transformable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
  * Stack-based control flow builder for Scala, similar that supports analysis of dataflow.
@@ -126,4 +127,17 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
 
   def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
+
+  def addImplicitConversion(expression: Option[ScExpression], balancedType: Option[ScType]): Unit = {
+    val actualType = expression.map(_.`type`().getOrAny)
+    for (balancedType <- balancedType; actualType <- actualType) {
+      if (actualType != balancedType) {
+        balancedType.toPsiType match {
+          case balancedPrimitiveType: PsiPrimitiveType =>
+            addInstruction(new PrimitiveConversionInstruction(balancedPrimitiveType, null))
+          case _ =>
+        }
+      }
+    }
+  }
 }

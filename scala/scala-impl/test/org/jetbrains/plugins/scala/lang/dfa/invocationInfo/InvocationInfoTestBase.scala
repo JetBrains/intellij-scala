@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationExtractors.{extractExpressionFromArgument, extractInvocationUnderMarker}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationExtractors.{extractInvocationUnderMarker, forceExtractExpressionFromArgument}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassingMechanism, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
@@ -108,9 +108,9 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
 
   protected def verifyThisExpression(invocationInfo: InvocationInfo, expectedExpressionInText: String): Unit = {
     val thisArgument = invocationInfo.thisArgument.get
-    val thisExpression = extractExpressionFromArgument(thisArgument)
+    val thisExpression = forceExtractExpressionFromArgument(thisArgument)
     thisExpression.getText shouldBe expectedExpressionInText
   }
 
-  private def convertArgsToText(args: List[Argument]): List[String] = args.map(extractExpressionFromArgument).map(_.getText)
+  private def convertArgsToText(args: List[Argument]): List[String] = args.map(forceExtractExpressionFromArgument).map(_.getText)
 }
