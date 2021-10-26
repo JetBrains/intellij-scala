@@ -1,0 +1,5 @@
+Document tests/pos/t8132.scala
+(2:20..2:26) scala/Predef.String#
+(5:40..5:46) scala/Predef.String#
+(5:56..5:57) _empty_/T# -> 1:7
+

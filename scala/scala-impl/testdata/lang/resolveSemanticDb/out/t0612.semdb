@@ -1,0 +1,8 @@
+Document tests/pos/t0612/C.scala
+(5:3..5:5) test/Ob. -> 3:8
+(5:6..5:7) test/Ob.f(). -> 4:23
+
+Document tests/pos/t0612/Ob.scala
+(4:13..4:17) test/ -> 1:9
+(4:26..4:30) scala/Unit#
+

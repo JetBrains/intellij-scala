@@ -1,0 +1,6 @@
+Document tests/pos/macro.scala
+(2:12..2:15) scala/Int#
+(2:24..2:27) scala/Predef.`???`().
+(3:19..3:22) scala/Int#
+(3:25..3:28) scala/Predef.`???`().
+

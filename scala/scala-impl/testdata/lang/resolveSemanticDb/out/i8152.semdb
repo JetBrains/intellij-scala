@@ -1,0 +1,13 @@
+Document tests/pos/i8152.scala
+(2:25..2:31) scala/Predef.String#
+(2:34..2:40) scala/Predef.String#
+(5:10..5:16) scala/Predef.String#
+(5:19..5:22) scala/Predef.`???`().
+(5:23..5:35) scala/Any#asInstanceOf().
+(5:36..5:42) _empty_/opaque. -> 1:8
+(5:43..5:46) _empty_/opaque.Foo# -> 2:15
+(5:47..5:53) scala/Predef.String#
+(8:23..8:29) scala/Predef.String#
+(8:32..8:38) scala/Predef.String#
+(11:10..11:16) scala/Predef.String#
+

@@ -1,0 +1,11 @@
+Document tests/pos/i7602.scala
+(2:38..2:39) local0 -> 2:23
+(2:40..2:41) _empty_/Test.X#[T] -> 2:10
+(5:48..5:49) _empty_/Test.of#[M] -> 5:11
+(5:50..5:51) local2 -> 5:33
+(5:57..5:58) local2 -> 5:33
+(5:59..5:60) _empty_/Test.of#[T] -> 5:20
+(6:14..6:16) _empty_/Test.of# -> 5:8
+(6:24..6:30) scala/Predef.String#
+(6:35..6:38) scala/Predef.`???`().
+

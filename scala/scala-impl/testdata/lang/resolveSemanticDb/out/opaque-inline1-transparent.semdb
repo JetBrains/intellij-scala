@@ -1,0 +1,14 @@
+Document tests/pos/opaque-inline1-transparent.scala
+(3:26..3:29) scala/Int#
+(4:42..4:45) scala/Int#
+(4:48..4:56) _empty_/refined.Positive# -> 3:15
+(4:59..4:60) _empty_/refined.f(). -> 5:7
+(4:61..4:66) _empty_/refined.Positive().(value) -> 4:35
+(5:12..5:20) _empty_/refined.Positive# -> 3:15
+(5:23..5:31) _empty_/refined.Positive# -> 3:15
+(5:34..5:35) _empty_/refined.f().(x) -> 5:9
+(8:12..8:16) scala/Unit#
+(10:16..10:23) _empty_/refined. -> 2:8
+(10:24..10:32) _empty_/refined.Positive(). -> 4:26
+(10:33..10:34) local0 -> 9:9
+

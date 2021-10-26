@@ -1,0 +1,15 @@
+Document tests/pos/t3252.scala
+(2:15..2:22) scala/Boolean#
+(2:26..2:32) java/lang/Thread#
+(3:9..3:10) _empty_/A#g(). -> 11:17
+(4:13..4:14) _empty_/A#f().(x) -> 2:11
+(6:21..6:22) _empty_/B. -> 13:8
+(6:23..6:24) _empty_/B.h(). -> 14:9
+(11:33..11:34) _empty_/A#g().[T] -> 11:19
+(11:38..11:41) scala/sys/
+(11:42..11:47) scala/sys/package.error().
+(14:22..14:26) scala/Unit#
+(14:30..14:37) scala/Nothing#
+(14:40..14:43) scala/sys/
+(14:44..14:49) scala/sys/package.error().
+

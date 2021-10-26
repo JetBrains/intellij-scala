@@ -1,0 +1,6 @@
+Document tests/pos/i2166.scala
+(4:18..4:23) scala/Array#
+(4:24..4:30) scala/Predef.String#
+(4:34..4:38) scala/Unit#
+(4:41..4:42) _empty_/Test.f(). -> 2:14
+

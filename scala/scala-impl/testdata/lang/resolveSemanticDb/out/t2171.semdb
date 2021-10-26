@@ -1,0 +1,9 @@
+Document tests/pos/t2171.scala
+(2:35..2:41) scala/Predef.String#
+(3:30..3:37) scala/Predef.println(+1).
+(3:38..3:41) _empty_/test.logIgnoredException().(msg) -> 2:27
+(5:19..5:24) scala/Array#
+(5:25..5:31) scala/Predef.String#
+(5:35..5:39) scala/Unit#
+(6:18..6:37) _empty_/test.logIgnoredException(). -> 2:7
+

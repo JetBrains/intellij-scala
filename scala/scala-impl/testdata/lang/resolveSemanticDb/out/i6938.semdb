@@ -1,0 +1,12 @@
+Document tests/pos/i6938.scala
+(3:14..3:17) _empty_/Foo# -> 1:7
+(3:18..3:24) scala/Tuple1#
+(3:25..3:26) _empty_/Foo.given_Foo_Tuple1#[T] -> 3:10
+(4:17..4:20) _empty_/Foo# -> 1:7
+(4:22..4:23) _empty_/Foo.given_Foo_T_U#[T] -> 4:10
+(4:25..4:26) _empty_/Foo.given_Foo_T_U#[U] -> 4:13
+(5:20..5:23) _empty_/Foo# -> 1:7
+(5:25..5:26) _empty_/Foo.given_Foo_T_U_V#[T] -> 5:10
+(5:28..5:29) _empty_/Foo.given_Foo_T_U_V#[U] -> 5:13
+(5:31..5:32) _empty_/Foo.given_Foo_T_U_V#[V] -> 5:16
+

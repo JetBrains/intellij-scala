@@ -1,0 +1,15 @@
+Document tests/pos/t8046.scala
+(3:19..3:21) _empty_/One#Op# -> 2:8
+(3:22..3:23) _empty_/One#Alias#[A] -> 3:14
+(6:19..6:22) _empty_/One# -> 1:7
+(7:24..7:25) _empty_/Two#Op#[A] -> 7:12
+(7:29..7:30) _empty_/Two#Op#[A] -> 7:12
+(10:23..10:25) _empty_/Two#Op# -> 7:9
+(10:26..10:29) scala/Int#
+(10:47..10:50) scala/Int#
+(10:54..10:56) _empty_/Two#View1#apply().(xs) -> 10:43
+(19:23..19:28) _empty_/One#Alias# -> 3:8
+(19:29..19:32) scala/Int#
+(19:50..19:53) scala/Int#
+(19:57..19:59) _empty_/Two#View2#apply().(xs) -> 19:46
+

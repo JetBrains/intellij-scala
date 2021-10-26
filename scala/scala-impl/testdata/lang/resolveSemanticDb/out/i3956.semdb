@@ -1,0 +1,9 @@
+Document tests/pos/i3956.scala
+(2:15..2:18) scala/Int#
+(2:28..2:31) scala/Int#
+(3:13..3:17) scala/package.List#
+(3:18..3:21) scala/Int#
+(3:25..3:29) scala/package.List#
+(3:30..3:34) _empty_/Foo.RInt# -> 2:8
+(3:38..3:41) scala/Predef.`???`().
+

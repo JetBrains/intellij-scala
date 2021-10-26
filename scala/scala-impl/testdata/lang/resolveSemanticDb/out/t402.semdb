@@ -1,0 +1,17 @@
+Document tests/pos/t402.scala
+(2:18..2:23) scala/Array#
+(2:24..2:30) scala/Predef.String#
+(2:34..2:38) scala/Unit#
+(3:12..3:15) scala/Any#
+(4:5..4:11) java/lang/System#
+(4:12..4:15) java/lang/System#out.
+(4:16..4:23) java/io/PrintStream#println(+1).
+(4:30..4:42) scala/Any#isInstanceOf().
+(4:43..4:46) scala/Int#
+(5:5..5:11) java/lang/System#
+(5:12..5:15) java/lang/System#out.
+(5:16..5:23) java/io/PrintStream#println(+1).
+(5:24..5:25) local0 -> 3:9
+(5:26..5:38) scala/Any#isInstanceOf().
+(5:39..5:42) scala/Int#
+

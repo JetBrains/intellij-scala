@@ -1,0 +1,5 @@
+Document tests/pos/news.scala
+(3:32..3:33) _empty_/Test.C#[T] -> 3:20
+(5:10..5:11) _empty_/Test.C# -> 3:18
+(5:12..5:15) scala/Int#
+

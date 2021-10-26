@@ -1,0 +1,30 @@
+Document tests/pos/clsrefine.scala
+(1:8..1:13) scala/
+(3:9..3:15) scalac/
+(8:11..8:13) scalac/util/A#X1# -> 6:8
+(9:11..9:13) scalac/util/A#X2# -> 7:8
+(11:17..11:18) scalac/util/A# -> 5:7
+(13:15..13:16) scalac/util/B#Y# -> 12:8
+(14:13..14:14) scalac/util/B#Y# -> 12:8
+(15:13..15:14) scalac/util/B#Y# -> 12:8
+(16:12..16:14) scalac/util/B#y1. -> 13:7
+(17:12..17:14) scalac/util/B#y2. -> 13:11
+(18:12..18:13) scalac/util/B#Y# -> 12:8
+(18:19..18:20) scalac/util/B# -> 11:7
+(18:23..18:27) scala/Unit#
+(19:13..19:14) scalac/util/B#f(). -> 18:7
+(19:15..19:17) scalac/util/B#y1. -> 13:7
+(23:10..23:11) scalac/util/B# -> 11:7
+(23:23..23:26) scala/Int#
+(23:35..23:36) scalac/util/B# -> 11:7
+(24:14..24:17) scala/Int#
+(27:10..27:11) scalac/util/A# -> 5:7
+(27:24..27:27) scala/Int#
+(27:39..27:42) scala/Int#
+(27:47..27:48) scalac/util/test.b. -> 23:7
+(28:16..28:17) scalac/util/A# -> 5:7
+(29:15..29:18) scala/Int#
+(30:15..30:21) scala/Predef.String#
+(34:16..34:17) scalac/util/B# -> 11:7
+(35:14..35:17) scala/Any#
+

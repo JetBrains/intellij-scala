@@ -1,0 +1,13 @@
+Document tests/pos/i6665/Bad_2.scala
+(2:8..2:11) foo/ -> 1:9
+(3:18..3:22) foo/Oops# -> 8:7
+(4:18..4:22) foo/Oops# -> 8:7
+
+Document tests/pos/i6665/Oops_1.scala
+(5:15..5:19) scala/Unit#
+(5:24..5:28) scala/Unit#
+(8:20..8:25) foo/TOops# -> 3:7
+(10:24..10:28) scala/Unit#
+(10:33..10:37) scala/Unit#
+(10:48..10:49) local0 -> 10:41
+

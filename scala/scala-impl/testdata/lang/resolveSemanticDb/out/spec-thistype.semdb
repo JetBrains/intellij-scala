@@ -1,0 +1,5 @@
+Document tests/pos/spec-thistype.scala
+(1:12..1:23) scala/specialized#
+(2:15..2:19) scala/package.List#
+(2:20..2:21) _empty_/Foo#[A] -> 1:24
+

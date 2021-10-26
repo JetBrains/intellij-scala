@@ -1,0 +1,7 @@
+Document tests/pos/t514.scala
+(1:21..1:24) scala/App#
+(4:24..4:31) scala/Boolean#
+(6:13..6:19) scala/Predef.String#
+(6:22..6:26) _empty_/Test.Truc. -> 2:10
+(6:27..6:35) _empty_/Test.Truc.toString(). -> 3:18
+

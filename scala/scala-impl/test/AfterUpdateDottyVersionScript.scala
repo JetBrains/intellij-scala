@@ -4,7 +4,6 @@ import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
-import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3, SemanticDbStore}
@@ -39,6 +38,7 @@ class AfterUpdateDottyVersionScript
       Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
       Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
       Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
+      Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3]) #::
         LazyList.empty
     tests.foreach(runScript)
   }
@@ -335,8 +335,6 @@ object AfterUpdateDottyVersionScript {
         if (store.files.nonEmpty)
           Files.writeString(storePath, store.serialized)
       }
-
-      ReferenceComparisonTestsGenerator_Scala3.run()
     }
   }
 
