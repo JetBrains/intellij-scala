@@ -33,7 +33,7 @@ object InvocationExtractors {
     else PsiTreeUtil.findElementOfClassAtRange(actualFile, start, end, runtimeClass)
   }
 
-  def extractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
+  def forceExtractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
     case expressionTransformer: ExpressionTransformer => expressionTransformer.wrappedExpression
     case _ => throw new IllegalArgumentException(s"Argument is not an expression: $argument")
   }

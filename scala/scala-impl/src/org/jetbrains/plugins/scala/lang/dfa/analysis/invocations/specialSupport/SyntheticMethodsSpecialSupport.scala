@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -59,16 +59,39 @@ object SyntheticMethodsSpecialSupport {
     (leftArg, rightArg)
   }
 
+  private def tryTransformBinaryOperands(leftArg: Argument, rightArg: Argument,
+                                         forceEqualityByContent: Boolean,
+                                         builder: ScalaDfaControlFlowBuilder): Boolean = {
+    val leftExpression = extractExpressionFromArgument(leftArg)
+    val rightExpression = extractExpressionFromArgument(rightArg)
+    val balancedType = balanceType(leftExpression.map(resolveExpressionType),
+      rightExpression.map(resolveExpressionType), forceEqualityByContent)
+
+    leftArg.content.transform(builder)
+    builder.addImplicitConversion(leftExpression, balancedType)
+    rightArg.content.transform(builder)
+    builder.addImplicitConversion(rightExpression, balancedType)
+
+    val leftType = leftExpression.map(resolveExpressionType)
+    val rightType = rightExpression.map(resolveExpressionType)
+
+    (leftType, rightType) match {
+      case (Some(left), Some(right)) => left == right || (isPrimitiveType(left) && isPrimitiveType(right))
+      case _ => false
+    }
+  }
+
   private def tryTransformBinaryNumericOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                 invocation: ScExpression,
                                                 builder: ScalaDfaControlFlowBuilder): Boolean = {
     for (typeClass <- List(ScalaInt, ScalaLong); operationName <- NumericBinary.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-        leftArg.content.transform(builder)
-        // TODO check implicit conversions and type balancing
-        rightArg.content.transform(builder)
-        builder.addInstruction(new NumericBinaryInstruction(NumericBinary(operationName), ScalaStatementAnchor(invocation)))
+        val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent = false, builder)
+
+        if (successful) builder.addInstruction(new NumericBinaryInstruction(NumericBinary(operationName),
+          ScalaStatementAnchor(invocation)))
+        else builder.pushUnknownCall(invocation, 2)
         return true
       }
     }
@@ -84,11 +107,11 @@ object SyntheticMethodsSpecialSupport {
         val operation = RelationalBinary(operationName)
         val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
-        leftArg.content.transform(builder)
-        // TODO check implicit conversions and type balancing
-        rightArg.content.transform(builder)
-        builder.addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
+        val successful = tryTransformBinaryOperands(leftArg, rightArg, forceEqualityByContent, builder)
+
+        if (successful) builder.addInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
           ScalaStatementAnchor(invocation)))
+        else builder.pushUnknownCall(invocation, 2)
         return true
       }
     }

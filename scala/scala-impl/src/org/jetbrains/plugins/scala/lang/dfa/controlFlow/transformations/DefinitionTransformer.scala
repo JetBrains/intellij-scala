@@ -33,11 +33,12 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
     } else {
       val binding = definition.bindings.head
       val descriptor = ScalaDfaVariableDescriptor(binding, None, isStable && binding.isStable)
+      val definedType = definition.`type`().getOrAny
 
       if (definition.expr.exists(canBeClassInstantiationExpression)) {
-        builder.assignVariableValueWithInstanceQualifier(descriptor, definition.expr, binding)
+        builder.assignVariableValueWithInstanceQualifier(descriptor, definition.expr, binding, definedType)
       } else {
-        builder.assignVariableValue(descriptor, definition.expr)
+        builder.assignVariableValue(descriptor, definition.expr, definedType)
       }
     }
   }
