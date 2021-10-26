@@ -1,5 +1,8 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
+import com.intellij.codeInspection.dataFlow.TypeConstraints
+import com.intellij.codeInspection.dataFlow.java.inst.ThrowInstruction
+import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
@@ -165,13 +168,25 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     builder.pushUnknownCall(matchExpression, 0)
   }
 
+  //noinspection UnstableApiUsage
   private def transformThrowStatement(throwStatement: ScThrow, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO implement transformation
-    throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
+    val exceptionExpression = throwStatement.expression
+    exceptionExpression match {
+      case Some(exception) => transformExpression(exception, builder)
+        builder.popReturnValue()
+        val psiType = exception.`type`().getOrAny.toPsiType
+        val transfer = new ExceptionTransfer(TypeConstraints.instanceOf(psiType))
+        builder.addInstruction(new ThrowInstruction(builder.transferValue(transfer), exception))
+      case _ => builder.pushUnknownCall(throwStatement, 0)
+    }
   }
 
   private def transformReturnStatement(returnStatement: ScReturn, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO implement transformation
-    throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
+    returnStatement.expr match {
+      case Some(expression) => transformExpression(expression, builder)
+      case _ => builder.pushUnknownValue()
+    }
+
+    builder.addReturnInstruction(returnStatement.expr)
   }
 }

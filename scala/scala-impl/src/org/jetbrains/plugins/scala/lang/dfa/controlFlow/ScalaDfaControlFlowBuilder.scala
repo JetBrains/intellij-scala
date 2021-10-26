@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.java.inst.{JvmPushInstruction, PrimitiveConversionInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
+import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
@@ -132,6 +133,8 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
 
   def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
 
+  def transferValue(transfer: ExceptionTransfer): DfaControlTransferValue = trapTracker.transferValue(transfer)
+
   def addImplicitConversion(expression: Option[ScExpression], balancedType: Option[ScType]): Unit = {
     val actualType = expression.map(resolveExpressionType)
     for (balancedType <- balancedType; actualType <- actualType) {
@@ -143,5 +146,9 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
         }
       }
     }
+  }
+
+  def addReturnInstruction(expression: Option[ScExpression]): Unit = {
+    addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), expression.orNull))
   }
 }
