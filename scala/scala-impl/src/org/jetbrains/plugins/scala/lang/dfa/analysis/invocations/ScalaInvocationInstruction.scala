@@ -49,26 +49,26 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
       stateBefore.flushFields()
     }
 
-    val returnValue = if (!methodEffect.handledSpecially) {
+    val improvedMethodEffect = if (!methodEffect.handledSpecially) {
       tryInterpretExternalMethod(invocationInfo, evaluateArgumentsInCurrentState(argumentValues, stateBefore),
         currentAnalysedMethodInfo) match {
-        case Some(returnValue) => returnValue
-        case _ => methodEffect.returnValue.getDfType
+        case Some(externalMethodEffect) => externalMethodEffect
+        case _ => methodEffect
       }
-    } else methodEffect.returnValue.getDfType
+    } else methodEffect
 
-    returnFromInvocation(returnValue, stateBefore, interpreter)
+    returnFromInvocation(improvedMethodEffect, stateBefore, interpreter)
   }
 
-  private def returnFromInvocation(returnValue: DfType, stateBefore: DfaMemoryState,
+  private def returnFromInvocation(methodEffect: MethodEffect, stateBefore: DfaMemoryState,
                                    interpreter: DataFlowInterpreter): Array[DfaInstructionState] = {
     val exceptionalState = stateBefore.createCopy()
-    val exceptionalResult = exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala)
-      .getOrElse(Nil)
+    val exceptionalResult = if (methodEffect.handledExternally) Nil
+    else exceptionTransfer.map(_.dispatch(exceptionalState, interpreter).asScala).getOrElse(Nil)
 
-    val normalResult = returnValue match {
+    val normalResult = methodEffect.returnValue match {
       case DfType.BOTTOM => None
-      case _ => pushResult(interpreter, stateBefore, returnValue)
+      case _ => pushResult(interpreter, stateBefore, methodEffect.returnValue)
         Some(nextState(interpreter, stateBefore))
     }
 

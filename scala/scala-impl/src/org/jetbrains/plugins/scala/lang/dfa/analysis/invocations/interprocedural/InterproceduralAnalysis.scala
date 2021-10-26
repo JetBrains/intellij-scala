@@ -2,12 +2,14 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedura
 
 import com.intellij.codeInspection.dataFlow.interpreter.{DataFlowInterpreter, RunnerResult, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
+import com.intellij.codeInspection.dataFlow.jvm.transfer.EnterFinallyTrap
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
-import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiElement, PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
@@ -18,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 object InterproceduralAnalysis {
 
@@ -25,7 +29,7 @@ object InterproceduralAnalysis {
 
   def tryInterpretExternalMethod(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
-                                (implicit factory: DfaValueFactory): Option[DfType] = {
+                                (implicit factory: DfaValueFactory): Option[MethodEffect] = {
     invocationInfo.invokedElement match {
       case Some(InvokedElement(function: ScFunctionDefinition))
         if supportsInterproceduralAnalysis(function, invocationInfo, currentAnalysedMethodInfo) => function.body match {
@@ -81,13 +85,17 @@ object InterproceduralAnalysis {
   private def analyseExternalMethodBody(method: ScFunctionDefinition, body: ScExpression,
                                         mappedParameters: Map[ScParameter, DfaValue],
                                         currentAnalysedMethodInfo: AnalysedMethodInfo)
-                                       (implicit factory: DfaValueFactory): Option[DfType] = {
+                                       (implicit factory: DfaValueFactory): Option[MethodEffect] = {
     val newAnalysedInfo = AnalysedMethodInfo(method, currentAnalysedMethodInfo.invocationDepth + 1)
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(newAnalysedInfo, factory, body)
-    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
 
+    val endOffset = new DeferredOffset
+    implicit val context: ProjectContext = method.getProject
+    controlFlowBuilder.pushTrap(new EnterFinallyTrap(nopCodeBlock, endOffset))
+
+    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
     val resultDestination = factory.getVarFactory.createVariableValue(MethodResultDescriptor(method))
-    val flow = controlFlowBuilder.buildAndReturn(resultDestination)
+    val flow = controlFlowBuilder.buildForExternalMethod(resultDestination, endOffset)
 
     val listener = new MethodResultDfaListener(resultDestination)
     val interpreter = new StandardDataFlowInterpreter(flow, listener)
@@ -96,6 +104,9 @@ object InterproceduralAnalysis {
     registerParameterValues(mappedParameters, None, interpreter, startingState)
 
     if (interpreter.interpret(startingState) != RunnerResult.OK) None
-    else Some(listener.resultValue)
+    else Some(MethodEffect(factory.fromDfType(listener.resultValue),
+      isPure = true, handledSpecially = true, handledExternally = true))
   }
+
+  private def nopCodeBlock(implicit context: ProjectContext): ScExpression = code"()".asInstanceOf[ScExpression]
 }

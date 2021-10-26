@@ -49,9 +49,11 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
       |
       |recursiveMethod1(5) == 10
       |recursiveMethod2(5) == 10
+      |
+      |2 == 2
       |""".stripMargin
   })(
-    "recursiveMethod2(5) == 10" -> ConditionAlwaysTrue
+    "2 == 2" -> ConditionAlwaysTrue
   )
 
   def testLimitingInterproceduralAnalysisDepth(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
@@ -78,8 +80,49 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
       |
       |nested1(5) == 15
       |veryNested1(5) == 30
+      |
+      |2 == 2
       |""".stripMargin
   })(
-    "nested1(5) == 15" -> ConditionAlwaysTrue
+    "nested1(5) == 15" -> ConditionAlwaysTrue,
+    "2 == 2" -> ConditionAlwaysTrue
+  )
+
+  def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |private def otherMethod(x: Int): Int = {
+      |  3 $$ 4
+      |  x
+      |}
+      |
+      |private def goodMethod(x: Int): Boolean = {
+      |  3 + 3
+      |
+      |  true
+      |}
+      |
+      |private def badMethod(x: Int): Boolean = {
+      |  x match { // some currently unsupported expression here
+      |    case 3 => return false
+      |    case _ =>
+      |  }
+      |
+      |  true
+      |}
+      |
+      |val x = otherMethod(5)
+      |x == 5
+      |goodMethod(5)
+      |
+      |if (badMethod(5)) {
+      |  x == 3
+      |}
+      |
+      |2 == 2
+      |
+      |""".stripMargin
+  })(
+    "2 == 2" -> ConditionAlwaysTrue,
+    "goodMethod(5)" -> ConditionAlwaysTrue
   )
 }

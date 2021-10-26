@@ -49,4 +49,25 @@ class ReturnAndThrowDfaTest extends ScalaDfaTestBase {
     "a == 8" -> ConditionAlwaysTrue,
     "3 == 3" -> ConditionAlwaysTrue
   )
+
+  def testReturnStatementInsideUnsupportedConstructs(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |private def otherMethod(x: Int): Int = {
+      |  x match {
+      |    case 3 => return 0
+      |    case _ =>
+      |  }
+      |
+      |  x
+      |}
+      |
+      |val x = otherMethod(5)
+      |x == 5
+      |
+      |2 == 2
+      |
+      |""".stripMargin
+  })(
+    "2 == 2" -> ConditionAlwaysTrue
+  )
 }
