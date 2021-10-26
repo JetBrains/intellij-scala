@@ -13,8 +13,8 @@ trait ScalaSdkOwner extends Test
   import ScalaSdkOwner._
 
   @deprecatedOverriding(
-    """Consider using supportedIn instead to run with the latest possible scala version.
-      |Override this method only if you want to run test with a specific version which is for some reason not listed in ScalaSdkOwner.allTestVersion""".stripMargin
+    "Consider using supportedIn instead to run with the latest possible scala version.\n" +
+      "Override this method only if you want to run test with a specific version which is for some reason not listed in ScalaSdkOwner.allTestVersion"
   )
   override implicit def version: ScalaVersion = {
     val supportedVersions = allTestVersions.filter(supportedIn)
@@ -43,22 +43,29 @@ trait ScalaSdkOwner extends Test
     s"scala: ${version.minor}$detail, jdk: $testProjectJdkVersion"
   }
 
+  protected def reportFailedTestContextDetails: Boolean = true
+
   abstract override def run(result: TestResult): Unit = {
     if (!skip) {
       // Need to initialize before test is run because all tests fields can be reset to null
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
-      val versionsDetailMessage = s"### $buildVersionsDetailsMessage ###"
-      lazy val logVersion: Unit = System.err.println(versionsDetailMessage) // lazy val to log only once
-      val listener = new TestListener {
-        override def addError(test: Test, t: Throwable): Unit = logVersion
-        override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion
-        override def endTest(test: Test): Unit = ()
-        override def startTest(test: Test): Unit = ()
-      }
-      result.addListener(listener)
+      val listener =
+        if (reportFailedTestContextDetails) {
+          val versionsDetailMessage = s"### $buildVersionsDetailsMessage ###"
+          lazy val logVersion: Unit = System.err.println(versionsDetailMessage) // lazy val to log only once
+          Some(new TestListener {
+            override def addError(test: Test, t: Throwable): Unit = logVersion
+            override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion
+            override def endTest(test: Test): Unit = ()
+            override def startTest(test: Test): Unit = ()
+          })
+        }
+        else None
+
+      listener.foreach(result.addListener)
       super.run(result)
-      result.removeListener(listener)
+      listener.foreach(result.removeListener)
     }
   }
 }
