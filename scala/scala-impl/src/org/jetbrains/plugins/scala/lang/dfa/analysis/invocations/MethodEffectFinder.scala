@@ -95,7 +95,9 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
       .flatMap(argumentValues.get).getOrElse(unknownDfaValue)
 
     val mutationSignature = MutationSignature.fromMethod(psiMethod)
-    val dfaCallArguments = new DfaCallArguments(thisArgumentValue, properArgumentValues.toArray, mutationSignature)
+    val fixedArgumentValues = if (psiMethod.isVarArgs && properArgumentValues.isEmpty)
+      List(factory.fromDfType(DfType.TOP)) else properArgumentValues
+    val dfaCallArguments = new DfaCallArguments(thisArgumentValue, fixedArgumentValues.toArray, mutationSignature)
     val dfaReturnValue = Option(handler.getMethodResultValue(dfaCallArguments, stateBefore, factory, psiMethod))
 
     val returnValue = dfaReturnValue.getOrElse(unknownDfaValue)

@@ -11,7 +11,7 @@ object ScalaDfaTypeConstants {
     case object False extends DfaConstantValue
     case object Zero extends DfaConstantValue
     case object Null extends DfaConstantValue
-    case object Unknown extends DfaConstantValue
+    case object Other extends DfaConstantValue
   }
 
   sealed trait LogicalOperation
@@ -36,6 +36,10 @@ object ScalaDfaTypeConstants {
     val ScalaBoolean = "scala.Boolean"
 
     val ScalaNil = "scala.Nil"
+
+    val ScalaNone = "scala.None"
+
+    val ScalaNothing = "scala.Nothing"
 
     val ScalaCollection = "scala.collection"
 

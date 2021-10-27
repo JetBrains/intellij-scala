@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{literalToDf
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
 class ExpressionTransformer(val wrappedExpression: ScExpression)
   extends ScalaPsiElementTransformer(wrappedExpression) {
@@ -51,7 +52,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
-    expression.is[ScTry, ScFunctionExpr, ScUnderscoreSection, ScGenericCall]
+    isFunctionalExpression(expression) || expression.is[ScTry, ScUnderscoreSection, ScGenericCall]
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
@@ -105,7 +106,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    if (isReferenceExpressionInvocation(expression)) {
+    if (startsWithUnderscoreExpression(expression)) builder.pushUnknownValue()
+    else if (isReferenceExpressionInvocation(expression)) {
       new InvocationTransformer(expression).transform(builder)
     } else {
       expression.qualifier.foreach { qualifier =>
@@ -120,6 +122,17 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
         case _ => builder.pushUnknownCall(expression, 0)
       }
     }
+  }
+
+  private def startsWithUnderscoreExpression(reference: ScReferenceExpression): Boolean = {
+    var currentReference = reference.qualifier
+    while (currentReference.isDefined) currentReference match {
+      case Some(_: ScUnderscoreSection) => return true
+      case Some(nextReference: ScReferenceExpression) => currentReference = nextReference.qualifier
+      case _ => return false
+    }
+
+    false
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {

@@ -53,16 +53,28 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   }
 
   /**
-   * Same as [[build]] but instead of popping the return value, it assigns it
-   * to the place specified in the parameter.
+   * Version of [[build]] to be used for building control flow of external methods in
+   * interprocedural analysis. Instead of popping the return value, it assigns it
+   * to the place specified in the parameter. It also takes into account possible throw/return instructions,
+   * if they can appear somewhere inside the method's body.
    *
    * @param returnDestination DFA value to which the result of the transformed method
    *                          will be assigned after it is executed.
+   * @param endOffset         deferred offset that will point to the instruction directly before the last one,
+   *                          it can be used as a place to redirect possible exception/return statements
    * @return [[com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow]] representation
    *         of instructions that have been pushed to this builder's stack.
    */
-  def buildAndReturn(returnDestination: DfaVariableValue): ControlFlow = {
+  def buildForExternalMethod(returnDestination: DfaVariableValue, endOffset: DeferredOffset): ControlFlow = {
+    val finishOffset = new DeferredOffset
     addInstruction(new SimpleAssignmentInstruction(null, returnDestination))
+    addInstruction(new GotoInstruction(finishOffset))
+
+    setOffset(endOffset)
+    pushUnknownValue()
+    addInstruction(new SimpleAssignmentInstruction(null, returnDestination))
+
+    setOffset(finishOffset)
     flow.finish()
     flow
   }
@@ -84,6 +96,16 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): Unit = {
     val dfaVariable = createVariable(descriptor)
     addInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
+  }
+
+  def popReturnValue(): Unit = addInstruction(new PopInstruction)
+
+  def popArguments(argCount: Int): Unit = {
+    if (argCount > 1) {
+      addInstruction(new SpliceInstruction(argCount))
+    } else if (argCount == 1) {
+      addInstruction(new PopInstruction)
+    }
   }
 
   def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression],
@@ -115,16 +137,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
   }
 
-  def popReturnValue(): Unit = addInstruction(new PopInstruction)
-
-  def popArguments(argCount: Int): Unit = {
-    if (argCount > 1) {
-      addInstruction(new SpliceInstruction(argCount))
-    } else if (argCount == 1) {
-      addInstruction(new PopInstruction)
-    }
-  }
-
   def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
@@ -142,7 +154,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
         balancedType.toPsiType match {
           case balancedPrimitiveType: PsiPrimitiveType =>
             addInstruction(new PrimitiveConversionInstruction(balancedPrimitiveType, null))
-          case otherType =>
+          case _ =>
         }
       }
     }
@@ -151,4 +163,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
   def addReturnInstruction(expression: Option[ScExpression]): Unit = {
     addInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), expression.orNull))
   }
+
+  def pushTrap(trap: DfaControlTransferValue.Trap): Unit = trapTracker.pushTrap(trap)
 }

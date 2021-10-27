@@ -54,7 +54,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
     // There were significant problems with recognizing and transforming properly combinations of synthetic methods
     // with var assignments, for example x += 3. Supporting it most likely needs modifications to relevant PSI elements.
     val isBinaryModifyingAssignment = operation.length == 2 && operation(1) == '='
-    val isUnsupportedSyntheticOperator = NumericBinary.keys.toList.contains(operation(0)) ||
+    val isUnsupportedSyntheticOperator = NumericBinary.keys.toList.contains(operation(0).toString) ||
       operation(0) == '&' || operation(0) == '|'
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
   }

@@ -16,7 +16,7 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
   def reportProblems(listener: ScalaDfaListener): Unit = {
     listener.collectConstantConditions
-      .filter { case (_, value) => value != DfaConstantValue.Unknown }
+      .filter { case (_, value) => value != DfaConstantValue.Other }
       .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
 
     listener.collectUnsatisfiedConditions
@@ -60,6 +60,8 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
       // Warning will be reported for the prefix expression
       case _: ScExpression if parent.exists(_.is[ScPrefixExpr]) => true
       case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
+      case infix: ScInfixExpr if isAssignmentOrUpdate(infix) => true
+      case _: ScExpression if parent.exists(isAssignmentOrUpdate) => true
       // Warning will be reported for the parent expression
       case infix: ScInfixExpr if LogicalBinary.contains(infix.operation.refName) => parent match {
         case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
@@ -71,6 +73,12 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
       case _: ScReferenceExpression if value == DfaConstantValue.True || value == DfaConstantValue.False => true
       case _ => false
     }
+  }
+
+  private def isAssignmentOrUpdate(element: PsiElement): Boolean = element match {
+    case infix: ScInfixExpr => infix.isAssignment || infix.isUpdateCall
+    case invocation: MethodInvocation => invocation.isUpdateCall
+    case _ => false
   }
 
   private def findProperParent(statement: ScBlockStatement): Option[PsiElement] = {

@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableEle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[PsiElement], override val isStable: Boolean)
-  extends JvmVariableDescriptor {
+case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[PsiElement],
+                                      override val isStable: Boolean) extends JvmVariableDescriptor {
 
   override def toString: String = (qualifier, variable) match {
     case (Some(qualifierExpression), namedElement: PsiNamedElement) =>
@@ -33,8 +33,10 @@ object ScalaDfaVariableDescriptor {
       case _ => None
     }
 
-    expression.getReference.bind()
+    if (expression.isQualified && qualifier.isEmpty) None
+    else expression.getReference.bind()
       .map(_.element)
-      .map(element => ScalaDfaVariableDescriptor(element, qualifier, isStableElement(element)))
+      .map(element => ScalaDfaVariableDescriptor(element, qualifier,
+        isStableElement(element) && qualifier.forall(isStableElement)))
   }
 }
