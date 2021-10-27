@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments
 
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.TransformationFailedException
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScInfixExpr}
@@ -79,6 +80,7 @@ object ArgumentFactory {
     val tupleArgument = wrapInTupleExpression(invocation.argumentExpressions)
     val tupleParameter = Parameter(invocation.target.get.element match {
       case function: ScFunction => function.parameters.head
+      case _ => throw TransformationFailedException(invocation, "Auto-tupling used not on something other than ScFunction")
     })
 
     Argument.fromArgParamMapping((tupleArgument, tupleParameter))

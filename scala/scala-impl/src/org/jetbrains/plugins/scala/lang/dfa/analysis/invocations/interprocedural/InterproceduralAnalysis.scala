@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object InterproceduralAnalysis {
 
-  val InterproceduralAnalysisDepthLimit = 3
+  val InterproceduralAnalysisDepthLimit = 0
 
   def tryInterpretExternalMethod(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)

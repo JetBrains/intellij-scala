@@ -88,7 +88,7 @@ object InvocationInfo {
       val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
       val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
         constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
-      val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.tail
+      val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
 
       InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
     }
