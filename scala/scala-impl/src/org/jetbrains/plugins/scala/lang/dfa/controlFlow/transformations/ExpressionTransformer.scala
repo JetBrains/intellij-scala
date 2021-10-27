@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{literalToDf
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.util.SAMUtil.isFunctionalExpression
 
 class ExpressionTransformer(val wrappedExpression: ScExpression)
   extends ScalaPsiElementTransformer(wrappedExpression) {
@@ -51,7 +52,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def isUnsupportedImpureExpressionType(expression: ScExpression): Boolean = {
-    expression.is[ScTry, ScFunctionExpr, ScUnderscoreSection, ScGenericCall]
+    isFunctionalExpression(expression) || expression.is[ScTry, ScUnderscoreSection, ScGenericCall]
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {

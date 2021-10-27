@@ -17,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
@@ -124,8 +125,10 @@ object ScalaDfaTypeUtils {
   }
 
   def isStableElement(element: PsiNamedElement): Boolean = element match {
+    case referencePattern: ScReferencePattern => referencePattern.isStable && !referencePattern.isVar
+    case _: ScVariable => false
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
-    case typedDefinition: ScTypedDefinition => typedDefinition.isStable
+    case typedDefinition: ScTypedDefinition => typedDefinition.isStable && !typedDefinition.isVar
     case _ => false
   }
 

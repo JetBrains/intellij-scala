@@ -47,4 +47,21 @@ class IgnoredConstructsDfaTest extends ScalaDfaTestBase {
   })(
     "x == 2" -> ConditionAlwaysTrue
   )
+
+  def testFlushingAfterModifyingAssignmentCalls(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val y = 2
+      |var x = 2
+      |var z = 4
+      |
+      |z += 5
+      |
+      |2 == 2
+      |x == 2
+      |y == 2
+      |""".stripMargin
+  })(
+    "2 == 2" -> ConditionAlwaysTrue,
+    "y == 2" -> ConditionAlwaysTrue
+  )
 }
