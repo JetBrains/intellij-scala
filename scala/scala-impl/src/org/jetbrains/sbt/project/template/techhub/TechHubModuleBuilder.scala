@@ -2,16 +2,14 @@ package org.jetbrains.sbt.project.template.techhub
 
 
 import com.intellij.CommonBundle
-import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
+import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
 import org.jetbrains.annotations.{Nls, TestOnly}
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
 import org.jetbrains.sbt.project.template.{SbtModuleBuilderBase, SbtModuleBuilderUtil, ScalaSettingsStepBase}
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
@@ -60,13 +58,8 @@ final class TechHubModuleBuilder extends SbtModuleBuilderBase {
         SbtBundle.message("downloading.template")
       )
 
-      tryToSetupRootModel(model, getContentEntryPath)
+      SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
     }
-  }
-
-  override def setupModule(module: Module): Unit = {
-    super.setupModule(module)
-    SbtModuleBuilderUtil.doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {

@@ -4,6 +4,7 @@ import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, S
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
+import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.replacePatterns
@@ -30,15 +31,18 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
   }
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    new File(getModuleFileDirectory) match {
-      case root if root.exists() =>
-        extractArchive(root, archiveURL)
-        processExtractedArchive(root.toPath)
-        setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
-      case _ =>
+    val root = new File(getModuleFileDirectory)
+    if (root.exists()) {
+      extractArchive(root, archiveURL)
+      processExtractedArchive(root.toPath)
+      setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
     }
 
     super.createModule(moduleModel)
+  }
+
+  override def setupRootModel(model: ModifiableRootModel): Unit = {
+    SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
   }
 
   protected def processExtractedArchive(extractedPath: Path): Unit = ()

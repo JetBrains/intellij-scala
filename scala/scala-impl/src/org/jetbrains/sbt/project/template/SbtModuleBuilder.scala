@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.template.{FileExt, patchProjectLabels
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.sbt.project.template.SbtModuleBuilder._
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{DefaultModuleContentEntryFolders, doSetupModule}
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.DefaultModuleContentEntryFolders
 import org.jetbrains.sbt.project.template.wizard.SbtModuleStepLike
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
@@ -69,11 +69,6 @@ final class SbtModuleBuilder(
       val contentEntryFolders = createProjectTemplateIn(root, name, scalaVersion, sbtVersion, packagePrefix)
       SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath, contentEntryFolders)
     }
-  }
-
-  override def setupModule(module: Module): Unit = {
-    super.setupModule(module)
-    doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep =
