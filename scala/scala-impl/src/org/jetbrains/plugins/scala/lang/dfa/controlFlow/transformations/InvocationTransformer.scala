@@ -45,7 +45,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
     }
 
     val unsupportedInvokedElement = invocationsInfo.flatMap(_.invokedElement).flatMap(_.simpleName)
-      .exists(name => name.startsWith("assert") || name == "require")
+      .exists(name => name.startsWith("assert") || name == "require" || name == "getClass")
 
     unsupportedExpression || unsupportedInvokedElement
   }
@@ -53,7 +53,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
   private def isUnsupportedInfixSyntheticAssignment(operation: String): Boolean = {
     // There were significant problems with recognizing and transforming properly combinations of synthetic methods
     // with var assignments, for example x += 3. Supporting it most likely needs modifications to relevant PSI elements.
-    val isBinaryModifyingAssignment = operation.length == 2 && operation(1) == '='
+    val isBinaryModifyingAssignment = operation.length == 2 && operation(1) == '=' &&
+      operation != "==" && operation != "!="
     val isUnsupportedSyntheticOperator = NumericBinary.keys.toList.contains(operation(0).toString) ||
       operation(0) == '&' || operation(0) == '|'
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
