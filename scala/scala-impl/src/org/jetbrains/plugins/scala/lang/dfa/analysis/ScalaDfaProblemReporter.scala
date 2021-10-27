@@ -54,10 +54,6 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
   }
 
   private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
-    if (value == DfaConstantValue.Null) return true
-    // TODO revert, this fully disables "always null" inspections,
-    //  needed temporarily to identify and fix bugs that are independent of it
-
     val parent = findProperParent(statement)
     statement match {
       case _: ScLiteral => true

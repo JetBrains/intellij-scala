@@ -54,7 +54,11 @@ object ScalaDfaTypeUtils {
   def dfTypeToReportedConstant(dfType: DfType): DfaConstantValue = dfType match {
     case DfTypes.TRUE => DfaConstantValue.True
     case DfTypes.FALSE => DfaConstantValue.False
-    case DfTypes.NULL => DfaConstantValue.Null
+    case DfTypes.NULL => DfaConstantValue.Unknown
+    // Reporting "always null" is currently disabled, because it interacted very badly with some other parts
+    // of the analysis, producing many false "null" warnings. This might be, at least partially, a problem in
+    // the Java side of the analysis. It should be revived with implementation of more complete analysis of
+    // nullability, more useful than just "always null" warnings.
     case _ => Option(dfType.getConstantOfType(classOf[Number]))
       .filter(value => value.intValue() == 0 || value.longValue() == 0L)
       .map(_ => DfaConstantValue.Zero)
@@ -92,6 +96,7 @@ object ScalaDfaTypeUtils {
     extractedClass match {
       case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
         dfTypeImmutableCollectionFromSize(0)
+      case Some(psiClass) if psiClass.qualifiedName == ScalaNone || psiClass.qualifiedName == ScalaNothing => DfType.TOP
       case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
       case Some(psiClass) => psiClass.qualifiedName match {
         case "scala.Int" => DfTypes.INT
@@ -102,7 +107,7 @@ object ScalaDfaTypeUtils {
         case "scala.Char" => DfTypes.intRange(LongRangeSet.range(Char.MinValue.toLong, Character.MAX_VALUE.toLong))
         case "scala.Short" => DfTypes.intRange(LongRangeSet.range(Short.MinValue.toLong, Short.MaxValue.toLong))
         case "scala.Byte" => DfTypes.intRange(LongRangeSet.range(Byte.MinValue.toLong, Byte.MaxValue.toLong))
-        case _ => TypeConstraints.exactClass(psiClass).asDfType().meet(DfTypes.OBJECT_OR_NULL)
+        case _ => TypeConstraints.exactClass(psiClass).asDfType()
       }
       case _ => DfType.TOP
     }

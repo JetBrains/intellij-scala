@@ -37,6 +37,10 @@ object ScalaDfaTypeConstants {
 
     val ScalaNil = "scala.Nil"
 
+    val ScalaNone = "scala.None"
+
+    val ScalaNothing = "scala.Nothing"
+
     val ScalaCollection = "scala.collection"
 
     val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
