@@ -1,5 +1,0 @@
-package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_2_13_4_10_2
-
-import org.jetbrains.plugins.scala.testingSupport.specs2.Spec2ExampleUnitSpec
-
-class Spec2_2_13_4_10_2_ExampleUnitSpec extends Spec2ExampleUnitSpec with Specs2_2_13_4_10_2_Base

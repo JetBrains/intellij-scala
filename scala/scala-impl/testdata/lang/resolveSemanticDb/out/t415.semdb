@@ -1,0 +1,8 @@
+Document tests/pos/t415.scala
+(2:13..2:19) scala/Predef.String#
+(3:10..3:11) _empty_/A#T# -> 2:8
+(7:10..7:11) _empty_/A# -> 1:16
+(8:10..8:16) scala/Predef.String#
+(8:20..8:21) _empty_/B#a(). -> 7:7
+(8:22..8:23) _empty_/A#x(). -> 3:7
+

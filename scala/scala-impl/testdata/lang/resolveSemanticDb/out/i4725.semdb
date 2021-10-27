@@ -1,0 +1,24 @@
+Document tests/pos/i4725.scala
+(4:30..4:31) _empty_/Test1.T# -> 2:9
+(4:32..4:33) _empty_/Test1.foo().[A] -> 4:17
+(4:39..4:40) _empty_/Test1.T# -> 2:9
+(4:41..4:42) _empty_/Test1.foo().[S] -> 4:11
+(4:43..4:44) _empty_/Test1.foo().[A] -> 4:17
+(4:49..4:53) scala/Unit#
+(5:33..5:34) _empty_/Test1.T# -> 2:9
+(5:35..5:36) _empty_/Test1.bar().[A] -> 5:20
+(5:40..5:41) _empty_/Test1.T# -> 2:9
+(5:42..5:46) scala/package.List#
+(5:47..5:48) _empty_/Test1.bar().[A] -> 5:20
+(5:53..5:56) scala/Predef.`???`().
+(7:3..7:6) _empty_/Test1.foo(). -> 4:7
+(7:7..7:11) scala/package.List#
+(7:13..7:16) scala/Int#
+(14:21..14:22) _empty_/Test2.T# -> 11:9
+(14:27..14:28) _empty_/Test2.S# -> 12:9
+(14:31..14:35) scala/Unit#
+(15:30..15:31) _empty_/Test2.T# -> 11:9
+(15:34..15:35) _empty_/Test2.S# -> 12:9
+(15:38..15:41) scala/Predef.`???`().
+(17:3..17:6) _empty_/Test2.foo(). -> 14:7
+

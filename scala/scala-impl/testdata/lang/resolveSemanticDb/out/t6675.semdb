@@ -1,0 +1,40 @@
+Document tests/pos/t6675.scala
+(2:25..2:31) scala/package.Either#
+(2:32..2:33) _empty_/LeftOrRight.unapply().[A] -> 2:15
+(2:35..2:36) _empty_/LeftOrRight.unapply().[A] -> 2:15
+(2:40..2:46) scala/Option#
+(2:47..2:48) _empty_/LeftOrRight.unapply().[A] -> 2:15
+(2:52..2:57) _empty_/LeftOrRight.unapply().(value) -> 2:18
+(3:10..3:15) scala/
+(3:16..3:20) scala/package.Left.
+(3:27..3:31) scala/Some.
+(3:32..3:33) local0 -> 3:21
+(4:10..4:15) scala/
+(4:16..4:21) scala/package.Right.
+(4:28..4:32) scala/Some.
+(4:33..4:34) local1 -> 4:22
+(9:4..9:8) scala/package.Left.
+(9:18..9:24) scala/package.Either#
+(9:26..9:29) scala/Int#
+(9:31..9:34) scala/Int#
+(9:38..9:41) scala/Int#
+(9:43..9:46) scala/Int#
+(10:10..10:21) _empty_/LeftOrRight. -> 1:8
+(10:40..10:41) local2 -> 10:30
+(13:4..13:8) scala/package.Left.
+(13:18..13:24) scala/package.Either#
+(13:26..13:29) scala/Int#
+(13:31..13:34) scala/Int#
+(13:38..13:41) scala/Int#
+(13:43..13:46) scala/Int#
+(14:10..14:21) _empty_/LeftOrRight. -> 1:8
+(14:33..14:34) local5 -> 14:23
+(17:4..17:8) scala/package.Left.
+(17:18..17:24) scala/package.Either#
+(17:26..17:29) scala/Int#
+(17:31..17:34) scala/Int#
+(17:38..17:41) scala/Int#
+(17:43..17:46) scala/Int#
+(18:10..18:21) _empty_/LeftOrRight. -> 1:8
+(18:31..18:32) local7 -> 18:22
+

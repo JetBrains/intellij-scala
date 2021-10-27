@@ -1,0 +1,17 @@
+Document tests/pos/t4112.scala
+(3:8..3:18) scala/collection/
+(3:19..3:28) scala/collection/immutable/
+(8:18..8:23) scala/Array#
+(8:24..8:30) scala/Predef.String#
+(8:34..8:38) scala/Unit#
+(9:19..9:26) scala/collection/immutable/TreeMap.
+(9:29..9:31) scala/Predef.ArrowAssoc#`->`().
+(9:37..9:39) scala/Predef.ArrowAssoc#`->`().
+(9:43..9:45) scala/collection/SortedMapOps#`++`().
+(9:46..9:53) scala/collection/immutable/TreeMap.
+(9:56..9:58) scala/Predef.ArrowAssoc#`->`().
+(10:6..10:13) local0 -> 9:9
+(10:15..10:22) scala/collection/immutable/TreeMap#
+(10:23..10:26) scala/Int#
+(10:28..10:31) scala/Int#
+

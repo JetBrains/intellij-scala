@@ -1,0 +1,4 @@
+Document tests/pos/t7011.scala
+(2:14..2:18) scala/Unit#
+(5:10..5:11) local0 -> 3:14
+

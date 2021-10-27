@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala
 package annotator
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaReflectLibraryLoader}
 
 class MacroDefAnnotatorTest extends ScalaHighlightingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
-  override protected val includeReflectLibrary: Boolean = true
+  override def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ ScalaReflectLibraryLoader
 
   private def doTest(text: String)(expectedErrors: Message*): Unit = {
     val errors = errorsFromScalaCode(text)

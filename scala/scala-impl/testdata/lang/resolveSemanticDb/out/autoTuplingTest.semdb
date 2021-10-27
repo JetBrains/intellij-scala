@@ -1,0 +1,12 @@
+Document tests/pos/autoTuplingTest.scala
+(3:10..3:16) scala/Option#
+(3:18..3:21) scala/Int#
+(3:23..3:26) scala/Int#
+(3:31..3:35) scala/Some.
+(5:3..5:4) _empty_/autoTupling.x. -> 3:7
+(6:10..6:14) scala/Some.
+(6:24..6:25) local0 -> 6:15
+(6:26..6:27) scala/Int#`+`(+4).
+(6:28..6:29) local1 -> 6:18
+(7:10..7:14) scala/None.
+

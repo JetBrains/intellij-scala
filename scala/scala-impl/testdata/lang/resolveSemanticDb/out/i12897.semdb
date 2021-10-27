@@ -1,0 +1,8 @@
+Document tests/pos/i12897/A.scala
+(3:19..3:25) scala/Predef.String#
+(3:48..3:55) scala/Boolean#
+(3:66..3:72) scala/Predef.String#
+
+Document tests/pos/i12897/B.scala
+(4:15..4:18) TestFoo/A$package.foo(). -> 3:31
+

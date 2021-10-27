@@ -1,0 +1,13 @@
+Document tests/pos/i5140/S.scala
+(2:15..2:16) _empty_/J#
+(3:10..3:15) scala/Array#
+(3:16..3:19) _empty_/Dog#
+(3:23..3:26) scala/Predef.`???`().
+(7:3..7:4) _empty_/S#j. -> 2:7
+(7:5..7:8) _empty_/J#foo().
+(7:9..7:10) _empty_/S#x. -> 3:7
+(8:3..8:4) _empty_/S#j. -> 2:7
+(8:5..8:8) _empty_/J#foo().
+(8:13..8:16) _empty_/Dog#
+(8:22..8:25) _empty_/Dog#
+

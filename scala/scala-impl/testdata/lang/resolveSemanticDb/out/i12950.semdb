@@ -1,0 +1,76 @@
+Document tests/pos/i12950/repro_1.scala
+(4:31..4:34) scala/Int#
+(5:22..5:25) scala/Int#
+(6:26..6:30) repro/repro.opq.Lift# -> 4:21
+(6:31..6:32) repro/repro.opq.lift().[T] -> 6:22
+(6:36..6:37) repro/repro.opq.lift().(v) -> 5:19
+(7:25..7:29) repro/repro.opq.Lift# -> 4:21
+(7:30..7:31) repro/repro.opq.value().[T] -> 7:19
+(8:24..8:27) scala/Int#
+(8:30..8:31) repro/repro.opq.value().(l) -> 7:22
+(10:12..10:15) repro/repro.opq. -> 3:12
+(11:12..11:15) repro/repro.opq. -> 3:12
+(15:22..15:26) repro/repro.Lift#
+(15:27..15:29) repro/repro.repro().[TL] -> 15:15
+(16:32..16:35) repro/repro.Mul# -> 18:20
+(16:36..16:38) repro/repro.repro().[TL] -> 15:15
+(16:40..16:42) repro/repro.repro().[TR] -> 16:19
+(16:46..16:49) scala/Int#
+(16:52..16:53) repro/repro.repro().(l) -> 15:19
+(16:60..16:61) scala/Int#`+`(+4).
+(16:62..16:63) repro/repro.repro().(m) -> 16:29
+(16:64..16:69) repro/repro.Mul#value. -> 19:13
+(19:20..19:23) scala/Int#
+(21:48..21:51) scala/Int#
+(21:52..21:53) scala/`&`#
+(21:54..21:63) scala/Singleton#
+(21:71..21:74) scala/Int#
+(21:75..21:76) scala/`&`#
+(21:77..21:86) scala/Singleton#
+(21:89..21:92) repro/repro.Mul# -> 18:20
+(21:93..21:95) repro/repro.mulGivenInt().[TL] -> 21:42
+(21:97..21:99) repro/repro.mulGivenInt().[TR] -> 21:65
+(22:16..22:19) scala/Int#
+(22:22..22:27) scala/
+(22:28..22:39) scala/compiletime/
+(22:40..22:50) scala/compiletime/package$package.constValue().
+(22:51..22:53) repro/repro.mulGivenInt().[TL] -> 21:42
+(22:55..22:56) scala/Int#`*`(+3).
+(22:57..22:62) scala/
+(22:63..22:74) scala/compiletime/
+(22:75..22:85) scala/compiletime/package$package.constValue().
+(22:86..22:88) repro/repro.mulGivenInt().[TR] -> 21:65
+(23:13..23:16) repro/repro.Mul# -> 18:20
+(23:17..23:19) repro/repro.mulGivenInt().[TL] -> 21:42
+(23:21..23:23) repro/repro.mulGivenInt().[TR] -> 21:65
+(23:38..23:41) scala/Int#
+(23:44..23:45) local0 -> 22:13
+(25:48..25:51) scala/Int#
+(25:52..25:53) scala/`&`#
+(25:54..25:63) scala/Singleton#
+(25:66..25:69) repro/repro.Mul# -> 18:20
+(25:70..25:73) repro/repro.Two# -> 13:16
+(25:75..25:77) repro/repro.mulGivenTwo().[TR] -> 25:42
+(26:16..26:19) scala/Int#
+(26:24..26:25) scala/Int#`*`(+3).
+(26:26..26:31) scala/
+(26:32..26:43) scala/compiletime/
+(26:44..26:54) scala/compiletime/package$package.constValue().
+(26:55..26:57) repro/repro.mulGivenTwo().[TR] -> 25:42
+(27:13..27:16) repro/repro.Mul# -> 18:20
+(27:17..27:20) repro/repro.Two# -> 13:16
+(27:22..27:24) repro/repro.mulGivenTwo().[TR] -> 25:42
+(27:39..27:42) scala/Int#
+(27:45..27:46) local4 -> 26:13
+
+Document tests/pos/i12950/test_2.scala
+(1:8..1:13) repro/ -> 1:9
+(1:14..1:19) repro/repro. -> 2:8
+(3:11..3:15) repro/repro.lift().
+(3:16..3:19) repro/repro.Two# -> 13:16
+(4:9..4:10) _empty_/test_2$package.x. -> 3:5
+(4:11..4:16) repro/repro.repro(). -> 16:13
+(5:11..5:15) repro/repro.lift().
+(6:9..6:10) _empty_/test_2$package.y. -> 5:5
+(6:11..6:16) repro/repro.repro(). -> 16:13
+

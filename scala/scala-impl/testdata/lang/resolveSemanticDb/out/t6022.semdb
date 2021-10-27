@@ -1,0 +1,6 @@
+Document tests/pos/t6022.scala
+(2:10..2:13) scala/Any#
+(3:13..3:19) scala/AnyRef#
+(4:16..4:22) scala/Option#
+(5:19..5:26) scala/Product#
+

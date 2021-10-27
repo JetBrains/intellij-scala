@@ -1,0 +1,10 @@
+Document tests/pos/t3808.scala
+(2:12..2:16) scala/Unit#
+(4:23..4:25) local1 -> 3:11
+(4:26..4:29) scala/Int#
+(4:37..4:39) local1 -> 3:11
+(4:40..4:43) scala/Int#
+(6:17..6:19) local1 -> 3:11
+(6:23..6:29) scala/Predef.String#
+(8:5..8:8) local8 -> 6:9
+

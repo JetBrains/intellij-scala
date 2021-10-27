@@ -1,0 +1,18 @@
+Document tests/pos/i8188a.scala
+(2:20..2:26) scala/Predef.String#
+(3:20..3:33) scala/DummyImplicit#
+(3:36..3:42) scala/Predef.String#
+(3:45..3:48) scala/Predef.`???`().
+(4:21..4:28) scala/Boolean#
+(4:36..4:49) scala/DummyImplicit#
+(4:52..4:58) scala/Predef.String#
+(4:61..4:64) scala/Predef.`???`().
+(7:10..7:16) scala/Predef.String#
+(7:25..7:29) _empty_/Test.show(). -> 3:9
+(8:10..8:16) scala/Predef.String#
+(8:25..8:29) _empty_/Test.show(+1). -> 4:9
+(9:10..9:13) scala/Any#
+(9:22..9:26) _empty_/Test.show(). -> 3:9
+(10:10..10:13) scala/Any#
+(10:22..10:26) _empty_/Test.show(+1). -> 4:9
+

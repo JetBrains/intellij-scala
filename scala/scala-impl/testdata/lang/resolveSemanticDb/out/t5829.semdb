@@ -1,0 +1,18 @@
+Document tests/pos/t5829.scala
+(4:19..4:23) _empty_/Universe#Tree# -> 2:8
+(5:20..5:24) _empty_/Universe#Tree# -> 2:8
+(6:19..6:26) _empty_/Universe#SymTree# -> 4:8
+(6:32..6:40) _empty_/Universe#NameTree# -> 5:8
+(8:17..8:24) _empty_/Universe#RefTree# -> 6:8
+(9:18..9:25) _empty_/Universe#RefTree# -> 6:8
+(12:21..12:24) scala/App#
+(13:17..13:25) _empty_/Universe# -> 1:7
+(14:10..14:18) _empty_/Test.universe. -> 13:7
+(15:15..15:21) _empty_/Universe#Select# -> 9:8
+(15:24..15:27) scala/Predef.`???`().
+(16:14..16:19) _empty_/Universe#Ident# -> 8:8
+(16:22..16:25) scala/Predef.`???`().
+(17:3..17:7) scala/package.List.
+(17:8..17:14) _empty_/Test.select(). -> 15:7
+(17:16..17:21) _empty_/Test.ident(). -> 16:7
+

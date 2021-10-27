@@ -1,0 +1,11 @@
+Document tests/pos/i7920.scala
+(1:24..1:27) scala/Int#
+(2:21..2:24) _empty_/Bar# -> 1:7
+(2:34..2:39) scala/
+(2:40..2:47) scala/reflect/
+(2:48..2:58) scala/reflect/Selectable#
+(3:13..3:16) _empty_/Foo# -> 2:7
+(3:21..3:24) _empty_/Bar# -> 1:7
+(4:10..4:13) _empty_/Foo#bar. -> 2:15
+(6:14..6:15) _empty_/i7920$package.f. -> 3:5
+

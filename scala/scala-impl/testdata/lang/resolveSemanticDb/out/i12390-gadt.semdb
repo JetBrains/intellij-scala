@@ -1,0 +1,18 @@
+Document tests/pos/i12390-gadt.scala
+(2:23..2:27) _empty_/Func# -> 1:6
+(2:28..2:31) scala/Int#
+(2:33..2:36) scala/Int#
+(3:25..3:29) _empty_/Func# -> 1:6
+(3:30..3:35) scala/Float#
+(3:37..3:43) scala/Predef.String#
+(5:12..5:13) _empty_/Func#[A] -> 1:12
+(5:17..5:18) _empty_/Func#[B] -> 1:16
+(6:10..6:16) _empty_/Func.Double. -> 2:8
+(6:24..6:27) scala/Int#
+(6:32..6:33) local0 -> 6:21
+(6:34..6:35) scala/Int#`*`(+3).
+(7:10..7:18) _empty_/Func.ToString. -> 3:8
+(7:26..7:31) scala/Float#
+(7:36..7:37) local1 -> 7:23
+(7:38..7:46) scala/Any#toString().
+

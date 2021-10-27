@@ -1,0 +1,24 @@
+Document tests/pos/t8300-conversions-a.scala
+(3:18..3:22) scala/Null#
+(3:26..3:32) scala/AnyRef#
+(3:38..3:47) _empty_/Universe#SymbolApi# -> 4:9
+(6:22..6:26) scala/Null#
+(6:30..6:36) _empty_/Universe#Symbol# -> 3:8
+(6:42..6:55) _empty_/Universe#TypeSymbolApi# -> 7:9
+(7:31..7:40) _empty_/Universe#SymbolApi# -> 4:9
+(9:26..9:30) scala/Null#
+(9:34..9:44) _empty_/Universe#TypeSymbol# -> 6:8
+(9:50..9:67) _empty_/Universe#FreeTypeSymbolApi# -> 10:9
+(10:35..10:48) _empty_/Universe#TypeSymbolApi# -> 7:9
+(12:40..12:46) _empty_/Universe#Symbol# -> 3:8
+(13:21..13:35) _empty_/Universe#FreeTypeSymbol# -> 9:8
+(13:38..13:41) scala/Predef.`???`().
+(17:21..17:24) scala/App#
+(18:10..18:18) _empty_/Universe# -> 2:7
+(18:21..18:24) scala/Predef.`???`().
+(19:10..19:11) _empty_/Test.u. -> 18:7
+(21:12..21:18) _empty_/Universe#Symbol# -> 3:8
+(21:21..21:24) scala/Predef.`???`().
+(22:3..22:6) _empty_/Test.sym. -> 21:7
+(22:7..22:17) _empty_/Universe#CompatibleSymbol#asFreeType(). -> 13:9
+

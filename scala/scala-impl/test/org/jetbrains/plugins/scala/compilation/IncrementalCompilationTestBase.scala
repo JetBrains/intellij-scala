@@ -171,10 +171,9 @@ abstract class IncrementalCompilationTestBase(override protected val incremental
 
   protected def classFileNames(className: String)
                               (implicit version: ScalaVersion): Set[String] = {
-    val suffixes = version.languageLevel match {
-      case ScalaLanguageLevel.Scala_3_0 => Set("class", "tasty")
-      case _                            => Set("class")
-    }
+    val suffixes =
+      if (version.isScala3) Set("class", "tasty")
+      else Set("class")
     suffixes.map(suffix => s"$className.$suffix")
   }
 

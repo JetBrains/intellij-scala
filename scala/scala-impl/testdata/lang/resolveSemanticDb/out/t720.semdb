@@ -1,0 +1,10 @@
+Document tests/pos/t720.scala
+(3:30..3:33) _empty_/One# -> 4:7
+(3:36..3:39) _empty_/Two# -> 5:7
+(3:46..3:49) _empty_/Two# -> 5:7
+(4:19..4:23) _empty_/Conv# -> 1:7
+(6:22..6:25) scala/App#
+(7:17..7:20) _empty_/Two# -> 5:7
+(8:3..8:6) _empty_/Test2.fun(). -> 7:7
+(8:11..8:14) _empty_/One# -> 4:7
+

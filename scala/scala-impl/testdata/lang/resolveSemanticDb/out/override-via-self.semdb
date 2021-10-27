@@ -1,0 +1,7 @@
+Document tests/pos/override-via-self.scala
+(7:10..7:16) scala/Predef.String#
+(9:18..9:25) _empty_/TCommon# -> 6:7
+(13:26..13:33) _empty_/TCommon# -> 6:7
+(17:18..17:20) _empty_/C1# -> 9:7
+(17:26..17:36) _empty_/TOverrider# -> 13:7
+

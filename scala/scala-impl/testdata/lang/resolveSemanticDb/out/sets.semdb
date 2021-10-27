@@ -1,0 +1,15 @@
+Document tests/pos/sets.scala
+(3:23..3:27) scala/package.List.
+(3:28..3:34) scala/Symbol#
+(5:27..5:30) scala/Predef.Set#
+(5:31..5:37) scala/Symbol#
+(5:41..5:44) scala/Predef.`???`().
+(7:22..7:25) scala/Predef.Set#
+(7:26..7:32) scala/Symbol#
+(8:16..8:29) _empty_/Test.subPatBinders. -> 3:7
+(8:30..8:35) scala/collection/IterableOnceOps#toSet().
+(8:41..8:44) scala/Predef.Set.
+(8:45..8:50) scala/collection/immutable/Set.empty().
+(8:52..8:54) scala/collection/SetOps#`++`().
+(8:55..8:73) _empty_/Test.extraStoredBinders(). -> 5:7
+

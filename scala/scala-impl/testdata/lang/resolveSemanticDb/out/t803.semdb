@@ -1,0 +1,7 @@
+Document tests/pos/t803.scala
+(1:19..1:22) scala/Int#
+(2:13..2:16) scala/Int#
+(2:26..2:27) _empty_/B# -> 1:7
+(2:34..2:35) _empty_/A#i. -> 2:9
+(2:39..2:40) _empty_/A#i. -> 2:9
+

@@ -1,0 +1,3 @@
+Document tests/pos/t439.scala
+(3:20..3:23) _empty_/test.Foo# -> 2:18
+

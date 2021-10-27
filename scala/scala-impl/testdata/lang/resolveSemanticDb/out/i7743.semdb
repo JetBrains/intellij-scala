@@ -1,0 +1,4 @@
+Document tests/pos/i7743.scala
+(1:15..1:21) scala/Predef.String#
+(2:15..2:16) _empty_/i7743$package.foo().(x) -> 1:9
+

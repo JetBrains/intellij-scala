@@ -1,0 +1,8 @@
+Document tests/pos/i2064.scala
+(5:12..5:15) _empty_/p.Foo# -> 3:7
+(5:16..5:17) _empty_/p.Foo#[T] -> 3:11
+(5:48..5:51) _empty_/p.Bar#bar(). -> 12:7
+(11:33..11:34) _empty_/p.Bar#[A] -> 11:20
+(12:14..12:15) _empty_/p.Bar#[A] -> 11:20
+(12:18..12:22) _empty_/p.Bar#self. -> 11:27
+

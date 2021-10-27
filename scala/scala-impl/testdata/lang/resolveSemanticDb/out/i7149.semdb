@@ -1,0 +1,61 @@
+Document tests/pos/i7149.scala
+(3:30..3:31) _empty_/ZIO#[E] -> 1:16
+(3:39..3:42) _empty_/ZIO# -> 1:7
+(3:43..3:45) _empty_/ZIO#`+++`().[R1] -> 3:17
+(3:47..3:49) _empty_/ZIO#`+++`().[E1] -> 3:24
+(3:51..3:52) _empty_/ZIO#`+++`().[B] -> 3:21
+(3:56..3:59) _empty_/ZIO# -> 1:7
+(3:60..3:66) scala/package.Either#
+(3:67..3:68) _empty_/ZIO#[R] -> 1:12
+(3:70..3:72) _empty_/ZIO#`+++`().[R1] -> 3:17
+(3:75..3:77) _empty_/ZIO#`+++`().[E1] -> 3:24
+(3:79..3:85) scala/package.Either#
+(3:86..3:87) _empty_/ZIO#[A] -> 1:20
+(3:89..3:90) _empty_/ZIO#`+++`().[B] -> 3:21
+(5:12..5:15) _empty_/ZIO. -> 18:8
+(5:16..5:27) _empty_/ZIO.environment(). -> 19:7
+(5:28..5:34) scala/package.Either#
+(5:35..5:36) _empty_/ZIO#[R] -> 1:12
+(5:38..5:40) _empty_/ZIO#`+++`().[R1] -> 3:17
+(6:12..6:13) local1 -> 5:7
+(6:14..6:18) scala/util/Either#fold().
+(6:19..6:23) _empty_/ZIO# -> 1:7
+(6:24..6:27) _empty_/ZIO#map(). -> 13:7
+(6:28..6:32) scala/package.Left.
+(6:37..6:44) _empty_/ZIO#provide(). -> 15:7
+(6:48..6:52) _empty_/ZIO#`+++`().(that) -> 3:33
+(6:53..6:56) _empty_/ZIO#map(). -> 13:7
+(6:57..6:62) scala/package.Right.
+(6:67..6:74) _empty_/ZIO#provide(). -> 15:7
+(7:13..7:14) local2 -> 6:7
+(11:21..11:22) _empty_/ZIO#[R] -> 1:12
+(11:30..11:31) _empty_/ZIO#[E] -> 1:16
+(11:39..11:40) _empty_/ZIO#[A] -> 1:20
+(11:44..11:47) _empty_/ZIO# -> 1:7
+(11:48..11:50) _empty_/ZIO#flatMap().[R1] -> 11:15
+(11:52..11:54) _empty_/ZIO#flatMap().[E1] -> 11:24
+(11:56..11:57) _empty_/ZIO#flatMap().[B] -> 11:33
+(11:61..11:64) _empty_/ZIO# -> 1:7
+(11:65..11:67) _empty_/ZIO#flatMap().[R1] -> 11:15
+(11:69..11:71) _empty_/ZIO#flatMap().[E1] -> 11:24
+(11:73..11:74) _empty_/ZIO#flatMap().[B] -> 11:33
+(11:78..11:81) scala/Predef.`???`().
+(13:17..13:18) _empty_/ZIO#[A] -> 1:20
+(13:22..13:23) _empty_/ZIO#map().[B] -> 13:11
+(13:26..13:29) _empty_/ZIO# -> 1:7
+(13:30..13:31) _empty_/ZIO#[R] -> 1:12
+(13:33..13:34) _empty_/ZIO#[E] -> 1:16
+(13:36..13:37) _empty_/ZIO#map().[B] -> 13:11
+(13:41..13:44) scala/Predef.`???`().
+(15:21..15:22) _empty_/ZIO#provide().[R] -> 15:15
+(15:25..15:28) _empty_/ZIO# -> 1:7
+(15:29..15:32) scala/Any#
+(15:34..15:35) _empty_/ZIO#[E] -> 1:16
+(15:37..15:38) _empty_/ZIO#[A] -> 1:20
+(15:42..15:45) scala/Predef.`???`().
+(19:23..19:26) _empty_/ZIO# -> 1:7
+(19:27..19:28) _empty_/ZIO.environment().[R] -> 19:19
+(19:30..19:37) scala/Nothing#
+(19:39..19:40) _empty_/ZIO.environment().[R] -> 19:19
+(19:44..19:47) scala/Predef.`???`().
+

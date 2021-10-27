@@ -1,0 +1,5 @@
+Document tests/pos/singleton-fun-types.scala
+(1:18..1:21) scala/Int#
+(2:18..2:21) scala/Int#
+(3:16..3:19) scala/Int#
+

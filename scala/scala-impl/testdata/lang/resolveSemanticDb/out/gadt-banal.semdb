@@ -1,0 +1,22 @@
+Document tests/pos/gadt-banal.scala
+(3:30..3:36) scala/Predef.String#
+(3:46..3:47) _empty_/banal.T# -> 2:16
+(3:48..3:54) scala/Predef.String#
+(4:30..4:33) scala/Int#
+(4:43..4:44) _empty_/banal.T# -> 2:16
+(4:45..4:48) scala/Int#
+(6:18..6:19) _empty_/banal.T# -> 2:16
+(6:20..6:21) _empty_/banal.eval().[A] -> 6:12
+(6:25..6:26) _empty_/banal.eval().[A] -> 6:12
+(6:29..6:30) _empty_/banal.eval().(t) -> 6:15
+(7:10..7:16) _empty_/banal.StrLit.
+(7:23..7:24) local0 -> 7:17
+(8:10..8:16) _empty_/banal.IntLit.
+(8:23..8:24) local1 -> 8:17
+(11:18..11:19) _empty_/banal.T# -> 2:16
+(11:20..11:21) _empty_/banal.evul().[A] -> 11:12
+(11:25..11:26) _empty_/banal.evul().[A] -> 11:12
+(11:29..11:30) _empty_/banal.evul().(t) -> 11:15
+(12:10..12:16) _empty_/banal.StrLit.
+(13:10..13:16) _empty_/banal.IntLit.
+

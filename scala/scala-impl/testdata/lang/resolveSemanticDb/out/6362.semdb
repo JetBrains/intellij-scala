@@ -1,0 +1,13 @@
+Document tests/pos/6362.scala
+(2:22..2:23) _empty_/Test.LeafElem#[X] -> 2:17
+(3:10..3:16) scala/Predef.String#
+(3:20..3:24) scala/Char#
+(4:10..4:15) scala/Array#
+(4:22..4:30) _empty_/Test.LeafElem# -> 2:8
+(4:31..4:32) local0 -> 4:16
+(5:10..5:18) scala/package.Iterable#
+(5:25..5:33) _empty_/Test.LeafElem# -> 2:8
+(5:34..5:35) local1 -> 5:19
+(6:10..6:16) scala/AnyVal#
+(6:20..6:21) _empty_/Test.LeafElem#[X] -> 2:17
+

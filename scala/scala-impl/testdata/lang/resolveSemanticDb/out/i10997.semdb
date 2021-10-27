@@ -1,0 +1,31 @@
+Document tests/pos/i10997.scala
+(4:21..4:24) scala/Int#
+(4:29..4:32) scala/Int#
+(4:37..4:43) scala/Predef.String#
+(4:53..4:59) _empty_/Test#Parent# -> 3:16
+(5:21..5:24) scala/Int#
+(5:29..5:32) scala/Int#
+(5:42..5:48) _empty_/Test#Parent# -> 3:16
+(7:3..7:10) scala/Predef.println(+1).
+(7:11..7:17) scala/Predef.summon().
+(7:18..7:26) scala/deriving/
+(7:27..7:33) scala/deriving/Mirror.
+(7:34..7:36) scala/deriving/Mirror.Of#
+(7:37..7:43) _empty_/Test#Parent# -> 3:16
+(12:21..12:24) scala/Int#
+(12:29..12:32) scala/Int#
+(12:37..12:43) scala/Predef.String#
+(12:53..12:54) _empty_/Test2.i. -> 15:7
+(12:55..12:61) _empty_/Test2.Inner#Parent# -> 19:18
+(13:21..13:24) scala/Int#
+(13:29..13:32) scala/Int#
+(13:42..13:43) _empty_/Test2.i. -> 15:7
+(13:44..13:50) _empty_/Test2.Inner#Parent# -> 19:18
+(15:11..15:16) _empty_/Test2.Inner# -> 17:9
+(21:5..21:12) scala/Predef.println(+1).
+(21:13..21:19) scala/Predef.summon().
+(21:20..21:28) scala/deriving/
+(21:29..21:35) scala/deriving/Mirror.
+(21:36..21:38) scala/deriving/Mirror.Of#
+(21:39..21:45) _empty_/Test2.Inner#Parent# -> 19:18
+

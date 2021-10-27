@@ -1,0 +1,15 @@
+Document tests/pos/i3130b.scala
+(2:22..2:25) scala/Int#
+(3:21..3:22) _empty_/Outer#F# -> 2:9
+(4:25..4:28) scala/Int#
+(4:38..4:39) _empty_/Outer#F# -> 2:9
+(6:17..6:18) local0 -> 4:22
+(8:9..8:19) local2 -> 4:11
+(12:21..12:24) scala/App#
+(13:15..13:20) _empty_/Outer# -> 1:7
+(14:3..14:9) scala/Predef.assert(+1).
+(14:10..14:11) _empty_/Test.o. -> 13:7
+(14:12..14:17) _empty_/Outer#inner(). -> 3:14
+(14:18..14:19) _empty_/Outer#F#f(). -> 2:17
+(14:22..14:24) scala/Int#`==`(+3).
+

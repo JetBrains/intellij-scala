@@ -1,0 +1,1226 @@
+Document tests/pos/t4579.scala
+(8:24..8:30) scala/Predef.String#
+(8:40..8:48) scala/package.Iterator#
+(8:49..8:55) scala/Predef.String#
+(10:31..10:35) scala/Char#
+(10:39..10:41) _empty_/LispTokenizer#isDelimiter().(ch) -> 10:27
+(10:42..10:44) scala/Char#`<=`(+2).
+(10:49..10:51) scala/Boolean#`||`().
+(10:52..10:54) _empty_/LispTokenizer#isDelimiter().(ch) -> 10:27
+(10:55..10:57) scala/Char#`==`(+2).
+(10:62..10:64) scala/Boolean#`||`().
+(10:65..10:67) _empty_/LispTokenizer#isDelimiter().(ch) -> 10:27
+(10:68..10:70) scala/Char#`==`(+2).
+(11:16..11:23) scala/Boolean#
+(12:12..12:13) _empty_/LispTokenizer#i(). -> 9:15
+(12:14..12:15) scala/Int#`<`(+3).
+(12:16..12:17) _empty_/LispTokenizer#s. -> 8:21
+(12:18..12:24) java/lang/String#length().
+(12:27..12:29) scala/Boolean#`&&`().
+(12:30..12:31) _empty_/LispTokenizer#s. -> 8:21
+(12:32..12:38) java/lang/String#charAt().
+(12:39..12:40) _empty_/LispTokenizer#i(). -> 9:15
+(12:42..12:44) scala/Char#`<=`(+2).
+(12:50..12:51) _empty_/LispTokenizer#i(). -> 9:15
+(13:5..13:6) _empty_/LispTokenizer#i(). -> 9:15
+(13:7..13:8) scala/Int#`<`(+3).
+(13:9..13:10) _empty_/LispTokenizer#s. -> 8:21
+(13:11..13:17) java/lang/String#length().
+(15:13..15:19) scala/Predef.String#
+(16:9..16:16) _empty_/LispTokenizer#hasNext(). -> 11:7
+(17:19..17:20) _empty_/LispTokenizer#i(). -> 9:15
+(18:11..18:22) _empty_/LispTokenizer#isDelimiter(). -> 10:15
+(18:23..18:24) _empty_/LispTokenizer#s. -> 8:21
+(18:25..18:31) java/lang/String#charAt().
+(18:32..18:33) _empty_/LispTokenizer#i(). -> 9:15
+(18:36..18:37) _empty_/LispTokenizer#i(). -> 9:15
+(21:11..21:12) _empty_/LispTokenizer#i(). -> 9:15
+(21:15..21:16) _empty_/LispTokenizer#i(). -> 9:15
+(21:17..21:18) scala/Int#`+`(+4).
+(22:12..22:23) _empty_/LispTokenizer#isDelimiter(). -> 10:15
+(22:24..22:25) _empty_/LispTokenizer#s. -> 8:21
+(22:26..22:32) java/lang/String#charAt().
+(22:33..22:34) _empty_/LispTokenizer#i(). -> 9:15
+(24:7..24:8) _empty_/LispTokenizer#s. -> 8:21
+(24:9..24:18) java/lang/String#substring(+1).
+(24:19..24:24) local0 -> 17:11
+(24:26..24:27) _empty_/LispTokenizer#i(). -> 9:15
+(25:12..25:15) scala/sys/
+(25:16..25:21) scala/sys/package.error().
+(34:22..34:28) scala/Predef.String#
+(34:31..34:35) _empty_/Lisp#Data# -> 32:8
+(35:22..35:26) _empty_/Lisp#Data# -> 32:8
+(35:29..35:35) scala/Predef.String#
+(37:19..37:23) _empty_/Lisp#Data# -> 32:8
+(37:26..37:30) _empty_/Lisp#Data# -> 32:8
+(39:19..39:25) scala/Predef.String#
+(39:28..39:32) _empty_/Lisp#Data# -> 32:8
+(45:32..45:36) _empty_/Lisp# -> 31:7
+(47:10..47:14) scala/package.List.
+(47:15..47:20) scala/collection/IterableFactory#range().
+(47:15..47:20) scala/collection/IterableFactory#range(+1).
+(50:26..50:32) scala/Predef.String#
+(50:35..50:43) scala/Any#toString().
+(52:24..52:28) _empty_/LispCaseClasses.Data# -> 49:9
+(52:35..52:39) _empty_/LispCaseClasses.Data# -> 49:9
+(52:49..52:53) _empty_/LispCaseClasses.Data# -> 49:9
+(53:35..53:36) java/lang/String#`+`().
+(53:37..53:50) _empty_/LispCaseClasses.CONS#elemsToString(). -> 54:18
+(53:53..53:54) java/lang/String#`+`().
+(54:36..54:39) _empty_/LispCaseClasses.CONS#car. -> 52:19
+(54:40..54:48) scala/Any#toString().
+(54:51..54:52) java/lang/String#`+`().
+(54:54..54:57) _empty_/LispCaseClasses.CONS#cdr. -> 52:30
+(55:12..55:15) _empty_/LispCaseClasses.NIL.
+(56:25..56:26) java/lang/String#`+`().
+(56:27..56:30) _empty_/LispCaseClasses.CONS#cdr. -> 52:30
+(56:31..56:44) _empty_/LispCaseClasses.Data#elemsToString(). -> 50:9
+(59:28..59:32) _empty_/LispCaseClasses.Data# -> 49:9
+(62:24..62:30) scala/Predef.String#
+(62:40..62:44) _empty_/LispCaseClasses.Data# -> 49:9
+(63:31..63:35) _empty_/LispCaseClasses.SYM#name. -> 62:18
+(65:21..65:24) scala/Int#
+(65:34..65:38) _empty_/LispCaseClasses.Data# -> 49:9
+(66:31..66:32) _empty_/LispCaseClasses.NUM#x. -> 65:18
+(66:33..66:41) scala/Any#toString().
+(68:21..68:27) scala/Predef.String#
+(68:37..68:41) _empty_/LispCaseClasses.Data# -> 49:9
+(69:36..69:37) java/lang/String#`+`().
+(69:38..69:39) _empty_/LispCaseClasses.STR#x. -> 68:18
+(69:40..69:41) java/lang/String#`+`().
+(71:21..71:25) scala/package.List#
+(71:26..71:30) _empty_/LispCaseClasses.Data# -> 49:9
+(71:35..71:39) _empty_/LispCaseClasses.Data# -> 49:9
+(71:49..71:53) _empty_/LispCaseClasses.Data# -> 49:9
+(75:15..75:19) _empty_/LispCaseClasses.Data# -> 49:9
+(76:5..76:8) _empty_/LispCaseClasses.NIL.
+(77:16..77:20) _empty_/LispCaseClasses.Data# -> 49:9
+(77:23..77:27) _empty_/LispCaseClasses.Data# -> 49:9
+(78:5..78:9) _empty_/LispCaseClasses.CONS.
+(78:10..78:12) _empty_/LispCaseClasses.list(+1).(x0) -> 77:12
+(78:14..78:17) _empty_/LispCaseClasses.NIL.
+(79:16..79:20) _empty_/LispCaseClasses.Data# -> 49:9
+(79:26..79:30) _empty_/LispCaseClasses.Data# -> 49:9
+(79:33..79:37) _empty_/LispCaseClasses.Data# -> 49:9
+(80:5..80:9) _empty_/LispCaseClasses.CONS.
+(80:10..80:12) _empty_/LispCaseClasses.list(+2).(x0) -> 79:12
+(80:14..80:18) _empty_/LispCaseClasses.list(+1). -> 77:7
+(80:19..80:21) _empty_/LispCaseClasses.list(+2).(x1) -> 79:22
+(81:16..81:20) _empty_/LispCaseClasses.Data# -> 49:9
+(81:26..81:30) _empty_/LispCaseClasses.Data# -> 49:9
+(81:36..81:40) _empty_/LispCaseClasses.Data# -> 49:9
+(81:43..81:47) _empty_/LispCaseClasses.Data# -> 49:9
+(82:5..82:9) _empty_/LispCaseClasses.CONS.
+(82:10..82:12) _empty_/LispCaseClasses.list(+3).(x0) -> 81:12
+(82:14..82:18) _empty_/LispCaseClasses.list(+2). -> 79:7
+(82:19..82:21) _empty_/LispCaseClasses.list(+3).(x1) -> 81:22
+(82:23..82:25) _empty_/LispCaseClasses.list(+3).(x2) -> 81:32
+(83:16..83:20) _empty_/LispCaseClasses.Data# -> 49:9
+(83:26..83:30) _empty_/LispCaseClasses.Data# -> 49:9
+(83:36..83:40) _empty_/LispCaseClasses.Data# -> 49:9
+(83:46..83:50) _empty_/LispCaseClasses.Data# -> 49:9
+(83:53..83:57) _empty_/LispCaseClasses.Data# -> 49:9
+(84:5..84:9) _empty_/LispCaseClasses.CONS.
+(84:10..84:12) _empty_/LispCaseClasses.list(+4).(x0) -> 83:12
+(84:14..84:18) _empty_/LispCaseClasses.list(+3). -> 81:7
+(84:19..84:21) _empty_/LispCaseClasses.list(+4).(x1) -> 83:22
+(84:23..84:25) _empty_/LispCaseClasses.list(+4).(x2) -> 83:32
+(84:27..84:29) _empty_/LispCaseClasses.list(+4).(x3) -> 83:42
+(85:16..85:20) _empty_/LispCaseClasses.Data# -> 49:9
+(85:26..85:30) _empty_/LispCaseClasses.Data# -> 49:9
+(85:36..85:40) _empty_/LispCaseClasses.Data# -> 49:9
+(85:46..85:50) _empty_/LispCaseClasses.Data# -> 49:9
+(85:56..85:60) _empty_/LispCaseClasses.Data# -> 49:9
+(85:63..85:67) _empty_/LispCaseClasses.Data# -> 49:9
+(86:5..86:9) _empty_/LispCaseClasses.CONS.
+(86:10..86:12) _empty_/LispCaseClasses.list(+5).(x0) -> 85:12
+(86:14..86:18) _empty_/LispCaseClasses.list(+4). -> 83:7
+(86:19..86:21) _empty_/LispCaseClasses.list(+5).(x1) -> 85:22
+(86:23..86:25) _empty_/LispCaseClasses.list(+5).(x2) -> 85:32
+(86:27..86:29) _empty_/LispCaseClasses.list(+5).(x3) -> 85:42
+(86:31..86:33) _empty_/LispCaseClasses.list(+5).(x4) -> 85:52
+(87:16..87:20) _empty_/LispCaseClasses.Data# -> 49:9
+(87:26..87:30) _empty_/LispCaseClasses.Data# -> 49:9
+(87:36..87:40) _empty_/LispCaseClasses.Data# -> 49:9
+(87:46..87:50) _empty_/LispCaseClasses.Data# -> 49:9
+(87:56..87:60) _empty_/LispCaseClasses.Data# -> 49:9
+(87:66..87:70) _empty_/LispCaseClasses.Data# -> 49:9
+(87:73..87:77) _empty_/LispCaseClasses.Data# -> 49:9
+(88:5..88:9) _empty_/LispCaseClasses.CONS.
+(88:10..88:12) _empty_/LispCaseClasses.list(+6).(x0) -> 87:12
+(88:14..88:18) _empty_/LispCaseClasses.list(+5). -> 85:7
+(88:19..88:21) _empty_/LispCaseClasses.list(+6).(x1) -> 87:22
+(88:23..88:25) _empty_/LispCaseClasses.list(+6).(x2) -> 87:32
+(88:27..88:29) _empty_/LispCaseClasses.list(+6).(x3) -> 87:42
+(88:31..88:33) _empty_/LispCaseClasses.list(+6).(x4) -> 87:52
+(88:35..88:37) _empty_/LispCaseClasses.list(+6).(x5) -> 87:62
+(89:16..89:20) _empty_/LispCaseClasses.Data# -> 49:9
+(89:26..89:30) _empty_/LispCaseClasses.Data# -> 49:9
+(89:36..89:40) _empty_/LispCaseClasses.Data# -> 49:9
+(89:46..89:50) _empty_/LispCaseClasses.Data# -> 49:9
+(89:56..89:60) _empty_/LispCaseClasses.Data# -> 49:9
+(89:66..89:70) _empty_/LispCaseClasses.Data# -> 49:9
+(90:8..90:12) _empty_/LispCaseClasses.Data# -> 49:9
+(90:15..90:19) _empty_/LispCaseClasses.Data# -> 49:9
+(91:5..91:9) _empty_/LispCaseClasses.CONS.
+(91:10..91:12) _empty_/LispCaseClasses.list(+7).(x0) -> 89:12
+(91:14..91:18) _empty_/LispCaseClasses.list(+6). -> 87:7
+(91:19..91:21) _empty_/LispCaseClasses.list(+7).(x1) -> 89:22
+(91:23..91:25) _empty_/LispCaseClasses.list(+7).(x2) -> 89:32
+(91:27..91:29) _empty_/LispCaseClasses.list(+7).(x3) -> 89:42
+(91:31..91:33) _empty_/LispCaseClasses.list(+7).(x4) -> 89:52
+(91:35..91:37) _empty_/LispCaseClasses.list(+7).(x5) -> 89:62
+(91:39..91:41) _empty_/LispCaseClasses.list(+7).(x6) -> 90:4
+(92:16..92:20) _empty_/LispCaseClasses.Data# -> 49:9
+(92:26..92:30) _empty_/LispCaseClasses.Data# -> 49:9
+(92:36..92:40) _empty_/LispCaseClasses.Data# -> 49:9
+(92:46..92:50) _empty_/LispCaseClasses.Data# -> 49:9
+(92:56..92:60) _empty_/LispCaseClasses.Data# -> 49:9
+(92:66..92:70) _empty_/LispCaseClasses.Data# -> 49:9
+(93:8..93:12) _empty_/LispCaseClasses.Data# -> 49:9
+(93:18..93:22) _empty_/LispCaseClasses.Data# -> 49:9
+(93:25..93:29) _empty_/LispCaseClasses.Data# -> 49:9
+(94:5..94:9) _empty_/LispCaseClasses.CONS.
+(94:10..94:12) _empty_/LispCaseClasses.list(+8).(x0) -> 92:12
+(94:14..94:18) _empty_/LispCaseClasses.list(+7). -> 89:7
+(94:19..94:21) _empty_/LispCaseClasses.list(+8).(x1) -> 92:22
+(94:23..94:25) _empty_/LispCaseClasses.list(+8).(x2) -> 92:32
+(94:27..94:29) _empty_/LispCaseClasses.list(+8).(x3) -> 92:42
+(94:31..94:33) _empty_/LispCaseClasses.list(+8).(x4) -> 92:52
+(94:35..94:37) _empty_/LispCaseClasses.list(+8).(x5) -> 92:62
+(94:39..94:41) _empty_/LispCaseClasses.list(+8).(x6) -> 93:4
+(94:43..94:45) _empty_/LispCaseClasses.list(+8).(x7) -> 93:14
+(95:16..95:20) _empty_/LispCaseClasses.Data# -> 49:9
+(95:26..95:30) _empty_/LispCaseClasses.Data# -> 49:9
+(95:36..95:40) _empty_/LispCaseClasses.Data# -> 49:9
+(95:46..95:50) _empty_/LispCaseClasses.Data# -> 49:9
+(95:56..95:60) _empty_/LispCaseClasses.Data# -> 49:9
+(95:66..95:70) _empty_/LispCaseClasses.Data# -> 49:9
+(96:8..96:12) _empty_/LispCaseClasses.Data# -> 49:9
+(96:18..96:22) _empty_/LispCaseClasses.Data# -> 49:9
+(96:28..96:32) _empty_/LispCaseClasses.Data# -> 49:9
+(96:35..96:39) _empty_/LispCaseClasses.Data# -> 49:9
+(97:5..97:9) _empty_/LispCaseClasses.CONS.
+(97:10..97:12) _empty_/LispCaseClasses.list(+9).(x0) -> 95:12
+(97:14..97:18) _empty_/LispCaseClasses.list(+8). -> 92:7
+(97:19..97:21) _empty_/LispCaseClasses.list(+9).(x1) -> 95:22
+(97:23..97:25) _empty_/LispCaseClasses.list(+9).(x2) -> 95:32
+(97:27..97:29) _empty_/LispCaseClasses.list(+9).(x3) -> 95:42
+(97:31..97:33) _empty_/LispCaseClasses.list(+9).(x4) -> 95:52
+(97:35..97:37) _empty_/LispCaseClasses.list(+9).(x5) -> 95:62
+(97:39..97:41) _empty_/LispCaseClasses.list(+9).(x6) -> 96:4
+(97:43..97:45) _empty_/LispCaseClasses.list(+9).(x7) -> 96:14
+(97:47..97:49) _empty_/LispCaseClasses.list(+9).(x8) -> 96:24
+(98:16..98:20) _empty_/LispCaseClasses.Data# -> 49:9
+(98:26..98:30) _empty_/LispCaseClasses.Data# -> 49:9
+(98:36..98:40) _empty_/LispCaseClasses.Data# -> 49:9
+(98:46..98:50) _empty_/LispCaseClasses.Data# -> 49:9
+(98:56..98:60) _empty_/LispCaseClasses.Data# -> 49:9
+(98:66..98:70) _empty_/LispCaseClasses.Data# -> 49:9
+(99:8..99:12) _empty_/LispCaseClasses.Data# -> 49:9
+(99:18..99:22) _empty_/LispCaseClasses.Data# -> 49:9
+(99:28..99:32) _empty_/LispCaseClasses.Data# -> 49:9
+(99:38..99:42) _empty_/LispCaseClasses.Data# -> 49:9
+(99:45..99:49) _empty_/LispCaseClasses.Data# -> 49:9
+(100:5..100:9) _empty_/LispCaseClasses.CONS.
+(100:10..100:12) _empty_/LispCaseClasses.list(+10).(x0) -> 98:12
+(100:14..100:18) _empty_/LispCaseClasses.list(+9). -> 95:7
+(100:19..100:21) _empty_/LispCaseClasses.list(+10).(x1) -> 98:22
+(100:23..100:25) _empty_/LispCaseClasses.list(+10).(x2) -> 98:32
+(100:27..100:29) _empty_/LispCaseClasses.list(+10).(x3) -> 98:42
+(100:31..100:33) _empty_/LispCaseClasses.list(+10).(x4) -> 98:52
+(100:35..100:37) _empty_/LispCaseClasses.list(+10).(x5) -> 98:62
+(100:39..100:41) _empty_/LispCaseClasses.list(+10).(x6) -> 99:4
+(100:43..100:45) _empty_/LispCaseClasses.list(+10).(x7) -> 99:14
+(100:47..100:49) _empty_/LispCaseClasses.list(+10).(x8) -> 99:24
+(100:51..100:53) _empty_/LispCaseClasses.list(+10).(x9) -> 99:34
+(102:15..102:19) _empty_/LispCaseClasses.Data# -> 49:9
+(103:14..103:21) scala/Boolean#
+(104:15..104:18) scala/Int#
+(106:25..106:31) scala/Predef.String#
+(106:34..106:35) _empty_/LispCaseClasses.lispError().[a] -> 106:17
+(107:5..107:8) scala/sys/
+(107:9..107:14) scala/sys/package.error().
+(107:25..107:26) java/lang/String#`+`().
+(107:27..107:30) _empty_/LispCaseClasses.lispError().(msg) -> 106:20
+(107:31..107:32) java/lang/String#`+`().
+(107:38..107:39) java/lang/String#`+`().
+(107:40..107:46) _empty_/LispCaseClasses.curexp(). -> 102:7
+(110:19..110:25) scala/Predef.String#
+(110:28..110:32) _empty_/LispCaseClasses.Data# -> 49:9
+(111:25..111:31) scala/Predef.String#
+(111:39..111:50) _empty_/LispCaseClasses.Environment# -> 109:9
+(111:54..111:58) _empty_/LispCaseClasses.Data# -> 49:9
+(112:11..112:22) _empty_/LispCaseClasses.Environment# -> 109:9
+(113:23..113:29) scala/Predef.String#
+(113:32..113:36) _empty_/LispCaseClasses.Data# -> 49:9
+(114:15..114:16) local1 -> 113:20
+(114:17..114:19) scala/Any#`==`().
+(114:20..114:24) _empty_/LispCaseClasses.Environment#extendRec().(name) -> 111:19
+(114:26..114:30) _empty_/LispCaseClasses.Environment#extendRec().(expr) -> 111:33
+(114:59..114:65) _empty_/LispCaseClasses.Environment#lookup(). -> 110:9
+(114:66..114:67) local1 -> 113:20
+(116:22..116:28) scala/Predef.String#
+(116:33..116:37) _empty_/LispCaseClasses.Data# -> 49:9
+(116:41..116:50) _empty_/LispCaseClasses.Environment#extendRec(). -> 111:9
+(116:51..116:55) _empty_/LispCaseClasses.Environment#extend().(name) -> 116:16
+(116:66..116:67) _empty_/LispCaseClasses.Environment#extend().(v) -> 116:30
+(118:30..118:41) _empty_/LispCaseClasses.Environment# -> 109:9
+(119:19..119:25) scala/Predef.String#
+(119:28..119:32) _empty_/LispCaseClasses.Data# -> 49:9
+(119:35..119:44) _empty_/LispCaseClasses.lispError(). -> 106:7
+(119:59..119:60) java/lang/String#`+`().
+(119:61..119:62) local6 -> 119:16
+(122:17..122:21) _empty_/LispCaseClasses.Data# -> 49:9
+(122:24..122:28) scala/package.List#
+(122:29..122:33) _empty_/LispCaseClasses.Data# -> 49:9
+(122:37..122:38) _empty_/LispCaseClasses.toList().(x) -> 122:14
+(123:10..123:13) _empty_/LispCaseClasses.NIL.
+(123:19..123:23) scala/package.List.
+(124:10..124:14) _empty_/LispCaseClasses.CONS.
+(124:25..124:26) local10 -> 124:15
+(124:30..124:36) _empty_/LispCaseClasses.toList(). -> 122:7
+(124:37..124:39) local11 -> 124:18
+(125:15..125:24) _empty_/LispCaseClasses.lispError(). -> 106:7
+(125:44..125:45) java/lang/String#`+`().
+(125:46..125:47) _empty_/LispCaseClasses.toList().(x) -> 122:14
+(128:20..128:24) _empty_/LispCaseClasses.Data# -> 49:9
+(128:28..128:29) _empty_/LispCaseClasses.toBoolean().(x) -> 128:17
+(129:10..129:13) _empty_/LispCaseClasses.NUM.
+(133:20..133:24) _empty_/LispCaseClasses.Data# -> 49:9
+(133:27..133:31) _empty_/LispCaseClasses.Data# -> 49:9
+(133:34..133:35) _empty_/LispCaseClasses.normalize().(x) -> 133:17
+(134:10..134:14) _empty_/LispCaseClasses.CONS.
+(134:15..134:18) _empty_/LispCaseClasses.SYM.
+(135:12..135:16) _empty_/LispCaseClasses.CONS.
+(135:17..135:21) _empty_/LispCaseClasses.CONS.
+(135:22..135:25) _empty_/LispCaseClasses.SYM.
+(135:40..135:44) _empty_/LispCaseClasses.CONS.
+(135:51..135:55) _empty_/LispCaseClasses.CONS.
+(135:62..135:65) _empty_/LispCaseClasses.NIL.
+(136:7..136:16) _empty_/LispCaseClasses.normalize(). -> 133:7
+(136:17..136:21) _empty_/LispCaseClasses.list(+4). -> 83:7
+(136:22..136:25) _empty_/LispCaseClasses.SYM.
+(137:9..137:12) _empty_/LispCaseClasses.SYM.
+(137:13..137:17) local12 -> 135:26
+(137:20..137:24) _empty_/LispCaseClasses.list(+3). -> 81:7
+(137:25..137:28) _empty_/LispCaseClasses.SYM.
+(137:40..137:44) local13 -> 135:33
+(137:46..137:50) local14 -> 135:45
+(137:53..137:57) local15 -> 135:56
+(138:10..138:14) _empty_/LispCaseClasses.CONS.
+(138:15..138:18) _empty_/LispCaseClasses.SYM.
+(138:28..138:32) _empty_/LispCaseClasses.CONS.
+(138:33..138:37) _empty_/LispCaseClasses.CONS.
+(138:38..138:41) _empty_/LispCaseClasses.SYM.
+(138:51..138:55) _empty_/LispCaseClasses.CONS.
+(138:62..138:65) _empty_/LispCaseClasses.NIL.
+(138:70..138:73) _empty_/LispCaseClasses.NIL.
+(139:7..139:16) _empty_/LispCaseClasses.normalize(). -> 133:7
+(139:17..139:21) local16 -> 138:56
+(140:10..140:14) _empty_/LispCaseClasses.CONS.
+(140:15..140:18) _empty_/LispCaseClasses.SYM.
+(140:28..140:32) _empty_/LispCaseClasses.CONS.
+(140:33..140:37) _empty_/LispCaseClasses.CONS.
+(140:44..140:48) _empty_/LispCaseClasses.CONS.
+(140:55..140:58) _empty_/LispCaseClasses.NIL.
+(141:7..141:16) _empty_/LispCaseClasses.normalize(). -> 133:7
+(141:17..141:21) _empty_/LispCaseClasses.list(+4). -> 83:7
+(141:22..141:25) _empty_/LispCaseClasses.SYM.
+(141:33..141:37) local17 -> 140:38
+(141:39..141:43) local18 -> 140:49
+(141:45..141:49) _empty_/LispCaseClasses.CONS.
+(141:50..141:53) _empty_/LispCaseClasses.SYM.
+(141:63..141:67) local19 -> 140:64
+(142:10..142:14) _empty_/LispCaseClasses.CONS.
+(142:24..142:28) _empty_/LispCaseClasses.CONS.
+(142:29..142:38) _empty_/LispCaseClasses.normalize(). -> 133:7
+(142:39..142:40) local20 -> 142:15
+(142:43..142:52) _empty_/LispCaseClasses.normalize(). -> 133:7
+(142:53..142:54) local21 -> 142:18
+(143:15..143:16) _empty_/LispCaseClasses.normalize().(x) -> 133:17
+(146:15..146:19) _empty_/LispCaseClasses.Data# -> 49:9
+(146:26..146:37) _empty_/LispCaseClasses.Environment# -> 109:9
+(146:40..146:44) _empty_/LispCaseClasses.Data# -> 49:9
+(147:19..147:25) _empty_/LispCaseClasses.curexp(). -> 102:7
+(148:5..148:11) _empty_/LispCaseClasses.`curexp_=`().
+(148:14..148:15) _empty_/LispCaseClasses.eval().(x) -> 146:12
+(149:9..149:14) _empty_/LispCaseClasses.trace(). -> 103:7
+(150:17..150:22) scala/collection/IterableFactory#range().
+(150:26..150:32) _empty_/LispCaseClasses.indent(). -> 104:7
+(150:35..150:42) scala/Console.
+(150:43..150:48) scala/Console.print().
+(151:7..151:14) scala/Console.
+(151:15..151:22) scala/Console.println(+1).
+(151:31..151:32) java/lang/String#`+`().
+(151:33..151:34) _empty_/LispCaseClasses.eval().(x) -> 146:12
+(152:7..152:13) _empty_/LispCaseClasses.`indent_=`().
+(152:16..152:22) _empty_/LispCaseClasses.indent(). -> 104:7
+(152:23..152:24) scala/Int#`+`(+4).
+(154:18..154:23) _empty_/LispCaseClasses.eval1(). -> 164:7
+(154:24..154:25) _empty_/LispCaseClasses.eval().(x) -> 146:12
+(154:27..154:30) _empty_/LispCaseClasses.eval().(env) -> 146:21
+(155:9..155:14) _empty_/LispCaseClasses.trace(). -> 103:7
+(156:7..156:13) _empty_/LispCaseClasses.`indent_=`().
+(156:16..156:22) _empty_/LispCaseClasses.indent(). -> 104:7
+(156:23..156:24) scala/Int#`-`(+3).
+(157:17..157:22) scala/collection/IterableFactory#range().
+(157:26..157:32) _empty_/LispCaseClasses.indent(). -> 104:7
+(157:35..157:42) scala/Console.
+(157:43..157:48) scala/Console.print().
+(158:7..158:14) scala/Console.
+(158:15..158:22) scala/Console.println(+1).
+(158:31..158:32) java/lang/String#`+`().
+(158:33..158:39) local24 -> 154:9
+(160:5..160:11) _empty_/LispCaseClasses.`curexp_=`().
+(160:14..160:21) local22 -> 147:9
+(161:5..161:11) local24 -> 154:9
+(164:16..164:20) _empty_/LispCaseClasses.Data# -> 49:9
+(164:27..164:38) _empty_/LispCaseClasses.Environment# -> 109:9
+(164:41..164:45) _empty_/LispCaseClasses.Data# -> 49:9
+(164:48..164:49) _empty_/LispCaseClasses.eval1().(x) -> 164:13
+(165:10..165:13) _empty_/LispCaseClasses.SYM.
+(166:7..166:10) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(166:11..166:17) _empty_/LispCaseClasses.Environment#lookup(). -> 110:9
+(166:18..166:22) local26 -> 165:14
+(167:10..167:14) _empty_/LispCaseClasses.CONS.
+(167:15..167:18) _empty_/LispCaseClasses.SYM.
+(167:27..167:31) _empty_/LispCaseClasses.CONS.
+(167:32..167:35) _empty_/LispCaseClasses.SYM.
+(167:43..167:47) _empty_/LispCaseClasses.CONS.
+(167:51..167:55) _empty_/LispCaseClasses.CONS.
+(167:59..167:62) _empty_/LispCaseClasses.NIL.
+(168:7..168:11) _empty_/LispCaseClasses.eval(). -> 146:7
+(168:12..168:13) local29 -> 167:56
+(168:15..168:18) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(168:19..168:28) _empty_/LispCaseClasses.Environment#extendRec(). -> 111:9
+(168:29..168:33) local27 -> 167:36
+(168:44..168:48) _empty_/LispCaseClasses.eval(). -> 146:7
+(168:49..168:50) local28 -> 167:48
+(168:52..168:56) local30 -> 168:36
+(169:10..169:14) _empty_/LispCaseClasses.CONS.
+(169:15..169:18) _empty_/LispCaseClasses.SYM.
+(169:27..169:31) _empty_/LispCaseClasses.CONS.
+(169:32..169:35) _empty_/LispCaseClasses.SYM.
+(169:43..169:47) _empty_/LispCaseClasses.CONS.
+(169:51..169:55) _empty_/LispCaseClasses.CONS.
+(169:59..169:62) _empty_/LispCaseClasses.NIL.
+(170:7..170:11) _empty_/LispCaseClasses.eval(). -> 146:7
+(170:12..170:13) local33 -> 169:56
+(170:15..170:18) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(170:19..170:25) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(170:26..170:30) local31 -> 169:36
+(170:32..170:36) _empty_/LispCaseClasses.eval(). -> 146:7
+(170:37..170:38) local32 -> 169:48
+(170:40..170:43) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(171:10..171:14) _empty_/LispCaseClasses.CONS.
+(171:15..171:18) _empty_/LispCaseClasses.SYM.
+(171:30..171:34) _empty_/LispCaseClasses.CONS.
+(171:43..171:47) _empty_/LispCaseClasses.CONS.
+(171:51..171:54) _empty_/LispCaseClasses.NIL.
+(172:7..172:15) _empty_/LispCaseClasses.mkLambda(). -> 191:7
+(172:16..172:22) local34 -> 171:35
+(172:24..172:25) local35 -> 171:48
+(172:27..172:30) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(173:10..173:14) _empty_/LispCaseClasses.CONS.
+(173:15..173:18) _empty_/LispCaseClasses.SYM.
+(173:26..173:30) _empty_/LispCaseClasses.CONS.
+(173:34..173:38) _empty_/LispCaseClasses.CONS.
+(173:42..173:46) _empty_/LispCaseClasses.CONS.
+(173:50..173:53) _empty_/LispCaseClasses.NIL.
+(174:11..174:20) _empty_/LispCaseClasses.toBoolean(). -> 128:7
+(174:21..174:25) _empty_/LispCaseClasses.eval(). -> 146:7
+(174:26..174:27) local36 -> 173:31
+(174:29..174:32) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(174:36..174:40) _empty_/LispCaseClasses.eval(). -> 146:7
+(174:41..174:42) local37 -> 173:39
+(174:44..174:47) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(174:54..174:58) _empty_/LispCaseClasses.eval(). -> 146:7
+(174:59..174:60) local38 -> 173:47
+(174:62..174:65) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(175:10..175:14) _empty_/LispCaseClasses.CONS.
+(175:15..175:18) _empty_/LispCaseClasses.SYM.
+(175:29..175:33) _empty_/LispCaseClasses.CONS.
+(175:37..175:40) _empty_/LispCaseClasses.NIL.
+(176:7..176:8) local39 -> 175:34
+(177:10..177:14) _empty_/LispCaseClasses.CONS.
+(178:7..178:12) _empty_/LispCaseClasses.apply(). -> 186:7
+(178:13..178:17) _empty_/LispCaseClasses.eval(). -> 146:7
+(178:18..178:19) local40 -> 177:15
+(178:21..178:24) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(178:27..178:33) _empty_/LispCaseClasses.toList(). -> 122:7
+(178:34..178:36) local41 -> 177:18
+(178:38..178:41) scala/collection/immutable/List#map().
+(178:48..178:52) _empty_/LispCaseClasses.eval(). -> 146:7
+(178:53..178:54) local42 -> 178:43
+(178:56..178:59) _empty_/LispCaseClasses.eval1().(env) -> 164:22
+(179:10..179:13) _empty_/LispCaseClasses.NUM.
+(179:20..179:21) _empty_/LispCaseClasses.eval1().(x) -> 164:13
+(180:10..180:13) _empty_/LispCaseClasses.STR.
+(180:20..180:21) _empty_/LispCaseClasses.eval1().(x) -> 164:13
+(181:10..181:13) _empty_/LispCaseClasses.FUN.
+(181:20..181:21) _empty_/LispCaseClasses.eval1().(x) -> 164:13
+(183:7..183:16) _empty_/LispCaseClasses.lispError(). -> 106:7
+(186:17..186:21) _empty_/LispCaseClasses.Data# -> 49:9
+(186:29..186:33) scala/package.List#
+(186:34..186:38) _empty_/LispCaseClasses.Data# -> 49:9
+(186:42..186:46) _empty_/LispCaseClasses.Data# -> 49:9
+(186:49..186:51) _empty_/LispCaseClasses.apply().(fn) -> 186:13
+(187:10..187:13) _empty_/LispCaseClasses.FUN.
+(187:20..187:21) local43 -> 187:14
+(187:22..187:26) _empty_/LispCaseClasses.apply().(args) -> 186:23
+(188:15..188:24) _empty_/LispCaseClasses.lispError(). -> 106:7
+(188:57..188:58) java/lang/String#`+`().
+(188:59..188:61) _empty_/LispCaseClasses.apply().(fn) -> 186:13
+(191:24..191:28) _empty_/LispCaseClasses.Data# -> 49:9
+(191:36..191:40) _empty_/LispCaseClasses.Data# -> 49:9
+(191:47..191:58) _empty_/LispCaseClasses.Environment# -> 109:9
+(191:61..191:65) _empty_/LispCaseClasses.Data# -> 49:9
+(193:24..193:35) _empty_/LispCaseClasses.Environment# -> 109:9
+(194:23..194:27) scala/package.List#
+(194:28..194:34) scala/Predef.String#
+(194:43..194:47) scala/package.List#
+(194:48..194:52) _empty_/LispCaseClasses.Data# -> 49:9
+(194:56..194:67) _empty_/LispCaseClasses.Environment# -> 109:9
+(195:8..195:10) local45 -> 194:19
+(195:12..195:16) local46 -> 194:37
+(196:15..196:19) scala/package.List.
+(196:23..196:27) scala/package.List.
+(197:11..197:14) local44 -> 193:19
+(198:17..198:19) scala/package.`::`.
+(198:29..198:31) scala/package.`::`.
+(199:11..199:20) local51 -> 193:9
+(199:21..199:24) local44 -> 193:19
+(199:25..199:31) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(199:32..199:33) local47 -> 198:15
+(199:35..199:38) local49 -> 198:25
+(199:41..199:44) local48 -> 198:20
+(199:46..199:51) local50 -> 198:32
+(201:11..201:20) _empty_/LispCaseClasses.lispError(). -> 106:7
+(204:13..204:17) scala/package.List#
+(204:18..204:24) scala/Predef.String#
+(204:28..204:34) _empty_/LispCaseClasses.toList(). -> 122:7
+(204:35..204:41) _empty_/LispCaseClasses.mkLambda().(params) -> 191:16
+(204:43..204:46) scala/collection/immutable/List#map().
+(205:12..205:15) _empty_/LispCaseClasses.SYM.
+(205:25..205:29) local53 -> 205:16
+(206:17..206:20) scala/sys/
+(206:21..206:26) scala/sys/package.error().
+(209:5..209:8) _empty_/LispCaseClasses.FUN.
+(209:17..209:21) _empty_/LispCaseClasses.eval(). -> 146:7
+(209:22..209:26) _empty_/LispCaseClasses.mkLambda().(expr) -> 191:30
+(209:28..209:37) local51 -> 193:9
+(209:38..209:41) _empty_/LispCaseClasses.mkLambda().(env) -> 191:42
+(209:43..209:45) local54 -> 204:9
+(209:47..209:51) local55 -> 209:9
+(212:19..212:35) _empty_/LispCaseClasses.EmptyEnvironment. -> 118:7
+(213:6..213:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(213:18..213:21) _empty_/LispCaseClasses.FUN.
+(214:12..214:16) scala/package.List.
+(214:17..214:20) _empty_/LispCaseClasses.NUM.
+(214:27..214:30) _empty_/LispCaseClasses.NUM.
+(214:41..214:44) _empty_/LispCaseClasses.NUM.
+(214:49..214:53) local57 -> 214:21
+(214:54..214:56) scala/Int#`==`(+3).
+(214:57..214:61) local58 -> 214:31
+(215:12..215:16) scala/package.List.
+(215:17..215:20) _empty_/LispCaseClasses.STR.
+(215:27..215:30) _empty_/LispCaseClasses.STR.
+(215:41..215:44) _empty_/LispCaseClasses.NUM.
+(215:49..215:53) local59 -> 215:21
+(215:54..215:56) scala/Any#`==`().
+(215:57..215:61) local60 -> 215:31
+(216:6..216:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(216:18..216:21) _empty_/LispCaseClasses.FUN.
+(217:12..217:16) scala/package.List.
+(217:17..217:20) _empty_/LispCaseClasses.NUM.
+(217:27..217:30) _empty_/LispCaseClasses.NUM.
+(217:41..217:44) _empty_/LispCaseClasses.NUM.
+(217:45..217:49) local62 -> 217:21
+(217:50..217:51) scala/Int#`+`(+4).
+(217:52..217:56) local63 -> 217:31
+(218:12..218:16) scala/package.List.
+(218:17..218:20) _empty_/LispCaseClasses.STR.
+(218:27..218:30) _empty_/LispCaseClasses.STR.
+(218:41..218:44) _empty_/LispCaseClasses.STR.
+(218:45..218:49) local64 -> 218:21
+(218:50..218:51) java/lang/String#`+`().
+(218:52..218:56) local65 -> 218:31
+(219:6..219:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(219:18..219:21) _empty_/LispCaseClasses.FUN.
+(220:12..220:16) scala/package.List.
+(220:17..220:20) _empty_/LispCaseClasses.NUM.
+(220:27..220:30) _empty_/LispCaseClasses.NUM.
+(220:41..220:44) _empty_/LispCaseClasses.NUM.
+(220:45..220:49) local67 -> 220:21
+(220:50..220:51) scala/Int#`-`(+3).
+(220:52..220:56) local68 -> 220:31
+(221:6..221:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(221:18..221:21) _empty_/LispCaseClasses.FUN.
+(222:12..222:16) scala/package.List.
+(222:17..222:20) _empty_/LispCaseClasses.NUM.
+(222:27..222:30) _empty_/LispCaseClasses.NUM.
+(222:41..222:44) _empty_/LispCaseClasses.NUM.
+(222:45..222:49) local70 -> 222:21
+(222:50..222:51) scala/Int#`*`(+3).
+(222:52..222:56) local71 -> 222:31
+(223:6..223:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(223:18..223:21) _empty_/LispCaseClasses.FUN.
+(224:12..224:16) scala/package.List.
+(224:17..224:20) _empty_/LispCaseClasses.NUM.
+(224:27..224:30) _empty_/LispCaseClasses.NUM.
+(224:41..224:44) _empty_/LispCaseClasses.NUM.
+(224:45..224:49) local73 -> 224:21
+(224:50..224:51) scala/Int#`/`(+3).
+(224:52..224:56) local74 -> 224:31
+(225:6..225:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(225:20..225:23) _empty_/LispCaseClasses.FUN.
+(226:12..226:16) scala/package.List.
+(226:17..226:21) _empty_/LispCaseClasses.CONS.
+(226:33..226:34) local76 -> 226:22
+(227:6..227:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(227:20..227:23) _empty_/LispCaseClasses.FUN.
+(228:12..228:16) scala/package.List.
+(228:17..228:21) _empty_/LispCaseClasses.CONS.
+(228:33..228:35) local80 -> 228:25
+(229:6..229:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(229:22..229:25) _empty_/LispCaseClasses.FUN.
+(230:12..230:16) scala/package.List.
+(230:17..230:20) _empty_/LispCaseClasses.NIL.
+(230:27..230:30) _empty_/LispCaseClasses.NUM.
+(231:17..231:20) _empty_/LispCaseClasses.NUM.
+(232:6..232:12) _empty_/LispCaseClasses.Environment#extend(). -> 116:9
+(232:21..232:24) _empty_/LispCaseClasses.FUN.
+(233:12..233:16) scala/package.List.
+(233:26..233:30) _empty_/LispCaseClasses.CONS.
+(233:31..233:32) local83 -> 233:17
+(233:34..233:35) local84 -> 233:20
+(235:19..235:23) _empty_/LispCaseClasses.Data# -> 49:9
+(235:26..235:30) _empty_/LispCaseClasses.Data# -> 49:9
+(235:33..235:37) _empty_/LispCaseClasses.eval(). -> 146:7
+(235:38..235:47) _empty_/LispCaseClasses.normalize(). -> 133:7
+(235:48..235:49) _empty_/LispCaseClasses.evaluate().(x) -> 235:16
+(235:52..235:61) _empty_/LispCaseClasses.globalEnv. -> 212:7
+(236:19..236:25) scala/Predef.String#
+(236:28..236:32) _empty_/LispCaseClasses.Data# -> 49:9
+(236:35..236:43) _empty_/LispCaseClasses.evaluate(). -> 235:7
+(236:44..236:55) _empty_/LispCaseClasses.string2lisp(). -> 238:7
+(236:56..236:57) _empty_/LispCaseClasses.evaluate(+1).(s) -> 236:16
+(238:22..238:28) scala/Predef.String#
+(238:31..238:35) _empty_/LispCaseClasses.Data# -> 49:9
+(239:18..239:31) _empty_/LispTokenizer# -> 8:7
+(239:32..239:33) _empty_/LispCaseClasses.string2lisp().(s) -> 238:19
+(240:22..240:28) scala/Predef.String#
+(240:31..240:35) _empty_/LispCaseClasses.Data# -> 49:9
+(241:11..241:16) local86 -> 240:15
+(241:17..241:19) scala/Any#`==`().
+(241:25..241:34) local87 -> 249:9
+(242:16..242:21) local86 -> 240:15
+(242:22..242:24) scala/Any#`==`().
+(242:30..242:33) scala/sys/
+(242:34..242:39) scala/sys/package.error().
+(243:20..243:22) scala/Char#`<=`(+2).
+(243:23..243:28) local86 -> 240:15
+(243:29..243:35) java/lang/String#charAt().
+(243:39..243:41) scala/Boolean#`&&`().
+(243:42..243:47) local86 -> 240:15
+(243:48..243:54) java/lang/String#charAt().
+(243:58..243:60) scala/Char#`<=`(+2).
+(244:9..244:12) _empty_/LispCaseClasses.NUM.
+(244:13..244:18) local86 -> 240:15
+(244:19..244:24) scala/collection/StringOps#toInt().
+(245:16..245:21) local86 -> 240:15
+(245:22..245:28) java/lang/String#charAt().
+(245:32..245:34) scala/Char#`==`(+2).
+(245:40..245:42) scala/Boolean#`&&`().
+(245:43..245:48) local86 -> 240:15
+(245:49..245:55) java/lang/String#charAt().
+(245:56..245:61) local86 -> 240:15
+(245:62..245:68) java/lang/String#length().
+(245:70..245:71) scala/Int#`-`(+3).
+(245:73..245:75) scala/Char#`==`(+2).
+(246:9..246:12) _empty_/LispCaseClasses.STR.
+(246:13..246:18) local86 -> 240:15
+(246:19..246:28) java/lang/String#substring(+1).
+(246:31..246:36) local86 -> 240:15
+(246:37..246:43) java/lang/String#length().
+(246:46..246:47) scala/Int#`-`(+3).
+(247:12..247:15) _empty_/LispCaseClasses.SYM.
+(247:16..247:21) local86 -> 240:15
+(249:20..249:24) _empty_/LispCaseClasses.Data# -> 49:9
+(250:19..250:21) local85 -> 239:9
+(250:22..250:26) _empty_/LispTokenizer#next(). -> 15:7
+(251:11..251:16) local89 -> 250:11
+(251:17..251:19) scala/Any#`==`().
+(251:25..251:28) _empty_/LispCaseClasses.NIL.
+(251:36..251:40) _empty_/LispCaseClasses.CONS.
+(251:41..251:46) local88 -> 240:9
+(251:47..251:52) local89 -> 250:11
+(251:55..251:64) local87 -> 249:9
+(253:5..253:10) local88 -> 240:9
+(253:11..253:13) local85 -> 239:9
+(253:14..253:18) _empty_/LispTokenizer#next(). -> 15:7
+(256:22..256:26) _empty_/LispCaseClasses.Data# -> 49:9
+(256:29..256:35) scala/Predef.String#
+(256:38..256:39) _empty_/LispCaseClasses.lisp2string().(d) -> 256:19
+(256:40..256:48) scala/Any#toString().
+(262:24..262:28) _empty_/Lisp# -> 31:7
+(264:10..264:14) scala/package.List.
+(266:15..266:18) scala/Any#
+(268:24..268:28) scala/package.List#
+(268:29..268:33) _empty_/LispAny.Data# -> 266:8
+(268:38..268:42) _empty_/LispAny.Data# -> 266:8
+(270:15..270:19) _empty_/LispAny.Data# -> 266:8
+(271:14..271:21) scala/Boolean#
+(272:15..272:18) scala/Int#
+(274:25..274:31) scala/Predef.String#
+(274:34..274:35) _empty_/LispAny.lispError().[a] -> 274:17
+(275:5..275:8) scala/sys/
+(275:9..275:14) scala/sys/package.error().
+(275:25..275:26) java/lang/String#`+`().
+(275:27..275:30) _empty_/LispAny.lispError().(msg) -> 274:20
+(275:31..275:32) java/lang/String#`+`().
+(275:38..275:39) java/lang/String#`+`().
+(275:40..275:46) _empty_/LispAny.curexp(). -> 270:7
+(278:19..278:25) scala/Predef.String#
+(278:28..278:32) _empty_/LispAny.Data# -> 266:8
+(279:25..279:31) scala/Predef.String#
+(279:39..279:50) _empty_/LispAny.Environment# -> 277:9
+(279:54..279:58) _empty_/LispAny.Data# -> 266:8
+(280:11..280:22) _empty_/LispAny.Environment# -> 277:9
+(281:23..281:29) scala/Predef.String#
+(281:32..281:36) _empty_/LispAny.Data# -> 266:8
+(282:15..282:16) local90 -> 281:20
+(282:17..282:19) scala/Any#`==`().
+(282:20..282:24) _empty_/LispAny.Environment#extendRec().(name) -> 279:19
+(282:26..282:30) _empty_/LispAny.Environment#extendRec().(expr) -> 279:33
+(282:59..282:65) _empty_/LispAny.Environment#lookup(). -> 278:9
+(282:66..282:67) local90 -> 281:20
+(284:22..284:28) scala/Predef.String#
+(284:33..284:37) _empty_/LispAny.Data# -> 266:8
+(284:41..284:50) _empty_/LispAny.Environment#extendRec(). -> 279:9
+(284:51..284:55) _empty_/LispAny.Environment#extend().(name) -> 284:16
+(284:66..284:67) _empty_/LispAny.Environment#extend().(v) -> 284:30
+(286:30..286:41) _empty_/LispAny.Environment# -> 277:9
+(287:19..287:25) scala/Predef.String#
+(287:28..287:32) _empty_/LispAny.Data# -> 266:8
+(287:35..287:44) _empty_/LispAny.lispError(). -> 274:7
+(287:59..287:60) java/lang/String#`+`().
+(287:61..287:62) local95 -> 287:16
+(290:17..290:21) _empty_/LispAny.Data# -> 266:8
+(290:24..290:28) scala/package.List#
+(290:29..290:33) _empty_/LispAny.Data# -> 266:8
+(290:37..290:38) _empty_/LispAny.asList().(x) -> 290:14
+(291:13..291:17) scala/package.List#
+(291:24..291:25) local99 -> 291:10
+(292:15..292:24) _empty_/LispAny.lispError(). -> 274:7
+(292:44..292:45) java/lang/String#`+`().
+(292:46..292:47) _empty_/LispAny.asList().(x) -> 290:14
+(295:16..295:20) _empty_/LispAny.Data# -> 266:8
+(295:23..295:26) scala/Int#
+(295:29..295:30) _empty_/LispAny.asInt().(x) -> 295:13
+(296:13..296:16) scala/Int#
+(296:20..296:21) local101 -> 296:10
+(297:15..297:24) _empty_/LispAny.lispError(). -> 274:7
+(297:44..297:45) java/lang/String#`+`().
+(297:46..297:47) _empty_/LispAny.asInt().(x) -> 295:13
+(300:19..300:23) _empty_/LispAny.Data# -> 266:8
+(300:26..300:32) scala/Predef.String#
+(300:35..300:36) _empty_/LispAny.asString().(x) -> 300:16
+(301:13..301:19) scala/Predef.String#
+(301:23..301:24) local102 -> 301:10
+(302:15..302:24) _empty_/LispAny.lispError(). -> 274:7
+(302:42..302:43) java/lang/String#`+`().
+(302:44..302:45) _empty_/LispAny.asString().(x) -> 300:16
+(305:20..305:24) _empty_/LispAny.Data# -> 266:8
+(305:27..305:34) scala/Boolean#
+(305:37..305:38) _empty_/LispAny.asBoolean().(x) -> 305:17
+(305:39..305:41) scala/Any#`!=`().
+(307:20..307:24) _empty_/LispAny.Data# -> 266:8
+(307:27..307:31) _empty_/LispAny.Data# -> 266:8
+(307:34..307:35) _empty_/LispAny.normalize().(x) -> 307:17
+(308:10..308:16) scala/Symbol.
+(308:24..308:26) scala/package.`::`.
+(308:29..308:31) scala/package.`::`.
+(308:34..308:36) scala/package.`::`.
+(308:37..308:40) scala/package.Nil.
+(309:7..309:16) _empty_/LispAny.normalize(). -> 307:7
+(309:33..309:34) local103 -> 308:27
+(309:38..309:39) local104 -> 308:32
+(309:48..309:51) scala/package.Nil.
+(310:10..310:16) scala/Symbol.
+(310:23..310:25) scala/package.`::`.
+(310:28..310:30) scala/package.`::`.
+(310:33..310:35) scala/package.`::`.
+(310:36..310:39) scala/package.Nil.
+(311:7..311:16) _empty_/LispAny.normalize(). -> 307:7
+(311:33..311:34) local106 -> 310:26
+(311:43..311:44) local107 -> 310:31
+(311:48..311:51) scala/package.Nil.
+(312:10..312:16) scala/Symbol.
+(312:24..312:26) scala/package.`::`.
+(312:33..312:35) scala/package.`::`.
+(312:42..312:44) scala/package.`::`.
+(312:50..312:52) scala/package.`::`.
+(312:58..312:60) scala/package.`::`.
+(312:61..312:64) scala/package.Nil.
+(313:7..313:16) _empty_/LispAny.normalize(). -> 307:7
+(313:34..313:38) local109 -> 312:28
+(313:87..313:91) local112 -> 312:53
+(313:95..313:98) scala/package.Nil.
+(314:10..314:16) scala/Symbol.
+(314:25..314:27) scala/package.`::`.
+(314:29..314:35) scala/Symbol.
+(314:44..314:46) scala/package.`::`.
+(314:52..314:54) scala/package.`::`.
+(314:55..314:58) scala/package.Nil.
+(314:60..314:62) scala/package.`::`.
+(315:9..315:18) _empty_/LispAny.normalize(). -> 307:7
+(315:19..315:23) local115 -> 314:47
+(316:10..316:16) scala/Symbol.
+(316:25..316:27) scala/package.`::`.
+(316:34..316:36) scala/package.`::`.
+(316:42..316:44) scala/package.`::`.
+(316:45..316:48) scala/package.Nil.
+(316:50..316:52) scala/package.`::`.
+(317:5..317:14) _empty_/LispAny.normalize(). -> 307:7
+(317:31..317:35) local117 -> 316:29
+(317:39..317:43) local118 -> 316:37
+(317:75..317:78) scala/package.Nil.
+(318:10..318:16) scala/Symbol.
+(318:25..318:27) scala/package.`::`.
+(318:28..318:34) scala/Symbol.
+(318:43..318:45) scala/package.`::`.
+(318:51..318:53) scala/package.`::`.
+(318:54..318:57) scala/package.Nil.
+(319:7..319:16) _empty_/LispAny.normalize(). -> 307:7
+(319:17..319:21) local122 -> 318:46
+(320:12..320:14) scala/package.`::`.
+(321:23..321:29) _empty_/LispAny.asList(). -> 290:7
+(321:30..321:39) _empty_/LispAny.normalize(). -> 307:7
+(321:40..321:41) local124 -> 320:15
+(323:7..323:8) _empty_/LispAny.normalize().(x) -> 307:17
+(326:15..326:19) _empty_/LispAny.Data# -> 266:8
+(326:26..326:37) _empty_/LispAny.Environment# -> 277:9
+(326:40..326:44) _empty_/LispAny.Data# -> 266:8
+(327:19..327:25) _empty_/LispAny.curexp(). -> 270:7
+(328:5..328:11) _empty_/LispAny.`curexp_=`().
+(328:14..328:15) _empty_/LispAny.eval().(x) -> 326:12
+(329:9..329:14) _empty_/LispAny.trace(). -> 271:7
+(330:17..330:22) scala/collection/IterableFactory#range().
+(330:26..330:32) _empty_/LispAny.indent(). -> 272:7
+(330:35..330:42) scala/Console.
+(330:43..330:48) scala/Console.print().
+(331:7..331:14) scala/Console.
+(331:15..331:22) scala/Console.println(+1).
+(331:31..331:32) java/lang/String#`+`().
+(331:33..331:34) _empty_/LispAny.eval().(x) -> 326:12
+(332:7..332:13) _empty_/LispAny.`indent_=`().
+(332:7..332:13) _empty_/LispAny.indent(). -> 272:7
+(334:18..334:23) _empty_/LispAny.eval1(). -> 344:7
+(334:24..334:25) _empty_/LispAny.eval().(x) -> 326:12
+(334:27..334:30) _empty_/LispAny.eval().(env) -> 326:21
+(335:9..335:14) _empty_/LispAny.trace(). -> 271:7
+(336:7..336:13) _empty_/LispAny.`indent_=`().
+(336:7..336:13) _empty_/LispAny.indent(). -> 272:7
+(337:17..337:22) scala/collection/IterableFactory#range().
+(337:26..337:32) _empty_/LispAny.indent(). -> 272:7
+(337:35..337:42) scala/Console.
+(337:43..337:48) scala/Console.print().
+(338:7..338:14) scala/Console.
+(338:15..338:22) scala/Console.println(+1).
+(338:31..338:32) java/lang/String#`+`().
+(338:33..338:39) local128 -> 334:9
+(340:5..340:11) _empty_/LispAny.`curexp_=`().
+(340:14..340:21) local126 -> 327:9
+(341:5..341:11) local128 -> 334:9
+(344:16..344:20) _empty_/LispAny.Data# -> 266:8
+(344:27..344:38) _empty_/LispAny.Environment# -> 277:9
+(344:41..344:45) _empty_/LispAny.Data# -> 266:8
+(344:48..344:49) _empty_/LispAny.eval1().(x) -> 344:13
+(345:10..345:16) scala/Symbol.
+(346:7..346:10) _empty_/LispAny.eval1().(env) -> 344:22
+(346:11..346:17) _empty_/LispAny.Environment#lookup(). -> 278:9
+(346:18..346:22) local130 -> 345:17
+(347:10..347:16) scala/Symbol.
+(347:24..347:26) scala/package.`::`.
+(347:27..347:33) scala/Symbol.
+(347:40..347:42) scala/package.`::`.
+(347:45..347:47) scala/package.`::`.
+(347:50..347:52) scala/package.`::`.
+(347:53..347:56) scala/package.Nil.
+(348:7..348:11) _empty_/LispAny.eval(). -> 326:7
+(348:12..348:13) local133 -> 347:48
+(348:15..348:18) _empty_/LispAny.eval1().(env) -> 344:22
+(348:19..348:28) _empty_/LispAny.Environment#extendRec(). -> 279:9
+(348:29..348:33) local131 -> 347:34
+(348:44..348:48) _empty_/LispAny.eval(). -> 326:7
+(348:49..348:50) local132 -> 347:43
+(348:52..348:56) local134 -> 348:36
+(349:10..349:16) scala/Symbol.
+(349:24..349:26) scala/package.`::`.
+(349:27..349:33) scala/Symbol.
+(349:40..349:42) scala/package.`::`.
+(349:45..349:47) scala/package.`::`.
+(349:50..349:52) scala/package.`::`.
+(349:53..349:56) scala/package.Nil.
+(350:7..350:11) _empty_/LispAny.eval(). -> 326:7
+(350:12..350:13) local137 -> 349:48
+(350:15..350:18) _empty_/LispAny.eval1().(env) -> 344:22
+(350:19..350:25) _empty_/LispAny.Environment#extend(). -> 284:9
+(350:26..350:30) local135 -> 349:34
+(350:32..350:36) _empty_/LispAny.eval(). -> 326:7
+(350:37..350:38) local136 -> 349:43
+(350:40..350:43) _empty_/LispAny.eval1().(env) -> 344:22
+(351:10..351:16) scala/Symbol.
+(351:27..351:29) scala/package.`::`.
+(351:37..351:39) scala/package.`::`.
+(351:42..351:44) scala/package.`::`.
+(351:45..351:48) scala/package.Nil.
+(352:7..352:15) _empty_/LispAny.mkLambda(). -> 382:7
+(352:16..352:22) local138 -> 351:30
+(352:24..352:25) local139 -> 351:40
+(352:27..352:30) _empty_/LispAny.eval1().(env) -> 344:22
+(353:10..353:16) scala/Symbol.
+(353:23..353:25) scala/package.`::`.
+(353:28..353:30) scala/package.`::`.
+(353:33..353:35) scala/package.`::`.
+(353:38..353:40) scala/package.`::`.
+(353:41..353:44) scala/package.Nil.
+(354:11..354:20) _empty_/LispAny.asBoolean(). -> 305:7
+(354:21..354:25) _empty_/LispAny.eval(). -> 326:7
+(354:26..354:27) local140 -> 353:26
+(354:29..354:32) _empty_/LispAny.eval1().(env) -> 344:22
+(354:36..354:40) _empty_/LispAny.eval(). -> 326:7
+(354:41..354:42) local141 -> 353:31
+(354:44..354:47) _empty_/LispAny.eval1().(env) -> 344:22
+(354:54..354:58) _empty_/LispAny.eval(). -> 326:7
+(354:59..354:60) local142 -> 353:36
+(354:62..354:65) _empty_/LispAny.eval1().(env) -> 344:22
+(355:10..355:16) scala/Symbol.
+(355:26..355:28) scala/package.`::`.
+(355:31..355:33) scala/package.`::`.
+(355:34..355:37) scala/package.Nil.
+(356:7..356:8) local143 -> 355:29
+(357:12..357:14) scala/package.`::`.
+(358:7..358:12) _empty_/LispAny.apply(). -> 377:7
+(358:13..358:17) _empty_/LispAny.eval(). -> 326:7
+(358:18..358:19) local144 -> 357:10
+(358:21..358:24) _empty_/LispAny.eval1().(env) -> 344:22
+(358:27..358:28) local145 -> 357:15
+(358:29..358:32) scala/collection/immutable/List#map().
+(358:39..358:43) _empty_/LispAny.eval(). -> 326:7
+(358:44..358:45) local146 -> 358:34
+(358:47..358:50) _empty_/LispAny.eval1().(env) -> 344:22
+(359:10..359:16) _empty_/LispAny.Lambda.
+(359:23..359:24) _empty_/LispAny.eval1().(x) -> 344:13
+(360:13..360:19) scala/Predef.String#
+(360:23..360:24) _empty_/LispAny.eval1().(x) -> 344:13
+(361:13..361:16) scala/Int#
+(361:20..361:21) _empty_/LispAny.eval1().(x) -> 344:13
+(362:15..362:24) _empty_/LispAny.lispError(). -> 274:7
+(365:22..365:26) _empty_/LispAny.Data# -> 266:8
+(365:29..365:35) scala/Predef.String#
+(365:38..365:39) _empty_/LispAny.lisp2string().(x) -> 365:19
+(366:10..366:16) scala/Symbol.
+(366:26..366:30) local150 -> 366:17
+(367:10..367:13) scala/package.Nil.
+(368:12..368:14) scala/package.`::`.
+(369:27..369:31) scala/package.List#
+(369:32..369:36) _empty_/LispAny.Data# -> 266:8
+(369:40..369:46) scala/Predef.String#
+(369:49..369:51) local153 -> 369:23
+(370:14..370:18) scala/package.List.
+(371:16..371:18) scala/package.`::`.
+(371:29..371:30) java/lang/String#`+`().
+(371:31..371:42) _empty_/LispAny.lisp2string(). -> 365:7
+(371:43..371:44) local154 -> 371:14
+(371:46..371:47) java/lang/String#`+`().
+(371:48..371:59) local156 -> 369:11
+(371:60..371:62) local155 -> 371:19
+(373:11..373:12) java/lang/String#`+`().
+(373:13..373:24) _empty_/LispAny.lisp2string(). -> 365:7
+(373:25..373:26) local151 -> 368:10
+(373:28..373:29) java/lang/String#`+`().
+(373:30..373:41) local156 -> 369:11
+(373:42..373:44) local152 -> 368:15
+(373:46..373:47) java/lang/String#`+`().
+(374:19..374:20) _empty_/LispAny.lisp2string().(x) -> 365:19
+(374:21..374:33) scala/Any#isInstanceOf().
+(374:34..374:40) scala/Predef.String#
+(374:48..374:49) java/lang/String#`+`().
+(374:50..374:51) _empty_/LispAny.lisp2string().(x) -> 365:19
+(374:52..374:53) java/lang/String#`+`().
+(374:65..374:66) _empty_/LispAny.lisp2string().(x) -> 365:19
+(374:67..374:75) scala/Any#toString().
+(377:17..377:21) _empty_/LispAny.Data# -> 266:8
+(377:29..377:33) scala/package.List#
+(377:34..377:38) _empty_/LispAny.Data# -> 266:8
+(377:42..377:46) _empty_/LispAny.Data# -> 266:8
+(377:49..377:51) _empty_/LispAny.apply().(fn) -> 377:13
+(378:10..378:16) _empty_/LispAny.Lambda.
+(378:23..378:24) local157 -> 378:17
+(378:25..378:29) _empty_/LispAny.apply().(args) -> 377:23
+(379:15..379:24) _empty_/LispAny.lispError(). -> 274:7
+(379:57..379:58) java/lang/String#`+`().
+(379:59..379:61) _empty_/LispAny.apply().(fn) -> 377:13
+(379:62..379:63) java/lang/String#`+`().
+(379:71..379:72) java/lang/String#`+`().
+(379:73..379:77) _empty_/LispAny.apply().(args) -> 377:23
+(382:24..382:28) _empty_/LispAny.Data# -> 266:8
+(382:36..382:40) _empty_/LispAny.Data# -> 266:8
+(382:47..382:58) _empty_/LispAny.Environment# -> 277:9
+(382:61..382:65) _empty_/LispAny.Data# -> 266:8
+(384:24..384:35) _empty_/LispAny.Environment# -> 277:9
+(385:23..385:27) scala/package.List#
+(385:28..385:34) scala/Predef.String#
+(385:43..385:47) scala/package.List#
+(385:48..385:52) _empty_/LispAny.Data# -> 266:8
+(385:56..385:67) _empty_/LispAny.Environment# -> 277:9
+(386:8..386:10) local159 -> 385:19
+(386:12..386:16) local160 -> 385:37
+(387:15..387:19) scala/package.List.
+(387:23..387:27) scala/package.List.
+(388:11..388:14) local158 -> 384:19
+(389:17..389:19) scala/package.`::`.
+(389:29..389:31) scala/package.`::`.
+(390:11..390:20) local165 -> 384:9
+(390:21..390:24) local158 -> 384:19
+(390:25..390:31) _empty_/LispAny.Environment#extend(). -> 284:9
+(390:32..390:33) local161 -> 389:15
+(390:35..390:38) local163 -> 389:25
+(390:41..390:44) local162 -> 389:20
+(390:46..390:51) local164 -> 389:32
+(392:11..392:20) _empty_/LispAny.lispError(). -> 274:7
+(395:13..395:17) scala/package.List#
+(395:18..395:24) scala/Predef.String#
+(395:28..395:34) _empty_/LispAny.asList(). -> 290:7
+(395:35..395:41) _empty_/LispAny.mkLambda().(params) -> 382:16
+(395:43..395:46) scala/collection/immutable/List#map().
+(396:12..396:18) scala/Symbol.
+(396:28..396:32) local167 -> 396:19
+(397:17..397:20) scala/sys/
+(397:21..397:26) scala/sys/package.error().
+(400:5..400:11) _empty_/LispAny.Lambda.
+(400:20..400:24) _empty_/LispAny.eval(). -> 326:7
+(400:25..400:29) _empty_/LispAny.mkLambda().(expr) -> 382:30
+(400:31..400:40) local165 -> 384:9
+(400:41..400:44) _empty_/LispAny.mkLambda().(env) -> 382:42
+(400:46..400:48) local168 -> 395:9
+(400:50..400:54) local169 -> 400:12
+(403:19..403:35) _empty_/LispAny.EmptyEnvironment. -> 286:7
+(404:6..404:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(404:18..404:24) _empty_/LispAny.Lambda.
+(405:12..405:16) scala/package.List.
+(405:36..405:40) local171 -> 405:17
+(405:41..405:43) scala/Any#`==`().
+(405:44..405:48) local172 -> 405:23
+(406:6..406:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(406:18..406:24) _empty_/LispAny.Lambda.
+(407:12..407:16) scala/package.List.
+(407:23..407:26) scala/Int#
+(407:34..407:37) scala/Int#
+(407:42..407:46) local174 -> 407:17
+(407:47..407:48) scala/Int#`+`(+4).
+(407:49..407:53) local175 -> 407:28
+(408:12..408:16) scala/package.List.
+(408:23..408:29) scala/Predef.String#
+(408:37..408:43) scala/Predef.String#
+(408:48..408:52) local176 -> 408:17
+(408:53..408:54) java/lang/String#`+`().
+(408:55..408:59) local177 -> 408:31
+(409:6..409:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(409:18..409:24) _empty_/LispAny.Lambda.
+(410:12..410:16) scala/package.List.
+(410:23..410:26) scala/Int#
+(410:34..410:37) scala/Int#
+(410:42..410:46) local179 -> 410:17
+(410:47..410:48) scala/Int#`-`(+3).
+(410:49..410:53) local180 -> 410:28
+(411:6..411:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(411:18..411:24) _empty_/LispAny.Lambda.
+(412:12..412:16) scala/package.List.
+(412:23..412:26) scala/Int#
+(412:34..412:37) scala/Int#
+(412:42..412:46) local182 -> 412:17
+(412:47..412:48) scala/Int#`*`(+3).
+(412:49..412:53) local183 -> 412:28
+(413:6..413:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(413:18..413:24) _empty_/LispAny.Lambda.
+(414:12..414:16) scala/package.List.
+(414:23..414:26) scala/Int#
+(414:34..414:37) scala/Int#
+(414:42..414:46) local185 -> 414:17
+(414:47..414:48) scala/Int#`/`(+3).
+(414:49..414:53) local186 -> 414:28
+(415:6..415:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(415:20..415:23) scala/package.Nil.
+(416:6..416:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(416:21..416:27) _empty_/LispAny.Lambda.
+(417:12..417:16) scala/package.List.
+(417:32..417:36) local188 -> 417:17
+(417:40..417:46) _empty_/LispAny.asList(). -> 290:7
+(417:47..417:51) local189 -> 417:23
+(418:6..418:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(418:20..418:26) _empty_/LispAny.Lambda.
+(419:12..419:16) scala/package.List.
+(419:19..419:21) scala/package.`::`.
+(419:29..419:30) local191 -> 419:17
+(420:6..420:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(420:20..420:26) _empty_/LispAny.Lambda.
+(421:12..421:16) scala/package.List.
+(421:19..421:21) scala/package.`::`.
+(421:29..421:31) local195 -> 421:22
+(422:6..422:12) _empty_/LispAny.Environment#extend(). -> 284:9
+(422:22..422:28) _empty_/LispAny.Lambda.
+(423:12..423:16) scala/package.List.
+(423:17..423:20) scala/package.Nil.
+(426:19..426:23) _empty_/LispAny.Data# -> 266:8
+(426:26..426:30) _empty_/LispAny.Data# -> 266:8
+(426:33..426:37) _empty_/LispAny.eval(). -> 326:7
+(426:38..426:47) _empty_/LispAny.normalize(). -> 307:7
+(426:48..426:49) _empty_/LispAny.evaluate().(x) -> 426:16
+(426:52..426:61) _empty_/LispAny.globalEnv. -> 403:7
+(427:19..427:25) scala/Predef.String#
+(427:28..427:32) _empty_/LispAny.Data# -> 266:8
+(427:35..427:43) _empty_/LispAny.evaluate(). -> 426:7
+(427:44..427:55) _empty_/LispAny.string2lisp(). -> 429:7
+(427:56..427:57) _empty_/LispAny.evaluate(+1).(s) -> 427:16
+(429:22..429:28) scala/Predef.String#
+(429:31..429:35) _empty_/LispAny.Data# -> 266:8
+(430:18..430:31) _empty_/LispTokenizer# -> 8:7
+(430:32..430:33) _empty_/LispAny.string2lisp().(s) -> 429:19
+(431:22..431:28) scala/Predef.String#
+(431:31..431:35) _empty_/LispAny.Data# -> 266:8
+(432:11..432:16) local198 -> 431:15
+(432:17..432:19) scala/Any#`==`().
+(432:25..432:34) local199 -> 441:9
+(433:16..433:21) local198 -> 431:15
+(433:22..433:24) scala/Any#`==`().
+(433:30..433:33) scala/sys/
+(433:34..433:39) scala/sys/package.error().
+(435:16..435:21) local198 -> 431:15
+(435:22..435:28) java/lang/String#charAt().
+(435:32..435:39) scala/runtime/RichChar#isDigit().
+(436:9..436:14) local198 -> 431:15
+(436:15..436:20) scala/collection/StringOps#toInt().
+(437:16..437:21) local198 -> 431:15
+(437:22..437:28) java/lang/String#charAt().
+(437:32..437:34) scala/Char#`==`(+2).
+(437:40..437:42) scala/Boolean#`&&`().
+(437:43..437:48) local198 -> 431:15
+(437:49..437:55) java/lang/String#charAt().
+(437:56..437:61) local198 -> 431:15
+(437:62..437:68) java/lang/String#length().
+(437:70..437:71) scala/Int#`-`(+3).
+(437:73..437:75) scala/Char#`==`(+2).
+(438:9..438:14) local198 -> 431:15
+(438:15..438:24) java/lang/String#substring(+1).
+(438:27..438:32) local198 -> 431:15
+(438:33..438:39) java/lang/String#length().
+(438:42..438:43) scala/Int#`-`(+3).
+(439:12..439:18) scala/Symbol.
+(439:19..439:24) local198 -> 431:15
+(441:20..441:24) scala/package.List#
+(441:25..441:29) _empty_/LispAny.Data# -> 266:8
+(442:19..442:21) local197 -> 430:9
+(442:22..442:26) _empty_/LispTokenizer#next(). -> 15:7
+(443:11..443:16) local201 -> 442:11
+(443:17..443:19) scala/Any#`==`().
+(443:25..443:28) scala/package.Nil.
+(443:50..443:59) local199 -> 441:9
+(445:5..445:10) local200 -> 431:9
+(445:11..445:13) local197 -> 430:9
+(445:14..445:18) _empty_/LispTokenizer#next(). -> 15:7
+(452:22..452:26) _empty_/Lisp# -> 31:7
+(454:10..454:14) _empty_/LispUser#lisp. -> 452:16
+(456:19..456:25) scala/Predef.String#
+(456:29..456:40) _empty_/Lisp#lisp2string(). -> 35:7
+(456:41..456:45) _empty_/LispUser#lisp. -> 452:16
+(456:46..456:54) _empty_/Lisp#evaluate(+1). -> 39:7
+(456:55..456:56) _empty_/LispUser#evaluate().(s) -> 456:16
+(460:5..460:12) scala/Console.
+(460:13..460:20) scala/Console.println(+1).
+(460:21..460:32) _empty_/Lisp#string2lisp(). -> 34:7
+(460:63..460:75) scala/Any#asInstanceOf().
+(460:76..460:82) scala/AnyRef#
+(461:5..461:12) scala/Console.
+(461:13..461:20) scala/Console.println(+1).
+(461:21..461:32) _empty_/Lisp#lisp2string(). -> 35:7
+(461:33..461:44) _empty_/Lisp#string2lisp(). -> 34:7
+(462:5..462:12) scala/Console.
+(462:13..462:20) scala/Console.println().
+(464:5..464:12) scala/Console.
+(464:13..464:20) scala/Console.println(+1).
+(464:41..464:42) java/lang/String#`+`().
+(464:43..464:51) _empty_/LispUser#evaluate(). -> 456:7
+(465:5..465:12) scala/Console.
+(465:13..465:20) scala/Console.println(+1).
+(465:41..465:42) java/lang/String#`+`().
+(465:43..465:51) _empty_/LispUser#evaluate(). -> 456:7
+(466:5..466:12) scala/Console.
+(466:13..466:20) scala/Console.println(+1).
+(466:41..466:42) java/lang/String#`+`().
+(466:43..466:51) _empty_/LispUser#evaluate(). -> 456:7
+(467:5..467:12) scala/Console.
+(467:13..467:20) scala/Console.println(+1).
+(467:41..467:42) java/lang/String#`+`().
+(467:43..467:51) _empty_/LispUser#evaluate(). -> 456:7
+(468:5..468:12) scala/Console.
+(468:13..468:20) scala/Console.println(+1).
+(468:41..468:42) java/lang/String#`+`().
+(468:43..468:51) _empty_/LispUser#evaluate(). -> 456:7
+(469:5..469:12) scala/Console.
+(469:13..469:20) scala/Console.println().
+(471:5..471:12) scala/Console.
+(471:13..471:20) scala/Console.println(+1).
+(471:38..471:39) java/lang/String#`+`().
+(471:40..471:48) _empty_/LispUser#evaluate(). -> 456:7
+(472:27..472:28) java/lang/String#`+`().
+(473:24..473:25) java/lang/String#`+`().
+(474:16..474:17) java/lang/String#`+`().
+(475:39..475:40) java/lang/String#`+`().
+(477:5..477:12) scala/Console.
+(477:13..477:20) scala/Console.println(+1).
+(477:38..477:39) java/lang/String#`+`().
+(477:40..477:48) _empty_/LispUser#evaluate(). -> 456:7
+(478:27..478:28) java/lang/String#`+`().
+(479:18..479:19) java/lang/String#`+`().
+(480:26..480:27) java/lang/String#`+`().
+(481:46..481:47) java/lang/String#`+`().
+(483:5..483:12) scala/Console.
+(483:13..483:20) scala/Console.println(+1).
+(483:33..483:34) java/lang/String#`+`().
+(483:35..483:43) _empty_/LispUser#evaluate(). -> 456:7
+(484:23..484:24) java/lang/String#`+`().
+(485:18..485:19) java/lang/String#`+`().
+(486:29..486:30) java/lang/String#`+`().
+(487:29..487:30) java/lang/String#`+`().
+(488:29..488:30) java/lang/String#`+`().
+(489:22..489:23) java/lang/String#`+`().
+(490:33..490:34) java/lang/String#`+`().
+(491:35..491:36) java/lang/String#`+`().
+(492:20..492:21) java/lang/String#`+`().
+(493:29..493:30) java/lang/String#`+`().
+(494:24..494:25) java/lang/String#`+`().
+(495:35..495:36) java/lang/String#`+`().
+(496:35..496:36) java/lang/String#`+`().
+(497:36..497:37) java/lang/String#`+`().
+(498:34..498:35) java/lang/String#`+`().
+(499:31..499:32) java/lang/String#`+`().
+(500:30..500:31) java/lang/String#`+`().
+(501:44..501:45) java/lang/String#`+`().
+(502:58..502:59) java/lang/String#`+`().
+(503:36..503:37) java/lang/String#`+`().
+(505:5..505:12) scala/Console.
+(505:13..505:20) scala/Console.println().
+(513:18..513:23) scala/Array#
+(513:24..513:30) scala/Predef.String#
+(513:34..513:38) scala/Unit#
+(514:9..514:17) _empty_/LispUser# -> 452:7
+(514:18..514:33) _empty_/LispCaseClasses. -> 45:8
+(514:35..514:38) _empty_/LispUser#run(). -> 458:7
+(515:9..515:17) _empty_/LispUser# -> 452:7
+(515:18..515:25) _empty_/LispAny. -> 262:8
+(515:27..515:30) _empty_/LispUser#run(). -> 458:7
+

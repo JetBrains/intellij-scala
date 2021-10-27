@@ -30,7 +30,8 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
   extends DownloadingAndImportingTestCase
     with ScalaSdkOwner {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_3_0
 
   override def githubUsername: String = "lampepfl"
 

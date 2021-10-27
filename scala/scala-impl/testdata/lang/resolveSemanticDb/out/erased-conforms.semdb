@@ -1,0 +1,36 @@
+Document tests/pos/erased-conforms.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:47) scala/language.experimental.erasedDefinitions.
+(4:39..4:49) _empty_/ErasedTerm# -> 2:14
+(6:38..6:42) _empty_/`=::=`#[From] -> 6:19
+(6:43..6:47) _empty_/`<::<`# -> 4:14
+(6:48..6:50) _empty_/`=::=`#[To] -> 6:25
+(8:20..8:21) _empty_/`erased-conforms$package`.`given_=::=_X_X`().[X] -> 8:15
+(8:22..8:26) _empty_/`=::=`# -> 6:14
+(8:27..8:28) _empty_/`erased-conforms$package`.`given_=::=_X_X`().[X] -> 8:15
+(8:32..8:37) scala/
+(8:38..8:49) scala/compiletime/
+(8:50..8:61) scala/compiletime/package$package.erasedValue().
+(10:21..10:25) _empty_/`erased-conforms$package`.cast().[From] -> 10:12
+(11:29..11:33) _empty_/`erased-conforms$package`.cast().[From] -> 10:12
+(11:34..11:38) _empty_/`<::<`# -> 4:14
+(11:39..11:41) _empty_/`erased-conforms$package`.cast().[To] -> 11:19
+(11:44..11:46) _empty_/`erased-conforms$package`.cast().[To] -> 11:19
+(11:49..11:50) _empty_/`erased-conforms$package`.cast().(x) -> 10:18
+(11:51..11:63) scala/Any#asInstanceOf().
+(11:64..11:66) _empty_/`erased-conforms$package`.cast().[To] -> 11:19
+(14:22..14:23) _empty_/`erased-conforms$package`.convert().[A] -> 14:13
+(14:45..14:46) _empty_/`erased-conforms$package`.convert().[A] -> 14:13
+(14:47..14:51) _empty_/`<::<`# -> 4:14
+(14:52..14:53) _empty_/`erased-conforms$package`.convert().[B] -> 14:16
+(14:56..14:57) _empty_/`erased-conforms$package`.convert().[B] -> 14:16
+(17:3..17:4) _empty_/`erased-conforms$package`.convert().(a) -> 14:19
+(17:5..17:9) _empty_/`erased-conforms$package`.cast(). -> 11:14
+(17:10..17:11) _empty_/`erased-conforms$package`.convert().[B] -> 14:16
+(20:2..20:6) scala/main#
+(20:16..20:20) scala/Unit#
+(20:23..20:30) _empty_/`erased-conforms$package`.convert(). -> 14:5
+(20:31..20:34) scala/Int#
+(20:36..20:39) scala/Int#
+

@@ -1,0 +1,9 @@
+Document tests/pos/i13043/Impl.scala
+(1:20..1:24) _empty_/Intf#
+(2:25..2:28) scala/Int#
+(2:32..2:35) scala/Predef.`???`().
+(3:25..3:31) scala/Predef.String#
+(3:36..3:39) scala/Predef.`???`().
+(4:26..4:32) scala/Predef.String#
+(4:37..4:40) scala/Predef.`???`().
+

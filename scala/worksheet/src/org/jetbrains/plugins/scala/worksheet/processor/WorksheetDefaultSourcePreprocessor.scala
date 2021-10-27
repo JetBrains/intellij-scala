@@ -65,20 +65,19 @@ object WorksheetDefaultSourcePreprocessor {
     val iterNumber = compilationAttemptForFile(srcFile)
 
     val macroPrinterName = withCompilerVersion(
-      "MacroPrinter210",
-      "MacroPrinter211",
-      "MacroPrinter213",
-      "MacroPrinter3",
-      "MacroPrinter"
+      if210 = "MacroPrinter210",
+      if211 = "MacroPrinter211",
+      if213 = "MacroPrinter213",
+      if3 = "MacroPrinter3",
+      default = "MacroPrinter"
     )
     val packageOpt: Option[String] = packageForFile(srcFile)
 
     val sourceBuilder =
-      if (languageLevel >= ScalaLanguageLevel.Scala_3_0) {
+      if (languageLevel.isScala3)
         new Scala3SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
-      } else {
+      else
         new Scala2SourceBuilder(iterNumber, srcFile, document, packageOpt, macroPrinterName)
-      }
 
     val (root, preDeclarations, postDeclarations) =
       if (isForObject(srcFile)) {
@@ -148,7 +147,7 @@ object WorksheetDefaultSourcePreprocessor {
       case ScalaLanguageLevel.Scala_2_10 => if210
       case ScalaLanguageLevel.Scala_2_11 => if211
       case ScalaLanguageLevel.Scala_2_13 => if213
-      case ScalaLanguageLevel.Scala_3_0  => if3
+      case _ if languageLevel.isScala3   => if3
       case _                             => default
     }
 

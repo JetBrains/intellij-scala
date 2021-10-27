@@ -1,0 +1,11 @@
+Document tests/pos/i6828.scala
+(2:36..2:41) scala/
+(2:42..2:49) scala/reflect/
+(2:50..2:58) scala/reflect/ClassTag#
+(2:59..2:60) _empty_/Foo#foo().[T] -> 2:18
+(2:64..2:68) scala/Unit#
+(3:3..3:6) _empty_/Foo#foo(). -> 2:14
+(3:7..3:10) scala/Int#
+(4:3..4:6) _empty_/Foo#foo(). -> 2:14
+(4:7..4:13) scala/Predef.String#
+

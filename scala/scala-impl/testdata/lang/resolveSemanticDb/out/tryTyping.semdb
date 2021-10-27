@@ -1,0 +1,18 @@
+Document tests/pos/tryTyping.scala
+(2:12..2:15) scala/Int#
+(3:9..3:12) scala/Predef.`???`().
+(5:15..5:24) scala/package.Exception#
+(9:13..9:16) scala/Int#
+(10:14..10:23) scala/package.Throwable#
+(10:27..10:30) scala/Int#
+(11:9..11:12) scala/Predef.`???`().
+(12:11..12:13) local1 -> 10:9
+(15:13..15:16) scala/Int#
+(16:14..16:17) scala/Int#
+(16:21..16:30) scala/package.Throwable#
+(16:34..16:37) scala/Int#
+(16:45..16:48) scala/Int#
+(16:72..16:73) local3 -> 16:42
+(17:9..17:12) scala/Predef.`???`().
+(18:11..18:13) local4 -> 16:9
+

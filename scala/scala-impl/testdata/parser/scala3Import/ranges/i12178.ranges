@@ -1,4 +1,4 @@
-[0,584]: PackageDef
+[0,593]: PackageDef
 [0,0]: Ident
 [0,70]: TypeDef
 [24,70]: LambdaTypeTree
@@ -58,9 +58,9 @@
 [407,413]: Ident
 [418,429]: Select
 [418,423]: Ident
-[431,584]: DefDef
+[431,593]: DefDef
 [450,454]: Ident
-[457,584]: Block
+[457,593]: Block
 [461,518]: ValDef
 [470,493]: AppliedTypeTree
 [470,481]: Ident
@@ -76,3 +76,7 @@
 [529,539]: Apply
 [529,534]: Ident
 [535,538]: Ident
+[550,568]: Apply
+[550,557]: Ident
+[558,567]: Select
+[558,561]: Ident

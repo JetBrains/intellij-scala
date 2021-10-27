@@ -1,0 +1,12 @@
+Document tests/pos/i2858.scala
+(1:20..1:22) _empty_/Cont#[A0] -> 1:12
+(1:35..1:37) _empty_/Cont#[A0] -> 1:12
+(1:46..1:47) _empty_/Cont#A# -> 1:31
+(1:50..1:52) _empty_/Cont#x0. -> 1:16
+(4:13..4:17) scala/Unit#
+(5:12..5:16) _empty_/Cont# -> 1:7
+(5:20..5:21) scala/`&`#
+(5:33..5:36) scala/Int#
+(6:5..6:6) local1 -> 5:9
+(6:7..6:8) _empty_/Cont#x. -> 1:43
+

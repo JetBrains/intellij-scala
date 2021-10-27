@@ -1,0 +1,6 @@
+Document tests/pos/patterns3.scala
+(3:7..3:13) scala/Tuple2.
+(3:14..3:20) scala/Tuple2.
+(3:33..3:39) scala/Tuple2.
+(3:40..3:46) scala/Tuple2.
+

@@ -1,21 +1,23 @@
-package org.jetbrains.plugins.scala
-package base
-package libraryLoaders
-
-import java.io.File
-import java.{util => ju}
+package org.jetbrains.plugins.scala.base.libraryLoaders
 
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
 import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
-import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.{JarFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, inWriteAction}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLibraryProperties, ScalaLibraryType, template}
+import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, ScalaVersion}
 import org.junit.Assert._
 
-case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaCompiler: Boolean = false) extends LibraryLoader {
+import java.io.File
+import java.{util => ju}
+
+/** @param includeScalaReflectIntoCompilerClasspath also see [[ScalaReflectLibraryLoader]] */
+case class ScalaSDKLoader(
+  includeScalaReflectIntoCompilerClasspath: Boolean = false,
+  includeScalaCompilerIntoLibraryClasspath: Boolean = false
+) extends LibraryLoader {
 
   protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
 
@@ -24,20 +26,19 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
   import template.Artifact
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
-    version.languageLevel match { // TODO maybe refactoring?
-      case ScalaLanguageLevel.Scala_3_0 =>
-        List(
-          scalaCompilerDescription.transitive(),
-          scalaLibraryDescription.transitive(),
-          DependencyDescription("org.scala-lang", "scala3-interfaces", version.minor),
-        )
-
-      case _                  =>
-        val maybeScalaReflect = if (includeScalaReflect) Some(scalaReflectDescription) else None
-        List(
-          scalaCompilerDescription,
-          scalaLibraryDescription
-        ) ++ maybeScalaReflect
+    if (version.languageLevel.isScala3) {
+      List(
+        scalaCompilerDescription.transitive(),
+        scalaLibraryDescription.transitive(),
+        DependencyDescription("org.scala-lang", "scala3-interfaces", version.minor),
+      )
+    }
+    else {
+      val maybeScalaReflect = if (includeScalaReflectIntoCompilerClasspath) Some(scalaReflectDescription) else None
+      List(
+        scalaCompilerDescription,
+        scalaLibraryDescription
+      ) ++ maybeScalaReflect
     }
 
   protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
@@ -52,7 +53,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
     val dependencies = binaryDependencies
     val resolved = dependencyManager.resolve(dependencies: _*)
 
-    if (version.languageLevel == ScalaLanguageLevel.Scala_3_0)
+    if (version.isScala3)
       assertTrue(
         s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
         resolved.size >= dependencies.size
@@ -80,11 +81,11 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
       fail(s"Local SDK files should contain compiler jar for : $version\n${compilerClasspath.mkString("\n")}").asInstanceOf[Nothing]
     }
 
-    val classesRoots = {
+    val scalaLibraryClasses: ju.List[VirtualFile] = {
       import scala.jdk.CollectionConverters._
       val files =
-        if (includeScalaCompiler) compilerClasspath
-        else compilerClasspath.filterNot(compilerFile == _)
+        if (includeScalaCompilerIntoLibraryClasspath) compilerClasspath
+        else compilerClasspath.filter(_.getName.matches(".*(scala-library|scala3-library).*"))
       files.map(findJarFile).asJava
     }
 
@@ -94,7 +95,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
     def createNewLibrary = PsiTestUtil.addProjectLibrary(
       module,
       scalaSdkName,
-      classesRoots,
+      scalaLibraryClasses,
       ju.Collections.singletonList(sourceRoot)
     )
 

@@ -1,0 +1,24 @@
+Document tests/pos/t5399a.scala
+(3:30..3:34) _empty_/Foo#Init# -> 2:9
+(3:35..3:36) _empty_/Foo#ScopedKey#[T] -> 3:19
+(6:14..6:23) _empty_/Foo#ScopedKey# -> 3:9
+(6:24..6:25) _empty_/Foo#Setting#[T] -> 5:17
+(9:37..9:41) _empty_/Foo#Init# -> 2:9
+(9:42..9:43) _empty_/Foo#ScopedKey1#[T] -> 9:25
+(9:54..9:63) _empty_/Foo#ScopedKey# -> 3:9
+(9:64..9:65) _empty_/Foo#ScopedKey1#[T] -> 9:25
+(11:18..11:25) _empty_/Foo#Setting# -> 5:9
+(11:26..11:32) scala/Option#
+(11:33..11:39) scala/Predef.String#
+(12:21..12:28) _empty_/Foo#Setting# -> 5:9
+(12:29..12:35) scala/Predef.String#
+(14:27..14:34) _empty_/Foo#Setting# -> 5:9
+(14:40..14:44) scala/Unit#
+(15:5..15:6) _empty_/Foo#testPatternMatch().(s) -> 14:24
+(15:7..15:10) _empty_/Foo#Setting#key. -> 6:9
+(16:12..16:22) _empty_/Foo#ScopedKey1.
+(16:23..16:32) _empty_/Foo#scalaHome. -> 11:7
+(16:33..16:36) _empty_/Foo#Setting#key. -> 6:9
+(16:39..16:51) _empty_/Foo#scalaVersion. -> 12:7
+(16:52..16:55) _empty_/Foo#Setting#key. -> 6:9
+

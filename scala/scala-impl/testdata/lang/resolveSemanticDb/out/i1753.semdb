@@ -1,0 +1,29 @@
+Document tests/pos/i1753.scala
+(2:18..2:22) scala/Null#
+(3:20..3:24) scala/Null#
+(6:30..6:46) _empty_/BackendInterface# -> 1:16
+(6:57..6:58) _empty_/BTypesFromSymbols#[I] -> 6:25
+(7:19..7:22) _empty_/BTypesFromSymbols#int. -> 6:52
+(7:23..7:29) _empty_/BackendInterface#Symbol# -> 2:8
+(7:33..7:40) scala/Predef.println(+1).
+(11:12..11:28) _empty_/BackendInterface# -> 1:16
+(12:31..12:48) _empty_/BTypesFromSymbols# -> 6:7
+(12:49..12:52) _empty_/BCodeIdiomatic#int. -> 11:7
+(12:59..12:62) _empty_/BCodeIdiomatic#int. -> 11:7
+(15:32..15:46) _empty_/BCodeIdiomatic# -> 10:7
+(16:10..16:13) _empty_/BCodeIdiomatic#int. -> 11:7
+(17:10..17:16) _empty_/BCodeIdiomatic#bTypes. -> 12:18
+(18:10..18:27) _empty_/BTypesFromSymbols# -> 6:7
+(18:28..18:31) _empty_/BCodeIdiomatic#int. -> 11:7
+(18:40..18:46) _empty_/BCodeIdiomatic#bTypes. -> 12:18
+(19:10..19:13) _empty_/BCodeIdiomatic#int. -> 11:7
+(19:21..19:27) _empty_/BCodeIdiomatic#bTypes. -> 12:18
+(19:28..19:31) _empty_/BTypesFromSymbols#int. -> 6:52
+(20:10..20:16) _empty_/BCodeIdiomatic#bTypes. -> 12:18
+(20:17..20:20) _empty_/BTypesFromSymbols#int. -> 6:52
+(20:28..20:31) _empty_/BCodeIdiomatic#int. -> 11:7
+(21:25..21:33) _empty_/BackendInterface#ClassDef# -> 3:8
+(21:37..21:43) _empty_/BCodeIdiomatic#bTypes. -> 12:18
+(21:44..21:52) _empty_/BTypesFromSymbols#isRemote(). -> 7:7
+(21:59..21:65) _empty_/BackendInterface#Symbol# -> 2:8
+

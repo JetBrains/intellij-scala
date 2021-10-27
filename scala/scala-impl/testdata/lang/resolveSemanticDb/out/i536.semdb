@@ -1,0 +1,25 @@
+Document tests/pos/i536.scala
+(3:17..3:21) _empty_/Comp# -> 1:7
+(3:22..3:23) _empty_/C# -> 3:7
+(5:16..5:20) _empty_/Comp# -> 1:7
+(5:26..5:27) _empty_/Max.max().[M] -> 5:11
+(5:33..5:37) _empty_/Coll# -> 2:7
+(5:43..5:44) _empty_/Max.max().[M] -> 5:11
+(5:48..5:49) _empty_/Max.max().[M] -> 5:11
+(5:52..5:55) scala/Predef.`???`().
+(6:17..6:21) _empty_/Coll# -> 2:7
+(6:27..6:28) _empty_/Max.max(+1).[M] -> 6:11
+(6:36..6:42) java/lang/Object#
+(6:45..6:46) _empty_/Max.max(+1).[M] -> 6:11
+(6:49..6:52) scala/Predef.`???`().
+(7:11..7:15) _empty_/Coll# -> 2:7
+(7:16..7:17) _empty_/C# -> 3:7
+(7:21..7:24) scala/Predef.`???`().
+(8:12..8:15) _empty_/Max.max(). -> 5:7
+(8:16..8:18) _empty_/Max.xs. -> 7:7
+(9:12..9:15) _empty_/Max.max(). -> 5:7
+(11:3..11:7) java/
+(11:8..11:12) java/util/
+(11:13..11:24) java/util/Collections#
+(11:25..11:28) java/util/Collections#max().
+

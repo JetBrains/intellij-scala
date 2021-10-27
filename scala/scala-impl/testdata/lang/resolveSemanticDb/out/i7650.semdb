@@ -1,0 +1,6 @@
+Document tests/pos/i7650/Test_1.scala
+(1:2..1:6) scala/main#
+(1:20..1:27) scala/Predef.println(+1).
+
+Document tests/pos/i7650/Test_2.scala
+

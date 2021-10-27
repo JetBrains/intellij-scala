@@ -1,0 +1,6 @@
+Document tests/pos/i10567/Main_2.scala
+(2:14..2:29) _empty_/SchemaBuilder_1#
+(2:30..2:37) _empty_/SchemaBuilder_1#builder().
+(3:14..3:18) _empty_/Test.bldr. -> 2:7
+(3:19..3:24) _empty_/SchemaBuilder_1#TypeBuilder#fixed().
+

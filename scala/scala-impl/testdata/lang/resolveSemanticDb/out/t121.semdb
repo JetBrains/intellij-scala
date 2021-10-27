@@ -1,0 +1,8 @@
+Document tests/pos/t121.scala
+(1:19..1:24) scala/Array#
+(1:25..1:29) scala/Byte#
+(2:14..2:17) scala/Int#
+(2:20..2:24) scala/Byte#
+(2:34..2:35) _empty_/Bug121_B#b. -> 1:16
+(2:36..2:37) _empty_/Bug121_B#get().(x) -> 2:11
+

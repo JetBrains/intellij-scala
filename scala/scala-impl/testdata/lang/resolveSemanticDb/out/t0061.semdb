@@ -1,0 +1,6 @@
+Document tests/pos/t0061.scala
+(5:30..5:39) _empty_/O.testClass# -> 3:9
+(7:13..7:22) _empty_/O.testClass# -> 3:9
+(7:27..7:28) _empty_/O.ga().(x) -> 7:11
+(8:12..8:17) _empty_/O.testA.
+

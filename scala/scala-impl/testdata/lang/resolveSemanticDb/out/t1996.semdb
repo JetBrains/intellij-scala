@@ -1,0 +1,22 @@
+Document tests/pos/t1996.scala
+(2:12..2:16) scala/package.List.
+(2:17..2:21) scala/package.List.
+(2:22..2:28) _empty_/ValDef.
+(2:33..2:34) _empty_/A# -> 11:7
+(2:38..2:42) scala/package.List.
+(2:43..2:49) _empty_/ValDef.
+(2:54..2:55) _empty_/A# -> 11:7
+(3:22..3:24) _empty_/forbug.l1. -> 2:7
+(3:25..3:28) scala/collection/StrictOptimizedIterableOps#zip().
+(3:29..3:31) _empty_/forbug.l1. -> 2:7
+(4:20..4:23) local1 -> 3:9
+(4:24..4:27) scala/collection/StrictOptimizedIterableOps#zip().
+(4:28..4:31) local2 -> 3:14
+(5:5..5:7) local4 -> 4:9
+(5:8..5:9) _empty_/ValDef#a. -> 18:19
+(5:10..5:16) _empty_/A#doSome(). -> 12:7
+(12:17..12:20) scala/Int#
+(13:5..13:12) scala/Predef.println(+1).
+(13:13..13:14) _empty_/A#doSome().(a) -> 12:14
+(18:22..18:23) _empty_/A# -> 11:7
+

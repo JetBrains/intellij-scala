@@ -1,0 +1,8 @@
+Document tests/pos/i5090.scala
+(2:15..2:16) _empty_/TypeAlias#T#[X] -> 2:10
+(3:12..3:13) _empty_/TypeAlias#T# -> 2:8
+(3:14..3:17) scala/Int#
+(3:21..3:22) _empty_/TypeAlias#T# -> 2:8
+(3:23..3:26) scala/Int#
+(3:30..3:31) _empty_/TypeAlias#a().(i) -> 3:9
+

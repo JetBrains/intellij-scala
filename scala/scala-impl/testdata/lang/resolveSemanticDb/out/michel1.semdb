@@ -1,0 +1,8 @@
+Document tests/pos/michel1.scala
+(1:18..1:20) _empty_/A#[Ta] -> 1:9
+(7:18..7:20) _empty_/B#[Tb] -> 7:9
+(7:30..7:31) _empty_/A# -> 1:7
+(7:32..7:34) _empty_/B#[Tb] -> 7:9
+(7:37..7:38) _empty_/B#b. -> 7:14
+(7:45..7:46) _empty_/C# -> 5:7
+

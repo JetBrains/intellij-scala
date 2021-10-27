@@ -1,0 +1,56 @@
+Document tests/pos/t7285a.scala
+(4:26..4:30) _empty_/Base# -> 1:23
+(6:15..6:19) _empty_/Base# -> 1:23
+(7:5..7:7) _empty_/Test.foo().(d1) -> 6:11
+(8:12..8:14) _empty_/Test.Up. -> 4:15
+(20:30..20:34) _empty_/Test1.Base# -> 17:25
+(23:28..23:32) _empty_/Test1.Base# -> 17:25
+(26:5..26:12) scala/Predef.locally().
+(28:10..28:14) _empty_/Test1.Base# -> 17:25
+(28:20..28:24) _empty_/Test1.Base# -> 17:25
+(29:8..29:10) local0 -> 28:6
+(29:12..29:14) local1 -> 28:16
+(30:15..30:17) _empty_/Test1.Base.Up. -> 23:17
+(30:19..30:21) _empty_/Test1.Base.Up. -> 23:17
+(30:26..30:30) _empty_/Test1.Base.Down. -> 20:17
+(30:32..30:36) _empty_/Test1.Base.Down. -> 20:17
+(31:15..31:19) _empty_/Test1.Base.Down. -> 20:17
+(31:21..31:23) _empty_/Test1.Base.Up. -> 23:17
+(32:15..32:17) _empty_/Test1.Base.Up. -> 23:17
+(32:19..32:23) _empty_/Test1.Base.Down. -> 20:17
+(42:30..42:34) _empty_/Test2.Base# -> 39:25
+(45:28..45:32) _empty_/Test2.Base# -> 39:25
+(48:5..48:12) scala/Predef.locally().
+(49:10..49:14) _empty_/Test2.Base# -> 39:25
+(49:20..49:24) _empty_/Test2.Base# -> 39:25
+(50:8..50:10) local2 -> 49:6
+(51:14..51:16) _empty_/Test2.Base.Up. -> 45:17
+(51:19..51:23) _empty_/Test2.Base.Down. -> 42:17
+(61:30..61:34) _empty_/Test3.Base# -> 58:25
+(63:5..63:12) scala/Predef.locally().
+(64:10..64:14) _empty_/Test3.Base# -> 58:25
+(64:20..64:24) _empty_/Test3.Base# -> 58:25
+(65:8..65:10) local4 -> 64:6
+(65:12..65:14) local5 -> 64:16
+(66:15..66:19) _empty_/Test3.Base.Down. -> 61:17
+(66:21..66:25) _empty_/Test3.Base.Down. -> 61:17
+(76:30..76:34) _empty_/Test4.Base# -> 73:25
+(79:28..79:32) _empty_/Test4.Base# -> 73:25
+(83:10..83:15) _empty_/Test4. -> 72:8
+(83:16..83:20) _empty_/Test4.Base. -> 75:10
+(84:3..84:10) scala/Predef.locally().
+(85:8..85:12) _empty_/Test4.Base# -> 73:25
+(85:18..85:22) _empty_/Test4.Base# -> 73:25
+(86:6..86:8) local6 -> 85:4
+(86:10..86:12) local7 -> 85:14
+(87:13..87:15) _empty_/Test4.Base.Up. -> 79:17
+(87:17..87:19) _empty_/Test4.Base.Up. -> 79:17
+(87:24..87:28) _empty_/Test4.Base.Down. -> 76:17
+(87:30..87:34) _empty_/Test4.Base.Down. -> 76:17
+(88:13..88:17) _empty_/Test4.Base.Down. -> 76:17
+(88:19..88:24) _empty_/Test4. -> 72:8
+(88:25..88:29) _empty_/Test4.Base. -> 75:10
+(88:30..88:32) _empty_/Test4.Base.Up. -> 79:17
+(89:13..89:15) _empty_/Test4.Base.Up. -> 79:17
+(89:17..89:21) _empty_/Test4.Base.Down. -> 76:17
+

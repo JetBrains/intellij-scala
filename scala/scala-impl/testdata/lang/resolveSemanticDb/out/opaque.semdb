@@ -1,0 +1,75 @@
+Document tests/pos/opaque.scala
+(1:8..1:14) scala/Predef.
+(1:16..1:29) scala/Predef.any2stringadd#
+(1:16..1:29) scala/Predef.any2stringadd().
+(1:16..1:29) scala/Predef.any2stringadd.
+(3:27..3:33) scala/Double#
+(8:18..8:24) scala/Double#
+(8:27..8:36) _empty_/opaquetypes.Logarithm# -> 3:15
+(8:39..8:43) scala/math/
+(8:44..8:47) scala/math/package.log().
+(8:48..8:49) _empty_/opaquetypes.Logarithm.apply().(d) -> 8:15
+(10:17..10:23) scala/Double#
+(10:26..10:32) scala/Option#
+(10:33..10:42) _empty_/opaquetypes.Logarithm# -> 3:15
+(11:11..11:12) _empty_/opaquetypes.Logarithm.safe().(d) -> 10:14
+(11:13..11:14) scala/Double#`>`(+6).
+(11:20..11:24) scala/Some.
+(11:25..11:29) scala/math/
+(11:30..11:33) scala/math/package.log().
+(11:34..11:35) _empty_/opaquetypes.Logarithm.safe().(d) -> 10:14
+(11:43..11:47) scala/None.
+(14:21..14:30) _empty_/opaquetypes.Logarithm# -> 3:15
+(14:33..14:39) scala/Double#
+(14:42..14:43) _empty_/opaquetypes.Logarithm.exponent().(l) -> 14:18
+(16:5..16:11) scala/Predef.assert(+1).
+(16:12..16:20) _empty_/opaquetypes.Logarithm.exponent(). -> 14:9
+(16:21..16:23) _empty_/opaquetypes.LL. -> 27:7
+(16:25..16:27) scala/Double#`==`(+6).
+(20:43..20:52) _empty_/opaquetypes.Logarithm# -> 3:15
+(20:62..20:68) scala/AnyVal#
+(22:19..22:25) scala/Double#
+(22:28..22:32) scala/math/
+(22:33..22:36) scala/math/package.exp().
+(22:37..22:43) _empty_/opaquetypes.LogarithmOps#this. -> 20:36
+(23:17..23:26) _empty_/opaquetypes.Logarithm# -> 3:15
+(23:29..23:38) _empty_/opaquetypes.Logarithm# -> 3:15
+(23:41..23:50) _empty_/opaquetypes.Logarithm. -> 5:10
+(23:51..23:55) scala/math/
+(23:56..23:59) scala/math/package.exp().
+(23:60..23:66) _empty_/opaquetypes.LogarithmOps#this. -> 20:36
+(23:68..23:69) scala/Double#`+`(+7).
+(23:70..23:74) scala/math/
+(23:75..23:78) scala/math/package.exp().
+(23:79..23:83) _empty_/opaquetypes.LogarithmOps#`+`().(that) -> 23:11
+(24:17..24:26) _empty_/opaquetypes.Logarithm# -> 3:15
+(24:29..24:38) _empty_/opaquetypes.Logarithm# -> 3:15
+(24:41..24:50) _empty_/opaquetypes.Logarithm. -> 5:10
+(24:51..24:57) _empty_/opaquetypes.LogarithmOps#this. -> 20:36
+(24:58..24:59) scala/Double#`+`(+7).
+(24:60..24:64) _empty_/opaquetypes.LogarithmOps#`*`().(that) -> 24:11
+(27:11..27:20) _empty_/opaquetypes.Logarithm# -> 3:15
+(27:23..27:32) _empty_/opaquetypes.Logarithm. -> 5:10
+(30:10..30:21) _empty_/opaquetypes. -> 2:8
+(31:11..31:20) _empty_/opaquetypes.Logarithm. -> 5:10
+(32:12..32:21) _empty_/opaquetypes.Logarithm. -> 5:10
+(33:12..33:13) _empty_/usesites.l. -> 31:7
+(33:14..33:15) _empty_/opaquetypes.LogarithmOps#`*`(). -> 24:9
+(33:16..33:18) _empty_/usesites.l2. -> 32:7
+(34:12..34:13) _empty_/usesites.l. -> 31:7
+(34:14..34:15) _empty_/opaquetypes.LogarithmOps#`+`(). -> 23:9
+(34:16..34:18) _empty_/usesites.l2. -> 32:7
+(38:3..38:9) scala/Predef.assert(+1).
+(38:10..38:11) _empty_/usesites.l. -> 31:7
+(38:12..38:14) scala/Any#`==`().
+(38:15..38:24) _empty_/opaquetypes.Logarithm. -> 5:10
+(39:3..39:9) scala/Predef.assert(+1).
+(39:10..39:11) _empty_/usesites.l. -> 31:7
+(39:12..39:14) scala/Any#`!=`().
+(39:15..39:17) _empty_/usesites.l2. -> 32:7
+(40:11..40:13) _empty_/usesites.l3. -> 33:7
+(40:14..40:22) _empty_/opaquetypes.LogarithmOps#toDouble(). -> 22:9
+(41:11..41:20) _empty_/opaquetypes.Logarithm# -> 3:15
+(41:29..41:41) scala/Any#asInstanceOf().
+(41:42..41:51) _empty_/opaquetypes.Logarithm# -> 3:15
+

@@ -1,0 +1,7 @@
+Document tests/pos/i530-import-symbolic.scala
+(2:13..2:20) scala/Nothing#
+(2:23..2:26) scala/Predef.`???`().
+(6:10..6:11) _empty_/P. -> 1:8
+(6:12..6:15) _empty_/P.`!#@`(). -> 2:7
+(7:11..7:14) _empty_/P.`!#@`(). -> 2:7
+

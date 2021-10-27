@@ -1,0 +1,14 @@
+Document tests/pos/bynamefuns.scala
+(3:17..3:20) scala/Int#
+(3:25..3:28) scala/Int#
+(5:15..5:18) scala/Int#
+(5:22..5:23) _empty_/Test.f().(x) -> 5:9
+(5:24..5:25) scala/Int#`*`(+3).
+(5:26..5:27) _empty_/Test.f().(x) -> 5:9
+(7:10..7:12) _empty_/Test.LF# -> 3:8
+(7:15..7:16) _empty_/Test.f(). -> 5:7
+(11:3..11:4) _empty_/Test.f(). -> 5:7
+(12:3..12:4) _empty_/Test.x. -> 7:7
+(12:5..12:6) _empty_/Test.g(). -> 9:7
+(13:3..13:4) _empty_/Test.x. -> 7:7
+

@@ -1,0 +1,4 @@
+Document tests/pos/t5240.scala
+(9:15..9:20) scala/Array#
+(9:26..9:32) scala/Predef.String#
+

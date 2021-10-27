@@ -1,0 +1,27 @@
+Document tests/pos/byname-implicits-12.scala
+(3:22..3:25) _empty_/Foo# -> 1:7
+(3:26..3:30) scala/Unit#
+(3:34..3:37) scala/Predef.`???`().
+(4:21..4:24) _empty_/Foo# -> 1:7
+(4:25..4:28) scala/Int#
+(4:32..4:35) scala/Predef.`???`().
+(5:40..5:43) _empty_/Foo# -> 1:7
+(5:44..5:45) _empty_/Foo.pair().[T] -> 5:21
+(5:52..5:55) _empty_/Foo# -> 1:7
+(5:56..5:57) _empty_/Foo.pair().[U] -> 5:24
+(5:61..5:64) _empty_/Foo# -> 1:7
+(5:66..5:67) _empty_/Foo.pair().[T] -> 5:21
+(5:69..5:70) _empty_/Foo.pair().[U] -> 5:24
+(5:75..5:78) scala/Predef.`???`().
+(10:35..10:38) _empty_/Foo# -> 1:7
+(10:40..10:43) scala/Int#
+(10:46..10:49) scala/Int#
+(10:51..10:55) scala/Unit#
+(10:61..10:64) _empty_/Foo# -> 1:7
+(10:65..10:68) _empty_/Bar# -> 8:7
+(10:72..10:75) scala/Predef.`???`().
+(14:3..14:13) scala/Predef.implicitly().
+(14:14..14:17) _empty_/Foo# -> 1:7
+(14:19..14:22) _empty_/Bar# -> 8:7
+(14:24..14:28) scala/Unit#
+

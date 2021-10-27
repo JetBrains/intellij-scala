@@ -1,0 +1,8 @@
+Document tests/pos/bigint.scala
+(1:8..1:13) scala/
+(1:14..1:18) scala/math/
+(1:19..1:25) scala/math/BigInt#
+(1:19..1:25) scala/math/BigInt.
+(5:5..5:6) scala/math/BigInt#`*`().
+(5:7..5:13) scala/math/BigInt.
+

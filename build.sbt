@@ -61,6 +61,7 @@ lazy val scalaCommunity: sbt.Project =
         nailgunRunners,
         runners,
         runtimeDependencies,
+        runtimeDependencies2,
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
@@ -511,7 +512,7 @@ lazy val runtimeDependencies =
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
-        Dependencies.scala3SbtBridge -> Some("lib/jps/scala3-sbt-bridge.jar"),
+        Dependencies.sbtBridge_Scala_3_0 -> Some("lib/jps/scala3-sbt-bridge_3.0.0.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),
         Dependencies.compilerBridgeSources_2_10 -> Some("lib/jps/compiler-interface-sources-2.10.jar"),
@@ -534,6 +535,26 @@ lazy val runtimeDependencies =
           src.toFile -> targetPath.toString
         }
       }
+    )
+
+// workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
+lazy val runtimeDependencies2 =
+  (project in file("target/tools/runtime-dependencies2"))
+    .enablePlugins(LocalRepoPackager)
+    .settings(
+      scalaVersion := Versions.scalaVersion,
+      libraryDependencies := DependencyGroups.runtime2,
+      managedScalaInstance := true,
+      conflictManager := ConflictManager.all,
+      conflictWarning := ConflictWarning.disable,
+      resolvers += sbt.Classpaths.sbtPluginReleases,
+      ideSkipProject := true,
+      packageMethod := PackagingMethod.DepsOnly(),
+      packageLibraryMappings := Seq(
+        Dependencies.sbtBridge_Scala_3_1 -> Some("lib/jps/scala3-sbt-bridge_3.1.0.jar")
+      ),
+      localRepoDependencies := List(),
+      packageFileMappings := Nil
     )
 
 //lazy val jmhBenchmarks =

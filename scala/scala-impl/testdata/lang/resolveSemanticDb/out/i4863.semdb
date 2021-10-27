@@ -1,0 +1,15 @@
+Document tests/pos/i4863.scala
+(2:17..2:20) _empty_/Nat# -> 1:14
+(2:30..2:33) _empty_/Nat# -> 1:14
+(3:23..3:26) _empty_/Nat# -> 1:14
+(5:20..5:23) _empty_/Nat# -> 1:14
+(5:34..5:35) _empty_/i4863$package.pred().(n) -> 5:17
+(6:8..6:9) _empty_/S.
+(6:16..6:17) local0 -> 6:10
+(7:8..7:9) _empty_/Z. -> 3:13
+(8:5..8:16) scala/compiletime/
+(8:17..8:22) scala/compiletime/package$package.error().
+(12:3..12:7) _empty_/i4863$package.pred(). -> 5:12
+(12:8..12:9) _empty_/S.
+(12:10..12:11) _empty_/Z. -> 3:13
+

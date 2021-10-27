@@ -1,0 +1,6 @@
+Document tests/pos/alpha-override/A_1.scala
+(2:8..2:18) scala/annotation/
+(2:19..2:29) scala/annotation/targetName#
+(4:4..4:14) scala/annotation/targetName#
+(4:33..4:36) scala/Int#
+

@@ -11,7 +11,7 @@ class Scala3DeprecatedPackageObjectInspectionTest extends ScalaInspectionTestBas
   override protected val description = Scala3DeprecatedPackageObjectInspection.message
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version == LatestScalaVersions.Scala_3_0
+    version >= LatestScalaVersions.Scala_3_0
 
   def testDeprecatedPackageObject(): Unit = {
     val code =

@@ -1,0 +1,12 @@
+Document tests/pos/i2797a/Fork.scala
+(4:19..4:22) scala/Int#
+(4:38..4:43) scala/Array#
+(4:44..4:50) scala/Predef.String#
+(4:54..4:59) scala/Array.
+(5:9..5:19) scala/annotation/
+(5:20..5:30) scala/annotation/Annotation#
+
+Document tests/pos/i2797a/Test.scala
+(4:2..4:6) _empty_/Fork# -> 4:7
+(4:7..4:14) _empty_/Fork#`<init>`().(jvmArgs)
+

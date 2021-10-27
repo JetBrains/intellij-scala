@@ -1,0 +1,18 @@
+Document tests/pos/simpleExtractors-2.scala
+(2:14..2:17) scala/Any#
+(2:20..2:24) scala/Unit#
+(2:27..2:28) _empty_/Foo#bar().(x) -> 2:11
+(3:10..3:14) scala/Some.
+(3:15..3:19) scala/Some.
+(3:23..3:26) scala/Int#
+(3:32..3:39) scala/Predef.println(+1).
+(3:40..3:41) local0 -> 3:20
+(4:10..4:14) scala/Some.
+(4:19..4:23) scala/Some.
+(4:31..4:38) scala/Predef.println(+1).
+(4:39..4:40) local2 -> 4:15
+(5:14..5:18) scala/Some.
+(5:23..5:27) scala/Some.
+(5:35..5:42) scala/Predef.println(+1).
+(5:43..5:44) local5 -> 5:10
+

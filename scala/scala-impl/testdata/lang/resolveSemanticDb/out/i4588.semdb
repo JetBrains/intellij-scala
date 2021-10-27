@@ -1,0 +1,6 @@
+Document tests/pos/i4588.scala
+(4:12..4:13) _empty_/Test#`→`# -> 2:8
+(4:16..4:19) scala/Predef.`???`().
+(8:12..8:16) _empty_/Test#`🤪`# -> 6:9
+(8:19..8:22) scala/Predef.`???`().
+

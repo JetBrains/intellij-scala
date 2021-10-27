@@ -1,0 +1,4 @@
+Document tests/pos/t2708.scala
+(1:12..1:20) scala/volatile#
+(1:28..1:31) scala/Int#
+

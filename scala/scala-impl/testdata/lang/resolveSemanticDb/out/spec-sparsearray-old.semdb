@@ -1,0 +1,65 @@
+Document tests/pos/spec-sparsearray-old.scala
+(1:8..1:13) scala/
+(1:14..1:21) scala/reflect/
+(1:22..1:35) scala/reflect/package.ClassManifest.
+(2:8..2:13) scala/
+(2:14..2:24) scala/collection/
+(2:26..2:36) scala/collection/MapFactory#
+(2:26..2:36) scala/collection/MapFactory.
+(2:38..2:45) scala/collection/mutable/
+(3:20..3:31) scala/specialized#
+(3:32..3:35) scala/Int.
+(3:39..3:52) scala/reflect/package.ClassManifest#
+(3:62..3:72) scala/collection/
+(3:73..3:80) scala/collection/mutable/
+(3:81..3:84) scala/collection/mutable/Map#
+(3:85..3:88) scala/Int#
+(3:89..3:90) _empty_/SparseArray#[T] -> 3:37
+(3:97..3:107) scala/collection/
+(3:108..3:115) scala/collection/mutable/
+(3:116..3:122) scala/collection/mutable/MapOps#
+(3:123..3:126) scala/Int#
+(3:127..3:128) _empty_/SparseArray#[T] -> 3:37
+(3:129..3:139) scala/collection/
+(3:140..3:147) scala/collection/mutable/
+(3:152..3:163) _empty_/SparseArray# -> 3:7
+(3:164..3:165) _empty_/SparseArray#[T] -> 3:37
+(4:23..4:26) scala/Int#
+(5:15..5:25) _empty_/SparseArray#findOffset(). -> 14:15
+(5:26..5:27) _empty_/SparseArray#get().(x) -> 4:20
+(6:8..6:11) local0 -> 5:9
+(6:12..6:13) scala/Int#`<`(+3).
+(6:17..6:21) scala/None.
+(6:27..6:31) scala/Some.
+(6:32..6:35) scala/sys/
+(6:36..6:41) scala/sys/package.error().
+(14:30..14:33) scala/Int#
+(14:37..14:40) scala/Int#
+(15:5..15:8) scala/sys/
+(15:9..15:14) scala/sys/package.error().
+(18:21..18:24) scala/Int#
+(18:26..18:27) _empty_/SparseArray#[T] -> 3:37
+(18:55..18:58) scala/Predef.`???`().
+(19:17..19:25) scala/package.Iterator#
+(19:27..19:30) scala/Int#
+(19:32..19:33) _empty_/SparseArray#[T] -> 3:37
+(19:38..19:41) scala/Predef.`???`().
+(20:25..20:28) scala/Int#
+(20:55..20:58) scala/Predef.`???`().
+(22:51..22:63) scala/package.IterableOnce#
+(22:65..22:68) scala/Int#
+(22:70..22:71) _empty_/SparseArray#[T] -> 3:37
+(22:76..22:87) _empty_/SparseArray# -> 3:7
+(22:88..22:89) _empty_/SparseArray#[T] -> 3:37
+(22:93..22:96) scala/Predef.`???`().
+(23:52..23:59) scala/collection/mutable/
+(23:60..23:67) scala/collection/mutable/Builder#
+(23:69..23:72) scala/Int#
+(23:74..23:75) _empty_/SparseArray#[T] -> 3:37
+(23:78..23:89) _empty_/SparseArray# -> 3:7
+(23:90..23:91) _empty_/SparseArray#[T] -> 3:37
+(23:96..23:99) scala/Predef.`???`().
+(24:23..24:34) _empty_/SparseArray# -> 3:7
+(24:35..24:36) _empty_/SparseArray#[T] -> 3:37
+(24:40..24:43) scala/Predef.`???`().
+

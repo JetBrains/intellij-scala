@@ -1,0 +1,38 @@
+Document tests/pos/t5683.scala
+(3:25..3:27) _empty_/Test.NT# -> 2:9
+(3:28..3:31) scala/Int#
+(4:21..4:22) _empty_/Test.W# -> 3:9
+(4:23..4:29) scala/Predef.String#
+(4:31..4:32) _empty_/Test.StringW#[T] -> 4:16
+(7:21..7:24) scala/Int#
+(7:28..7:29) _empty_/Test.k().[M] -> 7:9
+(7:30..7:31) _empty_/Test.k().[B] -> 7:15
+(7:35..7:36) _empty_/Test.K# -> 5:9
+(7:37..7:38) _empty_/Test.k().[M] -> 7:9
+(7:40..7:43) scala/Int#
+(7:45..7:46) _empty_/Test.k().[B] -> 7:15
+(9:14..9:15) _empty_/Test.K# -> 5:9
+(9:16..9:23) _empty_/Test.StringW# -> 4:8
+(9:24..9:27) scala/Int#
+(9:28..9:31) scala/Int#
+(9:35..9:36) _empty_/Test.k(). -> 7:7
+(9:42..9:45) scala/Int#
+(9:56..9:63) _empty_/Test.StringW# -> 4:8
+(9:64..9:67) scala/Int#
+(10:15..10:16) _empty_/Test.k(). -> 7:7
+(10:17..10:24) _empty_/Test.StringW# -> 4:8
+(10:25..10:28) scala/Int#
+(10:35..10:38) scala/Int#
+(10:49..10:50) _empty_/Test.W# -> 3:9
+(10:51..10:57) scala/Predef.String#
+(10:59..10:62) scala/Int#
+(12:14..12:15) _empty_/Test.K# -> 5:9
+(12:16..12:23) _empty_/Test.StringW# -> 4:8
+(12:24..12:27) scala/Int#
+(12:28..12:31) scala/Int#
+(12:35..12:36) _empty_/Test.k(). -> 7:7
+(12:42..12:45) scala/Int#
+(12:56..12:57) _empty_/Test.W# -> 3:9
+(12:58..12:64) scala/Predef.String#
+(12:66..12:69) scala/Int#
+

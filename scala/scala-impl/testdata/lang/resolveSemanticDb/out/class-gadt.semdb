@@ -1,0 +1,205 @@
+Document tests/pos/class-gadt/basic.scala
+(3:25..3:28) scala/Int#
+(3:38..3:42) _empty_/basic.Expr# -> 2:8
+(3:43..3:46) scala/Int#
+(4:26..4:27) _empty_/basic.Expr.Other#[T] -> 4:16
+(4:37..4:41) _empty_/basic.Expr# -> 2:8
+(4:42..4:43) _empty_/basic.Expr.Other#[T] -> 4:16
+(8:17..8:21) _empty_/basic.Expr# -> 2:8
+(8:22..8:23) _empty_/basic.C#[A] -> 7:11
+(8:27..8:28) _empty_/basic.C#[A] -> 7:11
+(9:7..9:8) _empty_/basic.C#eval().(e) -> 8:14
+(10:14..10:18) _empty_/basic.Expr.
+(10:19..10:26) _empty_/basic.Expr.IntExpr.
+(10:33..10:34) local0 -> 12:29
+(10:35..10:36) scala/Int#`+`(+4).
+(11:14..11:18) _empty_/basic.Expr.
+(11:19..11:24) _empty_/basic.Expr.Other.
+(11:31..11:32) local1 -> 13:27
+
+Document tests/pos/class-gadt/inheritance.scala
+(3:24..3:27) _empty_/inheritance.SUB# -> 2:6
+(3:28..3:29) _empty_/inheritance.SUB.Refl#[S] -> 3:11
+(3:31..3:32) _empty_/inheritance.SUB.Refl#[S] -> 3:11
+(5:19..5:20) _empty_/inheritance.A#[T] -> 5:9
+(6:11..6:12) _empty_/inheritance.A#[T] -> 5:9
+(6:15..6:16) _empty_/inheritance.A#v. -> 5:16
+(9:20..9:21) _empty_/inheritance.C#[T] -> 9:9
+(9:31..9:32) _empty_/inheritance.A# -> 5:7
+(9:33..9:34) _empty_/inheritance.C#[T] -> 9:9
+(9:36..9:38) _empty_/inheritance.C#v1. -> 9:16
+(10:14..10:15) _empty_/inheritance.C#[T] -> 9:9
+(10:20..10:23) _empty_/inheritance.SUB# -> 2:6
+(10:24..10:25) _empty_/inheritance.C#[T] -> 9:9
+(10:27..10:30) scala/Int#
+(10:34..10:37) scala/Int#
+(11:1..11:2) _empty_/inheritance.C#eval1().(e) -> 10:17
+(12:6..12:9) _empty_/inheritance.SUB.
+(12:10..12:14) _empty_/inheritance.SUB.Refl.
+(12:20..12:24) _empty_/inheritance.A#foo1. -> 6:5
+
+Document tests/pos/class-gadt/member.scala
+(3:24..3:27) _empty_/member.SUB# -> 2:6
+(3:28..3:29) _empty_/member.SUB.Refl#[S] -> 3:11
+(3:31..3:32) _empty_/member.SUB.Refl#[S] -> 3:11
+(6:14..6:15) _empty_/member.C#[T] -> 5:9
+(6:20..6:23) _empty_/member.SUB# -> 2:6
+(6:24..6:25) _empty_/member.C#[T] -> 5:9
+(6:27..6:30) scala/Int#
+(6:34..6:37) scala/Int#
+(7:1..7:2) _empty_/member.C#eval1().(e) -> 6:17
+(8:6..8:9) _empty_/member.SUB.
+(8:10..8:14) _empty_/member.SUB.Refl.
+(8:20..8:21) _empty_/member.C#eval1().(t) -> 6:11
+(8:22..8:23) scala/Int#`+`(+4).
+
+Document tests/pos/class-gadt/nestedClass.scala
+(4:25..4:28) scala/Int#
+(4:38..4:42) _empty_/nestedClass.Expr# -> 3:8
+(4:43..4:46) scala/Int#
+(5:26..5:27) _empty_/nestedClass.Expr.Other#[T] -> 5:16
+(5:37..5:41) _empty_/nestedClass.Expr# -> 3:8
+(5:42..5:43) _empty_/nestedClass.Expr.Other#[T] -> 5:16
+(10:19..10:23) _empty_/nestedClass.Expr# -> 3:8
+(10:24..10:25) _empty_/nestedClass.Outer1#[C] -> 8:16
+(10:29..10:30) _empty_/nestedClass.Outer1#[C] -> 8:16
+(11:9..11:10) _empty_/nestedClass.Outer1#Inner1#eval().(e) -> 10:16
+(12:16..12:20) _empty_/nestedClass.Expr.
+(12:21..12:28) _empty_/nestedClass.Expr.IntExpr.
+(12:35..12:36) local0 -> 12:29
+(12:37..12:38) scala/Int#`+`(+4).
+(13:16..13:20) _empty_/nestedClass.Expr.
+(13:21..13:26) _empty_/nestedClass.Expr.Other.
+(13:33..13:34) local1 -> 13:27
+(18:18..18:22) scala/Unit#
+(21:21..21:25) _empty_/nestedClass.Expr# -> 3:8
+(21:26..21:27) _empty_/nestedClass.foo2().[C] -> 18:12
+(21:31..21:32) _empty_/nestedClass.foo2().[C] -> 18:12
+(22:11..22:12) local2 -> 21:18
+(23:18..23:22) _empty_/nestedClass.Expr.
+(23:23..23:30) _empty_/nestedClass.Expr.IntExpr.
+(23:37..23:38) local3 -> 23:31
+(23:39..23:40) scala/Int#`+`(+4).
+(24:18..24:22) _empty_/nestedClass.Expr.
+(24:23..24:28) _empty_/nestedClass.Expr.Other.
+(24:35..24:36) local4 -> 24:29
+(30:17..30:21) scala/Unit#
+(32:23..32:27) _empty_/nestedClass.Expr# -> 3:8
+(32:28..32:29) _empty_/nestedClass.Outer3#[C] -> 29:16
+(32:33..32:34) _empty_/nestedClass.Outer3#[C] -> 29:16
+(33:13..33:14) local12 -> 32:20
+(34:20..34:24) _empty_/nestedClass.Expr.
+(34:25..34:32) _empty_/nestedClass.Expr.IntExpr.
+(34:39..34:40) local13 -> 34:33
+(34:41..34:42) scala/Int#`+`(+4).
+(35:20..35:24) _empty_/nestedClass.Expr.
+(35:25..35:30) _empty_/nestedClass.Expr.Other.
+(35:37..35:38) local14 -> 35:31
+(42:19..42:23) _empty_/nestedClass.Expr# -> 3:8
+(42:24..42:25) _empty_/nestedClass.Outer4#[C] -> 40:16
+(42:29..42:30) _empty_/nestedClass.Outer4#[C] -> 40:16
+(43:9..43:10) _empty_/nestedClass.Outer4#Inner4#eval().(e) -> 42:16
+(44:16..44:20) _empty_/nestedClass.Expr.
+(44:21..44:28) _empty_/nestedClass.Expr.IntExpr.
+(44:35..44:36) local18 -> 44:29
+(44:37..44:38) scala/Int#`+`(+4).
+(45:16..45:20) _empty_/nestedClass.Expr.
+(45:21..45:26) _empty_/nestedClass.Expr.Other.
+(45:33..45:34) local19 -> 45:27
+(52:19..52:23) _empty_/nestedClass.Expr# -> 3:8
+(52:24..52:25) _empty_/nestedClass.Outer5#[C] -> 50:16
+(52:29..52:30) _empty_/nestedClass.Outer5#[C] -> 50:16
+(53:9..53:10) _empty_/nestedClass.Outer5#Inner5.eval().(e) -> 52:16
+(54:16..54:20) _empty_/nestedClass.Expr.
+(54:21..54:28) _empty_/nestedClass.Expr.IntExpr.
+(54:35..54:36) local20 -> 54:29
+(54:37..54:38) scala/Int#`+`(+4).
+(55:16..55:20) _empty_/nestedClass.Expr.
+(55:21..55:26) _empty_/nestedClass.Expr.Other.
+(55:33..55:34) local21 -> 55:27
+
+Document tests/pos/class-gadt/variance.scala
+(3:24..3:27) _empty_/variance.SUB# -> 2:6
+(3:28..3:29) _empty_/variance.SUB.Refl#[S] -> 3:11
+(3:31..3:32) _empty_/variance.SUB.Refl#[S] -> 3:11
+(5:17..5:18) _empty_/variance.C1#[T] -> 5:11
+(6:13..6:14) _empty_/variance.C1#[T] -> 5:11
+(6:15..6:18) _empty_/variance.SUB# -> 2:6
+(6:19..6:22) scala/Int#
+(6:25..6:28) scala/Int#
+(7:1..7:3) _empty_/variance.C1#foo().(ev) -> 6:9
+(8:6..8:9) _empty_/variance.SUB.
+(8:10..8:14) _empty_/variance.SUB.Refl.
+(8:20..8:21) _empty_/variance.C1#v. -> 5:14
+(13:17..13:18) _empty_/variance.B2#[T] -> 13:11
+(15:17..15:18) _empty_/variance.C2#[T] -> 15:11
+(16:13..16:16) scala/Int#
+(16:17..16:20) _empty_/variance.SUB# -> 2:6
+(16:21..16:22) _empty_/variance.C2#[T] -> 15:11
+(16:25..16:27) _empty_/variance.B2# -> 13:7
+(16:28..16:29) _empty_/variance.C2#[T] -> 15:11
+(17:1..17:3) _empty_/variance.C2#foo().(ev) -> 16:9
+(18:6..18:9) _empty_/variance.SUB.
+(18:10..18:14) _empty_/variance.SUB.Refl.
+(18:27..18:28) _empty_/variance.C2#v. -> 15:14
+(26:17..26:18) _empty_/variance.A3#[T] -> 26:11
+(27:13..27:14) _empty_/variance.A3#v. -> 26:14
+(30:17..30:18) _empty_/variance.C3#[T] -> 30:11
+(30:28..30:30) _empty_/variance.A3# -> 26:7
+(30:31..30:32) _empty_/variance.C3#[T] -> 30:11
+(30:34..30:35) _empty_/variance.C3#v. -> 30:14
+(31:13..31:14) _empty_/variance.C3#[T] -> 30:11
+(31:15..31:18) _empty_/variance.SUB# -> 2:6
+(31:19..31:22) scala/Int#
+(31:25..31:28) scala/Int#
+(32:1..32:3) _empty_/variance.C3#foo().(ev) -> 31:9
+(33:6..33:9) _empty_/variance.SUB.
+(33:10..33:14) _empty_/variance.SUB.Refl.
+(33:20..33:25) _empty_/variance.A3#value. -> 27:5
+(39:17..39:18) _empty_/variance.A4#[T] -> 39:11
+(40:13..40:14) _empty_/variance.A4#v. -> 39:14
+(43:16..43:17) _empty_/variance.C4#[T] -> 43:10
+(43:27..43:29) _empty_/variance.A4# -> 39:7
+(43:30..43:31) _empty_/variance.C4#[T] -> 43:10
+(43:33..43:34) _empty_/variance.C4#v. -> 43:13
+(44:13..44:14) _empty_/variance.C4#[T] -> 43:10
+(44:15..44:18) _empty_/variance.SUB# -> 2:6
+(44:19..44:22) scala/Int#
+(44:25..44:28) scala/Int#
+(45:1..45:3) _empty_/variance.C4#foo().(ev) -> 44:9
+(46:6..46:9) _empty_/variance.SUB.
+(46:10..46:14) _empty_/variance.SUB.Refl.
+(46:20..46:25) _empty_/variance.A4#value. -> 40:5
+(51:17..51:18) _empty_/variance.B5#[T] -> 51:11
+(53:17..53:18) _empty_/variance.A5#[T] -> 53:11
+(54:20..54:21) _empty_/variance.A5#v. -> 53:14
+(57:17..57:18) _empty_/variance.C5#[T] -> 57:11
+(57:28..57:30) _empty_/variance.A5# -> 53:7
+(57:31..57:32) _empty_/variance.C5#[T] -> 57:11
+(57:34..57:35) _empty_/variance.C5#v. -> 57:14
+(58:13..58:16) scala/Int#
+(58:17..58:20) _empty_/variance.SUB# -> 2:6
+(58:21..58:22) _empty_/variance.C5#[T] -> 57:11
+(58:25..58:27) _empty_/variance.B5# -> 51:7
+(58:28..58:29) _empty_/variance.C5#[T] -> 57:11
+(59:1..59:3) _empty_/variance.C5#foo().(ev) -> 58:9
+(60:6..60:9) _empty_/variance.SUB.
+(60:10..60:14) _empty_/variance.SUB.Refl.
+(60:20..60:25) _empty_/variance.A5#value. -> 54:5
+(65:17..65:18) _empty_/variance.B6#[T] -> 65:11
+(67:17..67:18) _empty_/variance.A6#[T] -> 67:11
+(68:20..68:21) _empty_/variance.A6#v. -> 67:14
+(71:17..71:18) _empty_/variance.C6#[T] -> 71:11
+(71:28..71:30) _empty_/variance.A6# -> 67:7
+(71:31..71:32) _empty_/variance.C6#[T] -> 71:11
+(71:34..71:35) _empty_/variance.C6#v. -> 71:14
+(72:13..72:16) scala/Int#
+(72:17..72:20) _empty_/variance.SUB# -> 2:6
+(72:21..72:22) _empty_/variance.C6#[T] -> 71:11
+(72:25..72:27) _empty_/variance.B6# -> 65:7
+(72:28..72:29) _empty_/variance.C6#[T] -> 71:11
+(73:1..73:3) _empty_/variance.C6#foo().(ev) -> 72:9
+(74:6..74:9) _empty_/variance.SUB.
+(74:10..74:14) _empty_/variance.SUB.Refl.
+(74:20..74:25) _empty_/variance.A6#value. -> 68:5
+

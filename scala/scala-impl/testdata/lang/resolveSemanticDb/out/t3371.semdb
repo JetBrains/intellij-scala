@@ -1,0 +1,13 @@
+Document tests/pos/t3371.scala
+(2:20..2:26) scala/Predef.String#
+(2:30..2:37) scala/Predef.println(+1).
+(2:38..2:45) _empty_/Test#myValue. -> 2:12
+(6:21..6:27) scala/Predef.String#
+(6:36..6:41) _empty_/Other# -> 5:7
+(6:45..6:52) scala/Predef.println(+1).
+(6:53..6:63) _empty_/Other#otherValue. -> 5:19
+(9:21..9:27) scala/Predef.String#
+(9:36..9:41) _empty_/Other# -> 5:7
+(9:45..9:52) scala/Predef.println(+1).
+(9:53..9:60) _empty_/Test3#myValue. -> 9:13
+

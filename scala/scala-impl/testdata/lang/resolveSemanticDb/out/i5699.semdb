@@ -1,0 +1,8 @@
+Document tests/pos/i5699.scala
+(2:27..2:28) scala/`&`#
+(3:10..3:11) local4 -> 2:8
+(3:17..3:29) scala/Any#asInstanceOf().
+(3:30..3:31) local4 -> 2:8
+(4:3..4:4) local9 -> 3:7
+(4:6..4:7) local4 -> 2:8
+

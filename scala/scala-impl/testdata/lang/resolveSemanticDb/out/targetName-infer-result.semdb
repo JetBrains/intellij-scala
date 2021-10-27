@@ -1,0 +1,50 @@
+Document tests/pos/targetName-infer-result.scala
+(1:8..1:18) scala/annotation/
+(1:19..1:29) scala/annotation/targetName#
+(3:18..3:24) _empty_/Symbol# -> 5:7
+(3:32..3:36) _empty_/Tree# -> 2:6
+(9:16..9:17) _empty_/Test1.TreeAccumulator#[X] -> 8:34
+(9:25..9:29) _empty_/Tree# -> 2:6
+(9:32..9:33) _empty_/Test1.TreeAccumulator#[X] -> 8:34
+(10:16..10:17) _empty_/Test1.TreeAccumulator#[X] -> 8:34
+(10:26..10:30) scala/package.List#
+(10:31..10:35) _empty_/Tree# -> 2:6
+(10:39..10:40) _empty_/Test1.TreeAccumulator#[X] -> 8:34
+(10:43..10:46) scala/Predef.`???`().
+(12:17..12:32) _empty_/Test1.TreeAccumulator# -> 8:18
+(12:33..12:37) scala/package.List#
+(12:38..12:44) _empty_/Symbol# -> 5:7
+(13:19..13:23) scala/package.List#
+(13:24..13:30) _empty_/Symbol# -> 5:7
+(13:39..13:43) _empty_/Tree# -> 2:6
+(13:47..13:51) local1 -> 13:33
+(14:12..14:16) _empty_/Tree.
+(14:17..14:21) _empty_/Tree.Bind.
+(14:36..14:39) local4 -> 13:9
+(14:40..14:43) local2 -> 14:22
+(14:47..14:51) local0 -> 13:13
+(14:53..14:57) local3 -> 14:27
+(18:6..18:16) scala/annotation/targetName#
+(18:37..18:38) _empty_/Test2.TreeAccumulator#[X] -> 17:34
+(18:46..18:50) _empty_/Tree# -> 2:6
+(18:53..18:54) _empty_/Test2.TreeAccumulator#[X] -> 17:34
+(19:16..19:17) _empty_/Test2.TreeAccumulator#[X] -> 17:34
+(19:26..19:30) scala/package.List#
+(19:31..19:35) _empty_/Tree# -> 2:6
+(19:39..19:40) _empty_/Test2.TreeAccumulator#[X] -> 17:34
+(19:43..19:46) scala/Predef.`???`().
+(21:17..21:32) _empty_/Test2.TreeAccumulator# -> 17:18
+(21:33..21:37) scala/package.List#
+(21:38..21:44) _empty_/Symbol# -> 5:7
+(22:6..22:16) scala/annotation/targetName#
+(22:40..22:44) scala/package.List#
+(22:45..22:51) _empty_/Symbol# -> 5:7
+(22:60..22:64) _empty_/Tree# -> 2:6
+(22:68..22:72) local8 -> 22:54
+(23:12..23:16) _empty_/Tree.
+(23:17..23:21) _empty_/Tree.Bind.
+(23:36..23:39) local11 -> 22:30
+(23:40..23:43) local9 -> 23:22
+(23:47..23:51) local7 -> 22:34
+(23:53..23:57) local10 -> 23:27
+

@@ -1,0 +1,13 @@
+Document tests/pos/i11994.scala
+(1:22..1:28) scala/Double#
+(1:38..1:42) java/
+(1:43..1:47) java/lang/
+(1:48..1:54) java/lang/Number#
+(2:30..2:31) _empty_/WeirdNumber#v. -> 1:19
+(3:30..3:31) _empty_/WeirdNumber#v. -> 1:19
+(3:32..3:40) java/lang/Double#intValue().
+(4:30..4:31) _empty_/WeirdNumber#v. -> 1:19
+(4:32..4:41) java/lang/Double#longValue().
+(5:30..5:31) _empty_/WeirdNumber#v. -> 1:19
+(5:32..5:42) java/lang/Double#floatValue().
+

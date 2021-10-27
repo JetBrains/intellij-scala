@@ -1,0 +1,4 @@
+Document tests/pos/t372.scala
+(2:29..2:42) _empty_/Bug372Symbols# -> 2:7
+(2:48..2:59) _empty_/Bug372Names# -> 1:7
+

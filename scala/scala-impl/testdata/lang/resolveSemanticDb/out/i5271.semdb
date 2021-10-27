@@ -1,0 +1,4 @@
+Document tests/pos/i5271.scala
+(2:12..2:16) scala/Unit#
+(4:79..4:83) scala/package.List.
+

@@ -1,0 +1,38 @@
+Document tests/pos/i6565.scala
+(3:18..3:21) _empty_/Err# -> 1:7
+(3:22..3:23) scala/`|`#
+(3:24..3:25) _empty_/i6565$package.Lifted#[A] -> 3:13
+(5:17..5:18) _empty_/i6565$package.point().[O] -> 5:11
+(5:21..5:27) _empty_/i6565$package.Lifted# -> 3:6
+(5:28..5:29) _empty_/i6565$package.point().[O] -> 5:11
+(5:33..5:34) _empty_/i6565$package.point().(o) -> 5:14
+(6:21..6:27) _empty_/i6565$package.Lifted# -> 3:6
+(6:28..6:29) _empty_/i6565$package.map().[O] -> 6:12
+(6:43..6:44) _empty_/i6565$package.map().[O] -> 6:12
+(6:48..6:49) _empty_/i6565$package.map().[U] -> 6:15
+(6:52..6:58) _empty_/i6565$package.Lifted# -> 3:6
+(6:59..6:60) _empty_/i6565$package.map().[U] -> 6:15
+(6:64..6:67) scala/Predef.`???`().
+(7:21..7:27) _empty_/i6565$package.Lifted# -> 3:6
+(7:28..7:29) _empty_/i6565$package.flatMap().[O] -> 7:12
+(7:47..7:48) _empty_/i6565$package.flatMap().[O] -> 7:12
+(7:52..7:58) _empty_/i6565$package.Lifted# -> 3:6
+(7:59..7:60) _empty_/i6565$package.flatMap().[U] -> 7:15
+(7:64..7:70) _empty_/i6565$package.Lifted# -> 3:6
+(7:71..7:72) _empty_/i6565$package.flatMap().[U] -> 7:15
+(7:76..7:79) scala/Predef.`???`().
+(9:12..9:15) _empty_/Err# -> 1:7
+(9:18..9:21) _empty_/Err# -> 1:7
+(11:14..11:20) _empty_/i6565$package.Lifted# -> 3:6
+(11:21..11:27) scala/Predef.String#
+(12:3..12:8) _empty_/i6565$package.point(). -> 5:5
+(12:14..12:21) _empty_/i6565$package.flatMap(). -> 7:36
+(12:51..12:56) _empty_/i6565$package.error. -> 9:5
+(15:21..15:27) _empty_/i6565$package.Lifted# -> 3:6
+(15:28..15:34) scala/Predef.String#
+(16:3..16:8) _empty_/i6565$package.point(). -> 5:5
+(16:14..16:21) _empty_/i6565$package.flatMap(). -> 7:36
+(16:27..16:32) _empty_/i6565$package.point(). -> 5:5
+(16:38..16:45) _empty_/i6565$package.flatMap(). -> 7:36
+(16:75..16:80) _empty_/i6565$package.error. -> 9:5
+

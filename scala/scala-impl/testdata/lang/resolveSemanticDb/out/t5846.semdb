@@ -1,0 +1,12 @@
+Document tests/pos/t5846.scala
+(6:21..6:24) scala/App#
+(8:14..8:24) scala/collection/
+(8:25..8:34) scala/collection/SortedMap#
+(8:35..8:41) scala/Predef.String#
+(8:43..8:49) scala/Predef.String#
+(8:53..8:63) scala/collection/
+(8:64..8:73) scala/collection/SortedMap.
+(8:74..8:79) scala/collection/SortedMapFactory.Delegate#empty().
+(8:80..8:86) scala/Predef.String#
+(8:88..8:94) scala/Predef.String#
+

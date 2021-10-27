@@ -1,0 +1,4 @@
+Document tests/pos/t3837.scala
+(3:9..3:17) _empty_/BipClass# -> 1:7
+(6:20..6:23) _empty_/BipTrait#foo(). -> 5:21
+

@@ -1,0 +1,9 @@
+Document tests/pos/t6537.scala
+(8:12..8:13) tester/PatMatWarning.X# -> 5:16
+(8:17..8:18) tester/PatMatWarning.f().(x) -> 8:9
+(9:13..9:14) tester/PatMatWarning.Y# -> 6:16
+(13:20..13:21) tester/PatMatWarning.X# -> 5:16
+(14:20..14:21) tester/PatMatWarning.Y# -> 6:16
+(15:20..15:21) tester/PatMatWarning.X# -> 5:16
+(15:27..15:28) tester/PatMatWarning.Y# -> 6:16
+

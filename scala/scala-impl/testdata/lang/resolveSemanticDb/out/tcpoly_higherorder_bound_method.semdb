@@ -1,0 +1,6 @@
+Document tests/pos/tcpoly_higherorder_bound_method.scala
+(2:23..2:24) _empty_/SkolemisationOfHigherOrderBoundInMethod#method().[A] -> 2:13
+(2:34..2:35) _empty_/SkolemisationOfHigherOrderBoundInMethod#method().[N] -> 2:16
+(2:36..2:37) _empty_/SkolemisationOfHigherOrderBoundInMethod#method().[A] -> 2:13
+(2:42..2:46) scala/Unit#
+

@@ -1,0 +1,19 @@
+Document tests/pos/duplicate-parents.scala
+(1:20..1:23) scala/Int#
+(1:33..1:45) scala/package.Serializable#
+(2:20..2:23) scala/Int#
+(2:33..2:38) scala/
+(2:39..2:51) scala/package.Serializable#
+(3:20..3:23) scala/Int#
+(3:33..3:40) scala/Product#
+(5:26..5:38) scala/package.Serializable#
+(9:22..9:25) scala/Int#
+(9:35..9:47) _empty_/Scope.Serializable# -> 8:9
+(11:11..11:15) _empty_/Scope.Foo5.
+(12:3..12:4) _empty_/Scope.f. -> 11:7
+(12:6..12:11) _empty_/Scope. -> 7:8
+(12:12..12:24) _empty_/Scope.Serializable# -> 8:9
+(13:3..13:4) _empty_/Scope.f. -> 11:7
+(13:6..13:11) scala/
+(13:12..13:24) scala/package.Serializable#
+

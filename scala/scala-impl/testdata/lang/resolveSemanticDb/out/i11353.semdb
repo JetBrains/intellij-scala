@@ -1,0 +1,10 @@
+Document tests/pos/i11353.scala
+(1:12..1:18) scala/IArray$package.IArray.
+(2:3..2:9) scala/IArray$package.IArray.
+(3:3..3:9) scala/IArray$package.IArray.
+(4:3..4:9) scala/IArray$package.IArray.
+(6:11..6:16) scala/Array.
+(7:3..7:9) scala/IArray$package.IArray.
+(8:3..8:8) scala/Array.
+(9:3..9:8) scala/Array.
+
