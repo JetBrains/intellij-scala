@@ -35,6 +35,7 @@ object ScalaDfaVariableDescriptor {
 
     expression.getReference.bind()
       .map(_.element)
-      .map(element => ScalaDfaVariableDescriptor(element, qualifier, isStableElement(element)))
+      .map(element => ScalaDfaVariableDescriptor(element, qualifier,
+        isStableElement(element) && qualifier.forall(isStableElement)))
   }
 }

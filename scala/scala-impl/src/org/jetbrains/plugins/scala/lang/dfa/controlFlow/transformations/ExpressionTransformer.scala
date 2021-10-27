@@ -105,7 +105,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    if (isReferenceExpressionInvocation(expression)) {
+    if (startsWithUnderscoreExpression(expression)) builder.pushUnknownValue()
+    else if (isReferenceExpressionInvocation(expression)) {
       new InvocationTransformer(expression).transform(builder)
     } else {
       expression.qualifier.foreach { qualifier =>
@@ -120,6 +121,17 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
         case _ => builder.pushUnknownCall(expression, 0)
       }
     }
+  }
+
+  private def startsWithUnderscoreExpression(reference: ScReferenceExpression): Boolean = {
+    var currentReference = reference.qualifier
+    while (currentReference.isDefined) currentReference match {
+      case Some(_: ScUnderscoreSection) => return true
+      case Some(nextReference: ScReferenceExpression) => currentReference = nextReference.qualifier
+      case _ => return false
+    }
+
+    false
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {

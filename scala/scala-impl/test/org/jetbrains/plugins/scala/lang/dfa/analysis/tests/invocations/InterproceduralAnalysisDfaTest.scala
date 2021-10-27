@@ -41,29 +41,30 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
       "z == 21" -> ConditionAlwaysTrue
     )
 
-  def testBanningRecursion(): Unit = if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
-    """
-      |private def recursiveMethod1(x: Int): Int = {
-      |  if (x < 10) recursiveMethod1(x + 1)
-      |  else 2 * x
-      |}
-      |
-      |private def recursiveMethod2(x: Int): Int = {
-      |  val y = recursiveMethod2(x)
-      |  2 * x
-      |}
-      |
-      |recursiveMethod1(5) == 10
-      |recursiveMethod2(5) == 10
-      |
-      |2 == 2
-      |""".stripMargin
-  })(
-    "2 == 2" -> ConditionAlwaysTrue
-  )
+  def testBanningRecursion(): Unit =
+    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
+      """
+        |private def recursiveMethod1(x: Int): Int = {
+        |  if (x < 10) recursiveMethod1(x + 1)
+        |  else 2 * x
+        |}
+        |
+        |private def recursiveMethod2(x: Int): Int = {
+        |  val y = recursiveMethod2(x)
+        |  2 * x
+        |}
+        |
+        |recursiveMethod1(5) == 10
+        |recursiveMethod2(5) == 10
+        |
+        |2 == 2
+        |""".stripMargin
+    })(
+      "2 == 2" -> ConditionAlwaysTrue
+    )
 
-  def testLimitingInterproceduralAnalysisDepth(): Unit = if (InterproceduralAnalysisEnabled)
-    test(codeFromMethodBody(returnType = "Boolean") {
+  def testLimitingInterproceduralAnalysisDepth(): Unit =
+    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
       """
         |private def veryNested3(x: Int) = {
         |  3 * x
@@ -95,8 +96,8 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
       "2 == 2" -> ConditionAlwaysTrue
     )
 
-  def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit = if (InterproceduralAnalysisEnabled)
-    test(codeFromMethodBody(returnType = "Boolean") {
+  def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit =
+    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
       """
         |private def otherMethod(x: Int): Int = {
         |  3 $$ 4
