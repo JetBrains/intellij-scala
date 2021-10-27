@@ -68,6 +68,18 @@ object Common {
       (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers"
     )
 
+  implicit class ProjectOps(private val project: Project) extends AnyVal {
+    def withCompilerPluginIn(plugin: Project): Project = project
+      .dependsOn(
+        plugin % Provided
+      )
+      .settings(
+        Compile / scalacOptions ++= Seq(
+          s"-Xplugin:${(plugin / Compile / classDirectory).value}",
+          s"-Xplugin-require:${(plugin / name).value}")
+      )
+  }
+
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {
     // TODO we should generally filter META-INF when merging jars
 

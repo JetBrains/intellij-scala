@@ -192,6 +192,16 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
     ),
   )
 
+lazy val scalacPatches: sbt.Project =
+  Project("scalac-patches", file("scalac-patches"))
+    .settings(
+      scalaVersion := Versions.scalaVersion,
+      Compile / unmanagedSourceDirectories += baseDirectory.value / "src",
+      Compile / unmanagedResourceDirectories += baseDirectory.value / "resources",
+      libraryDependencies ++= Seq(Dependencies.scalaCompiler),
+      packageMethod := PackagingMethod.Skip(),
+    )
+
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
@@ -252,6 +262,7 @@ lazy val scalaImpl: sbt.Project =
           relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0")))
         )
     )
+    .withCompilerPluginIn(scalacPatches)
 
 val nailgunJar = settingKey[File]("location of nailgun jar").withRank(KeyRanks.Invisible)
 (ThisBuild / nailgunJar) := (scalaCommunity / unmanagedBase).value / "nailgun.jar"
