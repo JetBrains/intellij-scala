@@ -16,7 +16,7 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
   def reportProblems(listener: ScalaDfaListener): Unit = {
     listener.collectConstantConditions
-      .filter { case (_, value) => value != DfaConstantValue.Unknown }
+      .filter { case (_, value) => value != DfaConstantValue.Other }
       .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
 
     listener.collectUnsatisfiedConditions

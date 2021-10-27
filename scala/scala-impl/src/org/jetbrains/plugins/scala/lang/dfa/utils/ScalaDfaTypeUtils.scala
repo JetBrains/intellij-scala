@@ -54,7 +54,7 @@ object ScalaDfaTypeUtils {
   def dfTypeToReportedConstant(dfType: DfType): DfaConstantValue = dfType match {
     case DfTypes.TRUE => DfaConstantValue.True
     case DfTypes.FALSE => DfaConstantValue.False
-    case DfTypes.NULL => DfaConstantValue.Unknown
+    case DfTypes.NULL => DfaConstantValue.Other
     // Reporting "always null" is currently disabled, because it interacted very badly with some other parts
     // of the analysis, producing many false "null" warnings. This might be, at least partially, a problem in
     // the Java side of the analysis. It should be revived with implementation of more complete analysis of
@@ -62,7 +62,7 @@ object ScalaDfaTypeUtils {
     case _ => Option(dfType.getConstantOfType(classOf[Number]))
       .filter(value => value.intValue() == 0 || value.longValue() == 0L)
       .map(_ => DfaConstantValue.Zero)
-      .getOrElse(DfaConstantValue.Unknown)
+      .getOrElse(DfaConstantValue.Other)
   }
 
   @Nls

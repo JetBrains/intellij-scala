@@ -36,7 +36,7 @@ class ScalaDfaListener extends DfaListener {
   private def recordExpressionValue(anchor: ScalaDfaAnchor, state: DfaMemoryState, value: DfaValue): Unit = {
     val newValue = dfTypeToReportedConstant(state.getDfType(value))
     constantConditions.updateWith(anchor) {
-      case Some(oldValue) if oldValue != newValue => Some(DfaConstantValue.Unknown)
+      case Some(oldValue) if oldValue != newValue => Some(DfaConstantValue.Other)
       case _ => Some(newValue)
     }
   }

@@ -98,6 +98,16 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     addInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
 
+  def popReturnValue(): Unit = addInstruction(new PopInstruction)
+
+  def popArguments(argCount: Int): Unit = {
+    if (argCount > 1) {
+      addInstruction(new SpliceInstruction(argCount))
+    } else if (argCount == 1) {
+      addInstruction(new PopInstruction)
+    }
+  }
+
   def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression],
                           definedType: ScType): Unit = {
     val dfaVariable = createVariable(descriptor)
@@ -127,16 +137,6 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
     addInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
   }
 
-  def popReturnValue(): Unit = addInstruction(new PopInstruction)
-
-  def popArguments(argCount: Int): Unit = {
-    if (argCount > 1) {
-      addInstruction(new SpliceInstruction(argCount))
-    } else if (argCount == 1) {
-      addInstruction(new PopInstruction)
-    }
-  }
-
   def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
@@ -154,7 +154,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
         balancedType.toPsiType match {
           case balancedPrimitiveType: PsiPrimitiveType =>
             addInstruction(new PrimitiveConversionInstruction(balancedPrimitiveType, null))
-          case otherType =>
+          case _ =>
         }
       }
     }
