@@ -14,6 +14,30 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
   override protected def configureFromFileText(fileText: String): PsiFile =
     configureFromFileText(fileText, SbtFileType)
 
+  def testTopLevel_Single_OutsideOfStringLiteral_WithoutSpaces(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions+=no$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions+=$RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_InsideOfStringLiteral_WithoutSpaces(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions+="$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions+=$RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
   def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""

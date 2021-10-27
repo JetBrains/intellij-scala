@@ -81,9 +81,7 @@ object SbtScalacOptionsCompletionContributor {
         case ref: ScReferenceExpression if option.flag.startsWith("-") =>
           // rewrite `-flag`, `--flag` to "-flag" and "--flag" respectively
           // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
-          val startOffset = ref.startOffset
-          val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
-          doHandleInsert(startOffset, endOffset)
+          doHandleInsert(context.getStartOffset, context.getTailOffset)
         case str: ScStringLiteral =>
           // handle cases when string literal is invalid. E.g.: `"-flag` -> `"-flag"`
           doHandleInsert(str.startOffset, str.endOffset)
