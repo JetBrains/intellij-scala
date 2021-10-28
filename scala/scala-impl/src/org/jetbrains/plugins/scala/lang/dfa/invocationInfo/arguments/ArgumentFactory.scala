@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ArgumentFactory {
 
+  val ArgumentCountLimit = 10
+
   def buildAllArguments(matchedArguments: Seq[Seq[(ScExpression, Parameter)]], argumentExpressions: Seq[Seq[ScExpression]],
                         invocation: ImplicitArgumentsOwner, isTupled: Boolean): List[List[Argument]] = {
     implicit val context: ProjectContext = invocation.getProject

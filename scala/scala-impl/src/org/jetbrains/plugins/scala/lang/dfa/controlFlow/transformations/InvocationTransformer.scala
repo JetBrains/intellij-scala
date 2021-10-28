@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.NumericBinary
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -26,7 +27,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
       case _ => Nil
     }
 
-    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo)) {
+    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo) ||
+      invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
       builder.pushUnknownCall(wrappedInvocation, 0)
     } else if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
       invocationsInfo.tail.foreach(invocation => {
