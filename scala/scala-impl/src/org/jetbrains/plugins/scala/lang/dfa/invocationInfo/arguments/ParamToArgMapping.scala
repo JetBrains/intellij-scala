@@ -20,6 +20,7 @@ object ParamToArgMapping {
           .map(param => getIndexOfMappingArgument(indexedArgs, _ == param))
         case psiMethod: PsiMethod => psiMethod.getParameterList.getParameters
           .map(param => getIndexOfMappingArgument(indexedArgs, _.psiParam.contains(param))).toList
+        case _ => Nil
       }
     }
 

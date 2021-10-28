@@ -8,11 +8,19 @@ import com.intellij.util.ThreeState
 
 class MethodResultDfaListener(resultDestination: DfaValue) extends DfaListener {
 
-  var resultValue: DfType = resultDestination.getDfType
+  private var resultValue: Option[DfType] = None
+
+  def collectResultValue: DfType = resultValue match {
+    case DfType.TOP | DfType.BOTTOM => DfType.TOP
+    case Some(other) => other
+    case _ => DfType.TOP
+  }
 
   override def beforeAssignment(source: DfaValue, destination: DfaValue, state: DfaMemoryState, anchor: DfaAnchor): Unit = {
     if (destination == resultDestination) {
-      resultValue = state.getDfType(source)
+      val newValue = state.getDfType(source)
+      resultValue = if (resultValue.contains(DfType.BOTTOM) || newValue == DfType.BOTTOM) Some(DfType.BOTTOM)
+      else resultValue.map(_.join(newValue)).orElse(Some(newValue))
     }
   }
 
