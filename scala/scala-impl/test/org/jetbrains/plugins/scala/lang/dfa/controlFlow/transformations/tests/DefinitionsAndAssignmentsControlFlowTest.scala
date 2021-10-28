@@ -17,34 +17,36 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |1: PUSH_VAL 2
       |2: BOOLEAN_OP >
       |3: ASSIGN_TO booleanVal
-      |4: POP
-      |5: PUSH_VAL 3
-      |6: PUSH_VAL 8
-      |7: NUMERIC_OP *
-      |8: PUSH_VAL 15
-      |9: NUMERIC_OP +
-      |10: ASSIGN_TO x
-      |11: POP
-      |12: PUSH booleanVal
-      |13: IF_EQ false 23
-      |14: FINISH
-      |15: PUSH_VAL 2
-      |16: PUSH x
-      |17: PUSH_VAL 7
-      |18: NUMERIC_OP *
-      |19: NUMERIC_OP -
-      |20: PUSH_VAL 3
-      |21: NUMERIC_OP +
-      |22: GOTO 27
-      |23: FINISH
-      |24: PUSH_VAL 5
-      |25: PUSH x
-      |26: NUMERIC_OP -
-      |27: FINISH IfStatement; flushing [x]
-      |28: FINISH BlockExpression
-      |29: RETURN
-      |30: POP
+      |4: PUSH_VAL TOP
+      |5: POP
+      |6: PUSH_VAL 3
+      |7: PUSH_VAL 8
+      |8: NUMERIC_OP *
+      |9: PUSH_VAL 15
+      |10: NUMERIC_OP +
+      |11: ASSIGN_TO x
+      |12: PUSH_VAL TOP
+      |13: POP
+      |14: PUSH booleanVal
+      |15: IF_EQ false 25
+      |16: FINISH
+      |17: PUSH_VAL 2
+      |18: PUSH x
+      |19: PUSH_VAL 7
+      |20: NUMERIC_OP *
+      |21: NUMERIC_OP -
+      |22: PUSH_VAL 3
+      |23: NUMERIC_OP +
+      |24: GOTO 29
+      |25: FINISH
+      |26: PUSH_VAL 5
+      |27: PUSH x
+      |28: NUMERIC_OP -
+      |29: FINISH IfStatement; flushing [x]
+      |30: FINISH BlockExpression
       |31: RETURN
+      |32: POP
+      |33: RETURN
       |""".stripMargin
   }
 
@@ -66,38 +68,43 @@ class DefinitionsAndAssignmentsControlFlowTest extends ScalaDfaControlFlowBuilde
       |1: PUSH_VAL 2
       |2: NUMERIC_OP *
       |3: ASSIGN_TO y
-      |4: POP
-      |5: PUSH_VAL 9
-      |6: ASSIGN_TO x
-      |7: POP
-      |8: PUSH x
-      |9: PUSH_VAL 10
-      |10: BOOLEAN_OP >
-      |11: POP
-      |12: PUSH_VAL 8
-      |13: ASSIGN_TO x
-      |14: POP
-      |15: PUSH x
-      |16: PUSH_VAL 11
-      |17: BOOLEAN_OP >
-      |18: POP
-      |19: PUSH_VAL 14
-      |20: ASSIGN_TO x
+      |4: PUSH_VAL TOP
+      |5: POP
+      |6: PUSH_VAL 9
+      |7: ASSIGN_TO x
+      |8: PUSH_VAL TOP
+      |9: POP
+      |10: PUSH x
+      |11: PUSH_VAL 10
+      |12: BOOLEAN_OP >
+      |13: POP
+      |14: PUSH_VAL 8
+      |15: ASSIGN_TO x
+      |16: PUSH_VAL TOP
+      |17: POP
+      |18: PUSH x
+      |19: PUSH_VAL 11
+      |20: BOOLEAN_OP >
       |21: POP
-      |22: PUSH x
-      |23: PUSH_VAL 12
-      |24: BOOLEAN_OP >
+      |22: PUSH_VAL 14
+      |23: ASSIGN_TO x
+      |24: PUSH_VAL TOP
       |25: POP
-      |26: PUSH y
-      |27: ASSIGN_TO x
-      |28: POP
-      |29: PUSH x
-      |30: PUSH_VAL 10
-      |31: BOOLEAN_OP ==
-      |32: FINISH BlockExpression
-      |33: RETURN
-      |34: POP
-      |35: RETURN
+      |26: PUSH x
+      |27: PUSH_VAL 12
+      |28: BOOLEAN_OP >
+      |29: POP
+      |30: PUSH y
+      |31: ASSIGN_TO x
+      |32: PUSH_VAL TOP
+      |33: POP
+      |34: PUSH x
+      |35: PUSH_VAL 10
+      |36: BOOLEAN_OP ==
+      |37: FINISH BlockExpression
+      |38: RETURN
+      |39: POP
+      |40: RETURN
       |""".stripMargin
   }
 }
