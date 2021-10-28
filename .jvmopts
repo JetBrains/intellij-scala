@@ -2,6 +2,6 @@
 -Xss1m
 -Xms1536m
 -Xmx2G
--XX:ReservedCodeCacheSize=128m
+-XX:ReservedCodeCacheSize=256m
 -XX:+CMSClassUnloadingEnabled
 -Dfile.encoding=UTF8
