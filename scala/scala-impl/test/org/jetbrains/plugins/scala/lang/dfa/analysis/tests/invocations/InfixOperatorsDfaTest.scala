@@ -20,16 +20,18 @@ class InfixOperatorsDfaTest extends ScalaDfaTestBase {
   def testLogicalOperatorsAndBooleanLiteralSuppression(): Unit =
     test(codeFromMethodBody(returnType = "Boolean") {
       """
-        |2 <= 2 && 2 == 2 && true && 3 == 5 - 2
+        |val p1 = 3 > 2
+        |2 <= 2 && 2 == 2 && p1 && true && 3 == 5 - 2
         |3 != 3 || false || 2 < 10 - 6 || 3 == 4
         |""".stripMargin
     })(
       "2 <= 2" -> ConditionAlwaysTrue,
       "2 == 2" -> ConditionAlwaysTrue,
       "3 == 5 - 2" -> ConditionAlwaysTrue,
-      "2 <= 2 && 2 == 2 && true && 3 == 5 - 2" -> ConditionAlwaysTrue,
+      "2 <= 2 && 2 == 2 && p1 && true && 3 == 5 - 2" -> ConditionAlwaysTrue,
       "3 != 3" -> ConditionAlwaysFalse,
       "2 < 10 - 6" -> ConditionAlwaysTrue,
-      "3 != 3 || false || 2 < 10 - 6 || 3 == 4" -> ConditionAlwaysTrue
+      "3 != 3 || false || 2 < 10 - 6 || 3 == 4" -> ConditionAlwaysTrue,
+      "3 > 2" -> ConditionAlwaysTrue
     )
 }
