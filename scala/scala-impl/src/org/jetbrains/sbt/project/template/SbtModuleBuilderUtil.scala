@@ -72,7 +72,13 @@ object SbtModuleBuilderUtil {
        * In case the refresh below is not finished yet another refresh is cancelled in
        * `com.intellij.openapi.externalSystem.util.ExternalSystemUtil`*/
       invokeLater {
-        ExternalProjectsManagerImpl.getInstance(project).init()
+        val manager = ExternalProjectsManagerImpl.getInstance(project)
+        // Set this setting explicitly, even though it is `false` by default (see com.intellij.openapi.project.ExternalStorageConfiguration)
+        // In some rare cases default project settings `<idea_config>/options/default.project.xml`
+        // contains `true` for `ExternalStorageConfiguration.enabled`
+        // This can happen when IDEA settings were imported from previous old versions (in which the setting could be changed)
+        manager.setStoreExternally(false)
+        manager.init()
         ExternalSystemUtil.refreshProjects(
           new ImportSpecBuilder(project, SbtProjectSystem.Id)
             .use(ProgressExecutionMode.IN_BACKGROUND_ASYNC)
