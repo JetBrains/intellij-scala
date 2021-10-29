@@ -2,21 +2,21 @@ package org.jetbrains.sbt.project.template
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.diagnostic.ControlFlowException
-import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
-import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.platform.templates.github.ZipUtil
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.replacePatterns
 
 import java.io.File
 import java.net.URL
-import java.nio.file.{Files, Path, Paths}
+import java.nio.file.Files
 import java.util.regex.Matcher.quoteReplacement
 import java.util.regex.Pattern
 import java.util.zip.ZipInputStream
 import scala.util.Using
 
+@ApiStatus.Internal
 abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
 
   protected def archiveURL: URL
@@ -30,44 +30,51 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
     }
   }
 
-  override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    val root = new File(getModuleFileDirectory)
-    if (root.exists()) {
-      extractArchive(root, archiveURL)
-      processExtractedArchive(root.toPath)
-      setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
-    }
+  override protected def createProjectTemplateIn(root: File): Option[DefaultModuleContentEntryFolders] = {
+    extractArchive(root, archiveURL)
+    processExtractedArchive(root)
 
-    super.createModule(moduleModel)
+    Some(DefaultModuleContentEntryFolders(
+      sources = Seq("src/main/scala"),
+      testSources = Seq("src/test/scala"),
+      resources = Seq("resources"),
+      testResources = Seq(),
+      excluded = DefaultModuleContentEntryFolders.RootTargets,
+    ))
   }
 
-  override def setupRootModel(model: ModifiableRootModel): Unit = {
-    SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
-  }
-
-  protected def processExtractedArchive(extractedPath: Path): Unit = ()
+  protected def processExtractedArchive(root: File): Unit = ()
 
   /**
    * Replaces simple strings in file. Doesn't work with regexps
    * @param replacements a map of simple string substitutions
    * @return new file content or a list of error messages
    */
-  protected def replaceInFile(relativePath: String, replacements: Map[String, String]): Either[Seq[String], String] = {
-    val fullFilePath = Paths.get(getModuleFileDirectory).resolve(relativePath)
-    if (Files.exists(fullFilePath)) {
+  protected def replaceInFile(
+    root: File,
+    relativePath: String,
+    replacements: Map[String, String]
+  ): Either[Seq[String], String] = {
+    val file = new File(root, relativePath)
+    val filePath = file.toPath
+    if (Files.exists(filePath)) {
       val newContent = try {
-        val content = Files.readString(fullFilePath)
-        replacePatterns(content, replacements) match {
+        val content = Files.readString(filePath)
+        val contentPatched = replacePatterns(content, replacements)
+        contentPatched match {
           case Right(result) =>
-            Files.writeString(fullFilePath, result)
+            Files.writeString(filePath, result)
             Right(result)
-          case x@Left(_) => x
+          case left@Left(_) =>
+            left
         }
       } catch {
-        case e: Throwable => Left(Seq(s"Error while processing file $relativePath: ${e.getMessage}"))
+        case e: Throwable =>
+          Left(Seq(s"Error while processing file $relativePath: ${e.getMessage}"))
       }
       newContent
-    } else Left(Seq(s"Target file doesn't exist - $relativePath"))
+    }
+    else Left(Seq(s"Target file doesn't exist - $relativePath"))
   }
 
 }

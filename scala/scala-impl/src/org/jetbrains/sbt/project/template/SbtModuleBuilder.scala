@@ -1,19 +1,16 @@
 package org.jetbrains.sbt.project.template
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.module.{ModifiableModuleModel, Module}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
-import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.annotations.{NonNls, TestOnly}
+import org.jetbrains.annotations.{ApiStatus, NonNls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.template.{FileExt, patchProjectLabels}
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
-import org.jetbrains.sbt.project.template.SbtModuleBuilder._
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.DefaultModuleContentEntryFolders
 import org.jetbrains.sbt.project.template.wizard.SbtModuleStepLike
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
@@ -23,10 +20,14 @@ import javax.swing._
 import scala.math.Ordering.Implicits.infixOrderingOps
 
 /**
+ * Do not extend, it will be made final in the future.<br>
+ * Consider using [[SbtModuleBuilderBase]] instead
+ *
  * @param _selections initial selections value<br>
  *                    The parameter value is copied copied, changes to the original object do not effect the builder
  */
-final class SbtModuleBuilder(
+@ApiStatus.Internal
+class SbtModuleBuilder(
   _selections: SbtModuleBuilderSelections
 ) extends SbtModuleBuilderBase {
 
@@ -40,35 +41,21 @@ final class SbtModuleBuilder(
 
   override def getNodeIcon: Icon = Sbt.Icon
 
-  override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    val root = new File(getModuleFileDirectory)
-    if (root.exists()) {
-      locally {
-        val settings = getExternalProjectSettings
-        settings.setResolveClassifiers(selections.downloadScalaSdkSources)
-        settings.setResolveSbtClassifiers(selections.downloadSbtSources)
-      }
+  override def setupModule(module: Module): Unit = {
+    val settings = getExternalProjectSettings
+    settings.setResolveClassifiers(selections.downloadScalaSdkSources)
+    settings.setResolveSbtClassifiers(selections.downloadSbtSources)
 
-      setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
-    }
-
-    super.createModule(moduleModel)
+    super.setupModule(module)
   }
 
-  override def setupRootModel(model: ModifiableRootModel): Unit = {
-    for {
-      contentPath <- Option(getContentEntryPath)
-    } {
-      val root = new File(contentPath)
+  override protected def createProjectTemplateIn(root: File): Option[DefaultModuleContentEntryFolders] = {
+    val name = getName
+    val sbtVersion = selections.sbtVersion.getOrElse(Versions.SBT.LatestSbtVersion)
+    val scalaVersion = selections.scalaVersion.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
+    val packagePrefix = selections.packagePrefix
 
-      val name = getName
-      val sbtVersion = selections.sbtVersion.getOrElse(Versions.SBT.LatestSbtVersion)
-      val scalaVersion = selections.scalaVersion.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
-      val packagePrefix = selections.packagePrefix
-
-      val contentEntryFolders = createProjectTemplateIn(root, name, scalaVersion, sbtVersion, packagePrefix)
-      SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath, contentEntryFolders)
-    }
+    SbtModuleBuilder.createProjectTemplateIn(root, name, scalaVersion, sbtVersion, packagePrefix)
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep =
