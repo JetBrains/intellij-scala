@@ -50,6 +50,7 @@ trait ProjectStructureMatcher {
     expected.foreach0(javacOptions)(assertProjectJavacOptions(actual))
 
     expected.foreach(modules)(assertProjectModulesEqual(actual)(_))
+    expected.foreach(packagePrefix)(assertPackagePrefixEqual(actual)(_))
   }
 
   private implicit def namedImplicit[T <: Named]: HasName[T] =
@@ -186,6 +187,15 @@ trait ProjectStructureMatcher {
     val contentRoots = roots.ModuleRootManager.getInstance(module).getContentEntries.toSeq
     assertEquals(s"Expected single content root, Got: $contentRoots", 1, contentRoots.length)
     contentRoots.head
+  }
+
+  private def assertPackagePrefixEqual(project: Project)(expectedPrefix: String)(mt: Option[MatchType]): Unit = {
+    project.modules.filterNot(_.isBuildModule).foreach { module =>
+      val contentRoot = getSingleContentRoot(module)
+      contentRoot.getSourceFolders.foreach { source =>
+        assertEquals(s"package prefix for source folder $source of module ${module.getName}", expectedPrefix, source.getPackagePrefix)
+      }
+    }
   }
 
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType]): Unit = {

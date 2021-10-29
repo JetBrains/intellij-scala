@@ -152,6 +152,11 @@ object SbtModuleBuilder {
     def setSbtVersion(version: String): Unit = {
       sbtVersionComboBox.setSelectedItemEnsuring(version)
     }
+
+    @TestOnly
+    def setPackagePrefix(prefix: String): Unit = {
+      packagePrefixTextField.setText(prefix)
+    }
   }
 
   private def createProjectTemplateIn(
@@ -196,7 +201,7 @@ object SbtModuleBuilder {
            |
            |lazy val root = (project in file("."))
            |  .settings(
-           |$indent${rootProjectSettings.mkString("", s"\n$indent", "")}
+           |$indent${rootProjectSettings.mkString("", s",\n$indent", "")}
            |  )
            |""".stripMargin
 
