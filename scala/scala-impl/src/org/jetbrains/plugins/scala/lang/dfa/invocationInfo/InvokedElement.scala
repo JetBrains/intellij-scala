@@ -40,8 +40,7 @@ case class InvokedElement(psiElement: PsiElement) {
 
 object InvokedElement {
 
-  def fromTarget(target: Option[ScalaResolveResult],
-                 problems: Seq[ApplicabilityProblem]): Option[InvokedElement] = {
+  def fromTarget(target: Option[ScalaResolveResult], problems: Seq[ApplicabilityProblem]): Option[InvokedElement] = {
     if (problems.isEmpty) target.map(_.element).map(InvokedElement(_)) else None
   }
 }

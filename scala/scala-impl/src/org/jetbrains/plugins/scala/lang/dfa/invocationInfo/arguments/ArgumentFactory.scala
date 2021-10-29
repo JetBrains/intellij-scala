@@ -16,12 +16,19 @@ object ArgumentFactory {
   def buildAllArguments(matchedArguments: Seq[Seq[(ScExpression, Parameter)]], argumentExpressions: Seq[Seq[ScExpression]],
                         invocation: ImplicitArgumentsOwner, isTupled: Boolean): List[List[Argument]] = {
     implicit val context: ProjectContext = invocation.getProject
-    // There might be more arguments than the function requires. In this case, we should still evaluate all of the arguments.
+    // There might be more arguments than the method requires. In this case, we should still evaluate all of the arguments.
     val fixedArgs = argumentExpressions.zip(matchedArguments).map {
       case (expressions, argParams) => fixUnmatchedArguments(expressions, argParams)
     }
 
     fixedArgs.map(buildArgumentsInEvaluationOrder(_, invocation, isTupled)).toList
+  }
+
+  def insertThisArgToArgList(invocation: MethodInvocation, properArgs: List[Argument],
+                             thisArgument: Argument): List[Argument] = invocation match {
+    case infixExpression: ScInfixExpr if infixExpression.isRightAssoc =>
+      properArgs.head :: thisArgument :: properArgs.tail
+    case _ => thisArgument :: properArgs
   }
 
   private def fixUnmatchedArguments(args: Seq[ScExpression], matchedArgs: Seq[(ScExpression, Parameter)])
@@ -56,13 +63,6 @@ object ArgumentFactory {
         .map(Argument.fromArgParamMapping)
         .toList :++ maybeVarargArgument
     }
-  }
-
-  def insertThisArgToArgList(invocation: MethodInvocation, properArgs: List[Argument],
-                             thisArgument: Argument): List[Argument] = invocation match {
-    case infixExpression: ScInfixExpr if infixExpression.isRightAssoc =>
-      properArgs.head :: thisArgument :: properArgs.tail
-    case _ => thisArgument :: properArgs
   }
 
   private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)])

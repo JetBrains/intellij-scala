@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.utils
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.value.RelationType
 
-object ScalaDfaTypeConstants {
+object ScalaDfaConstants {
 
   sealed trait DfaConstantValue
   final object DfaConstantValue {

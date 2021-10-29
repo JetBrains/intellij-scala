@@ -5,9 +5,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.NullPointerExceptionName
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.LogicalBinary
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.DfaConstantValue
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.NullPointerExceptionName
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators.LogicalBinary
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._

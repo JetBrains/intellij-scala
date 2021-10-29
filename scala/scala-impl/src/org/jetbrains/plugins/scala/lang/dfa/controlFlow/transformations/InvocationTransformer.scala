@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.NumericBinary
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators.NumericBinary
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -81,7 +81,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
       ScalaStatementAnchor(wrappedInvocation), instanceQualifier, transfer, builder.analysedMethodInfo))
   }
 
-  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
+  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo],
+                                                    builder: ScalaDfaControlFlowBuilder): Boolean = {
     if (invocationsInfo.size > 1) return false
     val invocationInfo = invocationsInfo.head
 

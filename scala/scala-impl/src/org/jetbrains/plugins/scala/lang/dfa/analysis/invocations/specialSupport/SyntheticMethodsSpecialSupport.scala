@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnc
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.LogicalOperation
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.LogicalOperation
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
