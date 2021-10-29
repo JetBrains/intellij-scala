@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
-import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysTrue, InvocationIndexOutOfBounds}
+import org.jetbrains.plugins.scala.lang.dfa.Messages.{ConditionAlwaysFalse, ConditionAlwaysTrue, InvocationIndexOutOfBounds}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
 class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
@@ -87,5 +87,30 @@ class ReferenceExpressionsDfaTest extends ScalaDfaTestBase {
       |""".stripMargin
   })(
     "x == 2" -> ConditionAlwaysTrue
+  )
+
+  def testNestedQualifiedExpressions(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |case class User(age: Int, bestFriend: Person)
+      |
+      |val u1 = User(20, new Person(33))
+      |
+      |val p1 = new Person(55)
+      |p1.id == 55
+      |val u2 = User(23, p1)
+      |u2.bestFriend == p1
+      |
+      |u1.bestFriend.id > 30
+      |
+      |u1.bestFriend.id == u2.bestFriend.id
+      |u1.bestFriend.id < u2.bestFriend.id
+      |
+      |u1.age == 23
+      |
+      |""".stripMargin
+  })(
+    "p1.id == 55" -> ConditionAlwaysTrue,
+    "u2.bestFriend == p1" -> ConditionAlwaysTrue,
+    "u1.age == 23" -> ConditionAlwaysFalse
   )
 }

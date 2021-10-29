@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -125,7 +125,7 @@ object ScalaDfaTypeUtils {
     }
   }
 
-  def isStableElement(element: PsiNamedElement): Boolean = element match {
+  def isStableElement(element: PsiElement): Boolean = element match {
     case referencePattern: ScReferencePattern => referencePattern.isStable && !referencePattern.isVar
     case _: ScVariable => false
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable

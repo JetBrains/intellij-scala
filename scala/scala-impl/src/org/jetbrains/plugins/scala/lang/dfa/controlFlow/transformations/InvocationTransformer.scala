@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.psi.{CommonClassNames, PsiElement}
+import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Syntheti
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[PsiElement] = None)
+class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None)
   extends ExpressionTransformer(wrappedInvocation) {
 
   override def toString: String = s"InvocationTransformer: $wrappedInvocation"

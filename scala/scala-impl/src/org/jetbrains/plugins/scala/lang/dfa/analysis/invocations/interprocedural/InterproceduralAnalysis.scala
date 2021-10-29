@@ -7,7 +7,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
-import com.intellij.psi.{PsiElement, PsiModifier, PsiModifierListOwner}
+import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
@@ -44,7 +44,8 @@ object InterproceduralAnalysis {
     }
   }
 
-  def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue], qualifier: Option[PsiElement],
+  def registerParameterValues(parameterValues: Map[_ <: ScParameter, DfaValue],
+                              qualifier: Option[ScalaDfaVariableDescriptor],
                               interpreter: DataFlowInterpreter, state: DfaMemoryState)
                              (implicit factory: DfaValueFactory): Unit = {
     parameterValues.foreach { case (parameter, value) =>
