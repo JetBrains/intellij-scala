@@ -47,6 +47,20 @@ object ScalaTypeHintsConfigurable {
     ScalaCodeInsightSettings.showMethodChainInlayHintsSetter()
   )
 
+  class ToggleRangeHintsForToAndUntilAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("range.hints.for.to.and.until"),
+    ScalaCodeInsightBundle.message("show.range.hints.for.to.and.until"),
+    ScalaCodeInsightSettings.showRangeHintsForToAndUntilGetter(),
+    ScalaCodeInsightSettings.showRangeHintsForToAndUntilSetter()
+  )
+
+  class ToggleRangeExclusiveHintAction extends ToggleTypeAction(
+    ScalaCodeInsightBundle.message("range.exclusive.hint"),
+    ScalaCodeInsightBundle.message("show.exclusive.range.hint"),
+    ScalaCodeInsightSettings.showExclusiveRangeHintDefaultGetter(),
+    ScalaCodeInsightSettings.showExclusiveRangeHintDefaultSetter()
+  )
+
   /*
   class ToggleMethodResultTypeAction extends ToggleTypeAction(
     ScalaCodeInsightSettings.showMethodResultTypeGetter,

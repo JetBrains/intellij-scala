@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.annotator.hints._
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ImportImplicitInstanceFix, PopupPosition}
 import org.jetbrains.plugins.scala.codeInsight.hints.{ScalaHintsSettings, ScalaTypeHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.hints.methodChains.ScalaMethodChainInlayHintsPass
+import org.jetbrains.plugins.scala.codeInsight.hints.rangeHints.RangeInlayHintsPass
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHintsPass._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocQuickInfoGenerator
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +33,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private val rootElement: ScalaFile, override val settings: ScalaHintsSettings)
   extends EditorBoundHighlightingPass(editor, rootElement.getContainingFile, /*runIntentionPassAfter*/ false)
-    with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass {
+    with ScalaTypeHintsPass with ScalaMethodChainInlayHintsPass with RangeInlayHintsPass {
 
   import annotator.hints._
 
@@ -51,6 +52,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       hints ++= collectTypeHints(editor, rootElement)
       collectConversionsAndArguments()
       collectMethodChainHints(editor, rootElement)
+      collectRangeHints(editor, rootElement)
     }
   }
 
@@ -144,6 +146,7 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
       existingInlays.foreach(Disposer.dispose)
       hints.foreach(inlayModel.add(_))
       regenerateMethodChainHints(myEditor, inlayModel, rootElement)
+      regenerateRangeInlayHints(myEditor, inlayModel, rootElement)
     })
   }
 }
