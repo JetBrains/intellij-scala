@@ -49,7 +49,6 @@ class UnaryPrefixExpressionsDfaTest extends ScalaDfaTestBase {
     "!(y < 100 || y <= 150)" -> ConditionAlwaysTrue,
     "!(y < 100 || y <= 150) && (!(y > 300) && y > 20)" -> ConditionAlwaysTrue,
     "!(y > 300)" -> ConditionAlwaysTrue,
-    "!p1" -> ConditionAlwaysTrue,
     "3 > 99" -> ConditionAlwaysFalse,
     "9 >= 9" -> ConditionAlwaysTrue,
     "if (!p1) 9 >= 9 else 9 > 9" -> ConditionAlwaysTrue,

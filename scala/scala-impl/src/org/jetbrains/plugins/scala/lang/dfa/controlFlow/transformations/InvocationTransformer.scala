@@ -47,9 +47,13 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
     }
 
     val unsupportedInvokedElement = invocationsInfo.flatMap(_.invokedElement).flatMap(_.simpleName)
-      .exists(name => name.startsWith("assert") || name == "require" || name == "getClass")
+      .exists(startsWithUnsupportedMethodName)
 
-    unsupportedExpression || unsupportedInvokedElement
+    startsWithUnsupportedMethodName(invocation.getText) || unsupportedExpression || unsupportedInvokedElement
+  }
+
+  private def startsWithUnsupportedMethodName(name: String): Boolean = {
+    name.startsWith("assert") || name.startsWith("require") || name.startsWith("getClass")
   }
 
   private def isUnsupportedInfixSyntheticAssignment(operation: String): Boolean = {

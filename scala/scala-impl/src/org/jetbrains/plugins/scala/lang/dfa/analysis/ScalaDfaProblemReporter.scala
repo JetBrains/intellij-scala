@@ -50,6 +50,7 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
 
   private def getProblemTypeForStatement(statement: ScBlockStatement): ProblemHighlightType = statement match {
     case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
+    case _: ScReferenceExpression => ProblemHighlightType.WEAK_WARNING
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 
@@ -57,6 +58,9 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
     val parent = findProperParent(statement)
     statement match {
       case _: ScLiteral => true
+      // Primary purpose of such larger blocks is usually to have side effects, not just return a value,
+      // highlighting a large block in general can be very annoying
+      case block: ScBlockExpr if block.statements.size > 3 => true
       // Warning will be reported for the prefix expression
       case _: ScExpression if parent.exists(_.is[ScPrefixExpr]) => true
       case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
@@ -71,6 +75,8 @@ class ScalaDfaProblemReporter(problemsHolder: ProblemsHolder) {
       case _: ScReferenceExpression if parent.exists(_.is[ScArgumentExprList]) => true
       // Sometimes we create constant boolean values just to name them, highlighting this could be annoying
       case _: ScReferenceExpression if value == DfaConstantValue.True || value == DfaConstantValue.False => true
+      case prefix: ScPrefixExpr if prefix.getBaseExpr.is[ScReferenceExpression] &&
+        value == DfaConstantValue.True || value == DfaConstantValue.False => true
       case _ => false
     }
   }

@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.unknownDfaValue
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -69,7 +70,8 @@ object InterproceduralAnalysis {
     val isValOrVar = function.isVal || function.isVar
     val hasRegularBody = !function.isSynthetic && !function.isAbstractMember && function.body.isDefined
 
-    isEffectivelyFinal && !containsUnsupportedFeatures && !isRecursionOrToDeep && !isValOrVar && hasRegularBody
+    isEffectivelyFinal && !containsUnsupportedFeatures && !isRecursionOrToDeep && !isValOrVar &&
+      hasRegularBody && !isLikelyConfigurationMethodOrNamedConstant(function)
   }
 
   private def longerThanDeepBodySizeLimit(function: ScFunctionDefinition): Boolean = function.body match {
@@ -80,6 +82,11 @@ object InterproceduralAnalysis {
   private def hasFinalOrPrivateModifier(element: PsiModifierListOwner): Boolean = {
     Option(element).exists(_.hasModifierPropertyScala(PsiModifier.FINAL)) ||
       Option(element).exists(_.hasModifierPropertyScala(PsiModifier.PRIVATE))
+  }
+
+  private def isLikelyConfigurationMethodOrNamedConstant(function: ScFunctionDefinition): Boolean = function.body match {
+    case Some(_: ScLiteral) => true
+    case _ => false
   }
 
   private def mapArgumentValuesToParams(invocationInfo: InvocationInfo, function: ScFunctionDefinition,
