@@ -1,18 +1,14 @@
 package org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n
 
-import java.util
-import java.util.Objects
-
-import com.intellij.codeHighlighting.HighlightDisplayLevel
-import com.intellij.codeInsight.daemon.GroupNames
-import com.intellij.codeInsight.{AnnotationUtil, CodeInsightBundle}
+import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.codeInspection._
+import com.intellij.java.i18n.JavaI18nBundle
 import com.intellij.lang.properties.PropertiesReferenceManager
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.{Comparing, Ref}
+import com.intellij.openapi.util.Ref
 import com.intellij.psi.{util => _, _}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.PsiMethodExt
@@ -20,34 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-import scala.annotation.nowarn
+import java.util
+import java.util.Objects
 import scala.collection.mutable
 
-/**
- * @author Ksenia.Sautina
- * @since 7/17/12
- */
-
 class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
-  @NotNull override def getGroupDisplayName: String = {
-    GroupNames.INTERNATIONALIZATION_GROUP_NAME: @nowarn("cat=deprecation")
-  }
-
-  @NotNull override def getDisplayName: String = {
-    CodeInsightBundle.message("inspection.unresolved.property.key.reference.name")
-  }
-
-  @NotNull override def getShortName: String = {
-    "ScalaUnresolvedPropertyKey"
-  }
-
-  @NotNull override def getDefaultLevel: HighlightDisplayLevel = {
-    HighlightDisplayLevel.ERROR
-  }
-
-  override def isEnabledByDefault: Boolean = {
-    true
-  }
 
   @Nullable override def checkFile(@NotNull file: PsiFile, @NotNull manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
     val visitor: UnresolvedPropertyVisitor = new UnresolvedPropertyVisitor(manager, isOnTheFly)
@@ -60,7 +33,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
     def appendPropertyKeyNotFoundProblem(bundleName: String, @NotNull key: String,
                                          @NotNull expression: ScLiteral, @NotNull manager: InspectionManager,
                                          @NotNull problems: util.List[ProblemDescriptor], onTheFly: Boolean): Unit = {
-      val description: String = CodeInsightBundle.message("inspection.unresolved.property.key.reference.message", key)
+      val description: String = JavaI18nBundle.message("inspection.unresolved.property.key.reference.message", key)
       problems.add(manager.createProblemDescriptor(expression, description, null: LocalQuickFix,
         ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly))
     }
@@ -106,7 +79,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
               if (module != null) {
                 val propFiles: util.List[PropertiesFile] = manager.findPropertiesFiles(module, key)
                 if (propFiles.isEmpty) {
-                  val description: String = CodeInsightBundle.message("inspection.invalid.resource.bundle.reference", key)
+                  val description: String = JavaI18nBundle.message("inspection.invalid.resource.bundle.reference", key)
                   val problem: ProblemDescriptor = myManager.createProblemDescriptor(expression, description, null.asInstanceOf[LocalQuickFix], ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly)
                   myProblems.add(problem)
                 }
@@ -134,7 +107,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                           method.getParameterList.getParametersCount == i + 2 &&
                           parameters(i + 1).isVarArgs) {
                           myProblems.add(myManager.createProblemDescriptor(methodCall,
-                            CodeInsightBundle.message("property.has.more.parameters.than.passed", key, paramsCount, param),
+                            JavaI18nBundle.message("property.has.more.parameters.than.passed", key, paramsCount, param),
                             onTheFly, new Array[LocalQuickFix](0), ProblemHighlightType.GENERIC_ERROR))
                         }
                         flag = false

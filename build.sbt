@@ -476,7 +476,10 @@ lazy val propertiesIntegration =
   newProject("properties", file("scala/integration/properties"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijPlugins += "com.intellij.properties".toPlugin
+      intellijPlugins ++= Seq(
+        "com.intellij.properties".toPlugin,
+        "com.intellij.java-i18n".toPlugin,
+      )
     )
 
 lazy val javaDecompilerIntegration =
