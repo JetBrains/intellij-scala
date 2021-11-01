@@ -298,21 +298,13 @@ abstract sealed class ScImportOrExportImpl[
                 return false
             case Some(set) =>
               val shadowed  = mutable.HashSet.empty[(ScImportSelector, PsiElement)]
-              val givenImports = GivenImports.empty
+              val givenImports = GivenImports(set)
               val selectors = set.selectors.iterator //for reducing stacktrace
 
               while (selectors.hasNext) {
                 val selector = selectors.next()
                 ProgressManager.checkCanceled()
                 selector.reference match {
-                  case _ if selector.isGivenSelector =>
-                    def typeFilter = selector.givenTypeElement.flatMap(_.`type`().toOption)
-                    typeFilter match {
-                      case Some(ty) =>
-                        givenImports.addTypeFilter(ty, selector)
-                      case None =>
-                        givenImports.addWildcard(selector)
-                    }
                   case Some(reference) =>
                     val isImportAlias = selector.isAliasedImport && !selector.importedName.contains(reference.refName)
                     if (isImportAlias) {
@@ -455,34 +447,45 @@ object ScImportOrExportImpl {
     case _ => importUsed.toOption
   }
 
-  class GivenImports {
-    private var wildcardSelector: Option[ScImportSelector] = None
-    private val filterSelectors: mutable.Map[ScType, ScImportSelector] = mutable.Map.empty
-
-    def addWildcard(wildcardSelector: ScImportSelector): Unit =
-      if (this.wildcardSelector.isEmpty) {
-        this.wildcardSelector = Some(wildcardSelector)
-      }
-
-    def addTypeFilter(ty: ScType, e: ScImportSelector): Unit = {
-      filterSelectors.updateWith(ty) {
-        case None => Some(e)
-        case Some(old) => Some(if (old.getTextLength < e.getTextLength) old else e)
-      }
-    }
-
-    def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = ty match {
-      case Right(ty) =>
-        val conformingSelectors = filterSelectors.iterator.collect { case (fTy, e) if ty conforms fTy => e } ++ wildcardSelector
-        conformingSelectors.headOption
-      case Left(_) => wildcardSelector
-    }
-
-    def hasWildcard: Boolean = wildcardSelector.isDefined
-    def hasImports: Boolean = hasWildcard || filterSelectors.nonEmpty
+  trait GivenImports {
+    def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector]
+    def hasWildcard: Boolean
+    def hasImports: Boolean
   }
 
   object GivenImports {
-    def empty: GivenImports = new GivenImports
+    def empty: GivenImports = new GivenImports {
+      override def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = None
+      override def hasWildcard: Boolean = false
+      override def hasImports: Boolean = false
+    }
+
+    def apply(selectors: ScImportSelectors): GivenImports = new GivenImports {
+      private val givenSelectors = selectors.selectors.filter(_.isGivenSelector)
+
+      private val wildcardSelector: Option[ScImportSelector] = givenSelectors.find(_.givenTypeElement.isEmpty)
+
+      private val filterSelectors: Map[ScType, ScImportSelector] =
+        givenSelectors.flatMap { sel =>
+          val maybeType = sel.givenTypeElement.flatMap(_.`type`().toOption)
+          maybeType.map(_ -> sel)
+        }.toMap
+
+      def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = ty match {
+        case Right(ty) =>
+          val conformingSelectors = {
+            val selectors = filterSelectors.filter { case (fTy, _) => ty conforms fTy }.values
+
+            //todo: should we use another ordering/precedence?
+            selectors.toSeq.sortBy(_.startOffset) ++ wildcardSelector
+          }
+
+          conformingSelectors.headOption
+        case Left(_) => wildcardSelector
+      }
+
+      def hasWildcard: Boolean = wildcardSelector.isDefined
+      def hasImports: Boolean = hasWildcard || filterSelectors.nonEmpty
+    }
   }
 }
