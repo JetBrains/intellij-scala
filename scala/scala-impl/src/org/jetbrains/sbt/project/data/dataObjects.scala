@@ -1,8 +1,5 @@
 package org.jetbrains.sbt.project.data
 
-import java.io.File
-import java.net.URI
-import java.util.{HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
 import com.intellij.openapi.externalSystem.model.project.AbstractExternalEntityData
 import com.intellij.openapi.externalSystem.model.{Key, ProjectKeys}
 import com.intellij.serialization.PropertyMapping
@@ -14,6 +11,9 @@ import org.jetbrains.sbt.project.data.SbtEntityData._
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import java.io.{File, Serializable}
+import java.net.URI
+import java.util.{Objects, HashMap => JHashMap, List => JList, Map => JMap, Set => JSet}
 import scala.jdk.CollectionConverters._
 
 abstract class SbtEntityData extends AbstractExternalEntityData(SbtProjectSystem.Id) with Product {
@@ -248,15 +248,35 @@ object SbtAndroidFacetData {
     SbtAndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
 }
 
-/** TODO: this URI wrapper is a workaround for IDEA-221074, remove when issue is fixed */
-@SerialVersionUID(1)
-final class MyURI @PropertyMapping(Array("uri"))(_uri: URI) extends Serializable {
-  val uri: URI = {
-    //if scheme is null, assume that the URI is being deserialized
-    if (_uri.getScheme == null) new URI(_uri.toString)
-    else _uri
+/**
+ * This URI wrapper class is a workaround for a [[java.net.URI]] deserialization bug (see IDEA-221074)<br>
+ *
+ * URI class uses single field for serialization: `String string;`<br>
+ * In order we can deserialize old-serialized structure in new version of plugin we use the same backing field name & type
+ * `private val string: String` (it must be a field, otherwise deserialization won't work)<br>
+ *
+ * So we are basically pretending that we are URI during serialization / deserialization.
+ *
+ * @todo remove when IDEA-221074 is fixed
+ */
+@SerialVersionUID(2)
+final class MyURI @PropertyMapping(Array("string"))(
+  private val string: String
+) extends Serializable {
+  assert(string != null)
+
+  @transient val uri: URI = new URI(string)
+
+  def this(uri: URI) = {
+    this(uri.toString)
   }
 
-  // some places rely in URI.toString
-  override def toString: String = uri.toString
+  override def toString: String = Objects.toString(uri)
+
+  override def hashCode(): Int = Objects.hashCode(uri)
+
+  override def equals(obj: Any): Boolean = obj match {
+    case other: MyURI => uri == other.uri
+    case _ => false
+  }
 }

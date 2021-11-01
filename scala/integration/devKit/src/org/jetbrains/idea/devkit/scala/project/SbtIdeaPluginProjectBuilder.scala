@@ -4,17 +4,18 @@ import com.intellij.ide.projectWizard.ProjectSettingsStep
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.module
+import com.intellij.openapi.module.ModifiableModuleModel
+import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.idea.devkit.scala.DevkitBundle
-import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder.{NewProjectSettings, fetchLatestSbtIdeaVersion, toCamelCase, toDotSeparatedId}
+import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder._
 import org.jetbrains.plugins.scala.extensions
-import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder
 import org.jetbrains.sbt.project.template.AbstractArchivedSbtProjectBuilder.SbtPatternExt
 
 import java.io.File
 import java.net.URL
-import java.nio.file.Path
 import scala.io.Source
 import scala.util.Try
 
@@ -48,7 +49,8 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
     DevkitBundle.message("sbtidea.template.default.name"),
     DevkitBundle.message("sbtidea.template.default.vendor"),
     Try(ApplicationInfo.getInstance().getBuild.withoutProductCode().asString()).getOrElse("LATEST-EAP-SNAPSHOT"),
-    SbtIdeaPluginPlatformKind.IdeaCommunity)
+    SbtIdeaPluginPlatformKind.IdeaCommunity
+  )
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     val projectNameField = settingsStep match {
@@ -60,20 +62,32 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
     new SbtIdeaPluginWizardStep(settingsStep, this, newProjectSettings, projectNameField)
   }
 
-  override protected def moduleFilePathUpdated(pathname: String): String = {
-    val file = new File(pathname)
-    file.getParent + "/" + Sbt.ModulesDirectory + "/" + toCamelCase(newProjectSettings.pluginName) + ".iml"
+  override def createModule(moduleModel: ModifiableModuleModel): module.Module = {
+    patchModuleNameAndFileName()
+    super.createModule(moduleModel)
   }
 
-  override def setName(name: String): Unit = {
-    super.setName(toCamelCase(name))
+  /**
+   * Patch module name & module file name: set it to camel case because plugin name will also be camel-cased.<br>
+   * Plugin name will be used as a new module name after sbt project reimport.<br>
+   * So if we do not sync them now, there will be a notification that old module is removed and a new one is created
+   */
+  private def patchModuleNameAndFileName(): Unit = {
+    this.setName(toCamelCase(this.getName))
+
+    val oldModuleFilePath = this.getModuleFilePath
+    val newModuleFilePath: String = if (oldModuleFilePath == null) null else {
+      val file = new File(oldModuleFilePath)
+      FileUtilRt.toSystemIndependentName(file.getParent) + "/" + toCamelCase(file.getName)
+    }
+    this.setModuleFilePath(newModuleFilePath)
   }
 
   def updateNewProjectSettings(settingsFromWizard: NewProjectSettings): Unit = {
     newProjectSettings = settingsFromWizard
   }
 
-  override protected def processExtractedArchive(extractedPath: Path): Unit = {
+  override protected def processExtractedArchive(root: File): Unit = {
     assert(newProjectSettings != null, "new project settings not initialized")
     val projectValName  = toCamelCase(newProjectSettings.pluginName)
     val scalaVersion    = scala.util.Properties.versionNumberString
@@ -85,7 +99,7 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
     val sinceBuild      = newProjectSettings.intelliJBuildNumber.takeWhile(_ != '.') + ".0"
     val sbtIdeaVersion  = fetchLatestSbtIdeaVersion
 
-    replaceInFile("build.sbt", Map(
+    replaceInFile(root, "build.sbt", Map(
       "(^.+lazy\\s+val\\s+)(\\w+)(\\s+=.+$)"          -> projectValName,
       "scalaVersion".keyInitQuoted                    -> scalaVersion,
       "ThisBuild / intellijPluginName".keyInitQuoted  -> pluginName,
@@ -93,14 +107,14 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
       "ThisBuild / intellijPlatform".keyInit          -> s"IntelliJPlatform.$platformName"
     ))
 
-    replaceInFile("resources/META-INF/plugin.xml", Map(
+    replaceInFile(root, "resources/META-INF/plugin.xml", Map(
       "id".tagBody                            -> pluginID,
       "name".tagBody                          -> pluginName,
       "vendor".tagBody                        -> pluginVendor,
       "idea-version/since-build".emptyTagAttr -> sinceBuild
     ))
 
-    replaceInFile("project/plugins.sbt", Map(
+    replaceInFile(root, "project/plugins.sbt", Map(
       """(^.*addSbtPlugin\(\s*"org.jetbrains"\s*%\s*"sbt-idea-plugin"\s*%\s*")([^"]+)("\s*\).*$)""" -> sbtIdeaVersion
     ))
 
@@ -109,15 +123,16 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
 
 object SbtIdeaPluginProjectBuilder {
   final case class NewProjectSettings(
-                                       includeSamples: Boolean,
-                                       pluginName: String,
-                                       pluginVendor: String,
-                                       intelliJBuildNumber: String,
-                                       intelliJPlatformKind: SbtIdeaPluginPlatformKind)
+    includeSamples: Boolean,
+    pluginName: String,
+    pluginVendor: String,
+    intelliJBuildNumber: String,
+    intelliJPlatformKind: SbtIdeaPluginPlatformKind
+  )
 
-  def toDotSeparatedId(string: String): String = string.toLowerCase.replaceAll("\\s+", ".")
+  private def toDotSeparatedId(string: String): String = string.toLowerCase.replaceAll("\\s+", ".")
 
-  def toCamelCase(string: String, capitalizeFirst: Boolean = false): String = {
+  private def toCamelCase(string: String, capitalizeFirst: Boolean = false): String = {
     var isPrevLowerCase = false
     var isNextUpperCase = capitalizeFirst
     val result = new StringBuilder
@@ -135,7 +150,7 @@ object SbtIdeaPluginProjectBuilder {
     result.toString
   }
 
-  def fetchLatestSbtIdeaVersion: String = {
+  private def fetchLatestSbtIdeaVersion: String = {
     import spray.json._
     import DefaultJsonProtocol._
     val versionURL = "https://api.github.com/repos/JetBrains/sbt-idea-plugin/tags?per_page=1"
