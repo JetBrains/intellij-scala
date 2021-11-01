@@ -6,13 +6,12 @@ import com.intellij.java.i18n.JavaI18nBundle
 import com.intellij.lang.properties.PropertiesReferenceManager
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{util => _, _}
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.extensions.PsiMethodExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
@@ -20,9 +19,15 @@ import java.util
 import java.util.Objects
 import scala.collection.mutable
 
+//noinspection InstanceOf
 class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
 
-  @Nullable override def checkFile(@NotNull file: PsiFile, @NotNull manager: InspectionManager, isOnTheFly: Boolean): Array[ProblemDescriptor] = {
+  @Nullable
+  override def checkFile(
+    @NotNull file: PsiFile,
+    @NotNull manager: InspectionManager,
+    isOnTheFly: Boolean
+  ): Array[ProblemDescriptor] = {
     val visitor: UnresolvedPropertyVisitor = new UnresolvedPropertyVisitor(manager, isOnTheFly)
     file.accept(visitor)
     val problems: util.List[ProblemDescriptor] = visitor.getProblems
@@ -30,24 +35,16 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
   }
 
   private object UnresolvedPropertyVisitor {
-    def appendPropertyKeyNotFoundProblem(bundleName: String, @NotNull key: String,
-                                         @NotNull expression: ScLiteral, @NotNull manager: InspectionManager,
-                                         @NotNull problems: util.List[ProblemDescriptor], onTheFly: Boolean): Unit = {
+    def appendPropertyKeyNotFoundProblem(
+      @NotNull key: String,
+      @NotNull expression: ScLiteral,
+      @NotNull manager: InspectionManager,
+      @NotNull problems: util.List[ProblemDescriptor],
+      onTheFly: Boolean
+    ): Unit = {
       val description: String = JavaI18nBundle.message("inspection.unresolved.property.key.reference.message", key)
       problems.add(manager.createProblemDescriptor(expression, description, null: LocalQuickFix,
         ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly))
-    }
-
-    @NotNull def filterNotInLibrary(@NotNull project: Project,
-                                    @NotNull propertiesFiles: util.List[PropertiesFile]): util.List[PropertiesFile] = {
-      val fileIndex: ProjectFileIndex = ProjectRootManager.getInstance(project).getFileIndex
-      val result: util.List[PropertiesFile] = new util.ArrayList[PropertiesFile](propertiesFiles.size)
-      propertiesFiles.forEach { file =>
-        if (!fileIndex.isInLibraryClasses(file.getVirtualFile) && !fileIndex.isInLibrarySource(file.getVirtualFile)) {
-          result.add(file)
-        }
-      }
-      result
     }
 
     def isComputablePropertyExpression(myExpression: ScExpression): Boolean = {
@@ -59,37 +56,43 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
     }
   }
 
-  class UnresolvedPropertyVisitor(myManager: InspectionManager, onTheFly: Boolean) extends ScalaRecursiveElementVisitor {
-    override def visitLiteral(expression: ScLiteral): Unit = {
-      if (expression.isInstanceOf[ScInterpolatedStringLiteral]) return
-      val value: AnyRef = expression.getValue
-      if (value == null || !value.isInstanceOf[String]) return
-      val key: String = value.asInstanceOf[String]
-      if (UnresolvedPropertyVisitor.isComputablePropertyExpression(expression)) return
+  private class UnresolvedPropertyVisitor(myManager: InspectionManager, onTheFly: Boolean) extends ScalaRecursiveElementVisitor {
+    import UnresolvedPropertyVisitor._
+
+    override def visitLiteral(literal: ScLiteral): Unit = {
+      val stringLiteral: ScStringLiteral = literal match {
+        case _: ScInterpolatedStringLiteral => return
+        case sl: ScStringLiteral            => sl
+        case _                              => return
+      }
+
+      val key: String = stringLiteral.getValue
+      if (isComputablePropertyExpression(stringLiteral))
+        return
+
       val resourceBundleName: Ref[String] = new Ref[String]
-      if (!ScalaI18nUtil.isValidPropertyReference(expression, key, resourceBundleName)) {
-        UnresolvedPropertyVisitor.appendPropertyKeyNotFoundProblem(resourceBundleName.get, key,
-          expression, myManager, myProblems, onTheFly)
+      if (!ScalaI18nUtil.isValidPropertyReference(stringLiteral, key, resourceBundleName)) {
+        appendPropertyKeyNotFoundProblem(key, stringLiteral, myManager, myProblems, onTheFly)
       } else {
-        expression.getParent match {
+        stringLiteral.getParent match {
           case nvp: ScNameValuePair =>
-            if (Objects.equals(nvp.getName, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
-              val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(expression.getProject)
-              val module: Module = ModuleUtilCore.findModuleForPsiElement(expression)
+            if (Objects.equals(nvp.name, AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER)) {
+              val manager: PropertiesReferenceManager = PropertiesReferenceManager.getInstance(stringLiteral.getProject)
+              val module: Module = ModuleUtilCore.findModuleForPsiElement(stringLiteral)
               if (module != null) {
                 val propFiles: util.List[PropertiesFile] = manager.findPropertiesFiles(module, key)
                 if (propFiles.isEmpty) {
                   val description: String = JavaI18nBundle.message("inspection.invalid.resource.bundle.reference", key)
-                  val problem: ProblemDescriptor = myManager.createProblemDescriptor(expression, description, null.asInstanceOf[LocalQuickFix], ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly)
+                  val problem: ProblemDescriptor = myManager.createProblemDescriptor(stringLiteral, description, null.asInstanceOf[LocalQuickFix], ProblemHighlightType.LIKE_UNKNOWN_SYMBOL, onTheFly)
                   myProblems.add(problem)
                 }
               }
             }
-          case expressions: ScArgumentExprList if expression.getParent.getParent.isInstanceOf[ScMethodCall] =>
+          case expressions: ScArgumentExprList if stringLiteral.getParent.getParent.isInstanceOf[ScMethodCall] =>
             val annotationParams = new mutable.HashMap[String, AnyRef]
             annotationParams.put(AnnotationUtil.PROPERTY_KEY_RESOURCE_BUNDLE_PARAMETER, null)
-            if (!ScalaI18nUtil.mustBePropertyKey(expression, annotationParams)) return
-            val paramsCount: java.lang.Integer = ScalaI18nUtil.getPropertyValueParamsMaxCount(expression)
+            if (!ScalaI18nUtil.mustBePropertyKey(stringLiteral, annotationParams)) return
+            val paramsCount: java.lang.Integer = ScalaI18nUtil.getPropertyValueParamsMaxCount(stringLiteral)
             if (paramsCount == -1) return
             val methodCall: ScMethodCall = expressions.getParent.asInstanceOf[ScMethodCall]
             methodCall.getInvokedExpr match {
@@ -100,7 +103,7 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                     var i: Int = 0
                     var flag = true
                     while (i < args.length && flag) {
-                      if (args(i) eq expression) {
+                      if (args(i) eq stringLiteral) {
                         val param: java.lang.Integer = args.length - i - 1
                         val parameters = method.parameters
                         if (i + paramsCount >= args.length && method != null &&
@@ -113,7 +116,6 @@ class ScalaInvalidPropertyKeyInspection extends LocalInspectionTool {
                         flag = false
                       }
                       i += 1
-                      i
                     }
                   case _ =>
                 }
