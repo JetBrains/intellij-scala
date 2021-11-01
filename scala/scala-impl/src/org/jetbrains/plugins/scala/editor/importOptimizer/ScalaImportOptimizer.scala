@@ -595,7 +595,7 @@ object ScalaImportOptimizer {
       def notAtRangeStart = problematicNames.forall(name => !resolvesAtRangeStart(name))
 
       if (clashesWithOtherWildcards.size < info.singleNames.size && notAtRangeStart)
-        withWildcard.copy(hiddenNames = clashesWithOtherWildcards)
+        withWildcard.copy(singleNames = clashesWithOtherWildcards)
       else info
     }
 
