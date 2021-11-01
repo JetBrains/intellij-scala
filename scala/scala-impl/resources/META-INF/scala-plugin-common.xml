@@ -258,6 +258,9 @@
                                 order="before scalaClassNameCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPrefixPackageCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaEndMarkerCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor"/>
+
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
         <completion.plainTextSymbol language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPlainTextSymbolCompletionContributor"/>
