@@ -896,7 +896,8 @@ object ScalaImportOptimizer {
     case ImportExprUsed(importExpr)    =>
       !importExpr.hasWildcardSelector &&
         !importExpr.selectors.exists(_.isAliasedImport) &&
-        isOnTopOfTheFile(importExpr)
+        isOnTopOfTheFile(importExpr) &&
+        !importExpr.selectors.exists(_.isGivenSelector)
     case _ => false
   }
 
