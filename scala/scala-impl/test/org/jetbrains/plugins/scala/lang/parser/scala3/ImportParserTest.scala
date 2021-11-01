@@ -61,7 +61,9 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(.)('.')
       |        PsiElement(identifier)('y')
       |      PsiElement(.)('.')
-      |      PsiElement(given)('given')
+      |      ImportSelectors
+      |        ImportSelector
+      |          PsiElement(given)('given')
       |  PsiWhiteSpace('\n')
       |  ScImportStatement
       |    PsiElement(import)('import')
@@ -73,11 +75,13 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(.)('.')
       |        PsiElement(identifier)('y')
       |      PsiElement(.)('.')
-      |      PsiElement(given)('given')
-      |      PsiWhiteSpace(' ')
-      |      SimpleType: Int
-      |        CodeReferenceElement: Int
-      |          PsiElement(identifier)('Int')
+      |      ImportSelectors
+      |        ImportSelector
+      |          PsiElement(given)('given')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: Int
+      |            CodeReferenceElement: Int
+      |              PsiElement(identifier)('Int')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -201,7 +205,9 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |      CodeReferenceElement: x
       |        PsiElement(identifier)('x')
       |      PsiElement(.)('.')
-      |      PsiElement(given)('given')
+      |      ImportSelectors
+      |        ImportSelector
+      |          PsiElement(given)('given')
       |  PsiWhiteSpace('\n')
       |  MethodCall
       |    ReferenceExpression: println
