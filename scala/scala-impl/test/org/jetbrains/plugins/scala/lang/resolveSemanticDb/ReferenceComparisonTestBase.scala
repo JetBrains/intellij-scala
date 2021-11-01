@@ -4,12 +4,13 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
@@ -27,6 +28,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
     if (shouldSucceed) {
       assert(problems.isEmpty, problems.mkString("\n"))
     } else {
+      println(problems.mkString("\n"))
       assert(problems.nonEmpty, "Expected some problems, but found none")
     }
   }
@@ -150,8 +152,10 @@ object ReferenceComparisonTestBase {
   case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
     override lazy val symbol: String =
       ComparisonSymbol.fromPsi(element)
-        .stripSuffix(s"${element.name}.")
-        .stripSuffix(s"`${element.name}`.")
+        .stripSuffix(".")
+        .stripSuffix("()")
+        .stripSuffix(s"${element.name}")
+        .stripSuffix(s"`${element.name}`")
         .appendedAll(s"`${element.name}_=`().")
   }
 
@@ -166,18 +170,8 @@ object ReferenceComparisonTestBase {
     lazy val targets: Seq[RefTarget] = resolved
       .flatMap(r => Seq(r.element) ++ r.parentElement)
       .filterByType[PsiNamedElement]
-      .flatMap {
-        case td: ScReferencePattern if td.isVar && td.containingClass != null =>
-          Seq(PhysicalRefTarget(td), AssignmentRefTarget(td))
-        case field: ScFieldId if field.isVar =>
-          Seq(PhysicalRefTarget(field), AssignmentRefTarget(field))
-        case param: ScClassParameter if param.isVar =>
-          Seq(PhysicalRefTarget(param), AssignmentRefTarget(param))
-        case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
-          val defs = Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
-          defs.map(PhysicalRefTarget)
-        case x =>
-          Seq(PhysicalRefTarget(x))
+      .flatMap { named =>
+        Seq(PhysicalRefTarget(named)) ++ assignmentTarget(named) ++ opaqueTarget(named)
       }
 
     /*lazy val problems: Option[String] = {
@@ -220,6 +214,28 @@ object ReferenceComparisonTestBase {
         case None =>
           Seq.empty
       }
+    }
+
+    private def assignmentTarget(resolved: PsiNamedElement): Option[AssignmentRefTarget] = resolved match {
+      case td: ScReferencePattern if td.isVar && td.containingClass != null =>
+        Some(AssignmentRefTarget(td))
+      case field: ScFieldId if field.isVar =>
+        Some(AssignmentRefTarget(field))
+      case param: ScClassParameter if param.isVar =>
+        Some(AssignmentRefTarget(param))
+      case fun: ScFunction if fun.isParameterless && hasSetter(fun) => Some(AssignmentRefTarget(fun))
+      case _ => None
+    }
+
+    private def hasSetter(fun: ScFunction): Boolean = Option(fun.containingClass).exists {
+      _.allFunctionsByName(fun.name + "_=").nonEmpty
+    }
+
+    private def opaqueTarget(resolved: PsiNamedElement): Option[PhysicalRefTarget] = resolved match {
+      case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
+        val aliased = typeDef.aliasedType.toOption.flatMap(_.extractClass)
+        aliased.map(PhysicalRefTarget)
+      case _ => None
     }
   }
 }
