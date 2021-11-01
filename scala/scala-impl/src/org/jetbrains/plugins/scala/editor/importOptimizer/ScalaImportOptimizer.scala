@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -892,13 +892,13 @@ object ScalaImportOptimizer {
   def createInfo(imp: ScImportStmt, isImportUsed: ImportUsed => Boolean = _ => true): Seq[ImportInfo] =
     imp.importExprs.flatMap(ImportInfo(_, isImportUsed))
 
-  private def mayOptimizeOnTheFly(importUsed: ImportUsed): Boolean = importUsed match {
-    case ImportExprUsed(importExpr)    =>
+  private def mayOptimizeOnTheFly(importUsed: ImportUsed): Boolean = {
+    importUsed.importExpr.forall { importExpr =>
       !importExpr.hasWildcardSelector &&
         !importExpr.selectors.exists(_.isAliasedImport) &&
         isOnTopOfTheFile(importExpr) &&
         !importExpr.selectors.exists(_.isGivenSelector)
-    case _ => false
+    }
   }
 
   private def isOnTopOfTheFile(importExpr: ScImportExpr): Boolean = {

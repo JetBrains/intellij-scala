@@ -24,6 +24,48 @@ class OptimizeOnTheFlyTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |object Foo""".stripMargin
   )
 
+  def testOptimizeSelector(): Unit = checkOptimizeOnTheFly(
+    """import java.util.{ArrayList, LinkedList}
+      |
+      |object Foo {
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin,
+    """import java.util.ArrayList
+      |
+      |object Foo {
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin
+  )
+
+  def testDontOptimizeWildcardSelector(): Unit = checkOptimizeOnTheFly(
+    """import java.util.{ArrayList, _}
+      |
+      |object Foo {
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin,
+    """import java.util._
+      |
+      |object Foo {
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin
+  )
+
+  def testDontOptimizeAliasSelector(): Unit = checkNotOptimizedOnTheFly(
+    """import java.util.{ArrayList, LinkedList => LList}
+      |
+      |object Foo {
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin
+  )
+
+  def testDontOptimizeLocalSelector(): Unit = checkNotOptimizedOnTheFly(
+    """object Foo {
+      |  import java.util.{ArrayList, LinkedList}
+      |
+      |  val list: ArrayList[Int] = ???
+      |}""".stripMargin
+  )
+
   def testDontOptimizeWildcard(): Unit = checkNotOptimizedOnTheFly(
     """import java.util._
       |
