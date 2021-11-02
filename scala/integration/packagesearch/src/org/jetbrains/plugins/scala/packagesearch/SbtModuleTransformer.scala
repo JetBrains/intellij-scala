@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.packagesearch
 
 import com.intellij.buildsystem.model.unified.UnifiedDependency
 import com.intellij.ide.util.PsiNavigationSupport
-import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
@@ -21,6 +21,7 @@ import java.util.Collections.emptyList
 import scala.jdk.CollectionConverters._
 
 class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
+  private val logger = Logger.getInstance(this.getClass)
 
   def findModulePaths(module: Module): Array[File] = {
     if (!SbtUtil.isSbtModule(module)) return null
@@ -79,7 +80,9 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
 
   } catch {
     case c: ControlFlowException => throw c
-    case _: Exception => None
+    case e: Exception =>
+      logger.error(s"Transforming ${module.getName}", e)
+      None
   }
 
   override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): util.List[ProjectModule] = {
