@@ -15,9 +15,7 @@
  */
 package com.intellij.openapi.externalSystem.test;
 
-import com.intellij.openapi.application.AccessToken;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder;
 import com.intellij.openapi.externalSystem.model.DataNode;
 import com.intellij.openapi.externalSystem.model.ProjectSystemId;
@@ -33,14 +31,10 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.projectRoots.Sdk;
-import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl;
 import com.intellij.openapi.roots.*;
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
-import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import com.intellij.openapi.ui.Messages;
-import com.intellij.openapi.ui.TestDialog;
 import com.intellij.openapi.util.Couple;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.io.FileUtil;
@@ -49,9 +43,7 @@ import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.testFramework.IdeaTestUtil;
 import com.intellij.util.Function;
-import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.ContainerUtilRt;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,11 +52,9 @@ import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
 import org.jetbrains.sbt.project.settings.SbtProjectSettings;
-import org.jetbrains.sbt.settings.SbtSettings;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Vladislav.Soroka
@@ -333,18 +323,6 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
     }
   }
 
-  protected Module getModule(final String name) {
-    @SuppressWarnings("deprecation") AccessToken accessToken = ApplicationManager.getApplication().acquireReadActionLock();
-    try {
-      Module m = ModuleManager.getInstance(myProject).findModuleByName(name);
-      assertNotNull("Module " + name + " not found", m);
-      return m;
-    }
-    finally {
-      accessToken.finish();
-    }
-  }
-
   private ContentEntry getContentRoot(String moduleName) {
     ContentEntry[] ee = getContentRoots(moduleName);
     List<String> roots = new ArrayList<String>();
@@ -447,18 +425,6 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
   protected abstract ExternalProjectSettings getCurrentExternalProjectSettings();
 
   protected abstract ProjectSystemId getExternalSystemId();
-
-  protected void setupJdkForModules(String... moduleNames) {
-    for (String each : moduleNames) {
-      setupJdkForModule(each);
-    }
-  }
-
-  protected Sdk setupJdkForModule(final String moduleName) {
-    @SuppressWarnings("deprecation") final Sdk sdk = JavaAwareProjectJdkTableImpl.getInstanceEx().getInternalJdk();
-    ModuleRootModificationUtil.setModuleSdk(getModule(moduleName), sdk);
-    return sdk;
-  }
 
   protected static Sdk createJdk(String versionName) {
     return IdeaTestUtil.getMockJdk17(versionName);
