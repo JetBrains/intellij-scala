@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 import scala.annotation.tailrec
@@ -55,11 +55,13 @@ object ScalaEndMarkerCompletionContributor {
       .isInScala3File
       .withParent(parentPattern)
 
+  private def isMultiline(element: PsiElement): Boolean = element.textContains('\n')
+
   private val whitespaceWithoutLineBreaksPattern =
     psiElement.`with`(
       new PatternCondition[PsiElement]("whitespaceWithoutLineBreaksPattern") {
         override def accepts(element: PsiElement, context: ProcessingContext): Boolean =
-          element.is[PsiWhiteSpace] && !element.textContains('\n') ||
+          element.is[PsiWhiteSpace] && !isMultiline(element) ||
             element.getNode != null && element.getNode.getElementType == ScalaTokenTypes.tWHITE_SPACE_IN_LINE
       }
     )
@@ -178,6 +180,9 @@ object ScalaEndMarkerCompletionContributor {
     check(place)
   }
 
+  private def isMultilineAndNonEmpty(tb: ScTemplateBody): Boolean =
+    isMultiline(tb) && (tb.exprs.nonEmpty || tb.members.nonEmpty || tb.holders.nonEmpty)
+
   /**
    * Return specifier token metadata for the possible end marker of given element
    *
@@ -191,52 +196,55 @@ object ScalaEndMarkerCompletionContributor {
       // anonymous class
       case ntd: ScNewTemplateDefinition if ntd.extendsBlock.isAnonymousClass =>
         val templateBody = ntd.extendsBlock.templateBody
-        Option.when(templateBody.isDefined) {
+        Option.when(templateBody.exists(isMultilineAndNonEmpty)) {
           EndMarkerToken.keyword(ScalaTokenType.NewKeyword.keywordText, templateParents = ntd.extendsBlock.templateParents)
         }
 
       // class, trait, object, enum
       case td: ScTypeDefinition if td.is[ScClass, ScTrait, ScObject, ScEnum] =>
         val templateBody = td.extendsBlock.templateBody
-        Option.when(templateBody.isDefined)(EndMarkerToken.identifier(td.name))
+        Some(EndMarkerToken.identifier(td.name))
+          .filter(_ => templateBody.exists(isMultilineAndNonEmpty) || td.extendsBlock.cases.nonEmpty)
 
       // val/var v = ???
-      case SimpleValOrVarDefinition(binding, _) =>
+      case SimpleValOrVarDefinitionWithMultilineBody(binding) =>
         Some(EndMarkerToken.identifier(binding.name))
 
       // given
-      case GivenWithBody(scGiven) =>
+      case GivenWithMultilineBody(scGiven) =>
         scGiven.nameElement match {
           case Some(nameElement) => Some(EndMarkerToken.identifier(nameElement.getText))
           case None => Some(EndMarkerToken.keyword(ScalaTokenType.GivenKeyword.keywordText))
         }
 
       // extension
-      case ext: ScExtension if ext.extensionMethods.nonEmpty =>
+      case ext: ScExtension if ext.extensionMethods.nonEmpty && ext.extensionBody.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenType.ExtensionKeyword.keywordText))
 
       // def d = ???
       // constructor
-      case fn: ScFunctionDefinition if fn.body.isDefined =>
+      case fn: ScFunctionDefinition if fn.body.exists(isMultiline) =>
         val data =
           if (fn.isConstructor) EndMarkerToken.keyword(fn.name)
           else EndMarkerToken.identifier(fn.name)
         Some(data)
 
       // val definition binding pattern
-      case pd: ScPatternDefinition if !pd.isSimple && pd.expr.isDefined =>
+      case pd: ScPatternDefinition if !pd.isSimple && pd.expr.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(pd.keywordToken.getNode.getElementType.toString))
 
       // if, while, for, try, match
-      case scIf: ScIf if scIf.thenExpression.isDefined =>
+      case scIf: ScIf if scIf.thenExpression.exists(isMultiline) || scIf.elseExpression.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenTypes.kIF.toString))
-      case scWhile: ScWhile if scWhile.expression.isDefined =>
+      case scWhile: ScWhile if scWhile.expression.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenTypes.kWHILE.toString))
-      case scFor: ScFor if scFor.body.isDefined =>
+      case scFor: ScFor if scFor.body.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenTypes.kFOR.toString))
-      case scTry: ScTry if scTry.expression.isDefined =>
+      case scTry: ScTry if scTry.expression.exists(isMultiline) ||
+        scTry.catchBlock.flatMap(_.caseClauses).exists(isMultiline) ||
+        scTry.finallyBlock.flatMap(_.expression).exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenTypes.kTRY.toString))
-      case scMatch: ScMatch if scMatch.caseClauses.isDefined =>
+      case scMatch: ScMatch if scMatch.caseClauses.exists(isMultiline) =>
         Some(EndMarkerToken.keyword(ScalaTokenTypes.kMATCH.toString))
 
       // package (package p1.p2:)
@@ -246,19 +254,18 @@ object ScalaEndMarkerCompletionContributor {
       case _ => None
     }
 
-  private object SimpleValOrVarDefinition {
-    def unapply(valOrVar: ScValueOrVariableDefinition): Option[(ScBindingPattern, ScExpression)] = valOrVar.bindings
+  private object SimpleValOrVarDefinitionWithMultilineBody {
+    def unapply(valOrVar: ScValueOrVariableDefinition): Option[ScBindingPattern] = valOrVar.bindings
       .headOption
-      .filter(binding => valOrVar.isSimple && !binding.isWildcard)
-      .zip(valOrVar.expr)
+      .filter(binding => valOrVar.isSimple && !binding.isWildcard && valOrVar.expr.exists(isMultiline))
   }
 
-  private object GivenWithBody {
+  private object GivenWithMultilineBody {
     def unapply(scGiven: ScGiven): Option[ScGiven] = scGiven match {
       case alias: ScGivenAlias =>
-        Option.when(alias.hasAssign && alias.body.isDefined)(alias)
+        Option.when(alias.hasAssign && alias.body.exists(isMultiline))(alias)
       case definition: ScGivenDefinition =>
-        Option(definition).filter(_.extendsBlock.templateBody.isDefined)
+        Option(definition).filter(_.extendsBlock.templateBody.exists(isMultilineAndNonEmpty))
       case _ => None
     }
   }

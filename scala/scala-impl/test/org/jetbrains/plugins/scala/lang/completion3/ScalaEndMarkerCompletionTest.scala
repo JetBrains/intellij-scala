@@ -56,12 +56,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C
          |
          |new C:
+         |  def foo = true
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""class C
          |
          |new C:
+         |  def foo = true
          |end new$CARET
          |""".stripMargin,
     lookupStr = "end new",
@@ -74,6 +76,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |class AnotherClass
          |
          |new SomeClass with AnotherClass:
+         |  def foo = true
          |e$CARET
          |""".stripMargin,
     resultText =
@@ -81,6 +84,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |class AnotherClass
          |
          |new SomeClass with AnotherClass:
+         |  def foo = true
          |end new$CARET
          |""".stripMargin,
     lookupStr = "end new",
@@ -94,6 +98,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new SomeClass
          |  with AnotherClass:
+         |  def foo = true
          |e$CARET
          |""".stripMargin,
     resultText =
@@ -102,6 +107,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new SomeClass
          |  with AnotherClass:
+         |  def foo = true
          |end new$CARET
          |""".stripMargin,
     lookupStr = "end new",
@@ -113,12 +119,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C
          |
          |new C:
+         |  def foo = true
          |$CARET
          |""".stripMargin,
     resultText =
       s"""class C
          |
          |new C:
+         |  def foo = true
          |end new$CARET
          |""".stripMargin,
     lookupStr = "end new",
@@ -130,17 +138,28 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C
          |
          |new C:
+         |  def foo = true
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""class C
          |
          |new C:
+         |  def foo = true
          |end new$CARET
          |""".stripMargin,
     lookupStr = "new",
     presentationText = "end new",
     typeText = "C"
+  )
+
+  def testNoCompletionForEmptyAnonClass(): Unit = checkNoCompletion(
+    fileText =
+      s"""class C
+         |
+         |new C:
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForAnonClassWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -166,10 +185,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testClass(): Unit = checkLookupElement(
     fileText =
       s"""class C:
+         |  def foo = true
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""class C:
+         |  def foo = true
          |end C$CARET
          |""".stripMargin,
     lookupStr = "end C"
@@ -178,10 +199,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testClassWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""class C:
+         |  def foo = true
          |$CARET
          |""".stripMargin,
     resultText =
       s"""class C:
+         |  def foo = true
          |end C$CARET
          |""".stripMargin,
     lookupStr = "end C"
@@ -190,14 +213,23 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testClassAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""class C:
+         |  def foo = true
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""class C:
+         |  def foo = true
          |end C$CARET
          |""".stripMargin,
     lookupStr = "C",
     presentationText = "end C"
+  )
+
+  def testNoCompletionForEmptyClass(): Unit = checkNoCompletion(
+    fileText =
+      s"""class C:
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForClassWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -219,10 +251,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testTrait(): Unit = checkLookupElement(
     fileText =
       s"""trait T:
+         |  def foo
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""trait T:
+         |  def foo
          |end T$CARET
          |""".stripMargin,
     lookupStr = "end T"
@@ -231,10 +265,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testTraitWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""trait T:
+         |  def foo
          |$CARET
          |""".stripMargin,
     resultText =
       s"""trait T:
+         |  def foo
          |end T$CARET
          |""".stripMargin,
     lookupStr = "end T"
@@ -243,14 +279,23 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testTraitAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""trait T:
+         |  def foo
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""trait T:
+         |  def foo
          |end T$CARET
          |""".stripMargin,
     lookupStr = "T",
     presentationText = "end T"
+  )
+
+  def testNoCompletionForEmptyTrait(): Unit = checkNoCompletion(
+    fileText =
+      s"""trait T:
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForTraitWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -272,10 +317,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testObject(): Unit = checkLookupElement(
     fileText =
       s"""object O:
+         |  def foo = true
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""object O:
+         |  def foo = true
          |end O$CARET
          |""".stripMargin,
     lookupStr = "end O"
@@ -284,10 +331,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testObjectWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""object O:
+         |  def foo = true
          |$CARET
          |""".stripMargin,
     resultText =
       s"""object O:
+         |  def foo = true
          |end O$CARET
          |""".stripMargin,
     lookupStr = "end O"
@@ -296,14 +345,23 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testObjectAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""object O:
+         |  def foo = true
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""object O:
+         |  def foo = true
          |end O$CARET
          |""".stripMargin,
     lookupStr = "O",
     presentationText = "end O"
+  )
+
+  def testNoCompletionForEmptyObject(): Unit = checkNoCompletion(
+    fileText =
+      s"""object O:
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForObjectWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -325,10 +383,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testEnum(): Unit = checkLookupElement(
     fileText =
       s"""enum E:
+         |  case C
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""enum E:
+         |  case C
          |end E$CARET
          |""".stripMargin,
     lookupStr = "end E"
@@ -337,10 +397,12 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testEnumWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""enum E:
+         |  case C
          |$CARET
          |""".stripMargin,
     resultText =
       s"""enum E:
+         |  case C
          |end E$CARET
          |""".stripMargin,
     lookupStr = "end E"
@@ -349,14 +411,23 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testEnumAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""enum E:
+         |  case C
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""enum E:
+         |  case C
          |end E$CARET
          |""".stripMargin,
     lookupStr = "E",
     presentationText = "end E"
+  )
+
+  def testNoCompletionForEmptyEnum(): Unit = checkNoCompletion(
+    fileText =
+      s"""enum E:
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForEnumWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -380,12 +451,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  e$CARET
          |""".stripMargin,
     resultText =
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  end this$CARET
          |""".stripMargin,
     lookupStr = "end this"
@@ -396,12 +469,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  $CARET
          |""".stripMargin,
     resultText =
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  end this$CARET
          |""".stripMargin,
     lookupStr = "end this"
@@ -412,12 +487,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  end $CARET
          |""".stripMargin,
     resultText =
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |  end this$CARET
          |""".stripMargin,
     lookupStr = "this",
@@ -433,7 +510,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     item = "end this"
   )
 
-  def testNoCompletionForConstructorIfIndentIsLessThanContructorIndent(): Unit = checkNoCompletionFor(
+  def testNoCompletionForConstructorIfIndentIsLessThanConstructorIndent(): Unit = checkNoCompletionFor(
     fileText =
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
@@ -448,12 +525,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          | e$CARET
          |""".stripMargin,
     resultText =
       s"""class C(i: Int):
          |  def this(i: Int, s: String) =
          |    this(i)
+         |    println("multiline")
          |end C$CARET
          |""".stripMargin,
     lookupStr = "end C"
@@ -464,12 +543,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValue(): Unit = checkLookupElement(
     fileText =
       s"""val v =
-         |  42
+         |  1 +
+         |    41
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""val v =
-         |  42
+         |  1 +
+         |    41
          |end v$CARET
          |""".stripMargin,
     lookupStr = "end v"
@@ -478,12 +559,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValueWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""val v =
-         |  42
+         |  1 + 2 match
+         |    case 3 => 0
+         |    case _ => 1
          |$CARET
          |""".stripMargin,
     resultText =
       s"""val v =
-         |  42
+         |  1 + 2 match
+         |    case 3 => 0
+         |    case _ => 1
          |end v$CARET
          |""".stripMargin,
     lookupStr = "end v"
@@ -492,16 +577,26 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValueAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""val v =
+         |  0
          |  42
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""val v =
+         |  0
          |  42
          |end v$CARET
          |""".stripMargin,
     lookupStr = "v",
     presentationText = "end v"
+  )
+
+  def testNoCompletionForValueWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""val v =
+         |  42
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForAbstractValue(): Unit = checkNoCompletion(
@@ -520,13 +615,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testNoCompletionForValueIfEndIsNotOnTheNewLine(): Unit = checkNoCompletion(
     fileText =
-      s"""val v = 42 e$CARET
-         |""".stripMargin
-  )
-
-  def testNoCompletionForValueIfEndIsNotOnTheNewLine2(): Unit = checkNoCompletion(
-    fileText =
       s"""val v =
+         |  0
          |  42 e$CARET
          |""".stripMargin
   )
@@ -536,11 +626,13 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testVariable(): Unit = checkLookupElement(
     fileText =
       s"""var v =
+         |  0
          |  42
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""var v =
+         |  0
          |  42
          |end v$CARET
          |""".stripMargin,
@@ -550,11 +642,13 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testVariableWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""var v =
+         |  0
          |  42
          |$CARET
          |""".stripMargin,
     resultText =
       s"""var v =
+         |  0
          |  42
          |end v$CARET
          |""".stripMargin,
@@ -564,16 +658,26 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testVariableAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""var v =
+         |  0
          |  42
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""var v =
+         |  0
          |  42
          |end v$CARET
          |""".stripMargin,
     lookupStr = "v",
     presentationText = "end v"
+  )
+
+  def testNoCompletionForVariableWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""var v =
+         |  42
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForAbstractVariable(): Unit = checkNoCompletion(
@@ -592,13 +696,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testNoCompletionForVariableIfEndIsNotOnTheNewLine(): Unit = checkNoCompletion(
     fileText =
-      s"""var v = 42 e$CARET
-         |""".stripMargin
-  )
-
-  def testNoCompletionForVariableIfEndIsNotOnTheNewLine2(): Unit = checkNoCompletion(
-    fileText =
       s"""var v =
+         |  0
          |  42 e$CARET
          |""".stripMargin
   )
@@ -608,12 +707,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValueBinding(): Unit = checkLookupElement(
     fileText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |end val$CARET
          |""".stripMargin,
     lookupStr = "end val"
@@ -622,12 +723,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValueBindingWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |$CARET
          |""".stripMargin,
     resultText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |end val$CARET
          |""".stripMargin,
     lookupStr = "end val"
@@ -636,16 +739,26 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testValueBindingAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""val h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |end val$CARET
          |""".stripMargin,
     lookupStr = "val",
     presentationText = "end val"
+  )
+
+  def testNoCompletionForValueBindingWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""val h :: t =
+         |  List(1, 2, 3)
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForValueBindingWithoutAssign(): Unit = checkNoCompletion(
@@ -667,7 +780,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testNoCompletionForVariableBinding(): Unit = checkNoCompletion(
     fileText =
       s"""var h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |e$CARET
          |""".stripMargin
   )
@@ -675,8 +789,17 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testNoCompletionForVariableBindingAfterEndKeyword(): Unit = checkNoCompletion(
     fileText =
       s"""var h :: t =
-         |  List(1, 2, 3)
+         |  List(1,
+         |    2, 3)
          |end $CARET
+         |""".stripMargin
+  )
+
+  def testNoCompletionForVariableBindingWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""var h :: t =
+         |  List(1, 2, 3)
+         |e$CARET
          |""".stripMargin
   )
 
@@ -698,11 +821,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testAnonymousGivenAlias(): Unit = checkLookupElement(
     fileText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |e$CARET
          |""".stripMargin,
     resultText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |end given$CARET
          |""".stripMargin,
     lookupStr = "end given"
@@ -710,11 +837,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testAnonymousGivenAliasWithoutInput(): Unit = checkLookupElement(
     fileText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |$CARET
          |""".stripMargin,
     resultText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |end given$CARET
          |""".stripMargin,
     lookupStr = "end given"
@@ -722,15 +853,27 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testAnonymousGivenAliasAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |end $CARET
          |""".stripMargin,
     resultText =
-      s"""given Int = 42
+      s"""given Int =
+         |  0
+         |  42
          |end given$CARET
          |""".stripMargin,
     lookupStr = "given",
     presentationText = "end given"
+  )
+
+  def testNoCompletionForAnonymousGivenAliasWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""given Int =
+         |  42
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForAnonymousGivenAliasWithoutAssign(): Unit = checkNoCompletion(
@@ -749,11 +892,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testGivenAlias(): Unit = checkLookupElement(
     fileText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |e$CARET
          |""".stripMargin,
     resultText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |end someGiven$CARET
          |""".stripMargin,
     lookupStr = "end someGiven"
@@ -761,11 +908,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testGivenAliasWithoutInput(): Unit = checkLookupElement(
     fileText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |$CARET
          |""".stripMargin,
     resultText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |end someGiven$CARET
          |""".stripMargin,
     lookupStr = "end someGiven"
@@ -773,15 +924,27 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testGivenAliasAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |end $CARET
          |""".stripMargin,
     resultText =
-      s"""given someGiven: Int = 42
+      s"""given someGiven: Int =
+         |  0
+         |  42
          |end someGiven$CARET
          |""".stripMargin,
     lookupStr = "someGiven",
     presentationText = "end someGiven"
+  )
+
+  def testNoCompletionForGivenAliasWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""given someGiven: Int =
+         |  42
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForGivenAliasWithoutAssign(): Unit = checkNoCompletion(
@@ -803,14 +966,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""trait Ord[T]:
          |  def compare(x: T, y: T): Int
          |given Ord[Int] with
-         |  def compare(x: Int, y: Int): Int = x.compareTo(y)
+         |  def compare(x: Int, y: Int): Int =
+         |    x.compareTo(y)
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""trait Ord[T]:
          |  def compare(x: T, y: T): Int
          |given Ord[Int] with
-         |  def compare(x: Int, y: Int): Int = x.compareTo(y)
+         |  def compare(x: Int, y: Int): Int =
+         |    x.compareTo(y)
          |end given$CARET
          |""".stripMargin,
     lookupStr = "end given"
@@ -821,18 +986,30 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""trait Ord[T]:
          |  def compare(x: T, y: T): Int
          |given Ord[Int] with
-         |  def compare(x: Int, y: Int): Int = x.compareTo(y)
+         |  def compare(x: Int, y: Int): Int =
+         |    x.compareTo(y)
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""trait Ord[T]:
          |  def compare(x: T, y: T): Int
          |given Ord[Int] with
-         |  def compare(x: Int, y: Int): Int = x.compareTo(y)
+         |  def compare(x: Int, y: Int): Int =
+         |    x.compareTo(y)
          |end given$CARET
          |""".stripMargin,
     lookupStr = "given",
     presentationText = "end given"
+  )
+
+  def testNoCompletionForAnonymousGivenDefinitionWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |given Ord[Int] with
+         |  def compare(x: Int, y: Int): Int = x.compareTo(y)
+         |e$CARET
+         |""".stripMargin,
   )
 
   def testGivenDefinition(): Unit = checkLookupElement(
@@ -876,6 +1053,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     presentationText = "end intOrd"
   )
 
+  def testNoCompletionForGivenDefinitionWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |given intOrd: Ord[Int] with
+         |  def compare(x: Int, y: Int): Int = if x < y then -1 else if x > y then +1 else 0
+         |e$CARET
+         |""".stripMargin
+  )
+
   def testNoCompletionForPatternBoundGiven(): Unit = checkNoCompletionFor(
     fileText =
       s"""for
@@ -891,12 +1078,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testExtension(): Unit = checkLookupElement(
     fileText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |end extension$CARET
          |""".stripMargin,
     lookupStr = "end extension"
@@ -905,12 +1094,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testExtensionWithoutInput(): Unit = checkLookupElement(
     fileText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |end extension$CARET
          |""".stripMargin,
     lookupStr = "end extension"
@@ -919,46 +1110,68 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
   def testExtensionAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""extension (x: String)
-         |  def < (y: String): Boolean = ???
+         |  def < (y: String): Boolean =
+         |    ???
          |end extension$CARET
          |""".stripMargin,
     lookupStr = "extension",
     presentationText = "end extension"
   )
 
-  def testExtensionWithFunctionOnTheSameLine(): Unit = checkLookupElement(
+  def testNoCompletionForExtensionWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""extension (x: String)
+         |  def < (y: String): Boolean = ???
+         |e$CARET
+         |""".stripMargin
+  )
+
+  def testNoCompletionForExtensionWithOneLinerFunctionOnTheSameLine(): Unit = checkNoCompletion(
     fileText =
       s"""extension (i: Int) def isZero: Boolean = i == 0
          |e$CARET
+         |""".stripMargin
+  )
+
+  def testExtensionWithMultilineFunctionOnTheSameLine(): Unit = checkLookupElement(
+    fileText =
+      s"""extension (i: Int) def isZero: Boolean =
+         |  i == 0
+         |e$CARET
          |""".stripMargin,
     resultText =
-      s"""extension (i: Int) def isZero: Boolean = i == 0
+      s"""extension (i: Int) def isZero: Boolean =
+         |  i == 0
          |end extension$CARET
          |""".stripMargin,
     lookupStr = "end extension"
   )
 
-  def testExtensionWithFunctionOnTheSameLineAfterEndKeyword(): Unit = checkLookupElement(
+  def testExtensionWithMultilineFunctionOnTheSameLineAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
-      s"""extension (i: Int) def isZero: Boolean = i == 0
+      s"""extension (i: Int) def isZero: Boolean =
+         |  i == 0
          |end $CARET
          |""".stripMargin,
     resultText =
-      s"""extension (i: Int) def isZero: Boolean = i == 0
+      s"""extension (i: Int) def isZero: Boolean =
+         |  i == 0
          |end extension$CARET
          |""".stripMargin,
     lookupStr = "extension",
     presentationText = "end extension"
   )
 
-  def testNoCompletionForExtensionFunctionOnTheSameLine(): Unit = checkNoCompletionFor(
+  def testNoCompletionForMultilineExtensionFunctionOnTheSameLine(): Unit = checkNoCompletionFor(
     fileText =
-      s"""extension (i: Int) def isZero: Boolean = i == 0
+      s"""extension (i: Int) def isZero: Boolean =
+         |  i == 0
          |e$CARET
          |""".stripMargin,
     item = "end isZero"
@@ -982,43 +1195,6 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testFunction(): Unit = checkLookupElement(
     fileText =
-      s"""def foo(x: String) = x.length
-         |e$CARET
-         |""".stripMargin,
-    resultText =
-      s"""def foo(x: String) = x.length
-         |end foo$CARET
-         |""".stripMargin,
-    lookupStr = "end foo"
-  )
-
-  def testFunctionWithoutInput(): Unit = checkLookupElement(
-    fileText =
-      s"""def foo(x: String) = x.length
-         |e$CARET
-         |""".stripMargin,
-    resultText =
-      s"""def foo(x: String) = x.length
-         |end foo$CARET
-         |""".stripMargin,
-    lookupStr = "end foo"
-  )
-
-  def testFunctionAfterEndKeyword(): Unit = checkLookupElement(
-    fileText =
-      s"""def foo(x: String) = x.length
-         |end $CARET
-         |""".stripMargin,
-    resultText =
-      s"""def foo(x: String) = x.length
-         |end foo$CARET
-         |""".stripMargin,
-    lookupStr = "foo",
-    presentationText = "end foo"
-  )
-
-  def testLargeFunction(): Unit = checkLookupElement(
-    fileText =
       s"""def largeMethod(n: Int) =
          |  val x = n / 2
          |  if x * 2 == n then
@@ -1039,7 +1215,29 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     lookupStr = "end largeMethod"
   )
 
-  def testLargeFunctionAfterEndKeyword(): Unit = checkLookupElement(
+  def testFunctionWithoutInput(): Unit = checkLookupElement(
+    fileText =
+      s"""def largeMethod(n: Int) =
+         |  val x = n / 2
+         |  if x * 2 == n then
+         |    x
+         |  else
+         |    x + 1
+         |$CARET
+         |""".stripMargin,
+    resultText =
+      s"""def largeMethod(n: Int) =
+         |  val x = n / 2
+         |  if x * 2 == n then
+         |    x
+         |  else
+         |    x + 1
+         |end largeMethod$CARET
+         |""".stripMargin,
+    lookupStr = "end largeMethod"
+  )
+
+  def testFunctionAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
       s"""def largeMethod(n: Int) =
          |  val x = n / 2
@@ -1060,6 +1258,14 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     lookupStr = "largeMethod",
     presentationText = "end largeMethod"
+  )
+
+  def testNoCompletionForFunctionWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""def foo(str: String) =
+         |  str.length
+         |e$CARET
+         |""".stripMargin
   )
 
   def testNoCompletionForFunctionWithoutBody(): Unit = checkNoCompletionFor(
@@ -1131,11 +1337,33 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testIf(): Unit = checkLookupElement(
     fileText =
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
+         |end if$CARET
+         |""".stripMargin,
+    lookupStr = "end if"
+  )
+
+  def testIfWithMultilineElse(): Unit = checkLookupElement(
+    fileText =
       s"""if 1 > 2 then println("wow")
+         |else
+         |  println("ok")
+         |  println(1 - 2)
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""if 1 > 2 then println("wow")
+         |else
+         |  println("ok")
+         |  println(1 - 2)
          |end if$CARET
          |""".stripMargin,
     lookupStr = "end if"
@@ -1143,11 +1371,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testIfWithoutInput(): Unit = checkLookupElement(
     fileText =
-      s"""if 1 > 2 then println("wow")
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
          |$CARET
          |""".stripMargin,
     resultText =
-      s"""if 1 > 2 then println("wow")
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
          |end if$CARET
          |""".stripMargin,
     lookupStr = "end if"
@@ -1155,28 +1387,54 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testIfAfterEndKeyword(): Unit = checkLookupElement(
     fileText =
-      s"""if 1 > 2 then println("wow")
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
          |end $CARET
          |""".stripMargin,
     resultText =
-      s"""if 1 > 2 then println("wow")
+      s"""if 1 > 2 then
+         |  println("wow")
+         |  println("impossible")
          |end if$CARET
          |""".stripMargin,
     lookupStr = "if",
     presentationText = "end if"
   )
 
+  def testNoCompletionForIfWithOneLinerThenWithoutElse(): Unit = checkNoCompletion(
+    fileText =
+      s"""if 1 > 2 then
+         |  println("wow")
+         |e$CARET
+         |""".stripMargin
+  )
+
+  def testNoCompletionForIfWithOneLinerThenAndElse(): Unit = checkNoCompletion(
+    fileText =
+      s"""if 1 > 2 then
+         |  println("wow")
+         |else
+         |  println("ok")
+         |e$CARET
+         |""".stripMargin
+  )
+
   def testNestedIf(): Unit = checkLookupElement(
     fileText =
       s"""if 1 > 2 then
-         |  if 2 > 3 then println("wow")
+         |  if 2 > 3 then
+         |    println("wow")
+         |    println(2 - 3)
          |  $CARET
          |  println("impossible")
          |end if
          |""".stripMargin,
     resultText =
       s"""if 1 > 2 then
-         |  if 2 > 3 then println("wow")
+         |  if 2 > 3 then
+         |    println("wow")
+         |    println(2 - 3)
          |  end if$CARET
          |  println("impossible")
          |end if
@@ -1186,7 +1444,10 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   def testNoCompletionForIfOnTheSameLineAsValueDefinition(): Unit = checkNoCompletionFor(
     fileText =
-      s"""val v = if 1 > 2 then 3 else 4
+      s"""val v = if 1 > 2 then
+         |  println("hmm")
+         |  3
+         |else 4
          |e$CARET
          |""".stripMargin,
     item = "end if"
@@ -1198,13 +1459,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |end while$CARET
          |""".stripMargin,
     lookupStr = "end while"
@@ -1214,13 +1477,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |$CARET
          |""".stripMargin,
     resultText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |end while$CARET
          |""".stripMargin,
     lookupStr = "end while"
@@ -1230,17 +1495,28 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""var x = 5
          |while x > 0 do
-         |  x -= 1
+         |  x -= 2
+         |  x += 1
          |end while$CARET
          |""".stripMargin,
     lookupStr = "while",
     presentationText = "end while"
+  )
+
+  def testNoCompletionForWhileWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""var x = 5
+         |while x > 0 do
+         |  x -= 1
+         |e$CARET
+         |""".stripMargin
   )
 
   /// for
@@ -1249,11 +1525,13 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |e$CARET
          |""".stripMargin,
     resultText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |end for$CARET
          |""".stripMargin,
     lookupStr = "end for"
@@ -1263,11 +1541,13 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |$CARET
          |""".stripMargin,
     resultText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |end for$CARET
          |""".stripMargin,
     lookupStr = "end for"
@@ -1277,15 +1557,25 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |end $CARET
          |""".stripMargin,
     resultText =
       s"""for x <- 0 to 5 do
          |  println(x)
+         |  println(x * 2)
          |end for$CARET
          |""".stripMargin,
     lookupStr = "for",
     presentationText = "end for"
+  )
+
+  def testNoCompletionForForWithOneLinerBody(): Unit = checkNoCompletion(
+    fileText =
+      s"""for x <- 0 to 5 do
+         |  println(x)
+         |e$CARET
+         |""".stripMargin
   )
 
   /// try
@@ -1294,6 +1584,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
          |finally
          |  println(x)
@@ -1302,7 +1593,56 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
+         |finally
+         |  println(x)
+         |end try$CARET
+         |""".stripMargin,
+    lookupStr = "end try"
+  )
+
+  def testTry2(): Unit = checkLookupElement(
+    fileText =
+      s"""var x = 0
+         |try
+         |  x += 1
+         |finally
+         |  println(x)
+         |  println(x * 2)
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""var x = 0
+         |try
+         |  x += 1
+         |finally
+         |  println(x)
+         |  println(x * 2)
+         |end try$CARET
+         |""".stripMargin,
+    lookupStr = "end try"
+  )
+
+  def testTry3(): Unit = checkLookupElement(
+    fileText =
+      s"""var x = 0
+         |try
+         |  x += 1
+         |catch
+         |  case e: NumberFormatException => ()
+         |  case e: Exception => ()
+         |finally
+         |  println(x)
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""var x = 0
+         |try
+         |  x += 1
+         |catch
+         |  case e: NumberFormatException => ()
+         |  case e: Exception => ()
          |finally
          |  println(x)
          |end try$CARET
@@ -1314,6 +1654,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
          |finally
          |  println(x)
@@ -1322,6 +1663,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
          |finally
          |  println(x)
@@ -1334,6 +1676,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
          |finally
          |  println(x)
@@ -1342,6 +1685,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""var x = 0
          |try
+         |  x -= 2
          |  x += 1
          |finally
          |  println(x)
@@ -1349,6 +1693,19 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     lookupStr = "try",
     presentationText = "end try"
+  )
+
+  def testNoCompletionForTryWithOneLinerBlocks(): Unit = checkNoCompletion(
+    fileText =
+      s"""var x = 0
+         |try
+         |  x += 1
+         |catch
+         |  case e: Exception => ()
+         |finally
+         |  println(x)
+         |e$CARET
+         |""".stripMargin
   )
 
   /// match
@@ -1406,6 +1763,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     lookupStr = "match",
     presentationText = "end match"
+  )
+
+  def testNoCompletionForMatchWithOneLinerCaseClauses(): Unit = checkNoCompletion(
+    fileText =
+      s"""val x = ???
+         |x match
+         |  case 0 => println("0")
+         |e$CARET
+         |""".stripMargin
   )
 
   /// misaligned markers
