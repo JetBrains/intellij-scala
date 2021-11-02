@@ -35,8 +35,8 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
 
   private def childrenOf(value: ScTypeDefinition): util.List[Node] = {
     val enumCasesNodes = value match {
-      case enum: ScEnum => enum.cases.map(new NamedElementNode(_))
-      case _ => Nil
+      case scEnum: ScEnum => scEnum.cases.map(new NamedElementNode(_))
+      case _              => Nil
     }
 
     val memberNodes: Seq[Node] = value.members.flatMap(buildMemberNodes)

@@ -1,8 +1,8 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = "2.13.7-bin-8f903f7"
-  val scalaBinaryVersion: String = Scala.binary_2_12 // TODO 2_13?
+  val scalaVersion: String = "2.13.7"
+
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
@@ -58,7 +58,6 @@ object Dependencies {
   import Versions._
 
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
-//  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
   val scalaLibrary: ModuleID = "org.scala-lang" % "scala-library" % scalaVersion
   val scalaReflect: ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersion

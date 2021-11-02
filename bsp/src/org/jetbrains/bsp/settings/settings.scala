@@ -94,7 +94,7 @@ object BspProjectSettings {
   }
 
   class BspServerConfigConverter extends Converter[BspServerConfig] {
-    private val configFile = "BspConfigFile:(.*)".r("path")
+    private val configFile = "BspConfigFile:(?<path>.*)".r
     override def fromString(value: String): BspServerConfig = {
       value match {
         case "AutoConfig" => AutoConfig
