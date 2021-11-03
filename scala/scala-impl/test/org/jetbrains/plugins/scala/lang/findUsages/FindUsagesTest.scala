@@ -3,11 +3,13 @@ package org.jetbrains.plugins.scala.lang.findUsages
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory, ScalaTypeDefinitionFindUsagesOptions}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.Markers
 
@@ -34,7 +36,11 @@ class FindUsagesTest extends ScalaFixtureTestCase with Markers {
     val foundUsages = {
       val resultBuilder = Set.newBuilder[TextRange]
       val dummyProcessor: Processor[UsageInfo] = (usage) => {
-        resultBuilder += usage.getElement.getTextRange
+        val range = usage.getElement match {
+          case ref: ScReference => ref.nameId.getTextRange
+          case elem => elem.getTextRange
+        }
+        resultBuilder += range
         true
       }
       handler.processElementUsages(named, dummyProcessor, options)
@@ -53,7 +59,7 @@ class FindUsagesTest extends ScalaFixtureTestCase with Markers {
       s"""object <caret>Test {
         |  def foo() = ???
         |
-        |  ${start(0)}${start(1)}Test${end(1)}.foo${end(0)}
+        |  ${start(1)}Test${end(1)}.${start(0)}foo${end(0)}
         |}
         |""".stripMargin,
       classWithMembersOptions)
@@ -115,5 +121,18 @@ class FindUsagesTest extends ScalaFixtureTestCase with Markers {
         |}
       """.stripMargin)
   }
+
+  def testUnaryOperator(): Unit = doTest(
+    s"""class B {
+      |  def ${caret}unary_! : B = this
+      |}
+      |
+      |object Test {
+      |  val b = new B
+      |  ${start(0)}!${end(0)}b
+      |  b.${start(1)}unary_!${end(1)}
+      |  b.${start(2)}unary_$$bang${end(2)}
+      |}
+      |""".stripMargin)
 
 }

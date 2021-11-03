@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.TextRange
+import com.intellij.testFramework.EditorTestUtil
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.extensions._
@@ -11,7 +12,7 @@ import scala.collection.mutable
 
 trait Markers {
 
-  private[this] val caretText = "<caret>"
+  val caret = EditorTestUtil.CARET_TAG
   def startMarker(i: Int) = s"/*start$i*/"
   def endMarker(i: Int) = s"/*end$i*/"
   val startMarker = "/*start*/"
@@ -57,7 +58,7 @@ trait Markers {
                     startMarker: String = this.startMarker,
                     endMarker: String = this.endMarker,
                     considerCaret: Boolean = false,
-                    caretText: String = this.caretText): (String, Seq[TextRange]) = {
+                    caretText: String = this.caret): (String, Seq[TextRange]) = {
     val (resultText, ranges) = extractMarkers(inputText, Seq(startMarker -> endMarker), considerCaret, caretText)
     (resultText, ranges.map(_._1))
   }
@@ -80,7 +81,7 @@ trait Markers {
   def extractMarkers(inputText: String,
                      markers: Seq[(String, String)],
                      considerCaret: Boolean = false,
-                     caretText: String = this.caretText): (String, Seq[(TextRange, Int)]) = {
+                     caretText: String = this.caret): (String, Seq[(TextRange, Int)]) = {
     val normalizedInput = inputText.withNormalizedSeparator
 
     val (ranges, idxAdjust) = markers.zipWithIndex
