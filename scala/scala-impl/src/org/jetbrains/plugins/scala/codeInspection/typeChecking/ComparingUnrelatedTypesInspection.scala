@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -151,10 +151,10 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
           case _ =>
         }
       }
-    case MethodRepr(_, Some(baseExpr), Some(ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
+    case MethodRepr(_, Some(baseExpr), Some(ref @ ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       // Seq("blub").contains(3)
       for {
-        ParameterizedType(_, Seq(elemType)) <- baseExpr.`type`().toOption.map(_.tryExtractDesignatorSingleton)
+        ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
         argType <- arg.`type`().toOption
         comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
         if comparability.shouldNotBeCompared
@@ -197,4 +197,8 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
     className.startsWith("scala.collection") && className.contains("Seq") ||
       Seq("scala.Option", "scala.Some").contains(className) && fun.name == "contains"
   }
+
+  private def receiverType(expr: ScExpression, invoked: ScReferenceExpression): Option[ScType] =
+    invoked.bind().flatMap(_.implicitType).
+      orElse(expr.`type`().toOption)
 }
