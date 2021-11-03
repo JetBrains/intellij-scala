@@ -20,6 +20,7 @@ class ExtendsFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    if (leaf == null) return false
 
     // class Test exten
     //           ^ find error here
