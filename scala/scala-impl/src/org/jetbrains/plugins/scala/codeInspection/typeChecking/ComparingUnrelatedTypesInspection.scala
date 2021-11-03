@@ -71,6 +71,13 @@ object ComparingUnrelatedTypesInspection {
     if (unboxed.forall(isNumericType)) return Comparability.Comparable
 
     val Seq(unboxed1, unboxed2) = unboxed
+
+    val sameClasses = unboxed1.extractClass.nonEmpty && unboxed1.extractClass == unboxed2.extractClass
+
+    if (unboxed1.equiv(unboxed2) || sameClasses) {
+      return Comparability.Comparable
+    }
+
     if (isBuiltinOperation && ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1))
       return Comparability.Incomparable
 
@@ -78,9 +85,6 @@ object ComparingUnrelatedTypesInspection {
       return Comparability.Comparable
     }
 
-    if (unboxed1 equiv unboxed2) {
-      return Comparability.Comparable
-    }
 
     // check if their lub is interesting
     val lub = unboxed1 lub unboxed2

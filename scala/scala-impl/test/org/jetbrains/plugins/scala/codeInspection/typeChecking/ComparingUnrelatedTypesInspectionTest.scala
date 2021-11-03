@@ -1001,4 +1001,10 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |
        |""".stripMargin
   )
+
+  def testGenericTypeComparison(): Unit = checkTextHasNoErrors(
+    """def test[U](c: Class[U]): Boolean = {
+      |    c == classOf[String]
+      |}""".stripMargin
+  )
 }
