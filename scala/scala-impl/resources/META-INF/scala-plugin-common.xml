@@ -251,7 +251,8 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaUnresolvedNameContributor"
                                 order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"
+                                order="before keywordCompletionContributor, before scalaClassParamContributor"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
