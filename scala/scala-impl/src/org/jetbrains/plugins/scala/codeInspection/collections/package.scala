@@ -388,35 +388,39 @@ package object collections {
     case _ => isOfClassFrom(expr, ArraySeq("scala.Array"))
   }
 
-  def isString: ScExpression => Boolean =
+  def isString: Typeable => Boolean =
     isExpressionOfType("java.lang.String")
 
-  def isSet: ScExpression => Boolean =
+  def isSet: Typeable => Boolean =
     isExpressionOfType("scala.collection.GenSetLike", "scala.collection.SetOps")
 
-  def isSeq: ScExpression => Boolean =
+  def isSeq: Typeable => Boolean =
     isExpressionOfType("scala.collection.GenSeqLike", "scala.collection.SeqOps")
 
-  def isIndexedSeq: ScExpression => Boolean =
+  def isIndexedSeq: Typeable => Boolean =
     isExpressionOfType("scala.collection.IndexedSeqLike", "scala.collection.IndexedSeqOps")
 
-  def isNonIndexedSeq: ScExpression => Boolean = expr => isSeq(expr) && !isIndexedSeq(expr)
+  def isNonIndexedSeq: Typeable => Boolean = expr => isSeq(expr) && !isIndexedSeq(expr)
 
-  def isMap: ScExpression => Boolean =
+  def isMap: Typeable => Boolean =
     isExpressionOfType("scala.collection.GenMapLike", "scala.collection.MapOps")
 
-  def isSortedSet: ScExpression => Boolean =
+  def isSortedSet: Typeable => Boolean =
     isExpressionOfType("scala.collection.SortedSetLike", "scala.collection.SortedSetOps")
 
-  def isSortedMap: ScExpression => Boolean =
+  def isSortedMap: Typeable => Boolean =
     isExpressionOfType("scala.collection.SortedMapLike", "scala.collection.SortedMapOps")
 
-  def isIterator: ScExpression => Boolean =
+  def isIterator: Typeable => Boolean =
     isExpressionOfType("scala.collection.Iterator")
 
-  private def isExpressionOfType(fqns: String*): ScExpression => Boolean = {
-    case expression@Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(expression))
+  private def isExpressionOfType(fqns: String*): Typeable => Boolean = {
+    case Typeable(scType) => fqns.exists(conformsToTypeFromClass(scType, _)(scType.projectContext))
     case _ => false
+  }
+
+  def withoutConversions(expr: ScExpression): Typeable = new Typeable {
+    override def `type`(): TypeResult = expr.getTypeWithoutImplicits()
   }
 
   private val sideEffectsCollectionMethods = Set("append", "appendAll", "clear", "insert", "insertAll",

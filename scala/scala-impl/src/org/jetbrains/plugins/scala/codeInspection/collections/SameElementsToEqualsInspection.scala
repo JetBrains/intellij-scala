@@ -3,6 +3,7 @@ package codeInspection
 package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 
 import scala.collection.immutable.ArraySeq
 
@@ -24,9 +25,11 @@ object SameElementsToEquals extends SimplificationType {
   }
 
   private def isOfSameKind(left: ScExpression, right: ScExpression) = {
-    isSet(left) && isSet(right) ||
-            isSeq(left) && isSeq(right) ||
-            isMap(left) && isMap(right)
+    val leftWithoutConversions = withoutConversions(left)
+    val rightWithoutConversions = withoutConversions(right)
+    isSet(leftWithoutConversions) && isSet(rightWithoutConversions) ||
+            isSeq(leftWithoutConversions) && isSeq(rightWithoutConversions) ||
+            isMap(leftWithoutConversions) && isMap(rightWithoutConversions)
   }
 
   private def bothSortedSetsOrMaps(left: ScExpression, right: ScExpression) = {
