@@ -13,7 +13,9 @@ import com.intellij.util.xmlb.XmlSerializer;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Property;
 import org.jdom.Element;
-import org.jetbrains.annotations.*;
+import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import scala.collection.immutable.ArraySeq;
@@ -470,6 +472,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public void setAlwaysUsedImports(String[] alwaysUsedImports) {
     this.ALWAYS_USED_IMPORTS = alwaysUsedImports;
+    //this setting may be modified from a quickfix, we need to update counter to mark it as changed
+    getContainer().getModificationTracker().incModificationCount();
   }
 
   public boolean isAlwaysUsedImport(String qualName) {
