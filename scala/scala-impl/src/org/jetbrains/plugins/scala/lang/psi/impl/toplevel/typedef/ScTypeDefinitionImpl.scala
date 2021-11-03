@@ -39,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.projectView.FileKind
 
@@ -304,7 +305,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     containingClass match {
       case td: ScTypeDefinition => td.getQualifiedNameForDebugger + "$" + toJavaName(name)
       case _ if isPackageObject => qualifiedName("")(toJavaName) + ".package"
-      case _ => qualifiedName("$")(toJavaName)
+      case _ => qualifiedName("$")(s => toJavaName(withoutBackticks(s)))
     }
   }
 
@@ -436,10 +437,12 @@ object ScTypeDefinitionImpl {
         separator
       )
     case packaging: ScPackaging =>
-      packageName(packaging)(
-        Left(packaging.packageName) :: Left(DefaultSeparator) :: builder,
-        DefaultSeparator
-      )
+      val packageNamesList = packaging.fullPackageName
+        .split('.').toSeq
+        .intersperse(".")
+        .map(Left(_))
+        .toList
+      packageNamesList ::: Left(".") :: builder
     case _: ScalaFile |
          _: PsiFile |
          _: ScBlock |
@@ -454,7 +457,8 @@ object ScTypeDefinitionImpl {
   def toQualifiedName(list: QualifiedNameList)
                      (nameTransformer: String => String = identity): String = list.map {
     case Right(definition) => nameTransformer(definition.name)
-    case Left(string) => string
+    case Left(".") => "."
+    case Left(string) => nameTransformer(string)
   }.mkString
 
   private def isLocalOrInsideAnonymous(td: ScTypeDefinition): Boolean =

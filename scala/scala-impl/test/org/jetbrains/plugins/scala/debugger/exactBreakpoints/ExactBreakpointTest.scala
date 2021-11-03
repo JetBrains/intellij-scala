@@ -433,4 +433,34 @@ abstract class ExactBreakpointTest extends ExactBreakpointTestBase {
       "3"
     )
   }
+
+  addSourceFile("test/name_with_backticks/`class with backticks`.scala",
+  s"""package test.`name_in_backticks`
+     |
+     |class `class with backticks` {
+     |  def foo(): Unit = {
+     |    println(1)
+     |  }
+     |
+     |  def `method with backticks`(): Unit = {
+     |    println(2)
+     |  }
+     |}
+     |""".stripMargin)
+  addSourceFile("BreakpointWithBackticks.scala",
+    """import test.`name_in_backticks`.`class with backticks`
+      |
+      |object BreakpointWithBackticks {
+      |  def main(args: Array[String]): Unit = {
+      |    new `class with backticks`().foo()
+      |    new `class with backticks`().`method with backticks`()
+      |  }
+      |}""".stripMargin)
+  def testBreakpointWithBackticks(): Unit = {
+    val fileWithBackticks = "test/name_with_backticks/`class with backticks`.scala"
+    checkStopResumeSeveralTimes(Breakpoint(4, null, fileWithBackticks), Breakpoint(8, null, fileWithBackticks))(
+      "println(1)",
+      "println(2)",
+    )
+  }
 }
