@@ -221,7 +221,8 @@
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"
+                                order="before caseClauseCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor"/>
@@ -259,7 +260,8 @@
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPrefixPackageCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaEndMarkerCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor"
+                                order="before keywordCompletionContributor"/>
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
