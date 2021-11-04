@@ -8,7 +8,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScMarkerOwner
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinition, editor: Editor, file: PsiFile)
@@ -17,7 +17,7 @@ private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeD
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit =
     definition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).foreach { companionKeyword =>
       definition match {
-        case ScMarkerOwner(_, Some(_)) => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
+        case ScBegin(_, Some(_)) => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
         case _ => myReadUsages.add(keyword.getTextRange)
       }
       myReadUsages.add(companionKeyword.getTextRange)

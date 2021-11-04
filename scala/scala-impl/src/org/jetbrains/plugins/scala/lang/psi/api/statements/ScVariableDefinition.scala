@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
  *         Date: 22.02.2008
  */
 
-trait ScVariableDefinition extends ScVariable with ScValueOrVariableDefinition with ScMarkerOwner {
+trait ScVariableDefinition extends ScVariable with ScValueOrVariableDefinition with ScBegin {
 
   override def declaredElements: Seq[ScBindingPattern] = bindings
 

@@ -193,7 +193,7 @@ class ScObjectImpl(
     expansion.map(toPsi(_, isSynthetic))
   }
 
-  override protected def beginMarkerType: IElementType = ScalaTokenType.ObjectKeyword
+  override protected def markerElementType: IElementType = ScalaTokenType.ObjectKeyword
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

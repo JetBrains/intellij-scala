@@ -55,7 +55,7 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
   //noinspection TypeAnnotation
   override protected def baseIcon = icons.Icons.ENUM
 
-  override protected def beginMarkerType: IElementType = ScalaTokenType.EnumKeyword
+  override protected def markerElementType: IElementType = ScalaTokenType.EnumKeyword
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

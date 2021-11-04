@@ -84,7 +84,7 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
     }
   }
 
-  override protected def beginMarkerType: IElementType = ScalaTokenTypes.kIF
+  override protected def markerElementType: IElementType = ScalaTokenTypes.kIF
 
   override def toString: String = "IfStatement"
 }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScMarkerOwner, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 
 trait ScEnd extends ScalaPsiElement with PsiNamedElement {
   /**
@@ -9,9 +9,13 @@ trait ScEnd extends ScalaPsiElement with PsiNamedElement {
    */
   def endingElementDesignator: PsiElement
 
-  def owner: Option[ScMarkerOwner]
-
-  def beginMarker: Option[PsiElement]
-
+  /**
+   * @return the "end" keyword
+   */
   def marker: PsiElement
+
+  /**
+   * @return a definition to which the "end" keyword belongs
+   */
+  def begin: Option[ScBegin]
 }
