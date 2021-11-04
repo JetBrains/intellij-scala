@@ -6,13 +6,15 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 
 trait ScMarkerOwner { self: ScalaPsiElement =>
+  def end: Option[ScEnd] = endParent.flatMap(_.lastChild).filterByType[ScEnd]
+
   final def beginMarker: PsiElement = findFirstChildByType(beginMarkerType).get
 
-  final def endMarker: Option[PsiElement] = endMarkerParent.flatMap(_.lastChild).filterByType[ScEnd].map(_.marker)
+  final def endMarker: Option[PsiElement] = end.map(_.marker)
 
   protected def beginMarkerType: IElementType
 
-  protected def endMarkerParent: Option[PsiElement] = Some(this)
+  protected def endParent: Option[PsiElement] = Some(this)
 }
 
 object ScMarkerOwner {

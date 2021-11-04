@@ -195,7 +195,7 @@ class ScObjectImpl(
 
   override protected def beginMarkerType: IElementType = ScalaTokenType.ObjectKeyword
 
-  override protected def endMarkerParent: Option[PsiElement] = extendsBlock.templateBody
+  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }
 
 object ScObjectImpl {
