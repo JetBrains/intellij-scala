@@ -8,6 +8,7 @@ package typedef
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
@@ -111,4 +112,8 @@ class ScGivenDefinitionImpl(
 
     super.processDeclarations(processor, state, lastParent, place)
   }
+
+  override protected def beginMarkerType: IElementType = ScalaTokenType.GivenKeyword
+
+  override protected def endMarkerParent: Option[PsiElement] = extendsBlock.templateBody
 }

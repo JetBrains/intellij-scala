@@ -3,10 +3,12 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY, PARAM_CLAUSES}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -71,5 +73,9 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
 
     true
   }
+
+  override protected def beginMarkerType: IElementType = ScalaTokenType.ExtensionKeyword
+
+  override protected def endMarkerParent: Option[PsiElement] = extensionBody
 }
 
