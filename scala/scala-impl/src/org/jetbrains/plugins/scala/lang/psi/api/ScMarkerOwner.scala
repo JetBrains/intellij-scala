@@ -5,7 +5,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 
-trait ScMarkerOwner { self: ScalaPsiElement =>
+trait ScMarkerOwner extends ScalaPsiElement {
   def end: Option[ScEnd] = endParent.flatMap(_.lastChild).filterByType[ScEnd]
 
   final def beginMarker: PsiElement = findFirstChildByType(beginMarkerType).get

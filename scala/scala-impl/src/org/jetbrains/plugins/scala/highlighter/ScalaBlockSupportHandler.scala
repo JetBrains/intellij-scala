@@ -8,13 +8,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScMarkerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 
 import java.util
+import scala.jdk.CollectionConverters.SeqHasAsJava
 
 class ScalaBlockSupportHandler extends CodeBlockSupportHandler {
   override def getCodeBlockMarkerRanges(psiElement: PsiElement): util.List[TextRange] = psiElement match {
     case Parent(ScMarkerOwner(begin, Some(end))) if psiElement == begin =>
       util.Arrays.asList(begin.getTextRange, end.getTextRange)
-    case Parent((end: ScEnd) && ResolvesTo(block: ScMarkerOwner)) if psiElement == end.getFirstChild =>
-      util.Arrays.asList(block.beginMarker.getTextRange, end.getFirstChild.getTextRange)
+    case Parent(end: ScEnd) if psiElement == end.marker  =>
+      (end.beginMarker.toSeq :+ end.marker).map(_.getTextRange).asJava
     case _ =>
       util.Collections.EMPTY_LIST.asInstanceOf[util.List[TextRange]]
   }
