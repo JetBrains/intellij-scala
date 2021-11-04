@@ -17,8 +17,7 @@ trait ScObject extends ScTypeDefinition
   with ScTypedDefinition
   with ScMember
   with ScDeclaredElementsHolder
-  with ScDerivesClauseOwner
-  with ScMarkerOwner {
+  with ScDerivesClauseOwner {
 
   //Is this object generated as case class companion module
   private var flag = false

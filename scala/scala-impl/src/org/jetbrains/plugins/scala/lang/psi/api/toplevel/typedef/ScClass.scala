@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 * @author Alexander Podkhalyuzin
 * Date: 20.02.2008
 */
-trait ScClass extends ScTypeDefinition with ScDerivesClauseOwner with ScConstructorOwner with ScMarkerOwner {
+trait ScClass extends ScTypeDefinition with ScDerivesClauseOwner with ScConstructorOwner {
 
   def typeParamString: String = typeParameters
     .map(ScalaPsiUtil.typeParamString(_)) match {

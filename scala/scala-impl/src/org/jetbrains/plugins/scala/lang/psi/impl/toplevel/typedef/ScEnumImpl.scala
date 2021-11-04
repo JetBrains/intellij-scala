@@ -6,7 +6,10 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
@@ -51,4 +54,8 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
 
   //noinspection TypeAnnotation
   override protected def baseIcon = icons.Icons.ENUM
+
+  override protected def markerElementType: IElementType = ScalaTokenType.EnumKeyword
+
+  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

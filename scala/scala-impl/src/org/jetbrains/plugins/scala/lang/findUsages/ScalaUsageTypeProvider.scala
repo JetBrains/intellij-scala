@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScTypeArgs, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationExpr, ScEnd, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScAnnotation, ScAnnotationExpr, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
@@ -51,8 +51,6 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case (referenceElement: ScReference, Array(only: PsiElementUsageTarget))
           if isConstructorPatternReference(referenceElement) && !referenceElement.isReferenceTo(only.getElement) =>
           Some(ParameterInPattern)
-        case (_: ScEnd, _) =>
-          Some(EndUsage)
         case _ =>
           element.withParentsInFile
             .flatMap(usageType(_, element))
@@ -128,7 +126,6 @@ object ScalaUsageTypeProvider {
   val ImplicitConversionOrParam: UsageType = ScalaBundle.message("usage.implicit.conversion.parameter")
   val UnresolvedImplicit: UsageType        = ScalaBundle.message("usage.unresolved.implicit.conversion.parameter")
   val SAMImplementation: UsageType         = ScalaBundle.message("usage.sam.interface.implementation")
-  val EndUsage: UsageType                  = ScalaBundle.message("usage.end.marker")
 
   private def usageType(element: PsiElement, original: PsiElement): Option[UsageType] =
     Option(nullableUsageType(element, original))
