@@ -97,7 +97,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 object ScalaGoToDeclarationHandler {
   private def getGotoDeclarationTargetsForEnumerator(maybeParent: Option[PsiElement]): Array[PsiElement] = {
     maybeParent
-      .collect { case enum: ScEnumerator => enum }
+      .collect { case enumerator: ScEnumerator => enumerator }
       .flatMap { _.desugared }
       .flatMap { _.callExpr }
       .map { expr => getGotoDeclarationTargetsForElement(expr, Some(expr))}

@@ -28,8 +28,8 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
       util.Arrays.asList(ScalaFileType.INSTANCE)
     )
 
-  private[this] def tryEnumerate(enum: NameEnumerator, name: String): Option[Int] =
-    enum.tryEnumerate(name).toOption.filter(_ != 0)
+  private[this] def tryEnumerate(enumerator: NameEnumerator, name: String): Option[Int] =
+    enumerator.tryEnumerate(name).toOption.filter(_ != 0)
 
   private[this] def toCompilerRef(element: PsiElement, enumerator: NameEnumerator): Option[CompilerRef] = {
     def ownerId(member: PsiMember): Option[Int] =

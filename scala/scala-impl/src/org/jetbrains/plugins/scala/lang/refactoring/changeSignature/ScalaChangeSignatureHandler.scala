@@ -42,7 +42,7 @@ class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefac
                              (implicit project: Project, editor: Editor): Unit = {
     //noinspection ReferencePassedToNls
     def showErrorHint =
-      ScalaRefactoringUtil.showErrorHint(_: String, ChangeSignatureHandler.REFACTORING_NAME: @nowarn("cat=deprecation"), HelpID.CHANGE_SIGNATURE)
+      ScalaRefactoringUtil.showErrorHint(_: String, RefactoringBundle.message("changeSignature.refactoring.name"), HelpID.CHANGE_SIGNATURE)
 
     def isSupportedFor(fun: ScMethodLike): Boolean = {
       fun match {

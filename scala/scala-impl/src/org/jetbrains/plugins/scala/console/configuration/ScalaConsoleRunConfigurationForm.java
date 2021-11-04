@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.console.configuration;
 
+import com.intellij.application.options.ModulesComboBox;
 import com.intellij.execution.ui.ConfigurationModuleSelector;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.module.Module;
@@ -18,18 +19,17 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-@SuppressWarnings(value = "unchecked")
+@SuppressWarnings("SameParameterValue")
 public class ScalaConsoleRunConfigurationForm {
 
     private RawCommandLineEditor javaOptionsEditor;
     private JPanel myPanel;
     private RawCommandLineEditor consoleArgsEditor;
     private TextFieldWithBrowseButton workingDirectoryField;
-    private JComboBox moduleComboBox;
+    private ModulesComboBox moduleComboBox;
 
     private final ConfigurationModuleSelector myModuleSelector;
 
-    @SuppressWarnings("deprecation")
     public ScalaConsoleRunConfigurationForm(final Project project,
                                             final ScalaConsoleRunConfiguration configuration) {
         myModuleSelector = new ConfigurationModuleSelector(project, moduleComboBox);
@@ -138,8 +138,8 @@ public class ScalaConsoleRunConfigurationForm {
         final JLabel label4 = new JLabel();
         this.$$$loadLabelText$$$(label4, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.console.config.use.classpath.and.sdk.of.module"));
         myPanel.add(label4, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        moduleComboBox = new JComboBox();
-        myPanel.add(moduleComboBox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        moduleComboBox = new ModulesComboBox();
+        myPanel.add(moduleComboBox, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

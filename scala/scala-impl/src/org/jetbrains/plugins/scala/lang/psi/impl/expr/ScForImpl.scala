@@ -199,7 +199,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
     def appendFunc[R](
       funcName:   String,
-      enum:       Option[ScEnumerator],
+      enumerator: Option[ScEnumerator],
       args:       Seq[(Option[ScPattern], String)],
       forceCases: Boolean = false,
       forceBlock: Boolean = false
@@ -213,7 +213,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         resultText ++= "\n"
       }
       resultText ++= "."
-      markMappingHere(enum, enumMappings)
+      markMappingHere(enumerator, enumMappings)
       resultText ++= funcName
 
       resultText ++= (if (needsCase) " { case " else if (forceBlock) " { " else "(")

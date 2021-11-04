@@ -1,7 +1,7 @@
 try { return a } finally { return b }
 -----
 0(1) element: None
-1(2) element: TryStatement
+1(2,4) element: TryStatement
 2(3) READ a
 3(4,7) element: ReturnStatement
 4(5) element: FinallyBlock

@@ -750,7 +750,7 @@ private[importing] object BspResolverLogic {
       (compileDeps ++ testDeps)
         .filterNot(d => moduleTargets.exists(t => t.getId == d._1))
         .map { case (moduleDepId, scope) =>
-          ModuleDep(TargetId(moduleId), TargetId(moduleDepId.getUri), scope, export = true)
+          ModuleDep(TargetId(moduleId), TargetId(moduleDepId.getUri), scope, `export` = true)
         }
     }
   } yield d
@@ -768,9 +768,9 @@ private[importing] object BspResolverLogic {
         val parentId = TargetId(synthParent.getId.getUri)
 
         val parentDeps = dependencyByParent.getOrElse(parentId, Seq.empty)
-        val inheritedDeps = parentDeps.map { d => ModuleDep(synthId, d.child, d.scope, export = false)}
+        val inheritedDeps = parentDeps.map { d => ModuleDep(synthId, d.child, d.scope, `export` = false)}
 
-        val parentSynthDependency = ModuleDep(parentId, synthId, DependencyScope.COMPILE, export = true)
+        val parentSynthDependency = ModuleDep(parentId, synthId, DependencyScope.COMPILE, `export` = true)
         parentSynthDependency +: inheritedDeps
       }
     } yield dep
@@ -783,7 +783,7 @@ private[importing] object BspResolverLogic {
         parent <- idToModules.get(dep.parent)
         child <- idToModules.get(dep.child)
       } yield {
-        addDep(parent, child, dep.scope, dep.export)
+        addDep(parent, child, dep.scope, dep.`export`)
       }
     }
   }
@@ -841,7 +841,7 @@ private[importing] object BspResolverLogic {
   private[importing] case class SynthId(id: String) extends DependencyId(id)
   private[importing] case class TargetId(id: String) extends DependencyId(id)
 
-  private[importing] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
+  private[importing] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, `export`: Boolean)
 
   private[importing] case class Library(name: String, binary: File, sources: Option[File]) {
     val data: LibraryData = {

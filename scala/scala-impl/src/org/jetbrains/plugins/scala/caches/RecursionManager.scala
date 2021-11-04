@@ -124,9 +124,9 @@ object RecursionManager {
 
     override def equals(obj: Any): Boolean = {
       obj match {
-        case key: MyKey[Data] if key.guardId != guardId => false
-        case key: MyKey[Data] if key.userObject eq userObject => true
-        case key: MyKey[Data] if key.myCallEquals || myCallEquals => key.userObject == userObject
+        case key: MyKey[_] if key.guardId != guardId => false
+        case key: MyKey[_] if key.userObject eq userObject => true
+        case key: MyKey[_] if key.myCallEquals || myCallEquals => key.userObject == userObject
         case _ => false
       }
     }

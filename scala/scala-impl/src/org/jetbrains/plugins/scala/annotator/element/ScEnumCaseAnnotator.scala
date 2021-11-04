@@ -14,14 +14,14 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
   )(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    val enum    = cse.enumParent
+    val enumDef = cse.enumParent
     val parents = cse.physicalExtendsBlock.toOption.flatMap(_.templateParents)
 
     def isDesignatedToEnumParent(tpe: ScType): Boolean =
       tpe.extractClass.filterByType[ScTypeDefinition].exists(ScEnum.isDesugaredEnumClass)
 
     val nonVariantTypeParameter =
-      enum.typeParameters.find(_.variance.isInvariant)
+      enumDef.typeParameters.find(_.variance.isInvariant)
 
     //invariant type parameters in enum class require explicit
     //extends clause for each enum case, while covariant/contravariant ones
@@ -36,7 +36,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
         if (parents.isEmpty)
           holder.createErrorAnnotation(
             cse.nameId,
-            ScalaBundle.message("annotator.error.enum.nonvariant.type.param,in.enum", enum.name, tp.name)
+            ScalaBundle.message("annotator.error.enum.nonvariant.type.param,in.enum", enumDef.name, tp.name)
           )
       }
     }
@@ -48,13 +48,13 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     if (needsExplicitExtendsParent) {
       holder.createErrorAnnotation(
         cse.physicalExtendsBlock,
-        ScalaBundle.message("annotator.error.enum.case.must.extend.parent", enum.name)
+        ScalaBundle.message("annotator.error.enum.case.must.extend.parent", enumDef.name)
       )
     }
 
     //if both enum class and enum case have type parameters
     //an explicit extends clause must be provided
-    if (enum.hasTypeParameters && cse.physicalTypeParameters.nonEmpty && parents.isEmpty) {
+    if (enumDef.hasTypeParameters && cse.physicalTypeParameters.nonEmpty && parents.isEmpty) {
       holder.createErrorAnnotation(
         cse.nameId,
         ScalaBundle.message("annotator.error.enum.two.type.parameter.clauses")

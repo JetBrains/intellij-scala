@@ -11,22 +11,22 @@ class TreeTest
   import fastparse._
   import NoWhitespace._
 
-  private def letterOrDigit[_: P]: P[Unit] = P {
+  private def letterOrDigit[* : P]: P[Unit] = P {
     CharPred(_.isLetterOrDigit)
   }
 
-  private def comma[_: P]: P[Unit] =
+  private def comma[* : P]: P[Unit] =
     P(", ").rep(0)
 
-  private def element[_: P]: P[Leaf[TypeDiff]] = P {
+  private def element[* : P]: P[Leaf[TypeDiff]] = P {
     letterOrDigit.rep(1).!.map(s => Leaf(Match(s)))
   }
 
-  private def group[_: P]: P[Node[TypeDiff]] = P {
+  private def group[* : P]: P[Node[TypeDiff]] = P {
     "(" ~~ parser.rep(0) ~~ ")"
   }.map(Node(_: _*))
 
-  private def parser[_: P]: P[Tree[TypeDiff]] = P {
+  private def parser[* : P]: P[Tree[TypeDiff]] = P {
     (group | element) ~ comma
   }
 

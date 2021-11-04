@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.project.notification.source;
 
 import com.intellij.codeInsight.AttachSourcesProvider;
+import com.intellij.ide.JavaUiBundle;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.application.Result;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectBundle;
 import com.intellij.openapi.roots.LibraryOrderEntry;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.impl.libraries.LibraryEx;
@@ -48,15 +47,17 @@ public class AttachSourcesUtil {
             myClassFile = classFile;
         }
 
+        @Override
         public String getName() {
             return ScalaBundle.message("module.libraries.attach.sources.immediately.button");
         }
 
+        @Override
         public String getBusyText() {
-            return ProjectBundle.message("library.attach.sources.action.busy.text");
+            return JavaUiBundle.message("library.attach.sources.action.busy.text");
         }
 
-        @SuppressWarnings("deprecation")
+        @Override
         public ActionCallback perform(List<LibraryOrderEntry> orderEntriesContainingFile) {
             final List<Library.ModifiableModel> modelsToCommit = new ArrayList<>();
             for (LibraryOrderEntry orderEntry : orderEntriesContainingFile) {
@@ -68,14 +69,14 @@ public class AttachSourcesUtil {
                 model.addRoot(root, OrderRootType.SOURCES);
                 modelsToCommit.add(model);
             }
-            if (modelsToCommit.isEmpty()) return new ActionCallback.Rejected();
-            new WriteAction<Void>() {
-                @Override protected void run(@NotNull final Result<? super Void> result) {
-                    for (Library.ModifiableModel model : modelsToCommit) {
-                        model.commit();
-                    }
+            if (modelsToCommit.isEmpty())
+                return new ActionCallback.Rejected();
+
+            WriteAction.runAndWait(() -> {
+                for (Library.ModifiableModel model : modelsToCommit) {
+                    model.commit();
                 }
-            }.execute();
+            });
 
             return new ActionCallback.Done();
         }
@@ -101,11 +102,11 @@ public class AttachSourcesUtil {
         }
 
         public String getName() {
-            return ProjectBundle.message("module.libraries.attach.sources.button");
+            return JavaUiBundle.message("module.libraries.attach.sources.button");
         }
 
         public String getBusyText() {
-            return ProjectBundle.message("library.attach.sources.action.busy.text");
+            return JavaUiBundle.message("library.attach.sources.action.busy.text");
         }
 
         public ActionCallback perform(final List<LibraryOrderEntry> libraries) {
@@ -125,7 +126,7 @@ public class AttachSourcesUtil {
                 librariesToAppendSourcesTo.put(null, null);
 
                 LibraryOrderEntry[] orderEntries = librariesToAppendSourcesTo.values().toArray(new LibraryOrderEntry[0]);
-                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<LibraryOrderEntry>("<html><body>" + ScalaBundle.message("multiple.libraries.contain.file") + "</body></html>", orderEntries) {
+                BaseListPopupStep<LibraryOrderEntry> popupStep = new BaseListPopupStep<>("<html><body>" + ScalaBundle.message("multiple.libraries.contain.file") + "</body></html>", orderEntries) {
 
                     @Nullable
                     @Override
@@ -197,8 +198,8 @@ public class AttachSourcesUtil {
         @NotNull
         private static List<VirtualFile> chooseFiles(@NotNull Project project, @Nullable VirtualFile root) {
             FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, true, false, true, true);
-            descriptor.setTitle(ProjectBundle.message("library.attach.sources.action"));
-            descriptor.setDescription(ProjectBundle.message("library.attach.sources.description"));
+            descriptor.setTitle(JavaUiBundle.message("library.attach.sources.action"));
+            descriptor.setDescription(JavaUiBundle.message("library.attach.sources.description"));
 
             return Arrays.asList(FileChooser.chooseFiles(descriptor, project, root));
         }

@@ -24,7 +24,8 @@ import scala.collection.mutable.ArrayBuffer
 
 class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
                               endInsScope: ScalaPsiElement)
-        extends ScalaRecursiveElementVisitor {
+  extends ScalaRecursiveElementVisitor {
+
   private val myInstructionsBuilder = ArraySeq.newBuilder[InstructionImpl]
   private val myPending = new ArrayBuffer[(InstructionImpl, ScalaPsiElement)]
   private val myTransitionInstructions = new ArrayBuffer[(InstructionImpl, HandleInfo)]
@@ -43,7 +44,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myInstructionsBuilder.result()
   }
 
-  def inc: Int = {
+  private def inc: Int = {
     val num = myInstructionNum
     myInstructionNum += 1
     num
@@ -53,13 +54,13 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     if ((element eq startInScope) || !(element eq endInsScope)) super.visitScalaElement(element)
   }
 
-  def emptyNode(): Unit = {
+  private def emptyNode(): Unit = {
     startNode(None) {
       _ =>
     }
   }
 
-  def startNode(element: Option[ScalaPsiElement])(body: InstructionImpl => Unit): Unit = {
+  private def startNode(element: Option[ScalaPsiElement])(body: InstructionImpl => Unit): Unit = {
     startNode(element, checkPending = true)(body)
   }
 
@@ -132,7 +133,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     myHead = instr
   }
 
-  def usedVariable(ref: ScReference): Option[PsiNamedElement] = ref.resolve() match {
+  private def usedVariable(ref: ScReference): Option[PsiNamedElement] = ref.resolve() match {
     case named: PsiNamedElement => Some(named)
     case _ => None
   }
@@ -370,7 +371,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
     else addPendingEdge(null, myHead)
 
     // add edge to finally block
-    getClosestFinallyInfo.map {finfo => myTransitionInstructions += ((myHead, finfo))}
+    getClosestFinallyInfo.foreach { finfo => myTransitionInstructions += ((myHead, finfo))}
     interruptFlow()
   }
 
@@ -456,9 +457,9 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   private def getClosestFinallyInfo = myCatchedExnStack.collectFirst {case fi: FinallyInfo => fi}
 
-  sealed abstract class HandleInfo(val elem: ScalaPsiElement)
-  case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
-  case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
+  private sealed abstract class HandleInfo(val elem: ScalaPsiElement)
+  private case class CatchInfo(cc: ScCaseClause) extends HandleInfo(cc)
+  private case class FinallyInfo(fb: ScFinallyBlock) extends HandleInfo(fb)
 
   override def visitTry(tryStmt: ScTry): Unit = {
     val handledExnTypes = tryStmt.catchBlock match {
@@ -533,7 +534,11 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
         processCatch(null)
       } else {
         startNode(Some(fBlock)) {finInstr =>
-          for (p@(instr, info) <- myTransitionInstructions; if info.elem eq fBlock) {
+          val myTransitionInstructionsCopy = myTransitionInstructions.toSeq
+          for {
+            p@(instr, info) <- myTransitionInstructionsCopy
+            if info.elem eq fBlock
+          } {
             addEdge(instr, finInstr)
             myTransitionInstructions -= p
           }

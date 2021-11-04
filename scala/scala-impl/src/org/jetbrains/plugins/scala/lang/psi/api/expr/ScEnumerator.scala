@@ -48,13 +48,13 @@ object ScEnumerator {
   }
 
   object withDesugared {
-    def unapply(enum: ScEnumerator): Option[DesugaredEnumerator] = enum.desugared
+    def unapply(enumerator: ScEnumerator): Option[DesugaredEnumerator] = enumerator.desugared
   }
 
   object withDesugaredAndEnumeratorToken {
-    def unapply(enum: ScEnumerator): Option[(DesugaredEnumerator, PsiElement)] = for {
-      desugared <- enum.desugared
-      token <- enum.enumeratorToken
+    def unapply(enumerator: ScEnumerator): Option[(DesugaredEnumerator, PsiElement)] = for {
+      desugared <- enumerator.desugared
+      token <- enumerator.enumeratorToken
     } yield (desugared, token)
   }
 }

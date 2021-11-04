@@ -391,7 +391,7 @@ trait TreeAdapter {
         case _ => unreachable
       }
     }
-    en.children.collect { case enum: ScEnumerator => enum }.map(toEnumerator).toList
+    en.children.collect { case enumerator: ScEnumerator => enumerator }.map(toEnumerator).toList
   }
 
   def toParams(argss: List[ScArgumentExprList]): List[List[m.Term.Param]] = {

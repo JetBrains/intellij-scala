@@ -83,7 +83,7 @@ case class Injection(expression: ScExpression, specifier: Option[Specifier]) ext
       case Some(result) =>
         try {
           val value = Types.valueOf(result)
-          value.formatted(it.format)
+          it.format.format(value)
           None
         } catch {
           case _: IllegalFormatConversionException => Some(Inapplicable)

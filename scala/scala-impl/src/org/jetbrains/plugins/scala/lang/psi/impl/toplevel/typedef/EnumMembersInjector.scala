@@ -12,13 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * `ScEnumCase`s into proper vals/classes.
  */
 class EnumMembersInjector extends SyntheticMembersInjector {
-  private[this] def processEnumCases(enum: ScEnum): Seq[String] =
-    enum.cases.map(injectEnumCase)
+  private[this] def processEnumCases(scEnum: ScEnum): Seq[String] =
+    scEnum.cases.map(injectEnumCase)
 
   override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject =>
       obj.fakeCompanionClassOrCompanionClass match {
-        case enum: ScEnum          => processEnumCases(enum)
+        case scEnum: ScEnum        => processEnumCases(scEnum)
         case ScEnum.Original(enum) => processEnumCases(enum)
         case _                     => Seq.empty
       }

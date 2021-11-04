@@ -70,16 +70,14 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
   }
 
   def test_wildcard_import_in_selector(): Unit = {
-    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
-      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports in selectors. Also adjust supportedIn to 2.13.7")
-    //val selectedText = s"import base.{nope, ${START}_$END}"
-    //checkTextHasError(selectedText)
+    val selectedText = s"import base.{nope, ${START}_$END}"
+    checkTextHasError(selectedText)
 
-    //testQuickFix(
-    //  "import base.{nope, _}",
-    //  "import base.{nope, *}",
-    //  "Replace with *"
-    //)
+    testQuickFix(
+      "import base.{nope, _}",
+      "import base.{nope, *}",
+      "Replace with *"
+    )
   }
 
   def test_underscore_is_shadowing(): Unit = {
