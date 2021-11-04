@@ -10,6 +10,7 @@ import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScMarkerOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -37,6 +38,10 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
       case parent => parent
     }
   }
+
+  override def beginMarker: Option[PsiElement] = this.parentsInFile.findByType[ScMarkerOwner].map(_.beginMarker)
+
+  override def marker: PsiElement = getFirstChild
 
   override def getCanonicalText: String =
     resolve() match {

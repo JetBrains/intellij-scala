@@ -7,7 +7,7 @@ package expr
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
-trait ScFor extends ScExpression {
+trait ScFor extends ScExpression with ScMarkerOwner {
   /**
     * @param forDisplay true if the desugaring is intended for being shown to the user,
     *                   false if it is intented for the type system.

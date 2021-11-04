@@ -11,4 +11,8 @@ trait ScEnd extends ScalaPsiElement with PsiReference {
    * @return the token that designates which element is ended by this end-element
    */
   def endingElementDesignator: PsiElement
+
+  def beginMarker: Option[PsiElement]
+
+  def marker: PsiElement
 }

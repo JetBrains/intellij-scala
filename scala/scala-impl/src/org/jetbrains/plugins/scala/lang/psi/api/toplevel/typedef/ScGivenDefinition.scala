@@ -5,7 +5,7 @@ package api
 package toplevel
 package typedef
 
-trait ScGivenDefinition extends ScTemplateDefinition with ScGiven {
+trait ScGivenDefinition extends ScTemplateDefinition with ScGiven with ScMarkerOwner {
   def desugaredDefinitions: Seq[ScMember]
 }
 

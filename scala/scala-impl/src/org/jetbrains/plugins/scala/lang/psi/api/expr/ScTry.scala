@@ -7,7 +7,7 @@ package expr
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScTry extends ScExpression {
+trait ScTry extends ScExpression with ScMarkerOwner {
   def expression: Option[ScExpression]
 
   def catchBlock: Option[ScCatchBlock]

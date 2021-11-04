@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -514,6 +515,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     processor.processType(ty, this)
     found
   }
+
+  override protected def beginMarkerType: IElementType = ScalaTokenTypes.kFOR
 }
 
 object ScForImpl {
