@@ -1,69 +1,63 @@
-<!--
-  ~ Copyright 2000-2020 JetBrains s.r.o.
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ https://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
+<project name="generate lexer from scala.flex" default="generate.lexer.all">
 
-<project name="generate lexer from scala.flex" default="generate.lexer">
-  <property name="lexer.file" value="_ScalaCoreLexer.java"/>
-  <property name="split.lexer.file" value="_ScalaSplittingLexer.java"/>
-  <property name="lexer.log" value="jflex.log"/>
-  <property name="split.lexer.log" value="splitting.log"/>
-  <property name="lexer.source" value="scala.flex"/>
-  <property name="split.lexer.source" value="split_lexer.flex"/>
-  <property name="skeleton" value="idea-flex.skeleton"/>
-  <property name="splitting.skeleton" value="splitting.skeleton"/>
+  <property name="scala.lexer.file" value="_ScalaCoreLexer.java"/>
+  <property name="scala.lexer.source" value="_ScalaCoreLexer.flex"/>
+  <property name="scala.lexer.skeleton" value="idea-flex.skeleton"/>
+  <property name="scala.lexer.log" value="jflex.log"/>
+
+  <property name="splitting.lexer.file" value="_ScalaSplittingLexer.java"/>
+  <property name="splitting.lexer.source" value="_ScalaSplittingLexer.flex"/>
+  <property name="splitting.lexer.skeleton" value="idea-flex.skeleton"/>
+  <property name="splitting.lexer.log" value="splitting.log"/>
+
   <property name="scaladoc.lexer.file" value="../../scaladoc/lexer/_ScalaDocLexer.java"/>
+  <property name="scaladoc.lexer.skeleton" value="idea-flex.skeleton"/>
+  <property name="scaladoc.lexer.source" value="../../scaladoc/lexer/_ScalaDocLexer.flex"/>
   <property name="scaladoc.lexer.log" value="../../scaladoc/lexer/scaladoc.log"/>
-  <property name="scaladoc.skeleton" value="../../scaladoc/lexer/scaladoc.skeleton"/>  
-  <property name="scaladoc.lexer.source" value="../../scaladoc/lexer/scaladoc.flex"/>
 
-  <target name="generate.scala.lexer" description="Produces Jflex based lexer" depends="generate.splitting.lexer">
-    <delete file="${lexer.file}"/>
-    <delete file="${lexer.log}"/>
+  <property name="jflex.jarPath" value="jflex-1.7.0-2.jar"/>
+  <property name="jflex.mainClass" value="jflex.Main"/>
 
-    <java classname="JFlex.Main" output="jflexCore.log" fork="true" maxmemory="1024m" failonerror="true">
-      <classpath path="JFlex_patched.jar"/>
-      <arg value="-sliceandcharat"/>
+  <target name="generate.lexer.all" depends="generate.lexer.scala, generate.lexer.scaladoc" description="main target"/>
+
+  <target name="generate.lexer.scala"
+          description="Produces Jflex based lexer"
+          depends="generate.lexer.splitting">
+    <delete file="${scala.lexer.file}"/>
+    <delete file="${scala.lexer.log}"/>
+
+    <java classname="${jflex.mainClass}"
+          output="jflexCore.log"
+          fork="true"
+          maxmemory="1024m"
+          failonerror="true">
+      <classpath path="${jflex.jarPath}"/>
       <arg value="-skel"/>
-      <arg value="${skeleton}"/>
-      <arg value="${lexer.source}"/>
+      <arg value="${scala.lexer.skeleton}"/>
+      <arg value="${scala.lexer.source}"/>
     </java>
   </target>
 
-  <target name="generate.splitting.lexer" description="Produces splitting lexer">
-    <delete file="${split.lexer.file}"/>
-    <delete file="${split.lexer.log}"/>
+  <target name="generate.lexer.splitting" description="Produces splitting lexer">
+    <delete file="${splitting.lexer.file}"/>
+    <delete file="${splitting.lexer.log}"/>
 
-    <java jar="JFlex_patched.jar" output="jflexSplitting.log" fork="true" maxmemory="512m" >
-      <arg value="-sliceandcharat"/>
+    <java jar="${jflex.jarPath}" output="jflexSplitting.log" fork="true" maxmemory="512m" >
       <arg value="-skel"/>
-      <arg value="${splitting.skeleton}"/>
-      <arg value="${split.lexer.source}"/>
+      <arg value="${splitting.lexer.skeleton}"/>
+      <arg value="${splitting.lexer.source}"/>
     </java>
   </target>
 
-  <target name="generate.scaladoc.lexer" description="Produces scaladoc lexer">
+  <target name="generate.lexer.scaladoc" description="Produces scaladoc lexer">
     <delete file="${scaladoc.lexer.file}"/>
     <delete file="${scaladoc.lexer.log}"/>
 
-    <java jar="JFlex_patched.jar" output="jflexDoc.log" fork="true" maxmemory="512m" >
-      <arg value="-sliceandcharat"/>
+    <java jar="${jflex.jarPath}" output="jflexDoc.log" fork="true" maxmemory="512m" >
       <arg value="-skel"/>
-      <arg value="${scaladoc.skeleton}"/>
+      <arg value="${scaladoc.lexer.skeleton}"/>
       <arg value="${scaladoc.lexer.source}"/>
     </java>
   </target>
-
-  <target name="generate.lexer" depends="generate.scala.lexer, generate.scaladoc.lexer" description="main target"/>
 
 </project>

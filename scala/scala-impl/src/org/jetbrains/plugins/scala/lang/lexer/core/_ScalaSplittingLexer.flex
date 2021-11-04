@@ -31,6 +31,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
   private int braceCount = 0;
   private IElementType commentType = tBLOCK_COMMENT;
 
+  public void resetCustom() {
+    braceCount = 0;
+    commentType = tBLOCK_COMMENT;
+  }
 %}
 
 COMMENT_BEGIN = "/*"
