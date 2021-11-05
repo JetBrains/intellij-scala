@@ -12,7 +12,9 @@ import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
+import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference.IntermediateTarget
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -103,18 +105,28 @@ trait ScalaInplaceRenameHandler {
       case named: ScNamedElement => named.nameId
     }.orNull
 
-    elementToRename match {
+    val actualElementToRename = elementToRename match {
+      case IntermediateTarget(finalTarget: ScBegin) => finalTarget.identifier match {
+        case Some(identifier) =>
+          editor.getCaretModel.moveToOffset(identifier.getTextOffset)
+          identifier
+        case None => finalTarget
+      }
+      case e => e
+    }
+
+    actualElementToRename match {
       case fun: ScFunction if selected.contains(fun) && isSpecial(fun) =>
         specialMethodPopup(fun)
         null
-      case _ =>
+      case e =>
         if (nameId != null) nameId.getParent match {
           case ref: ScReference if ScalaRenameUtil.isAliased(ref) =>
             aliasedElementPopup(ref)
             return null
           case _ =>
         }
-        inplaceRename(ScalaRenameUtil.findSubstituteElement(elementToRename))
+        inplaceRename(ScalaRenameUtil.findSubstituteElement(e))
     }
   }
 
