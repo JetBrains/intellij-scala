@@ -14,6 +14,8 @@ trait ScEnd extends ScalaPsiElement with PsiNamedElement {
    */
   def endingElementDesignator: PsiElement
 
+  def containsIdentifier: Boolean
+
   /**
    * @return a definition to which the "end" keyword belongs
    */

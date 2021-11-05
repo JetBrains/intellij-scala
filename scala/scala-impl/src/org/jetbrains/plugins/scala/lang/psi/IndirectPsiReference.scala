@@ -17,9 +17,12 @@ trait IndirectPsiReference extends PsiElement with PsiReference {
   override def getRangeInElement: TextRange = TextRange.create(0, getElement.getTextLength)
 
   override final def resolve(): PsiElement = {
-    val intermediateTarget = ScalaPsiElementFactory.createScalaFileFromText(s"class ${IndirectPsiReference.Name}")(this).typeDefinitions.head
-    intermediateTarget.context = finalTarget.orNull
-    intermediateTarget
+    val intermediateTarget = finalTarget.map { element =>
+      val target = ScalaPsiElementFactory.createScalaFileFromText(s"class ${IndirectPsiReference.Name}")(this).typeDefinitions.head
+      target.context = element
+      target
+    }
+    intermediateTarget.orNull
   }
 
   protected def finalTarget: Option[PsiElement]

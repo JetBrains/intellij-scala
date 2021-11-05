@@ -48,7 +48,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     def addBeanMethods(element: PsiElement, newName: String): Unit = {
       element match {
         case t: ScTypedDefinition =>
-          t.parentsInFile.findByType[ScBegin].filter(_.identifier.contains(t)).flatMap(_.end).foreach(allRenames.put(_, newName))
+          t.parentsInFile.findByType[ScBegin].filter(_.namedElement.contains(t)).flatMap(_.end).foreach(allRenames.put(_, newName))
           for (method <- getBeanMethods(t)) {
             val name = method.name
             val is = name.startsWith("is")
