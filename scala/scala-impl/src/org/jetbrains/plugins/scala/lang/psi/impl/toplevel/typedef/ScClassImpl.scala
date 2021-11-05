@@ -191,7 +191,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
     getSupers.filter(_.isInterface)
   }
 
-  override protected def markerElementType: IElementType = ScalaTokenType.ClassKeyword
+  override protected def keywordTokenType: IElementType = ScalaTokenType.ClassKeyword
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

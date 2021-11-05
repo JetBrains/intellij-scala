@@ -14,11 +14,11 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
     endingElementDesignator.replace(ScalaPsiElementFactory.createIdentifier(name).getPsi)
   }
 
-  override def toString: String = "End: " + getName
+  override def keyword: PsiElement = getFirstChild
 
   override def endingElementDesignator: PsiElement = getLastChild
 
   override def begin: Option[ScBegin] = this.parentsInFile.findByType[ScBegin]
 
-  override def marker: PsiElement = getFirstChild
+  override def toString: String = "End: " + getName
 }

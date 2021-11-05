@@ -41,7 +41,7 @@ class ScWhileImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhile
     Option(rightParenthesis)
   }
 
-  override protected def markerElementType: IElementType = ScalaTokenTypes.kWHILE
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kWHILE
 
   override def toString: String = "WhileStatement"
 }

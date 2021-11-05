@@ -74,7 +74,7 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     true
   }
 
-  override protected def markerElementType: IElementType = ScalaTokenType.ExtensionKeyword
+  override protected def keywordTokenType: IElementType = ScalaTokenType.ExtensionKeyword
 
   override protected def endParent: Option[PsiElement] = extensionBody
 }
