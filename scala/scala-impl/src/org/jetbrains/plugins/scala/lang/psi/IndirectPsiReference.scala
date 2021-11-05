@@ -7,7 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
- * Resolves to a sythetic PSI element with finalTarget as a context
+ * Resolves to a synthetic PSI element with finalTarget as a context.
+ * Used by ScEnd to create a non-highlighted reference to enable Rename and Find Usages.
  */
 trait IndirectPsiReference extends PsiElement with PsiReference {
   override def getReference: PsiReference = this
@@ -31,9 +32,9 @@ trait IndirectPsiReference extends PsiElement with PsiReference {
 
   override def bindToElement(element: PsiElement): PsiElement = this
 
-  override def isReferenceTo(element: PsiElement): Boolean = element == this
+  override def isReferenceTo(element: PsiElement): Boolean = false
 
-  override def isSoft: Boolean = false
+  override def isSoft: Boolean = true
 
   override def getCanonicalText: String = Name
 }
