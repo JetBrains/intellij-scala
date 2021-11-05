@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.highlighter.usages
 import java.util
 import java.util.Collections
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -17,7 +18,7 @@ private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeD
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit =
     definition.baseCompanion.map(_.nameId.getPrevSiblingNotWhitespace).foreach { companionKeyword =>
       definition match {
-        case ScBegin(_, Some(_)) => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
+        case ScBegin(_, Some(_)) if CodeInsightSettings.getInstance.HIGHLIGHT_BRACES => // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
         case _ => myReadUsages.add(keyword.getTextRange)
       }
       myReadUsages.add(companionKeyword.getTextRange)
