@@ -51,7 +51,7 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry {
       }
     }).getOrElse(Failure(ScalaBundle.message("nothing.to.type")))
 
-  override protected def markerElementType: IElementType = ScalaTokenTypes.kTRY
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kTRY
 
   override def toString: String = "TryStatement"
 }

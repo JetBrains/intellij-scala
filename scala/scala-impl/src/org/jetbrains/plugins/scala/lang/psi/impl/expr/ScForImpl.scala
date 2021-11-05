@@ -516,7 +516,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     found
   }
 
-  override protected def markerElementType: IElementType = ScalaTokenTypes.kFOR
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kFOR
 }
 
 object ScForImpl {

@@ -89,7 +89,7 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
     case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
   }
 
-  override protected def markerElementType: IElementType = ScalaTokenType.TraitKeyword
+  override protected def keywordTokenType: IElementType = ScalaTokenType.TraitKeyword
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

@@ -52,7 +52,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
 
-  override protected def markerElementType: IElementType = ScalaTokenTypes.kVAR
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAR
 
   override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 }
