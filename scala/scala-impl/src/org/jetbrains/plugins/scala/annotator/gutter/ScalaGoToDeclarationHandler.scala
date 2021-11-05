@@ -47,7 +47,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     val maybeParent = sourceElement.parent
     maybeParent match {
       case Some(end: ScEnd) if end.endingElementDesignator == sourceElement =>
-        return end.begin.toArray
+        return end.begin.flatMap(_.identifier).toArray
       case _ =>
     }
 
