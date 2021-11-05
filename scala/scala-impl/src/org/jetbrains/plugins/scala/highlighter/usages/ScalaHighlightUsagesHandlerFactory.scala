@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScEnd, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -39,6 +39,15 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
       case elem => elem
     }
     if (element == null || element.getNode == null) return null
+
+    element match {
+      case Parent(end: ScEnd) if end.containsIdentifier && end.endingElementDesignator == element => end.begin.flatMap(_.namedElement) match {
+        case Some(element) => return new ScHighlightEndMarkerUsagesHandler(element, editor, file)
+        case None =>
+      }
+      case _ =>
+    }
+
     element.getNode.getElementType match {
       case `kRETURN` =>
         val fun = PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition])

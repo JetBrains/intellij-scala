@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
 
-class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
+class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd with IndirectPsiReference {
   override def getName: String = endingElementDesignator.getText
 
   override def setName(name: String): PsiElement = {
@@ -18,7 +21,13 @@ class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
 
   override def endingElementDesignator: PsiElement = getLastChild
 
+  override def containsIdentifier: Boolean = endingElementDesignator.elementType == ScalaTokenTypes.tIDENTIFIER
+
   override def begin: Option[ScBegin] = this.parentsInFile.findByType[ScBegin]
+
+  override def getRangeInElement: TextRange = endingElementDesignator.getTextRangeInParent
+
+  override protected def finalTarget: Option[PsiElement] = if (containsIdentifier) begin else None
 
   override def toString: String = "End: " + getName
 }

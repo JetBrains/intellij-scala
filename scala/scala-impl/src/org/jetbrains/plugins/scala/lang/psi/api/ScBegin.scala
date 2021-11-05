@@ -4,10 +4,14 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 trait ScBegin extends ScalaPsiElement {
   /** @return the definition keyword (such as "class") */
   final def keyword: PsiElement = findFirstChildByType(keywordTokenType).get
+
+  /** @return the first named element (for navigation from an end marker) */
+  def namedElement: Option[ScNamedElement] = this.elements.findByType[ScNamedElement]
 
   protected def keywordTokenType: IElementType
 
