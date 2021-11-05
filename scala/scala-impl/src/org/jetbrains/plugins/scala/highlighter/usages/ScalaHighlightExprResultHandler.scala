@@ -4,7 +4,7 @@ package usages
 
 import java.util
 import java.util.Collections
-
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -19,7 +19,7 @@ class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {
   override def computeUsages(targets: util.List[_ <: PsiElement]): Unit = {
     val returns = expr.calculateTailReturns ++ (keyword match {
-      case Parent(ScBegin(_, Some(_))) => Set.empty // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
+      case Parent(ScBegin(_, Some(_))) if CodeInsightSettings.getInstance.HIGHLIGHT_BRACES => Set.empty // Highlight as "brace" rather than "usage" (in ScalaBlockSupportHandler)
       case _ => Set(keyword)
     })
     returns.map(_.getTextRange).foreach(myReadUsages.add)
