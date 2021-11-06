@@ -695,6 +695,8 @@ package object extensions {
 
     def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
 
+    def isIdentifier: Boolean = element.elementType == ScalaTokenTypes.tIDENTIFIER
+
     def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
 
     def isComment: Boolean = element.isInstanceOf[PsiComment]

@@ -106,13 +106,13 @@ trait ScalaInplaceRenameHandler {
     }.orNull
 
     val actualElementToRename = elementToRename match {
-      case IntermediateTarget(finalTarget: ScBegin) => finalTarget.namedElement match {
+      case IntermediateTarget(begin: ScBegin) => begin.namedElement match {
         case Some(element) =>
           editor.getCaretModel.moveToOffset(element.getTextOffset)
           element
-        case None => finalTarget
+        case None => begin
       }
-      case e => e
+      case element => element
     }
 
     actualElementToRename match {

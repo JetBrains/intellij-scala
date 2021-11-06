@@ -6,10 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference.Name
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
- * Resolves to a synthetic PSI element with finalTarget as a context.
- * Used by ScEnd to create a non-highlighted reference to enable Rename and Find Usages.
- */
+/** Resolves to a synthetic PSI element with finalTarget as a context. */
 trait IndirectPsiReference extends PsiElement with PsiReference {
   override def getReference: PsiReference = this
 
@@ -43,6 +40,7 @@ object IndirectPsiReference {
   private final val Name = "IntermediateTarget2cf17ff3b2a54d14b64914496f02dc65" // Random unique ID
 
   object IntermediateTarget {
+    /** @return the final reference of an intermediateTarget */
     def unapply(intermediateTarget: PsiElement): Option[PsiElement] = intermediateTarget match {
       case target: ScClass if target.name == Name => Some(target.getContext)
       case _ => None

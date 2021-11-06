@@ -58,11 +58,11 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     super.collectAdditionalElementsToRename(stringUsages)
 
     elementToRename.withParentsInFile.findByType[ScBegin].filter(_.namedElement.contains(elementToRename)).flatMap(_.end).foreach { end =>
-      stringUsages.add(Pair.create(end.endingElementDesignator, null))
+      stringUsages.add(Pair.create(end.tag, null))
     }
 
     substituted.asOptionOfUnsafe[ScBegin].flatMap(_.end).foreach { end =>
-      stringUsages.add(Pair.create(end.endingElementDesignator, null))
+      stringUsages.add(Pair.create(end.tag, null))
     }
   }
 
