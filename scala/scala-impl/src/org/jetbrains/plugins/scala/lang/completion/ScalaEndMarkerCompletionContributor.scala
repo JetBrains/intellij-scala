@@ -98,7 +98,7 @@ object ScalaEndMarkerCompletionContributor {
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
                                           context: ProcessingContext): Iterable[LookupElement] = for {
-      markerCtx <- getMarkerContext(position).toSeq
+      markerCtx <- Iterable.from(getMarkerContext(position))
       // collect possible end marker suggestions for all parents and one previous sibling
       // use index to determine lookup element priority: show closest first
       (element, idx) <- (markerCtx.prevSiblingNotWhitespaceComment ++ markerCtx.contexts).zipWithIndex
