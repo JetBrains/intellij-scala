@@ -35,6 +35,11 @@ object End {
       val marker = builder.mark()
       builder.remapCurrentToken(ScalaTokenType.EndKeyword)
       builder.advanceLexer() // ate end
+
+      if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == ScalaTokenType.ExtensionKeyword.keywordText) {
+        builder.remapCurrentToken(ScalaTokenType.ExtensionKeyword)
+      }
+
       builder.advanceLexer() // ate end-token
       marker.done(ScalaElementType.END_STMT)
       true
