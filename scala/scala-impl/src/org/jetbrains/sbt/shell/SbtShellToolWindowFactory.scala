@@ -108,7 +108,9 @@ object SbtShellToolWindowFactory {
   private def scheduleIconUpdate(project: Project, toolWindow: ToolWindow): Unit =
     schedulePeriodicTask(500L, TimeUnit.MILLISECONDS, toolWindow.getContentManager) {
       invokeLater {
-        toolWindow.setIcon(currentIcon(project))
+        if (!project.isDisposed) {
+          toolWindow.setIcon(currentIcon(project))
+        }
       }
     }
 
