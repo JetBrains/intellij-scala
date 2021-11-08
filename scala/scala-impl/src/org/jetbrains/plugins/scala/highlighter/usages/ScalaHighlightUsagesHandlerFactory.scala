@@ -40,11 +40,13 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
     }
     if (element == null || element.getNode == null) return null
 
-    element match {
-      case Parent(end: ScEnd) if end.tag.isIdentifier && end.tag == element => end.begin.flatMap(_.namedElement) match {
-        case Some(element) => return new ScHighlightEndMarkerUsagesHandler(element, editor, file)
-        case None =>
-      }
+    element.getParent match {
+      case end: ScEnd =>
+        val named =
+          if (end.tag.isIdentifier && end.tag == element)
+            end.begin.flatMap(_.namedElement)
+          else None
+        return named.map(new ScHighlightEndMarkerUsagesHandler(_, editor, file)).orNull
       case _ =>
     }
 
