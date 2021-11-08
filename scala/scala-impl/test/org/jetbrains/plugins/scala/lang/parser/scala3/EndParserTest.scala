@@ -319,5 +319,181 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
       |""".stripMargin
   )
 
-  // todo: add tests for extensions and given
+  def testExtension(): Unit = checkTree(
+    """object A {
+      |  extension (c: String)
+      |    def onlyDigits: Boolean = c.forall(_.isDigit)
+      |  end extension
+      |
+      |  extension [T](xs: List[T])
+      |    def sumBy[U: Numeric](f: T => U): U = ???
+      |  end extension
+      |}""".stripMargin,
+    """ScalaFile
+      |  ScObject: A
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('A')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        Extension on String
+      |          PsiElement(extension)('extension')
+      |          PsiWhiteSpace(' ')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: c
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('c')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: String
+      |                    CodeReferenceElement: String
+      |                      PsiElement(identifier)('String')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace('\n    ')
+      |          ScExtensionBody
+      |            ScFunctionDefinition: onlyDigits
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(def)('def')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(identifier)('onlyDigits')
+      |              Parameters
+      |                <empty list>
+      |              PsiElement(:)(':')
+      |              PsiWhiteSpace(' ')
+      |              SimpleType: Boolean
+      |                CodeReferenceElement: Boolean
+      |                  PsiElement(identifier)('Boolean')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              MethodCall
+      |                ReferenceExpression: c.forall
+      |                  ReferenceExpression: c
+      |                    PsiElement(identifier)('c')
+      |                  PsiElement(.)('.')
+      |                  PsiElement(identifier)('forall')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  ReferenceExpression: _.isDigit
+      |                    UnderscoreSection
+      |                      PsiElement(_)('_')
+      |                    PsiElement(.)('.')
+      |                    PsiElement(identifier)('isDigit')
+      |                  PsiElement())(')')
+      |            PsiWhiteSpace('\n  ')
+      |            End: extension
+      |              PsiElement(end)('end')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(extension)('extension')
+      |        PsiWhiteSpace('\n\n  ')
+      |        Extension on List[T]
+      |          PsiElement(extension)('extension')
+      |          PsiWhiteSpace(' ')
+      |          TypeParameterClause
+      |            PsiElement([)('[')
+      |            TypeParameter: T
+      |              PsiElement(identifier)('T')
+      |            PsiElement(])(']')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: xs
+      |                AnnotationsList
+      |                  <empty list>
+      |                Modifiers
+      |                  <empty list>
+      |                PsiElement(identifier)('xs')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  ParametrizedType: List[T]
+      |                    SimpleType: List
+      |                      CodeReferenceElement: List
+      |                        PsiElement(identifier)('List')
+      |                    TypeArgumentsList
+      |                      PsiElement([)('[')
+      |                      SimpleType: T
+      |                        CodeReferenceElement: T
+      |                          PsiElement(identifier)('T')
+      |                      PsiElement(])(']')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace('\n    ')
+      |          ScExtensionBody
+      |            ScFunctionDefinition: sumBy
+      |              AnnotationsList
+      |                <empty list>
+      |              Modifiers
+      |                <empty list>
+      |              PsiElement(def)('def')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(identifier)('sumBy')
+      |              TypeParameterClause
+      |                PsiElement([)('[')
+      |                TypeParameter: U
+      |                  PsiElement(identifier)('U')
+      |                  PsiElement(:)(':')
+      |                  PsiWhiteSpace(' ')
+      |                  SimpleType: Numeric
+      |                    CodeReferenceElement: Numeric
+      |                      PsiElement(identifier)('Numeric')
+      |                PsiElement(])(']')
+      |              Parameters
+      |                ParametersClause
+      |                  PsiElement(()('(')
+      |                  Parameter: f
+      |                    AnnotationsList
+      |                      <empty list>
+      |                    Modifiers
+      |                      <empty list>
+      |                    PsiElement(identifier)('f')
+      |                    PsiElement(:)(':')
+      |                    PsiWhiteSpace(' ')
+      |                    ParameterType
+      |                      FunctionalType: T => U
+      |                        SimpleType: T
+      |                          CodeReferenceElement: T
+      |                            PsiElement(identifier)('T')
+      |                        PsiWhiteSpace(' ')
+      |                        PsiElement(=>)('=>')
+      |                        PsiWhiteSpace(' ')
+      |                        SimpleType: U
+      |                          CodeReferenceElement: U
+      |                            PsiElement(identifier)('U')
+      |                  PsiElement())(')')
+      |              PsiElement(:)(':')
+      |              PsiWhiteSpace(' ')
+      |              SimpleType: U
+      |                CodeReferenceElement: U
+      |                  PsiElement(identifier)('U')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(=)('=')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: ???
+      |                PsiElement(identifier)('???')
+      |            PsiWhiteSpace('\n  ')
+      |            End: extension
+      |              PsiElement(end)('end')
+      |              PsiWhiteSpace(' ')
+      |              PsiElement(extension)('extension')
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')""".stripMargin
+  )
+
+  // todo: add tests for given
 }
