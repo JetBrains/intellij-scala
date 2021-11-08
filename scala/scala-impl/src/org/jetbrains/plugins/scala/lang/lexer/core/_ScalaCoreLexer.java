@@ -1370,7 +1370,7 @@ public class _ScalaCoreLexer implements FlexLexer {
     zzEndRead = end;
 
     // !!!! NOTE !!!!
-    // When updating the skeleton, do not forget to add this method call
+    // When updating the skeleton from IntelliJ repository, do not forget to add this method call
     resetCustom();
 
     yybegin(initialState);
