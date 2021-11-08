@@ -196,15 +196,14 @@ object ScalaEndMarkerCompletionContributor {
       // anonymous class
       case ntd: ScNewTemplateDefinition if ntd.extendsBlock.isAnonymousClass =>
         val templateBody = ntd.extendsBlock.templateBody
-        Option.when(templateBody.exists(isMultilineAndNonEmpty)) {
+        Option.when(templateBody.isDefined) {
           EndMarkerToken.keyword(ScalaTokenType.NewKeyword.keywordText, templateParents = ntd.extendsBlock.templateParents)
         }
 
       // class, trait, object, enum
       case td: ScTypeDefinition if td.is[ScClass, ScTrait, ScObject, ScEnum] =>
         val templateBody = td.extendsBlock.templateBody
-        Some(EndMarkerToken.identifier(td.name))
-          .filter(_ => templateBody.exists(isMultilineAndNonEmpty) || td.extendsBlock.cases.nonEmpty)
+        Option.when(templateBody.isDefined)(EndMarkerToken.identifier(td.name))
 
       // val/var v = ???
       case SimpleValOrVarDefinitionWithMultilineBody(binding) =>

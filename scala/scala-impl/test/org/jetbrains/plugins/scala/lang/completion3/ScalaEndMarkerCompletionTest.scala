@@ -153,13 +153,21 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     typeText = "C"
   )
 
-  def testNoCompletionForEmptyAnonClass(): Unit = checkNoCompletion(
+  def testEmptyAnonClass(): Unit = checkLookupElement(
     fileText =
       s"""class C
          |
          |new C:
          |e$CARET
-         |""".stripMargin
+         |""".stripMargin,
+    resultText =
+      s"""class C
+         |
+         |new C:
+         |end new$CARET
+         |""".stripMargin,
+    lookupStr = "end new",
+    typeText = "C"
   )
 
   def testNoCompletionForAnonClassWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -225,11 +233,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     presentationText = "end C"
   )
 
-  def testNoCompletionForEmptyClass(): Unit = checkNoCompletion(
+  def testEmptyClass(): Unit = checkLookupElement(
     fileText =
       s"""class C:
          |e$CARET
-         |""".stripMargin
+         |""".stripMargin,
+    resultText =
+      s"""class C:
+         |end C$CARET
+         |""".stripMargin,
+    lookupStr = "end C"
   )
 
   def testNoCompletionForClassWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -291,11 +304,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     presentationText = "end T"
   )
 
-  def testNoCompletionForEmptyTrait(): Unit = checkNoCompletion(
+  def testEmptyTrait(): Unit = checkLookupElement(
     fileText =
       s"""trait T:
          |e$CARET
-         |""".stripMargin
+         |""".stripMargin,
+    resultText =
+      s"""trait T:
+         |end T$CARET
+         |""".stripMargin,
+    lookupStr = "end T"
   )
 
   def testNoCompletionForTraitWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -357,11 +375,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     presentationText = "end O"
   )
 
-  def testNoCompletionForEmptyObject(): Unit = checkNoCompletion(
+  def testEmptyObject(): Unit = checkLookupElement(
     fileText =
       s"""object O:
          |e$CARET
-         |""".stripMargin
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |end O$CARET
+         |""".stripMargin,
+    lookupStr = "end O"
   )
 
   def testNoCompletionForObjectWithoutTemplateBody(): Unit = checkNoCompletion(
@@ -423,11 +446,16 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     presentationText = "end E"
   )
 
-  def testNoCompletionForEmptyEnum(): Unit = checkNoCompletion(
+  def testEmptyEnum(): Unit = checkLookupElement(
     fileText =
       s"""enum E:
          |e$CARET
-         |""".stripMargin
+         |""".stripMargin,
+    resultText =
+      s"""enum E:
+         |end E$CARET
+         |""".stripMargin,
+    lookupStr = "end E"
   )
 
   def testNoCompletionForEnumWithoutTemplateBody(): Unit = checkNoCompletion(
