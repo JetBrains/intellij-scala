@@ -31,10 +31,13 @@ object AnnotatorHints {
 
   //noinspection InstanceOf
   def clearIn(project: Project): Unit =
-    for (editor <- EditorFactory.getInstance().getAllEditors;
-         if editor.getProject == project;
-         file <- Option(FileDocumentManager.getInstance().getFile(editor.getDocument));
-         psiFile <- Option(PsiManager.getInstance(project).findFile(file))) {
+    for {
+      editor <- EditorFactory.getInstance().getAllEditors
+      if editor.getProject == project
+      file <- Option(FileDocumentManager.getInstance().getFile(editor.getDocument))
+      if !file.isInstanceOf[LightVirtualFile]
+      psiFile <- Option(PsiManager.getInstance(project).findFile(file))
+    } {
       psiFile.elements.foreach(clearIn)
     }
 }
