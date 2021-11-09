@@ -46,6 +46,7 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
               rr.substitutor,
               stringPresentation
             )
+          case _ =>
         }
       }
     }
