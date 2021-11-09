@@ -35,6 +35,7 @@ import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.LogicalPosition;
 import com.intellij.openapi.editor.event.*;
 import com.intellij.openapi.editor.ex.util.EditorUtil;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.progress.util.ReadTask;
@@ -44,7 +45,9 @@ import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.text.StringUtil;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.ui.HintListener;
 import com.intellij.ui.LightweightHint;
 import com.intellij.ui.ScreenUtil;
@@ -141,6 +144,10 @@ public class MouseHoverHandler implements ProjectManagerListener {
 
         Editor editor = e.getEditor();
         if (editor.getProject() != null && editor.getProject() != myProject)
+          return;
+
+        VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(editor.getDocument());
+        if (virtualFile instanceof LightVirtualFile)
           return;
 
         PsiFile psiFile = PsiDocumentManager.getInstance(myProject).getPsiFile(editor.getDocument());
