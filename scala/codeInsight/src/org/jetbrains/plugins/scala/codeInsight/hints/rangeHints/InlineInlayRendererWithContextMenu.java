@@ -15,7 +15,11 @@ public class InlineInlayRendererWithContextMenu extends LinearOrderInlayRenderer
     private String contextMenu;
 
     public InlineInlayRendererWithContextMenu(HorizontalConstrainedPresentation<InlayPresentation> presentation, String contextMenu) {
-        super(Collections.singletonList(presentation), x -> x.get(0).getRoot(), x -> 0);
+        super(
+                Collections.singletonList(presentation),
+                x -> x.get(0).getRoot(),
+                (x, y) -> 0
+        );
         this.contextMenu = contextMenu;
     }
 
