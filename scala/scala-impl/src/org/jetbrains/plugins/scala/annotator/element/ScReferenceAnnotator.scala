@@ -15,11 +15,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference, ScStableCodeReference, ScalaConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -27,12 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameter}
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.{ReferenceExpressionResolver, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 // TODO unify with ScMethodInvocationAnnotator and ScConstructorInvocationAnnotator
 object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
@@ -70,32 +68,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
       val refContext = reference.getContext
       val targetElement = r.element
-
-      def isKindProjector(genericCall: ScGenericCall): Boolean =
-        genericCall.kindProjectorPluginEnabled && {
-          val refText = genericCall.referencedExpr.getText
-          refText == "Lambda" || refText == "λ"
-        }
-
-      (targetElement, refContext) match {
-        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall)
-            if !isKindProjector(genericCall) =>
-
-          val typeParams = (typeParamOwner match {
-            case ScalaConstructor(cons) => cons.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
-            case fn                     => fn.typeParameters
-          }).map(TypeParameter(_))
-
-          val stringPresentation = s"method ${typeParamOwner.name}"
-
-          ScParameterizedTypeElementAnnotator.annotateTypeArgs(
-            typeParams,
-            genericCall.typeArgs,
-            r.substitutor,
-            stringPresentation
-          )
-        case _ =>
-      }
 
       if (!r.isApplicable()) {
         targetElement match {
