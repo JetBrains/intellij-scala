@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints.AnnotatorHintsKey
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
@@ -28,11 +29,15 @@ object AnnotatorHints {
     element.putUserData(AnnotatorHintsKey, null)
   }
 
-  def clearIn(project: Project): Unit = {
-    for (editor <- EditorFactory.getInstance().getAllEditors;
-         file <- Option(FileDocumentManager.getInstance().getFile(editor.getDocument));
-         psiFile <- Option(PsiManager.getInstance(project).findFile(file))) {
+  //noinspection InstanceOf
+  def clearIn(project: Project): Unit =
+    for {
+      editor <- EditorFactory.getInstance().getAllEditors
+      if editor.getProject == project
+      file <- Option(FileDocumentManager.getInstance().getFile(editor.getDocument))
+      if !file.isInstanceOf[LightVirtualFile]
+      psiFile <- Option(PsiManager.getInstance(project).findFile(file))
+    } {
       psiFile.elements.foreach(clearIn)
     }
-  }
 }

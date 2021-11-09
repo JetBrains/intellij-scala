@@ -56,7 +56,14 @@ private object TypeMismatchError {
     if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
       builder.range(annotatedElement)
     } else {
-      builder.range(lastLineRangeOf(annotatedElement))
+      // we only need range for error stripe, and it should be inside `element`
+      val lastLineAnnotatedRange = lastLineRangeOf(annotatedElement)
+      val intersection = lastLineAnnotatedRange.intersection(element.getTextRange)
+      val range =
+        if (intersection.getLength > 0) intersection
+        else lastLineRangeOf(element)
+
+      builder.range(range)
         .enforcedTextAttributes(onlyErrorStripeAttributes)
     }
 
