@@ -30,6 +30,8 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def hasWildcardSelector: Boolean = byStubOrPsi(_.hasWildcardSelector)(wildcardElement.nonEmpty)
 
+  override def hasGivenSelector: Boolean = byStubOrPsi(_.hasGivenSelector)(selectors.exists(_.isGivenSelector))
+
   override def wildcardElement: Option[PsiElement] =
     Option(findChildByType(IMPORT_WILDCARDS))
       .orElse(selectorSet.flatMap(_.wildcardElement))

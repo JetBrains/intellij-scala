@@ -31,6 +31,9 @@ object ProjectStructureDsl {
   object javaTargetBytecodeLevel extends Attribute[String]("javaTargetBytecodeLevel")  with ProjectAttribute with ModuleAttribute
   object javacOptions            extends Attribute[Seq[String]]("javacOptions")        with ProjectAttribute with ModuleAttribute
 
+  // looks like currently package prefix is a project-level feature (?)
+  object packagePrefix           extends Attribute[String]("packagePrefix") with ProjectAttribute
+
   object sbtBuildURI         extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
   object sbtProjectId        extends Attribute[String]("sbtProjectId")                          with ModuleAttribute
   object contentRoots        extends Attribute[Seq[String]]("contentRoots")                     with ModuleAttribute

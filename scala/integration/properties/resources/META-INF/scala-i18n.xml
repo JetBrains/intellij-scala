@@ -2,9 +2,14 @@
 
 <idea-plugin>
 
+    <depends>
+        com.intellij.java-i18n
+    </depends>
+
     <extensions defaultExtensionNs="com.intellij">
-        <localInspection language="Scala" shortName="ScalaUnresolvedPropertyKey"
-                         bundle="messages.IdeDeprecatedMessagesBundle"
+        <localInspection language="Scala"
+                         shortName="ScalaUnresolvedPropertyKey"
+                         bundle="messages.JavaI18nBundle"
                          key="inspection.unresolved.property.key.reference.name"
                          groupPath="Scala"
                          groupBundle="messages.InspectionsBundle"

@@ -84,31 +84,6 @@ public class ArtifactsTestUtil {
     assertEquals(expected, findArtifact(project, artifactName).getRootElement().getName());
   }
 
-  @SuppressWarnings("deprecation")
-  public static void setOutput(final Project project, final String artifactName, final String outputPath) {
-    new WriteAction() {
-      @Override
-      protected void run(@NotNull final Result result) {
-        final ModifiableArtifactModel model = ArtifactManager.getInstance(project).createModifiableModel();
-        model.getOrCreateModifiableArtifact(findArtifact(project, artifactName)).setOutputPath(outputPath);
-        model.commit();
-      }
-    }.execute();
-  }
-
-  @SuppressWarnings("deprecation")
-  public static void addArtifactToLayout(final Project project, final Artifact parent, final Artifact toAdd) {
-    new WriteAction() {
-      @Override
-      protected void run(@NotNull final Result result) {
-        final ModifiableArtifactModel model = ArtifactManager.getInstance(project).createModifiableModel();
-        final PackagingElement<?> artifactElement = PackagingElementFactory.getInstance().createArtifactElement(toAdd, project);
-        model.getOrCreateModifiableArtifact(parent).getRootElement().addOrFindChild(artifactElement);
-        model.commit();
-      }
-    }.execute();
-  }
-
   public static Artifact findArtifact(Project project, String artifactName) {
     final ArtifactManager manager = ArtifactManager.getInstance(project);
     final Artifact artifact = manager.findArtifact(artifactName);

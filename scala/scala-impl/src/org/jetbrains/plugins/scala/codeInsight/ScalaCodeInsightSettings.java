@@ -27,6 +27,8 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public static final int PRESENTATION_LENGTH_DEFAULT = 45;
     public static final boolean SHOW_OBVIOUS_TYPE_DEFAULT = false;
     public static final boolean PRESERVE_INDENTS_DEFAULT = true;
+    public static final boolean SHOW_RANGE_HINTS_FOR_TO_AND_UNTIL_DEFAULT = true;
+    public static final boolean SHOW_EXCLUSIVE_RANGE_HINT_DEFAULT = true;
 
     public static final int MIN_PRESENTATION_LENGTH = 1;
     public static final int MAX_PRESENTATION_LENGTH = Byte.MAX_VALUE;
@@ -48,6 +50,8 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
     public int presentationLength = PRESENTATION_LENGTH_DEFAULT;
     public boolean showObviousType = SHOW_OBVIOUS_TYPE_DEFAULT;
     public boolean preserveIndents = PRESERVE_INDENTS_DEFAULT;
+    public boolean showRangeHintsForToAndUntil = SHOW_RANGE_HINTS_FOR_TO_AND_UNTIL_DEFAULT;
+    public boolean showExclusiveRangeHint = SHOW_EXCLUSIVE_RANGE_HINT_DEFAULT;
 
 
     public Getter<Boolean> showTypeHintsGetter() {
@@ -128,6 +132,23 @@ public class ScalaCodeInsightSettings implements PersistentStateComponent<ScalaC
 
     public Setter<Boolean> preserveIndentsSetter() {
         return value -> preserveIndents = value;
+    }
+
+    public Getter<Boolean> showRangeHintsForToAndUntilGetter() {
+        return () -> showRangeHintsForToAndUntil;
+    }
+
+    public Setter<Boolean> showRangeHintsForToAndUntilSetter() {
+        return value -> showRangeHintsForToAndUntil = value;
+    }
+
+
+    public Getter<Boolean> showExclusiveRangeHintDefaultGetter() {
+        return () -> showExclusiveRangeHint;
+    }
+
+    public Setter<Boolean> showExclusiveRangeHintDefaultSetter() {
+        return value -> showExclusiveRangeHint = value;
     }
 
     @NotNull

@@ -18,6 +18,7 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
@@ -47,6 +48,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     def addBeanMethods(element: PsiElement, newName: String): Unit = {
       element match {
         case t: ScTypedDefinition =>
+          t.parentsInFile.findByType[ScBegin].filter(_.namedElement.contains(t)).flatMap(_.end).foreach(allRenames.put(_, newName))
           for (method <- getBeanMethods(t)) {
             val name = method.name
             val is = name.startsWith("is")

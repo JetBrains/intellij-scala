@@ -3,15 +3,22 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScMatchTypeElement, ScTypeElement, ScTypeLambdaTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScModifierList, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScQuoted, ScSpliced}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportSelector, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+
+import scala.collection.mutable.ArrayBuffer
 
 abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
@@ -22,11 +29,12 @@ abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTes
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   override def doTest(testName: String, shouldSucceed: Boolean): Unit = {
-    val Result(problems, _, _, _, _, _) = runTestToResult(testName)
+    val Result(problems, _, _, _, _, _, _) = runTestToResult(testName)
 
     if (shouldSucceed) {
       assert(problems.isEmpty, problems.mkString("\n"))
     } else {
+      println(problems.mkString("\n"))
       assert(problems.nonEmpty, "Expected some problems, but found none")
     }
   }
@@ -108,12 +116,19 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
       }
     }
 
-    Result(problems, refCount, failedToResolve, testedRefs, completeCorrect, partialCorrect)
+    val tags = files.filterByType[ScalaFile].flatMap(collectFeaturesIn).distinct
+    Result(problems, refCount, failedToResolve, testedRefs, completeCorrect, partialCorrect, tags)
   }
 }
 
 object ReferenceComparisonTestBase {
-  case class Result(problems: Seq[String], refCount: Int, failedToResolve: Int, testedRefs: Int, completeCorrect: Int, partialCorrect: Int) {
+  case class Result(problems: Seq[String],
+                    refCount: Int,
+                    failedToResolve: Int,
+                    testedRefs: Int,
+                    completeCorrect: Int,
+                    partialCorrect: Int,
+                    tags: Seq[String]) {
     assert(testedRefs <= refCount)
     assert(completeCorrect + partialCorrect <= testedRefs)
 
@@ -125,12 +140,13 @@ object ReferenceComparisonTestBase {
       failedToResolve + rhs.failedToResolve,
       testedRefs + rhs.testedRefs,
       completeCorrect + rhs.completeCorrect,
-      partialCorrect + rhs.partialCorrect
+      partialCorrect + rhs.partialCorrect,
+      tags ++ rhs.tags
     )
   }
 
   object Result {
-    val empty: Result = Result(Seq.empty, 0, 0, 0, 0, 0)
+    val empty: Result = Result(Seq.empty, 0, 0, 0, 0, 0, Seq.empty)
   }
 
   def posOfNavigationElementWithAdjustedEscapeId(e: PsiNamedElement): TextPos = {
@@ -138,6 +154,31 @@ object ReferenceComparisonTestBase {
     if (Option(e.name).exists(_.startsWith("`"))) pos.copy(col = pos.col + 1)
     else pos
   }
+
+  private def collectFeaturesIn(file: ScalaFile): Seq[String] = {
+    val all = ArrayBuffer.empty[String]
+    file.depthFirst().foreach {
+      case _: ScMatchTypeElement                              => all += "matchType"
+      case ScInfixTypeElement(_, ElementText("&"), _)         => all += "unionType"
+      case ScInfixTypeElement(_, ElementText("|"), _)         => all +="intersectionType"
+      case _: ScExportStmt                                    => all += "export"
+      case i: ScImportSelector if i.isGivenSelector           => all += "givenImport"
+      case t: ScTrait if t.parameters.nonEmpty                => all += "traitParameters"
+      case _: ScSpliced | _: ScQuoted                         => all += "spliced/quoted"
+      case m: ScModifierList if m.isInline && m.isTransparent => all += "transparentInline"
+      case m: ScModifierList if m.isOpaque                    => all += "opaque"
+      case _: ScTypeLambdaTypeElement                         => all += "typeLambda"
+      case _: ScExtension                                     => all += "extension"
+      case t: ScTypeElement if t.textMatches("AnyKind") => all += "anykind"
+      case p: ScParameter if isByNameImplicit(p)              => all += "byNameImplicit"
+      case _: ScEnum                                          => all += "enum"
+      case _: ScDerivesClause                                 => all += "derives"
+      case _ =>
+    }
+    all.toSeq
+  }
+
+  private def isByNameImplicit(p: ScParameter) = p.isImplicitParameter && p.isCallByNameParameter
 
   trait RefTarget {
     def element: PsiNamedElement
@@ -150,8 +191,10 @@ object ReferenceComparisonTestBase {
   case class AssignmentRefTarget(element: PsiNamedElement) extends RefTarget {
     override lazy val symbol: String =
       ComparisonSymbol.fromPsi(element)
-        .stripSuffix(s"${element.name}.")
-        .stripSuffix(s"`${element.name}`.")
+        .stripSuffix(".")
+        .stripSuffix("()")
+        .stripSuffix(s"${element.name}")
+        .stripSuffix(s"`${element.name}`")
         .appendedAll(s"`${element.name}_=`().")
   }
 
@@ -166,18 +209,8 @@ object ReferenceComparisonTestBase {
     lazy val targets: Seq[RefTarget] = resolved
       .flatMap(r => Seq(r.element) ++ r.parentElement)
       .filterByType[PsiNamedElement]
-      .flatMap {
-        case td: ScReferencePattern if td.isVar && td.containingClass != null =>
-          Seq(PhysicalRefTarget(td), AssignmentRefTarget(td))
-        case field: ScFieldId if field.isVar =>
-          Seq(PhysicalRefTarget(field), AssignmentRefTarget(field))
-        case param: ScClassParameter if param.isVar =>
-          Seq(PhysicalRefTarget(param), AssignmentRefTarget(param))
-        case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
-          val defs = Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
-          defs.map(PhysicalRefTarget)
-        case x =>
-          Seq(PhysicalRefTarget(x))
+      .flatMap { named =>
+        Seq(PhysicalRefTarget(named)) ++ assignmentTarget(named) ++ opaqueTarget(named)
       }
 
     /*lazy val problems: Option[String] = {
@@ -220,6 +253,28 @@ object ReferenceComparisonTestBase {
         case None =>
           Seq.empty
       }
+    }
+
+    private def assignmentTarget(resolved: PsiNamedElement): Option[AssignmentRefTarget] = resolved match {
+      case td: ScReferencePattern if td.isVar && td.containingClass != null =>
+        Some(AssignmentRefTarget(td))
+      case field: ScFieldId if field.isVar =>
+        Some(AssignmentRefTarget(field))
+      case param: ScClassParameter if param.isVar =>
+        Some(AssignmentRefTarget(param))
+      case fun: ScFunction if fun.isParameterless && hasSetter(fun) => Some(AssignmentRefTarget(fun))
+      case _ => None
+    }
+
+    private def hasSetter(fun: ScFunction): Boolean = Option(fun.containingClass).exists {
+      _.allFunctionsByName(fun.name + "_=").nonEmpty
+    }
+
+    private def opaqueTarget(resolved: PsiNamedElement): Option[PhysicalRefTarget] = resolved match {
+      case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
+        val aliased = typeDef.aliasedType.toOption.flatMap(_.extractClass)
+        aliased.map(PhysicalRefTarget)
+      case _ => None
     }
   }
 }

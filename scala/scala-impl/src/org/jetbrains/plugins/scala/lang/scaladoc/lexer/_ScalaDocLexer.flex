@@ -44,24 +44,27 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
 %{ // User code
 
-  private boolean isOddItalicBold = false;;
-  private int braceCount = 0; // tracks deepness of nested doc comments (/** and */)
-
   public _ScalaDocLexer() {
     this((java.io.Reader)null);
   }
 
+  private boolean isOddItalicBold = false;;
+  private int braceCount = 0; // tracks deepness of nested doc comments (/** and */)
+
   public boolean checkAhead(char c) {
-     if (zzMarkedPos >= zzBuffer.length()) return false;
-     return zzBuffer.charAt(zzMarkedPos) == c;
+    if (zzMarkedPos >= zzBuffer.length()) return false;
+    return zzBuffer.charAt(zzMarkedPos) == c;
   }
 
   public void goTo(int offset) {
     zzCurrentPos = zzMarkedPos = zzStartRead = offset;
-    zzPushbackPos = 0;
-    zzAtEOF = offset < zzEndRead;
+    zzAtEOF = false;
   }
 
+  public void resetCustom() {
+    braceCount = 0;
+    isOddItalicBold = false;
+  }
 %}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,16 +120,23 @@ COMMENT_END = "*/"
 LIST_ITEM_HEAD_REG= (\-|1\.|I\.|i\.|A\.|a\.)
 
 /////////////////////////////////// for arbitrary scala identifiers////////////////////////////////////////////////////
-special = \u0021 | \u0023 | [\u0025-\u0026] | [\u002A-\u002B] | \u002D | \u005E | \u003A| [\u003C-\u0040]| \u007E
-          | \u005C | \u002F | [:unicode_math_symbol:] | [:unicode_other_symbol:]
+//these symbols can't be used as a single-character operator (https://github.com/scala/scala/pull/9801)
+opchar1    = "#" | ":" | "=" | "@"
+opchar2    = "!" | "%" | "&" | "*" | "+" | "-" | "/"
+           | "<" | ">" | "?" | "\\" | "^" | "|" | "~"
+           //see https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+           | \p{So}
+           | \p{Sm}
+opchar     = {opchar1} | {opchar2}
+op         = {opchar1} {opchar}+
+           | {opchar2} {opchar}*
+idrest     = [:jletterdigit:]* ("_" ({op} | {opchar1}))?
+varid      = [:jletter:] {idrest}
+plainid = {varid} | {op}
+
+charEscapeSeq = \\[^\r\n]
 LineTerminator = \r | \n | \r\n | \u0085 |  \u2028 | \u2029 | \u000A | \u000a
 
-op = \u007C ({special} | \u007C)+ | {special} ({special} | \u007C)*
-//octalDigit = [0-7]
-idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
-idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
-varid = [:jletter:] {idrest}
-charEscapeSeq = \\[^\r\n]
 //charNoDoubleQuote = !( ![^"\""] | {LineTerminator})
 //stringElement = {charNoDoubleQuote} | {charEscapeSeq}
 //stringLiteral = {stringElement}*
@@ -134,7 +144,6 @@ charExtra = !( ![^"\""`] | {LineTerminator})             //This is for `type` id
 stringElementExtra = {charExtra} | {charEscapeSeq}
 stringLiteralExtra = {stringElementExtra}*
 //symbolLiteral = "\'" {plainid}
-plainid = {varid} | {op}
 //scalaIdentifierWithPath = (({plainid} | "`" {stringLiteralExtra} "`")["."]?)+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -263,7 +272,9 @@ plainid = {varid} | {op}
   yybegin(CODE_LINK_INNER);
   return DOC_WHITESPACE;
 }
-<CODE_LINK_INNER_START, CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`") {
+//note: actually `| {opchar1} doesn't look correct but it behaved so before
+// TODO: fix this within SCL-5428, SCL-8125, SCL-13263
+<CODE_LINK_INNER_START, CODE_LINK_INNER> ({plainid} | "`" {stringLiteralExtra} "`" | {opchar1}) {
   yybegin(CODE_LINK_INNER);
   return tIDENTIFIER;
 }

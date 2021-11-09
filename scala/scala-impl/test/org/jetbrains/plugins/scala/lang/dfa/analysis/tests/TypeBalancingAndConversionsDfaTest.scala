@@ -69,4 +69,18 @@ class TypeBalancingAndConversionsDfaTest extends ScalaDfaTestBase {
     "z == 4" -> ConditionAlwaysTrue,
     "z == 4L" -> ConditionAlwaysTrue
   )
+
+  def testNotReportingDoublesAsZero(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+    """
+      |val x = 2
+      |
+      |val z = 0.3
+      |z > 5
+      |
+      |x == 2
+      |""".stripMargin
+  })(
+    "x == 2" -> ConditionAlwaysTrue,
+    "z > 5" -> ConditionAlwaysFalse
+  )
 }

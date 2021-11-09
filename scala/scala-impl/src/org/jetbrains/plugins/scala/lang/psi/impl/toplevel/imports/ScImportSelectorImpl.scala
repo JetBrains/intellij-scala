@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets.{ID_SET, IMPORT_WILDCARDS}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
@@ -85,4 +86,10 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   override def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
     findChildByType(TokenSets.IMPORT_ALIAS_INDICATORS) != null
   }
+
+  override def isGivenSelector: Boolean = byStubOrPsi(_.isGivenSelector) {
+    findChildByType(ScalaTokenType.GivenKeyword) != null
+  }
+
+  override def givenTypeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
 }

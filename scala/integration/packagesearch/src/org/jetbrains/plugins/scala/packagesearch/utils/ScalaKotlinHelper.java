@@ -9,6 +9,8 @@ import kotlin.sequences.SequencesKt;
 
 import java.util.Iterator;
 
+import static java.util.Collections.emptyList;
+
 public class ScalaKotlinHelper {
     public static <T> Sequence<T> toKotlinSequence(Iterator<T> it) {
         return SequencesKt.asSequence(it);
@@ -21,7 +23,8 @@ public class ScalaKotlinHelper {
                 projectModule.getBuildFile(),
                 projectModule.getBuildSystemType(),
                 projectModule.getModuleType(),
-                toKotlinFunction(f)
+                toKotlinFunction(f),
+                emptyList()
         );
     }
 

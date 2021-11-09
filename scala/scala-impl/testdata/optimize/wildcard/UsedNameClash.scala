@@ -13,7 +13,7 @@ class UsedNameClash {
 }
 
 /*
-import java.util.{Random => _, _}
+import java.util.{Random, _}
 import scala.util._
 
 class UsedNameClash {

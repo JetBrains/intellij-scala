@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.psi.{CommonClassNames, PsiElement}
+import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SyntheticMethodsSpecialSupport.tryTransformSyntheticFunctionSpecially
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.ArgumentCountLimit
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.NumericBinary
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators.NumericBinary
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[PsiElement] = None)
+class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifier: Option[ScalaDfaVariableDescriptor] = None)
   extends ExpressionTransformer(wrappedInvocation) {
 
   override def toString: String = s"InvocationTransformer: $wrappedInvocation"
@@ -26,7 +27,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
       case _ => Nil
     }
 
-    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo)) {
+    if (invocationsInfo.isEmpty || isUnsupportedInvocation(wrappedInvocation, invocationsInfo) ||
+      invocationsInfo.exists(_.argListsInEvaluationOrder.flatten.size > ArgumentCountLimit)) {
       builder.pushUnknownCall(wrappedInvocation, 0)
     } else if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
       invocationsInfo.tail.foreach(invocation => {
@@ -45,15 +47,20 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
     }
 
     val unsupportedInvokedElement = invocationsInfo.flatMap(_.invokedElement).flatMap(_.simpleName)
-      .exists(name => name.startsWith("assert") || name == "require")
+      .exists(startsWithUnsupportedMethodName)
 
-    unsupportedExpression || unsupportedInvokedElement
+    startsWithUnsupportedMethodName(invocation.getText) || unsupportedExpression || unsupportedInvokedElement
+  }
+
+  private def startsWithUnsupportedMethodName(name: String): Boolean = {
+    name.startsWith("assert") || name.startsWith("require") || name.startsWith("getClass")
   }
 
   private def isUnsupportedInfixSyntheticAssignment(operation: String): Boolean = {
     // There were significant problems with recognizing and transforming properly combinations of synthetic methods
     // with var assignments, for example x += 3. Supporting it most likely needs modifications to relevant PSI elements.
-    val isBinaryModifyingAssignment = operation.length == 2 && operation(1) == '='
+    val isBinaryModifyingAssignment = operation.length == 2 && operation(1) == '=' &&
+      operation != "==" && operation != "!="
     val isUnsupportedSyntheticOperator = NumericBinary.keys.toList.contains(operation(0).toString) ||
       operation(0) == '&' || operation(0) == '|'
     isBinaryModifyingAssignment && isUnsupportedSyntheticOperator
@@ -74,7 +81,8 @@ class InvocationTransformer(val wrappedInvocation: ScExpression, instanceQualifi
       ScalaStatementAnchor(wrappedInvocation), instanceQualifier, transfer, builder.analysedMethodInfo))
   }
 
-  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
+  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo],
+                                                    builder: ScalaDfaControlFlowBuilder): Boolean = {
     if (invocationsInfo.size > 1) return false
     val invocationInfo = invocationsInfo.head
 

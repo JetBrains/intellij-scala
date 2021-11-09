@@ -8,10 +8,11 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
@@ -133,4 +134,8 @@ final class ScEnumCaseImpl(
   override protected def targetTokenType: ScalaTokenType = kCASE
 
   override protected def baseIcon: Icon = icons.Icons.CLASS; // TODO add an icon
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kCASE
+
+  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

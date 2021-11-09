@@ -1,65 +1,31 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiReference}
-import com.intellij.util.IncorrectOperationException
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiElementImpl}
 
-class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd {
-  override def toString: String = "End: " + endingElementDesignator.getText
+class ScEndImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScEnd with IndirectPsiReference {
+  override def begin: Option[ScBegin] = this.parentsInFile.findByType[ScBegin]
 
-  override def endingElementDesignator: PsiElement = getLastChild
+  override def keyword: PsiElement = getFirstChild
 
-  override def getElement: PsiElement = this
+  override def tag: PsiElement = getLastChild
 
-  override def getReference: PsiReference = this
+  override def getName: String = tag.getText
 
-  override def getRangeInElement: TextRange = endingElementDesignator.getTextRangeInParent
-
-  override def resolve(): PsiElement = {
-    getParent match {
-      case body: ScTemplateBody =>
-        body
-          .getParent.ensuring(_.is[ScExtendsBlock])
-          .getParent
-      case body: ScExtensionBody =>
-        body.getParent.ensuring(_.is[ScExtension])
-      case parent => parent
-    }
+  override def setName(name: String): PsiElement = {
+    tag.replace(ScalaPsiElementFactory.createIdentifier(name).getPsi)
   }
 
-  override def getCanonicalText: String =
-    resolve() match {
-      case td: ScTypeDefinition => td.qualifiedName
-      case _ => s"end ${endingElementDesignator.getText}"
-    }
+  override def getRangeInElement: TextRange = tag.getTextRangeInParent
 
-  override def handleElementRename(newElementName: String): PsiElement = {
-    val designator = endingElementDesignator
-    designator.elementType match {
-      case ScalaTokenTypes.tIDENTIFIER =>
-        val newIdNode = ScalaPsiElementFactory.createIdentifier(newElementName.escapeNonIdentifiers)
-        getNode.replaceChild(designator.getNode, newIdNode)
-        getElement
-      case _ =>
-        throw new IncorrectOperationException("Cannot rename non identifier name")
-    }
-  }
+  /* Implement a non-highlighted reference to enable Rename and Find Usages. */
+  override protected def finalTarget: Option[PsiElement] = if (tag.isIdentifier) begin else None
 
-  override def bindToElement(element: PsiElement): PsiElement =
-    throw new IncorrectOperationException("Cannot bind end reference to new element")
-
-  override def isReferenceTo(element: PsiElement): Boolean = resolve() == element
-
-  override def isSoft: Boolean = false
+  override def toString: String = "End: " + getName
 }

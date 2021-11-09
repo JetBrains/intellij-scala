@@ -11,6 +11,8 @@ trait ScalaHintsSettings {
   def presentationLength: Int
   def showObviousType: Boolean
   def preserveIndents: Boolean
+  def showRangeHintsForToAndUntil: Boolean
+  def showExclusiveRangeHint: Boolean
 }
 
 object ScalaHintsSettings {
@@ -24,6 +26,8 @@ object ScalaHintsSettings {
     override def presentationLength: Int = ScalaCodeInsightSettings.PRESENTATION_LENGTH_DEFAULT
     override def showObviousType: Boolean = ScalaCodeInsightSettings.SHOW_OBVIOUS_TYPE_DEFAULT
     override def preserveIndents: Boolean = ScalaCodeInsightSettings.PRESERVE_INDENTS_DEFAULT
+    override def showRangeHintsForToAndUntil: Boolean = ScalaCodeInsightSettings.SHOW_RANGE_HINTS_FOR_TO_AND_UNTIL_DEFAULT
+    override def showExclusiveRangeHint: Boolean = ScalaCodeInsightSettings.SHOW_EXCLUSIVE_RANGE_HINT_DEFAULT
   }
 
   class CodeInsightSettingsAdapter extends ScalaHintsSettings {
@@ -38,5 +42,7 @@ object ScalaHintsSettings {
     override def presentationLength: Int = settings.presentationLength
     override def showObviousType: Boolean = settings.showObviousType
     override def preserveIndents: Boolean = settings.preserveIndents
+    override def showRangeHintsForToAndUntil: Boolean = settings.showRangeHintsForToAndUntil
+    override def showExclusiveRangeHint: Boolean = settings.showExclusiveRangeHint
   }
 }

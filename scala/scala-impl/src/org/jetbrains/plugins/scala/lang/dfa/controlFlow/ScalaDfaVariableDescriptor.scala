@@ -9,12 +9,12 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableEle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[PsiElement],
+case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[ScalaDfaVariableDescriptor],
                                       override val isStable: Boolean) extends JvmVariableDescriptor {
 
   override def toString: String = (qualifier, variable) match {
-    case (Some(qualifierExpression), namedElement: PsiNamedElement) =>
-      s"${qualifierExpression.getText}.${namedElement.name}"
+    case (Some(qualifierVariable), namedElement: PsiNamedElement) =>
+      s"$qualifierVariable.${namedElement.name}"
     case (None, namedElement: PsiNamedElement) => namedElement.name
     case _ => "<unknown>"
   }
@@ -28,15 +28,15 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement, qualifier: Option[Ps
 object ScalaDfaVariableDescriptor {
 
   def fromReferenceExpression(expression: ScReferenceExpression): Option[ScalaDfaVariableDescriptor] = {
-    val qualifier = expression.qualifier match {
-      case Some(reference: ScReferenceExpression) => reference.bind().map(_.element)
+    val qualifierVariable = expression.qualifier match {
+      case Some(reference: ScReferenceExpression) => fromReferenceExpression(reference)
       case _ => None
     }
 
-    if (expression.isQualified && qualifier.isEmpty) None
+    if (expression.isQualified && qualifierVariable.isEmpty) None
     else expression.getReference.bind()
       .map(_.element)
-      .map(element => ScalaDfaVariableDescriptor(element, qualifier,
-        isStableElement(element) && qualifier.forall(isStableElement)))
+      .map(element => ScalaDfaVariableDescriptor(element, qualifierVariable,
+        isStableElement(element) && qualifierVariable.forall(qualifier => isStableElement(qualifier.variable))))
   }
 }

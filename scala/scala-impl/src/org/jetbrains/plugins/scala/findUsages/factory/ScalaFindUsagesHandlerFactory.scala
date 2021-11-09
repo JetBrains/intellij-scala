@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.{ShouldBeSearchedInBytecode, UsageType}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearcher._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
+import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference.IntermediateTarget
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -48,6 +50,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     val unwrapped = element match {
       case isWrapper(named)      => named
       case FakePsiMethod(method) => method
+      case IntermediateTarget(begin: ScBegin) => begin.namedElement.getOrElse(begin)
       case _                     => element
     }
 

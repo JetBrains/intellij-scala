@@ -144,6 +144,7 @@ package object extensions {
 
     def findScalaFile[F <: ScalaFile : ClassTag]: Option[F] =
       viewProvider.getPsi(ScalaLanguage.INSTANCE).asOptionOf[F]
+        .orElse(viewProvider.getPsi(Scala3Language.INSTANCE).asOptionOf[F])
 
     def findAnyScalaFile: Option[ScalaFile] =
       findScalaFile[ScalaFile]
@@ -693,6 +694,8 @@ package object extensions {
     def prevElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.startOffset - 1))
 
     def nextElement: Option[PsiElement] = element.containingFile.flatMap(_.elementAt(element.endOffset))
+
+    def isIdentifier: Boolean = element.elementType == ScalaTokenTypes.tIDENTIFIER
 
     def isWhitespace: Boolean = element.isInstanceOf[PsiWhiteSpace]
 

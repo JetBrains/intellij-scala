@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer._root_prefix
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ContextsIterator
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiMemberExt, PsiModifierListOwnerExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl
@@ -37,6 +37,8 @@ case class ImportInfo(prefixQualifier: String,
                       rootUsed: Boolean = false,
                       isStableImport: Boolean = true,
                       allNamesForWildcard: Set[String] = Set.empty,
+                      givenTypeTexts: Set[String] = Set.empty,
+                      hasGivenWildcard: Boolean = false,
                       wildcardHasUnusedImplicit: Boolean = false) {
 
   def withoutRelative: ImportInfo =
@@ -44,6 +46,7 @@ case class ImportInfo(prefixQualifier: String,
 
   def split: Seq[ImportInfo] = {
     val builder = ArraySeq.newBuilder[ImportInfo]
+    val template = this.template
     builder ++= singleNames.toSeq.sorted.map { name =>
       template.copy(singleNames = Set(name))
     }
@@ -72,11 +75,13 @@ case class ImportInfo(prefixQualifier: String,
       this.hasWildcard || second.hasWildcard,
       rootUsed,
       this.isStableImport && second.isStableImport,
-      this.allNamesForWildcard
+      this.allNamesForWildcard,
+      this.givenTypeTexts | second.givenTypeTexts,
+      this.hasGivenWildcard || second.hasGivenWildcard,
     )
   }
 
-  def isSimpleWildcard: Boolean = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty
+  def isSimpleWildcard: Boolean = hasWildcard && singleNames.isEmpty && renames.isEmpty && hiddenNames.isEmpty && givenTypeTexts.isEmpty && !hasGivenWildcard
 
   def namesFromWildcard: Set[String] = {
     if (hasWildcard) allNames -- singleNames -- renames.keySet
@@ -84,7 +89,15 @@ case class ImportInfo(prefixQualifier: String,
   }
 
   private def template: ImportInfo =
-    copy(singleNames = Set.empty, renames = Map.empty, hiddenNames = Set.empty, allNames = Set.empty, hasWildcard = false)
+    copy(
+      singleNames = Set.empty,
+      renames = Map.empty,
+      hiddenNames = Set.empty,
+      allNames = Set.empty,
+      hasWildcard = false,
+      givenTypeTexts = Set.empty,
+      hasGivenWildcard = false,
+    )
 
   def toWildcardInfo: ImportInfo = template.copy(hasWildcard = true, allNames = allNamesForWildcard)
 
@@ -121,6 +134,8 @@ object ImportInfo {
     val hiddenNames = mutable.HashSet[String]()
     var hasWildcard = false
     var allNamesForWildcard = Set.empty[String]
+    var givenTypeTexts = Set.empty[String]
+    var hasGivenWildcard = false
     var hasNonUsedImplicits = false
 
     def addAllNames(ref: ScStableCodeReference, nameToAdd: String): Unit = {
@@ -147,23 +162,30 @@ object ImportInfo {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
-        for (reference <- selector.reference;
-             refName = reference.refName) {
-          if (selector.isAliasedImport) {
-            for (importedName <- selector.importedName) {
-              if (importedName == "_") {
-                hiddenNames += refName
-              } else if (importedName == refName) {
-                singleNames += refName
-                addAllNames(reference, refName)
-              } else {
-                renames += ((refName, importedName))
-                addAllNames(reference, importedName)
+        if (selector.isGivenSelector) {
+          selector.givenTypeElement match {
+            case Some(typeElement) => givenTypeTexts += typeElement.getText
+            case None => hasGivenWildcard = true
+          }
+        } else {
+          for (reference <- selector.reference;
+               refName = reference.refName) {
+            if (selector.isAliasedImport) {
+              for (importedName <- selector.importedName) {
+                if (importedName == "_") {
+                  hiddenNames += refName
+                } else if (importedName == refName) {
+                  singleNames += refName
+                  addAllNames(reference, refName)
+                } else {
+                  renames += ((refName, importedName))
+                  addAllNames(reference, importedName)
+                }
               }
+            } else {
+              singleNames += refName
+              addAllNames(reference, refName)
             }
-          } else {
-            singleNames += refName
-            addAllNames(reference, refName)
           }
         }
       }
@@ -225,6 +247,8 @@ object ImportInfo {
         rootUsed,
         isStableImport,
         allNamesForWildcard,
+        givenTypeTexts,
+        hasGivenWildcard,
         hasNonUsedImplicits
       )
     )
@@ -335,7 +359,7 @@ object ImportInfo {
 
     for {
       rr <- reference.doResolve(processor)
-      if shouldAddName(rr)
+      if shouldAddName(rr) && !rr.element.is[ScGiven]
     } {
       val named = rr.element
       val nameToAdd = fixName(named.name)

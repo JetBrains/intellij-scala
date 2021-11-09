@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
-import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
+import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ArgumentFactory.{ArgumentCountLimit, buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 
@@ -59,15 +59,18 @@ object InvocationInfo {
   }
 
   def fromMethodInvocation(invocation: MethodInvocation): InvocationInfo = {
-    val target = invocation.target
-    val isTupled = target.exists(_.tuplingUsed)
+    if (invocation.matchedParameters.size > ArgumentCountLimit) InvocationInfo(None, Nil)
+    else {
+      val target = invocation.target
+      val isTupled = target.exists(_.tuplingUsed)
 
-    val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
-    val properArguments = buildAllArguments(List(invocation.matchedParameters),
-      List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
-    val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
+      val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
+      val properArguments = buildAllArguments(List(invocation.matchedParameters),
+        List(invocation.argumentExpressions), invocation, isTupled).headOption.getOrElse(Nil)
+      val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
 
-    InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
+      InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
+    }
   }
 
   def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
@@ -81,17 +84,19 @@ object InvocationInfo {
   }
 
   def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo = {
-    val invocationInfo = newTemplateDefinition.constructorInvocation.map { constructorInvocation =>
-      val target = constructorInvocation.reference.flatMap(_.bind())
-      val isTupled = target.exists(_.tuplingUsed)
+    val invocationInfo = newTemplateDefinition.constructorInvocation
+      .filter(_.matchedParameters.size <= ArgumentCountLimit)
+      .map { constructorInvocation =>
+        val target = constructorInvocation.reference.flatMap(_.bind())
+        val isTupled = target.exists(_.tuplingUsed)
 
-      val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
-      val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
-        constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
-      val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
+        val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
+        val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
+          constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
+        val allArguments = (thisArgument :: properArguments.headOption.getOrElse(Nil)) :: properArguments.drop(1)
 
-      InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
-    }
+        InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
+      }
 
     invocationInfo.getOrElse(InvocationInfo(None, Nil))
   }

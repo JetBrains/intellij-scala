@@ -16,7 +16,7 @@ object EnterHandlerUtils {
    *         None - otherwise (if there is some code before the caret)
    * @todo can we move it to org.jetbrains.plugins.scala.util.IndentUtil, like calcIndent?
    */
-  private[editor] def calcCaretIndent(
+  def calcCaretIndent(
     caretOffset: Int,
     documentText: CharSequence,
     tabSize: Int

@@ -6,15 +6,15 @@ import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types._
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument.ProperArgument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -60,10 +60,11 @@ object ScalaDfaTypeUtils {
     // of the analysis, producing many false "null" warnings. This might be, at least partially, a problem in
     // the Java side of the analysis. It should be revived with implementation of more complete analysis of
     // nullability, more useful than just "always null" warnings.
-    case _ => Option(dfType.getConstantOfType(classOf[Number]))
+    case integralType: DfIntegralType => Option(integralType.getConstantOfType(classOf[Number]))
       .filter(value => value.intValue() == 0 || value.longValue() == 0L)
       .map(_ => DfaConstantValue.Zero)
       .getOrElse(DfaConstantValue.Other)
+    case _ => DfaConstantValue.Other
   }
 
   @Nls
@@ -114,17 +115,7 @@ object ScalaDfaTypeUtils {
     }
   }
 
-  def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
-    argumentValues.filter(_._1.kind.is[ProperArgument]).values.headOption.map(_.getDfType) match {
-      case Some(_: DfIntType) => Some(ScalaInt)
-      case Some(_: DfLongType) => Some(ScalaLong)
-      case Some(_: DfDoubleType) => Some(ScalaDouble)
-      case Some(_: DfFloatType) => Some(ScalaFloat)
-      case _ => None
-    }
-  }
-
-  def isStableElement(element: PsiNamedElement): Boolean = element match {
+  def isStableElement(element: PsiElement): Boolean = element match {
     case referencePattern: ScReferencePattern => referencePattern.isStable && !referencePattern.isVar
     case _: ScVariable => false
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
@@ -135,6 +126,32 @@ object ScalaDfaTypeUtils {
   def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
     case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
     case _ => None
+  }
+
+  def resolveExpressionType(expression: ScExpression): ScType = {
+    implicit val context: ProjectContext = expression.getProject
+    expression match {
+      // A fix for very weird behaviour of literals in some specific cases
+      case _: ScIntegerLiteral => code"0".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScLongLiteral => code"0L".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScDoubleLiteral => code"0.0".asInstanceOf[ScExpression].`type`().getOrAny
+      case _: ScFloatLiteral => code"0.0F".asInstanceOf[ScExpression].`type`().getOrAny
+      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
+        case Some(resolved: Typeable) => resolved.`type`().getOrAny
+        case _ => expression.`type`().getOrAny
+      }
+      case _ => expression.`type`().getOrAny
+    }
+  }
+
+  def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
+    argumentValues.filter(_._1.kind.is[ProperArgument]).values.headOption.map(_.getDfType) match {
+      case Some(_: DfIntType) => Some(ScalaInt)
+      case Some(_: DfLongType) => Some(ScalaLong)
+      case Some(_: DfDoubleType) => Some(ScalaDouble)
+      case Some(_: DfFloatType) => Some(ScalaFloat)
+      case _ => None
+    }
   }
 
   def balanceType(leftType: Option[ScType], rightType: Option[ScType],
@@ -168,22 +185,6 @@ object ScalaDfaTypeUtils {
       case (DfTypes.LONG, _) => Some(leftType)
       case (_, DfTypes.LONG) => Some(rightType)
       case _ => None
-    }
-  }
-
-  def resolveExpressionType(expression: ScExpression): ScType = {
-    implicit val context: ProjectContext = expression.getProject
-    expression match {
-      // Fix for very weird behaviour of literals in some specific cases
-      case _: ScIntegerLiteral => code"0".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScLongLiteral => code"0L".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScDoubleLiteral => code"0.0".asInstanceOf[ScExpression].`type`().getOrAny
-      case _: ScFloatLiteral => code"0.0F".asInstanceOf[ScExpression].`type`().getOrAny
-      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
-        case Some(resolved: Typeable) => resolved.`type`().getOrAny
-        case _ => expression.`type`().getOrAny
-      }
-      case _ => expression.`type`().getOrAny
     }
   }
 }

@@ -10,7 +10,7 @@ import com.intellij.psi.PsiElement
   * @author Alexander Podkhalyuzin
   *         Date: 06.03.2008
   */
-trait ScIf extends ScExpression {
+trait ScIf extends ScExpression with ScBegin {
   def condition: Option[ScExpression]
 
   def thenExpression: Option[ScExpression]

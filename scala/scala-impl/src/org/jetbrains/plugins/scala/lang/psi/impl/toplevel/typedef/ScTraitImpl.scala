@@ -6,6 +6,7 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.tree.IElementType
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -87,4 +88,8 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
     case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
     case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
   }
+
+  override protected def keywordTokenType: IElementType = ScalaTokenType.TraitKeyword
+
+  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

@@ -4,16 +4,16 @@ import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction,
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
-import com.intellij.codeInspection.dataFlow.types.{DfIntegralType, DfTypes}
+import com.intellij.codeInspection.dataFlow.types.{DfBooleanType, DfIntegralType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.RelationType
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.LogicalOperation
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.LogicalOperation
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages.{ScalaBoolean, ScalaInt, ScalaLong}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.SyntheticOperators._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -125,25 +125,27 @@ object SyntheticMethodsSpecialSupport {
     for (operationName <- LogicalBinary.keys) {
       if (matchesSignature(function, operationName, ScalaBoolean)) {
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
+        if (verifyBooleanArgumentType(extractExpressionFromArgument(leftArg)) ||
+          verifyBooleanArgumentType(extractExpressionFromArgument(rightArg))) {
+          val anchor = ScalaStatementAnchor(invocation)
+          val endOffset = new DeferredOffset
+          val nextConditionOffset = new DeferredOffset
 
-        val anchor = ScalaStatementAnchor(invocation)
-        val endOffset = new DeferredOffset
-        val nextConditionOffset = new DeferredOffset
+          leftArg.content.transform(builder)
 
-        leftArg.content.transform(builder)
+          val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
+          builder.addInstruction(new ConditionalGotoInstruction(nextConditionOffset,
+            DfTypes.booleanValue(valueNeededToContinue)))
+          builder.addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
+          builder.addInstruction(new GotoInstruction(endOffset))
 
-        val valueNeededToContinue = LogicalBinary(operationName) == LogicalOperation.And
-        builder.addInstruction(new ConditionalGotoInstruction(nextConditionOffset,
-          DfTypes.booleanValue(valueNeededToContinue)))
-        builder.addInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
-        builder.addInstruction(new GotoInstruction(endOffset))
-
-        builder.setOffset(nextConditionOffset)
-        builder.addInstruction(new FinishElementInstruction(null))
-        rightArg.content.transform(builder)
-        builder.setOffset(endOffset)
-        builder.addInstruction(new ResultOfInstruction(anchor))
-        return true
+          builder.setOffset(nextConditionOffset)
+          builder.addInstruction(new FinishElementInstruction(null))
+          rightArg.content.transform(builder)
+          builder.setOffset(endOffset)
+          builder.addInstruction(new ResultOfInstruction(anchor))
+          return true
+        }
       }
     }
 
@@ -175,10 +177,11 @@ object SyntheticMethodsSpecialSupport {
     for (operationName <- LogicalUnary.keys) {
       if (matchesSignature(function, operationName, ScalaBoolean)) {
         val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
-        singleThisArg.content.transform(builder)
 
         LogicalUnary(operationName) match {
-          case LogicalOperation.Not => builder.addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
+          case LogicalOperation.Not if verifyBooleanArgumentType(extractExpressionFromArgument(singleThisArg)) =>
+            singleThisArg.content.transform(builder)
+            builder.addInstruction(new NotInstruction(ScalaStatementAnchor(invocation)))
             return true
           case _ =>
         }
@@ -187,4 +190,9 @@ object SyntheticMethodsSpecialSupport {
 
     false
   }
+
+  private def verifyBooleanArgumentType(expression: Option[ScExpression]): Boolean = expression
+    .map(resolveExpressionType)
+    .map(scTypeToDfType)
+    .exists(_.is[DfBooleanType])
 }

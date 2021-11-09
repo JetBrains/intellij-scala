@@ -12,10 +12,10 @@ class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil wit
 
     val endElement = searchElement[ScEnd](file)
 
-    val designator = endElement.endingElementDesignator
+    val designator = endElement.tag
     designator shouldNotBe null
 
-    val designatorType = endElement.endingElementDesignator.getNode.getElementType
+    val designatorType = endElement.tag.getNode.getElementType
     designatorType shouldBe expectedType
   }
 

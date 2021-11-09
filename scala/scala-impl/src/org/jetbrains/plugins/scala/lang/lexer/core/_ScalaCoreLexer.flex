@@ -85,6 +85,10 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
     }
 
     private boolean isScala3;
+
+    //
+    // NOTE: when adding new mutable state, do not forget to update `reset_ScalaLexer`
+    //
     //to get id after $ in interpolated String
     private boolean haveIdInString = false;
     private boolean haveIdInMultilineString = false;
@@ -94,6 +98,13 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 
     private boolean isInsideRawInterpolator() {
       return !nestedString.isEmpty() && nestedString.peek().isRaw;
+    }
+
+    public void resetCustom() {
+      haveIdInString = false;
+      haveIdInMultilineString = false;
+      nestedString.clear();
+      lastSeenInterpolator = null;
     }
 
     public boolean isInterpolatedStringState() {
@@ -207,30 +218,22 @@ fractionPart = {digits} {exponentPart}?
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////      identifiers      ////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//these symbols can't be used as a single-character operator (https://github.com/scala/scala/pull/9801)
+opchar1    = "#" | ":" | "=" | "@"
+opchar2    = "!" | "%" | "&" | "*" | "+" | "-" | "/"
+           | "<" | ">" | "?" | "\\" | "^" | "|" | "~"
+           //see https://en.wikipedia.org/wiki/Unicode_character_property#General_Category
+           | \p{So}
+           | \p{Sm}
+opchar     = {opchar1} | {opchar2}
+op         = {opchar1} {opchar}+
+           | {opchar2} {opchar}*
+idrest     = [:jletterdigit:]* ("_" ({op} | {opchar1}))?
+varid      = [:jletter:] {idrest}
+plainid    = {varid} | {op}
 identifier = {plainid} | "`" {stringLiteralExtra} "`"
 
-special = \u0021 | \u0023
-          | [\u0025-\u0026]
-          | [\u002A-\u002B]
-          | \u002D | \u005E
-          | \u003A
-          | [\u003C-\u0040]
-          | \u007E
-          | \u005C | \u002F | [:unicode_math_symbol:] | [:unicode_other_symbol:] | \u2694
-
-
-// Vertical line
-op = \u007C ({special} | \u007C)+
-     | {special} ({special} | \u007C)*
 octalDigit = [0-7]
-
-idrest1 = [:jletter:]? [:jletterdigit:]* ("_" {op})?
-idrest = [:jletter:]? [:jletterdigit:]* ("_" {op} | "_" {idrest1} )?
-varid = [:jletter:] {idrest}
-
-plainid = {varid}
-          | {op}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////// Comments ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -327,12 +330,12 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ////////////////////////////////////  XML processing ///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-<YYINITIAL>{
-
-{XML_BEGIN}                             {   yybegin(COMMON_STATE);
-                                            yypushback(yylength());
-                                            return ScalaTokenTypesEx.SCALA_XML_CONTENT_START;
-                                        }
+<YYINITIAL> {
+  {XML_BEGIN}  {
+    yybegin(COMMON_STATE);
+    yypushback(yylength());
+    return ScalaTokenTypesEx.SCALA_XML_CONTENT_START;
+  }
 }
 
 {END_OF_LINE_COMMENT}                   { return process(tLINE_COMMENT); }
@@ -366,7 +369,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 }
 
 <INJ_COMMON_STATE> {identifier} {
-    int length = yylength();
+  int length = yylength();
   int number = length;
   for (int i = 1; i < length; i++) {
     if (yycharat(i) == '$') {
@@ -605,13 +608,8 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ":"                                     {   return process(tCOLON);  }
 "="                                     {   return process(tASSIGN);  }
 
-"=>"                                    {   return process(tFUNTYPE); }
-"\\u21D2"                               {   return process(tFUNTYPE); }
-"\u21D2"                                {   return process(tFUNTYPE); }
-
-"<-"                                    {   return process(tCHOOSE); }
-"\\u2190"                               {   return process(tCHOOSE); }
-"\u2190"                                {   return process(tCHOOSE); }
+"=>" | "\u21D2"                         {   return process(tFUNTYPE); }
+"<-" | "\u2190"                         {   return process(tCHOOSE); }
 
 "<:"                                    {   return process(tUPPER_BOUND); }
 ">:"                                    {   return process(tLOWER_BOUND); }
@@ -630,10 +628,9 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 ";"                                     {   return process(tSEMICOLON);}
 ","                                     {   return process(tCOMMA);}
 
-
 {identifier}                            {   return process(tIDENTIFIER); }
-{integerLiteral} / "." {identifier}
-                                        {   return process(Integer());  }
+
+{integerLiteral} / "." {identifier}     {   return process(Integer());  }
 {doubleLiteral}                         {   return process(Double());}
 {floatingLiteral}                       {   return process(Float());      }
 {longLiteal}                            {   return process(Long());}

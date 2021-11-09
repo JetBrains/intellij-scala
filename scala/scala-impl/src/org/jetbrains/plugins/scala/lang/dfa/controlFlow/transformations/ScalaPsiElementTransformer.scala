@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScDefinitionWithAssignment}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 
 /**
  * [[Transformable]] wrapper for all Scala PSI elements.
@@ -20,6 +21,8 @@ class ScalaPsiElementTransformer(val wrappedElement: ScalaPsiElement) extends Tr
       case expression: ScExpression => new ExpressionTransformer(expression)
       case definition: ScDefinitionWithAssignment => new DefinitionTransformer(definition)
       case declarationStatement: ScDeclaration with ScBlockStatement => new UnknownCallTransformer(declarationStatement)
+      case _: ScImportStmt => new UnknownValueTransformer
+      case _: ScImportExpr => new UnknownValueTransformer
       case _ => throw TransformationFailedException(wrappedElement, "Unsupported PSI element.")
     }
 

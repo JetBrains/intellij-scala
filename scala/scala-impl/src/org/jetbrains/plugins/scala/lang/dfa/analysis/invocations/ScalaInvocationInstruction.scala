@@ -6,11 +6,11 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{DfaInstructionState, Expres
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.tryInterpretExternalMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{byNameParametersPresent, implicitParametersPresent}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 
@@ -25,7 +25,7 @@ import scala.language.postfixOps
  * on the stack that is the return value of this invocation.
  */
 class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAnchor: ScalaDfaAnchor,
-                                 qualifier: Option[PsiElement],
+                                 qualifier: Option[ScalaDfaVariableDescriptor],
                                  exceptionTransfer: Option[DfaControlTransferValue],
                                  currentAnalysedMethodInfo: AnalysedMethodInfo)
   extends ExpressionPushingInstruction(invocationAnchor) {

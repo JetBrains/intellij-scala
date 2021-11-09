@@ -7,11 +7,12 @@ import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.InterproceduralAnalysis.registerParameterValues
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaVariableDescriptor
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType, unknownDfaValue}
@@ -22,7 +23,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
 
   def findMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
                        argumentValues: Map[Argument, DfaValue],
-                       qualifier: Option[PsiElement]): MethodEffect = {
+                       qualifier: Option[ScalaDfaVariableDescriptor]): MethodEffect = {
     invocationInfo.invokedElement match {
       case None => MethodEffect(unknownDfaValue, isPure = false, handledSpecially = false)
       case Some(invokedElement) =>
@@ -60,7 +61,7 @@ case class MethodEffectFinder(invocationInfo: InvocationInfo)(implicit factory: 
   }
 
   private def findScalaMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState,
-                                    argumentValues: Map[Argument, DfaValue], qualifier: Option[PsiElement])
+                                    argumentValues: Map[Argument, DfaValue], qualifier: Option[ScalaDfaVariableDescriptor])
                                    (implicit factory: DfaValueFactory): MethodEffect = {
     val returnType = invocationInfo.invokedElement
       .map(element => scTypeToDfType(element.returnType))

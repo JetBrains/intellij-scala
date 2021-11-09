@@ -53,6 +53,14 @@ class SameElementsToEqualsTest extends SameElementsToEqualsInspectionTest {
     checkTextHasNoErrors("scala.collection.immutable.TreeMap(1 -> 1) sameElements scala.collection.immutable.TreeMap(1 -> 1)")
   }
 
+  def testArrayWithConversion(): Unit = {
+    checkTextHasNoErrors(
+      """val seq: Seq[String] = ???
+        |val array: Array[String] = ???
+        |val same = seq.sameElements(array)
+        |val same2 = array.sameElements(seq)""".stripMargin)
+  }
+
 }
 
 class CorrespondsToEqualsTest extends SameElementsToEqualsInspectionTest {

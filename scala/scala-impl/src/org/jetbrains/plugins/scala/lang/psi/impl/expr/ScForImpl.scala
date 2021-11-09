@@ -8,6 +8,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, StringsExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -199,7 +200,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
 
     def appendFunc[R](
       funcName:   String,
-      enum:       Option[ScEnumerator],
+      enumerator: Option[ScEnumerator],
       args:       Seq[(Option[ScPattern], String)],
       forceCases: Boolean = false,
       forceBlock: Boolean = false
@@ -213,7 +214,7 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
         resultText ++= "\n"
       }
       resultText ++= "."
-      markMappingHere(enum, enumMappings)
+      markMappingHere(enumerator, enumMappings)
       resultText ++= funcName
 
       resultText ++= (if (needsCase) " { case " else if (forceBlock) " { " else "(")
@@ -514,6 +515,8 @@ class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
     processor.processType(ty, this)
     found
   }
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kFOR
 }
 
 object ScForImpl {

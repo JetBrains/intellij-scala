@@ -166,6 +166,7 @@
         <additionalTextAttributes scheme="Darcula" file="colorSchemes/ScalaDarcula.xml"/>
         <treeStructureProvider implementation="org.jetbrains.plugins.scala.projectView.ScalaTreeStructureProvider" order="last"/>
         <lang.braceMatcher language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBraceMatcher"/>
+        <codeBlockSupportHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaBlockSupportHandler"/>
         <lang.fileViewProviderFactory language="Scala"
                                       implementationClass="org.jetbrains.plugins.scala.lang.psi.ScFileViewProviderFactory"/>
         <lang.parserDefinition language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition"/>
@@ -221,7 +222,8 @@
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
         <completion.contributor language="Scala" id="keywordCompletionContributor"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaKeywordCompletionContributor"
+                                order="before caseClauseCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaSmartCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaAfterNewCompletionContributor"/>
@@ -250,7 +252,8 @@
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaUnresolvedNameContributor"
                                 order="before scalaIdentifierCompletionContributor"/>
         <completion.contributor language="Scala" id="sameSignatureCallParametersProvider"
-                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"/>
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.SameSignatureCallParametersProvider"
+                                order="before keywordCompletionContributor, before scalaClassParamContributor"/>
         <completion.contributor language="Scala" id="scalaClassNameCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameCompletionContributor"
                                 order="after scalaCompletionContrubutor"/> <!-- This is the last completion contributor! -->
@@ -258,6 +261,10 @@
                                 order="before scalaClassNameCompletionContributor"/>
         <completion.contributor language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPrefixPackageCompletionContributor"
                                 order="before scalaClassNameCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaEndMarkerCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor"
+                                order="before keywordCompletionContributor"/>
+
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
         <completion.confidence language="Scala" implementationClass="com.intellij.codeInsight.completion.SkipAutopopupInStrings"/>
         <completion.plainTextSymbol language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaPlainTextSymbolCompletionContributor"/>
@@ -1369,7 +1376,7 @@
                          key="displayname.dataflow.analysis.constant.conditions"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaConstantConditions"
-                         level="WARNING" enabledByDefault="false" language="Scala"/>
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <!-- Collection inspections -->
         <!-- Size -->

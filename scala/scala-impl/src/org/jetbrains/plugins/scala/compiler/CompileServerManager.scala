@@ -112,8 +112,8 @@ final class CompileServerManager(project: Project) extends Disposable {
 
       //noinspection ReferencePassedToNls
       override def getTooltipText: String = {
-        val portDetail = launcher.port.map(_.formatted("TCP %d"))
-        val pidDetail = launcher.pid.map(_.formatted("PID %d"))
+        val portDetail = launcher.port.map(p => s"TCP $p")
+        val pidDetail = launcher.pid.map(p => s"PID $p")
         val details = portDetail ++ pidDetail
         val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")
         title + detailsText

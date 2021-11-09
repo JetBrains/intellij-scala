@@ -2,17 +2,13 @@ package org.jetbrains.sbt.project.template.techhub
 
 
 import com.intellij.CommonBundle
-import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
 import org.jetbrains.annotations.{Nls, TestOnly}
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
-import org.jetbrains.sbt.project.template.{SbtModuleBuilderBase, SbtModuleBuilderUtil, ScalaSettingsStepBase}
+import org.jetbrains.sbt.project.template.{DefaultModuleContentEntryFolders, SbtModuleBuilderBase, ScalaSettingsStepBase}
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
 import java.io.File
@@ -36,45 +32,21 @@ final class TechHubModuleBuilder extends SbtModuleBuilderBase {
 
   override def getNodeIcon: Icon = Sbt.Icon
 
-  // TODO: shouldn't we reuse logic with from org.jetbrains.sbt.project.template.SbtModuleBuilder?
-  //  Looks like the only `TechHubModuleBuilder`-specific logic is template construction:
-  //  it downloads the template, and `SbtModuleBuilder` creates the template manually
-  //  Otherwise the importing logic should be the same.
-  override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
-
-    val module = moduleModel.newModule(getModuleFilePath, getModuleType.getId)
-    setupModule(module) // TODO: shouldn't this method be called by platform and not by ourselves
-    module
-  }
-
-  override def setupRootModel(model: ModifiableRootModel): Unit ={
+  override protected def createProjectTemplateIn(root: File): Option[DefaultModuleContentEntryFolders] = {
     val info = settingsComponent.getSelectedTemplate
-    for {
-      contentPath <- Option(getContentEntryPath)
-      moduleDir = new File(contentPath)
-      if moduleDir.exists() || moduleDir.mkdirs()
-    } {
-      doWithProgress(
-        downloadTemplate(info, getName, moduleDir),
-        SbtBundle.message("downloading.template")
-      )
-
-      tryToSetupRootModel(model, getContentEntryPath)
-    }
-  }
-
-  override def setupModule(module: Module): Unit = {
-    super.setupModule(module)
-    SbtModuleBuilderUtil.doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
+    doWithProgress(
+      downloadTemplate(info, getName, root),
+      SbtBundle.message("downloading.template")
+    )
+    Some(DefaultModuleContentEntryFolders.rootTargets)
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
     settingsStep.addSettingsComponent(settingsComponent.getMainPanel)
-    new MySettingsStep(settingsStep)
+    new Step(settingsStep)
   }
 
-  final class MySettingsStep(settingsStep: SettingsStep) extends ScalaSettingsStepBase(settingsStep, this) {
+  final class Step(settingsStep: SettingsStep) extends ScalaSettingsStepBase(settingsStep, this) {
 
     override def updateDataModel(): Unit = {
       settingsStep.getContext setProjectJdk myJdkComboBox.getSelectedJdk

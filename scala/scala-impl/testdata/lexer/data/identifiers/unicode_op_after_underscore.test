@@ -1,0 +1,123 @@
+a_&
+a_|
+a_*
+a_+
+a_-
+a_~
+a_!
+a__
+a_=>
+a_⇒
+a_<-
+a_←
+a_<:
+a_>:
+a_<%
+
+a_:
+a_=
+a_#
+a_@
+a_⚕
+a_⨀
+a_🌀
+
+a_**
+a_::
+a_==
+a_##
+a_@@
+a_⚕⚕
+a_⨀⨀
+a_🌀🌀
+------
+identifier {a_&}
+white space in line {
+}
+identifier {a_|}
+white space in line {
+}
+identifier {a_*}
+white space in line {
+}
+identifier {a_+}
+white space in line {
+}
+identifier {a_-}
+white space in line {
+}
+identifier {a_~}
+white space in line {
+}
+identifier {a_!}
+white space in line {
+}
+identifier {a__}
+white space in line {
+}
+identifier {a_=>}
+white space in line {
+}
+identifier {a_⇒}
+white space in line {
+}
+identifier {a_<-}
+white space in line {
+}
+identifier {a_←}
+white space in line {
+}
+identifier {a_<:}
+white space in line {
+}
+identifier {a_>:}
+white space in line {
+}
+identifier {a_<%}
+white space in line {
+
+}
+identifier {a_:}
+white space in line {
+}
+identifier {a_=}
+white space in line {
+}
+identifier {a_#}
+white space in line {
+}
+identifier {a_@}
+white space in line {
+}
+identifier {a_⚕}
+white space in line {
+}
+identifier {a_⨀}
+white space in line {
+}
+identifier {a_🌀}
+white space in line {
+
+}
+identifier {a_**}
+white space in line {
+}
+identifier {a_::}
+white space in line {
+}
+identifier {a_==}
+white space in line {
+}
+identifier {a_##}
+white space in line {
+}
+identifier {a_@@}
+white space in line {
+}
+identifier {a_⚕⚕}
+white space in line {
+}
+identifier {a_⨀⨀}
+white space in line {
+}
+identifier {a_🌀🌀}

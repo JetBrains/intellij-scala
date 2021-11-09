@@ -5,8 +5,9 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -68,4 +69,6 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     })
 
   override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAL
 }

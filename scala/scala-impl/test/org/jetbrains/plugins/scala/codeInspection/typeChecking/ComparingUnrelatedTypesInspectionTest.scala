@@ -1001,4 +1001,28 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |
        |""".stripMargin
   )
+
+  def testGenericTypeComparison(): Unit = checkTextHasNoErrors(
+    """def test[U](c: Class[U]): Boolean = {
+      |    c == classOf[String]
+      |}""".stripMargin
+  )
+
+  def testWithImplicitConversion(): Unit = checkTextHasNoErrors(
+    """object UnrelatedTypesExample {
+      |  class Container[A](value: A) {
+      |    def get : A = value
+      |  }
+      |  implicit def getContainerValue[A](cont: Container[A]) : A = cont.get
+      |  val container = new Container(List(1,2,3))
+      |  container.indexOf(2) // this will be marked as "Comparing unrelated types: List[Int] and Int"
+      |}""".stripMargin
+  )
+
+  def testWithImplicitConversion2(): Unit = checkTextHasError(
+    s"""object UnrelatedTypesExample {
+      |  implicit def toList[A](a: A) : List[A] = a :: Nil
+      |  1.indexOf($START"2"$END)
+      |}""".stripMargin
+  )
 }

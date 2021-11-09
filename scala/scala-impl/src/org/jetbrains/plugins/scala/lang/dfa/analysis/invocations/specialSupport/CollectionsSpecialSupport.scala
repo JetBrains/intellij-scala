@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.specialSupport.SpecialSupportUtils.{collectionSizeRangeFromDfaValueInState, collectionSpecificSizeFromDfaValueInState, retrieveSingleProperArgumentValue}
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.invocationInfo.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{dfTypeImmutableCollectionFromSize, dfTypeImmutableCollectionFromSizeDfType}
 
 //noinspection UnstableApiUsage

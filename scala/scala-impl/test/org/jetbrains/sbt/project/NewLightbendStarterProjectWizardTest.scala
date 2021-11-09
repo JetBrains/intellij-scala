@@ -54,7 +54,7 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
 
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
-          excluded := Seq("target")
+          excluded := Seq("project/target", "target")
         },
         new module(s"$projectName-build") {
           sources := Seq("")
@@ -76,7 +76,7 @@ class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase
       projectName
     ) {
       case projectSettingsStep: ProjectSettingsStep =>
-        val settingsStep = projectSettingsStep.getSettingsStepTyped[TechHubModuleBuilder#MySettingsStep]
+        val settingsStep = projectSettingsStep.getSettingsStepTyped[TechHubModuleBuilder#Step]
         settingsStep.setTemplate(templateName)
       case _ =>
     }

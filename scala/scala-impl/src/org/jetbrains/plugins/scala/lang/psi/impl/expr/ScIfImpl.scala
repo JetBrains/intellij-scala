@@ -6,6 +6,7 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -82,6 +83,8 @@ class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf {
       case _ => Failure(ScalaBundle.message("nothing.to.type"))
     }
   }
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kIF
 
   override def toString: String = "IfStatement"
 }

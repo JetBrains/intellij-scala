@@ -40,7 +40,7 @@ object InvocationChainExtractor {
     val (restArgs, followingCalls) = target match {
       case Some(ScalaResolveResult(scalaFunction: ScParameterOwner, _)) => rest.splitAt(scalaFunction.allClauses.length - 1)
       case Some(ScalaResolveResult(syntheticFunction: ScFun, _)) => rest.splitAt(syntheticFunction.paramClauses.length - 1)
-      case Some(ScalaResolveResult(javaFunction: PsiMethod, _)) => (Nil, rest)
+      case Some(ScalaResolveResult(_: PsiMethod, _)) => (Nil, rest)
       case _ => rest.span(_._2.isEmpty)
     }
 

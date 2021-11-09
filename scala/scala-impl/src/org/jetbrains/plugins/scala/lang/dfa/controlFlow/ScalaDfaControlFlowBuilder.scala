@@ -8,12 +8,13 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
-import com.intellij.psi.{CommonClassNames, PsiElement, PsiPrimitiveType}
+import com.intellij.psi.{CommonClassNames, PsiPrimitiveType}
 import org.jetbrains.plugins.scala.lang.dfa.analysis.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.analysis.invocations.interprocedural.AnalysedMethodInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, InvocationTransformer, Transformable}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.resolveExpressionType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -124,12 +125,13 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
 
   def assignVariableValueWithInstanceQualifier(descriptor: ScalaDfaVariableDescriptor,
                                                instantiationExpression: Option[ScExpression],
-                                               instanceQualifier: PsiElement, definedType: ScType): Unit = {
+                                               instanceQualifier: ScBindingPattern, definedType: ScType): Unit = {
     val dfaVariable = createVariable(descriptor)
     val anchor = instantiationExpression.map(ScalaStatementAnchor(_)).orNull
+    val qualifierVariable = ScalaDfaVariableDescriptor(instanceQualifier, None, instanceQualifier.isStable)
 
     instantiationExpression match {
-      case Some(expression) => new InvocationTransformer(expression, Some(instanceQualifier)).transform(this)
+      case Some(expression) => new InvocationTransformer(expression, Some(qualifierVariable)).transform(this)
         addImplicitConversion(Some(expression), Some(definedType))
       case _ => pushUnknownValue()
     }

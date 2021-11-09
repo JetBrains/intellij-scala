@@ -67,9 +67,9 @@
           <text resource-bundle="messages/ScalaBundle" key="scala.console.config.use.classpath.and.sdk.of.module"/>
         </properties>
       </component>
-      <component id="af18" class="javax.swing.JComboBox" binding="moduleComboBox">
+      <component id="9eec7" class="com.intellij.application.options.ModulesComboBox" binding="moduleComboBox">
         <constraints>
-          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="7" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties/>
       </component>

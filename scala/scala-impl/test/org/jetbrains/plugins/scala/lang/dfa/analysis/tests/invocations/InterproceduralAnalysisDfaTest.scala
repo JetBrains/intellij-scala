@@ -44,12 +44,12 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
   def testBanningRecursion(): Unit =
     if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
       """
-        |private def recursiveMethod1(x: Int): Int = {
+        |def recursiveMethod1(x: Int): Int = {
         |  if (x < 10) recursiveMethod1(x + 1)
         |  else 2 * x
         |}
         |
-        |private def recursiveMethod2(x: Int): Int = {
+        |def recursiveMethod2(x: Int): Int = {
         |  val y = recursiveMethod2(x)
         |  2 * x
         |}
@@ -66,23 +66,23 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
   def testLimitingInterproceduralAnalysisDepth(): Unit =
     if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
       """
-        |private def veryNested3(x: Int) = {
+        |def veryNested3(x: Int) = {
         |  3 * x
         |}
         |
-        |private def veryNested2(x: Int) = {
+        |def veryNested2(x: Int) = {
         |  2 * x + veryNested3(x)
         |}
         |
-        |private def veryNested1(x: Int) = {
+        |def veryNested1(x: Int) = {
         |  x + veryNested2(x)
         |}
         |
-        |private def nested2(y: Int) = {
+        |def nested2(y: Int) = {
         |  2 * y
         |}
         |
-        |private def nested1(x: Int) = {
+        |def nested1(x: Int) = {
         |  x + nested2(x)
         |}
         |
@@ -99,39 +99,84 @@ class InterproceduralAnalysisDfaTest extends ScalaDfaTestBase {
   def testReactingToPossibleThrowsOrReturnsInExternalMethods(): Unit =
     if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
       """
-        |private def otherMethod(x: Int): Int = {
+        |def otherMethod(x: Int): Int = {
         |  3 $$ 4
         |  x
         |}
         |
-        |private def goodMethod(x: Int): Boolean = {
+        |def goodMethod(x: Int): Boolean = {
         |  3 + 3
         |
         |  true
-      |}
-      |
-      |private def badMethod(x: Int): Boolean = {
-      |  x match { // some currently unsupported expression here
-      |    case 3 => return false
-      |    case _ =>
-      |  }
-      |
-      |  true
-      |}
-      |
-      |val x = otherMethod(5)
-      |x == 5
-      |goodMethod(5)
-      |
-      |if (badMethod(5)) {
-      |  x == 3
-      |}
-      |
-      |2 == 2
-      |
-      |""".stripMargin
-  })(
-    "2 == 2" -> ConditionAlwaysTrue,
-    "goodMethod(5)" -> ConditionAlwaysTrue
-  )
+        |}
+        |
+        |def badMethod(x: Int): Boolean = {
+        |  x match { // some currently unsupported expression here
+        |    case 3 => return false
+        |    case _ =>
+        |  }
+        |
+        |  true
+        |}
+        |
+        |val x = otherMethod(5)
+        |x == 5
+        |goodMethod(5)
+        |
+        |if (badMethod(5)) {
+        |  x == 3
+        |}
+        |
+        |2 == 2
+        |
+        |""".stripMargin
+    })(
+      "2 == 2" -> ConditionAlwaysTrue,
+      "goodMethod(5)" -> ConditionAlwaysTrue
+    )
+
+  def testReturningUnit(): Unit =
+    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
+      """
+        |var y = false
+        |def otherMethod(x: Int): Unit = {
+        |  y = true
+        |}
+        |
+        |def oneMoreMethod(x: Int): Unit = {
+        |  val z = false
+        |}
+        |
+        |val x = 5
+        |otherMethod(5)
+        |oneMoreMethod(7)
+        |x == 5
+        |
+        |""".stripMargin
+    })(
+      "x == 5" -> ConditionAlwaysTrue
+    )
+
+  def testProperRegisteringOfMoreThanOnePossibleReturnValue(): Unit =
+    if (InterproceduralAnalysisEnabled) test(codeFromMethodBody(returnType = "Boolean") {
+      """
+        |object SomeObject {
+        |  val OutsideField = 3 > 2
+        |
+        |  def something: Int = if (OutsideField) 0 else 10
+        |
+        |  def main(): Unit = {
+        |    val x = something
+        |    2 == 2
+        |    x == 10
+        |    x < 15
+        |    something < 15
+        |  }
+        |}
+        |""".stripMargin
+    })(
+      "2 == 2" -> ConditionAlwaysTrue,
+      "x < 15" -> ConditionAlwaysTrue,
+      "something < 15" -> ConditionAlwaysTrue
+    )
 }

@@ -26,6 +26,8 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def hasWildcardSelector: Boolean
 
+  def hasGivenSelector: Boolean
+
   def wildcardElement: Option[PsiElement]
 
   def qualifier: Option[ScStableCodeReference]

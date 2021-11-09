@@ -46,8 +46,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
     val maybeParent = sourceElement.parent
     maybeParent match {
-      case Some(end: ScEnd) if end.endingElementDesignator == sourceElement =>
-        return end.resolve().toOption.toArray
+      case Some(end: ScEnd) if end.tag == sourceElement =>
+        return if (end.tag.isIdentifier) end.begin.flatMap(_.namedElement).toArray else end.begin.toArray
       case _ =>
     }
 
@@ -97,7 +97,7 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 object ScalaGoToDeclarationHandler {
   private def getGotoDeclarationTargetsForEnumerator(maybeParent: Option[PsiElement]): Array[PsiElement] = {
     maybeParent
-      .collect { case enum: ScEnumerator => enum }
+      .collect { case enumerator: ScEnumerator => enumerator }
       .flatMap { _.desugared }
       .flatMap { _.callExpr }
       .map { expr => getGotoDeclarationTargetsForElement(expr, Some(expr))}

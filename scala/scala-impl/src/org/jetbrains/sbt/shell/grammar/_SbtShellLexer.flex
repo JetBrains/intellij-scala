@@ -13,6 +13,9 @@ import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
   public _SbtShellLexer() {
     this((java.io.Reader)null);
   }
+
+  public void resetCustom() {
+  }
 %}
 
 %public

@@ -22,6 +22,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   override def toString: String = s"ExpressionTransformer: $wrappedExpression"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = wrappedExpression match {
+    case someExpression if isUnsupportedPureExpressionType(someExpression) => builder.pushUnknownValue()
+    case someExpression if isUnsupportedImpureExpressionType(someExpression) => builder.pushUnknownCall(someExpression, 0)
     case block: ScBlockExpr => transformBlock(block, builder)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, builder)
     case invocation: MethodInvocation => transformInvocation(invocation, builder)
@@ -38,8 +40,6 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case throwStatement: ScThrow => transformThrowStatement(throwStatement, builder)
     case returnStatement: ScReturn => transformReturnStatement(returnStatement, builder)
     case _: ScTemplateDefinition => builder.pushUnknownValue()
-    case otherExpression if isUnsupportedPureExpressionType(otherExpression) => builder.pushUnknownValue()
-    case otherExpression if isUnsupportedImpureExpressionType(otherExpression) => builder.pushUnknownCall(otherExpression, 0)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -106,8 +106,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    if (startsWithUnderscoreExpression(expression)) builder.pushUnknownValue()
-    else if (isReferenceExpressionInvocation(expression)) {
+    if (isReferenceExpressionInvocation(expression)) {
       new InvocationTransformer(expression).transform(builder)
     } else {
       expression.qualifier.foreach { qualifier =>
@@ -122,17 +121,6 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
         case _ => builder.pushUnknownCall(expression, 0)
       }
     }
-  }
-
-  private def startsWithUnderscoreExpression(reference: ScReferenceExpression): Boolean = {
-    var currentReference = reference.qualifier
-    while (currentReference.isDefined) currentReference match {
-      case Some(_: ScUnderscoreSection) => return true
-      case Some(nextReference: ScReferenceExpression) => currentReference = nextReference.qualifier
-      case _ => return false
-    }
-
-    false
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
@@ -153,6 +141,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
       case reference: ScReferenceExpression => ScalaDfaVariableDescriptor.fromReferenceExpression(reference) match {
         case Some(descriptor) => val definedType = resolveExpressionType(assignment.leftExpression)
           builder.assignVariableValue(descriptor, assignment.rightExpression, definedType)
+          builder.pushUnknownValue()
         case _ => builder.pushUnknownCall(assignment, 0)
       }
       case _ => builder.pushUnknownCall(assignment, 0)
@@ -190,6 +179,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
         val psiType = exception.`type`().getOrAny.toPsiType
         val transfer = new ExceptionTransfer(TypeConstraints.instanceOf(psiType))
         builder.addInstruction(new ThrowInstruction(builder.transferValue(transfer), exception))
+        builder.pushUnknownValue()
       case _ => builder.pushUnknownCall(throwStatement, 0)
     }
   }

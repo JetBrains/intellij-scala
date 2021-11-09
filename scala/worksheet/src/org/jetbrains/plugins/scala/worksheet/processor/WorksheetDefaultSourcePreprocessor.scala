@@ -92,7 +92,7 @@ object WorksheetDefaultSourcePreprocessor {
       case other         => other.getNode.getChildren(null).map(_.getPsi)
     }
 
-    sourceBuilder.process(rootChildren.toIterable, preDeclarations, postDeclarations)
+    sourceBuilder.process(rootChildren, preDeclarations, postDeclarations)
   }
 
   private def languageLevelForFile(srcFile: ScalaFile) = {

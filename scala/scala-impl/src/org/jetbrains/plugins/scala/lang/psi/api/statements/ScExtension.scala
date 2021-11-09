@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
 
-trait ScExtension extends ScParameterOwner.WithContextBounds
+trait ScExtension extends ScParameterOwner.WithContextBounds with ScBegin
   with ScDocCommentOwner
   with ScCommentOwner
   with ScMember

@@ -13,6 +13,7 @@ class DerivesFilter extends ElementFilter {
   override def isAcceptable(element: Any, context: PsiElement): Boolean = {
     if (!context.isInScala3File || context.is[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    if (leaf == null) return false
 
     val errorBeforeDerivesStart = leaf.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()
 

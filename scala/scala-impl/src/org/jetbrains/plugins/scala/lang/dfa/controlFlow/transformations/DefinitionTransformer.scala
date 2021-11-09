@@ -40,6 +40,8 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
       } else {
         builder.assignVariableValue(descriptor, definition.expr, definedType)
       }
+
+      builder.pushUnknownValue()
     }
   }
 

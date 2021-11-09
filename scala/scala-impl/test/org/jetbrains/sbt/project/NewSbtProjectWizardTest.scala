@@ -14,16 +14,16 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
   }
 
   def testCreateProjectWithLowerCaseName(): Unit =
-    runCreateSbtProjectTest("lowe_case_project_name")
+    runSimpleCreateSbtProjectTest("lowe_case_project_name")
 
   def testCreateProjectWithUpperCaseName(): Unit =
-    runCreateSbtProjectTest("UpperCaseProjectName")
+    runSimpleCreateSbtProjectTest("UpperCaseProjectName", packagePrefixOpt = Some("org.example.prefix"))
   
   //SCL-12528, SCL-12528
   def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
-    runCreateSbtProjectTest("project.name.with.dots spaces and-dashes and UPPERCASE")
+    runSimpleCreateSbtProjectTest("project.name.with.dots spaces and-dashes and UPPERCASE")
 
-  private def runCreateSbtProjectTest(projectName: String): Unit = {
+  private def runSimpleCreateSbtProjectTest(projectName: String, packagePrefixOpt: Option[String] = None): Unit = {
     val scalaVersion = "2.13.6"
     val sbtVersion = Versions.SBT.LatestSbtVersion
 
@@ -48,20 +48,26 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
           excluded := Seq("project/target", "target")
         }
       )
+
+      packagePrefixOpt.foreach { prefix =>
+       packagePrefix := prefix
+      }
     }
 
     runCreateSbtProjectTest(
       projectName,
       scalaVersion,
       sbtVersion,
-      expectedProject
-    )
+      packagePrefixOpt
+    )(expectedProject)
   }
 
   private def runCreateSbtProjectTest(
     projectName: String,
     scalaVersion: String,
     sbtVersion: String,
+    packagePrefix: Option[String] = None
+  )(
     expectedProject: project
   ): Unit = {
     val project: Project = createScalaProject(
@@ -72,6 +78,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
         val settingsStep = projectSettingsStep.getSettingsStepTyped[SbtModuleBuilder.Step]
         settingsStep.setScalaVersion(scalaVersion)
         settingsStep.setSbtVersion(sbtVersion)
+        settingsStep.setPackagePrefix(packagePrefix.getOrElse(""))
       case _ =>
     }
 

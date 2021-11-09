@@ -1,0 +1,75 @@
+<project name="generate all lexers for Scala Plugin community" default="generate.lexer.all">
+
+  <property file="${basedir}/versions.properties"/>
+
+  <property name="community.project.root" value="${basedir}/../.."/>
+  <property name="scala-impl.src.root" value="${community.project.root}/scala/scala-impl/src"/>
+
+  <property name="out.dir" value="${basedir}/out"/>
+
+  <property name="jflex.jar.dir" value="${basedir}/lib/"/>
+  <property name="jflex.jar.file" value="${jflex.jar.dir}/jflex-${jflex-version}.jar"/>
+
+  <property name="scala.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/lexer/core"/>
+  <property name="scaladoc.lexer.path" value="${scala-impl.src.root}/org/jetbrains/plugins/scala/lang/scaladoc/lexer"/>
+
+  <!-- TARGETS DEFINITION -->
+
+  <target name="generate.lexer.all"
+          depends="generate.lexer.scala.core, generate.lexer.scaladoc, generate.lexer.sbt.shell"
+          description="main target"/>
+
+  <target name="generate.lexer.scala.core" depends="generate.lexer.scala.splitting">
+    <flex flexFileName="_ScalaCoreLexer.flex" flexFileDir="${scala.lexer.path}"/>
+  </target>
+
+  <target name="generate.lexer.scala.splitting">
+    <flex flexFileName="_ScalaSplittingLexer.flex" flexFileDir="${scala.lexer.path}"/>
+  </target>
+
+  <target name="generate.lexer.scaladoc">
+    <flex flexFileName="_ScalaDocLexer.flex" flexFileDir="${scaladoc.lexer.path}"/>
+  </target>
+
+  <target name="generate.lexer.sbt.shell">
+    <flex flexFileName="_SbtShellLexer.flex" flexFileDir="${scala-impl.src.root}/org/jetbrains/sbt/shell/grammar/"/>
+  </target>
+
+  <macrodef name="flex">
+    <attribute name="flexFileDir"/>
+    <attribute name="flexFileName"/>
+    <attribute name="skeletonFile" default="${basedir}/idea-flex.patched.skeleton"/>
+
+    <sequential>
+      <delete dir="${out.dir}"/>
+      <mkdir dir="${out.dir}"/>
+      <mkdir dir="${jflex.jar.dir}"/>
+
+      <get src="https://cache-redirector.jetbrains.com/intellij-dependencies/org/jetbrains/intellij/deps/jflex/jflex/${jflex-version}/jflex-${jflex-version}.jar"
+           dest="${jflex.jar.file}"
+           skipexisting="true"/>
+
+      <java jar="${jflex.jar.file}"
+            fork="true"
+            dir="@{flexFileDir}"
+            output="${basedir}/@{flexFileName}.log"
+            failonerror="true">
+        <jvmarg value="-Xmx1024M"/>
+
+        <arg value="-skel"/>
+        <arg value="@{skeletonFile}"/>
+        <arg value="-d"/>
+        <arg value="${out.dir}"/>
+        <arg value="@{flexFileName}"/>
+      </java>
+
+      <move todir="@{flexFileDir}" overwrite="true">
+        <fileset dir="${out.dir}">
+          <include name="*.java"/>
+        </fileset>
+      </move>
+
+      <delete dir="${out.dir}"/>
+    </sequential>
+  </macrodef>
+</project>

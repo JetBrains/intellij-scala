@@ -6,13 +6,15 @@ import com.intellij.lang.{Language, LanguageNamesValidation}
 import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.{Editor, ScrollType}
-import com.intellij.openapi.util.Key
+import com.intellij.openapi.util.{Key, Pair, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
 
@@ -51,6 +53,18 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
     ScalaRenameUtil.filterAliasedReferences {
       super.collectRefs(referencesSearchScope)
     }
+
+  override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]): Unit = {
+    super.collectAdditionalElementsToRename(stringUsages)
+
+    elementToRename.withParentsInFile.findByType[ScBegin].filter(_.namedElement.contains(elementToRename)).flatMap(_.end).foreach { end =>
+      stringUsages.add(Pair.create(end.tag, null))
+    }
+
+    substituted.asOptionOfUnsafe[ScBegin].flatMap(_.end).foreach { end =>
+      stringUsages.add(Pair.create(end.tag, null))
+    }
+  }
 
   override def restoreCaretOffset(offset: Int): Int = {
     offset.max(myCaretRangeMarker.getStartOffset).min(myCaretRangeMarker.getEndOffset)

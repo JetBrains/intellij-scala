@@ -46,6 +46,10 @@ object ScModifierList {
 
     def isInline: Boolean = hasModifier(Inline)
 
+    def isTransparent: Boolean = hasModifier(Transparent)
+
+    def isOpaque: Boolean = hasModifier(Opaque)
+
     private def hasModifier(value: ScalaModifier) =
       list.modifiers.contains(value)
   }

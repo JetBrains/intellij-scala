@@ -18,12 +18,13 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -72,7 +73,7 @@ abstract sealed class ScImportOrExportImpl[
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-
+    val isScala3 = this.isInScala3File
     val importExpr1 = importExprs.takeWhile(_ != lastParent)
     val importsIterator = importExpr1.reverseIterator
     while (importsIterator.hasNext) {
@@ -88,7 +89,7 @@ abstract sealed class ScImportOrExportImpl[
         val nameHint = processor.getHint(NameHint.KEY).nullSafe
         val name     = nameHint.fold("")(_.getName(state))
 
-        if (name != "" && !importExpr.hasWildcardSelector) {
+        if (name != "" && !importExpr.hasWildcardSelector && !importExpr.hasGivenSelector) {
           val decodedName   = clean(name)
           val importedNames = importExpr.importedNames.map(clean)
           if (!importedNames.contains(decodedName)) return true
@@ -139,6 +140,67 @@ abstract sealed class ScImportOrExportImpl[
                   .flatMap(_.`type`().toOption)
             case _ => ScSimpleTypeElementImpl.calculateReferenceType(qualifier).toOption
           }
+
+        def wildcardProxyProcessor(bp: BaseProcessor,
+                                   hasWildcard: Boolean,
+                                   shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty,
+                                   givenImports: GivenImports = GivenImports.empty): BaseProcessor = {
+          assert(bp == processor)
+
+          if (!isScala3 && shadowed.isEmpty && !givenImports.hasImports) bp
+          else new BaseProcessor(bp.kinds) {
+            override def getHint[T](hintKey: Key[T]): T = bp.getHint(hintKey)
+
+            override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
+
+            override def handleEvent(event: PsiScopeProcessor.Event, associated: Object): Unit =
+              bp.handleEvent(event, associated)
+
+            override def getClassKind: Boolean          = bp.getClassKind
+            override def setClassKind(b: Boolean): Unit = bp.setClassKind(b)
+
+            override protected def execute(namedElement: PsiNamedElement)
+                                          (implicit state: ResolveState): Boolean = {
+              if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(namedElement, p._2))) {
+                return true
+              }
+
+              var newState = state
+              val importedByGiven = if (isScala3) {
+                // given elements are handled in a special way by given imports
+                namedElement match {
+                  case givenElement: ScGiven =>
+                    // check if there are any given imports
+                    if (!givenImports.hasImports) {
+                      // no given selector at all, so don't import, because a normal wildcard doesn't import givens
+                      return true
+                    }
+
+                    val adjustedGivenElementType = givenElement.`type`().map(state.substitutor)
+                    givenImports.conformingGivenSelector(adjustedGivenElementType) match {
+                      case Some(conformingGivenSelector) =>
+                        val additionalImportsUsed = tryMarkImportSelectorUsed(processor, None, conformingGivenSelector)
+                        newState = newState.withImportsUsed(newState.importsUsed ++ additionalImportsUsed)
+                        true
+                      case None =>
+                        // no selector conforms, so do not import
+                        return true
+                    }
+                  case _ =>
+                    false
+                }
+              } else false
+
+              if (!(importedByGiven || hasWildcard)) {
+                return true
+              }
+
+              val refType = qualifierType(isInPackageObject(namedElement))
+              newState = newState.withFromType(refType)
+              bp.execute(namedElement, newState)
+            }
+          }
+        }
 
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
@@ -223,7 +285,8 @@ abstract sealed class ScImportOrExportImpl[
                   case (cl: PsiClass, _, processor: BaseProcessor) if !cl.is[ScTemplateDefinition] =>
                     processor.processType(ScDesignatorType.static(cl), place, newState)
                   case (_, Some(value), processor: BaseProcessor) =>
-                    processor.processType(value, place, newState)
+                    wildcardProxyProcessor(processor, hasWildcard = true)
+                      .processType(value, place, newState)
                   case _ =>
                     elem.processDeclarations(processor, newState, this, place)
                 }
@@ -235,6 +298,7 @@ abstract sealed class ScImportOrExportImpl[
                 return false
             case Some(set) =>
               val shadowed  = mutable.HashSet.empty[(ScImportSelector, PsiElement)]
+              val givenImports = GivenImports(set)
               val selectors = set.selectors.iterator //for reducing stacktrace
 
               while (selectors.hasNext) {
@@ -275,38 +339,18 @@ abstract sealed class ScImportOrExportImpl[
 
               // There is total import from stable id
               // import a.b.c.{d=>e, f=>_, _}
-              if (set.hasWildcard) {
+              val hasWildcard = set.hasWildcard
+              if (hasWildcard || givenImports.hasImports) {
                 if (!checkWildcardImports) return true
                 processor match {
                   case bp: BaseProcessor =>
                     ProgressManager.checkCanceled()
 
-                    val p1 = new BaseProcessor(bp.kinds) {
-                      override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
-
-                      override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
-
-                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object): Unit =
-                        processor.handleEvent(event, associated)
-
-                      override def getClassKind: Boolean          = bp.getClassKind
-                      override def setClassKind(b: Boolean): Unit = bp.setClassKind(b)
-
-                      override protected def execute(namedElement: PsiNamedElement)
-                                                    (implicit state: ResolveState): Boolean = {
-                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(namedElement, p._2))) return true
-
-                        val refType = qualifierType(isInPackageObject(namedElement))
-                        val newState = state
-                          .withSubstitutor(subst)
-                          .withFromType(refType)
-
-                        processor.execute(namedElement, newState)
-                      }
-                    }
-
+                    val wildcardExprUsed =
+                      if (hasWildcard) tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
+                      else None
                     val newImportsUsed =
-                      importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
+                      importsUsed ++ wildcardExprUsed
 
                     val newState =
                       state
@@ -314,28 +358,28 @@ abstract sealed class ScImportOrExportImpl[
                         .withSubstitutor(subst)
 
                     (elem, processor) match {
-                      case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
+                      case (cl: PsiClass, processor: BaseProcessor) if hasWildcard && !cl.is[ScTemplateDefinition] =>
                         val qualType = qualifierType(isInPackageObject(next.element))
 
                         if (!processor.processType(ScDesignatorType.static(cl), place, newState.withFromType(qualType)))
                           return false
                       case _ =>
                         // In this case import optimizer should check for used selectors
-                        if (!elem.processDeclarations(p1, newState, this, place))
+                        if (!elem.processDeclarations(wildcardProxyProcessor(bp, hasWildcard = hasWildcard, shadowed, givenImports), newState, this, place))
                           return false
                     }
-                  case _ => true
+                  case _ =>
                 }
               }
 
               //wildcard import first, to show that this imports are unused if they really are
-              set.selectors.foreach { selector =>
-                ProgressManager.checkCanceled()
-                for {
-                  element <- selector.reference
-                  result  <- element.multiResolveScala(false)
-                } {
-                  if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
+              for(selector <- set.selectors) {
+                if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
+                  ProgressManager.checkCanceled()
+                  for {
+                    element <- selector.reference
+                    result <- element.multiResolveScala(false)
+                  } {
                     val rSubst = result.substitutor
 
                     val newImportsUsed =
@@ -401,5 +445,47 @@ object ScImportOrExportImpl {
       val isAlreadyAvailable = qualifierFqn.exists(helper.isAvailableQualifier)
       (!isAlreadyAvailable).option(importUsed)
     case _ => importUsed.toOption
+  }
+
+  trait GivenImports {
+    def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector]
+    def hasWildcard: Boolean
+    def hasImports: Boolean
+  }
+
+  object GivenImports {
+    def empty: GivenImports = new GivenImports {
+      override def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = None
+      override def hasWildcard: Boolean = false
+      override def hasImports: Boolean = false
+    }
+
+    def apply(selectors: ScImportSelectors): GivenImports = new GivenImports {
+      private val givenSelectors = selectors.selectors.filter(_.isGivenSelector)
+
+      private val wildcardSelector: Option[ScImportSelector] = givenSelectors.find(_.givenTypeElement.isEmpty)
+
+      private val filterSelectors: Map[ScType, ScImportSelector] =
+        givenSelectors.flatMap { sel =>
+          val maybeType = sel.givenTypeElement.flatMap(_.`type`().toOption)
+          maybeType.map(_ -> sel)
+        }.toMap
+
+      def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = ty match {
+        case Right(ty) =>
+          val conformingSelectors = {
+            val selectors = filterSelectors.filter { case (fTy, _) => ty conforms fTy }.values
+
+            //todo: should we use another ordering/precedence?
+            selectors.toSeq.sortBy(_.startOffset) ++ wildcardSelector
+          }
+
+          conformingSelectors.headOption
+        case Left(_) => wildcardSelector
+      }
+
+      def hasWildcard: Boolean = wildcardSelector.isDefined
+      def hasImports: Boolean = hasWildcard || filterSelectors.nonEmpty
+    }
   }
 }

@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiModifier._
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiUtil
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.icons.Icons
@@ -191,6 +192,10 @@ class ScObjectImpl(
 
     expansion.map(toPsi(_, isSynthetic))
   }
+
+  override protected def keywordTokenType: IElementType = ScalaTokenType.ObjectKeyword
+
+  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }
 
 object ScObjectImpl {

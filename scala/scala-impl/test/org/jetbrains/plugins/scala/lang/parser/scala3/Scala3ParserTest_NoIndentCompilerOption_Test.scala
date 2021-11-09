@@ -1273,7 +1273,7 @@ object Scala3ParserTest_NoIndentCompilerOption_Test {
     }
 
     val newSettings =
-      if (settings.additionalCompilerOptions.contains(options)) settings
+      if (options.forall(settings.additionalCompilerOptions.contains)) settings
       else  settings.copy(additionalCompilerOptions = settings.additionalCompilerOptions ++ options)
     compilerConfiguration.configureSettingsForModule(module, "unit tests", newSettings)
   }
