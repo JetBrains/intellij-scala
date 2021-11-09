@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScBraceOwner, ScEnd}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 
@@ -103,7 +103,7 @@ object ScalaEndMarkerCompletionContributor {
       // collect possible end marker suggestions for all parents and one previous sibling
       // use index to determine lookup element priority: show closest first
       (element, idx) <- (markerCtx.prevSiblingNotWhitespaceComment ++ markerCtx.contexts).zipWithIndex
-      token <- findEndMarkerToken(element, markerCtx)
+      token <- findEndMarkerToken(element)(markerCtx)
     } yield EndMarkerLookupItem(token, getMarkerContextOffset(markerCtx), element, -idx, useEndKeywordInLookupString)
 
     /**
@@ -168,7 +168,7 @@ object ScalaEndMarkerCompletionContributor {
    * @return true if <code>contextElement</code> is at the end of the <code>place</code>'s scope
    *         or is it's next sibling (skipping whitespaces and comments)
    */
-  private def isPossibleEndMarkerOwner(place: PsiElement, contextElement: PsiElement): Boolean = {
+  private def isPossibleEndMarkerOwner(place: PsiElement)(implicit contextElement: PsiElement): Boolean = {
     @tailrec
     def check(element: PsiElement): Boolean =
       if (element == null) false
@@ -180,6 +180,12 @@ object ScalaEndMarkerCompletionContributor {
 
     check(place)
   }
+
+  private def hasEndMarker(place: PsiElement)(implicit contextElement: PsiElement): Boolean =
+    place.children.find(_.is[ScEnd]) match {
+      case Some(end) => end != contextElement
+      case _ => false
+    }
 
   private def isWithoutBraces(element: ScalaPsiElement): Boolean = element match {
     case braceOwner: ScBraceOwner => !braceOwner.isEnclosedByBraces
@@ -196,55 +202,57 @@ object ScalaEndMarkerCompletionContributor {
    * @param contextElement element corresponding to the end marker start
    * @see [[https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html#the-end-marker Scala 3 reference]]
    */
-  private def findEndMarkerToken(place: PsiElement, contextElement: PsiElement): Option[EndMarkerToken] =
-    if (!isPossibleEndMarkerOwner(place, contextElement) || !isFirstNonWhitespaceChildInLine(place)) None
+  private def findEndMarkerToken(place: PsiElement)(implicit contextElement: PsiElement): Option[EndMarkerToken] =
+    if (!isPossibleEndMarkerOwner(place) || !isFirstNonWhitespaceChildInLine(place)) None
     else place match {
       // anonymous class
       case ntd: ScNewTemplateDefinition if ntd.extendsBlock.isAnonymousClass =>
         val templateBody = ntd.extendsBlock.templateBody
-        Option.when(templateBody.exists(isWithoutBraces)) {
+        Option.when(templateBody.exists(tb => isWithoutBraces(tb) && !hasEndMarker(tb))) {
           EndMarkerToken.keyword(ScalaTokenType.NewKeyword.keywordText, templateParents = ntd.extendsBlock.templateParents)
         }
 
       // class, trait, object, enum
       case td: ScTypeDefinition if td.is[ScClass, ScTrait, ScObject, ScEnum] =>
         val templateBody = td.extendsBlock.templateBody
-        Option.when(templateBody.exists(isWithoutBraces))(EndMarkerToken.identifier(td.name))
+        Option.when(templateBody.exists(tb => isWithoutBraces(tb) && !hasEndMarker(tb))) {
+          EndMarkerToken.identifier(td.name)
+        }
 
       // val/var v = ???
       case SimpleValOrVarDefinitionWithMultilineBody(binding) =>
-        Some(EndMarkerToken.identifier(binding.name))
+        Option.when(!hasEndMarker(place))(EndMarkerToken.identifier(binding.name))
 
       // given
-      case GivenWithMultilineBody(scGiven) =>
+      case GivenWithMultilineBody(scGiven, body) if !hasEndMarker(body.getOrElse(place)) =>
         scGiven.nameElement match {
           case Some(nameElement) => Some(EndMarkerToken.identifier(nameElement.getText))
           case None => Some(EndMarkerToken.keyword(ScalaTokenType.GivenKeyword.keywordText))
         }
 
       // extension
-      case ext: ScExtension if ext.extensionMethods.nonEmpty && ext.extensionBody.exists(isMultiline) =>
+      case ext: ScExtension if ext.extensionMethods.nonEmpty && ext.extensionBody.exists(body => isMultiline(body) && !hasEndMarker(body)) =>
         val hasBraces = ext.extensionBody.flatMap(_.firstChild).exists(_.elementType == ScalaTokenTypes.tLBRACE)
         Option.when(!hasBraces)(EndMarkerToken.keyword(ScalaTokenType.ExtensionKeyword.keywordText))
 
       // def d = ???
       // constructor
-      case fn: ScFunctionDefinition if fn.body.exists(isMultilineWithoutBraces) =>
+      case fn: ScFunctionDefinition if fn.body.exists(isMultilineWithoutBraces) && !hasEndMarker(place) =>
         val data =
           if (fn.isConstructor) EndMarkerToken.keyword(fn.name)
           else EndMarkerToken.identifier(fn.name)
         Some(data)
 
       // val definition binding pattern
-      case pd: ScPatternDefinition if !pd.isSimple && pd.expr.exists(isMultilineWithoutBraces) =>
+      case pd: ScPatternDefinition if !pd.isSimple && pd.expr.exists(isMultilineWithoutBraces) && !hasEndMarker(place) =>
         Some(EndMarkerToken.keyword(pd.keywordToken.getNode.getElementType.toString))
 
       // if, while, for, try, match
-      case ControlExpr(keyword) =>
+      case ControlExpr(keyword) if !hasEndMarker(place) =>
         Some(EndMarkerToken.keyword(keyword.toString))
 
       // package (package p1.p2:)
-      case p: ScPackaging if p.isExplicit =>
+      case p: ScPackaging if p.isExplicit && !hasEndMarker(place) =>
         p.reference.map(r => EndMarkerToken.identifier(r.refName))
 
       case _ => None
@@ -303,13 +311,17 @@ object ScalaEndMarkerCompletionContributor {
   }
 
   private object GivenWithMultilineBody {
-    def unapply(scGiven: ScGiven): Option[ScGiven] = scGiven match {
+    def unapply(scGiven: ScGiven): Option[(ScGiven, Option[ScTemplateBody])] = scGiven match {
       case alias: ScGivenAlias =>
-        Option.when(alias.hasAssign && alias.body.exists(isMultilineWithoutBraces))(alias)
+        alias.body.collect {
+          case body if alias.hasAssign && isMultilineWithoutBraces(body) =>
+            (alias, None)
+        }
       case definition: ScGivenDefinition =>
-        Option(definition)
-          .filter(_.extendsBlock.templateBody
-            .exists(tb => isMultilineWithoutBraces(tb) && (tb.exprs.nonEmpty || tb.members.nonEmpty || tb.holders.nonEmpty)))
+        definition.extendsBlock.templateBody.collect {
+          case body if isMultilineWithoutBraces(body) && (body.exprs.nonEmpty || body.members.nonEmpty || body.holders.nonEmpty) =>
+            (definition, Some(body))
+        }
       case _ => None
     }
   }
