@@ -38,7 +38,7 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
           assertTrue(projectTypeStep.setSelectedTemplate("Scala", templateName))
 
           val steps = myWizard.getSequence.getSelectedSteps.asScala.map(_.getClass)
-          val commonScalaProjectWizardSteps = Seq(classOf[ProjectTypeStep], classOf[ChooseTemplateStep], classOf[ProjectSettingsStep])
+          val commonScalaProjectWizardSteps = Seq(classOf[ProjectTypeStep], classOf[ProjectSettingsStep])
           Assert.assertEquals(commonScalaProjectWizardSteps, steps)
 
         case projectSettingsStep: ProjectSettingsStep =>
