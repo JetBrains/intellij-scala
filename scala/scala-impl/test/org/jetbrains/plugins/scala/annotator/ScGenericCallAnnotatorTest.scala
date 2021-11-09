@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator
+import org.jetbrains.plugins.scala.annotator.element.{ScGenericCallAnnotator, ScReferenceAnnotator}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 
 
 class ScGenericCallAnnotatorTest extends SimpleTestCase {
@@ -242,6 +243,10 @@ class ScGenericCallAnnotatorTest extends SimpleTestCase {
 
     file.depthFirst().filterByType[ScReference].foreach { pte =>
       ScReferenceAnnotator.annotate(pte, typeAware = true)
+    }
+
+    file.depthFirst().filterByType[ScGenericCall].foreach { gc =>
+      ScGenericCallAnnotator.annotate(gc, typeAware = true)
     }
 
     mock.annotations
