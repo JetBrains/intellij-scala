@@ -439,7 +439,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |      End: extension
       |        PsiElement(end)('end')
       |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('extension')
+      |        PsiElement(extension)('extension')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -475,7 +475,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |      End: extension
       |        PsiElement(end)('end')
       |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('extension')
+      |        PsiElement(extension)('extension')
       |""".stripMargin
   )
 
