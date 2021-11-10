@@ -50,7 +50,7 @@ class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerF
     val unwrapped = element match {
       case isWrapper(named)      => named
       case FakePsiMethod(method) => method
-      case IntermediateTarget(begin: ScBegin) => begin.tag.getOrElse(begin)
+      case IntermediateTarget(begin: ScBegin) => if (begin.tag.is[ScNamedElement]) begin.tag else begin
       case _                     => element
     }
 

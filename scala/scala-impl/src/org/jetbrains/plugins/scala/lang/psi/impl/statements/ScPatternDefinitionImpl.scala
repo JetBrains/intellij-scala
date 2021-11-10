@@ -74,5 +74,5 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAL
 
-  override def tag: Option[ScNamedElement] = declaredElements.headOption
+  override def namedTag: Option[ScNamedElement] = declaredElements.headOption
 }

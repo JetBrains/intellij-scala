@@ -88,7 +88,7 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kDEF
 
-  override def tag: Option[ScNamedElement] = declaredElements.headOption
+  override def namedTag: Option[ScNamedElement] = declaredElements.headOption
 }
 
 private object ScFunctionDefinitionImpl {
