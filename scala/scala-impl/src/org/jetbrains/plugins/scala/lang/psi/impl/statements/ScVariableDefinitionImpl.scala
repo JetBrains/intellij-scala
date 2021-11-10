@@ -56,7 +56,7 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAR
 
-  override def tag: Option[ScNamedElement] = declaredElements.headOption
+  override def namedTag: Option[ScNamedElement] = declaredElements.headOption
 
   override def toString: String = "ScVariableDefinition: " + ifReadAllowed(declaredNames.mkString(", "))("")
 }

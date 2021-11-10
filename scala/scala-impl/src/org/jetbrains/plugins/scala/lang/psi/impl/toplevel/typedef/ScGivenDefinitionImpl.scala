@@ -117,7 +117,7 @@ class ScGivenDefinitionImpl(
   override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword
 
   // TODO Why ScGiven is a subtype of ScNamedElement it there might be no name?
-  override def tag: Option[ScNamedElement] = if (nameElement.isDefined) Some(this) else None
+  override def namedTag: Option[ScNamedElement] = if (nameElement.isDefined) Some(this) else None
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

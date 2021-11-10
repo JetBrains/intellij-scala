@@ -78,7 +78,7 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ExtensionKeyword
 
-  override def tag: Option[ScNamedElement] = declaredElements.headOption
+  override def namedTag: Option[ScNamedElement] = declaredElements.headOption
 
   override protected def endParent: Option[PsiElement] = extensionBody
 }
