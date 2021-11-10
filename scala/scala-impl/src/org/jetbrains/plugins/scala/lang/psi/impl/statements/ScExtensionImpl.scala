@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY, PARAM_CLAUSES}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunction, ScFunctionDefinition}
@@ -26,7 +27,8 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     extends ScalaStubBasedElementImpl(stub, ScalaElementType.EXTENSION, node)
     with ScExtension
     with ScTypeParametersOwner
-    with WithBaseIconProvider {
+    with WithBaseIconProvider
+    with ScBegin {
 
   override def toString: String = "Extension on " + targetTypeElement.fold("<unknown>")(_.getText)
 

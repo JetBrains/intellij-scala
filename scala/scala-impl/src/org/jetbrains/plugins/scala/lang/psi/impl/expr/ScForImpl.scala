@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, PsiElementExt, 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl._
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -27,7 +27,7 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageL
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor {
+class ScForImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFor with ScBegin {
   override def isYield: Boolean = yieldKeyword != null
 
   override def yieldOrDoKeyword: Option[PsiElement] =
