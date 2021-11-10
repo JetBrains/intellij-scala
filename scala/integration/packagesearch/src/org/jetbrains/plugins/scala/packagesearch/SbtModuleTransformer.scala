@@ -36,12 +36,14 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
                                         module: Module): (String, String, PackageVersion) =>
     Navigatable = (groupId: String, artifactId: String, packageVersion: PackageVersion) => {
 
-    val targetedLibDep = SbtDependencyUtils.findLibraryDependency(
-      project,
-      module,
-      new UnifiedDependency(groupId, artifactId, packageVersion.toString, SbtDependencyCommon.defaultLibScope),
-      configurationRequired = false
-    )
+    val targetedLibDep = DumbService.getInstance(project).runReadActionInSmartMode { () =>
+      SbtDependencyUtils.findLibraryDependency(
+        project,
+        module,
+        new UnifiedDependency(groupId, artifactId, packageVersion.toString, SbtDependencyCommon.defaultLibScope),
+        configurationRequired = false
+      )
+    }
 
     new NavigatableAdapter() {
       override def navigate(requestFocus: Boolean): Unit = {
