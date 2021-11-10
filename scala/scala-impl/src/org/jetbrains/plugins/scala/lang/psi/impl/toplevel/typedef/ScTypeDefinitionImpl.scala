@@ -413,7 +413,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
     defn.map(toPsi)
   }
 
-  override def tag: Option[ScNamedElement] = Some(this)
+  override def namedTag: Option[ScNamedElement] = Some(this)
 }
 
 object ScTypeDefinitionImpl {

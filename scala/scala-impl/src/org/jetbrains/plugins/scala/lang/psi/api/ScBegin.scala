@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
@@ -10,8 +10,10 @@ trait ScBegin extends ScalaPsiElement {
   /** @return the definition keyword (such as "class") */
   final def keyword: PsiElement = findFirstChildByType(keywordTokenType).get
 
-  /** @return the first named element (for navigation from an end marker) */
-  def tag: Option[ScNamedElement] = None
+  /** @return the name or keyword (for navigation from an end marker) */
+  final def tag: PsiElement = namedTag.getOrElse(keyword)
+
+  protected def namedTag: Option[ScNamedElement] = None
 
   protected def keywordTokenType: IElementType
 
