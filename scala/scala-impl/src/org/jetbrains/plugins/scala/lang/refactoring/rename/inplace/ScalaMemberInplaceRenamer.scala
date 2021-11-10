@@ -57,7 +57,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
   override def collectAdditionalElementsToRename(stringUsages: util.List[Pair[PsiElement, TextRange]]): Unit = {
     super.collectAdditionalElementsToRename(stringUsages)
 
-    elementToRename.withParentsInFile.findByType[ScBegin].filter(_.namedElement.contains(elementToRename)).flatMap(_.end).foreach { end =>
+    elementToRename.withParentsInFile.findByType[ScBegin].filter(_.tag.contains(elementToRename)).flatMap(_.end).foreach { end =>
       stringUsages.add(Pair.create(end.tag, null))
     }
 
