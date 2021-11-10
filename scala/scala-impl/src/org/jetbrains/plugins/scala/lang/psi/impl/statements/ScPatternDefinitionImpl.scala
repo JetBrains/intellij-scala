@@ -9,6 +9,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -25,7 +26,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternDefinition],
                                                  nodeType: ScPropertyElementType[ScPatternDefinition],
                                                  node: ASTNode)
-  extends ScValueOrVariableImpl(stub, nodeType, node) with ScPatternDefinition {
+  extends ScValueOrVariableImpl(stub, nodeType, node) with ScPatternDefinition with ScBegin {
 
   override def toString: String = ifReadAllowed {
     val names = declaredNames

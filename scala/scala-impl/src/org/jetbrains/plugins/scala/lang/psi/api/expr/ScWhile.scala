@@ -9,7 +9,7 @@ import com.intellij.psi.PsiElement
 /**
   * @author Alexander Podkhalyuzin
   */
-trait ScWhile extends ScExpression with ScBegin {
+trait ScWhile extends ScExpression {
   def condition: Option[ScExpression]
 
   def expression: Option[ScExpression]
