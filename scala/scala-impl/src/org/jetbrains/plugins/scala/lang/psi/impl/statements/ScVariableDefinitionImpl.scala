@@ -10,6 +10,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -28,7 +29,7 @@ final class ScVariableDefinitionImpl private[psi] (
   nodeType: ScPropertyElementType[ScVariableDefinition],
   node:     ASTNode
 ) extends ScValueOrVariableImpl(stub, nodeType, node)
-  with ScVariableDefinition {
+  with ScVariableDefinition with ScBegin {
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)
 

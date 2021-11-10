@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiNextSibling
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -51,7 +51,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
                                                                node: ASTNode,
                                                                debugName: String)
   extends ScTemplateDefinitionImpl(stub, nodeType, node, debugName)
-    with ScTypeDefinition {
+    with ScTypeDefinition with ScBegin {
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
