@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
@@ -72,4 +73,6 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
   override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAL
+
+  override def tag: Option[ScNamedElement] = declaredElements.headOption
 }
