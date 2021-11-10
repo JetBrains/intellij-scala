@@ -11,7 +11,7 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.tree.TokenSet
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScBegin, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -36,7 +36,8 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   extends ScalaStubBasedElementImpl(stub, nodeType, node)
     with ScPackaging
     with ScImportsHolder // todo: to be removed
-    with ScDeclarationSequenceHolder {
+    with ScDeclarationSequenceHolder
+    with ScBegin {
   import ScPackageLike._
 
   override def toString = "ScPackaging"
@@ -157,6 +158,10 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   private def findPackage(name: String) =
     Option(JavaPsiFacade.getInstance(getProject).findPackage(name))
       .map(ScPackageImpl(_))
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kPACKAGE
+
+  // TODO Support navigation (tag = declaredElements.headOption navigates to Project View)
 }
 
 object ScPackagingImpl {
