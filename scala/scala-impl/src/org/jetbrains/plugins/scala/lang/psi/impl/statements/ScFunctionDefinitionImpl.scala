@@ -8,13 +8,16 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl.{importantOrderFunction, isCalculatingFor, returnTypeInner}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
@@ -30,7 +33,7 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
                                                           nodeType: ScFunctionElementType[S],
                                                           node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
-    with ScFunctionDefinition {
+    with ScFunctionDefinition with ScBegin {
 
   override protected def shouldProcessParameters(lastParent: PsiElement): Boolean =
     super.shouldProcessParameters(lastParent) || body.contains(lastParent)
@@ -82,6 +85,10 @@ class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitFunctionDefinition(this)
+
+  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kDEF
+
+  override def tag: Option[ScNamedElement] = declaredElements.headOption
 }
 
 private object ScFunctionDefinitionImpl {
