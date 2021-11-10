@@ -11,14 +11,18 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDe
 
 trait ScGiven extends ScalaPsiElement
   with ScNamedElement
-  with ScTypedDefinition
+  with ScTypedDefinition // TODO It's a subtype of ScNamedElement
   with ScMember.WithBaseIconProvider
   with ScCommentOwner
   with ScDocCommentOwner
   with ScParameterOwner.WithContextBounds
   with ScDeclaredElementsHolder {
 
+  // TODO Why it's a subtype of ScNamedElement if there might be no name?
   def nameElement: Option[PsiElement]
+
+  override def getNavigationElement: PsiElement =
+    if (nameElement.isDefined) super.getNavigationElement else getFirstChild
 }
 
 object ScGiven {

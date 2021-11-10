@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -114,6 +115,9 @@ class ScGivenDefinitionImpl(
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword
+
+  // TODO Why ScGiven is a subtype of ScNamedElement it there might be no name?
+  override def tag: Option[ScNamedElement] = if (nameElement.isDefined) Some(this) else None
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

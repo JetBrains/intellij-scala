@@ -11,7 +11,7 @@ trait ScBegin extends ScalaPsiElement {
   final def keyword: PsiElement = findFirstChildByType(keywordTokenType).get
 
   /** @return the first named element (for navigation from an end marker) */
-  def tag: Option[ScNamedElement] = this.elements.findByType[ScNamedElement]
+  def tag: Option[ScNamedElement] = None
 
   protected def keywordTokenType: IElementType
 
