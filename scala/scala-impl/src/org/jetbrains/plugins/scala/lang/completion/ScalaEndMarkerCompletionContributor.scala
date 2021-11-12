@@ -369,12 +369,18 @@ object ScalaEndMarkerCompletionContributor {
             val file = insertionContext.getFile
             val tabSize = CodeStyle.getIndentOptions(file).TAB_SIZE
             val documentText = document.getCharsSequence
+            val maybeTargetIndent = calcCaretIndent(targetOffset, documentText, tabSize)
 
-            (calcCaretIndent(contextOffset, documentText, tabSize), calcCaretIndent(targetOffset, documentText, tabSize)) match {
+            (calcCaretIndent(contextOffset, documentText, tabSize), maybeTargetIndent) match {
               case (Some(contextIndent), Some(targetIndent)) if contextIndent > targetIndent =>
                 document.deleteString(contextOffset - (contextIndent - targetIndent), contextOffset)
               case _ =>
             }
+
+            // insert new line followed by target indent and move caret
+            val indent = maybeTargetIndent.getOrElse(0)
+            document.insertString(insertionContext.getTailOffset, "\n" + (" " * indent))
+            insertionContext.getEditor.getCaretModel.moveCaretRelatively(indent, 1, false, false, false)
           case _ =>
         }
     }
