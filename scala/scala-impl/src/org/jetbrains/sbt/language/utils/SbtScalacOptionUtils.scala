@@ -26,6 +26,9 @@ object SbtScalacOptionUtils {
 
   val SCALAC_OPTIONS_DOC_KEY: Key[String] = Key.create("SCALAC_OPTION_DOC")
 
+  val SEQ_OPS = Set("++=", "--=", ":=")
+  val SINGLE_OPS = Set("+=", "-=")
+
   def projectVersions(project: Project): List[ScalaLanguageLevel] =
     if (ApplicationManager.getApplication.isUnitTestMode)
       List(ScalaLanguageLevel.getDefault)
@@ -60,7 +63,7 @@ object SbtScalacOptionUtils {
   def getScalacOptionsSbtSettingParent(element: PsiElement): Option[ScInfixExpr] =
     element.parents.collectFirst {
       case expr: ScInfixExpr if matchesScalacOptionsSbtSetting(expr.left) &&
-        (if (isSeq(expr.right)) expr.operation.refName == "++=" else expr.operation.refName == "+=") =>
+        (if (isSeq(expr.right)) SEQ_OPS(expr.operation.refName) else SINGLE_OPS(expr.operation.refName)) =>
         expr
     }
 
