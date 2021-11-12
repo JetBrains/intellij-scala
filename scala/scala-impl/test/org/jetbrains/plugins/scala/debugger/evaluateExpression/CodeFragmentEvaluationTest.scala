@@ -20,6 +20,26 @@ class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
 class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
+  addFileWithBreakpoints("Scala3Syntax.scala",
+    s"""package test
+      |
+      |@main
+      |def scala3Syntax(): Unit =
+      |  val name = "world"
+      |  println(s"hello, $$name") $bp
+      |""".stripMargin)
+  def testScala3Syntax(): Unit = {
+    evaluateCodeFragments("test/scala3Syntax",
+      "if true then 42 else 0" -> "42",
+      """if true then
+        |  println(true)
+        |  name.length
+        |else
+        |  0
+        |""".stripMargin -> "5"
+    )
+  }
+
   override def testCodeFragments(): Unit = failing(super.testCodeFragments())
 }
 
