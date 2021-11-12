@@ -64,7 +64,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new C:
          |  def foo = true
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "end new",
     typeText = "C"
@@ -85,7 +86,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new SomeClass with AnotherClass:
          |  def foo = true
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "end new",
     typeText = "SomeClass with ..."
@@ -108,7 +110,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |new SomeClass
          |  with AnotherClass:
          |  def foo = true
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "end new",
     typeText = "SomeClass with ..."
@@ -127,7 +130,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new C:
          |  def foo = true
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "end new",
     typeText = "C"
@@ -146,7 +150,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |
          |new C:
          |  def foo = true
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "new",
     presentationText = "end new",
@@ -164,7 +169,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""class C
          |
          |new C:
-         |end new$CARET
+         |end new
+         |$CARET
          |""".stripMargin,
     lookupStr = "end new",
     typeText = "C"
@@ -221,7 +227,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class C:
          |  def foo = true
-         |end C$CARET
+         |end C
+         |$CARET
          |""".stripMargin,
     lookupStr = "end C"
   )
@@ -235,7 +242,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class C:
          |  def foo = true
-         |end C$CARET
+         |end C
+         |$CARET
          |""".stripMargin,
     lookupStr = "end C"
   )
@@ -249,7 +257,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class C:
          |  def foo = true
-         |end C$CARET
+         |end C
+         |$CARET
          |""".stripMargin,
     lookupStr = "C",
     presentationText = "end C"
@@ -262,7 +271,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""class C:
-         |end C$CARET
+         |end C
+         |$CARET
          |""".stripMargin,
     lookupStr = "end C"
   )
@@ -310,7 +320,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""trait T:
          |  def foo
-         |end T$CARET
+         |end T
+         |$CARET
          |""".stripMargin,
     lookupStr = "end T"
   )
@@ -324,7 +335,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""trait T:
          |  def foo
-         |end T$CARET
+         |end T
+         |$CARET
          |""".stripMargin,
     lookupStr = "end T"
   )
@@ -338,7 +350,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""trait T:
          |  def foo
-         |end T$CARET
+         |end T
+         |$CARET
          |""".stripMargin,
     lookupStr = "T",
     presentationText = "end T"
@@ -351,7 +364,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""trait T:
-         |end T$CARET
+         |end T
+         |$CARET
          |""".stripMargin,
     lookupStr = "end T"
   )
@@ -399,7 +413,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""object O:
          |  def foo = true
-         |end O$CARET
+         |end O
+         |$CARET
          |""".stripMargin,
     lookupStr = "end O"
   )
@@ -413,7 +428,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""object O:
          |  def foo = true
-         |end O$CARET
+         |end O
+         |$CARET
          |""".stripMargin,
     lookupStr = "end O"
   )
@@ -427,7 +443,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""object O:
          |  def foo = true
-         |end O$CARET
+         |end O
+         |$CARET
          |""".stripMargin,
     lookupStr = "O",
     presentationText = "end O"
@@ -440,7 +457,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""object O:
-         |end O$CARET
+         |end O
+         |$CARET
          |""".stripMargin,
     lookupStr = "end O"
   )
@@ -488,7 +506,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""enum E:
          |  case C
-         |end E$CARET
+         |end E
+         |$CARET
          |""".stripMargin,
     lookupStr = "end E"
   )
@@ -502,7 +521,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""enum E:
          |  case C
-         |end E$CARET
+         |end E
+         |$CARET
          |""".stripMargin,
     lookupStr = "end E"
   )
@@ -516,7 +536,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""enum E:
          |  case C
-         |end E$CARET
+         |end E
+         |$CARET
          |""".stripMargin,
     lookupStr = "E",
     presentationText = "end E"
@@ -529,7 +550,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""enum E:
-         |end E$CARET
+         |end E
+         |$CARET
          |""".stripMargin,
     lookupStr = "end E"
   )
@@ -581,7 +603,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  def this(i: Int, s: String) =
          |    this(i)
          |    println("multiline")
-         |  end this$CARET
+         |  end this
+         |  $CARET
          |""".stripMargin,
     lookupStr = "end this"
   )
@@ -599,7 +622,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  def this(i: Int, s: String) =
          |    this(i)
          |    println("multiline")
-         |  end this$CARET
+         |  end this
+         |  $CARET
          |""".stripMargin,
     lookupStr = "end this"
   )
@@ -617,7 +641,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  def this(i: Int, s: String) =
          |    this(i)
          |    println("multiline")
-         |  end this$CARET
+         |  end this
+         |  $CARET
          |""".stripMargin,
     lookupStr = "this",
     presentationText = "end this"
@@ -679,7 +704,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  def this(i: Int, s: String) =
          |    this(i)
          |    println("multiline")
-         |end C$CARET
+         |end C
+         |$CARET
          |""".stripMargin,
     lookupStr = "end C"
   )
@@ -697,7 +723,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""val v =
          |  1 +
          |    41
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "end v"
   )
@@ -715,7 +742,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  1 + 2 match
          |    case 3 => 0
          |    case _ => 1
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "end v"
   )
@@ -731,7 +759,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""val v =
          |  0
          |  42
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "v",
     presentationText = "end v"
@@ -800,7 +829,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""var v =
          |  0
          |  42
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "end v"
   )
@@ -816,7 +846,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""var v =
          |  0
          |  42
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "end v"
   )
@@ -832,7 +863,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""var v =
          |  0
          |  42
-         |end v$CARET
+         |end v
+         |$CARET
          |""".stripMargin,
     lookupStr = "v",
     presentationText = "end v"
@@ -901,7 +933,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""val h :: t =
          |  List(1,
          |    2, 3)
-         |end val$CARET
+         |end val
+         |$CARET
          |""".stripMargin,
     lookupStr = "end val"
   )
@@ -917,7 +950,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""val h :: t =
          |  List(1,
          |    2, 3)
-         |end val$CARET
+         |end val
+         |$CARET
          |""".stripMargin,
     lookupStr = "end val"
   )
@@ -933,7 +967,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""val h :: t =
          |  List(1,
          |    2, 3)
-         |end val$CARET
+         |end val
+         |$CARET
          |""".stripMargin,
     lookupStr = "val",
     presentationText = "end val"
@@ -1046,7 +1081,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given Int =
          |  0
          |  42
-         |end given$CARET
+         |end given
+         |$CARET
          |""".stripMargin,
     lookupStr = "end given"
   )
@@ -1062,7 +1098,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given Int =
          |  0
          |  42
-         |end given$CARET
+         |end given
+         |$CARET
          |""".stripMargin,
     lookupStr = "end given"
   )
@@ -1078,7 +1115,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given Int =
          |  0
          |  42
-         |end given$CARET
+         |end given
+         |$CARET
          |""".stripMargin,
     lookupStr = "given",
     presentationText = "end given"
@@ -1137,7 +1175,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given someGiven: Int =
          |  0
          |  42
-         |end someGiven$CARET
+         |end someGiven
+         |$CARET
          |""".stripMargin,
     lookupStr = "end someGiven"
   )
@@ -1153,7 +1192,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given someGiven: Int =
          |  0
          |  42
-         |end someGiven$CARET
+         |end someGiven
+         |$CARET
          |""".stripMargin,
     lookupStr = "end someGiven"
   )
@@ -1169,7 +1209,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""given someGiven: Int =
          |  0
          |  42
-         |end someGiven$CARET
+         |end someGiven
+         |$CARET
          |""".stripMargin,
     lookupStr = "someGiven",
     presentationText = "end someGiven"
@@ -1232,7 +1273,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |given Ord[Int] with
          |  def compare(x: Int, y: Int): Int =
          |    x.compareTo(y)
-         |end given$CARET
+         |end given
+         |$CARET
          |""".stripMargin,
     lookupStr = "end given"
   )
@@ -1252,7 +1294,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |given Ord[Int] with
          |  def compare(x: Int, y: Int): Int =
          |    x.compareTo(y)
-         |end given$CARET
+         |end given
+         |$CARET
          |""".stripMargin,
     lookupStr = "given",
     presentationText = "end given"
@@ -1307,7 +1350,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |given intOrd: Ord[Int] with
          |  def compare(x: Int, y: Int): Int =
          |    if x < y then -1 else if x > y then +1 else 0
-         |end intOrd$CARET
+         |end intOrd
+         |$CARET
          |""".stripMargin,
     lookupStr = "end intOrd"
   )
@@ -1327,7 +1371,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |given intOrd: Ord[Int] with
          |  def compare(x: Int, y: Int): Int =
          |    if x < y then -1 else if x > y then +1 else 0
-         |end intOrd$CARET
+         |end intOrd
+         |$CARET
          |""".stripMargin,
     lookupStr = "intOrd",
     presentationText = "end intOrd"
@@ -1390,7 +1435,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""extension (x: String)
          |  def < (y: String): Boolean =
          |    ???
-         |end extension$CARET
+         |end extension
+         |$CARET
          |""".stripMargin,
     lookupStr = "end extension"
   )
@@ -1406,7 +1452,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""extension (x: String)
          |  def < (y: String): Boolean =
          |    ???
-         |end extension$CARET
+         |end extension
+         |$CARET
          |""".stripMargin,
     lookupStr = "end extension"
   )
@@ -1422,7 +1469,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""extension (x: String)
          |  def < (y: String): Boolean =
          |    ???
-         |end extension$CARET
+         |end extension
+         |$CARET
          |""".stripMargin,
     lookupStr = "extension",
     presentationText = "end extension"
@@ -1472,7 +1520,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""extension (i: Int) def isZero: Boolean =
          |  i == 0
-         |end extension$CARET
+         |end extension
+         |$CARET
          |""".stripMargin,
     lookupStr = "end extension"
   )
@@ -1486,7 +1535,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""extension (i: Int) def isZero: Boolean =
          |  i == 0
-         |end extension$CARET
+         |end extension
+         |$CARET
          |""".stripMargin,
     lookupStr = "extension",
     presentationText = "end extension"
@@ -1544,7 +1594,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |    x
          |  else
          |    x + 1
-         |end largeMethod$CARET
+         |end largeMethod
+         |$CARET
          |""".stripMargin,
     lookupStr = "end largeMethod"
   )
@@ -1566,7 +1617,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |    x
          |  else
          |    x + 1
-         |end largeMethod$CARET
+         |end largeMethod
+         |$CARET
          |""".stripMargin,
     lookupStr = "end largeMethod"
   )
@@ -1588,7 +1640,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |    x
          |  else
          |    x + 1
-         |end largeMethod$CARET
+         |end largeMethod
+         |$CARET
          |""".stripMargin,
     lookupStr = "largeMethod",
     presentationText = "end largeMethod"
@@ -1653,7 +1706,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""package p1.p2.p3:
-         |end p3$CARET
+         |end p3
+         |$CARET
          |""".stripMargin,
     lookupStr = "end p3"
   )
@@ -1665,7 +1719,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""package p1.p2.p3:
-         |end p3$CARET
+         |end p3
+         |$CARET
          |""".stripMargin,
     lookupStr = "end p3"
   )
@@ -1677,7 +1732,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |""".stripMargin,
     resultText =
       s"""package p1.p2.p3:
-         |end p3$CARET
+         |end p3
+         |$CARET
          |""".stripMargin,
     lookupStr = "p3",
     presentationText = "end p3"
@@ -1714,7 +1770,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""if 1 > 2 then
          |  println("wow")
          |  println("impossible")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1730,7 +1787,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""if (1 > 2)
          |  println("wow")
          |  println("impossible")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1750,7 +1808,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |else
          |  println()
          |  println("ok")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1766,7 +1825,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""if else
          |  println()
          |  println("ok")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1786,7 +1846,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |} else
          |  println()
          |  println("ok")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1804,7 +1865,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |else
          |  println("ok")
          |  println(1 - 2)
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1820,7 +1882,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""if 1 > 2 then
          |  println("wow")
          |  println("impossible")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "end if"
   )
@@ -1836,7 +1899,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""if 1 > 2 then
          |  println("wow")
          |  println("impossible")
-         |end if$CARET
+         |end if
+         |$CARET
          |""".stripMargin,
     lookupStr = "if",
     presentationText = "end if"
@@ -1907,7 +1971,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  if 2 > 3 then
          |    println("wow")
          |    println(2 - 3)
-         |  end if$CARET
+         |  end if
+         |  $CARET
          |  println("impossible")
          |end if
          |""".stripMargin,
@@ -1940,7 +2005,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |while x > 0 do
          |  x -= 2
          |  x += 1
-         |end while$CARET
+         |end while
+         |$CARET
          |""".stripMargin,
     lookupStr = "end while"
   )
@@ -1958,7 +2024,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |while (x > 0)
          |  x -= 2
          |  x += 1
-         |end while$CARET
+         |end while
+         |$CARET
          |""".stripMargin,
     lookupStr = "end while"
   )
@@ -1976,7 +2043,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |while x > 0 do
          |  x -= 2
          |  x += 1
-         |end while$CARET
+         |end while
+         |$CARET
          |""".stripMargin,
     lookupStr = "end while"
   )
@@ -1994,7 +2062,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |while x > 0 do
          |  x -= 2
          |  x += 1
-         |end while$CARET
+         |end while
+         |$CARET
          |""".stripMargin,
     lookupStr = "while",
     presentationText = "end while"
@@ -2055,7 +2124,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""for x <- 0 to 5 do
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "end for"
   )
@@ -2071,7 +2141,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""for x <- 0 to 5
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "end for"
   )
@@ -2087,7 +2158,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""for (x <- 0 to 5)
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "end for"
   )
@@ -2107,7 +2179,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |} do
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "end for"
   )
@@ -2123,7 +2196,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""for x <- 0 to 5 do
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "end for"
   )
@@ -2139,7 +2213,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       s"""for x <- 0 to 5 do
          |  println(x)
          |  println(x * 2)
-         |end for$CARET
+         |end for
+         |$CARET
          |""".stripMargin,
     lookupStr = "for",
     presentationText = "end for"
@@ -2219,7 +2294,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  x += 1
          |finally
          |  println(x)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2241,7 +2317,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |finally
          |  println(x)
          |  println(x * 2)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2267,7 +2344,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  case e: Exception => ()
          |finally
          |  println(x)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2289,7 +2367,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |catch
          |  case e: NumberFormatException => ()
          |  case e: Exception => ()
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2313,7 +2392,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |} finally
          |  println(x)
          |  println(x + 1)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2343,7 +2423,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |finally
          |  println(x)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2375,7 +2456,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |finally
          |  println(x)
          |  println(x + 1)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2397,7 +2479,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  x += 1
          |finally
          |  println(x)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2419,7 +2502,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  x += 1
          |finally
          |  println(x)
-         |end try$CARET
+         |end try
+         |$CARET
          |""".stripMargin,
     lookupStr = "try",
     presentationText = "end try"
@@ -2512,7 +2596,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |x match
          |  case 0 => println("0")
          |  case _ =>
-         |end match$CARET
+         |end match
+         |$CARET
          |""".stripMargin,
     lookupStr = "end match"
   )
@@ -2530,7 +2615,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |x match
          |  case 0 => println("0")
          |  case _ =>
-         |end match$CARET
+         |end match
+         |$CARET
          |""".stripMargin,
     lookupStr = "end match"
   )
@@ -2548,7 +2634,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |x match
          |  case 0 => println("0")
          |  case _ =>
-         |end match$CARET
+         |end match
+         |$CARET
          |""".stripMargin,
     lookupStr = "match",
     presentationText = "end match"
@@ -2609,7 +2696,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |          end match$CARET
+       |          end match
+       |          $CARET
        |""".stripMargin,
     lookupStr = "end match"
   )
@@ -2636,7 +2724,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |        end try$CARET
+       |        end try
+       |        $CARET
        |""".stripMargin,
     lookupStr = "end try"
   )
@@ -2663,7 +2752,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |      end if$CARET
+       |      end if
+       |      $CARET
        |""".stripMargin,
     lookupStr = "end if"
   )
@@ -2690,7 +2780,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |    end this$CARET
+       |    end this
+       |    $CARET
        |""".stripMargin,
     lookupStr = "end this"
   )
@@ -2717,7 +2808,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |  end C$CARET
+       |  end C
+       |  $CARET
        |""".stripMargin,
     lookupStr = "end C"
   )
@@ -2744,7 +2836,8 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
        |          x match
        |            case 0 => println("0")
        |            case _ =>
-       |end p2$CARET
+       |end p2
+       |$CARET
        |""".stripMargin,
     lookupStr = "end p2"
   )
