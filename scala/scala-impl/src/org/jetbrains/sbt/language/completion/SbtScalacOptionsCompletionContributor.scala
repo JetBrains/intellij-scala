@@ -103,30 +103,34 @@ object SbtScalacOptionsCompletionContributor {
       }
     }
 
-    private def insertOption(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Int =
+    private def insertOption(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Int = {
+      context.getDocument.replaceString(startOffset, endOffset, option.getText)
+
       option.argType match {
         case ArgType.OneSeparate =>
+          context.commitDocument()
+
           val element = context.getFile.findElementAt(startOffset)
           val parent = SbtScalacOptionUtils.getScalacOptionsSbtSettingParent(element)
 
           parent match {
-            // simple case `scalacOptions += "option", "argument"`
-            // rewrite to `scalacOptions ++= Seq("option", "argument")`
-            case Some(expr) if expr.operation.refName == "+=" && expr.right.startOffset == element.startOffset =>
-              context.getDocument.replaceString(startOffset, endOffset, s"Seq(${option.getText})")
+            // simple case `scalacOptions +=/-= "option", "argument"`
+            // rewrite to `scalacOptions ++=/--= Seq("option", "argument")`
+            case Some(expr) if SbtScalacOptionUtils.SINGLE_OPS(expr.operation.refName) && expr.right.startOffset == element.startOffset =>
+              context.getDocument.replaceString(startOffset, startOffset + option.getText.length, s"Seq(${option.getText})")
               context.commitDocument()
-              expr.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(expr.projectContext))
+              val op = expr.operation.refName
+              expr.operation.replace(ScalaPsiElementFactory.createElementFromText(op.prepended(op.head))(expr.projectContext))
               PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(context.getDocument)
-              startOffset + 5 // '+' in operation + 'Seq('
+              startOffset + 5 // '+' or '-' in operation + 'Seq('
             case _ =>
-              context.getDocument.replaceString(startOffset, endOffset, option.getText)
               startOffset
           }
 
         case _ =>
-          context.getDocument.replaceString(startOffset, endOffset, option.getText)
           startOffset
       }
+    }
 
     private def runPrefixedOptionArgumentsTemplate(offset: Int, prefix: String)(implicit context: InsertionContext): Unit =
       runOptionArgumentsTemplate(offset) { (builder, _) =>

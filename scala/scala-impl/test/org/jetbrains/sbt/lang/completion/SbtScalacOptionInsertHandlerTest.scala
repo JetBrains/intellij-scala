@@ -62,6 +62,30 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
     item = LOOKUP_ITEM
   )
 
+  def testTopLevel_Single_OutsideOfStringLiteral_-=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions -= no$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions -= $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_InsideOfStringLiteral_-=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions -= "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions -= $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
   def testTopLevel_SingleToSeq_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -86,6 +110,30 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
     item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
+  def testTopLevel_SingleToSeq_OutsideOfStringLiteral_-=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions -= $CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions --= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
+  )
+
+  def testTopLevel_SingleToSeq_InsideOfStringLiteral_-=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions -= "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions --= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
+  )
+
   def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -106,6 +154,54 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""
          |scalacOptions ++= Seq($RESULT_OPTION)
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_SeqOneLine_OutsideOfStringLiteral_--=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions --= Seq($CARET)
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions --= Seq($RESULT_OPTION)
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_SeqOneLine_InsideOfStringLiteral_--=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions --= Seq("$CARET")
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions --= Seq($RESULT_OPTION)
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_SeqOneLine_OutsideOfStringLiteral_:=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions := Seq($CARET)
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions := Seq($RESULT_OPTION)
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_SeqOneLine_InsideOfStringLiteral_:=(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions := Seq("$CARET")
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions := Seq($RESULT_OPTION)
          |""".stripMargin,
     item = LOOKUP_ITEM
   )
