@@ -27,16 +27,19 @@ final class ScUSwitchExpression(override protected val scExpression: ScMatch,
     with ScUAnnotated {
 
   override def getBody: UExpressionList = {
-    @Nullable
-    val caseClauses = scExpression.caseClauses.orNull
-    caseClauses
-      .convertTo[UExpressionList](this)
-      .getOrElse(
-        new ScUEmptyExpressionList(
-          caseClauses,
-          LazyUElement.just(this)
-        )
-      )
+    scExpression.caseClauses match {
+      case Some(caseClauses) =>
+        caseClauses
+          .convertTo[UExpressionList](this)
+          .getOrElse(
+            new ScUEmptyExpressionList(
+              caseClauses,
+              LazyUElement.just(this)
+            )
+          )
+      case None =>
+        new ScUEmptyExpressionList(null, LazyUElement.Empty)
+    }
   }
 
   @Nullable
@@ -128,15 +131,16 @@ final class ScUCaseClauseBodyList(override protected val scElement: ScBlock,
 }
 
 /**
-  * Empty [[UExpressionList]] implementation, used when it is impossible
-  * by some reason to convert element to list properly.
-  *
-  * @param scElement Scala PSI element representing source element which
-  *                  cannot be converted properly
-  */
-final class ScUEmptyExpressionList(override protected val scElement: PsiElement,
+ * Empty [[UExpressionList]] implementation, used when it is impossible
+ * by some reason to convert element to list properly.
+ *
+ * @param scElement Scala PSI element representing source element which
+ *                  cannot be converted properly
+ */
+final class ScUEmptyExpressionList(@Nullable
+                                   override protected val scElement: PsiElement,
                                    override protected val parent: LazyUElement)
-    extends UExpressionListAdapter
+  extends UExpressionListAdapter
     with ScUElement {
 
   override type PsiFacade = PsiElement
