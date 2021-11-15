@@ -7,10 +7,12 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
+import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDefinitionImpl, ScFunctionImpl}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -38,4 +40,6 @@ class ScGivenAliasImpl(
   }
 
   override def nameId: PsiElement = nameElement.getOrElse(typeElement)
+
+  override protected def keywordTokenType: IElementType = ScalaTokenType.GivenKeyword
 }
