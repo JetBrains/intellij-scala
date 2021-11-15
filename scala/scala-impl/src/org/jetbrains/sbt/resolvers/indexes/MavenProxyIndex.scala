@@ -1,11 +1,10 @@
 package org.jetbrains.sbt.resolvers.indexes
 
 import com.intellij.openapi.progress.ProgressIndicator
-import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
+import org.jetbrains.idea.maven.indices.{MavenIndex, MavenIndexUtils, MavenIndicesManager}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt.resolvers.ArtifactInfo
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -17,8 +16,7 @@ class MavenProxyIndex(val root: String, val name: String, implicit val project: 
   override def doUpdate(progressIndicator: Option[ProgressIndicator] = None): Unit = {
     findPlatformMavenResolver
       .foreach(i =>
-        MavenProjectIndicesManager.getInstance(project)
-          .scheduleUpdate(List(i).asJava)
+        MavenIndicesManager.getInstance(project).scheduleUpdateContent(List(i).asJava)
       )
   }
 
@@ -50,10 +48,9 @@ class MavenProxyIndex(val root: String, val name: String, implicit val project: 
   }
 
   private def findPlatformMavenResolver: Option[MavenIndex] = {
-    MavenProjectIndicesManager.getInstance(project)
-      .getIndices
-      .asScala
-      .find(_.getRepositoryPathOrUrl == MavenIndex.normalizePathOrUrl(root)): @nowarn("cat=deprecation")
+    val index = MavenIndicesManager.getInstance(project).getIndex
+    val indices = index.getIndices.asScala
+    indices.find(_.getRepositoryPathOrUrl == MavenIndexUtils.normalizePathOrUrl(root))
   }
 
   override def searchArtifactInfo(fqName: String)(implicit project: ProjectContext): Set[ArtifactInfo] = Set.empty

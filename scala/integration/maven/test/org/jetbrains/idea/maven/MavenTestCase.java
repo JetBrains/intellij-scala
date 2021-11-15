@@ -1,4 +1,4 @@
-// Copyright 2000-2020 JetBrains s.r.o. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+// Copyright 2000-2021 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
 package org.jetbrains.idea.maven;
 
 import com.intellij.execution.wsl.WSLDistribution;
@@ -17,6 +17,7 @@ import com.intellij.openapi.projectRoots.JavaSdk;
 import com.intellij.openapi.projectRoots.ProjectJdkTable;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.ThrowableComputable;
 import com.intellij.openapi.util.io.FileUtil;
@@ -28,14 +29,17 @@ import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ExceptionUtil;
 import com.intellij.util.ThrowableRunnable;
+import com.intellij.util.containers.CollectionFactory;
 import com.intellij.util.containers.ContainerUtil;
-import gnu.trove.THashSet;
 import org.intellij.lang.annotations.Language;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.idea.maven.indices.MavenIndicesManager;
 import org.jetbrains.idea.maven.project.*;
+import org.jetbrains.idea.maven.server.MavenServerConnector;
+import org.jetbrains.idea.maven.server.MavenServerConnectorImpl;
 import org.jetbrains.idea.maven.server.MavenServerManager;
+import org.jetbrains.idea.maven.server.RemotePathTransformerFactory;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
 
 import java.awt.*;
@@ -48,15 +52,19 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public abstract class MavenTestCase extends UsefulTestCase {
   protected static final String MAVEN_COMPILER_PROPERTIES = "<properties>\n" +
-                                                            "        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n" +
-                                                            "        <maven.compiler.source>1.7</maven.compiler.source>\n" +
-                                                            "        <maven.compiler.target>1.7</maven.compiler.target>\n" +
-                                                            "</properties>\n";
+          "        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\n" +
+          "        <maven.compiler.source>1.7</maven.compiler.source>\n" +
+          "        <maven.compiler.target>1.7</maven.compiler.target>\n" +
+          "</properties>\n";
   protected static final MavenConsole NULL_MAVEN_CONSOLE = new NullMavenConsole();
   private MavenProgressIndicator myProgressIndicator;
+  private MavenEmbeddersManager myEmbeddersManager;
   private WSLDistribution myWSLDistribution;
+  protected RemotePathTransformerFactory.Transformer myPathTransformer;
 
   private File ourTempDir;
 
@@ -75,9 +83,9 @@ public abstract class MavenTestCase extends UsefulTestCase {
   protected void setUp() throws Exception {
     super.setUp();
 
-
     setUpFixtures();
     myProject = myTestFixture.getProject();
+    myPathTransformer = RemotePathTransformerFactory.createForProject(myProject);
     setupWsl();
     ensureTempDirCreated();
 
@@ -93,6 +101,8 @@ public abstract class MavenTestCase extends UsefulTestCase {
     if (home != null) {
       getMavenGeneralSettings().setMavenHome(home);
     }
+
+    getMavenGeneralSettings().setAlwaysUpdateSnapshots(true);
 
     EdtTestUtil.runInEdtAndWait(() -> {
       restoreSettingsFile();
@@ -116,16 +126,29 @@ public abstract class MavenTestCase extends UsefulTestCase {
     if (wslMsId == null) return;
     List<WSLDistribution> distributions = WslDistributionManager.getInstance().getInstalledDistributions();
     if (distributions.isEmpty()) throw new IllegalStateException("no WSL distributions configured!");
-    myWSLDistribution = distributions.stream().filter(it -> wslMsId.equals(it.getMsId())).findFirst().orElseThrow(
-      () -> new IllegalStateException("Distribution " + wslMsId + " was not found"));
+    myWSLDistribution = distributions.stream().filter(it -> wslMsId.equals(it.getMsId())).findFirst()
+            .orElseThrow(() -> new IllegalStateException("Distribution " + wslMsId + " was not found"));
     String jdkPath = System.getProperty("wsl.jdk.path");
     if (jdkPath == null) {
       jdkPath = "/usr/lib/jvm/java-11-openjdk-amd64";
     }
 
-    Sdk sdk = getWslSdk(myWSLDistribution.getWindowsPath(jdkPath));
-    WriteAction.runAndWait(() -> ProjectRootManagerEx.getInstanceEx(myProject).setProjectSdk(sdk));
+    Sdk wslSdk = getWslSdk(myWSLDistribution.getWindowsPath(jdkPath));
+    WriteAction.runAndWait(() -> ProjectRootManagerEx.getInstanceEx(myProject).setProjectSdk(wslSdk));
     assertTrue(new File(myWSLDistribution.getWindowsPath(myWSLDistribution.getUserHome())).isDirectory());
+  }
+
+  @Override
+  protected void runBare(@NotNull ThrowableRunnable<Throwable> testRunnable) throws Throwable {
+    LoggedErrorProcessor.executeWith(new LoggedErrorProcessor() {
+      @Override
+      public boolean processError(@NotNull String category, String message, Throwable t, String[] details) {
+        if (t.getMessage().contains("The network name cannot be found") && message.contains("Couldn't read shelf information")) {
+          return false;
+        }
+        return super.processError(category, message, t, details);
+      }
+    }, () -> super.runBare(testRunnable));
   }
 
   private Sdk getWslSdk(String jdkPath) {
@@ -144,27 +167,42 @@ public abstract class MavenTestCase extends UsefulTestCase {
   protected void tearDown() throws Exception {
     String basePath = myProject.getBasePath();
     new RunAll(
-      () -> MavenServerManager.getInstance().shutdown(true),
-      () -> checkAllMavenConnectorsDisposed(),
-      () -> MavenArtifactDownloader.awaitQuiescence(100, TimeUnit.SECONDS),
-      () -> myProject = null,
-      () -> EdtTestUtil.runInEdtAndWait(() -> tearDownFixtures()),
-      () -> {
-        Project defaultProject = ProjectManager.getInstance().getDefaultProject();
-        MavenIndicesManager mavenIndicesManager = defaultProject.getServiceIfCreated(MavenIndicesManager.class);
-        if (mavenIndicesManager != null) {
-          mavenIndicesManager.clear();
-        }
-      },
-      () -> deleteDirOnTearDown(myDir),
-      () -> {
-        if (myWSLDistribution != null) {
-          deleteDirOnTearDown(new File(basePath));
-        }
-      },
-      () -> super.tearDown()
+            () -> {
+              MavenProgressIndicator.MavenProgressTracker mavenProgressTracker =
+                      myProject.getServiceIfCreated(MavenProgressIndicator.MavenProgressTracker.class);
+              if (mavenProgressTracker != null) {
+                mavenProgressTracker.assertProgressTasksCompleted();
+              }
+            },
+            () -> MavenServerManager.getInstance().shutdown(true),
+            () -> tearDownEmbedders(),
+            () -> checkAllMavenConnectorsDisposed(),
+            () -> MavenArtifactDownloader.awaitQuiescence(100, TimeUnit.SECONDS),
+            () -> myProject = null,
+            () -> EdtTestUtil.runInEdtAndWait(() -> tearDownFixtures()),
+            () -> {
+              Project defaultProject = ProjectManager.getInstance().getDefaultProject();
+              MavenIndicesManager mavenIndicesManager = defaultProject.getServiceIfCreated(MavenIndicesManager.class);
+              if (mavenIndicesManager != null) {
+                Disposer.dispose(mavenIndicesManager);
+              }
+            },
+            () -> deleteDirOnTearDown(myDir),
+            () -> {
+              if (myWSLDistribution != null) {
+                deleteDirOnTearDown(new File(basePath));
+              }
+            },
+            () -> super.tearDown()
     ).run();
   }
+
+  private void tearDownEmbedders() {
+    MavenProjectsManager manager = MavenProjectsManager.getInstanceIfCreated(myProject);
+    if (manager == null) return;
+    manager.getEmbeddersManager().releaseInTests();
+  }
+
 
   private void checkAllMavenConnectorsDisposed() {
     assertEmpty("all maven connectors should be disposed", MavenServerManager.getInstance().getAllConnectors());
@@ -334,19 +372,8 @@ public abstract class MavenTestCase extends UsefulTestCase {
   }
 
   private static String createSettingsXmlContent(String content) {
-    String mirror = System.getProperty("idea.maven.test.mirror",
-                                       // use JB maven proxy server for internal use by default, see details at
-                                       // https://confluence.jetbrains.com/display/JBINT/Maven+proxy+server
-                                       "https://repo.labs.intellij.net/repo1");
     return "<settings>" +
            content +
-           "<mirrors>" +
-           "  <mirror>" +
-           "    <id>jb-central-proxy</id>" +
-           "    <url>" + mirror + "</url>" +
-           "    <mirrorOf>external:*,!flex-repository</mirrorOf>" +
-           "  </mirror>" +
-           "</mirrors>" +
            "</settings>";
   }
 
@@ -396,7 +423,7 @@ public abstract class MavenTestCase extends UsefulTestCase {
       }
       myAllPoms.add(f);
     }
-    setFileContent(f, createPomXml(xml), true);
+    setPomContent(f, xml);
     return f;
   }
 
@@ -512,13 +539,16 @@ public abstract class MavenTestCase extends UsefulTestCase {
     return file;
   }
 
+  protected static void setPomContent(VirtualFile file, @Language(value = "XML", prefix = "<project>", suffix = "</project>") String xml) {
+    setFileContent(file, createPomXml(xml), true);
+  }
+
   private static void setFileContent(final VirtualFile file, final String content, final boolean advanceStamps) {
     try {
       WriteAction.runAndWait(() -> {
         if (advanceStamps) {
           file.setBinaryContent(content.getBytes(StandardCharsets.UTF_8), -1, file.getTimeStamp() + 4000);
-        }
-        else {
+        } else {
           file.setBinaryContent(content.getBytes(StandardCharsets.UTF_8), file.getModificationStamp(), file.getTimeStamp());
         }
       });
@@ -533,25 +563,22 @@ public abstract class MavenTestCase extends UsefulTestCase {
   }
 
   protected static <T> void assertUnorderedElementsAreEqual(@NotNull Collection<T> actual, @NotNull Collection<T> expected) {
-    assertFalse(expected.size() == actual.size() && expected.containsAll(actual) && actual.containsAll(expected));
+    assertThat(actual).hasSameElementsAs(expected);
   }
 
   protected static void assertUnorderedPathsAreEqual(Collection<String> actual, Collection<String> expected) {
-    assertEquals(new SetWithToString<>(new THashSet<>(expected, FileUtil.PATH_HASHING_STRATEGY)),
-                 new SetWithToString<>(new THashSet<>(actual, FileUtil.PATH_HASHING_STRATEGY)));
+    assertEquals(new SetWithToString<>(CollectionFactory.createFilePathSet(expected)),
+            new SetWithToString<>(CollectionFactory.createFilePathSet(actual)));
   }
 
-  @SafeVarargs
   protected static <T> void assertUnorderedElementsAreEqual(T[] actual, T... expected) {
     assertUnorderedElementsAreEqual(Arrays.asList(actual), expected);
   }
 
-  @SafeVarargs
   protected static <T> void assertUnorderedElementsAreEqual(Collection<T> actual, T... expected) {
     assertUnorderedElementsAreEqual(actual, Arrays.asList(expected));
   }
 
-  @SafeVarargs
   protected static <T, U> void assertOrderedElementsAreEqual(Collection<U> actual, T... expected) {
     String s = "\nexpected: " + Arrays.asList(expected) + "\nactual: " + new ArrayList<>(actual);
     assertEquals(s, expected.length, actual.size());
@@ -564,13 +591,11 @@ public abstract class MavenTestCase extends UsefulTestCase {
     }
   }
 
-  @SafeVarargs
-  protected static <T> void assertContain(List<? extends T> actual, T... expected) {
+  protected static <T> void assertContain(Collection<? extends T> actual, T... expected) {
     List<T> expectedList = Arrays.asList(expected);
     assertTrue("expected: " + expectedList + "\n" + "actual: " + actual.toString(), actual.containsAll(expectedList));
   }
 
-  @SafeVarargs
   protected static <T> void assertDoNotContain(List<T> actual, T... expected) {
     List<T> actualCopy = new ArrayList<>(actual);
     actualCopy.removeAll(Arrays.asList(expected));
@@ -597,6 +622,22 @@ public abstract class MavenTestCase extends UsefulTestCase {
     boolean result = getTestMavenHome() != null;
     if (!result) printIgnoredMessage("Maven installation not found");
     return result;
+  }
+
+  protected static MavenServerConnector ensureConnected(MavenServerConnector connector) {
+    assertTrue("Connector is Dummy!", connector instanceof MavenServerConnectorImpl);
+    long timeout = TimeUnit.SECONDS.toMillis(10);
+    long start = System.currentTimeMillis();
+    while (connector.getState() == MavenServerConnectorImpl.State.STARTING) {
+      if (System.currentTimeMillis() > start + timeout) {
+        throw new RuntimeException("Server connector not connected in 10 seconds");
+      }
+      EdtTestUtil.runInEdtAndWait(() -> {
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue();
+      });
+    }
+    assertTrue(connector.checkConnected());
+    return connector;
   }
 
   private void printIgnoredMessage(String message) {

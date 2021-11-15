@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet
 package actions
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerEx
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.impl.ActionButton
@@ -14,9 +12,9 @@ import com.intellij.openapi.project.DumbService.DumbModeListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.ui.ClientProperty
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
-import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
@@ -27,6 +25,7 @@ import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.jetbrains.plugins.scala.worksheet.ui.{WorksheetControlPanel, WorksheetFoldGroup}
 
+import java.{util => ju}
 import scala.util.control.NonFatal
 
 object WorksheetFileHook {
@@ -184,7 +183,7 @@ object WorksheetFileHook {
 
         val controlPanel = new WorksheetControlPanel()
         val actions: ju.List[AnAction] = ContainerUtil.immutableSingletonList(new WorksheetReplRunAction)
-        UIUtil.putClientProperty(editor.getComponent, AnAction.ACTIONS_KEY, actions)
+        ClientProperty.put(editor.getComponent, AnAction.ACTIONS_KEY, actions)
         file2panel.put(file, controlPanel)
         myFileEditorManager.addTopComponent(editor, controlPanel)
       }

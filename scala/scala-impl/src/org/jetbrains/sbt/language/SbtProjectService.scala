@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package language
 
-import java.util
-
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
@@ -17,15 +15,15 @@ import com.intellij.openapi.roots.ui.configuration.ProjectStructureConfigurable
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.util.Consumer
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.Nls
-import org.jetbrains.idea.maven.indices.{MavenIndex, MavenProjectIndicesManager}
-import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.idea.maven.indices.{MavenIndex, MavenIndicesManager}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.resolvers.indexes.IvyIndex
 import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
 
+import java.util
+import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
@@ -84,7 +82,7 @@ final class SbtProjectService(project: Project) extends Disposable {
     if (ApplicationManager.getApplication.isUnitTestMode) return
 
     if (isIdeaPluginEnabled("org.jetbrains.idea.maven")) {
-      MavenProjectIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
+      MavenIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
     } else {
       notifyDisabledMavenPlugin()
     }

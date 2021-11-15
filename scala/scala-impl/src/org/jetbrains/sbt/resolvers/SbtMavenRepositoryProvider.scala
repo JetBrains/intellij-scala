@@ -1,12 +1,11 @@
 package org.jetbrains.sbt
 package resolvers
 
-import java.{util => ju}
-
 import com.intellij.openapi.project.Project
-import org.jetbrains.idea.maven.indices.{MavenIndex, MavenRepositoryProvider}
+import org.jetbrains.idea.maven.indices.{MavenIndexUtils, MavenRepositoryProvider}
 import org.jetbrains.idea.maven.model.MavenRemoteRepository
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 final class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
@@ -17,7 +16,7 @@ final class SbtMavenRepositoryProvider extends MavenRepositoryProvider {
         new MavenRemoteRepository(
           r.name,
           null,
-          MavenIndex.normalizePathOrUrl(r.root),
+          MavenIndexUtils.normalizePathOrUrl(r.root),
           null,
           null,
           null
