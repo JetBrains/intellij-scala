@@ -9,6 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.patterns._
 import com.intellij.psi._
+import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
 import com.intellij.util.{Consumer, ProcessingContext}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker.hasStableType
@@ -68,6 +69,12 @@ package object completion {
 
   private[completion] implicit class PsiElementPatternExt[T <: PsiElement](private val pattern: PsiElementPattern.Capture[T]) extends AnyVal {
     def isInScala3File: PsiElementPattern.Capture[T] = pattern.`with`(isInScala3FilePattern)
+
+    def notAfterLeafSkippingWhitespaceComment(tp: IElementType): PsiElementPattern.Capture[T] =
+      pattern.`with`(new PatternCondition[T](s"prevVisibleLeaf(skipComments = true).elementType != $tp") {
+        override def accepts(element: T, context: ProcessingContext): Boolean =
+          element.prevVisibleLeaf(skipComments = true).forall(_.elementType != tp)
+      })
   }
 
   private[completion] def isExcluded(clazz: PsiClass) = inReadAction {
