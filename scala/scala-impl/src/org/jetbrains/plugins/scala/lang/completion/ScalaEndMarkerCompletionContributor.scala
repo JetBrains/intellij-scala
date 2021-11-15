@@ -6,7 +6,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.patterns.{ElementPattern, PatternCondition}
+import com.intellij.patterns.{ElementPattern, PatternCondition, PsiElementPattern}
 import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, getParentOfType}
@@ -43,10 +43,12 @@ final class ScalaEndMarkerCompletionContributor extends CompletionContributor {
     .`with`(firstNonWhitespaceChildInLinePattern)),
     new EndMarkerCompletionProvider(classOf[ScReferenceExpression], useEndKeywordInLookupString = true))
 
-  private def extendBasicAndSmart(place: ElementPattern[_ <: PsiElement],
+  private def extendBasicAndSmart(place: PsiElementPattern.Capture[_ <: PsiElement],
                                   provider: EndMarkerCompletionProvider[_ <: ScalaPsiElement]): Unit = {
-    extend(CompletionType.BASIC, place, provider)
-    extend(CompletionType.SMART, place, provider)
+    val pattern = place.notAfterLeafSkippingWhitespaceComment(ScalaTokenTypes.tDOT)
+
+    extend(CompletionType.BASIC, pattern, provider)
+    extend(CompletionType.SMART, pattern, provider)
   }
 }
 
