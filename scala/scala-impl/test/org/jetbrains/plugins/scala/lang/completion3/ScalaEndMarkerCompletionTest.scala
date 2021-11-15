@@ -49,6 +49,15 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
       hasLookupString(lookup, item)
     }
 
+  def testNoCompletionAfterDot(): Unit = checkNoCompletion(
+    fileText =
+      s"""def foo =
+         |  1
+         |  2
+         |  3.e$CARET
+         |""".stripMargin
+  )
+
   /// anonymous class
 
   def testAnonClass(): Unit = checkLookupElement(
