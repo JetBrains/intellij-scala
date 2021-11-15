@@ -328,7 +328,7 @@ object CompileServerLauncher {
 
   def running: Boolean = serverInstance.exists(_.running)
 
-  def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
+  def errorsText(): String = serverInstance.map(_.errorsText()).getOrElse("")
 
   def port: Option[Int] = serverInstance.map(_.port)
   def pid: Option[Long] = serverInstance.map(_.watcher.pid)
@@ -506,7 +506,7 @@ private case class ServerInstance(watcher: ProcessWatcher,
 
   def stopped: Boolean = _stopped
 
-  def errors(): Seq[String] = watcher.errors()
+  def errorsText(): String = watcher.errorsText()
 
   def pid: Long = watcher.pid
 
@@ -521,6 +521,6 @@ private case class ServerInstance(watcher: ProcessWatcher,
       s", jvmParameters: ${jvmParameters.mkString(",")}" +
       s", stopped: ${_stopped}" +
       s", running: $running" +
-      s", errors: ${errors().mkString("(", ", ", ")")}"
+      s", errors: ${errorsText()}"
   }
 }

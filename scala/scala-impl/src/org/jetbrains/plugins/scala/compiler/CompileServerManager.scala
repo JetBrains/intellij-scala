@@ -171,11 +171,11 @@ final class CompileServerManager(project: Project) extends Disposable {
       updateWidget()
 
     // TODO: getter-like method `errors` removes retrieved errors under the hood
-    val errors = launcher.errors()
+    val errorsText = launcher.errorsText()
 
-    if (errors.nonEmpty) {
+    if (errorsText.nonEmpty) {
       //noinspection ReferencePassedToNls
-      val message = errors.mkString.replace("\n", "<br/>")
+      val message = errorsText.replace("\n", "<br/>")
       showNotification(message, NotificationType.ERROR)
     }
   }
