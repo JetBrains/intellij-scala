@@ -14,6 +14,78 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
   override protected def configureFromFileText(fileText: String): PsiFile =
     configureFromFileText(fileText, SbtFileType)
 
+  def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(scalacOptions) += no$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(scalacOptions) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_InsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(scalacOptions) += "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(scalacOptions) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(ThisBuild / scalacOptions) += no$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(ThisBuild / scalacOptions) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_InsideOfStringLiteral_AfterParenthesisedExpr2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(ThisBuild / scalacOptions) += "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(ThisBuild / scalacOptions) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_OutsideOfStringLiteral_AfterDeepParenthesisedExpr(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(((((Global / scalacOptions))))) += no$CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(((((Global / scalacOptions))))) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_Single_InsideOfStringLiteral_AfterDeepParenthesisedExpr(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |(((((Global / scalacOptions))))) += "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |(((((Global / scalacOptions))))) += $RESULT_OPTION
+         |""".stripMargin,
+    item = LOOKUP_ITEM
+  )
+
   def testTopLevel_Single_OutsideOfStringLiteral_WithoutSpaces(): Unit = doCompletionTest(
     fileText =
       s"""
