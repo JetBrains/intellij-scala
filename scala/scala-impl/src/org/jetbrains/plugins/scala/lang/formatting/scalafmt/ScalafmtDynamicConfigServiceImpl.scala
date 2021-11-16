@@ -81,7 +81,9 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
       case _ if settings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS =>
         intellijDefaultConfig
       case _ =>
-        reportConfigurationFileNotFound(actualConfigPath)
+        if (verbosity == FmtVerbosity.Verbose) {
+          reportConfigurationFileNotFound(actualConfigPath)
+        }
         None
     }
     val configWithDialect =
