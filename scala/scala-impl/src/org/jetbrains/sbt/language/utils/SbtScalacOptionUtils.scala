@@ -38,7 +38,7 @@ object SbtScalacOptionUtils {
   def projectVersionsSorted(project: Project, reverse: Boolean): List[ScalaLanguageLevel] = {
     val ordering = implicitly[Ordering[ScalaLanguageLevel]]
 
-    projectVersions(project).sorted(if (reverse) ordering.reverse else ordering)
+    projectVersions(project).distinct.sorted(if (reverse) ordering.reverse else ordering)
   }
 
   def matchesScalacOptionsSbtSetting(expr: ScExpression): Boolean = expr match {
