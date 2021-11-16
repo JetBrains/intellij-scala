@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 /**
  * @author Alefas
@@ -191,6 +192,10 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     icons = PARAMETER, PARAMETER
   )
 
+  //todo fix for Scala 3
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testConstructorCallAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -211,6 +216,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y"
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testConstructorCallAfterNew2(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -237,6 +245,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y, z"
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testConstructorCallAfterNew3(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -263,6 +274,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     item = "x, y"
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testConstructorCallAfterNew3Smart(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int) {
@@ -290,6 +304,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     completionType = CompletionType.SMART
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testConstructorCallAfterNewLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -312,6 +329,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
     icons = PATTERN_VAL, PATTERN_VAL
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testAfterParenthesisOnlyInConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
       s"""class A(x: Int, y: Int)
@@ -334,6 +354,9 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
         """.stripMargin
   )
 
+  @RunWithScalaVersions(Array(
+    TestScalaVersion.Scala_2_12,
+  ))
   def testPositionInConstructorAfterNew(): Unit = doCompletionTest(
     fileText =
       s"""class A(x: Int, y: Int, z: Int)

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.completion.{LightFixtureCompletionTestCase, StatisticsUpdate}
+import com.intellij.codeInsight.completion.StatisticsUpdate
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.ide.ui.UISettings
@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
   * Created by kate
   * on 2/10/16
   */
-abstract class ScalaCompletionSortingTestCase extends LightFixtureCompletionTestCase {
+abstract class ScalaCompletionSortingTestCase extends ScalaCodeInsightTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -41,9 +41,12 @@ abstract class ScalaCompletionSortingTestCase extends LightFixtureCompletionTest
     val projectFile = myFixture.copyFileToProject(path, getShortName(path, '/'))
     myFixture.configureFromExistingVirtualFile(projectFile)
 
-    complete()
+    myFixture.completeBasic()
     getLookup
   }
+
+  def getLookup =
+    LookupManager.getActiveLookup(getEditor).asInstanceOf[LookupImpl]
 
   def checkFirst(expected: String*): Unit = {
     invokeCompletion

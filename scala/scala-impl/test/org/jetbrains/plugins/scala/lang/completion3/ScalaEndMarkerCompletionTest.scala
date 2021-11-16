@@ -3,7 +3,6 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.junit.Assert
 
 class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
@@ -12,8 +11,6 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
-
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   private def checkLookupElement(fileText: String,
                                  resultText: String,

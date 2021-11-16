@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 /**
   * User: Alefas
@@ -27,6 +28,9 @@ abstract class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
     ScalaCodeStyleSettings.getInstance(getProject)
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
 
   def testClassNameRenamed(): Unit = doCompletionTest(
@@ -192,6 +196,37 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
   }
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
+class ClassNameCompletionTest_Scala_3 extends ClassNameCompletionTest {
+  override def testImportsMess(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |import scala.collection.immutable.{BitSet, HashSet, ListMap, SortedMap}
+         |import scala.collection.mutable._
+         |
+         |class Test2 {
+         |  val x: HashMap[String, String] = HashMap.empty
+         |  val z: ListSet$CARET = null
+         |}
+      """.stripMargin,
+    resultText =
+      """
+        |import scala.collection.immutable.{BitSet, HashSet, ListMap, ListSet, SortedMap}
+        |import scala.collection.mutable.*
+        |
+        |class Test2 {
+        |  val x: HashMap[String, String] = HashMap.empty
+        |  val z: ListSet = null
+        |}
+      """.stripMargin,
+    invocationCount = 2
+  ) {
+    predicate(_, "scala.collection.immutable.ListSet")
+  }
+}
+
 class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
 
   private var importsWithPrefix: Array[String] = Array.empty
@@ -236,6 +271,9 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
   }
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
 
   private var isAddFullQualifiedImports: Boolean = false
@@ -321,4 +359,78 @@ class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
     item = "XXXX",
     time = 2
   )
+}
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
+class FullQualifiedImportsCompletionTest_Scala_3 extends FullQualifiedImportsCompletionTest {
+  override def testSCL4087(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package a.b {
+         |
+         |  class XXXX
+         |
+         |}
+         |
+         |import a.{b => c}
+         |
+         |trait Y {
+         |  val x: XXXX$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      """
+        |package a.b {
+        |
+        |  class XXXX
+        |
+        |}
+        |
+        |import a.b as c
+        |import c.XXXX
+        |
+        |trait Y {
+        |  val x: XXXX
+        |}
+      """.stripMargin,
+    item = "XXXX",
+    time = 2
+  )
+
+  override def testSCL4087_2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |package a.b.z {
+         |
+         |  class XXXX
+         |
+         |}
+         |
+         |import a.{b => c}
+         |
+         |trait Y {
+         |  val x: XXXX$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      """
+        |package a.b.z {
+        |
+        |  class XXXX
+        |
+        |}
+        |
+        |import a.b as c
+        |import c.z.XXXX
+        |
+        |trait Y {
+        |  val x: XXXX
+        |}
+      """.stripMargin,
+    item = "XXXX",
+    time = 2
+  )
+
 }
