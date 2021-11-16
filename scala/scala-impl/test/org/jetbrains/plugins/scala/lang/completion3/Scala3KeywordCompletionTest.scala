@@ -2,15 +2,16 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
 class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
-
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   /// INFIX
 

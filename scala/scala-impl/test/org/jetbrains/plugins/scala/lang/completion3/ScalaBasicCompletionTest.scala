@@ -4,7 +4,9 @@ package completion3
 
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.hasItemText
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 
 abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
@@ -56,6 +58,9 @@ abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
     "{([<\"\'".exists(text.contains(_))
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 
   import ScalaCodeInsightTestBase._
@@ -1653,8 +1658,10 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo2")
 }
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_13
+))
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
   def test2_13_extensionMethod1(): Unit = doCompletionTest(
     fileText = s""""".toInt$CARET""",
@@ -1669,9 +1676,10 @@ class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicComp
   )
 }
 
-class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTestBase {
-
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
+class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTest {
 
   def testEnumFileName(): Unit = doCompletionTest(
     fileText =
@@ -1683,7 +1691,7 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTestBase {
     item = "aaa"
   )
 
-  def testCompanionTraitName(): Unit = checkNoBasicCompletion(
+  def testEnumCompanionTraitName(): Unit = checkNoBasicCompletion(
     fileText =
       s"""enum aaa
          |
@@ -1691,4 +1699,70 @@ class ScalaBasicCompletionTest_with_3_0 extends ScalaBasicCompletionTestBase {
          |""".stripMargin,
     item = "aaa"
   )
+
+  def testMethodFromImplicitConversion(): Unit = doCompletionTest(
+    s"""def test(): Unit = 1.unti$CARET""".stripMargin,
+    """def test(): Unit = 1.until()""".stripMargin,
+    item = "until"
+  )
+
+  //todo why there is a difference in "boldness"?
+  override def testStringTrim(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  "".tri$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class Foo {
+         |  "".trim$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "trim")(
+      itemTextBold = false,
+      typeText = "String",
+    )
+  }
+
+  override def testStringLength(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  "".len$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class Foo {
+         |  "".length$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "length")(
+      itemTextBold = false,
+      typeText = "Int",
+    )
+  }
+
+
+  override def testStringHashCode(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  "".hash$CARET
+         |}
+      """.stripMargin,
+    resultText =
+      s"""class Foo {
+         |  "".hashCode$CARET
+         |}
+      """.stripMargin
+  ) {
+    hasItemText(_, "hashCode")(
+      itemTextBold = false,
+      typeText = "Int",
+    )
+  }
+
+  override def testLocalValueName(): Unit = failing(super.testLocalValueName())
+
+  override def testLocalValueName2(): Unit = failing(super.testLocalValueName2())
 }

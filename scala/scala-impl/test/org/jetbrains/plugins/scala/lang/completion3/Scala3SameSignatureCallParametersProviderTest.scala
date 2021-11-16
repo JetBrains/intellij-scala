@@ -3,7 +3,6 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
 
@@ -12,8 +11,6 @@ class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallPar
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
-
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   /// extends TRAIT
 
