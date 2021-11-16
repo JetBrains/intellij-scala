@@ -7,7 +7,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.isSeq
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory
 import spray.json.DefaultJsonProtocol._
 import spray.json._
 
+import scala.annotation.tailrec
 import scala.io.Source
 import scala.util.{Failure, Success, Using}
 
@@ -41,11 +42,13 @@ object SbtScalacOptionUtils {
     projectVersions(project).distinct.sorted(if (reverse) ordering.reverse else ordering)
   }
 
+  @tailrec
   def matchesScalacOptionsSbtSetting(expr: ScExpression): Boolean = expr match {
     case ref: ScReferenceExpression => ref.refName == SCALAC_OPTIONS
     // e.g.: ThisBuild / scalacOptions
     case ScInfixExpr(_, op, right: ScReferenceExpression) =>
       op.refName == "/" && right.refName == SCALAC_OPTIONS
+    case ScParenthesisedExpr(e) => matchesScalacOptionsSbtSetting(e)
     case _ => false
   }
 
