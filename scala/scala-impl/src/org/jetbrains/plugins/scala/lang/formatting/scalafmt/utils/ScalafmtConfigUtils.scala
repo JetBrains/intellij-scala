@@ -39,6 +39,7 @@ object ScalafmtConfigUtils {
         if (exists(result) || !isRelativePath) {
           Some(result)
         } else {
+          //SCL-16273
           val vcsRoot = VcsUtil.getVcsRootFor(project, baseDir).toOption
           val vcsResult = vcsRoot.map(absolutePath).filter(exists)
           vcsResult.orElse(Some(result))
