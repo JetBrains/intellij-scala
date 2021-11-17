@@ -219,7 +219,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_explicitOuter(): Unit = doTest("explicitOuter", true)
   def test_exponential_spec(): Unit = doTest("exponential-spec", true)
   def test_export_enum(): Unit = doTest("export-enum", false) // #enum, #export
-  def test_export_opaque(): Unit = doTest("export-opaque", true) // #opaque, #export
+  def test_export_opaque(): Unit = doTest("export-opaque", false) // #opaque, #export
   def test_export_proxies(): Unit = doTest("export-proxies", true) // #export
   def test_extmethods(): Unit = doTest("extmethods", false) // #extension
   def test_extmethods_2(): Unit = doTest("extmethods-2", true)
@@ -547,7 +547,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i3607(): Unit = doTest("i3607", true)
   def test_i3608(): Unit = doTest("i3608", true)
   def test_i3633(): Unit = doTest("i3633", true)
-  def test_i3636(): Unit = doTest("i3636", true)
+  def test_i3636(): Unit = doTest("i3636", false)
   def test_i3637(): Unit = doTest("i3637", true)
   def test_i3638(): Unit = doTest("i3638", true)
   def test_i3647(): Unit = doTest("i3647", true)
@@ -675,7 +675,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i5666(): Unit = doTest("i5666", true)
   def test_i5690(): Unit = doTest("i5690", true)
   def test_i5699(): Unit = doTest("i5699", false) // #unionType
-  def test_i5711(): Unit = doTest("i5711", true)
+  def test_i5711(): Unit = doTest("i5711", false)
   def test_i5720(): Unit = doTest("i5720", true) // #opaque, #typeLambda
   def test_i5750(): Unit = doTest("i5750", true)
   def test_i5765(): Unit = doTest("i5765", true) // #opaque
@@ -700,7 +700,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i6054(): Unit = doTest("i6054", true)
   def test_i6083(): Unit = doTest("i6083", false) // #anykind
   def test_i6089(): Unit = doTest("i6089", true)
-  def test_i6116(): Unit = doTest("i6116", true)
+  def test_i6116(): Unit = doTest("i6116", false)
   def test_i6126(): Unit = doTest("i6126", true)
   def test_i6127(): Unit = doTest("i6127", true)
   def test_i6146(): Unit = doTest("i6146", true)
@@ -816,7 +816,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i7745(): Unit = doTest("i7745", true)
   def test_i7757(): Unit = doTest("i7757", false)
   def test_i7778b(): Unit = doTest("i7778b", true)
-  def test_i7793(): Unit = doTest("i7793", true)
+  def test_i7793(): Unit = doTest("i7793", false)
   def test_i7807(): Unit = doTest("i7807", false) // #intersectionType, #matchType
   def test_i7809(): Unit = doTest("i7809", true)
   def test_i7819(): Unit = doTest("i7819", true)
@@ -852,8 +852,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8181(): Unit = doTest("i8181", true) // #extension
   def test_i8182(): Unit = doTest("i8182", false) // #extension
   def test_i8188a(): Unit = doTest("i8188a", false) // #extension
-  def test_i8188b(): Unit = doTest("i8188b", true)
-  def test_i8188c(): Unit = doTest("i8188c", true)
+  def test_i8188b(): Unit = doTest("i8188b", false)
+  def test_i8188c(): Unit = doTest("i8188c", false)
   def test_i8198(): Unit = doTest("i8198", true) // #extension
   def test_i8241(): Unit = doTest("i8241", true) // #extension
   def test_i8256(): Unit = doTest("i8256", true)
@@ -968,7 +968,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i9782(): Unit = doTest("i9782", true)
   def test_i9788(): Unit = doTest("i9788", false) // #intersectionType
   def test_i9793(): Unit = doTest("i9793", true)
-  def test_i9828(): Unit = doTest("i9828", true) // #extension
+  def test_i9828(): Unit = doTest("i9828", false) // #extension
   def test_i9833(): Unit = doTest("i9833", true) // #enum
   def test_i9841b(): Unit = doTest("i9841b", true)
   def test_i9844(): Unit = doTest("i9844", true)
@@ -1039,7 +1039,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i11184b(): Unit = doTest("i11184b", true)
   def test_i11184c(): Unit = doTest("i11184c", true)
   def test_i11184d(): Unit = doTest("i11184d", true) // #transparentInline
-  def test_i11185(): Unit = doTest("i11185", true)
+  def test_i11185(): Unit = doTest("i11185", false)
   def test_i11220(): Unit = doTest("i11220", true)
   def test_i11225(): Unit = doTest("i11225", true)
   def test_i11230(): Unit = doTest("i11230", true)
@@ -1219,7 +1219,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_indent2(): Unit = doTest("indent2", true)
   def test_indent3(): Unit = doTest("indent3", true)
   def test_indent4(): Unit = doTest("indent4", true)
-  def test_indented_parens(): Unit = doTest("indented-parens", true)
+  def test_indented_parens(): Unit = doTest("indented-parens", false)
   def test_inf(): Unit = doTest("inf", true)
   def test_infer(): Unit = doTest("infer", true)
   def test_infer1(): Unit = doTest("infer1", true)
@@ -1342,7 +1342,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_nested2(): Unit = doTest("nested2", true)
   def test_nestedLambdas(): Unit = doTest("nestedLambdas", true) // #typeLambda
   def test_new_array(): Unit = doTest("new-array", false)
-  def test_newline_braces(): Unit = doTest("newline-braces", true)
+  def test_newline_braces(): Unit = doTest("newline-braces", false)
   def test_news(): Unit = doTest("news", true)
   def test_no_mirror_derives(): Unit = doTest("no-mirror-derives", true) // #derives
   def test_NoCyclicReference(): Unit = doTest("NoCyclicReference", false)
@@ -1377,8 +1377,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_or_inf(): Unit = doTest("or-inf", false) // #intersectionType
   def test_Orderings(): Unit = doTest("Orderings", true)
   def test_overloaddefault(): Unit = doTest("overloaddefault", true)
-  def test_overloaded(): Unit = doTest("overloaded", true)
-  def test_overloaded_ho_fun(): Unit = doTest("overloaded_ho_fun", true)
+  def test_overloaded(): Unit = doTest("overloaded", false)
+  def test_overloaded_ho_fun(): Unit = doTest("overloaded_ho_fun", false)
   def test_overloadedAccess(): Unit = doTest("overloadedAccess", true)
   def test_override(): Unit = doTest("override", true)
   def test_override_via_self(): Unit = doTest("override-via-self", true)
@@ -1961,7 +1961,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_t3861(): Unit = doTest("t3861", true)
   def test_t3862(): Unit = doTest("t3862", true)
   def test_t3864(): Unit = doTest("t3864", true)
-  def test_t3866(): Unit = doTest("t3866", true)
+  def test_t3866(): Unit = doTest("t3866", false)
   def test_t3869(): Unit = doTest("t3869", true)
   def test_t3880(): Unit = doTest("t3880", true)
   def test_t3883(): Unit = doTest("t3883", true)
