@@ -12,14 +12,13 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions.{LoggerExt, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.{AllInPackage, ClassWithTestName}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer._
-import org.jetbrains.plugins.scala.testingSupport.test.testdata.{SingleTestData, _}
+import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 
 import scala.jdk.CollectionConverters._
 
@@ -52,10 +51,11 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
       contextModule   <- Option(contextLocation.getModule).toRight("context module is empty")
       _               <- ensure(!sourceElement.isNull, "source element is empty")
       _               <- ensure(hasTestSuitesInModuleDependencies(contextModule), "context module doesn't contain any test dependencies")
-      elementWithConf <- createConfigurationFromContextLocation(contextLocation)
+      contextInfo     <- getContextInfo(contextLocation).toRight("couldn't prepare context info")
 
-      (testElement, confSettings) = elementWithConf
+      (testElement, confSettings) = createConfigurationFromContextLocation(contextLocation, contextInfo)
       config = confSettings.getConfiguration.asInstanceOf[T]
+
       _ <- ensure(isRunPossibleFor(config, testElement), "run is impossible")
     } yield (testElement, config)
 
@@ -80,41 +80,38 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
   }
 
   /**
-   * @return element ~ test class OR test package OR test directory
+   * @return element ~ test class, test package or test directory
    */
-  @TestOnly
-  def createConfigurationFromContextLocation(
-    location: PsiElementLocation
-  ): Either[String, (PsiElement, RunnerAndConfigurationSettings)] =
-    for {
-      contextInfo <- getContextInfo(location).toRight("couldn't prepare context info")
-    } yield {
-      val displayName = configurationName(contextInfo)
-      val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
+  private def createConfigurationFromContextLocation(
+    location: PsiElementLocation,
+    contextInfo: CreateFromContextInfo
+  ): (PsiElement, RunnerAndConfigurationSettings) = {
+    val displayName = configurationName(contextInfo)
+    val settings = RunManager.getInstance(location.getProject).createConfiguration(displayName, getConfigurationFactory)
 
-      val configuration = settings.getConfiguration.asInstanceOf[T]
+    val configuration = settings.getConfiguration.asInstanceOf[T]
 
-      configuration.testConfigurationData = getUpdatedTestData(configuration, contextInfo)
-      configuration.testKind = configuration.testConfigurationData.getKind
+    configuration.testConfigurationData = getUpdatedTestData(configuration, contextInfo)
+    configuration.testKind = configuration.testConfigurationData.getKind
 
-      configuration.setGeneratedName(configuration.getName)
+    configuration.setGeneratedName(configuration.getName)
 
-      if (configuration.getModule == null) {
-        val jvmModule = location.getModule.findJVMModule
-        jvmModule.foreach(configuration.setModule)
-      }
-
-      extendCreatedConfiguration(configuration, location)
-
-      val element = contextInfo match {
-        case _: AllInPackage         =>
-          // if original was directory, return directory, not sure if it affects anything
-          location.getPsiElement
-        case info: ClassWithTestName =>
-          info.testClass
-      }
-      (element, settings)
+    if (configuration.getModule == null) {
+      val jvmModule = location.getModule.findJVMModule
+      jvmModule.foreach(configuration.setModule)
     }
+
+    extendCreatedConfiguration(configuration, location)
+
+    val element = contextInfo match {
+      case _: AllInPackage         =>
+        // if original was directory, return directory, not sure if it affects anything
+        location.getPsiElement
+      case info: ClassWithTestName =>
+        info.testClass
+    }
+    (element, settings)
+  }
 
   @NlsSafe
   protected def configurationName(contextInfo: CreateFromContextInfo): String

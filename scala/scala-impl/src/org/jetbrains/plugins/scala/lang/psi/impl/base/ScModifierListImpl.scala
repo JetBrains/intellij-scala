@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScModifiersStub
 import org.jetbrains.plugins.scala.util.EnumSet
 import org.jetbrains.plugins.scala.util.EnumSet._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
 class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.MODIFIERS, node) with ScModifierList {
 
@@ -95,6 +91,12 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
     }
   }
 
+  //TODO: to be more consistent with getApplicableAnnotations in 2021.2 lets change it to simpler implementation:
+  // (investigate caching)
+  // getParent match {
+  //   case owner: ScAnnotationsHolder => owner.getAnnotations
+  //   case _ => PsiAnnotation.EMPTY_ARRAY
+  // }
   override def getAnnotations: Array[PsiAnnotation] = getParent match {
     case null => PsiAnnotation.EMPTY_ARRAY
     case parent =>
@@ -109,6 +111,23 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
           scAnnotations.copyToArray(result)
           result
       }
+  }
+
+  override def getApplicableAnnotations: Array[PsiAnnotation] =
+    getParent match {
+      case owner: ScAnnotationsHolder =>
+        owner.getApplicableAnnotations
+      case _ =>
+        PsiAnnotation.EMPTY_ARRAY
+    }
+
+  override def addAnnotation(qualifiedName: String): PsiAnnotation = {
+    getParent match {
+      case owner: ScAnnotationsHolder =>
+        owner.addAnnotation(qualifiedName)
+      case _ => //see contract of base method
+        throw new UnsupportedOperationException(s"Can't add annotation to modifier list of ${this.getParent.getClass}")
+    }
   }
 
   override def findAnnotation(name: String): PsiAnnotation = getAnnotations.find {
@@ -131,10 +150,6 @@ class ScModifierListImpl private (stub: ScModifiersStub, node: ASTNode)
   }
 
   override def checkSetModifierProperty(name: String, value: Boolean): Unit = {}
-
-  override def getApplicableAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
-
-  override def addAnnotation(qualifiedName: String): PsiAnnotation = null
 
   private def addModifierProperty(name: String): Unit = {
     val node = getNode

@@ -4,17 +4,14 @@ package psi
 package impl
 package expr
 
-import java.util.Objects
-
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.Comparing
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.ANNOTATION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
@@ -22,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl.ScAnnotat
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+
+import java.util.Objects
 
 /**
   * @author Alexander Podkhalyuzin
@@ -88,6 +87,19 @@ class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
     }
     null
   }
+
+  override def resolveAnnotationType: PsiClass =
+    typeElement match {
+      case st: ScSimpleTypeElement =>
+        // the branch should be actual for any annotation @Test or @Order(42)
+        val target = st.reference.map(_.resolve())
+        target.orNull match {
+          case clazz: PsiClass if clazz.isAnnotationType =>
+            clazz
+          case _ => null
+        }
+      case _ => null //should be impossible branch
+    }
 
   override def getNameReferenceElement: PsiJavaCodeReferenceElement = null
 
