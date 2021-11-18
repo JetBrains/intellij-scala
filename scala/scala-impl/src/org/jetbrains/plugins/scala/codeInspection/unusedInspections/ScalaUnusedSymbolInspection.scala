@@ -79,6 +79,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
+    case e if e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
     case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
     case _: ScFunctionDeclaration => false
     case p: ScModifierListOwner if hasOverrideModifier(p) => false
