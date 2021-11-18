@@ -60,7 +60,7 @@ private object TypeMismatchError {
       val lastLineAnnotatedRange = lastLineRangeOf(annotatedElement)
       val intersection = lastLineAnnotatedRange.intersection(element.getTextRange)
       val range =
-        if (intersection.getLength > 0) intersection
+        if (intersection != null && intersection.getLength > 0) intersection
         else lastLineRangeOf(element)
 
       builder.range(range)
