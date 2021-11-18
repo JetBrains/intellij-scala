@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
@@ -16,6 +17,7 @@ import scala.annotation.nowarn
 class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.suspicious.shadowing.by.a.type.parameter")) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+    case e if e.isInScala3File => () // TODO Handle Scala 3 code (type lambdas, etc.), SCL-19723
     case refPat: ScTypeParam => check(refPat, holder)
   }
   
