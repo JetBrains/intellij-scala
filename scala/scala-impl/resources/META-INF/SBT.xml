@@ -96,6 +96,8 @@
         <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInDependencyStrings" order="first"/>
         <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInScalacOptionsStrings" order="first"/>
 
+        <typedHandler implementation="org.jetbrains.sbt.language.completion.ScalacOptionsAutoPopupCompletionHandler" order="first"/>
+
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
