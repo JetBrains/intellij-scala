@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
-import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -662,12 +662,17 @@ object SbtDependencyUtils {
   }
 
   def getSbtFileFromBuildModule(buildModule: OpenapiModule): Option[VirtualFile] = {
-    val sbtFiles = ModuleRootManager.getInstance(buildModule)
+    val buildSbt =  ModuleRootManager.getInstance(buildModule)
+      .getContentRoots
+      .flatMap(f => f.getParent.findChild(Sbt.BuildFile).toOption)
+
+    val otherSbtFiles = ModuleRootManager.getInstance(buildModule)
       .getContentRoots
       .flatMap(f => f.getChildren.filter(_.getName.endsWith(Sbt.Extension)))
 
-    sbtFiles.find(_.getName == Sbt.BuildFile)
-      .orElse(sbtFiles.headOption)
+    buildSbt.headOption
+      .orElse(otherSbtFiles.find(_.getName == Sbt.BuildFile))
+      .orElse(otherSbtFiles.headOption)
   }
 
   /** Find the corresponding sbt build module for an sbt module */

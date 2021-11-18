@@ -160,9 +160,14 @@ object ScalaCodeFragment {
             context: PsiElement = null,
             child: PsiElement = null)
            (implicit project: Project): ScalaCodeFragment = {
+    val language = Option(context)
+      .map(_.getContainingFile.getLanguage)
+      .filter(_.isKindOf(ScalaLanguage.INSTANCE))
+      .getOrElse(ScalaLanguage.INSTANCE)
+
     val viewProvider = new SingleRootFileViewProvider(
       PsiManager.getInstance(project),
-      new LightVirtualFile("Dummy.scala", ScalaFileType.INSTANCE, text),
+      new LightVirtualFile("Dummy.scala", language, text),
       true
     )
     val fragment = new ScalaCodeFragment(viewProvider)
