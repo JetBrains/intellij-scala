@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
+import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.{ConfigurationType, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
@@ -23,12 +24,11 @@ import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.debugger._
-import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
@@ -50,7 +50,7 @@ abstract class ScalaTestingTestCase
     with ScalaSdkOwner
     with TestOutputMarkers {
 
-  protected def configurationProducer: AbstractTestConfigurationProducer[_]
+  protected def configurationProducer: RunConfigurationProducer[_]
 
   override def runInDispatchThread(): Boolean = false
 
@@ -80,13 +80,10 @@ abstract class ScalaTestingTestCase
 
   override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
     inReadAction {
-      val psiLocation = createPsiLocation(caretLocation)
-      val config1 = configurationProducer.createConfigurationFromContextLocation(psiLocation)
-      config1.map(_._2) match {
-        case Right(testConfig) => testConfig
-        case Left(error) =>
-          throw new RuntimeException(failedConfigMessage(caretLocation, error))
-      }
+      val psiElement = findPsiElement(caretLocation, getProject, srcDir)
+      val context: ConfigurationContext = new ConfigurationContext(psiElement)
+      val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
+      configurationFromContext.getConfigurationSettings
     }
 
   override protected def createTestFromPackage(packageName: String): RunnerAndConfigurationSettings =
@@ -109,14 +106,13 @@ abstract class ScalaTestingTestCase
       createTestFromDirectory(directory)
     }
 
-  private def createTestFromDirectory(directory: PsiDirectory): RunnerAndConfigurationSettings =
+  private def createTestFromDirectory(directory: PsiDirectory): RunnerAndConfigurationSettings = {
     inReadAction {
-      val result = configurationProducer.createConfigurationFromContextLocation(new PsiLocation(getProject, directory))
-      result.map(_._2) match {
-        case Right(testConfig) => testConfig
-        case Left(error)       => throw new RuntimeException(failedConfigMessage(directory.name, error))
-      }
+      val context: ConfigurationContext = new ConfigurationContext(directory)
+      val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
+      configurationFromContext.getConfigurationSettings
     }
+  }
 
   protected final def runTestFromConfig(
     runConfig: RunnerAndConfigurationSettings
@@ -127,8 +123,6 @@ abstract class ScalaTestingTestCase
     runConfig: RunnerAndConfigurationSettings,
     duration: FiniteDuration,
   ): TestRunResult = {
-    assertTrue("runConfig not instance of AbstractRunConfiguration", runConfig.getConfiguration.isInstanceOf[AbstractTestRunConfiguration])
-
     val testResultListener = new TestRunnerOutputListener(debugProcessOutput)
     val testStatusListener = new TestStatusListener
     var testTreeRoot: Option[AbstractTestProxy] = None
