@@ -13,3 +13,7 @@ trait ScEnd extends ScalaPsiElement with PsiNamedElement {
   /** @return the token that designates which element is ended by this end-element */
   def tag: PsiElement
 }
+
+object ScEnd {
+  def unapply(end: ScEnd): Option[(Option[ScBegin], ScEnd)] = Some((end.begin, end))
+}
