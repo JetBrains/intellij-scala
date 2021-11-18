@@ -25,6 +25,5 @@ trait ScBegin extends ScalaPsiElement {
 }
 
 object ScBegin {
-  /** @return begin and end keywords */
-  def unapply(begin: ScBegin): Option[(PsiElement, Option[PsiElement])] = Some((begin.keyword, begin.end.map(_.keyword)))
+  def unapply(begin: ScBegin): Option[(ScBegin, Option[ScEnd])] = Some((begin, begin.end))
 }
