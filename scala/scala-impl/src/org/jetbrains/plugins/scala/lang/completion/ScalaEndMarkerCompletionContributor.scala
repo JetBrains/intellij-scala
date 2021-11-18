@@ -347,14 +347,16 @@ object ScalaEndMarkerCompletionContributor {
         .withIcon(EmptyIcon.ICON_16)
         .withInsertHandler(new EndMarkerInsertHandler)
         .withRenderer { (_, presentation: LookupElementPresentation) =>
-          if (token.isKeyword) {
-            presentation.setItemText(endMarker)
-          } else {
-            presentation.setItemText(ScalaKeyword.END)
-            presentation.setTailText(" ")
-            presentation.appendTailText(token.specifierToken, false)
-          }
-          presentation.setItemTextBold(true)
+          if (useEndKeywordInLookupString) {
+            if (token.isKeyword) presentation.setItemText(endMarker)
+            else {
+              presentation.setItemText(ScalaKeyword.END)
+              presentation.setTailText(" ")
+              presentation.appendTailText(token.specifierToken, false)
+            }
+          } else presentation.setItemText(lookupString)
+
+          presentation.setItemTextBold(useEndKeywordInLookupString || token.isKeyword)
           token.typeHint.foreach(presentation.setTypeText)
         }
 
