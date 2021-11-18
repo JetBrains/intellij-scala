@@ -12,14 +12,13 @@ import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
-import org.jetbrains.plugins.scala.lang.psi.IndirectPsiReference.IntermediateTarget
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
-import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -106,7 +105,7 @@ trait ScalaInplaceRenameHandler {
     }.orNull
 
     val actualElementToRename = elementToRename match {
-      case IntermediateTarget(begin: ScBegin) =>
+      case Target(ScEnd(Some(begin), _)) =>
         val element = begin.tag
         if (element.is[ScNamedElement]) {
           editor.getCaretModel.moveToOffset(element.getTextOffset)
