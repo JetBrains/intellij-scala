@@ -4,6 +4,7 @@ import com.intellij.lang.documentation.{AbstractDocumentationProvider, Documenta
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.text.{HtmlBuilder, HtmlChunk}
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
@@ -40,19 +41,9 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
 
   private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {
     val builder = new HtmlBuilder
-    appendDefinition(builder, docHolder.getText)
     appendContent(builder, docHolder)
 
     builder.toString
-  }
-
-  private def appendDefinition(builder: HtmlBuilder, definitionContent: String): Unit = {
-    val definition = new HtmlBuilder()
-      .append(HtmlChunk.text(definitionContent).bold())
-      .wrapWith("pre")
-      .wrapWith(DocumentationMarkup.DEFINITION_ELEMENT)
-
-    builder.append(definition)
   }
 
   private def appendContent(builder: HtmlBuilder, docHolder: SbtScalacOptionDocHolder): Unit = {
@@ -67,20 +58,21 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
     } yield version -> defaultValue).toMap
 
     // generate details sections for each version, merge duplicates keeping insertion order
-    val detailsSectionsWithVersions = new LinkedHashMultiMap[String, ScalaLanguageLevel]
+    val detailsSectionsWithVersions = new LinkedHashMultiMap[HtmlBuilderWrapper, ScalaLanguageLevel]
     SbtScalacOptionUtils
       .projectVersionsSorted(docHolder.getProject, reverse = true)
       .foreach { version =>
         generateDetailsSections(descriptions.get(version), choices.get(version), defaultValues.get(version)).foreach { details =>
-          // HtmlChunk doesn't implement equals/hashcode so it cannot be used as a map key
-          detailsSectionsWithVersions.add(details.toString, version)
+          // HtmlBuilder doesn't implement equals/hashcode so it cannot be used as a map key
+          detailsSectionsWithVersions.add(new HtmlBuilderWrapper(details), version)
         }
       }
 
     val contentBuilder = new HtmlBuilder
     detailsSectionsWithVersions.foreach { case (details, versions) =>
-      contentBuilder.append(versions.map(_.getVersion).mkString(", "))
-        .appendRaw(details)
+      contentBuilder
+        .append(HtmlChunk.text(versions.map(_.getVersion).mkString(", ")).bold())
+        .append(details.builder)
         .br()
     }
 
@@ -90,25 +82,28 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
 
   private def generateDetailsSections(description: Option[String],
                                       choices: Option[Set[String]],
-                                      defaultValue: Option[String]): Option[HtmlChunk.Element] =
+                                      defaultValue: Option[String]): Option[HtmlBuilder] =
     (description, choices, defaultValue) match {
       case (None, None, None) => None
       case _ =>
         val sectionsBuilder = new HtmlBuilder
 
-        description.foreach(appendSection(sectionsBuilder, "Description", _))
-        choices.filter(_.nonEmpty).map(_.toList.sorted.mkString("[", ", ", "]"))
-          .foreach(appendSection(sectionsBuilder, "Choices", _))
-        defaultValue.foreach(appendSection(sectionsBuilder, "Default value", _))
+        description.foreach(appendSection(sectionsBuilder, None, _))
+        choices.filter(_.nonEmpty).map(_.toList.sorted.mkString(", "))
+          .foreach(appendSection(sectionsBuilder, "Arguments".toOption, _))
+        defaultValue.foreach(appendSection(sectionsBuilder, "Default value".toOption, _))
 
-        val sections = sectionsBuilder.wrapWith(DocumentationMarkup.SECTIONS_TABLE)
-        Some(sections)
+        Some(sectionsBuilder)
     }
 
-  private def appendSection(builder: HtmlBuilder, sectionName: String, sectionContent: String): Unit = {
-    val headerCell = DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.text(sectionName).wrapWith("p"))
+  private def appendSection(builder: HtmlBuilder, sectionName: Option[String], sectionContent: String): Unit = {
+    sectionName.foreach { name =>
+      val headerCell = DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.text(name).wrapWith("p"))
+      builder.append(HtmlChunk.tag("tr").child(headerCell))
+    }
+
     val contentCell = DocumentationMarkup.SECTION_CONTENT_CELL.addText(sectionContent)
-    builder.append(HtmlChunk.tag("tr").children(headerCell, contentCell))
+    builder.append(HtmlChunk.tag("tr").child(contentCell))
   }
 }
 
@@ -119,5 +114,16 @@ private class LinkedHashMultiMap[K, V] extends mutable.LinkedHashMap[K, Vector[V
       case None => Vector(value)
     }
     this
+  }
+}
+
+private class HtmlBuilderWrapper(val builder: HtmlBuilder) {
+  private val asString = builder.toString
+
+  override def hashCode(): Int = asString.hashCode()
+
+  override def equals(obj: Any): Boolean = obj match {
+    case wrapper: HtmlBuilderWrapper => asString == wrapper.asString
+    case _ => false
   }
 }
