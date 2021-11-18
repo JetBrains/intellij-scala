@@ -19,11 +19,11 @@ import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextAppl
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.{ScBegin, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScEnd, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
@@ -45,6 +45,7 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScClass
     with ScTypeParametersOwner
+    with ScBegin
     with ContextApplied.SyntheticElementsOwner {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ClassKeyword
@@ -192,6 +193,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ClassKeyword
+
+  override def namedTag: Option[ScNamedElement] = Some(this)
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

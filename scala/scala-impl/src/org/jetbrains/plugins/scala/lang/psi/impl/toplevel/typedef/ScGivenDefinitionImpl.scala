@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions.{Model, ObjectExt, StringsExt}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
@@ -32,7 +33,8 @@ class ScGivenDefinitionImpl(
   debugName: String
 ) extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScGivenImpl
-    with ScGivenDefinition {
+    with ScGivenDefinition
+    with ScBegin {
 
   override protected def baseIcon: Icon = Icons.CLASS // todo: better icon ?
 

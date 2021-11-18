@@ -12,8 +12,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -30,7 +31,8 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
                         debugName: String)
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScTrait
-    with ScTypeParametersOwner {
+    with ScTypeParametersOwner
+    with ScBegin {
 
   override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
 
@@ -90,6 +92,8 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.TraitKeyword
+
+  override def namedTag: Option[ScNamedElement] = Some(this)
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

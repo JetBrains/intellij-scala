@@ -18,7 +18,9 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScObjectImpl.moduleFieldName
 import org.jetbrains.plugins.scala.lang.psi.light.{EmptyPrivateConstructor, PsiClassWrapper, ScLightField}
@@ -38,7 +40,8 @@ class ScObjectImpl(
   node:      ASTNode,
   debugName: String
 ) extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
-    with ScObject {
+    with ScObject
+  with ScBegin {
 
   override protected def targetTokenType: ScalaTokenType = ScalaTokenType.ObjectKeyword
 
@@ -194,6 +197,8 @@ class ScObjectImpl(
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ObjectKeyword
+
+  override def namedTag: Option[ScNamedElement] = Some(this)
 
   override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }

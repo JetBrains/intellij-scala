@@ -134,8 +134,4 @@ final class ScEnumCaseImpl(
   override protected def targetTokenType: ScalaTokenType = kCASE
 
   override protected def baseIcon: Icon = icons.Icons.CLASS; // TODO add an icon
-
-  override protected def keywordTokenType: IElementType = ScalaTokenTypes.kCASE
-
-  override protected def endParent: Option[PsiElement] = extendsBlock.templateBody
 }
