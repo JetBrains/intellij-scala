@@ -163,7 +163,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "new",
-    presentationText = "end new",
+    presentationText = "new",
     typeText = "C"
   )
 
@@ -270,7 +270,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "C",
-    presentationText = "end C"
+    presentationText = "C"
   )
 
   def testEmptyClass(): Unit = checkLookupElement(
@@ -363,7 +363,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "T",
-    presentationText = "end T"
+    presentationText = "T"
   )
 
   def testEmptyTrait(): Unit = checkLookupElement(
@@ -456,7 +456,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "O",
-    presentationText = "end O"
+    presentationText = "O"
   )
 
   def testEmptyObject(): Unit = checkLookupElement(
@@ -549,7 +549,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "E",
-    presentationText = "end E"
+    presentationText = "E"
   )
 
   def testEmptyEnum(): Unit = checkLookupElement(
@@ -654,7 +654,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |  $CARET
          |""".stripMargin,
     lookupStr = "this",
-    presentationText = "end this"
+    presentationText = "this"
   )
 
   def testNoCompletionForConstructorWithoutBody(): Unit = checkNoCompletionFor(
@@ -772,7 +772,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "v",
-    presentationText = "end v"
+    presentationText = "v"
   )
 
   def testNoCompletionForValueWithOneLinerBody(): Unit = checkNoCompletion(
@@ -876,7 +876,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "v",
-    presentationText = "end v"
+    presentationText = "v"
   )
 
   def testNoCompletionForVariableWithOneLinerBody(): Unit = checkNoCompletion(
@@ -980,7 +980,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "val",
-    presentationText = "end val"
+    presentationText = "val"
   )
 
   def testNoCompletionForValueBindingWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1128,7 +1128,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "given",
-    presentationText = "end given"
+    presentationText = "given"
   )
 
   def testNoCompletionForAnonymousGivenAliasWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1222,7 +1222,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "someGiven",
-    presentationText = "end someGiven"
+    presentationText = "someGiven"
   )
 
   def testNoCompletionForGivenAliasWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1307,7 +1307,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "given",
-    presentationText = "end given"
+    presentationText = "given"
   )
 
   def testNoCompletionForAnonymousGivenDefinitionWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1384,7 +1384,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "intOrd",
-    presentationText = "end intOrd"
+    presentationText = "intOrd"
   )
 
   def testNoCompletionForGivenDefinitionWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1482,7 +1482,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "extension",
-    presentationText = "end extension"
+    presentationText = "extension"
   )
 
   def testNoCompletionForExtensionWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1548,7 +1548,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "extension",
-    presentationText = "end extension"
+    presentationText = "extension"
   )
 
   def testNoCompletionForMultilineExtensionFunctionOnTheSameLine(): Unit = checkNoCompletionFor(
@@ -1653,7 +1653,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "largeMethod",
-    presentationText = "end largeMethod"
+    presentationText = "largeMethod"
   )
 
   def testNoCompletionForFunctionWithOneLinerBody(): Unit = checkNoCompletion(
@@ -1745,7 +1745,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "p3",
-    presentationText = "end p3"
+    presentationText = "p3"
   )
 
   def testNoCompletionForNonExplicitPackage(): Unit = checkNoCompletion(
@@ -1912,7 +1912,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "if",
-    presentationText = "end if"
+    presentationText = "if"
   )
 
   def testNoCompletionForIfWithBraces1(): Unit = checkNoCompletion(
@@ -2075,7 +2075,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "while",
-    presentationText = "end while"
+    presentationText = "while"
   )
 
   def testNoCompletionForWhileWithOneLinerBody(): Unit = checkNoCompletion(
@@ -2226,7 +2226,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "for",
-    presentationText = "end for"
+    presentationText = "for"
   )
 
   def testNoCompletionForForWithOneLinerBody(): Unit = checkNoCompletion(
@@ -2515,7 +2515,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "try",
-    presentationText = "end try"
+    presentationText = "try"
   )
 
   def testNoCompletionForTryWithOneLinerBlocks(): Unit = checkNoCompletion(
@@ -2647,7 +2647,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
          |$CARET
          |""".stripMargin,
     lookupStr = "match",
-    presentationText = "end match"
+    presentationText = "match"
   )
 
   def testNoCompletionForMatchWithOneLinerCaseClauses(): Unit = checkNoCompletion(

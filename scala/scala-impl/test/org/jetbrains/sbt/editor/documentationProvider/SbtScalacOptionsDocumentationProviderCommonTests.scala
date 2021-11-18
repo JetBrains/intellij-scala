@@ -16,26 +16,26 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
 
   private def expectedDocumentation(langLevel: ScalaLanguageLevel, flag: String, description: String,
                                     choices: Set[String] = Set.empty, defaultValue: Option[String] = None): String = {
-    def section(name: String, content: String) =
-      HtmlChunk.tag("tr").children(
-        DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.p().addText(name)),
-        DocumentationMarkup.SECTION_CONTENT_CELL.addText(content)
-      )
+    def sectionHeader(name: String) =
+      HtmlChunk.tag("tr").child(DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.p().addText(name)))
 
-    val descriptionSection = Option(section("Description", description))
-    val choicesSection =
-      Option.when(choices.nonEmpty)(section("Choices", choices.toList.sorted.mkString("[", ", ", "]")))
-    val defaultValueSection = defaultValue.map(section("Default value", _))
-    val sections = Seq(descriptionSection, choicesSection, defaultValueSection).flatten
+    def sectionContent(content: String) =
+      HtmlChunk.tag("tr").child(DocumentationMarkup.SECTION_CONTENT_CELL.addText(content))
 
-    val definition = DocumentationMarkup.DEFINITION_ELEMENT.child(HtmlChunk.tag("pre").child(HtmlChunk.text(flag).bold()))
-    val content = DocumentationMarkup.CONTENT_ELEMENT.children(
-      HtmlChunk.text(langLevel.getVersion),
-      DocumentationMarkup.SECTIONS_TABLE.children(sections: _*),
-      HtmlChunk.br()
-    )
+    val sections = Seq(
+      Some(sectionContent(description)),
+      Option.when(choices.nonEmpty)(sectionHeader("Arguments")),
+      Option.when(choices.nonEmpty)(sectionContent(choices.toList.sorted.mkString(", "))),
+      defaultValue.map(_ => sectionHeader("Default value")),
+      defaultValue.map(sectionContent)
+    ).flatten
 
-    definition.toString + content.toString
+    val content = DocumentationMarkup.CONTENT_ELEMENT
+      .child(HtmlChunk.text(langLevel.getVersion).bold())
+      .children(sections: _*)
+      .child(HtmlChunk.br())
+
+    content.toString
   }
 
   private lazy val DEPRECATION_DOC = {

@@ -46,6 +46,31 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
   private val CLASS_STR_TO_TYPE = "class"
   private val CLASS_CONTAINING_FLAGS = Seq("-bootclasspath", "-classpath", "-Ydump-classes")
 
+  def testAutoPopupInScalacOptionsString_OnQuote(): Unit = doTest("\"", CLASS_CONTAINING_FLAGS) {
+    s"""scalacOptions += $CARET
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_OnFirstDash(): Unit = doTest("-", CLASS_CONTAINING_FLAGS) {
+    s"""scalacOptions += "$CARET"
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_OnSecondDash(): Unit = doTest("-", CLASS_CONTAINING_FLAGS) {
+    s"""scalacOptions += "-$CARET"
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_Negative_OnThirdDash(): Unit = doTestNoAutoCompletion("-") {
+    s"""scalacOptions += "--$CARET"
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_Negative_OnDashAfterSomeText(): Unit = doTestNoAutoCompletion("-") {
+    s"""scalacOptions += "hmmm$CARET"
+       |""".stripMargin
+  }
+
   def testAutoPopupInScalacOptionsString_AfterDash(): Unit = doTest(CLASS_STR_TO_TYPE, CLASS_CONTAINING_FLAGS) {
     s"""scalacOptions += "-$CARET"
        |""".stripMargin
