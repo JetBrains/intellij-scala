@@ -29,7 +29,7 @@ object Scala3Disclaimer {
     if (ApplicationManager.getApplication.isUnitTestMode)
       return // otherwise, it can lead to project leaks in tests
 
-    if (!isShownIn(project) && project.hasScala3) {
+    if (!isShownIn(project) && project.hasScala3 && !ScalaPluginUpdater.pluginIsNightly) {
       showDisclaimerIn(project,
         ScalaBundle.message("scala.3.support.is.experimental"),
         configureUpdatesActionIn(project))
