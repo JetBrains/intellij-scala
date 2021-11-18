@@ -132,6 +132,7 @@ object ComparingUnrelatedTypesInspection {
 class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionName) {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+    case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
       // "blub" == 3
       val needHighlighting = oper.resolve() match {
