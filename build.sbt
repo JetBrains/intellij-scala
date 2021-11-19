@@ -113,7 +113,6 @@ lazy val traceLogger = newProject(
   file("scala/traceLogger")
 ).settings(
   libraryDependencies ++= DependencyGroups.traceLogger,
-  libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler),
   Compile / scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",

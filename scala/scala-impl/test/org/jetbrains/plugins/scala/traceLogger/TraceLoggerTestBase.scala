@@ -12,7 +12,7 @@ abstract class TraceLoggerTestBase extends TestCase {
   def doTest(expectedLog: String)(body: => Unit): Unit = {
     val logger = new WriteToStringLogger
     try {
-      TraceLogger.runWithTraceLogger("run-test", _ => logger)(body)
+      TraceLog.runWithTraceLogger("run-test", _ => logger)(body)
     } catch {
       case e: NonLocalReturnControl[_] =>
         throw new AssertionError("Test used return to jump out of testing method!", e)
@@ -25,7 +25,7 @@ abstract class TraceLoggerTestBase extends TestCase {
 }
 
 object TraceLoggerTestBase {
-  class WriteToStringLogger extends TraceLogger {
+  class WriteToStringLogger extends TraceLogWriter {
     private val buffer = new StringBuilder
     private var indent = 0
 
@@ -39,7 +39,7 @@ object TraceLoggerTestBase {
         buffer += ')'
       }
 
-      buffer ++= System.lineSeparator()
+      buffer ++= "\n"
     }
 
     override def log(msg: String, values: Seq[(String, Data)], st: StackTrace): Unit =
