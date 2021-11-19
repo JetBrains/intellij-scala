@@ -10,33 +10,36 @@ import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotatio
 import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.RemoveCaseFromPatternedEnumeratorFix
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScFor, ScGenerator}
 
 import scala.math.Ordering.Implicits._
 
-object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
+object ScForAnnotator extends ElementAnnotator[ScFor] {
 
-  override def annotate(element: ScGenerator, typeAware: Boolean)
+  override def annotate(scFor: ScFor, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    checkGenerator(element, typeAware)
+    val generators = scFor.enumerators.toSeq.flatMap(_.generators)
+    generators.foreach { generator =>
+      checkGenerator(generator, typeAware)
 
-    element.valKeyword.foreach { valKeyword =>
-      holder.createWarningAnnotation(
-        valKeyword,
-        ScalaBundle.message("enumerators.generator.val.keyword.found"),
-        ProblemHighlightType.GENERIC_ERROR,
-        new RemoveValFromGeneratorIntentionAction(element)
-      )
-    }
-
-    if (!element.features.`case in pattern bindings`) {
-      element.caseKeyword.foreach { caseKeyword =>
+      generator.valKeyword.foreach { valKeyword =>
         holder.createWarningAnnotation(
-          caseKeyword,
-          ScalaBundle.message("for.pattern.bindings.require.scala3"),
+          valKeyword,
+          ScalaBundle.message("enumerators.generator.val.keyword.found"),
           ProblemHighlightType.GENERIC_ERROR,
-          new RemoveCaseFromPatternedEnumeratorFix(element)
+          new RemoveValFromGeneratorIntentionAction(generator)
         )
+      }
+
+      if (!generator.features.`case in pattern bindings`) {
+        generator.caseKeyword.foreach { caseKeyword =>
+          holder.createWarningAnnotation(
+            caseKeyword,
+            ScalaBundle.message("for.pattern.bindings.require.scala3"),
+            ProblemHighlightType.GENERIC_ERROR,
+            new RemoveCaseFromPatternedEnumeratorFix(generator)
+          )
+        }
       }
     }
   }

@@ -29,8 +29,8 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScConstructorInvocationAnnotator ::
       ScExpressionAnnotator ::
       ScEnumeratorsAnnotator ::
+      ScForAnnotator ::
       ScForBindingAnnotator ::
-      ScGeneratorAnnotator ::
       ScGenericCallAnnotator ::
       ScImportExprAnnotator ::
       ScInterpolatedStringLiteralAnnotator ::
