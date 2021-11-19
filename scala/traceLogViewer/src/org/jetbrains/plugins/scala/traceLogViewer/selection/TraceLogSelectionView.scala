@@ -13,7 +13,7 @@ import com.intellij.ui.table.TableView
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogView
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
+import org.jetbrains.plugins.scala.traceLogger.TraceLog
 
 import java.awt.BorderLayout
 import java.awt.event.{HierarchyEvent, MouseAdapter, MouseEvent}
@@ -89,7 +89,7 @@ object TraceLogSelectionView {
       val selectedFiles = FileChooser.chooseFiles(
         new FileTypeDescriptor(NlsString.force("Select log file"), "log", "txt", "json"),
           null,
-          VfsUtil.findFile(TraceLogger.loggerOutputPath, true
+          VfsUtil.findFile(TraceLog.loggerOutputPath, true
         )
       )
 
@@ -104,7 +104,7 @@ object TraceLogSelectionView {
     getTemplatePresentation.setIcon(AllIcons.Actions.GC)
 
     override def actionPerformed(e: AnActionEvent): Unit = {
-      val dir = TraceLogger.loggerOutputPath
+      val dir = TraceLog.loggerOutputPath
       Files.list(dir)
         .forEach(Files.delete(_))
       refresh()

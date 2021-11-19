@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.traceLogViewer.selection
 
 import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.extensions.*
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
+import org.jetbrains.plugins.scala.traceLogger.TraceLog
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import java.io.IOException
@@ -11,7 +11,7 @@ import scala.concurrent.duration.DurationInt
 
 object LogDirWatcher {
   private val REFRESH_DELAY = 1.second
-  private val dir = TraceLogger.loggerOutputPath
+  private val dir = TraceLog.loggerOutputPath
   private val LOG = Logger.getInstance(getClass)
   private var service: Option[WatchService] = None
   private val refreshTimer = new LastTaskTimer

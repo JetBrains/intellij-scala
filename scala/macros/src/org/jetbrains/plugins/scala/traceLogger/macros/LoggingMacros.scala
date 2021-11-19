@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala.traceLogger
-package macros
+package org.jetbrains.plugins.scala.traceLogger.macros
 
 import scala.language.experimental.macros
 
@@ -29,8 +28,8 @@ object LoggingMacros {
   private final case class InContext[Ctx <: Context](c: Ctx) {
     import c.universe._
 
-    private val traceLoggerFqn: Tree =
-      q"_root_.org.jetbrains.plugins.scala.traceLogger.TraceLogger"
+    private val traceLogFqn: Tree =
+      q"_root_.org.jetbrains.plugins.scala.traceLogger.TraceLog"
 
     private val toDataFqn: Tree =
       q"_root_.org.jetbrains.plugins.scala.traceLogger.ToData"
@@ -115,31 +114,31 @@ object LoggingMacros {
     private def inActiveIf[T: WeakTypeTag](inner: c.Expr[T]): c.Expr[T] = {
       c.Expr[T](
         q"""
-          if ($traceLoggerFqn.isActiveInAtLeastOneThread) {
+          if ($traceLogFqn.isActiveInAtLeastOneThread) {
             $inner
           }
         """)
     }
 
-    private def convertExprToData(v: Tree, ty: Type): c.Expr[ValueDesc] =
+    private def convertExprToData(v: Tree, ty: Type): c.Expr[_] =
       convertExprToData(textOfExpr(v), v, ty)
 
-    private def convertExprToData(name: String, v: Tree, ty: Type): c.Expr[ValueDesc] =
+    private def convertExprToData(name: String, v: Tree, ty: Type): c.Expr[_] =
       c.Expr(q"""($name, ${toData(v, ty)})""")
 
-    private def convertExpressionsToData(v: Seq[c.Expr[Any]]): c.Expr[Seq[ValueDesc]] = {
+    private def convertExpressionsToData(v: Seq[c.Expr[Any]]): c.Expr[Seq[_]] = {
       assert(v.forall(_.actualType != null))
       c.Expr(q"Seq(..${v.map(e => convertExprToData(e.tree, e.actualType))})")
     }
 
-    private def enclosingStart(msg: c.Expr[String], data: c.Expr[Seq[ValueDesc]]): c.Expr[Unit] =
-      c.Expr[Unit](q"$traceLoggerFqn.inst.startEnclosing($msg, $data, $stackTrace)")
+    private def enclosingStart(msg: c.Expr[String], data: c.Expr[Seq[_]]): c.Expr[Unit] =
+      c.Expr[Unit](q"$traceLogFqn.inst.startEnclosing($msg, $data, $stackTrace)")
 
     private def success(result: Tree, ty: Type): c.Expr[Unit] =
-      c.Expr[Unit](q"$traceLoggerFqn.inst.enclosingSuccess(${toData(result, ty)}, $stackTrace)")
+      c.Expr[Unit](q"$traceLogFqn.inst.enclosingSuccess(${toData(result, ty)}, $stackTrace)")
 
     private def fail(e: Tree): c.Expr[Unit] =
-      c.Expr[Unit](q"$traceLoggerFqn.inst.enclosingFail($e, $stackTrace)")
+      c.Expr[Unit](q"$traceLogFqn.inst.enclosingFail($e, $stackTrace)")
 
     private def enclosing[T](body: c.Expr[T])(implicit ttag: WeakTypeTag[T]): c.Expr[T] = {
       val resultType = ttag.tpe
@@ -170,7 +169,7 @@ object LoggingMacros {
 
     def logImpl(msg: c.Expr[String], args: Seq[c.Expr[Any]]): c.Expr[Unit] = {
       val logExpr = c.Expr[Unit](
-        q"$traceLoggerFqn.inst.log($msg, ${convertExpressionsToData(args)}, $stackTrace)"
+        q"$traceLogFqn.inst.log($msg, ${convertExpressionsToData(args)}, $stackTrace)"
       )
 
       inActiveIf(logExpr)
@@ -190,7 +189,7 @@ object LoggingMacros {
       }
       val method = enclosingMethod(owner).get
 
-      def convertUntypedTree(name: String, tree: Tree): c.Expr[ValueDesc] = {
+      def convertUntypedTree(name: String, tree: Tree): c.Expr[_] = {
         val typed = c.typecheck(tree)
         convertExprToData(name, typed, typed.tpe)
       }
@@ -203,7 +202,7 @@ object LoggingMacros {
       }
 
       val params = thisDesc ++ method.paramLists.flatten.map(param => convertUntypedTree(param.name.toString, q"$param"))
-      val paramsSeq = c.Expr[Seq[ValueDesc]](q"Seq(..$params)")
+      val paramsSeq = c.Expr[Seq[_]](q"Seq(..$params)")
       val emptyMessage = c.Expr[String](q"null")
       c.Expr[T](q"""
         ${inActiveIf(enclosingStart(emptyMessage, paramsSeq))}

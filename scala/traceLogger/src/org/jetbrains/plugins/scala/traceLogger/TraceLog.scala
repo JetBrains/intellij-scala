@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.traceLogger
 
-import org.jetbrains.plugins.scala.traceLogger.macros.LoggingMacros
 import org.jetbrains.plugins.scala.traceLogger.protocol._
 
 import java.io.FileWriter
@@ -8,7 +7,7 @@ import java.nio.file.{Files, Path, Paths}
 import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.tailrec
 
-abstract class TraceLogger {
+abstract class TraceLogWriter {
   def log(msg: String, values: Seq[ValueDesc], st: StackTrace): Unit
   def startEnclosing(msg: String, args: Seq[ValueDesc], st: StackTrace): Unit
   def enclosingSuccess(result: Data, st: StackTrace): Unit
@@ -17,16 +16,16 @@ abstract class TraceLogger {
   def close(): Unit = ()
 }
 
-object TraceLogger extends LoggingMacros {
+object TraceLog {
   private val activeLoggers = new AtomicInteger
-  private val loggers = ThreadLocal.withInitial[TraceLogger](() => NoOpLogger)
+  private val loggers = ThreadLocal.withInitial[TraceLogWriter](() => NoOpLogger)
 
   def isActiveInAtLeastOneThread: Boolean = activeLoggers.get() > 0
 
-  def inst: TraceLogger = loggers.get()
+  def inst: TraceLogWriter = loggers.get()
 
-  def runWithTraceLogger[T](topic: String, createTraceLogger: String => TraceLogger = TraceLogger.createTraceLogger)(body: => T): T = {
-    val logger = createTraceLogger(topic)
+  def runWithTraceLogger[T](topic: String, logWriter: String => TraceLogWriter = TraceLog.createTraceLogWriter)(body: => T): T = {
+    val logger = logWriter(topic)
     try {
       loggers.set(logger)
       activeLoggers.incrementAndGet()
@@ -44,7 +43,7 @@ object TraceLogger extends LoggingMacros {
     temp.resolve("intellij-scala-trace-logger")
   }
 
-  private def createTraceLogger(topic: String): TraceLogger = this.synchronized {
+  private def createTraceLogWriter(topic: String): TraceLogWriter = this.synchronized {
     val thread = Thread.currentThread()
     val dir = loggerOutputPath
     val ext = ".log"
@@ -68,14 +67,14 @@ object TraceLogger extends LoggingMacros {
     new FileWritingTraceLogger(writer)
   }
 
-  private object NoOpLogger extends TraceLogger {
+  private object NoOpLogger extends TraceLogWriter {
     override def log(msg: String, values: Seq[ValueDesc], st: StackTrace): Unit = ()
     override def startEnclosing(msg: String, args: Seq[ValueDesc], st: StackTrace): Unit = ()
     override def enclosingSuccess(result: Data, st: StackTrace): Unit = ()
     override def enclosingFail(exception: Throwable, st: StackTrace): Unit = ()
   }
 
-  class FileWritingTraceLogger(writer: java.io.Writer) extends TraceLogger {
+  class FileWritingTraceLogger(writer: java.io.Writer) extends TraceLogWriter {
     private[this] var prevCallStack: StackTrace = Array.empty
 
     /**

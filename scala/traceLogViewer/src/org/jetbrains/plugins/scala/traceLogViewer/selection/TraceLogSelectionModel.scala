@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.traceLogViewer.selection
 
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import org.jetbrains.plugins.scala.traceLogger.TraceLogger
+import org.jetbrains.plugins.scala.traceLogger.TraceLog
 
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, Path}
@@ -25,7 +25,7 @@ private object TraceLogSelectionModel extends ListTableModel[Entry](Entry.nameCo
   }
 
   private def listEntries(): Seq[Entry] = {
-    val paths = Try(Files.list(TraceLogger.loggerOutputPath).toScala(Seq))
+    val paths = Try(Files.list(TraceLog.loggerOutputPath).toScala(Seq))
       .getOrElse(Seq.empty)
     for (path <- paths) yield {
       val attr = Try(Files.readAttributes(path, classOf[BasicFileAttributes])).toOption
