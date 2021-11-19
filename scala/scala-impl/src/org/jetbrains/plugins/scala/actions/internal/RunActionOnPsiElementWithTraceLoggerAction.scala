@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ReferenceExpressionResolver
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.traceLogger.ToData.{Raw => RawData}
-import org.jetbrains.plugins.scala.traceLogger.{ToData, TraceLogger}
+import org.jetbrains.plugins.scala.traceLogger.{ToData, TraceLog, TraceLogger}
 
 import scala.collection.immutable.ArraySeq
 
@@ -51,7 +51,7 @@ class RunActionOnPsiElementWithTraceLoggerAction extends AnAction(
   }
 
   private def run(action: Action)(implicit project: Project): Unit = {
-    TraceLogger.runWithTraceLogger(action.id) {
+    TraceLog.runWithTraceLogger(action.id) {
       TraceLogger.log("Clear all caches...")
       ScalaPsiManager.instance(project).clearAllCachesAndWait()
       TraceLogger.log("Caches cleared. ")
