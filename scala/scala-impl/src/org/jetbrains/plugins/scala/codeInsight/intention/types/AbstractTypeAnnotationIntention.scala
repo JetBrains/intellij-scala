@@ -40,7 +40,7 @@ object AbstractTypeAnnotationIntention {
   private def adjustElementAtOffset(element: PsiElement, editor: Editor): PsiElement =
     ScalaPsiUtil.adjustElementAtOffset(element, editor.getCaretModel.getOffset)
 
-  private[types] def functionParent(element: PsiElement): Option[ScFunctionDefinition] =
+  def functionParent(element: PsiElement): Option[ScFunctionDefinition] =
     for {
       function <- element.parentsInFile.findByType[ScFunctionDefinition]
       if function.hasAssign
@@ -48,7 +48,7 @@ object AbstractTypeAnnotationIntention {
       if !body.isAncestorOf(element)
     } yield function
 
-  private[types] def valueParent(element: PsiElement): Option[ScPatternDefinition] =
+  def valueParent(element: PsiElement): Option[ScPatternDefinition] =
     for {
       value <- element.parentsInFile.findByType[ScPatternDefinition]
       if value.expr.forall(!_.isAncestorOf(element))
@@ -56,7 +56,7 @@ object AbstractTypeAnnotationIntention {
       if value.bindings.size == 1
     } yield value
 
-  private[types] def variableParent(element: PsiElement): Option[ScVariableDefinition] =
+  def variableParent(element: PsiElement): Option[ScVariableDefinition] =
     for {
       variable <- element.parentsInFile.findByType[ScVariableDefinition]
       if variable.expr.forall(!_.isAncestorOf(element))

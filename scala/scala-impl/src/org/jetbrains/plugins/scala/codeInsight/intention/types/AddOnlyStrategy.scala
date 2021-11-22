@@ -99,11 +99,9 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
   }
 
   def addTypeAnnotation(types: Seq[TypeForAnnotation], context: PsiElement, anchor: PsiElement): Unit = {
-    assert(types.nonEmpty)
-    val tps = types.flatMap(_.typeWithSuperTypes)
-    val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText(_)(context))
-
-    val added = addActualType(tps.head, anchor)
+    val TypeAnnotationWithVariants(annotation, validVariants) =
+      typeAnnotationWithVariants(types, context).getOrElse(return)
+    val added = addActualType(annotation, anchor)
 
     editor match {
       case Some(e) if validVariants.size > 1 =>
@@ -128,8 +126,26 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
         }
     }
   }
+}
 
-  private def typesForMember(element: ScMember): Seq[TypeForAnnotation] = {
+object AddOnlyStrategy {
+  case class TypeForAnnotation(ty: ScType, addSuperTypes: Boolean = true) {
+    def typeWithSuperTypes: Seq[ScTypeElement] =
+      if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty)
+      else Seq(createTypeElementFromText(ty.canonicalCodeText)(ty.projectContext))
+  }
+
+  case class TypeAnnotationWithVariants(annotation: ScTypeElement, validVariants: Seq[ScTypeText])
+
+  def typeAnnotationWithVariants(types: Seq[TypeForAnnotation], context: PsiElement): Option[TypeAnnotationWithVariants] = {
+    val tps = types.flatMap(_.typeWithSuperTypes)
+    tps.headOption.map { typeElement =>
+      val validVariants = tps.reverse.flatMap(_.`type`().toOption).map(ScTypeText(_)(context))
+      TypeAnnotationWithVariants(typeElement, validVariants)
+    }
+  }
+
+  def typesForMember(element: ScMember): Seq[TypeForAnnotation] = {
 
     def signatureType(sign: TermSignature): Option[ScType] = {
       val substitutor = sign.substitutor
@@ -203,14 +219,6 @@ class AddOnlyStrategy(editor: Option[Editor] = None) extends Strategy {
         Seq(TypeForAnnotation(StdTypes.instance.Any))
       case oneOrBoth => oneOrBoth
     }
-  }
-}
-
-object AddOnlyStrategy {
-  case class TypeForAnnotation(ty: ScType, addSuperTypes: Boolean = true) {
-    def typeWithSuperTypes: Seq[ScTypeElement] =
-      if (addSuperTypes) AddOnlyStrategy.annotationsFor(ty)
-      else Seq(createTypeElementFromText(ty.canonicalCodeText)(ty.projectContext))
   }
 
   def addActualType(annotation: ScTypeElement, anchor: PsiElement): PsiElement = {
