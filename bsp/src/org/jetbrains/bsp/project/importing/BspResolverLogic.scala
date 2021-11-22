@@ -1,6 +1,6 @@
 package org.jetbrains.bsp.project.importing
 
-import ch.epfl.scala.bsp4j.{BuildTargetTag, _}
+import ch.epfl.scala.bsp4j._
 import com.google.gson.{Gson, JsonElement}
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
@@ -9,23 +9,23 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
-
-import java.io.File
-import java.net.URI
-import java.nio.file.Paths
-import java.util.Collections
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleNode}
 import org.jetbrains.sbt.project.module.SbtModuleType
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.net.URI
+import java.nio.file.Paths
+import java.util.Collections
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 private[importing] object BspResolverLogic {
 
@@ -168,9 +168,15 @@ private[importing] object BspResolverLogic {
     // merge modules with the same module base
     val (noBase, withBase) = moduleDescriptions.partition(_.data.basePath.isEmpty)
     val mergedBase = withBase.groupBy(_.data.basePath).values.map(mergeModules)
-    val modules = noBase ++ mergedBase
+    val modules: Seq[ModuleDescription] = noBase ++ mergedBase
 
-    ProjectModules(modules, syntheticSourceModules)
+    val (sbtBuildModules, ordinaryModules) =
+      modules.partition(_.moduleKindData.is[BspResolverDescriptors.SbtModule])
+
+    //First register "non-build" modules and then register "build" modules
+    //This is just in case there are any unexpected duplicated content roots issues.
+    //We want normal modules to work properly (see e.g. SCL-19673)
+    ProjectModules(ordinaryModules ++ sbtBuildModules, syntheticSourceModules)
   }
 
   private def sharedSourceDirs(idToSources: Map[BuildTargetIdentifier, Seq[SourceDirectory]]): Map[SourceDirectory, Seq[BuildTargetIdentifier]] = {
@@ -188,7 +194,7 @@ private[importing] object BspResolverLogic {
   private def sourceDirectories(sourcesItem: SourcesItem): Seq[SourceDirectory] = {
     val sourceItems: Seq[SourceItem] = sourcesItem.getSources.asScala.iterator.distinct.toSeq
 
-    sourceItems
+    val directories = sourceItems
       .map { item =>
         val packagePrefix = findPackagePrefix(sourcesItem, item.getUri)
         val file = item.getUri.toURI.toFile
@@ -200,7 +206,7 @@ private[importing] object BspResolverLogic {
         // IntelliJ project model doesn't have a concept of individual source files
           SourceDirectory(file.getParentFile, item.getGenerated, packagePrefix)
       }
-      .distinct
+    directories.distinct
   }
 
   private def findPackagePrefix(sourcesItem: SourcesItem, sourceUri: String): Option[String] = {
@@ -221,9 +227,31 @@ private[importing] object BspResolverLogic {
     else SourceDirectory(file.getParentFile, generated, None)
   }
 
-  private def filterRoots(dirs: Seq[SourceDirectory]) = dirs.filter { dir =>
-    ! dirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
-  }
+  /**
+   * @return list of directories from `dirs` which are not child directories of any other directory in `dirs`<br>
+   * @note in IntelliJ all subdirectories of a source directory are automatically source dirs<br>
+   *       So there is no need to register child directories as source directories.
+   * @example {{{
+   * input:
+   *    basePath1
+   *    basePath1/src/main/scala
+   *    basePath1/src/main/scala-2.12
+   *    basePath1/src/main/scala-2
+   *    basePath1/src/main/java
+   *    basePath1/src/main/scala-sbt-1.0
+   *    basePath1/target/scala-2.12/sbt-1.0/src_managed/main
+   *    basePath2
+   *    basePath2/src/main/scala
+   *    basePath2/src/main/scala-2.12
+   *  output:
+   *    basePath1
+   *    basePath2
+   * }}}
+   */
+  private def excludeChildDirectories(dirs: Seq[SourceDirectory]) =
+    dirs.filter { dir =>
+      !dirs.exists(a => FileUtil.isAncestor(a.directory, dir.directory, true))
+    }
 
   private[importing] def moduleDescriptionForTarget(target: BuildTarget,
                                                     scalacOptions: Option[ScalacOptionsItem],
@@ -233,8 +261,7 @@ private[importing] object BspResolverLogic {
                                                     resourceDirs: Seq[SourceDirectory],
                                                     dependencyOutputs: Seq[File]
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
-
-    val moduleBase = Option(target.getBaseDirectory).map(_.toURI.toFile)
+    val moduleBaseDir: Option[File] = Option(target.getBaseDirectory).map(_.toURI.toFile)
     val outputPath =
       scalacOptions.map(_.getClassDirectory.toURI.toFile)
         .orElse(javacOptions.map(_.getClassDirectory.toURI.toFile))
@@ -253,7 +280,7 @@ private[importing] object BspResolverLogic {
       .flatMap(_.getOptions.asScala.dropWhile(_ != "-source").drop(1).headOption)
       .map(LanguageLevel.parse)
       .flatMap(Option(_))
-    val moduleKind = targetData.flatMap { _ =>
+    val moduleKind: Option[ModuleKind] = targetData.flatMap { _ =>
       target.getDataKind match {
         case BuildTargetDataKind.JVM =>
           targetData.flatMap(extractJdkData)
@@ -272,9 +299,50 @@ private[importing] object BspResolverLogic {
       }
     }
 
-    val moduleDescriptionData = createModuleDescriptionData(
-      target, tags.toSeq, moduleBase, outputPath, sourceDirs, resourceDirs,
-      classPathWithoutDependencyOutputs, dependencySourceDirs, langLevel)
+    /**
+     * Do not mark project root as a content root for "build" modules.
+     *
+     * NOTE: for "build" modules BSP reports project root as one of the source directories<br>
+     * While it's technically true (project root contains e.g. `build.sbt`), we can't register it as a content root
+     * because it already belongs to the "main" ("non-build") module.
+     * IntelliJ will remove duplicated content roots:<br>
+     * (see [[com.intellij.openapi.externalSystem.service.project.manage.ContentRootDataService.filterAndReportDuplicatingContentRoots]])
+     *
+     * We could workaround this by first registering non-build modules and then build modules.
+     * This would work, but still users would get an annoying notification "Duplicated content roots found" for "build" modules.
+     *
+     * @note though `build.sbt` file is not located in the "build" module content root (but in the main module content root)
+     *       we have several workarounds to substitute the correct "build" module<br>
+     *       Examples:
+     *       - [[org.jetbrains.plugins.scala.project.findBuildModule]]
+     *       - [[org.jetbrains.sbt.language.SbtFileImpl.targetModule]]
+     */
+    val (sourceDirsFiltered1, resourceDirsFiltered1) = (moduleBaseDir, moduleKind) match {
+      case (Some(baseDir), Some(_: BspResolverDescriptors.SbtModule)) =>
+        (
+          sourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false)),
+          resourceDirs.filter(f => FileUtil.isAncestor(baseDir, f.directory, false))
+        )
+      case _ =>
+        (sourceDirs, resourceDirs)
+    }
+
+    val (sourceDirsFiltered2, resourceDirsFiltered2) = (
+      excludeChildDirectories(sourceDirsFiltered1),
+      excludeChildDirectories(resourceDirsFiltered1)
+    )
+
+    val moduleDescriptionData: ModuleDescriptionData = createModuleDescriptionData(
+      target = target,
+      tags = tags.toSeq,
+      moduleBase = moduleBaseDir,
+      outputPath = outputPath,
+      sourceRoots = sourceDirsFiltered2,
+      resourceRoots = resourceDirsFiltered2,
+      classPath = classPathWithoutDependencyOutputs,
+      dependencySources = dependencySourceDirs,
+      languageLevel = langLevel
+    )
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
     else Option(ModuleDescription(moduleDescriptionData, moduleKind.getOrElse(UnspecifiedModule())))
@@ -506,7 +574,7 @@ private[importing] object BspResolverLogic {
           }
         }
 
-    def toModuleNode(moduleDescription: ModuleDescription) =
+    def toModuleNode(moduleDescription: ModuleDescription): DataNode[ModuleData] =
       createModuleNode(projectRootPath, moduleFileDirectoryPath, moduleDescription, projectNode, projectLibraryDependencies)
 
     val idsToTargetModule: Seq[(Seq[TargetId], DataNode[ModuleData])] =
@@ -586,7 +654,7 @@ private[importing] object BspResolverLogic {
 
     val moduleDescriptionData = moduleDescription.data
 
-    val moduleBase = moduleDescriptionData.basePath.map { path =>
+    val moduleBase: Option[ContentRootData] = moduleDescriptionData.basePath.map { path =>
       val base = path.getCanonicalPath
       new ContentRootData(BSP.ProjectSystemId, base)
     }
@@ -608,7 +676,8 @@ private[importing] object BspResolverLogic {
       (TEST_RESOURCE, dir)
     }
 
-    val allSourceRoots = sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
+    val allSourceRoots: Seq[(ExternalSystemSourceType, SourceDirectory)] =
+      sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
 
     val moduleName = moduleDescriptionData.name
     val moduleType = moduleDescription.moduleKindData match {
@@ -694,12 +763,15 @@ private[importing] object BspResolverLogic {
       new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    val contentRootData: Iterable[ContentRootData] = allSourceRoots.map { case (sourceType, root) =>
-      val data = getContentRoot(root.directory, moduleBase)
-      data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
-      data.getRootPath -> data
-    }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
-
+    val contentRootData: Iterable[ContentRootData] = {
+      val rootPathToData: Seq[(String, ContentRootData)] = allSourceRoots.map { case (sourceType, root) =>
+        val data = getContentRoot(root.directory, moduleBase)
+        data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
+        data.getRootPath -> data
+      }
+      // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
+      rootPathToData.toMap.values
+    }
     contentRootData.foreach { data =>
       val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
       moduleNode.addChild(contentRootDataNode)
