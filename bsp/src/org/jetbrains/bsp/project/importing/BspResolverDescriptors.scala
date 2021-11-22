@@ -39,6 +39,7 @@ object BspResolverDescriptors {
 
   sealed abstract class ModuleKind
 
+  //TODO: move all inheritors to ModuleKind companion object for a better discoverability of choices
   case class UnspecifiedModule() extends ModuleKind
   case class JvmModule(jdkData: JdkData) extends ModuleKind
   case class ScalaModule(jdkData: JdkData,
