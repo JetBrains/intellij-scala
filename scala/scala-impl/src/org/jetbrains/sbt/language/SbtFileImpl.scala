@@ -59,9 +59,14 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
     else Some(ScalaPsiElementFactory.createScalaFileFromText(imports.mkString("import ", ", ", ";")))
   }
 
-  override def getFileResolveScope: GlobalSearchScope = targetModule match {
-    case SbtModuleWithScope(_, moduleWithDependenciesAndLibrariesScope) => moduleWithDependenciesAndLibrariesScope
-    case _ => super.getFileResolveScope
+  override def getFileResolveScope: GlobalSearchScope = {
+    val target = targetModule
+    target match {
+      case SbtModuleWithScope(_, moduleWithDependenciesAndLibrariesScope) =>
+        moduleWithDependenciesAndLibrariesScope
+      case _ =>
+        super.getFileResolveScope
+    }
   }
 
   @CachedInUserData(this, ProjectRootManager.getInstance(getProject))
@@ -78,9 +83,19 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         }
       } yield module
 
-      moduleByUri.fold(DefinitionModule(module): TargetModule) { module =>
-        SbtModuleWithScope(module, module.getModuleWithDependenciesAndLibrariesScope(false))
+      val moduleFinal = moduleByUri.orElse {
+        //(original issue which Justin fixed: SCL-13600)
+        //This is the old way of finding a build module which breaks if the way the module name is assigned changes
+        // This branch should be non-actual for SBT projects (imported as SBT)
+        // TODO: improve it for BSP projects (in particular BSP projects with SBT server)
+        Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
       }
+      moduleFinal
+        .map { module =>
+          val moduleWithDepsAndLibsScope = module.getModuleWithDependenciesAndLibrariesScope(false)
+          SbtModuleWithScope(module, moduleWithDepsAndLibsScope)
+        }
+        .getOrElse(DefinitionModule(module))
   }
 }
 
