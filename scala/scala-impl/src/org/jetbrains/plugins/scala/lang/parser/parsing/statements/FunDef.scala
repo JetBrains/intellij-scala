@@ -38,27 +38,24 @@ object FunDef extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (Type()) {
-              builder.getTokenType match {
-                case ScalaTokenTypes.tASSIGN =>
-                  builder.advanceLexer() //Ate =
-                  if (ExprInIndentationRegion()) {
-                    faultMarker.drop()
-                    true
-                  }
-                  else {
-                    builder error ScalaBundle.message("wrong.expression")
-                    faultMarker.drop()
-                    true
-                  }
-                case _ =>
-                  faultMarker.rollbackTo()
-                  false
-              }
+            if (!Type()) {
+              builder.error(ScalaBundle.message("wrong.type"))
             }
-            else {
-              faultMarker.rollbackTo()
-              false
+            builder.getTokenType match {
+              case ScalaTokenTypes.tASSIGN =>
+                builder.advanceLexer() //Ate =
+                if (ExprInIndentationRegion()) {
+                  faultMarker.drop()
+                  true
+                }
+                else {
+                  builder error ScalaBundle.message("wrong.expression")
+                  faultMarker.drop()
+                  true
+                }
+              case _ =>
+                faultMarker.rollbackTo()
+                false
             }
           case ScalaTokenTypes.tASSIGN =>
             builder.advanceLexer() //Ate =
