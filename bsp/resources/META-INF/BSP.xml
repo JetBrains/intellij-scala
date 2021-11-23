@@ -13,6 +13,7 @@
 
     <extensions defaultExtensionNs="org.intellij.scala">
         <worksheetCompilerExtension implementation="org.jetbrains.bsp.project.test.environment.BspWorksheetCompilerExtension"/>
+        <sbtUnlinkedProjectAwareHelper implementation="org.jetbrains.bsp.project.BspSbtUnlinkedProjectAwareHelper"/>
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
