@@ -16,6 +16,9 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.annotation.tailrec
 
 class DerevoInjector extends SyntheticMembersInjector {
+  val derevoDerive = "derevo.derive"
+  val derevoComposite = "derevo.composite"
+
   def extractAnnotParams(derivationObject: ScObject): Option[DeriveAnnotParams] = {
     val supertypes = derivationObject.extendsBlock.superTypes
     val keepRefinements = supertypes.exists {
@@ -81,7 +84,7 @@ class DerevoInjector extends SyntheticMembersInjector {
       .flatten
   }
 
-  def extractTypeclassTpeFromExpr(expr: ScExpression, methodCallResultTpe: Option[ScType]): Option[(TypeConstructor, TypeConstructor)] = {
+  def extractTypeclassTpeFromExpr(expr: ScExpression, methodCallResultTpe: Option[ScType]): IterableOnce[(TypeConstructor, TypeConstructor)] = {
     def tcForParameterizedType(a: ScParameterizedType, to: TypeConstructor): TypeConstructor = new TypeConstructor {
       override def apply(tpe: String): String = s"${a.designator.canonicalText}[$tpe, ${a.typeArguments.drop(1).map(_.canonicalText).mkString(", ")}]"
       override def qualifiedName: String = to.qualifiedName
@@ -129,69 +132,83 @@ class DerevoInjector extends SyntheticMembersInjector {
 
     expr match {
       case r: ScReferenceExpression =>
-        r.shapeResolve.flatMap { shape =>
-          shape.element match {
+        val resolvedShapes = r.shapeResolve
+
+        if (resolvedShapes.length > 0) {
+          resolvedShapes(0).element match {
             case o: ScObject =>
               def fn(name: String) = o.members.collectFirst {
                 case f: ScFunction if f.name == name && checkParamClauses(f) => f
               }
 
-              fn("instance").orElse(fn("apply")).flatMap(extractTcsFromDefDef)
+              fn("instance").orElse(fn("apply")) match {
+                case Some(fn) => extractTcsFromDefDef(fn)
+                case None => o.extendsBlock.superTypes.flatMap {
+                  case cdt: ScDesignatorType if cdt.canonicalText == "_root_.derevo.CompositeDerivation" =>
+                    extractTypeclassTpesFromClass(o, derevoComposite)
+                  case _ => Nil
+                }
+              }
             case f: ScFunction =>
               extractTcsFromDefDef(f)
 
-            case _ => None
+            case _ => Nil
           }
-        }.headOption
-      case _ => None
+        } else Nil
+      case _ => Nil
     }
   }
 
-  def tryGenerateImplicitForReferenceExpr(ix: Int, obj: ScObject, expr: ScExpression, methodCallResultType: Option[ScType]): Option[String] =
-    extractTypeclassTpeFromExpr(expr, methodCallResultType)
-      .map { case (tpeFrom, tpeTo) =>
-        val tparams = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScTypeDefinition].typeParameters
+  def extractTypeclassTpesFromClass(source: PsiClass, qualifiedName: String): Seq[(TypeConstructor, TypeConstructor)] =
+    deriveAnnotArgs(source, qualifiedName).flatMap {
+      case r: ScReferenceExpression =>
+        extractTypeclassTpeFromExpr(r, None)
+      case m: ScMethodCall =>
+        m.firstChild
+          .collect { case s: ScReferenceExpression => s }
+          .toList
+          .flatMap(extractTypeclassTpeFromExpr(_, m.`type`().toOption))
+      case _ => None
+    }
 
-        if (tparams.nonEmpty) {
-          val tparamStr = tparams.map(_.name).mkString(", ")
+  def generateImplicitForTypeclassTpes(ix: Int, obj: ScObject, tpeFrom: TypeConstructor, tpeTo: TypeConstructor): String = {
+    val tparams = obj.fakeCompanionClassOrCompanionClass.asInstanceOf[ScTypeDefinition].typeParameters
 
-          val implicits = tparams.zipWithIndex.flatMap { case (tp, idx) =>
-            tp.findAnnotationNoAliases("derevo.phantom") match {
-              case _: ScAnnotation => None
-              case _ => Some(s"ev$idx: ${tpeFrom.apply(tp.name)}")
-            }
-          }
+    if (tparams.nonEmpty) {
+      val tparamStr = tparams.map(_.name).mkString(", ")
 
-          val implicitStr = if (implicits.isEmpty) "" else s"(implicit ${implicits.mkString(", ")})"
-
-          s"implicit def idea$$derevo_injected_$ix[$tparamStr]$implicitStr: ${tpeTo(s"${obj.name}[$tparamStr]")} = ???"
-        } else {
-          s"implicit val idea$$derevo_injected_$ix: ${tpeTo(obj.name)} = ???"
+      val implicits = tparams.zipWithIndex.flatMap { case (tp, idx) =>
+        tp.findAnnotationNoAliases("derevo.phantom") match {
+          case _: ScAnnotation => None
+          case _ => Some(s"ev$idx: ${tpeFrom.apply(tp.name)}")
         }
       }
 
-  def deriveAnnotArgs(source: PsiClass): Seq[ScExpression] = source match {
+      val implicitStr = if (implicits.isEmpty) "" else s"(implicit ${implicits.mkString(", ")})"
+
+      s"implicit def idea$$derevo_injected_$ix[$tparamStr]$implicitStr: ${tpeTo(s"${obj.name}[$tparamStr]")} = ???"
+    } else {
+      s"implicit val idea$$derevo_injected_$ix: ${tpeTo(obj.name)} = ???"
+    }
+  }
+
+  def deriveAnnotArgs(source: PsiClass, qualifiedName: String): Seq[ScExpression] = source match {
     case tpe: ScTypeDefinition =>
-      tpe.findAnnotationNoAliases("derevo.derive") match {
-        case annot: ScAnnotation => annot.annotationExpr.getAnnotationParameters
+      tpe.findAnnotationNoAliases(qualifiedName) match {
+        case annot: ScAnnotation =>
+          annot.annotationExpr.getAnnotationParameters
         case _ => Nil
       }
     case _ => Nil
   }
 
-  override def needsCompanionObject(source: ScTypeDefinition): Boolean = deriveAnnotArgs(source).nonEmpty
+  override def needsCompanionObject(source: ScTypeDefinition): Boolean = deriveAnnotArgs(source, derevoDerive).nonEmpty
 
   override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
     case o: ScObject =>
-      deriveAnnotArgs(o.fakeCompanionClassOrCompanionClass).zipWithIndex.flatMap {
-        case (r: ScReferenceExpression, ix) =>
-          tryGenerateImplicitForReferenceExpr(ix, o, r, None)
-        case (m: ScMethodCall, ix) =>
-          m.firstChild
-            .collect { case s: ScReferenceExpression => s }
-            .flatMap(tryGenerateImplicitForReferenceExpr(ix, o, _, m.`type`().toOption))
-        case _ => None
-      }
+      extractTypeclassTpesFromClass(o.fakeCompanionClassOrCompanionClass, derevoDerive)
+        .zipWithIndex
+        .map { case ((tpeFrom, tpeTo), ix) => generateImplicitForTypeclassTpes(ix, o, tpeFrom, tpeTo) }
     case _ => Nil
   }
 }
@@ -202,7 +219,9 @@ object DerevoInjector {
     def qualifiedName: String
   }
 
-  case class DeriveAnnotParams(keepRefinements: Boolean,
-                               tFrom: TypeConstructor,
-                               tTo: TypeConstructor)
+  case class DeriveAnnotParams(
+    keepRefinements: Boolean,
+    tFrom: TypeConstructor,
+    tTo: TypeConstructor
+  )
 }
