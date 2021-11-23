@@ -17,6 +17,16 @@ import scala.beans.BeanProperty
 //noinspection ConvertNullInitializerToUnderscore
 class SbtProjectSettings extends ExternalProjectSettings {
 
+  /**
+   * Like "stub version", but for the converter algorithm.
+   *
+   * IDEA will automatically reload the project on opening if the "Reload project after changes in the build scripts" setting is enabled.
+   * However, this happens only if the project files are updated, not if the converter algorithm is updated.
+   * We store the actually used algorithm version and trigger a project reload if the version is updated.
+   */
+  @BeanProperty
+  var converterVersion: Int = 0
+
   def jdkName: Option[String] = Option(jdk)
 
   override def getExternalProjectPath: String =
@@ -63,6 +73,7 @@ class SbtProjectSettings extends ExternalProjectSettings {
   override def clone(): SbtProjectSettings = {
     val result = new SbtProjectSettings()
     copyTo(result)
+    result.converterVersion = converterVersion
     result.jdk = jdk
     result.resolveClassifiers = resolveClassifiers
     result.resolveJavadocs = resolveJavadocs
@@ -77,9 +88,14 @@ class SbtProjectSettings extends ExternalProjectSettings {
 }
 
 object SbtProjectSettings {
+  // Increment if the converter algorithm is updated to trigger a reloading of previously opened projects.
+  val ConverterVersion = 1
 
-  def default: SbtProjectSettings =
-    new SbtProjectSettings
+  def default: SbtProjectSettings = {
+    val settings = new SbtProjectSettings()
+    settings.converterVersion = ConverterVersion
+    settings
+  }
 
   def forProject(project: Project): Option[SbtProjectSettings] = {
     val settings = SbtSettings.getInstance(project)

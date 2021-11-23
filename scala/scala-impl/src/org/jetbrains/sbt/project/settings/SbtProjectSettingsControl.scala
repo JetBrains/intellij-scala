@@ -68,6 +68,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     val jdk = settings.jdkName.flatMap(name => Option(ProjectJdkTable.getInstance.findJdk(name)))
     jdkComboBox.setSelectedJdk(jdk.orNull)
 
+    extraControls.converterVersion = settings.converterVersion
     extraControls.resolveClassifiersCheckBox.setSelected(settings.resolveClassifiers)
     extraControls.resolveSbtClassifiersCheckBox.setSelected(settings.resolveSbtClassifiers)
     extraControls.useSbtShellForImportCheckBox.setSelected(settings.importWithShell)
@@ -82,6 +83,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
   }
 
   override protected def applyExtraSettings(settings: SbtProjectSettings): Unit = {
+    settings.converterVersion = extraControls.converterVersion
     settings.jdk = selectedJdkName.orNull
     settings.resolveClassifiers = extraControls.resolveClassifiersCheckBox.isSelected
     settings.resolveSbtClassifiers = extraControls.resolveSbtClassifiersCheckBox.isSelected

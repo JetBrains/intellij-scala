@@ -15,6 +15,7 @@ final class SbtExtraControls {
   private val content: JComponent = new JPanel
   def rootComponent: JComponent = content
 
+  var converterVersion = 0
   val resolveClassifiersCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.resolveClassifiers"), SbtBundle.message("sbt.settings.resolveClassifiers.tooltip"))
   val resolveSbtClassifiersCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.resolveSbtClassifiers"), SbtBundle.message("sbt.settings.resolveSbtClassifiers.tooltip"))
   val useSbtShellForImportCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForImport"), SbtBundle.message("sbt.settings.useShellForImport.tooltip"))

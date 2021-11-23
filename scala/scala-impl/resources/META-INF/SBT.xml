@@ -135,6 +135,11 @@
                      description="Internal, do not change"/>
     </extensions>
 
+    <applicationListeners>
+        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
+                  class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
+    </applicationListeners>
+
     <projectListeners>
         <listener class="org.jetbrains.sbt.language.completion.LookupAutoDocumentationProvider"
                   topic="com.intellij.codeInsight.lookup.LookupManagerListener"/>

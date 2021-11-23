@@ -16,6 +16,7 @@ import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootMan
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -43,6 +44,7 @@ class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectDa
   }
 
   private def doImport(project: Project, data: SbtProjectData, modelsProvider: IdeModifiableModelsProvider): Unit = {
+    SbtProjectSettings.forProject(project).foreach(_.converterVersion = SbtProjectSettings.ConverterVersion)
     configureJdk(project, data)
     setDefaultJavacOptions(project)
     setSbtVersion(project, data)
