@@ -30,6 +30,8 @@
         <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
 
         <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
+
+        <extensionPoint qualifiedName="org.intellij.scala.sbtUnlinkedProjectAwareHelper" interface="org.jetbrains.sbt.project.SbtUnlinkedProjectAwareHelper"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">

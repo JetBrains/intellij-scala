@@ -33,7 +33,11 @@ case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHand
     inner.notifyTextAvailable(text, outputType)
 
   override def destroyProcessImpl(): Unit = {
-    myListeners.foreach(_.processTerminated(new ProcessEvent(this)))
+    // !!! need to create a copy, cause myListeners is modified in
+    // `com.intellij.execution.impl.ProcessExecutionListener.processTerminated`
+    // by calling removeProcessListener
+    val myListenersCopy = myListeners.toSeq
+    myListenersCopy.foreach(_.processTerminated(new ProcessEvent(this)))
     isTerminated = true
   }
 
