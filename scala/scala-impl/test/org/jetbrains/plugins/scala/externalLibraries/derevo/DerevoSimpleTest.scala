@@ -137,4 +137,32 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |""".stripMargin
   )
+
+  def testComposite(): Unit = checkTextHasNoErrors(
+    s"""
+       |import derevo._
+       |
+       |trait TypeClass1[A]
+       |trait TypeClass2[A]
+       |
+       |object TypeClass1 extends Derivation[TypeClass1] {
+       |  def instance[A]: TypeClass1[A] = ???
+       |}
+       |
+       |object TypeClass2 extends Derivation[TypeClass2] {
+       |  def instance[A]: TypeClass2[A] = ???
+       |}
+       |
+       |@composite
+       |object BothTypeClasses extends CompositeDerivation
+       |
+       |@derive(BothTypeClasses)
+       |class Target
+       |
+       |object Test {
+       |  implicitly[TypeClass1[Target]]
+       |  implicitly[TypeClass2[Target]]
+       |}
+       |""".stripMargin
+  )
 }
