@@ -28,14 +28,24 @@ object BspSelectTargetDialog {
     targetIds.map(visibleName)
   }
 
-  private def visibleName(id: BuildTargetIdentifier) = {
-    getQueryAsMap(new URI(id.getUri)).get("id").flatten.getOrElse(id.getUri)
+  private def visibleName(id: BuildTargetIdentifier): String = {
+    val targetUri = new URI(id.getUri)
+    val fromQuery = getQueryAsMap(targetUri).get("id").flatten
+    //Example:
+    //targetUri = file:/C:/Users/myUser/myProject/#root/Compile -> fragment = root/Compile
+    //targetUri = file:/C:/Users/myUser/myProject/#root/Test -> fragment = root/Test
+    val orFromFragment = fromQuery.orElse(Option(targetUri.getFragment))
+    orFromFragment.getOrElse(id.getUri)
   }
 
   private def getQueryAsMap(uri: URI): Map[String, Option[String]] = {
-    uri.getQuery.split("&")
-      .map(_.split("=", 2))
-      .map(item => item(0) -> item.lift(1)).toMap
+    val query = uri.getQuery
+    if (query == null)
+      Map.empty
+    else
+      query.split("&")
+        .map(_.split("=", 2))
+        .map(item => item(0) -> item.lift(1)).toMap
   }
 }
 
