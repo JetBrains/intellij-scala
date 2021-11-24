@@ -49,6 +49,9 @@ package object completion {
   private[completion] def annotationPattern =
     psiElement.afterLeaf(psiElement(tAT))
 
+  private[completion] def whiteSpacePattern =
+    psiElement(ScalaTokenTypes.tWHITE_SPACE_IN_LINE) || psiElement(classOf[PsiWhiteSpace])
+
   private[completion] def afterNewKeywordPattern = identifierWithParentsPattern(
     classOf[ScStableCodeReference],
     classOf[ScSimpleTypeElement],
@@ -74,6 +77,18 @@ package object completion {
       pattern.`with`(new PatternCondition[T](s"prevVisibleLeaf(skipComments = true).elementType != $tp") {
         override def accepts(element: T, context: ProcessingContext): Boolean =
           element.prevVisibleLeaf(skipComments = true).forall(_.elementType != tp)
+      })
+
+    def withPrevSiblingNotWhitespace(prevSiblingType: IElementType): PsiElementPattern.Capture[T] =
+      pattern.`with`(new PatternCondition[T](s"prevSiblingNotWhitespace.elementType = $prevSiblingType") {
+        override def accepts(element: T, context: ProcessingContext): Boolean =
+          element.prevSiblingNotWhitespace.exists(_.elementType == prevSiblingType)
+      })
+
+    def withNextSiblingNotWhitespaceComment(nextSiblingType: IElementType): PsiElementPattern.Capture[T] =
+      pattern.`with`(new PatternCondition[T](s"nextSiblingNotWhitespaceComment.elementType = $nextSiblingType") {
+        override def accepts(element: T, context: ProcessingContext): Boolean =
+          element.nextSiblingNotWhitespaceComment.exists(_.elementType == nextSiblingType)
       })
   }
 

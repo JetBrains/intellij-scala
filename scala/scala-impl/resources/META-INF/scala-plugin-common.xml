@@ -192,6 +192,7 @@
         <lang.unwrapDescriptor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.unwrap.ScalaUnwrapDescriptor"/>
         <lang.psiStructureViewFactory language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewFactory"/>
         <typedHandler implementation="org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler" order="first"/>
+        <typedHandler implementation="org.jetbrains.plugins.scala.lang.completion.ScalaAutoPopupCompletionHandler"/>
         <backspaceHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.ScalaBackspaceHandler"/>
         <!-- order=first because `Scala3BackspaceHandler` should go before `SmartIndentingBackspaceHandler` to correctly handle scala3 indentation based syntax -->
         <!-- NOTE: order="before ..." doesn't work because backspace handlers do not have orderIds -->
@@ -265,6 +266,9 @@
                                 order="before scalaClassNameCompletionContributor"/>
         <completion.contributor language="Scala" id="scalaEndMarkerCompletionContributor"
                                 implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaEndMarkerCompletionContributor"
+                                order="before keywordCompletionContributor"/>
+        <completion.contributor language="Scala" id="scalaTypeAnnotationsCompletionContributor"
+                                implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaTypeAnnotationsCompletionContributor"
                                 order="before keywordCompletionContributor"/>
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaCompletionConfidence"/>
