@@ -2,20 +2,23 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfoType
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
+import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.PosRange
 
 /**
  * All information that needed for highlighting.
  *
  * Note: potentially this class can be a sealed ADT.
+ *
+ * @param range can be None if a message was produce for a file, but no location was specified (for some reason)
  */
 final case class ExternalHighlighting(highlightType: HighlightInfoType,
                                       message: String,
-                                      from: Pos,
-                                      to: Pos)
+                                      range: Option[PosRange])
 
 object ExternalHighlighting {
-  
+
+  final case class PosRange(from: Pos, to: Pos)
+
   sealed trait Pos
   
   object Pos {
