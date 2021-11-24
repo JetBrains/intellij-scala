@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.externalHighlighters.compiler
 
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.{Service, ServiceManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -70,7 +70,15 @@ final class DocumentCompiler(project: Project)
     def compile(originalSourceFile: File, client: Client): Unit = {
       val fixedClient = new DelegateClient(client) {
         override def message(msg: Client.ClientMsg): Unit = {
-          val fixedSource = msg.source.map(_ => originalSourceFile)
+          /**
+           * NOTE: some compiler errors can be with empty `source`<br>
+           * Example: `bad option '-g:vars' was ignored`<br>
+           * We do not want to loose such message.
+           * We rely that they will be reported in the beginning of the file<br>
+           * see [[org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighters.toHighlightInfo]]
+           * (we assume that `from` and `to` are also empty for such files)
+           */
+          val fixedSource = Some(originalSourceFile) //msg.source.map(_ => originalSourceFile)
           val fixedMsg = msg.copy(source = fixedSource)
           client.message(fixedMsg)
         }

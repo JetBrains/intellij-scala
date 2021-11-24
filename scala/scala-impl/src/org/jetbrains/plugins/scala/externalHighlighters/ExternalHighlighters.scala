@@ -6,13 +6,13 @@ import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
-import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
+import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.{Pos, PosRange}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
@@ -77,12 +77,14 @@ object ExternalHighlighters {
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
     val message = highlighting.message
-    //noinspection ReferencePassedToNls
+
+    //NOTE: in case there is no location in the file, do not ignore/loose messages
+    //instead report them in the beginning of the file
+    val posRange = highlighting.range.getOrElse(PosRange(Pos.Offset(0), Pos.Offset(0)))
     for {
-      startOffset <- convertToOffset(highlighting.from, message, document)
-      highlightRange <- calculateRangeToHighlight(startOffset, highlighting.to, message, document, psiFile)
-      description = message.trim.stripSuffix(lineText(message))
+      highlightRange <- calculateRangeToHighlight(posRange, message, document, psiFile)
     } yield {
+      val description = message.trim.stripSuffix(lineText(message))
       val highlightInfo = HighlightInfo
         .newHighlightInfo(highlighting.highlightType)
         .range(highlightRange)
@@ -106,15 +108,27 @@ object ExternalHighlighters {
     escaped2
   }
 
-  private def calculateRangeToHighlight(startOffset: Int,
-                                        to: Pos,
-                                        message: String,
-                                        document: Document,
-                                        psiFile: PsiFile): Option[TextRange] =
-    convertToOffset(to, message, document)
-      .filter(_ != startOffset)
-      .map { endOffset => TextRange.create(startOffset, endOffset) }
-      .orElse(guessRangeToHighlight(psiFile, startOffset))
+  private def calculateRangeToHighlight(
+    posRange: ExternalHighlighting.PosRange,
+    message: String,
+    document: Document,
+    psiFile: PsiFile
+  ): Option[TextRange] = {
+    //if there is no even start offset, there can't be end offset
+    val startOffset = convertToOffset(posRange.from, message, document) match {
+      case Some(start) => start
+      case _ =>
+        return None
+    }
+
+    val endOffsetOpt = convertToOffset(posRange.to, message, document)
+    endOffsetOpt match {
+      case Some(endOffset) if endOffset != startOffset =>
+        Some(TextRange.create(startOffset, endOffset))
+      case _ => //if we have empty-length range (single offset)
+        guessRangeToHighlight(psiFile, startOffset)
+    }
+  }
 
   private def guessRangeToHighlight(psiFile: PsiFile, startOffset: Int): Option[TextRange] =
     elementToHighlight(psiFile, startOffset).map(_.getTextRange)
