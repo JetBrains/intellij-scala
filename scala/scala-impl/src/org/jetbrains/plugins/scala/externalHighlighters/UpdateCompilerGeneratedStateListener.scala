@@ -7,9 +7,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
-import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
+import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.{Pos, PosRange}
+import org.jetbrains.plugins.scala.project.template.FileExt
 
 private class UpdateCompilerGeneratedStateListener(project: Project)
   extends CompilerEventListener {
@@ -27,23 +27,28 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
       case CompilerEvent.MessageEmitted(compilationId, _, msg) =>
         for {
           text <- Option(msg.text)
-          from <- Pos.fromPosInfo(msg.from)
-          to = Pos.fromPosInfo(msg.to).getOrElse(from)
           source <- msg.source
           virtualFile <- source.toVirtualFile
-          highlighting = ExternalHighlighting(
+        } yield {
+          val fromOpt = Pos.fromPosInfo(msg.from)
+          val rangeOpt = fromOpt.map { fromPos =>
+            val toPos = Pos.fromPosInfo(msg.to).getOrElse(fromPos)
+            PosRange(fromPos, toPos)
+          }
+          val highlighting = ExternalHighlighting(
             highlightType = kindToHighlightInfoType(msg.kind, text),
             message = text,
-            from = from,
-            to = to
+            rangeOpt
           )
-          fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
-          newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
-        } yield HandleEventResult(
-          newState = newState,
-          toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_)),
-          informWolf = false
-        )
+          val fileState = FileCompilerGeneratedState(compilationId, Set(highlighting))
+          val newState = replaceOrAppendFileState(oldState, virtualFile, fileState)
+
+          HandleEventResult(
+            newState = newState,
+            toHighlight = Set(virtualFile).filterNot(oldState.highlightOnCompilationFinished(_)),
+            informWolf = false
+          )
+        }
       case CompilerEvent.ProgressEmitted(_, _, progress) =>
         val newState = oldState.copy(progress = progress)
         Some(HandleEventResult(newState, Set.empty, informWolf = false))
