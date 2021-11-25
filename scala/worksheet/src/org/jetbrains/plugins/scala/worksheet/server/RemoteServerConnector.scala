@@ -74,6 +74,8 @@ final class RemoteServerConnector(
       val extraOptions = Seq(
         "-color:never", // by default dotty prints lots of color, can't handle for now
       )
+      //TODO: SCL-16881
+      // move this filtering to a proper place, it shouldn't appear in options for scala3 in a first place
       options.filterNot(_.startsWith("-g:")) ++ extraOptions
     } else {
       options
