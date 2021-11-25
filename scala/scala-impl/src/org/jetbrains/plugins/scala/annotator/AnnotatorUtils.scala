@@ -153,6 +153,7 @@ object AnnotatorUtils {
       holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
         .range(elementToHighlight.getTextRange)
         .textAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
+        .create()
     }
   }
 
