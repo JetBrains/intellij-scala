@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 
 import com.intellij.codeInspection._
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiFile, PsiNamedElement}
@@ -30,7 +31,11 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isScriptFile &&
-      !scalaFile.isWorksheetFile =>
+      !scalaFile.isWorksheetFile &&
+      //if ScalaProjectSettings.TREAT_SCRATCH_AS_WORKSHEET == false
+      //isWorksheetFile also returns false
+      //but we do not want to handle scratch files anyway
+      !Option(scalaFile.getVirtualFile).exists(ScratchUtil.isScratch) =>
 
       val virtualFileName = scalaFile.getVirtualFile match {
         case null => return EMPTY_ARRAY
