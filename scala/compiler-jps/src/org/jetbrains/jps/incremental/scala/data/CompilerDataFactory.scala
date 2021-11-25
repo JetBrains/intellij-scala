@@ -119,7 +119,9 @@ object CompilerDataFactory
 
     bootClasspathOptions(hasOldScala(modules)) ++
       semanticDbOptionsFor(configuredOptions.toIndexedSeq, chunk) ++
-      configuredOptions.filterNot(_.startsWith("-g:") && hasScala3) // TODO SCL-16881
+      //TODO: SCL-16881
+      // move this filtering to a proper place, it shouldn't appear in options for scala3 in a first place
+      configuredOptions.filterNot(_.startsWith("-g:") && hasScala3)
   }
 
   private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =

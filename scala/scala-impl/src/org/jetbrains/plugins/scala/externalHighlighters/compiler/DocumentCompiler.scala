@@ -67,6 +67,10 @@ final class DocumentCompiler(project: Project)
                                       outputDir: File)
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
 
+    //TODO: SCL-16881
+    // move this filtering to a proper place, it shouldn't appear in options for scala3 in a first place
+    override def scalaParameters: Seq[String] = super.scalaParameters.filterNot(_.startsWith("-g:"))
+
     def compile(originalSourceFile: File, client: Client): Unit = {
       val fixedClient = new DelegateClient(client) {
         override def message(msg: Client.ClientMsg): Unit = {
