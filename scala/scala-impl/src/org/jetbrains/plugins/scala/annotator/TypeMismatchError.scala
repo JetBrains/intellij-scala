@@ -6,7 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
@@ -34,42 +34,45 @@ private object TypeMismatchError {
     val message = {
       val (actualTypeText, expectedTypeText) = TypePresentation.different(adjustedActualType, expectedType)
 
-      if (ApplicationManager.getApplication.isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
+      if (isUnitTestMode) formatMessage(expectedTypeText, actualTypeText)
       else ScalaBundle.message("type.mismatch.message", expectedTypeText, actualTypeText)
     }
 
-    val highlightExpression = !ScalaProjectSettings.in(element.getProject).isTypeMismatchHints || !canBeHint
+    val addHint = ScalaProjectSettings.in(element.getProject).isTypeMismatchHints && canBeHint
+    val addHighlighting = !addHint || isUnitTestMode
+
+    // TODO Can we detect a "current" color scheme in a "current" editor somehow?
+    implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
+
+    val tooltip = TypeMismatchHints.tooltipFor(expectedType, adjustedActualType)
+    val textRange =
+      if (addHighlighting) {
+        annotatedElement.getTextRange
+      } else {
+        // we only need range for error stripe, and it should be inside `element`
+        val lastLineAnnotatedRange = lastLineRangeOf(annotatedElement)
+        val intersection = lastLineAnnotatedRange.intersection(element.getTextRange)
+
+        if (intersection != null && intersection.getLength > 0) intersection
+        else lastLineRangeOf(element)
+      }
+
+    val enforcedTextAttr = Option.unless(addHighlighting)(onlyErrorStripeAttributes)
 
     val builder = holder.newAnnotation(HighlightSeverity.ERROR, message)
-      .tooltip(TypeMismatchHints.tooltipFor(expectedType, adjustedActualType))
+      .tooltip(tooltip)
       .withFix(ReportHighlightingErrorQuickFix)
       .withFix(EnableTypeMismatchHints)
 
     for ((fix, range) <- fixes) {
       builder.newFix(fix).range(range).registerFix
     }
-
-    // TODO Can we detect a "current" color scheme in a "current" editor somehow?
-    implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
-
-    // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
-    if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
-      builder.range(annotatedElement)
-    } else {
-      // we only need range for error stripe, and it should be inside `element`
-      val lastLineAnnotatedRange = lastLineRangeOf(annotatedElement)
-      val intersection = lastLineAnnotatedRange.intersection(element.getTextRange)
-      val range =
-        if (intersection != null && intersection.getLength > 0) intersection
-        else lastLineRangeOf(element)
-
-      builder.range(range)
-        .enforcedTextAttributes(onlyErrorStripeAttributes)
-    }
+    builder.range(textRange)
+    enforcedTextAttr.foreach(builder.enforcedTextAttributes)
 
     builder.create()
 
-    if (!highlightExpression) {
+    if (addHint) {
       val delegateElement = holder match {
         // handle possible element mapping (e.g. ScGeneratorAnnotator)
         case DelegateAnnotationHolder(element) => element
