@@ -294,6 +294,12 @@ class ScalaFileImpl(
   override def packagingRanges: Seq[TextRange] =
     this.depthFirst().filterByType[ScPackaging].flatMap(_.reference).map(_.getTextRange).toList
 
+  /**
+   * ATM used in a single place: [[com.intellij.psi.impl.source.resolve.JavaResolveUtil.ignoreReferencedElementAccessibility]]
+   * Usage example: [[com.siyeh.ig.classlayout.ProtectedMemberInFinalClassInspection.WeakenVisibilityFix]] (SCL-19756)
+   */
+  override def ignoreReferencedElementAccessibility(): Boolean = false
+
   override def getFileResolveScope: GlobalSearchScope = {
     implicit val project: Project = getProject
     val file = getOriginalFile.getVirtualFile
@@ -313,8 +319,6 @@ class ScalaFileImpl(
 
   protected def defaultFileResolveScope(file: VirtualFile): GlobalSearchScope =
     ResolveScopeManager.getInstance(getProject).getDefaultResolveScope(file)
-
-  override def ignoreReferencedElementAccessibility(): Boolean = true //todo: ?
 
   override def getPrevSibling: PsiElement = this.child match {
     case null => super.getPrevSibling
