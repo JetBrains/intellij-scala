@@ -50,6 +50,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
   registerStandardCompletion(new modifiers.UsingFilter, USING)
   registerStandardCompletion(new modifiers.GivenFilter, GIVEN)
   registerStandardCompletion(new modifiers.CaseFilter, CASE)
+  registerStandardCompletion(new toplevel.EnumFilter, ENUM)
   registerStandardCompletion(new toplevel.ExtensionFilter, EXTENSION)
   registerStandardCompletion(new toplevel.ExportFilter, EXPORT)
   registerStandardCompletion(new toplevel.ImportFilter, IMPORT)
