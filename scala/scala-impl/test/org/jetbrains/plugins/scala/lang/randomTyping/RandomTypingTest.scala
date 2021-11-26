@@ -81,7 +81,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
   def typeRandomly(file: File, seed: Int): Unit = {
     println(s"Testing(seed = $seed) ${file.getAbsolutePath}")
     val targetText = {
-      val text = FileUtil.loadFile(file)
+      val text = FileUtil.loadFile(file, /*convertLineSeparators*/ true)
       separatorRegex.findFirstMatchIn(text)
         .fold(text)(m => text.substring(0, m.start))
     }
