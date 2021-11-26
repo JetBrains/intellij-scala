@@ -6,8 +6,9 @@ import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
+import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.containers.ImmutableList;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 
@@ -44,19 +45,22 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
     private final Scala3SettingsPanel scala3SettingsPanel = new Scala3SettingsPanel(getSettings());
     private JPanel scala3SettingsInnerPanel;
 
-    protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
+    OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("other.panel.title"));
 
-        myCommenterForm.showStandardOptions(
-            CommenterOption.LINE_COMMENT_ADD_SPACE.name(),
-            CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
-            CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name()
-        );
+        //TODO: show also BLOCK_COMMENT_ADD_SPACE and use it
+        myCommenterForm.showStandardOptions(SupportedCommenterStandardOptionNames.toArray(new String[]{}));
 
         $$$setupUI$$$();
         alternateIndentationForParamsSpinner.setModel(new SpinnerNumberModel(4, 1, null, 1));
         resetImpl(settings);
     }
+
+    public static ImmutableList<String> SupportedCommenterStandardOptionNames = ContainerUtil.immutableList(
+            CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
+            CommenterOption.LINE_COMMENT_ADD_SPACE.name(),
+            CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name()
+    );
 
     @Override
     public void dispose() {
