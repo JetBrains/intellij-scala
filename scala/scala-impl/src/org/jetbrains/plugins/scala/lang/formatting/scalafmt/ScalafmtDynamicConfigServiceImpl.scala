@@ -191,30 +191,18 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
       _ <- Option(configFile).filter(_.exists).toRight {
         ConfigResolveError.ConfigFileNotFound(configPath)
       }
-      version <- readVersion(project, configFile) match {
-        case Right(value) => Right(value.getOrElse(defaultVersion))
-        case Left(e)      => Left(ConfigResolveError.ConfigParseError(configPath, e))
-      }
+      hocon <- parseHoconFile(project, configFile)
+      version <- readVersion(hocon, configFile).map(_.getOrElse(defaultVersion))
       fmtReflect <- ScalafmtDynamicService.instance
         .resolve(version, project, downloadIfMissing = false, verbosity, projectResolvers(project), resolveFast)
         .left.map(ConfigResolveError.ConfigScalafmtResolveError)
-      config <- parseConfig(configFile, fmtReflect)
+      config <- parseConfig(hocon, configFile, fmtReflect)
     } yield config
   }
 
-  private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
-    Try {
-      parseHoconFile(project, configFile).root.render()
-    }.toEither.left.map {
-      case e: ConfigCyclicDependencyException =>
-        ConfigResolveError.ConfigCyclicDependenciesError(configFile.getCanonicalPath, e)
-      case e =>
-        Log.error(e)
-        ConfigResolveError.UnknownError(e)
-    }.flatMap { text =>
-      fmtReflect.parseConfigFromString(text).toEither.left.map { x =>
-        ConfigResolveError.ConfigParseError(configFile.getPath, x)
-      }
+  private def parseConfig(config: Config, configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
+    fmtReflect.parseConfigFromString(config.root.render()).toEither.left.map { x =>
+      ConfigResolveError.ConfigParseError(configFile.getPath, x)
     }
 
   private def notifyConfigChanges(config: ScalafmtReflectConfig, cachedConfig: Option[CachedConfig]): Unit = {
@@ -291,19 +279,39 @@ object ScalafmtDynamicConfigServiceImpl {
         Left(None)
     }
 
-  def readVersion(project: Project, configFile: VirtualFile): Either[Throwable, Option[ScalafmtVersion]] =
+  def readVersion(
+    project: Project,
+    configFile: VirtualFile
+  ): Either[ConfigResolveError.ConfigError, Option[ScalafmtVersion]] =
+    parseHoconFile(project, configFile).flatMap(readVersion(_, configFile))
+
+  private def readVersion(
+    config: Config,
+    configFile: VirtualFile
+  ): Either[ConfigResolveError.ConfigError, Option[ScalafmtVersion]] =
     Try {
-      val config = parseHoconFile(project, configFile)
       Option(config.getString("version").trim).flatMap(ScalafmtVersion.parse)
     }.toEither.left.flatMap {
       case _: ConfigException.Missing => Right(None)
-      case _: ConfigCyclicDependencyException => Right(None)
-      case e => Left(e)
+      case e => Left(ConfigResolveError.ConfigParseError(configFile.getCanonicalPath, e))
     }
 
-  private def parseHoconFile(project: Project, configFile: VirtualFile): Config = {
+  private def parseHoconFile(
+    project: Project,
+    configFile: VirtualFile
+  ): Either[ConfigResolveError.ConfigError, Config] = {
     implicit val manager: FileDocumentManager = FileDocumentManager.getInstance
-    parseHoconFileImpl(project, configFile, configFile :: Nil).get // TODO: handle empty case
+    Try {
+      parseHoconFileImpl(project, configFile, configFile :: Nil)
+    }.toEither.left.map {
+      case e: ConfigCyclicDependencyException =>
+        ConfigResolveError.ConfigCyclicDependenciesError(configFile.getCanonicalPath, e)
+      case e =>
+        ConfigResolveError.ConfigParseError(configFile.getCanonicalPath, e)
+    }.flatMap {
+      case Some(x) => Right(x)
+      case None => Left(ConfigResolveError.ConfigFileNotFound(configFile.getCanonicalPath))
+    }
   }
 
   /** @param filesResolveStack track currently-resolved files to detect cyclic dependencies */
