@@ -16,9 +16,9 @@ class ScalafmtDynamicDownloader(
   progressListener: DownloadProgressListener
 ) {
 
-  def download(version: String): Either[DownloadFailure, DownloadSuccess] =
+  def download(version: ScalafmtVersion): Either[DownloadFailure, DownloadSuccess] =
     try {
-      val dependencies = Dependency.dependencies(ScalafmtVersion.parse(version).get)
+      val dependencies = Dependency.dependencies(version)
         .map(x => (x.group % x.artifact % x.version).transitive())
       val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener)
       val resolvedDependencies = resolver.resolve(dependencies: _*)
@@ -34,10 +34,10 @@ class ScalafmtDynamicDownloader(
 
 object ScalafmtDynamicDownloader {
   sealed trait DownloadResult {
-    def version: String
+    def version: ScalafmtVersion
   }
-  case class DownloadSuccess(override val version: String, jarUrls: Seq[URL]) extends DownloadResult
-  case class DownloadFailure(override val version: String, cause: Throwable) extends DownloadResult
+  case class DownloadSuccess(override val version: ScalafmtVersion, jarUrls: Seq[URL]) extends DownloadResult
+  case class DownloadFailure(override val version: ScalafmtVersion, cause: Throwable) extends DownloadResult
 
   trait DownloadProgressListener {
     def progressUpdate(message: String): Unit

@@ -12,14 +12,14 @@ import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtVersion, _}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl.{ProgressIndicatorDownloadListener, ServiceState}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
-import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion => OriginalScalafmtVersion}
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion}
 
 import java.io.File
 import java.net.URL
@@ -119,13 +119,10 @@ final class ScalafmtDynamicServiceImpl
       }
   }
 
-  private def resolveClassPath(version: String, jarUrls: Seq[URL]): ResolveResult = {
+  private def resolveClassPath(version: ScalafmtVersion, jarUrls: Seq[URL]): ResolveResult = {
     Try {
       val classloader = new URLClassLoader(jarUrls, null)
-      val scalaFmt = ScalafmtReflect(
-        classloader,
-        OriginalScalafmtVersion.parse(version).get
-      )
+      val scalaFmt = ScalafmtReflect(classloader, version)
       state.resolvedVersions.put(version, jarUrls.toArray.map(_.toString))
       formattersCache(version) = ResolveStatus.Resolved(scalaFmt)
       scalaFmt
@@ -178,7 +175,7 @@ final class ScalafmtDynamicServiceImpl
     }
   }
 
-  private class DownloadScalafmtNotificationActon(version: String, @Nls title: String)
+  private class DownloadScalafmtNotificationActon(version: ScalafmtVersion, @Nls title: String)
     extends NotificationAction(title) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
