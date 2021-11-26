@@ -6,8 +6,8 @@ package clauses
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiClass, PsiEnumConstant}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, TypePresentationContext}
@@ -27,7 +27,7 @@ object PatternGenerationStrategy {
     def adjustTypes(components: Seq[PatternComponents],
                     caseClauses: Seq[ScCaseClause]): Unit =
       adjustTypesOnClauses(
-        addImports = strategy.isInstanceOf[DirectInheritorsGenerationStrategy],
+        addImports = strategy.is[DirectInheritorsGenerationStrategy],
         caseClauses.zip(components)
       )
 
@@ -90,6 +90,9 @@ object PatternGenerationStrategy {
         )
       case ExtractClass(DirectInheritors(inheritors)) =>
         new DirectInheritorsGenerationStrategy(inheritors)
+      case ExtractClass(ScEnum.Original(scEnum)) =>
+        val inheritors = Inheritors(scEnum.cases.toList, isSealed = true, isExhaustive = true)
+        new DirectInheritorsGenerationStrategy(inheritors)
       case _ =>
         null
     }
@@ -126,6 +129,8 @@ object PatternGenerationStrategy {
 
     override def patterns: Seq[PatternComponents] = namedInheritors.map {
       case scalaObject: ScObject => new StablePatternComponents(scalaObject)
+      case enumCase: ScEnumCase if enumCase.constructor.isEmpty =>
+        new StablePatternComponents(enumCase)
       case CaseClassPatternComponents(components) => components
       case psiClass => new TypedPatternComponents(psiClass)
     } ++ (if (isExhaustive) None else Some(WildcardPatternComponents))

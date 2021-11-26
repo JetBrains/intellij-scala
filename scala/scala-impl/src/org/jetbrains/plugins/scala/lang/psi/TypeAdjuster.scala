@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeElement, ScTypeProjection}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -447,6 +447,7 @@ object TypeAdjuster extends ApplicationListener {
 
       val maybePrefixAndPath = target match {
         case clazz: PsiClass if needPrefix(clazz) => prefixAndPath(clazz.qualifiedName, 1)
+        case ScEnumCase.Original(cse) => prefixAndPath(cse.qualifiedName, 1)
         case _ => qualifiedName(target).flatMap(prefixAndPathGenerator)
       }
 

@@ -4,13 +4,13 @@ package completion
 package clauses
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPrimaryConstructor, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaTypePresentation}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.{UniqueNameSuggester, suggestNamesByType}
 
@@ -92,7 +92,7 @@ final class TypedPatternComponents(`class`: PsiClass) extends ClassPatternCompon
     namedPatternText(reference)
 }
 
-final class CaseClassPatternComponents private(`class`: ScClass,
+final class CaseClassPatternComponents private(`class`: ScConstructorOwner,
                                                constructor: ScPrimaryConstructor)
   extends SequenceBasedPatternComponents(`class`, constructor.effectiveFirstParameterSection)({ parameter =>
     parameter.name + (if (parameter.isVarArgs) "@_*" else "")
@@ -100,7 +100,7 @@ final class CaseClassPatternComponents private(`class`: ScClass,
 
 object CaseClassPatternComponents {
 
-  def unapply(`class`: ScClass): Option[CaseClassPatternComponents] = for {
+  def unapply(`class`: ScConstructorOwner): Option[CaseClassPatternComponents] = for {
     constructor <- `class`.constructor
     if `class`.isCase
   } yield new CaseClassPatternComponents(`class`, constructor)
@@ -139,6 +139,8 @@ final class StablePatternComponents(`class`: PsiClass, qualifiedName: String)
   extends ClassPatternComponents(`class`, qualifiedName, ScalaTypePresentation.ObjectTypeSuffix) {
 
   def this(`object`: ScObject) = this(`object`, `object`.qualifiedName)
+
+  def this(enumCase: ScEnumCase) = this(enumCase, enumCase.qualifiedName)
 }
 
 object WildcardPatternComponents extends PatternComponents {

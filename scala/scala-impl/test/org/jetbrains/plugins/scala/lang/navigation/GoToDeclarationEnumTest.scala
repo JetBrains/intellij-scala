@@ -18,7 +18,7 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  val bar = Foo.Ba${CARET}z
        |}
        |""".stripMargin,
-    expected = (is[ScEnumCase], "Baz")
+    expected = (is[ScEnumCase], "Foo.Baz")
   )
 
   def testClassCase(): Unit = doTest(
@@ -32,7 +32,7 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  val someInt = Option.S${CARET}ome(123)
        |}
        |""".stripMargin,
-    expected = (is[ScEnumCase], "Some")
+    expected = (is[ScEnumCase], "Option.Some")
   )
 
   def testWithExplicitCompanion(): Unit = doTest(
@@ -48,7 +48,7 @@ class GoToDeclarationEnumTest extends GotoDeclarationTestBase {
        |  val none = Option.Non${CARET}e
        |}
        |""".stripMargin,
-    expected = (is[ScEnumCase], "None")
+    expected = (is[ScEnumCase], "Option.None")
   )
 
   def testTypePosition(): Unit = doTest(

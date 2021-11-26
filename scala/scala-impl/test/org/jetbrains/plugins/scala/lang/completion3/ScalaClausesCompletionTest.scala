@@ -3,12 +3,10 @@ package lang
 package completion3
 
 import com.intellij.application.options.CodeStyle
-import com.intellij.codeInsight.lookup.LookupElement
 
-class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
-  import ScalaClausesCompletionTest._
   import ScalaCodeInsightTestBase._
   import completion.ScalaKeyword.{CASE, MATCH}
   import completion.clauses.DirectInheritors.FqnBlockList
@@ -1312,57 +1310,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
     }
   }
 
-  private def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
-    doRawCompletionTest(fileText, resultText) {
-      isPattern(_, itemText)
-    }
-
-  private def doClauseCompletionTest(fileText: String, resultText: String,
-                                     itemText: String,
-                                     invocationCount: Int = DEFAULT_TIME): Unit =
-    doRawCompletionTest(fileText, resultText, invocationCount = invocationCount) {
-      isCaseClause(_, itemText)
-    }
-
   //  private def doMultipleCompletionTest(fileText: String,
   //                                       items: String*): Unit =
   //    super.doMultipleCompletionTest(fileText, BASIC, DEFAULT_TIME, items.size) { lookup =>
   //      items.contains(lookup.getLookupString)
   //    }
-
-  private def doMatchCompletionTest(fileText: String, resultText: String,
-                                    invocationCount: Int = DEFAULT_TIME): Unit =
-    doRawCompletionTest(fileText, resultText, invocationCount = invocationCount)(isExhaustiveMatch)
-
-  private def doCaseCompletionTest(fileText: String, resultText: String): Unit =
-    doRawCompletionTest(fileText, resultText)(isExhaustiveCase)
-}
-
-object ScalaClausesCompletionTest {
-
-  import ScalaCodeInsightTestBase.hasItemText
-  import completion.ScalaKeyword.{CASE, MATCH}
-
-  private def isPattern(lookup: LookupElement, itemText: String) =
-    hasItemText(lookup, itemText)(itemTextItalic = true)
-
-  private def isCaseClause(lookup: LookupElement, itemText: String) =
-    hasItemText(lookup, CASE + itemText)(
-      itemText = CASE,
-      itemTextBold = true,
-      tailText = " " + itemText
-    )
-
-  private def isExhaustiveMatch(lookup: LookupElement) =
-    isExhaustive(lookup, MATCH)
-
-  private def isExhaustiveCase(lookup: LookupElement) =
-    isExhaustive(lookup, CASE)
-
-  private[this] def isExhaustive(lookup: LookupElement, lookupString: String) =
-    hasItemText(lookup, lookupString)(
-      itemTextBold = true,
-      tailText = " " + completion.clauses.ExhaustiveMatchCompletionContributor.rendererTailText,
-      grayed = true
-    )
 }
