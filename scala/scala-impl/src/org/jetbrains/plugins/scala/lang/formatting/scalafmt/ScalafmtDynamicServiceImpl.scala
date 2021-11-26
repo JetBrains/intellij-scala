@@ -17,8 +17,9 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion => OriginalScalafmtVersion}
 
 import java.io.File
 import java.net.URL
@@ -49,7 +50,7 @@ final class ScalafmtDynamicServiceImpl
       ScalafmtDynamicConfigService.instanceIn(p).clearCaches()
     }
     formattersCache.values.foreach {
-      case ResolveStatus.Resolved(scalafmt) => scalafmt.classLoader.close()
+      case ResolveStatus.Resolved(scalafmt) => scalafmt.close()
       case _ =>
     }
     formattersCache.clear()
@@ -123,8 +124,7 @@ final class ScalafmtDynamicServiceImpl
       val classloader = new URLClassLoader(jarUrls, null)
       val scalaFmt = ScalafmtReflect(
         classloader,
-        version,
-        respectVersion = true
+        OriginalScalafmtVersion.parse(version).get
       )
       state.resolvedVersions.put(version, jarUrls.toArray.map(_.toString))
       formattersCache(version) = ResolveStatus.Resolved(scalaFmt)

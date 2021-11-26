@@ -238,7 +238,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
     val file = blockFirstNode.getContainingFile
     val configManager = ScalafmtDynamicConfigService.instanceIn(file.getProject)
     val configOpt = configManager.configForFile(file, FmtVerbosity.FailSilent, resolveFast = true)
-    val scalafmtIndents = configOpt.map(_.indents).getOrElse(ScalafmtIndents.Default)
+    val scalafmtIndents = configOpt.map(ScalafmtIndents.apply).getOrElse(ScalafmtIndents.Default)
 
     val scalamtSpecificIndentOpt = blockFirstNode match {
       case _: ScParameterClause if newChildIndex != 0 => Some(Indent.getSpaceIndent(scalafmtIndents.defnSite))
