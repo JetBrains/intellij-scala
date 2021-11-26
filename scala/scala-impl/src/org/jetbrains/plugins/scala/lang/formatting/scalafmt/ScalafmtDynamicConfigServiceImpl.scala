@@ -19,14 +19,14 @@ import org.jetbrains.plugins.scala.lang.formatting.OpenFileNotificationActon
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.ConfigCyclicDependencyException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
-import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -291,10 +291,10 @@ object ScalafmtDynamicConfigServiceImpl {
         Left(None)
     }
 
-  def readVersion(project: Project, configFile: VirtualFile): Either[Throwable, Option[String]] =
+  def readVersion(project: Project, configFile: VirtualFile): Either[Throwable, Option[ScalafmtVersion]] =
     Try {
       val config = parseHoconFile(project, configFile)
-      Option(config.getString("version").trim)
+      Option(config.getString("version").trim).flatMap(ScalafmtVersion.parse)
     }.toEither.left.flatMap {
       case _: ConfigException.Missing => Right(None)
       case _: ConfigCyclicDependencyException => Right(None)
@@ -316,7 +316,7 @@ object ScalafmtDynamicConfigServiceImpl {
   }
 
   private def fileText(file: VirtualFile)
-                      (implicit manager: FileDocumentManager): Option[ScalafmtVersion] =
+                      (implicit manager: FileDocumentManager): Option[String] =
     inReadAction {
       manager.getDocument(file).toOption.map(_.getText())
     }

@@ -35,10 +35,11 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
+import org.scalafmt.dynamic.ScalafmtVersion
 
 import scala.annotation.nowarn
 
@@ -104,7 +105,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
-  private def configPathFromUi: ScalafmtVersion =
+  private def configPathFromUi: String =
     externalFormatterSettingsPath.getText.trim
 
   //noinspection HardCodedStringLiteral
@@ -133,7 +134,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
           case Right(config) =>
             updateScalafmtVersionLabel(config.getVersion.toString(), isDefault = versionOpt.isEmpty)
           case Left(error: ConfigError) =>
-            updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
+            updateScalafmtVersionLabel(version.toString(), isDefault = versionOpt.isEmpty)
             reportConfigResolveError(error)
           case Left(error: ConfigResolveError) =>
             updateScalafmtVersionLabel("")
@@ -154,7 +155,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def ensureDefaultScalafmtResolved(): Unit = {
     if (projectOpt.isEmpty) return
     ScalafmtDynamicService.instance.resolveAsync(DefaultVersion, projectOpt.get)
-    updateScalafmtVersionLabel(DefaultVersion, isDefault = true)
+    updateScalafmtVersionLabel(DefaultVersion.toString(), isDefault = true)
   }
 
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
