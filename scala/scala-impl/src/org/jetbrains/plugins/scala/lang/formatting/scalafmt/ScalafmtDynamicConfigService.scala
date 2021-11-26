@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion, instance}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtReflectConfig
+import org.scalafmt.dynamic.ScalafmtReflectConfig
 
 trait ScalafmtDynamicConfigService {
 

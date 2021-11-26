@@ -14,7 +14,7 @@ object Versions {
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
-  val scalaMetaVersion = "4.3.12"
+  val scalaMetaVersion = "4.4.30"
   val paradiseVersion = "3.0.0-M11"
 
   object Scala {
@@ -81,16 +81,17 @@ object Dependencies {
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"
+
+  val fastparseVersion = "2.3.1"
+  val scalafmtVersion = "3.2.1"
+  val typesafeConfigVersion = "1.4.1"
   val scalafmt: Seq[ModuleID] = Seq(
-    "com.geirsson" %% "scalafmt-core" % "1.5.1",
-    "com.geirsson" %% "metaconfig-core" % "0.4.0",
-    "com.geirsson" %% "metaconfig-typesafe-config" % "0.4.0",
-    "com.typesafe" % "config" % "1.2.1",
-    "com.lihaoyi" %% "sourcecode" % "0.1.3"
+    "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion,
+    "org.scalameta" % "scalafmt-interfaces" % scalafmtVersion,
+    "com.typesafe" % "config" % typesafeConfigVersion
   )
-//  val macroParadise: ModuleID = "org.scalameta" % "paradise" % paradiseVersion cross CrossVersion.full
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
-  val fastparse: ModuleID = "com.lihaoyi" %% s"fastparse" % "2.3.0" // transitive dependency of scalaMeta, needs explicit versioning
+  val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
 
   val scalaTestNotSpecified: ModuleID = "org.scalatest" %% "scalatest" % "3.2.0"
   val scalaTest: ModuleID = scalaTestNotSpecified % "test"
@@ -149,6 +150,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
+    fastparse % "test",
 //    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
@@ -158,7 +160,7 @@ object DependencyGroups {
     scalastyle,
     scalariform,
     compilerIndicesProtocol
-  )
+  ) ++ scalafmt
 
   val bsp: Seq[ModuleID] = Seq(
     ("ch.epfl.scala" % "bsp4j" % bspVersion)
