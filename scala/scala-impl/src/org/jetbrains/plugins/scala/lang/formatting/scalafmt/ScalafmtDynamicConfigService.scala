@@ -72,10 +72,18 @@ object ScalafmtDynamicConfigService {
   sealed trait ConfigResolveError
 
   object ConfigResolveError {
-    sealed trait ConfigError extends ConfigResolveError
-    case class ConfigFileNotFound(configPath: String) extends ConfigError
-    case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
-    case class ConfigCyclicDependenciesError(configPath: String, exception: ConfigCyclicDependencyException) extends ConfigError
+    sealed trait ConfigError extends ConfigResolveError {
+      def getMessage: String
+    }
+    case class ConfigFileNotFound(configPath: String) extends ConfigError {
+      override def getMessage: String = s"Scalafmt config file not found: $configPath"
+    }
+    case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError {
+      override def getMessage: String = cause.getMessage
+    }
+    case class ConfigCyclicDependenciesError(configPath: String, cause: ConfigCyclicDependencyException) extends ConfigError {
+      override def getMessage: String = cause.getMessage
+    }
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
     case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
 
