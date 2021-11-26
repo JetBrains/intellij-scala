@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeSty
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
 
@@ -209,8 +210,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     //comments generation
     if (settingsType == SettingsType.COMMENTER_SETTINGS) {
       enableSettings(
-        "LINE_COMMENT_AT_FIRST_COLUMN",
-        "BLOCK_COMMENT_AT_FIRST_COLUMN"
+        OtherCodeStylePanel.SupportedCommenterStandardOptionNames.asScala.toSeq: _*
       )
     }
 
