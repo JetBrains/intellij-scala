@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 
 class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
 
@@ -294,6 +295,40 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     resultText = s"transparent trait $CARET",
     item = "trait"
   )
+
+  /// ENUM
+
+  def testEnumTopLevel(): Unit = doCompletionTest(
+    fileText = s"en$CARET",
+    resultText = s"enum $CARET",
+    item = "enum"
+  )
+
+  def testEnumInsideObject(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  en$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  enum $CARET
+         |""".stripMargin,
+    item = "enum"
+  )
+
+  def testEnumAfterAccessModifier(): Unit = doCompletionTest(
+    fileText = s"private en$CARET",
+    resultText = s"private enum $CARET",
+    item = "enum"
+  )
+
+  def testNoCompletionEnumAfterSoftModifiers(): Unit =
+    ScalaKeyword.SOFT_MODIFIERS.foreach { softModifier =>
+      checkNoBasicCompletion(
+        fileText = s"$softModifier en$CARET",
+        item = "enum"
+      )
+    }
 
   /// EXTENSION
 
