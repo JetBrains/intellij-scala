@@ -44,6 +44,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+import org.scalafmt.dynamic.ScalafmtVersion
 
 import java.nio.file.{Path, Paths}
 import scala.annotation.{nowarn, tailrec}
@@ -937,11 +938,11 @@ object ScalaFmtPreFormatProcessor {
       }
     }
 
-  private def reportUnknownError(ex: Throwable, scalafmtVersion: Option[String]): Unit = {
+  private def reportUnknownError(ex: Throwable, scalafmtVersion: Option[ScalafmtVersion]): Unit = {
     Log.error(s"An error occurred during scalafmt formatting (version: ${scalafmtVersion.orNull})", ex)
   }
 
-  private def configVersionForScalaFile(file: PsiFile): Option[String] = {
+  private def configVersionForScalaFile(file: PsiFile): Option[ScalafmtVersion] = {
     val service = ScalafmtDynamicConfigService(file.getProject)
     val configFile = service.configFileForFile(file)
     configFile.flatMap(ScalafmtDynamicConfigServiceImpl.readVersion(file.getProject, _).toOption.flatten)

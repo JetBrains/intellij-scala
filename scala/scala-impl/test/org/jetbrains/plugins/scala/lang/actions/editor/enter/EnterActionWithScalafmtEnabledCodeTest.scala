@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStat
 import org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.scalafmt.dynamic.ScalafmtVersion
 
 abstract class EnterActionWithScalafmtEnabledTestBase
   extends EditorActionTestBase
@@ -19,8 +20,8 @@ abstract class EnterActionWithScalafmtEnabledTestBase
   override def setUp(): Unit = {
     super.setUp()
     ScalaFmtForTestsSetupOps.ensureDownloaded(
-      "2.7.5",
-      "3.0.0-RC6", // TODO: update to 3.0.0 when available
+      ScalafmtVersion(2, 7, 5),
+      ScalafmtVersion(3, 0, 0, 6)
     )
   }
 

@@ -2,13 +2,13 @@ package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicService}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.scalafmt.dynamic.ScalafmtVersion
 
 import scala.collection.mutable
 
@@ -21,8 +21,8 @@ trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase with ScalaFmtForTe
     super.setUp()
     ScalaFmtForTestsSetupOps.ensureDownloaded(
       DefaultVersion,
-      "2.7.5",
-      "2.5.3",
+      ScalafmtVersion(2, 7, 5),
+      ScalafmtVersion(2, 5, 3)
     )
   }
 
@@ -68,13 +68,13 @@ trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
 
 object ScalaFmtForTestsSetupOps {
 
-  def ensureDownloaded(versions: String*): Unit = {
+  def ensureDownloaded(versions: ScalafmtVersion*): Unit = {
     versions.foreach(ensureDownloadedSingle)
   }
 
-  private val alreadyDownloadedVersions = mutable.HashSet.empty[String]
+  private val alreadyDownloadedVersions = mutable.HashSet.empty[ScalafmtVersion]
 
-  private def ensureDownloadedSingle(version: String): Unit = synchronized {
+  private def ensureDownloadedSingle(version: ScalafmtVersion): Unit = synchronized {
     if (alreadyDownloadedVersions.contains(version))
       return
 
