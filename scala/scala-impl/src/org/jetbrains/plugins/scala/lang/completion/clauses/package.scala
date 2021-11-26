@@ -13,7 +13,7 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScPattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCaseClause, ScPattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -67,6 +67,7 @@ package object clauses {
                                             pairs: Iterable[(ScCaseClause, PatternComponents)]): Unit =
     adjustTypes(addImports, pairs) {
       case ScCaseClause(Some(pattern@ScTypedPattern(typeElement)), _, _) => pattern -> typeElement
+      case ScCaseClause(Some(pattern@Sc3TypedPattern((_, typeElement))), _, _) => pattern -> typeElement
     }
 
   private[clauses] def adjustTypes[E <: ScalaPsiElement](addImports: Boolean,
