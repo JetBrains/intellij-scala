@@ -21,9 +21,8 @@ import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.displayFormatError
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
+import org.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtNotifications}
@@ -46,6 +45,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
+import java.nio.file.{Path, Paths}
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -153,7 +153,7 @@ object ScalaFmtPreFormatProcessor {
 
     val rangeUpdated = fixRangeStartingOnPsiElement(file, range)
 
-    implicit val context: ConfigContext = ConfigContext(config, Option(file.getVirtualFile).safeMap(_.getCanonicalPath))
+    implicit val context: ConfigContext = ConfigContext(config, file)
 
     val result = formatRange(file, rangeUpdated)
     if (result.isRight) {
@@ -377,7 +377,7 @@ object ScalaFmtPreFormatProcessor {
     if (config == null || respectProjectMatcher && !configManager.isFileIncludedInProject(file, config))
       return
 
-    implicit val context: ConfigContext = ConfigContext(config, Option(file.getVirtualFile).safeMap(_.getCanonicalPath))
+    implicit val context: ConfigContext = ConfigContext(config, file)
     formatWithoutCommit(document) match {
       case Left(error: ScalafmtFormatError) =>
         reportInvalidCodeFailure(file, Some(error))(file.getProject)
@@ -1054,16 +1054,23 @@ object ScalaFmtPreFormatProcessor {
   /**
    * @param filePath used internally by scalafmt to detect overriden config via `fileOverride` option (from v2.5.0)
    */
-  private case class ConfigContext(config: ScalafmtReflectConfig, filePath: Option[String]) {
+  private case class ConfigContext(config: ScalafmtReflectConfig, filePath: Option[Path]) {
     def withConfig(newConfig: ScalafmtReflectConfig): ConfigContext = this.copy(config = newConfig)
+  }
+  private object ConfigContext {
+    def apply(config: ScalafmtReflectConfig, file: PsiFile) = {
+      val path = Option(file.getVirtualFile).flatMap { vfile =>
+        Option(vfile.getFileSystem.getNioPath(vfile))
+          .orElse(Option(vfile.getCanonicalPath).flatMap(path => Try(Paths.get(path)).toOption))
+      }
+      new ConfigContext(config, path)
+    }
   }
 
   private implicit class ScalafmtReflectExt(private val scalafmt: ScalafmtReflect) extends AnyVal {
 
     def tryFormat(code: String)(implicit context: ConfigContext): Either[ScalafmtFormatError, String] =
-      Try(scalafmt.format(code, context.config, context.filePath)).toEither.left.map {
-        case ReflectionException(e) => ScalafmtFormatError(e)
-        case e                      => ScalafmtFormatError(e)
-      }
+      scalafmt.tryFormat(code, context.config, context.filePath)
+        .toEither.left.map(x => ScalafmtFormatError(ReflectionException.flatten(x)))
   }
 }

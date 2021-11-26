@@ -131,7 +131,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       case Some(configManager) =>
         configManager.resolveConfigAsync(configFile, version, FmtVerbosity.Silent, onResolveFinished = {
           case Right(config) =>
-            updateScalafmtVersionLabel(config.version, isDefault = versionOpt.isEmpty)
+            updateScalafmtVersionLabel(config.getVersion.toString(), isDefault = versionOpt.isEmpty)
           case Left(error: ConfigError) =>
             updateScalafmtVersionLabel(version, isDefault = versionOpt.isEmpty)
             reportConfigResolveError(error)
@@ -143,7 +143,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
         Log.assertTrue(project.isDefault, "Config manager is expected to be missing only in default projects")
         ScalafmtDynamicService.instance.resolveAsync(version, project, {
           case Right(scalaFmtReflect) =>
-            updateScalafmtVersionLabel(scalaFmtReflect.version, isDefault = versionOpt.isEmpty)
+            updateScalafmtVersionLabel(scalaFmtReflect.version.toString(), isDefault = versionOpt.isEmpty)
           case Left(error: ScalafmtDynamicService.ScalafmtResolveError) =>
             updateScalafmtVersionLabel("")
             reportConfigResolveError(ConfigScalafmtResolveError(error))

@@ -21,13 +21,12 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigServiceImpl._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{DefaultVersion, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ScalafmtConfigException
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfigUtils
 import org.jetbrains.plugins.scala.lang.formatting.settings.{ScalaCodeStyleSettings, ScalaFmtSettingsPanel}
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -88,7 +87,7 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     }
     val configWithDialect =
       if (psiFile.isInstanceOf[SbtFileImpl]) {
-        config.map(_.withSbtDialect)
+        config.map(x => x.withSbtDialect.getOrElse(x))
       } else {
         config
       }
@@ -115,7 +114,7 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
   private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
     ScalafmtDynamicService.instance
       .resolve(DefaultVersion, project, downloadIfMissing = false, FmtVerbosity.FailSilent, projectResolvers(project))
-      .toOption.map(_.intellijScalaFmtConfig)
+      .toOption.flatMap(_.intellijScalaFmtConfig)
   }
 
   private def reportConfigurationFileNotFound(configPath: String): Unit = {
@@ -205,24 +204,23 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
 
   private def parseConfig(configFile: VirtualFile, fmtReflect: ScalafmtReflect): ConfigResolveResult =
     Try {
-      val configText = parseHoconFile(project, configFile).root.render()
-      fmtReflect.parseConfigFromString(configText)
+      parseHoconFile(project, configFile).root.render()
     }.toEither.left.map {
-      case e: ScalafmtConfigException =>
-        ConfigResolveError.ConfigParseError(configFile.getPath, e)
       case e: ConfigCyclicDependencyException =>
         ConfigResolveError.ConfigCyclicDependenciesError(configFile.getCanonicalPath, e)
       case e =>
         Log.error(e)
         ConfigResolveError.UnknownError(e)
+    }.flatMap { text =>
+      fmtReflect.parseConfigFromString(text).toEither.left.map { x =>
+        ConfigResolveError.ConfigParseError(configFile.getPath, x)
+      }
     }
-
-
 
   private def notifyConfigChanges(config: ScalafmtReflectConfig, cachedConfig: Option[CachedConfig]): Unit = {
     val contentChanged = !cachedConfig.map(_.config).contains(config)
     if (contentChanged) {
-      ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.picked.new.config", config.version))
+      ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.picked.new.config", config.getVersion))
     }
   }
 
