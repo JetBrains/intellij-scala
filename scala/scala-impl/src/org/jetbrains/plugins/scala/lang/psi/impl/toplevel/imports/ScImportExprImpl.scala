@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.TokenSets.IMPORT_WILDCARDS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprWithContextFromText
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 
 /**
@@ -100,6 +101,17 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
         }
       }
       remove(getNode)
+    }
+  }
+
+  override def deleteRedundantSingleSelectorBraces(): Unit = {
+    val remainingSingleSelector = this.selectors match {
+      case Seq(sel: ScImportSelector) if !sel.isAliasedImport => Some(sel)
+      case _                                                  => None
+    }
+    remainingSingleSelector.flatMap(_.reference).foreach { reference =>
+      val withoutBracesText = this.qualifier.fold("")(_.getText + ".") + reference.getText
+      this.replace(createImportExprWithContextFromText(withoutBracesText, this))
     }
   }
 

@@ -362,6 +362,7 @@
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order="first" id="scalaIntroduceParamterProcessor"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveRefactoringHelper"/>
+        <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaRemoveBracesInImportsRefactoringHelper"/>
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>

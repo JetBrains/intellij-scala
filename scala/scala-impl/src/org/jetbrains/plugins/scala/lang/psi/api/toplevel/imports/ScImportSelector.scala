@@ -22,7 +22,15 @@ trait ScImportSelector extends ScalaPsiElement {
 
   def wildcardElement: Option[PsiElement]
 
-  def deleteSelector(): Unit
+  /**
+   * @param removeRedunduntBraces whether to remove remaining redundant curly brace in the remaining single selector<br>
+   *                              example: {{{
+   *                                remove `d` in : import a.b.{c, d}`
+   *                                result (removeRedunduntBraces = false) : `import a.b.{c}
+   *                                result (removeRedunduntBraces = true)  : `import a.b.c
+   *                              }}}
+   */
+  def deleteSelector(removeRedundantBraces: Boolean): Unit
 
   def isAliasedImport: Boolean
 

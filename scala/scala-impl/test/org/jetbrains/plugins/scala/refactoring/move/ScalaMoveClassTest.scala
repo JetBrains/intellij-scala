@@ -56,18 +56,39 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
     doTest(Array("moveRefactoring.foo.B"), "moveRefactoring.bar")
   }
 
-  def testScl5456 (): Unit = {
+  def testScl5456(): Unit = {
     doTest(Array("com.A"), "org", Kinds.onlyClasses)
   }
 
-
-
-  def testRemoveImport(): Unit = {
+  def testRemoveImport_WithoutSelectors(): Unit = {
     doTest(Array("my.pkg.two.OtherThing"), "my.pkg.one")
   }
 
+  //SCL-19764
+  def testRemoveImport_MultipleSelectors_MoveAll(): Unit =
+    doTest(
+      Array(
+        "org.example.CompileOrder",
+        "org.example.DebuggingInfoLevel",
+        "org.example.IncrementalityType",
+        "org.example.SCompileOrder",
+        "org.example.SDebuggingInfoLevel",
+        "org.example.SIncrementalityType",
+      ),
+      "org.example.data"
+    )
 
-
+  //SCL-5036
+  def testRemoveImport_MultipleSelectors_MoveAllButOne(): Unit =
+    doTest(
+      Array(
+        "org.example.CompileOrder",
+        "org.example.DebuggingInfoLevel",
+        "org.example.SCompileOrder",
+        "org.example.SDebuggingInfoLevel",
+      ),
+      "org.example.data"
+    )
 }
 
 @Category(Array(classOf[FlakyTests]))

@@ -362,7 +362,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
   }
 
   def plainDeleteSelector(sel: ScImportSelector): Unit = {
-    sel.deleteSelector()
+    sel.deleteSelector(removeRedundantBraces = true)
   }
 }
 

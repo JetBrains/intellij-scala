@@ -55,12 +55,12 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
     else None
   }
 
-  override def deleteSelector(): Unit = {
-    val expr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-    if (expr.selectors.length == 1) {
-      expr.deleteExpr()
+  override def deleteSelector(removeRedundantBraces: Boolean): Unit = {
+    val importExpr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
+    if (importExpr.selectors.length == 1) {
+      importExpr.deleteExpr()
     }
-    val forward: Boolean = expr.selectors.head == this
+    val forward: Boolean = importExpr.selectors.head == this
     var node = this.getNode
     var prev = if (forward) node.getTreeNext else node.getTreePrev
     var t: IElementType = null
@@ -73,13 +73,8 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
       }
     } while (node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER || t == ScalaTokenType.WildcardStar))
 
-    expr.selectors match {
-      case Seq(sel: ScImportSelector) if !sel.isAliasedImport =>
-        sel.reference.foreach { reference =>
-          val withoutBracesText = expr.qualifier.fold("")(_.getText + ".") + reference.getText
-          expr.replace(createImportExprWithContextFromText(withoutBracesText, expr))
-        }
-      case _ =>
+    if (removeRedundantBraces) {
+      importExpr.deleteRedundantSingleSelectorBraces()
     }
   }
 

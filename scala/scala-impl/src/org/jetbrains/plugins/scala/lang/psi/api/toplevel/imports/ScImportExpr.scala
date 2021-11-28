@@ -6,7 +6,11 @@ package toplevel
 package imports
 
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
  * @author Alexander Podkhalyuzin
@@ -34,6 +38,8 @@ trait ScImportExpr extends ScalaPsiElement {
 
   def deleteExpr(): Unit
 
+  def deleteRedundantSingleSelectorBraces(): Unit
+
   def importedNames: Seq[String] = selectorSet match {
     case Some(set) => set.selectors.flatMap(_.importedName)
     case _ => reference.toSeq.map(_.refName)
@@ -46,4 +52,8 @@ object ScImportExpr {
   object qualifier {
     def unapply(expr: ScImportExpr): Option[ScStableCodeReference] = expr.qualifier
   }
+
+  @Nullable
+  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
+    ScalaPsiUtil.getParentOfTypeStoppingAtBlocks(element, clazz, strict)
 }

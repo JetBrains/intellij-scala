@@ -76,7 +76,7 @@ final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
   private def removeQualifier(ref: ScReference, qualifier: ScReference): Boolean = {
     ref.getParent match {
       case importExpr: ScImportExpr => importExpr.deleteExpr()
-      case importSelector: ScImportSelector => importSelector.deleteSelector()
+      case importSelector: ScImportSelector => importSelector.deleteSelector(removeRedundantBraces = true)
       case _ =>
         val identifier = ref.nameId
         val beforeId = identifier.getPrevSibling

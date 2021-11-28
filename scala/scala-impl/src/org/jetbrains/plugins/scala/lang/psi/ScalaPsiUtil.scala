@@ -21,6 +21,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util._
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
 import org.jetbrains.plugins.scala.externalLibraries.bm4.Implicit0Binding
@@ -1634,6 +1635,12 @@ object ScalaPsiUtil {
           )
         else designator
     }
+
+  @Nullable
+  def getParentOfTypeStoppingAtBlocks[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
+    PsiTreeUtil.getParentOfType(
+      element, clazz, strict, /*stopAt=*/ classOf[ScBlock], classOf[ScTemplateBody]
+    )
 }
 
 

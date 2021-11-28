@@ -20,11 +20,11 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMac
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScDerivesClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
@@ -42,10 +42,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 import scala.annotation.tailrec
 
-/**
- * @author AlexanderPodkhalyuzin
- *         Date: 22.02.2008
- */
 class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) with ScStableCodeReference {
 
   override def toString: String = s"CodeReferenceElement${debugKind.fold("")(" (" + _ + ")")}: ${ifReadAllowed(getText)("")}"
@@ -105,7 +101,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
 
-  //  @throws(IncorrectOperationException)
+  @throws(classOf[IncorrectOperationException])
   override def bindToElement(element: PsiElement): PsiElement = {
     def isCorrectReference(text: String): Option[ScStableCodeReference] = {
       val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
@@ -119,31 +115,33 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
     //this method may remove unnecessary imports
     def bindImportReference(c: ElementToImport): Boolean = {
-      val selector: ScImportSelector = PsiTreeUtil.getParentOfType(this, classOf[ScImportSelector])
-      val importExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
-
-      if (selector == null && importExpr == null)
-        return false
-
-      if (selector != null) {
-        selector.deleteSelector()
+      val importSelector: ScImportSelector =
+        ScImportExpr.getParentOfTypeInsideImport(this, classOf[ScImportSelector], strict = true)
+      if (importSelector != null) {
+        importSelector.deleteSelector(removeRedundantBraces = false)
+        true
       }
-      else if (importExpr != null) {
-        if (importExpr == getParent && !importExpr.hasWildcardSelector && importExpr.selectorSet.isEmpty) {
-          val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
-          importExpr.deleteExpr()
-          c match {
-            case ClassToImport(clazz) => holder.addImportForClass(clazz)
-            case ta => holder.addImportForPath(ta.qualifiedName)
+      else {
+        val importExpr =ScImportExpr.getParentOfTypeInsideImport(this, classOf[ScImportExpr], strict = true)
+        if (importExpr != null) {
+          if (importExpr == getParent && !importExpr.hasWildcardSelector && importExpr.selectorSet.isEmpty) {
+            val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
+            importExpr.deleteExpr()
+            c match {
+              case ClassToImport(clazz) => holder.addImportForClass(clazz)
+              case ta => holder.addImportForPath(ta.qualifiedName)
+            }
+          } else {
+            //qualifier reference in import expression
+            isCorrectReference(c.name)
+              .orElse(isCorrectReference(c.qualifiedName))
+              .map(replaceThisBy)
           }
-        } else {
-          //qualifier reference in import expression
-          isCorrectReference(c.name)
-            .orElse(isCorrectReference(c.qualifiedName))
-            .map(replaceThisBy)
+          true
         }
+        else
+          false
       }
-      true
     }
 
 
@@ -233,8 +231,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             bindToElement(constr.containingClass)
           case JavaConstructor(constr) =>
             bindToElement(constr.containingClass)
-          case pckg: PsiPackage => bindToPackage(pckg)
-          case _ => throw new IncorrectOperationException(s"Cannot bind to $element")
+          case pckg: PsiPackage =>
+            bindToPackage(pckg)
+          case _ =>
+            throw new IncorrectOperationException(s"Cannot bind to $element")
         }
       }
     }
@@ -248,10 +248,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     }.mkString("\n")
   }
 
-  private def reportWrongKind(c: ElementToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
+  private def reportWrongKind(elementToImport: ElementToImport, suitableKinds: Set[ResolveTargets.Value]): Nothing = {
     val contextText = contextsElementKinds
     throw new IncorrectOperationException(
-      s"""${c.element} does not match expected kind,
+      s"""${elementToImport.element} does not match expected kind,
          |kinds: ${suitableKinds.mkString(", ")}
          |problem place: $refName in
          |$contextText""".stripMargin)
@@ -263,7 +263,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   override def delete(): Unit = {
     getContext match {
-      case sel: ScImportSelector => sel.deleteSelector()
+      case sel: ScImportSelector => sel.deleteSelector(removeRedundantBraces = true)
       case expr: ScImportExpr => expr.deleteExpr()
       case _ => super.delete()
     }
