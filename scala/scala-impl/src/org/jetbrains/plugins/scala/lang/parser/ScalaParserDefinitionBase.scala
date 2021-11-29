@@ -5,10 +5,9 @@ package parser
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{FileViewProvider, PsiElement}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 //noinspection TypeAnnotation
 abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
@@ -34,7 +33,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
   override def getWhitespaceTokens = WHITES_SPACES_TOKEN_SET
 
   override def spaceExistenceTypeBetweenTokens(leftNode: ASTNode, rightNode: ASTNode): ParserDefinition.SpaceRequirements = {
-    val isNeighbour = PsiTreeUtil.getParentOfType(leftNode.getPsi, classOf[ScImportStmt]) match {
+    val isNeighbour = ScalaPsiUtil.getParentImportStatement(leftNode.getPsi) match {
       case null => false
       case importStatement => importStatement.getTextRange.getEndOffset == rightNode.getTextRange.getStartOffset
     }

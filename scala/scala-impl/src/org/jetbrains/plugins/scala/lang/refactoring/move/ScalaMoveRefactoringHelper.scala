@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move
 
-import java.util
-
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.refactoring.util.MoveRenameUsageInfo
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+
+import java.util
 
 class ScalaMoveRefactoringHelper extends RefactoringHelper[Unit] {
 
@@ -17,7 +16,7 @@ class ScalaMoveRefactoringHelper extends RefactoringHelper[Unit] {
       case moveUsage: MoveRenameUsageInfo =>
         moveUsage.getReference match {
           case scRef: ScReference =>
-            val isImportRef = PsiTreeUtil.getParentOfType(scRef, classOf[ScImportExpr]) != null
+            val isImportRef = ScalaPsiUtil.getParentImportExpression(scRef) != null
 
             if (isImportRef) 0
             else 1

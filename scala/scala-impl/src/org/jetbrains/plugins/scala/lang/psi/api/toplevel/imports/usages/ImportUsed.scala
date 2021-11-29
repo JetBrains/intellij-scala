@@ -126,7 +126,7 @@ object ImportExprUsed {
 class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
 
   override def importExpr: Option[ScImportExpr] =
-    Option(element).map(PsiTreeUtil.getParentOfType(_, classOf[ScImportExpr]))
+    Option(element).map(ScalaPsiUtil.getParentImportExpression)
 
   override def qualName: Option[String] = {
     importExpr.flatMap(_.reference).zip(sel.reference).map {

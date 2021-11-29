@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
 import java.util
-
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -28,7 +27,8 @@ object ImportMembersUtil {
     case _ => false
   }
 
-  def isInImport(element: PsiElement): Boolean = PsiTreeUtil.getParentOfType(element, classOf[ScImportExpr]) != null
+  def isInImport(element: PsiElement): Boolean =
+    ScalaPsiUtil.getParentImportExpression(element) != null
 
   def hasQualifier(ref: ScReference): Boolean = {
     ref match {
@@ -140,8 +140,7 @@ object ImportMembersUtil {
   }
 
   object isQualifierInImport {
-    def unapply(qual: ScStableCodeReference): Option[ScImportExpr] = {
-      PsiTreeUtil.getParentOfType(qual, classOf[ScImportExpr]).toOption
-    }
+    def unapply(qual: ScStableCodeReference): Option[ScImportExpr] =
+      ScalaPsiUtil.parentImportExpression(qual)
   }
 }

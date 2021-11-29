@@ -56,7 +56,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   }
 
   override def deleteSelector(removeRedundantBraces: Boolean): Unit = {
-    val importExpr: ScImportExpr = PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr])
+    val importExpr: ScImportExpr = ScalaPsiUtil.getParentImportExpression(this)
     if (importExpr.selectors.length == 1) {
       importExpr.deleteExpr()
     }

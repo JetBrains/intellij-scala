@@ -3,8 +3,6 @@ package lang
 package refactoring
 package delete
 
-import java.util
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.{Condition, TextRange}
 import com.intellij.psi._
@@ -18,6 +16,7 @@ import com.intellij.usageView.UsageInfo
 import com.intellij.util._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScPrimaryConstructor, ScStableCodeReference}
@@ -25,12 +24,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssign
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 
-import scala.jdk.CollectionConverters._
+import java.util
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * This is a port of the static, private mtehods in JavaSafeDeleteProcessor.
@@ -80,7 +79,7 @@ object SafeDeleteProcessorUtil {
           }
 
           val usagesToAdd = if (shouldDelete) {
-            val isInImport = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null
+            val isInImport = ScalaPsiUtil.getParentImportStatement(element) != null
             if (isInImport) Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, true)) // delete without review
             else Seq(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiClass, false)) // delete with review
           } else Seq() // don't delete
@@ -126,7 +125,7 @@ object SafeDeleteProcessorUtil {
     references.forEach { reference =>
       val element: PsiElement = reference.getElement
       if (!isInside(element, allElementsToDelete) && !isInside(element, overridingMethods.map(x => x: PsiElement))) {
-        val isReferenceInImport = PsiTreeUtil.getParentOfType(element, classOf[ScImportStmt]) != null
+        val isReferenceInImport = ScalaPsiUtil.getParentImportStatement(element) != null
         usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(element, psiMethod, isReferenceInImport))
       }
     }

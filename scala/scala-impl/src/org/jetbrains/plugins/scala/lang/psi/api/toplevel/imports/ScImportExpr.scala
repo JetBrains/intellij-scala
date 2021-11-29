@@ -52,8 +52,4 @@ object ScImportExpr {
   object qualifier {
     def unapply(expr: ScImportExpr): Option[ScStableCodeReference] = expr.qualifier
   }
-
-  @Nullable
-  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
-    ScalaPsiUtil.getParentOfTypeStoppingAtBlocks(element, clazz, strict)
 }

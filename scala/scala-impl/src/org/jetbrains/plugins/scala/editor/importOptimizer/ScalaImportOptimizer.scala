@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -853,13 +853,13 @@ object ScalaImportOptimizer {
 
     element match {
       case impQual: ScStableCodeReference
-        if impQual.qualifier.isEmpty && PsiTreeUtil.getParentOfType(impQual, classOf[ScImportStmt]) != null =>
+        if impQual.qualifier.isEmpty && ScalaPsiUtil.getParentImportStatement(impQual) != null =>
         //don't add as ImportUsed to be able to optimize it away if it is used only in unused imports
         val hasImportUsed = impQual.multiResolveScala(false).exists(_.importsUsed.nonEmpty)
         if (hasImportUsed) {
           names.add(UsedName(impQual.refName, impQual.getTextRange.getStartOffset))
         }
-      case ref: ScReference if PsiTreeUtil.getParentOfType(ref, classOf[ScImportStmt]) == null =>
+      case ref: ScReference if ScalaPsiUtil.getParentImportStatement(ref) == null =>
         ref.multiResolveScala(false).foreach(addWithImplicits(_, ref))
       case c: ScConstructorInvocation =>
         c.findImplicitArguments match {

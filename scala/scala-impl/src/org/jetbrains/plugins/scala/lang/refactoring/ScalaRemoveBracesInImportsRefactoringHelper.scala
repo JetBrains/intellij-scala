@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRemoveBracesInImportsRefactoringHelper._
 
@@ -24,7 +25,7 @@ final class ScalaRemoveBracesInImportsRefactoringHelper extends RefactoringHelpe
           case null =>
             None
           case element =>
-            val importExpr = ScImportExpr.getParentOfTypeInsideImport(element, classOf[ScImportExpr], strict = false)
+            val importExpr = ScalaPsiUtil.getParentOfTypeInsideImport(element, classOf[ScImportExpr], strict = false)
             Option(importExpr)
         }
       }

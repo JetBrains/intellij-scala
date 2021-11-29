@@ -38,7 +38,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -1641,6 +1641,27 @@ object ScalaPsiUtil {
     PsiTreeUtil.getParentOfType(
       element, clazz, strict, /*stopAt=*/ classOf[ScBlock], classOf[ScTemplateBody]
     )
+
+  @Nullable
+  def getParentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): T =
+    ScalaPsiUtil.getParentOfTypeStoppingAtBlocks(element, clazz, strict)
+
+  def parentOfTypeInsideImport[T <: PsiElement](element: PsiElement, clazz: Class[T], strict: Boolean): Option[T] =
+    Option(getParentOfTypeInsideImport(element, clazz, strict))
+
+  @Nullable
+  def getParentImportExpression(element: PsiElement): ScImportExpr =
+    getParentOfTypeInsideImport(element, classOf[ScImportExpr], strict = true)
+
+  def parentImportExpression(element: PsiElement): Option[ScImportExpr] =
+    Option(getParentImportExpression(element))
+
+  @Nullable
+  def getParentImportStatement(element: PsiElement): ScImportStmt =
+    getParentOfTypeInsideImport(element, classOf[ScImportStmt], strict = true)
+
+  def parentImportStatement(element: PsiElement): Option[ScImportStmt] =
+    Option(getParentImportStatement(element))
 }
 
 
