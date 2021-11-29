@@ -21,7 +21,6 @@ import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.ComboBoxKt_Wrapper
-import org.jetbrains.sbt.project.template.wizard.kotlin_interop.dsl.RowOps
 import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizard, ScalaNewProjectWizardStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
