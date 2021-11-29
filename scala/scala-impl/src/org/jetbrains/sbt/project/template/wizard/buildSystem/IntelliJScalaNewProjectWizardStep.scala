@@ -38,8 +38,6 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
   //noinspection ApiStatus,UnstableApiUsage
   override def customOptions(panel: Panel): Unit = {
-    import org.jetbrains.sbt.project.template.wizard.kotlin_interop.dsl.RowOps
-
     panel.row(scalaSdkLabelText, (row: Row) => {
       val simplePanel = libraryPanel.getSimplePanel
       val components = simplePanel.getComponents.map(_.asInstanceOf[JComponent])
