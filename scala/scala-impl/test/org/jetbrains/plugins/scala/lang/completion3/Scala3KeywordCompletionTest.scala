@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 
 class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
 
@@ -294,6 +295,40 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     resultText = s"transparent trait $CARET",
     item = "trait"
   )
+
+  /// ENUM
+
+  def testEnumTopLevel(): Unit = doCompletionTest(
+    fileText = s"en$CARET",
+    resultText = s"enum $CARET",
+    item = "enum"
+  )
+
+  def testEnumInsideObject(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  en$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  enum $CARET
+         |""".stripMargin,
+    item = "enum"
+  )
+
+  def testEnumAfterAccessModifier(): Unit = doCompletionTest(
+    fileText = s"private en$CARET",
+    resultText = s"private enum $CARET",
+    item = "enum"
+  )
+
+  def testNoCompletionEnumAfterSoftModifiers(): Unit =
+    ScalaKeyword.SOFT_MODIFIERS.foreach { softModifier =>
+      checkNoBasicCompletion(
+        fileText = s"$softModifier en$CARET",
+        item = "enum"
+      )
+    }
 
   /// EXTENSION
 
@@ -863,6 +898,32 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
          |  yield $CARET
          |""".stripMargin,
     item = "yield"
+  )
+
+  /// CASE toplevel
+
+  def testCaseTopLevel(): Unit = doCompletionTest(
+    fileText =
+      s"""c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testCaseTopLevelWithPackage(): Unit = doCompletionTest(
+    fileText =
+      s"""package com.example
+         |
+         |c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""package com.example
+         |
+         |case $CARET
+         |""".stripMargin,
+    item = "case"
   )
 
   /// CASE in "quiet" try-catch
@@ -1564,6 +1625,44 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
          |  export $CARET
          |""".stripMargin,
     item = "export"
+  )
+
+  /// EXTENDS in enum cases
+
+  def testExtendsAfterEnumCase(): Unit = doCompletionTest(
+    fileText =
+      s"""enum Color(val rgb: Int):
+         |  case Red ex$CARET
+         |""".stripMargin,
+    resultText =
+      s"""enum Color(val rgb: Int):
+         |  case Red extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterEnumCaseWithConstructor(): Unit = doCompletionTest(
+    fileText =
+      s"""enum Tree[T]:
+         |  case True extends Tree[Boolean]
+         |  case False extends Tree[Boolean]
+         |  case Zero extends Tree[Int]
+         |  case Succ(n: Tree[Int]) extends Tree[Int]
+         |  case Pred(n: Tree[Int]) ex$CARET
+         |  case IsZero(n: Tree[Int]) extends Tree[Boolean]
+         |  case If[X](cond: Tree[Boolean], thenp: Tree[X], elsep: Tree[X]) extends Tree[X]
+         |""".stripMargin,
+    resultText =
+      s"""enum Tree[T]:
+         |  case True extends Tree[Boolean]
+         |  case False extends Tree[Boolean]
+         |  case Zero extends Tree[Int]
+         |  case Succ(n: Tree[Int]) extends Tree[Int]
+         |  case Pred(n: Tree[Int]) extends $CARET
+         |  case IsZero(n: Tree[Int]) extends Tree[Boolean]
+         |  case If[X](cond: Tree[Boolean], thenp: Tree[X], elsep: Tree[X]) extends Tree[X]
+         |""".stripMargin,
+    item = "extends"
   )
 
 }
