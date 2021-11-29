@@ -1601,4 +1601,42 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "export"
   )
 
+  /// EXTENDS in enum cases
+
+  def testExtendsAfterEnumCase(): Unit = doCompletionTest(
+    fileText =
+      s"""enum Color(val rgb: Int):
+         |  case Red ex$CARET
+         |""".stripMargin,
+    resultText =
+      s"""enum Color(val rgb: Int):
+         |  case Red extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsAfterEnumCaseWithConstructor(): Unit = doCompletionTest(
+    fileText =
+      s"""enum Tree[T]:
+         |  case True extends Tree[Boolean]
+         |  case False extends Tree[Boolean]
+         |  case Zero extends Tree[Int]
+         |  case Succ(n: Tree[Int]) extends Tree[Int]
+         |  case Pred(n: Tree[Int]) ex$CARET
+         |  case IsZero(n: Tree[Int]) extends Tree[Boolean]
+         |  case If[X](cond: Tree[Boolean], thenp: Tree[X], elsep: Tree[X]) extends Tree[X]
+         |""".stripMargin,
+    resultText =
+      s"""enum Tree[T]:
+         |  case True extends Tree[Boolean]
+         |  case False extends Tree[Boolean]
+         |  case Zero extends Tree[Int]
+         |  case Succ(n: Tree[Int]) extends Tree[Int]
+         |  case Pred(n: Tree[Int]) extends $CARET
+         |  case IsZero(n: Tree[Int]) extends Tree[Boolean]
+         |  case If[X](cond: Tree[Boolean], thenp: Tree[X], elsep: Tree[X]) extends Tree[X]
+         |""".stripMargin,
+    item = "extends"
+  )
+
 }
