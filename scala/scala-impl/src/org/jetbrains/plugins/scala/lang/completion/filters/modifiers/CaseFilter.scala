@@ -6,28 +6,30 @@ package filters.modifiers
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
+import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.CaseFilter._
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 
 /** 
 * @author Alexander Podkhalyuzin
 * Date: 22.05.2008
 */
-
 class CaseFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
-    
+
     if (leaf != null && leaf.getParent != null) {
-      val parent = leaf.getParent
+      val parent =
+        if (isToplevelScala3Leaf(leaf)) leaf.getParent.getParent
+        else leaf.getParent
       parent match {
         case _: ScalaFile =>
           if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.is[ScPackaging] &&
@@ -103,4 +105,11 @@ class CaseFilter extends ElementFilter {
 
   @NonNls
   override def toString = "'case' keyword filter"
+}
+
+object CaseFilter {
+  private def isToplevelScala3Leaf(leaf: PsiElement) = leaf.getParent match {
+    case ref: ScReferenceExpression if ref.isInScala3File => ref.getParent.is[ScPackaging, ScFile]
+    case _ => false
+  }
 }

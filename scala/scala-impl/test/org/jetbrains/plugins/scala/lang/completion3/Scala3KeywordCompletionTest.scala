@@ -900,6 +900,32 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "yield"
   )
 
+  /// CASE toplevel
+
+  def testCaseTopLevel(): Unit = doCompletionTest(
+    fileText =
+      s"""c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testCaseTopLevelWithPackage(): Unit = doCompletionTest(
+    fileText =
+      s"""package com.example
+         |
+         |c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""package com.example
+         |
+         |case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
   /// CASE in "quiet" try-catch
 
   private val throwingFunctionDefinition =
