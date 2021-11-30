@@ -101,7 +101,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
-    panel.collapsibleGroup(UIBundle.message("label.project.wizard.new.project.advanced.settings"), true, true, null, (panel: Panel) => {
+    panel.collapsibleGroup(UIBundle.message("label.project.wizard.new.project.advanced.settings"), true, (panel: Panel) => {
       if (getContext.isCreatingNewProject) {
         panel.row(UIBundle.message("label.project.wizard.new.project.module.name"), (row: Row) => {
           val validator: kotlin.jvm.functions.Function2[ValidationInfoBuilder, JBTextField, ValidationInfo] = (builder, field) => {
