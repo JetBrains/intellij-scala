@@ -34,7 +34,7 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
 
   protected def createFixture(): CodeInsightTestFixture = {
     val factory = IdeaTestFixtureFactory.getFixtureFactory
-    val builder = factory.createLightFixtureBuilder(getProjectDescriptor)
+    val builder = factory.createLightFixtureBuilder(getProjectDescriptor, getTestName(false))
     factory.createCodeInsightFixture(builder.getFixture)
   }
 
@@ -77,7 +77,7 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
   }
 
   def describe(tree: PsiElement): String = toString(tree, 0)
-  
+
   private def toString(root: PsiElement, level: Int): String = {
     val indent = List.fill(level)("  ").mkString
     val content = if (root.isInstanceOf[LeafPsiElement])
