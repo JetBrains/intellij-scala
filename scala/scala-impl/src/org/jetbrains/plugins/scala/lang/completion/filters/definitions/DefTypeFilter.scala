@@ -7,9 +7,10 @@ package definitions
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
@@ -27,6 +28,8 @@ class DefTypeFilter extends ElementFilter {
       val parent = leaf.getParent
       parent match {
         case _: ScReferenceExpression =>
+        case file: ScalaFile if file.isScala3File =>
+          return awful(parent, leaf)
         case _ => return false
       }
       parent.getParent match {
