@@ -1665,4 +1665,30 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "extends"
   )
 
+  /// toplevel DEF
+
+  def testToplevelDef(): Unit = doCompletionTest(
+    fileText =
+      s"""package foo.bar
+         |
+         |@main d$CARET""".stripMargin,
+    resultText =
+      s"""package foo.bar
+         |
+         |@main def $CARET""".stripMargin,
+    item = "def"
+  )
+
+  def testToplevelDefWithoutPackage(): Unit = doCompletionTest(
+    fileText = s"@main d$CARET",
+    resultText = s"@main def $CARET",
+    item = "def"
+  )
+
+  def testToplevelDefWithoutPackage2(): Unit = doCompletionTest(
+    fileText = s"@scala.annotation.tailrec d$CARET",
+    resultText = s"@scala.annotation.tailrec def $CARET",
+    item = "def"
+  )
+
 }
