@@ -112,7 +112,8 @@ class ImplicitCollector(
   extensionData:              Option[ExtensionConversionData] = None,
   fullInfo:                   Boolean = false,
   previousRecursionState:     Option[ImplicitsRecursionGuard.RecursionMap] = None,
-  withExtensions:             Boolean = false
+  withExtensions:             Boolean = false,
+  forCompletion:              Boolean = false
 ) {
   def this(state: ImplicitState) = {
     this(state.place, state.tp, state.expandedTp, state.coreElement, state.isImplicitConversion,
@@ -159,7 +160,12 @@ class ImplicitCollector(
 
         //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?
         allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
-      } else {
+      }
+      else if (forCompletion) {
+        val allCandidates = visibleNamesCandidates() ++ fromTypeCandidates()
+        collectCompatibleForCompletion(allCandidates)
+      }
+      else {
         ImplicitCollector.cache(project)
           .getOrCompute(place, tp, mayCacheResult = !isExtensionConversion) {
             //Step 1: Process only extension candidates in lexical scope
@@ -234,6 +240,19 @@ class ImplicitCollector(
     afterExtensionPredicate
       .filter(_.implicitReason.is[FullInfoResult])
       .toSeq
+  }
+
+  private def collectCompatibleForCompletion(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
+    val filteredCandidates = mutable.HashSet.empty[ScalaResolveResult]
+
+    for (c <- candidates) {
+      val compatible = checkCompatible(c, withLocalTypeInference = false) ++ checkCompatible(c, withLocalTypeInference = true)
+      filteredCandidates ++= compatible.filter(isValidImplicitResult)
+      if (withExtensions) {
+        filteredCandidates ++= collectExtensionsFromImplicitResult(c, extensionData)
+      }
+    }
+    filteredCandidates.toSeq
   }
 
   private def possibleFunctionN(clazz: PsiClass): Option[Int] =
@@ -311,9 +330,8 @@ class ImplicitCollector(
             //process return types of all candidates to search for extensions
             for {
               result <- compatible
-              extData <- extensionData
             } {
-              val extensions = collectExtensionsFromImplicitResult(result, extData)
+              val extensions = collectExtensionsFromImplicitResult(result, extensionData)
               filteredCandidates ++= extensions
             }
           }
@@ -342,10 +360,9 @@ class ImplicitCollector(
    */
   private def collectExtensionsFromImplicitResult(
     result:        ScalaResolveResult,
-    extensionData: ExtensionConversionData
+    extensionData: Option[ExtensionConversionData]
   ): Set[ScalaResolveResult] = {
-    val place = extensionData.place
-    val proc  = new ExtensionProcessor(place, extensionData.refName)
+    val proc  = new ExtensionProcessor(place, name = extensionData.map(_.refName).getOrElse(""), forCompletion)
     val tp    = InferUtil.extractImplicitParameterType(result)
 
     tp.foreach { t =>
@@ -662,7 +679,12 @@ class ImplicitCollector(
       ImplicitCollector.cache(project).getNonValueTypes(fun, c.substitutor, typeFromMacro)
 
     nonValueFunctionTypes.undefinedType match {
-      case Some(undefined: ScType) =>
+      case Some(undefined0: ScType) =>
+
+        val undefined = undefined0 match {
+          case Scala3Conversion(argType, resType) if isImplicitConversion => FunctionType(resType, Seq(argType))(fun.elementScope)
+          case _ => undefined0
+        }
 
         val undefinedConforms =
           if (isImplicitConversion) checkWeakConformance(undefined, maskTypeParametersInExtensions(tp, c))

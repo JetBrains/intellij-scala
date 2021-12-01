@@ -1674,6 +1674,12 @@ class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicComp
     resultText = s"Nil.lengthIs$CARET",
     item = "lengthIs"
   )
+
+  def testMethodFromImplicitConversion(): Unit = doCompletionTest(
+    s"""def test(): Unit = 1.unti$CARET""".stripMargin,
+    """def test(): Unit = 1.until()""".stripMargin,
+    item = "until"
+  )
 }
 
 @RunWithScalaVersions(Array(

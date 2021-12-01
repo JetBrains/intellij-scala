@@ -151,6 +151,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |""".stripMargin
   )
 
+  //actually compiles, but probably should not
   def testAmbiguousExtensionAndConversion(): Unit = checkHasErrorAroundCaret(
     s"""
        |object A {
@@ -160,6 +161,23 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |  }
        |
        |  implicit class IntOps(val x: Int) { def foo: Int = 123 }
+       |  123.fo${CARET}o
+       |}
+       |""".stripMargin
+  )
+
+  def testAmbiguousExtensionAndConversion2(): Unit = checkHasErrorAroundCaret(
+    s"""
+       |object A {
+       |  trait F
+       |  given F with {
+       |    extension (x: Int) { def foo: Int = 123 }
+       |  }
+       |
+       |  class IntOps(val x: Int) { def foo: Int = 123 }
+       |
+       |  given Conversion[Int, IntOps] = new IntOps(_)
+       |
        |  123.fo${CARET}o
        |}
        |""".stripMargin
@@ -183,6 +201,73 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |""".stripMargin
   )
+//
+//  def testAmbiguousExtensionsWithExpectedType(): Unit = {
+//    checkTextHasNoErrors(
+//      """
+//        |object B:
+//        |  trait F
+//        |  given F with {
+//        |    extension (x: Int) { def foo: Int = 123 }
+//        |  }
+//        |
+//        |  trait G
+//        |  given G with {
+//        |    extension (x: Int) { def foo: String = "123" }
+//        |  }
+//        |
+//        |  val s: Int = 123.foo
+//        |""".stripMargin
+//    )
+//  }
+//
+//  def testAmbiguousImplicitClassesWithExpectedType(): Unit = {
+//    checkTextHasNoErrors(
+//      """
+//        |object B {
+//        |  implicit class IntOps1(val x: Int) { def fooz: Int = 123 }
+//        |  implicit class IntOps2(val x: Int) { def fooz: String = "123" }
+//        |
+//        |  val s: String = 123.fooz
+//        |}
+//        |""".stripMargin
+//    )
+//  }
+
+  def testAmbiguousExtensionWithExpectedTypeAndTypeArgs(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object B {
+      |  trait F
+      |  given F with {
+      |    extension (x: Int) { def foo[X]: X = ??? }
+      |  }
+      |
+      |  trait G
+      |  given G with {
+      |    extension (x: Int) { def foo[Y]: String = "123" }
+      |  }
+      |
+      |  val s: Int = 123.f${CARET}oo[Int]
+      |}""".stripMargin
+  )
+
+  def testAmbiguousExtensionWithExpectedTypeAndArgs(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |object B {
+      |  trait F
+      |  given F with {
+      |    extension (x: Int) { def foo(i: Int): Int = ??? }
+      |  }
+      |
+      |  trait G
+      |  given G with {
+      |    extension (x: Int) { def foo(i: Int): String = "123" }
+      |  }
+      |
+      |  val s: Int = 123.fo${CARET}o(1)
+      |}""".stripMargin
+  )
+
 
   def testResolveFromInsideExtension(): Unit = checkTextHasNoErrors(
     """

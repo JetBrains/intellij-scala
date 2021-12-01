@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticValue}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
@@ -462,8 +462,8 @@ object ResolveUtils {
       if (cand.isEmpty && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
 
-        ImplicitResolveResult.processImplicitConversionsAndExtensions(
-          "apply",
+        ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
+          Some("apply"),
           expr,
           applyProc,
           precalculatedType = Some(tp)
