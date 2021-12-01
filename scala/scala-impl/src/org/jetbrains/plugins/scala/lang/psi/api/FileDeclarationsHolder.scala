@@ -190,7 +190,7 @@ object FileDeclarationsHolder {
     place.getContainingFile match {
       case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
       case scalaFile: ScalaFile =>
-        val file = Option(scalaFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
+        val file = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
         if (file == null) return false
 
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
