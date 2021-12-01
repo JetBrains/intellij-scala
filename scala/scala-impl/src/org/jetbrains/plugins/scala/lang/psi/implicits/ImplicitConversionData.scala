@@ -31,7 +31,7 @@ abstract class ImplicitConversionData {
   protected def returnType: ScType
   protected def substitutor: ScSubstitutor
 
-  def withSubstitutor(s: ScSubstitutor): ImplicitConversionData
+  def withSubstitutor(substitutor: ScSubstitutor): ImplicitConversionData
 
   override def toString: String = element.name
 
@@ -175,7 +175,7 @@ object ImplicitConversionData {
 
     protected override lazy val returnType: ScType = substitutor(rawReturnType)
 
-    override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
+    override def withSubstitutor(substitutor: ScSubstitutor): ImplicitConversionData =
       new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor)
   }
 
@@ -201,7 +201,7 @@ object ImplicitConversionData {
 
     override protected def returnType: ScType = functionTypeParams.map(_._2).getOrElse(stdTypes.Any)
 
-    override def withSubstitutor(s: ScSubstitutor): ImplicitConversionData =
+    override def withSubstitutor(substitutor: ScSubstitutor): ImplicitConversionData =
       new ElementWithFunctionTypeData(element, rawElementType, substitutor)
 
     private def extractFunctionTypeParameters(functionTypeCandidate: ScType,
