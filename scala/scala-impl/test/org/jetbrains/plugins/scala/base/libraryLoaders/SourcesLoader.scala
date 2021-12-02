@@ -19,10 +19,6 @@ case class SourcesLoader(rootPath: String) extends LibraryLoader {
     PsiTestUtil.addSourceRoot(module, rootFile)
   }
 
-  override def clean(implicit module: Module): Unit = {
-    PsiTestUtil.removeSourceRoot(module, rootFile)
-  }
-
   private def rootFile: VirtualFile =
     LocalFileSystem.getInstance.refreshAndFindFileByPath(rootPath)
 }

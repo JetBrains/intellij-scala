@@ -219,7 +219,7 @@ object ReferenceComparisonTestBase {
         Some(resultsWithProblems.map(rr => rr.problems.mkString(" and ") + s" for ${rr.name}").mkString(", "))
       else None
     }*/
-    def failedToResolve: Boolean = resolved.isEmpty || problems.nonEmpty
+    def failedToResolve: Boolean = resolved.size != 1 || problems.nonEmpty
   }
 
   object RefInfo {

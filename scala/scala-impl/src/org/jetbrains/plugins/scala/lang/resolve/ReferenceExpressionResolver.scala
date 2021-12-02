@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScForImpl
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitResolveResult, ScImplicitlyConvertible}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitConversionResolveResult, ScImplicitlyConvertible}
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.api.UndefinedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
@@ -648,16 +648,14 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           (!shape && candidates.forall(!_.isApplicable()))
 
       if (noApplicableCandidates || withImplicitConversion) {
-        processor match {
-          case processor: CompletionProcessor => completeImplicits(qualifier, processor)
-          case _ =>
-              ImplicitResolveResult.processImplicitConversionsAndExtensions(
-                targetNameFor(processor),
-                ref,
-                processor,
-                noImplicitsForArgs = candidates.nonEmpty
-              )(_.withImports.withImplicitType.withType)(qualifier)
-        }
+        ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(
+          targetNameFor(processor),
+          ref,
+          processor,
+          noImplicitsForArgs = candidates.nonEmpty,
+          forCompletion = processor.is[CompletionProcessor]
+        )(_.withImports.withImplicitType.withType)(qualifier)
+
 
         (processor, processor.candidates) match {
           case (methodProcessor: MethodResolveProcessor, Array()) if conformsToDynamic(fromType, ref.resolveScope) =>
@@ -669,13 +667,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       } else processor
     }
 
-    def completeImplicits(qualifier: ScExpression,
-                          processor: CompletionProcessor): Unit = for {
-      result <- ScImplicitlyConvertible.applicableImplicitConversions(qualifier)
-      builder = result.builder.withImports.withImplicitType
-    } processor.processType(result.`type`, qualifier, builder.state)
-
-    def targetNameFor(processor: BaseProcessor): String = processor match {
+    def targetNameFor(processor: BaseProcessor): Option[String] = processor match {
+      case _: CompletionProcessor => None
       case processor: ResolveProcessor =>
         processor.resetPrecedence() //do not clear candidate set, we want wrong resolve, if don't found anything
         processor match {
@@ -683,8 +676,8 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           case _ =>
         }
 
-        processor.name // See SCL-2934.
-      case _ => ref.refName
+        Some(processor.name) // See SCL-2934.
+      case _ => Some(ref.refName)
     }
 
     if (!accessibilityCheck) processor.doNotCheckAccessibility()

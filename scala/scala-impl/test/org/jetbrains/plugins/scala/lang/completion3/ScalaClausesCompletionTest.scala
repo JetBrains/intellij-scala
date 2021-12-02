@@ -3,7 +3,12 @@ package lang
 package completion3
 
 import com.intellij.application.options.CodeStyle
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
+//todo: fix for Scala 3
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 

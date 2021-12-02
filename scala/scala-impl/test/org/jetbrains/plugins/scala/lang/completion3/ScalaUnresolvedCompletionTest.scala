@@ -2,13 +2,17 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement}
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.completion.ScalaTextLookupItem
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert
 
 /**
   * Created by Kate Ustiuzhanin on 24/03/2017.
   */
+//todo fix for Scala 3
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
 
   def testFieldVal(): Unit = {

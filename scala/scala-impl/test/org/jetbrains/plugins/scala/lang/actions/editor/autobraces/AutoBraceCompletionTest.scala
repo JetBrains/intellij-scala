@@ -9,7 +9,11 @@ import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerSe
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
 class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
 
   protected override def setUp(): Unit = {

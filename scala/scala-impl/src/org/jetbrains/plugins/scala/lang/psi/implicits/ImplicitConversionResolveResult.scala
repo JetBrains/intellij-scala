@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.psi.{PsiNamedElement, ResolveState}
+import com.intellij.psi.{PsiElement, PsiNamedElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
@@ -16,37 +16,20 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 /**
   * @author adkozlov
   */
-sealed trait ImplicitResolveResult {
+case class ImplicitConversionResolveResult(resolveResult: ScalaResolveResult,
+                                           `type`: ScType,
+                                           implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
+                                           unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty)
 
-  val `type`: ScType
+object ImplicitConversionResolveResult {
 
-  val implicitDependentSubstitutor: ScSubstitutor
-
-  protected val resolveResult: ScalaResolveResult
-
-  protected val unresolvedTypeParameters: Seq[TypeParameter]
-}
-
-final case class CompanionImplicitResolveResult(override val resolveResult: ScalaResolveResult,
-                                                override val `type`: ScType,
-                                                override val implicitDependentSubstitutor: ScSubstitutor) extends ImplicitResolveResult {
-  override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty
-}
-
-final case class RegularImplicitResolveResult(override val resolveResult: ScalaResolveResult,
-                                              override val `type`: ScType,
-                                              override val implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,
-                                              override val unresolvedTypeParameters: Seq[TypeParameter] = Seq.empty) extends ImplicitResolveResult
-
-object ImplicitResolveResult {
-
-  implicit class Ext(private val result: ImplicitResolveResult) extends AnyVal {
+  implicit class Ext(private val result: ImplicitConversionResolveResult) extends AnyVal {
     def element: PsiNamedElement = result.resolveResult.element
 
     def builder: ResolverStateBuilder = new ResolverStateBuilder(result)
   }
 
-  final class ResolverStateBuilder private[ImplicitResolveResult](result: ImplicitResolveResult) {
+  final class ResolverStateBuilder private[ImplicitConversionResolveResult](result: ImplicitConversionResolveResult) {
 
     ProgressManager.checkCanceled()
 
@@ -72,62 +55,69 @@ object ImplicitResolveResult {
   }
 
   def processImplicitConversionsAndExtensions(
-    refName:            String,
+    refName:            Option[String],
     ref:                ScExpression,
     processor:          BaseProcessor,
     noImplicitsForArgs: Boolean = false,
-    precalculatedType:  Option[ScType] = None
+    precalculatedType:  Option[ScType] = None,
+    forCompletion:      Boolean = false,
   )(build:              ResolverStateBuilder => ResolverStateBuilder
   )(implicit
     place: ScExpression
-  ): Unit = {
-    val srr = for {
-      expressionType <- precalculatedType.orElse(this.expressionType)
+  ): Unit =
+    for {
+      expressionType <- precalculatedType.orElse(this.expressionType).toSeq
       if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
-      resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs)
-    } yield resolveResult
+      resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs, forCompletion)
+    } resolveResult match {
+        case srr @ ScalaResolveResult(ext @ ExtensionMethod(), subst) =>
+          val state = ScalaResolveState
+            .withSubstitutor(subst)
+            .withExtensionMethodMarker
+            .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
+          processor.execute(ext, state)
+        case conversion =>
+          for {
+            resultType <- ExtensionConversionHelper.specialExtractParameterType(conversion)
+            unresolvedTypeParameters = conversion.unresolvedTypeParameters.getOrElse(Seq.empty)
+            result      = ImplicitConversionResolveResult(
+              conversion,
+              resultType,
+              unresolvedTypeParameters = unresolvedTypeParameters,
+            )
+            state       = build(result.builder).state
+            substituted = result.implicitDependentSubstitutor(result.`type`)
+          } processor.processType(substituted, place, state)
+      }
 
-    srr match {
-      case Some(srr @ ScalaResolveResult(ext @ ExtensionMethod(), subst)) =>
-        val state = ScalaResolveState
-          .withSubstitutor(subst)
-          .withExtensionMethodMarker
-          .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
-
-        processor.execute(ext, state)
-      case Some(conversion) =>
-        for {
-          resultType    <- ExtensionConversionHelper.specialExtractParameterType(conversion)
-          unresolvedTypeParameters = conversion.unresolvedTypeParameters.getOrElse(Seq.empty)
-
-          result = RegularImplicitResolveResult(
-            conversion,
-            resultType,
-            unresolvedTypeParameters = unresolvedTypeParameters
-          ) //todo: from companion parameter
-
-          builder     = build(result.builder)
-          substituted = result.implicitDependentSubstitutor(result.`type`)
-        } processor.processType(substituted, place, builder.state)
-      case None => ()
-    }
+  def applicable(candidate: ScalaResolveResult, `type`: ScType, place: PsiElement): Option[ImplicitConversionResolveResult] = {
+    val substitutor = candidate.substitutor
+    for {
+      conversion     <- ImplicitConversionData(candidate.element, substitutor)
+      application    <- conversion.isApplicable(`type`, place)
+      if !application.implicitParameters.exists(_.isNotFoundImplicitParameter)
+    } yield ImplicitConversionResolveResult(candidate, application.resultType, substitutor, candidate.unresolvedTypeParameters.getOrElse(Seq.empty))
   }
+
 
   private[this] def findImplicitConversionOrExtension(
     expressionType:     ScType,
-    refName:            String,
+    refName:            Option[String],
     ref:                ScExpression,
     processor:          BaseProcessor,
-    noImplicitsForArgs: Boolean
+    noImplicitsForArgs: Boolean,
+    forCompletion:      Boolean
   )(implicit
     place: ScExpression
-  ): Option[ScalaResolveResult] = TraceLogger.func {
+  ): Seq[ScalaResolveResult] = TraceLogger.func {
     import place.elementScope
     val functionType         = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = TraceLogger.func {
-      val data = ExtensionConversionData(place, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
+      val data = refName.map {
+        ExtensionConversionData(place, ref, _, processor, noApplicability, withoutImplicitsForArgs)
+      }
 
       new ImplicitCollector(
         place,
@@ -135,22 +125,24 @@ object ImplicitResolveResult {
         expandedFunctionType,
         coreElement          = None,
         isImplicitConversion = true,
-        extensionData        = Option(data),
-        withExtensions       = place.isInScala3Module
+        extensionData        = data,
+        withExtensions       = place.isInScala3Module,
+        forCompletion        = forCompletion
       ).collect()
     }
 
     //This logic is important to have to navigate to problematic method, in case of failed resolve.
     //That's why we need to have noApplicability parameter
-    val foundImplicits = checkImplicits() match {
+    val found = checkImplicits() match {
       case Seq() => checkImplicits(noApplicability = true)
       case seq@Seq(_) => seq
       case _ => checkImplicits(withoutImplicitsForArgs = true)
     }
 
-    foundImplicits match {
-      case Seq(resolveResult) => Some(resolveResult)
-      case _                  => None
+    found match {
+      case _ if forCompletion => found
+      case Seq(_)             => found
+      case _                  => Seq.empty
     }
   }
 

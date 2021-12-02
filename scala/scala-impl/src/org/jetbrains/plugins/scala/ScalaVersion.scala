@@ -70,6 +70,8 @@ object LatestScalaVersions {
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "2")
   val Scala_3_1  = new ScalaVersion(ScalaLanguageLevel.Scala_3_1, "0")
 
+  val Scala_3: ScalaVersion = Scala_3_1
+
   val all: Seq[ScalaVersion] = Seq(
     Scala_2_9,
     Scala_2_10,

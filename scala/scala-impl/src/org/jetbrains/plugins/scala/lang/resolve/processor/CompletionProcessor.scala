@@ -52,7 +52,8 @@ object CompletionProcessor {
     isNamedParameter = !element.isInstanceOf[ScTypeDefinition] && state.isNamedParameter,
     fromType = state.fromType,
     importsUsed = state.importsUsed,
-    prefixCompletion = state.isPrefixCompletion
+    prefixCompletion = state.isPrefixCompletion,
+    isExtension = state.isExtensionMethod
   )
 }
 

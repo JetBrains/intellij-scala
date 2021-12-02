@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion3
-import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 04.01.12
   */
 class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
-
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   def testPrivateVal(): Unit = doCompletionTest(
     fileText =

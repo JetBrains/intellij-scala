@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
-final class ExtensionProcessor(place: PsiElement, name: String)
+final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: Boolean)
     extends ResolveProcessor(StdKinds.methodsOnly, place, name) {
 
   override protected def execute(
@@ -13,7 +13,7 @@ final class ExtensionProcessor(place: PsiElement, name: String)
   )(implicit
     state: ResolveState
   ): Boolean = {
-    if (nameMatches(namedElement) && ResolveUtils.isExtensionMethod(namedElement)) {
+    if ((forCompletion || nameMatches(namedElement)) && ResolveUtils.isExtensionMethod(namedElement)) {
       addResult(
         new ScalaResolveResult(
           namedElement,

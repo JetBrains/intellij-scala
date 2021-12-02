@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScGenericCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitResolveResult
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionResolveResult
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, UndefinedType}
@@ -67,7 +67,7 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
 
   private def candidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
     processor.resetPrecedence()
-    ImplicitResolveResult.processImplicitConversionsAndExtensions(processor.refName, call, processor, noImplicitsForArgs) {
+    ImplicitConversionResolveResult.processImplicitConversionsAndExtensions(Some(processor.refName), call, processor, noImplicitsForArgs) {
       _.withImports.withType
     }(baseExpr)
     processor.candidatesS
