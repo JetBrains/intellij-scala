@@ -1,17 +1,16 @@
 package org.jetbrains.jps.incremental.scala.data
 
-import java.io.{File, IOException}
-import java.util.Collections
-
-import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaModuleBuildTargetType}
-import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.incremental.scala.{ChunkExclusionService, JpsBundle, SettingsManager}
+import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 import org.jetbrains.jps.model.java.JpsJavaExtensionService
+import org.jetbrains.jps.{ModuleChunk, ProjectPaths}
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, ZincData}
 
-import scala.jdk.CollectionConverters._
+import java.io.{File, IOException}
+import java.util.Collections
 import scala.collection.immutable.ArraySeq
+import scala.jdk.CollectionConverters._
 
 trait CompilationDataFactory {
 
@@ -59,9 +58,17 @@ object CompilationDataFactory
       val classpathSet = classpath.toSet
       val relevantOutputToCacheMap = (outputToCacheMap - output).filter(p => classpathSet.contains(p._1))
 
-      val commonOptions = {
-        val encoding = context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk)
-        Option(encoding).map(Seq("-encoding", _)).getOrElse(Seq.empty)
+      val preferredEncoding: Option[String] =
+        Option(context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk))
+
+      def ensureEncodingIsExplicitelySet(compilerOptions: Seq[String]): Seq[String] = {
+        val EncodingOptionKey = "-encoding"
+        if (compilerOptions.contains(EncodingOptionKey))
+          compilerOptions
+        else {
+          val encodingOption = preferredEncoding.toSeq.flatMap(Seq(EncodingOptionKey, _))
+          encodingOption ++ compilerOptions
+        }
       }
 
       val javaOptions = CompilerDataFactory.javaOptionsFor(context, chunk)
@@ -78,8 +85,8 @@ object CompilationDataFactory
         sources = canonicalSources,
         classpath = classpath.toSeq,
         output = output,
-        scalaOptions = commonOptions ++ scalaOptions,
-        javaOptions = commonOptions ++ javaOptions,
+        scalaOptions = ensureEncodingIsExplicitelySet(scalaOptions),
+        javaOptions = ensureEncodingIsExplicitelySet(javaOptions),
         order = order,
         cacheFile = cacheFile,
         outputToCacheMap = relevantOutputToCacheMap,
