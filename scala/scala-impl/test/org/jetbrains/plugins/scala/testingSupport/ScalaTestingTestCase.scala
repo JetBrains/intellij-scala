@@ -21,10 +21,11 @@ import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.debugger._
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions.{inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
@@ -132,9 +133,10 @@ abstract class ScalaTestingTestCase
       .connect(getTestRootDisposable)
       .subscribe(SMTRunnerEventsListener.TEST_STATUS, testStatusListener)
 
-    val (handler, _) = EdtTestUtil.runInEdtAndGet(() => {
+    val (handler, _) = {
       if (needMake) {
-        compiler.rebuild().assertNoProblems(allowWarnings = true)
+        val compilerMessages = compiler.rebuild()
+        compilerMessages.assertNoProblems(allowWarnings = true)
         saveChecksums()
       }
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
@@ -146,7 +148,7 @@ abstract class ScalaTestingTestCase
         case _ =>
       }
       (handler, runContentDescriptor)
-    })
+    }
 
     val exitCode = waitForTestEnd(handler, duration)
 
@@ -185,6 +187,7 @@ abstract class ScalaTestingTestCase
     exitCode
   }
 
+  @RequiresBackgroundThread
   private def runProcess(
     runConfiguration: RunnerAndConfigurationSettings,
     executorClass: Class[_ <: Executor],
@@ -223,7 +226,16 @@ abstract class ScalaTestingTestCase
       semaphore.up()
     }
 
-    runner.execute(executionEnvironment)
+    //NOTE: do not block EDT here, it can cause deadlock between here and
+    //com.intellij.execution.JavaTestFrameworkRunnableState.execute
+    //(see UIUtil.invokeAndWaitIfNeeded call)
+    //
+    //NOTE:
+    //deadlock is only in 212
+    //in 213 it seems to work fine
+    invokeLater {
+      runner.execute(executionEnvironment)
+    }
 
     semaphore.waitFor()
 
