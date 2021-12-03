@@ -58,7 +58,9 @@ object Common {
       (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
       (Compile / unmanagedResourceDirectories) += baseDirectory.value / "resources",
       (Test / unmanagedResourceDirectories) += baseDirectory.value / "testResources",
-      libraryDependencies ++= Seq(Dependencies.junitInterface),
+      libraryDependencies ++= Seq(Dependencies.junitInterface,
+        // TODO Remove when ClassNotFoundException on using IDEA's base test classes without this JAR is fixed
+        "org.junit.jupiter" % "junit-jupiter-api" % "5.8.2"), // Is not % Test, included in lib/ and thus in test Run Configuration classpath
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,
