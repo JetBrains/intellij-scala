@@ -83,7 +83,17 @@ trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
     annotations.find(hasSameName).orNull
   }
 
-  override def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations //todo: understatnd and fix
+  /**
+   * @inheritdoc
+   *
+   * TODO: understand and fix
+   *  for Java annotations implementations can be probably copied from<br>
+   *  [[com.intellij.psi.impl.source.PsiModifierListImpl.getApplicableAnnotations]]<br>
+   *  but for Scala annotaions "targets" are not defined the same way as for Java (com.intellij.psi.PsiAnnotation.TargetType)
+   *
+   *  See fore example definition of [[scala.deprecatedInheritance]] or [[scala.annotation.compileTimeOnly]]
+   */
+  override def getApplicableAnnotations: Array[PsiAnnotation] = getAnnotations
 
-  override def psiAnnotations: Array[PsiAnnotation] = annotations.toArray
+  override final def psiAnnotations: Array[PsiAnnotation] = annotations.toArray
 }
