@@ -23,8 +23,8 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestA
     normalize(classText)
   }
 
-  def doSafeDeleteTest(text: String, expectedResult: String, lang: String = "scala", expectedUnsafeDeletions: Int = 0): Unit = {
-    configureFromFileText(wrapText(text), lang)
+  def doSafeDeleteTest(text: String, expectedResult: String, fileType: String = "scala", expectedUnsafeDeletions: Int = 0): Unit = {
+    configureFromFileTextWithSomeName(fileType, wrapText(text))
 
     val foundNotSafeToDeletes = notSafeToDeletesIn {
       val element = getFixture.getElementAtCaret

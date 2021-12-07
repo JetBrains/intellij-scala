@@ -64,14 +64,14 @@ class Source3Inspection extends AbstractRegisteredInspection {
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
-            ScalaPsiElementFactory.createImportFromTextWithContext("import a.*", underscore.getContext, null).lastLeaf
+            ScalaPsiElementFactory.createImportFromText("import a.*", underscore.getContext, null).lastLeaf
           }
         )
       case ElementType(ScalaTokenTypes.tFUNTYPE) if scala3ImportsAllowed && convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
-            ScalaPsiElementFactory.createImportFromTextWithContext("import a.{x as y}", arrow.getContext, null)
+            ScalaPsiElementFactory.createImportFromText("import a.{x as y}", arrow.getContext, null)
               .importExprs.head.selectors.head.findFirstChildByType(ScalaTokenType.AsKeyword).get
           }
         )

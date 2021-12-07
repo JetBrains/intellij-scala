@@ -20,7 +20,7 @@ import com.intellij.psi.tree.{IElementType, IFileElementType}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.apache.commons.lang.StringUtils
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Import
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
@@ -336,12 +336,14 @@ object ScalaPsiElementFactory {
                             (implicit context: ProjectContext): PsiElement =
     createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList.getFirstChild
 
-  def createImportExprWithContextFromText(@NonNls name: String, context: PsiElement): ScImportExpr =
-    createImportFromText(s"import ${escapeKeywordsFqn(name)}", context)
-      .getLastChild.asInstanceOf[ScImportExpr]
+  def createImportExprFromText(@NonNls name: String, context: PsiElement, @Nullable child: PsiElement = null): ScImportExpr = {
+    val importStmt = createImportFromText(s"import ${escapeKeywordsFqn(name)}", context, child)
+    importStmt.getLastChild.asInstanceOf[ScImportExpr]
+  }
 
-  def createImportFromText(@NonNls text: String, context: PsiElement): ScImportStmt =
-    createElementWithContext[ScImportStmt](text, context, null)(Import.parse(_))
+  //TODO: add docs, what is `child` ???
+  def createImportFromText(@NonNls text: String, context: PsiElement, @Nullable child: PsiElement = null): ScImportStmt =
+    createElementWithContext[ScImportStmt](text, context, child)(Import.parse(_))
 
   def createReferenceFromText(@NonNls name: String)
                              (implicit ctx: ProjectContext): ScStableCodeReference = {
@@ -836,12 +838,14 @@ object ScalaPsiElementFactory {
                                                             (parse: ScalaPsiBuilder => AnyVal)
                                                             (implicit tag: ClassTag[E]): E = {
     implicit val project: Project = (if (context == null) child else context).getProject
-    createElement(text, context, checkLength = true)(parse) match {
+    val instance = createElement(text, context, checkLength = true)(parse)
+    instance match {
       case element: E =>
         element.context = context
         element.child = child
         element
-      case element => throw elementCreationException(tag.runtimeClass.getSimpleName, text + "; actual: " + element.getText, context)
+      case element =>
+        throw elementCreationException(tag.runtimeClass.getSimpleName, text + "; actual: " + element.getText, context)
     }
   }
 
@@ -910,9 +914,6 @@ object ScalaPsiElementFactory {
       psiBuilder.advanceLexer()
       advanceLexer(psiBuilder)(marker, fileNodeType)
     }
-
-  def createImportFromTextWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScImportStmt =
-    createElementWithContext[ScImportStmt](text, context, child)(Import.parse(_))
 
   def createTypeElementFromText(@NonNls text: String)
                                (implicit ctx: ProjectContext): ScTypeElement =

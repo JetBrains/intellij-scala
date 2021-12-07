@@ -15,7 +15,8 @@ import com.intellij.psi.impl.source.tree.FileElement
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.testFramework.LightVirtualFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
 import scala.collection.mutable
@@ -84,14 +85,17 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
 
   override def getViewProvider: SingleRootFileViewProvider = viewProvider
 
-  override def addImportForPath(path: String, refsContainer: PsiElement): Unit = {
-    imports += path
+  private def myAddImportForPath(path: ImportPath, ref: ScReference): Unit = {
+    //NOTE path.aliasName is not handled, I don't know at what conditions it might be actual here
+    val pathFqn = path.qualifiedName
+
+    imports += pathFqn
     myManager.beforeChange(false)
 
     UndoManager.getInstance(myManager.getProject)
-      .undoableActionPerformed(new ImportClassUndoableAction(path))
+      .undoableActionPerformed(new ImportClassUndoableAction(pathFqn))
 
-    val newRef = refsContainer match {
+    val newRef = ref match {
       case st: ScStableCodeReference if st.resolve() == null =>
         Some(createReferenceFromText(st.getText, st.getParent, st))
       case expr: ScReferenceExpression if expr.resolve() == null =>
@@ -100,25 +104,30 @@ final class ScalaCodeFragment private(private var viewProvider: SingleRootFileVi
     }
 
     newRef match {
-      case Some(r) if r.resolve() != null => refsContainer.replace(r)
+      case Some(r) if r.resolve() != null =>
+        ref.replace(r)
       case _ =>
     }
   }
 
-  override def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement): Unit = {
-    paths.foreach(addImportForPath(_, refsContainer))
+  override protected[psi] def addImportsForPathsImpl(paths: Seq[ImportPath], refsContainer: PsiElement): Unit = {
+    refsContainer match {
+      case ref: ScReference =>
+        paths.foreach(myAddImportForPath(_, ref))
+      case _ =>
+    }
   }
 
   @Deprecated
   override def importClass(aClass: PsiClass): Boolean = {
-    addImportForClass(aClass)
+    addImportForClass(aClass, ref = null)
     true
   }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState,
                                    lastParent: PsiElement, place: PsiElement): Boolean = {
     for (qName <- imports) {
-      val imp = createImportFromTextWithContext(s"import _root_.$qName", this, this)
+      val imp = ScalaPsiElementFactory.createImportFromText(s"import _root_.$qName", this, this)
       if (!imp.processDeclarations(processor, state, lastParent, place)) return false
     }
 

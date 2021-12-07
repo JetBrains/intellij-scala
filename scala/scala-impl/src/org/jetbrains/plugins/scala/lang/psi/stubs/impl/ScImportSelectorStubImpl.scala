@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package impl
+package org.jetbrains.plugins.scala.lang.psi.stubs.impl
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
@@ -10,15 +6,13 @@ import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 20.06.2009
-  */
 class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
                                elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                                override val referenceText: Option[String],
                                override val importedName: Option[String],
+                               override val aliasName: Option[String],
                                override val isAliasedImport: Boolean,
                                override val isWildcardSelector: Boolean,
                                override val isGivenSelector: Boolean,

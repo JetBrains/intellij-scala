@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -10,23 +9,27 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
+import com.intellij.util.IncorrectOperationException
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
+import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport}
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.ImportInsertionPlace
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.stubOrPsiPrevSibling
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaStubBasedElementImpl}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -39,17 +42,21 @@ sealed trait ScImportsOrExportsHolder extends ScalaPsiElement {
 
   def deleteImportOrExportStmt(stmt: ScImportOrExportStmt): Unit = {
     def remove(node: ASTNode): Unit = getNode.removeChild(node)
-    def shortenWhitespace(node: ASTNode): Unit = {
-      if (node == null) return
-      if (node.getText.count(_ == '\n') >= 2) {
-        val nl = createNewLine(node.getText.replaceFirst("[\n]", ""))(getManager)
-        getNode.replaceChild(node, nl.getNode)
+    def shortenWhitespace(wsNode: ASTNode): Unit = {
+      if (wsNode == null) return
+
+      val lineBreaks = wsNode.getText.count(_ == '\n')
+      if (lineBreaks >= 2) {
+        val nlText = wsNode.getText.replaceFirst("[\n]", "")
+        val nl = ScalaPsiElementFactory.createNewLine(nlText)(getManager)
+        getNode.replaceChild(wsNode, nl.getNode)
       }
     }
     def removeWhitespace(node: ASTNode): Unit = {
       if (node == null) return
       if (node.getPsi.is[PsiWhiteSpace]) {
-        if (node.getText.count(_ == '\n') < 2) remove(node)
+        val lineBreaks = node.getText.count(_ == '\n')
+        if (lineBreaks <= 1) remove(node)
         else shortenWhitespace(node)
       }
     }
@@ -162,38 +169,59 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
   }
 
 
-  def addImportForClass(clazz: PsiClass, ref: PsiElement = null): Unit = {
-    ref match {
-      case ref: ScReference =>
-        if (!ref.isValid || ref.isReferenceTo(clazz)) return
-        ref.bind().foreach {
+  def addImportForClass(clazz: PsiClass, @Nullable ref: ScReference, aliasName: Option[String] = None): Unit = {
+    val isAlreadyAvailableInReferenceScope: Boolean = if (ref == null) false else {
+      if (!ref.isValid || ref.isReferenceTo(clazz))
+        true
+      else {
+        val resolveResult = ref.bind()
+        resolveResult.exists {
           case ScalaResolveResult(t: ScTypeAliasDefinition, _) if t.typeParameters.isEmpty =>
-            t.aliasedType.foreach {
-              case ScDesignatorType(c: PsiClass) if c == clazz => return
+            val aliasedType = t.aliasedType
+            aliasedType.exists {
+              case ScDesignatorType(c: PsiClass) =>
+                c == clazz
               case _ =>
+                false
             }
-          case ScalaResolveResult(c: PsiClass, _) if c.qualifiedName == clazz.qualifiedName => return
+          case ScalaResolveResult(c: PsiClass, _) if c.qualifiedName == clazz.qualifiedName =>
+            true
           case ScalaResolveResult.withActual(p: ScReferencePattern) =>
             p.nameContext match {
-              case ContainingClass(o: ScObject) if Set("scala.Predef", "scala").contains(o.qualifiedName) => return
-              case ScPatternDefinition.expr(ResolvesTo(`clazz`)) => return
-              case _ =>
+              case ContainingClass(o: ScObject) if isPredefined(o.qualifiedName) => true
+              case ScPatternDefinition.expr(ResolvesTo(`clazz`))                 => true
+              case _                                                             => false
             }
           case _ =>
+            false
         }
-      case _ =>
+      }
     }
-    addImportForPath(clazz.qualifiedName, ref)
+
+    if (!isAlreadyAvailableInReferenceScope) {
+      addImportForPath(ImportPath(clazz.qualifiedName, aliasName), ref)
+    }
+  }
+
+  def addImportForElement(element: ElementToImport, @Nullable ref: ScReference): Unit = {
+    addImportForElement(element, None, ref)
+  }
+
+  private def addImportForElement(element: ElementToImport, aliasName: Option[String], @Nullable ref: ScReference): Unit = {
+    element match {
+      case ClassToImport(clazz) =>
+        addImportForClass(clazz, ref, aliasName)
+      case _                    =>
+        val importPath = ImportPath(element.qualifiedName, aliasName)
+        addImportForPath(importPath, ref)
+    }
   }
 
   def addImportForPsiNamedElement(named: PsiNamedElement,
-                                  reference: PsiElement,
+                                  @Nullable reference: ScReference,
                                   maybeClass: Option[PsiClass] = None): Unit = {
-    val needImport = reference match {
-      case null => true
-      case ref: ScReference if ref.isValid => !ref.isReferenceTo(named)
-      case _ => false
-    }
+    val needImport =
+      reference == null || reference.isValid && !reference.isReferenceTo(named)
 
     if (needImport) {
       val maybeQualifiedName = maybeClass match {
@@ -207,91 +235,338 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     }
   }
 
-  def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
-    import ScalaImportOptimizer._
+  final def addImportForPath(path: String, ref: ScReference = null): Unit =
+    addImportForPath(ImportPath(path), ref)
 
-    implicit val manager: PsiManager = getManager
-    def samePackage(path: String) = {
-      val ref = createReferenceFromText(path)
-      val pathQualifier = Option(ref).flatMap(_.qualifier.map(_.getText)).getOrElse("")
-      val ourPackageName = this.parentOfType(classOf[ScPackaging], strict = false)
-        .map(_.fullPackageName)
-      ourPackageName.contains(pathQualifier)
-    }
+  protected def addImportForPath(path: ImportPath, ref: ScReference): Unit =
+    addImportsForPathsImpl(Seq(path), ref)
 
-    def firstChildNotCommentWhitespace =
-      this.children.dropWhile(_.is[PsiComment, PsiWhiteSpace]).headOption
+  final def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
+    val importPaths = paths.map(ImportPath.apply(_))
 
-    firstChildNotCommentWhitespace.foreach {
-      case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
-        pack.addImportsForPaths(paths, refsContainer)
-        return
+    val first = this.firstChildNotWhitespaceComment
+    first match {
+      case Some(pack: ScPackaging) if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
+        //what is this branch for???
+        //looks like it's not covered with tests and not clear what it is...
+        pack.addImportsForPathsImpl(importPaths, refsContainer)
       case _ =>
+        addImportsForPathsImpl(importPaths, refsContainer)
+    }
+  }
+
+  protected[psi] def addImportsForPathsImpl(
+    paths: Seq[ImportPath],
+    @Nullable refsContainer: PsiElement
+  ): Unit = {
+    val file = getContainingFile match {
+      case sf: ScalaFile => sf
+      case _ =>
+        return
     }
 
-    val file = this.getContainingFile match {
-      case sf: ScalaFile => sf
-      case _ => return
+    val optimizer = ScalaImportOptimizer.findScalaOptimizerFor(file) match {
+      case Some(o) => o
+      case _ =>
+        return
     }
+    val settings = OptimizeImportSettings(file)
+
+    addImportsForPathsImpl(paths, file, settings, optimizer, refsContainer)
+  }
+
+  /**
+   * Implementation:
+   *  1. search for the best [[RangeInfo import range]] to insert import into<br>
+   *     (it constructs import infos for each import in the range)
+   *  1. insert new import infos to appropriate places
+   *  1. REPLACES THE WHOLE IMPORT RANGE with a newly-rendered import infos (using ScalaImportOptimizer)
+   *
+   * The last step can invalidate sibling import statements.<br>
+   * So [[addImportsForPathsImpl]] methods shouldn't be used when adding imports one by one,
+   * if some code relies on the fact that some other imports are not invalidated.<br>
+   * For example, it shouldn't be used during move "Move" refactoring.
+   * See
+   *
+   * @see [[insertImportPathToTheBestPlaceDuringRefactoring]]
+   */
+  private def addImportsForPathsImpl(
+    paths: Seq[ImportPath],
+    containingFile: ScalaFile,
+    fileOptimizeSettings: OptimizeImportSettings,
+    optimizer: ScalaImportOptimizer,
+    @Nullable refsContainer: PsiElement
+  ): Unit = {
+    implicit val manager: PsiManager = getManager
 
     //don't add wildcard imports here, it should be done only on explicit "Optimize Imports" action
-    val settings = OptimizeImportSettings(file).copy(classCountToUseImportOnDemand = Int.MaxValue)
-
-    val optimizer: ScalaImportOptimizer = findOptimizerFor(file) match {
-      case Some(o: ScalaImportOptimizer) => o
-      case _ => return
-    }
+    val settings = fileOptimizeSettings.withoutCollapseSelectorsToWildcard
 
     val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
 
-    val importInfosToAdd = paths
-      .filterNot(samePackage)
+    val importInfosToAdd: Seq[ImportInfo] = paths
+      .filterNot(p => isFromSamePackage(p.qualifiedName))
       .flatMap(createInfoFromPath(_, place))
       .filter(hasValidQualifier(_, place))
 
-    val importRanges = optimizer.collectImportRanges(this, createInfo(_), Set.empty)
+    val importRanges = optimizer.collectImportRanges(this)
 
     val needToInsertFirst =
       if (importRanges.isEmpty) true
       else refsContainer == null && hasCodeBeforeImports
 
-    if (needToInsertFirst) {
-      val dummyImport = createImportFromText("import dummy.dummy", this)
-      val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
-      val psiAnchor = PsiAnchor.create(inserted)
-      val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = Set.empty, isLocal = false)
-      val infosToAdd = optimizedImportInfos(rangeInfo, settings)
+    val insertionRangeWithImportsToAdd: Option[(RangeInfo, Seq[ImportInfo])] =
+      if (needToInsertFirst) {
+        //ScalaImportOptimizer only works with import ranges
+        //So we insert a temporary dummy import to simply replace it with a well-formatted import
+        val dummyImport: ScImportStmt = ScalaPsiElementFactory.createImportFromText("import dummy.dummy", this)
+        val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
+        val psiAnchor = PsiAnchor.create(inserted)
+        val rangeInfo = RangeInfo(psiAnchor, psiAnchor, Seq((dummyImport, importInfosToAdd)), usedImportedNames = Set.empty, isLocal = false)
+        val infosToAdd = ScalaImportOptimizer.optimizedImportInfos(rangeInfo, settings)
 
-      optimizer.replaceWithNewImportInfos(rangeInfo, infosToAdd, settings, file)
+        Some((rangeInfo, infosToAdd))
+      }
+      else {
+        val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
+        val selectedRange: Option[RangeInfo] =
+          if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
+            sortedRanges.findLast(_.endOffset < refsContainer.getTextRange.getStartOffset)
+          else
+            sortedRanges.headOption
+
+        selectedRange.map { rangeInfo =>
+          val importInfos = rangeInfo.importStmtWithInfos.flatMap(_._2)
+          val resultInfos = ScalaImportOptimizer.insertImportInfos(importInfosToAdd, importInfos, rangeInfo.firstPsi, settings)
+          (rangeInfo, resultInfos)
+        }
+      }
+
+    insertionRangeWithImportsToAdd match {
+      case Some((insertionRange, resultInfos)) =>
+        optimizer.replaceWithNewImportInfos(insertionRange, resultInfos, settings, containingFile)
+      case _ =>
+    }
+  }
+
+  def bindImportSelectorOrExpression(
+    importExpr: ScImportExpr,
+    oldImportExprOrSelectorToDelete: PsiElement,
+    newImportPath: ImportPath,
+  ): Unit = {
+    val importStmt = importExpr.getParent.asInstanceOf[ScImportStmt]
+
+    val scalaFile = this.getContainingFile match {
+      case file: ScalaFile =>
+        file
+      case other =>
+        Log.error(new IncorrectOperationException(s"Containing file should be ScalaFile, but got: ${Option(other).map(_.getClass.getName).orNull}"))
+        return
+    }
+
+
+    val optimizer = ScalaImportOptimizer.findScalaOptimizerFor(scalaFile) match {
+      case Some(o) => o
+      case _ =>
+        Log.error(new IncorrectOperationException(s"Can't find scala optimizer for file: ${scalaFile.getName} / ${scalaFile.getVirtualFile}"))
+        return
+    }
+
+    val settings = OptimizeImportSettings(scalaFile)
+
+    val oldImportStatementOffset = importStmt.startOffset
+
+    val isLastRemainingImportToBeDeleted: Boolean = {
+      val willImportStmtBeDeleted = importStmt.importExprs.size == 1 &&
+        !importExpr.hasWildcardSelector &&
+        importExpr.selectorSet.forall(_.selectors.sizeIs == 1)
+
+      val hasSiblingImportStatements = importStmt.getNextSiblingNotWhitespace.is[ScImportStmt] || importStmt.getPrevSiblingNotWhitespace.is[ScImportStmt]
+      willImportStmtBeDeleted && !hasSiblingImportStatements
+    }
+    if (isLastRemainingImportToBeDeleted) {
+      /**
+       * We need to handle last remaining import in a special way.
+       * Because otherwise, if we remove the import there will be no import range info for it.
+       * But we want to preserve old local import position, during e.g. "Move" refactoring<br>
+       * For example, after moving X, Y, Z imports position should be the same and not moved to the start of the block: {{{
+       *   import org.example.X
+       *   val xxx: X = ???
+       *
+       *   import org.example.Y
+       *   val yyy: Y = ???
+       *
+       *   import org.example.Z
+       *   val zzz: Z = ???
+       * }}}
+       */
+      val newImportStatementOpt = this.newImportStatement(newImportPath, settings, optimizer)
+      newImportStatementOpt match {
+        case Some(newImportStatement) =>
+          if (this.canSkipImport(newImportPath)) {
+            this.deleteImportOrExportStmt(importStmt)
+          }
+          else {
+            importStmt.replace(newImportStatement)
+          }
+        case _ =>
+          Log.error(new IncorrectOperationException(s"Can't create new import statement when binding element (qualifiedName: ${newImportPath.qualifiedName})"))
+      }
     }
     else {
-      val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
-      val selectedRange =
-        if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
-          sortedRanges.findLast(_.endOffset < refsContainer.getTextRange.getStartOffset)
-        else sortedRanges.headOption
+      oldImportExprOrSelectorToDelete match {
+        case s: ScImportSelector =>
+          s.deleteSelector(removeRedundantBraces = false)
+        case e: ScImportExpr  =>
+          e.deleteExpr()
+      }
+      this.insertImportPathToTheBestPlaceDuringRefactoring(
+        newImportPath,
+        oldImportStatementOffset,
+        scalaFile,
+        settings,
+        optimizer
+      )
+    }
+  }
 
-      selectedRange match {
-        case Some(rangeInfo @ RangeInfo(rangeStart, _, infosFromRange, _, _)) =>
-          val resultInfos = insertImportInfos(importInfosToAdd, infosFromRange, rangeStart, settings)
-          optimizer.replaceWithNewImportInfos(rangeInfo, resultInfos, settings, file)
-        case _ =>
+  /**
+   * The method is similar to [[addImportsForPathsImpl]] but is dedicated for adding single import path
+   * without touching all other imports in the same range even if they are not sorted/optimized.
+   *
+   * @see [[addImportsForPathsImpl]] for implementation details
+   */
+  private def insertImportPathToTheBestPlaceDuringRefactoring(
+    path: ImportPath,
+    oldImportStatementOffset: Int,
+    scalaFile: ScalaFile,
+    fileOptimizeSettings: OptimizeImportSettings,
+    optimizer: ScalaImportOptimizer
+  ): Unit = {
+    if (canSkipImport(path))
+      return
+
+    //what is this `place` for???
+    val place = getImportStatements.lastOption.getOrElse(getFirstChild.getNextSibling)
+
+    val newImportInfoCandidate = createInfoFromPath(path, place)
+    val newImportInfo = newImportInfoCandidate match {
+      case Some(info) if hasValidQualifier(info, place) =>
+        info
+      case _ =>
+        return
+    }
+
+    //don't add wildcard imports here, it should be done only on explicit "Optimize Imports" action
+    val settings = fileOptimizeSettings.withoutCollapseSelectorsToWildcard
+
+    //NOTE: I don't know any conditions when the error can occur
+    //  if it occurs, please add such case to unit tests
+    def error(message: String): Unit = {
+     Log.error(s"insertImportPathToTheBestPlaceDuringRefactoring: $message" +
+       s" (scalaFile: $scalaFile, import: $path, oldImportStatementOffset: ${oldImportStatementOffset})")
+    }
+
+    val existingImportRanges: Set[RangeInfo] = optimizer.collectImportRanges(this)
+    if (existingImportRanges.isEmpty) {
+      error(s"expecting at least single import statement")
+    }
+    else {
+      val importRangesSorted: Seq[RangeInfo] = existingImportRanges.toSeq.sortBy(_.startOffset)
+
+      val selectedImportRange: Option[RangeInfo] =
+        importRangesSorted.find(_.rangeCanAccept(oldImportStatementOffset))
+
+      selectedImportRange match {
+        case Some(rangeInfo) =>
+          val insertionPlace = ScalaImportOptimizer.bestPlaceToInsertNewImport(newImportInfo, rangeInfo, settings)
+          insertToBestPlace(newImportInfo, insertionPlace, scalaFile, settings, optimizer)
+        case None =>
+          error("can't detect best insertion place")
       }
     }
   }
 
-  def addImportForPath(path: String, ref: PsiElement = null): Unit =
-    addImportsForPaths(Seq(path), ref)
+  private def insertToBestPlace(
+    newImportInfo: ImportInfo,
+    insertionPlace: ImportInsertionPlace,
+    scalaFile: ScalaFile,
+    settings: OptimizeImportSettings,
+    optimizer: ScalaImportOptimizer
+  ): Unit = {
+     insertionPlace match {
+      case ImportInsertionPlace.InsertFirst(rangeInfo) =>
+        val textCreator = optimizer.getImportTextCreator
+        val newImportText = textCreator.getImportText(newImportInfo, settings)
+        val newImport = ScalaPsiElementFactory.createImportFromText(newImportText, this)
+        addImportBefore(newImport, rangeInfo.firstPsi.retrieve())
+
+      case ImportInsertionPlace.InsertAfterStatement(range, importStmtIdx) =>
+        val textCreator = optimizer.getImportTextCreator
+        val newImportText = textCreator.getImportText(newImportInfo, settings)
+        val newImport = ScalaPsiElementFactory.createImportFromText(newImportText, this)
+        val importStmt = range.importStmtWithInfos(importStmtIdx)._1
+        addImportAfter(newImport, importStmt)
+
+      case ImportInsertionPlace.MergeInto(range, importStmtIdx) =>
+        //replace only single import statement infos, do not touch other sibling imports
+        val (importStmt, importStmtInfos) = range.importStmtWithInfos(importStmtIdx)
+        val importInfosMerged = ScalaImportOptimizer.sortAndMergeImports(importStmtInfos :+ newImportInfo, settings)
+
+        optimizer.replaceWithNewImportInfos(
+          firstPsi = importStmt,
+          lastPsi = importStmt,
+          startOffset = importStmt.startOffset,
+          importInfos = importInfosMerged,
+          settings = settings,
+          file = scalaFile
+        )
+    }
+  }
+
+  private def newImportStatement(
+    importPath: ImportPath,
+    settings: OptimizeImportSettings,
+    optimizer: ScalaImportOptimizer
+  ): Option[ScImportStmt] = {
+    val place: PsiElement =  null // TODO: what is this parameter for? Add docs to the usage place
+    val importInfoOpt = createInfoFromPath(importPath, place)
+    val importInfo = importInfoOpt match {
+      case Some(info) if hasValidQualifier(info, place) =>
+        info
+      case _ =>
+        return None
+    }
+    val textCreator = optimizer.getImportTextCreator
+
+    val newImportText = textCreator.getImportText(importInfo, settings)
+    val newImport = ScalaPsiElementFactory.createImportFromText(newImportText, this)
+    Some(newImport)
+  }
+
+  //TODO: handle properly collisions with other names from some wildcards, review all usage places see SCL-19801
+  private def canSkipImport(importPath: ImportPath): Boolean =
+    importPath.aliasName.isEmpty && isFromSamePackage(importPath.qualifiedName)
+
+  private def isFromSamePackage(otherPath: String): Boolean = {
+    val otherPathQualifier: Option[String] = {
+      val ref = ScalaPsiElementFactory.createReferenceFromText(otherPath)
+      Option(ref).flatMap(_.qualifier.map(_.getText))
+    }
+
+    val ourPackageName = this.parentOfType(classOf[ScPackaging], strict = false).map(_.fullPackageName)
+    ourPackageName.contains(otherPathQualifier.getOrElse(""))
+  }
 
   private def hasValidQualifier(importInfo: ImportInfo, place: PsiElement): Boolean = {
-    val ref = createReferenceFromText(importInfo.prefixQualifier, this, place)
+    val ref = ScalaPsiElementFactory.createReferenceFromText(importInfo.prefixQualifier, this, place)
     ref.multiResolveScala(false).nonEmpty
   }
 
-  private def createInfoFromPath(path: String, place: PsiElement): Seq[ImportInfo] = {
-    val importText = s"import ${ScalaNamesUtil.escapeKeywordsFqn(path)}"
-    val importStmt = createImportFromTextWithContext(importText, this, place)
-    ScalaImportOptimizer.createInfo(importStmt)
+  private def createInfoFromPath(path: ImportPath, place: PsiElement): Option[ImportInfo] = {
+    val importExprText = path.importExpressionText
+    val importExpr = ScalaPsiElementFactory.createImportExprFromText(importExprText, this, place)
+    ImportInfo.create(importExpr, _ => true)
   }
 
   private def hasCodeBeforeImports: Boolean = {
@@ -309,7 +584,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
     childBeforeFirstImport match {
-      case Some(elem) if first != null && elem.getTextRange.getEndOffset > first.getTextRange.getStartOffset =>
+      case Some(elem) if first != null && elem.endOffset > first.startOffset =>
         addImportAfter(importSt, elem)
       case _ =>
         addImportBefore(importSt, first)
@@ -345,16 +620,21 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, null).getPsi
   }
 
-  def addImportBefore(element: PsiElement, anchor: PsiElement): PsiElement = {
+  def addImportBefore(importToAdd: ScImportStmt, anchor: PsiElement): PsiElement = {
     val anchorNode = anchor.getNode
-    val result = CodeEditUtil.addChildren(getNode, element.getNode, element.getNode, anchorNode).getPsi
+    val result = CodeEditUtil.addChildren(getNode, importToAdd.getNode, importToAdd.getNode, anchorNode).getPsi
     indentLine(result)
     result
   }
 
-  def addImportAfter(element: PsiElement, anchor: PsiElement): PsiElement = {
-    if (anchor.getNode == getNode.getLastChildNode) return addImport(element)
-    addImportBefore(element, anchor.getNode.getTreeNext.getPsi)
+  def addImportAfter(importToAdd: ScImportStmt, anchor: PsiElement): PsiElement = {
+    val anchorNode = anchor.getNode
+    if (anchorNode == getNode.getLastChildNode)
+      addImport(importToAdd)
+    else {
+      val anchorNext = anchorNode.getTreeNext
+      addImportBefore(importToAdd, anchorNext.getPsi)
+    }
   }
 
   def plainDeleteImport(stmt: ScImportExpr): Unit = {
@@ -368,6 +648,15 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
 object ScImportsHolder {
 
+  private val Log = Logger.getInstance(classOf[ScImportsHolder])
+
+  private val PredefinedPackages = Set("scala.Predef", "scala")
+  private def isPredefined(fqn: String) = PredefinedPackages.contains(fqn)
+
+  //TODO: do not use `apply` name here
+  // This methods semantics is different from what one might expect
+  // One would expect that this method returns closes import holder for some element
+  // But in reality it returns import holder to which a new import statement should be inserted
   def apply(reference: PsiElement)
            (implicit project: Project = reference.getProject): ScImportsHolder =
     if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
@@ -382,6 +671,30 @@ object ScImportsHolder {
         case packaging: ScPackaging => packaging
       }
     }
+
+  /**
+   * @param qualifiedName      for example `org.example.MyClass`
+   * @param aliasName optional name to rename last part of the path<br>
+   *                  For example if `aliasName = MyClass_Renamed`, then import will be<br>
+   *                  `org.example.{MyClass => MyClass_Renamed}`
+   */
+  case class ImportPath(qualifiedName: String, aliasName: Option[String] = None) {
+    def importExpressionText: String = {
+      val parts = ScalaNamesUtil.escapeKeywordsFqnParts(qualifiedName)
+      aliasName match {
+        case Some(alias) =>
+          val partsInit = parts.init
+          val partsLast = parts.last
+          assert(parts.size > 1, s"Can't import path without dot ($qualifiedName) with alias ($alias)")
+          //NOTE: using Scala 2 syntax with `=>` because this will be converted to ImportInfo later anyway
+          //this ImportInfo will be rendered with correctly depending on the context (language level, settings)
+          s"${partsInit.mkString(".")}.{$partsLast => ${ScalaNamesUtil.escapeKeyword(alias)}}"
+
+        case _ =>
+          s"${parts.mkString(".")}"
+      }
+    }
+  }
 }
 
 trait ScExportsHolder extends ScImportsOrExportsHolder {

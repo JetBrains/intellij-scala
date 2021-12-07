@@ -46,7 +46,7 @@ abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestAda
       val ioFile: File = new File(filePath)
       FileUtil.loadFile(ioFile, CharsetToolkit.UTF8)
     }
-    configureFromFileText(StringUtil.convertLineSeparators(text.trim), ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, StringUtil.convertLineSeparators(text.trim))
     getFile.asInstanceOf[ScalaFile]
   }
 

@@ -10,7 +10,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
@@ -116,11 +116,16 @@ private case class Feature(@Nls name: String,
 }
 
 private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: String)
-  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature").format(name), e) {
+  extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("import.feature.flag.for.language.feature", name), e) {
 
   override protected def doApplyFix(elem: PsiElement)
-                                   (implicit project: Project): Unit =
-    ScImportsHolder(elem).addImportForPath(flag, elem)
+                                   (implicit project: Project): Unit = {
+    elem match {
+      case ref: ScReference =>
+        ScImportsHolder(elem).addImportForPath(flag, ref)
+      case _ =>
+    }
+  }
 }
 
 private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,

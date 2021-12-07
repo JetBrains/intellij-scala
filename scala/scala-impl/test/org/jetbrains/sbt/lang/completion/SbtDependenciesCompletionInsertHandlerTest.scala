@@ -12,7 +12,7 @@ class SbtDependenciesCompletionInsertHandlerTest extends ScalaCodeInsightTestBas
   private val RESULT_DEPENDENCY = s""""$GROUP_ID" % "$ARTIFACT_ID" % "$CARET""""
 
   override protected def configureFromFileText(fileText: String): PsiFile =
-    configureFromFileText(fileText, SbtFileType)
+    configureFromFileText(SbtFileType, fileText)
 
   def testTopLevel_Single_OutsideOfStringLiteral(): Unit = doCompletionTest(
     fileText =

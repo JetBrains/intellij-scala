@@ -34,7 +34,7 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false): Unit = {
-    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
     doTestInner(checkEquivalence)
   }
 
@@ -89,7 +89,7 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
   }
 
   protected def declaredAndExpressionTypes(): (ScType, ScType) = {
@@ -127,7 +127,7 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
 
   def doApplicationConformanceTest(fileText: String, fileName: String = "dummy.scala"): Unit = {
     import org.junit.Assert._
-    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
     val scalaFile = getFile.asInstanceOf[ScalaFile]
     val caretIndex = scalaFile.getText.indexOf(caretMarker)
     val element = if (caretIndex > 0) {

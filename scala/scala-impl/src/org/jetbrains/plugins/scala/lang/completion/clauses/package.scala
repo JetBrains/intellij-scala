@@ -11,7 +11,7 @@ import com.intellij.psi.search.searches.DirectClassInheritorsSearch
 import com.intellij.psi.{util => _, _}
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster.adjustFor
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScCaseClause, ScPattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
@@ -79,7 +79,7 @@ package object clauses {
       (_, typeElement) <- findTypeElement(element)
     } yield typeElement
 
-    adjustFor(
+    TypeAdjuster.adjustFor(
       elements.toSeq,
       addImports = addImports,
       useTypeAliases = false

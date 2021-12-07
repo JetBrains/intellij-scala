@@ -28,6 +28,9 @@ trait ScImportExpr extends ScalaPsiElement {
 
   //def isWildcardImportExpr: Boolean
 
+  //TODO: rename the method.
+  //  "selector" means it's enclosed in braces, like import a.b.{_}
+  //  but this method can return true for `import a.b._`
   def hasWildcardSelector: Boolean
 
   def hasGivenSelector: Boolean

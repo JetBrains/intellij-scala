@@ -9,17 +9,13 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.util.FileContentUtil
-import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.findOptimizerFor
+import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 02.07.2009
- */
 sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
 
   override final def startInWriteAction: Boolean = true
@@ -36,7 +32,7 @@ sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
     scalaFile <- file.findAnyScalaFile
     if FileModificationService.getInstance.prepareFileForWrite(scalaFile)
 
-    optimizer <- findOptimizerFor(scalaFile)
+    optimizer <- ScalaImportOptimizer.findOptimizerFor(scalaFile)
     runner = optimizer.processFile(scalaFile)
   } runner.run()
 

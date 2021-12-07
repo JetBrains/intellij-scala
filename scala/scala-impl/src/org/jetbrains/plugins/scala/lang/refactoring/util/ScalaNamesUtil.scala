@@ -100,6 +100,9 @@ object ScalaNamesUtil {
   def escapeKeywordsFqn(fqn: String): String =
     fqnWithTransformation(fqn)(escapeKeyword)
 
+  def escapeKeywordsFqnParts(fqn: String): Seq[String] =
+    fqnPartsWithTransformation(fqn)(escapeKeyword)
+
   def escapeKeyword(s: String): String =
     if (isKeyword(s)) s"`$s`" else s
 
@@ -118,11 +121,17 @@ object ScalaNamesUtil {
     }
 
 
+  private def fqnPartsWithTransformation(fqn: String)
+                                        (transformation: String => String): Seq[String] = {
+    val parts = splitName(fqn)
+    parts.map(transformation)
+  }
+
   private def fqnWithTransformation(fqn: String)
-                                   (transformation: String => String) =
-    splitName(fqn)
-      .map(transformation)
-      .mkString(".")
+                                   (transformation: String => String) = {
+    val partsTransformed = fqnPartsWithTransformation(fqn)(transformation)
+    partsTransformed.mkString(".")
+  }
 
   private def fitToPattern(pattern: String, qualName: String, strict: Boolean): Boolean = {
 

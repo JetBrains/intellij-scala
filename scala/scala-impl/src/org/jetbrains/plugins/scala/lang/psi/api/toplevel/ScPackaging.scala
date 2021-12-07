@@ -17,6 +17,11 @@ trait ScPackaging extends ScImportsHolder
 
   def fullPackageName: String
 
+  /**
+   * @return true - if package has explicit marker (`{` or `:` (Scala 3))<br>
+   *         false - otherwise
+   * @see [[findExplicitMarker]]
+   */
   def isExplicit: Boolean
 
   /**

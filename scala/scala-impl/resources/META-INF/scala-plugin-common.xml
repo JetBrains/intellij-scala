@@ -361,8 +361,12 @@
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureUsageProcessor" order="first" id="scalaProcessor"/>
         <refactoring.changeSignatureUsageProcessor implementation="org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterUsageProcessor" order="first" id="scalaIntroduceParamterProcessor"/>
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaChangeSignatureRefactoringHelper"/>
-        <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveRefactoringHelper"/>
-        <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaRemoveBracesInImportsRefactoringHelper"/>
+
+        <!-- NOTE: ScalaPrioritizeImportsUsageRefactoringHelper should be the last registered refactoring helper which changes usages order-->
+        <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaPrioritizeImportsUsageRefactoringHelper" order="last"/>
+
+        <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactoringHelper"/>
+
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>

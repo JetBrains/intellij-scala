@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -25,8 +25,13 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * TODO: add descriptions of all other params
+ *
+ * @param singleNames set of explicitly imported names<br>
+ *                    example: in `import org.example.{A, B, _}` singleNames = [A, B]
+ * @param hiddenNames names which are hidden using `=> _` rename (or `as _` in Scala3)<br>
+ *                    (aka "excludedNames")
+ */
 case class ImportInfo(prefixQualifier: String,
                       relative: Option[String] = None,
                       allNames: Set[String] = Set.empty,
@@ -123,9 +128,13 @@ case class ImportInfo(prefixQualifier: String,
 
 object ImportInfo {
 
-  def apply(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
+  def createInfos(imp: ScImportStmt, isImportUsed: ImportUsed => Boolean = _ => true): Seq[ImportInfo] =
+    imp.importExprs.flatMap(ImportInfo.create(_, isImportUsed))
+
+  def create(imp: ScImportExpr, isImportUsed: ImportUsed => Boolean): Option[ImportInfo] = {
     val qualifier = imp.qualifier.orNull
-    if (qualifier == null) return None //ignore invalid imports
+    if (qualifier == null)
+      return None //ignore invalid imports
 
     val importsUsed = ArrayBuffer[ImportUsed]()
     val allNames = mutable.HashSet[String]()
@@ -139,14 +148,16 @@ object ImportInfo {
     var hasNonUsedImplicits = false
 
     def addAllNames(ref: ScStableCodeReference, nameToAdd: String): Unit = {
-      if (ref.multiResolveScala(false).exists(shouldAddName)) allNames += nameToAdd
+      if (ref.multiResolveScala(false).exists(shouldAddName))
+        allNames += nameToAdd
     }
 
     val deepRef = deepestQualifier(qualifier)
     val rootUsed = deepRef.textMatches(_root_prefix)
 
     val (prefixQualifier, isRelative) =
-      if (rootUsed) (explicitQualifierString(qualifier, withDeepest = false), false)
+      if (rootUsed)
+        (explicitQualifierString(qualifier, withDeepest = false), false)
       else {
         val qualifiedDeepRef =
           try qualifiedRef(deepRef)

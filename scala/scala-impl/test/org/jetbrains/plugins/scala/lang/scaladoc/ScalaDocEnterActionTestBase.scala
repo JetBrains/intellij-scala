@@ -29,7 +29,7 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
   }
 
   protected def doTest(before: String, expectedAfter: String, stripTrailingSpaces: Boolean = true): Unit = {
-    configureFromFileText(before.withNormalizedSeparator, ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, before.withNormalizedSeparator)
 
     val handler = EditorActionManager.getInstance.getActionHandler(IdeActions.ACTION_EDITOR_ENTER)
     ActionTestBase.performAction(getProject, () => {

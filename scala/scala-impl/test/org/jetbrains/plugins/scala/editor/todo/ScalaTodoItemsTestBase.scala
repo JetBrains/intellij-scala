@@ -21,7 +21,7 @@ abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestAd
   protected def testTodos(textWithMarkers: String, fileType: String = "scala"): Unit = {
     val (text, ranges) = extractMarker(textWithMarkers.withNormalizedSeparator)
 
-    val file = configureFromFileText(text, fileType)
+    val file = configureFromFileTextWithSomeName(fileType, text)
 
     EditorTestUtil.setEditorVisibleSize(getEditor, 1000, 1000) // set visible area for highlighting
 

@@ -77,8 +77,10 @@ object TypeAdjuster extends ApplicationListener {
 
     val rewrittenInfos = rewriteInfosAsInfix(infos)
     for {
-      (holder, paths) <- replaceAndAddImports(rewrittenInfos, addImports)
-    } holder.addImportsForPaths(paths.toSeq, null)
+      (holder, pathsToAdd) <- replaceAndAddImports(rewrittenInfos, addImports)
+    } {
+      holder.addImportsForPaths(pathsToAdd.toSeq, null)
+    }
   }
 
   private def newRef(text: String, position: PsiElement): Option[ScReference] =
@@ -326,7 +328,7 @@ object TypeAdjuster extends ApplicationListener {
     infos.map(rewriteAsInfix)
   }
 
-  private def collectImportHolders(infos: Set[ReplacementInfo]) = {
+  private def collectImportHolders(infos: Set[ReplacementInfo]): Map[ReplacementInfo, ScImportsHolder] = {
     val pathToInfo = mutable.Map.empty[String, Set[ReplacementInfo]]
       .withDefaultValue(Set.empty)
 
@@ -353,19 +355,24 @@ object TypeAdjuster extends ApplicationListener {
       }.toMap
   }
 
-  private def replaceAndAddImports(infos: Iterable[ReplacementInfo],
-                                   addImports: Boolean) = {
+  private def replaceAndAddImports(
+    infos: Iterable[ReplacementInfo],
+    addImports: Boolean
+  ) = {
     assert(infos.forall(_.place.isValid), "Psi shouldn't be modified before this stage!")
 
-    val (sameResolve, otherResolve) = infos.toSet.partition(_.checkReplacementResolve)
+    val (
+      sameResolve: Set[ReplacementInfo],
+      otherResolve: Set[ReplacementInfo]
+    ) = infos.toSet.partition(_.checkReplacementResolve)
+
     val importHolders = collectImportHolders(otherResolve)
 
     val result = mutable.Map.empty[ScImportsHolder, Set[String]]
       .withDefaultValue(Set.empty)
 
-    infos.filter {
-      addImports || sameResolve(_)
-    }.foreach { info =>
+    val infosFinal = if (addImports) infos else infos.filter(sameResolve.contains)
+    infosFinal.foreach { info =>
       replaceElem(info)
 
       val pathsToImport = info.pathsToImport

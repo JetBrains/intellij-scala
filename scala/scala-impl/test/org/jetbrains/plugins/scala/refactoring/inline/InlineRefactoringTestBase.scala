@@ -37,7 +37,7 @@ abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTes
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(fileText, ScalaFileType.INSTANCE)
+    configureFromFileText(ScalaFileType.INSTANCE, fileText)
 
     val offset = fileText.indexOf(caretMarker) + caretMarker.length
     assert(offset != -1, "Not specified caret marker in test case. Use /*caret*/ in scala file for this.")

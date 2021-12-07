@@ -4,6 +4,8 @@ package refactoring.move
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.experimental.categories.Category
 
+//NOTE: these tests are currently valid for Scala 2.10 !!!
+//They may fail when upgrading to e.g. 2.13, e.g. due to this change between 2.12 & 2.13 SCL-16305
 class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
   override protected def testDataRoot = TestUtils.getTestDataPath + "/move/"
@@ -89,6 +91,110 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
       ),
       "org.example.data"
     )
+
+  //SCL-19771, SCL-19779
+  def testAllInOne(): Unit =
+    doTest(
+      Array("org.example1.declaration.X"),
+      "org.example1.declaration.data"
+    )
+
+  def testAllInOne_1(): Unit =
+    doTest(
+      Array("org.example1_1.declaration.X"),
+      "org.example1_1.declaration.data"
+    )
+
+  def testAllInOne_1_MoveXYZ(): Unit =
+    doTest(
+      Array(
+        "org.example1_1.declaration.X",
+        "org.example1_1.declaration.Y",
+        "org.example1_1.declaration.Z"
+      ),
+      "org.example1_1.declaration.data"
+    )
+
+  def testAllInOne_LocalImports(): Unit =
+    doTest(
+      Array("org.example2.declaration.U"),
+      "org.example2.declaration.data"
+    )
+
+  def testAllInOne_LocalImports_MultipleImportExprInSingleStmt(): Unit =
+    doTest(
+      Array("org.example2.declaration.U"),
+      "org.example2.declaration.data"
+    )
+
+  def testMoveToSamePackageWithUsage(): Unit =
+    doTest(
+      Array("org.example3.X"),
+      "org.example3.data"
+    )
+
+  def testMoveToSamePackageWithUsage_MoveAll(): Unit =
+    doTest(
+      Array(
+        "org.example3.X",
+        "org.example3.Y",
+        "org.example3.Z"
+      ),
+      "org.example3.data"
+    )
+
+  def testSortOnlyModifiedImport_DoNotTouchOther(): Unit =
+    doTest(
+      Array("org.example4.declaration.X"),
+      "org.example4.declaration.data"
+    )
+
+  def testSortOnlyModifiedImport_DoNotTouchOther_1(): Unit =
+    doTest(
+      Array("org.example4_1.declaration.X"),
+      "org.example4_1.declaration.data"
+    )
+
+  def testMoveMultipleClasses_UsedInLocalImports(): Unit = {
+    doTest(
+      Array(
+        "org.example5.declaration.X",
+        "org.example5.declaration.Y",
+        "org.example5.declaration.Z",
+      ),
+      "org.example5.declaration.data"
+    )
+  }
+
+  //SCL-19801 (2.10)
+  def testMoveClass_NameClashesWithOtherNamesImportedFromOtherPackageWithWithWildcard(): Unit = {
+    doTest(
+      Array(
+        "org.example.declaration.Random",
+        "org.example.declaration.X",
+      ),
+      "org.example.declaration.data"
+    )
+  }
+}
+
+class ScalaMoveClassScala213Test extends ScalaMoveClassTestBase {
+
+  override protected def testDataRoot = TestUtils.getTestDataPath + "/moveScala213/"
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+
+  //SCL-19801 (2.13)
+  def testMoveClass_NameClashesWithOtherNamesImportedFromOtherPackageWithWithWildcard(): Unit = {
+    doTest(
+      Array(
+        "org.example.declaration.Random",
+        "org.example.declaration.X",
+      ),
+      "org.example.declaration.data"
+    )
+  }
 }
 
 @Category(Array(classOf[FlakyTests]))

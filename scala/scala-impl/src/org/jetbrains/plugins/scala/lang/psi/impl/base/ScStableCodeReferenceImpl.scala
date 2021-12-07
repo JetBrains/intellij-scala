@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package base
+package org.jetbrains.plugins.scala.lang.psi.impl.base
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
@@ -17,10 +13,11 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder.ImportPath
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScReferenceExpression, ScSuperReference, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -28,15 +25,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ExtractorResolveProcessor}
-import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
@@ -68,7 +66,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         else stableQualRef
 
       case e: ScImportExpr => if (e.selectorSet.isDefined
-              //import Class._ is not allowed
+        //import Class._ is not allowed
         || qualifier.isEmpty || e.hasWildcardSelector) stableQualRef
       else stableImportSelector
 
@@ -103,95 +101,110 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   @throws(classOf[IncorrectOperationException])
   override def bindToElement(element: PsiElement): PsiElement = {
-    def isCorrectReference(text: String): Option[ScStableCodeReference] = {
-      val ref = createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
+    def createReferenceAndEnsureIsCorrect(text: String): Option[ScStableCodeReference] = {
+      val newReference = ScalaPsiElementFactory.createReferenceFromText(text, getContext, ScStableCodeReferenceImpl.this)
 
-      if (ref.isReferenceTo(element)) Some(ref)
+      if (newReference.isReferenceTo(element)) Some(newReference)
       else None
     }
 
     def replaceThisBy(ref: ScStableCodeReference): PsiElement =
       ScStableCodeReferenceImpl.this.replace(ref)
 
-    //this method may remove unnecessary imports
-    def bindImportReference(c: ElementToImport): Boolean = {
-      val importSelector: ScImportSelector =
-        ScImportExpr.getParentOfTypeInsideImport(this, classOf[ScImportSelector], strict = true)
+    /**
+     * @note this method may remove unnecessary imports
+     * @note effected ranges are modified after refactoring is finished in
+     *       [[com.intellij.psi.impl.source.PostprocessReformattingAspect.doPostponedFormatting]]<br>
+     *       so if we touch some whitespace during import modification, the whitespace might be collapsed
+     *       according to code style settings (min blank lines before/after/imports)
+     *
+     *
+     */
+    def bindImportReference(elementToImport: ElementToImport): Boolean = {
+      val importExpr = ScalaPsiUtil.getParentOfTypeInsideImport(this, classOf[ScImportExpr], strict = true)
+      val importSelector = ScalaPsiUtil.getParentOfTypeInsideImport(this, classOf[ScImportSelector], strict = true)
+
+      def bindImportSelectorOrExpression(aliasName: Option[String], importExpressionOrSelectorToDelete: PsiElement): Unit = {
+        val importsHolder = PsiTreeUtil.getParentOfType(importExpr, classOf[ScImportsHolder])
+        val importPath = ImportPath(elementToImport.qualifiedName, aliasName)
+        importsHolder.bindImportSelectorOrExpression(importExpr, importExpressionOrSelectorToDelete, importPath)
+      }
+
       if (importSelector != null) {
-        importSelector.deleteSelector(removeRedundantBraces = false)
+        bindImportSelectorOrExpression(importSelector.aliasName, importSelector)
         true
       }
-      else {
-        val importExpr =ScImportExpr.getParentOfTypeInsideImport(this, classOf[ScImportExpr], strict = true)
-        if (importExpr != null) {
-          if (importExpr == getParent && !importExpr.hasWildcardSelector && importExpr.selectorSet.isEmpty) {
-            val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
-            importExpr.deleteExpr()
-            c match {
-              case ClassToImport(clazz) => holder.addImportForClass(clazz)
-              case ta => holder.addImportForPath(ta.qualifiedName)
-            }
-          } else {
-            //qualifier reference in import expression
-            isCorrectReference(c.name)
-              .orElse(isCorrectReference(c.qualifiedName))
-              .map(replaceThisBy)
-          }
-          true
+      else if (importExpr != null) {
+        val isRootImportRefInImportExpr = importExpr == this.getParent // example: `a.b.c` in `import a.b.c`
+        if (isRootImportRefInImportExpr && !importExpr.hasWildcardSelector && importExpr.selectorSet.isEmpty) {
+          bindImportSelectorOrExpression(None, importExpr)
         }
-        else
-          false
+        else {
+          //qualifier reference in import expression
+          // e.g. when we move some object `O` and we have `import a.b.O.method` we are rebinding `a.b.O` reference
+          val newRefOpt1 = createReferenceAndEnsureIsCorrect(elementToImport.name)
+          val newRefOpt2 = newRefOpt1.orElse(createReferenceAndEnsureIsCorrect(elementToImport.qualifiedName))
+          newRefOpt2 match {
+            case Some(newRef) =>
+              replaceThisBy(newRef)
+            case _ =>
+          }
+        }
+        true
       }
+      else
+        false
     }
 
-
-    if (isReferenceTo(element)) this
+    if (isReferenceTo(element))
+      this
     else {
       val aliasedRef: Option[ScReference] = ScalaPsiUtil.importAliasFor(element, this)
       if (aliasedRef.isDefined) {
         this.replace(aliasedRef.get)
       }
       else {
-        def bindToType(c: ElementToImport): PsiElement = {
+        def bindToType(elementToImport: ElementToImport): PsiElement = {
           val suitableKinds = getKinds(incomplete = false)
-          if (!ResolveUtils.kindMatches(c.element, suitableKinds)) {
-            reportWrongKind(c, suitableKinds)
+          if (!ResolveUtils.kindMatches(elementToImport.element, suitableKinds)) {
+            reportWrongKind(elementToImport, suitableKinds)
           }
-          if (!nameId.textMatches(c.name)) {
-            val ref = createReferenceFromText(c.name)
-            return this.replace(ref).asInstanceOf[ScStableCodeReference].bindToElement(c.element)
+
+          if (!nameId.textMatches(elementToImport.name)) {
+            val refNew = ScalaPsiElementFactory.createReferenceFromText(elementToImport.name)
+            val refNewReplaced = this.replace(refNew).asInstanceOf[ScStableCodeReferenceImpl]
+            val result = refNewReplaced.bindToElement(elementToImport.element)
+            return result
           }
-          val qname = c.qualifiedName
+
+          val qname = elementToImport.qualifiedName
           val isPredefined = ScalaCodeStyleSettings.getInstance(getProject).hasImportWithPrefix(qname)
 
-          if (bindImportReference(c)) {
+          val bindImportReferenceResult = bindImportReference(elementToImport)
+          if (bindImportReferenceResult) {
             //so we may return invalidated reference when current reference was part of import expression
             //probably it's better than null if import statement or selector was removed completely
             this
           }
           else {
             if (qualifier.isDefined && !isPredefined) {
-              isCorrectReference(c.name) match {
+              createReferenceAndEnsureIsCorrect(elementToImport.name) match {
                 case Some(newRef) =>
                   return replaceThisBy(newRef)
                 case _ =>
               }
             }
             if (qname != null) {
-              safeBindToElement(qname, {
-                case (qual, true) => createReferenceFromText(qual, getContext, this)
-                case (qual, false) => createReferenceFromText(qual)
+              safeBindToElement(qname, referenceCreator = {
+                case (qual, true) => ScalaPsiElementFactory.createReferenceFromText(qual, getContext, this)
+                case (qual, false) => ScalaPsiElementFactory.createReferenceFromText(qual)
               }) {
                 val importsHolder = ScImportsHolder(this)
-                c match {
-                  case ClassToImport(clazz) =>
-                    importsHolder.addImportForClass(clazz, ref = this)
-                  case ta =>
-                    importsHolder.addImportForPath(ta.qualifiedName, ref = this)
-                }
+                importsHolder.addImportForElement(elementToImport, ref = this)
+
                 if (qualifier.isDefined) {
                   //let's make our reference unqualified
-                  val ref: ScStableCodeReference = createReferenceFromText(c.name)
+                  val ref: ScStableCodeReference = ScalaPsiElementFactory.createReferenceFromText(elementToImport.name)
                   this.replace(ref).asInstanceOf[ScReference]
                 }
                 this
@@ -222,7 +235,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               case member: ScMember =>
                 val containingClass = member.containingClass
                 val refToClass = bindToElement(containingClass)
-                val refToMember = createReferenceFromText(refToClass.getText + "." + binding.name)
+                val refToMember = ScalaPsiElementFactory.createReferenceFromText(refToClass.getText + "." + binding.name)
                 this.replace(refToMember).asInstanceOf[ScReference]
             }
           case fun: ScFunction if Seq("unapply", "unapplySeq").contains(fun.name) && ScalaPsiUtil.hasStablePath(fun) =>
@@ -264,8 +277,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   override def delete(): Unit = {
     getContext match {
       case sel: ScImportSelector => sel.deleteSelector(removeRedundantBraces = true)
-      case expr: ScImportExpr => expr.deleteExpr()
-      case _ => super.delete()
+      case expr: ScImportExpr    => expr.deleteExpr()
+      case _                     => super.delete()
     }
   }
 
@@ -290,7 +303,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
                 return
               treeWalkUp(p.analog.get, lastParent)
-                // annotation should not walk through it's own annotee while resolving
+              // annotation should not walk through it's own annotee while resolving
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place)
@@ -321,7 +334,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         processor.candidates
       case Some(p: ScInterpolationPattern) =>
         val expr =
-          createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
+          ScalaPsiElementFactory.createExpressionWithContextFromText(s"""_root_.scala.StringContext("").$refName""", p, this)
         expr match {
           case ref: ScReferenceExpression =>
             ref.doResolve(processor)
@@ -389,7 +402,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             if (processor.candidatesS.isEmpty) {
               //check implicit conversions
               val expr =
-                createExpressionWithContextFromText(getText, getContext, this)
+                ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this)
               //todo: this is really hacky solution... Probably can be joint somehow with interpolated pattern.
               expr match {
                 case ref: ScReferenceExpression =>
@@ -417,7 +430,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
   private def withDynamic(qualType: ScType, state: ResolveState, processor: BaseProcessor): Option[Array[ScalaResolveResult]] = {
     if (processor.candidatesS.isEmpty && conformsToDynamic(qualType, getResolveScope)) {
-      createExpressionWithContextFromText(getText, getContext, this) match {
+      ScalaPsiElementFactory.createExpressionWithContextFromText(getText, getContext, this) match {
         case rExpr @ ScReferenceExpression.withQualifier(qual) =>
           val dynamicProcessor = dynamicResolveProcessor(rExpr, qual, processor)
           dynamicProcessor.processType(qualType, qual, state)
@@ -452,7 +465,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
               true
             // Other classes from default package are available only for top-level Scala statements
             case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
-        }
+          }
         case _ => true
       }
     }

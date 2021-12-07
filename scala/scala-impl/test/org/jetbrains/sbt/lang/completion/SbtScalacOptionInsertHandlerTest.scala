@@ -12,7 +12,7 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
   private val RESULT_OPTION_WITH_SEPARATE_ARG = s"""Seq("$LOOKUP_ITEM_WITH_SEPARATE_ARG", ".")"""
 
   override protected def configureFromFileText(fileText: String): PsiFile =
-    configureFromFileText(fileText, SbtFileType)
+    configureFromFileText(SbtFileType, fileText)
 
   def testTopLevel_Single_OutsideOfStringLiteral_AfterParenthesisedExpr(): Unit = doCompletionTest(
     fileText =

@@ -1,24 +1,18 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
-package elements
+package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 20.06.2009
-  */
 class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
   override def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeOptionName(stub.referenceText)
     dataStream.writeOptionName(stub.importedName)
+    dataStream.writeOptionName(stub.aliasName)
     dataStream.writeBoolean(stub.isAliasedImport)
     dataStream.writeBoolean(stub.isWildcardSelector)
     dataStream.writeBoolean(stub.isGivenSelector)
@@ -29,6 +23,7 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     new ScImportSelectorStubImpl(parentStub, this,
       referenceText = dataStream.readOptionName,
       importedName = dataStream.readOptionName,
+      aliasName = dataStream.readOptionName,
       isAliasedImport = dataStream.readBoolean(),
       isWildcardSelector = dataStream.readBoolean(),
       isGivenSelector = dataStream.readBoolean(),
@@ -43,6 +38,7 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     new ScImportSelectorStubImpl(parentStub, this,
       referenceText = referenceText,
       importedName = selector.importedName,
+      aliasName = selector.aliasName,
       isAliasedImport = selector.isAliasedImport,
       isWildcardSelector = selector.isWildcardSelector,
       isGivenSelector = selector.isGivenSelector,

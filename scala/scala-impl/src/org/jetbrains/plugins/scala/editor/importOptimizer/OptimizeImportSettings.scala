@@ -9,8 +9,29 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * @param sortImports    whether to sort imports (according to the code style settings)<br>
+ *                       example: {{{
+ *                         before:
+ *                             import org.example.C
+ *                             import org.example.A
+ *                             import org.example.B
+ *
+ *                         after:
+ *                             import org.example.A
+ *                             import org.example.B
+ *                             import org.example.C
+ *                       }}}
+ * @param collectImports whether to collect/group imports with the same qualifier prefix<br>
+ *                       example: {{{
+ *                         before:
+ *                             import org.example.A
+ *                             import org.example.{B, C}
+ *                             import org.example.D
+ *
+ *                         after:
+ *                             import org.example.{A, B, C, D}
+ *                       }}}
+ */
 case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
                                   basePackage: Option[String],
                                   isLocalImportsCanBeRelative: Boolean,
@@ -28,8 +49,15 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
   def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
 
-  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String], scalaFeatures: ScalaFeatures) = {
+  def withoutCollapseSelectorsToWildcard: OptimizeImportSettings =
+    this.copy(classCountToUseImportOnDemand = Int.MaxValue)
 
+  private def this(
+    s: ScalaCodeStyleSettings,
+    scalastyleSettings: ScalastyleSettings,
+    basePackage: Option[String],
+    scalaFeatures: ScalaFeatures
+  ) = {
     this(
       addFullQualifiedImports = s.isAddFullQualifiedImports,
       basePackage = basePackage,
@@ -54,6 +82,7 @@ object OptimizeImportSettings {
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
     val scalastyleSettings =
       if (codeStyleSettings.isSortAsScalastyle) {
+        //TODO: this branch is not covered with tests
         val scalastyleConfig = ScalastyleCodeInspection.configurationFor(file)
         val scalastyleChecker = scalastyleConfig.flatMap(_.checks.find(_.className == ScalastyleSettings.importOrderChecker))
         val groups = scalastyleChecker.filter(_.enabled).flatMap(ScalastyleSettings.groups)

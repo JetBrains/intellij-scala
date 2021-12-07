@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.refactoring.move
 import java.io.File
 import java.nio.file.Path
 import java.util
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.Assert.assertNotNull
 
 import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
@@ -45,7 +45,12 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     rootDirAfter = findAndRefreshVFile(rootAfter)
   }
 
-  def doTest(classNames: Array[String], newPackageName: String, mode: Kinds.Value = Kinds.all, moveCompanion: Boolean = true): Unit = {
+  def doTest(
+    classNames: Array[String],
+    newPackageName: String,
+    mode: Kinds.Value = Kinds.all,
+    moveCompanion: Boolean = true
+  ): Unit = try {
     val settings = ScalaApplicationSettings.getInstance()
     val moveCompanionOld = settings.MOVE_COMPANION
     settings.MOVE_COMPANION = moveCompanion
@@ -57,6 +62,12 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
     settings.MOVE_COMPANION = moveCompanionOld
     PostprocessReformattingAspect.getInstance(getProjectAdapter).doPostponedFormatting()
     PlatformTestUtil.assertDirectoriesEqual(rootDirAfter, rootDirBefore)
+  } catch {
+    case ex: Throwable =>
+      //print folders to conveniently navigate to them from failed test console
+      System.err.println(s"Folder before path: $rootDirBefore")
+      System.err.println(s"Folder after path: $rootDirAfter")
+      throw ex
   }
 
   private def performAction(classNames: Array[String], newPackageName: String, mode: Kinds.Value): Unit = {
@@ -70,6 +81,7 @@ abstract class ScalaMoveClassTestBase extends ScalaLightPlatformCodeInsightTestC
       }
     }
     val aPackage: PsiPackage = JavaPsiFacade.getInstance(getProjectAdapter).findPackage(newPackageName)
+    assertNotNull(s"Can't find package '$newPackageName'", aPackage)
     val dirs: Array[PsiDirectory] = aPackage.getDirectories(GlobalSearchScope.moduleScope(getModuleAdapter))
     assert(dirs.length == 1)
     ScalaFileImpl.performMoveRefactoring {

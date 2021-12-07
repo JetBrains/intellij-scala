@@ -11,8 +11,8 @@ trait ScImportOrExportStmt extends ScalaPsiElement {
   /**
    * NOTE: same method name for `import` and `export` statements (clauses) is used for the convenience of logic reusing<br>
    * It's done so even in Scala 3 grammar: {{{
-   *   Import  ::=  ‘import’ ImportExpr {‘,’ ImportExpr}
-   *   Export  ::=  ‘export’ ImportExpr {‘,’ ImportExpr}
+   *   Import  ::=  `import` ImportExpr {`,` ImportExpr}
+   *   Export  ::=  `export` ImportExpr {`,` ImportExpr}
    * }}}
    *
    */
