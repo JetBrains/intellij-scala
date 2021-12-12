@@ -41,7 +41,6 @@ trait FileDeclarationsHolder
     if (isProcessLocalClasses(lastParent) &&
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (!processDeclarationsFromExports(processor, state, lastParent, place)) return false
     if (!processDeclarationsFromImports(processor, state, lastParent, place)) return false
 
     if (this.context != null) return true

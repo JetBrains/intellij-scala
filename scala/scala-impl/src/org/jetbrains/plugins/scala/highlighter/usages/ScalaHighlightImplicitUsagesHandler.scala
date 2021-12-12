@@ -27,7 +27,7 @@ class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data
 
   override def getTargets: util.List[PsiElement] = (kind.target(data).toSeq: Seq[PsiElement]).asJava
 
-  override def selectTargets(targets: util.List[_ <: PsiElement], 
+  override def selectTargets(targets: util.List[_ <: PsiElement],
                              selectionConsumer: Consumer[_ >: util.List[_ <: PsiElement]]): Unit =
     selectionConsumer.consume(targets)
 

@@ -8,7 +8,7 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.scope._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.ElementScope
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeProjection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
@@ -126,6 +126,19 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
       case ElementClassHint.KEY => MyElementClassHint.asInstanceOf[T]
       case _ => null.asInstanceOf[T]
     }
+  }
+
+  def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
+    val memb: PsiMember = {
+      named match {
+        case memb: PsiMember => memb
+        case _ => ScalaPsiUtil.nameContext(named) match {
+          case memb: PsiMember => memb
+          case _ => return true //something strange
+        }
+      }
+    }
+    ResolveUtils.isAccessible(memb, place)
   }
 
   def processType(

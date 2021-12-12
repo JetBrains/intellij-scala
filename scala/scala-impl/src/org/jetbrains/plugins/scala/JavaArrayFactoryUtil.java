@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging;
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt;
@@ -60,6 +61,8 @@ public class JavaArrayFactoryUtil {
   public static ArrayFactory<ScImportExpr> ScImportExprFactory = ScImportExpr[]::new;
 
   public static ArrayFactory<ScImportStmt> ScImportStmtFactory = ScImportStmt[]::new;
+
+  public static ArrayFactory<ScExportStmt> ScExportStmtFactory = ScExportStmt[]::new;
 
   public static ArrayFactory<ScImportSelector> ScImportSelectorFactory = ScImportSelector[]::new;
 
