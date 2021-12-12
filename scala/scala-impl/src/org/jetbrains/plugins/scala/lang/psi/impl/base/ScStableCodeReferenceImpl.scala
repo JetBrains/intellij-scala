@@ -17,19 +17,21 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.macros.MacroDef
 import org.jetbrains.plugins.scala.lang.macros.evaluator.{MacroContext, ScalaMacroEvaluator}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScInfixPattern, ScInterpolationPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScSuperReference, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScDerivesClause}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesClause, ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -294,6 +296,24 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place)
+            case export: ScExportStmt =>
+              val clsContext = PsiTreeUtil.getContextOfType(export, classOf[PsiClass])
+              val nodes      = MixinNodes.currentlyProcessedSigs.value.get(clsContext)
+
+              if (nodes ne null) {
+                val forName = nodes.forName(refName)
+                if (!forName.isEmpty) {
+                  forName.iterator.filter { sig =>
+                    sig.namedElement match {
+                      case inNameContext(_: ScValue) => true
+                      case _: ScObject => true
+                      case _ => false
+                    }
+                  }.forall(sig => processor.execute(sig.namedElement, ScalaResolveState.empty))
+                  return
+                }
+              }
+              treeWalkUp(place.getContext, place)
             case p =>
               if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
                 return
@@ -463,12 +483,14 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case None =>
     }
 
-    val importStmt = getEnclosingImportStatement
-    if (importStmt != null) {
-      val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
+    val enclosingImportOrExport = getEnclosingImportStatement
+    val isExport = enclosingImportOrExport.is[ScExportStmt]
+
+    if (enclosingImportOrExport != null && !isExport) {
+      val importHolder = PsiTreeUtil.getContextOfType(enclosingImportOrExport, true, classOf[ScImportsHolder])
       if (importHolder != null) {
         val importExprsSeq = importHolder.getImportStatements
-          .takeWhile(_ != importStmt)
+          .takeWhile(_ != enclosingImportOrExport)
           .flatMap(_.importExprs)
           .filter(_.hasWildcardSelector)
 
@@ -521,9 +543,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     result
   }
 
-  private def getEnclosingImportStatement: ScImportStmt = {
+  private def getEnclosingImportStatement: ScImportOrExportStmt = {
     @tailrec
-    def inner(element: PsiElement): ScImportStmt = {
+    def inner(element: PsiElement): ScImportOrExportStmt = {
       val context = element.getContext
       context match {
         case _: ScStableCodeReference   => inner(context)
@@ -531,6 +553,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
              _: ScImportSelector |
              _: ScImportSelectors       => inner(context)
         case importClause: ScImportStmt => importClause
+        case exportClause: ScExportStmt => exportClause
         case _                          => null
       }
     }

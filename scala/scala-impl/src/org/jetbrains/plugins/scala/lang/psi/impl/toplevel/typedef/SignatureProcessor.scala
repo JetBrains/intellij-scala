@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi._
+import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
@@ -12,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
+import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -26,6 +29,8 @@ sealed trait SignatureProcessor[T <: Signature] {
       sink.put(t)
   }
 
+  def getExportClauseProcessor(subst: ScSubstitutor, sink: Sink, place: PsiElement): PsiScopeProcessor
+
   protected def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink): Unit
 
   protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit
@@ -33,16 +38,35 @@ sealed trait SignatureProcessor[T <: Signature] {
   def processRefinement(cp: ScCompoundType, sink: Sink): Unit
 
   //noinspection ScalaWrongMethodsUsage
-  protected def isStaticJava(m: PsiMember): Boolean = !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
+  protected def isStaticJava(m: PsiMember): Boolean =
+    !m.isInstanceOf[ScalaPsiElement] && m.hasModifierProperty("static")
+
+  def processPsiClass(cls: PsiClass, subst: ScSubstitutor, sink: Sink): Unit =
+    processAll(cls, subst, sink)
+
+  private def addExportedSignatures(cls: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = cls match {
+    case tdef: ScTypeDefinition =>
+      tdef.extendsBlock.templateBody.foreach { body =>
+        body.processDeclarationsFromExports(
+          getExportClauseProcessor(subst, sink, body),
+          ScalaResolveState.empty,
+          body,
+          body
+        )
+      }
+    case _ => ()
+  }
 
   @tailrec
-  final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
+  protected final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
     case null                                           => ()
     case ScEnum.Original(enum)                          => processAll(enum, substitutor, sink)
     case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
     case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
-    case td: ScTemplateDefinition                       => processScala(td, substitutor, sink)
-    case _                                              => processJava(clazz, substitutor, sink)
+    case td: ScTemplateDefinition =>
+      processScala(td, substitutor, sink)
+      addExportedSignatures(clazz, substitutor, sink)
+    case _ => processJava(clazz, substitutor, sink)
   }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =
@@ -53,11 +77,32 @@ sealed trait SignatureProcessor[T <: Signature] {
 object TypesCollector extends SignatureProcessor[TypeSignature] {
 
   override protected def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
-    case _: ScObject => true
+    case _: ScObject                          => true
     case _: ScTypeDefinition | _: ScTypeAlias => false
-    case c: PsiClass => isStaticJava(c)
-    case _ => true
+    case c: PsiClass                          => isStaticJava(c)
+    case _                                    => true
   }
+
+  override def getExportClauseProcessor(
+    subst: ScSubstitutor,
+    sink:  TypesCollector.Sink,
+    place: PsiElement
+  ): PsiScopeProcessor =
+    new BaseProcessor(Set(ResolveTargets.CLASS))(place) {
+      override protected def execute(
+        namedElement: PsiNamedElement
+      )(implicit
+        state: ResolveState
+      ): Boolean = {
+        val accesible = isAccessible(namedElement, place)
+
+        if (accesible) {
+          process(TypeSignature(namedElement, subst), sink)
+        }
+
+        true
+      }
+    }
 
   override protected def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
     for (inner <- clazz.getInnerClasses) {
@@ -109,6 +154,43 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
   }
 
+  override def getExportClauseProcessor(
+    subst: ScSubstitutor,
+    sink:  Sink,
+    place: PsiElement
+  ): PsiScopeProcessor =
+    new BaseProcessor(StdKinds.stableImportSelector)(place) {
+      override protected def execute(
+        namedElement: PsiNamedElement
+      )(implicit
+        state: ResolveState
+      ): Boolean = {
+        val accesible = isAccessible(namedElement, place)
+
+        if (accesible) {
+          val signatures = signaturesOf(namedElement.nameContext, subst)
+          signatures.foreach(process(_, sink))
+        }
+
+        true
+      }
+    }
+
+  private def signaturesOf(e: PsiElement, subst: ScSubstitutor): Seq[TermSignature] = e match {
+    case v: ScValueOrVariable         => v.declaredElements.flatMap(propertySignatures(_, subst))
+    case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst))
+    case f: ScFunction                => Seq(new PhysicalMethodSignature(f, subst))
+    case o: ScObject                  => Seq(TermSignature(o, subst))
+    case c: ScTypeDefinition          => syntheticSignaturesFromInnerClass(c, subst)
+    case ext: ScExtension =>
+      ext
+        .extensionMethods
+        .map(m =>
+          new PhysicalMethodSignature(m, subst, extensionTypeParameters = Option(ext.typeParameters))
+        )
+    case _ => Seq.empty
+  }
+
   override protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     implicit val ctx: ProjectContext = template
 
@@ -121,28 +203,8 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
 
     for (member <- relevantMembers(template)) {
-      member match {
-        case v: ScValueOrVariable =>
-          v.declaredElements
-            .foreach(addPropertySignatures(_, subst, addSignature))
-        case constr: ScPrimaryConstructor =>
-          constr.parameters
-            .foreach(addPropertySignatures(_, subst, addSignature))
-        case f: ScFunction =>
-          addSignature(new PhysicalMethodSignature(f, subst))
-        case o: ScObject =>
-          addSignature(TermSignature(o, subst))
-        case c: ScTypeDefinition =>
-          syntheticSignaturesFromInnerClass(c, subst)
-            .foreach(addSignature)
-        case ext: ScExtension =>
-          ext
-            .extensionMethods
-            .foreach(m => addSignature(
-              new PhysicalMethodSignature(m, subst, extensionTypeParameters = Option(ext.typeParameters)))
-            )
-        case _ =>
-      }
+      val sigs = signaturesOf(member, subst)
+      sigs.foreach(addSignature)
     }
   }
 
@@ -151,6 +213,12 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
       process(sign, sink)
     }
   }
+
+  override def processPsiClass(cls: PsiClass, subst: ScSubstitutor, sink: Sink): Unit =
+    MixinNodes.withSignaturesFor(cls, sink.asInstanceOf[MixinNodes.Map[TermSignature]])(
+      processAll(cls, subst, sink)
+    )
+
 
   private def addAnyValObjectMethods(template: ScTemplateDefinition, addSignature: TermSignature => Unit): Unit = {
     //some methods of java.lang.Object are available for value classes
@@ -169,12 +237,13 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   /**
    * @param named is class parameter, or part of ScValue or ScVariable
    * */
-  private def addPropertySignatures(named: ScTypedDefinition, subst: ScSubstitutor, addSignature: TermSignature => Unit): Unit = {
+  private def propertySignatures(
+    named:        ScTypedDefinition,
+    subst:        ScSubstitutor,
+  ): Seq[TermSignature] =
     PropertyMethods.allRoles
       .filter(isApplicable(_, named, noResolve = true))
       .map(signature(named, subst, _))
-      .foreach(addSignature)
-  }
 
   private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): TermSignature = role match {
     case SETTER | EQ => TermSignature.setter(methodName(named.name, role), named, subst)

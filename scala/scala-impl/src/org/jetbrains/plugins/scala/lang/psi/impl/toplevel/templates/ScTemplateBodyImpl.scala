@@ -96,8 +96,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
 
       if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place)) return false
     }
-    processDeclarationsFromExports(processor, state, lastParent, place) &&
-      processDeclarationsFromImports(processor, state, lastParent, place)
+    processDeclarationsFromImports(processor, state, lastParent, place)
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = Some(this)

@@ -8,8 +8,6 @@ package impl
 package toplevel
 package typedef
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.{List => JList}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
@@ -19,22 +17,25 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.SuperTypesData
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.{SuperTypesData, withSignaturesFor}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState
 import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
+import org.jetbrains.plugins.scala.util.{ScEquivalenceUtil, UnloadableThreadLocal}
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.{HashMap => JMap, List => JList}
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.collection.immutable.{ArraySeq, SeqMap}
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor[T]) {
@@ -42,43 +43,60 @@ abstract class MixinNodes[T <: Signature](signatureCollector: SignatureProcessor
 
   def build(clazz: PsiClass, withSupers: Boolean): Map = {
     if (!clazz.isValid) MixinNodes.emptyMap[T]
-    else {
+    else
       AstLoadingFilter.disallowTreeLoading { () =>
 
         val map = new Map
 
-        signatureCollector.processAll(clazz, ScSubstitutor.empty, map)
-        map.thisFinished()
+        if (withSupers) {
+          addSuperSignatures(SuperTypesData(clazz), map)
+        }
 
-        if (withSupers) addSuperSignatures(SuperTypesData(clazz), map)
+        map.supersFinished()
+
+        signatureCollector.processPsiClass(clazz, ScSubstitutor.empty, map)
+        map.sigsFinished()
+
         map
       }
-    }
   }
 
   def build(cp: ScCompoundType, compoundThisType: Option[ScType] = None): Map = {
     val map = new Map
 
-    signatureCollector.processRefinement(cp, map)
-    map.thisFinished()
-
     addSuperSignatures(SuperTypesData(cp, compoundThisType), map)
+    map.supersFinished()
+
+    signatureCollector.processRefinement(cp, map)
+    map.sigsFinished()
     map
   }
 
   private def addSuperSignatures(superTypesData: SuperTypesData, map: Map): Unit = {
 
-    for ((superClass, subst) <- superTypesData.substitutors) {
-      signatureCollector.processAll(superClass, subst, map)
+    for ((superClass, subst) <- superTypesData.substitutors.toSeq.reverseIterator) {
+      signatureCollector.processPsiClass(superClass, subst, map)
     }
 
     for (compoundType <- superTypesData.refinements) {
       signatureCollector.processRefinement(compoundType, map)
     }
   }
+
+
 }
 
 object MixinNodes {
+  val currentlyProcessedSigs: UnloadableThreadLocal[JMap[PsiClass, Map[TermSignature]]] =
+    new UnloadableThreadLocal(new JMap)
+
+  def withSignaturesFor[T](cls: PsiClass, sigs: Map[TermSignature])(f: =>T): T = try {
+    currentlyProcessedSigs.value.put(cls, sigs)
+    f
+  } finally {
+    currentlyProcessedSigs.value.remove(cls)
+  }
+
 
   private case class SuperTypesData(substitutors: SeqMap[PsiClass, ScSubstitutor], refinements: Seq[ScCompoundType])
 
@@ -186,11 +204,11 @@ object MixinNodes {
       builder.result()
     }
 
-    private var fromSuper: Boolean = false
+    private var fromSuper: Boolean                  = true
+    private var finishedBuildingSignatures: Boolean = false
 
-    def thisFinished(): Unit = {
-      fromSuper = true
-    }
+    def supersFinished(): Unit = fromSuper                = false
+    def sigsFinished(): Unit = finishedBuildingSignatures = true
 
     override def put(signature: T): Unit = {
       val name = signature.name
@@ -236,7 +254,12 @@ object MixinNodes {
         val superSignatures = supersSignaturesByName.getOrDefault(cleanName, ContainerUtil.emptyList[T])
         merge(thisSignatures, superSignatures)
       }
-      forNameCache.atomicGetOrElseUpdate(cleanName, calculate)
+
+      if (finishedBuildingSignatures) {
+        //do not cache intermediate results, forName may be called from resolve
+        //for exports, while signatures are still being built
+        forNameCache.atomicGetOrElseUpdate(cleanName, calculate)
+      } else calculate
     }
 
     private def merge(thisSignatures: JList[T], superSignatures: JList[T]): AllNodes[T] = {
@@ -514,4 +537,13 @@ object MixinNodes {
         }
       case _ => tp.extractClassType
     }
+}
+
+
+object FailedImplicitConversionLookupExample {
+  import scala.language.implicitConversions
+  final case class Hello(to: String = "World")
+  implicit def wrapGreeting(to: String): Hello = Hello(to)
+  def sayHello(hello: Hello = Hello()): Unit = println(s"Hello, ${hello.to}!")
+  sayHello("JetBrains")
 }

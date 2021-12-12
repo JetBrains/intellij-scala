@@ -94,19 +94,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     else                                                !update
   }
 
-  def isAccessible(named: PsiNamedElement, place: PsiElement): Boolean = {
-    val memb: PsiMember = {
-      named match {
-        case memb: PsiMember => memb
-        case _ => ScalaPsiUtil.nameContext(named) match {
-          case memb: PsiMember => memb
-          case _ => return true //something strange
-        }
-      }
-    }
-    ResolveUtils.isAccessible(memb, place)
-  }
-
   override protected def execute(namedElement: PsiNamedElement)
                                 (implicit state: ResolveState): Boolean = {
     def renamed: Option[String] = state.renamed

@@ -10,7 +10,7 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope._
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScImportStmtFactory
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScExportStmtFactory, ScImportStmtFactory}
 import org.jetbrains.plugins.scala.editor.importOptimizer._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -88,7 +88,7 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   def processDeclarationsFromImports(
     processor: PsiScopeProcessor,
-    state : ResolveState,
+    state: ResolveState,
     lastParent: PsiElement,
     place: PsiElement
   ): Boolean = {
@@ -386,37 +386,38 @@ object ScImportsHolder {
 
 trait ScExportsHolder extends ScImportsOrExportsHolder {
 
+  def getExportStatements: Seq[ScExportStmt] = {
+    val stub = this match {
+      case s: ScalaStubBasedElementImpl[_, _] => s.getGreenStub
+      case f: ScalaFileImpl                   => f.getStub
+      case _                                  => null
+    }
+    if (stub != null)
+      stub.getChildrenByType(ScalaElementType.ExportStatement, ScExportStmtFactory).toSeq
+    else
+      findChildren[ScExportStmt]
+  }
+
   // TODO: this is a dummy implementation copied from ScImportsHolder
   //  it's wrong, but at least exports are resolved in the same scope where declared
   //  to be improved in SCL-19437 (maybe remove this logic and use SyntheticMembersInjector instead
   def processDeclarationsFromExports(
     processor: PsiScopeProcessor,
-    state : ResolveState,
+    state: ResolveState,
     lastParent: PsiElement,
     place: PsiElement
   ): Boolean = {
-    if (lastParent != null) {
-      val prevExports = previousExports(lastParent)
+    val exports = getExportStatements
 
-      //Resolve all references in previous exports expressions in direct order to avoid SOE
-      prevExports.foreach(updateResolveCaches)
+    //Resolve all references in previous exports expressions in direct order to avoid SOE
+    exports.foreach(updateResolveCaches)
 
-      val shouldStop = prevExports.findLast(!_.processDeclarations(processor, state, lastParent, place))
+    val shouldStop = exports.findLast(!_.processDeclarations(processor, state, lastParent, place))
 
-      if (shouldStop.nonEmpty)
-        return false
-    }
+    if (shouldStop.nonEmpty)
+      return false
+
     true
-  }
-
-
-  @tailrec
-  private def previousExports(lastParent: PsiElement, acc: List[ScExportStmt] = Nil): List[ScExportStmt] = {
-    stubOrPsiPrevSibling(lastParent) match {
-      case null              => acc
-      case imp: ScExportStmt => previousExports(imp, imp :: acc)
-      case other             => previousExports(other, acc)
-    }
   }
 
   private def updateResolveCaches(exportStmt: ScExportStmt): Unit =
