@@ -7,16 +7,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.ui.{EditorNotificationPanel, EditorNotifications}
+import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider, EditorNotifications}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.Sbt
 
 /**
  * @author adkozlov
  */
+//noinspection ApiStatus,UnstableApiUsage
 abstract class AbstractNotificationProvider(@Nls kitTitle: String,
                                             project: Project)
-  extends EditorNotifications.Provider[EditorNotificationPanel] {
+  extends EditorNotificationProvider[EditorNotificationPanel] {
 
   import AbstractNotificationProvider._
 
@@ -36,16 +37,19 @@ abstract class AbstractNotificationProvider(@Nls kitTitle: String,
 
   protected def setDeveloperKit(file: VirtualFile, panel: EditorNotificationPanel): Unit
 
-  override final def createNotificationPanel(virtualFile: VirtualFile,
-                                             fileEditor: FileEditor,
-                                             project: Project): EditorNotificationPanel =
+  override def collectNotificationData(project: Project, virtualFile: VirtualFile): EditorNotificationProvider.ComponentProvider[EditorNotificationPanel] = {
     PsiManager.getInstance(project).findFile(virtualFile) match {
       case file: PsiFile if isSourceCode(file) && !hasDeveloperKit(virtualFile) =>
-        createPanel(setDeveloperKit(virtualFile, _))
-      case _ => null
+        createPanelProvider(setDeveloperKit(virtualFile, _))
+      case _ =>
+        EditorNotificationProvider.ComponentProvider.getDummy
     }
+  }
 
-  private def createPanel(action: EditorNotificationPanel => Unit) = {
+  private def createPanelProvider(
+    action: EditorNotificationPanel => Unit
+  ): EditorNotificationProvider.ComponentProvider[EditorNotificationPanel] = { _ =>
+
     val panel = new EditorNotificationPanel()
       .text(panelText(kitTitle))
     panel.createActionLabel(ScalaBundle.message("setup.kittitle", kitTitle), () => action(panel))

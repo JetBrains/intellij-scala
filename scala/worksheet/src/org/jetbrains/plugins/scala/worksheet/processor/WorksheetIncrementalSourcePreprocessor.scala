@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.worksheet.processor
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiErrorElement
-import com.intellij.util.Base64
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
 import org.jetbrains.plugins.scala.compiler.data.worksheet.ReplMessages.ReplDelimiter
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
+
+import java.util
 
 object WorksheetIncrementalSourcePreprocessor {
 
@@ -38,7 +39,7 @@ object WorksheetIncrementalSourcePreprocessor {
 
       (additionalCommands ++ codeCommands).mkString(ReplDelimiter)
     }
-    val commandsEncoded = Base64.encode(commands.getBytes)
+    val commandsEncoded = util.Base64.getEncoder.encodeToString(commands.getBytes)
     Right(PreprocessResult(commandsEncoded, elementsToEvaluate))
   }
 

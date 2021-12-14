@@ -5,7 +5,6 @@ package source
 
 import java.util
 import java.util._
-
 import com.intellij.codeInsight.AttachSourcesProvider
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.openapi.extensions.ExtensionPointName
@@ -22,12 +21,15 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
+import scala.annotation.nowarn
+
 /**
  * @author Alexander Podkhalyuzin
  */
 
 //todo: possibly join with AttachSourcesNotificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
+@nowarn("cat=deprecation")
 class ScalaAttachSourcesNotificationProvider
   extends EditorNotifications.Provider[EditorNotificationPanel] {
   private val EXTENSION_POINT_NAME: ExtensionPointName[AttachSourcesProvider] =

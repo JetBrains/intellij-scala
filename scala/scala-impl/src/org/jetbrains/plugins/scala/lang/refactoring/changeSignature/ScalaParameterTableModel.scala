@@ -54,7 +54,7 @@ class ScalaParameterTableModel(typeContext: PsiElement,
   }
 
   def clear(): Unit = {
-    codeFragments.foreach(HighlightLevelUtil.forceRootHighlighting(_, FileHighlightingSetting.NONE))
+    codeFragments.clear()
   }
 }
 
