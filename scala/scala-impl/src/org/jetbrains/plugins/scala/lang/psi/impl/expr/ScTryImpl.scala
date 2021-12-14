@@ -47,7 +47,7 @@ class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry wit
         case Seq(ScalaResolveResult(function: ScFunction, substitutor)) =>
           function.returnType
             .map(substitutor)
-            .map(tryBlockType.lub(_))
+            .map(tryBlockType.lub(_)(this))
         case _ => Right(tryBlockType)
       }
     }).getOrElse(Failure(ScalaBundle.message("nothing.to.type")))

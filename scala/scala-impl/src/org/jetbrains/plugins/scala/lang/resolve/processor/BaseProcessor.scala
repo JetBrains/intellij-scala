@@ -175,7 +175,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
               processElement(clazz, ScSubstitutor.empty, place, state)
             }
             else {
-              val glb = selfType.glb(clazzType)
+              val glb = selfType.glb(clazzType)(place)
               val newState = state.withCompoundOrSelfType(t)
               processTypeImpl(glb, place, newState)
             }

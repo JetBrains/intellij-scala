@@ -19,7 +19,7 @@ class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch
     expressions.flatMap(_.`type`().toOption) match {
       case Seq() => Failure("")
       case branchesTypes =>
-        val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
+        val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_)(this))
         Right(branchesLub)
     }
   }

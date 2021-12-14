@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameterType, Undefi
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScAbstractType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{CallContext, ScAbstractType, ScType}
 
 import java.util.concurrent.locks.ReentrantLock
 import scala.reflect.ClassTag
@@ -90,7 +90,7 @@ final case class LightContextFunctionParameter(project: Project, syntheticName: 
       constraints += newInstantiation
   }
 
-  def contextFunctionParameterType: TypeResult = lock.locked {
+  def contextFunctionParameterType(implicit ctx: CallContext): TypeResult = lock.locked {
     val result =
       if (constraints.isEmpty) `type`().map(_.inferValueType)
       else                     Right(constraints.reduceLeft(_ glb _))

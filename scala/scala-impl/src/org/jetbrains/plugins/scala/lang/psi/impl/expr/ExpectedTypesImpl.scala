@@ -202,7 +202,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case ref: ScReferenceExpression if !ScUnderScoreSectionUtil.isUnderscoreFunction(ref) => None
         case fn: ScFunctionExpr if fn.parameters.forall(_.typeElement.isDefined)              => None
         case _ =>
-          val paramLubs = alts.map(_.paramTpes).transpose.map(_.lub())
+          val paramLubs = alts.map(_.paramTpes).transpose.map(_.lub()(e))
           FunctionType((Any, paramLubs)).toOption
       }
 
@@ -570,7 +570,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         fromMethodTypeParams(params)
       case Right(t @ ScTypePolymorphicType(ScMethodType(_, params, _), _)) =>
         val expectedType = call.flatMap(_.expectedType()).getOrElse(Any(expr))
-        fromMethodTypeParams(params, t.argsProtoTypeSubst(expectedType))
+        fromMethodTypeParams(params, t.argsProtoTypeSubst(expectedType)(expr))
       case Right(anotherType) if !forApply =>
         val (internalType, typeParams) = anotherType match {
           case ScTypePolymorphicType(internal, tps) => (internal, tps)

@@ -44,6 +44,6 @@ trait LowerPriority {
   implicit def fromImplicitElementScope(implicit elementScope: ElementScope): ProjectContext = elementScope.projectContext
 }
 
-trait ProjectContextOwner {
+trait ProjectContextOwner extends Any {
   implicit def projectContext: ProjectContext
 }

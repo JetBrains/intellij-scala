@@ -125,6 +125,7 @@ class ImplicitCollector(
 
   private val project = place.getProject
   private implicit def ctx: ProjectContext = project
+  private implicit val callCtx: CallContext = place
 
   private val clazz: Option[PsiClass] = tp.extractClass
   private lazy val possibleScalaFunction: Option[Int] = clazz.flatMap(possibleFunctionN)
@@ -217,19 +218,20 @@ class ImplicitCollector(
     ImplicitCollector.implicitsFromType(place, expandedTp)
       .map(_.copy(implicitSearchState = Some(collectorState)))
 
-  private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = TraceLogger.func {
-    //implicits found without local type inference have higher priority
-    val withoutLocalTypeInference = collectCompatibleCandidates(candidates, withLocalTypeInference = false)
+  private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] =
+    TraceLogger.func {
+      //implicits found without local type inference have higher priority
+      val withoutLocalTypeInference = collectCompatibleCandidates(candidates, withLocalTypeInference = false)
 
-    val compatible =
-      if (withoutLocalTypeInference.nonEmpty) withoutLocalTypeInference
-      else                                    collectCompatibleCandidates(candidates, withLocalTypeInference = true)
+      val compatible =
+        if (withoutLocalTypeInference.nonEmpty) withoutLocalTypeInference
+        else collectCompatibleCandidates(candidates, withLocalTypeInference = true)
 
-    mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
-      case Some(r) => Seq(r)
-      case _       => compatible.toSeq
+      mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
+        case Some(r) => Seq(r)
+        case _       => compatible.toSeq
+      }
     }
-  }
 
   private def collectFullInfo(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = TraceLogger.func {
     val allCandidates =
@@ -304,8 +306,8 @@ class ImplicitCollector(
     withLocalTypeInference: Boolean,
   ): Set[ScalaResolveResult] = TraceLogger.func {
     val filteredCandidates = mutable.HashSet.empty[ScalaResolveResult]
+    val iterator           = candidates.iterator
 
-    val iterator = candidates.iterator
     while (iterator.hasNext) {
       val c = iterator.next()
 
@@ -363,7 +365,7 @@ class ImplicitCollector(
     extensionData: Option[ExtensionConversionData]
   ): Set[ScalaResolveResult] = {
     val proc  = new ExtensionProcessor(place, name = extensionData.map(_.refName).getOrElse(""), forCompletion)
-    val tp    = InferUtil.extractImplicitParameterType(result)
+    val tp    = InferUtil.extractImplicitParameterType(result)(place)
 
     tp.foreach { t =>
       val state = ScalaResolveState.withImplicitScopeObject(t)

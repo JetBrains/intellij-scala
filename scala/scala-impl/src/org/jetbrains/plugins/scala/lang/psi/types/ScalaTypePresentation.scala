@@ -297,7 +297,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
           case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
+          case Seq(tup@TupleType(_))       => innerTypeText(tup).parenthesize()
           case Seq(head)                   => innerTypeText(head)
           case _                           => typesText(params)
         }
@@ -327,8 +327,9 @@ trait ScalaTypePresentation extends api.TypePresentation {
         parameterizedTypeText(p)(innerTypeText(_, checkWildcard = true))
       case JavaArrayType(argument) => s"Array[${innerTypeText(argument)}]"
       case UndefinedType(tpt, _) => "NotInferred" + tpt.name
-      case c: ScCompoundType =>
-        compoundTypeText(c)
+      case c: ScCompoundType   => compoundTypeText(c)
+      case ScOrType(lhs, rhs)  => innerTypeText(lhs, needDotType) + " | " + innerTypeText(rhs, needDotType)
+      case ScAndType(lhs, rhs) => innerTypeText(lhs, needDotType) + " & " + innerTypeText(rhs, needDotType)
       case ex: ScExistentialType =>
         existentialTypeText(ex, checkWildcard, needDotType)
       case pt@ScTypePolymorphicType(internalType, typeParameters) =>

@@ -154,7 +154,7 @@ object ScalaPsiUtil {
   /**
    * Checks if thisClass subsumes base, i.e if base is thisClass or a super class of it (with self type)
    */
-  def thisSubsumes(thisClass: PsiClass, base: PsiClass): Boolean = {
+  def thisSubsumes(thisClass: PsiClass, base: PsiClass)(implicit ctx: CallContext): Boolean = {
     object TypeOfThis {
       def unapply(td: ScTemplateDefinition): Option[ScType] =
         td.selfType.map(_.glb(td.getTypeWithProjections().getOrAny))

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/** 
+/**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008
 */
@@ -34,6 +34,9 @@ class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node)
 
   override def `type`(): TypeResult = {
     import ScSubstitutor.bind
+
+    implicit val ctx: CallContext = this
+
     ref.bind() match {
       case Some(r) =>
         r.element match {

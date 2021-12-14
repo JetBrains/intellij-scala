@@ -56,7 +56,7 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
         _.`type`()
       }.map {
         case literalType: ScLiteralType if this.hasFinalModifier => literalType
-        case t => ScLiteralType.widenRecursive(t)
+        case t => ScLiteralType.widenRecursive(t).widenIfUnion
       }
   }
 

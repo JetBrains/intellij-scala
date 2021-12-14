@@ -56,7 +56,7 @@ trait PsiTypeBridge {
     case wildcardType: PsiCapturedWildcardType =>
       toScTypeInner(wildcardType.getWildcard, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
     case intersectionType: PsiIntersectionType =>
-      typeSystem.andType(ArraySeq.unsafeWrapArray(intersectionType.getConjuncts.map {
+      ScCompoundType(ArraySeq.unsafeWrapArray(intersectionType.getConjuncts.map {
         toScTypeInner(_, paramTopLevel, treatJavaObjectAsAny, rawExistentialArguments)
       }))
     case _ => throw new IllegalArgumentException(s"psi type $psiType should not be converted to ${typeSystem.name} type")

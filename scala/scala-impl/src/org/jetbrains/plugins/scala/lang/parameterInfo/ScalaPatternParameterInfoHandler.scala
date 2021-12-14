@@ -193,7 +193,7 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
                           substituted = undefSubst(parameterType)
                           expectedType <- constr.expectedType
 
-                          substitutor <- substituted.conformanceSubstitutor(expectedType)
+                          substitutor <- substituted.conformanceSubstitutor(expectedType)(element)
                         } yield substitutor
 
                         maybeSubstitutor.fold(substitutor) {

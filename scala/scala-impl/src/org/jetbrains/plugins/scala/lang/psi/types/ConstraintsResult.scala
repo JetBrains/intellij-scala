@@ -55,7 +55,7 @@ sealed trait ConstraintSystem extends ConstraintsResult {
   def removeTypeParamIds(ids: Set[Long]): ConstraintSystem
 
   def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean = true)
-                        (implicit context: ProjectContext): Option[ConstraintSystem.SubstitutionBounds]
+                        (implicit context: CallContext): Option[ConstraintSystem.SubstitutionBounds]
 }
 
 object ConstraintSystem {
@@ -89,7 +89,7 @@ object ConstraintSystem {
   }
 
   def unapply(constraints: ConstraintSystem)
-             (implicit context: ProjectContext): Option[ScSubstitutor] =
+             (implicit context: CallContext): Option[ScSubstitutor] =
     constraints.substitutionBounds(canThrowSCE = true).map {
       _.substitutor
     }
@@ -138,7 +138,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
     }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
-                                 (implicit context: ProjectContext): Option[SubstitutionBounds] = {
+                                 (implicit context: CallContext): Option[SubstitutionBounds] = {
     def init(get: => Option[SubstitutionBounds])
             (set: Option[SubstitutionBounds] => Unit) = get match {
       case null =>
@@ -158,7 +158,9 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
   )
 
   private def substitutionBoundsImpl(canThrowSCE: Boolean, checkWeak: Boolean)
-                                    (implicit context: ProjectContext): Option[SubstitutionBounds] = {
+                                    (implicit context: CallContext): Option[SubstitutionBounds] = {
+    implicit val pc: ProjectContext = context.projectContext
+
     var tvMap = LongMap.empty[ScType]
     var lMap = LongMap.empty[ScType]
     var uMap = LongMap.empty[ScType]
@@ -189,7 +191,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
             val lower = set.map(substitutor).reduce(_.lub(_, checkWeak))
 
             lMap  += ((id, lower))
-            tvMap += ((id, lower))
+            tvMap += ((id, lower.widenIfUnion))
           case _ =>
         }
 
@@ -211,7 +213,7 @@ private final case class ConstraintSystemImpl(upperMap: LongMap[Set[ScType]],
                 if (canThrowSCE && !lower.conforms(upper)) {
                   return false
                 }
-              case _ => tvMap += ((id, upper))
+              case _ => tvMap += ((id, upper.widenIfUnion))
             }
           case _ =>
         }
@@ -398,7 +400,7 @@ private final case class MultiConstraintSystem(impls: Set[ConstraintSystemImpl])
   }
 
   override def substitutionBounds(canThrowSCE: Boolean, checkWeak: Boolean)
-                                 (implicit context: ProjectContext): Option[ConstraintSystem.SubstitutionBounds] =
+                                 (implicit context: CallContext): Option[ConstraintSystem.SubstitutionBounds] =
     impls.iterator.flatMap {
       _.substitutionBounds(canThrowSCE, checkWeak)
     }.headOption

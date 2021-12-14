@@ -94,6 +94,8 @@ object TypeDefinitionMembers {
     ScalaPsiManager.instance(tp.projectContext).getSignatures(tp, compoundTypeThisType)
   }
 
+  //@TODO: it is unclear how to get correct CallContext here,
+  //       but i dont't think it should affect things much.
   def getSelfTypeSignatures(clazz: PsiClass): TermNodes.Map = {
     @annotation.tailrec
     def extractFromThisType(clsType: ScType, thisType: ScType): TermNodes.Map = thisType match {
@@ -109,7 +111,7 @@ object TypeDefinitionMembers {
         td.selfType match {
           case Some(selfType) =>
             val clsType  = td.getTypeWithProjections().getOrAny
-            val thisType = selfType.glb(clsType)
+            val thisType = selfType.glb(clsType)(DefaultScala2Context()(clazz))
             extractFromThisType(clsType, thisType)
           case None => getSignatures(clazz)
         }
@@ -123,7 +125,7 @@ object TypeDefinitionMembers {
         td.selfType match {
           case Some(selfType) =>
             val clazzType = td.getTypeWithProjections().getOrAny
-            selfType.glb(clazzType) match {
+            selfType.glb(clazzType)(DefaultScala2Context()(clazz)) match {
               case c: ScCompoundType =>
                 getTypes(c, Some(clazzType))
               case tp =>

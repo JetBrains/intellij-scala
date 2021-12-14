@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
@@ -26,6 +26,12 @@ import scala.annotation.tailrec
 
 abstract class ImplicitConversionData {
   def element: PsiNamedElement
+
+  def isScala3: Boolean
+
+  protected implicit val callCtx: CallContext =
+    if (isScala3) Scala3Context()(element)
+    else          DefaultScala2Context()(element)
 
   protected def paramType: ScType
   protected def returnType: ScType
@@ -90,16 +96,16 @@ abstract class ImplicitConversionData {
 
 object ImplicitConversionData {
 
-  def apply(globalConversion: GlobalImplicitConversion): Option[ImplicitConversionData] =
-    ImplicitConversionData(globalConversion.function, globalConversion.substitutor)
+  def apply(globalConversion: GlobalImplicitConversion, isScala3: Boolean): Option[ImplicitConversionData] =
+    ImplicitConversionData(globalConversion.function, globalConversion.substitutor, isScala3)
 
-  def apply(element: PsiNamedElement, substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
+  def apply(element: PsiNamedElement, substitutor: ScSubstitutor, isScala3: Boolean): Option[ImplicitConversionData] = {
     ProgressManager.checkCanceled()
 
     element match {
-      case function: ScFunction if function.isImplicitConversion => fromRegularImplicitConversion(function, substitutor)
+      case function: ScFunction if function.isImplicitConversion => fromRegularImplicitConversion(function, substitutor, isScala3)
       case function: ScFunction if !function.isParameterless     => None
-      case typeable: Typeable                                    => fromElementWithFunctionType(typeable, substitutor)
+      case typeable: Typeable                                    => fromElementWithFunctionType(typeable, substitutor, isScala3)
       case _                                                     => None
     }
   }
@@ -120,7 +126,7 @@ object ImplicitConversionData {
           if ImplicitConversionProcessor.applicable(function, expr)
 
           conversion  <- findGlobalMembers(function, scope)(GlobalImplicitConversion)
-          data        <- ImplicitConversionData(conversion)
+          data        <- ImplicitConversionData(conversion, expr.isInScala3Module)
           application <- data.isApplicable(originalType, expr)
         } yield (conversion, application))
           .toMap
@@ -128,42 +134,49 @@ object ImplicitConversionData {
 
 
   @CachedInUserData(function, ModTracker.libraryAware(function))
-  private def rawCheck(function: ScFunction): Option[ImplicitConversionData] = {
+  private def rawCheck(function: ScFunction, isScala3: Boolean): Option[ImplicitConversionData] =
     for {
       retType   <- function.returnType.toOption
       param <- function.parameters.headOption
       paramType <- param.`type`().toOption
     } yield {
-      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty)
+      new RegularImplicitConversionData(function, paramType, retType, ScSubstitutor.empty, isScala3)
     }
-  }
 
   @CachedInUserData(named, ModTracker.libraryAware(named))
-  private def rawElementWithFunctionTypeCheck(named: PsiNamedElement with Typeable): Option[ImplicitConversionData] = {
+  private def rawElementWithFunctionTypeCheck(
+    named:    PsiNamedElement with Typeable,
+    isScala3: Boolean
+  ): Option[ImplicitConversionData] =
     for {
       function1Type <- named.elementScope.cachedFunction1Type
       elementType   <- named.`type`().toOption
       if elementType.conforms(function1Type)
     } yield {
-      new ElementWithFunctionTypeData(named, elementType, ScSubstitutor.empty)
+      new ElementWithFunctionTypeData(named, elementType, isScala3, ScSubstitutor.empty)
     }
-  }
 
-  private def fromRegularImplicitConversion(function: ScFunction,
-                                            substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawCheck(function).map(_.withSubstitutor(substitutor))
-  }
+  private def fromRegularImplicitConversion(
+    function:    ScFunction,
+    substitutor: ScSubstitutor,
+    isScala3:    Boolean
+  ): Option[ImplicitConversionData] =
+    rawCheck(function, isScala3).map(_.withSubstitutor(substitutor))
 
-  private def fromElementWithFunctionType(named: PsiNamedElement with Typeable,
-                                          substitutor: ScSubstitutor): Option[ImplicitConversionData] = {
-    rawElementWithFunctionTypeCheck(named).map(_.withSubstitutor(substitutor))
-  }
+  private def fromElementWithFunctionType(
+    named:       PsiNamedElement with Typeable,
+    substitutor: ScSubstitutor,
+    isScala3:    Boolean
+  ): Option[ImplicitConversionData] =
+    rawElementWithFunctionTypeCheck(named, isScala3).map(_.withSubstitutor(substitutor))
 
-
-  private class RegularImplicitConversionData(override val element: PsiNamedElement,
-                                              rawParamType: ScType,
-                                              rawReturnType: ScType,
-                                              override val substitutor: ScSubstitutor) extends ImplicitConversionData {
+  private class RegularImplicitConversionData(
+    override val element:     PsiNamedElement,
+    rawParamType:             ScType,
+    rawReturnType:            ScType,
+    override val substitutor: ScSubstitutor,
+    override val isScala3:    Boolean
+  ) extends ImplicitConversionData {
 
     protected override lazy val paramType: ScType = {
       val undefiningSubst = element match {
@@ -176,13 +189,15 @@ object ImplicitConversionData {
     protected override lazy val returnType: ScType = substitutor(rawReturnType)
 
     override def withSubstitutor(substitutor: ScSubstitutor): ImplicitConversionData =
-      new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor)
+      new RegularImplicitConversionData(element, rawParamType, rawReturnType, substitutor, isScala3)
   }
 
-  private class ElementWithFunctionTypeData(override val element: PsiNamedElement with Typeable,
-                                            rawElementType: ScType,
-                                            override val substitutor: ScSubstitutor = ScSubstitutor.empty)
-    extends ImplicitConversionData {
+  private class ElementWithFunctionTypeData(
+    override val element:     PsiNamedElement with Typeable,
+    rawElementType:           ScType,
+    override val isScala3:    Boolean,
+    override val substitutor: ScSubstitutor = ScSubstitutor.empty
+  ) extends ImplicitConversionData {
     private def stdTypes = StdTypes.instance(element.getProject)
 
     private lazy val functionTypeParams: Option[(ScType, ScType)] = {
@@ -202,7 +217,7 @@ object ImplicitConversionData {
     override protected def returnType: ScType = functionTypeParams.map(_._2).getOrElse(stdTypes.Any)
 
     override def withSubstitutor(substitutor: ScSubstitutor): ImplicitConversionData =
-      new ElementWithFunctionTypeData(element, rawElementType, substitutor)
+      new ElementWithFunctionTypeData(element, rawElementType, isScala3, substitutor)
 
     private def extractFunctionTypeParameters(functionTypeCandidate: ScType,
                                               functionType: ScParameterizedType): Option[(ScType, ScType)] = {

@@ -171,7 +171,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
                     nonValueType.typeParameters,
                     shouldUndefineParameters = false,
                     filterTypeParams         = false
-                  )
+                  )(this)
               } catch {
                 case _: SafeCheckException => //ignore
               }
@@ -183,6 +183,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
               )
 
               val extRes = Compatibility.checkConformanceExt(undefParams, paramsByClauses.map(_._1), checkWithImplicits = false, isShapesResolve = false)
+              implicit val ctx: CallContext = this
               val maybeSubstitutor = extRes.constraints match {
                 case ConstraintSystem(substitutor) => Some(substitutor)
                 case _ => None

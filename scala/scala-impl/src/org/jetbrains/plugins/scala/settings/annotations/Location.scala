@@ -100,7 +100,7 @@ object Location {
           classes
             .flatMap(scope.getCachedClass)
             .exists { clazz =>
-              ScalaPsiUtil.thisSubsumes(element, clazz)
+              ScalaPsiUtil.thisSubsumes(element, clazz)(element)
             }
         )
   }

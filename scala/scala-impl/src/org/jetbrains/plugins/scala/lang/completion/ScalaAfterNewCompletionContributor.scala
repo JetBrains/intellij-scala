@@ -38,13 +38,13 @@ final class ScalaAfterNewCompletionContributor extends ScalaCompletionContributo
                                   context: ProcessingContext,
                                   result: CompletionResultSet): Unit = {
         val place = positionFromParameters(parameters)
-        val (definition, types) = expectedTypes(place)
+        val (_, types) = expectedTypes(place)
 
         val propses = for {
           expectedType <- types
-          prop <- collectProps(expectedType) {
+          prop <- collectProps(expectedType, place) {
             isAccessible(_)(place)
-          }(definition.getProject)
+          }
         } yield prop
 
         if (propses.nonEmpty) {
@@ -69,7 +69,7 @@ object ScalaAfterNewCompletionContributor {
       Some {
         val (_, types) = expectedTypes(place)
         (clazz: PsiClass) => {
-          val (actualType, hasSubstitutionProblem) = appropriateType(clazz, types)
+          val (actualType, hasSubstitutionProblem) = appropriateType(clazz, types, place)
           LookupElementProps(actualType, hasSubstitutionProblem, clazz)
         }
       }
@@ -101,14 +101,14 @@ object ScalaAfterNewCompletionContributor {
         }.toMap
     }
 
-  private[this] def appropriateType(clazz: PsiClass, types: Seq[ScType]): (ScType, Boolean) = {
+  private[this] def appropriateType(clazz: PsiClass, types: Seq[ScType], place: PsiElement): (ScType, Boolean) = {
     val (designatorType, parameters) = classComponents(clazz)
     val maybeParameter = parameters match {
       case Seq(head) => Some(head)
       case _ => None
     }
 
-    findAppropriateType(types, designatorType, maybeParameter).getOrElse {
+    findAppropriateType(types, designatorType, maybeParameter, place).getOrElse {
       (fromParameters(designatorType, maybeParameter), parameters.nonEmpty)
     }
   }
@@ -176,11 +176,11 @@ object ScalaAfterNewCompletionContributor {
     }
   }
 
-  private def collectProps(`type`: ScType)
-                          (isAccessible: PsiClass => Boolean)
-                          (implicit project: Project): Seq[LookupElementProps] = {
+  private def collectProps(`type`: ScType, place: PsiElement)
+                          (isAccessible: PsiClass => Boolean): Seq[LookupElementProps] = {
+
     val inheritors = `type`.extractClass.toSeq
-      .flatMap(findInheritors)
+      .flatMap(findInheritors(_)(place.getProject))
       .filter { clazz =>
         clazz.name match {
           case null | "" => false
@@ -191,7 +191,7 @@ object ScalaAfterNewCompletionContributor {
     val substitutedInheritors = for {
       clazz <- inheritors
       (designatorType, parameters) = classComponents(clazz)
-      (actualType, hasSubstitutionProblem) <- findAppropriateType(Seq(`type`), designatorType, parameters)
+      (actualType, hasSubstitutionProblem) <- findAppropriateType(Seq(`type`), designatorType, parameters, place)
     } yield (actualType, hasSubstitutionProblem)
 
     val addedClasses = mutable.HashSet.empty[String]
@@ -236,16 +236,19 @@ object ScalaAfterNewCompletionContributor {
   private[this] def classComponents(clazz: PsiClass): (ScDesignatorType, Seq[PsiTypeParameter]) =
     (ScDesignatorType(clazz), clazz.getTypeParameters.toSeq)
 
-  private[this] def findAppropriateType(types: Seq[ScType],
-                                        designatorType: ScDesignatorType,
-                                        parameters: Iterable[PsiTypeParameter]): Option[(ScType, Boolean)] = {
+  private[this] def findAppropriateType(
+    types:          Seq[ScType],
+    designatorType: ScDesignatorType,
+    parameters:     Iterable[PsiTypeParameter],
+    place:          PsiElement
+  ): Option[(ScType, Boolean)] = {
     if (types.isEmpty) return None
 
     val undefinedTypes = parameters.map(UndefinedType(_))
     val predefinedType = fromParametersTypes(designatorType, undefinedTypes)
 
     for (t <- types) {
-      predefinedType.conformanceSubstitutor(t) match {
+      predefinedType.conformanceSubstitutor(t)(place) match {
         case Some(substitutor) =>
           val valueType = fromParameters(designatorType, parameters)
           return Some(substitutor(valueType), undefinedTypes.map(substitutor).exists(_.isInstanceOf[UndefinedType]))

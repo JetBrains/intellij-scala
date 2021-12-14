@@ -377,12 +377,8 @@ class ScalaPsiManager(implicit val project: Project) {
       case Seq(one) if one.equalsToText(CommonClassNames.JAVA_LANG_OBJECT) =>
         // Generics with upper bound java.lang.Object should have the upper bound scala.Any in Scala
         Any
-      case _ => andType(types)
+      case _ => ScCompoundType(types.map(_.toScType()))
     }
-  }
-
-  private def andType(psiTypes: Seq[PsiType]): ScType = {
-    new ProjectContext(project).typeSystem.andType(psiTypes.map(_.toScType()))
   }
 
   def getStableTypeAliasesNames: Iterable[String] = {

@@ -170,7 +170,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               constrInvocation.arguments(clauseIdx).exprs,
               nonValueType.typeParameters,
               canThrowSCE = canThrowSCE,
-              filterTypeParams = false)
+              filterTypeParams = false)(this)
           }
 
           def withoutLastClause(): ScTypePolymorphicType = {
@@ -190,7 +190,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                   InferUtil.localTypeInference(previous.internalType,
                     Seq(Parameter(expected, isRepeated = false, index = 0)),
                     Seq(Expression(ScSubstitutor.bind(previous.typeParameters)(UndefinedType(_)).apply(res.inferValueType))),
-                    previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false) //here should work in different way:
+                    previous.typeParameters, shouldUndefineParameters = false, filterTypeParams = false)(this) //here should work in different way:
                 }
                 val fromUnderscore = constrInvocation.newTemplate match {
                   case Some(n) => ScUnderScoreSectionUtil.underscores(n).nonEmpty

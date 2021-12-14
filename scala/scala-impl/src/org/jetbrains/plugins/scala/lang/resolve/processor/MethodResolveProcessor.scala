@@ -45,6 +45,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
                              val nameArgForDynamic: Option[String] = None)
   extends ResolveProcessor(kinds, ref, refName) {
 
+  private implicit val ctx: CallContext = ref
+
   private def isUpdate: Boolean =
     ref != null && (ref.getContext match {
       case call: ScMethodCall => call.isUpdateCall
@@ -227,7 +229,7 @@ object MethodResolveProcessor {
     isUnderscore:           Boolean,
     isShapeResolve:         Boolean
   ): ConformanceExtResult = {
-
+    implicit val callCtx: CallContext = ref
     implicit val ctx: ProjectContext = c.element
 
     val problems = Seq.newBuilder[ApplicabilityProblem]

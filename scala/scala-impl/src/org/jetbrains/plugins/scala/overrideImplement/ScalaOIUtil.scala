@@ -7,7 +7,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.Constructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -133,7 +132,7 @@ object ScalaOIUtil {
         selfType <- definition.selfType
         clazzType = definition.getTypeWithProjections().getOrAny
 
-        glb = selfType.glb(clazzType)
+        glb = selfType.glb(clazzType)(definition)
         if glb.isInstanceOf[ScCompoundType]
       } yield (glb.asInstanceOf[ScCompoundType], Some(clazzType))
     else

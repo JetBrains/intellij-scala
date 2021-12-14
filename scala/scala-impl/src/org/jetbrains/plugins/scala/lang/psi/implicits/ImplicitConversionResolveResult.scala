@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 
@@ -93,7 +94,7 @@ object ImplicitConversionResolveResult {
   def applicable(candidate: ScalaResolveResult, `type`: ScType, place: PsiElement): Option[ImplicitConversionResolveResult] = {
     val substitutor = candidate.substitutor
     for {
-      conversion     <- ImplicitConversionData(candidate.element, substitutor)
+      conversion     <- ImplicitConversionData(candidate.element, substitutor, place.isInScala3Module)
       application    <- conversion.isApplicable(`type`, place)
       if !application.implicitParameters.exists(_.isNotFoundImplicitParameter)
     } yield ImplicitConversionResolveResult(candidate, application.resultType, substitutor, candidate.unresolvedTypeParameters.getOrElse(Seq.empty))

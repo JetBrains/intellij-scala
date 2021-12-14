@@ -35,7 +35,7 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
   override def `type`(): TypeResult =
     this.expectedType match {
-      case Some(expectedType) => named.`type`().map(expectedType.glb(_))
+      case Some(expectedType) => named.`type`().map(expectedType.glb(_)(this))
       case _ => named.`type`()
     }
 

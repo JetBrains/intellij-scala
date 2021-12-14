@@ -409,7 +409,7 @@ object ScExpression {
 
   private implicit class ExprTypeUpdates(private val scType: ScType) extends AnyVal {
     def widenLiteralType(expr: ScExpression, expectedType: Option[ScType]): ScType = {
-      def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().isInstanceOf[ScLiteralType]
+      def isLiteralType(tp: ScType) = tp.removeAliasDefinitions().is[ScLiteralType]
 
       scType match {
         case lt: ScLiteralType if !expr.literalTypesEnabled && !expectedType.exists(isLiteralType) =>
@@ -417,6 +417,12 @@ object ScExpression {
         case _ => scType
       }
     }
+
+    def widenUnions(expectedType: Option[ScType]): ScType =
+      scType match {
+        case orTp: ScOrType if !expectedType.exists(_.is[ScOrType]) => orTp.join
+        case _                                                      => scType
+      }
 
     /**
      * if the expected type of an expression E is a context function type (T_1, ..., T_n) ?=> U and
@@ -441,7 +447,7 @@ object ScExpression {
                 }
               })
 
-              val actualParamTypes = expr.contextFunctionParameters.map(_.contextFunctionParameterType.getOrAny)
+              val actualParamTypes = expr.contextFunctionParameters.map(_.contextFunctionParameterType(expr).getOrAny)
               ContextFunctionType((scType, actualParamTypes))
             case _ => scType
           }

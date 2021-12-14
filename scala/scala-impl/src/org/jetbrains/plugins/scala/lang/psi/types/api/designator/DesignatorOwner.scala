@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.types.api.designator
 
 import com.intellij.psi.{PsiClass, PsiNamedElement}
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -22,7 +22,7 @@ trait DesignatorOwner extends ValueType {
     case _                                  => false
   }
 
-  def isStable: Boolean = isSingleton || element.isInstanceOf[ScObject]
+  def isStable: Boolean = isSingleton || element.is[ScObject]
 
   override def isFinalType: Boolean = element match {
     case clazz: PsiClass if clazz.isEffectivelyFinal => true

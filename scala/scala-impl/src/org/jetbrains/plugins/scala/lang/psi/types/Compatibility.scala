@@ -127,6 +127,7 @@ object Compatibility {
 
   implicit class PsiElementExt(private val place: PsiElement) extends AnyVal {
     implicit def elementScope: ElementScope = ElementScope(place)
+    implicit def ctx: CallContext           = place
 
     final def tryAdaptTypeToSAM(
       tp:             ScType,
@@ -199,7 +200,7 @@ object Compatibility {
 
       val fromImplicit = implicitCollector.collect() match {
         case Seq(res) =>
-          extractImplicitParameterType(res).flatMap {
+          extractImplicitParameterType(res)(place).flatMap {
             case FunctionType(rt, Seq(_)) => Some(rt)
             case paramType =>
               elementScope.cachedFunction1Type.flatMap { functionType =>
@@ -659,9 +660,10 @@ object Compatibility {
           matched = prevRes.matched ++ curRes.matched
         )
 
+        implicit val ctx: CallContext = constrInvocation
         val newSubstitutor = curRes.constraints match {
           case ConstraintSystem(csSubstitutor) => prevSubstitutor.followed(csSubstitutor)
-          case _ => prevSubstitutor
+          case _                               => prevSubstitutor
         }
 
         res -> newSubstitutor

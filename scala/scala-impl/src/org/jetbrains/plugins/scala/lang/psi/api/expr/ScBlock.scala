@@ -29,8 +29,8 @@ import scala.collection.mutable.ArrayBuffer
 trait ScBlock extends ScExpression
   with ScDeclarationSequenceHolder
   with ScImportsHolder
-  with ScBraceOwner
-{
+  with ScBraceOwner {
+
   protected override def innerType: TypeResult = {
     if (hasCaseClauses) {
       val caseClauses = findChild[ScCaseClauses].get
@@ -47,7 +47,7 @@ trait ScBlock extends ScExpression
 
       val clausesLubType =
         if (clausesTypes.isEmpty) Nothing
-        else                      clausesTypes.lub()
+        else                      clausesTypes.lub()(this)
 
       implicit val resolveScope: GlobalSearchScope = this.resolveScope
 

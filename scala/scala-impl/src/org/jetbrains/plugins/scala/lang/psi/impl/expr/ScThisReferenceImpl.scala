@@ -63,7 +63,7 @@ object ScThisReferenceImpl {
         case _ =>
 
           td.getTypeWithProjections(thisProjections = true)
-            .map(scType => td.selfType.map(scType.glb(_))
+            .map(scType => td.selfType.map(scType.glb(_)(expr))
               .getOrElse(scType)
             ) match {
               case Right(scType) => scType

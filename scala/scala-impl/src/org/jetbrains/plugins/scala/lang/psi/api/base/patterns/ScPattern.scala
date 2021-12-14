@@ -160,7 +160,7 @@ object ScPattern {
           for {
             typePattern  <- sc3TypedPattern.typePattern
             ascribedType <- typePattern.typeElement.`type`().toOption
-          } yield sc3TypedPattern.expectedType.fold(ascribedType)(_.glb(ascribedType))
+          } yield sc3TypedPattern.expectedType.fold(ascribedType)(_.glb(ascribedType)(sc3TypedPattern))
         case _ => None
       }
     }
@@ -188,6 +188,8 @@ object ScPattern {
 
       def calculateSubstitutor(`type`: ScType, functionType: ScType,
                                substitutor: ScSubstitutor): ScSubstitutor = {
+        implicit val ctx: CallContext = ref
+
         val tp = `type` match {
           case ScExistentialType(quantified, _) => quantified
           case _ => `type`

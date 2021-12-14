@@ -76,7 +76,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
                             if (arg.upper.equiv(api.Any)) {
                               val listTypes: Array[PsiClassType] = param.getExtendsListTypes
                               if (listTypes.isEmpty) api.Any
-                              else subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true))
+                              else subst(listTypes.toSeq.map(_.toScType()).glb(checkWeak = true)(this))
                             } else arg.upper //todo: glb?
                           ScExistentialArgument(arg.name, arg.typeParameters, lowerBound, upperBound)
                         case (tp: ScType, _) => tp
@@ -89,7 +89,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
           }
         this.expectedType match {
           case Some(expectedType) =>
-            typeElementType.map(resType => expectedType.glb(resType))
+            typeElementType.map(resType => expectedType.glb(resType)(this))
           case _ => typeElementType
         }
       case None => Failure(ScalaBundle.message("no.type.pattern"))

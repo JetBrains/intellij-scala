@@ -62,7 +62,7 @@ final case class ScTypePolymorphicType(
   /**
     * See [[scala.tools.nsc.typechecker.Infer.Inferencer#protoTypeArgs]]
     */
-  def argsProtoTypeSubst(pt: ScType): ScSubstitutor = {
+  def argsProtoTypeSubst(pt: ScType)(implicit ctx: CallContext): ScSubstitutor = {
     val maybeTypeParts = internalType match {
       case ScMethodType(retTpe, params, _) => Option((retTpe, params.map(_.paramType)))
       case FunctionType(retTpe, params)    => Option((retTpe, params))

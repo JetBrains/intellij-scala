@@ -228,7 +228,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
             val canThrowSCE = useExpectedType && this.expectedType().isDefined /* optimization to avoid except */
 
             val paramSubst = canThrowSCE.option(
-              polymorphicType.argsProtoTypeSubst(this.expectedType().get)
+              polymorphicType.argsProtoTypeSubst(this.expectedType().get)(this)
             )
 
             localTypeInferenceWithApplicabilityExt(
@@ -238,7 +238,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
               polymorphicType.typeParameters,
               canThrowSCE = canThrowSCE,
               paramSubst  = paramSubst
-            )
+            )(this)
           case _ =>
             (expressions: Seq[Expression]) => {
               val conformanceResult = checkConformanceExt(

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType.substitutorCache
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -58,7 +58,7 @@ object ParameterizedType {
     new ConcurrentHashMap[ParameterizedType, ScSubstitutor]()
 
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
-    designator.typeSystem.parameterizedType(designator, typeArguments)
+    ScParameterizedType(designator, typeArguments)
 
   //designator and type arguments
   def unapply(p: ParameterizedType): ParameterizedType = p

@@ -422,7 +422,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def seqEvaluator: Evaluator = {
       val argTypes = exprsForP.map(_.`type`().getOrAny)
       val argType =
-        if (argTypes.isEmpty) expectedType else argTypes.lub()
+        if (argTypes.isEmpty) expectedType else argTypes.lub()(context)
       val argTypeText = argType.canonicalText
 
       val argsText =

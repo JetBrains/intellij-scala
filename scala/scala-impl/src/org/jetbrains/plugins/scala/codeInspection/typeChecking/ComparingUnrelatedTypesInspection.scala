@@ -45,7 +45,7 @@ object ComparingUnrelatedTypesInspection {
   }
 
   // see this check in scalac: https://github.com/scala/scala/blob/8c86b7d7136839538cca0ff8fca50f59437564c0/src/compiler/scala/tools/nsc/typechecker/RefChecks.scala#L968
-  private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean): Comparability = {
+  private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean)(implicit ctx: CallContext): Comparability = {
     val stdTypes = type1.projectContext.stdTypes
     import stdTypes._
 
@@ -84,7 +84,6 @@ object ComparingUnrelatedTypesInspection {
     if (oneTypeIsNull) {
       return Comparability.Comparable
     }
-
 
     // check if their lub is interesting
     val lub = unboxed1 lub unboxed2
@@ -133,7 +132,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
-    case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
+    case e @ MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
       // "blub" == 3
       val needHighlighting = oper.resolve() match {
         case _: ScSyntheticFunction => true
@@ -144,7 +143,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
         Seq(left, right).map(_.`type`().map(_.tryExtractDesignatorSingleton)) match {
           case Seq(Right(leftType), Right(rightType)) =>
             val isBuiltinOperation = isIdentityFunction(oper.refName) || !hasNonDefaultEquals(leftType)
-            val comparability = checkComparability(leftType, rightType, isBuiltinOperation)
+            val comparability = checkComparability(leftType, rightType, isBuiltinOperation)(e)
             if (comparability.shouldNotBeCompared) {
               val message = generateComparingUnrelatedTypesMsg(leftType, rightType)(expr)
               holder.registerProblem(expr, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
@@ -152,12 +151,12 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
           case _ =>
         }
       }
-    case MethodRepr(_, Some(baseExpr), Some(ref @ ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
+    case e @ MethodRepr(_, Some(baseExpr), Some(ref @ ResolvesTo(fun: ScFunction)), Seq(arg, _*)) if mayNeedHighlighting(fun) =>
       // Seq("blub").contains(3)
       for {
         ParameterizedType(_, Seq(elemType)) <- receiverType(baseExpr, ref).map(_.tryExtractDesignatorSingleton)
         argType <- arg.`type`().toOption
-        comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))
+        comparability = checkComparability(elemType, argType, isBuiltinOperation = !hasNonDefaultEquals(elemType))(e)
         if comparability.shouldNotBeCompared
       } {
         val message = generateComparingUnrelatedTypesMsg(elemType, argType)(arg)
@@ -173,7 +172,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
       for {
         t1 <- qualType
         t2 <- argType
-        comparability = checkComparability(t1, t2, isBuiltinOperation = true)
+        comparability = checkComparability(t1, t2, isBuiltinOperation = true)(call)
         if comparability == Comparability.Incomparable
       } {
         val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)

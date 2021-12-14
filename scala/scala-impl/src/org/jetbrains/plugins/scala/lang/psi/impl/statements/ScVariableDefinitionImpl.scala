@@ -40,8 +40,10 @@ final class ScVariableDefinitionImpl private[psi] (
 
   override def `type`(): TypeResult = typeElement match {
     case Some(te) => te.`type`()
-    case None => expr.map(_.`type`().map(ScLiteralType.widenRecursive)).
-      getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
+    case None =>
+      expr
+        .map(_.`type`().map(ScLiteralType.widenRecursive(_).widenIfUnion))
+        .getOrElse(Failure(ScalaBundle.message("cannot.infer.type.without.an.expression")))
   }
 
   override def typeElement: Option[ScTypeElement] = byPsiOrStub(findChild[ScTypeElement])(_.typeElement)

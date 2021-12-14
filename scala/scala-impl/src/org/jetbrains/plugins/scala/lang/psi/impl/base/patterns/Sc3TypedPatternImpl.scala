@@ -18,7 +18,7 @@ final class Sc3TypedPatternImpl(node: ASTNode)
     for {
       innerPatternType <- pattern.`type`()
       typeElementType  <- this.flatMapType(typePattern.map(_.typeElement))
-    } yield innerPatternType.glb(typeElementType)
+    } yield innerPatternType.glb(typeElementType)(this)
   }
 
   override def toString: String = "Scala3 TypedPattern"

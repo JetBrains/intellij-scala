@@ -113,7 +113,7 @@ private object ScFunctionDefinitionImpl {
       case None if !fun.hasAssign => Right(api.Unit)
       case None =>
         fun.body match {
-          case Some(b) => b.`type`().map(ScLiteralType.widenRecursive)
+          case Some(b) => b.`type`().map(ScLiteralType.widenRecursive(_).widenIfUnion)
           case _       => Right(api.Unit)
         }
       case Some(rte: ScTypeElement) => rte.`type`()

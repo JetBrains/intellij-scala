@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, TypeParameter, ValType}
-import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{CallContext, ConstraintSystem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -31,7 +31,7 @@ case class ExtensionConversionData(place: ScExpression,
 
 object ExtensionConversionHelper {
 
-  def specialExtractParameterType(resolveResult: ScalaResolveResult): Option[ScType] =
+  def specialExtractParameterType(resolveResult: ScalaResolveResult)(implicit ctx: CallContext): Option[ScType] =
     InferUtil.extractImplicitParameterType(resolveResult).flatMap {
       case FunctionType(resultType, _) => Some(resultType)
       case implicitParameterType =>
@@ -51,7 +51,7 @@ object ExtensionConversionHelper {
     ProgressManager.checkCanceled()
     import data._
 
-    specialExtractParameterType(candidate).filter {
+    specialExtractParameterType(candidate)(data.place).filter {
       case _: ValType if isHardCoded => false
       case _                         => true
     }.filter(
@@ -67,7 +67,7 @@ object ExtensionConversionHelper {
         findInType(tp, data, typeParams).map { tp =>
           typeParams match {
             case Seq() => candidate
-            case _     => update(candidate, tp)
+            case _     => update(candidate, tp)(data.place)
           }
         }
       }
@@ -76,7 +76,7 @@ object ExtensionConversionHelper {
   }
 
   private def update(candidate: ScalaResolveResult, foundInType: ScalaResolveResult)
-                    (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
+                    (implicit context: CallContext): ScalaResolveResult = {
 
     foundInType.resultUndef match {
       case Some(ConstraintSystem(substitutor)) =>

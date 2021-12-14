@@ -150,7 +150,7 @@ object InferUtil {
                   exprs,
                   typeParamsSingle,
                   canThrowSCE = canThrowSCE || fullInfo
-                )
+                )(element)
 
               resInner               = updatedType
               constraints           += conformanceResult.constraints
@@ -216,7 +216,7 @@ object InferUtil {
 
         def updateExpr(): Unit = {
           val maybeType = results.headOption
-            .flatMap(extractImplicitParameterType)
+            .flatMap(extractImplicitParameterType(_)(place))
 
           exprs ++= maybeType.map(Expression(_))
         }
@@ -355,7 +355,7 @@ object InferUtil {
         localTypeInference(internal, Seq(expectedParam), Seq(expressionToUpdate), typeParams,
           shouldUndefineParameters = false,
           canThrowSCE = canThrowSCE,
-          filterTypeParams = filterTypeParams)
+          filterTypeParams = filterTypeParams)(expr)
 
       val subst =
         if (!filterTypeParams) {
@@ -491,7 +491,7 @@ object InferUtil {
     }
   }
 
-  def extractImplicitParameterType(result: ScalaResolveResult): Option[ScType] =
+  def extractImplicitParameterType(result: ScalaResolveResult)(implicit ctx: CallContext): Option[ScType] =
     result.implicitParameterType.orElse {
       val ScalaResolveResult(element, substitutor) = result
 
@@ -516,7 +516,7 @@ object InferUtil {
     shouldUndefineParameters: Boolean = true,
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true
-  ): ScTypePolymorphicType =
+  )(implicit ctx: CallContext): ScTypePolymorphicType =
     localTypeInferenceWithApplicabilityExt(
       retType,
       params,
@@ -538,7 +538,7 @@ object InferUtil {
     canThrowSCE:              Boolean = false,
     filterTypeParams:         Boolean = true,
     paramSubst:               Option[ScSubstitutor] = None
-  ): (ScTypePolymorphicType, ConformanceExtResult) = {
+  )(implicit ctx: CallContext): (ScTypePolymorphicType, ConformanceExtResult) = {
     implicit val projectContext: ProjectContext = retType.projectContext
 
     val typeParamIds = typeParams.map(_.typeParamId).toSet

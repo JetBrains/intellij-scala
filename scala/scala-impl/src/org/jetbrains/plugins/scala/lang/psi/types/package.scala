@@ -46,13 +46,11 @@ package object types {
       typeSystem.conformsInner(`type`, scType, checkWeak = true).isRight
     }
 
-    def conformanceSubstitutor(`type`: ScType): Option[ScSubstitutor] = {
-      implicit val context: ProjectContext = `type`.projectContext
+    def conformanceSubstitutor(`type`: ScType)(implicit ctx: CallContext): Option[ScSubstitutor] =
       conforms(`type`, ConstraintSystem.empty) match {
         case ConstraintSystem(substitutor) => Some(substitutor)
-        case _ => None
+        case _                             => None
       }
-    }
 
     /** see scala.tools.nsc.typechecker.Infer.Inferencer#isConservativelyCompatible from scalac */
     def isConservativelyCompatible(pt: ScType): ConstraintsResult = {
@@ -76,13 +74,11 @@ package object types {
       typeSystem.conformsInner(`type`, scType, constraints = constraints, checkWeak = checkWeak)
     }
 
-    def glb(`type`: ScType, checkWeak: Boolean = false): ScType = {
+    def glb(`type`: ScType, checkWeak: Boolean = false)(implicit ctx: CallContext): ScType =
       typeSystem.glb(scType, `type`, checkWeak)
-    }
 
-    def lub(`type`: ScType, checkWeak: Boolean = true): ScType = {
+    def lub(`type`: ScType, checkWeak: Boolean = true)(implicit ctx: CallContext): ScType =
       typeSystem.lub(scType, `type`, checkWeak)
-    }
 
     private def isStdType(name: String) = scType match {
       case StdType(`name`, _) => true
@@ -269,6 +265,11 @@ package object types {
       case _                    => scType
     }
 
+    def widenIfUnion: ScType = scType match {
+      case orType: ScOrType => orType.join
+      case _                => scType
+    }
+
     def parents: Seq[ScType] = scType match {
       case ParameterizedType(des, args) => {
         val targetCls = des match {
@@ -303,13 +304,11 @@ package object types {
   }
 
   implicit class ScTypesExt(private val types: IterableOnce[ScType]) extends AnyVal {
-    def glb(checkWeak: Boolean = false)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.glb(types, checkWeak)
-    }
+    def glb(checkWeak: Boolean = false)(implicit ctx: CallContext): ScType =
+      ctx.projectContext.typeSystem.glb(types, checkWeak)
 
-    def lub(checkWeak: Boolean = true)(implicit project: ProjectContext): ScType = {
-      project.typeSystem.lub(types, checkWeak)
-    }
+    def lub(checkWeak: Boolean = true)(implicit ctx: CallContext): ScType =
+      ctx.projectContext.typeSystem.lub(types, checkWeak)
   }
 
   private trait Extractor[T <: PsiNamedElement] {

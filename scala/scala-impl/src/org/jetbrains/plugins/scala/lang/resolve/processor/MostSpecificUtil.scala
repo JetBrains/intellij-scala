@@ -33,6 +33,7 @@ import scala.collection.mutable
  */
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   implicit def ctx: ProjectContext = elem
+  implicit def callCtx: CallContext = elem
 
   def mostSpecificForResolveResult(applicable: Set[ScalaResolveResult],
                                    expandInnerResult: Boolean = true): Option[ScalaResolveResult] = TraceLogger.func {
@@ -189,7 +190,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           }
 
         conformance match {
-          case undefined@ConstraintSystem(uSubst) =>
+          case undefined @ ConstraintSystem(uSubst) =>
             var u = undefined
             t2 match {
               case ScTypePolymorphicType(_, typeParams) =>
@@ -276,7 +277,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     ProgressManager.checkCanceled()
     (r1.implicitConversionClass, r2.implicitConversionClass) match {
       case (Some(t1), Some(t2)) => if (ScalaPsiUtil.isInheritorDeep(t1, t2)) return true
-      case _ =>
+      case _                    =>
     }
     if (r1.callByNameImplicit ^ r2.callByNameImplicit) return !r1.callByNameImplicit
     val weightR1R2 = relativeWeight(r1, r2, checkImplicits)

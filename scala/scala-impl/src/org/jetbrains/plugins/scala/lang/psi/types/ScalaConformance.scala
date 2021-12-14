@@ -1077,7 +1077,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
         case cs: ConstraintSystem =>
           constraints = cs
           val subst =
-            cs.substitutionBounds(canThrowSCE = true, checkWeak = false)
+            cs.substitutionBounds(canThrowSCE = true, checkWeak = false)(DefaultScala2Context())
               .map(_.substitutor) match {
               case Some(subst) => subst
               case None        => result = ConstraintsResult.Left; return
