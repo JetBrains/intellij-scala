@@ -26,6 +26,9 @@ import java.nio.file.Paths
 (Global / scalacOptions) := globalScalacOptions
 (Global / compile / inputFileStamper) := sbt.nio.FileStamper.LastModified
 
+//todo remove after fixing leak in sbt.internal.inc.HashUtil.farmHash
+Global / concurrentRestrictions := Seq(Tags.limitAll(3))
+
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
