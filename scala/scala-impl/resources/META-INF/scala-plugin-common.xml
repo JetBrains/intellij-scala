@@ -1018,6 +1018,41 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="ForwardReference" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.EmptyTargetNameInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.empty.targetname"
+                         groupPath="Scala" groupKey="group.general" shortName="EmptyTargetName"
+                         id="EmptyTargetName" level="ERROR" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.NoTargetNameAnnotationForOperatorLikeDefinitionInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.no.targetname.annotation.for.operator.like.definition"
+                         groupPath="Scala" groupKey="group.general" shortName="NoTargetNameAnnotationForOperatorLikeDefinition"
+                         id="NoTargetNameAnnotationForOperatorLikeDefinition" level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.MultipleTargetNameAnnotationsInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.multiple.targetname.annotations"
+                         groupPath="Scala" groupKey="group.general" shortName="MultipleTargetNameAnnotations"
+                         id="MultipleTargetNameAnnotations" level="WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.MultipleTargetsTargetNameInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.multiple.targets.targetname"
+                         groupPath="Scala" groupKey="group.general" shortName="MultipleTargetsTargetName"
+                         id="MultipleTargetsTargetName" level="ERROR" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.OverridingAddingTargetNameInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.member.has.targetname.when.overridden.does.not"
+                         groupPath="Scala" groupKey="group.general" shortName="OverridingAddingTargetName"
+                         id="OverridingAddingTargetName" level="ERROR" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.OverridingRemovingTargetNameInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.definition.misses.targetname.annotation"
+                         groupPath="Scala" groupKey="group.general" shortName="OverridingRemovingTargetName"
+                         id="OverridingRemovingTargetName" level="ERROR" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.OverridingWithDifferentTargetNameInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.definition.and.overridden.member.have.different.targetname.annotations"
+                         groupPath="Scala" groupKey="group.general" shortName="OverridingWithDifferentTargetName"
+                         id="OverridingWithDifferentTargetName" level="ERROR" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.type.annotation.required"

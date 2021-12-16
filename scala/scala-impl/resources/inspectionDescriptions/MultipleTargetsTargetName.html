@@ -1,0 +1,35 @@
+<html>
+<body>
+<p>Reports the usage of <code>@targetName</code> annotation on multiple targets.</p>
+
+<p>The quick-fix removes <code>@targetName</code> annotation.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  // 1
+  val list: List[Int] = (1 to 5).toList
+  @targetName("head_and_tail")
+  val (head, tail) = (list.head, list.tail)
+
+  // 2
+  enum E:
+    case A
+    @targetName("b_and_c")
+    case B, C
+    case D
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  // 1
+  val list: List[Int] = (1 to 5).toList
+  val (head, tail) = (list.head, list.tail)
+
+  // 2
+  enum E:
+    case A
+    case B, C
+    case D
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
