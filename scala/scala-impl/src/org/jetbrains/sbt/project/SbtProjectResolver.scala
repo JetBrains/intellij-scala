@@ -97,7 +97,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val conversionResult = structureDump
       .map { case (elem, _) =>
         val data = elem.deserialize[sbtStructure.StructureData].getRight
-        convert(normalizePath(projectRoot), data, settings.jdk).toDataNode
+        convert(normalizePath(projectRoot), data, settings.jdk, sbtVersion).toDataNode
       }
       .recoverWith {
         case ImportCancelledException(cause) =>
@@ -283,7 +283,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     projectNode.addAll(projectToModule.values)
 
     val dummyBuildData = BuildData(projectRoot.toURI, Seq.empty, Seq.empty, Seq.empty, Seq.empty)
-    val buildModule = createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None)
+    val buildModule = createBuildModule(dummyBuildData, projects, moduleFilesDirectory, None, sbtVersion)
     projectNode.add(buildModule)
 
     projectNode
@@ -300,7 +300,8 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
   private def convert(root: String,
                       data: sbtStructure.StructureData,
-                      settingsJdk: Option[String]): Node[ESProjectData] = {
+                      settingsJdk: Option[String],
+                      sbtVersion: String): Node[ESProjectData] = {
     val projects: Seq[sbtStructure.ProjectData] = data.projects
     val rootProject: sbtStructure.ProjectData =
       projects.find(p => FileUtil.filesEqual(p.base, new File(root)))
@@ -330,7 +331,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
 
-    val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath))
+    val buildModuleForProject: BuildData => ModuleNode = createBuildModule(_, projects, moduleFilesDirectory, data.localCachePath.map(_.getCanonicalPath), sbtVersion)
     val buildModules = data.builds.map(buildModuleForProject)
 
     if (buildModules.size > 1) {
@@ -582,7 +583,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     } else List(project.target)
   }
 
-  private def createBuildModule(build: sbtStructure.BuildData, projects: Seq[ProjectData], moduleFilesDirectory: File, localCachePath: Option[String]): ModuleNode = {
+  private def createBuildModule(build: sbtStructure.BuildData, projects: Seq[ProjectData], moduleFilesDirectory: File, localCachePath: Option[String], sbtVersion: String): ModuleNode = {
 
     val buildBaseProject =
       projects
@@ -622,7 +623,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val classes = build.classes.filter(_.exists).map(_.path)
       val docs = build.docs.filter(_.exists).map(_.path)
       val sources = build.sources.filter(_.exists).map(_.path)
-      createModuleLevelDependency(Sbt.BuildLibraryName, classes, docs, sources, DependencyScope.COMPILE)(result)
+      createModuleLevelDependency(Sbt.BuildLibraryPrefix + sbtVersion, classes, docs, sources, DependencyScope.COMPILE)(result)
     }
 
     result.add(library)
