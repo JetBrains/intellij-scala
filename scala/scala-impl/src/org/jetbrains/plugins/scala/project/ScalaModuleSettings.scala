@@ -175,7 +175,7 @@ private object ScalaModuleSettings {
     for {
       sbtAndPluginsOrRuntimeLib <- {
         val processor: FindProcessor[libraries.Library] = { lib =>
-          lib.getName.endsWith(org.jetbrains.sbt.Sbt.BuildLibraryName) ||
+          lib.getName.contains(": " + org.jetbrains.sbt.Sbt.BuildLibraryPrefix) ||
             LibraryExt.isRuntimeLibrary(lib.getName)
         }
         OrderEnumerator.orderEntries(module).librariesOnly.forEachLibrary(processor)
