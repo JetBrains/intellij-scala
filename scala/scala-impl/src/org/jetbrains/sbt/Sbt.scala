@@ -37,7 +37,7 @@ object Sbt {
 
   val BuildModuleDescription: String = SbtBundle.message("sbt.build.module.description")
 
-  @NonNls val BuildLibraryName = "sbt-and-plugins"
+  @NonNls val BuildLibraryPrefix = "sbt-"
 
   @NonNls val UnmanagedLibraryName = "unmanaged-jars"
 
