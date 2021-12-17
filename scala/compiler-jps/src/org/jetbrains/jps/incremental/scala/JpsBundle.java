@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala;
 
 
-import com.intellij.DynamicBundle;
+import com.intellij.AbstractBundle;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,7 @@ import org.jetbrains.annotations.PropertyKey;
  * Date: 02.10.2006
  *
  */
-public class JpsBundle extends DynamicBundle {
+public class JpsBundle extends AbstractBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaJpsBundle";
 
