@@ -46,7 +46,7 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     resolveScope
   }
 
-  override def getPlace: PsiElement = ref
+  override protected def getPlace: PsiElement = ref
 
   private[this] val isThisOrSuperResolve = ref.getParent match {
     case _: ScThisReference | _: ScSuperReference => true

@@ -6,7 +6,6 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -22,15 +21,19 @@ import org.junit.experimental.categories.Category
  * 27-Sep-17
  */
 @Category(Array(classOf[HighlightingTests]))
-class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private val filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set((2714, 2721),(2947, 2954)),
-    "scala/collection/mutable/ListBuffer.scala" -> Set((6975, 6976),(7285, 7286))
   )
 
+  private val CustomScalaSdkLoader = ScalaSDKLoader()
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.fromString("2.12.8").get
+
   override def librariesLoaders = Seq(
-    CustomSDKLoader,
+    CustomScalaSdkLoader,
     HeavyJDKLoader()
   )
 
@@ -40,16 +43,20 @@ class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapt
       filesWithProblems,
       reportStatus = false
     )
-    val sourceRoot = CustomSDKLoader.sourceRoot
+    val sourceRoot = CustomScalaSdkLoader.sourceRoot
 
-    VfsUtilCore.processFilesRecursively(
-      sourceRoot,
-      (file: VirtualFile) => {
-        annotateFile(file, sourceRoot)(reporter)
-        true
-      }
-    )
-    reporter.reportResults()
+    try {
+      VfsUtilCore.processFilesRecursively(
+        sourceRoot,
+        (file: VirtualFile) => {
+          annotateFile(file, sourceRoot)(reporter)
+          true
+        }
+      )
+      reporter.reportResults()
+    } finally {
+      System.err.println(s"### sourceRoot: $sourceRoot")
+    }
   }
 
   def testAllSourcesAreFoundByRelativeFile(): Unit = {
@@ -86,17 +93,4 @@ class ScalaLibraryHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapt
         )
       case _ =>
     }
-
-  private object CustomSDKLoader extends ScalaSDKLoader {
-
-    override protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
-      super.binaryDependencies.map(setCustomMinor)
-
-    override protected def sourcesDependency(implicit version: ScalaVersion): DependencyDescription =
-      setCustomMinor(super.sourcesDependency)
-
-    private def setCustomMinor(description: DependencyDescription) =
-      description.copy(version = "2.12.8")
-  }
-
 }

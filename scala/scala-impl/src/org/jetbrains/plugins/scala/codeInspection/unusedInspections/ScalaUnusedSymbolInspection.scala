@@ -33,7 +33,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       val refCounter = ScalaRefCountHolder(element)
       var used = false
 
-      val success = refCounter.retrieveUnusedReferencesInfo { () =>
+      val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
         used |= refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
       }
 

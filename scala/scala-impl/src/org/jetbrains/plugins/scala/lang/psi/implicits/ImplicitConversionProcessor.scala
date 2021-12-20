@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 /**
   * @author adkozlov
   */
-final class ImplicitConversionProcessor(override val getPlace: PsiElement,
+final class ImplicitConversionProcessor(override protected val getPlace: PsiElement,
                                         override protected val withoutPrecedence: Boolean)
   extends ImplicitProcessor(getPlace, withoutPrecedence) {
 

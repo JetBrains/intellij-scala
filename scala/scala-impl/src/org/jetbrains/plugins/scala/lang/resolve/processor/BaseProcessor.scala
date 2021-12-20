@@ -72,7 +72,7 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   protected def execute(namedElement: PsiNamedElement)
                        (implicit state: ResolveState): Boolean
 
-  def candidates: Array[ScalaResolveResult] = {
+  final def candidates: Array[ScalaResolveResult] = {
     val set = candidatesS
     val size = set.size
     val res = JavaArrayFactoryUtil.ScalaResolveResultFactory.create(size)

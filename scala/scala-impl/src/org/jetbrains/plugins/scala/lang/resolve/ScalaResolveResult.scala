@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPack
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.{ImplicitResult, ImplicitState, NoResult}
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Null, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
@@ -180,17 +180,29 @@ class ScalaResolveResult(
   private var precedence = -1
 
   private def containingPackageName(clazz: PsiClass): Option[String] = {
-    if (clazz.containingClass != null)
-      return None
+    val containingClass = clazz.containingClass
+    containingClass match {
+      case null =>
+      case o: ScObject if o.isPackageObject =>
+        return Some(o.qualifiedName)
+      case _ =>
+        return None
+    }
 
     //noinspection ScalaWrongMethodsUsage
-    Some(qualifier(clazz.getQualifiedName))
+    val fqn = clazz.getQualifiedName
+    Some(qualifier(fqn))
   }
 
   private def qualifier(fqn: String): String = {
-    val lastDot = Option(fqn).map(_.lastIndexOf('.'))
+    if (fqn == null)
+      return ""
 
-    lastDot.filter(_ > 0).map(fqn.substring(0, _)).getOrElse("")
+    val lastDot = fqn.lastIndexOf('.')
+    if (lastDot > 0)
+      fqn.substring(0, lastDot)
+    else
+      ""
   }
 
 
@@ -209,7 +221,8 @@ class ScalaResolveResult(
 
     def getClazzPrecedence(clazz: PsiClass): Int =
       containingPackageName(clazz) match {
-        case None => OTHER_MEMBERS //is local or inherited
+        case None =>
+          OTHER_MEMBERS //is local or inherited
         case Some(pckg) =>
           defaultImportPrecedence(pckg).getOrElse {
             val sameFile = ScalaPsiUtil.fileContext(clazz) == ScalaPsiUtil.fileContext(place)
@@ -222,7 +235,9 @@ class ScalaResolveResult(
 
     def getPrecedenceInner: Int = {
       if (importsUsed.isEmpty) {
-        ScalaPsiUtil.nameContext(getActualElement) match {
+        //TODO: can we extract getActualElement to val?
+        val nameContext = ScalaPsiUtil.nameContext(getActualElement)
+        nameContext match {
           case obj: ScObject if obj.isPackageObject =>
             val qualifier = obj.qualifiedName
             return getPackagePrecedence(qualifier)
@@ -240,7 +255,8 @@ class ScalaResolveResult(
             }
 
             //val clazz = PsiTreeUtil.getParentOfType(result.getActualElement, classOf[PsiClass])
-            if (clazz == null) return OTHER_MEMBERS
+            if (clazz == null)
+              return OTHER_MEMBERS
             else {
               val fqn = clazz.qualifiedName
               fqn match {
@@ -248,13 +264,14 @@ class ScalaResolveResult(
                   return defaultImportPrecedence("scala.Predef").getOrElse(OTHER_MEMBERS)
                 case _ =>
                   clazz match {
-                    case o: ScObject if o.isPackageObject && !PsiTreeUtil.isContextAncestor(o, place, false) =>
-                      var q = o.qualifiedName
-                      val packageSuffix: String = ".`package`"
-                      if (q.endsWith(packageSuffix)) q = q.substring(0, q.length - packageSuffix.length)
-                      if (q == placePackageName) return OTHER_MEMBERS
-                      else return PACKAGING
-                    case _ => return defaultImportPrecedence(fqn).getOrElse(OTHER_MEMBERS)
+                    case o: ScObject if o.isPackageObject =>
+                      val isFromTheSameUnit = PsiTreeUtil.isContextAncestor(o.getContainingFile, place, false)
+                      if (isFromTheSameUnit)
+                        return OTHER_MEMBERS
+                      else
+                        return PACKAGING
+                    case _ =>
+                      return defaultImportPrecedence(fqn).getOrElse(OTHER_MEMBERS)
                   }
               }
             }
@@ -403,7 +420,8 @@ object ScalaResolveResult {
       } else null
     }
 
-    result.getActualElement match {
+    val actualElement = result.getActualElement
+    val presentation = actualElement match {
       case _: ScTypeParam => null
       case c: ScObject => "Object:" + c.qualifiedName
       case c: PsiClass => "Class:" + c.qualifiedName
@@ -423,5 +441,6 @@ object ScalaResolveResult {
       case p: PsiPackage => "Package:" + p.getQualifiedName
       case _ => null
     }
+    presentation
   }
 }

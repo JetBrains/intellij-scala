@@ -4,21 +4,18 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager, PsiReference}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.FailableTest
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Assert
+import org.junit.Assert._
 
 import java.io.File
+import scala.util.{Failure, Success, Try}
 
-
-/**
-  * @author mucianm
-  * @since 05.04.16.
-  */
 trait SimpleResolveTestBase {
   this: TestFixtureProvider with UsefulTestCase with FailableTest =>
 
@@ -63,28 +60,75 @@ trait SimpleResolveTestBase {
     sources.lastOption match {
       case Some(file) =>
         configureFile(file, getFixture.configureByText) // last file is the one to be opened in editor
-      case None => Assert.fail("No testdata provided")
+      case None =>
+        fail("No testdata provided")
     }
 
-    Assert.assertNotNull("Failed to locate source element", src)
+    assertNotNull("Failed to locate source element", src)
     (src, tgt)
   }
 
   private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*): Unit = {
     val (src, tgt) = setupResolveTest(target, sources: _*)
     val result = src.resolve()
-    if (shouldPass) {
-      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getElement.getText}'.", result)
-      else               Assert.assertNull(s"Reference '${src.getElement.getText}' must not resolve.", result)
-    } else if (result == null) {
-      if (!shouldResolve) Assert.fail(failingPassed + ": failed to resolve element")
-      else                return
+    val srcRefText = src.getElement.getText
+
+    val testRunResult: Try[Unit] = Try {
+      if (shouldResolve) {
+        if (result == null) {
+          val multiResolveResult: Array[ScalaResolveResult] = src match {
+            case scRef: ScReference => scRef.multiResolveScala(false)
+            case _ => Array.empty
+          }
+          val multiResolveResolveText = if (multiResolveResult.isEmpty) "" else {
+            val texts: Array[String] = multiResolveResult.map(_.element).map { namedElement =>
+              namedElement.name + " - " + elementLocationDescriptor(namedElement)
+            }
+            val textsConcat = texts.zipWithIndex.map { case (text, idx) => s"$idx : $text"}.map("  " + _).mkString("\n")
+            s"\nmultiResolveResolve:\n$textsConcat"
+          }
+          fail(s"Failed to resolve single element - '$srcRefText'.$multiResolveResolveText")
+        }
+      }
+      else {
+        if (result != null) {
+          fail(s"Reference '$srcRefText' must not resolve.")
+        }
+      }
+
+      // we might want to check if reference simply resolves to something
+      if (shouldResolve && tgt != null) {
+        assertEquals(
+          s"""Reference($srcRefText) resolves to wrong place: ${elementLocationDescriptor(result)},
+             |text: ${result.getText}""".stripMargin,
+          tgt,
+          result
+        )
+      }
+
+      ()
     }
 
-    // we might want to check if reference simply resolves to something
-    if (tgt != null)
-      if (shouldPass) Assert.assertTrue(s"Reference(${src.getElement.getText}) resolves to wrong place(${result.getText})", tgt == result)
-       else           Assert.assertFalse(failingPassed, tgt == result)
+    testRunResult match {
+      case Success(_) =>
+        if (shouldPass) {
+          // ok. test passed passed
+        }
+        else {
+          fail(failingPassed)
+        }
+      case Failure(_: AssertionError) if !shouldPass =>
+        //ok, test failed with some assertion
+      case Failure(ex) =>
+        throw ex
+    }
+  }
+
+  private def elementLocationDescriptor(element: PsiElement): String = {
+    val file = element.getContainingFile
+    val vFile = file.getVirtualFile
+    val document = PsiDocumentManager.getInstance(element.getProject).getDocument(file)
+    s"location: ${vFile.getPath}:${document.getLineNumber(element.startOffset)}"
   }
 
   protected def testNoResolve(sources: (String, String)*): Unit =

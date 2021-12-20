@@ -4,23 +4,22 @@ import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
 import org.jetbrains.plugins.scala.extensions.{ElementType, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.{assertEquals, fail}
 
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 30.06.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
+abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  final protected def baseRootPath: String = TestUtils.getTestDataPath + "/"
 
   def folderPath: String = baseRootPath + "optimize/"
 
@@ -35,18 +34,18 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   protected def doTest(before: String, after: String): Unit = {
-    configureFromFileTextAdapter(getTestName(false) + ".scala", before)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(getTestName(false) + ".scala", before)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
 
     //why do we do that? SORT_IMPORTS is true by default
     if (getTestName(true).startsWith("sorted"))
-      ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
+      ScalaCodeStyleSettings.getInstance(getProject).setSortImports(true)
 
     executeWriteActionCommand(
       importOptimizer.processFile(scalaFile),
       "OptimiseImportsInTestsCommand",
       UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
-    )(getProjectAdapter)
+    )(getProject)
 
     val actual = scalaFile.getText
     assertEquals(after.withNormalizedSeparator, actual)
@@ -69,8 +68,8 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
 
   private def extractTestData(fileText: String): (String, String) = {
     // NOTE: only to extract before & after data
-    configureFromFileTextAdapter(s"${getTestName(false)}_temp.scala", fileText)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(s"${getTestName(false)}_temp.scala", fileText)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
 
     val lastComment = scalaFile.getLastChild match {
       case c@ElementType(ScalaTokenTypes.tBLOCK_COMMENT) => c

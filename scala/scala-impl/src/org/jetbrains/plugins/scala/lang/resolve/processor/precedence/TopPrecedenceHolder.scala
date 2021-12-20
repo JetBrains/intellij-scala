@@ -1,11 +1,9 @@
-package org.jetbrains.plugins.scala.lang
-package resolve
-package processor
-package precedence
+package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 
 import gnu.trove.{TObjectHashingStrategy, TObjectIntHashMap}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-trait TopPrecedenceHolder {
+sealed trait TopPrecedenceHolder {
 
   /**
     * Returns highest precedence of all resolve results.
@@ -23,7 +21,7 @@ trait TopPrecedenceHolder {
     precedence(left) < apply(right)
 }
 
-class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveResult]) extends TopPrecedenceHolder {
+final class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveResult]) extends TopPrecedenceHolder {
 
   private[this] val precedences = new TObjectIntHashMap[ScalaResolveResult](strategy)
 
@@ -41,7 +39,7 @@ class MappedTopPrecedenceHolder(strategy: TObjectHashingStrategy[ScalaResolveRes
       super.filterNot(left, right)(precedence)
 }
 
-class SimpleTopPrecedenceHolder extends TopPrecedenceHolder {
+final class SimpleTopPrecedenceHolder extends TopPrecedenceHolder {
 
   private[this] var precedence: Int = 0
 

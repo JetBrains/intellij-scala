@@ -170,7 +170,7 @@ object ImportInfo {
       }
 
     for (selector <- imp.selectors if !selector.isWildcardSelector) {
-      val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
+      val importUsed: ImportSelectorUsed = new ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
         if (selector.isGivenSelector) {
@@ -203,7 +203,7 @@ object ImportInfo {
     }
 
     if (imp.selectorSet.isEmpty && !imp.hasWildcardSelector) {
-      val importUsed: ImportExprUsed = ImportExprUsed(imp)
+      val importUsed: ImportExprUsed = new ImportExprUsed(imp)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
         imp.reference match {
@@ -215,8 +215,8 @@ object ImportInfo {
       }
     } else if (imp.hasWildcardSelector) {
       val importUsed =
-        if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
-        else ImportWildcardSelectorUsed(imp)
+        if (imp.selectorSet.isEmpty) new ImportExprUsed(imp)
+        else new ImportWildcardSelectorUsed(imp)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
         hasWildcard = true
@@ -228,7 +228,7 @@ object ImportInfo {
     }
 
     if (ImportInfoProvider.providers.exists(_.isImportUsedWithFileCheck(imp)))
-      importsUsed += ImportExprUsed(imp)
+      importsUsed += new ImportExprUsed(imp)
 
     if (importsUsed.isEmpty)
       return None //all imports are empty

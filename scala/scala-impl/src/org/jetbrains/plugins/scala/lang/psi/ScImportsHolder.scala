@@ -145,29 +145,8 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     buffer.toVector
   }
 
-  def getAllImportUsed: mutable.Set[ImportUsed] = {
-    val res = mutable.HashSet.empty[ImportUsed]
-    def processChild(element: PsiElement): Unit = {
-      for (child <- element.getChildren) {
-        child match {
-          case imp: ScImportExpr =>
-            if (/*!imp.singleWildcard && */imp.selectorSet.isEmpty) {
-              res += ImportExprUsed(imp)
-            }
-            else if (imp.hasWildcardSelector) {
-              res += ImportWildcardSelectorUsed(imp)
-            }
-            for (selector <- imp.selectors if !selector.isWildcardSelector) {
-              res += ImportSelectorUsed(selector)
-            }
-          case _ => processChild(child)
-        }
-      }
-    }
-    processChild(this)
-    res
-  }
-
+  def allImportExpressionsRecursive: Iterator[ScImportExpr] =
+    this.depthFirst().filterByType[ScImportExpr]
 
   def addImportForClass(clazz: PsiClass, @Nullable ref: ScReference, aliasName: Option[String] = None): Unit = {
     val isAlreadyAvailableInReferenceScope: Boolean = if (ref == null) false else {
@@ -544,7 +523,6 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     Some(newImport)
   }
 
-  //TODO: handle properly collisions with other names from some wildcards, review all usage places see SCL-19801
   private def canSkipImport(importPath: ImportPath): Boolean =
     importPath.aliasName.isEmpty && isFromSamePackage(importPath.qualifiedName)
 

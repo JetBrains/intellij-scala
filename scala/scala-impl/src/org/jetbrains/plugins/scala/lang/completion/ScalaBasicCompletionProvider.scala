@@ -153,7 +153,7 @@ object ScalaBasicCompletionProvider {
   import ScalaTokenTypes._
 
   //doesn't search methods from implicit conversions by default, see ExtensionMethodProcessor
-  private class DefaultCompletionProcessor(override val getPlace: ScReferenceImpl,
+  private class DefaultCompletionProcessor(override protected val getPlace: ScReferenceImpl,
                                            private val isInSimpleString: Boolean,
                                            private val isInInterpolatedString: Boolean,
                                            private val invocationCount: Int,

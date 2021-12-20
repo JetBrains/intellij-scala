@@ -38,7 +38,7 @@ class OptimizeImportsImplicitsTest extends OptimizeImportsTestBase {
   def testSCL6783(): Unit = doTest()
 
   def testSCL7158(): Unit = {
-    val settings = ScalaCodeStyleSettings.getInstance(getProjectAdapter)
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
     val old = settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR
     settings.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR = true
     try {

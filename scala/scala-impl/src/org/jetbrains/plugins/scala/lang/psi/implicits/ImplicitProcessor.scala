@@ -41,7 +41,7 @@ import scala.collection.mutable
 /**
   * This class mark processor that only implicit object important among all PsiClasses
   */
-abstract class ImplicitProcessor(override val getPlace: PsiElement,
+abstract class ImplicitProcessor(override protected val getPlace: PsiElement,
                                  protected val withoutPrecedence: Boolean)
   extends BaseProcessor(StdKinds.refExprLastRef)(getPlace.projectContext)
     with SubstitutablePrecedenceHelper {

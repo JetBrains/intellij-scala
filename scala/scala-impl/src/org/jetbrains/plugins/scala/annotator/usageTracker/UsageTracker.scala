@@ -3,18 +3,18 @@ package org.jetbrains.plugins.scala.annotator.usageTracker
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.immutable.ArraySeq
+import scala.collection.mutable
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 object UsageTracker {
 
   def registerUsedElementsAndImports(element: PsiElement, results: Iterable[ScalaResolveResult], checkWrite: Boolean): Unit = {
@@ -26,6 +26,8 @@ object UsageTracker {
 
   def registerUsedImports(elem: PsiElement, imports: Set[ImportUsed]): Unit = {
     if (!elem.isValid) return
+    if (imports.isEmpty)
+      return
 
     elem.getContainingFile match {
       case scalaFile: ScalaFile =>
@@ -41,24 +43,50 @@ object UsageTracker {
 
   def getUnusedImports(file: ScalaFile): Seq[ImportUsed] = {
     val redundantBuilder = ArraySeq.newBuilder[ImportUsed]
-    val imports = file.getAllImportUsed
+
+    val potentiallyRedundantImports = RedundantImportUtils.collectPotentiallyRedundantImports(file)
+
+    val importExprToUsedImports: mutable.Buffer[(ScImportExpr, Iterable[ImportUsed])] =
+      mutable.ArrayBuffer.empty
+
+    val importHolders: Iterator[ScImportsHolder] =
+      file.depthFirst().filterByType[ScImportsHolder]
+
+    for {
+      importHolder <- importHolders
+      importStmt   <- importHolder.getImportStatements
+      importExprs  = importStmt.importExprs
+      importExpr   <- importExprs
+    } {
+      val importsUsed = ImportUsed.buildAllFor(importExpr)
+      importExprToUsedImports += ((importExpr, importsUsed))
+    }
+
     val refHolder = ScalaRefCountHolder.getInstance(file)
 
-    refHolder.retrieveUnusedReferencesInfo { () =>
-      imports.groupBy(_.importExpr).foreach {
-        case (expr, importsUsed) if expr.nonEmpty =>
-          val toHighlight =
-            importsUsed.filterNot(imp => refHolder.usageFound(imp) || imp.isAlwaysUsed)
+    refHolder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
+      def isRedundant(importUsed: ImportUsed): Boolean =
+        potentiallyRedundantImports.contains(importUsed) &&
+          RedundantImportUtils.isActuallyRedundant(importUsed, file.getProject, file.isScala3File)
 
-          if (toHighlight.size == importsUsed.size)
-            redundantBuilder += ImportExprUsed(expr.get)
-          else
-            redundantBuilder ++= toHighlight
-        case _ =>
+      def treatAsUnused(importUsed: ImportUsed): Boolean =
+        refHolder.usageFound(importUsed) && !isRedundant(importUsed) ||
+          importUsed.isAlwaysUsed
+
+      importExprToUsedImports.foreach { case (expr, importsUsed) =>
+        val toHighlight: Iterable[ImportUsed] = importsUsed.filterNot(treatAsUnused)
+
+        val wholeImportExprIsUnused = toHighlight.size == importsUsed.size
+        if (wholeImportExprIsUnused)
+          redundantBuilder += new ImportExprUsed(expr)
+        else
+          redundantBuilder ++= toHighlight
       }
     }
 
-    ImportInfoProvider.filterOutUsedImports(file, redundantBuilder.result())
+    val result0 = redundantBuilder.result()
+    val result1 = ImportInfoProvider.filterOutUsedImports(file, result0)
+    result1
   }
 
   private def registerUsedElement(element: PsiElement,
@@ -91,5 +119,4 @@ object UsageTracker {
       }
     }
   }
-
 }

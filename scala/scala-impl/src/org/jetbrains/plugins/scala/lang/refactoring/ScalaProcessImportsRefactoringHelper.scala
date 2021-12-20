@@ -19,11 +19,13 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactori
 import scala.collection.mutable
 
 /**
- * The helper processes imports after e.g. Move refactoring is finished:
+ * The helper processes imports after refactoring is finished (e.g. Move refactoring):
+ *
  *  1. Removes unused single names in import with wildcards<br>
  *     see [[ScalaImportOptimizer.removeAllUnusedSingleNamesInImportsWithWildcards]]<br>
  *     NOTE: we do this step AFTER refactoring because this operation is not lightweight to do it
  *     when rebinding each import expression in [[org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceImpl.bindToElement]] (see SCL-19801)
+ *
  *  1. Deletes redundant braces in import expressions<br>
  *     see [[org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr.deleteRedundantSingleSelectorBraces]]
  *

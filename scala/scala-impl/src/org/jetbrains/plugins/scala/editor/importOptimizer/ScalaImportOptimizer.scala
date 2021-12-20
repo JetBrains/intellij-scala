@@ -12,6 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.concurrency.annotations.RequiresWriteLock
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.annotator.usageTracker.RedundantImportUtils
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -74,7 +75,10 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     val usedImports = ContainerUtil.newConcurrentSet[ImportUsed]()
     val usedImportedNames = ContainerUtil.newConcurrentSet[UsedName]()
 
-    val (importHolders, importUsers) = collectImportHoldersAndUsers(file)
+    val (importHolders, importUsers) = collectImportHoldersAndUsers(scalaFile)
+
+    val potentialRedundantImports: collection.Set[ImportUsed] =
+      RedundantImportUtils.collectPotentiallyRedundantImports(scalaFile)
 
     val progressManager: ProgressManager = ProgressManager.getInstance()
     val indicator: ProgressIndicator =
@@ -122,12 +126,16 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val importsSettings = settings(scalaFile)
 
+    def isRedundant(importUsed: ImportUsed): Boolean =
+      potentialRedundantImports.contains(importUsed) &&
+        RedundantImportUtils.isActuallyRedundant(importUsed, project, scalaFile.isScala3File)
+
     def isImportUsed(importUsed: ImportUsed): Boolean = {
       //todo: collect proper information about language features
       importUsed.isAlwaysUsed ||
-        usedImports.contains(importUsed) ||
+        usedImports.contains(importUsed) && !isRedundant(importUsed) ||
         ScalaImportOptimizerHelper.extensions.exists(_.isImportUsed(importUsed)) ||
-        (isOnTheFly && !mayOptimizeOnTheFly(importUsed))
+        isOnTheFly && !mayOptimizeOnTheFly(importUsed)
     }
 
     val rangeInfos = collectRanges(ImportInfo.createInfos(_, isImportUsed))
@@ -389,7 +397,6 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     }
   }
 
-  //TODO: ensure it works fine with SCL-19801
   /**
    * Example:<br>
    * Before: {{{

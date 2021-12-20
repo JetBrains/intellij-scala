@@ -14,9 +14,11 @@ class TeamCityReporter(name: String, override val filesWithProblems: Map[String,
   override def updateHighlightingProgress(percent: Int, fileName: String): Unit =
     progressMessage(s"$percent% highlighted, started $fileName")
 
-  override def showError(fileName: String, range: TextRange, message: String): Unit = {
-    val escaped = escapeTC(message)
-    val testName = s"$name.$fileName${range.toString}"
+  override def showError(fileError: FileErrorDescriptor): Unit = {
+    val error = fileError.error
+
+    val escaped = escapeTC(error.message)
+    val testName = s"$name.${fileError.fileName}${error.range.toString}"
     tcPrint(s"testStarted name='$testName'")
     tcPrint(s"testFailed name='$testName' message='Highlighting error' details='$escaped'")
     tcPrint(s"testFinished name='$testName'")

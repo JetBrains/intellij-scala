@@ -87,7 +87,7 @@ final class ScalaRefCountHolder private (file: PsiFile) {
   }
 
 
-  def retrieveUnusedReferencesInfo(analyze: () => Unit): Boolean = {
+  def runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip(analyze: () => Unit): Boolean = {
     if (isReady) {
       analyze()
       true

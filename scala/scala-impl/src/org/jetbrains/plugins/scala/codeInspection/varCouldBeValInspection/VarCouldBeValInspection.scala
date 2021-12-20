@@ -61,7 +61,7 @@ object VarCouldBeValInspection {
     var hasWriteUsages = false
     var used = false
     val holder = ScalaRefCountHolder(element)
-    holder.retrieveUnusedReferencesInfo { () =>
+    holder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
       hasWriteUsages = holder.isValueWriteUsed(element)
       used = holder.isValueReadUsed(element)
     }

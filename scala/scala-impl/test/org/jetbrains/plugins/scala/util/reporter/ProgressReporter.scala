@@ -12,29 +12,33 @@ import scala.collection.mutable
   * @since 16.05.17.
   */
 trait ProgressReporter {
-  val errorMessages: mutable.Map[String, Seq[(TextRange, String)]] = mutable.Map.empty
+  val errorMessages: mutable.Map[String, Seq[ErrorDescriptor]] = mutable.Map.empty
 
-  final def foundErrors(fileName: String): Seq[(TextRange, String)] = errorMessages.getOrElse(fileName, Seq.empty)
+  final def foundErrors(fileName: String): Seq[ErrorDescriptor] = errorMessages.getOrElse(fileName, Seq.empty)
 
-  final def unexpectedErrors: Seq[(String, TextRange, String)] = errors(expected = false)
+  final def unexpectedErrors: Seq[FileErrorDescriptor] = errors(expected = false)
 
-  final def expectedErrors: Seq[(String, TextRange, String)] = errors(expected = true)
+  final def expectedErrors: Seq[FileErrorDescriptor] = errors(expected = true)
 
-  private def errors(expected: Boolean): Seq[(String, TextRange, String)] = {
+  private def errors(expected: Boolean): Seq[FileErrorDescriptor] = {
     for {
       (fileName, errors) <- errorMessages.toSeq
-      (known, unknown) = errors.partition(err => knownErrors(fileName).contains(err._1))
-      (range, message) <- if (expected) known else unknown
+      (known, unknown) = errors.partition(err => knownErrors(fileName).containsRange(err.range))
+      error <- if (expected) known else unknown
     } yield {
-      (fileName, range, message)
+      FileErrorDescriptor(fileName, error)
     }
   }
 
   final def unexpectedSuccess: Set[String] =
-    filesWithProblems.keySet.filter(fileName => errorMessages.get(fileName).isEmpty)
+    filesWithProblems.keySet.filter(fileName => !errorMessages.contains(fileName))
 
-  private def saveError(fileName: String, range: TextRange, message: String): Unit =
-    errorMessages.update(fileName, foundErrors(fileName) :+ (range, message))
+  private def saveError(fileError: FileErrorDescriptor): Unit = {
+    errorMessages.updateWith(fileError.fileName) { oldErrors =>
+      val newErrors = oldErrors.toSeq.flatten :+ fileError.error
+      Some(newErrors)
+    }
+  }
 
   def filesWithProblems: Map[String, Set[TextRange]]
 
@@ -44,13 +48,17 @@ trait ProgressReporter {
       case set                => RangeSet(set)
     }.getOrElse(NoErrors)
 
-  def showError(fileName: String, range: TextRange, message: String): Unit
+  def showError(error: FileErrorDescriptor): Unit
+
+  final def reportError(fileError: FileErrorDescriptor): Unit = {
+    saveError(fileError)
+    if (!knownErrors(fileError.fileName).containsRange(fileError.error.range)) {
+      showError(fileError)
+    }
+  }
 
   final def reportError(fileName: String, range: TextRange, message: String): Unit = {
-    saveError(fileName, range, message)
-    if (!knownErrors(fileName).contains(range)) {
-      showError(fileName, range, message)
-    }
+    reportError(FileErrorDescriptor(fileName, ErrorDescriptor(range, message)))
   }
 
   def notify(message: String): Unit
@@ -89,19 +97,22 @@ object ProgressReporter {
 }
 
 private sealed trait KnownErrors {
-  def contains(range: TextRange): Boolean
+  def containsRange(range: TextRange): Boolean
 }
 
 private object KnownErrors {
   case class RangeSet(errors: Set[TextRange]) extends KnownErrors {
-    override def contains(range: TextRange): Boolean = errors.contains(range)
+    override def containsRange(range: TextRange): Boolean = errors.contains(range)
   }
 
   case object TooManyErrors extends KnownErrors {
-    override def contains(range: TextRange): Boolean = true
+    override def containsRange(range: TextRange): Boolean = true
   }
 
   case object NoErrors extends KnownErrors {
-    override def contains(range: TextRange): Boolean = false
+    override def containsRange(range: TextRange): Boolean = false
   }
 }
+
+final case class ErrorDescriptor(range: TextRange, message: String)
+final case class FileErrorDescriptor(fileName: String, error: ErrorDescriptor)

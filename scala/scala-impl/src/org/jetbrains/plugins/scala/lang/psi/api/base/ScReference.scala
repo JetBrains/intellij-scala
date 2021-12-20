@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceE
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportExprUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
@@ -299,7 +299,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
       val refText =
         if (addImport) {
           val importHolder = ScImportsHolder(this)
-          val imported = importHolder.getAllImportUsed.exists {
+          val importUsed = importHolder.allImportExpressionsRecursive.flatMap(ImportUsed.buildAllFor(_).iterator)
+          val packageIsAlreadyImported = importUsed.exists {
             case ImportExprUsed(expr) => expr.reference.exists { ref =>
               ref.multiResolveScala(false).exists(rr => rr.getElement match {
                 case p: ScPackage => p.getQualifiedName == qualifiedName
@@ -309,7 +310,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             }
             case _ => false
           }
-          if (!imported) importHolder.addImportForPath(qualifiedName, ref = this)
+          if (!packageIsAlreadyImported)
+            importHolder.addImportForPath(qualifiedName, ref = this)
           pckg.getName
         } else qualifiedName
       this match {

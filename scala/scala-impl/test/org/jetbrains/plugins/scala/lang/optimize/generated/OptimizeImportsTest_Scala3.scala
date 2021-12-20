@@ -22,8 +22,7 @@ class OptimizeImportsTest_Scala3 extends OptimizeImportsTestBase {
         |object AWrapper {
         |  val b = new A
         |  export b.*
-        |}
-        |""".stripMargin
+        |}""".stripMargin
     )
   }
 

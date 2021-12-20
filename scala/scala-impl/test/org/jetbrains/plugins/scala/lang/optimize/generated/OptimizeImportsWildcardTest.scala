@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 
-/**
-  * @author Nikolay.Tropin
-  */
-class OptimizeImportsWildcardTest extends OptimizeImportsTestBase {
+abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
 
   override def folderPath: String = super.folderPath + "wildcard/"
 
@@ -26,4 +24,253 @@ class OptimizeImportsWildcardTest extends OptimizeImportsTestBase {
   def testShadowAndSelectors(): Unit = doTest()
 
   def testMergeIntoWildcard(): Unit = doTest()
+
+  protected def addCommonDeclarationsWithNameClashes(): Unit = {
+    getFixture.addFileToProject("org/example/declaration/all.scala",
+      """package org.example.declaration.data
+        |
+        |class Random    // clashes with scala.util.Random
+        |class Option[T] // clashes with scala.Option
+        |class X
+        |""".stripMargin
+    )
+  }
+
+  protected val CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage =
+    """package org.example.declaration.data
+      |
+      |import org.example.declaration.data.Random
+      |import org.example.declaration.data.Option
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+  def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit
+
+  protected val CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1 =
+    """package org.example.declaration.data
+      |
+      |import org.example.declaration.data.{Random, Option}
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+  def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1(): Unit
+
+  protected val CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2 =
+    """package org.example.declaration.data
+      |
+      |import org.example.declaration.data.{Random, Option, _}
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+  def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2(): Unit
+
+  protected val CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_LocalImports =
+    """package org.example.declaration.data
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    import org.example.declaration.data.Random
+      |    import org.example.declaration.data.Option
+      |
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+  def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_LocalImports(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_LocalImports,
+      """package org.example.declaration.data
+        |
+        |import scala.util._
+        |
+        |//noinspection TypeAnnotation
+        |object UsageSameTargetPackage1 {
+        |
+        |  def main(args: Array[String]) = {
+        |    import org.example.declaration.data.Random
+        |
+        |    println(this.getClass)
+        |    println(classOf[Random])
+        |    println(classOf[Option[_]])
+        |    println(Properties.versionString)
+        |    println()
+        |  }
+        |}""".stripMargin
+    )
+  }
+
+  protected val CodeBefore_ClassName_NoNameClashes_LocalImports =
+    """package org.example.declaration.data
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    import org.example.declaration.data.Random
+      |    import org.example.declaration.data.Option
+      |
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+  def testClassName_NoNameClashes_LocalImports(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_NoNameClashes_LocalImports,
+      """package org.example.declaration.data
+        |
+        |//noinspection TypeAnnotation
+        |object UsageSameTargetPackage1 {
+        |
+        |  def main(args: Array[String]) = {
+        |
+        |    println(this.getClass)
+        |    println(classOf[Random])
+        |    println(classOf[Option[_]])
+        |    println(Properties.versionString)
+        |    println()
+        |  }
+        |}""".stripMargin
+    )
+  }
+}
+
+class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_12
+
+  private val CodeAfter_Common_212 =
+    """package org.example.declaration.data
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage,
+      CodeAfter_Common_212
+    )
+  }
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1,
+      CodeAfter_Common_212
+    )
+  }
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2,
+      CodeAfter_Common_212
+    )
+  }
+}
+
+class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+
+  private val CodeAfter_Common_213 =
+    """package org.example.declaration.data
+      |
+      |import org.example.declaration.data.Random
+      |
+      |import scala.util._
+      |
+      |//noinspection TypeAnnotation
+      |object UsageSameTargetPackage1 {
+      |
+      |  def main(args: Array[String]) = {
+      |    println(this.getClass)
+      |    println(classOf[Random])
+      |    println(classOf[Option[_]])
+      |    println(Properties.versionString)
+      |    println()
+      |  }
+      |}""".stripMargin
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage,
+      CodeAfter_Common_213
+    )
+  }
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1,
+      CodeAfter_Common_213
+    )
+  }
+
+  override def testClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2(): Unit = {
+    addCommonDeclarationsWithNameClashes()
+    doTest(
+      CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2,
+      CodeAfter_Common_213
+    )
+  }
 }
