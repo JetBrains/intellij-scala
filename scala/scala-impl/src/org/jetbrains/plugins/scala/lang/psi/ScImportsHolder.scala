@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiElementFactory, ScalaStubBasedElementImpl}
@@ -144,9 +143,6 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     }
     buffer.toVector
   }
-
-  def allImportExpressionsRecursive: Iterator[ScImportExpr] =
-    this.depthFirst().filterByType[ScImportExpr]
 
   def addImportForClass(clazz: PsiClass, @Nullable ref: ScReference, aliasName: Option[String] = None): Unit = {
     val isAlreadyAvailableInReferenceScope: Boolean = if (ref == null) false else {
@@ -631,17 +627,13 @@ object ScImportsHolder {
   private val PredefinedPackages = Set("scala.Predef", "scala")
   private def isPredefined(fqn: String) = PredefinedPackages.contains(fqn)
 
-  //TODO: do not use `apply` name here
-  // This methods semantics is different from what one might expect
-  // One would expect that this method returns closes import holder for some element
-  // But in reality it returns import holder to which a new import statement should be inserted
-  def apply(reference: PsiElement)
-           (implicit project: Project = reference.getProject): ScImportsHolder =
+  def forNewImportInsertion(place: PsiElement)
+                           (implicit project: Project = place.getProject): ScImportsHolder =
     if (ScalaCodeStyleSettings.getInstance(project).isAddImportMostCloseToReference)
-      getParentOfType(reference, classOf[ScImportsHolder])
+      getParentOfType(place, classOf[ScImportsHolder])
     else {
-      getParentOfType(reference, classOf[ScPackaging]) match {
-        case null => reference.getContainingFile match {
+      getParentOfType(place, classOf[ScPackaging]) match {
+        case null => place.getContainingFile match {
           case holder: ScImportsHolder => holder
           case file =>
             throw new AssertionError(s"Holder is wrong, file text: ${file.getText}")
@@ -649,6 +641,15 @@ object ScImportsHolder {
         case packaging: ScPackaging => packaging
       }
     }
+
+  //TODO: do not use `apply` name here
+  // This methods semantics is different from what one might expect
+  // One would expect that this method returns closest import holder for some element
+  // But in reality it returns import holder to which a new import statement should be inserted
+  // Use more descriptive name `forNewImport` instead
+  def apply(place: PsiElement)
+           (implicit project: Project = place.getProject): ScImportsHolder =
+    forNewImportInsertion(place)(project)
 
   /**
    * @param qualifiedName      for example `org.example.MyClass`

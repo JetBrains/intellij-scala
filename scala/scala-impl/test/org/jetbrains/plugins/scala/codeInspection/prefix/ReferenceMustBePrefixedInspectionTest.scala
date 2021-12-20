@@ -7,12 +7,10 @@ import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.Refer
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
 /**
-  * Nikolay.Tropin
-  * 2/25/14
-  */
+ * Nikolay.Tropin
+ * 2/25/14
+ */
 class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
-
-  import ReferenceMustBePrefixedInspection._
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ReferenceMustBePrefixedInspection]
@@ -56,7 +54,7 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
     text =
       s"""import scala.collection.mutable.Seq
          |
-       |object AAA {
+         |object AAA {
          |  val s = ${START}Seq$END(0, 1)
          |}
        """.stripMargin,
@@ -74,7 +72,7 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
     text =
       s"""import scala.collection.mutable.HashMap
          |
-       |object AAA {
+         |object AAA {
          |  Map(1 -> "a") match {
          |    case hm: ${START}HashMap$END =>
          |  }
@@ -159,6 +157,175 @@ class ReferenceMustBePrefixedInspectionTest extends ScalaQuickFixTestBase {
       |  val i: Inner = null
       |}
     """.stripMargin
+  )
+
+  //SCL-19812
+  def testImportExistsInInaccessibleScope(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |
+         |  def bar(): Unit = {
+         |    import scala.collection.mutable
+         |    val set2: mutable.Set[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable
+       |import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |
+       |  def bar(): Unit = {
+       |    import scala.collection.mutable
+       |    val set2: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
+  )
+
+  //SCL-19812
+  def testImportExistsInInaccessibleScope_InParentScopeButFurther(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |
+         |  import scala.collection.mutable
+         |
+         |  def bar(): Unit = {
+         |    import scala.collection.mutable
+         |    val set2: mutable.Set[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable
+       |import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |
+       |  import scala.collection.mutable
+       |
+       |  def bar(): Unit = {
+       |    import scala.collection.mutable
+       |    val set2: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
+  )
+
+  //SCL-19812
+  def testImportExistsInAccessibleScope_SimpleImport(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    import scala.collection.mutable
+         |
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    import scala.collection.mutable
+       |
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
+  )
+
+  //SCL-19812
+  def testImportExistsInAccessibleScope_SimpleImportInSelector(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    import scala.collection.{mutable}
+         |
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    import scala.collection.{mutable}
+       |
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
+  )
+
+  //SCL-19812
+  def testImportExistsInAccessibleScope_SimpleImportInSelector_1(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    import scala.collection.{mutable, immutable}
+         |
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    import scala.collection.{mutable, immutable}
+       |
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
+  )
+
+  //SCL-19812
+  def testImportExistsInAccessibleScope_SimpleImportInRenamedSelector(): Unit = testQuickFix(
+    text =
+      s"""import scala.collection.mutable.Set
+         |
+         |object AAA {
+         |  def foo(): Unit = {
+         |    import scala.collection.{mutable => WATAFA, immutable}
+         |
+         |    val set1: ${START}Set$END[_] = null
+         |  }
+         |}
+         |""".stripMargin ,
+    s"""import scala.collection.mutable
+       |import scala.collection.mutable.Set
+       |
+       |object AAA {
+       |  def foo(): Unit = {
+       |    import scala.collection.{mutable => WATAFA, immutable}
+       |
+       |    val set1: mutable.Set[_] = null
+       |  }
+       |}
+       |""".stripMargin ,
   )
 
   private def testQuickFix(text: String, expected: String): Unit = {

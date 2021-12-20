@@ -56,8 +56,8 @@ object RedundantImportUtils {
 
       if (isImportFromAvailableQualifier) {
         val importsUsed = ImportUsed.buildAllFor(importExpr).filter {
-          case selUsed: ImportSelectorUsed =>
-            selUsed.sel.aliasName.isEmpty
+          case ImportSelectorUsed(sel) =>
+            sel.aliasName.isEmpty
           case _ => true
         }
         result ++= importsUsed
@@ -82,15 +82,14 @@ object RedundantImportUtils {
    */
   def isActuallyRedundant(importUsed: ImportUsed, project: Project, isScala3: Boolean): Boolean = {
     val singleName = importUsed match {
-      case used: ImportExprUsed =>
-        val expr = used.e
+      case ImportExprUsed(expr) =>
         if (expr.selectors.isEmpty && !expr.hasWildcardSelector)
           expr.reference.map(_.refName)
         else
           None
-      case used: ImportSelectorUsed =>
-        used.sel.importedName
-      case _: ImportWildcardSelectorUsed =>
+      case ImportSelectorUsed(selector) =>
+        selector.importedName
+      case _ =>
         None
     }
 

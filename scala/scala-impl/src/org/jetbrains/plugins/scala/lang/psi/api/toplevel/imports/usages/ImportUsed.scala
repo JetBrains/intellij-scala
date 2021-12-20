@@ -89,7 +89,7 @@ object ImportUsed {
  * Class to mark whole import expression as used (qualified or ending with reference id)
  */
 class ImportExprUsed(
-  val e: ScImportExpr,
+  e: ScImportExpr,
 ) extends ImportUsed(e) {
   override def importExpr: Option[ScImportExpr] = element.asOptionOf[ScImportExpr]
 
@@ -135,7 +135,7 @@ object ImportExprUsed {
  *
  */
 class ImportSelectorUsed(
-  val sel: ScImportSelector,
+  sel: ScImportSelector,
 ) extends ImportUsed(sel) {
 
   override def importExpr: Option[ScImportExpr] =

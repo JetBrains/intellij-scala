@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package base
+package org.jetbrains.plugins.scala.lang.psi.api.base
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
@@ -13,19 +9,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceP
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaElementVisitor, ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createIdentifier, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
+import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.{isIdentifier, isKeyword}
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
-
-/**
- * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- */
 
 trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
   override def getReference: ScReference = this
@@ -281,7 +274,8 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
             }
           }
           if (isOk) {
-            ScImportsHolder(this).addImportForPath(packagePart, this)
+            val holder = ScImportsHolder.forNewImportInsertion(this)
+            holder.addImportForPath(packagePart, this)
             val ref = referenceCreator(toReplace, false)
             return this.replace(ref)
           }
@@ -295,25 +289,15 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
 
   def bindToPackage(pckg: PsiPackage, addImport: Boolean = false): PsiElement = {
     val qualifiedName = pckg.getQualifiedName
-    extensions.inWriteAction {
-      val refText =
-        if (addImport) {
-          val importHolder = ScImportsHolder(this)
-          val importUsed = importHolder.allImportExpressionsRecursive.flatMap(ImportUsed.buildAllFor(_).iterator)
-          val packageIsAlreadyImported = importUsed.exists {
-            case ImportExprUsed(expr) => expr.reference.exists { ref =>
-              ref.multiResolveScala(false).exists(rr => rr.getElement match {
-                case p: ScPackage => p.getQualifiedName == qualifiedName
-                case p: PsiPackage => p.getQualifiedName == qualifiedName
-                case _ => false
-              })
-            }
-            case _ => false
-          }
-          if (!packageIsAlreadyImported)
-            importHolder.addImportForPath(qualifiedName, ref = this)
-          pckg.getName
-        } else qualifiedName
+    inWriteAction {
+      if (addImport) {
+        if (!isPackageAlreadyImported(qualifiedName)) {
+          val holder = ScImportsHolder.forNewImportInsertion(this)
+          holder.addImportForPath(qualifiedName, ref = this)
+        }
+      }
+
+      val refText = if (addImport) pckg.getName else qualifiedName
       this match {
         case stRef: ScStableCodeReference =>
           stRef.replace(createReferenceFromText(refText))
@@ -324,6 +308,36 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
     }
   }
 
+  private def isPackageAlreadyImported(packageFqn: String): Boolean = {
+    val refStartOffset = this.startOffset
+    //using option only for easier debugging
+    val alreadyImportedPackage: Option[ScImportExpr] =
+      (for {
+        importHolder <- this.withParentsInFile.filterByType[ScImportsHolder]
+        importStmt   <- importHolder.getImportStatements.iterator.takeWhile(_.startOffset < refStartOffset)
+        importExpr   <- importStmt.importExprs.iterator
+        importUsed   <- ImportUsed.buildAllFor(importExpr).iterator
+        if isImportOfPackage(importUsed, packageFqn)
+      } yield importExpr).headOption
+    alreadyImportedPackage.isDefined
+  }
+
+  private def isImportOfPackage(importUsed: ImportUsed, packageFqn: String): Boolean = {
+    val refOpt: Option[ScStableCodeReference] = importUsed match {
+      case ImportExprUsed(expr)                            => expr.reference
+      case ImportSelectorUsed(sel) if !sel.isAliasedImport => sel.reference
+      case _ => None
+    }
+
+    refOpt.exists { ref =>
+      val resolveResult = ref.multiResolveScala(false)
+      resolveResult.exists(rr => rr.getElement match {
+        case p: ScPackage => p.getQualifiedName == packageFqn
+        case p: PsiPackage => p.getQualifiedName == packageFqn
+        case _ => false
+      })
+    }
+  }
 }
 
 object ScReference {
