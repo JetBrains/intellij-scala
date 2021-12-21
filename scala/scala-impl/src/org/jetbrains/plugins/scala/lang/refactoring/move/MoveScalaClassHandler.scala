@@ -1,19 +1,19 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package move
+package org.jetbrains.plugins.scala.lang.refactoring.move
 
-import java.{util => ju}
-
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiDocumentManager, PsiElement, PsiFile}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassHandler
 import com.intellij.usageView.UsageInfo
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.refactoring.Associations
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaNamesUtil}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 final class MoveScalaClassHandler extends MoveClassHandler {
@@ -31,11 +31,12 @@ final class MoveScalaClassHandler extends MoveClassHandler {
     case scalaFile: ScalaFile =>
       restoreAssociations(clazz)
       val documentManager = PsiDocumentManager.getInstance(scalaFile.getProject)
-      documentManager.getDocument(scalaFile) match {
-        case null =>
-        case document =>
-          documentManager.doPostponedOperationsAndUnblockDocument(document)
-          new ScalaImportOptimizer().processFile(scalaFile).run()
+      val document = documentManager.getDocument(scalaFile)
+      if (document != null) {
+        documentManager.doPostponedOperationsAndUnblockDocument(document)
+        val indicator = ProgressManager.getInstance.getProgressIndicator
+        val optimizer = new ScalaImportOptimizer()
+        optimizer.processFile(scalaFile, indicator).run()
       }
     case _ =>
   }
@@ -56,14 +57,14 @@ final class MoveScalaClassHandler extends MoveClassHandler {
               fileWithClassName.add _
             case _ =>
               //create new file with template
-              import actions.ScalaFileTemplateUtil._
+              import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil._
               val template: String = definition match {
                 case _: ScClass => SCALA_CLASS
                 case _: ScTrait => SCALA_TRAIT
                 case _: ScObject => SCALA_OBJECT
               }
 
-              val created = util.ScalaDirectoryService.createClassFromTemplate(directory, definition.name, template, askToDefineVariables = false)
+              val created = ScalaDirectoryService.createClassFromTemplate(directory, definition.name, template, askToDefineVariables = false)
               if (definition.getDocComment == null) {
                 created.getDocComment match {
                   case null =>
@@ -118,7 +119,7 @@ object MoveScalaClassHandler {
 
   private def classCanBeAdded(file: PsiFile, clazz: PsiClass): Boolean = {
     val allClasses = PsiTreeUtil.findChildrenOfType(file, classOf[ScTypeDefinition])
-    val className = util.ScalaNamesUtil.scalaName(clazz)
+    val className = ScalaNamesUtil.scalaName(clazz)
     val withSameName = allClasses.asScala.filter {
       _.name == className
     }.toList

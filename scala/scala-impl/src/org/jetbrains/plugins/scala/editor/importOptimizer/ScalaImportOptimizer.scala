@@ -86,8 +86,9 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       else if (progressManager.hasProgressIndicator) progressManager.getProgressIndicator
       else null
 
-    if (indicator != null)
+    if (indicator != null) {
       indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.name))
+    }
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
@@ -98,8 +99,9 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       }
       JobLauncher.getInstance().invokeConcurrentlyUnderProgress(elements, indicator, true, false, (element: T) => {
         val count: Int = counter.getAndIncrement
-        if (count <= size && indicator != null)
+        if (count <= size && indicator != null) {
           indicator.setFraction(count.toDouble / size)
+        }
 
         action(element)
 
@@ -111,8 +113,9 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
-    if (indicator != null)
+    if (indicator != null) {
       indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
+    }
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[RangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()
@@ -140,7 +143,19 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val rangeInfos = collectRanges(ImportInfo.createInfos(_, isImportUsed))
 
-    val optimized = rangeInfos.map(range => (range, optimizedImportInfos(range, importsSettings)))
+
+    if (indicator != null) {
+      indicator.setText2(ScalaEditorBundle.message("imports.optimizing", file.name))
+    }
+
+    val rangeInfosTotal = rangeInfos.size
+    val optimized = rangeInfos.zipWithIndex.map { case (range, idx) =>
+      if (indicator != null) {
+        indicator.setFraction(idx.toDouble / rangeInfosTotal)
+      }
+
+      (range, optimizedImportInfos(range, importsSettings))
+    }
 
     new Runnable {
       override def run(): Unit = {
