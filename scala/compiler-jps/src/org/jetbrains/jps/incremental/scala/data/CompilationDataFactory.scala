@@ -61,7 +61,7 @@ object CompilationDataFactory
       val preferredEncoding: Option[String] =
         Option(context.getProjectDescriptor.getEncodingConfiguration.getPreferredModuleChunkEncoding(chunk))
 
-      def ensureEncodingIsExplicitelySet(compilerOptions: Seq[String]): Seq[String] = {
+      def ensureEncodingIsExplicitlySet(compilerOptions: Seq[String]): Seq[String] = {
         val EncodingOptionKey = "-encoding"
         if (compilerOptions.contains(EncodingOptionKey))
           compilerOptions
@@ -85,8 +85,8 @@ object CompilationDataFactory
         sources = canonicalSources,
         classpath = classpath.toSeq,
         output = output,
-        scalaOptions = ensureEncodingIsExplicitelySet(scalaOptions),
-        javaOptions = ensureEncodingIsExplicitelySet(javaOptions),
+        scalaOptions = ensureEncodingIsExplicitlySet(scalaOptions),
+        javaOptions = ensureEncodingIsExplicitlySet(javaOptions),
         order = order,
         cacheFile = cacheFile,
         outputToCacheMap = relevantOutputToCacheMap,
