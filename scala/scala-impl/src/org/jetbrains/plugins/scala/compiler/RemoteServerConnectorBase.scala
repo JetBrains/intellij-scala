@@ -35,7 +35,8 @@ abstract class RemoteServerConnectorBase(
     fileToCompile.flatMap(_.getAbsoluteFile.getParentFile.toOption)
   }
 
-  protected def scalaParameters: Seq[String] = compilerSettings.toOptions ++ additionalScalaParameters
+  protected def scalaParameters: Seq[String] =
+    compilerSettings.getOptionsAsStrings(module.hasScala3)
 
   private val javaParameters = Seq.empty[String]
 
@@ -48,8 +49,6 @@ abstract class RemoteServerConnectorBase(
       ScalaPluginJars.runnersJar :+
       ScalaPluginJars.compilerSharedJar :+
       outputDir
-
-  protected def additionalScalaParameters: Seq[String] = Seq.empty
 
   protected def worksheetArgs: Option[WorksheetArgs] = None
 

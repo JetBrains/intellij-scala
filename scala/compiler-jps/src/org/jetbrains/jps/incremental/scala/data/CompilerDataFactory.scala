@@ -113,15 +113,13 @@ object CompilerDataFactory
     }
 
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
-    val configuredOptions = compilerSettings.getCompilerOptions
     val modules = chunk.getModules.asScala.toSet
     val hasScala3 = CompilerDataFactory.hasScala3(modules)
+    val configuredOptions = compilerSettings.getCompilerOptionsAsStrings(hasScala3)
 
-    bootClasspathOptions(hasOldScala(modules)) ++
-      semanticDbOptionsFor(configuredOptions.toIndexedSeq, chunk) ++
-      //TODO: SCL-16881
-      // move this filtering to a proper place, it shouldn't appear in options for scala3 in a first place
-      configuredOptions.filterNot(_.startsWith("-g:") && hasScala3)
+    val bootOptions = bootClasspathOptions(hasOldScala(modules))
+    val semanticDBOptions = semanticDbOptionsFor(configuredOptions.toIndexedSeq, chunk)
+    bootOptions ++ semanticDBOptions ++ configuredOptions
   }
 
   private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =

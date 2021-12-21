@@ -11,5 +11,5 @@ public interface CompilerSettings {
 
   SbtIncrementalOptions getSbtIncrementalOptions();
 
-  String[] getCompilerOptionsAsStrings();
+  String[] getCompilerOptionsAsStrings(boolean forScala3Compiler);
 }

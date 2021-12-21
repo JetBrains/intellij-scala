@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
  * @author Pavel Fatin
- * @see org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
- * @see org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl
+ * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
+ * @see [[org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl]]
  */
 case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  nameHashing: Boolean,
@@ -36,24 +36,23 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  additionalCompilerOptions: Seq[String],
                                  plugins: Seq[String]) {
 
-  import ScalaCompilerSettings.{DebuggingOptions, ToggleOptions}
+  import ScalaCompilerSettings.{DebuggingInfoLevelToScalacOption, ToggleOptions}
 
   def sbtIncOptions: SbtIncrementalOptions =
     SbtIncrementalOptions(nameHashing, recompileOnMacroDef, transitiveStep, recompileAllFraction)
 
-  def toOptions: Seq[String] = {
-    val debuggingLevelToOption = DebuggingOptions.map(_.swap)
-
+  //TODO: SCL-16881 Support "Debugging info level" for dotty
+  def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {
     val state = toState
     val toggledOptions = ToggleOptions.collect {
       case (option, getter, _) if getter(state) => option
     }
 
-    val debuggingLevelOption = debuggingLevelToOption(debuggingInfoLevel)
+    val debuggingLevelOption = if (!forScala3Compiler) DebuggingInfoLevelToScalacOption.get(debuggingInfoLevel) else None
 
     val pluginOptions = plugins.map(path => "-Xplugin:" + path)
 
-    (toggledOptions :+ debuggingLevelOption) ++ pluginOptions ++ additionalCompilerOptions
+    toggledOptions ++ debuggingLevelOption ++ pluginOptions ++ additionalCompilerOptions
   }
 
   def toState: ScalaCompilerSettingsState = {
@@ -189,6 +188,9 @@ object ScalaCompilerSettings {
     "-g:vars" -> DebuggingInfoLevel.Vars,
     "-g:notailcalls" -> DebuggingInfoLevel.Notailcalls
   )
+
+  private val DebuggingInfoLevelToScalacOption =
+    DebuggingOptions.map(_.swap)
 
   private val PluginOptionPattern = "-Xplugin:(.+)".r
 }

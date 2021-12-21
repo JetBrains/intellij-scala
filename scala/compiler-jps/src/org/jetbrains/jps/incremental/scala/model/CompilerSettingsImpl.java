@@ -103,21 +103,24 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-Xexperimental");
     }
 
-    switch (myState.debuggingInfoLevel) {
-      case None:
-        list.add("-g:none");
-        break;
-      case Source:
-        list.add("-g:source");
-        break;
-      case Line:
-        list.add("-g:line");
-        break;
-      case Vars:
-        list.add("-g:vars");
-        break;
-      case Notailcalls:
-        list.add("-g:notailcalls");
+    //TODO: SCL-16881 Support "Debugging info level" for dotty
+    if (!forScala3Compiler) {
+      switch (myState.debuggingInfoLevel) {
+        case None:
+          list.add("-g:none");
+          break;
+        case Source:
+          list.add("-g:source");
+          break;
+        case Line:
+          list.add("-g:line");
+          break;
+        case Vars:
+          list.add("-g:vars");
+          break;
+        case Notailcalls:
+          list.add("-g:notailcalls");
+      }
     }
 
     for (String pluginPath : myState.plugins) {
