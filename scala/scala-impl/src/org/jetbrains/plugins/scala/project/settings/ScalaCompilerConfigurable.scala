@@ -7,8 +7,10 @@ import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.options.Configurable.Composite
 import com.intellij.openapi.project.Project
-import javax.swing.JPanel
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+
+import javax.swing.JPanel
 
 class ScalaCompilerConfigurable(project: Project)
   extends AbstractConfigurable(ScalaCompilerConfigurable.Name)

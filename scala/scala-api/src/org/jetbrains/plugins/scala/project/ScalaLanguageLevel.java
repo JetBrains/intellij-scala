@@ -11,7 +11,7 @@ import scala.math.Ordered;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
+public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel> {
 
     Scala_2_9("2.9"),
     Scala_2_10("2.10"),
@@ -47,31 +47,22 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     @NotNull
     private final String myVersion;
     @NotNull
-    private final String myName;
-    @NotNull
     private final String myPattern;
 
     public static final Key<ScalaLanguageLevel> KEY = Key.create("SCALA_LANGUAGE_LEVEL");
 
     ScalaLanguageLevel(@NotNull String version) {
-        this(version, version, Pattern.quote(version) + ".*");
+        this(version, Pattern.quote(version) + ".*");
     }
 
-    ScalaLanguageLevel(@NotNull String version, @NotNull String name, @NotNull String pattern) {
+    ScalaLanguageLevel(@NotNull String version, @NotNull String pattern) {
         myVersion = version;
-        myName = name;
         myPattern = pattern;
     }
 
     @NotNull
     public String getVersion() {
         return myVersion;
-    }
-
-    @NotNull
-    @Override
-    public String getName() {
-        return myName;
     }
 
     @Override

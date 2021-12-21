@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings;
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.ui.IdeBorderFactory;
@@ -8,10 +9,12 @@ import com.intellij.ui.RawCommandLineEditor;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.jetbrains.plugins.scala.project.CompileOrder;
-import org.jetbrains.plugins.scala.project.DebuggingInfoLevel;
+import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder;
+import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel;
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState;
 import org.jetbrains.plugins.scala.project.MyPathEditor;
-import org.jetbrains.plugins.scala.project.NamedValueRenderer;
+import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,14 +29,14 @@ public class ScalaCompilerSettingsPanel {
     private JPanel myContentPanel;
     private JPanel myPluginsPanel;
     private RawCommandLineEditor myAdditionalCompilerOptions;
-    private JComboBox myDebuggingInfoLevel;
+    private JComboBox<DebuggingInfoLevel> myDebuggingInfoLevel;
     private JCheckBox myWarnings;
     private JCheckBox myDeprecationWarnings;
     private JCheckBox myUncheckedWarnings;
     private JCheckBox myOptimiseBytecode;
     private JCheckBox myExplainTypeErrors;
     private JCheckBox myContinuations;
-    private JComboBox myCompileOrder;
+    private JComboBox<CompileOrder> myCompileOrder;
     private JCheckBox myDynamics;
     private JCheckBox myPostfixOps;
     private JCheckBox myReflectiveCalls;
@@ -50,14 +53,24 @@ public class ScalaCompilerSettingsPanel {
     private int myTransitiveStep;
     private double myRecompileAllFraction;
 
-    private MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
+    private final MyPathEditor myPluginsEditor = new MyPathEditor(new FileChooserDescriptor(true, false, true, true, false, true));
 
     public ScalaCompilerSettingsPanel() {
-        myCompileOrder.setRenderer(new NamedValueRenderer());
-        myCompileOrder.setModel(new DefaultComboBoxModel(CompileOrder.values()));
+        myCompileOrder.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(CompileOrder.Mixed, ScalaBundle.message("compile.order.mixed")),
+                Pair.create(CompileOrder.JavaThenScala, ScalaBundle.message("compile.order.java.then.scala")),
+                Pair.create(CompileOrder.ScalaThenJava, ScalaBundle.message("compile.order.scala.then.java"))
+        ));
+        myCompileOrder.setModel(new DefaultComboBoxModel<>(CompileOrder.values()));
 
-        myDebuggingInfoLevel.setRenderer(new NamedValueRenderer());
-        myDebuggingInfoLevel.setModel(new DefaultComboBoxModel(DebuggingInfoLevel.values()));
+        myDebuggingInfoLevel.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(DebuggingInfoLevel.None, ScalaBundle.message("debug.info.level.none")),
+                Pair.create(DebuggingInfoLevel.Source, ScalaBundle.message("debug.info.level.source")),
+                Pair.create(DebuggingInfoLevel.Line, ScalaBundle.message("debug.info.level.source.and.line.number")),
+                Pair.create(DebuggingInfoLevel.Vars, ScalaBundle.message("debug.info.level.source.line.number.and.local.variable")),
+                Pair.create(DebuggingInfoLevel.Notailcalls, ScalaBundle.message("debug.info.level.complete.no.tail.call.optimization"))
+        ));
+        myDebuggingInfoLevel.setModel(new DefaultComboBoxModel<>(DebuggingInfoLevel.values()));
 
         myPluginsPanel.setBorder(IdeBorderFactory.createBorder());
         myPluginsPanel.add(myPluginsEditor.createComponent(), BorderLayout.CENTER);

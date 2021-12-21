@@ -1,25 +1,24 @@
 package org.jetbrains.bsp.protocol.session
 
+import ch.epfl.scala.bsp4j
+import ch.epfl.scala.bsp4j.{BuildServerCapabilities, InitializeBuildResult}
+import com.intellij.notification.NotificationType
+import com.intellij.openapi.application.PathManager
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.util.concurrency.AppExecutorUtil
+import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
+import org.jetbrains.bsp._
+import org.jetbrains.bsp.protocol.BspNotifications._
+import org.jetbrains.bsp.protocol.session.BspSession._
+import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
+import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
+
 import java.io._
 import java.lang.reflect.{InvocationHandler, Method}
 import java.nio.file.{Files, Paths}
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.{Callable, CompletableFuture, LinkedBlockingQueue, TimeUnit}
-
-import ch.epfl.scala.bsp4j
-import ch.epfl.scala.bsp4j.BuildServerCapabilities
-import com.intellij.notification.NotificationType
-import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.diagnostic.Logger
-import com.intellij.util.concurrency.AppExecutorUtil
-import org.eclipse.lsp4j.jsonrpc.{Launcher, ResponseErrorException}
-import org.jetbrains.bsp.{BspBundle, _}
-import org.jetbrains.bsp.protocol.BspNotifications._
-import org.jetbrains.bsp.protocol.session.BspSession._
-import org.jetbrains.bsp.protocol.session.jobs.BspSessionJob
-import org.jetbrains.bsp.protocol.{BspCommunication, BspJob}
-
 import scala.annotation.tailrec
 import scala.concurrent._
 import scala.concurrent.duration._
@@ -47,22 +46,22 @@ class BspSession private(bspIn: InputStream,
   private var lastActivity: Long = lastProcessOutput
 
   private val serverConnection: ServerConnection = startServerConnection
-  private val sessionInitialized = initializeSession
-  private val sessionShutdown = Promise[Unit]()
+  private val sessionInitialized: CompletableFuture[InitializeBuildResult] = initializeSession
+  private val sessionShutdown: Promise[Unit] = Promise[Unit]()
 
   private val queuePause = 10.millis
   private val queueTimeout = 1.second
   private val sessionTimeout = 20.seconds
 
   private val queueProcessor = AppExecutorUtil.getAppScheduledExecutorService
-      .scheduleWithFixedDelay(() => nextQueuedCommand, queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
+    .scheduleWithFixedDelay(() => nextQueuedCommand(), queuePause.toMillis, queuePause.toMillis, TimeUnit.MILLISECONDS)
 
   private def notifications(notification: BspNotification): Unit =
     notificationCallbacks.foreach(_.apply(notification))
 
-  private def nextQueuedCommand= {
+  private def nextQueuedCommand(): Unit = {
     val initResult = try {
-      Try(waitForSession(sessionTimeout))
+      Success(waitForSessionInitialized(sessionTimeout))
     } catch {
       case to : TimeoutException =>
         val error = BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
@@ -170,6 +169,7 @@ class BspSession private(bspIn: InputStream,
       Cancelable.cancelAll(
         List(
           Cancelable(() => bspIn.close()),
+          Cancelable(() => bspErr.close()),
           Cancelable(() => bspOut.close()),
           Cancelable(() => listening.cancel(true)),
           Cancelable(() => messageHandlerRunning.cancel(true)),
@@ -226,7 +226,7 @@ class BspSession private(bspIn: InputStream,
   }
 
   @tailrec
-  private def waitForSession(timeout: Duration): bsp4j.InitializeBuildResult = try {
+  private def waitForSessionInitialized(timeout: Duration): bsp4j.InitializeBuildResult = try {
     sessionInitialized.get(timeout.toMillis, TimeUnit.MILLISECONDS)
   } catch {
     case to: TimeoutException =>
@@ -235,7 +235,7 @@ class BspSession private(bspIn: InputStream,
       if (waited > timeout.toMillis)
         throw BspConnectionError(BspBundle.message("bsp.protocol.bsp.server.is.not.responding"), to)
       else
-        waitForSession(timeout)
+        waitForSessionInitialized(timeout)
   }
 
   /** Run a task with client in this session.

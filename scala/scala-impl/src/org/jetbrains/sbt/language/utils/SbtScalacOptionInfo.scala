@@ -56,7 +56,7 @@ object SbtScalacOptionInfo {
 
   implicit object ScalaLanguageLevelJsonFormat extends JsonFormat[ScalaLanguageLevel] {
     def write(level: ScalaLanguageLevel): JsValue =
-      JsString(level.getName)
+      JsString(level.getVersion)
 
     def read(value: JsValue): ScalaLanguageLevel = value match {
       case JsString(version) =>

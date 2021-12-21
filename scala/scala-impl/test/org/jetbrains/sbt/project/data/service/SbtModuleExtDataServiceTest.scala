@@ -9,11 +9,10 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
+import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.junit.Assert._
 

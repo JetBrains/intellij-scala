@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.project.settings
 
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
+
 import java.util.concurrent.atomic.AtomicReference
 
 /**

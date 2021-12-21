@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.compiler.data
 
 import java.io.File
 
-import org.jetbrains.plugins.scala.compiler.CompileOrder
-
-/**
- * @author Pavel Fatin
- */
 case class CompilationData(sources: Seq[File],
                            classpath: Seq[File],
                            output: File,

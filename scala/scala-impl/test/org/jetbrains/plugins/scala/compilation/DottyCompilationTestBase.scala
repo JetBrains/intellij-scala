@@ -7,12 +7,13 @@ import com.intellij.testFramework.CompilerTester
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
+import org.jetbrains.plugins.scala.project.{LibraryExt, ModuleExt}
 import org.jetbrains.plugins.scala.{FlakyTests, LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
 

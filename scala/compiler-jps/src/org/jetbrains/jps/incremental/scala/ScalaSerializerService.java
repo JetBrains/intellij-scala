@@ -12,7 +12,8 @@ import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;
 import org.jetbrains.jps.model.serialization.JpsModelSerializerExtension;
 import org.jetbrains.jps.model.serialization.JpsProjectExtensionSerializer;
 import org.jetbrains.jps.model.serialization.library.JpsLibraryPropertiesSerializer;
-import org.jetbrains.plugins.scala.compiler.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState;
 
 import java.util.*;
 
@@ -94,8 +95,8 @@ public class ScalaSerializerService extends JpsModelSerializerExtension {
     }
 
     private static CompilerSettingsImpl loadSettings(Element componentTag) {
-      CompilerSettingsImpl.State state = XmlSerializer.deserialize(componentTag, CompilerSettingsImpl.State.class);
-      return new CompilerSettingsImpl(state == null ? new CompilerSettingsImpl.State() : state);
+      ScalaCompilerSettingsState state = XmlSerializer.deserialize(componentTag, ScalaCompilerSettingsState.class);
+      return new CompilerSettingsImpl(state);
     }
   }
 

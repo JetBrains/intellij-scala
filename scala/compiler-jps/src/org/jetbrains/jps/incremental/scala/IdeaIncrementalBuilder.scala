@@ -1,18 +1,19 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
+import org.jetbrains.jps.incremental.{java => _, scala => _, _}
 import org.jetbrains.jps.incremental.fs.CompilationRound
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage, ProgressMessage}
-import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, FSOperations, ModuleBuildTarget, ModuleLevelBuilder}
-import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, IncrementalityType}
 
+import java.io.File
+import java.{util => ju}
 import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
   * Nikolay.Tropin
@@ -95,20 +96,23 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     }
   }
 
-  override def getCompilableFileExtensions: java.util.List[String] =
-    java.util.Arrays.asList("scala", "java")
+  override def getCompilableFileExtensions: ju.List[String] =
+    ju.Arrays.asList("scala", "java")
 
   private def isDisabled(context: CompileContext, chunk: ModuleChunk): Boolean = {
     val settings = ScalaBuilder.projectSettings(context)
 
     def wrongIncrType = settings.getIncrementalityType != IncrementalityType.IDEA
 
-    def wrongCompileOrder = {
-      import org.jetbrains.plugins.scala.compiler.CompileOrder._
-      settings.getCompilerSettings(chunk).getCompileOrder match {
-        case JavaThenScala => getCategory == BuilderCategory.SOURCE_PROCESSOR
-        case ScalaThenJava | Mixed => getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
-        case _ => false
+    def wrongCompileOrder: Boolean = {
+      val compilerOrder = settings.getCompilerSettings(chunk).getCompileOrder
+      compilerOrder match {
+        case CompileOrder.JavaThenScala =>
+          getCategory == BuilderCategory.SOURCE_PROCESSOR
+        case CompileOrder.ScalaThenJava | CompileOrder.Mixed =>
+          getCategory == BuilderCategory.OVERWRITING_TRANSLATOR
+        case _ =>
+          false
       }
     }
     wrongIncrType || wrongCompileOrder

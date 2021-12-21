@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions
-import org.jetbrains.plugins.scala.project.{CompileOrder, DebuggingInfoLevel}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, SbtIncrementalOptions, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
  * @author Pavel Fatin
+ * @see org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
+ * @see org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl
  */
 case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  nameHashing: Boolean,
@@ -32,7 +33,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  debuggingInfoLevel: DebuggingInfoLevel,
                                  // single field for dotty & scala3 artifacts,
                                  // assuming only one can be used in a module at a time
-                                 scala3BridgePath: String,
                                  additionalCompilerOptions: Seq[String],
                                  plugins: Seq[String]) {
 
@@ -81,7 +81,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
     state.specialization = specialization
     state.continuations = continuations
     state.debuggingInfoLevel = debuggingInfoLevel
-    state.scala3SbtBridgePath = scala3BridgePath
     state.additionalCompilerOptions = additionalCompilerOptions.toArray
     state.plugins = plugins.toArray
     state
@@ -117,7 +116,6 @@ object ScalaCompilerSettings {
       specialization = state.specialization,
       continuations = state.continuations,
       debuggingInfoLevel = state.debuggingInfoLevel,
-      scala3BridgePath = state.scala3SbtBridgePath,
       additionalCompilerOptions = state.additionalCompilerOptions.toSeq,
       plugins = state.plugins.toSeq
     )

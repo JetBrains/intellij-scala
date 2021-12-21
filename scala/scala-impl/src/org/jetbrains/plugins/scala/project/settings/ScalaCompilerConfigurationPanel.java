@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.project.settings;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Pair;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
-import org.jetbrains.plugins.scala.project.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
+import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +25,10 @@ public class ScalaCompilerConfigurationPanel {
     private JPanel myProfilesPanelHolder;
 
     public ScalaCompilerConfigurationPanel(Project project) {
-        myIncrementalityType.setRenderer(new IncrementalityTypeRenderer());
+        myIncrementalityType.setRenderer(SimpleMappingListCellRenderer.create(
+                Pair.create(IncrementalityType.IDEA, "IDEA"),
+                Pair.create(IncrementalityType.SBT, "Zinc")
+        ));
         myIncrementalityType.setModel(new DefaultComboBoxModel<>(IncrementalityType.values()));
 
         myProfilesPanel = new ScalaCompilerProfilesPanel(project);

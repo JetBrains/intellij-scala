@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import java.io.File
-import java.util.{List => JList}
-
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.compiler._
@@ -17,17 +14,20 @@ import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.{ListCompilerMessageExt, markCompileServerThreadsLongRunning}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{IncrementalityType, ProjectExt}
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert
 import org.junit.Assert._
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.util.{List => JList}
 import scala.concurrent.duration
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 /**

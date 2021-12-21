@@ -1,19 +1,18 @@
-package org.jetbrains.jps
-package incremental
-package scala
-
-import _root_.java.io._
-import _root_.java.{util => ju}
-import _root_.scala.util.Using
+package org.jetbrains.jps.incremental.scala
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.io.FileUtil
+import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
 import org.jetbrains.jps.builders.java.{JavaBuilderUtil, JavaSourceRootDescriptor}
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
+import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.model.module.JpsModule
 
+import _root_.java.io._
+import _root_.java.{util => ju}
 import _root_.scala.jdk.CollectionConverters._
+import _root_.scala.util.Using
 
 
 /**
@@ -42,7 +41,7 @@ class InitialScalaBuilder extends ModuleLevelBuilder(BuilderCategory.SOURCE_INST
 
 object InitialScalaBuilder {
 
-  import org.jetbrains.plugins.scala.compiler.IncrementalityType
+  import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
   private val scalaModulesKey: Key[Set[JpsModule]] =
     Key.create[Set[JpsModule]]("jps.scala.modules")

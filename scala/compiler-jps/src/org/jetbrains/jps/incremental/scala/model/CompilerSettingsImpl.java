@@ -2,26 +2,22 @@ package org.jetbrains.jps.incremental.scala.model;
 
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import com.intellij.util.xmlb.annotations.*;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.compiler.CompileOrder;
-import org.jetbrains.plugins.scala.compiler.IncrementalityType;
-import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions;
 import org.jetbrains.jps.model.ex.JpsElementBase;
+import org.jetbrains.plugins.scala.compiler.data.CompileOrder;
+import org.jetbrains.plugins.scala.compiler.data.SbtIncrementalOptions;
+import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Pavel Fatin
- */
 public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> implements CompilerSettings {
-  public static final CompilerSettingsImpl DEFAULT = new CompilerSettingsImpl(new State());
+  public static final CompilerSettingsImpl DEFAULT = new CompilerSettingsImpl(new ScalaCompilerSettingsState());
 
-  private State myState;
+  private final ScalaCompilerSettingsState myState;
 
-  public CompilerSettingsImpl(State state) {
+  public CompilerSettingsImpl(ScalaCompilerSettingsState state) {
     myState = state;
   }
 
@@ -36,8 +32,8 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
   }
 
   @Override
-  public String[] getCompilerOptions() {
-    List<String> list = new ArrayList<String>();
+  public String[] getCompilerOptionsAsStrings(boolean forScala3Compiler) {
+    List<String> list = new ArrayList<>();
 
     if (myState.dynamics) {
       list.add("-language:dynamics");
@@ -63,10 +59,6 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-language:existentials");
     }
 
-    if (myState.scala2Compat) {
-      list.add("-language:Scala2Compat");
-    }
-
     if (myState.macros) {
       list.add("-language:experimental.macros");
     }
@@ -87,7 +79,7 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
       list.add("-feature");
     }
 
-    if (myState.strictMode) {
+    if (myState.strict) {
       list.add("-strict");
     }
 
@@ -134,7 +126,7 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
 
     list.addAll(Arrays.asList(myState.additionalCompilerOptions));
 
-    return list.toArray(new String[list.size()]);
+    return list.toArray(new String[0]);
   }
 
   @NotNull
@@ -146,68 +138,5 @@ public class CompilerSettingsImpl extends JpsElementBase<CompilerSettingsImpl> i
   @Override
   public void applyChanges(@NotNull CompilerSettingsImpl compilerSettings) {
     // do nothing
-  }
-
-  public static class State {
-    public IncrementalityType incrementalityType = IncrementalityType.IDEA;
-
-    public CompileOrder compileOrder = CompileOrder.Mixed;
-
-    public boolean nameHashing = SbtIncrementalOptions.Default().nameHashing();
-
-    public boolean recompileOnMacroDef = SbtIncrementalOptions.Default().recompileOnMacroDef();
-
-    public int transitiveStep = SbtIncrementalOptions.Default().transitiveStep();
-
-    public double recompileAllFraction = SbtIncrementalOptions.Default().recompileAllFraction();
-
-    public boolean dynamics;
-
-    public boolean postfixOps;
-
-    public boolean reflectiveCalls;
-
-    public boolean implicitConversions;
-
-    public boolean higherKinds;
-
-    public boolean existentials;
-
-    public boolean scala2Compat;
-
-    public boolean macros;
-
-    public boolean experimental;
-
-    public boolean warnings = true; //no -nowarn
-
-    public boolean deprecationWarnings;
-
-    public boolean uncheckedWarnings;
-
-    public boolean featureWarnings;
-
-    public boolean strictMode;
-
-    public boolean optimiseBytecode;
-
-    public boolean explainTypeErrors;
-
-    public boolean specialization = true; //no -no-specialization
-
-    public boolean continuations;
-
-    public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
-
-    // Why serialization doesn't work when elementTag is "option"?
-    @SuppressWarnings("deprecation")
-    @Tag("parameters")
-    @AbstractCollection(surroundWithTag = false, elementTag = "parameter")
-    public String[] additionalCompilerOptions = new String[] {};
-
-    @SuppressWarnings("deprecation")
-    @Tag("plugins")
-    @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "path")
-    public String[] plugins = new String[] {};
   }
 }

@@ -2,8 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package local
 
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
-import org.jetbrains.plugins.scala.compiler.IncrementalityType
-import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
+import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, IncrementalityType, SbtData}
 import sbt.internal.inc._
 import sbt.internal.inc.classpath.{ClassLoaderCache, ClasspathUtil}
 import sbt.internal.inc.javac.JavaTools

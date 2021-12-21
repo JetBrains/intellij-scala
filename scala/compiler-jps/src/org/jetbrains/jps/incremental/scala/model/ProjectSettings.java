@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.model;
 
 import org.jetbrains.jps.ModuleChunk;
 import org.jetbrains.jps.model.JpsElement;
-import org.jetbrains.plugins.scala.compiler.IncrementalityType;
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
 
 /**
  * @author Pavel Fatin

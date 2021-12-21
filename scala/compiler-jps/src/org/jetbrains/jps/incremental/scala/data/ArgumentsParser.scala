@@ -1,12 +1,11 @@
 package org.jetbrains.jps.incremental.scala.data
 
-import java.io.File
-
 import org.jetbrains.jps.incremental.scala.data.ArgumentsParser.ArgumentsParserError
 import org.jetbrains.jps.incremental.scala.extractor
-import org.jetbrains.plugins.scala.compiler.data._
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, _}
 import org.jetbrains.plugins.scala.compiler.data.serialization.{SerializationUtils, WorksheetArgsSerializer}
-import org.jetbrains.plugins.scala.compiler.{CompileOrder, IncrementalityType}
+
+import java.io.File
 
 // TODO: move to compiler-shared
 //  unify with serializers org.jetbrains.plugins.scala.compiler.data.serialization.ArgListSerializer

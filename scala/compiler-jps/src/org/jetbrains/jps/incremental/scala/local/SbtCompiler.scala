@@ -1,18 +1,14 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
+import org.jetbrains.jps.incremental.scala.local.zinc._
+import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompileOrder}
+import sbt.internal.inc._
+import xsbti.compile.{CompileOrder => SbtCompileOrder, _}
+
 import java.io.File
 import java.util.Optional
-
-import org.jetbrains.jps.incremental.scala.JpsBundle
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
-import org.jetbrains.jps.incremental.scala.local.zinc.{BinaryToSource, _}
-import org.jetbrains.plugins.scala.compiler.CompileOrder
-import org.jetbrains.plugins.scala.compiler.data.CompilationData
-import sbt.internal.inc._
-import xsbti.VirtualFile
-import xsbti.compile._
-
 import scala.util.Try
 
 /**
@@ -32,9 +28,9 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     val incrementalCompiler = new IncrementalCompilerImpl
 
     val order = compilationData.order match {
-      case CompileOrder.Mixed => xsbti.compile.CompileOrder.Mixed
-      case CompileOrder.JavaThenScala => xsbti.compile.CompileOrder.JavaThenScala
-      case CompileOrder.ScalaThenJava => xsbti.compile.CompileOrder.ScalaThenJava
+      case CompileOrder.Mixed => SbtCompileOrder.Mixed
+      case CompileOrder.JavaThenScala => SbtCompileOrder.JavaThenScala
+      case CompileOrder.ScalaThenJava => SbtCompileOrder.ScalaThenJava
     }
 
     val analysisStore = fileToStore(compilationData.cacheFile)
@@ -117,7 +113,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
     }
 
     compilationResult.recover {
-      case e: CompileFailed =>
+      case _: CompileFailed =>
         // The error should be already handled via the `reporter`
         // However we need to invalidate source from last compilation
         val sourcesForInvalidation: Iterable[File] =

@@ -1,11 +1,12 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java._
 import org.jetbrains.jps.builders.{BuildRootDescriptor, BuildTarget}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
+
+import java.io.File
 import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.java.JavaBuilder
 import org.jetbrains.jps.incremental.messages.ProgressMessage
@@ -14,11 +15,11 @@ import org.jetbrains.jps.incremental.scala.SbtBuilder._
 import org.jetbrains.jps.incremental.scala.ScalaBuilder._
 import org.jetbrains.jps.incremental.scala.local.IdeClientSbt
 import org.jetbrains.jps.incremental.scala.sbtzinc.{CompilerOptionsStore, ModulesFedToZincStore}
-import org.jetbrains.plugins.scala.compiler.IncrementalityType
+import org.jetbrains.plugins.scala.compiler.data.IncrementalityType
 
 import _root_.java.{util => jutil}
-import _root_.scala.jdk.CollectionConverters._
 import _root_.scala.collection.immutable.ArraySeq
+import _root_.scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin

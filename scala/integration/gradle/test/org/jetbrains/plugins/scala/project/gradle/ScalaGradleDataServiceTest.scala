@@ -6,8 +6,9 @@ import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
 import org.jetbrains.plugins.gradle.util.GradleConstants
+import org.jetbrains.plugins.scala.compiler.data.DebuggingInfoLevel
+import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, _}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._

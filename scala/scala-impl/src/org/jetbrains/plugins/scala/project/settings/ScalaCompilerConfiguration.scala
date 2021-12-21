@@ -10,6 +10,7 @@ import com.intellij.openapi.util.{ModificationTracker, SimpleModificationTracker
 import com.intellij.util.xmlb.{SkipDefaultValuesSerializationFilters, XmlSerializer}
 import org.jdom.Element
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.plugins.scala.compiler.data.{IncrementalityType, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.DefaultProfileName
 
 import scala.annotation.{nowarn, tailrec}
