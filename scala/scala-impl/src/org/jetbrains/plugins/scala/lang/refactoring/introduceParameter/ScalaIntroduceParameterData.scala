@@ -4,7 +4,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.refactoring.introduceParameter.{IntroduceParameterData, JavaExpressionWrapper}
-import gnu.trove.TIntArrayList
+import it.unimi.dsi.fastutil.ints.{IntList, IntLists}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
@@ -24,10 +24,10 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
                                        mainOcc: TextRange,
                                        replaceAll: Boolean,
                                        defaultArg: String,
-                                       functionalArgParams: Option[String] = None) extends IntroduceParameterData {
+                                       functionalArgParams: Option[String] = None)
+  extends IntroduceParameterData {
 
-
-  override def getParametersToRemove: TIntArrayList = new TIntArrayList()
+  override def getParameterListToRemove: IntList = IntLists.emptyList()
 
   override def getForcedType: PsiType = tp.toPsiType
 

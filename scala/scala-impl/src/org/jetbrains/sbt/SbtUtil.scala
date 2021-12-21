@@ -180,11 +180,6 @@ object SbtUtil {
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
-    // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
-    val predicate = new BooleanFunction[DataNode[ModuleData]] {
-      override def fun(s: DataNode[ModuleData]): Boolean = s.getData.getId == moduleId
-    }
-
     val dataManager = ProjectDataManager.getInstance()
 
     val projectDataEither = Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
@@ -201,7 +196,11 @@ object SbtUtil {
     val maybeNodes: Either[String, Iterable[K]] = for {
       projectInfo      <- projectDataEither.toRight(s"can't detect sbt external project data for project $project)")
       projectStructure <- Option(projectInfo.getExternalProjectStructure).toRight(s"no external project structure for project $project, $projectInfo")
-      moduleDataNode   <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate)).toRight(s"can't find module data node for project $project, $projectInfo")
+      moduleDataNode   <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE,  (node: DataNode[ModuleData]) => {
+        // seems hacky. but apparently there isn't yet any better way to get the data for selected module?
+        node.getData.getId == moduleId
+      }))
+        .toRight(s"can't find module data node for project $project, $projectInfo")
     } yield {
       val dataNodes = ExternalSystemApiUtil.findAll(moduleDataNode, key).asScala
       dataNodes.map { node =>

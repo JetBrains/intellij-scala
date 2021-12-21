@@ -30,11 +30,15 @@ class CustomTrafficLightRendererContributor
         def isHighlightingCompilerRunning(project: Project): Boolean =
           CompilerHighlightingService.get(project).isCompiling
 
+        val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
+
         if (!project.isDisposed) { // EA-246923
           val compilerHighlightingInProgress =
             isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
-          val status = super.getDaemonCodeAnalyzerStatus(severityRegistrar)
-          status.errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
+
+          val errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
+          status.errorAnalyzingFinished = errorAnalyzingFinished
+
           if (compilerHighlightingInProgress) {
             val passesField = classOf[DaemonCodeAnalyzerStatus].getDeclaredField("passes")
             passesField.setAccessible(true)
@@ -44,10 +48,9 @@ class CustomTrafficLightRendererContributor
             newPasses.add(new FakeHighlightingPass(editor, file, progress))
             passesField.set(status, newPasses)
           }
-          status
-        } else {
-          new DaemonCodeAnalyzerStatus
         }
+
+        status
       }
 
       override def createUIController(): UIController = super.createUIController(editor)
