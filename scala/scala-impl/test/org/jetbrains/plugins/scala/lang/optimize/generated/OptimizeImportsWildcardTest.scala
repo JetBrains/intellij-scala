@@ -177,6 +177,70 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
         |}""".stripMargin
     )
   }
+
+  //SCL-16599
+  def testSameNameInDifferentPackages(): Unit = {
+    getFixture.addFileToProject("foo/DataHolder.scala",
+      """package foo
+        |
+        |case class DataHolder(data: String)
+        |
+        |class OtherClassA {}
+        |
+        |class OtherClassB {}
+        |
+        |class OtherClassC {}
+        |
+        |class OtherClassD {}
+        |
+        |class OtherClassE {}
+        |
+        |class OtherClassF {}
+        |""".stripMargin
+    )
+    getFixture.addFileToProject("bar/DataHolder.scala",
+      """package bar
+        |
+        |case class DataHolder(data: Double)
+        |
+        |class BarOtherClassA {}
+        |
+        |class BarOtherClassB {}
+        |
+        |class BarOtherClassC {}
+        |
+        |class BarOtherClassD {}
+        |
+        |class BarOtherClassE {}
+        |
+        |class BarOtherClassF {}
+        |""".stripMargin
+    )
+    doTest(
+      """import bar._
+        |import foo.{DataHolder, OtherClassA, OtherClassB, OtherClassC, OtherClassD, OtherClassE, OtherClassF}
+        |
+        |trait DataReader {
+        |  def readData(dataHolder: DataHolder): String = dataHolder match {
+        |    case DataHolder(str) => str.concat("other")
+        |  }
+        |
+        |  def useOtherClass(a: OtherClassA, b: OtherClassB, c: OtherClassC, d: OtherClassD, e: OtherClassE, f: OtherClassF)
+        |  def useBarOtherClass(a: BarOtherClassA, b: BarOtherClassB, c: BarOtherClassC, d: BarOtherClassD, e: BarOtherClassE, f: BarOtherClassF)
+        |}""".stripMargin,
+      """import bar._
+        |import foo.{DataHolder, _}
+        |
+        |trait DataReader {
+        |  def readData(dataHolder: DataHolder): String = dataHolder match {
+        |    case DataHolder(str) => str.concat("other")
+        |  }
+        |
+        |  def useOtherClass(a: OtherClassA, b: OtherClassB, c: OtherClassC, d: OtherClassD, e: OtherClassE, f: OtherClassF)
+        |  def useBarOtherClass(a: BarOtherClassA, b: BarOtherClassB, c: BarOtherClassC, d: BarOtherClassD, e: BarOtherClassE, f: BarOtherClassF)
+        |}""".stripMargin
+    )
+  }
 }
 
 class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
