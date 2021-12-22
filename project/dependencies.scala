@@ -150,7 +150,7 @@ object DependencyGroups {
     scalaReflect,
     scalaXml,
     scalaMetaCore,
-    fastparse % "test",
+    fastparse % Test, //used in single test org.jetbrains.plugins.scala.annotator.TreeTest
 //    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
