@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.actions.implicitConvertions
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
@@ -47,7 +48,13 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
-        val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
+        val components = container.getComponents
+        if (components.size < 2) {
+          ScImplicitFunctionListCellRenderer.log.error(s"wrong continer: ${container} ${container.getClass}")
+        } else {
+          ScImplicitFunctionListCellRenderer.log.error(s"right continer: ${container} ${container.getClass}")
+        }
+        val colored = components(2).asInstanceOf[SimpleColoredComponent]
         if (item == actual) {
           colored.clear()
           colored.setIcon(actual.getIcon(0))
@@ -124,4 +131,8 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
   override def getIconFlags: Int = 0
 
   override def getContainerText(element: PsiNamedElement, name: String): String = null //todo: add package name
+}
+
+object ScImplicitFunctionListCellRenderer {
+  val log = Logger.getInstance(classOf[ScImplicitFunctionListCellRenderer])
 }
