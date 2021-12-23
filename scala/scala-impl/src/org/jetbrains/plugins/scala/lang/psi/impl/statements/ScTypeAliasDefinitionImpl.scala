@@ -49,8 +49,10 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def navigate(requestFocus: Boolean): Unit = {
-    val descriptor =  EditSourceUtil.getDescriptor(nameId)
-    if (descriptor != null) descriptor.navigate(requestFocus)
+    val descriptor =  EditSourceUtil.getDescriptor(this)
+    if (descriptor != null) {
+      descriptor.navigate(requestFocus)
+    }
   }
 
   override def toString: String = "ScTypeAliasDefinition: " + ifReadAllowed(name)("")

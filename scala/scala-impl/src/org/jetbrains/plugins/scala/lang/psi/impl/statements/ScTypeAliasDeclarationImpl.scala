@@ -39,8 +39,10 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   override def navigate(requestFocus: Boolean): Unit = {
-    val descriptor = EditSourceUtil.getDescriptor(nameId)
-    if (descriptor != null) descriptor.navigate(requestFocus)
+    val descriptor = EditSourceUtil.getDescriptor(this)
+    if (descriptor != null) {
+      descriptor.navigate(requestFocus)
+    }
   }
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER) match {
