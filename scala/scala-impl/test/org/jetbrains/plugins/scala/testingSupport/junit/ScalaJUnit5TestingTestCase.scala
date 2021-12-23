@@ -54,16 +54,14 @@ class ScalaJUnit5TestingTestCase extends ScalaJUnitTestingTestCaseBase {
   def testParametrizedTests_WholeSuite(): Unit = {
     runTestByLocation(loc(ScalaJUnit5_ParametrizedTests_FileName, 9, 10),
       assertIsJUnitClassConfiguration(_, "ScalaJUnit5_ParametrizedTests"),
-      assertJUnitTestTree(_, MyTestTreeNode(null, "[root]", List(
-        MyTestTreeNode("ScalaJUnit5_ParametrizedTests", List(
-          MyTestTreeNode("Test_10_Rules(String, String)", List(
-            MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
-            MyTestTreeNode("[2] configValue=cv2, rules=rules2")
-          )),
-          MyTestTreeNode("Test_5_1_Rules(String, String)", List(
-            MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
-            MyTestTreeNode("[2] configValue=cv2, rules=rules2")
-          ))
+      assertJUnitTestTree(_, MyTestTreeNode("ScalaJUnit5_ParametrizedTests", "[root]", List(
+        MyTestTreeNode("Test_10_Rules(String, String)", List(
+          MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
+          MyTestTreeNode("[2] configValue=cv2, rules=rules2")
+        )),
+        MyTestTreeNode("Test_5_1_Rules(String, String)", List(
+          MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
+          MyTestTreeNode("[2] configValue=cv2, rules=rules2")
         ))
       )))
     )
@@ -72,12 +70,10 @@ class ScalaJUnit5TestingTestCase extends ScalaJUnitTestingTestCaseBase {
   def testParametrizedTests_SingleTest1(): Unit = {
     runTestByLocation(loc(ScalaJUnit5_ParametrizedTests_FileName, 14, 10),
       assertIsJUnitTestMethodConfiguration(_, "ScalaJUnit5_ParametrizedTests", "Test_10_Rules"),
-      assertJUnitTestTree(_, MyTestTreeNode(null, "[root]", List(
-        MyTestTreeNode("ScalaJUnit5_ParametrizedTests", List(
-          MyTestTreeNode("Test_10_Rules(String, String)", List(
-            MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
-            MyTestTreeNode("[2] configValue=cv2, rules=rules2")
-          ))
+      assertJUnitTestTree(_, MyTestTreeNode("ScalaJUnit5_ParametrizedTests", "[root]", List(
+        MyTestTreeNode("Test_10_Rules(String, String)", List(
+          MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
+          MyTestTreeNode("[2] configValue=cv2, rules=rules2")
         ))
       )))
     )
@@ -86,12 +82,10 @@ class ScalaJUnit5TestingTestCase extends ScalaJUnitTestingTestCaseBase {
   def testParametrizedTests_SingleTest2(): Unit = {
     runTestByLocation(loc(ScalaJUnit5_ParametrizedTests_FileName, 18, 10),
       assertIsJUnitTestMethodConfiguration(_, "ScalaJUnit5_ParametrizedTests", "Test_5_1_Rules"),
-      assertJUnitTestTree(_, MyTestTreeNode(null, "[root]", List(
-        MyTestTreeNode("ScalaJUnit5_ParametrizedTests", List(
-          MyTestTreeNode("Test_5_1_Rules(String, String)", List(
-            MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
-            MyTestTreeNode("[2] configValue=cv2, rules=rules2")
-          ))
+      assertJUnitTestTree(_, MyTestTreeNode("ScalaJUnit5_ParametrizedTests", "[root]", List(
+        MyTestTreeNode("Test_5_1_Rules(String, String)", List(
+          MyTestTreeNode("[1] configValue=cv1, rules=rules1"),
+          MyTestTreeNode("[2] configValue=cv2, rules=rules2")
         ))
       )))
     )
