@@ -131,6 +131,8 @@
 
         <runAnything.executionProvider implementation="org.jetbrains.sbt.SbtRunAnythingProvider"/>
 
+        <properties.implicitPropertyUsageProvider implementation="org.jetbrains.sbt.integration.SbtPropertyUsageProvider"/>
+
         <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
     </extensions>
