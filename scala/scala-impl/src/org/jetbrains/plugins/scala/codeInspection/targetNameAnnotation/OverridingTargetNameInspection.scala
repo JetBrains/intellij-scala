@@ -5,14 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.superValsSignatures
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{superTypeSignatures, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScFieldId}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueDeclaration, ScValueOrVariableDefinition, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
+import org.jetbrains.plugins.scala.lang.psi.types.Signature
 
 import scala.annotation.tailrec
 
@@ -23,15 +23,20 @@ abstract class OverridingTargetNameInspectionBase extends TargetNameInspectionBa
     case value: ScValueDeclaration if value.getIdList.fieldIds.sizeIs == 1 && checkAnnotation(value) =>
       val fieldId = value.declaredElements.head
       findProblemElement(value, fieldId, superValsSignatures(fieldId))
-    case value: ScPatternDefinition if value.isSimple && checkAnnotation(value) =>
-      val binding = value.bindings.head
-      findProblemElement(value, binding, superValsSignatures(binding))
+    case variable: ScVariableDeclaration if variable.getIdList.fieldIds.sizeIs == 1 && checkAnnotation(variable) =>
+      val fieldId = variable.declaredElements.head
+      findProblemElement(variable, fieldId, superValsSignatures(fieldId))
+    case valOrVar: ScValueOrVariableDefinition if valOrVar.isSimple && checkAnnotation(valOrVar) =>
+      val binding = valOrVar.bindings.head
+      findProblemElement(valOrVar, binding, superValsSignatures(binding))
     case function: ScFunction if checkAnnotation(function) =>
       findProblemElement(function, function.nameId, function.superSignaturesIncludingSelfType)
+    case typeAlias: ScTypeAlias if checkAnnotation(typeAlias) =>
+      findProblemElement(typeAlias, typeAlias.nameId, superTypeSignatures(typeAlias))
     case _ => None
   }
 
-  private def findProblemElement(childElement: ScAnnotationsHolder, anchor: PsiElement, superSignatures: Seq[TermSignature]): Option[ProblemElement] =
+  private def findProblemElement(childElement: ScAnnotationsHolder, anchor: PsiElement, superSignatures: Seq[Signature]): Option[ProblemElement] =
     superSignatures
       .view
       .flatMap(superElementWithProblem(childElement))
@@ -41,10 +46,11 @@ abstract class OverridingTargetNameInspectionBase extends TargetNameInspectionBa
       }
 
   private def superElementWithProblem(childElem: ScAnnotationsHolder)
-                                     (superSignature: TermSignature): Option[ScAnnotationsHolder] = {
+                                     (superSignature: Signature): Option[ScAnnotationsHolder] = {
     @tailrec def findProblemElem(element: PsiElement): Option[ScAnnotationsHolder] = element match {
       case superElem: ScAnnotationsHolder if checkSuperAnnotation(superElem, childElem) => Some(superElem)
       case ref: ScReferencePattern => findProblemElem(ref.nameContext)
+      case fieldId: ScFieldId => findProblemElem(fieldId.nameContext)
       case _ => None
     }
 

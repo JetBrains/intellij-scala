@@ -13,7 +13,7 @@ class OverridingAddingTargetNameInspectionTest extends ScalaInspectionTestBase {
 
   private val hint = JavaAnalysisBundle.message("remove.annotation")
 
-  def testSingle(): Unit = {
+  def testOverrideDef(): Unit = {
     val code =
       s"""import scala.annotation.targetName
          |
@@ -34,6 +34,148 @@ class OverridingAddingTargetNameInspectionTest extends ScalaInspectionTestBase {
         |
         |class B extends A:
         |  override def foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideDefToVal(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  def foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("overriddenFoo")
+         |  override val ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  def foo: Int = 1
+        |
+        |class B extends A:
+        |  override val foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideVal(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  val foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("overriddenFoo")
+         |  override val ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  val foo: Int = 1
+        |
+        |class B extends A:
+        |  override val foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideVar(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  var foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("overriddenFoo")
+         |  override var ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  var foo: Int = 1
+        |
+        |class B extends A:
+        |  override var foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideClassParam(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A(val foo: Int)
+         |
+         |class B(@targetName("overriddenFoo") override val ${START}foo$END: Int) extends A
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A(val foo: Int)
+        |
+        |class B(override val foo: Int) extends A
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideValToClassParam(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  val foo: Int = 1
+         |
+         |class B(@targetName("overriddenFoo") override val ${START}foo$END: Int) extends A
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  val foo: Int = 1
+        |
+        |class B(override val foo: Int) extends A
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideTypeAlias(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |trait A:
+         |  type Foo
+         |
+         |class B extends A:
+         |  @targetName("overriddenFoo")
+         |  override type ${START}Foo$END = Long
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |trait A:
+        |  type Foo
+        |
+        |class B extends A:
+        |  override type Foo = Long
         |""".stripMargin
     testQuickFix(code, expected, hint)
   }

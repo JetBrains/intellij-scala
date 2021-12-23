@@ -12,7 +12,7 @@ class OverridingWithDifferentTargetNameInspectionTest extends ScalaInspectionTes
 
   private val hint = ScalaInspectionBundle.message("fix.targetname.annotation")
 
-  def testSingle(): Unit = {
+  def testOverrideDef(): Unit = {
     val code =
       s"""import scala.annotation.targetName
          |
@@ -36,6 +36,162 @@ class OverridingWithDifferentTargetNameInspectionTest extends ScalaInspectionTes
         |class B extends A:
         |  @targetName("testExtName")
         |  override def foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideDefToVal(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  @targetName("testExtName")
+         |  def foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("boo")
+         |  override val ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  @targetName("testExtName")
+        |  def foo: Int = 1
+        |
+        |class B extends A:
+        |  @targetName("testExtName")
+        |  override val foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideVal(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  @targetName("testExtName")
+         |  val foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("boo")
+         |  override val ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  @targetName("testExtName")
+        |  val foo: Int = 1
+        |
+        |class B extends A:
+        |  @targetName("testExtName")
+        |  override val foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideVar(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  @targetName("testExtName")
+         |  var foo: Int = 1
+         |
+         |class B extends A:
+         |  @targetName("boo")
+         |  override var ${START}foo$END: Int = 2
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  @targetName("testExtName")
+        |  var foo: Int = 1
+        |
+        |class B extends A:
+        |  @targetName("testExtName")
+        |  override var foo: Int = 2
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideClassParam(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A(@targetName("testExtName") val foo: Int)
+         |
+         |class B(@targetName("boo") override val ${START}foo$END: Int) extends A
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A(@targetName("testExtName") val foo: Int)
+        |
+        |class B(@targetName("testExtName") override val foo: Int) extends A
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideValToClassParam(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |class A:
+         |  @targetName("testExtName")
+         |  val foo: Int = 1
+         |
+         |class B(@targetName("boo") override val ${START}foo$END: Int) extends A
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |class A:
+        |  @targetName("testExtName")
+        |  val foo: Int = 1
+        |
+        |class B(@targetName("testExtName") override val foo: Int) extends A
+        |""".stripMargin
+    testQuickFix(code, expected, hint)
+  }
+
+  def testOverrideTypeAlias(): Unit = {
+    val code =
+      s"""import scala.annotation.targetName
+         |
+         |trait A:
+         |  @targetName("testExtName")
+         |  type Foo
+         |
+         |class B extends A:
+         |  @targetName("boo")
+         |  override type ${START}Foo$END = Long
+         |""".stripMargin
+    checkTextHasError(code)
+
+    val expected =
+      """import scala.annotation.targetName
+        |
+        |trait A:
+        |  @targetName("testExtName")
+        |  type Foo
+        |
+        |class B extends A:
+        |  @targetName("testExtName")
+        |  override type Foo = Long
         |""".stripMargin
     testQuickFix(code, expected, hint)
   }
