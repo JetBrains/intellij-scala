@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import java.util.Properties
-
 import com.intellij.codeInsight.generation.GenerationInfoBase
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager}
 import com.intellij.openapi.application.ApplicationManager
@@ -12,10 +10,12 @@ import com.intellij.pom.Navigatable
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
+import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -23,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.overrideImplement.ScalaGenerationInfo._
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
+
+import java.util.Properties
 
 /**
  * Nikolay.Tropin
@@ -52,11 +54,13 @@ class ScalaGenerationInfo(classMember: ClassMember)
         val m = createOverrideImplementType(alias, substitutor, needsOverride, comment)(alias.getManager)
 
         val added = templDef.addMember(m, Option(anchor))
+        addTargetNameAnnotationIfNeeded(added, alias)
         myMember = added
         TypeAdjuster.markToAdjust(added)
-      case _: ScValueMember | _: ScVariableMember =>
+      case member: ScValueOrVariableMember[_] =>
         val m: ScMember = createVariable(comment, classMember)
         val added = templDef.addMember(m, Option(anchor))
+        addTargetNameAnnotationIfNeeded(added, if (member.element.is[ScClassParameter]) member.element else member.getElement)
         myMember = added
         TypeAdjuster.markToAdjust(added)
       case _ =>
@@ -196,13 +200,14 @@ object ScalaGenerationInfo {
       withComment = ScalaApplicationSettings.getInstance().COPY_SCALADOC, withAnnotation = false)(method.getManager)
 
     val added = td.addMember(m, Option(anchor))
+    addTargetNameAnnotationIfNeeded(added, method)
     TypeAnnotationUtil.removeTypeAnnotationIfNeeded(added, typeAnnotationsPolicy)
     TypeAdjuster.markToAdjust(added)
     added.asInstanceOf[ScFunction]
   }
 
   def createVariable(comment: String, classMember: ClassMember): ScMember = {
-    val isVal = classMember.isInstanceOf[ScValueMember]
+    val isVal = classMember.is[ScValueMember]
 
     val value = classMember match {
       case x: ScValueMember => x.element

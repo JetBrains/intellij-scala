@@ -8,7 +8,8 @@ import com.intellij.psi.filters._
 import com.intellij.psi.filters.position.{FilterPattern, LeftNeighbour}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation.addTargetNameAnnotationIfNeeded
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiModifierListOwnerExt}
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.ModifiersFilter
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -55,7 +56,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
             createLookupElement(member, createText(member, clazz, full = true), hasOverride = false)
           }
 
-          resultSet.addAllElements(lookupElements.toSeq.asJava)
+          resultSet.addAllElements(lookupElements.asJava)
         }
       }
     })
@@ -70,7 +71,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
                                   completionResultSet: CompletionResultSet): Unit = {
         val position = positionFromParameters(completionParameters)
         val hasOverride = position.getParent match {
-          case parameter: ScClassParameter => parameter.hasModifierProperty("override")
+          case parameter: ScClassParameter => parameter.hasModifierPropertyScala("override")
           case _ => false
         }
 
@@ -111,14 +112,14 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
         }
 
         maybeBody.foreach { body =>
-          val hasOverride = declaration.hasModifierProperty("override")
+          val hasOverride = declaration.hasModifierPropertyScala("override")
           val (clazz, classMembers) = membersOf(body)
 
           val lookupElements = classMembers.filter(filterClass.isInstance).map { member =>
             createLookupElement(member, createText(member, clazz), hasOverride)
           }
 
-          resultSet.addAllElements(lookupElements.toSeq.asJava)
+          resultSet.addAllElements(lookupElements.asJava)
         }
       }
     }
@@ -155,7 +156,7 @@ class ScalaOverrideContributor extends ScalaCompletionContributor {
       //remove val, var, def or type
       case -1 => text
       case part => text.substring(part + 1)
-    } else if (classMember.isInstanceOf[ScMethodMember]) text else "override " + text
+    } else if (classMember.is[ScMethodMember]) text else "override " + text
   }
 
 }
@@ -174,7 +175,11 @@ object ScalaOverrideContributor {
   private def createLookupElement(member: ClassMember, lookupString: String, hasOverride: Boolean) = {
     import Iconable._
 
-    val lookupObject = member.getElement
+    val lookupObject = member match {
+      case member: ScValueOrVariableMember[_] if member.element.is[ScClassParameter] =>
+        member.element
+      case _ => member.getElement
+    }
     val lookupItem = LookupElementBuilder.create(lookupObject, lookupString)
       .withIcon(lookupObject.getIcon(ICON_FLAG_VISIBILITY | ICON_FLAG_READ_STATUS))
       .withInsertHandler(new MyInsertHandler(hasOverride))
@@ -188,18 +193,19 @@ object ScalaOverrideContributor {
       val startElement = context.getFile.findElementAt(context.getStartOffset)
       getContextOfType(startElement, classOf[ScModifierListOwner]) match {
         case member: PsiMember =>
-          onMember(member)
+          onMember(member, item)
           ScalaGenerationInfo.positionCaret(context.getEditor, member)
           context.commitDocument()
         case _ =>
       }
     }
 
-    private def onMember(member: ScModifierListOwner with PsiMember): Unit = {
-      TypeAdjuster.markToAdjust(member)
-      if (!hasOverride && !member.hasModifierProperty("override")) {
+    private def onMember(member: ScModifierListOwner with PsiMember, item: LookupElement): Unit = {
+      if (!hasOverride && !member.hasModifierPropertyScala("override")) {
         member.setModifierProperty("override")
       }
+      addTargetNameAnnotationIfNeeded(member, item.getObject)
+      TypeAdjuster.markToAdjust(member)
     }
   }
 
@@ -218,7 +224,7 @@ object ScalaOverrideContributor {
 
     private def typeText = {
       val maybeType = member match {
-        case member: ScalaTypedMember if !member.isInstanceOf[JavaFieldMember] => Some(member.scType)
+        case member: ScalaTypedMember if !member.is[JavaFieldMember] => Some(member.scType)
         case ScAliasMember(definition: ScTypeAliasDefinition, _, _) => definition.aliasedTypeElement.map(_.calcType)
         case _ => None
       }

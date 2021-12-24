@@ -4,23 +4,70 @@ package completion3
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.alwaysAddType
-import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.set
+import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{DEF, OVERRIDE}
+import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
-/**
-  * Created by kate
-  * on 3/11/16
-  */
-class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
+abstract class ScalaOverrideCompletionTestBase extends ScalaCodeInsightTestBase {
 
-  import ScalaKeyword._
-  import ScalaOverrideCompletionTest._
+  import ScalaOverrideCompletionTestBase._
 
   protected override def setUp(): Unit = {
     super.setUp()
     set(getProject, alwaysAddType(getScalaSettings))
   }
+
+  protected def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
+    super.checkNoCompletion(fileText) { lookup =>
+      lookup.getLookupString.contains(OVERRIDE) &&
+        lookup.getAllLookupStrings.contains(lookupString)
+    }
+
+  protected def doCompletionTest(fileText: String,
+                                 resultText: String,
+                                 items: String*): Unit =
+    super.doRawCompletionTest(fileText, resultText) { lookup =>
+      val lookupString = lookup.getLookupString
+      items.forall(lookupString.contains)
+    }
+
+  protected def prepareFileText(fileText: String): String = testText(fileText)
+
+  override protected def configureFromFileText(fileText: String): PsiFile =
+    super.configureFromFileText(prepareFileText(fileText))
+
+  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit =
+    super.checkResultByText(prepareFileText(expectedFileText), ignoreTrailingSpaces)
+}
+
+object ScalaOverrideCompletionTestBase {
+
+  private def testText(fileText: String): String =
+    s"""
+       |trait Base {
+       |  protected def foo(int: Int): Int = 45
+       |  /**
+       |    * text
+       |    */
+       |  type StringType = String
+       |  val intValue = 45
+       |  var intVariable: Int
+       |  type A
+       |  def abstractFoo
+       |
+       |  @throws(classOf[Exception])
+       |  def annotFoo(int: Int): Int = 45
+       |}
+       |
+       |${normalize(fileText)}
+    """
+}
+
+/**
+  * Created by kate
+  * on 3/11/16
+  */
+class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
 
   def testFunction(): Unit = doRawCompletionTest(
     fileText =
@@ -239,50 +286,6 @@ class ScalaOverrideCompletionTest extends ScalaCodeInsightTestBase {
     resultText = "class Test(override var intVariable: Int) extends Base",
     items = OVERRIDE, "intVariable"
   )
-
-  private def checkNoOverrideCompletion(fileText: String, lookupString: String): Unit =
-    super.checkNoCompletion(fileText) { lookup =>
-      lookup.getLookupString.contains(OVERRIDE) &&
-        lookup.getAllLookupStrings.contains(lookupString)
-    }
-
-  private def doCompletionTest(fileText: String,
-                               resultText: String,
-                               items: String*): Unit = {
-    super.doRawCompletionTest(fileText, resultText) { lookup =>
-      val lookupString = lookup.getLookupString
-      items.forall(lookupString.contains)
-    }
-  }
-
-  override protected def configureFromFileText(fileText: String): PsiFile =
-    super.configureFromFileText(testText(fileText))
-
-  override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit =
-    super.checkResultByText(testText(expectedFileText), ignoreTrailingSpaces)
-}
-
-object ScalaOverrideCompletionTest {
-
-  private def testText(fileText: String): String =
-    s"""
-       |trait Base {
-       |  protected def foo(int: Int): Int = 45
-       |  /**
-       |    * text
-       |    */
-       |  type StringType = String
-       |  val intValue = 45
-       |  var intVariable: Int
-       |  type A
-       |  def abstractFoo
-       |
-       |  @throws(classOf[Exception])
-       |  def annotFoo(int: Int): Int = 45
-       |}
-       |
-       |${normalize(fileText)}
-    """
 }
 
 class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
@@ -309,4 +312,256 @@ class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
         |}
       """
   )()
+}
+
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
+class ScalaOverrideTargetNameCompletionTest extends ScalaOverrideCompletionTestBase {
+
+  import ScalaOverrideTargetNameCompletionTest._
+
+  def testFunction(): Unit = doRawCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override def f$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("boo")
+        |  override def foo(int: Int): Int = super.foo(int)
+        |}
+      """
+  )()
+
+  def testValue(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override val intVa$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extIntValue")
+        |  override val intValue: Int = _
+        |}
+      """,
+    items = "intValue"
+  )
+
+  def testVariable(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override var i$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extIntVariable")
+        |  override var intVariable: Int = _
+        |}
+      """,
+    items = "intVariable"
+  )
+
+  def testAbstractFunction(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override protected def $CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extAbstractFoo")
+        |  override protected def abstractFoo: Unit = ???
+        |}
+      """,
+    items = "abstractFoo"
+  )
+
+  def testWithAnnotation(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   annotFoo$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extAnnotFoo")
+        |  override def annotFoo(int: Int): Int = super.annotFoo(int)
+        |}
+      """,
+    items = OVERRIDE, "annotFoo"
+  )
+
+  def testType(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override type Str$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("ExtStringType")
+        |  override type StringType = String
+        |}
+      """,
+    items = "StringType"
+  )
+
+  def testAbstractType(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   override type $CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("ExtA")
+        |  override type A = this.type
+        |}
+      """,
+    items = "A"
+  )
+
+  def testParamsFromClass(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor(override val f$CARET) extends BaseClass {
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor(@targetName("boo") override val foo: Int) extends BaseClass {
+        |}
+      """,
+    items = "foo"
+  )
+
+  def testParamsFromClassInCaseClass(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor(b$CARET) extends BaseClass {
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor(@targetName("far") override val bar: String) extends BaseClass {
+        |}
+      """,
+    items = "bar"
+  )
+
+  def testOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   over$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("boo")
+        |  override protected def foo(int: Int): Int = super.foo(int)
+        |}
+      """,
+    items = OVERRIDE, DEF, "foo"
+  )
+
+  def testAllowOverrideFunctionWithoutOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   protected def a$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extAbstractFoo")
+        |  override protected def abstractFoo: Unit = ???
+        |}
+      """,
+    items = "abstractFoo"
+  )
+
+  def testAllowOverrideVariableWithoutOverrideKeyword(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   var i$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("extIntVariable")
+        |  override var intVariable: Int = _
+        |}
+      """,
+    items = "intVariable"
+  )
+
+  def testDoNotAddTargetNameIfAlreadyPresent(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Inheritor extends BaseTrait {
+         |   @targetName("anotherExtIntValue") val i$CARET
+         |}
+      """,
+    resultText =
+      """
+        |class Inheritor extends BaseTrait {
+        |  @targetName("anotherExtIntValue") override val intValue: Int = _
+        |}
+      """,
+    items = "intValue"
+  )
+
+  override protected def prepareFileText(fileText: String) = testText(fileText)
+}
+
+object ScalaOverrideTargetNameCompletionTest {
+  private def testText(fileText: String): String =
+    s"""import scala.annotation.targetName
+       |
+       |trait BaseTrait {
+       |  @targetName("boo")
+       |  protected def foo(int: Int): Int = 45
+       |  @targetName("ExtStringType")
+       |  type StringType = String
+       |  @targetName("extIntValue")
+       |  val intValue = 45
+       |  @targetName("extIntVariable")
+       |  var intVariable: Int
+       |  @targetName("ExtA")
+       |  type A
+       |  @targetName("extAbstractFoo")
+       |  def abstractFoo
+       |
+       |  @throws(classOf[Exception])
+       |  @targetName("extAnnotFoo")
+       |  def annotFoo(int: Int): Int = 45
+       |}
+       |
+       |class BaseClass(@targetName("boo") val foo: Int, @targetName("far") val bar: String = "...")
+       |
+       |${normalize(fileText)}
+    """
 }

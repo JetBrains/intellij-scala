@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 package object targetNameAnnotation {
   val TargetNameAnnotationFQN = "scala.annotation.targetName"
 
+  def targetNameAnnotationWithParamFQN(extName: String): String = s"""$TargetNameAnnotationFQN("$extName")"""
+
   def hasTargetNameAnnotation(element: ScAnnotationsHolder): Boolean =
     element.hasAnnotation(TargetNameAnnotationFQN)
 
@@ -31,12 +33,25 @@ package object targetNameAnnotation {
   private[targetNameAnnotation] def targetNameAnnotationExternalName(element: ScAnnotationsHolder): Option[String] =
     lastTargetNameAnnotation(element).flatMap(targetNameAnnotationExternalName)
 
+  private def addAnnotation(element: ScAnnotationsHolder, annotationText: String): ScAnnotation =
+    element.addAnnotation(annotationText, addNewLine = !element.is[ScParameter])
+
+  def addTargetNameAnnotationIfNeeded(element: ScAnnotationsHolder, superElementObject: AnyRef): Unit =
+    if (element.isInScala3File) superElementObject match {
+      case superElement: ScAnnotationsHolder if hasTargetNameAnnotation(superElement) && !hasTargetNameAnnotation(element) =>
+        targetNameAnnotationExternalName(superElement)
+          .foreach { extName =>
+            addAnnotation(element, targetNameAnnotationWithParamFQN(extName))
+          }
+      case _ =>
+    }
+
   class AddTargetNameAnnotationQuickFix(element: ScAnnotationsHolder, extName: String = "")
     extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("add.targetname.annotation"), element) {
-    private val annotationText = s"""$TargetNameAnnotationFQN("$extName")"""
+    private val annotationText = targetNameAnnotationWithParamFQN(extName)
 
     override protected def doApplyFix(element: ScAnnotationsHolder)(implicit project: Project): Unit = {
-      val annotation = element.addAnnotation(annotationText, addNewLine = !element.is[ScParameter])
+      val annotation = addAnnotation(element, annotationText)
 
       if (extName.isEmpty) {
         for {
