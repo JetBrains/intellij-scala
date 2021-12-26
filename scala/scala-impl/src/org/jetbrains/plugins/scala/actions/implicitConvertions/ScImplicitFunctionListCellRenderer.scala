@@ -47,7 +47,9 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
-        val colored = container.getComponents.apply(2).asInstanceOf[SimpleColoredComponent]
+        val components = container.getComponents
+        if (components.size < 2) return container
+        val colored = components(2).asInstanceOf[SimpleColoredComponent]
         if (item == actual) {
           colored.clear()
           colored.setIcon(actual.getIcon(0))
