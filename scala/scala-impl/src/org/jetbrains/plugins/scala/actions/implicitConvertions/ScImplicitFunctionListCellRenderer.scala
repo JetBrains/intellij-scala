@@ -48,7 +48,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     comp match {
       case container: Container =>
         val components = container.getComponents
-        if (components.size < 2) return container
+        if (components.size < 3) return container
         val colored = components(2).asInstanceOf[SimpleColoredComponent]
         if (item == actual) {
           colored.clear()
