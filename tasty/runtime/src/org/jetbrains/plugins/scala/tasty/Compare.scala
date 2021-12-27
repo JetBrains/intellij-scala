@@ -29,43 +29,63 @@ object Compare {
     "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
   )
 
+  enum Mode { case Parse, Compare, Benchmark }
+
+  private val mode = Mode.Benchmark
+
   def main(args: Array[String]): Unit = {
     assert(new File(OutputDir).getParentFile.exists)
+
+    val start = System.currentTimeMillis()
 
     Libraries.foreach { binaries =>
       println("Parsing TASTy:\t\t" + binaries)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
           val file = new File(s"$OutputDir/${entry.getName}")
-          file.getParentFile.mkdirs()
           val tree = TreeReader.treeFrom(in.readAllBytes())
-//          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
-          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala")), TreePrinter.textOf(tree).getBytes)
+          val path = Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala"))
+          mode match {
+            case Mode.Parse =>
+              file.getParentFile.mkdirs()
+              //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
+              Files.write(path, TreePrinter.textOf(tree).getBytes)
+            case Mode.Compare =>
+              assert(new String(Files.readAllBytes(path)) == TreePrinter.textOf(tree), path)
+            case Mode.Benchmark =>
+              TreePrinter.textOf(tree)
+          }
         }
       }
 
       val sources = binaries.replaceFirst("\\.jar", "-sources.jar")
 
-      println("Extracting sources:\t" + sources)
-      new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + sources))).pipe { in =>
-        Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
-          val file = new File(s"$OutputDir/${entry.getName}")
-          file.getParentFile.mkdirs()
-          val s = new String(in.readAllBytes) // TODO store pre-compiled regex
-            .replaceAll(raw"(?m)^\s*import.*?$$", "") // Import
-            .replaceAll(raw"\s*//.*?\n", "") // Line comment
-            .replaceAll(raw"(?s)/\*.*?\*/", "") // Block comment
-            .replaceAll(raw"(?m)^\s+$$", "") // Whitespaces on empty line
-            .replaceAll(raw"\n{3,}", "\n\n") // Multiple empty lines
-            .replaceAll(raw"\{\n\n", "{\n") // Empty line after {
-            .replaceAll(raw"\n\n}", "\n}") // Empty line before }
-            .trim
+      if (mode == Mode.Parse) {
+        println("Extracting sources:\t" + sources)
+        new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + sources))).pipe { in =>
+          Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
+            val file = new File(s"$OutputDir/${entry.getName}")
+            file.getParentFile.mkdirs()
+            val s = new String(in.readAllBytes) // TODO store pre-compiled regex
+              .replaceAll(raw"(?m)^\s*import.*?$$", "") // Import
+              .replaceAll(raw"\s*//.*?\n", "") // Line comment
+              .replaceAll(raw"(?s)/\*.*?\*/", "") // Block comment
+              .replaceAll(raw"(?m)^\s+$$", "") // Whitespaces on empty line
+              .replaceAll(raw"\n{3,}", "\n\n") // Multiple empty lines
+              .replaceAll(raw"\{\n\n", "{\n") // Empty line after {
+              .replaceAll(raw"\n\n}", "\n}") // Empty line before }
+              .trim
 
-          Files.write(Paths.get(file.getPath.replaceFirst("\\.scala", "-source.scala")), s.getBytes)
+            Files.write(Paths.get(file.getPath.replaceFirst("\\.scala", "-source.scala")), s.getBytes)
+          }
         }
       }
     }
 
-    println("Done:\t\t\t\t" + OutputDir)
+    if (mode == Mode.Benchmark) {
+      printf("Elapsed: %.2f s.\n", (System.currentTimeMillis() - start) / 1000.0D)
+    } else {
+      println("Done:\t\t\t\t" + OutputDir)
+    }
   }
 }

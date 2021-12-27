@@ -9,6 +9,7 @@ import java.io.File
 import java.nio.file.{FileSystems, Files, Path}
 import scala.collection.mutable
 
+// Target names
 // Compare: single dir
 // type MirroredElemTypes = EmptyTuple, type MirroredElemTypes = scala.Tuple$package.EmptyTuple
 // Anonymous Context Parameters?

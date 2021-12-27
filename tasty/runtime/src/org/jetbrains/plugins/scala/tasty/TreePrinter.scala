@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.tasty
 
-import dotty.tools.tasty.TastyFormat._
+import dotty.tools.tasty.TastyFormat.*
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
@@ -20,7 +20,18 @@ object TreePrinter {
   }
 
   def textOf(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = node match { // TODO settings
-    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) => children.filterNot(_.tag == IMPORT) match {
+    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) => textOfPackage(node, name, children)
+    case node @ Node(TYPEDEF, _, _) if !node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node) => textOfTypeDef(node, definition) // TODO why both are synthetic?
+    case node @ Node(TEMPLATE, _, _) => textOfTemplate(node, definition)
+    // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
+    // TODO why $default$ methods are not synthetic?
+    case node @ Node(DEFDEF, Seq(name), _) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) => textOfDefDef(node)
+    case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (privateMembers || !node.hasFlag(PRIVATE)) => textOfValDef(node, definition)
+    case _ => "" // TODO exhaustive match
+  }
+
+  private def textOfPackage(node: Node, name: String, children: Seq[Node])(using privateMembers: Boolean = false): String = {
+    children.filterNot(_.tag == IMPORT) match {
       case Seq(node @ Node(PACKAGE, _, _), _: _*) => textOf(node)
       case children =>
         val containsPackageObject = children match {
@@ -34,100 +45,106 @@ object TreePrinter {
             children.map(textOf(_, if (containsPackageObject) Some(node) else None)).filter(_.nonEmpty).mkString("\n\n")
         })
     }
+  }
 
-    case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node) => // TODO why both are synthetic?
-      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
-      val isEnum = node.hasFlag(ENUM)
-      val isObject = node.hasFlag(OBJECT)
-      val isGivenObject = isGivenObject0(node)
-      val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.hasFlag(IMPLICIT) && it.name == name)
-      val isGivenImplicitClass = isGivenImplicitClass0(node)
-      val isTypeMember = !template.is(TEMPLATE)
-      val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
-      val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
-      val keyword =
-        if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ")
-        else if (isObject) (if (isGivenObject) "" else (if (isPackageObject) "package object " else "object "))
-        else if (node.hasFlag(TRAIT)) "trait "
-        else if (isTypeMember) "type "
-        else if (isGivenImplicitClass) "given " else "class "
-      val identifier = if (isPackageObject) definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("") // TODO check
-        else (if (isObject) node.previousSibling.fold(name)(_.name) else name) // TODO check type
-      val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
-        if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
-      textOfAnnotationIn(node) +
+  private def textOfTypeDef(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = {
+    val name = node.name
+    val template = node.children.head
+
+    if (!privateMembers && node.hasFlag(PRIVATE)) return ""
+    val isEnum = node.hasFlag(ENUM)
+    val isObject = node.hasFlag(OBJECT)
+    val isGivenObject = isGivenObject0(node)
+    val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.hasFlag(IMPLICIT) && it.name == name)
+    val isGivenImplicitClass = isGivenImplicitClass0(node)
+    val isTypeMember = !template.is(TEMPLATE)
+    val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
+    val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
+    val keyword =
+      if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ")
+      else if (isObject) (if (isGivenObject) "" else (if (isPackageObject) "package object " else "object "))
+      else if (node.hasFlag(TRAIT)) "trait "
+      else if (isTypeMember) "type "
+      else if (isGivenImplicitClass) "given " else "class "
+    val identifier = if (isPackageObject) definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("") // TODO check
+    else (if (isObject) node.previousSibling.fold(name)(_.name) else name) // TODO check type
+    val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
+      if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
+    textOfAnnotationIn(node) +
       modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
-        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
-        val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
-        parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
-        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType(_)).getOrElse("")))) // TODO parameter, { /* compiled code */ }
-      })
+      val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
+      val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
+      parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
+      else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType(_)).getOrElse("")))) // TODO parameter, { /* compiled code */ }
+    })
+  }
 
-    case node @ Node(TEMPLATE, _, children) => // TODO method?
-      val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
-      val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
-      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition, modifiers = modifiers)).getOrElse("")
-      val isInEnum = definition.exists(_.hasFlag(ENUM))
-      val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
-      val parents = children.collect {
-        case node if node.isTypeTree => node
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
-        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      }.map(textOfType(_, parensRequired = true))
-        .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
-          !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
-        .map(simple)
-      val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
-      val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
-      val cases = // TODO check element types
-        if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
-        else Seq.empty
-      val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
-        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
-        .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
-        .mkString("\n\n")
-      parameters +
-        (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
-        (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
-        (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
+  private def textOfTemplate(node: Node, definition: Option[Node])(using privateMembers: Boolean = false): String = {
+    val children = node.children
+    val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
+    val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
+    val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition, modifiers = modifiers)).getOrElse("")
+    val isInEnum = definition.exists(_.hasFlag(ENUM))
+    val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
+    val parents = children.collect {
+      case node if node.isTypeTree => node
+      case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
+      case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+    }.map(textOfType(_, parensRequired = true))
+      .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
+        !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
+      .map(simple)
+    val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
+    val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
+    val cases = // TODO check element types
+      if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
+      else Seq.empty
+    val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
+      .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
+      .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
+      .mkString("\n\n")
+    parameters +
+      (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
+      (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
+      (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
+  }
 
-    // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
-    // TODO why $default$ methods are not synthetic?
-    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") =>
-      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
-      val isAbstractGiven = node.hasFlag(GIVEN)
-      val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
-      val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
-      val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
-      textOfAnnotationIn(node) +
-      (if (name == "<init>") {
-        modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
-      } else {
-        (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
-          modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") +
-          (if (isAnonymousGiven) "" else name) + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
-          ": " + tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
-      })
+  private def textOfDefDef(node: Node): String = {
+    val children = node.children
+    val name = node.name
+    val isAbstractGiven = node.hasFlag(GIVEN)
+    val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
+    val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
+    val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
+    textOfAnnotationIn(node) +
+    (if (name == "<init>") {
+      modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
+    } else {
+      (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
+        modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") +
+        (if (isAnonymousGiven) "" else name) + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
+        ": " + tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
+    })
+  }
 
-    case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
-      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
-      val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
-      val isCase = node.hasFlag(CASE)
-      val isGivenAlias = node.hasFlag(GIVEN)
-      val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
-      val tpe = children.headOption
-      val template = // TODO check element types
-        if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
-        else ""
-      textOfAnnotationIn(node) +
+  private def textOfValDef(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = {
+    val name = node.name
+    val children = node.children
+    val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
+    val isCase = node.hasFlag(CASE)
+    val isGivenAlias = node.hasFlag(GIVEN)
+    val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
+    val tpe = children.headOption
+    val template = // TODO check element types
+      if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
+      else ""
+    textOfAnnotationIn(node) +
       (if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
           (if (isAnonymousGiven) "" else name + ": ") +
           tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???"))) // TODO parameter, /* compiled code */
-
-    case _ => "" // TODO exhaustive match
   }
 
   // TODO include in textOfType
