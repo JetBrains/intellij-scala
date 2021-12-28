@@ -1,8 +1,8 @@
 package org.jetbrains.bsp.protocol.session
 
 import java.io.File
-
 import ch.epfl.scala.bsp4j.BspConnectionDetails
+import com.intellij.util.EnvironmentUtil
 import org.jetbrains.bsp.protocol.session.BspServerConnector.{BspCapabilities, ProcessBsp}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
 import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
@@ -20,10 +20,11 @@ class GenericConnector(base: File, compilerOutput: File, capabilities: BspCapabi
   }
 
   private def prepareBspSession(details: BspConnectionDetails): Builder = {
-    val process =
-      new java.lang.ProcessBuilder(details.getArgv)
-        .directory(base)
-        .start()
+    val builder = new ProcessBuilder(details.getArgv).directory(base)
+    val env = builder.environment()
+    env.clear()
+    env.putAll(EnvironmentUtil.getEnvironmentMap)
+    val process = builder.start()
 
     val cleanup = () => {
       process.destroy()
