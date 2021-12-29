@@ -37,7 +37,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -212,7 +212,7 @@ object ScalaPsiUtil {
   def processImportLastParent(processor: PsiScopeProcessor, state: ResolveState, place: PsiElement,
                               lastParent: PsiElement, typeResult: => TypeResult): Boolean = {
     lastParent match {
-      case _: ScImportStmt =>
+      case _: ScImportOrExportStmt =>
         typeResult match {
           case Right(t) =>
             (processor, place) match {
@@ -560,7 +560,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): TermSignature =
-    TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x)
+    TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x, None)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[TermSignature] = {
     val empty = Seq.empty

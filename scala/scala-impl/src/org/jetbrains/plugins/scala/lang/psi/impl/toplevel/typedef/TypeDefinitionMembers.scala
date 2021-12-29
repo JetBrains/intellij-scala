@@ -158,7 +158,7 @@ object TypeDefinitionMembers {
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-    if (BaseProcessor.isImplicitProcessor(processor) && !clazz.isInstanceOf[ScTemplateDefinition]) return true
+    if (BaseProcessor.isImplicitProcessor(processor) && !clazz.is[ScTemplateDefinition]) return true
 
     val pkgObjectFqn = clazz match {
       case obj: ScObject if obj.isPackageObject => Option(obj.qualifiedName)
@@ -276,7 +276,7 @@ object TypeDefinitionMembers {
 
     val subst               = state.substitutor
     val nameHint            = getNameHint(processor, state)
-    val isScalaProcessor    = processor.isInstanceOf[BaseProcessor]
+    val isScalaProcessor    = processor.is[BaseProcessor]
     val processMethods      = shouldProcessMethods(processor)
     val processMethodRefs   = shouldProcessMethodRefs(processor)
     val processValsForScala = isScalaProcessor && shouldProcessVals(processor)
@@ -285,7 +285,9 @@ object TypeDefinitionMembers {
 
     def process(signature: Signature): Boolean = {
       if (signature.namedElement.isValid) {
-        processor.execute(signature.namedElement, state.withSubstitutor(signature.substitutor.followed(subst)))
+        val withSubst   = state.withSubstitutor(signature.substitutor.followed(subst))
+        val withRenamed = withSubst.withRename(signature.renamed)
+        processor.execute(signature.namedElement, withRenamed)
       } else true
     }
 

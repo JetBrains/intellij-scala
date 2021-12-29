@@ -23,6 +23,8 @@ trait Signature {
 
   def substitutor: ScSubstitutor
 
+  def renamed: Option[String]
+
   def isAbstract: Boolean
 
   def isImplicit: Boolean

@@ -373,7 +373,7 @@ abstract sealed class ScImportOrExportImpl[
               }
 
               //wildcard import first, to show that this imports are unused if they really are
-              for(selector <- set.selectors) {
+              for (selector <- set.selectors) {
                 if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
                   ProgressManager.checkCanceled()
                   for {
