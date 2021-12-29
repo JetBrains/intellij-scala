@@ -5,6 +5,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
@@ -13,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScCompoundType, Signature, TermSignature, TypeSignature}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -94,10 +96,11 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
       )(implicit
         state: ResolveState
       ): Boolean = {
-        val accesible = isAccessible(namedElement, place)
+        val accesible    = isAccessible(namedElement, place)
+        val updatedSubst = subst.followed(state.substitutorWithThisType)
 
         if (accesible) {
-          process(TypeSignature(namedElement, subst), sink)
+          process(TypeSignature(namedElement, updatedSubst, state.renamed), sink)
         }
 
         true
@@ -165,10 +168,15 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
       )(implicit
         state: ResolveState
       ): Boolean = {
-        val accesible = isAccessible(namedElement, place)
+        val accesible    = isAccessible(namedElement, place)
+        val renamed      = state.renamed
+        val updatedSubst = subst.followed(state.substitutorWithThisType)
 
         if (accesible) {
-          val signatures = signaturesOf(namedElement.nameContext, subst)
+          val signatures = namedElement match {
+            case pat: ScBindingPattern => propertySignatures(pat, updatedSubst, renamed)
+            case _                     => signaturesOf(namedElement, updatedSubst, renamed)
+          }
           signatures.foreach(process(_, sink))
         }
 
@@ -176,17 +184,22 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
       }
     }
 
-  private def signaturesOf(e: PsiElement, subst: ScSubstitutor): Seq[TermSignature] = e match {
+  private def signaturesOf(e: PsiElement, subst: ScSubstitutor, name: Option[String] = None): Seq[TermSignature] = e match {
     case v: ScValueOrVariable         => v.declaredElements.flatMap(propertySignatures(_, subst))
     case constr: ScPrimaryConstructor => constr.parameters.flatMap(propertySignatures(_, subst))
-    case f: ScFunction                => Seq(new PhysicalMethodSignature(f, subst))
-    case o: ScObject                  => Seq(TermSignature(o, subst))
+    case f: ScFunction                => Seq(new PhysicalMethodSignature(f, subst, renamed = name))
+    case o: ScObject                  => Seq(TermSignature(o, subst, renamed = name))
     case c: ScTypeDefinition          => syntheticSignaturesFromInnerClass(c, subst)
     case ext: ScExtension =>
       ext
         .extensionMethods
         .map(m =>
-          new PhysicalMethodSignature(m, subst, extensionTypeParameters = Option(ext.typeParameters))
+          new PhysicalMethodSignature(
+            m,
+            subst,
+            extensionTypeParameters = Option(ext.typeParameters),
+            renamed = name
+          )
         )
     case _ => Seq.empty
   }
@@ -238,16 +251,27 @@ sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
    * @param named is class parameter, or part of ScValue or ScVariable
    * */
   private def propertySignatures(
-    named:        ScTypedDefinition,
-    subst:        ScSubstitutor,
+    named:   ScTypedDefinition,
+    subst:   ScSubstitutor,
+    renamed: Option[String] = None
   ): Seq[TermSignature] =
     PropertyMethods.allRoles
       .filter(isApplicable(_, named, noResolve = true))
-      .map(signature(named, subst, _))
+      .map(signature(named, subst, _, renamed))
 
-  private def signature(named: ScTypedDefinition, subst: ScSubstitutor, role: DefinitionRole): TermSignature = role match {
-    case SETTER | EQ => TermSignature.setter(methodName(named.name, role), named, subst)
-    case _           => TermSignature.withoutParams(methodName(named.name, role), subst, named)
+  private def signature(
+    named:   ScTypedDefinition,
+    subst:   ScSubstitutor,
+    role:    DefinitionRole,
+    renamed: Option[String]
+  ): TermSignature = {
+    val name = methodName(named.name, role)
+    val actualRenamed = renamed.map(methodName(_, role))
+
+    role match {
+      case SETTER | EQ => TermSignature.setter(name, named, subst, actualRenamed)
+      case _           => TermSignature.withoutParams(name, subst, named, actualRenamed)
+    }
   }
 
   private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[TermSignature] = {

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScReferenceImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaPsiElementFactory, ScalaPsiManager}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
@@ -315,14 +315,15 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
               if (nodes ne null) {
                 val forName = nodes.forName(refName)
+                val state   = ScalaResolveState.empty.withFromType(ScalaType.designator(clsContext))
                 if (!forName.isEmpty) {
                   forName.iterator.filter { sig =>
                     sig.namedElement match {
                       case inNameContext(_: ScValue) => true
-                      case _: ScObject => true
-                      case _ => false
+                      case _: ScObject               => true
+                      case _                         => false
                     }
-                  }.forall(sig => processor.execute(sig.namedElement, ScalaResolveState.empty))
+                  }.forall(sig => processor.execute(sig.namedElement, state))
                   return
                 }
               }

@@ -35,13 +35,14 @@ class TermSignature(
   private val tParams:       Seq[TypeParameter],
   override val substitutor:  ScSubstitutor,
   override val namedElement: PsiNamedElement,
-  val hasRepeatedParam:      Array[Int] = Array.empty
+  val hasRepeatedParam:      Array[Int] = Array.empty,
+  override val renamed:      Option[String] = None
 ) extends Signature
     with ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
-  override val name: String = ScalaNamesUtil.clean(_name)
+  override val name: String = ScalaNamesUtil.clean(renamed.getOrElse(_name))
 
   val paramClauseSizes: Array[Int] = typesEval.map(_.length).toArray
   val paramLength: Int = paramClauseSizes.arraySum
@@ -52,7 +53,7 @@ class TermSignature(
 
   def typeParamsLength: Int = tParams.length
 
-  private def isField = namedElement.isInstanceOf[PsiField]
+  private def isField = namedElement.is[PsiField]
 
   override def equiv(other: Signature): Boolean = other match {
     case otherTerm: TermSignature =>
@@ -211,13 +212,15 @@ object TermSignature {
     name:         String,
     paramTypes:   Seq[() => ScType],
     substitutor:  ScSubstitutor,
-    namedElement: PsiNamedElement
+    namedElement: PsiNamedElement,
+    renamed:      Option[String]
   ): TermSignature =
-    new TermSignature(name, List(paramTypes), Seq.empty, substitutor, namedElement)
+    new TermSignature(name, List(paramTypes), Seq.empty, substitutor, namedElement, renamed = renamed)
 
   def apply(
     definition:  PsiNamedElement,
-    substitutor: ScSubstitutor = ScSubstitutor.empty
+    substitutor: ScSubstitutor  = ScSubstitutor.empty,
+    renamed:     Option[String] = None
   ): TermSignature = definition match {
     case function: ScFunction =>
       new TermSignature(
@@ -226,7 +229,8 @@ object TermSignature {
         function.getTypeParameters.instantiate,
         substitutor,
         function,
-        PhysicalMethodSignature.hasRepeatedParam(function)
+        PhysicalMethodSignature.hasRepeatedParam(function),
+        renamed
       )
     case _ =>
       new TermSignature(
@@ -234,26 +238,30 @@ object TermSignature {
         Seq.empty,
         Seq.empty,
         substitutor,
-        definition
+        definition,
+        renamed = renamed
       )
   }
 
   def withoutParams(
     name:         String,
     subst:        ScSubstitutor,
-    namedElement: PsiNamedElement
+    namedElement: PsiNamedElement,
+    renamed:      Option[String] = None
   ): TermSignature =
-    TermSignature(name, Seq.empty, subst, namedElement)
+    TermSignature(name, Seq.empty, subst, namedElement, renamed)
 
   def setter(
     name:       String,
     definition: ScTypedDefinition,
-    subst:      ScSubstitutor = ScSubstitutor.empty
+    subst:      ScSubstitutor = ScSubstitutor.empty,
+    renamed:    Option[String] = None
   ): TermSignature = TermSignature(
     name,
     Seq(() => definition.`type`().getOrAny),
     subst,
-    definition
+    definition,
+    renamed
   )
 
   def scalaSetter(
@@ -345,16 +353,16 @@ object PhysicalMethodSignature {
 final class PhysicalMethodSignature(
   val method:               PsiMethod,
   override val substitutor: ScSubstitutor,
-  extensionTypeParameters:  Option[Seq[ScTypeParam]] = None
+  extensionTypeParameters:  Option[Seq[ScTypeParam]] = None,
+  override val renamed:     Option[String] = None
 ) extends TermSignature(
-  method.name,
+  renamed.getOrElse(method.name),
   PhysicalMethodSignature.typesEval(method),
   PhysicalMethodSignature.typeParamsWithExtension(method, extensionTypeParameters.getOrElse(Seq.empty)),
   substitutor,
   method,
   PhysicalMethodSignature.hasRepeatedParam(method)
 ) {
-
   override def isJava: Boolean            = method.getLanguage == JavaLanguage.INSTANCE
   override def isExtensionMethod: Boolean = extensionTypeParameters.nonEmpty
 }

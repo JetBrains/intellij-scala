@@ -293,7 +293,7 @@ final class ScProjectionType private(val projected: ScType,
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitProjectionType(this)
 
-  def canEqual(other: Any): Boolean = other.isInstanceOf[ScProjectionType]
+  def canEqual(other: Any): Boolean = other.is[ScProjectionType]
 
   override def equals(other: Any): Boolean = other match {
     case that: ScProjectionType =>

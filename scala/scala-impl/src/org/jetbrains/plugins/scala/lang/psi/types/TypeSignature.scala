@@ -7,16 +7,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
-  * Represents type alias, inner class or trait.
-  */
-case class TypeSignature(override val namedElement: PsiNamedElement, override val substitutor: ScSubstitutor)
-  extends Signature {
-
-  override val name: String = ScalaNamesUtil.clean(namedElement.name)
+ * Represents type alias, inner class or trait.
+ */
+case class TypeSignature(
+  override val namedElement: PsiNamedElement,
+  override val substitutor:  ScSubstitutor,
+  override val renamed:      Option[String] = None
+) extends Signature {
+  override val name: String = ScalaNamesUtil.clean(renamed.getOrElse(namedElement.name))
 
   override def isAbstract: Boolean = namedElement match {
     case _: ScTypeAliasDeclaration => true
-    case _ => false
+    case _                         => false
   }
 
   override def isImplicit: Boolean = false
@@ -29,7 +31,7 @@ case class TypeSignature(override val namedElement: PsiNamedElement, override va
 
   override def equals(other: Any): Boolean = other match {
     case that: TypeSignature => namedElement == that.namedElement
-    case _ => false
+    case _                   => false
   }
 
   override def hashCode(): Int = namedElement.hashCode()
