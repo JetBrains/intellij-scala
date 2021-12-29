@@ -9,7 +9,8 @@ import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.editor.RangeMarker
+import com.intellij.openapi.editor.{Editor, RangeMarker}
+import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util._
@@ -69,7 +70,6 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Futu
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.runtime.NonLocalReturnControl
-import scala.tools.nsc.io.File
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
 
@@ -906,6 +906,14 @@ package object extensions {
       val file = element.getContainingFile
       file != null && file.isScala3File
     }
+
+    /** Must be called from <a href="https://docs.oracle.com/javase/tutorial/uiswing/concurrency/dispatch.html">EDT</a>. */
+    def openTextEditor(implicit project: Project): Option[Editor] = for {
+      virtualFile <- element.containingVirtualFile
+      descriptor = new OpenFileDescriptor(project, virtualFile)
+      fileEditorManager = FileEditorManager.getInstance(project)
+      editor <- fileEditorManager.openTextEditor(descriptor, true).toOption
+    } yield editor
   }
 
   implicit class PsiTypeExt(@Nullable val `type`: PsiType) extends AnyVal {

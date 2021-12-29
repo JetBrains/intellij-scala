@@ -869,6 +869,11 @@
                          key="displayname.deprecated.package.object"
                          groupPath="Scala" groupKey="group.general" shortName="DeprecatedPackageObject"
                          id="DeprecatedPackageObject" level="WARNING" enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.Scala3DeprecatedAlphanumericInfixCallInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.alphanumeric.definition.used.as.infix.operator.is.not.declared.infix"
+                         groupPath="Scala" groupKey="group.general" shortName="DeprecatedAlphanumericInfixCall"
+                         id="DeprecatedAlphanumericInfixCall" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.DeprecatedKindProjectorSyntaxInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.deprecated.kind.projector.syntax"

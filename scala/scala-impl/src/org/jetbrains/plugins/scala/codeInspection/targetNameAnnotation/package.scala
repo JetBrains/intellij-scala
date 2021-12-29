@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.codeInsight.template.TemplateBuilderFactory
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
@@ -56,10 +55,7 @@ package object targetNameAnnotation {
       if (extName.isEmpty) {
         for {
           templateContainerElement <- annotation.annotationExpr.getAnnotationParameters.headOption
-          virtualFile <- templateContainerElement.containingVirtualFile
-          descriptor = new OpenFileDescriptor(project, virtualFile)
-          fileEditorManager = FileEditorManager.getInstance(project)
-          editor <- fileEditorManager.openTextEditor(descriptor, true).toOption
+          editor <- templateContainerElement.openTextEditor
         } runTemplate(editor, templateContainerElement)
       }
     }

@@ -4,13 +4,13 @@ package intention
 package types
 
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
-import com.intellij.openapi.command.undo.UndoUtil.markPsiFileForUndo
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.quickfix.ConvertFromInfixTypeQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParenthesisedTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
 
 /** Converts type element `(A @@ B)` to `@@[A, B]` */
 class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
@@ -30,15 +30,6 @@ class ConvertFromInfixIntention extends PsiElementBaseIntentionAction {
       .flatMap(_.parentOfType(classOf[ScInfixTypeElement], strict = false))
       .getOrElse(return)
 
-    val replacement = infixTypeElement.computeDesugarizedType
-      .getOrElse(return)
-
-    val elementToReplace = infixTypeElement.getParent match {
-      case x: ScParenthesisedTypeElement => x
-      case _ => infixTypeElement
-    }
-
-    elementToReplace.replace(replacement)
-    markPsiFileForUndo(replacement.getContainingFile)
+    ConvertFromInfixTypeQuickFix.applyFix(infixTypeElement)
   }
 }

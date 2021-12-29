@@ -1,0 +1,88 @@
+<html>
+<body>
+<p>Reports usages of alphanumeric definitions without `infix` modifier as infix operator.</p>
+
+<ul>
+<li>"Wrap in backticks" quick-fix adds <code>`</code> symbols around calls.</li>
+<li>"Convert from infix expression" quick-fix converts infix call to method syntax <code>.method(...)</code>.</li>
+<li>"Convert from infix type" quick-fix converts infix type to prefix syntax <code>Type[...]</code>.</li>
+<li>"Convert from infix pattern" quick-fix converts infix pattern to prefix syntax <code>pattern(...)</code>.</li>
+</ul>
+
+<p><b>Example:</b></p>
+<pre><code>
+  class C:
+    def op(x: Int): Int = ???
+  type Or[X, Y]
+  case class Pair[T](x: T, y: T)
+
+  val c = C()
+  val p = Pair(1, 2)
+
+  c op 2
+  val or: Int Or String = ???
+  val _ Pair _ = p
+</code></pre>
+
+<p>After the "Wrap in backticks" quick-fix is applied:</p>
+<pre><code>
+  class C:
+    def op(x: Int): Int = ???
+  type Or[X, Y]
+  case class Pair[T](x: T, y: T)
+
+  val c = C()
+  val p = Pair(1, 2)
+
+  c `op` 2
+  val or: Int `Or` String = ???
+  val _ `Pair` _ = p
+</code></pre>
+
+<p>After the "Convert from infix expression" quick-fix is applied:</p>
+<pre><code>
+  class C:
+    def op(x: Int): Int = ???
+  type Or[X, Y]
+  case class Pair[T](x: T, y: T)
+
+  val c = C()
+  val p = Pair(1, 2)
+
+  c.op(2)
+  val or: Int Or String = ???
+  val _ Pair _ = p
+</code></pre>
+
+<p>After the "Convert from infix type" quick-fix is applied:</p>
+<pre><code>
+  class C:
+    def op(x: Int): Int = ???
+  type Or[X, Y]
+  case class Pair[T](x: T, y: T)
+
+  val c = C()
+  val p = Pair(1, 2)
+
+  c op 2
+  val or: Or[Int, String] = ???
+  val _ Pair _ = p
+</code></pre>
+
+<p>After the "Convert from infix pattern" quick-fix is applied:</p>
+<pre><code>
+  class C:
+    def op(x: Int): Int = ???
+  type Or[X, Y]
+  case class Pair[T](x: T, y: T)
+
+  val c = C()
+  val p = Pair(1, 2)
+
+  c op 2
+  val or: Int Or String = ???
+  val Pair(_, _) = p
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
