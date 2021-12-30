@@ -1123,8 +1123,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12273(): Unit = doTest("i12273", true)
   def test_i12277(): Unit = doTest("i12277", true)
   def test_i12286(): Unit = doTest("i12286", false) // #intersectionType
-  def test_i12299(): Unit = doTest("i12299", false) // #export
-  def test_i12299a(): Unit = doTest("i12299a", false) // #export
+  def test_i12299(): Unit = doTest("i12299", true) // #export
+  def test_i12299a(): Unit = doTest("i12299a", true) // #export
   def test_i12306(): Unit = doTest("i12306", false) // #extension, #unionType
   def test_i12373(): Unit = doTest("i12373", true)
   def test_i12379a(): Unit = doTest("i12379a", false)
