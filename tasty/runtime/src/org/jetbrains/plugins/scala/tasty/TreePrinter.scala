@@ -144,7 +144,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     } else {
       val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
       val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
-      sb ++= parametersIn(repr, Some(repr))
+      parametersIn(sb, repr, Some(repr))
       if (bounds.isDefined) {
         sb ++= boundsIn(bounds.get)
       } else {
@@ -188,7 +188,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       val sb1 = new StringBuilder() // TODO
       modifiersIn(sb1, constructor)
       val modifiers = if (sb1.nonEmpty) " " + sb1.toString else ""
-      sb ++= parametersIn(constructor, Some(node), definition, modifiers = _ ++= modifiers)
+      parametersIn(sb, constructor, Some(node), definition, modifiers = _ ++= modifiers)
     }
     val hasParameters = sb.length > previousLength
     if (isInGiven && (!isInAnonymousGiven || hasParameters)) {
@@ -250,12 +250,12 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (name == "<init>") {
       modifiersIn(sb, node)
       sb ++= "def this"
-      sb ++= parametersIn(node)
+      parametersIn(sb, node)
       sb ++= " = ???" // TODO parameter, { /* compiled code */ }
     } else {
       if (node.hasFlag(EXTENSION)) {
         sb ++= "extension "
-        sb ++= parametersIn(node, target = Target.Extension)
+        parametersIn(sb, node, target = Target.Extension)
         sb ++= "\n  "
       }
       val isAbstractGiven = node.hasFlag(GIVEN)
@@ -267,7 +267,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (!isAnonymousGiven) {
         sb ++= name
       }
-      sb ++= parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition)
+      parametersIn(sb, node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition)
       sb ++= ": "
       val children = node.children
       val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
@@ -383,7 +383,10 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     case Node(TYPEBOUNDStpt, _, _) => "?" + boundsIn(node)
 
-    case Node(LAMBDAtpt, _, children) => parametersIn(node) + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
+    case Node(LAMBDAtpt, _, children) =>
+      val sb1 = new StringBuilder() // TODO
+      parametersIn(sb1, node)
+      sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
     case Node(REFINEDtpt, _, Seq(tr @ Node(TYPEREF, _, _), Node(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
       val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
@@ -444,7 +447,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     buffer.toSeq
   }
 
-  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => ()): String = {
+  private def parametersIn(sb: StringBuilder, node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => ()): Unit = {
     val tps = target match {
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
@@ -453,59 +456,60 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
 
-    var params = ""
     var open = false
     var next = false
 
     tps.foreach {
       case node @ Node(TYPEPARAM, Seq(name), _: _*) =>
         if (!open) {
-          params += "["
+          sb ++= "["
           open = true
           next = false
         }
         if (next) {
-          params += ", "
+          sb ++= ", "
         }
-        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
+        sb ++= textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         if (template.isEmpty) { // TODO deduplicate
           if (node.hasFlag(COVARIANT)) {
-            params += "+"
+            sb ++= "+"
           }
           if (node.hasFlag(CONTRAVARIANT)) {
-            params += "-"
+            sb ++= "-"
           }
         }
         templateTypeParams.map(_.next()).foreach { typeParam =>
-          params += textOfAnnotationIn(typeParam).replace("\n", " ") // TODO Handle in the method
+          sb ++= textOfAnnotationIn(typeParam).replace("\n", " ") // TODO Handle in the method
           if (typeParam.hasFlag(COVARIANT)) {
-            params += "+"
+            sb ++= "+"
           }
           if (typeParam.hasFlag(CONTRAVARIANT)) {
-            params += "-"
+            sb ++= "-"
           }
         }
-        params += (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
+        sb ++= (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
         node.children match {
           case Seq(lambda @ Node(LAMBDAtpt, _, _: _*), _: _*) =>
-            params += parametersIn(lambda)
+            parametersIn(sb, lambda)
             lambda.children.lastOption match { // TODO deduplicate somehow?
               case Some(bounds @ Node(TYPEBOUNDStpt, _, _: _*)) =>
-                params += boundsIn(bounds)
+                sb ++= boundsIn(bounds)
               case _ =>
             }
           case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
-            params += boundsIn(bounds)
+            sb ++= boundsIn(bounds)
           case _ =>
         }
         next = true
       case _ =>
     }
-    if (open) params += "]"
+    if (open) {
+      sb ++= "]"
+    }
 
-    val sb1 = new StringBuilder() // TODO
-    modifiers(sb1)
-    params += sb1.toString
+    val previousLength = sb.length
+    modifiers(sb)
+    val hasModifiers = sb.length > previousLength
 
     val ps = target match {
       case Target.Extension =>
@@ -524,28 +528,28 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     ps.foreach {
       case Node(EMPTYCLAUSE, _, _) =>
-        params += "()"
+        sb ++= "()"
       case Node(SPLITCLAUSE, _, _) =>
-        params += ")"
+        sb ++= ")"
         open = false
       case node @ Node(PARAM, Seq(name), children) =>
         if (!open) {
-          params += "("
+          sb ++= "("
           open = true
           next = false
           if (node.hasFlag(GIVEN)) {
-            params += "using "
+            sb ++= "using "
           }
           if (node.hasFlag(IMPLICIT)) {
-            params += "implicit "
+            sb ++= "implicit "
           }
         }
         if (next) {
-          params += ", "
+          sb ++= ", "
         }
-        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
+        sb ++= textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         if (node.hasFlag(INLINE)) {
-          params += "inline "
+          sb ++= "inline "
         }
         val templateValueParam = templateValueParams.map(_.next())
         if (!definition.exists(isGivenImplicitClass0)) {
@@ -553,29 +557,35 @@ class TreePrinter(privateMembers: Boolean = false) {
             if (!valueParam.hasFlag(LOCAL)) {
               val sb1 = new StringBuilder() // TODO
               modifiersIn(sb1, valueParam, Set(GIVEN))
-              params += sb1
+              sb ++= sb1
               if (valueParam.hasFlag(MUTABLE)) {
-                params += "var "
+                sb ++= "var "
               } else {
                 if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(_.is(CASEaccessor, HASDEFAULT)))) {
-                  params += "val "
+                  sb ++= "val "
                 }
               }
             }
           }
         }
         if (!(node.hasFlag(SYNTHETIC) || templateValueParam.exists(_.hasFlag(SYNTHETIC)))) {
-          params += name + ": "
+          sb ++= name + ": "
         }
-        params += simple(textOfType(children.head))
+        sb ++= simple(textOfType(children.head))
         if (node.hasFlag(HASDEFAULT)) {
-          params += " = ???" // TODO parameter, /* compiled code */
+          sb ++= " = ???" // TODO parameter, /* compiled code */
         }
         next = true
       case _ =>
     }
-    if (open) params += ")"
-    if (template.isEmpty || sb1.nonEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
+    if (open) {
+      sb ++= ")"
+    }
+    if (template.isEmpty || hasModifiers || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) {} else {
+      if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()") {
+        sb.delete(sb.length - 2, sb.length())
+      }
+    }
   }
 
   private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): Unit = { // TODO Optimize
