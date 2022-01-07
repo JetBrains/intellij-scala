@@ -41,7 +41,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     case _ => "" // TODO exhaustive match
   }
 
-  private def textOfPackage(sb: StringBuilder, node: Node, name: String, children: Seq[Node])(using privateMembers: Boolean = false): Unit = {
+  private def textOfPackage(sb: StringBuilder, node: Node, name: String, children: Seq[Node]): Unit = {
     children.filterNot(_.tag == IMPORT) match {
       case Seq(node @ Node(PACKAGE, _, _), _: _*) =>
         textOf(sb, node)
@@ -88,7 +88,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     }
   }
 
-  private def textOfTypeDef(sb: StringBuilder, node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): Unit = {
+  private def textOfTypeDef(sb: StringBuilder, node: Node, definition: Option[Node] = None): Unit = {
     val name = node.name
     val template = node.children.head
     val isEnum = node.hasFlag(ENUM)
@@ -100,7 +100,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
     val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
     sb ++= textOfAnnotationIn(node)
-    sb ++= modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
+    modifiersIn(sb, if (isObject) node.previousSibling.getOrElse(node) else node,
       if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false)
     if (isImplicitClass) {
       sb ++= "implicit "
@@ -165,10 +165,9 @@ class TreePrinter(privateMembers: Boolean = false) {
 
   // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
   // TODO why $default$ methods are not synthetic?
-  private def textOfTemplate(sb: StringBuilder, node: Node, definition: Option[Node])(using privateMembers: Boolean = false): Unit = {
+  private def textOfTemplate(sb: StringBuilder, node: Node, definition: Option[Node]): Unit = {
     val children = node.children
     val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
-    val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
     val isInEnum = definition.exists(_.hasFlag(ENUM))
     val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
     val parents = children.collect { // TODO rely on name kind
@@ -186,7 +185,10 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     val previousLength = sb.length
     primaryConstructor.foreach { constructor =>
-      sb ++= parametersIn(constructor, Some(node), definition, modifiers = modifiers)
+      val sb1 = new StringBuilder() // TODO
+      modifiersIn(sb1, constructor)
+      val modifiers = if (sb1.nonEmpty) " " + sb1.toString else ""
+      sb ++= parametersIn(constructor, Some(node), definition, modifiers = _ ++= modifiers)
     }
     val hasParameters = sb.length > previousLength
     if (isInGiven && (!isInAnonymousGiven || hasParameters)) {
@@ -246,7 +248,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     sb ++= textOfAnnotationIn(node)
     val name = node.name
     if (name == "<init>") {
-      sb ++= modifiersIn(node)
+      modifiersIn(sb, node)
       sb ++= "def this"
       sb ++= parametersIn(node)
       sb ++= " = ???" // TODO parameter, { /* compiled code */ }
@@ -257,7 +259,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         sb ++= "\n  "
       }
       val isAbstractGiven = node.hasFlag(GIVEN)
-      sb ++= modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
+      modifiersIn(sb, node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
       if (!isAbstractGiven) {
         sb ++= "def "
       }
@@ -282,14 +284,14 @@ class TreePrinter(privateMembers: Boolean = false) {
     }
   }
 
-  private def textOfValDef(sb: StringBuilder, node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): Unit = {
+  private def textOfValDef(sb: StringBuilder, node: Node, definition: Option[Node] = None): Unit = {
     val isCase = node.hasFlag(CASE)
     sb ++= textOfAnnotationIn(node)
     if (!isCase || definition.exists(_.hasFlag(ENUM))) {
       val name = node.name
       val children = node.children
       val isGivenAlias = node.hasFlag(GIVEN)
-      sb ++= modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
+      modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
       if (isCase) {
         sb ++= name
         if (isCase) {
@@ -412,6 +414,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     case _ => ""
   }
 
+  // TODO
   private def textOfAnnotationIn(node: Node): String = {
     node.children.lastOption match {
       case Some(Node(ANNOTATION, _, Seq(tpe, Node(APPLY, _, children)))) =>
@@ -441,7 +444,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     buffer.toSeq
   }
 
-  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: String = ""): String = {
+  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: StringBuilder => Unit = _ => ()): String = {
     val tps = target match {
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
@@ -500,7 +503,9 @@ class TreePrinter(privateMembers: Boolean = false) {
     }
     if (open) params += "]"
 
-    params += modifiers
+    val sb1 = new StringBuilder() // TODO
+    modifiers(sb1)
+    params += sb1.toString
 
     val ps = target match {
       case Target.Extension =>
@@ -546,7 +551,9 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (!definition.exists(isGivenImplicitClass0)) {
           templateValueParam.foreach { valueParam =>
             if (!valueParam.hasFlag(LOCAL)) {
-              params += modifiersIn(valueParam, Set(GIVEN))
+              val sb1 = new StringBuilder() // TODO
+              modifiersIn(sb1, valueParam, Set(GIVEN))
+              params += sb1
               if (valueParam.hasFlag(MUTABLE)) {
                 params += "var "
               } else {
@@ -568,66 +575,64 @@ class TreePrinter(privateMembers: Boolean = false) {
       case _ =>
     }
     if (open) params += ")"
-    if (template.isEmpty || modifiers.nonEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
+    if (template.isEmpty || sb1.nonEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
   }
 
-  private def modifiersIn(node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): String = { // TODO Optimize
-    var s = ""
+  private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): Unit = { // TODO Optimize
     if (node.hasFlag(OVERRIDE)) {
-      s += "override "
+      sb ++= "override "
     }
     if (node.hasFlag(PRIVATE)) {
       if (node.hasFlag(LOCAL)) {
-//        s += "private[this] " TODO Enable? (in Scala 3 it's almost always inferred)
-        s += "private "
+//        sb += "private[this] " TODO Enable? (in Scala 3 it's almost always inferred)
+        sb ++= "private "
       } else {
-        s += "private "
+        sb ++= "private "
       }
     } else if (node.hasFlag(PROTECTED)) {
-      s += "protected "
+      sb ++= "protected "
     } else {
       node.children.foreach {
         case Node(PRIVATEqualified, _, Seq(qualifier)) =>
-          s += "private[" + asQualifier(textOfType(qualifier)) + "] "
+          sb ++= "private[" + asQualifier(textOfType(qualifier)) + "] "
         case Node(PROTECTEDqualified, _, Seq(qualifier)) =>
-          s += "protected[" + asQualifier(textOfType(qualifier)) + "] "
+          sb ++= "protected[" + asQualifier(textOfType(qualifier)) + "] "
         case _ =>
       }
     }
     if (node.hasFlag(SEALED) && !excluding(SEALED)) {
-      s += "sealed "
+      sb ++= "sealed "
     }
     if (node.hasFlag(OPEN)) {
-      s += "open "
+      sb ++= "open "
     }
     if (node.hasFlag(GIVEN) && !excluding(GIVEN)) {
-      s += (if (isParameter) "using " else "given ")
+      sb ++= (if (isParameter) "using " else "given ")
     }
     if (node.hasFlag(IMPLICIT)) {
-      s += "implicit "
+      sb ++= "implicit "
     }
     if (node.hasFlag(FINAL) && !excluding(FINAL)) {
-      s += "final "
+      sb ++= "final "
     }
     if (node.hasFlag(LAZY) && !excluding(LAZY)) {
-      s += "lazy "
+      sb ++= "lazy "
     }
     if (node.hasFlag(ABSTRACT) && !excluding(ABSTRACT)) {
-      s += "abstract "
+      sb ++= "abstract "
     }
     if (node.hasFlag(TRANSPARENT)) {
-      s += "transparent "
+      sb ++= "transparent "
     }
     if (node.hasFlag(OPAQUE) && !excluding(OPAQUE)) {
-      s += "opaque "
+      sb ++= "opaque "
     }
     if (node.hasFlag(INLINE)) {
-      s += "inline "
+      sb ++= "inline "
     }
     if (node.hasFlag(CASE) && !excluding(CASE)) {
-      s += "case "
+      sb ++= "case "
     }
-    s
   }
 
   private def boundsIn(node: Node) = node match {
