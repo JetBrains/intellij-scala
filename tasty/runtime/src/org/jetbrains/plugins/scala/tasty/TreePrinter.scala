@@ -7,7 +7,9 @@ import java.lang.Float.intBitsToFloat
 import scala.collection.mutable
 
 // TODO refactor
-// TODO use StringBuilder
+// TODO use StringBuilder: type
+// TODO String indent
+// TODO nonEmpty predicate
 class TreePrinter(privateMembers: Boolean = false) {
 
   private def isGivenObject0(typedef: Node): Boolean =
@@ -62,7 +64,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
         }
         children match {
-          case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if (name1.endsWith("$package") && name2.endsWith("$package$")) => // TODO use name type, not contents
+          case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
               val previousLength = sb.length
               textOf(sb, definition)
@@ -146,7 +148,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
       parametersIn(sb, repr, Some(repr))
       if (bounds.isDefined) {
-        sb ++= boundsIn(bounds.get)
+        boundsIn(sb, bounds.get)
       } else {
         sb ++= " = "
         if (node.hasFlag(OPAQUE)) {
@@ -381,7 +383,10 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
     case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
 
-    case Node(TYPEBOUNDStpt, _, _) => "?" + boundsIn(node)
+    case Node(TYPEBOUNDStpt, _, _) =>
+      val sb1 = new StringBuilder() // TODO
+      boundsIn(sb1, node)
+      "?" + sb1.toString
 
     case Node(LAMBDAtpt, _, children) =>
       val sb1 = new StringBuilder() // TODO
@@ -493,11 +498,11 @@ class TreePrinter(privateMembers: Boolean = false) {
             parametersIn(sb, lambda)
             lambda.children.lastOption match { // TODO deduplicate somehow?
               case Some(bounds @ Node(TYPEBOUNDStpt, _, _: _*)) =>
-                sb ++= boundsIn(bounds)
+                boundsIn(sb, bounds)
               case _ =>
             }
           case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
-            sb ++= boundsIn(bounds)
+            boundsIn(sb, bounds)
           case _ =>
         }
         next = true
@@ -645,18 +650,16 @@ class TreePrinter(privateMembers: Boolean = false) {
     }
   }
 
-  private def boundsIn(node: Node) = node match {
+  private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
     case Node(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
-      var s = ""
       val l = simple(textOfType(lower))
-      if (l.nonEmpty && l != "Nothing") {
-        s += " >: " + l
+      if (l.nonEmpty && l != "Nothing") { // TODO use FQNs
+        sb ++= " >: " + l
       }
       val u = simple(textOfType(upper))
       if (u.nonEmpty && u != "Any") {
-        s += " <: " + u
+        sb ++= " <: " + u
       }
-      s
     case _ => "" // TODO exhaustive match
   }
 
