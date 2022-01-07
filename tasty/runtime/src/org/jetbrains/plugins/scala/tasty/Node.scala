@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.tasty
 import dotty.tools.tasty.TastyFormat
 
 // TODO custom extractors
+// TODO children[T]
 case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
   override def toString: String = toString(0)
 

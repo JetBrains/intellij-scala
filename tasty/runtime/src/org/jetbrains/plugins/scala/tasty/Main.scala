@@ -5,7 +5,11 @@ import java.nio.file.{Files, Paths}
 import java.util.jar.JarInputStream
 import scala.util.chaining.scalaUtilChainingOps
 
-object Compare {
+object Main {
+  enum Mode { case Parse, Test, Benchmark }
+
+  private val mode = Mode.Test
+
   private val Home: String = System.getProperty("user.home")
 
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
@@ -29,10 +33,6 @@ object Compare {
     "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
   )
 
-  enum Mode { case Parse, Compare, Benchmark }
-
-  private val mode = Mode.Benchmark
-
   def main(args: Array[String]): Unit = {
     assert(new File(OutputDir).getParentFile.exists)
 
@@ -50,8 +50,15 @@ object Compare {
               file.getParentFile.mkdirs()
               //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
               Files.write(path, TreePrinter.textOf(tree).getBytes)
-            case Mode.Compare =>
-              assert(new String(Files.readAllBytes(path)) == TreePrinter.textOf(tree), path)
+            case Mode.Test =>
+              val expected = new String(Files.readAllBytes(path))
+              val actual = TreePrinter.textOf(tree)
+              if (expected != actual) {
+                System.err.println(path)
+                System.err.println("Expected:\n" + expected)
+                System.err.println("Actual:\n" + actual)
+                System.exit(-1)
+              }
             case Mode.Benchmark =>
               TreePrinter.textOf(tree)
           }
