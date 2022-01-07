@@ -30,14 +30,6 @@ object TreePrinter {
       textOfTypeDef(sb, node, definition)
       sb.toString
 
-    // TODO from type definition
-    case node @ Node(TEMPLATE, _, _) =>
-    // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
-    // TODO why $default$ methods are not synthetic?
-      val sb = new StringBuilder()
-      textOfTemplate(sb, node, definition)
-      sb.toString
-
     case node @ Node(DEFDEF, Seq(name), _) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
       val sb = new StringBuilder()
       textOfDefDef(sb, node)
@@ -150,7 +142,9 @@ object TreePrinter {
       }
     }
     if (!isTypeMember) {
-      sb ++= textOf(template, Some(node))
+      val sb1 = new StringBuilder() // TODO
+      textOfTemplate(sb1, template, Some(node))
+      sb ++= sb1.toString
     } else {
       val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
       val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
@@ -173,6 +167,8 @@ object TreePrinter {
     }
   }
 
+  // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
+  // TODO why $default$ methods are not synthetic?
   private def textOfTemplate(sb: StringBuilder, node: Node, definition: Option[Node])(using privateMembers: Boolean = false): Unit = {
     val children = node.children
     val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
@@ -300,8 +296,10 @@ object TreePrinter {
         sb ++= name
         if (isCase) {
           // TODO check element types
-          children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { it =>
-            sb ++= textOf(it)
+          children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
+            val sb1 = new StringBuilder() // TODO
+            textOfTemplate(sb1, template, None)
+            sb ++= sb1.toString
           }
         }
       } else {
