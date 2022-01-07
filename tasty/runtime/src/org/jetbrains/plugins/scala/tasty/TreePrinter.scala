@@ -19,26 +19,24 @@ class TreePrinter(privateMembers: Boolean = false) {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  def textOf(node: Node, definition: Option[Node] = None): String = node match {
+  def textOf(node: Node): String = {
+    val sb = new StringBuilder()
+    textOf(sb, node)
+    sb.toString
+  }
+
+  private def textOf(sb: StringBuilder, node: Node, definition: Option[Node] = None): Unit = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
-      val sb = new StringBuilder()
       textOfPackage(sb, node, name, children)
-      sb.toString
 
     case node @ Node(TYPEDEF, _, _) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
-      val sb = new StringBuilder()
       textOfTypeDef(sb, node, definition)
-      sb.toString
 
     case node @ Node(DEFDEF, Seq(name), _) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
-      val sb = new StringBuilder()
       textOfDefDef(sb, node)
-      sb.toString
 
     case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (privateMembers || !node.hasFlag(PRIVATE)) =>
-      val sb = new StringBuilder()
       textOfValDef(sb, node, definition)
-      sb.toString
 
     case _ => "" // TODO exhaustive match
   }
@@ -46,7 +44,7 @@ class TreePrinter(privateMembers: Boolean = false) {
   private def textOfPackage(sb: StringBuilder, node: Node, name: String, children: Seq[Node])(using privateMembers: Boolean = false): Unit = {
     children.filterNot(_.tag == IMPORT) match {
       case Seq(node @ Node(PACKAGE, _, _), _: _*) =>
-        sb ++= textOf(node)
+        textOf(sb, node)
 
       case children =>
         val containsPackageObject = children match {
@@ -67,7 +65,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if (name1.endsWith("$package") && name2.endsWith("$package$")) => // TODO use name type, not contents
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
               val previousLength = sb.length
-              sb ++= textOf(definition)
+              textOf(sb, definition)
               if (sb.length > previousLength) {
                 sb ++= "\n\n"
               }
@@ -78,7 +76,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           case _ =>
             children.foreach { child =>
               val previousLength = sb.length
-              sb ++= textOf(child, if (containsPackageObject) Some(node) else None)
+              textOf(sb, child, if (containsPackageObject) Some(node) else None)
               if (sb.length > previousLength) {
                 sb ++= "\n\n"
               }
@@ -142,9 +140,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
     }
     if (!isTypeMember) {
-      val sb1 = new StringBuilder() // TODO
-      textOfTemplate(sb1, template, Some(node))
-      sb ++= sb1.toString
+      textOfTemplate(sb, template, Some(node))
     } else {
       val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
       val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
@@ -215,7 +211,9 @@ class TreePrinter(privateMembers: Boolean = false) {
       val previousLength = sb.length
       var isFirst = true
       members.foreach { member =>
-        val text = textOf(member, definition)
+        val sb1 = new StringBuilder() // TODO
+        textOf(sb1, member, definition)
+        val text = sb1.toString
         if (text.nonEmpty) { // TODO optimize
           if (isFirst) {
             isFirst = false
@@ -297,9 +295,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (isCase) {
           // TODO check element types
           children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
-            val sb1 = new StringBuilder() // TODO
-            textOfTemplate(sb1, template, None)
-            sb ++= sb1.toString
+            textOfTemplate(sb, template, None)
           }
         }
       } else {
@@ -397,7 +393,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
     case Node(REFINEDtpt, _, Seq(tpe, members: _*)) =>
       val prefix = textOfType(tpe)
-      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)).mkString("; ") + " }"
+      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)).mkString("; ") + " }" // TODO textOfMember
 
     case _ => "" // TODO exhaustive match
   }
