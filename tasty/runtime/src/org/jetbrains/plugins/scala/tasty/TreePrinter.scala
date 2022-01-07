@@ -8,7 +8,7 @@ import scala.collection.mutable
 
 // TODO refactor
 // TODO use StringBuilder
-object TreePrinter {
+class TreePrinter(privateMembers: Boolean = false) {
 
   private def isGivenObject0(typedef: Node): Boolean =
     typedef.hasFlag(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.hasFlag(OBJECT) && prev.hasFlag(GIVEN))
@@ -19,7 +19,7 @@ object TreePrinter {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  def textOf(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = node match { // TODO settings
+  def textOf(node: Node, definition: Option[Node] = None): String = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
       val sb = new StringBuilder()
       textOfPackage(sb, node, name, children)

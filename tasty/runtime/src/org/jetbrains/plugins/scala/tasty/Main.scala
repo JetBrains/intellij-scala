@@ -38,6 +38,8 @@ object Main {
 
     val start = System.currentTimeMillis()
 
+    val treePrinter = new TreePrinter()
+
     Libraries.foreach { binaries =>
       println("Parsing TASTy:\t\t" + binaries)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
@@ -49,10 +51,10 @@ object Main {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
               //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
-              Files.write(path, TreePrinter.textOf(tree).getBytes)
+              Files.write(path, treePrinter.textOf(tree).getBytes)
             case Mode.Test =>
               val expected = new String(Files.readAllBytes(path))
-              val actual = TreePrinter.textOf(tree)
+              val actual = treePrinter.textOf(tree)
               if (expected != actual) {
                 System.err.println(path)
                 System.err.println("Expected:\n" + expected)
@@ -60,7 +62,7 @@ object Main {
                 System.exit(-1)
               }
             case Mode.Benchmark =>
-              TreePrinter.textOf(tree)
+              treePrinter.textOf(tree)
           }
         }
       }

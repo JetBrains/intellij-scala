@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.tasty
 
-import org.jetbrains.plugins.scala.tasty.TreePrinter.textOf
-
 import scala.util.control.NonFatal
 //import org.junit.Assert
 
@@ -61,6 +59,8 @@ import scala.collection.mutable
 object TastyReaderTest {
 
   def main(args: Array[String]): Unit = {
+    val treePrinter = new TreePrinter(privateMembers = true)
+
     var passed, failed = Seq.empty[String]
 
     Seq(
@@ -149,7 +149,7 @@ object TastyReaderTest {
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
       val actual = try {
-        textOf(tree)(using privateMembers = true)
+        treePrinter.textOf(tree)
       } catch {
         case NonFatal(e) =>
           Console.err.println(scalaFile)
