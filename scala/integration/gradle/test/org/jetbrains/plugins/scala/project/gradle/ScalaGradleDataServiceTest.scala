@@ -37,7 +37,10 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       linkedProjectPath := getProject.getBasePath
 
       val scalaLibrary: Option[library] = scalaVersion.map { version =>
-        new library { name := "org.scala-lang:scala-library:" + version }
+        if (version.startsWith("3"))
+          new library { name := "org.scala-lang:scala-library:" + version }
+        else 
+          new library { name := "org.scala-lang:scala3-library_3:" + version }
       }
 
       scalaLibrary.foreach(libraries += _)
@@ -239,6 +242,52 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
     assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8", "-target:jvm-1.5"), testCompilerConfiguration.additionalCompilerOptions)
   }
 
+  def testCompilerOptionsSetupForScala3(): Unit = {
+    val additionalOptions = Seq(
+      "-explain",
+      "-explain-types",
+      "-feature",
+    )
+
+    val options = new ScalaCompileOptionsData
+    options.setDebugLevel("source")
+    options.setEncoding("utf-8")
+    options.setDeprecation(true)
+    options.setOptimize(true)
+    options.setUnchecked(true)
+    options.setAdditionalParameters(additionalOptions.asJava)
+
+    importProjectData(
+      generateProject(
+        Some("3.1.0"),
+        scala3CompilerClasspath,
+        Some(options)
+      )
+    )
+
+    val compilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module_main")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
+
+    def toProjectAbsolutePath(relativePath: String): String =
+      new File(getProject.getBasePath).getAbsolutePath + File.separator + relativePath
+
+    assertEquals("debugging info level", DebuggingInfoLevel.Source, compilerConfiguration.debuggingInfoLevel)
+    assertCollectionEquals("additional compiler options", Seq("-encoding", "utf-8", "-Xtarget:1.5", "-explain", "-explain-types"), compilerConfiguration.additionalCompilerOptions)
+    assertTrue("deprecationWarnings", compilerConfiguration.deprecationWarnings)
+    assertTrue("featureWarnings", compilerConfiguration.featureWarnings)
+    assertTrue("optimiseBytecode", compilerConfiguration.optimiseBytecode)
+    assertTrue("uncheckedWarnings", compilerConfiguration.uncheckedWarnings)
+
+    val testCompilerConfiguration = {
+      val module = ModuleManager.getInstance(getProject).findModuleByName("module_test")
+      ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
+    }
+
+    assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8", "-Xtarget:1.5", "-explain", "-explain-types"), testCompilerConfiguration.additionalCompilerOptions)
+  }
+
   def testModuleIsNull(): Unit = {
     val testProject = new project {
       name := getProject.getName
@@ -255,6 +304,8 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
   }
 
   private def defaultCompilerClasspath = Set(new File("/tmp/test/scala-library-2.10.4.jar"))
+
+  private def scala3CompilerClasspath = Set(new File("/tmp/test/scala3-library_3-3.1.0.jar"))
 
   private def assertHasScalaSdk(): Unit = {
     val libraries = getProject
