@@ -30,17 +30,21 @@ class TreePrinter(privateMembers: Boolean = false) {
     sb.toString
   }
 
-  private def textOf(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = node match {
+  // TODO partial function, no prefix?
+  private def textOf(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
       textOfPackage(sb, indent, node, name, children)
 
     case node @ Node(TYPEDEF, _, _) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
+      sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
     case node @ Node(DEFDEF, Seq(name), _) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
+      sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
     case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (privateMembers || !node.hasFlag(PRIVATE)) =>
+      sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
     case _ => "" // TODO exhaustive match
@@ -66,6 +70,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= "\n\n"
 
         }
+        // TODO extract method
         children match {
           case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
@@ -83,7 +88,7 @@ class TreePrinter(privateMembers: Boolean = false) {
               val previousLength = sb.length
               textOf(sb, indent, child, if (containsPackageObject) Some(node) else None)
               if (sb.length > previousLength) {
-                sb ++= "\n\n"
+                sb ++= "\n\n" // TODO var delimiterRequired
               }
             }
             if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length) == "\n\n") {
@@ -217,19 +222,11 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (members.nonEmpty) {
       sb ++= " {\n"
       val previousLength = sb.length
-      var isFirst = true
+      var delimiterRequired = false
       members.foreach { member =>
-        val sb1 = new StringBuilder() // TODO
-        textOf(sb1, indent + Indent, member, definition)
-        val text = sb1.toString
-        if (text.exists(!_.isWhitespace)) { // TODO optimize
-          if (isFirst) {
-            isFirst = false
-          } else {
-            sb ++= "\n\n"
-          }
-          sb ++= text
-        }
+        val previousLength = sb.length
+        textOf(sb, indent + Indent, member, definition, if (delimiterRequired) "\n\n" else "")
+        delimiterRequired = delimiterRequired || sb.length > previousLength
       }
       if (sb.length > previousLength) {
         sb ++= "\n"
@@ -289,10 +286,10 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfValDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
-    textOfAnnotationIn(sb, indent, node, "\n")
-    sb ++= indent
     val isCase = node.hasFlag(CASE)
-    if (!isCase || definition.exists(_.hasFlag(ENUM))) {
+    if (!isCase || definition.exists(_.hasFlag(ENUM))) { // TODO extract to pattern
+      textOfAnnotationIn(sb, indent, node, "\n")
+      sb ++= indent
       val name = node.name
       val children = node.children
       val isGivenAlias = node.hasFlag(GIVEN)
