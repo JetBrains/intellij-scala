@@ -43,7 +43,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
-    case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (privateMembers || !node.hasFlag(PRIVATE)) =>
+    case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (!node.hasFlag(CASE) || definition.exists(_.hasFlag(ENUM))) && (privateMembers || !node.hasFlag(PRIVATE)) =>
       sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
@@ -286,45 +286,43 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfValDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
+    textOfAnnotationIn(sb, indent, node, "\n")
+    sb ++= indent
+    val name = node.name
+    val children = node.children
+    val isGivenAlias = node.hasFlag(GIVEN)
+    modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
     val isCase = node.hasFlag(CASE)
-    if (!isCase || definition.exists(_.hasFlag(ENUM))) { // TODO extract to pattern
-      textOfAnnotationIn(sb, indent, node, "\n")
-      sb ++= indent
-      val name = node.name
-      val children = node.children
-      val isGivenAlias = node.hasFlag(GIVEN)
-      modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
+    if (isCase) {
+      sb ++= name
       if (isCase) {
-        sb ++= name
-        if (isCase) {
-          // TODO check element types
-          children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
-            textOfTemplate(sb, indent, template, None)
-          }
+        // TODO check element types
+        children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
+          textOfTemplate(sb, indent, template, None)
         }
-      } else {
-        if (!isGivenAlias) {
-          if (node.hasFlag(MUTABLE)) {
-            sb ++= "var "
-          } else {
-            sb ++= "val "
-          }
+      }
+    } else {
+      if (!isGivenAlias) {
+        if (node.hasFlag(MUTABLE)) {
+          sb ++= "var "
+        } else {
+          sb ++= "val "
         }
-        val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
-        if (!isAnonymousGiven) {
-          sb ++= name + ": "
-        }
-        val tpe = children.headOption
-        tpe match {
-          case Some(t) =>
-            sb ++= simple(textOfType(t))
-          case None =>
-            sb ++= simple("") // TODO
-        }
-        val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
-        if (!isDeclaration) {
-          sb ++= " = ???" // TODO parameter, /* compiled code */
-        }
+      }
+      val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
+      if (!isAnonymousGiven) {
+        sb ++= name + ": "
+      }
+      val tpe = children.headOption
+      tpe match {
+        case Some(t) =>
+          sb ++= simple(textOfType(t))
+        case None =>
+          sb ++= simple("") // TODO
+      }
+      val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
+      if (!isDeclaration) {
+        sb ++= " = ???" // TODO parameter, /* compiled code */
       }
     }
   }
