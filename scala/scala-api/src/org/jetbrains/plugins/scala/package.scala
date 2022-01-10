@@ -1,7 +1,7 @@
 package org.jetbrains.plugins
 
 import com.intellij.openapi.application.ApplicationManager.{getApplication => application}
-import com.intellij.openapi.util.Computable
+import _root_.scala.annotation.nowarn
 
 package object scala {
 
@@ -38,6 +38,7 @@ package object scala {
 
   import _root_.scala.language.implicitConversions
 
-  private[this] implicit def toComputable[T](action: => T): Computable[T] = () => action
+  @nowarn("cat=deprecation")
+  private[this] implicit def toComputable[T](action: => T): com.intellij.openapi.util.Computable[T] = () => action
 
 }

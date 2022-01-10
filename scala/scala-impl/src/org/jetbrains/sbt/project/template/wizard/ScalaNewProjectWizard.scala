@@ -16,6 +16,8 @@ final class ScalaNewProjectWizard extends LanguageNewProjectWizard {
 
   override def createStep(parentStep: NewProjectWizardLanguageStep): ScalaNewProjectWizardStep =
     new ScalaNewProjectWizardStep(parentStep)
+
+  override def getOrdinal: Int = 1
 }
 
 object ScalaNewProjectWizard {

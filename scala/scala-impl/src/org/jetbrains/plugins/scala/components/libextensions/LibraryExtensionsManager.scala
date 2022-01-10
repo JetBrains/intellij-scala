@@ -28,6 +28,7 @@ import org.jetbrains.sbt.resolvers.SbtResolver
 import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Using}
@@ -69,7 +70,7 @@ final class LibraryExtensionsManager(project: Project) {
     private val accessed = new AtomicBoolean(false)
     override def afterLibraryAdded(newLibrary: Library): Unit = action()
     override def afterLibraryRemoved(library: Library): Unit = action()
-    override def afterLibraryRenamed(library: Library): Unit = action()
+    override def afterLibraryRenamed(library: Library, oldName: String): Unit = action()
 
     private def action(): Unit = {
       if (accessed.compareAndSet(false, true))
@@ -181,14 +182,14 @@ final class LibraryExtensionsManager(project: Project) {
   }
 
   private def saveCachedExtensions(): Unit = {
-    properties.setValues(EXT_JARS_KEY, myLoadedLibraries.map(_.file.getAbsolutePath).toArray)
+    properties.setList(EXT_JARS_KEY, myLoadedLibraries.map(_.file.getAbsolutePath).asJava)
   }
 
   private def loadCachedExtensions(): Unit = {
-    val jarPaths = properties.getValues(EXT_JARS_KEY)
+    val jarPaths = properties.getList(EXT_JARS_KEY)
     if (jarPaths != null) {
-      val existingFiles = jarPaths.map(new File(_)).filter(_.exists())
-      properties.setValues(EXT_JARS_KEY, existingFiles.map(_.getAbsolutePath))
+      val existingFiles = jarPaths.asScala.map(new File(_)).filter(_.exists())
+      properties.setList(EXT_JARS_KEY, existingFiles.map(_.getAbsolutePath).asJava)
       existingFiles.foreach(processResolvedExtensionWithLogging)
     }
   }

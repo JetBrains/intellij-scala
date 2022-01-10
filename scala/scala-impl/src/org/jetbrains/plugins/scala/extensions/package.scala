@@ -1274,7 +1274,8 @@ package object extensions {
 
   implicit def toProcessor[T](action: T => Boolean): Processor[T] = (t: T) => action(t)
 
-  implicit def toComputable[T](action: => T): Computable[T] = () => action
+  @nowarn("cat=deprecation")
+  implicit def toComputable[T](action: => T): com.intellij.openapi.util.Computable[T] = () => action
 
   implicit def toCallable[T](action: => T): Callable[T] = () => action
 

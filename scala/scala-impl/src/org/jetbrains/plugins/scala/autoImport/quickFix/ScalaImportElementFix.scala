@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import java.awt.Point
 import java.util.concurrent.atomic.{AtomicBoolean, AtomicReference}
 import java.util.concurrent.{ExecutorService, TimeUnit}
+import scala.annotation.nowarn
 
 abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiElement) extends HintAction with PriorityAction {
 
@@ -146,6 +147,8 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
           scheduleShowHint(editor)
         }
 
+        //TODO: consider not using ReadAction.nonBlocking as it's documentation suggests
+        @nowarn("cat=deprecation")
         val task = ReadAction.nonBlocking(computationRunnable)
           .expireWhen(() => !isUpToDate || !isRelevant(editor))
 

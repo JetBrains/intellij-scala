@@ -12,11 +12,12 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
-import org.jetbrains.sbt.{RichFile, inWriteAction}
+import org.jetbrains.sbt.RichFile
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category

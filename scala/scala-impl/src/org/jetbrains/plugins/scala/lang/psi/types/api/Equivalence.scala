@@ -1,18 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi
-package types
-package api
-
-import java.util.concurrent.ConcurrentHashMap
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
-import org.jetbrains.plugins.scala.caches.stats.CacheTracker
-import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
 import org.jetbrains.plugins.scala.extensions.NullSafe
 import org.jetbrains.plugins.scala.lang.psi.types.api.Equivalence._
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Supplier
 import scala.util.DynamicVariable
 
 /**
@@ -53,7 +49,7 @@ trait Equivalence {
     } else Left
   }
 
-  protected def equivComputable(key: Key): Computable[ConstraintsResult]
+  protected def equivComputable(key: Key): Supplier[ConstraintsResult]
 
   private def equivInner(key: Key): ConstraintsResult = {
     val tracer = Tracer(equivInnerTraceId, equivInnerTraceId)
@@ -72,7 +68,7 @@ trait Equivalence {
 
         tracer.calculationStart()
         val result = try {
-          NullSafe(equivComputable(key).compute())
+          NullSafe(equivComputable(key).get())
         } finally {
           tracer.calculationEnd()
         }

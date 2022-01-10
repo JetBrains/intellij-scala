@@ -10,9 +10,9 @@ import java.nio.file.Path
 /** analog of [[com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step]] */
 //noinspection ApiStatus,UnstableApiUsage
 final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
-  extends AbstractNewProjectWizardMultiStep[ScalaNewProjectWizardStep](parent, BuildSystemScalaNewProjectWizard.EP_NAME)
-    with NewProjectWizardBuildSystemData
-    with NewProjectWizardLanguageData
+  extends AbstractNewProjectWizardMultiStep[ScalaNewProjectWizardStep, BuildSystemScalaNewProjectWizard](parent, BuildSystemScalaNewProjectWizard.EP_NAME)
+    with BuildSystemNewProjectWizardData
+    with LanguageNewProjectWizardData
     with NewProjectWizardBaseData {
 
   override protected def getSelf: ScalaNewProjectWizardStep = this
@@ -25,10 +25,12 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
 
   //NewProjectWizardBuildSystemData
   override def getBuildSystem: String = getStep
+  override def setBuildSystem(buildSystem: String): Unit = setStep(buildSystem)
   override def getBuildSystemProperty: GraphProperty[String] = getStepProperty
 
   //NewProjectWizardLanguageData
   override def getLanguage: String = parent.getLanguage
+  override def setLanguage(language: String): Unit = parent.setLanguage(language)
   override def getLanguageProperty: GraphProperty[String] = parent.getLanguageProperty
 
   //NewProjectWizardBaseData
