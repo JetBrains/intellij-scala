@@ -203,7 +203,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (isInGiven) {
       sb ++= parents.mkString(" with ") + " with"
     } else {
-      if (parents.nonEmpty) {
+      if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.hasFlag(ENUM) && it.hasFlag(CASE))))) {
         sb ++= " extends " + parents.mkString(", ")
       }
     }
@@ -228,11 +228,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           } else {
             sb ++= "\n\n"
           }
-          if (definition.exists(_.hasFlag(ENUM))) {
-            sb ++= text.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) // TODO not text-based (need to know an outer definition)
-          } else {
-            sb ++= text
-          }
+          sb ++= text
         }
       }
       if (sb.length > previousLength) {
