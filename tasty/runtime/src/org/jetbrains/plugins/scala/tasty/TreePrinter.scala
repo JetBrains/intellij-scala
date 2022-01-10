@@ -6,6 +6,7 @@ import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
 import scala.collection.mutable
 
+// TODO enum companion: case(), object
 // TODO refactor
 // TODO use StringBuilder: type
 // TODO String indent
@@ -34,6 +35,8 @@ class TreePrinter(privateMembers: Boolean = false) {
   private def textOf(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
       textOfPackage(sb, indent, node, name, children)
+
+    // TODO textOfMember
 
     case node @ Node(TYPEDEF, _, _) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
       sb ++= prefix
@@ -68,31 +71,21 @@ class TreePrinter(privateMembers: Boolean = false) {
             sb ++= name
           }
           sb ++= "\n\n"
-
         }
-        // TODO extract method
+        // TODO extract method, de-duplicate
+        var delimiterRequired = false
         children match {
           case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
               val previousLength = sb.length
-              textOf(sb, indent, definition)
-              if (sb.length > previousLength) {
-                sb ++= "\n\n"
-              }
-            }
-            if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length) == "\n\n") {
-              sb.delete(sb.length - 2, sb.length)
+              textOf(sb, indent, definition, None, if (delimiterRequired) "\n\n" else "")
+              delimiterRequired = delimiterRequired || sb.length > previousLength
             }
           case _ =>
             children.foreach { child =>
               val previousLength = sb.length
-              textOf(sb, indent, child, if (containsPackageObject) Some(node) else None)
-              if (sb.length > previousLength) {
-                sb ++= "\n\n" // TODO var delimiterRequired
-              }
-            }
-            if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length) == "\n\n") {
-              sb.delete(sb.length - 2, sb.length)
+              textOf(sb, indent, child, if (containsPackageObject) Some(node) else None, if (delimiterRequired) "\n\n" else "")
+              delimiterRequired = delimiterRequired || sb.length > previousLength
             }
         }
     }
