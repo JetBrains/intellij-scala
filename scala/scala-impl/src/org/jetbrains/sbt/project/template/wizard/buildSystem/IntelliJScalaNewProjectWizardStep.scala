@@ -48,6 +48,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
+    //TODO: hide in "Advanced settings" when this is fixed IDEA-286441
     panel.row(packagePrefixLabel, (row: Row) => {
       row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
       row.layout(RowLayout.INDEPENDENT)
