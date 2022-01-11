@@ -64,7 +64,7 @@ object SbtScalacOptionUtils {
   def isScalacOption(ref: ScReferenceExpression): Boolean = isScalacOptionInternal(ref)
 
   def getScalacOptionsSbtSettingParent(element: PsiElement): Option[ScInfixExpr] =
-    element.parents.collectFirst {
+    element.contexts.collectFirst {
       case expr: ScInfixExpr if matchesScalacOptionsSbtSetting(expr.left) &&
         (if (isSeq(expr.right)) SEQ_OPS(expr.operation.refName) else SINGLE_OPS(expr.operation.refName)) =>
         expr
