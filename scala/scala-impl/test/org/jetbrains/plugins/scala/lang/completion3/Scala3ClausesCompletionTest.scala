@@ -22,12 +22,11 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |end Direction
          |
          |object O:
-         |  (_: Direction) match {
+         |  (_: Direction) match
          |    case Direction.North => $START$CARET???$END
          |    case Direction.South => ???
          |    case Direction.West => ???
          |    case Direction.East => ???
-         |  }
        """.stripMargin
   )
 
@@ -51,11 +50,10 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |end Json
          |
          |object O:
-         |  (_: Json) match {
+         |  (_: Json) match
          |    case Json.JsString(value) => $START$CARET???$END
          |    case Json.JsNumber(value) => ???
          |    case Json.JsNull => ???
-         |  }
        """.stripMargin
   )
 
@@ -83,10 +81,9 @@ class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
          |end MyEnum
          |
          |object O:
-         |  (_: MyEnum) match {
+         |  (_: MyEnum) match
          |    case MyEnum.Foo => $START$CARET???$END
          |    case MyEnum.Bar(value) => ???
-         |  }
        """.stripMargin
   )
 }

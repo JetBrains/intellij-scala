@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
@@ -28,7 +28,7 @@ final class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
       return Result.Continue
 
     // TODO: review the behaviour for all Scala contexts in case the setting is disabled
-    if (useIndentationBasedSyntax(file))
+    if (file.useIndentationBasedSyntax)
       return Result.Continue
 
     val caretOffset = caretOffsetRef.get.intValue

@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.highlighter.HighlighterIterator
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.fileEditor.impl.{FileDocumentManagerImpl, LoadTextUtil}
+import com.intellij.openapi.fileEditor.impl.FileDocumentManagerImpl
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -14,10 +14,8 @@ import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.reflect.ClassTag
 
@@ -123,12 +121,6 @@ package object editor {
       }
     }
   }
-
-  private[editor] def useIndentationBasedSyntax(file: PsiFile): Boolean =
-    file.getLanguage.isKindOf(Scala3Language.INSTANCE) && {
-      val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.features.indentationBasedSyntaxEnabled
-    }
 
   private[editor] implicit class PsiWhiteSpaceOps(private val target: PsiWhiteSpace) extends AnyVal {
     def getChars: CharSequence = target match {

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.editor.backspaceHandler
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightSettings
-import com.intellij.codeInsight.editorActions.{BackspaceHandler, BackspaceHandlerDelegate, _}
+import com.intellij.codeInsight.editorActions._
 import com.intellij.injected.editor.EditorWindow
 import com.intellij.lang.Language
 import com.intellij.lang.injection.InjectedLanguageManager
@@ -15,9 +15,9 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiWhiteSpace}
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.Scala3Language
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils
 import org.jetbrains.plugins.scala.editor.backspaceHandler.Scala3IndentationBasedSyntaxBackspaceHandler._
 import org.jetbrains.plugins.scala.editor.enterHandler.{EnterHandlerUtils, Scala3IndentationBasedSyntaxEnterHandler}
-import org.jetbrains.plugins.scala.editor.{ScalaEditorUtils, useIndentationBasedSyntax}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
@@ -58,7 +58,7 @@ class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDeleg
     if (!scalaFile.isScala3File)
       return
 
-    if (!useIndentationBasedSyntax(scalaFile))
+    if (!scalaFile.useIndentationBasedSyntax)
       return
 
     val mode = getBackspaceMode(Scala3Language.INSTANCE)

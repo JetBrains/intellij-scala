@@ -36,7 +36,7 @@ object AutoBraceInsertionTools {
                                        (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
     import AutoBraceUtils._
 
-    if (useIndentationBasedSyntax(file))
+    if (file.useIndentationBasedSyntax)
       return None
 
     val (wsBeforeCaret, caretWS, curLineIndent, isAfterPossibleContinuation) = element match {
@@ -164,7 +164,7 @@ object AutoBraceInsertionTools {
     //  - minimum lines in indentation block before inserting braces OR end marker
     //  - mode to use: 1. prefer braces 2. prefer indentation syntax
     // (also see org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.findAutoBraceInsertionOpportunity)
-    if (useIndentationBasedSyntax(file))
+    if (file.useIndentationBasedSyntax)
       return None
 
     // ========= Calculate brace positions =========
@@ -320,7 +320,7 @@ object AutoBraceInsertionTools {
     }
     // TODO: temporary disabled auto-braces feature for Scala3, cause Scala3 doesn't require braces
     // (also see org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.findAutoBraceInsertionOpportunity)
-    if (useIndentationBasedSyntax(file))
+    if (file.useIndentationBasedSyntax)
       return None
 
     // check if the element or its prefix before the caret certainly starts a statement

@@ -16,7 +16,7 @@ import com.intellij.util.DocumentUtil
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler._
-import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, PsiWhiteSpaceOps, ScalaEditorUtils, useIndentationBasedSyntax}
+import org.jetbrains.plugins.scala.editor.{AutoBraceUtils, DocumentExt, PsiWhiteSpaceOps, ScalaEditorUtils}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -64,7 +64,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
     if (!file.is[ScalaFile])
       return Result.Continue
 
-    if (!useIndentationBasedSyntax(file))
+    if (!file.useIndentationBasedSyntax)
       return Result.Continue
 
     if (!CodeInsightSettings.getInstance.SMART_INDENT_ON_ENTER)

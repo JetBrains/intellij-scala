@@ -2,6 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
+
 /**
   * User: Alexander Podkhalyuzin
   * Date: 04.01.12
@@ -169,27 +172,6 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
     char = '('
   )
 
-  def testMatch(): Unit = doCompletionTest(
-    fileText =
-      s"42 m$CARET",
-    resultText =
-      s"""42 match {
-         |  case $CARET
-         |}""".stripMargin,
-    item = "match"
-  )
-
-  def testInfixMatch(): Unit = doCompletionTest(
-    fileText =
-      s"42 m$CARET ",
-    resultText =
-      s"""42 match {
-         |  case $CARET
-         |}""".stripMargin,
-    item = "match"
-  )
-
-
   def testExtendsAsLastInFile(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -277,5 +259,57 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
          |object Obj e$CARET extends
          |""".stripMargin,
     item = "extends"
+  )
+}
+
+/** Version specific tests */
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12
+))
+class ScalaKeywordCompletionTest_2_12 extends ScalaCodeInsightTestBase {
+  def testMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET",
+    resultText =
+      s"""42 match {
+         |  case $CARET
+         |}""".stripMargin,
+    item = "match"
+  )
+
+  def testInfixMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET ",
+    resultText =
+      s"""42 match {
+         |  case $CARET
+         |}""".stripMargin,
+    item = "match"
+  )
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_Latest
+))
+class ScalaKeywordCompletionTest_3_Latest extends ScalaCodeInsightTestBase {
+  def testMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET",
+    resultText =
+      s"""42 match
+         |  case $CARET""".stripMargin,
+    item = "match"
+  )
+
+  def testInfixMatch(): Unit = doCompletionTest(
+    fileText =
+      s"42 m$CARET ",
+    resultText =
+      s"""42 match
+         |  case $CARET""".stripMargin,
+    item = "match"
   )
 }

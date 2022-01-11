@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.{CodeStyleManager, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
+import org.jetbrains.plugins.scala.extensions.{BooleanExt, PsiFileExt}
 
 /**
  * @author Alefas
@@ -85,11 +86,12 @@ object ScalaKeywordLookupItem {
           case MATCH =>
             val caretOffset = caretModel.getOffset
 
-            val text = s"{\n$CASE\n}"
+            val useIndentationBasedSyntax = file.useIndentationBasedSyntax
+            val text = if (useIndentationBasedSyntax) s"\n$CASE" else s"{\n$CASE\n}"
             document.insertString(caretOffset, text)
             adjustLineIndent(TextRange.from(caretOffset, text.length))
 
-            val endOffset = document.getLineEndOffset(document.getLineNumber(caretOffset) + 1)
+            val endOffset = document.getLineEndOffset(document.getLineNumber(caretOffset) + (!useIndentationBasedSyntax).toInt)
             document.insertString(endOffset, " ")
             caretModel.moveToOffset(endOffset + 1)
           case _ =>

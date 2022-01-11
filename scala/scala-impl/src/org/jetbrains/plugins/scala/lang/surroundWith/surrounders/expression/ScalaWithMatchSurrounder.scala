@@ -7,7 +7,7 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, StringExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -47,27 +47,33 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
       case _ => true
     }
 
+    val needBraces = elements.headOption.flatMap(_.containingScalaFile).forall(!_.useIndentationBasedSyntax)
+
     val prefix = super.getTemplateAsString(elements).parenthesize(needParenthesis)
 
     implicit val project: Project = elements.headOption.map(_.getProject).orNull
-    s"""$prefix match {
-       |case a  $functionArrow
-       |}""".stripMargin
+    s"""$prefix match ${if (needBraces) "{" else ""}
+       |  case a  $functionArrow${if (needBraces) "\n}" else ""}""".stripMargin
   }
 
   //noinspection ReferencePassedToNls
   override def getTemplateDescription: String = ScalaKeyword.MATCH
 
   override def getSurroundSelectionRange(withMatchNode: ASTNode): TextRange = {
-    val element = withMatchNode.getPsi match {
+    val matchExpr = withMatchNode.getPsi match {
       case x: ScParenthesisedExpr => x.innerElement match {
-        case Some(y) => y
-        case _ => return x.getTextRange
+        case Some(y: ScMatch) => y
+        case _ => return null
       }
-      case x => x
+      case x: ScMatch => x
+      case x => return null
     }
 
-    val patternNode = element.getNode.getLastChildNode.getTreePrev.getTreePrev.getFirstChildNode.getFirstChildNode.getTreeNext.getTreeNext
+    val patternNode = matchExpr.caseClauses
+      .flatMap(_.caseClauses.headOption)
+      .flatMap(_.pattern)
+      .map(_.getNode)
+      .getOrElse(return null)
     val offset = patternNode.getTextRange.getStartOffset
     patternNode.getTreeParent.removeChild(patternNode)
 

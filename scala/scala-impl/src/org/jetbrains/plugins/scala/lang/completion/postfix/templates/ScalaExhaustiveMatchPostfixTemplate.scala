@@ -10,6 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.completion.clauses.{ClauseCompletionParameters, ExhaustiveMatchCompletionContributor, PatternGenerationStrategy}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScFunctionExpr, ScMatch}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -63,8 +64,8 @@ object ScalaExhaustiveMatchPostfixTemplate {
   private def expandForStrategy(expression: ScExpression,
                                 strategy: PatternGenerationStrategy)
                                (implicit project: Project, editor: Editor): Unit = {
-    val (components, clausesText) = strategy.createClauses()
     val file = expression.getContainingFile
+    val (components, clausesText) = strategy.createClauses(file.useIndentationBasedSyntax)
     val expressionText = expression.getText
 
     removeRange(expression.getTextRange)

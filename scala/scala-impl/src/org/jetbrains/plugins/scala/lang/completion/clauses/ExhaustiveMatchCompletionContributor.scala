@@ -112,7 +112,8 @@ object ExhaustiveMatchCompletionContributor {
     suffix: Option[String] = Some("")) extends ClauseInsertHandler[E] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      val (components, clausesText) = strategy.createClauses(prefix, suffix, rightHandSide = " ???")
+      val (components, clausesText) = strategy
+        .createClauses(context.getFile.useIndentationBasedSyntax, prefix, suffix, rightHandSide = " ???")
       replaceText(clausesText)
 
       onTargetElement { (statement: E) =>
