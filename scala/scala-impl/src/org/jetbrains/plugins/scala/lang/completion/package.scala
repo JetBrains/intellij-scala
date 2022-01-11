@@ -70,7 +70,7 @@ package object completion {
       override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = elem.isInScala3File
     }
 
-  private[completion] implicit class PsiElementPatternExt[T <: PsiElement](private val pattern: PsiElementPattern.Capture[T]) extends AnyVal {
+  implicit class PsiElementPatternExt[T <: PsiElement](private val pattern: PsiElementPattern.Capture[T]) extends AnyVal {
     def isInScala3File: PsiElementPattern.Capture[T] = pattern.`with`(isInScala3FilePattern)
 
     def notAfterLeafSkippingWhitespaceComment(tp: IElementType): PsiElementPattern.Capture[T] =

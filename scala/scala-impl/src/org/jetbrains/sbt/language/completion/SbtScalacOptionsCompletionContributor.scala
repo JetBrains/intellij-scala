@@ -10,7 +10,8 @@ import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
+import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, PsiElementPatternExt, positionFromParameters}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -28,7 +29,8 @@ class SbtScalacOptionsCompletionContributor extends CompletionContributor {
 
 object SbtScalacOptionsCompletionContributor {
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
-    (psiElement.inside(SbtPsiElementPatterns.scalacOptionsReferencePattern) || psiElement.inside(SbtPsiElementPatterns.scalacOptionsStringLiteralPattern))
+    (psiElement.inside(SbtPsiElementPatterns.scalacOptionsReferencePattern).notAfterLeafSkippingWhitespaceComment(ScalaTokenTypes.tDOT) ||
+      psiElement.inside(SbtPsiElementPatterns.scalacOptionsStringLiteralPattern))
 
   private val completionProvider = new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
@@ -52,7 +54,6 @@ object SbtScalacOptionsCompletionContributor {
         .asJava
 
       newResultSet.addAllElements(elements)
-      newResultSet.stopHere()
     }
   }
 
@@ -78,7 +79,7 @@ object SbtScalacOptionsCompletionContributor {
       val elem = context.getFile.findElementAt(context.getStartOffset)
 
       elem.getContext match {
-        case ref: ScReferenceExpression if option.flag.startsWith("-") =>
+        case _: ScReferenceExpression if option.flag.startsWith("-") =>
           // rewrite `-flag`, `--flag` to "-flag" and "--flag" respectively
           // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
           doHandleInsert(context.getStartOffset, context.getTailOffset)
