@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.project.template;
 
-import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.ui.ComboBox;
 import scala.Function1;
 import scala.Option;
 
@@ -10,7 +10,7 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
-public class SComboBox<T> extends JComboBox<T> {
+public class SComboBox<T> extends ComboBox<T> {
   public SComboBox() {
   }
 
@@ -40,6 +40,17 @@ public class SComboBox<T> extends JComboBox<T> {
         }
         Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         setText(renderer.apply((String) value));
+        return component;
+      }
+    });
+  }
+  public void setTextRenderer2(final Function1<T, String> renderer) {
+    setRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        //noinspection unchecked
+        setText(renderer.apply((T) value));
         return component;
       }
     });

@@ -62,18 +62,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     builder.setContentEntryPath(getContext.getProjectDirectory.toAbsolutePath.toString)
     builder.setModuleJdk(getSdk)
 
-    builder.addModuleConfigurationUpdater(new ModuleBuilder.ModuleConfigurationUpdater() {
-      override def update(module: Module, rootModel: ModifiableRootModel): Unit = {
-        getContext.getProjectBuilder match {
-          case parentBuilder: AbstractModuleBuilder =>
-            // NOTE: module path is patched in SbtModuleBuilder.createModule, we need to sync this change to the parent builder
-            // otherwise some exceptions will be thrown during project creation
-            parentBuilder.setModuleFilePath(builder.getModuleFilePath)
-          case _ =>
-        }
-      }
-    })
-
     ExternalProjectsManagerImpl.setupCreatedProject(project)
     builder.commit(project)
   }
