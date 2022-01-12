@@ -43,4 +43,10 @@ class SbtCompletionScalacOptionsTest extends SbtCompletionTestBase with MockSbt_
   def testCompleteComplexExprRef(): Unit = doTest()
 
   def testCompleteComplexExprStringLiteral(): Unit = doTest()
+
+  def testCompleteObjectMemberAfterScalacOptions(): Unit = doTest()
+
+  def testCompleteObjectMemberAfterScalacOptionsInInterpolatedString(): Unit = doTest()
+
+  def testCompleteInInterpolatedString(): Unit = doTest()
 }
