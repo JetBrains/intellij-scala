@@ -14,7 +14,7 @@ trait WorksheetHighlightingCompiler {
 }
 
 object WorksheetHighlightingCompiler
-  extends ExtensionPointDeclaration[WorksheetHighlightingCompiler]("org.intellij.scala.worksheetCompiler")
+  extends ExtensionPointDeclaration[WorksheetHighlightingCompiler]("org.intellij.scala.worksheetHighlightingCompiler")
     with WorksheetHighlightingCompiler {
 
   override def compile(psiFile: ScalaFile, document: Document, client: Client): Unit =

@@ -82,7 +82,7 @@
         <importOptimizerHelper implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteImportOptimizerHelper"/>
         <referenceExtraResolver implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteScStableCodeReferenceExtraResolver"/>
         <compilerSettingsProfileProvider implementation="org.jetbrains.plugins.scala.worksheet.WorksheetScalaCompilerSettingsProfileProvider"/>
-        <worksheetCompiler implementation="org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompilerImpl"/>
+        <worksheetHighlightingCompiler implementation="org.jetbrains.plugins.scala.worksheet.processor.WorksheetHighlightingCompilerImpl"/>
 
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteFileDeclarationsContributor"/>
         <fileDeclarationsContributor implementation="org.jetbrains.plugins.scala.worksheet.WorksheetFileDeclarationsContributor"/>
