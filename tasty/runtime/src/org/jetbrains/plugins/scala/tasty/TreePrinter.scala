@@ -4,9 +4,9 @@ import dotty.tools.tasty.TastyFormat.*
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
+import scala.annotation.tailrec
 import scala.collection.mutable
 
-// TODO enum companion: case(), object
 // TODO refactor
 // TODO use StringBuilder: type
 // TODO String indent
@@ -26,18 +26,54 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   def textOf(node: Node): String = {
-    val sb = new StringBuilder(1024 * 64)
-    textOf(sb, "", node)
+    val sb = new StringBuilder(1024 * 4)
+    textOfPackage(sb, "", node)
     sb.toString
   }
 
-  // TODO partial function, no prefix?
-  private def textOf(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
+  // TODO partial function, no prefix (or before & after functions)?
+  @tailrec private def textOfPackage(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
-      textOfPackage(sb, indent, node, name, children)
+      children.filterNot(_.tag == IMPORT) match {
+        case Seq(node@Node(PACKAGE, _, _), _: _*) =>
+          textOfPackage(sb, indent, node)
 
-    // TODO textOfMember
+        case children =>
+          val containsPackageObject = children match {
+            case Seq(Node(VALDEF, Seq("package"), _: _*), Node(TYPEDEF, Seq("package$"), _), _: _*) => true // TODO use name type, not contents
+            case _ => false
+          }
+          if (name != "<empty>") {
+            sb ++= "package "
+            if (containsPackageObject) {
+              sb ++= name.split('.').init.mkString(".") // TODO optimize
+            } else {
+              sb ++= name
+            }
+            sb ++= "\n\n"
+          }
+          // TODO extract method, de-duplicate
+          var delimiterRequired = false
+          children match {
+            case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
+              template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
+                val previousLength = sb.length
+                textOfMember(sb, indent, definition, None, if (delimiterRequired) "\n\n" else "")
+                delimiterRequired = delimiterRequired || sb.length > previousLength
+              }
+            case _ =>
+              children.foreach { child =>
+                val previousLength = sb.length
+                textOfMember(sb, indent, child, if (containsPackageObject) Some(node) else None, if (delimiterRequired) "\n\n" else "")
+                delimiterRequired = delimiterRequired || sb.length > previousLength
+              }
+          }
+      }
 
+    case _ => textOfMember(sb, indent, node, definition, prefix)
+  }
+
+  private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
     case node @ Node(TYPEDEF, _, _) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
@@ -51,44 +87,6 @@ class TreePrinter(privateMembers: Boolean = false) {
       textOfValDef(sb, indent, node, definition)
 
     case _ => "" // TODO exhaustive match
-  }
-
-  private def textOfPackage(sb: StringBuilder, indent: String, node: Node, name: String, children: Seq[Node]): Unit = {
-    children.filterNot(_.tag == IMPORT) match {
-      case Seq(node @ Node(PACKAGE, _, _), _: _*) =>
-        textOf(sb, indent, node)
-
-      case children =>
-        val containsPackageObject = children match {
-          case Seq(Node(VALDEF, Seq("package"), _: _*), Node(TYPEDEF, Seq("package$"), _), _: _*) => true // TODO use name type, not contents
-          case _ => false
-        }
-        if (name != "<empty>") {
-          sb ++= "package "
-          if (containsPackageObject) {
-            sb ++= name.split('.').init.mkString(".") // TODO optimize
-          } else {
-            sb ++= name
-          }
-          sb ++= "\n\n"
-        }
-        // TODO extract method, de-duplicate
-        var delimiterRequired = false
-        children match {
-          case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
-            template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
-              val previousLength = sb.length
-              textOf(sb, indent, definition, None, if (delimiterRequired) "\n\n" else "")
-              delimiterRequired = delimiterRequired || sb.length > previousLength
-            }
-          case _ =>
-            children.foreach { child =>
-              val previousLength = sb.length
-              textOf(sb, indent, child, if (containsPackageObject) Some(node) else None, if (delimiterRequired) "\n\n" else "")
-              delimiterRequired = delimiterRequired || sb.length > previousLength
-            }
-        }
-    }
   }
 
   private def textOfTypeDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
@@ -218,7 +216,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       var delimiterRequired = false
       members.foreach { member =>
         val previousLength = sb.length
-        textOf(sb, indent + Indent, member, definition, if (delimiterRequired) "\n\n" else "")
+        textOfMember(sb, indent + Indent, member, definition, if (delimiterRequired) "\n\n" else "")
         delimiterRequired = delimiterRequired || sb.length > previousLength
       }
       if (sb.length > previousLength) {
@@ -414,7 +412,7 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
-    node.children.lastOption match {
+    node.children.lastOption match {  // TODO sb.insert?
       case Some(Node(ANNOTATION, _, Seq(tpe, Node(APPLY, _, children)))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {

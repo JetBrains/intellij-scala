@@ -7,6 +7,7 @@ import java.io.File
 import java.nio.file.{FileSystems, Files, Path}
 import scala.collection.mutable
 
+// enum companion: case(), object
 // Target names
 // Escape chars
 // Compare: single dir
