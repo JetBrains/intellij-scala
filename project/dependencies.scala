@@ -1,7 +1,7 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = "2.13.7"
+  val scalaVersion: String = "2.13.8"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
@@ -77,7 +77,7 @@ object Dependencies {
     ExclusionRule(organization = "org.junit"),
     ExclusionRule(organization = "org.harmset"),
   )
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"
