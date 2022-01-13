@@ -1,21 +1,18 @@
 package org.jetbrains
 
+import com.intellij.ide.plugins.PluginManagerCore
+import com.intellij.openapi.extensions.PluginId
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.util.{Pair => IdeaPair}
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.util.{PathUtil, Function => IdeaFunction}
+import _root_.org.jetbrains.annotations.{NonNls, Nullable}
+
 import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}
 import _root_.java.security.MessageDigest
 import _root_.java.util.{Optional, ArrayList => JArrayList, List => JList}
-
-import _root_.org.jetbrains.annotations.Nullable
-import com.intellij.ide.plugins.PluginManagerCore
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.extensions.PluginId
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.{Computable, Pair => IdeaPair}
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
-import com.intellij.util.{PathUtil, Function => IdeaFunction}
-import annotations.NonNls
-
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
@@ -175,19 +172,6 @@ package object sbt {
     } finally {
       file.delete()
     }
-  }
-
-  private val NameWithExtension = """(.+)(\..+?)""".r
-
-  private def parse(@NonNls fileName: String): (String, String) = fileName match {
-    case NameWithExtension(name, extension) => (name, extension)
-    case name => (name, "")
-  }
-
-  def inWriteAction[T](body: => T): T = {
-    ApplicationManager.getApplication.runWriteAction(new Computable[T] {
-      override def compute: T = body
-    })
   }
 
   def isIdeaPluginEnabled(@NonNls id: String): Boolean = {

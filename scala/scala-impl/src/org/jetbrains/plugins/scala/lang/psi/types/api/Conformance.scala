@@ -1,18 +1,16 @@
-package org.jetbrains.plugins.scala.lang.psi
-package types
-package api
+package org.jetbrains.plugins.scala.lang.psi.types.api
 
-import java.util.concurrent.ConcurrentHashMap
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.RecursionManager
-import org.jetbrains.plugins.scala.caches.stats.CacheCapabilities
-import org.jetbrains.plugins.scala.caches.stats.CacheTracker
-import org.jetbrains.plugins.scala.caches.stats.Tracer
+import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
 import org.jetbrains.plugins.scala.extensions.NullSafe
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
+import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
+
+import java.util.concurrent.ConcurrentHashMap
+import java.util.function.Supplier
 
 /**
   * @author adkozlov
@@ -20,8 +18,8 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 trait Conformance {
   typeSystem: TypeSystem =>
 
-  import ConstraintsResult.Left
   import TypeSystem._
+  import org.jetbrains.plugins.scala.lang.psi.types.ConstraintsResult.Left
 
   private val guard = RecursionManager.RecursionGuard[Key, ConstraintsResult](s"${typeSystem.name}.conformance.guard")
 
@@ -49,7 +47,7 @@ trait Conformance {
 
   def clearCache(): Unit = cache.clear()
 
-  protected def conformsComputable(key: Key, visited: Set[PsiClass]): Computable[ConstraintsResult]
+  protected def conformsComputable(key: Key, visited: Set[PsiClass]): Supplier[ConstraintsResult]
 
   def conformsInner(key: Key, visited: Set[PsiClass]): ConstraintsResult = {
     val tracer = Tracer(conformsInnerCache, conformsInnerCache)
@@ -60,7 +58,7 @@ trait Conformance {
         val stackStamp = RecursionManager.markStack()
         tracer.calculationStart()
         try {
-          val result = NullSafe(conformsComputable(key, visited).compute())
+          val result = NullSafe(conformsComputable(key, visited).get())
           result.foreach(result =>
               if (stackStamp.mayCacheNow())
                 cache.put(key, result)

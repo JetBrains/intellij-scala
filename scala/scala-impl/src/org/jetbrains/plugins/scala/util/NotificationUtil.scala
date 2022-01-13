@@ -23,28 +23,31 @@ object NotificationUtil  {
   class NotificationBuilder protected[NotificationUtil] (project: Project, @Nls message: String) {
     private var group: String = "Scala"
     @Nls
-    private var title: String = ScalaBundle.message("default.notification.title") // TODO Should be "null"
+    private var title: Option[String] = None
     private var notificationType: NotificationType = NotificationType.WARNING
     private var displayType: NotificationDisplayType = NotificationDisplayType.BALLOON // TODO Why it's present but not applied?
     private var handler: Handler = IdHandler
     private val actions: mutable.Buffer[NotificationAction] = mutable.Buffer()
 
     def setGroup(@NonNls group: String): this.type = {this.group = group; this}
-    def setTitle(@Nls title: String): this.type = {this.title = title; this}
-    def removeTitle(): this.type = {this.title = null; this}
+    def setTitle(@Nls title: String): this.type = {this.title = Some(title); this}
+    def removeTitle(): this.type = {this.title = None; this}
     def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}
     // @deprecated TODO: yeah! but why? and replace with what?
     def setDisplayType(displayType: NotificationDisplayType): this.type = {this.displayType = displayType; this}
     def setHandler(handler: Handler): this.type = {this.handler = handler; this}
     def addAction(action: NotificationAction): this.type = {actions += action; this}
 
-    def notification: Notification = {
-      //note that only this Notification constructor accepts null title
-      val notification = new Notification(group, title, message, notificationType).setListener(new HyperlinkListener(handler))
+    def show(): Unit = {
+      val notification = title match {
+        case Some(t) => new Notification(group, t, message, notificationType)
+        case None    => new Notification(group, message, notificationType)
+      }
+      notification.setListener(new HyperlinkListener(handler))
       actions.foreach(notification.addAction)
-      notification
+
+      Notifications.Bus.notify(notification, project)
     }
-    def show(): Unit = Notifications.Bus.notify(notification, project)
   }
 
   def showMessage(project: Project,

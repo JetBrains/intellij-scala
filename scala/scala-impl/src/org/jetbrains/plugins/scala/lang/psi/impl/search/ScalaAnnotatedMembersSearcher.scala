@@ -1,17 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package search
+package org.jetbrains.plugins.scala.lang.psi.impl.search
 
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AnnotatedElementsSearch
-import com.intellij.psi.{PsiField, PsiMember, PsiModifier}
+import com.intellij.psi.{PsiClass, PsiField, PsiMember, PsiModifier}
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotations}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
@@ -23,7 +17,6 @@ import scala.collection.mutable
  * User: Alexander Podkhalyuzin
  * Date: 10.01.2009
  */
-
 class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedElementsSearch.Parameters] {
 
   private def convertToLightField(fieldLike: ScValueOrVariable): Option[PsiField] =
@@ -55,42 +48,52 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
     }
 
   override def execute(p: AnnotatedElementsSearch.Parameters, consumer: Processor[_ >: PsiMember]): Boolean = {
-    val annClass = p.getAnnotationClass
-    assert(annClass.isAnnotationType, "Annotation type should be passed to annotated members search")
-    val annotationFQN = annClass.qualifiedName
-    assert(annotationFQN != null)
+    val annotationClass: PsiClass = p.getAnnotationClass
+    assert(annotationClass.isAnnotationType, "Annotation type should be passed to annotated members search")
+    val annotationFQN = annotationClass.qualifiedName
+    assert(annotationFQN != null, "Annotation qualifier can't be null")
 
-    ApplicationManager.getApplication.runReadAction(new Computable[Boolean] {
-      override def compute: Boolean = {
-        val scope = p.getScope match {
-          case searchScope: GlobalSearchScope => searchScope
-          case _ => return true
-        }
+    inReadAction {
+      executeInner(p, consumer, annotationClass)
+    }
 
-        import ScalaIndexKeys._
-        val iter = ANNOTATED_MEMBER_KEY.elements(annClass.name, scope)(annClass.getProject)
-            .iterator
-        while (iter.hasNext) {
-          val annotation = iter.next()
-          annotation.getParent match {
-            case ann: ScAnnotations =>
-              val continue = Option(ann.getParent)
-                  .collect {
-                    case fieldLike: ScValueOrVariable =>
-                      convertToLightField(fieldLike).getOrElse(fieldLike)
-                    case member: PsiMember => member
-                  }
-                  .forall(consumer.process(_))
+    true
+  }
 
-              if (!continue)
-                return false
-            case _ =>
-          }
-        }
-        true
+  private def executeInner(
+    parameters: AnnotatedElementsSearch.Parameters,
+    consumer: Processor[_ >: PsiMember],
+    annotationClass: PsiClass,
+  ): Boolean = {
+    val scope = parameters.getScope match {
+      case searchScope: GlobalSearchScope =>
+        searchScope
+      case _ =>
+        return true
+    }
+
+    import ScalaIndexKeys._
+    val elements = ANNOTATED_MEMBER_KEY.elements(annotationClass.name, scope)(annotationClass.getProject)
+    val iterator = elements.iterator
+    while (iterator.hasNext) {
+      val annotation = iterator.next()
+      annotation.getParent match {
+        case ann: ScAnnotations =>
+          val memberOpt = Option(ann.getParent)
+            .collect {
+              case fieldLike: ScValueOrVariable =>
+                convertToLightField(fieldLike).getOrElse(fieldLike)
+              case member: PsiMember =>
+                member
+            }
+
+          //noinspection ConvertibleToMethodValue
+          val continue = memberOpt.forall(consumer.process(_))
+          if (!continue)
+            return false
+        case _ =>
       }
-    })
-
+    }
 
     true
   }

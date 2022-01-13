@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.worksheet.actions.topmenu
 
 import com.intellij.openapi.actionSystem.impl.ActionButton
-import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent}
+import com.intellij.openapi.actionSystem.{ActionPlaces, ActionToolbar, AnAction, AnActionEvent, Presentation}
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.keymap.{KeymapManager, KeymapUtil}
+
 import javax.swing.{Icon, JPanel}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -41,13 +42,16 @@ trait TopComponentAction extends TopComponentDisplayable with WorksheetAction {
     invokeAndWait(ModalityState.any()) {
       panel.add(actionButton)
       actionButton.setEnabled(true)
-      presentation.setEnabled(true)
     }
   }
 
   private def createActionButton: ActionButton = {
+    val presentation = new Presentation
+    presentation.copyFrom(getTemplatePresentation)
     val button = new ActionButton(
-      this, getTemplatePresentation, ActionPlaces.EDITOR_TOOLBAR,
+      this,
+      presentation,
+      ActionPlaces.EDITOR_TOOLBAR,
       ActionToolbar.DEFAULT_MINIMUM_BUTTON_SIZE
     )
     button.setToolTipText(genericText)

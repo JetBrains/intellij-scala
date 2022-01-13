@@ -8,4 +8,6 @@ final class SbtScalaNewProjectWizard extends BuildSystemScalaNewProjectWizard {
 
   override def createStep(parent: ScalaNewProjectWizardStep): SbtScalaNewProjectWizardStep =
     new SbtScalaNewProjectWizardStep(parent)
+
+  override def getOrdinal: Int = 0
 }

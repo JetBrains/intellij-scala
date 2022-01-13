@@ -1,9 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package compiled
-
-import java.io.{DataInputStream, DataOutputStream, IOException}
+package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileWithId, newvfs}
@@ -13,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
 import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyReader}
 
-import scala.util.control.NonFatal
+import java.io.{DataInputStream, DataOutputStream, IOException}
 
 private sealed trait DecompilationResult {
   val isScala: Boolean
@@ -132,7 +127,7 @@ private object DecompilationResult {
   private def getFromFileAttribute(file: VirtualFile): Option[DecompilationResult.WritableResult] = {
     for {
       attribute <- DecompilerFileAttribute
-      readAttribute <- Option(attribute.readAttribute(file))
+      readAttribute <- Option(attribute.readFileAttribute(file))
 
       result <- readFrom(readAttribute)
       if result.timeStamp == file.getTimeStamp
@@ -154,7 +149,7 @@ private object DecompilationResult {
   private def writeToFileAttribute(file: VirtualFile, result: DecompilationResult): Unit = {
     for {
       attribute <- DecompilerFileAttribute
-      outputStream = attribute.writeAttribute(file)
+      outputStream = attribute.writeFileAttribute(file)
     } {
       try {
         toWritable(result).writeTo(outputStream)

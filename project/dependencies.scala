@@ -1,7 +1,7 @@
 import sbt._
 
 object Versions {
-  val scalaVersion: String = "2.13.7"
+  val scalaVersion: String = "2.13.8"
 
   // ATTENTION: when updating sbtVersion also update versions in MockSbt_1_0
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
@@ -9,7 +9,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.4.8-81-e170cd66"
   val zincVersion = "1.5.7"
-  val intellijVersion = "221.2626"
+  val intellijVersion = "221.3241"
   val bspVersion = "2.0.0-M14"
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
@@ -40,7 +40,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.5.8"
+    val latest_1_0 = "1.6.1"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -77,7 +77,7 @@ object Dependencies {
     ExclusionRule(organization = "org.junit"),
     ExclusionRule(organization = "org.harmset"),
   )
-  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.4.0"
+  val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
 
   val scalastyle: ModuleID = "com.beautiful-scala" %% "scalastyle" % "1.4.0"
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"

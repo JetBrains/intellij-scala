@@ -3,8 +3,6 @@ package org.jetbrains.plugins.scala.debugger.evaluation.util
 import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName, JVMNameUtil}
 import com.intellij.debugger.{JavaDebuggerBundle, NoDataException, SourcePosition}
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -16,7 +14,7 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScalaConstructor, _}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -87,7 +85,7 @@ object DebuggerUtil {
       }
     }
 
-    private var buffer = new ArrayBuffer[JVMName]
+    private val buffer = new ArrayBuffer[JVMName]
   }
 
   def getJVMQualifiedName(tp: ScType): JVMName = {
@@ -249,11 +247,9 @@ object DebuggerUtil {
     }
 
     override def getDisplayName(debugProcess: DebugProcessImpl): String = {
-      ApplicationManager.getApplication.runReadAction(new Computable[String] {
-        override def compute: String = {
-          JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
-        }
-      })
+      inReadAction {
+        JVMNameUtil.getSourcePositionClassDisplayName(debugProcess, sourcePosition)
+      }
     }
   }
 

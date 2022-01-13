@@ -1,7 +1,4 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package generation
-package actions
+package org.jetbrains.plugins.scala.codeInsight.generation.actions
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.hint.HintManager
@@ -10,11 +7,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
-import com.intellij.openapi.util.Computable
 import com.intellij.psi.{PsiAnonymousClass, PsiFile}
 import com.intellij.util.IncorrectOperationException
+import org.jetbrains.plugins.scala.ScalaCodeInsightActionHandler
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
+import org.jetbrains.plugins.scala.codeInsight.generation._
+import org.jetbrains.plugins.scala.extensions.{PsiModifierListOwnerExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -55,18 +53,18 @@ object ScalaGenerateEqualsAction {
           if (aClass.isInstanceOf[PsiAnonymousClass]) CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning.anonymous")
           else CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.warning", aClass.qualifiedName)
         if (Messages.showYesNoDialog(project, text, CodeInsightBundle.message("generate.equals.and.hashcode.already.defined.title"), Messages.getQuestionIcon) == DialogWrapper.OK_EXIT_CODE) {
-          val deletedOk = ApplicationManager.getApplication.runWriteAction(new Computable[Boolean] {
-            override def compute: Boolean = {
-              try {
-                equalsMethod.get.delete()
-                hashCodeMethod.get.delete()
-                true
-              }
-              catch {
-                case _: IncorrectOperationException => false
-              }
+          val deletedOk = inWriteAction {
+            try {
+              equalsMethod.get.delete()
+              hashCodeMethod.get.delete()
+              true
             }
-          })
+            catch {
+              case _: IncorrectOperationException =>
+                false
+            }
+          }
+
           if (!deletedOk) return false
           else {
             needEquals = true
@@ -159,7 +157,7 @@ object ScalaGenerateEqualsAction {
         val isOk = chooseOriginalMembers(aClass)(project, editor)
         if (!isOk) return
 
-        extensions.inWriteAction {
+        inWriteAction {
           val needHashCode = hasHashCode(aClass).isEmpty
           val hashCodeMethod = Option(
             if (needHashCode) createHashCode(aClass) else null)

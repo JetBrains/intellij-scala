@@ -434,10 +434,11 @@ lazy val androidIntegration =
     .settings(
       intellijPlugins ++= Seq(
         "org.jetbrains.android",
-        "com.android.tools.idea.smali",      // required by Android
         "com.intellij.gradle",     // required by Android
+        "com.android.tools.idea.smali", // required by Android
         "org.intellij.groovy",     // required by Gradle
-        "com.intellij.properties").map(_.toPlugin) // required by Gradle
+        "com.intellij.properties"
+      ).map(_.toPlugin) // required by Gradle
     )
 
 lazy val copyrightIntegration =

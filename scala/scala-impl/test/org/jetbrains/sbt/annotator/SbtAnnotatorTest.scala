@@ -1,19 +1,19 @@
-package org.jetbrains.sbt
-package annotator
+package org.jetbrains.sbt.annotator
 
 import com.intellij.openapi.module.{Module, ModuleManager, ModuleUtilCore}
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.testFramework.UsefulTestCase
-import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.annotator.{Error, _}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, SmartJDKLoader}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.{MockSbtBase, MockSbt_0_12, MockSbt_0_13, MockSbt_1_0, Sbt, SbtBundle}
 import org.junit.Ignore
 import org.junit.experimental.categories.Category
 

@@ -247,7 +247,6 @@ object Main {
       buildRunner.runBuild(
         descriptor,
         () => client.isCanceled,
-        null,
         messageHandler,
         BuildType.BUILD,
         scopes,

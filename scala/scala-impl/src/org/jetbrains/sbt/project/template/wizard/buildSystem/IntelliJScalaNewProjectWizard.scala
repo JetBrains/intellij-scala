@@ -7,4 +7,6 @@ final class IntelliJScalaNewProjectWizard extends BuildSystemScalaNewProjectWiza
 
   override def createStep(parent: ScalaNewProjectWizardStep): IntelliJScalaNewProjectWizardStep =
     new IntelliJScalaNewProjectWizardStep(parent)
+
+  override def getOrdinal: Int = 1
 }

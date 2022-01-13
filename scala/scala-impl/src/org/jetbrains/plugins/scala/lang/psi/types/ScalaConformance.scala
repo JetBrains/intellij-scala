@@ -1,10 +1,6 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.Computable
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -23,15 +19,16 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{CompoundTypeCheckSign
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil._
 
+import java.util.function.Supplier
 import scala.collection.immutable.HashSet
 
 trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   typeSystem: api.TypeSystem =>
 
   override protected def conformsComputable(key: Key,
-                                            visited: Set[PsiClass]): Computable[ConstraintsResult] =
-    new Computable[ConstraintsResult] {
-      override def compute(): ConstraintsResult = {
+                                            visited: Set[PsiClass]): Supplier[ConstraintsResult] =
+    new Supplier[ConstraintsResult] {
+      override def get(): ConstraintsResult = {
         val Key(left, right, checkWeak) = key
 
         val leftVisitor = new LeftConformanceVisitor(key, visited)

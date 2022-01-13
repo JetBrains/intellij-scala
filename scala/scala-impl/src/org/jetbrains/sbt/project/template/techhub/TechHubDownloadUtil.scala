@@ -1,18 +1,18 @@
 package org.jetbrains.sbt.project.template.techhub
 
-import java.io._
-import java.net.HttpURLConnection
-import java.nio.charset.StandardCharsets
-import java.util
-import java.util.concurrent.Callable
-
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.io.{FileUtil, StreamUtil}
+import com.intellij.util.concurrency.annotations.RequiresBackgroundThread
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.net.{HttpConfigurable, NetUtils}
 import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.SbtBundle
 
+import java.io._
+import java.net.HttpURLConnection
+import java.nio.charset.StandardCharsets
+import java.util
+import java.util.concurrent.Callable
 import scala.annotation.nowarn
 import scala.util.{Failure, Try}
 
@@ -59,6 +59,7 @@ object TechHubDownloadUtil {
     }
   }
 
+  @RequiresBackgroundThread
   def downloadString(url: String, timeoutMs: Int): Try[String] = {
     val conf = HttpConfigurable.getInstance()
     var connection: HttpURLConnection = null
@@ -76,9 +77,10 @@ object TechHubDownloadUtil {
         Try(StreamUtil.readText(connection.getInputStream, StandardCharsets.UTF_8): @nowarn("cat=deprecation"))
       else
         Failure(new IOException(SbtBundle.message("sbt.techhub.response.to.connection.to.url.was.status", url, status)))
-
     } finally {
-      if (connection != null) connection.disconnect()
+      if (connection != null) {
+        connection.disconnect()
+      }
     }
   }
 

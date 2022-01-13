@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.openapi.util.Computable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+
+import java.util.function.Supplier
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,10 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 trait ScalaEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 
-  override protected def equivComputable(key: Key): Computable[ConstraintsResult] = new Computable[ConstraintsResult] {
+  override protected def equivComputable(key: Key): Supplier[ConstraintsResult] = new Supplier[ConstraintsResult] {
     import ConstraintSystem.empty
 
-    override def compute(): ConstraintsResult = {
+    override def get(): ConstraintsResult = {
       val Key(left, right, falseUndef) = key
       left match {
         case designator: ScDesignatorType =>
