@@ -1,0 +1,20 @@
+<!--
+Inspired by default ivy settings located in `ivy-2.5.0.jar!/org/apache/ivy/core/settings/ivysettings.xml`
+
+Patched to only use file system resolves.
+Resolvers which resolve in repositories (via Internet) are meant to be configured in code in DependencyManager.
+The settings should make Ivy to use only file system repositories and caches.
+-->
+<ivysettings>
+    <settings defaultResolver="main"/>
+
+    <include url="${ivy.default.settings.dir}/ivysettings-shared.xml"/>
+    <include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
+
+    <resolvers>
+        <chain name="main" dual="true">
+            <resolver ref="local"/>
+            <resolver ref="shared"/>
+        </chain>
+    </resolvers>
+</ivysettings>

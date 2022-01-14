@@ -22,11 +22,11 @@ import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkB
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
-import org.jetbrains.sbt.project.data.{LibraryNode, _}
+import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
-import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
+import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
 import org.jetbrains.sbt.{structure => sbtStructure}
@@ -649,13 +649,21 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   private def createSbtBuildModuleData(build: sbtStructure.BuildData, projects: Seq[ProjectData], localCachePath: Option[String]): SbtBuildModuleNode = {
-
     val buildProjects = projects.filter(p => p.buildURI == build.uri)
     val imports = build.imports.flatMap(_.trim.substring(7).split(", "))
     val projectResolvers = buildProjects.flatMap(_.resolvers)
     val resolvers = projectResolvers.map { r => new SbtMavenResolver(r.name, r.root).asInstanceOf[SbtResolver] }
 
-    new SbtBuildModuleNode(SbtBuildModuleData(imports, resolvers.toSet + SbtResolver.localCacheResolver(localCachePath), build.uri))
+    val resolversAll = resolvers.toSet + localCacheResolver(localCachePath)
+    val moduleData = SbtBuildModuleData(imports, resolversAll, build.uri)
+    new SbtBuildModuleNode(moduleData)
+  }
+
+  private def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
+    val localCachePathFinal = localCachePath.getOrElse {
+      System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
+    }
+    new SbtIvyResolver("Local cache", localCachePathFinal, isLocal = true, SbtBundle.message("sbt.local.cache"))
   }
 
   private def validRootPathsIn(project: sbtStructure.ProjectData, scope: String)

@@ -26,22 +26,6 @@ sealed trait SbtResolver extends Serializable {
   override def equals(o: scala.Any): Boolean = toString == o.toString
 }
 
-object SbtResolver {
-  def localCacheResolver(localCachePath: Option[String]): SbtResolver = {
-    val defaultPath = System.getProperty("user.home") + "/.ivy2/cache".replace('/', File.separatorChar)
-    new SbtIvyResolver("Local cache", localCachePath getOrElse defaultPath, isLocal = true, SbtBundle.message("sbt.local.cache"))
-  }
-
-  private val DELIMITER = "|"
-  def fromString(str: String): Option[SbtResolver] = {
-    str.split(Pattern.quote(DELIMITER), 3).toSeq match {
-      case Seq(root, "maven", name) => Some(new SbtMavenResolver(name, root))
-      case Seq(root, "ivy", name) => Some(new SbtIvyResolver(name, root, isLocal = false))
-      case _ => None
-    }
-  }
-}
-
 final class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName"))
 (
   override val name: String,
@@ -85,5 +69,5 @@ final class SbtIvyResolver @PropertyMapping(Array("name", "root", "isLocal", "pr
   override def getIndex(project: Project): Option[ResolverIndex] =
     SbtIndexesManager.getInstance(project).map(_.getIvyIndex(name, root))
 
-  override def toString = s"$root|ivy|$name"
+  override def toString = s"$root|ivy|isLocal=$isLocal|$name"
 }

@@ -1,18 +1,21 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.application.options.RegistryManager
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
-import org.apache.ivy.core.report.ResolveReport
+import org.apache.ivy.core.report.{ArtifactDownloadReport, ResolveReport}
 import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
+import org.apache.ivy.plugins.repository.file.FileRepository
+import org.apache.ivy.plugins.repository.jar.JarRepository
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.File
+import java.net.URL
 import java.nio.file.{Files, Paths}
 import scala.jdk.CollectionConverters._
 
@@ -22,7 +25,8 @@ abstract class DependencyManagerBase {
   private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
-  protected def useCacheOnly: Boolean = false
+  protected def useFileSystemResolversOnly: Boolean =
+    RegistryManager.getInstance().is("scala.dependency.manager.use.file.system.resolvers.only")
 
   // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
   // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
@@ -36,9 +40,17 @@ abstract class DependencyManagerBase {
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
   private final val defaultResolvers: Seq[Resolver] = Seq(
-    MavenResolver("central", "https://repo1.maven.org/maven2"),
-    IvyResolver("typesafe-releases",
-      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]")
+    MavenResolver(
+      "central",
+      "https://repo1.maven.org/maven2"
+    ),
+    //TODO: typesafe-releases were added back with commit message
+    // "reinstate typesafe ivy repo for the time being to fix tests. #SCL-18671"
+    //  try to delete it again and see if any tests fail
+    IvyResolver(
+      "typesafe-releases",
+      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
+    )
   )
 
   private def mkIvyXml(deps: Seq[DependencyDescription]): String = {
@@ -78,7 +90,7 @@ abstract class DependencyManagerBase {
 
     org.apache.ivy.util.Message.setDefaultLogger(createLogger) // ¯\_(ツ)_/¯ SCL-15168
 
-    def mkResolver(resolver: Resolver): RepositoryResolver = resolver match {
+    def makeIvyResolver(resolver: Resolver): RepositoryResolver = resolver match {
       case MavenResolver(name, root) =>
         val iBiblioResolver = new IBiblioResolver
         iBiblioResolver.setRoot(root)
@@ -93,22 +105,38 @@ abstract class DependencyManagerBase {
         urlResolver
     }
 
+    def isFileSystemResolver(ivyResolver: RepositoryResolver): Boolean = {
+      ivyResolver.getRepository match {
+        case _: FileRepository | _: JarRepository => true
+        case _ => false
+      }
+    }
+
     def mkIvySettings(): IvySettings = {
       val ivySettings = new IvySettings
-      val ivyResolvers = resolvers.map(mkResolver)
       ivySettings.setDefaultIvyUserDir(ivyHome)
-      ivySettings.load(IvySettings.getDefaultSettingsURL)
-      ivySettings.getResolver("main") match {
-        case cr: ChainResolver => ivyResolvers.foreach(cr.add)
-        case _ =>
-          val chainResolver = new ChainResolver
-          chainResolver.setName("chainResolver")
-          ivyResolvers.foreach(chainResolver.add)
-          ivySettings.addResolver(chainResolver)
-          ivySettings.setDefaultResolver("chainResolver")
+
+      val useFileSystemOnly = useFileSystemResolversOnly
+      val myResolvers = resolvers
+
+      val ivyResolvers = myResolvers.map(makeIvyResolver)
+      val ivyResolversFiltered = ivyResolvers.filter { ivyResolver =>
+        !useFileSystemOnly || isFileSystemResolver(ivyResolver)
+      }
+
+      val ivySettingsUrl = DependencyManagerBase.fileSystemOnlyIvySettingsURL
+      ivySettings.load(ivySettingsUrl)
+
+      val mainChainResolver = ivySettings.getResolver("main") match {
+        case cr: ChainResolver => cr
+        case other =>
+          throw new AssertionError(s"'main' chain resolver not found (got: ${if (other == null) null else other.getClass.getName}")
+      }
+      ivyResolversFiltered.foreach { resolver =>
+        mainChainResolver.add(resolver)
+        resolver.setSettings(ivySettings)
       }
       ivySettings.configureDefaultVersionMatcher()
-      ivyResolvers.foreach(_.setSettings(ivySettings))
       customizeIvySettings(ivySettings)
       ivySettings
     }
@@ -123,17 +151,21 @@ abstract class DependencyManagerBase {
     ivy.bind()
 
     val report = usingTempFile("ivy", ".xml") { ivyFile =>
-      Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
+      val ivyXml = mkIvyXml(deps)
+      Files.write(Paths.get(ivyFile.toURI), ivyXml.getBytes)
       val resolveOptions = new ResolveOptions()
         .setConfs(Array("compile"))
-        .setUseCacheOnly(useCacheOnly)
       ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
     }
 
     processIvyReport(report)
   }
 
-  protected def artToDep(id: ModuleRevisionId): DependencyDescription = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
+  protected def artifactReportToResolvedDependency(artifactReport: ArtifactDownloadReport): ResolvedDependency = {
+    val id = artifactReport.getArtifact.getModuleRevisionId
+    val file = artifactReport.getLocalFile
+    ResolvedDependency(DependencyDescription.fromId(id), file)
+  }
 
   @throws[DependencyManagerBase.ResolveException]
   protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] =
@@ -141,14 +173,14 @@ abstract class DependencyManagerBase {
       report
         .getAllArtifactsReports
         .filter(r => !ignoreArtifact(r.getName))
-        .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
+        .map(artifactReportToResolvedDependency)
         .toIndexedSeq
     } else {
-      val resolved = report.getAllArtifactsReports.toSeq.filter(_.getLocalFile != null).map { artifactReport =>
-        val id = artifactReport.getArtifact.getModuleRevisionId
-        val file = artifactReport.getLocalFile
-        ResolvedDependency(DependencyDescription.fromId(id), file)
-      }
+      val resolved = report
+        .getAllArtifactsReports
+        .filter(_.getLocalFile != null)
+        .map(artifactReportToResolvedDependency)
+        .toSeq
       val unresolved = report.getUnresolvedDependencies.toSeq.map { node =>
         UnresolvedDependency(DependencyDescription.fromId(node.getId))
       }
@@ -217,6 +249,13 @@ abstract class DependencyManagerBase {
 }
 
 object DependencyManagerBase {
+
+  private val fileSystemOnlyIvySettingsURL: URL = {
+    val clazz = classOf[DependencyManagerBase]
+    val resourcePath = "dependencyManager/ivysettings-file-system-resolvers-only.xml"
+    val url = clazz.getClassLoader.getResource(resourcePath)
+    url.ensuring(_ != null, s"Can't locate ivy settings `$resourcePath`")
+  }
 
   object Types extends Enumeration {
 

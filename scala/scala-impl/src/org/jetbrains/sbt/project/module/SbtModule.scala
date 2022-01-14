@@ -1,35 +1,17 @@
-package org.jetbrains.sbt
-package project.module
-
-import java.net.URI
+package org.jetbrains.sbt.project.module
 
 import com.intellij.openapi.components._
 import com.intellij.openapi.module.Module
-import org.jetbrains.annotations.NonNls
-import org.jetbrains.sbt.resolvers.SbtResolver
+import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
+import java.net.URI
+import java.util.regex.Pattern
 import scala.annotation.nowarn
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
 object SbtModule {
-
-  // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
-  // and warn the user of "undefined path variables" (SCL-10691)
-  @NonNls private val SubstitutePrefix = "SUB:"
-  @NonNls private val SubstituteDollar = "DOLLAR"
-
-  @Deprecated
-  @NonNls private val ImportsKey = "sbt.imports"
-
-  @Deprecated
-  @NonNls private val Delimiter = ", "
-
-  @Deprecated
-  @NonNls private val ResolversKey = "sbt.resolvers"
 
   private def getState(module: Module): SbtModuleState =
     module.getService(classOf[SbtModule]).getState
@@ -39,61 +21,102 @@ object SbtModule {
     def apply(module: Module): URI =
       new URI(getState(module).buildForURI)
 
-    def update(module: Module, uri: URI): Unit = {
+    def update(module: Module, uri: URI): Unit =
       getState(module).buildForURI = uri.toString
-    }
   }
 
   object Imports {
 
-    def apply(module: Module): Seq[String] = {
-      Option(getState(module).imports)
-        .filter(_.nonEmpty)
-        .orElse(Option(module.getOptionValue(ImportsKey))) // TODO remove in 2018.3+
-        .filter(_.nonEmpty)
-        .fold(Sbt.DefaultImplicitImports) { implicitImports =>
-          implicitImports
-            .replace(SubstitutePrefix + SubstitutePrefix, SubstitutePrefix)
-            .replace(SubstitutePrefix + SubstituteDollar, "$")
-            .split(Delimiter)
-            .toSeq
-        }: @nowarn("cat=deprecation")
-    }
+    private val ImportsDelimiter = ", "
 
-    def update(module: Module, imports: java.util.List[String]): Unit = {
-      @nowarn("cat=deprecation") val newImports = imports.asScala.mkString(Delimiter)
+    // substitution of dollars is necessary because IDEA will interpret a string in the form of $something$ as a path variable
+    // and warn the user of "undefined path variables" (SCL-10691)
+    private val SubstitutePrefix = "SUB:"
+    private val SubstituteDollar = "DOLLAR"
+
+    private def encode(text: String): String = {
+      text
         .replace(SubstitutePrefix, SubstitutePrefix + SubstitutePrefix)
         .replace("$", SubstitutePrefix + SubstituteDollar)
+    }
 
-      {
-        module.setOption(ImportsKey, newImports): @nowarn("cat=deprecation") // TODO remove in 2018.3+
-      }
+    private def decode(text: String): String =
+      text
+        .replace(SubstitutePrefix + SubstitutePrefix, SubstitutePrefix)
+        .replace(SubstitutePrefix + SubstituteDollar, "$")
 
+    @nowarn("cat=deprecation")
+    def apply(module: Module): Seq[String] = {
+      val state = getState(module)
+      val importsStrOpt = Option(state.imports).filter(_.nonEmpty)
+      importsStrOpt.fold(Sbt.DefaultImplicitImports)(deserializeSeq)
+    }
+
+    @nowarn("cat=deprecation")
+    def update(module: Module, imports: java.util.List[String]): Unit = {
+      val newImports = serializeSeq(imports.asScala.toSeq)
       getState(module).imports = newImports
+    }
+
+    private def serializeSeq(imports: Seq[String]): String = {
+      val concatenated = imports.mkString(ImportsDelimiter)
+      val encoded = encode(concatenated)
+      encoded
+    }
+
+    private def deserializeSeq(string: String): Seq[String] = {
+      val decoded = decode(string)
+      val parts = decoded.split(ImportsDelimiter)
+      parts.toSeq
     }
   }
 
   object Resolvers {
 
     def apply(module: Module): Set[SbtResolver] = {
-      Option(getState(module).resolvers)
-        .filter(_.nonEmpty)
-        .orElse(Option(module.getOptionValue(ResolversKey))) // TODO remove in 2018.3+
-        .fold(Set.empty[SbtResolver]) { str =>
-        str.split(Delimiter)
-          .flatMap(SbtResolver.fromString)
-          .toSet
-        }: @nowarn("cat=deprecation")
+      val state = getState(module)
+      val resolversStrOpt = Option(state.resolvers).filter(_.nonEmpty)
+      resolversStrOpt.toSet.flatMap(deserializeSet)
     }
 
-    @nowarn("cat=deprecation")
     def update(module: Module, resolvers: Set[SbtResolver]): Unit = {
-      val newResolvers = resolvers.map(_.toString)
-        .mkString(Delimiter)
+      val serialized = serializeSet(resolvers)
+      getState(module).resolvers = serialized
+    }
 
-      module.setOption(ResolversKey, newResolvers) // TODO remove in 2018.3
+    private val ResolversDelimiter = ", "
+    private val ResolverFieldsDelimiter = "|"
+    private val ResolverFieldsDelimiterEncoded = "&delim;"
+    private val ResolverFieldsDelimiterPattern = Pattern.quote(ResolverFieldsDelimiter)
 
-      getState(module).resolvers
+    private def encodeName(name: String): String = name.replace(ResolverFieldsDelimiter, ResolverFieldsDelimiterEncoded)
+    private def decodeName(name: String): String = name.replace(ResolverFieldsDelimiterEncoded, ResolverFieldsDelimiter)
+
+    private def serialize(resolver: SbtResolver): String = {
+      val root = resolver.root
+      val name = encodeName(resolver.name)
+      val parts = resolver match {
+        case _: SbtMavenResolver => Seq(root, "maven", name)
+        case ir: SbtIvyResolver => Seq(root, "ivy", ir.isLocal, name)
+      }
+      parts.mkString(ResolverFieldsDelimiter)
+    }
+
+    private def deserialize(resolverStr: String): Option[SbtResolver] = {
+      val parts = resolverStr.split(ResolverFieldsDelimiterPattern).toSeq
+      parts match {
+        case Seq(root, "maven", name)        => Some(new SbtMavenResolver(decodeName(name), root))
+        case Seq(root, "ivy", isLocal, name) => Some(new SbtIvyResolver(decodeName(name), root, isLocal = isLocal.toBooleanOption.getOrElse(false)))
+        case _                               => None
+      }
+    }
+
+    private def serializeSet(resolvers: Set[SbtResolver]): String =
+      resolvers.map(serialize).mkString(ResolversDelimiter)
+
+    private def deserializeSet(string: String): Set[SbtResolver] = {
+      val resolvers = string.split(ResolversDelimiter)
+      resolvers.flatMap(deserialize).toSet
     }
   }
 }
