@@ -409,21 +409,22 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       }.getOrElse {
         val last = node.getLastChildNode
         last.getTreePrev match {
-          case result if isLineTerminator(result.getPsi) => result
+          case result if isNullOrLineTerminator(result) => result
           case _ => last
         }
       }
 
-      val before = beforeNode.getPsi
-      if (isLineTerminator(before))
+      if (isNullOrLineTerminator(beforeNode))
         node.addChild(createNewLineNode(), beforeNode)
       node.addChild(member.getNode, beforeNode)
 
-      val newLineNode = createNewLineNode()
-      if (isLineTerminator(before)) {
-        node.replaceChild(beforeNode, newLineNode)
-      } else {
-        node.addChild(newLineNode, beforeNode)
+      if (beforeNode != null) {
+        val newLineNode = createNewLineNode()
+        if (isLineTerminator(beforeNode.getPsi)) {
+          node.replaceChild(beforeNode, newLineNode)
+        } else {
+          node.addChild(newLineNode, beforeNode)
+        }
       }
 
       member
@@ -499,4 +500,7 @@ object ScTemplateDefinitionImpl {
       Path(clazz.name, Option(clazz.qualifiedName), kind)
     }
   }
+
+  private def isNullOrLineTerminator(node: ASTNode): Boolean =
+    node == null || isLineTerminator(node.getPsi)
 }
