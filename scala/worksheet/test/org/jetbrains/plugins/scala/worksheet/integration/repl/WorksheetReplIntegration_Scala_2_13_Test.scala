@@ -33,7 +33,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_
      * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
      */
     import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
+    new TestDependencyManager().resolve("jline" % "jline" % "2.14.6")
 
     val left =
       """val a = 1

@@ -66,7 +66,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
   protected def enableParadisePlugin(): Unit = {
-    val pluginArtifact = TestDependencyManager.resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
+    val pluginArtifact = new TestDependencyManager().resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
     val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val settings = profile.getSettings
     assertTrue("Paradise plugin not found, aborting compilation", pluginArtifact.nonEmpty)

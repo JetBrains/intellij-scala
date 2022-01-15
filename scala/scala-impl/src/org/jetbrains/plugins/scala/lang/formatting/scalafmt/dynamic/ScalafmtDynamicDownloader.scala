@@ -75,8 +75,6 @@ object ScalafmtDynamicDownloader {
     override protected def resolvers: Seq[Resolver] =
       extraResolvers ++ super.resolvers
 
-    override protected val artifactBlackList: Set[String] = Set() // not to exclude scala-reflect & scala-library
-
     override protected val logLevel: Int = org.apache.ivy.util.Message.MSG_INFO
 
     override def createLogger: MessageLogger = new AbstractMessageLogger {

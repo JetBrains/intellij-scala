@@ -11,7 +11,9 @@ import org.apache.ivy.plugins.repository.jar.JarRepository
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
+import org.jetbrains.plugins.scala.DependencyManagerBase.IvyResolver
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
+import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.File
@@ -28,10 +30,6 @@ abstract class DependencyManagerBase {
   protected def useFileSystemResolversOnly: Boolean =
     RegistryManager.getInstance().is("scala.dependency.manager.use.file.system.resolvers.only")
 
-  // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
-  // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
-  //TODO: should we add scala3-* here?
-  //TODO: maybe we should only introduce this default blacklist in tests which actually rely on it and leave it empty by default?
   protected val artifactBlackList: Set[String] = Set.empty
 
   private def ignoreArtifact(artifactName: String): Boolean = artifactBlackList.contains(stripScalaVersion(artifactName))
@@ -43,13 +41,6 @@ abstract class DependencyManagerBase {
     MavenResolver(
       "central",
       "https://repo1.maven.org/maven2"
-    ),
-    //TODO: typesafe-releases were added back with commit message
-    // "reinstate typesafe ivy repo for the time being to fix tests. #SCL-18671"
-    //  try to delete it again and see if any tests fail
-    IvyResolver(
-      "typesafe-releases",
-      "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
     )
   )
 
@@ -369,10 +360,31 @@ object DependencyManagerBase {
   }
 }
 
-object TestDependencyManager extends DependencyManagerBase {
+/** @param includeTypesafeRepo mainly required to be able to resolve sbt 0.13 releases, which are not published to maven central */
+final class TestDependencyManager(includeTypesafeRepo: Boolean = false) extends DependencyManagerBase {
+
+  // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
+  // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
+  //TODO: should we add scala3-* here?
   override val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
+
+  override protected def resolvers: Seq[DependencyManagerBase.Resolver] = {
+    val extraResolvers =
+      if (includeTypesafeRepo)
+        Seq(IvyResolver(
+          "typesafe-releases",
+          "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]"
+        ))
+      else Nil
+    super.resolvers ++ extraResolvers
+  }
 }
 
-object DependencyManager extends DependencyManagerBase {
-  override val artifactBlackList: Set[String] = Set.empty
+object TestDependencyManager {
+  def forSbtVersion(sbtVersion: Version): TestDependencyManager = {
+    val includeTypesafeRepo = sbtVersion < Version("1.0.0")
+    new TestDependencyManager(includeTypesafeRepo)
+  }
 }
+
+object DependencyManager extends DependencyManagerBase

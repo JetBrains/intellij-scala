@@ -2,7 +2,7 @@ package org.jetbrains.sbt
 
 import junit.framework.Test
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TestDependencyManager}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.project.Version
@@ -17,11 +17,12 @@ trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
   protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true)
 
-  override def librariesLoaders: Seq[LibraryLoader] =
+  override def librariesLoaders: Seq[LibraryLoader] = {
     Seq(
       scalaSdkLoader,
-      IvyManagedLoader(("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive())
+      IvyManagedLoader(TestDependencyManager.forSbtVersion(sbtVersion), ("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive())
     )
+  }
 }
 
 trait MockSbt_0_12 extends MockSbtBase { this: Test =>

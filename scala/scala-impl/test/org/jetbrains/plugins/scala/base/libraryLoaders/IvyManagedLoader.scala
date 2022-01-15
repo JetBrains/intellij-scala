@@ -26,13 +26,10 @@ abstract class IvyManagedLoaderBase extends LibraryLoader {
   }
 }
 
-final class IvyManagedLoader(
+final class IvyManagedLoader private(
   override protected val dependencyManager: DependencyManagerBase,
   _dependencies: DependencyDescription*
 ) extends IvyManagedLoaderBase {
-
-  def this(dependencies: DependencyDescription*) =
-    this(TestDependencyManager, dependencies: _*)
 
   override protected def cache: mutable.Map[Seq[DependencyDescription], Seq[ResolvedDependency]] =
     IvyManagedLoader.cache
@@ -49,7 +46,7 @@ object IvyManagedLoader {
   ] = mutable.Map()
 
   def apply(dependencies: DependencyDescription*): IvyManagedLoader =
-    new IvyManagedLoader(dependencies: _*)
+    new IvyManagedLoader(new TestDependencyManager, dependencies: _*)
 
   def apply(dependencyManager: DependencyManagerBase, dependencies: DependencyDescription*): IvyManagedLoader =
     new IvyManagedLoader(dependencyManager, dependencies: _*)

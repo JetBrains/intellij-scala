@@ -52,7 +52,6 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
         import DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
-          override val artifactBlackList: Set[String] = Set.empty
         }
 
         val (compiler, librarySources) = (
