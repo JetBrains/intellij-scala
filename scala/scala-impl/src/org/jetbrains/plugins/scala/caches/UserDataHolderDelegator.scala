@@ -1,14 +1,16 @@
 package org.jetbrains.plugins.scala
 package caches
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.{Disposer, UserDataHolderBase, UserDataHolderEx}
+
+import java.util.concurrent.ConcurrentHashMap
+import scala.annotation.nowarn
 
 object UserDataHolderDelegator {
   private val delegates = new ConcurrentHashMap[Disposable, UserDataHolderBase]
 
+  @nowarn("cat=deprecation")
   def userDataHolderFor(holder: Disposable): UserDataHolderEx =
     delegates.computeIfAbsent(holder, holder => {
       // Ideally we wouldn't need holder to be a disposable to support arbitrary objects.
