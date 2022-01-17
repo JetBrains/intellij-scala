@@ -15,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServi
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicServiceImpl.{ProgressIndicatorDownloadListener, ServiceState}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion}
 
@@ -54,7 +54,7 @@ final class ScalafmtDynamicServiceImpl
       case _ =>
     }
     formattersCache.clear()
-    state.resolvedVersions.clear()
+    state.clearResolvedVersions()
   }
 
   // NOTE: instead of returning download-in-progress error we could reuse downloading process and use it's result
@@ -77,15 +77,15 @@ final class ScalafmtDynamicServiceImpl
         Left(ScalafmtResolveError.DownloadInProgress(version))
       case _ =>
         val fromCache: Option[ResolveResult] =
-          if (state.resolvedVersions.containsKey(version)) {
-            val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
+          if (state.containsResolvedVersion(version)) {
+            val jarUrls = state.getUrlsForVersion(version)
             //user can remove `.ivy2/cache` so our resolve caches become stale
             val missingFiles = jarUrls.map(url => new File(url.toURI)).filterNot(_.exists())
             if (missingFiles.isEmpty) {
-              Some(resolveClassPath(version, jarUrls.toSeq))
+              Some(resolveClassPath(version, jarUrls))
             } else {
               Log.warn(s"Following jars are present in scalafmt dynamic resolve cache (version $version) but do not exist on disk:\n${missingFiles.mkString("  ", "\n  ", "  ")}")
-              state.resolvedVersions.remove(version)
+              state.removeResolvedVersion(version)
               None
             }
           }
@@ -123,7 +123,7 @@ final class ScalafmtDynamicServiceImpl
     Try {
       val classloader = new URLClassLoader(jarUrls, null)
       val scalaFmt = ScalafmtReflect(classloader, version)
-      state.resolvedVersions.put(version, jarUrls.toArray.map(_.toString))
+      state.setResolvedVersion(version, jarUrls)
       formattersCache(version) = ResolveStatus.Resolved(scalaFmt)
       scalaFmt
     }.toEither.left.map {
@@ -164,7 +164,7 @@ final class ScalafmtDynamicServiceImpl
         Log.warnWithErrorInTests(s"corrupted class path $versionHint: ${urls.mkString(";")}", cause)
         val action = new DownloadScalafmtNotificationActon(version, ScalaBundle.message("scalafmt.resolve.again")) {
           override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-            state.resolvedVersions.remove(version)
+            state.removeResolvedVersion(version)
             super.actionPerformed(e, notification)
           }
         }
@@ -199,7 +199,7 @@ final class ScalafmtDynamicServiceImpl
       case Some(ResolveStatus.DownloadInProgress) =>
         invokeLater(onResolved(Left(ScalafmtResolveError.DownloadInProgress(version))))
       case _ =>
-        val isDownloaded = state.resolvedVersions.containsKey(DefaultVersion)
+        val isDownloaded = state.containsResolvedVersion(DefaultVersion)
         val title =
           if (isDownloaded) ScalaBundle.message("scalafmt.progress.resolving.scalafmt.version", version)
           else ScalaBundle.message("scalafmt.progress.downloading.scalafmt.version", version)
@@ -240,10 +240,46 @@ final class ScalafmtDynamicServiceImpl
 
 object ScalafmtDynamicServiceImpl {
 
+
+  private object ScalafmtVersionConverter extends com.intellij.util.xmlb.Converter[ScalafmtVersion] {
+    override def fromString(value: String): ScalafmtVersion = {
+      val parsed = ScalafmtVersion.parse(value)
+      parsed.getOrElse(throw new AssertionError(s"Wrong scalafmt version format: $value"))
+    }
+
+    override def toString(value: ScalafmtVersion): String =
+      value.toString
+  }
+
   class ServiceState {
     // scalafmt version -> list of classpath jar URLs
     @BeanProperty
-    var resolvedVersions: java.util.Map[ScalafmtVersion, Array[String]] = new java.util.TreeMap()
+    var resolvedVersions: java.util.Map[String, Array[String]] = new java.util.TreeMap()
+
+    import ScalafmtVersionConverter.{toString => key}
+
+    //NOTE: (according to Vladimir Krivosheev) currently there is no way to tell IntelliJ
+    //to use ScalafmtVersionConverter when serializing/deserializing Map keys
+    //So we use these helper methods which encapsulate the conversions
+    //We could rely default serialization, but we would need to migrate old states,
+    //which has a text representation of scalafmt version
+    def getUrlsForVersion(version: ScalafmtVersion): Seq[URL] =
+      resolvedVersions.get(key(version)).toSeq.map(new URL(_))
+
+    def containsResolvedVersion(version: ScalafmtVersion): Boolean =
+      resolvedVersions.containsKey(key(version))
+
+    def clearResolvedVersions(): Unit = {
+      resolvedVersions.clear()
+    }
+
+    def setResolvedVersion(version: ScalafmtVersion, jarUrls: Seq[URL]): Array[String] = {
+      resolvedVersions.put(key(version), jarUrls.toArray.map(_.toString))
+    }
+
+    def removeResolvedVersion(version: ScalafmtVersion): Unit = {
+      resolvedVersions.remove(key(version))
+    }
   }
 
   private class ProgressIndicatorDownloadListener(
@@ -252,7 +288,7 @@ object ScalafmtDynamicServiceImpl {
   ) extends DownloadProgressListener {
     @throws[ProcessCanceledException]
     override def progressUpdate(message: String): Unit = {
-      if (!message.isEmpty) {
+      if (message.nonEmpty) {
         //noinspection ReferencePassedToNls,ScalaExtractStringToBundle
         indicator.setText(prefix + ": " + message)
       }
