@@ -22,14 +22,14 @@ import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkB
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
-import org.jetbrains.sbt.project.data.{LibraryNode, _}
+import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
-import org.jetbrains.sbt.{SbtBundle, structure => sbtStructure}
+import org.jetbrains.sbt.{structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
 import java.util.{Locale, UUID}
@@ -88,7 +88,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val structureDump = dumpStructure(projectRoot, sbtLauncher, Version(sbtVersion), settings, taskId.findProject())
 
     // side-effecty status reporting
-    structureDump.foreach { case (_, messages) =>
+    structureDump.foreach { _ =>
       val convertStartEvent = new ExternalSystemStartEventImpl(importTaskId, null, importTaskDescriptor)
       val event = new ExternalSystemTaskExecutionEvent(taskId, convertStartEvent)
       notifications.onStatusChange(event)
@@ -178,7 +178,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val result: Try[(Elem, BuildMessages)] = messageResult.flatMap { messages =>
         val tried = {
           def failure(reason: String): Failure[(Elem, BuildMessages)] = {
-            val message = SbtBundle.message("sbt.import.extracting.structure.failed") + s": ${reason}"
+            val message = SbtBundle.message("sbt.import.extracting.structure.failed") + s": $reason"
             Failure(new Exception(message))
           }
 
@@ -404,7 +404,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       moduleNode.addAll(createTaskData(project))
       moduleNode.addAll(createSettingData(project))
       moduleNode.addAll(createCommandData(project))
-      moduleNode.addAll(project.android.map(createFacet(project, _)).toSeq)
+      moduleNode.addAll(project.android.map(createFacet).toSeq)
       moduleNode.addAll(createUnmanagedDependencies(project.dependencies.jars)(moduleNode))
       unmanagedSourcesAndDocsLibrary foreach { lib =>
         val dependency = new LibraryDependencyNode(moduleNode, lib, LibraryLevel.MODULE)
@@ -475,7 +475,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     }
   }
 
-  private def createFacet(project: sbtStructure.ProjectData, android: sbtStructure.AndroidData): AndroidFacetNode = {
+  private def createFacet(android: sbtStructure.AndroidData): AndroidFacetNode = {
     new AndroidFacetNode(SbtAndroidFacetData(android.targetVersion, android.manifest, android.apk,
                          android.res, android.assets, android.gen, android.libs,
                          android.isLibrary, android.proguardConfig))
