@@ -29,7 +29,7 @@ import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
-import org.jetbrains.sbt.{structure => sbtStructure}
+import org.jetbrains.sbt.{SbtBundle, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
 import java.util.{Locale, UUID}
@@ -178,15 +178,16 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       val result: Try[(Elem, BuildMessages)] = messageResult.flatMap { messages =>
         val tried = {
           def failure(reason: String): Failure[(Elem, BuildMessages)] = {
-            val message = SbtBundle.message("sbt.import.extracting.structure.failed") + s", reason: ${reason}"
+            val message = SbtBundle.message("sbt.import.extracting.structure.failed") + s": ${reason}"
             Failure(new Exception(message))
           }
+
           if (messages.status != BuildMessages.OK)
-            failure(s"not ok build status: ${messages.status} (${messages})")
+            failure(SbtBundle.message("sbt.import.message.build.status", messages.status))
           else if (!structureFile.isFile)
-            failure(s"structure file is not a file")
+            failure(SbtBundle.message("sbt.import.message.structure.file.is.not.a.file", structureFile.getPath))
           else if (structureFile.length <= 0)
-            failure(s"structure file is empty")
+            failure(SbtBundle.message("sbt.import.message.structure.file.is.empty", structureFile.getPath))
           else Try {
             val elem = XML.load(structureFile.toURI.toURL)
             (elem, messages)
