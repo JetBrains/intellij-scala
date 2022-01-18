@@ -8,6 +8,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 // TODO refactor
+// TODO use fine-grained extractors
+// TODO read SourceFile annotation, delete Node.nodes
 // TODO use StringBuilder: type
 // TODO String indent
 // TODO nonEmpty predicate

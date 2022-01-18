@@ -7,7 +7,9 @@ import dotty.tools.tasty.TastyFormat
 // TODO custom extractors
 // TODO children[T]
 // TODO don't preload names and children
-class Node(val tag: Int, val names: Seq[String], val children: Seq[Node]) {
+class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
+  lazy val children: Seq[Node] = children0()
+
   override def toString: String = toString(0)
 
   protected def toString(indent: Int): String =
