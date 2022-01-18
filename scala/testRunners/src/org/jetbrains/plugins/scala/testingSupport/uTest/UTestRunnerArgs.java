@@ -7,17 +7,17 @@ import java.util.*;
 
 public final class UTestRunnerArgs {
 
-    final Map<String, Set<UTestPath>> classesToTests;
+    final SortedMap<String, Set<UTestPath>> classesToTests;
 
-    public UTestRunnerArgs(Map<String, Set<UTestPath>> classesToTests) {
-        this.classesToTests = new HashMap<>(classesToTests);
+    public UTestRunnerArgs(SortedMap<String, Set<UTestPath>> classesToTests) {
+        this.classesToTests = classesToTests;
     }
 
     private static final String TEST_SUITE_KEY = "-s";
     private static final String TEST_NAME_KEY = "-testName";
 
     public static UTestRunnerArgs parse(List<String> args) {
-        Map<String, Set<UTestPath>> classesToTests = new HashMap<>();
+        SortedMap<String, Set<UTestPath>> classesToTests = new TreeMap<>();
 
         String currentClass = null;
         int argIdx = 0;

@@ -6,11 +6,15 @@ import java.util.*;
 
 public class ScalaTestRunnerArgs {
 
-    final Map<String, Set<String>> classesToTests;
+    final SortedMap<String, Set<String>> classesToTests;
     final boolean showProgressMessages;
     final List<String> otherArgs;
 
-    public ScalaTestRunnerArgs(Map<String, Set<String>> classesToTests,
+    private static final String TEST_SUITE_KEY = "-s";
+    private static final String TEST_NAME_KEY = "-testName";
+    private static final String SHOW_PROGRESS_MESSAGES_KEY = "-showProgressMessages";
+
+    public ScalaTestRunnerArgs(SortedMap<String, Set<String>> classesToTests,
                                boolean showProgressMessages,
                                List<String> otherArgs) {
         this.classesToTests = classesToTests;
@@ -19,15 +23,15 @@ public class ScalaTestRunnerArgs {
     }
 
     public static ScalaTestRunnerArgs parse(List<String> args) {
-        Map<String, Set<String>> classesToTests = new HashMap<>();
+        SortedMap<String, Set<String>> classesToTests = new TreeMap<>();
         boolean showProgressMessages = true;
         List<String> otherArgs = new ArrayList<>();
 
-        int argIdx = 0;
         String currentClass = null;
+        int argIdx = 0;
         while (argIdx < args.size()) {
             switch (args.get(argIdx)) {
-                case "-s":
+                case TEST_SUITE_KEY:
                     ++argIdx;
                     while (argIdx < args.size() && !args.get(argIdx).startsWith("-")) {
                         String className = args.get(argIdx);
@@ -36,16 +40,16 @@ public class ScalaTestRunnerArgs {
                         ++argIdx;
                     }
                     break;
-                case "-testName":
+                case TEST_NAME_KEY:
+                    ++argIdx;
                     if (currentClass == null)
                         throw new RuntimeException("Failed to run tests: no suite class specified for test " + args.get(argIdx));
-                    ++argIdx;
                     String testNames = args.get(argIdx);
                     String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
                     classesToTests.get(currentClass).add(testNamesUnescaped);
                     ++argIdx;
                     break;
-                case "-showProgressMessages":
+                case SHOW_PROGRESS_MESSAGES_KEY:
                     ++argIdx;
                     showProgressMessages = Boolean.parseBoolean(args.get(argIdx));
                     ++argIdx;

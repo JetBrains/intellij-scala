@@ -6,11 +6,15 @@ import java.util.*;
 
 public class Spec2RunnerArgs {
 
-    final Map<String, Set<String>> classesToTests;
+    final SortedMap<String, Set<String>> classesToTests;
     final boolean showProgressMessages;
     final List<String> otherArgs;
 
-    public Spec2RunnerArgs(Map<String, Set<String>> classesToTests,
+    private static final String TEST_SUITE_KEY = "-s";
+    private static final String TEST_NAME_KEY = "-testName";
+    private static final String SHOW_PROGRESS_MESSAGES_KEY = "-showProgressMessages";
+
+    public Spec2RunnerArgs(SortedMap<String, Set<String>> classesToTests,
                            boolean showProgressMessages,
                            List<String> otherArgs) {
         this.classesToTests = classesToTests;
@@ -19,30 +23,31 @@ public class Spec2RunnerArgs {
     }
 
     public static Spec2RunnerArgs parse(List<String> args) {
-        Map<String, Set<String>> classesToTests = new HashMap<>();
+        SortedMap<String, Set<String>> classesToTests = new TreeMap<>();
         boolean showProgressMessages = true;
         List<String> otherArgs = new ArrayList<>();
 
-        int argIdx = 0;
         String currentClass = null;
+        int argIdx = 0;
         while (argIdx < args.size()) {
             switch (args.get(argIdx)) {
-                case "-s":
+                case TEST_SUITE_KEY:
                     ++argIdx;
                     while (argIdx < args.size() && !args.get(argIdx).startsWith("-")) {
-                        currentClass = args.get(argIdx);
-                        classesToTests.put(currentClass, new HashSet<>());
+                        String className = args.get(argIdx);
+                        classesToTests.put(className, new HashSet<>());
+                        currentClass = className;
                         ++argIdx;
                     }
                     break;
-                case "-testName":
+                case TEST_NAME_KEY:
                     ++argIdx;
                     String testNames = args.get(argIdx);
                     String testNamesUnescaped = TestRunnerUtil.unescapeTestName(testNames);
                     classesToTests.get(currentClass).add(testNamesUnescaped);
                     ++argIdx;
                     break;
-                case "-showProgressMessages":
+                case SHOW_PROGRESS_MESSAGES_KEY:
                     ++argIdx;
                     showProgressMessages = Boolean.parseBoolean(args.get(argIdx));
                     ++argIdx;
