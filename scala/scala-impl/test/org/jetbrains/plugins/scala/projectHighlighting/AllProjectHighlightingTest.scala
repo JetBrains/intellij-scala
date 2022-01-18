@@ -107,11 +107,17 @@ object AllProjectHighlightingTest {
       case _            => return
     }
 
+
+    val randomSeed = System.currentTimeMillis()
+    //report random seed on errors to be able to reproduce the issue locally
+    val randomSeedDebugSuffix = s" (random seed: $randomSeed)"
+    val random = new Random(randomSeed)
+
     val fileName = relPath.getOrElse(relativePathOf(scalaFile))
     val mock = new AnnotatorHolderMock(scalaFile) {
       override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
         if (severity == HighlightSeverity.ERROR) {
-          reporter.reportError(fileName, range, message)
+          reporter.reportError(fileName, range, message + randomSeedDebugSuffix)
         }
         super.createMockAnnotation(severity, range, message)
       }
@@ -119,14 +125,14 @@ object AllProjectHighlightingTest {
 
     val annotator = ScalaAnnotator.forProject(scalaFile)
 
-    val random = new Random(0)
-
-    for (element <- random.shuffle(scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]))) {
+    val elements = scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]).toSeq
+    val elementsShuffled = random.shuffle(elements)
+    for (element <- elementsShuffled) {
       try {
         annotator.annotate(element)(mock)
       } catch {
         case NonFatal(t) =>
-          reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t")
+          reporter.reportError(fileName, element.getTextRange, s"Exception while highlighting: $t$randomSeedDebugSuffix")
       }
     }
   }
