@@ -261,15 +261,15 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       parametersIn(sb, node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition)
       sb ++= ": "
-      val children = node.children
-      val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
+      val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
+      val tpe = remainder.headOption
       tpe match {
         case Some(t) =>
           sb ++= simple(textOfType(t))
         case None =>
           sb ++= simple("") // TODO
       }
-      val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
+      val isDeclaration = remainder.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
         sb ++= " = ???" // TODO parameter, { /* compiled code */ }
       }
@@ -311,7 +311,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         case None =>
           sb ++= simple("") // TODO
       }
-      val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
+      val isDeclaration = children.drop(1).forall(_.isModifier)
       if (!isDeclaration) {
         sb ++= " = ???" // TODO parameter, /* compiled code */
       }
