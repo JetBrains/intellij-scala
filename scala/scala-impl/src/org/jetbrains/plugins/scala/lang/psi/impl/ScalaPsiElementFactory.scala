@@ -154,7 +154,7 @@ object ScalaPsiElementFactory {
       createExpressionWithContextFromText(text, context, context)
     } catch {
       case c: ControlFlowException => throw c
-      case throwable: Throwable => throw elementCreationException("expression", text, context, throwable)
+      case throwable: Throwable => throw ScalaPsiElementCreationException("expression", text, context, throwable)
     }
   }
 
@@ -288,7 +288,7 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScCaseClause](kCASE.toString + " " + patternText, context, child)(patterns.CaseClause.parse(_))
       .pattern
       .getOrElse {
-        throw elementCreationException("pattern", patternText, context)
+        throw ScalaPsiElementCreationException("pattern", patternText, context)
       }
 
   def createAnAnnotation(@NonNls name: String)
@@ -328,7 +328,7 @@ object ScalaPsiElementFactory {
     }
     catch {
       case c: ControlFlowException => throw c
-      case throwable: Throwable => throw elementCreationException("identifier", name, cause = throwable)
+      case throwable: Throwable => throw ScalaPsiElementCreationException("identifier", name, cause = throwable)
     }
   }
 
@@ -353,7 +353,7 @@ object ScalaPsiElementFactory {
     }
     catch {
       case c: ControlFlowException => throw c
-      case throwable: Throwable => throw elementCreationException("reference", name, cause = throwable)
+      case throwable: Throwable => throw ScalaPsiElementCreationException("reference", name, cause = throwable)
     }
   }
 
@@ -458,7 +458,7 @@ object ScalaPsiElementFactory {
     forStmt.enumerators.flatMap {
       _.forBindings.headOption
     }.getOrElse {
-      throw elementCreationException("enumerator", enumText)
+      throw ScalaPsiElementCreationException("enumerator", enumText)
     }
   }
 
@@ -816,7 +816,7 @@ object ScalaPsiElementFactory {
     val firstArgument = methodCall.argumentExpressions
       .headOption
       .getOrElse {
-        throw elementCreationException("expression", text, context)
+        throw ScalaPsiElementCreationException("expression", text, context)
       }
 
     firstArgument.context = context
@@ -845,7 +845,7 @@ object ScalaPsiElementFactory {
         element.child = child
         element
       case element =>
-        throw elementCreationException(tag.runtimeClass.getSimpleName, text + "; actual: " + element.getText, context)
+        throw ScalaPsiElementCreationException(tag.runtimeClass.getSimpleName, text + "; actual: " + element.getText, context)
     }
   }
 
@@ -921,7 +921,7 @@ object ScalaPsiElementFactory {
       .getLastChild
       .getLastChild match {
       case typeElement: ScTypeElement => typeElement
-      case _ => throw elementCreationException("type element", text)
+      case _ => throw ScalaPsiElementCreationException("type element", text)
     }
 
   def createParameterTypeFromText(@NonNls text: String)(implicit ctx: ProjectContext): ScParameterType =
@@ -971,7 +971,9 @@ object ScalaPsiElementFactory {
   def createScalaDocComment(@NonNls prefix: String)
                            (implicit context: ProjectContext): ScDocComment = {
     val definitions = createScalaFileFromText(s"$prefix class a").typeDefinitions
-    definitions.head.docComment.orNull
+    definitions.head.docComment.getOrElse {
+      throw ScalaPsiElementCreationException("scaladoc comment", prefix)
+    }
   }
 
   def createScalaDocMonospaceSyntaxFromText(@NonNls text: String)
@@ -1098,11 +1100,6 @@ object ScalaPsiElementFactory {
   private[this] def createMemberFromText(@NonNls text: String)
                                         (implicit context: ProjectContext): ScMember =
     createClassWithBody(text).members.head
-
-  private[this] def elementCreationException(@NonNls kind: String, @NonNls text: String,
-                                             context: PsiElement = null,
-                                             cause: Throwable = null) =
-    ScalaPsiElementCreationException(kind, text, context, cause)
 
   final class ScalaPsiElementCreationException(message: String, cause: Throwable)
     extends IncorrectOperationException(message, cause)
