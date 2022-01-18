@@ -7,7 +7,7 @@ import dotty.tools.tasty.TastyFormat
 // TODO custom extractors
 // TODO children[T]
 // TODO don't preload names and children
-case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
+class Node(val tag: Int, val names: Seq[String], val children: Seq[Node]) {
   override def toString: String = toString(0)
 
   protected def toString(indent: Int): String =
@@ -48,6 +48,9 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 }
 
 private object Node {
+
+  def unapply(node: Node): (Int, Seq[String], Seq[Node]) = (node.tag, node.names, node.children)
+
   // TODO Remove when SourceFile annotation reading is integrated
   import scala.collection.mutable
   class BreadthFirstIterator(element: Node) extends Iterator[Node] {
