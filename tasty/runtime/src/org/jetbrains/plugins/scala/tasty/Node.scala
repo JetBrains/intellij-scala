@@ -49,7 +49,25 @@ class Node(val tag: Int, val names: Seq[String], val children: Seq[Node]) {
 
 private object Node {
 
-  def unapply(node: Node): (Int, Seq[String], Seq[Node]) = (node.tag, node.names, node.children)
+  // TODO use Product matches
+
+  def unapply(node: Node): Option[(Int, Seq[String], Seq[Node])] = Some((node.tag, node.names, node.children))
+
+  object Tag {
+    def unapply(node: Node): Option[Int] = Some(node.tag)
+  }
+
+  object Name {
+    def unapply(node: Node): Option[String] = Some(node.name)
+  }
+
+  object Children {
+    def unapplySeq(node: Node): Seq[Node] = node.children
+  }
+
+  object && {
+    def unapply[T](obj: T): Some[(T, T)] = Some((obj, obj))
+  }
 
   // TODO Remove when SourceFile annotation reading is integrated
   import scala.collection.mutable
