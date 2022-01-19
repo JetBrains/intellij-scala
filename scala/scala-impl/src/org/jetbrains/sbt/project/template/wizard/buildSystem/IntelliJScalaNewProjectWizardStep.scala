@@ -14,6 +14,7 @@ import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 import java.nio.file.Paths
 import javax.swing.JComponent
 
+/** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardStep](parent)
     with ScalaSDKStepLike {
@@ -27,8 +28,9 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     val builder = new ScalaModuleBuilder()
     builder.setName(getModuleName)
     builder.setContentEntryPath(FileUtil.toSystemDependentName(getContentRoot))
-    builder.setModuleJdk(getSdk)
     builder.setModuleFilePath(FileUtil.toSystemDependentName(moduleFile.toString))
+
+    setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
 
     builder.libraryCompositionSettings = libraryPanel.apply()
     builder.packagePrefix = Option(packagePrefixTextField.getText).filter(_.nonEmpty)
