@@ -72,23 +72,24 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
       }
 
-    case _ => textOfMember(sb, indent, node, definition, prefix)
+    case _ =>
+      textOfMember(sb, indent, node, definition, prefix)
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node1(TYPEDEF) if (!node.contains(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.contains(PRIVATE)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (privateMembers || !node.contains(PRIVATE)) && (!node.contains(SYNTHETIC) || isGivenImplicitClass0(node)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
-    case node @ Node2(DEFDEF, Seq(name)) if !node.contains(FIELDaccessor) && !node.contains(SYNTHETIC) && !node.contains(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.contains(PRIVATE)) =>
+    case node @ Node2(DEFDEF, Seq(name)) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(FIELDaccessor) && !node.contains(ARTIFACT) && !name.contains("$default$") =>
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
-    case node @ Node1(VALDEF) if !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) && (privateMembers || !node.contains(PRIVATE)) =>
+    case node @ Node1(VALDEF) if (privateMembers || !node.contains(PRIVATE)) && !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) =>
       sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
-    case _ => "" // TODO exhaustive match
+    case _ => // TODO exhaustive match
   }
 
   private def textOfTypeDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
