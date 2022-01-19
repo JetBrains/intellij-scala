@@ -53,18 +53,16 @@ private object Node {
 
   // TODO use Product matches
 
-  def unapply(node: Node): Option[(Int, Seq[String], Seq[Node])] = Some((node.tag, node.names, node.children))
-
-  object Tag {
+  object Node1 {
     def unapply(node: Node): Option[Int] = Some(node.tag)
   }
 
-  object Name {
-    def unapply(node: Node): Option[String] = Some(node.name)
+  object Node2 {
+    def unapply(node: Node): Option[(Int, Seq[String])] = Some((node.tag, node.names))
   }
 
-  object Children {
-    def unapplySeq(node: Node): Seq[Node] = node.children
+  object Node3 {
+    def unapply(node: Node): Option[(Int, Seq[String], Seq[Node])] = Some((node.tag, node.names, node.children))
   }
 
   object && {

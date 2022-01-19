@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.TastyFormat.*
+import org.jetbrains.plugins.scala.tasty.Node.{Node1, Node2, Node3}
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
@@ -8,7 +9,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 // TODO refactor
-// TODO use fine-grained extractors
 // TODO read SourceFile annotation, delete Node.nodes
 // TODO use StringBuilder: type
 // TODO String indent
@@ -35,14 +35,14 @@ class TreePrinter(privateMembers: Boolean = false) {
 
   // TODO partial function, no prefix (or before & after functions)?
   @tailrec private def textOfPackage(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) =>
+    case Node3(PACKAGE, _, Seq(Node3(TERMREFpkg, Seq(name), _), children: _*)) =>
       children.filterNot(_.tag == IMPORT) match {
-        case Seq(node@Node(PACKAGE, _, _), _: _*) =>
+        case Seq(node @ Node1(PACKAGE), _: _*) =>
           textOfPackage(sb, indent, node)
 
         case children =>
           val containsPackageObject = children match {
-            case Seq(Node(VALDEF, Seq("package"), _: _*), Node(TYPEDEF, Seq("package$"), _), _: _*) => true // TODO use name type, not contents
+            case Seq(Node2(VALDEF, Seq("package")), Node2(TYPEDEF, Seq("package$")), _: _*) => true // TODO use name type, not contents
             case _ => false
           }
           if (name != "<empty>") {
@@ -57,7 +57,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           // TODO extract method, de-duplicate
           var delimiterRequired = false
           children match {
-            case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
+            case Seq(Node2(VALDEF, Seq(name1)), Node3(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
               template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
                 val previousLength = sb.length
                 textOfMember(sb, indent, definition, None, if (delimiterRequired) "\n\n" else "")
@@ -76,15 +76,15 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node(TYPEDEF, _, _) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
-    case node @ Node(DEFDEF, Seq(name), _) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
+    case node @ Node2(DEFDEF, Seq(name)) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
-    case node @ Node(VALDEF, _, _) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (!node.hasFlag(CASE) || definition.exists(_.hasFlag(ENUM))) && (privateMembers || !node.hasFlag(PRIVATE)) =>
+    case node @ Node1(VALDEF) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (!node.hasFlag(CASE) || definition.exists(_.hasFlag(ENUM))) && (privateMembers || !node.hasFlag(PRIVATE)) =>
       sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
@@ -176,10 +176,10 @@ class TreePrinter(privateMembers: Boolean = false) {
     val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
     val parents = children.collect { // TODO rely on name kind
       case node if node.isTypeTree => node
-      case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
-      case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
     }.map(textOfType(_, parensRequired = true))
       .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
         !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
@@ -331,23 +331,23 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfType(node: Node, parensRequired: Boolean = false): String = node match { // TODO proper settings
-    case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
-    case Node(SINGLETONtpt, _, Seq(tail)) =>
+    case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
+    case Node3(SINGLETONtpt, _, Seq(tail)) =>
       val literal = textOfConstant(tail)
       if (literal.nonEmpty) literal else textOfType(tail) + ".type"
-    case const @ Node(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst, _, _: _*) => textOfConstant(const)
-    case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-    case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
-    case Node(THIS, _, _) => "this" // TODO prefix
-    case Node(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, _) => node.refName.getOrElse("") // TODO
-    case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
+    case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
+    case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+    case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
+    case Node1(THIS) => "this" // TODO prefix
+    case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
+    case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
       if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
       else {
         val qualifier = textOfType(tail)
         if (qualifier.nonEmpty) qualifier + "." + name else name
       }
-    case Node(TERMREFpkg | TYPEREFpkg, Seq(name), _: _*) => name
-    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+    case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
+    case Node3(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
       val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
       if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
       else if (base == "scala.|") elements.mkString(" | ")
@@ -362,9 +362,9 @@ class TreePrinter(privateMembers: Boolean = false) {
           simple(base) + "[" + elements.mkString(", ") + "]"
         }
       }
-    case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
+    case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
+        case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
           if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
           else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
             val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
@@ -372,19 +372,19 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
         case _ => textOfType(tpe)
       }
-    case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
+    case Node3(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
 
-    case Node(TYPEBOUNDStpt, _, _) =>
+    case Node1(TYPEBOUNDStpt) =>
       val sb1 = new StringBuilder() // TODO
       boundsIn(sb1, node)
       "?" + sb1.toString
 
-    case Node(LAMBDAtpt, _, children) =>
+    case Node3(LAMBDAtpt, _, children) =>
       val sb1 = new StringBuilder() // TODO
       parametersIn(sb1, node)
       sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
-    case Node(REFINEDtpt, _, Seq(tr @ Node(TYPEREF, _, _), Node(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
+    case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
       val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
       val (valueParams, tails2) = tail1.span(_.is(PARAM))
       typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
@@ -392,9 +392,9 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (valueParams.length == 1) params else "(" + params + ")"
       } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
 
-    case Node(REFINEDtpt, _, Seq(tpe, members: _*)) =>
+    case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
       val prefix = textOfType(tpe)
-      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)).mkString("; ") + " }" // TODO textOfMember
+      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf).mkString("; ") + " }" // TODO textOfMember
 
     case _ => "" // TODO exhaustive match
   }
@@ -415,12 +415,12 @@ class TreePrinter(privateMembers: Boolean = false) {
 
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
     node.children.lastOption match {  // TODO sb.insert?
-      case Some(Node(ANNOTATION, _, Seq(tpe, Node(APPLY, _, children)))) =>
+      case Some(Node3(ANNOTATION, _, Seq(tpe, apply @ Node1(APPLY)))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
           sb ++= name
-          val args = children.map(textOfConstant).filter(_.nonEmpty).mkString(", ") // TODO optimize
+          val args = apply.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ") // TODO optimize
           if (args.nonEmpty) {
             sb ++= "("
             sb ++= args
@@ -462,7 +462,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     var next = false
 
     tps.foreach {
-      case node @ Node(TYPEPARAM, Seq(name), _: _*) =>
+      case node @ Node2(TYPEPARAM, Seq(name)) =>
         if (!open) {
           sb ++= "["
           open = true
@@ -491,14 +491,14 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
         sb ++= (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
         node.children match {
-          case Seq(lambda @ Node(LAMBDAtpt, _, _: _*), _: _*) =>
+          case Seq(lambda @ Node1(LAMBDAtpt), _: _*) =>
             parametersIn(sb, lambda)
             lambda.children.lastOption match { // TODO deduplicate somehow?
-              case Some(bounds @ Node(TYPEBOUNDStpt, _, _: _*)) =>
+              case Some(bounds @ Node1(TYPEBOUNDStpt)) =>
                 boundsIn(sb, bounds)
               case _ =>
             }
-          case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
+          case Seq(bounds @ Node1(TYPEBOUNDStpt), _: _*) =>
             boundsIn(sb, bounds)
           case _ =>
         }
@@ -529,12 +529,12 @@ class TreePrinter(privateMembers: Boolean = false) {
     next = false
 
     ps.foreach {
-      case Node(EMPTYCLAUSE, _, _) =>
+      case Node1(EMPTYCLAUSE) =>
         sb ++= "()"
-      case Node(SPLITCLAUSE, _, _) =>
+      case Node1(SPLITCLAUSE) =>
         sb ++= ")"
         open = false
-      case node @ Node(PARAM, Seq(name), children) =>
+      case node @ Node3(PARAM, Seq(name), children) =>
         if (!open) {
           sb ++= "("
           open = true
@@ -605,9 +605,9 @@ class TreePrinter(privateMembers: Boolean = false) {
       sb ++= "protected "
     } else {
       node.children.foreach {
-        case Node(PRIVATEqualified, _, Seq(qualifier)) =>
+        case Node3(PRIVATEqualified, _, Seq(qualifier)) =>
           sb ++= "private[" + asQualifier(textOfType(qualifier)) + "] "
-        case Node(PROTECTEDqualified, _, Seq(qualifier)) =>
+        case Node3(PROTECTEDqualified, _, Seq(qualifier)) =>
           sb ++= "protected[" + asQualifier(textOfType(qualifier)) + "] "
         case _ =>
       }
@@ -648,7 +648,7 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def boundsIn(sb: StringBuilder, node: Node): Unit = node match {
-    case Node(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
+    case Node3(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
       val l = simple(textOfType(lower))
       if (l.nonEmpty && l != "Nothing") { // TODO use FQNs
         sb ++= " >: " + l
