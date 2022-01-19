@@ -13,9 +13,9 @@ class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
 
   def name: String = names.head
 
-  def hasFlag(flag: Int): Boolean = flags.contains(flag) // TODO hasModifierTag
+  def contains(modifierTag: Int): Boolean = modifierTags.contains(modifierTag)
 
-  lazy val flags: Set[Int] = children.reverseIterator.map(_.tag).takeWhile(TastyFormat.isModifierTag).toSet // TODO modifierTags
+  lazy val modifierTags: Set[Int] = children.reverseIterator.map(_.tag).takeWhile(TastyFormat.isModifierTag).toSet
 
   def isModifier: Boolean = TastyFormat.isModifierTag(tag)
 

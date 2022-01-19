@@ -19,11 +19,11 @@ class TreePrinter(privateMembers: Boolean = false) {
   private final val Indent = "  "
 
   private def isGivenObject0(typedef: Node): Boolean =
-    typedef.hasFlag(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.hasFlag(OBJECT) && prev.hasFlag(GIVEN))
+    typedef.contains(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.contains(OBJECT) && prev.contains(GIVEN))
 
   private def isGivenImplicitClass0(typedef: Node): Boolean = {
-    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.hasFlag(SYNTHETIC) && node.hasFlag(GIVEN) && node.name == typedef.name
-    typedef.hasFlag(SYNTHETIC) &&
+    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.contains(SYNTHETIC) && node.contains(GIVEN) && node.name == typedef.name
+    typedef.contains(SYNTHETIC) &&
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
@@ -76,15 +76,15 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfMember(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None, prefix: String = ""): Unit = node match {
-    case node @ Node1(TYPEDEF) if (!node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.hasFlag(PRIVATE)) => // TODO why both are synthetic?
+    case node @ Node1(TYPEDEF) if (!node.contains(SYNTHETIC) || isGivenImplicitClass0(node)) && (privateMembers || !node.contains(PRIVATE)) => // TODO why both are synthetic?
       sb ++= prefix
       textOfTypeDef(sb, indent, node, definition)
 
-    case node @ Node2(DEFDEF, Seq(name)) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.hasFlag(PRIVATE)) =>
+    case node @ Node2(DEFDEF, Seq(name)) if !node.contains(FIELDaccessor) && !node.contains(SYNTHETIC) && !node.contains(ARTIFACT) && !name.contains("$default$") && (privateMembers || !node.contains(PRIVATE)) =>
       sb ++= prefix
       textOfDefDef(sb, indent: String, node)
 
-    case node @ Node1(VALDEF) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) && (!node.hasFlag(CASE) || definition.exists(_.hasFlag(ENUM))) && (privateMembers || !node.hasFlag(PRIVATE)) =>
+    case node @ Node1(VALDEF) if !node.contains(SYNTHETIC) && !node.contains(OBJECT) && (!node.contains(CASE) || definition.exists(_.contains(ENUM))) && (privateMembers || !node.contains(PRIVATE)) =>
       sb ++= prefix
       textOfValDef(sb, indent, node, definition)
 
@@ -94,10 +94,10 @@ class TreePrinter(privateMembers: Boolean = false) {
   private def textOfTypeDef(sb: StringBuilder, indent: String, node: Node, definition: Option[Node] = None): Unit = {
     val name = node.name
     val template = node.children.head
-    val isEnum = node.hasFlag(ENUM)
-    val isObject = node.hasFlag(OBJECT)
+    val isEnum = node.contains(ENUM)
+    val isObject = node.contains(OBJECT)
     val isGivenObject = isGivenObject0(node)
-    val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.hasFlag(IMPLICIT) && it.name == name)
+    val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.contains(SYNTHETIC) && it.contains(IMPLICIT) && it.name == name)
     val isGivenImplicitClass = isGivenImplicitClass0(node)
     val isTypeMember = !template.is(TEMPLATE)
     val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
@@ -110,7 +110,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       sb ++= "implicit "
     }
     if (isEnum) {
-      if (node.hasFlag(CASE)) {
+      if (node.contains(CASE)) {
         sb ++= "case "
       } else {
         sb ++= "enum "
@@ -123,7 +123,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= "object "
         }
       }
-    } else if (node.hasFlag(TRAIT)) {
+    } else if (node.contains(TRAIT)) {
       sb ++= "trait "
     } else if (isTypeMember) {
       sb ++= "type "
@@ -153,7 +153,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         boundsIn(sb, bounds.get)
       } else {
         sb ++= " = "
-        if (node.hasFlag(OPAQUE)) {
+        if (node.contains(OPAQUE)) {
           sb ++= "???" // TODO parameter, { /* compiled code */ }
         } else {
           repr.children.findLast(_.isTypeTree) match {
@@ -172,8 +172,8 @@ class TreePrinter(privateMembers: Boolean = false) {
   private def textOfTemplate(sb: StringBuilder, indent: String, node: Node, definition: Option[Node]): Unit = {
     val children = node.children
     val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
-    val isInEnum = definition.exists(_.hasFlag(ENUM))
-    val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
+    val isInEnum = definition.exists(_.contains(ENUM))
+    val isInCaseClass = !isInEnum && definition.exists(_.contains(CASE))
     val parents = children.collect { // TODO rely on name kind
       case node if node.isTypeTree => node
       case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
@@ -201,7 +201,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (isInGiven) {
       sb ++= parents.mkString(" with ") + " with"
     } else {
-      if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.hasFlag(ENUM) && it.hasFlag(CASE))))) {
+      if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
         sb ++= " extends " + parents.mkString(", ")
       }
     }
@@ -245,14 +245,14 @@ class TreePrinter(privateMembers: Boolean = false) {
       parametersIn(sb, node)
       sb ++= " = ???" // TODO parameter, { /* compiled code */ }
     } else {
-      if (node.hasFlag(EXTENSION)) {
+      if (node.contains(EXTENSION)) {
         sb ++= "extension "
         parametersIn(sb, node, target = Target.Extension)
         sb ++= "\n"
         sb ++= indent
         sb ++= Indent
       }
-      val isAbstractGiven = node.hasFlag(GIVEN)
+      val isAbstractGiven = node.contains(GIVEN)
       modifiersIn(sb, node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
       if (!isAbstractGiven) {
         sb ++= "def "
@@ -261,7 +261,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (!isAnonymousGiven) {
         sb ++= name
       }
-      parametersIn(sb, node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition)
+      parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition)
       sb ++= ": "
       val remainder = node.children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE))
       val tpe = remainder.headOption
@@ -283,9 +283,9 @@ class TreePrinter(privateMembers: Boolean = false) {
     sb ++= indent
     val name = node.name
     val children = node.children
-    val isGivenAlias = node.hasFlag(GIVEN)
+    val isGivenAlias = node.contains(GIVEN)
     modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
-    val isCase = node.hasFlag(CASE)
+    val isCase = node.contains(CASE)
     if (isCase) {
       sb ++= name
       if (isCase) {
@@ -296,7 +296,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
     } else {
       if (!isGivenAlias) {
-        if (node.hasFlag(MUTABLE)) {
+        if (node.contains(MUTABLE)) {
           sb ++= "var "
         } else {
           sb ++= "val "
@@ -442,7 +442,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val buffer = mutable.Buffer[Node]()
     buffer ++= stack.popWhile(!_.is(PARAM))
     buffer += stack.pop()
-    while (stack(0).is(SPLITCLAUSE) && stack(1).hasFlag(GIVEN)) {
+    while (stack(0).is(SPLITCLAUSE) && stack(1).contains(GIVEN)) {
       buffer += stack.pop()
       buffer ++= stack.popWhile(_.is(PARAM))
     }
@@ -473,19 +473,19 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
         textOfAnnotationIn(sb, "", node, " ")
         if (template.isEmpty) { // TODO deduplicate
-          if (node.hasFlag(COVARIANT)) {
+          if (node.contains(COVARIANT)) {
             sb ++= "+"
           }
-          if (node.hasFlag(CONTRAVARIANT)) {
+          if (node.contains(CONTRAVARIANT)) {
             sb ++= "-"
           }
         }
         templateTypeParams.map(_.next()).foreach { typeParam =>
           textOfAnnotationIn(sb, "", typeParam, " ")
-          if (typeParam.hasFlag(COVARIANT)) {
+          if (typeParam.contains(COVARIANT)) {
             sb ++= "+"
           }
-          if (typeParam.hasFlag(CONTRAVARIANT)) {
+          if (typeParam.contains(CONTRAVARIANT)) {
             sb ++= "-"
           }
         }
@@ -539,10 +539,10 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= "("
           open = true
           next = false
-          if (node.hasFlag(GIVEN)) {
+          if (node.contains(GIVEN)) {
             sb ++= "using "
           }
-          if (node.hasFlag(IMPLICIT)) {
+          if (node.contains(IMPLICIT)) {
             sb ++= "implicit "
           }
         }
@@ -550,31 +550,31 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= ", "
         }
         textOfAnnotationIn(sb, "", node, " ")
-        if (node.hasFlag(INLINE)) {
+        if (node.contains(INLINE)) {
           sb ++= "inline "
         }
         val templateValueParam = templateValueParams.map(_.next())
         if (!definition.exists(isGivenImplicitClass0)) {
           templateValueParam.foreach { valueParam =>
-            if (!valueParam.hasFlag(LOCAL)) {
+            if (!valueParam.contains(LOCAL)) {
               val sb1 = new StringBuilder() // TODO
               modifiersIn(sb1, valueParam, Set(GIVEN))
               sb ++= sb1
-              if (valueParam.hasFlag(MUTABLE)) {
+              if (valueParam.contains(MUTABLE)) {
                 sb ++= "var "
               } else {
-                if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
+                if (!(definition.exists(_.contains(CASE)) && valueParam.modifierTags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
                   sb ++= "val "
                 }
               }
             }
           }
         }
-        if (!(node.hasFlag(SYNTHETIC) || templateValueParam.exists(_.hasFlag(SYNTHETIC)))) {
+        if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
           sb ++= name + ": "
         }
         sb ++= simple(textOfType(children.head))
-        if (node.hasFlag(HASDEFAULT)) {
+        if (node.contains(HASDEFAULT)) {
           sb ++= " = ???" // TODO parameter, /* compiled code */
         }
         next = true
@@ -583,7 +583,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (open) {
       sb ++= ")"
     }
-    if (template.isEmpty || hasModifiers || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) {} else {
+    if (template.isEmpty || hasModifiers || definition.exists(it => it.contains(CASE) && !it.contains(OBJECT))) {} else {
       if (sb.length >= 2 && sb.substring(sb.length - 2, sb.length()) == "()") {
         sb.delete(sb.length - 2, sb.length())
       }
@@ -591,17 +591,17 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def modifiersIn(sb: StringBuilder, node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): Unit = { // TODO Optimize
-    if (node.hasFlag(OVERRIDE)) {
+    if (node.contains(OVERRIDE)) {
       sb ++= "override "
     }
-    if (node.hasFlag(PRIVATE)) {
-      if (node.hasFlag(LOCAL)) {
+    if (node.contains(PRIVATE)) {
+      if (node.contains(LOCAL)) {
 //        sb += "private[this] " TODO Enable? (in Scala 3 it's almost always inferred)
         sb ++= "private "
       } else {
         sb ++= "private "
       }
-    } else if (node.hasFlag(PROTECTED)) {
+    } else if (node.contains(PROTECTED)) {
       sb ++= "protected "
     } else {
       node.children.foreach {
@@ -612,37 +612,37 @@ class TreePrinter(privateMembers: Boolean = false) {
         case _ =>
       }
     }
-    if (node.hasFlag(SEALED) && !excluding(SEALED)) {
+    if (node.contains(SEALED) && !excluding(SEALED)) {
       sb ++= "sealed "
     }
-    if (node.hasFlag(OPEN)) {
+    if (node.contains(OPEN)) {
       sb ++= "open "
     }
-    if (node.hasFlag(GIVEN) && !excluding(GIVEN)) {
+    if (node.contains(GIVEN) && !excluding(GIVEN)) {
       sb ++= (if (isParameter) "using " else "given ")
     }
-    if (node.hasFlag(IMPLICIT)) {
+    if (node.contains(IMPLICIT)) {
       sb ++= "implicit "
     }
-    if (node.hasFlag(FINAL) && !excluding(FINAL)) {
+    if (node.contains(FINAL) && !excluding(FINAL)) {
       sb ++= "final "
     }
-    if (node.hasFlag(LAZY) && !excluding(LAZY)) {
+    if (node.contains(LAZY) && !excluding(LAZY)) {
       sb ++= "lazy "
     }
-    if (node.hasFlag(ABSTRACT) && !excluding(ABSTRACT)) {
+    if (node.contains(ABSTRACT) && !excluding(ABSTRACT)) {
       sb ++= "abstract "
     }
-    if (node.hasFlag(TRANSPARENT)) {
+    if (node.contains(TRANSPARENT)) {
       sb ++= "transparent "
     }
-    if (node.hasFlag(OPAQUE) && !excluding(OPAQUE)) {
+    if (node.contains(OPAQUE) && !excluding(OPAQUE)) {
       sb ++= "opaque "
     }
-    if (node.hasFlag(INLINE)) {
+    if (node.contains(INLINE)) {
       sb ++= "inline "
     }
-    if (node.hasFlag(CASE) && !excluding(CASE)) {
+    if (node.contains(CASE) && !excluding(CASE)) {
       sb ++= "case "
     }
   }
