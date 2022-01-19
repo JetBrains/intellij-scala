@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.TastyFormat
 
-// TODO not case class
-// TODO Is pattern
-// TODO custom extractors
-// TODO children[T]
-// TODO don't preload names and children
 class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
   lazy val children: Seq[Node] = children0()
 
@@ -18,9 +13,9 @@ class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
 
   def name: String = names.head
 
-  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO hasModifier, optimize
+  def hasFlag(flag: Int): Boolean = flags.contains(flag) // TODO hasModifierTag
 
-  def flags: Seq[Node] = children.filter(_.isModifier) // TODO optimize, Set
+  lazy val flags: Set[Int] = children.reverseIterator.map(_.tag).takeWhile(TastyFormat.isModifierTag).toSet // TODO modifierTags
 
   def isModifier: Boolean = TastyFormat.isModifierTag(tag)
 

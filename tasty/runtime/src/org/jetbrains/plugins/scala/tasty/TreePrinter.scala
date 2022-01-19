@@ -563,7 +563,7 @@ class TreePrinter(privateMembers: Boolean = false) {
               if (valueParam.hasFlag(MUTABLE)) {
                 sb ++= "var "
               } else {
-                if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(_.is(CASEaccessor, HASDEFAULT)))) {
+                if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(it => it == CASEaccessor || it == HASDEFAULT))) {
                   sb ++= "val "
                 }
               }
