@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.tasty
 
+import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat
 
-class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
+class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
   lazy val children: Seq[Node] = children0()
 
   override def toString: String = toString(0)
@@ -42,6 +43,8 @@ class Node(val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
   var refName: Option[String] = None
 
   var value: Long = -1L
+
+  var isSharedType: Boolean = false
 }
 
 private object Node {

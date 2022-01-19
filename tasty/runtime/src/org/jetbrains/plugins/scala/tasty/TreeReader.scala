@@ -17,6 +17,8 @@ private class TreeReader(nameAtRef: NameTable) {
   }
 
   private def readTree(in: TastyReader): Node = {
+    val addr = in.currentAddr
+
     val tag = in.readByte()
 
     var nat = -1
@@ -82,10 +84,13 @@ private class TreeReader(nameAtRef: NameTable) {
       }
 
     tag match {
-      case SHAREDtype => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache (and resuse string presentation?)
-      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache
+      case SHAREDtype =>
+        val node = readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
+        node.isSharedType = true
+        node
+      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
       case _ =>
-        val node = new Node(tag, names, children)
+        val node = new Node(addr, tag, names, children)
         tag match {
           case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)

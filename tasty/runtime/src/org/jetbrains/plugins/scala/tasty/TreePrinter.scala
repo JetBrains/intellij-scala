@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.tasty
 
+import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
 import org.jetbrains.plugins.scala.tasty.Node.{Node1, Node2, Node3}
 
@@ -18,6 +19,8 @@ import scala.collection.mutable
 class TreePrinter(privateMembers: Boolean = false) {
   private final val Indent = "  "
 
+  private val sharedTypes = mutable.Map[Addr, String]()
+
   private def isGivenObject0(typedef: Node): Boolean =
     typedef.contains(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.contains(OBJECT) && prev.contains(GIVEN))
 
@@ -28,7 +31,8 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   def textOf(node: Node): String = {
-    val sb = new StringBuilder(1024 * 4)
+    sharedTypes.clear()
+    val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
     sb.toString
   }
@@ -331,73 +335,85 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfType(node: Node, parensRequired: Boolean = false): String = node match { // TODO proper settings
-    case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
-    case Node3(SINGLETONtpt, _, Seq(tail)) =>
-      val literal = textOfConstant(tail)
-      if (literal.nonEmpty) literal else textOfType(tail) + ".type"
-    case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
-    case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-    case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
-    case Node1(THIS) => "this" // TODO prefix
-    case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
-    case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
-      if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
-      else {
-        val qualifier = textOfType(tail)
-        if (qualifier.nonEmpty) qualifier + "." + name else name
+  private def textOfType(node: Node, parensRequired: Boolean = false): String = {
+    if (node.isSharedType) {
+      sharedTypes.get(node.addr) match {
+        case Some(text) =>
+          return text
+        case _ =>
       }
-    case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
-    case Node3(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
-      val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
-      if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
-      else if (base == "scala.|") elements.mkString(" | ")
-      else {
-        if (base.startsWith("scala.Tuple")) {
-          elements.mkString("(", ", ", ")")
-        } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
-          val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
-          val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + arrow + elements.last
-          if (parensRequired) "(" + s + ")" else s
-        } else {
-          simple(base) + "[" + elements.mkString(", ") + "]"
+    }
+    // TODO extract method
+    val text = node match { // TODO proper settings
+      case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
+      case Node3(SINGLETONtpt, _, Seq(tail)) =>
+        val literal = textOfConstant(tail)
+        if (literal.nonEmpty) literal else textOfType(tail) + ".type"
+      case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
+      case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
+      case Node1(THIS) => "this" // TODO prefix
+      case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
+      case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
+        if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
+        else {
+          val qualifier = textOfType(tail)
+          if (qualifier.nonEmpty) qualifier + "." + name else name
         }
-      }
-    case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
-      annotation match {
-        case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
-          if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
-          else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
-            val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
-            if (args.nonEmpty) "(" + args + ")" else ""
+      case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
+      case Node3(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+        val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
+        if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
+        else if (base == "scala.|") elements.mkString(" | ")
+        else {
+          if (base.startsWith("scala.Tuple")) {
+            elements.mkString("(", ", ", ")")
+          } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
+            val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
+            val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + arrow + elements.last
+            if (parensRequired) "(" + s + ")" else s
+          } else {
+            simple(base) + "[" + elements.mkString(", ") + "]"
           }
-        case _ => textOfType(tpe)
-      }
-    case Node3(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
+        }
+      case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
+        annotation match {
+          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
+            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+            else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
+              val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
+              if (args.nonEmpty) "(" + args + ")" else ""
+            }
+          case _ => textOfType(tpe)
+        }
+      case Node3(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
 
-    case Node1(TYPEBOUNDStpt) =>
-      val sb1 = new StringBuilder() // TODO
-      boundsIn(sb1, node)
-      "?" + sb1.toString
+      case Node1(TYPEBOUNDStpt) =>
+        val sb1 = new StringBuilder() // TODO
+        boundsIn(sb1, node)
+        "?" + sb1.toString
 
-    case Node3(LAMBDAtpt, _, children) =>
-      val sb1 = new StringBuilder() // TODO
-      parametersIn(sb1, node)
-      sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
+      case Node3(LAMBDAtpt, _, children) =>
+        val sb1 = new StringBuilder() // TODO
+        parametersIn(sb1, node)
+        sb1.toString + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
-    case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
-      val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
-      val (valueParams, tails2) = tail1.span(_.is(PARAM))
-      typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
-        val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
-        if (valueParams.length == 1) params else "(" + params + ")"
-      } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
+      case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
+        val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
+        val (valueParams, tails2) = tail1.span(_.is(PARAM))
+        typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
+          val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
+          if (valueParams.length == 1) params else "(" + params + ")"
+        } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
 
-    case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
-      val prefix = textOfType(tpe)
-      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf).mkString("; ") + " }" // TODO textOfMember
+      case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
+        val prefix = textOfType(tpe)
+        (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf).mkString("; ") + " }" // TODO textOfMember
 
-    case _ => "" // TODO exhaustive match
+      case _ => "" // TODO exhaustive match
+    }
+    sharedTypes.put(node.addr, text)
+    text
   }
 
   private def textOfConstant(node: Node): String = node.tag match {
