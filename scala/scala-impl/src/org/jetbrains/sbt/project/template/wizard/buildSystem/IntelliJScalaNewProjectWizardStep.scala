@@ -76,8 +76,10 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       components.foreach(row.cell(_))
       KUnit
     })
+  }
 
-    //TODO: hide in "Advanced settings" when this is fixed IDEA-286441
+  override def customAdditionalOptions(panel: Panel): Unit = {
+    //TODO: (minor) align label and text field with other options in the "Advanced settings" (requires patching IntelliJ sources)
     panel.row(packagePrefixLabel, (row: Row) => {
       row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
       row.layout(RowLayout.INDEPENDENT)
