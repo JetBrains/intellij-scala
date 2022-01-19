@@ -6,9 +6,10 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveResult
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, ScalafmtVersion, instance}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ScalafmtResolveError, instance}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtReflectConfig
+import org.scalafmt.dynamic.ScalafmtReflectConfig
+import org.scalafmt.dynamic.ScalafmtVersion
 
 trait ScalafmtDynamicConfigService {
 
@@ -71,10 +72,18 @@ object ScalafmtDynamicConfigService {
   sealed trait ConfigResolveError
 
   object ConfigResolveError {
-    sealed trait ConfigError extends ConfigResolveError
-    case class ConfigFileNotFound(configPath: String) extends ConfigError
-    case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError
-    case class ConfigCyclicDependenciesError(configPath: String, exception: ConfigCyclicDependencyException) extends ConfigError
+    sealed trait ConfigError extends ConfigResolveError {
+      def getMessage: String
+    }
+    case class ConfigFileNotFound(configPath: String) extends ConfigError {
+      override def getMessage: String = s"Scalafmt config file not found: $configPath"
+    }
+    case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError {
+      override def getMessage: String = cause.getMessage
+    }
+    case class ConfigCyclicDependenciesError(configPath: String, cause: ConfigCyclicDependencyException) extends ConfigError {
+      override def getMessage: String = cause.getMessage
+    }
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
     case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
 

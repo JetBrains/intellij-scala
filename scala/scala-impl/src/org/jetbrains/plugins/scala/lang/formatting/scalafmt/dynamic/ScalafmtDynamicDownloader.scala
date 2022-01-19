@@ -5,7 +5,7 @@ import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
+import org.scalafmt.dynamic.{Dependency, ScalafmtVersion}
 
 import java.net.URL
 import java.nio.file.Path
@@ -16,46 +16,28 @@ class ScalafmtDynamicDownloader(
   progressListener: DownloadProgressListener
 ) {
 
-  def download(version: String): Either[DownloadFailure, DownloadSuccess] =
+  def download(version: ScalafmtVersion): Either[DownloadFailure, DownloadSuccess] =
     try {
+      val dependencies = Dependency.dependencies(version)
+        .map(x => (x.group % x.artifact % x.version).transitive())
       val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener)
-      val resolvedDependencies = resolver.resolve(dependencies(version): _*)
+      val resolvedDependencies = resolver.resolve(dependencies: _*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file.toPath)
       val urls = jars.map(_.toUri.toURL)
       Right(DownloadSuccess(version, urls))
-    }catch {
+    } catch {
       case e: ProcessCanceledException => throw e
       case NonFatal(e) => Left(DownloadFailure(version, e))
     }
 
-  private def dependencies(version: String): Seq[DependencyDescription] =
-    List(
-      organization(version) % s"scalafmt-cli_${scalaBinaryVersion(version)}" % version,
-      "org.scala-lang" % "scala-reflect" % scalaVersion(version)
-    ).map(_.copy(isTransitive = true))
-
-  private def scalaBinaryVersion(version: String): String =
-    if (version.startsWith("0.")) "2.11"
-    else "2.12"
-
-  private def scalaVersion(version: String): String =
-    if (version.startsWith("0.")) BuildInfo.scala211
-    else BuildInfo.scala
-
-  private def organization(version: String): String =
-    if (version.startsWith("1") || version.startsWith("0") || version == "2.0.0-RC1") {
-      "com.geirsson"
-    } else {
-      "org.scalameta"
-    }
 }
 
 object ScalafmtDynamicDownloader {
   sealed trait DownloadResult {
-    def version: String
+    def version: ScalafmtVersion
   }
-  case class DownloadSuccess(override val version: String, jarUrls: Seq[URL]) extends DownloadResult
-  case class DownloadFailure(override val version: String, cause: Throwable) extends DownloadResult
+  case class DownloadSuccess(override val version: ScalafmtVersion, jarUrls: Seq[URL]) extends DownloadResult
+  case class DownloadFailure(override val version: ScalafmtVersion, cause: Throwable) extends DownloadResult
 
   trait DownloadProgressListener {
     def progressUpdate(message: String): Unit

@@ -5,6 +5,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings, FileIndentOptionsProvider}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider.Log
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity.Silent
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtIndents
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
@@ -31,7 +32,7 @@ final class ScalafmtFileIndentOptionsProvider extends FileIndentOptionsProvider 
     }
 
     configOpt.map { config =>
-      val indents = config.indents
+      val indents = ScalafmtIndents(config)
       val options = new CommonCodeStyleSettings.IndentOptions()
       options.INDENT_SIZE = indents.main
       options.CONTINUATION_INDENT_SIZE = indents.main

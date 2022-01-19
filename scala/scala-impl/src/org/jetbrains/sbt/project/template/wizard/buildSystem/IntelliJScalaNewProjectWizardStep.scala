@@ -1,19 +1,24 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
+import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.highlighter.ModuleFileType
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
+import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.project.template.{ScalaModuleBuilder, ScalaSDKStepLike}
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
+import java.io.IOException
 import java.nio.file.Paths
 import javax.swing.JComponent
 
+/** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardStep](parent)
     with ScalaSDKStepLike {
@@ -27,11 +32,35 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     val builder = new ScalaModuleBuilder()
     builder.setName(getModuleName)
     builder.setContentEntryPath(FileUtil.toSystemDependentName(getContentRoot))
-    builder.setModuleJdk(getSdk)
     builder.setModuleFilePath(FileUtil.toSystemDependentName(moduleFile.toString))
 
-    builder.libraryCompositionSettings = libraryPanel.apply()
+    setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
+
+    val librarySettings = libraryPanel.apply()
+    builder.libraryCompositionSettings = librarySettings
     builder.packagePrefix = Option(packagePrefixTextField.getText).filter(_.nonEmpty)
+
+    /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject]] */
+    if (getAddSampleCode) {
+      val manager = FileTemplateManager.getInstance(project)
+      // TODO: currently we can't have access to IDEAs field com.intellij.facet.impl.ui.libraries.LibraryCompositionSettings.mySelectedLibrary
+      //  so we can't understand that we selected Scala 3 library. We should patch the platform to access the field
+      //  see IDEA-286982
+      val isScala3 = false
+      val (template, fileName) =
+        if (isScala3) (manager.getInternalTemplate("scala3-sample-code.scala"), "main.scala")
+        else (manager.getInternalTemplate("scala-sample-code.scala"), "Main.scala")
+      val sourceCode = template.getText
+
+      WriteAction.run[IOException](() => {
+        val fileDirectory = VfsUtil.createDirectoryIfMissing(s"$getContentRoot/src") match {
+          case null => throw new IllegalStateException("Unable to create src directory")
+          case fd => fd
+        }
+        val file = fileDirectory.findOrCreateChildData(this, fileName)
+        VfsUtil.saveText(file, sourceCode)
+      })
+    }
 
     builder.commit(project)
   }
@@ -47,8 +76,10 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       components.foreach(row.cell(_))
       KUnit
     })
+  }
 
-    //TODO: hide in "Advanced settings" when this is fixed IDEA-286441
+  override def customAdditionalOptions(panel: Panel): Unit = {
+    //TODO: (minor) align label and text field with other options in the "Advanced settings" (requires patching IntelliJ sources)
     panel.row(packagePrefixLabel, (row: Row) => {
       row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
       row.layout(RowLayout.INDEPENDENT)

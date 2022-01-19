@@ -60,7 +60,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     val builder = new SbtModuleBuilder(this.selections)
     builder.setName(getModuleName)
     builder.setContentEntryPath(getContext.getProjectDirectory.toAbsolutePath.toString)
-    builder.setModuleJdk(getSdk)
+
+    setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
 
     ExternalProjectsManagerImpl.setupCreatedProject(project)
     builder.commit(project)

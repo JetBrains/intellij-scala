@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStat
 import org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.scalafmt.dynamic.ScalafmtVersion
 
 abstract class EnterActionWithScalafmtEnabledTestBase
   extends EditorActionTestBase
@@ -19,8 +20,8 @@ abstract class EnterActionWithScalafmtEnabledTestBase
   override def setUp(): Unit = {
     super.setUp()
     ScalaFmtForTestsSetupOps.ensureDownloaded(
-      "2.7.5",
-      "3.0.0-RC6", // TODO: update to 3.0.0 when available
+      ScalafmtVersion(2, 7, 5),
+      ScalafmtVersion(3, 0, 0)
     )
   }
 
@@ -35,14 +36,6 @@ abstract class EnterActionWithScalafmtEnabledTestBase
     indentOptions.INDENT_SIZE = 0
     indentOptions.CONTINUATION_INDENT_SIZE = 0
     indentOptions.LABEL_INDENT_SIZE = 0
-  }
-}
-
-class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_2_7 extends EnterActionWithScalafmtEnabledTestBase {
-
-  override def setUp(): Unit = {
-    super.setUp()
-    setScalafmtConfig("2.7.5.conf")
   }
 
   def testInParameterClauses(): Unit = {
@@ -129,6 +122,14 @@ class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_2_7 extends EnterActionWit
          |}
          |""".stripMargin
     )
+  }
+}
+
+class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_2_7 extends EnterActionWithScalafmtEnabledTestBase {
+
+  override def setUp(): Unit = {
+    super.setUp()
+    setScalafmtConfig("2.7.5.conf")
   }
 
   def testAfterIncompleteFunctionDefinition(): Unit = {
@@ -175,93 +176,7 @@ class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_0 extends EnterActionWit
 
   override def setUp(): Unit = {
     super.setUp()
-    setScalafmtConfig("3.0.0-RC6.conf")
-  }
-
-  def testInParameterClauses(): Unit = {
-    checkGeneratedTextAfterEnter(
-      s"""trait A {
-         |  def foo($CARET
-         |         param1: Int,$CARET
-         |         param2: Int$CARET
-         |  ): String
-         |}
-         |""".stripMargin,
-      s"""trait A {
-         |  def foo(
-         |         $CARET
-         |         param1: Int,
-         |         $CARET
-         |         param2: Int
-         |         $CARET
-         |  ): String
-         |}
-         |""".stripMargin
-    )
-
-    //poorly-formatted initially
-    checkGeneratedTextAfterEnter(
-      s"""trait A {
-         |  def foo($CARET
-         |  param1: Int,$CARET
-         |  param2: Int$CARET
-         |  ): String
-         |}
-         |""".stripMargin,
-      s"""trait A {
-         |  def foo(
-         |         $CARET
-         |  param1: Int,
-         |         $CARET
-         |  param2: Int
-         |         $CARET
-         |  ): String
-         |}
-         |""".stripMargin
-    )
-  }
-
-  def testInArguments(): Unit = {
-    checkGeneratedTextAfterEnter(
-      s"""trait A {
-         |  String.format($CARET
-         |       arg1,$CARET
-         |       arg2$CARET
-         |  )
-         |}
-         |""".stripMargin,
-      s"""trait A {
-         |  String.format(
-         |       $CARET
-         |       arg1,
-         |       $CARET
-         |       arg2
-         |       $CARET
-         |  )
-         |}
-         |""".stripMargin
-    )
-
-    //poorly-formatted initially
-    checkGeneratedTextAfterEnter(
-      s"""trait A {
-         |  String.format($CARET
-         |  arg1,$CARET
-         |  arg2$CARET
-         |  )
-         |}
-         |""".stripMargin,
-      s"""trait A {
-         |  String.format(
-         |       $CARET
-         |  arg1,
-         |       $CARET
-         |  arg2
-         |       $CARET
-         |  )
-         |}
-         |""".stripMargin
-    )
+    setScalafmtConfig("3.0.0.conf")
   }
 
   def testAfterIncompleteFunctionDefinition(): Unit = {
