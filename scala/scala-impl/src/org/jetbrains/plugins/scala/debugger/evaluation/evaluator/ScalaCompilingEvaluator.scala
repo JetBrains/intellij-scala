@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation.evaluator
 
-import java.io.File
-import java.net.URI
-import java.util
-
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.CodeInsightUtilCore.findElementInRange
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine._
@@ -28,7 +25,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.util.IndentUtil
 
+import java.io.File
+import java.net.URI
+import java.util
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
@@ -77,7 +78,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
 
     try {
       val evaluator = callEvaluator(context)
-      context.asInstanceOf[EvaluationContextImpl].setClassLoader(classLoader)
+      context.setClassLoader(classLoader)
       evaluator.evaluate(context)
     }
     catch {
@@ -235,7 +236,7 @@ private object GeneratedClass {
   private def copy(file: PsiFile, physical: Boolean): PsiFile = {
     val fileFactory = PsiFileFactory.getInstance(file.getProject)
 
-    fileFactory.createFileFromText(file.getName, file.getFileType, file.getText, file.getModificationStamp, physical)
+    fileFactory.createFileFromText(file.name, file.getLanguage, file.charSequence, physical, true)
   }
 
   private def findElement[T <: PsiElement](file: PsiFile, range: TextRange, elementClass: Class[T]): T =
@@ -263,9 +264,24 @@ private object GeneratedClass {
       case _ => true
     }
 
+    val indentAnchorOption =
+      if (prevParent.startsFromNewLine()) Some(prevParent)
+      else prevParent.parents.find(_.startsFromNewLine())
+
+    val tabSize = CodeStyle.getIndentOptions(fragment).TAB_SIZE
+
+    val indentLevel = indentAnchorOption
+      .map(IndentUtil.calcIndent(_, tabSize) + needBraces.fold(tabSize, 0))
+      .getOrElse(0)
+    val indent = indentStr(indentLevel)
+
     val anchor =
       if (needBraces) {
-        val newBlock = createExpressionWithContextFromText(s"{\n${prevParent.getText}\n}", prevParent.getContext, prevParent)
+        val newBlock = createExpressionWithContextFromText(
+          s"{\n$indent${prevParent.getText}\n${indentStr(indentLevel - tabSize)}}",
+          prevParent.getContext,
+          prevParent
+        )
         parent = prevParent.replace(newBlock)
         parent match {
           case bl: ScBlock =>
@@ -280,30 +296,44 @@ private object GeneratedClass {
 
     implicit val ctx: ProjectContext = fragment.getProject
 
-    val classText = localClassText(fragment, generatedClassName)
+    val classText = localClassText(fragment, generatedClassName, indentLevel)
     val classToInsert = createTemplateDefinitionFromText(classText, anchor.getContext, anchor).asInstanceOf[ScClass]
 
+    def createNewLineWithIndent() = createNewLine(s"\n$indent")
+
     val insertedClass = parent.addBefore(classToInsert, anchor)
-    parent.addBefore(createNewLine(), anchor)
+    parent.addBefore(createNewLineWithIndent(), anchor)
 
     //add constructor to synthetic file to avoid compiler optimizations
     val insertedConstructor = parent.addBefore(constructorInvocation, anchor)
-    parent.addBefore(createNewLine(), anchor)
+    parent.addBefore(createNewLineWithIndent(), anchor)
 
     (insertedClass.asInstanceOf[ScClass], insertedConstructor.asInstanceOf[ScNewTemplateDefinition])
   }
 
-  private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String): String = {
-    val fragmentImports = fragment.importsToString().split(",").filter(!_.isEmpty).map("import _root_." + _)
+  @inline private def indentStr(spaces: Int) = " " * spaces
+
+  private def indentText(text: String, spaces: Int): String =
+    indentStr(spaces) + indentLineBreaks(text, spaces)
+
+  private def indentLineBreaks(text: String, spaces: Int): String =
+    text.replace("\n", "\n" + indentStr(spaces))
+
+  private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String, baseIndent: Int = 0): String = {
+    val fragmentImports = fragment.importsToString().split(",").filter(_.nonEmpty).map("import _root_." + _)
     val importsText = fragmentImports.mkString("\n")
 
     //todo type parameters?
-    s"""|class $generatedClassName {
-        |  def $generatedMethodName() = {
-        |    $importsText
-        |
-        |    ${fragment.getText}
-        |  }
-        |}""".stripMargin
+    val generatedClassText =
+      s"""|class $generatedClassName {
+          |  def $generatedMethodName() = {
+          |    ${indentLineBreaks(importsText, 4)}
+          |
+          |    ${indentLineBreaks(fragment.getText, 4)}
+          |  }
+          |}""".stripMargin
+
+    if (baseIndent > 0) indentText(generatedClassText, baseIndent)
+    else generatedClassText
   }
 }
