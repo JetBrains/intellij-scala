@@ -499,9 +499,9 @@ object ScalaPsiElementFactory {
       case _ => throw new IncorrectOperationException("Expression not found")
     }
 
-  def createBodyFromMember(@NonNls elementText: String)
+  def createBodyFromMember(@NonNls elementText: String, useIndentationBasedSyntax: Boolean = false)
                           (implicit ctx: ProjectContext): ScTemplateBody =
-    createClassWithBody(elementText).extendsBlock.templateBody.orNull
+    createClassWithBody(elementText, useIndentationBasedSyntax).extendsBlock.templateBody.orNull
 
   def createTemplateBody(implicit ctx: ProjectContext): ScTemplateBody =
     createBodyFromMember("")
@@ -1089,11 +1089,11 @@ object ScalaPsiElementFactory {
     expr
   }
 
-  private[this] def createClassWithBody(@NonNls body: String)
+  private[this] def createClassWithBody(@NonNls body: String, useIndentationBasedSyntax: Boolean = false)
                                        (implicit context: ProjectContext): ScTypeDefinition = {
     // ATTENTION!  Do not use `stripMargin` here!
     // If the injected `body` contains multiline string with margins '|' they will be whipped out (see SCL-14585)
-    val fileText = s"class a {\n  $body\n}"
+    val fileText = if (useIndentationBasedSyntax) s"class a:\n  $body" else s"class a {\n  $body\n}"
     createScalaFileFromText(fileText).typeDefinitions.head
   }
 

@@ -4,9 +4,10 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.runner.RunWith
 
 /**
  * User: Alexander Podkhalyuzin
@@ -14,7 +15,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, s
  */
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
-  import EditorTestUtil.{SELECTION_END_TAG => E, SELECTION_START_TAG => S}
   import ScalaCodeInsightTestBase._
 
   def testAfterPlaceholder(): Unit = doCompletionTest(
@@ -308,27 +308,6 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
     completionType = SMART
   )
 
-  //Return type for inserting method is generated according to TypeAnnotations Settings
-  def testNewFunction(): Unit = {
-    val project = getProject
-    set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
-
-    doCompletionTest(
-      fileText =
-        s"""
-           |val x: Int => String = new $CARET
-        """.stripMargin,
-      resultText =
-        s"""
-           |val x: Int => String = new Function[Int, String] {
-           |  def apply(v1: Int): String = $S???$E
-           |}
-        """.stripMargin,
-      item = "Function1",
-      completionType = SMART
-    )
-  }
-
   def testEtaExpansion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -512,4 +491,54 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   private def checkNoSmartCompletion(fileText: String)
                                     (predicate: LookupElement => Boolean = Function.const(true)): Unit =
     checkNoCompletion(fileText, SMART)(predicate)
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
+class ScalaSmartCompletionTest_2_12 extends ScalaCodeInsightTestBase {
+  //Return type for inserting method is generated according to TypeAnnotations Settings
+  def testNewFunction(): Unit = {
+    val project = getProject
+    set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |val x: Int => String = new $CARET
+        """.stripMargin,
+      resultText =
+        s"""
+           |val x: Int => String = new Function[Int, String] {
+           |  def apply(v1: Int): String = $START???$END
+           |}
+        """.stripMargin,
+      item = "Function1",
+      completionType = SMART
+    )
+  }
+}
+
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
+class ScalaSmartCompletionTest_3_Latest extends ScalaCodeInsightTestBase {
+  //Return type for inserting method is generated according to TypeAnnotations Settings
+  def testNewFunction(): Unit = {
+    val project = getProject
+    set(project, alwaysAddType(ScalaCodeStyleSettings.getInstance(project)))
+
+    doCompletionTest(
+      fileText =
+        s"""
+           |val x: Int => String = new $CARET
+        """.stripMargin,
+      resultText =
+        s"""
+           |val x: Int => String = new Function[Int, String]:
+           |  def apply(v1: Int): String = $START???$END
+           |end new
+        """.stripMargin,
+      item = "Function1",
+      completionType = SMART
+    )
+  }
 }

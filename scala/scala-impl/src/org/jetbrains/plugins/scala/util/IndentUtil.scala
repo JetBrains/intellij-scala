@@ -42,6 +42,14 @@ object IndentUtil {
       case _ => 0
     }
 
+  def calcRegionIndent(element: PsiElement, tabSize: Int): Int = {
+    val elementOnNewLine =
+      if (element.startsFromNewLine()) Some(element)
+      else element.parents.find(_.startsFromNewLine())
+
+    elementOnNewLine.fold(0)(calcIndent(_, tabSize))
+  }
+
   @inline
   def compare(first: PsiElement, second: PsiElement, tabSize: Int): Int =
     calcIndent(first, tabSize) - calcIndent(second, tabSize)

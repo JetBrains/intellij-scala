@@ -264,15 +264,8 @@ private object GeneratedClass {
       case _ => true
     }
 
-    val indentAnchorOption =
-      if (prevParent.startsFromNewLine()) Some(prevParent)
-      else prevParent.parents.find(_.startsFromNewLine())
-
     val tabSize = CodeStyle.getIndentOptions(fragment).TAB_SIZE
-
-    val indentLevel = indentAnchorOption
-      .map(IndentUtil.calcIndent(_, tabSize) + needBraces.fold(tabSize, 0))
-      .getOrElse(0)
+    val indentLevel = IndentUtil.calcRegionIndent(prevParent, tabSize) + needBraces.fold(tabSize, 0)
     val indent = indentStr(indentLevel)
 
     val anchor =

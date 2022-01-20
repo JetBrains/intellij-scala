@@ -31,8 +31,7 @@ abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsight
 
     getFixture.configureByText(fileName, convertLineSeparators(fileText))
 
-    val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone()
-    TypeAnnotationSettings.set(project, settings)
+    val oldSettings = prepareSettings(settings)
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
     val newSettings = defaultProfile.getSettings.copy(
       plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
@@ -43,9 +42,18 @@ abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsight
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDoc
     invokeOverrideImplement(getFile, isImplement, methodName)
 
-    TypeAnnotationSettings.set(project, oldSettings.asInstanceOf[ScalaCodeStyleSettings])
+    rollbackSettings(oldSettings)
     getFixture.checkResult(convertLineSeparators(expectedText))
   }
+
+  protected def prepareSettings(newSettings: ScalaCodeStyleSettings)(implicit project: Project): ScalaCodeStyleSettings = {
+    val oldSettings = ScalaCodeStyleSettings.getInstance(project).clone().asInstanceOf[ScalaCodeStyleSettings]
+    TypeAnnotationSettings.set(project, newSettings)
+    oldSettings
+  }
+
+  protected def rollbackSettings(oldSettings: ScalaCodeStyleSettings)(implicit project: Project): Unit =
+    TypeAnnotationSettings.set(project, oldSettings)
 }
 
 class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
@@ -1447,18 +1455,56 @@ class ScalaOverrideImplementTest extends ScalaOverrideImplementTestBase {
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
 class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase {
+  override protected def prepareSettings(newSettings: ScalaCodeStyleSettings)(implicit project: Project) = {
+    val oldSettings = super.prepareSettings(newSettings)
+    ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX = newSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    oldSettings
+  }
+
+  override protected def rollbackSettings(oldSettings: ScalaCodeStyleSettings)(implicit project: Project): Unit = {
+    ScalaCodeStyleSettings.getInstance(project).USE_SCALA3_INDENTATION_BASED_SYNTAX = oldSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    super.rollbackSettings(oldSettings)
+  }
+
   private def defaultSettings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
 
-  private def settingsWithIndentationBasedSyntax = locally {
+  private def settingsWithIndentationBasedSyntax = {
     val settings = defaultSettings
     settings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
     settings
   }
 
-  private def settingsWithoutIndentationBasedSyntax = locally {
+  private def settingsWithoutIndentationBasedSyntax = {
     val settings = defaultSettings
     settings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
     settings
+  }
+
+  def testImplementUsingIndentationBasedSyntaxWhenSettingIsOn(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class B${CARET_TAG}ar extends Foo
+         |
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class Bar extends Foo:
+         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithIndentationBasedSyntax)
   }
 
   def test_SCL_19753_ImplementUsingIndentationBasedSyntaxWhenSettingIsOn(): Unit = {
@@ -1508,6 +1554,34 @@ class ScalaOverrideImplementTest_3_Latest extends ScalaOverrideImplementTestBase
          |
          |class Bar extends Foo:
          |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |
+         |""".stripMargin
+    val methodName: String = "foo"
+    val isImplement = true
+    runTest(methodName, fileText, expectedText, isImplement, settingsWithoutIndentationBasedSyntax)
+  }
+
+  def testImplementUsingStandardSyntaxWithBracesWhenSettingIsOff(): Unit = {
+    val fileText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class B${CARET_TAG}ar extends Foo
+         |
+         |""".stripMargin
+    val expectedText =
+      s"""
+         |package test
+         |
+         |trait Foo:
+         |  def foo(x: Int): String
+         |
+         |class Bar extends Foo {
+         |  def foo(x: Int): String = $SELECTION_START_TAG???$SELECTION_END_TAG
+         |}
          |
          |""".stripMargin
     val methodName: String = "foo"

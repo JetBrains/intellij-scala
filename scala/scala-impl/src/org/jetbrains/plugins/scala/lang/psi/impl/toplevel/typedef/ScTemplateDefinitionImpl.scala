@@ -430,8 +430,10 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
       member
     }.getOrElse {
       val node = extendsBlock.getNode
-      node.addChild(createWhitespace.getNode)
-      node.addChild(createBodyFromMember(member.getText).getNode)
+      val useIndentationBasedSyntax = this.containingFile.fold(false)(_.useIndentationBasedSyntax)
+      if (!useIndentationBasedSyntax)
+        node.addChild(createWhitespace.getNode)
+      node.addChild(createBodyFromMember(member.getText, useIndentationBasedSyntax).getNode)
       members.head
     }
   }

@@ -3,6 +3,7 @@ package lang
 package completion
 package handlers
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -17,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.{getMembersToImplement, runAction}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -80,10 +82,15 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
         }
 
         if (isInterface) {
-          document.insertString(endOffset, " {}")
-          endOffset += 3
-          if (!hasSubstitutionProblem)
-            model.moveToOffset(endOffset - 1)
+          onDefinition(file, startOffset) { newTemplateDef =>
+            val (openBlock, closeBlock) = generateBlock(newTemplateDef)
+            document.insertString(endOffset, openBlock)
+            endOffset += openBlock.length
+            if (!hasSubstitutionProblem)
+              model.moveToOffset(endOffset)
+            document.insertString(endOffset, closeBlock)
+            endOffset += closeBlock.length
+          }
         }
         PsiDocumentManager.getInstance(project).commitDocument(document)
 
@@ -140,6 +147,25 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
   ) match {
     case null =>
     case newTemplateDefinition => action(newTemplateDefinition)
+  }
+
+  private def generateBlock(newTemplateDefinition: ScNewTemplateDefinition): (String, String) = {
+    val defaultBlock = (" {", "}")
+    val file = newTemplateDefinition.containingFile.getOrElse(return defaultBlock)
+
+    val useIndentationBasedSyntax = file.useIndentationBasedSyntax
+
+    if (!useIndentationBasedSyntax || getMembersToImplement(newTemplateDefinition).isEmpty)
+      defaultBlock
+    else {
+      val tabSize = CodeStyle.getIndentOptions(file).TAB_SIZE
+      val indentSize = IndentUtil.calcRegionIndent(newTemplateDefinition, tabSize)
+      val indent = " " * indentSize
+      val tab = " " * tabSize
+      val openBlock = s":\n$indent$tab".stripMargin
+      val closeBlock = s"\n$indent${ScalaKeyword.END} ${ScalaKeyword.NEW}"
+      (openBlock, closeBlock)
+    }
   }
 
 }
