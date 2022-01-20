@@ -17,10 +17,7 @@ import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState;
 
 import java.util.*;
 
-/**
- * @author Pavel Fatin
- */
-public class ScalaSerializerService extends JpsModelSerializerExtension {
+public class JpsScalaModelSerializerExtension extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsGlobalExtensionSerializer> getGlobalExtensionSerializers() {

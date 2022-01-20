@@ -7,10 +7,7 @@ import org.jetbrains.jps.model.serialization.module.JpsModulePropertiesSerialize
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Pavel Fatin
- */
-public class SbtSerializerService extends JpsModelSerializerExtension {
+public class JpsSbtModelSerializerExtension extends JpsModelSerializerExtension {
   @NotNull
   @Override
   public List<? extends JpsModulePropertiesSerializer<?>> getModulePropertiesSerializers() {

@@ -1,2 +1,2 @@
-org.jetbrains.jps.incremental.scala.ScalaSerializerService
-org.jetbrains.jps.incremental.scala.sources.SbtSerializerService
+org.jetbrains.jps.incremental.scala.JpsScalaModelSerializerExtension
+org.jetbrains.jps.incremental.scala.sources.JpsSbtModelSerializerExtension
