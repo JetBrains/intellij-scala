@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.UnpickleException
+import org.jetbrains.plugins.scala.tasty.Node.{Node2, Node3}
 
 class TastyImpl extends TastyApi {
   private val treePrinter = new TreePrinter()
@@ -11,7 +12,7 @@ class TastyImpl extends TastyApi {
       // TODO Integrate source file parsing into TreePrinter
       import dotty.tools.tasty.TastyFormat._
       val sourceName = tree.nodes.collectFirst {
-        case Node(ANNOTATION, _, Seq(Node(TYPEREF, Seq("SourceFile"), _: _*), Node(APPLY, _, Seq(_, Node(STRINGconst, Seq(path), _: _*))))) =>
+        case Node3(ANNOTATION, _, Seq(Node2(TYPEREF, Seq("SourceFile")), Node3(APPLY, _, Seq(_, Node2(STRINGconst, Seq(path)))))) =>
           val i = path.replace('\\', '/').lastIndexOf("/")
           if (i > 0) path.substring(i + 1) else path
       }
