@@ -1,7 +1,9 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.jps.incremental.scala.model.impl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.ModuleChunk;
+import org.jetbrains.jps.incremental.scala.model.CompilerSettings;
+import org.jetbrains.jps.incremental.scala.model.ProjectSettings;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
 

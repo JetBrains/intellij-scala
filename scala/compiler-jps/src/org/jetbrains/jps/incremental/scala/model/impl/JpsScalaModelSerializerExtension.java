@@ -1,11 +1,14 @@
-package org.jetbrains.jps.incremental.scala;
+package org.jetbrains.jps.incremental.scala.model.impl;
 
 import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.util.xmlb.XmlSerializer;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.jps.incremental.scala.model.*;
+import org.jetbrains.jps.incremental.scala.SettingsManager;
+import org.jetbrains.jps.incremental.scala.model.LibrarySettings;
+import org.jetbrains.jps.incremental.scala.model.ProjectSettings;
+import org.jetbrains.jps.incremental.scala.model.ScalaLibraryType;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.serialization.JpsGlobalExtensionSerializer;

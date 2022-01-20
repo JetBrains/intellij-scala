@@ -1,8 +1,9 @@
-package org.jetbrains.jps.incremental.scala.model;
+package org.jetbrains.jps.incremental.scala.model.impl;
 
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.util.xmlb.annotations.*;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.incremental.scala.model.LibrarySettings;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 import org.jetbrains.jps.util.JpsPathUtil;
 
