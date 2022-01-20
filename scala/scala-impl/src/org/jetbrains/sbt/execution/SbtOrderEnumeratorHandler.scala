@@ -1,20 +1,18 @@
 package org.jetbrains.sbt.execution
 
-import java.util
-
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.{Module, ModuleManager}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.OrderEnumerationHandler.AddDependencyType
-import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.openapi.roots._
+import com.intellij.openapi.roots.impl.ModuleOrderEnumerator
 import com.intellij.util.CommonProcessors
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.project.SbtProjectSystem
+
+import java.util
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * ATTENTION: implementation should be in sync with<br>
+ * org.jetbrains.jps.incremental.scala.model.JpsSbtDependenciesEnumerationHandler
+ */
 class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
   override def shouldAddDependency(orderEntry: OrderEntry, settings: OrderEnumeratorSettings): AddDependencyType = {
     (orderEntry, settings) match {
@@ -35,6 +33,20 @@ class SbtOrderEnumeratorHandler extends OrderEnumerationHandler {
     enumerator.processRootModules(new CommonProcessors.CollectProcessor[Module](modules))
     modules.asScala.headOption
   }
+
+  override def shouldAddRuntimeDependenciesToTestCompilationClasspath: Boolean =
+    true
+
+  //TODO: sbt doesn't copy resources which are located near main sources to the `target/scala-xy/classes` folder
+  //  but looks like simply changing this method return value to `true` doesn't help, investigate...
+  override def areResourceFilesFromSourceRootsCopiedToOutput: Boolean =
+    super.areResourceFilesFromSourceRootsCopiedToOutput
+
+  override def shouldIncludeTestsFromDependentModulesToTestClasspath: Boolean =
+    super.shouldIncludeTestsFromDependentModulesToTestClasspath
+
+  override def shouldProcessDependenciesRecursively: Boolean =
+    super.shouldProcessDependenciesRecursively
 }
 
 class SbtOrderEnumeratorHandlerFactory extends OrderEnumerationHandler.Factory {

@@ -33,7 +33,7 @@ trait AllProjectHighlightingTest {
 
   def getProjectFixture: CodeInsightTestFixture
 
-  protected def reporter: ProgressReporter
+  protected val reporter: ProgressReporter
 
   def doAllProjectHighlightingTest(): Unit = {
 
