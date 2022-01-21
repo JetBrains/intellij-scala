@@ -94,6 +94,9 @@ object TypeMismatchHints {
 
   // TODO Use a dedicated pass when built-in "advanced" hint API will be available in IDEA, SCL-14502
   def refreshIn(project: Project): Unit = {
+    if (project == null)
+      return
+
     if (!ScalaProjectSettings.in(project).isTypeMismatchHints) {
       AnnotatorHints.clearIn(project)
     }

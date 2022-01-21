@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.openapi.actionSystem.{AnActionEvent, ToggleAction}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class TypeMismatchToggleAction extends ToggleAction(
@@ -10,10 +11,13 @@ class TypeMismatchToggleAction extends ToggleAction(
   /* icon = */ null
 ) {
   override def isSelected(anActionEvent: AnActionEvent): Boolean =
-    ScalaProjectSettings.in(anActionEvent.getProject).isTypeMismatchHints
+    settings(anActionEvent).exists(_.isTypeMismatchHints)
 
   override def setSelected(anActionEvent: AnActionEvent, b: Boolean): Unit = {
-    ScalaProjectSettings.in(anActionEvent.getProject).setTypeMismatchHints(b)
-    TypeMismatchHints.refreshIn(anActionEvent.getProject)
+    settings(anActionEvent).foreach(_.setTypeMismatchHints(b))
+    anActionEvent.getProject.toOption.foreach(TypeMismatchHints.refreshIn)
   }
+
+  private def settings(anActionEvent: AnActionEvent): Option[ScalaProjectSettings] =
+    anActionEvent.getProject.toOption.map(ScalaProjectSettings.in)
 }
