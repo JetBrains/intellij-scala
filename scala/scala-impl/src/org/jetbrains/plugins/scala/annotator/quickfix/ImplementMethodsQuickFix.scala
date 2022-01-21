@@ -6,7 +6,9 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
 /**
@@ -19,8 +21,15 @@ class ImplementMethodsQuickFix(clazz: ScTemplateDefinition) extends IntentionAct
   override def getText: String = ScalaBundle.message("implement.methods.fix")
   override def startInWriteAction: Boolean = false
 
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    clazz.isValid && clazz.getManager.isInProject(file) && file.isWritable
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
+    if (!clazz.isValid) return false
+    if (!file.isWritable) return false
+    file match {
+      case scalaFile: ScalaFile =>
+        ScalaPsiManager.isInProjectOrStrachFile(scalaFile)
+      case _ => false
+    }
+  }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     ScalaOIUtil.invokeOverrideImplement(file, isImplement = true)(project, editor)
