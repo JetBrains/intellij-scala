@@ -300,8 +300,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     name match {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
-      case "##" => unaryEval(name, eval => ScalaMethodEvaluator(BOXES_RUN_TIME, "hashFromObject",
-        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), Seq(boxEvaluator(eval))))
+      case "##" => unaryEval(name, eval =>
+        ScalaMethodEvaluator(boxEvaluator(eval), "hashCode", JVMNameUtil.getJVMRawText("()I"), Nil))
       case "==" => equalsEval("==")
       case "!=" => unaryEvaluator(equalsEval("!="), "takeNot")
       case "unary_!" => unaryEvalForBoxes("!", "takeNot")
