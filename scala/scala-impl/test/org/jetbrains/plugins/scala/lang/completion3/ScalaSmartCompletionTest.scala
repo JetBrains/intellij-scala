@@ -535,7 +535,6 @@ class ScalaSmartCompletionTest_3_Latest extends ScalaCodeInsightTestBase {
         s"""
            |val x: Int => String = new Function[Int, String]:
            |  def apply(v1: Int): String = $START???$END
-           |end new
         """.stripMargin,
       item = "Function1",
       completionType = SMART
