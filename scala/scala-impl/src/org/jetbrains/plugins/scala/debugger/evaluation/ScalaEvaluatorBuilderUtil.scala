@@ -300,8 +300,16 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     name match {
       case "isInstanceOf" => isInstanceOfEval
       case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
-      case "##" => unaryEval(name, eval =>
-        ScalaMethodEvaluator(boxEvaluator(eval), "hashCode", JVMNameUtil.getJVMRawText("()I"), Nil))
+      case "##" =>
+        unaryEval(name, eval => {
+          // Used in Scala 2.10 and Scala 2.11
+          val oldSyntheticHash =
+            ScalaMethodEvaluator(SCALA_RUN_TIME, "hash", JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), boxed(eval))
+          // Used since Scala 2.12
+          val newSyntheticHash =
+            ScalaMethodEvaluator(SCALA_RUNTIME_STATICS, "anyHash", JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), boxed(eval))
+          ScalaDuplexEvaluator(newSyntheticHash, oldSyntheticHash)
+        })
       case "==" => equalsEval("==")
       case "!=" => unaryEvaluator(equalsEval("!="), "takeNot")
       case "unary_!" => unaryEvalForBoxes("!", "takeNot")
@@ -1413,6 +1421,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 object ScalaEvaluatorBuilderUtil {
   private val BOXES_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxesRunTime"))
   private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
+  private val SCALA_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.ScalaRunTime"))
+  private val SCALA_RUNTIME_STATICS = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.Statics"))
   def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
   def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
   def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
