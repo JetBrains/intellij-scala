@@ -17,7 +17,9 @@ final class ScalaNewProjectWizard extends LanguageNewProjectWizard {
   override def createStep(parentStep: NewProjectWizardLanguageStep): ScalaNewProjectWizardStep =
     new ScalaNewProjectWizardStep(parentStep)
 
-  override def getOrdinal: Int = 1
+  // Groovy is 200, we want to be right after it so in total the list is:
+  // Java, Kotlin, Groovy, Scala, Python ...
+  override def getOrdinal: Int = 201
 }
 
 object ScalaNewProjectWizard {

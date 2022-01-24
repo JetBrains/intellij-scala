@@ -20,7 +20,7 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
@@ -494,6 +494,9 @@ object ScalaPsiManager {
       override def cachedEntitiesCount(cache: CacheType): Int = cache.size()
       override def clear(cache: CacheType): Unit = cache.clear()
     }
+
+  def isInProjectOrStrachFile(scalaFile: ScalaFile): Boolean =
+    scalaFile.getManager.isInProject(scalaFile) || scalaFile.isWorksheetFile
 }
 
 private class ScalaPsiManagerHolder(implicit project: Project) {

@@ -1,6 +1,8 @@
 package org.jetbrains.jps.incremental.scala;
 
 import org.jetbrains.jps.incremental.scala.model.*;
+import org.jetbrains.jps.incremental.scala.model.impl.GlobalSettingsImpl;
+import org.jetbrains.jps.incremental.scala.model.impl.ProjectSettingsImpl;
 import org.jetbrains.jps.model.JpsGlobal;
 import org.jetbrains.jps.model.JpsProject;
 import org.jetbrains.jps.model.ex.JpsElementChildRoleBase;

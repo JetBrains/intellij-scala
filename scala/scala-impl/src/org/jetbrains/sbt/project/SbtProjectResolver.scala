@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package project
+package org.jetbrains.sbt.project
 
 import com.intellij.application.options.RegistryManager
 import com.intellij.notification.NotificationType
@@ -13,7 +12,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.annotations.{NonNls, Nullable}
+import org.jetbrains.annotations.{NonNls, Nullable, TestOnly}
 import org.jetbrains.plugins.scala._
 import org.jetbrains.plugins.scala.build._
 import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
@@ -28,11 +27,12 @@ import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 import org.jetbrains.sbt.structure.XmlSerializer._
-import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
-import org.jetbrains.sbt.{structure => sbtStructure}
+import org.jetbrains.sbt.structure.{BuildData, Configuration, ConfigurationData, DependencyData, DirectoryData, JavaData, ModuleDependencyData, ModuleIdentifier, ProjectData}
+import org.jetbrains.sbt.{RichBoolean, RichFile, Sbt, SbtBundle, SbtUtil, usingTempFile, structure => sbtStructure}
 
 import java.io.{File, FileNotFoundException}
 import java.util.{Locale, UUID}
+import scala.collection.{MapView, mutable}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
@@ -676,8 +676,9 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   }
 
   protected def createLibraryDependencies(dependencies: Seq[sbtStructure.ModuleDependencyData])
-      (moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
-    dependencies.map { dependency =>
+                                         (moduleData: ModuleData, libraries: Seq[LibraryData]): Seq[LibraryDependencyNode] = {
+    val dependenciesWithResolvedConflicts = resolveLibraryDependencyConflicts(dependencies)
+    dependenciesWithResolvedConflicts.map { dependency =>
       val name = nameFor(dependency.id)
       val library = libraries.find(_.getExternalName == name).getOrElse(
         throw new ExternalSystemException("Library not found: " + name))
@@ -721,10 +722,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
   protected def scopeFor(configurations: Seq[sbtStructure.Configuration]): DependencyScope = {
     val ids = configurations.toSet
 
+    //note: these configuration values are calculated in
+    // org.jetbrains.sbt.extractors.DependenciesExtractor.mapConfigurations (it's a separate project)
     if (ids.contains(sbtStructure.Configuration.Compile))
       DependencyScope.COMPILE
     else if (ids.contains(sbtStructure.Configuration.Runtime))
-      DependencyScope.RUNTIME
+      DependencyScope.RUNTIME //note: in sbt Runtime and Provided dependencies are also automatically included into Test scope
     else if (ids.contains(sbtStructure.Configuration.Test))
       DependencyScope.TEST
     else if (ids.contains(sbtStructure.Configuration.Provided))
@@ -761,4 +764,82 @@ object SbtProjectResolver {
   // TODO shared code, move to a more suitable object
   val sinceSbtVersionShell: Version = Version("0.13.5")
 
+  private case class OrganizationArtifactName(organization: String, artifactName: String)
+  private object OrganizationArtifactName {
+    def from(id: ModuleIdentifier): OrganizationArtifactName =
+      OrganizationArtifactName(id.organization, id.name)
+  }
+
+  /**
+   * In case there are several dependencies (usually transitive) on same library but with different versions we leave one "best" dependency.<br>
+   * Otherwise, it can lead to various classpath-related issues at runtime (e.g. SCL-19878, SCL-18952)
+   *
+   * Note, that this basic conflict managing process is far from what is implemented in SBT.
+   * For example SCL-18952 is not fixed "fairly".
+   * But it's at least better then nothing, it helps avoiding multiple jars of same library in the classpath.
+   *
+   * Note that sbt has separate set of classpath for each scope, which can be obtained using {{{
+   *   show Compile / dependencyClasspathAsJars
+   *   show Runtime / dependencyClasspathAsJars
+   *   show Test/ dependencyClasspathAsJars
+   * }}}
+   * And right now we can't fully emulate this with IntelliJ model, which implies single dependency on same library.
+   *
+   * Though in future we could move this "conflicts resolving" to the runtime, when program is being executed and hold multiple dependencies on same library in the model.
+   * It would require patching UI for `Project settings | Modules | Dependencies`
+   *
+   * @param dependencies library dependencies with potential conflicting versions
+   * @return library dependencies where all conflicting library versions are replaces with a single "best" library dependency.
+   * @note it emulates the default sbt behaviour when "latest revision is selected".
+   *       If in sbt build definition some non-default conflictManager is set, this may behave not as expected<br>
+   *       (see https://www.scala-sbt.org/1.x/docs/Library-Management.html#Conflict+Management)
+   */
+  @TestOnly
+  def resolveLibraryDependencyConflicts(dependencies: Seq[sbtStructure.ModuleDependencyData]): Seq[sbtStructure.ModuleDependencyData] = {
+    val libToConflictingDeps: Map[OrganizationArtifactName, Seq[ModuleDependencyData]] =
+      dependencies.groupBy(d => OrganizationArtifactName.from(d.id)).filter(_._2.size > 1)
+
+    val libToBestDependencyData: MapView[OrganizationArtifactName, ModuleDependencyData] =
+      libToConflictingDeps.view.mapValues(calculateBestDependency)
+
+    val alreadyResolvedConflicts = mutable.Set.empty[OrganizationArtifactName]
+    dependencies.flatMap { dep =>
+      val ortArtName = OrganizationArtifactName.from(dep.id)
+      libToBestDependencyData.get(ortArtName) match {
+        case None => Some(dep)
+        case Some(value) =>
+          if (alreadyResolvedConflicts.contains(ortArtName))
+            None
+          else {
+            alreadyResolvedConflicts += ortArtName
+            Some(value)
+          }
+      }
+    }
+  }
+
+  /**
+   * Return dependency with max library version and "max" scope. Note, that scopes do not have a strict order.
+   * The most problematic part is that we can't directly compare "Provided" and "Runtime" scopes.
+   * They have completely opposite semantics. But here we assume that "Provided" > "Runtime".
+   *
+   * @note anyway in general we can't 100% emulate SBT dependencies & classpath model with current IntelliJ model
+   * @note in sbt, Provided & Runtime scopes are automatically added to the "Test" scope, so "Test" has the lowest priority.
+   */
+  private def calculateBestDependency(conflictingDependencies: Seq[ModuleDependencyData]): ModuleDependencyData = {
+    val dependencyWithMaxVersion = conflictingDependencies.maxBy(d => Version(d.id.revision))
+
+    val maxConfigurationOpt = conflictingDependencies.iterator.flatMap(_.configurations).maxByOption {
+      case Configuration.Compile => 4
+      case Configuration.Provided => 3
+      case Configuration.Runtime => 2
+      case Configuration.Test => 1
+      case _ => 0
+    }
+
+    ModuleDependencyData(
+      dependencyWithMaxVersion.id,
+      maxConfigurationOpt.map(Seq(_)).getOrElse(dependencyWithMaxVersion.configurations)
+    )
+  }
 }
