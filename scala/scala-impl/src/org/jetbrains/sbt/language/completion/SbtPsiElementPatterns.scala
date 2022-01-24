@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.isScalacOption
 
@@ -21,13 +22,18 @@ object SbtPsiElementPatterns {
     psiFile.withFileType(instanceOf(SbtFileType.getClass))
   }
 
-  def scalaFilePattern: Capture[PsiElement] = psiElement.inFile {
+  def scalaFilePattern: Capture[PsiElement] = inBuildModule and psiElement.inFile {
     psiFile.withFileType(instanceOf(classOf[ScalaFileType]))
   }
 
   def propertiesFilePattern: Capture[PsiElement] = psiElement.inFile {
     psiFile.withFileType(instanceOf(classOf[PropertiesFileType]))
   }
+
+  def inBuildModule: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isSbtModuleIdPattern") {
+    override def accepts(elem: PsiElement, context: ProcessingContext): Boolean =
+      elem.module.exists(_.isBuildModule)
+  })
 
   def sbtModuleIdPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isSbtModuleIdPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {

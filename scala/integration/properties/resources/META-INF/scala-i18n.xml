@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 
 <idea-plugin>
-
-    <depends>
-        com.intellij.java-i18n
-    </depends>
-
     <extensions defaultExtensionNs="com.intellij">
         <localInspection language="Scala"
                          shortName="ScalaUnresolvedPropertyKey"
