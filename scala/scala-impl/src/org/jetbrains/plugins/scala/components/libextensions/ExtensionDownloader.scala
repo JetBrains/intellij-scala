@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
-import java.io.{File, InputStreamReader}
-import java.util.Collections
-
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
@@ -16,6 +13,9 @@ import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsMan
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 import org.jetbrains.sbt.resolvers.{SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
+import java.io.{File, InputStreamReader}
+import java.util.Collections
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.util.Using
 
 class ExtensionDownloader(private val progress: ProgressIndicator, private val sbtResolvers: Set[SbtResolver])(implicit project: Project) {
@@ -95,12 +95,13 @@ class ExtensionDownloader(private val progress: ProgressIndicator, private val s
 
   private def findJarsWithProps(): Seq[(VirtualFile, ExtensionProps)] = {
     val jarFS = JarFileSystem.getInstance
-    val files = extensions.inReadAction {
-      FilenameIndex.getFilesByName(project, PROPS_NAME, GlobalSearchScope.allScope(project))
+
+    val vFiles: Iterable[VirtualFile] = extensions.inReadAction {
+      FilenameIndex.getVirtualFilesByName(PROPS_NAME, GlobalSearchScope.allScope(project)).asScala
     }
-    val containingJars = files.collect {
-      case f if f.getVirtualFile != null && f.getVirtualFile.getFileSystem == jarFS =>
-        jarFS.getJarRootForLocalFile(jarFS.getVirtualFileForJar(f.getVirtualFile))
+    val containingJars = vFiles.collect {
+      case f if f.getFileSystem == jarFS =>
+        jarFS.getJarRootForLocalFile(jarFS.getVirtualFileForJar(f))
     }
     val props = containingJars.map(extractPropsFromJar)
     containingJars.zip(props).collect { case (file, Some(p)) => file -> p }.toSeq

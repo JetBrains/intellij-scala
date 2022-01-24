@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package language.references
 
-import java.io.File
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
@@ -15,6 +13,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
+
+import java.io.File
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 /**
  * @author Nikolay Obedin
@@ -30,11 +31,13 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   }
 
   private def findBuildFile(subprojectPath: String, project: Project): Option[PsiFile] = {
-    FilenameIndex.getFilesByName(project, "build.sbt", GlobalSearchScope.allScope(project)).find { file =>
+    val vFiles = FilenameIndex.getVirtualFilesByName("build.sbt", GlobalSearchScope.allScope(project)).asScala
+    val buildVFile = vFiles.find { vFile =>
       val relativeToProjectPath = project.getBasePath + File.separator + subprojectPath
       val absolutePath = FileUtil.toSystemIndependentName(FileUtil.toCanonicalPath(relativeToProjectPath))
-      Option(file.getParent).map(_.getVirtualFile.getPath).fold(false)(FileUtil.comparePaths(_, absolutePath) == 0)
+      Option(vFile.getParent).map(_.getPath).fold(false)(FileUtil.comparePaths(_, absolutePath) == 0)
     }
+    buildVFile.safeMap(PsiManager.getInstance(project).findFile)
   }
 
   private def extractSubprojectPath(element: PsiElement): Option[String] = {

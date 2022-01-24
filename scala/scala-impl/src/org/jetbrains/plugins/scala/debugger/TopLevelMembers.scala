@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
+import scala.annotation.nowarn
+
 object TopLevelMembers {
   private val classSuffix = "$package$"
 
@@ -42,6 +44,7 @@ object TopLevelMembers {
       case lastDot if lastDot > 0 => (path.substring(0, lastDot), path.substring(lastDot + 1) + ".scala")
       case _ => ("", path + ".scala")
     }
+    @nowarn("cat=deprecation")
     val files = FilenameIndex.getFilesByName(scope.project, fileName, scope.scope)
 
     val condition: ScalaFile => Boolean = (file: ScalaFile) =>

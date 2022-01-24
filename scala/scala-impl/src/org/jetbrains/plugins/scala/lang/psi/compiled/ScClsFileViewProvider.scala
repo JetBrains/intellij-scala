@@ -151,18 +151,16 @@ object ScClsFileViewProvider {
         override def isSearchInLibraries: Boolean = true
         override def contains(file: VirtualFile): Boolean = fileIndex.isInSource(file)
       }
-      val processor: FindProcessor[PsiFileSystemItem] = item => predicate(item.getVirtualFile)
+      val processor: FindProcessor[VirtualFile] = item => !item.isDirectory && predicate(item)
 
+      val caseSensitively = true
       FilenameIndex.processFilesByName(
         name,
-        false,
-        processor,
+        caseSensitively,
         GlobalSearchScope.allScope(project).intersectWith(sourcesScope),
-        project,
-        null
+        processor,
       )
       Option(processor.getFoundValue)
-        .map(_.getVirtualFile)
     }
 
     private def orderEntries(file: VirtualFile) =
