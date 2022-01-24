@@ -3,7 +3,6 @@ package lang
 package completion
 package handlers
 
-import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
@@ -18,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.{getMembersToImplement, runAction}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
  * @author Alexander Podkhalyuzin
@@ -107,7 +105,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
         if (isInterface && !hasSubstitutionProblem) {
           context.setLaterRunnable(() => {
-            onDefinition(file, model.getOffset) { newTemplateDefinition =>
+            onDefinition(file, model.getOffset - 1) { newTemplateDefinition =>
               val members = getMembersToImplement(newTemplateDefinition)
 
               ScalaApplicationSettings.getInstance().SPECIFY_RETURN_TYPE_EXPLICITLY =
@@ -141,12 +139,16 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
     }
 
   private def onDefinition(file: PsiFile, offset: Int)
-                          (action: ScNewTemplateDefinition => Unit): Unit = getParentOfType(
-    file.findElementAt(offset),
-    classOf[ScNewTemplateDefinition]
-  ) match {
-    case null =>
-    case newTemplateDefinition => action(newTemplateDefinition)
+                          (action: ScNewTemplateDefinition => Unit): Unit = {
+    val element = file.findElementAt(offset) match {
+      case e if e.isWhitespace => e.getPrevNonEmptyLeaf
+      case e => e
+    }
+
+    getParentOfType(element, classOf[ScNewTemplateDefinition]) match {
+      case null =>
+      case newTemplateDefinition => action(newTemplateDefinition)
+    }
   }
 
   private def generateBlock(newTemplateDefinition: ScNewTemplateDefinition): (String, String) = {
@@ -157,15 +159,7 @@ final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => St
 
     if (!useIndentationBasedSyntax || getMembersToImplement(newTemplateDefinition).isEmpty)
       defaultBlock
-    else {
-      val tabSize = CodeStyle.getIndentOptions(file).TAB_SIZE
-      val indentSize = IndentUtil.calcRegionIndent(newTemplateDefinition, tabSize)
-      val indent = " " * indentSize
-      val tab = " " * tabSize
-      val openBlock = s":\n$indent$tab".stripMargin
-      val closeBlock = s"\n$indent${ScalaKeyword.END} ${ScalaKeyword.NEW}"
-      (openBlock, closeBlock)
-    }
+    else (":", "")
   }
 
 }
