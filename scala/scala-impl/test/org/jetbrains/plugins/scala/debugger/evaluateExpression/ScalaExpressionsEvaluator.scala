@@ -386,6 +386,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("5 % 2", "1")
       evalEquals("1 << 2", "4")
       evalEquals("\"1\" + 1", "11")
+      evalEquals("\"123\".##", "123".##.toString)
+      evalEquals("42.##", 42.hashCode.toString)
     }
   }
 
