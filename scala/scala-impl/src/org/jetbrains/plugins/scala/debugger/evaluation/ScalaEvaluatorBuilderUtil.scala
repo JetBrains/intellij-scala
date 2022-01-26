@@ -1341,7 +1341,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     expr.smartExpectedType() match {
       case Some(valType: ValType)         => unboxTo(valType)
       case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
-      case Some(_)                        => boxEvaluator(evaluator)
+      case Some(_) =>
+        // Here, value types are used as other types, so they have to be boxed.
+        boxEvaluator(valueClassInstance(evaluator))
       case None                           => valueClassInstance(evaluator)
     }
   }
