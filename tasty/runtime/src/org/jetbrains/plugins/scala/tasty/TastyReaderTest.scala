@@ -150,13 +150,15 @@ object TastyReaderTest {
 
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
-      val actual = try {
+      val (sourceName, actual) = try {
         treePrinter.textOf(tree)
       } catch {
         case NonFatal(e) =>
           Console.err.println(scalaFile)
           throw e
       }
+
+      assert(sourceName == File(scalaFile).getName, sourceName)
 
       val expected = new String(readBytes(scalaFile))
         .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")

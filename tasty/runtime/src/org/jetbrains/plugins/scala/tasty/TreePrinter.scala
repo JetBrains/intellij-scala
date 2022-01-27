@@ -30,11 +30,16 @@ class TreePrinter(privateMembers: Boolean = false) {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  def textOf(node: Node): String = {
+  def textOf(node: Node): (String, String) = {
     sharedTypes.clear()
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
-    sb.toString
+    val sourceName = node.nodes.collectFirst {
+      case Node3(ANNOTATION, _, Seq(Node2(TYPEREF, Seq("SourceFile")), Node3(APPLY, _, Seq(_, Node2(STRINGconst, Seq(path)))))) =>
+        val i = path.replace('\\', '/').lastIndexOf("/")
+        if (i > 0) path.substring(i + 1) else path
+    }
+    (sourceName.getOrElse("Unknown.scala"), sb.toString)
   }
 
   // TODO partial function, no prefix (or before & after functions)?
@@ -408,7 +413,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
-        (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf).mkString("; ") + " }" // TODO textOfMember
+        (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)._2).mkString("; ") + " }" // TODO textOfMember
 
       case _ => "" // TODO exhaustive match
     }
