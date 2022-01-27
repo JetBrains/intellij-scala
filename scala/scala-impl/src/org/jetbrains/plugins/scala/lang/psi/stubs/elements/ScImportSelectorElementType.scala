@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.lang.psi.stubs.elements
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
+import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorStubImpl
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub, ScImportSelector]("import selector") {
   override def serialize(stub: ScImportSelectorStub, dataStream: StubOutputStream): Unit = {
@@ -49,4 +50,10 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
   override def createElement(node: ASTNode): ScImportSelector = new ScImportSelectorImpl(node)
 
   override def createPsi(stub: ScImportSelectorStub): ScImportSelector = new ScImportSelectorImpl(stub)
+
+  override def indexStub(stub: ScImportSelectorStub, sink: IndexSink): Unit =
+    stub.referenceText.foreach {
+      sink.occurrence(ScalaIndexKeys.ALIASED_IMPORT_KEY, _)
+    }
+
 }

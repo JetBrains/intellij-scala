@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -48,6 +49,7 @@ object ScalaIndexKeys {
   val TYPE_ALIAS_NAME_KEY                 = createIndexKey[String, ScTypeAlias]("sc.type.alias.name")
   val STABLE_ALIAS_NAME_KEY               = createIndexKey[String, ScTypeAlias]("sc.stable.alias.name")
   val STABLE_ALIAS_FQN_KEY                = createIndexKey[Integer, ScTypeAlias]("sc.stable.alias.fqn")
+  val ALIASED_CLASS_NAME_KEY              = createIndexKey[String, ScTypeAlias]("sc.aliased.class.name")
   val SUPER_CLASS_NAME_KEY                = createIndexKey[String, ScExtendsBlock]("sc.super.class.name")
   val SELF_TYPE_CLASS_NAME_KEY            = createIndexKey[String, ScSelfTypeElement]("sc.self.type.class.name.key")
   val TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY     = createIndexKey[String, ScTypeAlias]("sc.top.level.alias.by.package.key")
@@ -55,6 +57,7 @@ object ScalaIndexKeys {
   val TOP_LEVEL_FUNCTION_BY_PKG_KEY       = createIndexKey[String, ScFunction]("sc.top.level.function.by.package.key")
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
   val TOP_LEVEL_EXTENSION_BY_PKG_KEY      = createIndexKey[String, ScExtension]("sc.top.level.extension.by.package.key")
+  val ALIASED_IMPORT_KEY                  = createIndexKey[String, ScImportSelector]("sc.aliased.import.key")
 
   // Scala3 @main methods
   val ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY  = createIndexKey[String, ScFunction]("sc.annotated.main.function.by.package.key")

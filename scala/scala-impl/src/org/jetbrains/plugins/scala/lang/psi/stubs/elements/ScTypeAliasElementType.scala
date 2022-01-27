@@ -6,6 +6,7 @@ package elements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeAliasStubImpl
@@ -29,6 +30,7 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
     dataStream.writeOptionName(stub.stableQualifier)
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
+    dataStream.writeOptionName(stub.classType)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub =
@@ -44,7 +46,8 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       isStableQualifier = dataStream.readBoolean,
       stableQualifier   = dataStream.readOptionName,
       isTopLevel        = dataStream.readBoolean,
-      topLevelQualifier = dataStream.readOptionName
+      topLevelQualifier = dataStream.readOptionName,
+      classType         = dataStream.readOptionName
     )
 
   override def createStubImpl(alias: ScTypeAlias, parentStub: StubElement[_ <: PsiElement]): ScTypeAliasStub = {
@@ -91,7 +94,8 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
       isStableQualifier = stableQualifier.isDefined,
       stableQualifier   = stableQualifier,
       isTopLevel        = alias.isTopLevel,
-      topLevelQualifier = alias.topLevelQualifier
+      topLevelQualifier = alias.topLevelQualifier,
+      classType         = classType(alias)
     )
   }
 
@@ -116,5 +120,21 @@ abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
           )
       )
     }
+
+    stub.classType.foreach {
+      sink.occurrence(ScalaIndexKeys.ALIASED_CLASS_NAME_KEY, _)
+    }
+  }
+
+  private def classType(ta: ScTypeAlias): Option[String] = ta match {
+    case td: ScTypeAliasDefinition =>
+      td.aliasedTypeElement match {
+        case None     => None
+        case Some(te @ (_: ScSimpleTypeElement |
+                        _: ScParameterizedTypeElement |
+                        _: ScInfixTypeElement)) => classNames(te).headOption
+        case _ => None
+      }
+    case _ => None
   }
 }

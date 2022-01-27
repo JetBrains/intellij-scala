@@ -21,4 +21,6 @@ trait ScTypeAliasStub
   def isStableQualifier: Boolean
 
   def stableQualifier: Option[String]
+
+  def classType: Option[String]
 }

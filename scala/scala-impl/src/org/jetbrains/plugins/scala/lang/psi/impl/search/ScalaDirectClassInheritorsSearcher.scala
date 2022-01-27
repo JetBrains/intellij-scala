@@ -7,8 +7,8 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Comparing
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiClass
+import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.DirectClassInheritorsSearch
-import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtil
 import com.intellij.util.{Processor, QueryExecutor}
 import org.jetbrains.plugins.scala.extensions.inReadAction

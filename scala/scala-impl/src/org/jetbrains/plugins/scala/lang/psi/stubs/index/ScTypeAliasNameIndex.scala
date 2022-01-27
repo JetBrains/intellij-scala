@@ -24,3 +24,8 @@ class ScStableTypeAliasFqnIndex extends ScIntStubIndexExtension[ScTypeAlias] {
   override def getKey: StubIndexKey[Integer, ScTypeAlias] =
     ScalaIndexKeys.STABLE_ALIAS_FQN_KEY
 }
+
+class ScAliasedClassNameKey extends ScStringStubIndexExtension[ScTypeAlias] {
+  override def getKey: StubIndexKey[String, ScTypeAlias] =
+    ScalaIndexKeys.ALIASED_CLASS_NAME_KEY
+}

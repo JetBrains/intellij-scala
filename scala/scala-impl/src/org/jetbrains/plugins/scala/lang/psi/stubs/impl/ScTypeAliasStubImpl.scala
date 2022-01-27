@@ -24,6 +24,7 @@ class ScTypeAliasStubImpl(
   override val isStableQualifier: Boolean,
   override val stableQualifier:   Option[String],
   override val isTopLevel:        Boolean,
-  override val topLevelQualifier: Option[String]
+  override val topLevelQualifier: Option[String],
+  override val classType:         Option[String]
 ) extends ScNamedStubBase[ScTypeAlias](parent, elementType, name)
     with ScTypeAliasStub

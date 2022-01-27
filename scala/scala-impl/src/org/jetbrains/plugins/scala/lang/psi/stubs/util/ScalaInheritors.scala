@@ -6,7 +6,7 @@ package util
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-import com.intellij.psi.search.searches.{ClassInheritorsSearch, ReferencesSearch}
+import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.Processor
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.{ALIASED_CLASS_NAME_KEY, ALIASED_IMPORT_KEY, SUPER_CLASS_NAME_KEY, StubIndexKeyExt}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
@@ -25,7 +26,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
-import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 object ScalaInheritors {
@@ -83,32 +83,54 @@ object ScalaInheritors {
     }
 
   def directInheritorCandidates(clazz: PsiClass, scope: GlobalSearchScope): Seq[ScTemplateDefinition] = {
+    implicit val project: Project = clazz.getProject
+
     val name: String = clazz.name
-    val qName = clazz.qualifiedNameOpt.getOrElse(name)
-    if (name == null || clazz.isEffectivelyFinal) return Seq.empty
+    if (name == null || clazz.isEffectivelyFinal)
+      return Seq.empty
 
     val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
 
-    import ScalaIndexKeys._
-    val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(name, scope)(clazz.getProject)
-    val extendsBlocks = extendsBlockIterable.iterator
+    def possibleAliases: List[(String, String)] = {
+      val typeAliases =
+        ALIASED_CLASS_NAME_KEY.elements(name, scope).map(ta => (ta.name, ta.qualifiedNameOpt.getOrElse(ta.name)))
+          .toList
+      val importAliases =
+        ALIASED_IMPORT_KEY.elements(name, scope).flatMap(_.aliasName.map(x => (x, x)))
+          .toList
 
-    while (extendsBlocks.hasNext) {
-      val extendsBlock = extendsBlocks.next()
-      extendsBlock.getParent match {
-        case tp: ScTemplateDefinition =>
-          // simple names are stored in index, but in decompiled files they are qualified
-          val superReferenceTexts =
-            directSuperReferenceTexts(extendsBlock)
-              .iterator
-              .map(_.stripPrefix("_root_.").stripPrefix("super."))
+      typeAliases ::: importAliases
+    }
 
-          if (superReferenceTexts.exists(qName.endsWith)) {
-            inheritorsBuilder += tp
-          }
-        case _ =>
+    def addCandidates(superName: String, superQName: String): Unit = {
+
+      val extendsBlockIterable = SUPER_CLASS_NAME_KEY.elements(superName, scope)
+      val extendsBlocks = extendsBlockIterable.iterator
+
+      while (extendsBlocks.hasNext) {
+        val extendsBlock = extendsBlocks.next()
+        extendsBlock.getParent match {
+          case tp: ScTemplateDefinition =>
+            // simple names are stored in index, but in decompiled files they are qualified
+            val superReferenceTexts =
+              directSuperReferenceTexts(extendsBlock)
+                .iterator
+                .map(_.stripPrefix("_root_.").stripPrefix("super."))
+
+            if (superReferenceTexts.exists(superQName.endsWith)) {
+              inheritorsBuilder += tp
+            }
+          case _ =>
+        }
       }
     }
+
+    val qName = clazz.qualifiedNameOpt.getOrElse(name)
+    val nameWithPossibleAliases = (name, qName) :: possibleAliases
+    nameWithPossibleAliases.foreach {
+      case (name, qName) => addCandidates(name, qName)
+    }
+
     inheritorsBuilder.result()
   }
 
@@ -116,21 +138,11 @@ object ScalaInheritors {
     val name: String = clazz.name
     if (name == null || clazz.isEffectivelyFinal) return Seq.empty
 
-    val inheritorsBuilder = ArraySeq.newBuilder[ScTemplateDefinition]
-
-    val references = ReferencesSearch.search(clazz, localScope).findAll().asScala
-    val extendsBlocksIterable = references.collect {
-      case Parent(Parent(Parent(Parent(extendsBlock: ScExtendsBlock)))) => extendsBlock
+    localScope.getScope.toSeq.flatMap { element =>
+      element.elements
+        .filterByType[ScTemplateDefinition]
+        .filter(_.isInheritor(clazz, false))
     }
-    val extendsBlocks = extendsBlocksIterable.iterator
-    while (extendsBlocks.hasNext) {
-      val extendsBlock = extendsBlocks.next()
-      extendsBlock.getParent match {
-        case tp: ScTemplateDefinition => inheritorsBuilder += tp
-        case _ =>
-      }
-    }
-    inheritorsBuilder.result()
   }
 
   def getSelfTypeInheritors(clazz: PsiClass): Seq[ScTemplateDefinition] = {

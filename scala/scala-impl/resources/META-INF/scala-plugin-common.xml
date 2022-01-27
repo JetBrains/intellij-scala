@@ -513,6 +513,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTypeAliasNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScStableTypeAliasNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScStableTypeAliasFqnIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAliasedClassNameKey"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScDirectInheritorsIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScSelfTypeInheritorsIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAnnotatedMemberIndex"/>
@@ -522,6 +523,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelAliasByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelImplicitClassByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelExtensionByPackageIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAliasedImportKey"/>
 
         <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaFeaturePusher"/>
 
