@@ -433,8 +433,8 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfAnnotationIn(sb: StringBuilder, indent: String, node: Node, suffix: String): Unit = {
-    node.children.lastOption match {  // TODO sb.insert?
-      case Some(Node3(ANNOTATION, _, Seq(tpe, apply @ Node1(APPLY)))) =>
+    node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {  // TODO sb.insert?
+      case Node3(ANNOTATION, _, Seq(tpe, apply @ Node1(APPLY))) =>
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
