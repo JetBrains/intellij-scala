@@ -150,15 +150,15 @@ object TastyReaderTest {
 
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
-      val (sourceName, actual) = try {
-        treePrinter.textOf(tree)
+      val (sourceFile, actual) = try {
+        treePrinter.fileAndTextOf(tree)
       } catch {
         case NonFatal(e) =>
           Console.err.println(scalaFile)
           throw e
       }
 
-      assert(sourceName == File(scalaFile).getName, sourceName)
+      assert(sourceFile == File(scalaFile).getName, s"File: $scalaFile, read: $sourceFile")
 
       val expected = new String(readBytes(scalaFile))
         .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
@@ -181,8 +181,6 @@ object TastyReaderTest {
         }
         passed :+= scalaFile
       }
-
-//      Assert.assertEquals(scalaFile, expected, actual)
     }
     if (failed.isEmpty) println(s"Tests passed: ${passed.length}")
     else Console.err.println(s"Tests passed: ${passed.length}, failed: ${failed.length}:\n" + failed.map("  " + _).mkString("\n"))

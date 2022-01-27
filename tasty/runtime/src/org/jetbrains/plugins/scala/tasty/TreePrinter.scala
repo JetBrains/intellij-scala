@@ -10,16 +10,15 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 // TODO refactor
-// TODO read SourceFile annotation, delete Node.nodes
 // TODO use StringBuilder: type
-// TODO String indent
 // TODO nonEmpty predicate
-// TODO implicit StringGuilder
+// TODO implicit StringBuilder?
 // TODO indent: opaque type, implicit
 class TreePrinter(privateMembers: Boolean = false) {
   private final val Indent = "  "
 
   private val sharedTypes = mutable.Map[Addr, String]()
+  private val sourceFiles = mutable.Buffer[String]()
 
   private def isGivenObject0(typedef: Node): Boolean =
     typedef.contains(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.contains(OBJECT) && prev.contains(GIVEN))
@@ -30,16 +29,12 @@ class TreePrinter(privateMembers: Boolean = false) {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  def textOf(node: Node): (String, String) = {
+  def fileAndTextOf(node: Node): (String, String) = {
     sharedTypes.clear()
+    sourceFiles.clear()
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
-    val sourceName = node.nodes.collectFirst {
-      case Node3(ANNOTATION, _, Seq(Node2(TYPEREF, Seq("SourceFile")), Node3(APPLY, _, Seq(_, Node2(STRINGconst, Seq(path)))))) =>
-        val i = path.replace('\\', '/').lastIndexOf("/")
-        if (i > 0) path.substring(i + 1) else path
-    }
-    (sourceName.getOrElse("Unknown.scala"), sb.toString)
+    (sourceFiles.headOption.getOrElse("Unknown.scala"), sb.toString)
   }
 
   // TODO partial function, no prefix (or before & after functions)?
@@ -66,7 +61,8 @@ class TreePrinter(privateMembers: Boolean = false) {
           // TODO extract method, de-duplicate
           var delimiterRequired = false
           children match {
-            case Seq(Node2(VALDEF, Seq(name1)), Node3(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
+            case Seq(Node2(VALDEF, Seq(name1)), tpe @ Node3(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") => // TODO use name type, not contents
+              readSourceFileAnnotationIn(tpe)
               template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).foreach { definition =>
                 val previousLength = sb.length
                 textOfMember(sb, indent, definition, None, if (delimiterRequired) "\n\n" else "")
@@ -112,6 +108,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val isTypeMember = !template.is(TEMPLATE)
     val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
     val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
+    readSourceFileAnnotationIn(node)
     textOfAnnotationIn(sb, indent, node, "\n")
     sb ++= indent
     modifiersIn(sb, if (isObject) node.previousSibling.getOrElse(node) else node,
@@ -413,7 +410,7 @@ class TreePrinter(privateMembers: Boolean = false) {
 
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
-        (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)._2).mkString("; ") + " }" // TODO textOfMember
+        (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
 
       case _ => "" // TODO exhaustive match
     }
@@ -449,6 +446,17 @@ class TreePrinter(privateMembers: Boolean = false) {
             sb ++= ")"
           }
           sb ++= suffix
+        }
+      case _ =>
+    }
+  }
+
+  private def readSourceFileAnnotationIn(node: Node): Unit = {
+    node.children.reverseIterator.takeWhile(_.is(ANNOTATION)).foreach {
+      case Node3(ANNOTATION, _, Seq(tpe, apply@Node1(APPLY))) if (textOfType(tpe) == "scala.annotation.internal.SourceFile") =>
+        apply.children.lastOption.map(_.name).foreach { path =>
+          val i = path.replace('\\', '/').lastIndexOf("/")
+          sourceFiles += (if (i > 0) path.substring(i + 1) else path)
         }
       case _ =>
     }

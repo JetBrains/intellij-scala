@@ -35,11 +35,6 @@ class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () =
 
   val prevSiblings: Iterator[Node] = Iterator.unfold(this)(_.previousSibling.map(x => (x, x)))
 
-  def nodes: Iterator[Node] = new Node.BreadthFirstIterator(this)
-
-  // TODO
-  // var parent: Option[Node] = None
-
   var refName: Option[String] = None
 
   var value: Long = -1L
@@ -61,33 +56,5 @@ private object Node {
 
   object Node3 {
     def unapply(node: Node): Option[(Int, Seq[String], Seq[Node])] = Some((node.tag, node.names, node.children))
-  }
-
-  object && {
-    def unapply[T](obj: T): Some[(T, T)] = Some((obj, obj))
-  }
-
-  // TODO Remove when SourceFile annotation reading is integrated
-  import scala.collection.mutable
-  class BreadthFirstIterator(element: Node) extends Iterator[Node] {
-    private val queue: mutable.Queue[Node] =
-      if (element != null) mutable.Queue(element)
-      else mutable.Queue.empty
-
-    override def hasNext: Boolean = queue.nonEmpty
-
-    override def next(): Node = {
-      val element = queue.dequeue()
-      pushChildren(element)
-      element
-    }
-
-    private def pushChildren(element: Node): Unit = {
-      var child = element.children.headOption
-      while (child.nonEmpty) {
-        queue.enqueue(child.get)
-        child = child.get.nextSibling
-      }
-    }
   }
 }

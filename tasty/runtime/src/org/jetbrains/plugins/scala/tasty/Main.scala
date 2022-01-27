@@ -51,10 +51,10 @@ object Main {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
               //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
-              Files.write(path, treePrinter.textOf(tree)._2.getBytes)
+              Files.write(path, treePrinter.fileAndTextOf(tree)._2.getBytes)
             case Mode.Test =>
               val expected = new String(Files.readAllBytes(path))
-              val (_, actual) = treePrinter.textOf(tree)
+              val (_, actual) = treePrinter.fileAndTextOf(tree)
               if (expected != actual) {
                 System.err.println(path)
                 System.err.println("Expected:\n" + expected)
@@ -62,7 +62,7 @@ object Main {
                 System.exit(-1)
               }
             case Mode.Benchmark =>
-              treePrinter.textOf(tree)
+              treePrinter.fileAndTextOf(tree)
           }
         }
       }
