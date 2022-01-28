@@ -41,15 +41,13 @@ private case class NonValueFunctionTypes(fun: ScFunction, substitutor: ScSubstit
   def methodType: Option[ScType] = lazyMethodTypeData.map(_.methodType)
 
   def hasImplicitClause: Boolean = lazyMethodTypeData.exists(_.hasImplicitClause)
-
-  def hasExplicitClause: Boolean = lazyMethodTypeData.exists(_.hasExplicitClause)
 }
 
 private object NonValueFunctionTypes {
 
   private case class UndefinedTypeData(undefinedType: ScType, hadDependent: Boolean)
 
-  private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean, hasExplicitClause: Boolean)
+  private case class MethodTypeData(methodType: ScType, hasImplicitClause: Boolean)
 
   @Measure
   private def computeMethodType(fun: ScFunction,
@@ -59,7 +57,6 @@ private object NonValueFunctionTypes {
     //@TODO: multiple using clauses
     val clauses        = fun.parameterClausesWithExtension
     val implicitClause = clauses.find(_.isImplicitOrUsing)
-    val explicitClause = clauses.find(clause => !clause.isImplicitOrUsing)
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
       None
@@ -78,7 +75,7 @@ private object NonValueFunctionTypes {
         if (polymorphicTypeParameters.isEmpty) methodOrReturnType
         else ScTypePolymorphicType(methodOrReturnType, polymorphicTypeParameters)
 
-      Some(MethodTypeData(substitutor(scType), implicitClause.nonEmpty, explicitClause.nonEmpty))
+      Some(MethodTypeData(substitutor(scType), implicitClause.nonEmpty))
     }
   }
 
