@@ -756,7 +756,8 @@ object ScalaPsiUtil {
 
   def isStaticJava(m: PsiMember): Boolean = m match {
     case null => false
-    case _ if !m.getLanguage.isInstanceOf[JavaLanguage] => false
+    //NOTE: member can be a Kotlin class (note that in Kotlin nested classes are inner by default)
+    case _ if m.getLanguage.isKindOf(ScalaLanguage.INSTANCE) => false
     case _: PsiEnumConstant => true
     case cl: PsiClass if cl.isInterface | cl.isEnum => true
     case m: PsiMember if m.hasModifierPropertyScala(PsiModifier.STATIC) => true
