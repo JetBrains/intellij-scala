@@ -1364,8 +1364,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
       case Null => "_root_.scala.reflect.ClassTag.Null"
       case Singleton => "_root_.scala.reflect.ClassTag.Object"
-      //todo:
-      case _ => "_root_.scala.reflect.ClassTag.apply(classOf[_root_.java.lang.Object])"
+      case _ =>
+        val cls = arg.extractClass.fold("_root_.java.lang.Object")(_.qualifiedName)
+        s"_root_.scala.reflect.ClassTag.apply(classOf[$cls])"
     }
   }
 
