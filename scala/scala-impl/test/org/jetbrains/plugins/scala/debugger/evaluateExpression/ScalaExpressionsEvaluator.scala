@@ -355,6 +355,26 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
+  addFileWithBreakpoints("ArrayCreation.scala",
+    s"""
+       |object ArrayCreation {
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}
+      """.stripMargin
+  )
+  def testArrayCreation(): Unit =
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("""Array("string1", "string2")""", "[string1,string2]")
+      evalEquals("""Array("string1", "string2").isInstanceOf[Array[String]]""", "true")
+      evalEquals("""Array("string1", "string2").isInstanceOf[Array[AnyRef]]""", "true")
+      evalEquals("""new Array[String](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[String](5).isInstanceOf[Array[String]]""", "true")
+      evalEquals("""new Array[String](5).isInstanceOf[Array[AnyRef]]""", "true")
+    }
+
   addFileWithBreakpoints("SyntheticOperators.scala",
     s"""
        |object SyntheticOperators {
