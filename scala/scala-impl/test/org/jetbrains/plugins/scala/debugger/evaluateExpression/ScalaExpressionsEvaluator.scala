@@ -412,6 +412,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  }
        |  def kgs3String(kgs: MetricKilograms3): String = kgs.kgString
        |
+       |  // Test boxing
+       |  def genericEquals[A, B](a: A, b: B): Boolean =
+       |    a == b
+       |
        |  def main(args: Array[String]): Unit = {
        |    val metricValue1 = MetricKilograms1(2.2)
        |    val mvOption1 = Some(metricValue1)
@@ -451,6 +455,17 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("kgs3String(mvOption3.get)", "2.2kg")
       evalEquals("2.2.kgString", "2.2kg")
       evalEquals("kgs3String(2.2)", "2.2kg")
+
+      evalEquals("metricValue1 == metricValue1", "true")
+      evalEquals("new MetricKilograms1(2.2) == metricValue1", "true")
+      evalEquals("new MetricKilograms1(2.2) == 2.2", "false")
+      evalEquals("2.2 == new MetricKilograms1(2.2)", "false")
+      evalEquals("(new MetricKilograms1(2.2): MetricKilograms1) == (new MetricKilograms1(2.2): MetricKilograms1)", "true")
+      evalEquals("new MetricKilograms1(2.2) == new MetricKilograms2(2.2)", "false")
+      evalEquals("new MetricKilograms1(2.2) == new MetricKilograms1(2.2)", "true")
+      evalEquals("genericEquals(metricValue1, metricValue1)", "true")
+      evalEquals("genericEquals(new MetricKilograms1(2.2), 2.2)", "false")
+      evalEquals("genericEquals(2.2, new MetricKilograms1(2.2))", "false")
     }
 
 }
