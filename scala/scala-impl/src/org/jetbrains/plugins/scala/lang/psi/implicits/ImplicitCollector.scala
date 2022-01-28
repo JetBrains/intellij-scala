@@ -133,8 +133,8 @@ class ImplicitCollector(
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
-  private def canContainExtension(srr: ScalaResolveResult, hasExplicitClause: Boolean): Boolean =
-    withExtensions && !srr.isExtension && !hasExplicitClause
+  private def canContainExtension(srr: ScalaResolveResult): Boolean =
+    withExtensions && !srr.isExtension && !hasExplicitClause(srr)
 
   def collect(): Seq[ScalaResolveResult] = TraceLogger.func {
     def calc(): Seq[ScalaResolveResult] = {
@@ -435,12 +435,11 @@ class ImplicitCollector(
     c:                       ScalaResolveResult,
     nonValueType0:           ScType,
     hasImplicitClause:       Boolean,
-    hasExplicitClause:       Boolean,
     hadDependents:           Boolean,
     expectedTypeConstraints: ConstraintSystem
   ): Option[ScalaResolveResult] = /* TraceLogger.func */ {
     val fun            = c.element.asInstanceOf[ScFunction]
-    val canContainExts = canContainExtension(c, hasExplicitClause)
+    val canContainExts = canContainExtension(c)
 
     def wrongTypeParam(nonValueType: ScType, result: ImplicitResult): Some[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(nonValueType)
@@ -610,7 +609,6 @@ class ImplicitCollector(
               c,
               c.substitutor(nonValueType0),
               nonValueFunTypes.hasImplicitClause,
-              nonValueFunTypes.hasExplicitClause,
               nonValueFunTypes.hadDependents,
               constraints
             )
@@ -693,7 +691,7 @@ class ImplicitCollector(
         if (undefinedConforms.isRight) {
           if (checkFast) Option(c)
           else           checkFunctionType(c, nonValueFunctionTypes, undefinedConforms.constraints)
-        } else if (canContainExtension(c, nonValueFunctionTypes.hasExplicitClause)) {
+        } else if (canContainExtension(c)) {
           //With the addition of extensions in Scala 3,
           //we now cannot discard implicits based by their type right away,
           //because they might contain extensions, defined on their "return type".
@@ -760,6 +758,11 @@ class ImplicitCollector(
             )
         }
     }
+  }
+
+  private def hasExplicitClause(srr: ScalaResolveResult): Boolean = srr.element match {
+    case fun: ScFunction => fun.parameterClausesWithExtension.exists(!_.isImplicitOrUsing)
+    case _ => false
   }
 
   private def abstractsToUpper(tp: ScType): ScType = {
