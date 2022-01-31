@@ -17,7 +17,7 @@ import _root_.java.io._
 import _root_.java.net.InetAddress
 import _root_.java.util.ServiceLoader
 import _root_.scala.jdk.CollectionConverters._
-import scala.concurrent.duration.{Duration, DurationInt}
+import scala.concurrent.duration.DurationInt
 
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
@@ -63,8 +63,8 @@ object ScalaBuilder {
 
       val server = getServer(context, compilerData.compilerJars.exists(_.hasScala3))
       server.compile(sbtData, compilerData, compilationData, client) match {
-        case Left(error)     =>
-          import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages._
+        case Left(error) =>
+          import ScalaCompileServerJpsMessages._
           import ServerError._
           error match {
             case SocketConnectTimeout(address, port, timeout, cause) =>

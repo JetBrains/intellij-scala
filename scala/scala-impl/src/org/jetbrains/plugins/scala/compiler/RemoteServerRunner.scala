@@ -5,9 +5,8 @@ import com.intellij.application.options.RegistryManager
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages
+import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -65,12 +64,12 @@ final class RemoteServerRunner(project: Project)
         send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
-          val message = CompileServerSharedConnectionErrorMessages.cantConnectToCompileServerErrorMessage(address, port)
+          val message = ScalaCompileServerMessages.cantConnectToCompileServerErrorMessage(address, port)
           client.error(message)
           Log.error(message, e)
 
         case e: UnknownHostException =>
-          val message = CompileServerSharedConnectionErrorMessages.unknownHostErrorMessage(address)
+          val message = ScalaCompileServerMessages.unknownHostErrorMessage(address)
           client.error(message)
           Log.error(message, e)
 
