@@ -491,6 +491,10 @@ package object extensions {
       if (!isIdentifier(string) || isKeyword(string) || string == "=") "`" + string + "`"
       else string
     }
+
+    def stripSuffixes(suffixes: Seq[String]): String = {
+      suffixes.foldLeft(string)(_.stripSuffix(_))
+    }
   }
 
   object StringExt {
