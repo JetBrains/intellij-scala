@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 import java.io.File
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.nowarn
 
 /**
   * @author Alefas
@@ -103,10 +104,9 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
               case pluginLoader: PluginClassLoader =>
                 val plugin = PluginManagerCore.getPlugin(pluginLoader.getPluginId)
                 val message =
-                  s"Plugin ${plugin.getName} of version ${plugin.getVersion} is " +
-                    s"incompatible with Scala plugin of version $version. Do you want to disable ${plugin.getName} plugin?\n" +
-                    s"""<p/><a href="Yes">Yes, disable it</a>\n""" +
-                    s"""<p/><a href="No">No, leave it enabled</a>"""
+                  s"""Plugin ${plugin.getName} of version ${plugin.getVersion} is incompatible with Scala plugin of version $version. Do you want to disable ${plugin.getName} plugin?
+                     |<p/><a href="Yes">Yes, disable it</a>
+                     |<p/><a href="No">No, leave it enabled</a>""".stripMargin
 
                 showIncompatiblePluginNotification(plugin, message) {
                   case "Yes" =>
@@ -141,11 +141,13 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       ScalaPluginVersionVerifier.LOG.error(message)
     } else {
-      val notification = ScalaNotificationGroups.stickyBalloonGroup.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR).setListener((notification: Notification, event: HyperlinkEvent) => {
+      val notification = ScalaNotificationGroups.stickyBalloonGroup.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR)
+      //TODO
+      notification.setListener((notification: Notification, event: HyperlinkEvent) => {
         notification.expire()
         val description = event.getDescription
         callback(description)
-      })
+      }): @nowarn("cat=deprecation")
 
       Notifications.Bus.notify(notification)
     }

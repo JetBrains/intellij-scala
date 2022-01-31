@@ -8,7 +8,6 @@ import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerList
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
-import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 
 import java.util.function.Consumer
@@ -50,9 +49,6 @@ object Scala3Disclaimer {
         .createNotification(message, NotificationType.INFORMATION)
 
     actions.foreach(notification.addAction)
-
-    notification.setListener(new HyperlinkListener())
-
     Notifications.Bus.notify(notification)
   }
 

@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
+import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress._
 import com.intellij.openapi.progress.impl.BackgroundableProcessIndicator
@@ -237,16 +239,23 @@ object ImportAmmoniteDependenciesFix {
     @Nls
     val ammoniteName = "Ammonite"
 
-    NotificationUtil.showMessage(
-      project = project,
-      title = ammoniteName,
-      message =
-        WorksheetBundle.message("add.a.all.ammonite.deps.to.project"),
-      handler = {
-        case "run" => apply(file)
-        case "disable" => AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
-        case _ =>
+    object AddImportsAction extends NotificationAction(WorksheetBundle.message("ammonite.add.all.dependencies.to.project.action.add")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        notification.expire()
+        apply(file)
       }
-    )
+    }
+    object IgnoreAction extends NotificationAction(WorksheetBundle.message("ammonite.add.all.dependencies.to.project.action.ignore")) {
+      override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+        notification.expire()
+        AmmoniteScriptWrappersHolder.getInstance(project).setIgnoreImports()
+      }
+    }
+    NotificationUtil
+      .builder(project, WorksheetBundle.message("ammonite.add.all.dependencies.to.project.message"))
+      .setTitle(ammoniteName)
+      .addAction(AddImportsAction)
+      .addAction(IgnoreAction)
+      .show()
   }
 }

@@ -1,8 +1,11 @@
 package org.jetbrains.plugins.scala.components.libextensions.ui
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
+
 import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import scala.annotation.nowarn
 
 class PopupHelper {
   import PopupHelper._
@@ -10,7 +13,8 @@ class PopupHelper {
     val notification = new Notification(GROUP_ID, ScalaBundle.message("title.extensions.available"),
       ScalaBundle.message("additional.support.has.been.found.popup"),
       NotificationType.INFORMATION
-    ).setListener(
+    )
+    notification.setListener(
       (notification: Notification, event: HyperlinkEvent) => {
         notification.expire()
         event.getDescription match {
@@ -18,7 +22,7 @@ class PopupHelper {
           case "No"  => noCallback()
         }
       }
-    )
+    ): @nowarn("cat=deprecation")
     Notifications.Bus.notify(notification)
   }
 }

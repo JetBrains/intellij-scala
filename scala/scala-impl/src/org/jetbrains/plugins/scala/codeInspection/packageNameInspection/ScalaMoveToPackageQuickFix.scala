@@ -8,7 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootManager, SourceFolder}
 import com.intellij.openapi.ui.Messages
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil
-import com.intellij.refactoring.util.RefactoringMessageUtil
+import com.intellij.refactoring.util.{CommonMoveClassesOrPackagesUtil, RefactoringMessageUtil}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaMoveToPackageQuickFix._
@@ -33,7 +33,7 @@ final class ScalaMoveToPackageQuickFix(_file: ScalaFile, packageName: String)
         return
       }
 
-      val directory = MoveClassesOrPackagesUtil.chooseDestinationPackage(
+      val directory = CommonMoveClassesOrPackagesUtil.chooseDestinationPackage(
         project,
         packageName.replace("`", ""), // ugly hack to support most escaped package names... if they contain a dot... well, good night!
         file.getContainingDirectory

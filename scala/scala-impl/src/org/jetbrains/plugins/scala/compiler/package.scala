@@ -1,7 +1,10 @@
 package org.jetbrains.plugins.scala
 
-import java.io.File
+import com.intellij.notification.{Notification, NotificationAction}
+import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.project.Project
 
+import java.io.File
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.CompileServerProblem
@@ -24,5 +27,12 @@ package object compiler {
 
   implicit class RichFile(private val file: File) extends AnyVal {
     def canonicalPath: String = FileUtil.toCanonicalPath(file.getPath)
+  }
+
+  class OpenScalaCompileServerSettingsAction(project: Project, filter: String) extends NotificationAction(ScalaBundle.message("wrong.jdk.action.open.compile.server.settings")) {
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
+      notification.expire()
+      CompileServerManager.showCompileServerSettingsDialog(project, filter)
+    }
   }
 }

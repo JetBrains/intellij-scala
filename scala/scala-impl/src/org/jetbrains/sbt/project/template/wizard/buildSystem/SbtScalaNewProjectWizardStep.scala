@@ -1,15 +1,13 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.JavaUiBundle
-import com.intellij.ide.util.projectWizard.{AbstractModuleBuilder, ModuleBuilder}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
-import com.intellij.openapi.module.{Module, ModuleManager, StdModuleTypes}
-import com.intellij.openapi.observable.properties.{GraphPropertyImpl, PropertyGraph}
+import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
+import com.intellij.openapi.observable.properties.{GraphPropertyImpl, ObservableProperty, PropertyGraph}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, SdkTypeId}
-import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.roots.ui.configuration.{JdkComboBox, JdkComboBoxKt, ProjectStructureConfigurable}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.UIBundle
@@ -53,7 +51,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
 
-    moduleNameProperty.dependsOn(parent.getNameProperty, () => parent.getName)
+    moduleNameProperty.dependsOn(parent.getNameProperty: ObservableProperty[String], () => parent.getName)
   }
 
   override def setupProject(project: Project): Unit = {

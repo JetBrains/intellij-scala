@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
+import com.intellij.notification.{Notification, NotificationAction, NotificationType, Notifications}
+import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
@@ -12,8 +13,8 @@ import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
-import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong
 
@@ -47,20 +48,16 @@ final class CompileServerNotificationsService(project: Project) {
   }
 
   private def showWarning(serverSdk: String, recommendedSdk: String): Unit = {
-    val text =
-      s"""Compilation problems may occur.<p/>
-         |We recommend <a href="">using JDK $recommendedSdk</a> to prevent them.<p/>
-         |Current JDK is $serverSdk.
-         |""".stripMargin
-    val listener = new FixSdkNotificationListener(recommendedSdk)
-    val warningNotification = new Notification(title, title, text, NotificationType.WARNING).setListener(listener)
-    Notifications.Bus.notify(warningNotification)
+    val text = s"""We recommend using JDK '$recommendedSdk' to prevent compilation issues (current JDK is '$serverSdk')""".stripMargin
+    val notification = new Notification(title, title, text, NotificationType.WARNING)
+    notification.addAction(new FixSdkAction(recommendedSdk))
+    notification.addAction(new OpenScalaCompileServerSettingsAction(project, filter = "JDK"))
+    Notifications.Bus.notify(notification)
   }
   
-  private class FixSdkNotificationListener(fixedSdk: String)
-    extends NotificationListener {
-    
-    override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
+  private class FixSdkAction(fixedSdk: String) extends NotificationAction(ScalaBundle.message("wrong.jdk.action.use.jdk", fixedSdk)) {
+
+    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
       notification.expire()
       val settings = ScalaCompileServerSettings.getInstance
       if (CompileServerLauncher.defaultSdk(project).getName == fixedSdk) {

@@ -4,6 +4,7 @@ import com.intellij.notification._
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.{ScalaCollectionsUtil, ScalaNotificationGroups}
 
+import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.ref.WeakReference
 
@@ -34,7 +35,7 @@ object ScalafmtNotifications {
       return
 
     val notification = group.createNotification(message, notificationType)
-    listener.foreach(notification.setListener)
+    listener.foreach(notification.setListener): @nowarn("cat=deprecation")
     actions.foreach(notification.addAction)
     notification.notify(project)
 
@@ -56,25 +57,25 @@ object ScalafmtNotifications {
     }
   }
 
-  def displayInfo(message: String,
-                  actions: Seq[NotificationAction] = Nil,
-                  listener: Option[NotificationListener] = None)
-                 (implicit project: Project): Unit = {
-    displayNotification(message, NotificationType.INFORMATION, scalafmtInfoBalloonGroup, actions, listener)
+  def displayInfo(
+    message: String,
+    actions: Seq[NotificationAction] = Nil
+  )(implicit project: Project): Unit = {
+    displayNotification(message, NotificationType.INFORMATION, scalafmtInfoBalloonGroup, actions)
   }
 
-  def displayWarning(message: String,
-                     actions: Seq[NotificationAction] = Nil,
-                     listener: Option[NotificationListener] = None)
-                    (implicit project: Project): Unit = {
-    displayNotification(message, NotificationType.WARNING, scalafmtInfoBalloonGroup, actions, listener)
+  def displayWarning(
+    message: String,
+    actions: Seq[NotificationAction] = Nil
+  )(implicit project: Project): Unit = {
+    displayNotification(message, NotificationType.WARNING, scalafmtInfoBalloonGroup, actions)
   }
 
-  def displayError(message: String,
-                   actions: Seq[NotificationAction] = Nil,
-                   listener: Option[NotificationListener] = None)
-                  (implicit project: Project = null): Unit = {
-    displayNotification(message, NotificationType.ERROR, scalafmtErrorBalloonGroup, actions, listener)
+  def displayError(
+    message: String,
+    actions: Seq[NotificationAction] = Nil
+  )(implicit project: Project = null): Unit = {
+    displayNotification(message, NotificationType.ERROR, scalafmtErrorBalloonGroup, actions)
   }
 
   def displayFormatError(message: String,

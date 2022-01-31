@@ -6,6 +6,7 @@ import java.awt.datatransfer.StringSelection
 import java.awt.{Desktop, Toolkit}
 import java.net.{URI, URL}
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.nowarn
 
 /**
  * Pavel Fatin
@@ -21,9 +22,16 @@ object DesktopUtils {
 
     if(supported)
       Desktop.getDesktop.browse(new URI(url))
-    else
-      Notifications.Bus.notify(new Notification("scala", ScalaBundle.message("title.problem.opening.web.page"),
-        ScalaBundle.message("html.unable.to.launch.web.browser", url), NotificationType.WARNING).setListener(Listener))
+    else {
+      val notification = new Notification(
+        "scala",
+        ScalaBundle.message("title.problem.opening.web.page"),
+        ScalaBundle.message("html.unable.to.launch.web.browser", url),
+        NotificationType.WARNING
+      )
+      notification.setListener(Listener): @nowarn("cat=deprecation")
+      Notifications.Bus.notify(notification)
+    }
   }
 
    private object Listener extends NotificationListener.Adapter {

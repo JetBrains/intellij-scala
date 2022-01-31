@@ -26,6 +26,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, extensions}
 import java.net.URLEncoder
 import java.util.concurrent.TimeUnit
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.nowarn
 import scala.xml.XML
 
 class InvalidRepoException(what: String) extends Exception(what)
@@ -293,8 +294,7 @@ object ScalaPluginUpdater {
           }
         }
       }
-
-      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION).setListener(listener)
+      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION).setListener(listener): @nowarn("cat=deprecation")
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
       Notifications.Bus.notify(notification, project)
     }

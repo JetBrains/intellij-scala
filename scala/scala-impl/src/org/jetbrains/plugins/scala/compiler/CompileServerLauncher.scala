@@ -17,12 +17,12 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
 import org.jetbrains.jps.incremental.scala.DummyClient
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
@@ -141,17 +141,17 @@ object CompileServerLauncher {
           case CompileServerProblem.SdkNotSpecified =>
             val text =
               s"""No SDK specified.<p/>
-                 |Please specify it in the <a href="">Compile Server Settings</a>
                  |""".stripMargin
-            val listener: NotificationListener = { (notification: Notification, _: HyperlinkEvent) =>
-              notification.expire()
-              CompileServerManager.showCompileServerSettingsDialog(project)
-            }
-            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR).setListener(listener))
+            val action = new OpenScalaCompileServerSettingsAction(project, filter = "JDK")
+            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR).addAction(action))
           case error: CompileServerProblem.Error =>
-            val text = ScalaBundle.nls("jdk.for.compiler.process.not.found", error.text)
+            val text = error.text
             Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR))
             LOG.error(title, text)
+          case error: CompileServerProblem.UnexpectedException =>
+            val text = error.cause.getMessage
+            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR))
+            LOG.error(title, error.cause)
         }
         false
     }
@@ -166,7 +166,7 @@ object CompileServerLauncher {
 
   // TODO: track that we attach debug agent and show notification, as with JPS Build Process
   // TODO: add internal action "Debug Scala Compile Server" as with JPS "Debug Build Process"
-  private def start(project: Project, jdk: JDK): Either[CompileServerProblem.Error, Process] = {
+  private def start(project: Project, jdk: JDK): Either[CompileServerProblem, Process] = {
     LOG.traceWithDebugInDev(s"starting server")
 
     val settings = ScalaCompileServerSettings.getInstance
@@ -254,7 +254,7 @@ object CompileServerLauncher {
 
         catching(classOf[IOException])
           .either(builder.start())
-          .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
+          .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
@@ -492,6 +492,7 @@ object CompileServerLauncher {
   object CompileServerProblem {
     final case object SdkNotSpecified extends CompileServerProblem
     final case class Error(@Nls text: String) extends CompileServerProblem
+    final case class UnexpectedException(cause: Throwable) extends CompileServerProblem
   }
 }
 
