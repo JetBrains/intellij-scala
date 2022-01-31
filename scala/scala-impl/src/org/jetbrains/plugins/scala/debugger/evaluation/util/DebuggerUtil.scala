@@ -102,7 +102,7 @@ object DebuggerUtil {
       case Unit => JVMNameUtil.getJVMRawText("java.lang.Void")
       case Boolean => JVMNameUtil.getJVMRawText("java.lang.Boolean")
       case Char => JVMNameUtil.getJVMRawText("java.lang.Character")
-      case Int => JVMNameUtil.getJVMRawText("java.lang.Int")
+      case Int => JVMNameUtil.getJVMRawText("java.lang.Integer")
       case Long => JVMNameUtil.getJVMRawText("java.lang.Long")
       case Float => JVMNameUtil.getJVMRawText("java.lang.Float")
       case Double => JVMNameUtil.getJVMRawText("java.lang.Double")

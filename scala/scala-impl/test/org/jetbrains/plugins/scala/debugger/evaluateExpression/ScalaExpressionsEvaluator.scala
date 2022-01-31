@@ -352,6 +352,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("y.isInstanceOf[B]", "true")
       evalEquals("y.isInstanceOf[String]", "false")
       evalEquals("\"\".isInstanceOf[String]", "true")
+      evalEquals(""""123".isInstanceOf[Int]""", "false")
     }
   }
 
