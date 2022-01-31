@@ -114,10 +114,21 @@ object DebuggerUtil {
         buff.append("[]")
         buff.toName
       case ParameterizedType(arr, Seq(arg)) if arr.extractClass.exists(_.qualifiedName == "scala.Array") =>
-        val buff = new JVMNameBuffer()
-        buff.append(getJVMQualifiedName(arg))
-        buff.append("[]")
-        buff.toName
+        arg match {
+          case Boolean => JVMNameUtil.getJVMRawText("boolean[]")
+          case Byte => JVMNameUtil.getJVMRawText("byte[]")
+          case Char => JVMNameUtil.getJVMRawText("char[]")
+          case Double => JVMNameUtil.getJVMRawText("double[]")
+          case Float => JVMNameUtil.getJVMRawText("float[]")
+          case Int => JVMNameUtil.getJVMRawText("int[]")
+          case Long => JVMNameUtil.getJVMRawText("long[]")
+          case Short => JVMNameUtil.getJVMRawText("short[]")
+          case _ =>
+            val buff = new JVMNameBuffer()
+            buff.append(getJVMQualifiedName(arg))
+            buff.append("[]")
+            buff.toName
+        }
       case _ =>
         tp.extractClass match {
           case Some(clazz) => getClassJVMName(clazz)

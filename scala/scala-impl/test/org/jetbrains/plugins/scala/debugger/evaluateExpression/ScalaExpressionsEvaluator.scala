@@ -40,6 +40,8 @@ class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_213 {
   override def testPostfix(): Unit = failing(super.testPostfix())
 
   override def testLiteral(): Unit = failing(super.testLiteral())
+
+  override def testArrayCreation(): Unit = failing(super.testArrayCreation())
 }
 
 
@@ -374,6 +376,21 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""new Array[String](5)""", "[null,null,null,null,null]")
       evalEquals("""new Array[String](5).isInstanceOf[Array[String]]""", "true")
       evalEquals("""new Array[String](5).isInstanceOf[Array[AnyRef]]""", "true")
+      evalEquals("""Array(1, 2, 3)""", "[1,2,3]")
+      evalEquals("""Array(1, 2, 3).isInstanceOf[Array[Int]]""", "true")
+      evalEquals("""Array(1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
+      evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[Int]]""", "false")
+      evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "true")
+      evalEquals("""Array(1.0, 2.0, 3.0)""", "[1.0,2.0,3.0]")
+      evalEquals("""Array(1.0, 2.0, 3.0).isInstanceOf[Array[Double]]""", "true")
+      evalEquals("""Array(1.0, 2.0, 3.0).isInstanceOf[Array[java.lang.Double]]""", "false")
+      evalEquals("""Array[java.lang.Double](1.0, 2.0, 3.0).isInstanceOf[Array[Double]]""", "false")
+      evalEquals("""Array[java.lang.Double](1.0, 2.0, 3.0).isInstanceOf[Array[java.lang.Double]]""", "true")
+      evalEquals("""Array(true, false)""", "[true,false]")
+      evalEquals("""Array(true, false).isInstanceOf[Array[Boolean]]""", "true")
+      evalEquals("""Array(true, false).isInstanceOf[Array[java.lang.Boolean]]""", "false")
+      evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[Boolean]]""", "false")
+      evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[java.lang.Boolean]]""", "true")
     }
 
   addFileWithBreakpoints("SyntheticOperators.scala",
