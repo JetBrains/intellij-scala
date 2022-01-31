@@ -179,7 +179,7 @@ class OutputFileObject(file: File, val origName: String) {
   def toByteArray: Array[Byte] = FileUtil.loadFileBytes(file)
 }
 
-private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
+private[evaluator] case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement, generatedClassName: String) {
 
   private val module: Module = inReadAction {
     val originalFile = syntheticFile.getUserData(ScalaCompilingEvaluator.originalFileKey)
@@ -203,7 +203,7 @@ private case class GeneratedClass(syntheticFile: PsiFile, newContext: PsiElement
   }
 }
 
-private object GeneratedClass {
+private[evaluator] object GeneratedClass {
   var counter = 0
   val generatedMethodName: String = "invoke"
 
@@ -315,14 +315,13 @@ private object GeneratedClass {
   private def localClassText(fragment: ScalaCodeFragment, generatedClassName: String, baseIndent: Int = 0): String = {
     val fragmentImports = fragment.importsToString().split(",").filter(_.nonEmpty).map("import _root_." + _)
     val importsText = fragmentImports.mkString("\n")
+    val bodyText = Seq(importsText, fragment.getText).filterNot(_.isEmpty).mkString("\n")
 
     //todo type parameters?
     val generatedClassText =
       s"""|class $generatedClassName {
           |  def $generatedMethodName() = {
-          |    ${indentLineBreaks(importsText, 4)}
-          |
-          |    ${indentLineBreaks(fragment.getText, 4)}
+          |    ${indentLineBreaks(bodyText, 4)}
           |  }
           |}""".stripMargin
 

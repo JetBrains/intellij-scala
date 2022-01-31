@@ -1,0 +1,26 @@
+object InForStmt:
+  def main(args: Array[String]): Unit =
+    for
+      x <- Seq(1, 2)
+      if x == 2
+    do <breakpoint>println()
+------------
+mutable.HashSet(x, 2).map(z => z * z).mkString(", ")
+------------
+scala.collection.mutable
+------------
+object InForStmt:
+  def main(args: Array[String]): Unit =
+    for
+      x <- Seq(1, 2)
+      if x == 2
+    do {
+      class <generated_class> {
+        def invoke() = {
+          import _root_.scala.collection.mutable
+          mutable.HashSet(x, 2).map(z => z * z).mkString(", ")
+        }
+      }
+      new <generated_class>()
+      println()
+    }
