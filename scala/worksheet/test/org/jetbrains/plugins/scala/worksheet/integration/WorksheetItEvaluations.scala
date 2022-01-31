@@ -2,7 +2,9 @@ package org.jetbrains.plugins.scala.worksheet.integration
 
 import com.intellij.openapi.editor.Editor
 import com.intellij.testFramework.PlatformTestUtil
+import com.intellij.ui.content.MessageView
 import com.intellij.util.ui.UIUtil
+
 import javax.swing.SwingUtilities
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
@@ -26,8 +28,14 @@ trait WorksheetItEvaluations {
     TestRunResult(worksheetEditor, waitForEvaluationEnd(future))
   }
 
-  protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] =
+  protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] = {
+    //HACK: force service to initialize, otherwise NPE can occur in WorksheetCompilerUtil.removeOldMessageContent
+    //because `MessageView.SERVICE.getInstance` uses invokeLater under the hood and toolwindow is not initialized
+    MessageView.SERVICE.getInstance(getProject)
+    UIUtil.dispatchAllInvocationEvents()
+
     RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)
+  }
 
   protected def waitForEvaluationEnd(future: Future[RunWorksheetAction.RunWorksheetActionResult]): RunWorksheetAction.RunWorksheetActionResult = {
     val result = awaitWithoutUiStarving(future, evaluationTimeout)
