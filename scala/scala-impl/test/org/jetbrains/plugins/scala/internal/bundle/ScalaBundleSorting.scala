@@ -45,7 +45,7 @@ object ScalaBundleSorting {
     ),
     ModuleInfo(
       rootPath = scalaModDir + "compiler-shared/",
-      bundleMessagesRelativePath = "ScalaJpsSharedBundle.properties",
+      bundleMessagesRelativePath = "ScalaCompileServerSharedBundle.properties",
     ),
     ModuleInfo(
       rootPath = scalaModDir + "macros/",
