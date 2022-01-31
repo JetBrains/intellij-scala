@@ -14,7 +14,7 @@ import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
 import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleNode}
@@ -506,12 +506,12 @@ private[importing] object BspResolverLogic {
     }
 
   private val jarSuffix = ".jar"
-  private val sourcesSuffix = "-sources"
+  private val sourcesSuffixes = Seq("-sources", "-src")
   private val javadocSuffix = "-javadoc"
   private def stripSuffixes(path: String) =
     path
       .stripSuffix(jarSuffix)
-      .stripSuffix(sourcesSuffix)
+      .stripSuffixes(sourcesSuffixes)
       .stripSuffix(javadocSuffix)
   private def libraryPrefix(path: File) =
     if (path.getName.endsWith(jarSuffix))
@@ -563,7 +563,7 @@ private[importing] object BspResolverLogic {
         }
         .flatMap { case (pathPrefix, (name, jars)) =>
           val binary = jars.find(_.getCanonicalPath.endsWith(pathPrefix + jarSuffix))
-          val source = jars.find(_.getName.contains(sourcesSuffix))
+          val source = jars.find(j => sourcesSuffixes.exists(j.getName.contains))
           val doc = jars.find(_.getName.contains(javadocSuffix))
           binary.map { bin =>
             val data = new LibraryData(BSP.ProjectSystemId, name)
