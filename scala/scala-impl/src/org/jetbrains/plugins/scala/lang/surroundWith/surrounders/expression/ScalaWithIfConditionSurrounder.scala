@@ -21,14 +21,13 @@ object ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription: String = "if (expr) {...}"
 
-  override def isApplicable(elements: Array[PsiElement]): Boolean = {
-    if (elements.length != 1) return false
-    elements(0) match {
-      case x: ScExpression if x.getTypeIgnoreBaseType.getOrAny
-        .conforms(api.Boolean(x.projectContext)) => true
-      case _ => false
-    }
+  override def isApplicable(element: PsiElement): Boolean = element match {
+    case expr: ScExpression => expr.getTypeIgnoreBaseType.getOrAny.conforms(api.Boolean(expr.projectContext))
+    case _ => false
   }
+
+  override def isApplicable(elements: Array[PsiElement]): Boolean =
+    elements.length == 1 && isApplicable(elements.head)
 
   override def getSurroundSelectionRange(withIfNode: ASTNode): TextRange = {
     val element: PsiElement = withIfNode.getPsi match {
