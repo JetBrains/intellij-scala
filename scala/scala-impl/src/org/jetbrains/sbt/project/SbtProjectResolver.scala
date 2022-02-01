@@ -765,10 +765,15 @@ object SbtProjectResolver {
   // TODO shared code, move to a more suitable object
   val sinceSbtVersionShell: Version = Version("0.13.5")
 
-  private case class OrganizationArtifactName(organization: String, artifactName: String)
-  private object OrganizationArtifactName {
-    def from(id: ModuleIdentifier): OrganizationArtifactName =
-      OrganizationArtifactName(id.organization, id.name)
+  private case class LibraryIdentifierWithoutRevision(
+    organization: String,
+    name: String,
+    artifactType: String,
+    classifier: String
+  )
+  private object LibraryIdentifierWithoutRevision {
+    def from(id: ModuleIdentifier): LibraryIdentifierWithoutRevision =
+      LibraryIdentifierWithoutRevision(id.organization, id.name, id.artifactType, id.classifier)
   }
 
   /**
@@ -797,15 +802,15 @@ object SbtProjectResolver {
    */
   @TestOnly
   def resolveLibraryDependencyConflicts(dependencies: Seq[sbtStructure.ModuleDependencyData]): Seq[sbtStructure.ModuleDependencyData] = {
-    val libToConflictingDeps: Map[OrganizationArtifactName, Seq[ModuleDependencyData]] =
-      dependencies.groupBy(d => OrganizationArtifactName.from(d.id)).filter(_._2.size > 1)
+    val libToConflictingDeps: Map[LibraryIdentifierWithoutRevision, Seq[ModuleDependencyData]] =
+      dependencies.groupBy(d => LibraryIdentifierWithoutRevision.from(d.id)).filter(_._2.size > 1)
 
-    val libToBestDependencyData: MapView[OrganizationArtifactName, ModuleDependencyData] =
+    val libToBestDependencyData: MapView[LibraryIdentifierWithoutRevision, ModuleDependencyData] =
       libToConflictingDeps.view.mapValues(calculateBestDependency)
 
-    val alreadyResolvedConflicts = mutable.Set.empty[OrganizationArtifactName]
+    val alreadyResolvedConflicts = mutable.Set.empty[LibraryIdentifierWithoutRevision]
     dependencies.flatMap { dep =>
-      val ortArtName = OrganizationArtifactName.from(dep.id)
+      val ortArtName = LibraryIdentifierWithoutRevision.from(dep.id)
       libToBestDependencyData.get(ortArtName) match {
         case None => Some(dep)
         case Some(value) =>
