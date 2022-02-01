@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang
 package completion
 package postfix
 
-import java.io.File
-
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplate
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -16,12 +14,21 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
+import org.junit.runner.RunWith
+
+import java.io.File
 
 /**
   * @author Roman.Shein
   * @since 14.09.2015.
   */
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_3_Latest
+))
 abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import PostfixTemplateTest._
