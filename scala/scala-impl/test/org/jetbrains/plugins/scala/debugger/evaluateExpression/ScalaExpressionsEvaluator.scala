@@ -84,6 +84,16 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("if (true) \"text\" else \"next\"", "text")
       evalEquals("if (false) \"text\" else \"next\"", "next")
       evalEquals("\"text\" != null", "true")
+      evalStartsWith("new Object()", "java.lang.Object@")
+      evalStartsWith("new AnyRef()", "java.lang.Object@")
+      evalStartsWith("new Any()", "class 'Any' is abstract; cannot be instantiated")
+      evalStartsWith("new AnyVal()", "class 'AnyVal' is abstract; cannot be instantiated")
+      evalStartsWith("new Unit()", "class 'Unit' is abstract; cannot be instantiated")
+      evalStartsWith("new Null()", "class 'Null' is abstract; cannot be instantiated")
+      evalStartsWith("new Nothing()", "class 'Nothing' is abstract; cannot be instantiated")
+      evalStartsWith("new Singleton()", "trait 'Singleton' is abstract; cannot be instantiated")
+      evalEquals("""new String("abc")""", "abc")
+      evalEquals("new StringBuilder().## * 0", "0")
     }
   }
 

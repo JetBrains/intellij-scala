@@ -14,7 +14,6 @@ import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.{InsideAsync, isCompiledWithIndyLambdas}
 import org.jetbrains.plugins.scala.debugger.TopLevelMembers.{hasTopLevelMembers, topLevelMemberClassName}
@@ -1006,6 +1005,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
                 val exprText = s"_root_.scala.Array.ofDim$typeArgs$args"
                 val expr = createExpressionWithContextFromText(exprText, templ.getContext, templ)
                 evaluatorFor(expr)
+              case Some(clazz) if isScalaSynthetic(clazz) =>
+                // Synthetic classes cannot be instantiated with `new`, unless the class is `scala.AnyRef`.
+                if (clazz.qualifiedName == "scala.AnyRef") {
+                  val exprText = "new _root_.java.lang.Object()"
+                  val expr = createExpressionWithContextFromText(exprText, templ.getContext, templ)
+                  evaluatorFor(expr)
+                } else {
+                  val modifier = if (clazz.qualifiedName == "scala.Singleton") "trait" else "class"
+                  throw EvaluationException(
+                    ScalaBundle.message("new.synthetic.instantiation", modifier, clazz.name))
+                }
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new ScalaTypeEvaluator(jvmName)
@@ -1426,6 +1436,12 @@ object ScalaEvaluatorBuilderUtil {
   private val BOXED_UNIT = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit"))
   private val SCALA_RUN_TIME = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.ScalaRunTime"))
   private val SCALA_RUNTIME_STATICS = new TypeEvaluator(JVMNameUtil.getJVMRawText("scala.runtime.Statics"))
+
+  private val ScalaSyntheticClasses: Set[String] =
+    Set("scala.Any", "scala.AnyRef", "scala.AnyVal", "scala.Null", "scala.Nothing", "scala.Unit", "scala.Singleton")
+  def isScalaSynthetic(psiClass: PsiClass): Boolean =
+    ScalaSyntheticClasses(psiClass.qualifiedName)
+
   def boxEvaluator(eval: Evaluator): Evaluator = new ScalaBoxingEvaluator(eval)
   def boxed(evaluators: Evaluator*): Seq[Evaluator] = evaluators.map(boxEvaluator)
   def unboxEvaluator(eval: Evaluator): Evaluator = new UnBoxingEvaluator(eval)
