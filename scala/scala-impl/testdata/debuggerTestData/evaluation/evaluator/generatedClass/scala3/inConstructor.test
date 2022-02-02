@@ -1,0 +1,32 @@
+object InConstructor extends App:
+  new Sample().foo()
+
+  class Sample:
+    val a = "a"
+    val b = <breakpoint>"b"
+
+    def foo() = "foo"
+  end Sample
+end InConstructor
+------------
+foo().map(_.toUpper)
+------------
+------------
+object InConstructor extends App:
+  new Sample().foo()
+
+  class Sample:
+    val a = "a"
+    val b = {
+      class <generated_class> {
+        def invoke() = {
+          foo().map(_.toUpper)
+        }
+      }
+      new <generated_class>()
+      "b"
+    }
+
+    def foo() = "foo"
+  end Sample
+end InConstructor

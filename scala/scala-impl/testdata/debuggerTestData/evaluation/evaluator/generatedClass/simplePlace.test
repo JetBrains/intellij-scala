@@ -1,0 +1,46 @@
+object SimplePlace {
+  val f = "f"
+
+  def foo(i: Int): Unit = {
+    val x = 1
+    <breakpoint>println()
+  }
+
+  def main(args: Array[String]): Unit = {
+    foo(3)
+  }
+}
+------------
+final case class AAA(seq: Seq[Int])
+def bar(aaa: AAA) = Option(aaa.seq) match {
+  case None => 1
+  case Some(Seq(2)) => 2
+  case Some(Seq(_)) => 0
+}
+bar(AAA(Seq(x)))
+------------
+------------
+object SimplePlace {
+  val f = "f"
+
+  def foo(i: Int): Unit = {
+    val x = 1
+    class <generated_class> {
+      def invoke() = {
+        final case class AAA(seq: Seq[Int])
+        def bar(aaa: AAA) = Option(aaa.seq) match {
+          case None => 1
+          case Some(Seq(2)) => 2
+          case Some(Seq(_)) => 0
+        }
+        bar(AAA(Seq(x)))
+      }
+    }
+    new <generated_class>()
+    println()
+  }
+
+  def main(args: Array[String]): Unit = {
+    foo(3)
+  }
+}

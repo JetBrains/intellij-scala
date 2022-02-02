@@ -1,0 +1,44 @@
+object InLambda {
+  def main(args: Array[String]): Unit = {
+    val list: List[Int] = List(1, 2, 3)
+    list.map {x => <breakpoint>println(x)}.toList
+    System.out.println()
+  }
+}
+
+object O {
+  case class C(i: Int)
+}
+------------
+val c = C(2)
+val list: java.util.List[Int] = List(c.i).asJava
+list.isEmpty
+------------
+O.C
+java.util
+scala.collection.JavaConverters._
+------------
+object InLambda {
+  def main(args: Array[String]): Unit = {
+    val list: List[Int] = List(1, 2, 3)
+    list.map {x => {
+      class <generated_class> {
+        def invoke() = {
+          import _root_.java.util
+          import _root_.O.C
+          import _root_.scala.collection.JavaConverters._
+          val c = C(2)
+          val list: java.util.List[Int] = List(c.i).asJava
+          list.isEmpty
+        }
+      }
+      new <generated_class>()
+      println(x)
+    }}.toList
+    System.out.println()
+  }
+}
+
+object O {
+  case class C(i: Int)
+}
