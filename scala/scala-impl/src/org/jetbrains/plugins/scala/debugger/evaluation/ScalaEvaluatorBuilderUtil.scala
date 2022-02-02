@@ -281,14 +281,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       unaryEval("isInstanceOf", eval => {
         val tp = ref.getParent match {
           case gen: ScGenericCall =>
-          gen.typeArgs.typeArgs match {
-            case Seq(arg) => arg.calcType
-            case _ => Nothing
-          }
-          case _ => Nothing
+            gen.typeArgs.typeArgs match {
+              case Seq(arg) => Some(arg.calcType)
+              case _ => None
+            }
+          case _ => None
         }
-        val jvmName: JVMName = DebuggerUtil.getJVMQualifiedName(tp)
-        new ScalaInstanceofEvaluator(eval, new TypeEvaluator(jvmName))
+
+        new ScalaInstanceofEvaluator(eval, tp)
       })
     }
 
