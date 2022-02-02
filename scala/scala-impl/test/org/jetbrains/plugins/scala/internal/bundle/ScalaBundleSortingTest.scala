@@ -47,6 +47,6 @@ abstract class ScalaBundleSortingTestBase extends TestCase with AssertionMatcher
     assert(unusedEntries.isEmpty, "Unused bundle keys: " + unusedEntries.map(_.key).mkString(", "))
 
     val notInPathUsed = usedEntries.filterNot(e => keyToFinding(e.key).exists(_.relativeFilepath == e.path))
-    assert(notInPathUsed.isEmpty, "Not used in it's path: " + notInPathUsed.map(_.key).mkString(", "))
+    assert(notInPathUsed.isEmpty, "Not used in its path: " + notInPathUsed.map(_.key).mkString(", "))
   }
 }
