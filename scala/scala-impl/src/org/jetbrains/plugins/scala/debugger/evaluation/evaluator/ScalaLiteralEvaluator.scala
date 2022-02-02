@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
  * User: Alefas
  * Date: 19.10.11
  */
-final class ScalaLiteralEvaluator private(value: AnyRef,
+final class ScalaLiteralEvaluator private[evaluator] (value: AnyRef,
                                           `type`: ScType)
   extends expression.Evaluator {
 

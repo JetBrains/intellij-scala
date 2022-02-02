@@ -9,7 +9,7 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 import scala.jdk.CollectionConverters._
 
@@ -57,10 +57,37 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
       }
     }
 
+    object Literal {
+      def unapply(tpe: ScType): Option[Value] = tpe match {
+        case lt: ScLiteralType =>
+          val lv = lt.value.value.asInstanceOf[AnyRef]
+          val wt = ApplicationManager.getApplication.runReadAction(new Computable[ScType] {
+            override def compute(): ScType = lt.wideType
+          })
+          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context).asInstanceOf[Value])
+        case _ => None
+      }
+    }
+
+    def evaluateEqualsOnPrimitiveValues(x: PrimitiveValue, y: PrimitiveValue): Boolean =
+      (x, y) match {
+        case (x: BooleanValue, y: BooleanValue) => x.value() == y.value()
+        case (x: ByteValue, y: ByteValue) => x.value() == y.value()
+        case (x: CharValue, y: CharValue) => x.value() == y.value()
+        case (x: DoubleValue, y: DoubleValue) => x.value() == y.value()
+        case (x: FloatValue, y: FloatValue) => x.value() == y.value()
+        case (x: IntegerValue, y: IntegerValue) => x.value() == y.value()
+        case (x: LongValue, y: LongValue) => x.value() == y.value()
+        case (x: ShortValue, y: ShortValue) => x.value() == y.value()
+        case _ => false
+      }
+
     val value = operandEvaluator.evaluate(context).asInstanceOf[Value]
+    val dealiased = optTpe.map(_.removeAliasDefinitions())
+    
     value match {
       case pv: PrimitiveValue =>
-        optTpe match {
+        dealiased match {
           case None =>
             // case: 123.isInstanceOf
             // scalac compiler error "isInstanceOf cannot test if value types are references"
@@ -70,7 +97,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
             val stdTypes = tpe.projectContext.stdTypes
             import stdTypes._
 
-            tpe match {
+            tpe.removeAliasDefinitions() match {
               case AnyVal | Null | Nothing =>
                 // case: 123.isInstanceOf[AnyVal]
                 // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"
@@ -82,6 +109,17 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
                 val result = cls.isAssignableFrom(primCls)
                 booleanValue(result)
 
+              case Literal(literal) =>
+                literal match {
+                  case prim: PrimitiveValue =>
+                    // case: 123.isInstanceOf[123]
+                    booleanValue(evaluateEqualsOnPrimitiveValues(pv, prim))
+                  case _: ObjectReference =>
+                    // case: 123.isInstanceOf["123"]
+                    // scalac compiler error "isInstanceOf cannot test if value types are references"
+                    throwCannotTestReferenceException()
+                }
+
               case _ =>
                 // case: 123.isInstanceOf[String]
                 // scalac compiler error "isInstanceOf cannot test if value types are references"
@@ -90,27 +128,46 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
         }
 
       case ref: ObjectReference =>
-        optTpe match {
+        dealiased match {
           case None =>
-            // case: "123".isInstanceOf
+            // case: "abc".isInstanceOf
             booleanValue(false)
 
           case Some(tpe) =>
             val stdTypes = tpe.projectContext.stdTypes
             import stdTypes._
 
-            tpe match {
+            tpe.removeAliasDefinitions() match {
               case AnyVal | Null | Nothing =>
-                // case: "123".isInstanceOf[AnyVal]
+                // case: "abc".isInstanceOf[AnyVal]
                 // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"
                 throwTypeCannotBeUsedInIsInstanceOfException(tpe)
 
               case Primitive(_) =>
-                // case: "123".isInstanceOf[Int]
+                // case: "abc".isInstanceOf[Int]
                 booleanValue(false)
 
+              case Literal(literal) =>
+                val result = literal match {
+                  case _: PrimitiveValue =>
+                    // case: "abc".isInstanceOf[123]
+                    false
+                  case _: ObjectReference =>
+                    // case: "abc".isInstanceOf["abc"]
+                    try {
+                      val classType = ref.referenceType().asInstanceOf[ClassType]
+                      val method = classType.concreteMethodByName("equals", "(Ljava/lang/Object;)Z")
+                      val args = List(literal)
+                      context.getDebugProcess.invokeMethod(context, ref, method, args.asJava).asInstanceOf[BooleanValue].value()
+                    } catch {
+                      case e: Exception =>
+                        throw EvaluationException(e)
+                    }
+                }
+                booleanValue(result)
+
               case _ =>
-                // case: "123".isInstanceOf[String]
+                // case: "abc".isInstanceOf[String]
                 try {
                   // This call crashes unless wrapped in `runReadAction`
                   val name = ApplicationManager.getApplication.runReadAction(new Computable[JVMName] {
@@ -131,7 +188,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
         }
 
       case null =>
-        optTpe match {
+        dealiased match {
           case None =>
             // case: null.isInstanceOf
             booleanValue(false)
@@ -140,7 +197,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
             val stdTypes = tpe.projectContext.stdTypes
             import stdTypes._
 
-            tpe match {
+            tpe.removeAliasDefinitions() match {
               case AnyVal | Null | Nothing =>
                 // case: null.isInstanceOf[AnyVal]
                 // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"

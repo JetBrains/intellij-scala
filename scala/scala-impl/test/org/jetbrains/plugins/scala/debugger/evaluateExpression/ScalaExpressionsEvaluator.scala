@@ -29,6 +29,31 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
       evalEquals("'aaa.name", "aaa")
     }
   }
+
+  addFileWithBreakpoints("IsInstanceOfWithLiteralTypes.scala",
+    s"""
+       |object IsInstanceOfWithLiteralTypes {
+       |  type LiteralAlias = 123
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testIsInstanceOfWithLiteralTypes(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("123.isInstanceOf[123]", "true")
+      evalEquals("123.isInstanceOf[234]", "false")
+      evalEquals("123.0.isInstanceOf[123.0f]", "false")
+      evalEquals("'c'.isInstanceOf['c']", "true")
+      evalStartsWith("""123.isInstanceOf["123"]""", "isInstanceOf cannot test if value types are references")
+      evalEquals("123.isInstanceOf[LiteralAlias]", "true")
+      evalEquals(""""123".isInstanceOf["234"]""", "false")
+      evalEquals(""""123".isInstanceOf[123]""", "false")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -341,6 +366,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |
        |  class Value(val v: Int) extends AnyVal
        |
+       |  type Alias = String
+       |
        |  def main(args: Array[String]): Unit = {
        |    val x = new A
        |    val y = new B
@@ -388,6 +415,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("new Value(123).isInstanceOf[Int]", "false")
       evalEquals(""""123".isInstanceOf""", "false")
       evalStartsWith("123.isInstanceOf", "isInstanceOf cannot test if value types are references")
+      evalEquals(""""123".isInstanceOf[Alias]""", "true")
     }
   }
 
