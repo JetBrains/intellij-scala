@@ -99,7 +99,7 @@ object DebuggerUtil {
       case Nothing => JVMNameUtil.getJVMRawText("scala.Nothing") //shouldn't be
       case Singleton => JVMNameUtil.getJVMRawText("java.lang.Object")
       case AnyVal => JVMNameUtil.getJVMRawText("scala.AnyVal") //shouldn't be
-      case Unit => JVMNameUtil.getJVMRawText("java.lang.Void")
+      case Unit => JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit")
       case Boolean => JVMNameUtil.getJVMRawText("java.lang.Boolean")
       case Char => JVMNameUtil.getJVMRawText("java.lang.Character")
       case Int => JVMNameUtil.getJVMRawText("java.lang.Integer")
