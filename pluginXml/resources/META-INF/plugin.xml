@@ -34,6 +34,7 @@
       ]]>
     </description>
     <version>VERSION</version>
+    <change-notes><!-- CHANGE_NOTES --></change-notes>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
     <idea-version since-build="221.4501" until-build="222.*"/>
     <depends>com.intellij.modules.java</depends>
