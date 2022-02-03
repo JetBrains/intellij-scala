@@ -33,6 +33,7 @@
         Support for Play Framework, Akka and Scala.js is enabled in IntelliJ IDEA Ultimate.
       ]]>
     </description>
+    <change-notes>CHANGE_NOTES</change-notes>
     <version>VERSION</version>
     <vendor url="https://www.jetbrains.com">JetBrains</vendor>
     <idea-version since-build="221.4501" until-build="222.*"/>
