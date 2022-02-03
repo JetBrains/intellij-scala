@@ -70,7 +70,7 @@ class TermSignature(
 
   def javaErasedEquiv(other: TermSignature): Boolean = {
     (this, other) match {
-      case (ps1: PhysicalMethodSignature, ps2: PhysicalMethodSignature) if ps1.isJava && ps2.isJava =>
+      case (ps1: PhysicalMethodSignature, ps2: PhysicalMethodSignature) if !(ps1.isScala || ps2.isScala) =>
         implicit val elementScope: ElementScope = ps1.method.elementScope
         val psiSub1 = ScalaPsiUtil.getPsiSubstitutor(ps1.substitutor)
         val psiSub2 = ScalaPsiUtil.getPsiSubstitutor(ps2.substitutor)
@@ -115,10 +115,10 @@ class TermSignature(
         val tp2 = unified(t2())
         var t   = tp2.equiv(tp1, lastConstraints, falseUndef)
 
-        if (t.isLeft && tp1.equiv(api.AnyRef) && this.isJava) {
+        if (t.isLeft && tp1.equiv(api.AnyRef) && !this.isScala) {
           t = tp2.equiv(Any, lastConstraints, falseUndef)
         }
-        if (t.isLeft && tp2.equiv(api.AnyRef) && other.isJava) {
+        if (t.isLeft && tp2.equiv(api.AnyRef) && !other.isScala) {
           t = Any.equiv(tp1, lastConstraints, falseUndef)
         }
         if (t.isLeft) {
@@ -164,7 +164,8 @@ class TermSignature(
     */
   override def equivHashCode: Int = name #+ parameterSizeHash
 
-  def isJava: Boolean = false
+  /** can be Java, Kotlin or other JVM lang (see SCL-19926) */
+  def isScala: Boolean = false
 
   def parameterlessKind: Int = {
     if (paramLength > 0) HasParameters
@@ -363,6 +364,6 @@ final class PhysicalMethodSignature(
   method,
   PhysicalMethodSignature.hasRepeatedParam(method)
 ) {
-  override def isJava: Boolean            = method.getLanguage == JavaLanguage.INSTANCE
+  override def isScala: Boolean = method.getLanguage.isKindOf(ScalaLanguage.INSTANCE)
   override def isExtensionMethod: Boolean = extensionTypeParameters.nonEmpty
 }
