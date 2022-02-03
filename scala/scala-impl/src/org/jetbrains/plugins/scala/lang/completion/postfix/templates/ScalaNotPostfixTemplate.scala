@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.Sc
  * @author Roman.Shein
  * @since 11.09.2015.
  */
-final class ScalaNotPostfixTemplate(alias: String = "not") extends NotPostfixTemplate(
+final class ScalaNotPostfixTemplate(alias: String = "not", needsDotInKey: Boolean = true) extends NotPostfixTemplate(
   alias,
-  "." + alias,
+  if (needsDotInKey) "." + alias else alias,
   "!expr",
   ScalaPostfixTemplatePsiInfo,
   SelectAllAncestors(BooleanExpression)
