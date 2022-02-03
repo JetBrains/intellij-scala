@@ -389,7 +389,7 @@ trait IntroduceTypeAlias {
 
     val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, mainScope, this, editor)
 
-    this.showDialogImpl(dialog, occurrences).foreach { dialog =>
+    this.runWithDialogImpl(dialog, occurrences) { dialog =>
       val occurrences = OccurrenceData(typeElement,
         dialog.isReplaceAllOccurrences,
         dialog.isReplaceOccurrenceIncompanionObject,

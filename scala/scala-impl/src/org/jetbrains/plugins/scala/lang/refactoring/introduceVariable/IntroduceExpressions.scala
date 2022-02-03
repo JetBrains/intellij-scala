@@ -145,7 +145,7 @@ trait IntroduceExpressions {
     val reporter = new ValidationReporter(project, this, validator)
     val dialog = new ScalaIntroduceVariableDialog(project, types, occurrences_.length, reporter, names.toArray, expression)
 
-    this.showDialogImpl(dialog, occurrences_).foreach { dialog =>
+    this.runWithDialogImpl(dialog, occurrences_) { dialog =>
       runRefactoring(occurrences, suggestedNames.expression,
         varName = dialog.getEnteredName,
         varType = dialog.getSelectedType,

@@ -81,26 +81,26 @@ class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with D
     }
   }
 
-  protected def showDialogImpl[D <: DialogWrapper](dialog: D,
-                                                   occurrences: Seq[TextRange])
-                                                  (implicit project: Project, editor: Editor): Option[D] = {
+  protected def runWithDialogImpl[D <: DialogWrapper](dialog: D, occurrences: Seq[TextRange])
+                                                     (action: D => Unit)
+                                                     (implicit project: Project, editor: Editor): Unit = {
     val multipleOccurrences = occurrences.length > 1
     if (multipleOccurrences) {
       occurrenceHighlighters = highlightOccurrences(project, occurrences, editor)
     }
 
-    dialog.show()
-    if (dialog.isOK) Some(dialog) else {
-      if (multipleOccurrences) {
-        WindowManager.getInstance
-          .getStatusBar(project)
-          .setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+    invokeLater {
+      dialog.show()
+      if (dialog.isOK) action(dialog) else {
+        if (multipleOccurrences) {
+          WindowManager.getInstance
+            .getStatusBar(project)
+            .setInfo(ScalaBundle.message("press.escape.to.remove.the.highlighting"))
+        }
+
+        occurrenceHighlighters.foreach(_.dispose())
+        occurrenceHighlighters = Seq.empty
       }
-
-      occurrenceHighlighters.foreach(_.dispose())
-      occurrenceHighlighters = Seq.empty
-
-      None
     }
   }
 }
