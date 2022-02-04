@@ -353,7 +353,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(q) => evaluatorFor(q)
       case None => throw EvaluationException(ScalaBundle.message("array.instance.is.not.found", name))
     }
-    val message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
+    def message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
     name match {
       case "apply" =>
         if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
@@ -367,7 +367,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "update" =>
         if (argEvaluators.length == 2) {
           val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
-          new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
+          new AssignmentEvaluator(leftEval, argEvaluators(1))
         } else throw EvaluationException(message)
       case "toString" =>
         if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "toString", null /*todo*/ , Nil)
@@ -585,7 +585,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def argumentEvaluators(fun: ScMethodLike, matchedParameters: Map[Parameter, Seq[ScExpression]],
-                         call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Seq[Evaluator] = {
+                         call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression], isArrayFunction: Boolean = false): Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
     val parameters = clauses.flatMap(_.effectiveParameters).map(Parameter(_))
@@ -604,7 +604,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head)
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head, isArrayFunction)
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p)
@@ -617,7 +617,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", p.name))
 
-          if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
+          if (!isOfPrimitiveType(param) && !isArrayFunction) boxEvaluator(evaluator)
           else evaluator
       }
     }
@@ -685,7 +685,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case synth: ScSyntheticFunction =>
         syntheticFunctionEvaluator(synth, qualOption, ref, arguments) //todo: use matched parameters
       case fun: ScFunction if isArrayFunction(fun) =>
-        val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
+        val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments, isArrayFunction = true)
         arrayMethodEvaluator(fun.name,  qualOption, args)
       case fun: ScFunction =>
         ref match {
@@ -1253,7 +1253,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
     withNewSyntheticVariablesHolder {
-      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(evaluatorFor)
+      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(e => evaluatorFor(e))
       new ScalaBlockExpressionEvaluator(evaluators)
     }
   }
@@ -1319,7 +1319,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {
+  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator, isArrayFunction: Boolean): Evaluator = {
 
     //boxing and unboxing actions
     def unbox(typeTo: String) = unaryEvaluator(unboxEvaluator(evaluator), typeTo)
@@ -1350,6 +1350,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     expr.smartExpectedType() match {
       case Some(valType: ValType)         => unboxTo(valType)
+      case Some(ValueClassType.Param(_)) if isArrayFunction =>
+        // Array of value types, they need to remain boxed.
+        evaluator
       case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
       case Some(_) =>
         // Here, value types are used as other types, so they have to be boxed.
