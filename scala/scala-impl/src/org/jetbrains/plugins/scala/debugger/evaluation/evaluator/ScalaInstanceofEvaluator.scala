@@ -59,7 +59,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
         case lt: ScLiteralType =>
           val lv = lt.value.value.asInstanceOf[AnyRef]
           val wt = inReadAction(lt.wideType)
-          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context).asInstanceOf[Value])
+          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context))
         case _ => None
       }
     }
