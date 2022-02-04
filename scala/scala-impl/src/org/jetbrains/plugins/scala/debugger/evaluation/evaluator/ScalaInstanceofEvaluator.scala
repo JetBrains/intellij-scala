@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
