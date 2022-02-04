@@ -5,6 +5,8 @@ package unusedInspections
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.{GlobalSearchScope, PsiSearchHelper}
+import com.intellij.util.Processor
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
@@ -16,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
@@ -34,7 +36,19 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       var used = false
 
       val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
-        used |= refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
+        used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
+      }
+
+      if (!used) {
+        val helper = PsiSearchHelper.getInstance(element.getProject)
+        val scope = GlobalSearchScope.allScope(element.getProject)
+        val processor: Processor[_ >: PsiFile] = file => {
+          if (!file.name.endsWith(".scala") || file == element.getContainingFile) true else {
+            used = true
+            false // We've established the element is used, so we can stop processing
+          }
+        }
+        helper.processAllFilesWithWord(element.getName, scope, processor, true)
       }
 
       !success || used //want to return true if it was a failure
@@ -46,19 +60,23 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
+      case scClass: ScClass => Seq(scClass)
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case fun: ScMethodLike =>
         val funIsPublic = !fun.containingClass.toOption.exists(isOnlyVisibleInLocalFile)
+
         def nonPrivateClassMemberParam(param: ScParameter): Boolean =
           funIsPublic && param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
+
         def overridingParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(isOverridingOrOverridden)
+
         def caseClassParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(_.isCaseClassVal)
-        isOnlyVisibleInLocalFile(fun).option(fun) ++:
-          fun.parameters
+
+        fun +: fun.parameters
           .filterNot(_.isWildcard)
-          .filter(_.isPhysical)   // context bound are desugared into parameters, for example
+          .filter(_.isPhysical) // context bound are desugared into parameters, for example
           .filterNot(_.isImplicitParameter)
           .filterNot(caseClassParam)
           .filterNot(nonPrivateClassMemberParam)
@@ -81,12 +99,10 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
     case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
-    case _: ScFunctionDeclaration => false
     case p: ScModifierListOwner if hasOverrideModifier(p) => false
     case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
     case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
-    case _: ScMethodLike => true // handle in invoke
-    case _ => isOnlyVisibleInLocalFile(elem)
+    case _ => true
   }
 }
 
