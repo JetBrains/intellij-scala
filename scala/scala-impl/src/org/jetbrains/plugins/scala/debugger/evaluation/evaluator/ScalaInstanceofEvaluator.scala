@@ -6,7 +6,7 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvalua
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Computable
 import com.sun.jdi._
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
@@ -61,9 +61,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
       def unapply(tpe: ScType): Option[Value] = tpe match {
         case lt: ScLiteralType =>
           val lv = lt.value.value.asInstanceOf[AnyRef]
-          val wt = ApplicationManager.getApplication.runReadAction(new Computable[ScType] {
-            override def compute(): ScType = lt.wideType
-          })
+          val wt = inReadAction(lt.wideType)
           Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context).asInstanceOf[Value])
         case _ => None
       }
@@ -169,10 +167,7 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
               case _ =>
                 // case: "abc".isInstanceOf[String]
                 try {
-                  // This call crashes unless wrapped in `runReadAction`
-                  val name = ApplicationManager.getApplication.runReadAction(new Computable[JVMName] {
-                    override def compute(): JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
-                  })
+                  val name = inReadAction(DebuggerUtil.getJVMQualifiedName(tpe))
                   val typeEvaluator = new TypeEvaluator(name)
                   val refType = typeEvaluator.evaluate(context)
                   val classObject = refType.classObject()
