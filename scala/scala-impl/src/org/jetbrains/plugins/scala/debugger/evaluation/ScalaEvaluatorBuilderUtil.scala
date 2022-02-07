@@ -277,14 +277,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       binaryEval(name, (l, r) => ScalaMethodEvaluator(BOXES_RUN_TIME, "equals", rawText, boxed(l, r)))
     }
     def isInstanceOfEval: Evaluator = {
+      def missingTypeArgument() =
+        throw EvaluationException(ScalaBundle.message("missing.type.argument.isinstanceof"))
+
       unaryEval("isInstanceOf", eval => {
         val tp = ref.getParent match {
           case gen: ScGenericCall =>
             gen.typeArgs.typeArgs match {
-              case Seq(arg) => Some(arg.calcType)
-              case _ => None
+              case Seq(arg) => arg.calcType
+              case _ => missingTypeArgument()
             }
-          case _ => None
+          case _ => missingTypeArgument()
         }
 
         new ScalaInstanceofEvaluator(eval, tp)

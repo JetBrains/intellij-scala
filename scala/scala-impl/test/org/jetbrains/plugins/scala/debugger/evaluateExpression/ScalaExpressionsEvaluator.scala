@@ -33,7 +33,10 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
   addFileWithBreakpoints("IsInstanceOfWithLiteralTypes.scala",
     s"""
        |object IsInstanceOfWithLiteralTypes {
-       |  type LiteralAlias = 123
+       |  type LiteralValueAlias = 123
+       |  type LiteralRefAlias = "123"
+       |  type DoubleValueAlias = LiteralValueAlias
+       |  type DoubleRefAlias = LiteralRefAlias
        |
        |  def main(args: Array[String]): Unit = {
        |    println()$bp
@@ -48,10 +51,17 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
       evalEquals("123.isInstanceOf[234]", "false")
       evalEquals("123.0.isInstanceOf[123.0f]", "false")
       evalEquals("'c'.isInstanceOf['c']", "true")
-      evalStartsWith("""123.isInstanceOf["123"]""", "isInstanceOf cannot test if value types are references")
-      evalEquals("123.isInstanceOf[LiteralAlias]", "true")
+      evalStartsWith("""123.isInstanceOf["123"]""", """cannot test if value of type Int is a reference of type "123"""")
+      evalEquals("123.isInstanceOf[LiteralValueAlias]", "true")
+      evalEquals("456.isInstanceOf[LiteralValueAlias]", "false")
+      evalEquals("123.isInstanceOf[DoubleValueAlias]", "true")
+      evalEquals("456.isInstanceOf[DoubleValueAlias]", "false")
       evalEquals(""""123".isInstanceOf["234"]""", "false")
       evalEquals(""""123".isInstanceOf[123]""", "false")
+      evalEquals(""""123".isInstanceOf[LiteralRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[LiteralRefAlias]""", "false")
+      evalEquals(""""123".isInstanceOf[DoubleRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[DoubleRefAlias]""", "false")
     }
   }
 }
@@ -425,26 +435,28 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("123.isInstanceOf[Long]", "false")
       evalEquals("123L.isInstanceOf[Long]", "true")
       evalEquals("123L.isInstanceOf[Int]", "false")
-      evalStartsWith("123.isInstanceOf[String]", "isInstanceOf cannot test if value types are references")
+      evalStartsWith("123.isInstanceOf[String]", "cannot test if value of type Int is a reference of type String")
       evalEquals(""""123".isInstanceOf[String]""", "true")
       evalEquals(""""123".isInstanceOf[Long]""", "false")
       evalEquals(""""123".isInstanceOf[AnyRef]""", "true")
       evalEquals(""""123".isInstanceOf[Any]""", "true")
-      evalStartsWith(""""123".isInstanceOf[AnyVal]""", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith(""""123".isInstanceOf[AnyVal]""", "class AnyVal cannot be used in runtime type tests")
       evalEquals("null.isInstanceOf[String]", "false")
-      evalStartsWith("null.isInstanceOf[Null]", "type Null cannot be used in a type pattern or isInstanceOf test")
-      evalStartsWith("123.isInstanceOf[Value]", "isInstanceOf cannot test if value types are references")
+      evalStartsWith("null.isInstanceOf[Null]", "class Null cannot be used in runtime type tests")
+      evalStartsWith("123.isInstanceOf[Value]", "cannot test if value of type Int is a reference of type IsInstanceOf.Value")
       evalEquals("new Object().isInstanceOf[Object]", "true")
       evalEquals("new Object().isInstanceOf[AnyRef]", "true")
       evalEquals("new Object().isInstanceOf[Any]", "true")
-      evalStartsWith("new Object().isInstanceOf[AnyVal]", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith("new Object().isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[Value]", "true")
-      evalStartsWith("new Value(123).isInstanceOf[AnyVal]", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith("new Value(123).isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[AnyRef]", "true")
       evalEquals("new Value(123).isInstanceOf[Int]", "false")
-      evalEquals(""""123".isInstanceOf""", "false")
-      evalStartsWith("123.isInstanceOf", "isInstanceOf cannot test if value types are references")
+      evalStartsWith(""""123".isInstanceOf""", "isInstanceOf called without an explicit type argument")
+      evalStartsWith("123.isInstanceOf", "isInstanceOf called without an explicit type argument")
       evalEquals(""""123".isInstanceOf[Alias]""", "true")
+      evalStartsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
+      evalStartsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
     }
   }
 
