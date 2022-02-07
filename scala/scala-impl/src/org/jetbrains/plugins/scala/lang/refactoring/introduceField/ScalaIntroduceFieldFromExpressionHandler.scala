@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
@@ -78,7 +79,10 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       case _ =>
         val settings = new IntroduceFieldSettings(ifc)
         if (settings.canBeInitInDeclaration || settings.canBeInitLocally) {
-          runWithDialog(ifc, settings)
+          if (ApplicationManager.getApplication.isUnitTestMode)
+            runRefactoring(ifc, settings)
+          else
+            runWithDialog(ifc, settings)
         } else {
           showErrorHint(ScalaBundle.message("cannot.create.field.from.this.expression"))
         }
