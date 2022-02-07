@@ -248,7 +248,7 @@ object ScalaPsiUtil {
         val cls = mem.containingClass
         (cls == null) || isOnlyVisibleInLocalFile(cls)
       case (ref: ScReferencePattern, _) =>
-        ref.getModifierList.hasModifierProperty("private")
+        isOnlyVisibleInLocalFile(ref.nameContext)
       case _ =>
         true
     }
