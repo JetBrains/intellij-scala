@@ -30,15 +30,18 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
     if (isOnTheFly) {
-      //we can trust RefCounter because references are counted during highlighting
-      val refCounter = ScalaRefCountHolder(element)
       var used = false
 
-      val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
-        used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
-      }
+      if (isOnlyVisibleInLocalFile(element)) {
+        //we can trust RefCounter because references are counted during highlighting
+        val refCounter = ScalaRefCountHolder(element)
 
-      if (!used && !isOnlyVisibleInLocalFile(element)) {
+        val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
+          used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
+        }
+
+        !success || used // Return true also if runIfUnused... was a failure
+      } else {
         val helper = PsiSearchHelper.getInstance(element.getProject)
         val processor = new TextOccurenceProcessor {
           override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
@@ -50,17 +53,15 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
             }
           }
         }
-
-        helper.processElementsWithWord(
+        val success = helper.processElementsWithWord(
           processor,
           element.getUseScope,
           element.getName,
           (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
           true
         )
+        !success || used // Return true also if processElements... was a failure
       }
-
-      !success || used //want to return true if it was a failure
     } else {
       //need to look for references because file is not highlighted
       ReferencesSearch.search(element, element.getUseScope).findFirst() != null
