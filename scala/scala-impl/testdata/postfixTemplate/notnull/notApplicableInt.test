@@ -1,0 +1,6 @@
+class Test {
+  def foo(i: Int) = {
+    <start>i<notnull>
+  }
+}
+-----

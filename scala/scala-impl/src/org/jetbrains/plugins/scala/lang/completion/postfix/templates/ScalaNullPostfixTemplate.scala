@@ -5,6 +5,7 @@ package templates
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.{AnyRefExpression, SelectTopmostAncestors}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
 /**
  * @author Roman.Shein
@@ -15,7 +16,13 @@ sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) ex
   s"if (expr $character= null) {}",
   SelectTopmostAncestors(AnyRefExpression)
 ) {
-  override def getTemplateString(element: PsiElement): String = "if ($expr$ " + character + "= null) {$END$}"
+  override def getTemplateString(element: PsiElement): String = {
+    val (prefix, suffix) = element match {
+      case _: ScInfixExpr => ("(", ")")
+      case _ => ("", "")
+    }
+    "if (" + prefix + "$expr$" + suffix + " " + character + "= null) {$END$}"
+  }
 }
 
 final class ScalaNotNullPostfixTemplate(alias: String = "notnull") extends ScalaNullPostfixTemplate(alias, '!')

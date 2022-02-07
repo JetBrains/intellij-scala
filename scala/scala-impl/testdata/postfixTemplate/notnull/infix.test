@@ -1,0 +1,11 @@
+class Test(val value: Int) {
+  def multiply(other: Test): Test = ???
+
+  <start>this multiply Test(2)<notnull>
+}
+-----
+class Test(val value: Int) {
+  def multiply(other: Test): Test = ???
+
+  if ((this multiply Test(2)) != null) {}
+}
