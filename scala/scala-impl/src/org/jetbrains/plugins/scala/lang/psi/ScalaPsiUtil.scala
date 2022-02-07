@@ -31,16 +31,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, ScalaPsiElement, ScalaRecursiveElementVisitor}
@@ -248,6 +247,8 @@ object ScalaPsiUtil {
       case (mem: ScMember, _) =>
         val cls = mem.containingClass
         (cls == null) || isOnlyVisibleInLocalFile(cls)
+      case (ref: ScReferencePattern, _) =>
+        ref.getModifierList.hasModifierProperty("private")
       case _ =>
         true
     }

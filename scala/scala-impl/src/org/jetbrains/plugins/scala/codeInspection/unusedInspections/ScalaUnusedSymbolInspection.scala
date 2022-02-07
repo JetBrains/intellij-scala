@@ -5,8 +5,7 @@ package unusedInspections
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{GlobalSearchScope, PsiSearchHelper}
-import com.intellij.util.Processor
+import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
@@ -39,16 +38,26 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
       }
 
-      if (!used) {
+      if (!used && !isOnlyVisibleInLocalFile(element)) {
         val helper = PsiSearchHelper.getInstance(element.getProject)
-        val scope = GlobalSearchScope.allScope(element.getProject)
-        val processor: Processor[_ >: PsiFile] = file => {
-          if (!file.name.endsWith(".scala") || file == element.getContainingFile) true else {
-            used = true
-            false // We've established the element is used, so we can stop processing
+        val processor = new TextOccurenceProcessor {
+          override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
+            inReadAction {
+              if (element.getContainingFile == e2.getContainingFile) true else {
+                used = true
+                false
+              }
+            }
           }
         }
-        helper.processAllFilesWithWord(element.getName, scope, processor, true)
+
+        helper.processElementsWithWord(
+          processor,
+          element.getUseScope,
+          element.getName,
+          (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+          true
+        )
       }
 
       !success || used //want to return true if it was a failure
