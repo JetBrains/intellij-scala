@@ -13,15 +13,16 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
+import org.jetbrains.plugins.scala.util.{SAMUtil, ScalaMainMethodUtil}
 
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
@@ -29,7 +30,24 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-    if (isOnTheFly) {
+
+    // TODO Implement actual usage checks. For now we assume the below special cases are used.
+    def maybeUsedInexplicitly: Boolean =
+      element match {
+        case c: ScClass if SAMUtil.PsiClassToSAMExt(c).isSAMable => true
+        case f: ScFunctionDefinition if f.name.endsWith("_=") => true
+        case r: ScReferencePattern =>
+          r.nameContext match {
+            case a: ScAnnotationsHolder =>
+              PropertyMethods.isBeanProperty(a) || PropertyMethods.isBooleanBeanProperty(a)
+            case _ => false
+          }
+        case _ => false
+      }
+
+    if (maybeUsedInexplicitly) {
+      true
+    } else if (isOnTheFly) {
       var used = false
 
       if (isOnlyVisibleInLocalFile(element)) {
