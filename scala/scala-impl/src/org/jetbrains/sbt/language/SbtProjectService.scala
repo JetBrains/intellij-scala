@@ -4,7 +4,7 @@ package language
 import com.intellij.CommonBundle
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.notification.impl.NotificationsConfigurationImpl
-import com.intellij.notification.{Notification, NotificationDisplayType}
+import com.intellij.notification.{Notification, NotificationDisplayType, NotificationGroupManager}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.{ApplicationManager, TransactionGuard}
 import com.intellij.openapi.externalSystem.service.notification.{ExternalSystemNotificationManager, NotificationCategory, NotificationData, NotificationSource}
@@ -32,7 +32,9 @@ import scala.jdk.CollectionConverters._
  */
 final class SbtProjectService(project: Project) extends Disposable {
 
-  private val SBT_MAVEN_NOTIFICATION_GROUP = SbtBundle.message("sbt.unindexed.maven.repositories.for.sbt.detection")
+  private val SBT_MAVEN_NOTIFICATION_GROUP_ID = SbtBundle.message("sbt.unindexed.maven.repositories.for.sbt.detection")
+  private val SBT_MAVEN_NOTIFICATION_GROUP =
+    NotificationGroupManager.getInstance.getNotificationGroup(SBT_MAVEN_NOTIFICATION_GROUP_ID)
 
   setupMavenIndexes()
 
@@ -123,13 +125,13 @@ final class SbtProjectService(project: Project) extends Disposable {
     notificationData.setListener(
       "#disable", (notification: Notification, e: HyperlinkEvent) => {
         val result: Int = Messages.showYesNoDialog(project,
-          SbtBundle.message("sbt.notification.will.be.disabled.for.all.projects", SBT_MAVEN_NOTIFICATION_GROUP),
+          SbtBundle.message("sbt.notification.will.be.disabled.for.all.projects", SBT_MAVEN_NOTIFICATION_GROUP_ID),
           SbtBundle.message("sbt.unindexed.maven.repositories.sbt.detection"),
           SbtBundle.message("sbt.disable.notification"),
           CommonBundle.getCancelButtonText,
           Messages.getWarningIcon)
         if (result == Messages.YES) {
-          NotificationsConfigurationImpl.getInstanceImpl.changeSettings(SBT_MAVEN_NOTIFICATION_GROUP, NotificationDisplayType.NONE, false, false)
+          NotificationsConfigurationImpl.getInstanceImpl.changeSettings(SBT_MAVEN_NOTIFICATION_GROUP_ID, NotificationDisplayType.NONE, false, false)
           notification.hideBalloon()
         }
       })

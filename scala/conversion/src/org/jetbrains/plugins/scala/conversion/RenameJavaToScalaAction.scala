@@ -3,7 +3,7 @@ package conversion
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{NotificationDisplayType, NotificationType}
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
+import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleManager
@@ -33,7 +33,7 @@ class RenameJavaToScalaAction extends AnAction(
       presentation.setVisible(false)
     }
     try {
-      var elements = LangDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
+      var elements = PlatformCoreDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
       if (elements == null) {
         val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
         if (file != null) elements = Array(file)
@@ -62,7 +62,7 @@ class RenameJavaToScalaAction extends AnAction(
   }
 
   override def actionPerformed(e: AnActionEvent): Unit = {
-    var elements = LangDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
+    var elements = PlatformCoreDataKeys.PSI_ELEMENT_ARRAY.getData(e.getDataContext)
     if (elements == null) {
       val file = CommonDataKeys.PSI_FILE.getData(e.getDataContext)
       if (file != null) elements = Array(file)
