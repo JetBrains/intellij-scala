@@ -24,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.util.{SAMUtil, ScalaMainMethodUtil}
 
+import scala.util.control.Breaks.break
+
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
 
@@ -71,13 +73,19 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
             }
           }
         }
-        helper.processElementsWithWord(
-          processor,
-          element.getUseScope,
-          element.getName,
-          (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
-          true
-        )
+
+        // We first check against the vanilla name as it appears in .scala files -- element.name
+        // Then, if still no usage was found, we check against the Java name -- element.getName
+        Seq(element.name, element.getName).foreach { name =>
+          helper.processElementsWithWord(
+            processor,
+            element.getUseScope,
+            name,
+            (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+            true
+          )
+          if (used) break()
+        }
         used
       }
     } else {
