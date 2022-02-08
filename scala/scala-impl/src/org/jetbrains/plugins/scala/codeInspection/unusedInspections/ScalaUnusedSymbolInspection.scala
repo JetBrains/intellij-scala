@@ -53,14 +53,14 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
             }
           }
         }
-        val success = helper.processElementsWithWord(
+        helper.processElementsWithWord(
           processor,
           element.getUseScope,
           element.getName,
           (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
           true
         )
-        !success || used // Return true also if processElements... was a failure
+        used
       }
     } else {
       //need to look for references because file is not highlighted
