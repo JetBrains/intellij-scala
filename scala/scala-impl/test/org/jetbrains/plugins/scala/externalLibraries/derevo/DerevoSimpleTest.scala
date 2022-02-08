@@ -153,7 +153,7 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |  def instance[A]: TypeClass2[A] = ???
        |}
        |
-       |@composite
+       |@composite(TypeClass1, TypeClass2)
        |object BothTypeClasses extends CompositeDerivation
        |
        |@derive(BothTypeClasses)
