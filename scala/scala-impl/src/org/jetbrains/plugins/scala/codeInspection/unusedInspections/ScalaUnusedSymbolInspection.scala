@@ -124,7 +124,6 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
       case p: ScModifierListOwner if hasOverrideModifier(p) => false
       case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
-      case _: ScTrait => true
       case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
       case _ => true
     }
