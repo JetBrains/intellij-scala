@@ -96,6 +96,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
       case scClass: ScClass => Seq(scClass)
+      case scTrait: ScTrait => Seq(scTrait)
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case fun: ScMethodLike =>
         val funIsPublic = !fun.containingClass.toOption.exists(isOnlyVisibleInLocalFile)
@@ -131,13 +132,16 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     }
   }
 
-  override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
-    case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
-    case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
-    case p: ScModifierListOwner if hasOverrideModifier(p) => false
-    case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
-    case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
-    case _ => true
+  override def shouldProcessElement(elem: PsiElement): Boolean = {
+    elem match {
+      case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
+      case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
+      case p: ScModifierListOwner if hasOverrideModifier(p) => false
+      case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
+      case _: ScTrait => true
+      case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+      case _ => true
+    }
   }
 }
 
