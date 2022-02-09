@@ -3,11 +3,9 @@ package codeInspection
 package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.psi._
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
@@ -15,12 +13,11 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPatternList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition, ScValueOrVariableDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
@@ -47,7 +44,9 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     } else if (isOnTheFly) {
       var used = false
 
-      if (isOnlyVisibleInLocalFile(element)) {
+      if (ReferencesSearch.search(element, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
+        true
+      } else if (isOnlyVisibleInLocalFile(element)) {
         //we can trust RefCounter because references are counted during highlighting
         val refCounter = ScalaRefCountHolder(element)
 
@@ -61,14 +60,9 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         val processor = new TextOccurenceProcessor {
           override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
             inReadAction {
-              e2 match {
-                case _: LeafPsiElement | _: ScTemplateBody | _: ScTypeDefinition | _: ScPatternList |
-                     _: ScValueOrVariableDefinition | _: ScExtendsBlock | _: PsiFileBase
-                  if element.getContainingFile == e2.getContainingFile => true
-                case _ if element == e2 => true
-                case _ =>
-                  used = true
-                  false
+              if (element.getContainingFile == e2.getContainingFile) true else {
+                used = true
+                false
               }
             }
           }
