@@ -12,7 +12,7 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScSuperReference, ScThisReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
@@ -114,8 +114,14 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
         case _: PsiClass => //do nothing, it's wrong class or object
         case _ if isThisOrSuperResolve => //do nothing for type alias
         case _ =>
-          addResult(new ScalaResolveResult(namedElement, state.substitutor,
-            state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible))
+          val result = new ScalaResolveResult(namedElement, state.substitutor, state.importsUsed, renamed, fromType = state.fromType, isAccessible = accessible)
+          namedElement match {
+            case alias: ScTypeAliasDefinition => alias.transparentExport match {
+              case Some(target) => addResult(result.copy(element = target, fromType = None))
+              case None => addResult(result)
+            }
+            case _ => addResult(result)
+          }
       }
     }
 

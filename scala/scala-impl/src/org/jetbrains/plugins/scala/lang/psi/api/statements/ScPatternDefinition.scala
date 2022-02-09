@@ -4,6 +4,7 @@ package psi
 package api
 package statements
 
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 /**
@@ -20,6 +21,8 @@ trait ScPatternDefinition extends ScValue with ScValueOrVariableDefinition {
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitPatternDefinition(this)
   }
+
+  def transparentExport: Option[PsiNamedElement]
 }
 
 object ScPatternDefinition {
