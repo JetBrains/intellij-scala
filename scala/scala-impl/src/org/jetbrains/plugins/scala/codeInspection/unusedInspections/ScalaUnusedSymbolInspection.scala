@@ -13,18 +13,19 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScMethodLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.util.{SAMUtil, ScalaMainMethodUtil}
+import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
+import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaNamesUtil}
 
-import scala.util.control.Breaks.break
+import scala.jdk.CollectionConverters._
+
 
 class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def isEnabledByDefault: Boolean = true
@@ -33,21 +34,13 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
 
-    // TODO Implement actual usage checks. For now we assume the below special cases are used.
-    def maybeUsedInexplicitly: Boolean =
+    def isAssumedToBeUsed: Boolean =
       element match {
-        case c: ScClass if SAMUtil.PsiClassToSAMExt(c).isSAMable => true
-        case f: ScFunctionDefinition if f.name.endsWith("_=") => true
-        case r: ScReferencePattern =>
-          r.nameContext match {
-            case a: ScAnnotationsHolder =>
-              PropertyMethods.isBeanProperty(a) || PropertyMethods.isBooleanBeanProperty(a)
-            case _ => false
-          }
+        case t: ScTypeDefinition if t.isSAMable => true
         case _ => false
       }
 
-    if (maybeUsedInexplicitly) {
+    if (isAssumedToBeUsed) {
       true
     } else if (isOnTheFly) {
       var used = false
@@ -74,17 +67,16 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           }
         }
 
-        // We first check against the vanilla name as it appears in .scala files -- element.name
-        // Then, if still no usage was found, we check against the Java name -- element.getName
-        Seq(element.name, element.getName).foreach { name =>
-          helper.processElementsWithWord(
-            processor,
-            element.getUseScope,
-            name,
-            (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
-            true
-          )
-          if (used) break()
+        ScalaNamesUtil.getNamesOf(element).asScala.foreach { name =>
+          if (!used) {
+            helper.processElementsWithWord(
+              processor,
+              element.getUseScope,
+              name,
+              (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+              true
+            )
+          }
         }
         used
       }
