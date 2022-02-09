@@ -27,9 +27,14 @@ class IsInstanceOfInspectionTest extends ScalaInspectionTestBase {
        |""".stripMargin
   )
 
-  def testIsInstanceOfWithoutExplicitTypeParens(): Unit = checkTextHasError(
+  def testIsInstanceOfWithoutExplicitTypeIf(): Unit = checkTextHasError(
     s"""
        |val x = "123"
        |if (${START}x.isInstanceOf${END}) x.toInt else x.toLong""".stripMargin
+  )
+
+  def testIsInstanceOfWithoutExplicitTypeParens(): Unit = checkTextHasError(
+    s"""
+       |val bool = false || ((${START}x.isInstanceOf${END}) && true) ^^ false""".stripMargin
   )
 }
