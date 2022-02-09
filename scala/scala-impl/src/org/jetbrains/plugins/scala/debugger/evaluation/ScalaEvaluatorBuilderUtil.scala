@@ -1384,6 +1384,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Boolean => "_root_.scala.reflect.ClassTag.Boolean"
       case Unit => "_root_.scala.reflect.ClassTag.Unit"
       case Any => "_root_.scala.reflect.ClassTag.Any"
+      case AnyRef => "_root_.scala.reflect.ClassTag.AnyRef"
       case AnyVal => "_root_.scala.reflect.ClassTag.AnyVal"
       case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
       case Null => "_root_.scala.reflect.ClassTag.Null"
