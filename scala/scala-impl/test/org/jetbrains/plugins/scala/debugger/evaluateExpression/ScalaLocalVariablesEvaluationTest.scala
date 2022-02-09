@@ -155,9 +155,7 @@ abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCa
   def testNoBackingFieldParam(): Unit = {
     runDebugger() {
       waitForBreakpoint()
-      val name = "noBackingField"
-      val message = s"Cannot find local variable '$name'${System.lineSeparator()} No such instance field: '$name'"
-      evalStartsWith(s"noBackingField", message)
+      evalStartsWith(s"noBackingField", "constructor parameter 'noBackingField' is inaccessible outside of the class constructor")
     }
   }
 

@@ -809,7 +809,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case cp: ScClassParameter if !cp.isClassMember =>
         val local = new ScalaLocalVariableEvaluator(cp.name, fileName)
         val field = fieldEvaluatorFromElement(resolve, cp.isPrivateThis)
-        ScalaDuplexEvaluator(local, field)
+        val duplex = ScalaDuplexEvaluator(local, field)
+        new ErrorWrapperEvaluator(duplex, ScalaBundle.message("constructor.param.inaccessible.outside.of.constructor", cp.name))
       case privateThisField(_) =>
         fieldEvaluatorFromElement(resolve, isPrivateThis = true)
       case cp: ScClassParameter if qualifier.isEmpty && ValueClassType.isValueClass(cp.containingClass) =>
