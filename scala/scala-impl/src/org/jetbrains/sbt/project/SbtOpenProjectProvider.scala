@@ -7,7 +7,6 @@ import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjec
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.externalSystem.service.project.{ExternalProjectRefreshCallback, ProjectDataManager}
 import com.intellij.openapi.externalSystem.service.ui.ExternalProjectDataSelectorDialog
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
@@ -34,9 +33,6 @@ class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
 
   private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
-    ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
-      ExternalSystemUtil.ensureToolWindowInitialized(project, SbtProjectSystem.Id)
-    }
     ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id)
       .asInstanceOf[SbtSettings]
       .linkProject(settings)
