@@ -35,9 +35,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     if (isOnTheFly) {
       var used = false
 
-      if (ReferencesSearch.search(element, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
-        true
-      } else if (isOnlyVisibleInLocalFile(element)) {
+      if (isOnlyVisibleInLocalFile(element)) {
         //we can trust RefCounter because references are counted during highlighting
         val refCounter = ScalaRefCountHolder(element)
 
@@ -46,6 +44,8 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         }
 
         !success || used // Return true also if runIfUnused... was a failure
+      } else if (ReferencesSearch.search(element, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
+        true
       } else {
         val helper = PsiSearchHelper.getInstance(element.getProject)
         val processor = new TextOccurenceProcessor {
