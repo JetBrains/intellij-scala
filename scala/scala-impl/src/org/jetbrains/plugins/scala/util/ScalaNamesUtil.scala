@@ -5,7 +5,7 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{isBeanProperty, isBooleanBeanProperty}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 import java.util
@@ -31,6 +31,8 @@ object ScalaNamesUtil {
           case Some(o) => result.add(o.getName)
           case _ =>
         }
+      case f: ScFunctionDefinition if f.name.endsWith("_=") =>
+        result.add(f.name.substring(0, f.name.length - 2))
       case named: PsiNamedElement =>
         val name = named.name
         result.add(name)
