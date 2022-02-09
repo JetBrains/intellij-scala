@@ -493,6 +493,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(true, false).isInstanceOf[Array[java.lang.Boolean]]""", "false")
       evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[Boolean]]""", "false")
       evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[java.lang.Boolean]]""", "true")
+      evalEquals("""new Array[Any](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[AnyRef](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[AnyVal](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Null](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Nothing](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Singleton](5)""", "[null,null,null,null,null]")
     }
 
   addFileWithBreakpoints("SyntheticOperators.scala",
