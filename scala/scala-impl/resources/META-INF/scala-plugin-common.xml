@@ -1110,6 +1110,12 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="ComparingUnrelatedTypes" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.IsInstanceOfInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.isinstanceof"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="IsInstanceOf" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.pattern.may.never.match"
