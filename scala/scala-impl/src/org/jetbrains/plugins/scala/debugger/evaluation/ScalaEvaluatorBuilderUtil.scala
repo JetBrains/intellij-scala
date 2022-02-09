@@ -780,6 +780,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     }
 
+    def fieldEvaluatorFromElement(element: PsiElement, isPrivateThis: Boolean): ScalaFieldEvaluator = {
+      val named = element.asInstanceOf[ScNamedElement]
+      val qualEval = qualifierEvaluator(qualifier, ref)
+      val name = NameTransformer.encode(named.name)
+      ScalaFieldEvaluator(qualEval, name, classPrivateThisField = isPrivateThis)
+    }
+
     val labeledOrSynthetic = labeledOrSyntheticEvaluator(ref, resolve)
     if (labeledOrSynthetic.isDefined)
       return labeledOrSynthetic.get
@@ -799,11 +806,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
+      case cp: ScClassParameter if !cp.isClassMember =>
+        val local = new ScalaLocalVariableEvaluator(cp.name, fileName)
+        val field = fieldEvaluatorFromElement(resolve, cp.isPrivateThis)
+        ScalaDuplexEvaluator(local, field)
       case privateThisField(_) =>
-        val named = resolve.asInstanceOf[ScNamedElement]
-        val qualEval = qualifierEvaluator(qualifier, ref)
-        val name = NameTransformer.encode(named.name)
-        ScalaFieldEvaluator(qualEval, name, classPrivateThisField = true)
+        fieldEvaluatorFromElement(resolve, isPrivateThis = true)
       case cp: ScClassParameter if qualifier.isEmpty && ValueClassType.isValueClass(cp.containingClass) =>
         //methods of value classes have hidden argument with underlying value
         new ScalaLocalVariableEvaluator("$this", fileName)
