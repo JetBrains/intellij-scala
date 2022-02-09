@@ -179,6 +179,9 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionNam
         val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
         holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
+    case elem @ IsInstanceOfCall.withoutExplicitType() =>
+      val message = ScalaInspectionBundle.message("missing.explicit.type.in.isinstanceof.call")
+      holder.registerProblem(elem, message, ProblemHighlightType.WARNING)
   }
 
   @Nls
