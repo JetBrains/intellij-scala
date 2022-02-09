@@ -685,24 +685,6 @@ class TestLiteralTypes extends ComparingUnrelatedTypesInspectionTest {
   )
 }
 
-class TestIsInstanceOfWithoutExplicitType extends ComparingUnrelatedTypesInspectionTest {
-
-  override protected val description: String =
-    ScalaInspectionBundle.message("missing.explicit.type.in.isinstanceof.call")
-
-  def testIsInstanceOfWithoutExplicitType(): Unit = checkTextHasError(
-    s"""
-      |def test(x: AnyRef): Boolean = ${START}x.isInstanceOf${END}
-      |""".stripMargin
-  )
-
-  def testIsInstanceOfWithoutExplicitTypeParens(): Unit = checkTextHasError(
-    s"""
-      |val x = "123"
-      |if (${START}x.isInstanceOf${END}) x.toInt else x.toLong""".stripMargin
-  )
-}
-
 // SCL-18167
 class TestLambda extends ComparingUnrelatedTypesInspectionTest {
 
