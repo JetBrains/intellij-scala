@@ -32,16 +32,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-
-    def isAssumedToBeUsed: Boolean =
-      element match {
-        case t: ScTypeDefinition if t.isSAMable => true
-        case _ => false
-      }
-
-    if (isAssumedToBeUsed) {
-      true
-    } else if (isOnTheFly) {
+    if (isOnTheFly) {
       var used = false
 
       if (ReferencesSearch.search(element, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
@@ -89,6 +80,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
+      case t: ScTypeDefinition if t.isSAMable => Seq.empty
       case scClass: ScClass => Seq(scClass)
       case scTrait: ScTrait => Seq(scTrait)
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
