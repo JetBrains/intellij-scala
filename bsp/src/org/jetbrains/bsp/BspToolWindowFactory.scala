@@ -6,8 +6,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.bsp.settings.BspSettings
 
 class BspToolWindowFactory extends AbstractExternalSystemToolWindowFactory(BSP.ProjectSystemId) {
-  override def isApplicable(project: Project): Boolean =
-    BspUtil.isBspProject(project)
 
   override def getSettings(project: Project): AbstractExternalSystemSettings[_, _, _] =
     BspSettings.getInstance(project)
