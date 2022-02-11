@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.collection.mutable.ArrayBuffer
@@ -49,6 +51,8 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
     var testedRefs = 0
     var completeCorrect = 0
     var partialCorrect = 0
+
+    val aliasImportSemantics = ScalaProjectSettings.in(getProject).getAliasSemantics
 
     for (file <- files.filterByType[ScalaFile]) {
       val semanticDbFile = store.files.find(_.path.contains(file.name)).get
@@ -86,8 +90,8 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
               val textFits = ref.targets.exists{target =>
                 val symbol = target.symbol
-                val adjustedSymbol =
-                  if (symbol == semanticDbTargetSymbol) symbol else StandardLibraryAliases.find(p => semanticDbTargetSymbol.startsWith(p._1) && symbol.startsWith(p._2)) match {
+                val adjustedSymbol = if (aliasImportSemantics == AliasImportSemantics.Definition || symbol == semanticDbTargetSymbol) symbol else
+                  StandardLibraryAliases.find(p => semanticDbTargetSymbol.startsWith(p._1) && symbol.startsWith(p._2)) match {
                     case Some((from, to)) => symbol.replaceFirst(to, from)
                     case None => symbol
                   }

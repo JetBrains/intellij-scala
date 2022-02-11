@@ -128,10 +128,10 @@ public class ScalaProjectSettingsPanel {
 
         typeCheckerHelp.add(ContextHelpLabel.create(ScalaBundle.message("type.checker.help")));
 
-        aliasSemantics.setModel(new DefaultComboBoxModel<>(AliasSemantics.values()));
+        aliasSemantics.setModel(new DefaultComboBoxModel<>(AliasImportSemantics.values()));
         aliasSemantics.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(AliasSemantics.Definition, ScalaBundle.message("scala.project.settings.form.alias.definition")),
-                Pair.create(AliasSemantics.TransparentExport, ScalaBundle.message("scala.project.settings.form.alias.transparent.export"))
+                Pair.create(AliasImportSemantics.Definition, ScalaBundle.message("scala.project.settings.form.alias.definition")),
+                Pair.create(AliasImportSemantics.ImplicitImport, ScalaBundle.message("scala.project.settings.form.alias.implicit.import"))
         ));
 
         collectionHighlightingChooser.setModel(new DefaultComboBoxModel<>(ScalaCollectionHighlightingLevel.values()));
@@ -298,7 +298,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
         scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
-        scalaProjectSettings.setAliasSemantics((AliasSemantics) aliasSemantics.getSelectedItem());
+        scalaProjectSettings.setAliasSemantics((AliasImportSemantics) aliasSemantics.getSelectedItem());
         scalaProjectSettings.setCollectionTypeHighlightingLevel((ScalaCollectionHighlightingLevel) collectionHighlightingChooser.getSelectedItem());
         scalaProjectSettings.setCompilerHighlightingScala2(typeChecker.getSelectedItem() == TypeChecker.Compiler);
 

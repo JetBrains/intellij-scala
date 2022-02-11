@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{Precedence
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasSemantics
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
 
 /**
   * User: Dmitry Naydanov
@@ -122,7 +122,7 @@ trait FileDeclarationsHolder
 
     if (checkPredefinedClassesAndPackages) {
       // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
-      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.TransparentExport &&
+      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport &&
         lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
         place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
 

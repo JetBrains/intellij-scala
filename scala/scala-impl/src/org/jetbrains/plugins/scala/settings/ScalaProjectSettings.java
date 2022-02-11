@@ -115,11 +115,11 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public enum TypeChecker {BuiltIn, Compiler}
 
-  public enum AliasSemantics {Definition, TransparentExport}
+  public enum AliasImportSemantics {Definition, ImplicitImport}
 
   public enum ScalaCollectionHighlightingLevel {None, OnlyNonQualified, All}
 
-  private AliasSemantics ALIAS_SEMANTICS = AliasSemantics.TransparentExport;
+  private AliasImportSemantics ALIAS_IMPORT_SEMANTICS = AliasImportSemantics.ImplicitImport;
 
   //collection type highlighting settings
   private ScalaCollectionHighlightingLevel COLLECTION_TYPE_HIGHLIGHTING_LEVEL = ScalaCollectionHighlightingLevel.None;
@@ -378,12 +378,12 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     TYPE_AWARE_HIGHLIGHTING_ENABLED = !TYPE_AWARE_HIGHLIGHTING_ENABLED;
   }
 
-  public AliasSemantics getAliasSemantics() {
-    return ALIAS_SEMANTICS;
+  public AliasImportSemantics getAliasSemantics() {
+    return ALIAS_IMPORT_SEMANTICS;
   }
 
-  public void setAliasSemantics(AliasSemantics semantics) {
-    ALIAS_SEMANTICS = semantics;
+  public void setAliasSemantics(AliasImportSemantics semantics) {
+    ALIAS_IMPORT_SEMANTICS = semantics;
   }
 
   @OptionTag(converter = ScalaCollectionHighlightingLevelConverter.class)
