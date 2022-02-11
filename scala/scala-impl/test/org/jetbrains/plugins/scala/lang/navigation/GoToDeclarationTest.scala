@@ -235,9 +235,9 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
 
   def testLibraryTypeAlias(): Unit = doTestFromLibrarySource(
     s"""object TestLibraryTypeAlias {
-       |  val seq: ${CARET}Seq[Int] = ???
+       |  val traversable: ${CARET}Traversable[Int] = ???
        |}""".stripMargin,
-    (is[ScTypeAlias], "Seq")
+    (is[ScTypeAlias], "Traversable")
   )
 
   def testLibraryVal(): Unit = doTestFromLibrarySource(

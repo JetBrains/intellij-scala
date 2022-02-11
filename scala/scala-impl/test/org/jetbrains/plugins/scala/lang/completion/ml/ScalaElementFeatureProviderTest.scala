@@ -154,14 +154,14 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
          |""".stripMargin
     )
 
-    assertElement("kind", "Nil", categorical(VALUE))(
+    assertElement("kind", "Traversable", categorical(VALUE))(
       s"""object X {
          |  $CARET
          |}
          |""".stripMargin
     )
 
-    assertElement("kind", "BufferedIterator", categorical(TYPE_ALIAS))(
+    assertElement("kind", "TraversableOnce", categorical(TYPE_ALIAS))(
       s"""object X {
          |  type a = $CARET
          |}

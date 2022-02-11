@@ -1,1 +1,1 @@
-println(classOf[/* file: Predef */ Manifest[String]])
+println(classOf[/* file: package */ Traversable[String]])

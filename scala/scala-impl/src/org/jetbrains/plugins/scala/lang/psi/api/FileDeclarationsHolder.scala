@@ -188,7 +188,7 @@ object FileDeclarationsHolder {
   val Scala212AliasImports = """
      import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.util.NoSuchElementException
-     import _root_.scala.collection.{TraversableOnce, Traversable, Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
+     import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
      import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
      import _root_.scala.collection.immutable.Stream.#::
      import _root_.scala.collection.mutable.StringBuilder

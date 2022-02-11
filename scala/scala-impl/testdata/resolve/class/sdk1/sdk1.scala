@@ -1,1 +1,1 @@
-class A extends <ref>Seq 
+class A extends <ref>Traversable

@@ -17,6 +17,6 @@ public class ResolveClassSdk1Test extends ScalaResolveTestCase {
     PsiReference ref = findReferenceAtCaret();
     PsiElement resolved = ref.resolve();
     assertTrue(resolved instanceof ScTypeAliasDefinition);
-    assertEquals(((ScTypeAliasDefinition) resolved).getName(), "Seq");
+    assertEquals(((ScTypeAliasDefinition) resolved).getName(), "Traversable");
   }
 }
