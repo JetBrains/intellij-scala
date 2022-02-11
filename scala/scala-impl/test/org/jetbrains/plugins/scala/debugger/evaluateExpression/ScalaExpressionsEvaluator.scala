@@ -73,10 +73,6 @@ class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_213 {
   override def testPrefixedThis(): Unit = failing(super.testPrefixedThis())
 
   override def testPostfix(): Unit = failing(super.testPostfix())
-
-  override def testLiteral(): Unit = failing(super.testLiteral())
-
-  override def testArrayCreation(): Unit = failing(super.testArrayCreation())
 }
 
 
@@ -481,6 +477,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(1, 2, 3)""", "[1,2,3]")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[Int]]""", "true")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
+      evalEquals("""Array[Int](1, 2, 3)""", "[1,2,3]")
+      evalEquals("""Array[Int](1, 2, 3).isInstanceOf[Array[Int]]""", "true")
+      evalEquals("""Array[Int](1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
       evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[Int]]""", "false")
       evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "true")
       evalEquals("""Array(1.0, 2.0, 3.0)""", "[1.0,2.0,3.0]")
