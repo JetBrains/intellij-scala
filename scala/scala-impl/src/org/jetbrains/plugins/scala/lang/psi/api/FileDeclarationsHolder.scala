@@ -45,8 +45,11 @@ trait FileDeclarationsHolder
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
     if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.TransparentExport) {
-      if (lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName) {
+      if (lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
+        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
+
         val file = aliasImportsFor(getProject)
+        file.context = lastParent.getContainingFile
         file.processDeclarations(processor, state, file.getLastChild, place)
       }
     }
