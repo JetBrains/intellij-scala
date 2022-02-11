@@ -95,13 +95,13 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testClassWithSuperWithGenerics(): Unit =
     doGenerateDocTest(
       s"""trait Trait[A]
-         |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: String]]
+         |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: Int]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
         "abstract class Class" +
         " extends <a href=\"psi_element://java.lang.Comparable\"><code>Comparable</code></a>[_ &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[_ &gt;:" +
-        " <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]"
+        " <a href=\"psi_element://scala.Int\"><code>Int</code></a>]]"
     )
 
   def testClassExtendsListShouldNotContainWithObject(): Unit = {
@@ -158,10 +158,10 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testValueDeclaration(): Unit =
     doGenerateDocTest(
       s"""abstract class Wrapper {
-         |  val ${|}field2: String
+         |  val ${|}field2: Int
          |}""".stripMargin,
       """<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
-        |val field2: <a href="psi_element://scala.Predef.String"><code>String</code></a>""".stripMargin
+        |val field2: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
   def testVariableDefinition(): Unit =
@@ -176,10 +176,10 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testVariableDeclaration(): Unit =
     doGenerateDocTest(
       s"""abstract class Wrapper {
-         |  var ${|}field2: String
+         |  var ${|}field2: Int
          |}""".stripMargin,
       """<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
-        |var field2: <a href="psi_element://scala.Predef.String"><code>String</code></a>""".stripMargin
+        |var field2: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
     )
 
   def testValueWithModifiers(): Unit =
@@ -242,19 +242,19 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""trait MyTrait[T]
          |class :::[T1, T2]
-         |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, String]]]
-         |  extends MyTrait[Int ::: String]
+         |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, Boolean]]]
+         |  extends MyTrait[Int ::: Boolean]
          |""".stripMargin,
       "[light_idea_test_case] default\n" +
         "class ClassWithGenericColons1[A &lt;: " +
         "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
         "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
         " <a href=\"psi_element://:::\"><code>:::</code></a> " +
-        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]" +
+        s"<a href=\"psi_element://scala.Boolean\"><code>Boolean</code></a>]]" +
         " extends " +
         "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
         "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
         " <a href=\"psi_element://:::\"><code>:::</code></a> " +
-        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]"
+        s"<a href=\"psi_element://scala.Boolean\"><code>Boolean</code></a>]"
     )
 }
