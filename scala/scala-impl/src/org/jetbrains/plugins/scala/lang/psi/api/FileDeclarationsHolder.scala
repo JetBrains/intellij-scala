@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExpo
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
 
@@ -126,7 +126,7 @@ trait FileDeclarationsHolder
         lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
         place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
 
-        val file = aliasImportsFor(getProject)
+        val file = aliasImportsFor(getProject, lastParent.scalaLanguageLevelOrDefault)
         file.context = lastParent.getContainingFile
         if (!file.processDeclarations(processor, state, file.getLastChild, place)) return false
       }
@@ -183,24 +183,35 @@ object FileDeclarationsHolder {
 
   private final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
 
-  // TODO Parse dynamically from scala and scala.Predef
+  // TODO Parse dynamically from scala and scala.Predef (on the other hand, this API is stable and forward compatible)
   // TODO Cache per Scala standard library
-  private def aliasImportsFor(project: Project): ScalaFile = {
-    val file = PsiFileFactory.getInstance(project).createFileFromText(AliasImportsFileName, ScalaLanguage.INSTANCE,
-      """
-          import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-          import _root_.java.io.Serializable
-          import _root_.java.util.NoSuchElementException
-          import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
-          import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
-          import _root_.scala.collection.mutable.StringBuilder
-          import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
-          import _root_.scala.util.{Either, Left, Right}
-          import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
-          """,
-      false, true).asInstanceOf[ScalaFile]
+  val Scala212AliasImports = """
+     import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     import _root_.java.util.NoSuchElementException
+     import _root_.scala.collection.{TraversableOnce, Traversable, Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
+     import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
+     import _root_.scala.collection.immutable.Stream.#::
+     import _root_.scala.collection.mutable.StringBuilder
+     import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     import _root_.scala.util.{Either, Left, Right}
+     import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """
 
-    file
+  val Scala213AliasImports = """
+     import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     import _root_.java.io.Serializable
+     import _root_.java.util.NoSuchElementException
+     import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
+     import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
+     import _root_.scala.collection.mutable.StringBuilder
+     import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     import _root_.scala.util.{Either, Left, Right}
+     import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """
+
+  private def aliasImportsFor(project: Project, languageLevel: ScalaLanguageLevel): ScalaFile = {
+    val text = if (languageLevel >= ScalaLanguageLevel.Scala_2_13) Scala213AliasImports else Scala212AliasImports
+    PsiFileFactory.getInstance(project).createFileFromText(AliasImportsFileName, ScalaLanguage.INSTANCE, text, false, true).asInstanceOf[ScalaFile]
   }
 
   //method extracted due to VerifyError in Scala compiler
