@@ -44,16 +44,6 @@ trait FileDeclarationsHolder
     if (isProcessLocalClasses(lastParent) &&
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.TransparentExport) {
-      if (lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
-        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
-
-        val file = aliasImportsFor(getProject)
-        file.context = lastParent.getContainingFile
-        file.processDeclarations(processor, state, file.getLastChild, place)
-      }
-    }
-
     if (!processDeclarationsFromImports(processor, state, lastParent, place)) return false
 
     if (this.context != null) return true
@@ -131,6 +121,16 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
+      // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
+      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.TransparentExport &&
+        lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
+        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
+
+        val file = aliasImportsFor(getProject)
+        file.context = lastParent.getContainingFile
+        if (!file.processDeclarations(processor, state, file.getLastChild, place)) return false
+      }
+
       if (!processImplicitImports(processor, state, place)) return false
     }
 
@@ -183,7 +183,6 @@ object FileDeclarationsHolder {
 
   private final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
 
-  // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
   // TODO Parse dynamically from scala and scala.Predef
   // TODO Cache per Scala standard library
   private def aliasImportsFor(project: Project): ScalaFile = {
