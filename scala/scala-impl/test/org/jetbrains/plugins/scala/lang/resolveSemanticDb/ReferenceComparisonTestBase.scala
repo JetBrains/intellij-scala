@@ -84,7 +84,15 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
               didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
-              val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
+              val textFits = ref.targets.exists{target =>
+                val symbol = target.symbol
+                val adjustedSymbol =
+                  if (symbol == semanticDbTargetSymbol) symbol else StandardLibraryAliases.find(p => semanticDbTargetSymbol.startsWith(p._1) && symbol.startsWith(p._2)) match {
+                    case Some((from, to)) => symbol.replaceFirst(to, from)
+                    case None => symbol
+                  }
+                adjustedSymbol == semanticDbTargetSymbol
+              }
               val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
               if (!textFits && !positionFits) {
@@ -122,6 +130,70 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 }
 
 object ReferenceComparisonTestBase {
+  // See org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsHolder
+  val StandardLibraryAliases = Seq(
+    // scala
+    "scala/package.Cloneable" -> "java/lang/Cloneable",
+    "scala/package.Serializable" -> "java/io/Serializable",
+
+    "scala/package.Throwable" -> "java/lang/Throwable",
+    "scala/package.Exception" -> "java/lang/Exception",
+    "scala/package.Error" -> "java/lang/Error",
+
+    "scala/package.RuntimeException" -> "java/lang/RuntimeException",
+    "scala/package.NullPointerException" -> "java/lang/NullPointerException",
+    "scala/package.ClassCastException" -> "java/lang/ClassCastException",
+    "scala/package.IndexOutOfBoundsException" -> "java/lang/IndexOutOfBoundsException",
+    "scala/package.ArrayIndexOutOfBoundsException" -> "java/lang/ArrayIndexOutOfBoundsException",
+    "scala/package.StringIndexOutOfBoundsException" -> "java/lang/StringIndexOutOfBoundsException",
+    "scala/package.UnsupportedOperationException" -> "java/lang/UnsupportedOperationException",
+    "scala/package.IllegalArgumentException" -> "java/lang/IllegalArgumentException",
+    "scala/package.NoSuchElementException" -> "java/util/NoSuchElementException",
+    "scala/package.NumberFormatException" -> "java/lang/NumberFormatException",
+    "scala/package.AbstractMethodError" -> "java/lang/AbstractMethodError",
+    "scala/package.InterruptedException" -> "java/lang/InterruptedException",
+
+    "scala/package.IterableOnce" -> "scala/collection/IterableOnce",
+    "scala/package.Iterable" -> "scala/collection/Iterable",
+    "scala/package.Seq" -> "scala/collection/immutable/Seq",
+    "scala/package.IndexedSeq" -> "scala/collection/immutable/IndexedSeq",
+    "scala/package.Iterator" -> "scala/collection/Iterator",
+    "scala/package.List" -> "scala/collection/immutable/List",
+    "scala/package.Nil" -> "scala/collection/immutable/Nil",
+    "scala/package.`::`" -> "scala/collection/immutable/`::`",
+    "scala/package.`+:`" -> "scala/collection/`+:`",
+    "scala/package.`:+`" -> "scala/collection/`:+`",
+    "scala/package.Stream" -> "scala/collection/immutable/Stream",
+    "scala/package.LazyList" -> "scala/collection/immutable/LazyList",
+    "scala/package.Vector" -> "scala/collection/immutable/Vector",
+    "scala/package.StringBuilder" -> "scala/collection/mutable/StringBuilder",
+    "scala/package.Range" -> "scala/collection/immutable/Range",
+
+    "scala/package.BigDecimal" -> "scala/math/BigDecimal",
+    "scala/package.BigInt" -> "scala/math/BigInt",
+    "scala/package.Equiv" -> "scala/math/Equiv",
+    "scala/package.Fractional" -> "scala/math/Fractional",
+    "scala/package.Integral" -> "scala/math/Integral",
+    "scala/package.Numeric" -> "scala/math/Numeric",
+    "scala/package.Ordered" -> "scala/math/Ordered",
+    "scala/package.Ordering" -> "scala/math/Ordering",
+
+    "scala/package.Either" -> "scala/util/Either",
+    "scala/package.Left" -> "scala/util/Left",
+    "scala/package.Right" -> "scala/util/Right",
+
+    // scala.Predef
+    "scala/Predef.String" -> "java/lang/String",
+    "scala/Predef.Class" -> "java/lang/Class",
+
+    "scala/Predef.Map" -> "scala/collection/immutable/Map",
+    "scala/Predef.Set" -> "scala/collection/immutable/Set",
+
+    "scala/Predef.OptManifest" -> "scala/reflect/OptManifest",
+    "scala/Predef.Manifest" -> "scala/reflect/Manifest",
+    "scala/Predef.NoManifest" -> "scala/reflect/NoManifest",
+  )
+
   case class Result(problems: Seq[String],
                     refCount: Int,
                     failedToResolve: Int,
