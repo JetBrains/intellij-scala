@@ -12,9 +12,10 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedS
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{hasImplicitModifier, isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScFunction, ScFunctionDefinition}
@@ -81,31 +82,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
       case t: ScTypeDefinition if t.isSAMable => Seq.empty
-      case scClass: ScClass => Seq(scClass)
-      case scTrait: ScTrait => Seq(scTrait)
-      case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
-      case fun: ScMethodLike =>
-        val funIsPublic = !fun.containingClass.toOption.exists(isOnlyVisibleInLocalFile)
-
-        def nonPrivateClassMemberParam(param: ScParameter): Boolean =
-          funIsPublic && param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
-
-        def overridingParam(param: ScParameter): Boolean =
-          param.asOptionOf[ScClassParameter].exists(isOverridingOrOverridden)
-
-        def caseClassParam(param: ScParameter): Boolean =
-          param.asOptionOf[ScClassParameter].exists(_.isCaseClassVal)
-
-        fun +: fun.parameters
-          .filterNot(_.isWildcard)
-          .filter(_.isPhysical) // context bound are desugared into parameters, for example
-          .filterNot(_.isImplicitParameter)
-          .filterNot(caseClassParam)
-          .filterNot(nonPrivateClassMemberParam)
-          .filterNot(overridingParam)
-      case caseClause: ScCaseClause => caseClause.pattern.toSeq.flatMap(_.bindings).filterNot(_.isWildcard)
-      case declaredHolder: ScDeclaredElementsHolder => declaredHolder.declaredElements.filterNot(isOverridingOrOverridden)
-      case enumerators: ScEnumerators => enumerators.patterns.flatMap(_.bindings).filterNot(_.isWildcard) //for statement
+      case named: ScNamedElement => Seq(named)
       case _ => Seq.empty
     }
     elements.flatMap {
@@ -120,12 +97,17 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def shouldProcessElement(elem: PsiElement): Boolean = {
     elem match {
-      case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
-      case m: ScMember if m.hasModifierPropertyScala(ScalaKeyword.IMPLICIT) => false
-      case p: ScModifierListOwner if hasOverrideModifier(p) => false
-      case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
-      case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
-      case _ => true
+      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => false
+      case n: ScNamedElement =>
+        n match {
+          case p: ScParameter if p.name == "_" => false
+          case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
+          case p: ScModifierListOwner if hasOverrideModifier(p) => false
+          case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
+          case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+          case _ => true
+        }
+      case _ => false
     }
   }
 }
