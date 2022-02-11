@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExpo
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
 
@@ -124,7 +124,8 @@ trait FileDeclarationsHolder
       // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
       if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport &&
         lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
-        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName) {
+        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName &&
+        lastParent.module.forall(_.customDefaultImports.isEmpty)) {
 
         val file = aliasImportsFor(getProject, lastParent.scalaLanguageLevelOrDefault)
         file.context = lastParent.getContainingFile
