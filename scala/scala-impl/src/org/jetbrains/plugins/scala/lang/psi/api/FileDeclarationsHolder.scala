@@ -188,15 +188,15 @@ object FileDeclarationsHolder {
   private def aliasImportsFor(project: Project): ScalaFile = {
     val file = PsiFileFactory.getInstance(project).createFileFromText(AliasImportsFileName, ScalaLanguage.INSTANCE,
       """
-          import java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-          import java.io.Serializable
-          import java.util.NoSuchElementException
-          import scala.collection.{IterableOnce, Iterable, Iterator, :+}
-          import scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
-          import scala.collection.mutable.StringBuilder
-          import scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartiallyOrdered}
-          import scala.util.{Either, Left, Right}
-          import scala.reflect.{OptManifest, Manifest, NoManifest}
+          import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+          import _root_.java.io.Serializable
+          import _root_.java.util.NoSuchElementException
+          import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
+          import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
+          import _root_.scala.collection.mutable.StringBuilder
+          import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+          import _root_.scala.util.{Either, Left, Right}
+          import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
           """,
       false, true).asInstanceOf[ScalaFile]
 
