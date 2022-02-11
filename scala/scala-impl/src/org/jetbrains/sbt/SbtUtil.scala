@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
+import org.jetbrains.sbt.settings.SbtSettings
 
 import java.io.{BufferedInputStream, File, FileInputStream}
 import java.net.URI
@@ -35,12 +36,13 @@ object SbtUtil {
     ExternalSystemApiUtil.isExternalSystemAwareModule(SbtProjectSystem.Id, module)
 
   def isSbtProject(project: Project): Boolean = {
-    val settings = ExternalSystemApiUtil
-      .getSettings(project, SbtProjectSystem.Id)
-      .getLinkedProjectsSettings
-
-    ! settings.isEmpty
+    val settings = sbtSettings(project)
+    val linkedSettings = settings.getLinkedProjectsSettings
+    !linkedSettings.isEmpty
   }
+
+  def sbtSettings(project: Project): SbtSettings =
+      ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id).asInstanceOf[SbtSettings]
 
   /** Directory for global sbt plugins given sbt version */
   def globalPluginsDirectory(sbtVersion: Version): File =

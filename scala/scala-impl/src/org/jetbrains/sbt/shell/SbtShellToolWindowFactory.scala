@@ -1,9 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.awt.event.{InputEvent, KeyEvent}
-import java.awt.{Component, Container, FocusTraversalPolicy}
-import java.util.concurrent.TimeUnit
-
 import com.intellij.execution.runners.ExecutionUtil
 import com.intellij.ide.actions.ActivateToolWindowAction
 import com.intellij.openapi.actionSystem.KeyboardShortcut
@@ -12,13 +8,17 @@ import com.intellij.openapi.keymap.KeymapManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm._
 import com.intellij.openapi.wm.impl.ToolWindowImpl
-import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{invokeLater, schedulePeriodicTask}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
 import org.jetbrains.sbt.shell.SbtShellToolWindowFactory.scheduleIconUpdate
 import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
+
+import java.awt.event.{InputEvent, KeyEvent}
+import java.awt.{Component, Container, FocusTraversalPolicy}
+import java.util.concurrent.TimeUnit
+import javax.swing.{Icon, KeyStroke}
 
 /**
   * Creates the sbt shell toolwindow, which is docked at the bottom of sbt projects.
@@ -27,12 +27,12 @@ import org.jetbrains.sbt.{SbtBundle, SbtUtil, shell}
   */
 class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
 
-  override def isApplicable(project: Project): Boolean =
-    SbtUtil.isSbtProject(project)
-
+  /**
+   * NOTE: when a new project is created this returns false<br>
+   * In this case [[org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject]] explicitly activates the tool window
+   */
   override def shouldBeAvailable(project: Project): Boolean =
     SbtUtil.isSbtProject(project)
-
 
   // called once per project open
   @TraceWithLogger
