@@ -8,20 +8,15 @@ import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
-import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasSemantics
 
 import javax.swing.Icon
 
@@ -81,21 +76,4 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitTypeAliasDefinition(this)
   }
-
-  // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
-  // See also: ScReference.isIndirectReferenceTo
-  override def transparentExport: Option[PsiNamedElement] =
-    if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.Definition) None else containingClass match {
-      case o: ScObject if o.qualifiedName == "scala" || o.qualifiedName == "scala.Predef" => // TODO Generalize?
-        val element = aliasedType match {
-          case Right(pte: ScParameterizedType) => pte.extractClass
-          case Right(dte: ScDesignatorType) => Some(dte.element)
-          case _ => None
-        }
-        element.filter {
-          case c: PsiClass if c.name == name && isAliasFor(c) => true
-          case _ => false
-        }
-      case _ => None
-    }
 }

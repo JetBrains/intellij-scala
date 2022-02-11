@@ -5,7 +5,6 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
@@ -17,14 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasSemantics
 
 /**
   * @author Alexander Podkhalyuzin
@@ -76,20 +71,6 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     })
 
   override def pList: ScPatternList = getStubOrPsiChild(ScalaElementType.PATTERN_LIST)
-
-  // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
-  // See also: ScReference.isIndirectReferenceTo
-  override def transparentExport: Option[PsiNamedElement] =
-    if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.Definition) None else containingClass match {
-      case o: ScObject if o.qualifiedName == "scala" || o.qualifiedName == "scala.Predef" => `type`() match {
-        case Right(dt: ScDesignatorType) => dt.element match {
-          case o: ScObject if Seq(o.name) == declaredNames => Some(o)
-          case _ => None
-        }
-        case _ => None
-      }
-      case _ => None
-    }
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kVAL
 

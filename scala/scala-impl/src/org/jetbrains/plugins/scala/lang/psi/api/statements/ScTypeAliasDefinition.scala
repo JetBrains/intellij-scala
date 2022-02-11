@@ -4,7 +4,7 @@ package psi
 package api
 package statements
 
-import com.intellij.psi.{PsiClass, PsiNamedElement}
+import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
@@ -75,6 +75,4 @@ trait ScTypeAliasDefinition extends ScTypeAlias {
       typeParameters.isEmpty && aliasedType.getOrElse(return false).equiv(clsType)
     }
   }
-
-  def transparentExport: Option[PsiNamedElement]
 }

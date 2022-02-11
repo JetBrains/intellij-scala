@@ -172,7 +172,6 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
       case _ =>
         // TODO indirect references via vals, e.g. `package object scala { val List = scala.collection.immutable.List }` ?
         // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
-        // See also: ScTypeAliasDefinition.transparentExport, ScPatternDefinition.transparentExport
 
         val originalElement = element.getOriginalElement
         if (originalElement != element) isReferenceTo(originalElement, resolved, this.bind())

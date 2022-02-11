@@ -27,7 +27,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
-import org.jetbrains.plugins.scala.extensions._
 
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
@@ -168,17 +167,10 @@ class MethodResolveProcessor(override val ref: PsiElement,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
             isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
         case _ =>
-          val result = new ScalaResolveResult(namedElement, s, importsUsed, renamed,
+          addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
-            unresolvedTypeParameters = unresolvedTypeParameters)
-          namedElement match {
-            case (_: ScReferencePattern) && Parent(Parent(pd: ScPatternDefinition)) => pd.transparentExport match {
-              case Some(target) => addResult(result.copy(element = target, fromType = None))
-              case None => addResult(result)
-            }
-            case _ => addResult(result)
-          }
+            unresolvedTypeParameters = unresolvedTypeParameters))
       }
     }
     true

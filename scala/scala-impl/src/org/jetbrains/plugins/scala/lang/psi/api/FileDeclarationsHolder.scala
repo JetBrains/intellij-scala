@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
@@ -21,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasSemantics
 
 /**
   * User: Dmitry Naydanov
@@ -40,6 +43,13 @@ trait FileDeclarationsHolder
                                    place: PsiElement): Boolean = {
     if (isProcessLocalClasses(lastParent) &&
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+
+    if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasSemantics.TransparentExport) {
+      if (lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName) {
+        val file = aliasImportsFor(getProject)
+        file.processDeclarations(processor, state, file.getLastChild, place)
+      }
+    }
 
     if (!processDeclarationsFromImports(processor, state, lastParent, place)) return false
 
@@ -167,6 +177,30 @@ trait FileDeclarationsHolder
 
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
+
+  private final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
+
+  // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
+  // TODO Parse dynamically from scala and scala.Predef
+  // TODO Cache per Scala standard library
+  private def aliasImportsFor(project: Project): ScalaFile = {
+    val file = PsiFileFactory.getInstance(project).createFileFromText(AliasImportsFileName, ScalaLanguage.INSTANCE,
+      """
+          import java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+          import java.io.Serializable
+          import java.util.NoSuchElementException
+          import scala.collection.{IterableOnce, Iterable, Iterator, :+}
+          import scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
+          import scala.collection.mutable.StringBuilder
+          import scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartiallyOrdered}
+          import scala.util.{Either, Left, Right}
+          import scala.reflect.{OptManifest, Manifest, NoManifest}
+          """,
+      false, true).asInstanceOf[ScalaFile]
+
+    file
+  }
+
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
                              (body: => Unit): Unit =

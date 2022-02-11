@@ -120,9 +120,7 @@ class ScalaResolveResult(
     unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
     implicitScopeObject:      Option[ScType]             = implicitScopeObject,
     isExtension:              Boolean                    = isExtension,
-    extensionContext:         Option[ScExtension]        = extensionContext,
-    element:                  PsiNamedElement            = element,
-    fromType:                 Option[ScType]             = fromType
+    extensionContext:         Option[ScExtension]        = extensionContext
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
