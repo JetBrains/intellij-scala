@@ -242,13 +242,9 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def isNewCollectionsLibrary(param: ScParameter): Boolean = {
-    param.module.flatMap(_.scalaLanguageLevel).forall(_ >= Scala_2_13)
-  }
-
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor): String = param match {
     case p: ScParameter if p.isRepeatedParameter =>
-      if (isNewCollectionsLibrary(p)) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
+      if (p.module.exists(_.hasNewCollectionsFramework)) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
     case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
     case _ => getJVMStringForType(subst(param.`type`().getOrAny))
   }
