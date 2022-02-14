@@ -168,6 +168,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |    var z = 1
       |    val y = 0
       |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
+      |    val ints: Array[Int] = Array(1, 2)
       |
       |    val boxedAny = Array[Any](1, 2)
       |    val boxedInteger = Array[java.lang.Integer](1, 2)
@@ -193,6 +194,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("m", "2")
       evalEquals("y = 1", "1") //local vals may be reassigned in debugger
       evalEquals("y", "1")
+      evalEquals("ints(0) = 10", "10")
+      evalEquals("ints(0)", "10")
       evalEquals("boxedAny(0) = 10", "10")
       evalEquals("boxedAny(0)", "10")
       evalEquals("boxedInteger(0) = 10", "10")
