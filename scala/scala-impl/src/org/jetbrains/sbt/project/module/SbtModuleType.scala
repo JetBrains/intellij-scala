@@ -1,17 +1,18 @@
 package org.jetbrains.sbt
 package project.module
 
-import javax.swing.Icon
-import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.{Module, ModuleType}
-import SbtModuleType.Id
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.sbt.project.DummyModuleBuilder
+import org.jetbrains.sbt.project.module.SbtModuleType.Id
+
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
  */
-class SbtModuleType extends ModuleType[EmptyModuleBuilder](Id) {
-  override def createModuleBuilder() = new EmptyModuleBuilder()
+class SbtModuleType extends ModuleType[DummyModuleBuilder](Id) {
+  override def createModuleBuilder: DummyModuleBuilder = new DummyModuleBuilder()
 
   override def getName: String = Sbt.BuildModuleName
 

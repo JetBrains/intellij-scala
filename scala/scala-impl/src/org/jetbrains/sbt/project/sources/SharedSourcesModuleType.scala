@@ -1,16 +1,17 @@
 package org.jetbrains.sbt.project.sources
 
 import com.intellij.icons.AllIcons
-import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
 import com.intellij.openapi.module.ModuleType
-import javax.swing.Icon
 import org.jetbrains.sbt.SbtBundle
+import org.jetbrains.sbt.project.DummyModuleBuilder
+
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin
  */
-class SharedSourcesModuleType extends ModuleType[EmptyModuleBuilder]("SHARED_SOURCES_MODULE") {
-  override def createModuleBuilder() = new EmptyModuleBuilder()
+class SharedSourcesModuleType extends ModuleType[DummyModuleBuilder]("SHARED_SOURCES_MODULE") {
+  override def createModuleBuilder: DummyModuleBuilder = new DummyModuleBuilder()
 
   override def getName: String = SbtBundle.message("sbt.shared.sources.module")
 

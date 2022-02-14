@@ -1,29 +1,24 @@
 package org.jetbrains.bsp.project
 
-import com.intellij.ide.util.projectWizard.EmptyModuleBuilder
-import com.intellij.openapi.module.{Module, ModuleConfigurationEditor, ModuleType}
+import com.intellij.openapi.module.{ModuleConfigurationEditor, ModuleType}
 import com.intellij.openapi.roots.ui.configuration._
-import javax.swing.Icon
-import org.jetbrains.bsp.{BspBundle, Icons}
 import org.jetbrains.bsp.project.BspSyntheticModuleType._
+import org.jetbrains.bsp.{BspBundle, Icons}
+import org.jetbrains.sbt.project.DummyModuleBuilder
 
-class BspSyntheticModuleType extends ModuleType[EmptyModuleBuilder](Id) {
-  override def createModuleBuilder(): EmptyModuleBuilder = new EmptyModuleBuilder
+import javax.swing.Icon
+
+class BspSyntheticModuleType extends ModuleType[DummyModuleBuilder](Id) {
+  override def createModuleBuilder: DummyModuleBuilder = new DummyModuleBuilder
   override def getName: String = Name
   override def getDescription: String = Description
   override def getNodeIcon(isOpened: Boolean): Icon = Icons.BSP_TARGET
 }
 
 object BspSyntheticModuleType {
-  def instance: BspSyntheticModuleType = new BspSyntheticModuleType
-
   val Id = "BSP_SYNTHETIC_MODULE"
   val Name: String = BspBundle.message("bsp.synthetic.module")
   val Description: String = BspBundle.message("bsp.synthetic.module.description")
-
-  def unapply(m: Module): Option[Module] =
-    if (ModuleType.get(m).isInstanceOf[BspSyntheticModuleType]) Some(m)
-    else None
 }
 
 
