@@ -8,7 +8,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   val argsPlaceholder = "<args-placeholder>"
 
   private def doParamTest(templ: String)(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
-    checkTextHasError(templ.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore))
+    checkTextHasError(templ.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore), allowAdditionalHighlights = true)
 
     val rawArgsBefore = beforeClause.replace(START, "").replace(END, "")
     val before = templ.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
@@ -18,6 +18,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   private val doFunctionParameterTest = doParamTest(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |class Foo {
        |  val a = 0
        |  val b = 0
@@ -34,6 +36,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   private val doConstructorParameterTest = doParamTest(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |class Foo {
        |  val a = 0
        |  val b = 0
