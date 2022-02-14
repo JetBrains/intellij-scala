@@ -435,13 +435,29 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argTypes.isEmpty) expectedType else argTypes.lub()
       val argTypeText = argType.canonicalText
 
-      val argsText =
-        if (exprsForP.nonEmpty) exprsForP.sortBy(_.startOffset).map(_.getText).mkString(".+=(", ").+=(", ")")
-        else ""
+      val arguments = exprsForP.sortBy(_.startOffset).map { argExpr =>
+        val eval = evaluatorFor(argExpr)
+        argExpr.smartExpectedType() match {
+          case Some(tp @ ValueClassType(inner)) => valueClassInstanceEvaluator(eval, inner, tp)
+          case _ => boxEvaluator(eval)
+        }
+      }
 
-      val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText.result()"
-      val newExpr = createExpressionWithContextFromText(exprText, context, context)
-      evaluatorFor(newExpr)
+      val builderExprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]"
+      val builderExpr = createExpressionWithContextFromText(builderExprText, context, context)
+      val builderEval = evaluatorFor(builderExpr)
+
+      val addOneJVMName = if (builderExpr.newCollectionsFramework) {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Growable")
+      } else {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Builder")
+      }
+      val addEval = arguments.foldLeft(builderEval) { (acc, arg) =>
+        ScalaMethodEvaluator(acc, "$plus$eq", addOneJVMName, Seq(arg))
+      }
+
+      val resultJVMName = JVMNameUtil.getJVMRawText("()Ljava/lang/Object")
+      ScalaMethodEvaluator(addEval, "result", resultJVMName, Seq.empty)
     }
     if (exprsForP.length == 1) {
       exprsForP.head match {
@@ -607,7 +623,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head, isArrayFunction)
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) {
+              val expr = exprsForP.head
+              val eval = evaluatorFor(expr)
+              expr.smartExpectedType() match {
+                case Some(tp @ ValueClassType(inner)) if isArrayFunction => valueClassInstanceEvaluator(eval, inner, tp)
+                case _ => eval
+              }
+            }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p)
@@ -1331,7 +1354,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator, isArrayFunction: Boolean): Evaluator = {
+  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {
 
     //boxing and unboxing actions
     def unbox(typeTo: String) = unaryEvaluator(unboxEvaluator(evaluator), typeTo)
@@ -1361,15 +1384,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     expr.smartExpectedType() match {
-      case Some(valType: ValType)         => unboxTo(valType)
-      case Some(ValueClassType.Param(_)) if isArrayFunction =>
-        // Array of value types, they need to remain boxed.
-        evaluator
+      case Some(valType: ValType) => unboxTo(valType)
       case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
       case Some(_) =>
         // Here, value types are used as other types, so they have to be boxed.
         boxEvaluator(valueClassInstance(evaluator))
-      case None                           => valueClassInstance(evaluator)
+      case None => valueClassInstance(evaluator)
     }
   }
 
