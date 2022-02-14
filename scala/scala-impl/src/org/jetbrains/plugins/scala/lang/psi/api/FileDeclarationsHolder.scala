@@ -14,6 +14,7 @@ import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjector
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike.processPackageObject
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
 import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder}
@@ -123,7 +124,7 @@ trait FileDeclarationsHolder
       // SCL-19928
       // TODO Process the classes directly
       if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
-        if (!processDeclarationsFromImports(processor, state, aliasImports.getLastChild, place)) return false
+        if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
       }
 
       if (!processImplicitImports(processor, state, place)) return false
@@ -132,11 +133,11 @@ trait FileDeclarationsHolder
     true
   }
 
-  private lazy val aliasImports: ScalaFile = {
+  private lazy val aliasImports: Seq[ScImportStmt] = {
     val text = if (this.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) Scala212AliasImports else Scala213AliasImports
     val file = ScalaPsiElementFactory.createScalaFileFromText(text)
     file.context = this
-    file
+    file.children.filterByType[ScImportStmt].toSeq.reverse
   }
 
   def processImplicitImports(processor: PsiScopeProcessor,
