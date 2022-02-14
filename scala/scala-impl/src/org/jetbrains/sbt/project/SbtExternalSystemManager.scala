@@ -208,7 +208,7 @@ object SbtExternalSystemManager {
 
     // TODO workaround for IDEA-186551 -- remove when fixed in core
     val nonProxyHosts =
-      if (!StringUtil.isEmpty(http.PROXY_EXCEPTIONS)) {
+      if (!StringUtil.isEmpty(http.PROXY_EXCEPTIONS) && (http.USE_HTTP_PROXY || http.USE_PROXY_PAC)) {
         val hosts = http.PROXY_EXCEPTIONS.split(",")
         if (hosts.nonEmpty) {
           val hostString = hosts.map(_.trim).mkString("|")
