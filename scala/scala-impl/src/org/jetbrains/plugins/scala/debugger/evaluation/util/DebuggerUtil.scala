@@ -244,7 +244,7 @@ object DebuggerUtil {
 
   private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor): String = param match {
     case p: ScParameter if p.isRepeatedParameter =>
-      if (p.module.exists(_.hasNewCollectionsFramework)) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
+      if (p.newCollectionsFramework) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
     case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
     case _ => getJVMStringForType(subst(param.`type`().getOrAny))
   }
