@@ -143,6 +143,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testUsedPrivateClassVal(): Unit = checkTextHasNoErrors(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
        |  private class Test(val p: Int)
        |  val x = new Test(3)
