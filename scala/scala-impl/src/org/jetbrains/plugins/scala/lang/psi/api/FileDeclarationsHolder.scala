@@ -123,8 +123,7 @@ trait FileDeclarationsHolder
     if (checkPredefinedClassesAndPackages) {
       // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
       if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport &&
-        lastParent.getContainingFile != null && lastParent.getContainingFile.getName != AliasImportsFileName &&
-        place.getContainingFile != null && place.getContainingFile.getName != AliasImportsFileName &&
+        lastParent.getContainingFile.getName != AliasImportsFileName && place.getContainingFile.getName != AliasImportsFileName &&
         lastParent.module.forall(_.customDefaultImports.isEmpty)) {
 
         val file = aliasImportsFor(getProject, lastParent.scalaLanguageLevelOrDefault)
@@ -182,11 +181,11 @@ trait FileDeclarationsHolder
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  private final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
+  final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
 
   // TODO Parse dynamically from scala and scala.Predef (on the other hand, this API is stable and forward compatible)
   // TODO Cache per Scala standard library
-  val Scala212AliasImports = """
+  private val Scala212AliasImports = """
      import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.util.NoSuchElementException
      import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
@@ -198,7 +197,7 @@ object FileDeclarationsHolder {
      import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
    """
 
-  val Scala213AliasImports = """
+  private val Scala213AliasImports = """
      import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.io.Serializable
      import _root_.java.util.NoSuchElementException
