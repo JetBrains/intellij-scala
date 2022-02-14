@@ -330,8 +330,12 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testLocalPublicClassParam(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object PatternMatching {
+       |  @unused
        |  def f(): Unit = {
+       |    @unused
        |    class Test(val $p: Int)
        |    new Test(_)
        |  }
