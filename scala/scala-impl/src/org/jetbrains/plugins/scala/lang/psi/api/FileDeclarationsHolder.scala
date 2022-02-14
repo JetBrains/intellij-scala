@@ -121,13 +121,10 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
-      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport &&
-        lastParent.getContainingFile.getName != AliasImportsFileName && place.getContainingFile.getName != AliasImportsFileName &&
-        lastParent.module.forall(_.customDefaultImports.isEmpty)) {
-
+      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
         val file = aliasImportsFor(getProject, lastParent.scalaLanguageLevelOrDefault)
         file.context = lastParent.getContainingFile
-        if (!file.processDeclarations(processor, state, file.getLastChild, place)) return false
+        if (!processDeclarationsFromImports(processor, state, file.getLastChild, place)) return false
       }
 
       if (!processImplicitImports(processor, state, place)) return false
@@ -180,8 +177,6 @@ trait FileDeclarationsHolder
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
-
   // SCL-19928
   // TODO Resolve aliases dynamically?
   // TODO Cache per scala-library.jar?
@@ -211,7 +206,7 @@ object FileDeclarationsHolder {
 
   private def aliasImportsFor(project: Project, languageLevel: ScalaLanguageLevel): ScalaFile = {
     val text = if (languageLevel >= ScalaLanguageLevel.Scala_2_13) Scala213AliasImports else Scala212AliasImports
-    PsiFileFactory.getInstance(project).createFileFromText(AliasImportsFileName, ScalaLanguage.INSTANCE, text, false, true).asInstanceOf[ScalaFile]
+    PsiFileFactory.getInstance(project).createFileFromText("aliasImports.scala", ScalaLanguage.INSTANCE, text, false, true).asInstanceOf[ScalaFile]
   }
 
   //method extracted due to VerifyError in Scala compiler
