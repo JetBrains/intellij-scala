@@ -435,13 +435,29 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argTypes.isEmpty) expectedType else argTypes.lub()
       val argTypeText = argType.canonicalText
 
-      val argsText =
-        if (exprsForP.nonEmpty) exprsForP.sortBy(_.startOffset).map(_.getText).mkString(".+=(", ").+=(", ")")
-        else ""
+      val arguments = exprsForP.sortBy(_.startOffset).map { argExpr =>
+        val eval = evaluatorFor(argExpr)
+        argExpr.smartExpectedType() match {
+          case Some(tp @ ValueClassType(inner)) => valueClassInstanceEvaluator(eval, inner, tp)
+          case _ => boxEvaluator(eval)
+        }
+      }
 
-      val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText.result()"
-      val newExpr = createExpressionWithContextFromText(exprText, context, context)
-      evaluatorFor(newExpr)
+      val builderExprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]"
+      val builderExpr = createExpressionWithContextFromText(builderExprText, context, context)
+      val builderEval = evaluatorFor(builderExpr)
+
+      val addOneJVMName = if (builderExpr.newCollectionsFramework) {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Growable")
+      } else {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Builder")
+      }
+      val addEval = arguments.foldLeft(builderEval) { (acc, arg) =>
+        ScalaMethodEvaluator(acc, "$plus$eq", addOneJVMName, Seq(arg))
+      }
+
+      val resultJVMName = JVMNameUtil.getJVMRawText("()Ljava/lang/Object")
+      ScalaMethodEvaluator(addEval, "result", resultJVMName, Seq.empty)
     }
     if (exprsForP.length == 1) {
       exprsForP.head match {
@@ -1336,11 +1352,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case None => throw EvaluationException(ScalaBundle.message("value.definition.needs.right.hand.side", pd.getText))
       case Some(e) => valOrVarDefinitionEvaluator(pd.pList, e)
     }
-  }
-
-  def boxValueClass(tpe: ScType, eval: Evaluator): Evaluator = tpe.tryExtractDesignatorSingleton match {
-    case vc @ ValueClassType(inner) => valueClassInstanceEvaluator(eval, inner, vc)
-    case _ => eval
   }
 
   def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {

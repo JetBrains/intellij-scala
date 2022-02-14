@@ -463,6 +463,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ArrayCreation.scala",
     s"""
        |object ArrayCreation {
+       |  class Value(val n: Int) extends AnyVal {
+       |    override def toString: String = n.toString
+       |  }
+       |
        |  def main(args: Array[String]): Unit = {
        |    println()$bp
        |  }
@@ -502,6 +506,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""new Array[Null](5)""", "[null,null,null,null,null]")
       evalEquals("""new Array[Nothing](5)""", "[null,null,null,null,null]")
       evalEquals("""new Array[Singleton](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Value](5)""", "[null,null,null,null,null]")
+      evalEquals("""Array[Value]()""", "[]")
+      evalEquals("""Array(new Value(5), new Value(6), new Value(7))""", "[5,6,7]")
     }
 
   addFileWithBreakpoints("SyntheticOperators.scala",
@@ -565,6 +572,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  def genericEquals[A, B](a: A, b: B): Boolean =
        |    a == b
        |
+       |  // Test repeated arguments
+       |  def prependAll[A](list: List[A])(as: A*): List[A] =
+       |    as.toList ++ list
+       |
+       |  class SimpleValue(val n: Int) extends AnyVal
+       |
        |  def main(args: Array[String]): Unit = {
        |    val metricValue1 = MetricKilograms1(2.2)
        |    val mvOption1 = Some(metricValue1)
@@ -615,6 +628,14 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("genericEquals(metricValue1, metricValue1)", "true")
       evalEquals("genericEquals(new MetricKilograms1(2.2), 2.2)", "false")
       evalEquals("genericEquals(2.2, new MetricKilograms1(2.2))", "false")
+
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(0) == new SimpleValue(5)", "true")
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(1) == new SimpleValue(6)", "true")
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(2) == new SimpleValue(7)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(0) == new SimpleValue(1)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(1) == new SimpleValue(2)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(2) == new SimpleValue(5)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(3) == new SimpleValue(6)", "true")
     }
 
 }
