@@ -155,10 +155,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
 
   ///////// case class parameter /////////
-  def testUnusedPrivateCaseClass(): Unit = checkTextHasNoErrors(
+  def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
     s"""
-       |object Global {
-       |  private case class Test(a: Int)
+       |object ${START}Global$END {
+       |  private case class ${START}Test$END(${START}p$END: Int)
        |}
        |""".stripMargin
   )
@@ -171,9 +171,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |""".stripMargin
   )
 
-  def testUsedPrivateCaseClass(): Unit = checkTextHasNoErrors(
+  def testUsedPrivateCaseClass(): Unit = checkTextHasError(
     s"""
-       |object Global {
+       |object ${START}Global$END {
        |  private case class Test(p: Int)
        |  val x = new Test(3)
        |  println(x.p)
@@ -207,7 +207,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   // implicit stuff
   def testDontHighlightImplicitParameter(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
+      |@unused
       |object Test {
+      |  @unused
       |  def test(implicit unused: A): Unit = ()
       |}
       |""".stripMargin
