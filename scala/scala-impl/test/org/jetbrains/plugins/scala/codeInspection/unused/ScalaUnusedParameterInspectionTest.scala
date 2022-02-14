@@ -157,10 +157,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |""".stripMargin
   )
 
-  def testUnusedPublicCaseClass(): Unit = checkTextHasNoErrors(
+  def testUnusedPublicCaseClass(): Unit = checkTextHasError(
     s"""
-       |object Global {
-       |  case class Test(p: Int)
+       |object ${START}Global$END {
+       |  case class ${START}Test$END(${START}p$END: Int)
        |}
        |""".stripMargin
   )
