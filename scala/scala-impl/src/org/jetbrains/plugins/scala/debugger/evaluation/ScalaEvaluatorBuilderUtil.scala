@@ -607,7 +607,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head, isArrayFunction)
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) {
+              val expr = exprsForP.head
+              val eval = evaluatorFor(expr)
+              expr.smartExpectedType() match {
+                case Some(tp @ ValueClassType(inner)) if isArrayFunction => valueClassInstanceEvaluator(eval, inner, tp)
+                case _ => eval
+              }
+            }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p)
@@ -1331,7 +1338,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator, isArrayFunction: Boolean): Evaluator = {
+  def boxValueClass(tpe: ScType, eval: Evaluator): Evaluator = tpe.tryExtractDesignatorSingleton match {
+    case vc @ ValueClassType(inner) => valueClassInstanceEvaluator(eval, inner, vc)
+    case _ => eval
+  }
+
+  def postProcessExpressionEvaluator(expr: ScExpression, evaluator: Evaluator): Evaluator = {
 
     //boxing and unboxing actions
     def unbox(typeTo: String) = unaryEvaluator(unboxEvaluator(evaluator), typeTo)
@@ -1361,15 +1373,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     expr.smartExpectedType() match {
-      case Some(valType: ValType)         => unboxTo(valType)
-      case Some(ValueClassType.Param(_)) if isArrayFunction =>
-        // Array of value types, they need to remain boxed.
-        evaluator
+      case Some(valType: ValType) => unboxTo(valType)
       case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
       case Some(_) =>
         // Here, value types are used as other types, so they have to be boxed.
         boxEvaluator(valueClassInstance(evaluator))
-      case None                           => valueClassInstance(evaluator)
+      case None => valueClassInstance(evaluator)
     }
   }
 

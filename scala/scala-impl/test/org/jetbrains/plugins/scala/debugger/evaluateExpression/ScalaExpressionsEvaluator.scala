@@ -202,6 +202,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("boxedInteger(0)", "10")
       evalEquals("(boxedValues(0) = new Value(19)) == new Value(19)", "true")
       evalEquals("boxedValues(0) == new Value(19)", "true")
+      evalEquals("(boxedValues(0) = (((((((((new Value(20))))))))))) == new Value(20)", "true")
       evalEquals("""(boxedStrings(0) = new StringValue("19")) == new StringValue("19")""", "true")
       evalEquals("""boxedStrings(0) == new StringValue("19")""", "true")
     }

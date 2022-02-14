@@ -100,7 +100,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
 
   def getEvaluator: Evaluator = new UnwrapRefEvaluator(fragmentEvaluator(codeFragment))
 
-  protected def evaluatorFor(element: PsiElement, isArrayFunction: Boolean = false): Evaluator = {
+  protected def evaluatorFor(element: PsiElement): Evaluator = {
     element match {
       case implicitlyConvertedTo(expr)     => evaluatorFor(expr)
       case needsCompilation(message)       => throw new NeedCompilationException(message)
@@ -128,7 +128,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
           case stmt: ScTypedExpression        => evaluatorFor(stmt.expr)
           case e                              => throw EvaluationException(ScalaBundle.message("evaluation.of.expression.is.not.supported", e.getText))
         }
-        postProcessExpressionEvaluator(expr, innerEval, isArrayFunction)
+        postProcessExpressionEvaluator(expr, innerEval)
       case pd: ScPatternDefinition         => patternDefinitionEvaluator(pd)
       case vd: ScVariableDefinition        => variableDefinitionEvaluator(vd)
       case e                               => throw EvaluationException(ScalaBundle.message("evaluation.of.element.is.not.supported", e.getText))
