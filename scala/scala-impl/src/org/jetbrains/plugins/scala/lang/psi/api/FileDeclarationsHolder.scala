@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.psi.api
 
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.migration.PsiMigrationManager
@@ -121,16 +120,23 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
+      // SCL-19928
+      // TODO Process the classes directly
       if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
-        val file = aliasImportsFor(getProject, lastParent.scalaLanguageLevelOrDefault)
-        file.context = lastParent.getContainingFile
-        if (!processDeclarationsFromImports(processor, state, file.getLastChild, place)) return false
+        if (!processDeclarationsFromImports(processor, state, aliasImports.getLastChild, place)) return false
       }
 
       if (!processImplicitImports(processor, state, place)) return false
     }
 
     true
+  }
+
+  private lazy val aliasImports: ScalaFile = {
+    val text = if (this.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) Scala212AliasImports else Scala213AliasImports
+    val file = ScalaPsiElementFactory.createScalaFileFromText(text)
+    file.context = this
+    file
   }
 
   def processImplicitImports(processor: PsiScopeProcessor,
@@ -177,10 +183,7 @@ trait FileDeclarationsHolder
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  // SCL-19928
-  // TODO Resolve aliases dynamically?
-  // TODO Cache per scala-library.jar?
-  private val Scala212AliasImports = """
+  private final val Scala212AliasImports = """
      import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.util.NoSuchElementException
      import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
@@ -192,7 +195,7 @@ object FileDeclarationsHolder {
      import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
    """
 
-  private val Scala213AliasImports = """
+  private final val Scala213AliasImports = """
      import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.io.Serializable
      import _root_.java.util.NoSuchElementException
@@ -203,11 +206,6 @@ object FileDeclarationsHolder {
      import _root_.scala.util.{Either, Left, Right}
      import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
    """
-
-  private def aliasImportsFor(project: Project, languageLevel: ScalaLanguageLevel): ScalaFile = {
-    val text = if (languageLevel >= ScalaLanguageLevel.Scala_2_13) Scala213AliasImports else Scala212AliasImports
-    PsiFileFactory.getInstance(project).createFileFromText("aliasImports.scala", ScalaLanguage.INSTANCE, text, false, true).asInstanceOf[ScalaFile]
-  }
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
