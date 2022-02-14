@@ -121,7 +121,6 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
-      // https://contributors.scala-lang.org/t/transparent-term-aliases/5553
       if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport &&
         lastParent.getContainingFile.getName != AliasImportsFileName && place.getContainingFile.getName != AliasImportsFileName &&
         lastParent.module.forall(_.customDefaultImports.isEmpty)) {
@@ -183,8 +182,9 @@ object FileDeclarationsHolder {
 
   final val AliasImportsFileName = s"ScalaStandardLibraryAliasImportsSyntheticFile1234567890.${ScalaFileType.INSTANCE.getDefaultExtension}"
 
-  // TODO Parse dynamically from scala and scala.Predef (on the other hand, this API is stable and forward compatible)
-  // TODO Cache per Scala standard library
+  // SCL-19928
+  // TODO Resolve aliases dynamically?
+  // TODO Cache per scala-library.jar?
   private val Scala212AliasImports = """
      import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      import _root_.java.util.NoSuchElementException

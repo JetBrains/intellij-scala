@@ -1118,7 +1118,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12218(): Unit = doTest("i12218", false)
   def test_i12226(): Unit = doTest("i12226", true)
   def test_i12247(): Unit = doTest("i12247", true)
-  def test_i12264(): Unit = doTest("i12264", true) // #opaque
+  def test_i12264(): Unit = doTest("i12264", false) // #opaque (if there's import scala.collection.immutable.List, List[Expect](...) resolves to apply method)
   def test_i12265(): Unit = doTest("i12265", true)
   def test_i12273(): Unit = doTest("i12273", true)
   def test_i12277(): Unit = doTest("i12277", true)
