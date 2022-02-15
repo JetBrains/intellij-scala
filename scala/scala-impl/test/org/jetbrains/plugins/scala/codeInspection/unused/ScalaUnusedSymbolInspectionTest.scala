@@ -303,7 +303,10 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def testAnonymousFunctionWithCaseClause(): Unit = {
     val code =
       s"""
+        |import scala.annotation.unused
+        |@unused
         |class Moo {
+        |  @unused
         |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
         |    s.map {
         |      case (a, ${START}b$END) => a
@@ -314,7 +317,10 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     checkTextHasError(code)
     val before =
       """
+        |import scala.annotation.unused
+        |@unused
         |class Moo {
+        |  @unused
         |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
         |    s.map {
         |      case (a, b) => a
@@ -324,7 +330,10 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       """.stripMargin
     val after =
       """
+        |import scala.annotation.unused
+        |@unused
         |class Moo {
+        |  @unused
         |  def foo(s: Seq[(Int, Int)]): Seq[Int] = {
         |    s.map {
         |      case (a, _) => a
