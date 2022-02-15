@@ -4,7 +4,7 @@ package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
-import com.intellij.psi.search.searches.ReferencesSearch
+import com.intellij.psi.search.searches.{OverridingMethodsSearch, ReferencesSearch}
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
@@ -100,6 +100,11 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           case p: ScModifierListOwner if hasOverrideModifier(p) => false
           case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
           case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+          case p: ScParameter =>
+            p.parent.flatMap(_.parent.flatMap(_.parent)) match {
+              case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false
+              case _ => true
+            }
           case _ => true
         }
       case _ => false

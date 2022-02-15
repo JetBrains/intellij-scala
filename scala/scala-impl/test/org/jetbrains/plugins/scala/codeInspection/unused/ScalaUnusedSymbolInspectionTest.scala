@@ -535,7 +535,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |class A {
       |  def foo(str: String): Unit = ()
       |}
-      |class B extends A {
+      |new A {
       |  override def foo(str: String): Unit = {
       |    println(str)
       |  }
