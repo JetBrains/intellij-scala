@@ -182,7 +182,7 @@ trait FileDeclarationsHolder
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  private val Scala212AliasImports = """
+  private val AliasImports212 = """
      |import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      |import _root_.java.util.NoSuchElementException
      |import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
@@ -194,7 +194,7 @@ object FileDeclarationsHolder {
      |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
    """.stripMargin.trim
 
-  private val Scala213AliasImports = """
+  private val AliasImports213 = """
      |import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
      |import _root_.java.io.Serializable
      |import _root_.java.util.NoSuchElementException
@@ -207,7 +207,7 @@ object FileDeclarationsHolder {
    """.stripMargin.trim
 
   private def aliasImportsFor(level: ScalaLanguageLevel): String =
-    if (level < ScalaLanguageLevel.Scala_2_13) Scala212AliasImports else Scala213AliasImports
+    if (level < ScalaLanguageLevel.Scala_2_13) AliasImports212 else AliasImports213
 
   def isAliasImport(path: String, level: ScalaLanguageLevel): Boolean = {
     val text = aliasImportsFor(level)
