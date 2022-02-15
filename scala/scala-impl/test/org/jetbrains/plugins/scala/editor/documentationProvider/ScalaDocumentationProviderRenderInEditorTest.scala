@@ -1,12 +1,19 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics.{Definition, ImplicitImport}
 
 // TODO: in-editor doc: code example in the end of the doc produces new line
 class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationProviderTestBase {
 
   override protected def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
     documentationProvider.generateRenderedDoc(referredElement.asInstanceOf[ScDocCommentOwner].getDocComment)
+
+  private def exceptionClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+    case Definition => "scala.Exception"
+    case ImplicitImport => "java.lang.Exception"
+  }
 
   def testSingleParagraphInDescription(): Unit =
     doGenerateDocTest(
@@ -67,7 +74,7 @@ class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationPro
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'> some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
-         |<td valign='top'><a href="psi_element://scala.Exception"><code>Exception</code></a> &ndash; some text</td>
+         |<td valign='top'><a href="psi_element://$exceptionClass"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Example:</td>
