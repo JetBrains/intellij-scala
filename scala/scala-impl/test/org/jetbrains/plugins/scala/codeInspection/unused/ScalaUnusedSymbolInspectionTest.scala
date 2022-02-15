@@ -184,6 +184,8 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def testMatchCaseNoType(): Unit = {
     val code =
       s"""
+         |import scala.annotation.unused
+         |@unused
          |class Moo {
          |  Option(null) match {
          |    case Some(${START}s$END) =>
@@ -194,6 +196,8 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     checkTextHasError(code)
     val before =
       """
+        |import scala.annotation.unused
+        |@unused
         |class Moo {
         |  Option(null) match {
         |    case Some(s) =>
@@ -203,6 +207,8 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       """.stripMargin
     val after =
       """
+        |import scala.annotation.unused
+        |@unused
         |class Moo {
         |  Option(null) match {
         |    case Some(_) =>
@@ -610,6 +616,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     s"""
        |import scala.annotation.nowarn
        |
+       |@nowarn("unused")
        |object Test {
        |  @nowarn("unused")
        |  private def test(): Unit = ()
