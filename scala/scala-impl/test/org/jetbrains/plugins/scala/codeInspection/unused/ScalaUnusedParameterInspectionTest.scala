@@ -157,23 +157,30 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   ///////// case class parameter /////////
   def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
     s"""
-       |object ${START}Global$END {
-       |  private case class ${START}Test$END(${START}p$END: Int)
+       |import scala.annotation.unused
+       |@unused
+       |object Global {
+       |  @unused
+       |  private case class Test($p: Int)
        |}
        |""".stripMargin
   )
 
   def testUnusedPublicCaseClass(): Unit = checkTextHasError(
     s"""
-       |object ${START}Global$END {
-       |  case class ${START}Test$END(${START}p$END: Int)
+       |import scala.annotation.unused
+       |@unused
+       |object Global {
+       |  case class ${START}Test$END($p: Int)
        |}
        |""".stripMargin
   )
 
-  def testUsedPrivateCaseClass(): Unit = checkTextHasError(
+  def testUsedPrivateCaseClass(): Unit = checkTextHasNoErrors(
     s"""
-       |object ${START}Global$END {
+       |import scala.annotation.unused
+       |@unused
+       |object Global {
        |  private case class Test(p: Int)
        |  val x = new Test(3)
        |  println(x.p)
