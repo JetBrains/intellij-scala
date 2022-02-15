@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedS
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
@@ -77,6 +77,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
+      case c: ScClassParameter if isOverridingOrOverridden(c) => Seq.empty
       case named: ScNamedElement => Seq(named)
       case _ => Seq.empty
     }
@@ -116,6 +117,9 @@ object ScalaUnusedSymbolInspection {
 
   private def hasOverrideModifier(member: ScModifierListOwner): Boolean =
     member.hasModifierPropertyScala(ScalaModifier.OVERRIDE)
+
+  private def isOverridingOrOverridden(element: PsiNamedElement): Boolean =
+    superValsSignatures(element, withSelfType = true).nonEmpty || isOverridden(element)
 
   private def isOverridingFunction(func: ScFunction): Boolean =
     hasOverrideModifier(func) || func.superSignatures.nonEmpty || isOverridden(func)
