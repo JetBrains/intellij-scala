@@ -72,6 +72,7 @@
                     icon="/org/jetbrains/plugins/scala/images/sbtShellToolwin.svg"
                     factoryClass="org.jetbrains.sbt.shell.SbtShellToolWindowFactory"
                     doNotActivateOnStart="true"/>
+        <externalSystemSettingsListener implementation="org.jetbrains.sbt.project.ShowSbtShellAfterCreatingNewProject"/>
 
         <psi.referenceContributor implementation="org.jetbrains.sbt.language.references.SbtReferenceContributor" order="first"/>
 

@@ -3,35 +3,26 @@ package completion
 package postfix
 package templates
 
-import com.intellij.codeInsight.template.postfix.templates.SurroundPostfixTemplateBase
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectTopmostAncestors
-import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.ScalaPostfixTemplatePsiInfo
+import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.{AnyRefExpression, SelectTopmostAncestors}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
-import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithIfConditionSurrounder
 
 /**
  * @author Roman.Shein
  * @since 14.09.2015.
  */
-sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) extends SurroundPostfixTemplateBase(
+sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) extends ScalaStringBasedPostfixTemplate(
   name,
   s"if (expr $character= null) {}",
-  ScalaPostfixTemplatePsiInfo,
-  SelectTopmostAncestors(ScalaWithIfConditionSurrounder)
+  SelectTopmostAncestors(AnyRefExpression)
 ) {
-
-  override protected def getWrappedExpression(expression: PsiElement): PsiElement = {
-    val (prefix, suffix) = expression match {
+  override def getTemplateString(element: PsiElement): String = {
+    val (prefix, suffix) = element match {
       case _: ScInfixExpr => ("(", ")")
       case _ => ("", "")
     }
-    myPsiInfo.createExpression(expression, prefix + getHead, suffix + getTail)
+    "if (" + prefix + "$expr$" + suffix + " " + character + "= null) {$END$}"
   }
-
-  override final def getTail: String = character.toString + "= null"
-
-  override final def getSurrounder: ScalaWithIfConditionSurrounder.type = ScalaWithIfConditionSurrounder
 }
 
 final class ScalaNotNullPostfixTemplate(alias: String = "notnull") extends ScalaNullPostfixTemplate(alias, '!')

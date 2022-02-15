@@ -5,6 +5,7 @@ package service
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -175,11 +176,14 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     version: String,
     module: String
   )(implicit project: Project): Unit = {
+    val balloonGroupId = SbtBundle.message("sbt.notificationGroupName")
+    val balloonGroup = NotificationGroupManager.getInstance.getNotificationGroup(balloonGroupId)
+
     showScalaLibraryNotFoundWarning(
       NlsString(SbtBundle.message("sbt.notificationGroupTitle")),
       version,
       module,
-      SbtBundle.message("sbt.notificationGroupName"), // TODO: should balloon group be taken from localised messages?
+      balloonGroup, // TODO: should balloon group be taken from localised messages?
       SbtProjectSystem.Id
     )
   }

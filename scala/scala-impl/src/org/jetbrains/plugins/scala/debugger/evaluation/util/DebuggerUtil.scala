@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec
@@ -242,11 +242,12 @@ object DebuggerUtil {
     Some(paramText + returnTypeText)
   }
 
-  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor) = param match {
-      case p: ScParameter if p.isRepeatedParameter => "Lscala/collection/Seq;"
-      case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
-      case _ => getJVMStringForType(subst(param.`type`().getOrAny))
-    }
+  private def parameterForJVMSignature(param: ScTypedDefinition, subst: ScSubstitutor): String = param match {
+    case p: ScParameter if p.isRepeatedParameter =>
+      if (p.newCollectionsFramework) "Lscala/collection/immutable/Seq;" else "Lscala/collection/Seq;"
+    case p: ScParameter if p.isCallByNameParameter => "Lscala/Function0;"
+    case _ => getJVMStringForType(subst(param.`type`().getOrAny))
+  }
 
   class JVMClassAt(sourcePosition: SourcePosition) extends JVMName {
     override def getName(process: DebugProcessImpl): String = {

@@ -47,7 +47,7 @@ object ScalaPostfixTemplateProvider {
     new ScalaIntroduceFieldPostfixTemplate,
     new ScalaIntroduceVariablePostfixTemplate,
     new ScalaNotPostfixTemplate,
-    new ScalaNotPostfixTemplate("!"),
+    new ScalaNotPostfixTemplate("!", false),
     new ScalaParenthesizedExpressionPostfixTemplate,
     new ScalaReturnPostfixTemplate,
     new ScalaPrintlnPostfixTemplate,

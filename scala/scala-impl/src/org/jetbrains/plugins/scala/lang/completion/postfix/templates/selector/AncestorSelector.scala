@@ -4,13 +4,12 @@ package templates
 package selector
 
 import java.{util => ju}
-
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateExpressionSelectorBase
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Condition, Conditions}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
@@ -65,7 +64,7 @@ object AncestorSelector {
   }
 
   final case class SelectTopmostAncestors(private val condition: Condition[PsiElement] = BooleanExpression) extends AncestorSelector(condition) {
-    override protected def isAcceptable(current: PsiElement): Boolean = current.isInstanceOf[ScExpression]
+    override protected def isAcceptable(current: PsiElement): Boolean = current.is[ScExpression]
   }
 
   object SelectTopmostAncestors {
@@ -73,7 +72,11 @@ object AncestorSelector {
       new SelectTopmostAncestors(surrounder)
   }
 
-  val AnyExpression: Condition[PsiElement] = (_: PsiElement).isInstanceOf[ScExpression]
+  val AnyExpression: Condition[PsiElement] = (_: PsiElement).is[ScExpression]
+
+  val AnyRefExpression: Condition[PsiElement] = expressionTypeCondition {
+    case (expression, scType) => scType.conforms(api.AnyRef(expression))
+  }
 
   val BooleanExpression: Condition[PsiElement] = expressionTypeCondition {
     case (expression, scType) => scType.conforms(api.Boolean(expression))

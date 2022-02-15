@@ -22,4 +22,15 @@ object IsInstanceOfCall {
       case _ => None
     }
   }
+
+  object withoutExplicitType {
+    def unapply(expression: ScExpression): Boolean = expression match {
+      case ref: ScReferenceExpression if ref.refName == "isInstanceOf" =>
+        ref.getParent match {
+          case _: ScGenericCall => false
+          case _ => true
+        }
+      case _ => false
+    }
+  }
 }

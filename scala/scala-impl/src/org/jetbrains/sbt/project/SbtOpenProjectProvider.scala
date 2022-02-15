@@ -14,12 +14,13 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, External
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
 import java.nio.file.Path
 
-class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
+class SbtOpenProjectProvider extends AbstractOpenProjectProvider {
 
   override def getSystemId: ProjectSystemId = SbtProjectSystem.Id
 
@@ -34,19 +35,18 @@ class SbtOpenProjectProvider() extends AbstractOpenProjectProvider {
 
   private def attachSbtProjectAndRefresh(settings: SbtProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
-    ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
-      ExternalSystemUtil.ensureToolWindowInitialized(project, SbtProjectSystem.Id)
-    }
-    ExternalSystemApiUtil.getSettings(project, SbtProjectSystem.Id)
-      .asInstanceOf[SbtSettings]
-      .linkProject(settings)
-    ExternalSystemUtil.refreshProject(externalProjectPath,
+    SbtUtil.sbtSettings(project).linkProject(settings)
+    ExternalSystemUtil.refreshProject(
+      externalProjectPath,
       new ImportSpecBuilder(project, SbtProjectSystem.Id)
         .usePreviewMode()
-        .use(ProgressExecutionMode.MODAL_SYNC))
-    ExternalSystemUtil.refreshProject(externalProjectPath,
+        .use(ProgressExecutionMode.MODAL_SYNC)
+    )
+    ExternalSystemUtil.refreshProject(
+      externalProjectPath,
       new ImportSpecBuilder(project, SbtProjectSystem.Id)
-        .callback(new FinalImportCallback(project, settings)))
+        .callback(new FinalImportCallback(project, settings))
+    )
   }
 
 

@@ -33,7 +33,10 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
   addFileWithBreakpoints("IsInstanceOfWithLiteralTypes.scala",
     s"""
        |object IsInstanceOfWithLiteralTypes {
-       |  type LiteralAlias = 123
+       |  type LiteralValueAlias = 123
+       |  type LiteralRefAlias = "123"
+       |  type DoubleValueAlias = LiteralValueAlias
+       |  type DoubleRefAlias = LiteralRefAlias
        |
        |  def main(args: Array[String]): Unit = {
        |    println()$bp
@@ -48,10 +51,17 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
       evalEquals("123.isInstanceOf[234]", "false")
       evalEquals("123.0.isInstanceOf[123.0f]", "false")
       evalEquals("'c'.isInstanceOf['c']", "true")
-      evalStartsWith("""123.isInstanceOf["123"]""", "isInstanceOf cannot test if value types are references")
-      evalEquals("123.isInstanceOf[LiteralAlias]", "true")
+      evalStartsWith("""123.isInstanceOf["123"]""", """cannot test if value of type Int is a reference of type "123"""")
+      evalEquals("123.isInstanceOf[LiteralValueAlias]", "true")
+      evalEquals("456.isInstanceOf[LiteralValueAlias]", "false")
+      evalEquals("123.isInstanceOf[DoubleValueAlias]", "true")
+      evalEquals("456.isInstanceOf[DoubleValueAlias]", "false")
       evalEquals(""""123".isInstanceOf["234"]""", "false")
       evalEquals(""""123".isInstanceOf[123]""", "false")
+      evalEquals(""""123".isInstanceOf[LiteralRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[LiteralRefAlias]""", "false")
+      evalEquals(""""123".isInstanceOf[DoubleRefAlias]""", "true")
+      evalEquals(""""456".isInstanceOf[DoubleRefAlias]""", "false")
     }
   }
 }
@@ -63,10 +73,6 @@ class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_213 {
   override def testPrefixedThis(): Unit = failing(super.testPrefixedThis())
 
   override def testPostfix(): Unit = failing(super.testPostfix())
-
-  override def testLiteral(): Unit = failing(super.testLiteral())
-
-  override def testArrayCreation(): Unit = failing(super.testArrayCreation())
 }
 
 
@@ -152,11 +158,23 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Assignment.scala",
     s"""
       |object Assignment {
+      |
+      |  class Value(val n: Int) extends AnyVal
+      |
+      |  class StringValue(val s: String) extends AnyVal
+      |
       |  var m = 0
       |  def main(args: Array[String]): Unit = {
       |    var z = 1
       |    val y = 0
       |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
+      |    val ints: Array[Int] = Array(1, 2)
+      |
+      |    val boxedAny = Array[Any](1, 2)
+      |    val boxedInteger = Array[java.lang.Integer](1, 2)
+      |
+      |    val boxedValues = Array(new Value(1), new Value(2))
+      |    val boxedStrings = Array(new StringValue("1"), new StringValue("2"))
       |    println()$bp
       |  }
       |}
@@ -176,6 +194,17 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("m", "2")
       evalEquals("y = 1", "1") //local vals may be reassigned in debugger
       evalEquals("y", "1")
+      evalEquals("ints(0) = 10", "10")
+      evalEquals("ints(0)", "10")
+      evalEquals("boxedAny(0) = 10", "10")
+      evalEquals("boxedAny(0)", "10")
+      evalEquals("boxedInteger(0) = 10", "10")
+      evalEquals("boxedInteger(0)", "10")
+      evalEquals("(boxedValues(0) = new Value(19)) == new Value(19)", "true")
+      evalEquals("boxedValues(0) == new Value(19)", "true")
+      evalEquals("(boxedValues(0) = (((((((((new Value(20))))))))))) == new Value(20)", "true")
+      evalEquals("""(boxedStrings(0) = new StringValue("19")) == new StringValue("19")""", "true")
+      evalEquals("""boxedStrings(0) == new StringValue("19")""", "true")
     }
   }
 
@@ -406,32 +435,38 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("123.isInstanceOf[Long]", "false")
       evalEquals("123L.isInstanceOf[Long]", "true")
       evalEquals("123L.isInstanceOf[Int]", "false")
-      evalStartsWith("123.isInstanceOf[String]", "isInstanceOf cannot test if value types are references")
+      evalStartsWith("123.isInstanceOf[String]", "cannot test if value of type Int is a reference of type String")
       evalEquals(""""123".isInstanceOf[String]""", "true")
       evalEquals(""""123".isInstanceOf[Long]""", "false")
       evalEquals(""""123".isInstanceOf[AnyRef]""", "true")
       evalEquals(""""123".isInstanceOf[Any]""", "true")
-      evalStartsWith(""""123".isInstanceOf[AnyVal]""", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith(""""123".isInstanceOf[AnyVal]""", "class AnyVal cannot be used in runtime type tests")
       evalEquals("null.isInstanceOf[String]", "false")
-      evalStartsWith("null.isInstanceOf[Null]", "type Null cannot be used in a type pattern or isInstanceOf test")
-      evalStartsWith("123.isInstanceOf[Value]", "isInstanceOf cannot test if value types are references")
+      evalStartsWith("null.isInstanceOf[Null]", "class Null cannot be used in runtime type tests")
+      evalStartsWith("123.isInstanceOf[Value]", "cannot test if value of type Int is a reference of type IsInstanceOf.Value")
       evalEquals("new Object().isInstanceOf[Object]", "true")
       evalEquals("new Object().isInstanceOf[AnyRef]", "true")
       evalEquals("new Object().isInstanceOf[Any]", "true")
-      evalStartsWith("new Object().isInstanceOf[AnyVal]", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith("new Object().isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[Value]", "true")
-      evalStartsWith("new Value(123).isInstanceOf[AnyVal]", "type AnyVal cannot be used in a type pattern or isInstanceOf test")
+      evalStartsWith("new Value(123).isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[AnyRef]", "true")
       evalEquals("new Value(123).isInstanceOf[Int]", "false")
-      evalEquals(""""123".isInstanceOf""", "false")
-      evalStartsWith("123.isInstanceOf", "isInstanceOf cannot test if value types are references")
+      evalStartsWith(""""123".isInstanceOf""", "isInstanceOf called without an explicit type argument")
+      evalStartsWith("123.isInstanceOf", "isInstanceOf called without an explicit type argument")
       evalEquals(""""123".isInstanceOf[Alias]""", "true")
+      evalStartsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
+      evalStartsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
     }
   }
 
   addFileWithBreakpoints("ArrayCreation.scala",
     s"""
        |object ArrayCreation {
+       |  class Value(val n: Int) extends AnyVal {
+       |    override def toString: String = n.toString
+       |  }
+       |
        |  def main(args: Array[String]): Unit = {
        |    println()$bp
        |  }
@@ -450,6 +485,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(1, 2, 3)""", "[1,2,3]")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[Int]]""", "true")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
+      evalEquals("""Array[Int](1, 2, 3)""", "[1,2,3]")
+      evalEquals("""Array[Int](1, 2, 3).isInstanceOf[Array[Int]]""", "true")
+      evalEquals("""Array[Int](1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
       evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[Int]]""", "false")
       evalEquals("""Array[java.lang.Integer](1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "true")
       evalEquals("""Array(1.0, 2.0, 3.0)""", "[1.0,2.0,3.0]")
@@ -462,6 +500,15 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(true, false).isInstanceOf[Array[java.lang.Boolean]]""", "false")
       evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[Boolean]]""", "false")
       evalEquals("""Array[java.lang.Boolean](true, false).isInstanceOf[Array[java.lang.Boolean]]""", "true")
+      evalEquals("""new Array[Any](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[AnyRef](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[AnyVal](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Null](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Nothing](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Singleton](5)""", "[null,null,null,null,null]")
+      evalEquals("""new Array[Value](5)""", "[null,null,null,null,null]")
+      evalEquals("""Array[Value]()""", "[]")
+      evalEquals("""Array(new Value(5), new Value(6), new Value(7))""", "[5,6,7]")
     }
 
   addFileWithBreakpoints("SyntheticOperators.scala",
@@ -525,6 +572,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  def genericEquals[A, B](a: A, b: B): Boolean =
        |    a == b
        |
+       |  // Test repeated arguments
+       |  def prependAll[A](list: List[A])(as: A*): List[A] =
+       |    as.toList ++ list
+       |
+       |  class SimpleValue(val n: Int) extends AnyVal
+       |
        |  def main(args: Array[String]): Unit = {
        |    val metricValue1 = MetricKilograms1(2.2)
        |    val mvOption1 = Some(metricValue1)
@@ -575,6 +628,14 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("genericEquals(metricValue1, metricValue1)", "true")
       evalEquals("genericEquals(new MetricKilograms1(2.2), 2.2)", "false")
       evalEquals("genericEquals(2.2, new MetricKilograms1(2.2))", "false")
+
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(0) == new SimpleValue(5)", "true")
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(1) == new SimpleValue(6)", "true")
+      evalEquals("List(new SimpleValue(5), new SimpleValue(6), new SimpleValue(7))(2) == new SimpleValue(7)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(0) == new SimpleValue(1)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(1) == new SimpleValue(2)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(2) == new SimpleValue(5)", "true")
+      evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(3) == new SimpleValue(6)", "true")
     }
 
 }

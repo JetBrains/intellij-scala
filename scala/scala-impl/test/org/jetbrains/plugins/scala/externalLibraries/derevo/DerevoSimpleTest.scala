@@ -9,7 +9,7 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_13
 
   override def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
-    "tf.tofu" %% "derevo-core" % "0.12.6",
+    "tf.tofu" %% "derevo-core" % "0.13.0",
   )
 
   def testFailing(): Unit = checkHasErrorAroundCaret(
@@ -134,6 +134,34 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |object Test {
        |  implicitly[TypeClass[Target]]
        |  implicitly[TypeClass[Target2]]
+       |}
+       |""".stripMargin
+  )
+
+  def testComposite(): Unit = checkTextHasNoErrors(
+    s"""
+       |import derevo._
+       |
+       |trait TypeClass1[A]
+       |trait TypeClass2[A]
+       |
+       |object TypeClass1 extends Derivation[TypeClass1] {
+       |  def instance[A]: TypeClass1[A] = ???
+       |}
+       |
+       |object TypeClass2 extends Derivation[TypeClass2] {
+       |  def instance[A]: TypeClass2[A] = ???
+       |}
+       |
+       |@composite(TypeClass1, TypeClass2)
+       |object BothTypeClasses extends CompositeDerivation
+       |
+       |@derive(BothTypeClasses)
+       |class Target
+       |
+       |object Test {
+       |  implicitly[TypeClass1[Target]]
+       |  implicitly[TypeClass2[Target]]
        |}
        |""".stripMargin
   )

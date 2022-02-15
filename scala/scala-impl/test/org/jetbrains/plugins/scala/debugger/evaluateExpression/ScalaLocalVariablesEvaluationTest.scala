@@ -70,6 +70,95 @@ abstract class ScalaLocalVariablesEvaluationTestBase extends ScalaDebuggerTestCa
     }
   }
 
+  addFileWithBreakpoints("ClassParamInConstructor.scala",
+    s"""
+       |class ClassParamInConstructor(
+       |  unused: Int,
+       |  used: Int,
+       |  val field: Int
+       |) {
+       |  println(s"in constructor $$used")$bp
+       |}
+       |object ClassParamInConstructor {
+       |  def main(args: Array[String]): Unit = {
+       |    val a = new ClassParamInConstructor(1, 2, 3)
+       |  }
+       |}
+       |""".stripMargin)
+  def testClassParamInConstructor(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("unused", "1")
+      evalEquals("used", "2")
+      evalEquals("field", "3")
+    }
+  }
+
+  addFileWithBreakpoints("BackingFieldParamInMethod.scala",
+    s"""
+       |class BackingFieldParamInMethod(
+       |    backingField: Int
+       |) {
+       |  def foo: Int = backingField$bp
+       |}
+       |object BackingFieldParamInMethod {
+       |  def main(args: Array[String]): Unit = {
+       |    val a = new BackingFieldParamInMethod(1)
+       |    a.foo
+       |  }
+       |}
+       |""".stripMargin)
+  def testBackingFieldParamInMethod(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("backingField", "1")
+    }
+  }
+
+  addFileWithBreakpoints("BackingFieldParamInConstructor.scala",
+    s"""
+       |class BackingFieldParamInConstructor(
+       |    backingField: Int
+       |) {
+       |  println("in constructor")$bp
+       |
+       |  def foo: Int = backingField
+       |}
+       |object BackingFieldParamInConstructor {
+       |  def main(args: Array[String]): Unit = {
+       |    val a = new BackingFieldParamInConstructor(1)
+       |    a.foo
+       |  }
+       |}
+       |""".stripMargin)
+  def testBackingFieldParamInConstructor(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("backingField", "1")
+    }
+  }
+
+  addFileWithBreakpoints("NoBackingFieldParam.scala",
+    s"""
+       |class NoBackingFieldParam(
+       |    noBackingField: Int
+       |) {
+       |  def foo: Int = 5$bp
+       |}
+       |object NoBackingFieldParam {
+       |  def main(args: Array[String]): Unit = {
+       |    val a = new NoBackingFieldParam(1)
+       |    a.foo
+       |  }
+       |}
+       |""".stripMargin)
+  def testNoBackingFieldParam(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalStartsWith(s"noBackingField", "constructor parameter 'noBackingField' is inaccessible outside of the class constructor")
+    }
+  }
+
   addFileWithBreakpoints("LocalFromForStatement.scala",
     s"""
        |object LocalFromForStatement {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package project.gradle
 
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -122,7 +123,8 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
   private def include(b: Boolean, s: String): Seq[String] = if (b) Seq(s) else Seq.empty
 
   private val Title: NlsString = NlsString(ScalaGradleBundle.message("gradle.sync"))
-  private val BalloonGroup = "Gradle"
+  private val BalloonGroupId = "Gradle"
+  private val BalloonGroup = NotificationGroupManager.getInstance.getNotificationGroup(BalloonGroupId)
   private val SystemId = GradleConstants.SYSTEM_ID
 
   private def showWarning(message: NlsString)(implicit project: Project): Unit =

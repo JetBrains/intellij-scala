@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package project
 package external
 
+import com.intellij.notification.NotificationGroup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys, ProjectSystemId}
@@ -43,7 +44,7 @@ abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends Abstra
     title: NlsString,
     version: String,
     module: String,
-    balloonGroup: String,
+    balloonGroup: NotificationGroup,
     systemId: ProjectSystemId,
   )(implicit project: Project): Unit = {
     showWarning(
@@ -57,7 +58,7 @@ abstract class ScalaAbstractProjectDataService[E, I](key: Key[E]) extends Abstra
   protected final def showWarning(
     title: NlsString,
     message: NlsString,
-    balloonGroup: String,
+    balloonGroup: NotificationGroup,
     systemId: ProjectSystemId
   )(implicit project: Project): Unit = {
     val notificationData = new NotificationData(

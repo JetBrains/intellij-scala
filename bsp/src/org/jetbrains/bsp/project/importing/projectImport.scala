@@ -139,9 +139,6 @@ class BspOpenProjectProvider() extends AbstractOpenProjectProvider {
 
   private def attachBspProjectAndRefresh(settings: BspProjectSettings, project: Project): Unit = {
     val externalProjectPath = settings.getExternalProjectPath
-    ExternalProjectsManagerImpl.getInstance(project).runWhenInitialized { () =>
-      ExternalSystemUtil.ensureToolWindowInitialized(project, BSP.ProjectSystemId)
-    }
     BspUtil.bspSettings(project).linkProject(settings)
     ExternalSystemUtil.refreshProject(externalProjectPath,
       new ImportSpecBuilder(project, BSP.ProjectSystemId)

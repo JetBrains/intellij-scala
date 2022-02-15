@@ -6,7 +6,7 @@ package evaluator
 import java.{lang => jl}
 
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expression}
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
 
@@ -18,7 +18,7 @@ final class ScalaLiteralEvaluator private[evaluator] (value: AnyRef,
                                           `type`: ScType)
   extends expression.Evaluator {
 
-  override def evaluate(context: EvaluationContextImpl): AnyRef = value match {
+  override def evaluate(context: EvaluationContextImpl): Value = value match {
     case null => null
     case _ =>
       val vm = context.getDebugProcess.getVirtualMachineProxy

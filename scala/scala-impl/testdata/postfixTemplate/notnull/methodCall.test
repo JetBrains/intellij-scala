@@ -1,0 +1,15 @@
+class Test {
+  def foo(obj: AnyRef) = {
+    <start>bar(obj)<notnull>
+  }
+
+  def bar(obj: AnyRef): String = obj.toString
+}
+-----
+class Test {
+  def foo(obj: AnyRef) = {
+    if (bar(obj) != null) {}
+  }
+
+  def bar(obj: AnyRef): String = obj.toString
+}

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
 import com.intellij.openapi.actionSystem.DataContext
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
@@ -78,9 +79,10 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
       case _ =>
         val settings = new IntroduceFieldSettings(ifc)
         if (settings.canBeInitInDeclaration || settings.canBeInitLocally) {
-          if (getDialog(ifc, settings).isOK) {
+          if (ApplicationManager.getApplication.isUnitTestMode)
             runRefactoring(ifc, settings)
-          }
+          else
+            runWithDialog(ifc, settings)
         } else {
           showErrorHint(ScalaBundle.message("cannot.create.field.from.this.expression"))
         }
@@ -161,21 +163,21 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     ifc.editor.getSelectionModel.removeSelection()
   }
 
-  protected def getDialog(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]): ScalaIntroduceFieldDialog = {
+  protected def runWithDialog(ifc: IntroduceFieldContext[ScExpression], settings: IntroduceFieldSettings[ScExpression]): Unit = {
     val occCount = ifc.occurrences.length
     // Add occurrences highlighting
     if (occCount > 1)
       occurrenceHighlighters = highlightOccurrences(ifc.project, ifc.occurrences, ifc.editor)
 
     val dialog = new ScalaIntroduceFieldDialog(ifc, settings)
-    dialog.show()
-    if (!dialog.isOK) {
-      if (occCount > 1) {
+    invokeLater {
+      dialog.show()
+      if (dialog.isOK) runRefactoring(ifc, settings)
+      else if (occCount > 1) {
         occurrenceHighlighters.foreach(_.dispose())
         occurrenceHighlighters = Seq.empty
       }
     }
-    dialog
   }
 
   protected override def isSuitableClass(elem: PsiElement, clazz: ScTemplateDefinition): Boolean = elem != clazz

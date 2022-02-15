@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.compiler.data;
 
-import com.intellij.util.xmlb.annotations.AbstractCollection;
 import com.intellij.util.xmlb.annotations.Tag;
+import com.intellij.util.xmlb.annotations.XCollection;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -32,14 +32,12 @@ public final class ScalaCompilerSettingsState {
     public DebuggingInfoLevel debuggingInfoLevel = DebuggingInfoLevel.Vars;
 
     // Why serialization doesn't work when elementTag is "option"?
-    @SuppressWarnings("deprecation")
     @Tag("parameters")
-    @AbstractCollection(surroundWithTag = false, elementTag = "parameter")
+    @XCollection(elementName = "parameter")
     public String[] additionalCompilerOptions = new String[]{};
 
-    @SuppressWarnings("deprecation")
     @Tag("plugins")
-    @AbstractCollection(surroundWithTag = false, elementTag = "plugin", elementValueAttribute = "path")
+    @XCollection(elementName = "plugin", valueAttributeName = "path")
     public String[] plugins = new String[]{};
 
     @Override

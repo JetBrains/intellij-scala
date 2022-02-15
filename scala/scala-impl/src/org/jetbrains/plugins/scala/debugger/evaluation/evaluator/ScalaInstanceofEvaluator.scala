@@ -1,21 +1,18 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.JVMName
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.util.Computable
 import com.sun.jdi._
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 import scala.jdk.CollectionConverters._
 
-class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScType]) extends Evaluator {
+class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, tpe: ScType) extends Evaluator {
 
-  override def evaluate(context: EvaluationContextImpl): AnyRef = {
+  override def evaluate(context: EvaluationContextImpl): Value = {
 
     def booleanValue(b: Boolean): BooleanValue =
       context.getDebugProcess.getVirtualMachineProxy.mirrorOf(b)
@@ -31,12 +28,12 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
       case _: ShortValue => classOf[Short]
     }
 
-    def throwCannotTestReferenceException() =
+    def throwCannotTestReferenceException(valueType: String, tpe: ScType) =
       throw EvaluationException(
-        ScalaBundle.message("error.value.isinstanceof.reference"))
+        ScalaBundle.message("error.value.isinstanceof.reference", valueType, tpe))
 
-    def throwTypeCannotBeUsedInIsInstanceOfException(tpe: ScType) =
-      throw EvaluationException(ScalaBundle.message("error.type.cannot.be.used.in.isinstanceof", tpe))
+    def throwTypeCannotBeUsedInIsInstanceOfException(kind: String, tpe: ScType) =
+      throw EvaluationException(ScalaBundle.message("error.type.cannot.be.used.in.isinstanceof", kind, tpe))
 
     object Primitive {
       def unapply(tpe: ScType): Option[Class[_]] = {
@@ -61,10 +58,8 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
       def unapply(tpe: ScType): Option[Value] = tpe match {
         case lt: ScLiteralType =>
           val lv = lt.value.value.asInstanceOf[AnyRef]
-          val wt = ApplicationManager.getApplication.runReadAction(new Computable[ScType] {
-            override def compute(): ScType = lt.wideType
-          })
-          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context).asInstanceOf[Value])
+          val wt = inReadAction(lt.wideType)
+          Some(new ScalaLiteralEvaluator(lv, wt).evaluate(context))
         case _ => None
       }
     }
@@ -82,131 +77,86 @@ class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, optTpe: Option[ScTyp
         case _ => false
       }
 
-    val value = operandEvaluator.evaluate(context).asInstanceOf[Value]
-    val dealiased = optTpe.map(_.removeAliasDefinitions())
-    
-    value match {
-      case pv: PrimitiveValue =>
-        dealiased match {
-          case None =>
-            // case: 123.isInstanceOf
-            // scalac compiler error "isInstanceOf cannot test if value types are references"
-            throwCannotTestReferenceException()
+    val lhs = operandEvaluator.evaluate(context).asInstanceOf[Value]
+    val dealiased = inReadAction(tpe.removeAliasDefinitions())
+    val stdTypes = dealiased.projectContext.stdTypes
+    import stdTypes._
 
-          case Some(tpe) =>
-            val stdTypes = tpe.projectContext.stdTypes
-            import stdTypes._
+    (lhs, dealiased) match {
+      case (_, Any) =>
+        booleanValue(true)
 
-            tpe.removeAliasDefinitions() match {
-              case AnyVal | Null | Nothing =>
-                // case: 123.isInstanceOf[AnyVal]
-                // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"
-                throwTypeCannotBeUsedInIsInstanceOfException(tpe)
+      case (_, AnyVal | Null | Nothing | Singleton) =>
+        // scalac compiler error "type AnyVal cannot be used in a type patter or isInstanceOf test"
+        val kind = if (dealiased == Singleton) "trait" else "class"
+        throwTypeCannotBeUsedInIsInstanceOfException(kind, tpe)
 
-              case Primitive(cls) =>
-                // case: 123.isInstanceOf[Int]
-                val primCls = primitiveClassOfValue(pv)
-                val result = cls.isAssignableFrom(primCls)
-                booleanValue(result)
+      case (null, _) =>
+        // case: null.isInstanceOf[String]
+        booleanValue(false)
 
-              case Literal(literal) =>
-                literal match {
-                  case prim: PrimitiveValue =>
-                    // case: 123.isInstanceOf[123]
-                    booleanValue(evaluateEqualsOnPrimitiveValues(pv, prim))
-                  case _: ObjectReference =>
-                    // case: 123.isInstanceOf["123"]
-                    // scalac compiler error "isInstanceOf cannot test if value types are references"
-                    throwCannotTestReferenceException()
-                }
+      case (lhs: PrimitiveValue, Primitive(rhsClass)) =>
+        // case: 123.isInstanceOf[Int]
+        val lhsClass = primitiveClassOfValue(lhs)
+        val result = rhsClass.isAssignableFrom(lhsClass)
+        booleanValue(result)
 
-              case _ =>
-                // case: 123.isInstanceOf[String]
-                // scalac compiler error "isInstanceOf cannot test if value types are references"
-                throwCannotTestReferenceException()
-            }
+      case (lhs: PrimitiveValue, Literal(rhs: PrimitiveValue)) =>
+        // case: 123.isInstanceOf[123]
+        val result = evaluateEqualsOnPrimitiveValues(lhs, rhs)
+        booleanValue(result)
+
+      case (lhs: PrimitiveValue, _) =>
+        // case: 123.isInstanceOf["abc"]
+        // case: 123.isInstanceOf[String]
+        // scalac compiler error "isInstanceOf cannot test if value types are references"
+        val valueType = lhs match {
+          case _: BooleanValue => "Boolean"
+          case _: ByteValue => "Byte"
+          case _: CharValue => "Char"
+          case _: DoubleValue => "Double"
+          case _: FloatValue => "Float"
+          case _: IntegerValue => "Int"
+          case _: LongValue => "Long"
+          case _: ShortValue => "Short"
+        }
+        throwCannotTestReferenceException(valueType, tpe)
+
+      case (_: ObjectReference, Primitive(_)) =>
+        // case: "abc".isInstanceOf[Int]
+        booleanValue(false)
+
+      case (_: ObjectReference, Literal(_: PrimitiveValue)) =>
+        // case: "abc".isInstanceOf[123]
+        booleanValue(false)
+
+      case (lhs: ObjectReference, Literal(rhs: ObjectReference)) =>
+        // case: "abc".isInstanceOf["abc"]
+        try {
+          val classType = lhs.referenceType().asInstanceOf[ClassType]
+          val method = classType.concreteMethodByName("equals", "(Ljava/lang/Object;)Z")
+          val args = List(rhs)
+          val result = context.getDebugProcess.invokeMethod(context, lhs, method, args.asJava).asInstanceOf[BooleanValue].value()
+          booleanValue(result)
+        } catch {
+          case e: Exception =>
+            throw EvaluationException(e)
         }
 
-      case ref: ObjectReference =>
-        dealiased match {
-          case None =>
-            // case: "abc".isInstanceOf
-            booleanValue(false)
-
-          case Some(tpe) =>
-            val stdTypes = tpe.projectContext.stdTypes
-            import stdTypes._
-
-            tpe.removeAliasDefinitions() match {
-              case AnyVal | Null | Nothing =>
-                // case: "abc".isInstanceOf[AnyVal]
-                // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"
-                throwTypeCannotBeUsedInIsInstanceOfException(tpe)
-
-              case Primitive(_) =>
-                // case: "abc".isInstanceOf[Int]
-                booleanValue(false)
-
-              case Literal(literal) =>
-                val result = literal match {
-                  case _: PrimitiveValue =>
-                    // case: "abc".isInstanceOf[123]
-                    false
-                  case _: ObjectReference =>
-                    // case: "abc".isInstanceOf["abc"]
-                    try {
-                      val classType = ref.referenceType().asInstanceOf[ClassType]
-                      val method = classType.concreteMethodByName("equals", "(Ljava/lang/Object;)Z")
-                      val args = List(literal)
-                      context.getDebugProcess.invokeMethod(context, ref, method, args.asJava).asInstanceOf[BooleanValue].value()
-                    } catch {
-                      case e: Exception =>
-                        throw EvaluationException(e)
-                    }
-                }
-                booleanValue(result)
-
-              case _ =>
-                // case: "abc".isInstanceOf[String]
-                try {
-                  // This call crashes unless wrapped in `runReadAction`
-                  val name = ApplicationManager.getApplication.runReadAction(new Computable[JVMName] {
-                    override def compute(): JVMName = DebuggerUtil.getJVMQualifiedName(tpe)
-                  })
-                  val typeEvaluator = new TypeEvaluator(name)
-                  val refType = typeEvaluator.evaluate(context)
-                  val classObject = refType.classObject()
-                  val classRefType = classObject.referenceType().asInstanceOf[ClassType]
-                  val method = classRefType.concreteMethodByName("isAssignableFrom", "(Ljava/lang/Class;)Z")
-                  val args = List(ref.referenceType().classObject())
-                  context.getDebugProcess.invokeMethod(context, classObject, method, args.asJava)
-                } catch {
-                  case e: Exception =>
-                    throw EvaluationException(e)
-                }
-            }
-        }
-
-      case null =>
-        dealiased match {
-          case None =>
-            // case: null.isInstanceOf
-            booleanValue(false)
-
-          case Some(tpe) =>
-            val stdTypes = tpe.projectContext.stdTypes
-            import stdTypes._
-
-            tpe.removeAliasDefinitions() match {
-              case AnyVal | Null | Nothing =>
-                // case: null.isInstanceOf[AnyVal]
-                // scalac compiler error "type AnyVal cannot be used in a type pattern or isInstanceOf test"
-                throwTypeCannotBeUsedInIsInstanceOfException(tpe)
-
-              case _ =>
-                // case: null.isInstanceOf[String]
-                booleanValue(false)
-            }
+      case (lhs: ObjectReference, _) =>
+        // case: "abc".isInstanceOf[String]
+        try {
+          val name = inReadAction(DebuggerUtil.getJVMQualifiedName(tpe))
+          val typeEvaluator = new TypeEvaluator(name)
+          val refType = typeEvaluator.evaluate(context)
+          val classObject = refType.classObject()
+          val classRefType = classObject.referenceType().asInstanceOf[ClassType]
+          val method = classRefType.concreteMethodByName("isAssignableFrom", "(Ljava/lang/Class;)Z")
+          val args = List(lhs.referenceType().classObject())
+          context.getDebugProcess.invokeMethod(context, classObject, method, args.asJava)
+        } catch {
+          case e: Exception =>
+            throw EvaluationException(e)
         }
     }
   }

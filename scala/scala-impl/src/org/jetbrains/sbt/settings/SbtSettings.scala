@@ -3,6 +3,7 @@ package settings
 
 import java.util
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -65,8 +66,13 @@ final class SbtSettings(project: Project)
   }
 
   override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings]): Unit = {
+    subscribe(listener, project.unloadAwareDisposable)
+  }
+
+  override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings], parentDisposable: Disposable): Unit = {
     val adapter = new SbtProjectSettingsListenerAdapter(listener)
-    getProject.getMessageBus.connect(project.unloadAwareDisposable).subscribe(SbtTopic, adapter)
+    val messageBus = getProject.getMessageBus
+    messageBus.connect(parentDisposable).subscribe(SbtTopic, adapter)
   }
 
   override def copyExtraSettingsFrom(settings: SbtSettings): Unit = {

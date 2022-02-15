@@ -230,7 +230,7 @@ object ScalaGenerateEqualsAction {
       methodSignaturesToOverride(definition).exists { sign =>
         sign.equiv(signature) &&
           //used only for equals and hashcode methods
-          sign.isJava && sign.method.findSuperMethods(false).isEmpty
+          !sign.isScala && sign.method.findSuperMethods(false).isEmpty
       }
 
     private def findClassAtCaret(implicit editor: Editor, file: PsiFile) =

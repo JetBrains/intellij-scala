@@ -277,14 +277,17 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       binaryEval(name, (l, r) => ScalaMethodEvaluator(BOXES_RUN_TIME, "equals", rawText, boxed(l, r)))
     }
     def isInstanceOfEval: Evaluator = {
+      def missingTypeArgument() =
+        throw EvaluationException(ScalaBundle.message("missing.type.argument.isinstanceof"))
+
       unaryEval("isInstanceOf", eval => {
         val tp = ref.getParent match {
           case gen: ScGenericCall =>
             gen.typeArgs.typeArgs match {
-              case Seq(arg) => Some(arg.calcType)
-              case _ => None
+              case Seq(arg) => arg.calcType
+              case _ => missingTypeArgument()
             }
-          case _ => None
+          case _ => missingTypeArgument()
         }
 
         new ScalaInstanceofEvaluator(eval, tp)
@@ -353,7 +356,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Some(q) => evaluatorFor(q)
       case None => throw EvaluationException(ScalaBundle.message("array.instance.is.not.found", name))
     }
-    val message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
+    def message = ScalaBundle.message("wrong.number.of.arguments", s"Array.$name")
     name match {
       case "apply" =>
         if (argEvaluators.length == 1) new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
@@ -367,7 +370,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case "update" =>
         if (argEvaluators.length == 2) {
           val leftEval = new ScalaArrayAccessEvaluator(qualEval, argEvaluators.head)
-          new AssignmentEvaluator(leftEval, unboxEvaluator(argEvaluators(1)))
+          new AssignmentEvaluator(leftEval, argEvaluators(1))
         } else throw EvaluationException(message)
       case "toString" =>
         if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "toString", null /*todo*/ , Nil)
@@ -432,13 +435,29 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argTypes.isEmpty) expectedType else argTypes.lub()
       val argTypeText = argType.canonicalText
 
-      val argsText =
-        if (exprsForP.nonEmpty) exprsForP.sortBy(_.startOffset).map(_.getText).mkString(".+=(", ").+=(", ")")
-        else ""
+      val arguments = exprsForP.sortBy(_.startOffset).map { argExpr =>
+        val eval = evaluatorFor(argExpr)
+        argExpr.smartExpectedType() match {
+          case Some(tp @ ValueClassType(inner)) => valueClassInstanceEvaluator(eval, inner, tp)
+          case _ => boxEvaluator(eval)
+        }
+      }
 
-      val exprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]$argsText.result()"
-      val newExpr = createExpressionWithContextFromText(exprText, context, context)
-      evaluatorFor(newExpr)
+      val builderExprText = s"_root_.scala.collection.Seq.newBuilder[$argTypeText]"
+      val builderExpr = createExpressionWithContextFromText(builderExprText, context, context)
+      val builderEval = evaluatorFor(builderExpr)
+
+      val addOneJVMName = if (builderExpr.newCollectionsFramework) {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Growable")
+      } else {
+        JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)Lscala/collection/mutable/Builder")
+      }
+      val addEval = arguments.foldLeft(builderEval) { (acc, arg) =>
+        ScalaMethodEvaluator(acc, "$plus$eq", addOneJVMName, Seq(arg))
+      }
+
+      val resultJVMName = JVMNameUtil.getJVMRawText("()Ljava/lang/Object")
+      ScalaMethodEvaluator(addEval, "result", resultJVMName, Seq.empty)
     }
     if (exprsForP.length == 1) {
       exprsForP.head match {
@@ -585,7 +604,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def argumentEvaluators(fun: ScMethodLike, matchedParameters: Map[Parameter, Seq[ScExpression]],
-                         call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression]): Seq[Evaluator] = {
+                         call: ScExpression, ref: ScReferenceExpression, arguments: Seq[ScExpression], isArrayFunction: Boolean = false): Seq[Evaluator] = {
 
     val clauses = fun.effectiveParameterClauses
     val parameters = clauses.flatMap(_.effectiveParameters).map(Parameter(_))
@@ -604,7 +623,14 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val evaluator =
             if (p.isRepeated) repeatedArgEvaluator(exprsForP, p.expectedType, call)
             else if (exprsForP.size > 1) throw EvaluationException(ScalaBundle.message("wrong.number.of.expressions"))
-            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) evaluatorFor(exprsForP.head)
+            else if (exprsForP.length == 1 && !isDefaultExpr(exprsForP.head)) {
+              val expr = exprsForP.head
+              val eval = evaluatorFor(expr)
+              expr.smartExpectedType() match {
+                case Some(tp @ ValueClassType(inner)) if isArrayFunction => valueClassInstanceEvaluator(eval, inner, tp)
+                case _ => eval
+              }
+            }
             else if (param.isImplicitParameter) implicitArgEvaluator(fun, param, call)
             else if (p.isDefault) {
               val paramIndex = parameters.indexOf(p)
@@ -617,7 +643,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             }
             else throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", p.name))
 
-          if (!isOfPrimitiveType(param)) boxEvaluator(evaluator)
+          if (!isOfPrimitiveType(param) && !isArrayFunction) boxEvaluator(evaluator)
           else evaluator
       }
     }
@@ -685,7 +711,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case synth: ScSyntheticFunction =>
         syntheticFunctionEvaluator(synth, qualOption, ref, arguments) //todo: use matched parameters
       case fun: ScFunction if isArrayFunction(fun) =>
-        val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
+        val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments, isArrayFunction = true)
         arrayMethodEvaluator(fun.name,  qualOption, args)
       case fun: ScFunction =>
         ref match {
@@ -777,6 +803,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       }
     }
 
+    def fieldEvaluatorFromElement(element: PsiElement, isPrivateThis: Boolean): ScalaFieldEvaluator = {
+      val named = element.asInstanceOf[ScNamedElement]
+      val qualEval = qualifierEvaluator(qualifier, ref)
+      val name = NameTransformer.encode(named.name)
+      ScalaFieldEvaluator(qualEval, name, classPrivateThisField = isPrivateThis)
+    }
+
     val labeledOrSynthetic = labeledOrSyntheticEvaluator(ref, resolve)
     if (labeledOrSynthetic.isDefined)
       return labeledOrSynthetic.get
@@ -796,11 +829,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         objectEvaluator(obj, () => qualifierEvaluator(qualifier, ref))
       case _: PsiMethod | _: ScSyntheticFunction =>
         methodCallEvaluator(ref, Nil, Map.empty)
+      case cp: ScClassParameter if !cp.isClassMember =>
+        val local = new ScalaLocalVariableEvaluator(cp.name, fileName)
+        val field = fieldEvaluatorFromElement(resolve, cp.isPrivateThis)
+        val duplex = ScalaDuplexEvaluator(local, field)
+        new ErrorWrapperEvaluator(duplex, ScalaBundle.message("constructor.param.inaccessible.outside.of.constructor", cp.name))
       case privateThisField(_) =>
-        val named = resolve.asInstanceOf[ScNamedElement]
-        val qualEval = qualifierEvaluator(qualifier, ref)
-        val name = NameTransformer.encode(named.name)
-        ScalaFieldEvaluator(qualEval, name, classPrivateThisField = true)
+        fieldEvaluatorFromElement(resolve, isPrivateThis = true)
       case cp: ScClassParameter if qualifier.isEmpty && ValueClassType.isValueClass(cp.containingClass) =>
         //methods of value classes have hidden argument with underlying value
         new ScalaLocalVariableEvaluator("$this", fileName)
@@ -1253,7 +1288,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
     withNewSyntheticVariablesHolder {
-      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(evaluatorFor)
+      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(e => evaluatorFor(e))
       new ScalaBlockExpressionEvaluator(evaluators)
     }
   }
@@ -1349,12 +1384,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     expr.smartExpectedType() match {
-      case Some(valType: ValType)         => unboxTo(valType)
+      case Some(valType: ValType) => unboxTo(valType)
       case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
       case Some(_) =>
         // Here, value types are used as other types, so they have to be boxed.
         boxEvaluator(valueClassInstance(evaluator))
-      case None                           => valueClassInstance(evaluator)
+      case None => valueClassInstance(evaluator)
     }
   }
 
@@ -1370,6 +1405,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case Boolean => "_root_.scala.reflect.ClassTag.Boolean"
       case Unit => "_root_.scala.reflect.ClassTag.Unit"
       case Any => "_root_.scala.reflect.ClassTag.Any"
+      case AnyRef => "_root_.scala.reflect.ClassTag.AnyRef"
       case AnyVal => "_root_.scala.reflect.ClassTag.AnyVal"
       case Nothing => "_root_.scala.reflect.ClassTag.Nothing"
       case Null => "_root_.scala.reflect.ClassTag.Null"
