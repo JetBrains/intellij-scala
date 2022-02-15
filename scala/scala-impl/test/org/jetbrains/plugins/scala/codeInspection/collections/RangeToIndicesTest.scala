@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
+import org.jetbrains.plugins.scala.util.AliasExports
 
 /**
  * @author Nikolay.Tropin
@@ -15,7 +15,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
   override protected val hint: String =
     "Replace with seq.indices"
 
-  def testRange(): Unit = {
+  def testRange(): Unit = if (!AliasExports.aliasExportsEnabled(getProject)) { // TODO SCL-19972
     doTest(
       s"val seq = Seq(1); ${START}Range(0, seq.size)$END",
       "val seq = Seq(1); Range(0, seq.size)",
@@ -47,7 +47,7 @@ class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
     )
   }
 
-  def testArray(): Unit = {
+  def testArray(): Unit = if (!AliasExports.aliasExportsEnabled(getProject)) { // TODO SCL-19972
     doTest(
       s"val seq = Array(1); ${START}Range(0, seq.length)$END",
       "val seq = Array(1); Range(0, seq.length)",
