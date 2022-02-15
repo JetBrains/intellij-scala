@@ -128,10 +128,10 @@ public class ScalaProjectSettingsPanel {
 
         typeCheckerHelp.add(ContextHelpLabel.create(ScalaBundle.message("type.checker.help")));
 
-        aliasSemantics.setModel(new DefaultComboBoxModel<>(AliasImportSemantics.values()));
+        aliasSemantics.setModel(new DefaultComboBoxModel<>(AliasExportSemantics.values()));
         aliasSemantics.setRenderer(SimpleMappingListCellRenderer.create(
-                Pair.create(AliasImportSemantics.Definition, ScalaBundle.message("scala.project.settings.form.alias.definition")),
-                Pair.create(AliasImportSemantics.ImplicitImport, ScalaBundle.message("scala.project.settings.form.alias.implicit.import"))
+                Pair.create(AliasExportSemantics.Definition, ScalaBundle.message("scala.project.settings.form.alias.definition")),
+                Pair.create(AliasExportSemantics.Export, ScalaBundle.message("scala.project.settings.form.alias.export"))
         ));
 
         collectionHighlightingChooser.setModel(new DefaultComboBoxModel<>(ScalaCollectionHighlightingLevel.values()));
@@ -298,7 +298,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setDontCacheCompoundTypes(myDontCacheCompound.isSelected());
         scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
-        scalaProjectSettings.setAliasSemantics((AliasImportSemantics) aliasSemantics.getSelectedItem());
+        scalaProjectSettings.setAliasSemantics((AliasExportSemantics) aliasSemantics.getSelectedItem());
         scalaProjectSettings.setCollectionTypeHighlightingLevel((ScalaCollectionHighlightingLevel) collectionHighlightingChooser.getSelectedItem());
         scalaProjectSettings.setCompilerHighlightingScala2(typeChecker.getSelectedItem() == TypeChecker.Compiler);
 
@@ -677,7 +677,7 @@ public class ScalaProjectSettingsPanel {
         panel5.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel5, new GridConstraints(10, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JLabel label3 = new JLabel();
-        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.alias.semantics"));
+        this.$$$loadLabelText$$$(label3, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.alias.export.semantics"));
         panel5.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         aliasSemantics = new JComboBox();
         panel5.add(aliasSemantics, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));

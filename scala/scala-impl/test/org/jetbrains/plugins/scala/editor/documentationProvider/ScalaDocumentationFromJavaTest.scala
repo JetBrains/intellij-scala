@@ -5,8 +5,7 @@ import com.intellij.ide.highlighter.JavaFileType
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics.{Definition, ImplicitImport}
+import org.jetbrains.plugins.scala.util.AliasExports._
 
 class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
   with ScalaDocumentationsSectionsTesting {
@@ -23,11 +22,6 @@ class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
 
   override protected def createFile(fileContent: String): PsiFile =
     getFixture.configureByText(JavaFileType.INSTANCE, fileContent)
-
-  private def stringClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-    case Definition => "scala.Predef.String"
-    case ImplicitImport => "java.lang.String"
-  }
 
   def testReferenceToMethodInScalaObject_SCL_8760(): Unit = {
     getFixture.addFileToProject("ScalaObject.scala",

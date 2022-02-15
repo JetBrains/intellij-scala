@@ -1,20 +1,9 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics._
+import org.jetbrains.plugins.scala.util.AliasExports._
 
 // TODO: split tests per-sections: definition part & content part (rendered scaladoc)
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
-
-  private def stringClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-    case Definition => "scala.Predef.String"
-    case ImplicitImport => "java.lang.String"
-  }
-
-  private def exceptionClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-    case Definition => "scala.Exception"
-    case ImplicitImport => "java.lang.Exception"
-  }
 
   def testClass(): Unit =
     doGenerateDocDefinitionTest(
@@ -869,14 +858,6 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testCodeLinks_Mixed_UseShortestNamesFromScalaPredef(): Unit = {
-    val javaLangException = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-      case Definition => "java.lang.Exception"
-      case ImplicitImport => "Exception"
-    }
-    val scalaException = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-      case Definition => "Exception"
-      case ImplicitImport => "scala.Exception"
-    }
     val fileText =
       s"""/**
          | * [[java.lang.Exception]]<br>
@@ -886,9 +867,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<a href="psi_element://java.lang.Exception"><code>$javaLangException</code></a><br>
+      s"""<a href="psi_element://java.lang.Exception"><code>${if (aliasExportsEnabled) "Exception" else "java.lang.Exception"}</code></a><br>
          |<a href="psi_element://$exceptionClass"><code>Exception</code></a><br>
-         |<a href="psi_element://scala.Exception"><code>$scalaException</code></a><br>
+         |<a href="psi_element://scala.Exception"><code>${if (aliasExportsEnabled) "scala.Exception" else "Exception"}</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }

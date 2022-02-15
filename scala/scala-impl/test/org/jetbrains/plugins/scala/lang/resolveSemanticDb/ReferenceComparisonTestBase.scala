@@ -16,8 +16,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.RefInfo.{assignmentTarget, opaqueTarget}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
+import org.jetbrains.plugins.scala.util.AliasExports._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.collection.mutable.ArrayBuffer
@@ -51,8 +50,6 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
     var testedRefs = 0
     var completeCorrect = 0
     var partialCorrect = 0
-
-    val aliasImportSemantics = ScalaProjectSettings.in(getProject).getAliasSemantics
 
     for (file <- files.filterByType[ScalaFile]) {
       val semanticDbFile = store.files.find(_.path.contains(file.name)).get
@@ -88,7 +85,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
               didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
-              val semanticDbTargetSymbol2 = if (aliasImportSemantics == AliasImportSemantics.Definition) semanticDbTargetSymbol else {
+              val semanticDbTargetSymbol2 = if (!aliasExportsEnabled(getProject)) semanticDbTargetSymbol else {
                 val prefix = semanticDbTargetSymbol.stripSuffix("#").stripSuffix(".")
                 StandardLibraryAliases.get(prefix).fold(semanticDbTargetSymbol)(semanticDbTargetSymbol.replaceFirst(prefix, _))
               }

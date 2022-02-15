@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics._
+import org.jetbrains.plugins.scala.util.AliasExports._
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 
 class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProviderTestBase {
@@ -11,11 +10,6 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
 
   private def moduleName: String = getModule.getName
-
-  private def stringClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-    case Definition => "scala.Predef.String"
-    case ImplicitImport => "java.lang.String"
-  }
 
   def testSimpleClass(): Unit =
     doGenerateDocTest(

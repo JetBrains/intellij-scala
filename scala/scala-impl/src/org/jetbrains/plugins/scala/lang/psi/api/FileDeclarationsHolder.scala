@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{Precedence
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasExportSemantics
 
 /**
   * User: Dmitry Naydanov
@@ -123,7 +123,7 @@ trait FileDeclarationsHolder
     if (checkPredefinedClassesAndPackages) {
       // SCL-19928
       // TODO Process the classes directly
-      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasImportSemantics.ImplicitImport && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
+      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasExportSemantics.Export && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
         if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
       }
 

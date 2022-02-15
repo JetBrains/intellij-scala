@@ -1,19 +1,13 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics.{Definition, ImplicitImport}
+import org.jetbrains.plugins.scala.util.AliasExports._
 
 // TODO: in-editor doc: code example in the end of the doc produces new line
 class ScalaDocumentationProviderRenderInEditorTest extends ScalaDocumentationProviderTestBase {
 
   override protected def generateDoc(referredElement: PsiElement, elementAtCaret: PsiElement): String =
     documentationProvider.generateRenderedDoc(referredElement.asInstanceOf[ScDocCommentOwner].getDocComment)
-
-  private def exceptionClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
-    case Definition => "scala.Exception"
-    case ImplicitImport => "java.lang.Exception"
-  }
 
   def testSingleParagraphInDescription(): Unit =
     doGenerateDocTest(
