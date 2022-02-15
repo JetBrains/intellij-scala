@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala.util
 
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasExportSemantics
 
 object AliasExports {
   def aliasExportsEnabled(implicit context: ProjectContext): Boolean =
-    ScalaProjectSettings.in(context.project).getAliasSemantics == AliasExportSemantics.Export
+    ScalaProjectSettings.in(context.project).aliasExportsEnabled
 
   def stringClass(implicit context: ProjectContext): String =
     if (aliasExportsEnabled) "java.lang.String"

@@ -122,8 +122,7 @@ trait FileDeclarationsHolder
 
     if (checkPredefinedClassesAndPackages) {
       // SCL-19928
-      // TODO Process the classes directly
-      if (ScalaProjectSettings.in(getProject).getAliasSemantics == AliasExportSemantics.Export && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
+      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
         if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
       }
 
