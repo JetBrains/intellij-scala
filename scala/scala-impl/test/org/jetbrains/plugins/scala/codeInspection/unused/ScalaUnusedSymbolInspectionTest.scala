@@ -602,6 +602,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |object Test {
        |  def foo() = new Test()
        |}
+       |Test.foo.s
        |""".stripMargin
   )
 
@@ -611,7 +612,9 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |class Test(val s: String, val i: Int) {
        |  private def this(s: String) = this(s, 42)
        |  def this(i: Int) = this(i.toString)
+       |  s + i
        |}
+       |new Test(0)
        |""".stripMargin
   )
 
@@ -619,7 +622,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
     s"""
        |import scala.annotation.unused
-       |
+       |Test
        |object Test {
        |  @unused
        |  private def test(): Unit = ()
