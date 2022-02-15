@@ -444,7 +444,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     checkTextHasNoErrors(code)
   }
 
-  def testImplicitParamter(): Unit = {
+  def testImplicitParameter(): Unit = {
     val code =
       """
         |class Bar
@@ -465,6 +465,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    object ${START}A$END
          |  }
          |}
+         |new Person().func()
       """.stripMargin
     val before =
       """
@@ -473,6 +474,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    object A
         |  }
         |}
+        |new Person().func()
       """.stripMargin
     val after =
       """
@@ -481,6 +483,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |
         |  }
         |}
+        |new Person().func()
       """.stripMargin
 
     checkTextHasError(code)
@@ -493,18 +496,21 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |class Person() {
          |  private object ${START}A$END
          |}
+         |new Person
       """.stripMargin
     val before =
       """
         |class Person() {
         |  private object A
         |}
+        |new Person
       """.stripMargin
     val after =
       """
         |class Person() {
         |
         |}
+        |new Person
       """.stripMargin
 
     checkTextHasError(code)
@@ -514,14 +520,10 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   // SCL-17181
   def testOverridingSymbol(): Unit = checkTextHasNoErrors(
     """
-      |import scala.annotation.unused
       |trait A {
       |  val foo: Int
-      |  @unused
-      |  val foo1: Int = foo + 1
       |}
-      |@unused
-      |val a: A = new A {
+      |new A {
       |  override val foo: Int = 1 // should not be marked as unused
       |}
       |""".stripMargin

@@ -77,7 +77,6 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
     val elements: Seq[PsiElement] = element match {
-      case named: ScNamedElement if isOverridingOrOverridden(named) => Seq.empty
       case named: ScNamedElement => Seq(named)
       case _ => Seq.empty
     }
@@ -94,10 +93,9 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def shouldProcessElement(elem: PsiElement): Boolean = {
     elem match {
       case t: ScTypeDefinition if t.isSAMable => false
-      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null => false
+      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
       case n: ScNamedElement =>
         n match {
-          case p: ScParameter if p.name == "_" => false
           case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
           case p: ScModifierListOwner if hasOverrideModifier(p) => false
           case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
