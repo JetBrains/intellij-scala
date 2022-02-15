@@ -88,15 +88,11 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
               didTest = true
               val semanticDbTargetPos = semanticDbRef.targetPosition
               val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
-              val textFits = ref.targets.exists{target =>
-                val symbol = target.symbol
-                val adjustedSymbol = if (aliasImportSemantics == AliasImportSemantics.Definition || symbol == semanticDbTargetSymbol) symbol else
-                  StandardLibraryAliases.find(p => semanticDbTargetSymbol.startsWith(p._1) && symbol.startsWith(p._2)) match {
-                    case Some((from, to)) => symbol.replaceFirst(to, from)
-                    case None => symbol
-                  }
-                adjustedSymbol == semanticDbTargetSymbol
+              val semanticDbTargetSymbol2 = if (aliasImportSemantics == AliasImportSemantics.Definition) semanticDbTargetSymbol else {
+                val prefix = semanticDbTargetSymbol.stripSuffix("#").stripSuffix(".")
+                StandardLibraryAliases.get(prefix).fold(semanticDbTargetSymbol)(semanticDbTargetSymbol.replaceFirst(prefix, _))
               }
+              val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol2)
               val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
               if (!textFits && !positionFits) {
@@ -104,7 +100,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
                   .map(target => s"${target.symbol} at ${target.position}")
                   .mkString("\n")
                 val semPos = semanticDbTargetPos.fold("<no position>")(_.toString)
-                newProblems :+= s"$ref resolves to $semanticDbTargetSymbol in semanticdb ($semPos), but we resolve to:\n$ours"
+                newProblems :+= s"$ref resolves to $semanticDbTargetSymbol2 in semanticdb ($semPos), but we resolve to:\n$ours"
                 allSuccess = false
               } else {
                 atLeastOneSuccess = true
@@ -135,7 +131,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
 object ReferenceComparisonTestBase {
   // See org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsHolder
-  val StandardLibraryAliases = Seq(
+  val StandardLibraryAliases = Map(
     // scala
     "scala/package.Cloneable" -> "java/lang/Cloneable",
     "scala/package.Serializable" -> "java/io/Serializable",
