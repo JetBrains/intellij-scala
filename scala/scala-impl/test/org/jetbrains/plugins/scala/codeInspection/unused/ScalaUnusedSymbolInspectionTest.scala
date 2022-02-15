@@ -126,6 +126,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    var (${START}d$END, a) = 10
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     checkTextHasError(code, allowAdditionalHighlights = true)
     val before =
@@ -136,6 +137,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    println(a)
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     val after =
       s"""
@@ -145,6 +147,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    println(a)
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     testQuickFix(before, after, hint)
   }
