@@ -553,11 +553,14 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |""".stripMargin
   )
 
-  def testOverridenTypeMember(): Unit = checkTextHasNoErrors(
+  def testOverriddenTypeMember(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
       |private trait Base {
       |  type ty
       |}
+      |
+      |@unused
       |private class Test extends Base {
       |  override type ty = Int
       |}
