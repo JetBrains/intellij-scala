@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiPackage, ResolveState}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage, ResolveState}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportOrExpo
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceTypes
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.collection.mutable
 
@@ -54,7 +56,14 @@ object RedundantImportUtils {
       val isImportFromAvailableQualifier =
         importQualifierFqnResolved.exists(redundantImportHelper.isAvailableQualifier)
 
-      if (isImportFromAvailableQualifier) {
+      def isAliasImport =
+        ScalaProjectSettings.getInstance(file.getProject).aliasExportsEnabled &&
+          importExpr.reference.exists(_.multiResolveScala(false).exists(_.element match {
+            case c: PsiClass => FileDeclarationsHolder.isAliasImport(c.qualifiedName, c.scalaLanguageLevelOrDefault)
+            case _ => false
+          }))
+
+      if (isImportFromAvailableQualifier || isAliasImport) {
         val importsUsed = ImportUsed.buildAllFor(importExpr).filter {
           case ImportSelectorUsed(sel) =>
             sel.aliasName.isEmpty

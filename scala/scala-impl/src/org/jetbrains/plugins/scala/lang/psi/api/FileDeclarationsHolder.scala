@@ -133,8 +133,7 @@ trait FileDeclarationsHolder
   }
 
   private lazy val aliasImports: Seq[ScImportStmt] = {
-    val text = if (this.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13) Scala212AliasImports else Scala213AliasImports
-    val file = ScalaPsiElementFactory.createScalaFileFromText(text)
+    val file = ScalaPsiElementFactory.createScalaFileFromText(aliasImportsFor(this.scalaLanguageLevelOrDefault))
     file.context = this
     file.children.filterByType[ScImportStmt].toSeq.reverse
   }
@@ -183,29 +182,43 @@ trait FileDeclarationsHolder
 //noinspection TypeAnnotation
 object FileDeclarationsHolder {
 
-  private final val Scala212AliasImports = """
-     import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-     import _root_.java.util.NoSuchElementException
-     import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
-     import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
-     import _root_.scala.collection.immutable.Stream.#::
-     import _root_.scala.collection.mutable.StringBuilder
-     import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
-     import _root_.scala.util.{Either, Left, Right}
-     import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
-   """
+  private val Scala212AliasImports = """
+     |import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     |import _root_.java.util.NoSuchElementException
+     |import _root_.scala.collection.{Iterable, Seq, IndexedSeq, Iterator, BufferedIterator, Iterable, +:, :+}
+     |import _root_.scala.collection.immutable.{List, Nil, ::, Stream, Vector, Range, Map, Set}
+     |import _root_.scala.collection.immutable.Stream.#::
+     |import _root_.scala.collection.mutable.StringBuilder
+     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     |import _root_.scala.util.{Either, Left, Right}
+     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """.stripMargin.trim
 
-  private final val Scala213AliasImports = """
-     import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
-     import _root_.java.io.Serializable
-     import _root_.java.util.NoSuchElementException
-     import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
-     import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
-     import _root_.scala.collection.mutable.StringBuilder
-     import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
-     import _root_.scala.util.{Either, Left, Right}
-     import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
-   """
+  private val Scala213AliasImports = """
+     |import _root_.java.lang.{Cloneable, Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}
+     |import _root_.java.io.Serializable
+     |import _root_.java.util.NoSuchElementException
+     |import _root_.scala.collection.{IterableOnce, Iterable, Iterator, +:, :+}
+     |import _root_.scala.collection.immutable.{Seq, IndexedSeq, List, Nil, ::, Stream, LazyList, Vector, Range, Map, Set}
+     |import _root_.scala.collection.mutable.StringBuilder
+     |import _root_.scala.math.{BigDecimal, BigInt, Equiv, Fractional, Integral, Numeric, Ordered, Ordering, PartialOrdering, PartiallyOrdered}
+     |import _root_.scala.util.{Either, Left, Right}
+     |import _root_.scala.reflect.{OptManifest, Manifest, NoManifest}
+   """.stripMargin.trim
+
+  private def aliasImportsFor(level: ScalaLanguageLevel): String =
+    if (level < ScalaLanguageLevel.Scala_2_13) Scala212AliasImports else Scala213AliasImports
+
+  def isAliasImport(path: String, level: ScalaLanguageLevel): Boolean = {
+    val text = aliasImportsFor(level)
+    val i = path.lastIndexOf(".")
+    i > 0 && {
+      val (qualifier, name) = path.splitAt(i + 1)
+      text.linesIterator.exists(line =>
+        line == "import _root_." + path ||
+          line.contains("import _root_." + qualifier + "{") && line.contains(name.substring(1)))
+    }
+  }
 
   //method extracted due to VerifyError in Scala compiler
   private def updateProcessor(processor: PsiScopeProcessor, priority: Int)
