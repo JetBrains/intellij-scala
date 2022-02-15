@@ -1169,7 +1169,9 @@ object ScalaImportOptimizer {
       val importsUsed = srr.importsUsed
       if (importsUsed.nonEmpty || fromDefaultImport(srr)) {
         imports.addAll(importsUsed.asJava)
-        names.add(UsedName(srr.name, fromElem.getTextRange.getStartOffset))
+        // TODO Why does List() resolve to "List", but to "apply" if there's import scala.collection.immutable.List?
+        val name = if (srr.name == "apply") fromElem.getText else srr.name
+        names.add(UsedName(name, fromElem.getTextRange.getStartOffset))
       }
     }
 
