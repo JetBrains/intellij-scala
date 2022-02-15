@@ -161,6 +161,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |      println("AA")
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -171,6 +172,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -180,6 +182,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -361,6 +364,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (${START}a$END => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -370,6 +374,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (a => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     val after =
       """
@@ -378,6 +383,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (_ => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     testQuickFix(before, after, hint)
   }
