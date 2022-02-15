@@ -391,6 +391,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -401,6 +402,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -410,6 +412,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
