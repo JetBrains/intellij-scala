@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics._
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 
 class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProviderTestBase {
@@ -9,6 +11,11 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     documentationProvider.getQuickNavigateInfo(referredElement, elementAtCaret)
 
   private def moduleName: String = getModule.getName
+
+  private def stringClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+    case Definition => "scala.Predef.String"
+    case ImplicitImport => "java.lang.String"
+  }
 
   def testSimpleClass(): Unit =
     doGenerateDocTest(
@@ -95,13 +102,13 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testClassWithSuperWithGenerics(): Unit =
     doGenerateDocTest(
       s"""trait Trait[A]
-         |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: Int]]
+         |abstract class ${|}Class extends Comparable[_ <: Trait[_ >: String]]
          |""".stripMargin,
       s"[$moduleName] default\n" +
         "abstract class Class" +
         " extends <a href=\"psi_element://java.lang.Comparable\"><code>Comparable</code></a>[_ &lt;:" +
         " <a href=\"psi_element://Trait\"><code>Trait</code></a>[_ &gt;:" +
-        " <a href=\"psi_element://scala.Int\"><code>Int</code></a>]]"
+        s" <a href=\"psi_element://$stringClass\"><code>String</code></a>]]"
     )
 
   def testClassExtendsListShouldNotContainWithObject(): Unit = {
@@ -158,10 +165,10 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testValueDeclaration(): Unit =
     doGenerateDocTest(
       s"""abstract class Wrapper {
-         |  val ${|}field2: Int
+         |  val ${|}field2: String
          |}""".stripMargin,
-      """<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
-        |val field2: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
+      s"""<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
+         |val field2: <a href="psi_element://$stringClass"><code>String</code></a>""".stripMargin
     )
 
   def testVariableDefinition(): Unit =
@@ -176,10 +183,10 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
   def testVariableDeclaration(): Unit =
     doGenerateDocTest(
       s"""abstract class Wrapper {
-         |  var ${|}field2: Int
+         |  var ${|}field2: String
          |}""".stripMargin,
-      """<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
-        |var field2: <a href="psi_element://scala.Int"><code>Int</code></a>""".stripMargin
+      s"""<a href="psi_element://Wrapper"><code>Wrapper</code></a> <default>
+         |var field2: <a href="psi_element://$stringClass"><code>String</code></a>""".stripMargin
     )
 
   def testValueWithModifiers(): Unit =
@@ -242,19 +249,19 @@ class ScalaDocumentationProviderQuickInfoTest extends ScalaDocumentationProvider
     doGenerateDocTest(
       s"""trait MyTrait[T]
          |class :::[T1, T2]
-         |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, Boolean]]]
-         |  extends MyTrait[Int ::: Boolean]
+         |class ${|}ClassWithGenericColons1[A <: MyTrait[:::[Int, String]]]
+         |  extends MyTrait[Int ::: String]
          |""".stripMargin,
       "[light_idea_test_case] default\n" +
         "class ClassWithGenericColons1[A &lt;: " +
         "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
         "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
         " <a href=\"psi_element://:::\"><code>:::</code></a> " +
-        s"<a href=\"psi_element://scala.Boolean\"><code>Boolean</code></a>]]" +
+        s"<a href=\"psi_element://$stringClass\"><code>String</code></a>]]" +
         " extends " +
         "<a href=\"psi_element://MyTrait\"><code>MyTrait</code></a>" +
         "[<a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
         " <a href=\"psi_element://:::\"><code>:::</code></a> " +
-        s"<a href=\"psi_element://scala.Boolean\"><code>Boolean</code></a>]"
+        s"<a href=\"psi_element://$stringClass\"><code>String</code></a>]"
     )
 }

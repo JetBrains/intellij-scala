@@ -1,7 +1,20 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.AliasImportSemantics._
+
 // TODO: split tests per-sections: definition part & content part (rendered scaladoc)
 class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase {
+
+  private def stringClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+    case Definition => "scala.Predef.String"
+    case ImplicitImport => "java.lang.String"
+  }
+
+  private def exceptionClass = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+    case Definition => "scala.Exception"
+    case ImplicitImport => "java.lang.Exception"
+  }
 
   def testClass(): Unit =
     doGenerateDocDefinitionTest(
@@ -26,7 +39,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A extends Exception""".stripMargin,
       s"""a.b.c
          |class <b>A</b>
-         |extends <a href="psi_element://scala.Exception"><code>Exception</code></a>""".stripMargin
+         |extends <a href="psi_element://$exceptionClass"><code>Exception</code></a>""".stripMargin
     )
 
   def testTrait(): Unit =
@@ -66,7 +79,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A extends Exception with T1 with T2""".stripMargin,
       s"""a.b.c
          |class <b>A</b>
-         |extends <a href="psi_element://scala.Exception"><code>Exception</code></a>
+         |extends <a href="psi_element://$exceptionClass"><code>Exception</code></a>
          |with <a href="psi_element://a.b.c.T1"><code>T1</code></a> with <a href="psi_element://a.b.c.T2"><code>T2</code></a>""".stripMargin
     )
 
@@ -104,7 +117,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         "]\n" +
         "extends <a href=\"psi_element://java.lang.Comparable\"><code>Comparable</code></a>" +
         "[_ &lt;: <a href=\"psi_element://Trait\"><code>Trait</code></a>" +
-        "[_ &gt;: <a href=\"psi_element://scala.Predef.String\"><code>String</code></a>]]"
+        s"[_ &gt;: <a href=\"psi_element://$stringClass\"><code>String</code></a>]]"
     )
 
   def testMethod(): Unit =
@@ -114,7 +127,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  def ${|}foo: String = ???
          |}""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |def <b>foo</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
+         |def <b>foo</b>: <a href="psi_element://$stringClass"><code>String</code></a>$DefinitionEnd
          |${ContentStart}description of foo $ContentEnd
          |""".stripMargin
     )
@@ -134,7 +147,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
+         |def <b>baseMethod</b>: <a href="psi_element://$stringClass"><code>String</code></a>$DefinitionEnd
          |${ContentStart}description of base method from A $ContentEnd
          |""".stripMargin
     )
@@ -155,7 +168,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |  override def ${|}baseMethod: String = ???
          |}""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |override def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
+         |override def <b>baseMethod</b>: <a href="psi_element://$stringClass"><code>String</code></a>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseScalaClass"><code>BaseScalaClass</code></a>
@@ -181,7 +194,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |override def <b>baseMethod</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
+         |override def <b>baseMethod</b>: <a href="psi_element://$stringClass"><code>String</code></a>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseJavaClass"><code>BaseJavaClass</code></a>
@@ -207,7 +220,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |}
          |""".stripMargin,
       s"""$DefinitionStart<a href="psi_element://A"><code>A</code></a>
-         |override def <b>getModules</b>: <a href="psi_element://scala.Predef.String"><code>String</code></a>$DefinitionEnd
+         |override def <b>getModules</b>: <a href="psi_element://$stringClass"><code>String</code></a>$DefinitionEnd
          |$ContentStart
          |<b>Description copied from class: </b>
          |<a href="psi_element://BaseJavaClass"><code>BaseJavaClass</code></a>
@@ -396,7 +409,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<tr><td valign='top' class='section'><p>Returns:</td>
          |<td valign='top'> some text</td>
          |<tr><td valign='top' class='section'><p>Throws:</td>
-         |<td valign='top'><a href="psi_element://scala.Exception"><code>Exception</code></a> &ndash; some text</td>
+         |<td valign='top'><a href="psi_element://$exceptionClass"><code>Exception</code></a> &ndash; some text</td>
          |<tr><td valign='top' class='section'><p>Note:</td>
          |<td valign='top'>some text</td>
          |<tr><td valign='top' class='section'><p>Example:</td>
@@ -467,7 +480,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     val expectedDoc =
       s"""<tr><td valign='top' class='section'><p>Throws:</td>
          |<td valign='top'>
-         |<a href="psi_element://scala.Exception"><code>Exception</code></a>
+         |<a href="psi_element://$exceptionClass"><code>Exception</code></a>
          | &ndash; some condition 1
          |<p><a href="psi_element://java.lang.IllegalAccessException"><code>IllegalAccessException</code></a>
          | &ndash; some condition 2
@@ -856,6 +869,14 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testCodeLinks_Mixed_UseShortestNamesFromScalaPredef(): Unit = {
+    val javaLangException = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+      case Definition => "java.lang.Exception"
+      case ImplicitImport => "Exception"
+    }
+    val scalaException = ScalaProjectSettings.getInstance(getProject).getAliasSemantics match {
+      case Definition => "Exception"
+      case ImplicitImport => "scala.Exception"
+    }
     val fileText =
       s"""/**
          | * [[java.lang.Exception]]<br>
@@ -865,9 +886,9 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |class ${|}A
          |""".stripMargin
     val expectedDoc =
-      s"""<a href="psi_element://java.lang.Exception"><code>java.lang.Exception</code></a><br>
-         |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
-         |<a href="psi_element://scala.Exception"><code>Exception</code></a><br>
+      s"""<a href="psi_element://java.lang.Exception"><code>$javaLangException</code></a><br>
+         |<a href="psi_element://$exceptionClass"><code>Exception</code></a><br>
+         |<a href="psi_element://scala.Exception"><code>$scalaException</code></a><br>
          |""".stripMargin
     doGenerateDocContentTest(fileText, expectedDoc)
   }
@@ -1552,8 +1573,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         |""".stripMargin
 
     val expectedDoc =
-      s"""@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://scala.Exception"><code>Exception</code></a>]
-         |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://scala.Exception"><code>Exception</code></a>](&quot;reason 1&quot;)
+      s"""@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://$exceptionClass"><code>Exception</code></a>]
+         |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://$exceptionClass"><code>Exception</code></a>](&quot;reason 1&quot;)
          |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a>]
          |@<a href="psi_element://scala.throws"><code>throws</code></a>[<a href="psi_element://java.util.ConcurrentModificationException"><code>ConcurrentModificationException</code></a>](&quot;reason 2&quot;)
          |def <b>goo</b>(): <a href="psi_element://scala.Unit"><code>Unit</code></a>""".stripMargin
@@ -1571,7 +1592,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
         "def <b>f</b>(" +
         "a: <a href=\"psi_element://scala.Int\"><code>Int</code></a>" +
         " <a href=\"psi_element://A.&lt;:&lt;\"><code>&lt;:&lt;</code></a> " +
-        "<a href=\"psi_element://scala.Predef.String\"><code>String</code></a>" +
+        s"<a href=\"psi_element://$stringClass\"><code>String</code></a>" +
         "): <a href=\"psi_element://scala.Unit\"><code>Unit</code></a>"
     )
 
