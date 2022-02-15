@@ -501,12 +501,15 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   // SCL-17181
   def testOverridingSymbol(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
       |trait A {
       |  val foo: Int
+      |  @unused
       |  val foo1: Int = foo + 1
       |}
+      |@unused
       |val a: A = new A {
-      |  override val foo: Int = 1 // marked as unused
+      |  override val foo: Int = 1 // should not be marked as unused
       |}
       |""".stripMargin
   )
