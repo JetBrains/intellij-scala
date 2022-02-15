@@ -1,17 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package stubIndex
+package org.jetbrains.plugins.scala.lang.stubIndex
 
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndexKey
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiMember}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
+import org.jetbrains.plugins.scala.lang.psi.stubs.index._
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 import org.junit.Assert._
 
@@ -20,25 +19,37 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_12
 
   override protected val includeCompilerAsLibrary: Boolean = true
 
-  private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
+  private def moduleWithLibrariesScope: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
 
-  private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)
+  private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] =
+    indexKey.elements(key, moduleWithLibrariesScope)(getProject).toList
 
-  private def elementsInScalaLibrary[Key, Psi <: PsiElement : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[Psi] = {
-    indexKey.elements(key, moduleWithLibraries)(getProject).toList
+  private def elementsInScalaLibraryByFqnKey[Psi <: PsiElement : ClassTag](fqn: CharSequence, index: ScFqnHashStubIndexExtension[Psi]): Seq[Psi] =
+    index.elementsByHash(fqn, getProject, moduleWithLibrariesScope).toList
+
+  private def checkNamesFromIndex[Psi <: PsiMember : ClassTag](indexKey: StubIndexKey[String, Psi], key: String)
+                                                              (expected: String*): Unit = {
+    val actualElements = elementsInScalaLibrary(key, indexKey)
+    val actualElementsFqns = actualElements.flatMap(_.qualifiedNameOpt).sorted
+
+    val expectedText = expected.mkString("\n")
+    val actualText = actualElementsFqns.mkString("\n")
+    assertEquals(expectedText, actualText)
   }
 
-  private def fqnsInScalaLibrary[Key, Psi <: PsiMember : ClassTag](key: Key, indexKey: StubIndexKey[Key, Psi]): Seq[String] = {
-    elementsInScalaLibrary(key, indexKey).flatMap(_.qualifiedNameOpt).sorted
-  }
+  private def checkFQNamesFromIndex[Psi <: PsiMember : ClassTag](index: ScFqnHashStubIndexExtension[Psi], key: CharSequence)
+                                                                 (expected: String*): Unit = {
+    val actualElements = elementsInScalaLibraryByFqnKey(key, index)
+    val actualElementsFqns = actualElements.flatMap(_.qualifiedNameOpt).sorted
 
-  private def checkFQNamesFromIndex[Key, Psi <: PsiMember : ClassTag](indexKey: StubIndexKey[Key, Psi], key: Key)
-                                                                     (expected: String*): Unit = {
-    assertEquals(expected.mkString("\n"), fqnsInScalaLibrary(key, indexKey).mkString("\n"))
+    val expectedText = expected.mkString("\n")
+    val actualText = actualElementsFqns.mkString("\n")
+    assertEquals(expectedText, actualText)
   }
 
   private def assertContains[T](set: Set[T], element: T): Unit = {
@@ -46,18 +57,18 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testAllClassNames(): Unit = {
-    checkFQNamesFromIndex(ALL_CLASS_NAMES, "HashSet")( //classes
+    checkNamesFromIndex(ALL_CLASS_NAMES, "HashSet")( //classes
       "scala.collection.immutable.HashSet",
       "scala.collection.mutable.HashSet"
     )
-    checkFQNamesFromIndex(ALL_CLASS_NAMES, "HashSet$")( //companion objects
+    checkNamesFromIndex(ALL_CLASS_NAMES, "HashSet$")( //companion objects
       "scala.collection.immutable.HashSet",
       "scala.collection.mutable.HashSet"
     )
   }
 
   def testShortName(): Unit = {
-    checkFQNamesFromIndex(SHORT_NAME_KEY, "HashSet")(
+    checkNamesFromIndex(SHORT_NAME_KEY, "HashSet")(
       "scala.collection.immutable.HashSet",
       "scala.collection.immutable.HashSet",
       "scala.collection.mutable.HashSet",
@@ -67,25 +78,26 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   //inside package objects
   def testNotVisibleInJava(): Unit = {
-    checkFQNamesFromIndex(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, "DurationLong")("scala.concurrent.duration.DurationLong")
+    checkNamesFromIndex(NOT_VISIBLE_IN_JAVA_SHORT_NAME_KEY, "DurationLong")("scala.concurrent.duration.DurationLong")
   }
 
   def testFQN(): Unit = {
-    checkFQNamesFromIndex(FQN_KEY, intKey("scala.collection.immutable.HashSet"))("scala.collection.immutable.HashSet", "scala.collection.immutable.HashSet")
+    checkFQNamesFromIndex(ScClassFqnIndex.instance, "scala.collection.immutable.HashSet")("scala.collection.immutable.HashSet", "scala.collection.immutable.HashSet")
   }
 
   def testPackageObject(): Unit = {
-    checkFQNamesFromIndex(PACKAGE_OBJECT_KEY, intKey("scala.collection"))("scala.collection")
+    checkFQNamesFromIndex(ScPackageObjectFqnIndex.instance, "scala.collection")("scala.collection")
   }
 
   def testPackageObjectShort(): Unit = {
-    checkFQNamesFromIndex(PACKAGE_OBJECT_SHORT_NAME_KEY, "collection")("scala.collection")
+    checkNamesFromIndex(PACKAGE_OBJECT_SHORT_NAME_KEY, "collection")("scala.collection")
   }
 
   def testPackageFQN(): Unit = {
-    val packagings = elementsInScalaLibrary(intKey("scala.math"), PACKAGE_FQN_KEY)
+    val packagings = elementsInScalaLibraryByFqnKey("scala.math", ScPackagingFqnIndex.instance)
     //noinspection ScalaWrongPlatformMethodsUsage
     val containingFiles = packagings.map(_.getContainingFile.getName)
+
     assertCollectionEqualsTextual(containingFiles, "Wrong number of packagings found: ")(
       """BigDecimal.class
         |BigInt.class
@@ -100,14 +112,14 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
         |PartialOrdering.class
         |PartiallyOrdered.class
         |ScalaNumericAnyConversions.class
-        |ScalaNumericConversions.class""".stripMargin
+        |ScalaNumericConversions.class""".stripMargin.withNormalizedSeparator
     )
   }
 
   def testMethodName(): Unit = {
-    checkFQNamesFromIndex(METHOD_NAME_KEY, "implicitly")("scala.Predef.implicitly")
+    checkNamesFromIndex(METHOD_NAME_KEY, "implicitly")("scala.Predef.implicitly")
 
-    checkFQNamesFromIndex(METHOD_NAME_KEY, "toOption")(
+    checkNamesFromIndex(METHOD_NAME_KEY, "toOption")(
       "scala.util.Either.LeftProjection.toOption",
       "scala.util.Either.RightProjection.toOption",
       "scala.util.Either.toOption",
@@ -119,7 +131,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testClassNameInPackage(): Unit = {
-    checkFQNamesFromIndex(CLASS_NAME_IN_PACKAGE_KEY, "scala.concurrent.duration")(
+    checkNamesFromIndex(CLASS_NAME_IN_PACKAGE_KEY, "scala.concurrent.duration")(
       "scala.concurrent.duration.Deadline",
       "scala.concurrent.duration.Deadline",
       "scala.concurrent.duration.DoubleMult",
@@ -140,7 +152,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testJavaClassNameInPackage(): Unit = {
-    checkFQNamesFromIndex(JAVA_CLASS_NAME_IN_PACKAGE_KEY, "scala.concurrent.duration")(
+    checkNamesFromIndex(JAVA_CLASS_NAME_IN_PACKAGE_KEY, "scala.concurrent.duration")(
       "scala.concurrent.duration",
       "scala.concurrent.duration.Deadline",
       "scala.concurrent.duration.Deadline",
@@ -154,7 +166,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testImplicitObjects(): Unit = {
-    checkFQNamesFromIndex(IMPLICIT_OBJECT_KEY, "scala.math.Ordering")(
+    checkNamesFromIndex(IMPLICIT_OBJECT_KEY, "scala.math.Ordering")(
       "scala.math.Ordering.BigDecimal",
       "scala.math.Ordering.BigInt",
       "scala.math.Ordering.Boolean",
@@ -192,7 +204,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testPropertyName(): Unit = {
-    checkFQNamesFromIndex(PROPERTY_NAME_KEY, "array")(
+    checkNamesFromIndex(PROPERTY_NAME_KEY, "array")(
       "scala.collection.mutable.ArraySeq.array",
       "scala.collection.mutable.ResizableArray.array",
       "scala.collection.parallel.mutable.ExposedArraySeq.array"
@@ -200,7 +212,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testClassParameterName(): Unit = {
-    checkFQNamesFromIndex(CLASS_PARAMETER_NAME_KEY, "queue")(
+    checkNamesFromIndex(CLASS_PARAMETER_NAME_KEY, "queue")(
       "scala.ref.PhantomReference.queue",
       "scala.ref.PhantomReferenceWithWrapper.queue",
       "scala.ref.SoftReference.queue",
@@ -211,17 +223,17 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testTypeAlias(): Unit = {
-    checkFQNamesFromIndex(TYPE_ALIAS_NAME_KEY, "String")("scala.Predef.String")
-    checkFQNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Throwable")("scala.Throwable")
-    checkFQNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Catcher")("scala.util.control.Exception.Catcher")
-    checkFQNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Configure")("scala.io.Codec.Configure")
+    checkNamesFromIndex(TYPE_ALIAS_NAME_KEY, "String")("scala.Predef.String")
+    checkNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Throwable")("scala.Throwable")
+    checkNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Catcher")("scala.util.control.Exception.Catcher")
+    checkNamesFromIndex(TYPE_ALIAS_NAME_KEY, "Configure")("scala.io.Codec.Configure")
   }
 
   def testStableAlias(): Unit = {
-    checkFQNamesFromIndex(STABLE_ALIAS_NAME_KEY, "String")("scala.Predef.String")
-    checkFQNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Throwable")("scala.Throwable")
-    checkFQNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Catcher")("scala.util.control.Exception.Catcher")
-    checkFQNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Configure")()
+    checkNamesFromIndex(STABLE_ALIAS_NAME_KEY, "String")("scala.Predef.String")
+    checkNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Throwable")("scala.Throwable")
+    checkNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Catcher")("scala.util.control.Exception.Catcher")
+    checkNamesFromIndex(STABLE_ALIAS_NAME_KEY, "Configure")()
   }
 
   def testSuperClassName(): Unit = {
@@ -245,7 +257,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   def testImplicitInstance(): Unit = {
     def forClassFqn(fqn: String) =
-      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
+      ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt)
 
     val orderings = forClassFqn("scala.math.Ordering")
     assertCollectionEqualsTextual(orderings)(
@@ -261,7 +273,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
         |scala.math.Ordering.Tuple6
         |scala.math.Ordering.Tuple7
         |scala.math.Ordering.Tuple8
-        |scala.math.Ordering.Tuple9""".stripMargin
+        |scala.math.Ordering.Tuple9""".stripMargin.withNormalizedSeparator
     )
 
     val booleanOrdering = forClassFqn("scala.math.Ordering.BooleanOrdering")
@@ -273,7 +285,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
 
   def testImplicitConversion_ForClassFqn(): Unit = {
     def forClassFqn(fqn: String): Set[String] =
-      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
+      ImplicitConversionIndex.forClassFqn(fqn, moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt)
 
     val forScalaAny = forClassFqn(AnyFqn)
     assertContains(forScalaAny, "scala.math.Ordering.mkOrderingOps")
@@ -296,7 +308,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
   }
 
   def testImplicitConversion_AllConversions(): Unit = {
-    val all = ImplicitConversionIndex.allConversions(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
+    val all = ImplicitConversionIndex.allConversions(moduleWithLibrariesScope)(getProject).flatMap(_.qualifiedNameOpt).toSet
     assertCollectionEqualsTextual(all)(
       """scala.Byte.byte2double
         |scala.Byte.byte2float
@@ -576,7 +588,8 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
         |scala.tools.util.PathResolver.MkLines
         |scala.util.Either.MergeableEither
         |scala.util.Random.javaRandomToRandom
-        |scala.util.control.Exception.throwableSubtypeToCatcher""".stripMargin.replace("\r", "")
+        |scala.util.control.Exception.throwableSubtypeToCatcher
+        |""".stripMargin.withNormalizedSeparator.trim
     )
   }
 
@@ -585,7 +598,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestCase {
                                            (expectedElementsSortedConcatenated: String): Unit = {
     assertEquals(
       message,
-      expectedElementsSortedConcatenated.replace("\r", ""),
+      expectedElementsSortedConcatenated,
       actualElements.toSeq.sorted.mkString("\n")
     )
   }

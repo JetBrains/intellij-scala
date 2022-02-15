@@ -5,10 +5,11 @@ import com.intellij.psi.stubs.{IndexSink, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{RawStubElement, ScPackagingStub}
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackagingStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 object ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPackaging]("packaging") {
+
+  import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPackagingStubImpl
 
   override def serialize(stub: ScPackagingStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.packageName)
@@ -40,12 +41,12 @@ object ScPackagingElementType extends ScStubElementType[ScPackagingStub, ScPacka
     val prefix = stub.parentPackageName
     var ownNamePart = stub.packageName
 
-    def append(postfix: String) =
-      ScalaNamesUtil.cleanFqn(if (prefix.length > 0) prefix + "." + postfix else postfix)
+    def append(postfix: String): String =
+      ScalaNamesUtil.cleanFqn(if (prefix.nonEmpty) prefix + "." + postfix else postfix)
 
     var i = 0
     do {
-      sink.occurrence[ScPackaging, Integer](PACKAGE_FQN_KEY, append(ownNamePart).hashCode)
+      sink.occurrence[ScPackaging, CharSequence](PACKAGE_FQN_KEY, append(ownNamePart))
       i = ownNamePart.lastIndexOf(".")
       if (i > 0) {
         ownNamePart = ownNamePart.substring(0, i)

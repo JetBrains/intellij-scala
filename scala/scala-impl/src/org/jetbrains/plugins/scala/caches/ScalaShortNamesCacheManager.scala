@@ -4,12 +4,12 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi._
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
-import com.intellij.psi.stubs.StubIndexKey
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScClassFqnIndex, ScPackageObjectFqnIndex}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
@@ -22,7 +22,8 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
       return null
     }
 
-    classesFromIndex(fqn, scope)
+    val elements = ScClassFqnIndex.instance.elementsByHash(fqn, project, scope)
+    elements
       .find { cls =>
         val qualifiedName = cls.qualifiedName
         qualifiedName != null && equivalentFqn(fqn, qualifiedName)
@@ -34,7 +35,8 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     if (DumbService.getInstance(project).isDumb) {
       return Nil
     }
-    classesFromIndex(fqn, scope)
+
+    ScClassFqnIndex.instance.elementsByHash(fqn, project, scope)
       .filter(cls => cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName))
       .flatMap {
         case cls: ScTypeDefinition => // Add fakeCompanionModule when ScTypeDefinition
@@ -58,7 +60,7 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     if (DumbService.getInstance(project).isDumb) {
       None
     } else {
-      classesFromIndex(fqn, scope, indexKey = PACKAGE_OBJECT_KEY)
+      ScPackageObjectFqnIndex.instance.elementsByHash(fqn, project, scope)
         .collectFirst {
           case scalaObject: ScObject if scalaObject.qualifiedName != null &&
             equivalentFqn(fqn, scalaObject.qualifiedName.stripSuffix(".`package`")) => scalaObject
@@ -126,10 +128,6 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     }
 
   private def psiNamesCache = PsiShortNamesCache.getInstance(project)
-
-  private def classesFromIndex(name: String, scope: GlobalSearchScope,
-                              indexKey: StubIndexKey[java.lang.Integer, PsiClass] = FQN_KEY): Iterable[PsiClass] =
-    indexKey.elementsByHash(name, scope)
 }
 
 object ScalaShortNamesCacheManager {

@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScGivenStub, ScImplicitStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
@@ -140,6 +140,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   }
 
   override final def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
+    import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 
     val scalaName = stub.getName
     val javaName = stub.javaName
@@ -175,7 +176,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
 
     val fqn = ScalaNamesUtil.cleanFqn(stub.getQualifiedName)
     if (fqn != null && !stub.isLocal) {
-      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.FQN_KEY, fqn.hashCode)
+      sink.occurrence[PsiClass, CharSequence](CLASS_FQN_KEY, fqn)
       val i = fqn.lastIndexOf(".")
       val pack =
         if (i == -1) ""
@@ -195,8 +196,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         val index = packageName.lastIndexOf('.')
         if (index < 0) packageName else packageName.substring(index + 1, packageName.length)
       }
-      sink.occurrence[PsiClass, java.lang.Integer](ScalaIndexKeys.PACKAGE_OBJECT_KEY, packageName.hashCode)
-      sink.occurrence[PsiClass, String](ScalaIndexKeys.PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
+      sink.occurrence[PsiClass, CharSequence](PACKAGE_OBJECT_FQN_KEY, packageName)
+      sink.occurrence[PsiClass, String](PACKAGE_OBJECT_SHORT_NAME_KEY, shortName)
     }
   }
 }

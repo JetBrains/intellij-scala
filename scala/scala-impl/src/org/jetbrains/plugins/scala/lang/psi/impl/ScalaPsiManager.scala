@@ -34,7 +34,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.{StableNodes, TermNodes, TypeNodes}
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollectorCache
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ScPackageObjectFqnIndex, ScPackagingFqnIndex, ScStableTypeAliasFqnIndex, ScalaIndexKeys}
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, ParameterizedType, TypeParameterType}
@@ -218,9 +218,10 @@ class ScalaPsiManager(implicit val project: Project) {
       `package`.getClasses(scope).isEmpty
 
   private[this] def isScalaPackageInScope(fqn: String)
-                                         (implicit scope: GlobalSearchScope): Boolean =
-    PACKAGE_FQN_KEY.hasIntegerElements(fqn, scope, classOf[ScPackaging]) ||
-      PACKAGE_OBJECT_KEY.hasIntegerElements(fqn, scope, classOf[PsiClass])
+                                         (implicit scope: GlobalSearchScope): Boolean = {
+    ScPackagingFqnIndex.instance.hasElement(fqn, project, scope, classOf[ScPackaging]) ||
+      ScPackageObjectFqnIndex.instance.hasElement(fqn, project, scope, classOf[PsiClass])
+  }
 
   def getCachedPackageInScope(fqn: String)(implicit scope: GlobalSearchScope): Option[PsiPackage] =
     if (DumbService.getInstance(project).isDumb)
@@ -280,10 +281,10 @@ class ScalaPsiManager(implicit val project: Project) {
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
     TYPE_ALIAS_NAME_KEY.elements(cleanFqn(name), scope)
 
-  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =
-    STABLE_ALIAS_FQN_KEY
-      .elementsByHash(fqn, scope)
-      .filter(_.qualifiedNameOpt.contains(fqn))
+  def getStableAliasesByFqn(fqn: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] = {
+    val elements = ScStableTypeAliasFqnIndex.instance.elementsByHash(fqn, project, scope)
+    elements.filter(_.qualifiedNameOpt.contains(fqn))
+  }
 
   def getClassesByName(name: String, scope: GlobalSearchScope): Seq[PsiClass] = {
     val scalaClasses = ScalaShortNamesCacheManager.getInstance(project).getClassesByName(name, scope)
