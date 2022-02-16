@@ -218,7 +218,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    def p: Int
       |  }
       |  private class Test(val p: Int) extends Base
+      |  new Test(1)
       |}
+      |Global
       |""".stripMargin
   )
 
@@ -350,6 +352,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |class Test extends Base {
       |  def test(i: Int): Unit = ()
       |}
+      |new Test
       |""".stripMargin
   )
 
