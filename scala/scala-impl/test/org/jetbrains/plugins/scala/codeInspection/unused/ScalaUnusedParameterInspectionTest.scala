@@ -231,7 +231,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    def p: Int
       |  }
       |  private case class Test(p: Int) extends Base
+      |  Test(1) match { case _: Test => () }
       |}
+      |Global
       |""".stripMargin
   )
 
@@ -311,18 +313,6 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    test2()
       |  }
       |  private def test2()(implicit used: Used): Used = used
-      |}
-      |""".stripMargin
-  )
-
-  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasNoErrors(
-    s"""
-      |object Test {
-      |  private object Inner {
-      |    case class CC(a: Int)
-      |  }
-      |
-      |  Inner
       |}
       |""".stripMargin
   )
