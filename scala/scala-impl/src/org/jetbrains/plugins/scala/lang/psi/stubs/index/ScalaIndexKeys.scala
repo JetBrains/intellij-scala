@@ -67,6 +67,8 @@ object ScalaIndexKeys {
   val IMPLICIT_CONVERSION_KEY = createIndexKey[String, ScMember]("sc.implicit.conversion")
   val IMPLICIT_INSTANCE_KEY   = createIndexKey[String, ScMember]("sc.implicit.instance")
 
+  val EXTENSION_KEY = createIndexKey[String, ScExtension]("sc.extension")
+
   implicit class StubIndexKeyExt[Key, Psi <: PsiElement: ClassTag](private val indexKey: StubIndexKey[Key, Psi]) {
 
     import scala.jdk.CollectionConverters._

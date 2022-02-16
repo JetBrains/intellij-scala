@@ -36,6 +36,7 @@ class ScalaAutoImportOptionsProviderForm {
   private val methodsCheckbox: JCheckBox = new JCheckBox(ScalaBundle.message("auto.import.show.popup.methods"))
   private val conversionsCheckbox: JCheckBox = new JCheckBox(ScalaBundle.message("auto.import.show.popup.conversions"))
   private val implicitsCheckbox: JCheckBox = new JCheckBox(ScalaBundle.message("auto.import.show.popup.implicits"))
+  private val extensionMethodsCheckbox: JCheckBox = new JCheckBox(ScalaBundle.message("auto.import.show.popup.extension.methods"))
 
   initLayout()
 
@@ -73,6 +74,12 @@ class ScalaAutoImportOptionsProviderForm {
 
   def setShowPopupImplicits(value: Boolean): Unit = {
     implicitsCheckbox.setSelected(value)
+  }
+
+  def isShowPopupExtensionMethods: Boolean = extensionMethodsCheckbox.isSelected
+
+  def setShowPopupExtensionMethods(value: Boolean): Unit = {
+    extensionMethodsCheckbox.setSelected(value)
   }
 
   def isOptimizeImports: Boolean = optimizeImportsOnTheCheckBox.isSelected
@@ -113,6 +120,7 @@ class ScalaAutoImportOptionsProviderForm {
     panel.add(methodsCheckbox, indent.wrap())
     panel.add(conversionsCheckbox, indent.wrap())
     panel.add(implicitsCheckbox, indent.wrap())
+    panel.add(extensionMethodsCheckbox, indent.wrap())
 
     panel.add(new JLabel(ScalaBundle.message("auto.import.add.unambiguous.imports.on.the.fly.for")), wrap)
     panel.add(addUnambiguousImportsOnCheckBox, indent.wrap())

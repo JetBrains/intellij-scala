@@ -19,7 +19,7 @@ final class ImplicitConversionIndex extends ScStringStubIndexExtension[ScMember]
   override def getKey = ImplicitConversionIndex.indexKey
 }
 
-object ImplicitConversionIndex extends ImplicitIndex {
+object ImplicitConversionIndex extends ImplicitIndex[ScMember] {
 
   //noinspection TypeAnnotation
   override protected val indexKey = ScalaIndexKeys.IMPLICIT_CONVERSION_KEY

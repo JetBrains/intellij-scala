@@ -17,14 +17,14 @@ object Presentation {
     s"$prefix<s>$name</s>"
   }
 
-  private def decoratedQualifiedName(element: PsiNamedElement, owner: PsiNamedElement, pathToOwner: String)
+  private def decoratedQualifiedName(element: PsiNamedElement, owner: PsiElement, pathToOwner: String)
                                     (function: (PsiElement, String) => String): String = {
     val prefix = function(owner, pathToOwner)
     val suffix = function(element, element.name)
     prefix + "." + suffix
   }
 
-  def withDeprecations(element: PsiNamedElement, owner: PsiNamedElement, pathToOwner: String): String =
+  def withDeprecations(element: PsiNamedElement, owner: PsiElement, pathToOwner: String): String =
     decoratedQualifiedName(element, owner, pathToOwner) {
       case (member: PsiDocCommentOwner, string) if member.isDeprecated => asDeprecated(string)
       case (_, string)                                                 => string

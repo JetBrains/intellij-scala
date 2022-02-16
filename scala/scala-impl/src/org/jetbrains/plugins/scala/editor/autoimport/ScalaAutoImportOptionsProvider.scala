@@ -28,6 +28,7 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
     if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS != form.isShowPopupMethods) return true
     if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS != form.isShowPopupConversions) return true
     if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS != form.isShowPopupImplicits) return true
+    if (ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_EXTENSION_METHODS != form.isShowPopupExtensionMethods) return true
     false
   }
 
@@ -40,6 +41,7 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
     ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS = form.isShowPopupMethods
     ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS = form.isShowPopupConversions
     ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS = form.isShowPopupImplicits
+    ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_EXTENSION_METHODS = form.isShowPopupExtensionMethods
   }
 
   override def reset(): Unit = {
@@ -51,6 +53,7 @@ class ScalaAutoImportOptionsProvider extends AutoImportOptionsProvider {
     form.setShowPopupMethods(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_STATIC_METHODS)
     form.setShowPopupConversions(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_CONVERSIONS)
     form.setShowPopupImplicits(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_IMPLICITS)
+    form.setShowPopupExtensionMethods(ScalaApplicationSettings.getInstance().SHOW_IMPORT_POPUP_EXTENSION_METHODS)
   }
 
   override def disposeUIResources(): Unit = {}

@@ -13,7 +13,8 @@ final class ImplicitInstanceIndex extends ScStringStubIndexExtension[ScMember] {
   override def getKey = ImplicitInstanceIndex.indexKey
 }
 
-object ImplicitInstanceIndex extends ImplicitIndex {
+object ImplicitInstanceIndex extends ImplicitIndex[ScMember] {
+
   final def occurrences(sink: IndexSink, names: Array[String]): Unit =
     names.foreach(occurrence(sink, _))
 

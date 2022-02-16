@@ -38,6 +38,7 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
   public boolean SHOW_IMPORT_POPUP_STATIC_METHODS = true;
   public boolean SHOW_IMPORT_POPUP_CONVERSIONS = true;
   public boolean SHOW_IMPORT_POPUP_IMPLICITS = true;
+  public boolean SHOW_IMPORT_POPUP_EXTENSION_METHODS = true;
 
   @ReportValue
   public int ADD_IMPORTS_ON_PASTE = CodeInsightSettings.ASK;

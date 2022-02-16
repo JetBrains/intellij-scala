@@ -174,6 +174,7 @@ object ScalaAddImportAction {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
         case _: MemberToImport           => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+        case _: ExtensionMethodToImport  => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
         case _                           => ref.bindToElement(toImport.element)
       }
     }
@@ -209,11 +210,21 @@ object ScalaAddImportAction {
 
     override protected def chooserTitle(variants: Seq[MemberToImport]): String =
       ScalaBundle.message("import.conversion.chooser.title")
-
-    override protected def doAddImport(toImport: MemberToImport): Unit = {
-      ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
-    }
   }
+
+  private final class ImportExtensionMethodAction(editor: Editor,
+                                                  variants: Seq[ExtensionMethodToImport],
+                                                  ref: ScReferenceExpression)
+    extends ForReference[ScReferenceExpression, ExtensionMethodToImport](editor, variants, ref) {
+
+    override protected def chooserTitle(variants: Seq[ExtensionMethodToImport]): String =
+      ScalaBundle.message("import.extension.method.chooser.title")
+  }
+
+  def importExtensionMethod(editor: Editor,
+                            variants: Seq[ExtensionMethodToImport],
+                            ref: ScReferenceExpression): ScalaAddImportAction[ScReferenceExpression, ExtensionMethodToImport] =
+    new ImportExtensionMethodAction(editor, variants, ref)
 
   def importImplicitConversion(editor: Editor,
                                variants: Seq[MemberToImport],

@@ -5,12 +5,13 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findAllI
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.StableValIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withAllInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
+/** TODO: owner could be a [[ScPackaging]] in Scala 3 */
 abstract class GlobalMember[M <: ScMember](val owner: ScTypedDefinition,
                                            val pathToOwner: String,
                                            val member: M) {

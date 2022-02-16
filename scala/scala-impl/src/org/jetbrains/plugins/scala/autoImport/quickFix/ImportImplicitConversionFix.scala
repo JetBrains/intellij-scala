@@ -5,14 +5,16 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
-import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
+import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion, GlobalMember}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
-import org.jetbrains.plugins.scala.lang.psi.implicits.{ImplicitCollector, ImplicitConversionData}
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionMethodData, ImplicitCollector, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -49,42 +51,64 @@ private object ImportImplicitConversionFix {
 }
 
 private class ConversionToImportComputation(ref: ScReferenceExpression) {
-  private case class Result(conversions: Seq[MemberToImport], missingInstances: Seq[ScalaResolveResult])
+  private case class Result(conversions: Seq[MemberToImport],
+                            extensionMethods: Seq[ExtensionMethodToImport],
+                            missingInstances: Seq[ScalaResolveResult])
 
   private lazy val result: Result = {
     val visible =
       for {
         result <- ImplicitCollector.visibleImplicits(ref)
         fun    <- result.element.asOptionOf[ScFunction]
-        if fun.isImplicitConversion
+        if fun.isImplicitConversion || fun.isExtensionMethod
       } yield fun
 
     val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
+    val extensionMethodsToImport = ArrayBuffer.empty[GlobalExtensionMethod]
     val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]
 
-    for {
-      qualifier                 <- qualifier(ref).toSeq
-      (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier).toSeq
+    def addIfNeeded[GM <: GlobalMember[ScFunction]](globalMember: GM,
+                                                    membersToImport: ArrayBuffer[GM],
+                                                    implicitParams: Seq[ScalaResolveResult])
+                                                   (implicit implicitArgsOwner: ImplicitArgumentsOwner): Unit = {
+      val notFoundImplicitParameters = implicitParams.filter(_.isNotFoundImplicitParameter)
 
-      if !isExcluded(conversion.qualifiedName, ref.getProject) &&
-        CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
-
-    } {
-      val notFoundImplicitParameters = application.implicitParameters.filter(_.isNotFoundImplicitParameter)
-
-      if (visible.contains(conversion.function))
+      if (visible.contains(globalMember.member))
         notFoundImplicits ++= notFoundImplicitParameters
-      else if (mayFindImplicits(notFoundImplicitParameters, qualifier))
-        conversionsToImport += conversion
+      else if (mayFindImplicits(notFoundImplicitParameters, implicitArgsOwner))
+        membersToImport += globalMember
     }
 
-    val sortedConversions = conversionsToImport.sortBy(c => (isDeprecated(c), c.qualifiedName)).toSeq
+    qualifier(ref).foreach { implicit qualifier =>
+      for {
+        (conversion, application) <- ImplicitConversionData.getPossibleConversions(qualifier)
+        if !isExcluded(conversion.qualifiedName, ref.getProject) &&
+          CompletionProcessor.variantsWithName(application.resultType, qualifier, ref.refName).nonEmpty
+      } addIfNeeded(conversion, conversionsToImport, application.implicitParameters)
 
-    Result(sortedConversions.map(f => MemberToImport(f.member, f.owner, f.pathToOwner)), notFoundImplicits.toSeq)
+      for {
+        (extensionMethod, application) <- ExtensionMethodData.getPossibleExtensionMethods(qualifier)
+        if !isExcluded(extensionMethod.qualifiedName, ref.getProject) &&
+          ref.refName == extensionMethod.function.name
+      } addIfNeeded(extensionMethod, extensionMethodsToImport, application.implicitParameters)
+    }
+
+    val sortedConversions = sortAndMapMembers(conversionsToImport, MemberToImport(_, _, _))
+    val sortedExtensionMethods = sortAndMapMembers(extensionMethodsToImport, ExtensionMethodToImport(_, _, _))
+
+    Result(sortedConversions, sortedExtensionMethods, notFoundImplicits.toSeq)
   }
 
   def conversions: Seq[MemberToImport] = result.conversions
+  def extensionMethods: Seq[ExtensionMethodToImport] = result.extensionMethods
   def missingImplicits: Seq[ScalaResolveResult] = result.missingInstances
+
+  private def sortAndMapMembers[GM <: GlobalMember[ScFunction], E <: ElementToImport](members: ArrayBuffer[GM],
+                                                                                      constructor: (ScFunction, ScTypedDefinition, String) => E) =
+    members
+      .sortBy(e => (isDeprecated(e), e.qualifiedName))
+      .toSeq
+      .map(e => constructor(e.member, e.owner, e.pathToOwner))
 
   private def qualifier(ref: ScReferenceExpression): Option[ScExpression] = ref match {
     case prefix: ScInterpolatedExpressionPrefix =>
@@ -96,8 +120,8 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
       ref.qualifier
   }
 
-  private def isDeprecated(conversion: GlobalImplicitConversion): Boolean =
-    isDeprecated(conversion.owner) || isDeprecated(conversion.function)
+  private def isDeprecated[GM <: GlobalMember[ScFunction]](globalMember: GM): Boolean =
+    isDeprecated(globalMember.owner) || isDeprecated(globalMember.member)
 
   private def isDeprecated(named: PsiNamedElement): Boolean = named.nameContext match {
     case member: PsiDocCommentOwner => member.isDeprecated
@@ -107,7 +131,7 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
   //todo we already search for implicit parameters, so we could import them together with a conversion
   // need to think about UX
   private def mayFindImplicits(notFoundImplicitParameters: Seq[ScalaResolveResult],
-                               owner: ScExpression): Boolean =
+                               owner: ImplicitArgumentsOwner): Boolean =
     notFoundImplicitParameters.isEmpty || ImportImplicitInstanceFix.implicitsToImport(notFoundImplicitParameters, owner).nonEmpty
 }
 
@@ -124,6 +148,10 @@ object ImportImplicitConversionFixes {
 
   def apply(ref: ScReferenceExpression): Seq[ScalaImportElementFix[_ <: ElementToImport]] = {
     val computation = new ConversionToImportComputation(ref)
-    Seq(ImportImplicitConversionFix(ref, computation), ImportImplicitInstanceFix(() => computation.missingImplicits, ref))
+    Seq(
+      ImportImplicitConversionFix(ref, computation),
+      ImportExtensionMethodFix(ref, computation),
+      ImportImplicitInstanceFix(() => computation.missingImplicits, ref)
+    )
   }
 }

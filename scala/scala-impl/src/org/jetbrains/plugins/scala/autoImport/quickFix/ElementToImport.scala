@@ -4,7 +4,8 @@ import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
 
 sealed trait ElementToImport {
   protected type E <: PsiNamedElement
@@ -43,6 +44,25 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
   override def qualifiedName: String = element.qualifiedName
 
   override def presentationBody: String = Presentation.withDeprecation(element)
+}
+
+final case class ExtensionMethodToImport(override val element: ScFunction,
+                                         owner: PsiElement,
+                                         pathToOwner: String) extends ElementToImport {
+  override protected type E = ScFunction
+
+  override def qualifiedName: String = pathToOwner + "." + name
+
+  override def presentationBody: String =
+    Presentation.withDeprecations(element, owner, pathToOwner)
+}
+
+object ExtensionMethodToImport {
+  def apply(element: ScFunction, owner: ScPackaging): ExtensionMethodToImport =
+    new ExtensionMethodToImport(element, owner, owner.fqn)
+
+  def apply(element: ScFunction, owner: PsiClass): ExtensionMethodToImport =
+    new ExtensionMethodToImport(element, owner, owner.qualifiedName)
 }
 
 final case class MemberToImport(override val element: PsiNamedElement,
