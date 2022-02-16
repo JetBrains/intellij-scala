@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 package findUsages.factory
 
 import java.util
-
 import com.intellij.find.findUsages.FindUsagesOptions
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.ClassInheritorsSearch
@@ -20,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.util.SAMUtil._
+import org.jetbrains.plugins.scala.util.ScalaNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -29,46 +28,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil._
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends ScalaFindUsagesHandlerBase(element, factory) {
 
-  override def getStringsToSearch(element: PsiElement): util.Collection[String] = {
-    val result: util.Set[String] = new util.HashSet[String]()
-    element match {
-      case t: ScTrait =>
-        result.add(t.name)
-        result.add(t.getName)
-        result.add(t.fakeCompanionClass.getName)
-        t.fakeCompanionModule match {
-          case Some(o) => result.add(o.getName)
-          case _ =>
-        }
-      case o: ScObject =>
-        result.add(o.name)
-        result.add(o.getName)
-      case c: ScClass =>
-        result.add(c.name)
-        c.fakeCompanionModule match {
-          case Some(o) => result.add(o.getName)
-          case _ =>
-        }
-      case named: PsiNamedElement =>
-        val name = named.name
-        result.add(name)
-        nameContext(named) match {
-          case v: ScValue if isBeanProperty(v) =>
-            result.add("get" + StringUtil.capitalize(name))
-          case v: ScVariable if isBeanProperty(v) =>
-            result.add("get" + StringUtil.capitalize(name))
-            result.add("set" + StringUtil.capitalize(name))
-          case v: ScValue if isBooleanBeanProperty(v) =>
-            result.add("is" + StringUtil.capitalize(name))
-          case v: ScVariable if isBooleanBeanProperty(v) =>
-            result.add("is" + StringUtil.capitalize(name))
-            result.add("set" + StringUtil.capitalize(name))
-          case _ =>
-        }
-      case _ => result.add(element.getText)
-    }
-    result
-  }
+  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaNamesUtil.getNamesOf(element)
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {

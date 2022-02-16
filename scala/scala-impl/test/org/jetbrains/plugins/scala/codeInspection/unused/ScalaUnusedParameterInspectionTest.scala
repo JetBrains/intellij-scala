@@ -8,7 +8,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   val argsPlaceholder = "<args-placeholder>"
 
   private def doParamTest(templ: String)(beforeClause: String, afterClause: String, argsBefore: String, argsAfter: String): Unit = {
-    checkTextHasError(templ.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore))
+    checkTextHasError(templ.replace(paramsPlaceholder, beforeClause).replace(argsPlaceholder, argsBefore), allowAdditionalHighlights = true)
 
     val rawArgsBefore = beforeClause.replace(START, "").replace(END, "")
     val before = templ.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
@@ -18,6 +18,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   private val doFunctionParameterTest = doParamTest(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |class Foo {
        |  val a = 0
        |  val b = 0
@@ -34,6 +36,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   private val doConstructorParameterTest = doParamTest(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |class Foo {
        |  val a = 0
        |  val b = 0
@@ -87,18 +91,28 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     doTest(s"($p: Int)(a: Int)", "(a: Int)",
             "(1)(2)",            "(2)")
 
-  def testNotInCaseClass(): Unit = checkTextHasNoErrors(
-    "case class Test(a: Int)"
+  def testNotInCaseClass(): Unit = checkTextHasError(
+    s"""
+      |import scala.annotation.unused
+      |@unused
+      |case class Test($p: Int)
+      |""".stripMargin
   )
 
   def testCaseClassSndClause(): Unit = checkTextHasError(
-    s"case class Test(a: Int)($p: Int)"
+    s"""
+       |import scala.annotation.unused
+       |@unused
+       |case class Test(@unused a: Int)($p: Int)""".stripMargin
   )
 
   ///////// normal class parameter /////////
   def testUnusedPrivateClass(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
+       |  @unused
        |  private class Test($p: Int)
        |}
        |""".stripMargin
@@ -106,7 +120,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testUnusedPublicClass(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
+       |  @unused
        |  class Test($p: Int)
        |}
        |""".stripMargin
@@ -115,23 +132,32 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   ///////// val class parameter /////////
   def testUnusedPrivateClassVal(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
+       |  @unused
        |  private class Test(val $p: Int)
        |}
        |""".stripMargin
   )
 
-  def testUnusedPublicClassVal(): Unit = checkTextHasNoErrors(
+  def testUnusedPublicClassVal(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
-       |  class Test(val p: Int)
+       |  @unused
+       |  class Test(val $p: Int)
        |}
        |""".stripMargin
   )
 
   def testUnusedPublicClassPrivateVal(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
+       |  @unused
        |  class Test(private val $p: Int)
        |}
        |""".stripMargin
@@ -139,6 +165,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testUsedPrivateClassVal(): Unit = checkTextHasNoErrors(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
        |  private class Test(val p: Int)
        |  val x = new Test(3)
@@ -149,24 +177,31 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
 
   ///////// case class parameter /////////
-  def testUnusedPrivateCaseClass(): Unit = checkTextHasNoErrors(
+  def testUnusedPrivateCaseClass(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
-       |  private case class Test(a: Int)
+       |  @unused
+       |  private case class Test($p: Int)
        |}
        |""".stripMargin
   )
 
-  def testUnusedPublicCaseClass(): Unit = checkTextHasNoErrors(
+  def testUnusedPublicCaseClass(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
-       |  case class Test(p: Int)
+       |  case class ${START}Test$END($p: Int)
        |}
        |""".stripMargin
   )
 
   def testUsedPrivateCaseClass(): Unit = checkTextHasNoErrors(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object Global {
        |  private case class Test(p: Int)
        |  val x = new Test(3)
@@ -183,7 +218,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    def p: Int
       |  }
       |  private class Test(val p: Int) extends Base
+      |  new Test(1)
       |}
+      |Global
       |""".stripMargin
   )
 
@@ -194,14 +231,19 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    def p: Int
       |  }
       |  private case class Test(p: Int) extends Base
+      |  Test(1) match { case _: Test => () }
       |}
+      |Global
       |""".stripMargin
   )
 
   // implicit stuff
   def testDontHighlightImplicitParameter(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
+      |@unused
       |object Test {
+      |  @unused
       |  def test(implicit unused: A): Unit = ()
       |}
       |""".stripMargin
@@ -261,7 +303,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testNotHighlightUsedImplicit(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
       |trait Used
+      |@unused
       |object Test {
       |  implicit val used: Used = null
       |  test()
@@ -269,34 +313,6 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |    test2()
       |  }
       |  private def test2()(implicit used: Used): Used = used
-      |}
-      |""".stripMargin
-  )
-
-  def testNoHighlightInnerPrivateCaseClassParam(): Unit = checkTextHasNoErrors(
-    s"""
-      |object Test {
-      |  private object Inner {
-      |    case class CC(a: Int)
-      |  }
-      |
-      |  Inner
-      |}
-      |""".stripMargin
-  )
-
-  def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
-    s"""
-       |object Test {
-       |  case class CC(a: Int)
-       |}
-       |""".stripMargin
-  )
-
-  def testDontHighlightParametersInDeclarations(): Unit = checkTextHasNoErrors(
-    """
-      |trait Base {
-      |  def test(i: Int): Unit
       |}
       |""".stripMargin
   )
@@ -310,12 +326,16 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |class Test extends Base {
       |  def test(i: Int): Unit = ()
       |}
+      |new Test
       |""".stripMargin
   )
 
   def testLocalFunctionParam(): Unit = checkTextHasError(
     s"""
+      |import scala.annotation.unused
+      |@unused
       |object Outer {
+      |  @unused
       |  def f(): Any = {
       |    def g($p: List[Int]): Boolean = false
       |    g _
@@ -326,8 +346,12 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
 
   def testLocalPublicClassParam(): Unit = checkTextHasError(
     s"""
+       |import scala.annotation.unused
+       |@unused
        |object PatternMatching {
+       |  @unused
        |  def f(): Unit = {
+       |    @unused
        |    class Test(val $p: Int)
        |    new Test(_)
        |  }
@@ -340,11 +364,12 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     s"""
        |import scala.annotation.unused
        |
+       |@unused
        |object Test {
-       |  def test(@unused param: Int): Unit = ()
-       |  private case class Test1(@unused param: Int)
-       |  private class Test2(@unused param: Int)
-       |  private class Test3(@unused val param: Int)
+       |  @unused def test(@unused param: Int): Unit = ()
+       |  @unused private case class Test1(@unused param: Int)
+       |  @unused private class Test2(@unused param: Int)
+       |  @unused private class Test3(@unused val param: Int)
        |}
        |""".stripMargin
   )
@@ -352,7 +377,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testParamInClassWithUnusedAnnotation(): Unit = checkTextHasError(
     s"""
        |import scala.annotation.unused
-       |
+       |@unused
        |object Test {
        |  @unused
        |  private class Test($p: Int)
@@ -364,11 +389,12 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     s"""
        |import scala.annotation.nowarn
        |
+       |@nowarn("unused")
        |object Test {
-       |  def test(@nowarn("unused") param: Int): Unit = ()
-       |  private case class Test1(@nowarn("unused") param: Int)
-       |  private class Test2(@nowarn("unused") param: Int)
-       |  private class Test3(@nowarn("unused") val param: Int)
+       |  @nowarn("unused") def test(@nowarn("unused") param: Int): Unit = ()
+       |  @nowarn("unused") private case class Test1(@nowarn("unused") param: Int)
+       |  @nowarn("unused") private class Test2(@nowarn("unused") param: Int)
+       |  @nowarn("unused") private class Test3(@nowarn("unused") val param: Int)
        |}
        |""".stripMargin
   )

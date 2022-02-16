@@ -11,6 +11,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |class Foo {
          |  private val ${START}s$END = 0
          |}
+         |new Foo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -18,11 +19,13 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |class Foo {
         |  private val s = 0
         |}
+        |new Foo
       """.stripMargin
     val after =
       """
         |class Foo {
         |}
+        |new Foo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -35,6 +38,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    val ${START}s$END = 0
          |  }
          |}
+         |Foo.foo()
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -44,6 +48,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    val s = 0
         |  }
         |}
+        |Foo.foo()
       """.stripMargin
     val after =
       """
@@ -51,30 +56,22 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |  def foo(): Unit = {
         |  }
         |}
+        |Foo.foo()
       """.stripMargin
     testQuickFix(before, after, hint)
   }
 
   def testNonPrivateField(): Unit = {
     val code =
-      """
+      s"""
         |class Foo {
-        |  val s: String = ""
-        |  protected val z: Int = 2
+        |  val ${START}s$END: String = ""
+        |  protected val ${START}z$END: Int = 2
         |}
+        |new Foo
       """.stripMargin
-    checkTextHasNoErrors(code)
+    checkTextHasError(code)
   }
-
-  def testNonPrivateInPrivateObject(): Unit = checkTextHasNoErrors(
-    """
-      |// should be highlighted, but might be used in the same package in another file
-      |// and we can only check local symbols
-      |private class Foo {
-      |  val s = 0
-      |}
-      |""".stripMargin
-  )
 
   def testRemoveMultiDeclaration(): Unit = {
     val code =
@@ -83,6 +80,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |  private val (${START}a$END, b): String = ???
          |  println(b)
          |}
+         |new Foo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -91,6 +89,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |  private val (a, b): String = ???
         |  println(b)
         |}
+        |new Foo
       """.stripMargin
     val after =
       """
@@ -98,6 +97,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |  private val (_, b): String = ???
         |  println(b)
         |}
+        |new Foo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -114,6 +114,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    val d = 2
         |  }
         |}
+        |new Bar().aa()
       """.stripMargin
     checkTextHasNoErrors(code)
   }
@@ -126,6 +127,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    var (${START}d$END, a) = 10
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     checkTextHasError(code, allowAdditionalHighlights = true)
     val before =
@@ -136,6 +138,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    println(a)
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     val after =
       s"""
@@ -145,6 +148,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    println(a)
          |  }
          |}
+         |new Bar().aa()
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -158,6 +162,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |      println("AA")
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -168,6 +173,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -177,6 +183,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -190,6 +197,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |      println("AA")
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -200,6 +208,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -209,6 +218,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      println("AA")
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -221,6 +231,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    case ${START}a$END: String =>
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -230,6 +241,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case a: String =>
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -238,6 +250,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case _: String =>
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -250,6 +263,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    case ${START}s$END@Some(a) => println(a)
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -259,6 +273,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case s@Some(a) => println(a)
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -267,6 +282,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case Some(a) => println(a)
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -279,6 +295,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    case s@Some(${START}a$END) => println(s)
          |  }
          |}
+         |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -288,6 +305,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case s@Some(a) => println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -296,6 +314,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    case s@Some(_) => println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -310,6 +329,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    }
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -321,6 +341,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    }
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     val after =
       """
@@ -331,6 +352,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    }
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -343,6 +365,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (${START}a$END => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -352,6 +375,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (a => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     val after =
       """
@@ -360,6 +384,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    s.map (_ => 1)
         |  }
         |}
+        |new Moo().foo(Seq.empty)
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -373,6 +398,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     checkTextHasError(code)
     val before =
@@ -383,6 +409,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     val after =
       """
@@ -392,6 +419,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    println(s)
         |  }
         |}
+        |new Moo
       """.stripMargin
     testQuickFix(before, after, hint)
   }
@@ -412,11 +440,12 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |      }
         |  }
         |}
+        |new Moo().foo("")
       """.stripMargin
     checkTextHasNoErrors(code)
   }
 
-  def testImplicitParamter(): Unit = {
+  def testImplicitParameter(): Unit = {
     val code =
       """
         |class Bar
@@ -437,6 +466,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |    object ${START}A$END
          |  }
          |}
+         |new Person().func()
       """.stripMargin
     val before =
       """
@@ -445,6 +475,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |    object A
         |  }
         |}
+        |new Person().func()
       """.stripMargin
     val after =
       """
@@ -453,6 +484,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
         |
         |  }
         |}
+        |new Person().func()
       """.stripMargin
 
     checkTextHasError(code)
@@ -465,18 +497,21 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
          |class Person() {
          |  private object ${START}A$END
          |}
+         |new Person
       """.stripMargin
     val before =
       """
         |class Person() {
         |  private object A
         |}
+        |new Person
       """.stripMargin
     val after =
       """
         |class Person() {
         |
         |}
+        |new Person
       """.stripMargin
 
     checkTextHasError(code)
@@ -488,10 +523,9 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     """
       |trait A {
       |  val foo: Int
-      |  val foo1: Int = foo + 1
       |}
-      |val a: A = new A {
-      |  override val foo: Int = 1 // marked as unused
+      |new A {
+      |  override val foo: Int = 1 // should not be marked as unused
       |}
       |""".stripMargin
   )
@@ -502,7 +536,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |class A {
       |  def foo(str: String): Unit = ()
       |}
-      |class B extends A {
+      |new A {
       |  override def foo(str: String): Unit = {
       |    println(str)
       |  }
@@ -510,36 +544,45 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |""".stripMargin
   )
 
-  def testPublicTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
-    """
+  def testPublicTypeMemberInPublicTrait(): Unit = checkTextHasError(
+    s"""
       |trait Test {
-      |  type ty = Int
+      |  type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
-  def testPrivateTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
-    """
+  def testPrivateTypeMemberInPublicTrait(): Unit = checkTextHasError(
+    s"""
       |trait Test {
       |  private type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
 
-  def testPublicTypeMemberInPrivateTrait(): Unit = checkTextHasNoErrors(
+  def testPublicTypeMemberInPrivateTrait(): Unit = checkTextHasError(
     s"""
       |private trait Test {
       |  type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
-  def testOverridenTypeMember(): Unit = checkTextHasNoErrors(
+  def testOverriddenTypeMember(): Unit = checkTextHasNoErrors(
     """
+      |import scala.annotation.unused
       |private trait Base {
       |  type ty
       |}
+      |
+      |@unused
       |private class Test extends Base {
       |  override type ty = Int
       |}
@@ -549,11 +592,12 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def test_private_auxiliary_constructor_is_not_used(): Unit = checkTextHasError(
     s"""
        |class Test(val s: Int) {
-       |  private def ${START}this$END() = this(3)
+       |  private def ${START}this$END() = this(s)
        |}
        |object Test {
        |  def foo() = new Test(3)
        |}
+       |Test.foo()
        |""".stripMargin
   )
 
@@ -566,6 +610,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |object Test {
        |  def foo() = new Test()
        |}
+       |Test.foo.s
        |""".stripMargin
   )
 
@@ -575,7 +620,9 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |class Test(val s: String, val i: Int) {
        |  private def this(s: String) = this(s, 42)
        |  def this(i: Int) = this(i.toString)
+       |  s + i
        |}
+       |new Test(0)
        |""".stripMargin
   )
 
@@ -583,7 +630,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
     s"""
        |import scala.annotation.unused
-       |
+       |Test
        |object Test {
        |  @unused
        |  private def test(): Unit = ()
@@ -601,6 +648,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     s"""
        |import scala.annotation.nowarn
        |
+       |@nowarn("unused")
        |object Test {
        |  @nowarn("unused")
        |  private def test(): Unit = ()
@@ -654,6 +702,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |  private var test = new Test
        |  test += 3
        |}
+       |Ctx
        |""".stripMargin
   )
 
