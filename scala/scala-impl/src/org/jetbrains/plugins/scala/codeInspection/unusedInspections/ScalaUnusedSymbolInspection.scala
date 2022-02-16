@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.runner.MyScalaMainMethodUtil
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaNamesUtil}
 
@@ -92,6 +93,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def shouldProcessElement(elem: PsiElement): Boolean = {
     elem match {
+      case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
       case t: ScTypeDefinition if t.isSAMable => false
       case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
       case n: ScNamedElement =>
@@ -103,7 +105,8 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           case p: ScParameter =>
             p.parent.flatMap(_.parent.flatMap(_.parent)) match {
               case Some(f: ScFunctionDeclaration) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false
-              case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty || isOverridingFunction(f) => false
+              case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
+                isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
               case _ => true
             }
           case _ => true

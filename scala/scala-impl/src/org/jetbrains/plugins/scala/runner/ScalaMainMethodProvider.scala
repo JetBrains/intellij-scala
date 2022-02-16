@@ -4,6 +4,7 @@ import com.intellij.codeInsight.runner.JavaMainMethodProvider
 import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 /**
   * @author Nikolay.Tropin
@@ -20,7 +21,7 @@ class ScalaMainMethodProvider extends JavaMainMethodProvider {
       // - show "run" gutter on companion class as well as on the object with "main" method
       // - do not mark main class as "error" in run configurations
       ScalaPsiUtil.getCompanionModule(t).flatMap {
-        case o: ScObject => MyScalaMainMethodUtil.findScala2MainMethod(o)
+        case o: ScObject => ScalaMainMethodUtil.findScala2MainMethod(o)
         case _ => None
       }.orNull
     case _ => null

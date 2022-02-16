@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil._
 
 private object MyScalaMainMethodUtil {
@@ -41,7 +42,7 @@ private object MyScalaMainMethodUtil {
   def findScala2MainMethodInContainingTopLevelObject(element: PsiElement): Option[MainMethodInfo.Scala2Style] =
     for {
       containingObject <- findContainingTopLevelObject(element)
-      main             <- findScala2MainMethod(containingObject)
+      main             <- ScalaMainMethodUtil.findScala2MainMethod(containingObject)
     } yield {
       // always set an ancestor of the location as sourceElement to get correct run configuration precedence #SCL-11091
       val sourceElem =
@@ -96,7 +97,7 @@ private object MyScalaMainMethodUtil {
     val iterator = for {
       member <- members.iterator
       result <-  member match {
-        case o: ScObject                                      => findScala2MainMethod(o).map(MainMethodInfo.Scala2Style(_, o, o))
+        case o: ScObject                                      => ScalaMainMethodUtil.findScala2MainMethod(o).map(MainMethodInfo.Scala2Style(_, o, o))
         case d: ScFunctionDefinition if isScala3MainMethod(d) => Some(MainMethodInfo.Scala3Style(d))
         case _                                                => None
       }
@@ -125,24 +126,4 @@ private object MyScalaMainMethodUtil {
     clazz.map(MainMethodInfo.WithCustomLauncher.apply)
   }
 
-  def hasScala2MainMethod(obj: ScObject): Boolean = findScala2MainMethod(obj).isDefined
-
-  def findScala2MainMethod(obj: ScObject): Option[PsiMethod] = {
-    def declaredScala2Main(obj: ScObject): Option[ScFunctionDefinition] =
-      obj.functions.collectFirst {
-        case funDef: ScFunctionDefinition if isScala2MainMethod(funDef) => funDef
-      }
-
-    @CachedInUserData(obj, BlockModificationTracker(obj))
-    def findMainMethodInner(): Option[PsiMethod] = {
-      val declared = declaredScala2Main(obj)
-      val res = declared.orElse(Option(PsiMethodUtil.findMainMethod(new PsiClassWrapper(obj, obj.qualifiedName, obj.name))))
-      res
-    }
-
-    if (obj.isTopLevel)
-      findMainMethodInner()
-    else
-      None
-  }
 }
