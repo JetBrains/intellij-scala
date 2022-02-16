@@ -63,13 +63,14 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
 
   def testNonPrivateField(): Unit = {
     val code =
-      """
+      s"""
         |class Foo {
-        |  val s: String = ""
-        |  protected val z: Int = 2
+        |  val ${START}s$END: String = ""
+        |  protected val ${START}z$END: Int = 2
         |}
+        |new Foo
       """.stripMargin
-    checkTextHasNoErrors(code)
+    checkTextHasError(code)
   }
 
   def testRemoveMultiDeclaration(): Unit = {
@@ -543,28 +544,34 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       |""".stripMargin
   )
 
-  def testPublicTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
-    """
+  def testPublicTypeMemberInPublicTrait(): Unit = checkTextHasError(
+    s"""
       |trait Test {
-      |  type ty = Int
+      |  type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
-  def testPrivateTypeMemberInPublicTrait(): Unit = checkTextHasNoErrors(
-    """
+  def testPrivateTypeMemberInPublicTrait(): Unit = checkTextHasError(
+    s"""
       |trait Test {
       |  private type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
 
-  def testPublicTypeMemberInPrivateTrait(): Unit = checkTextHasNoErrors(
+  def testPublicTypeMemberInPrivateTrait(): Unit = checkTextHasError(
     s"""
       |private trait Test {
       |  type ${START}ty$END = Int
       |}
+      |object Test extends Test
+      |Test
       |""".stripMargin
   )
 
@@ -585,11 +592,12 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   def test_private_auxiliary_constructor_is_not_used(): Unit = checkTextHasError(
     s"""
        |class Test(val s: Int) {
-       |  private def ${START}this$END() = this(3)
+       |  private def ${START}this$END() = this(s)
        |}
        |object Test {
        |  def foo() = new Test(3)
        |}
+       |Test.foo()
        |""".stripMargin
   )
 
@@ -694,6 +702,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |  private var test = new Test
        |  test += 3
        |}
+       |Ctx
        |""".stripMargin
   )
 
