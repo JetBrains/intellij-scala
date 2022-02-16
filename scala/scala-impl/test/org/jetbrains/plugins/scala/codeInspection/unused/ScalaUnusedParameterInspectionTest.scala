@@ -327,22 +327,6 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |""".stripMargin
   )
 
-  def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
-    s"""
-       |object Test {
-       |  case class CC(a: Int)
-       |}
-       |""".stripMargin
-  )
-
-  def testDontHighlightParametersInDeclarations(): Unit = checkTextHasNoErrors(
-    """
-      |trait Base {
-      |  def test(i: Int): Unit
-      |}
-      |""".stripMargin
-  )
-
   def testDontHighlightUnusedParametersInOverridingMethod(): Unit = checkTextHasNoErrors(
     """
       |trait Base {
