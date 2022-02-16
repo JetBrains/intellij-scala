@@ -209,14 +209,19 @@ object FileDeclarationsHolder {
   private def aliasImportsFor(level: ScalaLanguageLevel): String =
     if (level < ScalaLanguageLevel.Scala_2_13) AliasImports212 else AliasImports213
 
-  def isAliasImport(path: String, level: ScalaLanguageLevel): Boolean = {
-    val text = aliasImportsFor(level)
-    val i = path.lastIndexOf(".")
-    i > 0 && {
-      val (qualifier, name) = path.splitAt(i + 1)
-      text.linesIterator.exists(line =>
-        line == "import _root_." + path ||
-          line.contains("import _root_." + qualifier + "{") && line.contains(name.substring(1)))
+  def isAliasImport(fqn: String, level: ScalaLanguageLevel): Boolean =
+    (if (level < ScalaLanguageLevel.Scala_2_13) aliasImports212 else aliasImports213)(fqn)
+
+  private lazy val aliasImports212: Set[String] = AliasImports212.linesIterator.flatMap(importsIn).toSet
+
+  private lazy val aliasImports213: Set[String] = AliasImports213.linesIterator.flatMap(importsIn).toSet
+
+  private def importsIn(line: String): Seq[String] = {
+    val s = line.substring(14) // import _root_.
+    val i = s.indexOf('{')
+    if (i == -1) Seq(s) else {
+      val (prefix, suffix) = (s.substring(0, i), s.substring(i + 1, s.length - 1))
+      suffix.split(",\\s*").toIndexedSeq.map(prefix + _)
     }
   }
 
