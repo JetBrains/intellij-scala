@@ -6,12 +6,12 @@ package global
 import com.intellij.codeInsight.completion.InsertHandler
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
+import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitConversionData
+import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionMethodData, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
@@ -24,11 +24,16 @@ private final class ExtensionMethodsFinder(originalType: ScType,
   extends ByTypeGlobalMembersFinder(originalType, place, accessAll) {
 
   override protected[global] def candidates: Iterable[GlobalMemberResult] =
-    if (accessAll) extensionMethodCandidates else Iterable.empty
+    if (accessAll) extensionMethodCandidates ++ scala3ExtensionMethodCandidates else Iterable.empty
 
   private def extensionMethodCandidates = for {
     (GlobalImplicitConversion(classToImport: ScObject, _, elementToImport), application) <- ImplicitConversionData.getPossibleConversions(place)
     resolveResult <- candidatesForType(application.resultType)
+  } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
+
+  private def scala3ExtensionMethodCandidates = for {
+    (GlobalExtensionMethod(classToImport: ScObject, _, elementToImport), _) <- ExtensionMethodData.getPossibleExtensionMethods(place)
+    resolveResult = new ScalaResolveResult(elementToImport, isExtension = elementToImport.isExtensionMethod, extensionContext = elementToImport.extensionMethodOwner)
   } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
 
   private def candidatesForType(`type`: ScType) =
