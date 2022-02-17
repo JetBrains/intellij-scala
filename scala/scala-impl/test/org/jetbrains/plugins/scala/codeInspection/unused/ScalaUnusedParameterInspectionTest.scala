@@ -91,11 +91,10 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     doTest(s"($p: Int)(a: Int)", "(a: Int)",
             "(1)(2)",            "(2)")
 
-  def testNotInCaseClass(): Unit = checkTextHasError(
+  def testUnusedParameterInCaseClass(): Unit = checkTextHasError(
     s"""
-      |import scala.annotation.unused
-      |@unused
       |case class Test($p: Int)
+      |Test(42)
       |""".stripMargin
   )
 
@@ -193,7 +192,8 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |import scala.annotation.unused
        |@unused
        |object Global {
-       |  case class ${START}Test$END($p: Int)
+       |  @unused
+       |  case class Test($p: Int)
        |}
        |""".stripMargin
   )
@@ -317,6 +317,15 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |""".stripMargin
   )
 
+  def testHighlightUnusedParametersInDeclarations(): Unit = checkTextHasError(
+    s"""
+      |import scala.annotation.unused
+      |@unused trait Base {
+      |  @unused def test(${START}i$END: Int): Unit
+      |}
+      |""".stripMargin
+  )
+
   def testDontHighlightUnusedParametersInOverridingMethod(): Unit = checkTextHasNoErrors(
     """
       |trait Base {
@@ -363,9 +372,11 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
   def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
     s"""
        |import scala.annotation.unused
-       |
+       |import scala.beans.BeanProperty
        |@unused
        |object Test {
+       |  @unused type Units = Seq[Unit]
+       |  @unused @BeanProperty var foo: Int = 42
        |  @unused def test(@unused param: Int): Unit = ()
        |  @unused private case class Test1(@unused param: Int)
        |  @unused private class Test2(@unused param: Int)
