@@ -121,7 +121,7 @@ trait FileDeclarationsHolder
     }
 
     if (checkPredefinedClassesAndPackages) {
-      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.module.forall(_.customDefaultImports.isEmpty)) {
+      if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef")) {
         if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
       }
 
@@ -182,8 +182,10 @@ trait FileDeclarationsHolder
 object FileDeclarationsHolder {
 
   // https://youtrack.jetbrains.com/issue/SCL-19928
-  // Precomputed "implicit imports" that match "alias exports" in the standard library.
-  // E.g. Seq is scala.collection.immutable.Seq rather than scala.Seq.
+  // Precomputed "implicit imports" that match "alias exports" in scala and scala.Predef
+  // E.g. Seq is scala.collection.immutable.Seq rather than scala.Seq
+
+  // TODO Resolve through "alias exports" dynamically
 
   private val AliasImports212 = """
      |import _root_.java.lang.{Throwable, Exception, Error, RuntimeException, NullPointerException, ClassCastException, IndexOutOfBoundsException, ArrayIndexOutOfBoundsException, StringIndexOutOfBoundsException, UnsupportedOperationException, IllegalArgumentException, NumberFormatException, AbstractMethodError, InterruptedException, String, Class}

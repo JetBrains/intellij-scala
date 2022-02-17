@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 package generated
 
 import org.jetbrains.plugins.scala.ScalacTests
-import org.jetbrains.plugins.scala.util.AliasExports.aliasExportsEnabled
 import org.junit.experimental.categories.Category
 
 /**
@@ -1119,7 +1118,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12218(): Unit = doTest("i12218", false)
   def test_i12226(): Unit = doTest("i12226", true)
   def test_i12247(): Unit = doTest("i12247", true)
-  def test_i12264(): Unit = doTest("i12264", !aliasExportsEnabled(getProject)) // apply method is resolved differently if there's an import, SCL-19972
+  def test_i12264(): Unit = doTest("i12264", false) // #opaque
   def test_i12265(): Unit = doTest("i12265", true)
   def test_i12273(): Unit = doTest("i12273", true)
   def test_i12277(): Unit = doTest("i12277", true)
@@ -1438,7 +1437,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_propagate(): Unit = doTest("propagate", true)
   def test_protected_static(): Unit = doTest("protected-static", true)
   def test_pseudo_thistype_constraints(): Unit = doTest("pseudo-thistype-constraints", false) // #enum, #unionType
-  def test_range(): Unit = doTest("range", !aliasExportsEnabled(getProject)) // Resolves even if alias exports are enabled, but to aliases
+  def test_range(): Unit = doTest("range", false)
   def test_rangepos(): Unit = doTest("rangepos", true)
   def test_rangepos_anonapply(): Unit = doTest("rangepos-anonapply", true)
   def test_rangepos_patmat(): Unit = doTest("rangepos-patmat", true)
@@ -2150,7 +2149,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_t6600(): Unit = doTest("t6600", true)
   def test_t6664(): Unit = doTest("t6664", true)
   def test_t6664b(): Unit = doTest("t6664b", true)
-  def test_t6675(): Unit = doTest("t6675", !aliasExportsEnabled(getProject)) // Resolves even if alias exports are enabled, but to aliases
+  def test_t6675(): Unit = doTest("t6675", false)
   def test_t6712(): Unit = doTest("t6712", true)
   def test_t6722(): Unit = doTest("t6722", true)
   def test_t6745(): Unit = doTest("t6745", true)
