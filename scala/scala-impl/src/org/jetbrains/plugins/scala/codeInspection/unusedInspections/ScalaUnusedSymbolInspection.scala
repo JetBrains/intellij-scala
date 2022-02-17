@@ -4,7 +4,7 @@ package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi._
-import com.intellij.psi.search.searches.{OverridingMethodsSearch, ReferencesSearch}
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
@@ -13,14 +13,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.runner.MyScalaMainMethodUtil
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
-import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaNamesUtil}
+import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
 import scala.jdk.CollectionConverters._
 
@@ -57,7 +56,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           }
         }
 
-        ScalaNamesUtil.getNamesOf(element).asScala.foreach { name =>
+        ScalaUsageNamesUtil.getNamesOf(element).asScala.foreach { name =>
           if (!used) {
             helper.processElementsWithWord(
               processor,

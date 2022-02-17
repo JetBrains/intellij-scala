@@ -10,7 +10,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 
 import java.util
 
-object ScalaNamesUtil {
+object ScalaUsageNamesUtil {
+  /**
+   * When performing operations directly related to usage of some declaration,
+   * it's possible that code references to this declaration do not use literally the
+   * same name as in the declaration, for example when overriding the assignment
+   * operator, or when using the `BeanProperty` annotation.
+   *
+   * This method provides an exhaustive set of names of an element, all of which
+   * can be used to refer to it in valid code. This includes the name that is
+   * used in the declaration itself.
+   *
+   * If this method is given an element without a name, the element's text is
+   * returned.
+   *
+   * @param element The element of which to return all names of
+   * @return Set of all names of the element
+   */
   def getNamesOf(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
     element match {
@@ -32,6 +48,7 @@ object ScalaNamesUtil {
           case _ =>
         }
       case f: ScFunctionDefinition if f.name.endsWith("_=") =>
+        result.add(f.name)
         result.add(f.name.substring(0, f.name.length - 2))
       case named: PsiNamedElement =>
         val name = named.name

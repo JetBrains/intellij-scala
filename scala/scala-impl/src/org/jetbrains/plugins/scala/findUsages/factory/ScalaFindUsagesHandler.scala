@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScType
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.util.SAMUtil._
-import org.jetbrains.plugins.scala.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 /**
  * User: Alexander Podkhalyuzin
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScalaNamesUtil
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends ScalaFindUsagesHandlerBase(element, factory) {
 
-  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaNamesUtil.getNamesOf(element)
+  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getNamesOf(element)
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {
