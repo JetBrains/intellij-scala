@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
@@ -101,6 +101,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           case p: ScModifierListOwner if hasOverrideModifier(p) => false
           case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
           case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+          case p: ScClassParameter if p.isCaseClassVal => false
           case p: ScParameter =>
             p.parent.flatMap(_.parent.flatMap(_.parent)) match {
               case Some(f: ScFunctionDeclaration) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false
