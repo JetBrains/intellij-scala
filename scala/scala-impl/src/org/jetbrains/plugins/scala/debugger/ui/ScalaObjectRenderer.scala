@@ -8,9 +8,9 @@ import com.sun.jdi.{ClassType, Field, ObjectReference}
 import java.util.concurrent.CompletableFuture
 import scala.jdk.CollectionConverters._
 
-class ObjectRenderer extends ClassRenderer {
+class ScalaObjectRenderer extends ClassRenderer {
 
-  import ObjectRenderer._
+  import ScalaObjectRenderer._
 
   override val getUniqueId: String = getClass.getSimpleName
 
@@ -22,11 +22,15 @@ class ObjectRenderer extends ClassRenderer {
   }
 
   override def shouldDisplay(context: EvaluationContext, objInstance: ObjectReference, field: Field): Boolean =
-    !isModule(field)
+    !isModule(field) && !isBitmap(field)
 }
 
-private object ObjectRenderer {
+private object ScalaObjectRenderer {
   private val Module: String = "MODULE$"
 
+  private val Bitmap: String = "bitmap$"
+
   def isModule(f: Field): Boolean = f.name() == Module
+
+  def isBitmap(f: Field): Boolean = f.name().startsWith(Bitmap)
 }
