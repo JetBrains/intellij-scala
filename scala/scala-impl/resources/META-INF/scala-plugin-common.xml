@@ -544,7 +544,6 @@
 
         <applicationService serviceImplementation="org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings"/>
 
-        <projectService serviceImplementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.compiler.CompileServerManager"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager"/>
@@ -1863,7 +1862,6 @@
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>
-        <postStartupActivity implementation="org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolderService$Startup"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.LegacyCodeStyleSettingsComponent"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>

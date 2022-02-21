@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.actions.implicitConvertions
 
 import com.intellij.codeInsight.CodeInsightBundle
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.colors.EditorFontType
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.Alarm
@@ -30,7 +30,7 @@ import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 final class ShowImplicitConversionsAction extends AnAction(
   ScalaBundle.message("implicit.conversions.action.text"),
   ScalaBundle.message("implicit.conversions.action.description"),
-  IconLoader.findIcon("/actions/intentionBulb.png"),
+  AllIcons.Actions.IntentionBulb,
 ) {
 
   import MakeExplicitAction._
