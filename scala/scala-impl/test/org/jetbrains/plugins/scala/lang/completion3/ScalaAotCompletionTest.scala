@@ -39,6 +39,20 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     tailText = null
   )
 
+  def testValueNameWithRhs(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |val f$CARET = new Foo
+      """.stripMargin,
+    resultText =
+      s"""class Foo
+         |val foo$CARET = new Foo
+      """.stripMargin,
+    lookupString = "Foo",
+    itemText = "foo",
+    tailText = null
+  )
+
   def testVariableName(): Unit = doAotCompletionTest(
     fileText =
       s"""class Foo
@@ -47,6 +61,20 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
     resultText =
       s"""class Foo
          |var foo$CARET
+      """.stripMargin,
+    lookupString = "Foo",
+    itemText = "foo",
+    tailText = null
+  )
+
+  def testVariableNameWithRhs(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |var f$CARET = new Foo
+      """.stripMargin,
+    resultText =
+      s"""class Foo
+         |var foo$CARET = new Foo
       """.stripMargin,
     lookupString = "Foo",
     itemText = "foo",
@@ -65,6 +93,24 @@ class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
          |
          |object Bar {
          |  def foo$CARET
+         |}""".stripMargin,
+    lookupString = "Foo",
+    itemText = "foo",
+    tailText = null
+  )
+
+  def testMethodNameWithRhs(): Unit = doAotCompletionTest(
+    fileText =
+      s"""class Foo
+         |
+         |object Bar {
+         |  def f$CARET = new Foo
+         |}""".stripMargin,
+    resultText =
+      s"""class Foo
+         |
+         |object Bar {
+         |  def foo$CARET = new Foo
          |}""".stripMargin,
     lookupString = "Foo",
     itemText = "foo",
