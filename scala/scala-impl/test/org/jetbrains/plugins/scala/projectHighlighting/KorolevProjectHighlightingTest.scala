@@ -9,6 +9,6 @@ class KorolevProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest
 
   override def githubRepoName = "korolev"
 
-  //v.0.9.0
-  override def revision = "7d4d41113b574061aedb5a791747b0fa5d122fdf"
+  //v.1.1.0
+  override def revision = "362bdce4989084b8d8c98f15a627326113a6da70"
 }
