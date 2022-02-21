@@ -2,23 +2,19 @@ package org.jetbrains.plugins.scala
 package annotator
 package usageTracker
 
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.atomic.AtomicLong
-import java.{util => ju}
-
 import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon.{DaemonCodeAnalyzer, impl}
-import com.intellij.concurrency.JobScheduler
-import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.startup.StartupActivity
-import com.intellij.openapi.util.{LowMemoryWatcher, Ref, TextRange}
+import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
-import com.intellij.util.containers.{ContainerUtil, hash}
+import com.intellij.reference.SoftReference
+import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.plugins.scala.caches.CachesUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.project.ProjectExt
+
+import java.lang.ref.Reference
+import java.util.concurrent.atomic.AtomicLong
+import java.{util => ju}
 
 /**
  * User: Alexander Podkhalyuzin
@@ -114,15 +110,25 @@ object ScalaRefCountHolder {
 
   private val Log = Logger.getInstance(getClass)
 
+  private val key: Key[Reference[ScalaRefCountHolder]] = Key.create("scala.ref.count.holder")
+
   def apply(element: PsiNamedElement): ScalaRefCountHolder =
     getInstance(element.getContainingFile)
 
-  def getInstance(file: PsiFile): ScalaRefCountHolder = file.getProject
-    .getService(classOf[ScalaRefCountHolderService])
-    .getOrCreate(
-      file.getName + file.hashCode,
-      new ScalaRefCountHolder(file)
-    )
+  def getInstance(file: PsiFile): ScalaRefCountHolder =
+    key.synchronized {
+      val ref = file.getUserData(key)
+      if (ref != null) {
+        val stored = ref.get()
+        if (stored != null)
+          return stored
+      }
+
+      val refCountHolder = new ScalaRefCountHolder(file)
+      file.putUserData(key, new SoftReference(refCountHolder))
+
+      refCountHolder
+    }
 
   def findDirtyScope(file: PsiFile): Option[Option[TextRange]] = {
     val project = file.getProject
@@ -146,107 +152,4 @@ object ScalaRefCountHolder {
       }
     }
   }
-}
-
-final class ScalaRefCountHolderService(project: Project) extends Disposable {
-
-  import ScalaRefCountHolderService._
-
-  private val autoCleaningMap = Ref.create[TimestampedValueMap[String, ScalaRefCountHolder]]
-
-  private var myCleanUpFuture: ScheduledFuture[_] = _
-
-  private def init(): Unit = {
-    autoCleaningMap.set(new TimestampedValueMap())
-
-    myCleanUpFuture = JobScheduler.getScheduler.scheduleWithFixedDelay(
-      cleanupTask(autoCleaningMap),
-      CleanupDelay,
-      CleanupDelay,
-      ju.concurrent.TimeUnit.MILLISECONDS
-    )
-
-    LowMemoryWatcher.register(cleanupTask(autoCleaningMap), project.unloadAwareDisposable)
-  }
-
-  override def dispose(): Unit = {
-    if (myCleanUpFuture != null) {
-      myCleanUpFuture.cancel(false)
-      myCleanUpFuture = null
-    }
-    autoCleaningMap.set(null)
-  }
-
-  private def cleanupTask(map: Ref[TimestampedValueMap[String, ScalaRefCountHolder]]): Runnable = () => {
-    map.get().removeStaleEntries()
-  }
-
-  def getOrCreate(key: String, holder: => ScalaRefCountHolder): ScalaRefCountHolder = {
-    autoCleaningMap.get match {
-      case null => holder
-      case map => map.getOrCreate(key, holder)
-    }
-  }
-}
-
-object ScalaRefCountHolderService {
-
-  def getInstance(project: Project): ScalaRefCountHolderService =
-    project.getService(classOf[ScalaRefCountHolderService])
-
-  import concurrent.duration._
-
-  private val CleanupDelay = 1.minute.toMillis
-
-  final private[usageTracker] class TimestampedValueMap[K, V](minimumSize: Int = 3,
-                                                              maximumSize: Int = 20,
-                                                              storageTime: Long = 5.minutes.toMillis) {
-
-    private[this] case class Timestamped(value: V, var timestamp: Long = -1)
-
-    private[this] val innerMap = new hash.LinkedHashMap[K, Timestamped](maximumSize, true) {
-
-      override def removeEldestEntry(eldest: ju.Map.Entry[K, Timestamped]): Boolean = size() > maximumSize
-
-      override def doRemoveEldestEntry(): Unit = this.synchronized {
-        super.doRemoveEldestEntry()
-      }
-    }
-
-    def getOrCreate(key: K, value: => V): V = innerMap.synchronized {
-      val timestamped = innerMap.get(key) match {
-        case null =>
-          val newValue = Timestamped(value)
-          innerMap.put(key, newValue)
-          newValue
-        case cached => cached
-      }
-
-      timestamped.timestamp = System.currentTimeMillis()
-      timestamped.value
-    }
-
-    def removeStaleEntries(): Unit = innerMap.synchronized {
-      innerMap.size - minimumSize match {
-        case diff if diff > 0 =>
-          val timeDiff = System.currentTimeMillis() - storageTime
-
-          import scala.jdk.CollectionConverters._
-          innerMap.entrySet
-            .iterator
-            .asScala
-            .take(diff)
-            .filter(_.getValue.timestamp < timeDiff)
-            .map(_.getKey)
-            .foreach(innerMap.remove)
-        case _ =>
-      }
-    }
-  }
-
-  final private class Startup extends StartupActivity {
-    override def runActivity(project: Project): Unit =
-      getInstance(project).init()
-  }
-
 }

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 import java.util
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
@@ -134,4 +135,6 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
 }

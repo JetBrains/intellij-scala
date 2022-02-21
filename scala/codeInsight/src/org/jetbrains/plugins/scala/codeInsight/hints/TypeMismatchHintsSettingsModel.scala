@@ -4,6 +4,7 @@ import java.awt.{BorderLayout, FlowLayout}
 import java.util
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -87,4 +88,6 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
 }

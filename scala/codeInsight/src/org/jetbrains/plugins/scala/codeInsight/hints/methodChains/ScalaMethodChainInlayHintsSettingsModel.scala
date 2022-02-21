@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 import java.util
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
+import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -129,4 +130,6 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
   override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreviewLanguage(aCase: ImmediateConfigurable.Case): Language = ScalaLanguage.INSTANCE
 }
