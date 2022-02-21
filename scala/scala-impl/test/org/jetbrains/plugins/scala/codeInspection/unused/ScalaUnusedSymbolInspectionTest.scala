@@ -725,4 +725,12 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |}
        |""".stripMargin
   )
+
+  def testAppEntryPoint(): Unit = checkTextHasNoErrors(
+    "object Foo extends App"
+  )
+
+  def testMainMethodEntryPoint(): Unit = checkTextHasNoErrors(
+    "object Foo { def main(thisNameCanBeAnything: Array[String]) = {} }"
+  )
 }
