@@ -1,15 +1,10 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletableFuture.completedFuture
-import java.{lang, util}
-
 import com.intellij.debugger.engine.DebugProcessImpl.getDefaultRenderer
 import com.intellij.debugger.engine._
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, TypeEvaluator}
 import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException, EvaluationContext, TextWithImportsImpl}
 import com.intellij.debugger.impl.DebuggerUtilsAsync
-import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
 import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
 import com.intellij.debugger.{DebuggerContext, JavaDebuggerBundle}
@@ -19,26 +14,14 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaDuplexEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaThisEvaluator}
-import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
+import java.{lang, util}
 import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.reflect.NameTransformer
-
-/**
- * @author Nikolay.Tropin
- */
-class ScalaCollectionRenderer extends CompoundReferenceRenderer(NodeRendererSettings.getInstance(), ScalaBundle.message("scala.collection"), sizeLabelRenderer, ScalaToArrayRenderer) {
-
-  setIsApplicableChecker {
-    case ct: ClassType => forallAsync(instanceOfAsync(ct, collectionClassName), notStreamAsync(ct), notViewAsync(ct))
-    case _             => completedFuture(false)
-  }
-
-  override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
-}
 
 object ScalaCollectionRenderer {
   implicit class ToExpressionEvaluator(private val e: Evaluator) extends AnyVal {
@@ -98,8 +81,6 @@ object ScalaCollectionRenderer {
   private[debugger] val viewClassName_2_13 = "scala.collection.View"
   private[debugger] val lazyList_2_13 = "scala.collection.immutable.LazyList"
 
-  private[debugger] val sizeLabelRenderer = createSizeLabelRenderer()
-
   private[debugger] def hasDefiniteSize(value: Value, evaluationContext: EvaluationContext): Boolean = {
     value.`type`() match {
       case ct: ClassType if ct.name.startsWith("scala.collection") && notStream(ct) && notIterator(ct) => true
@@ -127,10 +108,10 @@ object ScalaCollectionRenderer {
   private def notStream(tp: Type): Boolean =
     checkNotCollectionOfKind(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
 
-  private def notViewAsync(tp: Type): CompletableFuture[Boolean] =
+  private[ui] def notViewAsync(tp: Type): CompletableFuture[Boolean] =
     checkNotCollectionOfKindAsync(tp, "View")(viewClassName, viewClassName_2_13)
 
-  private def notStreamAsync(tp: Type): CompletableFuture[Boolean] =
+  private[ui] def notStreamAsync(tp: Type): CompletableFuture[Boolean] =
     checkNotCollectionOfKindAsync(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
 
   private def notIterator(tp: Type): Boolean = checkNotCollectionOfKind(tp, "Iterator")(iteratorClassName)
@@ -149,7 +130,7 @@ object ScalaCollectionRenderer {
     "\"" + fullName.substring(index + 1) + "\""
   }
 
-  private def createSizeLabelRenderer(): LabelRenderer = {
+  private[ui] def createSizeLabelRenderer(): LabelRenderer = {
     val expressionText = "size()"
     val sizePrefix = " size = "
     val labelRenderer: LabelRenderer = new LabelRenderer() {

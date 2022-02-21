@@ -118,7 +118,7 @@
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRenderer"/>
-        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer"/>
+        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRendererProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ClassWithSpecializedFieldsRenderer"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaObjectRenderer"/>
         <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
