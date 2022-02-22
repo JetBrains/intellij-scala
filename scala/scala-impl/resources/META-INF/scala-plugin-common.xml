@@ -859,7 +859,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.package.name.inspection"
                          groupPath="Scala" groupKey="group.general" id="ScalaPackageName"
-                         shortName="ScalaPackageName" level="ERROR" enabledByDefault="true" language="Scala"/>
+                         shortName="ScalaPackageName" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.deprecation.ScalaDeprecationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.scala.deprecation"
