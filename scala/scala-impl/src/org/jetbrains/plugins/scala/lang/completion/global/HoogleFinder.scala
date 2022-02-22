@@ -7,7 +7,7 @@ import com.intellij.codeInsight.completion.{InsertHandler, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation, LookupElementRenderer}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
@@ -43,6 +43,19 @@ private final class HoogleFinder(originalType: ScType,
 }
 
 private object HoogleFinder {
+  object ExpressionToReplaceWithQualifier {
+    def unapply(ref: ScReferenceExpression): Option[(ScExpression, ScExpression)] =
+      ref.qualifier
+        .map((ref, _))
+        .orElse(invocationWithQualifier(ref))
+
+    private def invocationWithQualifier(ref: ScReferenceExpression): Option[(ScExpression, ScExpression)] = {
+      ref.getParent match {
+        case invocation: MethodInvocation => invocation.thisExpr.map((invocation, _))
+        case _ => None
+      }
+    }
+  }
 
   final case class PostfixCandidate(elementToImport: ScFunction,
                                     override val classToImport: ScObject)
@@ -56,25 +69,25 @@ private object HoogleFinder {
 
     override protected def createInsertHandler: InsertHandler[LookupElement] =
       (context: InsertionContext, _: LookupElement) => {
-        val reference@ScReferenceExpression.withQualifier(qualifier) = context
-          .getFile
-          .findReferenceAt(context.getStartOffset)
+        context.getFile.findReferenceAt(context.getStartOffset) match {
+          case ExpressionToReplaceWithQualifier(expressionToReplace, qualifier) =>
+            val replacement = createExpressionWithContextFromText(
+              elementToImport.name + "(" + qualifier.getText + ")",
+              expressionToReplace.getContext,
+              expressionToReplace
+            )
 
-        val replacement = createExpressionWithContextFromText(
-          elementToImport.name + "(" + qualifier.getText + ")",
-          reference.getContext,
-          reference
-        )
+            val ScMethodCall(methodReference: ScReferenceExpression, _) = expressionToReplace.replaceExpression(
+              replacement,
+              removeParenthesis = true
+            )
 
-        val ScMethodCall(methodReference: ScReferenceExpression, _) = reference.replaceExpression(
-          replacement,
-          removeParenthesis = true
-        )
-
-        methodReference.bindToElement(
-          elementToImport,
-          Some(classToImport)
-        )
+            methodReference.bindToElement(
+              elementToImport,
+              Some(classToImport)
+            )
+          case _ =>
+        }
       }
 
     private def createRenderer(lookupItem: ScalaLookupItem): LookupElementRenderer[LookupElement] =
