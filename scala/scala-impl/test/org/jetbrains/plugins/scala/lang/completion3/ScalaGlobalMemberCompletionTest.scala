@@ -557,6 +557,44 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     )
   }
 
+  def testCompanionObjectExtensionLikeMethod_postfix(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  bar.foo $CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""import Foo.foo
+         |
+         |class Foo {
+         |  class Bar {
+         |    val foo = new Foo
+         |  }
+         |
+         |  val bar = new Bar
+         |  foo(bar.foo)$CARET
+         |}
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "foo")(
+      tailText = " (Foo)",
+      typeText = "Unit",
+    )
+  }
+
   def testCompanionObjectExtensionLikeMethod2(): Unit = checkNoBasicCompletion(
     fileText =
       s"""sealed trait Foo
@@ -572,6 +610,21 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testCompanionObjectExtensionLikeMethod2_postfix(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  private[this] def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  (_: Foo) f$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testCompanionObjectExtensionLikeMethodAccessAll(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -582,6 +635,35 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |
          |object Main {
          |  (_: Foo).f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""import Foo.foo
+         |
+         |sealed trait Foo
+         |
+         |object Foo {
+         |  private[this] def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  foo((_: Foo))$CARET
+         |}
+         |""".stripMargin,
+    item = "foo",
+    time = 2
+  )
+
+  def testCompanionObjectExtensionLikeMethodAccessAll_postfix(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Foo {
+         |  private[this] def foo(foo: Foo): Unit = {}
+         |}
+         |
+         |object Main {
+         |  (_: Foo) f$CARET
          |}
          |""".stripMargin,
     resultText =
@@ -623,6 +705,28 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     item = "foo"
   )
 
+  def testCompanionObjectExtensionLikeMethod3_postfix(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |object Bar {
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  (_: Foo) f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |object Bar {
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  foo((_: Foo))$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
   def testCompanionObjectExtensionLikeMethod4(): Unit = doCompletionTest(
     fileText =
       s"""sealed trait Foo
@@ -633,6 +737,32 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  def foo(foo: Foo): Unit = {}
          |
          |  Bar.f$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""sealed trait Foo
+         |
+         |case object Bar extends Foo
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  foo(Bar)$CARET
+         |}
+         |""".stripMargin,
+    item = "foo"
+  )
+
+  def testCompanionObjectExtensionLikeMethod4_postfix(): Unit = doCompletionTest(
+    fileText =
+      s"""sealed trait Foo
+         |
+         |case object Bar extends Foo
+         |
+         |object Foo {
+         |  def foo(foo: Foo): Unit = {}
+         |
+         |  Bar f$CARET
          |}
          |""".stripMargin,
     resultText =
