@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{DisableGC, Evaluator}
-import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, JVMName}
+import com.intellij.debugger.engine.{DebugProcess, DebugProcessImpl, DebuggerUtils, JVMName}
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.{JavaDebuggerBundle, SourcePosition}
 import com.sun.jdi._
@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.extensions._
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -50,7 +50,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       initCache(debugProcess)
     }
     val requiresSuperObject: Boolean = objectEvaluator.isInstanceOf[ScSuperEvaluator] ||
-      (objectEvaluator.isInstanceOf[DisableGC] &&
+      (objectEvaluator.is[DisableGC] &&
         DisableGC.unwrap(objectEvaluator).isInstanceOf[ScSuperEvaluator])
     val evaluated: AnyRef = {
       val res = objectEvaluator.evaluate(context)
@@ -93,7 +93,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
             case classType: ClassType =>
               Option(classType.concreteMethodByName(mName, sgn))
             case it: InterfaceType =>
-              it.methodsByName(mName, sgn).asScala.find(_.isInstanceOf[ConcreteMethodImpl])
+              it.methodsByName(mName, sgn).asScala.find(_.is[ConcreteMethodImpl])
           }
         }
         def findWithSignature(): Option[Method] = {
@@ -233,11 +233,17 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       val typeAndMethod: Option[(ReferenceType, Method)] = obj match {
         case objRef: ObjectReference =>
           val objType = findClass(objRef.referenceType().name())
-          if (objType.isInstanceOf[ArrayType]) throw EvaluationException(ScalaBundle.message("method.methodname.cannot.be.invoked.on.array", methodName))
-          val classType = objType.asInstanceOf[ClassType]
-
-          if (requiresSuperObject) findInSuperClass(classType)
-          else classWithMethod(classType)
+          if (objType.is[ArrayType]) {
+            Option(signature).map(_.getName(debugProcess)).flatMap { sgn =>
+              Option(DebuggerUtils.findMethod(objType, methodName, sgn))
+            }.fold {
+              throw EvaluationException(ScalaBundle.message("method.methodname.cannot.be.invoked.on.array", methodName))
+            }(Some(objType, _))
+          } else {
+            val classType = objType.asInstanceOf[ClassType]
+            if (requiresSuperObject) findInSuperClass(classType)
+            else classWithMethod(classType)
+          }
         case rt: ReferenceType =>
           classWithMethod(rt)
         case _ =>
@@ -253,7 +259,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
           invokeStaticMethod(tp, m)
         case Some((_, m)) =>
           obj match {
-            case objRef: ObjectReference if m.declaringType().isInstanceOf[InterfaceType] =>
+            case objRef: ObjectReference if m.declaringType().is[InterfaceType] =>
               invokeInterfaceMethod(objRef, m)
             case objRef: ObjectReference =>
               invokeInstanceMethod(objRef, m)

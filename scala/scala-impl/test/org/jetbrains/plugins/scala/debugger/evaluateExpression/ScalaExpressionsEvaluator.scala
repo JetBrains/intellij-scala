@@ -511,6 +511,51 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(new Value(5), new Value(6), new Value(7))""", "[5,6,7]")
     }
 
+  addFileWithBreakpoints("ArrayMethods.scala",
+    s"""
+       |object ArrayMethods {
+       |  class Value(val n: Int) extends AnyVal
+       |
+       |  val intArray: Array[Int] = Array(1, 2, 3)
+       |  val stringArray: Array[String] = intArray.map(_.toString)
+       |  val doubleArray: Array[Double] = intArray.map(_.toDouble)
+       |  val objectArray: Array[AnyRef] = new Array(3)
+       |  val multiArray: Array[Array[Int]] = Array.ofDim(2, 3)
+       |  val valueArray: Array[Value] = new Array(3)
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}
+      """.stripMargin
+  )
+  def testArrayMethods(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("intArray.clone()", "[1,2,3]")
+      evalEquals("stringArray.clone()", "[1,2,3]")
+      evalEquals("doubleArray.clone()", "[1.0,2.0,3.0]")
+      evalEquals("objectArray.clone()", "[null,null,null]")
+      evalEquals("multiArray.clone()", "[[0,0,0],[0,0,0]]")
+      evalEquals("valueArray.clone()", "[null,null,null]")
+      evalEquals("new Array[Any](1).clone()", "[null]")
+      evalEquals("intArray.hashCode().toString ne null", "true")
+      evalEquals("stringArray.hashCode().toString ne null", "true")
+      evalEquals("doubleArray.hashCode().toString ne null", "true")
+      evalEquals("objectArray.hashCode().toString ne null", "true")
+      evalEquals("multiArray.hashCode().toString ne null", "true")
+      evalEquals("valueArray.hashCode().toString ne null", "true")
+      evalEquals("new Array[Any](1).hashCode().toString ne null", "true")
+      evalStartsWith("intArray.toString", "[I")
+      evalStartsWith("stringArray.toString", "[Ljava.lang.String;@")
+      evalStartsWith("doubleArray.toString", "[D@")
+      evalStartsWith("objectArray.toString", "[Ljava.lang.Object;@")
+      evalStartsWith("multiArray.toString", "[[I@")
+      evalStartsWith("valueArray.toString", "[LArrayMethods$Value;@")
+      evalStartsWith("new Array[Any](1).toString", "[Ljava.lang.Object;@")
+    }
+  }
+
   addFileWithBreakpoints("SyntheticOperators.scala",
     s"""
        |object SyntheticOperators {

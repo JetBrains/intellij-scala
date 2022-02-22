@@ -365,7 +365,12 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (argEvaluators.isEmpty) ScalaFieldEvaluator(qualEval, "length")
         else throw EvaluationException(message)
       case "clone" =>
-        if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "clone", null /*todo*/ , Nil)
+        val signature = JVMNameUtil.getJVMRawText("()[Ljava/lang/Object;")
+        if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "clone", signature, Nil)
+        else throw EvaluationException(message)
+      case "hashCode" =>
+        val signature = JVMNameUtil.getJVMRawText("()I;")
+        if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "hashCode", signature, Nil)
         else throw EvaluationException(message)
       case "update" =>
         if (argEvaluators.length == 2) {
@@ -373,7 +378,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           new AssignmentEvaluator(leftEval, argEvaluators(1))
         } else throw EvaluationException(message)
       case "toString" =>
-        if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "toString", null /*todo*/ , Nil)
+        val signature = JVMNameUtil.getJVMRawText("()Ljava/lang/String;")
+        if (argEvaluators.isEmpty) ScalaMethodEvaluator(qualEval, "toString", signature, Nil)
         else throw EvaluationException(message)
       case _ =>
         throw EvaluationException(ScalaBundle.message("array.method.not.supported"))
