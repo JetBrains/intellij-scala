@@ -18,7 +18,7 @@ class ScalaCollectionRendererProvider extends CompoundRendererProvider {
 
   override val getChildrenRenderer: ChildrenRenderer = ScalaToArrayRenderer
 
-  override val isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
+  override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 
   override val getIsApplicableChecker: juf.Function[Type, CompletableFuture[jl.Boolean]] = {
     case ct: ClassType => forallAsync(instanceOfAsync(ct, collectionClassName), notStreamAsync(ct), notViewAsync(ct))

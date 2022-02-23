@@ -25,17 +25,14 @@ import scala.annotation.nowarn
  * Nikolay.Tropin
  * 2014-10-22
  */
-class RuntimeRefRenderer extends NodeRendererImpl {
-
-  setIsApplicableChecker(t => CompletableFuture.completedFuture(isApplicableFor(t)))
-
-  override def getName = ScalaBundle.message("scala.runtime.references.renderer")
+class RuntimeRefRenderer extends ClassRenderer {
+  override def getName: String = ScalaBundle.message("scala.runtime.references.renderer")
   override def setName(name: String): Unit = { }
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
   override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
-  private def isApplicableFor(t: Type): Boolean = {
+  def isApplicableFor(t: Type): Boolean = {
     t != null && t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
 
