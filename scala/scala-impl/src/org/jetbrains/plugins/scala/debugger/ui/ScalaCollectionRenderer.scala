@@ -28,6 +28,12 @@ object ScalaCollectionRenderer {
     def exprEval = new ExpressionEvaluatorImpl(e)
   }
 
+  def isApplicableFor(tpe: Type): CompletableFuture[java.lang.Boolean] = tpe match {
+    case ct: ClassType =>
+      forallAsync(instanceOfAsync(ct, collectionClassName), notStreamAsync(ct), notViewAsync(ct))
+    case _ => CompletableFuture.completedFuture(false)
+  }
+
   implicit def toCFJBoolean(f: CompletableFuture[Boolean]): CompletableFuture[java.lang.Boolean] =
     f.asInstanceOf[CompletableFuture[java.lang.Boolean]]
 

@@ -21,5 +21,5 @@ class RuntimeRefRendererProvider extends CompoundRendererProvider {
   override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
 
   override val getIsApplicableChecker: juf.Function[Type, CompletableFuture[jl.Boolean]] =
-    t => CompletableFuture.completedFuture(renderer.isApplicableFor(t))
+    renderer.isApplicableFor
 }

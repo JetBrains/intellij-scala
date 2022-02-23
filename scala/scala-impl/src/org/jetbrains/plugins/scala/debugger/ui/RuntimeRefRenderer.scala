@@ -29,7 +29,10 @@ class RuntimeRefRenderer extends ClassRenderer {
   override def getName: String = ScalaBundle.message("scala.runtime.references.renderer")
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
-  def isApplicableFor(t: Type): Boolean = {
+  def isApplicableFor(tpe: Type): CompletableFuture[java.lang.Boolean] =
+    CompletableFuture.completedFuture(isApplicableForSync(tpe))
+
+  private def isApplicableForSync(t: Type): Boolean = {
     t != null && t.name() != null && t.name().startsWith("scala.runtime.") && t.name().endsWith("Ref")
   }
 
@@ -68,7 +71,7 @@ class RuntimeRefRenderer extends ClassRenderer {
   private def autoRenderer(debugProcess: DebugProcess, valueDescriptor: ValueDescriptor) = {
     val unwrappedType = valueDescriptor.getType
 
-    if (isApplicableFor(unwrappedType))
+    if (isApplicableForSync(unwrappedType))
       DebugProcessImpl.getDefaultRenderer(unwrappedType).asInstanceOf[NodeRendererImpl]
     else
       debugProcess.asInstanceOf[DebugProcessImpl].getAutoRenderer(valueDescriptor).asInstanceOf[NodeRendererImpl]: @nowarn("cat=deprecation")

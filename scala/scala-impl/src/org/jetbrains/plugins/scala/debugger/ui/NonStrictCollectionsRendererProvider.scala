@@ -20,5 +20,5 @@ class NonStrictCollectionsRendererProvider extends CompoundRendererProvider {
   override def isEnabled: Boolean = !renderer.mustNotExpandStreams
 
   override val getIsApplicableChecker: juf.Function[Type, CompletableFuture[jl.Boolean]] =
-    t => renderer.isApplicableFor(t)
+    renderer.isApplicableFor
 }
