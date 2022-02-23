@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.debugger.ui
 import java.util.concurrent.CompletableFuture
 
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.ui.tree.render.ClassRenderer
 import com.sun.jdi.ClassType
 import com.sun.jdi.Field
@@ -22,18 +21,10 @@ class ClassWithSpecializedFieldsRenderer extends ClassRenderer {
 
   override def getUniqueId: String = "ClassWithSpecializedFieldsRenderer"
 
-  //noinspection UnstableApiUsage
-  setIsApplicableChecker {
+  def isApplicableFor(tpe: Type): CompletableFuture[java.lang.Boolean] = tpe match {
     case ct: ClassType =>
-      DebuggerUtilsAsync.allFields(ct).thenApply(_.asScala.exists(isSpecialization))
+      CompletableFuture.completedFuture(ct.fields().asScala.exists(isSpecialization))
     case _ => CompletableFuture.completedFuture(false)
-  }
-
-  //noinspection ScalaDeprecation
-  override def isApplicable(`type`: Type): Boolean = `type` match {
-    case ct: ClassType =>
-      ct.fields().asScala.exists(isSpecialization)
-    case _ => false
   }
 
   override def shouldDisplay(context: EvaluationContext, objInstance: ObjectReference, field: Field): Boolean = {
