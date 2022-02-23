@@ -116,7 +116,7 @@
         <debugger.codeFragmentFactory implementation="org.jetbrains.plugins.scala.debugger.evaluation.ScalaCodeFragmentFactory"/>
         <debugger.positionManagerFactory implementation="org.jetbrains.plugins.scala.debugger.ScalaPositionManagerFactory"/>
         <debuggerEditorTextProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEditorTextProvider"/>
-        <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer"/>
+        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRendererProvider"/>
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRendererProvider"/>
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRendererProvider"/>
         <debugger.nodeRenderer implementation="org.jetbrains.plugins.scala.debugger.ui.ClassWithSpecializedFieldsRenderer"/>

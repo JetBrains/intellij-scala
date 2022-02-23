@@ -30,29 +30,16 @@ import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
  * User: Dmitry Naydanov
  * Date: 9/3/12
  */
-class NonStrictCollectionsRenderer extends NodeRendererImpl {
-
-  //noinspection UnstableApiUsage
-  setIsApplicableChecker {
-    case tpe@(_: ReferenceType) if !mustNotExpandStreams =>
-      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
-    case _ => completedFuture(false)
-  }
+class NonStrictCollectionsRenderer extends ClassRenderer {
 
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
   def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
 
   override def getUniqueId = "NonStrictCollectionsRenderer"
 
-  override def getName = ScalaBundle.message("scala.streams.as.collections")
+  override def getName: String = ScalaBundle.message("scala.streams.as.collections")
 
-  override def setName(text: String): Unit = {/*do nothing*/}
-
-  override def isEnabled: Boolean = !mustNotExpandStreams
-
-  override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
-
-  private def mustNotExpandStreams: Boolean = ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
+  def mustNotExpandStreams: Boolean = ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
 
   private def invokeLengthMethodByName(objectRef: ObjectReference, methodName: String, signature: Char,
                                        context: EvaluationContext) = {
@@ -77,6 +64,12 @@ class NonStrictCollectionsRenderer extends NodeRendererImpl {
       case result@Success(_) => result
       case a => a
     }
+  }
+
+  def isApplicableFor(tpe: Type): CompletableFuture[java.lang.Boolean] = tpe match {
+    case tpe: ReferenceType if !mustNotExpandStreams =>
+      orAsync(isLazyAsync(tpe), isViewAsync(tpe))
+    case _ => completedFuture(false)
   }
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, evaluationContext: EvaluationContext): Unit = {

@@ -27,9 +27,6 @@ import scala.annotation.nowarn
  */
 class RuntimeRefRenderer extends ClassRenderer {
   override def getName: String = ScalaBundle.message("scala.runtime.references.renderer")
-  override def setName(name: String): Unit = { }
-  override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().DONT_SHOW_RUNTIME_REFS
-  override def setEnabled(enabled: Boolean): Unit = {/*see ScalaDebuggerSettingsConfigurable */}
   override def getUniqueId: String = "ScalaRuntimeRefRenderer"
 
   def isApplicableFor(t: Type): Boolean = {
