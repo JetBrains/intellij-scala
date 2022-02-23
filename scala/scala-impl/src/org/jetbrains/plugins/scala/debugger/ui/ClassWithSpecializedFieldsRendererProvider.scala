@@ -20,5 +20,5 @@ class ClassWithSpecializedFieldsRendererProvider extends CompoundRendererProvide
   override def isEnabled: Boolean = true
 
   override val getIsApplicableChecker: juf.Function[Type, CompletableFuture[jl.Boolean]] =
-    t => renderer.isApplicableFor(t)
+    renderer.isApplicableFor
 }
