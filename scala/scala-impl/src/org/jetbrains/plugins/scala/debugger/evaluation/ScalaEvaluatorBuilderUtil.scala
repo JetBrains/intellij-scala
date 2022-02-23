@@ -1041,8 +1041,18 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case Some(constrInvocation) =>
             constrInvocation.typeElement.calcType.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>
+                def unspecifiedParameters =
+                  throw EvaluationException(ScalaBundle.message("array.constructor.unspecified.parameters"))
+                def tooManyArguments =
+                  throw EvaluationException(ScalaBundle.message("array.constructor.too.many.arguments"))
+
+
                 val typeArgs = constrInvocation.typeArgList.fold("")(_.getText)
-                val args = constrInvocation.args.fold("(0)")(_.getText)
+                val args = constrInvocation.args.fold(unspecifiedParameters) { as =>
+                  if (as.getArgsCount == 0) unspecifiedParameters
+                  else if (as.getArgsCount > 1) tooManyArguments
+                  else as.getText
+                }
                 val exprText = s"_root_.scala.Array.ofDim$typeArgs$args"
                 val expr = createExpressionWithContextFromText(exprText, templ.getContext, templ)
                 evaluatorFor(expr)
