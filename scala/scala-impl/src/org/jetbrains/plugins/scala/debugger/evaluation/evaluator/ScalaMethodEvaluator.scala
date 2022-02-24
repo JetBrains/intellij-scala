@@ -71,7 +71,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
       }
     }
     try {
-      def findClass(name: String) = debugProcess.findClass(context, name, context.getClassLoader)
+      def findClass(name: String): ReferenceType = debugProcess.findClass(context, name, context.getClassLoader)
 
       def findMethod(referenceType: ReferenceType): Option[Method] = {
         lazy val sortedMethodCandidates: List[Method] = {
@@ -232,7 +232,7 @@ case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
 
       val typeAndMethod: Option[(ReferenceType, Method)] = obj match {
         case objRef: ObjectReference =>
-          val objType = findClass(objRef.referenceType().name())
+          val objType = objRef.referenceType()
           if (objType.is[ArrayType]) {
             Option(signature).map(_.getName(debugProcess)).flatMap { sgn =>
               Option(DebuggerUtils.findMethod(objType, methodName, sgn))
