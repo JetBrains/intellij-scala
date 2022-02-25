@@ -37,4 +37,19 @@ class IsInstanceOfInspectionTest extends ScalaInspectionTestBase {
     s"""
        |val bool = false || ((${START}x.isInstanceOf${END}) && true) ^^ false""".stripMargin
   )
+
+  def testIsInstanceOfAsValueName(): Unit = checkTextHasNoErrors(
+    s"""
+       |val isInstanceOf: String = "abc"
+       |val list = List(isInstanceOf)
+       |""".stripMargin
+  )
+
+  def testIsInstanceOfAsVariable(): Unit = checkTextHasNoErrors(
+    s"""
+       |var isInstanceOf: String = "abc"
+       |isInstanceOf = "def"
+       |println(isInstanceOf.length())
+       |""".stripMargin
+  )
 }
