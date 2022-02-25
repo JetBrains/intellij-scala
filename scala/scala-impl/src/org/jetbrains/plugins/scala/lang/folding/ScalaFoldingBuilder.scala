@@ -113,7 +113,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
               descriptors.add(new FoldingDescriptor(node, rangeNew))
             }
             else treeParent.getPsi match {
-              case _: ScArgumentExprList | _: ScFor | _: ScIf =>
+              case _: ScArgumentExprList | _: ScFor | _: ScWhile | _: ScDo | _: ScIf =>
                 val rangeNew = elementRangeWithEndMarkerAttached(block, nodeTextRange)
                 descriptors.add(new FoldingDescriptor(node, rangeNew))
               case inf: ScInfixExpr if inf.right == node.getPsi => // SCL-3464
