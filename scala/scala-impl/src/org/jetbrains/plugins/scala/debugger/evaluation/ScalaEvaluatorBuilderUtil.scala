@@ -674,7 +674,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
     val name = NameTransformer.encode(funName)
 
-    ref.bind() match {
+    val resolved = ref.bind()
+    resolved match {
       case Some(r) if r.tuplingUsed => throw EvaluationException(ScalaBundle.message("tupling.not.supported"))
       case None => throw EvaluationException(ScalaBundle.message("cannot.evaluate.method", funName))
       case Some(r @ traitMethod(tr, fun)) if fun.isPrivate || fun.isLocal || isDefaultArg =>
