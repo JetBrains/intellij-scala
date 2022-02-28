@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
+package org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling
 
 import com.intellij.openapi.util.io.FileUtil.loadFile
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
@@ -6,7 +6,7 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.assertj.core.api.Assertions.fail
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.GeneratedClassTestBase.TestData
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling.GeneratedClassTestBase.TestData
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.util.TestUtils
