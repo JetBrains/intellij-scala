@@ -17,7 +17,7 @@ trait TreeConverterTestUtils {
 
   def fixture: CodeInsightTestFixture // we need to go deeper
 
-  val context: IDEAContext
+  def context: IDEAContext
 
   val startToken = "//start"
 

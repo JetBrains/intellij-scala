@@ -8,11 +8,19 @@ import scala.meta.intellij.IDEAContext
 
 abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TreeConverterTestUtils {
 
-  override def fixture = myFixture
-
-  override val context = new IDEAContext(fixture.getProject) {
+  private var _context = new IDEAContext(fixture.getProject) {
     override def dumbMode: Boolean = true
     override def getCurrentProject: Project = myFixture.getProject
+  }
+
+  override def context = _context
+
+  override def fixture = myFixture
+
+  //ideally IDEAContext caches should be cleared on project dispose, but this functionality is deprecated and will be removed anyway
+  override protected def tearDown(): Unit = {
+    super.tearDown()
+    _context = null
   }
 }
 
