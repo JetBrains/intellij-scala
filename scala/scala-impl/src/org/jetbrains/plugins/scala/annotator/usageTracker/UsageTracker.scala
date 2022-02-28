@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
@@ -89,34 +91,60 @@ object UsageTracker {
     result1
   }
 
-  private def registerUsedElement(element: PsiElement,
-                                  resolveResult: ScalaResolveResult,
-                                  checkWrite: Boolean): Unit = {
-    val named = resolveResult.getActualElement
-    val file = element.getContainingFile
-    if (named.isValid && named.getContainingFile == file &&
-      !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
+  private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
 
-      val holder = ScalaRefCountHolder.getInstance(file)
-      val value: ValueUsed = element match {
-        case ref: ScReferenceExpression if checkWrite && ScalaPsiUtil.isPossiblyAssignment(ref) =>
-          ref.getContext match {
-            case ScAssignment.resolvesTo(target) if target != named =>
-              holder.registerValueUsed(WriteValueUsed(target))
-            case _ =>
-          }
-          WriteValueUsed(named)
-        case _ => ReadValueUsed(named)
+    @tailrec
+    def getLeafSyntheticNavigationElement(e: PsiElement): Option[PsiElement] =
+      e match {
+        case m: ScMember =>
+          if (m.syntheticNavigationElement == null) Some(e)
+          else getLeafSyntheticNavigationElement(m.syntheticNavigationElement)
+        case _ => None
       }
-      holder.registerValueUsed(value)
-      // For use of unapply method, see SCL-3463
-      resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))
 
-      // For use of secondary constructors, see SCL-17662
-      resolveResult.element match {
-        case AuxiliaryConstructor(constr) => holder.registerValueUsed(ReadValueUsed(constr))
-        case _ =>
-      }
+    val res0 = resolveResult.element match {
+      case m: ScMember =>
+        (getLeafSyntheticNavigationElement(m) ++
+          Option(m.syntheticContainingClass) ++
+          Option(m.originalGivenElement))
+          .toSeq.collect { case n: ScNamedElement => n }
+      case _ => Seq.empty
     }
+
+    // If this is for https://docs.scala-lang.org/overviews/scala-book/classes-aux-constructors.html, we don't need it
+    //    val res1 = resolveResult.element match {
+    //      case AuxiliaryConstructor(constr) => Seq(constr)
+    //      case _ => Seq.empty
+    //    }
+
+     res0 ++ resolveResult.parentElement.toSeq :+ resolveResult.element
   }
+
+  private def registerTargetElement(sourceElement: PsiElement, targetElement: PsiNamedElement, checkWrite: Boolean): Unit =
+    if (targetElement.isValid && targetElement.getContainingFile == sourceElement.getContainingFile &&
+      !PsiTreeUtil.isAncestor(targetElement, sourceElement, true)) { //to filter recursive usages
+
+      val valueUseds = sourceElement match {
+        case ref: ScReferenceExpression if checkWrite && ScalaPsiUtil.isPossiblyAssignment(ref) =>
+
+          val additionalWrite = ref.getContext match {
+            case ScAssignment.resolvesTo(assignmentTarget) if assignmentTarget != targetElement =>
+              Seq(WriteValueUsed(assignmentTarget))
+            case _ => Seq.empty
+          }
+
+          WriteValueUsed(targetElement) +: additionalWrite
+        case _ => Seq(ReadValueUsed(targetElement))
+      }
+
+      val holder = ScalaRefCountHolder.getInstance(sourceElement.getContainingFile)
+      valueUseds.foreach(holder.registerValueUsed)
+    }
+
+
+  private def registerUsedElement(sourceElement: PsiElement,
+                                  resolveResult: ScalaResolveResult,
+                                  checkWrite: Boolean): Unit =
+    collectAllNamedElementTargets(resolveResult)
+      .foreach(registerTargetElement(sourceElement, _, checkWrite))
 }
