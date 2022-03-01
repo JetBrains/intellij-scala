@@ -626,6 +626,16 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |""".stripMargin
   )
 
+  // SCL-17662
+  def test_private_auxiliary_constructor_is_used_within_same_class(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test(s: String) {
+       |  private def this(i: Int) = this(i.toString)
+       |  new Test(42).s
+       |}
+       |""".stripMargin
+  )
+
   // SCL-18600
   def testUnusedAnnotation(): Unit = checkTextHasNoErrors(
     s"""

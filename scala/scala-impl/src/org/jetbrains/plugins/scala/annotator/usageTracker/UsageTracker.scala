@@ -106,20 +106,17 @@ object UsageTracker {
     val res0 = resolveResult.element match {
       case ScEnumCase.Original(c) => Seq(c)
       case m: ScMember =>
-        (getLeafSyntheticNavigationElement(m) ++
-          Option(m.syntheticContainingClass) ++
-          Option(m.originalGivenElement))
+        (
+          getLeafSyntheticNavigationElement(m)
+//            ++
+//          Option(m.syntheticContainingClass) ++
+//          Option(m.originalGivenElement)
+          )
           .toSeq.collect { case n: ScNamedElement => n }
       case _ => Seq.empty
     }
 
-    // If this is for https://docs.scala-lang.org/overviews/scala-book/classes-aux-constructors.html, we don't need it
-    //    val res1 = resolveResult.element match {
-    //      case AuxiliaryConstructor(constr) => Seq(constr)
-    //      case _ => Seq.empty
-    //    }
-
-     res0 ++ resolveResult.parentElement.toSeq :+ resolveResult.element
+    res0 ++ resolveResult.parentElement.toSeq :+ resolveResult.element
   }
 
   private def registerTargetElement(sourceElement: PsiElement, targetElement: PsiNamedElement, checkWrite: Boolean): Unit =

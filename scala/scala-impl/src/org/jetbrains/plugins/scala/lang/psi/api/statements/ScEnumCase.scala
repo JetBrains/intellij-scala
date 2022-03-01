@@ -21,6 +21,8 @@ trait ScEnumCase extends ScConstructorOwner {
   def physicalTypeParameters: Seq[ScTypeParam]
 
   override def isCase: Boolean = true
+
+  def getSyntheticCounterpart: Option[ScMember]
 }
 
 object ScEnumCase {
