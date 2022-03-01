@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.ValueDescriptor
-import com.intellij.debugger.ui.tree.render.{ClassRenderer, DescriptorLabelListener, ToStringRenderer}
-import com.jetbrains.jdi.ClassTypeImpl
+import com.intellij.debugger.ui.tree.render.{ClassRenderer, DescriptorLabelListener}
 import com.sun.jdi.{ClassType, Field, ObjectReference, Type}
 
 import java.util.concurrent.CompletableFuture
-import scala.jdk.CollectionConverters._
 
 class ScalaClassRenderer extends ClassRenderer {
 
@@ -26,7 +23,7 @@ class ScalaClassRenderer extends ClassRenderer {
   }
 
   override def shouldDisplay(context: EvaluationContext, objInstance: ObjectReference, field: Field): Boolean =
-    !isModule(field) && !isBitmap(field)
+    !isModule(field) && !isBitmap(field) && !isOffset(field)
 
   override def calcLabel(descriptor: ValueDescriptor, evaluationContext: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer
@@ -39,7 +36,11 @@ private object ScalaClassRenderer {
 
   private val Bitmap: String = "bitmap$"
 
+  private val Offset: String = "OFFSET$"
+
   def isModule(f: Field): Boolean = f.name() == Module
 
-  def isBitmap(f: Field): Boolean = f.name().startsWith(Bitmap)
+  def isBitmap(f: Field): Boolean = f.name().contains(Bitmap)
+
+  def isOffset(f: Field): Boolean = f.name().startsWith(Offset)
 }
