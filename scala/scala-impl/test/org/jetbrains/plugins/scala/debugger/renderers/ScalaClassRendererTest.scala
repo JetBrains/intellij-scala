@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
+import org.jetbrains.plugins.scala.DebuggerTests
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.concurrent.duration._
@@ -14,6 +16,7 @@ import scala.concurrent.duration._
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
+@Category(Array(classOf[DebuggerTests]))
 class ScalaClassRendererTest extends RendererTestBase {
 
   addFileWithBreakpoints("test/ScalaObject.scala",
@@ -61,7 +64,7 @@ class ScalaClassRendererTest extends RendererTestBase {
   addFileWithBreakpoints("test/ScalaClass.scala",
     s"""package test
        |
-       |class ScalaClass {
+       |class ScalaClass(unusedConstructorParam: Int, usedConstructorParam: Int) {
        |  private[this] val privateThisVal: Double = 1.0
        |  private val privateVal: Int = 2
        |  private[test] val packagePrivateVal: String = "3"
@@ -83,12 +86,13 @@ class ScalaClassRendererTest extends RendererTestBase {
        |    println(privateVal)
        |    println(privateThisVar)
        |    println(privateVar)
+       |    println(usedConstructorParam)
        |  }
        |}
        |
        |object Main {
        |  def main(args: Array[String]): Unit = {
-       |    new ScalaClass().foo()
+       |    new ScalaClass(10, 20).foo()
        |  }
        |}""".stripMargin)
   def testScalaClass(): Unit = {
@@ -102,7 +106,8 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateThisVar = 4.0",
         "privateVar = 5",
         "packagePrivateVar = 6",
-        "publicVar = {int[0]@uniqueID}[]"
+        "publicVar = {int[0]@uniqueID}[]",
+        "usedConstructorParam = 20"
       ))(10.seconds)
   }
 
