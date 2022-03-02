@@ -39,5 +39,7 @@ class Scala3UnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBa
        |6.blub
        |""".stripMargin
   )
+
+  def testThatShouldFailToPreventAutoMerge(): Unit = assert(false)
 }
 
