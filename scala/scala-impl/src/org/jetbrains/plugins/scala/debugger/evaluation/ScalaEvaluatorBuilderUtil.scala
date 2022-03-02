@@ -410,16 +410,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
   }
 
   def classOfFunctionEvaluator(ref: ScReferenceExpression): Evaluator = {
-    val maybeClazzJVMName = ref.getContext match {
+    ref.getContext match {
       case gen: ScGenericCall =>
-        gen.arguments.head.`type`().toOption
-          .flatMap(_.extractClass)
-          .map(DebuggerUtil.getClassJVMName(_))
-      case _ => None
-    }
-
-    maybeClazzJVMName match {
-      case Some(clazzName) => new ClassObjectEvaluator(new TypeEvaluator(clazzName))
+        val tpe = gen.arguments.head.`type`().getOrAny
+        new ScalaClassOfEvaluator(tpe)
       case _ => ScalaLiteralEvaluator.empty
     }
   }
