@@ -22,7 +22,7 @@ trait ScEnumCase extends ScConstructorOwner {
 
   override def isCase: Boolean = true
 
-  def getSyntheticCounterpart: Option[ScNamedElement]
+  def getSyntheticCounterpart: ScNamedElement
 }
 
 object ScEnumCase {

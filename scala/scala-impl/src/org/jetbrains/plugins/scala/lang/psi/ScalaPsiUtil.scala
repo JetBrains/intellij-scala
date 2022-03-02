@@ -6,7 +6,6 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -242,6 +241,7 @@ object ScalaPsiUtil {
         false
       case (mem: ScMember, _) if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         true
+      case (e: ScEnumCase, _) => isOnlyVisibleInLocalFile(e.enumParent)
       case (_: ScMember, body: ScExtensionBody) =>
         isOnlyVisibleInLocalFile(body.getParent)
       case (mem: ScMember, _) =>
@@ -274,7 +274,7 @@ object ScalaPsiUtil {
     import tp.projectContext
 
     tp match {
-      case tp@ScTypePolymorphicType(internal, typeParameters) =>
+      case ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
           var res: Option[ScType] = Some(tp)
           tp.visitRecursively {

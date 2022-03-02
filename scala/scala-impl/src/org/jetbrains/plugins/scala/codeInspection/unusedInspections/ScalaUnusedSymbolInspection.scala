@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
@@ -33,6 +33,12 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     if (isOnTheFly) {
       var used = false
 
+      // TODO Can this be generalized? Is ScEnumCase the only class we need to do this for?
+      val elementToReferenceSearch = element match {
+        case enumCase: ScEnumCase => enumCase.getSyntheticCounterpart
+        case e: ScNamedElement => e
+      }
+
       if (isOnlyVisibleInLocalFile(element)) {
         //we can trust RefCounter because references are counted during highlighting
         val refCounter = ScalaRefCountHolder(element)
@@ -42,7 +48,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         }
 
         !success || used // Return true also if runIfUnused... was a failure
-      } else if (ReferencesSearch.search(element, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
+      } else if (ReferencesSearch.search(elementToReferenceSearch, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
         true
       } else {
         val helper = PsiSearchHelper.getInstance(element.getProject)

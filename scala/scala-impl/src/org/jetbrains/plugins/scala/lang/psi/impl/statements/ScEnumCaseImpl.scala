@@ -5,6 +5,7 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -137,10 +139,22 @@ final class ScEnumCaseImpl(
 
   override def isLocal: Boolean = false
 
-  override def getSyntheticCounterpart: Option[ScNamedElement] =
-    enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq
+  override def getSyntheticCounterpart: ScNamedElement = {
+    val res = enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq
       .flatMap(_.syntheticMembers).collectFirst {
       case c: ScClass if c.name == name => c
       case p: ScPatternDefinition if p.declaredElements.exists(_.name == name) => p.declaredElements.find(_.name == name).get
     }
+
+    if (res.isEmpty) Log.debug(
+      s"""Failed to find a synthetic counterpart of $this. Each ScEnumCase should have exactly one.
+         |Check if EnumMembersInjector is doing its job correctly.
+         |""".stripMargin)
+
+    res.getOrElse(this)
+  }
+}
+
+object ScEnumCaseImpl {
+  val Log: Logger = Logger.getInstance(getClass)
 }
