@@ -64,6 +64,27 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
       evalEquals(""""456".isInstanceOf[DoubleRefAlias]""", "false")
     }
   }
+
+  addFileWithBreakpoints("ClassOfWithLiteralTypes.scala",
+    s"""object ClassOfWithLiteralTypes {
+       |  type StringLiteralAlias = "abc"
+       |  type DoubleStringLiteralAlias = StringLiteralAlias
+       |  type PrimitiveLiteralAlias = 123
+       |  type DoublePrimitiveLiteralAlias = PrimitiveLiteralAlias
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}""".stripMargin)
+  def testClassOfWithLiteralTypes(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalStartsWith("classOf[StringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
+      evalStartsWith("classOf[DoubleStringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
+      evalStartsWith("classOf[PrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
+      evalStartsWith("classOf[DoublePrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -691,4 +712,55 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(3) == new SimpleValue(6)", "true")
     }
 
+  addFileWithBreakpoints("ClassOf.scala",
+    s"""object ClassOf {
+       |  type StringAlias = String
+       |  class Value(val v: Int) extends AnyVal
+       |  class InnerClass
+       |  object InnerObject {
+       |    object DoublyNested
+       |  }
+       |
+       |  type ValueAlias = Value
+       |  type PrimitiveAlias = Int
+       |  trait InnerTrait
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}""".stripMargin)
+  def testClassOf(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("classOf[Any]", "class java.lang.Object")
+      evalEquals("classOf[AnyRef]", "class java.lang.Object")
+      evalEquals("classOf[AnyVal]", "class java.lang.Object")
+      evalEquals("classOf[Singleton]", "class java.lang.Object")
+      evalEquals("classOf[Null]", "class scala.runtime.Null$")
+      evalEquals("classOf[Nothing]", "class scala.runtime.Nothing$")
+      evalEquals("classOf[Unit]", "void")
+      evalEquals("classOf[Boolean]", "boolean")
+      evalEquals("classOf[Byte]", "byte")
+      evalEquals("classOf[Char]", "char")
+      evalEquals("classOf[Double]", "double")
+      evalEquals("classOf[Float]", "float")
+      evalEquals("classOf[Int]", "int")
+      evalEquals("classOf[Long]", "long")
+      evalEquals("classOf[Short]", "short")
+      evalStartsWith("classOf[123]", "Literal type (123 : Int) is not a class type")
+      evalStartsWith("""classOf["abc"]""", """Literal type ("abc" : String) is not a class type""")
+      evalEquals("classOf[String]", "class java.lang.String")
+      evalEquals("classOf[List[Int]]", "class scala.collection.immutable.List")
+      evalEquals("classOf[StringAlias]", "class java.lang.String")
+      evalEquals("classOf[ClassOf.type]", "class ClassOf$")
+      evalEquals("classOf[Value]", "class ClassOf$Value")
+      evalEquals("classOf[ValueAlias]", "class ClassOf$Value")
+      evalEquals("classOf[InnerClass]", "class ClassOf$InnerClass")
+      evalEquals("classOf[InnerObject.type]", "class ClassOf$InnerObject$")
+      evalEquals("classOf[PrimitiveAlias]", "int")
+      evalEquals("classOf[InnerTrait]", "interface ClassOf$InnerTrait")
+      evalEquals("classOf[InnerObject.DoublyNested.type]", "class ClassOf$InnerObject$DoublyNested$")
+      evalEquals("classOf[java.io.Serializable]", "interface java.io.Serializable")
+    }
+  }
 }
