@@ -11,13 +11,13 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -137,10 +137,10 @@ final class ScEnumCaseImpl(
 
   override def isLocal: Boolean = false
 
-  override def getSyntheticCounterpart: Option[ScMember] =
+  override def getSyntheticCounterpart: Option[ScNamedElement] =
     enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq
-      .flatMap(_.syntheticMembers).collectFirst[ScMember] {
+      .flatMap(_.syntheticMembers).collectFirst {
       case c: ScClass if c.name == name => c
-      case p: ScPatternDefinition if p.names.headOption.contains(name) => p
+      case p: ScPatternDefinition if p.declaredElements.exists(_.name == name) => p.declaredElements.find(_.name == name).get
     }
 }

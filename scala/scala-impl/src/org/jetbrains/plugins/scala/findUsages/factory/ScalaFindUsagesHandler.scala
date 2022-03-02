@@ -32,8 +32,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {
-      case e: ScEnumCase =>
-        e.getSyntheticCounterpart.toArray
+      case e: ScEnumCase => e.getSyntheticCounterpart.toArray
       case t: ScObject =>
         t.fakeCompanionClass match {
           case Some(clazz) => Array(clazz)
@@ -54,7 +53,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
             case v: ScVariable if isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
             case _ => Array.empty[DefinitionRole]
           }
-          a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
+          a.map[PsiElement](role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
         }
       case _ => Array.empty
     }
