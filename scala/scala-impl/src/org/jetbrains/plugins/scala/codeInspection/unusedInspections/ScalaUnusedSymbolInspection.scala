@@ -3,6 +3,7 @@ package codeInspection
 package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
@@ -92,6 +93,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def shouldProcessElement(elem: PsiElement): Boolean = {
     elem match {
+      case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
       case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
       case t: ScTypeDefinition if t.isSAMable => false
       case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false

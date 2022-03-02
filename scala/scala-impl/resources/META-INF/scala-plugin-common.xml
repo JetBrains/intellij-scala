@@ -67,6 +67,8 @@
     </extensions>
 
     <extensions defaultExtensionNs="com.intellij">
+        <deadCode implementation="org.jetbrains.plugins.scala.codeInspection.entrypoint.ScalaTestingFrameworkEntryPoint" />
+
         <statistics.projectUsagesCollector implementation="org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector"/>
 
         <annotator language="JAVA"
@@ -74,7 +76,7 @@
         <annotator language="Scala"
                    implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaColorSchemeAnnotator"/>
         <annotator language="Scala"
-                   implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"></annotator>
+                   implementationClass="org.jetbrains.plugins.scala.annotator.ScalaAnnotator"/>
         <statusBarWidgetFactory implementation="org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory"/>
 
         <trafficLightRendererContributor implementation="org.jetbrains.plugins.scala.externalHighlighters.CustomTrafficLightRendererContributor"/>

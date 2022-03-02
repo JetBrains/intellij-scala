@@ -58,4 +58,9 @@ class Scala2GlobalUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspection
     addFile("Bar(42) match { case Bar(extracted) => extracted }")
     checkTextHasNoErrors("case class Bar(private val fizz: Int)")
   }
+
+  def test_implicit_class(): Unit = {
+    addFile("import Foo.Bar; 0.plus42")
+    checkTextHasNoErrors("object Foo { implicit class Bar(x: Int) { def plus42 = x + 42 } }")
+  }
 }
