@@ -20,6 +20,8 @@ trait ScTemplateParents extends ScalaPsiElement {
 
   def superTypes: Seq[ScType]
 
+  def supersText: String
+
   def allTypeElements: Seq[ScTypeElement]
 
   final def constructorInvocation: Option[ScConstructorInvocation] = findChild[ScConstructorInvocation]

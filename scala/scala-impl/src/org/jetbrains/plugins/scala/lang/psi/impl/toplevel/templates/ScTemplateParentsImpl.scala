@@ -63,4 +63,6 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     case td: ScTypeDefinition => SyntheticMembersInjector.injectSupers(td)
     case _ => Seq.empty
   }
+
+  override def supersText: String = byStubOrPsi(_.supersText)(getText)
 }

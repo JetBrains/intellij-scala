@@ -17,4 +17,6 @@ trait ScTemplateParentsStub extends StubElement[ScTemplateParents] {
   def parentTypeElements: Seq[ScTypeElement]
 
   def constructorText: Option[String]
+
+  def supersText: String = (constructorText ++: parentTypesTexts).mkString(" with ")
 }

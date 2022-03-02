@@ -64,7 +64,7 @@ class ScGivenDefinitionImpl(
   @CachedInUserData(this, ModTracker.libraryAware(this))
   override def desugaredDefinitions: Seq[ScMember] =
     try {
-      val supersText = extendsBlock.templateParents.fold("")(_.getText)
+      val supersText = extendsBlock.templateParents.fold("")(_.supersText)
 
       if (isObject) {
         val text = s"implicit object $name extends $supersText"
