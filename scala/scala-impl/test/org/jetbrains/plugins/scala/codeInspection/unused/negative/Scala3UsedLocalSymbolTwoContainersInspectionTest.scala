@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala.codeInspection.unused
+package org.jetbrains.plugins.scala.codeInspection.unused.negative
 
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
 
-/**
-  * Created by Svyatoslav Ilinskiy on 11.07.16.
-  */
 class Scala3UsedLocalSymbolTwoContainersInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0

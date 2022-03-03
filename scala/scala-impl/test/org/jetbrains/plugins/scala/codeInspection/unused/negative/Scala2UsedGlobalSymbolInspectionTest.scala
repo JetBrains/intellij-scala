@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.unused
+package org.jetbrains.plugins.scala.codeInspection.unused.negative
+
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
 
 class Scala2UsedGlobalSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
 
