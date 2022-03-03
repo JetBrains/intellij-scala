@@ -30,4 +30,10 @@ class Scala3UsedGlobalSymbolInspectionTest extends ScalaUnusedSymbolInspectionTe
     addFile("object Bar { import Foo.Fruit.*; Strawberry(42) match { case s: Strawberry => s.i } }")
     checkTextHasNoErrors("object Foo { enum Fruit { case Strawberry(i: Int) } }")
   }
+
+  def test_enum_case_usage_by_construction(): Unit = {
+    addFile("object Bar { import Foo.Fruit.*; Strawberry(42); Mango }")
+    checkTextHasNoErrors("object Foo { enum Fruit { case Mango; case Strawberry(i: Int) } }")
+  }
+
 }
