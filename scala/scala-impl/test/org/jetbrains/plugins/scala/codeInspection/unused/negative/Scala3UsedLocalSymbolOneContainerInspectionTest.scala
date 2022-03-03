@@ -33,7 +33,7 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
       s"""
          |import scala.annotation.unused
          |@unused object Foo:
-         |  private enum Fruit(@unused val i: Int) { case Banana extends Fruit(42) }
+         |  private enum Fruit(val i: Int = 42) { case Banana }
          |  import Fruit.*
          |  Banana match { case Banana => }
          |end Foo

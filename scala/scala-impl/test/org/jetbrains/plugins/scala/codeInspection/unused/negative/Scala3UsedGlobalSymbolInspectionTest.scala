@@ -21,7 +21,7 @@ class Scala3UsedGlobalSymbolInspectionTest extends ScalaUnusedSymbolInspectionTe
 
   def test_parameterized_enum(): Unit = {
     addFile("object Bar { import Foo.Fruit.*; Strawberry match { case s: Strawberry => s.i } }")
-    checkTextHasNoErrors("object Foo { enum Fruit(val i: Int) { case Strawberry extends Fruit(42) } }")
+    checkTextHasNoErrors("object Foo { enum Fruit(val i: Int = 42) { case Strawberry } }")
   }
 
   def test_parameterized_enum_case(): Unit = {

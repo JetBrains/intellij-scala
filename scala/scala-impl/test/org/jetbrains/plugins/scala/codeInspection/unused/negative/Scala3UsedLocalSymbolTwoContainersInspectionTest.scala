@@ -33,7 +33,7 @@ class Scala3UsedLocalSymbolTwoContainersInspectionTest extends ScalaUnusedSymbol
     checkTextHasNoErrors(
       s"""
          |import scala.annotation.unused
-         |object Foo { enum Fruit(@unused i: Int) { case Banana extends Fruit(42) } }
+         |object Foo { enum Fruit(val i: Int = 42) { case Banana } }
          |@unused object Bar:
          |  import Foo.Fruit.*
          |  Banana match { case Banana => }
@@ -44,7 +44,7 @@ class Scala3UsedLocalSymbolTwoContainersInspectionTest extends ScalaUnusedSymbol
     checkTextHasNoErrors(
       s"""
          |import scala.annotation.unused
-         |object Foo { enum Fruit { case Banana(@unused i: Int) } }
+         |object Foo { enum Fruit { case Banana(i: Int) } }
          |@unused object Bar:
          |  import Foo.Fruit.*
          |  Banana(42) match { case _: Banana => }

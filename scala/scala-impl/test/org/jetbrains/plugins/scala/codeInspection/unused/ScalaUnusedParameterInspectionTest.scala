@@ -102,7 +102,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
     s"""
        |import scala.annotation.unused
        |@unused
-       |case class Test(@unused a: Int)($p: Int)""".stripMargin
+       |case class Test(a: Int)($p: Int)""".stripMargin
   )
 
   ///////// normal class parameter /////////
@@ -374,7 +374,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
        |  @unused type Units = Seq[Unit]
        |  @unused @BeanProperty var foo: Int = 42
        |  @unused def test(@unused param: Int): Unit = ()
-       |  @unused private case class Test1(@unused param: Int)
+       |  @unused private case class Test1(param: Int)
        |  @unused private class Test2(@unused param: Int)
        |  @unused private class Test3(@unused val param: Int)
        |}
