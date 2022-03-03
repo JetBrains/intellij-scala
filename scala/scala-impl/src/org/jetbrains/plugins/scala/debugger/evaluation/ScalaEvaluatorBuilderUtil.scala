@@ -1298,8 +1298,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def blockExprEvaluator(block: ScBlock): Evaluator = {
     withNewSyntheticVariablesHolder {
-      val evaluators = block.statements.filter(!_.isInstanceOf[ScImportStmt]).map(e => evaluatorFor(e))
-      new ScalaBlockExpressionEvaluator(evaluators)
+      val evaluators = block.statements.filter(!_.is[ScImportStmt]).map(e => evaluatorFor(e))
+      new BlockStatementEvaluator(evaluators.toArray)
     }
   }
 
@@ -1332,8 +1332,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     evaluatorFor(expr)
   }
 
-  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression): ScalaBlockExpressionEvaluator = {
-    val evaluatorsBuilder = ArraySeq.newBuilder[Evaluator]
+  def valOrVarDefinitionEvaluator(pList: ScPatternList, expr: ScExpression): BlockStatementEvaluator = {
+    val evaluatorsBuilder = Array.newBuilder[Evaluator]
     val exprEval = new ScalaCachingEvaluator(evaluatorFor(expr))
     evaluatorsBuilder += exprEval
     for {
@@ -1346,7 +1346,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val rightEval = evaluateSubpatternFromPattern(exprEval, pattern, binding)
       evaluatorsBuilder += new AssignmentEvaluator(leftEval, rightEval)
     }
-    new ScalaBlockExpressionEvaluator(evaluatorsBuilder.result())
+    new BlockStatementEvaluator(evaluatorsBuilder.result())
   }
 
   def variableDefinitionEvaluator(vd: ScVariableDefinition): Evaluator = {

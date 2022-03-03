@@ -7,10 +7,9 @@ import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{&&, LazyVal, PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlExpr
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 /**
  * Nikolay.Tropin
@@ -136,7 +136,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
   }
 
   def fragmentEvaluator(fragment: ScalaCodeFragment): Evaluator = {
-    val childrenEvaluators = fragment.children.filter(!_.isInstanceOf[ScImportStmt]).collect {
+    val childrenEvaluators = fragment.children.filter(!_.is[ScImportStmt]).collect {
       case e @ (_: ScBlockStatement | _: ScMember) => evaluatorFor(e)
     }
     new BlockStatementEvaluator(childrenEvaluators.toArray)
