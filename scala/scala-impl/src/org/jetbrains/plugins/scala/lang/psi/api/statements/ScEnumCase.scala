@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScEnum, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
+import scala.annotation.tailrec
+
 trait ScEnumCase extends ScConstructorOwner {
   def enumParent: ScEnum
 
@@ -32,17 +34,37 @@ object ScEnumCase {
   }
 
   object Original {
-    def unapply(e: ScNamedElement): Option[ScEnumCase] =
+    def unapply(e: ScNamedElement): Option[ScEnumCase] = {
       OriginalEnum.unapply(e).flatMap {
         enum =>
-          val name = e.name
+          val name = e match {
+            case f: ScFunctionDefinition =>
+              Option(f.context) match {
+                case Some(n: ScNamedElement) => n.name
+                case _ => e.name
+              }
+            case _ => e.name
+          }
           enum.cases.find(_.name == name)
       }
+    }
   }
 
   object OriginalEnum {
-    def unapply(e: ScNamedElement): Option[ScEnum] =
+    @tailrec
+    def unapply(e: ScNamedElement): Option[ScEnum] = {
+
       ScalaPsiUtil.nameContext(e) match {
+
+        // When calling a parameterized enum case's synthetic apply constructor. For example:
+        // enum Foo { case Bar(i: Int) }
+        // val b = Bar(42)
+        case f: ScFunctionDefinition if f.isSynthetic =>
+          Option(f.context) match {
+            case Some(n: ScNamedElement) => OriginalEnum.unapply(n)
+            case _ => None
+          }
+
         case member: ScMember =>
           member.syntheticNavigationElement match {
             case obj: ScObject => obj.baseCompanion.filterByType[ScEnum]
@@ -50,6 +72,7 @@ object ScEnumCase {
           }
         case _ => None
       }
+    }
   }
 
   def isDesugaredEnumCase(cls: ScNamedElement): Boolean =

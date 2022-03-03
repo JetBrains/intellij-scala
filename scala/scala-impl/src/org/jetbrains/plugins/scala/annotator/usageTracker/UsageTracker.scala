@@ -108,9 +108,8 @@ object UsageTracker {
       case m: ScMember =>
         (
           getLeafSyntheticNavigationElement(m)
-//            ++
-//          Option(m.syntheticContainingClass) ++
-//          Option(m.originalGivenElement)
+//            ++ Option(m.syntheticContainingClass)
+//            ++ Option(m.originalGivenElement)
           )
           .toSeq.collect { case n: ScNamedElement => n }
       case _ => Seq.empty
