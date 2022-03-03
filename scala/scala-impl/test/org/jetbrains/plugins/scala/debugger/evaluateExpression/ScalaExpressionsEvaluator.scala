@@ -763,4 +763,57 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("classOf[java.io.Serializable]", "interface java.io.Serializable")
     }
   }
+
+  addFileWithBreakpoints("While.scala",
+    s"""object While {
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}""".stripMargin)
+  def testWhile(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals(
+        """val array = new Array[Int](5)
+          |var i = 0
+          |while (i < array.length) {
+          |  array(i) = i
+          |  i += 1
+          |}
+          |array
+          |""".stripMargin, "[0,1,2,3,4]")
+
+      evalEquals(
+        """val array = new Array[Int](5)
+          |var i = 0
+          |while ({
+          |  array(i) = i
+          |  i += 1
+          |  i < array.length
+          |}) {}
+          |array
+          |""".stripMargin, "[0,1,2,3,4]")
+    }
+  }
+
+  addFileWithBreakpoints("DoWhile.scala",
+    s"""object DoWhile {
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
+       |  }
+       |}""".stripMargin)
+  def testDoWhile(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals(
+        """val array = new Array[Int](5)
+          |var i = 0
+          |do {
+          |  array(i) = i
+          |  i += 1
+          |} while (i < array.length)
+          |array
+          |""".stripMargin, "[0,1,2,3,4]")
+    }
+  }
 }
