@@ -72,7 +72,7 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
          |@unused object Foo:
          |  private enum Fruit { case Banana(i: Int); case Strawberry(i: Int) }
          |  import Fruit.*
-         |  Strawberry(42) match { case b: Banana => }
+         |  Strawberry(42) match { case _: Banana => }
          |end Foo
          |""".stripMargin)
 

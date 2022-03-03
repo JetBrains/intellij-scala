@@ -105,11 +105,10 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
       case n: ScNamedElement =>
         n match {
-//          case e if !isUnitTestMode && e.isInScala3File => false // TODO Handle Scala 3 code (`enum case`s, etc.), SCL-19589
           case p: ScModifierListOwner if hasOverrideModifier(p) => false
           case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
           case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
-          case p: ScClassParameter if p.isCaseClassVal => false
+          case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
           case p: ScParameter =>
             p.parent.flatMap(_.parent.flatMap(_.parent)) match {
               case Some(f: ScFunctionDeclaration) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false

@@ -28,7 +28,7 @@ class Scala3UnusedGlobalSymbolInspectionTest extends ScalaUnusedSymbolInspection
 
   def test_parameterized_enum(): Unit = {
     addFile("object Bar { import Foo.* }")
-    checkTextHasError(s"object Foo { enum ${START}Fruit$END(val i: Int = 42) { case ${START}Strawberry$END } }")
+    checkTextHasError(s"object Foo { enum ${START}Fruit$END(val izzy: Int = 42) { case ${START}Strawberry$END } }")
   }
 
   def test_parameterized_enum_case(): Unit = {
