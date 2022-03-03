@@ -48,9 +48,9 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
       s"""
          |import scala.annotation.unused
          |@unused object Foo:
-         |  private enum Fruit { case Banana }
+         |  private enum Fruit { case Banana, Strawberry }
          |  import Fruit.*
-         |  Banana match { case Banana => }
+         |  Strawberry match { case Banana => }
          |end Foo
          |""".stripMargin)
 
@@ -70,9 +70,9 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
       s"""
          |import scala.annotation.unused
          |@unused object Foo:
-         |  private enum Fruit { case Banana(@unused i: Int) }
+         |  private enum Fruit { case Banana(i: Int); case Strawberry(i: Int) }
          |  import Fruit.*
-         |  Banana(42) match { case _: Banana => }
+         |  Strawberry(42) match { case b: Banana => }
          |end Foo
          |""".stripMargin)
 
