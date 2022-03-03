@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
-class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class Scala2UsedAndUnusedLocalSymbolInspectionAndQuickFixTest extends ScalaUnusedSymbolInspectionTestBase {
 
   def testPrivateField(): Unit = {
     val code =

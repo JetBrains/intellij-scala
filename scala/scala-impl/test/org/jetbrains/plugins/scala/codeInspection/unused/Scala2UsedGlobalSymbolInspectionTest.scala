@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-class Scala2GlobalUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class Scala2UsedGlobalSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
 
   private def addFile(text: String): Unit = myFixture.addFileToProject("Foo.scala", text)
   
