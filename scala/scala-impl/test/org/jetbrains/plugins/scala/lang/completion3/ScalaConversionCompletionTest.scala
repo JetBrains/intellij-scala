@@ -1,17 +1,18 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
-import com.intellij.testFramework.EditorTestUtil
 import junit.framework.ComparisonFailure
-import org.junit.Assert.assertTrue
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Assert.fail
+import org.junit.runner.RunWith
 
-/**
-  * @author adkozlov
-  */
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_Latest
+))
+@RunWith(classOf[MultipleScalaVersionsRunner])
 class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testJavaConverters(): Unit = doCompletionTest(
     fileText =
@@ -28,31 +29,50 @@ class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
     time = 2
   )
 
-  override protected val convertersNames: Seq[String] = Seq(
-    "asScalaBufferConverter",
-    "collectionAsScalaIterableConverter",
-    "iterableAsScalaIterableConverter"
-  ).map(shortName => s"scala.collection.JavaConverters.$shortName")
+  override protected def convertersNames: Seq[String] = {
+    val common = Seq(
+      "scala.collection.JavaConverters.asScalaBufferConverter",
+      "scala.collection.JavaConverters.collectionAsScalaIterableConverter",
+      "scala.collection.JavaConverters.iterableAsScalaIterableConverter",
+    )
+    if (version >= ScalaVersion.Latest.Scala_2_13.withMinor(0))
+      common :+ "scala.jdk.CollectionConverters.CollectionHasAsScala"
+    else
+      common
+  }
 }
 
 abstract class AbstractConversionCompletionTest extends ScalaCodeInsightTestBase {
 
-  protected val convertersNames: Seq[String]
+  protected def convertersNames: Seq[String]
 
   override protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean): Unit = {
-    def runCheck(fileText: String) = try {
+    def runCheck(fileText: String): Either[ComparisonFailure, Unit] = try {
       super.checkResultByText(fileText, ignoreTrailingSpaces)
-      true
+      Right(())
     } catch {
-      case _: ComparisonFailure => false
+      case cf: ComparisonFailure =>
+        Left(cf)
     }
 
-    val expected = convertersNames.map { qualifiedName =>
+    val expectedTextCandidates: Seq[String] = convertersNames.map { qualifiedName =>
       s"""
          |import $qualifiedName
          |$expectedFileText
        """.stripMargin
     }
-    assertTrue(expected.exists(runCheck))
+    val lazyCheckResults: LazyList[Either[ComparisonFailure, Unit]] = expectedTextCandidates.toList.to(LazyList).map(runCheck)
+    if (lazyCheckResults.exists(_.isRight)) {
+      //ok, success
+    }
+    else {
+      val failure = lazyCheckResults.head.left.getOrElse(fail("expected at least single comparison failure").asInstanceOf[Nothing])
+      fail(
+        s"""Actual text doesn't match any of the expected, converters candidates:
+           |${convertersNames.mkString("\n")}
+           |(NOTE: Using single expected result in diff)
+           |${failure.getMessage}""".stripMargin
+      )
+    }
   }
 }

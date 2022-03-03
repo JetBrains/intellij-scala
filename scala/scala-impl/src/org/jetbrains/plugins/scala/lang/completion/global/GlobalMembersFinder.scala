@@ -22,10 +22,12 @@ sealed abstract class GlobalMembersFinder protected(protected val place: ScExpre
     accessAll ||
       completion.isAccessible(member)(place)
 
-  final def lookupItems: Iterable[LookupElement] =
-    candidates
-      .filter(_.isApplicable)
-      .map(_.createLookupItem)
+  final def lookupItems: Iterable[LookupElement] = {
+    val candidatesRes = candidates
+    val candidatesApplicable = candidatesRes.filter(_.isApplicable)
+    val lookupItems = candidatesApplicable.map(_.createLookupItem)
+    lookupItems
+  }
 
   protected[global] def candidates: Iterable[GlobalMemberResult]
 

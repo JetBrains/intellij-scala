@@ -24,7 +24,13 @@ private final class ExtensionMethodsFinder(originalType: ScType,
   extends ByTypeGlobalMembersFinder(originalType, place, accessAll) {
 
   override protected[global] def candidates: Iterable[GlobalMemberResult] =
-    if (accessAll) extensionMethodCandidates ++ scala3ExtensionMethodCandidates else Iterable.empty
+    if (accessAll) {
+      val candidates = extensionMethodCandidates
+      val candidatesScala3 = scala3ExtensionMethodCandidates
+      val result = candidates ++ candidatesScala3
+      result
+    }
+    else Iterable.empty
 
   private def extensionMethodCandidates = for {
     (GlobalImplicitConversion(classToImport: ScObject, _, elementToImport), application) <- ImplicitConversionData.getPossibleConversions(place)
