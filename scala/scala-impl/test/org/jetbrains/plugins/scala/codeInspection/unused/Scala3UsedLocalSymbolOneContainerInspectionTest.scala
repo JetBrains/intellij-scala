@@ -38,8 +38,7 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
       s"""
          |import scala.annotation.unused
          |@unused object Foo:
-         |  extension(i: Int)
-         |    private def plus0: Int = i + 0
+         |  extension(i: Int) { private def plus0: Int = i + 0 }
          |  0.plus0
          |end Foo
          |""".stripMargin)
