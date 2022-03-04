@@ -135,6 +135,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("if (true) \"text\"", "undefined")
       evalEquals("if (true) \"text\" else \"next\"", "text")
       evalEquals("if (false) \"text\" else \"next\"", "next")
+      evalEquals("if (false) 1 else if (true) 2 else 3", "2")
       evalEquals("\"text\" != null", "true")
       evalStartsWith("new Object()", "java.lang.Object@")
       evalStartsWith("new AnyRef()", "java.lang.Object@")
