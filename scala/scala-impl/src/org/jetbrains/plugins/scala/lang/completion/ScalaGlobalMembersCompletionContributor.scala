@@ -53,17 +53,16 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
             )
         }
 
-        val items = finders
-          .flatMap(_.lookupItems)
+        val lookupItems = finders.flatMap(_.lookupItems)
 
-        if (regardlessAccessibility(invocationCount) && !items.forall {
+        if (regardlessAccessibility(invocationCount) && !lookupItems.forall {
           case item: ScalaLookupItem => item.shouldImport
           case _ => false
         }) {
           addLookupAdvertisement(resultSet)
         }
 
-        resultSet.addAllElements(items)
+        resultSet.addAllElements(lookupItems)
       }
     }
   )

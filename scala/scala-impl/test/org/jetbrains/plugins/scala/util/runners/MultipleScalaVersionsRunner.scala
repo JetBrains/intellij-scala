@@ -176,12 +176,20 @@ private object MultipleScalaVersionsRunner {
         if tests.nonEmpty
       } yield {
         val firstTest = tests.head
-        val suite = if (firstTest.isInstanceOf[JdkVersionTestSuite]) {
-          new ScalaVersionTestSuite(version)
-        } else {
-          // if only one jdk version is used, display it in the test name
-          val jdkVersion = firstTest.asInstanceOf[ScalaSdkOwner].testProjectJdkVersion
-          new ScalaVersionTestSuite(version, jdkVersion)
+        val suite = firstTest match {
+          case _: JdkVersionTestSuite =>
+            new ScalaVersionTestSuite(version)
+          case s: ScalaSdkOwner =>
+            // if only one jdk version is used, display it in the test name
+            val jdkVersion = s.testProjectJdkVersion
+            new ScalaVersionTestSuite(version, jdkVersion)
+          case _: TestCase =>
+            /**
+             * In case test initialization in runner has failed<br>
+             * @see [[junit.framework.TestSuite.warning]]
+             * @see [[junit.framework.TestSuite.createTest]]
+             */
+            new ScalaVersionTestSuite(version)
         }
         tests.foreach(suite.addTest)
         suite
