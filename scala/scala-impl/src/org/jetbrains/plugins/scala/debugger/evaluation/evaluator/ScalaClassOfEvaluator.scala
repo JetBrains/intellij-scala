@@ -39,14 +39,15 @@ class ScalaClassOfEvaluator(tpe: ScType) extends Evaluator {
         val t = inReadAction(lt.removeAliasDefinitions().widenIfLiteral)
         throw EvaluationException(ScalaBundle.message("error.literal.type.is.not.class.type", vs, t))
       case _ =>
-        val jvmName = tpe.extractClass
-          .collect {
-            case td: ScTypeDefinition => inReadAction {
-              val suffix = if (td.isObject) "$" else ""
-              td.getQualifiedNameForDebugger + suffix
+        val jvmName = inReadAction {
+          tpe.extractClass
+            .collect {
+              case td: ScTypeDefinition =>
+                val suffix = if (td.isObject) "$" else ""
+                td.getQualifiedNameForDebugger + suffix
+              case c => c.qualifiedName
             }
-            case c => inReadAction(c.qualifiedName)
-          }.getOrElse(throw EvaluationException(ScalaBundle.message("error.could.not.find.runtime.class", tpe)))
+        }.getOrElse(throw EvaluationException(ScalaBundle.message("error.could.not.find.runtime.class", tpe)))
         classObjectEvaluator(jvmName)
     }
   }

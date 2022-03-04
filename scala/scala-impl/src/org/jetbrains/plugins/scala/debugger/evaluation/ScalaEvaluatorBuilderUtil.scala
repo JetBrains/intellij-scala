@@ -1202,12 +1202,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case None =>
         throw EvaluationException(ScalaBundle.message("do.statement.without.condition"))
     }
-    val iterationEvaluator = doSt.body match {
+    val bodyEvaluator = doSt.body match {
       case Some(body) => evaluatorFor(body)
       case None =>
         throw EvaluationException(ScalaBundle.message("do.statement.without.body"))
     }
-    new ScalaDoStmtEvaluator(condEvaluator, iterationEvaluator)
+    val whileStatementEvaluator = new WhileStatementEvaluator(condEvaluator, bodyEvaluator, null)
+    new BlockStatementEvaluator(Array(bodyEvaluator, whileStatementEvaluator))
   }
 
   def scMethodCallEvaluator(methodCall: ScMethodCall): Evaluator = {
