@@ -795,6 +795,19 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
           |}) {}
           |array
           |""".stripMargin, "[0,1,2,3,4]")
+
+      evalEquals(
+        """var i = 0
+          |while (i < 5) {
+          |  i += 1
+          |}""".stripMargin, "undefined")
+
+      evalEquals(
+        """var i = 0
+          |while ({
+          |  i += 1
+          |  i < 5
+          |}) ()""".stripMargin, "undefined")
     }
   }
 
@@ -816,6 +829,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
           |} while (i < array.length)
           |array
           |""".stripMargin, "[0,1,2,3,4]")
+
+      evalEquals(
+        """var i = 0
+          |do {
+          |  i += 1
+          |} while (i < 5)""".stripMargin, "undefined")
     }
   }
 }
