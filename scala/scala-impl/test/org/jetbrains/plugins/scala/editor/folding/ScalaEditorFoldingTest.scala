@@ -331,6 +331,20 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
        |}$END""".stripMargin
   )
 
+  def testWhile(): Unit = genericCheckRegions(
+    s"""while (true) $BLOCK_ST{
+       |  println(1)
+       |  println(2)
+       |}$END""".stripMargin
+  )
+
+  def testDoWhile(): Unit = genericCheckRegions(
+    s"""do $BLOCK_ST{
+       |  println(1)
+       |  println(2)
+       |}$END while (true)""".stripMargin
+  )
+
   def testTypeAlias(): Unit = genericCheckRegions(
     s"""type T = ${DOTS_ST}Tuple3[
        |  String,
