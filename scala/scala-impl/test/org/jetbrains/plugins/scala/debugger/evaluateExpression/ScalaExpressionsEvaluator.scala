@@ -146,6 +146,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalStartsWith("new Singleton()", "trait 'Singleton' is abstract; cannot be instantiated")
       evalEquals("""new String("abc")""", "abc")
       evalEquals("new StringBuilder().## * 0", "0")
+      evalEquals("()", "undefined")
     }
   }
 
