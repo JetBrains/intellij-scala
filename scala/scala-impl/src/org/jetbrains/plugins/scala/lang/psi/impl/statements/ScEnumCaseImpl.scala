@@ -10,7 +10,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, PsiWhiteSpace, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
@@ -30,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
+import scala.collection.mutable.ListBuffer
 import scala.util.control.NonFatal
 
 final class ScEnumCaseImpl(
@@ -152,6 +153,38 @@ final class ScEnumCaseImpl(
          |""".stripMargin)
 
     res.getOrElse(this)
+  }
+
+  override def delete(): Unit = {
+    val enumCasesElements = getContext.asOptionOf[ScEnumCases].toSeq.flatMap(_.declaredElements)
+    val isOnlyCaseInEnumCasesLine = enumCasesElements.size == 1
+    val isLastInEnumCasesLine = enumCasesElements.lastOption.contains(this)
+
+    var cur: PsiElement = null
+    val toDelete = ListBuffer.empty[PsiElement]
+
+    def fixLeftSide(): Unit = {
+        cur = getPrevSibling
+        while (cur != null &&
+          ((isLastInEnumCasesLine && (cur.is[PsiWhiteSpace] || cur.getText.contentEquals(","))) ||
+            (isOnlyCaseInEnumCasesLine && cur.getText.contentEquals("case")))) {
+          toDelete.addOne(cur)
+          cur = cur.getPrevSibling
+        }
+    }
+
+    def fixRightSide(): Unit = {
+      cur = getNextSibling
+      while (cur != null && !isLastInEnumCasesLine && (cur.getText.contentEquals(",") || cur.is[PsiWhiteSpace])) {
+        toDelete.addOne(cur)
+        cur = cur.getNextSibling
+      }
+    }
+
+    fixLeftSide()
+    fixRightSide()
+    super.delete()
+    toDelete.foreach(_.delete())
   }
 }
 
