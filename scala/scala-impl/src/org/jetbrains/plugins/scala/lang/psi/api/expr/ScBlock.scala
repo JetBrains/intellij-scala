@@ -91,12 +91,14 @@ trait ScBlock extends ScExpression
   def exprs: Seq[ScExpression] = findChildren[ScExpression]
   def statements: Seq[ScBlockStatement] = findChildren[ScBlockStatement]
 
-  def hasRBrace: Boolean = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)).length == 1
+  def hasRBrace: Boolean = getRBrace.isDefined
+  def hasLBrace: Boolean = getLBrace.isDefined
 
-  def getRBrace: Option[PsiElement] = getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
-    case Array(node) => Some(node.getPsi)
-    case _ => None
-  }
+  def getRBrace: Option[PsiElement] =
+    getNode.getChildren(TokenSet.create(ScalaTokenTypes.tRBRACE)) match {
+      case Array(node) => Option(node.getPsi)
+      case _           => None
+    }
 
   def getLBrace: Option[PsiElement] =
     this.findFirstChildByType(ScalaTokenTypes.tLBRACE)
