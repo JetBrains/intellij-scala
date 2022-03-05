@@ -9,6 +9,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScMacroDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
@@ -67,7 +68,10 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     val bodyText = returnTypeText match {
       case Some(_) => None
       case None =>
-        val text = maybeDefinition.flatMap(_.body).map(_.getText)
+        val text = maybeDefinition.flatMap(_.body).map {
+          case block: ScBlockExpr if !block.hasLBrace => s"{${block.getText}}"
+          case body                                   => body.getText
+        }
         // just for some unpredictable cases when body is empty, e.g. `def this() = ???` is parsed to empty constructor body, see SCL-18521)
         // empty body can lead to issues during building psi element from stubs
         text.filter(StringUtils.isNotEmpty)
