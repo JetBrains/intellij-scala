@@ -1193,7 +1193,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case None => throw EvaluationException(ScalaBundle.message("while.statement.without.body"))
     }
 
-    new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
+    val whileStatementEvaluator = new WhileStatementEvaluator(condEvaluator, iterationEvaluator, null)
+    new BlockStatementEvaluator(Array(whileStatementEvaluator, UnitEvaluator))
   }
 
   def doStmtEvaluator(doSt: ScDo): Evaluator = {
@@ -1208,7 +1209,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         throw EvaluationException(ScalaBundle.message("do.statement.without.body"))
     }
     val whileStatementEvaluator = new WhileStatementEvaluator(condEvaluator, bodyEvaluator, null)
-    new BlockStatementEvaluator(Array(bodyEvaluator, whileStatementEvaluator))
+    new BlockStatementEvaluator(Array(bodyEvaluator, whileStatementEvaluator, UnitEvaluator))
   }
 
   def scMethodCallEvaluator(methodCall: ScMethodCall): Evaluator = {

@@ -126,6 +126,7 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
           case call: ScGenericCall            => methodCallEvaluator(call, Nil, Map.empty)
           case stmt: ScAssignment             => assignmentEvaluator(stmt)
           case stmt: ScTypedExpression        => evaluatorFor(stmt.expr)
+          case e if e.textMatches("()")       => UnitEvaluator
           case e                              => throw EvaluationException(ScalaBundle.message("evaluation.of.expression.is.not.supported", e.getText))
         }
         postProcessExpressionEvaluator(expr, innerEval)

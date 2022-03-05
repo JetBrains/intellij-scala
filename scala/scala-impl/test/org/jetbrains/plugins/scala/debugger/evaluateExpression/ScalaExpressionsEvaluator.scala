@@ -135,6 +135,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("if (true) \"text\"", "undefined")
       evalEquals("if (true) \"text\" else \"next\"", "text")
       evalEquals("if (false) \"text\" else \"next\"", "next")
+      evalEquals("if (false) 1 else if (true) 2 else 3", "2")
       evalEquals("\"text\" != null", "true")
       evalStartsWith("new Object()", "java.lang.Object@")
       evalStartsWith("new AnyRef()", "java.lang.Object@")
@@ -146,6 +147,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalStartsWith("new Singleton()", "trait 'Singleton' is abstract; cannot be instantiated")
       evalEquals("""new String("abc")""", "abc")
       evalEquals("new StringBuilder().## * 0", "0")
+      evalEquals("()", "undefined")
     }
   }
 
@@ -793,6 +795,19 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
           |}) {}
           |array
           |""".stripMargin, "[0,1,2,3,4]")
+
+      evalEquals(
+        """var i = 0
+          |while (i < 5) {
+          |  i += 1
+          |}""".stripMargin, "undefined")
+
+      evalEquals(
+        """var i = 0
+          |while ({
+          |  i += 1
+          |  i < 5
+          |}) ()""".stripMargin, "undefined")
     }
   }
 
@@ -814,6 +829,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
           |} while (i < array.length)
           |array
           |""".stripMargin, "[0,1,2,3,4]")
+
+      evalEquals(
+        """var i = 0
+          |do {
+          |  i += 1
+          |} while (i < 5)""".stripMargin, "undefined")
     }
   }
 }
