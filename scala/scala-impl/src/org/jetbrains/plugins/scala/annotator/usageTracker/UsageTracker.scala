@@ -7,14 +7,12 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFi
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
@@ -93,29 +91,12 @@ object UsageTracker {
   }
 
   private def collectAllNamedElementTargets(resolveResult: ScalaResolveResult): Seq[PsiNamedElement] = {
-
-    @tailrec
-    def getLeafSyntheticNavigationElement(e: PsiElement): Option[PsiElement] =
-      e match {
-        case m: ScMember =>
-          if (m.syntheticNavigationElement == null) Some(e)
-          else getLeafSyntheticNavigationElement(m.syntheticNavigationElement)
-        case _ => None
-      }
-
-    val res0 = resolveResult.element match {
-      case ScEnumCase.Original(c) => Seq(c)
-      case m: ScMember =>
-        (
-          getLeafSyntheticNavigationElement(m)
-//            ++ Option(m.syntheticContainingClass)
-//            ++ Option(m.originalGivenElement)
-          )
-          .toSeq.collect { case n: ScNamedElement => n }
+    val originalsFromSynthetics = resolveResult.element match {
+      case ScEnumCase.Original(enumCase) => Seq(enumCase)
+      case ScEnum.OriginalFromObject(enum) => Seq(enum)
       case _ => Seq.empty
     }
-
-    res0 ++ resolveResult.parentElement.toSeq :+ resolveResult.element
+    originalsFromSynthetics ++ resolveResult.parentElement.toSeq :+ resolveResult.element
   }
 
   private def registerTargetElement(sourceElement: PsiElement, targetElement: PsiNamedElement, checkWrite: Boolean): Unit =

@@ -19,6 +19,13 @@ object ScEnum {
       Option(cls.originalEnumElement)
   }
 
+  object OriginalFromObject {
+    def unapply(obj: ScObject): Option[ScEnum] = Option(obj.syntheticNavigationElement) match {
+        case Some(cls: ScClass) => Original.unapply(cls)
+        case _ => None
+      }
+  }
+
   def isDesugaredEnumClass(cls: ScTypeDefinition): Boolean =
     cls.originalEnumElement ne null
 }
