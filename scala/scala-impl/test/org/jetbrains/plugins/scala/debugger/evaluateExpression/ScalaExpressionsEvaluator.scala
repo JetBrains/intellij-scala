@@ -430,6 +430,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |
        |  type Alias = String
        |
+       |  class Structural {
+       |    def foo(name: String): Int = ???
+       |  }
+       |
+       |  type StructuralAlias = { def foo(name: String): Int }
+       |
        |  def main(args: Array[String]): Unit = {
        |    val x = new A
        |    val y = new B
@@ -480,6 +486,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals(""""123".isInstanceOf[Alias]""", "true")
       evalStartsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
       evalStartsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
+      evalStartsWith("new Structural().isInstanceOf[{ def foo(name: String): Int }]", "A runtime type test on structural types is unchecked")
+      evalStartsWith("new Structural().isInstanceOf[StructuralAlias]", "A runtime type test on structural types is unchecked")
     }
   }
 

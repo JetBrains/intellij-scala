@@ -6,11 +6,11 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
 
 import scala.jdk.CollectionConverters._
 
-class IsInstanceOfEvaluator(operandEvaluator: Evaluator, tpe: ScType) extends Evaluator {
+class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): Value = {
 
@@ -78,18 +78,21 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, tpe: ScType) extends Ev
       }
 
     val lhs = operandEvaluator.evaluate(context).asInstanceOf[Value]
-    val dealiased = inReadAction(tpe.removeAliasDefinitions())
-    val stdTypes = dealiased.projectContext.stdTypes
+    val tpe = inReadAction(rawType.removeAliasDefinitions())
+    val stdTypes = tpe.projectContext.stdTypes
     import stdTypes._
 
-    (lhs, dealiased) match {
+    (lhs, tpe) match {
       case (_, Any) =>
         booleanValue(true)
 
       case (_, AnyVal | Null | Nothing | Singleton) =>
         // scalac compiler error "type AnyVal cannot be used in a type patter or isInstanceOf test"
-        val kind = if (dealiased == Singleton) "trait" else "class"
+        val kind = if (tpe == Singleton) "trait" else "class"
         throwTypeCannotBeUsedInIsInstanceOfException(kind, tpe)
+
+      case (_, _: ScCompoundType) =>
+        throw EvaluationException(ScalaBundle.message("error.isinstanceof.structural.type"))
 
       case (null, _) =>
         // case: null.isInstanceOf[String]
