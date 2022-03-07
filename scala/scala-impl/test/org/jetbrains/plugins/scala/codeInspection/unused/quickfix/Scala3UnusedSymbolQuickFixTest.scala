@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.unused.quickfix
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
+import org.junit.Assert.assertTrue
 
 class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase{
 
@@ -22,11 +23,6 @@ class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase
          |0.ext1
          |""".stripMargin
     testQuickFix(text, expected, hint)
-  }
-
-  def test_last_extension_method(): Unit = {
-    val text = "extension(i: Int) { def ext1: Int = i + 0 }"
-    testQuickFix(text, text, hint)
   }
 
   def test_enum(): Unit = testQuickFix("enum Foo { case Bar }", "", hint)
@@ -102,7 +98,11 @@ class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase
 
   def test_last_enum_case(): Unit = {
     val text = "@scala.annotation.unused enum Fruit { case Banana }"
-    testQuickFix(text, text, hint)
+    checkNotFixable(text, hint)
   }
 
+  def test_last_extension_method(): Unit = {
+    val text = "extension(i: Int) { def ext1: Int = i + 0 }"
+    checkNotFixable(text, hint)
+  }
 }

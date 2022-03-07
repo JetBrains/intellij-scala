@@ -160,22 +160,21 @@ final class ScEnumCaseImpl(
     val isOnlyCaseInEnumCasesLine = enumCasesElements.size == 1
     val isLastInEnumCasesLine = enumCasesElements.lastOption.contains(this)
 
-    var cur: PsiElement = null
     val toDelete = ListBuffer.empty[PsiElement]
 
     def fixLeftSide(): Unit = {
-        cur = getPrevSibling
-        while (cur != null &&
-          ((isLastInEnumCasesLine && (cur.is[PsiWhiteSpace] || cur.getText.contentEquals(","))) ||
-            (isOnlyCaseInEnumCasesLine && cur.getText.contentEquals("case")))) {
-          toDelete.addOne(cur)
-          cur = cur.getPrevSibling
-        }
+      var cur = getPrevSibling
+      while (cur != null &&
+        ((isLastInEnumCasesLine && (cur.textMatches(" ") || cur.textMatches(","))) ||
+          (isOnlyCaseInEnumCasesLine && cur.textMatches("case")))) {
+        toDelete.addOne(cur)
+        cur = cur.getPrevSibling
+      }
     }
 
     def fixRightSide(): Unit = {
-      cur = getNextSibling
-      while (cur != null && !isLastInEnumCasesLine && (cur.getText.contentEquals(",") || cur.is[PsiWhiteSpace])) {
+      var cur = getNextSibling
+      while (cur != null && !isLastInEnumCasesLine && (cur.textMatches(",") || cur.textMatches(" "))) {
         toDelete.addOne(cur)
         cur = cur.getNextSibling
       }
@@ -184,7 +183,7 @@ final class ScEnumCaseImpl(
     fixLeftSide()
     fixRightSide()
     super.delete()
-    toDelete.foreach(_.delete())
+    toDelete.foreach(element => if (element.isValid) element.delete())
   }
 }
 
