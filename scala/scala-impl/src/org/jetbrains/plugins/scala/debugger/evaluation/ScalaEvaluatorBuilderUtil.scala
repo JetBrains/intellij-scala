@@ -290,7 +290,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           case _ => missingTypeArgument()
         }
 
-        new ScalaInstanceofEvaluator(eval, tp)
+        new IsInstanceOfEvaluator(eval, tp)
       })
     }
 

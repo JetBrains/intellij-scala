@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 import scala.jdk.CollectionConverters._
 
-class ScalaInstanceofEvaluator(operandEvaluator: Evaluator, tpe: ScType) extends Evaluator {
+class IsInstanceOfEvaluator(operandEvaluator: Evaluator, tpe: ScType) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): Value = {
 
