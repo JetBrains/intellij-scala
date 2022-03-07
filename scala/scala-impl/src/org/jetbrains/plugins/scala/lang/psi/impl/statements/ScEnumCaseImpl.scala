@@ -10,10 +10,10 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiWhiteSpace, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
-import scala.collection.mutable.ListBuffer
 import scala.util.control.NonFatal
 
 final class ScEnumCaseImpl(
@@ -157,33 +156,19 @@ final class ScEnumCaseImpl(
 
   override def delete(): Unit = {
     val enumCasesElements = getContext.asOptionOf[ScEnumCases].toSeq.flatMap(_.declaredElements)
-    val isOnlyCaseInEnumCasesLine = enumCasesElements.size == 1
-    val isLastInEnumCasesLine = enumCasesElements.lastOption.contains(this)
+    val isOnlyCaseInEnumCases = enumCasesElements.size == 1
+    val isRightmostInEnumCases = enumCasesElements.lastOption.contains(this)
 
-    val toDelete = ListBuffer.empty[PsiElement]
+    def findStart(): Option[PsiElement] = this.prevSiblings.takeWhile { e =>
+        (isRightmostInEnumCases && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)) ||
+          (isOnlyCaseInEnumCases && e.elementType == ScalaTokenTypes.kCASE)
+      }.toSeq.lastOption
 
-    def fixLeftSide(): Unit = {
-      var cur = getPrevSibling
-      while (cur != null &&
-        ((isLastInEnumCasesLine && (cur.textMatches(" ") || cur.textMatches(","))) ||
-          (isOnlyCaseInEnumCasesLine && cur.textMatches("case")))) {
-        toDelete.addOne(cur)
-        cur = cur.getPrevSibling
-      }
-    }
+    def findEnd(): Option[PsiElement] = this.nextSiblings.takeWhile { e =>
+        !isRightmostInEnumCases && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)
+      }.toSeq.lastOption
 
-    def fixRightSide(): Unit = {
-      var cur = getNextSibling
-      while (cur != null && !isLastInEnumCasesLine && (cur.textMatches(",") || cur.textMatches(" "))) {
-        toDelete.addOne(cur)
-        cur = cur.getNextSibling
-      }
-    }
-
-    fixLeftSide()
-    fixRightSide()
-    super.delete()
-    toDelete.foreach(element => if (element.isValid) element.delete())
+    getContext.deleteChildRange(findStart().getOrElse(this), findEnd().getOrElse(this))
   }
 }
 

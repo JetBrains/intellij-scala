@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.unused.quickfix
 
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
-import org.junit.Assert.assertTrue
 
 class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase{
 
