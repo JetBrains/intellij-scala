@@ -130,10 +130,14 @@ object DebuggerUtil {
             buff.toName
         }
       case _ =>
-        tp.extractClass match {
-          case Some(clazz) => getClassJVMName(clazz)
-          case None => JVMNameUtil.getJVMRawText(tp.canonicalText)
-        }
+        tp.extractClass.collect {
+          case td: ScTypeDefinition =>
+            val buff = new JVMNameBuffer()
+            buff.append(getClassJVMName(td))
+            buff.append(if (td.isObject) "$" else "")
+            buff.toName
+          case cls: PsiClass => getClassJVMName(cls)
+        }.getOrElse(JVMNameUtil.getJVMRawText(tp.canonicalText))
     }
   }
 

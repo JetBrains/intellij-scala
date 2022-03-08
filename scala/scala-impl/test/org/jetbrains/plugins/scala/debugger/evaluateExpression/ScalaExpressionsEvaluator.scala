@@ -436,6 +436,14 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |
        |  type StructuralAlias = { def foo(name: String): Int }
        |
+       |  object MyObject {
+       |    object Nested
+       |  }
+       |
+       |  trait MyTrait
+       |
+       |  class MyTraitImpl extends MyTrait
+       |
        |  def main(args: Array[String]): Unit = {
        |    val x = new A
        |    val y = new B
@@ -488,6 +496,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalStartsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
       evalStartsWith("new Structural().isInstanceOf[{ def foo(name: String): Int }]", "A runtime type test on structural types is unchecked")
       evalStartsWith("new Structural().isInstanceOf[StructuralAlias]", "A runtime type test on structural types is unchecked")
+      evalEquals("IsInstanceOf.isInstanceOf[IsInstanceOf.type]", "true")
+      evalEquals("MyObject.isInstanceOf[MyObject.type]", "true")
+      evalEquals("MyObject.Nested.isInstanceOf[MyObject.Nested.type]", "true")
+      evalEquals("new MyTraitImpl().isInstanceOf[MyTrait]", "true")
     }
   }
 
