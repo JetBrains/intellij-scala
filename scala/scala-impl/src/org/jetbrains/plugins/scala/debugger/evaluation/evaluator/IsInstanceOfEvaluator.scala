@@ -12,7 +12,7 @@ import scala.jdk.CollectionConverters._
 
 class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extends Evaluator {
 
-  override def evaluate(context: EvaluationContextImpl): Value = {
+  override def evaluate(context: EvaluationContextImpl): BooleanValue = {
 
     def booleanValue(b: Boolean): BooleanValue =
       context.getDebugProcess.getVirtualMachineProxy.mirrorOf(b)
@@ -156,7 +156,7 @@ class IsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
           val classRefType = classObject.referenceType().asInstanceOf[ClassType]
           val method = classRefType.concreteMethodByName("isAssignableFrom", "(Ljava/lang/Class;)Z")
           val args = List(lhs.referenceType().classObject())
-          context.getDebugProcess.invokeMethod(context, classObject, method, args.asJava)
+          context.getDebugProcess.invokeMethod(context, classObject, method, args.asJava).asInstanceOf[BooleanValue]
         } catch {
           case e: Exception =>
             throw EvaluationException(e)

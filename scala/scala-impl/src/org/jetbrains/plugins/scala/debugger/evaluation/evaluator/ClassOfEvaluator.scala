@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{ClassObjectEvaluator, Evaluator, FieldEvaluator, TypeEvaluator}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
-import com.sun.jdi.{ClassObjectReference, ObjectReference}
+import com.sun.jdi.ClassObjectReference
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -14,10 +14,10 @@ class ClassOfEvaluator(tpe: ScType) extends Evaluator {
 
   import ClassOfEvaluator._
 
-  override def evaluate(context: EvaluationContextImpl): ObjectReference =
+  override def evaluate(context: EvaluationContextImpl): ClassObjectReference =
     prepareEvaluator(tpe)(context)
 
-  private def prepareEvaluator(raw: ScType): EvaluationContextImpl => ObjectReference = {
+  private def prepareEvaluator(raw: ScType): EvaluationContextImpl => ClassObjectReference = {
     val tpe = inReadAction(raw.removeAliasDefinitions())
 
     val stdTypes = tpe.projectContext.stdTypes

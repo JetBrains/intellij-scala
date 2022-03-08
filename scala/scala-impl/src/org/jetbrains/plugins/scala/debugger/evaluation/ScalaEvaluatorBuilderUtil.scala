@@ -276,22 +276,29 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z")
       binaryEval(name, (l, r) => ScalaMethodEvaluator(BOXES_RUN_TIME, "equals", rawText, boxed(l, r)))
     }
-    def isInstanceOfEval: Evaluator = {
+
+    def extractTypeArgumentForSyntheticMethod(methodName: String): ScType = {
       def missingTypeArgument() =
-        throw EvaluationException(ScalaBundle.message("missing.type.argument.isinstanceof"))
+        throw EvaluationException(ScalaBundle.message("missing.type.argument.synthetic.method", methodName))
 
-      unaryEval("isInstanceOf", eval => {
-        val tp = ref.getParent match {
-          case gen: ScGenericCall =>
-            gen.typeArgs.typeArgs match {
-              case Seq(arg) => arg.calcType
-              case _ => missingTypeArgument()
-            }
-          case _ => missingTypeArgument()
-        }
+      ref.getParent match {
+        case gen: ScGenericCall =>
+          gen.typeArgs.typeArgs match {
+            case Seq(arg) => arg.calcType
+            case _ => missingTypeArgument()
+          }
+        case _ => missingTypeArgument()
+      }
+    }
 
-        new IsInstanceOfEvaluator(eval, tp)
-      })
+    def asInstanceOfEval: Evaluator = {
+      val methodName = "asInstanceOf"
+      unaryEval(methodName, eval => new AsInstanceOfEvaluator(eval, extractTypeArgumentForSyntheticMethod(methodName)))
+    }
+
+    def isInstanceOfEval: Evaluator = {
+      val methodName = "isInstanceOf"
+      unaryEval(methodName, eval => new IsInstanceOfEvaluator(eval, extractTypeArgumentForSyntheticMethod(methodName)))
     }
 
     def trueEval = expressionFromTextEvaluator("true", ref)
@@ -301,7 +308,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     name match {
       case "isInstanceOf" => isInstanceOfEval
-      case "asInstanceOf" => unaryEval(name, identity) //todo: primitive type casting?
+      case "asInstanceOf" => asInstanceOfEval
       case "##" =>
         unaryEval(name, eval => {
           // Used in Scala 2.10 and Scala 2.11

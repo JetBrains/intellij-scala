@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier, TypeEvaluator}
+import com.intellij.debugger.engine.evaluation.expression.TypeEvaluator
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
+import com.sun.jdi.ReferenceType
 
 /**
-  * @author Nikolay.Tropin
-  */
-class ScalaTypeEvaluator(jvmName: JVMName) extends Evaluator {
-  override def getModifier: Modifier = null
-
-  override def evaluate(context: EvaluationContextImpl): AnyRef = {
-    try {
-      new TypeEvaluator(jvmName).evaluate(context)
-    }
+ * @author Nikolay.Tropin
+ */
+class ScalaTypeEvaluator(jvmName: JVMName) extends TypeEvaluator(jvmName) {
+  override def evaluate(context: EvaluationContextImpl): ReferenceType = {
+    try super.evaluate(context)
     catch {
       case e: EvaluateException =>
         val targetExc = e.getExceptionFromTargetVM
