@@ -413,7 +413,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     ref.getContext match {
       case gen: ScGenericCall =>
         val tpe = gen.arguments.head.`type`().getOrAny
-        new ScalaClassOfEvaluator(tpe)
+        new ClassOfEvaluator(tpe)
       case _ => ScalaLiteralEvaluator.empty
     }
   }

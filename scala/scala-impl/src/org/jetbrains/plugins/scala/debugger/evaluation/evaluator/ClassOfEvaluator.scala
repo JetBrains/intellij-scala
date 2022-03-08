@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
-class ScalaClassOfEvaluator(tpe: ScType) extends Evaluator {
+class ClassOfEvaluator(tpe: ScType) extends Evaluator {
 
-  import ScalaClassOfEvaluator._
+  import ClassOfEvaluator._
 
   override def evaluate(context: EvaluationContextImpl): ObjectReference =
     prepareEvaluator(tpe)(context)
@@ -56,7 +56,7 @@ class ScalaClassOfEvaluator(tpe: ScType) extends Evaluator {
       .asInstanceOf[ClassObjectReference]
 }
 
-private object ScalaClassOfEvaluator {
+private object ClassOfEvaluator {
   implicit class StringToJVMNameOps(private val raw: String) extends AnyVal {
     def toJVMName: JVMName = JVMNameUtil.getJVMRawText(raw)
   }
