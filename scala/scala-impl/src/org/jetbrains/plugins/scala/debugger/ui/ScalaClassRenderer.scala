@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.debugger.ui
+package org.jetbrains.plugins.scala.debugger
+package ui
 
 import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.settings.NodeRendererSettings
@@ -23,7 +24,8 @@ class ScalaClassRenderer extends ClassRenderer {
   }
 
   override def shouldDisplay(context: EvaluationContext, objInstance: ObjectReference, field: Field): Boolean =
-    !isModule(field) && !isBitmap(field) && !isOffset(field)
+    !ScalaSyntheticProvider.hasSpecialization(field, Some(objInstance.referenceType())) &&
+      !isModule(field) && !isBitmap(field) && !isOffset(field)
 
   override def calcLabel(descriptor: ValueDescriptor, evaluationContext: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer

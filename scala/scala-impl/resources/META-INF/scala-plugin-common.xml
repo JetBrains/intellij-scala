@@ -119,7 +119,6 @@
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRendererProvider"/>
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.RuntimeRefRendererProvider"/>
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRendererProvider"/>
-        <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ClassWithSpecializedFieldsRendererProvider"/>
         <debugger.compoundRendererProvider implementation="org.jetbrains.plugins.scala.debugger.ui.ScalaClassRendererProvider"/>
         <debugger.syntheticProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaSyntheticProvider"/>
         <debugger.frameExtraVarsProvider implementation="org.jetbrains.plugins.scala.debugger.ScalaFrameExtraVariablesProvider"/>
