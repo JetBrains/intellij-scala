@@ -2,10 +2,12 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, IdentityEvaluator}
+import com.intellij.debugger.engine.evaluation.expression.Evaluator
+import com.intellij.debugger.impl.DebuggerUtilsImpl
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
+import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 
@@ -30,11 +32,40 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       }
     }
 
-    val tpe = inReadAction(rawType.removeAliasDefinitions())
+    val tpe = inReadAction(rawType.removeAliasDefinitions().widenIfLiteral)
     val stdTypes = tpe.projectContext.stdTypes
     import stdTypes._
 
     val value = operandEvaluator.evaluate(context).asInstanceOf[Value]
+
+    def message: String = {
+      val valueType = value.`type`().name() match {
+        case "boolean" => "Boolean"
+        case "byte" => "Byte"
+        case "char" => "Char"
+        case "double" => "Double"
+        case "float" => "Float"
+        case "int" => "Int"
+        case "long" => "Long"
+        case "short" => "Short"
+        case other => other
+      }
+
+      val castType = tpe match {
+        case Boolean => "Boolean"
+        case Byte => "Byte"
+        case Char => "Char"
+        case Double => "Double"
+        case Float => "Float"
+        case Int => "Int"
+        case Long => "Long"
+        case Short => "Short"
+        case _ => inReadAction(DebuggerUtil.getJVMQualifiedName(tpe).getDisplayName(context.getDebugProcess))
+      }
+
+      ScalaBundle.message("error.cannot.cast.value.to.type", valueType, castType)
+    }
+
     (value, tpe) match {
       case (_, _: ScCompoundType) => value
       case (null, _) if tpe.isPrimitive =>
@@ -48,14 +79,13 @@ class AsInstanceOfEvaluator(operandEvaluator: Evaluator, rawType: ScType) extend
       case (i: IntegerValue, NumericType(fn)) => fn(i)
       case (l: LongValue, NumericType(fn)) => fn(l)
       case (s: ShortValue, NumericType(fn)) => fn(s)
-      case _ =>
-        val isInstanceOf = new IsInstanceOfEvaluator(new IdentityEvaluator(value), tpe)
-
-        def message: String =
-          ScalaBundle.message("error.cannot.cast.value.to.type", value.`type`().name(), tpe)
-
-        val canSucceed = new ErrorWrapperEvaluator(isInstanceOf, message).evaluate(context).asInstanceOf[BooleanValue].value()
-        if (canSucceed) value else throw EvaluationException(message)
+      case (_: PrimitiveValue, _) =>
+        throw EvaluationException(message)
+      case (o: ObjectReference, _) =>
+        val valueType = o.referenceType()
+        val castType = new ClassOfEvaluator(tpe).evaluate(context).reflectedType()
+        if (DebuggerUtilsImpl.instanceOf(valueType, castType)) o
+        else throw EvaluationException(message)
     }
   }
 }
