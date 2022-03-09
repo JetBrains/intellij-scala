@@ -94,6 +94,7 @@ object UsageTracker {
     val originalsFromSynthetics = resolveResult.element match {
       case ScEnumCase.Original(enumCase) => Seq(enumCase)
       case ScEnum.OriginalFromObject(enum) => Seq(enum)
+      case ScEnum.OriginalFromSyntheticMethod(enum) => enum.cases
       case _ => Seq.empty
     }
     originalsFromSynthetics ++ resolveResult.parentElement.toSeq :+ resolveResult.element

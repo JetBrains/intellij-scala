@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends ScalaFindUsagesHandlerBase(element, factory) {
 
-  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getNamesOf(element)
+  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getStringsToSearch(element)
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {

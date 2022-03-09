@@ -30,14 +30,27 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
+
+    def referencesSearch(elements: Seq[ScNamedElement]): Boolean = {
+      val scope = new LocalSearchScope(element.getContainingFile)
+      elements.exists(ReferencesSearch.search(_, scope).findFirst() != null)
+    }
+
+    // TODO Can this be generalized? Are ScEnumCase the only class we need to do this for?
+    def elementsToReferenceSearch: Seq[ScNamedElement] = element match {
+      case enumCase: ScEnumCase =>
+        val syntheticMembers =
+          ScalaPsiUtil.getCompanionModule(enumCase.enumParent)
+            .toSeq.flatMap(_.membersWithSynthetic)
+            .collect {
+              case n: ScNamedElement if ScalaUsageNamesUtil.enumSyntheticMethodNames.contains(n.name) => n
+            }
+        enumCase.getSyntheticCounterpart +: syntheticMembers
+      case e: ScNamedElement => Seq(e)
+    }
+
     if (isOnTheFly) {
       var used = false
-
-      // TODO Can this be generalized? Is ScEnumCase the only class we need to do this for?
-      val elementToReferenceSearch = element match {
-        case enumCase: ScEnumCase => enumCase.getSyntheticCounterpart
-        case e: ScNamedElement => e
-      }
 
       if (isOnlyVisibleInLocalFile(element)) {
         //we can trust RefCounter because references are counted during highlighting
@@ -48,7 +61,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         }
 
         !success || used // Return true also if runIfUnused... was a failure
-      } else if (ReferencesSearch.search(elementToReferenceSearch, new LocalSearchScope(element.getContainingFile)).findFirst() != null) {
+      } else if (referencesSearch(elementsToReferenceSearch)) {
         true
       } else {
         val helper = PsiSearchHelper.getInstance(element.getProject)
@@ -63,7 +76,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
           }
         }
 
-        ScalaUsageNamesUtil.getNamesOf(element).asScala.foreach { name =>
+        ScalaUsageNamesUtil.getStringsToSearch(element).asScala.foreach { name =>
           if (!used) {
             helper.processElementsWithWord(
               processor,
