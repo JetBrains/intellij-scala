@@ -182,4 +182,18 @@ class ImportExtensionMethodFixText
     )
   }
 
+  def testIncludeTopLevelExtension(): Unit = checkElementsToImport(
+    s"""package tests
+       |
+       |package ext:
+       |  extension (s: String)
+       |    def toOption: Option[String] = Option(s)
+       |end ext
+       |
+       |"".${CARET}toOption
+       |""".stripMargin,
+
+    "tests.ext.toOption"
+  )
+
 }

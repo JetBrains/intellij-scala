@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -270,6 +271,16 @@ object ScalaCompletionUtil {
         (inheritorObjectsInLibraries(clazz) ++ inheritorObjectsInProject(clazz))
           .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
     }
+
+  def findPackageForTopLevelMember(member: ScMember): Option[ScPackaging] =
+    if (member.containingClass == null) {
+      member match {
+        case fn: ScFunction if fn.isExtensionMethod =>
+          fn.extensionMethodOwner.flatMap(_.getContext.asOptionOf[ScPackaging])
+        case _ =>
+          member.getContext.asOptionOf[ScPackaging]
+      }
+    } else None
 
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
     JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)

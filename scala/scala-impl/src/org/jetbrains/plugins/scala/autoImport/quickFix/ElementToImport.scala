@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.autoImport.GlobalMemberOwner
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -47,26 +48,26 @@ final case class ClassToImport(override val element: PsiClass) extends ElementTo
 }
 
 final case class ExtensionMethodToImport(override val element: ScFunction,
-                                         owner: PsiElement,
+                                         owner: GlobalMemberOwner,
                                          pathToOwner: String) extends ElementToImport {
   override protected type E = ScFunction
 
   override def qualifiedName: String = pathToOwner + "." + name
 
   override def presentationBody: String =
-    Presentation.withDeprecations(element, owner, pathToOwner)
+    Presentation.withDeprecations(element, owner.element, pathToOwner)
 }
 
 object ExtensionMethodToImport {
   def apply(element: ScFunction, owner: ScPackaging): ExtensionMethodToImport =
-    new ExtensionMethodToImport(element, owner, owner.fqn)
+    new ExtensionMethodToImport(element, GlobalMemberOwner.Packaging(owner), owner.fqn)
 
   def apply(element: ScFunction, owner: PsiClass): ExtensionMethodToImport =
-    new ExtensionMethodToImport(element, owner, owner.qualifiedName)
+    new ExtensionMethodToImport(element, GlobalMemberOwner.Class(owner), owner.qualifiedName)
 }
 
 final case class MemberToImport(override val element: PsiNamedElement,
-                                owner: PsiNamedElement,
+                                owner: GlobalMemberOwner,
                                 pathToOwner: String) extends ElementToImport {
 
   override protected type E = PsiNamedElement
@@ -74,12 +75,12 @@ final case class MemberToImport(override val element: PsiNamedElement,
   override def qualifiedName: String = pathToOwner + "." + name
 
   override def presentationBody: String =
-    Presentation.withDeprecations(element, owner, pathToOwner)
+    Presentation.withDeprecations(element, owner.element, pathToOwner)
 }
 
 object MemberToImport {
   def apply(element: PsiNamedElement, owner: PsiClass): MemberToImport =
-    MemberToImport(element, owner, owner.qualifiedName)
+    MemberToImport(element, GlobalMemberOwner.Class(owner), owner.qualifiedName)
 }
 
 final case class PrefixPackageToImport(override val element: ScPackage) extends ElementToImport {
@@ -97,5 +98,5 @@ final case class ImplicitToImport(found: FoundImplicit) extends ElementToImport 
   override def qualifiedName: String = found.instance.qualifiedName
 
   override def presentationBody: String =
-    Presentation.withDeprecations(element, found.instance.owner, found.instance.pathToOwner)
+    Presentation.withDeprecations(element, found.instance.owner.element, found.instance.pathToOwner)
 }

@@ -59,7 +59,7 @@ private object HoogleFinder {
 
   final case class PostfixCandidate(elementToImport: ScFunction,
                                     override val classToImport: ScObject)
-    extends GlobalMemberResult(elementToImport, classToImport)(Function.const(NameAvailabilityState.AVAILABLE)) {
+    extends GlobalPsiClassMemberResult(elementToImport, classToImport)(Function.const(NameAvailabilityState.AVAILABLE)) {
 
     override protected def buildItem(lookupItem: ScalaLookupItem): LookupElement =
       LookupElementBuilder

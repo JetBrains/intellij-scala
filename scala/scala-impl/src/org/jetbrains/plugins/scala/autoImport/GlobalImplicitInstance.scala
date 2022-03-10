@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.autoImport
 
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScThisType
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-final case class GlobalImplicitInstance(override val owner: ScTypedDefinition,
+final case class GlobalImplicitInstance(override val owner: GlobalMemberOwner,
                                         override val pathToOwner: String,
                                         override val member: ScMember)
   extends GlobalMember(owner, pathToOwner, member) {
@@ -17,10 +17,17 @@ final case class GlobalImplicitInstance(override val owner: ScTypedDefinition,
 
 object GlobalImplicitInstance {
   def from(srr: ScalaResolveResult): Option[GlobalImplicitInstance] = {
-    for {
+    val fromObject = for {
       member <- srr.element.asOptionOfUnsafe[ScMember]
       obj <- containingObject(srr)
-    } yield GlobalImplicitInstance(obj, obj.qualifiedName, member)
+    } yield GlobalImplicitInstance(GlobalMemberOwner.TypedDefinition(obj), obj.qualifiedName, member)
+
+    def fromPackage = for {
+      member <- srr.element.asOptionOfUnsafe[ScMember]
+      pkg <- containingPackage(srr)
+    } yield GlobalImplicitInstance(GlobalMemberOwner.Packaging(pkg), pkg.fullPackageName, member)
+
+    fromObject.orElse(fromPackage)
   }
 
   private def containingObject(srr: ScalaResolveResult): Option[ScObject] = {
@@ -31,5 +38,9 @@ object GlobalImplicitInstance {
     }
     ownerType.flatMap(_.extractClass).filterByType[ScObject]
   }
+
+  private def containingPackage(srr: ScalaResolveResult): Option[ScPackaging] =
+    if (srr.isExtension) srr.extensionContext.flatMap(_.getContext.asOptionOf[ScPackaging])
+    else srr.element.getContext.asOptionOf[ScPackaging]
 
 }

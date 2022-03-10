@@ -55,7 +55,7 @@ private final class LocallyImportableMembersFinder(place: ScReferenceExpression,
   @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class LocallyImportableMemberResult(elementToImport: PsiNamedElement,
                                                          override val classToImport: PsiClass)
-    extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability) {
+    extends GlobalPsiClassMemberResult(elementToImport, classToImport)(NameAvailability) {
 
     import NameAvailabilityState._
 

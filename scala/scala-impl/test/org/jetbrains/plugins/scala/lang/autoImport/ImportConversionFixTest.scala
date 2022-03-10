@@ -303,4 +303,21 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
       |  }
       |}""".stripMargin,
   "mySyntax.syntaxDoubleParam")
+
+  def testTopLevelConversion(): Unit = checkElementsToImport(
+    s"""package tests
+       |
+       |package conversions {
+       |  implicit class SeqExt[CC[X] <: Seq[X], A <: AnyRef](private val value: CC[A]) extends AnyVal {
+       |    def firstBy[B](f: A => B)(implicit ord: Ordering[B]): Option[A] = ???
+       |  }
+       |}
+       |
+       |class Test {
+       |  Nil.${CARET}firstBy()
+       |}
+       |""".stripMargin,
+
+    "tests.conversions.SeqExt"
+  )
 }
