@@ -6,7 +6,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
@@ -29,15 +29,41 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
 
-  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-
-    def referencesSearch(elements: Seq[ScNamedElement]): Boolean = {
-      val scope = new LocalSearchScope(element.getContainingFile)
-      elements.exists(ReferencesSearch.search(_, scope).findFirst() != null)
+  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
+    if (isOnTheFly) {
+      if (isOnlyVisibleInLocalFile(element)) {
+        localSearch(element)
+      } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
+        true
+      } else {
+        if (checkIfEnumUsedOutsideScala(element)) {
+          true
+        } else {
+          textSearch(element)
+        }
+      }
+    } else {
+      //need to look for references because file is not highlighted
+      referencesSearch(element, element.getUseScope)
     }
 
-    // TODO Can this be generalized? Are ScEnumCase the only class we need to do this for?
-    def elementsToReferenceSearch: Seq[ScNamedElement] = element match {
+  // this case is for elements accessible only in a local scope
+  private def localSearch(element: ScNamedElement): Boolean = {
+    //we can trust RefCounter because references are counted during highlighting
+    val refCounter = ScalaRefCountHolder(element)
+
+    var used = false
+    val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
+      used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
+    }
+
+    !success || used // Return true also if runIfUnused... was a failure
+  }
+
+  // this case is for elements accessible not only in a local scope, but within the same file
+  private def referencesSearch(element: ScNamedElement, scope: SearchScope): Boolean = {
+    val elementsForSearch = element match {
+      // if the element is an enum case, we also look for usage in a few synthetic methods generated for the enum class
       case enumCase: ScEnumCase =>
         val syntheticMembers =
           ScalaPsiUtil.getCompanionModule(enumCase.enumParent)
@@ -48,51 +74,69 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         enumCase.getSyntheticCounterpart +: syntheticMembers
       case e: ScNamedElement => Seq(e)
     }
+    elementsForSearch.exists(ReferencesSearch.search(_, scope).findFirst() != null)
+  }
 
-    if (isOnTheFly) {
+  // if the element is an enum case, and the enum class is accessed from outside Scala, we assume the enum case is used
+  private def checkIfEnumUsedOutsideScala(element: ScNamedElement): Boolean = {
+    val scEnum = element match {
+      case el: ScEnumCase => Some(el.enumParent)
+      case el: ScEnum => Some(el)
+      case _ => None
+    }
+
+    scEnum.exists { e =>
       var used = false
 
-      if (isOnlyVisibleInLocalFile(element)) {
-        //we can trust RefCounter because references are counted during highlighting
-        val refCounter = ScalaRefCountHolder(element)
-
-        val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
-          used = refCounter.isValueReadUsed(element) || refCounter.isValueWriteUsed(element)
-        }
-
-        !success || used // Return true also if runIfUnused... was a failure
-      } else if (referencesSearch(elementsToReferenceSearch)) {
-        true
-      } else {
-        val helper = PsiSearchHelper.getInstance(element.getProject)
-        val processor = new TextOccurenceProcessor {
-          override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
-            inReadAction {
-              if (element.getContainingFile == e2.getContainingFile) true else {
-                used = true
-                false
-              }
+      val processor = new TextOccurenceProcessor {
+        override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
+          inReadAction {
+            if (e2.getContainingFile.isScala3File || e2.getContainingFile.isScala2File) true else {
+              used = true
+              false
             }
           }
-        }
+      }
 
-        ScalaUsageNamesUtil.getStringsToSearch(element).asScala.foreach { name =>
-          if (!used) {
-            helper.processElementsWithWord(
-              processor,
-              element.getUseScope,
-              name,
-              (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
-              true
-            )
+      PsiSearchHelper
+        .getInstance(element.getProject)
+        .processElementsWithWord(
+          processor,
+          element.getUseScope,
+          e.getName,
+          (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+          true
+        )
+      used
+    }
+  }
+
+  // if the element is accessible from other files, we check that with a text search
+  private def textSearch(element: ScNamedElement): Boolean = {
+    val helper = PsiSearchHelper.getInstance(element.getProject)
+    var used = false
+    val processor = new TextOccurenceProcessor {
+      override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
+        inReadAction {
+          if (element.getContainingFile == e2.getContainingFile) true else {
+            used = true
+            false
           }
         }
-        used
-      }
-    } else {
-      //need to look for references because file is not highlighted
-      ReferencesSearch.search(element, element.getUseScope).findFirst() != null
     }
+
+    ScalaUsageNamesUtil.getStringsToSearch(element).asScala.foreach { name =>
+      if (!used) {
+        helper.processElementsWithWord(
+          processor,
+          element.getUseScope,
+          name,
+          (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+          true
+        )
+      }
+    }
+    used
   }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
