@@ -112,7 +112,7 @@ object SimpleBooleanMatchUtil {
   }
 
   private def isSimpleClauses(stmt: ScMatch): Boolean = stmt.clauses.forall {
-    case clause@BooleanClause(_) => clause.guard.isEmpty
+    case BooleanClause(_) => true
     case _ => false
   }
 
@@ -143,7 +143,7 @@ object SimpleBooleanMatchUtil {
   private object BooleanClause {
 
     def unapply(clause: ScCaseClause): Option[Boolean] = clause.pattern match {
-      case Some(ScLiteralPattern(ScBooleanLiteral(value))) => Some(value)
+      case Some(ScLiteralPattern(ScBooleanLiteral(value))) if clause.guard.isEmpty => Some(value)
       case _ => None
     }
   }

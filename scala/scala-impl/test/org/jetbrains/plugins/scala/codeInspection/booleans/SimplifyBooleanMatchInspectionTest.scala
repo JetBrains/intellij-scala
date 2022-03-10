@@ -378,4 +378,19 @@ class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
 
     checkTextHasNoErrors(text)
   }
+
+  def test_MatchWithGuard2(): Unit = {
+    val text =
+      s"""
+         |val a = true
+         |val c = false
+         |val b = a match {
+         |  case true if c => 1
+         |  case _ => 4
+         |}
+       """.stripMargin
+
+    checkTextHasNoErrors(text)
+  }
+
 }
