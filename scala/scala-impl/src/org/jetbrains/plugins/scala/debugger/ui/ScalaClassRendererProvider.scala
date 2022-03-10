@@ -10,7 +10,7 @@ import java.util.{function => juf}
 class ScalaClassRendererProvider extends CompoundRendererProvider {
   private val renderer = new ScalaClassRenderer()
 
-  override def getName: String = "Scala class"
+  override def getName: String = renderer.getName
 
   override def getValueLabelRenderer: ValueLabelRenderer = renderer
 

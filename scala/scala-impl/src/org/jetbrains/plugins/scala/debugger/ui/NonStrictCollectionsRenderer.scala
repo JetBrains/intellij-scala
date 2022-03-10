@@ -1,30 +1,25 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
-import java.util
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletableFuture.completedFuture
-
 import com.intellij.debugger.DebuggerContext
-import com.intellij.debugger.engine.evaluation.EvaluateException
-import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.impl.PositionUtil
-import com.intellij.debugger.ui.impl.watch.ValueDescriptorImpl
-import com.intellij.debugger.ui.impl.watch.WatchItemDescriptor
+import com.intellij.debugger.engine.DebuggerUtils
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.impl.{DebuggerUtilsAsync, PositionUtil}
+import com.intellij.debugger.ui.impl.watch.{ValueDescriptorImpl, WatchItemDescriptor}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptor, ValueDescriptor}
 import com.intellij.debugger.ui.tree.render._
-import com.intellij.debugger.ui.tree.DebuggerTreeNode
-import com.intellij.debugger.ui.tree.NodeDescriptor
-import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.openapi.project.Project
-import com.intellij.psi.JavaPsiFacade
-import com.intellij.psi.PsiExpression
+import com.intellij.psi.{JavaPsiFacade, PsiExpression}
 import com.intellij.util.IncorrectOperationException
 import com.sun.jdi._
 import com.sun.tools.jdi.ObjectReferenceImpl
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.NonStrictCollectionsRenderer._
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
+
+import java.util
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletableFuture.completedFuture
+import scala.reflect.NameTransformer
 
 /**
  * User: Dmitry Naydanov
@@ -32,7 +27,10 @@ import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer._
  */
 class NonStrictCollectionsRenderer extends ClassRenderer {
 
+  import ScalaClassRenderer._
+
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
+
   def getEndIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_END_INDEX.intValue()
 
   override def getUniqueId = "NonStrictCollectionsRenderer"
@@ -55,7 +53,7 @@ class NonStrictCollectionsRenderer extends ClassRenderer {
     @inline def invoke(name: String) = invokeLengthMethodByName(objectRef, name, 'I', context)
 
     try {
-      if (!hasDefiniteSize(objectRef, context) || isStreamView(objectRef.referenceType())) return Success[String]("?")
+      if (!evaluateHasDefiniteSize(objectRef, context) || isStreamView(objectRef.referenceType())) return Success[String]("?")
     } catch {
       case e: EvaluateException => return Fail(e)
     }
@@ -88,8 +86,10 @@ class NonStrictCollectionsRenderer extends ClassRenderer {
 
     @inline def getTail(objRef: ObjectReference, actualRefType: ReferenceType) =
       invokeEmptyArgsMethod(objRef, actualRefType, "tail")
+
     @inline def getHead(objRef: ObjectReference, actualRefType: ReferenceType) =
       invokeEmptyArgsMethod(objRef, actualRefType, "head")
+
     @inline def getAll(objRef: ObjectReference, actualType: ReferenceType) =
       (getHead(objRef, actualType), getTail(objRef, actualType))
 
@@ -98,8 +98,9 @@ class NonStrictCollectionsRenderer extends ClassRenderer {
     def returnChildren(): Unit = {
       builder.setChildren(myChildren)
     }
+
     value match {
-      case objectRef: ObjectReference if nonEmpty(objectRef, evaluationContext) =>
+      case objectRef: ObjectReference if evaluateNonEmpty(objectRef, evaluationContext) =>
         var currentTail = objectRef
 
         for (i <- 0 until getStartIndex) {
@@ -142,7 +143,7 @@ class NonStrictCollectionsRenderer extends ClassRenderer {
                                  evaluationContext: EvaluationContext,
                                  parentDescriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] = {
     val isExpandable = value match {
-      case objectRef: ObjectReferenceImpl => nonEmpty(objectRef, evaluationContext)
+      case objectRef: ObjectReferenceImpl => evaluateNonEmpty(objectRef, evaluationContext)
       case _ => false
     }
     CompletableFuture.completedFuture(isExpandable)
@@ -190,36 +191,88 @@ object NonStrictCollectionsRenderer {
       }
     }
     catch {
-      case e@(_: EvaluateException | _: InvocationException | _: InvalidTypeException | 
-            _: IncompatibleThreadStateException | _: ClassNotLoadedException) => Fail[Throwable](e)  
+      case e@(_: EvaluateException | _: InvocationException | _: InvalidTypeException |
+              _: IncompatibleThreadStateException | _: ClassNotLoadedException) => Fail[Throwable](e)
     }
   }
 
-// jdi sucks :(
-//  private def invokeEmptyArgsMethodWithTimeout(obj: ObjectReference, method: Method, context: EvaluationContext) = {
-//    var result: SimpleMethodInvocationResult[_] = null
-//    TimeoutUtil.executeWithTimeout(10000, new Runnable {def run() {result = invokeEmptyArgsMethod(obj, method, context)}})
-//    if (result == null) TimeoutExceeded() else result
-//  }
-// private case class TimeoutExceeded() extends SimpleMethodInvocationResult[Nothing]
-  
   private class SimpleMethodInvocationResult[R]
   private case class MethodNotFound() extends SimpleMethodInvocationResult[Nothing]
   private case class Success[R](value: R) extends SimpleMethodInvocationResult[R]
   private case class Fail[E <: Throwable](exc: E) extends SimpleMethodInvocationResult[E]
-  
+
   private class CollectionElementNodeDescriptor(name: String, project: Project, value: Value) extends ValueDescriptorImpl(project, value) {
     override def calcValue(evaluationContext: EvaluationContextImpl): Value = value
 
     override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression = {
       try {
         JavaPsiFacade.getInstance(project).getElementFactory.createExpressionFromText(name, PositionUtil getContextElement context)
-      } 
+      }
       catch {
         case _: IncorrectOperationException => null
       }
     }
 
     override def getName: String = name
+  }
+
+  implicit def toCFJBoolean(f: CompletableFuture[Boolean]): CompletableFuture[java.lang.Boolean] =
+    f.asInstanceOf[CompletableFuture[java.lang.Boolean]]
+
+  implicit def toCFBoolean(f: CompletableFuture[java.lang.Boolean]): CompletableFuture[Boolean] =
+    f.asInstanceOf[CompletableFuture[Boolean]]
+
+  def instanceOf(tp: Type, baseClassNames: String*): Boolean =
+    baseClassNames.exists(DebuggerUtils.instanceOf(tp, _))
+
+  def instanceOfAsync(tp: Type, baseClassNames: String*): CompletableFuture[Boolean] = {
+    val futures = baseClassNames.map(DebuggerUtilsAsync.instanceOf(tp, _).thenApply[Boolean](_.booleanValue()))
+    forallAsync(futures: _*)
+  }
+
+  def andAsync(f1: CompletableFuture[Boolean], f2: CompletableFuture[Boolean]): CompletableFuture[Boolean] =
+    f1.thenCombine[Boolean, Boolean](f2, _ && _)
+
+  def orAsync(f1: CompletableFuture[Boolean], f2: CompletableFuture[Boolean]): CompletableFuture[Boolean] =
+    f1.thenCombine[Boolean, Boolean](f2, _ || _)
+
+  def forallAsync(futures: CompletableFuture[Boolean]*): CompletableFuture[Boolean] =
+    futures.reduce(andAsync)
+
+  private val collectionClassName = "scala.collection.Iterable"
+  private val streamClassName = "scala.collection.immutable.Stream"
+  private val streamViewClassName = "scala.collection.immutable.StreamView"
+  private val viewClassName = "scala.collection.IterableView"
+  private val iteratorClassName = "scala.collection.Iterator"
+
+  private val viewClassName_2_13 = "scala.collection.View"
+  private val lazyList_2_13 = "scala.collection.immutable.LazyList"
+
+  private def size(value: Value, evaluationContext: EvaluationContext): Int =
+    ScalaClassRenderer.evaluateSize(value.asInstanceOf[ObjectReference], evaluationContext)
+
+  private def checkNotCollectionOfKindAsync(tp: Type, shortNames: String*)(baseClassNames: String*): CompletableFuture[Boolean] =
+    if (shortNames.exists(tp.name().contains(_))) completedFuture(false)
+    else instanceOfAsync(tp, baseClassNames: _*).thenApply(!_)
+
+  private[ui] def notViewAsync(tp: Type): CompletableFuture[Boolean] =
+    checkNotCollectionOfKindAsync(tp, "View")(viewClassName, viewClassName_2_13)
+
+  private[ui] def notStreamAsync(tp: Type): CompletableFuture[Boolean] =
+    checkNotCollectionOfKindAsync(tp, "Stream", "LazyList")(streamClassName, lazyList_2_13)
+
+  /**
+   * util method for collection displaying in debugger
+   *
+   * @param name name encoded for jvm (for example, scala.collection.immutable.$colon$colon)
+   * @return decoded nonqualified part (:: in example)
+   */
+  def transformName(name: String): String = getNonQualifiedName(NameTransformer decode name)
+
+  private def getNonQualifiedName(fullName: String): String = {
+    val index =
+      if (fullName endsWith "`") fullName.substring(0, fullName.length - 1).lastIndexOf('`')
+      else fullName.lastIndexOf('.')
+    "\"" + fullName.substring(index + 1) + "\""
   }
 }
