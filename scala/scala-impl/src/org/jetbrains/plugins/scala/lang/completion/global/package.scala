@@ -8,8 +8,10 @@ import com.intellij.psi.{PsiClass, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ContainingClass, OptionExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 package object global {
 
@@ -22,6 +24,28 @@ package object global {
       case _ => definition.baseCompanion.filterByType[ScObject] // todo ScalaPsiUtil.getCompanionModule / fakeCompanionModule
     }
   }
+
+  private[global] def createGlobalTopLevelMemberInsertHandler(containingPackage: ScPackageLike) =
+    new ScalaImportingInsertHandler(null) {
+      override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = {
+        triggerGlobalMemberCompletionFeature()
+        ScImportsHolder(reference).addImportForPath(containingPackage.fqn)
+      }
+    }
+
+  private[global] def createGlobalTopLevelMemberInsertHandler(elementToImport: PsiNamedElement,
+                                                              containingPackage: ScPackageLike) =
+    new ScalaImportingInsertHandler(null) {
+      override protected def qualifyAndImport(reference: ScReferenceExpression): Unit = {
+        triggerGlobalMemberCompletionFeature()
+        val maybePath = Option(containingPackage.fqn)
+          .filter(_.nonEmpty)
+          .map(_ + "." + elementToImport.name)
+          .orElse(ScalaNamesUtil.qualifiedName(elementToImport))
+
+        maybePath.foreach(ScImportsHolder(reference).addImportForPath(_))
+      }
+    }
 
   private[global] def createGlobalMemberInsertHandler(containingClass: PsiClass) =
     new ScalaImportingInsertHandler(containingClass) {

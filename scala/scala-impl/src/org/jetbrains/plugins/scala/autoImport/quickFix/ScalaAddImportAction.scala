@@ -198,7 +198,7 @@ object ScalaAddImportAction {
       val withPrefix = toImport.owner.name + "." + toImport.name
       val newRef = ref.replace(createReferenceExpressionFromText(withPrefix)).asInstanceOf[ScReferenceExpression]
       newRef.qualifier.foreach {
-        case qRef: ScReferenceExpression => qRef.bindToElement(toImport.owner)
+        case qRef: ScReferenceExpression => qRef.bindToElement(toImport.owner.element)
       }
     }
   }

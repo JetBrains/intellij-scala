@@ -77,4 +77,39 @@ class Scala3GlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 2
   )
 
+  def testTopLevelExtensionMethod(): Unit = doCompletionTest(
+    fileText =
+      s"""import tests.Foo
+         |
+         |object Test {
+         |  val foo = Foo('z')
+         |  foo.toC$CARET
+         |}
+         |
+         |package tests:
+         |  final case class Foo(ch: Char)
+         |
+         |  extension (foo: Foo)
+         |    def toChar: Char = foo.ch
+         |end tests
+         |""".stripMargin,
+    resultText =
+      """import tests.{Foo, toChar}
+        |
+        |object Test {
+        |  val foo = Foo('z')
+        |  foo.toChar
+        |}
+        |
+        |package tests:
+        |  final case class Foo(ch: Char)
+        |
+        |  extension (foo: Foo)
+        |    def toChar: Char = foo.ch
+        |end tests
+        |""".stripMargin,
+    item = "toChar",
+    time = 2
+  )
+
 }

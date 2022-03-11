@@ -68,7 +68,7 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
   @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class StaticMethodResult(overloadsToImport: Array[PsiMethod],
                                               override val classToImport: PsiClass)
-    extends GlobalMemberResult(
+    extends GlobalPsiClassMemberResult(
       overloadsToImport match {
         case Array() => throw new IllegalArgumentException(s"$classToImport doesn't contain corresponding members")
         case Array(first) => first
@@ -86,6 +86,6 @@ private final class StaticMembersFinder(place: ScReferenceExpression,
   @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class StaticFieldResult(elementToImport: PsiNamedElement,
                                              override val classToImport: PsiClass)
-    extends GlobalMemberResult(elementToImport, classToImport)(NameAvailability)
+    extends GlobalPsiClassMemberResult(elementToImport, classToImport)(NameAvailability)
 
 }

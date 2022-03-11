@@ -6,8 +6,9 @@ package global
 import com.intellij.codeInsight.completion.InsertHandler
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion}
+import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalMemberOwner}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -32,15 +33,37 @@ private final class ExtensionMethodsFinder(originalType: ScType,
     }
     else Iterable.empty
 
-  private def extensionMethodCandidates = for {
-    (GlobalImplicitConversion(classToImport: ScObject, _, elementToImport), application) <- ImplicitConversionData.getPossibleConversions(place)
-    resolveResult <- candidatesForType(application.resultType)
-  } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
+  private def collectExtensionMethodCandidates[M <: GlobalMember[ScFunction], A](possibleMembers: Map[M, A])
+                                                                                (getResolveResults: (A, ScFunction) => Set[ScalaResolveResult]) =
+    for {
+      (globalMember, application) <- possibleMembers
+      candidateConstructor <- Iterable.from(extensionMethodCandidateConstructor(globalMember.owner))
+      elementToImport = globalMember.member
+      resolveResult <- getResolveResults(application, elementToImport)
+    } yield candidateConstructor(resolveResult, elementToImport)
 
-  private def scala3ExtensionMethodCandidates = for {
-    (GlobalExtensionMethod(classToImport: ScObject, _, elementToImport), _) <- ExtensionMethodData.getPossibleExtensionMethods(place)
-    resolveResult = new ScalaResolveResult(elementToImport, isExtension = elementToImport.isExtensionMethod, extensionContext = elementToImport.extensionMethodOwner)
-  } yield ExtensionMethodCandidate(resolveResult, classToImport, elementToImport)
+  private def extensionMethodCandidates =
+    collectExtensionMethodCandidates(ImplicitConversionData.getPossibleConversions(place)) { (application, _) =>
+      candidatesForType(application.resultType)
+    }
+
+  private def scala3ExtensionMethodCandidates =
+    collectExtensionMethodCandidates(ExtensionMethodData.getPossibleExtensionMethods(place)) { (_, elementToImport) =>
+      val resolveResult = new ScalaResolveResult(
+        elementToImport,
+        isExtension = elementToImport.isExtensionMethod,
+        extensionContext = elementToImport.extensionMethodOwner
+      )
+      Set(resolveResult)
+    }
+
+  private def extensionMethodCandidateConstructor(owner: GlobalMemberOwner): Option[(ScalaResolveResult, ScFunction) => GlobalMemberResult] =
+    Option(owner).collect {
+      case GlobalMemberOwner(classToImport: ScObject) =>
+        ExtensionMethodCandidate(_, classToImport, _)
+      case GlobalMemberOwner(packageToImport: ScPackageLike) =>
+        TopLevelExtensionMethodCandidate(_, packageToImport, _)
+    }
 
   private def candidatesForType(`type`: ScType) =
     CompletionProcessor.variants(`type`, place)
@@ -61,7 +84,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
   private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
                                                     override val classToImport: ScObject,
                                                     elementToImport: ScFunction)
-    extends GlobalMemberResult(resolveResult, classToImport)(NameAvailability) {
+    extends GlobalPsiClassMemberResult(resolveResult, classToImport)(NameAvailability) {
 
     override private[global] def isApplicable =
       super.isApplicable &&
@@ -69,5 +92,18 @@ private final class ExtensionMethodsFinder(originalType: ScType,
 
     override protected def createInsertHandler: InsertHandler[LookupElement] =
       createGlobalMemberInsertHandler(elementToImport, classToImport)
+  }
+
+  private case class TopLevelExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
+                                                      override val packageToImport: ScPackageLike,
+                                                      elementToImport: ScFunction)
+    extends GlobalTopLevelMemberResult(resolveResult, packageToImport)(NameAvailability) {
+
+    override private[global] def isApplicable =
+      super.isApplicable &&
+        nameAvailabilityState == NO_CONFLICT
+
+    override protected def createInsertHandler: InsertHandler[LookupElement] =
+      createGlobalTopLevelMemberInsertHandler(elementToImport, packageToImport)
   }
 }

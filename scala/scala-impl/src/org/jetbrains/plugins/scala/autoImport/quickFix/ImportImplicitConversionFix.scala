@@ -2,17 +2,16 @@ package org.jetbrains.plugins.scala.autoImport.quickFix
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.Editor
-import com.intellij.psi.{PsiDocCommentOwner, PsiNamedElement}
+import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
-import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion, GlobalMember}
+import org.jetbrains.plugins.scala.autoImport.{GlobalExtensionMethod, GlobalImplicitConversion, GlobalMember, GlobalMemberOwner}
 import org.jetbrains.plugins.scala.extensions.{ChildOf, ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionMethodData, ImplicitCollector, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -104,7 +103,7 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
   def missingImplicits: Seq[ScalaResolveResult] = result.missingInstances
 
   private def sortAndMapMembers[GM <: GlobalMember[ScFunction], E <: ElementToImport](members: ArrayBuffer[GM],
-                                                                                      constructor: (ScFunction, ScTypedDefinition, String) => E) =
+                                                                                      constructor: (ScFunction, GlobalMemberOwner, String) => E) =
     members
       .sortBy(e => (isDeprecated(e), e.qualifiedName))
       .toSeq
@@ -121,11 +120,14 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
   }
 
   private def isDeprecated[GM <: GlobalMember[ScFunction]](globalMember: GM): Boolean =
-    isDeprecated(globalMember.owner) || isDeprecated(globalMember.member)
+    isDeprecated(globalMember.owner.element) || isDeprecated(globalMember.member)
 
-  private def isDeprecated(named: PsiNamedElement): Boolean = named.nameContext match {
-    case member: PsiDocCommentOwner => member.isDeprecated
-    case _                          => false
+  private def isDeprecated(element: PsiElement): Boolean = element match {
+    case named: PsiNamedElement => named.nameContext match {
+      case member: PsiDocCommentOwner => member.isDeprecated
+      case _ => false
+    }
+    case _ => false
   }
 
   //todo we already search for implicit parameters, so we could import them together with a conversion
