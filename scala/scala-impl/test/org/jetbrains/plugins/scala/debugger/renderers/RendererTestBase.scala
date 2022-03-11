@@ -1,16 +1,17 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import java.util
-
 import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.jdi.LocalVariablesUtil
 import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
-import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl}
+import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl, ValueDescriptorImpl}
 import com.intellij.debugger.ui.tree._
 import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder}
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 
@@ -42,7 +43,8 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
     variableName: String,
     render: NodeDescriptor => String,
     renderChildren: Boolean,
-    childrenCount: Int
+    childrenCount: Int,
+    findValue: (DebuggerTree, EvaluationContextImpl, String) => ValueDescriptorImpl = localVar
   )(implicit timeout: Duration = DefaultTimeout): (String, List[String]) = {
     val log = new MyTinyLogger()
 
@@ -57,7 +59,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     val testVariable = inSuspendContextAction(timeout, "Too long computing variable value") {
       val context = evaluationContext()
-      val testVariable = localVar(frameTree, context, variableName)
+      val testVariable = findValue(frameTree, context, variableName)
       testVariable.getRenderer(getDebugProcess).thenApply[Unit] { renderer =>
         testVariable.setRenderer(renderer)
         testVariable.updateRepresentation(context, () => {
@@ -169,6 +171,15 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
     } catch {
       case e: EvaluateException => throw e
     }
+  }
+
+  protected def parameter(index: Int)(frameTree: DebuggerTree, context: EvaluationContextImpl, name: String): ValueDescriptorImpl = {
+    val frameProxy = context.getFrameProxy
+    val mapping = LocalVariablesUtil.fetchValues(frameProxy, context.getDebugProcess, true)
+    val (dv, v) = mapping.asScala.toList(index)
+    val param = frameTree.getNodeFactory.getArgumentValueDescriptor(null, dv, v)
+    param.setContext(context)
+    param
   }
 
   private abstract class DummyChildrenBuilder(frameTree: ThreadsDebuggerTree, parentDescriptor: ValueDescriptor) extends ChildrenBuilder {
