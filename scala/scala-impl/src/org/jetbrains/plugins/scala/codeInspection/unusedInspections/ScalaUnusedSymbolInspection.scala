@@ -91,7 +91,9 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       val processor = new TextOccurenceProcessor {
         override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
           inReadAction {
-            if (e2.getContainingFile.isScala3File || e2.getContainingFile.isScala2File) true else {
+            if (e2.getContainingFile.isScala3File || e2.getContainingFile.isScala2File) {
+              true
+            } else {
               used = true
               false
             }
@@ -103,10 +105,22 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         .processElementsWithWord(
           processor,
           element.getUseScope,
-          e.getName,
+          e.getName, // for usage of enum methods through `EnumName.methodName(...)`
           (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
           true
         )
+
+      if (!used) {
+        PsiSearchHelper
+          .getInstance(element.getProject)
+          .processElementsWithWord(
+            processor,
+            element.getUseScope,
+            s"${e.getName}$$.MODULE$$", // for usage of enum methods through `EnumName$.MODULE$.methodName(...)`
+            (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+            true
+          )
+      }
       used
     }
   }
