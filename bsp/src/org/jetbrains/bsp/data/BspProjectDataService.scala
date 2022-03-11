@@ -11,6 +11,7 @@ import com.intellij.openapi.vcs.roots.VcsRootDetector
 import com.intellij.openapi.vcs.{ProjectLevelVcsManager, VcsDirectoryMapping, VcsRoot}
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import com.intellij.pom.java.LanguageLevel
+import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, ScalaAbstractProjectDataService, SdkReference, SdkUtils}
 
@@ -88,14 +89,24 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
     def createFromHome = {
       Option(sdkReference).collect {
         case JdkByHome(home) =>
-          val suffix = if (home.getName == "jre") home.getParentFile.getName else home.getName
-          val name = s"BSP_$suffix"
-          val newJdk = JavaSdk.getInstance.createJdk(name, home.toString)
+          val name = resolveName(home)
+          val newJdk = JavaSdk.getInstance.createJdk(name, home.toString, home.getName == "jre")
           ProjectJdkTable.getInstance.addJdk(newJdk)
           newJdk
       }
     }
 
     SdkUtils.findProjectSdk(sdkReference).orElse(createFromHome)
+  }
+
+  private def resolveName(home: File) = {
+    val suffix = if (home.getName == "jre") home.getParentFile.getName else home.getName
+    val baseName = s"BSP_$suffix"
+    val names = ProjectJdkTable.getInstance.getAllJdks.map(_.getName)
+    if (names.contains(baseName)) {
+      baseName + DigestUtils.md5Hex(home.toString).take(10)
+    } else {
+      baseName
+    }
   }
 }
