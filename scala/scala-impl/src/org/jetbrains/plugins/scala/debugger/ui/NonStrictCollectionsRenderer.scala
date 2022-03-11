@@ -27,7 +27,7 @@ import scala.reflect.NameTransformer
  */
 class NonStrictCollectionsRenderer extends ClassRenderer {
 
-  import ScalaClassRenderer._
+  import ScalaCollectionRenderer._
 
   def getStartIndex: Int = ScalaDebuggerSettings.getInstance().COLLECTION_START_INDEX.intValue()
 
@@ -249,7 +249,7 @@ object NonStrictCollectionsRenderer {
   private val lazyList_2_13 = "scala.collection.immutable.LazyList"
 
   private def size(value: Value, evaluationContext: EvaluationContext): Int =
-    ScalaClassRenderer.evaluateSize(value.asInstanceOf[ObjectReference], evaluationContext)
+    ScalaCollectionRenderer.evaluateSize(value.asInstanceOf[ObjectReference], evaluationContext)
 
   private def checkNotCollectionOfKindAsync(tp: Type, shortNames: String*)(baseClassNames: String*): CompletableFuture[Boolean] =
     if (shortNames.exists(tp.name().contains(_))) completedFuture(false)
