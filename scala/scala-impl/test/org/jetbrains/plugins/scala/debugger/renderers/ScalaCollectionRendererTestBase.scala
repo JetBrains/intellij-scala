@@ -4,7 +4,7 @@ package renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import org.jetbrains.plugins.scala.debugger.ui.ScalaClassRenderer
+import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{Duration, DurationInt}
@@ -127,7 +127,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   }
 
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
-    val shortClassName = ScalaClassRenderer.extractNonQualifiedName(collectionClass)
+    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
     val afterTypeLabel = s"$shortClassName size = $collectionLength"
     testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, collectionLength, checkChildren = true)
   }
@@ -137,7 +137,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
                                             expectedChildrenLabels: Seq[String])
                                            (implicit timeout: Duration): Unit = {
     val collectionLength = expectedChildrenLabels.size
-    val shortClassName = ScalaClassRenderer.extractNonQualifiedName(collectionClass)
+    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
     val afterTypeLabel = s"$shortClassName size = $collectionLength"
     testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, expectedChildrenLabels)(timeout)
   }
