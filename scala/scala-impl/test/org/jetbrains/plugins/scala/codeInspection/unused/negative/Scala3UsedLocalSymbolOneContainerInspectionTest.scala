@@ -49,7 +49,4 @@ class Scala3UsedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolI
          |  Strawberry(42) match { case _: Banana => }
          |end Foo
          |""".stripMargin)
-
-  def testThatShouldFailToPreventAutoMerge(): Unit = assert(false)
 }
-

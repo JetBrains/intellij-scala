@@ -28,7 +28,7 @@ class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase
 
   def test_parameterized_enum(): Unit = testQuickFix("enum Foo(val i: Int) { case Bar }", "", hint)
 
-  def test_enum_case1(): Unit = {
+  def test_enum_case(): Unit = {
     val text =
       s"""
          |@scala.annotation.unused object Foo:
@@ -50,27 +50,6 @@ class Scala3UnusedSymbolQuickFixTest extends ScalaUnusedSymbolInspectionTestBase
     testQuickFix(text, expected, hint)
   }
 
-  def test_enum_case2(): Unit = {
-    val text =
-      s"""
-         |@scala.annotation.unused object Foo:
-         |  enum Fruit:
-         |    case Strawberry, Banana
-         |  end Fruit
-         |  Fruit.Strawberry match { case _ => }
-         |end Foo
-         |""".stripMargin
-    val expected =
-      s"""
-         |@scala.annotation.unused object Foo:
-         |  enum Fruit:
-         |    case Strawberry
-         |  end Fruit
-         |  Fruit.Strawberry match { case _ => }
-         |end Foo
-         |""".stripMargin
-    testQuickFix(text, expected, hint)
-  }
 
   def test_enum_case3(): Unit = {
     val text =
