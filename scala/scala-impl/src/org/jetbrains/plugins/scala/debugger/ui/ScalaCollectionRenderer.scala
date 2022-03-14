@@ -10,6 +10,7 @@ import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelLis
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
 import java.util.concurrent.CompletableFuture
 import scala.reflect.NameTransformer
@@ -21,10 +22,15 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   override def getName: String = ScalaBundle.message("scala.collection.renderer")
 
   override def isApplicableFor(tpe: Type): Boolean = {
-    super.isApplicableFor(tpe) && (tpe match {
-      case ct: ClassType if isFiniteCollection(ct) => true
-      case _ => false
-    })
+    super.isApplicableFor(tpe) && {
+      def shouldAlsoHandleLazyCollections: Boolean = !ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
+
+      tpe match {
+        case ct: ClassType if isCollection(ct) && shouldAlsoHandleLazyCollections => true
+        case ct: ClassType if isFiniteCollection(ct) => true
+        case _ => false
+      }
+    }
   }
 
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String =
@@ -66,6 +72,9 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 }
 
 private[debugger] object ScalaCollectionRenderer {
+  def isCollection(ct: ClassType): Boolean =
+    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
+
   def isFiniteCollection(ct: ClassType): Boolean = {
     def isView: Boolean =
       DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
@@ -75,7 +84,7 @@ private[debugger] object ScalaCollectionRenderer {
       DebuggerUtils.instanceOf(ct, "scala.collection.immutable.LazyList") ||
         DebuggerUtils.instanceOf(ct, "scala.collection.immutable.Stream")
 
-    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable") && !isView && !isLazyList
+    isCollection(ct) && !isView && !isLazyList
   }
 
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
