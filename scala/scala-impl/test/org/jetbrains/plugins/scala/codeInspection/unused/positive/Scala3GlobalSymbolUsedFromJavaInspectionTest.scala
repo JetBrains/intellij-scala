@@ -14,7 +14,6 @@ class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInsp
         |public class Bar {
         |    public static void main(String[] args) {
         |       var foo = Foo.FOO;
-        |       System.out.println(foo.toString());
         |    }
         |}
         |""".stripMargin)
@@ -32,7 +31,6 @@ class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInsp
         |public class Bar {
         |    public static void main(String[] args) {
         |       var bar = Foo.BAR;
-        |       System.out.println(bar.toString());
         |    }
         |}
         |""".stripMargin)
@@ -69,7 +67,6 @@ class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInsp
         |public class Bar {
         |    public static void main(String[] args) {
         |       var enumSet = EnumSet.allOf(Foo.class);
-        |       System.out.println(enumSet)
         |    }
         |}
         |""".stripMargin)
@@ -88,7 +85,6 @@ class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInsp
         |public class Bar {
         |    public static void main(String[] args) {
         |       var enumSet = EnumSet.complementOf(EnumSet.of(Foo.FOO));
-        |       System.out.println(enumSet)
         |    }
         |}
         |""".stripMargin)
@@ -107,7 +103,6 @@ class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInsp
         |public class Bar {
         |    public static void main(String[] args) {
         |       var enumSet = EnumSet.range(Foo.FOO, Foo.BAR);
-        |       System.out.println(enumSet)
         |    }
         |}
         |""".stripMargin)
