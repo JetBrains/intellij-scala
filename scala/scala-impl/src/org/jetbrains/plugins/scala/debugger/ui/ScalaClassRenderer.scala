@@ -8,6 +8,8 @@ import com.intellij.debugger.ui.tree.render.{ClassRenderer, DescriptorLabelListe
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import scala.util.Try
+
 class ScalaClassRenderer extends ClassRenderer {
 
   import ScalaClassRenderer._
@@ -17,7 +19,7 @@ class ScalaClassRenderer extends ClassRenderer {
   override def getName: String = ScalaBundle.message("scala.class.renderer")
 
   def isApplicableFor(tpe: Type): Boolean = tpe match {
-    case ct: ClassType => ct.sourceName().endsWith(".scala")
+    case ct: ClassType => Try(ct.sourceName().endsWith(".scala")).getOrElse(false)
     case _ => false
   }
 
