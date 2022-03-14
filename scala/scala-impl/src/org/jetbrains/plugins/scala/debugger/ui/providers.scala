@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.debugger.ui
 
 import com.intellij.debugger.ui.tree.render.{ChildrenRenderer, CompoundRendererProvider, ValueLabelRenderer}
 import com.sun.jdi.Type
+import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
 import java.util.concurrent.CompletableFuture
 
@@ -21,4 +22,6 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
 
 class ScalaClassRendererProvider extends ScalaRendererProvider(new ScalaClassRenderer())
 
-class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer())
+class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer()) {
+  override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
+}
