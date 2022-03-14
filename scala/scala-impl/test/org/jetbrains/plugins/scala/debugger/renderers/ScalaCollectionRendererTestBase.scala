@@ -33,7 +33,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
   )
 
   def testLazy(): Unit = {
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(42, ?)")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")
   }
 }
 @Category(Array(classOf[DebuggerTests]))
@@ -53,8 +53,8 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
       """.replace("\r", "").stripMargin.trim
   )
   def testLazy(): Unit = {
-    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList(<not computed>)")(10.seconds)
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(1, <not computed>)")(10.seconds)
+    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList size = ?")(10.seconds)
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")(10.seconds)
   }
 }
 

@@ -1,18 +1,17 @@
 package org.jetbrains.plugins.scala.debugger
 package ui
 
-import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
+import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
-import java.util.concurrent.CompletableFuture
 import scala.reflect.NameTransformer
 
 class ScalaCollectionRenderer extends ScalaClassRenderer {
@@ -21,21 +20,18 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def getName: String = ScalaBundle.message("scala.collection.renderer")
 
-  override def isApplicableFor(tpe: Type): Boolean = {
-    super.isApplicableFor(tpe) && {
-      def shouldAlsoHandleLazyCollections: Boolean = !ScalaDebuggerSettings.getInstance().DO_NOT_DISPLAY_STREAMS
-
-      tpe match {
-        case ct: ClassType if isCollection(ct) && shouldAlsoHandleLazyCollections => true
-        case ct: ClassType if isFiniteCollection(ct) => true
-        case _ => false
-      }
+  override def isApplicableFor(tpe: Type): Boolean =
+    tpe match {
+      case ct: ClassType if isCollection(ct) => true
+      case _ => false
     }
-  }
+
+  override def isEnabled: Boolean =
+    ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String =
     descriptor.getType match {
-      case ct: ClassType if isFiniteCollection(ct) =>
+      case ct: ClassType if isCollection(ct) =>
         val ref = descriptor.getValue.asInstanceOf[ObjectReference]
         val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
         val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
@@ -48,7 +44,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit =
     value.`type`() match {
-      case ct: ClassType if isFiniteCollection(ct) =>
+      case ct: ClassType if isCollection(ct) =>
         val ref = value.asInstanceOf[ObjectReference]
         val array = evaluateToArray(ref, context)
         val renderer = NodeRendererSettings.getInstance().getArrayRenderer
@@ -56,26 +52,13 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
       case _ =>
         super.buildChildren(value, builder, context)
     }
-
-  override def isExpandableAsync(value: Value,
-                                 context: EvaluationContext,
-                                 descriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] =
-    value.`type`() match {
-      case ct: ClassType if isFiniteCollection(ct) =>
-        val ref = value.asInstanceOf[ObjectReference]
-        val result = evaluateNonEmpty(ref, context) && evaluateHasDefiniteSize(ref, context)
-        CompletableFuture.completedFuture(result)
-
-      case _ =>
-        super.isExpandableAsync(value, context, descriptor)
-    }
 }
 
 private[debugger] object ScalaCollectionRenderer {
   def isCollection(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
 
-  def isFiniteCollection(ct: ClassType): Boolean = {
+  def isNonStrictCollection(ct: ClassType): Boolean = {
     def isView: Boolean =
       DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
         DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
@@ -84,7 +67,7 @@ private[debugger] object ScalaCollectionRenderer {
       DebuggerUtils.instanceOf(ct, "scala.collection.immutable.LazyList") ||
         DebuggerUtils.instanceOf(ct, "scala.collection.immutable.Stream")
 
-    isCollection(ct) && !isView && !isLazyList
+    isCollection(ct: ClassType) && (isLazyList || isView)
   }
 
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
@@ -111,7 +94,21 @@ private[debugger] object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[BooleanValue].value()
 
-  private def evaluateToArray(ref: ObjectReference, context: EvaluationContext): ObjectReference =
+  private def evaluateIterableOperation(name: String)(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
+    ScalaMethodEvaluator(
+      new IdentityEvaluator(ref),
+      name,
+      JVMNameUtil.getJVMRawText("(I;)Lscala/collection/Iterable"),
+      Seq(new IntEvaluator(n))
+    ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
+
+  def evaluateDrop(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
+    evaluateIterableOperation("drop")(ref, n, context)
+
+  def evaluateTake(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
+    evaluateIterableOperation("take")(ref, n, context)
+
+  def evaluateToArray(ref: ObjectReference, context: EvaluationContext): ObjectReference =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "toArray",
@@ -135,5 +132,10 @@ private[debugger] object ScalaCollectionRenderer {
 
   implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
+  }
+
+  private class IntEvaluator(n: Int) extends Evaluator {
+    override def evaluate(context: EvaluationContextImpl): IntegerValue =
+      context.getDebugProcess.getVirtualMachineProxy.mirrorOf(n)
   }
 }

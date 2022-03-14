@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.ui
 
 import com.intellij.debugger.ui.tree.render.{ChildrenRenderer, CompoundRendererProvider, ValueLabelRenderer}
 import com.sun.jdi.Type
-import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 
 import java.util.concurrent.CompletableFuture
 
@@ -14,7 +13,7 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
 
   override def getChildrenRenderer: ChildrenRenderer = renderer
 
-  override def isEnabled: Boolean = true
+  override def isEnabled: Boolean = renderer.isEnabled
 
   override def getIsApplicableChecker: java.util.function.Function[Type, CompletableFuture[java.lang.Boolean]] =
     tpe => CompletableFuture.completedFuture(renderer.isApplicableFor(tpe))
@@ -22,6 +21,6 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
 
 class ScalaClassRendererProvider extends ScalaRendererProvider(new ScalaClassRenderer())
 
-class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer()) {
-  override def isEnabled: Boolean = ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
-}
+class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer())
+
+class ScalaNonStrictCollectionRendererProvider extends ScalaRendererProvider(new ScalaNonStrictCollectionRenderer())

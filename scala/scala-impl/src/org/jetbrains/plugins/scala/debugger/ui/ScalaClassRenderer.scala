@@ -19,9 +19,11 @@ class ScalaClassRenderer extends ClassRenderer {
   override def getName: String = ScalaBundle.message("scala.class.renderer")
 
   def isApplicableFor(tpe: Type): Boolean = tpe match {
-    case ct: ClassType => Try(ct.sourceName().endsWith(".scala")).getOrElse(false)
+    case ct: ClassType => isScalaSource(ct)
     case _ => false
   }
+
+  override def isEnabled: Boolean = true
 
   override def shouldDisplay(context: EvaluationContext, objInstance: ObjectReference, field: Field): Boolean =
     !ScalaSyntheticProvider.hasSpecialization(field, Some(objInstance.referenceType())) &&
@@ -45,4 +47,7 @@ private object ScalaClassRenderer {
   def isBitmap(f: Field): Boolean = f.name().contains(Bitmap)
 
   def isOffset(f: Field): Boolean = f.name().startsWith(Offset)
+
+  def isScalaSource(ct: ClassType): Boolean =
+    Try(ct.sourceName().endsWith(".scala")).getOrElse(false)
 }
