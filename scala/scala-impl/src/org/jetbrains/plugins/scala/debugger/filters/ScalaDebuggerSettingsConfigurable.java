@@ -29,7 +29,6 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     private JCheckBox dontShowRuntimeRefs;
     private JCheckBox doNotExpandStreamsCheckBox;
     private JCheckBox showOuterVariables;
-    private boolean isModified = false;
     private final ScalaDebuggerSettings mySettings;
 
     public ScalaDebuggerSettingsConfigurable(final ScalaDebuggerSettings settings) {
@@ -73,8 +72,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     }
 
     public boolean isModified() {
-        return mySettings.COLLECTION_START_INDEX != myStartIndexSpinner.getValue() ||
-                mySettings.COLLECTION_END_INDEX != myEndIndexSpinner.getValue() ||
+        return mySettings.COLLECTION_START_INDEX != (int) myStartIndexSpinner.getValue() ||
+                mySettings.COLLECTION_END_INDEX != (int) myEndIndexSpinner.getValue() ||
                 mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isSelected() ||
                 mySettings.DONT_SHOW_RUNTIME_REFS != dontShowRuntimeRefs.isSelected() ||
                 mySettings.DO_NOT_DISPLAY_STREAMS != doNotExpandStreamsCheckBox.isSelected() ||
@@ -84,8 +83,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     public void apply() throws ConfigurationException {
         mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isSelected();
         mySettings.DONT_SHOW_RUNTIME_REFS = dontShowRuntimeRefs.isSelected();
-        mySettings.COLLECTION_START_INDEX = (Integer) myStartIndexSpinner.getValue();
-        mySettings.COLLECTION_END_INDEX = (Integer) myEndIndexSpinner.getValue();
+        mySettings.COLLECTION_START_INDEX = intFromObject(myStartIndexSpinner.getValue());
+        mySettings.COLLECTION_END_INDEX = intFromObject(myEndIndexSpinner.getValue());
         mySettings.DO_NOT_DISPLAY_STREAMS = doNotExpandStreamsCheckBox.isSelected();
         mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES = showOuterVariables.isSelected();
     }
@@ -100,6 +99,10 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     }
 
     public void disposeUIResources() {
+    }
+
+    private static int intFromObject(Object o) {
+        return o == null ? 0 : (int) ((Integer) o);
     }
 
     {

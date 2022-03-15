@@ -7,6 +7,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import com.intellij.xdebugger.settings.DebuggerSettingsCategory;
 import com.intellij.xdebugger.settings.XDebuggerSettings;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.ScalaBundle;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,14 +19,14 @@ import static java.util.Collections.singletonList;
  */
 public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> implements Getter<ScalaDebuggerSettings> {
 
-  public Boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
-  public Boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
-  public Boolean DONT_SHOW_RUNTIME_REFS = true;
-  public Boolean DO_NOT_DISPLAY_STREAMS = true;
-  public Integer COLLECTION_START_INDEX = 0;
-  public Integer COLLECTION_END_INDEX = 49;
-  public Boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
-  public Boolean ALWAYS_SMART_STEP_INTO = true;
+  public boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
+  public boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
+  public boolean DONT_SHOW_RUNTIME_REFS = true;
+  public boolean DO_NOT_DISPLAY_STREAMS = true;
+  public int COLLECTION_START_INDEX = 0;
+  public int COLLECTION_END_INDEX = 49;
+  public boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
+  public boolean ALWAYS_SMART_STEP_INTO = true;
 
   public ScalaDebuggerSettings() {
     super("scala_debugger");
@@ -39,17 +40,18 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
       case GENERAL:
         return singletonList(new ScalaDebuggerSettingsConfigurable(this));
       case STEPPING:
-        return singletonList(SimpleConfigurable.create("scala.debugger.stepping" ,"Scala", ScalaSteppingConfigurable.class, this));
-
+        final var displayName = ScalaBundle.message("scala.debug.caption");
+        return singletonList(SimpleConfigurable.create("scala.debugger.stepping", displayName, ScalaSteppingConfigurable.class, this));
+      default:
+        return Collections.emptyList();
     }
-    return Collections.emptyList();
   }
 
   public ScalaDebuggerSettings getState() {
     return this;
   }
 
-  public void loadState(final ScalaDebuggerSettings state) {
+  public void loadState(@NotNull final ScalaDebuggerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }
 

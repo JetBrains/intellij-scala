@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.debugger.filters;
 
 import com.intellij.ui.classFilter.ClassFilter;
 import com.intellij.ui.classFilter.DebuggerClassFilterProvider;
-import com.intellij.util.Function;
-import com.intellij.util.containers.ContainerUtil;
-import org.jetbrains.annotations.NonNls;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,26 +12,19 @@ import java.util.List;
  */
 public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProvider {
 
-  @NonNls
-  private static final String[] PROHIBITED_CLASS_PATTERNS =
-    {"scala.*"};
+    private static final String[] PROHIBITED_CLASS_PATTERNS = {"scala.*"};
 
-  private static ClassFilter[] FILTERS = ContainerUtil.map(PROHIBITED_CLASS_PATTERNS, new Function<String, ClassFilter>() {
-    public ClassFilter fun(final String s) {
-      return new ClassFilter(s);
+    private static final ClassFilter[] FILTERS =
+            Arrays.stream(PROHIBITED_CLASS_PATTERNS).map(ClassFilter::new).toArray(ClassFilter[]::new);
+
+    public List<ClassFilter> getFilters() {
+        final var settings = ScalaDebuggerSettings.getInstance();
+        final var flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
+        final var list = new ArrayList<ClassFilter>();
+        if (flag) {
+            list.addAll(Arrays.asList(FILTERS));
+            return list;
+        }
+        return list;
     }
-  }, new ClassFilter[0]);
-
-  public List<ClassFilter> getFilters() {
-
-    final ScalaDebuggerSettings settings = ScalaDebuggerSettings.getInstance();
-    final Boolean flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
-    final ArrayList<ClassFilter> list = new ArrayList<ClassFilter>();
-    if (flag == null || flag) {
-      list.addAll(Arrays.asList(FILTERS));
-      return list;
-    }
-    return list;
-  }
-
 }
