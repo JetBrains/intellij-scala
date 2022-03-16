@@ -19,7 +19,7 @@ trait ScClassParameter extends ScParameter with ScMember.WithBaseIconProvider {
 
   def isPrivateThis: Boolean
 
-  def isClassMember: Boolean = isVal || isVar || isCaseClassVal || isEnumVal || isEnumCaseVal
+  def isClassMember: Boolean = isVal || isVar || isCaseClassVal
 
   /** Is the parameter automatically a val, due to its position in a case class parameter list */
   def isCaseClassVal: Boolean
