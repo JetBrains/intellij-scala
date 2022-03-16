@@ -7,10 +7,9 @@ import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
+import com.intellij.psi.search._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -28,7 +27,9 @@ import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUti
 
 import scala.jdk.CollectionConverters._
 
-class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
+abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspection {
+  import ScalaUnusedSymbolInspectionBase._
+
   override def isEnabledByDefault: Boolean = true
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
@@ -39,12 +40,12 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         localSearch(element)
       } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
         true
+      } else if (!isReportPublicSymbols) {
+        true
+      } else if (checkIfEnumUsedOutsideScala(element)) {
+        true
       } else {
-        if (checkIfEnumUsedOutsideScala(element)) {
-          true
-        } else {
-          textSearch(element)
-        }
+        textSearch(element)
       }
     } else {
       //need to look for references because file is not highlighted
@@ -166,40 +167,42 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) => Seq.empty
       case named: ScNamedElement =>
         if (!isElementUsed(named, isOnTheFly)) {
-          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspection.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, DeleteUnusedElementFix.quickfixesFor(named)))
+          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspectionBase.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, DeleteUnusedElementFix.quickfixesFor(named)))
         } else Seq.empty
       case _ => Seq.empty
     }
   }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
-      case _: ScSelfTypeElement => false
-      case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
-      case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
-      case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-      case t: ScTypeDefinition if t.isSAMable => false
-      case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
-      case n: ScNamedElement =>
-        n match {
-          case p: ScModifierListOwner if hasOverrideModifier(p) => false
-          case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) ||
-            (!fd.isPrivate && TestSourcesFilter.isTestSources(fd.getContainingFile.getVirtualFile, fd.getProject)) => false
-          case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
-          case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
-          case p: ScParameter =>
-            p.parent.flatMap(_.parent.flatMap(_.parent)) match {
-              case Some(f: ScFunctionDeclaration) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false
-              case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
-                isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
-              case _ => true
-            }
-          case _ => true
-        }
-      case _ => false
-    }
+    case _: ScSelfTypeElement => false
+    case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
+    case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
+    case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
+    case t: ScTypeDefinition if t.isSAMable => false
+    case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
+    case n: ScNamedElement =>
+      n match {
+        case p: ScModifierListOwner if hasOverrideModifier(p) => false
+        case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) ||
+          (!fd.isPrivate && TestSourcesFilter.isTestSources(fd.getContainingFile.getVirtualFile, fd.getProject)) => false
+        case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+        case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
+        case p: ScParameter =>
+          p.parent.flatMap(_.parent.flatMap(_.parent)) match {
+            case Some(f: ScFunctionDeclaration) if ScalaOverridingMemberSearcher.search(f).nonEmpty => false
+            case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
+              isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
+            case _ => true
+          }
+        case _ => true
+      }
+    case _ => false
+  }
+
+  def isReportPublicSymbols: Boolean
 }
 
-object ScalaUnusedSymbolInspection {
+object ScalaUnusedSymbolInspectionBase {
   @Nls
   val annotationDescription: String = ScalaInspectionBundle.message("declaration.is.never.used")
 
