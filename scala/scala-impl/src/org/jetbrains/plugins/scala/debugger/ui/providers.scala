@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.ui.tree.render.{ChildrenRenderer, CompoundRendererProvider, ValueLabelRenderer}
 import com.sun.jdi.Type
 
@@ -16,7 +17,7 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
   override def isEnabled: Boolean = renderer.isEnabled
 
   override def getIsApplicableChecker: java.util.function.Function[Type, CompletableFuture[java.lang.Boolean]] =
-    tpe => CompletableFuture.completedFuture(renderer.isApplicableFor(tpe))
+    tpe => DebuggerUtilsAsync.reschedule(CompletableFuture.supplyAsync(() => renderer.isApplicableFor(tpe)))
 }
 
 class ScalaClassRendererProvider extends ScalaRendererProvider(new ScalaClassRenderer())
