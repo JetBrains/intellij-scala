@@ -201,7 +201,7 @@ class ScalaColorsAndFontsPage extends RainbowColorSettingsPage {
       |  <keyword>def</keyword> <methoddecl>foo</methoddecl><colon>:</colon> <class>ScalaClass</class> <assign>=</assign> <keyword>new</keyword> <class>ScalaClass</class><par>(</par><number>23</number>, <number>9</number><par>)</par>
       |<brace>}</brace>
       |
-      |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par> <brace>{</brace><keyword>val</keyword> <attribute>name</attribute> <assign>=</assign> value<brace>}</brace>
+      |<annotation>@Annotation</annotation><par>(</par><number>2</number><par>)</par>
       |<keyword>trait</keyword> <trait>Trait</trait> <brace>{</brace>
       |<brace>}</brace>
       |

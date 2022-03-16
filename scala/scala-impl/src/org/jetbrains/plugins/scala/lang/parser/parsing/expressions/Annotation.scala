@@ -9,7 +9,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import scala.annotation.tailrec
 
 /*
- * Annmotation ::= '@' AnnotationExpr [nl]
+ * Scala 2.13:
+ * Annotation  ::= '@' SimpleType {ArgumentExprs}
+ *
+ * Effectively the same as:
+ * 'Annotation  ::= @' AnnotationExpr
  */
 object Annotation {
 
