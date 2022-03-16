@@ -158,20 +158,30 @@ abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspectio
     used
   }
 
-  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = if (!shouldProcessElement(element)) Seq.empty else {
-    val elements: Seq[PsiElement] = element match {
-      case named: ScNamedElement => Seq(named)
-      case _ => Seq.empty
+  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] =
+    if (!shouldProcessElement(element)) {
+      Seq.empty
+    } else {
+      val elements: Seq[PsiElement] = element match {
+        case named: ScNamedElement => Seq(named)
+        case _ => Seq.empty
+      }
+      elements.flatMap {
+        case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
+          Seq.empty
+        case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
+          Seq(
+            ProblemInfo(
+              named.nameId,
+              ScalaUnusedSymbolInspectionBase.annotationDescription,
+              ProblemHighlightType.LIKE_UNUSED_SYMBOL,
+              DeleteUnusedElementFix.quickfixesFor(named) :+ new DontReportPublicSymbolsQuickFix(named)
+            )
+          )
+        case _ =>
+          Seq.empty
+      }
     }
-    elements.flatMap {
-      case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) => Seq.empty
-      case named: ScNamedElement =>
-        if (!isElementUsed(named, isOnTheFly)) {
-          Seq(ProblemInfo(named.nameId, ScalaUnusedSymbolInspectionBase.annotationDescription, ProblemHighlightType.LIKE_UNUSED_SYMBOL, DeleteUnusedElementFix.quickfixesFor(named)))
-        } else Seq.empty
-      case _ => Seq.empty
-    }
-  }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case _: ScSelfTypeElement => false
@@ -200,6 +210,8 @@ abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspectio
   }
 
   def isReportPublicSymbols: Boolean
+
+  def setReportPublicSymbols(reportPublicSymbols: Boolean): Unit
 }
 
 object ScalaUnusedSymbolInspectionBase {
