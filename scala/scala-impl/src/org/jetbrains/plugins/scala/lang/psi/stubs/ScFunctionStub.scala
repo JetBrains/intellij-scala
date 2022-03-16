@@ -16,7 +16,8 @@ trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScMemberOrLocal
   with ScTypeElementOwnerStub[F]
   with ScExpressionOwnerStub[F]
-  with ScImplicitStub {
+  with ScImplicitStub
+  with ScGivenStub {
 
   def implicitConversionParameterClass: Option[String]
 

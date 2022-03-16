@@ -41,6 +41,8 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeNames(stub.implicitClassNames)
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
+    dataStream.writeBoolean(stub.isGiven)
+    dataStream.writeNames(stub.givenClassNames)
   }
 
   override final def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
@@ -62,7 +64,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       implicitConversionParameterClass = dataStream.readOptionName,
       implicitClassNames               = dataStream.readNames,
       isTopLevel                       = dataStream.readBoolean,
-      topLevelQualifier                = dataStream.readOptionName
+      topLevelQualifier                = dataStream.readOptionName,
+      isGiven                          = dataStream.readBoolean,
+      givenClassNames                  = dataStream.readNames,
     )
 
   override final def createStubImpl(definition: TypeDef,
@@ -113,6 +117,11 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       case _                => (false, None)
     }
 
+    val (isGivenDefinition, givenDefinitionClassNames) = definition match {
+      case givenDef: ScGivenDefinition => (true, ScGivenStub.givenDefinitionClassNames(givenDef))
+      case _                           => (false, EMPTY_STRING_ARRAY)
+    }
+
     new ScTemplateDefinitionStubImpl(
       parent,
       this,
@@ -131,7 +140,9 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       implicitConversionParameterClass = implicitConversionParamClass,
       implicitClassNames               = implicitClassNames,
       isTopLevel                       = isTopLevel,
-      topLevelQualifier                = topLevelQualifier
+      topLevelQualifier                = topLevelQualifier,
+      isGiven                          = isGivenDefinition,
+      givenClassNames                  = givenDefinitionClassNames,
     )
   }
 
@@ -185,6 +196,7 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
         sink.occurrence(TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY, pack)
 
       stub.indexImplicits(sink)
+      stub.indexGivens(sink)
     }
     if (stub.isPackageObject) {
       val packageName = fqn.stripSuffix(".package")

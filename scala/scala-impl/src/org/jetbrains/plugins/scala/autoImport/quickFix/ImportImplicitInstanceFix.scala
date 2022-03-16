@@ -11,10 +11,10 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isE
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
+import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitInstanceIndex, ScGivenIndex}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritorsNames
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
@@ -114,13 +114,22 @@ object ImportImplicitInstanceFix {
                                   scope: GlobalSearchScope,
                                   place: ImplicitArgumentsOwner): Set[GlobalImplicitInstance] = {
     val collector = new ImplicitCollector(place, `type`, `type`, None, false, fullInfo = true)
+
+    val types = `type` match {
+      case ScCompoundType(components, _, _) => components.toSet
+      case _ => Set(`type`)
+    }
+
     for {
-      clazz <- `type`.extractClass.toSet[PsiClass]
+      tpe <- types
+      clazz <- tpe.extractClass.toSet[PsiClass]
 
       qualifiedName <- withStableInheritorsNames(clazz, scope)
       if !isRootClass(qualifiedName)
 
-      candidateMember <- ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject)
+      candidateMember <-
+        ImplicitInstanceIndex.forClassFqn(qualifiedName, scope)(place.getProject) ++
+          ScGivenIndex.forClassFqn(qualifiedName, scope)(place.getProject)
 
       global <- findGlobalMembers(candidateMember, scope)(GlobalImplicitInstance(_, _, _))
       if checkCompatible(global, collector)

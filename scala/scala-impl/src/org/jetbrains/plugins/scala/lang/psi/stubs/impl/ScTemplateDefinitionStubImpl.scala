@@ -30,7 +30,9 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
   override val implicitConversionParameterClass: Option[String],
   override val implicitClassNames:               Array[String],
   override val isTopLevel:                       Boolean,
-  override val topLevelQualifier:                Option[String]
+  override val topLevelQualifier:                Option[String],
+  override val isGiven:                          Boolean,
+  override val givenClassNames:                  Array[String],
 ) extends ScNamedStubBase[TypeDef](parent, elementType, nameRef)
     with ScTemplateDefinitionStub[TypeDef] {
 

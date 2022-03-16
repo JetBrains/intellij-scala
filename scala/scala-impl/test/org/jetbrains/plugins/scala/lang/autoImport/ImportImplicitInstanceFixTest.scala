@@ -5,19 +5,28 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-class ImportImplicitInstanceFixTest extends ImportElementFixTestBase[ImplicitArgumentsOwner] {
+import scala.annotation.tailrec
+
+abstract class ImportImplicitInstanceFixTestBase extends ImportElementFixTestBase[ImplicitArgumentsOwner] {
+  @tailrec
   private def findImplicitArgs(owner: ImplicitArgumentsOwner): Option[Seq[ScalaResolveResult]] =
     owner.findImplicitArguments match {
-      case None => owner.parentOfType[ImplicitArgumentsOwner].flatMap(findImplicitArgs)
+      case None =>
+        owner.parentOfType[ImplicitArgumentsOwner] match {
+          case Some(parent) => findImplicitArgs(parent)
+          case _ => None
+        }
       case args => args
     }
 
-  override def createFix(element: ImplicitArgumentsOwner) = {
+  override def createFix(element: ImplicitArgumentsOwner) =
     for {
       args <- findImplicitArgs(element)
       notFound = args.filter(_.isNotFoundImplicitParameter)
-    } yield ImportImplicitInstanceFix(() => notFound.toSeq, element)
-  }
+    } yield ImportImplicitInstanceFix(() => notFound, element)
+}
+
+final class ImportImplicitInstanceFixTest extends ImportImplicitInstanceFixTestBase {
 
   def testExecutionContext(): Unit = checkElementsToImport(
     s"""
