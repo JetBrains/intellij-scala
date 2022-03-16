@@ -158,29 +158,26 @@ class ImportExtensionMethodFixText
        |""".stripMargin
   )
 
-  // TODO: Support given definitions in auto-import (SCL-19396)
-  def testExtensionInsideGiven(): Unit = failing {
-    checkElementsToImport(
-      s"""package tests
-         |
-         |final case class Context(things: Vector[String]) {
-         |  def add(something: String) = Context(things :+ something)
-         |}
-         |
-         |object Extensions:
-         |  given ops: AnyRef with
-         |    extension (c: Context)
-         |      def addSomething(something: String) =
-         |        c.add(something)
-         |end Extensions
-         |
-         |val context = Context(Vector("foo", "bar"))
-         |context.${CARET}addSomething("baz")
-         |""".stripMargin,
+  def testExtensionInsideGiven(): Unit = checkElementsToImport(
+    s"""package tests
+       |
+       |final case class Context(things: Vector[String]) {
+       |  def add(something: String) = Context(things :+ something)
+       |}
+       |
+       |object Extensions:
+       |  given ops: AnyRef with
+       |    extension (c: Context)
+       |      def addSomething(something: String) =
+       |        c.add(something)
+       |end Extensions
+       |
+       |val context = Context(Vector("foo", "bar"))
+       |context.${CARET}addSomething("baz")
+       |""".stripMargin,
 
-      "tests.Extensions.ops"
-    )
-  }
+    "tests.Extensions.ops"
+  )
 
   def testIncludeTopLevelExtension(): Unit = checkElementsToImport(
     s"""package tests

@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.psi.search.GlobalSearchScope
+import org.jetbrains.plugins.scala.extensions.{&&, Parent}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil.{findAllInheritorObjectsForOwner, findInheritorObjectsForOwner, findPackageForTopLevelMember}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.StableValIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withAllInheritors
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -53,7 +55,16 @@ object GlobalMember {
         containingObject <- findAllInheritorObjectsForOwner(valueOfClassType)
       } yield constructor(GlobalMemberOwner.TypedDefinition(named), containingObject.qualifiedName + "." + named.name, member)
 
-      fromPackage ++ fromInheritors
+      val fromGivens = member match {
+        case fn: ScFunction =>
+          fn.extensionMethodOwner.toSet[ScExtension].collect {
+            case Parent((_: ScTemplateBody) && Parent((_: ScExtendsBlock) && Parent(givenDef: ScGivenDefinition))) =>
+              constructor(GlobalMemberOwner.GivenDefinition(givenDef), givenDef.qualifiedName, member)
+          }
+        case _ => Set.empty
+      }
+
+      fromPackage ++ fromInheritors ++ fromGivens
     }
   }
 }

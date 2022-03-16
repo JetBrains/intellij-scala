@@ -30,6 +30,11 @@ object Presentation {
       case (_, string)                                                 => string
     }
 
+  def withDeprecation(element: PsiElement, path: String): String = element match {
+    case member: PsiDocCommentOwner if member.isDeprecated => asDeprecated(path)
+    case _                                                 => path
+  }
+
   def withDeprecation(psiClass: PsiClass): String = {
     if (psiClass.isDeprecated) asDeprecated(psiClass.qualifiedName)
     else psiClass.qualifiedName

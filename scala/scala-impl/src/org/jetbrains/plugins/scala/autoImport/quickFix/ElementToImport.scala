@@ -52,10 +52,15 @@ final case class ExtensionMethodToImport(override val element: ScFunction,
                                          pathToOwner: String) extends ElementToImport {
   override protected type E = ScFunction
 
-  override def qualifiedName: String = pathToOwner + "." + name
+  override def qualifiedName: String = owner match {
+    case GlobalMemberOwner.GivenDefinition(_) => pathToOwner
+    case _ => pathToOwner + "." + name
+  }
 
-  override def presentationBody: String =
-    Presentation.withDeprecations(element, owner.element, pathToOwner)
+  override def presentationBody: String = owner match {
+    case GlobalMemberOwner.GivenDefinition(_) => Presentation.withDeprecation(owner.element, pathToOwner)
+    case _ => Presentation.withDeprecations(element, owner.element, pathToOwner)
+  }
 }
 
 object ExtensionMethodToImport {

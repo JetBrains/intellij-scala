@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.autoImport
 
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.hasStablePath
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -36,6 +36,12 @@ object GlobalMemberOwner {
 
   final case class Packaging(override val element: ScPackaging) extends GlobalMemberOwner {
     override val name: String = element.packageName
+
+    override def substitutor(member: ScMember): ScSubstitutor = ScSubstitutor.empty
+  }
+
+  final case class GivenDefinition(override val element: ScGivenDefinition) extends GlobalMemberOwner {
+    override val name: String = element.name
 
     override def substitutor(member: ScMember): ScSubstitutor = ScSubstitutor.empty
   }
