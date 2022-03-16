@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.codeInspection.unusedInspections;
 
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
 import javax.swing.*;
 
-public class ScalaUnusedSymbolInspection extends ScalaUnusedSymbolInspectionBase {
-    public static boolean reportPublicSymbols = true;
+public final class ScalaUnusedSymbolInspection extends ScalaUnusedSymbolInspectionBase {
+    public boolean reportPublicSymbols = true;
 
     public boolean isReportPublicSymbols() {
         return reportPublicSymbols;
     }
 
-    @Nullable
+    public void setReportPublicSymbols(boolean reportPublicSymbols) {
+        this.reportPublicSymbols = reportPublicSymbols;
+    }
+
     @Override
     public JComponent createOptionsPanel() {
         return new SingleCheckboxOptionsPanel(
