@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.engine.evaluation.EvaluationContext
+import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
+import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
 import com.intellij.debugger.ui.tree.ValueDescriptor
-import com.intellij.debugger.ui.tree.render.{ClassRenderer, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, ClassRenderer, DescriptorLabelListener}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 
@@ -26,13 +28,30 @@ class ScalaClassRenderer extends ClassRenderer {
 
   override def isEnabled: Boolean = true
 
-  override def shouldDisplay(context: EvaluationContext, ref: ObjectReference, f: Field): Boolean =
-    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
-      !isModule(f) && !isBitmap(f) && !isOffset(f) && !isLazyVal(ref, f)
-
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer
     renderer.calcLabel(descriptor, context, labelListener)
+  }
+
+  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
+    val ref = value.asInstanceOf[ObjectReference]
+    val project = context.getProject
+    DebuggerUtilsAsync.allFields(ref.referenceType())
+      .thenAccept { fields =>
+        val toShow = fields.asScala.filter(shouldDisplayField(ref, _))
+        if (toShow.isEmpty) {
+          setClassHasNoFieldsToDisplayMessage(builder, builder.getNodeManager)
+        } else {
+          val manager = builder.getNodeManager
+          val nodes = toShow.map { field =>
+            val desc =
+              if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field)
+              else new FieldDescriptorImpl(project, ref, field)
+            manager.createNode(desc, context)
+          }.asJava
+          builder.setChildren(nodes)
+        }
+      }
   }
 }
 
@@ -41,7 +60,7 @@ private object ScalaClassRenderer {
 
   private val Bitmap: String = "bitmap$"
 
-  private val Offset: String = "OFFSET$"
+  val Offset: String = "OFFSET$"
 
   def isModule(f: Field): Boolean = f.name() == Module
 
@@ -65,4 +84,8 @@ private object ScalaClassRenderer {
       }
     }
   }
+
+  private def shouldDisplayField(ref: ObjectReference, f: Field): Boolean =
+    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
+      !isModule(f) && !isBitmap(f) && !isOffset(f)
 }
