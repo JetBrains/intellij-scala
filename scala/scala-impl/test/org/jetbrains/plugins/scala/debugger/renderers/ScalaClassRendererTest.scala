@@ -28,7 +28,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  private[test] val packagePrivateVal: String = "3"
        |  val publicVal: Array[Int] = Array.empty
        |
-       |  val lazyVal: String = "lazy"
+       |  lazy val lazyVal: String = "lazy"
        |
        |  private[this] var privateThisVar: Double = 4.0
        |  private var privateVar: Int = 5
@@ -53,7 +53,6 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateVal = 2",
         "packagePrivateVal = 3",
         "publicVal = {int[0]@uniqueID}[]",
-        "lazyVal = lazy",
         "privateThisVar = 4.0",
         "privateVar = 5",
         "packagePrivateVar = 6",
@@ -70,7 +69,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  private[test] val packagePrivateVal: String = "3"
        |  val publicVal: Array[Int] = Array.empty
        |
-       |  val lazyVal: String = "lazy"
+       |  lazy val lazyVal: String = "lazy"
        |
        |  private[this] var privateThisVar: Double = 4.0
        |  private var privateVar: Int = 5
@@ -102,7 +101,6 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateVal = 2",
         "packagePrivateVal = 3",
         "publicVal = {int[0]@uniqueID}[]",
-        "lazyVal = lazy",
         "privateThisVar = 4.0",
         "privateVar = 5",
         "packagePrivateVar = 6",
