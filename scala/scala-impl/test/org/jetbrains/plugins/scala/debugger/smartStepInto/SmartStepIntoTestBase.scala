@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
+import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
 /**
@@ -78,7 +79,12 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   protected def handler = new ScalaSmartStepIntoHandler
 
   def availableSmartStepTargets(): Seq[SmartStepTarget] =
-    handler.findSmartStepTargets(currentSourcePosition).asScala.toSeq
+    inSuspendContextAction(60.seconds, "Obtaining current source position took too long") {
+      val source = currentSourcePosition
+      inReadAction {
+        handler.findSmartStepTargets(source).asScala.toSeq
+      }
+    }
 
   def checkSmartStepTargets(expected: String*): Unit = {
     val targets = inReadAction {
