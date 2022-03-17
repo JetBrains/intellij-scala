@@ -13,10 +13,9 @@ final class ScalaUnusedLocalSymbolPass(file: ScalaFile, doc: Option[Document])
 
 object ScalaUnusedLocalSymbolPass {
   def inspection(project: Project): ScalaUnusedSymbolInspection =
-    InspectionProjectProfileManager
-      .getInstance(project)
-      .getCurrentProfile
-      .getInspectionTool("ScalaUnusedSymbol", project)
-      .getTool
-      .asInstanceOf[ScalaUnusedSymbolInspection]
+    Option(InspectionProjectProfileManager.getInstance(project))
+      .map(_.getCurrentProfile)
+      .flatMap(profile => Option(profile.getInspectionTool("ScalaUnusedSymbol", project)))
+      .map(_.getTool.asInstanceOf[ScalaUnusedSymbolInspection])
+      .getOrElse(new ScalaUnusedSymbolInspection)
 }
