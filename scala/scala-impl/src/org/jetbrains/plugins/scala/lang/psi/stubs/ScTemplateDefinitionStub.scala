@@ -13,7 +13,8 @@ trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
   extends ScTopLevelElementStub[T]
     with PsiClassStub[T]
     with ScMemberOrLocal
-    with ScImplicitStub {
+    with ScImplicitStub
+    with ScGivenStub {
 
   def javaQualifiedName: String
 

@@ -527,6 +527,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelExtensionByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAliasedImportKey"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ExtensionIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScGivenIndex"/>
 
         <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaFeaturePusher"/>
 

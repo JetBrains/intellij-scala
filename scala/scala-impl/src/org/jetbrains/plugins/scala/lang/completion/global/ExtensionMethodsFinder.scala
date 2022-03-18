@@ -7,10 +7,11 @@ import com.intellij.codeInsight.completion.InsertHandler
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.autoImport.{GlobalMember, GlobalMemberOwner}
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.implicits.{ExtensionMethodData, ImplicitConversionData}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -34,7 +35,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
     else Iterable.empty
 
   private def collectExtensionMethodCandidates[M <: GlobalMember[ScFunction], A](possibleMembers: Map[M, A])
-                                                                                (getResolveResults: (A, ScFunction) => Set[ScalaResolveResult]) =
+                                                                                (getResolveResults: (A, PsiNamedElement) => Set[ScalaResolveResult]) =
     for {
       (globalMember, application) <- possibleMembers
       candidateConstructor <- Iterable.from(extensionMethodCandidateConstructor(globalMember.owner))
@@ -48,21 +49,34 @@ private final class ExtensionMethodsFinder(originalType: ScType,
     }
 
   private def scala3ExtensionMethodCandidates =
-    collectExtensionMethodCandidates(ExtensionMethodData.getPossibleExtensionMethods(place)) { (_, elementToImport) =>
-      val resolveResult = new ScalaResolveResult(
-        elementToImport,
-        isExtension = elementToImport.isExtensionMethod,
-        extensionContext = elementToImport.extensionMethodOwner
-      )
-      Set(resolveResult)
+    collectExtensionMethodCandidates(ExtensionMethodData.getPossibleExtensionMethods(place)) {
+      case (_, elementToImport: ScFunction) =>
+        val resolveResult = new ScalaResolveResult(
+          elementToImport,
+          isExtension = elementToImport.isExtensionMethod,
+          extensionContext = elementToImport.extensionMethodOwner
+        )
+        Set(resolveResult)
+      case (_, elementToImport) => Set(new ScalaResolveResult(elementToImport))
     }
 
-  private def extensionMethodCandidateConstructor(owner: GlobalMemberOwner): Option[(ScalaResolveResult, ScFunction) => GlobalMemberResult] =
-    Option(owner).collect {
+  private def extensionMethodCandidateConstructor(owner: GlobalMemberOwner): Option[(ScalaResolveResult, PsiNamedElement) => GlobalMemberResult] =
+    Option(owner).flatMap {
       case GlobalMemberOwner(classToImport: ScObject) =>
-        ExtensionMethodCandidate(_, classToImport, _)
+        Some((resolveRes, elementToImport) => ExtensionMethodCandidate(resolveRes, classToImport, elementToImport))
       case GlobalMemberOwner(packageToImport: ScPackageLike) =>
-        TopLevelExtensionMethodCandidate(_, packageToImport, _)
+        Some((resolveRes, elementToImport) => TopLevelExtensionMethodCandidate(resolveRes, packageToImport, elementToImport))
+      case GlobalMemberOwner.GivenDefinition(definitionToImport) =>
+        definitionToImport.containingClass match {
+          case classToImport: ScObject =>
+            Some((resolveRes, _) => ExtensionMethodCandidate(resolveRes, classToImport, definitionToImport))
+          case null =>
+            definitionToImport.getContext.asOptionOf[ScPackaging].map { packageToImport =>
+              (resolveRes, _) => TopLevelExtensionMethodCandidate(resolveRes, packageToImport, definitionToImport)
+            }
+          case _ => None
+        }
+      case _ => None
     }
 
   private def candidatesForType(`type`: ScType) =
@@ -83,7 +97,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
   @nowarn("msg=The outer reference in this type test cannot be checked at run time")
   private final case class ExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
                                                     override val classToImport: ScObject,
-                                                    elementToImport: ScFunction)
+                                                    elementToImport: PsiNamedElement)
     extends GlobalPsiClassMemberResult(resolveResult, classToImport)(NameAvailability) {
 
     override private[global] def isApplicable =
@@ -96,7 +110,7 @@ private final class ExtensionMethodsFinder(originalType: ScType,
 
   private case class TopLevelExtensionMethodCandidate(override val resolveResult: ScalaResolveResult,
                                                       override val packageToImport: ScPackageLike,
-                                                      elementToImport: ScFunction)
+                                                      elementToImport: PsiNamedElement)
     extends GlobalTopLevelMemberResult(resolveResult, packageToImport)(NameAvailability) {
 
     override private[global] def isApplicable =

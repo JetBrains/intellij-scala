@@ -7,6 +7,7 @@ package elements
 import com.intellij.lang.{ASTNode, Language}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IndexSink, StubElement, StubInputStream, StubOutputStream}
+import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
@@ -37,6 +38,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
     dataStream.writeBoolean(stub.isExtensionMethod)
+    dataStream.writeBoolean(stub.isGiven)
+    dataStream.writeNames(stub.givenClassNames)
   }
 
   override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]) =
@@ -54,7 +57,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       implicitClassNames               = dataStream.readNames,
       isTopLevel                       = dataStream.readBoolean,
       topLevelQualifier                = dataStream.readOptionName,
-      isExtensionMethod                = dataStream.readBoolean
+      isExtensionMethod                = dataStream.readBoolean,
+      isGiven                          = dataStream.readBoolean,
+      givenClassNames                  = dataStream.readNames,
     )
 
   override def createStubImpl(function: Fun,
@@ -87,6 +92,11 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       if (function.isImplicitConversion) ScImplicitStub.conversionParamClass(function)
       else None
 
+    val (isGivenAlias, givenAliasClassNames) = function match {
+      case alias: ScGivenAlias => (true, ScGivenStub.givenAliasClassNames(alias))
+      case _                   => (false, EMPTY_STRING_ARRAY)
+    }
+
     new ScFunctionStubImpl(
       parentStub,
       this,
@@ -101,7 +111,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
       isTopLevel                       = function.isTopLevel,
       topLevelQualifier                = function.topLevelQualifier,
-      isExtensionMethod                = function.isExtensionMethod
+      isExtensionMethod                = function.isExtensionMethod,
+      isGiven                          = isGivenAlias,
+      givenClassNames                  = givenAliasClassNames,
     )
   }
 
@@ -123,6 +135,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     }
 
     stub.indexImplicits(sink)
+    stub.indexGivens(sink)
   }
 }
 

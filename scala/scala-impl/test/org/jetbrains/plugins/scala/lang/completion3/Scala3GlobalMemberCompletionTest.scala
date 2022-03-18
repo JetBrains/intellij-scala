@@ -112,4 +112,81 @@ class Scala3GlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     time = 2
   )
 
+  def testExtensionMethodInsideGiven(): Unit = doCompletionTest(
+    fileText =
+      s"""import tests.Foo
+         |
+         |object Test {
+         |  val foo = Foo('z')
+         |  foo.toC$CARET
+         |}
+         |
+         |package tests:
+         |  final case class Foo(ch: Char)
+         |
+         |  object Extensions5:
+         |    given ops: AnyRef with
+         |      extension (foo: Foo)
+         |        def toChar: Char = foo.ch
+         |end tests
+         |""".stripMargin,
+    resultText =
+      """import tests.Extensions5.ops
+        |import tests.Foo
+        |
+        |object Test {
+        |  val foo = Foo('z')
+        |  foo.toChar
+        |}
+        |
+        |package tests:
+        |  final case class Foo(ch: Char)
+        |
+        |  object Extensions5:
+        |    given ops: AnyRef with
+        |      extension (foo: Foo)
+        |        def toChar: Char = foo.ch
+        |end tests
+        |""".stripMargin,
+    item = "toChar",
+    time = 2
+  )
+
+  def testExtensionMethodInsideTopLevelGiven(): Unit = doCompletionTest(
+    fileText =
+      s"""import tests.Foo
+         |
+         |object Test {
+         |  val foo = Foo('z')
+         |  foo.toC$CARET
+         |}
+         |
+         |package tests:
+         |  final case class Foo(ch: Char)
+         |
+         |  given ops: AnyRef with
+         |    extension (foo: Foo)
+         |      def toChar: Char = foo.ch
+         |end tests
+         |""".stripMargin,
+    resultText =
+      """import tests.{Foo, ops}
+        |
+        |object Test {
+        |  val foo = Foo('z')
+        |  foo.toChar
+        |}
+        |
+        |package tests:
+        |  final case class Foo(ch: Char)
+        |
+        |  given ops: AnyRef with
+        |    extension (foo: Foo)
+        |      def toChar: Char = foo.ch
+        |end tests
+        |""".stripMargin,
+    item = "toChar",
+    time = 2
+  )
+
 }

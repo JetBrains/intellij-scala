@@ -6,7 +6,6 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.extapi.psi.{ASTDelegatePsiElement, StubBasedPsiElementBase}
 import com.intellij.lang.ASTNode
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
@@ -46,6 +45,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScPackageLike, ScalaFile, Scala
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
@@ -768,6 +768,7 @@ object ScalaPsiUtil {
 
   def hasStablePath(o: PsiNamedElement): Boolean = {
     o.nameContext match {
+      case synthetic: ScSyntheticClass => synthetic.stdType.is[ValType]
       case member: PsiMember => isStatic(member)
       case _: ScPackaging | _: PsiPackage => true
       case _ => false
