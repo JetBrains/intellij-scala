@@ -21,8 +21,12 @@ trait ScClassParameter extends ScParameter with ScMember.WithBaseIconProvider {
 
   def isClassMember: Boolean = isVal || isVar || isCaseClassVal
 
-  /** Is the parameter automatically a val, due to it's position in a case class parameter list */
+  /** Is the parameter automatically a val, due to its position in a case class parameter list */
   def isCaseClassVal: Boolean
+
+  def isEnumVal: Boolean
+
+  def isEnumCaseVal: Boolean
 
   override def accept[T](visitor: JvmElementVisitor[T]): T = super[WithBaseIconProvider].accept(visitor)
 }

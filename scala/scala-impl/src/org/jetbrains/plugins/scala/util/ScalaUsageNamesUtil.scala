@@ -5,31 +5,36 @@ import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{isBeanProperty, isBooleanBeanProperty}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 import java.util
 
 object ScalaUsageNamesUtil {
+
+  val enumSyntheticMethodNames: Set[String] = Set("values", "valueOf", "fromOrdinal")
+
   /**
    * When performing operations directly related to usage of some declaration,
    * it's possible that code references to this declaration do not use literally the
    * same name as in the declaration, for example when overriding the assignment
    * operator, or when using the `BeanProperty` annotation.
    *
-   * This method provides an exhaustive set of names of an element, all of which
-   * can be used to refer to it in valid code. This includes the name that is
-   * used in the declaration itself.
+   * This method provides an exhaustive set of strings which can be used to refer
+   * to it in valid code. This includes the name that is used in the declaration itself.
    *
    * If this method is given an element without a name, the element's text is
    * returned.
    *
    * @param element The element of which to return all names of
-   * @return Set of all names of the element
+   * @return Set of all strings that can be used to refer to the element
    */
-  def getNamesOf(element: PsiElement): util.Collection[String] = {
+  def getStringsToSearch(element: PsiElement): util.Collection[String] = {
     val result: util.Set[String] = new util.HashSet[String]()
     element match {
+      case enumCase: ScEnumCase =>
+        result.add(enumCase.name)
+        enumSyntheticMethodNames.foreach(name => result.add(s"${enumCase.enumParent.name}.$name"))
       case t: ScTrait =>
         result.add(t.name)
         result.add(t.getName)

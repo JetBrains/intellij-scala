@@ -7,14 +7,16 @@ package params
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.{PsiClass, PsiElement}
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 
 /**
@@ -51,6 +53,16 @@ final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
         .exists(_.effectiveFirstParameterSection.contains(this))
 
       isInPrimaryConstructorFirstParamSection
+    case _ => false
+  }
+
+  override def isEnumVal: Boolean = containingClass match {
+    case _: ScEnum => true
+    case _ => false
+  }
+
+  override def isEnumCaseVal: Boolean = containingClass match {
+    case _: ScEnumCase => true
     case _ => false
   }
 

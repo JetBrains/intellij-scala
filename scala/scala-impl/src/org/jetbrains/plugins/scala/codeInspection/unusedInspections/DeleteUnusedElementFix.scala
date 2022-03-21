@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScExtensionBody, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createWildcardNode, createWildcardPattern}
 import org.jetbrains.plugins.scala.util.SideEffectsUtil.hasNoSideEffects
@@ -83,6 +83,8 @@ class DeleteUnusedElementFix(e: ScNamedElement, override val getText: String, va
 object DeleteUnusedElementFix {
   def quickfixesFor(e: ScNamedElement): Seq[LocalQuickFixAndIntentionActionOnPsiElement] = {
     (e, e.getContext) match {
+      case (_: ScFunctionDefinition, extensionBody: ScExtensionBody) if extensionBody.functions.size == 1 => Seq.empty
+      case (enumCase: ScEnumCase, _) if enumCase.enumParent.cases.size == 1 => Seq.empty
       case (ref: ScReferencePattern, pList: ScPatternList) if pList.patterns == Seq(ref) && definitionOfPatternList(pList).exists(e => !hasNoSideEffects(e))  =>
         Seq(
           new DeleteUnusedElementFix(e, ScalaInspectionBundle.message("remove.whole.definition"), removeBindingOnly = false),

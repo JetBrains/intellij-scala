@@ -242,6 +242,7 @@ object ScalaPsiUtil {
         false
       case (mem: ScMember, _) if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         true
+      case (e: ScEnumCase, _) => isOnlyVisibleInLocalFile(e.enumParent)
       case (_: ScMember, body: ScExtensionBody) =>
         isOnlyVisibleInLocalFile(body.getParent)
       case (mem: ScMember, _) =>
@@ -274,7 +275,7 @@ object ScalaPsiUtil {
     import tp.projectContext
 
     tp match {
-      case tp@ScTypePolymorphicType(internal, typeParameters) =>
+      case ScTypePolymorphicType(internal, typeParameters) =>
         def hasBadLinks(tp: ScType, ownerPtp: PsiTypeParameter): Option[ScType] = {
           var res: Option[ScType] = Some(tp)
           tp.visitRecursively {

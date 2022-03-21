@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
-class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class Scala2UsedAndUnusedLocalSymbolInspectionAndQuickFixTest extends ScalaUnusedSymbolInspectionTestBase {
 
   def testPrivateField(): Unit = {
     val code =
@@ -623,6 +623,16 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
        |  s + i
        |}
        |new Test(0)
+       |""".stripMargin
+  )
+
+  // SCL-17662
+  def test_private_auxiliary_constructor_is_used_within_same_class(): Unit = checkTextHasNoErrors(
+    s"""
+       |class Test(s: String) {
+       |  private def this(i: Int) = this(i.toString)
+       |  new Test(42).s
+       |}
        |""".stripMargin
   )
 

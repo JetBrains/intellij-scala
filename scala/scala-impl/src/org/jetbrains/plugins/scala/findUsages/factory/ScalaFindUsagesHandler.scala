@@ -28,10 +28,11 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends ScalaFindUsagesHandlerBase(element, factory) {
 
-  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getNamesOf(element)
+  override def getStringsToSearch(element: PsiElement): util.Collection[String] = ScalaUsageNamesUtil.getStringsToSearch(element)
 
   override def getSecondaryElements: Array[PsiElement] = {
     element match {
+      case e: ScEnumCase => Array(e.getSyntheticCounterpart)
       case t: ScObject =>
         t.fakeCompanionClass match {
           case Some(clazz) => Array(clazz)
@@ -52,7 +53,7 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
             case v: ScVariable if isBooleanBeanProperty(v) => Array(IS_GETTER, SETTER)
             case _ => Array.empty[DefinitionRole]
           }
-          a.map(role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
+          a.map[PsiElement](role => t.getTypedDefinitionWrapper(isStatic = false, isAbstract = false, role = role, cClass = None))
         }
       case _ => Array.empty
     }

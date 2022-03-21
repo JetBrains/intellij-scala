@@ -5,19 +5,21 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScEnumCases, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScEnumCaseImpl.Log
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -136,4 +138,40 @@ final class ScEnumCaseImpl(
   override protected def baseIcon: Icon = icons.Icons.CLASS; // TODO add an icon
 
   override def isLocal: Boolean = false
+
+  override def getSyntheticCounterpart: ScNamedElement = {
+    val res = enumParent.syntheticClass.flatMap(ScalaPsiUtil.getCompanionModule).toSeq
+      .flatMap(_.syntheticMembers).collectFirst {
+      case c: ScClass if c.name == name => c
+      case p: ScPatternDefinition if p.declaredElements.exists(_.name == name) => p.declaredElements.find(_.name == name).get
+    }
+
+    if (res.isEmpty) Log.debug(
+      s"""Failed to find a synthetic counterpart of $this. Each ScEnumCase should have exactly one.
+         |Check if EnumMembersInjector is doing its job correctly.
+         |""".stripMargin)
+
+    res.getOrElse(this)
+  }
+
+  override def delete(): Unit = {
+    val enumCasesElements = getContext.asOptionOf[ScEnumCases].toSeq.flatMap(_.declaredElements)
+    val isOnlyCaseInEnumCases = enumCasesElements.size == 1
+    val isRightmostInEnumCases = enumCasesElements.lastOption.contains(this)
+
+    def findStart(): Option[PsiElement] = this.prevSiblings.takeWhile { e =>
+        (isRightmostInEnumCases && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)) ||
+          (isOnlyCaseInEnumCases && e.elementType == ScalaTokenTypes.kCASE)
+      }.toSeq.lastOption
+
+    def findEnd(): Option[PsiElement] = this.nextSiblings.takeWhile { e =>
+        !isRightmostInEnumCases && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)
+      }.toSeq.lastOption
+
+    getContext.deleteChildRange(findStart().getOrElse(this), findEnd().getOrElse(this))
+  }
+}
+
+object ScEnumCaseImpl {
+  val Log: Logger = Logger.getInstance(getClass)
 }
