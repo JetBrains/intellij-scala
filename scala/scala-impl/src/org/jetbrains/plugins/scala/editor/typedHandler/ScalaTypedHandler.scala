@@ -438,7 +438,8 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
         // if left brace is inserted on the same line with body we expect the user to press Enter after that
         // in this case we rely that EnterAfterUnmatchedBraceHandler will insert missing closing brace
         editor.getCaretModel.moveToOffset(caretOffset + 1)
-      } else {
+      }
+      else {
         val endElement = advanceElementToLineComment(wrapElement)
         val elementActualStartOffset = elementStartOffset + 1
         val elementActualEndOffset = endElement.endOffset + 1
@@ -452,19 +453,27 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
             case _ =>
           }
         }
-        document.insertString(elementActualEndOffset, "\n}")
+        val insertedClosingBraceWithNl = "\n}"
+        document.insertString(elementActualEndOffset, insertedClosingBraceWithNl)
         document.commit(project)
 
         val ranges = ju.Arrays.asList(
           TextRange.from(caretOffset, 1),
-          TextRange.from(elementActualEndOffset, 3)
+          //NOTES:
+          // extra `+1` is required to cover space after `}`
+          // e.g. we want a space to be inserted before `else` in `if (...) {...} else` when `}` is inserted
+          // (it's actual for many other constructs, see SCL-15549)
+          // `.min(document.getTextLength)` is required inn order range doesn't exceed document length,
+          // in case it's simple block without any continuation
+          TextRange.create(elementActualEndOffset, (elementActualEndOffset + insertedClosingBraceWithNl.length + 1).min(document.getTextLength))
         )
         CodeStyleManager.getInstance(project).reformatText(file, ranges)
       }
 
       AutoBraceAdvertiser.advertiseAutoBraces(project)
       Result.STOP
-    } else {
+    }
+    else {
       Result.CONTINUE
     }
   }
