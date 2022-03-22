@@ -14,11 +14,13 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
@@ -168,8 +170,8 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     }
   }
 
-  override def shouldProcessElement(elem: PsiElement): Boolean = {
-    elem match {
+  override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
+      case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
       case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
       case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
       case t: ScTypeDefinition if t.isSAMable => false
@@ -191,7 +193,6 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
         }
       case _ => false
     }
-  }
 }
 
 object ScalaUnusedSymbolInspection {
