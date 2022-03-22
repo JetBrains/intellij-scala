@@ -4,6 +4,7 @@ package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
+import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search.{LocalSearchScope, PsiSearchHelper, SearchScope, TextOccurenceProcessor, UsageSearchContext}
@@ -179,7 +180,8 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
       case n: ScNamedElement =>
         n match {
           case p: ScModifierListOwner if hasOverrideModifier(p) => false
-          case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
+          case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) ||
+            (!fd.isPrivate && TestSourcesFilter.isTestSources(fd.getContainingFile.getVirtualFile, fd.getProject)) => false
           case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
           case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
           case p: ScParameter =>
