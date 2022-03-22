@@ -11,6 +11,8 @@ import scala.jdk.CollectionConverters._
 abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
+  protected val UnusedImportStatement = "Unused import statement"
+
   def messages(text: String, fileName: String = "dummy.scala"): Seq[HighlightMessage] = {
     myFixture.configureByText(fileName, text)
     val infos = myFixture.doHighlighting().asScala
