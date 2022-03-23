@@ -7,8 +7,6 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with MatcherAssertions {
 
-  protected val UnusedImportStatement = "Unused import statement"
-
   def testTwoUnusedSelectorsOnSameLine(): Unit = {
     val text =
       """
@@ -701,7 +699,7 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
       """.stripMargin
 
     assertMatches(messages(text)) {
-      case HighlightMessage("import Source.given", "Unused import statement") :: Nil =>
+      case HighlightMessage("import Source.given", UnusedImportStatement) :: Nil =>
     }
   }
 
@@ -736,7 +734,7 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
       """.stripMargin
 
     assertMatches(messages(text)) {
-      case HighlightMessage("given Short", "Unused import statement") :: Nil =>
+      case HighlightMessage("given Short", UnusedImportStatement) :: Nil =>
     }
   }
 
@@ -791,7 +789,7 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
       """.stripMargin
 
     assertMatches(messages(text)) {
-      case HighlightMessage("given", "Unused import statement") :: Nil =>
+      case HighlightMessage("given", UnusedImportStatement) :: Nil =>
     }
   }
 
@@ -810,7 +808,7 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
       """.stripMargin
 
     assertMatches(messages(text)) {
-      case HighlightMessage("given Short", "Unused import statement") :: Nil =>
+      case HighlightMessage("given Short", UnusedImportStatement) :: Nil =>
     }
   }
 
@@ -828,7 +826,100 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
       """.stripMargin
 
     assertMatches(messages(text)) {
-      case HighlightMessage("given scala.Int", "Unused import statement") :: Nil =>
+      case HighlightMessage("given scala.Int", UnusedImportStatement) :: Nil =>
     }
   }
+
+  def testUnusedExtensionMethod(): Unit = {
+    val text =
+      """
+        |object Extensions {
+        |  extension (s: String) def foo: Int = s.length
+        |}
+        |
+        |object Target {
+        |  import Extensions.foo
+        |  println("")
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("import Extensions.foo", UnusedImportStatement) :: Nil =>
+    }
+  }
+
+  def testUsedExtensionMethod(): Unit = {
+    val text =
+      """
+        |object Extensions {
+        |  extension (s: String) def foo: Int = s.length
+        |}
+        |
+        |object Target {
+        |  import Extensions.foo
+        |  println("".foo)
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  def testUnusedWildcardNextToUsedExtensionMethod(): Unit = {
+    val text =
+      """
+        |object Extensions {
+        |  extension (s: String)
+        |    def foo: Int = s.length
+        |}
+        |
+        |object Target {
+        |  import Extensions.{foo, *}
+        |  println("".foo)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("*", UnusedImportStatement) :: Nil =>
+    }
+  }
+
+  def testUnusedExtensionMethodImportNextToUsedOne(): Unit = {
+    val text =
+      """
+        |object Extensions {
+        |  extension (s: String)
+        |    def foo: Int = s.length
+        |    def bar: Char = s.head
+        |}
+        |
+        |object Target {
+        |  import Extensions.{foo, bar}
+        |  println("".foo)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("bar", UnusedImportStatement) :: Nil =>
+    }
+  }
+
+  def testTwoUsedExtensionMethods(): Unit = {
+    val text =
+      """
+        |object Extensions {
+        |  extension (s: String)
+        |    def foo: Int = s.length
+        |    def bar: Char = s.head
+        |}
+        |
+        |object Target {
+        |  import Extensions.{foo, bar}
+        |  println("...".bar)
+        |  println("".foo)
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
 }
