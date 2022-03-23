@@ -18,7 +18,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
     s"""
        |object Lazy {
        |  def main(args: Array[String]): Unit = {
-       |    val stream = Stream.from(42)
+       |    val stream = Stream.from(1)
        |    val a = 1$bp
        |  }
        |}
@@ -130,7 +130,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   }
 
   protected def testLazyCollectionRendering(collectionName: String, collectionClass: String, afterTypeLabel: String): Unit =
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, None)
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, Some(50))
 
   addFileWithBreakpoints("ShortList.scala",
     s"""
