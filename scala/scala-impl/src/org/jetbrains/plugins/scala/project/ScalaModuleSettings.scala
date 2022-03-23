@@ -32,12 +32,12 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaVersionProvider.languageLevel
 
-  val settingsForHighlighting: Seq[ScalaCompilerSettings] =
+  def settingsForHighlighting: Seq[ScalaCompilerSettings] =
     ScalaCompilerConfiguration.instanceIn(module.getProject).settingsForHighlighting(module)
 
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet
 
-  val additionalCompilerOptions: Set[String] = settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet
+  def additionalCompilerOptions: Set[String] = settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet
 
   val isMetaEnabled: Boolean =
     compilerPlugins.exists(isMetaParadiseJar)

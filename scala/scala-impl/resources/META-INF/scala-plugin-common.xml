@@ -959,6 +959,12 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="VariablePatternShadow" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.FieldShadowingInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="suspicious.shadowing.of.a.field"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="FieldShadowing" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.TypeParameterShadowInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.suspicious.shadowing.by.a.type.parameter"

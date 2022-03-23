@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createPatternFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
@@ -48,7 +47,7 @@ object VariablePatternShadowInspection {
       // createReferenceFromText might return null in invalid code, e.g. if ')' is absent in case pattern
       dummyRef <- Option(createReferenceFromText(ref.name, ref.getContext.getContext, ref))
       proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, ref.name)
-      results = dummyRef.asInstanceOf[ScStableCodeReference].doResolve(proc)
+      results = dummyRef.doResolve(proc)
     } yield results.exists(rr => proc.isAccessible(rr.getElement, ref))
   ).getOrElse(false)
 }
