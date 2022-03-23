@@ -432,7 +432,7 @@ private[importing] object BspResolverLogic {
     val merged = mergeModules(ancestors)
     val id = sharedModuleId(targets)
     val sources = sourceRoots ++ generatedSourceRoots
-    val isTest = targets.forall(_.getTags.asScala.contains(BuildTargetTag.TEST))
+    val isTest = targets.exists(_.getTags.asScala.contains(BuildTargetTag.TEST))
 
     val inheritorData = merged.data.copy(
       id = id,
