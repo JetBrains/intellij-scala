@@ -9,10 +9,10 @@ import scala.concurrent.duration._
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
-//  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_2_13,
-//  TestScalaVersion.Scala_3_0,
-//  TestScalaVersion.Scala_3_1
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1
 ))
 @Category(Array(classOf[DebuggerTests]))
 class ScalaRuntimeRefRendererTest extends RendererTestBase {
@@ -28,7 +28,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testIntRef(): Unit = {
-    testRuntimeRef("n", "Int", "0")(30.seconds)
+    testRuntimeRef("n", "Int", "0")
   }
 
   addFileWithBreakpoints("VolatileIntRef.scala",
@@ -42,7 +42,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testVolatileIntRef(): Unit = {
-    testRuntimeRef("n", "volatile Int", "0")(30.seconds)
+    testRuntimeRef("n", "volatile Int", "0")
   }
 
   addFileWithBreakpoints("ObjectRef.scala",
@@ -56,7 +56,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testObjectRef(): Unit = {
-    testRuntimeRef("n", "Object", """"abc"""")(30.seconds)
+    testRuntimeRef("n", "Object", """"abc"""")
   }
 
   addFileWithBreakpoints("VolatileObjectRef.scala",
@@ -70,15 +70,15 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |}""".stripMargin)
 
   def testVolatileObjectRef(): Unit = {
-    testRuntimeRef("n", "volatile Object", """"abc"""")(30.seconds)
+    testRuntimeRef("n", "volatile Object", """"abc"""")
   }
 
-  private def testRuntimeRef(varName: String, refType: String, afterTypeLabel: String)(implicit timeout: Duration): Unit = {
+  private def testRuntimeRef(varName: String, refType: String, afterTypeLabel: String): Unit = {
     import org.junit.Assert.assertTrue
     runDebugger() {
       waitForBreakpoint()
       val (label, _) =
-        renderLabelAndChildren(varName, _.getLabel, renderChildren = false, 0, parameter(0))
+        renderLabelAndChildren(varName, None, parameter(0))
 
       val expectedLabel = s"{unwrapped Scala runtime $refType reference}$afterTypeLabel"
 

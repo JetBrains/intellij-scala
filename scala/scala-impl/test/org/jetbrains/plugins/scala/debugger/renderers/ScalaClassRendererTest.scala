@@ -58,7 +58,7 @@ class ScalaClassRendererTest extends RendererTestBase {
         "privateVar = 5",
         "packagePrivateVar = 6",
         "publicVar = {int[0]@uniqueID}[]"
-      ))(10.seconds)
+      ))
   }
 
   addFileWithBreakpoints("test/ScalaClass.scala",
@@ -108,7 +108,7 @@ class ScalaClassRendererTest extends RendererTestBase {
         "packagePrivateVar = 6",
         "publicVar = {int[0]@uniqueID}[]",
         "usedConstructorParam = 20"
-      ))(10.seconds)
+      ))
   }
 
   private val UNIQUE_ID = "uniqueID"
@@ -117,12 +117,12 @@ class ScalaClassRendererTest extends RendererTestBase {
       varName: String,
       className: String,
       afterTypeLabel: String,
-      expectedChildrenLabels: Set[String])(implicit timeout: Duration): Unit = {
+      expectedChildrenLabels: Set[String]): Unit = {
     import org.junit.Assert._
     runDebugger(mainClassName) {
       waitForBreakpoint()
       val (label, childrenLabels) =
-        renderLabelAndChildren(varName, _.getLabel, renderChildren = expectedChildrenLabels.nonEmpty, expectedChildrenLabels.size)
+        renderLabelAndChildren(varName, Some(expectedChildrenLabels.size))
 
       val classRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(className)
