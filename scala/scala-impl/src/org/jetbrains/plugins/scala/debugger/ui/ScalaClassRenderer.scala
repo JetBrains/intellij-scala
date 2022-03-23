@@ -28,6 +28,10 @@ class ScalaClassRenderer extends ClassRenderer {
 
   override def isEnabled: Boolean = true
 
+  override def shouldDisplay(context: EvaluationContext, ref: ObjectReference, f: Field): Boolean =
+    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
+      !isModule(f) && !isBitmap(f) && !isOffset(f)
+
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer
     renderer.calcLabel(descriptor, context, labelListener)
@@ -38,7 +42,7 @@ class ScalaClassRenderer extends ClassRenderer {
     val project = context.getProject
     DebuggerUtilsAsync.allFields(ref.referenceType())
       .thenAccept { fields =>
-        val toShow = fields.asScala.filter(shouldDisplayField(ref, _))
+        val toShow = fields.asScala.filter(shouldDisplay(context, ref, _))
         if (toShow.isEmpty) {
           setClassHasNoFieldsToDisplayMessage(builder, builder.getNodeManager)
         } else {
@@ -84,8 +88,4 @@ private object ScalaClassRenderer {
       }
     }
   }
-
-  private def shouldDisplayField(ref: ObjectReference, f: Field): Boolean =
-    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
-      !isModule(f) && !isBitmap(f) && !isOffset(f)
 }
