@@ -5,14 +5,15 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Expression
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
+import org.jetbrains.plugins.scala.debugger.ui.util._
 
-import scala.reflect.NameTransformer
+import java.util.concurrent.CompletableFuture
 
 class ScalaCollectionRenderer extends ScalaClassRenderer {
 
@@ -28,6 +29,11 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def isEnabled: Boolean =
     ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
+
+  override def isExpandableAsync(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] = {
+    val ref = value.asInstanceOf[ObjectReference]
+    onDebuggerManagerThread(context)(evaluateNonEmpty(ref, context))
+  }
 
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val ref = descriptor.getValue.asInstanceOf[ObjectReference]
