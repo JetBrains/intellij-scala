@@ -30,7 +30,7 @@ class ScalaNonStrictCollectionRenderer extends ScalaCollectionRenderer {
     val ref = value.asInstanceOf[ObjectReference]
 
     for {
-      taken <- onDebuggerManagerThread(context)(evaluateTake(ref, endIndex, context))
+      taken <- onDebuggerManagerThread(context)(evaluateTake(ref, endIndex + 1, context))
       dropped <- onDebuggerManagerThread(context)(evaluateDrop(taken, startIndex, context))
       array <- onDebuggerManagerThread(context)(evaluateToArray(dropped, context))
       _ <- onDebuggerManagerThread(context)(renderer.buildChildren(array, builder, context))
