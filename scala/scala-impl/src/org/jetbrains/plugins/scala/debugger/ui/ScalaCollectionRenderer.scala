@@ -2,11 +2,12 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
+import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
@@ -35,11 +36,30 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
     onDebuggerManagerThread(context)(evaluateNonEmpty(ref, context))
   }
 
-  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
+  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val ref = descriptor.getValue.asInstanceOf[ObjectReference]
-    val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
-    val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
-    s"size = $size"
+
+    def computeSize(hasDefiniteSize: Boolean): CompletableFuture[String] =
+      if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(_.toString)
+      else CompletableFuture.completedFuture("?")
+
+    val sizeLabel = for {
+      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
+      size <- computeSize(hasDefiniteSize)
+    } yield s"size = $size"
+
+    sizeLabel.attempt.flatTap {
+      case Left(t) =>
+        onDebuggerManagerThread(context) {
+          descriptor.setValueLabelFailed(evaluationExceptionFromThrowable(t))
+          listener.labelChanged()
+        }
+      case Right(label) =>
+        onDebuggerManagerThread(context) {
+          descriptor.setValueLabel(label)
+          listener.labelChanged()
+        }
+    }.rethrow.getNow(XDebuggerUIConstants.getCollectingDataMessage)
   }
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
