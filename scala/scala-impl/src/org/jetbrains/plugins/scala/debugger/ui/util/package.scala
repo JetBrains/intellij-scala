@@ -15,6 +15,23 @@ package object util {
 
     def map[B](f: A => B): CompletableFuture[B] =
       cf.thenApply(f.asJava)
+
+    def attempt: CompletableFuture[Either[Throwable, A]] =
+      cf.handle {
+        case (a, null) => Right(a)
+        case (_, t) => Left(t)
+      }
+
+    def rethrow[AA](implicit ev: A <:< Either[Throwable, AA]): CompletableFuture[AA] =
+      cf.flatMap { a =>
+        ev(a) match {
+          case Left(t) => CompletableFuture.failedFuture(t)
+          case Right(a) => CompletableFuture.completedFuture(a)
+        }
+      }
+
+    def flatTap[B](f: A => CompletableFuture[Unit]): CompletableFuture[A] =
+      cf.flatMap(a => f(a).map(_ => a))
   }
 
   def onDebuggerManagerThread[A](context: EvaluationContext)(thunk: => A): CompletableFuture[A] = {
@@ -34,5 +51,10 @@ package object util {
       override def commandCancelled(): Unit = future.cancel(false)
     })
     future
+  }
+
+  def evaluationExceptionFromThrowable(t: Throwable): EvaluateException = t match {
+    case e: EvaluateException => e
+    case _ => new EvaluateException(t.getMessage)
   }
 }
