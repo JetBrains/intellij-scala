@@ -53,7 +53,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
         override def setChildren(children: java.util.List[_ <: DebuggerTreeNode]): Unit = {
           allChildren.addAll(children)
-          if (allChildren.size() >= count && !future.isDone) {
+          if (allChildren.size() == count && !future.isDone) {
             val result = allChildren.asScala.map(_.getDescriptor).collect { case n: NodeDescriptorImpl => n }.toSeq
             future.complete(result)
           }
