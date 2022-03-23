@@ -32,6 +32,19 @@ package object util {
 
     def flatTap[B](f: A => CompletableFuture[Unit]): CompletableFuture[A] =
       cf.flatMap(a => f(a).map(_ => a))
+
+    def flatten[AA](implicit ev: A <:< CompletableFuture[AA]): CompletableFuture[AA] =
+      cf.flatMap(ev)
+  }
+
+  implicit class CompletableFutureTraverseOps[A](private val cfs: Seq[CompletableFuture[A]]) extends AnyVal {
+    def sequence: CompletableFuture[Seq[A]] =
+      cfs.foldLeft(CompletableFuture.completedFuture(Vector.empty[A])) { (acc, f) =>
+        for {
+          vec <- acc
+          a <- f
+        } yield vec :+ a
+      }.map(_.toSeq)
   }
 
   def onDebuggerManagerThread[A](context: EvaluationContext)(thunk: => A): CompletableFuture[A] = {
