@@ -64,9 +64,12 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val ref = value.asInstanceOf[ObjectReference]
-    val array = evaluateToArray(ref, context)
     val renderer = NodeRendererSettings.getInstance().getArrayRenderer
-    renderer.buildChildren(array, builder, context)
+
+    for {
+      array <- onDebuggerManagerThread(context)(evaluateToArray(ref, context))
+      _ <- onDebuggerManagerThread(context)(renderer.buildChildren(array, builder, context))
+    } yield ()
   }
 }
 
