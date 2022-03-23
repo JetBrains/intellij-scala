@@ -33,7 +33,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
   )
 
   def testLazy(): Unit = {
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "size = ?")
   }
 }
 @Category(Array(classOf[DebuggerTests]))
@@ -53,8 +53,8 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
       """.replace("\r", "").stripMargin.trim
   )
   def testLazy(): Unit = {
-    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList size = ?")(10.seconds)
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")(10.seconds)
+    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "size = ?")(10.seconds)
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "size = ?")(10.seconds)
   }
 }
 
@@ -127,8 +127,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   }
 
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
-    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
-    val afterTypeLabel = s"$shortClassName size = $collectionLength"
+    val afterTypeLabel = s"size = $collectionLength"
     testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, collectionLength, checkChildren = true)
   }
 
@@ -137,8 +136,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
                                             expectedChildrenLabels: Seq[String])
                                            (implicit timeout: Duration): Unit = {
     val collectionLength = expectedChildrenLabels.size
-    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
-    val afterTypeLabel = s"$shortClassName size = $collectionLength"
+    val afterTypeLabel = s"size = $collectionLength"
     testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, expectedChildrenLabels)(timeout)
   }
 
