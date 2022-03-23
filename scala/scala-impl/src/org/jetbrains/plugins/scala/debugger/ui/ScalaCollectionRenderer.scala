@@ -33,8 +33,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
     val ref = descriptor.getValue.asInstanceOf[ObjectReference]
     val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
     val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
-    val typeName = extractNonQualifiedName(descriptor.getType.name())
-    s"$typeName size = $size"
+    s"size = $size"
   }
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
@@ -45,8 +44,8 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   }
 }
 
-private[debugger] object ScalaCollectionRenderer {
-  def isCollection(ct: ClassType): Boolean =
+private object ScalaCollectionRenderer {
+  private def isCollection(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
 
   def isNonStrictCollection(ct: ClassType): Boolean = {
@@ -61,7 +60,7 @@ private[debugger] object ScalaCollectionRenderer {
     isCollection(ct: ClassType) && (isLazyList || isView)
   }
 
-  def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
+  private def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "hasDefiniteSize",
@@ -69,7 +68,7 @@ private[debugger] object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[BooleanValue].value()
 
-  def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
+  private def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "size",
@@ -77,7 +76,7 @@ private[debugger] object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[IntegerValue].value()
 
-  def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
+  private def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "nonEmpty",
@@ -107,25 +106,17 @@ private[debugger] object ScalaCollectionRenderer {
       Seq(ObjectClassTagEvaluator)
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
 
-  private val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
+  private[this] val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
     val classTagName = JVMNameUtil.getJVMRawText("scala.reflect.ClassTag$")
     val module = ScalaFieldEvaluator(new ScalaTypeEvaluator(classTagName), "MODULE$")
     ScalaMethodEvaluator(module, "Object", JVMNameUtil.getJVMRawText("()Lscala/reflect/ClassTag"), Seq.empty)
   }
 
-  def extractNonQualifiedName(qualifiedName: String): String = {
-    val decoded = NameTransformer.decode(qualifiedName)
-    val index =
-      if (decoded endsWith "`") decoded.substring(0, decoded.length - 1).lastIndexOf('`')
-      else decoded.lastIndexOf('.')
-    decoded.substring(index + 1)
-  }
-
-  implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
+  private[this] implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
   }
 
-  private class IntEvaluator(n: Int) extends Evaluator {
+  private[this] class IntEvaluator(n: Int) extends Evaluator {
     override def evaluate(context: EvaluationContextImpl): IntegerValue =
       context.getDebugProcess.getVirtualMachineProxy.mirrorOf(n)
   }
