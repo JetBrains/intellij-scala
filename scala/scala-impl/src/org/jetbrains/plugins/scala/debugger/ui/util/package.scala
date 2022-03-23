@@ -11,7 +11,7 @@ package object util {
 
   implicit class CompletableFutureOps[A](private val cf: CompletableFuture[A]) extends AnyVal {
     def flatMap[B](f: A => CompletableFuture[B]): CompletableFuture[B] =
-      cf.thenCompose(f.asJava)
+      cf.thenComposeAsync(f.asJava)
 
     def map[B](f: A => B): CompletableFuture[B] =
       cf.thenApply(f.asJava)
