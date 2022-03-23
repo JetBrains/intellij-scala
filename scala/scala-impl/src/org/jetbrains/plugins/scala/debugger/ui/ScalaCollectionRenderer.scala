@@ -29,29 +29,20 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   override def isEnabled: Boolean =
     ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 
-  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String =
-    descriptor.getType match {
-      case ct: ClassType if isCollection(ct) =>
-        val ref = descriptor.getValue.asInstanceOf[ObjectReference]
-        val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
-        val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
-        val typeName = extractNonQualifiedName(ct.name())
-        s"$typeName size = $size"
+  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
+    val ref = descriptor.getValue.asInstanceOf[ObjectReference]
+    val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
+    val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
+    val typeName = extractNonQualifiedName(descriptor.getType.name())
+    s"$typeName size = $size"
+  }
 
-      case _ =>
-        super.calcLabel(descriptor, context, labelListener)
-    }
-
-  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit =
-    value.`type`() match {
-      case ct: ClassType if isCollection(ct) =>
-        val ref = value.asInstanceOf[ObjectReference]
-        val array = evaluateToArray(ref, context)
-        val renderer = NodeRendererSettings.getInstance().getArrayRenderer
-        renderer.buildChildren(array, builder, context)
-      case _ =>
-        super.buildChildren(value, builder, context)
-    }
+  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
+    val ref = value.asInstanceOf[ObjectReference]
+    val array = evaluateToArray(ref, context)
+    val renderer = NodeRendererSettings.getInstance().getArrayRenderer
+    renderer.buildChildren(array, builder, context)
+  }
 }
 
 private[debugger] object ScalaCollectionRenderer {
