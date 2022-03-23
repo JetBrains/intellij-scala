@@ -4,7 +4,6 @@ package renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
 import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{Duration, DurationInt}
