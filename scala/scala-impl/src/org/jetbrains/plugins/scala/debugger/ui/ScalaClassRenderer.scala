@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.debugger
 package ui
 
+import com.intellij.debugger.DebuggerContext
 import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.impl.DebuggerUtilsAsync
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
-import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, ClassRenderer, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, DescriptorWithParentObject, ValueDescriptor}
+import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.ui.util._
@@ -64,6 +66,12 @@ class ScalaClassRenderer extends ClassRenderer {
       _ <- buildFields(fields.asScala.toSeq)
     } yield ()
   }
+
+  override def getChildValueExpression(node: DebuggerTreeNode, context: DebuggerContext): PsiElement =
+    node.getDescriptor match {
+      case _: DescriptorWithParentObject => super.getChildValueExpression(node, context)
+      case _ => null
+    }
 }
 
 private object ScalaClassRenderer {
