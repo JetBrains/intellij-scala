@@ -105,9 +105,12 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
         taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 1, context))
         array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
         _ <- onDebuggerManagerThread(context) {
-          val desc = new CollectionElementDescriptor(context.getProject, index, array.getValue(0))
-          val node = builder.getNodeManager.createNode(desc, context)
-          builder.addChildren(List(node).asJava, false)
+          val length = array.length()
+          if (length == 1) {
+            val desc = new CollectionElementDescriptor(context.getProject, index, array.getValue(0))
+            val node = builder.getNodeManager.createNode(desc, context)
+            builder.addChildren(List(node).asJava, false)
+          }
         }
       } yield ()
 
@@ -116,10 +119,16 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
       _ <- (index until newIndex).drop(toDrop)
         .map(n => () => renderNextElement(n))
         .foldLeft(CompletableFuture.completedFuture(()))((acc, fn) => acc.flatMap(_ => fn()))
+      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
+      size <- if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(Some(_)) else CompletableFuture.completedFuture(None)
       _ <- onDebuggerManagerThread(context) {
-        val desc = new ExpandCollectionDescriptor(context.getProject, newIndex, ref, None, () => renderNonStrictCollection(ref, builder, context, newIndex, 1))
-        val node = builder.getNodeManager.createNode(desc, context)
-        builder.addChildren(List(node).asJava, true)
+        if (size.isEmpty) {
+          val desc = new ExpandCollectionDescriptor(context.getProject, newIndex, ref, None, () => renderNonStrictCollection(ref, builder, context, newIndex, 1))
+          val node = builder.getNodeManager.createNode(desc, context)
+          builder.addChildren(List(node).asJava, true)
+        } else {
+          builder.addChildren(List.empty.asJava, true)
+        }
       }
     } yield ()
   }
