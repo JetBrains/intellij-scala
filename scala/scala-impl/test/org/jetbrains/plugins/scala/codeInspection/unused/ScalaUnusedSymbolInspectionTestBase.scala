@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{ScalaUnusedSymbolInspection, ScalaUnusedSymbolInspectionBase}
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 abstract class ScalaUnusedSymbolInspectionTestBase extends ScalaQuickFixTestBase {
@@ -10,7 +10,7 @@ abstract class ScalaUnusedSymbolInspectionTestBase extends ScalaQuickFixTestBase
     classOf[ScalaUnusedSymbolInspection]
 
   override protected val description: String =
-    ScalaUnusedSymbolInspection.annotationDescription
+    ScalaUnusedSymbolInspectionBase.annotationDescription
 
   val hint = ScalaInspectionBundle.message("remove.unused.element")
   val hintWholeDefinition = "Remove whole definition"
