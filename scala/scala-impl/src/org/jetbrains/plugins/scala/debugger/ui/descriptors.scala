@@ -106,7 +106,7 @@ private final class CollectionElementDescriptor(project: Project, index: Int, va
   setValue(value)
 
   override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression =
-    throw EvaluationException("Evaluation of collection element descriptors is not supported")
+    throw EvaluationException(ScalaBundle.message("collection.element.descriptors.evaluation.not.supported"))
 }
 
 private final class ExpandCollectionDescriptor(project: Project,
@@ -120,9 +120,17 @@ private final class ExpandCollectionDescriptor(project: Project,
 
   OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
   setOnDemandPresentationProvider { node =>
-    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator("Expand"))
-    val message = remaining.map(n => s"($n more items)").getOrElse("(More items)")
-    node.setPresentation(AllIcons.Debugger.Value, new XRegularValuePresentation(message, null, " ... "), false)
+    val message = remaining
+      .map(math.min(_, 100))
+      .map {
+        case 100 => ScalaBundle.message("expand.next.100.items")
+        case n => ScalaBundle.message("expand.last.n.items", n)
+      }
+      .getOrElse(ScalaBundle.message("request.next.10.items"))
+    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(message))
+    node.setPresentation(null, new XRegularValuePresentation("", null, "") {
+      override def isShowName: Boolean = false
+    }, false)
   }
 
   override def calcValue(context: EvaluationContextImpl): Value = {
