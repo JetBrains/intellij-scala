@@ -64,11 +64,10 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val ref = value.asInstanceOf[ObjectReference]
-    val ct = value.`type`().asInstanceOf[ClassType]
 
     for {
-      nonStrict <- onDebuggerManagerThread(context)(isNonStrictCollection(ct))
-      _ <- if (nonStrict) renderNonStrictCollection(ref, builder, context, 0, 0) else renderStrictCollection(ref, builder, context, 0, 0)
+      strict <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
+      _ <- if (strict) renderStrictCollection(ref, builder, context, 0, 0) else renderNonStrictCollection(ref, builder, context, 0, 0)
     } yield ()
   }
 
@@ -128,6 +127,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
           builder.addChildren(List(node).asJava, true)
         } else {
           builder.addChildren(List.empty.asJava, true)
+          builder.getParentDescriptor.getLabel
         }
       }
     } yield ()
@@ -135,19 +135,12 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 }
 
 private object ScalaCollectionRenderer {
-  private def isCollection(ct: ClassType): Boolean =
-    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
-
-  private def isNonStrictCollection(ct: ClassType): Boolean = {
+  private def isCollection(ct: ClassType): Boolean = {
     def isView: Boolean =
       DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
         DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
 
-    def isLazyList: Boolean =
-      DebuggerUtils.instanceOf(ct, "scala.collection.immutable.LazyList") ||
-        DebuggerUtils.instanceOf(ct, "scala.collection.immutable.Stream")
-
-    isCollection(ct: ClassType) && (isLazyList || isView)
+    DebuggerUtils.instanceOf(ct, "scala.collection.Iterable") && !isView
   }
 
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
