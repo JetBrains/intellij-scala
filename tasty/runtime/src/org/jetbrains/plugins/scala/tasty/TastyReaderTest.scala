@@ -61,8 +61,6 @@ import scala.collection.mutable
 object TastyReaderTest {
 
   def main(args: Array[String]): Unit = {
-    val treePrinter = new TreePrinter(privateMembers = true)
-
     var passed, failed = Seq.empty[String]
 
     Seq(
@@ -152,6 +150,7 @@ object TastyReaderTest {
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
       val (sourceFile, actual) = try {
+        val treePrinter = new TreePrinter(privateMembers = true)
         treePrinter.fileAndTextOf(tree)
       } catch {
         case NonFatal(e) =>

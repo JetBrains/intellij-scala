@@ -17,6 +17,7 @@ import scala.collection.mutable
 class TreePrinter(privateMembers: Boolean = false) {
   private final val Indent = "  "
 
+  // TODO use parameters
   private val sharedTypes = mutable.Map[Addr, String]()
   private val sourceFiles = mutable.Buffer[String]()
 
@@ -30,8 +31,8 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   def fileAndTextOf(node: Node): (String, String) = {
-    sharedTypes.clear()
-    sourceFiles.clear()
+    assert(sharedTypes.isEmpty)
+    assert(sourceFiles.isEmpty)
     val sb = new StringBuilder(1024 * 8)
     textOfPackage(sb, "", node)
     (sourceFiles.headOption.getOrElse("Unknown.scala"), sb.toString)
