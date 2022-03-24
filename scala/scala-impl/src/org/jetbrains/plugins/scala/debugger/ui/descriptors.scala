@@ -5,7 +5,7 @@ import com.intellij.debugger.engine.DebugProcessImpl
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, FieldDescriptorImpl}
 import com.intellij.debugger.ui.tree.NodeDescriptor
-import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, NodeRenderer, OnDemandRenderer}
+import com.intellij.debugger.ui.tree.render.{NodeRenderer, OnDemandRenderer}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiExpression
@@ -14,7 +14,6 @@ import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
-import org.jetbrains.plugins.scala.debugger.ui.util._
 
 import java.util.concurrent.CompletableFuture
 import javax.swing.Icon
@@ -110,7 +109,11 @@ private final class CollectionElementDescriptor(project: Project, index: Int, va
     throw EvaluationException("Evaluation of collection element descriptors is not supported")
 }
 
-private final class ExpandCollectionDescriptor(project: Project, index: Int, ref: ObjectReference, remaining: Option[Int], builder: ChildrenBuilder)
+private final class ExpandCollectionDescriptor(project: Project,
+                                               index: Int,
+                                               ref: ObjectReference,
+                                               remaining: Option[Int],
+                                               render: () => CompletableFuture[Unit])
   extends ArrayElementDescriptorImpl(project, null, index) {
 
   import ScalaCollectionRenderer._
@@ -124,34 +127,9 @@ private final class ExpandCollectionDescriptor(project: Project, index: Int, ref
 
   override def calcValue(context: EvaluationContextImpl): Value = {
     val dropped = evaluateDrop(ref, index, context)
-    val taken = evaluateTake(dropped, 100, context)
+    val taken = evaluateTake(dropped, 1, context)
     val array = evaluateToArray(taken, context)
-    val project = context.getProject
-    val nodeManager = builder.getNodeManager
-
-    for {
-      _ <- onDebuggerManagerThread(context) {
-        val elements = allValues(array)
-        val descs = elements.drop(1).zipWithIndex.map { case (v, i) =>
-          val desc = new CollectionElementDescriptor(project, i + 1 + index, v)
-          nodeManager.createNode(desc, context)
-        }
-        builder.addChildren(descs.asJava, false)
-      }
-      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
-      size <- if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(Some(_)) else CompletableFuture.completedFuture(None)
-      _ <- onDebuggerManagerThread(context) {
-        val remaining = size.map(n => math.max(n - array.length() - index, 0))
-        remaining match {
-          case Some(0) => builder.addChildren(List.empty.asJava, true)
-          case _ =>
-            val desc = new ExpandCollectionDescriptor(project, index + 100, ref, remaining, builder)
-            val node = nodeManager.createNode(desc, context)
-            builder.addChildren(List(node).asJava, true)
-        }
-      }
-    } yield ()
-
+    render()
     array.getValue(0)
   }
 }

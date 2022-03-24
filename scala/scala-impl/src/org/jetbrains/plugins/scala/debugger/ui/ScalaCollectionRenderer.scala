@@ -64,31 +64,62 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val ref = value.asInstanceOf[ObjectReference]
-    val project = context.getProject
-    val nodeManager = builder.getNodeManager
+    val ct = value.`type`().asInstanceOf[ClassType]
 
     for {
-      taken <- onDebuggerManagerThread(context)(evaluateTake(ref, 100, context))
+      nonStrict <- onDebuggerManagerThread(context)(isNonStrictCollection(ct))
+      _ <- if (nonStrict) renderNonStrictCollection(ref, builder, context, 0, 0) else renderStrictCollection(ref, builder, context, 0, 0)
+    } yield ()
+  }
+
+  private def renderStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int, toDrop: Int): CompletableFuture[Unit] =
+    for {
+      dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
+      taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 100, context))
       array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
       _ <- onDebuggerManagerThread(context) {
         val elements = allValues(array)
-        val descs = elements.zipWithIndex.map { case (v, i) =>
-          val desc = new CollectionElementDescriptor(project, i, v)
-          nodeManager.createNode(desc, context)
+        val descs = elements.drop(toDrop).zipWithIndex.map { case (v, i) =>
+          val desc = new CollectionElementDescriptor(context.getProject, i + toDrop + index, v)
+          builder.getNodeManager.createNode(desc, context)
         }
         builder.addChildren(descs.asJava, false)
       }
-      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
-      size <- if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(Some(_)) else CompletableFuture.completedFuture(None)
+      size <- onDebuggerManagerThread(context)(evaluateSize(ref, context))
       _ <- onDebuggerManagerThread(context) {
-        val remaining = size.map(n => math.max(n - array.length(), 0))
-        remaining match {
-          case Some(0) => builder.addChildren(List.empty.asJava, true)
-          case _ =>
-            val desc = new ExpandCollectionDescriptor(project, 100, ref, remaining, builder)
-            val node = nodeManager.createNode(desc, context)
-            builder.addChildren(List(node).asJava, true)
+        val remaining = math.max(size - array.length() - index, 0)
+        if (remaining == 0) builder.addChildren(List.empty.asJava, true)
+        else {
+          val newIndex = index + 100
+          val desc = new ExpandCollectionDescriptor(context.getProject, newIndex, ref, Some(remaining), () => renderStrictCollection(ref, builder, context, newIndex, 1))
+          val node = builder.getNodeManager.createNode(desc, context)
+          builder.addChildren(List(node).asJava, true)
         }
+      }
+    } yield ()
+
+  private def renderNonStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int, toDrop: Int): CompletableFuture[Unit] = {
+    def renderNextElement(index: Int): CompletableFuture[Unit] =
+      for {
+        dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
+        taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 1, context))
+        array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
+        _ <- onDebuggerManagerThread(context) {
+          val desc = new CollectionElementDescriptor(context.getProject, index, array.getValue(0))
+          val node = builder.getNodeManager.createNode(desc, context)
+          builder.addChildren(List(node).asJava, false)
+        }
+      } yield ()
+
+    val newIndex = index + 10
+    for {
+      _ <- (index until newIndex).drop(toDrop)
+        .map(n => () => renderNextElement(n))
+        .foldLeft(CompletableFuture.completedFuture(()))((acc, fn) => acc.flatMap(_ => fn()))
+      _ <- onDebuggerManagerThread(context) {
+        val desc = new ExpandCollectionDescriptor(context.getProject, newIndex, ref, None, () => renderNonStrictCollection(ref, builder, context, newIndex, 1))
+        val node = builder.getNodeManager.createNode(desc, context)
+        builder.addChildren(List(node).asJava, true)
       }
     } yield ()
   }
@@ -97,6 +128,18 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 private object ScalaCollectionRenderer {
   private def isCollection(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
+
+  private def isNonStrictCollection(ct: ClassType): Boolean = {
+    def isView: Boolean =
+      DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
+        DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
+
+    def isLazyList: Boolean =
+      DebuggerUtils.instanceOf(ct, "scala.collection.immutable.LazyList") ||
+        DebuggerUtils.instanceOf(ct, "scala.collection.immutable.Stream")
+
+    isCollection(ct: ClassType) && (isLazyList || isView)
+  }
 
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
