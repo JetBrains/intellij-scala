@@ -22,12 +22,13 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
     modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     toImport.forEach { node =>
-      doImport(node)(modelsProvider)
+      doImport(node)(project, modelsProvider)
     }
   }
 
-  private def doImport(node: DataNode[BspMetadata])(implicit modelsProvider: IdeModifiableModelsProvider) = {
-    modelsProvider.getIdeModuleByNode(node).map { module =>
+  private def doImport(node: DataNode[BspMetadata])
+                      (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
+    modelsProvider.getIdeModuleByNode(node).foreach { module =>
       val data = node.getData
       val jdkByHome = Option(data.javaHome).map(_.toFile).map(JdkByHome)
       val jdkByVersion = Option(data.javaVersion).map(JdkByVersion)
@@ -50,14 +51,9 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
     }
   }
 
-  private def setLanguageLevel(model: ModifiableRootModel, languageLevel: LanguageLevel): Unit = {
-    ApplicationManager.getApplication.invokeLater(() => {
-      ApplicationManager.getApplication.runWriteAction(new Runnable {
-        override def run(): Unit = {
-          val languageLevelExtesion = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
-          languageLevelExtesion.setLanguageLevel(languageLevel)
-        }
-      })
-    })
+  private def setLanguageLevel(model: ModifiableRootModel, languageLevel: LanguageLevel)
+                              (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = executeProjectChangeAction {
+    val languageLevelExtesion = model.getModuleExtension(classOf[LanguageLevelModuleExtensionImpl])
+    languageLevelExtesion.setLanguageLevel(languageLevel)
   }
 }
