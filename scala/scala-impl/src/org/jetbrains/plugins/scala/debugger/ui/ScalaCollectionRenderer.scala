@@ -98,18 +98,6 @@ private object ScalaCollectionRenderer {
   private def isCollection(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
 
-  def isNonStrictCollection(ct: ClassType): Boolean = {
-    def isView: Boolean =
-      DebuggerUtils.instanceOf(ct, "scala.collection.View") ||
-        DebuggerUtils.instanceOf(ct, "scala.collection.IterableView")
-
-    def isLazyList: Boolean =
-      DebuggerUtils.instanceOf(ct, "scala.collection.immutable.LazyList") ||
-        DebuggerUtils.instanceOf(ct, "scala.collection.immutable.Stream")
-
-    isCollection(ct: ClassType) && (isLazyList || isView)
-  }
-
   def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),

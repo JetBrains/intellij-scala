@@ -14,17 +14,11 @@ import java.util.Collections;
 
 import static java.util.Collections.singletonList;
 
-/**
- * @author ilyas
- */
 public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettings> implements Getter<ScalaDebuggerSettings> {
 
   public boolean DEBUG_DISABLE_SPECIFIC_SCALA_METHODS = true;
   public boolean FRIENDLY_COLLECTION_DISPLAY_ENABLED = true;
   public boolean DONT_SHOW_RUNTIME_REFS = true;
-  public boolean DO_NOT_DISPLAY_STREAMS = true;
-  public int COLLECTION_START_INDEX = 0;
-  public int COLLECTION_END_INDEX = 49;
   public boolean SHOW_VARIABLES_FROM_OUTER_SCOPES = true;
   public boolean ALWAYS_SMART_STEP_INTO = true;
 
