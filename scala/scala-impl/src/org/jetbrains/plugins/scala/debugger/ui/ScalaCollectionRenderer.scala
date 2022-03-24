@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
-import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
@@ -15,6 +14,7 @@ import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.util._
 
 import java.util.concurrent.CompletableFuture
+import scala.jdk.CollectionConverters._
 
 class ScalaCollectionRenderer extends ScalaClassRenderer {
 
@@ -64,11 +64,32 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
 
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val ref = value.asInstanceOf[ObjectReference]
-    val renderer = NodeRendererSettings.getInstance().getArrayRenderer
+    val project = context.getProject
+    val nodeManager = builder.getNodeManager
 
     for {
-      array <- onDebuggerManagerThread(context)(evaluateToArray(ref, context))
-      _ <- onDebuggerManagerThread(context)(renderer.buildChildren(array, builder, context))
+      taken <- onDebuggerManagerThread(context)(evaluateTake(ref, 100, context))
+      array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
+      _ <- onDebuggerManagerThread(context) {
+        val elements = allValues(array)
+        val descs = elements.zipWithIndex.map { case (v, i) =>
+          val desc = new CollectionElementDescriptor(project, i, v)
+          nodeManager.createNode(desc, context)
+        }
+        builder.addChildren(descs.asJava, false)
+      }
+      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
+      size <- if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(Some(_)) else CompletableFuture.completedFuture(None)
+      _ <- onDebuggerManagerThread(context) {
+        val remaining = size.map(n => math.max(n - array.length(), 0))
+        remaining match {
+          case Some(0) => builder.addChildren(List.empty.asJava, true)
+          case _ =>
+            val desc = new ExpandCollectionDescriptor(project, 100, ref, remaining, builder)
+            val node = nodeManager.createNode(desc, context)
+            builder.addChildren(List(node).asJava, true)
+        }
+      }
     } yield ()
   }
 }
@@ -89,7 +110,7 @@ private object ScalaCollectionRenderer {
     isCollection(ct: ClassType) && (isLazyList || isView)
   }
 
-  private def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
+  def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "hasDefiniteSize",
@@ -97,7 +118,7 @@ private object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[BooleanValue].value()
 
-  private def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
+  def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "size",
@@ -127,13 +148,16 @@ private object ScalaCollectionRenderer {
   def evaluateTake(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
     evaluateIterableOperation("take")(ref, n, context)
 
-  def evaluateToArray(ref: ObjectReference, context: EvaluationContext): ObjectReference =
+  def evaluateToArray(ref: ObjectReference, context: EvaluationContext): ArrayReference =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "toArray",
       JVMNameUtil.getJVMRawText("(scala.reflect.ClassTag;)[Ljava/lang/Object"),
       Seq(ObjectClassTagEvaluator)
-    ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
+    ).asExpressionEvaluator.evaluate(context).asInstanceOf[ArrayReference]
+
+  def allValues(arr: ArrayReference): Vector[Value] =
+    arr.getValues.asScala.toVector
 
   private[this] val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
     val classTagName = JVMNameUtil.getJVMRawText("scala.reflect.ClassTag$")
