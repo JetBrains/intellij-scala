@@ -2,17 +2,19 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.settings.NodeRendererSettings
-import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
+import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
+import org.jetbrains.plugins.scala.debugger.ui.util._
 
-import scala.reflect.NameTransformer
+import java.util.concurrent.CompletableFuture
 
 class ScalaCollectionRenderer extends ScalaClassRenderer {
 
@@ -29,33 +31,50 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   override def isEnabled: Boolean =
     ScalaDebuggerSettings.getInstance().FRIENDLY_COLLECTION_DISPLAY_ENABLED
 
-  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String =
-    descriptor.getType match {
-      case ct: ClassType if isCollection(ct) =>
-        val ref = descriptor.getValue.asInstanceOf[ObjectReference]
-        val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
-        val size = if (hasDefiniteSize) evaluateSize(ref, context) else "?"
-        val typeName = extractNonQualifiedName(ct.name())
-        s"$typeName size = $size"
+  override def isExpandableAsync(value: Value, context: EvaluationContext, parentDescriptor: NodeDescriptor): CompletableFuture[java.lang.Boolean] = {
+    val ref = value.asInstanceOf[ObjectReference]
+    onDebuggerManagerThread(context)(evaluateNonEmpty(ref, context))
+  }
 
-      case _ =>
-        super.calcLabel(descriptor, context, labelListener)
-    }
+  override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
+    val ref = descriptor.getValue.asInstanceOf[ObjectReference]
 
-  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit =
-    value.`type`() match {
-      case ct: ClassType if isCollection(ct) =>
-        val ref = value.asInstanceOf[ObjectReference]
-        val array = evaluateToArray(ref, context)
-        val renderer = NodeRendererSettings.getInstance().getArrayRenderer
-        renderer.buildChildren(array, builder, context)
-      case _ =>
-        super.buildChildren(value, builder, context)
-    }
+    def computeSize(hasDefiniteSize: Boolean): CompletableFuture[String] =
+      if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(_.toString)
+      else CompletableFuture.completedFuture("?")
+
+    val sizeLabel = for {
+      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
+      size <- computeSize(hasDefiniteSize)
+    } yield s"size = $size"
+
+    sizeLabel.attempt.flatTap {
+      case Left(t) =>
+        onDebuggerManagerThread(context) {
+          descriptor.setValueLabelFailed(evaluationExceptionFromThrowable(t))
+          listener.labelChanged()
+        }
+      case Right(label) =>
+        onDebuggerManagerThread(context) {
+          descriptor.setValueLabel(label)
+          listener.labelChanged()
+        }
+    }.rethrow.getNow(XDebuggerUIConstants.getCollectingDataMessage)
+  }
+
+  override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
+    val ref = value.asInstanceOf[ObjectReference]
+    val renderer = NodeRendererSettings.getInstance().getArrayRenderer
+
+    for {
+      array <- onDebuggerManagerThread(context)(evaluateToArray(ref, context))
+      _ <- onDebuggerManagerThread(context)(renderer.buildChildren(array, builder, context))
+    } yield ()
+  }
 }
 
-private[debugger] object ScalaCollectionRenderer {
-  def isCollection(ct: ClassType): Boolean =
+private object ScalaCollectionRenderer {
+  private def isCollection(ct: ClassType): Boolean =
     DebuggerUtils.instanceOf(ct, "scala.collection.Iterable")
 
   def isNonStrictCollection(ct: ClassType): Boolean = {
@@ -70,7 +89,7 @@ private[debugger] object ScalaCollectionRenderer {
     isCollection(ct: ClassType) && (isLazyList || isView)
   }
 
-  def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
+  private def evaluateHasDefiniteSize(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "hasDefiniteSize",
@@ -78,7 +97,7 @@ private[debugger] object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[BooleanValue].value()
 
-  def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
+  private def evaluateSize(ref: ObjectReference, context: EvaluationContext): Int =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "size",
@@ -86,7 +105,7 @@ private[debugger] object ScalaCollectionRenderer {
       Seq.empty
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[IntegerValue].value()
 
-  def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
+  private def evaluateNonEmpty(ref: ObjectReference, context: EvaluationContext): Boolean =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       "nonEmpty",
@@ -116,25 +135,17 @@ private[debugger] object ScalaCollectionRenderer {
       Seq(ObjectClassTagEvaluator)
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
 
-  private val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
+  private[this] val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
     val classTagName = JVMNameUtil.getJVMRawText("scala.reflect.ClassTag$")
     val module = ScalaFieldEvaluator(new ScalaTypeEvaluator(classTagName), "MODULE$")
     ScalaMethodEvaluator(module, "Object", JVMNameUtil.getJVMRawText("()Lscala/reflect/ClassTag"), Seq.empty)
   }
 
-  def extractNonQualifiedName(qualifiedName: String): String = {
-    val decoded = NameTransformer.decode(qualifiedName)
-    val index =
-      if (decoded endsWith "`") decoded.substring(0, decoded.length - 1).lastIndexOf('`')
-      else decoded.lastIndexOf('.')
-    decoded.substring(index + 1)
-  }
-
-  implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
+  private[this] implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
   }
 
-  private class IntEvaluator(n: Int) extends Evaluator {
+  private[this] class IntEvaluator(n: Int) extends Evaluator {
     override def evaluate(context: EvaluationContextImpl): IntegerValue =
       context.getDebugProcess.getVirtualMachineProxy.mirrorOf(n)
   }

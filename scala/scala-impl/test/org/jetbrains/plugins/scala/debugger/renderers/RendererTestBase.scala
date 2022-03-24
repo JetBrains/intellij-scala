@@ -1,176 +1,96 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
-import java.util
-import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationContextImpl}
+import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.jdi.LocalVariablesUtil
 import com.intellij.debugger.ui.impl.ThreadsDebuggerTree
 import com.intellij.debugger.ui.impl.watch.{DebuggerTree, LocalVariableDescriptorImpl, NodeDescriptorImpl, ValueDescriptorImpl}
-import com.intellij.debugger.ui.tree._
-import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder}
+import com.intellij.debugger.ui.tree.render.{ArrayRenderer, ChildrenBuilder, NodeRenderer}
+import com.intellij.debugger.ui.tree.{DebuggerTreeNode, NodeDescriptorFactory, NodeManager, ValueDescriptor}
 import com.intellij.openapi.util.Disposer
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.xdebugger.frame.{XDebuggerTreeNodeHyperlink, XValueChildrenList}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
-
-import javax.swing.Icon
+import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.debugger.ui.util._
 
-import scala.collection.mutable
-import scala.concurrent.duration.{Duration, DurationDouble, FiniteDuration}
-import scala.concurrent.{Await, Promise, TimeoutException}
+import java.util
+import java.util.concurrent.CompletableFuture
+import javax.swing.Icon
+import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 14-Mar-17
- */
 abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
-  protected val DefaultTimeout: FiniteDuration = 5.seconds
+  protected implicit val DefaultTimeout: Duration = 60.seconds
 
-  protected class MyTinyLogger {
-    private val logStart = System.currentTimeMillis()
-    private var lastLogTime = logStart
-    def debug(text: => String): Unit = {
-      return // COMMENT OUT TO SEE METHOD USEFUL DEBUG INFO IN CONSOLE
-      val now = System.currentTimeMillis()
-      printf("[%5s|%5s] %s\n", now - lastLogTime, now - logStart, text)
-      lastLogTime = now
-    }
-  }
-
-  protected def renderLabelAndChildren(
-    variableName: String,
-    render: NodeDescriptor => String,
-    renderChildren: Boolean,
-    childrenCount: Int,
-    findValue: (DebuggerTree, EvaluationContextImpl, String) => ValueDescriptorImpl = localVar
-  )(implicit timeout: Duration = DefaultTimeout): (String, List[String]) = {
-    val log = new MyTinyLogger()
-
+  protected def renderLabelAndChildren(name: String, childrenCount: Option[Int], findVariable: (DebuggerTree, EvaluationContextImpl, String) => ValueDescriptorImpl = localVar)(implicit timeout: Duration): (String, Seq[String]) = {
     val frameTree = new ThreadsDebuggerTree(getProject)
     Disposer.register(getTestRootDisposable, frameTree)
+    val context = evaluationContext()
 
-    val testVariableEvaluatedPromise: Promise[Unit] = Promise()
-    val testVariableChildrenPromise: Promise[Seq[NodeDescriptor]] = {
-      if (renderChildren) Promise()
-      else Promise.successful(Nil)
+    (for {
+      variable <- onDebuggerManagerThread(context)(findVariable(frameTree, context, name))
+      label <- renderLabel(variable, context)
+      value <- onDebuggerManagerThread(context)(variable.calcValue(context))
+      renderer <- onDebuggerManagerThread(context)(variable.getRenderer(context.getDebugProcess)).flatten
+      children <- childrenCount.map(c => buildChildren(value, frameTree, variable, renderer, context, c)).getOrElse(CompletableFuture.completedFuture(Seq.empty))
+      childrenLabels <- children.map(renderLabel(_, context)).sequence
+    } yield (label, childrenLabels)).get(timeout.length, timeout.unit)
+  }
+
+  private def buildChildren(value: Value,
+                            frameTree: ThreadsDebuggerTree,
+                            descriptor: ValueDescriptorImpl,
+                            renderer: NodeRenderer,
+                            context: EvaluationContextImpl,
+                            count: Int): CompletableFuture[Seq[NodeDescriptorImpl]] = {
+    val future = new CompletableFuture[Seq[NodeDescriptorImpl]]()
+
+    onDebuggerManagerThread(context) {
+      renderer.buildChildren(value, new DummyChildrenBuilder(frameTree, descriptor) {
+        private val allChildren = new util.ArrayList[DebuggerTreeNode]()
+
+        override def setChildren(children: java.util.List[_ <: DebuggerTreeNode]): Unit = {
+          allChildren.addAll(children)
+          if (allChildren.size() == count && !future.isDone) {
+            val result = allChildren.asScala.map(_.getDescriptor).collect { case n: NodeDescriptorImpl => n }.toSeq
+            future.complete(result)
+          }
+        }
+      }, context)
     }
 
-    val testVariable = inSuspendContextAction(timeout, "Too long computing variable value") {
-      val context = evaluationContext()
-      val testVariable = findValue(frameTree, context, variableName)
-      testVariable.getRenderer(getDebugProcess).thenApply[Unit] { renderer =>
-        testVariable.setRenderer(renderer)
-        testVariable.updateRepresentation(context, () => {
-          val label = testVariable.getLabel
-          log.debug(s"testVariable label changed, name: ${testVariable.getName}, label: $label}")
-          val evaluationInProgress = isNodeEvaluating(label)
-          if (!evaluationInProgress && !testVariableEvaluatedPromise.isCompleted) {
-            log.debug("completing promise")
-            testVariableEvaluatedPromise.success(())
+    future
+  }
+
+  private def renderLabel(descriptor: NodeDescriptorImpl, context: EvaluationContextImpl): CompletableFuture[String] = {
+    val future = new CompletableFuture[String]()
+
+    for {
+      _ <- onDebuggerManagerThread(context) {
+        descriptor.updateRepresentation(context, () => {
+          val label = descriptor.getLabel
+          val inProgress = isNodeEvaluating(label)
+          if (!inProgress && !future.isDone) {
+            future.complete(label)
           }
         })
-
-        val value = testVariable.calcValue(context)
-        if (renderChildren) {
-          renderer.buildChildren(value, new DummyChildrenBuilder(frameTree, testVariable) {
-            private val result = mutable.LinkedHashSet.empty[DebuggerTreeNode]
-
-            // NOTE: from usages of `setChildren` it looks like it's actually ADD children, not SET
-            override def setChildren(children: util.List[_ <: DebuggerTreeNode]): Unit = synchronized {
-              val childrenSeq = children.asScala
-              result ++= childrenSeq
-              result.result()
-              log.debug(s"setChildren called, all children $result")
-              if (result.size >= childrenCount && !testVariableChildrenPromise.isCompleted) {
-                testVariableChildrenPromise.success(result.map(_.getDescriptor).toSeq)
-              }
-            }
-          }, context)
-        }
       }
+    } yield ()
 
-      testVariable
-    }
-
-    val testVariableChildren: List[NodeDescriptor] =
-      Await.result(testVariableChildrenPromise.future, timeout).toList
-
-    val evaluatedChildren = mutable.HashSet.empty[NodeDescriptor]
-    val childrenEvaluatedPromise: Promise[Unit] =
-      if (renderChildren) Promise()
-      else Promise.successful(())
-
-    testVariableChildren.foreach {
-      case child: NodeDescriptorImpl =>
-        log.debug(s"updateRepresentation for: ${child.getName}")
-
-        inSuspendContextAction(timeout, s"Too long updating children nodes of $variableName") {
-          child.updateRepresentation(evaluationContext(), () => {
-            val nodeLabel = child.getLabel
-            log.debug(s"child label changed, name: ${child.getName}, label: $nodeLabel}")
-
-            val evaluationInProgress = isNodeEvaluating(nodeLabel)
-            if (!evaluationInProgress && !evaluatedChildren.contains(child)) {
-              evaluatedChildren += child
-              if (testVariableChildren.size == evaluatedChildren.size) {
-                childrenEvaluatedPromise.success(())
-              }
-            }
-          })
-        }
-      case unknown =>
-        System.err.println("### UNEXPECTED CHILD TYPE: " + unknown)
-    }
-
-    try Await.result(testVariableEvaluatedPromise.future, timeout) catch {
-      case ex: TimeoutException =>
-        val message = s"Test variable evaluating took too long: ${ex.getMessage}\ncurrent label: ${testVariable.getIdLabel}"
-        val error = new AssertionError(message, ex)
-        error.setStackTrace(ex.getStackTrace)
-        throw error
-    }
-
-    try Await.result(childrenEvaluatedPromise.future, timeout) catch {
-      case ex: TimeoutException =>
-        val availableLabelsText = testVariableChildren
-          .map { child => s"name: ${child.getName}, label: ${child.getLabel}" }
-          .mkString("\n")
-        val message = s"Children nodes evaluating took too long: ${ex.getMessage}\navailable labels:\n$availableLabelsText"
-        val error = new AssertionError(message, ex)
-        error.setStackTrace(ex.getStackTrace)
-        throw error
-    }
-
-    //<magic>
-    log.debug(s"evalResult($variableName) start")
-    // we ignore the result, so don't render self as string (can take some time in some tests, e.g. testQueueWithLongToStringChildren
-    val ignoredResult = evalResult(variableName, renderSelfAsString = false)
-    log.debug(s"evalResult($variableName) end, result: $ignoredResult")
-    //</magic>
-
-    inSuspendContextAction(timeout, s"Too long rendering of $variableName") {
-      val variableText = render(testVariable)
-      val childrenText = testVariableChildren.map(render)
-      (variableText, childrenText)
-    }
+    future
   }
 
-  private def isNodeEvaluating(nodeLabel: String): Boolean = {
-    // i wish there was some more reliable API to check if node is still evaluating =(
-    nodeLabel.contains(XDebuggerUIConstants.getCollectingDataMessage)
-  }
+  private def isNodeEvaluating(label: String): Boolean =
+    label.contains(XDebuggerUIConstants.getCollectingDataMessage) ||
+      label.split(" = ").lengthIs <= 1
 
-  protected def localVar(frameTree: DebuggerTree, evaluationContext: EvaluationContextImpl, name: String): LocalVariableDescriptorImpl = {
-    try {
-      val frameProxy = evaluationContext.getFrameProxy
-      val local = frameTree.getNodeFactory.getLocalVariableDescriptor(null, frameProxy visibleVariableByName name)
-      local.setContext(evaluationContext)
-      local
-    } catch {
-      case e: EvaluateException => throw e
-    }
+  protected def localVar(frameTree: DebuggerTree, context: EvaluationContextImpl, name: String): LocalVariableDescriptorImpl = {
+    val frameProxy = context.getFrameProxy
+    val local = frameTree.getNodeFactory.getLocalVariableDescriptor(null, frameProxy.visibleVariableByName(name))
+    local.setContext(context)
+    local
   }
 
   protected def parameter(index: Int)(frameTree: DebuggerTree, context: EvaluationContextImpl, name: String): ValueDescriptorImpl = {

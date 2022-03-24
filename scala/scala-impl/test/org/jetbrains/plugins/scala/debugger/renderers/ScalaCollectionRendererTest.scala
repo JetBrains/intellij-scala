@@ -4,15 +4,8 @@ package renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.debugger.ui.tree.render._
-import org.jetbrains.plugins.scala.debugger.ui.ScalaCollectionRenderer
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration.{Duration, DurationInt}
-
-/**
- * User: Dmitry Naydanov
- * Date: 9/5/12
- */
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
@@ -25,7 +18,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
     s"""
        |object Lazy {
        |  def main(args: Array[String]): Unit = {
-       |    val stream = Stream.from(42)
+       |    val stream = Stream.from(1)
        |    val a = 1$bp
        |  }
        |}
@@ -33,7 +26,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
   )
 
   def testLazy(): Unit = {
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "size = ?")
   }
 }
 @Category(Array(classOf[DebuggerTests]))
@@ -53,8 +46,8 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
       """.replace("\r", "").stripMargin.trim
   )
   def testLazy(): Unit = {
-    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList size = ?")(10.seconds)
-    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream$Cons size = ?")(10.seconds)
+    testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "size = ?")
+    testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "size = ?")
   }
 }
 
@@ -69,20 +62,18 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   protected def testCollectionRenderer(collectionName: String,
                                        collectionClass: String,
                                        afterTypeLabel: String,
-                                       collectionLength: Int,
-                                       checkChildren: Boolean)
-                                      (implicit timeout: Duration = DefaultTimeout): Unit = {
+                                       collectionLength: Option[Int]): Unit = {
     import org.junit.Assert._
     runDebugger() {
       waitForBreakpoint()
-      val (label, children) = renderLabelAndChildren(collectionName, _.getLabel, checkChildren, collectionLength)(timeout)
+      val (label, children) = renderLabelAndChildren(collectionName, collectionLength)
       val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(collectionClass)
       val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
 
       assertEquals("node label value doesn't match", expectedLabel, label)
 
-      if (checkChildren) {
+      if (collectionLength.isDefined) {
         val intType = classRenderer.renderTypeName("java.lang.Integer")
         val intLabel = s"{$intType@$UNIQUE_ID}"
         var testIndex = 0
@@ -108,14 +99,13 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   protected def testCollectionRenderer(collectionName: String,
                                        collectionClass: String,
                                        afterTypeLabel: String,
-                                       expectedChildrenLabels: Seq[String])
-                                      (implicit timeout: Duration): Unit = {
+                                       expectedChildrenLabels: Seq[String]): Unit = {
 
     import org.junit.Assert._
     runDebugger() {
       waitForBreakpoint()
       val (label, childrenLabels) =
-        renderLabelAndChildren(collectionName, _.getLabel, renderChildren = expectedChildrenLabels.nonEmpty, expectedChildrenLabels.size)
+        renderLabelAndChildren(collectionName, Some(expectedChildrenLabels.length))
 
       val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(collectionClass)
@@ -127,24 +117,20 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   }
 
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
-    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
-    val afterTypeLabel = s"$shortClassName size = $collectionLength"
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, collectionLength, checkChildren = true)
+    val afterTypeLabel = s"size = $collectionLength"
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, Some(collectionLength))
   }
 
   protected def testScalaCollectionRenderer(collectionName: String,
                                             collectionClass: String,
-                                            expectedChildrenLabels: Seq[String])
-                                           (implicit timeout: Duration): Unit = {
+                                            expectedChildrenLabels: Seq[String]): Unit = {
     val collectionLength = expectedChildrenLabels.size
-    val shortClassName = ScalaCollectionRenderer.extractNonQualifiedName(collectionClass)
-    val afterTypeLabel = s"$shortClassName size = $collectionLength"
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, expectedChildrenLabels)(timeout)
+    val afterTypeLabel = s"size = $collectionLength"
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, expectedChildrenLabels)
   }
 
-  protected def testLazyCollectionRendering(collectionName: String, collectionClass: String, afterTypeLabel: String)
-                                           (implicit timeout: Duration = DefaultTimeout): Unit =
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, -1, checkChildren = false)(timeout)
+  protected def testLazyCollectionRendering(collectionName: String, collectionClass: String, afterTypeLabel: String): Unit =
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, Some(50))
 
   addFileWithBreakpoints("ShortList.scala",
     s"""
@@ -233,7 +219,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
       s"""3 = {LongToString@$UNIQUE_ID}To string result 3!""",
       s"""4 = {LongToString@$UNIQUE_ID}To string result 4!""",
     )
-    testScalaCollectionRenderer("queue", "scala.collection.immutable.Queue", expectedChildrenLabels)(30.seconds)
+    testScalaCollectionRenderer("queue", "scala.collection.immutable.Queue", expectedChildrenLabels)
   }
 
   addFileWithBreakpoints("LongList.scala",

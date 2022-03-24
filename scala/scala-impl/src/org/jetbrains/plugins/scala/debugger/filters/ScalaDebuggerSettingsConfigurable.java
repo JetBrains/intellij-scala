@@ -62,8 +62,8 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
     }
 
     public JComponent createComponent() {
-        myStartIndexSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
-        myEndIndexSpinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
+        myStartIndexSpinner.setModel(new SpinnerNumberModel(0, 0, null, 1));
+        myEndIndexSpinner.setModel(new SpinnerNumberModel(49, 1, null, 1));
 
         myStartIndexSpinner.setValue(mySettings.COLLECTION_START_INDEX);
         myEndIndexSpinner.setValue(mySettings.COLLECTION_END_INDEX);

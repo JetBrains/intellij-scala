@@ -1,9 +1,20 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import org.jetbrains.plugins.scala.DebuggerTests
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
+import org.junit.runner.RunWith
 
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_11,
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1
+))
 @Category(Array(classOf[DebuggerTests]))
 class SimpleRendererTest extends RendererTestBase {
   protected def checkLabelRendering(variableToExpectedLabel: (String, String)*): Unit = {
@@ -12,7 +23,7 @@ class SimpleRendererTest extends RendererTestBase {
       for {
         (variable, expected) <- variableToExpectedLabel
       } {
-        val (label, _) = renderLabelAndChildren(variable, _.getLabel, renderChildren = false, -1)
+        val (label, _) = renderLabelAndChildren(variable, None)
         assertEquals(expected, label)
       }
     }
@@ -40,5 +51,4 @@ class SimpleRendererTest extends RendererTestBase {
       "x4" -> "x4 = true",
     )
   }
-
 }

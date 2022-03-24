@@ -9,7 +9,9 @@ import com.intellij.debugger.ui.tree.ValueDescriptor
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, ClassRenderer, DescriptorLabelListener}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.debugger.ui.util._
 
+import java.util.concurrent.CompletableFuture
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -28,6 +30,10 @@ class ScalaClassRenderer extends ClassRenderer {
 
   override def isEnabled: Boolean = true
 
+  override def shouldDisplay(context: EvaluationContext, ref: ObjectReference, f: Field): Boolean =
+    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
+      !isModule(f) && !isBitmap(f) && !isOffset(f)
+
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, labelListener: DescriptorLabelListener): String = {
     val renderer = NodeRendererSettings.getInstance().getToStringRenderer
     renderer.calcLabel(descriptor, context, labelListener)
@@ -36,22 +42,27 @@ class ScalaClassRenderer extends ClassRenderer {
   override def buildChildren(value: Value, builder: ChildrenBuilder, context: EvaluationContext): Unit = {
     val ref = value.asInstanceOf[ObjectReference]
     val project = context.getProject
-    DebuggerUtilsAsync.allFields(ref.referenceType())
-      .thenAccept { fields =>
-        val toShow = fields.asScala.filter(shouldDisplayField(ref, _))
-        if (toShow.isEmpty) {
-          setClassHasNoFieldsToDisplayMessage(builder, builder.getNodeManager)
-        } else {
-          val manager = builder.getNodeManager
-          val nodes = toShow.map { field =>
-            val desc =
-              if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field)
-              else new FieldDescriptorImpl(project, ref, field)
-            manager.createNode(desc, context)
-          }.asJava
-          builder.setChildren(nodes)
+
+    def buildFields(fields: Seq[Field]): CompletableFuture[Unit] = onDebuggerManagerThread(context) {
+      val toShow = fields.filter(shouldDisplay(context, ref, _))
+      val nodeManager = builder.getNodeManager
+      if (toShow.isEmpty) {
+        setClassHasNoFieldsToDisplayMessage(builder, nodeManager)
+      } else {
+        val nodes = toShow.map { field =>
+          val desc =
+            if (isLazyVal(ref, field)) LazyValDescriptor.create(project, ref, field)
+            else new FieldDescriptorImpl(project, ref, field)
+          nodeManager.createNode(desc, context)
         }
+        builder.setChildren(nodes.asJava)
       }
+    }
+
+    for {
+      fields <- DebuggerUtilsAsync.allFields(ref.referenceType())
+      _ <- buildFields(fields.asScala.toSeq)
+    } yield ()
   }
 }
 
@@ -84,8 +95,4 @@ private object ScalaClassRenderer {
       }
     }
   }
-
-  private def shouldDisplayField(ref: ObjectReference, f: Field): Boolean =
-    !ScalaSyntheticProvider.hasSpecialization(f, Some(ref.referenceType())) &&
-      !isModule(f) && !isBitmap(f) && !isOffset(f)
 }
