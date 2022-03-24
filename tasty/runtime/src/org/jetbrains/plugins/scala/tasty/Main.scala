@@ -38,8 +38,6 @@ object Main {
 
     val start = System.currentTimeMillis()
 
-    val treePrinter = new TreePrinter()
-
     Libraries.foreach { binaries =>
       println("Parsing TASTy:\t\t" + binaries)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
@@ -47,6 +45,7 @@ object Main {
           val file = new File(s"$OutputDir/${entry.getName}")
           val tree = TreeReader.treeFrom(in.readAllBytes())
           val path = Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala"))
+          val treePrinter = new TreePrinter()
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()

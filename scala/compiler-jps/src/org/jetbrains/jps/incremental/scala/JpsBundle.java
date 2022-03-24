@@ -1,18 +1,18 @@
 package org.jetbrains.jps.incremental.scala;
 
 
-import com.intellij.AbstractBundle;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
+import org.jetbrains.jps.api.JpsDynamicBundle;
 
 /**
  * User: Dmitry.Krasilschikov
  * Date: 02.10.2006
  *
  */
-public class JpsBundle extends AbstractBundle {
+public class JpsBundle extends JpsDynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaJpsBundle";
 
