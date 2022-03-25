@@ -71,7 +71,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     ExternalProjectsManagerImpl.setupCreatedProject(project)
 
     if (needToAddSampleCode) {
-      addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")))
+      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")))
+      builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
     builder.commit(project)

@@ -3,13 +3,11 @@ package org.jetbrains.sbt.project.template.wizard
 import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.ProjectRootManager
-import com.intellij.openapi.vfs.VfsUtil
-
-import java.io.IOException
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 
 package object buildSystem {
 
@@ -34,20 +32,21 @@ package object buildSystem {
   }
 
   private[buildSystem]
-  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean): Unit = {
+  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean): VirtualFile = {
     val manager = FileTemplateManager.getInstance(project)
     val (template, fileName) =
       if (isScala3) (manager.getInternalTemplate("scala3-sample-code.scala"), "main.scala")
       else (manager.getInternalTemplate("scala-sample-code.scala"), "Main.scala")
     val sourceCode = template.getText
 
-    WriteAction.run[IOException](() => {
+    inWriteAction {
       val fileDirectory = VfsUtil.createDirectoryIfMissing(path) match {
         case null => throw new IllegalStateException("Unable to create src directory")
         case fd => fd
       }
-      val file = fileDirectory.findOrCreateChildData(this, fileName)
+      val file: VirtualFile = fileDirectory.findOrCreateChildData(this, fileName)
       VfsUtil.saveText(file, sourceCode)
-    })
+      file
+    }
   }
 }
