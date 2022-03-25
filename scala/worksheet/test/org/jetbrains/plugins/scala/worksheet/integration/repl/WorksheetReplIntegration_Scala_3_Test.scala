@@ -13,6 +13,7 @@ import scala.language.postfixOps
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1,
+  TestScalaVersion.Scala_3_1_2_RC,
 ))
 @Category(Array(classOf[WorksheetEvaluationTests]))
 class WorksheetReplIntegration_Scala_3_Test extends WorksheetReplIntegrationBaseTest

@@ -3,8 +3,6 @@ package lang
 package psi
 package impl
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
@@ -13,6 +11,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.JavaPsiFacadeImpl
 import com.intellij.psi.search.{DelegatingGlobalSearchScope, GlobalSearchScope, PsiShortNamesCache}
+import com.intellij.psi.util.PsiClassUtil
 import com.intellij.util.ObjectUtils
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import com.intellij.util.containers.ContainerUtil
@@ -20,13 +19,14 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupScheduler, ModTracker, ScalaShortNamesCacheManager}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager._
+import org.jetbrains.plugins.scala.lang.psi.impl.source.GlobalSearchScopeWithRecommendedResultsSorting
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticPackage, SyntheticClasses}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers.StableNodes.{Map => PMap}
@@ -45,6 +45,9 @@ import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWit
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import java.util
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
@@ -277,7 +280,15 @@ class ScalaPsiManager(implicit val project: Project) {
     val fromScala      = ScalaShortNamesCacheManager.getInstance(project).getClassesByFQName(fqn, scope)
     val scalaSynthetic = SyntheticClasses.get(scope.getProject).findClasses(fqn)
     val synthetic      = SyntheticClassProducer.getAllClasses(fqn, scope)
-    Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
+
+    val result = Array.concat(fromScala.toArray, classes, synthetic, scalaSynthetic)
+    scope match {
+      case _: GlobalSearchScopeWithRecommendedResultsSorting =>
+        util.Arrays.sort(result, PsiClassUtil.createScopeComparator(scope))
+        result
+      case _ =>
+        result
+    }
   }
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
