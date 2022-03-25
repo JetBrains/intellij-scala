@@ -23,5 +23,3 @@ abstract class ScalaRendererProvider(private val renderer: ScalaClassRenderer) e
 class ScalaClassRendererProvider extends ScalaRendererProvider(new ScalaClassRenderer())
 
 class ScalaCollectionRendererProvider extends ScalaRendererProvider(new ScalaCollectionRenderer())
-
-class ScalaNonStrictCollectionRendererProvider extends ScalaRendererProvider(new ScalaNonStrictCollectionRenderer())
