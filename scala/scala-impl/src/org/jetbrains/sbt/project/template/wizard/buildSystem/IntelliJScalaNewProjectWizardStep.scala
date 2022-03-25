@@ -43,7 +43,8 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject]] */
     if (getAddSampleCode) {
       val isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary)
-      addScalaSampleCode(project, s"$getContentRoot/src", isScala3)
+      val file = addScalaSampleCode(project, s"$getContentRoot/src", isScala3)
+      builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
     builder.commit(project)

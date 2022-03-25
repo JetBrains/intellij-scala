@@ -1,13 +1,19 @@
 package org.jetbrains.sbt.project.template
 
+import com.intellij.ide.util.EditorHelper
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtilRt
+import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
+import com.intellij.psi.PsiManager
 import org.gradle.internal.impldep.org.jetbrains.annotations.ApiStatus
+import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -23,6 +29,7 @@ abstract class SbtModuleBuilderBase
   ) {
 
   protected val Log: Logger = Logger.getInstance(getClass)
+  var openFileEditorAfterProjectOpened: Option[VirtualFile] = None
 
   locally {
     val settings = getExternalProjectSettings
@@ -65,6 +72,25 @@ abstract class SbtModuleBuilderBase
     } {
       val contentEntryFolders = createProjectTemplateIn(contentDir)
       SbtModuleBuilderUtil.tryToSetupRootModel2(model, contentPath, contentEntryFolders)
+
+      //execute when current dialog is closed
+      invokeLater {
+        openEditorForCodeSampleOrBuildFile(model.getProject, contentDir)
+      }
+    }
+  }
+
+  private def openEditorForCodeSampleOrBuildFile(project: Project, contentDir: File): Unit = {
+    //open code sample or buildSbt
+    val fileToOpen = openFileEditorAfterProjectOpened.orElse {
+      Option(VirtualFileManager.getInstance().findFileByNioPath((contentDir / Sbt.BuildFile).toPath))
+    }
+    fileToOpen.foreach { vFile =>
+      val psiManager = PsiManager.getInstance(project)
+      val psiFile = psiManager.findFile(vFile)
+      if (psiFile != null) {
+        EditorHelper.openInEditor(psiFile)
+      }
     }
   }
 
