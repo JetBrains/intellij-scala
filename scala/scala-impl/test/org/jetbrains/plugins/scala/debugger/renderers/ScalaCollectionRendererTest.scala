@@ -130,7 +130,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   }
 
   protected def testLazyCollectionRendering(collectionName: String, collectionClass: String, afterTypeLabel: String): Unit =
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, Some(50))
+    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, None)
 
   addFileWithBreakpoints("ShortList.scala",
     s"""

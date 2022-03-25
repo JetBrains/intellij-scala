@@ -1,13 +1,16 @@
 package org.jetbrains.plugins.scala.debugger.ui
 
+import com.intellij.debugger.DebuggerContext
 import com.intellij.debugger.engine.DebugProcessImpl
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.ui.impl.watch.FieldDescriptorImpl
+import com.intellij.debugger.ui.impl.watch.{ArrayElementDescriptorImpl, FieldDescriptorImpl}
 import com.intellij.debugger.ui.tree.NodeDescriptor
 import com.intellij.debugger.ui.tree.render.{NodeRenderer, OnDemandRenderer}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiExpression
 import com.intellij.ui.LayeredIcon
+import com.intellij.xdebugger.frame.presentation.XRegularValuePresentation
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
@@ -94,5 +97,47 @@ private final class NotInitializedLazyValDescriptor(project: Project, ref: Objec
     if (field.isFinal) base = new LayeredIcon(base, AllIcons.Nodes.FinalMark)
     if (field.isStatic) base = new LayeredIcon(base, AllIcons.Nodes.StaticMark)
     base
+  }
+}
+
+private final class CollectionElementDescriptor(project: Project, index: Int, value: Value)
+  extends ArrayElementDescriptorImpl(project, null, index) {
+
+  setValue(value)
+
+  override def getDescriptorEvaluation(context: DebuggerContext): PsiExpression =
+    throw EvaluationException(ScalaBundle.message("collection.element.descriptors.evaluation.not.supported"))
+}
+
+private final class ExpandCollectionDescriptor(project: Project,
+                                               index: Int,
+                                               ref: ObjectReference,
+                                               remaining: Option[Int],
+                                               render: () => CompletableFuture[Unit])
+  extends ArrayElementDescriptorImpl(project, null, index) {
+
+  import ScalaCollectionRenderer._
+
+  OnDemandRenderer.ON_DEMAND_CALCULATED.set(this, false)
+  setOnDemandPresentationProvider { node =>
+    val message = remaining
+      .map(math.min(_, 100))
+      .map {
+        case 100 => ScalaBundle.message("expand.next.100.items")
+        case n => ScalaBundle.message("expand.last.n.items", n)
+      }
+      .getOrElse(ScalaBundle.message("request.next.10.items"))
+    node.setFullValueEvaluator(OnDemandRenderer.createFullValueEvaluator(message))
+    node.setPresentation(null, new XRegularValuePresentation("", null, "") {
+      override def isShowName: Boolean = false
+    }, false)
+  }
+
+  override def calcValue(context: EvaluationContextImpl): Value = {
+    val dropped = evaluateDrop(ref, index, context)
+    val taken = evaluateTake(dropped, 1, context)
+    val array = evaluateToArray(taken, context)
+    render()
+    array.getValue(0)
   }
 }
