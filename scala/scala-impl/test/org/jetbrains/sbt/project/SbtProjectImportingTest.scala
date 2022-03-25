@@ -242,14 +242,14 @@ class SbtProjectImportingTest extends ImportingTestCase
 
       // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
       lazy val ideaPluginRoot: module = new module("sbtIdeaPlugin") {
-        sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-plugin")
+        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-plugin.git")
         sbtProjectId := "sbtIdeaPlugin"
       }
 
       lazy val ideaPluginInnerModule = new module("sbt-idea-plugin")
 
       lazy val ideaShell: module = new module("sbt-idea-shell") {
-        sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-shell#master")
+        sbtBuildURI := new URI("https://github.com/JetBrains/sbt-idea-shell.git#master")
         sbtProjectId := "sbt-idea-shell"
       }
 
@@ -257,6 +257,16 @@ class SbtProjectImportingTest extends ImportingTestCase
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
         sbtProjectId := "sbt-ide-settings"
       }
+      //sbt-build-modules
+      //sbt-ide-settings-build
+      //sbt-idea-plugin-build
+      //sbt-idea-shell-build
+      //SCL-14635-build
+
+      //sbt-ide-settings
+      //sbt-idea-plugin
+      //sbt-idea-shell
+      //SCL-14635
 
       modules := Seq(
         base,

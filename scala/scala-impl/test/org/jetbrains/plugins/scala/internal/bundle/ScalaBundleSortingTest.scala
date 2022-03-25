@@ -38,15 +38,18 @@ abstract class ScalaBundleSortingTestBase extends TestCase with AssertionMatcher
 
     val usedEntries = entries.filterNot(_.path == unusedPath)
 
+    val tryToRerunSorting_HintSuffix =
+      "\nTry to run `ScalaUltimateBundleSorting.main` or `ScalaBundleSorting.main` locally and commit the changes"
+
     //val undefinedFindings = findings.map(_.key).filterNot(keyToEntry.contains)
     //assert(undefinedFindings.isEmpty, s"Undefined keys(${undefinedFindings.size}): " + undefinedFindings.mkString(", "))
     val noPathEntries = entries.filter(_.path == noPath)
-    assert(noPathEntries.isEmpty, "Entries outside of path header: " + noPathEntries.map(_.key).mkString(", "))
+    assert(noPathEntries.isEmpty, "Entries outside of path header: " + noPathEntries.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
 
     val unusedEntries = usedEntries.filterNot(e => keyToFinding.contains(e.key))
-    assert(unusedEntries.isEmpty, "Unused bundle keys: " + unusedEntries.map(_.key).mkString(", "))
+    assert(unusedEntries.isEmpty, "Unused bundle keys: " + unusedEntries.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
 
     val notInPathUsed = usedEntries.filterNot(e => keyToFinding(e.key).exists(_.relativeFilepath == e.path))
-    assert(notInPathUsed.isEmpty, "Not used in its path: " + notInPathUsed.map(_.key).mkString(", "))
+    assert(notInPathUsed.isEmpty, "Not used in its path: " + notInPathUsed.map(_.key).mkString(", ") + tryToRerunSorting_HintSuffix)
   }
 }

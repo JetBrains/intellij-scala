@@ -139,7 +139,7 @@ class ILoopWrapperFactory {
       new URLClassLoader(Array[URL](iLoopWrapperJar), classLoader)
     } catch {
       case ex: MalformedURLException =>
-        return Left(ILoopCreationException(ex))
+        return Left(new ILoopCreationException(ex))
     }
 
     val clazz = try {
@@ -148,7 +148,7 @@ class ILoopWrapperFactory {
       loader.loadClass(s"$basePackage.$replClassName")
     } catch {
       case ex: ClassNotFoundException =>
-        return Left(ILoopCreationException(ex))
+        return Left(new ILoopCreationException(s"Can't load ILoopWrapper $replWrapper (file exists: ${replFile.exists})", ex))
     }
 
     val replClasspathChunks = Seq(
@@ -175,7 +175,7 @@ class ILoopWrapperFactory {
       Right(inst)
     } catch {
       case ex@(_: ReflectiveOperationException | _: IllegalArgumentException) =>
-        val exception = ILoopWrapperFactory.ILoopCreationException(ex)
+        val exception = new ILoopCreationException(ex)
         exception.setStackTrace(ex.getStackTrace)
         Left(exception)
       case wtf: Throwable =>
@@ -186,7 +186,9 @@ class ILoopWrapperFactory {
 
 private object ILoopWrapperFactory {
 
-  private case class ILoopCreationException(cause: Throwable) extends Exception(cause)
+  private class ILoopCreationException(message: String, cause: Throwable) extends Exception(message, cause) {
+    def this(cause: Throwable) = this(cause.toString, cause)
+  }
 
   private class MySimpleCache(val limit: Int) {
 
