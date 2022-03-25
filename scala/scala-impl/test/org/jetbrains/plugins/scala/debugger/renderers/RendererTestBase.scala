@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters._
 
 abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
-  protected implicit val DefaultTimeout: Duration = 60.seconds
+  protected implicit val DefaultTimeout: Duration = 3.minutes
 
   protected def renderLabelAndChildren(name: String, childrenCount: Option[Int], findVariable: (DebuggerTree, EvaluationContextImpl, String) => ValueDescriptorImpl = localVar)(implicit timeout: Duration): (String, Seq[String]) = {
     val frameTree = new ThreadsDebuggerTree(getProject)
@@ -94,6 +94,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
   }
 
   protected def parameter(index: Int)(frameTree: DebuggerTree, context: EvaluationContextImpl, name: String): ValueDescriptorImpl = {
+    val _ = name
     val frameProxy = context.getFrameProxy
     val mapping = LocalVariablesUtil.fetchValues(frameProxy, context.getDebugProcess, true)
     val (dv, v) = mapping.asScala.toList(index)
@@ -117,6 +118,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     override def addChildren(children: XValueChildrenList, last: Boolean): Unit = {}
 
+    //noinspection ScalaDeprecation
     override def tooManyChildren(remaining: Int): Unit = {}
 
     override def setMessage(message: String, icon: Icon, attributes: SimpleTextAttributes, link: XDebuggerTreeNodeHyperlink): Unit = {}
