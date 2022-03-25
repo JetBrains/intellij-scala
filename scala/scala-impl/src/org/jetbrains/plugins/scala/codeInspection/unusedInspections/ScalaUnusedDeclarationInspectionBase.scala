@@ -27,12 +27,12 @@ import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUti
 
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspection {
-  import ScalaUnusedSymbolInspectionBase._
+abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInspection {
+  import ScalaUnusedDeclarationInspectionBase._
 
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.symbol")
+  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
     if (isOnTheFly) {
@@ -40,7 +40,7 @@ abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspectio
         localSearch(element)
       } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
         true
-      } else if (!isReportPublicSymbols) {
+      } else if (!isReportPublicDeclarationsEnabled) {
         true
       } else if (checkIfEnumUsedOutsideScala(element)) {
         true
@@ -173,9 +173,9 @@ abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspectio
           Seq(
             ProblemInfo(
               named.nameId,
-              ScalaUnusedSymbolInspectionBase.annotationDescription,
+              ScalaUnusedDeclarationInspectionBase.annotationDescription,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              DeleteUnusedElementFix.quickfixesFor(named) :+ new DontReportPublicSymbolsQuickFix(named)
+              DeleteUnusedElementFix.quickfixesFor(named) :+ new DontReportPublicDeclarationsQuickFix(named)
             )
           )
         case _ =>
@@ -209,16 +209,14 @@ abstract class ScalaUnusedSymbolInspectionBase extends HighlightingPassInspectio
     case _ => false
   }
 
-  def isReportPublicSymbols: Boolean
+  def isReportPublicDeclarationsEnabled: Boolean
 
-  def setReportPublicSymbols(reportPublicSymbols: Boolean): Unit
+  def setReportPublicDeclarationsEnabled(enabled: Boolean): Unit
 }
 
-object ScalaUnusedSymbolInspectionBase {
+object ScalaUnusedDeclarationInspectionBase {
   @Nls
   val annotationDescription: String = ScalaInspectionBundle.message("declaration.is.never.used")
-
-  val shortName: String = "ScalaUnusedSymbol"
 
   private def hasOverrideModifier(member: ScModifierListOwner): Boolean =
     member.hasModifierPropertyScala(ScalaModifier.OVERRIDE)

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
-class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
   private val p = START + "p" + END
 

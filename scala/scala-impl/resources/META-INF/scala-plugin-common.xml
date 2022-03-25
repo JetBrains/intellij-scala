@@ -160,7 +160,7 @@
 
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaLocalVarCouldBeValPassFactory"/>
         <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedImportsPassFactory"/>
-        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedLocalSymbolPassFactory"/>
+        <highlightingPassFactory implementation="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationPassFactory"/>
 
         <lang.syntaxHighlighterFactory language="Scala"
                                        implementationClass="org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory"/>
@@ -897,9 +897,9 @@
                          key="displayname.var.could.be.a.val"
                          groupPath="Scala" groupKey="group.general" shortName="VarCouldBeVal"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedSymbolInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="displayname.unused.symbol"
+                         key="displayname.unused.declaration"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
