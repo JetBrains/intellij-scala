@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.unused.positive
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
 
-class Scala3UnusedLocalSymbolOneContainerInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class Scala3UnusedLocalDeclarationOneContainerInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 

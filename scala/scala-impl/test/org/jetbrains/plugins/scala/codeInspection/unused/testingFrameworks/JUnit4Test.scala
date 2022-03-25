@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.unused.testingFrameworks
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.LibrariesOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
 
-class JUnit4Test extends ScalaUnusedSymbolInspectionTestBase with LibrariesOwner {
+class JUnit4Test extends ScalaUnusedDeclarationInspectionTestBase with LibrariesOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     IvyManagedLoader(("junit" % "junit" % "4.13.2").transitive())

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.unused.positive
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
 
-class Scala3GlobalSymbolUsedFromJavaInspectionTest extends ScalaUnusedSymbolInspectionTestBase {
+class Scala3GlobalDeclarationUsedFromJavaInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
   private def addJavaFile(text: String): Unit = myFixture.addFileToProject("Bar.java", text)
