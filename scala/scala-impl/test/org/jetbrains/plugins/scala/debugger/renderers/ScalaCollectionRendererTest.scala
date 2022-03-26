@@ -54,11 +54,15 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_3_0 extends ScalaCollectionRendererTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+
+  override def testStack(): Unit = ()
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_3_1 extends ScalaCollectionRendererTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testStack(): Unit = ()
 }
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
