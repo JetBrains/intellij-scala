@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.refactoring.delete
 
 import com.intellij.refactoring.BaseRefactoringProcessor
-import com.intellij.refactoring.listeners.{RefactoringEventListener, RefactoringEventData}
+import com.intellij.refactoring.listeners.{RefactoringEventData, RefactoringEventListener}
 import com.intellij.refactoring.safeDelete.SafeDeleteHandler
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.util.Markers
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 import scala.jdk.CollectionConverters._
 import scala.util.Try

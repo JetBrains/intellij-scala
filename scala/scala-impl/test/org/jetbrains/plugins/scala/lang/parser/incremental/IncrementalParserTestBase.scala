@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala.lang.parser.incremental
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.DebugUtil.psiToString
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{EditorActionTestBase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
+import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MarkersUtils
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
 import org.junit.ComparisonFailure
 
