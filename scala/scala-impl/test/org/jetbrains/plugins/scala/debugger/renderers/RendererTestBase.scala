@@ -31,11 +31,17 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     (for {
       variable <- onDebuggerManagerThread(context)(findVariable(frameTree, context, name))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 1. found variable $variable"))
       label <- renderLabel(variable, context)
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 2. rendered label $label"))
       value <- onDebuggerManagerThread(context)(variable.calcValue(context))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 3. calculated value $value"))
       renderer <- onDebuggerManagerThread(context)(variable.getRenderer(context.getDebugProcess)).flatten
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 4. obtained renderer $renderer"))
       children <- childrenCount.map(c => buildChildren(value, frameTree, variable, renderer, context, c)).getOrElse(CompletableFuture.completedFuture(Seq.empty))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 5. built children $children"))
       childrenLabels <- children.map(renderLabel(_, context)).sequence
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 6. rendered children labels $childrenLabels"))
     } yield (label, childrenLabels)).get(timeout.length, timeout.unit)
   }
 
