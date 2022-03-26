@@ -22,7 +22,7 @@ import scala.jdk.CollectionConverters._
 
 abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
-  protected implicit val DefaultTimeout: Duration = 60.seconds
+  protected implicit val DefaultTimeout: Duration = 3.minutes
 
   protected def renderLabelAndChildren(name: String, childrenCount: Option[Int], findVariable: (DebuggerTree, EvaluationContextImpl, String) => ValueDescriptorImpl = localVar)(implicit timeout: Duration): (String, Seq[String]) = {
     val frameTree = new ThreadsDebuggerTree(getProject)
@@ -31,11 +31,17 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     (for {
       variable <- onDebuggerManagerThread(context)(findVariable(frameTree, context, name))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 1. found variable $variable"))
       label <- renderLabel(variable, context)
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 2. rendered label $label"))
       value <- onDebuggerManagerThread(context)(variable.calcValue(context))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 3. calculated value $value"))
       renderer <- onDebuggerManagerThread(context)(variable.getRenderer(context.getDebugProcess)).flatten
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 4. obtained renderer $renderer"))
       children <- childrenCount.map(c => buildChildren(value, frameTree, variable, renderer, context, c)).getOrElse(CompletableFuture.completedFuture(Seq.empty))
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 5. built children $children"))
       childrenLabels <- children.map(renderLabel(_, context)).sequence
+      _ <- CompletableFuture.supplyAsync(() => println(s"[$name] 6. rendered children labels $childrenLabels"))
     } yield (label, childrenLabels)).get(timeout.length, timeout.unit)
   }
 
@@ -94,6 +100,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
   }
 
   protected def parameter(index: Int)(frameTree: DebuggerTree, context: EvaluationContextImpl, name: String): ValueDescriptorImpl = {
+    val _ = name
     val frameProxy = context.getFrameProxy
     val mapping = LocalVariablesUtil.fetchValues(frameProxy, context.getDebugProcess, true)
     val (dv, v) = mapping.asScala.toList(index)
@@ -117,6 +124,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
 
     override def addChildren(children: XValueChildrenList, last: Boolean): Unit = {}
 
+    //noinspection ScalaDeprecation
     override def tooManyChildren(remaining: Int): Unit = {}
 
     override def setMessage(message: String, icon: Icon, attributes: SimpleTextAttributes, link: XDebuggerTreeNodeHyperlink): Unit = {}
