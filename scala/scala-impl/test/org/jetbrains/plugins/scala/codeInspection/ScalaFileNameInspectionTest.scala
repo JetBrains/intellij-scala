@@ -3,8 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.psi.PsiFile
 import com.intellij.refactoring.rename.RenameProcessor
-import org.jetbrains.plugins.scala.AssertionMatchers
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class ScalaFileNameInspectionTest extends ScalaQuickFixTestBase with AssertionMatchers {
 
