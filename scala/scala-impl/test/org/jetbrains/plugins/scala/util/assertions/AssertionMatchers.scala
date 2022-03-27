@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
+package org.jetbrains.plugins.scala.util.assertions
 
 import org.junit.Assert._
 
-// TODO: move to util.assertions package
 trait AssertionMatchers {
 
   implicit class AssertMatchersExt[T](val actual: T) {

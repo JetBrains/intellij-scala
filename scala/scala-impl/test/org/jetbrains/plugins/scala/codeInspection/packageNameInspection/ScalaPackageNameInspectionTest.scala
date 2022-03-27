@@ -4,7 +4,8 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.{AssertionMatchers, ScalaVersion}
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBase with AssertionMatchers {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.util
 import com.intellij.openapi.util.TextRange
 import com.intellij.testFramework.EditorTestUtil
 import junit.framework.TestCase
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.junit.Assert._
 
 import scala.collection.immutable.SortedMap

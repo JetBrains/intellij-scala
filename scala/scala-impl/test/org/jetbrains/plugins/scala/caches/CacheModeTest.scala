@@ -5,6 +5,7 @@ import com.intellij.mock.MockPsiElement
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, incModCount}
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class CacheModeTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
   sealed trait TestResult

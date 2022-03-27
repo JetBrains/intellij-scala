@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
 import junit.framework.{TestCase, TestSuite}
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting._
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSortingTest.ActualTest
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 import org.junit.runner.RunWith

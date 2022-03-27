@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class EndParserTest_InTemplateDefinition extends SimpleScala3ParserTestBase with PsiSelectionUtil with AssertionMatchers {
 
