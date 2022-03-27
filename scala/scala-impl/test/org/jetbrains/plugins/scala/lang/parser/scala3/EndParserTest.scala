@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScEnd
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class EndParserTest extends SimpleScala3ParserTestBase with PsiSelectionUtil with AssertionMatchers {
   def doTest(code: String, expectedType: IElementType): Unit = {

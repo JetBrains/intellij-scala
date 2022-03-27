@@ -7,11 +7,11 @@ import com.intellij.debugger.ui.tree.render._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
+class ScalaCollectionRendererTest_2_11 extends ScalaCollectionRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTestBase {
+class ScalaCollectionRendererTest_2_12 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   addFileWithBreakpoints("Lazy.scala",
@@ -30,7 +30,7 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
   }
 }
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTestBase {
+class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   addFileWithBreakpoints("Lazy.scala",
@@ -52,8 +52,17 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaCollectionRendererTest_3_0 extends ScalaCollectionRendererTest_since_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class ScalaCollectionRendererTest_3_0 extends ScalaCollectionRendererTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+
+  override def testStack(): Unit = ()
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaCollectionRendererTest_3_1 extends ScalaCollectionRendererTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testStack(): Unit = ()
 }
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {

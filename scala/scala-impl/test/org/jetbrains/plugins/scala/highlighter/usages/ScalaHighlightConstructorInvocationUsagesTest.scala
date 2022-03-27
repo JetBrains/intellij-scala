@@ -5,8 +5,8 @@ package usages
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandler
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.util.Markers
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
 class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers with Markers {
   val | = CARET
