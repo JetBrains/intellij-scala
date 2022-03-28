@@ -4,7 +4,8 @@ import com.intellij.ide.JavaUiBundle
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
-import com.intellij.openapi.observable.properties.{GraphPropertyImpl, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.properties.{GraphProperty, GraphPropertyImpl, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, SdkTypeId}
@@ -22,6 +23,8 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.ComboBoxKt_Wrapp
 import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, ScalaNewProjectWizard, ScalaNewProjectWizardStep}
 import org.jetbrains.sbt.project.template.{SbtModuleBuilder, SbtModuleBuilderSelections}
 
+import javax.swing.JLabel
+
 //noinspection ApiStatus,UnstableApiUsage
 final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends AbstractNewProjectWizardStep(parent)
@@ -32,6 +35,9 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   private var sdkComboBox: Cell[JdkComboBox] = _
   private val sdkProperty: GraphPropertyImpl[Sdk] = new GraphPropertyImpl(propertyGraph, () => null)
   private val moduleNameProperty: GraphPropertyImpl[String] = new GraphPropertyImpl(propertyGraph, () => parent.getName)
+  private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
+  BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
+  private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
   def getSdk: Sdk = sdkProperty.get()
   def getModuleName: String = moduleNameProperty.get()
@@ -57,11 +63,18 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   override def setupProject(project: Project): Unit = {
     val builder = new SbtModuleBuilder(this.selections)
     builder.setName(getModuleName)
-    builder.setContentEntryPath(getContext.getProjectDirectory.toAbsolutePath.toString)
+    val projectRoot = getContext.getProjectDirectory.toAbsolutePath
+    builder.setContentEntryPath(projectRoot.toString)
 
     setProjectOrModuleSdk(project, parent, builder, Option(getSdk))
 
     ExternalProjectsManagerImpl.setupCreatedProject(project)
+
+    if (needToAddSampleCode) {
+      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")))
+      builder.openFileEditorAfterProjectOpened = Some(file)
+    }
+
     builder.commit(project)
   }
 
@@ -87,6 +100,12 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
+    panel.row(null: JLabel, (row: Row) => {
+      val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
+      ButtonKt.bindSelected(cb, addSampleCodeProperty)
+      KUnit
+    }).topGap(TopGap.SMALL)
+
 
     panel.collapsibleGroup(UIBundle.message("label.project.wizard.new.project.advanced.settings"), true, (panel: Panel) => {
       if (getContext.isCreatingNewProject) {

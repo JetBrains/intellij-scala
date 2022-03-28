@@ -211,10 +211,15 @@ object CompileServerLauncher {
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
-            .flatMap(_.getVMArguments.asScala)
+            .flatMap(_.getVMArguments.asScala).toSeq
           val extraJvmParameters = CompileServerVmOptionsProvider.implementations.iterator
-            .flatMap(_.vmOptionsFor(project))
-          (buildProcessParameters ++ extraJvmParameters).to(ArraySeq)
+            .flatMap(_.vmOptionsFor(project)).toSeq
+          //see SCL-20064
+          val workaroundForSecurityManagerForJDK18 =
+            if (jdk.version.exists(_.isAtLeast(JavaSdkVersion.JDK_18)))
+              Seq("-Djava.security.manager=allow")
+            else Nil
+          buildProcessParameters ++ extraJvmParameters ++ workaroundForSecurityManagerForJDK18
         }
 
         // SCL-18193

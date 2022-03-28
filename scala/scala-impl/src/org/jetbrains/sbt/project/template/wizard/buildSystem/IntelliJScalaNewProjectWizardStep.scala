@@ -1,27 +1,32 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
-import com.intellij.ide.fileTemplates.FileTemplateManager
 import com.intellij.ide.highlighter.ModuleFileType
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
+import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.ui.validation.DialogValidation
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.dsl.builder.{Panel, Row, RowLayout}
 import com.intellij.ui.dsl.gridLayout.HorizontalAlign
 import kotlin.Unit.{INSTANCE => KUnit}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.ScalaLibraryProperties
 import org.jetbrains.plugins.scala.project.template.{ScalaModuleBuilder, ScalaSDKStepLike}
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
-import java.io.IOException
 import java.nio.file.Paths
-import javax.swing.JComponent
+import javax.swing.{JComboBox, JComponent}
 
+/**
+ * TODO log FUS events like in
+ *  - org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard
+ *  - com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard
+ *  - org.jetbrains.plugins.gradle.service.project.wizard.GradleJavaNewProjectWizard
+ */
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardStep](parent)
@@ -46,21 +51,9 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
 
     /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject]] */
     if (getAddSampleCode) {
-      val manager = FileTemplateManager.getInstance(project)
       val isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary)
-      val (template, fileName) =
-        if (isScala3) (manager.getInternalTemplate("scala3-sample-code.scala"), "main.scala")
-        else (manager.getInternalTemplate("scala-sample-code.scala"), "Main.scala")
-      val sourceCode = template.getText
-
-      WriteAction.run[IOException](() => {
-        val fileDirectory = VfsUtil.createDirectoryIfMissing(s"$getContentRoot/src") match {
-          case null => throw new IllegalStateException("Unable to create src directory")
-          case fd => fd
-        }
-        val file = fileDirectory.findOrCreateChildData(this, fileName)
-        VfsUtil.saveText(file, sourceCode)
-      })
+      val file = addScalaSampleCode(project, s"$getContentRoot/src", isScala3)
+      builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
     builder.commit(project)
@@ -82,7 +75,21 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       // WORKAROUND: `row.cell(simplePanel)` adds some strange indent to the left which looks ugly
       // So we add all children (library dropdown & "create" button)
       // (I didn't find a a proper way to fix the border)
-      components.foreach(row.cell(_))
+      components.foreach { component =>
+        val cell = component match {
+          case comboBox: JComboBox[_] =>
+            //apply validation only for the combobox component with the library selection
+            row.cell(comboBox).validation((() => {
+              if (comboBox.getSelectedIndex == -1)
+                new ValidationInfo(SbtBundle.message("scala.sdk.must.be.set"))
+              else
+                null
+            }): DialogValidation)
+          case _ =>
+            row.cell(component)
+        }
+        cell
+      }
       KUnit
     })
   }
