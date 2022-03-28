@@ -4,7 +4,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.LibrariesOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedSymbolInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 
 /*
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
  * belong here and should be moved elsewhere as soon as we've implemented entrypoint registration for them.
  */
 
-class EntryPointsWithoutGutterIconsTest extends ScalaUnusedSymbolInspectionTestBase with LibrariesOwner {
+class EntryPointsWithoutGutterIconsTest extends ScalaUnusedDeclarationInspectionTestBase with LibrariesOwner {
 
   override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
     IvyManagedLoader(("org.scalatest" %% "scalatest" % "3.1.1").transitive())
