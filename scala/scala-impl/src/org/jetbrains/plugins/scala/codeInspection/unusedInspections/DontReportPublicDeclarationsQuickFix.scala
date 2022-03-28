@@ -7,12 +7,12 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-final class DontReportPublicSymbolsQuickFix(named: ScNamedElement)
+final class DontReportPublicDeclarationsQuickFix(named: ScNamedElement)
   extends LocalQuickFixAndIntentionActionOnPsiElement(named) {
-  override def getText: String = ScalaInspectionBundle.message("fix.unused.symbol.report.public.symbols")
+  override def getText: String = ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations")
 
   override def getFamilyName: String = getText
 
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
-    ScalaUnusedLocalSymbolPass.inspection(project).setReportPublicSymbols(false)
+    ScalaUnusedDeclarationPass.inspection(project).setReportPublicDeclarationsEnabled(false)
 }

@@ -8,12 +8,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-class ScalaUnusedLocalSymbolPassFactory
+class ScalaUnusedDeclarationPassFactory
   extends TextEditorHighlightingPassFactory
   with TextEditorHighlightingPassFactoryRegistrar {
 
   override def createHighlightingPass(file: PsiFile, editor: Editor): TextEditorHighlightingPass = file match {
-    case scalaFile: ScalaFile => new ScalaUnusedLocalSymbolPass(scalaFile, Option(editor.getDocument))
+    case scalaFile: ScalaFile => new ScalaUnusedDeclarationPass(scalaFile, Option(editor.getDocument))
     case _ => null
   }
 
