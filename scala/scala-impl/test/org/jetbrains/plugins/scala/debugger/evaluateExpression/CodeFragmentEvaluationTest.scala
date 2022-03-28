@@ -7,7 +7,7 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest_2_11 extends CodeFragmentEvaluationTestBase with ScalaSdkOwner {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
