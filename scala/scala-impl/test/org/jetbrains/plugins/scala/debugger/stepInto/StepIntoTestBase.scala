@@ -10,8 +10,8 @@ import org.junit.experimental.categories.Category
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_until_2_11 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
+class StepIntoTest_2_11 extends StepIntoTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
   override def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
@@ -21,7 +21,7 @@ class StepIntoTest_until_2_11 extends StepIntoTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_since_2_12 extends StepIntoTestBase {
+class StepIntoTest_2_12 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
@@ -51,7 +51,7 @@ class StepIntoTest_since_2_12 extends StepIntoTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_3_0 extends StepIntoTest_since_2_12 {
+class StepIntoTest_3_0 extends StepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   override def testSamAbstractClass(): Unit =

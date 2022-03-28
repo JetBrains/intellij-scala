@@ -15,12 +15,12 @@ import scala.jdk.CollectionConverters._
  * @author Nikolay.Tropin
  */
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest_until_2_11 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
+class SmartStepIntoTest_2_11 extends SmartStepIntoTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
+class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
@@ -39,7 +39,7 @@ class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest_3_0 extends SmartStepIntoTest_since_2_12 {
+class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   addFileWithBreakpoints("PostfixAndUnapply.scala",
