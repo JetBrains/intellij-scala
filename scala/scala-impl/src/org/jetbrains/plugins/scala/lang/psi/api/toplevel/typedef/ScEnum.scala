@@ -36,6 +36,7 @@ object ScEnum {
               case enum: ScEnum => Some(enum)
               case _ => None
             }
+          case _ => None
         }
       else None
   }
