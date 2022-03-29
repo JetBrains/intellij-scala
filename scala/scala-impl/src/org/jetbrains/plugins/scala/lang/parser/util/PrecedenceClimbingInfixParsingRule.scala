@@ -8,6 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Expr1
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
@@ -16,10 +17,12 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   protected def referenceElementType: IElementType
   protected def infixElementType: IElementType
+  protected def isMatchConsideredInfix: Boolean
 
   protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = ()
 
   final override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    val isInlineMatch = builder.rawLookup(-2) == ScalaTokenType.InlineKeyword
     var markerStack = List.empty[PsiBuilder.Marker]
     var opStack = List.empty[String]
     val infixMarker = builder.mark()
@@ -90,9 +93,12 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         markerStack = markerStack.tail
         count -= 1
       }
+      infixMarker.drop()
+    } else if (!isInlineMatch && isMatchConsideredInfix
+      && builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kMATCH) {
+      Expr1.parseMatch(infixMarker)
+    } else infixMarker.drop()
 
-    }
-    infixMarker.drop()
     while (markerStack.nonEmpty) {
       markerStack.head.drop()
       markerStack = markerStack.tail
