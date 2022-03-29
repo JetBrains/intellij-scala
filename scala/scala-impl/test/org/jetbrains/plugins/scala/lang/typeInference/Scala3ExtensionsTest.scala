@@ -358,4 +358,21 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |}
       |""".stripMargin
   )
+
+  def testExtensionRenamed(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |object Extensions:
+      |  extension (s: String)
+      |    def foo: Int = s.length
+      |    def bar: Char = s.head
+      |
+      |object Test extends App:
+      |  import Extensions.{foo => baz, *}
+      |  println("...".baz)
+      |  println("...".bar)
+      |  println("...".foo)
+      |}
+      |""".stripMargin
+  )
 }
