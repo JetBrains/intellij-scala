@@ -65,8 +65,11 @@ object GeneratedClassTestBase {
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_2_11,
   TestScalaVersion.Scala_2_12,
-  TestScalaVersion.Scala_3_Latest
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1
 ))
 final class GeneratedClassTest extends GeneratedClassTestBase {
   def testFromPattern(): Unit = doTest()
@@ -81,8 +84,11 @@ final class GeneratedClassTest extends GeneratedClassTestBase {
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
-final class GeneratedClassTest_3_Latest extends GeneratedClassTestBase {
+@RunWithScalaVersions(Array(
+  TestScalaVersion.Scala_3_0,
+  TestScalaVersion.Scala_3_1
+))
+final class GeneratedClassTest_Scala_3 extends GeneratedClassTestBase {
   override protected def testDataBasePath: String = super.testDataBasePath + "scala3/"
 
   def testFromPattern(): Unit = doTest()
