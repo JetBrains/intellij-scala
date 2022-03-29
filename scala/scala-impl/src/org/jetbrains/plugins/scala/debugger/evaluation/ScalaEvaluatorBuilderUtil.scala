@@ -425,11 +425,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def valueClassInstanceEvaluator(value: Evaluator, innerType: ScType, classType: ScType): Evaluator = {
+  def valueClassInstanceEvaluator(value: Evaluator, classType: ScType): Evaluator = {
     val valueClassType = new ScalaTypeEvaluator(DebuggerUtil.getJVMQualifiedName(classType))
-    val innerJvmName = DebuggerUtil.getJVMStringForType(innerType)
-    val signature = JVMNameUtil.getJVMRawText(s"($innerJvmName)V")
-    ScalaDuplexEvaluator(new ScalaNewClassInstanceEvaluator(valueClassType, signature, Array(value)), value)
+    ScalaDuplexEvaluator(new NewValueClassInstanceEvaluator(valueClassType, value), value)
   }
 
   def unwrapValueClass(instance: Evaluator, valueClassType: ScType, param: ScClassParameter): Evaluator =
@@ -445,7 +443,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       val arguments = exprsForP.sortBy(_.startOffset).map { argExpr =>
         val eval = evaluatorFor(argExpr)
         argExpr.smartExpectedType() match {
-          case Some(tp @ ValueClassType(inner)) => valueClassInstanceEvaluator(eval, inner, tp)
+          case Some(tp @ ValueClassType(_)) => valueClassInstanceEvaluator(eval, tp)
           case _ => boxEvaluator(eval)
         }
       }
@@ -634,7 +632,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               val expr = exprsForP.head
               val eval = evaluatorFor(expr)
               expr.smartExpectedType() match {
-                case Some(tp @ ValueClassType(inner)) if isArrayFunction => valueClassInstanceEvaluator(eval, inner, tp)
+                case Some(tp @ ValueClassType(_)) if isArrayFunction => valueClassInstanceEvaluator(eval, tp)
                 case _ => eval
               }
             }
@@ -1396,7 +1394,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         case _: ScNewTemplateDefinition => eval
         case Typeable(_: ValType) => eval
         case Typeable(tp) => tp.tryExtractDesignatorSingleton match {
-          case vc @ ValueClassType(inner) => valueClassInstanceEvaluator(eval, inner, vc)
+          case vc @ ValueClassType(_) => valueClassInstanceEvaluator(eval, vc)
           case _ => eval
         }
         case _ => eval
