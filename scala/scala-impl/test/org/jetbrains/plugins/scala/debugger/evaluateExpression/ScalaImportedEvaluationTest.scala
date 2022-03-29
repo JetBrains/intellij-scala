@@ -6,18 +6,27 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest_2_11 extends ScalaImportedEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest_2_12 extends ScalaImportedEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaImportedEvaluationTest_2_13 extends ScalaImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest_3_0 extends ScalaImportedEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaImportedEvaluationTest_3_1 extends ScalaImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 @Category(Array(classOf[DebuggerTests]))

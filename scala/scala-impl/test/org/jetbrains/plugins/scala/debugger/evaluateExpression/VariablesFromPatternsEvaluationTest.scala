@@ -4,27 +4,37 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-/**
- * Nikolay.Tropin
- * 8/5/13
- */
 @Category(Array(classOf[DebuggerTests]))
-class VariablesFromPatternsEvaluationTest_211 extends VariablesFromPatternsEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+class VariablesFromPatternsEvaluationTest_2_11 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
+
 @Category(Array(classOf[DebuggerTests]))
-class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+class VariablesFromPatternsEvaluationTest_2_12 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
+
+@Category(Array(classOf[DebuggerTests]))
+class VariablesFromPatternsEvaluationTest_2_13 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+
+  override def testMatch(): Unit = failing(super.testMatch())
+  override def testMatchInForStmt(): Unit = failing(super.testMatchInForStmt())
+  override def testMultilevel(): Unit = failing(super.testMultilevel())
+}
+
 @Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testAnonymousInMatch(): Unit = failing(super.testAnonymousInMatch())
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class VariablesFromPatternsEvaluationTest_3_1 extends VariablesFromPatternsEvaluationTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+}
+
 abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
   addFileWithBreakpoints("Match.scala",
     s"""
