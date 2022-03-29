@@ -6,21 +6,31 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_2_11 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_2_12 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaFieldEvaluationTest_2_13 extends ScalaFieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_3_0 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testStatic(): Unit = failing(super.testStatic())
 
   override def testPrivateThisField(): Unit = failing(super.testPrivateThisField())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaFieldEvaluationTest_3_1 extends ScalaFieldEvaluationTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 @Category(Array(classOf[DebuggerTests]))

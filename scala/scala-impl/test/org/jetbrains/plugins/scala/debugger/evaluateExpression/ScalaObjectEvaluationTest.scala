@@ -6,24 +6,31 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_2_11 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_2_12 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaObjectEvaluationTest_2_13 extends ScalaObjectEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_3_0 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_3_0
-
-  override def testEvaluateObjects(): Unit = failing(super.testEvaluateObjects())
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testInnerClassObjectFromObject(): Unit = failing(super.testInnerClassObjectFromObject())
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class ScalaObjectEvaluationTest_3_1 extends ScalaObjectEvaluationTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+}
+
 abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("SimpleObject.scala",
     s"""
@@ -72,7 +79,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
       waitForBreakpoint()
       evalStartsWith("Simple", "Simple$")
       evalStartsWith("qual.Simple", "qual.Simple$")
-      evalStartsWith("collection.JavaConversions", "scala.collection.JavaConversions$")
+      evalStartsWith("collection.immutable.List", "scala.collection.immutable.List$")
       evalEquals("qual.SimpleCaseClass", "SimpleCaseClass")
       evalStartsWith("qual.StableInner.Inner", "qual.StableInner$Inner$")
       evalStartsWith("val x = new qual.ClassInner(); x.Inner", "qual.ClassInner$Inner$")

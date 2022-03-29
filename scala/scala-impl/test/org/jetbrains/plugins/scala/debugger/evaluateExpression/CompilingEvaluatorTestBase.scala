@@ -12,8 +12,7 @@ class CompilingEvaluatorTest_2_11 extends CompilingEvaluatorTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   // from scala 2.12.12 (or maybe from 2.12.11) ++ calls `List.:::`, not `TraversableLike.++`
   override def testFromLibrary(): Unit = {
@@ -30,14 +29,24 @@ class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class CompilingEvaluatorTest_3_0 extends CompilingEvaluatorTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class CompilingEvaluatorTest_2_13 extends CompilingEvaluatorTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CompilingEvaluatorTest_3_0 extends CompilingEvaluatorTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testFromLibrary(): Unit   = failing(super.testFromLibrary())
   override def testSimplePlace(): Unit   = failing(super.testSimplePlace())
   override def testInForStmt(): Unit     = failing(super.testInForStmt())
   override def testInConstructor(): Unit = failing(super.testInConstructor())
   override def testAddBraces(): Unit     = failing(super.testAddBraces())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CompilingEvaluatorTest_3_1 extends CompilingEvaluatorTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 @Category(Array(classOf[DebuggerTests]))

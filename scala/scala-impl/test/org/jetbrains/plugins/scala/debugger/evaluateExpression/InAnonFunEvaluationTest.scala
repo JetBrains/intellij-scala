@@ -4,11 +4,15 @@ package debugger.evaluateExpression
 import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
-class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
+@Category(Array(classOf[DebuggerTests]))
+class InAnonFunEvaluationTest_2_11 extends InAnonFunEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
+}
 
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
+class InAnonFunEvaluationTest_2_12 extends InAnonFunEvaluationTestBase {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
@@ -25,15 +29,20 @@ class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+class InAnonFunEvaluationTest_2_13 extends InAnonFunEvaluationTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class InAnonFunEvaluationTest_3_0 extends InAnonFunEvaluationTest_212 {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_3_0
+class InAnonFunEvaluationTest_3_0 extends InAnonFunEvaluationTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_3_0
 
   override def testFunctionExpr(): Unit = failing(super.testFunctionExpr())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class InAnonFunEvaluationTest_3_1 extends InAnonFunEvaluationTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_3_1
 }
 
 @Category(Array(classOf[DebuggerTests]))
