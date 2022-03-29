@@ -4,10 +4,6 @@ package evaluateExpression
 
 import org.junit.experimental.categories.Category
 
-/**
- * User: Alefas
- * Date: 19.10.11
- */
 @Category(Array(classOf[DebuggerTests]))
 class ScalaExpressionsEvaluator_2_11 extends ScalaExpressionsEvaluatorBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -116,7 +112,6 @@ class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_2_13 {
 class ScalaExpressionsEvaluator_3_1 extends ScalaExpressionsEvaluator_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
-
 
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixUnary.scala",
@@ -673,6 +668,13 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalStartsWith("multiArray.toString", "[[I@")
       evalStartsWith("valueArray.toString", "[LArrayMethods$Value;@")
       evalStartsWith("new Array[Any](1).toString", "[Ljava.lang.Object;@")
+      evalEquals("intArray.toSeq == intArray.toList", "true")
+      evalEquals("stringArray.toSeq == stringArray.toList", "true")
+      evalEquals("doubleArray.toSeq == doubleArray.toList", "true")
+      evalEquals("objectArray.toSeq == objectArray.toList", "true")
+      evalEquals("multiArray.toSeq == multiArray.toList", "true")
+      evalEquals("valueArray.toSeq == valueArray.toList", "true")
+      evalEquals("new Array[Any](1).toSeq == new Array[Any](1).toList", "true")
     }
   }
 
