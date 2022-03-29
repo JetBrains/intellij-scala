@@ -71,13 +71,12 @@ abstract class ExactBreakpointTestBase extends ScalaDebuggerTestCase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_2_11 extends ExactBreakpointTest {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ExactBreakpointTest_2_12 extends ExactBreakpointTest {
-  override protected def supportedIn(version: ScalaVersion) = 
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
   
   addSourceFile("SamAbstractClass.scala",
     """object SamAbstractClass  {
@@ -120,8 +119,13 @@ class ExactBreakpointTest_2_12 extends ExactBreakpointTest {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ExactBreakpointTest_3_0 extends ExactBreakpointTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+class ExactBreakpointTest_2_13 extends ExactBreakpointTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ExactBreakpointTest_3_0 extends ExactBreakpointTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   removeSourceFile("EarlyDefAndTemplateBody.scala")
   override def testEarlyDefAndTemplateBody(): Unit = {}
@@ -186,9 +190,11 @@ class ExactBreakpointTest_3_0 extends ExactBreakpointTest_2_12 {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-abstract class ExactBreakpointTest extends ExactBreakpointTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+class ExactBreakpointTest_3_1 extends ExactBreakpointTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+}
 
+abstract class ExactBreakpointTest extends ExactBreakpointTestBase {
   addSourceFile("OneLine.scala",
     """object OneLine {
       |  def main(args: Array[String]): Unit = {

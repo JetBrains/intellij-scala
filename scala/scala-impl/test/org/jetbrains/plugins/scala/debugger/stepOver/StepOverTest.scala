@@ -2,30 +2,104 @@ package org.jetbrains.plugins.scala
 package debugger
 package stepOver
 
+import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.junit.Assert
 import org.junit.experimental.categories.Category
 
+import scala.io.Source
+import scala.util.Using
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepOverTest_3_0 extends StepOverTest {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+class StepOverTest_2_12 extends StepOverTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
-  override def testSimple(): Unit = failing(super.testSimple())
+  override def testPartialFun(): Unit = {
+    testStepThrough(Seq(4, 5, 6, 3, 4, 3, 7, 8, 9, 3, 4, 3, 7, 3, 3, 11))
+  }
 
-  override def testMultilineExpr(): Unit = failing(super.testMultilineExpr())
+  override def testMultilineExpr(): Unit = {
+    testStepThrough(Seq(2, 4, 3, 4, 6, 7, 8, 9, 4))
+  }
 
-  override def testSkipStoreResult(): Unit = failing(super.testSkipStoreResult())
+  override def testCaseClausesReturn(): Unit = {
+    testStepThrough(Seq(6, 7, 9, 11, 12, 6, 2))
+  }
 
-  override def testPartialFun(): Unit = failing(super.testPartialFun())
+  override def testComplexPattern(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 7, 10, 11, 12, 3, 14))
+  }
 
-  override def testNestedMatch(): Unit = failing(super.testNestedMatch())
+  override def testSimple(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 5, 6, 7, 8, 3, 1))
+  }
+
+  override def testNestedMatch(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 5, 8, 9, 10, 4, 14))
+  }
+
+  override def testAccessorInDelayedInit(): Unit = {
+    testStepThrough(Seq(1, 2, 3, 4, 0, 0))
+  }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class StepOverTest_2_13 extends StepOverTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+
+  override def testPartialFun(): Unit = {
+    testStepThrough(Seq(4, 5, 6, 3, 4, 7, 8, 9, 3, 4, 7, 3, 11))
+  }
+
+  override def testCaseClausesReturn(): Unit = {
+    testStepThrough(Seq(6, 11, 6, 12, 6, 2, 12, 6, 2))
+  }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class StepOverTest_3_0 extends StepOverTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+
+  override def testSimple(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 5, 6, 8, 10, 1))
+  }
+
+  override def testMultilineExpr(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 6, 8, 9, 10, 1))
+  }
+
+  override def testSkipStoreResult(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 5, 6, 9, 11))
+  }
+
+  override def testPartialFun(): Unit = {
+    testStepThrough(Seq(4, 5, 6, 9, 4, 7, 8, 9, 4, 7, 9, 9, 11))
+  }
+
+  override def testNestedMatch(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 5, 8, 9, 10, 12, 14))
+  }
+
+  override def testCaseClausesReturn(): Unit = {
+    testStepThrough(Seq(6, 7, 9, 11, 12, 2, 12, 6, 2))
+  }
+
+  override def testComplexPattern(): Unit = {
+    testStepThrough(Seq(2, 3, 4, 7, 10, 11, 12, 14))
+  }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class StepOverTest_3_1 extends StepOverTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testCaseClausesReturn(): Unit = {
+    testStepThrough(Seq(6, 7, 12, 2, 12, 2, 12, 6, 2))
+  }
 }
 
 abstract class StepOverTest extends StepOverTestBase {
@@ -221,5 +295,51 @@ abstract class StepOverTest extends StepOverTestBase {
   """.stripMargin.trim)
   def testAccessorInDelayedInit(): Unit = {
     testStepThrough(Seq(1, 2, 3, 4, 0))
+  }
+}
+
+abstract class StepOverTestBase extends ScalaDebuggerTestCase {
+  def doStepOver(): Unit = {
+    val stepOverCommand = getDebugProcess.createStepOverCommand(currentSuspendContext(), false)
+    getDebugProcess.getManagerThread.invokeAndWait(stepOverCommand)
+  }
+
+  def testStepThrough(expectedLineNumbers: Seq[Int]): Unit = {
+    val file = getFileInSrc(mainFileName)
+    val lines = Using.resource(Source.fromFile(file))(_.getLines().toSeq)
+    Assert.assertTrue(s"File should start with definition of object $mainClassName" , lines.head.startsWith(s"object $mainClassName"))
+
+    def checkLine(expectedLineNumber: Int): Unit = {
+      val actualLineNumber = currentLineNumber
+      if (actualLineNumber != expectedLineNumber) {
+        val message = {
+          val actualLine = lines(actualLineNumber)
+          val expectedLine = lines(expectedLineNumber)
+          s"""Wrong line number.
+             |Expected $expectedLineNumber: $expectedLine
+             |Actual $actualLineNumber: $actualLine""".stripMargin
+        }
+        Assert.fail(message)
+      }
+    }
+
+    val expectedNumbers = expectedLineNumbers.iterator
+    runDebugger(mainClassName) {
+      while (!processTerminatedNoBreakpoints()) {
+        if (expectedNumbers.hasNext) checkLine(expectedNumbers.next())
+        else {
+          val lineNumber = currentLineNumber
+          Assert.fail(s"No expected lines left, stopped at line $lineNumber: ${lines(lineNumber)}")
+        }
+        doStepOver()
+      }
+    }
+  }
+
+  private def currentLineNumber: Int = {
+    val location = currentLocation()
+    inReadAction {
+      positionManager.getSourcePosition(location).getLine
+    }
   }
 }

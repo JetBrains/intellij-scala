@@ -8,14 +8,9 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 // !!! NOTE: some of these methods are failing: SCL-16528
-// TODO: cleanup running against different versions
-//  separate supported in and actual running versions
-//  looks like "supported in" should generally use the lowers minor version (language level in other words)
-//  and "run with" can run with various minor versions
-@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
   //todo move to ScalaMethodEvaluationTestBase when SCL-17927 is fixed
   @Test
@@ -38,22 +33,19 @@ class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
   }
 }
 
-@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
-@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_13 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
-@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_3_0 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_3_0
 
   //todo fix
   override def testNonStaticFunction(): Unit            = failing(super.testNonStaticFunction())
@@ -116,8 +108,63 @@ class ScalaMethodEvaluationTest_3_0 extends ScalaMethodEvaluationTestBase {
     }
 }
 
-@RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
+class ScalaMethodEvaluationTest_3_1 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testNonStaticFunction(): Unit            = failing(super.testNonStaticFunction())
+  override def testLocalFunctions(): Unit               = failing(super.testLocalFunctions())
+  override def testClosure(): Unit                      = failing(super.testClosure())
+  override def testClosureWithDefaultParameter(): Unit  = failing(super.testClosureWithDefaultParameter())
+  override def testFunctionsWithLocalParameters(): Unit = failing(super.testFunctionsWithLocalParameters())
+  override def testDefaultArgsInTrait(): Unit           = failing(super.testDefaultArgsInTrait())
+
+  addSourceFile("one.scala", "def one() = 1")
+  addSourceFile("a/two.scala",
+    """package a
+      |
+      |def two() = 2
+      |""".stripMargin)
+  addSourceFile("a/b/three.scala",
+    """package a.b
+      |
+      |def three =
+      |  3
+      |""".stripMargin)
+  addFileWithBreakpoints("topLevel.scala",
+    s"""import a.two
+       |import a.b.three
+       |
+       |@main
+       |def TopLevel(): Unit =
+       |  def local() = "local"
+       |  println()$bp
+       |
+       |private val nineVar = 9
+       |private val tenVal = 10
+       |private def fortyTwo(): Int = 42
+       |""".stripMargin)
+  @Test
+  def testTopLevel(): Unit =
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("one()", "1")
+      evalEquals("two()", "2")
+      evalEquals("three", "3")
+      evalEquals("nineVar", "9")
+      evalEquals("tenVal", "10")
+      evalEquals("fortyTwo()", "42")
+      evalEquals("local()", "local")
+      evalEquals("one", "1")
+      evalEquals("two", "2")
+      evalEquals("three()", "3")
+      evalEquals("nineVar()", "9")
+      evalEquals("tenVal()", "10")
+      evalEquals("fortyTwo", "42")
+      evalEquals("local", "local")
+    }
+}
+
 abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
 
   addFileWithBreakpoints("SmartBoxing.scala",

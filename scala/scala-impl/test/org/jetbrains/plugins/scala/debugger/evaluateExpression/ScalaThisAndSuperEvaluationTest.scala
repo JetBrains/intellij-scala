@@ -6,27 +6,35 @@ import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaThisAndSuperEvaluationTest_2_11 extends ScalaThisAndSuperEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaThisAndSuperEvaluationTest_2_12 extends ScalaThisAndSuperEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaThisAndSuperEvaluationTest_2_13 extends ScalaThisAndSuperEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaThisAndSuperEvaluationTest_3_0 extends ScalaThisAndSuperEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class ScalaThisAndSuperEvaluationTest_3_1 extends ScalaThisAndSuperEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+}
+
 abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("TraitThis.scala",
     s"""
        |object TraitThis {
        |  trait Z {
-       |    def foo {
+       |    def foo = {
        |      println()$bp
        |    }
        |  }
@@ -74,7 +82,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
     s"""
        |object InvocationFromInner extends BaseClass {
        |  trait Z {
-       |    def goo {
+       |    def goo = {
        |      println()$bp
        |    }
        |  }
@@ -95,7 +103,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
     s"""
        |object ThisInvocationFromInner extends BaseClass {
        |  trait Z {
-       |    def foo {
+       |    def foo = {
        |      println()$bp
        |    }
        |  }
@@ -116,11 +124,11 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
     s"""
        |class ThisInvocationFromInnerClass extends BaseClass {
        |  trait Z {
-       |    def foo {
+       |    def foo = {
        |      println()$bp
        |    }
        |  }
-       |  def boo(args: Array[String]) {
+       |  def boo(args: Array[String]) = {
        |    new Z {}.foo
        |  }
        |}
@@ -143,7 +151,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
     s"""
        |object SuperInvocationFromInner extends BaseClass {
        |  trait Z {
-       |    def foo {
+       |    def foo = {
        |      println()$bp
        |    }
        |  }
@@ -164,16 +172,16 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
     s"""
        |class SuperTraitInvocationFromInner extends BaseTrait {
        |  trait Z {
-       |    def foo {
+       |    def foo = {
        |      println()$bp
        |    }
        |  }
-       |  def boo(args: Array[String]) {
+       |  def boo(args: Array[String]) = {
        |    new Z {}.foo
        |  }
        |}
        |object SuperTraitInvocationFromInner {
-       |  def main(args: Array[String]){
+       |  def main(args: Array[String]) = {
        |    new SuperTraitInvocationFromInner().boo(args)
        |  }
        |}
@@ -218,7 +226,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |      println()$bp
        |    }
        |  }
-       |  def moo {new F{}.foo}
+       |  def moo = {new F{}.foo}
        |}
        |object OuterSuperInnerTraitInvocation {
        |  def main(args: Array[String]): Unit = {
@@ -239,12 +247,12 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |object InnerOuterEtc {
        |  class Outer extends BaseClass {
        |    trait Z {
-       |      def goo {
+       |      def goo = {
        |        println()$bp
        |      }
        |    }
        |
-       |    def goo {
+       |    def goo = {
        |      new Z {}.goo
        |    }
        |  }
@@ -269,12 +277,12 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |      def capture = Outer.this
        |    }
        |    class Z extends HasOuterField {
-       |      def goo {
+       |      def goo = {
        |        println()$bp
        |      }
        |    }
        |
-       |    def goo {
+       |    def goo = {
        |      new Z {}.goo
        |    }
        |  }

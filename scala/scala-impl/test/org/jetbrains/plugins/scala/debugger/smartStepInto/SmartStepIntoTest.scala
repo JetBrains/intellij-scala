@@ -11,9 +11,6 @@ import org.junit.experimental.categories.Category
 import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_2_11 extends SmartStepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -21,8 +18,7 @@ class SmartStepIntoTest_2_11 extends SmartStepIntoTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def testByNameArgument(): Unit = {
     runDebugger() {
@@ -35,15 +31,15 @@ class SmartStepIntoTest_2_12 extends SmartStepIntoTestBase {
       checkSmartStepInto("u: => String", "ByNameArgument.scala", "$anonfun$main$1", 14)
     }
   }
-
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class SmartStepIntoTest_2_13 extends SmartStepIntoTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   addFileWithBreakpoints("PostfixAndUnapply.scala",
     s"""import scala.language.postfixOps
+       |
        |object PostfixAndUnapply {
        |
        |  def main(args: Array[String]): Unit = {
@@ -63,15 +59,31 @@ class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_12 {
        |}""".stripMargin.trim()
   )
 
+  override def testPostfixAndUnapply(): Unit = {
+    runDebugger() {
+      waitForBreakpoint()
+      checkSmartStepTargets("D.unapply(D)", "foo()")
+      checkSmartStepInto("D.unapply(D)", "PostfixAndUnapply.scala", "unapply", 18)
+    }
+  }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class SmartStepIntoTest_3_0 extends SmartStepIntoTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
+
   override def testByNameArgument(): Unit = failing(super.testByNameArgument())
 
   override def testInfixAndApply(): Unit = failing(super.testInfixAndApply())
 
-  override def testPostfixAndUnapply(): Unit = failing(super.testPostfixAndUnapply())
-
   override def testAnonymousClassFromClass(): Unit = failing(super.testAnonymousClassFromClass())
 
   override def testAnonymousClassFromTrait(): Unit = failing(super.testAnonymousClassFromTrait())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class SmartStepIntoTest_3_1 extends SmartStepIntoTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {

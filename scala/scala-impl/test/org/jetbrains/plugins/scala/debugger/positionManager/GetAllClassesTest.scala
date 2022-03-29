@@ -4,13 +4,9 @@ package positionManager
 
 import org.junit.experimental.categories.Category
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
-class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version  >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+class GetAllClassesTest_2_12 extends GetAllClassesTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def testForStmt(): Unit = {
     checkGetAllClasses("ForStmt$")
@@ -54,12 +50,26 @@ class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class GetAllClassesTest_3_0 extends GetAllClassesTest_since_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class GetAllClassesTest_2_13 extends GetAllClassesTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class GetAllClassesTest_3_0 extends GetAllClassesTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testPartialFunctionArg(): Unit = failing(super.testPartialFunctionArg())
 
   override def testPartialFunctions(): Unit = failing(super.testPartialFunctions())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class GetAllClassesTest_3_1 extends GetAllClassesTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testLocalObject(): Unit = {
+    checkGetAllClasses("LocalObject$A$2$")
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))

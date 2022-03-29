@@ -12,13 +12,19 @@ class CodeFragmentEvaluationTest_2_11 extends CodeFragmentEvaluationTestBase wit
 
 @Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class CodeFragmentEvaluationTest_2_13 extends CodeFragmentEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+
+  override def testCodeFragments(): Unit = failing(super.testCodeFragments())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   addFileWithBreakpoints("Scala3Syntax.scala",
     s"""package test
@@ -39,8 +45,11 @@ class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTestBase {
         |""".stripMargin -> "5"
     )
   }
+}
 
-  override def testCodeFragments(): Unit = failing(super.testCodeFragments())
+@Category(Array(classOf[DebuggerTests]))
+class CodeFragmentEvaluationTest_3_1 extends CodeFragmentEvaluationTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 @Category(Array(classOf[DebuggerTests]))

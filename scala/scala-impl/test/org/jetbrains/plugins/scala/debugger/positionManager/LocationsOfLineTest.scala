@@ -4,13 +4,9 @@ package positionManager
 
 import org.junit.experimental.categories.Category
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
-class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+class LocationOfLineTest_2_12 extends LocationsOfLineTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine(
@@ -35,23 +31,71 @@ class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class LocationOfLineTest_2_13 extends LocationsOfLineTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+
+  override def testSimple(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Simple$", "<clinit>", 2), Loc("Simple$", "z", 2)),
+      Set(Loc("Simple$", "main", 4)),
+      Set(Loc("Simple$", "main", 5)),
+      Set(Loc("Simple$", "main", 6)),
+      noLocations,
+      Set(Loc("Simple$", "foo", 10)),
+      noLocations,
+      noLocations
+    )
+  }
+
+  override def testSimpleClass(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Bar", "<init>", 8)), //location for constructor is customized
+      Set(Loc("Bar", "<init>", 9), Loc("Bar", "s", 9)),
+      Set(Loc("Bar", "foo", 12))
+    )
+  }
+
+  override def testMultilevel(): Unit = {
+    checkLocationsOfLine("test.Multilevel",
+      Set(Loc("test.Multilevel$This$1", "<init>", 5)),  //location for constructor is customized
+      Set(Loc("test.Multilevel$This$1", "<init>", 6)),
+      Set(Loc("test.Multilevel$This$1", "foo", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "<init>", 8)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
+      Set(Loc("test.Multilevel$This$1$$anon$1", "$anonfun$run$1", 11)),
+      Set(Loc("test.Multilevel$", "main", 20))
+    )
+  }
+
+  override def testLambdas(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "$anonfun$main$1", 4)),
+      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "$anonfun$main$2", 5), Loc("Lambdas$", "$anonfun$main$3", 5)),
+      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "$anonfun$main$4", 6))
+    )
+  }
+}
+
+@Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class LocationOfLineTest_3_0 extends LocationOfLineTest_since_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
-
-  override def testSimple(): Unit = failing(super.testSimple())
-
-  override def testSimpleClass(): Unit = failing(super.testSimpleClass())
+class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testLambdas(): Unit = failing(super.testLambdas())
 
   override def testLocalFunction(): Unit = failing(super.testLocalFunction())
 
   override def testMultilevel(): Unit = failing(super.testMultilevel())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class LocationOfLineTest_3_1 extends LocationOfLineTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {

@@ -9,18 +9,18 @@ import org.junit.experimental.categories.Category
  * Date: 19.10.11
  */
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator extends ScalaExpressionsEvaluatorBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+class ScalaExpressionsEvaluator_2_11 extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_12
+class ScalaExpressionsEvaluator_2_12 extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
-  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_13
+class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   override def testSymbolLiteral(): Unit = {
     runDebugger() {
@@ -104,12 +104,17 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_213 {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testPrefixedThis(): Unit = failing(super.testPrefixedThis())
 
   override def testPostfix(): Unit = failing(super.testPostfix())
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaExpressionsEvaluator_3_1 extends ScalaExpressionsEvaluator_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
 

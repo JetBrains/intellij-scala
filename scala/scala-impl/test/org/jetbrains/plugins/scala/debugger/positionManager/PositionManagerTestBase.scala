@@ -12,9 +12,6 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Nikolay.Tropin
- */
 abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
   protected val offsetMarker = "<offset>"
   protected val sourcePositionsOffsets = mutable.HashMap[String, Seq[Int]]()
