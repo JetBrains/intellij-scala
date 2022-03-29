@@ -6,9 +6,6 @@ import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
 import org.junit.experimental.categories.Category
 
-/**
- * @author Nikolay.Tropin
- */
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_11 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -22,8 +19,7 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_12 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   addFileWithBreakpoints("SamAbstractClass.scala",
     s"""object SamAbstractClass {
@@ -51,8 +47,13 @@ class StepIntoTest_2_12 extends StepIntoTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_3_0 extends StepIntoTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+class StepIntoTest_2_13 extends StepIntoTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class StepIntoTest_3_0 extends StepIntoTest_2_13 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
   override def testSamAbstractClass(): Unit =
     runDebugger() {
@@ -65,6 +66,10 @@ class StepIntoTest_3_0 extends StepIntoTest_2_12 {
   override def testLazyVal(): Unit = failing(super.testLazyVal())
 }
 
+@Category(Array(classOf[DebuggerTests]))
+class StepIntoTest_3_1 extends StepIntoTest_3_0 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+}
 
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   protected def waitBreakpointAndStepInto(fileName: String, methodName: String, line: Int): Unit = {
