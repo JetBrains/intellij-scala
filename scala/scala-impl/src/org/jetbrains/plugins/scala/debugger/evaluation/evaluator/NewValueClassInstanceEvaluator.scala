@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-class NewValueClassInstanceEvaluator(typeEvaluator: ScalaTypeEvaluator, param: Evaluator) extends Evaluator {
+private[debugger] final class NewValueClassInstanceEvaluator(typeEvaluator: ScalaTypeEvaluator, param: Evaluator) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val debugProcess = context.getDebugProcess

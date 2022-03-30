@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.debugger
 package ui
 
+import com.intellij.debugger.engine.evaluation.EvaluationContext
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{IntEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.util._
 
@@ -200,10 +200,5 @@ private object ScalaCollectionRenderer {
 
   private[this] implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
-  }
-
-  private[this] class IntEvaluator(n: Int) extends Evaluator {
-    override def evaluate(context: EvaluationContextImpl): IntegerValue =
-      context.getDebugProcess.getVirtualMachineProxy.mirrorOf(n)
   }
 }

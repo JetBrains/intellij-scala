@@ -18,8 +18,6 @@ class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest_2_13 extends CodeFragmentEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
-
-  override def testCodeFragments(): Unit = failing(super.testCodeFragments())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -28,12 +26,13 @@ class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTest_2_13 {
 
   addFileWithBreakpoints("Scala3Syntax.scala",
     s"""package test
-      |
-      |@main
-      |def scala3Syntax(): Unit =
-      |  val name = "world"
-      |  println(s"hello, $$name") $bp
-      |""".stripMargin)
+       |
+       |@main
+       |def scala3Syntax(): Unit =
+       |  val name = "world"
+       |  println(s"hello, $$name") $bp
+       |""".stripMargin)
+
   def testScala3Syntax(): Unit = {
     evaluateCodeFragments("test/scala3Syntax",
       "if true then 42 else 0" -> "42",
@@ -42,7 +41,7 @@ class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTest_2_13 {
         |  name.length
         |else
         |  0
-        |""".stripMargin -> "5"
+        |""" -> "5"
     )
   }
 }
@@ -55,8 +54,36 @@ class CodeFragmentEvaluationTest_3_1 extends CodeFragmentEvaluationTest_3_0 {
 @Category(Array(classOf[DebuggerTests]))
 abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with ScalaSdkOwner {
 
-  addFileWithBreakpoints ("CodeFragments.scala",
+  addFileWithBreakpoints("CodeFragments.scala",
     s"""package test
+       |
+       |final case class One(a: Int)
+       |
+       |final case class Two(a: String, b: Int)
+       |
+       |object MyUnapply {
+       |  def unapply(s: String): Option[String] = s.split(" ") match {
+       |    case Array(first, _) => Some(first)
+       |    case _ => None
+       |  }
+       |}
+       |
+       |class MyProduct(a: String, b: Int) extends Product with Serializable {
+       |  override def productArity: Int = 2
+       |
+       |  override def productElement(n: Int): Any = n match {
+       |    case 0 => a
+       |    case 1 => b
+       |    case _ => throw new IndexOutOfBoundsException(n)
+       |  }
+       |
+       |  override def canEqual(that: Any): Boolean = that.isInstanceOf[MyProduct]
+       |}
+       |
+       |object MyProduct {
+       |  def unapply(p: MyProduct): Some[(String, Int)] =
+       |    Some((p.productElement(0).asInstanceOf[String], p.productElement(1).asInstanceOf[Int]))
+       |}
        |
        |object CodeFragments {
        |  var n = 0
@@ -100,6 +127,15 @@ abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with
         |words(0)
         |""" -> "some",
 
+      """val Array(first, second) = str.split(" ")
+        |(first, second)""" -> "(some,string)",
+
+      """val List(first, second) = str.split(" ").toList
+        |(first, second)""" -> "(some,string)",
+
+      """val Vector(first, second) = str.split(" ").toVector
+        |(first, second)""" -> "(some,string)",
+
       """var i = 0
         |i += 25
         |i""" -> "25",
@@ -129,8 +165,22 @@ abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with
         |  sum += i
         |  i += 1
         |}
-        |sum""" -> "15"
+        |sum""" -> "15",
 
+      """val one = One(1)
+        |val One(a) = one
+        |a""" -> "1",
+
+      """val two = Two("a", 2)
+        |val Two(a, b) = two
+        |(a, b)""" -> "(a,2)",
+
+      """val MyUnapply(name) = "Name Surname"
+        |name""".stripMargin -> "Name",
+
+      """val p = new MyProduct("string", 25)
+        |val MyProduct(a, b) = p
+        |(a, b)""" -> "(string,25)"
     )
   }
 }
