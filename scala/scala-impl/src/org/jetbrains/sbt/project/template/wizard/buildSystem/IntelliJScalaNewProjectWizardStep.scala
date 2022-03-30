@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.highlighter.ModuleFileType
+import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
@@ -49,7 +50,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     builder.libraryCompositionSettings = librarySettings
     builder.packagePrefix = Option(packagePrefixTextField.getText).filter(_.nonEmpty)
 
-    /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject]] */
+    /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step#setupProject]] */
     if (getAddSampleCode) {
       val isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary)
       val file = addScalaSampleCode(project, s"$getContentRoot/src", isScala3)
@@ -57,6 +58,33 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
 
     builder.commit(project)
+
+    //logging by analogy with com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject
+    BSLog.logSdkFinished(parent, getSdk)
+  }
+
+  locally {
+    //logging by analogy with com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.<init>
+    getSdkProperty.afterChange(sdk => {
+      BSLog.logSdkChanged(getParent, sdk)
+      KUnit
+    })
+    getAddSampleCodeProperty.afterChange(_ => {
+      BSLog.logAddSampleCodeChanged(getParent)
+      KUnit
+    })
+    getModuleNameProperty.afterChange(_ => {
+      BSLog.logModuleNameChanged(getParent)
+      KUnit
+    })
+    getContentRootProperty.afterChange(_ => {
+      BSLog.logContentRootChanged(getParent)
+      KUnit
+    })
+    getModuleFileLocationProperty.afterChange(_ => {
+      BSLog.logModuleFileLocationChanged(getParent)
+      KUnit
+    })
   }
 
   private def isScala3SdkLibrary(library: Library): Boolean = {

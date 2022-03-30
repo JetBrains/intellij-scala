@@ -1,8 +1,10 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.JavaUiBundle
+import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.INSTANCE.{logBuildSystemChanged, logBuildSystemFinished}
 import com.intellij.ide.wizard._
 import com.intellij.openapi.observable.properties.GraphProperty
+import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard
 
 import java.nio.file.Path
@@ -18,6 +20,21 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
   override protected def getSelf: ScalaNewProjectWizardStep = this
 
   override def getLabel: String = JavaUiBundle.message("label.project.wizard.new.project.build.system")
+
+  locally {
+    //logging by analogy with com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.<init>
+    getBuildSystemProperty.afterChange(_ => {
+      logBuildSystemChanged(this)
+      kotlin.Unit.INSTANCE
+    })
+  }
+
+  override def setupProject(project: Project): Unit = {
+    super.setupProject(project)
+
+    //logging by analogy with com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.setupProject
+    logBuildSystemFinished(this)
+  }
 
   //////////////////////////////////////////
   // [BOILERPLATE] Delegate to parent
