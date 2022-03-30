@@ -17,10 +17,6 @@ class VariablesFromPatternsEvaluationTest_2_12 extends VariablesFromPatternsEval
 @Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_2_13 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
-
-  override def testMatch(): Unit = failing(super.testMatch())
-  override def testMatchInForStmt(): Unit = failing(super.testMatchInForStmt())
-  override def testMultilevel(): Unit = failing(super.testMultilevel())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -35,7 +31,7 @@ class VariablesFromPatternsEvaluationTest_3_1 extends VariablesFromPatternsEvalu
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase{
+abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Match.scala",
     s"""
        |object Match {
@@ -51,6 +47,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
+
   def testMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -82,6 +79,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
+
   def testMatchInForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -119,6 +117,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
 
   )
+
   def testRegexMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -151,6 +150,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
+
   def testMultilevel(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -180,6 +180,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
+
   def testLocalInMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -207,6 +208,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |}
       """.stripMargin.trim()
   )
+
   def testAnonymousInMatch(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -217,5 +219,4 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
       evalEquals("i", "10")
     }
   }
-
 }
