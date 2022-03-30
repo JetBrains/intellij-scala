@@ -46,7 +46,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
-import scala.collection.immutable.ArraySeq
 import scala.reflect.NameTransformer
 
 /**
@@ -979,17 +978,33 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           val funName = fun.name
           val newEval =
             if (funName == "unapply") {
-              val extractEval = ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
-              if (pattern.subpatterns.length == 1)
-                ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
-              else if (pattern.subpatterns.length > 1) {
-                val getEval = ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
-                ScalaFieldEvaluator(getEval, s"_${nextPatternIndex + 1}")
+              val extractEval = new ScalaCachingEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval)))
+              if (pattern.subpatterns.length == 1) {
+                val signature = JVMNameUtil.getJVMRawText("()Ljava/lang/Object;")
+                ScalaDuplexEvaluator(
+                  ScalaMethodEvaluator(extractEval, "get", signature, Seq.empty),
+                  ScalaMethodEvaluator(extractEval, "productElement", signature, Seq(new IntEvaluator(0)))
+                )
+              } else if (pattern.subpatterns.length > 1) {
+                val signature = JVMNameUtil.getJVMRawText("()Ljava/lang/Object;")
+                val args = Seq(new IntEvaluator(nextPatternIndex))
+                val getEval = ScalaMethodEvaluator(extractEval, "get", signature, Seq.empty)
+                ScalaDuplexEvaluator(
+                  ScalaMethodEvaluator(getEval, "productElement", signature, args),
+                  ScalaMethodEvaluator(extractEval, "productElement", signature, args)
+                )
               }
               else throw EvaluationException(ScalaBundle.message("unapply.without.arguments"))
             } else if (funName == "unapplySeq") {
-              val extractEval = ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval))
-              val getEval = ScalaMethodEvaluator(extractEval, "get", null, Seq.empty)
+              val extractEval = new ScalaCachingEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval)))
+              val getEval =
+                ScalaDuplexEvaluator(
+                  ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
+                  ScalaDuplexEvaluator(
+                    new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.collection.SeqFactory$UnapplySeqWrapper")), extractEval),
+                    new NewValueClassInstanceEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText("scala.Array$UnapplySeqWrapper")), extractEval)
+                  )
+                )
               val indexExpr = createExpressionFromText("" + nextPatternIndex)(pattern.getManager)
               val indexEval = evaluatorFor(indexExpr)
               ScalaMethodEvaluator(getEval, "apply", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(indexEval))
