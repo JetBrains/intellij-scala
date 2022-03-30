@@ -1,10 +1,11 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.JavaUiBundle
+import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
-import com.intellij.openapi.observable.properties.{GraphProperty, GraphPropertyImpl, ObservableProperty, PropertyGraph}
+import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
 import com.intellij.openapi.observable.util.BindUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
@@ -33,8 +34,8 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   @inline private def propertyGraph: PropertyGraph = getPropertyGraph
 
   private var sdkComboBox: Cell[JdkComboBox] = _
-  private val sdkProperty: GraphPropertyImpl[Sdk] = new GraphPropertyImpl(propertyGraph, () => null)
-  private val moduleNameProperty: GraphPropertyImpl[String] = new GraphPropertyImpl(propertyGraph, () => parent.getName)
+  private val sdkProperty: GraphProperty[Sdk] = propertyGraph.property(null)
+  private val moduleNameProperty: GraphProperty[String] = propertyGraph.lazyProperty(() => parent.getName)
   private val addSampleCodeProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
   BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
@@ -76,6 +77,25 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
 
     builder.commit(project)
+
+    //logging by analogy with org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard.Step.setupProject
+    BSLog.logSdkFinished(parent, getSdk)
+  }
+
+  locally {
+    //logging by analogy with org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard.Step.<init>
+    sdkProperty.afterChange(sdk => {
+      BSLog.logSdkChanged(parent, sdk)
+      KUnit
+    })
+    addSampleCodeProperty.afterChange(_ => {
+      BSLog.logAddSampleCodeChanged(parent)
+      KUnit
+    })
+    moduleNameProperty.afterChange(_ => {
+      BSLog.logModuleNameChanged(parent)
+      KUnit
+    })
   }
 
   override def setupUI(panel: Panel): Unit = {
