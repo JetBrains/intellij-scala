@@ -5,6 +5,7 @@ package parser
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiUtilCore
 import com.intellij.psi.{FileViewProvider, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -30,8 +31,11 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
     case elt =>
       import ScalaElementType._
 
+      if (elt == ScCodeBlockElementType.BlockExpression)
+        PsiUtilCore.NULL_PSI_ELEMENT
+
       /* Definition Parts */
-      if (elt == CONSTRUCTOR)
+      else if (elt == CONSTRUCTOR)
         new ScConstructorInvocationImpl(node)
       else if (elt == PARAM_TYPE)
         new ScParameterTypeImpl(node)
