@@ -12,7 +12,8 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTes
   override protected val description: String =
     ScalaUnusedDeclarationInspectionBase.annotationDescription
 
-  val hint = ScalaInspectionBundle.message("remove.unused.element")
+  val removeUnusedElementHint = ScalaInspectionBundle.message("remove.unused.element")
+  val disablePublicDeclarationReporting = ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations")
   val hintWholeDefinition = "Remove whole definition"
   val hintOnlyXBinding = "Remove only x binding"
 }

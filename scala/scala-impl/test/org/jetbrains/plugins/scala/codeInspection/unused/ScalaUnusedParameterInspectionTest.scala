@@ -13,7 +13,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
     val rawArgsBefore = beforeClause.replace(START, "").replace(END, "")
     val before = templ.replace(paramsPlaceholder, rawArgsBefore).replace(argsPlaceholder, argsBefore)
     val after = templ.replace(paramsPlaceholder, afterClause).replace(argsPlaceholder, argsAfter)
-    testQuickFix(before, after, hint)
+    testQuickFix(before, after, removeUnusedElementHint)
   }
 
   private val doFunctionParameterTest = doParamTest(
