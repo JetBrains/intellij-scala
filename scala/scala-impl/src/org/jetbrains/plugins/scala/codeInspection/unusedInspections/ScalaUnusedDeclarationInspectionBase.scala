@@ -34,22 +34,17 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
-  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
-    if (isOnTheFly) {
-      if (isOnlyVisibleInLocalFile(element)) {
-        localSearch(element)
-      } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
-        true
-      } else if (!isReportPublicDeclarationsEnabled) {
-        true
-      } else if (checkIfEnumUsedOutsideScala(element)) {
-        true
-      } else {
-        textSearch(element)
-      }
+  private def isElementUsed(element: ScNamedElement): Boolean =
+    if (isOnlyVisibleInLocalFile(element)) {
+      localSearch(element)
+    } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
+      true
+    } else if (!isReportPublicDeclarationsEnabled) {
+      true
+    } else if (checkIfEnumUsedOutsideScala(element)) {
+      true
     } else {
-      //need to look for references because file is not highlighted
-      referencesSearch(element, element.getUseScope)
+      textSearch(element)
     }
 
   // this case is for elements accessible only in a local scope
@@ -169,7 +164,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
       elements.flatMap {
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
-        case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
+        case named: ScNamedElement if !isElementUsed(named) =>
           val dontReportPublicDeclarationsQuickFix =
             if (isOnlyVisibleInLocalFile(named)) None else Some(new DontReportPublicDeclarationsQuickFix(named))
           Seq(
