@@ -21,12 +21,12 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
          |  def ext1: Int = i + 0
          |0.ext1
          |""".stripMargin
-    testQuickFix(text, expected, hint)
+    testQuickFix(text, expected, removeUnusedElementHint)
   }
 
-  def test_enum(): Unit = testQuickFix("enum Foo { case Bar }", "", hint)
+  def test_enum(): Unit = testQuickFix("enum Foo { case Bar }", "", removeUnusedElementHint)
 
-  def test_parameterized_enum(): Unit = testQuickFix("enum Foo(val i: Int) { case Bar }", "", hint)
+  def test_parameterized_enum(): Unit = testQuickFix("enum Foo(val i: Int) { case Bar }", "", removeUnusedElementHint)
 
   def test_enum_case(): Unit = {
     val text =
@@ -47,7 +47,7 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
          |  Fruit.Strawberry match { case _ => }
          |end Foo
          |""".stripMargin
-    testQuickFix(text, expected, hint)
+    testQuickFix(text, expected, removeUnusedElementHint)
   }
 
 
@@ -71,16 +71,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
          |  Fruit.Strawberry match { case _ => }
          |end Foo
          |""".stripMargin
-    testQuickFix(text, expected, hint)
+    testQuickFix(text, expected, removeUnusedElementHint)
   }
 
   def test_last_enum_case(): Unit = {
     val text = "@scala.annotation.unused enum Fruit { case Banana }"
-    checkNotFixable(text, hint)
+    checkNotFixable(text, removeUnusedElementHint)
   }
 
   def test_last_extension_method(): Unit = {
     val text = "extension(i: Int) { def ext1: Int = i + 0 }"
-    checkNotFixable(text, hint)
+    checkNotFixable(text, removeUnusedElementHint)
   }
 }

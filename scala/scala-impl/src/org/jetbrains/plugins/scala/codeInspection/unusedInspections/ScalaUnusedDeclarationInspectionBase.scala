@@ -170,12 +170,14 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
         case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
+          val dontReportPublicDeclarationsQuickFix =
+            if (isOnlyVisibleInLocalFile(named)) None else Some(new DontReportPublicDeclarationsQuickFix(named))
           Seq(
             ProblemInfo(
               named.nameId,
               ScalaUnusedDeclarationInspectionBase.annotationDescription,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              DeleteUnusedElementFix.quickfixesFor(named) :+ new DontReportPublicDeclarationsQuickFix(named)
+              DeleteUnusedElementFix.quickfixesFor(named) ++ dontReportPublicDeclarationsQuickFix
             )
           )
         case _ =>
