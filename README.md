@@ -3,22 +3,27 @@
 [![Discord](https://badgen.net/badge/icon/discord?icon=discord&label)](https://discord.gg/aUKpZzeHCK)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/JetBrains/intellij-scala)
 
-
-
 # Scala Plugin for IntelliJ IDEA
 
-Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDEA.
+The plugin adds support for the Scala language:
+ - Coding assistance (highlighting, completion, formatting, refactorings, etc.)
+ - Navigation, search, information about types and implicits
+ - Integration with sbt and other build tools
+ - Testing frameworks support (ScalaTest, Specs2, uTest)
+ - Scala debugger, worksheets and Ammonite scripts
+
+(note that HOCON support was moved to a [separate plugin](https://plugins.jetbrains.com/plugin/10481-hocon))
 
 ## General information
 
 - To get information about how to install and use this plugin in IDEA, please
-  use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html).
+  use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html)
 
-- If you have any question about the Scala plugin, we'd be glad to answer it in [our
-  developer community](https://devnet.jetbrains.com/community/idea/scala) or in [our gitter channel](https://gitter.im/JetBrains/intellij-scala).
+- If you have any question about the Scala plugin, we'd be glad to answer it in [our discord channel](https://discord.gg/aUKpZzeHCK) or in [our
+  developer community](https://devnet.jetbrains.com/community/idea/scala) 
 
 - If you found a bug, please report it on [our issue
-  tracker](https://youtrack.jetbrains.com/issues/SCL#newissue).
+  tracker](https://youtrack.jetbrains.com/issues/SCL#newissue)
 
 - If you want to contribute, please see our [intro to the Scala plugin
   internals](https://blog.jetbrains.com/scala/2016/04/21/how-to-contribute-to-intellij-scala-plugin/).
@@ -28,9 +33,10 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
 ### Prerequisites
 In order to take part in Scala plugin development, you need:
 
-1. IntelliJ IDEA 2020.1 or higher with a compatible version of Scala plugin
+1. IntelliJ IDEA 2021.3 or higher with a compatible version of Scala plugin
 2. JDK 11
-3. (optional but recommended) Enable "[internal mode](https://www.jetbrains.org/intellij/sdk/docs/reference_guide/internal_actions/enabling_internal.html)" in IDEA
+3. (optional but **recommended**) \
+   Enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) in IDEA to get access to helpful internal actions and debug information
 
 ### Setup
 
@@ -49,16 +55,15 @@ the directory where the Scala plugin repository is and then import it as sbt pro
 development version of IDEA with the Scala plugin.
 
 
-##[IntelliJ Platform SDK documentation](https://plugins.jetbrains.com/docs/intellij/welcome.html)
+## [IntelliJ Platform SDK documentation](https://plugins.jetbrains.com/docs/intellij/welcome.html)
 
-## Browsing IntelliJ platform sources
+## Browsing IntelliJ Platform sources
 
-When loading the plugin in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
-IntelliJ platform sources should automatically attach after project has been imported and indices have been built.
+When loading Scala Plugin project in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
+IntelliJ platform sources should be automatically attached after project has been imported and indices have been built.
 
-However, if this didn't happen, and if you're seeing decompiled code when opening a platform API class you can click
-the option "attach sources" at the top of the editor, navigate to the sdk directory and select `sources.zip`,
-then choose "All".
+However, sometimes this doesn't happen and the sources are not attached. As a result you see decompiled code when opening a Platform API class.
+To fix this you can invoke "Attach Intellij Sources" action (you need to enable [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) to access this action)
 
 ## Tests
 
@@ -93,3 +98,8 @@ To run and distribute a modified version of the plugin in a regular IntelliJ ins
    (typically into `<project directory>/target/scala-plugin.zip`).
 2. In IntelliJ, open Preferences, section Plugins, choose "Install plugin from disk..." and navigate to the scala-plugin.zip
 3. Restart IntelliJ
+
+## Other
+### Investigation performance issues
+- YourKit
+- There is a "Scala plugin profiler" tool window to track invocations of methods with `@Cached*` or `@Measure` annotations (from `org.jetbrains.plugins.scala.macroAnnotations` package) in real time. The tool window is available in [internal mode](https://plugins.jetbrains.com/docs/intellij/enabling-internal.html) or if `-Dinternal.profiler.tracing=true` is passed to IDEA using [custom VM options](https://www.jetbrains.com/help/idea/tuning-the-ide.html#procedure-jvm-options)
