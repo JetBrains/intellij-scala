@@ -44,7 +44,8 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
     } else {
-      textSearch(element)
+      checkForMethodCalls(element)
+        .getOrElse(textSearch(element))
     }
 
   // this case is for elements accessible only in a local scope
@@ -125,6 +126,18 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     }
   }
 
+  // Some(true) - the element is a method and it's used
+  // Some(false) - the element is a method and it's not used
+  // None - this is not a method
+  // setters (methods ending with `_=`) can't be checked this way - use text search
+  private def checkForMethodCalls(element: ScNamedElement): Option[Boolean] =
+    element match {
+      case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
+        Some(ReferencesSearch.search(f).findFirst != null)
+      case _ =>
+        None
+    }
+
   // if the element is accessible from other files, we check that with a text search
   private def textSearch(element: ScNamedElement): Boolean = {
     val helper = PsiSearchHelper.getInstance(element.getProject)
@@ -132,25 +145,25 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     val processor = new TextOccurenceProcessor {
       override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
         inReadAction {
-          if (element.getContainingFile == e2.getContainingFile) true else {
+          if (element.getContainingFile == e2.getContainingFile) {
+            true
+          } else {
             used = true
             false
           }
         }
     }
 
-    ScalaUsageNamesUtil.getStringsToSearch(element).asScala.foreach { name =>
-      if (!used) {
-        helper.processElementsWithWord(
-          processor,
-          element.getUseScope,
-          name,
-          (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
-          true
-        )
-      }
+    ScalaUsageNamesUtil.getStringsToSearch(element).asScala.exists { name =>
+      helper.processElementsWithWord(
+        processor,
+        element.getUseScope,
+        name,
+        (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
+        true
+      )
+      used
     }
-    used
   }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] =
