@@ -222,14 +222,14 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction =
     doFindQuickFixes(text, hint, failOnEmptyErrors).head
 
-  private def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] = {
+  protected def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors)
     val actionsMatching = actions.filter(_.getText == hint)
     assert(actionsMatching.nonEmpty, s"Quick fixes not found. Available actions:\n${actions.map(_.getText).mkString("\n")}")
     actionsMatching
   }
 
-  private def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
+  protected def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
     configureByText(text).actualHighlights match {
       case Seq() if failOnEmptyErrors => fail("Errors not found.").asInstanceOf[Nothing]
       case seq                        => seq.flatMap(quickFixes)
