@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 
 ;
 
+import com.intellij.openapi.util.JDOMUtil
 import junit.framework.TestCase
-import org.jdom.{Element, JDOMException, JDOMFactory}
-import java.io.IOException
-import java.io.StringReader
-
-import org.jdom.input.SAXBuilder
+import org.jdom.Element
 import org.junit.Assert._
 
 class ScalaCodeStyleSettingsTest extends TestCase {
@@ -25,11 +22,7 @@ class ScalaCodeStyleSettingsTest extends TestCase {
         |  </ScalaCodeStyleSettings>
         |</code_scheme>
         |""".stripMargin
-    val element: Element = {
-      val saxBuilder = new SAXBuilder()
-      val document = saxBuilder.build(new StringReader(input))
-      document.getRootElement
-    }
+    val element: Element = JDOMUtil.load(input)
 
     settings.readExternal(element)
 

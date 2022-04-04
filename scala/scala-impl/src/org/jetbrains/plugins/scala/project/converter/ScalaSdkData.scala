@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import java.io.{File, StringReader}
-import java.nio.file.Path
-
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext, ModuleSettings}
 import com.intellij.openapi.components.StorageScheme
-import org.jdom.input.SAXBuilder
+import com.intellij.openapi.util.JDOMUtil
 import org.jdom.xpath.XPath
 import org.jdom.{Attribute, Element}
 import org.jetbrains.plugins.scala.project.converter.ScalaSdkData._
 
+import java.io.File
+import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.xml.{Elem, PrettyPrinter}
@@ -134,9 +133,7 @@ private object ScalaSdkData {
   }
 
   private def parseXml(xml: String): Element = {
-    val builder = new SAXBuilder()
-    val document = builder.build(new StringReader(xml))
-    document.detachRootElement()
+    JDOMUtil.load(xml)
   }
 
   private def suggestLibraryFile(name: String, context: ConversionContext): File = {

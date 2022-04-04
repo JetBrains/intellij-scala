@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.worksheet.runconfiguration
 
 import java.io.File
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, EditorFactory}
@@ -12,20 +11,21 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.CompilerMessagesCollector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinter, WorksheetEditorPrinterRepl}
 
+import java.util
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.{Failure, Try}
 
 final class WorksheetCache extends Disposable {
 
-  private val allViewers      = ContainerUtil.createWeakMap[Editor, List[Editor]]()
-  private val allReplPrinters = ContainerUtil.createWeakMap[Editor, WorksheetEditorPrinter]()
-  private val patchedEditors  = ContainerUtil.createWeakMap[Editor, String]()
+  private val allViewers      = new util.WeakHashMap[Editor, List[Editor]]()
+  private val allReplPrinters = new util.WeakHashMap[Editor, WorksheetEditorPrinter]()
+  private val patchedEditors  = new util.WeakHashMap[Editor, String]()
 
   private val Log: Logger = Logger.getInstance(getClass)
 
   @TestOnly
-  private val allCompilerMessagesCollectors = ContainerUtil.createWeakMap[Editor, CompilerMessagesCollector]()
+  private val allCompilerMessagesCollectors = new util.WeakHashMap[Editor, CompilerMessagesCollector]()
 
   // TODO: cleanup created files on application/project exit, do not pollute file system!
   private val compilationInfo = mutable.HashMap.empty[String, (Int, File, File)]

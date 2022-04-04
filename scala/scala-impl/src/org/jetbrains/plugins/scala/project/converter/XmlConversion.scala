@@ -1,16 +1,11 @@
 package org.jetbrains.plugins.scala.project.converter
 
-import java.io.StringReader
-
+import com.intellij.openapi.util.JDOMUtil
 import org.jdom.Element
-import org.jdom.input.SAXBuilder
 import org.jdom.output.{Format, XMLOutputter}
 
 import scala.xml.{Elem, PrettyPrinter}
 
-/**
-* @author Pavel Fatin
-*/
 trait XmlConversion {
   protected def formatXml(element: Element): String = {
     val outputter = new XMLOutputter(Format.getPrettyFormat)
@@ -23,9 +18,7 @@ trait XmlConversion {
   }
 
   protected def parseXml(xml: String): Element = {
-    val builder = new SAXBuilder()
-    val document = builder.build(new StringReader(xml))
-    document.detachRootElement()
+    JDOMUtil.load(xml)
   }
 
   protected def asJava(element: Elem): Element = parseXml(formatXml(element))

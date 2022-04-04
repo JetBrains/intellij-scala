@@ -7,6 +7,8 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.util.AliasExports._
 
+import scala.annotation.nowarn
+
 class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
   with ScalaDocumentationsSectionsTesting {
 
@@ -15,6 +17,7 @@ class ScalaDocumentationFromJavaTest extends DocumentationProviderTestBase
   override protected def documentationProvider: DocumentationProvider = ???
 
   override protected def generateDoc(editor: Editor, file: PsiFile) = {
+    @nowarn
     val manager = DocumentationManager.getInstance(getProject)
     val target  = manager.findTargetElement(getEditor, getFile)
     manager.generateDocumentation(target, null, false)

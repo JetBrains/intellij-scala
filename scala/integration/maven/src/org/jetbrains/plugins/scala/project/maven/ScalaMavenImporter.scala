@@ -148,7 +148,8 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       def resolveTransitively(id: MavenId): Seq[MavenArtifact] = {
         // NOTE: we can't use Seq + `asScala` here because the list will be serialised and passed to an external process
         val artifacts = util.Arrays.asList(jar(id))
-        val resolved = embedder.resolveTransitively(artifacts, repositories).asScala.toSeq
+        val artifactResolveResult = embedder.resolveArtifactTransitively(artifacts, repositories)
+        val resolved = artifactResolveResult.mavenResolvedArtifacts.asScala.toSeq
         // TODO: ideally test scope dependencies shouldn't be downloaded at all (see IDEA-270126)
         // note, resolved also includes root compiler jar with a `null` scope
         resolved.filter(_.getScope != "test")

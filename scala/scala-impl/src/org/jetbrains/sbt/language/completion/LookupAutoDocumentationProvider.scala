@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.sbt.language.completion.LookupAutoDocumentationProvider._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 
+import scala.annotation.nowarn
+
 final class LookupAutoDocumentationProvider extends LookupManagerListener {
   override def activeLookupChanged(oldLookup: Lookup, newLookup: Lookup): Unit =
     if (!isHeadlessEnv && !CodeInsightSettings.getInstance.AUTO_POPUP_JAVADOC_INFO && newLookup != null)
@@ -39,6 +41,7 @@ object LookupAutoDocumentationProvider {
     override def lookupCanceled(event: LookupEvent): Unit = lookupClosed()
 
     private def showDocumentation(): Unit = {
+      @nowarn("cat=deprecation")
       val docManager = DocumentationManager.getInstance(lookup.getProject)
       // show docs only if not shown yet
       if (docManager.getDocInfoHint == null) {
@@ -52,8 +55,11 @@ object LookupAutoDocumentationProvider {
     }
 
     private def closeDocPopup(): Unit = {
+      @nowarn("cat=deprecation")
       val docInfoHint = DocumentationManager.getInstance(lookup.getProject).getDocInfoHint
-      if (docInfoHint != null) docInfoHint.cancel()
+      if (docInfoHint != null) {
+        docInfoHint.cancel()
+      }
     }
 
     private def lookupClosed(): Unit = {
