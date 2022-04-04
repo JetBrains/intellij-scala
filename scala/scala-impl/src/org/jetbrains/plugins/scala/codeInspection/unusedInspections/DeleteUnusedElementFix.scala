@@ -8,7 +8,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.refactoring.safeDelete.SafeDeleteProcessor
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.DeleteUnusedElementFix.definitionOfPatternList
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -22,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createW
 import org.jetbrains.plugins.scala.util.SideEffectsUtil.hasNoSideEffects
 
 class DeleteUnusedElementFix(e: ScNamedElement, override val getText: String, val removeBindingOnly: Boolean) extends LocalQuickFixAndIntentionActionOnPsiElement(e) with Comparable[AnyRef] {
-  //override def getText: String =  ScalaInspectionBundle.message("remove.unused.element")
 
   override def getFamilyName: String = getText
 
