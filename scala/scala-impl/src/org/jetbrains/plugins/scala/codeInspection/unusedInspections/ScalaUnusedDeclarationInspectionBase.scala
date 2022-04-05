@@ -21,13 +21,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
 import scala.jdk.CollectionConverters._
 
 abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInspection {
+
   import ScalaUnusedDeclarationInspectionBase._
 
   override def isEnabledByDefault: Boolean = true
@@ -165,14 +166,21 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
         case named: ScNamedElement if !isElementUsed(named) =>
+
           val dontReportPublicDeclarationsQuickFix =
             if (isOnlyVisibleInLocalFile(named)) None else Some(new DontReportPublicDeclarationsQuickFix(named))
+
+          val addScalaAnnotationUnusedQuickFix = if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13)
+            None else Some(new AddScalaAnnotationUnusedQuickFix(named))
+
           Seq(
             ProblemInfo(
               named.nameId,
               ScalaUnusedDeclarationInspectionBase.annotationDescription,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              DeleteUnusedElementFix.quickfixesFor(named) ++ dontReportPublicDeclarationsQuickFix
+              DeleteUnusedElementFix.quickfixesFor(named) ++
+                dontReportPublicDeclarationsQuickFix ++
+                addScalaAnnotationUnusedQuickFix
             )
           )
         case _ =>
