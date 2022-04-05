@@ -13,6 +13,7 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTes
     ScalaUnusedDeclarationInspectionBase.annotationDescription
 
   val removeUnusedElementHint = ScalaInspectionBundle.message("remove.unused.element")
+  val addScalaAnnotationUnusedHint = ScalaInspectionBundle.message("annotate.declaration.with.unused")
   val disablePublicDeclarationReporting = ScalaInspectionBundle.message("fix.unused.declaration.report.public.declarations")
   val hintWholeDefinition = "Remove whole definition"
   val hintOnlyXBinding = "Remove only x binding"
