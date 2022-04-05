@@ -9,14 +9,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
 import javax.swing.JComponent
-import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-import scala.jdk.CollectionConverters._
+import java.util.Collections
 
 class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
@@ -51,19 +50,14 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
         global.uniqueTypesToShowMethodChains != uniqueTypesToShowMethodChains
   }
 
-  override def getCases: util.List[ImmediateConfigurable.Case] = SeqHasAsJava(Seq(
-    new ImmediateConfigurable.Case(
-      ScalaCodeInsightBundle.message("in.a.separate.column"),
-      "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
-      () => settings.alignMethodChainInlayHints,
-      b => {
-        settings.alignMethodChainInlayHints = b
-        kUnit
-      },
-      null)
-  )).asJava
+  override def getCases: util.List[ImmediateConfigurable.Case] = Collections.emptyList()
 
   private val settingsPanel = new ScalaMethodChainInlaySettingsPanel(
+    () => settings.alignMethodChainInlayHints,
+    b => {
+      settings.alignMethodChainInlayHints = b
+      getOnChangeListener.settingsChanged()
+    },
     () => settings.uniqueTypesToShowMethodChains,
     i => {
       settings.uniqueTypesToShowMethodChains = i
@@ -127,7 +121,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     settingsPanel.reset()
   }
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description")
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
