@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.util
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 
 class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
@@ -44,7 +44,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
 
   override def getName: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until")
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getPreviewText: String = {
     if (project.isDefault)
