@@ -68,20 +68,20 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       },
       null),
     new ImmediateConfigurable.Case(
-      ScalaCodeInsightBundle.message("method.results"),
-      "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
-      () => settings.showMethodResultType,
-      b => {
-        settings.showMethodResultType = b
-        kUnit
-      },
-      null),
-    new ImmediateConfigurable.Case(
       ScalaCodeInsightBundle.message("local.variables"),
       "Scala.ScalaTypeHintsSettingsModel.showLocalVariableType",
       () => settings.showLocalVariableType,
       b => {
         settings.showLocalVariableType = b
+        kUnit
+      },
+      null),
+    new ImmediateConfigurable.Case(
+      ScalaCodeInsightBundle.message("method.results"),
+      "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
+      () => settings.showMethodResultType,
+      b => {
+        settings.showMethodResultType = b
         kUnit
       },
       null)
