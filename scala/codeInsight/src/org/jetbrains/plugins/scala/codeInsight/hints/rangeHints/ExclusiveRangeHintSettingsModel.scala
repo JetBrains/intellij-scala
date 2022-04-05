@@ -55,7 +55,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
     """
       |val r1 = Range(1, 10)
       |val r2 = Range.inclusive(1, 10)
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {

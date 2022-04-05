@@ -95,7 +95,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
       |  def withHandshakeUpgrade: Connection
       |  def ping(): Int
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {
