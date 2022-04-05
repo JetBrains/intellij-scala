@@ -22,8 +22,9 @@ abstract class ScalaCompileServerMessagesShared(bundle: AbstractBundle) {
   @Nls
   def cantConnectToCompileServerErrorMessage(address: InetAddress, port: Int, reason: Option[String] = None): String = {
     @Nls val reasonSuffix = reason.fold("")(r => s" ($r)")
+    //extra `toString` is caleld for port because otherwise the port will be formatted as 3,200
     //noinspection ReferencePassedToNls
-    message("cannot.connect.to.compile.server.at", address.toString, port) + reasonSuffix
+    message("cannot.connect.to.compile.server.at", address.toString, port.toString) + reasonSuffix
   }
 
   @Nls
