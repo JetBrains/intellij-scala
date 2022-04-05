@@ -141,11 +141,6 @@
                   class="org.jetbrains.sbt.project.SbtProjectManagerListener"/>
     </applicationListeners>
 
-    <projectListeners>
-        <listener class="org.jetbrains.sbt.language.completion.LookupAutoDocumentationProvider"
-                  topic="com.intellij.codeInsight.lookup.LookupManagerListener"/>
-    </projectListeners>
-
     <actions>
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>
