@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.awt.{BorderLayout, FlowLayout}
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -22,6 +22,8 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
   "Scala.TypeMismatchHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+
   object settings {
     private val global = ScalaProjectSettings.getInstance(project)
 

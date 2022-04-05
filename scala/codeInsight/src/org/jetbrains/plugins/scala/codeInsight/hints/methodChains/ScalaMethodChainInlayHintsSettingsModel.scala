@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -23,6 +23,8 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   "Scala.ScalaMethodChainInlayHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()

@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -20,6 +20,8 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
   "Scala.ExclusiveRangeHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.VALUES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
