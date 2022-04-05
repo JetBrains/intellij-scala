@@ -106,7 +106,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       |    math.max(0, diff)
       |  }
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {

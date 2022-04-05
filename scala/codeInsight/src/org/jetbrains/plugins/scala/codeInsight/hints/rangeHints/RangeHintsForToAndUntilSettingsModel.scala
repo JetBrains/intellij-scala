@@ -57,7 +57,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
       |val r2 = 1.to(10)
       |val r3 = 1 until 10
       |val r4 = 1 until (10, -1)
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {
