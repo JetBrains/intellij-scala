@@ -38,11 +38,11 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     val code =
       """
         |@scala.annotation.unused class Bar {
-        |  //noinspection ScalaUnusedSymbol
+        |  //noinspection ScalaUnusedDeclaration
         |  private val f = 2
         |
         |  @scala.annotation.unused def aa(): Unit = {
-        |    //noinspection ScalaUnusedSymbol
+        |    //noinspection ScalaUnusedDeclaration
         |    val d = 2
         |  }
         |}

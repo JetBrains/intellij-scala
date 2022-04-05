@@ -20,7 +20,7 @@ import scala.annotation.implicitAmbiguous
   */
 sealed trait NotNothing[T]
 
-//noinspection ScalaUnusedSymbol
+//noinspection ScalaUnusedDeclaration
 private object NotNothing {
   implicit def good[T]: NotNothing[T] = null
 

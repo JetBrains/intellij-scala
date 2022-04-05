@@ -36,7 +36,10 @@ class EntryPointsWithoutGutterIconsTest extends ScalaUnusedDeclarationInspection
     checkTextHasNoErrors(
       s"""
          |import org.scalatest.refspec.RefSpec
-         |class Foo extends RefSpec { def `should pass`(): Unit = assert(true) }
+         |class Foo extends RefSpec {
+         |  //noinspection ScalaUnusedDeclaration
+         |  def `should pass`(): Unit = assert(true)
+         |}
          |""".stripMargin
     )
   }

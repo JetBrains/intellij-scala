@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.traceLogger.macros
 
 import scala.language.experimental.macros
 
-//noinspection ScalaUnusedSymbol
+//noinspection ScalaUnusedDeclaration
 trait LoggingMacros {
   final def log(msg: String, args: Any*): Unit = macro LoggingMacros.logImpl
   final def block[T](msg: String, args: Any*)(body: => T): T = macro LoggingMacros.blockImpl[T]

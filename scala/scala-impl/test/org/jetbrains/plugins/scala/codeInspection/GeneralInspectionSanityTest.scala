@@ -213,7 +213,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     "ScalaUnnecessarySemicolonInspection",
     "ScalaUnreachableCodeInspection",
     "ScalaUnusedExpressionInspection",
-    "ScalaUnusedSymbolInspection",
+    "ScalaUnusedDeclarationInspection",
     "ScalaXmlUnmatchedTagInspection",
     "ScalastyleCodeInspection",
     "SideEffectsInMonadicTransformationInspection",

@@ -129,7 +129,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             .orNull
 
         case e: ScTemplateBody =>
-          //noinspection ScalaUnusedSymbol
+          //noinspection ScalaUnusedDeclaration
           (for {
             eb @ (_x: ScExtendsBlock) <- Option(e.getParent)
             nt @ (_x: ScNewTemplateDefinition) <- Option(eb.getParent)
@@ -542,7 +542,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   }
 
   private object ConverterUtils {
-    //noinspection ScalaUnusedSymbol
+    //noinspection ScalaUnusedDeclaration
     def isInsideCatchBlock(c: ScCaseClause): Boolean =
       (for {
         cc @ (_x: ScCaseClauses) <- Option(c.getParent)

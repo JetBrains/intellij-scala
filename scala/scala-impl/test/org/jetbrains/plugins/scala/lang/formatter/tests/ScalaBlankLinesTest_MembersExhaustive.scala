@@ -115,7 +115,7 @@ class ScalaBlankLinesTest_MembersExhaustive(tuple: (String, String, String))
     math.max(firstValue, secondValue)
   }
 
-  //noinspection ScalaUnusedSymbol
+  //noinspection ScalaUnusedDeclaration
   private def settingValue(member: String, container: String): Int =
     firstToken(member) match {
       case "class" | "trait" | "object" =>

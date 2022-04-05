@@ -18,7 +18,7 @@ abstract class SbtNodeAction[T <: SbtNamedKey](c: Class[T]) extends ExternalSyst
   @NonNls protected def buildCmd(@NonNls projectId: String, @NonNls key: String): String
 
   override def perform(project: Project, projectSystemId: ProjectSystemId, externalData: T, e: AnActionEvent): Unit = {
-     //noinspection ScalaUnusedSymbol (unused `n` is necessary for compile to succeed)
+     //noinspection ScalaUnusedDeclaration (unused `n` is necessary for compile to succeed)
      val projectScope = for {
        selected <- ExternalSystemDataKeys.SELECTED_NODES.getData(e.getDataContext).asScala.headOption
        groupNode <- Option(selected.getParent)

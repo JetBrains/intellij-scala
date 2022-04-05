@@ -9,7 +9,7 @@ import java.util.Scanner
 import java.util.regex.Pattern
 import scala.io.Source
 
-//noinspection ScalaUnusedSymbol
+//noinspection ScalaUnusedDeclaration
 object ScalaBundleSorting {
 
   case class ModuleInfo(rootPath: String, bundleMessagesRelativePath: String, searcher: Searcher = new Searcher) {
