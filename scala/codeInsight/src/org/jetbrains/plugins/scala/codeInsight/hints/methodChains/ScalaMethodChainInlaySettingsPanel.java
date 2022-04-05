@@ -14,10 +14,15 @@ import java.util.function.Supplier;
 public class ScalaMethodChainInlaySettingsPanel {
     private JPanel panel;
     private JSpinner typeCountSpinner;
+    private JCheckBox separateColumnCheckbox;
     private final SpinnerNumberModel typeCountModel;
+    private final Supplier<Boolean> separateColumnGetter;
     private final Supplier<Integer> typeCountGetter;
 
-    public ScalaMethodChainInlaySettingsPanel(Supplier<Integer> typeCountGetter, Consumer<Integer> typeCountSetter) {
+    public ScalaMethodChainInlaySettingsPanel(
+            Supplier<Boolean> separateColumnGetter, Consumer<Boolean> separateColumnSetter,
+            Supplier<Integer> typeCountGetter, Consumer<Integer> typeCountSetter) {
+        this.separateColumnGetter = separateColumnGetter;
         this.typeCountGetter = typeCountGetter;
         typeCountModel = new SpinnerNumberModel();
         $$$setupUI$$$();
@@ -25,6 +30,7 @@ public class ScalaMethodChainInlaySettingsPanel {
         typeCountModel.setMaximum(99);
         typeCountModel.setStepSize(1);
         reset();
+        separateColumnCheckbox.addChangeListener((e) -> separateColumnSetter.accept(separateColumnCheckbox.isSelected()));
         typeCountModel.addChangeListener((e) -> typeCountSetter.accept(typeCountModel.getNumber().intValue()));
     }
 
@@ -33,6 +39,7 @@ public class ScalaMethodChainInlaySettingsPanel {
     }
 
     public void reset() {
+        separateColumnCheckbox.setSelected(separateColumnGetter.get());
         typeCountModel.setValue(typeCountGetter.get());
     }
 
@@ -51,20 +58,19 @@ public class ScalaMethodChainInlaySettingsPanel {
     private void $$$setupUI$$$() {
         createUIComponents();
         panel = new JPanel();
-        panel.setLayout(new GridLayoutManager(2, 4, new Insets(0, 0, 0, 0), -1, -1));
+        panel.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
         final JLabel label1 = new JLabel();
         this.$$$loadLabelText$$$(label1, this.$$$getMessageFromBundle$$$("messages/ScalaCodeInsightBundle", "inlay.hints.only.when.there.are.at.least"));
-        panel.add(label1, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        panel.add(typeCountSpinner, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(label1, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(typeCountSpinner, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer1 = new Spacer();
-        panel.add(spacer1, new GridConstraints(0, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel.add(spacer1, new GridConstraints(1, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        panel.add(spacer2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
-        final JLabel label2 = new JLabel();
-        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaCodeInsightBundle", "inlay.hints.unique.types"));
-        panel.add(label2, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel.add(spacer2, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        separateColumnCheckbox = new JCheckBox();
+        this.$$$loadButtonText$$$(separateColumnCheckbox, this.$$$getMessageFromBundle$$$("messages/ScalaCodeInsightBundle", "in.a.separate.column"));
+        panel.add(separateColumnCheckbox, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         label1.setLabelFor(typeCountSpinner);
-        label2.setLabelFor(typeCountSpinner);
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
@@ -107,6 +113,33 @@ public class ScalaMethodChainInlaySettingsPanel {
         component.setText(result.toString());
         if (haveMnemonic) {
             component.setDisplayedMnemonic(mnemonic);
+            component.setDisplayedMnemonicIndex(mnemonicIndex);
+        }
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    private void $$$loadButtonText$$$(AbstractButton component, String text) {
+        StringBuffer result = new StringBuffer();
+        boolean haveMnemonic = false;
+        char mnemonic = '\0';
+        int mnemonicIndex = -1;
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '&') {
+                i++;
+                if (i == text.length()) break;
+                if (!haveMnemonic && text.charAt(i) != '&') {
+                    haveMnemonic = true;
+                    mnemonic = text.charAt(i);
+                    mnemonicIndex = result.length();
+                }
+            }
+            result.append(text.charAt(i));
+        }
+        component.setText(result.toString());
+        if (haveMnemonic) {
+            component.setMnemonic(mnemonic);
             component.setDisplayedMnemonicIndex(mnemonicIndex);
         }
     }
