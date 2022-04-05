@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.util
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 
 class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
@@ -44,7 +44,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
 
   override def getName: String = ScalaCodeInsightBundle.message("range.exclusive.hint")
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getPreviewText: String = {
     if (project.isDefault)

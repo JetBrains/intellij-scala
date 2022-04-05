@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
@@ -85,7 +85,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       null)
   ).asJava
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.type.hints.for")
 
