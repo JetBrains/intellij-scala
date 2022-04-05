@@ -55,9 +55,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
         layout.setAlignment(FlowLayout.LEFT)
         new JPanel(layout)
       }
-      linePanel.add(new JLabel(s"(${ScalaCodeInsightBundle.message("instead.of.underlining.the.code")}, "))
       linePanel.add(link)
-      linePanel.add(new JLabel(")"))
       linePanel
     }
 
@@ -85,7 +83,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
     settings.reset()
   }
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("show.type.mismatch.hints")
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
