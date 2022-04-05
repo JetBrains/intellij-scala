@@ -65,4 +65,43 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
     addFile("import Foo.Bar; 0.plus42")
     checkTextHasNoErrors("object Foo { implicit class Bar(x: Int) { def plus42 = x + 42 } }")
   }
+
+  def test_auxiliary_constructors(): Unit = {
+    addFile(
+      """
+        | object UnusedConstructor {
+        |   val foo1 = new Foo()
+        |   val foo2 = new Foo("foo")
+        | }
+        |"""
+        .stripMargin)
+    checkTextHasNoErrors(
+      """
+        |  import scala.annotation.unused
+        |  @unused class Foo(@unused foo: String, @unused n: Int) {
+        |    def this() = this("foo", 0)
+        |    def this(str: String) = this(str, 0)
+        |  }
+        |""".stripMargin)
+  }
+
+  def test_overloaded_methods(): Unit = {
+    addFile(
+      """
+        | object UnusedConstructor {
+        |   val foo = new Foo()
+        |   foo.aaa()
+        |   foo.aaa("foo")
+        | }
+        |"""
+        .stripMargin)
+    checkTextHasNoErrors(
+      """
+        |  import scala.annotation.unused
+        |  @unused class Foo{
+        |    def aaa(): Unit = {}
+        |    def aaa(@unused str: String): Unit = {}
+        |  }
+        |""".stripMargin)
+  }
 }
