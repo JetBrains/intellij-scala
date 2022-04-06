@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -18,6 +18,7 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
   "Scala.ScalaGeneralTypeHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
 
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -48,12 +49,14 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
   override def getCases: util.List[ImmediateConfigurable.Case] = util.Collections.emptyList()
 
   private lazy val generalSettingsPanel = new GeneralSettingsPanel(
+    () => isEnabled, setEnabled(_),
     () => settings.preserveIndents, settings.preserveIndents = _,
     () => settings.presentationLength, settings.presentationLength = _
   )
 
   override def getComponent: JComponent = generalSettingsPanel.getPanel
 
+  // TODO Should be no "main check box" for "settings"
   override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.types.even.if.they.are.obvious")
 
   override def getName: String = ScalaCodeInsightBundle.message("general.settings")
@@ -74,7 +77,7 @@ class ScalaGeneralTypeHintsSettingsModel extends InlayProviderSettingsModel(
     generalSettingsPanel.reset()
   }
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("general.settings.description")
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -9,7 +9,7 @@ import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
@@ -25,6 +25,8 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
   "Scala.ScalaTypeHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -66,15 +68,6 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       },
       null),
     new ImmediateConfigurable.Case(
-      ScalaCodeInsightBundle.message("method.results"),
-      "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
-      () => settings.showMethodResultType,
-      b => {
-        settings.showMethodResultType = b
-        kUnit
-      },
-      null),
-    new ImmediateConfigurable.Case(
       ScalaCodeInsightBundle.message("local.variables"),
       "Scala.ScalaTypeHintsSettingsModel.showLocalVariableType",
       () => settings.showLocalVariableType,
@@ -82,10 +75,19 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
         settings.showLocalVariableType = b
         kUnit
       },
+      null),
+    new ImmediateConfigurable.Case(
+      ScalaCodeInsightBundle.message("method.results"),
+      "Scala.ScalaTypeHintsSettingsModel.showMethodResultType",
+      () => settings.showMethodResultType,
+      b => {
+        settings.showMethodResultType = b
+        kUnit
+      },
       null)
   ).asJava
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.type.hints.for")
 
@@ -104,7 +106,7 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
       |    math.max(0, diff)
       |  }
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {

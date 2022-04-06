@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -13,13 +13,15 @@ import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.util
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 
 class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
   "Scala.ExclusiveRangeHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.VALUES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -44,7 +46,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
 
   override def getName: String = ScalaCodeInsightBundle.message("range.exclusive.hint")
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getPreviewText: String = {
     if (project.isDefault)
@@ -53,7 +55,7 @@ class ExclusiveRangeHintSettingsModel(project: Project) extends InlayProviderSet
     """
       |val r1 = Range(1, 10)
       |val r2 = Range.inclusive(1, 10)
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {

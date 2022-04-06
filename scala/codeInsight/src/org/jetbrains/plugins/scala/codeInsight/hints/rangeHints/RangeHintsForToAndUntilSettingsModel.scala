@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.rangeHints
 
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -13,13 +13,15 @@ import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCod
 import org.jetbrains.plugins.scala.extensions.StringExt
 
 import java.util
-import javax.swing.JComponent
+import javax.swing.{JComponent, JPanel}
 
 class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
   "Scala.RangeHintsForToAndUntilSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.VALUES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -44,7 +46,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
 
   override def getName: String = ScalaCodeInsightBundle.message("range.hints.for.to.and.until")
 
-  override def getComponent: JComponent = null
+  override def getComponent: JComponent = new JPanel()
 
   override def getPreviewText: String = {
     if (project.isDefault)
@@ -55,7 +57,7 @@ class RangeHintsForToAndUntilSettingsModel(project: Project) extends InlayProvid
       |val r2 = 1.to(10)
       |val r3 = 1 until 10
       |val r4 = 1 until (10, -1)
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {

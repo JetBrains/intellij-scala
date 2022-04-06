@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -9,20 +9,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 
 import javax.swing.JComponent
-import kotlin.Unit.{INSTANCE => kUnit}
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-import scala.jdk.CollectionConverters._
+import java.util.Collections
 
 class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
   true,
   "Scala.ScalaMethodChainInlayHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -49,19 +50,14 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
         global.uniqueTypesToShowMethodChains != uniqueTypesToShowMethodChains
   }
 
-  override def getCases: util.List[ImmediateConfigurable.Case] = SeqHasAsJava(Seq(
-    new ImmediateConfigurable.Case(
-      ScalaCodeInsightBundle.message("in.a.separate.column"),
-      "Scala.ScalaMethodChainInlayHintsSettingsModel.alignMethodChainInlayHints",
-      () => settings.alignMethodChainInlayHints,
-      b => {
-        settings.alignMethodChainInlayHints = b
-        kUnit
-      },
-      null)
-  )).asJava
+  override def getCases: util.List[ImmediateConfigurable.Case] = Collections.emptyList()
 
   private val settingsPanel = new ScalaMethodChainInlaySettingsPanel(
+    () => settings.alignMethodChainInlayHints,
+    b => {
+      settings.alignMethodChainInlayHints = b
+      getOnChangeListener.settingsChanged()
+    },
     () => settings.uniqueTypesToShowMethodChains,
     i => {
       settings.uniqueTypesToShowMethodChains = i
@@ -93,7 +89,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
       |  def withHandshakeUpgrade: Connection
       |  def ping(): Int
       |}
-      |""".stripMargin.withNormalizedSeparator
+      |""".stripMargin.withNormalizedSeparator.trim
   }
 
   override def apply(): Unit = {
@@ -125,7 +121,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     settingsPanel.reset()
   }
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("method.chain.hints.description")
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.awt.{BorderLayout, FlowLayout}
 import java.util
-import com.intellij.codeInsight.hints.ImmediateConfigurable
+import com.intellij.codeInsight.hints.{ImmediateConfigurable, InlayGroup}
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
@@ -22,6 +22,8 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
   "Scala.TypeMismatchHintsSettingsModel",
   ScalaLanguage.INSTANCE
 ) {
+  override def getGroup: InlayGroup = InlayGroup.TYPES_GROUP
+
   object settings {
     private val global = ScalaProjectSettings.getInstance(project)
 
@@ -53,9 +55,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
         layout.setAlignment(FlowLayout.LEFT)
         new JPanel(layout)
       }
-      linePanel.add(new JLabel(s"(${ScalaCodeInsightBundle.message("instead.of.underlining.the.code")}, "))
       linePanel.add(link)
-      linePanel.add(new JLabel(")"))
       linePanel
     }
 
@@ -83,7 +83,7 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
     settings.reset()
   }
 
-  override def getDescription: String = null
+  override def getDescription: String = ScalaCodeInsightBundle.message("show.type.mismatch.hints")
 
   override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
 
