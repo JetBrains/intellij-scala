@@ -37,7 +37,7 @@ class EntryPointsWithoutGutterIconsTest extends ScalaUnusedDeclarationInspection
       s"""
          |import org.scalatest.refspec.RefSpec
          |class Foo extends RefSpec {
-         |  //noinspection ScalaUnusedDeclaration
+         |  //noinspection ScalaUnusedSymbol
          |  def `should pass`(): Unit = assert(true)
          |}
          |""".stripMargin

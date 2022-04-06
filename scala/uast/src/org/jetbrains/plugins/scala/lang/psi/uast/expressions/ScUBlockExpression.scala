@@ -65,7 +65,7 @@ object ScUBlockExpression {
 
   private def insideBlockBody(arg: PsiElement): Boolean =
     (
-      //noinspection ScalaUnusedDeclaration
+      //noinspection ScalaUnusedSymbol
       for {
         expr <- Option(arg)
         if !expr.isInstanceOf[ScReturn]

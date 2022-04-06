@@ -899,7 +899,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.unused.declaration"
-                         groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedDeclaration"
+                         groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"

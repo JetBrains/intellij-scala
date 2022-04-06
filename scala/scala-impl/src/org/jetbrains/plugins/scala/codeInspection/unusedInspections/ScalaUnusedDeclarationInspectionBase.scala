@@ -44,8 +44,12 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
     } else {
-      checkForMethodCalls(element)
-        .getOrElse(textSearch(element))
+      element match {
+        case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
+          ReferencesSearch.search(f).findFirst != null
+        case _ =>
+          textSearch(element)
+      }
     }
 
   // this case is for elements accessible only in a local scope
