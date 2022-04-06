@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScPackageImpl, ScalaPsiManager}
+import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
 import org.jetbrains.plugins.scala.settings._
 
@@ -104,7 +105,8 @@ object ScalaImportTypeFix {
 
     implicit val project: Project = ref.getProject
 
-    val kinds = ref.getKinds(incomplete = false)
+    val kinds = ref.getKinds(incomplete = false) ++
+      Option.when(ref.isInScala3File)(ResolveTargets.CLASS) // SCL-19992
     val manager = ScalaPsiManager.instance(project)
 
     def kindMatchesAndIsAccessible(named: PsiNamedElement) = named match {
@@ -162,8 +164,9 @@ object ScalaImportTypeFix {
       .sorted(defaultImportOrdering(ref))
   }
 
-  private def hasApplyMethod(`class`: PsiClass) = `class` match {
+  private def hasApplyMethod(`class`: PsiClass): Boolean = `class` match {
     case `object`: ScObject => `object`.allFunctionsByName(ScFunction.CommonNames.Apply).nonEmpty
+    case cls: ScClass => cls.isInScala3File // SCL-19992
     case _ => false
   }
 

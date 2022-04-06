@@ -6,8 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ImportExtensionMethodFixText
-  extends ImportElementFixTestBase[ScReferenceExpression]
-    with FailableTest {
+  extends ImportElementFixTestBase[ScReferenceExpression] {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
