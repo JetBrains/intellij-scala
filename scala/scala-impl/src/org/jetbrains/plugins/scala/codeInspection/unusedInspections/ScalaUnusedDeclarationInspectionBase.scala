@@ -44,8 +44,12 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
     } else {
-      checkForMethodCalls(element)
-        .getOrElse(textSearch(element))
+      element match {
+        case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
+          ReferencesSearch.search(f).findFirst != null
+        case _ =>
+          textSearch(element)
+      }
     }
 
   // this case is for elements accessible only in a local scope
@@ -125,18 +129,6 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
       used
     }
   }
-
-  // Some(true) - the element is a method and it's used
-  // Some(false) - the element is a method and it's not used
-  // None - this is not a method
-  // setters (methods ending with `_=`) can't be checked this way - use text search
-  private def checkForMethodCalls(element: ScNamedElement): Option[Boolean] =
-    element match {
-      case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
-        Some(ReferencesSearch.search(f).findFirst != null)
-      case _ =>
-        None
-    }
 
   // if the element is accessible from other files, we check that with a text search
   private def textSearch(element: ScNamedElement): Boolean = {

@@ -356,7 +356,7 @@ object ScalaLanguageConsole {
       consoleView
     }
 
-    //noinspection ScalaUnusedDeclaration
+    //noinspection ScalaUnusedSymbol
     private def drawDebugBorders(consoleView: ScalaLanguageConsole): Unit = {
       val mask = SideBorder.ALL
       val thickness = 2

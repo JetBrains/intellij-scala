@@ -30,7 +30,7 @@ trait IndentAdjustor {
     document.deleteString(newCaretOffset, newCaretOffset + 1)
   }
 
-  //noinspection ScalaUnusedDeclaration
+  //noinspection ScalaUnusedSymbol
   def adjustIndent(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     val file = element.getContainingFile
     val dotOffset = offset - 1

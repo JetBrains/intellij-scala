@@ -15,7 +15,7 @@ object ScalaUnusedDeclarationPass {
   def inspection(project: Project): ScalaUnusedDeclarationInspection =
     Option(InspectionProjectProfileManager.getInstance(project))
       .map(_.getCurrentProfile)
-      .flatMap(profile => Option(profile.getInspectionTool("ScalaUnusedDeclaration", project)))
+      .flatMap(profile => Option(profile.getInspectionTool("ScalaUnusedSymbol", project)))
       .map(_.getTool.asInstanceOf[ScalaUnusedDeclarationInspection])
       .getOrElse(new ScalaUnusedDeclarationInspection)
 }

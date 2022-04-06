@@ -107,7 +107,7 @@ object Main {
   }
 
   // TODO: more reliable "unexpected process termination"  SCL-19367
-  //noinspection ScalaUnusedDeclaration
+  //noinspection ScalaUnusedSymbol
   def nailShutdown(server: NGServer): Unit = {
     import CompileServerSharedMessages._
     val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""

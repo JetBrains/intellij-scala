@@ -221,7 +221,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     //printFoldingsDebugInfo(descriptors)
   }
 
-  //noinspection ScalaUnusedDeclaration
+  //noinspection ScalaUnusedSymbol
   private def printFoldingsDebugInfo(descriptors: java.util.List[FoldingDescriptor]): Unit = {
     val infos = descriptors.iterator().asScala.map { d =>
       s"  ${d.getRange}  ${d.getPlaceholderText}"
