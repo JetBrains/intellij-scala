@@ -419,11 +419,10 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     reference.getParent match {
       case _: ScMethodCall =>
         val isUpperCased = reference.refName.headOption.exists(_.isUpper)
-        new CreateMethodQuickFix(reference) ::
-          (if (isUpperCased)
-            new CreateCaseClassQuickFix(reference) :: Nil
-          else
-            Nil)
+        new CreateMethodQuickFix(reference) :: List(
+          Option.when(isUpperCased)(new CreateCaseClassQuickFix(reference)),
+          Option.when(isUpperCased && reference.isInScala3File)(new CreateClassQuickFix(reference)),
+        ).flatten
       case ScInfixExpr(_, `reference`, _) =>
         new CreateMethodQuickFix(reference) :: Nil
       case (_: ScGenericCall) childOf (_: ScMethodCall) =>

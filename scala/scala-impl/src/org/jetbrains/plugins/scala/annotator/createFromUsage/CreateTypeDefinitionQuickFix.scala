@@ -129,8 +129,14 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
             false
           }
         }
-        NavigationUtil.getPsiElementPopup(siblings.toArray, renderer, ScalaBundle.message("choose.level.popup.title"), processor, selection)
-                .showInBestPositionFor(editor)
+        if (isUnitTestMode) {
+          val sibling = siblings.find(!_.is[PsiFile])
+            .getOrElse(siblings.head)
+          createClassAtLevel(sibling)
+        } else
+          NavigationUtil
+            .getPsiElementPopup(siblings.toArray, renderer, ScalaBundle.message("choose.level.popup.title"), processor, selection)
+            .showInBestPositionFor(editor)
     }
   }
   
