@@ -179,7 +179,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
           case obj: ScObject if obj.allFunctionsByName(CommonNames.Apply).isEmpty =>
             val cls  = obj.baseCompanion
             val proc = processor(smartProcessor = false, kinds = Set(ResolveTargets.CLASS))
-            cls.foreach(proc.execute(_, ScalaResolveState.empty))
+            cls.foreach(proc.execute(_, ScalaResolveState.withImportsUsed(srrs.head.importsUsed)))
             proc.candidates
           case _ => srrs
         }

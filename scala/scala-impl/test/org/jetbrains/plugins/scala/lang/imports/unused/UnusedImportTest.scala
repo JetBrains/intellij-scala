@@ -922,4 +922,37 @@ class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
     assertNothing(messages(text))
   }
 
+  def testUniversalApply(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  class Foo
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  Foo()
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  def testUniversalApplyWithCompanion(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  class Foo
+        |  object Foo
+        |}
+        |
+        |object Target {
+        |  import Source.Foo
+        |  Foo()
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
 }
