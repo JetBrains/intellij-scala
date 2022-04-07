@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import java.io.File
 import java.util
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
@@ -148,6 +149,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       def resolveTransitively(id: MavenId): Seq[MavenArtifact] = {
         // NOTE: we can't use Seq + `asScala` here because the list will be serialised and passed to an external process
         val artifacts = util.Arrays.asList(jar(id))
+        @nowarn("cat=deprecation")
         val resolved = embedder.resolveTransitively(artifacts, repositories).asScala.toSeq
         // TODO: ideally test scope dependencies shouldn't be downloaded at all (see IDEA-270126)
         // note, resolved also includes root compiler jar with a `null` scope
