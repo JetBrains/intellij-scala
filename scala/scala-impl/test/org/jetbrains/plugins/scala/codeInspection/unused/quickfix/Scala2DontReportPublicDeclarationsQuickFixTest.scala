@@ -6,22 +6,29 @@ import org.junit.Assert.{assertFalse, assertTrue}
 class Scala2DontReportPublicDeclarationsQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {
 
   def test_private_field(): Unit = {
-    val  code =
+    val code =
       """
         |@scala.annotation.unused class Foo {
         |  private val s = 0
         |}
       """.stripMargin
-    assertFalse(findAllQuickFixes(code, failOnEmptyErrors = false).exists(_.getText == disablePublicDeclarationReporting))
+    val allQuickFixes = findAllQuickFixes(code, failOnEmptyErrors = false)
+    val quickFixFound = allQuickFixes.exists(_.getText == disablePublicDeclarationReporting)
+    val message =
+      s"""
+         |QuickFix '$disablePublicDeclarationReporting' was found, even though the code has no unused public declarations:
+         |$code
+         |""".stripMargin
+    assertFalse(message, quickFixFound)
   }
 
   def test_public_field(): Unit = {
-    val  code =
+    val code =
       """
         |@scala.annotation.unused class Foo {
         |  val s = 0
         |}
       """.stripMargin
-    assertTrue(doFindQuickFixes(code, disablePublicDeclarationReporting).size == 1)
+    doFindQuickFixes(code, disablePublicDeclarationReporting)
   }
 }
