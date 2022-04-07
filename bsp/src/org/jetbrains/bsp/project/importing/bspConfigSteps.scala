@@ -214,10 +214,11 @@ class BspSetupConfigStep(wizardContext: WizardContext, builder: BspProjectImport
   override def onWizardFinished(): Unit = {
     // TODO this spawns an indicator window which is not nice.
     // show a live log in the window or something?
-    if(wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
+    if (wizardContext.getProjectBuilder.isInstanceOf[BspProjectImportBuilder]) {
       updateDataModel() // without it runSetupTask is null
       builder.prepare(wizardContext)
-      builder.ensureProjectIsDefined(wizardContext)
+      //this will use DefaultProject, which will lead to exception IDEA-289729
+      //builder.ensureProjectIsDefined(wizardContext)
       val task = new ConfigSetupTask(runSetupTask)
       task.queue()
     }
