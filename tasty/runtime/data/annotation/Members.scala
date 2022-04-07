@@ -25,6 +25,13 @@ trait Members {
   @inline
   def f2: Int = ???
 
+  class PrimaryConstructor @inline ()
+
+  class AuxiliaryConstructor {
+    @inline
+    def this(x: Int) = /**/this()/*???*/
+  }
+
   @inline
   val v1: Int
 
