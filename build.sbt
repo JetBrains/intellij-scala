@@ -14,7 +14,7 @@ import java.nio.file.Paths
 
 (ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
- (ThisBuild / resolvers) ++= Seq(
+(ThisBuild / resolvers) ++= Seq(
    Resolver.sonatypeRepo("releases"),
    Resolver.sonatypeRepo("staging"),
    Resolver.sonatypeRepo("snapshots"),
@@ -344,7 +344,8 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     autoScalaLibrary := false, // removes Scala dependency,
     scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
     javacOptions := Seq("--release", "11"), // finders are run in IDEA process, so using JDK 11
-    packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar")
+    packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
+    intellijMainJars := Nil, //without this lineon SDK is still added (as "Provided"), while it shouldn't
   )
 
 lazy val scalatestFindersTests: Seq[Project] = Seq(
@@ -365,21 +366,24 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
   .settings(
     scalatestFindersTestSettings,
     scalaVersion := "2.11.12",
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test)
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
+    intellijMainJars := Nil
   )
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .dependsOn(scalatestFinders)
   .settings(
     scalatestFindersTestSettings,
     scalaVersion := "2.12.13",
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test)
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
+    intellijMainJars := Nil
   )
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .dependsOn(scalatestFinders)
   .settings(
     scalatestFindersTestSettings,
     scalaVersion := "2.13.4",
-    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test)
+    libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
+    intellijMainJars := Nil
   )
 
 lazy val nailgunRunners =
