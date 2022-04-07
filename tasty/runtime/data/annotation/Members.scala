@@ -42,4 +42,11 @@ trait Members {
 
   @inline
   type A = Int
+
+  extension (i: Int)
+    @inline
+    def method: Int = ???
+
+  @inline
+  given Int = ???
 }
