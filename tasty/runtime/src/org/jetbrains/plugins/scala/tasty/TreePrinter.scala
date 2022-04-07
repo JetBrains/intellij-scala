@@ -244,7 +244,9 @@ class TreePrinter(privateMembers: Boolean = false) {
   }
 
   private def textOfDefDef(sb: StringBuilder, indent: String, node: Node): Unit = {
-    textOfAnnotationIn(sb, indent, node, "\n")
+    if (!node.contains(EXTENSION)) {
+      textOfAnnotationIn(sb, indent, node, "\n")
+    }
     sb ++= indent
     val name = node.name
     if (name == "<init>") {
@@ -257,6 +259,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         sb ++= "extension "
         parametersIn(sb, node, target = Target.Extension)
         sb ++= "\n"
+        textOfAnnotationIn(sb, indent + Indent, node, "\n")
         sb ++= indent
         sb ++= Indent
       }
