@@ -198,6 +198,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     val previousLength = sb.length
     primaryConstructor.foreach { constructor =>
       val sb1 = new StringBuilder() // TODO
+      textOfAnnotationIn(sb1, "", constructor, " ")
       modifiersIn(sb1, constructor)
       val modifiers = if (sb1.nonEmpty) " " + sb1.toString else ""
       parametersIn(sb, constructor, Some(node), definition, modifiers = _ ++= modifiers)
