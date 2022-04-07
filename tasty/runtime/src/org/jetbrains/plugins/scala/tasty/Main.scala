@@ -15,22 +15,22 @@ object Main {
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
   private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/tasty/runtime/target/comparison"
 
-  // scalaVersion := "3.0.0",
-  // libraryDependencies += "dev.zio" %% "zio" % "1.0.9",
-  // libraryDependencies += "dev.zio" %% "zio-streams" % "1.0.9",
-  // libraryDependencies += "org.typelevel" %% "cats-core" % "2.6.1",
-  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.1",
-  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.0.0",
+  // scalaVersion := "3.1.1",
+  // libraryDependencies += "dev.zio" %% "zio" % "1.0.12",
+  // libraryDependencies += "dev.zio" %% "zio-streams" % "1.0.12",
+  // libraryDependencies += "org.typelevel" %% "cats-core" % "2.7.0",
+  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.3.8",
+  // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.1.1",
   private val Libraries = Seq(
-    "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
-    "org/scalatest/scalatest-core_3/3.2.9/scalatest-core_3-3.2.9.jar",
-    "org/scalatest/scalatest-funspec_3/3.2.9/scalatest-funspec_3-3.2.9.jar",
-    "org/scalatest/scalatest-funsuite_3/3.2.9/scalatest-funsuite_3-3.2.9.jar",
-    "dev/zio/zio_3/1.0.9/zio_3-1.0.9.jar",
-    "dev/zio/zio-streams_3/1.0.9/zio-streams_3-1.0.9.jar",
-    "org/typelevel/cats-core_3/2.6.1/cats-core_3-2.6.1.jar",
-    "org/typelevel/cats-effect_3/3.1.1/cats-effect_3-3.1.1.jar",
-    "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
+    "org/scala-lang/scala3-library_3/3.1.1/scala3-library_3-3.1.1.jar",
+    "org/scalatest/scalatest-core_3/3.2.11/scalatest-core_3-3.2.11.jar",
+    "org/scalatest/scalatest-funspec_3/3.2.11/scalatest-funspec_3-3.2.11.jar",
+    "org/scalatest/scalatest-funsuite_3/3.2.11/scalatest-funsuite_3-3.2.11.jar",
+    "dev/zio/zio_3/1.0.12/zio_3-1.0.12.jar",
+    "dev/zio/zio-streams_3/1.0.12/zio-streams_3-1.0.12.jar",
+    "org/typelevel/cats-core_3/2.7.0/cats-core_3-2.7.0.jar",
+    "org/typelevel/cats-effect_3/3.3.8/cats-effect_3-3.3.8.jar",
+    "org/scala-lang/scala3-compiler_3/3.1.1/scala3-compiler_3-3.1.1.jar",
   )
 
   def main(args: Array[String]): Unit = {
