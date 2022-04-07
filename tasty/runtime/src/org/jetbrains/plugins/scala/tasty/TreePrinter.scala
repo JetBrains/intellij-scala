@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.tasty
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
 import org.jetbrains.plugins.scala.tasty.Node.{Node1, Node2, Node3}
+import org.jetbrains.plugins.scala.tasty.TreePrinter.Keywords
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
@@ -53,9 +54,9 @@ class TreePrinter(privateMembers: Boolean = false) {
           if (name != "<empty>") {
             sb ++= "package "
             if (containsPackageObject) {
-              sb ++= name.split('.').init.mkString(".") // TODO optimize
+              sb ++= id(name.split('.').init.mkString(".")) // TODO optimize
             } else {
-              sb ++= name
+              sb ++= id(name)
             }
             sb ++= "\n\n"
           }
@@ -142,12 +143,12 @@ class TreePrinter(privateMembers: Boolean = false) {
     }
     if (!isAnonymousGiven) {
       if (isPackageObject) {
-        sb ++= definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("") // TODO check
+        sb ++= id(definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("")) // TODO check
       } else {
         if (isObject) {
-          sb ++= node.previousSibling.fold(name)(_.name) // TODO check type
+          sb ++= id(node.previousSibling.fold(name)(_.name)) // TODO check type
         } else {
-          sb ++= name
+          sb ++= id(name)
         }
       }
     }
@@ -271,7 +272,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       if (!isAnonymousGiven) {
-        sb ++= name
+        sb ++= id(name)
       }
       parametersIn(sb, node, target = if (node.contains(EXTENSION)) Target.ExtensionMethod else Target.Definition)
       sb ++= ": "
@@ -299,7 +300,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     modifiersIn(sb, node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false)
     val isCase = node.contains(CASE)
     if (isCase) {
-      sb ++= name
+      sb ++= id(name)
       if (isCase) {
         // TODO check element types
         children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).foreach { template =>
@@ -316,7 +317,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       if (!isAnonymousGiven) {
-        sb ++= name + ": "
+        sb ++= id(name) + ": "
       }
       val tpe = children.headOption
       tpe match {
@@ -443,7 +444,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("") // TODO optimize
         if (name.nonEmpty) {
           sb ++= indent
-          sb ++= name
+          sb ++= id(name)
           val args = apply.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ") // TODO optimize
           if (args.nonEmpty) {
             sb ++= "("
@@ -524,7 +525,7 @@ class TreePrinter(privateMembers: Boolean = false) {
             sb ++= "-"
           }
         }
-        sb ++= (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
+        sb ++= (if (name.startsWith("_$")) "_" else id(name)) // TODO detect Unique name
         node.children match {
           case Seq(lambda @ Node1(LAMBDAtpt), _: _*) =>
             parametersIn(sb, lambda)
@@ -606,7 +607,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           }
         }
         if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
-          sb ++= name + ": "
+          sb ++= id(name) + ": "
         }
         sb ++= simple(textOfType(children.head))
         if (node.contains(HASDEFAULT)) {
@@ -699,4 +700,56 @@ class TreePrinter(privateMembers: Boolean = false) {
     val i = tpe.lastIndexOf(".")
     (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
   }
+
+  private def id(s: String): String = {
+    val quoted = Keywords(s) || (!s.startsWith("@") && s.headOption.exists(!_.isLetter) && s.exists(_.isLetter))
+    if (quoted) "`" + s + "`" else s
+  }
+}
+
+private object TreePrinter {
+  private val Keywords = Set(
+    "abstract",
+    "case",
+    "catch",
+    "class",
+    "def",
+    "do",
+    "else",
+    "enum",
+    "extends",
+    "extension",
+    "false",
+    "final",
+    "finally",
+    "for",
+    "forSome",
+    "given",
+    "if",
+    "implicit",
+    "import",
+    "lazy",
+    "match",
+    "new",
+    "null",
+    "object",
+    "override",
+    "package",
+    "private",
+    "protected",
+    "return",
+    "sealed",
+    "super",
+    "this",
+    "throw",
+    "trait",
+    "true",
+    "try",
+    "type",
+    "val",
+    "var",
+    "while",
+    "with",
+    "yield",
+  )
 }

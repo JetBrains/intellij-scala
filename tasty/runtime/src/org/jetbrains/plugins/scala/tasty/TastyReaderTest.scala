@@ -7,6 +7,7 @@ import java.io.File
 import java.nio.file.{FileSystems, Files, Path}
 import scala.collection.mutable
 
+// test quotes in textOfType, given, extension, package, qualifier (plus format)
 // enum companion: case(), object
 // Target names
 // Escape chars
@@ -72,6 +73,7 @@ object TastyReaderTest {
       "member/Def",
       "member/ExtensionMethod",
       "member/Given",
+      "member/Identifiers",
       "member/InlineModifier",
       "member/Modifiers",
       "member/Qualifier",
@@ -101,6 +103,7 @@ object TastyReaderTest {
       "parameter/HKT",
       "parameter/HKTBounds",
       "parameter/HKTVariance",
+      "parameter/Identifiers",
       "parameter/InlineModifier",
       "parameter/Modifiers",
       "parameter/Qualifier",
@@ -111,6 +114,7 @@ object TastyReaderTest {
       "typeDefinition/Class",
       "typeDefinition/Companions",
       "typeDefinition/Enum",
+      "typeDefinition/Identifiers",
       "typeDefinition/ImplicitClass",
       "typeDefinition/Members",
       "typeDefinition/Modifiers",

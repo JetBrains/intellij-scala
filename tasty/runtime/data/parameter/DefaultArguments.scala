@@ -28,10 +28,10 @@ trait DefaultArguments {
   }
 
   extension (i: Int = /**/1/*???*/)
-    def extension: Unit = ???
+    def method1: Unit = ???
 
   extension (i: Int)
-    def extensionMethod(x: Int = /**/1/*???*/): Unit = ???
+    def method2(x: Int = /**/1/*???*/): Unit = ???
 
   trait T
 
