@@ -10,10 +10,10 @@ trait ByName {
   }
 
   extension (i: => Int)
-    def extension: Unit = ???
+    def method1: Unit = ???
 
   extension (i: Int)
-    def extensionMethod(x: => Int): Unit = ???
+    def method2(x: => Int): Unit = ???
 
   trait T
 
