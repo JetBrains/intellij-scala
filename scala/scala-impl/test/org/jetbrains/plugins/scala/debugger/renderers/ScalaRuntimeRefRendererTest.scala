@@ -78,7 +78,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
     runDebugger() {
       waitForBreakpoint()
       val (label, _) =
-        renderLabelAndChildren(varName, None, parameter(0))
+        renderLabelAndChildren(varName, renderChildren = false, parameter(0))
 
       val expectedLabel = s"{unwrapped Scala runtime $refType reference}$afterTypeLabel"
 
