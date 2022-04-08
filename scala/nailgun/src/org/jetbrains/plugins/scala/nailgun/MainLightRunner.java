@@ -18,7 +18,6 @@ public class MainLightRunner {
         Path scalaCompileServerSystemDir = Paths.get(args[1]);
         String[] argsToDelegate = Arrays.copyOfRange(args, 2, args.length);
         URLClassLoader classLoader = NailgunRunner.constructClassLoader(classpathStr);
-        System.err.println();
         runMainMethod(scalaCompileServerSystemDir, argsToDelegate, classLoader);
     }
 
