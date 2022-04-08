@@ -45,7 +45,12 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
     } else {
-      textSearch(element)
+      element match {
+        case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
+          ReferencesSearch.search(f).findFirst != null
+        case _ =>
+          textSearch(element)
+      }
     }
 
   // this case is for elements accessible only in a local scope
@@ -133,7 +138,9 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     val processor = new TextOccurenceProcessor {
       override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
         inReadAction {
-          if (element.getContainingFile == e2.getContainingFile) true else {
+          if (element.getContainingFile == e2.getContainingFile) {
+            true
+          } else {
             used = true
             false
           }
