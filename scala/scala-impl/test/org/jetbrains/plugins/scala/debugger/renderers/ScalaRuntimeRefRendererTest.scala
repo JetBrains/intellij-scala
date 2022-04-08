@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala
 package debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
-
-import scala.concurrent.duration._
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
@@ -17,12 +15,13 @@ import scala.concurrent.duration._
 @Category(Array(classOf[DebuggerTests]))
 class ScalaRuntimeRefRendererTest extends RendererTestBase {
 
-  addFileWithBreakpoints("IntRef.scala",
+  addSourceFile("IntRef.scala",
     s"""object IntRef {
        |  def main(args: Array[String]): Unit = {
        |    var n = 0
-       |    for (_ <- 1 to 100) {
-       |      n += 1$bp
+       |    for (_ <- 1 to 1) {
+       |      $breakpoint
+       |      n += 1
        |    }
        |  }
        |}""".stripMargin)
@@ -31,12 +30,13 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
     testRuntimeRef("n", "Int", "0")
   }
 
-  addFileWithBreakpoints("VolatileIntRef.scala",
+  addSourceFile("VolatileIntRef.scala",
     s"""object VolatileIntRef {
        |  def main(args: Array[String]): Unit = {
        |    @volatile var n = 0
-       |    for (_ <- 1 to 100) {
-       |      n += 1$bp
+       |    for (_ <- 1 to 1) {
+       |      $breakpoint
+       |      n += 1
        |    }
        |  }
        |}""".stripMargin)
@@ -45,12 +45,13 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
     testRuntimeRef("n", "volatile Int", "0")
   }
 
-  addFileWithBreakpoints("ObjectRef.scala",
+  addSourceFile("ObjectRef.scala",
     s"""object ObjectRef {
        |  def main(args: Array[String]): Unit = {
        |    var n = "abc"
-       |    for (_ <- 1 to 100) {
-       |      n = "def"$bp
+       |    for (_ <- 1 to 1) {
+       |      $breakpoint
+       |      n = "def"
        |    }
        |  }
        |}""".stripMargin)
@@ -59,12 +60,13 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
     testRuntimeRef("n", "Object", """"abc"""")
   }
 
-  addFileWithBreakpoints("VolatileObjectRef.scala",
+  addSourceFile("VolatileObjectRef.scala",
     s"""object VolatileObjectRef {
        |  def main(args: Array[String]): Unit = {
        |    @volatile var n = "abc"
-       |    for (_ <- 1 to 100) {
-       |      n = "def"$bp
+       |    for (_ <- 1 to 1) {
+       |      $breakpoint
+       |      n = "def"
        |    }
        |  }
        |}""".stripMargin)
@@ -74,15 +76,11 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
   }
 
   private def testRuntimeRef(varName: String, refType: String, afterTypeLabel: String): Unit = {
-    import org.junit.Assert.assertTrue
-    runDebugger() {
-      waitForBreakpoint()
+    rendererTest() { implicit ctx =>
       val (label, _) =
         renderLabelAndChildren(varName, renderChildren = false, parameter(0))
-
       val expectedLabel = s"{unwrapped Scala runtime $refType reference}$afterTypeLabel"
-
-      assertTrue(label.contains(expectedLabel))
+      org.junit.Assert.assertTrue(label.contains(expectedLabel))
     }
   }
 }

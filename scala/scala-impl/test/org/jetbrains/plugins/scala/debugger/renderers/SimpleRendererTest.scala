@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala.debugger.renderers
+package org.jetbrains.plugins.scala
+package debugger.renderers
 
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert.assertEquals
+import org.jetbrains.plugins.scala.util.runners._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -17,31 +16,26 @@ import org.junit.runner.RunWith
 @Category(Array(classOf[DebuggerTests]))
 class SimpleRendererTest extends RendererTestBase {
   protected def checkLabelRendering(variableToExpectedLabel: (String, String)*): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
-      for {
-        (variable, expected) <- variableToExpectedLabel
-      } {
+    rendererTest() { implicit ctx =>
+      variableToExpectedLabel.foreach { case (variable, expected) =>
         val (label, _) = renderLabelAndChildren(variable, renderChildren = false)
         assertEquals(expected, label)
       }
     }
   }
 
-  addFileWithBreakpoints("LiteralRendering.scala",
-    s"""
-       |object LiteralRendering {
+  addSourceFile("LiteralRendering.scala",
+    s"""object LiteralRendering {
        |  def main(args: Array[String]) : Unit = {
        |    val x1: String = "42"
        |    val x2: String = null
        |    val x3: Int = 42
        |    val x4: Boolean = true
-       |
-       |    println() $bp
+       |    $breakpoint
+       |    println()
        |  }
-       |}
-      """.replace("\r", "").stripMargin.trim
-  )
+       |}""".stripMargin)
+
   def testLiteralRendering(): Unit = {
     checkLabelRendering(
       "x1" -> "x1 = 42",

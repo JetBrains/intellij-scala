@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scala.debugger.renderers
+package org.jetbrains.plugins.scala
+package debugger.renderers
 
 import com.intellij.debugger.settings.NodeRendererSettings
-import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
+
+import java.nio.file.Path
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
@@ -17,7 +19,7 @@ import org.junit.runner.RunWith
 @Category(Array(classOf[DebuggerTests]))
 class ScalaClassRendererTest extends RendererTestBase {
 
-  addFileWithBreakpoints("test/ScalaObject.scala",
+  addSourceFile(Path.of("test", "ScalaObject.scala").toString,
     s"""package test
        |
        |object ScalaObject {
@@ -38,14 +40,16 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    // Need to use all private variables to avoid compiler optimizations
        |    val myThis = ScalaObject.this
-       |    println(privateThisVal)$bp
+       |    $breakpoint
+       |    println(privateThisVal)
        |    println(privateVal)
        |    println(privateThisVar)
        |    println(privateVar)
        |  }
        |}""".stripMargin)
+
   def testScalaObject(): Unit = {
-    testClassRenderer("test/ScalaObject")("myThis", "test.ScalaObject$", "@1",
+    testClassRenderer("test.ScalaObject")("myThis", "test.ScalaObject$", "@1",
       Set(
         "privateThisVal = 1.0",
         "privateVal = 2",
@@ -59,7 +63,7 @@ class ScalaClassRendererTest extends RendererTestBase {
       ))
   }
 
-  addFileWithBreakpoints("test/ScalaClass.scala",
+  addSourceFile(Path.of("test", "ScalaClass.scala").toString,
     s"""package test
        |
        |class ScalaClass(unusedConstructorParam: Int, usedConstructorParam: Int) {
@@ -80,7 +84,8 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  def foo(): Unit = {
        |    // Need to use all private variables to avoid compiler optimizations
        |    val myThis = ScalaClass.this
-       |    println(privateThisVal)$bp
+       |    $breakpoint
+       |    println(privateThisVal)
        |    println(privateVal)
        |    println(privateThisVar)
        |    println(privateVar)
@@ -93,8 +98,9 @@ class ScalaClassRendererTest extends RendererTestBase {
        |    new ScalaClass(10, 20).foo()
        |  }
        |}""".stripMargin)
+
   def testScalaClass(): Unit = {
-    testClassRenderer("test/Main")("myThis", "test.ScalaClass", "@1",
+    testClassRenderer("test.Main")("myThis", "test.ScalaClass", "@1",
       Set(
         "privateThisVal = 1.0",
         "privateVal = 2",
@@ -112,13 +118,11 @@ class ScalaClassRendererTest extends RendererTestBase {
   private val UNIQUE_ID = "uniqueID"
 
   private def testClassRenderer(mainClassName: String)(
-      varName: String,
-      className: String,
-      afterTypeLabel: String,
-      expectedChildrenLabels: Set[String]): Unit = {
-    import org.junit.Assert._
-    runDebugger(mainClassName) {
-      waitForBreakpoint()
+    varName: String,
+    className: String,
+    afterTypeLabel: String,
+    expectedChildrenLabels: Set[String]): Unit = {
+    rendererTest(mainClassName) { implicit ctx =>
       val (label, childrenLabels) =
         renderLabelAndChildren(varName, renderChildren = true)
 

@@ -50,12 +50,11 @@ package object util {
       }.map(_.toSeq)
   }
 
-  def onDebuggerManagerThread[A](context: EvaluationContext)(thunk: => A): CompletableFuture[A] = {
+  def onDebuggerManagerThread[A](context: SuspendContext)(thunk: => A): CompletableFuture[A] = {
     val future = new CompletableFuture[A]()
     val thread = context.getDebugProcess.getManagerThread
-    val suspendContext = context.getSuspendContext
     thread.invokeCommand(new SuspendContextCommand {
-      override def getSuspendContext: SuspendContext = suspendContext
+      override def getSuspendContext: SuspendContext = context
 
       override def action(): Unit = {
         try future.complete(thunk)
@@ -68,6 +67,9 @@ package object util {
     })
     future
   }
+
+  def onDebuggerManagerThread[A](context: EvaluationContext)(thunk: => A): CompletableFuture[A] =
+    onDebuggerManagerThread(context.getSuspendContext)(thunk)
 
   def evaluationExceptionFromThrowable(t: Throwable): EvaluateException = t match {
     case e: EvaluateException => e
