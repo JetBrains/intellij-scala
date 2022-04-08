@@ -365,6 +365,7 @@ object CompileServerLauncher {
   def compileServerJars: Seq[File] = Seq(
     IntellijPlatformJars.jpsBuildersJar,
     IntellijPlatformJars.utilJar,
+    IntellijPlatformJars.utilRtJar,
     IntellijPlatformJars.trove4jJar,
     IntellijPlatformJars.protobufJava, // required for org.jetbrains.jps.incremental.scala.remote.Main.compileJpsLogic
     IntellijPlatformJars.fastUtilJar,
