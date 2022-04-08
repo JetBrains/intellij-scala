@@ -33,7 +33,7 @@ class SpecializedRendererTest extends RendererTestBase {
   private def checkChildrenNames(varName: String, childrenNames: Seq[String]): Unit = {
     runDebugger() {
       waitForBreakpoint()
-      val (_, labels) = renderLabelAndChildren(varName, Some(childrenNames.length))
+      val (_, labels) = renderLabelAndChildren(varName, renderChildren = true)
       val names = labels.flatMap(_.split(" = ").headOption)
       Assert.assertEquals(childrenNames.sorted, names.sorted)
     }
