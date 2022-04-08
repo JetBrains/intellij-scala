@@ -6,7 +6,8 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScEnum
@@ -95,6 +96,9 @@ object UsageTracker {
       case ScEnumCase.Original(enumCase) => Seq(enumCase)
       case ScEnum.OriginalFromObject(enum) => Seq(enum)
       case ScEnum.OriginalFromSyntheticMethod(enum) => enum.cases
+      case f: ScFunctionDefinition if f.isSynthetic => Seq(f.syntheticNavigationElement).collect {
+        case n: ScNamedElement => n
+      }
       case _ => Seq.empty
     }
     originalsFromSynthetics ++ resolveResult.parentElement.toSeq :+ resolveResult.element
