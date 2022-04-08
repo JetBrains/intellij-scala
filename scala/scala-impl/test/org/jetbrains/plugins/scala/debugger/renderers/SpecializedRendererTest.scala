@@ -1,9 +1,7 @@
 package org.jetbrains.plugins.scala
-package debugger
-package renderers
+package debugger.renderers
 
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
-import org.junit.Assert
+import org.jetbrains.plugins.scala.util.runners._
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
@@ -17,25 +15,24 @@ import org.junit.runner.RunWith
 @Category(Array(classOf[DebuggerTests]))
 class SpecializedRendererTest extends RendererTestBase {
 
-  addFileWithBreakpoints("SpecializedTuple.scala",
+  addSourceFile("SpecializedTuple.scala",
     s"""object SpecializedTuple {
        |  def main(args: Array[String]): Unit = {
        |    val x = (1, 2)
-       |    println()$bp
+       |    $breakpoint
+       |    println()
        |  }
-       |}
-  """.stripMargin)
+       |}""".stripMargin)
 
   def testSpecializedTuple(): Unit = {
     checkChildrenNames("x", List("_1", "_2"))
   }
 
   private def checkChildrenNames(varName: String, childrenNames: Seq[String]): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    rendererTest() { implicit ctx =>
       val (_, labels) = renderLabelAndChildren(varName, renderChildren = true)
       val names = labels.flatMap(_.split(" = ").headOption)
-      Assert.assertEquals(childrenNames.sorted, names.sorted)
+      assertEquals(childrenNames.sorted, names.sorted)
     }
   }
 }
