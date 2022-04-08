@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 import javax.swing.*;
 
 public final class ScalaUnusedDeclarationInspection extends ScalaUnusedDeclarationInspectionBase {
-    public boolean reportPublicDeclarationsEnabled = true;
+    public boolean reportPublicDeclarationsEnabled = false;
 
     public boolean isReportPublicDeclarationsEnabled() {
         return reportPublicDeclarationsEnabled;

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
+import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{ScalaUnusedDeclarationInspection, ScalaUnusedDeclarationInspectionBase}
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
@@ -11,6 +12,18 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTes
 
   override protected val description: String =
     ScalaUnusedDeclarationInspectionBase.annotationDescription
+
+  protected override def setUp(): Unit = {
+    super.setUp()
+    enableReportUnusedPublicDeclarations()
+  }
+
+  private def enableReportUnusedPublicDeclarations(): Unit = {
+    val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
+    val inspectionToolWrapper = inspectionProfile.getInspectionTool("ScalaUnusedSymbol", getProject)
+    val inspection = inspectionToolWrapper.getTool.asInstanceOf[ScalaUnusedDeclarationInspection]
+    inspection.setReportPublicDeclarationsEnabled(true)
+  }
 
   val removeUnusedElementHint = ScalaInspectionBundle.message("remove.unused.element")
   val addScalaAnnotationUnusedHint = ScalaInspectionBundle.message("annotate.declaration.with.unused")
