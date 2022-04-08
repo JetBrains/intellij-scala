@@ -6,8 +6,6 @@ import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, Ru
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
-import scala.concurrent.duration._
-
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_11,
@@ -122,7 +120,7 @@ class ScalaClassRendererTest extends RendererTestBase {
     runDebugger(mainClassName) {
       waitForBreakpoint()
       val (label, childrenLabels) =
-        renderLabelAndChildren(varName, Some(expectedChildrenLabels.size))
+        renderLabelAndChildren(varName, renderChildren = true)
 
       val classRenderer = NodeRendererSettings.getInstance().getClassRenderer
       val typeName = classRenderer.renderTypeName(className)

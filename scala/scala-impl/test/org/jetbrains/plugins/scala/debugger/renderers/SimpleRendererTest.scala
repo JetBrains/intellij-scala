@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.renderers
 
 import org.jetbrains.plugins.scala.DebuggerTests
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
@@ -23,7 +22,7 @@ class SimpleRendererTest extends RendererTestBase {
       for {
         (variable, expected) <- variableToExpectedLabel
       } {
-        val (label, _) = renderLabelAndChildren(variable, None)
+        val (label, _) = renderLabelAndChildren(variable, renderChildren = false)
         assertEquals(expected, label)
       }
     }
