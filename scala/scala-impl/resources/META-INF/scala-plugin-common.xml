@@ -85,8 +85,6 @@
 
         <breadcrumbsInfoProvider
                 implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsInfoProvider"/>
-        <breadcrumbsPresentationProvider
-                implementation="org.jetbrains.plugins.scala.lang.breadcrumbs.ScalaBreadcrumbsPresentationProvider"/>
         <project.converterProvider
                 implementation="org.jetbrains.plugins.scala.project.converter.ScalaProjectConverterProvider"
                 id="scala-facets-to-sdks"/>
