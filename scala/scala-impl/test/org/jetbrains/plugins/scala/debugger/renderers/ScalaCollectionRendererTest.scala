@@ -45,6 +45,7 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
        |}
       """.replace("\r", "").stripMargin.trim
   )
+
   def testLazy(): Unit = {
     testCollectionRenderer("list", "scala.collection.immutable.LazyList", "size = ?")
     testCollectionRenderer("stream", "scala.collection.immutable.Stream$Cons", "size = ?")
@@ -54,8 +55,6 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_3_0 extends ScalaCollectionRendererTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
-
-  override def testStack(): Unit = ()
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -90,7 +89,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
         catch {
           case err: AssertionError =>
             val childrenDebugText = children.zipWithIndex
-              .map { case (child, idx) => s"$idx: $child"}
+              .map { case (child, idx) => s"$idx: $child" }
               .mkString("\n")
             System.err.println(s"all children nodes labels:\n$childrenDebugText")
             throw err
@@ -100,37 +99,9 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
     }
   }
 
-  protected def testCollectionRenderer(collectionName: String,
-                                       collectionClass: String,
-                                       afterTypeLabel: String,
-                                       expectedChildrenLabels: Seq[String]): Unit = {
-
-    import org.junit.Assert._
-    runDebugger() {
-      waitForBreakpoint()
-      val (label, childrenLabels) =
-        renderLabelAndChildren(collectionName, renderChildren = true)
-
-      val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
-      val typeName = classRenderer.renderTypeName(collectionClass)
-      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
-
-      assertEquals(expectedLabel, label)
-      assertEquals(expectedChildrenLabels, childrenLabels)
-    }
-  }
-
   protected def testScalaCollectionRenderer(collectionName: String, collectionLength: Int, collectionClass: String): Unit = {
     val afterTypeLabel = s"size = $collectionLength"
     testCollectionRenderer(collectionName, collectionClass, afterTypeLabel)
-  }
-
-  protected def testScalaCollectionRenderer(collectionName: String,
-                                            collectionClass: String,
-                                            expectedChildrenLabels: Seq[String]): Unit = {
-    val collectionLength = expectedChildrenLabels.size
-    val afterTypeLabel = s"size = $collectionLength"
-    testCollectionRenderer(collectionName, collectionClass, afterTypeLabel, expectedChildrenLabels)
   }
 
   addFileWithBreakpoints("ShortList.scala",
@@ -143,24 +114,39 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.replace("\r", "").stripMargin.trim
   )
+
   def testShortList(): Unit = {
     testScalaCollectionRenderer("lst", 6, "scala.collection.immutable.$colon$colon")
   }
 
-
-  addFileWithBreakpoints("Stack.scala",
+  addFileWithBreakpoints("HashMap.scala",
     s"""
-       |object Stack {
+       |object HashMap {
        |  def main(args: Array[String]): Unit = {
        |    import scala.collection.mutable
-       |    val stack = mutable.Stack(1,2,3,4,5,6,7,8)
+       |    val hashMap = mutable.HashMap(1 -> "one", 2 -> "two", 3 -> "three")
        |    val b = 45$bp
        |  }
        |}
-      """.stripMargin.replace("\r","").trim
+      """.stripMargin.replace("\r", "").trim
   )
-  def testStack(): Unit = {
-    testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
+
+  def testHashMap(): Unit = {
+    import org.junit.Assert._
+    val collectionName = "hashMap"
+    runDebugger() {
+      waitForBreakpoint()
+      val (label, childrenLabels) = renderLabelAndChildren(collectionName, renderChildren = true)
+
+      val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
+      val typeName = classRenderer.renderTypeName("scala.collection.mutable.HashMap")
+      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}size = 3"
+
+      assertEquals(expectedLabel, label)
+      Seq("{Tuple2@uniqueID}(1,one)", "{Tuple2@uniqueID}(2,two)", "{Tuple2@uniqueID}(3,three)").foreach { label =>
+        assertTrue(childrenLabels.exists(_.contains(label)))
+      }
+    }
   }
 
   addFileWithBreakpoints("ListBuffer.scala",
@@ -173,6 +159,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
     """.stripMargin.replace("\r", "").trim
   )
+
   def testMutableList(): Unit = {
     testScalaCollectionRenderer("mutableList", 5, "scala.collection.mutable.ListBuffer")
   }
@@ -187,6 +174,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.stripMargin.replace("\r", "").trim
   )
+
   def testQueue(): Unit = {
     testScalaCollectionRenderer("queue", 4, "scala.collection.immutable.Queue")
   }
@@ -212,6 +200,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |  }
        |}""".stripMargin.replace("\r", "").trim
   )
+
   def testQueueWithLongToStringChildren(): Unit = {
     val expectedChildrenLabels = Seq(
       s"""0 = {LongToString@$UNIQUE_ID}To string result 0!""",
@@ -220,7 +209,22 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
       s"""3 = {LongToString@$UNIQUE_ID}To string result 3!""",
       s"""4 = {LongToString@$UNIQUE_ID}To string result 4!""",
     )
-    testScalaCollectionRenderer("queue", "scala.collection.immutable.Queue", expectedChildrenLabels)
+    val collectionLength = expectedChildrenLabels.size
+    val collectionName = "queue"
+    val afterTypeLabel = s"size = $collectionLength"
+    import org.junit.Assert._
+    runDebugger() {
+      waitForBreakpoint()
+      val (label, childrenLabels) =
+        renderLabelAndChildren(collectionName, renderChildren = true)
+
+      val classRenderer: ClassRenderer = NodeRendererSettings.getInstance().getClassRenderer
+      val typeName = classRenderer.renderTypeName("scala.collection.immutable.Queue")
+      val expectedLabel = s"$collectionName = {$typeName@$UNIQUE_ID}$afterTypeLabel"
+
+      assertEquals(expectedLabel, label)
+      assertEquals(expectedChildrenLabels, childrenLabels)
+    }
   }
 
   addFileWithBreakpoints("LongList.scala",
@@ -233,6 +237,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |}
       """.stripMargin.replace("\r", "").trim
   )
+
   def testLongList(): Unit = {
     testScalaCollectionRenderer("longList", 50, "scala.collection.immutable.$colon$colon")
   }
