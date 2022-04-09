@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import com.intellij.debugger.DebuggerTestCase
-import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
 import com.intellij.execution.configurations.JavaParameters
@@ -195,15 +194,6 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
-  }
-
-  protected def rendererTest(className: String = getTestName(false))(test: SuspendContextImpl => Unit): Unit = {
-    createLocalProcess(className)
-
-    doWhenXSessionPausedThenResume { () =>
-      val context = getDebugProcess.getDebuggerContext.getSuspendContext
-      test(context)
-    }
   }
 }
 

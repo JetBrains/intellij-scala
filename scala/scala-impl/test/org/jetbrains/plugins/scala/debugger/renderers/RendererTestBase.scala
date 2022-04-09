@@ -15,15 +15,21 @@ import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.debugger.ui.util._
 
-import java.util.concurrent.CompletableFuture
+import java.util.concurrent.{CompletableFuture, TimeUnit}
 import javax.swing.Icon
 import scala.collection.mutable
-import scala.concurrent.duration._
 import scala.jdk.CollectionConverters._
 
 abstract class RendererTestBase extends NewScalaDebuggerTestCase {
 
-  private val DefaultTimeout: Duration = 3.minutes
+  protected def rendererTest(className: String = getTestName(false))(test: SuspendContextImpl => Unit): Unit = {
+    createLocalProcess(className)
+
+    doWhenXSessionPausedThenResume { () =>
+      val context = getDebugProcess.getDebuggerContext.getSuspendContext
+      test(context)
+    }
+  }
 
   protected def renderLabelAndChildren(name: String,
                                        renderChildren: Boolean,
@@ -40,7 +46,7 @@ abstract class RendererTestBase extends NewScalaDebuggerTestCase {
       renderer <- onDebuggerManagerThread(context)(variable.getRenderer(context.getDebugProcess)).flatten
       children <- if (renderChildren) buildChildren(value, frameTree, variable, renderer, ec) else CompletableFuture.completedFuture(Seq.empty)
       childrenLabels <- children.map(renderLabel(_, ec)).sequence
-    } yield (label, childrenLabels)).get(DefaultTimeout.length, DefaultTimeout.unit)
+    } yield (label, childrenLabels)).get(3L, TimeUnit.MINUTES)
   }
 
   private def buildChildren(value: Value,
