@@ -20,8 +20,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    var n = 0
        |    for (_ <- 1 to 1) {
-       |      $breakpoint
-       |      n += 1
+       |      n += 1 $breakpoint
        |    }
        |  }
        |}""".stripMargin)
@@ -35,8 +34,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    @volatile var n = 0
        |    for (_ <- 1 to 1) {
-       |      $breakpoint
-       |      n += 1
+       |      n += 1 $breakpoint
        |    }
        |  }
        |}""".stripMargin)
@@ -50,8 +48,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    var n = "abc"
        |    for (_ <- 1 to 1) {
-       |      $breakpoint
-       |      n = "def"
+       |      n = "def" $breakpoint
        |    }
        |  }
        |}""".stripMargin)
@@ -65,8 +62,7 @@ class ScalaRuntimeRefRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    @volatile var n = "abc"
        |    for (_ <- 1 to 1) {
-       |      $breakpoint
-       |      n = "def"
+       |      n = "def" $breakpoint
        |    }
        |  }
        |}""".stripMargin)

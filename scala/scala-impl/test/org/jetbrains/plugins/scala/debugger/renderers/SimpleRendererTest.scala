@@ -31,8 +31,7 @@ class SimpleRendererTest extends RendererTestBase {
        |    val x2: String = null
        |    val x3: Int = 42
        |    val x4: Boolean = true
-       |    $breakpoint
-       |    println()
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
 

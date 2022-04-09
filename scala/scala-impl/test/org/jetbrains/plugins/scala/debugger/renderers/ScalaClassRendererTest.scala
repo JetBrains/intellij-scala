@@ -40,8 +40,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    // Need to use all private variables to avoid compiler optimizations
        |    val myThis = ScalaObject.this
-       |    $breakpoint
-       |    println(privateThisVal)
+       |    println(privateThisVal) $breakpoint
        |    println(privateVal)
        |    println(privateThisVar)
        |    println(privateVar)
@@ -84,8 +83,7 @@ class ScalaClassRendererTest extends RendererTestBase {
        |  def foo(): Unit = {
        |    // Need to use all private variables to avoid compiler optimizations
        |    val myThis = ScalaClass.this
-       |    $breakpoint
-       |    println(privateThisVal)
+       |    println(privateThisVal) $breakpoint
        |    println(privateVal)
        |    println(privateThisVar)
        |    println(privateVar)
