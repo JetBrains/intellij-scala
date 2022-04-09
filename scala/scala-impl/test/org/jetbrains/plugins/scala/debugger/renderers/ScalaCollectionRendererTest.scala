@@ -20,8 +20,7 @@ class ScalaCollectionRendererTest_2_12 extends ScalaCollectionRendererTestBase {
        |object Lazy {
        |  def main(args: Array[String]): Unit = {
        |    val stream = Stream.from(1)
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
       """.replace("\r", "").stripMargin.trim
@@ -43,8 +42,7 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    val list = LazyList.from(1)
        |    val stream = Stream.from(1)
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |    val b = 2
        |  }
        |}
@@ -112,8 +110,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |object ShortList {
        |  def main(args: Array[String]): Unit = {
        |    val lst = List(1, 2, 3, 4, 5, 6)
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
       """.replace("\r", "").stripMargin.trim
@@ -131,8 +128,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |  def main(args: Array[String]): Unit = {
        |    import scala.collection.mutable
        |    val hashMap = mutable.HashMap(1 -> "one", 2 -> "two", 3 -> "three")
-       |    $breakpoint
-       |    val b = 45
+       |    val b = 45 $breakpoint
        |  }
        |}
       """.stripMargin.replace("\r", "").trim
@@ -159,8 +155,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |object MutableList {
        |  def main(args: Array[String]): Unit = {
        |    val mutableList = scala.collection.mutable.ListBuffer(1,2,3,4,5)
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
     """.stripMargin.replace("\r", "").trim
@@ -177,8 +172,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |object Queue {
        |  def main(args: Array[String]): Unit = {
        |    val queue = scala.collection.immutable.Queue(1,2,3,4)
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
       """.stripMargin.replace("\r", "").trim
@@ -200,14 +194,13 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |      new LongToString(3),
        |      new LongToString(4)
        |    )
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
        |
        |class LongToString(idx: Int) {
        |  override def toString: String = {
-       |    Thread.sleep(1000) // ######### EMULATE LONG TO STRING EVALUATION #########
+       |    Thread.sleep(200L) // ######### EMULATE LONG TO STRING EVALUATION #########
        |    s"To string result $$idx!"
        |  }
        |}""".stripMargin.replace("\r", "").trim
@@ -242,8 +235,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |object LongList {
        |  def main(args: Array[String]): Unit = {
        |    val longList = (1 to 50).toList
-       |    $breakpoint
-       |    val a = 1
+       |    val a = 1 $breakpoint
        |  }
        |}
       """.stripMargin.replace("\r", "").trim
