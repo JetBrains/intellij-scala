@@ -102,6 +102,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
       for {
         dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
         taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 1, context))
+        _ <- CompletableFuture.runAsync(() => println(s"dropped: $dropped, collected: ${dropped.isCollected}, taken: $taken, collected: ${taken.isCollected}"))
         array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
         _ <- onDebuggerManagerThread(context) {
           val length = array.length()
