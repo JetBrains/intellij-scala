@@ -23,7 +23,7 @@ class ScalaCollectionRendererTest_2_12 extends ScalaCollectionRendererTestBase {
        |    val a = 1 $breakpoint
        |  }
        |}
-      """.replace("\r", "").stripMargin.trim
+      """.stripMargin
   )
 
   def testLazy(): Unit = {
@@ -46,7 +46,7 @@ class ScalaCollectionRendererTest_2_13 extends ScalaCollectionRendererTestBase {
        |    val b = 2
        |  }
        |}
-      """.replace("\r", "").stripMargin.trim
+      """.stripMargin
   )
 
   def testLazy(): Unit = {
@@ -113,7 +113,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    val a = 1 $breakpoint
        |  }
        |}
-      """.replace("\r", "").stripMargin.trim
+      """.stripMargin
   )
 
   def testShortList(): Unit = {
@@ -131,7 +131,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    val b = 45 $breakpoint
        |  }
        |}
-      """.stripMargin.replace("\r", "").trim
+      """.stripMargin
   )
 
   def testHashMap(): Unit = {
@@ -158,7 +158,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    val a = 1 $breakpoint
        |  }
        |}
-    """.stripMargin.replace("\r", "").trim
+    """.stripMargin
   )
 
   def testMutableList(): Unit = {
@@ -175,7 +175,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    val a = 1 $breakpoint
        |  }
        |}
-      """.stripMargin.replace("\r", "").trim
+      """.stripMargin
   )
 
   def testQueue(): Unit = {
@@ -203,7 +203,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    Thread.sleep(200L) // ######### EMULATE LONG TO STRING EVALUATION #########
        |    s"To string result $$idx!"
        |  }
-       |}""".stripMargin.replace("\r", "").trim
+       |}""".stripMargin
   )
 
   def testQueueWithLongToStringChildren(): Unit = {
@@ -238,12 +238,29 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
        |    val a = 1 $breakpoint
        |  }
        |}
-      """.stripMargin.replace("\r", "").trim
+      """.stripMargin
   )
 
   def testLongList(): Unit = {
     rendererTest() { implicit ctx =>
       testScalaCollectionRenderer("longList", 50, "scala.collection.immutable.$colon$colon")
+    }
+  }
+
+  addSourceFile("Stack.scala",
+    s"""
+       |object Stack {
+       |  def main(args: Array[String]): Unit = {
+       |    val stack = scala.collection.mutable.Stack(1, 2, 3, 4, 5, 6, 7, 8)
+       |    val a = 1 $breakpoint
+       |  }
+       |}
+      """.stripMargin
+  )
+
+  def testStack(): Unit = {
+    rendererTest() { implicit ctx =>
+      testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
     }
   }
 }
