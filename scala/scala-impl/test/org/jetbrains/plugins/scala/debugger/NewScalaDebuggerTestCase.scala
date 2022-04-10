@@ -1,20 +1,24 @@
 package org.jetbrains.plugins.scala
 package debugger
 
-import com.intellij.debugger.DebuggerTestCase
-import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.impl.OutputChecker
 import com.intellij.debugger.settings.NodeRendererSettings
+import com.intellij.debugger.ui.breakpoints.BreakpointManager
+import com.intellij.debugger.{DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
 import com.intellij.pom.java.LanguageLevel
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.EdtTestUtil
+import com.intellij.testFramework.{EdtTestUtil, VfsTestUtil}
+import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
+import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -23,7 +27,9 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.security.MessageDigest
+import javax.swing.SwingUtilities
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
 abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
@@ -93,18 +99,16 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
     sourceFiles.foreach { srcFile =>
       val path = srcPath.resolve(srcFile.path)
-      Files.createDirectories(path.getParent)
-      val bytes = srcFile.contents.getBytes(StandardCharsets.UTF_8)
-      Files.write(path, bytes)
+      if (!path.toFile.exists() || Files.readString(path) != srcFile.contents) {
+        Files.createDirectories(path.getParent)
+        val bytes = srcFile.contents.getBytes(StandardCharsets.UTF_8)
+        Files.write(path, bytes)
+      }
     }
 
     super.setUp()
-
+    LocalFileSystem.getInstance().refreshIoFiles(srcPath.toFile.listFiles().toList.asJava)
     compileProject()
-
-    srcPath.toFile.listFiles().foreach { f =>
-      VfsUtil.findFileByIoFile(f, true)
-    }
   }
 
   override protected def tearDown(): Unit = {
@@ -184,7 +188,38 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
     val manager = ScalaPsiManager.instance(getProject)
     val psiClass = inReadAction(manager.getCachedClass(GlobalSearchScope.allScope(getProject), className))
     val psiFile = psiClass.map(_.getContainingFile).getOrElse(throw new AssertionError(s"Could not find class $className"))
-    createBreakpoints(psiFile)
+
+    val runnable: Runnable = () => {
+      val breakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+      val bpType = XDebuggerUtil.getInstance().findBreakpointType(classOf[ScalaLineBreakpointType])
+      val document = PsiDocumentManager.getInstance(getProject).getDocument(psiFile)
+      val text = document.getText
+
+      var offset = -1
+      var cont = true
+
+      while (cont) {
+        offset = text.indexOf(breakpoint, offset + 1)
+        if (offset == -1) {
+          cont = false
+        } else {
+          val virtualFile = psiFile.getVirtualFile
+          val lineNumber = document.getLineNumber(offset)
+          if (bpType.canPutAt(virtualFile, lineNumber, getProject)) {
+            val props = bpType.createBreakpointProperties(virtualFile, lineNumber)
+            props.setLambdaOrdinal(-1)
+            val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
+            BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
+          }
+        }
+      }
+    }
+
+    if (!SwingUtilities.isEventDispatchThread) {
+      DebuggerInvocationUtil.invokeAndWait(getProject, runnable, ModalityState.defaultModalityState())
+    } else {
+      runnable.run()
+    }
   }
 
   protected def addSourceFile(path: String, contents: String): Unit = {
@@ -195,15 +230,6 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
-  }
-
-  protected def rendererTest(className: String = getTestName(false))(test: SuspendContextImpl => Unit): Unit = {
-    createLocalProcess(className)
-
-    doWhenXSessionPausedThenResume { () =>
-      val context = getDebugProcess.getDebuggerContext.getSuspendContext
-      test(context)
-    }
   }
 }
 

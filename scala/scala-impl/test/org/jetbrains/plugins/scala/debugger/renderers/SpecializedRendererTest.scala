@@ -19,8 +19,7 @@ class SpecializedRendererTest extends RendererTestBase {
     s"""object SpecializedTuple {
        |  def main(args: Array[String]): Unit = {
        |    val x = (1, 2)
-       |    $breakpoint
-       |    println()
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
 
