@@ -6,6 +6,7 @@ import com.intellij.debugger.engine.managerThread.SuspendContextCommand
 
 import java.util.concurrent.CompletableFuture
 import scala.jdk.FunctionConverters._
+import scala.util.control.NonFatal
 
 package object util {
 
@@ -59,7 +60,7 @@ package object util {
       override def action(): Unit = {
         try future.complete(thunk)
         catch {
-          case e: EvaluateException => future.completeExceptionally(e)
+          case NonFatal(t) => future.completeExceptionally(t)
         }
       }
 
