@@ -246,21 +246,4 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
       testScalaCollectionRenderer("longList", 50, "scala.collection.immutable.$colon$colon")
     }
   }
-
-  addSourceFile("Stack.scala",
-    s"""
-       |object Stack {
-       |  def main(args: Array[String]): Unit = {
-       |    val stack = scala.collection.mutable.Stack(1, 2, 3, 4, 5, 6, 7, 8)
-       |    val a = 1 $breakpoint
-       |  }
-       |}
-      """.stripMargin
-  )
-
-  def testStack(): Unit = {
-    rendererTest() { implicit ctx =>
-      testScalaCollectionRenderer("stack", 8, "scala.collection.mutable.Stack")
-    }
-  }
 }
