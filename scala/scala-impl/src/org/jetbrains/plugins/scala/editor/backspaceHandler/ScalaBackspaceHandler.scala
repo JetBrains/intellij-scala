@@ -79,7 +79,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           editor.getDocument.commit(file.getProject)
         }
       }
-    } else if (c == '{' && scalaSettings.WRAP_SINGLE_EXPRESSION_BODY) {
+    } else if (c == '{') {
       handleLeftBrace(offset, element, file, editor)
     }
   }
@@ -133,7 +133,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       if element.is[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
       rBrace <- block.getRBrace
-      if canDeleteClosingBrace(block, rBrace)
+      if canDeleteClosingBrace(block, rBrace, file)
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0
@@ -168,13 +168,15 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     document.deleteString(start, end)
   }
 
-  private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
+  private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement, file: PsiFile): Boolean = {
     val statements = block.statements
 
     if (statements.isEmpty)
       true
-    else if (statements.size == 1)
+    else if (statements.size == 1 && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY)
       canDeleteClosingBrace(statements.head, blockRBrace)
+    else if (file.useIndentationBasedSyntax)
+      canDeleteClosingBrace(statements.last, blockRBrace)
     else
       false
   }
