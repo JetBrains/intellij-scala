@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.randomTyping.RandomTypingTest._
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{NightlyTests, ScalaVersion}
+import org.jetbrains.plugins.scala.{RandomTypingTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 import java.io.File
@@ -19,7 +19,7 @@ import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
 
 
-@Category(Array(classOf[NightlyTests]))
+@Category(Array(classOf[RandomTypingTests]))
 class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data3") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
@@ -31,7 +31,7 @@ class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestD
   //}
 }
 
-@Category(Array(classOf[NightlyTests]))
+@Category(Array(classOf[RandomTypingTests]))
 class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/scala3Import/success") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
@@ -43,7 +43,7 @@ class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestU
   //}
 }
 
-@Category(Array(classOf[NightlyTests]))
+@Category(Array(classOf[RandomTypingTests]))
 class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_13
 

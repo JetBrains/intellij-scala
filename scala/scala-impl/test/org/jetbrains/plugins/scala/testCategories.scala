@@ -5,8 +5,6 @@ package org.jetbrains.plugins.scala
 
 trait SlowTests
 
-trait HighlightingTests
-
 trait DebuggerTests
 
 trait ScalacTests
@@ -24,7 +22,8 @@ trait WorksheetEvaluationTests
  *
  * Especially, they will not be run to decide whether a branch should be merged or not.
  */
-trait NightlyTests
+trait RandomTypingTests
+trait HighlightingTests
 
 /** Tests that may fail intermittently or depending on environment. 
  * Eg run locally but not on build server. */
