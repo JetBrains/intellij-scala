@@ -75,6 +75,7 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
     for {
       dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
       taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 100, context))
+      _ <- CompletableFuture.runAsync(() => println(s"for: $ref, dropped: $dropped, collected: ${dropped.isCollected}, taken: $taken, collected: ${taken.isCollected}"))
       array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
       _ <- onDebuggerManagerThread(context) {
         val elements = allValues(array)
