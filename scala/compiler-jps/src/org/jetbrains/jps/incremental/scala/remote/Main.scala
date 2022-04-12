@@ -30,9 +30,9 @@ import scala.util.{Failure, Success, Try}
 /**
  * Nailgun Nail, used in:
  *
- * @see [[org.jetbrains.plugins.scala.nailgun.NailgunRunner]]<br>
- *      [[org.jetbrains.plugins.scala.nailgun.NailgunMainLightRunner]]
- *      [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
+ * @see `org.jetbrains.plugins.scala.nailgun.NailgunRunner`
+ * @see `org.jetbrains.plugins.scala.nailgun.NailgunMainLightRunner`
+ * @see `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`
  */
 object Main {
 
@@ -52,12 +52,12 @@ object Main {
   private val maxHeapSize = Runtime.getRuntime.maxMemory()
   private val currentParallelism = new AtomicInteger(0)
 
-  private var buildSystemDir: Path = _
+  private var scalaCompileServerSystemDir: Path = _
 
   // NOTE: we can't merge all setup methods, because in MainLightRunner (NonServerRunner) nailgun classes are not available
-  def setupBuildSystemDir(buildSystemDir: Path): Unit = {
-    this.buildSystemDir = buildSystemDir
-    Utils.setSystemRoot(buildSystemDir.toFile)
+  def setupScalaCompileServerSystemDir(scalaCompileServerSystemDir: Path): Unit = {
+    this.scalaCompileServerSystemDir = scalaCompileServerSystemDir
+    Utils.setSystemRoot(scalaCompileServerSystemDir.toFile)
   }
 
   def setupServerShutdownTimer(server: NGServer): Unit = {
@@ -124,7 +124,7 @@ object Main {
                           out: PrintStream,
                           port: Int,
                           standalone: Boolean): Unit = {
-    if (buildSystemDir == null)
+    if (scalaCompileServerSystemDir == null)
       throw new IllegalStateException("the 'setup' method must be invoked before compile server usage")
     val client = new EncodingEventGeneratingClient(out, standalone)
     val oldOut = System.out
@@ -149,7 +149,7 @@ object Main {
       // Don't check token in non-server mode
       if (port != -1) {
         try {
-          val tokenPath = CompileServerToken.tokenPathForPort(buildSystemDir, port)
+          val tokenPath = CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, port)
           validateToken(tokenPath, argsParsed.token)
         } catch {
           // We must abort the process on _any_ error
@@ -263,11 +263,11 @@ object Main {
   /**
    * In case project configuration is stored externally (outside `.idea` folder) we need to provide the path to the external storage.
    *
-   * @see [[org.jetbrains.jps.model.serialization.JpsProjectLoader.loadFromDirectory]]
+   * @see `org.jetbrains.jps.model.serialization.JpsProjectLoader.loadFromDirectory`
    * @see [[org.jetbrains.jps.model.serialization.JpsProjectLoader.resolveExternalProjectConfig]]
    * @see [[org.jetbrains.jps.api.GlobalOptions.EXTERNAL_PROJECT_CONFIG]]
-   * @see [[com.intellij.compiler.server.BuildManager.launchBuildProcess]]
-   * @see [[org.jetbrains.plugins.scala.externalHighlighters.compiler.IncrementalCompiler.compile]]
+   * @see `com.intellij.compiler.server.BuildManager.launchBuildProcess`
+   * @see `org.jetbrains.plugins.scala.externalHighlighters.compiler.IncrementalCompiler.compile`
    */
   private def withModifiedExternalProjectPath[T](externalProjectConfig: Option[String])(body: => T): T = {
     externalProjectConfig match {

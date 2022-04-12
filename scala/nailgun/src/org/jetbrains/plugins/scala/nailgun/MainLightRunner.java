@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * used in {@link org.jetbrains.plugins.scala.worksheet.server.NonServerRunner}.
+ * used in `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`.
  */
 public class MainLightRunner {
 
@@ -15,16 +15,16 @@ public class MainLightRunner {
         if (args.length < 3) throw invalidUsageException();
 
         String classpathStr = args[0];
-        Path buildSystemDir = Paths.get(args[1]);
+        Path scalaCompileServerSystemDir = Paths.get(args[1]);
         String[] argsToDelegate = Arrays.copyOfRange(args, 2, args.length);
         URLClassLoader classLoader = NailgunRunner.constructClassLoader(classpathStr);
         System.err.println();
-        runMainMethod(buildSystemDir, argsToDelegate, classLoader);
+        runMainMethod(scalaCompileServerSystemDir, argsToDelegate, classLoader);
     }
 
     @SuppressWarnings({"SameParameterValue", "OptionalGetWithoutIsPresent"})
-    private static void runMainMethod(Path buildSystemDir, String[] args, ClassLoader classLoader) throws ReflectiveOperationException {
-        Class<?> mainClass = Utils.loadAndSetupServerMainNailClass(classLoader, buildSystemDir);
+    private static void runMainMethod(Path scalaCompileServerSystemDir, String[] args, ClassLoader classLoader) throws ReflectiveOperationException {
+        Class<?> mainClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir);
         Method mainMethod = Arrays.stream(mainClass.getDeclaredMethods()).filter(x -> x.getName().equals("main")).findFirst().get();
         mainMethod.invoke(null, (Object) args); // use as varargs, do not pass arra
     }

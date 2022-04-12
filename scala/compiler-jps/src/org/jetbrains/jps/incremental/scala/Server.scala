@@ -22,5 +22,8 @@ object Server {
     final case class SocketConnectTimeout(address: InetAddress, port: Int, timeout: FiniteDuration, cause: SocketTimeoutException) extends ServerError
     final case class ConnectionError(address: InetAddress, port: Int, cause: SocketException) extends ServerError
     final case class UnknownHost(address: InetAddress, cause: UnknownHostException) extends ServerError
+    final case class MissingScalaCompileServerSystemDirectory(cause: MissingScalaCompileServerSystemDirectoryException) extends ServerError
+
+    class MissingScalaCompileServerSystemDirectoryException(msg: String) extends Exception(msg)
   }
 }

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
-import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.compiler.server.{BuildManagerListener, BuildProcessParametersProvider}
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
-import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.{ApplicationManager, PathManagerEx}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
@@ -29,7 +29,6 @@ import java.nio.file.{Files, Path}
 import java.util.UUID
 import javax.swing.event.HyperlinkEvent
 import scala.annotation.tailrec
-import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
@@ -198,8 +197,7 @@ object CompileServerLauncher {
           settings.COMPILE_SERVER_PORT = freePort
           saveSettings()
         }
-        val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project)
-        deleteOldTokenFile(buildSystemDir, freePort)
+        deleteOldTokenFile(scalaCompileServerSystemDir, freePort)
         val id = settings.COMPILE_SERVER_ID
 
         val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
@@ -248,7 +246,7 @@ object CompileServerLauncher {
             freePort.toString +:
             id +:
             classpath.mkString(File.pathSeparator) +:
-            buildSystemDir.toFile.getCanonicalPath +:
+            scalaCompileServerSystemDir.toFile.getCanonicalPath +:
             Nil
 
         val builder = new ProcessBuilder(commands.asJava)
@@ -305,8 +303,8 @@ object CompileServerLauncher {
   // ensure that old tokens from old sessions do not exist on file system to avoid race conditions (see ticket from the commit)
   // it should be deleted in org.jetbrains.plugins.scala.nailgun.NailgunRunner.ShutdownHook.run
   // but in case of some server crashes it can remain on the file system
-  private def deleteOldTokenFile(buildSystemDir: Path, freePort: Int): Unit =
-    Try(Files.delete(CompileServerToken.tokenPathForPort(buildSystemDir, freePort)))
+  private def deleteOldTokenFile(scalaCompileServerSystemDir: Path, freePort: Int): Unit =
+    Try(Files.delete(CompileServerToken.tokenPathForPort(scalaCompileServerSystemDir, freePort)))
 
   // TODO stop server more gracefully
   def stop(timeoutMs: Long = 0, debugReason: Option[String] = None): Boolean = {
@@ -500,6 +498,9 @@ object CompileServerLauncher {
     final case class Error(@Nls text: String) extends CompileServerProblem
     final case class UnexpectedException(cause: Throwable) extends CompileServerProblem
   }
+
+  def scalaCompileServerSystemDir: Path =
+    PathManagerEx.getAppSystemDir.resolve("scala-compile-server")
 }
 
 private case class ServerInstance(watcher: ProcessWatcher,

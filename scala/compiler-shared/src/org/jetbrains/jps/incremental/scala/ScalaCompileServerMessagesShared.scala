@@ -30,6 +30,10 @@ abstract class ScalaCompileServerMessagesShared(bundle: AbstractBundle) {
   @Nls
   def socketConnectTimeout(connectTimeout: FiniteDuration): String =
     message("socket.connect.timout", connectTimeout)
+
+  @Nls
+  def missingScalaCompileServerSystemDir(): String =
+    message("missing.scala.compile.server.system.directory")
 }
 
 object ScalaCompileServerMessagesShared {

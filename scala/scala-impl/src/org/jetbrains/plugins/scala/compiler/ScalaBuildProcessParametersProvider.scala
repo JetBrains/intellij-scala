@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import java.util
 import com.intellij.compiler.server.BuildProcessParametersProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdkVersion
@@ -12,16 +11,14 @@ import org.jetbrains.plugins.scala.util.JvmOptions
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ScalaBuildProcessParametersProvider(project: Project)
   extends BuildProcessParametersProvider {
   
-  override def getVMArguments: util.List[String] = {
+  override def getVMArguments: java.util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
     parallelCompilationOptions() ++
     addOpens() :+
+    scalaCompileServerSystemDir() :+
     // this is the only way to propagate registry values to the JPS process
     s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
   }.asJava
@@ -50,6 +47,9 @@ class ScalaBuildProcessParametersProvider(project: Project)
       JvmOptions.addOpens("java.base/java.util")
     else
       Seq.empty
+
+  private def scalaCompileServerSystemDir(): String =
+    s"-Dscala.compile.server.system.dir=${CompileServerLauncher.scalaCompileServerSystemDir}"
 
   override def isProcessPreloadingEnabled: Boolean =
     !ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
