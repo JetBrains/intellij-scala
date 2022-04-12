@@ -174,4 +174,14 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
   def test_div_used_from_scala(): Unit = testOperatorUsedFromScala("/")
   def test_bslash_used_from_scala(): Unit = testOperatorUsedFromScala("\\")
   def test_qmark_used_from_scala(): Unit = testOperatorUsedFromScala("?")
+
+  def test_literally_identified_declaration_used_from_scala(): Unit = {
+    addScalaFile("object Ctx { new Foo().`bar`() }")
+    checkTextHasNoErrors("class Foo { def `bar`(): Unit = {} }")
+  }
+
+  def test_literally_identified_declaration_used_from_java(): Unit = {
+    addJavaFile("class Bar { void foo() { new Foo().bar(); } }")
+    checkTextHasNoErrors("class Foo { def `bar`(): Unit = {} }")
+  }
 }
