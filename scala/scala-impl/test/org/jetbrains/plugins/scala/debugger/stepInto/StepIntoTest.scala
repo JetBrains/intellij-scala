@@ -4,6 +4,7 @@ package stepInto
 
 import com.intellij.debugger.engine.SuspendContextImpl
 import com.intellij.debugger.settings.DebuggerSettings
+import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
@@ -11,9 +12,20 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 
   override def testPrivateMethodUsedInLambda(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("PrivateMethodUsedInLambda.scala", "PrivateMethodUsedInLambda$$privateMethod", 3)
-    }
+    stepIntoTest()(
+      Breakpoint("PrivateMethodUsedInLambda.scala", "apply$mcVI$sp", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "PrivateMethodUsedInLambda$$privateMethod", 3) -> resume,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "apply$mcVI$sp", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "PrivateMethodUsedInLambda$$privateMethod", 3) -> resume
+    )
+  }
+
+  override def testUnapplyMethod(): Unit = {
+    stepIntoTest()(
+      Breakpoint("UnapplyMethod.scala", "main", 5) -> stepInto,
+      Breakpoint("TTT.scala", "unapply", 2) -> resume,
+      Breakpoint("UnapplyMethod.scala", "main", 5) -> resume
+    )
   }
 }
 
@@ -21,7 +33,7 @@ class StepIntoTest_2_11 extends StepIntoTestBase {
 class StepIntoTest_2_12 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
-  addFileWithBreakpoints("SamAbstractClass.scala",
+  addSourceFile("SamAbstractClass.scala",
     s"""object SamAbstractClass {
        |  def main(args: Array[String]): Unit = {
        |    val test: Parser[String] = (in: String) => {
@@ -29,41 +41,55 @@ class StepIntoTest_2_12 extends StepIntoTestBase {
        |      in
        |    }
        |
-       |    test.parse("aaa")$bp
+       |    test.parse("aaa") $breakpoint
        |  }
        |}
        |
        |abstract class Parser[T] {
        |  def parse(s: String): T
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testSamAbstractClass(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$anonfun$main$1", 4)
-    }
+    stepIntoTest()(
+      Breakpoint("SamAbstractClass.scala", "main", 8) -> stepInto,
+      Breakpoint("SamAbstractClass.scala", "SamAbstractClass$$$anonfun$main$1", 4) -> resume
+    )
   }
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_2_13 extends StepIntoTest_2_12 {
+class StepIntoTest_2_13 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class StepIntoTest_3_0 extends StepIntoTest_2_13 {
+class StepIntoTest_3_0 extends StepIntoTest_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testSamAbstractClass(): Unit =
-    runDebugger() {
-      waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$_$_$$anonfun$1", 4)
-    }
+  override def testSamAbstractClass(): Unit = {
+    stepIntoTest()(
+      Breakpoint("SamAbstractClass.scala", "main", 8) -> stepInto,
+      Breakpoint("SamAbstractClass.scala", "SamAbstractClass$$$_$_$$anonfun$1", 4) -> resume
+    )
+  }
 
-  //todo:
-  // doesn't work although the method is not marked as synthetic
-  // maybe that's because the method has non-trivial stack frame table?
-  override def testLazyVal(): Unit = failing(super.testLazyVal())
+  override def testLazyVal(): Unit = {
+    stepIntoTest()(
+      Breakpoint("LazyVal.scala", "main", 5) -> stepInto,
+      Breakpoint("LazyVal.scala", "main", 6) -> resume
+    )
+  }
+
+  override def testPrivateMethodUsedInLambda(): Unit = {
+    stepIntoTest()(
+      Breakpoint("PrivateMethodUsedInLambda.scala", "$anonfun$1", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "$anonfun$1", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume
+    )
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -71,22 +97,50 @@ class StepIntoTest_3_1 extends StepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
-  protected def waitBreakpointAndStepInto(fileName: String, methodName: String, line: Int): Unit = {
-    val breakpointCtx = waitForBreakpoint()
-    val stepIntoCommand = getDebugProcess.createStepIntoCommand(breakpointCtx, false, null)
-    getDebugProcess.getManagerThread.invokeAndWait(stepIntoCommand)
+abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
 
-    implicit val stepIntoCtx: SuspendContextImpl = waitForBreakpoint()
-    checkLocation(fileName, methodName, line)
+  protected case class Breakpoint(file: String, method: String, line: Int)
+
+  private var expectedTargetsIterator: Iterator[(Breakpoint, SuspendContextImpl => Unit)] = _
+
+  override protected def tearDown(): Unit = {
+    try {
+      if (expectedTargetsIterator.hasNext) {
+        fail(s"The debugger did not stop on all expected breakpoints. Remaining: ${expectedTargetsIterator.toList.map(_._1)}")
+      }
+    } finally {
+      Predef.println()
+      super.tearDown()
+    }
   }
 
+  protected def stepIntoTest(mainClass: String = getTestName(false))
+                            (targets: (Breakpoint, SuspendContextImpl => Unit)*): Unit = {
+    assertTrue("The test should stop on at least 1 breakpoint", targets.nonEmpty)
+    expectedTargetsIterator = targets.iterator
 
-  addFileWithBreakpoints("Simple.scala",
-    s"""
-       |object Simple {
+    createLocalProcess(mainClass)
+
+    onBreakpoints { ctx =>
+      val loc = ctx.getFrameProxy.getStackFrame.location()
+      val debugProcess = getDebugProcess
+      val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
+      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val actual = Breakpoint(loc.sourceName(), loc.method().name(), srcPos.getLine + 1)
+      if (!expectedTargetsIterator.hasNext) {
+        fail(s"The debugger stopped on $actual, but there were no expected breakpoints left")
+      } else {
+        val (expected, cont) = expectedTargetsIterator.next()
+        assertEquals(expected, actual)
+        cont(ctx)
+      }
+    }
+  }
+
+  addSourceFile("Simple.scala",
+    s"""object Simple {
        |  def main(args: Array[String]): Unit = {
-       |    val x = AAA.foo("123") $bp
+       |    val x = AAA.foo("123") $breakpoint
        |  }
        |}
        |
@@ -95,24 +149,24 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    s.substring(1) //should step here
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testSimple(): Unit = {
-    addBreakpoint(2, "Simple.scala")
-    runDebugger() {
-      waitBreakpointAndStepInto("Simple.scala", "foo", 9)
-    }
+    stepIntoTest()(
+      Breakpoint("Simple.scala", "main", 3) -> stepInto,
+      Breakpoint("Simple.scala", "foo", 9) -> resume
+    )
   }
 
-  addFileWithBreakpoints("Constructor.scala",
+  addSourceFile("Constructor.scala",
     s"""
        |object Constructor {
        |  def main(args: Array[String]): Unit = {
-       |    val x = new ZZZ(1).foo() $bp
+       |    val x = new ZZZ(1).foo() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   addSourceFile("ZZZ.scala",
     s"""
@@ -120,28 +174,26 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  val x = z
        |
        |  def foo(): Int = z
-       |}""".stripMargin.trim()
+       |}""".stripMargin.trim
   )
 
   def testConstructor(): Unit = {
-    addBreakpoint(2, "Constructor.scala")
-    runDebugger("Constructor") {
-      waitBreakpointAndStepInto("ZZZ.scala", "<init>", 1)
-    }
+    stepIntoTest()(
+      Breakpoint("Constructor.scala", "main", 3) -> stepInto,
+      Breakpoint("ZZZ.scala", "<init>", 1) -> resume
+    )
   }
 
-  addFileWithBreakpoints("Sample.scala",
-    s"""
-       |object ApplyMethod {
+  addSourceFile("MyApplyMethod.scala",
+    s"""object MyApplyMethod {
        |  def main(args: Array[String]): Unit = {
-       |    val x = QQQ(1).foo() $bp
+       |    val x = QQQ(1).foo() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
-  addFileWithBreakpoints("QQQ.scala",
-    s"""
-       |class QQQ(z: Int) {
+  addSourceFile("QQQ.scala",
+    s"""class QQQ(z: Int) {
        |  val x = z
        |
        |  def foo(): Int = z
@@ -152,26 +204,27 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    new QQQ(z)  //should step here
        |  }
        |}
-       |""".stripMargin.trim()
+       |""".stripMargin.trim
   )
 
   def testApplyMethod(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("QQQ.scala", "apply", 9)
-    }
+    stepIntoTest("MyApplyMethod")(
+      Breakpoint("MyApplyMethod.scala", "main", 3) -> stepInto,
+      Breakpoint("QQQ.scala", "apply", 9) -> resume
+    )
   }
 
-  addFileWithBreakpoints("IntoPackageObject.scala",
+  addSourceFile("IntoPackageObject.scala",
     s"""
        |package test
        |
        |object IntoPackageObject {
        |  def main(args: Array[String]): Unit = {
-       |    foo(1)$bp
+       |    foo(1) $breakpoint
        |  }
        |}
        |
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   addSourceFile("test/package.scala",
     s"""
@@ -180,14 +233,14 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    println("foo!") //should step here
        |  }
        |}
-       |""".stripMargin.trim()
+       |""".stripMargin.trim
   )
 
   def testIntoPackageObject(): Unit = {
-    addBreakpoint(4, "IntoPackageObject.scala")
-    runDebugger("test.IntoPackageObject") {
-      waitBreakpointAndStepInto("package.scala", "foo", 3)
-    }
+    stepIntoTest("test.IntoPackageObject")(
+      Breakpoint("IntoPackageObject.scala", "main", 5) -> stepInto,
+      Breakpoint("package.scala", "foo", 3) -> resume
+    )
   }
 
   addSourceFile("test1/FromPackageObject.scala",
@@ -196,7 +249,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |object FromPackageObject {
        |  def main(args: Array[String]): Unit = {
-       |    foo(1)
+       |    foo(1) $breakpoint
        |  }
        |
        |  def bar(): Unit = {
@@ -204,101 +257,107 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
        |
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
-  addFileWithBreakpoints("test1/package.scala",
+  addSourceFile("test1/package.scala",
     s"""
        |package object test1 {
        |  def foo(i: Int): Unit = {
-       |    FromPackageObject.bar() $bp
+       |    FromPackageObject.bar() $breakpoint
        |  }
        |}
-       |""".stripMargin.trim()
+       |""".stripMargin.trim
   )
 
   def testFromPackageObject(): Unit = {
-    runDebugger("test1.FromPackageObject") {
-      waitBreakpointAndStepInto("FromPackageObject.scala", "bar", 9)
-    }
+    stepIntoTest("test1.FromPackageObject")(
+      Breakpoint("FromPackageObject.scala", "main", 5) -> stepInto,
+      Breakpoint("package.scala", "foo", 3) -> stepInto,
+      Breakpoint("FromPackageObject.scala", "bar", 9) -> resume
+    )
   }
 
-  addFileWithBreakpoints("WithDefaultParam.scala",
+  addSourceFile("WithDefaultParam.scala",
     s"""
        |object WithDefaultParam {
        |  def main(args: Array[String]): Unit = {
-       |    val x = EEE.withDefault(1)  $bp
+       |    val x = EEE.withDefault(1) $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   addSourceFile("EEE.scala",
     s"""
        |object EEE {
        |  def withDefault(z: Int, s: String = "default") = {
-       |    println("hello")  //should step here
+       |    println("hello") //should step here
        |  }
-       |}""".stripMargin.trim()
+       |}""".stripMargin.trim
   )
 
   def testWithDefaultParam(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("EEE.scala", "withDefault", 3)
-    }
+    stepIntoTest()(
+      Breakpoint("WithDefaultParam.scala", "main", 3) -> stepInto,
+      Breakpoint("EEE.scala", "withDefault", 3) -> resume
+    )
   }
 
-  addFileWithBreakpoints("TraitMethod.scala",
+  addSourceFile("TraitMethod.scala",
     s"""
        |object TraitMethod extends RRR{
        |  def main(args: Array[String]): Unit = {
-       |    val x = foo(1)  $bp
+       |    val x = foo(1) $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
-  addFileWithBreakpoints("RRR.scala",
+  addSourceFile("RRR.scala",
     s"""
        |trait RRR {
        |  def foo(z: Int) = {
-       |    println("hello")  //should step here
+       |    println("hello") //should step here
        |  }
-       |}""".stripMargin.trim()
+       |}""".stripMargin.trim
   )
 
   def testTraitMethod(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("RRR.scala", "foo", 3)
-    }
+    stepIntoTest()(
+      Breakpoint("TraitMethod.scala", "main", 3) -> stepInto,
+      Breakpoint("RRR.scala", "foo", 3) -> resume
+    )
   }
 
-  addFileWithBreakpoints("UnapplyMethod.scala",
+  addSourceFile("UnapplyMethod.scala",
     s"""
        |object UnapplyMethod {
        |  def main(args: Array[String]): Unit = {
        |    val z = Some(1)
        |    z match {
-       |      case TTT(a) => TTT(a)  $bp
+       |      case TTT(a) => $breakpoint
+       |        TTT(a)
        |      case _ =>
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
-  addFileWithBreakpoints("TTT.scala",
+  addSourceFile("TTT.scala",
     s"""
        |object TTT {
        |  def unapply(z: Option[Int]) = z  //should step here
        |
        |  def apply(i: Int) = Some(i)
-       |}""".stripMargin.trim()
+       |}""".stripMargin.trim
   )
 
   def testUnapplyMethod(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("TTT.scala", "unapply", 2)
-    }
+    stepIntoTest()(
+      Breakpoint("UnapplyMethod.scala", "main", 5) -> stepInto,
+      Breakpoint("TTT.scala", "unapply", 2) -> resume
+    )
   }
 
-  addFileWithBreakpoints("ImplicitConversion.scala",
+  addSourceFile("ImplicitConversion.scala",
     s"""
        |import scala.language.implicitConversions
        |
@@ -312,66 +371,69 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def main(args: Array[String]): Unit = {
        |    val a = new A
-       |    foo(a) $bp
+       |    foo(a) $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testImplicitConversion(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("ImplicitConversion.scala", "a2B", 7)
-    }
+    stepIntoTest()(
+      Breakpoint("ImplicitConversion.scala", "main", 13) -> stepInto,
+      Breakpoint("ImplicitConversion.scala", "a2B", 7) -> resume
+    )
   }
 
-  addFileWithBreakpoints("LazyVal.scala",
+  addSourceFile("LazyVal.scala",
     s"""
        |object LazyVal {
        |  lazy val lzy = Some(1)  //should step here
        |
        |  def main(args: Array[String]): Unit = {
-       |    val x = lzy $bp
+       |    val x = lzy $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testLazyVal(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("LazyVal.scala", "lzy$lzycompute", 2)
-    }
+    stepIntoTest()(
+      Breakpoint("LazyVal.scala", "main", 5) -> stepInto,
+      Breakpoint("LazyVal.scala", "lzy$lzycompute", 2) -> resume
+    )
   }
 
-  addFileWithBreakpoints("LazyVal2.scala",
+  addSourceFile("LazyVal2.scala",
     s"""
        |object LazyVal2 {
        |  lazy val lzy = new AAA
        |
        |  def main(args: Array[String]): Unit = {
        |    val x = lzy
-       |    val y = lzy.foo() $bp
+       |    val y = lzy.foo() $breakpoint
        |  }
        |
        |  class AAA {
        |    def foo(): Unit = {} //should step here
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testLazyVal2(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("LazyVal2.scala", "foo", 10)
-    }
+    stepIntoTest()(
+      Breakpoint("LazyVal2.scala", "main", 6) -> stepInto,
+      Breakpoint("LazyVal2.scala", "foo", 10) -> resume
+    )
   }
 
-  addFileWithBreakpoints("SimpleGetters.scala",
+  addSourceFile("SimpleGetters.scala",
     s"""object SimpleGetters {
        |  val z = 0
        |
        |  def main(args: Array[String]): Unit = {
        |    val x = new SimpleGetters
-       |    x.getA $bp
+       |    x.getA $breakpoint
        |    sum(x.z, x.gB)
        |  }
        |
@@ -390,18 +452,21 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   def testSimpleGetters(): Unit = {
     DebuggerSettings.getInstance().SKIP_GETTERS = true
-    runDebugger() {
-      waitBreakpointAndStepInto("SimpleGetters.scala", "main", 7)
-      waitBreakpointAndStepInto("SimpleGetters.scala", "sum", 10)
-      DebuggerSettings.getInstance().SKIP_GETTERS = false
-    }
+    stepIntoTest()(
+      Breakpoint("SimpleGetters.scala", "main", 6) -> stepInto,
+      Breakpoint("SimpleGetters.scala", "main", 7) -> stepInto,
+      Breakpoint("SimpleGetters.scala", "sum", 10) -> { ctx =>
+        resume(ctx)
+        DebuggerSettings.getInstance().SKIP_GETTERS = false
+      }
+    )
   }
 
-  addFileWithBreakpoints("CustomizedPatternMatching.scala",
+  addSourceFile("CustomizedPatternMatching.scala",
     s"""object CustomizedPatternMatching {
        |  def main(args: Array[String]): Unit = {
        |    val b = new B()
-       |    foo(b)$bp
+       |    foo(b) $breakpoint
        |  }
        |
        |  def foo(b: B): Unit = {
@@ -419,13 +484,14 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     """.stripMargin.trim)
 
   def testCustomizedPatternMatching(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("CustomizedPatternMatching.scala", "foo", 8)
-      waitBreakpointAndStepInto("CustomizedPatternMatching.scala", "b", 16)
-    }
+    stepIntoTest()(
+      Breakpoint("CustomizedPatternMatching.scala", "main", 4) -> stepInto,
+      Breakpoint("CustomizedPatternMatching.scala", "foo", 8) -> stepInto,
+      Breakpoint("CustomizedPatternMatching.scala", "b", 16) -> resume
+    )
   }
 
-  addFileWithBreakpoints("PrivateMethodUsedInLambda.scala",
+  addSourceFile("PrivateMethodUsedInLambda.scala",
     s"""object PrivateMethodUsedInLambda {
        |  private def privateMethod(i: Int) = {
        |    println("hello!") //should step here
@@ -433,18 +499,21 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def main(args: Array[String]): Unit = {
        |    val s = for (x <- Seq(1, 2)) {
-       |      privateMethod(x)$bp
+       |      privateMethod(x) $breakpoint
        |    }
        |  }
        |}""".stripMargin)
 
   def testPrivateMethodUsedInLambda(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("PrivateMethodUsedInLambda.scala", "privateMethod", 3)
-    }
+    stepIntoTest()(
+      Breakpoint("PrivateMethodUsedInLambda.scala", "$anonfun$main$1", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "$anonfun$main$1", 8) -> stepInto,
+      Breakpoint("PrivateMethodUsedInLambda.scala", "privateMethod", 3) -> resume
+    )
   }
 
-  addFileWithBreakpoints("Specialization.scala",
+  addSourceFile("Specialization.scala",
     s"""class FunctionA extends Function[Int, Int] {
        |  override def apply(v1: Int): Int = {
        |    println("stop")
@@ -465,26 +534,27 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |    val a = new FunctionA
        |    val b = new FunctionB
-       |    a(1)$bp
-       |    b("2")$bp
+       |    a(1) $breakpoint
+       |    b("2") $breakpoint
        |  }
        |}
       """.stripMargin)
 
   def testSpecialization(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("Specialization.scala", "apply$mcII$sp", 3)
-      resume()
-      waitBreakpointAndStepInto("Specialization.scala", "apply", 10)
-    }
+    stepIntoTest()(
+      Breakpoint("Specialization.scala", "main", 21) -> stepInto,
+      Breakpoint("Specialization.scala", "apply$mcII$sp", 3) -> resume,
+      Breakpoint("Specialization.scala", "main", 22) -> stepInto,
+      Breakpoint("Specialization.scala", "apply", 10) -> resume
+    )
   }
 
-  addFileWithBreakpoints("CustomTraitForwarder.scala",
+  addSourceFile("CustomTraitForwarder.scala",
     s"""|object CustomTraitForwarder {
         |
         |  def main(args: Array[String]): Unit = {
         |    val inh = new Inheritor
-        |    inh.foo(1)$bp
+        |    inh.foo(1) $breakpoint
         |  }
         |}
         |
@@ -509,21 +579,21 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     val debuggerSettings = DebuggerSettings.getInstance()
     val old = debuggerSettings.SKIP_SYNTHETIC_METHODS
     debuggerSettings.SKIP_SYNTHETIC_METHODS = true
-    runDebugger() {
-      try {
-        waitBreakpointAndStepInto("CustomTraitForwarder.scala", "foo", 10)
-      } finally {
+    stepIntoTest()(
+      Breakpoint("CustomTraitForwarder.scala", "main", 5) -> stepInto,
+      Breakpoint("CustomTraitForwarder.scala", "foo", 10) -> { ctx =>
+        resume(ctx)
         debuggerSettings.SKIP_SYNTHETIC_METHODS = old
       }
-    }
+    )
   }
 
-  addFileWithBreakpoints("TraitObjectSameName.scala",
+  addSourceFile("TraitObjectSameName.scala",
     s"""object TraitObjectSameName {
        |  def main(args: Array[String]): Unit = {
        |    val t: T = T
        |    val builder = new StringBuilder
-       |    t.parse(builder) $bp
+       |    t.parse(builder) $breakpoint
        |  }
        |}
        |object T extends T
@@ -536,8 +606,9 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |}""".stripMargin)
 
   def testTraitObjectSameName(): Unit = {
-    runDebugger() {
-      waitBreakpointAndStepInto("TraitObjectSameName.scala", "parse", 11)
-    }
+    stepIntoTest()(
+      Breakpoint("TraitObjectSameName.scala", "main", 5) -> stepInto,
+      Breakpoint("TraitObjectSameName.scala", "parse", 11) -> resume
+    )
   }
 }
