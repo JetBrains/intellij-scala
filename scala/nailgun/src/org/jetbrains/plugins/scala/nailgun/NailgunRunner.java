@@ -53,21 +53,21 @@ public class NailgunRunner {
     int port = Integer.parseInt(args[0]);
     String id = args[1];
     String classpath = args[2];
-    Path buildSystemDirPath = Paths.get(args[3]);
+    Path scalaCompileServerSystemDir = Paths.get(args[3]);
 
     URLClassLoader classLoader = constructClassLoader(classpath);
 
-    TokensGenerator.generateAndWriteTokenFor(buildSystemDirPath, port);
+    TokensGenerator.generateAndWriteTokenFor(scalaCompileServerSystemDir, port);
 
     InetAddress address = InetAddress.getByName(null);
-    NGServer server = createServer(address, port, id, buildSystemDirPath, classLoader);
+    NGServer server = createServer(address, port, id, scalaCompileServerSystemDir, classLoader);
 
     Thread thread = new Thread(server);
     thread.setName("NGServer(" + address.toString() + ", " + port + "," + id + ")");
     thread.setContextClassLoader(classLoader);
     thread.start();
 
-    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, buildSystemDirPath));
+    Runtime.getRuntime().addShutdownHook(new ShutdownHook(server, scalaCompileServerSystemDir));
   }
 
   /**
@@ -133,7 +133,7 @@ public class NailgunRunner {
     return urlString.contains("repl-interface.jar");
   }
 
-  private static NGServer createServer(InetAddress address, int port, String id, Path buildSystemDir, URLClassLoader classLoader)
+  private static NGServer createServer(InetAddress address, int port, String id, Path scalaCompileServerSystemDir, URLClassLoader classLoader)
           throws Exception {
 
     NGServer server = new NGServer(
@@ -146,7 +146,7 @@ public class NailgunRunner {
 
     server.setAllowNailsByClassName(false);
 
-    Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, buildSystemDir);
+    Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, scalaCompileServerSystemDir);
     Utils.setupServerShutdownTimer(mainNailClass, server);
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));
@@ -164,15 +164,15 @@ public class NailgunRunner {
     private static final int WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS = 3000;
 
     private final NGServer myServer;
-    private final Path buildSystemDir;
+    private final Path scalaCompileServerSystemDir;
 
-    ShutdownHook(NGServer server, Path buildSystemDir) {
+    ShutdownHook(NGServer server, Path scalaCompileServerSystemDir) {
       myServer = server;
-      this.buildSystemDir = buildSystemDir;
+      this.scalaCompileServerSystemDir = scalaCompileServerSystemDir;
     }
 
     public void run() {
-      TokensGenerator.deleteTokenFor(buildSystemDir, myServer.getPort());
+      TokensGenerator.deleteTokenFor(scalaCompileServerSystemDir, myServer.getPort());
 
       myServer.shutdown(false);
 
@@ -202,14 +202,14 @@ public class NailgunRunner {
 
   private static class TokensGenerator {
 
-    static void generateAndWriteTokenFor(Path buildSystemDir, int port) throws IOException {
-      Path path = tokenPathFor(buildSystemDir, port);
+    static void generateAndWriteTokenFor(Path scalaCompileServerSystemDir, int port) throws IOException {
+      Path path = tokenPathFor(scalaCompileServerSystemDir, port);
       writeTokenTo(path, UUID.randomUUID());
     }
 
     /** duplicated in {@link org.jetbrains.plugins.scala.server.CompileServerToken} */
-    static Path tokenPathFor(Path buildSystemDir, int port) {
-      return buildSystemDir.resolve("tokens").resolve(Integer.toString(port));
+    static Path tokenPathFor(Path scalaCompileServerSystemDir, int port) {
+      return scalaCompileServerSystemDir.resolve("tokens").resolve(Integer.toString(port));
     }
 
     static void writeTokenTo(Path path, UUID uuid) throws IOException {
@@ -233,8 +233,8 @@ public class NailgunRunner {
       }
     }
 
-    public static void deleteTokenFor(Path buildSystemDir, int port) {
-      File tokenFile = tokenPathFor(buildSystemDir, port).toFile();
+    public static void deleteTokenFor(Path scalaCompileServerSystemDir, int port) {
+      File tokenFile = tokenPathFor(scalaCompileServerSystemDir, port).toFile();
       if (!tokenFile.delete()) {
         tokenFile.deleteOnExit();
       }

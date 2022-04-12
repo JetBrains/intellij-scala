@@ -13,10 +13,10 @@ import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
 
-import _root_.java.io._
-import _root_.java.net.InetAddress
-import _root_.java.util.ServiceLoader
-import _root_.scala.jdk.CollectionConverters._
+import java.io._
+import java.net.InetAddress
+import java.util.ServiceLoader
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.DurationInt
 
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
@@ -76,6 +76,8 @@ object ScalaBuilder {
               client.error(message)
               Log.error(message, cause)
               ExitCode.ABORT
+            case MissingScalaCompileServerSystemDirectory(cause) =>
+              fallbackToLocalServer(missingScalaCompileServerSystemDir(), cause)
           }
         case Right(exitCode) =>
           exitCode

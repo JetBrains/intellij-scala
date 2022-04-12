@@ -4,14 +4,14 @@ import java.nio.file.{Files, Path}
 
 object CompileServerToken {
 
-  /** dulicated in [[org.jetbrains.plugins.scala.nailgun.NailgunRunner#tokenPathFor(int)]] */
-  def tokenPathForPort(buildSystemDir: Path, port: Int): Path =
-    buildSystemDir
+  /** dulicated in `org.jetbrains.plugins.scala.nailgun.NailgunRunner#tokenPathFor(int)` */
+  def tokenPathForPort(scalaCompileServerSystemDir: Path, port: Int): Path =
+    scalaCompileServerSystemDir
       .resolve("tokens")
       .resolve(port.toString)
 
-  def tokenForPort(buildSystemDir: Path, port: Int): Option[String] =
-     readStringFrom(tokenPathForPort(buildSystemDir, port))
+  def tokenForPort(scalaCompileServerSystemDir: Path, port: Int): Option[String] =
+     readStringFrom(tokenPathForPort(scalaCompileServerSystemDir, port))
 
   private def readStringFrom(path: Path): Option[String] =
     if (path.toFile.exists)

@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.worksheet.server
 
-import com.intellij.compiler.server.BuildManager
 import com.intellij.execution.process._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -20,7 +19,7 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicBoolean
-import _root_.scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters._
 
 /**
  * @see [[RemoteServerRunner]]
@@ -55,9 +54,9 @@ class NonServerRunner(project: Project) {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
           val runnerClassPath = classPathArg(jdk.tools.toSeq :+ ScalaPluginJars.scalaNailgunRunnerJar)
           val mainClassPath = classPathArg(jdk.tools.toSeq ++ CompileServerLauncher.compileServerJars)
-          val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project).toFile.getCanonicalPath
+          val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir
           (jdkPath +: "-cp" +: runnerClassPath +: jvmParameters) ++
-            (SERVER_CLASS_NAME +: mainClassPath +: buildSystemDir +: argsEncoded)
+            (SERVER_CLASS_NAME +: mainClassPath +: scalaCompileServerSystemDir.toString +: argsEncoded)
         }
 
         val builder = new ProcessBuilder(commands.asJava)

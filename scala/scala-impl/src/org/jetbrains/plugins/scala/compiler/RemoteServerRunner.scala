@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package compiler
 
 import com.intellij.application.options.RegistryManager
-import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
@@ -16,7 +15,7 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.control.NonFatal
 
 /**
- * @see [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
+ * @see `org.jetbrains.plugins.scala.worksheet.server.NonServerRunner`
  */
 final class RemoteServerRunner(project: Project)
   extends RemoteResourceOwner {
@@ -45,13 +44,13 @@ final class RemoteServerRunner(project: Project)
       this.callbacks :+= callback
 
     override def run(): Unit = {
-      val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project)
+      val scalaCompileServerSystemDir = CompileServerLauncher.scalaCompileServerSystemDir
       var unhandledException: Option[Throwable] = None
       try {
         for (i <- 0 until ConnectionRetryAttempts - 1) {
           try {
             Thread.sleep(i * 20)
-            val token = readToken(buildSystemDir, port)
+            val token = readToken(scalaCompileServerSystemDir, port)
             send(command, token +: arguments, client)
             return
           } catch {
@@ -60,7 +59,7 @@ final class RemoteServerRunner(project: Project)
           }
         }
 
-        val token = readToken(buildSystemDir, port)
+        val token = readToken(scalaCompileServerSystemDir, port)
         send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
@@ -93,6 +92,6 @@ private object RemoteServerRunner {
 
   private val Log = Logger.getInstance(classOf[RemoteServerRunner])
 
-  private def readToken(buildSystemDir: Path, port: Int): String =
-    CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse(throw new CantFindSecureTokenException)
+  private def readToken(scalaCompileServerSystemDir: Path, port: Int): String =
+    CompileServerToken.tokenForPort(scalaCompileServerSystemDir, port).getOrElse(throw new CantFindSecureTokenException)
 }
