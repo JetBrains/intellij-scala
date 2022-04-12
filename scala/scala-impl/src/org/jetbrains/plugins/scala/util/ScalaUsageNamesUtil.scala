@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{isBeanProperty, isBooleanBeanProperty}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
 import java.util
@@ -13,6 +14,8 @@ import java.util
 object ScalaUsageNamesUtil {
 
   val enumSyntheticMethodNames: Set[String] = Set("values", "valueOf", "fromOrdinal")
+
+  private def isLiteralIdentifier(id: String) = id.length > 2 && id.startsWith("`") && id.endsWith("`")
 
   /**
    * When performing operations directly related to usage of some declaration,
@@ -73,6 +76,13 @@ object ScalaUsageNamesUtil {
         }
       case _ => result.add(element.getText)
     }
+
+    element match {
+      case n: ScNamedElement if isLiteralIdentifier(n.name) =>
+        result.add(n.name.drop(1).dropRight(1))
+      case _ => ()
+    }
+
     result
   }
 }
