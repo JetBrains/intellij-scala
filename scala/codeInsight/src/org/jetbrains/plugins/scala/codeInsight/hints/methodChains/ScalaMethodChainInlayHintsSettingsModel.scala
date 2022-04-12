@@ -66,7 +66,7 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
   )
   override def getComponent: JComponent = settingsPanel.getPanel
 
-  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("show.method.chain.hints")
+  override def getMainCheckBoxLabel: String = ScalaCodeInsightBundle.message("method.chain.hints")
 
   override def getName: String = ScalaCodeInsightBundle.message("method.chain.hints")
 
