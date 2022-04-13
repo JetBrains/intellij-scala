@@ -63,8 +63,8 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
      *  Play2Templates should have a dedicated PSI element for a template comment with own parsing rules (simple, though)
      *  NOTE: this was so before implementing ScalaDoc paragraphs, I've just added more assertions...)
      */
-    val isPlay2TemplateComment = builder.getTokenType != DOC_COMMENT_BAD_CHARACTER
-    if (isPlay2TemplateComment) {
+    val isPlay2TemplateComment = builder.getTokenType == DOC_COMMENT_BAD_CHARACTER
+    if (!isPlay2TemplateComment) {
       assert(builder.getTokenType == DOC_COMMENT_START)
       builder.advanceLexer()
       updateLineBreakFlagAfterAsterisks()
