@@ -589,17 +589,16 @@ lazy val runtimeDependencies2 =
 // Testing keys and settings
 import Common.TestCategory._
 
-def testOnlyCategory(category: String): String =
-  s"testOnly -- --include-categories=$category --exclude-categories=$flakyTests"
+def testOnlyCategories(categories: String*): String =
+  s"testOnly -- --include-categories=${categories.mkString(",")} --exclude-categories=$flakyTests"
 
-addCommandAlias("runSlowTests", testOnlyCategory(slowTests))
-addCommandAlias("runDebuggerTests", testOnlyCategory(debuggerTests))
-addCommandAlias("runHighlightingTests", testOnlyCategory(highlightingTests))
-addCommandAlias("runScalacTests", testOnlyCategory(scalacTests))
-addCommandAlias("runTypeInferenceTests", testOnlyCategory(typecheckerTests))
-addCommandAlias("runTestingSupportTests", testOnlyCategory(testingSupportTests))
-addCommandAlias("runWorksheetEvaluationTests", testOnlyCategory(worksheetEvaluationTests))
-addCommandAlias("runNightlyTests", testOnlyCategory(nightlyTests))
+addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
+addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
+addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
+addCommandAlias("runTypeInferenceTests", testOnlyCategories(typecheckerTests))
+addCommandAlias("runTestingSupportTests", testOnlyCategories(testingSupportTests))
+addCommandAlias("runWorksheetEvaluationTests", testOnlyCategories(worksheetEvaluationTests))
+addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests, highlightingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
@@ -610,7 +609,7 @@ val fastTestOptions = "-v -s -a +c +q " +
   s"--exclude-categories=$testingSupportTests " +
   s"--exclude-categories=$highlightingTests " +
   s"--exclude-categories=$worksheetEvaluationTests " +
-  s"--exclude-categories=$nightlyTests " +
+  s"--exclude-categories=$randomTypingTests " +
   s"--exclude-categories=$flakyTests "
 
 addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")

@@ -104,13 +104,13 @@ object Common {
     private def cat(name: String) = s"$pkg.$name"
 
     val slowTests: String = cat("SlowTests")
-    val highlightingTests: String = cat("HighlightingTests")
     val debuggerTests: String = cat("DebuggerTests")
     val scalacTests: String = cat("ScalacTests")
     val typecheckerTests: String = cat("TypecheckerTests")
     val testingSupportTests: String = cat("TestingSupportTests")
     val worksheetEvaluationTests: String = cat("WorksheetEvaluationTests")
-    val nightlyTests: String = cat("NightlyTests")
+    val highlightingTests: String = cat("HighlightingTests")
+    val randomTypingTests: String = cat("RandomTypingTests")
     val flakyTests: String = cat("FlakyTests")
   }
 
