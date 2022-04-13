@@ -1,57 +1,57 @@
 package org.jetbrains.plugins.scala
 package debugger
-package evaluateExpression
+package evaluation
 
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_2_11 extends ScalaThisAndSuperEvaluationTestBase {
+class ThisAndSuperEvaluationTest_2_11 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_2_12 extends ScalaThisAndSuperEvaluationTestBase {
+class ThisAndSuperEvaluationTest_2_12 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_2_13 extends ScalaThisAndSuperEvaluationTestBase {
+class ThisAndSuperEvaluationTest_2_13 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_3_0 extends ScalaThisAndSuperEvaluationTestBase {
+class ThisAndSuperEvaluationTest_3_0 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaThisAndSuperEvaluationTest_3_1 extends ScalaThisAndSuperEvaluationTestBase {
+class ThisAndSuperEvaluationTest_3_1 extends ThisAndSuperEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase {
-  addFileWithBreakpoints("TraitThis.scala",
+abstract class ThisAndSuperEvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("TraitThis.scala",
     s"""
        |object TraitThis {
        |  trait Z {
        |    def foo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def main(args: Array[String]): Unit = {
        |    new Z {}.foo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testTraitThis(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalStartsWith("this", "TraitThis$$anon")
     }
   }
 
-  addFileWithBreakpoints("Base.scala",
+  addSourceFile("Base.scala",
     s"""
        |class BaseClass {
        |  def foo = 1
@@ -60,72 +60,72 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |trait BaseTrait {
        |  def foo = 1
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
-  addFileWithBreakpoints("SuperInvocation.scala",
+  addSourceFile("SuperInvocation.scala",
     s"""
        |object SuperInvocation extends BaseClass {
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testSuperInvocation(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo", "1")
     }
   }
 
-  addFileWithBreakpoints("InvocationFromInner.scala",
+  addSourceFile("InvocationFromInner.scala",
     s"""
        |object InvocationFromInner extends BaseClass {
        |  trait Z {
        |    def goo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def main(args: Array[String]): Unit = {
        |    new Z {}.goo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testInvocationFromInner(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo", "1")
     }
   }
 
-  addFileWithBreakpoints("ThisInvocationFromInner.scala",
+  addSourceFile("ThisInvocationFromInner.scala",
     s"""
        |object ThisInvocationFromInner extends BaseClass {
        |  trait Z {
        |    def foo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def main(args: Array[String]): Unit = {
        |    new Z {}.foo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testThisInvocationFromInner(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("ThisInvocationFromInner.this.foo", "1")
     }
   }
 
-  addFileWithBreakpoints("ThisInvocationFromInnerClass.scala",
+  addSourceFile("ThisInvocationFromInnerClass.scala",
     s"""
        |class ThisInvocationFromInnerClass extends BaseClass {
        |  trait Z {
        |    def foo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def boo(args: Array[String]) = {
@@ -138,42 +138,42 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    sample.boo(args)
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testThisInvocationFromInnerClass(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("ThisInvocationFromInnerClass.this.foo", "1")
     }
   }
 
-  addFileWithBreakpoints("SuperInvocationFromInner.scala",
+  addSourceFile("SuperInvocationFromInner.scala",
     s"""
        |object SuperInvocationFromInner extends BaseClass {
        |  trait Z {
        |    def foo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def main(args: Array[String]): Unit = {
        |    new Z {}.foo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testSuperInvocationFromInner(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("SuperInvocationFromInner.super.foo", "1")
     }
   }
 
-  addFileWithBreakpoints("SuperTraitInvocationFromInner.scala",
+  addSourceFile("SuperTraitInvocationFromInner.scala",
     s"""
        |class SuperTraitInvocationFromInner extends BaseTrait {
        |  trait Z {
        |    def foo = {
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def boo(args: Array[String]) = {
@@ -185,32 +185,32 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    new SuperTraitInvocationFromInner().boo(args)
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testSuperTraitInvocationFromInner(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("SuperTraitInvocationFromInner.super.foo", "1")
     }
   }
 
-  addFileWithBreakpoints("SuperTraitInvocation.scala",
+  addSourceFile("SuperTraitInvocation.scala",
     s"""
        |object SuperTraitInvocation extends BaseTrait {
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testSuperTraitInvocation(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo", "1")
     }
   }
 
-  addFileWithBreakpoints("Sample.scala",
+  addSourceFile("Sample.scala",
     s"""
        |trait IOI {
        |  def ioi = 2
@@ -223,7 +223,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |  trait F extends FF {
        |    def foo = {
        |      E.super.ioi
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |  }
        |  def moo = {new F{}.foo}
@@ -233,22 +233,22 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    new E {}.moo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testOuterSuperInnerTraitInvocation(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("E.super.ioi", "2")
     }
   }
 
-  addFileWithBreakpoints("InnerOuterEtc.scala",
+  addSourceFile("InnerOuterEtc.scala",
     s"""
        |object InnerOuterEtc {
        |  class Outer extends BaseClass {
        |    trait Z {
        |      def goo = {
-       |        println()$bp
+       |        println() $breakpoint
        |      }
        |    }
        |
@@ -260,16 +260,16 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    new Outer().goo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testInnerOuterEtc(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo", "1")
     }
   }
 
-  addFileWithBreakpoints("InnerOuterInheritedOuterFieldEtc.scala",
+  addSourceFile("InnerOuterInheritedOuterFieldEtc.scala",
     s"""
        |object InnerOuterInheritedOuterFieldEtc {
        |  class Outer extends BaseClass {
@@ -278,7 +278,7 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    }
        |    class Z extends HasOuterField {
        |      def goo = {
-       |        println()$bp
+       |        println() $breakpoint
        |      }
        |    }
        |
@@ -290,11 +290,11 @@ abstract class ScalaThisAndSuperEvaluationTestBase extends ScalaDebuggerTestCase
        |    new Outer().goo
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testInnerOuterInheritedOuterFieldEtc(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo", "1")
     }
   }
