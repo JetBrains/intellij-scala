@@ -1,60 +1,67 @@
 package org.jetbrains.plugins.scala
 package debugger
-package evaluateExpression
+package evaluation
 
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest_2_11 extends ScalaObjectEvaluationTestBase {
+class ObjectEvaluationTest_2_11 extends ObjectEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest_2_12 extends ScalaObjectEvaluationTestBase {
+class ObjectEvaluationTest_2_12 extends ObjectEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest_2_13 extends ScalaObjectEvaluationTestBase {
+class ObjectEvaluationTest_2_13 extends ObjectEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest_3_0 extends ScalaObjectEvaluationTestBase {
+class ObjectEvaluationTest_3_0 extends ObjectEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testInnerClassObjectFromObject(): Unit = failing(super.testInnerClassObjectFromObject())
+  override def testInnerClassObjectFromObject(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalStartsWith("localSSG", "InnerClassObjectFromObject$S$SS$G")
+      evalStartsWith("localSSS", "InnerClassObjectFromObject$S$SS$S")
+      evalStartsWith("S", "InnerClassObjectFromObject$S$SS$S")
+      evalStartsWith("localSS", "InnerClassObjectFromObject$S$SS$")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaObjectEvaluationTest_3_1 extends ScalaObjectEvaluationTest_3_0 {
+class ObjectEvaluationTest_3_1 extends ObjectEvaluationTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
-  addFileWithBreakpoints("SimpleObject.scala",
+abstract class ObjectEvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("SimpleObject.scala",
     s"""
        |object EvaluateObjects {
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-       """.stripMargin.trim()
+       """.stripMargin.trim
   )
   addSourceFile("Simple.scala", "object Simple")
   addSourceFile("qual/Simple.scala",
     s"""
-      |package qual
-      |
-      |object Simple
-      """.stripMargin.trim()
+       |package qual
+       |
+       |object Simple
+      """.stripMargin.trim
   )
   addSourceFile("qual/SimpleCaseClass.scala",
     s"""
        |package qual
        |
        |case class SimpleCaseClass()
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   addSourceFile("StableInner.scala",
     s"""
@@ -63,7 +70,7 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |object StableInner {
        |  object Inner
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   addSourceFile("qual/ClassInner.scala",
     s"""
@@ -72,11 +79,11 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |class ClassInner {
        |  object Inner
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testEvaluateObjects(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalStartsWith("Simple", "Simple$")
       evalStartsWith("qual.Simple", "qual.Simple$")
       evalStartsWith("collection.immutable.List", "scala.collection.immutable.List$")
@@ -86,15 +93,19 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("InnerClassObjectFromObject.scala",
+  addSourceFile("InnerClassObjectFromObject.scala",
     s"""
        |object InnerClassObjectFromObject {
        |  class S {
        |    object SS {
        |      object S {
        |        def foo(): Unit = {
-       |          SS.S //to have $$outer field
-       |          println()$bp
+       |          val localSS = SS
+       |          val localSSS = SS.S
+       |          val localSSG = SS.G
+       |          println(localSS) $breakpoint
+       |          println(localSSS)
+       |          println(localSSG)
        |        }
        |      }
        |      object G
@@ -109,11 +120,11 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |    x.foo()
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
+
   def testInnerClassObjectFromObject(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalStartsWith("SS.G", "InnerClassObjectFromObject$S$SS$G")
       evalStartsWith("SS.S", "InnerClassObjectFromObject$S$SS$S")
       evalStartsWith("S", "InnerClassObjectFromObject$S$SS$S")
