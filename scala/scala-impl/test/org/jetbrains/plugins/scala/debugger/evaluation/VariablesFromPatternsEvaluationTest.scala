@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
-package debugger.evaluateExpression
+package debugger
+package evaluation
 
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
@@ -23,7 +23,15 @@ class VariablesFromPatternsEvaluationTest_2_13 extends VariablesFromPatternsEval
 class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testAnonymousInMatch(): Unit = failing(super.testAnonymousInMatch())
+  override def testAnonymousInMatch(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("name", "name")
+      evalEquals("args", "[]")
+      evalEquals("some", "Some(a)")
+      evalEquals("a", "a")
+      failing(evalEquals("i", "10"))
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -31,8 +39,8 @@ class VariablesFromPatternsEvaluationTest_3_1 extends VariablesFromPatternsEvalu
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTestCase {
-  addFileWithBreakpoints("Match.scala",
+abstract class VariablesFromPatternsEvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("Match.scala",
     s"""
        |object Match {
        |  val name = "name"
@@ -40,17 +48,16 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |    val x = (List(1, 2), Some("z"), None)
        |    x match {
        |      case all @ (list @ List(q, w), some @ Some(z), _) =>
-       |        println()$bp
+       |        println() $breakpoint
        |      case _ =>
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testMatch(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("all", "(List(1, 2),Some(z),None)")
       evalEquals("list", "List(1, 2)")
       evalEquals("x", "(List(1, 2),Some(z),None)")
@@ -62,7 +69,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  addFileWithBreakpoints("MatchInForStmt.scala",
+  addSourceFile("MatchInForStmt.scala",
     s"""
        |object MatchInForStmt {
        |  val name = "name"
@@ -71,18 +78,17 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |      val x = (List(1, 2), Some("z"), ss :: i :: Nil)
        |      x match {
        |        case all @ (q :: qs, some @ Some(z), list @ List(m, _)) =>
-       |          println()$bp
+       |          println() $breakpoint
        |        case _ =>
        |      }
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testMatchInForStmt(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("all", "(List(1, 2),Some(z),List(aa, 1))")
       evalEquals("x", "(List(1, 2),Some(z),List(aa, 1))")
       evalEquals("name", "name")
@@ -98,7 +104,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  addFileWithBreakpoints("RegexMatch.scala",
+  addSourceFile("RegexMatch.scala",
     {
       val pattern = """"(-)?(\\d+)(\\.\\d*)?".r"""
       s"""
@@ -108,19 +114,18 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
          |    val Decimal = $pattern
          |    "-2.5" match {
          |      case number @ Decimal(sign, _, dec) =>
-         |        println()$bp
+         |        println() $breakpoint
          |      case _ =>
          |    }
          |  }
          |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
     }
 
   )
 
   def testRegexMatch(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("number", "-2.5")
       evalEquals("sign", "-")
       evalEquals("dec", ".5")
@@ -128,7 +133,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  addFileWithBreakpoints("Multilevel.scala",
+  addSourceFile("Multilevel.scala",
     s"""
        |object Multilevel {
        |  val name = "name"
@@ -139,7 +144,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |          case Some(seq) =>
        |            seq match {
        |              case Seq(1, two) =>
-       |                println()$bp
+       |                println() $breakpoint
        |              case _ =>
        |            }
        |          case _ =>
@@ -148,12 +153,11 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testMultilevel(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("name", "name")
       evalEquals("args", "[]")
       evalEquals("none", "None")
@@ -163,7 +167,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  addFileWithBreakpoints("LocalInMatch.scala",
+  addSourceFile("LocalInMatch.scala",
     s"""
        |object LocalInMatch {
        |  val name = "name"
@@ -172,18 +176,17 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |      case None =>
        |      case some @ Some(a) =>
        |        def foo(i: Int): Unit = {
-       |          println()$bp
+       |          println() $breakpoint
        |        }
        |        foo(10)
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testLocalInMatch(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("name", "name")
       evalEquals("args", "[]")
       evalEquals("some", "Some(a)")
@@ -192,7 +195,7 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     }
   }
 
-  addFileWithBreakpoints("AnonymousInMatch.scala",
+  addSourceFile("AnonymousInMatch.scala",
     s"""
        |object AnonymousInMatch {
        |  val name = "name"
@@ -201,17 +204,16 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
        |      case None =>
        |      case some @ Some(a) =>
        |        List(10) foreach { i =>
-       |          println()$bp
+       |          println() $breakpoint
        |        }
        |    }
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
 
   def testAnonymousInMatch(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("name", "name")
       evalEquals("args", "[]")
       evalEquals("some", "Some(a)")
