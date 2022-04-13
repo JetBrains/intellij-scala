@@ -257,16 +257,6 @@ class SbtProjectImportingTest extends ImportingTestCase
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
         sbtProjectId := "sbt-ide-settings"
       }
-      //sbt-build-modules
-      //sbt-ide-settings-build
-      //sbt-idea-plugin-build
-      //sbt-idea-shell-build
-      //SCL-14635-build
-
-      //sbt-ide-settings
-      //sbt-idea-plugin
-      //sbt-idea-shell
-      //SCL-14635
 
       modules := Seq(
         base,
