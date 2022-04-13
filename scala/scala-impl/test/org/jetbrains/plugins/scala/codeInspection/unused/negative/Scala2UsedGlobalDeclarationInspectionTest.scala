@@ -175,13 +175,33 @@ class Scala2UsedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationIn
   def test_bslash_used_from_scala(): Unit = testOperatorUsedFromScala("\\")
   def test_qmark_used_from_scala(): Unit = testOperatorUsedFromScala("?")
 
-  def test_literally_identified_declaration_used_from_scala(): Unit = {
+  def test_literally_identified_function_declaration_used_from_scala(): Unit = {
     addScalaFile("object Ctx { new Foo().`bar`() }")
     checkTextHasNoErrors("class Foo { def `bar`(): Unit = {} }")
   }
 
-  def test_literally_identified_declaration_used_from_java(): Unit = {
+  def test_literally_identified_function_declaration_used_from_java(): Unit = {
     addJavaFile("class Bar { void foo() { new Foo().bar(); } }")
     checkTextHasNoErrors("class Foo { def `bar`(): Unit = {} }")
+  }
+
+  def test_literally_identified_class_declaration_used_from_scala(): Unit = {
+    addScalaFile("object Ctx { new `Foo` }")
+    checkTextHasNoErrors("class `Foo`")
+  }
+
+  def test_literally_identified_class_declaration_used_from_java(): Unit = {
+    addJavaFile("class Bar { void foo() { new Foo(); } }")
+    checkTextHasNoErrors("class `Foo`")
+  }
+
+  def test_literally_identified_val_declaration_used_from_scala(): Unit = {
+    addScalaFile("object Ctx { new Foo().`bar` }")
+    checkTextHasNoErrors("class Foo { val `bar` = 42 }")
+  }
+
+  def test_literally_identified_val_declaration_used_from_java(): Unit = {
+    addJavaFile("class Bar { void foo() { new Foo().bar; } }")
+    checkTextHasNoErrors("class Foo { val `bar` = 42 }")
   }
 }
