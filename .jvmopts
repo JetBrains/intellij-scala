@@ -3,5 +3,4 @@
 -Xms1536m
 -Xmx2G
 -XX:ReservedCodeCacheSize=256m
--XX:+CMSClassUnloadingEnabled
 -Dfile.encoding=UTF8
