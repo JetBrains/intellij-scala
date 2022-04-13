@@ -1,9 +1,19 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
+import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 /** @see [[org.jetbrains.plugins.scala.lang.actions.editor.ClosingBraceInsertTest]]*/
 class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
+
+  // copied from Scala3BracelessSyntaxEnterExhaustiveTest
+  override def setUp(): Unit = {
+    super.setUp()
+    // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
+    // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
+    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
+    getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
+  }
 
   private def empty = ""
 
@@ -68,6 +78,16 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
          |  someMethod1()
          |  someMethod2()
          |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotRemove_FunctionBody_MultipleExpressions_Oneline(): Unit = {
+    val before =
+      s"""def foo() = {${|}someMethod1(); someMethod2()}
+         |""".stripMargin
+    val after =
+      s"""def foo() = ${|}someMethod1(); someMethod2()}
          |""".stripMargin
     doTest(before, after)
   }
@@ -365,7 +385,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_TryCathBlock_SingleExpression(): Unit = {
+  def testRemove_TryCatchBlock_SingleExpression(): Unit = {
     val before =
       s"""class A {
          |  try {${|}
@@ -388,7 +408,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_TryCathBlock_SingleExpression_1(): Unit = {
+  def testRemove_TryCatchBlock_SingleExpression_1(): Unit = {
     getCommonSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
@@ -413,7 +433,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_TryCathBlock_SingleExpression_2(): Unit = {
+  def testRemove_TryCatchBlock_SingleExpression_2(): Unit = {
     getCommonSettings.CATCH_ON_NEW_LINE = true
     val before =
       s"""class A {
@@ -787,7 +807,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testRemove_TryCathBlock_EmptyBody(): Unit = {
+  def testRemove_TryCatchBlock_EmptyBody(): Unit = {
     val before =
       s"""class A {
          |  try {${|}

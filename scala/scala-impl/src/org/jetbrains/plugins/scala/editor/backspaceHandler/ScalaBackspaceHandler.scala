@@ -170,10 +170,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
   private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement, file: PsiFile): Boolean = {
     val statements = block.statements
+    val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
 
     if (statements.isEmpty)
       true
-    else if (statements.size == 1 && ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY)
+    else if (statements.size == 1 && wrapSingleExpression)
       canDeleteClosingBrace(statements.head, blockRBrace)
     else if (file.useIndentationBasedSyntax)
       canDeleteClosingBrace(statements.last, blockRBrace)
