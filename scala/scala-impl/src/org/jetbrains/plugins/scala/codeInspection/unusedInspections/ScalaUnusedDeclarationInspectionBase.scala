@@ -14,10 +14,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
@@ -136,15 +140,30 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     val helper = PsiSearchHelper.getInstance(element.getProject)
     var used = false
     val processor = new TextOccurenceProcessor {
-      override def execute(e2: PsiElement, offsetInElement: Int): Boolean =
+      override def execute(e2: PsiElement, offsetInElement: Int): Boolean = {
         inReadAction {
           if (element.getContainingFile == e2.getContainingFile) {
             true
           } else {
-            used = true
-            false
+            used = (e2, Option(e2.getParent)) match {
+              case (_: ScStableCodeReference, _) => true
+              case (_: ScalaFile, _) => false
+              case (_: ScTypeDefinition, _) => false
+              case (_: ScExtendsBlock, _) => false
+              case (_: ScTemplateBody, _) => false
+              case (_: ScPatternDefinition, _) => false
+              case (_: ScPatternList, _) => false
+              case (_: ScReferencePattern, _) => false
+              case (_: ScStringLiteral, _) => false
+              case (_, Some(_: ScStringLiteral)) => false
+              case (_, Some(_: ScReferencePattern)) => false
+              case (_, Some(_: ScTypeDefinition)) => false
+              case _ => true
+            }
+            !used
           }
         }
+      }
     }
 
     ScalaUsageNamesUtil.getStringsToSearch(element).asScala.foreach { name =>
