@@ -172,13 +172,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     val statements = block.statements
     val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
 
-    if (statements.isEmpty)
-      true
-    else if (statements.size == 1 && wrapSingleExpression)
-      canDeleteClosingBrace(statements.head, blockRBrace)
-    else if (file.useIndentationBasedSyntax)
-      canDeleteClosingBrace(statements.last, blockRBrace)
-    else
+    if (file.useIndentationBasedSyntax)
+      statements.isEmpty || canDeleteClosingBrace(statements.last, blockRBrace)
+    else if (wrapSingleExpression) {
+      statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, blockRBrace)
+    } else
       false
   }
 
