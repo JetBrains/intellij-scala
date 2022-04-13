@@ -107,6 +107,8 @@ object ProcessWatcher {
 
   //Temp (hopefully) workaround for SCL-19556, SCL-19470, SCL-18150
   //See implementation of java.lang.System.setSecurityManager in JDK 17 and https://openjdk.java.net/jeps/411
+  //UPDATE: in JDK 18 they now throw an exception, not just print a warning, see SCL-20064,
+  // this is workaround in CompileServerLauncher by passing -Djava.security.manager=allow
   private def isJDK17SecurityManagerWarningLine(text: String) = {
     text.linesIterator.exists { line =>
       line.startsWith("WARNING: A terminally deprecated method in java.lang.System has been called") ||
