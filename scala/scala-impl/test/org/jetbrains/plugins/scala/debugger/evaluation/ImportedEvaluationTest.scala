@@ -1,170 +1,194 @@
 package org.jetbrains.plugins.scala
-package debugger.evaluateExpression
+package debugger
+package evaluation
 
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest_2_11 extends ScalaImportedEvaluationTestBase {
+class ImportedEvaluationTest_2_11 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest_2_12 extends ScalaImportedEvaluationTestBase {
+class ImportedEvaluationTest_2_12 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest_2_13 extends ScalaImportedEvaluationTestBase {
+class ImportedEvaluationTest_2_13 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest_3_0 extends ScalaImportedEvaluationTestBase {
+class ImportedEvaluationTest_3_0 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaImportedEvaluationTest_3_1 extends ScalaImportedEvaluationTestBase {
+class ImportedEvaluationTest_3_1 extends ImportedEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-@Category(Array(classOf[DebuggerTests]))
-abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
-  addFileWithBreakpoints("ImportFromObject.scala",
+abstract class ImportedEvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("ImportFromObject.scala",
     s"""
        |object ImportFromObject {
        |  def main(args: Array[String]): Unit = {
-       |    import test.Stuff._
-       |    println()$bp
+       |    import test.OtherStuff._
+       |    println() $breakpoint
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
-  addFileWithBreakpoints("test/Stuff.scala",
-    s"""
-       |package test
-       |object Stuff {
+  addSourceFile("test/OtherStuff.scala",
+    s"""package test
+       |object OtherStuff {
        |  val x = 0
        |  def foo() = "foo"
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testImportFromObject(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("foo", "foo")
       evalEquals("foo()", "foo")
     }
   }
 
-  addFileWithBreakpoints("ImportFromPackageObject.scala",
-    s"""
-       |object ImportFromPackageObject {
+  addSourceFile("ImportFromPackageObject.scala",
+    s"""object ImportFromPackageObject {
        |  def main(args: Array[String]): Unit = {
        |    import test.stuff._
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
-  addFileWithBreakpoints("test/stuff/package.scala",
+  addSourceFile("test/stuff/package.scala",
     s"""
        |package test
        |package object stuff {
        |  val x = 0
-       |  def foo() = "foo"$bp
+       |  def foo() = "foo"
        |
        |  class AAA {
        |    val a = "a"
        |
        |    def bar(): Unit = {
-       |      println()$bp
+       |      println()
        |    }
        |  }
        |
        |  implicit class ObjectExt[T](val v: T) extends AnyVal{
-       |    def toOption: Option[T] = Option(v)$bp
+       |    def toOption: Option[T] = Option(v)
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testImportFromPackageObject(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("foo", "foo")
     }
   }
 
-  addFileWithBreakpoints("StopInsidePackageObject.scala",
-    s"""
-       |object StopInsidePackageObject {
+  addSourceFile("StopInsideObject.scala",
+    s"""object ObjectToStopIn1 {
+       |  val x = 0
+       |  def foo = "foo" $breakpoint
+       |}
+       |
+       |object StopInsideObject {
        |  def main(args: Array[String]): Unit = {
-       |    import test.stuff._
-       |    foo()
+       |    import ObjectToStopIn1._
+       |    foo
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
-  def testStopInsidePackageObject(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+  def testStopInsideObject(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("foo", "foo")
     }
   }
 
-  addFileWithBreakpoints("StopInsideClassInPackageObject.scala",
-    s"""
-       |object StopInsideClassInPackageObject {
+  addSourceFile("StopInsideClassInObject.scala",
+    s"""object ObjectToStopIn2 {
+       |  val x = 0
+       |  def foo = "foo"
+       |
+       |  class AAA {
+       |    val a = "a"
+       |
+       |    def bar(): Unit = {
+       |      println() $breakpoint
+       |    }
+       |  }
+       |}
+       |
+       |object StopInsideClassInObject {
        |  def main(args: Array[String]): Unit = {
-       |    import test.stuff._
+       |    import ObjectToStopIn2._
        |    new AAA().bar()
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
-  def testStopInsideClassInPackageObject(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+  def testStopInsideClassInObject(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("foo", "foo")
       evalEquals("a", "a")
     }
   }
 
-  addFileWithBreakpoints("StopInsideValueClass.scala",
-    s"""
+  addSourceFile("StopInsideValueClass.scala",
+    s"""object ObjectToStopIn3 {
+       |  val x = 0
+       |  def foo() = "foo"
+       |
+       |  class AAA {
+       |    val a = "a"
+       |
+       |    def bar(): Unit = {
+       |      println()
+       |    }
+       |  }
+       |
+       |  implicit class ObjectExt[T](val v: T) extends AnyVal{
+       |    def toOption: Option[T] = Option(v) $breakpoint
+       |  }
+       |}
+       |
        |object StopInsideValueClass {
        |  def main(args: Array[String]): Unit = {
-       |    import test.stuff._
+       |    import ObjectToStopIn3._
        |    "v".toOption
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testStopInsideValueClass(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("v", "v")
     }
   }
 
-  addFileWithBreakpoints("ImportVal.scala",
+  addSourceFile("ImportVal.scala",
     s"""
        |object ImportVal {
        |  def main(args: Array[String]): Unit = {
        |    val a = new A(0)
        |    import a._
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
        |
@@ -172,19 +196,18 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |  val x = 0
        |  def foo() = "foo"
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testImportVal(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x", "0")
       evalEquals("i", "0")
       evalEquals("foo", "foo")
     }
   }
 
-  addFileWithBreakpoints("ImportProjectionType.scala",
+  addSourceFile("ImportProjectionType.scala",
     s"""
        |object ImportProjectionType {
        |
@@ -205,22 +228,21 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |    import b.y._
        |    import x._
        |
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testImportProjectionType(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("charAt(0)", "a")
       evalEquals("head", "1")
     }
   }
 
-  addFileWithBreakpoints("ImportJava.scala",
+  addSourceFile("ImportJava.scala",
     s"""
        |object ImportJava {
        |  def main(args: Array[String]): Unit = {
@@ -231,12 +253,12 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |    val inner = new JavaInner()
        |    import inner._
        |
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
-  addFileWithBreakpoints("test/JavaClass.java",
+  addSourceFile("test/JavaClass.java",
     s"""
        |package test;
        |
@@ -258,12 +280,11 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |        public String innerField = "inner " + instanceField;
        |    }
        |}
-    """.stripMargin.trim()
+    """.stripMargin.trim
   )
 
   def testImportJava(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("staticField", "0")
       evalEquals("staticMethod", "foo")
       evalEquals("instanceField", "bar")
@@ -272,7 +293,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("implicits/package.scala",
+  addSourceFile("implicits/package.scala",
     s"""
        |package object implicits {
        |  implicit def intToString(x: Int): String = x.toString + x.toString
@@ -287,21 +308,20 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |  }
        |}
     """.stripMargin.trim)
-  addFileWithBreakpoints("ImportedImplicits.scala",
+  addSourceFile("ImportedImplicits.scala",
     s"""
        |import implicits._
        |object ImportedImplicits {
        |  def main(args: Array[String]): Unit = {
        |    val i1 = 123
        |    def bar(s: String)(implicit i: Int) = if (i < s.length) s.charAt(i) else '0'
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
     """.stripMargin.trim)
 
   def testImportedImplicits(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("i1.charAt(3)", "1")
       evalEquals("\"a\".concat(i1)", "a123123")
       evalEquals("bar(\"abc\")", "a")
@@ -311,37 +331,36 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("ImportedFromOuterThis.scala",
-   s"""
-      |object ImportedFromOuterThis {
-      |  def main(args: Array[String]): Unit = {
-      |    val o = new OuterThis
-      |    val b = new o.B()
-      |    b.bar()
-      |  }
-      |}
-      |
-      |class OuterThis {
-      |
-      |  val g = new GGG
-      |  import g._
-      |
-      |  class B {
-      |    def bar() = {
-      |      val f = foo()
-      |      println()$bp
-      |    }
-      |  }
-      |}
-      |
-      |class GGG {
-      |  def foo() = 1
-      |}
+  addSourceFile("ImportedFromOuterThis.scala",
+    s"""
+       |object ImportedFromOuterThis {
+       |  def main(args: Array[String]): Unit = {
+       |    val o = new OuterThis
+       |    val b = new o.B()
+       |    b.bar()
+       |  }
+       |}
+       |
+       |class OuterThis {
+       |
+       |  val g = new GGG
+       |  import g._
+       |
+       |  class B {
+       |    def bar() = {
+       |      val f = foo()
+       |      println() $breakpoint
+       |    }
+       |  }
+       |}
+       |
+       |class GGG {
+       |  def foo() = 1
+       |}
     """.stripMargin.trim)
 
   def testImportedFromOuterThis(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("foo()", "1")
       evalStartsWith("g", "GGG")
       evalStartsWith("OuterThis.this", "OuterThis")
