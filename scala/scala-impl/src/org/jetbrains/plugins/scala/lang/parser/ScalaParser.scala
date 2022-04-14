@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.lang.{ASTNode, PsiBuilder, PsiParser}
+import com.intellij.lang.{ASTNode, LightPsiParser, PsiBuilder, PsiParser}
 import com.intellij.psi.tree.IElementType
 
-final class ScalaParser(isScala3: Boolean) extends PsiParser {
+final class ScalaParser(isScala3: Boolean) extends PsiParser with LightPsiParser {
 
   import parsing._
   import builder._
 
-  override def parse(rootElementType: IElementType, delegate: PsiBuilder): ASTNode = {
+  override def parseLight(rootElementType: IElementType, delegate: PsiBuilder): Unit = {
     implicit val builder: ScalaPsiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3)
 
     rootElementType match {
@@ -21,7 +21,10 @@ final class ScalaParser(isScala3: Boolean) extends PsiParser {
         CompilationUnit()
         rootMarker.done(rootElementType)
     }
+  }
 
+  override def parse(rootElementType: IElementType, delegate: PsiBuilder): ASTNode = {
+    parseLight(rootElementType, delegate)
     delegate.getTreeBuilt
   }
 }
