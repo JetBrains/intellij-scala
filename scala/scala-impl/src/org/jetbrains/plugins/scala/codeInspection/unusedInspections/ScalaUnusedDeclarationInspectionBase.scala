@@ -39,10 +39,12 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
-  private def isElementUsed(element: ScNamedElement): Boolean =
-    if (isOnlyVisibleInLocalFile(element)) {
+  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
+    if (isOnlyVisibleInLocalFile(element) && isOnTheFly) {
       localSearch(element)
-    } else if (referencesSearch(element, new LocalSearchScope(element.getContainingFile))) {
+    } else if (isOnlyVisibleInLocalFile(element) && !isOnTheFly) {
+      referencesSearch(element)
+    } else if (referencesSearch(element)) {
       true
     } else if (!isReportPublicDeclarationsEnabled) {
       true
@@ -71,7 +73,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
   }
 
   // this case is for elements accessible not only in a local scope, but within the same file
-  private def referencesSearch(element: ScNamedElement, scope: SearchScope): Boolean = {
+  private def referencesSearch(element: ScNamedElement): Boolean = {
     val elementsForSearch = element match {
       // if the element is an enum case, we also look for usage in a few synthetic methods generated for the enum class
       case enumCase: ScEnumCase =>
@@ -84,6 +86,8 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
         enumCase.getSyntheticCounterpart +: syntheticMembers
       case e: ScNamedElement => Seq(e)
     }
+
+    val scope = new LocalSearchScope(element.getContainingFile)
     elementsForSearch.exists(ReferencesSearch.search(_, scope).findFirst() != null)
   }
 
@@ -191,7 +195,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
       elements.flatMap {
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
-        case named: ScNamedElement if !isElementUsed(named) =>
+        case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
 
           val dontReportPublicDeclarationsQuickFix =
             if (isOnlyVisibleInLocalFile(named)) None else Some(new DontReportPublicDeclarationsQuickFix(named))
