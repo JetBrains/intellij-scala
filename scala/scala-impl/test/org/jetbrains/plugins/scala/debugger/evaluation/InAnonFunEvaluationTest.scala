@@ -11,20 +11,7 @@ class InAnonFunEvaluationTest_2_11 extends InAnonFunEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_2_12 extends InAnonFunEvaluationTestBase {
-
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
-
-  //todo SCL-9139
-  override def testPartialFunction(): Unit = {
-    expressionEvaluationTest() { implicit ctx =>
-      evalEquals("a", "a")
-      evalEquals("x", "x")
-      evalEquals("param", "param")
-      evalEquals("name", "name")
-      evalEquals("notUsed", "notUsed")
-      evalEquals("args", "[]")
-    }
-  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -87,7 +74,7 @@ abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase 
        |  def main(args: Array[String]): Unit = {
        |    def printName(param: String, notUsed: String): Unit = {
        |      List(("a", 10)).foreach {
-       |        case (a, i: Int) =>
+       |        case (a, i) =>
        |            val x = "x"
        |            println(a + param)
        |            println() $breakpoint
@@ -170,6 +157,42 @@ abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase 
       evalEquals("ss", "aa")
       evalFailsWith("i", ScalaBundle.message("not.used.from.for.statement", "i"))
       evalFailsWith("si", ScalaBundle.message("not.used.from.for.statement", "si"))
+    }
+  }
+
+  addSourceFile("PartialFunction2.scala",
+    s"""object PartialFunction2 {
+       |  class A { override def toString: String = "A" }
+       |  def main(args: Array[String]): Unit = {
+       |    Seq(new A, new A).foreach {
+       |      case a =>
+       |        println() $breakpoint
+       |    }
+       |  }
+       |}""".stripMargin.trim)
+
+  def testPartialFunction2(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("a", "A")
+    }
+  }
+
+  addSourceFile("PartialFunctionCaseClass.scala",
+    s"""object PartialFunctionCaseClass {
+       |  final case class Person(name: String, age: Int)
+       |  def main(args: Array[String]): Unit = {
+       |    Seq(Person("Name", 25)).foreach {
+       |      case p @ Person(name, age) =>
+       |        println() $breakpoint
+       |    }
+       |  }
+       |}""".stripMargin.trim)
+
+  def testPartialFunctionCaseClass(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      evalEquals("name", "Name")
+      evalEquals("age", "25")
+      evalEquals("p", "Person(Name,25)")
     }
   }
 }
