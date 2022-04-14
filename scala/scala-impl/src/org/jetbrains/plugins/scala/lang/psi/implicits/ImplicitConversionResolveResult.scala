@@ -74,6 +74,7 @@ object ImplicitConversionResolveResult {
           val state = ScalaResolveState
             .withSubstitutor(subst)
             .withExtensionMethodMarker
+            .withRename(srr.renamed)
             .withImportsUsed(srr.importsUsed)
             .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
           processor.execute(ext, state)

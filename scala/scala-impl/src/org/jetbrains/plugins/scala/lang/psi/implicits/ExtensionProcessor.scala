@@ -17,6 +17,7 @@ final class ExtensionProcessor(place: PsiElement, name: String, forCompletion: B
       addResult(
         new ScalaResolveResult(
           namedElement,
+          renamed             = state.renamed,
           substitutor         = state.substitutor,
           importsUsed         = state.importsUsed,
           implicitConversion  = state.implicitConversion,
