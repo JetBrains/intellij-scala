@@ -921,8 +921,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _: ScBlockExpr => //it is anonymous function
           val argEvaluator = new ScalaLocalVariableEvaluator("", fileName)
-          argEvaluator.setMethodName("apply")
-          argEvaluator.setParameterIndex(0)
+          argEvaluator.setParameterIndex(-1) // Last parameter
           val fromPatternEvaluator = evaluateSubpatternFromPattern(argEvaluator, pattern.get, namedElement.asInstanceOf[ScPattern])
           ScalaDuplexEvaluator(new ScalaLocalVariableEvaluator(name, fileName), fromPatternEvaluator)
         case _ => new ScalaLocalVariableEvaluator(name, fileName)
@@ -980,18 +979,16 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             if (funName == "unapply") {
               val extractEval = new ScalaCachingEvaluator(ScalaMethodEvaluator(refEvaluator, funName, DebuggerUtil.getFunctionJVMSignature(fun), Seq(exprEval)))
               if (pattern.subpatterns.length == 1) {
-                val signature = JVMNameUtil.getJVMRawText("()Ljava/lang/Object;")
                 ScalaDuplexEvaluator(
-                  ScalaMethodEvaluator(extractEval, "get", signature, Seq.empty),
-                  ScalaMethodEvaluator(extractEval, "productElement", signature, Seq(new IntEvaluator(0)))
+                  ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty),
+                  ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), Seq(new IntEvaluator(0)))
                 )
               } else if (pattern.subpatterns.length > 1) {
-                val signature = JVMNameUtil.getJVMRawText("()Ljava/lang/Object;")
                 val args = Seq(new IntEvaluator(nextPatternIndex))
-                val getEval = ScalaMethodEvaluator(extractEval, "get", signature, Seq.empty)
+                val getEval = ScalaMethodEvaluator(extractEval, "get", JVMNameUtil.getJVMRawText("()Ljava/lang/Object;"), Seq.empty)
                 ScalaDuplexEvaluator(
-                  ScalaMethodEvaluator(getEval, "productElement", signature, args),
-                  ScalaMethodEvaluator(extractEval, "productElement", signature, args)
+                  ScalaMethodEvaluator(getEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args),
+                  ScalaMethodEvaluator(extractEval, "productElement", JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"), args)
                 )
               }
               else throw EvaluationException(ScalaBundle.message("unapply.without.arguments"))
@@ -1030,7 +1027,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
           evaluateSubpatternFromPattern(exprEval, withoutPars, subPattern)
         case tuple: ScTuplePattern =>
           val nextPattern = tuple.subpatterns(nextPatternIndex)
-          val newEval = ScalaFieldEvaluator(exprEval, s"_${nextPatternIndex + 1}")
+          val signature = JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;")
+          val args = Seq(new IntEvaluator(nextPatternIndex))
+          val newEval = ScalaMethodEvaluator(exprEval, "productElement", signature, args)
           evaluateSubpatternFromPattern(newEval, nextPattern, subPattern)
         case constr: ScConstructorPattern =>
           val ref: ScStableCodeReference = constr.ref
