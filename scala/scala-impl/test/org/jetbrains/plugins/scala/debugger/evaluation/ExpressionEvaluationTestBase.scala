@@ -4,7 +4,7 @@ package evaluation
 
 import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException}
 import com.intellij.debugger.engine.{DebuggerUtils, SuspendContextImpl}
-import org.junit.Assert.fail
+import org.junit.Assert.{assertTrue, fail}
 
 abstract class ExpressionEvaluationTestBase extends NewScalaDebuggerTestCase {
 
@@ -22,6 +22,8 @@ abstract class ExpressionEvaluationTestBase extends NewScalaDebuggerTestCase {
 
   protected def expressionEvaluationTest(mainClass: String = getTestName(false))
                                         (actions: (SuspendContextImpl => Unit)*): Unit = {
+    assertTrue("Test should execute an action on at least one breakpoint", actions.nonEmpty)
+
     onBreakpointActionsIterator = actions.iterator
     createLocalProcess(mainClass)
 
@@ -53,6 +55,15 @@ abstract class ExpressionEvaluationTestBase extends NewScalaDebuggerTestCase {
       }
     } catch {
       case e: EvaluateException => fail(e.getMessage)
+    }
+  }
+
+  protected def evalFailsWith(expression: String, message: String)(implicit context: SuspendContextImpl): Unit = {
+    try {
+      evaluate(CodeFragmentKind.EXPRESSION, expression, context)
+      fail(s"Expression $expression was supposed to fail with an EvaluateException, but didn't")
+    } catch {
+      case e: EvaluateException => assertEquals(message, e.getMessage)
     }
   }
 
