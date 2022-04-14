@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
-package debugger.evaluateExpression
+package debugger
+package evaluation
 
-import org.jetbrains.plugins.scala.debugger._
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_2_11 extends InAnonFunEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
-@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
+@Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_2_12 extends InAnonFunEvaluationTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("a", "a")
       evalEquals("x", "x")
       evalEquals("param", "param")
@@ -30,25 +29,32 @@ class InAnonFunEvaluationTest_2_12 extends InAnonFunEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_2_13 extends InAnonFunEvaluationTest_2_12 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_3_0 extends InAnonFunEvaluationTest_2_13 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testFunctionExpr(): Unit = failing(super.testFunctionExpr())
+  override def testFunctionExpr(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      failing(evalEquals("a", "a"))
+      failing(evalEquals("x", "x"))
+      evalEquals("param", "param")
+      evalEquals("name", "name")
+      evalEquals("notUsed", "notUsed")
+      evalEquals("args", "[]")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class InAnonFunEvaluationTest_3_1 extends InAnonFunEvaluationTest_3_0 {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_3_1
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-@Category(Array(classOf[DebuggerTests]))
-abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
-
-  addFileWithBreakpoints("FunctionValue.scala",
+abstract class InAnonFunEvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("FunctionValue.scala",
     s"""
        |object FunctionValue {
        |  def main(args: Array[String]): Unit = {
@@ -56,16 +62,16 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |    var b = "b"
        |    val f: (Int) => Unit = n => {
        |      val x = "x"
-       |      println()$bp
+       |      println() $breakpoint
        |    }
        |    f(10)
        |  }
        |}
       """.stripMargin.trim()
   )
+
   def testFunctionValue(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("a", "a")
       evalEquals("b", "b")
       evalEquals("x", "x")
@@ -74,7 +80,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  addFileWithBreakpoints("PartialFunction.scala",
+  addSourceFile("PartialFunction.scala",
     s"""
        |object PartialFunction {
        |  val name = "name"
@@ -84,7 +90,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |        case (a, i: Int) =>
        |            val x = "x"
        |            println(a + param)
-       |            println()$bp
+       |            println() $breakpoint
        |      }
        |    }
        |    printName("param", "notUsed")
@@ -92,9 +98,9 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
+
   def testPartialFunction(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("a", "a")
       evalEquals("i", "10")
       evalEquals("x", "x")
@@ -105,7 +111,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  addFileWithBreakpoints("FunctionExpr.scala",
+  addSourceFile("FunctionExpr.scala",
     s"""
        |object FunctionExpr {
        |  val name = "name"
@@ -115,7 +121,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |        a =>
        |            val x = "x"
        |            println(a + param)
-       |            println()$bp
+       |            println() $breakpoint
        |      }
        |    }
        |    printName("param", "notUsed")
@@ -123,9 +129,9 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
+
   def testFunctionExpr(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("a", "a")
       evalEquals("x", "x")
       evalEquals("param", "param")
@@ -135,7 +141,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     }
   }
 
-  addFileWithBreakpoints("ForStmt.scala",
+  addSourceFile("ForStmt.scala",
     s"""
        |object ForStmt {
        |  val name = "name"
@@ -144,7 +150,7 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |      for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
        |        val in = "in"
        |        println(s + param + ss)
-       |        println()$bp
+       |        println() $breakpoint
        |      }
        |    }
        |    printName("param", "notUsed")
@@ -152,9 +158,9 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
        |}
       """.stripMargin.trim()
   )
+
   def testForStmt(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("s", "a")
       evalEquals("in", "in")
       evalEquals("param", "param")
@@ -162,9 +168,8 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
       evalEquals("notUsed", "notUsed")
       evalEquals("args", "[]")
       evalEquals("ss", "aa")
-      evalStartsWith("i", ScalaBundle.message("not.used.from.for.statement", "i"))
-      evalStartsWith("si", ScalaBundle.message("not.used.from.for.statement", "si"))
+      evalFailsWith("i", ScalaBundle.message("not.used.from.for.statement", "i"))
+      evalFailsWith("si", ScalaBundle.message("not.used.from.for.statement", "si"))
     }
   }
-
 }

@@ -1,32 +1,31 @@
 package org.jetbrains.plugins.scala
 package debugger
-package evaluateExpression
+package evaluation
 
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_2_11 extends ScalaExpressionsEvaluatorBase {
+class EvaluationTest_2_11 extends EvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_2_12 extends ScalaExpressionsEvaluatorBase {
+class EvaluationTest_2_12 extends EvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
+class EvaluationTest_2_13 extends EvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   override def testSymbolLiteral(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("'aaa", "Symbol(aaa)")
       evalEquals("'aaa.name", "aaa")
     }
   }
 
-  addFileWithBreakpoints("InstanceOfWithLiteralTypes.scala",
+  addSourceFile("InstanceOfWithLiteralTypes.scala",
     s"""
        |object InstanceOfWithLiteralTypes {
        |  type LiteralValueAlias = 123
@@ -35,19 +34,18 @@ class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
        |  type DoubleRefAlias = LiteralRefAlias
        |
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   def testInstanceOfWithLiteralTypes(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("123.isInstanceOf[123]", "true")
       evalEquals("123.isInstanceOf[234]", "false")
       evalEquals("123.0.isInstanceOf[123.0f]", "false")
       evalEquals("'c'.isInstanceOf['c']", "true")
-      evalStartsWith("""123.isInstanceOf["123"]""", """cannot test if value of type Int is a reference of type "123"""")
+      evalFailsWith("""123.isInstanceOf["123"]""", """cannot test if value of type Int is a reference of type "123"""")
       evalEquals("123.isInstanceOf[LiteralValueAlias]", "true")
       evalEquals("456.isInstanceOf[LiteralValueAlias]", "false")
       evalEquals("123.isInstanceOf[DoubleValueAlias]", "true")
@@ -63,13 +61,13 @@ class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
       evalEquals("123.asInstanceOf[234]", "123")
       evalEquals("123.0.asInstanceOf[123.0f]", "123.0")
       evalEquals("'c'.asInstanceOf['c']", "c")
-      evalStartsWith("""123.asInstanceOf["123"]""", """Cannot cast value of type 'Int' to type 'java.lang.String'""")
+      evalFailsWith("""123.asInstanceOf["123"]""", """Cannot cast value of type 'Int' to type 'java.lang.String'""")
       evalEquals("123.asInstanceOf[LiteralValueAlias]", "123")
       evalEquals("456.asInstanceOf[LiteralValueAlias]", "456")
       evalEquals("123.asInstanceOf[DoubleValueAlias]", "123")
       evalEquals("456.asInstanceOf[DoubleValueAlias]", "456")
       evalEquals(""""123".asInstanceOf["234"]""", "123")
-      evalStartsWith(""""123".asInstanceOf[123]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
+      evalFailsWith(""""123".asInstanceOf[123]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
       evalEquals(""""123".asInstanceOf[LiteralRefAlias]""", "123")
       evalEquals(""""456".asInstanceOf[LiteralRefAlias]""", "456")
       evalEquals(""""123".asInstanceOf[DoubleRefAlias]""", "123")
@@ -77,7 +75,7 @@ class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
     }
   }
 
-  addFileWithBreakpoints("ClassOfWithLiteralTypes.scala",
+  addSourceFile("ClassOfWithLiteralTypes.scala",
     s"""object ClassOfWithLiteralTypes {
        |  type StringLiteralAlias = "abc"
        |  type DoubleStringLiteralAlias = StringLiteralAlias
@@ -85,68 +83,74 @@ class ScalaExpressionsEvaluator_2_13 extends ScalaExpressionsEvaluatorBase {
        |  type DoublePrimitiveLiteralAlias = PrimitiveLiteralAlias
        |
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
   def testClassOfWithLiteralTypes(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
-      evalStartsWith("classOf[StringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
-      evalStartsWith("classOf[DoubleStringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
-      evalStartsWith("classOf[PrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
-      evalStartsWith("classOf[DoublePrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
+    expressionEvaluationTest() { implicit ctx =>
+      evalFailsWith("classOf[StringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
+      evalFailsWith("classOf[DoubleStringLiteralAlias]", """Literal type ("abc" : String) is not a class type""")
+      evalFailsWith("classOf[PrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
+      evalFailsWith("classOf[DoublePrimitiveLiteralAlias]", "Literal type (123 : Int) is not a class type")
     }
   }
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_2_13 {
+class EvaluationTest_3_0 extends EvaluationTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testPrefixedThis(): Unit = failing(super.testPrefixedThis())
+  override def testPrefixedThis(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      failing(evalEquals("This.this.x", "1"))
+    }
+  }
 
-  override def testPostfix(): Unit = failing(super.testPostfix())
+  override def testPostfix(): Unit = {
+    expressionEvaluationTest() { implicit ctx =>
+      failing(evalEquals("x x", "1"))
+      evalEquals("1 toString ()", "1")
+    }
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class ScalaExpressionsEvaluator_3_1 extends ScalaExpressionsEvaluator_3_0 {
+class EvaluationTest_3_1 extends EvaluationTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
-  addFileWithBreakpoints("PrefixUnary.scala",
+abstract class EvaluationTestBase extends ExpressionEvaluationTestBase {
+  addSourceFile("PrefixUnary.scala",
     s"""
-      |object PrefixUnary {
-      |  class U {
-      |    def unary_!(): Boolean = false
-      |  }
-      |  def main(args: Array[String]): Unit = {
-      |    val u = new U
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object PrefixUnary {
+       |  class U {
+       |    def unary_!(): Boolean = false
+       |  }
+       |  def main(args: Array[String]): Unit = {
+       |    val u = new U
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testPrefixUnary(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("!u", "false")
       evalEquals("!true", "false")
     }
   }
 
-  addFileWithBreakpoints("VariousExprs.scala",
+  addSourceFile("VariousExprs.scala",
     s"""
-      |object VariousExprs {
-      |  def main(args: Array[String]): Unit = {
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object VariousExprs {
+       |  def main(args: Array[String]): Unit = {
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testVariousExprs(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("(1, 2, 3)", "(1,2,3)")
       evalEquals("if (true) \"text\"", "undefined")
       evalEquals("if (true) \"text\" else \"next\"", "text")
@@ -155,34 +159,33 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("\"text\" != null", "true")
       evalStartsWith("new Object()", "java.lang.Object@")
       evalStartsWith("new AnyRef()", "java.lang.Object@")
-      evalStartsWith("new Any()", "class 'Any' is abstract; cannot be instantiated")
-      evalStartsWith("new AnyVal()", "class 'AnyVal' is abstract; cannot be instantiated")
-      evalStartsWith("new Unit()", "class 'Unit' is abstract; cannot be instantiated")
-      evalStartsWith("new Null()", "class 'Null' is abstract; cannot be instantiated")
-      evalStartsWith("new Nothing()", "class 'Nothing' is abstract; cannot be instantiated")
-      evalStartsWith("new Singleton()", "trait 'Singleton' is abstract; cannot be instantiated")
+      evalFailsWith("new Any()", "class 'Any' is abstract; cannot be instantiated")
+      evalFailsWith("new AnyVal()", "class 'AnyVal' is abstract; cannot be instantiated")
+      evalFailsWith("new Unit()", "class 'Unit' is abstract; cannot be instantiated")
+      evalFailsWith("new Null()", "class 'Null' is abstract; cannot be instantiated")
+      evalFailsWith("new Nothing()", "class 'Nothing' is abstract; cannot be instantiated")
+      evalFailsWith("new Singleton()", "trait 'Singleton' is abstract; cannot be instantiated")
       evalEquals("""new String("abc")""", "abc")
       evalEquals("new StringBuilder().## * 0", "0")
       evalEquals("()", "undefined")
     }
   }
 
-  addFileWithBreakpoints("SmartBoxing.scala",
+  addSourceFile("SmartBoxing.scala",
     s"""
-      |object SmartBoxing {
-      |  def foo[T](x: T)(y: T) = x
-      |  def main(args: Array[String]): Unit = {
-      |    val tup = (1, 2)
-      |    println()$bp
-      |  }
-      |  def test(tup: (Int,  Int)) = tup._1
-      |  def test2(tup: Tuple2[Int,  Int]) = tup._2
-      |}
-    """.stripMargin.trim()
+       |object SmartBoxing {
+       |  def foo[T](x: T)(y: T) = x
+       |  def main(args: Array[String]): Unit = {
+       |    val tup = (1, 2)
+       |    println() $breakpoint
+       |  }
+       |  def test(tup: (Int,  Int)) = tup._1
+       |  def test2(tup: Tuple2[Int,  Int]) = tup._2
+       |}
+    """.stripMargin.trim
   )
   def testSmartBoxing(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("test(tup)", "1")
       evalEquals("test((1, 2))", "1")
       evalEquals("test(Tuple2(1, 2))", "1")
@@ -194,34 +197,33 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("Assignment.scala",
+  addSourceFile("Assignment.scala",
     s"""
-      |object Assignment {
-      |
-      |  class Value(val n: Int) extends AnyVal
-      |
-      |  class StringValue(val s: String) extends AnyVal
-      |
-      |  var m = 0
-      |  def main(args: Array[String]): Unit = {
-      |    var z = 1
-      |    val y = 0
-      |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
-      |    val ints: Array[Int] = Array(1, 2)
-      |
-      |    val boxedAny = Array[Any](1, 2)
-      |    val boxedInteger = Array[java.lang.Integer](1, 2)
-      |
-      |    val boxedValues = Array(new Value(1), new Value(2))
-      |    val boxedStrings = Array(new StringValue("1"), new StringValue("2"))
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object Assignment {
+       |
+       |  class Value(val n: Int) extends AnyVal
+       |
+       |  class StringValue(val s: String) extends AnyVal
+       |
+       |  var m = 0
+       |  def main(args: Array[String]): Unit = {
+       |    var z = 1
+       |    val y = 0
+       |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
+       |    val ints: Array[Int] = Array(1, 2)
+       |
+       |    val boxedAny = Array[Any](1, 2)
+       |    val boxedInteger = Array[java.lang.Integer](1, 2)
+       |
+       |    val boxedValues = Array(new Value(1), new Value(2))
+       |    val boxedStrings = Array(new StringValue("1"), new StringValue("2"))
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testAssignment(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x(0)(0)", "1")
       evalEquals("x(0)(0) = 2", "2")
       evalEquals("x(0)(0)", "2")
@@ -247,109 +249,104 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("This.scala",
+  addSourceFile("This.scala",
     s"""
-      |object This {
-      |  def main(args: Array[String]): Unit = {
-      |    class This {
-      |      val x = 1
-      |      def foo(): Unit = {
-      |       println()$bp
-      |      }
-      |    }
-      |    new This().foo()
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object This {
+       |  def main(args: Array[String]): Unit = {
+       |    class This {
+       |      val x = 1
+       |      def foo(): Unit = {
+       |       println() $breakpoint
+       |      }
+       |    }
+       |    new This().foo()
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testThis(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("this.x", "1")
     }
   }
 
-  addFileWithBreakpoints("PrefixedThis.scala",
+  addSourceFile("PrefixedThis.scala",
     s"""
-      |object PrefixedThis {
-      |  def main(args: Array[String]): Unit = {
-      |    class This {
-      |      val x = 1
-      |      def foo(): Unit = {
-      |        val runnable = new Runnable {
-      |          def run(): Unit = {
-      |            val x = () => {
-      |             This.this.x //to have This.this in scope
-      |             println()$bp
-      |            }
-      |            x()
-      |          }
-      |        }
-      |        runnable.run()
-      |      }
-      |    }
-      |    new This().foo()
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object PrefixedThis {
+       |  def main(args: Array[String]): Unit = {
+       |    class This {
+       |      val x = 1
+       |      def foo(): Unit = {
+       |        val runnable = new Runnable {
+       |          def run(): Unit = {
+       |            val x = () => {
+       |             This.this.x //to have This.this in scope
+       |             println() $breakpoint
+       |            }
+       |            x()
+       |          }
+       |        }
+       |        runnable.run()
+       |      }
+       |    }
+       |    new This().foo()
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testPrefixedThis(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("This.this.x", "1")
     }
   }
 
-  addFileWithBreakpoints("Postfix.scala",
+  addSourceFile("Postfix.scala",
     s"""
-      |object Postfix {
-      |  def main(args: Array[String]): Unit = {
-      |    object x {val x = 1}
-      |    x
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object Postfix {
+       |  def main(args: Array[String]): Unit = {
+       |    object x {val x = 1}
+       |    x
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testPostfix(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x x", "1")
       evalEquals("1 toString ()", "1")
     }
   }
 
-  addFileWithBreakpoints("Backticks.scala",
+  addSourceFile("Backticks.scala",
     s"""
-      |object Backticks {
-      |  def main(args: Array[String]): Unit = {
-      |    val `val` = 100
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object Backticks {
+       |  def main(args: Array[String]): Unit = {
+       |    val `val` = 100
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testBackticks(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("`val`", "100")
     }
   }
 
-  addFileWithBreakpoints("Literal.scala",
+  addSourceFile("Literal.scala",
     s"""
-      |object Literal {
-      |  implicit def intToString(x: Int): String = x.toString + x.toString
-      |  def main(args: Array[String]): Unit = {
-      |    val n = 1
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object Literal {
+       |  implicit def intToString(x: Int): String = x.toString + x.toString
+       |  def main(args: Array[String]): Unit = {
+       |    val n = 1
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testLiteral(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals(""""x".length""", "1")
       evalEquals("""s"n = $n"""", "n = 1")
       evalEquals("1L", "1")
@@ -365,78 +362,74 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("SymbolLiteral.scala",
+  addSourceFile("SymbolLiteral.scala",
     s"""object SymbolLiteral {
        |  def main(args: Array[String]): Unit =
-       |    println()$bp
+       |    println() $breakpoint
        |}
-       |""".stripMargin.trim()
+       |""".stripMargin.trim
   )
   def testSymbolLiteral(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("'aaa", "'aaa")
       evalEquals("'aaa.name", "aaa")
     }
   }
 
-  addFileWithBreakpoints("JavaLib.scala",
+  addSourceFile("JavaLib.scala",
     s"""
-      |object JavaLib {
-      |  def main(args: Array[String]): Unit = {
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object JavaLib {
+       |  def main(args: Array[String]): Unit = {
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testJavaLib(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("new StringBuilder(\"test\").append(23)", "test23")
       evalEquals("new Array[Int](2)", "[0,0]")
     }
   }
 
-  addFileWithBreakpoints("InnerClass.scala",
+  addSourceFile("InnerClass.scala",
     s"""
-      |object InnerClass {
-      |  class Expr {}
-      |  def main(args: Array[String]): Unit = {
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object InnerClass {
+       |  class Expr {}
+       |  def main(args: Array[String]): Unit = {
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testInnerClass(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalStartsWith("new Expr", "InnerClass$Expr")
     }
   }
 
-  addFileWithBreakpoints("OverloadingClass.scala",
+  addSourceFile("OverloadingClass.scala",
     s"""
-      |object OverloadingClass {
-      |  class Expr(s: String) {
-      |    def this(t: Int) = {
-      |      this("test")
-      |    }
-      |  }
-      |  def main(args: Array[String]): Unit = {
-      |    println()$bp
-      |  }
-      |}
-    """.stripMargin.trim()
+       |object OverloadingClass {
+       |  class Expr(s: String) {
+       |    def this(t: Int) = {
+       |      this("test")
+       |    }
+       |  }
+       |  def main(args: Array[String]): Unit = {
+       |    println() $breakpoint
+       |  }
+       |}
+    """.stripMargin.trim
   )
   def testOverloadingClass(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalStartsWith("new Expr(\"\")", "OverloadingClass$Expr")
       evalStartsWith("new Expr(2)", "OverloadingClass$Expr")
     }
   }
 
-  addFileWithBreakpoints("InstanceOf.scala",
+  addSourceFile("InstanceOf.scala",
     s"""
        |object InstanceOf {
        |  class A { override def toString: String = "A" }
@@ -471,14 +464,13 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  def main(args: Array[String]): Unit = {
        |    val x = new A
        |    val y = new B
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   def testInstanceOf(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("x.isInstanceOf[A]", "true")
       evalEquals("x.isInstanceOf[B]", "false")
       evalEquals("y.isInstanceOf[B]", "true")
@@ -496,41 +488,41 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("123.isInstanceOf[Long]", "false")
       evalEquals("123L.isInstanceOf[Long]", "true")
       evalEquals("123L.isInstanceOf[Int]", "false")
-      evalStartsWith("123.isInstanceOf[String]", "cannot test if value of type Int is a reference of type String")
+      evalFailsWith("123.isInstanceOf[String]", "cannot test if value of type Int is a reference of type String")
       evalEquals(""""123".isInstanceOf[String]""", "true")
       evalEquals(""""123".isInstanceOf[Long]""", "false")
       evalEquals(""""123".isInstanceOf[AnyRef]""", "true")
       evalEquals(""""123".isInstanceOf[Any]""", "true")
-      evalStartsWith(""""123".isInstanceOf[AnyVal]""", "class AnyVal cannot be used in runtime type tests")
+      evalFailsWith(""""123".isInstanceOf[AnyVal]""", "class AnyVal cannot be used in runtime type tests")
       evalEquals("null.isInstanceOf[String]", "false")
-      evalStartsWith("null.isInstanceOf[Null]", "class Null cannot be used in runtime type tests")
-      evalStartsWith("123.isInstanceOf[Value]", "cannot test if value of type Int is a reference of type InstanceOf.Value")
+      evalFailsWith("null.isInstanceOf[Null]", "class Null cannot be used in runtime type tests")
+      evalFailsWith("123.isInstanceOf[Value]", "cannot test if value of type Int is a reference of type InstanceOf.Value")
       evalEquals("new Object().isInstanceOf[Object]", "true")
       evalEquals("new Object().isInstanceOf[AnyRef]", "true")
       evalEquals("new Object().isInstanceOf[Any]", "true")
-      evalStartsWith("new Object().isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
+      evalFailsWith("new Object().isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[Value]", "true")
-      evalStartsWith("new Value(123).isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
+      evalFailsWith("new Value(123).isInstanceOf[AnyVal]", "class AnyVal cannot be used in runtime type tests")
       evalEquals("new Value(123).isInstanceOf[AnyRef]", "true")
       evalEquals("new Value(123).isInstanceOf[Int]", "false")
-      evalStartsWith(""""123".isInstanceOf""", "isInstanceOf called without an explicit type argument")
-      evalStartsWith("123.isInstanceOf", "isInstanceOf called without an explicit type argument")
+      evalFailsWith(""""123".isInstanceOf""", "isInstanceOf called without an explicit type argument")
+      evalFailsWith("123.isInstanceOf", "isInstanceOf called without an explicit type argument")
       evalEquals(""""123".isInstanceOf[Alias]""", "true")
-      evalStartsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
-      evalStartsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
-      evalStartsWith("new Structural().isInstanceOf[{ def foo(name: String): Int }]", "A runtime type test on structural types is unchecked")
-      evalStartsWith("new Structural().isInstanceOf[StructuralAlias]", "A runtime type test on structural types is unchecked")
+      evalFailsWith("123.isInstanceOf[Singleton]", "trait Singleton cannot be used in runtime type tests")
+      evalFailsWith(""""123".isInstanceOf[Singleton]""", "trait Singleton cannot be used in runtime type tests")
+      evalFailsWith("new Structural().isInstanceOf[{ def foo(name: String): Int }]", "A runtime type test on structural types is unchecked")
+      evalFailsWith("new Structural().isInstanceOf[StructuralAlias]", "A runtime type test on structural types is unchecked")
       evalEquals("InstanceOf.isInstanceOf[InstanceOf.type]", "true")
       evalEquals("MyObject.isInstanceOf[MyObject.type]", "true")
       evalEquals("MyObject.Nested.isInstanceOf[MyObject.Nested.type]", "true")
       evalEquals("new MyTraitImpl().isInstanceOf[MyTrait]", "true")
 
       evalEquals("x.asInstanceOf[A]", "A")
-      evalStartsWith("x.asInstanceOf[B]", "Cannot cast value of type 'InstanceOf$A' to type 'InstanceOf$B'")
+      evalFailsWith("x.asInstanceOf[B]", "Cannot cast value of type 'InstanceOf$A' to type 'InstanceOf$B'")
       evalEquals("y.asInstanceOf[B]", "B")
-      evalStartsWith("y.asInstanceOf[String]", "Cannot cast value of type 'InstanceOf$B' to type 'java.lang.String'")
+      evalFailsWith("y.asInstanceOf[String]", "Cannot cast value of type 'InstanceOf$B' to type 'java.lang.String'")
       evalEquals("\"\".asInstanceOf[String]", "")
-      evalStartsWith(""""123".asInstanceOf[Int]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
+      evalFailsWith(""""123".asInstanceOf[Int]""", "Cannot cast value of type 'java.lang.String' to type 'Int'")
       evalEquals("123.asInstanceOf[Int]", "123")
       evalEquals("123.0f.asInstanceOf[Float]", "123.0")
       evalEquals("123.asInstanceOf[Float]", "123.0")
@@ -542,22 +534,22 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("123.asInstanceOf[Long]", "123")
       evalEquals("123L.asInstanceOf[Long]", "123")
       evalEquals("123L.asInstanceOf[Int]", "123")
-      evalStartsWith("123.asInstanceOf[String]", "Cannot cast value of type 'Int' to type 'java.lang.String'")
+      evalFailsWith("123.asInstanceOf[String]", "Cannot cast value of type 'Int' to type 'java.lang.String'")
       evalEquals(""""123".asInstanceOf[String]""", "123")
-      evalStartsWith(""""123".asInstanceOf[Long]""", "Cannot cast value of type 'java.lang.String' to type 'Long'")
+      evalFailsWith(""""123".asInstanceOf[Long]""", "Cannot cast value of type 'java.lang.String' to type 'Long'")
       evalEquals(""""123".asInstanceOf[AnyRef]""", "123")
       evalEquals(""""123".asInstanceOf[Any]""", "123")
       evalEquals("null.asInstanceOf[String]", "null")
-      evalStartsWith("123.asInstanceOf[Value]", "Cannot cast value of type 'Int' to type 'InstanceOf$Value'")
+      evalFailsWith("123.asInstanceOf[Value]", s"Cannot cast value of type 'Int' to type 'InstanceOf$$Value'${System.lineSeparator()} Cannot cast value of type 'Int' to type 'InstanceOf$$Value'")
       evalEquals("new Object().asInstanceOf[Object].toString.isInstanceOf[String]", "true")
       evalEquals("new Object().asInstanceOf[AnyRef].toString.isInstanceOf[String]", "true")
       evalEquals("new Object().asInstanceOf[Any].toString.isInstanceOf[String]", "true")
       evalEquals("new Value(123).asInstanceOf[Value]", "123")
-      evalStartsWith("new Value(123).asInstanceOf[AnyVal]", "123")
+      evalEquals("new Value(123).asInstanceOf[AnyVal]", "123")
       evalEquals("new Value(123).asInstanceOf[AnyRef]", "123")
-      evalStartsWith("new Value(123).asInstanceOf[Int]", "Cannot cast value of type 'InstanceOf$Value' to type 'Int'")
-      evalStartsWith(""""123".asInstanceOf""", "asInstanceOf called without an explicit type argument")
-      evalStartsWith("123.asInstanceOf", "asInstanceOf called without an explicit type argument")
+      evalFailsWith("new Value(123).asInstanceOf[Int]", "Cannot cast value of type 'InstanceOf$Value' to type 'Int'")
+      evalFailsWith(""""123".asInstanceOf""", "asInstanceOf called without an explicit type argument")
+      evalFailsWith("123.asInstanceOf", "asInstanceOf called without an explicit type argument")
       evalEquals(""""123".asInstanceOf[Alias]""", "123")
       evalEquals("new Structural().asInstanceOf[{ def foo(name: String): Int }]", "Structural")
       evalEquals("new Structural().asInstanceOf[StructuralAlias]", "Structural")
@@ -567,7 +559,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("ArrayCreation.scala",
+  addSourceFile("ArrayCreation.scala",
     s"""
        |object ArrayCreation {
        |  class Value(val n: Int) extends AnyVal {
@@ -575,14 +567,13 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  }
        |
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
       """.stripMargin
   )
   def testArrayCreation(): Unit =
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("""Array("string1", "string2")""", "[string1,string2]")
       evalEquals("""Array("string1", "string2").isInstanceOf[Array[String]]""", "true")
       evalEquals("""Array("string1", "string2").isInstanceOf[Array[AnyRef]]""", "true")
@@ -591,12 +582,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""new Array[String](5).isInstanceOf[Array[AnyRef]]""", "true")
       evalEquals("""new Array(1)""", "[null]")
       evalEquals("""new Array[Int](1)""", "[0]")
-      evalStartsWith("""new Array[Int]""", "Unspecified value parameters: _length: Int")
-      evalStartsWith("""new Array""", "Unspecified value parameters: _length: Int")
-      evalStartsWith("""new Array[Int]()""", "Unspecified value parameters: _length: Int")
-      evalStartsWith("""new Array[String]()""", "Unspecified value parameters: _length: Int")
-      evalStartsWith("""new Array[Int](1, 2)""", "Too many arguments for constructor Array(Int)")
-      evalStartsWith("""new Array[String](1, 2, 3)""", "Too many arguments for constructor Array(Int)")
+      evalFailsWith("""new Array[Int]""", "Unspecified value parameters: _length: Int")
+      evalFailsWith("""new Array""", "Unspecified value parameters: _length: Int")
+      evalFailsWith("""new Array[Int]()""", "Unspecified value parameters: _length: Int")
+      evalFailsWith("""new Array[String]()""", "Unspecified value parameters: _length: Int")
+      evalFailsWith("""new Array[Int](1, 2)""", "Too many arguments for constructor Array(Int)")
+      evalFailsWith("""new Array[String](1, 2, 3)""", "Too many arguments for constructor Array(Int)")
       evalEquals("""Array(1, 2, 3)""", "[1,2,3]")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[Int]]""", "true")
       evalEquals("""Array(1, 2, 3).isInstanceOf[Array[java.lang.Integer]]""", "false")
@@ -626,7 +617,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("""Array(new Value(5), new Value(6), new Value(7))""", "[5,6,7]")
     }
 
-  addFileWithBreakpoints("ArrayMethods.scala",
+  addSourceFile("ArrayMethods.scala",
     s"""
        |object ArrayMethods {
        |  class Value(val n: Int) extends AnyVal
@@ -639,14 +630,13 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  val valueArray: Array[Value] = new Array(3)
        |
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
       """.stripMargin
   )
   def testArrayMethods(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("intArray.clone()", "[1,2,3]")
       evalEquals("stringArray.clone()", "[1,2,3]")
       evalEquals("doubleArray.clone()", "[1.0,2.0,3.0]")
@@ -678,21 +668,20 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("SyntheticOperators.scala",
+  addSourceFile("SyntheticOperators.scala",
     s"""
        |object SyntheticOperators {
        |  def fail: Boolean = throw new Exception("fail!")
        |  def main(args: Array[String]): Unit = {
        |     val tr = true
        |     val fls = false
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   def testSyntheticOperators(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("tr || fail", "true")
       evalEquals("fls && fail", "false")
       evalEquals("fls || tr", "true")
@@ -715,7 +704,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("ValueClasses.scala",
+  addSourceFile("ValueClasses.scala",
     s"""
        |object ValueClasses {
        |  final case class MetricKilograms1(private val value: Double) extends AnyVal
@@ -755,14 +744,13 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |    val metricValue3: MetricKilograms3 = 2.2
        |    val mvOption3 = Some(metricValue3)
        |
-       |    println(MetricKilograms1.kgsString(metricValue1)) $bp
+       |    println(MetricKilograms1.kgsString(metricValue1)) $breakpoint
        |  }
        |}
-      """.stripMargin.trim()
+      """.stripMargin.trim
   )
   def testValueClasses(): Unit =
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("metricValue1", "MetricKilograms1(2.2)")
       evalEquals("metricValue1.value", "2.2")
       evalEquals("MetricKilograms1.kgsString(metricValue1)", "2.2kg")
@@ -805,7 +793,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("prependAll(List(new SimpleValue(5), new SimpleValue(6)))(new SimpleValue(1), new SimpleValue(2))(3) == new SimpleValue(6)", "true")
     }
 
-  addFileWithBreakpoints("ClassOf.scala",
+  addSourceFile("ClassOf.scala",
     s"""object ClassOf {
        |  type StringAlias = String
        |  class Value(val v: Int) extends AnyVal
@@ -819,12 +807,11 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |  trait InnerTrait
        |
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
   def testClassOf(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals("classOf[Any]", "class java.lang.Object")
       evalEquals("classOf[AnyRef]", "class java.lang.Object")
       evalEquals("classOf[AnyVal]", "class java.lang.Object")
@@ -840,8 +827,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       evalEquals("classOf[Int]", "int")
       evalEquals("classOf[Long]", "long")
       evalEquals("classOf[Short]", "short")
-      evalStartsWith("classOf[123]", "Literal type (123 : Int) is not a class type")
-      evalStartsWith("""classOf["abc"]""", """Literal type ("abc" : String) is not a class type""")
+      evalFailsWith("classOf[123]", "Literal type (123 : Int) is not a class type")
+      evalFailsWith("""classOf["abc"]""", """Literal type ("abc" : String) is not a class type""")
       evalEquals("classOf[String]", "class java.lang.String")
       evalEquals("classOf[List[Int]]", "class scala.collection.immutable.List")
       evalEquals("classOf[StringAlias]", "class java.lang.String")
@@ -857,15 +844,14 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("While.scala",
+  addSourceFile("While.scala",
     s"""object While {
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
   def testWhile(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals(
         """val array = new Array[Int](5)
           |var i = 0
@@ -902,15 +888,14 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
-  addFileWithBreakpoints("DoWhile.scala",
+  addSourceFile("DoWhile.scala",
     s"""object DoWhile {
        |  def main(args: Array[String]): Unit = {
-       |    println()$bp
+       |    println() $breakpoint
        |  }
        |}""".stripMargin)
   def testDoWhile(): Unit = {
-    runDebugger() {
-      waitForBreakpoint()
+    expressionEvaluationTest() { implicit ctx =>
       evalEquals(
         """val array = new Array[Int](5)
           |var i = 0
