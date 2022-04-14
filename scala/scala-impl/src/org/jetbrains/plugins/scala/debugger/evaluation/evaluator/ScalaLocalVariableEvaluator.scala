@@ -24,11 +24,11 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
   private val mySourceName: String = DebuggerUtil.withoutBackticks(sourceName)
   private var myContext: EvaluationContextImpl = _
   private var myEvaluatedVariable: LocalVariableProxyImpl = _
-  private var myParameterIndex: Int = -1
+  private var myParameterIndex: Option[Int] = None
   private var myMethodName: String = _
 
   def setParameterIndex(parameterIndex: Int): Unit = {
-    myParameterIndex = parameterIndex
+    myParameterIndex = Some(parameterIndex)
   }
 
   def setMethodName(name: String): Unit = {
@@ -94,14 +94,16 @@ class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Eval
     }
 
     def parameterByIndex(frameProxy: StackFrameProxyImpl) = {
-      if (frameProxy == null || myParameterIndex < 0) None
+      if (frameProxy == null || myParameterIndex.isEmpty) None
       else {
         val frameMethodName = frameProxy.location().method().name()
         if ((myMethodName == null) || frameMethodName.startsWith(myMethodName)) {
           try {
             val values = frameProxy.getArgumentValues
-            if (values != null && !values.isEmpty && myParameterIndex >= 0 && myParameterIndex < values.size()) {
-              Some(values.get(myParameterIndex))
+            if (values != null && !values.isEmpty) {
+              val idx = myParameterIndex.get
+              val paramIdx = if (idx < 0) values.size() + idx else idx
+              Some(values.get(paramIdx))
             } else {
               None
             }
