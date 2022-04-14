@@ -107,6 +107,12 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   val hasSource3Flag: Boolean =
     additionalCompilerOptions.contains("-Xsource:3")
 
+  val hasSourceFutureFlag: Boolean =
+    additionalCompilerOptions.contains("-source:future") || additionalCompilerOptions.contains("--source:future")
+
+  val hasDeprecationFlag: Boolean =
+    additionalCompilerOptions.contains("-deprecation") || additionalCompilerOptions.contains("--deprecation")
+
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
 
@@ -127,7 +133,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       scalaMinorVersion.getOrElse(ScalaVersion.default),
       hasSource3Flag = hasSource3Flag,
       hasNoIndentFlag = hasNoIndentFlag,
-      hasOldSyntaxFlag = hasOldSyntaxFlag
+      hasOldSyntaxFlag = hasOldSyntaxFlag,
+      hasDeprecationFlag = hasDeprecationFlag,
+      hasSourceFutureFlag = hasSourceFutureFlag,
     )
 }
 
