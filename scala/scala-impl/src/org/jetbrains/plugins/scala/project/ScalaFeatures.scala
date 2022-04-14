@@ -26,8 +26,11 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   private def hasSource3Flag: Boolean = Bits.hasSource3Flag.read(bits)
   private def hasNoIndentFlag: Boolean = Bits.hasNoIndentFlag.read(bits)
   private def hasOldSyntaxFlag: Boolean = Bits.hasOldSyntaxFlag.read(bits)
+  private def hasDeprecationFlag: Boolean = Bits.hasDeprecationFlag.read(bits)
+  private def hasSourceFutureFlag: Boolean = Bits.hasSourceFutureFlag.read(bits)
 
   def indentationBasedSyntaxEnabled: Boolean = Bits.indentationBasedSyntaxEnabled.read(bits)
+  def warnAboutDeprecatedInfixCallsEnabled: Boolean = Bits.warnAboutDeprecatedInfixCallsEnabled.read(bits)
 
   def `disallow auto-eta-expansion of SAMs`: Boolean = !`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
@@ -45,12 +48,16 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   def copy(version: ScalaVersion,
            hasSource3Flag: Boolean = this.hasSource3Flag,
            hasNoIndentFlag: Boolean = this.hasNoIndentFlag,
-           hasOldSyntaxFlag: Boolean = this.hasOldSyntaxFlag): ScalaFeatures =
+           hasOldSyntaxFlag: Boolean = this.hasOldSyntaxFlag,
+           hasDeprecationFlag: Boolean = this.hasDeprecationFlag,
+           hasSourceFutureFlag: Boolean = this.hasSourceFutureFlag): ScalaFeatures =
     ScalaFeatures(
       version = version,
       hasSource3Flag = hasSource3Flag,
       hasNoIndentFlag = hasNoIndentFlag,
       hasOldSyntaxFlag = hasOldSyntaxFlag,
+      hasDeprecationFlag = hasDeprecationFlag,
+      hasSourceFutureFlag = hasSourceFutureFlag,
     )
 
   def serializeToInt: Int = bits
@@ -65,7 +72,9 @@ object ScalaFeatures {
   def apply(version: ScalaVersion,
             hasSource3Flag: Boolean,
             hasNoIndentFlag: Boolean,
-            hasOldSyntaxFlag: Boolean): ScalaFeatures = {
+            hasOldSyntaxFlag: Boolean,
+            hasDeprecationFlag: Boolean,
+            hasSourceFutureFlag: Boolean): ScalaFeatures = {
     val languageLevel = version.languageLevel
     val isScala3 = languageLevel.isScala3
 
@@ -83,12 +92,18 @@ object ScalaFeatures {
     val indentationBasedSyntaxEnabled: Boolean =
       isScala3 && !(hasNoIndentFlag || hasOldSyntaxFlag)
 
+    val warnAboutDeprecatedInfixCallsEnabled: Boolean =
+      isScala3 && hasDeprecationFlag && hasSourceFutureFlag
+
     create(
       languageLevel = languageLevel,
-      hasSource3Flag,
-      hasNoIndentFlag,
-      hasOldSyntaxFlag,
+      hasSource3Flag = hasSource3Flag,
+      hasNoIndentFlag = hasNoIndentFlag,
+      hasOldSyntaxFlag = hasOldSyntaxFlag,
+      hasDeprecationFlag = hasDeprecationFlag,
+      hasSourceFutureFlag = hasSourceFutureFlag,
       indentationBasedSyntaxEnabled = indentationBasedSyntaxEnabled,
+      warnAboutDeprecatedInfixCallsEnabled = warnAboutDeprecatedInfixCallsEnabled,
       `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 or 3` = `in >= 2.12.15 or 2.13.7 or 3`
@@ -106,7 +121,8 @@ object ScalaFeatures {
     .copy(ScalaVersion.Latest.Scala_2_13.withMinor(7))
 
   def onlyByVersion(version: ScalaVersion): ScalaFeatures =
-    ScalaFeatures(version, hasSource3Flag = false, hasNoIndentFlag = false, hasOldSyntaxFlag = false)
+    ScalaFeatures(version, hasSource3Flag = false, hasNoIndentFlag = false, hasOldSyntaxFlag = false,
+      hasDeprecationFlag = false, hasSourceFutureFlag = false)
 
   def version: Int = Bits.version
 
@@ -121,7 +137,10 @@ object ScalaFeatures {
                      hasSource3Flag: Boolean,
                      hasNoIndentFlag: Boolean,
                      hasOldSyntaxFlag: Boolean,
+                     hasDeprecationFlag: Boolean,
+                     hasSourceFutureFlag: Boolean,
                      indentationBasedSyntaxEnabled: Boolean,
+                     warnAboutDeprecatedInfixCallsEnabled: Boolean,
                      `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean,
                      `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean,
                      `in >= 2.12.15 or 2.13.7 or 3`: Boolean): ScalaFeatures = {
@@ -131,7 +150,10 @@ object ScalaFeatures {
     Bits.hasSource3Flag.write(bits, hasSource3Flag)
     Bits.hasNoIndentFlag.write(bits, hasNoIndentFlag)
     Bits.hasOldSyntaxFlag.write(bits, hasOldSyntaxFlag)
+    Bits.hasDeprecationFlag.write(bits, hasDeprecationFlag)
+    Bits.hasSourceFutureFlag.write(bits, hasSourceFutureFlag)
     Bits.indentationBasedSyntaxEnabled.write(bits, indentationBasedSyntaxEnabled)
+    Bits.warnAboutDeprecatedInfixCallsEnabled.write(bits, warnAboutDeprecatedInfixCallsEnabled)
     Bits.`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`.write(bits, `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 or 3`)
@@ -146,7 +168,10 @@ object ScalaFeatures {
     val hasSource3Flag = bool("hasSource3Flag")
     val hasNoIndentFlag = bool("hasNoIndentFlag")
     val hasOldSyntaxFlag = bool("hasOldSyntaxFlag")
+    val hasDeprecationFlag = bool("hasDeprecationFlag")
+    val hasSourceFutureFlag = bool("hasSourceFutureFlag")
     val indentationBasedSyntaxEnabled = bool("indentationBasedSyntaxEnabled")
+    val warnAboutDeprecatedInfixCallsEnabled = bool("warnAboutDeprecatedInfixCallsEnabled")
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = bool("in >= 2.12.14 or 2.13.6 with -XSource:3 or 3")
     val `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = bool("in >= 2.12.15 or 2.13.7 with -XSource:3 or 3")
     val `in >= 2.12.15 or 2.13.7 or 3` = bool("in >= 2.12.15 or 2.13.7 or 3")
