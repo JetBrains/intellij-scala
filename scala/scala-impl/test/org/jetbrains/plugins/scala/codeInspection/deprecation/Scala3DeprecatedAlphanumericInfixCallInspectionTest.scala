@@ -2,19 +2,109 @@ package org.jetbrains.plugins.scala.codeInspection.deprecation
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.quickfix.{ConvertFromInfixExpressionQuickFix, ConvertFromInfixPatternQuickFix, ConvertFromInfixTypeQuickFix, WrapInBackticksQuickFix}
+import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class Scala3DeprecatedAlphanumericInfixCallInspectionTest extends ScalaInspectionTestBase {
+abstract class Scala3DeprecatedAlphanumericInfixCallInspectionTestBase extends ScalaInspectionTestBase {
 
-  import Scala3DeprecatedAlphanumericInfixCallInspectionTest.{allCasesWithHighlighting, testText}
+  import Scala3DeprecatedAlphanumericInfixCallInspectionTestBase.testText
+
+  protected def additionalCompilerOptions: Seq[String]
 
   override protected val classOfInspection = classOf[Scala3DeprecatedAlphanumericInfixCallInspection]
   override protected val description = " is not declared `infix`; it should not be used as infix operator"
 
   override protected def descriptionMatches(s: String) = s != null && s.endsWith(description)
 
+  override protected def setUp(): Unit = {
+    super.setUp()
+    val profile = getModule.scalaCompilerSettingsProfile
+    val newSettings = profile.getSettings.copy(additionalCompilerOptions = additionalCompilerOptions)
+    profile.setSettings(newSettings)
+  }
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
+
+  override protected def createTestText(text: String) = testText(text)
+
+  protected val DeprecationFlag = "-deprecation"
+  protected val SourceFutureFlag = "-source:future"
+}
+
+object Scala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+  private def testText(fileText: String): String =
+    s"""class C:
+       |  infix def op(x: Int): Int = ???
+       |  def `bop`(x: Int) = ???
+       |  def meth(x: Int): Int = ???
+       |  def matching(x: Int => Int) = ???
+       |  def +(x: Int): Int = ???
+       |
+       |object C:
+       |  given AnyRef with
+       |    extension (x: C)
+       |      infix def iop (y: Int) = ???
+       |      def mop (y: Int) = ???
+       |      def ++ (y: Int) = ???
+       |
+       |infix class Or[X, Y]
+       |class AndC[X, Y]
+       |infix type And[X, Y] = AndC[X, Y]
+       |type &&[X, Y] = AndC[X, Y]
+       |
+       |type SwappedMap[X, Y] = scala.collection.Map[Y, X]
+       |
+       |case class Pair[T](x: T, y: T)
+       |infix case class Q[T](x: T, y: T)
+       |
+       |object PP {
+       |  infix def unapply[T](x: Pair[T]): Option[(T, T)] = Some((x.x, x.y))
+       |}
+       |
+       |object PP2 {
+       |  def unapply[T](x: Pair[T]): Option[(T, T)] = Some((x.x, x.y))
+       |}
+       |
+       |val c = C()
+       |val p = Pair(1, 2)
+       |val q = Q(1, 2)
+       |
+       |def test() = {
+       |  $fileText
+       |}
+       |""".stripMargin
+}
+
+abstract class DisabledScala3DeprecatedAlphanumericInfixCallInspectionTestBase
+  extends Scala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+
+  // Should be highlighted when both `-source:future` and `-deprecation` flags enabled
+  def testMethodInfixCall(): Unit = checkTextHasNoErrors(s"c ${START}meth$END 2")
+}
+
+class Scala3DeprecatedAlphanumericInfixCallInspectionTest_NoCompilerOptions
+  extends DisabledScala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+  override protected val additionalCompilerOptions = Seq.empty
+}
+
+class Scala3DeprecatedAlphanumericInfixCallInspectionTest_OnlyDeprecationEnabled
+  extends DisabledScala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+  override protected val additionalCompilerOptions = Seq(DeprecationFlag)
+}
+
+class Scala3DeprecatedAlphanumericInfixCallInspectionTest_OnlySourceFutureEnabled
+  extends DisabledScala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+  override protected val additionalCompilerOptions = Seq(SourceFutureFlag)
+}
+
+class Scala3DeprecatedAlphanumericInfixCallInspectionTest
+  extends Scala3DeprecatedAlphanumericInfixCallInspectionTestBase {
+
+  import Scala3DeprecatedAlphanumericInfixCallInspectionTest.allCasesWithHighlighting
+
+  override protected val additionalCompilerOptions: Seq[String] =
+    Seq(DeprecationFlag, SourceFutureFlag)
 
   private val wrapInBackticksHint = WrapInBackticksQuickFix.message
   private val convertFromInfixExprHint = ConvertFromInfixExpressionQuickFix.message
@@ -326,55 +416,11 @@ class Scala3DeprecatedAlphanumericInfixCallInspectionTest extends ScalaInspectio
         |""".stripMargin
     testQuickFixAllInFile(allCasesWithHighlighting, expectedAfterConversion, convertFromInfixPatternHint)
   }
-
-  override protected def createTestText(text: String) = testText(text)
 }
 
 object Scala3DeprecatedAlphanumericInfixCallInspectionTest {
 
   import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
-  private def testText(fileText: String): String =
-    s"""class C:
-       |  infix def op(x: Int): Int = ???
-       |  def `bop`(x: Int) = ???
-       |  def meth(x: Int): Int = ???
-       |  def matching(x: Int => Int) = ???
-       |  def +(x: Int): Int = ???
-       |
-       |object C:
-       |  given AnyRef with
-       |    extension (x: C)
-       |      infix def iop (y: Int) = ???
-       |      def mop (y: Int) = ???
-       |      def ++ (y: Int) = ???
-       |
-       |infix class Or[X, Y]
-       |class AndC[X, Y]
-       |infix type And[X, Y] = AndC[X, Y]
-       |type &&[X, Y] = AndC[X, Y]
-       |
-       |type SwappedMap[X, Y] = scala.collection.Map[Y, X]
-       |
-       |case class Pair[T](x: T, y: T)
-       |infix case class Q[T](x: T, y: T)
-       |
-       |object PP {
-       |  infix def unapply[T](x: Pair[T]): Option[(T, T)] = Some((x.x, x.y))
-       |}
-       |
-       |object PP2 {
-       |  def unapply[T](x: Pair[T]): Option[(T, T)] = Some((x.x, x.y))
-       |}
-       |
-       |val c = C()
-       |val p = Pair(1, 2)
-       |val q = Q(1, 2)
-       |
-       |def test() = {
-       |  $fileText
-       |}
-       |""".stripMargin
 
   private val allCasesWithHighlighting =
     s"""
