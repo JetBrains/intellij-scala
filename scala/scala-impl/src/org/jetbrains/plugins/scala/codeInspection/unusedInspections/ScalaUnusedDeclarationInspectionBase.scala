@@ -219,6 +219,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
+    case e if !isOnlyVisibleInLocalFile(e) && TestSourcesFilter.isTestSources(e.getContainingFile.getVirtualFile, e.getProject) => false
     case _: ScSelfTypeElement => false
     case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
     case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
@@ -228,8 +229,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
     case n: ScNamedElement =>
       n match {
         case p: ScModifierListOwner if hasOverrideModifier(p) => false
-        case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) ||
-          (!fd.isPrivate && TestSourcesFilter.isTestSources(fd.getContainingFile.getVirtualFile, fd.getProject)) => false
+        case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
         case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
         case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
         case p: ScParameter =>
