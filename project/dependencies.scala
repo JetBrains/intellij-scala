@@ -1,3 +1,4 @@
+import Utils.IdeBuildType
 import sbt._
 
 object Versions {
@@ -77,6 +78,13 @@ object Versions {
       else if (v.startsWith(Sbt.binary_1_0)) Scala.binary_2_12
       else throw new RuntimeException(s"Unknown sbt binary version: $v -- need to update dependencies.scala?")
   }
+}
+
+object Repositories {
+  val intellijRepositoryReleases: MavenRepository = MavenRepository("intellij-repository-releases", "https://www.jetbrains.com/intellij-repository/releases")
+  val intellijRepositoryEap: MavenRepository = MavenRepository("intellij-repository-eap", "https://www.jetbrains.com/intellij-repository/snapshots")
+  //only available in jetbrains network
+  val intellijRepositoryNightly: MavenRepository = MavenRepository("intellij-repository-nightly", "https://www.jetbrains.com/intellij-repository/nightly")
 }
 
 object Dependencies {
@@ -233,4 +241,38 @@ object DependencyGroups {
   val runtime2: Seq[ModuleID] = Seq(
     sbtBridge_Scala_3_1,
   )
+}
+
+private object Utils {
+  def inferIdeaBuildType(intellijVersion: String): IdeBuildType = {
+      //nightly     version example : 222.1533
+      //release/eap version example : 221.5080.169
+      if (intellijVersion.count(_ == '.') == 1) IdeBuildType.Nightly
+      else if (Utils.isIdeaReleaseBuildAvailable(intellijVersion)) IdeBuildType.Release
+      else IdeBuildType.Eap
+  }
+
+  private def isIdeaReleaseBuildAvailable(ideaVersion: String): Boolean = {
+    val url = s"https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/$ideaVersion/ideaIC-$ideaVersion.zip"
+    isResourceFound(url)
+  }
+
+  private def isResourceFound(urlText: String): Boolean = {
+    import java.net.{HttpURLConnection, URL}
+
+    val url = new URL(urlText)
+    val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+    connection.setRequestMethod("GET")
+    connection.connect()
+    val rc = connection.getResponseCode
+    connection.disconnect()
+    rc != 404
+  }
+
+  sealed trait IdeBuildType
+  object IdeBuildType {
+    case object Release extends IdeBuildType
+    case object Eap extends IdeBuildType
+    case object Nightly extends IdeBuildType
+  }
 }
