@@ -99,7 +99,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
   }
 
   private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =
-    scalaLibrary.compilerVersion.exists { version =>
+    scalaLibrary.libraryVersion.exists { version =>
       version == compilerVersion ||
         ScalaLanguageLevel.findByVersion(version) == ScalaLanguageLevel.findByVersion(compilerVersion)
     }

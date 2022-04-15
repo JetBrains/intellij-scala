@@ -21,7 +21,7 @@ object ScalaUtil {
     case ScFile.VirtualFile(virtualFile) =>
       getModuleForFile(virtualFile)(file.getProject)
         .flatMap(_.scalaSdk)
-        .flatMap(_.compilerVersion)
+        .flatMap(_.libraryVersion)
     case _ => None
   }
 

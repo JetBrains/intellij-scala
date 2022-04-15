@@ -55,7 +55,7 @@ package object project {
       case _ => false
     }
 
-    def compilerVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
+    def libraryVersion: Option[String] = name.flatMap(LibraryVersion.findFirstIn)
 
     def hasRuntimeLibrary: Boolean = name.exists(isRuntimeLibrary)
 
