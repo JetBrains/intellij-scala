@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala
-package project.maven
+package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.build.events.BuildEvent
 import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.{Module, ModuleType, StdModuleTypes}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.{DependencyScope, LibraryOrderEntry}
 import com.intellij.openapi.util.Key
 import com.intellij.util.PairConsumer
 import org.jdom.Element
@@ -25,10 +26,7 @@ import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
-class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
+final class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] =  StdModuleTypes.JAVA
 
@@ -42,7 +40,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
     sourceFolders.foreach(result.consume(_, JavaSourceRootType.SOURCE))
     testFolders.foreach(result.consume(_, JavaSourceRootType.TEST_SOURCE))
   }
-  
+
   private def getSourceFolders(mavenProject: MavenProject): Seq[String] =
     getSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala")
 
@@ -91,32 +89,63 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       module.configureScalaCompilerSettingsFrom("Maven", compilerOptions)
 
-      val Some(version) = configuration.compilerVersion
-
-      convertScalaLibraryToSdk(module, modelsProvider, version)
+      configuration.compilerVersion match {
+        case Some(compilerVersion) =>
+          convertScalaLibraryToSdk(module, modelsProvider, Version(compilerVersion))
+        case _ =>
+      }
     }
   }
 
   private def convertScalaLibraryToSdk(
     module: Module,
     modelsProvider: IdeModifiableModelsProvider,
-    compilerVersion: String,
+    compilerVersion: Version,
   ): Unit = {
-    val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion)
-    val maybeScalaLibrary = modelsProvider.getAllLibraries.find { library =>
-      val libraryName = library.getName
-      libraryName.contains(expectedLibraryName) &&
-        library.compilerVersion.contains(compilerVersion)
+    //TODO: unmark existing scala libraries (from previous project reloads) as SDK
+    // this might be the case when we upgrade scala version, but there is still some transitive dependency
+    // on the old version of library with some non-Compile scope
+
+    /**
+     * Find compile-time scala-library dependency with the highest version.<br>
+     * Note: there might be the case when scala library minor version is different from the minor version
+     * of the scala-compiler which is attached to the library.
+     * This is so when there is no any explicit scala-library dependency in maven project.<br>
+     * In this case running `main` in maven (via mvn package exec:java -Dexec.mainClass=Main)
+     * will use hte version from the explicit dependencies, not the version form the compiler.
+     *
+     * @see [[implicitScalaLibraryIfNeeded]]
+     */
+    val scalaLibraryToMarkAsSdk: Option[(Library, Version)] = {
+      val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion.toString)
+      val moduleModel = modelsProvider.getModifiableRootModel(module)
+      val compileTimeDependencies = moduleModel.getOrderEntries.toSeq
+        .filterByType[LibraryOrderEntry]
+        .filter(_.getScope == DependencyScope.COMPILE)
+
+      val libraries = compileTimeDependencies.map(_.getLibrary)
+
+      val scalaLibrariesWithVersions: Seq[(Library, Version)] = libraries.flatMap { lib =>
+        if (lib.getName.contains(expectedLibraryName))
+          lib.libraryVersion.map(v => (lib, Version(v)))
+        else
+          None
+      }
+
+      val compilerMajorVersion = compilerVersion.major(2)
+      val librariesWithSameMajorVersion = scalaLibrariesWithVersions.filter(_._2.major(2) == compilerMajorVersion)
+      librariesWithSameMajorVersion.maxByOption(_._2)
     }
-    maybeScalaLibrary match {
-      case Some(scalaLibrary) =>
+
+    scalaLibraryToMarkAsSdk match {
+      case Some((scalaLibrary, scalaLibraryVersion)) =>
         val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
         ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
           modelsProvider,
           scalaLibrary,
           compilerClasspathFull,
           scaladocExtraClasspath = Nil, // TODO SCL-17219
-          Some(compilerVersion)
+          Some(scalaLibraryVersion.toString)
         )
       case None =>
         val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"
@@ -158,12 +187,38 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
       // Such an approach is probably incorrect, but we have to support that behaviour "as is".
-      configuration.implicitScalaLibrary.map(resolve).foreach(mavenProject.addDependency)
+      val implicitScalaLibrary = implicitScalaLibraryIfNeeded(configuration)
+      implicitScalaLibrary.map(resolve).foreach(mavenProject.addDependency)
+
       // compiler classpath should be resolved transitively, e.g. Scala3 compiler contains quite a lot of jar files in the classpath
       val compilerClasspathWithTransitives: Seq[File] = resolveTransitively(configuration.compilerArtifact).map(_.getFile)
       project.putUserData(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
 
       configuration.plugins.foreach(resolve)
+    }
+  }
+
+
+  /**
+   * An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.<br>
+   * Note: project can have transitive dependency on scala-library with non-"Compile" scope
+   * (e.g. in Tests via dependency on some test framework).
+   * We add implicit scala library only if there is no any Compile-time scala-library dependency.
+   * If some Compile-time dependency library exists, it will be used in [[convertScalaLibraryToSdk]]
+   */
+  private def implicitScalaLibraryIfNeeded(configuration: ScalaConfiguration): Option[MavenId] = {
+    val scalaCompilerVersion = configuration.compilerVersionProperty
+    scalaCompilerVersion.flatMap { compilerVersion =>
+      val needNewLibrary = configuration.findScalaLibraryDependency match {
+        case Some(existingLibraryDep) =>
+          existingLibraryDep.getScope.toLowerCase != "compile"
+        case _ =>
+          true
+      }
+      if (needNewLibrary)
+        Some(scalaCompilerArtifactId("library", compilerVersion))
+      else
+        None
     }
   }
 
@@ -193,6 +248,7 @@ private object ScalaMavenImporter {
     def /(child: String): File = new File(file, child)
   }
 
+  //rename to `private val mavenProject`
   private class ScalaConfiguration(project: MavenProject) {
 
     private def compilerPlugin: Option[MavenPlugin] =
@@ -206,16 +262,11 @@ private object ScalaMavenImporter {
         plugin.getGoalConfiguration("compile").toOption.toSeq
     }
 
-    private def standardLibrary: Option[MavenArtifact] = {
+    def findScalaLibraryDependency: Option[MavenArtifact] = {
       // Scala3 should go first (Scala3 also includes Scala2 library)
       val maybeScala3 = project.findDependencies("org.scala-lang", "scala3-library_3").asScala.headOption
       val result = maybeScala3.orElse(project.findDependencies("org.scala-lang", "scala-library").asScala.headOption)
       result
-    }
-
-    // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
-    def implicitScalaLibrary: Option[MavenId] = Some((compilerVersionProperty, standardLibrary)) collect  {
-      case (Some(compilerVersion), None) => scalaCompilerArtifactId("library", compilerVersion)
     }
 
     def compilerArtifact: MavenId = {
@@ -226,9 +277,10 @@ private object ScalaMavenImporter {
     private def versionNumber = compilerVersion.getOrElse("unknown")
 
     def compilerVersion: Option[String] = compilerVersionProperty
-      .orElse(standardLibrary.map(_.getVersion))
+      .orElse(findScalaLibraryDependency.map(_.getVersion))
 
-    private def compilerVersionProperty: Option[String] = resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
+    def compilerVersionProperty: Option[String] =
+      resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
 
     def compilerOptions: Seq[String] = {
       val args = elements("args", "arg").map(_.getTextTrim)

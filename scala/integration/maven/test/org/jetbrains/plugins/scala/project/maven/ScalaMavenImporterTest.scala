@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala.project.maven
 
 import com.intellij.maven.testFramework.MavenImportingTestCase
 import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
-import com.intellij.openapi.module.impl.ModuleTypeManagerImpl
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
-import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
 import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter.RichFile
@@ -101,10 +99,9 @@ class ScalaMavenImporterTest
       })
     })
 
-
   def testWithScala2(): Unit =
     runImportingTest_Common("testWithScala2", "projectWithScala2", Seq(
-      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.6").get)}") {
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
         libClasses := Seq(
           "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
         ).map(mavenLocalArtifact)
@@ -120,11 +117,11 @@ class ScalaMavenImporterTest
 
   def testWithScala3_0(): Unit =
     runImportingTest_Common("testWithScala3_0", "projectWithScala3_0", Seq(
-      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.5").get)}") {
+      new library(s"Maven: org.scala-lang:scala-library:2.13.5") {
         libClasses := Seq("org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar").map(mavenLocalArtifact)
         scalaSdkSettings := None
       },
-      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("3.0.0").get)}") {
+      new library(s"Maven: org.scala-lang:scala3-library_3:3.0.0") {
         libClasses := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
         scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_0, Seq(
           "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
@@ -146,11 +143,11 @@ class ScalaMavenImporterTest
 
   def testWithScala3_1(): Unit =
     runImportingTest_Common("testWithScala3_1", "projectWithScala3_1", Seq(
-      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.6").get)}") {
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
         libClasses := Seq("org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar").map(mavenLocalArtifact)
         scalaSdkSettings := None
       },
-      new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("3.1.0").get)}") {
+      new library(s"Maven: org.scala-lang:scala3-library_3:3.1.0") {
         libClasses := Seq("org/scala-lang/scala3-library_3/3.1.0/scala3-library_3-3.1.0.jar").map(mavenLocalArtifact)
         scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_1, Seq(
           "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
@@ -169,4 +166,118 @@ class ScalaMavenImporterTest
         ).map(mavenLocalArtifact), extraClasspath = Nil))
       }
     ))
+
+  private val CommonLibrariesForImplicitScalaLibraryDependencyTests = Seq(
+    new library("Maven: junit:junit:4.13.1"),
+    new library("Maven: org.hamcrest:hamcrest-core:1.3"),
+    new library("Maven: org.scala-lang.modules:scala-xml_2.13:2.0.1"),
+    new library("Maven: org.scala-lang:scala-reflect:2.13.6"),
+    new library("Maven: org.scala-sbt:test-interface:1.0"),
+    new library("Maven: org.scalactic:scalactic_2.13:3.2.11"),
+    new library("Maven: org.scalameta:junit-interface:0.7.25"),
+    new library("Maven: org.scalameta:munit_2.13:0.7.25"),
+    new library("Maven: org.scalatest:scalatest-compatible:3.2.11"),
+    new library("Maven: org.scalatest:scalatest-core_2.13:3.2.11"),
+  )
+
+  def testWithImplicitScalaLibraryDependency_compilerVersionLargest(): Unit = {
+    val expectedLibraries = Seq(
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
+          "org/scala-lang/scala-compiler/2.13.8/scala-compiler-2.13.8.jar",
+          "org/scala-lang/scala-library/2.13.8/scala-library-2.13.8.jar",
+          "org/scala-lang/scala-reflect/2.13.8/scala-reflect-2.13.8.jar",
+          "org/jline/jline/3.21.0/jline-3.21.0.jar",
+          "net/java/dev/jna/jna/5.9.0/jna-5.9.0.jar",
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
+      }
+    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+
+    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionLargest") {
+      libraries := expectedLibraries
+      modules := Seq(new module("dummy-artifact-id") {
+        libraryDependencies := expectedLibraries.map(library2libraryDependency)
+      })
+    })
+  }
+
+  def testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle(): Unit = {
+    val expectedLibraries = Seq(
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
+          "org/scala-lang/scala-compiler/2.13.5/scala-compiler-2.13.5.jar",
+          "org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar",
+          "org/scala-lang/scala-reflect/2.13.5/scala-reflect-2.13.5.jar",
+          "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
+          "org/jline/jline/3.19.0/jline-3.19.0.jar",
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
+      }
+    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+
+    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionInTheMiddle") {
+      libraries := expectedLibraries
+      modules := Seq(new module("dummy-artifact-id") {
+        libraryDependencies := expectedLibraries.map(library2libraryDependency)
+      })
+    })
+  }
+
+  def testWithImplicitScalaLibraryDependency_compilerVersionSmallest(): Unit = {
+    val expectedLibraries = Seq(
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
+          "org/scala-lang/scala-compiler/2.13.0/scala-compiler-2.13.0.jar",
+          "org/scala-lang/scala-library/2.13.0/scala-library-2.13.0.jar",
+          "org/scala-lang/scala-reflect/2.13.0/scala-reflect-2.13.0.jar",
+          "jline/jline/2.14.6/jline-2.14.6.jar",
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
+      }
+    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+
+    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest") {
+      libraries := expectedLibraries
+      modules := Seq(new module("dummy-artifact-id") {
+        libraryDependencies := expectedLibraries.map(library2libraryDependency)
+      })
+    })
+  }
+
+  def testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope(): Unit = {
+    val expectedLibraries = Seq(
+      new library(s"Maven: org.scala-lang:scala-library:2.13.0") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.0/scala-library-2.13.0.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
+          "org/scala-lang/scala-compiler/2.13.0/scala-compiler-2.13.0.jar",
+          "org/scala-lang/scala-library/2.13.0/scala-library-2.13.0.jar",
+          "org/scala-lang/scala-reflect/2.13.0/scala-reflect-2.13.0.jar",
+          "jline/jline/2.14.6/jline-2.14.6.jar",
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
+      },
+      new library(s"Maven: org.scala-lang:scala-library:2.13.6") {
+        libClasses := Seq(
+          "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
+        ).map(mavenLocalArtifact)
+        scalaSdkSettings := None
+      }
+    ) ++ CommonLibrariesForImplicitScalaLibraryDependencyTests
+
+    runImportingTest(new project("testWithImplicitScalaLibraryDependency_compilerVersionSmallest_LibraryDependenciesHaveTestScope") {
+      libraries := expectedLibraries
+      modules := Seq(new module("dummy-artifact-id") {
+        libraryDependencies := expectedLibraries.map(library2libraryDependency)
+      })
+    })
+  }
+
 }

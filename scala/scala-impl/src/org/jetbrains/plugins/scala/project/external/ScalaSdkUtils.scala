@@ -46,7 +46,7 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
   ): Unit = {
-    convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.compilerVersion)
+    convertScalaLibraryToScalaSdk(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
   }
 
   private def convertScalaLibraryToScalaSdk(
@@ -68,7 +68,7 @@ object ScalaSdkUtils {
     compilerClasspath: Seq[File],
     scaladocExtraClasspath: Seq[File],
   ): Unit = {
-    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.compilerVersion)
+    updateScalaLibraryProperties(modelsProvider, library, compilerClasspath, scaladocExtraClasspath, library.libraryVersion)
   }
 
   private def updateScalaLibraryProperties(
