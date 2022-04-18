@@ -41,6 +41,8 @@ trait ScalaBounds extends api.Bounds {
         case (_, ex: ScExistentialType) => glb(t1, ex.quantified, checkWeak).unpackedType
         case (lhs: ScTypePolymorphicType, rhs: ScTypePolymorphicType) =>
           polymorphicTypesBound(lhs, rhs, BoundKind.Glb, checkWeak)
+        case (lhs, _: WildcardType) => lhs
+        case (_: WildcardType, rhs) => rhs
         case _ => ScCompoundType(Seq(t1, t2), Map.empty, Map.empty)
       }
     }
