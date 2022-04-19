@@ -37,8 +37,8 @@ trait ProjectStructureMatcher {
     matcher.assertMatch(what, expected, actual)
   }
 
-  def assertMatchUnordered[T : Ordering](what: String, expected: Seq[T], actual: Seq[T])
-                                        (mt: Option[DslUtils.MatchType]): Unit =
+  def assertMatchWithIgnoredOrder[T : Ordering](what: String, expected: Seq[T], actual: Seq[T])
+                                               (mt: Option[DslUtils.MatchType]): Unit =
     assertMatch(what, expected.sorted, actual.sorted)(mt)
 
   def assertProjectsEqual(expected: project, actual: Project)(implicit compareOptions: ProjectComparisonOptions): Unit = {
@@ -84,7 +84,7 @@ trait ProjectStructureMatcher {
       actualModulesAll
     else
       actualModulesAll.filterNot(_.isBuildModule)
-    assertNamesEqual("Project module", expectedModules, actualModules)(mt)
+    assertNamesEqualIgnoreOrder("Project module", expectedModules, actualModules)(mt)
     val pairs = pairModules(expectedModules, actualModules)
     pairs.foreach((assertModulesEqual _).tupled)
   }
@@ -180,7 +180,7 @@ trait ProjectStructureMatcher {
       else
         folderUrl
     }
-    assertMatchUnordered(s"Content folder of module '${module.getName}'", expected, actualFolders)(mt)
+    assertMatchWithIgnoredOrder(s"Content folder of module '${module.getName}'", expected, actualFolders)(mt)
   }
 
   private def getSingleContentRoot(module: Module): roots.ContentEntry = {
@@ -200,14 +200,14 @@ trait ProjectStructureMatcher {
 
   private def assertModuleDependenciesEqual(module: Module)(expected: Seq[dependency[module]])(mt: Option[MatchType]): Unit = {
     val actualModuleEntries = roots.OrderEnumerator.orderEntries(module).moduleEntries
-    assertNamesEqual("Module dependency", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
+    assertNamesEqualIgnoreOrder("Module dependency", expected.map(_.reference), actualModuleEntries.map(_.getModule))(mt)
     val paired = pairModules(expected, actualModuleEntries)
     paired.foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
   private def assertLibraryDependenciesEqual(module: Module)(expected: Seq[dependency[library]])(mt: Option[MatchType]): Unit = {
     val actualLibraryEntries = roots.OrderEnumerator.orderEntries(module).libraryEntries
-    assertNamesEqual("Library dependency", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
+    assertNamesEqualIgnoreOrder("Library dependency", expected.map(_.reference), actualLibraryEntries.map(_.getLibrary))(mt)
     pairByName(expected, actualLibraryEntries).foreach((assertDependencyScopeAndExportedFlagEqual _).tupled)
   }
 
@@ -218,7 +218,7 @@ trait ProjectStructureMatcher {
 
   private def assertProjectLibrariesEqual(project: Project)(expectedLibraries: Seq[library])(mt: Option[MatchType]): Unit = {
     val actualLibraries = project.libraries
-    assertNamesEqual("Project library", expectedLibraries, actualLibraries)(mt)
+    assertNamesEqualIgnoreOrder("Project library", expectedLibraries, actualLibraries)(mt)
     pairByName(expectedLibraries, actualLibraries).foreach { case (expected, actual) =>
       assertLibraryContentsEqual(expected, actual)
       assertLibraryScalaSdk(expected, actual)
@@ -267,17 +267,17 @@ trait ProjectStructureMatcher {
 
   private def assertModuleLibrariesEqual(module: Module)(expectedLibraries: Seq[library])(mt: Option[MatchType]): Unit = {
     val actualLibraries = roots.OrderEnumerator.orderEntries(module).libraryEntries.filter(_.isModuleLevel).map(_.getLibrary)
-    assertNamesEqual("Module library", expectedLibraries, actualLibraries)(mt)
+    assertNamesEqualIgnoreOrder("Module library", expectedLibraries, actualLibraries)(mt)
     pairByName(expectedLibraries, actualLibraries).foreach { case (expected, actual) =>
       assertLibraryContentsEqual(expected, actual)
       assertLibraryScalaSdk(expected, actual)
     }
   }
 
-  private def assertNamesEqual[T](what: String, expected: Seq[Named], actual: Seq[T])
-                                 (mt: Option[MatchType])
-                                 (implicit nameOf: HasName[T]): Unit =
-    assertMatchUnordered(what, expected.map(_.name), actual.map(s => nameOf(s)))(mt)
+  private def assertNamesEqualIgnoreOrder[T](what: String, expected: Seq[Named], actual: Seq[T])
+                                            (mt: Option[MatchType])
+                                            (implicit nameOf: HasName[T]): Unit =
+    assertMatchWithIgnoredOrder(what, expected.map(_.name), actual.map(s => nameOf(s)))(mt)
 
   private def assertGroupEqual[T](expected: module, actual: Module): Unit = {
     val actualPath = ModuleManager.getInstance(actual.getProject).getModuleGroupPath(actual)
@@ -351,8 +351,13 @@ object ProjectStructureMatcher {
   }
   object AttributeMatchType {
     object Exact extends AttributeMatchType {
-      override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit =
-        Assert.assertEquals(s"$what mismatch", expected, actual)
+      override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit = {
+        if (expected != actual) {
+          val expectedConcatenated = expected.mkString("\n")
+          val actualConcatenated = actual.mkString("\n")
+          throw new ComparisonFailure(s"$what mismatch", expectedConcatenated, actualConcatenated)
+        }
+      }
     }
 
     object Inexact extends AttributeMatchType {

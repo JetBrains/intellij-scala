@@ -476,7 +476,9 @@ lazy val mavenIntegration =
   newProject("maven", file("scala/integration/maven"))
     .dependsOn(scalaImpl % "test->test;compile->compile")
     .settings(
-      intellijPlugins += "org.jetbrains.idea.maven".toPlugin
+      intellijPlugins += "org.jetbrains.idea.maven".toPlugin,
+      libraryDependencies += "com.jetbrains.intellij.maven" % "maven-test-framework" % Versions.intellijVersion_ForManagedIntellijDependencies % Test notTransitive(),
+      resolvers += Versions.intellijRepository_ForManagedIntellijDependencies
     )
 
 lazy val propertiesIntegration =

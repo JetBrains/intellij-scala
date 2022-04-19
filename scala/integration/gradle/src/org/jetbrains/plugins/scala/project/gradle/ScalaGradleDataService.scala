@@ -83,7 +83,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
     val scalaLibrariesInProject = modelsProvider.getAllLibraries.filter(_.hasRuntimeLibrary).toSet
     if (scalaLibrariesInProject.nonEmpty) {
-      val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.compilerVersion.contains(compilerVersion))
+      val scalaLibraryWithSameVersion = scalaLibrariesInProject.find(_.libraryVersion.contains(compilerVersion))
 
       scalaLibraryWithSameVersion match {
         case Some(library) =>

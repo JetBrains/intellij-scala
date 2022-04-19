@@ -29,7 +29,7 @@ trait TestFrameworkSetupSupportBase extends TestFrameworkSetupSupport {
     import org.jetbrains.plugins.scala.project._
     module.scalaSdk match {
       case Some(sdk) =>
-        val setupInfo = frameworkSetupInfo(sdk.compilerVersion)
+        val setupInfo = frameworkSetupInfo(sdk.libraryVersion)
         val modifier = new SimpleBuildFileModifier(setupInfo.dependencies, Seq(), setupInfo.scalacOptions)
         modifier.modify(module, needPreviewChanges = true)
         Promises.resolvedPromise()

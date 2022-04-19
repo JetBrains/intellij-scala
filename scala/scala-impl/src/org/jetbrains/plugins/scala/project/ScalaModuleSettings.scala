@@ -147,7 +147,7 @@ private object ScalaModuleSettings {
   object ScalaVersionProvider {
     case class FromScalaSdk(library: LibraryEx) extends ScalaVersionProvider {
       override def languageLevel: ScalaLanguageLevel = library.properties.languageLevel
-      override def compilerVersion: Option[String] = library.compilerVersion
+      override def compilerVersion: Option[String] = library.libraryVersion
     }
     case class Explicit(languageLevel: ScalaLanguageLevel, compilerVersion: Option[String]) extends ScalaVersionProvider
 
