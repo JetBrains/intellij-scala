@@ -19,9 +19,11 @@ import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 import org.jetbrains.plugins.scala.debugger.breakpoints.ScalaLineBreakpointType
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert.assertTrue
 
 import java.io._
 import java.nio.charset.StandardCharsets
@@ -203,11 +205,15 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
         if (offset == -1) {
           cont = false
         } else {
-          val virtualFile = psiFile.getVirtualFile
           val lineNumber = document.getLineNumber(offset)
+          val virtualFile = psiFile.getVirtualFile
           if (bpType.canPutAt(virtualFile, lineNumber, getProject)) {
             val props = bpType.createBreakpointProperties(virtualFile, lineNumber)
-            props.setLambdaOrdinal(-1)
+            val comment = text.substring(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
+            val lambdaOrdinal =
+              if (comment.contains(lambdaOrdinalString)) readValue(comment, lambdaOrdinalString).toInt
+              else -1
+            props.setLambdaOrdinal(lambdaOrdinal)
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
             BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
           }
@@ -226,7 +232,46 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
     sourceFiles += SourceFile(path, contents)
   }
 
+  protected def addBreakpointInLibrary(className: String, methodName: String): Unit = {
+    val manager = ScalaPsiManager.instance(getProject)
+    val method = inReadAction {
+      val psiClass = manager.getCachedClass(GlobalSearchScope.allScope(getProject), className)
+      psiClass.map(_.getNavigationElement.asInstanceOf[ScTypeDefinition]).flatMap(_.functions.find(_.name == methodName))
+    }
+
+    assertTrue(s"Method $methodName of $className not found", method.isDefined)
+
+    val runnable: Runnable = () => {
+      val file = method.get.getContainingFile
+      val document = PsiDocumentManager.getInstance(getProject).getDocument(file)
+      val vFile = file.getVirtualFile
+      val methodDefLine = method.get.nameId.getTextRange.getStartOffset
+      val methodLine = document.getLineNumber(methodDefLine)
+      val lineNumber = methodLine + 1
+
+      val bpType = XDebuggerUtil.getInstance().findBreakpointType(classOf[ScalaLineBreakpointType])
+      val breakpointManager = XDebuggerManager.getInstance(getProject).getBreakpointManager
+
+      if (bpType.canPutAt(vFile, lineNumber, getProject)) {
+        val props = bpType.createBreakpointProperties(vFile, lineNumber)
+        props.setLambdaOrdinal(-1)
+        val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, vFile.getUrl, lineNumber, props))
+        BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
+      }
+    }
+
+    if (!SwingUtilities.isEventDispatchThread) {
+      DebuggerInvocationUtil.invokeAndWait(getProject, runnable, ModalityState.defaultModalityState())
+    } else {
+      runnable.run()
+    }
+  }
+
   protected val breakpoint: String = "// Breakpoint!"
+
+  private val lambdaOrdinalString: String = "LambdaOrdinal"
+
+  protected val lambdaOrdinal: String = s"$lambdaOrdinalString(0)"
 
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
