@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
+import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{FileViewProvider, PsiElement}
@@ -10,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 //noinspection TypeAnnotation
 abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
-
-  override def createLexer(project: Project) =
-    new lexer.ScalaLexer(false, project)
-
-  override def createParser(project: Project) = new ScalaParser(false)
 
   override def createElement(node: ASTNode): PsiElement = ASTNodeToPsiElement.map(node)
 
