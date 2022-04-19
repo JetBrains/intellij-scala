@@ -133,7 +133,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       if element.is[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
       rBrace <- block.getRBrace
-      if canDeleteClosingBrace(block, rBrace, file)
+      if canDeleteClosingBrace(block, parent, rBrace, file)
+      // TODO refactor this
       project = file.getProject
       tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
       if IndentUtil.compare(rBrace, parent, tabSize) >= 0
@@ -168,15 +169,15 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     document.deleteString(start, end)
   }
 
-  private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement, file: PsiFile): Boolean = {
+  private def canDeleteClosingBrace(block: ScBlockExpr, parent: PsiElement, blockRBrace: PsiElement, file: PsiFile): Boolean = {
     val statements = block.statements
     val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
 
     if (file.useIndentationBasedSyntax)
-      statements.isEmpty || canDeleteClosingBrace(statements.last, blockRBrace)
-    else if (wrapSingleExpression) {
+      statements.isEmpty || canDeleteClosingBrace(statements.last, blockRBrace) && hasCorrectIndentationWithoutClosingBrace(parent, block)
+    else if (wrapSingleExpression)
       statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, blockRBrace)
-    } else
+    else
       false
   }
 
@@ -201,6 +202,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         okFromFinally && okFromCatch
       case _               => true
     }
+
+  private def hasCorrectIndentationWithoutClosingBrace(parent: PsiElement, block: ScBlockExpr) = {
+    // def foo() = {|1; 2} -> def foo() = |1; 2 <- does not preserve semantics
+    block.statements.size <= 1 || parent.getText.contains("\n")
+  }
 
   private def isFollowedBy(element: PsiElement, elementType: IElementType): Boolean = {
     val next = element.getNextNonWhitespaceAndNonEmptyLeaf

@@ -236,6 +236,32 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
+  def testNotRemove_FunctionBody_MultipleExpressions_Oneline_1(): Unit = {
+    val before =
+      s"""def foo() = {${|}  someMethod1();someMethod2()    }
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo() = ${|}  someMethod1();someMethod2()    }
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo() = ${|}  someMethod1();someMethod2()    }
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_FunctionBody_MultipleExpressions_Oneline_2(): Unit = {
+    val before =
+      s"""def foo() = {${|}someMethod1(); someMethod2(); someMethod3(); someMethod4()}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo() = ${|}someMethod1(); someMethod2(); someMethod3(); someMethod4()}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo() = ${|}someMethod1(); someMethod2(); someMethod3(); someMethod4()}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
   def testRemove_FunctionBody_MultipleExpressions_Oneline(): Unit = {
     val before =
       s"""def foo() = {${|}
@@ -964,6 +990,19 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |    someMethod2()
          |  } someMethod3()
          |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_If_Then_MultipleExpressions_Oneline(): Unit = {
+    val before =
+      s"""if (true) {${|}someMethod1(); someMethod2()}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}someMethod1(); someMethod2()}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}someMethod1(); someMethod2()}
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
