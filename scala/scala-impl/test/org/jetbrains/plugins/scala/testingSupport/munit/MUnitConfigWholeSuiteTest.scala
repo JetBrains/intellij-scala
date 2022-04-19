@@ -4,13 +4,13 @@ import com.intellij.execution.testframework.sm.runner.states.TestStateInfo.Magni
 
 class MUnitConfigWholeSuiteTest extends MUnitTestCase {
 
-  protected val ClassName = "MUnitConfigWholeSuiteTest"
-  protected val FileName = s"$ClassName.scala"
+  private val ClassNameFunSuite = "MUnitConfigWholeSuite_Test_FunSuite"
+  private val FileNameFunSuite = s"$ClassNameFunSuite.scala"
 
-  addSourceFile(FileName,
+  addSourceFile(FileNameFunSuite,
     s"""import munit.FunSuite
        |
-       |class $ClassName extends FunSuite {
+       |class $ClassNameFunSuite extends FunSuite {
        |  test("test success 1") {
        |  }
        |
@@ -33,20 +33,67 @@ class MUnitConfigWholeSuiteTest extends MUnitTestCase {
        |  }
        |}""".stripMargin)
 
-  def testWholeSuite(): Unit =
-    runTestByLocation2(loc(FileName, 2, 10),
-      assertConfigAndSettings(_, ClassName),
+  private val ClassNameScalaCheckSuite = "MUnitConfigWholeSuite_Test_ScalaCheckSuite"
+  private val FileNameScalaCheckSuite = ClassNameScalaCheckSuite + ".scala"
+
+  addSourceFile(FileNameScalaCheckSuite,
+    s"""import munit.ScalaCheckSuite
+       |
+       |import org.scalacheck.Prop.forAll
+       |
+       |class $ClassNameScalaCheckSuite extends ScalaCheckSuite {
+       |  test("simple test") {
+       |  }
+       |
+       |  property("property test success") {
+       |    forAll { (n1: Int, n2: Int) => n1 + n2 == n2 + n1 }
+       |  }
+       |
+       |  property("property test failure") {
+       |    forAll { (n1: Int, n2: Int) => n1 + n2 == n2 + n1 + 42 }
+       |  }
+       |
+       |  property("property test error") {
+       |    1 / 0
+       |    ???
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testWholeSuite_FunSuite(): Unit =
+    runTestByLocation2(loc(FileNameFunSuite, 2, 10),
+      assertConfigAndSettings(_, ClassNameFunSuite),
       (testResult: TestRunResult) => {
         val root = testResult.requireTestTreeRoot
 
         assertResultTreePathsEqualsUnordered2(root)(
           Seq(
-            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassName.test success 1"),
-            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassName.test success 2"),
-            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassName.test success dynamic"),
-            TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", s"$ClassName.test failure JUnit assert"),
-            TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", s"$ClassName.test failure MUnit assert"),
-            TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", s"$ClassName.test error"),
+            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameFunSuite.test success 1"),
+            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameFunSuite.test success 2"),
+            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameFunSuite.test success dynamic"),
+            TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", s"$ClassNameFunSuite.test failure JUnit assert"),
+            TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", s"$ClassNameFunSuite.test failure MUnit assert"),
+            TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", s"$ClassNameFunSuite.test error"),
+          )
+        )
+
+        assertExitCode(-1, testResult)
+      }
+    )
+
+  def testWholeSuite_ScalaCheckSuite(): Unit =
+    runTestByLocation2(loc(FileNameScalaCheckSuite, 4, 10),
+      assertConfigAndSettings(_, ClassNameScalaCheckSuite),
+      (testResult: TestRunResult) => {
+        val root = testResult.requireTestTreeRoot
+
+        assertResultTreePathsEqualsUnordered2(root)(
+          Seq(
+            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameScalaCheckSuite.simple test"),
+            TestNodePathWithStatus(Magnitude.PASSED_INDEX, "[root]", s"$ClassNameScalaCheckSuite.property test success"),
+            TestNodePathWithStatus(Magnitude.FAILED_INDEX, "[root]", s"$ClassNameScalaCheckSuite.property test failure"),
+            TestNodePathWithStatus(Magnitude.ERROR_INDEX, "[root]", s"$ClassNameScalaCheckSuite.property test error"),
           )
         )
 

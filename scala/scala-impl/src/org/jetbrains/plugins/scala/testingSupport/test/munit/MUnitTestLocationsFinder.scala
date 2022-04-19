@@ -14,20 +14,18 @@ object MUnitTestLocationsFinder {
   @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
   def calculateTestLocations(definition: ScTypeDefinition): Option[Seq[PsiElement]] = {
     import ScalaTestLocationsFinderUtils.collectTestLocations
-    import SuiteMethodNames._
 
     val templateBodyOpt = definition.extendsBlock.templateBody
     val result = templateBodyOpt.map { body =>
-      val testLocations = collectTestLocations(body, infixStyle = false, EmptySet, FunSuiteLeaves)
+      val testLocations = collectTestLocations(
+        body,
+        infixStyle = false,
+        intermediateMethodNames = Set.empty,
+        leafMethodNames = MUnitUtils.FunSuiteTestMethodNames
+      )
       val testLocationsWithStaticName = testLocations.filter(MUnitUtils.hasStaticTestName)
       testLocationsWithStaticName
     }
     result
-  }
-
-  private object SuiteMethodNames {
-    val EmptySet: Set[String] = Set()
-
-    val FunSuiteLeaves = Set("test")
   }
 }
