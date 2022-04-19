@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
-import java.io.File
-
 import com.intellij.execution.configurations.{JavaParameters, ParametersList}
 import com.intellij.execution.junit.JUnitConfiguration
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.TestSearchScope
 import com.intellij.execution.{ExecutionException, ExecutionResult, Executor, JavaTestFrameworkRunnableState}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.rt.junit.JUnitStarter
 import com.intellij.util.PathUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions
+import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitCommandLineState.Log
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.testingSupport.test.utils.RawProcessOutputDebugLogger
 
+import java.io.File
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
@@ -40,14 +41,15 @@ private class MUnitCommandLineState(
 
   private def testData: TestConfigurationData = conf.testConfigurationData
 
-  protected final object DebugOptions {
-    // set to true to debug raw process output, can be useful to test teamcity service messages
-    def debugProcessOutput = true
-  }
-
   override def configureRTClasspath(javaParameters: JavaParameters, module: Module): Unit = {
     val classPath = javaParameters.getClassPath
-    classPath.addFirst(PathUtil.getJarPathForClass(classOf[JUnitStarter]))
+    try {
+      classPath.addFirst(PathUtil.getJarPathForClass(classOf[JUnitStarter]))
+    } catch {
+      case noCassDef: NoClassDefFoundError if noCassDef.getMessage.toLowerCase.contains("junit") =>
+        Log.warn(noCassDef)
+        throw new ExecutionException(ScalaBundle.message("ensure.junit.plugin.is.enabled"))
+    }
   }
 
   // no fork supported for now
@@ -115,4 +117,8 @@ private class MUnitCommandLineState(
     RawProcessOutputDebugLogger.maybeAddListenerTo(result.getProcessHandler)
     result
   }
+}
+
+object MUnitCommandLineState {
+  private val Log = Logger.getInstance(classOf[MUnitCommandLineState])
 }
