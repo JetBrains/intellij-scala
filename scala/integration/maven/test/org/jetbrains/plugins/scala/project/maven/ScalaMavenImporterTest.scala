@@ -5,6 +5,7 @@ import com.intellij.openapi.module.{ModuleTypeManager, StdModuleTypes}
 import com.intellij.openapi.module.impl.ModuleTypeManagerImpl
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
+import org.jetbrains.idea.maven.utils.MavenUtil
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter.RichFile
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -62,13 +63,20 @@ class ScalaMavenImporterTest
   }
 
   private lazy val mavenRepositoryRoot: String = {
-    val userHome = System.getProperty("user.home")
-    assertNotNull("user.home property is not set", userHome)
+    val mavenOpts = MavenUtil.getPropertiesFromMavenOpts
+    val fromMavenOpts = Option(mavenOpts.get("maven.repo.local"))
 
-    val userHomeDir = new File(userHome)
-    assertTrue("user home dir doesn't exist", userHomeDir.exists())
+    fromMavenOpts.getOrElse {
+      //NOTE: if this doesn't work for some reason, also consider using
+      //org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory (it doesn't respect MAVEN_OPTS though)
+      val userHome = System.getProperty("user.home")
+      assertNotNull("user.home property is not set", userHome)
 
-    (userHomeDir / ".m2" / "repository").getAbsolutePath.replace("\\", "/").stripSuffix("/")
+      val userHomeDir = new File(userHome)
+      assertTrue("user home dir doesn't exist", userHomeDir.exists())
+
+      (userHomeDir / ".m2" / "repository").getAbsolutePath.replace("\\", "/").stripSuffix("/")
+    }
   }
 
   private def mavenLocalArtifact(relativePath: String): String = {
