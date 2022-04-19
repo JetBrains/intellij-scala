@@ -171,6 +171,7 @@ trait IntegrationTest extends AnyRef
     val psiElement = {
       val leafNode = testPathOpt.nodes.last
       val location = leafNode.getLocation(project, GlobalSearchScope.projectScope(project))
+      assertNotNull(s"location should not be null for leaf node: $leafNode", location)
       location.getPsiElement
     }
 

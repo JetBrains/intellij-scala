@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
+import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitUtils
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestLocationsFinder.SuiteMethodNames
 
 /**
@@ -61,10 +62,24 @@ class ScalaTestSingleTestLocationFinderOld(
     findTestName(suitsWithFinders)
   }
 
-  def findTestNameForFunSuite(funSuiteBaseClasses: Seq[String]): Option[String] = {
+  def findTestNameForMUnit(): Option[String] = {
+    def checkScalaCheckSuite(fqn: String): Option[String] = {
+      if (!isInheritor(clazz, fqn))
+        return None
+      val result: ReturnResult = checkCall(
+        PsiTreeUtil.getParentOfType(element, classOf[MethodInvocation], false),
+        Map("property" -> fqn)
+      )
+      result match {
+        case SuccessResult(_, testName, _) => Some(testName)
+        case _ => None
+      }
+    }
+
     //noinspection ConvertibleToMethodValue
     val suitsWithFinders: Seq[(Seq[String], String => Option[String])] = Seq(
-      (funSuiteBaseClasses, checkFunSuite _)
+      (MUnitUtils.FunSuiteFqnList, checkFunSuite _),
+      (MUnitUtils.ScalaCheckSuiteFqnList, checkScalaCheckSuite _),
     )
 
     findTestName(suitsWithFinders)

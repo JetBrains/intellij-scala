@@ -4,7 +4,7 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.assertIsA
-import org.junit.Assert
+import org.junit.{Assert, ComparisonFailure}
 import org.junit.Assert._
 
 trait IntegrationTestConfigAssertions {
@@ -63,7 +63,7 @@ trait IntegrationTestConfigAssertions {
         val configTests = parseTestName(testData.testName)
         assertArrayEquals("test names should be the same as expected", testNames, configTests)
       case _: ClassTestData =>
-        assertTrue("test names should be empty for whole-class test run configuration", testNames.isEmpty)
+        assertArrayEquals("test names should be empty for whole-class test run configuration", Nil, testNames)
     }
 
     assertModule(config)
@@ -75,6 +75,11 @@ trait IntegrationTestConfigAssertions {
   protected def unescapeTestName(str: String): String =
     TestRunnerUtil.unescapeTestName(str)
 
-  def assertArrayEquals(message: String, expecteds: Seq[String], actuals: Seq[String]): Unit =
-    Assert.assertEquals(message, expecteds, actuals)
+  def assertArrayEquals(message: String, expected: Seq[String], actual: Seq[String]): Unit = {
+    if (expected != actual) {
+      val expectedConcatenated = expected.mkString("\n")
+      val actualConcatenated = actual.mkString("\n")
+      throw new ComparisonFailure(message, expectedConcatenated, actualConcatenated)
+    }
+  }
 }
