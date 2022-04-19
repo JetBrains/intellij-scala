@@ -11,6 +11,31 @@ object Versions {
   val bloopVersion = "1.4.13-2-c3139cab"
   val zincVersion = "1.5.7"
   val intellijVersion = "222.1149"
+
+  private val ideaBuildType = Utils.inferIdeaBuildType(intellijVersion)
+
+  /**
+   * Main IntelliJ SDK is managed with sbt-idea-plugin (using org.jetbrains.sbtidea.Keys.intellijBuild key)<br>
+   * Some parts of intellij are published as separate libraries, for example some base test classes (see e.g. IDEA-281823 and IDEA-281822)<br>
+   * For now we manage these libraries manually.
+   *
+   * @note Nightly library version can be newer then intellijVersion, because it uses "222-SNAPSHOT" version
+   *       It should generally work ok, but there might be some source or binary incompatibilities.
+   *       In this case update intellijVersion to the latest Nightly version.
+   * @note we might move this feature into sbt-idea-plugin using something like
+   *       [[org.jetbrains.sbtidea.download.idea.IJRepoIdeaResolver]]
+   */
+  val intellijVersion_ForManagedIntellijDependencies: String = ideaBuildType match {
+    case IdeBuildType.Release => intellijVersion
+    case IdeBuildType.Eap => intellijVersion + "-EAP-SNAPSHOT"
+    case IdeBuildType.Nightly => intellijVersion.substring(0, intellijVersion.indexOf(".")) + "-SNAPSHOT" // e.g. 222-SNAPSHOT
+  }
+  val intellijRepository_ForManagedIntellijDependencies: sbt.MavenRepository = ideaBuildType match {
+    case IdeBuildType.Release => Repositories.intellijRepositoryReleases
+    case IdeBuildType.Eap => Repositories.intellijRepositoryEap
+    case IdeBuildType.Nightly => Repositories.intellijRepositoryNightly
+  }
+
   val bspVersion = "2.0.0"
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
