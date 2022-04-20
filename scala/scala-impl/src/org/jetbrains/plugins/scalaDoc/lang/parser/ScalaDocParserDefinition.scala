@@ -2,11 +2,13 @@ package org.jetbrains.plugins.scalaDoc
 package lang
 package parser
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
@@ -33,7 +35,10 @@ final class ScalaDocParserDefinition extends ParserDefinition {
 
   override def createLexer(project: Project) = new ScalaDocLexer
 
-  override def createParser(project: Project) = new ScalaDocParser
+  override def createParser(project: Project) = {
+    val tabSize = CodeStyle.getSettings(project).getLanguageIndentOptions(ScalaLanguage.INSTANCE).TAB_SIZE
+    new ScalaDocParser(tabSize)
+  }
 
   /**
    * see also [[org.jetbrains.plugins.scala.lang.parser.ScalaASTFactory.createLeaf]]

@@ -13,10 +13,15 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
  * Date: 22.07.2008
  */
 public class ScalaDocParser implements PsiParser, LightPsiParser {
+  private final int tabSize;
+
+  public ScalaDocParser(int tabSize) {
+    this.tabSize = tabSize;
+  }
 
   @Override
   public void parseLight(@NotNull IElementType root, @NotNull PsiBuilder builder) {
-    new MyScaladocParsing(builder).parse(root);
+    new MyScaladocParsing(builder, tabSize).parse(root);
   }
 
   @NotNull

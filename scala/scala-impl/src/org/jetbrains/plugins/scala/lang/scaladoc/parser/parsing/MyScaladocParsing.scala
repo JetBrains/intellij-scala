@@ -4,7 +4,6 @@ package scaladoc
 package parser
 package parsing
 
-import com.intellij.application.options.CodeStyle
 import com.intellij.lang.PsiBuilder
 import com.intellij.lexer.HtmlLexer
 import com.intellij.psi.tree.{IElementType, TokenSet}
@@ -31,7 +30,8 @@ import scala.collection.immutable.HashMap
  * @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser]]
  * @see [[scala.tools.nsc.doc.html.HtmlPage]]
  */
-final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocElementTypes {
+final class MyScaladocParsing(private val builder: PsiBuilder,
+                              private val tabSize: Int) extends ScalaDocElementTypes {
 
   private var hasClosingElementsInWikiSyntax: Boolean = false
   private var canHaveTags = true
@@ -127,10 +127,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
 
   // NOTE: it will parse ok if only spaces are used in lists OR if only tabs are used,
   // but it will not parse ok if the list contains mixed leading spaces with tabs e.g.
-  private val tabSize: Int = {
-    val indentOptions = CodeStyle.getSettings(builder.getProject).getLanguageIndentOptions(ScalaLanguage.INSTANCE)
-    indentOptions.TAB_SIZE
-  }
+
   private def calcIndent(builder: PsiBuilder): Int =
     IndentUtil.calcIndent(builder.getTokenText, tabSize)
 
@@ -207,6 +204,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
       hasLineBreak = true
     }
   }
+
   private def consumeWhiteSpaces(): Unit =
     while (!isEndOfComment && builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE)
       builder.advanceLexer()
@@ -245,7 +243,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
            DOC_COMMENT_BAD_CHARACTER =>
         builder.advanceLexer()
       case _: ScalaDocSyntaxElementType => // will be handle later
-      case badToken @ _ =>
+      case badToken@_ =>
         System.out.println(ScalaBundle.message("scaladoc.parsing.error.bad.token", badToken))
         builder.advanceLexer()
     }
@@ -272,7 +270,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
   private def parseWikiSyntax(): Boolean = {
     val syntaxElementType: ScalaDocSyntaxElementType = builder.getTokenType match {
       case syntax: ScalaDocSyntaxElementType => syntax
-      case _                                 => return false
+      case _ => return false
     }
 
     val tokenText = builder.getTokenText
