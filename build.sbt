@@ -514,7 +514,6 @@ lazy val packageSearchIntegration =
       // should be same plugins as in .../packagesearch/resources/META-INF/packagesearch.xml
       intellijPlugins ++= Seq(
         "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
-        "com.intellij.externalSystem.dependencyUpdater".toPlugin,
       ),
     )
 
