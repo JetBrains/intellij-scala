@@ -8,11 +8,11 @@ import com.intellij.debugger.{DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil}
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.testFramework.{EdtTestUtil, VfsTestUtil}
+import com.intellij.testFramework.EdtTestUtil
 import com.intellij.xdebugger.{XDebuggerManager, XDebuggerUtil}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -36,8 +36,6 @@ import scala.util.{Try, Using}
 
 abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
 
-  import NewScalaDebuggerTestCase.SourceFile
-
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
   private val testDataDebuggerPath: Path = Path.of(TestUtils.getTestDataPath, "debugger")
@@ -56,7 +54,7 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
   private lazy val checksumsFilePath: Path = checksumsPath.resolve("checksums.dat")
 
-  private val sourceFiles: mutable.Set[SourceFile] = mutable.Set.empty
+  private val sourceFiles: mutable.Map[String, String] = mutable.Map.empty
 
   override protected def initOutputChecker(): OutputChecker =
     new OutputChecker(() => getTestAppPath, () => getAppOutputPath) {
@@ -99,11 +97,11 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
     Files.createDirectories(classFilesOutputPath)
     Files.createDirectories(checksumsPath)
 
-    sourceFiles.foreach { srcFile =>
-      val path = srcPath.resolve(srcFile.path)
-      if (!path.toFile.exists() || Files.readString(path) != srcFile.contents) {
+    sourceFiles.foreach { case (filePath, fileContents) =>
+      val path = srcPath.resolve(filePath)
+      if (!path.toFile.exists() || Files.readString(path) != fileContents) {
         Files.createDirectories(path.getParent)
-        val bytes = srcFile.contents.getBytes(StandardCharsets.UTF_8)
+        val bytes = fileContents.getBytes(StandardCharsets.UTF_8)
         Files.write(path, bytes)
       }
     }
@@ -229,7 +227,7 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
   }
 
   protected def addSourceFile(path: String, contents: String): Unit = {
-    sourceFiles += SourceFile(path, contents)
+    sourceFiles.update(path, contents)
   }
 
   protected def addBreakpointInLibrary(className: String, methodName: String): Unit = {
@@ -276,8 +274,4 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)
   }
-}
-
-private object NewScalaDebuggerTestCase {
-  private final case class SourceFile(path: String, contents: String)
 }
