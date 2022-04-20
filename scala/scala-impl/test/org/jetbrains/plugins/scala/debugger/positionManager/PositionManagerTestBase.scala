@@ -104,9 +104,11 @@ abstract class PositionManagerTestBase extends NewScalaDebuggerTestCase {
 
   protected def checkLocationsOfLine(mainClass: String = getTestName(false))
                                     (expectedLocations: Set[Loc]*): Unit = {
+    val filePath = s"${mainClass.split('.').mkString(File.separator)}.scala"
+    createOffsetsForFile(filePath)
     createLocalProcess(mainClass)
 
-    val sourcePositions = sourcePositionsForFile(s"${mainClass.split('.').mkString(File.separator)}.scala")
+    val sourcePositions = sourcePositionsForFile(filePath)
     Assert.assertEquals("Wrong number of expected locations sets: ", expectedLocations.size, sourcePositions.size)
 
     val debugProcess = getDebugProcess
