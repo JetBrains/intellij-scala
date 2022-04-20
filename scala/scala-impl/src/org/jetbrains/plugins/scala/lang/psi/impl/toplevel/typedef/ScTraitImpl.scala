@@ -7,19 +7,20 @@ package typedef
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree.IElementType
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypeParametersOwner}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.ScNamedBeginImpl
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
+
+import javax.swing.Icon
 
 /**
 * @author Alexander Podkhalyuzin
@@ -32,7 +33,7 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   extends ScTypeDefinitionImpl(stub, nodeType, node, debugName)
     with ScTrait
     with ScTypeParametersOwner
-    with ScBegin {
+    with ScNamedBeginImpl {
 
   override def additionalClassJavaName: Option[String] = Option(getName).map(withSuffix)
 

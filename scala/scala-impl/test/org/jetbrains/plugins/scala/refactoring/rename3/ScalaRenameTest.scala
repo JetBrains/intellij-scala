@@ -83,4 +83,24 @@ class Scala3RenameTest extends ScalaRenameTestBase {
   }
 
   def testTopLevelMethod(): Unit = doTest()
+
+  def testObjectEndMarker(): Unit = doTest()
+  def testTraitAndCompanionObjectEndMarker(): Unit = doTest()
+  def testEnumAndCompanionObjectEndMarker(): Unit = doTest()
+
+  def testClassAndCompanionObjectEndMarker(): Unit = doTest()
+  def testClassAuxConstructorEndMarker(): Unit = doTest()
+
+  def testMethodEndMarker(): Unit = doTest()
+  def testOverriddenMethodEndMarker(): Unit = doTest()
+  def testOverriddenMethodFromJavaEndMarker(): Unit = doTest()
+
+  def testShadowedValEndMarker(): Unit = doTest()
+  def testValueBindingEndMarker(): Unit = doTest("nameAfterRename")
+
+  def testGivenAliasEndMarker(): Unit = doTest()
+  def testGivenDefinitionEndMarker(): Unit = doTest()
+
+  // TODO: uncomment when SCL-20145 is fixed
+  // def testPackageEndMarker(): Unit = doTest()
 }

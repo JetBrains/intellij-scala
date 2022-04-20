@@ -4,13 +4,10 @@ package refactoring
 package rename
 
 
-import java.util
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.search.{PsiElementProcessor, SearchScope}
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.RenameJavaMemberProcessor
 import com.intellij.refactoring.util.RefactoringUtil
@@ -18,7 +15,6 @@ import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
@@ -27,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameScalaVariableProcessor.SyntheticCopyParameter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin
@@ -48,7 +46,6 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
     def addBeanMethods(element: PsiElement, newName: String): Unit = {
       element match {
         case t: ScTypedDefinition =>
-          t.parentsInFile.findByType[ScBegin].filter(_.tag == t).flatMap(_.end).foreach(allRenames.put(_, newName))
           for (method <- getBeanMethods(t)) {
             val name = method.name
             val is = name.startsWith("is")
