@@ -77,7 +77,7 @@ class GetAllClassesTest_3_1 extends GetAllClassesTest_3_0 {
   }
 }
 
-abstract class GetAllClassesTestBase extends NewPositionManagerTestBase {
+abstract class GetAllClassesTestBase extends PositionManagerTestBase {
 
   addSourceFile("Simple.scala",
     s"""

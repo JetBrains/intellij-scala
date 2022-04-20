@@ -129,7 +129,7 @@ class LocationOfLineTest_3_1 extends LocationOfLineTest_3_0 {
   }
 }
 
-abstract class LocationsOfLineTestBase extends NewPositionManagerTestBase {
+abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   val noLocations = Set.empty[Loc]
 
   addSourceFile("Simple.scala",
