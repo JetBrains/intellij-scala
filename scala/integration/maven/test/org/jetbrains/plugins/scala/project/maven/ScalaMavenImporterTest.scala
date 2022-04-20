@@ -62,9 +62,10 @@ class ScalaMavenImporterTest
 
   private lazy val mavenRepositoryRoot: String = {
     val mavenOpts = MavenUtil.getPropertiesFromMavenOpts
-    val fromMavenOpts = Option(mavenOpts.get("maven.repo.local"))
+    //example: -Dmaven.repo.local=/mnt/cache/.m2
+    val mavenRootFromMavenOpts = Option(mavenOpts.get("maven.repo.local"))
 
-    fromMavenOpts.getOrElse {
+    val mavenRoot = mavenRootFromMavenOpts.getOrElse {
       //NOTE: if this doesn't work for some reason, also consider using
       //org.jetbrains.idea.maven.utils.MavenUtil.resolveMavenHomeDirectory (it doesn't respect MAVEN_OPTS though)
       val userHome = System.getProperty("user.home")
@@ -73,8 +74,10 @@ class ScalaMavenImporterTest
       val userHomeDir = new File(userHome)
       assertTrue("user home dir doesn't exist", userHomeDir.exists())
 
-      (userHomeDir / ".m2" / "repository").getAbsolutePath.replace("\\", "/").stripSuffix("/")
-    }
+      (userHomeDir / ".m2").getAbsolutePath
+    }.stripSuffix("/").stripSuffix("\\")
+
+    (mavenRoot + "/repository").replace("\\", "/")
   }
 
   private def mavenLocalArtifact(relativePath: String): String = {
