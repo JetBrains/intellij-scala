@@ -109,7 +109,6 @@ abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
         fail(s"The debugger did not stop on all expected breakpoints. Remaining: ${expectedTargetsIterator.toList.map(_._1)}")
       }
     } finally {
-      Predef.println()
       super.tearDown()
     }
   }

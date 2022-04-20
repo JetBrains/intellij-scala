@@ -107,13 +107,36 @@ abstract class StepOverTest extends NewScalaDebuggerTestCase {
 
   private var expectedLineIterator: Iterator[Int] = _
 
-  override def tearDown(): Unit = {
+  override protected def tearDown(): Unit = {
     try {
       if (expectedLineIterator.hasNext) {
         fail(s"The debugger did not stop on all expected lines. Remaining: ${expectedLineIterator.toList}")
       }
     } finally {
       super.tearDown()
+    }
+  }
+
+  protected def stepOverTest(className: String = getTestName(false))(lineNumbers: Int*): Unit = {
+    assertTrue("The test should stop on at least 1 breakpoint", lineNumbers.nonEmpty)
+    expectedLineIterator = lineNumbers.iterator
+
+    createLocalProcess(className)
+
+    val debugProcess = getDebugProcess
+    val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
+
+    onBreakpoints { implicit ctx =>
+      val loc = ctx.getFrameProxy.location()
+      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
+      val actual = srcPos.getLine
+      if (!expectedLineIterator.hasNext) {
+        fail(s"The debugger stopped on line $actual, but there were no more expected lines")
+      } else {
+        val expected = expectedLineIterator.next()
+        assertEquals(expected, actual)
+        stepOver(ctx)
+      }
     }
   }
 
@@ -315,28 +338,5 @@ abstract class StepOverTest extends NewScalaDebuggerTestCase {
 
   def testAccessorInDelayedInit(): Unit = {
     stepOverTest()(1, 2, 3, 4, 0)
-  }
-
-  protected def stepOverTest(className: String = getTestName(false))(lineNumbers: Int*): Unit = {
-    assertTrue("The test should stop on at least 1 breakpoint", lineNumbers.nonEmpty)
-    expectedLineIterator = lineNumbers.iterator
-
-    createLocalProcess(className)
-
-    val debugProcess = getDebugProcess
-    val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
-
-    onBreakpoints { implicit ctx =>
-      val loc = ctx.getFrameProxy.location()
-      val srcPos = inReadAction(positionManager.getSourcePosition(loc))
-      val actual = srcPos.getLine
-      if (!expectedLineIterator.hasNext) {
-        fail(s"The debugger stopped on line $actual, but there were no more expected lines")
-      } else {
-        val expected = expectedLineIterator.next()
-        assertEquals(expected, actual)
-        stepOver(ctx)
-      }
-    }
   }
 }
