@@ -47,6 +47,5 @@ object MillProjectImportProvider {
   private def findFileByName(dir: File, name: String): Option[File] =
     Option(dir.listFiles())
       .getOrElse(Array.empty)
-      .filterNot(_.isDirectory)
-      .find(_.getName == name)
+      .find(x => x.getName == name && !x.isDirectory)
 }
