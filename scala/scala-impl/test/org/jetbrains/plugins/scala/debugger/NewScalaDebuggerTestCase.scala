@@ -46,7 +46,7 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
   private lazy val appOutputPath: Path = Path.of(s"${testAppPath}_out")
 
-  private lazy val srcPath: Path = testAppPath.resolve("src")
+  protected lazy val srcPath: Path = testAppPath.resolve("src")
 
   private lazy val classFilesOutputPath: Path = appOutputPath.resolve("classes")
 
