@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScEnd, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScEnd, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
@@ -42,11 +42,16 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
 
     element.getParent match {
       case end: ScEnd =>
-        val named =
-          if (end.tag.isIdentifier && end.tag == element)
-            end.begin.map(_.tag).filterByType[ScNamedElement]
-          else None
-        return named.map(new ScHighlightEndMarkerUsagesHandler(_, editor, file)).orNull
+        val endMarkerHandler =
+          if (end.tag.isIdentifier && end.tag == element) {
+            end.begin.map(_.tag).collect {
+              case named: ScNamedElement =>
+                ScHighlightEndMarkerUsagesHandler(named, editor, file)
+              case ref: ScStableCodeReference =>
+                ScHighlightEndMarkerUsagesHandler(ref, editor, file)
+            }
+          } else None
+        return endMarkerHandler.orNull
       case _ =>
     }
 
