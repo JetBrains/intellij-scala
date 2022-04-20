@@ -4,13 +4,13 @@ package positionManager
 
 import com.intellij.debugger.{DebuggerInvocationUtil, SourcePosition}
 import com.intellij.openapi.application.ModalityState
-import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.psi.{PsiDocumentManager, PsiManager}
 import com.sun.jdi.Location
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.junit.Assert
 import org.junit.Assert.fail
 
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.SwingUtilities
 import scala.collection.mutable
@@ -36,10 +36,50 @@ abstract class NewPositionManagerTestBase extends NewScalaDebuggerTestCase {
     }
   }
 
-  override protected def createBreakpoints(className: String): Unit = {
-    val manager = ScalaPsiManager.instance(getProject)
-    val psiClass = inReadAction(manager.getCachedClass(GlobalSearchScope.allScope(getProject), className))
-    val psiFile = psiClass.map(_.getContainingFile).getOrElse(throw new AssertionError(s"Could not find class $className"))
+  protected def checkGetAllClasses(mainClass: String = getTestName(false))
+                                  (expectedClassNames: String*): Unit = {
+    checkGetAllClassesInFile(mainClass)(s"${mainClass.split('.').mkString(File.separator)}.scala")(expectedClassNames: _*)
+  }
+
+  protected def checkGetAllClassesInFile(mainClass: String = getTestName(false))
+                                        (filePath: String)
+                                        (expectedClassNames: String*): Unit = {
+    createOffsetsForFile(filePath)
+    createLocalProcess(mainClass)
+
+    val sourcePositions = sourcePositionsForFile(filePath)
+
+    val debugProcess = getDebugProcess
+    val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
+
+    doWhenPausedThenResume { _ =>
+      stoppedAtBreakpoint.set(true)
+
+      for ((position, className) <- sourcePositions.zip(expectedClassNames)) {
+        val classes = positionManager.getAllClasses(position)
+        val classNames = classes.asScala.map(_.name())
+        Assert.assertTrue(s"Wrong classes are found at $position (found: ${classNames.mkString(", ")}, expected: $className)",
+          classNames.contains(className))
+      }
+    }
+  }
+
+  private def sourcePositionsForFile(filePath: String): List[SourcePosition] = inReadAction {
+    val manager = PsiManager.getInstance(getProject)
+    val path = srcPath.resolve(filePath)
+    val virtualFile = VfsUtil.findFile(path, true)
+    val psiFile = inReadAction(manager.findFile(virtualFile))
+    sourcePositionOffsets.result().map { offset =>
+      val fromOffset = SourcePosition.createFromOffset(psiFile, offset)
+      SourcePosition.createFromLine(psiFile, fromOffset.getLine)
+    }
+  }
+
+  private def createOffsetsForFile(filePath: String): Unit = {
+    val manager = PsiManager.getInstance(getProject)
+    val path = srcPath.resolve(filePath)
+    val virtualFile = VfsUtil.findFile(path, true)
+    val psiFile = inReadAction(manager.findFile(virtualFile))
 
     val runnable: Runnable = () => {
       val document = PsiDocumentManager.getInstance(getProject).getDocument(psiFile)
@@ -60,24 +100,13 @@ abstract class NewPositionManagerTestBase extends NewScalaDebuggerTestCase {
     } else {
       runnable.run()
     }
-
-    super.createBreakpoints(className)
   }
 
   protected def checkLocationsOfLine(mainClass: String = getTestName(false))
                                     (expectedLocations: Set[Loc]*): Unit = {
     createLocalProcess(mainClass)
 
-    val sourcePositions = inReadAction {
-      val manager = ScalaPsiManager.instance(getProject)
-      val psiClass = inReadAction(manager.getCachedClass(GlobalSearchScope.allScope(getProject), mainClass))
-      val psiFile = psiClass.map(_.getContainingFile).getOrElse(throw new AssertionError(s"Could not find class $mainClass"))
-      sourcePositionOffsets.result().map { offset =>
-        val fromOffset = SourcePosition.createFromOffset(psiFile, offset)
-        SourcePosition.createFromLine(psiFile, fromOffset.getLine)
-      }
-    }
-
+    val sourcePositions = sourcePositionsForFile(s"${mainClass.split('.').mkString(File.separator)}.scala")
     Assert.assertEquals("Wrong number of expected locations sets: ", expectedLocations.size, sourcePositions.size)
 
     val debugProcess = getDebugProcess
