@@ -58,9 +58,9 @@ class GetAllClassesTest_2_13 extends GetAllClassesTest_2_12 {
 class GetAllClassesTest_3_0 extends GetAllClassesTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testPartialFunctionArg(): Unit = failing(super.testPartialFunctionArg())
-
-  override def testPartialFunctions(): Unit = failing(super.testPartialFunctions())
+  override def testPartialFunctions(): Unit = {
+    checkGetAllClasses("PartialFunctions$")
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -338,11 +338,11 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     s"""
        |object PartialFunctionArg {
        |  def main(args: Array[String]): Unit = {
-       |    ${offsetMarker}Seq(Option(1)).exists {
+       |    ${offsetMarker}Seq(Option(1)).foreach {
        |      case None =>
-       |        ${offsetMarker}true
+       |        ${offsetMarker}println()
        |      case Some(i) =>
-       |        ${offsetMarker}false$bp
+       |        ${offsetMarker}println() $bp
        |    }
        |  }
        |}

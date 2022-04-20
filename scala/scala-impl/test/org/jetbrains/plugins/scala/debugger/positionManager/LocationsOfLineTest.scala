@@ -86,16 +86,47 @@ class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
 class LocationOfLineTest_3_0 extends LocationOfLineTest_2_13 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 
-  override def testLambdas(): Unit = failing(super.testLambdas())
+  override def testLambdas(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "main$$anonfun$1", 4)),
+      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "main$$anonfun$2", 5), Loc("Lambdas$", "main$$anonfun$4", 5)),
+      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "main$$anonfun$3", 6))
+    )
+  }
 
-  override def testLocalFunction(): Unit = failing(super.testLocalFunction())
+  override def testLocalFunction(): Unit = {
+    checkLocationsOfLine(
+      noLocations,
+      Set(Loc("LocalFunction$", "foo$1", 9)),
+      Set(Loc("LocalFunction$", "main", 13))
+    )
+  }
 
-  override def testMultilevel(): Unit = failing(super.testMultilevel())
+  override def testMultilevel(): Unit = {
+    checkLocationsOfLine("test.Multilevel",
+      Set(Loc("test.Multilevel$This$1", "<init>", 5)),  //location for constructor is customized
+      Set(Loc("test.Multilevel$This$1", "<init>", 6)),
+      noLocations,
+      noLocations,
+      noLocations,
+      noLocations,
+      noLocations,
+      Set(Loc("test.Multilevel$", "main", 20))
+    )
+  }
 }
 
 @Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_3_1 extends LocationOfLineTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
+
+  override def testLambdas(): Unit = {
+    checkLocationsOfLine(
+      Set(Loc("Lambdas$", "main", 4), Loc("Lambdas$", "main$$anonfun$1", 4)),
+      Set(Loc("Lambdas$", "main", 5), Loc("Lambdas$", "main$$anonfun$2", 5), Loc("Lambdas$", "main$$anonfun$3", 5)),
+      Set(Loc("Lambdas$", "main", 6), Loc("Lambdas$", "main$$anonfun$4", 6))
+    )
+  }
 }
 
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
