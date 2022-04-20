@@ -4,10 +4,8 @@ package scaladoc
 package parser
 package parsing
 
-import java.util
-
 import com.intellij.application.options.CodeStyle
-import com.intellij.lang.{ASTNode, PsiBuilder}
+import com.intellij.lang.PsiBuilder
 import com.intellij.lexer.HtmlLexer
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
@@ -25,6 +23,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing._
 import org.jetbrains.plugins.scala.util.IndentUtil
 
+import java.util
 import scala.collection.immutable.HashMap
 
 /**
