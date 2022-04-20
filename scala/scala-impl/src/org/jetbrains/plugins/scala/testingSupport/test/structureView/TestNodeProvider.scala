@@ -164,8 +164,6 @@ object TestNodeProvider {
   private val scMethodCallDefaultArgScalaTest3_v1 = Seq(List("java.lang.String", "scala.collection.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala < 2.13
   private val scMethodCallDefaultArgScalaTest3_v2 = Seq(List("java.lang.String", "scala.collection.immutable.Seq<org.scalatest.Tag>"), List("java.lang.Object")) // scala >= 2.13
 
-  private val munitTestMethodCallArg = Seq(List("java.lang.String"), List("java.lang.Object"))
-
   private def getMethodCallTestName(expr: ScMethodCall) =
   //TODO: this is horrible
     expr.getNode.getFirstChildNode.getText
@@ -456,12 +454,18 @@ object TestNodeProvider {
       .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
   }
 
+
+  private val munitTestMethodCallArg = Seq(List("java.lang.String"), List("java.lang.Object"))
+  private val munitPropertyMethodCallArg = Seq(List("java.lang.String"), List("org.scalacheck.Prop"))
+  private val munitFunSuiteExtractEntries = Seq(
+    ExtractEntry("test", false, false, munitTestMethodCallArg: _*),
+    ExtractEntry("property", false, false, munitPropertyMethodCallArg: _*),
+  )
   private def extractMUnitFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
-    val entry = ExtractEntry("test", false, false, munitTestMethodCallArg: _*)
-    if (checkScMethodCall(expr, entry.funName, entry.args: _*))
+    val foundEntry = munitFunSuiteExtractEntries.find(entry => checkScMethodCall(expr, entry.funName, entry.args: _*))
+    foundEntry.flatMap { entry =>
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
-    else
-      None
+    }
   }
 
   //-----Specs2-----
@@ -636,8 +640,7 @@ object TestNodeProvider {
   }
 }
 
-case class ExtractEntry(funName: String, canIgnore: Boolean, canPend: Boolean, children: (Unit => Array[TreeElement]), args: List[String]*) {
-}
+case class ExtractEntry(funName: String, canIgnore: Boolean, canPend: Boolean, children: Unit => Array[TreeElement], args: List[String]*)
 
 object ExtractEntry {
   def apply(funName: String, canIgnore: Boolean, canPend: Boolean, args: List[String]*): ExtractEntry =

@@ -51,7 +51,7 @@ final class MUnitConfigurationProducer extends AbstractTestConfigurationProducer
     val testName = suiteClass.extendsBlock.templateBody match {
       case Some(templateBody) =>
         val finder = new ScalaTestSingleTestLocationFinderOld(element, suiteClass, templateBody)
-        finder.findTestNameForFunSuite(suitePaths)
+        finder.findTestNameForMUnit()
       case _ =>
         None
     }

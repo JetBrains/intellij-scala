@@ -4,15 +4,15 @@ import org.jetbrains.plugins.scala.util.assertions.ExceptionAssertions
 
 class MUnitGoToSourceTest extends MUnitTestCase {
 
-  private val ClassName = "MUnitGoToSourceTest"
-  private val FileName = ClassName + ".scala"
-
   private val qqq = "\"\"\""
 
-  addSourceFile(FileName,
+  private val ClassNameFunSuite = "MUnitGoToSource_Test_FunSuite"
+  private val FileNameFunSuite = ClassNameFunSuite + ".scala"
+
+  addSourceFile(FileNameFunSuite,
     s"""import munit.FunSuite
        |
-       |class $ClassName extends munit.FunSuite {
+       |class $ClassNameFunSuite extends FunSuite {
        |  test("test single line") {
        |  }
        |
@@ -22,25 +22,49 @@ class MUnitGoToSourceTest extends MUnitTestCase {
        |""".stripMargin
   )
 
-  def testGoTo(): Unit = {
-    val runConfig = createTestFromCaretLocation(loc(FileName, 2, 10))
+  private val ClassNameScalaCheckSuite = "MUnitGoToSource_Test_ScalaCheckSuite"
+  private val FileNameScalaCheckSuite = ClassNameScalaCheckSuite + ".scala"
+
+  addSourceFile(FileNameScalaCheckSuite,
+    s"""import munit.ScalaCheckSuite
+       |
+       |import org.scalacheck.Prop.forAll
+       |
+       |class $ClassNameScalaCheckSuite extends ScalaCheckSuite {
+       |  test("simple test") {
+       |  }
+       |
+       |  property("property test") {
+       |    forAll { (n1: Int, n2: Int) => n1 + n2 == n2 + n1 }
+       |  }
+       |}
+       |""".stripMargin
+  )
+
+  def testGoTo_FunSuite(): Unit = {
+    val runConfig = createTestFromCaretLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
-    val asserts = Seq(
-      AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileName, 2)),
-      AssertGoToSourceTest(TestNodePath("[root]", s"$ClassName.test single line"), GoToLocation(FileName, 3)),
-      AssertGoToSourceTest(TestNodePath("[root]", s"$ClassName.test 2"), GoToLocation(FileName, 6)),
-    )
-    asserts.foreach(_(testTreeRoot))
+
+    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 2))(testTreeRoot)
+    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameFunSuite.test single line"), GoToLocation(FileNameFunSuite, 3))(testTreeRoot)
+    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameFunSuite.test 2"), GoToLocation(FileNameFunSuite, 6))(testTreeRoot)
+  }
+
+  def testGoTo_ScalaCheckSuite(): Unit = {
+    val runConfig = createTestFromCaretLocation(loc(FileNameScalaCheckSuite, 4, 10))
+    val runResult = runTestFromConfig(runConfig)
+    val testTreeRoot = runResult.requireTestTreeRoot
+
+    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameScalaCheckSuite, 4))(testTreeRoot)
+    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameScalaCheckSuite.simple test"), GoToLocation(FileNameScalaCheckSuite, 5))(testTreeRoot)
+    AssertGoToSourceTest(TestNodePath("[root]", s"$ClassNameScalaCheckSuite.property test"), GoToLocation(FileNameScalaCheckSuite, 8))(testTreeRoot)
   }
 
   def testGoTo_EnsureAssertionFails(): Unit = ExceptionAssertions.assertException[java.lang.AssertionError] {
-    val runConfig = createTestFromCaretLocation(loc(FileName, 2, 10))
+    val runConfig = createTestFromCaretLocation(loc(FileNameFunSuite, 2, 10))
     val runResult = runTestFromConfig(runConfig)
     val testTreeRoot = runResult.requireTestTreeRoot
-    val asserts = Seq(
-      AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileName, 5))
-    )
-    asserts.foreach(_(testTreeRoot))
+    AssertGoToSourceTest(TestNodePath("[root]"), GoToLocation(FileNameFunSuite, 5))(testTreeRoot)
   }
 }

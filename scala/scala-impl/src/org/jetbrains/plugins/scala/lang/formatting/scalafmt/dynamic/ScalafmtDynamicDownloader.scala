@@ -54,8 +54,17 @@ object ScalafmtDynamicDownloader {
   ) extends DependencyManagerBase {
 
     // first search in the provided resolvers, then fallback to the default ones
-    override protected def resolvers: Seq[Resolver] =
-      extraResolvers ++ super.resolvers
+    // Workaround for SCL-19488:
+    // but only use resolvers with http(s) protocol, to avoid problems with private repositories.
+    // (like gcs, s3, etc.) This is fine since scalafmt should always be published to a public repo.
+    override protected def resolvers: Seq[Resolver] = {
+      val HttpUrl = "(https?://.*)".r
+      (extraResolvers ++ super.resolvers).filter {
+        case MavenResolver(_, HttpUrl(_)) => true
+        case IvyResolver(_, HttpUrl(_))=> true
+        case _ => false
+      }
+    }
 
     override protected val logLevel: Int = org.apache.ivy.util.Message.MSG_INFO
 

@@ -207,21 +207,32 @@ object ScalaCompilerTestBase {
       else
         Set(CompilerMessageCategory.ERROR, CompilerMessageCategory.WARNING)
 
-      val problems = messages.asScala.filter { message =>
+      val problems: Seq[CompilerMessage] = messages.asScala.filter { message =>
         categories.contains(message.getCategory)
       }.toSeq
       if (problems.nonEmpty) {
         val otherMessages = messages.asScala.filterNot(problems.contains)
         Assert.fail(
           s"""No compiler errors expected, but got:
-            |${messagesText(problems)}
-            |Other compiler messages:
-            |${messagesText(otherMessages)}""".stripMargin
+             |${messagesText(problems)}
+             |Other compiler messages:
+             |${messagesText(otherMessages)}""".stripMargin
         )
       }
     }
 
-    private def messagesText(messages: collection.Seq[CompilerMessage]): String =
-      messages.zipWithIndex.map { case (message, idx) => s"[$idx] [${message.getCategory}] : ${message.getMessage.trim}"}.mkString("\n")
+    private def messagesText(messages: collection.Seq[CompilerMessage]): String = {
+      val fileToMessages = messages.groupBy(_.getVirtualFile)
+      fileToMessages
+        .toSeq
+        .sortBy(_._1.toString)
+        .map { case (file, messages) =>
+          val messagesConcatenated = messages
+            .map { message => s"${message.getCategory}: ${message.getMessage.trim}" }
+            .mkString("\n")
+          s"$file:\n$messagesConcatenated"
+        }
+        .mkString("\n")
+    }
   }
 }
