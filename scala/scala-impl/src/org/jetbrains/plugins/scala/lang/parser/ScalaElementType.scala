@@ -293,10 +293,4 @@ object ScalaElementType {
   val XML_PATTERN: ScalaElementType = new ScalaElementType("Xml pattern")
   val XML_COMMENT: ScalaElementType = new ScalaElementType("Xml comment")
   val XML_ELEMENT: ScalaElementType = new ScalaElementType("Xml element")
-
-  val REFINED_TYPE: ScalaElementType = new ScalaElementType("Dotty refined type")
-
-  val WITH_TYPE: ScalaElementType = new ScalaElementType("Dotty with type")
-
-  val TYPE_ARGUMENT_NAME: ScalaElementType = new ScalaElementType("Dotty type argument name")
 }

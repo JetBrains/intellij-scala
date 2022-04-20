@@ -156,10 +156,6 @@ object ASTNodeToPsiElement {
       case XML_COMMENT => new ScXmlCommentImpl(node)
       case XML_ELEMENT => new ScXmlElementImpl(node)
 
-      case REFINED_TYPE => ???
-      case WITH_TYPE => ???
-      case TYPE_ARGUMENT_NAME => ???
-
       /* Default case */
       case _ => new ASTWrapperPsiElement(node)
     }
