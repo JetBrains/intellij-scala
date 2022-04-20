@@ -4,6 +4,8 @@ package positionManager
 
 import org.junit.experimental.categories.Category
 
+import java.nio.file.Path
+
 @Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -38,7 +40,7 @@ class GetAllClassesTest_2_12 extends GetAllClassesTestBase {
   }
 
   override def testAnonfunsInPackageObject(): Unit = {
-    checkGetAllClassesInFile()("packageObject/package.scala")(
+    checkGetAllClassesInFile()(Path.of("packageObject", "package.scala").toString)(
       "packageObject.package$",
       "packageObject.package$",
       "packageObject.package$"
@@ -172,7 +174,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     checkGetAllClasses()("InnerClassInObject$A")
   }
 
-  addSourceFile("test/LocalClassInAnonymousClass.scala",
+  addSourceFile(Path.of("test", "LocalClassInAnonymousClass.scala").toString,
     s"""package test
        |
        |object LocalClassInAnonymousClass {
@@ -366,7 +368,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   }
 
 
-  addSourceFile("packageObject/package.scala",
+  addSourceFile(Path.of("packageObject", "package.scala").toString,
     s"""
        |package object packageObject {
        |
@@ -397,7 +399,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     """.stripMargin)
 
   def testAnonfunsInPackageObject(): Unit = {
-    checkGetAllClassesInFile()("packageObject/package.scala")(
+    checkGetAllClassesInFile()(Path.of("packageObject", "package.scala").toString)(
       "packageObject.package$",
       "packageObject.package$$anonfun$packageMethod$1",
       "packageObject.package$$anonfun$packageMethod$1$$anonfun$apply$mcVI$sp$1"
