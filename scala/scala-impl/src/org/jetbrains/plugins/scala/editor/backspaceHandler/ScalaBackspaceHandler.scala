@@ -80,7 +80,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         }
       }
     } else if (c == '{') {
-      handleLeftBrace(offset, element, file, editor)
+      handleLeftBrace(element, file, editor)
     }
   }
 
@@ -127,13 +127,14 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           element.getPrevSibling.textMatches("'"))
   }
 
-  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
+  private def handleLeftBrace(element: PsiElement, file: PsiFile, editor: Editor): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.is[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
+      lBrace <- block.getLBrace
       rBrace <- block.getRBrace
-      if canDeleteClosingBrace(block, parent, rBrace, file)
+      if canDeleteClosingBrace(block, parent, lBrace, rBrace, file)
     } {
       val document = editor.getDocument
       deleteBrace(rBrace, document)
@@ -142,16 +143,14 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
   }
 
-  private def canDeleteClosingBrace(block: ScBlockExpr, parent: PsiElement, rBrace: PsiElement, file: PsiFile): Boolean = {
+  private def canDeleteClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, file: PsiFile): Boolean = {
     val statements = block.statements
-    val project = file.getProject
     val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
-    val tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
+    val tabSize = CodeStyle.getSettings(file.getProject).getTabSize(ScalaFileType.INSTANCE)
 
     if (IndentUtil.compare(rBrace, parent, tabSize) >= 0)
       if (file.useIndentationBasedSyntax)
-        statements.isEmpty ||
-          canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, rBrace)
+        statements.isEmpty || canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, lBrace, rBrace)
       else if (wrapSingleExpression)
         statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, rBrace)
       else
@@ -187,10 +186,38 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     next != null && next.elementType == elementType
   }
 
-  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, rBrace: PsiElement): Boolean = {
-    // def foo() = {|1; 2} => def foo() = |1; 2 <- does not preserve semantics
-    // =/)/try/else/finally {<caret> <statement> <anything>} <- don't delete left brace
-    block.statements.size <= 1 // TODO
+  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, lBrace: PsiElement, rBrace: PsiElement): Boolean = {
+    // before:
+    // def foo() = {1; 2}
+    // after:
+    // def foo() = 1; 2
+    // illegal configuration:
+    // =/)/try/else/finally {<caret> <statement> <anything>}
+    val incorrectOneLine = block.statements.size > 1 && !lBrace.followedByNewLine()
+
+    // before:
+    // def foo() = {
+    //   1
+    // 2
+    // }
+    // after:
+    // def foo() =
+    //   1
+    // 2
+    val incorrectIndentInside = false
+
+    // before:
+    // def foo() = {
+    //   1
+    // }
+    //   2
+    // after:
+    // def foo() =
+    //   1
+    //   2
+    val incorrectIndentOutside = false
+
+    !incorrectOneLine && !incorrectIndentInside && !incorrectIndentOutside
   }
 
   // ! Attention !
