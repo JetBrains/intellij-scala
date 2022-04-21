@@ -1,4 +1,8 @@
-package org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling
+package org.jetbrains.plugins.scala
+package debugger
+package evaluation
+package evaluator
+package compiling
 
 import com.intellij.openapi.util.io.FileUtil.loadFile
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
@@ -6,17 +10,19 @@ import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.assertj.core.api.Assertions.fail
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.compiling.GeneratedClassTestBase.TestData
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.util.runners._
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import java.io.File
 
 abstract class GeneratedClassTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+  import GeneratedClassTestBase.TestData
+
   private val bp = "<breakpoint>"
   private val testDataSeparator = "------------"
   private val generatedClassNamePlaceholder = "<generated_class>"
@@ -71,6 +77,7 @@ object GeneratedClassTestBase {
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
+@Category(Array(classOf[DebuggerTests]))
 final class GeneratedClassTest extends GeneratedClassTestBase {
   def testFromPattern(): Unit = doTest()
 
@@ -88,6 +95,7 @@ final class GeneratedClassTest extends GeneratedClassTestBase {
   TestScalaVersion.Scala_3_0,
   TestScalaVersion.Scala_3_1
 ))
+@Category(Array(classOf[DebuggerTests]))
 final class GeneratedClassTest_Scala_3 extends GeneratedClassTestBase {
   override protected def testDataBasePath: String = super.testDataBasePath + "scala3/"
 
