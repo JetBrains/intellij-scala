@@ -56,11 +56,11 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
 
     /**
      * TODO: This is a very dirty hack.
-     *  For some reason Play2Template comments are parsed as an ordinary ScalaDoc comment.
-     *  [[org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes#SCALA_DOC_COMMENT]]
-     *  with all inner token types as DOC_COMMENT_BAD_CHARACTER.
-     *  Play2Templates should have a dedicated PSI element for a template comment with own parsing rules (simple, though)
-     *  NOTE: this was so before implementing ScalaDoc paragraphs, I've just added more assertions...)
+     * For some reason Play2Template comments are parsed as an ordinary ScalaDoc comment.
+     * [[org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes#SCALA_DOC_COMMENT]]
+     * with all inner token types as DOC_COMMENT_BAD_CHARACTER.
+     * Play2Templates should have a dedicated PSI element for a template comment with own parsing rules (simple, though)
+     * NOTE: this was so before implementing ScalaDoc paragraphs, I've just added more assertions...)
      */
     val isPlay2TemplateComment = builder.getTokenType == DOC_COMMENT_BAD_CHARACTER
     if (!isPlay2TemplateComment) {
@@ -87,7 +87,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
   private def isBlankLine: Boolean =
     isNewLine && (builder.lookAhead(1) match {
       case DOC_COMMENT_LEADING_ASTERISKS | DOC_WHITESPACE => true
-      case _                                              => false
+      case _ => false
     })
 
   private def parseDescription(): Unit = {
@@ -486,9 +486,9 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
     var continue = true
     while (!isEndOfComment && continue)
       builder.getTokenType match {
-        case DOC_INLINE_TAG_END  => builder.advanceLexer(); continue = false
+        case DOC_INLINE_TAG_END => builder.advanceLexer(); continue = false
         case DOC_TAG_VALUE_TOKEN => parseTagValue()
-        case _                   => builder.advanceLexer()
+        case _ => builder.advanceLexer()
       }
 
     marker.done(DOC_INLINED_TAG)
@@ -549,42 +549,42 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
 }
 
 object MyScaladocParsing {
-  val PARAM_TAG      = "@param"
+  val PARAM_TAG = "@param"
   val TYPE_PARAM_TAG = "@tparam"
-  val RETURN_TAG     = "@return"
-  val THROWS_TAG     = "@throws"
+  val RETURN_TAG = "@return"
+  val THROWS_TAG = "@throws"
 
-  val SEE_TAG        = "@see"
-  val AUTHOR_TAG     = "@author"
-  val NOTE_TAG       = "@note"
-  val SINCE_TAG      = "@since"
-  val DEFINE_TAG     = "@define"
-  val VERSION_TAG    = "@version"
-  val TODO_TAG       = "@todo"
-  val USECASE_TAG    = "@usecase"
-  val EXAMPLE_TAG    = "@example"
+  val SEE_TAG = "@see"
+  val AUTHOR_TAG = "@author"
+  val NOTE_TAG = "@note"
+  val SINCE_TAG = "@since"
+  val DEFINE_TAG = "@define"
+  val VERSION_TAG = "@version"
+  val TODO_TAG = "@todo"
+  val USECASE_TAG = "@usecase"
+  val EXAMPLE_TAG = "@example"
   val DEPRECATED_TAG = "@deprecated"
-  val MIGRATION_TAG  = "@migration"
+  val MIGRATION_TAG = "@migration"
   val INHERITDOC_TAG = "@inheritdoc"
 
-  val GROUP_TAG       = "@group"
-  val GROUP_NAME_TAG  = "@groupname"
-  val GROUP_DESC_TAG  = "@groupdesc"
-  val GROUP_PRIO_TAG  = "@groupprio"
+  val GROUP_TAG = "@group"
+  val GROUP_NAME_TAG = "@groupname"
+  val GROUP_DESC_TAG = "@groupdesc"
+  val GROUP_PRIO_TAG = "@groupprio"
   val CONSTRUCTOR_TAG = "@constructor"
 
-  val JAVA_LINK_TAG       = "@link"
+  val JAVA_LINK_TAG = "@link"
   val JAVA_LINK_PLAIN_TAG = "@linkplain"
 
   val escapeSequencesForWiki: Map[String, String] = HashMap[String, String](
-    "`"   -> "&#96;",
-    "^"   -> "&#94;",
-    "__"  -> "&#95;&#95;",
+    "`" -> "&#96;",
+    "^" -> "&#94;",
+    "__" -> "&#95;&#95;",
     "'''" -> "&#39;&#39;&#39;",
-    "''"  -> "&#39;&#39;",
-    ",,"  -> "&#44;&#44;",
-    "[["  -> "&#91;&#91;",
-    "="   -> "&#61;"
+    "''" -> "&#39;&#39;",
+    ",," -> "&#44;&#44;",
+    "[[" -> "&#91;&#91;",
+    "=" -> "&#61;"
   )
 
   val allTags = Set(
@@ -656,12 +656,12 @@ object MyScaladocParsing {
       while (htmlLexer.getTokenType != null) {
         val tokenType = htmlLexer.getTokenType
         tokenType match {
-          case XmlTokenType.XML_START_TAG_START  =>
+          case XmlTokenType.XML_START_TAG_START =>
             htmlLexer.advance()
             if (htmlLexer.getTokenType == XmlTokenType.XML_NAME) {
               val tagName = htmlLexer.getTokenText
               htmlLexer.advance()
-              while(htmlLexer.getTokenType == XmlTokenType.XML_WHITE_SPACE)
+              while (htmlLexer.getTokenType == XmlTokenType.XML_WHITE_SPACE)
                 htmlLexer.advance()
 
               val isSelfClosed = SelfClosingTagNames.contains(tagName) || // e.g. <br>
