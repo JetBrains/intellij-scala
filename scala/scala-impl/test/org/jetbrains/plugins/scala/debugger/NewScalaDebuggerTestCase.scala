@@ -208,9 +208,9 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
           if (bpType.canPutAt(virtualFile, lineNumber, getProject)) {
             val props = bpType.createBreakpointProperties(virtualFile, lineNumber)
             val comment = text.substring(document.getLineStartOffset(lineNumber), document.getLineEndOffset(lineNumber))
-            val lambdaOrdinal =
+            val lambdaOrdinal: Integer =
               if (comment.contains(lambdaOrdinalString)) readValue(comment, lambdaOrdinalString).toInt
-              else -1
+              else null
             props.setLambdaOrdinal(lambdaOrdinal)
             val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, virtualFile.getUrl, lineNumber, props))
             BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
@@ -252,7 +252,7 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
       if (bpType.canPutAt(vFile, lineNumber, getProject)) {
         val props = bpType.createBreakpointProperties(vFile, lineNumber)
-        props.setLambdaOrdinal(-1)
+        props.setLambdaOrdinal(null)
         val xbp = inWriteAction(breakpointManager.addLineBreakpoint(bpType, vFile.getUrl, lineNumber, props))
         BreakpointManager.addBreakpoint(BreakpointManager.getJavaBreakpoint(xbp))
       }
@@ -269,7 +269,7 @@ abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOw
 
   private val lambdaOrdinalString: String = "LambdaOrdinal"
 
-  protected val lambdaOrdinal: String = s"$lambdaOrdinalString(0)"
+  protected def lambdaOrdinal(n: Int): String = s"$lambdaOrdinalString($n)"
 
   protected def assertEquals[A, B](expected: A, actual: B)(implicit ev: A <:< B): Unit = {
     org.junit.Assert.assertEquals(expected, actual)

@@ -199,7 +199,7 @@ abstract class CompilingEvaluatorTestBase extends ExpressionEvaluationTestBase {
     s"""object InLambda {
        |  def main(args: Array[String]): Unit = {
        |    val list: List[Int] = List(1, 2, 3)
-       |    list.map {x => println(x)}.toList $breakpoint, $lambdaOrdinal
+       |    list.map {x => println(x)}.toList $breakpoint, ${lambdaOrdinal(0)}
        |    System.out.println()
        |  }
        |}
