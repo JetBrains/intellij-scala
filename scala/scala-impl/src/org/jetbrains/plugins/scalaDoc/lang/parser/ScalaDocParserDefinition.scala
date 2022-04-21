@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl._
 import org.jetbrains.plugins.scalaDoc.lang.parser.ScalaDocParserDefinition.isInsideJavaLinkTag
 
-final class ScalaDocParserDefinition extends ParserDefinition {
+class ScalaDocParserDefinition extends ParserDefinition {
 
   import ScalaDocElementTypes._
   import ScalaDocParserDefinition.isInsideThrowsTag

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubFileElementType
 
-final class ScalaParserDefinition extends ScalaParserDefinitionBase {
+class ScalaParserDefinition extends ScalaParserDefinitionBase {
 
   override def createLexer(project: Project) = new ScalaLexer(false, project)
 
