@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.PsiBuilderExt
-import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
+import org.jetbrains.plugins.scala.lang.parser.parsing.builder.{ScalaPsiBuilder, ScalaPsiBuilderImpl}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.StableId
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
@@ -30,8 +30,8 @@ import scala.collection.immutable.HashMap
  * @see [[scala.tools.nsc.doc.base.CommentFactoryBase.WikiParser]]
  * @see [[scala.tools.nsc.doc.html.HtmlPage]]
  */
-final class MyScaladocParsing(private val builder: PsiBuilder,
-                              private val tabSize: Int) extends ScalaDocElementTypes {
+class MyScaladocParsing(private val builder: PsiBuilder,
+                        private val tabSize: Int) extends ScalaDocElementTypes {
 
   private var hasClosingElementsInWikiSyntax: Boolean = false
   private var canHaveTags = true
@@ -50,6 +50,11 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
 
   private def clearFlag(flag: Int): Unit =
     flags &= ~flag
+
+  /** intended to be overridden in case a user of this class wants
+   * another implementation of `ScalaPsiBuilder` */
+  def mkScalaPsiBuilder(delegate: PsiBuilder, isScala3: Boolean): ScalaPsiBuilder =
+    new ScalaPsiBuilderImpl(delegate, isScala3)
 
   def parse(root: IElementType): Unit = {
     val rootMarker = builder.mark()
@@ -319,7 +324,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
         if (builder.getTokenType == DOC_WHITESPACE)
           builder.advanceLexer()
         if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
-          val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
+          val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
           StableId(DOC_CODE_LINK_VALUE, forImport = true)(psiBuilder)
         }
       case DOC_MONOSPACE_TAG =>
@@ -478,7 +483,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
         if (!isEndOfComment && builder.getTokenType == ScalaDocTokenType.DOC_WHITESPACE)
           builder.advanceLexer()
 
-        val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
+        val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
         StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
       case _ => // do nothing
     }
@@ -522,7 +527,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder,
     tagName match {
       case THROWS_TAG =>
         consumeWhiteSpaces()
-        val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
+        val psiBuilder = mkScalaPsiBuilder(builder, isScala3 = false)
         StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
       case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
         if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
