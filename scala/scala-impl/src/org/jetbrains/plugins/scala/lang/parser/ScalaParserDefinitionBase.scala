@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{FileViewProvider, PsiElement}
@@ -17,10 +16,7 @@ abstract class ScalaParserDefinitionBase protected() extends ParserDefinition {
 
   override def createParser(project: Project) = new ScalaParser(false)
 
-  override def createElement(node: ASTNode): PsiElement = node.getElementType match {
-    case creator: SelfPsiCreator => creator.createElement(node)
-    case _ => new ASTWrapperPsiElement(node)
-  }
+  override def createElement(node: ASTNode): PsiElement = ASTNodeToPsiElement.map(node)
 
   override def createFile(viewProvider: FileViewProvider): ScalaFile
 

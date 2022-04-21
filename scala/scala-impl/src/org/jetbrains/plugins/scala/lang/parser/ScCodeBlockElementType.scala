@@ -6,7 +6,6 @@ import com.intellij.lang.{ASTNode, Language}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.{ICompositeElementType, IErrorCounterReparseableElementType}
-import com.intellij.psi.util.PsiUtilCore
 
 import scala.annotation.tailrec
 
@@ -47,11 +46,9 @@ abstract class ScCodeBlockElementType extends IErrorCounterReparseableElementTyp
 
 object ScCodeBlockElementType {
 
-  object BlockExpression extends ScCodeBlockElementType with SelfPsiCreator {
+  object BlockExpression extends ScCodeBlockElementType {
 
     override def createNode(text: CharSequence): ASTNode = new psi.impl.expr.ScBlockExprImpl(this, text)
-
-    override def createElement(node: ASTNode): PsiElement = PsiUtilCore.NULL_PSI_ELEMENT
 
     override def getLanguageForParser(psi: PsiElement): Language =
       Option(psi).map(_.getLanguage) match {
