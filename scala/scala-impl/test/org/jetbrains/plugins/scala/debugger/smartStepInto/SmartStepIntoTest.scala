@@ -199,7 +199,7 @@ class SmartStepIntoTest_3_1 extends SmartStepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
+abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Target(target: String)
 

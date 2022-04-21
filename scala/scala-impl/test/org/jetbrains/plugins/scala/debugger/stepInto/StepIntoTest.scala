@@ -101,7 +101,7 @@ class StepIntoTest_3_1 extends StepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
+abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Breakpoint(file: String, method: String, line: Int)
 
