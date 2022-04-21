@@ -79,8 +79,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           editor.getDocument.commit(file.getProject)
         }
       }
-    } else if (c == '{' && scalaSettings.WRAP_SINGLE_EXPRESSION_BODY) {
-      handleLeftBrace(offset, element, file, editor)
+    } else if (c == '{') {
+      handleLeftBrace(element, file, editor)
     }
   }
 
@@ -127,21 +127,97 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
           element.getPrevSibling.textMatches("'"))
   }
 
-  private def handleLeftBrace(offset: Int, element: PsiElement, file: PsiFile, editor: Editor): Unit = {
+  private def handleLeftBrace(element: PsiElement, file: PsiFile, editor: Editor): Unit = {
     for {
       BraceWrapInfo(element, _, parent, _) <- ScalaTypedHandler.findElementToWrap(element)
       if element.is[ScBlockExpr]
       block = element.asInstanceOf[ScBlockExpr]
+      lBrace <- block.getLBrace
       rBrace <- block.getRBrace
-      if canDeleteClosingBrace(block, rBrace)
-      project = file.getProject
-      tabSize = CodeStyle.getSettings(project).getTabSize(ScalaFileType.INSTANCE)
-      if IndentUtil.compare(rBrace, parent, tabSize) >= 0
+      if canDeleteClosingBrace(block, parent, lBrace, rBrace, file)
     } {
       val document = editor.getDocument
       deleteBrace(rBrace, document)
+      val project = file.getProject
       document.commit(project)
     }
+  }
+
+  private def canDeleteClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, file: PsiFile): Boolean = {
+    val statements = block.statements
+    val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
+    val tabSize = CodeStyle.getSettings(file.getProject).getTabSize(ScalaFileType.INSTANCE)
+
+    if (IndentUtil.compare(rBrace, parent, tabSize) >= 0)
+      if (file.useIndentationBasedSyntax)
+        statements.isEmpty || canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, tabSize)
+      else if (wrapSingleExpression)
+        statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, rBrace)
+      else
+        false
+    else
+      false
+  }
+
+  /**
+   * do not delete brace if it breaks the code semantics (and leaves the code syntax correct)
+   * e.g. here we can't delete the brace cause `else` will transfer to the inner `if`
+   * {{{
+   * if (condition1) {<CARET>
+   *   if (condition2)
+   *     foo()
+   * } else
+   *   bar()
+   * }}}
+   */
+  private def canDeleteClosingBrace(statement: ScBlockStatement, rBrace: PsiElement): Boolean =
+    statement match {
+      case innerIf: ScIf   =>
+        innerIf.elseKeyword.isDefined || !isFollowedBy(rBrace, ScalaTokenTypes.kELSE)
+      case innerTry: ScTry =>
+        val okFromFinally = innerTry.finallyBlock.isDefined || !isFollowedBy(rBrace, ScalaTokenTypes.kFINALLY)
+        val okFromCatch   = innerTry.catchBlock.isDefined || !isFollowedBy(rBrace, ScalaTokenTypes.kCATCH)
+        okFromFinally && okFromCatch
+      case _               => true
+    }
+
+  private def isFollowedBy(element: PsiElement, elementType: IElementType): Boolean = {
+    val next = element.getNextNonWhitespaceAndNonEmptyLeaf
+    next != null && next.elementType == elementType
+  }
+
+  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, tabSize: Int): Boolean = {
+    // before:
+    // def foo() = {1; 2}
+    // after:
+    // def foo() = 1; 2
+    val correctOneLine = block.statements.size <= 1 || lBrace.followedByNewLine()
+
+    // before:
+    // def foo() = {
+    //   1
+    // 2
+    // }
+    // after:
+    // def foo() =
+    //   1
+    // 2
+    val correctIndentInside = block.statements.size <= 1 ||
+      block.statements.forall(statement => IndentUtil.compare(statement, parent, tabSize) > 0)
+
+    // before:
+    // def foo() = {
+    //   1
+    // }
+    //   2
+    // after:
+    // def foo() =
+    //   1
+    //   2
+    val nextEl = block.getParent.getNextSiblingNotWhitespaceComment
+    val correctIndentOutside = nextEl == null || IndentUtil.compare(nextEl, parent, tabSize) <= 0
+
+    correctOneLine && correctIndentInside && correctIndentOutside
   }
 
   // ! Attention !
@@ -166,44 +242,6 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
     document.deleteString(start, end)
-  }
-
-  private def canDeleteClosingBrace(block: ScBlockExpr, blockRBrace: PsiElement): Boolean = {
-    val statements = block.statements
-
-    if (statements.isEmpty)
-      true
-    else if (statements.size == 1)
-      canDeleteClosingBrace(statements.head, blockRBrace)
-    else
-      false
-  }
-
-  /**
-   * do not delete brace if it breaks the code semantics (and leaves the code syntax correct)
-   * e.g. here we can't delete the brace cause `else` will transfer to the inner `if`
-   * {{{
-   * if (condition1) {<CARET>
-   *   if (condition2)
-   *     foo()
-   * } else
-   *   bar()
-   * }}}
-   */
-  private def canDeleteClosingBrace(statement: ScBlockStatement, blockRBrace: PsiElement) =
-    statement match {
-      case innerIf: ScIf   =>
-        innerIf.elseKeyword.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kELSE)
-      case innerTry: ScTry =>
-        val okFromFinally = innerTry.finallyBlock.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kFINALLY)
-        val okFromCatch   = innerTry.catchBlock.isDefined || !isFollowedBy(blockRBrace, ScalaTokenTypes.kCATCH)
-        okFromFinally && okFromCatch
-      case _               => true
-    }
-
-  private def isFollowedBy(element: PsiElement, elementType: IElementType): Boolean = {
-    val next = element.getNextNonWhitespaceAndNonEmptyLeaf
-    next != null && next.elementType == elementType
   }
 
   /*
