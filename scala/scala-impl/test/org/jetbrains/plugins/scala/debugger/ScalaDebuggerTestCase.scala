@@ -34,7 +34,7 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
-abstract class NewScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
+abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
 
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 

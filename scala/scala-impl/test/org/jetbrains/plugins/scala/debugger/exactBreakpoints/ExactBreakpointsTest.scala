@@ -152,7 +152,7 @@ abstract class ExactBreakpointsTestWithEarlyDefinitions extends ExactBreakpoints
   }
 }
 
-abstract class ExactBreakpointsTestBase extends NewScalaDebuggerTestCase {
+abstract class ExactBreakpointsTestBase extends ScalaDebuggerTestCase {
 
   private val expectedSourcePositionsQueue: ConcurrentLinkedQueue[String] =
     new ConcurrentLinkedQueue()
