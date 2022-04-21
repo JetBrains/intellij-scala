@@ -7,14 +7,19 @@ import com.intellij.debugger.engine.{DebuggerUtils, SuspendContextImpl}
 import com.sun.jdi.VoidValue
 import org.junit.Assert.{assertTrue, fail}
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.stream.Collectors
+import scala.jdk.CollectionConverters._
+
 abstract class ExpressionEvaluationTestBase extends NewScalaDebuggerTestCase {
 
-  private var onBreakpointActionsIterator: Iterator[SuspendContextImpl => Unit] = _
+  private val onBreakpointActionsQueue: ConcurrentLinkedQueue[SuspendContextImpl => Unit] = new ConcurrentLinkedQueue()
 
   override protected def tearDown(): Unit = {
     try {
-      if (onBreakpointActionsIterator.hasNext) {
-        fail(s"The debugger did not stop to execute all actions. Remaining: ${onBreakpointActionsIterator.size}")
+      if (!onBreakpointActionsQueue.isEmpty) {
+        val remaining = onBreakpointActionsQueue.stream().collect(Collectors.toList[SuspendContextImpl => Unit]).asScala.toList
+        fail(s"The debugger did not stop to execute all actions. Remaining: $remaining")
       }
     } finally {
       super.tearDown()
@@ -25,14 +30,11 @@ abstract class ExpressionEvaluationTestBase extends NewScalaDebuggerTestCase {
                                         (actions: (SuspendContextImpl => Unit)*): Unit = {
     assertTrue("Test should execute an action on at least one breakpoint", actions.nonEmpty)
 
-    onBreakpointActionsIterator = actions.iterator
+    onBreakpointActionsQueue.addAll(actions.asJava)
     createLocalProcess(mainClass)
 
     onBreakpoints { ctx =>
-      if (onBreakpointActionsIterator.hasNext) {
-        val action = onBreakpointActionsIterator.next()
-        action(ctx)
-      }
+      Option(onBreakpointActionsQueue.poll()).foreach(_ (ctx))
       resume(ctx)
     }
   }

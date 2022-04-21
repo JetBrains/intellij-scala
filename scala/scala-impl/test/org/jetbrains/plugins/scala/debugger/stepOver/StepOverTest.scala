@@ -6,6 +6,10 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.stream.Collectors
+import scala.jdk.CollectionConverters._
+
 @Category(Array(classOf[DebuggerTests]))
 class StepOverTest_2_11 extends StepOverTest {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -105,12 +109,14 @@ class StepOverTest_3_1 extends StepOverTest_3_0 {
 
 abstract class StepOverTest extends NewScalaDebuggerTestCase {
 
-  private var expectedLineIterator: Iterator[Int] = _
+  private val expectedLineQueue: ConcurrentLinkedQueue[Int] = new ConcurrentLinkedQueue()
 
   override protected def tearDown(): Unit = {
     try {
-      if (expectedLineIterator.hasNext) {
-        fail(s"The debugger did not stop on all expected lines. Remaining: ${expectedLineIterator.toList}")
+      if (!expectedLineQueue.isEmpty) {
+        val remaining =
+          expectedLineQueue.stream().collect(Collectors.toList[Int]).asScala.toList
+        fail(s"The debugger did not stop on all expected lines. Remaining: $remaining")
       }
     } finally {
       super.tearDown()
@@ -119,7 +125,7 @@ abstract class StepOverTest extends NewScalaDebuggerTestCase {
 
   protected def stepOverTest(className: String = getTestName(false))(lineNumbers: Int*): Unit = {
     assertTrue("The test should stop on at least 1 breakpoint", lineNumbers.nonEmpty)
-    expectedLineIterator = lineNumbers.iterator
+    expectedLineQueue.addAll(lineNumbers.asJava)
 
     createLocalProcess(className)
 
@@ -130,12 +136,12 @@ abstract class StepOverTest extends NewScalaDebuggerTestCase {
       val loc = ctx.getFrameProxy.location()
       val srcPos = inReadAction(positionManager.getSourcePosition(loc))
       val actual = srcPos.getLine
-      if (!expectedLineIterator.hasNext) {
-        fail(s"The debugger stopped on line $actual, but there were no more expected lines")
-      } else {
-        val expected = expectedLineIterator.next()
-        assertEquals(expected, actual)
-        stepOver(ctx)
+      Option(expectedLineQueue.poll()) match {
+        case None =>
+          fail(s"The debugger stopped on line $actual, but there were no more expected lines")
+        case Some(expected) =>
+          assertEquals(expected, actual)
+          stepOver(ctx)
       }
     }
   }
