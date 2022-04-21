@@ -65,10 +65,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     moduleName: String,
     compilerClasspath: Seq[File]
   )(implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
-    import LibraryExt._
-    val scalaLibrariesInCompilerClasspath = compilerClasspath.map(_.getName).filter(isRuntimeLibrary)
-    val compilerVersion = scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
-    compilerVersion match {
+    compilerVersion(compilerClasspath) match {
       case Some(version) =>
         configureScalaSdk(moduleName, version, compilerClasspath)
       case None        =>
@@ -99,8 +96,18 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
     }
   }
 
+  private def compilerVersion(compilerClasspath: Seq[File]): Option[String] = {
+    import LibraryExt._
+    val scalaLibrariesInCompilerClasspath = compilerClasspath.map(_.getName).filter(isRuntimeLibrary)
+    scalaLibrariesInCompilerClasspath.flatMap(runtimeVersion).headOption
+  }
+
   private def compilerOptionsFrom(data: ScalaModelData): Seq[String] =
     Option(data.getScalaCompileOptions).toSeq.flatMap { options =>
+      val targetFlag = if (compilerVersion(data.getScalaClasspath.asScala.toSeq).flatMap(ScalaLanguageLevel.findByVersion).exists(_.isScala3))
+        s"-Xtarget:${data.getTargetCompatibility}"
+      else
+        s"-target:jvm-${data.getTargetCompatibility}"
       val presentations = Seq(
         options.isDeprecation -> "-deprecation",
         options.isUnchecked -> "-unchecked",
@@ -110,7 +117,7 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
         // the encoding value needs to be a separate option, otherwise the -encoding flag and the value will be
         // treated as a single flag
         !isEmpty(options.getEncoding) -> options.getEncoding,
-        !isEmpty(data.getTargetCompatibility) -> s"-target:jvm-${data.getTargetCompatibility}")
+        !isEmpty(data.getTargetCompatibility) -> targetFlag)
 
       val additionalOptions =
         if (options.getAdditionalParameters != null) options.getAdditionalParameters.asScala else Seq.empty
