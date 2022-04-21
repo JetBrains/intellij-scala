@@ -704,7 +704,7 @@ abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
        |object MethodValue {
        |  def main(args: Array[String]): Unit = {
        |    val a = new A(Seq(1, 2, 3))
-       |    a.update(incr(2) _).update(MethodValue.id[Int](_)).update(a.decr) $breakpoint
+       |    a.update(incr(2) _).update(MethodValue.id[Int](_)).update(a.decr) $breakpoint, ${lambdaOrdinal(-1)}
        |  }
        |
        |  def incr(i: Int)(j: Int): Int = i + j
