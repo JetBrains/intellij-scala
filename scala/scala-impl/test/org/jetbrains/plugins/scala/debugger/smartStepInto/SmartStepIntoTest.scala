@@ -7,6 +7,8 @@ import com.intellij.debugger.engine.{ContextUtil, SuspendContextImpl}
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 @Category(Array(classOf[DebuggerTests]))
@@ -197,25 +199,26 @@ class SmartStepIntoTest_3_1 extends SmartStepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
+abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Target(target: String)
 
   protected case class Breakpoint(file: String, method: String, line: Int)
 
-  private var expectedTargetsIterator: Iterator[Target] = _
+  private val expectedTargetsQueue: ConcurrentLinkedQueue[Target] = new ConcurrentLinkedQueue()
 
-  private var expectedActionsIterator: Iterator[(Breakpoint, SuspendContextImpl => Unit)] = _
+  private val expectedActionsQueue: ConcurrentLinkedQueue[(Breakpoint, SuspendContextImpl => Unit)] =
+    new ConcurrentLinkedQueue()
 
   private val handler: ScalaSmartStepIntoHandler = new ScalaSmartStepIntoHandler
 
   override protected def tearDown(): Unit = {
     try {
-      if (expectedTargetsIterator.hasNext) {
+      if (!expectedTargetsQueue.isEmpty) {
         fail(s"The debugger did not check all expected smart step into targets.")
       }
-      if (expectedActionsIterator.hasNext) {
-        fail(s"The debugger did not execute all expected actions on breakpoints. Remaining: ${expectedActionsIterator.toList}")
+      if (!expectedActionsQueue.isEmpty) {
+        fail(s"The debugger did not execute all expected actions on breakpoints. Remaining: ${drain(expectedActionsQueue)}")
       }
     } finally {
       super.tearDown()
@@ -227,15 +230,16 @@ abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
                                  (actions: (Breakpoint, SuspendContextImpl => Unit)*): Unit = {
     assertTrue("The test should check at least 1 target", targets.nonEmpty)
     assertTrue("The test should stop on at least 1 breakpoint", actions.nonEmpty)
-    expectedTargetsIterator = targets.iterator
-    expectedActionsIterator = actions.iterator
+    expectedTargetsQueue.addAll(targets.asJava)
+    expectedActionsQueue.addAll(actions.asJava)
 
     createLocalProcess(mainClass)
 
     onBreakpoint { implicit ctx =>
       val availableTargets = availableSmartStepIntoTargets()
       val actual = inReadAction(availableTargets.map(_.getPresentation))
-      assertEquals(expectedTargetsIterator.toSeq.map(_.target), actual)
+      val expected = drain(expectedTargetsQueue)
+      assertEquals(expected.map(_.target), actual)
     }
 
     onBreakpoints { ctx =>
@@ -244,12 +248,13 @@ abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
       val srcPos = inReadAction(positionManager.getSourcePosition(loc))
       val actual = Breakpoint(loc.sourceName(), loc.method().name(), srcPos.getLine + 1)
-      if (!expectedActionsIterator.hasNext) {
-        fail(s"The debugger stopped on $actual, but there were no expected breakpoints left")
-      } else {
-        val (expected, cont) = expectedActionsIterator.next()
-        assertEquals(expected, actual)
-        cont(ctx)
+
+      Option(expectedActionsQueue.poll()) match {
+        case None =>
+          fail(s"The debugger stopped on $actual, but there were no expected breakpoints left")
+        case Some((expected, cont)) =>
+          assertEquals(expected, actual)
+          cont(ctx)
       }
     }
   }
@@ -271,6 +276,15 @@ abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
     val debugProcess = getDebugProcess
     val command = debugProcess.createStepIntoCommand(context, false, filter)
     debugProcess.getManagerThread.schedule(command)
+  }
+
+  private def drain[A](queue: ConcurrentLinkedQueue[A]): List[A] = {
+    @tailrec
+    def loop(acc: List[A]): List[A] =
+      if (queue.isEmpty) acc.reverse
+      else loop(queue.poll() :: acc)
+
+    loop(List.empty)
   }
 
   addSourceFile("ChainedMethodsAndConstructor.scala",
@@ -690,7 +704,7 @@ abstract class SmartStepIntoTestBase extends NewScalaDebuggerTestCase {
        |object MethodValue {
        |  def main(args: Array[String]): Unit = {
        |    val a = new A(Seq(1, 2, 3))
-       |    a.update(incr(2) _).update(MethodValue.id[Int](_)).update(a.decr) $breakpoint
+       |    a.update(incr(2) _).update(MethodValue.id[Int](_)).update(a.decr) $breakpoint, ${lambdaOrdinal(-1)}
        |  }
        |
        |  def incr(i: Int)(j: Int): Int = i + j

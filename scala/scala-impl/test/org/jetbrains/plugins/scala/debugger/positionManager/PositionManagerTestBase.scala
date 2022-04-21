@@ -16,7 +16,7 @@ import javax.swing.SwingUtilities
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-abstract class PositionManagerTestBase extends NewScalaDebuggerTestCase {
+abstract class PositionManagerTestBase extends ScalaDebuggerTestCase {
 
   protected case class Loc(cls: String, method: String, line: Int)
 

@@ -7,6 +7,10 @@ import com.intellij.debugger.settings.DebuggerSettings
 import org.junit.Assert.{assertTrue, fail}
 import org.junit.experimental.categories.Category
 
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.stream.Collectors
+import scala.jdk.CollectionConverters._
+
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_2_11 extends StepIntoTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
@@ -97,16 +101,21 @@ class StepIntoTest_3_1 extends StepIntoTest_3_0 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
+abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   protected case class Breakpoint(file: String, method: String, line: Int)
 
-  private var expectedTargetsIterator: Iterator[(Breakpoint, SuspendContextImpl => Unit)] = _
+  private val expectedTargetsQueue: ConcurrentLinkedQueue[(Breakpoint, SuspendContextImpl => Unit)] =
+    new ConcurrentLinkedQueue()
 
   override protected def tearDown(): Unit = {
     try {
-      if (expectedTargetsIterator.hasNext) {
-        fail(s"The debugger did not stop on all expected breakpoints. Remaining: ${expectedTargetsIterator.toList.map(_._1)}")
+      if (!expectedTargetsQueue.isEmpty) {
+        val remaining =
+          expectedTargetsQueue.stream()
+            .collect(Collectors.toList[(Breakpoint, SuspendContextImpl => Unit)])
+            .asScala.map(_._1)
+        fail(s"The debugger did not stop on all expected breakpoints. Remaining: $remaining")
       }
     } finally {
       super.tearDown()
@@ -116,7 +125,7 @@ abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
   protected def stepIntoTest(mainClass: String = getTestName(false))
                             (targets: (Breakpoint, SuspendContextImpl => Unit)*): Unit = {
     assertTrue("The test should stop on at least 1 breakpoint", targets.nonEmpty)
-    expectedTargetsIterator = targets.iterator
+    expectedTargetsQueue.addAll(targets.asJava)
 
     createLocalProcess(mainClass)
 
@@ -126,12 +135,12 @@ abstract class StepIntoTestBase extends NewScalaDebuggerTestCase {
       val positionManager = ScalaPositionManager.instance(debugProcess).getOrElse(new ScalaPositionManager(debugProcess))
       val srcPos = inReadAction(positionManager.getSourcePosition(loc))
       val actual = Breakpoint(loc.sourceName(), loc.method().name(), srcPos.getLine + 1)
-      if (!expectedTargetsIterator.hasNext) {
-        fail(s"The debugger stopped on $actual, but there were no expected breakpoints left")
-      } else {
-        val (expected, cont) = expectedTargetsIterator.next()
-        assertEquals(expected, actual)
-        cont(ctx)
+      Option(expectedTargetsQueue.poll()) match {
+        case None =>
+          fail(s"The debugger stopped on $actual, but there were no expected breakpoints left")
+        case Some((expected, cont)) =>
+          assertEquals(expected, actual)
+          cont(ctx)
       }
     }
   }
