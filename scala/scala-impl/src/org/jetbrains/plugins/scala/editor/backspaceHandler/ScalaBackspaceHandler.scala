@@ -150,7 +150,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
     if (IndentUtil.compare(rBrace, parent, tabSize) >= 0)
       if (file.useIndentationBasedSyntax)
-        statements.isEmpty || canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, lBrace, rBrace)
+        statements.isEmpty || canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, tabSize)
       else if (wrapSingleExpression)
         statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, rBrace)
       else
@@ -186,14 +186,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     next != null && next.elementType == elementType
   }
 
-  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, lBrace: PsiElement, rBrace: PsiElement): Boolean = {
+  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, tabSize: Int): Boolean = {
     // before:
     // def foo() = {1; 2}
     // after:
     // def foo() = 1; 2
-    // illegal configuration:
-    // =/)/try/else/finally {<caret> <statement> <anything>}
-    val incorrectOneLine = block.statements.size > 1 && !lBrace.followedByNewLine()
+    val correctOneLine = block.statements.size <= 1 || lBrace.followedByNewLine()
 
     // before:
     // def foo() = {
@@ -204,7 +202,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     // def foo() =
     //   1
     // 2
-    val incorrectIndentInside = false
+    val correctIndentInside = block.statements.size <= 1 ||
+      block.statements.forall(statement => IndentUtil.compare(statement, parent, tabSize) > 0)
 
     // before:
     // def foo() = {
@@ -215,9 +214,10 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     // def foo() =
     //   1
     //   2
-    val incorrectIndentOutside = false
+    val nextEl = block.getParent.getNextSiblingNotWhitespaceComment
+    val correctIndentOutside = nextEl == null || IndentUtil.compare(nextEl, parent, tabSize) <= 0
 
-    !incorrectOneLine && !incorrectIndentInside && !incorrectIndentOutside
+    correctOneLine && correctIndentInside && correctIndentOutside
   }
 
   // ! Attention !
