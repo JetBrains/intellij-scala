@@ -222,9 +222,6 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
       case err @ ConfigParseError(path, cause) =>
         Log.warnWithErrorInTests(s"config resolve error: parse error: $path", cause)
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", err.getMessage)
-      case UnknownError(unknownMessage, exception) =>
-        Log.warnWithErrorInTests(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
-        ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
       /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]] */
       case _: ConfigScalafmtResolveError => return
       case ConfigCyclicDependenciesError(configPath, ex) =>
