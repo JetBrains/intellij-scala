@@ -8,7 +8,7 @@ class SCL20133Test extends ScalaLightCodeInsightFixtureTestAdapter {
       |object Test {
       |  trait BF[-E, +To]
       |
-      |  trait Comp[K[_]]
+      |  trait Comp[+K[_]]
       |
       |  trait Col[A] {
       |    def head: A
@@ -18,14 +18,10 @@ class SCL20133Test extends ScalaLightCodeInsightFixtureTestAdapter {
       |
       |  implicit def co[A, CC[X] <: Col[X]](c: Comp[CC]): BF[A, CC[A]] = ???
       |
-      |  def t(c: Col[Int]) = c.to(co(ColComp)) // was: type mismatch in IntelliJ
-      |
-      |  def t1(c: Col[Int]): Col[Int] = c.to(ColComp)
-      |  def t2(c: Col[Int]) = c.to(ColComp)
-      |  def t3(c: Col[Int]) = c.to(co(ColComp): BF[Int, Col[Int]])
-      |
-      |  t1(???).head
-      |  t2(???).head
+      |  def t1(c: Col[Int]) = c.to(ColComp).head
+      |  def t2(c: Col[Int]) = c.to(co(ColComp)).head
+      |  def t3(c: Col[Int]) = c.to(co(ColComp): BF[Int, Col[Int]]).head
+      |  def t4(c: Col[Int]) = (c.to(ColComp): Col[Int]).head
       |}
       |""".stripMargin
   )
