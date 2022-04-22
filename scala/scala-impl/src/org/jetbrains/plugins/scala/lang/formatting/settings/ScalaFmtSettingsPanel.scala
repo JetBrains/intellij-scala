@@ -162,7 +162,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     import ConfigResolveError._
     configResolveError match {
       case ConfigFileNotFound(configPath)      => reportConfigFileNotFound(configPath)
-      case ConfigParseError(_, exception)      => reportConfigParseError(exception.getMessage)
+      case err: ConfigParseError               => reportConfigParseError(err.getMessage)
       case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
       case UnknownError(message, _)            => reportConfigParseError(message)
       case ConfigScalafmtResolveError(error)   => reportCantResolveVersion(error.version)

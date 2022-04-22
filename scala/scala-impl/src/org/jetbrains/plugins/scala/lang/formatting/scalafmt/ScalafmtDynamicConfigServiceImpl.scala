@@ -219,9 +219,9 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
       case ConfigFileNotFound(path) =>
         Log.warnWithErrorInTests(s"config resolve error: config not found: $path")
         ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
-      case ConfigParseError(path, cause) =>
+      case err @ ConfigParseError(path, cause) =>
         Log.warnWithErrorInTests(s"config resolve error: parse error: $path", cause)
-        ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
+        ScalaBundle.message("scalafmt.config.load.errors.parse.error", err.getMessage)
       case UnknownError(unknownMessage, exception) =>
         Log.warnWithErrorInTests(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
         ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)

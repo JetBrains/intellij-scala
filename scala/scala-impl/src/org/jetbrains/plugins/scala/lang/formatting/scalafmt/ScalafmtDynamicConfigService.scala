@@ -79,7 +79,7 @@ object ScalafmtDynamicConfigService {
       override def getMessage: String = s"Scalafmt config file not found: $configPath"
     }
     case class ConfigParseError(configPath: String, cause: Throwable) extends ConfigError {
-      override def getMessage: String = cause.getMessage
+      override def getMessage: String = cause.getMessage + Option(cause.getCause).fold("")(": " + _.getMessage)
     }
     case class ConfigCyclicDependenciesError(configPath: String, cause: ConfigCyclicDependencyException) extends ConfigError {
       override def getMessage: String = cause.getMessage
