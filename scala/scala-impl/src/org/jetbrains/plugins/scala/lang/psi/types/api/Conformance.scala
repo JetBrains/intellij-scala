@@ -4,7 +4,7 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.caches.RecursionManager
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker, Tracer}
-import org.jetbrains.plugins.scala.extensions.NullSafe
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScType}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
@@ -38,7 +38,7 @@ trait Conformance {
                           checkWeak: Boolean = false): ConstraintsResult = TraceLogger.func {
     ProgressManager.checkCanceled()
 
-    if (left.isAny || right.isNothing || left == right) constraints
+    if (left.isAny || left.is[WildcardType] || right.isNothing || left == right) constraints
     else if (right.canBeSameOrInheritor(left)) {
       val result = conformsInner(Key(left, right, checkWeak), visited)
       combine(result)(constraints)
