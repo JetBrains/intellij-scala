@@ -32,7 +32,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaVersionProvider.languageLevel
 
-  def settingsForHighlighting: Seq[ScalaCompilerSettings] =
+  val settingsForHighlighting: Seq[ScalaCompilerSettings] =
     ScalaCompilerConfiguration.instanceIn(module.getProject).settingsForHighlighting(module)
 
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet

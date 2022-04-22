@@ -11,4 +11,19 @@ class SubclassFieldShadowInspectionTest extends FieldShadowInspectionTestBase {
          |class D(${START}c: Int${END}) extends C(c)
          |""".stripMargin
     )
+
+  def test_object_field_shadows_trait_field(): Unit =
+    checkTextHasError(
+      s"""
+         |trait TraitA {
+         |  def n: Int = 1
+         |}
+         |
+         |object ObjectA extends TraitA {
+         |  def foo(): Unit = {
+         |    val ${START}n${END}: Int = 0
+         |  }
+         |}
+         |""".stripMargin
+    )
 }

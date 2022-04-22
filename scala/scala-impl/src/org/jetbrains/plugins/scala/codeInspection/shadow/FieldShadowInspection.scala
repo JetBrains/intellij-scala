@@ -3,21 +3,21 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
 import javax.swing.JComponent
-import scala.annotation.tailrec
 
-final class FieldShadowingInspection extends AbstractRegisteredInspection {
-  import FieldShadowingInspection._
+final class FieldShadowInspection extends AbstractRegisteredInspection {
+  import FieldShadowInspection._
 
   override protected def problemDescriptor(element:             PsiElement,
                                            maybeQuickFix:       Option[LocalQuickFix],
@@ -29,13 +29,15 @@ final class FieldShadowingInspection extends AbstractRegisteredInspection {
       case _ => None
     }
 
+  private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this)
+
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor =
     manager.createProblemDescriptor(
       elem,
       description,
       isOnTheFly,
-      Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), new DisableInspectionToolAction(this)),
+      Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction),
       ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
 
@@ -81,14 +83,11 @@ final class FieldShadowingInspection extends AbstractRegisteredInspection {
   }
 
   private def shouldHighlightVarShadowing(elem: ScNamedElement): Boolean =
-    highlightVarShadowing match {
-      case HighlightVarShadowingAlways              => true
-      case HighlightVarShadowingNever               => false
-      case HighlightVarShadowingCheckCompilerOption =>
-        elem.module.exists(_.additionalCompilerOptions.contains("-Xlint:private-shadow"))
-    }
+    Seq(HighlightVarShadowing.Always, HighlightVarShadowing.Never, HighlightVarShadowing.CheckCompilerOption)
+      .collectFirst { case shadowing if shadowing.id == highlightVarShadowing => shadowing.shouldHighlight(elem) }
+      .getOrElse(false)
 
-  var highlightVarShadowing: Int = HighlightVarShadowingAlways
+  var highlightVarShadowing: Int = HighlightVarShadowing.Always.id
 
   def getHighlightVarShadowing: Int = highlightVarShadowing
 
@@ -107,7 +106,7 @@ final class FieldShadowingInspection extends AbstractRegisteredInspection {
     )
 }
 
-object FieldShadowingInspection {
+object FieldShadowInspection {
   @Nls
   val annotationDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.field")
 
@@ -117,22 +116,39 @@ object FieldShadowingInspection {
   @Nls
   val highlightVarShadowingLabel: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.label")
 
-  val HighlightVarShadowingAlways: Int = 0
-  val HighlightVarShadowingNever: Int = 1
-  val HighlightVarShadowingCheckCompilerOption: Int = 2
+  sealed trait HighlightVarShadowing {
+    val id: Int
+    val label: String
+    def shouldHighlight(elem: ScNamedElement): Boolean
+  }
 
-  val comboboxValues: Map[Int, String] =
-    Map(
-      HighlightVarShadowingAlways              -> ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.always"),
-      HighlightVarShadowingNever               -> ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.never"),
-      HighlightVarShadowingCheckCompilerOption -> ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.check")
-    )
-
-  @tailrec
-  private def findTypeDefinition(elem: PsiElement): Option[ScTypeDefinition] =
-    Option(elem) match {
-      case Some(t: ScTypeDefinition) => Some(t)
-      case Some(e: PsiElement)       => findTypeDefinition(e.getContext)
-      case None                      => None
+  object HighlightVarShadowing {
+    case object Always extends HighlightVarShadowing {
+      override val id: Int = 0
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.always")
+      override def shouldHighlight(elem: ScNamedElement): Boolean = true
     }
+
+    case object Never extends HighlightVarShadowing {
+      override val id: Int = 1
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.never")
+      override def shouldHighlight(elem: ScNamedElement): Boolean = false
+    }
+
+    case object CheckCompilerOption extends HighlightVarShadowing {
+      override val id: Int = 2
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.check")
+      override def shouldHighlight(elem: ScNamedElement): Boolean =
+        elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains("-Xlint:private-shadow"))
+    }
+  }
+
+  private val highlightVarShadowingOptions: Set[HighlightVarShadowing] =
+    Set(HighlightVarShadowing.Always, HighlightVarShadowing.Never, HighlightVarShadowing.CheckCompilerOption)
+
+  private val comboboxValues: Map[Int, String] =
+    highlightVarShadowingOptions.map { shadowing => shadowing.id -> shadowing.label }.toMap
+
+  private def findTypeDefinition(elem: PsiElement): Option[ScTypeDefinition] =
+    Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition]))
 }

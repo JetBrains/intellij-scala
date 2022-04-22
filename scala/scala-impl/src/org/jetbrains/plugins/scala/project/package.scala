@@ -291,9 +291,6 @@ package object project {
 
     def customDefaultImports: Option[Seq[String]] =
       scalaModuleSettings.flatMap(_.customDefaultImports)
-
-    def additionalCompilerOptions: Set[String] =
-      scalaModuleSettings.fold(Set.empty[String])(_.additionalCompilerOptions)
   }
 
   class ScalaSdkNotConfiguredException(module: Module) extends IllegalArgumentException(s"No Scala SDK configured for module: ${module.getName}")
