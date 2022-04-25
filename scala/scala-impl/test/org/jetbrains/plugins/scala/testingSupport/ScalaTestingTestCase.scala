@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package testingSupport
+package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
 import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunnerSettings}
@@ -20,9 +19,11 @@ import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
+import org.jetbrains.plugins.scala.TestingSupportTests
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
@@ -67,6 +68,7 @@ abstract class ScalaTestingTestCase
       val psiElement = findPsiElement(caretLocation, getProject, srcPath.toFile)
       val context: ConfigurationContext = new ConfigurationContext(psiElement)
       val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
+      assertNotNull(s"No configuration created from context: $context", configurationFromContext)
       configurationFromContext.getConfigurationSettings
     }
 

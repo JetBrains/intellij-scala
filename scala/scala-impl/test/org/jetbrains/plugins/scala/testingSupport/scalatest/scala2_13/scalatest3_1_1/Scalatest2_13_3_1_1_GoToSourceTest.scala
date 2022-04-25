@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_13.scalatest3_1_1
 
-import org.jetbrains.plugins.scala.testingSupport.scalatest.ScalaTest2GoToSourceTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.base.ScalaTestGoToSourceTest
 
 class Scalatest2_13_3_1_1_GoToSourceTest extends Scalatest2_13_3_1_1_Base
-  with ScalaTest2GoToSourceTest
+  with ScalaTestGoToSourceTest

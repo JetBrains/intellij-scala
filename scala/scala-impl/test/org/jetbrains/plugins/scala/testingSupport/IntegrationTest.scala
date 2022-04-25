@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, inReadAction}
 import org.junit.Assert._
 
+import java.nio.file.Path
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 /**
@@ -23,7 +24,8 @@ trait IntegrationTest extends AnyRef
   with IntegrationTestConfigurationRunning
   with IntegrationTestRunResultAssertions {
 
-  def getProject: Project
+  protected def getProject: Project
+  protected def srcPath: Path
 
   implicit def defaultTestOptions: TestRunOptions = TestRunOptions(10.seconds, 0)
 
@@ -77,10 +79,21 @@ trait IntegrationTest extends AnyRef
     assertConfig: ConfigurationAssert,
     assertTestResult: TestRunResultAssert
   )(implicit testOptions: TestRunOptions): Unit = {
-    val runConfig = createTestFromLocation(testLocation)
-    assertConfig(runConfig)
-
-    runTestByLocation3(runConfig, assertTestResult)(testOptions)
+    try {
+      val runConfig = createTestFromLocation(testLocation)
+      assertConfig(runConfig)
+      runTestByLocation3(runConfig, assertTestResult)(testOptions)
+    } catch {
+      case ex: AssertionError =>
+        val filePath = testLocation match {
+          case CaretLocation(fileName, _, _) => Some(srcPath.resolve(fileName).toFile)
+          case TestLocation.CaretLocation2(virtualVile, _, _) => Some(virtualVile.toNioPath.toFile)
+          case TestLocation.PsiElementLocation(psiElement) => Option(psiElement.getContainingFile).map(_.getVirtualFile.toNioPath.toFile)
+          case _ => None
+        }
+        filePath.foreach(f => System.err.println(s"Test file path: $f"))
+        throw ex
+    }
   }
 
   def runTestByLocation3(

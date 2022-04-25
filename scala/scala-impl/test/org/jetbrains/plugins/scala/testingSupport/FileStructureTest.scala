@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package testingSupport
+package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.AbstractTreeNode
@@ -7,6 +6,7 @@ import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, Tree
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
@@ -14,10 +14,12 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.junit.Assert._
 
+import java.nio.file.Path
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
 
-trait FileStructureTest { self: ScalaDebuggerTestCase =>
+trait FileStructureTest {
+  self: ScalaDebuggerTestCase =>
 
   trait FileStructureTreeAssert extends Function1[TreeElementWrapper, Unit]
 
@@ -56,24 +58,45 @@ trait FileStructureTest { self: ScalaDebuggerTestCase =>
     status: Int,
     tests: String*
   ): Unit = {
-    val structureViewRoot = buildFileStructureForClass(testClassName)
-    tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+    val filePath = testFilePath(testClassName)
+    try {
+      val structureViewRoot = buildFileStructure(filePath)
+      tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+    } catch {
+      case ex: Throwable =>
+        System.err.println(s"Test file path: $filePath")
+        throw ex
+    }
   }
 
   protected def runFileStructureViewTest0(
     testClassName: String,
     assertTree: FileStructureTreeAssert
   ): Unit = {
-    val structureViewRoot = buildFileStructureForClass(testClassName)
-    assertTree(structureViewRoot)
+    val filePath = testFilePath(testClassName)
+    try {
+      val structureViewRoot = buildFileStructure(filePath)
+      assertTree(structureViewRoot)
+    } catch {
+      case ex: Throwable =>
+        System.err.println(s"Test file path: $filePath")
+        throw ex
+    }
   }
 
   protected def runFileStructureViewTest2(
     testClassName: String,
     status: Int
   )(tests: Seq[String]): Unit = {
-    val structureViewRoot = buildFileStructureForClass(testClassName)
-    tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+    val filePath = testFilePath(testClassName)
+    try {
+      val structureViewRoot = buildFileStructure(filePath)
+      tests.foreach(assertTestNodeInFileStructure(structureViewRoot, _, None, status))
+    } catch {
+      case ex: Throwable =>
+        System.err.println(s"Test file path: $filePath")
+        throw ex
+    }
   }
 
   protected def runFileStructureViewTest(
@@ -82,17 +105,23 @@ trait FileStructureTest { self: ScalaDebuggerTestCase =>
     parentTestName: Option[String],
     testStatus: Int = Test.NormalStatusId
   ): Unit = {
-    val structureViewRoot = buildFileStructureForClass(testClassName)
-    assertTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus)
+    val filePath = testFilePath(testClassName)
+    try {
+      val structureViewRoot = buildFileStructure(filePath)
+      assertTestNodeInFileStructure(structureViewRoot, testName, parentTestName, testStatus)
+    } catch {
+      case ex: Throwable =>
+        System.err.println(s"Test file path: $filePath")
+        throw ex
+    }
   }
 
-  private def buildFileStructureForClass(testClassName: String): TreeElementWrapper =
-    buildFileStructure(testClassName + ".scala")
+  private def testFilePath(testClassName: String): String =
+    srcPath.resolve(testClassName + ".scala").toFile.getCanonicalPath
 
-  private def buildFileStructure(fileName: String): TreeElementWrapper =
+  private def buildFileStructure(filePath: String): TreeElementWrapper =
     inReadAction {
-      val filePath = srcPath.resolve(fileName)
-      val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(filePath)
+      val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(Path.of(filePath))
       val file = PsiManager.getInstance(getProject).findFile(virtualFile)
       val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
         override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]

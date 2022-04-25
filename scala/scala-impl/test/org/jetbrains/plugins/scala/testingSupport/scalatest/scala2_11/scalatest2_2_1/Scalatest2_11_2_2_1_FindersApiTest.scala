@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.scala2_11.scalatest2_2_1
 
-import org.jetbrains.plugins.scala.testingSupport.scalatest.finders.FindersApiTest
+import org.jetbrains.plugins.scala.testingSupport.scalatest.base.finders.FindersApiTest
 
 /**
  * @author Roman.Shein
