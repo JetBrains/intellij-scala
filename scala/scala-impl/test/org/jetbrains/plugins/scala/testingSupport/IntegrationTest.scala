@@ -125,8 +125,8 @@ trait IntegrationTest extends AnyRef
   ): Unit = {
     val config1 = createTestFromCaretLocation(caretLocation)
     val config2 = createTestFromCaretLocation(caretLocation)
-    //assertConfigurationCheck(config1)
-    //assertConfigurationCheck(config2)
+    assertConfigurationCheck(config1)
+    assertConfigurationCheck(config2)
     assertEquals(config1.getName, config2.getName)
     assertEquals(config1.getType, config2.getType)
     assertEquals(config1.getFolderName, config2.getFolderName)

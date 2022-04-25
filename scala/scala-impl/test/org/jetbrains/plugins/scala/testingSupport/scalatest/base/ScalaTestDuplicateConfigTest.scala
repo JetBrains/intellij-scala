@@ -10,11 +10,11 @@ trait ScalaTestDuplicateConfigTest extends ScalaTestTestCase {
        | }
        | "Dummy test" should "do nothing, here just for fun" in {}
        |}
-       |""".stripMargin.trim()
+       |""".stripMargin
   )
 
   def testDuplicateConfig(): Unit = {
-    runDuplicateConfigTest(4, 10, "DuplicateConfigTest.scala",
+    runDuplicateConfigTest(3, 10, "DuplicateConfigTest.scala",
       assertConfigAndSettings(_, "DuplicateConfigTest", "A DuplicateConfigTest should create only one run configuration")
     )
   }
