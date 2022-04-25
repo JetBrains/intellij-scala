@@ -20,8 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 import java.util
 
-private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
-  import ScalaCompilerRefAdapter._
+object ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
 
   override def getFileTypes: util.Set[FileType] =
     new util.HashSet[FileType](
@@ -80,9 +79,7 @@ private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
     funExpressions: Array[SearchId],
     file:           PsiFileWithStubSupport
   ): Array[PsiFunctionalExpression] = PsiFunctionalExpression.EMPTY_ARRAY
-}
 
-object ScalaCompilerRefAdapter {
   private[findUsages] def bytecodeElement(element: PsiElement): PsiElement =
     inReadAction(element match {
       case HasSyntheticGetter(getter) => getter
