@@ -4,10 +4,12 @@ package testingSupport.test
 import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiElement}
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
@@ -22,6 +24,19 @@ abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
   override def getLanguage: Language = ScalaLanguage.INSTANCE
 
   override def isTestMethod(element: PsiElement): Boolean = false
+
+  override def isFrameworkAvailable(clazz: PsiElement): Boolean = {
+    super.isFrameworkAvailable(clazz) || {
+      //Workaround for SCL-20136, IDEA-292278, SCL-20154 (see comments for all tickets)
+      clazz match {
+        case td: ScTemplateDefinition if td.isInScala3Module =>
+          val found = ScalaPsiManager.instance(clazz.getProject).getCachedClass(clazz.getResolveScope, getMarkerClassFQName)
+          found.isDefined
+        case _ =>
+          false
+      }
+    }
+  }
 
   override final def isTestClass(clazz: PsiClass, canBePotential: Boolean): Boolean = {
     val definition: ScTemplateDefinition = clazz match {
