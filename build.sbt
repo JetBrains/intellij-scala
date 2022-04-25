@@ -264,7 +264,7 @@ lazy val scalaImpl: sbt.Project =
           relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0")))
         )
     )
-    .withCompilerPluginIn(scalacPatches)
+    .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
 val nailgunJar = settingKey[File]("location of nailgun jar").withRank(KeyRanks.Invisible)
 (ThisBuild / nailgunJar) := (scalaCommunity / unmanagedBase).value / "nailgun.jar"
