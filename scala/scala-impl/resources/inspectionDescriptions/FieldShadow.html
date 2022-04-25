@@ -2,35 +2,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Warn when one field name suspiciously shadow another</title>
+    <title>Suspicious shadowing of a class or a trait field</title>
 </head>
 <body>
 <p>The most common case of this is when you declare a field in the class, and then in a method use a local value
     or variable of the same name:</p>
 <pre><code>
-    class Foo(foo: Int) {
-      def test(): Int = {
-        val foo: Int = 1 // highlighted
-        foo
-      }
-    }
+class Foo(foo: Int) {
+  def test(): Int = {
+    val foo: Int = 1 // highlighted
+    foo
+  }
+}
 </code></pre>
 
 <p>This is easy to catch but it gets more tricky if the field is declared in a superclass or trait in another file -
     then the field might be less visible and it is easier to make an error:</p>
 
 <pre><code>
-    // TraitA.scala
-    trait TraitA {
-      def n: Int = 1
-    }
+// TraitA.scala
+trait TraitA {
+  def n: Int = 1
+}
 
-    // ObjectA.scala
-    object ObjectA extends TraitA {
-      def foo(): Unit = {
-        val n: Int = 0 // highlighted
-      }
-    }
+// ObjectA.scala
+object ObjectA extends TraitA {
+  def foo(): Unit = {
+    val n: Int = 0 // highlighted
+  }
+}
 </code></pre>
 
 <p>There is a special case when the superclass defines a variable, and the subclass defines a value of the same name.
@@ -40,12 +40,13 @@
    This inspection can also be used to highlight it - either in every case, or only when the compiler option is on.</p>
 
 <pre><code>
-    class C(var c: Int)
+class C(var c: Int)
 
-    class D(c: Int) extends C(c) {
-      // `c` shadows `var c` from the `C` class
-      def f: Int = c
-    }
+// `c` shadows `var c` from the `C` class
+class D(c: Int) extends C(c) {
+  def f: Int = c
+}
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

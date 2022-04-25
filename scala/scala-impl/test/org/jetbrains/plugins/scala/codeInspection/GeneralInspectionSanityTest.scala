@@ -14,8 +14,11 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
   def acquireAllScalaInspectionEPs(): Seq[LocalInspectionEP] =
     acquireAllInspectionEPs().filter(ep => ep.language == "Scala" || Option(ep.groupPath).exists(_.toLowerCase.contains("scala")))
 
-  def getDescription(inspectionEP: LocalInspectionEP): String =
-    new LocalInspectionToolWrapper(inspectionEP).loadDescription()
+  def getDescription(inspectionEP: LocalInspectionEP): String = {
+    val description = new LocalInspectionToolWrapper(inspectionEP).loadDescription()
+    assert(description != null, s"The description for the inspection ${inspectionEP.getShortName} is null")
+    description
+  }
 
   def test_no_lowercase_language_used(): Unit = {
     assert(!acquireAllInspectionEPs()

@@ -43,7 +43,7 @@ final class FieldShadowInspection extends AbstractRegisteredInspection {
       ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
 
-  def isElementShadowing(elem: ScNamedElement): Boolean =
+  private def isElementShadowing(elem: ScNamedElement): Boolean =
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) =>
         false

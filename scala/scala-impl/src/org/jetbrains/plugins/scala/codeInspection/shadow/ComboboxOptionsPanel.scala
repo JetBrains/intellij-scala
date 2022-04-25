@@ -12,9 +12,10 @@ class ComboboxOptionsPanel[Id](@NlsContexts.Label label: String,
                                readProperty:             () => Id,
                                writeProperty:            Id => Unit
                               ) extends InspectionOptionsPanel {
-  private lazy val component = new SComboBox(options.map(_._2).toArray)
+  private lazy val component = new SComboBox[String]()
 
   private def initialize(): Unit = {
+    component.setItems(options.map(_._2).toArray)
     options.toMap.get(readProperty()).foreach(component.setSelectedItemSafe)
     component.addItemListener((_: ItemEvent) =>
       component
@@ -25,9 +26,9 @@ class ComboboxOptionsPanel[Id](@NlsContexts.Label label: String,
 
     val title = new JLabel(label)
     title.setLabelFor(component)
-    add(title)
+    add(title, "span, wrap")
 
-    addComponent(component)
+    add(component, "span, wrap")
   }
 
   initialize()
