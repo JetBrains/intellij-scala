@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package lang
 package lexer
 
-import java.util
-
-import com.intellij.lexer.{MergingLexerAdapter, _XmlLexer, __XmlLexer}
+import com.intellij.lexer.{MergingLexerAdapter, XmlLexer}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.xml.XmlTokenType
 
+import java.util
+
 final class ScalaXmlLexer extends MergingLexerAdapter(
-  new _XmlLexer(new __XmlLexer(null), false),
+  new XmlLexer(),
   ScalaXmlLexer.TokensToMerge
 ) {
   override def getTokenType: IElementType = {
