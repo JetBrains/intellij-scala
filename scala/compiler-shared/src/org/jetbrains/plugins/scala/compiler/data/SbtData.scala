@@ -61,8 +61,8 @@ object SbtData {
       scalaBridge_2_10     <- fileWithName("compiler-interface-sources-2.10.jar")
       scalaBridge_2_11     <- fileWithName("compiler-interface-sources-2.11.jar")
       scalaBridge_2_13     <- fileWithName("compiler-interface-sources-2.13.jar")
-      scalaBridge_3_0      <- fileWithName("scala3-sbt-bridge_3.0.0.jar")
-      scalaBridge_3_1      <- fileWithName("scala3-sbt-bridge_3.1.0.jar")
+      scalaBridge_3_0      <- fileWithName("scala3-sbt-bridge_3.0.jar")
+      scalaBridge_3_1      <- fileWithName("scala3-sbt-bridge_3.1.jar")
       sbtVersion           <- readSbtVersionFrom(sbtInterfaceJar)
     } yield {
       val checksum = encodeHex(md5(scalaBridge_2_10))
