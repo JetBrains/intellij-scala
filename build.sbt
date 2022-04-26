@@ -183,15 +183,9 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
   .settings(
     intellijMainJars := Seq.empty,
     scalaVersion := "3.1.2",
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.2",
+    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.1",
     (Compile / scalacOptions) := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-    packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
-    packageLibraryBaseDir := file("lib/tasty/"),
-    // TODO Use scala3-library in lib/ (when there will be one)
-    packageLibraryMappings := Seq(
-      "org.scala-lang" %% "scala-library" % ".*" -> None,
-    ),
   )
 
 lazy val scalacPatches: sbt.Project =
@@ -212,13 +206,13 @@ lazy val scalaImpl: sbt.Project =
       macroAnnotations,
       traceLogger,
       decompiler % "test->test;compile->compile",
+      tastyRuntime % "test->test;compile->compile",
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
     .dependsOn(scalatestFinders % "compile->compile")
     // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
     .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
-    .aggregate(tastyRuntime)
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
@@ -237,7 +231,6 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
-      packageAdditionalProjects := Seq(tastyRuntime),
       packageLibraryMappings := Seq(
         "org.scalameta" %% ".*" % ".*"                     -> Some("lib/scalameta.jar"),
         // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,

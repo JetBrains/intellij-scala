@@ -1,45 +1,12 @@
 package org.jetbrains.plugins.scala.tasty
 
-import com.intellij.util.PathUtil
-
-import java.io.{File, FileNotFoundException}
-import java.net.URLClassLoader
+import java.io.File
 import java.nio.file.{Files, Paths}
 
 object TastyReader {
   def read(bytes: Array[Byte]): Option[(String, String)] = api.read(bytes)
 
-  // TODO Access TastyImpl directly
-  private lazy val api: TastyApi = {
-    val jarFiles = {
-      val tastyDirectory = tastyDirectoryFor(getClass)
-      val tastyFiles = tastyDirectory.listFiles()
-      Seq(
-        "scala3-library", // TODO Use scala3-library in lib/ when there will be one
-        "tasty-core",
-        "tasty-runtime",
-      ).map(prefix => tastyFiles.find(_.getName.startsWith(prefix)).getOrElse(throw new FileNotFoundException(prefix)))
-    }
-
-    val tastyImpl = {
-      val urls = jarFiles.map(file => file.toURI.toURL).toArray
-      val loader = new URLClassLoader(urls, getClass.getClassLoader)
-      loader.loadClass("org.jetbrains.plugins.scala.tasty.TastyImpl")
-    }
-
-    tastyImpl.getDeclaredConstructor().newInstance().asInstanceOf[TastyApi]
-  }
-
-  private def tastyDirectoryFor(aClass: Class[_]): File = {
-    val libDirectory = {
-      val jarPath = PathUtil.getJarPathForClass(aClass)
-      if (jarPath.endsWith(".jar")) new File(jarPath).getParentFile
-      else new File("target/plugin/Scala/lib")
-    }
-    val directory = new File(libDirectory, "tasty")
-    assert(directory.exists, directory.toString)
-    directory
-  }
+  private lazy val api = new TastyImpl()
 
   // TODO Remove (convenience for debugging purposes)
   // NB: The plugin artifact must be build before running.
@@ -66,7 +33,7 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-3.0.0/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.1.2/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>

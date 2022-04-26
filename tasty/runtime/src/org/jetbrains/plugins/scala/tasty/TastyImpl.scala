@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.UnpickleException
 
-class TastyImpl extends TastyApi {
-  override def read(bytes: Array[Byte]): Option[(String, String)] = {
+class TastyImpl {
+  def read(bytes: Array[Byte]): Option[(String, String)] = {
     try {
       val treePrinter = new TreePrinter()
       val tree = TreeReader.treeFrom(bytes)
