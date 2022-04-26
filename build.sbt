@@ -179,7 +179,7 @@ lazy val worksheetReplInterface =
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
-lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
+lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
     intellijMainJars := Seq.empty,
     scalaVersion := "3.1.2",
@@ -206,7 +206,7 @@ lazy val scalaImpl: sbt.Project =
       macroAnnotations,
       traceLogger,
       decompiler % "test->test;compile->compile",
-      tastyRuntime % "test->test;compile->compile",
+      tastyReader % "test->test;compile->compile",
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
