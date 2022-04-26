@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.tasty
+package org.jetbrains.plugins.scala.tasty.reader
 
 import dotty.tools.tasty.TastyFormat.NameTags.{DEFAULTGETTER, EXPANDED, EXPANDPREFIX, QUALIFIED, SIGNED, TARGETSIGNED, UNIQUE, UTF8}
 import dotty.tools.tasty.TastyReader

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.tasty
+package org.jetbrains.plugins.scala.tasty.reader
 
 import java.util.UUID
 

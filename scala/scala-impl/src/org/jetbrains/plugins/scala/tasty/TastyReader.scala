@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.tasty
 
+import org.jetbrains.plugins.scala.tasty.reader.TastyImpl
+
 import java.io.File
 import java.nio.file.{Files, Paths}
 
