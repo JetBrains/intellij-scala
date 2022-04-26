@@ -104,7 +104,7 @@ object Dependencies {
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
-  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % "0.12" % Test excludeAll(
+  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % "0.13.3" % Test excludeAll(
     // to avoid multiple junit jars in the classpath SCL-18768
     ExclusionRule(organization = "junit"),
     ExclusionRule(organization = "org.junit"),
