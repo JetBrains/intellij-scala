@@ -1692,4 +1692,46 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "def"
   )
 
+  /// package
+
+  def testPackage(): Unit = doCompletionTest(
+    fileText =
+      s"""pa$CARET
+         |""".stripMargin,
+    resultText =
+      s"""package $CARET
+         |""".stripMargin,
+    item = "package"
+  )
+
+  def testPackage2(): Unit = doCompletionTest(
+    fileText =
+      s"""package one
+         |
+         |pac$CARET
+         |""".stripMargin,
+    resultText =
+      s"""package one
+         |
+         |package $CARET
+         |""".stripMargin,
+    item = "package"
+  )
+
+  def testPackage3(): Unit = doCompletionTest(
+    fileText =
+      s"""package one
+         |
+         |package two:
+         |  p$CARET
+         |""".stripMargin,
+    resultText =
+      s"""package one
+         |
+         |package two:
+         |  package $CARET
+         |""".stripMargin,
+    item = "package"
+  )
+
 }
