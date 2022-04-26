@@ -9,7 +9,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.4.13-2-c3139cab"
-  val zincVersion = "1.5.7"
+  val zincVersion = "1.6.1"
   val intellijVersion = "222.1665"
 
   private val ideaBuildType = Utils.inferIdeaBuildType(intellijVersion)
@@ -141,7 +141,7 @@ object Dependencies {
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.5.0"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % sbtVersion
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
@@ -230,6 +230,7 @@ object DependencyGroups {
 
   val runtime: Seq[ModuleID] = Seq(
     sbtLaunch,
+    sbtInterface,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13,
