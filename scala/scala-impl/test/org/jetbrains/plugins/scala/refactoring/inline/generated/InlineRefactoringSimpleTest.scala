@@ -14,7 +14,11 @@ class InlineRefactoringSimpleTest extends InlineRefactoringTestBase {
 
   def testMethodWithParentheses(): Unit = doTest()
 
+  def testReferenceMethodCall(): Unit = doTest()
+
   def testStringInterpolation(): Unit = doTest()
 
   def testStringInterpolation2(): Unit = doTest()
+
+  def testStringInterpolation3(): Unit = doTest()
 }
