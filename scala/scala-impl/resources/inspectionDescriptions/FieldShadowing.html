@@ -1,0 +1,14 @@
+<html>
+<body>
+<p>Reports that a class or a trait field is shadowed by another element.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  class Foo(foo: String) {
+    def bar(): Unit = {
+      val foo: String = ""
+    }
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
