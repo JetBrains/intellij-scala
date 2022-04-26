@@ -388,6 +388,21 @@ package object extensions {
         case e: E => Option(e)
         case _    => None
       }
+
+    /** Converts the value by applying the function `f` if the `predicate` is true.
+     *
+     * {{{
+     *   scala> import org.jetbrains.plugins.scala.extensions.ObjectExt
+     *   scala> val times6 = (_: Int) * 6
+     *   scala> val i = (1 - 2 - 3).pipeIf(_ > 0)(times6)
+     *   i: Int = -4
+     *   scala> val j = (1 - 2 - 3).pipeIf(_ < 0)(times6)
+     *   j: Int = -24
+     * }}}
+     */
+    @inline def pipeIf[U >: T](predicate: T => Boolean)(f: T => U): U =
+      if (predicate(v)) f(v)
+      else v
   }
 
   implicit class ReferenceExt[T](private val target: Reference[T]) extends AnyVal {
