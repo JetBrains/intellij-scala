@@ -130,7 +130,7 @@ object Dependencies {
   val scalaTest: ModuleID = scalaTestNotSpecified % "test"
   val scalaCheck: ModuleID = "org.scalatestplus" %% "scalacheck-1-14" % "3.2.1.0" % "test"
 
-  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.0"
+  val bcel: ModuleID = "org.apache.bcel" % "bcel" % "6.5.0"
 
   // has to be in the compiler process classpath along with spray-json
   // when updating the version, do not forget to:
