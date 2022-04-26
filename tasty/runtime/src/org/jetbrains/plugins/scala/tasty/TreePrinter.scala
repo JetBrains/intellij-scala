@@ -693,7 +693,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (u.nonEmpty && u != "Any") {
         sb ++= " <: " + u
       }
-    case _ => "" // TODO exhaustive match
+    case _ => // TODO exhaustive match
   }
 
   private def asQualifier(tpe: String): String = {
