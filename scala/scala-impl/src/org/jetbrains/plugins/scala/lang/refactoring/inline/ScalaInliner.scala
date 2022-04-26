@@ -46,6 +46,10 @@ class ScalaInliner extends InlineHandler.Inliner {
       case function: ScFunctionDefinition =>
         val replacement = replacementForCall(call, function)
         Some(call.replaceExpression(replacement, removeParenthesis = true))
+      case bp: ScBindingPattern =>
+        replacementForPattern(bp).map { replacement =>
+          call.getInvokedExpr.replaceExpression(replacement, removeParenthesis = true)
+        }
       case _ =>
         None
     }
@@ -70,15 +74,9 @@ class ScalaInliner extends InlineHandler.Inliner {
     unparExpr(replaceAll(funBodyCopy, refToReplacement))
   }
 
-
   private def replace(expr: ScExpression, referenced: PsiElement): Option[ScExpression] = {
     val replacementExpr = referenced match {
-      case bp: ScBindingPattern =>
-        PsiTreeUtil.getParentOfType(bp, classOf[ScDeclaredElementsHolder]) match {
-          case v@ScPatternDefinition.expr(e) if v.declaredElements == Seq(bp) => Some(unparExpr(e))
-          case v@ScVariableDefinition.expr(e) if v.declaredElements == Seq(bp) => Some(unparExpr(e))
-          case _ => None
-        }
+      case bp: ScBindingPattern => replacementForPattern(bp)
       case funDef: ScFunctionDefinition if funDef.parameters.isEmpty => funDef.body.map(unparExpr)
       case funDef: ScFunctionDefinition =>
         unparExpr(expr).asOptionOf[ScMethodCall]
@@ -103,6 +101,13 @@ class ScalaInliner extends InlineHandler.Inliner {
       case _ => None
     }
   }
+
+  private def replacementForPattern(pattern: ScBindingPattern): Option[ScExpression] =
+    PsiTreeUtil.getParentOfType(pattern, classOf[ScDeclaredElementsHolder]) match {
+      case v@ScPatternDefinition.expr(e) if v.declaredElements == Seq(pattern) => Some(unparExpr(e))
+      case v@ScVariableDefinition.expr(e) if v.declaredElements == Seq(pattern) => Some(unparExpr(e))
+      case _ => None
+    }
 
   private object isInjectionIn {
     def unapply(ref: ScExpression): Option[ScInterpolatedStringLiteral] = ref.getParent match {
