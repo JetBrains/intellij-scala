@@ -227,6 +227,7 @@ object CompileServerLauncher {
           JvmOptions.addOpens(
             "java.base/java.util",
             "jdk.compiler/com.sun.tools.javac.api",
+            "jdk.compiler/com.sun.tools.javac.file",
             "jdk.compiler/com.sun.tools.javac.util",
             "jdk.compiler/com.sun.tools.javac.main",
             "java.base/sun.nio.ch"
