@@ -25,8 +25,10 @@ trait FunSpecStaticStringTest extends ScalaTestTestCase {
       |  }
       |
       |  describe("emptyScope") {
-      |    it ("does not create " + runConfig()) {}
+      |    it ("does not create " + foo()) {}
       |  }
+      |
+      |  def foo(): String = "foo"
       |}
       |
     """.stripMargin.trim())
