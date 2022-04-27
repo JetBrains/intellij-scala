@@ -67,10 +67,10 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
         }
       }
     } else if (c == '"') {
-      val hiterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
-      if (isInsideEmptyMultilineString(offset, hiterator)) {
+      val highlighterIterator = editor.asInstanceOf[EditorEx].getHighlighter.createIterator(offset)
+      if (isInsideEmptyMultilineString(offset, highlighterIterator)) {
         if (scalaSettings.INSERT_MULTILINE_QUOTES) {
-          deleteMultilineStringClosingQuotes(editor, hiterator)
+          deleteMultilineStringClosingQuotes(editor, highlighterIterator)
         }
       } else if (isInsideEmptyXmlAttributeValue(element)) {
         inWriteAction {
@@ -86,25 +86,25 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
   // TODO: simplify when parsing of incomplete multiline strings is unified for interpolated and non-interpolated strings
   //  see also ScalaQuoteHandler.startsWithMultilineQuotes
-  private def isInsideEmptyMultilineString(offset: Int, hiterator: HighlighterIterator): Boolean = {
+  private def isInsideEmptyMultilineString(offset: Int, highlighterIterator: HighlighterIterator): Boolean = {
     import ScalaTokenTypes._
-    hiterator.getTokenType match {
+    highlighterIterator.getTokenType match {
       case `tMULTILINE_STRING` =>
-        hiterator.tokenLength == 2 * QuotesLength && offset == hiterator.getStart + QuotesLength
+        highlighterIterator.tokenLength == 2 * QuotesLength && offset == highlighterIterator.getStart + QuotesLength
       case `tINTERPOLATED_STRING_END` =>
-        hiterator.tokenLength == QuotesLength && offset == hiterator.getStart && {
-          hiterator.retreat()
-          try hiterator.getTokenType == tINTERPOLATED_MULTILINE_STRING && hiterator.tokenLength == QuotesLength
-          finally hiterator.advance() // pretending we are side-affect-free =/
+        highlighterIterator.tokenLength == QuotesLength && offset == highlighterIterator.getStart && {
+          highlighterIterator.retreat()
+          try highlighterIterator.getTokenType == tINTERPOLATED_MULTILINE_STRING && highlighterIterator.tokenLength == QuotesLength
+          finally highlighterIterator.advance() // pretending we are side-affect-free =/
         }
       case _ =>
         false
     }
   }
 
-  private def deleteMultilineStringClosingQuotes(editor: Editor, hiterator: HighlighterIterator): Unit = {
+  private def deleteMultilineStringClosingQuotes(editor: Editor, highlighterIterator: HighlighterIterator): Unit = {
     import ScalaTokenTypes._
-    val closingQuotesOffset = hiterator.getStart + (hiterator.getTokenType match {
+    val closingQuotesOffset = highlighterIterator.getStart + (highlighterIterator.getTokenType match {
       case `tMULTILINE_STRING`        => QuotesLength
       case `tINTERPOLATED_STRING_END` => 0
       case _                          => 0
@@ -150,7 +150,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
     if (IndentUtil.compare(rBrace, parent, tabSize) >= 0)
       if (file.useIndentationBasedSyntax)
-        statements.isEmpty || canDeleteClosingBrace(statements.last, rBrace) && hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, tabSize)
+        hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, tabSize)
       else if (wrapSingleExpression)
         statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, rBrace)
       else
@@ -186,6 +186,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     next != null && next.elementType == elementType
   }
 
+  // check if deleting closing brace breaks semantics in Scala 3
+  // https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html
   private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, tabSize: Int): Boolean = {
     // before:
     // def foo() = {1; 2}
@@ -214,8 +216,12 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     // def foo() =
     //   1
     //   2
-    val nextEl = block.getParent.getNextSiblingNotWhitespaceComment
-    val correctIndentOutside = nextEl == null || IndentUtil.compare(nextEl, parent, tabSize) <= 0
+    val prevLeaf = block.prevVisibleLeaf(skipComments = true) // TODO match if else etc??
+    val nextLeaf = block.nextVisibleLeaf(skipComments = true)
+    val correctIndentOutside = nextLeaf match {
+      case None => true
+      case Some(nextEl) => nextEl.startsFromNewLine() && IndentUtil.compare(nextEl, parent, tabSize) <= 0
+    }
 
     correctOneLine && correctIndentInside && correctIndentOutside
   }
@@ -224,7 +230,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   // Modifies the document!
   // Further modifications of the document must take
   // moved positions into account!
-  // Also document needs to be commited
+  // Also document needs to be committed
   private def deleteBrace(brace: PsiElement, document: Document): Unit = {
     val (start, end) = PsiTreeUtil.nextLeaf(brace) match {
       case ws: PsiWhiteSpace =>
