@@ -19,7 +19,7 @@ abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
 
   override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
     inReadAction {
-      val psiElement = findPsiElement(caretLocation, getProject, srcDir)
+      val psiElement = findPsiElement(caretLocation, getProject, srcPath.toFile)
       val context: ConfigurationContext = new ConfigurationContext(psiElement)
       // automatically detects the preferable configuration producer and creates configuration
       // TODO: remove `configurationProducer` from base class and rewrite base `createTestFromCaretLocation` to this implementation
@@ -34,14 +34,14 @@ abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
     val config = settings.getConfiguration.asInstanceOf[JUnitConfiguration]
 
     // using fully qualified name because `TestClass` is inaccessible in this place
-    assertEquals(
+    org.junit.Assert.assertEquals(
       "Expected test class configuration",
       "com.intellij.execution.junit.TestClass",
       config.getTestObject.getClass.getName
     )
 
     val data = config.getPersistentData
-    assertEquals("Class name", className, data.getMainClassName)
+    org.junit.Assert.assertEquals("Class name", className, data.getMainClassName)
   }
 
   protected def assertIsJUnitTestMethodConfiguration(
@@ -51,19 +51,19 @@ abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
   ): Unit = {
     val config = settings.getConfiguration.asInstanceOf[JUnitConfiguration]
 
-    assertEquals(
+    org.junit.Assert.assertEquals(
       "Expected test method configuration",
       classOf[TestMethod],
       config.getTestObject.getClass
     )
 
     val data = config.getPersistentData
-    assertEquals("Class name", className, data.getMainClassName)
-    assertEquals("Method name", methodName, data.getMethodName)
+    org.junit.Assert.assertEquals("Class name", className, data.getMainClassName)
+    org.junit.Assert.assertEquals("Method name", methodName, data.getMethodName)
   }
 
   protected def assertJUnitTestTree(actualRoot: AbstractTestProxy, expected: MyTestTreeNode): Unit = {
     val actual = MyTestTreeNode.fromTestProxy(actualRoot)
-    assertEquals("Test console tree", expected, actual)
+    org.junit.Assert.assertEquals("Test console tree", expected, actual)
   }
 }

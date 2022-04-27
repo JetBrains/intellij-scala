@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package testingSupport
 
 import com.intellij.execution.actions.{ConfigurationContext, RunConfigurationProducer}
-import com.intellij.execution.configurations.{ConfigurationType, RunnerSettings}
+import com.intellij.execution.configurations.{ConfigurationType, JavaCommandLineState, RunnerSettings}
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.DefaultJavaProgramRunner
 import com.intellij.execution.process.{ProcessHandler, ProcessListener}
@@ -16,36 +16,30 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.file.PsiDirectoryFactory
 import com.intellij.psi.{PsiDirectory, PsiElement}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.concurrency.Semaphore
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
-import org.jetbrains.plugins.scala.debugger._
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestRunConfiguration
-import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestConfigurationProducer, AbstractTestRunConfiguration}
 import org.jetbrains.plugins.scala.util.assertions.failWithCause
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
+import java.io.File
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.Await
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Try}
 
-/**
- * @author Roman.Shein
- *         Date: 03.03.14
- */
 @Category(Array(classOf[TestingSupportTests]))
 abstract class ScalaTestingTestCase
-  extends ScalaDebuggerTestBase
+  extends ScalaDebuggerTestCase
     with IntegrationTest
     with FileStructureTest
     with ScalaSdkOwner
@@ -58,30 +52,19 @@ abstract class ScalaTestingTestCase
   /** if set to true, prints raw output of test process to console */
   final def debugProcessOutput = false
 
-  override protected def addFileToProjectSources(fileName: String, fileText: String): VirtualFile =
-    EdtTestUtil.runInEdtAndGet { () =>
-      ScalaTestingTestCase.super.addFileToProjectSources(fileName, fileText)
-    }
-
-  override val testDataBasePrefix = "testingSupport"
+  override protected def testDataDirectoryName: String = "testingSupport"
 
   protected val useDynamicClassPath = false
 
   protected def createPsiLocation(location: CaretLocation): PsiLocation[PsiElement] =
-    createPsiLocation(location, myModule, srcDir)
-
-  private def failedConfigMessage(caretLocation: CaretLocation, reason: String): String = {
-    val CaretLocation(fileName, line, column) = caretLocation
-    s"""Failed to create run configuration for test from file $fileName from line $line at offset $column
-       |Reason: $reason""".stripMargin
-  }
+    createPsiLocation(location, myModule, srcPath.toFile)
 
   private def failedConfigMessage(packageName: String, reason: String = "<no reason>") =
     s"Failed to create run configuration for test from package $packageName\nReason: $reason"
 
   override protected def createTestFromCaretLocation(caretLocation: CaretLocation): RunnerAndConfigurationSettings =
     inReadAction {
-      val psiElement = findPsiElement(caretLocation, getProject, srcDir)
+      val psiElement = findPsiElement(caretLocation, getProject, srcPath.toFile)
       val context: ConfigurationContext = new ConfigurationContext(psiElement)
       val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
       configurationFromContext.getConfigurationSettings
@@ -109,7 +92,6 @@ abstract class ScalaTestingTestCase
 
   private def createTestFromDirectory(directory: PsiDirectory): RunnerAndConfigurationSettings = {
     inReadAction {
-
       val context: ConfigurationContext = new ConfigurationContext(directory)
       val configurationFromContext = configurationProducer.createConfigurationFromContext(context)
       configurationFromContext.getConfigurationSettings
@@ -135,10 +117,6 @@ abstract class ScalaTestingTestCase
       .subscribe(SMTRunnerEventsListener.TEST_STATUS, testStatusListener)
 
     val (handler, _) = EdtTestUtil.runInEdtAndGet(() => {
-      if (needMake) {
-        compiler.rebuild().assertNoProblems(allowWarnings = true)
-        saveChecksums()
-      }
       val runner = ProgramRunner.PROGRAM_RUNNER_EP.getExtensions.find(_.getClass == classOf[DefaultJavaProgramRunner]).get
       val (handler, runContentDescriptor) = runProcess(runConfig, classOf[DefaultRunExecutor], runner, Seq(testResultListener))
 
@@ -206,6 +184,7 @@ abstract class ScalaTestingTestCase
 
     val semaphore = new Semaphore(1)
 
+    //noinspection ApiStatus
     executionEnvironment.setCallback { (descriptor: RunContentDescriptor) =>
       System.setProperty("idea.dynamic.classpath", useDynamicClassPath.toString)
       val handler: ProcessHandler = descriptor.getProcessHandler
@@ -223,6 +202,19 @@ abstract class ScalaTestingTestCase
       contentDescriptor.set(descriptor)
 
       semaphore.up()
+    }
+
+    executionEnvironment.getState match {
+      case state: JavaCommandLineState =>
+        Try {
+          val workingDir = state.getJavaParameters.getWorkingDirectory
+          val dir = new File(workingDir)
+          if (!dir.exists()) {
+            dir.mkdirs()
+          }
+        }
+
+      case _ =>
     }
 
     runner.execute(executionEnvironment)

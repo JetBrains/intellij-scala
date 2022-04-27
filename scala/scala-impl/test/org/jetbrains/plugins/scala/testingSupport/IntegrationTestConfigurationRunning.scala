@@ -47,7 +47,7 @@ trait IntegrationTestConfigurationRunning {
 
   /**
    * @see [[com.intellij.testFramework.TestLoggerFactory.FAILED_TEST_DEBUG_OUTPUT_MARKER]]
-   * @see [[com.intellij.testFramework.FailedTestDebugLogConsoleFolding]]
+   * @see `com.intellij.testFramework.FailedTestDebugLogConsoleFolding`
    */
   private val FoldLineMarker = "\u2003"
   private def foldText(s: String): String =

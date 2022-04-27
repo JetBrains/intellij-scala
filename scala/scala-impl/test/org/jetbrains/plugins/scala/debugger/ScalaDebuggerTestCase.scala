@@ -38,21 +38,23 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
-  private val testDataDebuggerPath: Path = Path.of(TestUtils.getTestDataPath, "debugger")
+  protected def testDataDirectoryName: String = "debugger"
 
-  private lazy val versionSpecific: Path = Path.of(s"scala-${version.major}")
+  private def testDataDebuggerPath: Path = Path.of(TestUtils.getTestDataPath, testDataDirectoryName)
 
-  private lazy val testAppPath: Path = testDataDebuggerPath.resolve(getClass.getSimpleName).resolve(versionSpecific)
+  private def versionSpecific: Path = Path.of(s"scala-${version.major}")
 
-  private lazy val appOutputPath: Path = Path.of(s"${testAppPath}_out")
+  private def testAppPath: Path = testDataDebuggerPath.resolve(getClass.getSimpleName).resolve(versionSpecific)
 
-  protected lazy val srcPath: Path = testAppPath.resolve("src")
+  private def appOutputPath: Path = Path.of(s"${testAppPath}_out")
 
-  private lazy val classFilesOutputPath: Path = appOutputPath.resolve("classes")
+  protected def srcPath: Path = testAppPath.resolve("src")
 
-  private lazy val checksumsPath: Path = appOutputPath.resolve("checksums")
+  private def classFilesOutputPath: Path = appOutputPath.resolve("classes")
 
-  private lazy val checksumsFilePath: Path = checksumsPath.resolve("checksums.dat")
+  private def checksumsPath: Path = appOutputPath.resolve("checksums")
+
+  private def checksumsFilePath: Path = checksumsPath.resolve("checksums.dat")
 
   private val sourceFiles: mutable.Map[String, String] = mutable.Map.empty
 
@@ -67,7 +69,9 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
     ScalaSDKLoader(includeScalaReflectIntoCompilerClasspath = true),
     HeavyJDKLoader(testProjectJdkVersion),
     SourcesLoader(srcPath.toString)
-  )
+  ) ++ additionalLibraries
+
+  protected def additionalLibraries: Seq[LibraryLoader] = Seq.empty
 
   override protected def getModuleOutputDir: Path = classFilesOutputPath
 
