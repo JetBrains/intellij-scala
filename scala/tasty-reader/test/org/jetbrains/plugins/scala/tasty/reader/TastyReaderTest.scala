@@ -142,7 +142,7 @@ object TastyReaderTest {
       "types/Wildcard",
       "EmptyPackage",
       "Nesting",
-    ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
+    ).map("community/scala/tasty-reader/testdata/" + _ + ".scala").foreach { scalaFile =>
       assertExists(scalaFile)
 
       val tastyFile = {
