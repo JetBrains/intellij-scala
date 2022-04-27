@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam

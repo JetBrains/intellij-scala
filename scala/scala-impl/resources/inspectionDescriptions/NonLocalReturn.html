@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Non-local return statement</title>
+</head>
+<body>
+<p>A return keyword is used inside an anonymous function to jump out of it early. This may lead to unintuitive control
+flow and lowered readability. For example: </p>
+<pre><code>
+def foo(numbers: Seq[Int]): Int =
+  numbers.map { n =>
+    if (n > 5) return 0 // highlighted
+    n * 2
+  }.sum
+</code></pre>
+
+Additionally, you may use the checkbox below to make the inspection work only if the Scala compiler option -Xlint:nonlocal-return is present.
+<!-- tooltip end -->
+</body>
+</html>

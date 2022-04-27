@@ -5,7 +5,7 @@ package controlFlow
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveExpressionQuickFix
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
@@ -53,16 +53,6 @@ object ScalaUnusedExpressionInspection {
                                      (implicit project: Project): Unit = {
       val retStmt = ScalaPsiElementFactory.createExpressionWithContextFromText(s"return ${expression.getText}", expression.getContext, expression)
       expression.replaceExpression(retStmt, removeParenthesis = true)
-    }
-  }
-
-  private[this] class RemoveExpressionQuickFix(expression: ScExpression) extends AbstractFixOnPsiElement(
-    ScalaInspectionBundle.message("remove.expression"),
-    expression
-  ) {
-    override protected def doApplyFix(expression: ScExpression)
-                                     (implicit project: Project): Unit = {
-      expression.delete()
     }
   }
 }

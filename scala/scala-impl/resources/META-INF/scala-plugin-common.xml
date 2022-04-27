@@ -1152,6 +1152,12 @@
                          shortName="ScalaUnusedExpression"
                          language="Scala" level="WEAK WARNING"
                          enabledByDefault="true"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.controlFlow.NonLocalReturnInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.nonlocal.return"
+                         groupPath="Scala" groupKey="group.general"
+                         shortName="NonLocalReturn" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.implicits.DeprecatedViewBoundInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.view.bounds.are.deprecated"
