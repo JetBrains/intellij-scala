@@ -10,7 +10,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.0"
   val zincVersion = "1.6.1"
-  val intellijVersion = "222.1665"
+  val intellijVersion = "222.1919"
 
   private val ideaBuildType = Utils.inferIdeaBuildType(intellijVersion)
 
