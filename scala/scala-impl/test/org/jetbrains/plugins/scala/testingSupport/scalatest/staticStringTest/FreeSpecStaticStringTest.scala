@@ -36,6 +36,8 @@ trait FreeSpecStaticStringTest extends ScalaTestTestCase {
       |    "unreachable" in {
       |    }
       |  }
+      |
+      |  def foo(): String = "foo"
       |}
     """.stripMargin.trim()
   )
