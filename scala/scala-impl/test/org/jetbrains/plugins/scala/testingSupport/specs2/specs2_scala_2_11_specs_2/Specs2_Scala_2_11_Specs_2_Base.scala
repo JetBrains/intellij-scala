@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_scala_2_11_spec
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.testingSupport.specs2.{SCL7228Test, Specs2DuplicateConfigTest, Specs2FileStructureViewTest, Specs2GoToSourceTest, Specs2ObjectSpecTest, Specs2PackageTest, Specs2RegExpTestNameTest, Specs2SingleTestTest, Specs2SpecialCharactersTest, Specs2StaticStringTest, Specs2TestCase, Specs2WholeSuiteTest}
-import org.jetbrains.plugins.scala.{DependencyManager, FlakyTests, LatestScalaVersions, ScalaVersion}
-import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.testingSupport.specs2._
+import org.jetbrains.plugins.scala.{DependencyManager, LatestScalaVersions, ScalaVersion}
 
 trait Specs2_Scala_2_11_Specs_2_Base extends Specs2TestCase {
 
@@ -19,7 +18,6 @@ trait Specs2_Scala_2_11_Specs_2_Base extends Specs2TestCase {
 
 class Specs2_Scala_2_11_Specs_2_DuplicateConfigTest extends Specs2DuplicateConfigTest with Specs2_Scala_2_11_Specs_2_Base
 class Specs2_Scala_2_11_Specs_2_FileStructureViewTest extends Specs2FileStructureViewTest with Specs2_Scala_2_11_Specs_2_Base
-@Category(Array(classOf[FlakyTests])) // works locally, may fail on server
 class Specs2_Scala_2_11_Specs_2_GoToSourceTest extends Specs2GoToSourceTest with Specs2_Scala_2_11_Specs_2_Base
 class Specs2_Scala_2_11_Specs_2_ObjectSpecTest extends Specs2ObjectSpecTest with Specs2_Scala_2_11_Specs_2_Base
 class Specs2_Scala_2_11_Specs_2_PackageTest extends Specs2PackageTest with Specs2_Scala_2_11_Specs_2_Base

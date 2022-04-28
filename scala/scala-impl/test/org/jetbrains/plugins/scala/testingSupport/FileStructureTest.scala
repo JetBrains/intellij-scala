@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala.testingSupport
+package org.jetbrains.plugins.scala
+package testingSupport
 
 import com.intellij.ide.structureView.newStructureView.StructureViewComponent
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.ide.util.treeView.smartTree.{NodeProvider, TreeElement, TreeElementWrapper}
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
-import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestBase
-import org.jetbrains.plugins.scala.extensions.inReadAction
+import org.jetbrains.plugins.scala.debugger.ScalaDebuggerTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.lang.structureView.element.Test
@@ -16,8 +17,7 @@ import org.junit.Assert._
 import scala.jdk.CollectionConverters._
 import scala.util.matching.Regex
 
-trait FileStructureTest {
-  self: ScalaDebuggerTestBase =>
+trait FileStructureTest { self: ScalaDebuggerTestCase =>
 
   trait FileStructureTreeAssert extends Function1[TreeElementWrapper, Unit]
 
@@ -91,8 +91,9 @@ trait FileStructureTest {
 
   private def buildFileStructure(fileName: String): TreeElementWrapper =
     inReadAction {
-      val ioFile = new java.io.File(srcDir, fileName)
-      val file = PsiManager.getInstance(getProject).findFile(getVirtualFile(ioFile))
+      val filePath = srcPath.resolve(fileName)
+      val virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(filePath)
+      val file = PsiManager.getInstance(getProject).findFile(virtualFile)
       val treeViewModel = new ScalaStructureViewModel(file.asInstanceOf[ScalaFile]) {
         override def isEnabled(provider: NodeProvider[_ <: TreeElement]): Boolean = provider.isInstanceOf[TestNodeProvider]
       }
