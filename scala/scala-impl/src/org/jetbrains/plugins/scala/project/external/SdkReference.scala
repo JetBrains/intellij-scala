@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.project.external
 
-import java.io.File
-
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
+import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.plugins.scala.extensions.inReadAction
-
+import java.io.File
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
@@ -60,5 +59,30 @@ object SdkUtils {
 
   def defaultJavaLanguageLevelIn(jdk: Sdk): Option[LanguageLevel] =
     Option(LanguageLevel.parse(jdk.getVersionString))
+
+  private def resolveName(home: File): String = {
+    val suffix = if (home.getName == "jre") home.getParentFile.getName else home.getName
+    val baseName = s"BSP_$suffix"
+    val names = ProjectJdkTable.getInstance.getAllJdks.map(_.getName)
+    if (names.contains(baseName)) {
+      baseName + DigestUtils.md5Hex(home.toString).take(10)
+    } else {
+      baseName
+    }
+  }
+
+  def findOrCreateSdk(sdkReference: SdkReference): Option[Sdk] = {
+    def createFromHome = {
+      Option(sdkReference).collect {
+        case JdkByHome(home) =>
+          val name = resolveName(home)
+          val newJdk = JavaSdk.getInstance.createJdk(name, home.toString, home.getName == "jre")
+          ProjectJdkTable.getInstance.addJdk(newJdk)
+          newJdk
+      }
+    }
+
+    SdkUtils.findProjectSdk(sdkReference).orElse(createFromHome)
+  }
 }
 
