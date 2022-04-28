@@ -901,6 +901,28 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
+  def testNotRemove_IfElse_WithNestedIfWithoutElse_2(): Unit = {
+    val before =
+      s"""if (true) {${|}
+         |  if (false)
+         |    println("Smiling")
+         |}
+         |// foo
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val after =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |}
+         |// foo
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    doTest(before, after)
+  }
+
   def testRemove_IfElse_WithNestedIfWithElse(): Unit = {
     val before =
       s"""if (true) {${|}

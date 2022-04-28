@@ -183,8 +183,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     }
 
   private def isFollowedBy(element: PsiElement, elementType: IElementType): Boolean = {
-    val next = element.getNextNonWhitespaceAndNonEmptyLeaf
-    next != null && next.elementType == elementType
+    val next = element.nextVisibleLeaf(skipComments = true)
+    next.isDefined && next.get.elementType == elementType
   }
 
   // check if deleting closing brace breaks semantics in Scala 3
