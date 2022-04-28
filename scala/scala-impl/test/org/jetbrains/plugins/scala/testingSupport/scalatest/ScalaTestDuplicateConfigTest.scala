@@ -9,7 +9,7 @@ trait ScalaTestDuplicateConfigTest extends ScalaTestTestCase {
       |class DuplicateConfigTest extends FlatSpec {
       | "A DuplicateConfigTest" should "create only one run configuration" in {
       | }
-      | "Dummy test" should "do nothing, here just for fun"{}
+      | "Dummy test" should "do nothing, here just for fun" in {}
       |}
     """.stripMargin.trim()
   )
