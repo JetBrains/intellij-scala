@@ -186,6 +186,9 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.1",
     (Compile / scalacOptions) := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
+    (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
+    (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
+    libraryDependencies += "com.github.sbt" % "junit-interface" % "0.12" % Test
   )
 
 lazy val scalacPatches: sbt.Project =
