@@ -12,14 +12,15 @@ import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.isFollowedByOutdent
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.BraceWrapInfo
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypes, ScalaXmlTokenTypes}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlStartTag
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -150,7 +151,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
     if (IndentUtil.compare(rBrace, parent, tabSize) >= 0)
       if (file.useIndentationBasedSyntax)
-        hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, tabSize)
+        statements.isEmpty || hasCorrectIndentationWithoutClosingBrace(block, parent, lBrace, rBrace, tabSize)
       else if (wrapSingleExpression)
         statements.isEmpty || statements.size == 1 && canDeleteClosingBrace(statements.head, rBrace)
       else
@@ -188,7 +189,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
   // check if deleting closing brace breaks semantics in Scala 3
   // https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html
-  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, tabSize: Int): Boolean = {
+  private def hasCorrectIndentationWithoutClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
     // before:
     // def foo() = {1; 2}
     // after:
@@ -216,14 +217,28 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     // def foo() =
     //   1
     //   2
-    val prevLeaf = block.prevVisibleLeaf(skipComments = true) // TODO match if else etc??
     val nextLeaf = block.nextVisibleLeaf(skipComments = true)
     val correctIndentOutside = nextLeaf match {
       case None => true
       case Some(nextEl) => nextEl.startsFromNewLine() && IndentUtil.compare(nextEl, parent, tabSize) <= 0
     }
 
-    correctOneLine && correctIndentInside && correctIndentOutside
+    // before:
+    // def foo() = {
+    //   if false then
+    // }
+    // 1
+    // after:
+    // def foo() =
+    //   if false then
+    // 1
+    val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true)
+    val lastElementDoesNotBreakIndentation = lastLeaf match {
+      case None => true
+      case Some(lastEl) => isFollowedByOutdent(lastEl)
+    }
+
+    correctOneLine && correctIndentInside && correctIndentOutside && lastElementDoesNotBreakIndentation
   }
 
   // ! Attention !
