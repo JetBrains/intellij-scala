@@ -1,6 +1,5 @@
 package org.jetbrains.bsp.data
 
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
@@ -9,8 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModifiableRootModel, ModuleRootManager}
 import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.bsp.BspUtil._
-import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, JdkByHome, JdkByVersion, SdkUtils}
-
+import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion, ScalaAbstractProjectDataService, SdkUtils}
 import java.util
 
 class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Module](BspMetadata.Key) {
@@ -20,11 +18,11 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
-  ): Unit = {
+  ): Unit = executeProjectChangeAction {
     toImport.forEach { node =>
       doImport(node)(project, modelsProvider)
     }
-  }
+  }(project)
 
   private def doImport(node: DataNode[BspMetadata])
                       (implicit project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
@@ -35,7 +33,7 @@ class BspMetadataService extends ScalaAbstractProjectDataService[BspMetadata, Mo
       val existingJdk = Option(ModuleRootManager.getInstance(module).getSdk)
       val moduleJdk = jdkByHome
         .orElse(jdkByVersion)
-        .flatMap(SdkUtils.findProjectSdk)
+        .flatMap(SdkUtils.findOrCreateSdk)
         .orElse(existingJdk)
 
       val model = modelsProvider.getModifiableRootModel(module)
