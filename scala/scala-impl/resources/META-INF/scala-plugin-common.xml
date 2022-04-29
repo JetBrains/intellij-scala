@@ -961,7 +961,7 @@
                          enabledByDefault="false" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.FieldShadowInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="suspicious.shadowing.of.a.field"
+                         key="suspicious.shadowing.label"
                          groupPath="Scala" groupKey="group.general"
                          shortName="FieldShadow" level="WARNING"
                          enabledByDefault="true" language="Scala"/>

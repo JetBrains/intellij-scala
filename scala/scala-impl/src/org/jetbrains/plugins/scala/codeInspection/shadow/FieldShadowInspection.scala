@@ -68,10 +68,10 @@ final class FieldShadowInspection extends AbstractRegisteredInspection {
       false
     else
       elem.nameContext match {
-        case e: ScMember if e.isLocal =>
+        case e: ScMember if e.isLocal && shouldHighlight.highlightLocalShadowing =>
           // if the field under inspection is local, it may shadow any field in the same class/trait, but only non-private fields in parent types
           suspects.exists { s => !s.isPrivate || findTypeDefinition(s).contains(typeDefinition) }
-        case _ if highlightVarShadowing.shouldHighlight(elem) =>
+        case _ if shouldHighlight.highlightMutableShadowing(elem) =>
           // if the field under inspection is a class/trait field, it may shadow a non-private var from a parent type (see the compiler option -Xlint:private-shadow)
           suspects.exists {
             case s: ScVariable if !s.isPrivate => true
@@ -84,76 +84,87 @@ final class FieldShadowInspection extends AbstractRegisteredInspection {
       }
   }
 
-  private var highlightVarShadowing: HighlightVarShadowing = defaultHighlightVarShadowing
+  private var shouldHighlight: HighlightShadowing = defaultHighlightShadowing
 
   override def readSettings(node: Element): Unit = {
     super.readSettings(node)
-    Try(node.getAttributeValue(highlightVarShadowingPropertyName).toInt).foreach { id =>
-      highlightVarShadowing = getHighlightVarShadowingOption(id)
+    Try(node.getAttributeValue(highlightShadowingPropertyName).toInt).foreach { id =>
+      shouldHighlight = getHighlightShadowingOption(id)
     }
   }
 
   override def writeSettings(node: Element): Unit = {
-    node.setAttribute(highlightVarShadowingPropertyName, highlightVarShadowing.id.toString)
+    node.setAttribute(highlightShadowingPropertyName, shouldHighlight.id.toString)
     super.writeSettings(node)
   }
 
   @Override
   override def createOptionsPanel(): JComponent =
     new ComboboxOptionsPanel[Int](
-      highlightVarShadowingLabel,
+      highlightShadowingLabel,
       highlightVarShadowingOptions.map(option => option.id -> option.label),
-      () => highlightVarShadowing.id,
-      id => { highlightVarShadowing = getHighlightVarShadowingOption(id) }
+      () => shouldHighlight.id,
+      id => { shouldHighlight = getHighlightShadowingOption(id) }
     )
 }
 
 object FieldShadowInspection {
   @Nls
-  val annotationDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.field")
+  val annotationDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.description")
 
   @Nls
   private val renameQuickFixDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.rename.identifier")
 
   @Nls
-  private val highlightVarShadowingLabel: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.label")
+  private val highlightShadowingLabel: String = ScalaInspectionBundle.message("suspicious.shadowing.label")
 
-  private val highlightVarShadowingPropertyName = "highlightVarShadowing"
+  private val highlightShadowingPropertyName = "shouldHighlight"
 
-  sealed trait HighlightVarShadowing {
+  sealed trait HighlightShadowing {
     val id: Int
     val label: String
-    def shouldHighlight(elem: ScNamedElement): Boolean
+    def highlightMutableShadowing(elem: ScNamedElement): Boolean
+    def highlightLocalShadowing: Boolean = true
   }
 
-  object HighlightVarShadowing {
-    case object Always extends HighlightVarShadowing {
+  object HighlightShadowing {
+    case object Always extends HighlightShadowing {
       override val id: Int = 0
-      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.always")
-      override def shouldHighlight(elem: ScNamedElement): Boolean = true
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.always")
+      override def highlightMutableShadowing(elem: ScNamedElement): Boolean = true
     }
 
-    case object Never extends HighlightVarShadowing {
+    case object Never extends HighlightShadowing {
       override val id: Int = 1
-      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.never")
-      override def shouldHighlight(elem: ScNamedElement): Boolean = false
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.never")
+      override def highlightMutableShadowing(elem: ScNamedElement): Boolean = false
     }
 
-    case object CheckCompilerOption extends HighlightVarShadowing {
+    case object CheckCompilerOption extends HighlightShadowing {
       override val id: Int = 2
-      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.of.a.var.check")
-      override def shouldHighlight(elem: ScNamedElement): Boolean =
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.check")
+      override def highlightMutableShadowing(elem: ScNamedElement): Boolean =
         elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains("-Xlint:private-shadow"))
     }
+
+    case object OnlyCompilerOption extends HighlightShadowing {
+      override val id: Int = 3
+      override val label: String = ScalaInspectionBundle.message("suspicious.shadowing.only")
+      override def highlightMutableShadowing(elem: ScNamedElement): Boolean =
+        elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains("-Xlint:private-shadow"))
+      override def highlightLocalShadowing: Boolean = false
+    }
   }
 
-  private val highlightVarShadowingOptions: Seq[HighlightVarShadowing] =
-    Seq(HighlightVarShadowing.Always, HighlightVarShadowing.Never, HighlightVarShadowing.CheckCompilerOption)
+  private val highlightVarShadowingOptions: Seq[HighlightShadowing] = {
+    import HighlightShadowing._
+    Seq(Always, Never, CheckCompilerOption, OnlyCompilerOption)
+  }
 
-  private val defaultHighlightVarShadowing = HighlightVarShadowing.Always
+  private val defaultHighlightShadowing = HighlightShadowing.Always
 
-  private def getHighlightVarShadowingOption(id: Int) =
-    highlightVarShadowingOptions.find(_.id == id).getOrElse(defaultHighlightVarShadowing)
+  private def getHighlightShadowingOption(id: Int) =
+    highlightVarShadowingOptions.find(_.id == id).getOrElse(defaultHighlightShadowing)
 
   private def findTypeDefinition(elem: PsiElement): Option[ScTypeDefinition] =
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition]))
