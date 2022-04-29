@@ -437,7 +437,8 @@
         <codeInsight.template.postfixTemplateProvider language="Scala"
                                                       implementationClass="org.jetbrains.plugins.scala.lang.completion.postfix.ScalaPostfixTemplateProvider"/>
 
-        <codeInsight.inlayProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.ScalaCodeAuthorInlayHintsProvider"/>
+        <vcs.codeVisionLanguageContext language="Scala"
+                                       implementationClass="org.jetbrains.plugins.scala.codeInsight.hints.codeVision.ScalaVcsCodeVisionContext"/>
 
         <testCreator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestCreator"/>
         <testGenerator language="Scala" implementationClass="org.jetbrains.plugins.scala.testingSupport.ScalaTestGenerator"/>
