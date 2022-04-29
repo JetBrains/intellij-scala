@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection,
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScMethodCall, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.project.ModuleExt
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import javax.swing.JComponent
 import scala.annotation.tailrec
@@ -21,9 +21,12 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
                                            maybeQuickFix: Option[LocalQuickFix],
                                            descriptionTemplate: String,
                                            highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
+                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+    def isCompilerOptionPresent: Boolean =
+      element.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains("-Xlint:nonlocal-return"))
+
     element match {
-      case function: ScFunctionDefinition if !checkCompilerOption || isCompilerOptionPresent(function) =>
+      case function: ScFunctionDefinition if !checkCompilerOption || isCompilerOptionPresent =>
         function.returnUsages.collectFirst {
             case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) =>
               manager.createProblemDescriptor(
@@ -37,10 +40,9 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
       case _ =>
         None
     }
+  }
 
-  private def isCompilerOptionPresent(elem: ScalaPsiElement): Boolean =
-    elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains("-Xlint:nonlocal-return"))
-
+  // for the checkbox to work, the var needs to be public, and there have to be a getter and a setter - because of Java reflection
   var checkCompilerOption: Boolean = false
 
   def isCheckCompilerOption: Boolean = checkCompilerOption
@@ -71,8 +73,9 @@ object NonLocalReturnInspection {
       case parent: ScalaPsiElement => isInsideAnonymousFunction(parent)
     }
 
-  private def createQuickFixes(scReturn: ScReturn): Array[LocalQuickFix] =
-    (new RemoveExpressionQuickFix(scReturn) ::
-      (if (scReturn.expr.isDefined) List(new RemoveReturnKeywordQuickFix(scReturn)) else Nil)
-    ).toArray[LocalQuickFix]
+  private def createQuickFixes(scReturn: ScReturn): Array[LocalQuickFix] = {
+    val fix1 = new RemoveExpressionQuickFix(scReturn)
+    lazy val fix2 = new RemoveReturnKeywordQuickFix(scReturn)
+    if (scReturn.expr.isDefined) Array(fix1, fix2) else Array(fix1)
+  }
 }

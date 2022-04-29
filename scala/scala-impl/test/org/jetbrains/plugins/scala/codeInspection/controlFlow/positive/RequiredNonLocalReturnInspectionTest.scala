@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.controlFlow.positive
 
 import org.jetbrains.plugins.scala.codeInspection.controlFlow.NonLocalReturnInspectionTestBase
 
-class NonLocalReturnInspectionTest extends NonLocalReturnInspectionTestBase {
+class RequiredNonLocalReturnInspectionTest extends NonLocalReturnInspectionTestBase {
   def test_return_from_anon_function(): Unit = checkTextHasError {
     s"""
        |  def bar: Int =

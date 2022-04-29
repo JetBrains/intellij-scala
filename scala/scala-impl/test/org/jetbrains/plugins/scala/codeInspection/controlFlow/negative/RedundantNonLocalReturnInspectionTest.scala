@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.controlFlow.negative
 
 import org.jetbrains.plugins.scala.codeInspection.controlFlow.NonLocalReturnInspectionTestBase
 
-class NonLocalReturnInspectionTest extends NonLocalReturnInspectionTestBase {
+class RedundantNonLocalReturnInspectionTest extends NonLocalReturnInspectionTestBase {
   def test_unit_return_in_named_method(): Unit = checkTextHasNoErrors {
     s"""
        |object Main {
