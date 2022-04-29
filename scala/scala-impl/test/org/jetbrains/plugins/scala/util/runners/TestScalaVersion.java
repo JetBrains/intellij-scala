@@ -10,8 +10,7 @@ public enum TestScalaVersion {
     Scala_2_12_0(false), Scala_2_12_6, Scala_2_12_12, Scala_2_12,
     Scala_2_13_0, Scala_2_13,
     Scala_3_0,
-    // TODO: remove Scala_3_1_2_RC when 3.1.2 is released, update org.jetbrains.plugins.scala.LatestScalaVersions.Scala_3_1 to 3.1.2
-    Scala_3_1, Scala_3_1_2_RC,
+    Scala_3_1,
     Scala_3_Latest
     ;
 
@@ -43,7 +42,6 @@ public enum TestScalaVersion {
             case Scala_2_13_0: return LatestScalaVersions.Scala_2_13().withMinor(0);
             case Scala_3_0: return LatestScalaVersions.Scala_3_0();
             case Scala_3_1: return LatestScalaVersions.Scala_3_1();
-            case Scala_3_1_2_RC: return LatestScalaVersions.Scala_3_1().withMinor("2-RC2");
             case Scala_3_Latest: return LatestScalaVersions.Scala_3();
             default: return null; // unreachable code
         }
