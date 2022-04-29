@@ -366,6 +366,9 @@
 
         <refactoring.helper implementation="org.jetbrains.plugins.scala.lang.refactoring.ScalaProcessImportsRefactoringHelper"/>
 
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinArgumentsContext"/>
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinParametersContext"/>
+
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
         <elementDescriptionProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScalaClassElementDescriptionProvider"/>
