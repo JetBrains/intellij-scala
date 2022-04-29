@@ -86,7 +86,7 @@ trait ScBlock extends ScExpression
 
   def hasCaseClauses: Boolean = false
   def isInCatchBlock: Boolean = getContext.isInstanceOf[ScCatchBlock]
-  def isAnonymousFunction: Boolean = hasCaseClauses && !isInCatchBlock
+  def isPartialFunction: Boolean = hasCaseClauses && !isInCatchBlock
 
   def exprs: Seq[ScExpression] = findChildren[ScExpression]
   def statements: Seq[ScBlockStatement] = findChildren[ScBlockStatement]

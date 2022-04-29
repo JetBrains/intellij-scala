@@ -112,7 +112,7 @@ final class ScUMethodCallExpression(
         scExpression.args.exprs.collect {
           case ScBlock(statement) =>
             statement.convertToUExpressionOrEmpty(parent = this)
-          case partialLambda: ScBlock if partialLambda.isAnonymousFunction =>
+          case partialLambda: ScBlock if partialLambda.isPartialFunction =>
             partialLambda.convertToUExpressionOrEmpty(parent = this)
         }.asJava
       case parensArguments =>

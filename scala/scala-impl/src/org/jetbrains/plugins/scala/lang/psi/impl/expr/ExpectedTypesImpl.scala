@@ -95,7 +95,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
     import Arity._
 
     e match {
-      case block: ScBlockExpr if block.isAnonymousFunction => aritiesOf(block.caseClauses.get)
+      case block: ScBlockExpr if block.isPartialFunction => aritiesOf(block.caseClauses.get)
       case clauses: ScCaseClauses                          => clauses.caseClause.pattern.fold(NotAFunction : Arity)(aritiesOf)
       case _: ScReferencePattern                           => FunctionLiteral(1)
       case tuple: ScTuplePattern                           => TuplePattern(tuple.subpatterns.size)
@@ -344,7 +344,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         case m: ScMatch => m.expectedTypesEx(fromUnderscore = true)
         case b: ScBlockExpr if b.isInCatchBlock =>
           b.getContext.getContext.asInstanceOf[ScTry].expectedTypesEx(fromUnderscore = true)
-        case b: ScBlockExpr if b.isAnonymousFunction =>
+        case b: ScBlockExpr if b.isPartialFunction =>
           b.expectedTypesEx(fromUnderscore = true).flatMap(fromFunction)
         case _ => Array.empty
       }
