@@ -62,15 +62,20 @@ class SbtShellToolWindowFactory extends ToolWindowFactory with DumbAware {
   private def addShortcuts(actionId: String): Unit = {
     val keymapManager = KeymapManager.getInstance()
 
-    val defaultKeymap = keymapManager.getKeymap("$default")
     val defaultShortcut =
       new KeyboardShortcut(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.CTRL_DOWN_MASK), null)
-    defaultKeymap.addShortcut(actionId, defaultShortcut)
+
+    val defaultKeymap = keymapManager.getKeymap("$default")
+    if (defaultKeymap != null) {
+      defaultKeymap.addShortcut(actionId, defaultShortcut)
+    }
 
     // NetBeans SaveAll is the only conflicting shortcut, and has the alternative ctrl+s
     // so I think it's low impact to just remove this one conflict
     val netbeansKeymap = keymapManager.getKeymap("NetBeans 6.5")
-    netbeansKeymap.removeShortcut("SaveAll", defaultShortcut)
+    if (netbeansKeymap != null) {
+      netbeansKeymap.removeShortcut("SaveAll", defaultShortcut)
+    }
   }
 }
 
