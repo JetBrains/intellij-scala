@@ -23,20 +23,17 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
                                            highlightType: ProblemHighlightType)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
     element match {
-      case function: ScFunctionDefinition =>
-        if (checkCompilerOption && !isCompilerOptionPresent(function))
-          None
-        else
-          function.returnUsages.collectFirst {
-              case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) =>
-                manager.createProblemDescriptor(
-                  scReturn,
-                  annotationDescription,
-                  isOnTheFly,
-                  createQuickFixes(scReturn),
-                  ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-                )
-            }
+      case function: ScFunctionDefinition if !checkCompilerOption || isCompilerOptionPresent(function) =>
+        function.returnUsages.collectFirst {
+            case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) =>
+              manager.createProblemDescriptor(
+                scReturn,
+                annotationDescription,
+                isOnTheFly,
+                createQuickFixes(scReturn),
+                ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+              )
+          }
       case _ =>
         None
     }
@@ -77,5 +74,5 @@ object NonLocalReturnInspection {
   private def createQuickFixes(scReturn: ScReturn): Array[LocalQuickFix] =
     (new RemoveExpressionQuickFix(scReturn) ::
       (if (scReturn.expr.isDefined) List(new RemoveReturnKeywordQuickFix(scReturn)) else Nil)
-      ).toArray[LocalQuickFix]
+    ).toArray[LocalQuickFix]
 }
