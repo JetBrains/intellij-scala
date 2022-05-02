@@ -3,10 +3,10 @@ package bytecode
 
 import java.io.InputStream
 
-import org.hamcrest.CoreMatchers.hasItems
-
 import scala.collection.immutable.StringOps
 import scala.reflect.ClassTag
+import org.hamcrest.CoreMatchers.hasItems
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert._
 import org.junit.Test
 

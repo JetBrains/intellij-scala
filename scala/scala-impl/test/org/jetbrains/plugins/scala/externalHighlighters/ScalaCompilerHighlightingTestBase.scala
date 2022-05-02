@@ -8,6 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.EdtTestUtil
+import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
 import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
@@ -15,7 +16,6 @@ import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.matchers.{HamcrestMatchers, ScalaBaseMatcher}
-import org.junit.Assert.assertThat
 import org.junit.experimental.categories.Category
 
 import java.util.Collections.emptyList

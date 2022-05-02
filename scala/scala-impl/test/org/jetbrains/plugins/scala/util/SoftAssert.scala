@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.hamcrest.Matcher
-import org.junit.Assert
+import org.hamcrest.MatcherAssert
 
 import scala.util.control.NoStackTrace
 
@@ -19,7 +19,7 @@ class SoftAssert {
   final protected def assertThat[A](reason: String,
                                     actual: A,
                                     expected: Matcher[_ >: A]): Unit =
-    catchError(Assert.assertThat(reason, actual, expected))
+    catchError(MatcherAssert.assertThat(reason, actual, expected))
 
   // other assert methods...
 
