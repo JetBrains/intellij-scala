@@ -62,13 +62,19 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   def testRemove_FunctionBody_SingleExpression_1(): Unit = {
     val before =
-      s"""def foo() = {${|}someMethod()}
+      s"""class a {
+         |  def foo() = {${|}someMethod()}
+         |}
          |""".stripMargin
     val afterWithEnabled =
-      s"""def foo() = ${|}someMethod()
+      s"""class a {
+         |  def foo() = ${|}someMethod()
+         |}
          |""".stripMargin
     val afterWithDisabled =
-      s"""def foo() = ${|}someMethod()}
+      s"""class a {
+         |  def foo() = ${|}someMethod()}
+         |}
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
@@ -173,20 +179,24 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   def testRemove_FunctionBody_MultipleExpressions(): Unit = {
     val before =
-      s"""def foo() = {${|}
-         |  someMethod1()
-         |  someMethod2()
+      s"""class A{
+         |  def foo() = {${|}
+         |    someMethod1()
+         |    someMethod2()}
          |}
          |""".stripMargin
     val afterWithEnabled =
-      s"""def foo() = ${|}
-         |  someMethod1()
-         |  someMethod2()
+      s"""class A{
+         |  def foo() = ${|}
+         |    someMethod1()
+         |    someMethod2()
+         |}
          |""".stripMargin
     val afterWithDisabled =
-      s"""def foo() = ${|}
-         |  someMethod1()
-         |  someMethod2()
+      s"""class A{
+         |  def foo() = ${|}
+         |    someMethod1()
+         |    someMethod2()}
          |}
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
@@ -302,6 +312,25 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     val afterWithDisabled =
       s"""def foo()
          |  = ${|}someMethod1(); someMethod2()
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_FunctionBody_MultipleExpressions_OneLine_7(): Unit = {
+    val before =
+      s"""def foo()
+         |  = {${|}someMethod1(); someMethod2()}
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo()
+         |  = ${|}someMethod1(); someMethod2()}
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo()
+         |  = ${|}someMethod1(); someMethod2()}
          |}
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
@@ -689,6 +718,99 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |}
          |  // foo
          |  someMethod3()
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_EmptyFunctionBody_WithType(): Unit = {
+    val before =
+      s"""def foo(name: String): Unit = {${|}
+         |
+         |
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo(name: String): Unit = ${|}
+         |
+         |
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo(name: String): Unit = ${|}
+         |
+         |
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_EmptyFunctionBody_WithType_WithEmptySpaces(): Unit = {
+    val before =
+      s"""def foo(name: String): Unit = {${|}
+         |
+         |    $empty
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo(name: String): Unit = ${|}
+         |
+         |    $empty
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo(name: String): Unit = ${|}
+         |
+         |    $empty
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_EmptyFunctionBody_WithoutType(): Unit = {
+    val before =
+      s"""def foo(name: String) = {${|}
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo(name: String) = ${|}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo(name: String) = ${|}
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_EmptyFunctionBody_After(): Unit = {
+    val before =
+      s"""def foo(name: String) = {${|}
+         |}
+         |bla()
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo(name: String) = ${|}
+         |bla()
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo(name: String) = ${|}
+         |}
+         |bla()
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_EmptyFunctionBody_After_Indent(): Unit = {
+    val before =
+      s"""def foo(name: String) = {${|}
+         |}
+         |  bla()
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo(name: String) = ${|}
+         |  bla()
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo(name: String) = ${|}
+         |}
+         |  bla()
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
@@ -1111,7 +1233,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testNotRemove_FunctionBody_NotIndented(): Unit = {
+  def testNotRemove_FunctionBody_NotIntended(): Unit = {
     // C closing brace is considered as foo closing brace, we do not want to remove it
     val before =
       s"""class C {
@@ -1131,6 +1253,28 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  def foo() = ${|}
          |    someMethod2()
          |}""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_FunctionBody_NotIntended_1(): Unit = {
+    val before =
+      s"""class C {
+         |    def bar = 1
+         |    def foo() = {${|}
+         |      someMethod2()
+         |1}""".stripMargin
+    val afterWithEnabled =
+      s"""class C {
+         |    def bar = 1
+         |    def foo() = ${|}
+         |      someMethod2()
+         |1}""".stripMargin
+    val afterWithDisabled =
+      s"""class C {
+         |    def bar = 1
+         |    def foo() = ${|}
+         |      someMethod2()
+         |1}""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
@@ -1625,37 +1769,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_IfElse_Then_SingleExpression(): Unit = {
-    val before =
-      s"""class A {
-         |  if (true) {${|}
-         |    someMethod()
-         |  }    else {
-         |    42
-         |  }
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""class A {
-         |  if (true) ${|}
-         |    someMethod()
-         |  else {
-         |    42
-         |  }
-         |}
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""class A {
-         |  if (true) ${|}
-         |    someMethod()
-         |  }    else {
-         |    42
-         |  }
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
   def testRemove_IfElse_Then_MultipleExpressions(): Unit = {
     val before =
       s"""class A {
@@ -1683,6 +1796,40 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |    someMethod1()
          |    someMethod2()
          |  }    else {
+         |    42
+         |  }
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_Then_SameLine(): Unit = {
+    val before =
+      s"""class A {
+         |  if (true) {${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    if (true) 1}    else {
+         |    42
+         |  }
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""class A {
+         |  if (true) ${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    if (true) 1}    else {
+         |    42
+         |  }
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""class A {
+         |  if (true) ${|}
+         |    someMethod1()
+         |    someMethod2()
+         |    if (true) 1}    else {
          |    42
          |  }
          |}
@@ -1863,6 +2010,215 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
+  def testNotRemove_IfElse_Nested_Oneline_1(): Unit = {
+    val before =
+      s"""if (true) {${|}if (false)}
+         |else 2
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}if (false)}
+         |else 2
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}if (false)}
+         |else 2
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_Nested_Oneline_2(): Unit = {
+    val before =
+      s"""if (true) {${|}if (false)
+         |}
+         |else 2
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}if (false)
+         |}
+         |else 2
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}if (false)
+         |}
+         |else 2
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_Nested_Oneline_3(): Unit = {
+    val before =
+      s"""if (true) {${|}if (false)}
+         |
+         |
+         |
+         |print(222)
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}if (false)}
+         |
+         |
+         |
+         |print(222)
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}if (false)}
+         |
+         |
+         |
+         |print(222)
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_Nested_Oneline_4(): Unit = {
+    val before =
+      s"""if (true) {${|} if (false) {}
+         |  }
+         |else
+         |  print(2)
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|} if (false) {}
+         |  }
+         |else
+         |  print(2)
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|} if (false) {}
+         |  }
+         |else
+         |  print(2)
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline(): Unit = {
+    val before =
+      s"""if (true) {${|} if (false)
+         |    print(1)
+         |    else
+         |      print(3)
+         |  }
+         |else
+         |  print(2)
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|} if (false)
+         |    print(1)
+         |    else
+         |      print(3)
+         |else
+         |  print(2)
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|} if (false)
+         |    print(1)
+         |    else
+         |      print(3)
+         |  }
+         |else
+         |  print(2)
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline_1(): Unit = {
+    val before =
+      s"""if (true) {${|}
+         |  if (false)}
+         |else 2
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |else 2
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}
+         |  if (false)}
+         |else 2
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline_2(): Unit = {
+    val before =
+      s"""class a {
+         |  if (true) {${|}while (true) {1}}
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""class a {
+         |  if (true) ${|}while (true) {1}
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""class a {
+         |  if (true) ${|}while (true) {1}}
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline_3(): Unit = {
+    val before =
+      s"""class a {
+         |  if (true) {${|}while (true) {}}
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""class a {
+         |  if (true) ${|}while (true) {}
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""class a {
+         |  if (true) ${|}while (true) {}}
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline_4(): Unit = {
+    val before =
+      s"""if (true) {${|} if (false) {}
+         |  }
+         |print(2)
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|} if (false) {}
+         |
+         |print(2)
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|} if (false) {}
+         |  }
+         |print(2)
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_Nested_Oneline_5(): Unit = {
+    val before =
+      s"""if (true) {${|} if (false)
+         |{}
+         |  }
+         |print(2)
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|} if (false)
+         |{}
+         |print(2)
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|} if (false)
+         |{}
+         |  }
+         |print(2)
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
   def testRemove_IfElse_Else_MultipleExpressions(): Unit = {
     val before =
       s"""class A {
@@ -1923,7 +2279,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
       s"""class A {
          |  if (true) ${|}
          |   42
-         |  else {
+         |  }    else {
          |       someMethod()
          |       someMethod1()
          |  }
@@ -1954,38 +2310,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_IfElse_Indented(): Unit = {
-    val before =
-      s"""{
-         |  def f = {${|}
-         |    if (false)
-         |1
-         |    else
-         |2
-         |  }
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""{
-         |  def f = ${|}
-         |    if (false)
-         |1
-         |    else
-         |2
-         |}
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""{
-         |  def f = ${|}
-         |    if (false)
-         |1
-         |    else
-         |2
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
   def testRemove_IfElse_Wrapped(): Unit = {
     val before =
       s"""{
@@ -2012,106 +2336,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |    42
          |  }
          |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_Wrapped_1(): Unit = {
-    val before =
-      s"""{if (true) {
-         |  someMethod()
-         |} else {${|}
-         |  42
-         |}}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""{if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |}
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""{if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |}}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_Wrapped_2(): Unit = {
-    val before =
-      s"""{if (true) {
-         |  someMethod()
-         |} else {${|}
-         |  42
-         |}    }
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""{if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |    }
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""{if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |}    }
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_Wrapped_3(): Unit = {
-    val before =
-      s"""(if (true) {
-         |  someMethod()
-         |} else {${|}
-         |  42
-         |})
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""(if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |)
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""(if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |})
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_Wrapped_4(): Unit = {
-    val before =
-      s"""(if (true) {
-         |  someMethod()
-         |} else {${|}
-         |  42
-         |}    )
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""(if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |    )
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""(if (true) {
-         |  someMethod()
-         |} else ${|}
-         |  42
-         |}    )
          |""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
@@ -2199,6 +2423,118 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  if (true) 42 else if(false) 23 else ${|}
          |    42
          |  }
+         |}""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_WithNestedIfWithoutElse(): Unit = {
+    val before =
+      s"""if (true) {${|}
+         |  if (false)
+         |    println("Smiling")
+         |} else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |} else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_WithNestedIfWithoutElse_Indent(): Unit = {
+    val before =
+      s"""if (true) {${|}
+         |  if (false)
+         |    println("Smiling")
+         |}   else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |}   else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_WithNestedIfWithoutElse_1(): Unit = {
+    val before =
+      s"""if (false) {
+         |  println(1)
+         |} else if (false) {${|}
+         |  if (true)
+         |    println(2)
+         |} else {
+         |  println(3)
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (false) {
+         |  println(1)
+         |} else if (false) ${|}
+         |  if (true)
+         |    println(2)
+         |else {
+         |  println(3)
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (false) {
+         |  println(1)
+         |} else if (false) ${|}
+         |  if (true)
+         |    println(2)
+         |} else {
+         |  println(3)
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testRemove_IfElse_WithNestedIfWithElse(): Unit = {
+    val before =
+      s"""if (true) {${|}
+         |  if (false)
+         |    println("Smiling")
+         |  else {}
+         |} else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |  else {}
+         |else {
+         |  println("Launching the rocket!")
+         |}""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}
+         |  if (false)
+         |    println("Smiling")
+         |  else {}
+         |} else {
+         |  println("Launching the rocket!")
          |}""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
@@ -2569,10 +2905,11 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_While_MultipleExpressions_Do(): Unit = {
+  // TODO ignored
+  def _testRemove_While_MultipleExpressions_Do(): Unit = {
+    // these are arbitrary block braces, ignored for now
     val before =
-      s"""while true do
-         |{${|}
+      s"""while true do {${|}
          |  42
          |  23
          |
@@ -2581,8 +2918,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |println()
          |""".stripMargin
     val afterWithEnabled =
-      s"""while true do
-         |${|}
+      s"""while true do ${|}
          |  42
          |  23
          |
@@ -2590,8 +2926,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |println()
          |""".stripMargin
     val afterWithDisabled =
-      s"""while true do
-         |${|}
+      s"""while true do ${|}
          |  42
          |  23
          |
@@ -2662,12 +2997,13 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |}
          |""".stripMargin
     val afterWithEnabled =
-      s"""for ${|} _ <- Seq() }
+      s"""for ${|} _ <- Seq() } {
          |  obj.method()
          |     .method1()
+         |}
          |""".stripMargin
     val afterWithDisabled =
-      s"""for ${|} _ <- Seq() }
+      s"""for ${|} _ <- Seq() } {
          |  obj.method()
          |     .method1()
          |}
@@ -2675,7 +3011,8 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_ForStatement_Braces_Do(): Unit = {
+  // TODO ignored
+  def _testRemove_ForStatement_Braces_Do(): Unit = {
     val before =
       s"""for {${|} _ <- Seq() } do {
          |  obj.method()
@@ -2706,13 +3043,13 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
        |}} println(x)
        |""".stripMargin
     val afterWithEnabled =
-      s"""for {x <- {${|}
+      s"""for {x <- ${|}
          |  val k = 3
          |  1 to k
          |}} println(x)
          |""".stripMargin
     val afterWithDisabled =
-      s"""for {x <- {${|}
+      s"""for {x <- ${|}
          |  val k = 3
          |  1 to k
          |}} println(x)
@@ -2765,7 +3102,8 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_ForStatement_Braces_Yields(): Unit = {
+  // TODO ignored
+  def _testRemove_ForStatement_Braces_Yields(): Unit = {
     val before =
       s"""for {${|} _ <- Seq() } yield {
          |  obj.method()
@@ -2824,6 +3162,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  _ <- Option(42)
          |} {
          |  println(42)
+         |}
          |""".stripMargin
     val afterWithDisabled =
       s"""for ${|}
@@ -2835,7 +3174,8 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_ForStatement_MultilineBraces_Do(): Unit = {
+  // TODO ignored
+  def _testRemove_ForStatement_MultilineBraces_Do(): Unit = {
     val before =
       s"""for {${|}
          |  _ <- Option(42)
@@ -2883,7 +3223,8 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_ForStatement_MultilineBraces_Yield(): Unit = {
+  // TODO ignored
+  def _testRemove_ForStatement_MultilineBraces_Yield(): Unit = {
     val before =
       s"""for {${|}
          |  _ <- Option(42)
@@ -2896,6 +3237,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  _ <- Option(42)
          |yield {
          |  println(42)
+         |}
          |""".stripMargin
     val afterWithDisabled =
       s"""for ${|}
@@ -2928,100 +3270,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testRemove_EmptyFunctionBody_WithType(): Unit = {
-    val before =
-      s"""def foo(name: String): Unit = {${|}
-         |
-         |
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""def foo(name: String): Unit = ${|}
-         |
-         |
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""def foo(name: String): Unit = ${|}
-         |
-         |
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_EmptyFunctionBody_WithType_WithEmptySpaces(): Unit = {
-    val before =
-      s"""def foo(name: String): Unit = {${|}
-         |
-         |    $empty
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""def foo(name: String): Unit = ${|}
-         |
-         |    $empty
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""def foo(name: String): Unit = ${|}
-         |
-         |    $empty
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_EmptyFunctionBody_WithoutType(): Unit = {
-    val before =
-      s"""def foo(name: String) = {${|}
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""def foo(name: String) = ${|}
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""def foo(name: String) = ${|}
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_EmptyFunctionBody_After(): Unit = {
-    val before =
-      s"""def foo(name: String) = {${|}
-         |}
-         |bla()
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""def foo(name: String) = ${|}
-         |bla()
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""def foo(name: String) = ${|}
-         |}
-         |bla()
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testNotRemove_EmptyFunctionBody_After_Indent(): Unit = {
-    val before =
-      s"""def foo(name: String) = {${|}
-         |}
-         |  bla()
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""def foo(name: String) = ${|}
-         |}
-         |  bla()
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""def foo(name: String) = ${|}
-         |}
-         |  bla()
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
   def testRemove_TryCatchBlock_EmptyBody(): Unit = {
     val before =
       s"""class A {
@@ -3047,118 +3295,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |  }
          |}
          |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_WithNestedIfWithoutElse(): Unit = {
-    val before =
-      s"""if (true) {${|}
-         |  if (false)
-         |    println("Smiling")
-         |} else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithEnabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithDisabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |} else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testNotRemove_IfElse_WithNestedIfWithoutElse_Indent(): Unit = {
-    val before =
-      s"""if (true) {${|}
-         |  if (false)
-         |    println("Smiling")
-         |}   else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithEnabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithDisabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |}   else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_WithNestedIfWithoutElse_1(): Unit = {
-    val before =
-      s"""if (false) {
-         |  println(1)
-         |} else if (false) {${|}
-         |  if (true)
-         |    println(2)
-         |} else {
-         |  println(3)
-         |}
-         |""".stripMargin
-    val afterWithEnabled =
-      s"""if (false) {
-         |  println(1)
-         |} else if (false) ${|}
-         |  if (true)
-         |    println(2)
-         |else {
-         |  println(3)
-         |}
-         |""".stripMargin
-    val afterWithDisabled =
-      s"""if (false) {
-         |  println(1)
-         |} else if (false) ${|}
-         |  if (true)
-         |    println(2)
-         |} else {
-         |  println(3)
-         |}
-         |""".stripMargin
-    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
-  }
-
-  def testRemove_IfElse_WithNestedIfWithElse(): Unit = {
-    val before =
-      s"""if (true) {${|}
-         |  if (false)
-         |    println("Smiling")
-         |  else {}
-         |} else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithEnabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |  else {}
-         |else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
-    val afterWithDisabled =
-      s"""if (true) ${|}
-         |  if (false)
-         |    println("Smiling")
-         |  else {}
-         |} else {
-         |  println("Launching the rocket!")
-         |}""".stripMargin
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 

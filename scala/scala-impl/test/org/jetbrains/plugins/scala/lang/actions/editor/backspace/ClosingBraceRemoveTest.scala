@@ -40,6 +40,20 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
+  def testRemove_FunctionBody_SingleExpression_Wrapped(): Unit = {
+    val before =
+      s"""class A {
+         |  def foo() = {${|}someMethod()}
+         |}
+         |""".stripMargin
+    val after =
+      s"""class A {
+         |  def foo() = ${|}someMethod()
+         |}
+         |""".stripMargin
+    doTest(before, after)
+  }
+
   def testRemove_ValInitializer_SingleExpression(): Unit = {
     val before =
       s"""val x = {${|}
@@ -128,7 +142,7 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     doTest(before, after)
   }
 
-  def testNotRemove_FunctionBody_NotIndented(): Unit = {
+  def testNotRemove_FunctionBody_NotIntended(): Unit = {
     // here there is an error - C closing brace is considered as foo closing brace, we do not want to remove it
     val before =
       s"""class C {
@@ -140,6 +154,20 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
          |  def foo() = ${|}
          |    someMethod2()
          |}""".stripMargin
+    doTest(before, after)
+  }
+
+  def testNotRemove_FunctionBody_NotIntended_1(): Unit = {
+    val before =
+      s"""class C {
+         |    def foo() = {${|}
+         |      someMethod2()
+         |1}""".stripMargin
+    val after =
+      s"""class C {
+         |    def foo() = ${|}
+         |      someMethod2()
+         |1}""".stripMargin
     doTest(before, after)
   }
 
