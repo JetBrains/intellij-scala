@@ -20,7 +20,8 @@ object Common {
     "-Xfatal-warnings",
     "-language:implicitConversions",
     "-language:reflectiveCalls",
-    "-language:existentials"
+    "-language:existentials",
+    "-Ytasty-reader",
   )
 
   // options for modules which classes can only be used in IDEA process (uses JRE 11)
@@ -52,6 +53,7 @@ object Common {
       name := projectName,
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
+      dependencyOverrides += "org.scala-lang" % "scala3-library_3" % "3.1.1", // TODO Workaround for SCL-18866
       (Compile / javacOptions) := globalJavacOptions,
       (Compile / scalacOptions) := globalScalacOptions,
       (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",

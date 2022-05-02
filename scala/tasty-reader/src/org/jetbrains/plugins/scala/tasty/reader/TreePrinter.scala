@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.tasty
+package org.jetbrains.plugins.scala.tasty.reader
 
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
-import org.jetbrains.plugins.scala.tasty.Node.{Node1, Node2, Node3}
-import org.jetbrains.plugins.scala.tasty.TreePrinter.Keywords
+import org.jetbrains.plugins.scala.tasty.reader.Node.{Node1, Node2, Node3}
+import org.jetbrains.plugins.scala.tasty.reader.TreePrinter.Keywords
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
@@ -693,7 +693,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (u.nonEmpty && u != "Any") {
         sb ++= " <: " + u
       }
-    case _ => "" // TODO exhaustive match
+    case _ => // TODO exhaustive match
   }
 
   private def asQualifier(tpe: String): String = {

@@ -179,19 +179,16 @@ lazy val worksheetReplInterface =
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
-lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
+lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
     intellijMainJars := Seq.empty,
-    scalaVersion := "3.0.0",
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.0.0",
+    scalaVersion := "3.1.2",
+    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.1",
     (Compile / scalacOptions) := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
-    packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
-    packageLibraryBaseDir := file("lib/tasty/"),
-    // TODO Use scala3-library in lib/ (when there will be one)
-    packageLibraryMappings := Seq(
-      "org.scala-lang" %% "scala-library" % ".*" -> None,
-    ),
+    (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
+    (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
+    libraryDependencies += "com.github.sbt" % "junit-interface" % "0.12" % Test
   )
 
 lazy val scalacPatches: sbt.Project =
@@ -212,13 +209,13 @@ lazy val scalaImpl: sbt.Project =
       macroAnnotations,
       traceLogger,
       decompiler % "test->test;compile->compile",
+      tastyReader % "test->test;compile->compile",
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
     .dependsOn(scalatestFinders % "compile->compile")
     // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
     .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
-    .aggregate(tastyRuntime)
     .enablePlugins(BuildInfoPlugin)
     .settings(
       ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
@@ -237,7 +234,6 @@ lazy val scalaImpl: sbt.Project =
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
-      packageAdditionalProjects := Seq(tastyRuntime),
       packageLibraryMappings := Seq(
         "org.scalameta" %% ".*" % ".*"                     -> Some("lib/scalameta.jar"),
         // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
@@ -264,7 +260,7 @@ lazy val scalaImpl: sbt.Project =
           relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0")))
         )
     )
-    .withCompilerPluginIn(scalacPatches)
+    .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
 val nailgunJar = settingKey[File]("location of nailgun jar").withRank(KeyRanks.Invisible)
 (ThisBuild / nailgunJar) := (scalaCommunity / unmanagedBase).value / "nailgun.jar"
