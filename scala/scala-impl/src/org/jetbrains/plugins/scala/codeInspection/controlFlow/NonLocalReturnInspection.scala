@@ -13,9 +13,21 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import javax.swing.JComponent
 import scala.annotation.tailrec
+import scala.beans.BooleanBeanProperty
 
 final class NonLocalReturnInspection extends AbstractRegisteredInspection {
   import NonLocalReturnInspection._
+
+  @BooleanBeanProperty
+  var checkCompilerOption: Boolean = false
+
+  @Override
+  override def createOptionsPanel(): JComponent =
+    new SingleCheckboxOptionsPanel(
+      ScalaInspectionBundle.message("nonlocal.return.check.compiler.option"),
+      this,
+      "checkCompilerOption"
+    )
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],
@@ -41,23 +53,6 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
         None
     }
   }
-
-  // for the checkbox to work, the var needs to be public, and there have to be a getter and a setter - because of Java reflection
-  var checkCompilerOption: Boolean = false
-
-  def isCheckCompilerOption: Boolean = checkCompilerOption
-
-  def setCheckCompilerOption(checkCompilerOption: Boolean): Unit = {
-    this.checkCompilerOption = checkCompilerOption
-  }
-
-  @Override
-  override def createOptionsPanel(): JComponent =
-    new SingleCheckboxOptionsPanel(
-      ScalaInspectionBundle.message("nonlocal.return.check.compiler.option"),
-      this,
-      "checkCompilerOption"
-    )
 }
 
 object NonLocalReturnInspection {
