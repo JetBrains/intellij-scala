@@ -58,6 +58,7 @@ object SmartJDKLoader {
       "C:\\Program Files\\Java\\",         // windows style
       "C:\\Program Files (x86)\\Java\\",   // windows 32bit style
       "/Library/Java/JavaVirtualMachines", // mac style
+      userHome + "/Library/Java/JavaVirtualMachines", // mac style
       userHome + "/.jabba/jdk", // jabba (for github actions)
       userHome + "/.jdks", // by default IDEA downloads JDKs here
     )
