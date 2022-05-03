@@ -386,8 +386,8 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
-          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
-            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
+            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1), parensRequired = true) + "*"
             else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
               val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""

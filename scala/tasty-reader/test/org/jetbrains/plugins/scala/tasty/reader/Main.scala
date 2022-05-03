@@ -13,7 +13,7 @@ object Main {
   private val Home: String = System.getProperty("user.home")
 
   private val Repository = Home + "/.cache/coursier/v1/https/repo1.maven.org/maven2/"
-  private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/tasty/runtime/target/comparison"
+  private val OutputDir = Home + "/IdeaProjects/scala-plugin-for-ultimate/community/scala/tasty-reader/target/comparison"
 
   // scalaVersion := "3.1.1",
   // libraryDependencies += "dev.zio" %% "zio" % "1.0.12",
@@ -28,6 +28,7 @@ object Main {
     "org/scalatest/scalatest-funsuite_3/3.2.11/scalatest-funsuite_3-3.2.11.jar",
     "dev/zio/zio_3/1.0.12/zio_3-1.0.12.jar",
     "dev/zio/zio-streams_3/1.0.12/zio-streams_3-1.0.12.jar",
+    "io/getquill/quill-sql_3/3.7.2.Beta1.4/quill-sql_3-3.7.2.Beta1.4.jar",
     "org/typelevel/cats-core_3/2.7.0/cats-core_3-2.7.0.jar",
     "org/typelevel/cats-effect_3/3.3.8/cats-effect_3-3.3.8.jar",
     "org/scala-lang/scala3-compiler_3/3.1.1/scala3-compiler_3-3.1.1.jar",
