@@ -37,51 +37,54 @@ private[evaluation] class CompilingEvaluator(psiContext: PsiElement, fragment: S
     val classLoader = ClassLoadingUtils.getClassLoader(autoLoadContext, process)
     autoLoadContext.setClassLoader(classLoader)
 
-//    val originalFile = psiContext.getContainingFile
-//    val nonPhysicalCopy = copy(originalFile, physical = false)
-//    val range = psiContext.getTextRange
-//    val psiContextCopy = findElement(nonPhysicalCopy, range, psiContext.getClass)
-//
-//    var (prevParent, parent) = findAnchorAndParent(psiContextCopy)
-//
-//    val needBraces = parent match {
-//      case _: ScBlock | _: ScTemplateBody => false
-//      case _ => true
-//    }
-//
-//    val tabSize = CodeStyle.getIndentOptions(fragment).TAB_SIZE
-//    val indentLevel = IndentUtil.calcRegionIndent(prevParent, tabSize) + needBraces.fold(tabSize, 0)
-//
-//    val anchor =
-//      if (needBraces) {
-//        val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(
-//          s"""{
-//             |${indent(indentLevel)(prevParent.getText)}
-//             |${indent(indentLevel - tabSize)("")}}""".stripMargin,
-//          prevParent.getContext,
-//          prevParent
-//        )
-//        parent = prevParent.replace(newBlock)
-//        parent match {
-//          case bl: ScBlock =>
-//            bl.statements.head
-//          case _ => throw EvaluationException("Could not compile Scala code in this context")
-//        }
-//      } else prevParent
-//
-//    val fragmentExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(fragment.getText, anchor.getContext, anchor)
-//    val fragmentContext = parent.addBefore(fragmentExpr, anchor)
-//    val newLine = ScalaPsiElementFactory.createNewLine(s"${System.lineSeparator()}${indent(indentLevel)("")}")(fragment.getProject)
-//    parent.addBefore(newLine, anchor)
+    val (objectName, text) = inReadAction {
+      val originalFile = psiContext.getContainingFile
+      val nonPhysicalCopy = copy(originalFile, physical = false)
+      val range = psiContext.getTextRange
+      val psiContextCopy = findElement(nonPhysicalCopy, range, psiContext.getClass)
 
-    val count = CompilingEvaluator.counter.incrementAndGet()
+      var (prevParent, parent) = findAnchorAndParent(psiContextCopy)
 
-    val text =
-      s"""object GeneratedObject$count {
-         |  def method() = {
-         |${indent(4)(fragment.getText)}
-         |  }
-         |}""".stripMargin
+      val needBraces = parent match {
+        case _: ScBlock | _: ScTemplateBody => false
+        case _ => true
+      }
+
+      val tabSize = CodeStyle.getIndentOptions(fragment).TAB_SIZE
+      val indentLevel = IndentUtil.calcRegionIndent(prevParent, tabSize) + needBraces.fold(tabSize, 0)
+
+      val anchor =
+        if (needBraces) {
+          val newBlock = ScalaPsiElementFactory.createExpressionWithContextFromText(
+            s"""{
+               |${indent(indentLevel)(prevParent.getText)}
+               |${indent(indentLevel - tabSize)("")}}""".stripMargin,
+            prevParent.getContext,
+            prevParent
+          )
+          parent = prevParent.replace(newBlock)
+          parent match {
+            case bl: ScBlock =>
+              bl.statements.head
+            case _ => throw EvaluationException("Could not compile Scala code in this context")
+          }
+        } else prevParent
+
+      val fragmentExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(fragment.getText, anchor.getContext, anchor)
+      val fragmentContext = parent.addBefore(fragmentExpr, anchor)
+      val newLine = ScalaPsiElementFactory.createNewLine(s"${System.lineSeparator()}${indent(indentLevel)("")}")(fragment.getProject)
+      parent.addBefore(newLine, anchor)
+
+      val count = CompilingEvaluator.counter.incrementAndGet()
+
+      s"GeneratedObject$count$$" ->
+        s"""object GeneratedObject$count {
+           |  def method() = {
+           |${indent(4)(fragment.getText)}
+           |  }
+           |}
+         """.stripMargin
+    }
 
     val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(project)
@@ -96,7 +99,7 @@ private[evaluation] class CompilingEvaluator(psiContext: PsiElement, fragment: S
       process.findClass(autoLoadContext, name, classLoader)
     }
 
-    val moduleEvaluator = ScalaFieldEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(s"GeneratedObject$count$$")), "MODULE$")
+    val moduleEvaluator = ScalaFieldEvaluator(new ScalaTypeEvaluator(JVMNameUtil.getJVMRawText(objectName)), "MODULE$")
     val methodEvaluator = ScalaMethodEvaluator(moduleEvaluator, "method", null, Seq.empty)
     methodEvaluator.evaluate(autoLoadContext).asInstanceOf[Value]
   }

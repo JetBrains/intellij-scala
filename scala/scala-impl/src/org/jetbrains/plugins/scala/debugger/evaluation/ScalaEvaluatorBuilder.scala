@@ -42,15 +42,16 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     val project = codeFragment.getProject
 
     val cache = ScalaEvaluatorCache.getInstance(project)
-    val cached: Option[Evaluator] = {
-      try cache.get(position, codeFragment)
-      catch {
-        case c: ControlFlowException => throw c
-        case _: Exception =>
-          cache.clear()
-          None
-      }
-    }
+    val cached = Option.empty[Evaluator]
+//    val cached: Option[Evaluator] = {
+//      try cache.get(position, codeFragment)
+//      catch {
+//        case c: ControlFlowException => throw c
+//        case _: Exception =>
+//          cache.clear()
+//          None
+//      }
+//    }
 
     def buildSimpleEvaluator: Evaluator = {
       cached.getOrElse {
@@ -59,9 +60,10 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
       }
     }
 
-    def buildCompilingEvaluator: ScalaCompilingEvaluator = {
-      val compilingEvaluator = new ScalaCompilingEvaluator(position.getElementAt, scalaFragment)
-      cache.add(position, scalaFragment, compilingEvaluator).asInstanceOf[ScalaCompilingEvaluator]
+    def buildCompilingEvaluator: CompilingEvaluator = {
+      val evaluator = new CompilingEvaluator(position.getElementAt, scalaFragment)
+      cache.add(position, scalaFragment, evaluator)
+      evaluator
     }
 
     try {
@@ -70,7 +72,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     } catch {
       case _: NeedCompilationException =>
         Stats.trigger(FeatureKey.debuggerCompilingEvaluator)
-        new ScalaCompilingExpressionEvaluator(buildCompilingEvaluator)
+        new ExpressionEvaluatorImpl(buildCompilingEvaluator)
       case e: EvaluateException =>
         throw e
     }
