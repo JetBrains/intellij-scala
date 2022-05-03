@@ -161,12 +161,10 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
     val before =
       s"""class C {
          |    def foo() = {${|}
-         |      someMethod2()
          |1}""".stripMargin
     val after =
       s"""class C {
          |    def foo() = ${|}
-         |      someMethod2()
          |1}""".stripMargin
     doTest(before, after)
   }
