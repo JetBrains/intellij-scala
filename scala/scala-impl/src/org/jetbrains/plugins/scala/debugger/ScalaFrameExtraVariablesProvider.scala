@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger
 
 import java.util
 import java.util.Collections
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
@@ -14,7 +13,7 @@ import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingExpressionEvaluator
-import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
+import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ExpressionEvaluatorBuilder, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.ScalaParameterNameAdjuster
 import org.jetbrains.plugins.scala.extensions._
@@ -114,7 +113,7 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           val location = evaluationContext.getFrameProxy.location()
           val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
           if (sourcePosition.isEmpty) throw EvaluationException(ScalaBundle.message("debug.process.is.detached"))
-          ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
+          ExpressionEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
             case _: ScalaCompilingExpressionEvaluator => throw new RuntimeException("Don't use compiling evaluator here")
             case e => e
           }

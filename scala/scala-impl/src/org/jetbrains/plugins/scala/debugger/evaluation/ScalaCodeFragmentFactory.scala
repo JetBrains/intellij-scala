@@ -96,7 +96,7 @@ class ScalaCodeFragmentFactory extends CodeFragmentFactory {
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
-  override def getEvaluatorBuilder: EvaluatorBuilder = ScalaEvaluatorBuilder
+  override def getEvaluatorBuilder: EvaluatorBuilder = ExpressionEvaluatorBuilder
 
   private def wrapContext(originalContext: PsiElement)
                          (implicit project: Project): PsiElement = {
