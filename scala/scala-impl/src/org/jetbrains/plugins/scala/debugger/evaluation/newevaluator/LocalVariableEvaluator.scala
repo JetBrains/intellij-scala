@@ -5,6 +5,7 @@ import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationCon
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, ThreadReferenceProxyImpl}
 import com.intellij.debugger.ui.impl.watch.LocalVariableDescriptorImpl
 import com.intellij.debugger.ui.tree.NodeDescriptor
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -16,6 +17,8 @@ private[evaluation] abstract class LocalVariableEvaluator extends Evaluator {
   protected val variableName: String
 
   protected val isModifiable: Boolean
+
+  private val Log: Logger = Logger.getInstance(getClass)
 
   private[this] var localVariable: LocalVariableProxyImpl = _
 
@@ -38,19 +41,20 @@ private[evaluation] abstract class LocalVariableEvaluator extends Evaluator {
           evaluationContext = context
           return frameProxy.getValue(local)
         }
-        frameProxy = null
       } catch {
         case e: EvaluateException if e.getCause.is[AbsentInformationException] =>
-          if (threadProxy eq null) {
-            threadProxy = frameProxy.threadProxy()
-            lastFrameIndex = threadProxy.frameCount() - 1
-          }
-          val currentFrameIndex = frameProxy.getFrameIndex
-          if (currentFrameIndex < lastFrameIndex) {
-            frameProxy = threadProxy.frame(currentFrameIndex + 1)
-          } else {
-            frameProxy = null
-          }
+          Log.info(e)
+      }
+
+      if (threadProxy eq null) {
+        threadProxy = frameProxy.threadProxy()
+        lastFrameIndex = threadProxy.frameCount() - 1
+      }
+      val currentFrameIndex = frameProxy.getFrameIndex
+      if (currentFrameIndex < lastFrameIndex) {
+        frameProxy = threadProxy.frame(currentFrameIndex + 1)
+      } else {
+        frameProxy = null
       }
     }
 
