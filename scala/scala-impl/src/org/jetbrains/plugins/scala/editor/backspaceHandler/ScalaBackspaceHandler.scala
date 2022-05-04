@@ -146,13 +146,14 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
 
   private def canDeleteClosingBrace(block: ScBlockExpr, parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, file: PsiFile): Boolean = {
     val statements = block.statements
-    val wrapSingleExpression = ScalaApplicationSettings.getInstance.WRAP_SINGLE_EXPRESSION_BODY
+    val deleteClosingBrace = ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE
     val tabSize = CodeStyle.getSettings(file.getProject).getTabSize(ScalaFileType.INSTANCE)
 
-    if (file.useIndentationBasedSyntax)
-      canDeleteClosingBraceScala3IndentationBasedSyntax(statements, parent, lBrace, rBrace, tabSize)
-    else if (wrapSingleExpression)
-      canDeleteClosingBraceScala2(statements, parent, rBrace, tabSize)
+    if (deleteClosingBrace)
+      if (file.useIndentationBasedSyntax)
+        canDeleteClosingBraceScala3IndentationBasedSyntax(statements, parent, lBrace, rBrace, tabSize)
+      else
+        canDeleteClosingBraceScala2(statements, parent, rBrace, tabSize)
     else
       false
   }
@@ -217,6 +218,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
   private def hasCorrectIndentationOneLine(statements: Seq[ScBlockStatement], lBrace: PsiElement, rBrace: PsiElement): Boolean = {
     val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exists
     lBrace.followedByNewLine() ||
+      // first statement without newline can break semantics, because the scala parser does not recognize the indentation properly
+      // https://github.com/lampepfl/dotty/issues/15039
       statements.size == 1 && !indentedRegionCanStart(lastLeaf) && lastStatementDoesNotBreakSemantics(statements.last, rBrace)
   }
 

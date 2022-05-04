@@ -871,13 +871,13 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
          |""".stripMargin
 
     val settings = ScalaApplicationSettings.getInstance
-    val settingBefore = settings.WRAP_SINGLE_EXPRESSION_BODY
+    val settingBefore = settings.DELETE_CLOSING_BRACE
     try {
       doTest(before, afterWithEnabled)
-      settings.WRAP_SINGLE_EXPRESSION_BODY = false
+      settings.DELETE_CLOSING_BRACE = false
       doTest(before, afterWithDisabled)
     } finally {
-      settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
+      settings.DELETE_CLOSING_BRACE = settingBefore
     }
   }
 

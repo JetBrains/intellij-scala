@@ -22,23 +22,23 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   private def withEnabledAndDisabled(before: String, afterWithEnabled: String, afterWithDisabled: String): Unit = {
     val settings = ScalaApplicationSettings.getInstance
-    val settingBefore = settings.WRAP_SINGLE_EXPRESSION_BODY
+    val settingBefore = settings.DELETE_CLOSING_BRACE
     try {
       getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
-      settings.WRAP_SINGLE_EXPRESSION_BODY = true
+      settings.DELETE_CLOSING_BRACE = true
       doTest(before, afterWithEnabled)
 
-      // removing closing brace for single statements should work without WRAP_SINGLE_EXPRESSION_BODY
+      // removing closing brace for single statements should only work with both settings for Scala 3 indentation based syntax
       getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
-      settings.WRAP_SINGLE_EXPRESSION_BODY = false
-      doTest(before, afterWithEnabled)
+      settings.DELETE_CLOSING_BRACE = false
+      doTest(before, afterWithDisabled)
 
       getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = false
-      settings.WRAP_SINGLE_EXPRESSION_BODY = false
+      settings.DELETE_CLOSING_BRACE = false
       doTest(before, afterWithDisabled)
     }
     finally {
-      settings.WRAP_SINGLE_EXPRESSION_BODY = settingBefore
+      settings.DELETE_CLOSING_BRACE = settingBefore
     }
   }
 

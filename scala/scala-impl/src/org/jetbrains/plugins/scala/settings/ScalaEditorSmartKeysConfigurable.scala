@@ -24,9 +24,9 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
     checkBox(ScalaBundle.message("insert.pair.multiline.quotes"), () => settings.INSERT_MULTILINE_QUOTES, settings.INSERT_MULTILINE_QUOTES = _)
     checkBox(ScalaBundle.message("upgrade.to.interpolated"), () => settings.UPGRADE_TO_INTERPOLATED, settings.UPGRADE_TO_INTERPOLATED = _)
     checkBox(ScalaBundle.message("wrap.single.expression.body"), () => settings.WRAP_SINGLE_EXPRESSION_BODY, settings.WRAP_SINGLE_EXPRESSION_BODY = _)
+    checkBox(ScalaBundle.message("delete.closing.brace"), () => settings.DELETE_CLOSING_BRACE, settings.DELETE_CLOSING_BRACE = _)
     checkBox(ScalaBundle.message("insert.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = _)
     checkBox(ScalaBundle.message("remove.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = _)
-
   }
 
   override def createComponent: JComponent = {
