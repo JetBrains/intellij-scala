@@ -39,10 +39,13 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
-  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean =
-    if (isOnlyVisibleInLocalFile(element) && isOnTheFly) {
+  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
+
+    val elementIsOnlyVisibleInLocalFile = isOnlyVisibleInLocalFile(element)
+
+    if (elementIsOnlyVisibleInLocalFile && isOnTheFly) {
       localSearch(element)
-    } else if (isOnlyVisibleInLocalFile(element) && !isOnTheFly) {
+    } else if (elementIsOnlyVisibleInLocalFile && !isOnTheFly) {
       referencesSearch(element)
     } else if (referencesSearch(element)) {
       true
@@ -58,6 +61,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
           textSearch(element)
       }
     }
+  }
 
   // this case is for elements accessible only in a local scope
   private def localSearch(element: ScNamedElement): Boolean = {
