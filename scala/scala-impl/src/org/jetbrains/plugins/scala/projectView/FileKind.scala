@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package projectView
 
+import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Iconable
@@ -71,11 +72,11 @@ object FileKind {
 
     protected val companionObject: ScObject
 
-    override def node(implicit project: Project, settings: ViewSettings): Option[CustomDefinitionNode] =
+    override def node(implicit project: Project, settings: ViewSettings): Option[PsiFileNode with IconableNode] =
       if (settings != null && settings.isShowMembers) {
         None
       } else {
-        class LeafNode extends CustomDefinitionNode(delegate) {
+        class LeafNode extends PsiFileNode(project, delegate.getContainingFile, settings) with IconableNode {
 
           override def getIcon(flags: Int): Icon = PairedDefinition.this.getIcon(flags)
 
