@@ -5,7 +5,6 @@ import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationCon
 import com.intellij.debugger.jdi.{LocalVariableProxyImpl, ThreadReferenceProxyImpl}
 import com.intellij.debugger.ui.impl.watch.LocalVariableDescriptorImpl
 import com.intellij.debugger.ui.tree.NodeDescriptor
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -17,8 +16,6 @@ private[evaluation] abstract class LocalVariableEvaluator extends Evaluator {
   protected val variableName: String
 
   protected val isModifiable: Boolean
-
-  private val Log: Logger = Logger.getInstance(getClass)
 
   private[this] var localVariable: LocalVariableProxyImpl = _
 
@@ -43,7 +40,6 @@ private[evaluation] abstract class LocalVariableEvaluator extends Evaluator {
         }
       } catch {
         case e: EvaluateException if e.getCause.is[AbsentInformationException] =>
-          Log.info(e)
       }
 
       if (threadProxy eq null) {
