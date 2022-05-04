@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{ScalaUnusedDeclarationInspection, ScalaUnusedDeclarationInspectionBase}
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTestBase {
@@ -11,7 +11,7 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTes
     classOf[ScalaUnusedDeclarationInspection]
 
   override protected val description: String =
-    ScalaUnusedDeclarationInspectionBase.annotationDescription
+    ScalaUnusedDeclarationInspection.annotationDescription
 
   protected override def setUp(): Unit = {
     super.setUp()

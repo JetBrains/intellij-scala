@@ -4,6 +4,7 @@ package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
+import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -29,11 +30,22 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
+import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInspection {
+class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
 
-  import ScalaUnusedDeclarationInspectionBase._
+  @BeanProperty
+  final var reportPublicDeclarationsEnabled = false
+
+  override def createOptionsPanel =
+    new SingleCheckboxOptionsPanel(
+      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
+      this,
+      "reportPublicDeclarationsEnabled"
+    )
+
+  import ScalaUnusedDeclarationInspection._
 
   override def isEnabledByDefault: Boolean = true
 
@@ -49,7 +61,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
       referencesSearch(element)
     } else if (referencesSearch(element)) {
       true
-    } else if (!isReportPublicDeclarationsEnabled) {
+    } else if (!reportPublicDeclarationsEnabled) {
       true
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
@@ -210,7 +222,7 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
           Seq(
             ProblemInfo(
               named.nameId,
-              ScalaUnusedDeclarationInspectionBase.annotationDescription,
+              ScalaUnusedDeclarationInspection.annotationDescription,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL,
               DeleteUnusedElementFix.quickfixesFor(named) ++
                 dontReportPublicDeclarationsQuickFix ++
@@ -247,13 +259,9 @@ abstract class ScalaUnusedDeclarationInspectionBase extends HighlightingPassInsp
       }
     case _ => false
   }
-
-  def isReportPublicDeclarationsEnabled: Boolean
-
-  def setReportPublicDeclarationsEnabled(enabled: Boolean): Unit
 }
 
-object ScalaUnusedDeclarationInspectionBase {
+object ScalaUnusedDeclarationInspection {
   @Nls
   val annotationDescription: String = ScalaInspectionBundle.message("declaration.is.never.used")
 
