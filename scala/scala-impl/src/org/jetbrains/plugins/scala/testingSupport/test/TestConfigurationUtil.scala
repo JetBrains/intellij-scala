@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScParenthesisedExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.AllInPackageTestData
 
@@ -183,7 +183,8 @@ object TestConfigurationUtil {
             }
           case _ => None
         }
-      case _ => None
+      case _ =>
+        None
     }
   }
 
@@ -202,4 +203,7 @@ object TestConfigurationUtil {
       // we DO need to escape \r because on Windows e.g. scalatest also use \r in test names in case ofm multiline strings
       .replace("\r", "\\r")
   }
+
+  def isUnqualifiedPrivateOrThis(member: ScMember): Boolean =
+    member.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)
 }

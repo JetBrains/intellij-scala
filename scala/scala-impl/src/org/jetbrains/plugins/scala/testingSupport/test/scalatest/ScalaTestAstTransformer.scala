@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
-import java.io.File
-import java.lang.annotation.Annotation
-import java.net.{URL, URLClassLoader}
 import com.intellij.execution.Location
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.module.Module
@@ -16,12 +13,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, S
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil
 import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil._
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil.{itWordFqns, theyWordFqns}
+import org.jetbrains.plugins.scala.testingSupport.test.utils.StringOps
 import org.scalatest.finders.{MethodInvocation => _, _}
 
+import java.io.File
+import java.lang.annotation.Annotation
+import java.net.{URL, URLClassLoader}
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.util.{Failure, Success, Try}
@@ -258,10 +260,12 @@ object ScalaTestAstTransformer {
   }
 
   private def getElementNestedBlockChildren(element: PsiElement): Seq[PsiElement] = {
+    val children = element.getChildren.toSeq
     element match {
-      case _: ScBlockExpr | _: ScTemplateBody => element.getChildren.toSeq
+      case _: ScBlockExpr | _: ScTemplateBody =>
+        children
       case _ =>
-        element.getChildren.toSeq.flatMap {
+        children.flatMap {
           case argExprList: ScArgumentExprList =>
             argExprList.getChildren.headOption match {
               case Some(block: ScBlockExpr) => block.getChildren
@@ -296,8 +300,19 @@ object ScalaTestAstTransformer {
       getScalaTestMethodInvocation(invocation, invocation, Seq.empty, className)
     case definition: ScFunctionDefinition =>
       getScalaTestMethodDefinition(definition)
-    case _: ScTemplateBody =>
-      Some(new StConstructorBlock(element, className))
+    case o: ScObject =>
+      o.extendsBlock.templateBody.map { tb =>
+        new StModuleDefinition(o, tb, className, o.name.withoutBackticks.trim)
+      }
+    case t: ScTemplateBody =>
+      val clazz = Option(PsiTreeUtil.getTopmostParentOfType(t, classOf[ScClass])).toSeq
+      val isRefSpec =  clazz.flatMap(_.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)).exists(_.getText.contains("RefSpec"))
+
+      if (isRefSpec) {
+        None
+      } else {
+        Some(new StConstructorBlock(element, className))
+      }
     case _ => None
   }
 
@@ -325,21 +340,36 @@ object ScalaTestAstTransformer {
     override def hashCode: Int = element.hashCode
   }
 
-  private class StMethodDefinition(val element: PsiElement, pClassName: String, pParamTypes: Seq[String])
-    extends MethodDefinition(pClassName, null, new Array[AstNode](0), getStaticTestName(element).getOrElse(""), pParamTypes: _*) {
+  private class StModuleDefinition(val obj: ScObject, templateBody: ScTemplateBody, pClassName: String, name: String)
+    extends ModuleDefinition(pClassName, null, new Array[AstNode](0), name) {
 
-    override def parent: AstNode = getParentNode(className, element)
+    override def parent: AstNode = getParentNode(className, obj)
 
-    override def children: Array[AstNode] = getChildren(pClassName, element)
+    override def children: Array[AstNode] = getChildren(pClassName, templateBody)
 
-    override def canBePartOfTestName: Boolean = getStaticTestName(element).isDefined
+    override def canBePartOfTestName: Boolean = !TestConfigurationUtil.isUnqualifiedPrivateOrThis(obj)
 
     override def equals(other: Any): Boolean = other match {
-      case o: StMethodDefinition => o.element == element
+      case o: StModuleDefinition => o.obj == obj
       case _ => false
     }
 
-    override def hashCode: Int = element.hashCode
+    override def hashCode: Int = obj.hashCode
+  }
+
+  private class StMethodDefinition(val funDef: ScFunctionDefinition, pClassName: String, pParamTypes: Seq[String])
+    extends MethodDefinition(pClassName, null, Array.empty, funDef.name.withoutBackticks.trim, pParamTypes: _*) {
+
+    override def parent: AstNode = getParentNode(className, funDef)
+
+    override def canBePartOfTestName: Boolean = !TestConfigurationUtil.isUnqualifiedPrivateOrThis(funDef)
+
+    override def equals(other: Any): Boolean = other match {
+      case o: StMethodDefinition => o.funDef == funDef
+      case _ => false
+    }
+
+    override def hashCode: Int = funDef.hashCode
   }
 
   private class StMethodInvocation(val invocation: MethodInvocation,

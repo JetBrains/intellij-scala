@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.testingSupport.test.utils.ScalaTestLocationsFinderUtils
+import org.jetbrains.plugins.scala.testingSupport.test.utils.ScalaTestLocationsFinderUtils.collectTestLocationsForRefSpec
 import org.scalatest.finders._
 
 
@@ -22,14 +23,11 @@ object ScalaTestTestLocationsFinder {
 
   @RequiresReadLock
   @CachedInUserData(definition, CachesUtil.fileModTracker(definition.getContainingFile))
-  def calculateTestLocations(definition: ScTypeDefinition): Option[Seq[PsiElement]] = {
+  def calculateTestLocations(definition: ScTypeDefinition): Seq[PsiElement] = {
     //Thread.sleep(5000) // uncomment to test long resolve
-    for {
-      module <- definition.module
-      finder <- ScalaTestAstTransformer.getFinder(definition, module)
-      locations <- doCalculateScalaTestTestLocations(definition, finder)
-    } yield
-      locations
+    val module = definition.module
+    val finder = module.flatMap(ScalaTestAstTransformer.getFinder(definition, _))
+    finder.toSeq.flatMap(doCalculateScalaTestTestLocations(definition, _))
   }
 
   // NOTE 1:
@@ -38,22 +36,20 @@ object ScalaTestTestLocationsFinder {
   //   when the implementation is stable we could merge this logic with org.scalatest.finders.Finder interface
   // NOTE 2: current implementation is very basic, it doesn't involve any resolve, it only analyses static names
   //   see ScalaTestConfigurationProducer.getTestClassWithTestName
-  private def doCalculateScalaTestTestLocations(definition: ScTypeDefinition, finder: Finder): Option[TestLocations] = {
-    val body = definition.extendsBlock.templateBody match {
-      case Some(value) => value
-      case None        => return None
+  private def doCalculateScalaTestTestLocations(definition: ScTypeDefinition, finder: Finder): TestLocations =
+    definition.extendsBlock.templateBody.toSeq.flatMap { body =>
+      finder match {
+        case _: FunSuiteFinder => funSuiteTestLocations(body)
+        case _: FlatSpecFinder => flatSpecTestLocations(body)
+        case _: FunSpecFinder => funSpecTestLocations(body)
+        case _: WordSpecFinder => wordSpecTestLocations(body)
+        case _: FreeSpecFinder => freeSpecTestLocations(body)
+        case _: PropSpecFinder => propSpecTestLocations(body)
+        case _: FeatureSpecFinder => featureSpecTestLocations(body)
+        case _: SpecFinder => collectTestLocationsForRefSpec(body)
+        case _ => Seq.empty
+      }
     }
-    finder match {
-      case _: FunSuiteFinder    => Some(funSuiteTestLocations(body))
-      case _: FlatSpecFinder    => Some(flatSpecTestLocations(body))
-      case _: FunSpecFinder     => Some(funSpecTestLocations(body))
-      case _: WordSpecFinder    => Some(wordSpecTestLocations(body))
-      case _: FreeSpecFinder    => Some(freeSpecTestLocations(body))
-      case _: PropSpecFinder    => Some(propSpecTestLocations(body))
-      case _: FeatureSpecFinder => Some(featureSpecTestLocations(body))
-      case _                    => None
-    }
-  }
 
   private type TestLocations = Seq[PsiElement]
 
@@ -85,20 +81,20 @@ object ScalaTestTestLocationsFinder {
 
     val EmptySet: Set[String] = Set()
 
-    val FunSuiteLeaves    = Set("test")
-    val FlatSpecLeaves    = Set("in", "of")
-    val PropSpecLeaves    = Set("property")
+    val FunSuiteLeaves = Set("test")
+    val FlatSpecLeaves = Set("in", "of")
+    val PropSpecLeaves = Set("property")
 
-    val FunSpecNodes      = Set("describe")
-    val FunSpecLeaves     = Set("it", "they")
+    val FunSpecNodes = Set("describe")
+    val FunSpecLeaves = Set("it", "they")
 
-    val WordSpecNodes     = Set("when", "should", "must", "can", "which")
-    val WordSpecLeaves    = Set("in")
+    val WordSpecNodes = Set("when", "should", "must", "can", "which")
+    val WordSpecLeaves = Set("in")
 
-    val FreeSpecNodes     = Set("-")
-    val FreeSpecLeaves    = Set("in")
+    val FreeSpecNodes = Set("-")
+    val FreeSpecLeaves = Set("in")
 
-    val FeatureSpecNodes  = Set("feature", "Feature")
+    val FeatureSpecNodes = Set("feature", "Feature")
     val FeatureSpecLeaves = Set("scenario", "Scenario")
   }
 }

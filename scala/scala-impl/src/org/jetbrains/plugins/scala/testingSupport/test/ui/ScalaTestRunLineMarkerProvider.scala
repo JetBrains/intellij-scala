@@ -11,12 +11,15 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.TestRunLineMarkerProvider
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitTestLocationsFinder, MUnitUtils}
@@ -51,10 +54,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   private def infoForLeafElement(leaf: LeafPsiElement): Option[RunLineMarkerContributor.Info] = {
     val parent = leaf.getParent
     parent match {
-      case clazz: PsiClass            => infoForClass(clazz)
-      case method: PsiMethod          => infoForMethod(method)
+      case o: ScObject if infoForScalaTestRefSpec(o).nonEmpty => infoForScalaTestRefSpec(o)
+      case clazz: PsiClass => infoForClass(clazz)
+      case method: PsiMethod => infoForMethod(method)
       case ref: ScReferenceExpression => infoForTestMethodRef(ref)
-      case _                          => None
+      case _ => None
     }
   }
 
@@ -77,18 +81,27 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   // not talking about dozens of methods which should be resolved here
   @Measure
   private def infoForMethod(method: PsiMethod): Option[RunLineMarkerContributor.Info] = {
-    val clazz: PsiClass = PsiTreeUtil.getParentOfType(method, classOf[PsiClass])
+    val clazz: PsiClass = PsiTreeUtil.getTopmostParentOfType(method, classOf[PsiClass])
+
     if (clazz == null)
       return None
+
     val framework = TestFrameworks.detectFramework(clazz)
-    if (framework == null || !framework.isTestMethod(method))
+
+    if (framework == null)
       return None
 
-    val url = framework match {
-      case _: AbstractTestFramework => None
-      case _                        => Some(s"java:test://${clazz.qualifiedName}.${method.getName}")
+    (framework, method) match {
+      case (_: ScalaTestTestFramework, f: ScFunctionDefinition) =>
+        infoForScalaTestRefSpec(f)
+      case _ if framework.isTestMethod(method) =>
+        Some(buildLineInfo(
+          s"java:test://${clazz.qualifiedName}.${method.getName}",
+          method.getProject,
+          isClass = false
+        ))
+      case _ => None
     }
-    url.map(buildLineInfo(_, method.getProject, isClass = false))
   }
 
   private def infoForTestMethodRef(ref: ScReferenceExpression): Option[RunLineMarkerContributor.Info] = {
@@ -107,13 +120,50 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     }
   }
 
+  private def infoForScalaTestRefSpec(functionOrObject: ScalaPsiElement): Option[RunLineMarkerContributor.Info] = {
+    val definition = PsiTreeUtil.getParentOfType(functionOrObject, classOf[ScClass])
+
+    if (definition == null)
+      return None
+
+    val frameworks = TestFrameworks.detectApplicableFrameworks(definition).asScala
+    val scalaFramework = frameworks.filterByType[AbstractTestFramework].headOption
+
+    scalaFramework.flatMap {
+      case _: ScalaTestTestFramework =>
+        functionOrObject match {
+          case f: ScFunctionDefinition => infoForScalaTestRefSpecFunctionDefinition(f, definition)
+          case o: ScObject => infoForScalaTestRefSpecObject(o, definition)
+          case _ => None
+        }
+      case _ => None
+    }
+  }
+
   private def infoForScalaTestMethodRef(ref: ScReferenceExpression, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
     val locations = ScalaTestTestLocationsFinder.calculateTestLocations(definition)
-    if (locations.exists(_.contains(ref))) {
+    if (locations.contains(ref)) {
       val url = scalaTestLineUrl(ref, definition, testName = "")
       val info = buildLineInfo(url, ref.getProject, isClass = false)
       Some(info)
     }
+    else None
+  }
+
+  private def infoForScalaTestRefSpecFunctionDefinition(functionDefinition: ScFunctionDefinition, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
+    val locations = ScalaTestTestLocationsFinder.calculateTestLocations(definition)
+    if (locations.contains(functionDefinition)) {
+      val url = scalaTestLineUrl(functionDefinition, definition, testName = "")
+      val info = buildLineInfo(url, functionDefinition.getProject, isClass = false)
+      Some(info)
+    }
+    else None
+  }
+
+  private def infoForScalaTestRefSpecObject(obj: ScObject, definition: ScTypeDefinition): Option[RunLineMarkerContributor.Info] = {
+    val locations = ScalaTestTestLocationsFinder.calculateTestLocations(definition)
+    if (locations.contains(obj))
+      Some(buildLineInfo("", obj.getProject, isClass = false))
     else None
   }
 
