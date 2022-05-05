@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator.{LocalValEva
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch, ScReferenceExpression, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
@@ -20,11 +20,13 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     element match {
       case expr: ScReferenceExpression => buildReferenceExpressionEvaluator(expr)
       case _: ScThisReference => new ThisEvaluator()
-      case _ => throw EvaluationException(s"Cannot evaluate expression $element")
+      case _ => throw EvaluationException(s"Cannot evaluate expression ${element.getText}")
     }
 
   private def buildReferenceExpressionEvaluator(expression: ScReferenceExpression): Evaluator =
     expression.resolve() match {
+      case TypeMatchCase(expr) => buildEvaluator(expr)
+
       case rp: ScReferencePattern if rp.isClassMember =>
         val isPrivate =
           rp.getModifierList match {
@@ -43,6 +45,15 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         val constructor = if (rp.isVar) new LocalVarEvaluator(_) else new LocalValEvaluator(_)
         constructor(rp.name)
       case _ =>
-        ???
+        throw EvaluationException(s"Cannot evaluate reference expression ${expression.getText}")
     }
+
+  private object TypeMatchCase {
+    def unapply(element: PsiElement): Option[ScExpression] =
+      Option(element.getParent)
+        .flatMap(p => Option(p.getParent))
+        .flatMap(p => Option(p.getParent))
+        .collect { case m: ScMatch => m }
+        .flatMap(_.expression)
+  }
 }
