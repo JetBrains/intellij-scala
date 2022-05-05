@@ -304,14 +304,9 @@ object ScalaTestAstTransformer {
       o.extendsBlock.templateBody.map { tb =>
         new StModuleDefinition(o, tb, className, o.name.withoutBackticks.trim)
       }
-    case t: ScTemplateBody =>
-      val clazz = Option(PsiTreeUtil.getTopmostParentOfType(t, classOf[ScClass])).toSeq
-      val isRefSpec =  clazz.flatMap(_.extendsBlock.templateParents.toSeq.flatMap(_.typeElements)).exists(_.getText.contains("RefSpec"))
-
-      if (isRefSpec) {
-        None
-      } else {
-        Some(new StConstructorBlock(element, className))
+    case td: ScTypeDefinition =>
+      td.extendsBlock.templateBody.map { tb =>
+        new StConstructorBlock(tb, className)
       }
     case _ => None
   }

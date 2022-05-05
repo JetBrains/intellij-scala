@@ -63,7 +63,7 @@ trait IntegrationTestConfigAssertions {
         val configTests = parseTestName(testData.testName)
         assertArrayEquals("test names should be the same as expected", testNames, configTests)
       case _: ClassTestData =>
-        assertArrayEquals("test names should be empty for whole-class test run configuration", Nil, testNames)
+        assertArrayEquals("test names should be empty for whole-class test run configuration", testNames, Nil)
     }
 
     assertModule(config)

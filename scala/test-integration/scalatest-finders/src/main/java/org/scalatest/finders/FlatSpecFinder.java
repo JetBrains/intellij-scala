@@ -28,9 +28,7 @@ public class FlatSpecFinder implements Finder {
     Selection result = null;
 
     while (result == null) {
-      if (node instanceof ConstructorBlock)
-        result = getAllTestSelection(node.className(), node.children());
-      else if (node instanceof MethodInvocation) {
+      if (node instanceof MethodInvocation) {
         MethodInvocation invocation = (MethodInvocation) node;
         if (is(invocation.name(), "of", "in", "should", "must")) {
           ConstructorBlock constructor = getParentOfType(node, ConstructorBlock.class);
@@ -55,22 +53,6 @@ public class FlatSpecFinder implements Finder {
     }
 
     return result;
-  }
-
-  private Selection getAllTestSelection(String className, AstNode[] constructorChildren) {
-    String prefix = null;
-    List<String> testNames = new ArrayList<>();
-    for (AstNode child : constructorChildren) {
-      if (isScope(child))
-        prefix = getPrefix((MethodInvocation) child);
-      if (prefix != null && child instanceof MethodInvocation && child.name().equals("in")) {
-        String testName = getTestName(prefix, (MethodInvocation) child);
-        if (testName != null) {
-          testNames.add(testName);
-        }
-      }
-    }
-    return new Selection(className, className, testNames.toArray(new String[0]));
   }
 
   private String getPrefix(MethodInvocation invocation) {

@@ -44,10 +44,8 @@ trait FlatSpecStaticStringTest extends ScalaTestTestCase {
       "Static strings should work with sums of consts")
   }
 
-  def testFlatSpecNonConst(): Unit = {
-    assertConfigAndSettings(createTestCaretLocation(15, 7, FileName), ClassName,
-      "Static strings should accept sums",
-      "Static strings should work with consts",
-      "Static strings should work with sums of consts")
+  def testFlatSpecDynamicName(): Unit = {
+    //can't detect static name, falling back to "run whole suite" configuration
+    assertConfigAndSettings(createTestCaretLocation(15, 7, FileName), ClassName)
   }
 }
