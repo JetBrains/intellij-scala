@@ -319,6 +319,25 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
 
   def testNotRemove_FunctionBody_MultipleExpressions_OneLine_7(): Unit = {
     val before =
+      s"""def foo() = {${|};
+         |  ;someMethod2()
+         |}
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""def foo() = ${|};
+         |  ;someMethod2()
+         |}
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""def foo() = ${|};
+         |  ;someMethod2()
+         |}
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_FunctionBody_MultipleExpressions_OneLine_8(): Unit = {
+    val before =
       s"""def foo()
          |  = {${|}someMethod1(); someMethod2()
          |}
@@ -336,7 +355,7 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
-  def testNotRemove_FunctionBody_MultipleExpressions_OneLine_8(): Unit = {
+  def testNotRemove_FunctionBody_MultipleExpressions_OneLine_9(): Unit = {
     val before =
       s"""def foo()
          |  = {${|}someMethod1(); someMethod2()}
@@ -2209,7 +2228,6 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
          |""".stripMargin
     val afterWithEnabled =
       s"""if (true) ${|} if (false) {}
-         |
          |print(2)
          |""".stripMargin
     val afterWithDisabled =

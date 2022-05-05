@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScIf, ScWhile}
 
+// see https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html
 object Scala3IndentationBasedSyntaxUtils {
   def indentedRegionCanStart(leaf: PsiElement): Boolean = leaf.elementType match {
       case ScalaTokenTypes.tASSIGN |
@@ -47,5 +48,8 @@ object Scala3IndentationBasedSyntaxUtils {
     case _ => true
   }
 
-  def continuesCompoundStatement(leaf: PsiElement): Boolean = !outdentedRegionCanStart(leaf)
+  def continuesCompoundStatement(leaf: PsiElement): Boolean = leaf.elementType match {
+    case ScalaTokenTypes.kMATCH => false
+    case _ => !outdentedRegionCanStart(leaf)
+  }
 }

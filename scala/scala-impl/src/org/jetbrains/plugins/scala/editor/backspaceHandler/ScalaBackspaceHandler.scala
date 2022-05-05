@@ -158,73 +158,111 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       false
   }
 
-  private def canDeleteClosingBraceScala2(statements: Seq[ScBlockStatement], parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
+  private def canDeleteClosingBraceScala2(statements: Seq[ScBlockStatement], parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean =
     if (correctClosingBraceSelected(statements, parent, rBrace, tabSize))
       statements.isEmpty || statements.size == 1 && lastStatementDoesNotBreakSemantics(statements.head, rBrace)
     else
       false
-  }
 
-  // TODO one-line is all over the place
-  private def canDeleteClosingBraceScala3IndentationBasedSyntax(statements: Seq[ScBlockStatement], parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
+  private def canDeleteClosingBraceScala3IndentationBasedSyntax(statements: Seq[ScBlockStatement], parent: PsiElement, lBrace: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean =
     if (correctClosingBraceSelected(statements, parent, rBrace, tabSize))
       statements.isEmpty ||
         hasCorrectIndentationInside(statements, parent, tabSize) &&
         hasCorrectIndentationOutside(parent, rBrace, tabSize) &&
-        hasCorrectIndentationOneLine(statements, lBrace, rBrace) &&
+        firstStatementDoesNotBreakIndentation(statements, lBrace, rBrace) &&
         lastElementDoesNotBreakIndentation(rBrace)
     else
       false
-  }
 
-  private def correctClosingBraceSelected(statements: Seq[ScBlockStatement], parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
+  /**
+   * Don't remove closing brace if it belongs to a different block
+   * {{{
+   * class A {
+   *   def foo() = {<CARET>
+   *     1
+   * }
+   * }}}
+   */
+  private def correctClosingBraceSelected(statements: Seq[ScBlockStatement], parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean =
     IndentUtil.compare(rBrace, parent, tabSize) >= 0 ||
       // closing brace after statement, e.g. print(1)}, causes the above condition to fail, even though we want to delete it
       !rBrace.startsFromNewLine() && hasCorrectIndentationInside(statements, parent, tabSize)
-  }
 
-  // def foo() = {<CARET>
-  //   1
-  // 2
-  // }
-  private def hasCorrectIndentationInside(statements: Seq[ScBlockStatement], parent: PsiElement, tabSize: Int): Boolean = {
-    statements.forall(statement => IndentUtil.compare(statement, parent, tabSize) > 0) ||
-      // don't delete braces for one-line blocks with more than one statement
-      statements.size == 1 && !statements.head.startsFromNewLine()
-  }
+  /**
+   * Don't remove closing brace if statements within the block are indented too far left
+   * {{{
+   * def foo() = {<CARET>
+   *   1
+   * 2
+   * }
+   * }}}
+   */
+  private def hasCorrectIndentationInside(statements: Seq[ScBlockStatement], parent: PsiElement, tabSize: Int): Boolean =
+    isOneLineOneStatementBlock(statements) || statements.forall(statement => IndentUtil.compare(statement, parent, tabSize) > 0)
 
-  // def foo() = {<CARET>
-  //   1
-  // }
-  //   2
+  /**
+   * Don't remove closing brace if subsequent statements would be counted towards the block
+   * {{{
+   * def foo() = {<CARET>
+   *   1
+   * }
+   *   2
+   * }}}
+   */
   private def hasCorrectIndentationOutside(parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
     val nextLeaf = rBrace.nextVisibleLeaf(skipComments = true)
-    nextLeaf.isEmpty || IndentUtil.compare(nextLeaf.get, parent, tabSize) <= 0 ||
+    if (nextLeaf.isEmpty)
+      true
+    else if (nextLeaf.get.startsFromNewLine())
+      IndentUtil.compare(nextLeaf.get, parent, tabSize) <= 0
+    else
       // if the next keyword continues the current statement, e.g. else after an if-block
       // delete the closing brace because the next keyword is automatically reformatted
-      rBrace.startsFromNewLine() && !nextLeaf.get.startsFromNewLine() && continuesCompoundStatement(nextLeaf.get)
+      rBrace.startsFromNewLine() && continuesCompoundStatement(nextLeaf.get)
   }
 
-  // def foo() = {<CARET>
-  //   if false then
-  // }
-  // 1
+  /**
+   * Don't remove closing brace if the last keyword signals that the following statement should be counted towards the block
+   * {{{
+   * def foo() = {<CARET>
+   *   if false then
+   * }
+   * 1
+   * }}}
+   */
   private def lastElementDoesNotBreakIndentation(rBrace: PsiElement): Boolean = {
     val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exists
     outdentedRegionCanStart(lastLeaf)
   }
 
-  // def foo() = {<CARET>1; 2}
-  private def hasCorrectIndentationOneLine(statements: Seq[ScBlockStatement], lBrace: PsiElement, rBrace: PsiElement): Boolean = {
-    val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exists
+  /**
+   * Don't remove closing brace if only the first statement would be counted towards the block
+   * {{{
+   * def foo() = {<CARET>1; 2}
+   * }}}
+   */
+  private def firstStatementDoesNotBreakIndentation(statements: Seq[ScBlockStatement], lBrace: PsiElement, rBrace: PsiElement): Boolean =
     lBrace.followedByNewLine() ||
       // first statement without newline can break semantics, because the scala parser does not recognize the indentation properly
       // https://github.com/lampepfl/dotty/issues/15039
-      statements.size == 1 && !indentedRegionCanStart(lastLeaf) && lastStatementDoesNotBreakSemantics(statements.last, rBrace)
-  }
+      isOneLineOneStatementBlock(statements) && lastStatementDoesNotBreakSemantics(statements.last, rBrace) && {
+        val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exist
+        !indentedRegionCanStart(lastLeaf)
+      }
 
   /**
-   * do not delete brace if it breaks the code semantics (and leaves the code syntax correct)
+   *
+   *
+   *
+   */
+  private def isOneLineOneStatementBlock(statements: Seq[ScBlockStatement]) =
+    statements.size == 1 && !statements.head.startsFromNewLine() && {
+      val prevLeaf = statements.head.prevVisibleLeaf(skipComments = true)
+      prevLeaf.get.textContains('{')
+    }
+
+  /**
+   * Do not delete brace if it breaks the code semantics (and leaves the code syntax correct),
    * e.g. here we can't delete the brace cause `else` will transfer to the inner `if`
    * {{{
    * if (condition1) {<CARET>
