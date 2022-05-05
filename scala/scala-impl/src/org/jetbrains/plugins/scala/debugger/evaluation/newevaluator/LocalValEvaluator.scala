@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.newevaluator
 
-private[evaluation] class ValEvaluator(name: String) extends LocalVariableEvaluator {
+private[evaluation] class LocalValEvaluator(name: String) extends StackFrameVariableEvaluator {
   override protected val variableName: String = name
   override protected val isModifiable: Boolean = false
 }

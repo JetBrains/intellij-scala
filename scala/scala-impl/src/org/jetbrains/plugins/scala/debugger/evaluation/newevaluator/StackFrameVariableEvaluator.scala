@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-private[evaluation] abstract class LocalVariableEvaluator extends Evaluator {
+private[evaluation] abstract class StackFrameVariableEvaluator extends Evaluator {
 
   protected val variableName: String
 

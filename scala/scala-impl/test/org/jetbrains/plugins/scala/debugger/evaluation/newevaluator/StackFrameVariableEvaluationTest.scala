@@ -1,34 +1,35 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
+package newevaluator
 
 import org.jetbrains.plugins.scala.{DebuggerTests, LatestScalaVersions, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[DebuggerTests]))
-class NewLocalVariablesEvaluationTest_2_11 extends NewLocalVariableEvaluationTestBase {
+class StackFrameVariablesEvaluationTest_2_11 extends StackFrameVariableEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class NewLocalVariablesEvaluationTest_2_12 extends NewLocalVariableEvaluationTestBase {
+class StackFrameVariablesEvaluationTest_2_12 extends StackFrameVariableEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class NewLocalVariablesEvaluationTest_2_13 extends NewLocalVariableEvaluationTestBase {
+class StackFrameVariablesEvaluationTest_2_13 extends StackFrameVariableEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class NewLocalVariablesEvaluationTest_3_0 extends NewLocalVariableEvaluationTestBase {
+class StackFrameVariablesEvaluationTest_3_0 extends StackFrameVariableEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_0
 }
 
 @Category(Array(classOf[DebuggerTests]))
-class NewLocalVariablesEvaluationTest_3_1 extends NewLocalVariableEvaluationTestBase {
+class StackFrameVariablesEvaluationTest_3_1 extends StackFrameVariableEvaluationTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_3_1
 }
 
-abstract class NewLocalVariableEvaluationTestBase extends ExpressionEvaluationTestBase {
+abstract class StackFrameVariableEvaluationTestBase extends ExpressionEvaluationTestBase {
   addSourceFile("InMethod.scala",
     s"""object InMethod {
        |  class A { override def toString: String = "instance of A" }

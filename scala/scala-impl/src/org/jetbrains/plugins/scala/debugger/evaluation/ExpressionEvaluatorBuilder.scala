@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator.{ValEvaluator, VarEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator.{LocalValEvaluator, LocalVarEvaluator}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -24,7 +24,9 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   private def buildReferenceExpressionEvaluator(expression: ScReferenceExpression): Evaluator =
     expression.resolve() match {
       case rp: ScReferencePattern =>
-        val constructor = if (rp.isVal) new ValEvaluator(_) else new VarEvaluator(_)
+        val constructor = if (rp.isVar) new LocalVarEvaluator(_) else new LocalValEvaluator(_)
         constructor(rp.name)
+      case _ =>
+        ???
     }
 }
