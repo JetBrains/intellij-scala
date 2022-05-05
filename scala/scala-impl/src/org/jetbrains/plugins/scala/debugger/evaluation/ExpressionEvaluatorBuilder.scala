@@ -3,11 +3,12 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator.{LocalValEvaluator, LocalVarEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch, ScReferenceExpression, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
@@ -34,7 +35,9 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             case _ => false
           }
 
-        val thisEval = new ThisEvaluator()
+        val containingClass = rp.containingClass
+        val suffix = if (containingClass.is[ScObject]) "$" else ""
+        val thisEval = new StackWalkingThisEvaluator(s"${containingClass.qualifiedName}$suffix")
         if (isPrivate) {
           val fieldClass = rp.`type`().getOrAny.extractClass.get
           new FieldEvaluator(thisEval, FieldEvaluator.createClassFilter(fieldClass), rp.name)

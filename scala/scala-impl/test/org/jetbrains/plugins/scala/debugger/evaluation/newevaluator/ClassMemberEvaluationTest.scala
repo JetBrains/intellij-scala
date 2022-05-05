@@ -109,4 +109,60 @@ abstract class ClassMemberEvaluationTestBase extends ExpressionEvaluationTestBas
     "packagePrivateVar" evaluatesTo 7
     "publicVar" evaluatesTo 8
   }
+
+  addSourceFile("MyTrait.scala",
+    """trait MyTrait {
+      |  def foo(): Unit
+      |}""".stripMargin.trim
+  )
+
+  addSourceFile("FromAnonymousInObject.scala",
+    s"""object FromAnonymousInObject {
+       |  private[this] val privateName: String = "private name"
+       |  val name: String = "Name"
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val anonymous = new MyTrait {
+       |      override def foo(): Unit = println() $breakpoint
+       |    }
+       |
+       |    println(privateName)
+       |    anonymous.foo()
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testFromAnonymousInObject(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "privateName" evaluatesTo "private name"
+    "name" evaluatesTo "Name"
+  }
+
+  addSourceFile("FromAnonymousInClass.scala",
+    s"""class FromAnonymousInClass {
+       |  private[this] val privateName: String = "private name"
+       |  val name: String = "Name"
+       |
+       |  def foo(): Unit = {
+       |    val anonymous = new MyTrait {
+       |      override def foo(): Unit = println() $breakpoint
+       |    }
+       |
+       |    println(privateName)
+       |    anonymous.foo()
+       |  }
+       |}
+       |
+       |object FromAnonymousInClass {
+       |  def main(args: Array[String]): Unit = {
+       |    new FromAnonymousInClass().foo()
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testFromAnonymousInClass(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "privateName" evaluatesTo "private name"
+    "name" evaluatesTo "Name"
+  }
 }
