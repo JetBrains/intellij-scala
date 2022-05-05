@@ -320,11 +320,12 @@ object DependencyManagerBase {
 
     def %(artId: String): DependencyDescription = DependencyDescription(org, artId, "")
 
-    def %%(artId: String)(implicit scalaVersion: ScalaVersion): DependencyDescription = DependencyDescription(
-      org,
-      artId + "_" + scalaVersion.major,
-      ""
-    )
+    def %%(artId: String)(implicit scalaVersion: ScalaVersion): DependencyDescription = {
+      val artifactId =
+        if (scalaVersion.isScala3) artId + "_3"
+        else artId + "_" + scalaVersion.major
+      DependencyDescription(org, artifactId, "")
+    }
   }
 
   implicit class DependencyDescriptionExt(private val dep: DependencyDescription) extends AnyVal {
