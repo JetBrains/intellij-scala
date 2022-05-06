@@ -14,7 +14,12 @@ import com.sun.jdi._
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
 
-private[evaluation] class LambdaExpressionEvaluator(psiContext: PsiElement) extends Evaluator {
+private[evaluation] class LambdaExpressionEvaluator(
+  functionType: String,
+  params: Seq[(String, String)],
+  body: String,
+  compilationContext: PsiElement
+) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val process = context.getDebugProcess
     val project = context.getProject
@@ -27,17 +32,23 @@ private[evaluation] class LambdaExpressionEvaluator(psiContext: PsiElement) exte
 
     val className = s"DebuggerLambdaExpression$$$count"
 
+    val paramsText = params.map { case (name, tpe) => s"$name: $tpe" }.mkString(", ")
+
+    val returnType = functionType.split(" => ").last
+
     val text =
-      s"""class $className extends (() => Unit) {
-         |  override def apply(): Unit = ()
+      s"""class $className extends ($functionType) {
+         |  override def apply($paramsText): $returnType = {
+         |    $body
+         |  }
          |}
-       """.stripMargin
+         |""".stripMargin.trim
 
     val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(project)
     }
 
-    val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(psiContext))
+    val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(compilationContext))
     val compiled = helper.compile(text, module).filter(_._1.getName.endsWith(s"$className.class"))
 
     compiled.foreach { case (file, name) =>

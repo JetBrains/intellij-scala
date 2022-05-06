@@ -21,6 +21,8 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
   private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator =
     element match {
+      case ScParenthesisedExpr(expr) => buildEvaluator(expr, position)
+
       case lit: ScLiteral =>
         val tpe = lit.`type`().getOrAny match {
           case literalType: ScLiteralType => literalType.wideType
@@ -29,7 +31,7 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
         new LiteralEvaluator(lit.getValue, literalExpectedType(tpe))
 
-      case _: ScFunctionExpr => new LambdaExpressionEvaluator(position.getElementAt)
+      case fun: ScFunctionExpr => buildFunctionExpressionEvaluator(fun, position)
       case expr: ScReferenceExpression => buildReferenceExpressionEvaluator(expr, position)
       case _: ScThisReference => new ThisEvaluator()
       case _ => throw EvaluationException(s"Cannot evaluate expression ${element.getText}")
@@ -96,5 +98,12 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
       case Short => "short"
       case _ => ""
     }
+  }
+
+  private def buildFunctionExpressionEvaluator(fun: ScFunctionExpr, position: SourcePosition): Evaluator = {
+    val tpe = fun.`type`().getOrAny.canonicalText
+    val params = fun.parameters.map(p => (p.name, p.`type`().getOrAny.canonicalText))
+    val body = fun.result.map(_.getText).getOrElse("{}")
+    new LambdaExpressionEvaluator(tpe, params, body, position.getElementAt)
   }
 }
