@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch, ScReferenceExpression, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMatch, ScReferenceExpression, ScThisReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
@@ -20,6 +20,7 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
   private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator =
     element match {
+      case _: ScFunctionExpr => new LambdaExpressionEvaluator(position.getElementAt)
       case expr: ScReferenceExpression => buildReferenceExpressionEvaluator(expr, position)
       case _: ScThisReference => new ThisEvaluator()
       case _ => throw EvaluationException(s"Cannot evaluate expression ${element.getText}")
@@ -65,9 +66,7 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     def unapply(element: PsiElement): Option[ScExpression] = {
       Option(element)
         .collect { case tp: ScTypedPattern => tp }
-        .flatMap(p => Option(p.getParent))
-        .flatMap(p => Option(p.getParent))
-        .flatMap(p => Option(p.getParent))
+        .flatMap(_.parentOfType(Seq(classOf[ScMatch])))
         .collect { case m: ScMatch => m }
         .flatMap(_.expression)
     }
