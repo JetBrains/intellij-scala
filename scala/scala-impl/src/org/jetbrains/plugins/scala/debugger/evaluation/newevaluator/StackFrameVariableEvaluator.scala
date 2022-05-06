@@ -15,6 +15,8 @@ private[evaluation] abstract class StackFrameVariableEvaluator extends Evaluator
 
   protected val variableName: String
 
+  protected val sourceFileName: String
+
   protected val isModifiable: Boolean
 
   private[this] var localVariable: LocalVariableProxyImpl = _
@@ -32,14 +34,17 @@ private[evaluation] abstract class StackFrameVariableEvaluator extends Evaluator
 
     while (frameProxy ne null) {
       try {
-        val local = frameProxy.visibleVariableByName(variableName)
-        if (local ne null) {
-          localVariable = local
-          evaluationContext = context
-          return frameProxy.getValue(local)
+        if (frameProxy.location().sourceName() == sourceFileName) {
+          val local = frameProxy.visibleVariableByName(variableName)
+          if (local ne null) {
+            localVariable = local
+            evaluationContext = context
+            return frameProxy.getValue(local)
+          }
         }
       } catch {
         case e: EvaluateException if e.getCause.is[AbsentInformationException] =>
+        case _: AbsentInformationException =>
       }
 
       if (threadProxy eq null) {
