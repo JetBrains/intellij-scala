@@ -5,12 +5,13 @@ import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.debugger.evaluation.newevaluator._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMatch, ScReferenceExpression, ScThisReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScModifierList}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
@@ -20,6 +21,14 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
   private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator =
     element match {
+      case lit: ScLiteral =>
+        val tpe = lit.`type`().getOrAny match {
+          case literalType: ScLiteralType => literalType.wideType
+          case t => t
+        }
+
+        new LiteralEvaluator(lit.getValue, literalExpectedType(tpe))
+
       case _: ScFunctionExpr => new LambdaExpressionEvaluator(position.getElementAt)
       case expr: ScReferenceExpression => buildReferenceExpressionEvaluator(expr, position)
       case _: ScThisReference => new ThisEvaluator()
@@ -69,6 +78,23 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         .flatMap(_.parentOfType(Seq(classOf[ScMatch])))
         .collect { case m: ScMatch => m }
         .flatMap(_.expression)
+    }
+  }
+
+  private def literalExpectedType(tpe: ScType): String = {
+    val stdTypes = tpe.projectContext.stdTypes
+    import stdTypes._
+
+    tpe match {
+      case Boolean => "boolean"
+      case Byte => "byte"
+      case Char => "char"
+      case Double => "double"
+      case Float => "float"
+      case Int => "int"
+      case Long => "long"
+      case Short => "short"
+      case _ => ""
     }
   }
 }
