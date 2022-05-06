@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
 import java.io.{BufferedInputStream, File, FileInputStream}
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.util.jar.JarInputStream
 import scala.util.chaining.scalaUtilChainingOps
 
@@ -45,7 +45,7 @@ object Main {
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
           val file = new File(s"$OutputDir/${entry.getName}")
           val tree = TreeReader.treeFrom(in.readAllBytes())
-          val path = Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala"))
+          val path = Paths.get(file.getPath.replace(".tasty", ".scala"))
           val treePrinter = new TreePrinter()
           mode match {
             case Mode.Parse =>
@@ -55,11 +55,15 @@ object Main {
             case Mode.Test =>
               val expected = new String(Files.readAllBytes(path))
               val (_, actual) = treePrinter.fileAndTextOf(tree)
+              val actualPath = Path.of(path.toString.replace(".scala", ".actual.scala"))
               if (expected != actual) {
-                System.err.println(path)
-                System.err.println("Expected:\n" + expected)
-                System.err.println("Actual:\n" + actual)
-                System.exit(-1)
+                System.err.println(path.toString.substring(OutputDir.length + 1))
+                Files.write(actualPath, actual.getBytes)
+              } else {
+                val actualFile = actualPath.toFile
+                if (actualFile.exists()) {
+                  actualFile.delete()
+                }
               }
             case Mode.Benchmark =>
               treePrinter.fileAndTextOf(tree)
