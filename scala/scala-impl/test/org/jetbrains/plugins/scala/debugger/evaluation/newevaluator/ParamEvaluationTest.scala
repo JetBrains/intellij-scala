@@ -97,4 +97,85 @@ abstract class ParamEvaluationTestBase extends ExpressionEvaluationTestBase {
     "y" evaluatesTo "456"
     "z" evaluatesTo 789.0
   }
+
+  addSourceFile("ClassParamsInConstructor.scala",
+    s"""class ClassParamsInConstructor(one: Int, two: Int) {
+       |  println() $breakpoint
+       |}
+       |
+       |object ClassParamsInConstructor {
+       |  def main(args: Array[String]): Unit = {
+       |    new ClassParamsInConstructor(1, 2)
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testClassParamsInConstructor(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "one" evaluatesTo 1
+    "two" evaluatesTo 2
+  }
+
+  addSourceFile("NestedLambdas.scala",
+    s"""object NestedLambdas {
+       |  def main(args: Array[String]): Unit = {
+       |    Array(1).flatMap { x =>
+       |      Array(2).flatMap { y =>
+       |        Array(3).map { x =>
+       |          println() $breakpoint
+       |          x + y
+       |        }
+       |      }
+       |    }
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testNestedLambdas(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "x" evaluatesTo 3
+    "y" evaluatesTo 2
+  }
+
+  addSourceFile("LambdaShadowing.scala",
+    s"""object LambdaShadowing {
+       |  def main(args: Array[String]): Unit = {
+       |    val x = 123
+       |
+       |    Array(1).foreach { x =>
+       |      println(x) $breakpoint
+       |      println()
+       |    }
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testLambdaShadowing(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "x" evaluatesTo 1
+  }
+
+  addSourceFile("MethodCallsSameParamName.scala",
+    s"""object MethodCallsSameParamName {
+       |  def one(x: Int): Unit =
+       |    two(x + 1) $breakpoint
+       |  def two(x: Int): Unit =
+       |    three(x + 1) $breakpoint
+       |  def three(x: Int): Unit =
+       |    println(x) $breakpoint
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val x = 0
+       |    one(x + 1) $breakpoint
+       |  }
+       |}
+     """.stripMargin.trim
+  )
+
+  def testMethodCallsSameParamName(): Unit = expressionEvaluationTest()(
+    { implicit ctx => "x" evaluatesTo 0 },
+    { implicit ctx => "x" evaluatesTo 1 },
+    { implicit ctx => "x" evaluatesTo 2 },
+    { implicit ctx => "x" evaluatesTo 3 }
+  )
 }

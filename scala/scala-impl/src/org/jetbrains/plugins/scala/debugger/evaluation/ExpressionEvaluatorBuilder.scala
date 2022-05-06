@@ -77,8 +77,7 @@ private[debugger] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     def unapply(element: PsiElement): Option[ScExpression] = {
       Option(element)
         .collect { case tp: ScTypedPattern => tp }
-        .flatMap(_.parentOfType(Seq(classOf[ScMatch])))
-        .collect { case m: ScMatch => m }
+        .flatMap(_.parentOfType[ScMatch])
         .flatMap(_.expression)
     }
   }
