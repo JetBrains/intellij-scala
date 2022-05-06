@@ -30,10 +30,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
   extend(CompletionType.BASIC, PATTERN, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = try {
-
-      /* Disable ML Completion */
-
-
       val useCache: Boolean = if (params.isExtendedCompletion) false else true
       val searchParams = CustomPackageSearchParams(useCache = useCache)
       val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true

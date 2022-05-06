@@ -1,9 +1,14 @@
 <idea-plugin>
     <depends>com.intellij.completion.ml.ranking</depends>
-    <extensions defaultExtensionNs="com.intellij">
-        <completion.ml.ranking.features.policy language="Scala" implementationClass="org.jetbrains.plugins.scala.mlCompletion.ScalaCompletionFeaturesPolicy"/>
-        <completion.ml.elementFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider"/>
-        <completion.ml.contextFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaContextFeatureProvider"/>
-        <completion.ml.model implementation="org.jetbrains.plugins.scala.mlCompletion.ScalaMlRankingProvider"/>
+
+    <extensions defaultExtensionNs="com.intellij.completion.ml">
+        <ranking.features.policy language="Scala" implementationClass="org.jetbrains.plugins.scala.mlCompletion.ScalaCompletionFeaturesPolicy"/>
+        <elementFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaElementFeatureProvider"/>
+        <contextFeatures language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.completion.ml.ScalaContextFeatureProvider"/>
+        <model implementation="org.jetbrains.plugins.scala.mlCompletion.ScalaMlRankingProvider"/>
+
+        <ranking.policy language="sbt" implementationClass="org.jetbrains.plugins.sbt.completion.ml.SbtDependencyVersionCompletionMLPolicy"/>
+        <ranking.policy language="Scala" implementationClass="org.jetbrains.plugins.sbt.completion.ml.SbtDependencyVersionCompletionMLPolicy"/>
+        <ranking.policy language="Properties" implementationClass="org.jetbrains.plugins.sbt.completion.ml.SbtDependencyVersionCompletionMLPolicy"/>
     </extensions>
 </idea-plugin>
