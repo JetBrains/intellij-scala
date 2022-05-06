@@ -409,11 +409,11 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
         val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
         val (valueParams, tails2) = tail1.span(_.is(PARAM))
-        typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
+        val s = typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
           val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
           if (valueParams.length == 1) params else "(" + params + ")"
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
-
+        if (parensRequired) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
         (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
