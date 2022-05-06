@@ -77,25 +77,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
 
     builder.commit(project)
-
-    //logging by analogy with org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard.Step.setupProject
-    BSLog.logSdkFinished(parent, getSdk)
-  }
-
-  locally {
-    //logging by analogy with org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard.Step.<init>
-    sdkProperty.afterChange(sdk => {
-      BSLog.logSdkChanged(parent, sdk)
-      KUnit
-    })
-    addSampleCodeProperty.afterChange(_ => {
-      BSLog.logAddSampleCodeChanged(parent)
-      KUnit
-    })
-    moduleNameProperty.afterChange(_ => {
-      BSLog.logModuleNameChanged(parent)
-      KUnit
-    })
   }
 
   override def setupUI(panel: Panel): Unit = {
@@ -123,6 +104,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     panel.row(null: JLabel, (row: Row) => {
       val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
       ButtonKt.bindSelected(cb, addSampleCodeProperty)
+      ButtonKt.whenStateChangedFromUi(cb, null, value => {
+        BSLog.logAddSampleCodeChanged(parent, value)
+        KUnit
+      })
       KUnit
     }).topGap(TopGap.SMALL)
 

@@ -5,6 +5,7 @@ import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.INST
 import com.intellij.ide.wizard._
 import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.openapi.project.Project
+import com.intellij.ui.dsl.builder.{Row, SegmentedButton}
 import org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard
 
 import java.nio.file.Path
@@ -21,14 +22,6 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
 
   override def getLabel: String = JavaUiBundle.message("label.project.wizard.new.project.build.system")
 
-  locally {
-    //logging by analogy with com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.<init>
-    getBuildSystemProperty.afterChange(_ => {
-      logBuildSystemChanged(this)
-      kotlin.Unit.INSTANCE
-    })
-  }
-
   override def setupProject(project: Project): Unit = {
     super.setupProject(project)
 
@@ -36,19 +29,29 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
     logBuildSystemFinished(this)
   }
 
+  override def createAndSetupSwitcher(builder: Row): SegmentedButton[String] = {
+    //logging by analogy with
+    //com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.createAndSetupSwitcher
+    super.createAndSetupSwitcher(builder)
+      .whenItemSelectedFromUi(null, _ => {
+        logBuildSystemChanged(this)
+        kotlin.Unit.INSTANCE
+      })
+  }
+
   //////////////////////////////////////////
   // [BOILERPLATE] Delegate to parent
   //////////////////////////////////////////
 
-  //NewProjectWizardBuildSystemData
+  //BuildSystemNewProjectWizardData
   override def getBuildSystem: String = getStep
-  override def setBuildSystem(buildSystem: String): Unit = setStep(buildSystem)
   override def getBuildSystemProperty: GraphProperty[String] = getStepProperty
+  override def setBuildSystem(buildSystem: String): Unit = setStep(buildSystem)
 
-  //NewProjectWizardLanguageData
+  //LanguageNewProjectWizardData
   override def getLanguage: String = parent.getLanguage
-  override def setLanguage(language: String): Unit = parent.setLanguage(language)
   override def getLanguageProperty: GraphProperty[String] = parent.getLanguageProperty
+  override def setLanguage(language: String): Unit = parent.setLanguage(language)
 
   //NewProjectWizardBaseData
   override def getNameProperty: GraphProperty[String] = parent.getNameProperty

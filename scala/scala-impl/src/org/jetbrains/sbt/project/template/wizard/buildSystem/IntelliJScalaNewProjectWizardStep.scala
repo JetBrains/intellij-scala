@@ -1,8 +1,9 @@
 package org.jetbrains.sbt.project.template.wizard.buildSystem
 
 import com.intellij.ide.highlighter.ModuleFileType
-import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.projectWizard.generators.IntelliJNewProjectWizardStep
+import com.intellij.ide.wizard.BuildSystemNewProjectWizardData
+import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
@@ -19,18 +20,13 @@ import org.jetbrains.plugins.scala.project.template.{ScalaModuleBuilder, ScalaSD
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
-import java.nio.file.Paths
+import java.nio.file.{Path, Paths}
 import javax.swing.{JComboBox, JComponent}
 
-/**
- * TODO log FUS events like in
- *  - org.jetbrains.idea.maven.wizards.MavenJavaNewProjectWizard
- *  - com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard
- *  - org.jetbrains.plugins.gradle.service.project.wizard.GradleJavaNewProjectWizard
- */
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
 final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   extends IntelliJNewProjectWizardStep[ScalaNewProjectWizardStep](parent)
+    with BuildSystemNewProjectWizardData
     with ScalaSDKStepLike {
 
   override protected val librariesContainer: LibrariesContainer =
@@ -58,33 +54,6 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     }
 
     builder.commit(project)
-
-    //logging by analogy with com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.setupProject
-    BSLog.logSdkFinished(parent, getSdk)
-  }
-
-  locally {
-    //logging by analogy with com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step.<init>
-    getSdkProperty.afterChange(sdk => {
-      BSLog.logSdkChanged(getParent, sdk)
-      KUnit
-    })
-    getAddSampleCodeProperty.afterChange(_ => {
-      BSLog.logAddSampleCodeChanged(getParent)
-      KUnit
-    })
-    getModuleNameProperty.afterChange(_ => {
-      BSLog.logModuleNameChanged(getParent)
-      KUnit
-    })
-    getContentRootProperty.afterChange(_ => {
-      BSLog.logContentRootChanged(getParent)
-      KUnit
-    })
-    getModuleFileLocationProperty.afterChange(_ => {
-      BSLog.logModuleFileLocationChanged(getParent)
-      KUnit
-    })
   }
 
   private def isScala3SdkLibrary(library: Library): Boolean = {
@@ -130,4 +99,31 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       KUnit
     })
   }
+
+
+  //////////////////////////////////////////
+  // [BOILERPLATE] Delegate to parent
+  //////////////////////////////////////////
+
+  //BuildSystemNewProjectWizardData
+  override def getBuildSystem: String = parent.getBuildSystem
+  override def getBuildSystemProperty: GraphProperty[String] = parent.getBuildSystemProperty
+  override def setBuildSystem(buildSystem: String): Unit = parent.setBuildSystem(buildSystem)
+
+  //LanguageNewProjectWizardData
+  override def getLanguage: String = parent.getLanguage
+  override def setLanguage(language: String): Unit = parent.setLanguage(language)
+  override def getLanguageProperty: GraphProperty[String] = parent.getLanguageProperty
+
+  //NewProjectWizardBaseData
+  override def getNameProperty: GraphProperty[String] = parent.getNameProperty
+  override def getPathProperty: GraphProperty[String] = parent.getPathProperty
+
+  override def setName(name: String): Unit = parent.setName(name)
+  override def getName: String = parent.getName
+
+  override def getPath: String = parent.getPath
+  override def setPath(path: String): Unit = parent.setPath(path)
+
+  override def getProjectPath: Path = parent.getProjectPath
 }
