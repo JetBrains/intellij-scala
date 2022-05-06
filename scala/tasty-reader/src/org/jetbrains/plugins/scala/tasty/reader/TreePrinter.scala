@@ -211,6 +211,8 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (isInGiven) {
       sb ++= parents.mkString(" with ") + " with"
     } else {
+      // TODO enum Enum[+A] { case Case extends Enum[Nothing] }
+      // TODO enum Enum[-A] { case Case extends Enum[Any] }
       if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
         sb ++= " extends " + parents.mkString(", ")
       }
@@ -369,7 +371,7 @@ class TreePrinter(privateMembers: Boolean = false) {
           if (qualifier.nonEmpty) qualifier + "." + name else name
         }
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
-      case Node3(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+      case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
         if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
         else if (base == "scala.|") elements.mkString(" | ")

@@ -5,5 +5,5 @@ trait Bounds {
 
   type AbstractTypeUpperBound <: Int
 
-  type AbstractTypeLowerAndUpperBounds >: Int
+  type AbstractTypeLowerAndUpperBounds >: Int <: AnyVal
 }

@@ -10,11 +10,11 @@ trait Variance {
   trait TraitContravariant[-A]
 
   enum EnumCovariant[+A] {
-    case Case
+    case Case/**//* extends EnumCovariant[Nothing]*/
   }
 
-  enum EnumContravariant[+A] {
-    case Case
+  enum EnumContravariant[-A] {
+    case Case/**//* extends EnumContravariant[Any]*/
   }
 
   enum EnumCaseClassCovariant {
@@ -22,7 +22,7 @@ trait Variance {
   }
 
   enum EnumCaseClassContravariant {
-    case Class[+A]()
+    case Class[-A]()
   }
 
   type AbstractTypeCovariant[+A]
