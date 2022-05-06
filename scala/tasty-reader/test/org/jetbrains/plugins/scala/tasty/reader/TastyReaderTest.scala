@@ -115,6 +115,7 @@ class TastyReaderTest extends TestCase {
   def testTypesLambda(): Unit = doTest("types/Lambda")
   def testTypesLiteral(): Unit = doTest("types/Literal")
   def testTypesOr(): Unit = doTest("types/Or")
+  def testTypesParameterized(): Unit = doTest("types/Parameterized")
   def testTypesProjection(): Unit = doTest("types/Projection")
   def testTypesRefinement(): Unit = doTest("types/Refinement")
   def testTypesRefs(): Unit = doTest("types/Refs")
