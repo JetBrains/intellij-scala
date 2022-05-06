@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.testingSupport.scalatest.base
 
+/** See [[org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestMigrationUtils]] */
 trait ScalaTestApiSymbols {
   protected val ImportsForFeatureSpec: String
   protected val ImportsForFlatSpec: String
@@ -23,7 +24,9 @@ trait ScalaTestApiSymbols {
 }
 
 object ScalaTestApiSymbols {
-  trait BeforeScalatest32 extends ScalaTestApiSymbols {
+
+  /** @inheritdoc */
+  trait BeforeScalatest_3_2 extends ScalaTestApiSymbols {
     private val baseScalatestImport: String = s"import org.scalatest._"
 
     override protected val ImportsForFeatureSpec: String = baseScalatestImport
@@ -47,7 +50,8 @@ object ScalaTestApiSymbols {
     override protected val featureSpecApi: FeatureSpecApi = FeatureSpecApi.BeforeScalatest32
   }
 
-  trait SinceScalatest32 extends ScalaTestApiSymbols {
+  /** @inheritdoc */
+  trait SinceScalatest_3_2 extends ScalaTestApiSymbols {
     private def withBaseScalatestImport(importText: String): String =
       s"import org.scalatest._ ; $importText"
 

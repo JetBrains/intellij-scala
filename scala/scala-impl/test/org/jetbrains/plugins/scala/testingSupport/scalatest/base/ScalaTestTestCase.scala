@@ -9,7 +9,7 @@ import org.junit.Assert.fail
 
 abstract class ScalaTestTestCase
   extends ScalaTestingTestCase
-    with ScalaTestApiSymbols.BeforeScalatest32 {
+    with ScalaTestApiSymbols.BeforeScalatest_3_2 {
 
   override protected lazy val configurationProducer: AbstractTestConfigurationProducer[_] =
     ScalaTestConfigurationProducer()
