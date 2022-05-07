@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.tasty.reader
 import junit.framework.TestCase
 import org.junit.Assert.*
 
-import java.io.File
 import java.nio.file.{Files, Path}
 import scala.util.control.NonFatal
 
@@ -128,14 +127,16 @@ class TastyReaderTest extends TestCase {
   def testNesting(): Unit = doTest("Nesting")
 
   private def doTest(path: String): Unit = {
-    val scalaFile = getClass.getResource("/" + path + ".scala").getFile
-    assertTrue(scalaFile, exists(scalaFile))
+    val scalaFile = Path.of(getClass.getResource("/" + path + ".scala").toURI)
+    assertTrue(s"File $scalaFile does not exist", Files.exists(scalaFile))
 
-    val tastyFile = {
-      val packageFile = scalaFile.replaceFirst("\\.scala", "\\$package.tasty")
-      if (exists(packageFile)) packageFile else scalaFile.replaceFirst("\\.scala", ".tasty")
+    val tastyFile: Path = {
+      val scalaFileStr = scalaFile.toString
+      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala", "\\$package.tasty"))
+      if (Files.exists(packageFile)) packageFile
+      else Path.of(scalaFileStr.replaceFirst("\\.scala", ".tasty"))
     }
-    assertTrue(tastyFile, exists(tastyFile))
+    assertTrue(s"File $tastyFile doest not exist", Files.exists(tastyFile))
 
     val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
@@ -148,15 +149,14 @@ class TastyReaderTest extends TestCase {
         throw e
     }
 
-    assertEquals(new File(scalaFile).getName, sourceFile)
+    assertEquals("Scala file name", scalaFile.toFile.getName, sourceFile)
 
     val expected = new String(readBytes(scalaFile))
       .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
+      .replace("\r", "")
 
-    assertEquals(path, expected, actual)
+    assertEquals(s"Content for $path", expected, actual)
   }
 
-  private def exists(path: String): Boolean = new File(path).exists()
-
-  private def readBytes(file: String): Array[Byte] = Files.readAllBytes(Path.of(file))
+  private def readBytes(file: Path): Array[Byte] = Files.readAllBytes(file)
 }
