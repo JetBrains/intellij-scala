@@ -10,8 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-private object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
+private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     val element = codeFragment.asInstanceOf[ScalaCodeFragment].children.toList.head
     new ExpressionEvaluatorImpl(buildEvaluator(element, position))
@@ -22,14 +23,15 @@ private object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
     case ref: ScReferenceExpression =>
       ref.resolve() match {
-        case FunctionLocalVariable(name, funName, _) => new LocalVariableEvaluator(name, funName)
+        case FunctionLocalVariable(name, _, funName) => new LocalVariableEvaluator(name, funName)
       }
   }
 
-  private object FunctionLocalVariable {
-    def unapply(element: PsiElement): Option[(String, String, Boolean)] =
+  private[evaluation] object FunctionLocalVariable {
+    def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
         .collect { case rp: ScReferencePattern if !rp.isClassMember => rp }
-        .flatMap(rp => rp.parentOfType[ScFunctionDefinition].map(fd => (rp.name, fd.name, rp.isVar)))
+        .filter(_.getContainingFile.name != "Dummy.scala")
+        .flatMap(rp => rp.parentOfType[ScFunctionDefinition].map(fd => (rp.name, rp.`type`().getOrAny, fd.name)))
   }
 }
