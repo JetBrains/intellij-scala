@@ -135,16 +135,14 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
       return None
 
     val frameworks = TestFrameworks.detectApplicableFrameworks(definition).asScala
-    val scalaFramework = frameworks.filterByType[AbstractTestFramework].headOption
+    val scalaFramework = frameworks.findByType[ScalaTestTestFramework]
 
-    scalaFramework.flatMap {
-      case _: ScalaTestTestFramework =>
+    scalaFramework.flatMap { _ =>
         functionOrObject match {
           case f: ScFunctionDefinition => infoForScalaTestRefSpecFunctionDefinition(f, definition)
           case o: ScObject => infoForScalaTestRefSpecObject(o, definition)
           case _ => None
         }
-      case _ => None
     }
   }
 
