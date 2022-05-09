@@ -10,7 +10,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.testIntegration.TestRunLineMarkerProvider
+import com.intellij.testIntegration.{TestFramework, TestRunLineMarkerProvider}
 
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -45,7 +45,7 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     element match {
       case leaf: LeafPsiElement if leaf.getElementType == ScalaTokenTypes.tIDENTIFIER =>
         infoForLeafElement(leaf).orNull
-      case _                                                                          =>
+      case _ =>
         null
     }
 
@@ -77,9 +77,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
           case _ => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.name}")
         }
       //FIXME: why the hell uTest url is reported with scalatest prefix? (see UTestReporter)
-      case _: UTestTestFramework  => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.qualifiedName}") // TODO: check maybe it should be clazz.name
+      case _: UTestTestFramework => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.qualifiedName}") // TODO: check maybe it should be clazz.name
       case _: Specs2TestFramework => Some(s"") // TODO: spec2 runner does not report location for class currently
-      case _                      => Some(s"java:suite://${clazz.qualifiedName}")
+      case _ => Some(s"java:suite://${clazz.qualifiedName}")
     }
     url.map(buildLineInfo(_, clazz.getProject, isClass = true))
   }
@@ -89,20 +89,23 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   // not talking about dozens of methods which should be resolved here
   @Measure
   private def infoForMethod(method: PsiMethod): Option[RunLineMarkerContributor.Info] = {
-    val clazz: PsiClass = PsiTreeUtil.getTopmostParentOfType(method, classOf[PsiClass])
 
-    if (clazz == null)
-      return None
+    def findParentThatImplementsFramework: (Option[PsiClass], Option[TestFramework]) = {
+      val parent = Option(PsiTreeUtil.getParentOfType(method, classOf[PsiClass]))
+      lazy val topmostParent = Option(PsiTreeUtil.getTopmostParentOfType(method, classOf[PsiClass]))
 
-    val framework = TestFrameworks.detectFramework(clazz)
+      parent.flatMap(parent => Option(TestFrameworks.detectFramework(parent))) match {
+        case framework@Some(_) => (parent, framework)
+        case _ =>
+          (topmostParent, topmostParent.flatMap(parent => Option(TestFrameworks.detectFramework(parent))))
+      }
+    }
 
-    if (framework == null)
-      return None
+    val (parent, framework) = findParentThatImplementsFramework
 
-    (framework, method) match {
-      case (_: ScalaTestTestFramework, f: ScFunctionDefinition) =>
-        infoForScalaTestRefSpec(f)
-      case _ if framework.isTestMethod(method) =>
+    (parent, framework, method) match {
+      case (_, Some(_: ScalaTestTestFramework), f: ScFunctionDefinition) => infoForScalaTestRefSpec(f)
+      case (Some(clazz), Some(f), _) if f.isTestMethod(method) =>
         Some(buildLineInfo(
           s"java:test://${clazz.qualifiedName}.${method.getName}",
           method.getProject,
@@ -123,8 +126,8 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
 
     scalaFramework.flatMap {
       case _: ScalaTestTestFramework => infoForScalaTestMethodRef(ref, definition)
-      case _: MUnitTestFramework     => infoForMUnitMethodRef(ref, definition)
-      case _                         => None
+      case _: MUnitTestFramework => infoForMUnitMethodRef(ref, definition)
+      case _ => None
     }
   }
 
@@ -138,11 +141,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val scalaFramework = frameworks.findByType[ScalaTestTestFramework]
 
     scalaFramework.flatMap { _ =>
-        functionOrObject match {
-          case f: ScFunctionDefinition => infoForScalaTestRefSpecFunctionDefinition(f, definition)
-          case o: ScObject => infoForScalaTestRefSpecObject(o, definition)
-          case _ => None
-        }
+      functionOrObject match {
+        case f: ScFunctionDefinition => infoForScalaTestRefSpecFunctionDefinition(f, definition)
+        case o: ScObject => infoForScalaTestRefSpecObject(o, definition)
+        case _ => None
+      }
     }
   }
 
@@ -219,9 +222,9 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     val testMagnitude = testState.map(state => TestIconMapper.getMagnitude(state.magnitude))
 
     testMagnitude.fold(defaultIcon) {
-      case ERROR_INDEX | FAILED_INDEX    => TestState.Red2
+      case ERROR_INDEX | FAILED_INDEX => TestState.Red2
       case PASSED_INDEX | COMPLETE_INDEX => TestState.Green2
-      case _                             => defaultIcon
+      case _ => defaultIcon
     }
   }
 }
