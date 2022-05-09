@@ -54,7 +54,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
   private def infoForLeafElement(leaf: LeafPsiElement): Option[RunLineMarkerContributor.Info] = {
     val parent = leaf.getParent
     parent match {
-      case o: ScObject if infoForScalaTestRefSpec(o).nonEmpty => infoForScalaTestRefSpec(o)
+      case o: ScObject =>
+        infoForScalaTestRefSpec(o) match {
+          case info@Some(_) => info
+          case _ => infoForClass(o)
+        }
       case clazz: PsiClass => infoForClass(clazz)
       case method: PsiMethod => infoForMethod(method)
       case ref: ScReferenceExpression => infoForTestMethodRef(ref)
