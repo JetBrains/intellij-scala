@@ -153,7 +153,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case lambdaExpr: ScFunctionExpr =>
           new ScULambdaExpression(lambdaExpr, _)
 
-        case block: ScBlock if block.isAnonymousFunction =>
+        case block: ScBlock if block.isPartialFunction =>
           new ScUPartialLambdaExpression(block, _)
 
         case us: ScUnderscoreSection if us.bindingExpr.collect {

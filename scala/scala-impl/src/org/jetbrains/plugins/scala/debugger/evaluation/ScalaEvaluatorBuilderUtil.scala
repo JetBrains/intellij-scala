@@ -1621,7 +1621,7 @@ object ScalaEvaluatorBuilderUtil {
     def isAnonfunCached: Boolean = {
       elem match {
         case e: ScExpression if ScUnderScoreSectionUtil.underscores(e).nonEmpty => true
-        case b: ScBlock if b.isAnonymousFunction => false //handled in isGenerateAnonfunSimple
+        case b: ScBlock if b.isPartialFunction => false //handled in isGenerateAnonfunSimple
         case e: ScExpression if ScalaPsiUtil.isByNameArgument(e) || ScalaPsiUtil.isArgumentOfFunctionType(e) => true
         case ScalaPsiUtil.MethodValue(_) => true
         case ChildOf(argExprs: ScArgumentExprList) && InsideAsync(call)
@@ -1651,7 +1651,7 @@ object ScalaEvaluatorBuilderUtil {
   }
 
   def isPartialFunction(elem: PsiElement): Boolean = elem match {
-    case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isAnonymousFunction => true
+    case (_: ScCaseClauses) childOf (b: ScBlockExpr) if b.isPartialFunction => true
     case _ => false
   }
 

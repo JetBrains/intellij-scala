@@ -381,7 +381,7 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
   override def visitTypeDefinition(typedef: ScTypeDefinition): Unit = { /* Do not visit inner classes either */ }
 
   override def visitBlockExpression(block: ScBlockExpr): Unit = {
-    if (block.isAnonymousFunction) {
+    if (block.isPartialFunction) {
       // Do not visit closures
     } else super.visitBlockExpression(block)
   }

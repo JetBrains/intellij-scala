@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.shadow
+package org.jetbrains.plugins.scala.codeInspection.quickfix
 
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext

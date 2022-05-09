@@ -22,14 +22,14 @@ trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   def caseClauses: Option[ScCaseClauses] = findChild[ScCaseClauses]
 
   override def getControlFlow: Seq[Instruction] = {
-    if (isAnonymousFunction) super.getControlFlow
+    if (isPartialFunction) super.getControlFlow
     else {
       val parent = PsiTreeUtil.getParentOfType(this, classOf[ScControlFlowOwner])
       parent.getControlFlow
     }
   }
 
-  override def controlFlowScope: Option[ScCaseClauses] = if (isAnonymousFunction) caseClauses else None
+  override def controlFlowScope: Option[ScCaseClauses] = if (isPartialFunction) caseClauses else None
 }
 
 object ScBlockExpr {

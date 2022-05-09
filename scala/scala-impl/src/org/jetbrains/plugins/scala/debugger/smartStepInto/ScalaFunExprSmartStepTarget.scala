@@ -26,7 +26,7 @@ object FunExpressionTarget {
     expr match {
       case e if ScUnderScoreSectionUtil.isUnderscoreFunction(e) => Some(Seq(e), text(e))
       case f: ScFunctionExpr => Some(f.result.toSeq.flatMap(blockStmts), text(f))
-      case b: ScBlockExpr if b.isAnonymousFunction =>
+      case b: ScBlockExpr if b.isPartialFunction =>
         val clauses = b.caseClauses.get
         Some(clauses.caseClauses.flatMap(_.expr).flatMap(blockStmts), text(b))
       case expr: ScExpression if ScalaPsiUtil.isByNameArgument(expr) => Some(blockStmts(expr), text(expr))
