@@ -18,7 +18,7 @@ private object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
-    case _: ScFunctionExpr => new LambdaExpressionEvaluator(position.getElementAt)
+    case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position.getElementAt)
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
     case ref: ScReferenceExpression =>
       ref.resolve() match {

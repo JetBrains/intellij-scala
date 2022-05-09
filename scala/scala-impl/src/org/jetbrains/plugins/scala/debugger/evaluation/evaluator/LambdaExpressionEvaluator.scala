@@ -10,11 +10,12 @@ import com.intellij.debugger.impl.ClassLoadingUtils
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
 
-private[evaluation] final class LambdaExpressionEvaluator(psiContext: PsiElement) extends Evaluator {
+private[evaluation] final class LambdaExpressionEvaluator private(className: String, classText: String, psiContext: PsiElement) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val process = context.getDebugProcess
     val project = context.getProject
@@ -23,22 +24,12 @@ private[evaluation] final class LambdaExpressionEvaluator(psiContext: PsiElement
     val classLoader = ClassLoadingUtils.getClassLoader(autoLoadContext, process)
     autoLoadContext.setClassLoader(classLoader)
 
-    val count = LambdaExpressionEvaluator.counter.incrementAndGet()
-
-    val className = s"DebuggerLambdaExpression$$$count"
-
-    val text =
-      s"""class $className extends (() => Unit) {
-         |  override def apply(): Unit = ()
-         |}
-       """.stripMargin
-
     val helper = EvaluatorCompileHelper.implementations.headOption.getOrElse {
       ScalaEvaluatorCompileHelper.instance(project)
     }
 
     val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(psiContext))
-    val compiled = helper.compile(text, module).filter(_._1.getName.endsWith(s"$className.class"))
+    val compiled = helper.compile(classText, module).filter(_._1.getName.endsWith(s"$className.class"))
 
     compiled.foreach { case (file, name) =>
       val bytes = Files.readAllBytes(file.toPath)
@@ -53,6 +44,26 @@ private[evaluation] final class LambdaExpressionEvaluator(psiContext: PsiElement
   }
 }
 
-private object LambdaExpressionEvaluator {
-  private val counter: AtomicInteger = new AtomicInteger(0)
+private[evaluation] object LambdaExpressionEvaluator {
+  private[this] val counter: AtomicInteger = new AtomicInteger(0)
+
+  def fromFunctionExpression(fun: ScFunctionExpr, psiContext: PsiElement): LambdaExpressionEvaluator = {
+    val count = counter.incrementAndGet()
+    val className = s"DebuggerLambdaExpression$$$count"
+
+    val params = fun.parameters.map(p => s"${p.name}: ${p.`type`().getOrAny.canonicalText}").mkString(", ")
+    val funType = fun.`type`().getOrAny.canonicalText
+    val expr = fun.result.get
+    val retType = expr.`type`().getOrAny.canonicalText
+
+    val classText =
+      s"""class $className extends ($funType) {
+         |  override def apply($params): $retType = {
+         |    ${expr.getText}
+         |  }
+         |}
+         |""".stripMargin.trim
+
+    new LambdaExpressionEvaluator(className, classText, psiContext)
+  }
 }
