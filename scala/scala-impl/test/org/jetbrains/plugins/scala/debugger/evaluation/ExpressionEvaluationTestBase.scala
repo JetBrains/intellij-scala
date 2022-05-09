@@ -4,7 +4,7 @@ package evaluation
 
 import com.intellij.debugger.engine.evaluation.{CodeFragmentKind, EvaluateException}
 import com.intellij.debugger.engine.{DebuggerUtils, SuspendContextImpl}
-import com.sun.jdi.VoidValue
+import com.sun.jdi.{PrimitiveValue, VoidValue}
 import org.junit.Assert.{assertTrue, fail}
 
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -91,5 +91,46 @@ abstract class ExpressionEvaluationTestBase extends ScalaDebuggerTestCase {
     if (passed) {
       fail("Assertion passed but was supposed to fail")
     }
+  }
+
+  protected implicit class ExpressionEvaluationOps(expression: String) {
+    private val kind: CodeFragmentKind =
+      if (expression.contains(System.lineSeparator())) CodeFragmentKind.CODE_BLOCK else CodeFragmentKind.EXPRESSION
+
+    private def evaluatesToGeneric[P](typeName: String)(expected: P)(extract: PrimitiveValue => P)(implicit context: SuspendContextImpl): Unit =
+      evaluate(kind, expression, context) match {
+        case pv: PrimitiveValue => assertEquals(expected, extract(pv))
+        case v => fail(s"""Expression "$expression" does not evaluate to $typeName: $v""")
+      }
+
+    def evaluatesTo(expected: Boolean)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Boolean")(expected)(_.booleanValue())
+
+    def evaluatesTo(expected: Byte)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Byte")(expected)(_.byteValue())
+
+    def evaluatesTo(expected: Char)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Char")(expected)(_.charValue())
+
+    def evaluatesTo(expected: Double)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Double")(expected)(_.doubleValue())
+
+    def evaluatesTo(expected: Float)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Float")(expected)(_.floatValue())
+
+    def evaluatesTo(expected: Int)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Int")(expected)(_.intValue())
+
+    def evaluatesTo(expected: Long)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Long")(expected)(_.longValue())
+
+    def evaluatesTo(expected: Short)(implicit context: SuspendContextImpl): Unit =
+      evaluatesToGeneric("Short")(expected)(_.shortValue())
+
+    def evaluatesTo(expected: String)(implicit context: SuspendContextImpl): Unit =
+      evaluate(kind, expression, context) match {
+        case _: VoidValue => fail(s"""Expression "$expression" evaluates to void""")
+        case v => assertEquals(expected, DebuggerUtils.getValueAsString(createEvaluationContext(context), v))
+      }
   }
 }
