@@ -73,10 +73,16 @@ private[evaluation] object LambdaExpressionEvaluator {
   private def calculateClassParams(expression: ScExpression): Seq[(String, Evaluator)] = expression match {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
+        case InEvaluationExpression() => Seq.empty
         case ExpressionEvaluatorBuilder.FunctionLocalVariable(name, tpe, funName) =>
           val eval = new LocalVariableEvaluator(name, funName)
           val param = s"$name: ${tpe.canonicalText}"
           Seq((param, eval))
       }
+  }
+
+  private object InEvaluationExpression {
+    def unapply(element: PsiElement): Boolean =
+      element.getContainingFile.getVirtualFile.getName == "Dummy.scala"
   }
 }

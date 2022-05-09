@@ -31,7 +31,6 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
         .collect { case rp: ScReferencePattern if !rp.isClassMember => rp }
-        .filter(_.getContainingFile.name != "Dummy.scala")
         .flatMap(rp => rp.parentOfType[ScFunctionDefinition].map(fd => (rp.name, rp.`type`().getOrAny, fd.name)))
   }
 }
