@@ -124,6 +124,7 @@ class TastyReaderTest extends TestCase {
   def testTypesThis(): Unit = doTest("types/This")
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
+  def testMemberAliases(): Unit = doTest("Aliases")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 

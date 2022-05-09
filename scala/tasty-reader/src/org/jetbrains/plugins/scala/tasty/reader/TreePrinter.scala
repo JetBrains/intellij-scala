@@ -165,7 +165,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (node.contains(OPAQUE)) {
           sb ++= "???" // TODO parameter, { /* compiled code */ }
         } else {
-          repr.children.findLast(_.isTypeTree) match {
+          repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
             case Some(t) =>
               sb ++= simple(textOfType(t))
             case None =>
@@ -270,7 +270,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       val isAbstractGiven = node.contains(GIVEN)
       modifiersIn(sb, node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
       if (!isAbstractGiven) {
-        sb ++= "def "
+        sb ++= (if (node.contains(STABLE)) "val " else "def ")
       }
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       if (!isAnonymousGiven) {
@@ -365,7 +365,8 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name + // TODO why there's "package" in some cases?
           (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node1(THIS) => "this" // TODO prefix
-      case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
+      case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
+        tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).map(_ + ".").getOrElse("") + node.refName.getOrElse("") // TODO
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
         else {
@@ -377,6 +378,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
         if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
         else if (base == "scala.|") elements.mkString(" | ")
+        else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
         else {
           if (base.startsWith("scala.Tuple")) {
             elements.mkString("(", ", ", ")")
