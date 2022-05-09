@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitTestLocationsFinder, MUnitUtils}
@@ -67,7 +67,11 @@ class ScalaTestRunLineMarkerProvider extends TestRunLineMarkerProvider {
     if (framework == null || !framework.isTestClass(clazz)) return None
 
     val url = framework match {
-      case _: ScalaTestTestFramework => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.name}")
+      case _: ScalaTestTestFramework =>
+        clazz match {
+          case _: ScTrait | _: ScObject => None
+          case _ => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.name}")
+        }
       //FIXME: why the hell uTest url is reported with scalatest prefix? (see UTestReporter)
       case _: UTestTestFramework  => Some(s"scalatest://TopOfClass:${clazz.qualifiedName}TestName:${clazz.qualifiedName}") // TODO: check maybe it should be clazz.name
       case _: Specs2TestFramework => Some(s"") // TODO: spec2 runner does not report location for class currently
