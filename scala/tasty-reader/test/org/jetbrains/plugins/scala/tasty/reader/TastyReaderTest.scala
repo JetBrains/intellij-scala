@@ -133,9 +133,9 @@ class TastyReaderTest extends TestCase {
 
     val tastyFile: Path = {
       val scalaFileStr = scalaFile.toString
-      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala", "\\$package.tasty"))
+      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala$", "\\$package.tasty"))
       if (Files.exists(packageFile)) packageFile
-      else Path.of(scalaFileStr.replaceFirst("\\.scala", ".tasty"))
+      else Path.of(scalaFileStr.replaceFirst("\\.scala$", ".tasty"))
     }
     assertTrue(s"File $tastyFile doest not exist", Files.exists(tastyFile))
 

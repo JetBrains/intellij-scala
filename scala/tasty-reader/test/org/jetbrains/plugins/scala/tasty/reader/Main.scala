@@ -45,17 +45,17 @@ object Main {
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
           val file = new File(s"$OutputDir/${entry.getName}")
           val tree = TreeReader.treeFrom(in.readAllBytes())
-          val path = Paths.get(file.getPath.replace(".tasty", ".scala"))
+          val path = Paths.get(file.getPath.replaceFirst("\\.tasty$", ".scala"))
           val treePrinter = new TreePrinter()
           mode match {
             case Mode.Parse =>
               file.getParentFile.mkdirs()
-              //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
+              //Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty$", ".tree")), tree.toString.getBytes)
               Files.write(path, treePrinter.fileAndTextOf(tree)._2.getBytes)
             case Mode.Test =>
               val expected = new String(Files.readAllBytes(path))
               val (_, actual) = treePrinter.fileAndTextOf(tree)
-              val actualPath = Path.of(path.toString.replace(".scala", ".actual.scala"))
+              val actualPath = Path.of(path.toString.replaceFirst("\\.scala$", ".actual.scala"))
               if (expected != actual) {
                 System.err.println(path.toString.substring(OutputDir.length + 1))
                 Files.write(actualPath, actual.getBytes)
@@ -71,7 +71,7 @@ object Main {
         }
       }
 
-      val sources = binaries.replaceFirst("\\.jar", "-sources.jar")
+      val sources = binaries.replaceFirst("\\.jar$", "-sources.jar")
 
       if (mode == Mode.Parse) {
         println("Extracting sources:\t" + sources)
@@ -89,7 +89,7 @@ object Main {
               .replaceAll(raw"\n\n}", "\n}") // Empty line before }
               .trim
 
-            Files.write(Paths.get(file.getPath.replaceFirst("\\.scala", "-source.scala")), s.getBytes)
+            Files.write(Paths.get(file.getPath.replaceFirst("\\.scala$", "-source.scala")), s.getBytes)
           }
         }
       }

@@ -345,7 +345,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfType(node: Node, parensRequired: Boolean = false): String = {
+  private def textOfType(node: Node, parensRequired: Boolean = false)(using parent: Option[Node] = None): String = {
     if (node.isSharedType) {
       sharedTypes.get(node.addr) match {
         case Some(text) =>
@@ -354,14 +354,16 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
     }
     // TODO extract method
+    given Option[Node] = Some(node)
     val text = node match { // TODO proper settings
       case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
       case Node3(SINGLETONtpt, _, Seq(tail)) =>
         val literal = textOfConstant(tail)
-        if (literal.nonEmpty) literal else textOfType(tail) + ".type"
+        if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
       case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
       case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
+      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name + // TODO why there's "package" in some cases?
+          (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node1(THIS) => "this" // TODO prefix
       case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
