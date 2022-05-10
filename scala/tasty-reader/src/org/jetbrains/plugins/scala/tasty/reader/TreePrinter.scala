@@ -366,7 +366,9 @@ class TreePrinter(privateMembers: Boolean = false) {
           (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node1(THIS) => "this" // TODO prefix
       case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
-        tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).map(_ + ".").getOrElse("") + node.refName.getOrElse("") // TODO
+        val prefix = tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).getOrElse("")
+        val name = node.refName.getOrElse("")
+        if (name == "package" || name.endsWith("$package")) prefix else (if (prefix.isEmpty) name else prefix + "." + name) // TODO rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
         else {
