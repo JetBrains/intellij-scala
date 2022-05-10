@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.base
 
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.LightProjectDescriptor
@@ -8,15 +8,11 @@ import com.intellij.testFramework.LightProjectDescriptor
 // TODO: review all usages ScalaLightProjectDescriptor and decide which test classes can reuse test project
 class ScalaLightProjectDescriptor(private val sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare) extends LightProjectDescriptor {
 
-  private var myModule: Module = _
-
   class SetupHandlerDelegate(delegate: LightProjectDescriptor.SetupHandler)
     extends LightProjectDescriptor.SetupHandler {
 
     override def moduleCreated(module: Module): Unit = {
       delegate.moduleCreated(module)
-      myModule = module
-//      tuneModule(module)
     }
 
     override def sourceRootCreated(sourceRoot: VirtualFile): Unit = delegate.sourceRootCreated(sourceRoot)
@@ -24,8 +20,7 @@ class ScalaLightProjectDescriptor(private val sharedProjectToken: SharedTestProj
 
   override def setUpProject(project: Project, handler: LightProjectDescriptor.SetupHandler): Unit = {
     super.setUpProject(project, new SetupHandlerDelegate(handler))
-    tuneModule(myModule)
-    myModule = null
+    tuneModule(ModuleManager.getInstance(project).getModules.head)
   }
 
   def tuneModule(module: Module): Unit = ()
