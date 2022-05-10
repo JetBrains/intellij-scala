@@ -7,10 +7,13 @@ import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScReferenceExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScConstrBlockExpr, ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.reflect.NameTransformer
 
 private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
@@ -23,14 +26,30 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
     case ref: ScReferenceExpression =>
       ref.resolve() match {
-        case FunctionLocalVariable(name, _, funName) => new LocalVariableEvaluator(name, funName)
+        case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
       }
   }
 
-  private[evaluation] object FunctionLocalVariable {
+  private[evaluation] object LocalVariable {
     def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
         .collect { case rp: ScReferencePattern if !rp.isClassMember => rp }
-        .flatMap(rp => rp.parentOfType[ScFunctionDefinition].map(fd => (rp.name, rp.`type`().getOrAny, fd.name)))
+        .flatMap { rp =>
+          rp.parentOfType[ScBlockExpr].flatMap {
+            case _: ScConstrBlockExpr => Some("<init>")
+            case blk if blk.isPartialFunction => Some("applyOrElse")
+            case blk => extractScopeName(blk)
+          }.map { name =>
+            (rp.name, rp.`type`().getOrAny, name)
+          }
+        }
+
+    private def extractScopeName(element: PsiElement): Option[String] =
+      element.parentOfType(Seq(classOf[ScFunctionDefinition], classOf[ScValueOrVariableDefinition], classOf[ScFunctionExpr], classOf[ScTemplateBody])).flatMap {
+        case fun: ScFunctionDefinition => Some(NameTransformer.encode(fun.name))
+        case valDef: ScValueOrVariableDefinition => extractScopeName(valDef)
+        case _: ScFunctionExpr => Some("anonfun")
+        case _: ScTemplateBody => Some("init>")
+      }
   }
 }
