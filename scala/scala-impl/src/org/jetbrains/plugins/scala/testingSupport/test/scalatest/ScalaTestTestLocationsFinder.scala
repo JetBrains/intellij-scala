@@ -18,7 +18,6 @@ import org.scalatest.finders._
 //     }
 //   }
 // }
-private[testingSupport]
 object ScalaTestTestLocationsFinder {
 
   @RequiresReadLock

@@ -3,17 +3,14 @@ package testingSupport.test.scalatest
 
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.TestFramework
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework.TestFrameworkSetupInfo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestFrameworkSetupSupportBase}
 
 import scala.annotation.nowarn
 
-final class ScalaTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase{
+final class ScalaTestTestFramework extends AbstractTestFramework with TestFrameworkSetupSupportBase {
 
   override def getName: String = "ScalaTest"
 
@@ -32,11 +29,6 @@ final class ScalaTestTestFramework extends AbstractTestFramework with TestFramew
 
   override def frameworkSetupInfo(scalaVersion: Option[String]): TestFrameworkSetupInfo =
     TestFrameworkSetupInfo(Seq(""""org.scalatest" %% "scalatest" % "latest.integration" % "test""""), Seq())
-
-  override def isTestMethod(element: PsiElement): Boolean =
-    Option(PsiTreeUtil.getTopmostParentOfType(element, classOf[ScClass])).exists { definition =>
-      ScalaTestTestLocationsFinder.calculateTestLocations(definition).contains(element)
-    }
 }
 
 object ScalaTestTestFramework {
