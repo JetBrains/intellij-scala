@@ -115,6 +115,7 @@ class TastyReaderTest extends TestCase {
   def testTypesLambda(): Unit = doTest("types/Lambda")
   def testTypesLiteral(): Unit = doTest("types/Literal")
   def testTypesOr(): Unit = doTest("types/Or")
+  def testTypesParameterized(): Unit = doTest("types/Parameterized")
   def testTypesProjection(): Unit = doTest("types/Projection")
   def testTypesRefinement(): Unit = doTest("types/Refinement")
   def testTypesRefs(): Unit = doTest("types/Refs")
@@ -123,6 +124,7 @@ class TastyReaderTest extends TestCase {
   def testTypesThis(): Unit = doTest("types/This")
   def testTypesTuple(): Unit = doTest("types/Tuple")
   def testTypesWildcard(): Unit = doTest("types/Wildcard")
+  def testMemberAliases(): Unit = doTest("Aliases")
   def testEmptyPackage(): Unit = doTest("EmptyPackage")
   def testNesting(): Unit = doTest("Nesting")
 
@@ -132,9 +134,9 @@ class TastyReaderTest extends TestCase {
 
     val tastyFile: Path = {
       val scalaFileStr = scalaFile.toString
-      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala", "\\$package.tasty"))
+      val packageFile = Path.of(scalaFileStr.replaceFirst("\\.scala$", "\\$package.tasty"))
       if (Files.exists(packageFile)) packageFile
-      else Path.of(scalaFileStr.replaceFirst("\\.scala", ".tasty"))
+      else Path.of(scalaFileStr.replaceFirst("\\.scala$", ".tasty"))
     }
     assertTrue(s"File $tastyFile doest not exist", Files.exists(tastyFile))
 

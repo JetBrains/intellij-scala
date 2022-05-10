@@ -4,8 +4,10 @@ find -regex '.*\.\(class\|tasty\|actual\)' -delete
 
 scalaFiles=$(find . -name '*.scala')
 
+export PATH=/opt/scala3-3.0.0/bin/:$PATH
+
 echo Compiling .scala files...
-dotc $scalaFiles
+scalac $scalaFiles
 
 for scalaFile in $scalaFiles; do
   name="${scalaFile%.*}"
@@ -16,7 +18,7 @@ for scalaFile in $scalaFiles; do
   treeFile="$name.tree"
   if [ ! "$treeFile" -nt "$scalaFile" ]; then
     echo "Parsing $tastyFile..."
-    dotc $tastyFile -print-tasty -color:never | grep -Po '^[ |\d]{6}: .*' > $treeFile
+    scalac $tastyFile -print-tasty -color:never | grep -Po '^[ |\d]{6}: .*' > $treeFile
   fi
   #rm $name.class
 done

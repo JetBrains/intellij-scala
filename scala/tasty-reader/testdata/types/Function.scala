@@ -8,4 +8,6 @@ trait Function {
   type T3 = (Int, Long) => Unit
 
   trait T4 extends (Int => Unit)
+
+  def repeated(xs: (Int => Unit)*): Unit
 }
