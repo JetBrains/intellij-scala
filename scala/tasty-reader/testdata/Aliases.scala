@@ -4,12 +4,18 @@ trait Aliases {
 
     val value: Int = ???
 
-    def method(xs: Int*): Unit = ???
+    def method(x: Int): Unit = ???
+
+    def repeatedParameter(xs: Int*): Unit = ???
+
+    inline def inlineParameter(inline x: Int): Unit = ???
   }
 
   /**/export O.Type/*final type Type = O.Type*/
 
   /**/export O.value/*final val value: O.value = ???*/
 
-  /**/export O.method/*final def method(xs: Int*): Unit = ???*/
+  /**/export O.repeatedParameter/*final def repeatedParameter(xs: Int*): Unit = ???*/
+
+  /**/export O.inlineParameter/*final inline def inlineParameter(inline x: Int): Unit = ???*/
 }

@@ -594,7 +594,8 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= ", "
         }
         textOfAnnotationIn(sb, "", node, " ")
-        if (node.contains(INLINE)) {
+        val tpe = textOfType(children.head)
+        if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
           sb ++= "inline "
         }
         val templateValueParam = templateValueParams.map(_.next())
@@ -617,7 +618,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
           sb ++= id(name) + ": "
         }
-        sb ++= simple(textOfType(children.head))
+        sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
         if (node.contains(HASDEFAULT)) {
           sb ++= " = ???" // TODO parameter, /* compiled code */
         }
