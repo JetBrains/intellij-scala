@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, Sca
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec
@@ -100,14 +100,14 @@ object DebuggerUtil {
       case Singleton => JVMNameUtil.getJVMRawText("java.lang.Object")
       case AnyVal => JVMNameUtil.getJVMRawText("scala.AnyVal") //shouldn't be
       case Unit => JVMNameUtil.getJVMRawText("scala.runtime.BoxedUnit")
-      case Boolean => JVMNameUtil.getJVMRawText("java.lang.Boolean")
-      case Char => JVMNameUtil.getJVMRawText("java.lang.Character")
-      case Int => JVMNameUtil.getJVMRawText("java.lang.Integer")
-      case Long => JVMNameUtil.getJVMRawText("java.lang.Long")
-      case Float => JVMNameUtil.getJVMRawText("java.lang.Float")
-      case Double => JVMNameUtil.getJVMRawText("java.lang.Double")
-      case Byte => JVMNameUtil.getJVMRawText("java.lang.Byte")
-      case Short => JVMNameUtil.getJVMRawText("java.lang.Short")
+      case Boolean => JVMNameUtil.getJVMRawText("boolean")
+      case Byte => JVMNameUtil.getJVMRawText("byte")
+      case Char => JVMNameUtil.getJVMRawText("char")
+      case Double => JVMNameUtil.getJVMRawText("double")
+      case Float => JVMNameUtil.getJVMRawText("float")
+      case Int => JVMNameUtil.getJVMRawText("int")
+      case Long => JVMNameUtil.getJVMRawText("long")
+      case Short => JVMNameUtil.getJVMRawText("short")
       case JavaArrayType(argument) =>
         val buff = new JVMNameBuffer()
         buff.append(getJVMQualifiedName(argument))
@@ -379,7 +379,7 @@ object DebuggerUtil {
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
       case _ => Seq.empty
-    } 
+    }
   }
 
   def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
