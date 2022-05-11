@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -28,8 +29,14 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position.getElementAt)
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
     case _: ScThisReference => new ThisEvaluator()
+    case call: ScMethodCall =>
+      val params = call.matchedParameters.map(_._1).map(buildEvaluator(_, position))
+      val resolved = call.getInvokedExpr.asInstanceOf[ScReferenceExpression].resolve().asInstanceOf[ScFunctionDefinition]
+      val name = resolved.name
+      new MethodEvaluator(new ThisEvaluator(), null, name, null, params.toArray)
     case ref: ScReferenceExpression =>
       ref.resolve() match {
+        case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case ClassMemberVariable(name, tpe, _, jvmName, typeFilter) =>
           val instance = new StackWalkingThisEvaluator(jvmName, typeFilter)
@@ -51,9 +58,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             case _: ScConstrBlockExpr => Some("<init>")
             case blk if blk.isPartialFunction => Some("applyOrElse")
             case blk => extractScopeName(blk)
-          }.map { name =>
-            (rp.name, rp.`type`().getOrAny, name)
-          }
+          }.map(name => (rp.name, rp.`type`().getOrAny, name))
         }
 
     private def extractScopeName(element: PsiElement): Option[String] =
@@ -90,6 +95,18 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             }
 
             (name, rp.`type`().getOrAny, containingClass, jvmName, typeFilter)
+        }
+  }
+
+  private object FunctionParameter {
+    def unapply(element: PsiElement): Option[(String, ScType, String)] =
+      Option(element)
+        .collect { case p: ScParameter => p }
+        .flatMap { p =>
+          p.parentOfType(Seq(classOf[ScFunctionDefinition], classOf[ScFunctionExpr])).flatMap {
+            case fun: ScFunctionDefinition => Some(NameTransformer.encode(fun.name))
+            case _: ScFunctionExpr => Some("anonfun")
+          }.map(name => (p.name, p.`type`().getOrAny, name))
         }
   }
 }
