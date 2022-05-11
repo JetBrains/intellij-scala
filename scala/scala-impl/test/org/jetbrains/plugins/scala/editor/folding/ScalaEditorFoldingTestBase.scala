@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder
 import org.jetbrains.plugins.scala.settings.ScalaCodeFoldingSettings
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
+import org.junit.Assert.assertFalse
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
@@ -42,6 +43,11 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
+  protected final def checkNoFoldingRegions(fileTextRaw: String): Unit = {
+    assertFalse("text shouldn't contain expected folding", fileTextRaw.contains(FOLD_END_MARKER))
+    genericCheckRegions(fileTextRaw)
+  }
+
   protected final def genericCheckRegions(fileTextRaw: String): Unit =
     genericCheckRegions(fileTextRaw, sortFoldings = false)
 
@@ -52,7 +58,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
   protected def genericCheckRegions(fileTextRaw: String, sortFoldings: Boolean): Unit = {
     val fileText = fileTextRaw.withNormalizedSeparator
     val expectedRegions = new ArrayBuffer[FoldingInfo]()
-    val textWithoutMarkers = new StringBuilder(fileText.length)
+    val textWithoutMarkers = new mutable.StringBuilder(fileText.length)
     val openMarkers = mutable.Stack[(Int, String, Boolean)]()
 
     var pos = 0
@@ -60,9 +66,10 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
       val nextStartMarker = fileText.indexOf(FOLD_START_MARKER_BEGIN, pos)
       val nextEndMarker = fileText.indexOf(FOLD_END_MARKER, pos)
 
-      Seq(nextStartMarker -> true, nextEndMarker -> false)
+      val magic = Seq(nextStartMarker -> true, nextEndMarker -> false)
         .filter(_._1 >= 0)
-        .sortBy(_._1) match {
+        .sortBy(_._1)
+      magic match {
         case (closestIdx, isStartMarker) +: _ =>
           textWithoutMarkers.append(fileText.substring(pos, closestIdx))
           val idxInTargetFile = textWithoutMarkers.length
@@ -92,6 +99,7 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
           }
           true
         case Seq() =>
+          textWithoutMarkers.append(fileText.substring(pos, fileText.length))
           false
       }
     }) ()
