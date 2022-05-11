@@ -112,7 +112,7 @@ class ScalaRainbowVisitorTest extends base.ScalaLightCodeInsightFixtureTestAdapt
   private def doTest(text: String,
                      isRainbowOn: Boolean = true,
                      withColor: Boolean = true): Unit =
-    getFixture.testRainbow(
+    myFixture.testRainbow(
       "dummy.scala",
       StringUtil.convertLineSeparators(text),
       isRainbowOn,

@@ -5,10 +5,7 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.Scala2AndScala3Ente
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /** NOTE: much more tests are generated and run in [[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive]] */
-class Scala3EnterTest extends Scala3EnterBaseTest
-  with CheckIndentAfterTypingCodeOps
-  with DoEditorStateTestOps
-  with Scala2AndScala3EnterActionCommonTests {
+class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActionCommonTests {
 
   import Scala3TestDataBracelessCode._
 
@@ -21,10 +18,10 @@ class Scala3EnterTest extends Scala3EnterBaseTest
       wrapperContext <- wrapperContexts
     } {
       val contextCodeNew = injectCodeWithIndentAdjust(contextCode, wrapperContext.code)
-      checkIndentAfterTypingCode(contextCodeNew, codeToType.code)
+      checkIndentAfterTypingCode(contextCodeNew, codeToType.code, myFixture)
     }
 
-  private def doEnterAfterFunctionTypeArrow(contextCode: String): Unit ={
+  private def doEnterAfterFunctionTypeArrow(contextCode: String): Unit = {
     doTypingTestInWrapperContexts(contextCode, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
     assert(contextCode.contains("=>"))
 
@@ -34,16 +31,19 @@ class Scala3EnterTest extends Scala3EnterBaseTest
 
   def testAfterFunctionTypeArrow_1(): Unit =
     doEnterAfterFunctionTypeArrow(s"""type Contextual1[T] = ExecutionContext =>$CARET""")
+
   def testAfterFunctionTypeArrow_2(): Unit =
     doEnterAfterFunctionTypeArrow(s"""type Contextual1[T] = ExecutionContext =>$CARET   T""")
+
   def testAfterFunctionTypeArrow_3(): Unit =
     doEnterAfterFunctionTypeArrow(s"""type Contextual1[T] = ExecutionContext =>   ${CARET}T""")
+
   def testAfterFunctionTypeArrow_4(): Unit =
     doEnterAfterFunctionTypeArrow(s"""type Contextual1[T] = ExecutionContext =>  $CARET  T""")
 
   def textTopLevelFunctionWithNonEmptyBody_EOF(): Unit = {
     def doMyTest(context: String): Unit =
-      checkIndentAfterTypingCode(context, CodeToType.BlankLines.code)
+      checkIndentAfterTypingCode(context, CodeToType.BlankLines.code, myFixture)
 
     doMyTest(
       s"""def foo =
@@ -150,7 +150,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |}""".stripMargin
     )
 
-  def testAfterFunctionBodyOnSameLineWithEquals(): Unit = doEditorStateTest((
+  def testAfterFunctionBodyOnSameLineWithEquals(): Unit = doEditorStateTest(myFixture, (
     s"""class B:
        |  def foo = 1$CARET
        |
@@ -191,7 +191,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
        |""".stripMargin
   )
 
-  def testAfterFunctionBodyOnSameLineWithEquals_InfixOp(): Unit = doEditorStateTest((
+  def testAfterFunctionBodyOnSameLineWithEquals_InfixOp(): Unit = doEditorStateTest(myFixture, (
     s"""class B:
        |  def foo = 1 + $CARET
        |
@@ -262,7 +262,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
     }
   }
 
-  def testCaretIsIndentedToTheRightFromLastElementInIndentationContext_0(): Unit = doEditorStateTest((
+  def testCaretIsIndentedToTheRightFromLastElementInIndentationContext_0(): Unit = doEditorStateTest(myFixture, (
     s"""class B:
        |  def foo =     $CARET
        |
@@ -735,7 +735,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |  case Cons(h: A, t: ListEnum1[A])
          |  case Empty$CARET
          |""".stripMargin
-    val after  =
+    val after =
       s"""enum ListEnum1[+A]:
          |  case Cons(h: A, t: ListEnum1[A])
          |  case Empty
@@ -751,7 +751,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |  case Cons(h: A, t: ListEnum1[A])
          |  case Empty,$CARET Empty42
          |""".stripMargin
-    val after  =
+    val after =
       s"""enum ListEnum1[+A]:
          |  case Cons(h: A, t: ListEnum1[A])
          |  case Empty,
@@ -1075,7 +1075,6 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |$CARET
          |""".stripMargin
     )
-
 
 
     runEnterTestInAllIndentationBlockContexts(

@@ -7,17 +7,15 @@ import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.editor.documentationProvider.DocumentationProviderTestBase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.sbt.MockSbtBase
 import org.jetbrains.sbt.language.SbtFileType
 import org.junit.Assert
 
 abstract class SbtScalacOptionsDocumentationProviderTestBase extends DocumentationProviderTestBase {
-  self: MockSbtBase =>
 
   override protected def documentationProvider: DocumentationProvider = new SbtScalacOptionsDocumentationProvider
 
   override protected def createFile(fileContent: String): PsiFile =
-    getFixture.configureByText(SbtFileType, fileContent)
+    myFixture.configureByText(SbtFileType, fileContent)
 
   override protected def generateDoc(editor: Editor, file: PsiFile): String = {
     val (referredElement, elementAtCaret) = extractReferredAndOriginalElements(editor, file)

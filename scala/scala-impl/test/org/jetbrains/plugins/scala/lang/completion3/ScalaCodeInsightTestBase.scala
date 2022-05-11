@@ -109,7 +109,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                        (predicate: LookupElement => Boolean = Function.const(true)): Unit = {
     configureFromFileText(fileText)
 
-    val lookups = getFixture.complete(`type`, invocationCount)
+    val lookups = myFixture.complete(`type`, invocationCount)
     assertFalse(lookups != null && lookups.exists(predicate))
   }
 
@@ -121,7 +121,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     val (_, items) = activeLookupWithItems(fileText, completionType, invocationCount)()
     assertTrue(items.nonEmpty)
 
-    getFixture.`type`(char)
+    myFixture.`type`(char)
     checkResultByText(resultText)
   }
 
@@ -139,13 +139,13 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   protected final def completeBasic(invocationCount: Int) = {
     assertNotEquals("Please use `completeBasic`", 1, invocationCount)
 
-    val lookups = getFixture.complete(BASIC, invocationCount)
+    val lookups = myFixture.complete(BASIC, invocationCount)
     assertNotNull(lookups)
     lookups
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
-    getFixture.checkResult(normalize(expectedFileText), ignoreTrailingSpaces)
+    myFixture.checkResult(normalize(expectedFileText), ignoreTrailingSpaces)
 }
 
 object ScalaCodeInsightTestBase {

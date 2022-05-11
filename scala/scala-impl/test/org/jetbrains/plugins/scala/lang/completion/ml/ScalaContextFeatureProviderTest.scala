@@ -322,7 +322,7 @@ class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAd
 
       configureFromFileText(fileText)
       changePsiAt(getEditorOffset)
-      getFixture.complete(CompletionType.BASIC, 1)
+      myFixture.complete(CompletionType.BASIC, 1)
 
       val handler = new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)
       handler.invokeCompletion(getProject, getEditor, 1)

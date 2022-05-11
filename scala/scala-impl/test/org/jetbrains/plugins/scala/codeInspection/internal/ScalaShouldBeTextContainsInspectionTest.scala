@@ -4,7 +4,7 @@ package internal
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-class ScalaShouldBeTextContainsInspectionTest extends ScalaQuickFixTestBase {
+class ScalaShouldBeTextContainsInspectionTest extends ScalaInspectionTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaShouldBeTextContainsInspection]

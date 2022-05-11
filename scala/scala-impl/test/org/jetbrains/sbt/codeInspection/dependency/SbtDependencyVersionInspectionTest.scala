@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.codeInspection.dependency
 
 import com.intellij.openapi.fileTypes.LanguageFileType
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection
 import org.jetbrains.sbt.language.SbtFileType
 import org.jetbrains.sbt.{MockSbt_1_0, Sbt}
 
-class SbtDependencyVersionInspectionTest extends ScalaQuickFixTestBase with MockSbt_1_0{
+class SbtDependencyVersionInspectionTest extends ScalaInspectionTestBase with MockSbt_1_0{
   override val sbtVersion: Version = Sbt.LatestVersion
   override protected val classOfInspection = classOf[SbtDependencyVersionInspection]
   override protected val description: String = ""

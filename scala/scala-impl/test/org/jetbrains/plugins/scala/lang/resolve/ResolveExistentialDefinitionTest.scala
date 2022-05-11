@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 
-class ResolveExistentialDefinitionTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class ResolveExistentialDefinitionTest extends SimpleResolveTestBase {
 
   def testSimple(): Unit = {
     doResolveTest(

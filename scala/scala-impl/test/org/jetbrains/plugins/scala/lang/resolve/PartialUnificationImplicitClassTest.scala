@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.project._
 
-class PartialUnificationImplicitClassTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class PartialUnificationImplicitClassTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override def setUp(): Unit = {

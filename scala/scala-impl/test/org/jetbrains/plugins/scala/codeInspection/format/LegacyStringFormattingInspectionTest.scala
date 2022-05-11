@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.format
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class LegacyStringFormattingInspectionTest extends ScalaQuickFixTestBase {
+class LegacyStringFormattingInspectionTest extends ScalaInspectionTestBase {
 
   override protected val description = "Legacy string formatting, an interpolated string can be used instead"
 

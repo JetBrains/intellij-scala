@@ -3,19 +3,20 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestStringUtils.StringOps
 
-trait CheckIndentAfterTypingCodeOps {
-  self: EditorActionTestBase =>
+abstract class CheckIndentAfterTypingCodeOps extends EditorActionTestBase {
 
-  private implicit def project: Project = getFixture.getProject
+  private implicit def project: Project = myFixture.getProject
 
   /** @return final code after typing */
   protected def checkIndentAfterTypingCode(
     contextCode: String,
-    codeToType: String
+    codeToType: String,
+    fixture: JavaCodeInsightTestFixture
   ): String = {
     val indentSize = 2
     val contextCodeIndent = TestIndentUtils.calcLineAtCaretIndent(contextCode)
@@ -66,7 +67,7 @@ trait CheckIndentAfterTypingCodeOps {
             trimmedLine.startsWith("//") || trimmedLine.startsWith("/*")
           }
           if (!isComment) {
-            adjustLineIndentAtCaretPosition()
+            adjustLineIndentAtCaretPosition(fixture)
           }
         }
       }
@@ -81,8 +82,8 @@ trait CheckIndentAfterTypingCodeOps {
   protected def linesToType(codeToType: String): Seq[String] =
     codeToType.linesIterator.toSeq ++ (if (codeToType.endsWith("\n")) Some("") else None)
 
-  protected def adjustLineIndentAtCaretPosition(): Unit = {
-    val editor = getFixture.getEditor
+  protected def adjustLineIndentAtCaretPosition(fixture: JavaCodeInsightTestFixture): Unit = {
+    val editor = fixture.getEditor
     val document = editor.getDocument
 
     val lineOffset = {
@@ -92,7 +93,7 @@ trait CheckIndentAfterTypingCodeOps {
     }
     inWriteCommandAction {
       PsiDocumentManager.getInstance(project).commitDocument(document)
-      CodeStyleManager.getInstance(project).adjustLineIndent(getFixture.getFile, lineOffset)
+      CodeStyleManager.getInstance(project).adjustLineIndent(myFixture.getFile, lineOffset)
     }
   }
 }

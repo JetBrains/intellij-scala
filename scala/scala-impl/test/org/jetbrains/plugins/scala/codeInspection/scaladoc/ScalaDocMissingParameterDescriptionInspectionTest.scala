@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class ScalaDocMissingParameterDescriptionInspectionTest extends ScalaQuickFixTestBase {
+class ScalaDocMissingParameterDescriptionInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocMissingParameterDescriptionInspection]
 

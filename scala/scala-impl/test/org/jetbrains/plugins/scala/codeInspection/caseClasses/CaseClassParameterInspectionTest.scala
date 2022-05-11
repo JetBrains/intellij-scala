@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseC
 /**
   * @author Nikolay.Tropin
   */
-class CaseClassParameterInspectionTest extends ScalaQuickFixTestBase {
+class CaseClassParameterInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[CaseClassParamInspection]
 
   override protected val description: String = ScalaBundle.message("val.on.case.class.param.redundant")

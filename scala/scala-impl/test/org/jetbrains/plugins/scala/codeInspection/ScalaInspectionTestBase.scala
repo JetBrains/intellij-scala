@@ -9,13 +9,11 @@ import com.intellij.codeInspection.{LocalInspectionEP, LocalInspectionTool}
 import com.intellij.ide.scratch.ScratchRootType
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaSdkOwner, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
@@ -44,7 +42,9 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected override def checkTextHasNoErrors(text: String): Unit = {
     val TestPrepareResult(fileText, _, highlights) = configureByText(text)
     val ranges = highlights.map(_.range)
+
     def rangeText = ranges.mkString(", ")
+
     assertTrue(
       if (shouldPass) s"Highlights found at: $rangeText:\n${highlightsDebugText(highlights, fileText)}"
       else failingPassed,
@@ -128,21 +128,21 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     val (normalizedText, offset) =
       findCaretOffset(fileText, stripTrailingSpaces = true)
 
-    val fixture = getFixture
     if (isScratchFile) {
       val vFile = createScratchFile(normalizedText)
-      fixture.configureFromExistingVirtualFile(vFile)
+      myFixture.configureFromExistingVirtualFile(vFile)
     } else {
-      fixture.configureByText(fileType, normalizedText)
+      myFixture.configureByText(fileType, normalizedText)
     }
-    onFileCreated(fixture.getFile)
+
+    onFileCreated(myFixture.getFile)
 
     val actualHighlights =
-      fixture.doHighlighting().asScala
-        .filter(it => descriptionMatches(it.getDescription))
+      myFixture.doHighlighting().asScala
+        .filter(highlightInfo => descriptionMatches(highlightInfo.getDescription))
         .filter(checkOffset(_, offset))
 
-    TestPrepareResult(fixture.getFile.getText, expectedHighlights, actualHighlights.toSeq)
+    TestPrepareResult(myFixture.getFile.getText, expectedHighlights, actualHighlights.toSeq)
   }
 
   private def createScratchFile(normalizedText: String) = {
@@ -173,20 +173,19 @@ object ScalaHighlightsTestBase {
     }
 }
 
-abstract class ScalaQuickFixTestBase extends ScalaInspectionTestBase
-
 abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
+
   import ScalaAnnotatorQuickFixTestBase.quickFixes
 
   protected def testQuickFix(text: String, expected: String, hint: String): Unit = {
     val action = doFindQuickFix(text, hint)
 
     executeWriteActionCommand() {
-       action.invoke(getProject, getEditor, getFile)
+      action.invoke(getProject, getEditor, getFile)
     }(getProject)
 
     val expectedFileText = createTestText(expected)
-    getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
+    myFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
   }
 
   protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit = {
@@ -197,7 +196,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     }(getProject)
 
     val expectedFileText = createTestText(expected)
-    getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
+    myFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
   }
 
   protected def checkNotFixable(text: String, hint: String): Unit = {
@@ -232,7 +231,7 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   protected def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =
     configureByText(text).actualHighlights match {
       case Seq() if failOnEmptyErrors => fail("Errors not found.").asInstanceOf[Nothing]
-      case seq                        => seq.flatMap(quickFixes)
+      case seq => seq.flatMap(quickFixes)
     }
 }
 
@@ -252,13 +251,14 @@ abstract class ScalaInspectionTestBase extends ScalaAnnotatorQuickFixTestBase {
 
   protected override def setUp(): Unit = {
     super.setUp()
-    getFixture.enableInspections(classOfInspection)
+    myFixture.enableInspections(classOfInspection)
   }
 }
 
-trait ForceInspectionSeverity extends ScalaInspectionTestBase {
+abstract class InspectionSeverityForcingScalaInspectionTestBase extends ScalaInspectionTestBase {
 
   private var oldLevel: HighlightDisplayLevel = _
+
   protected override def setUp(): Unit = {
     super.setUp()
     val toolState = inspectionToolState
@@ -272,8 +272,8 @@ trait ForceInspectionSeverity extends ScalaInspectionTestBase {
   }
 
   private def inspectionToolState: ScopeToolState = {
-    val profile = ProjectInspectionProfileManager.getInstance(getFixture.getProject).getCurrentProfile
-    profile.getToolDefaultState(inspectionEP.getShortName, getFixture.getProject)
+    val profile = ProjectInspectionProfileManager.getInstance(myFixture.getProject).getCurrentProfile
+    profile.getToolDefaultState(inspectionEP.getShortName, myFixture.getProject)
   }
 
   private def inspectionEP =

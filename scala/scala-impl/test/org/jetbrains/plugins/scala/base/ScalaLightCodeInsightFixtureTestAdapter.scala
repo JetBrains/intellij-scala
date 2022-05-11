@@ -17,6 +17,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -42,8 +43,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def sourceRootPath: String = null
 
-  def getFixture: JavaCodeInsightTestFixture = myFixture
-
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"
 
   protected def loadScalaLibrary: Boolean = true
@@ -64,7 +63,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   override def setUpLibraries(implicit module: Module): Unit = {
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     if (loadScalaLibrary) {
-      getFixture.allowTreeAccessForAllFiles()
+      myFixture.allowTreeAccessForAllFiles()
       super.setUpLibraries(module)
     }
   }
@@ -78,19 +77,19 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     configureFromFileText(ScalaFileType.INSTANCE, fileText)
 
   protected def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
-    val file = getFixture.configureByText(fileType, normalize(fileText))
+    val file = myFixture.configureByText(fileType, normalize(fileText))
     assertNotNull(file)
     file
   }
 
   protected def configureFromFileTextWithSomeName(fileType: String, fileText: String): PsiFile = {
-    val file = getFixture.configureByText("Test." + fileType, normalize(fileText))
+    val file = myFixture.configureByText("Test." + fileType, normalize(fileText))
     assertNotNull(file)
     file
   }
 
   protected def configureFromFileText(fileName: String, fileText: String): PsiFile = {
-    val file = getFixture.configureByText(fileName: String, normalize(fileText))
+    val file = myFixture.configureByText(fileName: String, normalize(fileText))
     assertNotNull(file)
     file
   }
@@ -98,7 +97,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   protected def getEditorOffset: Int = getEditor.getCaretModel.getOffset
 
   protected def checkTextHasNoErrors(text: String): Unit = {
-    getFixture.configureByText(
+    myFixture.configureByText(
       ScalaFileType.INSTANCE,
       text
     )
@@ -150,9 +149,12 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
       TrailingSpacesStripper.strip(document, false, true)
     }
 
+    val allCaretOffsets =
+      myFixture.getEditor.getCaretModel.getAllCarets.asScala.iterator.map(_.getOffset).toSeq
+
     checkCaretOffsets(
       expectedCarets,
-      this.allCaretOffsets,
+      allCaretOffsets,
       expectedText,
       document.getText,
       stripTrailingSpaces
@@ -190,7 +192,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def getScalaSettings: ScalaCodeStyleSettings = getCurrentCodeStyleSettings.getCustomSettings(classOf[ScalaCodeStyleSettings])
 
-  private def testHighlighting(virtualFile: VirtualFile): Unit = getFixture.testHighlighting(
+  private def testHighlighting(virtualFile: VirtualFile): Unit = myFixture.testHighlighting(
     false,
     false,
     false,
@@ -262,29 +264,5 @@ object ScalaLightCodeInsightFixtureTestAdapter {
       textNormalized.replace(CARET_TAG, ""),
       caretIndicesNormalized
     )
-  }
-
-  implicit class Ext(private val adapter: ScalaLightCodeInsightFixtureTestAdapter) extends AnyVal {
-
-    def configureJavaFile(fileText: String,
-                          className: String,
-                          packageName: String = null): Unit = inWriteAction {
-      val root = LightPlatformTestCase.getSourceRoot match {
-        case sourceRoot if packageName == null => sourceRoot
-        case sourceRoot => sourceRoot.createChildDirectory(null, packageName)
-      }
-
-      val file = root.createChildData(null, className + ".java")
-      VfsUtil.saveText(file, normalize(fileText))
-    }
-
-    def allCaretOffsets: Seq[Int] =
-      adapter.getFixture
-        .getEditor
-        .getCaretModel
-        .getAllCarets.asScala
-        .iterator
-        .map(_.getOffset)
-        .toSeq
   }
 }

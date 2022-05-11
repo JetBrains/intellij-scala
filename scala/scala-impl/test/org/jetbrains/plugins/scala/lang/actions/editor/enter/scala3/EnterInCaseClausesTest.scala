@@ -12,9 +12,7 @@ class EnterInCaseClausesWithBracesTest_Scala3 extends EnterInCaseClausesWithBrac
     version >= ScalaVersion.Latest.Scala_3_0
 }
 
-abstract class EnterInCaseClausesWithBracesTestBase extends Scala3EnterBaseTest
-  with CheckIndentAfterTypingCodeOps
-  with DoEditorStateTestOps{
+abstract class EnterInCaseClausesWithBracesTestBase extends DoEditorStateTestOps {
 
   def testLastCaseClause_WithoutCode(): Unit =
     doEnterTest(

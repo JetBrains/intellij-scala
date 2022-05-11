@@ -5,9 +5,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
-import com.intellij.testFramework.UsefulTestCase
-import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.base.FailableTest
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -16,8 +14,7 @@ import org.junit.Assert._
 import java.io.File
 import scala.util.{Failure, Success, Try}
 
-trait SimpleResolveTestBase {
-  this: LightJavaCodeInsightFixtureTestCase with UsefulTestCase with FailableTest =>
+abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import SimpleResolveTestBase._
 

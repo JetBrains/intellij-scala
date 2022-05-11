@@ -4,13 +4,13 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
 /**
   * Author: Svyatoslav Ilinskiy
   * Date: 10/14/15.
   */
-class AutoTuplingInspectionTest extends ScalaQuickFixTestBase {
+class AutoTuplingInspectionTest extends ScalaInspectionTestBase {
 
   // TODO: fix for versions > 2.10
   override def defaultVersionOverride: Option[ScalaVersion] = Some(LatestScalaVersions.Scala_2_10)

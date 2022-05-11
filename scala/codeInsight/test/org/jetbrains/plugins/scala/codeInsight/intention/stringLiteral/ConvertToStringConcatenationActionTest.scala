@@ -13,7 +13,7 @@ class ConvertToStringConcatenationActionTest extends StringConversionTestBase {
   override def setUp(): Unit = {
     super.setUp()
     // we apply ScalaUnnecessaryParenthesesInspection when converting to concatenation
-    getFixture.enableInspections(classOf[ScalaUnnecessaryParenthesesInspection])
+    myFixture.enableInspections(classOf[ScalaUnnecessaryParenthesesInspection])
   }
 
   override protected def tearDown(): Unit =

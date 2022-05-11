@@ -22,7 +22,7 @@ abstract class StringConversionTestBase extends intentions.ScalaIntentionTestBas
   ): Unit = {
     implicit val project: Project = getProject
 
-    getFixture.configureByText(fileType, normalize(text)).asInstanceOf[ScalaFile]
+    myFixture.configureByText(fileType, normalize(text)).asInstanceOf[ScalaFile]
 
     placeCaretAtEachLineContent(getEditor)
 

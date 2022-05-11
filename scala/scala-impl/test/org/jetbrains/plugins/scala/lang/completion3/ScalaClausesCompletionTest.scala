@@ -3,6 +3,7 @@ package lang
 package completion3
 
 import com.intellij.application.options.CodeStyle
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 //todo: fix for Scala 3
@@ -512,7 +513,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   def testCompleteJavaTypeClause(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       "public interface Foo",
       "Foo"
     )
@@ -655,7 +656,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   )
 
   def testEmptyJavaEnum(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       "public enum EmptyEnum {}",
       "EmptyEnum"
     )
@@ -1060,7 +1061,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
   }
 
   def testJavaType(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """public interface Foo {
           |    public static Foo createFoo() {

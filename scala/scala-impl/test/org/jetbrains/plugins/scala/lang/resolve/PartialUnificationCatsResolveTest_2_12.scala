@@ -3,11 +3,10 @@ package lang
 package resolve
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.project._
 
-class PartialUnificationCatsResolveTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class PartialUnificationCatsResolveTest_2_12 extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12

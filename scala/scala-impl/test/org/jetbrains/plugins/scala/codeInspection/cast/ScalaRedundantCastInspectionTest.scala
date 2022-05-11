@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.cast
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class ScalaRedundantCastInspectionTest extends ScalaQuickFixTestBase {
+class ScalaRedundantCastInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaRedundantCastInspection]
 

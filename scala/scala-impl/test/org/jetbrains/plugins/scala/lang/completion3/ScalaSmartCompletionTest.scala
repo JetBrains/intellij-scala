@@ -5,6 +5,7 @@ package completion3
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
@@ -324,7 +325,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testJavaEnum(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """
           |package a;

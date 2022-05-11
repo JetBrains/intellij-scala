@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.Redund
   * mattfowler
   * 5/7/2016
   */
-class RedundantNewCaseClassInspectionTest extends ScalaQuickFixTestBase {
+class RedundantNewCaseClassInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[RedundantNewCaseClassInspection]

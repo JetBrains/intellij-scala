@@ -76,7 +76,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   )
 
   def testTrait(): Unit = {
-    getFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
+    myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
     val elements = gotoClassElements("GoToClassS")
 
@@ -85,7 +85,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testTrait2(): Unit = {
-    getFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
+    myFixture.addFileToProject("GoToClassSimpleTrait.scala", "trait GoToClassSimpleTrait")
 
     val elements = gotoClassElements("GTCS")
 
@@ -94,7 +94,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testObject(): Unit = {
-    getFixture.addFileToProject("GoToClassSimpleObject.scala", "object GoToClassSimpleObject")
+    myFixture.addFileToProject("GoToClassSimpleObject.scala", "object GoToClassSimpleObject")
 
     val elements = gotoClassElements("GoToClassS")
 
@@ -103,7 +103,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testPackageObject(): Unit = {
-    getFixture.addFileToProject("foo/somePackageName/package.scala",
+    myFixture.addFileToProject("foo/somePackageName/package.scala",
     """package foo
       |
       |package object somePackageName
@@ -116,7 +116,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testGoToSymbol(): Unit = {
-    getFixture.addFileToProject("GoToSymbol.scala",
+    myFixture.addFileToProject("GoToSymbol.scala",
       """class FooClass {
         |  def fooMethod(): Unit = ()
         |}
@@ -137,7 +137,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testClass_:::(): Unit = {
-    getFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
+    myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
     val elements = gotoClassElements("::")
 
@@ -146,7 +146,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testSymbol_:::(): Unit = {
-    getFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
+    myFixture.addFileToProject("Colons.scala", "class ::: { def ::: : Unit = () }")
 
     val elements = gotoSymbolElements("::")
 
@@ -155,7 +155,7 @@ class GoToClassAndSymbolTest extends GoToTestBase {
   }
 
   def testSymbolInPackaging_:::(): Unit = {
-    getFixture.addFileToProject("threeColons.scala",
+    myFixture.addFileToProject("threeColons.scala",
       """package test
         |class ::: { def ::: : Unit = () }""".stripMargin
     )

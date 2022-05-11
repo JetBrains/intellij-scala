@@ -57,7 +57,7 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
       val normalizedResultText = normalize(resultText)
 
       try {
-        getFixture.checkResult(normalizedResultText)
+        myFixture.checkResult(normalizedResultText)
       } catch {
         case err: AssertionError =>
           System.err.println(s"Wrong result for input:\n$originalInputForDebugging")
@@ -78,12 +78,12 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
     findIntention(text, fileType)
 
   private def findIntention(text: String, fileType: FileType): Option[IntentionAction] = {
-    getFixture.configureByText(fileType, normalize(text))
+    myFixture.configureByText(fileType, normalize(text))
     findIntentionByName(familyName)
   }
 
   protected def findIntentionByName(familyName: String): Option[IntentionAction] = {
-    val intentions = getFixture.getAvailableIntentions.asScala
+    val intentions = myFixture.getAvailableIntentions.asScala
     intentions.toSeq.find(_.getFamilyName == familyName)
   }
 

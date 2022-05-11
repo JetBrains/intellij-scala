@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class PostfixUnaryOperationInspectionTest extends ScalaQuickFixTestBase {
+class PostfixUnaryOperationInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection : Class[_ <: LocalInspectionTool] = classOf[PostfixUnaryOperationInspection]
   override protected val description = ScalaInspectionBundle.message("displayname.postfix.unary.operation")
 

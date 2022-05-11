@@ -47,7 +47,7 @@ class OptimizeImportsSimpleTestBase extends OptimizeImportsTestBase {
   def testNoReformattingComments(): Unit = doTest()
 
   def testRemoveImportsFromSamePackageAndDefaultPackages_NoNameClashes(): Unit = {
-    getFixture.addFileToProject("org/example/declaration/all.scala",
+    myFixture.addFileToProject("org/example/declaration/all.scala",
       """package org.example.declaration.data
         |
         |class Random
@@ -82,7 +82,7 @@ class OptimizeImportsSimpleTestBase extends OptimizeImportsTestBase {
   }
 
   def testRemoveImportsFromSamePackageAndDefaultPackages_NoNameClashes_LocalImports(): Unit = {
-    getFixture.addFileToProject("org/example/declaration/all.scala",
+    myFixture.addFileToProject("org/example/declaration/all.scala",
       """package org.example.declaration.data
         |
         |class Random

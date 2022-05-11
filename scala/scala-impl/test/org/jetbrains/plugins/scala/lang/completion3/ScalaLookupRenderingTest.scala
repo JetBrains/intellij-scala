@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion3
 
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.junit.Assert.assertTrue
 
 /**
@@ -13,7 +14,7 @@ class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
   import ScalaCodeInsightTestBase._
 
   def testJavaVarargs(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """package a;
           |

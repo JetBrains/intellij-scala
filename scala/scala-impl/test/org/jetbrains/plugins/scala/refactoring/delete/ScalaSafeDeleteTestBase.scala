@@ -27,7 +27,7 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestA
     configureFromFileTextWithSomeName(fileType, wrapText(text))
 
     val foundNotSafeToDeletes = notSafeToDeletesIn {
-      val element = getFixture.getElementAtCaret
+      val element = myFixture.getElementAtCaret
       BaseRefactoringProcessor.ConflictsInTestsException.withIgnoredConflicts( () =>
         SafeDeleteHandler.invoke(getProject, Array(element), true)
       )

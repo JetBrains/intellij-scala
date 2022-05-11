@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class ScalaDocUnbalancedHeaderInspection1Test extends ScalaQuickFixTestBase {
+class ScalaDocUnbalancedHeaderInspection1Test extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocUnbalancedHeaderInspection]
   override protected val description = "Header tags unbalanced"

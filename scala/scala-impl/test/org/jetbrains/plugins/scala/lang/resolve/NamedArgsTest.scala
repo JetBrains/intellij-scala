@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
 /**
   * @author mucianm
   * @since 05.04.16.
   */
-class NamedArgsTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class NamedArgsTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   def testSCL9144(): Unit = {

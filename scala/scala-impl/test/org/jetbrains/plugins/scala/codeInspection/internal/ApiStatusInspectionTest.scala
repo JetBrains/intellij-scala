@@ -4,7 +4,7 @@ package internal
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-class ApiStatusInspectionTest extends ScalaQuickFixTestBase {
+class ApiStatusInspectionTest extends ScalaInspectionTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ApiStatusInspection]
@@ -14,7 +14,7 @@ class ApiStatusInspectionTest extends ScalaQuickFixTestBase {
   override protected def descriptionMatches(s: String): Boolean = Option(s).exists(_.contains("is marked as internal"))
 
   override def createTestText(text: String): String = {
-    getFixture.addFileToProject("org/jetbrains/annotations/ApiStatus.java",
+    myFixture.addFileToProject("org/jetbrains/annotations/ApiStatus.java",
       """package org.jetbrains.annotations;
         |
         |public final class ApiStatus {
@@ -37,7 +37,7 @@ class ApiStatusInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def doTestApiStatus(definition: String, usage: String, fileType: String = "scala"): Unit = {
-    getFixture.addFileToProject(s"Test.$fileType",
+    myFixture.addFileToProject(s"Test.$fileType",
       s"""import org.jetbrains.annotations.ApiStatus;
          |
          |$definition

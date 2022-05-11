@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-abstract class AppliedTypeLambdaCanBeSimplifiedTestBase extends ScalaQuickFixTestBase {
+abstract class AppliedTypeLambdaCanBeSimplifiedTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")

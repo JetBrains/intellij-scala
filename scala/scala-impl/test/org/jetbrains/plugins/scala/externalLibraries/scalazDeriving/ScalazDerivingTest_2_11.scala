@@ -34,7 +34,7 @@ class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
   def doTest(text: String, expectedType: String): Unit = {
     val cleaned = StringUtil.convertLineSeparators(text)
     val caretPos = cleaned.indexOf("<caret>")
-    getFixture.configureByText("dummy.scala", cleaned.replace("<caret>", ""))
+    myFixture.configureByText("dummy.scala", cleaned.replace("<caret>", ""))
 
     val clazz = PsiTreeUtil.findElementOfClassAtOffset(
       getFile,

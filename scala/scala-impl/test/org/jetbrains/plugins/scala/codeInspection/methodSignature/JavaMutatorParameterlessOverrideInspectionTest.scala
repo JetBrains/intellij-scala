@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBase {
+class JavaMutatorParameterlessOverrideInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.{CARET_MARKER => CARET}
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -18,7 +18,7 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
 
 
   def test_non_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    myFixture.configureByText("JBase.java",
       """
         |public class JBase {
         |    public int addFoo() {}
@@ -53,7 +53,7 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
   }
 
   def test_unit_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    myFixture.configureByText("JBase.java",
       """
         |public class JBase {
         |    public void foo() {}
@@ -71,7 +71,7 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
   }
 
   def test_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    myFixture.configureByText("JBase.java",
       """
         |public class JBase {
         |    public void addFoo() {}
@@ -90,7 +90,7 @@ class JavaMutatorParameterlessOverrideInspectionTest extends ScalaQuickFixTestBa
   }
 
   def test_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("JBase.java",
+    myFixture.configureByText("JBase.java",
       """
         |public class JBase {
         |    public int foo() { return 0; }

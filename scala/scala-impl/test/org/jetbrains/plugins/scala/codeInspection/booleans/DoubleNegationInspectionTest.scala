@@ -3,13 +3,13 @@ package codeInspection.booleans
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 /**
  * Nikolay.Tropin
  * 4/24/13
  */
-class DoubleNegationInspectionTest extends ScalaQuickFixTestBase {
+class DoubleNegationInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[DoubleNegationInspection]
   override protected val description: String = "Double negation"

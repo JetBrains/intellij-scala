@@ -6,13 +6,17 @@ import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.util.ui.UIUtil
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.util.TemplateTesting
 import org.junit.Assert._
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TemplateTesting {
+abstract class ScalaLiveTemplateTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+
+  override def setUp(): Unit = {
+    super.setUp()
+    TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
+  }
 
   protected def templateName: String
 

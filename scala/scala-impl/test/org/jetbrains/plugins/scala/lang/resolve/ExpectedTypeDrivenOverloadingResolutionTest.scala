@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.junit.Assert
 
-class ExpectedTypeDrivenOverloadingResolutionTest
-  extends ScalaLightCodeInsightFixtureTestAdapter
-  with SimpleResolveTestBase {
+class ExpectedTypeDrivenOverloadingResolutionTest extends SimpleResolveTestBase {
+
   import SimpleResolveTestBase._
 
   def testSCL16251(): Unit = {

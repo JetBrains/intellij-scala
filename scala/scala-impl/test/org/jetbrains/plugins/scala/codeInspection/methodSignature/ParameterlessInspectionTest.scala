@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class ParameterlessInspectionTest extends ScalaQuickFixTestBase {
+class ParameterlessInspectionTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[UnitMethodInspection.Parameterless]
 

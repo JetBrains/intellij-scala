@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+class OverloadedEtaExpansionResolveTest extends SimpleResolveTestBase {
 
-class OverloadedEtaExpansionResolveTest
-    extends ScalaLightCodeInsightFixtureTestAdapter
-    with SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   def testFunctionMap(): Unit = doResolveTest(

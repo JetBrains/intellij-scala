@@ -5,7 +5,7 @@ package typeAnnotation
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
 
-abstract class TypeAnnotationInspectionTest extends ScalaQuickFixTestBase {
+abstract class TypeAnnotationInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[TypeAnnotationInspection]

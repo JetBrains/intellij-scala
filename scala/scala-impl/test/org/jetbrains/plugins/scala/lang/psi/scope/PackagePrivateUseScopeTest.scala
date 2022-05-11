@@ -14,10 +14,10 @@ class PackagePrivateUseScopeTest extends ScalaLightCodeInsightFixtureTestAdapter
   override def getTestDataPath = super.getTestDataPath + "/useScope/privatePackage"
 
   private def doTestPackagePrivateDefinition[Named <: PsiNamedElement : ClassTag](elementName: String): Unit = {
-    val currentFile  = getFixture.configureByFile("foo/Definitions.scala")
-    val samePackage  = getFixture.configureByFile("foo/SamePackage.scala")
-    val innerPackage = getFixture.configureByFile("foo/bar/InnerPackage.scala")
-    val otherPackage = getFixture.configureByFile("baz/OtherPackage.scala")
+    val currentFile  = myFixture.configureByFile("foo/Definitions.scala")
+    val samePackage  = myFixture.configureByFile("foo/SamePackage.scala")
+    val innerPackage = myFixture.configureByFile("foo/bar/InnerPackage.scala")
+    val otherPackage = myFixture.configureByFile("baz/OtherPackage.scala")
 
     val definition = findByName[Named](currentFile, elementName)
     assertScopeContains(definition, currentFile, samePackage, innerPackage)
@@ -25,8 +25,8 @@ class PackagePrivateUseScopeTest extends ScalaLightCodeInsightFixtureTestAdapter
   }
 
   private def checkEscapePackagePrivateScope[Named <: PsiNamedElement : ClassTag](elementName: String): Unit = {
-    val currentFile  = getFixture.configureByFile("foo/Definitions.scala")
-    val otherPackage = getFixture.configureByFile("baz/OtherPackage.scala")
+    val currentFile  = myFixture.configureByFile("foo/Definitions.scala")
+    val otherPackage = myFixture.configureByFile("baz/OtherPackage.scala")
 
     val definition = findByName[Named](currentFile, elementName)
     assertScopeContains(definition, currentFile, otherPackage)

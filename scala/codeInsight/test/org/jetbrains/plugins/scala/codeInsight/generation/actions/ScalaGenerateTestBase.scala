@@ -33,7 +33,7 @@ abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTe
     if (checkCaretOffset) {
       assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
     }
-    getFixture.checkResult(expected, stripTrailingSpaces)
+    myFixture.checkResult(expected, stripTrailingSpaces)
   }
 
   protected final def checkIsNotAvailable(text: String): Unit = {
@@ -44,7 +44,7 @@ abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTe
   private def configureByText(text: String, stripTrailingSpaces: Boolean): Unit = {
     val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces)
 
-    getFixture.configureByText("dummy.scala", normalizedText)
+    myFixture.configureByText("dummy.scala", normalizedText)
     getEditor.getCaretModel.moveToOffset(offset)
   }
 

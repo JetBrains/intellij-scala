@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.SAM.ConvertExpressionToSAMInspection
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
   * Author: Svyatoslav Ilinskiy
   * Date: 6/30/15
   */
-class ConvertExpressionToSAMInspectionTest extends ScalaQuickFixTestBase {
+class ConvertExpressionToSAMInspectionTest extends ScalaInspectionTestBase {
 
   // todo: fix for versions >= 2.12
   override protected def defaultVersionOverride: Option[ScalaVersion] = Some(LatestScalaVersions.Scala_2_11)

@@ -1,13 +1,12 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
-trait SbtDocumentationProviderCommonTests {
-  self: SbtDocumentationProviderTestBase =>
+abstract class SbtDocumentationProviderCommonTests extends SbtDocumentationProviderTestBase {
 
   def testSbtDescriptionShouldBeWrappedInDefaultScaladocTemplate(): Unit =
     doGenerateDocTest(
       s"""val ${CARET}someKey = SettingKey[Int]("some-key", "This is description for some-key")""",
       s"""<html>
-         |${DocHtmlHead(self.getFixture.getFile)}
+         |${DocHtmlHead(myFixture.getFile)}
          |$BodyStart
          |${DefinitionStart}val <b>someKey</b>: <a href="psi_element://sbt.SettingKey"><code>SettingKey</code></a>[<a href="psi_element://scala.Int"><code>Int</code></a>]$DefinitionEnd
          |$ContentStart

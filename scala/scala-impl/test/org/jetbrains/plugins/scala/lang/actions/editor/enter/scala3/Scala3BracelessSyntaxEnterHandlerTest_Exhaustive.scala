@@ -251,10 +251,7 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
 }
 
 @RunWith(classOf[AllTests])
-class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(testData: TestData)
-  extends Scala3EnterBaseTest
-    with CheckIndentAfterTypingCodeOps
-    with DoEditorStateTestOps{
+class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(testData: TestData) extends DoEditorStateTestOps {
 
   private implicit def p: Project = getProject
 
@@ -271,10 +268,10 @@ class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(testData: TestData)
   override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
     testData match {
       case TestData.ExplicitEditorStates(editorStates) =>
-        doEditorStateTest(editorStates)
+        doEditorStateTest(myFixture, editorStates)
 
       case TestData.Generated(contextCode, codeToType) =>
-        checkIndentAfterTypingCode(contextCode, codeToType)
+        checkIndentAfterTypingCode(contextCode, codeToType, myFixture)
     }
   }
 }

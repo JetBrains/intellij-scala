@@ -158,7 +158,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
       """
     complete(fileText)
 
-    getFixture.finishLookup(Lookup.REPLACE_SELECT_CHAR)
+    myFixture.finishLookup(Lookup.REPLACE_SELECT_CHAR)
 
     val expectedFileText =
       """
@@ -298,11 +298,10 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
   private def complete(fileText: String): Array[LookupElement] = {
     val file = configureFromFileText(fileText).getVirtualFile
 
-    val fixture = getFixture
-    fixture.openFileInEditor(file)
-    fixture.doHighlighting(HighlightSeverity.ERROR)
+    myFixture.openFileInEditor(file)
+    myFixture.doHighlighting(HighlightSeverity.ERROR)
 
-    fixture.completeBasic()
+    myFixture.completeBasic()
   }
 
   private def doTest(fileText: String, expected: String*): Unit = {

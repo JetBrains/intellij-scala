@@ -13,7 +13,7 @@ abstract class ScalaDeprecationInspectionTestBase extends ScalaInspectionTestBas
 
 class ScalaDeprecationInspectionTest extends ScalaDeprecationInspectionTestBase {
 
-  private def addJavaClass(@Language("JAVA") text: String): Unit = getFixture.addClass(text)
+  private def addJavaClass(@Language("JAVA") text: String): Unit = myFixture.addClass(text)
 
   def testDeprecatedImport(): Unit = {
     val code =

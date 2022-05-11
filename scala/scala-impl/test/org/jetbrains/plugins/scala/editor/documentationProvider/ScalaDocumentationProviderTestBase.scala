@@ -9,5 +9,5 @@ abstract class ScalaDocumentationProviderTestBase extends DocumentationProviderT
   override protected def documentationProvider = new ScalaDocumentationProvider
 
   override protected def createFile(fileContent: String): PsiFile =
-    getFixture.configureByText(ScalaFileType.INSTANCE, fileContent)
+    myFixture.configureByText(ScalaFileType.INSTANCE, fileContent)
 }

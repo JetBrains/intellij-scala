@@ -2,13 +2,18 @@ package org.jetbrains.plugins.scala.refactoring.spellCorrection
 
 import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupManager}
+import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.spellchecker.inspections.SpellCheckingInspection
 import com.intellij.spellchecker.quickfixes.RenameTo
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.util.TemplateTesting
 
-abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TemplateTesting {
+abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   val NAME = "/*NAME*/"
+
+  override def setUp(): Unit = {
+    super.setUp()
+    TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
+  }
 
   def doTest(context: String, originalWord: String, fileExt: String = "scala")(expectedWords: String*): Unit = {
 
@@ -17,7 +22,7 @@ abstract class SpellCorrectionTestBase extends ScalaLightCodeInsightFixtureTestA
 
     myFixture.configureByText("dummy." + fileExt, original)
     myFixture.enableInspections(classOf[SpellCheckingInspection])
-    val fix = getFixture.findSingleIntention(RenameTo.getFixName);
+    val fix = myFixture.findSingleIntention(RenameTo.getFixName);
     myFixture.launchAction(fix)
     selectAndCheckLookupElements(expectedWords)
     myFixture.checkResult(expected)

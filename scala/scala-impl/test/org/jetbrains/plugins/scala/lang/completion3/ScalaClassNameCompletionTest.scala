@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 /**
@@ -181,7 +182,7 @@ class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
   )
 
   def testJavaClassLocation(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         "public class Foo",
       className = "Foo"

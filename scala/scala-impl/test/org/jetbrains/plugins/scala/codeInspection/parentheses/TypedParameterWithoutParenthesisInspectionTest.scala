@@ -9,7 +9,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection
 import org.jetbrains.plugins.scala.extensions._
 
-class TypedParameterWithoutParenthesisInspectionTest extends ScalaQuickFixTestBase with ForceInspectionSeverity {
+class TypedParameterWithoutParenthesisInspectionTest extends InspectionSeverityForcingScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =

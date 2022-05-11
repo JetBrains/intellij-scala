@@ -4,7 +4,7 @@ package base
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsightTestFixture}
+import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
 /**
@@ -17,8 +17,6 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
   protected val CARET = EditorTestUtil.CARET_TAG
 
   protected val includeCompilerAsLibrary: Boolean = false
-
-  def getFixture: CodeInsightTestFixture = myFixture
 
   protected final implicit def projectContext: Project = getProject
 

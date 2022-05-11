@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class ScalaDocUnbalancedHeaderInspection2Test extends ScalaQuickFixTestBase {
+class ScalaDocUnbalancedHeaderInspection2Test extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocUnbalancedHeaderInspection]
   override protected val description = "All text from header closing tag to end of line will be lost"

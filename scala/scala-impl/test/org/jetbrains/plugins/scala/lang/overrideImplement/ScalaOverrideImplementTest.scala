@@ -29,7 +29,7 @@ abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsight
                         fileName: String = "dummy.scala"): Unit = {
     implicit val project: Project = getProject
 
-    getFixture.configureByText(fileName, convertLineSeparators(fileText))
+    myFixture.configureByText(fileName, convertLineSeparators(fileText))
 
     val oldSettings = prepareSettings(settings)
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(project).defaultProfile
@@ -43,7 +43,7 @@ abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsight
     invokeOverrideImplement(getFile, isImplement, methodName)
 
     rollbackSettings(oldSettings)
-    getFixture.checkResult(convertLineSeparators(expectedText))
+    myFixture.checkResult(convertLineSeparators(expectedText))
   }
 
   protected def prepareSettings(newSettings: ScalaCodeStyleSettings)(implicit project: Project): ScalaCodeStyleSettings = {
