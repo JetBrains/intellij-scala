@@ -17,7 +17,6 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
-import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -32,7 +31,6 @@ import scala.jdk.CollectionConverters._
 abstract class ScalaLightCodeInsightFixtureTestAdapter
   extends LightJavaCodeInsightFixtureTestCase
     with ScalaSdkOwner
-    with TestFixtureProvider
     with FailableTest {
 
   import ScalaLightCodeInsightFixtureTestAdapter._
@@ -44,7 +42,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def sourceRootPath: String = null
 
-  override final def getFixture: JavaCodeInsightTestFixture = myFixture
+  def getFixture: JavaCodeInsightTestFixture = myFixture
 
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"
 

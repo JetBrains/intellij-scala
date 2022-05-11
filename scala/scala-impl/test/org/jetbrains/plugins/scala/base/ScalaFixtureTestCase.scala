@@ -8,17 +8,17 @@ import com.intellij.testFramework.fixtures.{CodeInsightFixtureTestCase, CodeInsi
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 03.08.2009
-  */
+ * User: Alexander Podkhalyuzin
+ * Date: 03.08.2009
+ */
 
-abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner with TestFixtureProvider {
+abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner {
 
   protected val CARET = EditorTestUtil.CARET_TAG
 
   protected val includeCompilerAsLibrary: Boolean = false
 
-  override final def getFixture: CodeInsightTestFixture = myFixture
+  def getFixture: CodeInsightTestFixture = myFixture
 
   protected final implicit def projectContext: Project = getProject
 

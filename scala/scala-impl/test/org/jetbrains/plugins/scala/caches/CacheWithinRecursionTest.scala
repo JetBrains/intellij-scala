@@ -2,10 +2,14 @@ package org.jetbrains.plugins.scala
 package caches
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter with CacheTestUtils  with AssertionMatchers { self =>
-  import self.{CachedRecursiveFunction => Func}
+class CacheWithinRecursionTest extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
+
+  import org.jetbrains.plugins.scala.caches.{CachedRecursiveFunction => Func}
+
+  implicit def projectContext: ProjectContext = getProject
 
   def test_simple(): Unit = {
     val a = Func("a")
