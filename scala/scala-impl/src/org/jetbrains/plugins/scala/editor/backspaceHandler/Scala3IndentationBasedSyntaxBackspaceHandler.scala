@@ -55,8 +55,6 @@ class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDeleg
       case sf: ScalaFile => sf
       case _ => return
     }
-    if (!scalaFile.isScala3File)
-      return
 
     if (!scalaFile.useIndentationBasedSyntax)
       return

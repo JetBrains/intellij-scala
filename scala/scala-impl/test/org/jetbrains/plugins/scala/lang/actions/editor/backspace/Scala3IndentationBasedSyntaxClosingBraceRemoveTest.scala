@@ -2133,6 +2133,32 @@ class Scala3IndentationBasedSyntaxClosingBraceRemoveTest extends ScalaBackspaceH
     withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
   }
 
+  def testNotRemove_IfElse_Nested_Oneline_5(): Unit = {
+    val before =
+      s"""if (true) {${|}1}   else 2
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}1 else 2
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}1}   else 2
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
+  def testNotRemove_IfElse_Nested_Oneline_6(): Unit = {
+    val before =
+      s"""if (true) {${|}1  }   else 2
+         |""".stripMargin
+    val afterWithEnabled =
+      s"""if (true) ${|}1  else 2
+         |""".stripMargin
+    val afterWithDisabled =
+      s"""if (true) ${|}1  }   else 2
+         |""".stripMargin
+    withEnabledAndDisabled(before, afterWithEnabled, afterWithDisabled)
+  }
+
   def testRemove_IfElse_Nested_Oneline(): Unit = {
     val before =
       s"""if (true) {${|} if (false)

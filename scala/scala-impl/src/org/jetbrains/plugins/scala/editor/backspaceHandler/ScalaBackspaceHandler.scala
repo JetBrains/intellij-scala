@@ -168,7 +168,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     if (correctClosingBraceSelected(statements, parent, rBrace, tabSize))
       statements.isEmpty ||
         hasCorrectIndentationInside(statements, parent, tabSize) &&
-        hasCorrectIndentationOutside(parent, rBrace, tabSize) &&
+        hasCorrectIndentationOutside(statements, parent, rBrace, tabSize) &&
         firstStatementDoesNotBreakIndentation(statements, lBrace, rBrace) &&
         lastElementDoesNotBreakIndentation(rBrace)
     else
@@ -209,7 +209,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
    *   2
    * }}}
    */
-  private def hasCorrectIndentationOutside(parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
+  private def hasCorrectIndentationOutside(statements: Seq[ScBlockStatement], parent: PsiElement, rBrace: PsiElement, tabSize: Int): Boolean = {
     val nextLeaf = rBrace.nextVisibleLeaf(skipComments = true)
     if (nextLeaf.isEmpty)
       true
@@ -218,21 +218,8 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     else
       // if the next keyword continues the current statement, e.g. else after an if-block
       // delete the closing brace because the next keyword is automatically reformatted
-      rBrace.startsFromNewLine() && continuesCompoundStatement(nextLeaf.get)
-  }
-
-  /**
-   * Don't remove closing brace if the last keyword signals that the following statement should be counted towards the block
-   * {{{
-   * def foo() = {<CARET>
-   *   if false then
-   * }
-   * 1
-   * }}}
-   */
-  private def lastElementDoesNotBreakIndentation(rBrace: PsiElement): Boolean = {
-    val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exists
-    outdentedRegionCanStart(lastLeaf)
+      continuesCompoundStatement(nextLeaf.get) &&
+        (rBrace.startsFromNewLine() || lastStatementDoesNotBreakSemantics(statements.last, rBrace))
   }
 
   /**
@@ -251,9 +238,24 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
       }
 
   /**
-   *
-   *
-   *
+   * Don't remove closing brace if the last keyword signals that the following statement should be counted towards the block
+   * {{{
+   * def foo() = {<CARET>
+   *   if false then
+   * }
+   * 1
+   * }}}
+   */
+  private def lastElementDoesNotBreakIndentation(rBrace: PsiElement): Boolean = {
+    val lastLeaf = rBrace.prevVisibleLeaf(skipComments = true).get // never empty because lBrace exists
+    outdentedRegionCanStart(lastLeaf)
+  }
+
+  /**
+   * Utility function for recognizing one-line blocks where braces can be removed
+   * {{{
+   * def foo = {print(1)}
+   * }}}
    */
   private def isOneLineOneStatementBlock(statements: Seq[ScBlockStatement]) =
     statements.size == 1 && !statements.head.startsFromNewLine() && {
@@ -302,6 +304,11 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             case _ => brace.startOffset
           }
           (start, brace.endOffset)
+        } else if (!brace.prevLeaf.exists(_.isWhitespace)) {
+          // leave a space for one-line statements
+          // e.g.: if (true) {1}    else 2 ==> if (true) 1 else 2
+          // instead of: if (true) {1}    else 2 ==> if (true) 1else 2
+          (brace.startOffset, ws.endOffset - 1)
         } else {
           (brace.startOffset, ws.endOffset)
         }
