@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.testingSupport.test.scalatest
+package org.jetbrains.plugins.scala.testingSupport.scalatest
 
 import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, TestScalaProjectSettings}
+import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestTestFramework
 import org.junit.Assert
 
 import scala.annotation.nowarn

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test
+package org.jetbrains.plugins.scala.testingSupport
 
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.impl.{DefaultJavaProgramRunner, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
@@ -13,6 +13,7 @@ import com.intellij.testFramework.HeavyPlatformTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
+import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestConfigurationType, ScalaTestRunConfiguration}
 import org.jetbrains.sbt.project.data.ModuleNode
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
