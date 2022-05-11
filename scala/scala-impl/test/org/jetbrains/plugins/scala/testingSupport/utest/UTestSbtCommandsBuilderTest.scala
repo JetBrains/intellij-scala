@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.testingSupport.test.utest
+package org.jetbrains.plugins.scala.testingSupport.utest
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestSbtTestRunningSupport.UTestSbtCommandsBuilder
