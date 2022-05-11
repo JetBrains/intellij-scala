@@ -11,6 +11,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
@@ -47,6 +48,8 @@ private[evaluation] final class LambdaExpressionEvaluator private(className: Str
 private[evaluation] object LambdaExpressionEvaluator {
   private[this] val counter: AtomicInteger = new AtomicInteger(0)
 
+  private[this] val captureCounter: AtomicInteger = new AtomicInteger(0)
+
   def fromFunctionExpression(fun: ScFunctionExpr, psiContext: PsiElement): LambdaExpressionEvaluator = {
     val count = counter.incrementAndGet()
     val className = s"DebuggerLambdaExpression$$$count"
@@ -56,28 +59,45 @@ private[evaluation] object LambdaExpressionEvaluator {
     val expr = fun.result.get
     val retType = expr.`type`().getOrAny.canonicalText
 
-    val calc = calculateClassParams(expr)
+    val (rewritten, calc) = calculateClassParams(expr)
     val classParams = calc.map(_._1).mkString(", ")
 
     val classText =
       s"""class $className($classParams) extends ($funType) {
          |  override def apply($params): $retType = {
-         |    ${expr.getText}
+         |    ${rewritten.getText}
          |  }
+         |
+         |  private def invokeMethod(instance: Any, methodName: String): Any = ???
+         |
+         |  private def readField(instance: Any, fieldName: String): Any = ???
          |}
          |""".stripMargin.trim
 
     new LambdaExpressionEvaluator(className, classText, calc.map(_._2), psiContext)
   }
 
-  private def calculateClassParams(expression: ScExpression): Seq[(String, Evaluator)] = expression match {
+  private def calculateClassParams(expression: ScExpression): (ScExpression, Seq[(String, Evaluator)]) = expression match {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
-        case InEvaluationExpression() => Seq.empty
+        case InEvaluationExpression() => (expression, Seq.empty)
         case ExpressionEvaluatorBuilder.LocalVariable(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
-          Seq((param, eval))
+          (expression, Seq((param, eval)))
+        case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, containingClass, jvmName, typeFilter) =>
+          val eval = new StackWalkingThisEvaluator(jvmName, typeFilter)
+          val count = captureCounter.incrementAndGet()
+          val param = s"$$this$$$count: ${containingClass.getQualifiedName}"
+          val copy = expression.copy().asInstanceOf[ScExpression]
+          val rewritten = typeFilter match {
+            case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
+              createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
+            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
+              createExpressionWithContextFromText(s"""invokeMethod($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
+          }
+          val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
+          (replaced, Seq((param, eval)))
       }
   }
 
