@@ -304,7 +304,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
             case _ => brace.startOffset
           }
           (start, brace.endOffset)
-        } else if (!brace.startsFromNewLine()) {
+        } else if (!brace.prevLeaf.exists(_.isWhitespace)) {
           // leave a space for one-line statements
           // e.g.: if (true) {1}    else 2 ==> if (true) 1 else 2
           // instead of: if (true) {1}    else 2 ==> if (true) 1else 2
