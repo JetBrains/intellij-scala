@@ -91,7 +91,9 @@ private[evaluation] object LambdaExpressionEvaluator {
           val typeFilter = StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
           val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
           val count = captureCounter.incrementAndGet()
-          val param = s"$$this$$$count: ${containingClass.getQualifiedName}"
+          val qualifiedName = containingClass.getQualifiedName
+          val tpeName = if (qualifiedName.endsWith("$")) s"${qualifiedName.substring(0, qualifiedName.length - 1)}.type" else qualifiedName
+          val param = s"$$this$$$count: $tpeName"
           val copy = expression.copy().asInstanceOf[ScExpression]
           val rewritten =
             createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
@@ -108,7 +110,9 @@ private[evaluation] object LambdaExpressionEvaluator {
         case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, containingClass, jvmName, typeFilter) =>
           val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
           val count = captureCounter.incrementAndGet()
-          val param = s"$$this$$$count: ${containingClass.getQualifiedName}"
+          val qualifiedName = containingClass.getQualifiedName
+          val tpeName = if (qualifiedName.endsWith("$")) s"${qualifiedName.substring(0, qualifiedName.length - 1)}.type" else qualifiedName
+          val param = s"$$this$$$count: $tpeName"
           val copy = expression.copy().asInstanceOf[ScExpression]
           val rewritten = typeFilter match {
             case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
