@@ -56,6 +56,7 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
         val name = f.name()
         (name ne null) && name.startsWith("$outer") && f.isFinal && f.isSynthetic && !f.isStatic
       }.map(ref.getValue(_).asInstanceOf[ObjectReference]) match {
+        case Some(null) => None
         case Some(ref) => followOuterChain(ref, debugProcess)
         case None => None
       }

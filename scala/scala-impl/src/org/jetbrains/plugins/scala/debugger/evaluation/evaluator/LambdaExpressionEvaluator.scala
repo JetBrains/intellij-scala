@@ -11,6 +11,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
 import java.nio.file.Files
@@ -81,6 +82,21 @@ private[evaluation] object LambdaExpressionEvaluator {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
         case InEvaluationExpression() => (expression, Seq.empty)
+        case cp: ScClassParameter if ExpressionEvaluatorBuilder.inPrimaryConstructor(cp) =>
+          val ExpressionEvaluatorBuilder.ClassParameterInConstructor(name, tpe, scope) = cp
+          val eval = new LocalVariableEvaluator(name, scope)
+          val param = s"$name: ${tpe.canonicalText}"
+          (expression, Seq((param, eval)))
+        case ExpressionEvaluatorBuilder.ClassMemberClassParameter(name, tpe, containingClass, jvmName) =>
+          val typeFilter = StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
+          val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
+          val count = captureCounter.incrementAndGet()
+          val param = s"$$this$$$count: ${containingClass.getQualifiedName}"
+          val copy = expression.copy().asInstanceOf[ScExpression]
+          val rewritten =
+            createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
+          val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
+          (replaced, Seq((param, eval)))
         case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"

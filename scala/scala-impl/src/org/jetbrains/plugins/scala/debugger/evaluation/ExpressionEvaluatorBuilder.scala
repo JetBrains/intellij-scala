@@ -10,10 +10,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -41,6 +41,13 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
       new MethodEvaluator(new ThisEvaluator(), null, name, null, params.toArray)
     case ref: ScReferenceExpression =>
       ref.resolve() match {
+        case cp: ScClassParameter if inPrimaryConstructor(position.getElementAt) =>
+          val ClassParameterInConstructor(name, _, scope) = cp
+          new LocalVariableEvaluator(name, scope)
+        case ClassMemberClassParameter(name, tpe, _, jvmName) =>
+          val typeFilter = StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
+          val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
+          new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
         case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case ClassMemberVariable(name, tpe, _, jvmName, typeFilter) =>
@@ -113,5 +120,35 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             case _: ScFunctionExpr => Some("anonfun")
           }.map(name => (p.name, p.`type`().getOrAny, name))
         }
+  }
+
+  private[evaluation] def inPrimaryConstructor(element: PsiElement): Boolean =
+    element.parentOfType(Seq(classOf[ScTemplateBody], classOf[ScMember])).exists {
+      case _: ScTemplateBody => true
+      case _: ScMember => false
+    }
+
+  private[evaluation] object ClassParameterInConstructor {
+    def unapply(cp: ScClassParameter): Some[(String, ScType, String)] = Some((cp.name, cp.`type`().getOrAny, "<init>"))
+  }
+
+  private[evaluation] object ClassMemberClassParameter {
+    def unapply(cp: ScClassParameter): Some[(String, ScType, PsiClass, JVMName)] = {
+      val name = cp.name
+
+      val containingClass = cp.containingClass match {
+        case td: ScNewTemplateDefinition => td.supers.head
+        case c => c
+      }
+
+      val jvmName = containingClass match {
+        case o: ScObject => JVMNameUtil.getJVMRawText(s"${o.getQualifiedNameForDebugger}$$")
+        case c: ScClass => JVMNameUtil.getJVMRawText(c.getQualifiedNameForDebugger)
+        case t: ScTrait => JVMNameUtil.getJVMRawText(t.getQualifiedNameForDebugger)
+        case c => JVMNameUtil.getJVMQualifiedName(c)
+      }
+
+      Some((name, cp.`type`().getOrAny, containingClass, jvmName))
+    }
   }
 }
