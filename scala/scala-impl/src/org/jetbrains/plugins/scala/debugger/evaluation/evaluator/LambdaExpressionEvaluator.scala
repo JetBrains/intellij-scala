@@ -3,6 +3,7 @@ package debugger
 package evaluation
 package evaluator
 
+import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.JVMNameUtil
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
@@ -10,14 +11,16 @@ import com.intellij.debugger.impl.ClassLoadingUtils
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMatch, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
+import org.jetbrains.plugins.scala.extensions._
 
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
 
-private[evaluation] final class LambdaExpressionEvaluator private(className: String, classText: String, classParams: Seq[Evaluator], psiContext: PsiElement) extends Evaluator {
+private[evaluation] final class LambdaExpressionEvaluator private(className: String, classText: String, classParams: Seq[Evaluator], position: SourcePosition) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val process = context.getDebugProcess
     val project = context.getProject
@@ -30,7 +33,7 @@ private[evaluation] final class LambdaExpressionEvaluator private(className: Str
       ScalaEvaluatorCompileHelper.instance(project)
     }
 
-    val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(psiContext))
+    val module = inReadAction(ModuleUtilCore.findModuleForPsiElement(position.getElementAt))
     val compiled = helper.compile(classText, module).filter(_._1.getName.endsWith(s"$className.class"))
 
     compiled.foreach { case (file, name) =>
@@ -51,7 +54,7 @@ private[evaluation] object LambdaExpressionEvaluator {
 
   private[this] val captureCounter: AtomicInteger = new AtomicInteger(0)
 
-  def fromFunctionExpression(fun: ScFunctionExpr, psiContext: PsiElement): LambdaExpressionEvaluator = {
+  def fromFunctionExpression(fun: ScFunctionExpr, position: SourcePosition): LambdaExpressionEvaluator = {
     val count = counter.incrementAndGet()
     val className = s"DebuggerLambdaExpression$$$count"
 
@@ -60,7 +63,7 @@ private[evaluation] object LambdaExpressionEvaluator {
     val expr = fun.result.get
     val retType = expr.`type`().getOrAny.canonicalText
 
-    val (rewritten, calc) = calculateClassParams(expr)
+    val (rewritten, calc) = calculateClassParams(expr, position)
     val classParams = calc.map(_._1).mkString(", ")
 
     val classText =
@@ -75,10 +78,10 @@ private[evaluation] object LambdaExpressionEvaluator {
          |}
          |""".stripMargin.trim
 
-    new LambdaExpressionEvaluator(className, classText, calc.map(_._2), psiContext)
+    new LambdaExpressionEvaluator(className, classText, calc.map(_._2), position)
   }
 
-  private def calculateClassParams(expression: ScExpression): (ScExpression, Seq[(String, Evaluator)]) = expression match {
+  private def calculateClassParams(expression: ScExpression, position: SourcePosition): (ScExpression, Seq[(String, Evaluator)]) = expression match {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
         case InEvaluationExpression() => (expression, Seq.empty)
@@ -102,6 +105,15 @@ private[evaluation] object LambdaExpressionEvaluator {
         case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
+          (expression, Seq((param, eval)))
+        case ExpressionEvaluatorBuilder.TypedPatternInPartialFunction(name, tpe, scope) =>
+          val eval = new LocalVariableEvaluator(name, scope)
+          val param = s"$name: ${tpe.canonicalText}"
+          (expression, Seq((param, eval)))
+        case tp: ScTypedPattern =>
+          val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
+          val eval = ExpressionEvaluatorBuilder.buildEvaluator(expr, position)
+          val param = s"${tp.name}: ${tp.`type`().getOrAny.canonicalText}"
           (expression, Seq((param, eval)))
         case ExpressionEvaluatorBuilder.LocalVariable(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)

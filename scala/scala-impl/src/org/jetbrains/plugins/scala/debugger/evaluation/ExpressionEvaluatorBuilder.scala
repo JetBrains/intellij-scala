@@ -7,7 +7,7 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -25,8 +25,8 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     new ExpressionEvaluatorImpl(buildEvaluator(element, position))
   }
 
-  private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
-    case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position.getElementAt)
+  private[evaluation] def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
+    case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position)
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
     case ref: ScThisReference =>
       ref.refTemplate.collect {
@@ -49,6 +49,10 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
           val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
           new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
         case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
+        case TypedPatternInPartialFunction(name, _, scope) => new LocalVariableEvaluator(name, scope)
+        case tp: ScTypedPattern =>
+          val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
+          buildEvaluator(expr, position)
         case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case ClassMemberVariable(name, tpe, _, jvmName, typeFilter) =>
           val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
@@ -150,5 +154,16 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
       Some((name, cp.`type`().getOrAny, containingClass, jvmName))
     }
+  }
+
+  private[evaluation] object TypedPatternInPartialFunction {
+    def unapply(element: PsiElement): Option[(String, ScType, String)] =
+      Option(element)
+        .collect { case tp: ScTypedPattern => tp }
+        .flatMap { tp =>
+          tp.parentOfType[ScBlockExpr]
+            .filter(_.isPartialFunction)
+            .map(_ => ("x", tp.`type`().getOrAny, "applyOrElse"))
+        }
   }
 }
