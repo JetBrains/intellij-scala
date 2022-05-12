@@ -33,7 +33,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case o: ScObject => s"${o.getQualifiedNameForDebugger}$$"
         case c: ScClass => c.getQualifiedNameForDebugger
         case t: ScTrait => t.getQualifiedNameForDebugger
-      }.map(JVMNameUtil.getJVMRawText).fold[Evaluator](new ThisEvaluator())(name => new StackWalkingThisEvaluator(name, StackWalkingThisEvaluator.TypeFilter.Any))
+      }.map(JVMNameUtil.getJVMRawText).fold[Evaluator](new ThisEvaluator())(name => new StackWalkingThisEvaluator(name, None))
     case call: ScMethodCall =>
       val params = call.matchedParameters.map(_._1).map(buildEvaluator(_, position))
       val resolved = call.getInvokedExpr.asInstanceOf[ScReferenceExpression].resolve().asInstanceOf[ScFunctionDefinition]
@@ -44,11 +44,11 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case ClassMemberVariable(name, tpe, _, jvmName, typeFilter) =>
-          val instance = new StackWalkingThisEvaluator(jvmName, typeFilter)
+          val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
           typeFilter match {
             case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
               new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-            case _ =>
+            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
               new MethodEvaluator(instance, null, name, null, Array.empty)
           }
       }

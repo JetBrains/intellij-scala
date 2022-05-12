@@ -12,7 +12,7 @@ import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typeFilter: TypeFilter) extends Evaluator {
+private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typeFilter: Option[TypeFilter]) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val frameProxy = context.getFrameProxy
     val threadProxy = frameProxy.threadProxy()
@@ -39,12 +39,12 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
 
   private def filterType(tpe: ReferenceType, debugProcess: DebugProcessImpl): Boolean =
     DebuggerUtils.instanceOf(tpe, typeName.getName(debugProcess)) && (typeFilter match {
-      case TypeFilter.ContainsField(name) => tpe.fields().asScala.exists { f =>
+      case Some(TypeFilter.ContainsField(name)) => tpe.fields().asScala.exists { f =>
         val fieldName = f.name()
         (fieldName ne null) && (fieldName == name || fieldName.endsWith(s"$$$$$name"))
       }
-      case TypeFilter.ContainsMethod(name) => tpe.methods().asScala.exists(_.name() == name)
-      case TypeFilter.Any => true
+      case Some(TypeFilter.ContainsMethod(name)) => tpe.methods().asScala.exists(_.name() == name)
+      case None => true
     })
 
   @tailrec
@@ -68,6 +68,5 @@ private[evaluation] object StackWalkingThisEvaluator {
   object TypeFilter {
     final case class ContainsMethod(name: String) extends TypeFilter
     final case class ContainsField(name: String) extends TypeFilter
-    case object Any extends TypeFilter
   }
 }

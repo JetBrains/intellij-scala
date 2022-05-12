@@ -90,14 +90,14 @@ private[evaluation] object LambdaExpressionEvaluator {
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
         case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, containingClass, jvmName, typeFilter) =>
-          val eval = new StackWalkingThisEvaluator(jvmName, typeFilter)
+          val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
           val count = captureCounter.incrementAndGet()
           val param = s"$$this$$$count: ${containingClass.getQualifiedName}"
           val copy = expression.copy().asInstanceOf[ScExpression]
           val rewritten = typeFilter match {
             case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
               createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
-            case _ =>
+            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
               createExpressionWithContextFromText(s"""invokeMethod($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
           }
           val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
