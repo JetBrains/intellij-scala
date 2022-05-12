@@ -103,7 +103,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         }
   }
 
-  private object FunctionParameter {
+  private[evaluation] object FunctionParameter {
     def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
         .collect { case p: ScParameter => p }

@@ -81,6 +81,10 @@ private[evaluation] object LambdaExpressionEvaluator {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
         case InEvaluationExpression() => (expression, Seq.empty)
+        case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, scope) =>
+          val eval = new LocalVariableEvaluator(name, scope)
+          val param = s"$name: ${tpe.canonicalText}"
+          (expression, Seq((param, eval)))
         case ExpressionEvaluatorBuilder.LocalVariable(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
