@@ -4,13 +4,14 @@ package unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
-import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
+import org.jdom.Element
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
+import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptions
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -30,20 +31,32 @@ import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
-import scala.beans.BeanProperty
+import javax.swing.JComponent
 import scala.jdk.CollectionConverters._
 
 class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
 
-  @BeanProperty
-  final var reportPublicDeclarationsEnabled = false
-
-  override def createOptionsPanel =
-    new SingleCheckboxOptionsPanel(
-      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
-      this,
-      "reportPublicDeclarationsEnabled"
+  private val reportPublicDeclarations =
+    InspectionOptions(
+      "reportPublicDeclarations",
+      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations")
     )
+
+  def setReportPublicDeclarationsEnabled(enabled: Boolean): Unit =
+    reportPublicDeclarations.setChecked(enabled)
+
+  override def writeSettings(node: Element): Unit = {
+    reportPublicDeclarations.writeSettings(node)
+    super.writeSettings(node)
+  }
+
+  override def readSettings(node: Element): Unit = {
+    super.readSettings(node)
+    reportPublicDeclarations.readSettings(node)
+  }
+
+  override def createOptionsPanel: JComponent =
+    reportPublicDeclarations.checkBox
 
   import ScalaUnusedDeclarationInspection._
 
@@ -61,7 +74,7 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
       referencesSearch(element)
     } else if (referencesSearch(element)) {
       true
-    } else if (!reportPublicDeclarationsEnabled) {
+    } else if (!reportPublicDeclarations.isEnabled(element)) {
       true
     } else if (checkIfEnumUsedOutsideScala(element)) {
       true
