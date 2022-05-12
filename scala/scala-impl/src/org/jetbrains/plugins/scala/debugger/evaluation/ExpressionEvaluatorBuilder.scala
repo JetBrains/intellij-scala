@@ -28,7 +28,12 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
     case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position.getElementAt)
     case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
-    case _: ScThisReference => new ThisEvaluator()
+    case ref: ScThisReference =>
+      ref.refTemplate.collect {
+        case o: ScObject => s"${o.getQualifiedNameForDebugger}$$"
+        case c: ScClass => c.getQualifiedNameForDebugger
+        case t: ScTrait => t.getQualifiedNameForDebugger
+      }.map(JVMNameUtil.getJVMRawText).fold[Evaluator](new ThisEvaluator())(name => new StackWalkingThisEvaluator(name, StackWalkingThisEvaluator.TypeFilter.Any))
     case call: ScMethodCall =>
       val params = call.matchedParameters.map(_._1).map(buildEvaluator(_, position))
       val resolved = call.getInvokedExpr.asInstanceOf[ScReferenceExpression].resolve().asInstanceOf[ScFunctionDefinition]
@@ -43,7 +48,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
           typeFilter match {
             case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
               new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
+            case _ =>
               new MethodEvaluator(instance, null, name, null, Array.empty)
           }
       }

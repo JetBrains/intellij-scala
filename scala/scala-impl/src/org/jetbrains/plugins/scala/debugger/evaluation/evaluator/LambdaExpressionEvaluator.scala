@@ -93,7 +93,7 @@ private[evaluation] object LambdaExpressionEvaluator {
           val rewritten = typeFilter match {
             case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
               createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
-            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
+            case _ =>
               createExpressionWithContextFromText(s"""invokeMethod($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
           }
           val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)

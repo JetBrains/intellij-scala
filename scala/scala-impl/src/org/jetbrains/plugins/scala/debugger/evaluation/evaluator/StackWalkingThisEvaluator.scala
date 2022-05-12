@@ -44,6 +44,7 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
         (fieldName ne null) && (fieldName == name || fieldName.endsWith(s"$$$$$name"))
       }
       case TypeFilter.ContainsMethod(name) => tpe.methods().asScala.exists(_.name() == name)
+      case TypeFilter.Any => true
     })
 
   @tailrec
@@ -67,5 +68,6 @@ private[evaluation] object StackWalkingThisEvaluator {
   object TypeFilter {
     final case class ContainsMethod(name: String) extends TypeFilter
     final case class ContainsField(name: String) extends TypeFilter
+    case object Any extends TypeFilter
   }
 }
