@@ -306,4 +306,13 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |}
        |""".stripMargin
   )
+
+  def test_private_implicit_val(): Unit = checkTextHasError(
+    s"""
+       |@scala.annotation.unused
+       |class MyClass() {
+       |  implicit private val ${START}param${END}: Boolean = false
+       |}
+       |""".stripMargin
+  )
 }
