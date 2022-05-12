@@ -41,7 +41,6 @@ object Versions {
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
-  val scalaMetaVersion = "4.4.30"
   val paradiseVersion = "3.0.0-M11"
 
   object Scala {
@@ -117,7 +116,8 @@ object Dependencies {
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"
 
   val fastparseVersion = "2.3.1"
-  val scalafmtVersion = "3.2.1"
+  val scalaMetaVersion = "4.5.5"
+  val scalafmtVersion = "3.5.3"
   val typesafeConfigVersion = "1.4.1"
   val scalafmt: Seq[ModuleID] = Seq(
     "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion,
