@@ -12,12 +12,12 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
-import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
-import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
+import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -41,6 +41,8 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   val START = EditorTestUtil.SELECTION_START_TAG
   val END = EditorTestUtil.SELECTION_END_TAG
 
+  protected def placeSourceFilesInTestContentRoot: Boolean = false
+
   protected def sourceRootPath: String = null
 
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"
@@ -55,7 +57,15 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module): Unit = setUpLibraries(module)
+
     override def getSdk: Sdk = SmartJDKLoader.getOrCreateJDK()
+
+    override def getSourceRootType: JavaSourceRootType =
+      if (placeSourceFilesInTestContentRoot) {
+        JavaSourceRootType.TEST_SOURCE
+      } else {
+        JavaSourceRootType.SOURCE
+      }
   }
 
   protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
@@ -121,6 +131,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     val caretIndex = normalizedText.indexOf(CARET)
 
     def isAroundCaret(info: HighlightInfo) = caretIndex == -1 || new TextRange(info.getStartOffset, info.getEndOffset).contains(caretIndex)
+
     val infos = myFixture.doHighlighting().asScala
 
     val warnings = infos.filter(i => StringUtil.isNotEmpty(i.getDescription) && isAroundCaret(i))
@@ -173,7 +184,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   ): Unit = {
     if (expectedCarets.nonEmpty) {
       val expected0 = patchTextWithCarets(expectedText, expectedCarets)
-      val expected= if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
+      val expected = if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
       val actual = patchTextWithCarets(actualText, actualCarets)
       assertEquals(expected, actual)
     }
@@ -239,8 +250,8 @@ object ScalaLightCodeInsightFixtureTestAdapter {
     val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
     caretOffsets match {
       case Seq(caretIdx) => (textActual, caretIdx)
-      case Seq()         => (textActual, -1)
-      case _             => fail(s"single caret expected but found: ${caretOffsets.size}").asInstanceOf[Nothing]
+      case Seq() => (textActual, -1)
+      case _ => fail(s"single caret expected but found: ${caretOffsets.size}").asInstanceOf[Nothing]
     }
   }
 
