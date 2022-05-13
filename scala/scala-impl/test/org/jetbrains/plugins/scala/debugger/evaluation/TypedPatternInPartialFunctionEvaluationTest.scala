@@ -46,4 +46,42 @@ abstract class TypedPatternInPartialFunctionEvaluationTestBase extends Expressio
   def testPartialFunctionCase(): Unit = expressionEvaluationTest() { implicit ctx =>
     "n" evaluatesTo "1"
   }
+
+  addSourceFile("GuardsCanBeIgnored.scala",
+    s"""object GuardsCanBeIgnored {
+       |  def main(args: Array[String]): Unit = {
+       |    Array(1).collect {
+       |      case n: Int if n == 1 =>
+       |        n.toString $breakpoint
+       |      case _ => "abc"
+       |    }
+       |  }
+       |}
+       |""".stripMargin.trim
+  )
+
+  def testGuardsCanBeIgnored(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "n" evaluatesTo "1"
+  }
+
+  addSourceFile("PatternMatchPartialFunction.scala",
+    s"""object PatternMatchPartialFunction {
+       |  final case class Person(name: String, age: Int)
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    Array(Person("Name", 25)).collect {
+       |      case Person(name, age) =>
+       |        println(s"$$name, $$age")
+       |        println() $breakpoint
+       |        println()
+       |    }
+       |  }
+       |}
+       |""".stripMargin.trim
+  )
+
+  def testPatternMatchPartialFunction(): Unit = expressionEvaluationTest() { implicit ctx =>
+    "name" evaluatesTo "Name"
+    "age" evaluatesTo 25
+  }
 }

@@ -24,7 +24,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     new ExpressionEvaluatorImpl(buildEvaluator(element, position))
   }
 
-  private[evaluation] def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
+  private def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
     case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position)
     case lit: ScLiteral => LiteralEvaluator.create(lit)
     case ref: ScThisReference => ThisReferenceEvaluator.create(ref)
@@ -92,6 +92,10 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     }
   }
 
+  /**
+   * A typed pattern in a partial function is just the `x` parameter of the `applyOrElse` method
+   * of [[PartialFunction]].
+   */
   private[evaluation] object TypedPatternInPartialFunction {
     def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
@@ -105,6 +109,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
   /**
    * A typed pattern in a pattern match is just the expression being matched on cast to a certain type.
+   * The cast is currently not done, because `.asInstanceOf` calls cannot be evaluated yet.
    */
   private[evaluation] object TypedPatternInMatch {
     def unapply(element: PsiElement): Option[ScExpression] =
