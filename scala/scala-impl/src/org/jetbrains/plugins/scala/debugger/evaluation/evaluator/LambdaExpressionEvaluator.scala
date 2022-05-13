@@ -11,11 +11,11 @@ import com.intellij.debugger.impl.ClassLoadingUtils
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMatch, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
-import org.jetbrains.plugins.scala.extensions._
 
 import java.nio.file.Files
 import java.util.concurrent.atomic.AtomicInteger
@@ -90,9 +90,8 @@ private[evaluation] object LambdaExpressionEvaluator {
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
-        case ExpressionEvaluatorBuilder.ClassMemberClassParameter(name, tpe, containingClass, jvmName) =>
-          val typeFilter = StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
-          val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
+        case ExpressionEvaluatorBuilder.ClassMemberClassParameter(name, tpe, containingClass, debuggerName) =>
+          val eval = StackWalkingThisEvaluator.withField(debuggerName, name)
           val count = captureCounter.incrementAndGet()
           val qualifiedName = containingClass.getQualifiedName
           val tpeName = if (qualifiedName.endsWith("$")) s"${qualifiedName.substring(0, qualifiedName.length - 1)}.type" else qualifiedName
@@ -119,19 +118,18 @@ private[evaluation] object LambdaExpressionEvaluator {
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
-        case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, containingClass, jvmName, typeFilter) =>
-          val eval = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
+        case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, isMethod, containingClass, debuggerName) =>
+          val eval =
+            if (isMethod) StackWalkingThisEvaluator.withMethod(debuggerName, name)
+            else StackWalkingThisEvaluator.withField(debuggerName, name)
           val count = captureCounter.incrementAndGet()
           val qualifiedName = containingClass.getQualifiedName
           val tpeName = if (qualifiedName.endsWith("$")) s"${qualifiedName.substring(0, qualifiedName.length - 1)}.type" else qualifiedName
           val param = s"$$this$$$count: $tpeName"
           val copy = expression.copy().asInstanceOf[ScExpression]
-          val rewritten = typeFilter match {
-            case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
-              createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
-            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
-              createExpressionWithContextFromText(s"""invokeMethod($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
-          }
+          val rewritten =
+            if (isMethod) createExpressionWithContextFromText(s"""invokeMethod($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
+            else createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
           val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
           (replaced, Seq((param, eval)))
       }

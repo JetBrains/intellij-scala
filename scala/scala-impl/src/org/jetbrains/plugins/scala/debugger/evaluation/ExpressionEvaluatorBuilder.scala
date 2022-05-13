@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.expression.{FieldEvaluator => _, _}
-import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
@@ -33,7 +32,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case o: ScObject => s"${o.getQualifiedNameForDebugger}$$"
         case c: ScClass => c.getQualifiedNameForDebugger
         case t: ScTrait => t.getQualifiedNameForDebugger
-      }.map(JVMNameUtil.getJVMRawText).fold[Evaluator](new ThisEvaluator())(name => new StackWalkingThisEvaluator(name, None))
+      }.fold[Evaluator](StackWalkingThisEvaluator.closest)(name => StackWalkingThisEvaluator.ofType(name))
     case call: ScMethodCall =>
       val params = call.matchedParameters.map(_._1).map(buildEvaluator(_, position))
       val resolved = call.getInvokedExpr.asInstanceOf[ScReferenceExpression].resolve().asInstanceOf[ScFunctionDefinition]
@@ -44,9 +43,8 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case cp: ScClassParameter if inPrimaryConstructor(position.getElementAt) =>
           val ClassParameterInConstructor(name, _, scope) = cp
           new LocalVariableEvaluator(name, scope)
-        case ClassMemberClassParameter(name, tpe, _, jvmName) =>
-          val typeFilter = StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
-          val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
+        case ClassMemberClassParameter(name, tpe, _, debuggerName) =>
+          val instance = StackWalkingThisEvaluator.withField(debuggerName, name)
           new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
         case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
         case TypedPatternInPartialFunction(name, _, scope) => new LocalVariableEvaluator(name, scope)
@@ -54,14 +52,13 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
           val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
           buildEvaluator(expr, position)
         case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
-        case ClassMemberVariable(name, tpe, _, jvmName, typeFilter) =>
-          val instance = new StackWalkingThisEvaluator(jvmName, Some(typeFilter))
-          typeFilter match {
-            case StackWalkingThisEvaluator.TypeFilter.ContainsField(_) =>
-              new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-            case StackWalkingThisEvaluator.TypeFilter.ContainsMethod(_) =>
-              new MethodEvaluator(instance, null, name, null, Array.empty)
-          }
+        case ClassMemberVariable(name, tpe, isMethod, _, debuggerName) =>
+          val instance =
+            if (isMethod) StackWalkingThisEvaluator.withMethod(debuggerName, name)
+            else StackWalkingThisEvaluator.withField(debuggerName, name)
+
+          if (isMethod) new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
+          else new MethodEvaluator(instance, null, name, null, Array.empty)
       }
   }
 
@@ -87,30 +84,25 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private[evaluation] object ClassMemberVariable {
-    def unapply(element: PsiElement): Option[(String, ScType, PsiClass, JVMName, StackWalkingThisEvaluator.TypeFilter)] =
+    def unapply(element: PsiElement): Option[(String, ScType, Boolean, PsiClass, String)] =
       Option(element)
         .collect {
           case rp: ScReferencePattern if rp.isClassMember =>
             val name = rp.name
+
+            val isMethod = rp.getModifierList match {
+              case ml: ScModifierList => !ml.isPrivate
+              case _ => false
+            }
 
             val containingClass = rp.containingClass match {
               case td: ScNewTemplateDefinition => td.supers.head
               case c => c
             }
 
-            val jvmName = containingClass match {
-              case o: ScObject => JVMNameUtil.getJVMRawText(s"${o.getQualifiedNameForDebugger}$$")
-              case c: ScClass => JVMNameUtil.getJVMRawText(c.getQualifiedNameForDebugger)
-              case t: ScTrait => JVMNameUtil.getJVMRawText(t.getQualifiedNameForDebugger)
-              case c => JVMNameUtil.getJVMQualifiedName(c)
-            }
+            val debuggerName = calculateDebuggerName(containingClass)
 
-            val typeFilter = rp.getModifierList match {
-              case ml: ScModifierList if !ml.isPrivate => StackWalkingThisEvaluator.TypeFilter.ContainsMethod(name)
-              case _ => StackWalkingThisEvaluator.TypeFilter.ContainsField(name)
-            }
-
-            (name, rp.`type`().getOrAny, containingClass, jvmName, typeFilter)
+            (name, rp.`type`().getOrAny, isMethod, containingClass, debuggerName)
         }
   }
 
@@ -137,7 +129,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   private[evaluation] object ClassMemberClassParameter {
-    def unapply(cp: ScClassParameter): Some[(String, ScType, PsiClass, JVMName)] = {
+    def unapply(cp: ScClassParameter): Some[(String, ScType, PsiClass, String)] = {
       val name = cp.name
 
       val containingClass = cp.containingClass match {
@@ -145,14 +137,9 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case c => c
       }
 
-      val jvmName = containingClass match {
-        case o: ScObject => JVMNameUtil.getJVMRawText(s"${o.getQualifiedNameForDebugger}$$")
-        case c: ScClass => JVMNameUtil.getJVMRawText(c.getQualifiedNameForDebugger)
-        case t: ScTrait => JVMNameUtil.getJVMRawText(t.getQualifiedNameForDebugger)
-        case c => JVMNameUtil.getJVMQualifiedName(c)
-      }
+      val debuggerName = calculateDebuggerName(containingClass)
 
-      Some((name, cp.`type`().getOrAny, containingClass, jvmName))
+      Some((name, cp.`type`().getOrAny, containingClass, debuggerName))
     }
   }
 
@@ -166,4 +153,13 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             .map(_ => ("x", tp.`type`().getOrAny, "applyOrElse"))
         }
   }
+
+  private def calculateDebuggerName(cls: PsiClass): String =
+    Option(cls.containingClass).map { containing =>
+      val suffix = containing match {
+        case _: ScObject => "$"
+        case _ => ""
+      }
+      s"${calculateDebuggerName(containing)}$$${NameTransformer.encode(cls.name)}$suffix"
+    }.getOrElse(cls.qualifiedName)
 }

@@ -9,7 +9,8 @@ import com.sun.jdi._
 
 import scala.jdk.CollectionConverters._
 
-private[evaluation] final class FieldEvaluator(instanceEvaluator: Evaluator, fieldName: String, typeName: JVMName) extends Evaluator {
+private[evaluation] final class FieldEvaluator(instanceEvaluator: Evaluator, fieldName: String, typeName: JVMName)
+  extends ValueEvaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
     instanceEvaluator.evaluate(context) match {
       case ref: ObjectReference =>

@@ -2,17 +2,19 @@ package org.jetbrains.plugins.scala.debugger.evaluation
 package evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
+import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.Evaluator
-import com.intellij.debugger.engine.{DebugProcessImpl, DebuggerUtils, JVMName}
 import com.sun.jdi._
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.StackWalkingThisEvaluator.TypeFilter
 
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typeFilter: Option[TypeFilter]) extends Evaluator {
+/**
+ * Walks the stack frames searching for a `this` object reference that matches the given predicate. It also follows
+ * a chain of `$outer` fields, which is how the Scala compiler captures references of outer contexts.
+ */
+private final class StackWalkingThisEvaluator private(predicate: ReferenceType => Boolean) extends ValueEvaluator {
   override def evaluate(context: EvaluationContextImpl): ObjectReference = {
     val frameProxy = context.getFrameProxy
     val threadProxy = frameProxy.threadProxy()
@@ -27,7 +29,7 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
         Try(Option(stackFrame.thisObject()))
           .toOption
           .flatten
-          .flatMap(followOuterChain(_, context.getDebugProcess)) match {
+          .flatMap(followOuterChain) match {
           case Some(ref) => ref
           case None => loop(frameIndex + 1)
         }
@@ -37,27 +39,17 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
     loop(frameProxy.getFrameIndex)
   }
 
-  private def filterType(tpe: ReferenceType, debugProcess: DebugProcessImpl): Boolean =
-    DebuggerUtils.instanceOf(tpe, typeName.getName(debugProcess)) && (typeFilter match {
-      case Some(TypeFilter.ContainsField(name)) => tpe.fields().asScala.exists { f =>
-        val fieldName = f.name()
-        (fieldName ne null) && (fieldName == name || fieldName.endsWith(s"$$$$$name"))
-      }
-      case Some(TypeFilter.ContainsMethod(name)) => tpe.methods().asScala.exists(_.name() == name)
-      case None => true
-    })
-
   @tailrec
-  private def followOuterChain(ref: ObjectReference, debugProcess: DebugProcessImpl): Option[ObjectReference] = {
+  private def followOuterChain(ref: ObjectReference): Option[ObjectReference] = {
     val refType = ref.referenceType()
-    if (filterType(refType, debugProcess)) Some(ref)
+    if (predicate(refType)) Some(ref)
     else {
       refType.fields().asScala.find { f =>
         val name = f.name()
         (name ne null) && name.startsWith("$outer") && f.isFinal && f.isSynthetic && !f.isStatic
       }.map(ref.getValue(_).asInstanceOf[ObjectReference]) match {
         case Some(null) => None
-        case Some(ref) => followOuterChain(ref, debugProcess)
+        case Some(ref) => followOuterChain(ref)
         case None => None
       }
     }
@@ -65,9 +57,31 @@ private[evaluation] final class StackWalkingThisEvaluator(typeName: JVMName, typ
 }
 
 private[evaluation] object StackWalkingThisEvaluator {
-  sealed trait TypeFilter
-  object TypeFilter {
-    final case class ContainsMethod(name: String) extends TypeFilter
-    final case class ContainsField(name: String) extends TypeFilter
+
+  private val Any: ReferenceType => Boolean = _ => true
+
+  private def typePredicate(debuggerTypeName: String): ReferenceType => Boolean =
+    DebuggerUtils.instanceOf(_, debuggerTypeName)
+
+  private def fieldPredicate(debuggerTypeName: String, fieldName: String): ReferenceType => Boolean = { tpe =>
+    DebuggerUtils.instanceOf(tpe, debuggerTypeName) && tpe.allFields().asScala.exists { f =>
+      val name = f.name()
+      (name == fieldName) || name.endsWith(s"$$$$$fieldName")
+    }
   }
+
+  private def methodPredicate(debuggerTypeName: String, methodName: String): ReferenceType => Boolean = { tpe =>
+    DebuggerUtils.instanceOf(tpe, debuggerTypeName) && tpe.allMethods().asScala.exists(_.name() == methodName)
+  }
+
+  private[evaluation] def closest: ValueEvaluator = new StackWalkingThisEvaluator(Any)
+
+  private[evaluation] def ofType(debuggerTypeName: String): ValueEvaluator =
+    new StackWalkingThisEvaluator(typePredicate(debuggerTypeName))
+
+  private[evaluation] def withField(debuggerTypeName: String, fieldName: String): ValueEvaluator =
+    new StackWalkingThisEvaluator(fieldPredicate(debuggerTypeName, fieldName))
+
+  private[evaluation] def withMethod(debuggerTypeName: String, methodName: String): ValueEvaluator =
+    new StackWalkingThisEvaluator(methodPredicate(debuggerTypeName, methodName))
 }
