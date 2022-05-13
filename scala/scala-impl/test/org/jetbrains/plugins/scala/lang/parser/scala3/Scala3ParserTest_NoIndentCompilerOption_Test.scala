@@ -29,7 +29,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
   }
 
   override def parseText(text: String) = {
-    getFixture.configureByText("a.scala", text.withNormalizedSeparator).asInstanceOf[ScalaFile]
+    myFixture.configureByText("a.scala", text.withNormalizedSeparator).asInstanceOf[ScalaFile]
   }
 
   def testTemplateDef(): Unit = checkTree(

@@ -17,7 +17,7 @@ abstract class InlayHintsTestBase extends base.ScalaLightCodeInsightFixtureTestA
 
   protected def doInlayTest(text: String): Unit = {
     configureFromFileText(text)
-    getFixture.testInlays(
+    myFixture.testInlays(
       inlayText(_).get,
       inlayText(_).isDefined
     )

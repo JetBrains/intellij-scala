@@ -205,7 +205,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testRedundantWildcardImportFromDefaultOrCurrentPackage(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -243,7 +243,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testRedundantWildcardAndSingleImportsFromDefaultOrCurrentPackage(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -281,7 +281,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testRedundantWildcardAndSingleImportsFromDefaultOrCurrentPackage_1(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -329,7 +329,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testRedundantSingleImportFromDefaultOrCurrentPackage(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -367,7 +367,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testSingleImportFromDefaultOrCurrentPackage_WithNameClashWithSomeWildcard_LocalImport(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -375,7 +375,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
         |class C
         |""".stripMargin
     )
-    getFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
+    myFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
       """package org.example.other
         |
         |class A
@@ -412,7 +412,7 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testDoNotTreatRenamingSelectorFromSamePackageAsRedundant(): Unit = {
-    getFixture.addFileToProject("com/example1/usage/definitions.scala",
+    myFixture.addFileToProject("com/example1/usage/definitions.scala",
       """package com.example1.usage
         |
         |class S1
@@ -452,22 +452,22 @@ abstract class UnusedImportTest_Common_2 extends UnusedImportTestBase with Match
   }
 
   def testImportFromAvailablePackage_WithNameClashWithAnotherAvailablePackage(): Unit = {
-    getFixture.addFileToProject("aaa/MyData.scala",
+    myFixture.addFileToProject("aaa/MyData.scala",
       """package aaa
         |class MyData
         |""".stripMargin
     )
-    getFixture.addFileToProject("aaa/bbb/MyData.scala",
+    myFixture.addFileToProject("aaa/bbb/MyData.scala",
       """package aaa.bbb
         |class MyData
         |""".stripMargin
     )
-    getFixture.addFileToProject("aaa/bbb/ccc/MyData.scala",
+    myFixture.addFileToProject("aaa/bbb/ccc/MyData.scala",
       """package aaa.bbb.ccc
         |class MyData
         |""".stripMargin
     )
-    getFixture.addFileToProject("aaa/bbb/ccc/ddd/MyData.scala",
+    myFixture.addFileToProject("aaa/bbb/ccc/ddd/MyData.scala",
       """package aaa.bbb.ccc.ddd
         |class MyData
         |""".stripMargin
@@ -565,7 +565,7 @@ class UnusedImportTest_212 extends UnusedImportTest_Common_2 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   def testSingleImportFromDefaultOrCurrentPackage_WithNameClashWithSomeWildcard(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -573,7 +573,7 @@ class UnusedImportTest_212 extends UnusedImportTest_Common_2 {
         |class C
         |""".stripMargin
     )
-    getFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
+    myFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
       """package org.example.other
         |
         |class A
@@ -615,7 +615,7 @@ class UnusedImportTest_213 extends UnusedImportTest_Common_2 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   def testSingleImportFromDefaultOrCurrentPackage_WithNameClashWithSomeWildcard(): Unit = {
-    getFixture.addFileToProject("org/example/definitions.scala",
+    myFixture.addFileToProject("org/example/definitions.scala",
       """package org.example
         |
         |class A
@@ -623,7 +623,7 @@ class UnusedImportTest_213 extends UnusedImportTest_Common_2 {
         |class C
         |""".stripMargin
     )
-    getFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
+    myFixture.addFileToProject("org/example/other/definitionsWithCollisions.scala",
       """package org.example.other
         |
         |class A

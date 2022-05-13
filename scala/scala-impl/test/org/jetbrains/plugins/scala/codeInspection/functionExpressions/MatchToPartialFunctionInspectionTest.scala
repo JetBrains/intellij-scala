@@ -9,7 +9,7 @@ import com.intellij.testFramework.EditorTestUtil
   * Nikolay.Tropin
   * 9/27/13
   */
-class MatchToPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
+class MatchToPartialFunctionInspectionTest extends ScalaInspectionTestBase {
 
   import MatchToPartialFunctionInspection.DESCRIPTION
 

@@ -4,10 +4,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiManager, PsiReference}
-import com.intellij.testFramework.UsefulTestCase
-import org.jetbrains.plugins.scala.TestFixtureProvider
-import org.jetbrains.plugins.scala.base.FailableTest
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
@@ -16,8 +14,7 @@ import org.junit.Assert._
 import java.io.File
 import scala.util.{Failure, Success, Try}
 
-trait SimpleResolveTestBase {
-  this: TestFixtureProvider with UsefulTestCase with FailableTest =>
+abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import SimpleResolveTestBase._
 
@@ -50,16 +47,16 @@ trait SimpleResolveTestBase {
     def configureFile(file: (String, String), configureFun: (String, String) => PsiFile): Unit = {
       val (source, fileName) = file
       val trimmed = source.trim.replace("\r", "")
-      val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT,""))
+      val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT, ""))
       if (src == null) src = getSrc(trimmed, psiFile)
       if (tgt == null) tgt = getTgt(trimmed, psiFile)
     }
 
-    sources.dropRight(1).foreach(configureFile(_, getFixture.addFileToProject)) // add additional files first
+    sources.dropRight(1).foreach(configureFile(_, myFixture.addFileToProject)) // add additional files first
 
     sources.lastOption match {
       case Some(file) =>
-        configureFile(file, getFixture.configureByText) // last file is the one to be opened in editor
+        configureFile(file, myFixture.configureByText) // last file is the one to be opened in editor
       case None =>
         fail("No testdata provided")
     }
@@ -84,7 +81,7 @@ trait SimpleResolveTestBase {
             val texts: Array[String] = multiResolveResult.map(_.element).map { namedElement =>
               namedElement.name + " - " + elementLocationDescriptor(namedElement)
             }
-            val textsConcat = texts.zipWithIndex.map { case (text, idx) => s"$idx : $text"}.map("  " + _).mkString("\n")
+            val textsConcat = texts.zipWithIndex.map { case (text, idx) => s"$idx : $text" }.map("  " + _).mkString("\n")
             s"\nmultiResolveResolve:\n$textsConcat"
           }
           fail(s"Failed to resolve single element - '$srcRefText'.$multiResolveResolveText")
@@ -118,7 +115,7 @@ trait SimpleResolveTestBase {
           fail(failingPassed)
         }
       case Failure(_: AssertionError) if !shouldPass =>
-        //ok, test failed with some assertion
+      //ok, test failed with some assertion
       case Failure(ex) =>
         throw ex
     }

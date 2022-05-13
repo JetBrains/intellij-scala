@@ -22,7 +22,7 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
       action.actionPerformedImpl(myFixture.getFile, myFixture.getEditor)
     }
 
-    getFixture.checkResult(expected, stripTrailingSpaces)
+    myFixture.checkResult(expected, stripTrailingSpaces)
 
     assertEquals("Wrong caret offset", expectedOffset, getEditorOffset)
   }
@@ -93,7 +93,7 @@ class CreateScalaDocStubActionTest extends ScalaLightCodeInsightFixtureTestAdapt
   private def configureByText(text: String, stripTrailingSpaces: Boolean): Unit = {
     val (normalizedText, offset) = findCaretOffset(text, stripTrailingSpaces)
 
-    getFixture.configureByText("dummy.scala", normalizedText)
+    myFixture.configureByText("dummy.scala", normalizedText)
     getEditor.getCaretModel.moveToOffset(offset)
   }
 }

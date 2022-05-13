@@ -26,12 +26,12 @@ abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCode
 
   protected def configureFile(): PsiFile = {
     val filePath = s"${getTestName(false)}.scala"
-    getFixture.configureByFile(filePath)
+    myFixture.configureByFile(filePath)
   }
 
   protected final def doTest(testUpdate: Boolean = true): Unit = {
     val file = configureFile()
-    val offset = getFixture.getCaretOffset
+    val offset = myFixture.getCaretOffset
 
     val context = new ShowParameterInfoContext(getEditor, getProject, file, offset, -1)
     val handler = createHandler

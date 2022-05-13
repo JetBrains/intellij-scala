@@ -20,7 +20,7 @@ class HighlightingPerformanceTest extends ScalaFixtureTestCase {
       () => Try {
         val file = PsiFileFactory.getInstance(myFixture.getProject)
           .createFileFromText("dummy.scala", ScalaLanguage.INSTANCE, text, true, false)
-        getFixture.allowTreeAccessForAllFiles()
+        myFixture.allowTreeAccessForAllFiles()
         myFixture.testHighlighting(false, false, false, file.getVirtualFile)
       }
     )

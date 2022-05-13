@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class EmptyParenMethodCallInspectionTest extends ScalaQuickFixTestBase {
+class EmptyParenMethodCallInspectionTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ParameterlessAccessInspection.EmptyParenMethod]
 
@@ -14,7 +14,7 @@ class EmptyParenMethodCallInspectionTest extends ScalaQuickFixTestBase {
 
 
   def test_call_without_parenthesis(): Unit = {
-    getFixture.configureByText("S.scala",
+    myFixture.configureByText("S.scala",
       """
         |class S {
         |  def test(): Unit = ()

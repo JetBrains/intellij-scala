@@ -400,7 +400,7 @@ class JavaConstructorInvocationAnnotatorTest extends ScalaHighlightingTestBase w
     """.stripMargin
 
   private def setup(): Unit = {
-    getFixture.configureByText("JavaClass.java", javaCode)
+    myFixture.configureByText("JavaClass.java", javaCode)
   }
 
   def messages(scalaText: String): List[Message] = {

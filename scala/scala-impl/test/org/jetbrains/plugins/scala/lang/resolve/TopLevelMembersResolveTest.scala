@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-class TopLevelMembersResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class TopLevelMembersResolveTest extends SimpleResolveTestBase {
 
   import SimpleResolveTestBase._
 
@@ -224,5 +223,5 @@ class TopLevelMembersResolveTest extends ScalaLightCodeInsightFixtureTestAdapter
   }
 
   private def addFileToProject(text: String, name: String): Unit =
-    getFixture.addFileToProject(name, text)
+    myFixture.addFileToProject(name, text)
 }

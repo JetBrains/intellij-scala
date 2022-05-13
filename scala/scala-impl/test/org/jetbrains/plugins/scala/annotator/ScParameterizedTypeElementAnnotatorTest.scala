@@ -370,13 +370,13 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
 class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 
   def messages(code: String) = {
-    val file = getFixture.addFileToProject("Test.scala", code)
+    val file = myFixture.addFileToProject("Test.scala", code)
     messagesForParameterizedTypeElements(file)
   }
 
   // SCL-19362
   def testGenericBoundedByObjectInJava(): Unit = {
-    getFixture.addFileToProject("Base.java", "class Base<A extends Object> {}")
+    myFixture.addFileToProject("Base.java", "class Base<A extends Object> {}")
 
     assertNothing(messages(
       """

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class ScalaDocInlinedTagReplaceQuickFixTest extends ScalaQuickFixTestBase {
+class ScalaDocInlinedTagReplaceQuickFixTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection =
     classOf[ScalaDocInlinedTagInspection]

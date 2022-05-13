@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.externalLibraries.contextApplied
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class ContextAppliedTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class ContextAppliedTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override def setUp(): Unit = {

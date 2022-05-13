@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class UnnecessaryPartialFunctionInspectionTest extends ScalaQuickFixTestBase {
+class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[UnnecessaryPartialFunctionInspection]
 

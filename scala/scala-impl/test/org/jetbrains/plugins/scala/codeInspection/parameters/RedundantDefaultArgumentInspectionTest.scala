@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.parameters
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 // TODO constructors
-class RedundantDefaultArgumentInspectionTest extends ScalaQuickFixTestBase {
+class RedundantDefaultArgumentInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[RedundantDefaultArgumentInspection]
 

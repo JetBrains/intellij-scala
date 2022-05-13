@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class EnumResolveTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean =

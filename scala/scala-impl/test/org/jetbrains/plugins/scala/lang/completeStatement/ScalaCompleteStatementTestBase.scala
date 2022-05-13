@@ -39,17 +39,13 @@ abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtu
   }
 
   def doCompletionTest(fileText: String, resultText: String): Unit = {
-    val fixture = getFixture
-
-    fixture.configureByText(fileType, normalize(fileText))
-    fixture.performEditorAction(ACTION_EDITOR_COMPLETE_STATEMENT)
-    fixture.checkResult(normalize(resultText), /*stripTrailingSpaces = */ true)
+    myFixture.configureByText(fileType, normalize(fileText))
+    myFixture.performEditorAction(ACTION_EDITOR_COMPLETE_STATEMENT)
+    myFixture.checkResult(normalize(resultText), /*stripTrailingSpaces = */ true)
   }
 }
 
 class JavaCompleteStatementTest extends ScalaCompleteStatementTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override protected val fileType: LanguageFileType = JavaFileType.INSTANCE
 

@@ -1,18 +1,13 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TypeText
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.DoEditorStateTestOps
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.{DoEditorStateTestOps, TypeText}
 import org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt.ScalaFmtForTestsSetupOps
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.scalafmt.dynamic.ScalafmtVersion
 
-abstract class EnterActionWithScalafmtEnabledTestBase
-  extends EditorActionTestBase
-    with ScalaFmtForTestsSetupOps
-    with DoEditorStateTestOps {
+abstract class EnterActionWithScalafmtEnabledTestBase extends DoEditorStateTestOps with ScalaFmtForTestsSetupOps {
 
   override protected def scalafmtConfigsBasePath: String =
     TestUtils.getTestDataPath + "/actions/editor/enter/_scalafmt_configs/"
@@ -127,13 +122,15 @@ abstract class EnterActionWithScalafmtEnabledTestBase
 
 class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_2_7 extends EnterActionWithScalafmtEnabledTestBase {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = true
+
   override def setUp(): Unit = {
     super.setUp()
     setScalafmtConfig("2.7.5.conf")
   }
 
   def testAfterIncompleteFunctionDefinition(): Unit = {
-    doEditorStateTest((
+    doEditorStateTest(myFixture, (
       s"""def foo = $CARET
          |""".stripMargin,
       TypeText.Enter
@@ -180,7 +177,7 @@ class EnterActionWithScalafmtEnabledCodeTest_Scalafmt_3_0 extends EnterActionWit
   }
 
   def testAfterIncompleteFunctionDefinition(): Unit = {
-    doEditorStateTest((
+    doEditorStateTest(myFixture, (
       s"""def foo = $CARET""",
       TypeText.Enter
     ), (

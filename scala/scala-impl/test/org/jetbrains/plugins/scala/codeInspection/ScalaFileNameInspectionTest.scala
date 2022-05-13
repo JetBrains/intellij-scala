@@ -5,7 +5,7 @@ import com.intellij.psi.PsiFile
 import com.intellij.refactoring.rename.RenameProcessor
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
-class ScalaFileNameInspectionTest extends ScalaQuickFixTestBase with AssertionMatchers {
+class ScalaFileNameInspectionTest extends ScalaInspectionTestBase with AssertionMatchers {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaFileNameInspection]

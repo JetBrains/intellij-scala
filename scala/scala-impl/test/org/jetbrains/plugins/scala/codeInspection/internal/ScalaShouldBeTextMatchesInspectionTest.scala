@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.internal
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class ScalaShouldBeTextMatchesInspectionTest extends ScalaQuickFixTestBase {
+class ScalaShouldBeTextMatchesInspectionTest extends ScalaInspectionTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaShouldBeTextMatchesInspection]

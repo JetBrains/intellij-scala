@@ -8,13 +8,12 @@ import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 
-trait SbtScalacOptionsDocumentationProviderCommonTests {
-  self: SbtScalacOptionsDocumentationProviderTestBase =>
+abstract class SbtScalacOptionsDocumentationProviderCommonTests extends SbtScalacOptionsDocumentationProviderTestBase {
 
   private val NONEXISTENT_FLAG = "-flag-that-no-one-should-ever-add-to-compiler"
   private val DEPRECATION_FLAG = "-deprecation"
 
-  private def expectedDocumentation(langLevel: ScalaLanguageLevel, flag: String, description: String,
+  private def expectedDocumentation(langLevel: ScalaLanguageLevel, description: String,
                                     choices: Set[String] = Set.empty, defaultValue: Option[String] = None): String = {
     def sectionHeader(name: String) =
       HtmlChunk.tag("tr").child(DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.p().addText(name)))
@@ -50,7 +49,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
       case _ => throw new IllegalStateException(s"Unexpected language level: ${langLevel.getVersion}")
     }
 
-    expectedDocumentation(langLevel, DEPRECATION_FLAG, description)
+    expectedDocumentation(langLevel, description)
   }
 
   private def getVersion(implicit ev: ScalaVersion): ScalaVersion = ev
@@ -190,9 +189,9 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     val defaultValue = Some("default test choice")
     val choices = Map(langLevel -> Set(defaultValue.get, "test choice", "another test choice"))
     val option = SbtScalacOptionInfo(flag, descriptions, choices, ArgType.No, Set(langLevel), defaultValue)
-    val docHolder = new SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
+    val docHolder = new SbtScalacOptionDocHolder(option)(getProject)
 
-    val expectedDoc = expectedDocumentation(langLevel, flag, description, choices(langLevel), defaultValue)
+    val expectedDoc = expectedDocumentation(langLevel, description, choices(langLevel), defaultValue)
     val actualDoc = generateDoc(docHolder, null)
     assertDocHtml(expectedDoc, actualDoc)
   }

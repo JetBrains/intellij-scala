@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -43,7 +44,7 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
     "0D" -> 0D,
     "\"\"" -> "",
     "\"\".asInstanceOf[CharSequence]" -> "".asInstanceOf[CharSequence],
-    "StringBuilder.newBuilder" -> new StringBuilder(),
+    "StringBuilder.newBuilder" -> new mutable.StringBuilder(),
     "new java.lang.StringBuilder()" -> new java.lang.StringBuilder(),
     "BigInt(0)" -> BigInt(0),
     "BigDecimal(0)" -> BigDecimal(0),
@@ -62,20 +63,19 @@ class ScalaMalformedStringInspectionTest extends ScalaInspectionTestBase {
   )
 
   def findInspections(code: String): Seq[String] = {
-    val (normalizedText, offset) = findCaretOffset(code, stripTrailingSpaces = true)
+    val (normalizedText, _) = findCaretOffset(code, stripTrailingSpaces = true)
 
-    val fixture = getFixture
-    fixture.configureByText("dummy.scala", normalizedText)
+    myFixture.configureByText("dummy.scala", normalizedText)
 
-    fixture.doHighlighting()
+    myFixture.doHighlighting()
       .asScala
-      .flatMap(info => Option(info.getDescription))
+      .flatMap(highlightInfo => Option(highlightInfo.getDescription))
       .filter(_.contains(" cannot be used for a"))
       .toSeq
   }
 
   def build_test(codeFromSpecifierAndArg: (String, String) => String): (String, Seq[String]) = {
-    val codeBuilder = new StringBuilder()
+    val codeBuilder = new mutable.StringBuilder()
     val testBuilder = Seq.newBuilder[String]
 
     for (specifier <- formatSpecifiers; (arg, repr) <- arguments) {

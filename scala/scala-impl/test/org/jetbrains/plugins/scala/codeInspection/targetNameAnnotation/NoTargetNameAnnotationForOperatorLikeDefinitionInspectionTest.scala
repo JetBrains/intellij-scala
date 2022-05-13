@@ -5,14 +5,18 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
-import org.jetbrains.plugins.scala.util.TemplateTesting
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
 
-class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends ScalaInspectionTestBase with TemplateTesting {
+class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection = classOf[NoTargetNameAnnotationForOperatorLikeDefinitionInspection]
   override protected val description = NoTargetNameAnnotationForOperatorLikeDefinitionInspection.message
 
+  override def setUp(): Unit = {
+    super.setUp()
+    TemplateManagerImpl.setTemplateTesting(myFixture.getTestRootDisposable)
+  }
+  
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
@@ -34,11 +38,11 @@ class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends Scal
     assertEquals(templateState.getSegmentRange(0), TextRange.from(caretPosition, 0))
 
     executeWriteActionCommand() {
-      getFixture.`type`(textToTypeWithTemplate)
+      myFixture.`type`(textToTypeWithTemplate)
       templateState.gotoEnd(false)
     }(getProject)
 
-    getFixture.checkResult(normalize(expectedAfterTemplateFinished), true)
+    myFixture.checkResult(normalize(expectedAfterTemplateFinished), true)
   }
 
   def testSingle(): Unit = {

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-class AnyMethodsOnTypeParamResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class AnyMethodsOnTypeParamResolveTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 
   def testSCL16905(): Unit = doResolveTest(

@@ -3,6 +3,7 @@ package codeInsight
 package hints
 
 import com.intellij.codeInsight.hints.Option
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 
 class InlayParameterHintsTest extends InlayHintsTestBase {
 
@@ -133,7 +134,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   )
 
   def testJavaParameterHint(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """public class Bar {
           |  public static void bar(int bar) {}
@@ -144,7 +145,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   }
 
   def testJavaConstructorParameterHint(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """public class Bar {
           |  public Bar(int bar) {}
@@ -155,7 +156,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
   }
 
   def testVarargJavaConstructorHint(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         """public class Bar {
           |  public Bar(int foo, int... bars) {}
@@ -244,7 +245,7 @@ class InlayParameterHintsTest extends InlayHintsTestBase {
     try {
       setOption(false)
       configureFromFileText(text)
-      getFixture.testInlays()
+      myFixture.testInlays()
     } finally {
       setOption(true)
     }

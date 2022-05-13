@@ -8,7 +8,7 @@ import com.intellij.codeInspection.LocalInspectionTool
   * User: Dmitry Naydanov
   * Date: 4/13/12
   */
-abstract class XmlUnmatchedTagQuickFixesTest extends ScalaQuickFixTestBase {
+abstract class XmlUnmatchedTagQuickFixesTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaXmlUnmatchedTagInspection]

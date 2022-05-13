@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.codeInspection.types
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
  * Author: Svyatoslav Ilinskiy
  * Date: 7/6/15
  */
-class KindProjectorSimplifyTypeProjectionTest extends ScalaQuickFixTestBase {
+class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[KindProjectorSimplifyTypeProjectionInspection]

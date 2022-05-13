@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.codeInspection.resourceLeaks
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class SourceNotClosedInspectionTest extends ScalaQuickFixTestBase {
+class SourceNotClosedInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SourceNotClosedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("source.not.closed")

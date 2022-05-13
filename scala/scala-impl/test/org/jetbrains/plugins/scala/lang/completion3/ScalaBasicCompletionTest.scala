@@ -6,6 +6,7 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.hasItemText
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 
@@ -515,7 +516,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
   }
 
   def testJavaMethod(): Unit = {
-    this.configureJavaFile(
+    configureJavaFile(
       fileText =
         s"""public class Foo {
            |  public int getFoo() {
@@ -889,7 +890,7 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
        """.stripMargin
     )
 
-    val lookups = getFixture.completeBasic()
+    val lookups = myFixture.completeBasic()
     for {
       lookupString <- "Foo" :: "Bar" :: "Baz" :: "BarBaz" :: Nil
       actual = lookups.count(hasLookupString(_, lookupString))

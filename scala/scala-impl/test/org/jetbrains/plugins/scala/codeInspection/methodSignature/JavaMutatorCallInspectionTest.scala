@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
+class JavaMutatorCallInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.{CARET_MARKER => CARET}
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -18,7 +18,7 @@ class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
 
 
   def test_non_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public int addFoo() {}
@@ -47,7 +47,7 @@ class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_unit_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public void foo() {}
@@ -63,7 +63,7 @@ class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_unit_with_mutator_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public void addFoo() {}
@@ -80,7 +80,7 @@ class JavaMutatorCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_with_non_mutator_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public int foo() { return 0; }

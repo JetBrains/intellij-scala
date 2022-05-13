@@ -20,7 +20,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
 
   private def configureByText(text: String, stripTrailingSpaces: Boolean): Seq[PsiElement] = {
     val normalizedText = normalize(text, stripTrailingSpaces)
-    getFixture.configureByText("dummy.scala", normalizedText)
+    myFixture.configureByText("dummy.scala", normalizedText)
 
     val selectionModel = getEditor.getSelectionModel
     descriptor
@@ -41,7 +41,7 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
       val tag = surrounder.getSyntaxTag
       normalize(text.replace(START, tag).replace(END, tag), stripTrailingSpaces)
     }
-    getFixture.checkResult(expected, stripTrailingSpaces)
+    myFixture.checkResult(expected, stripTrailingSpaces)
   }
 
   private def performWithAllSurrounders(text: String): Unit =

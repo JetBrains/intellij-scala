@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.specs2
 
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class BuiltinMatcherExistsInspectionTest extends ScalaQuickFixTestBase {
+class BuiltinMatcherExistsInspectionTest extends ScalaInspectionTestBase {
 
   protected val annotation: String = ScalaInspectionBundle.message("specs2.use.builtin.matcher")
   private val hint = ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")

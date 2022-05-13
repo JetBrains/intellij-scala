@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-abstract class ResolvePrecedenceTest extends ScalaLightCodeInsightFixtureTestAdapter
-  with SimpleResolveTestBase {
+abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
 
   def testSCL6146(): Unit = doResolveTest(
     "case class Foo()" -> "Foo.scala",
@@ -477,6 +475,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Test.scala"
     )
   }
+
   //SCL-16562
   def testClassName_FromWildcardImport_ClashesWith_NotExplicitlyImportedClass_FromSamePackage(): Unit = {
     doResolveTest(
@@ -495,6 +494,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_FromWildcardImport_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -513,6 +513,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_FromWildcardImport_ClashesWith_ExplicitlyImportedClass_FromOtherPackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -549,6 +550,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_DefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -567,6 +569,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_DefaultPackage_ClashesWith_ExplicitlyImportedClass_FromOtherPackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -589,7 +592,7 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
 
 class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
 
-  override protected def supportedIn(version: ScalaVersion) = version  <= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version <= LatestScalaVersions.Scala_2_12
 
   def testSCL16057(): Unit = doResolveTest(
     s"""
@@ -777,6 +780,7 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_FromWildcardImport_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -795,6 +799,7 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_FromWildcardImport_ClashesWith_ExplicitlyImportedClass_FromOtherPackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -830,6 +835,7 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_DefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage(): Unit = {
     doResolveTest(
       s"""package org.example.data
@@ -848,6 +854,7 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
   def testClassName_DefaultPackage_ClashesWith_ExplicitlyImportedClass_FromOtherPackage(): Unit = {
     doResolveTest(
       s"""package org.example.data

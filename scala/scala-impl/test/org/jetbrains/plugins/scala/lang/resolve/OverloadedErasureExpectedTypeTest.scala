@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
 /**
   * @author mucianm 
   * @since 07.04.16.
   */
-class OverloadedErasureExpectedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+class OverloadedErasureExpectedTypeTest extends SimpleResolveTestBase {
 
   import SimpleResolveTestBase._
 

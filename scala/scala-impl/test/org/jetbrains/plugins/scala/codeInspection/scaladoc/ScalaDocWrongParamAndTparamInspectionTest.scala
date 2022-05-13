@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.scaladoc
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class ScalaDocWrongParamAndTparamInspectionTest extends ScalaQuickFixTestBase {
+class ScalaDocWrongParamAndTparamInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection = classOf[ScalaDocUnknownParameterInspection]
   override protected val description = "@param and @tparams tags aren't allowed there"

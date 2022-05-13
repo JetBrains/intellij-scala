@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
+class JavaAccessorEmptyParenCallInspectionTest extends ScalaInspectionTestBase {
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[JavaAccessorEmptyParenCallInspection]
 
@@ -14,7 +14,7 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
 
 
   def test_non_unit_with_accessor_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public int getFoo() {}
@@ -43,7 +43,7 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_unit_with_accessor_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public void getFoo() {}
@@ -59,7 +59,7 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_with_overloaded_accessor_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public int getFoo() {}
@@ -76,7 +76,7 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_with_non_accessor_name(): Unit = {
-    getFixture.configureByText("J.java",
+    myFixture.configureByText("J.java",
       """
         |public class J {
         |    public int foo() {}

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInsight.inspection
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.recursion.NoTailRecursionAnnotationInspection
 
-class NoTailrecAnnotationInspectionTest extends ScalaQuickFixTestBase {
+class NoTailrecAnnotationInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection = classOf[NoTailRecursionAnnotationInspection]
   override protected val description = "No tail recursion annotation"
   private val hint = "Add @tailrec annotation"

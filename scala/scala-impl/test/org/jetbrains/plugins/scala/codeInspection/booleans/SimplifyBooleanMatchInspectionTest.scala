@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.codeInspection.booleans
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-class SimplifyBooleanMatchInspectionTest extends ScalaQuickFixTestBase {
+class SimplifyBooleanMatchInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[SimplifyBooleanMatchInspection]
   override protected val description = "Trivial match can be simplified"

@@ -26,7 +26,7 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
   def testMergeIntoWildcard(): Unit = doTest()
 
   protected def addCommonDeclarationsWithNameClashes(): Unit = {
-    getFixture.addFileToProject("org/example/declaration/all.scala",
+    myFixture.addFileToProject("org/example/declaration/all.scala",
       """package org.example.declaration.data
         |
         |class Random    // clashes with scala.util.Random
@@ -180,7 +180,7 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
 
   //SCL-16599
   def testSameNameInDifferentPackages(): Unit = {
-    getFixture.addFileToProject("foo/DataHolder.scala",
+    myFixture.addFileToProject("foo/DataHolder.scala",
       """package foo
         |
         |case class DataHolder(data: String)
@@ -198,7 +198,7 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
         |class OtherClassF {}
         |""".stripMargin
     )
-    getFixture.addFileToProject("bar/DataHolder.scala",
+    myFixture.addFileToProject("bar/DataHolder.scala",
       """package bar
         |
         |case class DataHolder(data: Double)

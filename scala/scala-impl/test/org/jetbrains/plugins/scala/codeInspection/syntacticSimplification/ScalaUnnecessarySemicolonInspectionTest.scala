@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 
 import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-class ScalaUnnecessarySemicolonInspectionTest extends ScalaQuickFixTestBase {
+class ScalaUnnecessarySemicolonInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaUnnecessarySemicolonInspection]
 

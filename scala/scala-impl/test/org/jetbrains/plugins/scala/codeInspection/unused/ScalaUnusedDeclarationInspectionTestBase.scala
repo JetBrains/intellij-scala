@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.codeInspection.unused
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection
-import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
+import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaQuickFixTestBase {
+abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaUnusedDeclarationInspection]

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCou
 /**
   * Created by Svyatoslav Ilinskiy on 11.07.16.
   */
-class VarCouldBeValInspectionTest extends ScalaQuickFixTestBase {
+class VarCouldBeValInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[VarCouldBeValInspection]

@@ -2,10 +2,20 @@ package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
-import org.jetbrains.plugins.scala.util.Source3TestCase
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
+class Source3InspectionTest extends ScalaInspectionTestBase {
+
+  override def setUp(): Unit = {
+    super.setUp()
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(myFixture.getProject).defaultProfile
+    val newSettings = defaultProfile.getSettings.copy(
+      additionalCompilerOptions = Seq("-Xsource:3")
+    )
+    defaultProfile.setSettings(newSettings)
+  }
+
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_2_13.withMinor(6)
 

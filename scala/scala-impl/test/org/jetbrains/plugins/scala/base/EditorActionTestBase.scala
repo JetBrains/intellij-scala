@@ -44,18 +44,18 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
     assertTrue("expected at least one caret", caretOffsets.nonEmpty)
 
-    getFixture.getEditor match {
+    myFixture.getEditor match {
       case null =>
-        getFixture.configureByText(fileName, textActual)
+        myFixture.configureByText(fileName, textActual)
       case editor =>
         // optimization for sequential this.configureByText calls in a single test
-        // getFixture.configureByText is quite resource consuming for simple sequence of typing tests
+        // myFixture.configureByText is quite resource consuming for simple sequence of typing tests
         inWriteCommandAction {
           editor.getDocument.setText(textActual)
           editor.getDocument.commit(getProject)
         }
     }
-    val editor = getFixture.getEditor
+    val editor = myFixture.getEditor
     editor.getCaretModel.moveToOffset(caretOffsets.head)
     val caretStates = caretOffsets.map { offset => new CaretState(editor.offsetToLogicalPosition(offset), null, null) }
     editor.getCaretModel.setCaretsAndSelections(caretStates.asJava)
@@ -106,10 +106,10 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
   }
 
   protected def performTypingAction(charTyped: Char): Unit =
-    getFixture.`type`(charTyped)
+    myFixture.`type`(charTyped)
 
   protected def performTypingAction(text: String): Unit =
-    getFixture.`type`(text)
+    myFixture.`type`(text)
 
   protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char,
                                               fileName: String = defaultFileName): Unit =
@@ -149,6 +149,6 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
 
   private def performEditorAction(action: String): Unit =
     startCommand() {
-      getFixture.performEditorAction(action)
+      myFixture.performEditorAction(action)
     }(getProject)
 }

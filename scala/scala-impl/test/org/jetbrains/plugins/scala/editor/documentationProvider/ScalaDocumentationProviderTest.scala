@@ -84,7 +84,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     )
 
   def testClassExtendingAnotherJavaClassShouldNotInheritDoc(): Unit = {
-    getFixture.addFileToProject("J.java",
+    myFixture.addFileToProject("J.java",
       s"""/** description of base class J */
          |class J {}
          |""".stripMargin
@@ -122,7 +122,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
     )
 
   def testMethod_Overriding(): Unit = {
-    getFixture.addFileToProject("BaseScalaClass.scala",
+    myFixture.addFileToProject("BaseScalaClass.scala",
       s"""class BaseScalaClass {
          |  /** description of base method from BaseScalaClass */
          |  def baseMethod: String = ???
@@ -143,7 +143,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testMethod_WithEmptyDoc_Overriding(): Unit = {
-    getFixture.addFileToProject("BaseScalaClass.scala",
+    myFixture.addFileToProject("BaseScalaClass.scala",
       s"""class BaseScalaClass {
          |  /** description of base method from BaseScalaClass */
          |  def baseMethod: String = ???
@@ -170,7 +170,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testMethod_WithEmptyDoc_OverridingJavaMethod(): Unit = {
-    getFixture.addFileToProject("BaseJavaClass.java",
+    myFixture.addFileToProject("BaseJavaClass.java",
       s"""public class BaseJavaClass {
          |  /** description of base method from BaseJavaClass */
          |  String baseMethod() { return null; }
@@ -197,7 +197,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
   }
 
   def testMethod_WithEmptyDoc_OverridingJavaMethod_TagsInJavadoc(): Unit = {
-    getFixture.addFileToProject("BaseJavaClass.java",
+    myFixture.addFileToProject("BaseJavaClass.java",
       s"""public class BaseJavaClass {
          |  /** @return modules to compile before run. Empty list to build project */
          |  String[] getModules() {  return null;  }

@@ -25,7 +25,7 @@ class ScalastyleTest extends ScalaInspectionTestBase {
   override protected val description = "Class name does not match the regular expression '[A-Z][A-Za-z]*'."
 
   private def setup(): Unit = {
-    getFixture.addFileToProject("scalastyle-config.xml", configString)
+    myFixture.addFileToProject("scalastyle-config.xml", configString)
   }
 
   def test_ok(): Unit = {

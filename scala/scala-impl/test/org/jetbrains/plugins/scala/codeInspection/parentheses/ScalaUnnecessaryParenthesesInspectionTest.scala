@@ -9,7 +9,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
 import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
-abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaQuickFixTestBase {
+abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {
 
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaUnnecessaryParenthesesInspection]

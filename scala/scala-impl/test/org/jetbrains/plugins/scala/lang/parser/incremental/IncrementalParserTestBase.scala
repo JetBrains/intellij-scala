@@ -20,13 +20,13 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
   def doTest(text: String, replaceWith: String = ""): Unit = {
     val (code, Seq(range)) = MarkersUtils.extractMarker(text, startMarker = START, endMarker = END)
 
-    val editor = getFixture.getEditor match {
+    val editor = myFixture.getEditor match {
       case null =>
-        getFixture.configureByText("test.scala", code)
-        getFixture.getEditor
+        myFixture.configureByText("test.scala", code)
+        myFixture.getEditor
       case editor =>
         // optimization for sequential this.configureByText calls in a single test
-        // getFixture.configureByText is quite resource consuming for simple sequence of typing tests
+        // myFixture.configureByText is quite resource consuming for simple sequence of typing tests
         inWriteCommandAction {
           editor.getDocument.setText(code)
           editor.getDocument.commit(getProject)
