@@ -27,7 +27,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
   private[evaluation] def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
     case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position)
-    case lit: ScLiteral => LiteralEvaluator.fromLiteral(lit)
+    case lit: ScLiteral => LiteralEvaluator.create(lit)
     case ref: ScThisReference =>
       ref.refTemplate.collect {
         case o: ScObject => s"${o.getQualifiedNameForDebugger}$$"

@@ -4,7 +4,6 @@ package evaluator
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.openapi.util.registry.Registry
 import com.sun.jdi._
@@ -17,7 +16,7 @@ import java.util.Collections
  * Scala translation of the platform LiteralEvaluator. There are no implementation differences apart from
  * the syntax.
  */
-private[evaluation] final class LiteralEvaluator private(value: AnyRef, expectedType: String) extends Evaluator {
+private final class LiteralEvaluator private(value: AnyRef, expectedType: String) extends ValueEvaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
     val vm = context.getDebugProcess.getVirtualMachineProxy
 
@@ -56,7 +55,7 @@ private[evaluation] object LiteralEvaluator {
    *
    * The value of the literal and the expected type are then passed to the platform implementation.
    */
-  def fromLiteral(lit: ScLiteral): LiteralEvaluator = {
+  def create(lit: ScLiteral): ValueEvaluator = {
     val tpe = lit.`type`().getOrAny match {
       case lt: ScLiteralType => lt.wideType
       case t => t
