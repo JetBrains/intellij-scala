@@ -43,9 +43,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
           new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
         case FunctionParameter(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
         case TypedPatternInPartialFunction(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
-        case tp: ScTypedPattern =>
-          val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
-          buildEvaluator(expr, position)
+        case TypedPatternInMatch(expr) => buildEvaluator(expr, position)
         case LocalVariable(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
         case ClassMemberVariable(name, tpe, isMethod, _, debuggerName) =>
           val instance =
@@ -103,6 +101,17 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             .filter(_.isPartialFunction)
             .map(_ => ("x", tp.`type`().getOrAny, "applyOrElse"))
         }
+  }
+
+  /**
+   * A typed pattern in a pattern match is just the expression being matched on cast to a certain type.
+   */
+  private[evaluation] object TypedPatternInMatch {
+    def unapply(element: PsiElement): Option[ScExpression] =
+      Option(element)
+        .collect { case tp: ScTypedPattern => tp }
+        .flatMap(_.contextOfType[ScMatch])
+        .flatMap(_.expression)
   }
 
   /**

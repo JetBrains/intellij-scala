@@ -12,8 +12,7 @@ import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.PsiElement
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScMatch, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
@@ -117,11 +116,8 @@ private[evaluation] object LambdaExpressionEvaluator {
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
 
-        case tp: ScTypedPattern =>
-          val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
-          val eval = ExpressionEvaluatorBuilder.buildEvaluator(expr, position)
-          val param = s"${tp.name}: ${tp.`type`().getOrAny.canonicalText}"
-          (expression, Seq((param, eval)))
+        case TypedPatternInMatch(expr) =>
+          calculateClassParams(expr, position)
 
         case LocalVariable(name, tpe, scope) =>
           val eval = LocalVariableEvaluator.inMethod(name, scope)
