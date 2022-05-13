@@ -36,17 +36,17 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
         case cp: ScClassParameter if inPrimaryConstructor(position.getElementAt) =>
-          val ClassParameterInConstructor(name, _, scope) = cp
-          new LocalVariableEvaluator(name, scope)
+          val ClassParameterInConstructor(name, _, methodName) = cp
+          LocalVariableEvaluator.inMethod(name, methodName)
         case ClassMemberClassParameter(name, tpe, _, debuggerName) =>
           val instance = StackWalkingThisEvaluator.withField(debuggerName, name)
           new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-        case FunctionParameter(name, _, scope) => new LocalVariableEvaluator(name, scope)
-        case TypedPatternInPartialFunction(name, _, scope) => new LocalVariableEvaluator(name, scope)
+        case FunctionParameter(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
+        case TypedPatternInPartialFunction(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
         case tp: ScTypedPattern =>
           val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
           buildEvaluator(expr, position)
-        case LocalVariable(name, _, scope) => new LocalVariableEvaluator(name, scope)
+        case LocalVariable(name, _, methodName) => LocalVariableEvaluator.inMethod(name, methodName)
         case ClassMemberVariable(name, tpe, isMethod, _, debuggerName) =>
           val instance =
             if (isMethod) StackWalkingThisEvaluator.withMethod(debuggerName, name)

@@ -4,7 +4,7 @@ package evaluator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScNewTemplateDefinition, ScThisReference}
 
 private[evaluation] object ThisReferenceEvaluator {
-  def create(ref: ScThisReference): ValueEvaluator =
+  private[evaluation] def create(ref: ScThisReference): ValueEvaluator =
     ref.refTemplate.collect {
       case ntd: ScNewTemplateDefinition => ntd.supers.head
       case td => td

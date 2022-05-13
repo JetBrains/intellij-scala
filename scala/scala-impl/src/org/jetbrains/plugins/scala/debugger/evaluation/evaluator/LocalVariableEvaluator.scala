@@ -3,13 +3,13 @@ package evaluator
 
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.sun.jdi._
 
 import scala.annotation.tailrec
 import scala.util.Try
 
-private[evaluation] final class LocalVariableEvaluator(variableName: String, scopeName: String) extends Evaluator {
+private final class LocalVariableEvaluator private(variableName: String, methodName: String)
+  extends ValueEvaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
     val frameProxy = context.getFrameProxy
     val threadProxy = frameProxy.threadProxy()
@@ -22,7 +22,7 @@ private[evaluation] final class LocalVariableEvaluator(variableName: String, sco
       else {
         val stackFrame = threadProxy.frame(frameIndex)
         Try(stackFrame.location())
-          .collect { case loc if locationFilter(loc) => Option(stackFrame.visibleVariableByName(variableName)) }
+          .collect { case loc if filterLocation(loc) => Option(stackFrame.visibleVariableByName(variableName)) }
           .toOption
           .flatten match {
           case Some(local) => stackFrame.getValue(local)
@@ -33,6 +33,11 @@ private[evaluation] final class LocalVariableEvaluator(variableName: String, sco
     loop(frameProxy.getFrameIndex)
   }
 
-  private def locationFilter(location: Location): Boolean =
-    location.method().name().contains(scopeName) || location.declaringType().name().contains(scopeName)
+  private def filterLocation(location: Location): Boolean =
+    location.method().name().contains(methodName) || location.declaringType().name().contains(methodName)
+}
+
+private[evaluation] object LocalVariableEvaluator {
+  private[evaluation] def inMethod(variableName: String, methodName: String): ValueEvaluator =
+    new LocalVariableEvaluator(variableName, methodName)
 }

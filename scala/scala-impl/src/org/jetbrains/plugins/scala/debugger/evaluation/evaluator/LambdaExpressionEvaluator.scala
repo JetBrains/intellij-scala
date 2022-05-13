@@ -90,8 +90,8 @@ private[evaluation] object LambdaExpressionEvaluator {
         case InEvaluationExpression() => (expression, Seq.empty)
 
         case cp: ScClassParameter if ExpressionEvaluatorBuilder.inPrimaryConstructor(cp) =>
-          val ExpressionEvaluatorBuilder.ClassParameterInConstructor(name, tpe, scope) = cp
-          val eval = new LocalVariableEvaluator(name, scope)
+          val ExpressionEvaluatorBuilder.ClassParameterInConstructor(name, tpe, methodName) = cp
+          val eval = LocalVariableEvaluator.inMethod(name, methodName)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
 
@@ -107,13 +107,13 @@ private[evaluation] object LambdaExpressionEvaluator {
           val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
           (replaced, Seq((param, eval)))
 
-        case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, scope) =>
-          val eval = new LocalVariableEvaluator(name, scope)
+        case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, methodName) =>
+          val eval = LocalVariableEvaluator.inMethod(name, methodName)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
 
         case ExpressionEvaluatorBuilder.TypedPatternInPartialFunction(name, tpe, scope) =>
-          val eval = new LocalVariableEvaluator(name, scope)
+          val eval = LocalVariableEvaluator.inMethod(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
 
@@ -124,7 +124,7 @@ private[evaluation] object LambdaExpressionEvaluator {
           (expression, Seq((param, eval)))
 
         case LocalVariable(name, tpe, scope) =>
-          val eval = new LocalVariableEvaluator(name, scope)
+          val eval = LocalVariableEvaluator.inMethod(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
 
