@@ -27,12 +27,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   private[evaluation] def buildEvaluator(element: PsiElement, position: SourcePosition): Evaluator = element match {
     case fun: ScFunctionExpr => LambdaExpressionEvaluator.fromFunctionExpression(fun, position)
     case lit: ScLiteral => LiteralEvaluator.create(lit)
-    case ref: ScThisReference =>
-      ref.refTemplate.collect {
-        case o: ScObject => s"${o.getQualifiedNameForDebugger}$$"
-        case c: ScClass => c.getQualifiedNameForDebugger
-        case t: ScTrait => t.getQualifiedNameForDebugger
-      }.fold[Evaluator](StackWalkingThisEvaluator.closest)(name => StackWalkingThisEvaluator.ofType(name))
+    case ref: ScThisReference => ThisReferenceEvaluator.create(ref)
     case call: ScMethodCall =>
       val params = call.matchedParameters.map(_._1).map(buildEvaluator(_, position))
       val resolved = call.getInvokedExpr.asInstanceOf[ScReferenceExpression].resolve().asInstanceOf[ScFunctionDefinition]
@@ -154,12 +149,16 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         }
   }
 
-  private def calculateDebuggerName(cls: PsiClass): String =
+  private[evaluation] def calculateDebuggerName(cls: PsiClass): String =
     Option(cls.containingClass).map { containing =>
       val suffix = containing match {
         case _: ScObject => "$"
         case _ => ""
       }
       s"${calculateDebuggerName(containing)}$$${NameTransformer.encode(cls.name)}$suffix"
-    }.getOrElse(cls.qualifiedName)
+    }.getOrElse {
+      val qualified = cls.qualifiedName
+      val name = cls.name
+      qualified.replace(name, NameTransformer.encode(name))
+    }
 }
