@@ -15,6 +15,8 @@ trait Parents {
 
   trait TypeAndValueParameter[A](x: Int)
 
+  trait InferredTypeParameters[A, B](x: A, y: B)
+
   class Class1 extends NoParameters
 
   class Class2 extends TypeParameter[Int]
@@ -32,6 +34,8 @@ trait Parents {
   class Class8 extends MultipleClauses/**/(1)(2L)/**/
 
   class Class9 extends TypeAndValueParameter[Int]/**/(1)/**/
+
+  class Class10 extends InferredTypeParameters/**/(1, 2L)/*[Int, Long]*/
 
   case class CaseClass1() extends NoParameters
 
