@@ -50,6 +50,9 @@ private[evaluation] final class LambdaExpressionEvaluator private(className: Str
 }
 
 private[evaluation] object LambdaExpressionEvaluator {
+
+  import org.jetbrains.plugins.scala.debugger.evaluation.ExpressionEvaluatorBuilder._
+
   private[this] val counter: AtomicInteger = new AtomicInteger(0)
 
   private[this] val captureCounter: AtomicInteger = new AtomicInteger(0)
@@ -85,11 +88,13 @@ private[evaluation] object LambdaExpressionEvaluator {
     case ref: ScReferenceExpression =>
       ref.resolve() match {
         case InEvaluationExpression() => (expression, Seq.empty)
+
         case cp: ScClassParameter if ExpressionEvaluatorBuilder.inPrimaryConstructor(cp) =>
           val ExpressionEvaluatorBuilder.ClassParameterInConstructor(name, tpe, scope) = cp
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
+
         case ExpressionEvaluatorBuilder.ClassMemberClassParameter(name, tpe, containingClass, debuggerName) =>
           val eval = StackWalkingThisEvaluator.withField(debuggerName, name)
           val count = captureCounter.incrementAndGet()
@@ -101,24 +106,29 @@ private[evaluation] object LambdaExpressionEvaluator {
             createExpressionWithContextFromText(s"""readField($$this$$$count, "$name").asInstanceOf[${tpe.canonicalText}]""", copy, copy)
           val replaced = copy.replaceExpression(rewritten, removeParenthesis = false)
           (replaced, Seq((param, eval)))
+
         case ExpressionEvaluatorBuilder.FunctionParameter(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
+
         case ExpressionEvaluatorBuilder.TypedPatternInPartialFunction(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
+
         case tp: ScTypedPattern =>
           val expr = tp.parentOfType[ScMatch].flatMap(_.expression).get
           val eval = ExpressionEvaluatorBuilder.buildEvaluator(expr, position)
           val param = s"${tp.name}: ${tp.`type`().getOrAny.canonicalText}"
           (expression, Seq((param, eval)))
-        case ExpressionEvaluatorBuilder.LocalVariable(name, tpe, scope) =>
+
+        case LocalVariable(name, tpe, scope) =>
           val eval = new LocalVariableEvaluator(name, scope)
           val param = s"$name: ${tpe.canonicalText}"
           (expression, Seq((param, eval)))
-        case ExpressionEvaluatorBuilder.ClassMemberVariable(name, tpe, isMethod, containingClass, debuggerName) =>
+
+        case ClassMemberVariable(name, tpe, isMethod, containingClass, debuggerName) =>
           val eval =
             if (isMethod) StackWalkingThisEvaluator.withMethod(debuggerName, name)
             else StackWalkingThisEvaluator.withField(debuggerName, name)

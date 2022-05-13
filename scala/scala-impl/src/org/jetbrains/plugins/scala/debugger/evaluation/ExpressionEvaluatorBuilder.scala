@@ -57,29 +57,6 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
       }
   }
 
-  private[evaluation] object ClassMemberVariable {
-    def unapply(element: PsiElement): Option[(String, ScType, Boolean, PsiClass, String)] =
-      Option(element)
-        .collect {
-          case rp: ScReferencePattern if rp.isClassMember =>
-            val name = rp.name
-
-            val isMethod = rp.getModifierList match {
-              case ml: ScModifierList => !ml.isPrivate
-              case _ => false
-            }
-
-            val containingClass = rp.containingClass match {
-              case td: ScNewTemplateDefinition => td.supers.head
-              case c => c
-            }
-
-            val debuggerName = calculateDebuggerName(containingClass)
-
-            (name, rp.`type`().getOrAny, isMethod, containingClass, debuggerName)
-        }
-  }
-
   private[evaluation] object FunctionParameter {
     def unapply(element: PsiElement): Option[(String, ScType, String)] =
       Option(element)
@@ -129,7 +106,7 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
   }
 
   /**
-   * A local variable is a variable defined within a "named" context. In all instances, the name and the type of the
+   * A local variable is a val/var defined within a "named" context. In all instances, the name and the type of the
    * variable is extracted.
    *
    * An attempt is made to extract the name of the enclosing scope, with some predetermined names given to scopes like
@@ -154,6 +131,30 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         case _: ScTemplateBody => Some("init>")
         case _ => None
       }
+  }
+
+  /**
+   * A class member variable is a val/var defined within a class/object/trait. In all instances, the name, the type
+   * and the access modifiers are extracted.
+   *
+   * Furthermore, the containing [[PsiClass]] instance is extracted, along with its debugger name.
+   */
+  private[evaluation] object ClassMemberVariable {
+    def unapply(element: PsiElement): Option[(String, ScType, Boolean, PsiClass, String)] =
+      Option(element)
+        .collect {
+          case rp: ScReferencePattern if rp.isClassMember =>
+            val name = rp.name
+            val isMethod = rp.getModifierList match {
+              case ml: ScModifierList => !ml.isPrivate
+              case _ => false
+            }
+            val containingClass = rp.containingClass match {
+              case td: ScNewTemplateDefinition => td.supers.head
+              case c => c
+            }
+            (name, rp.`type`().getOrAny, isMethod, containingClass, calculateDebuggerName(containingClass))
+        }
   }
 
   private[evaluation] def calculateDebuggerName(cls: PsiClass): String = {
