@@ -670,9 +670,14 @@ package object extensions {
     def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
       Option(getNonStrictParentOfType(element, classes: _*))
 
-
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
       Option(getContextOfType(element, clazz))
+
+    def contextOfType(classes: Class[_ <: PsiElement]*): Option[PsiElement] =
+      Option(getContextOfType(element, classes: _*))
+
+    def contextOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
+      findContextOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
 
     def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
 

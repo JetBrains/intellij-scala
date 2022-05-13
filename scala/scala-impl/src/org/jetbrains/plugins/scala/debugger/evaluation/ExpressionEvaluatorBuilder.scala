@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -54,27 +54,6 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
 
           if (isMethod) new MethodEvaluator(instance, null, name, null, Array.empty)
           else new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-      }
-  }
-
-  private[evaluation] object LocalVariable {
-    def unapply(element: PsiElement): Option[(String, ScType, String)] =
-      Option(element)
-        .collect { case rp: ScReferencePattern if !rp.isClassMember => rp }
-        .flatMap { rp =>
-          rp.parentOfType[ScBlockExpr].flatMap {
-            case _: ScConstrBlockExpr => Some("<init>")
-            case blk if blk.isPartialFunction => Some("applyOrElse")
-            case blk => extractScopeName(blk)
-          }.map(name => (rp.name, rp.`type`().getOrAny, name))
-        }
-
-    private def extractScopeName(element: PsiElement): Option[String] =
-      element.parentOfType(Seq(classOf[ScFunctionDefinition], classOf[ScValueOrVariableDefinition], classOf[ScFunctionExpr], classOf[ScTemplateBody])).flatMap {
-        case fun: ScFunctionDefinition => Some(NameTransformer.encode(fun.name))
-        case valDef: ScValueOrVariableDefinition => extractScopeName(valDef)
-        case _: ScFunctionExpr => Some("anonfun")
-        case _: ScTemplateBody => Some("init>")
       }
   }
 
@@ -149,11 +128,40 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         }
   }
 
+  /**
+   * A local variable is a variable defined within a "named" context. In all instances, the name and the type of the
+   * variable is extracted.
+   *
+   * An attempt is made to extract the name of the enclosing scope, with some predetermined names given to scopes like
+   * function expressions (lambda expressions), partial functions, constructors, etc.
+   */
+  private[evaluation] object LocalVariable {
+    def unapply(element: PsiElement): Option[(String, ScType, String)] =
+      Option(element)
+        .collect { case rp: ScReferencePattern if !rp.isClassMember => rp }
+        .flatMap(rp => extractScopeName(rp).map(name => (rp.name, rp.`type`().getOrAny, name)))
+
+    private def extractScopeName(element: PsiElement): Option[String] =
+      element.contextOfType(
+        classOf[ScBlockExpr], classOf[ScFunctionDefinition], classOf[ScValueOrVariableDefinition],
+        classOf[ScFunctionExpr], classOf[ScTemplateBody]).flatMap {
+        case _: ScConstrBlockExpr => Some("<init>")
+        case blk: ScBlockExpr if blk.isPartialFunction => Some("applyOrElse")
+        case blk: ScBlockExpr => extractScopeName(blk)
+        case fun: ScFunctionDefinition => Some(NameTransformer.encode(fun.name))
+        case valDef: ScValueOrVariableDefinition => extractScopeName(valDef)
+        case _: ScFunctionExpr => Some("anonfun")
+        case _: ScTemplateBody => Some("init>")
+        case _ => None
+      }
+  }
+
   private[evaluation] def calculateDebuggerName(cls: PsiClass): String = {
     def loop(cls: PsiClass): String = Option(cls.containingClass) match {
       case Some(containing) => s"${loop(containing)}$$${cls.name}"
       case None => cls.qualifiedName
     }
+
     val suffix = if (cls.is[ScObject]) "$" else ""
     s"${loop(cls)}$suffix"
   }
