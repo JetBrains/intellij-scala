@@ -13,7 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 
 import java.util.Collections
 
-private[evaluation] final class LiteralEvaluator private (value: AnyRef, expectedType: String) extends Evaluator {
+/**
+ * Scala translation of the platform LiteralEvaluator. There are no implementation differences apart from
+ * the syntax.
+ */
+private[evaluation] final class LiteralEvaluator private(value: AnyRef, expectedType: String) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): Value = {
     val vm = context.getDebugProcess.getVirtualMachineProxy
 
@@ -41,6 +45,17 @@ private[evaluation] final class LiteralEvaluator private (value: AnyRef, expecte
 }
 
 private[evaluation] object LiteralEvaluator {
+
+  /**
+   * Constructs a [[LiteralEvaluator]] from an [[ScLiteral]] by extracting the type of the literal. Any literal types
+   * are widened to their platform types (for primitives and strings).
+   *
+   * An `expected` type is then constructed based on the extracted type of the literal. This expected type is used
+   * by the platform to create a numeric value of the specified type. This `expected` type is ignored for string
+   * literals.
+   *
+   * The value of the literal and the expected type are then passed to the platform implementation.
+   */
   def fromLiteral(lit: ScLiteral): LiteralEvaluator = {
     val tpe = lit.`type`().getOrAny match {
       case lt: ScLiteralType => lt.wideType
