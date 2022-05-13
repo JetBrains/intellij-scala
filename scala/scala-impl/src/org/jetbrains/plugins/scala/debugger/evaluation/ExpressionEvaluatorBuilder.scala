@@ -52,8 +52,8 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
             if (isMethod) StackWalkingThisEvaluator.withMethod(debuggerName, name)
             else StackWalkingThisEvaluator.withField(debuggerName, name)
 
-          if (isMethod) new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
-          else new MethodEvaluator(instance, null, name, null, Array.empty)
+          if (isMethod) new MethodEvaluator(instance, null, name, null, Array.empty)
+          else new FieldEvaluator(instance, name, DebuggerUtil.getJVMQualifiedName(tpe))
       }
   }
 
@@ -149,16 +149,12 @@ private[evaluation] object ExpressionEvaluatorBuilder extends EvaluatorBuilder {
         }
   }
 
-  private[evaluation] def calculateDebuggerName(cls: PsiClass): String =
-    Option(cls.containingClass).map { containing =>
-      val suffix = containing match {
-        case _: ScObject => "$"
-        case _ => ""
-      }
-      s"${calculateDebuggerName(containing)}$$${NameTransformer.encode(cls.name)}$suffix"
-    }.getOrElse {
-      val qualified = cls.qualifiedName
-      val name = cls.name
-      qualified.replace(name, NameTransformer.encode(name))
+  private[evaluation] def calculateDebuggerName(cls: PsiClass): String = {
+    def loop(cls: PsiClass): String = Option(cls.containingClass) match {
+      case Some(containing) => s"${loop(containing)}$$${cls.name}"
+      case None => cls.qualifiedName
     }
+    val suffix = if (cls.is[ScObject]) "$" else ""
+    s"${loop(cls)}$suffix"
+  }
 }
