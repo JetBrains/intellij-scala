@@ -9,6 +9,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
+import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
@@ -398,6 +399,8 @@ private[importing] object BspResolverLogic {
     data
   }
 
+  private final val MaxModuleNameLength = 150
+
   private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
     val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
     val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
@@ -415,8 +418,15 @@ private[importing] object BspResolverLogic {
       val nonEmptyParts = parts.filter(_.nonEmpty)
       if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
     }
-    head.map(combine).mkString +
+    val ret = head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
+    if (ret.length > MaxModuleNameLength) {
+      val prefix = ret.substring(0, MaxModuleNameLength)
+      val suffix = DigestUtils.md5Hex(targets.map(_.getDisplayName).mkString)
+      prefix + suffix
+    } else {
+      ret
+    }
   }
 
   /** "Inherits" data from other modules into newly created synthetic module description.
