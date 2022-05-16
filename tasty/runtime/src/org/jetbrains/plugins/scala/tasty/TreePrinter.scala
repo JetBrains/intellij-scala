@@ -165,7 +165,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (node.contains(OPAQUE)) {
           sb ++= "???" // TODO parameter, { /* compiled code */ }
         } else {
-          repr.children.findLast(_.isTypeTree) match {
+          repr.children.findLast(_.isTypeTree).orElse(repr.children.find(_.is(TYPEBOUNDS)).flatMap(_.children.headOption)) match {
             case Some(t) =>
               sb ++= simple(textOfType(t))
             case None =>
@@ -183,15 +183,18 @@ class TreePrinter(privateMembers: Boolean = false) {
     val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
     val isInEnum = definition.exists(_.contains(ENUM))
     val isInCaseClass = !isInEnum && definition.exists(_.contains(CASE))
+    def textOf(tpe: Node): String = textOfType(tpe, parensRequired = true)
+    // TODO recursive textOf method, common syntactic sugar for FunctionN and TupleN
     val parents = children.collect { // TODO rely on name kind
-      case node if node.isTypeTree => node
-      case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
-      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-    }.map(textOfType(_, parensRequired = true))
-      .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
-        !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
+      case node if node.isTypeTree => textOf(node)
+      case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(base @ Node1(IDENTtpt), _: _*)), _: _*)), arguments: _*)), _: _*)) =>
+        base.name + arguments.map(t => simple(textOfType(t))).mkString("[", ", ", "]")
+      case Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
+      case Node3(APPLY, _, Seq(Node3(APPLY, _, Seq(Node3(TYPEAPPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => textOf(tpe)
+    }.filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
+      !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
       .map(simple)
     val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
     val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
@@ -211,6 +214,8 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (isInGiven) {
       sb ++= parents.mkString(" with ") + " with"
     } else {
+      // TODO enum Enum[+A] { case Case extends Enum[Nothing] }
+      // TODO enum Enum[-A] { case Case extends Enum[Any] }
       if (parents.nonEmpty && !(parents.length == 1 && !parents.head.endsWith("]") && (definition.isEmpty || definition.exists(it => it.contains(ENUM) && it.contains(CASE))))) {
         sb ++= " extends " + parents.mkString(", ")
       }
@@ -268,7 +273,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       val isAbstractGiven = node.contains(GIVEN)
       modifiersIn(sb, node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false)
       if (!isAbstractGiven) {
-        sb ++= "def "
+        sb ++= (if (node.contains(STABLE)) "val " else "def ")
       }
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       if (!isAnonymousGiven) {
@@ -343,7 +348,7 @@ class TreePrinter(privateMembers: Boolean = false) {
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfType(node: Node, parensRequired: Boolean = false): String = {
+  private def textOfType(node: Node, parensRequired: Boolean = false)(using parent: Option[Node] = None): String = {
     if (node.isSharedType) {
       sharedTypes.get(node.addr) match {
         case Some(text) =>
@@ -352,16 +357,21 @@ class TreePrinter(privateMembers: Boolean = false) {
       }
     }
     // TODO extract method
+    given Option[Node] = Some(node)
     val text = node match { // TODO proper settings
       case Node3(IDENTtpt, _, Seq(tail)) => textOfType(tail)
       case Node3(SINGLETONtpt, _, Seq(tail)) =>
         val literal = textOfConstant(tail)
-        if (literal.nonEmpty) literal else textOfType(tail) + ".type"
+        if (literal.nonEmpty) literal else textOfType(tail) + (if (tail.is(TERMREF)) "" else ".type")
       case const @ Node1(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst) => textOfConstant(const)
       case Node3(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in some cases?
+      case Node3(TERMREF, Seq(name), Seq(tail)) => if (name == "package" || name.endsWith("$package")) textOfType(tail) else textOfType(tail) + "." + name + // TODO why there's "package" in some cases?
+          (if (parent.forall(_.is(SINGLETONtpt))) ".type" else "") // TODO Why there is sometimes no SINGLETONtpt? (add RHS?)
       case Node1(THIS) => "this" // TODO prefix
-      case Node1(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect) => node.refName.getOrElse("") // TODO
+      case Node3(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, tail) =>
+        val prefix = tail.headOption.filter(!_.is(THIS)).map(textOfType(_)).getOrElse("")
+        val name = node.refName.getOrElse("")
+        if (name == "package" || name.endsWith("$package")) prefix else (if (prefix.isEmpty) name else prefix + "." + name) // TODO rely on name kind
       case Node3(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
         if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
         else {
@@ -369,12 +379,13 @@ class TreePrinter(privateMembers: Boolean = false) {
           if (qualifier.nonEmpty) qualifier + "." + name else name
         }
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
-      case Node3(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+      case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
         if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
         else if (base == "scala.|") elements.mkString(" | ")
+        else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
         else {
-          if (base.startsWith("scala.Tuple")) {
+          if (base.startsWith("scala.Tuple") && !base.substring(11).contains(".")) { // TODO use regex
             elements.mkString("(", ", ", ")")
           } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
             val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
@@ -386,8 +397,8 @@ class TreePrinter(privateMembers: Boolean = false) {
         }
       case Node3(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
         annotation match {
-          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
-            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+          case Node3(APPLY, _, Seq(Node3(SELECTin, _, Seq(Node3(NEW, _, Seq(tpe0, _: _*)), _: _*)), _: _*)) =>
+            if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1), parensRequired = true) + "*"
             else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
               val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
               if (args.nonEmpty) "(" + args + ")" else ""
@@ -409,11 +420,11 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node3(REFINEDtpt, _, Seq(tr @ Node1(TYPEREF), Node3(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
         val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
         val (valueParams, tails2) = tail1.span(_.is(PARAM))
-        typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
+        val s = typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
           val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
           if (valueParams.length == 1) params else "(" + params + ")"
         } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
-
+        if (parensRequired) "(" + s + ")" else s
       case Node3(REFINEDtpt, _, Seq(tpe, members: _*)) =>
         val prefix = textOfType(tpe)
         (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(it => { val sb = new StringBuilder(); textOfMember(sb, "", it); sb.toString }).mkString("; ") + " }" // TODO use sb directly
@@ -586,7 +597,8 @@ class TreePrinter(privateMembers: Boolean = false) {
           sb ++= ", "
         }
         textOfAnnotationIn(sb, "", node, " ")
-        if (node.contains(INLINE)) {
+        val tpe = textOfType(children.head)
+        if (node.contains(INLINE) || tpe.endsWith(" @scala.annotation.internal.InlineParam")) {
           sb ++= "inline "
         }
         val templateValueParam = templateValueParams.map(_.next())
@@ -609,7 +621,7 @@ class TreePrinter(privateMembers: Boolean = false) {
         if (!(node.contains(SYNTHETIC) || templateValueParam.exists(_.contains(SYNTHETIC)))) {
           sb ++= id(name) + ": "
         }
-        sb ++= simple(textOfType(children.head))
+        sb ++= simple(tpe).stripSuffix(" @scala.annotation.internal.InlineParam")
         if (node.contains(HASDEFAULT)) {
           sb ++= " = ???" // TODO parameter, /* compiled code */
         }
@@ -693,7 +705,7 @@ class TreePrinter(privateMembers: Boolean = false) {
       if (u.nonEmpty && u != "Any") {
         sb ++= " <: " + u
       }
-    case _ => "" // TODO exhaustive match
+    case _ => // TODO exhaustive match
   }
 
   private def asQualifier(tpe: String): String = {
