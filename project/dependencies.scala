@@ -117,12 +117,7 @@ object Dependencies {
   val fastparseVersion = "2.3.1"
   val scalaMetaVersion = "4.5.5"
   val scalafmtVersion = "3.5.3"
-  val typesafeConfigVersion = "1.4.1"
-  val scalafmt: Seq[ModuleID] = Seq(
-    "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion,
-    "org.scalameta" % "scalafmt-interfaces" % scalafmtVersion,
-    "com.typesafe" % "config" % typesafeConfigVersion
-  )
+  val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")
   val fastparse: ModuleID = "com.lihaoyi" %% "fastparse" % fastparseVersion // transitive dependency of scalaMeta, needs explicit versioning
 
@@ -192,8 +187,9 @@ object DependencyGroups {
     ivy2,
     scalastyle,
     scalariform,
-    compilerIndicesProtocol
-  ) ++ scalafmt
+    compilerIndicesProtocol,
+    scalafmtDynamic
+  )
 
   val bsp: Seq[ModuleID] = Seq(
     ("ch.epfl.scala" % "bsp4j" % bspVersion)
