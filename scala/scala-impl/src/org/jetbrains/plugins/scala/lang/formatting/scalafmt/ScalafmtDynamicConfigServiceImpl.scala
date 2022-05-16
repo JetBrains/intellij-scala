@@ -157,7 +157,11 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     val configPath = configFile.getPath
 
     val currentVFileTimestamp: Long = configFile.getModificationStamp
-    val currentDocTimestamp: Long = inReadAction(FileDocumentManager.getInstance.getDocument(configFile)).getModificationStamp
+    val document = FileDocumentManager.getInstance.getDocument(configFile)
+    if (document == null)
+      return Left(ConfigResolveError.ConfigFileNotFound(configFile.getPath + " (can't get Document for the file)"))
+
+    val currentDocTimestamp: Long = inReadAction(document).getModificationStamp
 
     val cachedConfig = configsCache.get(configPath)
     cachedConfig match {
@@ -218,13 +222,10 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     val details = configError match {
       case ConfigFileNotFound(path) =>
         Log.warnWithErrorInTests(s"config resolve error: config not found: $path")
-        ScalaBundle.message("scalafmt.config.load.errors.file.not.found")
+        ScalaBundle.message("scalafmt.can.not.find.config.file", path)
       case ConfigParseError(path, cause) =>
         Log.warnWithErrorInTests(s"config resolve error: parse error: $path", cause)
         ScalaBundle.message("scalafmt.config.load.errors.parse.error", cause.getMessage)
-      case UnknownError(unknownMessage, exception) =>
-        Log.warnWithErrorInTests(s"config resolve error: unknown error: $unknownMessage", exception.orNull)
-        ScalaBundle.message("scalafmt.config.load.errors.unknown.error", unknownMessage)
       /** reported in [[ScalafmtDynamicServiceImpl.reportResolveError]] */
       case _: ConfigScalafmtResolveError => return
       case ConfigCyclicDependenciesError(configPath, ex) =>

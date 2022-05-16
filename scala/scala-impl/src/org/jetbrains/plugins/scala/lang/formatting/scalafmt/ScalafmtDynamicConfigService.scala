@@ -85,11 +85,6 @@ object ScalafmtDynamicConfigService {
       override def getMessage: String = cause.getMessage
     }
     case class ConfigScalafmtResolveError(error: ScalafmtResolveError) extends ConfigResolveError
-    case class UnknownError(message: String, cause: Option[Throwable]) extends ConfigResolveError
-
-    object UnknownError {
-      def apply(cause: Throwable): UnknownError = new UnknownError(cause.getMessage, Option(cause))
-    }
 
     case class ConfigCyclicDependencyException(filesResolveStack: List[VirtualFile]) extends RuntimeException
   }
