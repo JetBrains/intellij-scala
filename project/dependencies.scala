@@ -1,4 +1,3 @@
-import Utils.IdeBuildType
 import sbt._
 
 object Versions {
@@ -10,31 +9,12 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.0"
   val zincVersion = "1.6.1"
-  val intellijVersion = "222.2162"
+  val intellijVersion = "222.2270.15"
 
-  private val ideaBuildType = Utils.inferIdeaBuildType(intellijVersion)
-
-  /**
-   * Main IntelliJ SDK is managed with sbt-idea-plugin (using org.jetbrains.sbtidea.Keys.intellijBuild key)<br>
-   * Some parts of intellij are published as separate libraries, for example some base test classes (see e.g. IDEA-281823 and IDEA-281822)<br>
-   * For now we manage these libraries manually.
-   *
-   * @note Nightly library version can be newer then intellijVersion, because it uses "222-SNAPSHOT" version
-   *       It should generally work ok, but there might be some source or binary incompatibilities.
-   *       In this case update intellijVersion to the latest Nightly version.
-   * @note we might move this feature into sbt-idea-plugin using something like
-   *       [[org.jetbrains.sbtidea.download.idea.IJRepoIdeaResolver]]
-   */
-  val intellijVersion_ForManagedIntellijDependencies: String = ideaBuildType match {
-    case IdeBuildType.Release => intellijVersion
-    case IdeBuildType.Eap => intellijVersion + "-EAP-SNAPSHOT"
-    case IdeBuildType.Nightly => intellijVersion.substring(0, intellijVersion.indexOf(".")) + "-SNAPSHOT" // e.g. 222-SNAPSHOT
-  }
-  val intellijRepository_ForManagedIntellijDependencies: sbt.MavenRepository = ideaBuildType match {
-    case IdeBuildType.Release => Repositories.intellijRepositoryReleases
-    case IdeBuildType.Eap => Repositories.intellijRepositoryEap
-    case IdeBuildType.Nightly => Repositories.intellijRepositoryNightly
-  }
+  val Utils.DataForManagedIntellijDependencies(
+    intellijVersion_ForManagedIntellijDependencies,
+    intellijRepository_ForManagedIntellijDependencies
+  ) = Utils.getDataForManagedIntellijDependencies(intellijVersion)
 
   val bspVersion = "2.0.0"
   val sbtStructureVersion: String = "2021.3.0"
@@ -96,7 +76,7 @@ object Dependencies {
   val scalaCompiler: ModuleID = "org.scala-lang" % "scala-compiler" % scalaVersion
   val scalaXml: ModuleID = "org.scala-lang.modules" %% "scala-xml" % "1.3.0"
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
-//  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
+  //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
   val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
@@ -179,7 +159,7 @@ object DependencyGroups {
     scalaXml,
     scalaMetaCore,
     fastparse % Test, //used in single test org.jetbrains.plugins.scala.annotator.TreeTest
-//    scalaParserCombinators,
+    //    scalaParserCombinators,
     sbtStructureCore,
     evoInflector,
     "io.github.soc" % "directories" % "11",
@@ -240,16 +220,74 @@ object DependencyGroups {
 }
 
 private object Utils {
-  def inferIdeaBuildType(intellijVersion: String): IdeBuildType = {
-      //nightly     version example : 222.1533
-      //release/eap version example : 221.5080.169
+
+  case class DataForManagedIntellijDependencies(
+    intellijVersion: String,
+    intellijRepository: sbt.MavenRepository
+  )
+
+  /**
+   * Main IntelliJ SDK is managed with sbt-idea-plugin (using org.jetbrains.sbtidea.Keys.intellijBuild key)<br>
+   * Some parts of intellij are published as separate libraries, for example some base test classes (see e.g. IDEA-281823 and IDEA-281822)<br>
+   * These libraries are managed manually.
+   *
+   * @param intellijVersion example:<br>
+   *                        - 222.2270.15 - Release/EAP version
+   *                        - 222.1533 - Nightly version
+   *
+   * @note Nightly library version can be newer then intellijVersion, because it uses "222-SNAPSHOT" version
+   *       It should generally work ok, but there might be some source or binary incompatibilities.
+   *       In this case update intellijVersion to the latest Nightly version.
+   * @note we might move this feature into sbt-idea-plugin using something like
+   *       [[org.jetbrains.sbtidea.download.idea.IJRepoIdeaResolver]]
+   */
+  def getDataForManagedIntellijDependencies(intellijVersion: String): DataForManagedIntellijDependencies = {
+    //Examples of versions of managed artifacts
+    //release        : 222.2270.15
+    //eap            : 222.2270.15-EAP-SNAPSHOT
+    //eap candidate  : 222.2270-EAP-CANDIDATE-SNAPSHOT
+    //nightly        : 222.1533
+
+    val versionWithoutTail = intellijVersion.substring(0, intellijVersion.lastIndexOf('.'))
+    //222.2270.15 -> 222.2270-EAP-CANDIDATE-SNAPSHOT
+    val eapCandidateVersion = versionWithoutTail + "-EAP-CANDIDATE-SNAPSHOT"
+    //222.1533 -> 222.2270-SNAPSHOT
+    val nightlyVersion = versionWithoutTail + "-SNAPSHOT"
+    val eapVersion = intellijVersion + "-EAP-SNAPSHOT"
+
+    val buildType =
       if (intellijVersion.count(_ == '.') == 1) IdeBuildType.Nightly
       else if (Utils.isIdeaReleaseBuildAvailable(intellijVersion)) IdeBuildType.Release
+      else if (Utils.isIdeaEapCandidateBuildAvailable(eapCandidateVersion)) IdeBuildType.EapCandidate
       else IdeBuildType.Eap
+
+    println(s"Detected build type: $buildType")
+
+    val intellijVersionManaged: String = buildType match {
+      case IdeBuildType.Release => intellijVersion
+      case IdeBuildType.Eap => eapVersion
+      case IdeBuildType.EapCandidate => eapCandidateVersion
+      case IdeBuildType.Nightly => nightlyVersion
+    }
+    val intellijRepositoryManaged: sbt.MavenRepository = buildType match {
+      case IdeBuildType.Release => Repositories.intellijRepositoryReleases
+      case IdeBuildType.Eap => Repositories.intellijRepositoryEap
+      case IdeBuildType.EapCandidate => Repositories.intellijRepositoryEap
+      case IdeBuildType.Nightly => Repositories.intellijRepositoryNightly
+    }
+    DataForManagedIntellijDependencies(
+      intellijVersionManaged,
+      intellijRepositoryManaged
+    )
   }
 
   private def isIdeaReleaseBuildAvailable(ideaVersion: String): Boolean = {
-    val url = s"https://www.jetbrains.com/intellij-repository/releases/com/jetbrains/intellij/idea/ideaIC/$ideaVersion/ideaIC-$ideaVersion.zip"
+    val url = Repositories.intellijRepositoryReleases.root + s"/com/jetbrains/intellij/idea/ideaIC/$ideaVersion/ideaIC-$ideaVersion.zip"
+    isResourceFound(url)
+  }
+
+  private def isIdeaEapCandidateBuildAvailable(ideaVersion: String): Boolean = {
+    val url = Repositories.intellijRepositoryEap.root + s"/com/jetbrains/intellij/idea/ideaIC/$ideaVersion/ideaIC-$ideaVersion.zip"
     isResourceFound(url)
   }
 
@@ -269,6 +307,7 @@ private object Utils {
   object IdeBuildType {
     case object Release extends IdeBuildType
     case object Eap extends IdeBuildType
+    case object EapCandidate extends IdeBuildType
     case object Nightly extends IdeBuildType
   }
 }
