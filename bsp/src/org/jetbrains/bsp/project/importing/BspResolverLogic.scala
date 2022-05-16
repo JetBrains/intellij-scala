@@ -10,6 +10,7 @@ import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileSystem
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleNode}
 import org.jetbrains.sbt.project.module.SbtModuleType
-
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
@@ -399,8 +399,6 @@ private[importing] object BspResolverLogic {
     data
   }
 
-  private final val MaxModuleNameLength = 150
-
   private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
     val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
     val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
@@ -420,9 +418,9 @@ private[importing] object BspResolverLogic {
     }
     val ret = head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
-    if (ret.length > MaxModuleNameLength) {
-      val prefix = ret.substring(0, MaxModuleNameLength)
-      val suffix = DigestUtils.md5Hex(targets.map(_.getDisplayName).mkString)
+    if (ret.length > FileSystem.getCurrent.getMaxFileNameLength) {
+      val suffix = DigestUtils.md5Hex(ret)
+      val prefix = ret.substring(0, FileSystem.getCurrent.getMaxFileNameLength - suffix.length)
       prefix + suffix
     } else {
       ret
