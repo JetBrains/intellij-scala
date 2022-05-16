@@ -4,8 +4,6 @@ import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat._
 import dotty.tools.tasty.{TastyReader, UnpickleException}
 
-// TODO read children lazily
-// TODO don't use classes from dotc (requires parsing the name section manually)
 private class TreeReader(nameAtRef: NameTable) {
   private def readNat(in: TastyReader): Int = in.readNat()
 
@@ -19,6 +17,8 @@ private class TreeReader(nameAtRef: NameTable) {
   }
 
   private def readTree(in: TastyReader): Node = {
+    val addr = in.currentAddr
+
     val tag = in.readByte()
 
     var nat = -1
@@ -26,46 +26,54 @@ private class TreeReader(nameAtRef: NameTable) {
     var value = -1L
 
     var names = Seq.empty[String]
-    var children = Seq.empty[Node]
+    var children: () => Seq[Node] = () => Seq.empty
 
     if (tag >= firstLengthTreeTag) {
       val len = in.readNat()
       val end = in.currentAddr + len
 
-      def readTrees(): Seq[Node] = in.until(end)(readTree(in))
+      def treeReader(): () => Seq[Node] = {
+        val addr = in.currentAddr
+        () => {
+          in.goto(addr)
+          val trees = in.until(end)(readTree(in))
+          trees.zip(trees.drop(1)).foreach { case (a, b) =>
+            a.nextSibling = Some(b)
+            b.previousSibling = Some(a)
+          }
+          trees
+        }
+      }
 
       tag match {
         case RENAMED =>
-          names :+= readName(in); names :+= readName(in)
+//          names :+= readName(in); names :+= readName(in)
         case VALDEF | DEFDEF | TYPEDEF | TYPEPARAM | PARAM | NAMEDARG | BIND =>
-          names :+= readName(in); children :++= readTrees()
+          names :+= readName(in); children = treeReader()
         case REFINEDtype | TERMREFin | TYPEREFin | SELECTin =>
-          names :+= readName(in); children :+= readTree(in); children :++= readTrees()
+          names :+= readName(in); children = treeReader()
         case RETURN | HOLE =>
-          readNat(in); children :++= readTrees()
+//          readNat(in); children :++= readTrees()
         case METHODtype | POLYtype | TYPELAMBDAtype =>
-          children :+= readTree(in)
-          while (in.currentAddr.index < end.index && !isModifierTag(in.nextByte)) { children :+= readTree(in); names :+= readName(in); }
-          children :++= readTrees()
+//          children :+= readTree(in)
+//          while (in.currentAddr.index < end.index && !isModifierTag(in.nextByte)) { children :+= readTree(in); names :+= readName(in); }
+//          children :++= readTrees()
         case PARAMtype =>
-          readNat(in); readNat(in)
+//          readNat(in); readNat(in)
         case _ =>
-          children :++= readTrees()
+          children = treeReader()
       }
-      if (in.currentAddr != end) {
-        println(s"incomplete read, current = ${in.currentAddr}, end = $end")
-        in.goto(end)
-      }
+      in.goto(end)
     }
     else if (tag >= firstNatASTTreeTag) {
       tag match {
         case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF => names :+= readName(in)
         case _ => nat = readNat(in)
       }
-      children :+= readTree(in)
+      children = { val tree = readTree(in); () => Seq(tree) }
     }
     else if (tag >= firstASTTreeTag)
-      children :+= readTree(in)
+      children = { val tree = readTree(in); () => Seq(tree) }
     else if (tag >= firstNatTreeTag)
       tag match {
         case TERMREFpkg | TYPEREFpkg | STRINGconst | IMPORTED => names :+= readName(in)
@@ -76,14 +84,13 @@ private class TreeReader(nameAtRef: NameTable) {
       }
 
     tag match {
-      case SHAREDtype => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache (and resuse string presentation?)
-      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache
+      case SHAREDtype =>
+        val node = readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
+        node.isSharedType = true
+        node
+      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache?
       case _ =>
-        children.zip(children.drop(1)).foreach { case (a, b) =>
-          a.nextSibling = Some(b)
-          b.previousSibling = Some(a)
-        }
-        val node = Node(tag, names, children)
+        val node = new Node(addr, tag, names, children)
         tag match {
           case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)
