@@ -1,9 +1,11 @@
 package org.jetbrains.plugins.scala.tasty
 
+import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat
 
-// TODO custom extractors
-case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
+class Node(val addr: Addr, val tag: Int, val names: Seq[String], children0: () => Seq[Node]) {
+  lazy val children: Seq[Node] = children0()
+
   override def toString: String = toString(0)
 
   protected def toString(indent: Int): String =
@@ -12,9 +14,9 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   def name: String = names.head
 
-  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO hasModifier, optimize
+  def contains(modifierTag: Int): Boolean = modifierTags.contains(modifierTag)
 
-  def flags: Seq[Node] = children.filter(_.isModifier) // TODO optimize, Set
+  lazy val modifierTags: Set[Int] = children.reverseIterator.map(_.tag).takeWhile(TastyFormat.isModifierTag).toSet
 
   def isModifier: Boolean = TastyFormat.isModifierTag(tag)
 
@@ -28,42 +30,31 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   val nextSiblings: Iterator[Node] = Iterator.unfold(this)(_.nextSibling.map(x => (x, x)))
 
+  // TODO can we use only previousSibling?
   var nextSibling: Option[Node] = None
 
   val prevSiblings: Iterator[Node] = Iterator.unfold(this)(_.previousSibling.map(x => (x, x)))
 
-  def nodes: Iterator[Node] = new Node.BreadthFirstIterator(this)
-
-  // TODO
-  // var parent: Option[Node] = None
-
   var refName: Option[String] = None
 
   var value: Long = -1L
+
+  var isSharedType: Boolean = false
 }
 
 private object Node {
-  // TODO Remove when SourceFile annotation reading is integrated
-  import scala.collection.mutable
-  class BreadthFirstIterator(element: Node) extends Iterator[Node] {
-    private val queue: mutable.Queue[Node] =
-      if (element != null) mutable.Queue(element)
-      else mutable.Queue.empty
 
-    override def hasNext: Boolean = queue.nonEmpty
+  // TODO use Product matches
 
-    override def next(): Node = {
-      val element = queue.dequeue()
-      pushChildren(element)
-      element
-    }
+  object Node1 {
+    def unapply(node: Node): Option[Int] = Some(node.tag)
+  }
 
-    private def pushChildren(element: Node): Unit = {
-      var child = element.children.headOption
-      while (child.nonEmpty) {
-        queue.enqueue(child.get)
-        child = child.get.nextSibling
-      }
-    }
+  object Node2 {
+    def unapply(node: Node): Option[(Int, Seq[String])] = Some((node.tag, node.names))
+  }
+
+  object Node3 {
+    def unapply(node: Node): Option[(Int, Seq[String], Seq[Node])] = Some((node.tag, node.names, node.children))
   }
 }

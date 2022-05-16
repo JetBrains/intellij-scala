@@ -38,9 +38,10 @@ object Compare {
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
           val file = new File(s"$OutputDir/${entry.getName}")
           file.getParentFile.mkdirs()
+          val treePrinter = new TreePrinter()
           val tree = TreeReader.treeFrom(in.readAllBytes())
 //          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
-          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala")), TreePrinter.textOf(tree).getBytes)
+          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".scala")), treePrinter.fileAndTextOf(tree)._2.getBytes)
         }
       }
 
