@@ -6,17 +6,17 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
     val from =
       s"""object Test {
          |  val x = 1$Start;$End
-         |}""".stripMargin
+         |}"""
     val to =
       s"""object Test2 {
          |  1$Caret
-         |}""".stripMargin
+         |}"""
     val after =
       """object Test2 {
         |  1;
-        |}""".stripMargin
+        |}"""
 
-    doTest(from, to, after)
+    doTestWithStrip(from, to, after)
   }
 
   def testCommaSeparated(): Unit = {
@@ -24,12 +24,108 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
     val to =
       s"""object Test {
          |  ($Caret)
-         |}""".stripMargin
+         |}"""
     val after =
       """object Test {
         |  (1, 2, 3)
-        |}""".stripMargin
+        |}"""
 
-    doTest(from, to, after)
+    doTestWithStrip(from, to, after)
+  }
+
+  def testExtension(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |"""
+    val to =
+      s"""object Example {
+         |  $Caret
+         |}"""
+    val after =
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testExtension_1(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |"""
+    val to =
+      s"""object Example {
+         |$Caret
+         |}"""
+    val after =
+      """object Example {
+        |case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |extension (c: Circle)
+        |  def circumference: Double = c.radius * math.Pi * 2
+        |}"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testExtension_2(): Unit = {
+    val from =
+      s"""$Start
+         |case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2
+         |$End
+         |"""
+    val to =
+      s"""object Example {
+         |  $Caret
+         |}"""
+    val after =
+      """object Example {
+        |
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |
+        |}"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testExtension_3(): Unit = {
+    val from =
+      s"""$Start
+         |case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2
+         |$End
+         |"""
+    val to =
+      s"""object Example {
+         |$Caret
+         |}"""
+    val after =
+      """object Example {
+        |
+        |case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |extension (c: Circle)
+        |  def circumference: Double = c.radius * math.Pi * 2
+        |
+        |}"""
+
+    doTestWithStrip(from, to, after)
   }
 }
