@@ -294,7 +294,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
       if (addImport) {
         if (!isPackageAlreadyImported(qualifiedName)) {
           val holder = ScImportsHolder.forNewImportInsertion(this)
-          holder.addImportForPath(qualifiedName, ref = this)
+          holder.addImportForPath(qualifiedName, refsContainer = this)
         }
       }
 
