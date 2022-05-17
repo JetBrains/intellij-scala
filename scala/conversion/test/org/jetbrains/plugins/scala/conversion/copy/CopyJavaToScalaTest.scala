@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProj
  * Conversion functionality from java to scala is tested in
  * [[org.jetbrains.plugins.scala.conversion.JavaToScalaConversionTestBase]]
  */
-class CopyPasteJavaToScala extends CopyPasteTestBase {
+class CopyJavaToScalaTest extends CopyPasteTestBase {
   override val fromLangExtension: String = ".java"
 
   override def setUp(): Unit = {

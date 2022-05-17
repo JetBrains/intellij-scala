@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.conversion.copy
 import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-class CopyPasteTextToScala extends CopyPasteTestBase {
+class CopyTextToScalaTest extends CopyPasteTestBase {
   override val fromLangExtension: String = ".txt"
 
   override protected def setUp(): Unit = {

@@ -299,6 +299,7 @@ class ScalaBackspaceHandler extends BackspaceHandlerDelegate {
     val (start, end) = PsiTreeUtil.nextLeaf(brace) match {
       case ws: PsiWhiteSpace =>
         if (ws.textContains('\n')) {
+          // if brace is the only element on its line, delete the whole line
           val start = PsiTreeUtil.prevLeaf(brace) match {
             case ws: PsiWhiteSpace => ws.startOffset + StringUtils.lastIndexOf(ws.getNode.getChars, '\n').max(0)
             case _ => brace.startOffset
