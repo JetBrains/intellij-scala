@@ -1,6 +1,12 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
+import org.jetbrains.plugins.scala.ScalaVersion
+
 class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
+
+  // copied from Scala3IndentationBasedSyntaxBackspaceTest
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_3_0
 
   def testExtension(): Unit = {
     val from =
