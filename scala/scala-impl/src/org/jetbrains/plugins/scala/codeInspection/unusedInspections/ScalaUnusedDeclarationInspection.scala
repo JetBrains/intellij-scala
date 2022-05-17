@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
-import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
 import com.intellij.psi.search._
@@ -10,6 +9,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -30,35 +30,47 @@ import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
 import javax.swing.JComponent
-import scala.beans.BooleanBeanProperty
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters._
 
-class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
-
-  @BooleanBeanProperty
-  var reportPublicDeclarations: Boolean = true
-
-  override def createOptionsPanel: JComponent =
-    InspectionOptionsPanel.singleCheckBox(
-      this,
-      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
-      "reportPublicDeclarations"
-    )
-
+final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
   import ScalaUnusedDeclarationInspection._
+  import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 
   override def isEnabledByDefault: Boolean = true
 
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
-  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-    val elementIsOnlyVisibleInLocalFile = isOnlyVisibleInLocalFile(element)
+  @BooleanBeanProperty
+  var reportPublicDeclarations: Boolean = true
 
-    if (elementIsOnlyVisibleInLocalFile && isOnTheFly) {
-      localSearch(element)
-    } else if (elementIsOnlyVisibleInLocalFile && !isOnTheFly) {
-      isElementReferencedInTheSameFile(element)
-    } else if (isElementReferencedInTheSameFile(element)) {
+  @BeanProperty
+  var reportLocalDeclarations: Int = 0
+
+  override def createOptionsPanel: JComponent = {
+    val panel = new InspectionOptionsComboboxPanel(this)
+    panel.addCheckbox(
+      ScalaInspectionBundle.message("name.unused.declaration.report.public.declarations"),
+      "reportPublicDeclarations"
+    )
+    panel.addComboboxForCompilerOption(
+      label = ScalaInspectionBundle.message("name.unused.declaration.report.local.declarations"),
+      getSelectedIndex = () => reportLocalDeclarations,
+      setSelectedIndex = reportLocalDeclarations = _
+    )
+    panel
+  }
+
+  private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
+    if (isReportingDisabledForElement(element)) {
+      true
+    } else if (isOnlyVisibleInLocalFile(element)) {
+      if (isOnTheFly) {
+        localSearch(element)
+      } else {
+        referencesSearch(element)
+      }
+    } else if (referencesSearch(element)) {
       true
     } else if (!reportPublicDeclarations) {
       true
@@ -76,6 +88,15 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
     }
   }
 
+  private def isReportingDisabledForElement(element: ScNamedElement): Boolean =
+    element.nameContext match {
+      case m: ScMember if m.isLocal =>
+        val compilerOptions = element.module.map(_.scalaCompilerSettings.additionalCompilerOptions).getOrElse(Nil)
+        compilerOptions.contains("-Wunused:locals") || compilerOptions.contains("-Wunused:linted") || compilerOptions.contains("-Xlint:unused")
+      case _ =>
+        false
+    }
+
   // this case is for elements accessible only in a local scope
   private def localSearch(element: ScNamedElement): Boolean = {
     //we can trust RefCounter because references are counted during highlighting
@@ -90,7 +111,7 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
   }
 
   // this case is for elements accessible not only in a local scope, but within the same file
-  private def isElementReferencedInTheSameFile(element: ScNamedElement): Boolean = {
+  private def referencesSearch(element: ScNamedElement): Boolean = {
     val elementsForSearch = element match {
       // if the element is an enum case, we also look for usage in a few synthetic methods generated for the enum class
       case enumCase: ScEnumCase =>
