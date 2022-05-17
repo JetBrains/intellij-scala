@@ -210,13 +210,24 @@ trait ScImportsHolder extends ScImportsOrExportsHolder {
     }
   }
 
-  final def addImportForPath(path: String, ref: ScReference = null): Unit =
-    addImportForPath(ImportPath(path), ref)
+  final def addImportForPath(
+    path: String,
+    @Nullable refsContainer: PsiElement = null
+  ): Unit = {
+    addImportForPath(ImportPath(path), refsContainer)
+  }
 
-  protected def addImportForPath(path: ImportPath, ref: ScReference): Unit =
-    addImportsForPathsImpl(Seq(path), ref)
+  protected def addImportForPath(
+    path: ImportPath,
+    @Nullable refsContainer: PsiElement
+  ): Unit = {
+    addImportsForPathsImpl(Seq(path), refsContainer)
+  }
 
-  final def addImportsForPaths(paths: Seq[String], refsContainer: PsiElement = null): Unit = {
+  final def addImportsForPaths(
+    paths: Seq[String],
+    refsContainer: PsiElement = null
+  ): Unit = {
     val importPaths = paths.map(ImportPath.apply(_))
 
     val first = this.firstChildNotWhitespaceComment

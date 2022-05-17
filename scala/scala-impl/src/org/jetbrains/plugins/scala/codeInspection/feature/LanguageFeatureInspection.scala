@@ -120,11 +120,7 @@ private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: Stri
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
-    elem match {
-      case ref: ScReference =>
-        ScImportsHolder(elem).addImportForPath(flag, ref)
-      case _ =>
-    }
+    ScImportsHolder(elem).addImportForPath(flag, elem)
   }
 }
 

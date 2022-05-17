@@ -1,18 +1,26 @@
 package org.jetbrains.plugins.scala.codeInspection.feature
 
-import com.intellij.testFramework.EditorTestUtil
-
-class ReflectiveCallsLanguageFeatureTest extends LanguageFeatureInspectionTestBase  {
+class ReflectiveCallsLanguageFeatureTest extends LanguageFeatureInspectionTestBase {
   override protected val classOfInspection = classOf[LanguageFeatureInspection]
   override protected val description = "Advanced language feature: reflective call"
 
-  def test_duck(): Unit = checkTextHasError(
-    s"""
-      |def quacker(duck: {def quack(value: String): String; def walk(): String}): Unit = {
-      |  println (duck.${START}quack${END}("Quack"))
-      |}
-      |""".stripMargin
-  )
+  def test_duck(): Unit = {
+    val before =
+      s"""def quacker(duck: {def quack(value: String): String; def walk(): String}): Unit = {
+         |  println (duck.${START}quack${END}("Quack"))
+         |}
+         |""".stripMargin
+    val after =
+      s"""import scala.language.reflectiveCalls
+         |
+         |def quacker(duck: {def quack(value: String): String; def walk(): String}): Unit = {
+         |  println (duck.quack("Quack"))
+         |}
+         |""".stripMargin
+
+    checkTextHasError(before)
+    testQuickFix(before, after, hint = "Import feature flag for reflective calls")
+  }
 
   def test_SCL15905(): Unit = checkTextHasNoErrors(
     """
