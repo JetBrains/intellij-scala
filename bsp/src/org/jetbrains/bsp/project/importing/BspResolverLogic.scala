@@ -9,6 +9,8 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.io.FileSystem
 import org.jetbrains.bsp.BspUtil._
 import org.jetbrains.bsp.data._
 import org.jetbrains.bsp.project.BspSyntheticModuleType
@@ -19,7 +21,6 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
 import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleNode}
 import org.jetbrains.sbt.project.module.SbtModuleType
-
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
@@ -415,8 +416,15 @@ private[importing] object BspResolverLogic {
       val nonEmptyParts = parts.filter(_.nonEmpty)
       if (nonEmptyParts.size > 1) nonEmptyParts.mkString("(", "+", ")") else nonEmptyParts.mkString
     }
-    head.map(combine).mkString +
+    val ret = head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
+    if (ret.length > FileSystem.getCurrent.getMaxFileNameLength) {
+      val suffix = DigestUtils.md5Hex(ret)
+      val prefix = ret.substring(0, FileSystem.getCurrent.getMaxFileNameLength - suffix.length)
+      prefix + suffix
+    } else {
+      ret
+    }
   }
 
   /** "Inherits" data from other modules into newly created synthetic module description.
