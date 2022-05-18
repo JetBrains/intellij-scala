@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+//noinspection ApiStatus,UnstableApiUsage
 import com.intellij.ide.impl.TrustedProjects
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.registry.{Registry, RegistryValueListener}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaProjectSettings}
 
 import scala.concurrent.duration._
@@ -26,6 +27,7 @@ object ScalaHighlightingMode {
       .connect(project.unloadAwareDisposable)
       .subscribe(CompilerHighlightingListener.Topic, listener)
 
+  //noinspection ApiStatus,UnstableApiUsage
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
     TrustedProjects.isTrusted(project) &&
       (showCompilerErrorsScala3(project) && project.hasScala3 ||
@@ -37,6 +39,19 @@ object ScalaHighlightingMode {
       case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
       case _ => false
     }
+
+  /**
+   * Returns all modules from the project for which compiler based highlighting is enabled. Includes
+   * both Scala 2 and Scala 3 modules.
+   */
+  def compilerBasedHighlightingModules(project: Project): Seq[Module] = {
+    val allScalaModules = project.modulesWithScala
+    val cbhScala3 = showCompilerErrorsScala3(project)
+    val cbhScala2 = showCompilerErrorsScala2(project)
+    val scala3 = allScalaModules.filter(cbhScala3 && _.hasScala3)
+    val scala2 = allScalaModules.filter(cbhScala2 && _.hasScala)
+    scala3 ++ scala2
+  }
 
   private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {
@@ -69,4 +84,7 @@ object ScalaHighlightingMode {
   
   def compilationTimeoutToShowProgress: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.timeout.to.show.progress.millis")
+
+  def perModuleEnabled: Boolean =
+    Registry.get("scala.highlighting.compilation.per.module").asBoolean()
 }

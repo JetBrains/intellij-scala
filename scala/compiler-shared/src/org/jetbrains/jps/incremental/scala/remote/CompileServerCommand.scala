@@ -2,7 +2,6 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 
-import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 sealed trait CompileServerCommand {
@@ -31,8 +30,11 @@ object CompileServerCommand {
   case class CompileJps(projectPath: String,
                         globalOptionsPath: String,
                         dataStorageRootPath: String,
-                        externalProjectConfig: Option[String])
+                        externalProjectConfig: Option[String],
+                        moduleNames: Seq[String])
     extends CompileServerCommand {
+
+    import CompileJps.ExternalProjectConfigTag
 
     override def id: String = CommandIds.CompileJps
 
@@ -40,9 +42,13 @@ object CompileServerCommand {
       projectPath,
       globalOptionsPath,
       dataStorageRootPath
-    ) ++ externalProjectConfig
+    ) ++ externalProjectConfig.map(epc => s"$ExternalProjectConfigTag$epc") ++ moduleNames
 
     override def isCompileCommand: Boolean = true
+  }
+
+  object CompileJps {
+    final val ExternalProjectConfigTag: String = "externalProjectConfig: "
   }
 
   case class GetMetrics()

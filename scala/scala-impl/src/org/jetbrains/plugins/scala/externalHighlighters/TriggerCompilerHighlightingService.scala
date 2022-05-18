@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.JavaProjectRootsUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlight
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import java.nio.file.{Path, Paths}
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Service
 final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
+
+  import TriggerCompilerHighlightingService.modulesForFiles
 
   private var alreadyHighlighted = Set.empty[Path]
   private var changedFiles = Set.empty[VirtualFile]
@@ -44,7 +48,7 @@ final class TriggerCompilerHighlightingService(project: Project)
           val changedFilesSizeBefore = changedFiles.size
           changedFiles += virtualFile
           if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
-            triggerIncrementalCompilation(debugReason)
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
           else
             scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
         }
@@ -63,7 +67,7 @@ final class TriggerCompilerHighlightingService(project: Project)
       } asyncAtomic {
         val path = Paths.get(pathString)
         if (changedFiles.nonEmpty) {
-          triggerIncrementalCompilation(debugReason)
+          triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
         }
         else if (!alreadyHighlighted.contains(path)) {
           psiFile match {
@@ -104,9 +108,9 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(debugReason: String): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, modules: Seq[Module]): Unit = {
     if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason)
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules)
   }
 
   // SCL-18946
@@ -179,4 +183,6 @@ object TriggerCompilerHighlightingService {
   private def hasErrors(psiFile: PsiFile): Boolean =
     psiFile.elements.findByType[PsiErrorElement].isDefined
 
+  private def modulesForFiles(virtualFiles: Set[VirtualFile])(implicit project: Project): Seq[Module] =
+    inReadAction(virtualFiles.flatMap(ScalaUtil.getModuleForFile).toSeq)
 }

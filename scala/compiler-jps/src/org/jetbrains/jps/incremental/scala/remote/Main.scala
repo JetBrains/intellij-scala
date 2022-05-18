@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import com.martiansoftware.nailgun.{NGContext, NGServer}
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
+import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Base64, Timer, TimerTask}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -215,7 +217,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, externalProjectConfig) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, externalProjectConfig, moduleNames) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -240,7 +242,16 @@ object Main {
       buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
     }
     val forceBuild = false
-    val scopes = CmdlineProtoUtil.createAllModulesScopes(forceBuild)
+
+    val scopes = if (moduleNames.isEmpty) {
+      // This means that scala.highlighting.compilation.per.module is disabled. Fall back to compiling the whole project.
+      CmdlineProtoUtil.createAllModulesScopes(forceBuild)
+    } else {
+      Seq(
+        CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.PRODUCTION.getTypeId, moduleNames.asJava, forceBuild),
+        CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.TEST.getTypeId, moduleNames.asJava, forceBuild)
+      ).asJava
+    }
 
     client.compilationStart()
     try {

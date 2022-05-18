@@ -23,11 +23,18 @@ object CompileServerCommandParser
       case CommandIds.CompileJps =>
         args match {
           case Seq(projectPath, globalOptionsPath, dataStorageRootPath, other@_*) =>
+            val (externalProjectConfig, moduleNames) = other match {
+              case h +: t if h.startsWith(CompileServerCommand.CompileJps.ExternalProjectConfigTag) =>
+                (Some(h.stripPrefix(CompileServerCommand.CompileJps.ExternalProjectConfigTag)), t)
+              case moduleNames => (None, moduleNames)
+            }
+
             CompileServerCommand.CompileJps(
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath,
-              externalProjectConfig = other.headOption
+              externalProjectConfig = externalProjectConfig,
+              moduleNames = moduleNames
             )
           case _ =>
             throwIllegalArgs(commandId, args)

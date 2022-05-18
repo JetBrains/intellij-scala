@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.io.File
-
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.pom.java.LanguageLevel
@@ -10,11 +8,12 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
-import org.junit.Assert.{assertEquals, assertTrue}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
+import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
 import org.junit.runner.RunWith
 
+import java.io.File
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Promise}
 
@@ -82,13 +81,15 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
 
   private def compileProjectWithJpsCompiler(): Unit = {
     val promise = Promise[Unit]()
-    getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
+    val project = getProject
+    project.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
       override def eventReceived(event: CompilerEvent): Unit = event match {
         case CompilerEvent.CompilationFinished(_, _, _) => promise.success(())
         case _ => ()
       }
     })
-    CompilerHighlightingService.get(getProject).triggerIncrementalCompilation("manual trigger from tests", delayedProgressShow = false)
+    val modules = ScalaHighlightingMode.compilerBasedHighlightingModules(project)
+    CompilerHighlightingService.get(project).triggerIncrementalCompilation("manual trigger from tests", modules, delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
 }

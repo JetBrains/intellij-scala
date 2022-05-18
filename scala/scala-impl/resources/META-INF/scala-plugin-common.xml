@@ -620,6 +620,8 @@
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
                      description="The progress of compilation for highlighting will be shown after this timeout"/>
+        <registryKey key="scala.highlighting.compilation.per.module" defaultValue="false" restartRequired="false"
+                     description="Compile only relevant relevant modules for compiler based highlighting, instead of the whole project"/>
         <registryKey key="scala.erase.compiler.process.jdk.once" defaultValue="true" restartRequired="false"
                      description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
         <registryKey key="scala.test.framework.runner.log.raw.process.output" defaultValue="false" restartRequired="false"
