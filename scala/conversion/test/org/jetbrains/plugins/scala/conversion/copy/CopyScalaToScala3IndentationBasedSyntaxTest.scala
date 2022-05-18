@@ -112,7 +112,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
-  def testInnerMethod_4(): Unit = {
+  def testInnerMethod_FromObject(): Unit = {
     val from =
       s"""object Example:
          |$Start  def foo() =
@@ -137,7 +137,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
-  def testInnerMethod_5(): Unit = {
+  def testInnerMethod_FromObject_1(): Unit = {
     val from =
       s"""object Example:
          |$Start  def foo() =
@@ -162,7 +162,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
-  def testInnerMethod_6(): Unit = {
+  def testInnerMethod_FromObject_2(): Unit = {
     val from =
       s"""object Example:
          |$Start
@@ -191,7 +191,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
-  def testInnerMethod_7(): Unit = {
+  def testInnerMethod_FromObject_3(): Unit = {
     val from =
       s"""object Example:
          |$Start

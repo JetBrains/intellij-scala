@@ -33,6 +33,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
+  // SCL-20036
   def testExtension(): Unit = {
     val from =
       s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
@@ -125,6 +126,239 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
         |  def circumference: Double = c.radius * math.Pi * 2
         |
         |}"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces(): Unit = {
+    val from =
+      s"""${Start}def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() = {
+         |  print(2)
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_1(): Unit = {
+    val from =
+      s"""${Start}def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_2(): Unit = {
+    val from =
+      s"""$Start
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() = {
+         |  print(2)
+         |
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_3(): Unit = {
+    val from =
+      s"""$Start
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_FromObject(): Unit = {
+    val from =
+      s"""object Example {
+         |$Start  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }$End
+         |}
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() = {
+         |  print(2)
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_FromObject_1(): Unit = {
+    val from =
+      s"""object Example {
+         |$Start  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }$End
+         |}
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_FromObject_2(): Unit = {
+    val from =
+      s"""object Example {
+         |$Start
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |$End}
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() = {
+         |  print(2)
+         |
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |
+         |}
+         |"""
+
+    doTestWithStrip(from, to, after)
+  }
+
+  def testInnerMethod_Braces_FromObject_3(): Unit = {
+    val from =
+      s"""object Example {
+         |$Start
+         |  def foo() = {
+         |    def baz() =
+         |      print(1)
+         |    baz(1)
+         |  }
+         |$End}
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |def foo() = {
+         |  def baz() =
+         |    print(1)
+         |  baz(1)
+         |}
+         |"""
 
     doTestWithStrip(from, to, after)
   }
