@@ -162,9 +162,9 @@ final class TriggerCompilerHighlightingService(project: Project)
     alreadyHighlighted = Set.empty
     if (ScalaHighlightingMode.documentCompilerEnabled) {
       DocumentCompiler.get(project).clearOutputDirectories()
+      FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
+        .foreach(triggerOnSelectionChange)
     }
-    FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
-      .foreach(triggerOnSelectionChange)
   }
 
   private def triggerDocumentCompilation(
