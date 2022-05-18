@@ -47,10 +47,16 @@ final class TriggerCompilerHighlightingService(project: Project)
         else asyncAtomic {
           val changedFilesSizeBefore = changedFiles.size
           changedFiles += virtualFile
-          if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
+          if (ScalaHighlightingMode.documentCompilerEnabled) {
+            // Use the document compiler for fast path highlighting of a single file.
+            if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
+              triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+            else
+              scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
+          } else {
+            // Use JPS incremental compilation for highlighting.
             triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
-          else
-            scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
+          }
         }
       }
 
@@ -66,15 +72,31 @@ final class TriggerCompilerHighlightingService(project: Project)
         document <- inReadAction(virtualFile.findDocument)
       } asyncAtomic {
         val path = Paths.get(pathString)
-        if (changedFiles.nonEmpty) {
-          triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
-        }
-        else if (!alreadyHighlighted.contains(path)) {
-          psiFile match {
-            case scalaFile: ScalaFile =>
-              if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
-              else triggerDocumentCompilation(debugReason, document, scalaFile, markHighlighted = Some(path))
-            case _ =>
+        if (ScalaHighlightingMode.documentCompilerEnabled) {
+          // Use the document compiler for fast path highlighting of a single file.
+          if (changedFiles.nonEmpty) {
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+          }
+          else if (!alreadyHighlighted.contains(path)) {
+            psiFile match {
+              case scalaFile: ScalaFile =>
+                if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
+                else triggerDocumentCompilation(debugReason, document, scalaFile, markHighlighted = Some(path))
+              case _ =>
+            }
+          }
+        } else {
+          // Use JPS incremental compilation for highlighting.
+          if (changedFiles.nonEmpty) {
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+          }
+          else if (!alreadyHighlighted.contains(path)) {
+            psiFile match {
+              case scalaFile: ScalaFile =>
+                if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
+                else triggerIncrementalCompilation(debugReason, modulesForFiles(Set(psiFile.getVirtualFile))(project))
+              case _ =>
+            }
           }
         }
       }
@@ -138,7 +160,9 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   def afterIncrementalCompilation(): Unit = {
     alreadyHighlighted = Set.empty
-    DocumentCompiler.get(project).clearOutputDirectories()
+    if (ScalaHighlightingMode.documentCompilerEnabled) {
+      DocumentCompiler.get(project).clearOutputDirectories()
+    }
     FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
       .foreach(triggerOnSelectionChange)
   }

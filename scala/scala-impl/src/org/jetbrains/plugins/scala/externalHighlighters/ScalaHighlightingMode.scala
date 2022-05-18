@@ -87,4 +87,7 @@ object ScalaHighlightingMode {
 
   def perModuleEnabled: Boolean =
     Registry.get("scala.highlighting.compilation.per.module").asBoolean()
+
+  def documentCompilerEnabled: Boolean =
+    Registry.get("scala.highlighting.compilation.document.compiler.enabled").asBoolean()
 }
