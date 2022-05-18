@@ -1,16 +1,13 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package feature
+package org.jetbrains.plugins.scala.codeInspection.feature
 
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ReferenceTarget, _}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScExistentialClause, ScRefinement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScPostfixExpr
@@ -24,9 +21,6 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, Scal
 
 import scala.annotation.nowarn
 
-/**
- * @author Pavel Fatin
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
 
@@ -47,8 +41,8 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
     },
     Feature(ScalaInspectionBundle.message("language.feature.implicit.conversion"), "scala.language", "implicitConversions", _.implicitConversions, _.copy(implicitConversions = true)) {
       case e: ScFunctionDefinition if e.getModifierList.isImplicit &&
-              e.parameters.size == 1 &&
-              !e.parameterList.clauses.exists(_.isImplicit) =>
+        e.parameters.size == 1 &&
+        !e.parameterList.clauses.exists(_.isImplicit) =>
         e.getModifierList.findFirstChildByType(ScalaTokenTypes.kIMPLICIT).getOrElse(e)
     },
     Feature(ScalaInspectionBundle.message("language.feature.higher.kinded.type"), "scala.language", "higherKinds", _.higherKinds, _.copy(higherKinds = true),
@@ -90,8 +84,8 @@ private case class Feature(@Nls name: String,
               it,
               ScalaInspectionBundle.message("advanced.language.feature", name),
               if (isErrorOn(e)) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
-              new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName")/*,
-              new EnableFeatureFix(profile, it, name, enable) SCL-18677*/)
+              new ImportFeatureFlagFix(it, name, s"$flagQualifier.$flagName")
+            )
           }
         }
       }
@@ -120,24 +114,6 @@ private final class ImportFeatureFlagFix(e: PsiElement, name: String, flag: Stri
 
   override protected def doApplyFix(elem: PsiElement)
                                    (implicit project: Project): Unit = {
-    elem match {
-      case ref: ScReference =>
-        ScImportsHolder(elem).addImportForPath(flag, ref)
-      case _ =>
-    }
-  }
-}
-
-private class EnableFeatureFix(profile: => ScalaCompilerSettingsProfile,
-                               e: PsiElement,
-                               name: String,
-                               update: ScalaCompilerSettings => ScalaCompilerSettings)
-        extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("enable.language.feature.plural", name), e) {
-
-  override protected def doApplyFix(element: PsiElement)
-                                   (implicit project: Project): Unit = {
-    val updatedSettings = update(profile.getSettings)
-    profile.setSettings(updatedSettings)
-    BuildManager.getInstance().clearState(project) // SCL-18217
+    ScImportsHolder(elem).addImportForPath(flag, elem)
   }
 }
