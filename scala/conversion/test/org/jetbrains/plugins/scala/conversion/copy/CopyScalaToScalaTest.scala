@@ -16,7 +16,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
         |  1;
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testCommaSeparated(): Unit = {
@@ -30,7 +30,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
         |  (1, 2, 3)
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces(): Unit = {
@@ -58,7 +58,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_1(): Unit = {
@@ -84,7 +84,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_2(): Unit = {
@@ -116,7 +116,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_3(): Unit = {
@@ -146,7 +146,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject(): Unit = {
@@ -176,7 +176,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_1(): Unit = {
@@ -204,7 +204,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_2(): Unit = {
@@ -237,7 +237,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_3(): Unit = {
@@ -268,6 +268,6 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 }

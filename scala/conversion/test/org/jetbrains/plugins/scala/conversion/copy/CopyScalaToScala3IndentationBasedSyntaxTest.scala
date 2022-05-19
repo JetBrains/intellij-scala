@@ -29,7 +29,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_1(): Unit = {
@@ -53,7 +53,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_2(): Unit = {
@@ -81,7 +81,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_3(): Unit = {
@@ -109,7 +109,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject(): Unit = {
@@ -134,7 +134,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject_1(): Unit = {
@@ -159,7 +159,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject_2(): Unit = {
@@ -184,7 +184,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject_3(): Unit = {
@@ -209,7 +209,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  baz()
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject_4(): Unit = {
@@ -238,7 +238,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_FromObject_5(): Unit = {
@@ -267,7 +267,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces(): Unit = {
@@ -293,7 +293,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  }
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_1(): Unit = {
@@ -323,7 +323,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject(): Unit = {
@@ -351,7 +351,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |  }
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_1(): Unit = {
@@ -382,7 +382,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   // SCL-20036
@@ -405,7 +405,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |    def circumference: Double = c.radius * math.Pi * 2
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testExtension_1(): Unit = {
@@ -427,7 +427,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |  def circumference: Double = c.radius * math.Pi * 2
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testExtension_2(): Unit = {
@@ -453,7 +453,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 
   def testExtension_3(): Unit = {
@@ -479,6 +479,6 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
         |
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestAllFormattersWithStrip(from, to, after)
   }
 }

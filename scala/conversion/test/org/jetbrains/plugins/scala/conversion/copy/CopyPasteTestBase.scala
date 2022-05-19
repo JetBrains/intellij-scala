@@ -47,4 +47,17 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   protected def doTestToEmptyFile(fromText: String, expectedText: String): Unit = {
     doTest(fromText, Caret, expectedText)
   }
+
+  def doTestAllFormattersWithStrip(from: String, to: String, after: String): Unit = {
+    val settings = ScalaCodeStyleSettings.getInstance(getProject)
+    val formatterBefore = settings.FORMATTER
+
+    settings.FORMATTER = ScalaCodeStyleSettings.INTELLIJ_FORMATTER
+    doTestWithStrip(from, to, after)
+
+    settings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+    doTestWithStrip(from, to, after)
+
+    settings.FORMATTER = formatterBefore
+  }
 }
