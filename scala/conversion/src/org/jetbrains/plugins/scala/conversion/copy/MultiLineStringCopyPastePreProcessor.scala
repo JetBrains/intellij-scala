@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.text.StringUtil.startsWithChar
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPasteProcessor._
+import org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPastePreProcessor._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAction}
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
-class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
+class MultiLineStringCopyPastePreProcessor extends CopyPastePreProcessor {
 
   override def preprocessOnCopy(file: PsiFile,
                                 startOffsets: Array[Int],
@@ -85,7 +85,7 @@ class MultiLineStringCopyPasteProcessor extends CopyPastePreProcessor {
     }
 }
 
-object MultiLineStringCopyPasteProcessor {
+object MultiLineStringCopyPastePreProcessor {
   private object requiresMarginProcess {
     def apply(file: PsiFile): Boolean = settings(file).MULTILINE_STRING_PROCESS_MARGIN_ON_COPY_PASTE
     def unapply(file: ScalaFile): Boolean = apply(file)

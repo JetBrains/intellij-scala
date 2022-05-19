@@ -4,7 +4,7 @@ import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
 // TODO: maybe, taking into account that there is too much escaping, we should move these tests to files?
-class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
+class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
   override protected def setUp(): Unit = {
     super.setUp()
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
