@@ -35,7 +35,10 @@ class ToggleHighlightingModeListener
   private def compileOrEraseHighlightings(debugReason: String, project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, delayedProgressShow = false)
+        if (ScalaHighlightingMode.documentCompilerEnabled) {
+          val modules = ScalaHighlightingMode.compilerBasedHighlightingModules(project)
+          CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules, delayedProgressShow = false)
+        }
         AnnotatorHints.clearIn(project)
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)

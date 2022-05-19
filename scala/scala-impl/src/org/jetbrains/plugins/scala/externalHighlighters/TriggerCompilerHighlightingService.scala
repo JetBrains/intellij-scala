@@ -6,6 +6,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.JavaProjectRootsUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlight
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import java.nio.file.{Path, Paths}
 import scala.concurrent.{ExecutionContext, Future}
@@ -26,6 +28,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Service
 final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
+
+  import TriggerCompilerHighlightingService.modulesForFiles
 
   private var alreadyHighlighted = Set.empty[Path]
   private var changedFiles = Set.empty[VirtualFile]
@@ -43,10 +47,16 @@ final class TriggerCompilerHighlightingService(project: Project)
         else asyncAtomic {
           val changedFilesSizeBefore = changedFiles.size
           changedFiles += virtualFile
-          if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
-            triggerIncrementalCompilation(debugReason)
-          else
-            scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
+          if (ScalaHighlightingMode.documentCompilerEnabled) {
+            // Use the document compiler for fast path highlighting of a single file.
+            if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
+              triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+            else
+              scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
+          } else {
+            // Use JPS incremental compilation for highlighting.
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+          }
         }
       }
 
@@ -62,15 +72,31 @@ final class TriggerCompilerHighlightingService(project: Project)
         document <- inReadAction(virtualFile.findDocument)
       } asyncAtomic {
         val path = Paths.get(pathString)
-        if (changedFiles.nonEmpty) {
-          triggerIncrementalCompilation(debugReason)
-        }
-        else if (!alreadyHighlighted.contains(path)) {
-          psiFile match {
-            case scalaFile: ScalaFile =>
-              if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
-              else triggerDocumentCompilation(debugReason, document, scalaFile, markHighlighted = Some(path))
-            case _ =>
+        if (ScalaHighlightingMode.documentCompilerEnabled) {
+          // Use the document compiler for fast path highlighting of a single file.
+          if (changedFiles.nonEmpty) {
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+          }
+          else if (!alreadyHighlighted.contains(path)) {
+            psiFile match {
+              case scalaFile: ScalaFile =>
+                if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
+                else triggerDocumentCompilation(debugReason, document, scalaFile, markHighlighted = Some(path))
+              case _ =>
+            }
+          }
+        } else {
+          // Use JPS incremental compilation for highlighting.
+          if (changedFiles.nonEmpty) {
+            triggerIncrementalCompilation(debugReason, modulesForFiles(changedFiles)(project))
+          }
+          else if (!alreadyHighlighted.contains(path)) {
+            psiFile match {
+              case scalaFile: ScalaFile =>
+                if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
+                else triggerIncrementalCompilation(debugReason, modulesForFiles(Set(psiFile.getVirtualFile))(project))
+              case _ =>
+            }
           }
         }
       }
@@ -104,9 +130,9 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(debugReason: String): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, modules: Seq[Module]): Unit = {
     if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason)
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules)
   }
 
   // SCL-18946
@@ -134,9 +160,11 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   def afterIncrementalCompilation(): Unit = {
     alreadyHighlighted = Set.empty
-    DocumentCompiler.get(project).clearOutputDirectories()
-    FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
-      .foreach(triggerOnSelectionChange)
+    if (ScalaHighlightingMode.documentCompilerEnabled) {
+      DocumentCompiler.get(project).clearOutputDirectories()
+      FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
+        .foreach(triggerOnSelectionChange)
+    }
   }
 
   private def triggerDocumentCompilation(
@@ -179,4 +207,6 @@ object TriggerCompilerHighlightingService {
   private def hasErrors(psiFile: PsiFile): Boolean =
     psiFile.elements.findByType[PsiErrorElement].isDefined
 
+  private def modulesForFiles(virtualFiles: Set[VirtualFile])(implicit project: Project): Seq[Module] =
+    inReadAction(virtualFiles.flatMap(ScalaUtil.getModuleForFile).toSeq)
 }

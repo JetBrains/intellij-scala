@@ -9,6 +9,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
@@ -51,6 +52,7 @@ final class CompilerHighlightingService(project: Project)
 
   def triggerIncrementalCompilation(
     debugReason: String,
+    modules: Seq[Module],
     delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
@@ -66,7 +68,7 @@ final class CompilerHighlightingService(project: Project)
         performCompilation(delayedProgressShow) { client =>
           TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
           try {
-            IncrementalCompiler.compile(project, client)
+            IncrementalCompiler.compile(project, modules, client)
           } finally {
             TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
           }
