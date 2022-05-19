@@ -78,7 +78,7 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
   // this case is for elements accessible only in a local scope
   private def localSearch(element: ScNamedElement): Boolean = {
     //we can trust RefCounter because references are counted during highlighting
-    val refCounter = ScalaRefCountHolder(element)
+    val refCounter = ScalaRefCountHolder.get(element.getContainingFile)
 
     var used = false
     val success = refCounter.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>

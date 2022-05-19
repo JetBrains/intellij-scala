@@ -3,7 +3,7 @@ package codeInsight
 package daemon
 
 import com.intellij.codeInsight.daemon.impl.HighlightVisitor
-import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightingLevelManager}
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightInfoHolder
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
@@ -32,7 +32,6 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
                        updateWholeFile: Boolean,
                        holder: HighlightInfoHolder,
                        analyze: Runnable): Boolean = {
-//    val time = System.currentTimeMillis()
     val scalaFile = file.findScalaLikeFile.orNull
     if (scalaFile == null)
       return true
@@ -44,7 +43,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     var success = true
     try {
       if (updateWholeFile) {
-        myRefCountHolder = ScalaRefCountHolder.getInstance(scalaFile)
+        myRefCountHolder = ScalaRefCountHolder.get(scalaFile)
         success = myRefCountHolder.analyze(analyze, scalaFile)
       } else {
         myRefCountHolder = null
@@ -53,11 +52,6 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
     } finally {
       myRefCountHolder = null
     }
-    // TODO We should probably create a dedicated registry property that enables printing of the running time.
-    // Otherwise, the output always pollutes the console, even when there's no need for that data.
-    // IDEA's "internal mode" is a too coarse-grained switch for that.
-//    val method: Long = System.currentTimeMillis() - time
-//    if (method > 100 && ApplicationManager.getApplication.isInternal) println(s"File: ${file.getName}, Time: $method")
     success
   }
 

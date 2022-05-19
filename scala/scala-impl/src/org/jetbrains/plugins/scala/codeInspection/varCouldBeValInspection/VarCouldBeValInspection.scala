@@ -60,7 +60,7 @@ object VarCouldBeValInspection {
   private def hasNoWriteUsagesOnTheFly(element: ScBindingPattern): Boolean = {
     var hasWriteUsages = false
     var used = false
-    val holder = ScalaRefCountHolder(element)
+    val holder = ScalaRefCountHolder.get(element.getContainingFile)
     holder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
       hasWriteUsages = holder.isValueWriteUsed(element)
       used = holder.isValueReadUsed(element)

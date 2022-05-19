@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
-import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -33,8 +33,8 @@ object UsageTracker {
 
     elem.getContainingFile match {
       case scalaFile: ScalaFile =>
-        val refHolder = ScalaRefCountHolder.getInstance(scalaFile)
-        imports.foreach(refHolder.registerImportUsed)
+        val refHolder = ScalaRefCountHolder.get(scalaFile)
+        imports.foreach(refHolder.registerImportStatement())
       case _ =>
     }
   }
@@ -56,15 +56,15 @@ object UsageTracker {
 
     for {
       importHolder <- importHolders
-      importStmt   <- importHolder.getImportStatements
-      importExprs  = importStmt.importExprs
-      importExpr   <- importExprs
+      importStmt <- importHolder.getImportStatements
+      importExprs = importStmt.importExprs
+      importExpr <- importExprs
     } {
       val importsUsed = ImportUsed.buildAllFor(importExpr)
       importExprToUsedImports += ((importExpr, importsUsed))
     }
 
-    val refHolder = ScalaRefCountHolder.getInstance(file)
+    val refHolder = ScalaRefCountHolder.get(file)
 
     refHolder.runIfUnusedReferencesInfoIsAlreadyRetrievedOrSkip { () =>
       def isRedundant(importUsed: ImportUsed): Boolean =
@@ -121,7 +121,7 @@ object UsageTracker {
         case _ => Seq(ReadValueUsed(targetElement))
       }
 
-      val holder = ScalaRefCountHolder.getInstance(sourceElement.getContainingFile)
+      val holder = ScalaRefCountHolder.get(sourceElement.getContainingFile)
       valueUseds.foreach(holder.registerValueUsed)
     }
 
