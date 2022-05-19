@@ -223,6 +223,7 @@ object CompileServerLauncher {
         // SCL-18193
         val addOpensOptions = if (jdk.version.exists(_ isAtLeast JavaSdkVersion.JDK_1_9))
           JvmOptions.addOpens(
+            "java.base/java.nio",
             "java.base/java.util",
             "jdk.compiler/com.sun.tools.javac.api",
             "jdk.compiler/com.sun.tools.javac.file",
