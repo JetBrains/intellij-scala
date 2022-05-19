@@ -33,103 +33,6 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
     doTestWithStrip(from, to, after)
   }
 
-  // SCL-20036
-  def testExtension(): Unit = {
-    val from =
-      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
-    val to =
-      s"""object Example {
-         |  $Caret
-         |}"""
-    val after =
-      """object Example {
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |}"""
-
-    doTestWithStrip(from, to, after)
-  }
-
-  def testExtension_1(): Unit = {
-    val from =
-      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
-    val to =
-      s"""object Example {
-         |$Caret
-         |}"""
-    val after =
-      """object Example {
-        |case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |extension (c: Circle)
-        |  def circumference: Double = c.radius * math.Pi * 2
-        |}"""
-
-    doTestWithStrip(from, to, after)
-  }
-
-  def testExtension_2(): Unit = {
-    val from =
-      s"""$Start
-         |case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2
-         |$End
-         |"""
-    val to =
-      s"""object Example {
-         |  $Caret
-         |}"""
-    val after =
-      """object Example {
-        |
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |
-        |}"""
-
-    doTestWithStrip(from, to, after)
-  }
-
-  def testExtension_3(): Unit = {
-    val from =
-      s"""$Start
-         |case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2
-         |$End
-         |"""
-    val to =
-      s"""object Example {
-         |$Caret
-         |}"""
-    val after =
-      """object Example {
-        |
-        |case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |extension (c: Circle)
-        |  def circumference: Double = c.radius * math.Pi * 2
-        |
-        |}"""
-
-    doTestWithStrip(from, to, after)
-  }
-
   def testInnerMethod_Braces(): Unit = {
     val from =
       s"""${Start}def foo() = {
@@ -139,9 +42,10 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}$End
          |"""
     val to =
-      s"""def bar() =
+      s"""def bar() = {
          |  print(2)
          |  $Caret
+         |}
          |"""
     val after =
       s"""def bar() = {
@@ -194,9 +98,10 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |$End
          |"""
     val to =
-      s"""def bar() =
+      s"""def bar() = {
          |  print(2)
          |  $Caret
+         |}
          |"""
     val after =
       s"""def bar() = {
@@ -255,9 +160,10 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |}
          |"""
     val to =
-      s"""def bar() =
+      s"""def bar() = {
          |  print(2)
          |  $Caret
+         |}
          |"""
     val after =
       s"""def bar() = {
@@ -313,9 +219,10 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |$End}
          |"""
     val to =
-      s"""def bar() =
+      s"""def bar() = {
          |  print(2)
          |  $Caret
+         |}
          |"""
     val after =
       s"""def bar() = {
@@ -358,6 +265,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |    print(1)
          |  baz(1)
          |}
+         |
          |"""
 
     doTestWithStrip(from, to, after)
