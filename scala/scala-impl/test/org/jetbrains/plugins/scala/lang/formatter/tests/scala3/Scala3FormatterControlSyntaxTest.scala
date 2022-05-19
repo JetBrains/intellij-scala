@@ -487,4 +487,56 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
         |""".stripMargin
     )
   }
+
+  def testExtension(): Unit = {
+    doTextTest(
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}
+        |""".stripMargin
+    )
+  }
+
+  // SCL-20166
+  def testExtension_Comment(): Unit = {
+    doTextTest(
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    // foo
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtension_Comment_1(): Unit = {
+    doTextTest(
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    /* foo */
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtension_Comment_2(): Unit = {
+    doTextTest(
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    /** foo */
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}
+        |""".stripMargin
+    )
+  }
 }
