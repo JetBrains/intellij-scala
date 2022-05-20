@@ -9,7 +9,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.0"
   val zincVersion = "1.6.1"
-  val intellijVersion = "222.2270.15"
+  val intellijVersion = "222.2270.31"
 
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
@@ -258,27 +258,19 @@ private object Utils {
     val buildType =
       if (intellijVersion.count(_ == '.') == 1) IdeBuildType.Nightly
       else if (Utils.isIdeaReleaseBuildAvailable(intellijVersion)) IdeBuildType.Release
-      else if (Utils.isIdeaEapCandidateBuildAvailable(eapCandidateVersion)) IdeBuildType.EapCandidate
-      else IdeBuildType.Eap
+      else if (Utils.isIdeaEapBuildAvailable(eapVersion)) IdeBuildType.Eap
+      else if (Utils.isIdeaEapBuildAvailable(eapCandidateVersion)) IdeBuildType.EapCandidate
+      else throw new IllegalStateException(s"Cannot determine build type for version $intellijVersion")
 
     println(s"Detected build type: $buildType")
 
-    val intellijVersionManaged: String = buildType match {
-      case IdeBuildType.Release => intellijVersion
-      case IdeBuildType.Eap => eapVersion
-      case IdeBuildType.EapCandidate => eapCandidateVersion
-      case IdeBuildType.Nightly => nightlyVersion
+    val (intellijVersionManaged, intellijRepositoryManaged) = buildType match {
+      case IdeBuildType.Release => (intellijVersion, Repositories.intellijRepositoryReleases)
+      case IdeBuildType.Eap => (eapVersion, Repositories.intellijRepositoryEap)
+      case IdeBuildType.EapCandidate => (eapCandidateVersion, Repositories.intellijRepositoryEap)
+      case IdeBuildType.Nightly => (nightlyVersion, Repositories.intellijRepositoryNightly)
     }
-    val intellijRepositoryManaged: sbt.MavenRepository = buildType match {
-      case IdeBuildType.Release => Repositories.intellijRepositoryReleases
-      case IdeBuildType.Eap => Repositories.intellijRepositoryEap
-      case IdeBuildType.EapCandidate => Repositories.intellijRepositoryEap
-      case IdeBuildType.Nightly => Repositories.intellijRepositoryNightly
-    }
-    DataForManagedIntellijDependencies(
-      intellijVersionManaged,
-      intellijRepositoryManaged
-    )
+    DataForManagedIntellijDependencies(intellijVersionManaged, intellijRepositoryManaged)
   }
 
   private def isIdeaReleaseBuildAvailable(ideaVersion: String): Boolean = {
@@ -286,7 +278,7 @@ private object Utils {
     isResourceFound(url)
   }
 
-  private def isIdeaEapCandidateBuildAvailable(ideaVersion: String): Boolean = {
+  private def isIdeaEapBuildAvailable(ideaVersion: String): Boolean = {
     val url = Repositories.intellijRepositoryEap.root + s"/com/jetbrains/intellij/idea/ideaIC/$ideaVersion/ideaIC-$ideaVersion.zip"
     isResourceFound(url)
   }
