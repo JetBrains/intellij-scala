@@ -501,7 +501,7 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
   }
 
   // SCL-20166
-  def testExtension_Comment(): Unit = {
+  def testExtension_Object_Comment(): Unit = {
     doTextTest(
       """object Example {
         |  case class Circle(x: Double, y: Double, radius: Double)
@@ -514,7 +514,7 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
     )
   }
 
-  def testExtension_Comment_1(): Unit = {
+  def testExtension_Object_Comment_1(): Unit = {
     doTextTest(
       """object Example {
         |  case class Circle(x: Double, y: Double, radius: Double)
@@ -527,7 +527,7 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
     )
   }
 
-  def testExtension_Comment_2(): Unit = {
+  def testExtension_Object_Comment_2(): Unit = {
     doTextTest(
       """object Example {
         |  case class Circle(x: Double, y: Double, radius: Double)
@@ -536,6 +536,33 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
         |    /** foo */
         |    def circumference: Double = c.radius * math.Pi * 2
         |}
+        |""".stripMargin
+    )
+  }
+
+  def testExtension_Comment(): Unit = {
+    doTextTest(
+      """extension (c: Circle)
+        |  // foo
+        |  def circumference: Double = c.radius * math.Pi * 2
+        |""".stripMargin
+    )
+  }
+
+  def testExtension_Comment_1(): Unit = {
+    doTextTest(
+      """extension (c: Circle)
+        |  /* foo */
+        |  def circumference: Double = c.radius * math.Pi * 2
+        |""".stripMargin
+    )
+  }
+
+  def testExtension_Comment_2(): Unit = {
+    doTextTest(
+      """extension (c: Circle)
+        |  /** foo */
+        |  def circumference: Double = c.radius * math.Pi * 2
         |""".stripMargin
     )
   }
