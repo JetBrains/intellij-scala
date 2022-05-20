@@ -6,8 +6,9 @@ import com.intellij.execution.configurations.{ModuleRunProfile, RunProfileState}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import javax.swing.Icon
 
 class ScaladocConfiguration(private val form: ScaladocConsoleRunConfigurationForm, private val project: Project,
                             private val scope: AnalysisScope) extends ModuleRunProfile {

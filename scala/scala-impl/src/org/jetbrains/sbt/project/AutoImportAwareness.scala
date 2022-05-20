@@ -1,14 +1,13 @@
 package org.jetbrains.sbt.project
 
-import java.io.File
-import java.util
-
 import com.intellij.openapi.externalSystem.ExternalSystemAutoImportAware
 import com.intellij.openapi.project.Project
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.project.AutoImportAwareness._
 
+import java.io.File
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

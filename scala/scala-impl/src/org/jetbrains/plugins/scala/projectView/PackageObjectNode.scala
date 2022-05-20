@@ -5,9 +5,9 @@ import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil.getNameWithoutExtension
 import com.intellij.ui.SimpleTextAttributes
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
-import extensions._
 
 private[projectView] class PackageObjectNode(definition: ScTypeDefinition)
                                             (implicit project: Project, settings: ViewSettings)

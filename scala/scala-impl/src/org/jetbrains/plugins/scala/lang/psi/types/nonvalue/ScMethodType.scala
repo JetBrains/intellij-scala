@@ -5,7 +5,7 @@ package types
 package nonvalue
 
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScGenericCall, ScMethodCall, ScPostfixExpr, ScReferenceExpression, ScUnderscoreSection}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec

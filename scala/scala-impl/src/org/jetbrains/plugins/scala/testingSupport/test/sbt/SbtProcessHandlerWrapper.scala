@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
-import java.io.OutputStream
-
 import com.intellij.execution.process.{OSProcessHandler, ProcessEvent, ProcessHandler, ProcessListener}
 import org.jetbrains.annotations.ApiStatus
 
+import java.io.OutputStream
 import scala.collection.mutable
 
 /** Process wrapper used to imitate termination of process so that 'stop' button in UI stops tests, but foes not kill

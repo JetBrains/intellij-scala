@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.compiler
 
-import java.util.EventListener
-
 import com.intellij.util.messages.Topic
+
+import java.util.EventListener
 
 trait CompilerEventListener
   extends EventListener {

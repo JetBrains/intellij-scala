@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.base.types
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.TokenSets._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 
 /** 
 * @author Alexander Podkhalyuzin

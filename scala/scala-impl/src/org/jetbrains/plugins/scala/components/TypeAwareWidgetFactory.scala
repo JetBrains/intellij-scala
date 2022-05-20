@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package components
 
-import java.awt.event.MouseEvent
-
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
@@ -10,7 +8,6 @@ import com.intellij.openapi.wm.StatusBarWidget.WidgetPresentation
 import com.intellij.openapi.wm.impl.status.widget.StatusBarWidgetsManager
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, StatusBarWidgetFactory}
 import com.intellij.util.Consumer
-import javax.swing.{Icon, Timer}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction
 import org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory.Widget
@@ -18,6 +15,9 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import java.awt.event.MouseEvent
+import javax.swing.{Icon, Timer}
 
 class TypeAwareWidgetFactory extends StatusBarWidgetFactory {
   override def getId: String = "TypeAwareHighlighting"

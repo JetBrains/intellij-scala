@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package methodSignature
 
-import java.util.regex.Pattern
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.extensions._
@@ -14,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.util.regex.Pattern
 import scala.annotation.tailrec
 
 package object quickfix {

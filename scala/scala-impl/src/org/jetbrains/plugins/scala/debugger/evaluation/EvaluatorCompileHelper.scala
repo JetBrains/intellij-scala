@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
+
+import java.io.File
 
 /**
  * There was a request from a proprietary plugin developers to add this extension point: <br>

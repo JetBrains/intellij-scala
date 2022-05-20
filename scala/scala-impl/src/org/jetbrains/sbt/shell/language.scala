@@ -7,9 +7,10 @@ import com.intellij.lexer.FlexAdapter
 import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IElementType, IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, TokenType}
-import javax.swing.Icon
 import org.jetbrains.annotations._
 import org.jetbrains.plugins.scala.LanguageFileTypeBase
+
+import javax.swing.Icon
 
 object SbtShellLanguage extends Language("sbtShell") with DependentLanguage {
   override def isCaseSensitive: Boolean = true

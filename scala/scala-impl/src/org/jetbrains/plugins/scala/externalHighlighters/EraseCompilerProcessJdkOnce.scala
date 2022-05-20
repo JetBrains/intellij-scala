@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import com.intellij.openapi.application.{ApplicationManager}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.project.ProjectExt

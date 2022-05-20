@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.completion.PlainTextSymbolCompletionContributor
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.psi.PsiFile
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+
+import java.{util => ju}
+import javax.swing.Icon
 
 final class ScalaPlainTextSymbolCompletionContributor extends PlainTextSymbolCompletionContributor {
 

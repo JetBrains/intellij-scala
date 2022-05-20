@@ -1,17 +1,14 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.codeInsight.runner.JavaMainMethodProvider
-import com.intellij.psi.util.{PsiMethodUtil, PsiTreeUtil}
-import com.intellij.psi.{PsiClass, PsiElement, PsiMethod}
-import org.jetbrains.plugins.scala.caches.BlockModificationTracker
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil._
 

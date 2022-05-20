@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.CodeInsightColors
-import com.intellij.openapi.editor.colors.EditorColors
-import com.intellij.openapi.editor.markup.EffectType
-import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors}
+import com.intellij.openapi.editor.markup.{EffectType, TextAttributes}
 import com.intellij.pom.Navigatable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 

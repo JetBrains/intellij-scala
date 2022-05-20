@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.changeSignature
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi._
@@ -21,6 +19,7 @@ import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

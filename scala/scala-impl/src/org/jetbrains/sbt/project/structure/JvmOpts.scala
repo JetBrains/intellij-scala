@@ -1,8 +1,9 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.File
 import com.intellij.openapi.util.io.FileUtil
+
+import java.io.File
 import scala.jdk.CollectionConverters._
 
 /**

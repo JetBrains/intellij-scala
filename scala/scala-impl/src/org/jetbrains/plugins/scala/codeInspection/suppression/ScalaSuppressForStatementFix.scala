@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package suppression
 
-import java.util
-
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl.actions.SuppressByCommentFix
 import com.intellij.codeInspection.{InspectionsBundle, SuppressionUtil, SuppressionUtilCore}
@@ -18,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

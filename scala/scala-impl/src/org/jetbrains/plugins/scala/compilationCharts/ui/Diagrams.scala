@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
-import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressInfo, CompilationProgressState, CompileServerMemoryState, Memory, Timestamp}
+import org.jetbrains.plugins.scala.compilationCharts._
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, ScalaCompileServerSettings}
 
 import scala.annotation.tailrec

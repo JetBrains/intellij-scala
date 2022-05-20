@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import java.io.File
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzerSettings
 import com.intellij.codeInsight.daemon.impl.DaemonCodeAnalyzerImpl
 import com.intellij.openapi.editor.Document
@@ -15,8 +13,9 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-import scala.jdk.CollectionConverters._
+import java.io.File
 import scala.io.Source
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 /**

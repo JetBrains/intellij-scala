@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package findUsages
 
-import java.{util => ju}
 import com.intellij.openapi.application.ReadActionProcessor
 import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.openapi.util.Condition
@@ -18,8 +17,9 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
+
+import java.{util => ju}
 
 /**
   * Nikolay.Tropin
@@ -31,7 +31,6 @@ class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, Referenc
     val elementToSearch = queryParameters.getElementToSearch
 
     val namesToProcess = inReadAction {
-      import ScalaNamesUtil.{isBacktickedName, isOpCharacter}
       var names = Set.empty[String]
       elementToSearch match {
         case named: ScNamedElement if named.isValid =>

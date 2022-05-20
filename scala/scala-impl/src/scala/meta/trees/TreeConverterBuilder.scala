@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocInlinedTag, ScDocSyntaxElement, ScDocTag}
 
-import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.Tree
 import scala.{meta => m, Seq => _}

@@ -1,22 +1,21 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
-import java.awt._
-import java.awt.geom.Rectangle2D
-
 import com.intellij.icons.AllIcons
 import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.ex.CustomComponentAction
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.util.NlsActions
-import com.intellij.ui.{IdeBorderFactory, SideBorder}
 import com.intellij.ui.components.{JBLabel, JBPanel}
+import com.intellij.ui.{IdeBorderFactory, SideBorder}
 import com.intellij.util.ui.components.BorderLayoutPanel
-import javax.swing.border.{EmptyBorder, LineBorder}
-import javax.swing.{BoxLayout, Icon, JComboBox, JComponent, JPanel}
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import java.awt._
+import java.awt.geom.Rectangle2D
+import javax.swing.border.{EmptyBorder, LineBorder}
+import javax.swing._
 import scala.concurrent.duration.DurationInt
 
 class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)

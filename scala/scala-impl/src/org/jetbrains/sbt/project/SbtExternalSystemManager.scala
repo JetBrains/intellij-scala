@@ -1,9 +1,6 @@
 package org.jetbrains.sbt
 package project
 
-import java.io.File
-
-import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configurations.SimpleJavaParameters
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.externalSystem.model.{ExternalSystemException, ProjectSystemId}
@@ -22,6 +19,7 @@ import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 
+import java.io.File
 import scala.jdk.CollectionConverters._
 
 /**

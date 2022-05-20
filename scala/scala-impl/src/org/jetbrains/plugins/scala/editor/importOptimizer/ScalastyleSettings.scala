@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
-import java.util.regex.Pattern
-
 import org.scalastyle.ConfigurationChecker
 
+import java.util.regex.Pattern
 import scala.util.Try
 
 /**

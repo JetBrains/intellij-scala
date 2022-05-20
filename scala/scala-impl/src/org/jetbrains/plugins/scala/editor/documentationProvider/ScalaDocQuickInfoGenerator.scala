@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
-import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{ContextBoundInfo, inNameContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference

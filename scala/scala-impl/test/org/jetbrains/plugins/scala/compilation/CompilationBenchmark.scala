@@ -1,30 +1,28 @@
 package org.jetbrains.plugins.scala.compilation
 
-import java.util.concurrent.TimeUnit
-
-import com.intellij.compiler.{CompilerConfiguration, CompilerWorkspaceConfiguration}
+import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.CompilerTester
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.jetbrains.jps.incremental.scala.remote.CompileServerMeteringInfo
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.LibraryLoader
-import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase.ListCompilerMessageExt
 import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.Metering._
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersionsFilter, TestScalaVersion}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Ignore
 
-import scala.jdk.CollectionConverters._
+import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 
 abstract class CompilationBenchmark

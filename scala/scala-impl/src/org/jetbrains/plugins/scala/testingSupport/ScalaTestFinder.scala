@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.testingSupport
 
-import java.util.HashSet
-import java.util.Collections
-import java.util.regex.Pattern
-
 import com.intellij.codeInsight.TestFrameworks
 import com.intellij.openapi.util.Pair
 import com.intellij.psi.search.{GlobalSearchScope, PsiShortNamesCache}
 import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement}
 import com.intellij.testIntegration.{JavaTestFinder, TestFinderHelper}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+
+import java.util.Collections
+import java.util.regex.Pattern
 
 
 /**

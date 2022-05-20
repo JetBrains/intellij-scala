@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import com.intellij.openapi.actionSystem.{DataContext, Presentation}
+import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.{EditorAction, EditorWriteActionHandler}
 import com.intellij.openapi.editor.{Caret, Editor}
 import org.jetbrains.plugins.scala.ScalaBundle

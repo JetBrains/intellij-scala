@@ -2,15 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package scaladoc
 
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocMissingParameterDescriptionInspection._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
-import ScalaDocMissingParameterDescriptionInspection._
 
 
 class ScalaDocMissingParameterDescriptionInspection extends LocalInspectionTool {

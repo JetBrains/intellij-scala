@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.debugger.breakpoints
 
-import java.util.{Collections, List => JList}
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.ui.breakpoints._
 import com.intellij.icons.AllIcons
-import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
@@ -17,7 +14,6 @@ import com.intellij.xdebugger.breakpoints.{XLineBreakpoint, XLineBreakpointType}
 import com.intellij.xdebugger.impl.XSourcePositionImpl
 import com.intellij.xdebugger.impl.breakpoints.XLineBreakpointImpl
 import com.intellij.xdebugger.{XDebuggerUtil, XSourcePosition}
-import javax.swing.Icon
 import org.jetbrains.annotations.{Nls, NotNull, Nullable}
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.java.debugger.breakpoints.properties.JavaLineBreakpointProperties
@@ -34,6 +30,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
+import java.util.{Collections, List => JList}
+import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
 /**

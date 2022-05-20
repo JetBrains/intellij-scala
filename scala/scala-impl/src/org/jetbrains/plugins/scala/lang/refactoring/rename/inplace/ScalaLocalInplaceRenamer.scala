@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import java.util
-
 import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -17,6 +15,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import java.util
 
 /**
  * Nikolay.Tropin

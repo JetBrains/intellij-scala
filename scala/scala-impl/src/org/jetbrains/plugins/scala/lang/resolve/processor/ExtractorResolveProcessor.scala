@@ -17,8 +17,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_11
 
-import scala.collection.mutable
-
 class ExtractorResolveProcessor(ref: ScReference,
                                 refName: String,
                                 kinds: Set[ResolveTargets.Value],

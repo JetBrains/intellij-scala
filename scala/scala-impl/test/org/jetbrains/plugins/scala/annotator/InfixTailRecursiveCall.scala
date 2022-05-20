@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-
 /**
   * Created by kate on 3/29/16.
   */

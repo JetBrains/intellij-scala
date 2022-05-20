@@ -1,7 +1,6 @@
 package scala.meta
 package annotations
 
-import java.io.File
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.editor.markup.GutterIconRenderer
@@ -10,7 +9,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import org.jetbrains.plugins.scala.{NlsString, TestDependencyManager}
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -19,8 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScRef
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{NlsString, TestDependencyManager}
 import org.junit.Assert._
 
+import java.io.File
 import scala.jdk.CollectionConverters._
 import scala.meta.intellij.MetaExpansionsManager.{META_MINOR_VERSION, MetaAnnotationError, PARADISE_VERSION}
 

@@ -1,10 +1,5 @@
 package org.jetbrains.plugins.scala.lang.transformation
 
-import java.awt.Dimension
-import java.lang
-
-import javax.swing._
-import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.profile.codeInspection.ui.table.ThreeStateCheckBoxRenderer
@@ -17,13 +12,17 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.BooleanExt
 import org.jetbrains.plugins.scala.lang.transformation.annotations._
 import org.jetbrains.plugins.scala.lang.transformation.calls._
-import org.jetbrains.plugins.scala.lang.transformation.conversions.MakeBoxingExplicit
 import org.jetbrains.plugins.scala.lang.transformation.declarations.{ExpandProcedureSyntax, MakeResultExpressionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.functions.{ExpandEtaExpansion, ExpandPlaceholderSyntax, MakeEtaExpansionExplicit}
 import org.jetbrains.plugins.scala.lang.transformation.general._
 import org.jetbrains.plugins.scala.lang.transformation.implicits._
 import org.jetbrains.plugins.scala.lang.transformation.references._
 import org.jetbrains.plugins.scala.lang.transformation.types._
+
+import java.awt.Dimension
+import java.lang
+import javax.swing._
+import javax.swing.tree.{DefaultTreeCellRenderer, TreeNode}
 
 class SelectionDialog {
   private val RootGroup = Group("root",

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG => END, SELECTION_START_TAG => START}
-
 abstract class MapValuesTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

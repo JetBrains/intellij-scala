@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.highlighter.usages
 
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.psi.PsiElement
-import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.Assert
 

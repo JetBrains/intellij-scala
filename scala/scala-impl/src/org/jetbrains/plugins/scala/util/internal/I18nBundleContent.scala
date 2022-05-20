@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package util
 package internal
 
-import java.io._
-import java.nio.file.{Path, Paths}
-
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
+import java.io._
+import java.nio.file.{Path, Paths}
 import scala.io.Source
 
 case class I18nBundleContent(entries: Seq[Entry]) {

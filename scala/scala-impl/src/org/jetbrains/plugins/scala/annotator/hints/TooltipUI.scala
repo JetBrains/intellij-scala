@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
-import java.awt.Point
-
 import com.intellij.openapi.editor.Editor
+
+import java.awt.Point
 
 trait TooltipUI {
   val message: String

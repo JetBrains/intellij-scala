@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.lang
 package psi
 package types
 
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 package object result {
 

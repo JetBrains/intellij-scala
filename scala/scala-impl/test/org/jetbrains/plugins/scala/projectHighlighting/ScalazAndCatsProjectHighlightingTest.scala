@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
-import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.junit.experimental.categories.Category
 

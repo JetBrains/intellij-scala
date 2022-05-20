@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import com.intellij.psi.impl.compiled.ClsFileImpl
+import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnPsiChangeListener.PsiChangeListener
 import org.jetbrains.plugins.scala.project.ProjectExt

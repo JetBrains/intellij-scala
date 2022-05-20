@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package caches
 
 
-import java.util.concurrent.atomic.AtomicReference
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
@@ -18,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 
+import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.util.control.ControlThrowable
 
 /**

@@ -4,12 +4,12 @@ package completion
 package filters.expression
 
 import com.intellij.psi.filters.ElementFilter
-import com.intellij.psi.{PsiElement, _}
+import com.intellij.psi._
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 /** 
 * @author Alexander Podkhalyuzin

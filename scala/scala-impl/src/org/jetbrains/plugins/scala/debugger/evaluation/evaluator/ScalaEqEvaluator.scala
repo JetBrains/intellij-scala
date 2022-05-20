@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException

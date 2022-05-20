@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.collection.mutable
-
 /**
   * Created by Kate Ustyuzhanina
   * on 8/3/15

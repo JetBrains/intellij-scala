@@ -1,9 +1,6 @@
 package scala.meta.converter
 
-import scala.meta.TreeConverterTestBaseNoLibrary
-import scala.meta._
-
-import scala.collection.immutable.Seq
+import scala.meta.{TreeConverterTestBaseNoLibrary, _}
 
 class TreeConverterLiteralTest extends  TreeConverterTestBaseNoLibrary {
   

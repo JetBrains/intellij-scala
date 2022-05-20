@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.io.File
-
 import com.intellij.execution.process.{ProcessEvent, ProcessListener}
 import com.intellij.ide.impl.ProjectUtil
 import com.intellij.openapi.application.ApplicationManager
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.SbtProjectSystem
 
+import java.io.File
 import scala.concurrent.{Future, Promise}
 
 /**

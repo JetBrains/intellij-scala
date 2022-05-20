@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import java.awt.event.MouseEvent
-import java.util
-import java.util.Collections.emptyList
-
 import com.intellij.codeInsight.daemon.GutterIconNavigationHandler
 import com.intellij.codeInsight.daemon.impl.{GutterTooltipHelper, PsiElementListNavigator}
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
@@ -13,7 +9,6 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.psi._
 import com.intellij.psi.presentation.java.ClassPresentationUtil
 import com.intellij.psi.search.searches.ClassInheritorsSearch
-import javax.swing.{Icon, ListCellRenderer}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.gutter.GutterUtil.namedParent
 import org.jetbrains.plugins.scala.extensions._
@@ -26,6 +21,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil
 
+import java.awt.event.MouseEvent
+import java.util
+import java.util.Collections.emptyList
+import javax.swing.{Icon, ListCellRenderer}
 import scala.jdk.CollectionConverters._
 
 /**

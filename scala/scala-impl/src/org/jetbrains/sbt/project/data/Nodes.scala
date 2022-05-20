@@ -1,11 +1,11 @@
 package org.jetbrains.sbt
 package project.data
 
-import java.net.URI
-
 import com.intellij.openapi.externalSystem.model.project._
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import org.jetbrains.sbt.project.SbtProjectSystem
+
+import java.net.URI
 
 /**
   * @author Pavel Fatin

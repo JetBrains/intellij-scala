@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
 class UnnecessaryPartialFunctionInspectionTest extends ScalaInspectionTestBase {

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.build
 
-import java.io.File
-
 import com.intellij.build.events.impl._
 import com.intellij.build.events.{BuildEvent, EventResult, MessageEvent}
 import com.intellij.build.{BuildViewManager, DefaultBuildDescriptor, FilePosition}
@@ -10,11 +8,12 @@ import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbAwareAction, Project}
-import javax.swing.JComponent
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 
+import java.io.File
+import javax.swing.JComponent
 import scala.annotation.nowarn
 import scala.concurrent.Promise
 

@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert._
 
 trait DocumentationTesting extends HtmlAssertions {

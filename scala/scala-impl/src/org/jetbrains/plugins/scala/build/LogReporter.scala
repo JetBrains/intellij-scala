@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.build
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.diagnostic.Logger
+
+import java.io.File
 
 class LogReporter extends BuildReporter {
 

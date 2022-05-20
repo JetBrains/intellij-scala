@@ -16,37 +16,35 @@ import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.PsiTreeUtil
-
-import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
-import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtNotifications}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockExpr, ScBlockStatement, ScExpression, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScBlockImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
-import org.scalafmt.dynamic.ScalafmtVersion
+import org.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
+import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
 import java.nio.file.{Path, Paths}
+import javax.swing.event.HyperlinkEvent
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -281,7 +279,7 @@ object ScalaFmtPreFormatProcessor {
 
     val elementsInCopy = this.getElementsOfRange(firstElementInCopy, lastElementInCopy).toArray
 
-    import ScalaPsiElementFactory.{createScalaDocComment, createNewLine}
+    import ScalaPsiElementFactory.{createNewLine, createScalaDocComment}
     val startMarkers: Seq[PsiElement] = firstElementInCopy.prependSiblings(createScalaDocComment(StartMarker), createNewLine())
     val endMarkers: Seq[PsiElement] = lastElementInCopy.appendSiblings(createNewLine(), createScalaDocComment(EndMarker))
 

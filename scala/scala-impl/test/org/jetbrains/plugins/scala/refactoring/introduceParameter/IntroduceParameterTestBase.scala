@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.introduceParameter
 
-import java.io.File
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
@@ -24,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{afterExpressionChoosing, trimSpacesAndComments}
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

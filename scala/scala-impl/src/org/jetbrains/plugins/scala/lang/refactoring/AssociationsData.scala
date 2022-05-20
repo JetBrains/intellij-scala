@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala
 package lang
 package refactoring
 
-import java.awt.datatransfer.DataFlavor
-
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.util.TextRange
+
+import java.awt.datatransfer.DataFlavor
 
 abstract class AssociationsData(val associations: Array[Association],
                                 private val companion: AssociationsData.Companion[_]) extends TextBlockTransferableData {

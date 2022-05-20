@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.settings
 
-import java.awt.GridLayout
-
 import com.intellij.openapi.options.{BeanConfigurable, SearchableConfigurable}
 import com.intellij.util.ui.JBUI
-import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+
+import java.awt.GridLayout
+import javax.swing._
 
 class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplicationSettings](ScalaApplicationSettings.getInstance) with SearchableConfigurable {
   override def getId: String = "ScalaSmartKeys"

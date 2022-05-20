@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
 import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import java.{util => ju}
-
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.project.Project
@@ -31,6 +29,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaRefactoringUtil, ScalaVariableValidator, ValidationReporter}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
+import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 
 /**

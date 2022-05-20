@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.{FlakyTests, HighlightingTests}
+import org.jetbrains.plugins.scala.FlakyTests
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[FlakyTests]))

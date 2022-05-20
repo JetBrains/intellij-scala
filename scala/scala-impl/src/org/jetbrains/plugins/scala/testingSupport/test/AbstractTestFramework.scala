@@ -4,14 +4,14 @@ package testingSupport.test
 import com.intellij.lang.Language
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.{PsiClass, PsiElement}
-
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+
+import javax.swing.Icon
 
 abstract class AbstractTestFramework extends JavaTestFrameworkBridge {
 

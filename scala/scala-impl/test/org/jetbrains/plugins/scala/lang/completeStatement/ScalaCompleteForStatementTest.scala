@@ -2,15 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package completeStatement
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author Ksenia.Sautina
   * @since 2/25/13
   */
 class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testForStatement1(): Unit = doCompletionTest(
     fileText =

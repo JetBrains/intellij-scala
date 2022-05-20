@@ -2,7 +2,6 @@ package org.jetbrains.sbt.project
 
 import java.util
 import java.util.Optional
-
 import scala.jdk.CollectionConverters._
 
 package object data {

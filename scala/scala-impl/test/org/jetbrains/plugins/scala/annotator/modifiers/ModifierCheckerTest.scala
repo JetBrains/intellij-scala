@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.modifiers
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, TypecheckerTests}
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, TypecheckerTests}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))

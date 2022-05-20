@@ -3,9 +3,6 @@ package refactoring
 package inline
 
 
-import java.io.File
-import java.util.concurrent.TimeUnit
-
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.command.UndoConfirmationPolicy
@@ -21,6 +18,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring.inline.ScalaInlineHandler
 import org.junit.Assert._
+
+import java.io.File
+import java.util.concurrent.TimeUnit
 
 /**
  * User: Alexander Podkhalyuzin

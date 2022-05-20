@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
-import java.awt.Insets
-
 import com.intellij.openapi.editor.colors.{EditorColorsScheme, EditorFontType}
 import com.intellij.openapi.editor.{Editor, EditorFactory}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+
+import java.awt.Insets
 
 case class Hint(parts: Seq[Text],
                 element: PsiElement,

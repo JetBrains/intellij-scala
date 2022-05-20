@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractTrait
 
-import java.util
-
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.editor.Editor
@@ -27,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createCl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.IntroduceException
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

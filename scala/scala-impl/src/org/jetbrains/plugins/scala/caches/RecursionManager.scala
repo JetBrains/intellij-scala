@@ -1,15 +1,13 @@
 package org.jetbrains.plugins.scala.caches
 
-import java.util
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.RecursionGuard.StackStamp
 import com.intellij.openapi.util.{RecursionManager => PlatformRM}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
+import java.util
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.jdk.CollectionConverters._
 
 /**

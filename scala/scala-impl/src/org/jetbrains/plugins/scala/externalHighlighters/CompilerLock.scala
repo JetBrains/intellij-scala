@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.util.concurrent.Semaphore
-
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.util.CompilationId
+
+import java.util.concurrent.Semaphore
 
 trait CompilerLock {
 

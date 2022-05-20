@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.types.utils
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -12,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 import scala.reflect._
 

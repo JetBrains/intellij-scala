@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.build
 
-import java.util.UUID
-import java.util.function.BiPredicate
-
 import com.intellij.build.events.impl.{AbstractBuildEvent, FileMessageEventImpl}
 import com.intellij.build.events.{MessageEvent, MessageEventResult, Warning}
 import com.intellij.build.{FilePosition, events}
@@ -11,6 +8,9 @@ import com.intellij.pom.Navigatable
 import com.intellij.task._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.build.BuildMessages.{BuildStatus, Canceled, Error}
+
+import java.util.UUID
+import java.util.function.BiPredicate
 
 case class BuildMessages(warnings: Seq[events.Warning],
                          errors: Seq[events.Failure],

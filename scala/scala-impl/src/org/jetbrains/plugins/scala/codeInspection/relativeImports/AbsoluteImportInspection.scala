@@ -1,18 +1,17 @@
 package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
-import codeInspection.relativeImports.AbsoluteImportInspection.OptimizeImportsQuickFix
-import codeInspection.{AbstractInspection, ScalaInspectionBundle}
-import editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
-import extensions.{ObjectExt, PsiElementExt}
-import lang.psi.api.ScalaFile
-import lang.psi.api.toplevel.imports.ScImportExpr
-
 import com.intellij.codeInsight.daemon.QuickFixBundle
 import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.relativeImports.AbsoluteImportInspection.OptimizeImportsQuickFix
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 
 import scala.annotation.nowarn
 

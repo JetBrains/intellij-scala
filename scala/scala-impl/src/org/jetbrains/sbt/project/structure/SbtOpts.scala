@@ -1,11 +1,11 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.File
-
-import scala.jdk.CollectionConverters._
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.annotations.NonNls
+
+import java.io.File
+import scala.jdk.CollectionConverters._
 
 /**
   * Support for the .sbtopts file loaded by the sbt launcher script as alternative to command line options.

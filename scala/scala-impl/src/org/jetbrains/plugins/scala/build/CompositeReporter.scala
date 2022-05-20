@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.build
 
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
+
+import java.io.File
 
 class CompositeReporter(reporters: BuildReporter*) extends BuildReporter {
   override def start(): Unit =

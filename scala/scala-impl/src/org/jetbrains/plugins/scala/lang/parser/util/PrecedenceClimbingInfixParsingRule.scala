@@ -6,8 +6,8 @@ package util
 import com.intellij.lang.PsiBuilder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
-import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
@@ -102,8 +102,8 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   // first-set of Expr()
   private val startsExpression = {
-    import ScalaTokenTypes._
     import ScalaTokenType._
+    import ScalaTokenTypes._
     Set(
       tLBRACE, tLPARENTHESIS,
       tIDENTIFIER, tUNDER,

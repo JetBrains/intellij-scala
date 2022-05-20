@@ -2,8 +2,9 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware
-import javax.swing.Icon
 import org.jetbrains.sbt.{Sbt, SbtBundle}
+
+import javax.swing.Icon
 
 /**
  * Configuration running of sbt task.

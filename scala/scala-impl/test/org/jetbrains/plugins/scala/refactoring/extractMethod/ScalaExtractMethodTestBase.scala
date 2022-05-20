@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package refactoring.extractMethod
 
 import com.intellij.openapi.actionSystem.DataKey
-
-import java.io.File
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.project.Project
@@ -20,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaExtractMe
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")

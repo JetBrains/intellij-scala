@@ -1,9 +1,9 @@
 package org.jetbrains.sbt
 package project.settings
 
-import java.io.File
-
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
+
+import java.io.File
 
 /**
  * @author Pavel Fatin

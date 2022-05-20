@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import com.intellij.codeInspection.LocalInspectionTool
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
-
 /**
   * Created by Roman.Shein on 02.09.2016.
   */

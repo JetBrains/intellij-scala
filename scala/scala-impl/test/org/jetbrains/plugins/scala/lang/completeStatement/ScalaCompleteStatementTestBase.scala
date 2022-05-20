@@ -7,7 +7,6 @@ import com.intellij.openapi.actionSystem.IdeActions.ACTION_EDITOR_COMPLETE_STATE
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 /**

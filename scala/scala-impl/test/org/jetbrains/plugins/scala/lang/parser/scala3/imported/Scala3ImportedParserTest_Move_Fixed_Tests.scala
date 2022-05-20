@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
-import java.nio.file.{Files, Paths, StandardCopyOption}
-
 import com.intellij.openapi.project.Project
-import junit.framework.{TestResult, TestSuite}
+import junit.framework.TestResult
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Ignore
+
+import java.nio.file.{Files, Paths, StandardCopyOption}
 
 object Scala3ImportedParserTest_Move_Fixed_Tests {
   val dottyParserTestsSuccessDir: String = TestUtils.getTestDataPath + Scala3ImportedParserTest.directory

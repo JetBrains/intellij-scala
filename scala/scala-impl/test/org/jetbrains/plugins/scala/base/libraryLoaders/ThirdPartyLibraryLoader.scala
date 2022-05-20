@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package base
 package libraryLoaders
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess
 import com.intellij.testFramework.PsiTestUtil
 import org.jetbrains.plugins.scala.project.ModuleExt
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

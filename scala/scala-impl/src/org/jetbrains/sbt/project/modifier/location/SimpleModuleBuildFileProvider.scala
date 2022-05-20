@@ -1,8 +1,8 @@
 package org.jetbrains.sbt.project.modifier.location
 
-import java.io.File
-
 import org.jetbrains.sbt.project.modifier.BuildFileElementType
+
+import java.io.File
 
 /**
  * @author Roman.Shein

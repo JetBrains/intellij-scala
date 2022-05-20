@@ -1,11 +1,11 @@
 package org.jetbrains.sbt.project
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.project.structure.SbtOpts
 import org.junit.Assert.assertEquals
 import org.junit.Test
+
+import java.io.File
 
 class SbtOptsTest {
 

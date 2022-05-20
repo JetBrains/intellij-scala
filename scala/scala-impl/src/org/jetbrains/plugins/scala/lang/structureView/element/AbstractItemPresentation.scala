@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import javax.swing._
 import com.intellij.navigation.ColoredItemPresentation
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.util.Iconable
 import com.intellij.util.ui.UIUtil
-import org.jetbrains.plugins.scala.NlsString
+
+import javax.swing._
 
 // TODO make private (after decoupling Test)
 trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =>

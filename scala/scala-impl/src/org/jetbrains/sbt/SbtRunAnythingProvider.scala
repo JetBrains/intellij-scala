@@ -1,14 +1,11 @@
 package org.jetbrains.sbt
 
-import java.util
-
 import com.intellij.ide.actions.runAnything.RunAnythingUtil._
 import com.intellij.ide.actions.runAnything.activity.RunAnythingProviderBase
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.util.text.StringUtil
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.sbt.SbtRunAnythingProvider._
 import org.jetbrains.sbt.project.data.{SbtSettingData, SbtTaskData}
@@ -16,6 +13,8 @@ import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.action.SbtNodeAction
 
+import java.util
+import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
 class SbtRunAnythingProvider extends RunAnythingProviderBase[SbtRunItem] {

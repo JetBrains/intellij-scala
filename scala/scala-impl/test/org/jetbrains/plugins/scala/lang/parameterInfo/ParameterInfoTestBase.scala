@@ -2,10 +2,8 @@ package org.jetbrains.plugins.scala
 package lang
 package parameterInfo
 
-import java.awt.Color
-
 import com.intellij.codeInsight.hint.{HintUtil, ShowParameterInfoContext}
-import com.intellij.lang.parameterInfo.{ParameterInfoHandlerWithTabActionSupport, ParameterInfoUIContext, _}
+import com.intellij.lang.parameterInfo._
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoContext
@@ -13,6 +11,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert._
 
+import java.awt.Color
 import scala.collection.mutable
 
 abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCodeInsightFixtureTestAdapter {

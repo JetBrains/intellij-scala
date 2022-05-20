@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.notification._
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.util.{ScalaCollectionsUtil, ScalaNotificationGroups}
+import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
 import scala.annotation.nowarn
 import scala.collection.mutable

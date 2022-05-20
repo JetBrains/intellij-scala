@@ -1,11 +1,11 @@
 package org.jetbrains.sbt.shell
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import junit.framework.TestCase
 import org.jetbrains.sbt.JvmMemorySize
 import org.jetbrains.sbt.project.settings.SbtExecutionSettings
+
+import java.io.File
 
 class MaxJvmHeapParameterTest extends TestCase {
   import org.junit.Assert._

@@ -1,6 +1,4 @@
 package org.jetbrains.plugins.scala.lang.rearranger
-import java.util
-
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Pair, TextRange}
 import com.intellij.psi.PsiElement
@@ -14,14 +12,15 @@ import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Modifier.
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens.Order._
 import com.intellij.psi.codeStyle.arrangement.std.StdArrangementTokens._
 import com.intellij.psi.codeStyle.arrangement.std._
-import com.intellij.psi.codeStyle.arrangement.{ArrangementSettings, _}
+import com.intellij.psi.codeStyle.arrangement._
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.rearranger.RearrangerUtils._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.jdk.CollectionConverters._
+import java.util
 import scala.collection.immutable.HashSet
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 class ScalaRearranger extends Rearranger[ScalaArrangementEntry] with ArrangementStandardSettingsAware {
   override def parseWithNew(

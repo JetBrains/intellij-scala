@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
-import java.util
-
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.javadoc.PsiDocTag
@@ -14,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocDescriptionPart, ScDocTag}
 
-import scala.collection.mutable
+import java.util
 
 final class ScDocCommentImpl(buffer: CharSequence,
                              override val getTokenType: IElementType)

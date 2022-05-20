@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intentions.expression
 
-import org.jetbrains.plugins.scala.codeInsight.intention.expression.ConvertParameterToUnderscoreIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 /**

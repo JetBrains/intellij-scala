@@ -1,12 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import java.awt.event.MouseEvent
-import java.awt.geom.Point2D
-import java.awt.{Insets, Point}
-import java.util
-import javax.swing.JComponent
-import javax.swing.border.Border
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.InlayModel.Listener
 import com.intellij.openapi.editor._
@@ -15,6 +8,13 @@ import com.intellij.openapi.editor.event.{EditorMouseEventArea, EditorMouseListe
 import com.intellij.openapi.editor.markup.MarkupModel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
+
+import java.awt.event.MouseEvent
+import java.awt.geom.Point2D
+import java.awt.{Insets, Point}
+import java.util
+import javax.swing.JComponent
+import javax.swing.border.Border
 
 /**
  * Pavel Fatin

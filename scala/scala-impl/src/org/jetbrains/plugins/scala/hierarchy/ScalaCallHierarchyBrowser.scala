@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.hierarchy
 
-import java.util
-import java.util.Comparator
-import javax.swing.{JComponent, JTree}
-
 import com.intellij.ide.hierarchy.CallHierarchyBrowserBase._
 import com.intellij.ide.hierarchy.call.CallHierarchyNodeDescriptor
 import com.intellij.ide.hierarchy.{CallHierarchyBrowserBase, HierarchyNodeDescriptor, HierarchyTreeStructure, JavaHierarchyUtil}
@@ -12,6 +8,10 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiMethod}
 import com.intellij.ui.PopupHandler
+
+import java.util
+import java.util.Comparator
+import javax.swing.{JComponent, JTree}
 
 /**
   * @author Alexander Podkhalyuzin

@@ -5,7 +5,7 @@ package annotations
 import com.intellij.openapi.roots.TestSourcesFilter.isTestSources
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{PsiClass, PsiCodeFragment, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.{PsiClassExt, ViewProviderExt}
+import org.jetbrains.plugins.scala.extensions.ViewProviderExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition

@@ -2,12 +2,12 @@ package org.jetbrains.plugins.scala
 package base
 package libraryLoaders
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.testFramework.PsiTestUtil
+
+import java.io.File
 
 /**
   * @author adkozlov

@@ -1,11 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package compilation
 
-import java.io._
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths}
-import java.util.UUID
-
 import com.intellij.ProjectTopics
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
@@ -21,8 +16,12 @@ import org.jetbrains.plugins.scala.indices.protocol.sbt._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import spray.json._
 
-import scala.util.{Try, Using}
+import java.io._
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path, Paths}
+import java.util.UUID
 import scala.util.control.NonFatal
+import scala.util.{Try, Using}
 
 private[compilerReferences] class SbtCompilationWatcher(
   override val project:          Project,

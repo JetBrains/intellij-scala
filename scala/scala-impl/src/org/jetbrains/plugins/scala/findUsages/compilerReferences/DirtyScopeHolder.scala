@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.util
-import java.util.concurrent.locks.{Lock, ReentrantLock}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.{FileType, FileTypeRegistry}
-import com.intellij.openapi.module.{Module, ModuleUtilCore}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{ModificationTracker, UserDataHolderBase}
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.vfs.newvfs.events._
@@ -20,6 +17,8 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
 
+import java.util
+import java.util.concurrent.locks.{Lock, ReentrantLock}
 import scala.jdk.CollectionConverters._
 
 /**

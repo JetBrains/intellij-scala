@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, Measure}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import javax.swing.Icon
 import scala.annotation.tailrec

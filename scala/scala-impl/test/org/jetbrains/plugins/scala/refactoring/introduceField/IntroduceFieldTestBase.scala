@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.introduceField
 
-import java.io.File
-
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -21,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.{IntroduceFie
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpressionWithTypes
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

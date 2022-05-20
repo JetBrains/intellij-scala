@@ -7,7 +7,6 @@ package base
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.InfixType
-import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
 * @author Alexander Podkhalyuzin

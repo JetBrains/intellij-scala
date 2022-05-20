@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
-import java.util
-
 import com.intellij.execution.CommonProgramRunConfigurationParameters
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
+
+import java.util
 
 trait DelegateCommonProgramRunConfigurationParameters
   extends CommonProgramRunConfigurationParameters {

@@ -4,7 +4,7 @@ package parser
 package parsing
 package statements
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Ids, Modifier}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.EnumCaseConstr

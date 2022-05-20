@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ScalaExtensionMethodCompletionTest extends ScalaCodeInsightTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =

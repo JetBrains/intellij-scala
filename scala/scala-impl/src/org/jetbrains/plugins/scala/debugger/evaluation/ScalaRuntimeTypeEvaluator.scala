@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
-import scala.jdk.CollectionConverters._
-
 import com.intellij.debugger.JavaDebuggerBundle
 import com.intellij.debugger.codeinsight.RuntimeTypeEvaluator
 import com.intellij.debugger.engine.ContextUtil
@@ -23,6 +21,8 @@ import org.jetbrains.plugins.scala.extensions.{IteratorExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
+
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin

@@ -5,7 +5,6 @@ import com.intellij.psi.{PsiDocCommentOwner, PsiElement, PsiPackage}
 import org.jetbrains.plugins.scala.autoImport.quickFix.ElementToImport
 import org.jetbrains.plugins.scala.extensions.{ContainingFile, ObjectExt, PsiElementExt, cachify}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.ScFile.VirtualFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.project.ProjectContext
 

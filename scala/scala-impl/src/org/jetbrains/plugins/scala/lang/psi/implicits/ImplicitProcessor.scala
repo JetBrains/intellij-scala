@@ -3,7 +3,6 @@ package lang
 package psi
 package implicits
 
-import java.{util => ju}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -31,6 +30,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence._
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.mutable
 

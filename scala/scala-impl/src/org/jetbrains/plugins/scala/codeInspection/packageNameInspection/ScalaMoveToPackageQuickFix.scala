@@ -7,7 +7,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ModuleRootManager, SourceFolder}
 import com.intellij.openapi.ui.Messages
-import com.intellij.refactoring.move.moveClassesOrPackages.MoveClassesOrPackagesUtil
 import com.intellij.refactoring.util.{CommonMoveClassesOrPackagesUtil, RefactoringMessageUtil}
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.annotations.Nls

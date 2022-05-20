@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.project.modifier.location
 
-import java.io.File
-
 import com.intellij.openapi.module.{Module => IJModule}
 import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiFile, PsiManager}
@@ -9,6 +7,7 @@ import com.intellij.testFramework.LightVirtualFile
 import com.intellij.util.LocalTimeCounter
 import org.jetbrains.sbt.project.modifier.BuildFileElementType
 
+import java.io.File
 import scala.collection.mutable
 
 /**

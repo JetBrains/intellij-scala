@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
+import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.expression.Evaluator
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
-import com.intellij.debugger.{DebuggerManagerEx, SourcePosition}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}

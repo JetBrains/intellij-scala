@@ -4,7 +4,6 @@ package debugger.evaluation
 import com.intellij.debugger.engine.evaluation.{AbsentInformationEvaluateException, EvaluateException, EvaluateExceptionUtil}
 import com.sun.jdi.AbsentInformationException
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import scala.annotation.tailrec
 

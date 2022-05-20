@@ -1,11 +1,11 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.io.File
-
 import com.intellij.openapi.application.PathManager
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.template.writeLinesTo
+
+import java.io.File
 
 /**
  * @author Pavel Fatin

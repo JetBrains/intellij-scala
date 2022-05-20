@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.io.{DataInput, DataOutput}
-import java.util
-
 import com.intellij.openapi.util.io.{DataInputOutputUtilRt => ioutil}
 import com.intellij.util.indexing.{DataIndexer, IndexExtension, IndexId}
 import com.intellij.util.io.{DataExternalizer, KeyDescriptor}
@@ -10,6 +7,8 @@ import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.backwardRefs.CompilerRef._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.CompiledScalaFile
 
+import java.io.{DataInput, DataOutput}
+import java.util
 import scala.jdk.CollectionConverters._
 
 private[findUsages] object ScalaCompilerIndices {

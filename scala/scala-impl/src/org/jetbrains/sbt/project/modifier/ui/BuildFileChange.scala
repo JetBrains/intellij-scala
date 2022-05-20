@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.project.modifier.ui
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vcs.changes.{ContentRevision, Change}
+import com.intellij.openapi.vcs.changes.{Change, ContentRevision}
 
 /**
  * @author Roman.Shein

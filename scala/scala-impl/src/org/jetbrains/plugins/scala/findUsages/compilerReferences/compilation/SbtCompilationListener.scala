@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 
+import com.intellij.util.messages.Topic
+
 import java.nio.file.Path
 import java.util.{EventListener, UUID}
-
-import com.intellij.util.messages.Topic
 
 /**
  * Low level listener component providing access to raw TCP socket events from sbt compilations

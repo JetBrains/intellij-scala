@@ -2,10 +2,9 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import java.io.File
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupManager}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -13,6 +12,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

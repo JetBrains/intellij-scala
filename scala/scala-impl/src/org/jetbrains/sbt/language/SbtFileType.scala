@@ -2,8 +2,9 @@ package org.jetbrains.sbt
 package language
 
 import com.intellij.openapi.util.IconLoader
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.LanguageFileTypeBase
+
+import javax.swing.Icon
 
 object SbtFileType extends LanguageFileTypeBase(SbtLanguage.INSTANCE) {
 

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package util
 
-import java.util.regex.Pattern
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.project.Project
@@ -17,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLitera
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-import scala.collection.mutable.ArrayBuffer
+import java.util.regex.Pattern
 
 object MultilineStringUtil {
 

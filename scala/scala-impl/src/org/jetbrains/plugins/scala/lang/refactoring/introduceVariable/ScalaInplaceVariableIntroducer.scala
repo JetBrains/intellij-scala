@@ -3,9 +3,6 @@ package lang
 package refactoring
 package introduceVariable
 
-import java.awt._
-import java.awt.event.ActionEvent
-
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.WriteCommandAction.writeCommandAction
@@ -24,8 +21,6 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.introduce.inplace.InplaceVariableIntroducer
 import com.intellij.ui.NonFocusableCheckBox
-import javax.swing._
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -42,6 +37,10 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util._
 
+import java.awt._
+import java.awt.event.ActionEvent
+import javax.swing._
+import javax.swing.event.HyperlinkEvent
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 

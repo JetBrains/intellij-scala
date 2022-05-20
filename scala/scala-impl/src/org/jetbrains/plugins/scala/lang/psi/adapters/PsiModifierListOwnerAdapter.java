@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.adapters;
 
 import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiJvmModifiersOwner;
-import com.intellij.psi.PsiModifierListOwner;
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.testingSupport.test.ui
 import com.intellij.openapi.ui.VerticalFlowLayout
 import com.intellij.ui.table.JBTable
 import com.intellij.ui.{AnActionButton, AnActionButtonRunnable, ToolbarDecorator}
-import javax.swing.JPanel
-import javax.swing.table.DefaultTableModel
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.testingSupport.test.ui.RegexpPanel._
+
+import javax.swing.JPanel
+import javax.swing.table.DefaultTableModel
 
 final class RegexpPanel extends JPanel {
 

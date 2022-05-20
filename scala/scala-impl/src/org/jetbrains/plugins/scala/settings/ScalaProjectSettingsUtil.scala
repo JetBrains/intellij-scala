@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.settings
 
-import java.util
-
-import javax.swing.{JComponent, JPanel}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
@@ -14,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import java.util
+import javax.swing.{JComponent, JPanel}
 import scala.annotation.tailrec
 
 /**

@@ -3,7 +3,6 @@ package lang
 package refactoring
 package move
 
-import java.{util => ju}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -19,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
+import java.{util => ju}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 

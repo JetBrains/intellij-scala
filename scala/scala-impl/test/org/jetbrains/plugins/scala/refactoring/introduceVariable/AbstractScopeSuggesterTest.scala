@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
-import java.io.File
-
 import com.intellij.ide.DataManager
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.util.io.FileUtil
@@ -16,6 +14,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.{ScopeItem
 import org.jetbrains.plugins.scala.lang.refactoring.util.EmptyConflictsReporter
 import org.junit.Assert
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

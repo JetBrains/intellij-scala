@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package compilation
 
-import java.util.UUID
-
 import com.intellij.compiler.impl.ExitStatus
 import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerRe
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 
+import java.util.UUID
 import scala.annotation.nowarn
 
 private[compilerReferences] class JpsCompilationWatcher(

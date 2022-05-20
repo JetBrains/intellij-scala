@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import java.awt.Point
-
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -11,7 +9,6 @@ import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, PopupStep}
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
-import javax.swing.JList
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -21,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.JListCompatibility.GoToImplicitConversionAction
 
+import java.awt.Point
+import javax.swing.JList
 import scala.annotation.nowarn
 
 /**

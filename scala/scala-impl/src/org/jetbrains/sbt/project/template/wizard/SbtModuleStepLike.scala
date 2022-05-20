@@ -1,8 +1,7 @@
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.components.{JBCheckBox, JBTextField}
-import org.jetbrains.plugins.scala.ScalaBundle
+import com.intellij.ui.components.JBCheckBox
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaVersionDownloadingDialog}

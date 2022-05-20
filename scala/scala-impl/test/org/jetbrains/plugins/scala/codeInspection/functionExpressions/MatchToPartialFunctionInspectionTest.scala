@@ -3,7 +3,6 @@ package codeInspection
 package functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 
 /**
   * Nikolay.Tropin

@@ -10,7 +10,7 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
 import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable

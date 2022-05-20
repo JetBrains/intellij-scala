@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala
 package lang
 package formatting
 
-import java.util
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
+
+import java.util
 import com.intellij.psi.tree._
 import com.intellij.psi.util.PsiTreeUtil
 import org.apache.commons.lang3.StringUtils
@@ -32,12 +33,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocListItem, ScDocTag}
-import org.jetbrains.plugins.scala.project.UserDataHolderExt
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 // TODO: rename it to some Builder/Producer/etc...
@@ -830,8 +829,8 @@ class getDummyBlocks(private val block: ScalaBlock) {
   private def isComment(node: ASTNode) = COMMENTS_TOKEN_SET.contains(node.getElementType)
 
   private def createAlignment(node: ASTNode): Alignment = {
-    import commonSettings._
     import Alignment.{createAlignment => create}
+    import commonSettings._
     node.getPsi match {
       case _: ScXmlStartTag                                                          => create //todo:
       case _: ScXmlEmptyTag                                                          => create //todo:

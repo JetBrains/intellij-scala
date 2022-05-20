@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2.specs2_scala_2_13_specs_4
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.testingSupport.specs2.{SCL7228Test, Spec2ExampleUnitSpec, Specs2DuplicateConfigTest, Specs2FileStructureViewTest, Specs2GoToSourceTest, Specs2ObjectSpecTest, Specs2PackageTest, Specs2RegExpTestNameTest, Specs2SingleTestTest, Specs2SpecialCharactersTest, Specs2StaticStringTest, Specs2TestCase, Specs2WholeSuiteTest}
+import org.jetbrains.plugins.scala.testingSupport.specs2._
+import org.jetbrains.plugins.scala.{DependencyManager, ScalaVersion}
 
 trait Specs2_Scala_2_13_Specs_4_Base extends Specs2TestCase {
 

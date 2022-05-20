@@ -3,10 +3,6 @@ package lang
 package refactoring
 package move
 
-import java.awt.BorderLayout
-import java.awt.event.ActionEvent
-import java.{util => ju}
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.psi.{PsiClass, PsiDirectory, PsiElement}
@@ -14,11 +10,14 @@ import com.intellij.refactoring.move.MoveCallback
 import com.intellij.refactoring.move.moveClassesOrPackages._
 import com.intellij.refactoring.util.{CommonRefactoringUtil, TextOccurrencesUtil}
 import com.intellij.refactoring.{JavaRefactoringSettings, MoveDestination}
-import javax.swing._
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 
+import java.awt.BorderLayout
+import java.awt.event.ActionEvent
+import java.{util => ju}
+import javax.swing._
 import scala.annotation.nowarn
 
 /**

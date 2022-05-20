@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.util
 
-import java.io.File
-
 import com.intellij.openapi.application.PathManager
+
+import java.io.File
 
 object ScalaPluginUtils {
 

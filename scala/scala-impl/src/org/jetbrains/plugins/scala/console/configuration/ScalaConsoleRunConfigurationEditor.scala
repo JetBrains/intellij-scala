@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.console.configuration
 
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
+
 import javax.swing.JComponent
 
 class ScalaConsoleRunConfigurationEditor(project: Project, configuration: ScalaConsoleRunConfiguration)

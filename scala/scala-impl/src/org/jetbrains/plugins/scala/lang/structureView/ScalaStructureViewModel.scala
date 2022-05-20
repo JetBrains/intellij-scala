@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.structureView
 
-import java.util
-import java.util.Comparator
-
 import com.intellij.icons.AllIcons
 import com.intellij.ide.IdeBundle
 import com.intellij.ide.structureView.{StructureViewModel, StructureViewTreeElement, TextEditorBasedStructureViewModel}
@@ -20,6 +17,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 import org.jetbrains.plugins.scala.lang.structureView.element.{Element, Test}
 import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodeProvider
+
+import java.util
+import java.util.Comparator
 
 /**
  * @author Alexander Podkhalyuzin

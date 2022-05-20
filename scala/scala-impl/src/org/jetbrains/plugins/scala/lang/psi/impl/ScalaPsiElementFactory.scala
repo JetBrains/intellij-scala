@@ -3,7 +3,6 @@ package lang
 package psi
 package impl
 
-import java.{util => ju}
 import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.ProcessCanceledException
@@ -48,6 +47,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocParagraph, ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 

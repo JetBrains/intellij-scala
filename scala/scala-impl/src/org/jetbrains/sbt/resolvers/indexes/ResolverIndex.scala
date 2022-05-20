@@ -1,13 +1,13 @@
 package org.jetbrains.sbt.resolvers.indexes
 
-import java.io.File
-
 import com.intellij.openapi.application.{ApplicationManager, PathManager}
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.sbt._
 import org.jetbrains.sbt.resolvers.ArtifactInfo
+
+import java.io.File
 
 /**
   * @author Mikhail Mutcianko

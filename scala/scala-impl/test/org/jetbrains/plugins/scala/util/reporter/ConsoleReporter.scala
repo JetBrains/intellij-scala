@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.util.reporter
 
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter.StringExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgressIndicator
 import org.junit.Assert
-import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter.StringExt
 
 /**
   * @author mutcianm

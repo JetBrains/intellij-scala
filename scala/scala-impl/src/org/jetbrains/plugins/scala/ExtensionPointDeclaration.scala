@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.extensions.ExtensionPointName
+
 import scala.jdk.CollectionConverters._
 
 /**

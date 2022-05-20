@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.project
 
-import java.io.File
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -14,6 +13,7 @@ import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOption
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.assertNotNull
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

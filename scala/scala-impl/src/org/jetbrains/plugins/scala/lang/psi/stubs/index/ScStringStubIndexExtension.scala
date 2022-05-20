@@ -4,13 +4,13 @@ package psi
 package stubs
 package index
 
-import java.{util => ju}
-
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StringStubIndexExtension
 import org.jetbrains.plugins.scala.finder.ScalaFilterScope
+
+import java.{util => ju}
 
 /**
   * @author adkozlov

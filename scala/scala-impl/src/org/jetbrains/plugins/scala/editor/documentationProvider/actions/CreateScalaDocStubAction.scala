@@ -11,8 +11,8 @@ import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
-import org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubAction.createStub
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocStubGenerator
+import org.jetbrains.plugins.scala.editor.documentationProvider.actions.CreateScalaDocStubAction.createStub
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}

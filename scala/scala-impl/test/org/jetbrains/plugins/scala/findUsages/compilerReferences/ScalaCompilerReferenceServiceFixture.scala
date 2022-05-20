@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package findUsages
 package compilerReferences
 
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.locks.{Condition, Lock, ReentrantLock}
-
 import com.intellij.openapi.compiler.CompilerMessageCategory
 import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiClass
@@ -17,8 +14,10 @@ import org.jetbrains.plugins.scala.project._
 import org.junit.Assert.{assertNotSame, fail}
 import org.junit.experimental.categories.Category
 
-import scala.jdk.CollectionConverters._
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.locks.{Condition, Lock, ReentrantLock}
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
 

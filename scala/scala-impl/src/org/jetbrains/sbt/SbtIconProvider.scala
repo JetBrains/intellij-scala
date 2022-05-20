@@ -1,8 +1,9 @@
 package org.jetbrains.sbt
 
 import com.intellij.openapi.externalSystem.ui.ExternalSystemIconProvider
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 
 class SbtIconProvider extends ExternalSystemIconProvider {
   // TODO create sbt reload icon similar to icons.GradleIcons.GradleLoadChanges, SCL-16759

@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.internal.bundle
 
-import java.io.{File, PrintWriter}
-
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent.Entry
 
+import java.io.{File, PrintWriter}
 import scala.io.Source
 
 object ExtractStringsFromPluginXml {

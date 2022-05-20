@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings;
 
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;

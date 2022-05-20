@@ -2,15 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import java.util.function.Supplier
-import java.{util => ju}
-
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+
+import javax.swing.Icon
 
 final class RecursiveCallLineMarkerProvider extends LineMarkerProvider {
 

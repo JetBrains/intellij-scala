@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.autoImport
 
-import com.intellij.util.indexing.{FileBasedIndexExtension, _}
+import com.intellij.util.indexing._
 import com.intellij.util.io.{KeyDescriptor, VoidDataExternalizer}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.ObjectExt

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import java.util
-
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, TextRange}
@@ -15,7 +13,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.scope.processor.MethodsProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
 import com.intellij.psi.util.PsiUtil
-import javax.swing._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
@@ -28,6 +25,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
+import java.util
+import javax.swing._
 import _root_.scala.collection.mutable.ArrayBuffer
 
 /**

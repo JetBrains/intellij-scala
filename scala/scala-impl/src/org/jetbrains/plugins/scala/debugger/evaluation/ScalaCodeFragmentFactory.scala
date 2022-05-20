@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.evaluation
 
-import java.util.concurrent.atomic.AtomicReference
-
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression.EvaluatorBuilder
@@ -13,7 +11,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.util.concurrency.Semaphore
 import com.intellij.xdebugger.impl.XDebugSessionImpl
-import com.intellij.xdebugger.impl.frame.XValueMarkers
 import com.intellij.xdebugger.impl.ui.tree.ValueMarkup
 import com.intellij.xdebugger.{XDebugSession, XDebuggerManager}
 import com.sun.jdi.{ObjectReference, Value}
@@ -24,8 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
-import scala.jdk.CollectionConverters._
+import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin

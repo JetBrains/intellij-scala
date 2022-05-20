@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.util.Properties
-
 import com.intellij.ide.fileTemplates.{FileTemplate, TemplatePackagePropertyProvider}
 import com.intellij.psi.PsiDirectory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+
+import java.util.Properties
 
 /**
  * Pavel Fatin

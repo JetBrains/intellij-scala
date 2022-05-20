@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.factory
 
-import java.util
-import java.util.Collections
-
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.search.GlobalSearchScope
@@ -13,6 +10,9 @@ import com.intellij.util.Processor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.search.CompilerIndicesReferencesSearch
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+
+import java.util
+import java.util.Collections
 
 /**
   * Find usages handler, which relies solely on compiler indices.

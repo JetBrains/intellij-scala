@@ -3,8 +3,6 @@ package lang
 package completion
 package global
 
-import java.util.Arrays.asList
-
 import com.intellij.codeInsight.completion.JavaCompletionUtil.putAllMethods
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.search.GlobalSearchScope
@@ -17,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
+import java.util.Arrays.asList
 import scala.annotation.nowarn
 
 private final class StaticMembersFinder(place: ScReferenceExpression,

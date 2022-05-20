@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package editor
 package typedHandler
 
-import java.{util => ju}
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
@@ -31,8 +29,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolatedStringLiteral, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, _}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScVariable, _}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -41,6 +39,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.language.implicitConversions
 

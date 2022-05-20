@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import java.util.regex.{Pattern, PatternSyntaxException}
-import java.{util => ju}
-
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.psi.search.GlobalSearchScopesCore
 import com.intellij.psi.search.searches.AllClassesSearch
@@ -15,6 +12,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, TestKind}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
+import java.util.regex.{Pattern, PatternSyntaxException}
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.beans.BeanProperty
 import scala.collection.mutable

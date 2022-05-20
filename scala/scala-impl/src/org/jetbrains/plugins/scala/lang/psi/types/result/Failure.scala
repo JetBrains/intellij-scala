@@ -22,8 +22,6 @@ final class Failure(private[result] val cause: NlsString)
 
 object Failure {
 
-  import scala.util.Left
-
   def apply(@Nls cause: String)
            (implicit context: ProjectContext): Left[Failure, ScType] =
     Left(new Failure(NlsString(cause)))

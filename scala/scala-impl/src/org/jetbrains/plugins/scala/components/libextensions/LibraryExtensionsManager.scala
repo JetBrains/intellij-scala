@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.components.libextensions
 
-import java.io.File
-import java.util.concurrent.atomic.AtomicBoolean
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -25,6 +23,8 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.project.module.SbtModule
 import org.jetbrains.sbt.resolvers.SbtResolver
 
+import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable

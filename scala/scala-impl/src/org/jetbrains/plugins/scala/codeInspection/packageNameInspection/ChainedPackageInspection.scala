@@ -9,8 +9,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-import scala.jdk.CollectionConverters._
-
 class ChainedPackageInspection extends LocalInspectionTool {
 
   import ChainedPackageInspection._

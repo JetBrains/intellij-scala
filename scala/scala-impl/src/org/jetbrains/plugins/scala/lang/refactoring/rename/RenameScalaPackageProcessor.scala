@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import java.{util => ju}
-
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiElement, PsiPackage, PsiReference}
 import com.intellij.refactoring.rename.RenamePsiPackageProcessor
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+
+import java.{util => ju}
 
 /**
  * @author Alefas

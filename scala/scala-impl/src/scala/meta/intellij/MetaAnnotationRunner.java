@@ -3,7 +3,6 @@ package scala.meta.intellij;
 import scala.collection.immutable.Map;
 import scala.meta.Dialect;
 import scala.meta.Dialect$;
-import scala.meta.Stat;
 import scala.meta.Tree;
 import scala.meta.inputs.Input$;
 import scala.meta.parsers.Parse$;

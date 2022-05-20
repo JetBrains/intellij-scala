@@ -4,8 +4,9 @@ package projectView
 import com.intellij.ide.IconProvider
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import javax.swing.Icon
 
 final class ScalaIconProvider extends IconProvider {
 

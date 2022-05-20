@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Promise}
 
 /**
  * Nikolay.Tropin

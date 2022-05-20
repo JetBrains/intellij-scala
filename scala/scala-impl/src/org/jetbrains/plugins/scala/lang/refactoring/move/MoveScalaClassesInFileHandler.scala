@@ -3,12 +3,12 @@ package lang
 package refactoring
 package move
 
-import java.lang.{Boolean => JBoolean}
-import java.{util => ju}
-
 import com.intellij.psi.{PsiClass, PsiElement}
 import com.intellij.refactoring.move.moveClassesOrPackages.MoveAllClassesInFileHandler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import java.lang.{Boolean => JBoolean}
+import java.{util => ju}
 
 /**
   * Nikolay.Tropin

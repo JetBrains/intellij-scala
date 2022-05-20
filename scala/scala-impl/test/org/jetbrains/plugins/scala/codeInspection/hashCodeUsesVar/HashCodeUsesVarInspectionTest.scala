@@ -3,7 +3,6 @@ package codeInspection
 package hashCodeUsesVar
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 
 /**
   * Daniyar Itegulov

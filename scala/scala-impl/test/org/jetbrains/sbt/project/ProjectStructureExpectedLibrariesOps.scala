@@ -2,7 +2,6 @@ package org.jetbrains.sbt.project
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
 import org.jetbrains.sbt.project.ProjectStructureDsl.{ScalaSdkAttributes, libClasses, libJavadocs, libSources, library, scalaSdkSettings}
 

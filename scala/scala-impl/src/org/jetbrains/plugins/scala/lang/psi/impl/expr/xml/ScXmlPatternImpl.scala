@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.collection.mutable.ArrayBuffer
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 21.04.2008

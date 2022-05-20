@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 package codeInsight.unwrap
 
-import java.util
-
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.childOf
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScMethodCall}
 
+import java.util
 import scala.annotation.tailrec
 
 /**

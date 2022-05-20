@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
-import javax.swing.Icon
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 
 @ApiStatus.Experimental
 final class MUnitConfigurationType extends ConfigurationType {

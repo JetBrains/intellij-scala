@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.autoImport.quickFix._
-import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 

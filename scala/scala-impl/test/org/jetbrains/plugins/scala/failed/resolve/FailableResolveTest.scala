@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.failed.resolve
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
-import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
 /**

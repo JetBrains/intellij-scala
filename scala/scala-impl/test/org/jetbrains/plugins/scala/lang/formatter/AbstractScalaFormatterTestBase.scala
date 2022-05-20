@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatter
 
-import java.io.File
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ApplicationManager
@@ -22,6 +20,8 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtP
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
 import org.junit.Assert._
+
+import java.io.File
 
 /**
  * Base class for java formatter tests that holds utility methods.

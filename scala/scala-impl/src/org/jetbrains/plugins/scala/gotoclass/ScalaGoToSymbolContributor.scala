@@ -1,24 +1,17 @@
 package org.jetbrains.plugins.scala
 package gotoclass
 
-import java.util
-
 import com.intellij.navigation.{GotoClassContributor, NavigationItem}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiClass, PsiFile}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.stubs.StubIndex
-import org.jetbrains.plugins.scala.extensions.childOf
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScMemberOrLocal
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import java.util
 import scala.collection.mutable.ArrayBuffer
 
 /**

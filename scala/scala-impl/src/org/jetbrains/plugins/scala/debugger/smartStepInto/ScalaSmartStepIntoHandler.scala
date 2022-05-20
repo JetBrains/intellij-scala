@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
-import java.util.{Collections, List => JList}
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.actions.{JvmSmartStepIntoHandler, MethodSmartStepTarget, SmartStepTarget}
 import com.intellij.debugger.engine.MethodFilter
@@ -27,9 +25,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
+import java.util.{Collections, List => JList}
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
-import java.{util => ju}
-import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import com.intellij.lexer._
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.fileTypes.{SyntaxHighlighter, SyntaxHighlighterBase}
@@ -11,9 +9,12 @@ import com.intellij.psi.xml.XmlTokenType
 import com.intellij.psi.{StringEscapesTokenTypes, TokenType}
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter.CustomScalaLexer
 import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLiteralLexer, ScalaMultilineStringLiteralLexer, ScalaStringLiteralLexer}
+import org.jetbrains.plugins.scala.lang.TokenSets.TokenSetExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaLexer, ScalaTokenTypes, ScalaXmlLexer, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
+
+import java.{util => ju}
 
 // todo: move to some inner package
 // TODO something is wrong with the highlighter, see comment in SCL-18701

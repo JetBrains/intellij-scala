@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.performance
 
-import java.io.File
-
 import com.intellij.lang.javascript.boilerplate.GithubDownloadUtil
 import com.intellij.platform.templates.github.ZipUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+
+import java.io.File
 
 /**
   * Author: Svyatoslav Ilinskiy

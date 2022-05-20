@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package indices
 
-import java.io.File
-import java.util.concurrent._
-import java.util.concurrent.atomic.AtomicReference
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
 import com.intellij.openapi.project.Project
@@ -17,6 +13,9 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.Indexin
 import org.jetbrains.plugins.scala.indices.protocol.{CompilationInfo, CompiledClass}
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import java.io.File
+import java.util.concurrent._
+import java.util.concurrent.atomic.AtomicReference
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 

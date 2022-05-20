@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.actions
 
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.roots.ModuleRootManager
-import javax.swing.JComponent
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
+
+import javax.swing.JComponent
 
 class EditPackagePrefixAction extends AnAction(ScalaBundle.message("edit.package.prefix")) {
   override def actionPerformed(e: AnActionEvent): Unit = {

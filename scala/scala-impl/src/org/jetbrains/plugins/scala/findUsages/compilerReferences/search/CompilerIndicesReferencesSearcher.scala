@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package search
 
-import java.awt.{List => _}
-import java.util.concurrent.locks.ReentrantLock
-
 import com.intellij.find.FindManager
 import com.intellij.find.impl.FindManagerImpl
 import com.intellij.openapi.module.Module
@@ -17,7 +14,6 @@ import com.intellij.task.ProjectTaskManager
 import com.intellij.util.Processor
 import com.intellij.util.containers.ContainerUtil
 import com.intellij.util.messages.MessageBusConnection
-import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.{SAMType, UsageType}
@@ -31,6 +27,9 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 
+import java.awt.{List => _}
+import java.util.concurrent.locks.ReentrantLock
+import javax.swing._
 import scala.jdk.CollectionConverters._
 
 private class CompilerIndicesReferencesSearcher

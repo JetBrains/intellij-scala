@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import java.util.Map
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiNamedElement
@@ -13,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import java.util.Map
 
 /**
  * User: Alexander Podkhalyuzin

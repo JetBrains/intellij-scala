@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
-import java.awt.Point
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.ui.popup.JBPopup
 import com.intellij.openapi.util.Key
+
+import java.awt.Point
 
 trait PopupPosition {
   def showPopup(popup: JBPopup, editor: Editor): Unit

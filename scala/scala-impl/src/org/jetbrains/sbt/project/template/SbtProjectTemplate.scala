@@ -1,10 +1,11 @@
 package org.jetbrains.sbt
 package project.template
 
-import javax.swing.Icon
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectTemplate
 import org.jetbrains.sbt.SbtBundle
+
+import javax.swing.Icon
 
 /**
  * User: Dmitry.Naydanov, Pavel Fatin

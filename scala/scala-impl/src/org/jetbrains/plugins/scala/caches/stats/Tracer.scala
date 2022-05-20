@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
-
 import com.intellij.openapi.application.ApplicationManager
 import org.jetbrains.plugins.scala.caches.stats.Tracer.{currentTracers, root, roundToMillis}
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
+
+import java.util.concurrent.atomic.{AtomicInteger, AtomicLong}
 
 class Tracer private (val id: String, val name: String) {
 

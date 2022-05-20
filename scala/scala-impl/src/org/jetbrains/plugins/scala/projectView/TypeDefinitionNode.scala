@@ -1,17 +1,14 @@
 package org.jetbrains.plugins.scala
 package projectView
 
-import java.util
 import com.intellij.ide.projectView.ViewSettings
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiClass
-
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
+import java.util
+import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
 // TODO: create tests for project view!

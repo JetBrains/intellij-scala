@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import org.jetbrains.plugins.scala.util.TestUtils
+
+import java.io.File
 
 abstract class LiteralTypesHighlightingTestBase extends ScalaHighlightingTestBase {
   def folderPath = TestUtils.getTestDataPath + "/annotator/literalTypes/"

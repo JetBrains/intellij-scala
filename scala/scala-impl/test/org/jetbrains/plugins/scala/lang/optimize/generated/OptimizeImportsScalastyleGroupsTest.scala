@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.optimize.generated
 
-import java.util.regex.Pattern
-
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalastyleSettings
 import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
+
+import java.util.regex.Pattern
 
 /**
   * Nikolay.Tropin

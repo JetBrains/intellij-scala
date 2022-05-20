@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.collection.immutable.Seq
 import scala.language.postfixOps
 import scala.meta.ScalaMetaBundle
 import scala.meta.collections._

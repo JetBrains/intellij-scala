@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.light
 
-import java.util
-
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiSuperMethodImplUtil
 import com.intellij.psi.impl.light._
@@ -13,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import java.util
 
 abstract class PsiMethodWrapper[T <: ScalaPsiElement with PsiNamedElement with NavigatablePsiElement](
   override val delegate: T,

@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import java.{util => ju}
 import com.intellij.diagnostic.logging.LogConfigurationPanel
 import com.intellij.execution._
 import com.intellij.execution.configurations._
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.testframework.actions.ConsolePropertiesProvider
-import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
+import com.intellij.execution.testframework.sm.runner.SMTRunnerConsoleProperties
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfigurat
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{ClassTestData, TestConfigurationData}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
+import java.{util => ju}
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 

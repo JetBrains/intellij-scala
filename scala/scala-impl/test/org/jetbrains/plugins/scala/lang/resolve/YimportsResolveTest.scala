@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class YimportsResolveTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._

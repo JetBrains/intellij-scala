@@ -1,12 +1,11 @@
 package org.jetbrains.sbt.project.structure
 
-import java.io.File
-
+import org.jetbrains.sbt.RichSeq
 import org.jetbrains.sbt.project.data.SbtPlay2ProjectData
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys._
 import org.jetbrains.sbt.structure.Play2Data
-import org.jetbrains.sbt.RichSeq
 
+import java.io.File
 import scala.collection.immutable.HashMap
 
 /**

@@ -2,12 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package parameterInfo
 
-import java.awt.Color
-import java.util
-
-import com.intellij.codeInsight.completion.JavaCompletionUtil.getAllPsiElements
 import com.intellij.codeInsight.hint.ShowParameterInfoHandler
-import com.intellij.codeInsight.lookup.{LookupElement, LookupItem}
 import com.intellij.codeInsight.{CodeInsightBundle, TargetElementUtil}
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
@@ -35,6 +30,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.awt.Color
+import java.util
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 

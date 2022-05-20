@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types._
-import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr._
+import org.jetbrains.plugins.scala.lang.psi.impl.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterTypeImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 

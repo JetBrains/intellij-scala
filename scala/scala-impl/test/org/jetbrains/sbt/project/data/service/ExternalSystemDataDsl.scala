@@ -1,12 +1,11 @@
 package org.jetbrains.sbt
 package project.data.service
 
-import java.net.URI
-
 import com.intellij.openapi.externalSystem.model.project.LibraryLevel
 import com.intellij.openapi.module.StdModuleTypes
 import org.jetbrains.sbt.project.data._
 
+import java.net.URI
 import scala.language.implicitConversions
 
 /**

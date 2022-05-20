@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
-import java.awt.event.MouseEvent
-import java.util
-
-import com.intellij.codeHighlighting.Pass
 import com.intellij.codeInsight.daemon._
 import com.intellij.icons.AllIcons
 import com.intellij.navigation.GotoRelatedItem
@@ -12,11 +8,9 @@ import com.intellij.openapi.compiler.{CompileContext, CompileStatusNotification,
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.{Key, TextRange}
-import com.intellij.openapi.wm.ToolWindowId
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiManager, PsiWhiteSpace}
 import com.intellij.util.Function
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -27,6 +21,9 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaMetaMode
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups.toolWindowGroup
 
+import java.awt.event.MouseEvent
+import java.util
+import javax.swing.Icon
 import scala.collection.mutable.ArrayBuffer
 
 abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerProvider {

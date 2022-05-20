@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.types
 
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle, ScalaVersion}
 
 abstract class ConvertImplicitBoundsToImplicitParameterTestBase extends ScalaIntentionTestBase {
 

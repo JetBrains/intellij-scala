@@ -1,16 +1,16 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import java.awt.BorderLayout
-import java.awt.event.ActionEvent
-
 import com.intellij.application.options.codeStyle.OptionTreeWithPreviewPanel
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.ui.OnePixelDivider
 import com.intellij.psi.codeStyle.{CodeStyleSettings, LanguageCodeStyleSettingsProvider}
 import com.intellij.ui.border.CustomLineBorder
-import javax.swing.{JCheckBox, JComponent, JPanel}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaDocFormattingPanel.ScalaDocCodeSample
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, ScalaLanguage}
+
+import java.awt.BorderLayout
+import java.awt.event.ActionEvent
+import javax.swing.{JCheckBox, JComponent, JPanel}
 
 class ScalaDocFormattingPanel(val settings: CodeStyleSettings) extends OptionTreeWithPreviewPanel(settings) {
 

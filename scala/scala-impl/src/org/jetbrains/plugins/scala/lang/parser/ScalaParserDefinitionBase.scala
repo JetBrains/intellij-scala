@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package parser
 
-import com.intellij.extapi.psi.ASTWrapperPsiElement
 import com.intellij.lang.{ASTNode, ParserDefinition}
-import com.intellij.openapi.project.Project
 import com.intellij.psi.{FileViewProvider, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile

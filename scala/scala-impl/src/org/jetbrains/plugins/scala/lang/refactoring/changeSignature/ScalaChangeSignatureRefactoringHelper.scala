@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
-import java.util
-import java.util.Comparator
-
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.RefactoringHelper
 import com.intellij.usageView.UsageInfo
+
+import java.util
 
 /**
   * Nikolay.Tropin

@@ -6,11 +6,12 @@ import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Iconable
 import com.intellij.openapi.util.io.FileUtilRt.getNameWithoutExtension
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.util.BaseIconProvider
+
+import javax.swing.Icon
 
 sealed trait FileKind {
 

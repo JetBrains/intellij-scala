@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
 import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 
+import java.awt._
 import java.awt.event.{MouseAdapter, MouseEvent}
 import java.awt.geom.{Point2D, Rectangle2D}
-import java.awt._
 import java.io.File
 import javax.swing.UIManager
 import scala.collection.mutable

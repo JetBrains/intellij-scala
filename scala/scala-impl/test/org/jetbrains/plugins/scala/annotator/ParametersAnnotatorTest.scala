@@ -4,7 +4,6 @@ package annotator
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 
 abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.spellchecker
 
-import java.util
-
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.SuggestedNameInfo
 import com.intellij.refactoring.rename.{NameSuggestionProvider, RenameUtil}
@@ -9,6 +7,7 @@ import com.intellij.spellchecker.SpellCheckerManager
 import com.intellij.spellchecker.quickfixes.DictionarySuggestionProvider
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /*

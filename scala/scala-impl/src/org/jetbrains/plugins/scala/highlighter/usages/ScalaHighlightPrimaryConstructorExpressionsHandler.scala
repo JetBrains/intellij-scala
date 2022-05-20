@@ -2,15 +2,15 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import java.util
-import java.util.Collections
-
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.{PsiElement, PsiFile}
 import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+
+import java.util
+import java.util.Collections
 
 /**
   * Highlights the expressions that will be evaluated during construction.

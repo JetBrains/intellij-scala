@@ -5,8 +5,8 @@ package impl
 package base
 
 import com.intellij.lang.{ASTNode, LanguageNamesValidation}
-import com.intellij.util.IncorrectOperationException
 import com.intellij.psi.LiteralTextEscaper
+import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._

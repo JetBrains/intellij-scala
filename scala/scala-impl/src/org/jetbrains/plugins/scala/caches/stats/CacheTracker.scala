@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package caches
 package stats
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.intellij.util.containers.WeakList
 import org.jetbrains.plugins.scala.extensions._
 
+import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
-import scala.collection
 
 
 object CacheTracker {

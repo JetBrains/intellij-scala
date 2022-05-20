@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.debugger
 
-import java.util
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.{DebugProcess, SyntheticTypeComponentProvider}
 import com.intellij.debugger.jdi.GeneratedLocation
@@ -15,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement, ScMatch, ScTry}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 
+import java.util
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 

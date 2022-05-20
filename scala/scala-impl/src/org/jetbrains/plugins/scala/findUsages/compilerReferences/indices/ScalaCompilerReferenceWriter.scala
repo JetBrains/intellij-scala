@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.backwardRefs.CompilerReferenceWriter
 import org.jetbrains.jps.backwardRefs.index.CompilerReferenceIndex
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.bytecode.CompiledScalaFile
+
+import java.io.File
 
 private[compilerReferences] class ScalaCompilerReferenceWriter protected (
   index: ScalaCompilerReferenceIndex

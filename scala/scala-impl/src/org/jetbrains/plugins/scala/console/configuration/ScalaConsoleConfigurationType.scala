@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.console.configuration
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 import com.intellij.openapi.project.DumbAware
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 
 class ScalaConsoleConfigurationType extends ConfigurationType with DumbAware {
   private val confFactory = new ScalaConsoleRunConfigurationFactory(this)

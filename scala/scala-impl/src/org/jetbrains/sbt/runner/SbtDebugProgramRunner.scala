@@ -2,7 +2,7 @@ package org.jetbrains.sbt.runner
 
 import com.intellij.debugger.engine.RemoteStateState
 import com.intellij.debugger.impl.GenericDebuggerRunner
-import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState, RunnerSettings}
+import com.intellij.execution.configurations.{RemoteConnection, RunProfile, RunProfileState}
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.ui.RunContentDescriptor

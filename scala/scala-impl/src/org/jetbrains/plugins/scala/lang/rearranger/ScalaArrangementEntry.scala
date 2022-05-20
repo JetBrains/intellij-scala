@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package lang.rearranger
 
-import java.util
-
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.arrangement._
 import com.intellij.psi.codeStyle.arrangement.std.ArrangementSettingsToken
 import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import java.util
 
 class ScalaArrangementEntry(parent: ArrangementEntry,
                             startOffset: Int,

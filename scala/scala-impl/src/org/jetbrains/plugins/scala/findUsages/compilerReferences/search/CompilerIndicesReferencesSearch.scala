@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.search
 
-import java.util
-import java.util.Collections
-
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.{PsiNamedElement, PsiReference}
 import com.intellij.util.{Query, QueryExecutor, QueryFactory}
 import org.jetbrains.plugins.scala.extensions._
+
+import java.util
+import java.util.Collections
 
 class CompilerIndicesReferencesSearch private ()
     extends QueryFactory[PsiReference, CompilerIndicesReferencesSearch.SearchParameters] {

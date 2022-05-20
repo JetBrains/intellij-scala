@@ -11,7 +11,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
@@ -25,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifi
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
+import javax.swing.Icon
 import scala.annotation.tailrec
 
 trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with NavigatablePsiElement {

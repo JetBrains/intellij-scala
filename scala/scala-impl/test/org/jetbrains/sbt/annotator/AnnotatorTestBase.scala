@@ -1,13 +1,13 @@
 package org.jetbrains.sbt
 package annotator
 
-import java.io.File
-
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.HeavyPlatformTestCase
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.junit.Assert._
+
+import java.io.File
 
 /**
  * @author Nikolay Obedin

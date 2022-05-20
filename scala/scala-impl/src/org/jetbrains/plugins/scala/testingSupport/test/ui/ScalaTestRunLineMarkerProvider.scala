@@ -11,8 +11,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testIntegration.{TestFramework, TestRunLineMarkerProvider}
-
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -27,6 +25,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.{ScalaTestTestF
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2TestFramework
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework
 
+import javax.swing.Icon
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 // TODO: split providers by test frameworks, if some logic should be reused, just move to some base/utility classes

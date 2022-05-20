@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import java.io.File
-import java.nio.charset.Charset
-import java.nio.file.Path
-
 import com.google.common.io.Files
 import com.intellij.conversion.{ConversionContext, ModuleSettings}
 import com.intellij.openapi.components.StorageScheme
@@ -13,6 +9,8 @@ import org.jdom.Element
 import org.jdom.xpath.XPath
 import org.jetbrains.plugins.scala.extensions._
 
+import java.nio.charset.Charset
+import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3BracelessSyntaxEnterHandlerTest_Exhaustive.TestData
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.{IndentedBlockContexts, _}
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package project
 package template
 
-import java.lang.{Boolean => JBoolean}
-
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.lang.{Boolean => JBoolean}
 
 /**
  * @author Pavel Fatin

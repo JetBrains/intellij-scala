@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.project.converter
 
-import java.nio.file.Path
-
 import com.google.common.io.Files
 import com.intellij.conversion.{CannotConvertException, ConversionContext}
 import com.intellij.openapi.components.StorageScheme
 import com.intellij.openapi.util.io.FileUtil
 import org.jdom.Element
 
+import java.nio.file.Path
 import scala.xml.Elem
 
 /**

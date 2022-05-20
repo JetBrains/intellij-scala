@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.debugger
 
-import java.util
-import java.util.Collections
-
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
@@ -11,7 +8,6 @@ import com.intellij.psi.search.{LocalSearchScope, TextOccurenceProcessor, UsageS
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement, ResolveState}
 import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.codeInsight.template.util.VariablesCompletionProcessor
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingExpressionEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, ScalaCodeFragmentFactory, ScalaEvaluatorBuilder, ScalaEvaluatorBuilderUtil}
@@ -28,10 +24,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.util.SideEffectsUtil
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-import scala.jdk.CollectionConverters._
+import java.util
+import java.util.Collections
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 /**

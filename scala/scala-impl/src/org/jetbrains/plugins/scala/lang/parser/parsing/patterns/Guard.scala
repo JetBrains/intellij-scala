@@ -6,7 +6,7 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{PostfixExpr, PostfixExprInIndentationRegion}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.PostfixExprInIndentationRegion
 
 /**
   * @author Alexander Podkhalyuzin

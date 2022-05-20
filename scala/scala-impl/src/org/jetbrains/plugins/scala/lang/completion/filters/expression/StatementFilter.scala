@@ -3,8 +3,8 @@ package lang
 package completion
 package filters.expression
 
-import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi._
+import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._

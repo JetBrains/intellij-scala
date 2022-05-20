@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.overrideImplement
 
-import java.util
-
 import com.intellij.codeInsight.navigation.MethodImplementationsSearch
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.search.GlobalSearchScope
@@ -12,6 +10,7 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.junit.Assert
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

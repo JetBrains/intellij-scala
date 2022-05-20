@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInsight.intention.imports
 
-import java.util
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -14,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.util
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 

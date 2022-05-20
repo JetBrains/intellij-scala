@@ -4,8 +4,7 @@ package scaladoc
 
 import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiErrorElement}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 /**

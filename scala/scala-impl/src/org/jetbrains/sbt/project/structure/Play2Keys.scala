@@ -1,14 +1,13 @@
 package org.jetbrains.sbt
 package project.structure
 
-import java.util
-
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys.{ParsedValue, SeqStringParsedValue, StringParsedValue}
 
-import scala.jdk.CollectionConverters._
+import java.util
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.xml.Text
 
 /**

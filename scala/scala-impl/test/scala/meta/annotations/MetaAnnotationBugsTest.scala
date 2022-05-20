@@ -2,11 +2,11 @@ package scala.meta
 package annotations
 
 import com.intellij.lang.annotation.HighlightSeverity
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
-import org.junit.{Assert, Ignore}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue, fail}
+import org.junit.{Assert, Ignore}
 
 import scala.jdk.CollectionConverters._
 import scala.meta.intellij.MetaExpansionsManager.MetaAnnotationError

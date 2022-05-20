@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.search
 
-import java.awt.FlowLayout
-import java.awt.event.ActionEvent
-
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.Project
@@ -12,10 +9,13 @@ import com.intellij.ui.HyperlinkLabel
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.labels.LinkLabel
 import com.intellij.util.ui.FormBuilder
-import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.SearchTargetExtractors.UsageType
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.{CompilerIndicesConfigurable, CompilerIndicesSbtSettings, CompilerIndicesSettings}
+
+import java.awt.FlowLayout
+import java.awt.event.ActionEvent
+import javax.swing._
 
 private object ImplicitUsagesSearchDialogs {
   class EnableCompilerIndicesDialog(project: Project, canBeParent: Boolean, usageType: UsageType)

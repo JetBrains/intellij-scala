@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author mattfowler
   */

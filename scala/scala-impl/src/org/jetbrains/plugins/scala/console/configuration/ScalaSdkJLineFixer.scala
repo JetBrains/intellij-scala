@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.console.configuration
 
-import java.io.File
-
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.module.Module
@@ -14,6 +12,8 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.NotificationUtil
 import org.jetbrains.sbt.RichFile
+
+import java.io.File
 
 //TODO: Fix Scala SDK setup in order that it includes jline jar as a dependency of scala-compiler
 /**

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testDiscovery.actions
 
-import java.util.{List => JList}
-
 import com.intellij.openapi.util.Couple
 import com.intellij.psi.util.ClassUtil
 import com.intellij.psi.{PsiElement, PsiMethod}
@@ -15,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
+import java.util.{List => JList}
 import scala.jdk.CollectionConverters._
 
 private[testDiscovery]

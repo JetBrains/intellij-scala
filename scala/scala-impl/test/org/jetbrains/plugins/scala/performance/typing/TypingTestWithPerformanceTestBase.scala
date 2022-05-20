@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.performance.typing
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiDocumentManager
@@ -11,6 +9,7 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import java.io.File
 import scala.concurrent.duration.Duration
 
 /**

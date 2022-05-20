@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.macroAnnotations
 
-import java.util.concurrent.atomic.AtomicInteger
-
 import com.intellij.psi.util.PsiModificationTracker
 import org.junit.Assert._
+
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
   * Author: Svyatoslav Ilinskiy

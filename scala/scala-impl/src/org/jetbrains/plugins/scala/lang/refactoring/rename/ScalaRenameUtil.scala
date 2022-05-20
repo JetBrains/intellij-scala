@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import java.util
-
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
@@ -22,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 object ScalaRenameUtil {

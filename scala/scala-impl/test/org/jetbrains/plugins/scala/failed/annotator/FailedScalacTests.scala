@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase_2_12
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import org.junit.experimental.categories.Category
-import org.jetbrains.plugins.scala.FlakyTests
 
 import java.io.File
 import scala.reflect.NameTransformer

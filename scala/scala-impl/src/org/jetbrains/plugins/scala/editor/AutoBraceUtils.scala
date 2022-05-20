@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package editor
 
 import com.intellij.psi.tree.IElementType
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes

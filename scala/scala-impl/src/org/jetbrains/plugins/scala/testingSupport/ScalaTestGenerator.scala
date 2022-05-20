@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package testingSupport
 
-import java.util.Properties
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
 import com.intellij.openapi.diagnostic.ControlFlowException
@@ -29,6 +28,7 @@ import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestFramework, TestConfigurationUtil}
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 
+import java.util.Properties
 import scala.jdk.CollectionConverters._
 
 class ScalaTestGenerator extends TestGenerator {

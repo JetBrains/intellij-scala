@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package projectView
 
-import java.util
-
 import com.intellij.ide.projectView.{TreeStructureProvider, ViewSettings}
 import com.intellij.openapi.project.{DumbAware, Project}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+
+import java.util
 
 /**
  * @author Pavel Fatin

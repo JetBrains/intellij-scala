@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import com.intellij.openapi.components.{Service, ServiceManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 
 /**

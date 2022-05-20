@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.parser.stress;
 
 import com.intellij.openapi.util.Pair;
 import com.intellij.openapi.util.TextRange;
-import java.util.HashMap;
 
 import java.util.*;
 

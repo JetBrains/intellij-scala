@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
-import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceHelper
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 // TODO 1: choose better naming, import used sounds like the import is actually used in the file

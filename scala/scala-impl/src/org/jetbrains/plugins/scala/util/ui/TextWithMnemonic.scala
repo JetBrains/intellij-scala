@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.util.ui
 
 import com.intellij.util.ui.UIUtil
+
 import javax.swing.AbstractButton
 
 /** based on [[com.intellij.openapi.ui.LabeledComponent.TextWithMnemonic]] */

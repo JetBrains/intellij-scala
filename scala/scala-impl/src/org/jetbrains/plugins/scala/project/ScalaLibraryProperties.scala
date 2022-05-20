@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala
 package project
 
-import java.io.File
-
 import com.intellij.openapi.roots.libraries.LibraryProperties
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import java.io.File
 
 /**
  * @author Pavel Fatin

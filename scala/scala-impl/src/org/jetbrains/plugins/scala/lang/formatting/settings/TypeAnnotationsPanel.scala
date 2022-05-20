@@ -3,15 +3,15 @@ package lang
 package formatting
 package settings
 
-import java.util
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
-import com.intellij.openapi.project.{Project, ProjectUtil}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.execution.ParametersListUtil
-
-import javax.swing._
 import org.jetbrains.plugins.scala.extensions.Binding
+
+import java.util
+import javax.swing._
 
 /**
   * @author Pavel Fatin

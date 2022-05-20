@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.syntacticClarification
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
   * Author: Svyatoslav Ilinskiy

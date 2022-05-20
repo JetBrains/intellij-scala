@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package lang.actions.editor
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+
+import java.io.File
 
 /**
  * User: Dmitry.Naydanov

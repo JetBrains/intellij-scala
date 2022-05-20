@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.build
 
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.project.Project
@@ -9,9 +7,10 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent, CompilerEventListener}
+import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.util.CompilationId
 
+import java.io.File
 import scala.collection.mutable
 
 class CompilerEventReporter(project: Project,

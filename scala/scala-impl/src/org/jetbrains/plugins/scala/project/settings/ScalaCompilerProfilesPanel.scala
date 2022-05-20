@@ -1,30 +1,29 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import java.awt._
-import java.awt.event.MouseEvent
-import java.util
-import java.util.Objects
-
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem.{ActionManager, AnActionEvent, ShortcutSet}
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.{InputValidatorEx, Messages, Splitter}
+import com.intellij.openapi.util.Key
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.util.{Comparing, Key}
 import com.intellij.ui._
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.treeStructure.Tree
 import com.intellij.util.ui.tree.TreeUtil
 import com.intellij.util.ui.{EditableTreeModel, JBUI}
-import javax.swing._
-import javax.swing.event.TreeSelectionEvent
-import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerProfilesPanel._
 
+import java.awt._
+import java.awt.event.MouseEvent
+import java.util
+import java.util.Objects
+import javax.swing._
+import javax.swing.event.TreeSelectionEvent
+import javax.swing.tree.{DefaultMutableTreeNode, DefaultTreeModel, TreePath}
 import scala.jdk.CollectionConverters._
 
 /**

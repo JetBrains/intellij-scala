@@ -16,13 +16,12 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
-import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.RichFile
+import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
-import java.io.File
 import java.net.URI
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava

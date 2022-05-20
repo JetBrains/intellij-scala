@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala
 package codeInspection.collections
 
-import java.awt.{Component, GridLayout}
-import java.util
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui._
-
-import javax.swing._
-import javax.swing.event.ChangeEvent
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle, charExpr}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import java.awt.{Component, GridLayout}
+import java.util
+import javax.swing._
+import javax.swing.event.ChangeEvent
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 

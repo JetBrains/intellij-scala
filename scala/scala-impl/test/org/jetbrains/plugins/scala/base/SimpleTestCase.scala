@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.lang.Language
-import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
-import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
 import com.intellij.testFramework.fixtures._
+import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
 import org.intellij.lang.annotations.{Language => InputLanguage}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._

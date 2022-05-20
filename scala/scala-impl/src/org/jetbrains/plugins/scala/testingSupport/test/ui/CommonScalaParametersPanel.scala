@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.ui
 
-import java.awt.BorderLayout
-import java.util
 import com.intellij.execution.ExecutionBundle
 import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.ide.`macro`.MacrosDialog
@@ -10,6 +8,9 @@ import com.intellij.ui.RawCommandLineEditor
 import com.intellij.ui.components.fields.ExtendableTextField
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
+
+import java.awt.BorderLayout
+import java.util
 
 /** based on [[com.intellij.execution.ui.CommonJavaParametersPanel]] */
 class CommonScalaParametersPanel extends CommonProgramParametersPanel {

@@ -5,7 +5,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.{GlobalSearchScope, SearchScope}
-import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile, PsiManager, PsiReference, ResolveState}
+import com.intellij.psi._
+
 import javax.swing.Icon
 
 /**

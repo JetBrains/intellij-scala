@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.implicits
 
-import java.lang.System.identityHashCode
-import java.util.concurrent.ConcurrentHashMap
-
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.RecursionManager
@@ -12,6 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
+
+import java.lang.System.identityHashCode
+import java.util.concurrent.ConcurrentHashMap
 
 /**
   * @author Nikolay.Tropin

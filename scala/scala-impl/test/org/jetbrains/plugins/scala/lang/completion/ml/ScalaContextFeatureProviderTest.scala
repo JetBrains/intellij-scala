@@ -3,11 +3,11 @@ package lang
 package completion
 package ml
 
-import java.util
-
 import com.intellij.codeInsight.completion.ml.{CompletionEnvironment, ContextFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+
+import java.util
 
 class ScalaContextFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
   

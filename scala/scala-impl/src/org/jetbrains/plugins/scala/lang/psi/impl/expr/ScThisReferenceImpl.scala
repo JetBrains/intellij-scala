@@ -5,7 +5,6 @@ package impl
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{getContextOfType, isContextAncestor}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference

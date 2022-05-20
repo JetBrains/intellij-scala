@@ -3,14 +3,11 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
-import com.intellij.testFramework.EditorTestUtil
 
 /**
   * @author Alexander Podkhalyuzin
   */
 class ScalaSomeSmartCompletionTest extends ScalaCodeInsightTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testSomeSmart1(): Unit = doCompletionTest(
     fileText =

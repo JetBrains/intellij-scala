@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
-import java.util.regex.Pattern
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaFeatures}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
+import java.util.regex.Pattern
 
 /**
  * @param sortImports    whether to sort imports (according to the code style settings)<br>

@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.locationProvider
 
-import java.util.Collections
-import java.{util => ju}
-
 import com.intellij.execution.testframework.sm.runner.SMTestLocator
 import com.intellij.execution.{Location, PsiLocation}
 import com.intellij.openapi.editor.Document
@@ -16,6 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.ScalaTestLocationProvider._
 
+import java.util.Collections
+import java.{util => ju}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**

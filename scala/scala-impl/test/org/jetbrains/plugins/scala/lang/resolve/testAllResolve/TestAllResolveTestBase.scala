@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve.testAllResolve
 
-import java.io.File
-
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -9,6 +7,7 @@ import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

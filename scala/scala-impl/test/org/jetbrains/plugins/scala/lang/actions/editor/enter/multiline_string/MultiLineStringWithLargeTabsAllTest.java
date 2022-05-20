@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
-import static org.junit.Assert.assertNotNull;
-
 /**
  * User: Dmitry Naydanov
  * Date: 10/1/12

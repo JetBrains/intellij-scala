@@ -12,16 +12,15 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
 import com.intellij.refactoring.changeSignature.{ChangeSignatureHandler, ChangeSignatureUtil}
 import com.intellij.refactoring.util.CommonRefactoringUtil
 import com.intellij.refactoring.{HelpID, RefactoringBundle}
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ResolvesTo}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.light.isWrapper
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 
 /**
  * Nikolay.Tropin

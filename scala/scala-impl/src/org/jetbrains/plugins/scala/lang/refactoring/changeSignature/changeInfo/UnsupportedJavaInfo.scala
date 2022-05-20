@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature.changeInfo
-import java.util
-
 import com.intellij.psi.PsiMethod
 import com.intellij.refactoring.changeSignature.ThrownExceptionInfo
+
+import java.util
 
 /**
  * Nikolay.Tropin

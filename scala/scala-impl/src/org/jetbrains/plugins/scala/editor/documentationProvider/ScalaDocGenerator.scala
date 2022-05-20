@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
-import java.net.URL
-
 import com.intellij.lang.documentation.DocumentationMarkup
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -17,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
+import java.net.URL
 import scala.util.Try
 
 object ScalaDocGenerator {

@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.util.Properties
-
 import com.intellij.ide.fileTemplates.FileTemplate
 import com.intellij.psi.{PsiClass, PsiMethod}
 import org.jetbrains.plugins.scala.extensions._
+
+import java.util.Properties
 
 /**
  * @author Alefas

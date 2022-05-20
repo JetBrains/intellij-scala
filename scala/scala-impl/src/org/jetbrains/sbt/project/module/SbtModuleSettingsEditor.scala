@@ -1,21 +1,20 @@
 package org.jetbrains.sbt
 package project.module
 
-import java.awt.event.ActionEvent
-import java.util.Collections
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import com.intellij.ui.CollectionListModel
 import com.intellij.util.text.DateFormatUtil
-import javax.swing.JPanel
-import javax.swing.event.ListSelectionEvent
-import javax.swing.table.AbstractTableModel
 import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 import org.jetbrains.sbt.settings.SbtSettings
 
+import java.awt.event.ActionEvent
+import java.util.Collections
+import javax.swing.JPanel
+import javax.swing.event.ListSelectionEvent
+import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 
 /**

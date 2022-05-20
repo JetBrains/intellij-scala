@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.actions.implicitArguments
 
-import java.util
-
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.ide.util.treeView.{AbstractTreeNode, AbstractTreeStructure, NodeDescriptor}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.actions.implicitArguments.ImplicitArgumentNodes.resolveResultNode
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 class ImplicitArgumentsTreeStructure(project: Project,

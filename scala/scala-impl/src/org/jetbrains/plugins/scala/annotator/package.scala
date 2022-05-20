@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.PsiElement
 import com.intellij.util.text.LiteralFormatUtil
 import com.intellij.util.ui.StartupUiUtil

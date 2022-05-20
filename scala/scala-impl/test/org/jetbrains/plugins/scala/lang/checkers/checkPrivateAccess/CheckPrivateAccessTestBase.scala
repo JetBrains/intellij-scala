@@ -3,8 +3,6 @@ package lang
 package checkers
 package checkPrivateAccess
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -17,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

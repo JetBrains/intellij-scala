@@ -4,11 +4,11 @@ package parser
 package parsing
 package expressions
 
-import java.{util => ju}
-
 import com.intellij.lang.WhitespacesAndCommentsBinder
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+
+import java.{util => ju}
 
 /**
  * [[Annotations]] ::= { [[Annotation]] }

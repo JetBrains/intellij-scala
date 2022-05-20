@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package components
 
-import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.plugins.cl.PluginClassLoader
+import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package lang
 package lexer
 
-import java.lang
-
 import com.intellij.lexer.{FlexAdapter, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaPlainLexer.ScalaSplittingLayerLexer
+
+import java.lang
 
 // NB Standard LayeredLexer is not apt for the task (because it doesn't propagate state in layers
 // (and here we have main Scala lexer as a layer, so incremental highlighting would be completely broken).
