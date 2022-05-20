@@ -1,8 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.awt.BorderLayout
-import java.util
-
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console._
@@ -16,7 +13,6 @@ import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.project.Project
 import com.intellij.ui.content.impl.ContentImpl
 import com.intellij.ui.content.{Content, ContentFactory}
-import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
 import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, invokeLater}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.macroAnnotations.TraceWithLogger
@@ -25,6 +21,9 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.SbtShellRunner._
 
+import java.awt.BorderLayout
+import java.util
+import javax.swing.{Icon, JLabel, JPanel, SwingConstants}
 import scala.jdk.CollectionConverters._
 
 final class SbtShellRunner(project: Project, consoleTitle: String, debugConnection: Option[RemoteConnection])

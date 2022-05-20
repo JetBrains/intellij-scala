@@ -2,10 +2,10 @@ package org.jetbrains.sbt
 
 import junit.framework.Test
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TestDependencyManager}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, TestDependencyManager}
 
 trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 

@@ -3,7 +3,6 @@ package codeInspection
 package syntacticSimplification
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RemoveReturnKeywordQuickFix
 import org.jetbrains.plugins.scala.extensions.PsiElementExt

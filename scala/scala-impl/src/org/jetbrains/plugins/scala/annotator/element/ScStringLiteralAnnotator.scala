@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.highlighter.lexer.{ScalaInterpolatedStringLit
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.{tINTERPOLATED_MULTILINE_STRING, tINTERPOLATED_STRING, tMULTILINE_STRING, tSTRING}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 /** see also [[org.jetbrains.plugins.scala.annotator.element.ScInterpolatedStringLiteralAnnotator]] */
 object ScStringLiteralAnnotator extends ElementAnnotator[ScStringLiteral] {

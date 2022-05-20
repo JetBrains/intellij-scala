@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.io.DataOutput
-
 import com.intellij.util.io.DataInputOutputUtil
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.jps.builders.storage.BuildDataCorruptedException
 
+import java.io.DataOutput
 import scala.util.control.NonFatal
 
 final case class ScFunExprCompilerRef(line: Int) extends CompilerRef {

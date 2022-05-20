@@ -4,8 +4,8 @@ import com.intellij.execution.RunnerAndConfigurationSettings
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, SingleTestData}
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions.assertIsA
-import org.junit.{Assert, ComparisonFailure}
 import org.junit.Assert._
+import org.junit.ComparisonFailure
 
 trait IntegrationTestConfigAssertions {
 

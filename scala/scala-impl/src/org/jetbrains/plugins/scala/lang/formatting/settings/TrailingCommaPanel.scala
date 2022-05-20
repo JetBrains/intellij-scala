@@ -3,16 +3,15 @@ package lang
 package formatting
 package settings
 
-import java.awt.Insets
-import java.lang.reflect.Field
-import java.util.Objects
-
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import javax.swing._
 
+import java.awt.Insets
+import java.lang.reflect.Field
+import java.util.Objects
+import javax.swing._
 import scala.collection.immutable.ListMap
 
 final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeStyleSubPanelBase(settings) {

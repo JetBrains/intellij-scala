@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
-import java.util
-import java.util.Collections
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -10,6 +8,9 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+
+import java.util
+import java.util.Collections
 
 /**
  * User: Alexander Podkhalyuzin

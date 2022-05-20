@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator.modifiers
 
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.util.TestUtils
 
-import extensions._
 import java.nio.file.{Files, Paths}
 import java.util.concurrent.Executors
 import scala.concurrent.duration.Duration

@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.TrafficLightRenderer.DaemonCodeAnalyzerStatus
-import com.intellij.codeInsight.daemon.impl.{DefaultHighlightInfoProcessor, ProgressableTextEditorHighlightingPass, SeverityRegistrar, TrafficLightRenderer, TrafficLightRendererContributor}
+import com.intellij.codeInsight.daemon.impl._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.markup.UIController
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import com.intellij.serviceContainer.AlreadyDisposedException
-import com.intellij.util.ui.EDT
-
-import java.util.{List => JList}
-import java.util.{ArrayList => JArrayList}
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.util.{ArrayList => JArrayList, List => JList}
 
 /**
  * We need this for showing the highlighting compilation progress in the "traffic light".

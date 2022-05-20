@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import java.util
-import java.util.Collections
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -13,6 +11,9 @@ import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExpressionExt
+
+import java.util
+import java.util.Collections
 
 class ScalaHighlightExprResultHandler(expr: ScExpression, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)

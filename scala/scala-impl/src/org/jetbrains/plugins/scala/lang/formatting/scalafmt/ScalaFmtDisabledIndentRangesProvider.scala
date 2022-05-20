@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import java.util
-
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.DisabledIndentRangesProvider
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+
+import java.util
 
 class ScalaFmtDisabledIndentRangesProvider extends DisabledIndentRangesProvider {
 

@@ -14,12 +14,12 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets.{MEMBERS, TYPE_DEFINITIONS}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPackaging}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScBegin, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon

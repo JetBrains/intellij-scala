@@ -7,7 +7,7 @@ import com.intellij.openapi.module.{ModuleManager, Module => OpenapiModule}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.text.StringUtil
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -15,13 +15,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.sbt.SbtUtil.{getBuildModuleData, getSbtModuleData}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleExtData}
-import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
-
-import java.io.File
+import org.jetbrains.sbt.project.data.SbtModuleExtData
+import org.jetbrains.sbt.{Sbt, SbtUtil}
 
 object SbtDependencyUtils {
   val LIBRARY_DEPENDENCIES: String = "libraryDependencies"

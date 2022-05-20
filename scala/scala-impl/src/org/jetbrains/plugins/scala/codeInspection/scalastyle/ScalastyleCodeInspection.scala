@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.scalastyle
 
-import java.io.File
-
 import com.intellij.codeInspection._
-import com.intellij.openapi.project.ProjectUtil
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
@@ -13,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.scalastyle._
 
+import java.io.File
 import scala.collection.mutable
 
 

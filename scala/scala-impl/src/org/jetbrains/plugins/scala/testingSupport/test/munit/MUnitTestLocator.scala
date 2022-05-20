@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.munit
 
-import java.util
-import java.util.Collections
-
 import com.intellij.execution.Location
 import com.intellij.execution.testframework.JavaTestLocator
 import com.intellij.execution.testframework.sm.runner.SMTestLocator
@@ -17,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.PsiLocationWithName
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestLocator._
 
+import java.util
+import java.util.Collections
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**

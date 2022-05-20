@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl
+import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 
 /**

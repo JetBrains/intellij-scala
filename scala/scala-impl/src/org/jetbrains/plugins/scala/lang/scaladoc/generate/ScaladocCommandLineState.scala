@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.scaladoc.generate
 
-import java.io.{File, FileOutputStream, IOException, PrintStream}
-import java.util.regex.Pattern
-
 import com.intellij.analysis.AnalysisScope
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations._
@@ -21,8 +18,10 @@ import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project._
 
-import scala.jdk.CollectionConverters._
+import java.io.{File, FileOutputStream, IOException, PrintStream}
+import java.util.regex.Pattern
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)

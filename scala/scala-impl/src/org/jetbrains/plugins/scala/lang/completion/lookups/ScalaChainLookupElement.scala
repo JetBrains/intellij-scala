@@ -3,11 +3,11 @@ package lang
 package completion
 package lookups
 
-import java.util
-
 import com.intellij.codeInsight.completion.InsertionContext
 import com.intellij.codeInsight.lookup.{LookupElementDecorator, LookupElementPresentation}
 import gnu.trove.THashSet
+
+import java.util
 
 /**
  * @author Alefas

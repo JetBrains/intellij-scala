@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import java.util
-
-import com.intellij.psi.search.SearchScope
-import com.intellij.psi.{PsiElement, PsiReference}
+import com.intellij.psi.PsiElement
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern

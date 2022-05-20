@@ -6,7 +6,6 @@ import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.command.undo.UndoManager
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.progress.ProgressIndicator

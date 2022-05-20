@@ -2,12 +2,12 @@ package org.jetbrains.sbt
 package codeInspection
 package typeAnnotation
 
-import java.{util => ju}
-
 import com.intellij.testFramework.EditorTestUtil.{SELECTION_END_TAG, SELECTION_START_TAG}
 import org.jetbrains.plugins.scala.codeInspection.typeAnnotation.TypeAnnotationInspectionTest
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.language.SbtFileType
+
+import java.{util => ju}
 
 class SbtAnnotationInspectionTest extends TypeAnnotationInspectionTest with MockSbt_1_0 {
 

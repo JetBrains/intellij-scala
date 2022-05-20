@@ -3,10 +3,6 @@ package lang
 package formatting
 package settings
 
-import java.awt._
-import java.awt.event.{FocusEvent, FocusListener}
-import java.io.File
-import java.util.Collections.emptyList
 import com.intellij.icons.AllIcons
 import com.intellij.lang.Language
 import com.intellij.openapi.application.ModalityState
@@ -27,9 +23,6 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-
-import javax.swing._
-import javax.swing.event.ChangeEvent
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
@@ -41,6 +34,12 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.utils.ScalafmtConfig
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicConfigServiceImpl, ScalafmtDynamicService}
 import org.scalafmt.dynamic.ScalafmtVersion
 
+import java.awt._
+import java.awt.event.{FocusEvent, FocusListener}
+import java.io.File
+import java.util.Collections.emptyList
+import javax.swing._
+import javax.swing.event.ChangeEvent
 import scala.annotation.nowarn
 
 final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings, "Scalafmt") {

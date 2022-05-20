@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiAnnotationMethodImpl
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement

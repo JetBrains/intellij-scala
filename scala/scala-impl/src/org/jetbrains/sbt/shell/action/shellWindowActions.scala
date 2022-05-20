@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.shell.action
 
-import java.awt.event.{InputEvent, KeyEvent}
-
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
 import com.intellij.debugger.impl.DebuggerSession
@@ -13,20 +11,21 @@ import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.remote.{RemoteConfiguration, RemoteConfigurationType}
 import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.ui.{RunContentDescriptor, RunContentManager}
-import com.intellij.execution.{ExecutionManager, ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
+import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigurationSettings}
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
-import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.shell.action.CopyFromHistoryViewerAction._
 import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
+import java.awt.event.{InputEvent, KeyEvent}
+import javax.swing.{Icon, KeyStroke}
 import scala.jdk.CollectionConverters._
 
 class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {

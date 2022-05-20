@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.build
 
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.io.File
 
 class IndicatorReporter(indicator: ProgressIndicator) extends BuildReporter {
   override def start(): Unit = {

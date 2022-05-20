@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import com.intellij.openapi.application.ApplicationManager
-
-import java.net.URL
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
@@ -11,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotification
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener.NoopProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtVersion}
+
+import java.net.URL
 
 trait ScalafmtDynamicService {
   def clearCaches(): Unit

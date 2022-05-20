@@ -1,11 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package bytecode
 
-import java.{util => ju}
-import java.io._
-import java.nio.charset.StandardCharsets
-import java.util.regex.Pattern
-
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.BitUtil.isSet
 import org.jetbrains.org.objectweb.asm.Opcodes._
@@ -13,6 +8,10 @@ import org.jetbrains.org.objectweb.asm._
 import org.jetbrains.plugins.scala.decompiler.Decompiler.{BYTES_VALUE, SCALA_LONG_SIG_ANNOTATION, SCALA_SIG_ANNOTATION}
 import org.jetbrains.plugins.scala.decompiler.scalasig._
 
+import java.io._
+import java.nio.charset.StandardCharsets
+import java.util.regex.Pattern
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._

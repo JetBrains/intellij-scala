@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTypeDefinition, ScClass}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 class QuasiQuotesInjector extends SyntheticMembersInjector {

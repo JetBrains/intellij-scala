@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import java.io.File
-import java.nio.charset.Charset
 import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
@@ -28,8 +26,10 @@ import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 import org.jetbrains.sbt.language.SbtFileImpl
 import org.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig, ScalafmtVersion}
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.nio.charset.Charset
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Project)

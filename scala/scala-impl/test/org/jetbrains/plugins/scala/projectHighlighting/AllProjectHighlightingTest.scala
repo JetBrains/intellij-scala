@@ -9,7 +9,7 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
-import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt

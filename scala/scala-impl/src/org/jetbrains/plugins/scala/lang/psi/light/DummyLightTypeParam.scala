@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.light
 
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.{PsiElement, PsiTypeParameterListOwner}
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -11,6 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
 /**
  * @author Alefas

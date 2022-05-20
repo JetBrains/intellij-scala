@@ -6,14 +6,13 @@ import com.intellij.build.{BuildProgressListener, BuildViewManager, DefaultBuild
 import com.intellij.execution.ui.ExecutionConsole
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
-
-import javax.swing.{Icon, JComponent}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import javax.swing.{Icon, JComponent}
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 class CompilationChartsBuildToolWindowNodeFactory

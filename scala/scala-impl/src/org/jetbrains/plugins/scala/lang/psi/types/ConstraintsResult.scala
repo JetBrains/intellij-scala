@@ -4,7 +4,7 @@ package psi
 package types
 
 import com.intellij.openapi.util.Ref
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, IteratorExt}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamId
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}

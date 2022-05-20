@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, StableId}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
-import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 /*
  * Scala 2.x

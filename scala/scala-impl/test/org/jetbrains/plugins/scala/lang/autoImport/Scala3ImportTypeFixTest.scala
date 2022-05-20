@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.autoImport
 
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 
 class Scala3ImportTypeFixTest

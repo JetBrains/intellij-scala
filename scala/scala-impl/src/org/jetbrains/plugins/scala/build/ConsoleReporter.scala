@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.build
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
+
+import java.io.File
 
 class ConsoleReporter(val name: String) extends BuildReporter {
 

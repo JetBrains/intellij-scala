@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter.multiline_string;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.codeStyle.CommonCodeStyleSettings;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase;

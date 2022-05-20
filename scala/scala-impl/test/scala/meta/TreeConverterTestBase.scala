@@ -1,8 +1,8 @@
 package scala.meta
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.meta.intellij.IDEAContext
 

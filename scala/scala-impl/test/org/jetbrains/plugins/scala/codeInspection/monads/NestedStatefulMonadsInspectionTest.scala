@@ -3,7 +3,6 @@ package codeInspection
 package monads
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 
 /**
   * @author Sergey Tolmachev (tolsi.ru@gmail.com)

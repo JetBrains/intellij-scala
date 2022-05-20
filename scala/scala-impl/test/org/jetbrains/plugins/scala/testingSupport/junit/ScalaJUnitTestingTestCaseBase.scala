@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.configurations.TestLocation.CaretLocation
 import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.junit.Assert.assertEquals
 
 abstract class ScalaJUnitTestingTestCaseBase extends ScalaTestingTestCase {
 

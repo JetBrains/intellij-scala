@@ -4,7 +4,6 @@ package parentheses
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.parameters.TypedParameterWithoutParenthesisInspection
 import org.jetbrains.plugins.scala.extensions._

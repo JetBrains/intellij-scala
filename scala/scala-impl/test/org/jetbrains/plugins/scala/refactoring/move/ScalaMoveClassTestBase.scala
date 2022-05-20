@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.move
 
-import java.io.File
-import java.nio.file.Path
-import java.util
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.psi.impl.source.PostprocessReformattingAspect
@@ -17,6 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.junit.Assert.assertNotNull
 
+import java.io.File
+import java.nio.file.Path
+import java.util
 import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 

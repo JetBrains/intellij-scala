@@ -1,24 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.api.statements
 
 import com.intellij.concurrency.ConcurrentCollectionFactory
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiTypeParameter}
+import com.intellij.util.containers.{ConcurrentLongObjectMap, ContainerUtil}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiClassExt, PsiElementExt, PsiNamedElementExt, StubBasedExt}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
-import com.intellij.psi.PsiClass
-import com.intellij.psi.PsiNamedElement
-import com.intellij.psi.PsiTypeParameter
-import com.intellij.util.containers.ConcurrentLongObjectMap
-import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
-import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
-import org.jetbrains.plugins.scala.extensions.StubBasedExt
-
 import scala.language.implicitConversions
 
 /**

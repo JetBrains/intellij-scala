@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package typeAnnotation
 
-import java.{util => ju}
-
 import com.intellij.codeInspection._
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.progress.ProgressManager
@@ -16,6 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
+import java.{util => ju}
 import scala.collection.mutable
 
 class AddTypeAnnotationQuickFix(element: PsiElement)

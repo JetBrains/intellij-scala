@@ -11,13 +11,12 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
-
-import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.testingSupport.test.testdata._
 
+import javax.swing.ListCellRenderer
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 

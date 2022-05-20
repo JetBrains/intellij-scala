@@ -4,15 +4,15 @@ package psi
 package impl
 package expr
 
-import java.util
-
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.tree.ILazyParseableElementType
-import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
+
+import java.util
 
 /**
 * @author Alexander Podkhalyuzin

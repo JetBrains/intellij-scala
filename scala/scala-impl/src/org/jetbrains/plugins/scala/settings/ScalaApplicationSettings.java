@@ -2,7 +2,10 @@ package org.jetbrains.plugins.scala.settings;
 
 import com.intellij.codeInsight.CodeInsightSettings;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.components.*;
+import com.intellij.openapi.components.PersistentStateComponent;
+import com.intellij.openapi.components.ReportValue;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase;

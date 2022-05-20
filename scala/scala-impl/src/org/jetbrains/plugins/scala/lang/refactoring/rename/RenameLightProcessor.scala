@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
-import java.util
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
 import com.intellij.psi.PsiElement
@@ -10,6 +8,8 @@ import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.usageView.UsageInfo
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiTypedDefinitionWrapper, ScFunctionWrapper, StaticPsiMethodWrapper, StaticPsiTypedDefinitionWrapper}
+
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin

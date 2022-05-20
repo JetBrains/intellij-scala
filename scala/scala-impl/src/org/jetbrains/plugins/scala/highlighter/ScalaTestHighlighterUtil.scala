@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.highlighter
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsUtil}
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
   * @author Roman.Shein

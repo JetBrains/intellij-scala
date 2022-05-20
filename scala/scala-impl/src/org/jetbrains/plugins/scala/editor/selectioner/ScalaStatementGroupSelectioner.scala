@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package editor.selectioner
 
-import java.util
-
 import com.intellij.codeInsight.editorActions.ExtendWordSelectionHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -13,6 +11,8 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
+
+import java.util
 
 /**
   * @author yole

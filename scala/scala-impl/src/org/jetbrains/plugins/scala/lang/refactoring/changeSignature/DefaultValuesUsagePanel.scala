@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import java.awt.event.{ItemEvent, ItemListener}
-
-import javax.swing._
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.awt.event.{ItemEvent, ItemListener}
+import javax.swing._
 
 /**
  * Nikolay.Tropin

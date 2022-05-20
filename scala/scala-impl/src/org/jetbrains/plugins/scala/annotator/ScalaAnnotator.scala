@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
-import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}

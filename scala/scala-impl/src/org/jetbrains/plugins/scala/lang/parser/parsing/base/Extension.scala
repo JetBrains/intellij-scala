@@ -5,14 +5,12 @@ package parsing
 package base
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
-import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
-
-import scala.annotation.tailrec
 
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’

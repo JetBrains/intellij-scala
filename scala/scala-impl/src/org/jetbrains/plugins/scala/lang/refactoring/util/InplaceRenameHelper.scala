@@ -5,8 +5,8 @@ import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateState, TextExpression}
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
-import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.colors.{EditorColors, TextAttributesKey}
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory, RangeMarker}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange

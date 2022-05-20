@@ -3,8 +3,8 @@ package debugger.ui
 
 import com.intellij.debugger.engine.DebugProcess
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
+import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 

@@ -7,8 +7,8 @@ import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.codeInspection.ui.SingleCheckboxOptionsPanel
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
-import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.search._
+import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.extensions._
@@ -16,15 +16,15 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt

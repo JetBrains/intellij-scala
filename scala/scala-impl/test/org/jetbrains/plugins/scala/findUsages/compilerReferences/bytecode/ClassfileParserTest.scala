@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package bytecode
 
-import java.io.InputStream
-
-import scala.collection.immutable.StringOps
-import scala.reflect.ClassTag
 import org.hamcrest.CoreMatchers.hasItems
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert._
 import org.junit.Test
+
+import java.io.InputStream
+import scala.collection.immutable.StringOps
+import scala.reflect.ClassTag
 
 class ClassfileParserTest {
   private def loadClass[A](implicit tag: ClassTag[A]): InputStream = {

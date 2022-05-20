@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
-import java.io.{DataInput, DataOutput}
-import java.util.regex.Pattern
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.util.indexing._
 import com.intellij.util.io.{IntInlineKeyDescriptor, KeyDescriptor}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer.AsteriskAlignStyle.{AlignByColumnThree, AlignByColumnTwo}
-import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer.{AsteriskAlignStyle, _}
+import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer._
 
+import java.io.{DataInput, DataOutput}
+import java.util.regex.Pattern
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 

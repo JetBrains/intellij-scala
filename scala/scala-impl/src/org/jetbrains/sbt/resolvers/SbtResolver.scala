@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.resolvers
 
-import java.io.File
-import java.util.regex.Pattern
 import com.intellij.diagnostic.PluginException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -9,7 +7,6 @@ import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.Nls
 import org.jetbrains.idea.maven.indices.MavenIndicesManager
 import org.jetbrains.plugins.scala.NlsString
-import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
 
 /**

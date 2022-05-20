@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
 import com.intellij.openapi.editor.colors.EditorColorsManager
-
-import java.awt.{Color, Graphics2D}
 import com.intellij.ui.table.JBTable
-import com.intellij.util.ui.UIUtil.{FontColor, FontSize}
 import com.intellij.util.ui.UIUtil
+import com.intellij.util.ui.UIUtil.{FontColor, FontSize}
 
 import java.awt.geom.Rectangle2D
+import java.awt.{Color, Graphics2D}
 
 object Common {
 

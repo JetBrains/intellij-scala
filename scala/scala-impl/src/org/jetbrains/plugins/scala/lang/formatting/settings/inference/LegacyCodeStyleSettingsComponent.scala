@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings.inference
 
-import com.intellij.psi.codeStyle.CodeStyleScheme
 import com.intellij.psi.impl.source.codeStyle.CodeStyleSchemesImpl
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.components.RunOnceStartupActivity

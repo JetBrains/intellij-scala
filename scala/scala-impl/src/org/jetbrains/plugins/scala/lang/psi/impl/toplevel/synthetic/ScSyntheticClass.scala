@@ -30,7 +30,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import javax.swing.Icon
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class SyntheticNamedElement(name: String)
                                     (implicit projectContext: ProjectContext)

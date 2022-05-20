@@ -15,7 +15,6 @@
 
 package org.jetbrains.plugins.scala.highlighter;
 
-import com.intellij.lang.StdLanguages;
 import com.intellij.lang.xml.XMLLanguage;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;

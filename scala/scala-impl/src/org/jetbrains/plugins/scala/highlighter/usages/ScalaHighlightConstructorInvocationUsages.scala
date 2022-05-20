@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package highlighter
 package usages
 
-import java.util
-
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.search.LocalSearchScope
@@ -13,6 +11,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, ScalaFindUsagesHandlerFactory}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import java.util
 
 class ScalaHighlightConstructorInvocationUsages(invoc: ScConstructorInvocation, file: PsiFile, editor: Editor)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file)

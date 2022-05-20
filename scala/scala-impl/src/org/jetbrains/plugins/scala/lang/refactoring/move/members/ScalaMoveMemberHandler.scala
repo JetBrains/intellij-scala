@@ -4,8 +4,6 @@ package refactoring
 package move
 package members
 
-import java.{util => ju}
-
 import com.intellij.psi._
 import com.intellij.refactoring.move.moveMembers.MoveMembersProcessor.MoveMembersUsageInfo
 import com.intellij.refactoring.move.moveMembers.{MoveJavaMemberHandler, MoveMembersOptions}
@@ -14,9 +12,10 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText, createReferenceFromText}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaChangeContextUtil
+
+import java.{util => ju}
 
 final class ScalaMoveMemberHandler extends MoveJavaMemberHandler {
 

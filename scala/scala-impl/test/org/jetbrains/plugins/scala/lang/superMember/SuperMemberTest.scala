@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.lang.superMember
 
-import java.io.File
-
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
-import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**

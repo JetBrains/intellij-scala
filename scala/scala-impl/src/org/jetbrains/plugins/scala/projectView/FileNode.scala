@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package projectView
 
-import java.{util => ju}
-
 import com.intellij.ide.projectView.impl.nodes.PsiFileNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import java.{util => ju}
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin

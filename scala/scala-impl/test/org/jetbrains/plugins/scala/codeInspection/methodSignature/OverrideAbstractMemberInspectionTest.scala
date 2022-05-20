@@ -4,7 +4,6 @@ package methodSignature
 
 import com.intellij.codeHighlighting.HighlightDisplayLevel
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 
 class OverrideAbstractMemberInspectionTest extends InspectionSeverityForcingScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

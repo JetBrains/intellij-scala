@@ -1,10 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.io.File
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
-import java.util.concurrent.locks.ReentrantReadWriteLock
-
 import com.intellij.compiler.backwardRefs.LanguageCompilerRefAdapter
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -29,6 +24,10 @@ import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import java.io.File
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.{AtomicInteger, LongAdder}
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import scala.jdk.CollectionConverters._
 
 final private[findUsages] class ScalaCompilerReferenceService(project: Project) extends ModificationTracker {

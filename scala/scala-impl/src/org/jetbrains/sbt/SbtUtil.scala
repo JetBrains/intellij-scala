@@ -2,14 +2,12 @@ package org.jetbrains.sbt
 
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem

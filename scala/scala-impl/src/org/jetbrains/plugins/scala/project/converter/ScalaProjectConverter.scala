@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import java.io.File
+import com.intellij.conversion._
+import org.jetbrains.plugins.scala.project.converter.ScalaProjectConverter._
+
 import java.nio.file.Path
 import java.util
-
-import com.intellij.conversion._
-
 import scala.jdk.CollectionConverters._
-import ScalaProjectConverter._
 
 /**
  * @author Pavel Fatin

@@ -6,8 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
-import com.intellij.util.PathUtil
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project._
 

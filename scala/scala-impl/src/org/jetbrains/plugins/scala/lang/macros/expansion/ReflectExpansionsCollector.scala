@@ -1,20 +1,17 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
-import java.io._
-
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiManager}
-import org.jetbrains.plugins.scala.extensions
-
-import scala.collection.mutable
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
 
+import java.io._
+import scala.collection.mutable
 import scala.util.Using
 
 /**

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala
 package project.converter
 
-import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
+import org.jdom.{Attribute, Element}
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._

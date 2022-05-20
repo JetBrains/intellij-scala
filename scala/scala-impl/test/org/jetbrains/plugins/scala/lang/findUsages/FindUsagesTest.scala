@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.openapi.util.TextRange
-import com.intellij.openapi.util.text.StringUtil
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.usageView.UsageInfo
 import com.intellij.util.Processor

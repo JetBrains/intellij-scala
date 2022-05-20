@@ -4,7 +4,6 @@ import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.impl.file.impl.FileManager
 import com.intellij.testFramework.PlatformTestUtil
-import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursiveElementVisitor}
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase

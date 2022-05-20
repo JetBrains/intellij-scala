@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import java.awt.Point
-import java.awt.geom.Point2D
-import java.util
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.InlayModel.Listener
 import com.intellij.openapi.editor._
 import com.intellij.openapi.editor.impl.DocumentImpl
+
+import java.awt.Point
+import java.awt.geom.Point2D
+import java.util
 
 /**
  * Pavel Fatin

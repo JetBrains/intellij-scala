@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 /**
  * User: Alexander Podkhalyuzin

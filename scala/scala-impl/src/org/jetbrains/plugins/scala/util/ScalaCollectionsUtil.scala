@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util.concurrent.ConcurrentHashMap
-
 import com.intellij.util.containers.ContainerUtil
 
-import scala.jdk.CollectionConverters._
+import java.util.concurrent.ConcurrentHashMap
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 object ScalaCollectionsUtil {
 

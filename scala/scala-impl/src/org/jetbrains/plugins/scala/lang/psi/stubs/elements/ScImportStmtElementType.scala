@@ -5,8 +5,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{StubElement, StubInputStream, StubOutputStream}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExportStmtStubImpl, ScImportStmtStubImpl}
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 
 abstract sealed class ScImportOrExportStmtElementType[
   P <: ScImportOrExportStmt,

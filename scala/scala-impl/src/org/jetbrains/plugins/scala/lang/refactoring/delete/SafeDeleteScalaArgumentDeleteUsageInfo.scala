@@ -5,10 +5,9 @@ package delete
 
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.safeDelete.usageInfo.SafeDeleteReferenceJavaDeleteUsageInfo
-import org.jetbrains.plugins.scala.extensions.Parent
+import org.jetbrains.plugins.scala.extensions.{Parent, _}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import extensions._
 
 
 class SafeDeleteScalaArgumentDeleteUsageInfo(element: PsiElement, referencedElement: PsiElement, isSafeDelete: Boolean)

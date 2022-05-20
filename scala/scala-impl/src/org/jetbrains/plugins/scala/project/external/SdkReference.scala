@@ -6,6 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.serialization.PropertyMapping
 import org.apache.commons.codec.digest.DigestUtils
 import org.jetbrains.plugins.scala.extensions.inReadAction
+
 import java.io.File
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions

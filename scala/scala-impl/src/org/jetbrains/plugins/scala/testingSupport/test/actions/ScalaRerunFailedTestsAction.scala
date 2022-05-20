@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.actions
 
-import java.util
-import java.util.stream.Collectors
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
@@ -22,6 +20,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedT
 import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestLocator
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2RunConfiguration
 
+import java.util
+import java.util.stream.Collectors
 import scala.jdk.CollectionConverters._
 
 @ApiStatus.Internal

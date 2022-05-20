@@ -1,7 +1,6 @@
 package org.jetbrains.sbt
 package shell
 
-import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
@@ -17,6 +16,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
 
+import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.util.Collections
 import scala.collection.mutable
 

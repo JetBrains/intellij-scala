@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import java.util.Properties
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTemplateUtil}
@@ -24,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.sbt.project.module.SbtModuleType
+
+import java.util.Properties
 
 /**
  * User: Alexander Podkhalyuzin

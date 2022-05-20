@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-import scala.collection.{Map, TraversableOnce, mutable}
+import scala.collection.{Map, mutable}
 import scala.util.{Failure, Success, Try}
 
 /**

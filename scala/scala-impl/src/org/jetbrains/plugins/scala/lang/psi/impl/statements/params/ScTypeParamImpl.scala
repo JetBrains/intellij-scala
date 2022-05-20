@@ -8,7 +8,6 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -28,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
+import javax.swing.Icon
 import scala.annotation.tailrec
 
 /**

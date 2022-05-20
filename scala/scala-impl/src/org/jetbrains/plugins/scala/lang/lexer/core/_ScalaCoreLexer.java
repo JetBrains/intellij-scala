@@ -3,14 +3,18 @@
 package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexLexer;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.util.containers.Stack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
-import com.intellij.openapi.util.text.StringUtil;
 
 import static com.intellij.openapi.util.text.StringUtil.endsWith;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Double;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Float;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
+import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.*;
 

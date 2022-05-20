@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala
 package debugger.evaluation
 
-import java.io.File
-import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -14,12 +10,10 @@ import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
-import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
-import org.jetbrains.plugins.scala.project.ProjectExt
 
-import scala.annotation.{nowarn, tailrec}
+import java.io.File
+import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin

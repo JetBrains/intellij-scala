@@ -5,7 +5,7 @@ package scaladoc
 import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiElementVisitor}
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._

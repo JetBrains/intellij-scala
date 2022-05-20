@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
-import scala.collection.immutable.Set
 import scala.collection.mutable
 
 /**

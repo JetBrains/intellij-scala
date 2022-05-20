@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compilation
 
-import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk

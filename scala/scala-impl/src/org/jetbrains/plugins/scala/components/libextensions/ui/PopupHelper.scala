@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.components.libextensions.ui
 
 import com.intellij.notification.{Notification, NotificationType, Notifications}
-
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 
 class PopupHelper {

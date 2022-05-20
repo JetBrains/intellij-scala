@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util.concurrent.{ScheduledExecutorService, ScheduledFuture}
 import com.intellij.openapi.Disposable
 import com.intellij.util.concurrency.AppExecutorUtil
 
+import java.util.concurrent.{ScheduledExecutorService, ScheduledFuture}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 /**

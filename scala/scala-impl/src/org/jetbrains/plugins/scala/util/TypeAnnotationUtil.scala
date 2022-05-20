@@ -9,7 +9,6 @@ import com.intellij.openapi.options.{Configurable, ConfigurableGroup, ShowSettin
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.ui.HyperlinkLabel
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOrRemoveStrategy
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -22,6 +21,7 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.ReturnTypeL
 import org.jetbrains.plugins.scala.settings._
 import org.jetbrains.plugins.scala.settings.annotations._
 
+import javax.swing.event.HyperlinkEvent
 import scala.jdk.CollectionConverters._
 
 /**

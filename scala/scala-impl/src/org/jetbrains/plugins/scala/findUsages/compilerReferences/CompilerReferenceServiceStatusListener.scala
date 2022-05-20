@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 
-import java.util.EventListener
-
 import com.intellij.util.messages.Topic
+
+import java.util.EventListener
 
 trait CompilerReferenceServiceStatusListener extends EventListener {
   def onIndexingPhaseStarted(): Unit                       = ()

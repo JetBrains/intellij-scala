@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.extensions
 
-import java.awt.event.{ActionEvent, ActionListener}
+import java.awt.event.ActionListener
 import javax.swing.JComponent
-
 import scala.language.reflectiveCalls
 
 /**

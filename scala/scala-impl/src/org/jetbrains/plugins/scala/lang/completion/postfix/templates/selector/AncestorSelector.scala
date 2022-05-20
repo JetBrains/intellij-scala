@@ -3,7 +3,6 @@ package postfix
 package templates
 package selector
 
-import java.{util => ju}
 import com.intellij.codeInsight.template.postfix.templates.PostfixTemplateExpressionSelectorBase
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.{Condition, Conditions}
@@ -15,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaExpressionSurrounder
 
+import java.{util => ju}
 import scala.annotation.tailrec
-import scala.jdk.CollectionConverters._
 
 /**
   * @author Roman.Shein

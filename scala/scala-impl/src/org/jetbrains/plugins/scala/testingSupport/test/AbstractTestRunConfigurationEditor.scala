@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import javax.swing.JComponent
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationForm
+
+import javax.swing.JComponent
 
 class AbstractTestRunConfigurationEditor(project: Project)
   extends SettingsEditor[AbstractTestRunConfiguration] {

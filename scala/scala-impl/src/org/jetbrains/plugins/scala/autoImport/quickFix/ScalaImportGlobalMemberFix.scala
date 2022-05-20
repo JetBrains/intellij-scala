@@ -10,6 +10,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.autoImport.GlobalMember
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
+import org.jetbrains.plugins.scala.autoImport.ImportOrderings.defaultImportOrdering
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isExcluded
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -24,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndex
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.isAccessible
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.jetbrains.plugins.scala.autoImport.ImportOrderings.defaultImportOrdering
 
 import scala.jdk.CollectionConverters._
 

@@ -4,17 +4,15 @@ import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScPatternArgumentList, ScSeqWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScSeqWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
 

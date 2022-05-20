@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.suppression
 
-import com.intellij.codeInspection.{SuppressQuickFix, InspectionSuppressor}
+import com.intellij.codeInspection.{InspectionSuppressor, SuppressQuickFix}
 import com.intellij.psi.PsiElement
 
 /**

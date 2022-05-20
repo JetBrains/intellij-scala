@@ -2,10 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package parameterInfo
 
-import java.awt.Color
-
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
@@ -24,6 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.awt.Color
 import scala.collection.mutable.ArrayBuffer
 
 /**

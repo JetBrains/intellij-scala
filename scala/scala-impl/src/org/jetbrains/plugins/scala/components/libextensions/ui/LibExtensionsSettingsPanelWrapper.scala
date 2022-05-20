@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.components.libextensions.ui
 
-import java.awt.BorderLayout
-import java.io.File
-
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.fileChooser.{FileChooser, FileChooserDescriptor}
 import com.intellij.openapi.project.Project
@@ -10,11 +7,14 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.ui._
 import com.intellij.ui.components.{JBLabel, JBList}
 import com.intellij.util.ui.{JBUI, UIUtil}
-import javax.swing._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.components.libextensions.LibraryExtensionsManager._
 import org.jetbrains.plugins.scala.components.libextensions._
+
+import java.awt.BorderLayout
+import java.io.File
+import javax.swing._
 
 class LibExtensionsSettingsPanelWrapper(private val rootPanel: JPanel,
                                         private val project: Project) {

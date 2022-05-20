@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference.generated
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
-import org.jetbrains.plugins.scala.lang.typeInference.{TypeInferenceDoTest, TypeInferenceTestBase}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceDoTest
 
 /**
   * Created by Svyatoslav Ilinskiy on 01.07.16.

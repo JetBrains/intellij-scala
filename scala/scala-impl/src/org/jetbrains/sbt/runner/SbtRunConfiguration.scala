@@ -1,8 +1,5 @@
 package org.jetbrains.sbt.runner
 
-import java.io.File
-import java.util
-import java.util.jar.JarFile
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ProcessEvent
@@ -24,6 +21,9 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.settings.SbtSettings
 
+import java.io.File
+import java.util
+import java.util.jar.JarFile
 import scala.beans.BeanProperty
 import scala.jdk.CollectionConverters._
 import scala.util.Using

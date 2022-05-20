@@ -24,8 +24,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProc
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin

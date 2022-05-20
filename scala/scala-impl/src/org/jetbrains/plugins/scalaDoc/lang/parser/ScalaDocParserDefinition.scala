@@ -9,8 +9,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.tree.{IFileElementType, TokenSet}
 import com.intellij.psi.{FileViewProvider, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.{ScalaDocLexer, ScalaDocTokenType}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes

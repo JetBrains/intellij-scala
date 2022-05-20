@@ -6,12 +6,13 @@ package statements
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAL
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+
+import javax.swing.Icon
 
 /**
  * @author Alexander Podkhalyuzin

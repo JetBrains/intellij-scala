@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import java.awt.Component
-import java.util
-
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.command.impl.StartMarkAction
@@ -15,7 +12,6 @@ import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
@@ -32,6 +28,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendere
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
+import java.awt.Component
+import java.util
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import scala.annotation.nowarn
 
 /**

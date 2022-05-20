@@ -16,14 +16,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ParameterExpectedTypesUtil._
 
 import scala.annotation.tailrec
 

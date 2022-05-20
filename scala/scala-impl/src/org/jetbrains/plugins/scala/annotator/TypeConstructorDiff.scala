@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.annotator.Tree.{Leaf, Node}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 
 class TypeConstructorDiff(val text: String, val isMismatch: Boolean, val isMissing: Boolean) {
   def hasError: Boolean = isMismatch || isMissing

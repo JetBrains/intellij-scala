@@ -5,8 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
-import org.jetbrains.plugins.scala.externalLibraries.kindProjector.TypeLambda
-import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.{KindProjectorUtil, TypeLambda}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition

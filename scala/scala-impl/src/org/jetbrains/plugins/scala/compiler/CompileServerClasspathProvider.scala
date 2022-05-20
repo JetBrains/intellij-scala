@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.extensions.{ExtensionPointName, PluginAware, PluginDescriptor}
+import com.intellij.openapi.extensions.{PluginAware, PluginDescriptor}
 import com.intellij.util.xmlb.annotations.{Attribute, Transient}
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
  * @author Nikolay.Tropin
  */

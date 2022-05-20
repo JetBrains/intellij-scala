@@ -3,12 +3,12 @@ package debugger
 package evaluation
 package evaluator
 
-import java.{lang => jl}
-
 import com.intellij.debugger.engine.evaluation.{EvaluationContextImpl, expression}
 import com.sun.jdi.Value
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
+
+import java.{lang => jl}
 
 /**
  * User: Alefas

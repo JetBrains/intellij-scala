@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import java.{util => ju}
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -24,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._

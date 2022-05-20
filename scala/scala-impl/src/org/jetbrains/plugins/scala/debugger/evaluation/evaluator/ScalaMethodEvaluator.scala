@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.extensions._
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try}
 
 /**

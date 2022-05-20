@@ -11,10 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.{api => p, types => ptype}
 
-import scala.collection.immutable.Seq
 import scala.language.postfixOps
-import scala.meta.{Defn, ScalaMetaBundle, Type}
 import scala.meta.trees.error._
+import scala.meta.{Defn, ScalaMetaBundle, Type}
 import scala.{meta => m}
 
 trait TreeAdapter {

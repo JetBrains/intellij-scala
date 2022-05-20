@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

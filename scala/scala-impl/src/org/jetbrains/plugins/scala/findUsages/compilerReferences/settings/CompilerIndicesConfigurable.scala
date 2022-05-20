@@ -6,9 +6,10 @@ import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.options.Configurable
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
-import javax.swing.JComponent
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
+
+import javax.swing.JComponent
 
 class CompilerIndicesConfigurable(project: Project) extends Configurable {
   import CompilerIndicesConfigurable._

@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.compiler;
 import com.intellij.compiler.server.BuildManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox;
 import com.intellij.ui.RawCommandLineEditor;
@@ -21,7 +20,6 @@ import scala.Some$;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.ResourceBundle;
 
 /**

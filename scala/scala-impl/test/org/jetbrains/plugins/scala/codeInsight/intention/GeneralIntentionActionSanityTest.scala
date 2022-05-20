@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInsight
 package intention
 
 import com.intellij.codeInsight.intention.impl.config.IntentionManagerSettings
-import com.intellij.codeInsight.intention.{IntentionActionBean, IntentionManager}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.junit.Assert
 

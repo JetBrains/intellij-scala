@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScBlockExpr, ScExpression, ScForBinding, ScFunctionExpr, ScGenerator, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging

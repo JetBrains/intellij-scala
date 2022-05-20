@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.lang.formatting.settings;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;

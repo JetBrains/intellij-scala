@@ -7,7 +7,7 @@ import com.intellij.psi.impl.PsiTreeChangeEventImpl
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiTreeChangeEvent, TokenType}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}

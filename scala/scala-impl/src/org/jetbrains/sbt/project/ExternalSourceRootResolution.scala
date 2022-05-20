@@ -1,15 +1,15 @@
 package org.jetbrains.sbt
 package project
 
-import java.io.File
-
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.externalSystem.model.project.ExternalSystemSourceType
 import com.intellij.openapi.util.io.FileUtilRt
-import org.jetbrains.sbt.project.data.{ContentRootNode, LibraryNode, ModuleDependencyNode, ModuleNode, ModuleSdkNode}
+import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.structure.ProjectData
 import org.jetbrains.sbt.{structure => sbtStructure}
+
+import java.io.File
 
 /**
  * @author Pavel Fatin

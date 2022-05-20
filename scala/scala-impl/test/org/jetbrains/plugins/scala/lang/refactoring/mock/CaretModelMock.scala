@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.refactoring.mock
 
-import java.util
-
 import com.intellij.openapi.editor.{CaretState, LogicalPosition}
+
+import java.util
 
 /**
  * Pavel Fatin

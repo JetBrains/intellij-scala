@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.util.UUID
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.serviceContainer.AlreadyDisposedException
 import org.jetbrains.plugins.scala.externalHighlighters.CompilerLockBuildManagerListener.suppressAlreadyDisposed
+
+import java.util.UUID
 
 class CompilerLockBuildManagerListener
   extends BuildManagerListener {

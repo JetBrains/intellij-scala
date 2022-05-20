@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.project
 
-import java.util
-
 import com.intellij.ide.projectView.PresentationData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.{ExternalProjectsView, ExternalSystemNode, ExternalSystemViewContributor}
@@ -10,6 +8,7 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.SbtViewContributor._
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskData}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

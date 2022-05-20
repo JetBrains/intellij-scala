@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project
 import com.intellij.openapi.externalSystem.service.task.ui.AbstractExternalSystemToolWindowFactory
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.settings.SbtSettings
 
 /**

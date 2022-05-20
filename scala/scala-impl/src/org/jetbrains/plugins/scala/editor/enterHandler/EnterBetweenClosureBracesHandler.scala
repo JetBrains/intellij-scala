@@ -11,7 +11,7 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiWhiteSpace}
+import com.intellij.psi.{PsiFile, PsiWhiteSpace}
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt

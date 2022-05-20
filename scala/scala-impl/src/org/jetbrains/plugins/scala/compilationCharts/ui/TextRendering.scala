@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
+import com.intellij.ui.components.JBLabel
+
 import java.awt.geom.Rectangle2D
 import java.awt.{Font, Graphics2D}
-
-import com.intellij.ui.components.JBLabel
 
 class TextRendering private(val text: String,
                             val font: Font,

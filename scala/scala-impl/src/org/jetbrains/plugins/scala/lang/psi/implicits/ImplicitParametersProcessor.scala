@@ -6,8 +6,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 private[implicits] final class ImplicitParametersProcessor(override protected val getPlace: PsiElement,

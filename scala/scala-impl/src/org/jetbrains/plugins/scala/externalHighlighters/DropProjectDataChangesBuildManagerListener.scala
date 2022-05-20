@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.util.UUID
-
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener}
 import com.intellij.openapi.project.Project
+
+import java.util.UUID
 
 /**
  * Issue: SCL-17303

@@ -3,8 +3,8 @@ package project.converter
 
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
-import org.jdom.{Attribute, Element}
 import org.jdom.xpath.XPath
+import org.jdom.{Attribute, Element}
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._

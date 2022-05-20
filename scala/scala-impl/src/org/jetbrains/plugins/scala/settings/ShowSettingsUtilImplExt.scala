@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.settings
 
-import java.util.Collections
-
 import com.intellij.openapi.options.ex.{ConfigurableExtensionPointUtil, ConfigurableVisitor, ConfigurableWrapper}
 import com.intellij.openapi.options.newEditor.SettingsDialogFactory
 import com.intellij.openapi.options.{Configurable, SearchableConfigurable}
 import com.intellij.openapi.project.{Project, ProjectManager}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider
+
+import java.util.Collections
 
 /**
  * see [[com.intellij.ide.actions.ShowSettingsUtilImpl]]

@@ -1,17 +1,16 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.awt.event.{FocusEvent, FocusListener}
-import java.util.Comparator
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.ui.table.TableView
 import com.intellij.ui.{SpeedSearchComparator, TableViewSpeedSearch}
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import javax.swing.JTable
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
+import java.awt.event.{FocusEvent, FocusListener}
+import java.util.Comparator
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import javax.swing.JTable
 import scala.jdk.CollectionConverters._
 
 class DataById[Data](id: Data => String) {

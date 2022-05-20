@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {

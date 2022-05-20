@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiClass
 import org.apache.commons.lang.StringEscapeUtils
-import org.apache.commons.lang.StringEscapeUtils.escapeHtml
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiNamedElementExt}
 
 /**

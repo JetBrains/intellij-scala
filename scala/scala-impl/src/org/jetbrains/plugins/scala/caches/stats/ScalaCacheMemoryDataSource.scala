@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala
 package caches
 package stats
-import java.util
-
 import org.jetbrains.plugins.scala.extensions._
+
+import java.util
 
 object ScalaCacheMemoryDataSource extends DataSource[MemoryData] {
   override def isActive: Boolean = Tracer.isEnabled

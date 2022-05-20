@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import java.util
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
@@ -26,9 +24,10 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
+import java.util
 import _root_.scala.annotation.tailrec
-import _root_.scala.jdk.CollectionConverters._
 import _root_.scala.collection.mutable.ArrayBuffer
+import _root_.scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin

@@ -4,7 +4,7 @@ import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.testframework.sm.runner.{SMRunnerConsolePropertiesProvider, SMTRunnerConsoleProperties}
 import com.intellij.execution.{Executor, JavaTestFrameworkRunnableState}
 import com.intellij.openapi.project.Project
-import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.testingSupport.test._
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.TestConfigurationData
 

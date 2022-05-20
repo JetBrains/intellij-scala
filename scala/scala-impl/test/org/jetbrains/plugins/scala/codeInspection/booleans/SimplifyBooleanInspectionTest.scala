@@ -3,7 +3,6 @@ package codeInspection
 package booleans
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**

@@ -6,7 +6,6 @@ package statements
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -22,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.collection.immutable.Set
+import javax.swing.Icon
 
 /**
  * @author Alexander Podkhalyuzin

@@ -1,12 +1,13 @@
 package org.jetbrains.plugins.scala
 package project.template
 
-import javax.swing.Icon
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.platform.ProjectTemplate
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Project}
+
+import javax.swing.Icon
 
 /**
   * @author Pavel Fatin

@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package spellchecker
 
-import java.lang.StringBuilder
-import java.util.Collections
-
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.psi.PsiModifierListOwner
 import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
@@ -12,6 +9,8 @@ import com.intellij.spellchecker.inspections.PlainTextSplitter
 import com.intellij.spellchecker.tokenizer.{EscapeSequenceTokenizer, TokenConsumer, Tokenizer}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
+import java.util.Collections
+
 /**
  * @author Ksenia.Sautina
  * @since 2/3/13
@@ -19,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
   def processTextWithEscapeSequences(element: ScLiteral, text: String, consumer: TokenConsumer): Unit = {
-    val unEscapedText: StringBuilder = new StringBuilder
+    val unEscapedText = new java.lang.StringBuilder
     val offsets: Array[Int] = new Array[Int](text.length + 1)
     PsiLiteralExpressionImpl.parseStringCharacters(text, unEscapedText, offsets)
     EscapeSequenceTokenizer.processTextWithOffsets(element, consumer, unEscapedText, offsets, 1)

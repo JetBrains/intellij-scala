@@ -3,8 +3,6 @@ package lang
 package psi
 package types
 
-import java.util
-
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.PsiTypeExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
@@ -13,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
+import java.util
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 

@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.ExtensionPointName
-import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.ModTracker

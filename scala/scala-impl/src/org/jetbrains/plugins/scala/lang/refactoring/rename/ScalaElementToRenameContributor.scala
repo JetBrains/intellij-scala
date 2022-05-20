@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
-import java.util
-
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
+
+import java.util
 
 @ApiStatus.Internal
 abstract class ScalaElementToRenameContributor {

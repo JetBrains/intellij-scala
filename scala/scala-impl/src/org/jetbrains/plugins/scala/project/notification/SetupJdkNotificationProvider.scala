@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package project
 package notification
 
-import com.intellij.openapi.editor.ex.util.EditorUtil
-import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.ProjectRootManager

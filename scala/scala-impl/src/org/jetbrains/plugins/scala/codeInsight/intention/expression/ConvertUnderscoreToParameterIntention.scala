@@ -8,8 +8,8 @@ import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
-import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.colors.{EditorColors, TextAttributesKey}
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
@@ -25,10 +25,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaVariableValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.underscore.section.to.parameter")

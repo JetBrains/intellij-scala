@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.util
 
-import java.util.Properties
-
 import com.intellij.ide.fileTemplates.impl.FileTemplateBase
 import com.intellij.ide.fileTemplates.ui.CreateFromTemplateDialog
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
@@ -14,6 +12,7 @@ import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.actions.ScalaFileTemplateUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import java.util.Properties
 import scala.annotation.nowarn
 
 /**

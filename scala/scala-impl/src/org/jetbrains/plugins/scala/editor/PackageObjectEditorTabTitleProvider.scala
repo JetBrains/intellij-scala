@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package editor
 
-import java.io.File
-
 import com.intellij.openapi.fileEditor.impl.EditorTabTitleProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
+
+import java.io.File
 
 /**
  * @author Alefas

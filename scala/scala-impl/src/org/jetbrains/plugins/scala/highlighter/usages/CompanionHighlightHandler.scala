@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
-import java.util
-import java.util.Collections
-
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.highlighting.HighlightUsagesHandlerBase
 import com.intellij.openapi.editor.Editor
@@ -11,6 +8,9 @@ import com.intellij.util.Consumer
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+
+import java.util
+import java.util.Collections
 
 private class CompanionHighlightHandler(keyword: PsiElement, definition: ScTypeDefinition, editor: Editor, file: PsiFile)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {

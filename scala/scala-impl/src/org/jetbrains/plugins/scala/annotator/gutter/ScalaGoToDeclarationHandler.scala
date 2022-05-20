@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import java.io.File
 import com.intellij.codeInsight.navigation.actions.GotoDeclarationHandler
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToDeclarationHandler._
@@ -18,14 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
-import org.jetbrains.plugins.scala.tasty._
 
 import scala.annotation.tailrec
 

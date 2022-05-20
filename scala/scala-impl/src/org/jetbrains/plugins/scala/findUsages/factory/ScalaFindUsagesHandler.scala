@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import java.util
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
@@ -19,6 +18,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSea
 import org.jetbrains.plugins.scala.lang.psi.light._
 import org.jetbrains.plugins.scala.util.SAMUtil._
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
+
+import java.util
 
 /**
  * User: Alexander Podkhalyuzin

@@ -16,10 +16,9 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.nowarn
-import scala.meta.{Dialect, ScalaMetaBundle}
-import scala.meta._
 import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
+import scala.meta.{Dialect, ScalaMetaBundle, _}
 
 /**
   * @author Mikhail Mutcianko

@@ -3,8 +3,6 @@ package lang
 package completion
 package ml
 
-import java.util
-
 import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionLocation, CompletionType}
 import com.intellij.codeInsight.lookup.LookupElement
@@ -12,6 +10,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
 
+import java.util
 import scala.collection.mutable
 
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {

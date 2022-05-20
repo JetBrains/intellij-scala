@@ -3,8 +3,6 @@ package lang
 package refactoring
 package delete
 
-import java.util.{List => JList}
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Condition
 import com.intellij.psi._
@@ -16,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.delete.SafeDeleteProcessorUtil._
+
+import java.util.{List => JList}
 
 class ScalaSafeDeleteProcessorDelegate extends JavaSafeDeleteProcessor {
   override def handlesElement(element: PsiElement): Boolean =

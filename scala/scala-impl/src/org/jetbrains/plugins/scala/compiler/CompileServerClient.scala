@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compiler
 
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, CompileServerMeteringInfo, CompileServerMetrics}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}

@@ -3,7 +3,6 @@ package annotator
 
 import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression

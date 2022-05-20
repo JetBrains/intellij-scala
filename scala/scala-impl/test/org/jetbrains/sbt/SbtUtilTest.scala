@@ -1,12 +1,12 @@
 package org.jetbrains.sbt
 
-import java.io.File
-
 import com.intellij.execution.configurations.ParametersList
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.SbtUtil._
 import org.junit.Assert._
 import org.junit.Test
+
+import java.io.File
 
 class SbtUtilTest {
 

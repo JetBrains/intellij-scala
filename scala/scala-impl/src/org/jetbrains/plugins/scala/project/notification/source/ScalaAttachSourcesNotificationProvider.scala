@@ -3,8 +3,6 @@ package project
 package notification
 package source
 
-import java.util
-import java.util._
 import com.intellij.codeInsight.AttachSourcesProvider
 import com.intellij.ide.highlighter.{JavaClassFileType, JavaFileType}
 import com.intellij.openapi.extensions.ExtensionPointName
@@ -21,6 +19,8 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
+import java.util
+import java.util._
 import scala.annotation.nowarn
 
 /**

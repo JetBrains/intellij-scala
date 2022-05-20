@@ -1,16 +1,15 @@
 package org.jetbrains.plugins.scala.stacktrace
 
-import java.util.regex.Pattern
-
 import com.intellij.execution.filters._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction}
-import scala.util.Try
 
+import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
+import scala.util.Try
 
 /**
   * Nikolay.Tropin

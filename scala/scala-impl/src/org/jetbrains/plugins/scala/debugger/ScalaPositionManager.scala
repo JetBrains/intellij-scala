@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger
 
 import com.intellij.concurrency.ConcurrentCollectionFactory
-
-import java.{util => ju}
 import com.intellij.debugger.engine._
 import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
@@ -15,10 +13,10 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
-import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
+import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
-import com.intellij.util.containers.{ConcurrentIntObjectMap, ContainerUtil}
+import com.intellij.util.containers.ConcurrentIntObjectMap
 import com.sun.jdi._
 import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
@@ -44,6 +42,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable

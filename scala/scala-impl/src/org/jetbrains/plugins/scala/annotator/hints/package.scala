@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import java.awt.Color
-
 import com.intellij.openapi.editor.colors.{CodeInsightColors, EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.util.ui.StartupUiUtil
+
+import java.awt.Color
 
 // TODO Use built-in "advanced" hint API when it will be available in IDEA, SCL-14502
 package object hints {

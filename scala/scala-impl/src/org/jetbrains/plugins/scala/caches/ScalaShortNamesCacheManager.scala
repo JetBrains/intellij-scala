@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 
-import scala.util.Try
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
+import scala.util.Try
 
 final class ScalaShortNamesCacheManager(implicit project: Project) {
 

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.introduceField
 
-import java.{util => ju}
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -15,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{IntroduceException, getOccurrenceRanges}
 import org.jetbrains.plugins.scala.lang.refactoring.util.{DialogConflictsReporter, ScalaVariableValidator, ValidationReporter}
 
+import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 

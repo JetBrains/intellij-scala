@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.{outPath, sourcePath}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.sourcePath
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.charset.StandardCharsets

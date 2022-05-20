@@ -1,5 +1,6 @@
 package org.jetbrains
 
+import _root_.org.jetbrains.annotations.{NonNls, Nullable}
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
@@ -7,7 +8,6 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.{Pair => IdeaPair}
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.util.{PathUtil, Function => IdeaFunction}
-import _root_.org.jetbrains.annotations.{NonNls, Nullable}
 
 import _root_.java.io._
 import _root_.java.lang.{Boolean => JavaBoolean}

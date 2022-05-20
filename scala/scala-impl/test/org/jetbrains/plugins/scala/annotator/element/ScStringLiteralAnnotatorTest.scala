@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.annotator.element.ScStringLiteralAnnotatorTes
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.surroundWith.SurroundWithTest
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package annotator
 package gutter
 
-import java.awt.event.MouseEvent
-import java.util.Collections.singletonList
-import java.{util => ju}
-
 import com.intellij.codeInsight.daemon._
 import com.intellij.codeInsight.daemon.impl.GutterTooltipHelper
 import com.intellij.icons.AllIcons
@@ -21,7 +17,6 @@ import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.{Function => IJFunction}
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -35,6 +30,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.TermSignature
 import org.jetbrains.plugins.scala.util.SAMUtil._
+
+import java.awt.event.MouseEvent
+import java.util.Collections.singletonList
+import java.{util => ju}
+import javax.swing.Icon
 
 /**
  * User: Alexander Podkhalyuzin

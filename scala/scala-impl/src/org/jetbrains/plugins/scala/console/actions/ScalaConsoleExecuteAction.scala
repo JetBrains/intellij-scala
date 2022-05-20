@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import java.io.{IOException, OutputStream}
-
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.ex.EditorEx
@@ -10,6 +8,8 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction._
 import org.jetbrains.plugins.scala.{ScalaBundle, inWriteAction}
+
+import java.io.{IOException, OutputStream}
 
 class ScalaConsoleExecuteAction extends AnAction(
   ScalaBundle.message("execute.scala.repl.statement.menu.action.text"),

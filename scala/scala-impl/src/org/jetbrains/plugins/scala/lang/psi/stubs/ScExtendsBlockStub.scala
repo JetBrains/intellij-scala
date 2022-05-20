@@ -6,8 +6,6 @@ package stubs
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
-import scala.collection.immutable.ArraySeq
-
 /**
   * @author ilyas
   */

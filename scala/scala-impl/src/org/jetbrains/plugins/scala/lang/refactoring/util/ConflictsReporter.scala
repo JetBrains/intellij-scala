@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.util
 
-import java.awt.Point
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.MessageType
@@ -11,6 +9,8 @@ import com.intellij.refactoring.ui.ConflictsDialog
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.containers.MultiMap
 import org.jetbrains.plugins.scala.extensions.invokeLater
+
+import java.awt.Point
 
 /**
   * @author Alexander Podkhalyuzin

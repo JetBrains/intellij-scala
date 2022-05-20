@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala
 package testingSupport.test
 
-import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, RunConfiguration}
+import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType}
 
 abstract class AbstractTestRunConfigurationFactory(val typ: ConfigurationType)
   extends ConfigurationFactory(typ)  {

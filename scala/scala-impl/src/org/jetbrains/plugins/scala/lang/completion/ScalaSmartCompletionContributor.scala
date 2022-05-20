@@ -37,8 +37,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult, StdKinds}
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
 /**

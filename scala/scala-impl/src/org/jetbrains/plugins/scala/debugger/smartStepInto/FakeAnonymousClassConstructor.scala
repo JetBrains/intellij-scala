@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.debugger.smartStepInto
 
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
@@ -8,6 +7,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import javax.swing.Icon
 
 
 /**

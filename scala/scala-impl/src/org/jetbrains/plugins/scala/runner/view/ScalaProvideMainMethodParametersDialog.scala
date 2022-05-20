@@ -3,9 +3,10 @@ package view
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
-import javax.swing.{JComponent, SwingConstants}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters.CustomParameter
+
+import javax.swing.JComponent
 
 private[runner] final class ScalaProvideMainMethodParametersDialog(
   project: Project,

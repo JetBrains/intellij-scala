@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala.actions.internal
 
 import com.intellij.ide.nls.NlsMessages
-
-import java.awt.Toolkit
-import java.awt.datatransfer.StringSelection
-import java.text.SimpleDateFormat
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ex.ApplicationInfoEx
@@ -15,9 +11,12 @@ import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.awt.RelativePoint
-import com.intellij.util.text.DateFormatUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, ScalaCompileServerSettings}
+
+import java.awt.Toolkit
+import java.awt.datatransfer.StringSelection
+import java.text.SimpleDateFormat
 
 class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
   ScalaBundle.message("scala.collect.troubleshooting.information.short.action.text"),

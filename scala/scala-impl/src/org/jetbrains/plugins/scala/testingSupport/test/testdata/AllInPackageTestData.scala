@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import java.util
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
@@ -16,9 +14,10 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
+import java.util
 import scala.beans.BeanProperty
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestConfigurationData(config) {
 

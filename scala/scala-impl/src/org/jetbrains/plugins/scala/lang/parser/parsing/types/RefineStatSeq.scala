@@ -7,8 +7,6 @@ package types
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-import scala.annotation.tailrec
-
 /**
 * @author Alexander Podkhalyuzin
 * Date: 28.02.2008

@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.console.actions
 
-import java.util
 import com.intellij.codeInsight.lookup.impl.actions.ChooseItemAction
 import com.intellij.openapi.actionSystem.{ActionPromoter, AnAction, CommonDataKeys, DataContext}
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 class ScalaConsoleActionsPromoter extends ActionPromoter {

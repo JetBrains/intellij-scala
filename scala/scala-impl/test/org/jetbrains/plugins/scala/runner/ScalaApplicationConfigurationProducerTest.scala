@@ -8,10 +8,10 @@ import com.intellij.execution.application.ApplicationConfiguration
 import com.intellij.execution.impl.{RunConfigurationLevel, RunManagerImpl, RunnerAndConfigurationSettingsImpl}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, TestLocation}
 import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation2, PsiElementLocation}
+import org.jetbrains.plugins.scala.configurations.{RunConfigurationCreationOps, TestLocation}
+import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers._
 import org.junit.Assert.{assertNotNull, assertNull, fail}
 import org.junit.ComparisonFailure
 

@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.util
 
-import java.nio.file.{Path, Paths}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{CharsetToolkit, VfsUtil, VirtualFile}
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import com.intellij.psi.{PsiDocumentManager, PsiFile, PsiManager}
 import com.intellij.testFramework.LightPlatformTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert.{assertNotNull, assertTrue}
 
 import java.nio.charset.StandardCharsets
+import java.nio.file.{Path, Paths}
 
 /**
   * Nikolay.Tropin

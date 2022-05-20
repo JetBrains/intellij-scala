@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.lang.structureView.element
 
-import javax.swing.Icon
-
 import com.intellij.execution.testframework.PoolOfTestIcons.{IGNORED_ICON, NOT_RAN}
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 /**
  * @author Roman.Shein
  * @since 09.04.2015.

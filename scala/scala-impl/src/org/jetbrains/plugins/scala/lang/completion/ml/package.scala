@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import com.intellij.codeInsight.completion.ml.CompletionEnvironment
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.util.NotNullLazyKey
 import com.intellij.psi._
 import com.intellij.psi.impl.compiled.ClsMethodImpl
 import com.intellij.psi.tree.IElementType

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.autoImport.quickFix
 
-import java.awt.Point
-
 import com.intellij.codeInsight.FileModificationService
 import com.intellij.codeInsight.daemon.impl.actions.AddImportAction
 import com.intellij.codeInsight.hint.QuestionAction
@@ -15,8 +13,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi.{PsiDocumentManager, PsiElement}
 import com.intellij.ui.popup.list.ListPopupImpl
 import com.intellij.util.ui.JBUI
-import javax.swing.event.ListSelectionEvent
-import javax.swing.{Icon, JLabel, JList}
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -25,8 +21,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocLinkValue, createReferenceExpressionFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createScalaDocLinkValue}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
+
+import java.awt.Point
+import javax.swing.event.ListSelectionEvent
+import javax.swing.{Icon, JLabel, JList}
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
   editor: Editor,

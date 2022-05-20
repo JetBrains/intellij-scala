@@ -6,11 +6,11 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.refactoring.changeSignature._
 import com.intellij.util.ui.ColumnInfo
-import javax.swing.table.TableCellEditor
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterTableModel._
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaCodeFragmentTableCellEditor
 
+import javax.swing.table.TableCellEditor
 import scala.collection.mutable.ArrayBuffer
 
 /**

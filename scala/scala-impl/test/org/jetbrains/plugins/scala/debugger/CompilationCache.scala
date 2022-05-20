@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.debugger
 
-import java.io.{File, FilenameFilter}
-import java.security.MessageDigest
-
 import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import org.apache.commons.codec.binary.Hex
+
+import java.io.{File, FilenameFilter}
+import java.security.MessageDigest
 
 class CompilationCache(private val module: Module, additionalKeys: Seq[String] = Seq.empty) {
   private val cacheRoot = new File(sys.props("user.home"), ".cache/IJ_scala_tests_cache/")

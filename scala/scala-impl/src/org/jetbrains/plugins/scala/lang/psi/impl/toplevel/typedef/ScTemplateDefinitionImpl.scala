@@ -5,8 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import java.{util => ju}
-
 import com.intellij.execution.junit.JUnitUtil
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
@@ -43,6 +41,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import java.{util => ju}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 
-import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.intellij.debugger.engine.evaluation.expression.{ExpressionEvaluator, Modifier}
+import com.intellij.debugger.engine.evaluation.{EvaluationContext, EvaluationContextImpl}
 import com.sun.jdi.Value
 
 class ScalaCompilingExpressionEvaluator(evaluator: ScalaCompilingEvaluator) extends ExpressionEvaluator {

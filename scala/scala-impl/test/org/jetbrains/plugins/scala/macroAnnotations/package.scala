@@ -2,9 +2,7 @@ package org.jetbrains.plugins.scala
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiManager
-import com.intellij.psi.impl.PsiModificationTrackerImpl
 import org.jetbrains.plugins.scala.caches.stats.Tracer
-import org.junit.Assert
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._

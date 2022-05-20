@@ -4,7 +4,7 @@ package completion
 package filters.toplevel
 
 import com.intellij.psi.filters.ElementFilter
-import com.intellij.psi.{PsiElement, _}
+import com.intellij.psi._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._

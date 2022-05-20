@@ -7,17 +7,13 @@ import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.util.PsiUtil
 import gnu.trove.THashSet
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
 
 import scala.annotation.tailrec
-import scala.util.matching.Regex
 
 private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
                                          isStatic: Boolean,

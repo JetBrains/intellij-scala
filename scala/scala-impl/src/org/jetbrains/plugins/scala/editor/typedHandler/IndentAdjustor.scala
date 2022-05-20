@@ -6,8 +6,8 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import com.intellij.psi.codeStyle.CodeStyleManager
-import extensions._
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.isBehindPostfixExpr
+import org.jetbrains.plugins.scala.extensions._
 
 trait IndentAdjustor {
   def shouldAdjustIndentAfterDot(editor: Editor): Boolean =

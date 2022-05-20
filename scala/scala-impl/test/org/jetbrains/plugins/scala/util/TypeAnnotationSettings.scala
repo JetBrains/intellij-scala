@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package util
 
-import java.util
-
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+
+import java.util
 
 /**
   * Created by user on 8/3/16.

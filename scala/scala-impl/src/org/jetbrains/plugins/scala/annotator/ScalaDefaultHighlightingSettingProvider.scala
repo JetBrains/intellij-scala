@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiJavaFile, PsiManager}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 class ScalaDefaultHighlightingSettingProvider extends DefaultHighlightingSettingProvider {

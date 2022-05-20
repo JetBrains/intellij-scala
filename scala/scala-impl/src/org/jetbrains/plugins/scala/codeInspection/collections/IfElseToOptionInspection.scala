@@ -4,8 +4,7 @@ package collections
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{StdType, StdTypes}
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 
 import scala.collection.immutable.ArraySeq
 

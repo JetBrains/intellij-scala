@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package memoryLeaks
 
-import java.nio.file.Paths
-import java.util.function.Predicate
-
 import com.intellij.codeInspection.ex.{InspectionProfileImpl, InspectionToolWrapper, LocalInspectionToolWrapper}
 import com.intellij.codeInspection.{InspectionManager, InspectionProfile}
 import com.intellij.execution.RunnerAndConfigurationSettings
@@ -16,7 +13,6 @@ import com.intellij.openapi.progress.EmptyProgressIndicator
 import com.intellij.openapi.project.ex.ProjectManagerEx
 import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
 import com.intellij.openapi.startup.StartupManager
-import com.intellij.openapi.util.Condition
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{HeavyPlatformTestCase, LeakHunter, ThreadTracker}
@@ -30,11 +26,13 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 import org.junit.Assert._
-import org.junit.{Ignore, Test}
 import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.{Ignore, Test}
 
+import java.nio.file.Paths
+import java.util.function.Predicate
 import scala.jdk.CollectionConverters._
 
 /**

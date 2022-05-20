@@ -1,14 +1,13 @@
 package org.jetbrains.plugins.scala
 package projectHighlighting
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.junit.experimental.categories.Category
+
+import java.io.File
 
 /**
   * Nikolay.Tropin

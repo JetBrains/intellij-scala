@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala.lang.psi.compiled
 
 import com.intellij.lang.Language
-import com.intellij.openapi.fileTypes.BinaryFileDecompiler
+import com.intellij.openapi.fileTypes.{BinaryFileDecompiler, FileType}
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.impl.compiled.ClassFileStubBuilder
 import com.intellij.psi.{FileViewProvider, FileViewProviderFactory, PsiManager}
-import com.intellij.openapi.fileTypes.FileType
-import com.intellij.openapi.vfs.VirtualFile
-import javax.swing._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
+
+import javax.swing._
 
 /**
  * Scala signatures which are usually stored in .class files, as a separate files

@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.extractMethod
 
-import java.util
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiNamedElement}
-import com.intellij.refactoring.util.VariableData
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -34,7 +31,6 @@ import org.jetbrains.plugins.scala.settings.annotations._
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
-import scala.util.Sorting
 
 /**
   * User: Alexander Podkhalyuzin

@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
 /**

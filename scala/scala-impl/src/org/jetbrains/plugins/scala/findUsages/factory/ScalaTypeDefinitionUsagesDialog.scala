@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala
 package findUsages.factory
 
-import javax.swing.{BoxLayout, JComponent, JPanel}
 import com.intellij.find.FindBundle
 import com.intellij.find.findUsages._
 import com.intellij.openapi.project.Project
 import com.intellij.ui.{IdeBorderFactory, StateRestoringCheckBox}
 import com.intellij.util.ui.JBUI.Borders
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTypeDefinition}
+
+import javax.swing.{BoxLayout, JComponent, JPanel}
 
 /**
  * @author Alefas

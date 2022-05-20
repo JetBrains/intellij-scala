@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
-import java.nio.file.{Path, Paths}
-import java.util.stream.{Stream => JStream}
-
 import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
+
+import java.nio.file.{Path, Paths}
+import java.util.stream.{Stream => JStream}
 
 object SdkmanDetector extends ScalaSdkDetectorDependencyManagerBase {
   private val SDKMAN_DIR_ENV     = "SDKMAN_DIR"

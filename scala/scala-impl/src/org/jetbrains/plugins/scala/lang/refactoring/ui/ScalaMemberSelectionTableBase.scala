@@ -7,10 +7,11 @@ import com.intellij.refactoring.classMembers.MemberInfoModel
 import com.intellij.refactoring.ui.AbstractMemberSelectionTable
 import com.intellij.ui.RowIcon
 import com.intellij.util.{IconUtil, VisibilityIcons}
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
+
+import javax.swing.Icon
 
 /**
  * Nikolay.Tropin

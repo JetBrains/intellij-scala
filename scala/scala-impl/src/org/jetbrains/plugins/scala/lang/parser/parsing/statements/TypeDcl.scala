@@ -7,7 +7,7 @@ package statements
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.Bounds
 
 /*
  * TypeDcl ::= id [TypeParamClause] ['>:' Type] ['<:' Type]

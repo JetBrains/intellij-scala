@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages
 
-import java.io.File
-import java.util.concurrent.locks.Lock
-
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -16,6 +13,9 @@ import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.sbt.SbtCompilationInfo
 import org.jetbrains.sbt.project.data.ModuleNode
+
+import java.io.File
+import java.util.concurrent.locks.Lock
 
 package object compilerReferences {
   private def buildDir(project: Project): Option[File] = {

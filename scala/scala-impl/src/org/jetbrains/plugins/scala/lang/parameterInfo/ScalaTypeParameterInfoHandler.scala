@@ -3,10 +3,7 @@ package lang
 package parameterInfo
 
 
-import java.awt.Color
-
 import com.intellij.codeInsight.CodeInsightBundle
-import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.parameterInfo._
 import com.intellij.psi._
 import com.intellij.psi.tree.IElementType
@@ -22,6 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import java.awt.Color
 
 /**
  * User: Alexander Podkhalyuzin

@@ -1,10 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import java.awt.Event
-import java.awt.event.MouseEvent
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.{ScheduledFuture, TimeUnit}
-
 import com.intellij.concurrency.JobScheduler
 import com.intellij.diagnostic.PerformanceWatcher
 import com.intellij.ide.IdeEventQueue
@@ -14,6 +9,10 @@ import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.UIFreezingGuard._
 
+import java.awt.Event
+import java.awt.event.MouseEvent
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.{ScheduledFuture, TimeUnit}
 import scala.annotation.nowarn
 import scala.util.control.NoStackTrace
 

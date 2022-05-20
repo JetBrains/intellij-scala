@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.util.concurrent._
-
 import com.intellij.execution.process.{AnsiEscapeDecoder, OSProcessHandler, ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
@@ -10,6 +8,7 @@ import org.jetbrains.ide.PooledThreadExecutor
 import org.jetbrains.sbt.shell.SbtProcessUtil._
 import org.jetbrains.sbt.shell.SbtShellCommunication._
 
+import java.util.concurrent._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.{Duration, DurationLong}
 import scala.concurrent.{Future, Promise}

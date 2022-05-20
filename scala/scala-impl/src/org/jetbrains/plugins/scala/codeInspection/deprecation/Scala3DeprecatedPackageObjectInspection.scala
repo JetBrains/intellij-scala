@@ -4,12 +4,7 @@ import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDes
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.unwrap.{ScalaUnwrapContext, ScalaUnwrapper}
-import org.jetbrains.plugins.scala.codeInspection.{
-  getActiveEditor,
-  AbstractFixOnPsiElement,
-  AbstractRegisteredInspection,
-  ScalaInspectionBundle
-}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, ScalaInspectionBundle, getActiveEditor}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 

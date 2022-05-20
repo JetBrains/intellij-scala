@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.runner
 
-import java.io.File
-
 import com.intellij.lang.Language
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
@@ -9,8 +7,9 @@ import com.intellij.testFramework.{PsiTestUtil, VfsTestUtil}
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.inWriteAction
-import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.project.ProjectExt
+
+import java.io.File
 
 /**
  * @todo this partially duplicates logic in [[org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase]]<br>

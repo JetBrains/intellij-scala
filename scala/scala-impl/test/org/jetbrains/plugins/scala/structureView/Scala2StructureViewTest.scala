@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.structureView
 import com.intellij.lang.Language
 import com.intellij.testFramework.UsefulTestCase.assertThrows
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.icons.Icons.{ABSTRACT_CLASS, CASE_CLASS, CLASS, ENUM, EXTENSION, FUNCTION, OBJECT, TRAIT, TYPE_ALIAS, VAL, VAR}
+import org.jetbrains.plugins.scala.icons.Icons._
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
 
 class Scala2StructureViewTest extends ScalaStructureViewCommonTests {

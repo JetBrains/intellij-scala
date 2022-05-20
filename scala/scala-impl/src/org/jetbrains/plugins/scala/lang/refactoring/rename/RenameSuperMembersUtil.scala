@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import java.util
-
 import com.intellij.codeInsight.navigation.NavigationUtil
 import com.intellij.ide.util.PsiClassListCellRenderer
 import com.intellij.openapi.application.ApplicationManager
@@ -11,18 +9,19 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
-import javax.swing.Icon
 import org.jetbrains.annotations.{Nls, NotNull}
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.project.UserDataHolderExt
 
+import java.util
+import javax.swing.Icon
 import scala.collection.mutable
 
 /**

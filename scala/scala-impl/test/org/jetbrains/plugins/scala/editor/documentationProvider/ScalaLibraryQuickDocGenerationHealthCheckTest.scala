@@ -4,7 +4,6 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import com.intellij.psi.{PsiComment, PsiManager, PsiNamedElement}
-import org.junit.Assert
 import org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocContentGenerator.UnresolvedMacroInfo
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaLibraryQuickDocGenerationHealthCheckTest.{KnownProblem, relativeFilePath}
@@ -12,6 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{ArrayExt, PsiElementExt, PsiNamed
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion, base}
+import org.junit.Assert
 
 import scala.annotation.nowarn
 import scala.util.Try

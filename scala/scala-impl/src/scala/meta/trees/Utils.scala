@@ -14,8 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.{types => ptype}
 
 import scala.collection.immutable.LongMap
-import scala.meta.{ScalaMetaBundle, Term, Type}
 import scala.meta.trees.error._
+import scala.meta.{ScalaMetaBundle, Term, Type}
 import scala.{meta => m, Seq => _}
 
 trait Utils {

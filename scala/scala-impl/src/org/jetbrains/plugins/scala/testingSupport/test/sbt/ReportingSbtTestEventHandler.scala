@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.sbt
 
-import java.util.regex.{Matcher, Pattern}
-
 import com.intellij.execution.process.ProcessOutputTypes
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.openapi.util.Key
@@ -10,6 +8,8 @@ import org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil
 import org.jetbrains.plugins.scala.testingSupport.test.sbt.ReportingSbtTestEventHandler.TeamCityTestStatusReporter
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication.{ErrorWaitForInput, ShellEvent, TaskComplete, TaskStart}
+
+import java.util.regex.{Matcher, Pattern}
 
 @ApiStatus.Internal
 trait SbtTestEventHandler {

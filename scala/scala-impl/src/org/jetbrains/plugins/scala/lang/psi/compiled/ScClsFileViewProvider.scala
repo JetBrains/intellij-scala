@@ -3,8 +3,6 @@ package lang
 package psi
 package compiled
 
-import java.{util => ju}
-
 import com.intellij.lang.Language
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
@@ -13,7 +11,7 @@ import com.intellij.openapi.roots.impl.LibraryScopeCache
 import com.intellij.openapi.roots.{OrderEntry, ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
-import com.intellij.psi.{PsiClassOwner, PsiElement, PsiFileSystemItem, PsiManager, SingleRootFileViewProvider}
+import com.intellij.psi.{PsiClassOwner, PsiElement, PsiManager, SingleRootFileViewProvider}
 import com.intellij.util.CommonProcessors.FindProcessor
 import org.jetbrains.plugins.scala.extensions.{ClassQualifiedName, ObjectExt, PsiClassExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 

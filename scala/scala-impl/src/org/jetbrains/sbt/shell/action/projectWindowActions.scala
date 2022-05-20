@@ -5,11 +5,11 @@ import com.intellij.openapi.externalSystem.action.ExternalSystemNodeAction
 import com.intellij.openapi.externalSystem.model.{ExternalSystemDataKeys, ProjectSystemId}
 import com.intellij.openapi.externalSystem.view.ModuleNode
 import com.intellij.openapi.project.Project
-import org.jetbrains.sbt.{SbtBundle, SbtUtil}
+import org.jetbrains.annotations.NonNls
 import org.jetbrains.sbt.project.data.{SbtCommandData, SbtNamedKey, SbtSettingData, SbtTaskData}
 import org.jetbrains.sbt.shell.SbtShellCommunication
-import SbtNodeAction._
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.sbt.shell.action.SbtNodeAction._
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
 import scala.jdk.CollectionConverters._
 

@@ -5,10 +5,10 @@ package element
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ResolvesTo, childOf}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScTypedExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 

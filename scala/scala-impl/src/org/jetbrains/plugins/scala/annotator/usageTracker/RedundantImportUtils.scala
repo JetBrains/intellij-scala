@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.annotator.usageTracker
 
 import com.intellij.openapi.project.Project
-import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiClass, PsiElement, PsiNamedElement, PsiPackage, ResolveState}
+import com.intellij.psi.{PsiClass, PsiNamedElement, PsiPackage, ResolveState}
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportOrExportImpl
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor

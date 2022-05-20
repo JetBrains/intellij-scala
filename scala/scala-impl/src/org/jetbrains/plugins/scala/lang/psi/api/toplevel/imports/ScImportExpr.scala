@@ -6,11 +6,7 @@ package toplevel
 package imports
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
 /**
  * @author Alexander Podkhalyuzin

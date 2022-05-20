@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.build
 
-import java.io.File
-
 import com.intellij.build.events.MessageEvent.Kind
 import com.intellij.build.events._
 import com.intellij.build.{FilePosition, SyncViewManager}
@@ -12,8 +10,9 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.ExternalSystemNotificationReporter._
 
-import scala.jdk.CollectionConverters._
+import java.io.File
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 class ExternalSystemNotificationReporter(workingDir: String,

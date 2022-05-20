@@ -1,21 +1,18 @@
 package org.jetbrains.plugins.scala.lang.psi.api
 
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
-
 import com.intellij.psi.PsiMethod
-import org.jetbrains.plugins.scala.extensions.ConcurrentMapExt
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ConcurrentMapExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.getter
-import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.setter
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
+
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
 object PropertyMethods extends Enumeration {
   type DefinitionRole = Value

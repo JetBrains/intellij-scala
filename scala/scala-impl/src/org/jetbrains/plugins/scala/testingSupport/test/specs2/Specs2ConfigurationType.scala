@@ -3,8 +3,9 @@ package testingSupport.test.specs2
 
 import com.intellij.execution.configurations.{ConfigurationFactory, ConfigurationType, ConfigurationTypeUtil}
 import com.intellij.openapi.project.DumbAware
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 
 class Specs2ConfigurationType extends ConfigurationType with DumbAware {
 

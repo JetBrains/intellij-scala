@@ -3,7 +3,6 @@ package codeInspection
 package methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**

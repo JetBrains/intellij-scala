@@ -6,7 +6,7 @@ import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.codeInsight.template.{Expression, ExpressionContext, Result, TextResult}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
-import com.intellij.psi.impl.source.tree.injected.{InjectedLanguageEditorUtil, InjectedLanguageUtil}
+import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil

@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
-import java.awt.Point
-import java.awt.event.{InputEvent, KeyEvent, KeyListener}
-import java.util.concurrent.TimeUnit
-
 import com.intellij.codeInsight.hint.LineTooltipRenderer
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInsight.intention.impl.ShowIntentionActionsHandler
@@ -16,6 +12,10 @@ import com.intellij.ui.HintHint
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.PopupPosition
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+
+import java.awt.Point
+import java.awt.event.{InputEvent, KeyEvent, KeyListener}
+import java.util.concurrent.TimeUnit
 
 private class PopupUI(override val message: String,
                       val popup: JBPopup)

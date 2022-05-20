@@ -3,7 +3,6 @@ package lang
 package psi
 package types
 
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.util.MethodSignatureUtil

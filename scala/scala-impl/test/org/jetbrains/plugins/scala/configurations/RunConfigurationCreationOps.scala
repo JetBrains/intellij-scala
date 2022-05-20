@@ -10,8 +10,6 @@ import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.configurations.TestLocation.{CaretLocation, CaretLocation2}
 import org.jetbrains.plugins.scala.extensions.inReadAction
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
 import java.io.File
 

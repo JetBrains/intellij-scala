@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 
-import scala.annotation.tailrec
-
 object ParserUtils {
   //Associations of operator
   def operatorAssociativity(id: String): Associativity.LeftOrRight = {

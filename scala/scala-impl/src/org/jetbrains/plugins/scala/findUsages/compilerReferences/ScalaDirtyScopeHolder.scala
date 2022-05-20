@@ -10,12 +10,10 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.indices.protocol.sbt.{Configuration, SbtCompilationInfo}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.indices.protocol.CompilationInfo
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
-
-import scala.collection.mutable
+import org.jetbrains.plugins.scala.indices.protocol.sbt.{Configuration, SbtCompilationInfo}
 
 private[findUsages] class ScalaDirtyScopeHolder(
   project:             Project,

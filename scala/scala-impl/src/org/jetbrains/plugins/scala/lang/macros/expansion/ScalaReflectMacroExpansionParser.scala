@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
 
-import java.util.regex.Pattern
-
-import org.jetbrains.plugins.scala.util.MacroExpansion
 import org.jetbrains.plugins.scala.util.{MacroExpansion, Place}
 
+import java.util.regex.Pattern
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 

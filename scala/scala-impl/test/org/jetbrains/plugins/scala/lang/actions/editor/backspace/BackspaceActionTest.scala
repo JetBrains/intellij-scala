@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import junit.framework.Test
-import org.jetbrains.annotations.NonNls
+import com.intellij.openapi.editor.actionSystem.{EditorActionHandler, EditorActionManager}
 import org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests

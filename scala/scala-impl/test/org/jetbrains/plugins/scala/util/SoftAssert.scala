@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.util
 
 import org.apache.commons.lang3.exception.ExceptionUtils
-import org.hamcrest.Matcher
-import org.hamcrest.MatcherAssert
+import org.hamcrest.{Matcher, MatcherAssert}
 
 import scala.util.control.NoStackTrace
 

@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.build
-import java.io.File
-
 import com.intellij.build.FilePosition
 import com.intellij.build.events.EventResult
+
+import java.io.File
 
 /** Only use this as stand-in when there's no sensible way to report something. */
 class DummyReporter extends BuildReporter {

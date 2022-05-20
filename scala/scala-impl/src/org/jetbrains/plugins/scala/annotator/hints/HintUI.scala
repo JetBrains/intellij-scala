@@ -1,17 +1,14 @@
 package org.jetbrains.plugins.scala.annotator.hints
 
-import java.awt.Component
-import java.awt.Point
-
-import com.intellij.codeInsight.hint.HintManager
-import com.intellij.codeInsight.hint.HintManagerImpl
-import com.intellij.codeInsight.hint.HintUtil
+import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.editor.Editor
 import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.JBUI
-import javax.swing.JLabel
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.awt.{Component, Point}
+import javax.swing.JLabel
 
 private class HintUI(override val message: String,
                      hint: LightweightHint)

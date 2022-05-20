@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.configurations.{JavaParameters, ParametersList, RunConfigurationBase, RunnerSettings, RuntimeConfigurationException}
-import com.intellij.execution.impl.{EditConfigurationsDialog, RunDialog}
-import com.intellij.execution.{CantRunException, ExecutionBundle, ExecutionException, RunConfigurationExtension, RunnerAndConfigurationSettings}
-import com.intellij.openapi.options.ex.SingleConfigurableEditor
+import com.intellij.execution.configurations.{JavaParameters, ParametersList, RunConfigurationBase, RunnerSettings}
+import com.intellij.execution.{CantRunException, ExecutionException, RunConfigurationExtension}
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle

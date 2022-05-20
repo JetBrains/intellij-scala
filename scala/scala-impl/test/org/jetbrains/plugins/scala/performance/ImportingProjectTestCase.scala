@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package performance
 
-import java.io.File
-import java.nio.file.{Files, Path, Paths}
-import java.util
-
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -29,6 +25,10 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert
+
+import java.io.File
+import java.nio.file.{Files, Path, Paths}
+import java.util
 /**
   * Nikolay.Tropin
   * 14-Dec-17

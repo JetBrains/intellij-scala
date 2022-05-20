@@ -3,8 +3,6 @@ package lang
 package refactoring
 package namesSuggester
 
-import java.{util => ju}
-
 import com.intellij.psi.codeStyle.SuggestedNameInfo
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.rename.NameSuggestionProvider
@@ -15,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 /**

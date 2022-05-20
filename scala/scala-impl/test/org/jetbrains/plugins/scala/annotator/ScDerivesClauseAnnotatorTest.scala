@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.psi.PsiFileFactory
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType}
+import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScDerivesClause

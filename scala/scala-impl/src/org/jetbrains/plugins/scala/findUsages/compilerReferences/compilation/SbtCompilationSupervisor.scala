@@ -1,13 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation
 
-import java.io._
-import java.net.{ServerSocket, Socket}
-import java.nio.file.Paths
-import java.util.UUID
-import java.util.concurrent.{ExecutorService, Executors, Future => JFuture}
-
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.util.messages.MessageBus
 import org.jetbrains.plugins.scala.components.RunOnceStartupActivity
@@ -17,6 +10,11 @@ import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.Sbt
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSbtSettings
 import org.jetbrains.plugins.scala.indices.protocol.sbt._
 
+import java.io._
+import java.net.{ServerSocket, Socket}
+import java.nio.file.Paths
+import java.util.UUID
+import java.util.concurrent.{ExecutorService, Executors, Future => JFuture}
 import scala.util.control.NonFatal
 
 /**

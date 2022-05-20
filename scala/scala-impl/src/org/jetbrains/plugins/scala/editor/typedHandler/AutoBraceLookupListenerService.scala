@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package editor
 package typedHandler
 
-import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupEvent, LookupItem, LookupListener, LookupManagerListener}
+import com.intellij.codeInsight.lookup.{Lookup, LookupEvent, LookupListener, LookupManagerListener}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.editor.RangeMarker
 import com.intellij.openapi.project.Project

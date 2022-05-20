@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.psi.impl.PropertyValueImpl

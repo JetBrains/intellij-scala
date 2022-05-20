@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.util
-
 import com.intellij.compiler.backwardRefs.SearchId
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.psi.impl.source.PsiFileWithStubSupport
@@ -19,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, S
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+
+import java.util
 
 private class ScalaCompilerRefAdapter extends JavaCompilerRefAdapterCompat {
   import ScalaCompilerRefAdapter._

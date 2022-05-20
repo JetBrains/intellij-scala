@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala
 package actions
 
-import java.awt.Point
-import java.awt.event.{MouseEvent, MouseMotionAdapter}
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
-import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, CommonDataKeys, Presentation}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, Presentation}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
@@ -12,6 +10,9 @@ import com.intellij.ui.LightweightHint
 import com.intellij.util.ui.StartupUiUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+
+import java.awt.Point
+import java.awt.event.{MouseEvent, MouseMotionAdapter}
 
 object ScalaActionUtil {
 

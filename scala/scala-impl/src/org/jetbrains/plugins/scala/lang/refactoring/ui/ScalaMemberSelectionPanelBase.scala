@@ -1,14 +1,14 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.ui
 
-import java.awt.BorderLayout
-import java.util
-
-import javax.swing.JScrollPane
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.ui.AbstractMemberSelectionPanel
 import com.intellij.ui.{ScrollPaneFactory, SeparatorFactory}
 import org.jetbrains.annotations.Nls
+
+import java.awt.BorderLayout
+import java.util
+import javax.swing.JScrollPane
 
 /**
  * Nikolay.Tropin

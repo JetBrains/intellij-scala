@@ -1,11 +1,6 @@
 package org.jetbrains.plugins.scala.lang.refactoring.changeSignature
 
-import java.awt.event.MouseEvent
-import java.awt.{BorderLayout, Color, Font, Toolkit}
-
 import com.intellij.openapi.editor.Document
-import javax.swing.border.MatteBorder
-import javax.swing.{JComponent, JPanel, JTable}
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorFontType}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
 import com.intellij.psi.PsiDocumentManager
@@ -14,6 +9,10 @@ import com.intellij.util.ui.table.JBTableRowEditor._
 import com.intellij.util.ui.table.{JBTableRow, JBTableRowEditor}
 import org.jetbrains.plugins.scala.ScalaBundle
 
+import java.awt.event.MouseEvent
+import java.awt.{BorderLayout, Color, Font, Toolkit}
+import javax.swing.border.MatteBorder
+import javax.swing.{JComponent, JPanel, JTable}
 import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 

@@ -3,9 +3,9 @@ package lang
 package completion
 package ml
 
-import java.util
-
 import com.intellij.codeInsight.completion.ml.{CompletionEnvironment, ContextFeatureProvider, MLFeatureValue}
+
+import java.util
 
 final class ScalaContextFeatureProvider extends ContextFeatureProvider {
 

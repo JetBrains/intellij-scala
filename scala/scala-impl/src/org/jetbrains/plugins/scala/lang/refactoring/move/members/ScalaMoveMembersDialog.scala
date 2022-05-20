@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.move.members
 
-import java.awt.BorderLayout
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.util.PsiTreeUtil
@@ -10,12 +8,14 @@ import com.intellij.refactoring.RefactoringBundle
 import com.intellij.refactoring.move.moveMembers.{MoveMembersOptions, MoveMembersProcessor}
 import com.intellij.refactoring.ui.RefactoringDialog
 import com.intellij.ui.EditorComboBox
-import javax.swing._
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
+
+import java.awt.BorderLayout
+import javax.swing._
 
 class ScalaMoveMembersDialog(project: Project, canBeParent: Boolean, sourceObject: ScObject, memberToMove: ScMember) extends RefactoringDialog(project, canBeParent) {
 

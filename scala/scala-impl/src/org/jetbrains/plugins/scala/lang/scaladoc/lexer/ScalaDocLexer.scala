@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.lexer
 
-import java.io.IOException
-
 import com.intellij.lexer.{LexerBase, MergingLexerAdapter}
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.util.text.CharArrayUtil
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocAsteriskStripperLexer.contains
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType._
+
+import java.io.IOException
 
 final class ScalaDocLexer() extends MergingLexerAdapter(
   new ScalaDocAsteriskStripperLexer(new _ScalaDocLexer),

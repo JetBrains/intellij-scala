@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala
 package caches
 
-import java.util.concurrent.ConcurrentHashMap
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.util.{Disposer, UserDataHolderBase, UserDataHolderEx}
 
+import java.util.concurrent.ConcurrentHashMap
 import scala.annotation.nowarn
 
 object UserDataHolderDelegator {

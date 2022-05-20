@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala.lang.formatting.processors
 
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiErrorElement}
 import com.intellij.psi.impl.source.codeStyle.PreFormatProcessor
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiErrorElement}
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil.isDocWhiteSpace
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocWhiteSpaceWithNewLine, createScalaDocLeadingAsterisk}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocLeadingAsterisk, createScalaDocWhiteSpaceWithNewLine}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocList, ScDocParagraph, ScDocTag}

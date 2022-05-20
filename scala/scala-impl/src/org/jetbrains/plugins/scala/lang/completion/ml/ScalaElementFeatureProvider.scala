@@ -3,8 +3,6 @@ package lang
 package completion
 package ml
 
-import java.util
-
 import com.intellij.codeInsight.completion.CompletionLocation
 import com.intellij.codeInsight.completion.ml.{ContextFeatures, ElementFeatureProvider, MLFeatureValue}
 import com.intellij.codeInsight.lookup.LookupElement
@@ -19,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.completion.weighter.ScalaByExpectedTypeW
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScPostfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
+
+import java.util
 
 final class ScalaElementFeatureProvider extends ElementFeatureProvider {
 

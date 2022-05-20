@@ -5,12 +5,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiReference}
 import com.intellij.refactoring.move.MoveHandlerDelegate
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 class ScalaMoveMembersHandler extends MoveHandlerDelegate {
 

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.editor.selectioner
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.editorActions.{ExtendWordSelectionHandlerBase, SelectWordUtil}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 class ScalaStringLiteralSelectioner extends ExtendWordSelectionHandlerBase {

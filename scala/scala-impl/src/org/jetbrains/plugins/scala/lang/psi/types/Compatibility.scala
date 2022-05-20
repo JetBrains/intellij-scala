@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.extractImplicitParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScUnderscoreSection, _}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction

@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.highlighter.usages
 
-import java.util
-
 import com.intellij.codeInsight.highlighting.{HighlightUsagesHandler, HighlightUsagesHandlerBase}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.TextRange
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 class ScalaHighlightImplicitUsagesHandler[T](editor: Editor, file: PsiFile, data: T)

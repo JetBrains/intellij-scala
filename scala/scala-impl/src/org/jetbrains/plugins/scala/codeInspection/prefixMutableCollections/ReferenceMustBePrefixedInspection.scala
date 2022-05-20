@@ -4,7 +4,6 @@ import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._

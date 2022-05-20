@@ -3,15 +3,11 @@ package codeInsight
 package intentions
 package expression
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
  * Nikolay.Tropin
  * 5/16/13
  */
 class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName: String = ScalaBundle.message("family.name.replace.type.check.with.pattern.matching")
 

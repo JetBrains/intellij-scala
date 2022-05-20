@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.codeInsight.intention.types
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class MakeTypeMoreSpecificIntentionTest extends ScalaIntentionTestBase {
-  import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => CARET}
   import org.jetbrains.plugins.scala.ScalaBundle.message
 
   override def familyName = MakeTypeMoreSpecificIntention.FamilyName

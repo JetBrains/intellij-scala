@@ -1,13 +1,11 @@
 package org.jetbrains.plugins.scala.lang.refactoring.extractMethod.duplicates
 
-import java.util
-
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.find.FindManager
 import com.intellij.openapi.application.{ApplicationManager, ApplicationNamesInfo}
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
-import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
+import com.intellij.openapi.editor.colors.EditorColors
+import com.intellij.openapi.editor.markup.RangeHighlighter
 import com.intellij.openapi.editor.{Editor, FoldRegion, LogicalPosition, ScrollType}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.Messages
@@ -22,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractMethodSettings, ScalaExtractMethodUtils}
 
-import scala.annotation.nowarn
+import java.util
 
 /**
  * Nikolay.Tropin

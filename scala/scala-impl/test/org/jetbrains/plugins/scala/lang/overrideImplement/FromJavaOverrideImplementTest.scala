@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package lang.overrideImplement
 
 import com.intellij.testFramework.builders.JavaModuleFixtureBuilder
-import com.intellij.testFramework.fixtures.{JavaCodeInsightFixtureTestCase, ModuleFixture}
+import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings

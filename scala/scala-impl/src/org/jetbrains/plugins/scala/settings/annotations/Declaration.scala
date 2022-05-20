@@ -3,11 +3,11 @@ package org.jetbrains.plugins.scala.settings.annotations
 import com.intellij.psi.{PsiElement, PsiModifierListOwner}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
+import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex

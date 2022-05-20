@@ -6,8 +6,8 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.ui.{EditorNotificationPanel, EditorNotificationProvider, EditorNotifications}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 import org.jetbrains.sbt.Sbt
 
 import java.util.function

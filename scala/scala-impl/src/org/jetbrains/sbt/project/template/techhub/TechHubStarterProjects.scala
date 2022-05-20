@@ -1,9 +1,8 @@
 package org.jetbrains.sbt.project.template.techhub
 
-import java.io.{File, IOException}
-
 import com.google.gson.Gson
 
+import java.io.{File, IOException}
 import scala.util.Try
 
 case class IndexEntry(displayName: String, templateName: String, githubRepo: String, githubUrl: String,

@@ -1,6 +1,4 @@
 package org.jetbrains.plugins.scala.lang.macros.expansion
-import java.util.regex.Pattern
-
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions
@@ -9,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCal
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MacroExpansion
 
+import java.util.regex.Pattern
 import scala.annotation.tailrec
 
 class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvider {

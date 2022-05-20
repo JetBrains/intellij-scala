@@ -3,6 +3,7 @@ package project.converter
 
 import com.intellij.conversion.ConversionContext
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar
+
 import scala.jdk.CollectionConverters._
 
 /**

@@ -5,15 +5,15 @@ package impl
 package base
 package literals
 
-import java.lang
-import java.lang.{Float => JFloat}
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import com.intellij.psi.util.PsiLiteralUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScFloatLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+
+import java.lang
+import java.lang.{Float => JFloat}
 
 final class ScFloatLiteralImpl(node: ASTNode,
                                override val toString: String)

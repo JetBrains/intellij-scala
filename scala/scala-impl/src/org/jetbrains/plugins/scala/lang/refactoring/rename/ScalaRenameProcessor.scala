@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename
 
-import java.util
-
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiReference}
@@ -11,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.isAliased
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

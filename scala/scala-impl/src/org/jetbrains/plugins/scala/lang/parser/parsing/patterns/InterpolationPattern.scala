@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala
 package lang.parser.parsing.patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.parsing.{CommonUtils, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.{CommonUtils, ParsingRule}
 
 /**
  * @author kfeodorov

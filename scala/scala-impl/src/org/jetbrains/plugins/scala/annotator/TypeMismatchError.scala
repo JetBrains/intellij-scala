@@ -2,11 +2,9 @@ package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
 import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
@@ -14,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
 private object TypeMismatchError {
   def register(element: PsiElement, expectedType: ScType, actualType: ScType,

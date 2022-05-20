@@ -1,8 +1,6 @@
 package org.jetbrains.sbt
 package settings
 
-import java.util
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSettings, ExternalSystemSettingsListener}
@@ -15,6 +13,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
 import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
 
+import java.util
 import scala.beans.BeanProperty
 
 /**

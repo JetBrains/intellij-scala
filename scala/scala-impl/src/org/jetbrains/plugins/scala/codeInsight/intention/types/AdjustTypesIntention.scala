@@ -7,9 +7,9 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
+import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
 
 class AdjustTypesIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.adjust.types")

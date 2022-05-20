@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.rename3
 
-import java.io.File
-import java.nio.file.Path
-import java.util
-
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -21,9 +17,11 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import java.io.File
+import java.nio.file.Path
+import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
-import scala.collection.mutable.ListBuffer
 
 /**
  * Nikolay.Tropin

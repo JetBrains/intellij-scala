@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -24,7 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 
 import scala.annotation.nowarn
 

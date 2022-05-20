@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.actions
 
-import java.util.Properties
-import javax.swing.Icon
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.CreateTemplateInPackageAction
 import com.intellij.ide.fileTemplates.{FileTemplateManager, JavaTemplateUtil}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys}
 import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
@@ -16,6 +14,9 @@ import com.intellij.psi.codeStyle.CodeStyleManager
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.model.java.JavaModuleSourceRootTypes
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+
+import java.util.Properties
+import javax.swing.Icon
 
 /**
  * User: Dmitry.Naydanov

@@ -4,7 +4,6 @@ package notification
 
 import com.intellij.framework.FrameworkTypeEx
 import com.intellij.framework.addSupport.impl.AddSupportForSingleFrameworkDialog.createDialog
-import com.intellij.openapi.fileEditor.FileEditor
 import com.intellij.openapi.module.{JavaModuleType, Module, ModuleType, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile

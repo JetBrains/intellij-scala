@@ -102,7 +102,6 @@ private object IntegerLiteralCheckTest {
 
   import java.lang.Integer.{MAX_VALUE => IntMaxValue, MIN_VALUE => IntMinValue}
   import java.lang.Long.{MAX_VALUE => LongMaxValue, MIN_VALUE => LongMinValue}
-
   import scala.util.Random._
 
   val PredefinedInts = Set(

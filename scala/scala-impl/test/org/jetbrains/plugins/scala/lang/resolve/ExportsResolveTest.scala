@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ExportsResolveTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._

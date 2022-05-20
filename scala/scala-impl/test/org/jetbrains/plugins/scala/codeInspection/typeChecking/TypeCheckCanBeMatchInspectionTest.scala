@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 

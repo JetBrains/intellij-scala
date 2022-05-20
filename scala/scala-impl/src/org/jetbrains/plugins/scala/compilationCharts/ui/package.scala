@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.compilationCharts
 
 import java.awt.geom.{Line2D, Point2D, Rectangle2D}
-import java.awt.{Color, Font, Graphics, Graphics2D, Rectangle}
+import java.awt.{Color, Font, Graphics, Graphics2D}
 import scala.annotation.tailrec
 import scala.util.Using
-import scala.util.Using.{Releasable, resource}
+import scala.util.Using.Releasable
 
 package object ui {
 

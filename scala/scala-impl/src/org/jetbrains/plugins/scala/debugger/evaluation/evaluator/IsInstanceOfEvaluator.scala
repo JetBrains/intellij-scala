@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.debugger.evaluation.evaluator
 import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, TypeEvaluator}
 import com.sun.jdi._
-import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScLiteralType, ScType}
+import org.jetbrains.plugins.scala.{ScalaBundle, inReadAction}
 
 import scala.jdk.CollectionConverters._
 

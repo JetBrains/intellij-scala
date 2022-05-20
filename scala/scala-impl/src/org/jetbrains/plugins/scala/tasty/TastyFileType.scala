@@ -2,8 +2,9 @@ package org.jetbrains.plugins.scala.tasty
 
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.vfs.VirtualFile
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
+
+import javax.swing.Icon
 
 object TastyFileType extends FileType {
   override def getName: String = tastyName

@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import java.util
-
 import com.intellij.psi.PsiElement
 import com.intellij.refactoring.changeSignature.MethodDescriptor
 import com.intellij.refactoring.changeSignature.MethodDescriptor.ReadWriteOption
@@ -11,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring._
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**

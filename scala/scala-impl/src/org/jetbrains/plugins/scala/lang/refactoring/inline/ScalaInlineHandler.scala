@@ -36,8 +36,8 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.hi
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 /**
  * User: Alexander Podkhalyuzin

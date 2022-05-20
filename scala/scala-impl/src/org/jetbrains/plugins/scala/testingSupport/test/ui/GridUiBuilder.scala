@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.test.ui
 
-import java.awt.Component
-
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
 import com.intellij.util.ui.JBUI
+
+import java.awt.Component
 import javax.swing.{JComponent, JPanel}
 
 private class GridUiBuilder(panel: JPanel, val columns: Int) {

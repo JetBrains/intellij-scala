@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
-import scala.collection.immutable.ArraySeq
-
 /**
 * @author ilyas
 */

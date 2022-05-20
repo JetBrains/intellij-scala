@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util
-
 import org.jdom.Element
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 class JdomExternalizerMigrationHelper private (element: org.jdom.Element) {

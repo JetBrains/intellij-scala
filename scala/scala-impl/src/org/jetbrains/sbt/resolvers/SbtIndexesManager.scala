@@ -1,6 +1,5 @@
 package org.jetbrains.sbt.resolvers
 
-import java.io.File
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
@@ -16,6 +15,7 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.ResolverIndex.FORCE_UPDATE_KEY
 import org.jetbrains.sbt.resolvers.indexes.{IvyIndex, ResolverIndex}
 
+import java.io.File
 import scala.collection.mutable
 
 /**

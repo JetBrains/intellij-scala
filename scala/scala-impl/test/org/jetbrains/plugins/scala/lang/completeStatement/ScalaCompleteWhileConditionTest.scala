@@ -2,16 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package completeStatement
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author Ksenia.Sautina
   * @author Dmitry.Naydanov
   * @since 2/25/13
   */
 class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   def testWhileCondition1(): Unit = doCompletionTest(
     fileText =

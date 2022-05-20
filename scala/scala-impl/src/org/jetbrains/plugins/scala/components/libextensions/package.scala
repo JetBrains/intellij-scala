@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.components
 
 import java.io.File
-
 import scala.collection.mutable.ArrayBuffer
 
 

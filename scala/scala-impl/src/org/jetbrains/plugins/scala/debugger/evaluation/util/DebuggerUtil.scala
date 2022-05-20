@@ -13,8 +13,8 @@ import org.jetbrains.plugins.scala.debugger.evaluation.{EvaluationException, Sca
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ValueClassType}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_12, Scala_2_13}
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import scala.annotation.tailrec

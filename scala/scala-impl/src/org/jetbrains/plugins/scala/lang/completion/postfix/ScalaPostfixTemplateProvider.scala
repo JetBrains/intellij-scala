@@ -2,12 +2,11 @@ package org.jetbrains.plugins.scala.lang
 package completion
 package postfix
 
-import java.{util => ju}
-
 import com.intellij.codeInsight.template.postfix.templates._
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
 /**

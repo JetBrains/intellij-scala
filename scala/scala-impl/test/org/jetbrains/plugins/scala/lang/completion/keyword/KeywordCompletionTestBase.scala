@@ -3,11 +3,9 @@ package lang
 package completion
 package keyword
 
-import java.io.File
-
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
-import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupManager}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
+import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupManager}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
 
+import java.io.File
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 

@@ -5,11 +5,9 @@ package api
 package expr
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.impl.source.tree.{CompositeElement, LeafElement}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.impl.source.tree.CompositeElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscore

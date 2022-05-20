@@ -3,7 +3,6 @@ package codeInspection
 package collections
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
 
 import scala.collection.immutable.ArraySeq
 

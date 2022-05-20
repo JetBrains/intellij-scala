@@ -3,7 +3,6 @@ package codeInspection
 package caseClasses
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RedundantNewCaseClassInspection
 
 /**

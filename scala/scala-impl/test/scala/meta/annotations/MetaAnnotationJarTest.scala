@@ -4,7 +4,6 @@ package annotations
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{PsiTestUtil, TestActionEvent}
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
