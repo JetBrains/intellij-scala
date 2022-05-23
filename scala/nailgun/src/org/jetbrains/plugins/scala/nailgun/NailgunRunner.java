@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.nailgun;
 
-import com.martiansoftware.nailgun.Alias;
-import com.martiansoftware.nailgun.NGConstants;
-import com.martiansoftware.nailgun.NGServer;
+import com.facebook.nailgun.Alias;
+import com.facebook.nailgun.NGConstants;
+import com.facebook.nailgun.NGServer;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,10 +41,10 @@ public class NailgunRunner {
   private static final String SERVER_DESCRIPTION = "Scala compile server";
 
   private static final String STOP_ALIAS_START = "stop_";
-  private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
+  private static final String STOP_CLASS_NAME = "com.facebook.nailgun.builtins.NGStop";
 
   /**
-   * An alternative to default nailgun main {@link com.martiansoftware.nailgun.NGServer#main(java.lang.String[])}
+   * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
   public static void main(String[] args) throws Exception {
     if (args.length != 4)
@@ -174,7 +174,7 @@ public class NailgunRunner {
     public void run() {
       TokensGenerator.deleteTokenFor(scalaCompileServerSystemDir, myServer.getPort());
 
-      myServer.shutdown(false);
+      myServer.shutdown();
 
       long waitStart = System.currentTimeMillis();
       while (System.currentTimeMillis() - waitStart < WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS) {
@@ -189,7 +189,7 @@ public class NailgunRunner {
         }
       }
 
-      // copied from com.martiansoftware.nailgun.NGServer.NGServerShutdowner
+      // copied from com.facebook.nailgun.NGServer.NGServerShutdowner
       if (myServer.isRunning()) {
         System.err.println("Unable to cleanly shutdown server.  Exiting JVM Anyway.");
       } else {

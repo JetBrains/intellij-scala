@@ -97,9 +97,11 @@ final class WorksheetEditorPrinterRepl private[printers](
         chunkOutputBuffer.clear()
 
         val successfully = command == ReplChunkEnd || WorksheetUtils.continueWorksheetEvaluationOnExpressionFailure
-        chunkProcessed(outputText, successfully)
 
-        updateLastLineMarker()
+        if (!outputText.contains("com.facebook.nailgun.NGExitException")) {
+          chunkProcessed(outputText, successfully)
+          updateLastLineMarker()
+        }
 
         !successfully
       case ReplMessage(line) =>

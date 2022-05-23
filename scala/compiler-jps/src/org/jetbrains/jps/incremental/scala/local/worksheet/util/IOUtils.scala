@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.util
 
 import java.io.{OutputStream, PrintStream}
 
-import com.martiansoftware.nailgun.ThreadLocalPrintStream
+import com.facebook.nailgun.ThreadLocalPrintStream
 
 private[worksheet] object IOUtils {
 

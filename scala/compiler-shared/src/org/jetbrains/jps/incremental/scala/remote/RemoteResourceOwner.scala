@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import com.martiansoftware.nailgun.NGConstants
+import com.facebook.nailgun.NGConstants
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
@@ -83,7 +83,7 @@ trait RemoteResourceOwner {
         // Report such output not as errors, but as warnings (to continue make process).
         //
         // Also sometimes Nailgun prints to NGContext output (instead of default process output)
-        // e.g. see com.martiansoftware.nailgun.builtins.DefaultNail.nailMain
+        // e.g. see com.facebook.nailgun.builtins.DefaultNail.nailMain
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           val message = fromBytes(data)
           if (StringUtils.isNotBlank(message)) {

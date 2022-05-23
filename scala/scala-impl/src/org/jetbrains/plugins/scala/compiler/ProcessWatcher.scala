@@ -112,8 +112,8 @@ object ProcessWatcher {
   private def isJDK17SecurityManagerWarningLine(text: String) = {
     text.linesIterator.exists { line =>
       line.startsWith("WARNING: A terminally deprecated method in java.lang.System has been called") ||
-        line.startsWith("WARNING: System::setSecurityManager has been called by com.martiansoftware.nailgun.NGServer") ||
-        line.startsWith("WARNING: Please consider reporting this to the maintainers of com.martiansoftware.nailgun.NGServer") ||
+        line.startsWith("WARNING: System::setSecurityManager has been called by com.facebook.nailgun.NGServer") ||
+        line.startsWith("WARNING: Please consider reporting this to the maintainers of com.facebook.nailgun.NGServer") ||
         line.startsWith("WARNING: System::setSecurityManager will be removed in a future release")
     }
   }

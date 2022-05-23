@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.nailgun;
 
-import com.martiansoftware.nailgun.NGServer;
+import com.facebook.nailgun.NGServer;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

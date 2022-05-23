@@ -87,7 +87,7 @@ object CompileServerLauncher {
 
   // TODO: implement proper wait for server initialization
   //  addDisconnectListener command doesn't even exist
-  //  com.martiansoftware.nailgun.builtins.DefaultNail.nailMain will be used instead
+  //  com.facebook.nailgun.builtins.DefaultNail.nailMain will be used instead
   //  it sends an error to the socket output (as a NGConstants.CHUNKTYPE_STDERR chunk)
   //  but we ignore it because we use DummyClient
   private val MaxReconnectAttempt = 10

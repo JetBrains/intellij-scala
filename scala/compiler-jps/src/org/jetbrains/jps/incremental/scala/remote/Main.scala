@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import com.martiansoftware.nailgun.{NGContext, NGServer}
+import com.facebook.nailgun.{NGContext, NGServer}
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
@@ -39,7 +39,7 @@ import scala.util.{Failure, Success, Try}
 object Main {
 
   /**
-   * We need to remember original output streams, otherwise System.out/err can reference to stale [[com.martiansoftware.nailgun.ThreadLocalPrintStream]] values
+   * We need to remember original output streams, otherwise System.out/err can reference to stale [[com.facebook.nailgun.ThreadLocalPrintStream]] values
    * Please, see comment for the details https://youtrack.jetbrains.com/issue/SCL-19367#focus=Comments-27-5074050.0-0
    */
   private var originalStdOut: PrintStream = _
@@ -90,9 +90,9 @@ object Main {
    *
    * @see [[http://www.martiansoftware.com/nailgun/quickstart.html]]<br>
    *      [[http://www.martiansoftware.com/nailgun/doc/javadoc/com/martiansoftware/nailgun/NGContext.html]]<br>
-   *      [[com.martiansoftware.nailgun.NGContext]]<br>
-   *      [[com.martiansoftware.nailgun.NGSession:153]]<br>
-   *      [[com.martiansoftware.nailgun.NGServer:198]]<br>
+   *      [[com.facebook.nailgun.NGContext]]<br>
+   *      [[com.facebook.nailgun.NGSession:153]]<br>
+   *      [[com.facebook.nailgun.NGServer:198]]<br>
    */
   def nailMain(context: NGContext): Unit = {
     cancelShutdownTimer()
@@ -375,7 +375,7 @@ object Main {
       val shutdownTask = new TimerTask {
         override def run(): Unit = {
           shutdownByTimout = true
-          server.shutdown(true)
+          server.shutdown()
         }
       }
 
