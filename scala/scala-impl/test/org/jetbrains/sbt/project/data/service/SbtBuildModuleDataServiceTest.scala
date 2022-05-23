@@ -6,7 +6,6 @@ package service
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.sbt.resolvers._
 import org.junit.Assert
 
@@ -43,7 +42,6 @@ class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
   def doTest(imports: Seq[String], resolvers: Set[SbtResolver]): Unit = {
     import module.SbtModule._
 
-    FileUtil.delete(indexes.ResolverIndex.DEFAULT_INDEXES_DIR)
     importProjectData(generateProject(imports, resolvers))
     val sbtModule = ModuleManager.getInstance(getProject).findModuleByName("Module 1")
 

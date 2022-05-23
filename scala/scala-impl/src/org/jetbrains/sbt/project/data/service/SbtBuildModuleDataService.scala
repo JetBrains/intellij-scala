@@ -8,7 +8,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
 import org.jetbrains.sbt.project.data.SbtBuildModuleData
 import org.jetbrains.sbt.project.module.SbtModule
-import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtIvyResolver, SbtMavenResolver, SbtResolver}
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -32,17 +31,6 @@ final class SbtBuildModuleDataService extends ScalaAbstractProjectDataService[Sb
 
     SbtModule.Imports(sbtModule) = imports
     SbtModule.Resolvers(sbtModule) = resolvers.asScala.toSet
-    setLocalIvyCache(resolvers)(sbtModule.getProject)
     SbtModule.Build(sbtModule) = buildFor.uri
   }
-
-  private[this] def setLocalIvyCache(resolvers: java.util.Set[SbtResolver])
-                                    (implicit project: Project): Unit =
-    for {
-      localIvyResolver <- resolvers.asScala.find {
-        case r: SbtIvyResolver => r.isLocal
-        case _: SbtMavenResolver => false
-      }
-      indexesManager   <- SbtIndexesManager.getInstance(project)
-    } indexesManager.scheduleLocalIvyIndexUpdate(localIvyResolver)
 }
