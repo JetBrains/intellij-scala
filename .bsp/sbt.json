@@ -1,1 +1,0 @@
-{"name":"sbt","version":"1.6.2","bspVersion":"2.0.0-M5","languages":["scala"],"argv":["/Library/Java/JavaVirtualMachines/graalvm-ce-java11-22.0.0.2/Contents/Home/bin/java","-Xms100m","-Xmx100m","-classpath","/Users/maciej.gorywoda/opt/sbt/bin/sbt-launch.jar","-Dsbt.script=/Users/maciej.gorywoda/opt/sbt/bin/sbt","xsbt.boot.Boot","-bsp"]}

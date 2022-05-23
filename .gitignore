@@ -19,6 +19,7 @@
 *~
 target/
 .bloop/
+.bsp/
 
 scala/scala-impl/testdata/debugger
 scala/scala-impl/testdata/projects
