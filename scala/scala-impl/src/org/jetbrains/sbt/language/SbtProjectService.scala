@@ -19,8 +19,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.idea.maven.indices.{MavenIndex, MavenIndicesManager}
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
-import org.jetbrains.sbt.resolvers.indexes.IvyIndex
-import org.jetbrains.sbt.resolvers.{SbtMavenRepositoryProvider, SbtResolverUtils}
+import org.jetbrains.sbt.resolvers.SbtMavenRepositoryProvider
 
 import java.util
 import javax.swing.event.HyperlinkEvent
@@ -40,7 +39,7 @@ final class SbtProjectService(project: Project) extends Disposable {
 
   private def manager = PsiManager.getInstance(project)
 
-  (manager.addPsiTreeChangeListener(TreeListener): @nowarn("cat=deprecation"))
+  manager.addPsiTreeChangeListener(TreeListener): @nowarn("cat=deprecation")
 
   private def analyzer = DaemonCodeAnalyzer.getInstance(project)
 
@@ -80,30 +79,9 @@ final class SbtProjectService(project: Project) extends Disposable {
     }
   }
 
-  private def setupMavenIndexes(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
-
-    if (isIdeaPluginEnabled("org.jetbrains.idea.maven")) {
+  private def setupMavenIndexes(): Unit =
+    if (!ApplicationManager.getApplication.isUnitTestMode && isIdeaPluginEnabled("org.jetbrains.idea.maven"))
       MavenIndicesManager.getInstance(project).scheduleUpdateIndicesList(null)
-    } else {
-      notifyDisabledMavenPlugin()
-    }
-  }
-
-  private def notifyDisabledMavenPlugin(): Unit = {
-    val outdatedIvyIndexes = SbtResolverUtils.projectResolvers(project)
-      .flatMap(_.getIndex(project))
-      .filter {
-        case index: IvyIndex => index.getUpdateTimeStamp == -1
-        case _ => false
-      }
-
-    if (outdatedIvyIndexes.isEmpty) return
-    val title = SbtBundle.message("unindexed.ivy.repositories.found", outdatedIvyIndexes.size)
-    val message = SbtBundle.message("update.repositories.to.use.dependency.completion").stripMargin
-    val notificationData = createIndexerNotification(title, message)
-    ExternalSystemNotificationManager.getInstance(project).showNotification(SbtProjectSystem.Id, notificationData)
-  }
 
   def createIndexerNotification(@Nls title: String, @Nls message: String): NotificationData = {
     val notificationData = new NotificationData(

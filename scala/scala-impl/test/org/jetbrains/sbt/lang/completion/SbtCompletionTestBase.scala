@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package lang
 package completion
 
-import com.intellij.openapi.util.io.FileUtil
 import com.intellij.testFramework.{EditorTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.lang.completion
@@ -36,21 +35,7 @@ abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
       asSet(expected.split("\n"))
     )
 
-  override def setUp(): Unit = {
-    super.setUp()
-    cleanIndices()
-  }
-
-  override def tearDown(): Unit = {
-    super.tearDown()
-    cleanIndices()
-  }
-
   private def asSet(strings: Array[String]) = {
     strings.toSeq.distinct.asJava
-  }
-
-  private def cleanIndices(): Unit = FileUtil.delete {
-    resolvers.indexes.ResolverIndex.DEFAULT_INDEXES_DIR
   }
 }
