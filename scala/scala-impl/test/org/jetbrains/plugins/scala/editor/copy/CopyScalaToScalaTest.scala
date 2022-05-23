@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.editor.copy
 
 class CopyScalaToScalaTest extends CopyPasteTestBase {
 

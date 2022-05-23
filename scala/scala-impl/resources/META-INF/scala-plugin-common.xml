@@ -203,6 +203,8 @@
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.PackageSplitSmartEnterProcessor"/>
         <lang.smartEnterProcessor language="Scala" implementationClass="org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor"/>
         <lineIndentProvider implementation="org.jetbrains.plugins.scala.editor.ScalaLineIndentProvider"/>
+        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.StringLiteralPreProcessor"/>
+        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.editor.copy.MultiLineStringCopyPastePreProcessor" order="first"/>
         <lang.inspectionSuppressor language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSuppressor"/>
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>

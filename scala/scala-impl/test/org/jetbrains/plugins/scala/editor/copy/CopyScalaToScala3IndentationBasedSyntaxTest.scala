@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.editor.copy
 
 import org.jetbrains.plugins.scala.ScalaVersion
 

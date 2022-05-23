@@ -4,16 +4,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
 
-        <copyPastePreProcessor implementation="org.jetbrains.plugins.scala.conversion.copy.StringLiteralProcessor"/>
         <copyPastePostProcessor
                 implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
         <copyPastePostProcessor
                 implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessorWithRichCopySettingsAwareness"/>
         <copyPastePostProcessor
                 implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
-        <copyPastePreProcessor
-                implementation="org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPastePreProcessor"
-                order="first"/>
 
         <filePasteProvider implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.ScalaFilePasteProvider"
                            id="scalaFilePasteProvider"

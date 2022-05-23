@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}

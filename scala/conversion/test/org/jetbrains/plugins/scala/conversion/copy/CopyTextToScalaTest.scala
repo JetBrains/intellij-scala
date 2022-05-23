@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.copy
 
 import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor
+import org.jetbrains.plugins.scala.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class CopyTextToScalaTest extends CopyPasteTestBase {

@@ -3,6 +3,7 @@ package conversion
 package copy
 
 import com.intellij.codeInsight.CodeInsightSettings
+import org.jetbrains.plugins.scala.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettings}
 
 /**

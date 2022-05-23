@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
 import com.intellij.openapi.editor.{Editor, RawText}
@@ -6,17 +6,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.{LineTokenizer, StringUtil}
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 /**
  * Pavel.Fatin, 21.07.2010
  */
 
-class StringLiteralProcessor extends CopyPastePreProcessor {
+class StringLiteralPreProcessor extends CopyPastePreProcessor {
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
     val literal = startOffsets.zip(endOffsets).forall { case (a, b) =>
       val e = file.findElementAt(a)
-      e.isInstanceOf[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && e.getNode != null &&
+      e.is[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && e.getNode != null &&
                 e.getNode.getElementType == ScalaTokenTypes.tSTRING &&
                 a > e.getTextRange.getStartOffset && b < e.getTextRange.getEndOffset
     }
@@ -29,7 +30,7 @@ class StringLiteralProcessor extends CopyPastePreProcessor {
     val offset = editor.getSelectionModel.getSelectionStart
     val e = file.findElementAt(offset)
 
-    if (e.isInstanceOf[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && offset > e.getTextOffset) {
+    if (e.is[PsiElement] && e.getLanguage.isKindOf(ScalaLanguage.INSTANCE) && offset > e.getTextOffset) {
       val elementType = if(e.getNode == null) null else e.getNode.getElementType
       if ((elementType == ScalaTokenTypes.tSTRING || elementType == ScalaTokenTypes.tCHAR) 
               && rawText != null && rawText.rawText != null) {

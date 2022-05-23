@@ -1,13 +1,13 @@
-package org.jetbrains.plugins.scala.conversion.copy
+package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Document, Editor, RawText, SelectionModel}
+import com.intellij.openapi.editor.{Document, Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.text.StringUtil.startsWithChar
 import com.intellij.psi.{PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.conversion.copy.MultiLineStringCopyPastePreProcessor._
+import org.jetbrains.plugins.scala.editor.copy.MultiLineStringCopyPastePreProcessor._
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf, inWriteAction}
 import org.jetbrains.plugins.scala.format.WithStrippedMargin
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
