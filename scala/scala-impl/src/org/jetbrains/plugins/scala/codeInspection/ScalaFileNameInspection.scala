@@ -45,7 +45,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       val maybeDescriptors = scalaFile.typeDefinitions match {
         case Seq(_, _, _, _*) => None
         case Seq(first, second) if first.name != second.name => None // with companion
-        case definitions if hasProblems(definitions, scalaFile.name, virtualFileName) =>
+        case definitions if hasProblems(scalaFile, virtualFileName) =>
           val descriptors = definitions.map { clazz =>
             val localQuickFixes = Array[LocalQuickFix](
               new RenameClassQuickFix(clazz, virtualFileName),
@@ -71,12 +71,17 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
 
 object ScalaFileNameInspection {
 
-  private def hasProblems(definitions: Seq[ScTypeDefinition],
-                          fileName: String,
+  private def hasProblems(scalaFile: ScalaFile,
                           virtualFileName: String) =
-    !definitions.exists {
-      case scalaObject: ScObject if fileName == "package.scala" && scalaObject.isPackageObject => true
-      case clazz => ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
+    !scalaFile.typeDefinitions.exists {
+      case scalaObject: ScObject if scalaFile.name == "package.scala" && scalaObject.isPackageObject =>
+        true
+      case clazz: ScTypeDefinition if scalaFile.isScala2File =>
+        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
+      case clazz: ScTypeDefinition if scalaFile.isScala3File && scalaFile.members.size == 1 =>
+        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
+      case _ =>
+        true
     }
 
   private abstract sealed class RenameQuickFixBase[T <: PsiNamedElement](element: T,
