@@ -21,9 +21,6 @@ case class I18nBundleContent(entries: Seq[Entry]) {
     I18nBundleContent(before ++ Seq(entry) ++ after)
   }
 
-  def isCorrectlySorted: Boolean =
-    this == sorted
-
   def writeTo(path: String): Unit =
     writeTo(new PrintWriter(new File(path)))
 

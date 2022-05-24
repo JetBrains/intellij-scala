@@ -102,7 +102,7 @@ class TestNodeProvider extends FileStructureNodeProvider[TreeElement] {
     expr match {
       case expr: ScMethodCall        => TestNodeProvider.extractTestViewElement(expr, clazz, clazz.getProject)
       case expr: ScInfixExpr         => TestNodeProvider.extractTestViewElementInfix(expr, clazz, clazz.getProject)
-      case expr: ScPatternDefinition => TestNodeProvider.extractTestViewElementPatternDef(expr, clazz, clazz.getProject)
+      case expr: ScPatternDefinition => TestNodeProvider.extractTestViewElementPatternDef(expr, clazz)
       case _                         => None
     }
 }
@@ -120,7 +120,7 @@ object TestNodeProvider {
     import Specs2Util._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (flatSpecBases.exists(isInheritor(clazz, _)))
-      extractFlatSpec(expr, project)
+      extractFlatSpec(expr)
     else if (freeSpecBases.exists(isInheritor(clazz, _)))
       extractFreeSpec(expr, project)
     else if (wordSpecBases.exists(isInheritor(clazz, _)))
@@ -131,7 +131,7 @@ object TestNodeProvider {
       None
   }
 
-  private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition, project: Project): Option[Test] = {
+  private def extractTestViewElementPatternDef(pDef: ScPatternDefinition, clazz: ScTypeDefinition): Option[Test] = {
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (isInheritor(clazz, "utest.framework.TestSuite") && pDef.getLastChild.isInstanceOf[ScMethodCall]) {
       val methodCall = pDef.getLastChild.asInstanceOf[ScMethodCall]
@@ -145,15 +145,15 @@ object TestNodeProvider {
     import ScalaTestUtil._
     import org.jetbrains.plugins.scala.testingSupport.test.TestConfigurationUtil.isInheritor
     if (funSuiteBases.exists(isInheritor(clazz, _)))
-      extractFunSuite(expr, project) //this should be a funSuite-like test
+      extractFunSuite(expr) //this should be a funSuite-like test
     else if (featureSpecBases.exists(isInheritor(clazz, _)))
       extractFeatureSpec(expr, project)
     else if (funSpecBasesPost2_0.exists(isInheritor(clazz, _)) || funSpecBasesPre2_0.exists(isInheritor(clazz, _)))
       extractFunSpec(expr, project)
     else if (propSpecBases.exists(isInheritor(clazz, _)))
-      extractPropSpec(expr, project)
+      extractPropSpec(expr)
     else if (isInheritor(clazz, MUnitUtils.FunSuiteFqn))
-      extractMUnitFunSuite(expr, project) //this should be a funSuite-like test
+      extractMUnitFunSuite(expr) //this should be a funSuite-like test
     else
       None
   }
@@ -286,7 +286,7 @@ object TestNodeProvider {
     (refExpr, "pendingUntilFixed"))
   }
 
-  private def extractScalaTestScInfixExpr(expr: ScInfixExpr, entry: ExtractEntry, project: Project):
+  private def extractScalaTestScInfixExpr(expr: ScInfixExpr, entry: ExtractEntry):
   Option[Test] = {
     if (entry.canIgnore && (checkScInfixExpr(expr, "ignore", List("void")) ||
       checkScInfixExpr(expr, "ignore", List("java.lang.Object")) || checkIgnoreExpr(expr))) {
@@ -355,7 +355,7 @@ object TestNodeProvider {
 
   def isSpecs2Expr(expr: PsiElement): Boolean = isSpecs2TestExpr(expr) || isSpecs2ScopeExpr(expr)
 
-  private def extractSpecs2ScInfixExpr(expr: ScInfixExpr, children: => Array[TreeElement], project: Project): Option[Test] = {
+  private def extractSpecs2ScInfixExpr(expr: ScInfixExpr, children: => Array[TreeElement]): Option[Test] = {
     //check matchers here because they are supposed to be stacked, as opposed to scalaTest, where bases are distinct
     if (isSpecs2Expr(expr: ScInfixExpr)) {
       val status = if (checkSpecsPending(expr)) Test.PendingStatusId else Test.NormalStatusId
@@ -365,7 +365,7 @@ object TestNodeProvider {
     else None
   }
 
-  private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry, project: Project): Option[Test] = {
+  private def extractScMethodCall(expr: ScMethodCall, entry: ExtractEntry): Option[Test] = {
     if (entry.canIgnore && (checkScMethodCall(expr, "ignore", scMethodCallDefaultArg: _*) ||
       checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v1: _*) ||
       checkScMethodCall(expr, "ignore", scMethodCallDefaultArgScalaTest3_v2: _*)))
@@ -389,40 +389,40 @@ object TestNodeProvider {
   //-----ScalaTest------
   private def extractFreeSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractFreeSpec, project)
-    extractScalaTestScInfixExpr(expr, ExtractEntry("$minus", true, false, _ => children, List("void")), project).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
+    extractScalaTestScInfixExpr(expr, ExtractEntry("$minus", true, false, _ => children, List("void"))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object"))))
   }
 
-  private def extractFlatSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
-    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project))
+  private def extractFlatSpec(expr: ScInfixExpr): Option[Test] = {
+    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void"))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object"))))
   }
 
   private def extractWordSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractWordSpec, project)
-    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void")), project).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")), project)).
+    extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("void"))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("in", true, true, List("java.lang.Object")))).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("should", false, false, _ => children, List("void"),
-        List("org.scalatest.words.StringVerbBlockRegistration")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("should", false, false, _ => children, List("void")), project)).
+        List("org.scalatest.words.StringVerbBlockRegistration")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("should", false, false, _ => children, List("void")))).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("must", false, false, _ => children, List("void"),
-        List("org.scalatest.words.StringVerbBlockRegistration")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("must", false, false, _ => children, List("void")), project)).
+        List("org.scalatest.words.StringVerbBlockRegistration")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("must", false, false, _ => children, List("void")))).
       orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("can", false, false, _ => children, List("void"),
-        List("org.scalatest.words.StringVerbBlockRegistration")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("can", false, false, _ => children, List("void")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("when", false, false, _ => children, List("void")), project)).
-      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("which", false, false, _ => children, List("void")), project))
+        List("org.scalatest.words.StringVerbBlockRegistration")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("can", false, false, _ => children, List("void")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("when", false, false, _ => children, List("void")))).
+      orElse(extractScalaTestScInfixExpr(expr, ExtractEntry("which", false, false, _ => children, List("void"))))
   }
 
   private def extractFunSpec(expr: ScMethodCall, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerMethodCalls(expr), extractFunSpec, project)
-    extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void")),
-      project).orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*), project))
+    extractScMethodCall(expr, ExtractEntry("describe", true, true, _ => children, List("java.lang.String"), List("void"))).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArg:_*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v1:_*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("it", true, true, scMethodCallDefaultArgScalaTest3_v2:_*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("they", true, true, scMethodCallDefaultArg:_*)))
   }
 
   private def extractFeatureSpec(expr: ScMethodCall, project: Project): Option[Test] = {
@@ -438,22 +438,20 @@ object TestNodeProvider {
       ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
       ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
     )
-    entries.iterator.flatMap(extractScMethodCall(expr, _, project)).headOption
+    entries.iterator.flatMap(extractScMethodCall(expr, _)).headOption
   }
 
-  private def extractPropSpec(expr: ScMethodCall, project: Project): Option[Test] = {
-    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*), project).
-      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v1: _*), project)).
-      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2: _*), project))
+  private def extractPropSpec(expr: ScMethodCall): Option[Test] = {
+    extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArg: _*)).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v1: _*))).
+      orElse(extractScMethodCall(expr, ExtractEntry("property", true, true, scMethodCallDefaultArgScalaTest3_v2: _*)))
   }
 
-  // TODO: recheck, why we pass 3 parameters, while extractScMethodCall already handles 3 variants
-  private def extractFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
-    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*), project)
-      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*), project))
-      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*), project))
+  private def extractFunSuite(expr: ScMethodCall): Option[Test] = {
+    extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArg:_*))
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v1:_*)))
+      .orElse(extractScMethodCall(expr, ExtractEntry("test", true, true, scMethodCallDefaultArgScalaTest3_v2:_*)))
   }
-
 
   private val munitTestMethodCallArg = Seq(List("java.lang.String"), List("java.lang.Object"))
   private val munitPropertyMethodCallArg = Seq(List("java.lang.String"), List("org.scalacheck.Prop"))
@@ -461,7 +459,7 @@ object TestNodeProvider {
     ExtractEntry("test", false, false, munitTestMethodCallArg: _*),
     ExtractEntry("property", false, false, munitPropertyMethodCallArg: _*),
   )
-  private def extractMUnitFunSuite(expr: ScMethodCall, project: Project): Option[Test] = {
+  private def extractMUnitFunSuite(expr: ScMethodCall): Option[Test] = {
     val foundEntry = munitFunSuiteExtractEntries.find(entry => checkScMethodCall(expr, entry.funName, entry.args: _*))
     foundEntry.flatMap { entry =>
       Some(new Test(expr, getMethodCallTestName(expr), entry.children(())))
@@ -483,7 +481,7 @@ object TestNodeProvider {
 
   private def extractUnitSpec(expr: ScInfixExpr, project: Project): Option[Test] = {
     lazy val children = processChildren(getInnerInfixExprs(expr), extractUnitSpec, project)
-    extractSpecs2ScInfixExpr(expr, children, project)
+    extractSpecs2ScInfixExpr(expr, children)
   }
 
   //-----uTest-----

@@ -129,7 +129,7 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
     }
   }
 
-  private def processTrailingElement[T <: PsiElement](trailingElement: PsiElement): Unit = {
+  private def processTrailingElement(trailingElement: PsiElement): Unit = {
     val next: PsiElement = trailingElement.getNextSiblingNotWhitespaceComment
     if (next != null && next.getNextSibling.isInstanceOf[PsiErrorElement])
       return

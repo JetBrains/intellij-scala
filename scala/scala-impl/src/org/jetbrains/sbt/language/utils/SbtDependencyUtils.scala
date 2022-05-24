@@ -28,7 +28,6 @@ object SbtDependencyUtils {
   val ANY: String = "Any"
 
   val SBT_PROJECT_TYPE = "_root_.sbt.Project"
-  val SBT_SEQ_TYPE = "_root_.scala.collection.Seq"
   val SBT_SETTING_TYPE = "_root_.sbt.Def.Setting"
   val SBT_MODULE_ID_TYPE = "sbt.ModuleID"
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package editor.smartEnter.fixers
 
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -25,22 +25,6 @@ trait ScalaFixer {
 
   protected def moveToEnd(editor: Editor, psiElement: PsiElement): Unit =
     editor.getCaretModel.moveToOffset(psiElement.getTextRange.getEndOffset)
-
-  protected def getOffsetOrParent(parent: PsiElement, child: PsiElement): Int = {
-    var s = child.getNextSibling
-
-    while (s != null) {
-      s match {
-        case error: PsiErrorElement => return error.getTextRange.getEndOffset
-        case wsn: PsiWhiteSpace if wsn.textContains('\n') => return wsn.getTextRange.getStartOffset
-        case _ =>
-      }
-
-      s = s.getNextSibling
-    }
-
-    parent.getTextRange.getEndOffset
-  }
 
   protected def placeInWholeBlock(block: ScBlockExpr, editor: Editor): OperationPerformed = {
     @inline def move2start(psi: PsiElement): Unit = editor.getCaretModel.moveToOffset(psi.getTextRange.getStartOffset)

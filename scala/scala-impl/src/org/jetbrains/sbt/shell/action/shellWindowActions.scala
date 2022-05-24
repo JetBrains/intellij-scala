@@ -4,7 +4,6 @@ import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.engine.RemoteDebugProcessHandler
 import com.intellij.debugger.impl.DebuggerSession
 import com.intellij.execution.configurations.RemoteConnection
-import com.intellij.execution.console.LanguageConsoleView
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.impl.ExecutionManagerImpl
 import com.intellij.execution.process.ProcessHandler
@@ -15,7 +14,6 @@ import com.intellij.execution.{ProgramRunnerUtil, RunManager, RunnerAndConfigura
 import com.intellij.icons.AllIcons
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
-import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
@@ -25,7 +23,7 @@ import org.jetbrains.sbt.shell.action.SbtShellActionUtil._
 import org.jetbrains.sbt.shell.{SbtProcessManager, SbtShellCommunication, SbtShellConsoleView, SbtShellToolWindowFactory}
 
 import java.awt.event.{InputEvent, KeyEvent}
-import javax.swing.{Icon, KeyStroke}
+import javax.swing.KeyStroke
 import scala.jdk.CollectionConverters._
 
 class SbtShellScrollToTheEndToolbarAction(editor: Editor) extends ScrollToTheEndToolbarAction(editor) {
@@ -87,24 +85,6 @@ class StopAction(project: Project) extends DumbAwareAction {
   }
 
   private def isEnabled: Boolean = shellAlive(project)
-}
-
-class ExecuteTaskAction(console: LanguageConsoleView, task: String, icon: Option[Icon]) extends DumbAwareAction {
-
-  getTemplatePresentation.setIcon(icon.orNull)
-  getTemplatePresentation.setText(SbtBundle.message("sbt.shell.execute.task", task))
-
-  override def actionPerformed(e: AnActionEvent): Unit = {
-    // TODO execute with indicator
-    EditorUtil.scrollToTheEnd(console.getHistoryViewer)
-    SbtShellCommunication.forProject(e.getProject).command(task)
-  }
-
-  override def update(e: AnActionEvent): Unit = {
-    e.getPresentation.setEnabled(isEnabled)
-  }
-
-  private def isEnabled: Boolean = shellAlive(console.getProject)
 }
 
 class EOFAction(project: Project) extends DumbAwareAction {

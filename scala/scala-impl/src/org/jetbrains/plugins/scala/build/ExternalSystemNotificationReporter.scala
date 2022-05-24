@@ -57,7 +57,7 @@ class ExternalSystemNotificationReporter(workingDir: String,
 
   override def finishCanceled(): Unit = {
     val time = System.currentTimeMillis()
-    descriptors.foreach { case (id,task) =>
+    descriptors.foreach { case (id, _) =>
       val result = new com.intellij.build.events.impl.SkippedResultImpl
       finishTask(id, ScalaBundle.message("report.build.task.canceled"), result, time)
     }

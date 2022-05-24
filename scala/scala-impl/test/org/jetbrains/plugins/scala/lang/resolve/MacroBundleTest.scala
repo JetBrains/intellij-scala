@@ -23,7 +23,7 @@ class MacroBundleTest extends ScalaResolveTestCase {
   }
 
   def testSCL8414b(): Unit = findReferenceAtCaret() match {
-    case ResolvesTo(fun: ScFunction) =>
+    case ResolvesTo(_: ScFunction) =>
     case _ =>
       Assert.fail("Resolve to a function in macro bundle class expected")
   }

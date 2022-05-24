@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterIm
  * Date: 19.10.2008
  */
 
-class ScParameterElementType extends ScParamElementType[ScParameter]("parameter") {
+class ScParameterElementType extends ScParamElementType("parameter") {
   override def createElement(node: ASTNode): ScParameter = new ScParameterImpl(node)
 
   override def createPsi(stub: ScParameterStub): ScParameter = new ScParameterImpl(stub)

@@ -9,8 +9,6 @@ import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
@@ -52,11 +50,6 @@ object FormatterUtil {
     val settings  = ScalaCodeStyleSettings.getInstance(project).getContainer
     val indentSize = settings.getIndentSize(ScalaFileType.INSTANCE)
     String.format("%1$" + indentSize + "s", " ")
-  }
-
-  def isCommentGrabbingPsi(element: PsiElement): Boolean = element match {
-    case _: ScValue | _: ScVariable | _: ScFunction | _: ScTypeDefinition | _: ScTypeAlias => true
-    case _ => false
   }
 
   def isDocWhiteSpace(element: PsiElement): Boolean = isDocWhiteSpace(element.getNode)

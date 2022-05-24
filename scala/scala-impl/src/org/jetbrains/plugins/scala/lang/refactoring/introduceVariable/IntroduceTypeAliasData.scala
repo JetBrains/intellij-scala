@@ -22,14 +22,6 @@ class IntroduceTypeAliasData {
     }
   }
 
-  def clearData(): Unit = {
-    currentScope = null
-    initialTypeElement = null
-    possibleScopes = null
-    typeAliasInfo = null
-    isCallModalDialogInProgress = false
-  }
-
   def isData: Boolean = {
     currentScope != null || initialTypeElement != null || possibleScopes != null || typeAliasInfo != null
   }

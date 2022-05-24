@@ -148,7 +148,6 @@ trait FindersApiTest extends ScalaTestTestCase
     val testName1 = "A ComplexFreeSpec Outer scope 1 Inner scope 1"
     val testName2 = "A ComplexFreeSpec Outer scope 2 Inner test"
     val testName3 = "A ComplexFreeSpec Outer scope 2 Inner scope 2 Another innermost scope"
-    val ignoredTestName = "A ComplexFreeSpec Outer scope 2 Inner scope 2 Innermost scope"
 
     //outermost close
     checkSelection(3, 10, complexFreeSpecFileName, Set(testName1, testName2, testName3))

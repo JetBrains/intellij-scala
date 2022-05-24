@@ -7,4 +7,3 @@ abstract class TreeConverter extends TreeAdapter
                     with Namer
                     with Utils
                     with EnvironmentProvider
-                    with TreeConverterBuilder

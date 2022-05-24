@@ -90,11 +90,6 @@ private object ScalaSdkData {
 
   private val DefaultLanguageLevel = "Scala_2_12"
 
-  def findAllIn(context: ConversionContext): Seq[ScalaSdkData] = {
-    val elements = context.getProjectLibrariesSettings.getProjectLibraries.asScala
-    elements.filter(_.getAttributeValue("type") == "Scala").map(ScalaSdkData(_)).toSeq
-  }
-
   def apply(element: Element): ScalaSdkData = {
     val standardLibrary = LibraryData(element)
 

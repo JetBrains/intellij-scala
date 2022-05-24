@@ -19,12 +19,15 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters.CustomParameter
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.{MainMethodParameters, extractNameFromFqn}
 
+import scala.annotation.unused
+
 /**
  * This class is only needed during application configuration verification
  *
  * @see [[com.intellij.execution.application.ApplicationConfiguration#checkConfiguration()]]
  * @see [[com.intellij.execution.configurations.JavaRunConfigurationModule#checkClassName(java.lang.String, java.lang.String)]]
  */
+@unused("registered in scala-plugin-common.xml")
 private final class Scala3MainMethodSyntheticClassFinder(project: Project)
   extends PsiElementFinder {
 

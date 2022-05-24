@@ -97,7 +97,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val mainOcc = ifc.occurrences.filter(_.getStartOffset == editor.getSelectionModel.getSelectionStart)
     val occurrencesToReplace = if (settings.replaceAll) ifc.occurrences else mainOcc
     val aClass = ifc.aClass
-    val checkAnchor: PsiElement = anchorForNewDeclaration(expression, occurrencesToReplace, aClass)
+    val checkAnchor: PsiElement = anchorForNewDeclaration(occurrencesToReplace, aClass)
     if (checkAnchor == null) {
       showErrorHint(ScalaBundle.message("cannot.find.place.for.the.new.field"))
       return
@@ -107,7 +107,7 @@ class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandle
     val typeName = Option(settings.scType).map(_.canonicalCodeText).getOrElse("")
     val replacedOccurences = replaceOccurrences(occurrencesToReplace, name, ifc.file)
 
-    val anchor = anchorForNewDeclaration(expression, replacedOccurences, aClass)
+    val anchor = anchorForNewDeclaration(replacedOccurences, aClass)
     val initInDecl = settings.initInDeclaration
     var createdDeclaration: PsiElement = null
     if (initInDecl) {

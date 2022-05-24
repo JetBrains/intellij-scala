@@ -275,8 +275,8 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
               checkImplicits:  Boolean,
               isShape:         Boolean,
               expectedOption:  Option[ScType],
-              ignoreBaseTypes: Boolean,
-              fromUnderscore:  Boolean
+              _: Boolean,
+              _:  Boolean
             ) =>
               {
                 expr.getTypeAfterImplicitConversion(

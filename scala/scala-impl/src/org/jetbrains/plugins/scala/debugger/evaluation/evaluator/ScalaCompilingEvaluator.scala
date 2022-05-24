@@ -52,7 +52,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
 
     try {
-      val evaluator = callEvaluator(context)
+      val evaluator = callEvaluator
       context.setClassLoader(classLoader)
       evaluator.evaluate(context)
     }
@@ -62,7 +62,7 @@ class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragmen
     }
   }
 
-  private def callEvaluator(evaluationContext: EvaluationContext): ExpressionEvaluator =
+  private def callEvaluator: ExpressionEvaluator =
     inReadAction {
       val callCode = new TextWithImportsImpl(CodeFragmentKind.CODE_BLOCK, generatedClass.callText)
       val codeFragment = new ScalaCodeFragmentFactory().createCodeFragment(callCode, generatedClass.newContext, project)

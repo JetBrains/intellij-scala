@@ -47,14 +47,13 @@ class TypeAliasUsagesSearcher extends QueryExecutorBase[PsiReference, References
     data match {
       case Some((target, name, scope)) =>
         val collector: SearchRequestCollector = parameters.getOptimizer
-        val session: SearchSession = collector.getSearchSession
-        val processor = new MyProcessor(target, null, session)
+        val processor = new MyProcessor(target, null)
         collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, target, processor)
       case _ =>
     }
   }
 
-  private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
+  private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String) extends RequestResultProcessor(myTarget, prefix) {
     override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
       element.parentOfType(classOf[ScConstructorInvocation], strict = false) match {
         case Some(cons) if PsiTreeUtil.isAncestor(cons.typeElement, element, false) =>

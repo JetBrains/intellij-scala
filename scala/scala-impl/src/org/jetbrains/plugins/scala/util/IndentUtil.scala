@@ -25,12 +25,6 @@ object IndentUtil {
     result
   }
 
-  def calcSecondLineIndent(text: String, tabSize: Int): Int = {
-    val newLineIdx = text.indexOf('\n')
-    if (newLineIdx == -1) -1
-    else calcIndent(text, newLineIdx + 1, tabSize)
-  }
-
   def calcLastLineIndent(text: CharSequence, tabSize: Int): Int = {
     val idx = ApacheStringUtils.lastIndexOf(text, '\n')
     calcIndent(text, idx + 1, tabSize)

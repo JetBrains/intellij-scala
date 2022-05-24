@@ -35,8 +35,6 @@ object ScalaPluginVersionVerifier
 
     val presentation: String = if (major == Int.MaxValue) "SNAPSHOT" else s"$major.$minor.$build"
 
-    def isSnapshot: Boolean = presentation == "SNAPSHOT"
-
     override def equals(that: Any): Boolean = compare(that.asInstanceOf[Version]) == 0
 
     override def toString: String = presentation
@@ -108,7 +106,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
                      |<p/><a href="Yes">Yes, disable it</a>
                      |<p/><a href="No">No, leave it enabled</a>""".stripMargin
 
-                showIncompatiblePluginNotification(plugin, message) {
+                showIncompatiblePluginNotification(message) {
                   case "Yes" =>
                     disablePlugin(plugin.getPluginId)
                   case "No" => //do nothing it seems all is ok for the user
@@ -137,7 +135,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
     ScalaPluginUpdater.askUpdatePluginBranchIfNeeded()
   }
 
-  private def showIncompatiblePluginNotification(plugin: IdeaPluginDescriptor, @Nls message: String)(callback: String => Unit): Unit = {
+  private def showIncompatiblePluginNotification(@Nls message: String)(callback: String => Unit): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       ScalaPluginVersionVerifier.LOG.error(message)
     } else {
@@ -182,7 +180,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
            |${hyperlink(DisableScalaPlugin)}
            |${hyperlink(Ignore)}
            |""".stripMargin
-      showIncompatiblePluginNotification(plugin, message) {
+      showIncompatiblePluginNotification(message) {
         case DisableHaskForcePlugin =>
           disablePlugin(haskforceId)
         case DisableScalaPlugin =>

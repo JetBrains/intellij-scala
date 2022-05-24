@@ -25,7 +25,7 @@ object ScImplicitlyConvertible {
       results.map(_.element).toSeq
     }
 
-  private def findPlaceType[T](place: ScExpression, fromUnderscore: Boolean): Option[ScType] =
+  private def findPlaceType(place: ScExpression, fromUnderscore: Boolean): Option[ScType] =
     place.getTypeWithoutImplicits(fromUnderscore = fromUnderscore).toOption
       .map(_.tryExtractDesignatorSingleton)
 

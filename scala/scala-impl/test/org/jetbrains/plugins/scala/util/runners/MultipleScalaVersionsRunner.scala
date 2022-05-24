@@ -14,7 +14,7 @@ import org.junit.runner.{Describable, Description}
 
 import java.lang.annotation.Annotation
 import java.util
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
@@ -241,6 +241,7 @@ private object MultipleScalaVersionsRunner {
     Option(inner(klass).asInstanceOf[T])
   }
 
+  @unused
   private def debugLog(d: Description, deep: Int = 0): Unit = {
     val annotations = d.getAnnotations.asScala.map(_.annotationType.getName).mkString(",")
     val details = s"${d.getMethodName}, ${d.getClassName}, ${d.getTestClass}, $annotations"

@@ -13,7 +13,7 @@ import java.awt.Event
 import java.awt.event.MouseEvent
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.{ScheduledFuture, TimeUnit}
-import scala.annotation.nowarn
+import scala.annotation.{nowarn, unused}
 import scala.util.control.NoStackTrace
 
 /**
@@ -49,7 +49,7 @@ object UIFreezingGuard {
 
   private def isEdt: Boolean = ApplicationManager.getApplication.isDispatchThread
 
-  //used in macro!
+  @unused("used by CachedMacroUtil")
   def withResponsibleUI[T](body: => T): T = {
     if (!isAlreadyGuarded && pceEnabled) {
       val start = System.currentTimeMillis()

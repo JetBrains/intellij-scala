@@ -49,7 +49,7 @@ class ScalaMethodCallFixer extends ScalaFixer {
               }
 
               if (rightArgs.getParent != null) rightArgs.getParent.getParent match {
-                case call: ScMethodCall => return NoOperation
+                case _: ScMethodCall => return NoOperation
                 case _ =>
               }
 

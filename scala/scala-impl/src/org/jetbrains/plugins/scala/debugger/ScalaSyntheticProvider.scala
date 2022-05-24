@@ -74,8 +74,6 @@ object ScalaSyntheticProvider {
     (m.isConstructor || m.isStaticInitializer) &&
       (isAnonfunType(m.declaringType()) || isSyntheticClassForTopLevelMembers(m.declaringType()))
 
-  def isSpecialization(tc: TypeComponent): Boolean = unspecializedName(tc.name()).nonEmpty
-
   private val defaultArgPattern = """\$default\$\d+""".r
 
   private def isDefaultArg(m: Method): Boolean = {

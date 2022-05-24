@@ -60,9 +60,6 @@ object ScalafmtDynamicConfigService {
   def instanceIn(file: PsiElement): ScalafmtDynamicConfigService =
     file.getProject.getService(classOf[ScalafmtDynamicConfigService])
 
-  def isIncludedInProject(file: PsiFile, config: ScalafmtReflectConfig): Boolean =
-    instanceIn(file.getProject).isFileIncludedInProject(file, config)
-
   def isIncludedInProject(file: PsiFile): Boolean =
     instanceIn(file.getProject).isFileIncludedInProject(file)
 

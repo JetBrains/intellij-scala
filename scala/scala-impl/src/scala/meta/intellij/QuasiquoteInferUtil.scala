@@ -109,7 +109,7 @@ object QuasiquoteInferUtil {
         val parts = collectQQParts(qqparts)
         val classes = parts.map(_.pt)
         classes.map(classToScTypeString)
-      case Parsed.Error(_, cause, exc) =>
+      case Parsed.Error(_, _, _) =>
         Seq.empty
     }): @nowarn("msg=match may not be exhaustive.")
   }

@@ -519,7 +519,6 @@ object ScalaFoldingBuilder {
 private[folding] object ScalaFoldingUtil {
   val IMPORT_KEYWORD = "import"
   val PACKAGE_KEYWORD = "package"
-  val MATCH_KEYWORD = "match"
 }
 
 /**

@@ -33,8 +33,6 @@ abstract class FakePsiMethod(navElement: PsiElement,
 
   override def getContainingClass: PsiClass = PsiTreeUtil.getParentOfType(navElement, classOf[ScTypeDefinition])
 
-  def getReturnTypeNoResolve: PsiType = retType.toPsiType
-
   override def getTextOffset: Int = navElement.getTextOffset
 
   override def getNavigationElement: PsiElement = navElement
@@ -47,8 +45,6 @@ abstract class FakePsiMethod(navElement: PsiElement,
 
   //noinspection ScalaWrongMethodsUsage
   override def hasModifierProperty(name: String): Boolean = psiMember.exists(_.hasModifierProperty(name))
-
-  def isExtensionMethod: Boolean = false
 
   override def getTypeParameterList: PsiTypeParameterList = null
 
@@ -146,9 +142,6 @@ object FakePsiMethod {
 
 class FakePsiTypeElement(manager: PsiManager, language: Language, tp: ScType)
         extends LightElement(manager, language) with PsiTypeElement with PsiAnnotatedAdapter {
-  def getTypeNoResolve(context: PsiElement): PsiType = PsiType.VOID //ScType.toPsi(tp, manager.getProject, GlobalSearchScope.allScope(manager.getProject))
-
-  def getOwner(annotation: PsiAnnotation): PsiAnnotationOwner = null
 
   override def getInnermostComponentReferenceElement: PsiJavaCodeReferenceElement = null
 
@@ -176,8 +169,6 @@ abstract class FakePsiParameter(manager: PsiManager, language: Language, name: S
 
   override def getDeclarationScope: PsiElement = null
 
-  def getTypeNoResolve: PsiType = PsiType.VOID
-
   override def setName(name: String): PsiElement = this //do nothing
 
   override def getNameIdentifier: PsiIdentifier = null
@@ -193,8 +184,6 @@ abstract class FakePsiParameter(manager: PsiManager, language: Language, name: S
   override def getType: PsiType = parameter.paramType.toPsiType
 
   override def isVarArgs: Boolean = false
-
-  def psiAnnotations: Array[PsiAnnotation] = PsiAnnotation.EMPTY_ARRAY
 
   override def getName: String = name
 

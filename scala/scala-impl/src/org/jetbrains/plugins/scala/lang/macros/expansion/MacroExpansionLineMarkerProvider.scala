@@ -84,7 +84,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
     createMarker(elem, AllIcons.Actions.Expandall, ScalaBundle.message("scala.meta.expand"))(fun)
   }
 
-  protected def createUndoMarker[T](element: PsiElement): Marker = {
+  protected def createUndoMarker(element: PsiElement): Marker = {
     val parent = element.getParent
 
     def undoExpansion(original: String, companion: Option[String] = None): Unit = {
@@ -96,7 +96,7 @@ abstract class MacroExpansionLineMarkerProvider extends RelatedItemLineMarkerPro
           td.baseCompanion.foreach(_.replace(definition))
         case (td: ScTypeDefinition, None) =>
           td.baseCompanion.foreach(c => c.getParent.getNode.removeChild(c.getNode))
-        case _ => None
+        case _ =>
       }
       parent.replace(newPsi)
 

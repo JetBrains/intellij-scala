@@ -77,7 +77,7 @@ object ScalaHighlightImplicitUsagesHandler {
     }
 
     implicit val contextBoundKind: TargetKind[(ScTypeParam, ScTypeElement)] = {
-      case (typeParam, typeElem) => contextBoundImplicitTarget(typeParam, typeElem)
+      case (_, typeElem) => contextBoundImplicitTarget(typeElem)
     }
 
     private def target(named: ScNamedElement): Option[PsiNamedElement] = named match {
@@ -87,7 +87,7 @@ object ScalaHighlightImplicitUsagesHandler {
         case _                                               => None
       }
 
-    private def contextBoundImplicitTarget(typeParam: ScTypeParam, typeElem: ScTypeElement): Option[ScParameter] = {
+    private def contextBoundImplicitTarget(typeElem: ScTypeElement): Option[ScParameter] = {
       if (!typeElem.isValid) return None
 
       val typeParam = typeElem.getParent.asInstanceOf[ScTypeParam]

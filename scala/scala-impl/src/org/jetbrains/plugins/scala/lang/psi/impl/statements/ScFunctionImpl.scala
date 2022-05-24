@@ -301,8 +301,6 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def getReturnTypeNoResolve: PsiType = PsiType.VOID
-
   override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean): java.util.List[MethodSignatureBackedByPsiMethod] =
     ContainerUtil.emptyList()
 

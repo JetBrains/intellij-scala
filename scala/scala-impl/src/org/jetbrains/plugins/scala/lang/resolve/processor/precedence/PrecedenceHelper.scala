@@ -51,12 +51,6 @@ trait PrecedenceHelper {
   protected val uniqueNamesSet     : util.Set[ScalaResolveResult] = new UniqueNamesSet
   protected val levelUniqueNamesSet: util.Set[ScalaResolveResult] = new UniqueNamesSet
 
-  protected def clear(): Unit = {
-    levelUniqueNamesSet.clear()
-    uniqueNamesSet.clear()
-    levelSet.clear()
-  }
-
   protected def isCheckForEqualPrecedence = true
 
   protected def clearLevelQualifiedSet(result: ScalaResolveResult): Unit = {

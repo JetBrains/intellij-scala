@@ -30,8 +30,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
 
   def testFlatSpecScope_ShouldIncludeItTestsWithoutBehaviourInTheBeginning(): Unit = {
     //TODO: "fix scalatest-finders-patched: FlatSpecFinder#getAllTestSelection does not detect tests without initial scope"
-    return
-
+/*
     val testPaths = Seq(
       TestNodePath("[root]", className, "should test name without behaviour with it"),
       TestNodePath("[root]", className, "should test name without behaviour with it tagged"),
@@ -41,7 +40,7 @@ trait FlatSpecScopeTest extends ScalaTestTestCase {
     )
     val testNames = testPaths.map(_.drop(2).mkString(" "))
 
-    /*runTestByLocation2(
+    runTestByLocation2(
       3, 1,
       fileName,
       configAndSettings => {

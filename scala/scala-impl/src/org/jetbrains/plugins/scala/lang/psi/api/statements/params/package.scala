@@ -62,7 +62,7 @@ package object params {
     case _ => freshTypeParamId(typeParameter)
   }
 
-  private def cachedId(element: PsiNamedElement, name: String): Long = paramToIdMap.computeIfAbsent(element, freshTypeParamId(_))
+  private def cachedId(element: PsiNamedElement): Long = paramToIdMap.computeIfAbsent(element, freshTypeParamId(_))
 
   implicit class TypeParamIdOwner[T](private val t: T) extends AnyVal {
     def typeParamId(implicit ev: TypeParamId[T]): Long = ev.typeParamId(t)
@@ -76,7 +76,7 @@ package object params {
     implicit val psi: TypeParamId[PsiTypeParameter] = {
       case sc: ScTypeParam => sc.typeParamId
       case null            => -1
-      case p               => cachedId(p, p.name)
+      case p               => cachedId(p)
     }
 
     implicit val typeParam: TypeParamId[TypeParameter] = t => psi.typeParamId(t.psiTypeParameter)

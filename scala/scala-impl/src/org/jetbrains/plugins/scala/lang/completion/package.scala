@@ -49,9 +49,6 @@ package object completion {
   private[completion] def annotationPattern =
     psiElement.afterLeaf(psiElement(tAT))
 
-  private[completion] def whiteSpacePattern =
-    psiElement(ScalaTokenTypes.tWHITE_SPACE_IN_LINE) || psiElement(classOf[PsiWhiteSpace])
-
   private[completion] def afterNewKeywordPattern = identifierWithParentsPattern(
     classOf[ScStableCodeReference],
     classOf[ScSimpleTypeElement],
@@ -167,10 +164,6 @@ package object completion {
   private[completion] implicit class InsertionContextExt(private val context: InsertionContext) extends AnyVal {
 
     def offsetMap: OffsetMap = context.getOffsetMap
-
-    def setStartOffset(offset: Int): Unit = {
-      offsetMap.addOffset(CompletionInitializationContext.START_OFFSET, offset)
-    }
 
     def scheduleAutoPopup(): Unit = {
       context.setLaterRunnable(() => {

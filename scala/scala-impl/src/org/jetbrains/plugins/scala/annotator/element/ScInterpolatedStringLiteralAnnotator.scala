@@ -52,7 +52,7 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
       override protected def transformRange(range: TextRange): TextRange =
         syntheticToReal(range)
     }
-    ScReferenceAnnotator.annotateReference(reference, inDesugaring = true)(delegateHolder)
+    ScReferenceAnnotator.annotateReference(reference)(delegateHolder)
     ScMethodInvocationAnnotator.annotateMethodInvocation(call, inDesugaring = true)(delegateHolder)
   }
 

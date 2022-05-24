@@ -120,7 +120,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // more side-effecty reporting
     conversionResult.transform (
       _ => Success(new SuccessResultImpl(0, System.currentTimeMillis(), true)), /* TODO starttime*/
-      x => Success(
+      _ => Success(
         new FailureResultImpl(0, System.currentTimeMillis(),
           List.empty[com.intellij.openapi.externalSystem.model.task.event.Failure].asJava // TODO error list
         )

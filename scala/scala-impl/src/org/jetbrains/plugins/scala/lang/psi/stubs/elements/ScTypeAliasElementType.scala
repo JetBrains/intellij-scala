@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
   * User: Alexander Podkhalyuzin
   * Date: 18.10.2008
   */
-abstract class ScTypeAliasElementType[Func <: ScTypeAlias](debugName: String)
+abstract class ScTypeAliasElementType(debugName: String)
   extends ScStubElementType[ScTypeAliasStub, ScTypeAlias](debugName) {
   override def serialize(stub: ScTypeAliasStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

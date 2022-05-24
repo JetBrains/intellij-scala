@@ -54,9 +54,6 @@ abstract class ImplicitConversionData {
     }
   }
 
-  def resultType(from: ScType, place: PsiElement): Option[ScType] =
-    isApplicable(from: ScType, place: PsiElement).map(_.resultType)
-
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
                                                place: PsiElement): Option[ImplicitConversionApplication] = {

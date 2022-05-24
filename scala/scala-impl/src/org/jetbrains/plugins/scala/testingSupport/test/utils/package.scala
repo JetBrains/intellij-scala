@@ -10,7 +10,5 @@ package object utils {
     def withQuotedSpaces: String =
       if (str.contains(" ")) s""""$str"""" else str
 
-    def prefixed(prefix: Option[String]): String =
-      prefix.fold(str)(_ + str)
   }
 }

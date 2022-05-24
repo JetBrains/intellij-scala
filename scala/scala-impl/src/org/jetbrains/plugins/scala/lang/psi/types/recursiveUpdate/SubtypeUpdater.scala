@@ -12,7 +12,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
 
   protected implicit def implicitThis: SubtypeUpdater = this
 
-  def updateCompoundType(ct: ScCompoundType,
+  private def updateCompoundType(ct: ScCompoundType,
                          variance: Variance,
                          substitutor: ScSubstitutor)
                         (implicit visited: Set[ScType]): ScType = {
@@ -39,8 +39,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     ScCompoundType(updatedComponents, updSignatureMap, updatedTypes)(ct.projectContext)
   }
 
-  def updateExistentialArg(exArg: ScExistentialArgument,
-                           variance: Variance,
+  private def updateExistentialArg(exArg: ScExistentialArgument,
                            substitutor: ScSubstitutor)
                           (implicit visited: Set[ScType]): ScType = {
     exArg.copyWithBounds(
@@ -49,7 +48,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     )
   }
 
-  def updateExistentialType(exType: ScExistentialType,
+  private def updateExistentialType(exType: ScExistentialType,
                             variance: Variance,
                             substitutor: ScSubstitutor)
                            (implicit visited: Set[ScType]): ScType = {
@@ -60,7 +59,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     else ScExistentialType(updatedQ)
   }
 
-  def updateParameterizedType(pt: ScParameterizedType,
+  private def updateParameterizedType(pt: ScParameterizedType,
                               variance: Variance,
                               substitutor: ScSubstitutor)
                              (implicit visited: Set[ScType]): ScType = {
@@ -85,15 +84,13 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
   }
 
 
-  def updateJavaArrayType(arrType: JavaArrayType,
-                          variance: Variance,
+  private def updateJavaArrayType(arrType: JavaArrayType,
                           substitutor: ScSubstitutor)
                          (implicit visited: Set[ScType]): ScType = {
     JavaArrayType(substitutor.recursiveUpdateImpl(arrType.argument, Invariant))
   }
 
-  def updateProjectionType(pt: ScProjectionType,
-                           variance: Variance,
+  private def updateProjectionType(pt: ScProjectionType,
                            substitutor: ScSubstitutor)
                           (implicit visited: Set[ScType]): ScType = {
 
@@ -104,7 +101,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
     else ScProjectionType(updatedType, pt.element)
   }
 
-  def updateMethodType(mt: ScMethodType,
+  private def updateMethodType(mt: ScMethodType,
                        variance: Variance,
                        substitutor: ScSubstitutor)
                       (implicit visited: Set[ScType]): ScType = {
@@ -123,7 +120,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       mt.isImplicit)(mt.elementScope)
   }
 
-  def updateTypePolymorphicType(tpt: ScTypePolymorphicType,
+  private def updateTypePolymorphicType(tpt: ScTypePolymorphicType,
                                 variance: Variance,
                                 substitutor: ScSubstitutor)
                                (implicit visited: Set[ScType]): ScType =
@@ -150,11 +147,11 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
                           (implicit visited: Set[ScType]): ScType =
     scType match {
       case t: ScCompoundType        => updateCompoundType       (t, variance, substitutor)
-      case t: ScExistentialArgument => updateExistentialArg     (t, variance, substitutor)
+      case t: ScExistentialArgument => updateExistentialArg     (t, substitutor)
       case t: ScExistentialType     => updateExistentialType    (t, variance, substitutor)
       case t: ScParameterizedType   => updateParameterizedType  (t, variance, substitutor)
-      case t: JavaArrayType         => updateJavaArrayType      (t, variance, substitutor)
-      case t: ScProjectionType      => updateProjectionType     (t, variance, substitutor)
+      case t: JavaArrayType         => updateJavaArrayType      (t, substitutor)
+      case t: ScProjectionType      => updateProjectionType     (t, substitutor)
       case t: ScMethodType          => updateMethodType         (t, variance, substitutor)
       case t: ScTypePolymorphicType => updateTypePolymorphicType(t, variance, substitutor)
       case leaf                     => leaf

@@ -106,12 +106,6 @@ trait ScalaAnnotationHolderAPI {
     builder.create()
   }
 
-  final def createInfoAnnotation(element: PsiElement,
-                                 @InspectionMessage message: String,
-                                 enforcedAttributes: Option[TextAttributes] = None,
-                                 fixes: Iterable[IntentionAction] = Nil): Unit =
-    createInfoAnnotation(element.getTextRange, message, enforcedAttributes, fixes)
-
   final def createWeakWarningAnnotation(element: PsiElement,
                                         @InspectionMessage message: String): Unit =
     newAnnotation(HighlightSeverity.WEAK_WARNING, message)

@@ -224,7 +224,7 @@ object ScalaEndMarkerCompletionContributor {
         Some(EndMarkerToken.identifier(binding.name))
 
       // given
-      case GivenWithMultilineBody(scGiven, body) =>
+      case GivenWithMultilineBody(scGiven, _) =>
         scGiven.nameElement match {
           case Some(nameElement) => Some(EndMarkerToken.identifier(nameElement.getText))
           case None => Some(EndMarkerToken.keyword(ScalaTokenType.GivenKeyword.keywordText))

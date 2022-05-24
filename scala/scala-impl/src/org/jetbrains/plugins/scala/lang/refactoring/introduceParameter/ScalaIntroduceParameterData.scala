@@ -31,8 +31,6 @@ case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
 
   override def getForcedType: PsiType = tp.toPsiType
 
-  def getScalaForcedType: ScType = tp
-
   override def isGenerateDelegate: Boolean = false
 
   override def isDeclareFinal: Boolean = false

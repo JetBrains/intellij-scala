@@ -134,18 +134,6 @@ class ScalaBraceEnforcer(settings: CodeStyleSettings, scalaSettings: ScalaCodeSt
     }
   }
 
-  private def processExpressions(elements: Seq[PsiElement], stmt: PsiElement, option: Int): Unit = {
-    if (elements.size == 1 && elements.head.isInstanceOf[ScBlockExpr]) return
-    if (elements.head.getNode.getElementType != ScalaTokenTypes.tLBRACE ||
-      elements.last.getNode.getElementType != ScalaTokenTypes.tRBRACE) {
-      if (option == CommonCodeStyleSettings.FORCE_BRACES_ALWAYS ||
-        (option == CommonCodeStyleSettings.FORCE_BRACES_IF_MULTILINE &&
-          PostFormatProcessorHelper.isMultiline(stmt))) {
-        replaceElementsWithBlock(elements:_*)
-      }
-    }
-  }
-
   private def replaceElementsWithBlock(elements: PsiElement*): Unit = {
     assert(elements.nonEmpty && elements.forall(_.isValid))
     if (!elements.forall(checkElementContainsRange)) return

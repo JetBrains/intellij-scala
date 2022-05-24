@@ -224,8 +224,6 @@ object MixinNodes {
 
     }
 
-    def nameCount: Int = allNames.size
-
     def nodesIterator(decodedName: String,
                       isSupers: Boolean,
                       onlyImplicit: Boolean = false): Iterator[Node[T]] = {

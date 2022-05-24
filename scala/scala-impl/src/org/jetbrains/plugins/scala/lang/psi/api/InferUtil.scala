@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
 
@@ -37,7 +37,6 @@ import scala.util.control.ControlThrowable
   */
 
 object InferUtil {
-  val notFoundParameterName = "NotFoundParameter239239239"
 
   val tagsAndManifists = Set(
     "scala.reflect.ClassManifest",
@@ -56,6 +55,7 @@ object InferUtil {
 
   private def isDebugImplicitParameters = LOG.isDebugEnabled
 
+  @unused
   def logInfo(searchLevel: Int, message: => String): Unit = {
     val indent = Seq.fill(searchLevel)("  ").mkString
     //    println(indent + message)

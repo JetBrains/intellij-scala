@@ -119,7 +119,6 @@ trait BitMaskStorage {
   private var usedBits: Int = 0
   private var _members: Map[String, BitMask] = Map.empty
 
-  def mask: Int = usedBits
   def members: Map[String, BitMask] = _members
 
   private def nextPos: Int = bitsNeededToRepresent(usedBits)

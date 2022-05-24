@@ -4,7 +4,7 @@ package annotator
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
@@ -146,8 +146,7 @@ object AnnotatorUtils {
   }
 
   // TODO encapsulate
-  def highlightImplicitView(expr: ScExpression, fun: PsiNamedElement, typeTo: ScType,
-                            elementToHighlight: PsiElement)
+  def highlightImplicitView(elementToHighlight: PsiElement)
                            (implicit holder: ScalaAnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplicitConversions) {
       holder.newSilentAnnotation(HighlightSeverity.INFORMATION)

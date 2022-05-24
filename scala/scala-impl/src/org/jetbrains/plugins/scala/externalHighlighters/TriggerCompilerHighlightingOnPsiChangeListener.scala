@@ -7,6 +7,9 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnPsiChangeListener.PsiChangeListener
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import scala.annotation.unused
+
+@unused("registered in scala-plugin-common.xml")
 private class TriggerCompilerHighlightingOnPsiChangeListener
   extends ProjectManagerListener {
 

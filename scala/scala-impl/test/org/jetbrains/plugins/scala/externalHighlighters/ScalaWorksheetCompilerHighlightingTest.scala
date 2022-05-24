@@ -38,7 +38,7 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
       val promise = Promise[Unit]()
       getProject.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
         override def eventReceived(event: CompilerEvent): Unit = event match {
-          case CompilerEvent.CompilationFinished(_, _, files) =>
+          case CompilerEvent.CompilationFinished(_, _, _) =>
             // todo (minor): we should also ensure that the file is actually the tested file
             promise.complete(Success(()))
           case _ =>

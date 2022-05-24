@@ -551,7 +551,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         else if (rightPsi.is[ScExtendsBlock, ScEarlyDefinitions, ScTemplateBody]) {
           settings.CLASS_BRACE_STYLE match {
             case CommonCodeStyleSettings.END_OF_LINE =>
-              val deepestLast = PsiTreeUtil.getDeepestLast(left.lastNode.nullSafe.map(_.getPsi).getOrElse(leftPsi))
               if (settings.SPACE_BEFORE_CLASS_LBRACE) WITH_SPACING_NO_KEEP
               else WITHOUT_SPACING_NO_KEEP
             case CommonCodeStyleSettings.NEXT_LINE_IF_WRAPPED =>
@@ -1363,10 +1362,6 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
         COMMON_SPACING
     }
   }
-
-  @inline
-  private def containsNewLine(text: CharSequence, start: Int, end: Int): Boolean =
-    contains(text, start, end, '\n')
 
   @inline
   private def containsNewLine(fileText: CharSequence, range: TextRange): Boolean =

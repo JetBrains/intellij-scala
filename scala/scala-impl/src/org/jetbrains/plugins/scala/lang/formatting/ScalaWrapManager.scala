@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlo
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 object ScalaWrapManager {
-  def suggestedWrap(block: ScalaBlock, scalaSettings: ScalaCodeStyleSettings): Wrap = {
+  def suggestedWrap(block: ScalaBlock): Wrap = {
     val settings = block.commonSettings
     val node = block.getNode
     val psi = node.getPsi

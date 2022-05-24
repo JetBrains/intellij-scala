@@ -6,7 +6,6 @@ package toplevel
 package synthetic
 
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.project.{DumbAwareRunnable, ProjectManagerListener}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
@@ -43,18 +42,17 @@ abstract class SyntheticNamedElement(name: String)
   }
   override def getContainingFile: PsiFile = SyntheticClasses.get(projectContext).file
 
-  def nameId: PsiElement = null
   override def getNameIdentifier: PsiIdentifier = null
 }
 
 class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
   extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
 
+  override def nameId: PsiElement = null
+
   override def typeParameterText: String = name
 
   override def getPresentation: ItemPresentation = super[ScTypeParam].getPresentation
-
-  def getOffsetInFile: Int = 0
 
   override def getContainingFileName: String = "NoFile"
 
@@ -88,8 +86,6 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
     new ItemPresentation {
       val This: ScSyntheticClass = ScSyntheticClass.this
       override def getLocationString: String = "(scala)"
-
-      def getTextAttributesKey: TextAttributesKey = null
 
       override def getPresentableText: String = NlsString.force(This.className)
 

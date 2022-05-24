@@ -53,8 +53,6 @@ class ResolveProcessor(override val kinds: Set[ResolveTargets.Value],
     case _                                        => false
   }
 
-  def emptyResultSet: Boolean = candidatesSet.isEmpty || levelSet.isEmpty
-
   override protected def nameUniquenessStrategy: NameUniquenessStrategy = ResolveStrategy
 
   override protected val holder: SimpleTopPrecedenceHolder = new SimpleTopPrecedenceHolder

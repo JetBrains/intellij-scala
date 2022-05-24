@@ -146,7 +146,7 @@ trait TreeAdapter {
 
   def ctor(pc: Option[ScPrimaryConstructor]): m.Ctor.Primary = {
     pc match {
-      case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toPrimaryCtorName(ctor), ctor.parameterList.clauses.map(convertParamClause).toList)
+      case Some(ctor) => m.Ctor.Primary(convertMods(ctor), toPrimaryCtorName, ctor.parameterList.clauses.map(convertParamClause).toList)
       case None => unreachable(ScalaMetaBundle.message("no.primary.constructor.in.class"))
     }
   }
@@ -185,7 +185,7 @@ trait TreeAdapter {
       case t@ ScTypedPattern(te)  => Typed(if (t.isWildcard) Wildcard() else Var(toTermName(t)), toType(te))
       case ScLiteralPattern(scLiteral)    =>  literal(scLiteral)
       case t: ScTuplePattern      =>  Tuple(t.patternList.get.patterns.map(pattern).toList)
-      case t: ScWildcardPattern   =>  Wildcard()
+      case _: ScWildcardPattern   =>  Wildcard()
       case t: ScCompositePattern  =>  compose(t.subpatterns.toList)
       case t: ScInfixPattern      =>  ExtractInfix(pattern(t.left), toTermName(t.operation), t.rightOption.map(pt => List(pattern(pt))).getOrElse(Nil))
       case ScStableReferencePattern(reference) => toTermName(reference)
@@ -290,7 +290,7 @@ trait TreeAdapter {
       case t: ScBlock =>
         m.Term.Block(t.statements.map(ideaToMeta(_).asInstanceOf[m.Stat]).toList)
       case t: ScMethodCall =>
-        t.withSubstitutionCaching { tp =>
+        t.withSubstitutionCaching { _ =>
           m.Term.Apply(expression(t.getInvokedExpr), t.args.exprs.map(callArgs).toList)
         }
       case ScInfixExpr.withAssoc(base, operation, argument) =>
@@ -298,7 +298,7 @@ trait TreeAdapter {
       case t: ScPrefixExpr =>
         m.Term.ApplyUnary(toTermName(t.operation), expression(t.operand))
       case t: ScPostfixExpr =>
-        t.withSubstitutionCaching { tp =>
+        t.withSubstitutionCaching { _ =>
           m.Term.Apply(m.Term.Select(expression(t.operand), toTermName(t.operation)), Nil)
         }
       case t: ScIf =>
@@ -335,7 +335,7 @@ trait TreeAdapter {
         m.Term.Tuple(t.exprs.map(expression).toList)
       case t: ScThrow =>
         m.Term.Throw(expression(t.expression).getOrElse(throw new AbortException(t, ScalaMetaBundle.message("empty.throw.expression"))))
-      case t@ScTry(tryBlock, catchBlock, finallyBlock) =>
+      case ScTry(tryBlock, catchBlock, finallyBlock) =>
         val fblk = finallyBlock.collect  {
           case ScFinallyBlock(expr) => expression(expr)
         }

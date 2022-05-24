@@ -201,8 +201,7 @@ object ScalaInheritors {
     else selfTypeInheritorsInner()
   }
 
-  private def withInheritors[T <: PsiClass : ClassTag](clazz: PsiClass,
-                                                       scope: GlobalSearchScope)
+  private def withInheritors[T <: PsiClass : ClassTag](clazz: PsiClass)
                                                       (predicate: T => Boolean): Set[T] = {
     val builder = Set.newBuilder[T]
     val visited = mutable.Set.empty[PsiClass]
@@ -231,15 +230,15 @@ object ScalaInheritors {
     builder.result()
   }
 
-  private def withStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass, scope: GlobalSearchScope): Set[T] =
-    withInheritors(clazz, scope)(ScalaPsiUtil.hasStablePath)
+  private def withStableInheritors[T <: PsiClass : ClassTag](clazz: PsiClass): Set[T] =
+    withInheritors(clazz)(ScalaPsiUtil.hasStablePath)
 
-  def withStableInheritorsNames[T <: PsiClass : ClassTag](clazz: PsiClass, scope: GlobalSearchScope): Set[String] =
-    withStableInheritors[PsiClass](clazz, scope).map(_.qualifiedName)
+  def withStableInheritorsNames(clazz: PsiClass): Set[String] =
+    withStableInheritors[PsiClass](clazz).map(_.qualifiedName)
 
-  def allInheritorObjects(clazz: ScTemplateDefinition, scope: GlobalSearchScope): Set[ScObject] =
-    withStableInheritors[ScObject](clazz, scope)
+  def allInheritorObjects(clazz: ScTemplateDefinition): Set[ScObject] =
+    withStableInheritors[ScObject](clazz)
 
-  def withAllInheritors(clazz: PsiClass, scope: GlobalSearchScope): Set[PsiClass] =
-    withInheritors(clazz, scope)(Function.const(true))
+  def withAllInheritors(clazz: PsiClass): Set[PsiClass] =
+    withInheritors(clazz)(Function.const(true))
 }

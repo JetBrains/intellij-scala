@@ -102,22 +102,21 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     "Marker: uTest Other first test")
 
   protected def runRegexp(config: AbstractTestRunConfiguration, classRegexp: String, testRegexp: String,
-                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(), exampleCount: Int = 3): Unit =
-    runRegexps(config, Array(classRegexp), Array(testRegexp), moduleName, expectedStrings, unexpectedStrings, exampleCount)
+                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit =
+    runRegexps(config, Array(classRegexp), Array(testRegexp), moduleName, expectedStrings, unexpectedStrings)
 
   protected def runRegexps(config: AbstractTestRunConfiguration, classRegexps: Array[String], testRegexps: Array[String],
-                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq(),
-                           exampleCount: Int = 3): Unit = {
+                          moduleName: String, expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
     config.testConfigurationData = RegexpTestData(config, classRegexps, testRegexps)
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
-    runConfig(config, expectedStrings, unexpectedStrings, exampleCount)
+    runConfig(config, expectedStrings, unexpectedStrings)
   }
 
   protected def runPackage(config: AbstractTestRunConfiguration, packageFqn: String, moduleName: String,
                            expectedStrings: Seq[String], unexpectedStrings: Seq[String] = Seq()): Unit = {
     config.testConfigurationData = AllInPackageTestData(config, packageFqn)
     config.setModule(ModuleManager.getInstance(getProject).findModuleByName(moduleName))
-    runConfig(config, expectedStrings, unexpectedStrings, 2)
+    runConfig(config, expectedStrings, unexpectedStrings)
   }
 
   protected def runWholeSuite(config: AbstractTestRunConfiguration, classFqn: String, moduleName: String,
@@ -137,7 +136,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
   }
 
   protected def runConfig(config: AbstractTestRunConfiguration, expectedStrings: Seq[String],
-                          unexpectedStrings: Seq[String], commandsExpected: Int = 1): Unit = {
+                          unexpectedStrings: Seq[String]): Unit = {
     config.testConfigurationData.useSbt = true
     val project = config.getProject
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk

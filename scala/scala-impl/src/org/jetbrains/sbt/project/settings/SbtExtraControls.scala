@@ -69,6 +69,5 @@ object SbtExtraControls {
     def isSelected: Boolean = box.isSelected
     def setSelected(value: Boolean): Unit = box.setSelected(value)
     def setEnabled(value: Boolean): Unit = box.setEnabled(value)
-    def setVisible(value: Boolean): Unit = box.setVisible(value)
   }
 }

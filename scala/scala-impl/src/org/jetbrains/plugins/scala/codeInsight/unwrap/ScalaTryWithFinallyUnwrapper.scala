@@ -17,7 +17,7 @@ class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
   }
 
   override def doUnwrap(element: PsiElement, context: ScalaUnwrapContext): Unit = element.getParent match {
-    case stmt @ ScTry(Some(tryBl), _, Some(finBl@ScFinallyBlock(fExpr))) =>
+    case stmt @ ScTry(Some(tryBl), _, Some(ScFinallyBlock(fExpr))) =>
       context.extractBlockOrSingleStatement(tryBl, stmt)
       context.insertNewLine()
       context.extractBlockOrSingleStatement(fExpr, stmt)

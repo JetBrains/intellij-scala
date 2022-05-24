@@ -4,7 +4,7 @@ import com.intellij.notification.{Notification, NotificationListener, Notificati
 
 import java.awt.datatransfer.StringSelection
 import java.awt.{Desktop, Toolkit}
-import java.net.{URI, URL}
+import java.net.URI
 import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 
@@ -13,9 +13,6 @@ import scala.annotation.nowarn
  */
 
 object DesktopUtils {
-  def browse(url: URL): Unit = {
-    browse(url.toExternalForm)
-  }
 
   def browse(url: String): Unit = {
     val supported = Desktop.isDesktopSupported && Desktop.getDesktop.isSupported(Desktop.Action.BROWSE)
@@ -40,12 +37,6 @@ object DesktopUtils {
          val clipboard = Toolkit.getDefaultToolkit.getSystemClipboard
          clipboard.setContents(new StringSelection(url.toExternalForm), null)
       }
-    }
-  }
-
-  object LinkHandler extends NotificationListener.Adapter {
-    override def hyperlinkActivated(notification: Notification, e: HyperlinkEvent): Unit = {
-      Option(e.getURL).foreach(browse)
     }
   }
 }

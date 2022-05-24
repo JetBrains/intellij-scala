@@ -35,7 +35,7 @@ class OverrideUnapplyTest extends SimpleTestCase {
     val expr = psi.findElementAt(pos) match {
       case e: LeafPsiElement =>
         Some(e.getParent.asInstanceOf[ScStableCodeReference].resolve())
-      case other =>
+      case _ =>
         None
     }
     expr match {

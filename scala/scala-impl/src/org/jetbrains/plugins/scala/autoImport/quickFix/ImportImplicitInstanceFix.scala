@@ -124,7 +124,7 @@ object ImportImplicitInstanceFix {
       tpe <- types
       clazz <- tpe.extractClass.toSet[PsiClass]
 
-      qualifiedName <- withStableInheritorsNames(clazz, scope)
+      qualifiedName <- withStableInheritorsNames(clazz)
       if !isRootClass(qualifiedName)
 
       candidateMember <-

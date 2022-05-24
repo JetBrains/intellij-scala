@@ -77,9 +77,6 @@ object BlockModificationTracker {
   def contextWithStableType(element: PsiElement): Option[ScExpression] =
     withStableType(element, _.getContext)
 
-  def parentWithStableType(element: PsiElement): Option[ScExpression] =
-    withStableType(element, _.getParent)
-
   @tailrec
   private def withStableType(element: PsiElement, nextElement: PsiElement => PsiElement): Option[ScExpression] =
     element match {

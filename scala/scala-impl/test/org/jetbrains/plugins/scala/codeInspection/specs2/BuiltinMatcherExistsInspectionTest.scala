@@ -81,7 +81,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaInspectionTestBase {
     Seq("must_===", "must_==", "mustEqual").foreach { matcher =>
       val code =
         s"""
-           |${START}expr must_=== Some("123")$END
+           |${START}expr $matcher Some("123")$END
         """.stripMargin
       val expected =
         """
@@ -98,7 +98,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaInspectionTestBase {
     Seq("must_===", "must_==", "mustEqual").foreach { matcher =>
       val code =
         s"""
-           |${START}expr must_=== None$END
+           |${START}expr $matcher None$END
         """.stripMargin
       val expected =
         """
@@ -116,7 +116,7 @@ class BuiltinMatcherExistsInspectionTest extends ScalaInspectionTestBase {
       Seq("Left", "Right").foreach { either =>
         val code =
           s"""
-             |${START}expr must_=== $either("123")$END
+             |${START}expr $matcher $either("123")$END
           """.stripMargin
         val expected =
           s"""

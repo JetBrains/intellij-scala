@@ -19,9 +19,6 @@ object TypeConstructorDiff {
 
   type TyConstr = (String, Seq[TypeParameter])
 
-  def forBoth(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext): (Tree[TypeConstructorDiff], Tree[TypeConstructorDiff]) =
-    (forExpected(expected, actual, substitute), forActual(expected, actual, substitute))
-
   def forActual(expected: TyConstr, actual: TyConstr, substitute: ScSubstitutor)(implicit tpc: TypePresentationContext): Tree[TypeConstructorDiff] =
     diff(actual._1, actual._2, expected._2, substitute)((lower, upper) => lower.conforms(upper), tpc)
 

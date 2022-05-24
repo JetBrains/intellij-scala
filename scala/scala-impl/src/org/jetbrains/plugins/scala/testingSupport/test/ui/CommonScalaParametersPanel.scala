@@ -47,8 +47,6 @@ class CommonScalaParametersPanel extends CommonProgramParametersPanel {
     addMacroSupport(myVMParametersComponent.getComponent.getEditorField, MacrosDialog.Filters.ALL)
   }
 
-  def setVMParameters(text: String): Unit = myVMParametersComponent.getComponent.setText(text)
-
   def getVMParameters: String = myVMParametersComponent.getComponent.getText
 
   def getEnvironmentVariables: util.Map[String, String] = myEnvVariablesComponent.getEnvs

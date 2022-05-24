@@ -364,7 +364,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         finishAndRestoreEditing(editedColumn)
       }
     }
-    addClauseButton.addCustomUpdater((e: AnActionEvent) => {
+    addClauseButton.addCustomUpdater((_: AnActionEvent) => {
       val selected = parametersTable.getSelectedRow
       selected > 0 && !myParametersTableModel.getItem(selected).startsNewClause
     })
@@ -387,7 +387,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
         finishAndRestoreEditing(editedColumn)
       }
     }
-    removeClauseButton.addCustomUpdater((e: AnActionEvent) => {
+    removeClauseButton.addCustomUpdater((_: AnActionEvent) => {
       val selected = parametersTable.getSelectedRow
       selected > 0 && myParametersTableModel.getItem(selected).startsNewClause
     })
@@ -509,7 +509,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
 
-    link.addHyperlinkListener((e: HyperlinkEvent) => {
+    link.addHyperlinkListener((_: HyperlinkEvent) => {
       extensions.invokeLater {
         mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
         updateSignatureAlarmFired()
@@ -520,7 +520,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   }
   
   private def setUpVisibilityListener(): Unit = {
-    myVisibilityPanel.addListener((e: ChangeEvent) => {
+    myVisibilityPanel.addListener((_: ChangeEvent) => {
       mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
       updateSignatureAlarmFired()
     })
@@ -529,12 +529,12 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
   private def setUpSpecifyTypeChb(): Unit ={
     mySpecifyTypeChb.setSelected(needsTypeAnnotation(method))
     
-    mySpecifyTypeChb.addActionListener((e: ActionEvent) => updateSignatureAlarmFired())
+    mySpecifyTypeChb.addActionListener((_: ActionEvent) => updateSignatureAlarmFired())
   }
   
   class ScalaParametersListTable extends ParametersListTable {
     override protected def getRowRenderer(row: Int): JBTableRowRenderer = {
-      (table: JTable, row: Int, selected: Boolean, focused: Boolean) => {
+      (_: JTable, row: Int, selected: Boolean, focused: Boolean) => {
         val item = getRowItem(row)
         val name = nameText(item)
         val typeTxt = typeText(item)

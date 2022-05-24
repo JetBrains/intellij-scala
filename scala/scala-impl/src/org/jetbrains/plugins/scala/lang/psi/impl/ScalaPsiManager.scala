@@ -48,7 +48,7 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import java.util
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.collection.immutable.ArraySeq
 
 class ScalaPsiManager(implicit val project: Project) {
@@ -524,6 +524,7 @@ private class ScalaPsiManagerHolder(implicit project: Project) {
     scalaPsiManager.set(null)
 }
 
+@unused("registered in scala-plugin-common.xml")
 private class ScalaPsiManagerListener extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {

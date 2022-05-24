@@ -84,7 +84,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
     val caretsInFile: VirtualFile => Seq[CaretPosition] = { file =>
       var text = fileText(file)
       val fileLength = text.length
-      def findOffsets(s: String): Seq[Int] = {
+      def findOffsets(): Seq[Int] = {
         val builder = Seq.newBuilder[Int]
         val length = caretMarker.length
         var occ = text.indexOf(caretMarker)
@@ -96,7 +96,7 @@ abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCase
 
         builder.result()
       }
-      val result = findOffsets(text).map(offset => CaretPosition(file, offset))
+      val result = findOffsets().map(offset => CaretPosition(file, offset))
       if (result.nonEmpty) {
         inWriteAction(FileDocumentManager.getInstance().getDocument(file).replaceString(0, fileLength, text))
       }

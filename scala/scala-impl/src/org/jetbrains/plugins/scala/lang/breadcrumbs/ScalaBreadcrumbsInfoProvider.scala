@@ -5,7 +5,6 @@ import com.intellij.openapi.project.DumbService
 import com.intellij.psi.PsiElement
 import com.intellij.ui.breadcrumbs.BreadcrumbsProvider
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -94,9 +93,6 @@ object ScalaBreadcrumbsInfoProvider {
     def getConstructorSignature(constr: ScFunction): String = 
       if (!constr.isConstructor) "" else "this" + limitString(getSignature(None, constr.parameters, None)(constr))
 
-    def getPrimaryConstructorSignature(constr: ScPrimaryConstructor): String = 
-      "this" + limitString(getSignature(None, constr.parameters, None)(constr))
-    
     def describeFunction(fun: ScFunction): String = if (fun.isConstructor) getConstructorSignature(fun) else getSignature(fun)
     
     def describeFunction(fun: ScFunctionExpr): String = "λ" + getSignature(fun)

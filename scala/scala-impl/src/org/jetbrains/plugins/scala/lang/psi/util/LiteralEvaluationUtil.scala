@@ -103,14 +103,6 @@ object LiteralEvaluationUtil {
     }
   }
 
-  private def boolAnyOp(lv: Any, rv: Any, name: String): Boolean = {
-    name match {
-      case "==" => lv == rv
-      case "!=" => lv != rv
-      case _ => throw new RuntimeException(s"Unexpected boolean operator $name while folding literal types")
-    }
-  }
-
   private def promoteToDouble(value: Any): Double = {
     value match {
       case d: Double => d

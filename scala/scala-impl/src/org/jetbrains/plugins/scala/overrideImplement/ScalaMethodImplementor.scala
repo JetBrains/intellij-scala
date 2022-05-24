@@ -21,7 +21,7 @@ import scala.collection.mutable
  * 12/25/13
  */
 class ScalaMethodImplementor extends MethodImplementor {
-  val emptyConsumer: Consumer[PsiMethod] = (t: PsiMethod) => {}
+  val emptyConsumer: Consumer[PsiMethod] = (_: PsiMethod) => {}
 
   private val prototypeToBaseMethod = mutable.WeakHashMap[PsiMethod, PsiMethod]()
 
@@ -32,7 +32,7 @@ class ScalaMethodImplementor extends MethodImplementor {
         case member@ScMethodMember(PhysicalMethodSignature(element, _), _) if element == method => member
       }
     } yield {
-      val body = ScalaGenerationInfo.defaultValue(member.scType, inClass.getContainingFile)
+      val body = ScalaGenerationInfo.defaultValue
       val prototype = createOverrideImplementMethod(member.signature, needsOverrideModifier = true, body)(inClass.getManager)
       TypeAnnotationUtil.removeTypeAnnotationIfNeeded(prototype)
       prototypeToBaseMethod += (prototype -> method)

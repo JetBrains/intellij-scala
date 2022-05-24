@@ -227,7 +227,6 @@ object LibraryExtensionsManager {
 
   val EXTENSIONS_TOPIC = new Topic[LibraryExtensionsListener]("EXTENSIONS_TOPIC", classOf[LibraryExtensionsListener])
 
-  private[libextensions] val BUNDLED_INDEX_PATH = "META-INF/extension-registry.json"
   private[libextensions] val MANIFEST_PATH      = "META-INF/intellij-compat.xml"
   private[libextensions] val PROPS_NAME         = "intellij-compat.json"
 

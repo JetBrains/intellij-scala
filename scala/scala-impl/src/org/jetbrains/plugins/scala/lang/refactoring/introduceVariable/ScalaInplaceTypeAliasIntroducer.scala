@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
  */
 object ScalaInplaceTypeAliasIntroducer {
 
-  def revertState(myEditor: Editor, scopeItem: ScopeItem, namedElement: ScNamedElement): Unit = {
+  def revertState(myEditor: Editor): Unit = {
     val myProject = myEditor.getProject
     CommandProcessor.getInstance.executeCommand(myProject, () => {
       val revertInfo = myEditor.getUserData(ScalaIntroduceVariableHandler.REVERT_INFO)
@@ -47,13 +47,13 @@ class ScalaInplaceTypeAliasIntroducer(element: ScNamedElement)
   }
 
   override def startsOnTheSameElement(handler: RefactoringActionHandler, element: PsiElement): Boolean = {
-    def checkEquals(typeAliasDefinition: ScTypeAliasDefinition) = {
+    def checkEquals() = {
       editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).getNamedElement == element
     }
 
     element match {
       case typeAliasDefinition: ScTypeAliasDefinition =>
-        checkEquals(typeAliasDefinition) && handler.isInstanceOf[ScalaIntroduceVariableHandler]
+        checkEquals() && handler.isInstanceOf[ScalaIntroduceVariableHandler]
       case _ => false
     }
   }

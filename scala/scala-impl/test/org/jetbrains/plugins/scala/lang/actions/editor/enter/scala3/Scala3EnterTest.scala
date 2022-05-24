@@ -813,8 +813,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     bodyBefore: String,
     bodyAfter: String,
     indentedRegionContexts: Seq[String],
-    additionalBodyIndentSize: Int = 2,
-    additionalBodyPrefix: String = "\n",
+    additionalBodyIndentSize: Int = 2
   ): Unit = {
     runEnterTestInContexts(
       bodyBefore,
@@ -828,8 +827,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
   private def runEnterTestInAllIndentationBlockContexts(
     bodyBefore: String,
     bodyAfter: String,
-    additionalBodyIndentSize: Int = 2,
-    additionalBodyPrefix: String = "\n",
+    additionalBodyIndentSize: Int = 2
   ): Unit = {
     runEnterTestInContexts(
       bodyBefore,

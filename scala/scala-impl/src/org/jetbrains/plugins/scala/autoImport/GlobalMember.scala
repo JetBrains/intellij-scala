@@ -49,7 +49,7 @@ object GlobalMember {
         .toSet
 
       val fromInheritors = for {
-        clazz            <- withAllInheritors(member.containingClass, scope)
+        clazz            <- withAllInheritors(member.containingClass)
         valueOfClassType <- StableValIndex.findValuesOfClassType(clazz, scope)
         named            <- valueOfClassType.declaredElements
         containingObject <- findAllInheritorObjectsForOwner(valueOfClassType)

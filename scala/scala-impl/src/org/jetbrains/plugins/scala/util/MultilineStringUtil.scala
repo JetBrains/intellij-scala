@@ -20,7 +20,6 @@ import java.util.regex.Pattern
 object MultilineStringUtil {
 
   val MultilineQuotes = "\"\"\""
-  val MultilineQuotesEscaped = "\\\"\\\"\\\""
   val MultilineQuotesLength: Int = MultilineQuotes.length
   val DefaultMarginChar = '|'
 
@@ -34,29 +33,6 @@ object MultilineStringUtil {
       case literal: ScLiteral => literal.isMultiLineString
       case _                  => false
     }
-
-  def needAddMethodCallToMLString(stringElement: PsiElement, methodName: String): Boolean = {
-    var parent = stringElement.getParent
-
-    do {
-      parent match {
-        case _: ScReference => //if (ref.nameId.getText == methodName) return false
-        case l: ScLiteral => if (!l.isMultiLineString) return false
-        case i: ScInfixExpr => if (i.operation.textMatches(methodName)) return false
-        case call: ScMethodCall =>
-          if (Option(call.getEffectiveInvokedExpr).forall {
-            case expr: ScExpression => expr.getText endsWith "." + methodName
-            case _ => false
-          }) return false
-        case _: ScParenthesisedExpr =>
-        case _ => return true
-      }
-
-      parent = parent.getParent
-    } while (parent != null)
-
-    true
-  }
 
   def hasMarginChars(element: PsiElement, marginChar: String): Boolean = {
     element.getText.replace("\r", "").split(s"\n[ \t]*${escapeForRegexp(marginChar)}").length > 1
@@ -156,11 +132,6 @@ object MultilineStringUtil {
     element.withParentsInFile.collect {
       case lit: ScLiteral if lit.isMultiLineString => lit
     }.to(LazyList).headOption
-  }
-
-  def isMLString(element: PsiElement): Boolean = element match {
-    case lit: ScLiteral if lit.isMultiLineString => true
-    case _ => false
   }
 
   def interpolatorPrefixLength(literal: ScLiteral): Int = interpolatorPrefix(literal).length
@@ -275,7 +246,6 @@ class MultilineStringSettings(project: Project) {
   private val settings = CodeStyle.getSettings(project)
   private val scalaSettings: ScalaCodeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
 
-  val defaultMarginChar: Char = settings.getCustomSettings(classOf[ScalaCodeStyleSettings]).getMarginChar
   val useTabs: Boolean = settings.useTabCharacter(ScalaFileType.INSTANCE)
   val tabSize: Int = settings.getTabSize(ScalaFileType.INSTANCE)
   val regularIndent: Int = settings.getIndentOptions(ScalaFileType.INSTANCE).INDENT_SIZE

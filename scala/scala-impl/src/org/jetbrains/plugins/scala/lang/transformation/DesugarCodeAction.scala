@@ -47,7 +47,7 @@ class DesugarCodeAction extends AnAction(
 
           withProgressSynchronously(title) {
             try {
-              Transformer.applyTransformersAndReformat(file, file, range, transformers)
+              Transformer.applyTransformersAndReformat(file, range, transformers)
             } finally {
               range.foreach(_.dispose())
             }

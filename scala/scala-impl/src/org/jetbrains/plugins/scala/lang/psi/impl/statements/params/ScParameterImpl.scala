@@ -30,7 +30,7 @@ import scala.annotation.tailrec
  * @author Alexander Podkhalyuzin
  */
 
-class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType[_ <: ScParameter], node: ASTNode)
+class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter {
 
   def this(node: ASTNode) = this(null, null, node)

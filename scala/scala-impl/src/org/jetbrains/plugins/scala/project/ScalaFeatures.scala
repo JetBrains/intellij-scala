@@ -35,7 +35,6 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   def indentationBasedSyntaxEnabled: Boolean = Bits.indentationBasedSyntaxEnabled.read(bits)
   def warnAboutDeprecatedInfixCallsEnabled: Boolean = Bits.warnAboutDeprecatedInfixCallsEnabled.read(bits)
 
-  def `disallow auto-eta-expansion of SAMs`: Boolean = !`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   // wildcards import are bugged in 2.12.14 and 2.13.6

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMeth
 
 private object ScalaElementPatternImpl {
 
-  def isRegExpLiteral[T <: ScalaPsiElement](literal: T, context: ProcessingContext): Boolean =
+  def isRegExpLiteral[T <: ScalaPsiElement](literal: T): Boolean =
     literal.getParent match {
       case ref: ScReferenceExpression => ref.getText.endsWith(".r")
       case postfix: ScPostfixExpr     => postfix.operation.textMatches("r")

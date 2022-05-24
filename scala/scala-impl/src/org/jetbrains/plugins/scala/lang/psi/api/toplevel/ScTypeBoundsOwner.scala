@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
+import scala.annotation.unused
+
 trait ScTypeBoundsOwner extends ScalaPsiElement {
   def lowerBound: TypeResult
 
@@ -17,7 +19,6 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def viewBound: Seq[ScType] = Nil
   def contextBound: Seq[ScType] = Nil
 
-  def hasBounds: Boolean = lowerTypeElement.nonEmpty || upperTypeElement.nonEmpty
   def hasImplicitBounds: Boolean = viewTypeElement.nonEmpty || contextBoundTypeElement.nonEmpty
 
   def lowerTypeElement: Option[ScTypeElement] = None
@@ -28,6 +29,7 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
 
   def removeImplicitBounds(): Unit = {}
 
+  @unused("debug utility")
   def boundsText: String = {
     def toString(bounds: Iterable[ScTypeElement], elementType: IElementType) =
       bounds.map(e => s"${elementType.toString} ${e.getText}")

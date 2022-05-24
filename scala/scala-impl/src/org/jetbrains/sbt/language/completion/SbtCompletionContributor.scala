@@ -81,7 +81,7 @@ final class SbtCompletionContributor extends ScalaCompletionContributor {
         getScopeType
       ).flatten
       val expectedType = expectedTypes match {
-        case Seq(t, rest @ _*) => t
+        case Seq(t, _*) => t
         case _ => return
       }
 

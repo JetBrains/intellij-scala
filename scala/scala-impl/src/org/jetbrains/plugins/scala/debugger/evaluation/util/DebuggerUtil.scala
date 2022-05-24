@@ -49,10 +49,6 @@ object DebuggerUtil {
       buffer += evaluator
     }
 
-    def append(name: Char): Unit = {
-      append(Character.toString(name))
-    }
-
     def append(text: String): Unit = {
       buffer += JVMNameUtil.getJVMRawText(text)
     }

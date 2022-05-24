@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
 
 import java.io.File
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.collection.mutable
 
 /**
@@ -75,6 +75,7 @@ object ScalaEvaluatorCompileHelper {
   def instance(project: Project): ScalaEvaluatorCompileHelper =
     project.getService(classOf[ScalaEvaluatorCompileHelper])
 
+  @unused("registered in scala-plugin-common.xml")
   private class Listener(project: Project) extends DebuggerManagerListener {
 
     override def sessionDetached(session: DebuggerSession): Unit = {

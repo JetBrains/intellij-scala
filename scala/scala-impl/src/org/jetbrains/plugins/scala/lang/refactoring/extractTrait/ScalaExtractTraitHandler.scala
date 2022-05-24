@@ -42,7 +42,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     val element: PsiElement = file.findScalaLikeFile.map(_.findElementAt(offset)).orNull
     if (element == null) return
     val clazz = PsiTreeUtil.getParentOfType(element, classOf[ScTemplateDefinition])
-    invokeOnClass(clazz, project, editor)
+    invokeOnClass(clazz, project)
   }
 
   override def invoke(elements: Array[PsiElement])
@@ -57,7 +57,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     if (dataContext != null) {
       val editor: Editor = CommonDataKeys.EDITOR.getData(dataContext)
       if (editor != null && clazz != null) {
-        invokeOnClass(clazz, project, editor)
+        invokeOnClass(clazz, project)
       }
     }
   }
@@ -91,7 +91,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
     }
   }
 
-  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project, editor: Editor): Unit = {
+  private def invokeOnClass(clazz: ScTemplateDefinition, project: Project): Unit = {
     if (clazz == null) return
 
     Stats.trigger(FeatureKey.extractTrait)

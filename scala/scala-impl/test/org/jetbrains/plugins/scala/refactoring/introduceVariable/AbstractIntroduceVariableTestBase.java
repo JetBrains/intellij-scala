@@ -179,7 +179,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
             ScTypeElement typeElement = optionType.get();
             String typeName = getName(fileText);
 
-            ScopeItem[] scopes = ScopeSuggester.suggestScopes(introduceVariableHandler, project, myEditor, myFile, typeElement);
+            ScopeItem[] scopes = ScopeSuggester.suggestScopes(typeElement);
 
 //          if (replaceOccurrencesFromInheritors) {
 //            ScTypeDefinition classOrTrait = PsiTreeUtil.getParentOfType(scopes.get(0).fileEncloser(), ScClass.class, ScTrait.class);

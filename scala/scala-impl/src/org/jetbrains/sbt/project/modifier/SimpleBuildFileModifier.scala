@@ -118,31 +118,4 @@ object SimpleBuildFileModifier {
     }
   }
 
-  def addElementToBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
-                            elementType: BuildFileElementType, buildFile: PsiFile, psiElement: PsiElement): Option[VirtualFile] = {
-    addElementsToBuildFile(module, locationProvider, elementType, buildFile, psiElement)
-  }
-
-  def removeElementFromBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
-                                 buildFile: PsiFile, elementType: BuildFileElementType, elementCondition: PsiElement => Boolean): Option[PsiFile] = {
-    locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {
-      case Some(element) =>
-        val res = element.getContainingFile
-        element.delete()
-        Some(res)
-      case None => None
-    }
-  }
-
-  def modifyElementInBuildFile(module: Module, locationProvider: BuildFileModificationLocationProvider,
-                               elementType: BuildFileElementType, buildFile: PsiFile,
-                               elementCondition: PsiElement => Boolean, modifyFunction: PsiElement => PsiElement): Option[PsiFile] = {
-    locationProvider.getModifyOrRemoveElement(module, elementType, elementCondition, buildFile) match {
-      case Some(element) =>
-        val res = element.getContainingFile
-        element.replace(modifyFunction(element))
-        Some(res)
-      case None => None
-    }
-  }
 }

@@ -45,8 +45,6 @@ class OccurrenceData(typeElement: ScTypeElement, usualOccurrence: Array[ScTypeEl
 
   def getExtendedOccurrences: Array[ScTypeElement] = getOccurrences(extendedClassOccurrence, isReplaceInExtendedClasses)
 
-  def getOccurrencesCount: Int = getAllOccurrences.length
-
   def getAllOccurrences: Array[ScTypeElement] = getUsualOccurrences ++ getCompanionObjOccurrences ++ getExtendedOccurrences
 
   private def getOccurrences(occ: Array[ScTypeElement], needAll: Boolean): Array[ScTypeElement] = {

@@ -33,7 +33,7 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
 
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
-  protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false): Unit = {
+  protected def doTest(fileText: String, checkEquivalence: Boolean = false): Unit = {
     configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
     doTestInner(checkEquivalence)
   }
@@ -125,7 +125,7 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
     expectedResult
   }
 
-  def doApplicationConformanceTest(fileText: String, fileName: String = "dummy.scala"): Unit = {
+  def doApplicationConformanceTest(fileText: String): Unit = {
     import org.junit.Assert._
     configureFromFileText(ScalaFileType.INSTANCE, fileText.trim)
     val scalaFile = getFile.asInstanceOf[ScalaFile]

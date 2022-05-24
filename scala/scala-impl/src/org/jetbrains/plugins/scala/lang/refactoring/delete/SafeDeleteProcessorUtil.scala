@@ -4,7 +4,7 @@ package refactoring
 package delete
 
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.util.{Condition, TextRange}
+import com.intellij.openapi.util.Condition
 import com.intellij.psi._
 import com.intellij.psi.impl.source.javadoc.PsiDocMethodOrFieldRef
 import com.intellij.psi.javadoc.PsiDocTag
@@ -152,16 +152,6 @@ object SafeDeleteProcessorUtil {
         isInside(usage, allElementsToDelete) || isInside(usage, validOverriding)
       }
     }
-  }
-
-  def removeDeletedMethods(methods: Array[PsiMethod], allElementsToDelete: Array[PsiElement]): Array[PsiMethod] = {
-    val list: util.ArrayList[PsiMethod] = new util.ArrayList[PsiMethod]
-    for (method <- methods) {
-      if (!allElementsToDelete.contains(method)) {
-        list.add(method)
-      }
-    }
-    list.toArray(new Array[PsiMethod](list.size))
   }
 
   @Nullable def findConstructorUsages(constructor: PsiMethod, originalReferences: util.Collection[PsiReference], usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
@@ -315,27 +305,6 @@ object SafeDeleteProcessorUtil {
       }
     }
     true
-  }
-
-  def findFieldUsages(psiField: PsiField, usages: util.List[UsageInfo], allElementsToDelete: Array[PsiElement]): Condition[PsiElement] = {
-    val isInsideDeleted: Condition[PsiElement] = getUsageInsideDeletedFilter(allElementsToDelete)
-    referenceSearch(psiField).forEach(new Processor[PsiReference] {
-      override def process(reference: PsiReference): Boolean = {
-        if (!isInsideDeleted.value(reference.getElement)) {
-          val element: PsiElement = reference.getElement
-          val parent: PsiElement = element.getParent
-          parent match {
-            case assignExpr: PsiAssignmentExpression if element == assignExpr.getLExpression =>
-              usages.add(new SafeDeleteFieldWriteReference(assignExpr, psiField))
-            case _ =>
-              val range: TextRange = reference.getRangeInElement
-              usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(reference.getElement, psiField, range.getStartOffset, range.getEndOffset, false, element.parentOfType(classOf[PsiImportStaticStatement]).isDefined))
-          }
-        }
-        true
-      }
-    })
-    isInsideDeleted
   }
 
   private def findMethodOrConstructorInvocation(element: PsiElement): Iterator[ImplicitArgumentsOwner] = {

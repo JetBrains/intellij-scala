@@ -43,19 +43,6 @@ object ScalaConsoleInfo {
     }
   }
 
-  def disposeConsole(console: ScalaLanguageConsole): Unit = {
-    val project = console.getProject
-    synchronized {
-      allConsoles.get(project) match {
-        case null =>
-        case list: List[(ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler)] =>
-          allConsoles.put(project, list.filter {
-            case (sConsole, _, _) => sConsole != console
-          })
-      }
-    }
-  }
-
   private def get(project: Project): (ScalaLanguageConsole, ConsoleHistoryController, ProcessHandler) = {
     synchronized {
       allConsoles.get(project) match {

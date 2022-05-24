@@ -9,7 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi.search.GlobalSearchScope.notScope
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -181,13 +180,6 @@ object ScalaCompletionUtil {
     checkWith(manager.getProject, text)
   }
 
-  def checkAnyTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
-    val typeText = typez.getText
-    val text = replaceDummy("class a { val x:" + typeText + " " + additionText + "}")
-
-    checkWith(manager.getProject, text)
-  }
-
   def checkAnyWith(typez: PsiElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
     val text = replaceDummy("class a { " + typeText + " " + additionText + "}")
@@ -295,15 +287,11 @@ object ScalaCompletionUtil {
 
   @CachedInUserData(clazz, BlockModificationTracker(clazz))
   private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {
-    val scope = projectScope(clazz).intersectWith(clazz.resolveScope)
-    ScalaInheritors.allInheritorObjects(clazz, scope)
+    ScalaInheritors.allInheritorObjects(clazz)
   }
 
   @CachedInUserData(clazz, ModTracker.libraryAware(clazz))
   private def inheritorObjectsInLibraries(clazz: ScTemplateDefinition): Set[ScObject] = {
-    val notProjectScope = notScope(projectScope(clazz)).intersectWith(clazz.resolveScope)
-    ScalaInheritors.allInheritorObjects(clazz, notProjectScope)
+    ScalaInheritors.allInheritorObjects(clazz)
   }
-
-  private def projectScope(clazz: PsiClass) = GlobalSearchScope.projectScope(clazz.getProject)
 }

@@ -95,9 +95,7 @@ class ScalaTestGenerator extends TestGenerator {
     val positionElement = typeDefinition.extendsBlock.templateBody.map(_.getFirstChild).getOrElse(typeDefinition)
     val editor: Editor = CodeInsightUtil.positionCursor(project, file, positionElement)
     addTestMethods(
-      editor,
       typeDefinition,
-      dialog.getSelectedTestFrameworkDescriptor,
       dialog.getSelectedMethods.asScala.toSeq,
       dialog.shouldGeneratedBefore,
       dialog.shouldGeneratedAfter,
@@ -126,11 +124,8 @@ class ScalaTestGenerator extends TestGenerator {
     }
   }
 
-
   private def addTestMethods(
-    editor: Editor,
     typeDef: ScTypeDefinition,
-    testFramework: TestFramework,
     methods: Seq[MemberInfo],
     generateBefore: Boolean,
     generateAfter: Boolean,

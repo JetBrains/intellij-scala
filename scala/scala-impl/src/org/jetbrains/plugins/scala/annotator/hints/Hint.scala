@@ -23,15 +23,8 @@ object Hint {
   def leftInsetLikeChar(char: Char, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
     widthOf(char, editor).map(new Insets(0, _, 0, 0))
 
-  def leftInsetLikeString(text: String, editor: Option[Editor] = None)(implicit scheme: EditorColorsScheme): Option[Insets] =
-    widthOf(text, editor).map(new Insets(0, _, 0, 0))
-
   // TODO Can we detect a "current" editor somehow?
   private def widthOf(char: Char, editor: Option[Editor])(implicit scheme: EditorColorsScheme) =
     editor.orElse(EditorFactory.getInstance().getAllEditors.headOption)
       .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).charWidth(char))
-
-  private def widthOf(str: String, editor: Option[Editor])(implicit scheme: EditorColorsScheme) =
-    editor.orElse(EditorFactory.getInstance().getAllEditors.headOption)
-      .map(_.getComponent.getFontMetrics(scheme.getFont(EditorFontType.PLAIN)).stringWidth(str))
 }

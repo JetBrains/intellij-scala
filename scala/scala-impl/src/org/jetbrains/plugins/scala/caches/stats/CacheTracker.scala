@@ -3,7 +3,6 @@ package caches
 package stats
 
 import com.intellij.util.containers.WeakList
-import org.jetbrains.plugins.scala.extensions._
 
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters._
@@ -45,12 +44,6 @@ object CacheTracker {
         .computeIfAbsent(cacheTypeId, new TrackedCacheTypeImpl[Cache](_, name, implicitly[CacheCapabilities[Cache]], alwaysTrack))
         .asInstanceOf[TrackedCacheTypeImpl[Cache]]
     cacheType.add(cache)
-  }
-
-  def isCacheTypeRegistered(cacheTypeId: String): Boolean = trackedCacheTypes.containsKey(cacheTypeId)
-
-  def clearCacheOfType(cacheTypeId: String): Unit = {
-    trackedCacheTypes.get(cacheTypeId).nullSafe.foreach(_.clear())
   }
 
   def clearAllCaches(): Unit = {

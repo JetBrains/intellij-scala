@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.{ReferenceExpressionResolver, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -52,7 +51,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case Some(_) => checkQualifiedReferenceElement(element, typeAware)
       }
 
-  def annotateReference(reference: ScReference, inDesugaring: Boolean = false)
+  def annotateReference(reference: ScReference)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     val results = reference.multiResolveScala(false)
 
@@ -215,19 +214,15 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScPrefixExpr] &&
           e.getParent.asInstanceOf[ScPrefixExpr].operation == e =>
           resolveResult.implicitFunction match {
-            case Some(fun) =>
-              val pref = e.getParent.asInstanceOf[ScPrefixExpr]
-              val expr = pref.operand
-              highlightImplicitMethod(expr, resolveResult, refElement, fun)
+            case Some(_) =>
+              highlightImplicitMethod(refElement)
             case _ =>
           }
         case e: ScReferenceExpression if e.getParent.isInstanceOf[ScInfixExpr] &&
           e.getParent.asInstanceOf[ScInfixExpr].operation == e =>
           resolveResult.implicitFunction match {
-            case Some(fun) =>
-              val inf = e.getParent.asInstanceOf[ScInfixExpr]
-              val expr = inf.getBaseExpr
-              highlightImplicitMethod(expr, resolveResult, refElement, fun)
+            case Some(_) =>
+              highlightImplicitMethod(refElement)
             case _ =>
           }
         case _ =>
@@ -318,10 +313,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     if (refElement.isInstanceOf[ScExpression] && resolveCount == 1) {
       val resolveResult = resolve(0)
       resolveResult.implicitFunction match {
-        case Some(fun) =>
-          val qualifier = refElement.qualifier.get
-          val expr = qualifier.asInstanceOf[ScExpression]
-          highlightImplicitMethod(expr, resolveResult, refElement, fun)
+        case Some(_) =>
+          highlightImplicitMethod(refElement)
         case _ =>
       }
     }
@@ -386,14 +379,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
 
-  private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
-                                      fun: PsiNamedElement)
+  private def highlightImplicitMethod(refElement: ScReference)
                                      (implicit holder: ScalaAnnotationHolder): Unit = {
-    val typeTo = resolveResult.implicitType match {
-      case Some(tp) => tp
-      case _ => Any(expr.projectContext)
-    }
-    highlightImplicitView(expr, fun, typeTo, refElement.nameId)
+    highlightImplicitView(refElement.nameId)
   }
 
   private def checkAccessForReference(resolve: Array[ScalaResolveResult], refElement: ScReference)

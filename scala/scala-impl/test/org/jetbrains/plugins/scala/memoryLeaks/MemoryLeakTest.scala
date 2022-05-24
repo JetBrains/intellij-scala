@@ -120,7 +120,7 @@ class MemoryLeakTest extends HeavyPlatformTestCase {
     val file = findFile("HelloWorld.scala").asInstanceOf[ScalaFile]
 
     processFile(file)
-    val settings = createRunConfiguration(file)
+    createRunConfiguration(file)
 //    assertNotNull(settings)
   }
 

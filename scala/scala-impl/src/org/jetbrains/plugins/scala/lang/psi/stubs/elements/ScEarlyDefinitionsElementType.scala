@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScEarlyDefinitionsStubImp
   * User: Alexander Podkhalyuzin
   * Date: 17.06.2009
   */
-class ScEarlyDefinitionsElementType[Func <: ScEarlyDefinitions]
+class ScEarlyDefinitionsElementType
   extends ScStubElementType[ScEarlyDefinitionsStub, ScEarlyDefinitions]("early definitions") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScEarlyDefinitionsStub =
     new ScEarlyDefinitionsStubImpl(parentStub, this)
