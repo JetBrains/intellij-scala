@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.types
 
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -15,7 +16,14 @@ object TypeCaseClauses extends ParsingRule {
       marker.drop()
       false
     } else {
-      while (TypeCaseClause()) {}
+      if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+        builder.advanceLexer()
+      }
+      while (TypeCaseClause()) {
+        if (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+          builder.advanceLexer()
+        }
+      }
       marker.done(ScalaElementType.TYPE_CASE_CLAUSES)
       true
     }
