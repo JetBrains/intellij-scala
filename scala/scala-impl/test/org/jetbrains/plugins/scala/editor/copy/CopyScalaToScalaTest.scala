@@ -16,7 +16,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
         |  1;
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testCommaSeparated(): Unit = {
@@ -30,7 +30,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
         |  (1, 2, 3)
         |}"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces(): Unit = {
@@ -38,7 +38,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
       s"""${Start}def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}$End
          |"""
     val to =
@@ -53,12 +53,12 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_1(): Unit = {
@@ -66,7 +66,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
       s"""${Start}def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}$End
          |"""
     val to =
@@ -80,11 +80,11 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_2(): Unit = {
@@ -93,7 +93,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |$End
          |"""
@@ -110,13 +110,13 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_3(): Unit = {
@@ -125,7 +125,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |$End
          |"""
@@ -141,12 +141,12 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject(): Unit = {
@@ -155,7 +155,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |$Start  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }$End
          |}
          |"""
@@ -171,12 +171,12 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_1(): Unit = {
@@ -185,7 +185,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |$Start  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }$End
          |}
          |"""
@@ -200,11 +200,11 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_2(): Unit = {
@@ -214,7 +214,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |$End}
          |"""
@@ -231,13 +231,13 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |
          |}
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 
   def testInnerMethod_Braces_FromObject_3(): Unit = {
@@ -247,7 +247,7 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |  def foo() = {
          |    def baz() =
          |      print(1)
-         |    baz(1)
+         |    baz()
          |  }
          |$End}
          |"""
@@ -263,11 +263,11 @@ class CopyScalaToScalaTest extends CopyPasteTestBase {
          |def foo() = {
          |  def baz() =
          |    print(1)
-         |  baz(1)
+         |  baz()
          |}
          |
          |"""
 
-    doTestWithStrip(from, to, after)
+    doTestWithStripWithAllSelections(from, to, after)
   }
 }

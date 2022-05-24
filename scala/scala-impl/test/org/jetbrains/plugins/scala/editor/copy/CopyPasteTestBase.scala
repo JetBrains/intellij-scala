@@ -11,6 +11,9 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   protected val End = EditorTestUtil.SELECTION_END_TAG
   protected val Caret = EditorTestUtil.CARET_TAG
 
+  protected val tab = "\t"
+  protected val empty = ""
+
   val fromLangExtension: String = ".scala"
 
   private var oldSettings: ScalaCodeStyleSettings = _
@@ -42,6 +45,30 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
 
   protected def doTestWithStrip(from: String, to: String, after: String): Unit = {
     doTest(from.stripMargin, to.stripMargin, after.stripMargin)
+  }
+
+  protected def doTestWithStripWithSelectedText(from: String, to: String, after: String, selectedText: String): Unit = {
+    doTestWithStrip(from, to.replaceAll(Caret, selectedText), after)
+  }
+
+  protected def doTestWithStripWithAllSelections(from: String, to: String, after: String): Unit = {
+    val selections = Seq(
+      Caret,
+      s"$Start$End",
+      s"$Start  $End",
+      s"$Start$tab$End",
+      s"""$Start
+         |$End""".stripMargin,
+      s"""$Start$tab$empty
+         |  $End""".stripMargin,
+      s"${Start}print(1)$End",
+      s"""$Start
+         |  print(1)$tab$empty
+         | $End""".stripMargin,
+    )
+
+    for (selectedText <- selections)
+      doTestWithStripWithSelectedText(from, to, after, selectedText)
   }
 
   protected def doTestToEmptyFile(fromText: String, expectedText: String): Unit = {
