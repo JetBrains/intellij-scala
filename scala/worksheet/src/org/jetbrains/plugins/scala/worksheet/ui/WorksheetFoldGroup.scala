@@ -33,17 +33,21 @@ final class WorksheetFoldGroup(
   private val _regions = mutable.ArrayBuffer[FoldRegionInfo]()
   private val unfolded = new util.TreeMap[Int, Int]()
 
-  def foldedLinesCount: Int = _regions.map(_.spaces).sum
+  def foldedLinesCount: Int = _regions.synchronized {
+    _regions.map(_.spaces).sum
+  }
 
-  def expandedRegionsIndexes: Seq[Int] = _regions.iterator.zipWithIndex.filter(_._1.expanded).map(_._2).toSeq
+  def expandedRegionsIndexes: Seq[Int] = _regions.synchronized {
+    _regions.iterator.zipWithIndex.filter(_._1.expanded).map(_._2).toSeq
+  }
 
   def left2rightOffset(left: Int): Int = {
-    val key: Int = unfolded floorKey left
+    val key: Int = unfolded.synchronized(unfolded floorKey left)
 
     if (key == 0) {
       left
     } else {
-      left + unfolded.get(key)
+      left + unfolded.synchronized(unfolded.get(key))
     }
   }
 
@@ -72,12 +76,14 @@ final class WorksheetFoldGroup(
     if (region == null) return //something went wrong
 
     region.setExpanded(isExpanded)
-    _regions += FoldRegionInfo(region, leftEndOffset, leftContentLines, spaces, region.isExpanded)
+    _regions.synchronized {
+      _regions += FoldRegionInfo(region, leftEndOffset, leftContentLines, spaces, region.isExpanded)
+    }
   }
 
   def clearRegions(): Unit = {
-    _regions.clear()
-    unfolded.clear()
+    _regions.synchronized(_regions.clear())
+    unfolded.synchronized(unfolded.clear())
     splitter.foreach(_.clear())
   }
 
@@ -93,11 +99,12 @@ final class WorksheetFoldGroup(
     addRegion(folding)(start, end, leftEndLine, leftSideLength, spaces, expanded)
   }
 
-  def expand(regionIdx: Int): Boolean =
+  def expand(regionIdx: Int): Boolean = _regions.synchronized {
     _regions.lift(regionIdx) match {
       case Some(region) => expand(region.region)
-      case None         => false
+      case None => false
     }
+  }
 
   private def expand(region: FoldRegion): Boolean =
     traverseAndChange(region, expand = true)
@@ -111,9 +118,11 @@ final class WorksheetFoldGroup(
   def initMappings(): Unit = {
     val (mappings, _, _) = traverseRegions(null)
     splitter.foreach(_.update(mappings))
-    _regions.iterator
-      .filter(_.expanded)
-      .foreach(updateChangeFolded(_, expand = true))
+    _regions.synchronized {
+      _regions.iterator
+        .filter(_.expanded)
+        .foreach(updateChangeFolded(_, expand = true))
+    }
   }
 
   private def traverseAndChange(target: FoldRegion, expand: Boolean): Boolean = {
@@ -132,7 +141,7 @@ final class WorksheetFoldGroup(
   @Measure
   private def traverseRegions(target: FoldRegion): (Iterable[DiffMapping], FoldRegionInfo, Int) = {
     val emptyResult: (Seq[DiffMapping], FoldRegionInfo, Int) = (Seq.empty, null, 0)
-    if (_regions.isEmpty) return emptyResult
+    if (_regions.synchronized(_regions.isEmpty)) return emptyResult
 
     def numbers(reg: FoldRegionInfo, stored: Int): DiffMapping = {
       val leftEndOffset = reg.leftEndOffset - 1
@@ -142,25 +151,27 @@ final class WorksheetFoldGroup(
       DiffMapping(leftStartLine, leftEndLine, leftEndLine + stored, reg.spaces)
     }
 
-    _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
-      val accNew = if (nextRegion.region == target) {
-        if (nextRegion.expanded) {
-          (res, nextRegion, offset)
-        } else {
+    _regions.synchronized {
+      _regions.foldLeft(emptyResult) { case (acc@(res, currentRegion, offset), nextRegion) =>
+        val accNew = if (nextRegion.region == target) {
+          if (nextRegion.expanded) {
+            (res, nextRegion, offset)
+          } else {
+            val resUpdated = res :+ numbers(nextRegion, offset)
+            (resUpdated, nextRegion, offset + nextRegion.spaces)
+          }
+        } else if (nextRegion.expanded) {
           val resUpdated = res :+ numbers(nextRegion, offset)
-          (resUpdated, nextRegion, offset + nextRegion.spaces)
+          (resUpdated, currentRegion, offset + nextRegion.spaces)
+        } else {
+          acc
         }
-      } else if (nextRegion.expanded) {
-        val resUpdated = res :+ numbers(nextRegion, offset)
-        (resUpdated, currentRegion, offset + nextRegion.spaces)
-      } else {
-        acc
+        accNew
       }
-      accNew
     }
   }
 
-  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean): Unit = {
+  private def updateChangeFolded(target: FoldRegionInfo, expand: Boolean): Unit = unfolded.synchronized {
     val line = originalDocument.safeLineNumber(target.leftEndOffset - 1)
     val key = unfolded floorKey line
 
@@ -282,7 +293,7 @@ object WorksheetFoldGroup {
   def save(file: VirtualFile, group: WorksheetFoldGroup): Unit = {
     if (!file.isValid) return
 
-    val regionsSerialized = serializeFoldRegions(group._regions)
+    val regionsSerialized = serializeFoldRegions(group._regions.synchronized(group._regions))
     FileAttributeUtilCache.writeAttribute(WORKSHEET_PERSISTENT_FOLD_KEY, file, regionsSerialized)
   }
 
