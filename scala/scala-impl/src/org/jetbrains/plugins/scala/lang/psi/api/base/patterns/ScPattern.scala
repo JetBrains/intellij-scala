@@ -442,7 +442,7 @@ object ScPattern {
       lazy val byNameExtractor = ByNameExtractor(place)
       val extracted            = extractedType(returnTpe, place)
 
-      extracted.map {
+      extracted.orElse(place.isInScala3File.option(returnTpe)).map {
         case tpe if isOneArgSyntheticUnapply(fun) => Seq(tpe)
         case TupleType(comps)                     => comps
         case byNameExtractor(comps)               => comps

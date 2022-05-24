@@ -752,7 +752,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i6822(): Unit = doTest("i6822", true) // #opaque
   def test_i6828(): Unit = doTest("i6828", true) // #byNameImplicit
   def test_i6847(): Unit = doTest("i6847", true) // #extension
-  def test_i6849a(): Unit = doTest("i6849a", false)
+  def test_i6849a(): Unit = doTest("i6849a", true)
   def test_i6849b(): Unit = doTest("i6849b", true)
   def test_i6854(): Unit = doTest("i6854", true) // #opaque
   def test_i6862(): Unit = doTest("i6862", true)
