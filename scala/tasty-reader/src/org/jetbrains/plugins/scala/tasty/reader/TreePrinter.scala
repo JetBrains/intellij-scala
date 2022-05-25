@@ -381,8 +381,8 @@ class TreePrinter(privateMembers: Boolean = false) {
       case Node2(TERMREFpkg | TYPEREFpkg, Seq(name)) => name
       case Node3(APPLIEDtpt | APPLIEDtype, _, Seq(constructor, arguments: _*)) =>
         val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
-        if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
-        else if (base == "scala.|") elements.mkString(" | ")
+        val isSymbolic = base.reverseIterator.takeWhile(_ != '.').forall(!_.isLetterOrDigit)
+        if (isSymbolic) elements.mkString(" " + simple(base) + " ")
         else if (base == "scala.<repeated>") textOfType(arguments.head, parensRequired = true) + "*" // TODO why repeated parameters in aliases are encoded differently?
         else {
           if (base.startsWith("scala.Tuple") && !base.substring(11).contains(".")) { // TODO use regex
