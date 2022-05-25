@@ -32,8 +32,6 @@ trait RemoteResourceOwner {
   @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     client.internalTrace(s"sending command to server: `$command`")
-    val encodedArgs = arguments.map(s => Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
-
     val socket = new Socket()
     val socketAddress = new InetSocketAddress(address, port)
     socket.connect(socketAddress, socketConnectTimeout.toMillis.toInt)
@@ -41,7 +39,7 @@ trait RemoteResourceOwner {
 
     Using.resource(socket) { socket =>
       Using.resource(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
-        val chunks = createChunks(command, encodedArgs)
+        val chunks = createChunks(command, arguments)
         client.internalTrace(s"writing chunks to socket")
         chunks.foreach(_.writeTo(output))
         output.flush()
