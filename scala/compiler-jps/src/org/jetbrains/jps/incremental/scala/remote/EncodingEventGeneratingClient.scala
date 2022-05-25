@@ -2,10 +2,11 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import java.io.{File, PrintStream}
 import java.util.Base64
-
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.EncodingEventGeneratingClient._
+
+import java.nio.charset.StandardCharsets
 
 final class EncodingEventGeneratingClient(out: PrintStream, standalone: Boolean)
   extends EventGeneratingClient(eventHandler(out, standalone), out.checkError) {
@@ -27,7 +28,7 @@ object EncodingEventGeneratingClient {
     event => {
       val encoded = Base64.getEncoder.encodeToString(event.toBytes)
       val encodedNormalized = if (standalone && !encoded.endsWith("=")) encoded + "=" else encoded
-      val bytes = encodedNormalized.getBytes
+      val bytes = encodedNormalized.getBytes(StandardCharsets.UTF_8)
       out.write(bytes)
     }
 }

@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.ui.printers.repl.QueuedPsi
 
-import java.util
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 
 object WorksheetIncrementalSourcePreprocessor {
 
@@ -39,7 +40,8 @@ object WorksheetIncrementalSourcePreprocessor {
 
       (additionalCommands ++ codeCommands).mkString(ReplDelimiter)
     }
-    val commandsEncoded = util.Base64.getEncoder.encodeToString(commands.getBytes)
+    // Necessary to encode to Base64 because the code can contain newline characters, which can be lost upon reconstruction.
+    val commandsEncoded = Base64.getEncoder.encodeToString(commands.getBytes(StandardCharsets.UTF_8))
     Right(PreprocessResult(commandsEncoded, elementsToEvaluate))
   }
 

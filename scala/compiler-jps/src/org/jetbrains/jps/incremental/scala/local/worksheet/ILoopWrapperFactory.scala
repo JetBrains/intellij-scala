@@ -1,18 +1,17 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io._
-import java.net._
-import java.nio.charset.StandardCharsets
-import java.util.Base64
-import java.util.regex.Pattern
-import java.{util => ju}
-
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactory.{ILoopCreationException, MyUpdatePrintStream, MyUpdatePrintWriter}
 import org.jetbrains.jps.incremental.scala.local.worksheet.ILoopWrapperFactoryHandler.{ReplContext, ReplWrapperCompiled}
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.{ILoopWrapper, ILoopWrapperReporter, NoopReporter, PrintWriterReporter}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.{ReplMessages, WorksheetArgs}
 
+import java.io._
+import java.net._
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+import java.util.regex.Pattern
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 

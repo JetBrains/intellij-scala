@@ -2,16 +2,14 @@ package org.jetbrains.plugins.scala.compilerReferences
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.charset.StandardCharsets
-import java.util.Base64
 import java.util.zip.{DeflaterOutputStream, InflaterInputStream}
-
 import org.jetbrains.jps.incremental.messages.CustomBuilderMessage
 import Builder.id
 import org.jetbrains.plugins.scala.indices.protocol.IdeaIndicesJsonProtocol._
 import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import spray.json._
 
-import scala.util.Try
+import scala.util.{Try, Using}
 
 object Messages {
   val compilationDataType     = "compilation-data"
@@ -28,22 +26,24 @@ object Messages {
     extends CustomBuilderMessage(id, compilationStartedType, isCleanBuild.toString)
 
   def compressCompilationInfo(data: JpsCompilationInfo): String = {
-    val baos     = new ByteArrayOutputStream(8191)
-    val json     = data.toJson.compactPrint
+    val baos = new ByteArrayOutputStream(8191)
+    val json = data.toJson.compactPrint
 
-    tryWith(new DeflaterOutputStream(baos))(
+    Using(new DeflaterOutputStream(baos))(
       _.write(json.getBytes(StandardCharsets.UTF_8))
     )
 
-    Base64.getEncoder.encodeToString(baos.toByteArray)
+    // Compression uses ISO_8859_1 encoding.
+    new String(baos.toByteArray, StandardCharsets.ISO_8859_1)
   }
 
-  def decompressCompilationInfo(b64encoded: String): Try[JpsCompilationInfo] = {
-    val decoded = Base64.getDecoder.decode(b64encoded)
-    val bais    = new ByteArrayInputStream(decoded)
+  def decompressCompilationInfo(compressedCompilationInfo: String): Try[JpsCompilationInfo] = {
+    // Compression uses ISO_8859_1 encoding.
+    val bytes = compressedCompilationInfo.getBytes(StandardCharsets.ISO_8859_1)
+    val bais = new ByteArrayInputStream(bytes)
 
     val inflated =
-      tryWith(new InflaterInputStream(bais)) { inflater =>
+      Using(new InflaterInputStream(bais)) { inflater =>
         val out    = new ByteArrayOutputStream
         val buffer = new Array[Byte](8192)
         var read   = 0
@@ -61,13 +61,4 @@ object Messages {
       jpsInfo <- Try(json.parseJson.convertTo[JpsCompilationInfo])
     } yield jpsInfo
   }
-
-  private[this] def tryWith[R <: AutoCloseable, T](resource: => R)(f: R => T): Try[T] =
-    Try(resource).flatMap { resource =>
-      Try(f(resource)).flatMap { result =>
-        Try {
-          if (resource != null) resource.close()
-        }.map(_ => result)
-      }
-    }
 }

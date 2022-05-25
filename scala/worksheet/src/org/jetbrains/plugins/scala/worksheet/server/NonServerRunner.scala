@@ -47,8 +47,7 @@ class NonServerRunner(project: Project) {
         val argsEncoded = ("IGNORED_TOKEN" +: args).map { arg =>
           // When we call main method starting new process we have to use some stub for empty argument, otherwise the argument will be skipped
           // (when sending arguments via socket, Nailgun automatically recognises empty argument and processes them correctly)
-          val argFixed = if (arg.isEmpty) SerializationUtils.EmptyArgumentStub else arg
-          Base64.getEncoder.encodeToString(argFixed.getBytes(StandardCharsets.UTF_8))
+          if (arg.isEmpty) SerializationUtils.EmptyArgumentStub else arg
         }
         val commands: Seq[String] = {
           val jdkPath = FileUtil.toCanonicalPath(jdk.executable.getPath)
@@ -86,7 +85,7 @@ class NonServerRunner(project: Project) {
             val eventClient = new ClientEventProcessor(client)
             val listener: String => Unit = (text: String) => {
               try {
-                val bytes = Base64.getDecoder.decode(text.getBytes("UTF-8"))
+                val bytes = Base64.getDecoder.decode(text.getBytes(StandardCharsets.UTF_8))
                 val event = Event.fromBytes(bytes)
                 eventClient.process(event)
               } catch {
@@ -96,7 +95,7 @@ class NonServerRunner(project: Project) {
               }
             }
             val bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream))
-            val reader = new MyBase64StreamReader(bufferedReader, listener) //starts threads under the hood
+            val reader = new MyStreamReader(bufferedReader, listener) //starts threads under the hood
 
             val bufferedErrorsReader = new BufferedReader(new InputStreamReader(p.getErrorStream))
             val errorsReader = new CollectingStreamReader(bufferedErrorsReader, s"error stream  : ${project.getName}")
@@ -134,7 +133,7 @@ class NonServerRunner(project: Project) {
   }
 
 
-  private class MyBase64StreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
+  private class MyStreamReader(private val reader: Reader, listener: String => Unit) extends BaseDataReader(null) {
     start(project.getName)
 
     private val charBuffer = new Array[Char](8192)

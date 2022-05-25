@@ -20,11 +20,10 @@ import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io._
-import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
-import java.util.{Base64, Timer, TimerTask}
+import java.util.{Timer, TimerTask}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
@@ -325,19 +324,16 @@ object Main {
     client.meteringInfo(result)
   }
 
-  private def parseArgs(command: String, argsEncoded: Seq[String]): Try[ArgsParsed] = {
-    val args = argsEncoded.map(decodeArgument)
+  private def parseArgs(command: String, argsRaw: Seq[String]): Try[ArgsParsed] = {
+    val args = argsRaw.map(normalizeArgument)
     args match {
       case Seq(token, other@_*) => CompileServerCommandParser.parse(command, other).map(ArgsParsed(token, _))
       case _                    => Failure(new IllegalArgumentException(s"arguments are empty"))
     }
   }
 
-  private def decodeArgument(argEncoded: String): String = {
-    val decoded = Base64.getDecoder.decode(argEncoded.getBytes)
-    val str = new String(decoded, StandardCharsets.UTF_8)
-    if (str == SerializationUtils.EmptyArgumentStub) "" else str
-  }
+  private def normalizeArgument(arg: String): String =
+    if (arg == SerializationUtils.EmptyArgumentStub) "" else arg
 
   @throws(classOf[TokenVerificationException])
   private def validateToken(path: Path, actualToken: String): Unit = {
