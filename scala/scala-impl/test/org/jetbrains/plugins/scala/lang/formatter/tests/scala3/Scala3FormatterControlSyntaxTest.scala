@@ -169,6 +169,7 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |for {x <- 0 to 2; y <- 0 to 2}
       |yield x * 2
       |""".stripMargin
+
   private val OneLineForIndented =
     """for x <- 0 to 2
       |  yield x * 2
@@ -188,6 +189,7 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |for {x <- 0 to 2; y <- 0 to 2}
       |  yield x * 2
       |""".stripMargin
+
   def testFor_OneLineEnumerators(): Unit = {
     scalaSettings.INDENT_YIELD_AFTER_ONE_LINE_ENUMERATORS = false
     doForYieldDoTest(OneLineFor)
@@ -496,73 +498,6 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
         |  extension (c: Circle)
         |    def circumference: Double = c.radius * math.Pi * 2
         |}
-        |""".stripMargin
-    )
-  }
-
-  // SCL-20166
-  def testExtension_Object_Comment(): Unit = {
-    doTextTest(
-      """object Example {
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    // foo
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |}
-        |""".stripMargin
-    )
-  }
-
-  def testExtension_Object_Comment_1(): Unit = {
-    doTextTest(
-      """object Example {
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    /* foo */
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |}
-        |""".stripMargin
-    )
-  }
-
-  def testExtension_Object_Comment_2(): Unit = {
-    doTextTest(
-      """object Example {
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    /** foo */
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |}
-        |""".stripMargin
-    )
-  }
-
-  def testExtension_Comment(): Unit = {
-    doTextTest(
-      """extension (c: Circle)
-        |  // foo
-        |  def circumference: Double = c.radius * math.Pi * 2
-        |""".stripMargin
-    )
-  }
-
-  def testExtension_Comment_1(): Unit = {
-    doTextTest(
-      """extension (c: Circle)
-        |  /* foo */
-        |  def circumference: Double = c.radius * math.Pi * 2
-        |""".stripMargin
-    )
-  }
-
-  def testExtension_Comment_2(): Unit = {
-    doTextTest(
-      """extension (c: Circle)
-        |  /** foo */
-        |  def circumference: Double = c.radius * math.Pi * 2
         |""".stripMargin
     )
   }
