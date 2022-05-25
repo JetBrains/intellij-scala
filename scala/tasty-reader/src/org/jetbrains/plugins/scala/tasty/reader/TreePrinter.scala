@@ -158,6 +158,12 @@ class TreePrinter(privateMembers: Boolean = false) {
       val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
       val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
       parametersIn(sb, repr, Some(repr))
+      repr.children.foreach {
+        case Node3(MATCHtpt, _, Seq(upperBound, tpe, _*)) if !tpe.is(CASEDEF) =>
+          sb ++= " <: "
+          sb ++= simple(textOfType(upperBound))
+        case _ =>
+      }
       if (bounds.isDefined) {
         boundsIn(sb, bounds.get)
       } else {
@@ -406,6 +412,18 @@ class TreePrinter(privateMembers: Boolean = false) {
           case _ => textOfType(tpe)
         }
       case Node3(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
+
+      case Node3(MATCHtpt, _, children) =>
+        val (tpe, cases) = children match {
+          case tpe :: (cases @ Seq(Node1(CASEDEF), _: _*)) => (tpe, cases)
+          case _ :: tpe :: (cases @ Seq(Node1(CASEDEF), _: _*)) => (tpe, cases)
+        }
+        val cs = cases.map {
+          case Node3(CASEDEF, _, Seq(t1, t2)) => "case " + simple(textOfType(t1)) + " => " + simple(textOfType(t2))
+        }
+        simple(textOfType(tpe)) + " match { " + cs.mkString(" ") + " }"
+
+      case Node1(BIND) => if (node.name.startsWith("_$")) "_" else id(node.name)
 
       case Node1(TYPEBOUNDStpt) =>
         val sb1 = new StringBuilder() // TODO
