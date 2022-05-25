@@ -860,7 +860,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i8276(): Unit = doTest("i8276", true)
   def test_i8284(): Unit = doTest("i8284", true)
   def test_i8319(): Unit = doTest("i8319", false) // #intersectionType
-  def test_i8344_1(): Unit = doTest("i8344-1", false) // #enum
+  def test_i8344_1(): Unit = doTest("i8344-1", true) // #enum
   def test_i8344_2(): Unit = doTest("i8344-2", true)
   def test_i8357(): Unit = doTest("i8357", false) // #opaque, #intersectionType
   def test_i8368(): Unit = doTest("i8368", false) // #export
