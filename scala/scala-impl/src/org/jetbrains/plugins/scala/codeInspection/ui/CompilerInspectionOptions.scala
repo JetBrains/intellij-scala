@@ -26,7 +26,7 @@ object CompilerInspectionOptions {
       case ComplyToCompilerOption => elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
       case _                      => false
     }
-  
+
   private def createOptions(compilerOptionName: String): Seq[String] =
     Seq(
       ScalaInspectionBundle.message("inspection.option.enabled"),
