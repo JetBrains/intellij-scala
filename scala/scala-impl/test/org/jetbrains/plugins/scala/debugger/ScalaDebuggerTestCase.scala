@@ -7,6 +7,7 @@ import com.intellij.debugger.ui.breakpoints.BreakpointManager
 import com.intellij.debugger.{DebuggerInvocationUtil, DebuggerTestCase}
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
@@ -35,6 +36,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
 abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
+
+  private val Log = Logger.getInstance(getClass)
 
   private val compilerConfig: RevertableChange = CompilerTestUtil.withEnabledCompileServer(false)
 
@@ -149,10 +152,12 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
       checksumsInDir(srcPath.toFile).toMap
     }
 
-    def shouldCompile(srcChecksums: Map[Path, Array[Byte]], diskChecksums: Map[Path, Array[Byte]]): Boolean =
-      !srcChecksums.forall { case (srcPath, srcSum) =>
+    def shouldCompile(srcChecksums: Map[Path, Array[Byte]], diskChecksums: Map[Path, Array[Byte]]): Boolean = {
+      val checksumsAreSame = srcChecksums.forall { case (srcPath, srcSum) =>
         diskChecksums.get(srcPath).exists(java.util.Arrays.equals(srcSum, _))
       }
+      !checksumsAreSame
+    }
 
     def writeChecksumsToDisk(checksums: Map[Path, Array[Byte]]): Unit = {
       val strings = checksums.map { case (path, sum) => (path.toString, sum) }
@@ -170,6 +175,10 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
     if (needsCompilation) {
       super.compileProject()
       writeChecksumsToDisk(srcChecksums)
+    } else {
+      val message = s"Skipping project compilation: checksums are the same ($testAppPath)"
+      Log.warn(message)
+      System.out.println(s"##teamcity[message text='$message' status='INFO']")
     }
   }
 
