@@ -41,7 +41,7 @@ trait IntegrationTestRunResultAssertions {
       else
         expectedCode
     Assert.assertEquals(
-      "Test runner process terminated with unexpected error code $errorCode",
+      "Test runner process terminated with unexpected error code",
       expectedCodeFixed,
       actualCode
     )
