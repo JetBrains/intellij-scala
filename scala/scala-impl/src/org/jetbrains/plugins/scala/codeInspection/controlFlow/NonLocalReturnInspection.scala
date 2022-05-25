@@ -1,61 +1,40 @@
 package org.jetbrains.plugins.scala.codeInspection.controlFlow
 
+import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.psi.PsiElement
-import org.jdom.Element
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.ui.{InspectionOption, InspectionOptions}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScMethodCall, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
 
 import javax.swing.JComponent
 import scala.annotation.tailrec
+import scala.beans.BooleanBeanProperty
 
 final class NonLocalReturnInspection extends AbstractRegisteredInspection {
   import NonLocalReturnInspection._
+  import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 
-  private val checkCompilerOption = {
-    val compilerOptionName = "-Xlint:nonlocal-return"
-    val isCompilerOptionPresent: ScNamedElement => Boolean = {
-      element => element.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
-    }
-
-    new InspectionOptions(
-      "checkCompilerOption",
-      ScalaInspectionBundle.message("nonlocal.return.check.compiler.option"),
-      Seq(
-        InspectionOption("", isCompilerOptionPresent),
-        InspectionOption("", _ => true)
-      ),
-      selectedIndex = 0
-    )
-  }
+  @BooleanBeanProperty
+  var checkCompilerOption: Boolean = true
 
   @Override
   override def createOptionsPanel(): JComponent =
-    checkCompilerOption.checkBox
-
-  override def writeSettings(node: Element): Unit = {
-    checkCompilerOption.writeSettings(node)
-    super.writeSettings(node)
-  }
-
-  override def readSettings(node: Element): Unit = {
-    super.readSettings(node)
-    checkCompilerOption.readSettings(node)
-  }
+    InspectionOptionsPanel.singleCheckBox(
+      this,
+      ScalaInspectionBundle.message("nonlocal.return.check.compiler.option"),
+      "checkCompilerOption"
+    )
 
   override protected def problemDescriptor(element: PsiElement,
                                            maybeQuickFix: Option[LocalQuickFix],
                                            descriptionTemplate: String,
                                            highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
     element match {
-      case function: ScFunctionDefinition if checkCompilerOption.isEnabled(function) =>
+      case function: ScFunctionDefinition if isInspectionAllowed(function, checkCompilerOption, "-Xlint:nonlocal-return") =>
         function.returnUsages.collectFirst {
             case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) =>
               manager.createProblemDescriptor(
@@ -69,7 +48,6 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
       case _ =>
         None
     }
-  }
 }
 
 object NonLocalReturnInspection {

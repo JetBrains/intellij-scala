@@ -22,7 +22,7 @@ abstract class ScalaUnusedDeclarationInspectionTestBase extends ScalaInspectionT
     val inspectionProfile = InspectionProjectProfileManager.getInstance(getProject).getCurrentProfile
     val inspectionToolWrapper = inspectionProfile.getInspectionTool("ScalaUnusedSymbol", getProject)
     val inspection = inspectionToolWrapper.getTool.asInstanceOf[ScalaUnusedDeclarationInspection]
-    inspection.setReportPublicDeclarationsEnabled(true)
+    inspection.setReportPublicDeclarations(true)
   }
 
   val removeUnusedElementHint = ScalaInspectionBundle.message("remove.unused.element")
