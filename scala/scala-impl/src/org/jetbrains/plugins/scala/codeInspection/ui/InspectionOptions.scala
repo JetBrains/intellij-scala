@@ -1,18 +1,19 @@
 package org.jetbrains.plugins.scala.codeInspection.ui
 
 import org.jdom.Element
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.project.ModuleExt
 
 import scala.util.Try
 
-final case class InspectionOption(label: String, isEnabled: ScNamedElement => Boolean)
+final case class InspectionOption(@Nls label: String, isEnabled: ScNamedElement => Boolean)
 
 final class InspectionOptions(
-  val propertyName:          String,
-  val label:                 String,
-  val options:               Seq[InspectionOption],
+  val propertyName: String,
+  @Nls val label: String,
+  val options: Seq[InspectionOption],
   private var selectedIndex: Int = 0
 ) {
   def readSettings(node: Element): Unit =
@@ -51,7 +52,7 @@ final class InspectionOptions(
 }
 
 object InspectionOptions {
-  def apply(propertyName: String, label: String): InspectionOptions =
+  def apply(propertyName: String, @Nls label: String): InspectionOptions =
     new InspectionOptions(
       propertyName,
       label,
@@ -61,7 +62,7 @@ object InspectionOptions {
       )
     )
 
-  def apply(propertyName: String, label: String, compilerOptionName: String): InspectionOptions = {
+  def apply(propertyName: String, @Nls label: String, compilerOptionName: String): InspectionOptions = {
     val isCompilerOptionEnabled: ScNamedElement => Boolean = { elem =>
       elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
     }

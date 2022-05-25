@@ -1,15 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.ui
 
 import net.miginfocom.swing.MigLayout
+import org.jetbrains.annotations.Nls
 import org.jetbrains.sbt.project.template.SComboBox
 
 import javax.swing.{JLabel, JPanel}
 
-final class InspectionOptionsCombobox(val label:        String,
-                                      val options:      Seq[InspectionOption],
-                                      getSelectedIndex: () => Int,
-                                      setSelectedIndex: Int => Unit
-                                     ) extends JPanel(new MigLayout("fillx, ins 0")) {
+final class InspectionOptionsCombobox(
+  @Nls val label: String,
+  val options: Seq[InspectionOption],
+  getSelectedIndex: () => Int,
+  setSelectedIndex: Int => Unit
+) extends JPanel(new MigLayout("fillx, ins 0")) {
   private lazy val combobox = new SComboBox(options.toArray)
 
   def setOption(selectedIndex: Int): Unit =
