@@ -20,7 +20,7 @@ object ModTracker {
   object anyScalaPsiChange extends SimpleModificationTracker
 
   def physicalPsiChange(project: Project): ModificationTracker =
-    PsiModificationTracker.SERVICE.getInstance(project)
+    PsiModificationTracker.getInstance(project)
 
   def libraryAware(element: PsiElement): ModificationTracker = {
     val rootManager = ProjectRootManager.getInstance(element.getProject)

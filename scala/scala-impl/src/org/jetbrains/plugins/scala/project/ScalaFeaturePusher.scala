@@ -47,7 +47,7 @@ class ScalaFeaturePusher extends com.intellij.FileIntPropertyPusher[SerializedSc
   override def getImmediateValue(project: Project, file: VirtualFile): SerializedScalaFeatures = null
 
   override def acceptsDirectory(file: VirtualFile, project: Project): Boolean =
-    ProjectFileIndex.SERVICE.getInstance(project).isInSourceContent(file)
+    ProjectFileIndex.getInstance(project).isInSourceContent(file)
 }
 
 object ScalaFeaturePusher {

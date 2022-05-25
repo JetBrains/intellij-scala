@@ -479,7 +479,7 @@ object ScalaAnnotator {
 
   private def isLibrarySource(file: ScalaFile): Boolean = {
     val vFile = file.getVirtualFile
-    val index = ProjectFileIndex.SERVICE.getInstance(file.getProject)
+    val index = ProjectFileIndex.getInstance(file.getProject)
 
     !file.isCompiled && vFile != null && index.isInLibrarySource(vFile)
   }

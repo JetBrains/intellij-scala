@@ -9,7 +9,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.5.0"
   val zincVersion = "1.6.1"
-  val intellijVersion = "222.2270.31"
+  val intellijVersion = "222.2680.4"
 
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
@@ -251,7 +251,7 @@ private object Utils {
     val versionWithoutTail = intellijVersion.substring(0, intellijVersion.lastIndexOf('.'))
     //222.2270.15 -> 222.2270-EAP-CANDIDATE-SNAPSHOT
     val eapCandidateVersion = versionWithoutTail + "-EAP-CANDIDATE-SNAPSHOT"
-    //222.1533 -> 222.2270-SNAPSHOT
+    //222.2270 -> 222.2270-SNAPSHOT
     val nightlyVersion = versionWithoutTail + "-SNAPSHOT"
     val eapVersion = intellijVersion + "-EAP-SNAPSHOT"
 
@@ -262,14 +262,14 @@ private object Utils {
       else if (Utils.isIdeaEapBuildAvailable(eapCandidateVersion)) IdeBuildType.EapCandidate
       else throw new IllegalStateException(s"Cannot determine build type for version $intellijVersion")
 
-    println(s"Detected build type: $buildType")
-
     val (intellijVersionManaged, intellijRepositoryManaged) = buildType match {
       case IdeBuildType.Release => (intellijVersion, Repositories.intellijRepositoryReleases)
       case IdeBuildType.Eap => (eapVersion, Repositories.intellijRepositoryEap)
       case IdeBuildType.EapCandidate => (eapCandidateVersion, Repositories.intellijRepositoryEap)
       case IdeBuildType.Nightly => (nightlyVersion, Repositories.intellijRepositoryNightly)
     }
+    println(s"""Detected build type for version $buildType (intellij version: $intellijVersion, managed intellij version: $intellijVersionManaged)""")
+
     DataForManagedIntellijDependencies(intellijVersionManaged, intellijRepositoryManaged)
   }
 

@@ -153,7 +153,7 @@ public class AttachIntellijSourcesAction extends AnAction {
     private static Stream<LibraryOrderEntry> getLibraryOrderEntries(@NotNull Project project, @NotNull VirtualFile file) {
         return !file.getUrl().contains(".jar!") ?
                 Stream.empty() :
-                ProjectFileIndex.SERVICE.getInstance(project).getOrderEntriesForFile(file)
+                ProjectFileIndex.getInstance(project).getOrderEntriesForFile(file)
                         .stream()
                         .filter(LibraryOrderEntry.class::isInstance)
                         .map(LibraryOrderEntry.class::cast);

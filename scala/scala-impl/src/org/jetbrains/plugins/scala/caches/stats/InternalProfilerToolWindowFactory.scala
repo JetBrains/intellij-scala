@@ -89,7 +89,7 @@ object InternalProfilerToolWindowFactory {
     val parentCalls = createTableWithToolbarPanel(ScalaCacheTracerDataSource, parentCallsModel, project)
     val memory = createTableWithToolbarPanel(ScalaCacheMemoryDataSource, memoryModel, project)
 
-    val factory = ContentFactory.SERVICE.getInstance()
+    val factory = ContentFactory.getInstance()
     Seq(
       factory.createContent(timingsTable, "Timings", false),
       factory.createContent(parentCalls, "Parent Calls", false),
