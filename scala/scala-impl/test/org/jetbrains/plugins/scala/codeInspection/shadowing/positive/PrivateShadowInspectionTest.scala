@@ -11,13 +11,4 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
          |class D(${START}c${END}: Int) extends C(c)
          |""".stripMargin
     )
-
-  def test_subclass_private_this_parameter_shadows_superclass_mutable_field(): Unit =
-    checkTextHasError(
-      s"""
-         |class C(var c: Int)
-         |
-         |class D(private[this] val ${START}c${END}: Int) extends C(c)
-         |""".stripMargin
-    )
 }
