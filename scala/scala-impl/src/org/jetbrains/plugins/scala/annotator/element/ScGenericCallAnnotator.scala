@@ -5,11 +5,12 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.DefaultTypeParameterMismatch
+import org.jetbrains.plugins.scala.lang.psi.types.{DefaultTypeParameterMismatch, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 
 
@@ -39,12 +40,15 @@ object ScGenericCallAnnotator extends ElementAnnotator[ScGenericCall] {
             }).map(TypeParameter(_))
 
             val stringPresentation = s"method ${typeParamOwner.name}"
+            implicit val tpc: TypePresentationContext = typeParamOwner
 
-            ScParameterizedTypeElementAnnotator.annotateTypeArgs(
+            ScParameterizedTypeElementAnnotator.annotateTypeArgs[ScTypeElement](
               typeParams,
-              genCall.typeArgs,
+              genCall.arguments,
+              genCall.typeArgs.getTextRange,
               rr.substitutor,
-              stringPresentation
+              stringPresentation,
+              _.`type`()
             )
           case _ =>
         }
