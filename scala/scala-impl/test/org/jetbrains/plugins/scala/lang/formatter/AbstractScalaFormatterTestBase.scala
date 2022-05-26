@@ -14,7 +14,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiFileFactory
 import com.intellij.testFramework.LightIdeaTestCase
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.ScalaLanguage
-import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{CharSeqExt, IteratorExt, PsiElementExt, StringExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtPreFormatProcessor
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -153,11 +153,22 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
           case e: IncorrectOperationException =>
             fail(e.getLocalizedMessage)
         }, "", "")
+
+        val expected = prepareText(textClean)
+        val documentText = prepareText(document.getText)
         if (checkResult) {
-          val expected = prepareText(textClean)
-          assertEquals(expected, prepareText(document.getText))
+          assertEquals(expected, documentText)
+
           manager.commitDocument(document)
-          assertEquals(expected, prepareText(file.getText))
+          val fileText = prepareText(file.getText)
+          assertEquals(expected, fileText)
+        }
+
+        if (expected != documentText) {
+          inWriteAction {
+            document.setText(textClean)
+          }
+          manager.commitDocument(document)
         }
       } catch {
         case t: Throwable =>
