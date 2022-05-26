@@ -16,6 +16,7 @@ public class ScalaTestRunner {
   private static final String REPORTER_WITH_LOCATION_FQN = ScalaTestReporterWithLocation.class.getName();
 
   public static void main(String[] argsRaw) {
+    int rc = 0;
     try {
       ScalaTestRunnerArgs args = ScalaTestRunnerArgs.parse(TestRunnerUtil.preprocessArgsFiles(argsRaw));
 
@@ -26,11 +27,15 @@ public class ScalaTestRunner {
       } else {
         runScalaTest1(args);
       }
+      if (ScalaTestReporter.runAborted || ScalaTestReporterWithLocation.runAborted) {
+        rc = 2;
+      }
     } catch (Throwable e) {
       e.printStackTrace();
+      rc = 1;
     }
 
-    System.exit(0);
+    System.exit(rc);
   }
 
   private static void runScalaTest2or3(ScalaTestRunnerArgs args) {

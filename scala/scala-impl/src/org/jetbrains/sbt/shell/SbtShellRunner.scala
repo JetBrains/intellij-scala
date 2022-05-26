@@ -150,7 +150,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     actionToolBar.setTargetComponent(mainPanel)
 
     //noinspection ScalaExtractStringToBundle
-    val content = ContentFactory.SERVICE.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
+    val content = ContentFactory.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)
     val toolWindowTitle = project.getName
     content.setTabName(toolWindowTitle)
     content.setDisplayName(toolWindowTitle)

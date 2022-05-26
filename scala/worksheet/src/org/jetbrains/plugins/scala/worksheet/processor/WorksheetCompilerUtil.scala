@@ -52,7 +52,7 @@ object WorksheetCompilerUtil {
                              msg: Array[String], severity: CompilationMessageSeverity,
                              onShow: () => Unit)
                             (implicit project: Project): Unit = {
-    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+    val contentManager = MessageView.getInstance(project).getContentManager
 
     def addMessageToView(treeView: CompilerErrorTreeView): Unit =
       treeView.addMessage(severity.toType, msg, file, pos.line, pos.column, null)
@@ -70,7 +70,7 @@ object WorksheetCompilerUtil {
             val newView = new CompilerErrorTreeView(project, null)
             addMessageToView(newView)
             //noinspection ReferencePassedToNls
-            val errorContent = ContentFactory.SERVICE.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
+            val errorContent = ContentFactory.getInstance.createContent(newView, ERROR_CONTENT_NAME, true)
             contentManager.addContent(errorContent)
             (errorContent, newView)
         }
@@ -86,7 +86,7 @@ object WorksheetCompilerUtil {
     showCompilationMessage(file, pos, msg, ErrorSeverity, onShow)
 
   def removeOldMessageContent(project: Project): Unit = {
-    val contentManager = MessageView.SERVICE.getInstance(project).getContentManager
+    val contentManager = MessageView.getInstance(project).getContentManager
     val oldContent = contentManager findContent ERROR_CONTENT_NAME
     if (oldContent != null) {
       contentManager.removeContent(oldContent, true)

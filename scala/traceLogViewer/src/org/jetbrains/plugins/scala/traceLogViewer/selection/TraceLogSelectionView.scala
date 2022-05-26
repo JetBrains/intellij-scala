@@ -62,7 +62,7 @@ object TraceLogSelectionView {
         TraceLogSelectionModel.refresh()
     })
 
-    val factory = ContentFactory.SERVICE.getInstance()
+    val factory = ContentFactory.getInstance()
     factory.createContent(mainPanel, displayName, true)
   }
 

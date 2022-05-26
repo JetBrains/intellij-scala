@@ -68,7 +68,7 @@ object TraceLogView {
 
     actionToolBar.setTargetComponent(mainPanel)
 
-    val factory = ContentFactory.SERVICE.getInstance()
+    val factory = ContentFactory.getInstance()
     factory.createContent(mainPanel, NlsString.force(path.getFileName.toString), true)
   }
 }

@@ -61,7 +61,7 @@ class BspProjectTaskRunner extends ProjectTaskRunner {
       // TODO all these Options fail silently. collect errors and report something
       val targetIds = for {
         projectPath <- Option(ES.getExternalProjectPath(task.getModule))
-        projectData <- Option(ES.findProjectData(project, BSP.ProjectSystemId, projectPath))
+        projectData <- Option(ES.findProjectNode(project, BSP.ProjectSystemId, projectPath))
         moduleDataNode <- Option(ES.find(
           projectData, ProjectKeys.MODULE,
           (node: DataNode[ModuleData]) => node.getData.getId == moduleId))

@@ -64,6 +64,7 @@ object SmartJDKLoader {
     )
   }
 
+  //NOTE: consider testing against JDK 17 by default in idea223.x
   def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_11): Sdk = {
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)
     val jdkName = jdkVersion.getDescription

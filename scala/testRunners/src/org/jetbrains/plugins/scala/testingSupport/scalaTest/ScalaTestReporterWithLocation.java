@@ -27,6 +27,8 @@ public class ScalaTestReporterWithLocation implements Reporter {
 
     private final static String SCAlA_TEST_URL_PREFIX = "scalatest://";
 
+    public static volatile boolean runAborted = false;
+
     private String getStackTraceString(Throwable throwable) {
         StringWriter writer = new StringWriter();
         throwable.printStackTrace(new PrintWriter(writer));
@@ -187,10 +189,9 @@ public class ScalaTestReporterWithLocation implements Reporter {
             if (throwableOption instanceof Some) {
                 throwableString = " errorDetails='" + escapeString(getStackTraceString(throwableOption.get())) + "'";
             }
-            String statusText = "ERROR";
             String escapedMessage = escapeString(message);
             if (!escapedMessage.isEmpty()) {
-                System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='" + statusText + "'" +
+                System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='ERROR'" +
                         throwableString + "]");
             }
         } else if (event instanceof InfoProvided) {
@@ -210,8 +211,8 @@ public class ScalaTestReporterWithLocation implements Reporter {
             }
             String escapedMessage = escapeString(message);
             if (!escapedMessage.isEmpty()) {
-                System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='ERROR'" +
-                        throwableString + "]");
+                System.out.println("\n##teamcity[message text='" + escapedMessage + "' status='ERROR'" + throwableString + "]");
+                runAborted = true;
             }
         } else if (event instanceof RunCompleted) {
 

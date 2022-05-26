@@ -246,7 +246,7 @@ class ChangeAccessModifierIntention extends BaseElementAtCaretIntentionAction {
           .withName(ScalaCodeInsightBundle.message("change.access.modifier.intention"))
           .run(() => {
             modifierList.setModifierProperty(modifier, true)
-            val whitespace = PsiParserFacade.SERVICE.getInstance(project).createWhiteSpaceFromText(" ")
+            val whitespace = PsiParserFacade.getInstance(project).createWhiteSpaceFromText(" ")
             val sibling = modifierList.getNextSibling
             if (sibling.isInstanceOf[PsiWhiteSpace]) {
               sibling.replace(whitespace)

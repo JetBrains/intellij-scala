@@ -25,6 +25,8 @@ public class ScalaTestReporter implements Reporter {
 
   public static boolean myShowProgressMessages = true;
 
+  public static volatile boolean runAborted = false;
+
   @Override
   public void apply(Event event) {
     if (!treeBuilder.isInitialized())
@@ -122,10 +124,9 @@ public class ScalaTestReporter implements Reporter {
       if (throwableOption instanceof Some) {
         throwableString = " errorDetails='" + escapeString(getStackTraceString(throwableOption.get())) + "'";
       }
-      String statusText = "ERROR";
       String escapedMessage = escapeString(message);
       if (!escapedMessage.isEmpty()) {
-        reportMessage("##teamcity[message text='" + escapedMessage + "' status='" + statusText + "'" + throwableString + "]");
+        reportMessage("##teamcity[message text='" + escapedMessage + "' status='ERROR'" + throwableString + "]");
       }
     } else if (event instanceof InfoProvided) {
       String message = ((InfoProvided) event).message();
@@ -154,6 +155,7 @@ public class ScalaTestReporter implements Reporter {
       String escapedMessage = escapeString(message);
       if (!escapedMessage.isEmpty()) {
         reportMessage("##teamcity[message text='" + escapedMessage + "' status='ERROR'" + throwableString + "]");
+        runAborted = true;
       }
     } else if (event instanceof RunCompleted) {
 

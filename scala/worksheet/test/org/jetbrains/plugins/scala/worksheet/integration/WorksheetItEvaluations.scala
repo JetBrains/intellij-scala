@@ -30,8 +30,8 @@ trait WorksheetItEvaluations {
 
   protected def runWorksheetEvaluation(worksheetEditor: Editor): Future[RunWorksheetAction.RunWorksheetActionResult] = {
     //HACK: force service to initialize, otherwise NPE can occur in WorksheetCompilerUtil.removeOldMessageContent
-    //because `MessageView.SERVICE.getInstance` uses invokeLater under the hood and toolwindow is not initialized
-    MessageView.SERVICE.getInstance(getProject)
+    //because `MessageView.getInstance` uses invokeLater under the hood and toolwindow is not initialized
+    MessageView.getInstance(getProject)
     UIUtil.dispatchAllInvocationEvents()
 
     RunWorksheetAction.runCompiler(project, worksheetEditor, auto = false)

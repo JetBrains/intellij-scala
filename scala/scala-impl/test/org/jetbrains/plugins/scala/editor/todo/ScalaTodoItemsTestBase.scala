@@ -46,8 +46,8 @@ abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestAd
       .sorted(comparatorToOrdering(Segment.BY_START_OFFSET_THEN_END_OFFSET))
 
   private def assertSameTodoCountInIndexAndHighlighting(vFile: VirtualFile): Unit = {
-    val todosInIndex = TodoCacheManager.SERVICE.getInstance(getProject).getTodoCount(vFile, TodoIndexPatternProvider.getInstance)
-    val todosInHighlighting = PsiTodoSearchHelper.SERVICE.getInstance(getProject).findTodoItems(getFile).length
+    val todosInIndex = TodoCacheManager.getInstance(getProject).getTodoCount(vFile, TodoIndexPatternProvider.getInstance)
+    val todosInHighlighting = PsiTodoSearchHelper.getInstance(getProject).findTodoItems(getFile).length
     assertEquals("Mismatch between todos in index and highlighting", todosInIndex, todosInHighlighting)
   }
 }
