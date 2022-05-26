@@ -4,15 +4,16 @@ package element
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiWhiteSpace}
+import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext, extractTypeParameters}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
@@ -40,54 +41,59 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
     prefixType.foreach { tpe =>
       val typeParams = extractTypeParameters(tpe)
+      implicit val tpc: TypePresentationContext = element
 
       if (!isKindProjectorLambda) {
-        annotateTypeArgs(
+        annotateTypeArgs[ScTypeElement](
           typeParams,
-          element.typeArgList,
+          element.typeArgList.typeArgs,
+          element.typeArgList.getTextRange,
           projSubstitutor,
-          tpe.presentableText(element)
+          tpe.presentableText(element),
+          _.`type`()
         )
       }
     }
   }
 
-  def annotateTypeArgs(
+  def annotateTypeArgs[T <: PsiElement](
     params:                 Seq[TypeParameter],
-    typeArgList:            ScTypeArgs,
+    args:                   Seq[T],
+    annotationRange:        TextRange,
     contextSubstitutor:     ScSubstitutor,
-    renderedTypeParamOwner: String
+    renderedTypeParamOwner: String,
+    getType:                T => TypeResult,
+    isForContextBound:      Boolean = false
   )(implicit
+    tpc:    TypePresentationContext,
     holder: ScalaAnnotationHolder
   ): Unit = {
-    implicit val tcp: TypePresentationContext = typeArgList
-
-    val args = typeArgList.typeArgs
 
     if (args.length < params.length) {
       // Annotate missing arguments
-      val missing     = params.drop(args.length)
+      val missing = params.drop(args.length)
       val missingText = missing.map(_.name).mkString(", ")
 
       val range =
-        args.lastOption
-            .map(e => new TextRange(e.endOffset - 1, typeArgList.endOffset))
-            .getOrElse(typeArgList.getTextRange)
+        if (isForContextBound) annotationRange
+        else
+          args.lastOption
+              .map(e => new TextRange(e.endOffset - 1, annotationRange.getEndOffset))
+              .getOrElse(annotationRange)
 
       holder.createErrorAnnotation(range, ScalaBundle.message("unspecified.type.parameters", missingText))
     } else if (args.length > params.length) {
       // Annotate to many arguments
       if (params.isEmpty) {
         holder.createErrorAnnotation(
-          typeArgList,
+          annotationRange,
           ScalaBundle.message("name.does.not.take.type.arguments", renderedTypeParamOwner)
         )
       } else {
         val firstExcessiveArg = args(params.length)
 
         val opening =
-          firstExcessiveArg
-            .prevSiblings
+          firstExcessiveArg.prevSiblings
             .takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("["))
             .lastOption
 
@@ -111,32 +117,34 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     val substitute: ScSubstitutor = {
       val (ps, as) = (
         for {
-          (param, arg) <- params zip args
-          argTy <- arg.`type`().toOption
+          (param, arg) <- params.zip(args)
+          argTy        <- getType(arg).toOption
         } yield (param, argTy)
       ).unzip
-      contextSubstitutor followed ScSubstitutor.bind(ps, as)
+      contextSubstitutor.followed(ScSubstitutor.bind(ps, as))
     }
 
     for {
       // the zip will cut away missing or excessive arguments
-      (arg, param) <- args zip params
-      argTy <- arg.`type`().toOption
-      if !argTy.is[ScExistentialArgument, ScExistentialType]
+      (arg, param) <- args.zip(params)
+      argTy        <- getType(arg).toOption
+      range        = if (isForContextBound) annotationRange else arg.getTextRange
+      if !argTy.is[ScExistentialArgument, ScExistentialType] &&
+         !KindProjectorUtil.syntaxIdsFor(arg).contains(arg.getText)
     } {
-      checkBounds(arg, argTy, param, substitute)
-      checkHigherKindedType(arg, argTy, param, substitute)
+      checkBounds(range, argTy, param, substitute)
+      checkHigherKindedType(range, argTy, param, substitute)
     }
   }
 
   private def checkBounds(
-    arg:        ScTypeElement,
+    range:      TextRange,
     argTy:      ScType,
     param:      TypeParameter,
     substitute: ScSubstitutor
   )(implicit
     holder: ScalaAnnotationHolder,
-    tcp:    TypePresentationContext
+    tpc:    TypePresentationContext
   ): Unit = TraceLogger.func {
     lazy val argTyText = argTy.presentableText
     val upper = param.upperType
@@ -145,7 +153,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     if (!argTy.conforms(substitute(upper))) {
       holder
         .createErrorAnnotation(
-          arg,
+          range,
           ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upper.presentableText, param.name),
           ReportHighlightingErrorQuickFix
         )
@@ -154,7 +162,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
     if (!substitute(lower).conforms(argTy)) {
       holder
         .createErrorAnnotation(
-          arg,
+          range,
           ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lower.presentableText, param.name),
           ReportHighlightingErrorQuickFix
         )
@@ -162,13 +170,13 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   }
 
   private def checkHigherKindedType(
-    arg:        ScTypeElement,
+    range:      TextRange,
     argTy:      ScType,
     param:      TypeParameter,
     substitute: ScSubstitutor
   )(implicit
     holder: ScalaAnnotationHolder,
-    tcp:    TypePresentationContext
+    tpc:    TypePresentationContext
   ): Unit = {
     val paramTyParams = param.typeParameters
 
@@ -180,8 +188,16 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
           if (actualDiff.exists(_.hasError)) {
             val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
-            holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
-              .range(arg)
+            holder
+              .newAnnotation(
+                HighlightSeverity.ERROR,
+                ScalaBundle.message(
+                  "type.constructor.does.not.conform",
+                  argTy.presentableText,
+                  expectedDiff.flatten.map(_.text).mkString
+                )
+              )
+              .range(range)
               .tooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
               .withFix(ReportHighlightingErrorQuickFix)
               .create()
@@ -192,10 +208,13 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
 
-          val paramText  = param.psiTypeParameter.asInstanceOf[ScTypeParam].typeParameterText
-          holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expected.type.constructor", paramText))
-            .range(arg)
-            .tooltip(tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff))
+          val paramText = param.psiTypeParameter.asInstanceOf[ScTypeParam].typeParameterText
+          holder
+            .newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expected.type.constructor", paramText))
+            .range(range)
+            .tooltip(
+              tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff)
+            )
             .withFix(ReportHighlightingErrorQuickFix)
             .create()
       }

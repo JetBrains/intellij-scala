@@ -2,18 +2,24 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamClause
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
-import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
+import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
+import org.jetbrains.plugins.scala.lang.psi.types.{TypePresentationContext, extractTypeParameters}
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
 
   override def annotate(element: ScTypeBoundsOwner, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!Option(PsiTreeUtil.getParentOfType(element, classOf[ScTypeParamClause])).flatMap(_.parent).exists(_.is[ScFunction])) {
+    val typeParamClause  = PsiTreeUtil.getParentOfType(element, classOf[ScTypeParamClause]).toOption
+    val isFunctionClause = typeParamClause.flatMap(_.parent).exists(_.is[ScFunction])
+
+    if (!isFunctionClause) {
       for {
         lower <- element.lowerBound.toOption
         upper <- element.upperBound.toOption
@@ -25,6 +31,26 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
           ScalaBundle.message("lower.bound.conform.to.upper", upper.presentableText, lower.presentableText)
         )
       }
+    }
+
+    element match {
+      case tparam: ScTypeParam =>
+        element.contextBoundTypeElement.foreach { cbTypeElem =>
+          val cbType = cbTypeElem.getTypeNoConstructor.toOption
+          implicit val tpc: TypePresentationContext = tparam
+          cbType.foreach { tpe =>
+              ScParameterizedTypeElementAnnotator.annotateTypeArgs[PsiElement](
+                extractTypeParameters(tpe),
+                Seq(tparam.nameId),
+                cbTypeElem.getTextRange,
+                ScSubstitutor.empty,
+                tpe.presentableText(cbTypeElem),
+                _ => Right(TypeParameterType(TypeParameter(tparam))),
+                isForContextBound = true
+              )
+          }
+        }
+      case _ => ()
     }
   }
 }
