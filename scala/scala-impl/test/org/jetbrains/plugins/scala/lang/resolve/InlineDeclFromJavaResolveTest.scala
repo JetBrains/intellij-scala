@@ -8,19 +8,25 @@ class InlineDeclFromJavaResolveTest extends SimpleResolveTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  def testResolveNormal(): Unit = {
+  def testResolveInlineFromJava(): Unit = {
     myFixture.addFileToProject(
+      "hasInline.scala",
       """
+        |package foo
+        |
         |class InlineContainer {
         |  def foo: Int = 123
         |  inline def fooInlined: Int = 123
         |}
-        |""".stripMargin,
-      "hasInline.scala"
+        |""".stripMargin
     )
 
     doResolveTest(
       s"""
+        |package foo;
+        |
+        |import foo.InlineContainer;
+        |
         |public class JavaClass {
         |  public static void main(String[] args) {
         |    InlineContainer ic = new InlineContainer();
@@ -34,6 +40,10 @@ class InlineDeclFromJavaResolveTest extends SimpleResolveTestBase {
 
     testNoResolve(
       s"""
+         |package foo;
+         |
+         |import foo.InlineContainer;
+         |
          |public class JavaClass2 {
          |  public static void main(String[] args) {
          |    InlineContainer ic = new InlineContainer();
