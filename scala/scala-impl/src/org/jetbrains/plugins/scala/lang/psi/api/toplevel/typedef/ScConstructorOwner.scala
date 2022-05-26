@@ -18,22 +18,19 @@ trait ScConstructorOwner extends ScTypeDefinition
   def constructor: Option[ScPrimaryConstructor] =
     findChild[ScPrimaryConstructor]
 
-  override def parameters: Seq[ScClassParameter] = constructor.toSeq.flatMap {
-    _.effectiveParameterClauses
-  } flatMap {
-    _.unsafeClassParameters
-  }
+  override def parameters: Seq[ScClassParameter] =
+    constructor
+      .toSeq
+      .flatMap(_.effectiveParameterClauses)
+      .flatMap(_.unsafeClassParameters)
 
-  def secondaryConstructors: Seq[ScFunction] = functions.filter {
-    _.isConstructor
-  }
+  def secondaryConstructors: Seq[ScFunction] =
+    (syntheticMethods ++ functions).filter(_.isConstructor)
 
   def constructors: Seq[ScMethodLike] =
     secondaryConstructors ++ constructor
 
-  override def clauses: Option[ScParameters] = constructor map {
-    _.parameterList
-  }
+  override def clauses: Option[ScParameters] = constructor.map(_.parameterList)
 
   override def members: Seq[ScMember] = super.members ++ constructor
 }

@@ -67,7 +67,7 @@ trait InfixType {
       count = count+1
       //need to know associativity
       val s = builder.getTokenText
-      
+
       s.last match {
         case ':' =>
           assoc match {
@@ -143,6 +143,7 @@ trait InfixType {
     val infixParsingRule = new PrecedenceClimbingInfixParsingRule {
       override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE
       override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
+      override protected def isMatchConsideredInfix: Boolean = false
 
       override protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean =
         if (parseInfixWildcardType()) {
@@ -159,7 +160,7 @@ trait InfixType {
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
         (!isPattern || builder.getTokenText != "|") && super.shouldContinue
-    }
+}
 
     infixParsingRule()
   }

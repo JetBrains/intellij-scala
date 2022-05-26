@@ -26,6 +26,7 @@ private[implicits] final class ImplicitParametersProcessor(override protected va
         new ScalaResolveResult(
           namedElement,
           state.substitutorWithThisType,
+          renamed             = state.renamed,
           importsUsed         = state.importsUsed,
           implicitScopeObject = state.implicitScopeObject,
           isExtension         = isExtensionMethod

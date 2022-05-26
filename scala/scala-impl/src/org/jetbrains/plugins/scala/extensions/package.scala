@@ -32,7 +32,7 @@ import org.jetbrains.annotations.{Nls, NonNls, Nullable}
 import org.jetbrains.plugins.scala.caches.UserDataHolderDelegator
 import org.jetbrains.plugins.scala.extensions.implementation.iterator._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScFieldId}
@@ -1066,7 +1066,14 @@ package object extensions {
         }
       }
 
-      if (!signature.namedElement.isValid)
+      val element = signature.namedElement
+
+      val isInline = element.nameContext match {
+        case mlo: ScModifierListOwner => mlo.hasModifierPropertyScala(ScalaModifier.INLINE)
+        case _                        => false
+      }
+
+      if (!element.isValid || isInline)
         return
 
       signature.namedElement match {

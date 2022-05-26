@@ -424,7 +424,6 @@
         <methodReferencesSearch implementation="org.jetbrains.plugins.scala.findUsages.NonMemberMethodUsagesSearcher"/>
         <findUsagesHandlerFactory implementation="org.jetbrains.plugins.scala.findUsages.factory.ScalaFindUsagesHandlerFactory" order="first"/>
         <customUsageSearcher implementation="org.jetbrains.plugins.scala.findUsages.parameters.ConstructorParamsInConstructorPatternSearcher"/>
-        <languageCompilerRefAdapter implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.indices.ScalaCompilerRefAdapter"/>
         <codeUsageScopeOptimizer implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceScopeOptimizer"/>
         <qualifiedNameProvider implementation="org.jetbrains.plugins.scala.actions.ScalaQualifiedNameProvider" order="first"/>
         <targetElementEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.ScalaTargetElementEvaluator"/>

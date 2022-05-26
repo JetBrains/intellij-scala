@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.parser.scala3
 
-class MatchTypeParserTest extends SimpleScala3ParserTestBase {
+class MatchParserTest extends SimpleScala3ParserTestBase {
   def testSimple(): Unit = checkParseErrors(
     "val a: Int match { case Int => String } = ???"
   )
@@ -50,6 +50,28 @@ class MatchTypeParserTest extends SimpleScala3ParserTestBase {
       |type Concat[+Xs <: Tuple, +Ys <: Tuple] <: Tuple = Xs match {
       |  case Unit    => Ys
       |  case x *: xs => x *: Concat[xs, Ys]
+      |}
+      |""".stripMargin
+  )
+
+  def testSCL19811(): Unit = checkParseErrors(
+    """
+      |object A {
+      |for {
+      |  n <- 1 to 8 if n match {
+      |  case x if x > 5 => true
+      |  case _ => false
+      |}
+      |} yield n
+      |
+      |val x =
+      |  123 match {
+      |    case 1 => 1
+      |    case 123 => 123
+      |  } match {
+      |    case 1 => 2
+      |    case 123 => 321
+      |  }
       |}
       |""".stripMargin
   )
