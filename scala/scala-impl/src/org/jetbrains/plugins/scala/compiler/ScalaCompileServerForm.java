@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.compiler;
 
 import com.intellij.compiler.server.BuildManager;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -63,7 +64,7 @@ public class ScalaCompileServerForm implements Configurable {
         myShutdownServerCheckBox.addChangeListener(e -> updateShutdownSettingsPanel());
 
         sdkModel = new ProjectSdksModelWithDefault();
-        sdkModel.reset(project);
+        inEventDispatchThread(() -> sdkModel.reset(project));
 
         myCompilationServerSdk = new JdkComboBox(null, sdkModel, null, null, null, null);
         myCompilationServerSdk.showNoneSdkItem();
@@ -89,6 +90,11 @@ public class ScalaCompileServerForm implements Configurable {
 
     private void updateShutdownSettingsPanel() {
         setDescendantsEnabledIn(myShutdownSettingsPanel, myShutdownServerCheckBox.isSelected());
+    }
+
+    private static void inEventDispatchThread(Runnable runnable) {
+        if (SwingUtilities.isEventDispatchThread()) runnable.run();
+        else ApplicationManager.getApplication().invokeAndWait(runnable);
     }
 
     private static void setDescendantsEnabledIn(JComponent root, boolean b) {
