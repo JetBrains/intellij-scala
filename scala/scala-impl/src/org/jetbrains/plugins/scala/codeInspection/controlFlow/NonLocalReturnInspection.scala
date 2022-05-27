@@ -4,7 +4,6 @@ import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDes
 import com.intellij.psi.PsiElement
 import org.jdom.Element
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.quickfix.{RemoveExpressionQuickFix, RemoveReturnKeywordQuickFix}
 import org.jetbrains.plugins.scala.codeInspection.ui.{InspectionOption, InspectionOptions}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -32,7 +31,7 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
         InspectionOption("", isCompilerOptionPresent),
         InspectionOption("", _ => true)
       ),
-      selectedIndex = 1
+      selectedIndex = 0
     )
   }
 
@@ -63,7 +62,7 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
                 scReturn,
                 annotationDescription,
                 isOnTheFly,
-                createQuickFixes(scReturn),
+                Array.empty[LocalQuickFix],
                 ProblemHighlightType.GENERIC_ERROR_OR_WARNING
               )
           }
@@ -85,10 +84,4 @@ object NonLocalReturnInspection {
       case _: ScMethodCall         => true
       case parent: ScalaPsiElement => isInsideAnonymousFunction(parent)
     }
-
-  private def createQuickFixes(scReturn: ScReturn): Array[LocalQuickFix] = {
-    val fix1 = new RemoveExpressionQuickFix(scReturn)
-    lazy val fix2 = new RemoveReturnKeywordQuickFix(scReturn)
-    if (scReturn.expr.isDefined) Array(fix1, fix2) else Array(fix1)
-  }
 }
