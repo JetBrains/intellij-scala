@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.io._
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
@@ -342,7 +343,7 @@ object Main {
     }
 
     val expectedToken = try {
-      new String(Files.readAllBytes(path))
+      new String(Files.readAllBytes(path), StandardCharsets.UTF_8)
     } catch {
       case _: IOException =>
         throw new TokenVerificationException("Cannot read token: " + path)
