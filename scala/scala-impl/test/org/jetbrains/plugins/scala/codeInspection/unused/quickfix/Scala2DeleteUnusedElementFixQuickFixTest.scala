@@ -360,4 +360,70 @@ class Scala2DeleteUnusedElementFixQuickFixTest extends ScalaUnusedDeclarationIns
       hintOnlyXBinding
     )
   }
+
+  def test_class_type_parameter1(): Unit = {
+    val text = "@scala.annotation.unused class Test[A]"
+    val expected = "@scala.annotation.unused class Test"
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_class_type_parameter2(): Unit = {
+    val text = "@scala.annotation.unused class Test[A, B] { Seq.empty[A] }"
+    val expected = "@scala.annotation.unused class Test[A] { Seq.empty[A] }"
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_class_type_parameter3(): Unit = {
+    val text = "@scala.annotation.unused class Test[A, B <: java.lang.Object] { Seq.empty[A] }"
+    val expected = "@scala.annotation.unused class Test[A] { Seq.empty[A] }"
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_function_type_parameter1(): Unit = {
+    val text =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo[A] = {}
+         |}
+         |""".stripMargin
+    val expected =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo = {}
+         |}
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_function_type_parameter2(): Unit = {
+    val text =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo[A, B] = { Seq.empty[A] }
+         |}
+         |""".stripMargin
+    val expected =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo[A] = { Seq.empty[A] }
+         |}
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_function_type_parameter3(): Unit = {
+    val text =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo[A, B <: java.lang.Object] = { Seq.empty[A] }
+         |}
+         |""".stripMargin
+    val expected =
+      s"""
+         |@scala.annotation.unused class Test {
+         |  @scala.annotation.unused def foo[A] = { Seq.empty[A] }
+         |}
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
 }

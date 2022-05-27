@@ -11,6 +11,7 @@ import com.intellij.psi.search.{LocalSearchScope, SearchScope}
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -137,4 +138,23 @@ class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
 
   override def isHigherKindedTypeParameter: Boolean =
     this.parent.filter(_.isInstanceOf[ScTypeParamClause]).flatMap(_.parent).exists(_.isInstanceOf[ScTypeParam])
+
+  override def delete(): Unit = {
+    val typeParamElements = owner.typeParameters
+    val isOnlyTypeParamInClause = typeParamElements.size == 1
+    val isRightmostInClause = typeParamElements.lastOption.contains(this)
+
+    def findStart(): Option[PsiElement] = this.prevSiblings.takeWhile { e =>
+      (isRightmostInClause && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)) ||
+        (isOnlyTypeParamInClause && e.elementType == ScalaTokenTypes.tLSQBRACKET)
+    }.toSeq.lastOption
+
+    def findEnd(): Option[PsiElement] = this.nextSiblings.takeWhile { e =>
+      (!isRightmostInClause && (e.isWhitespace || e.elementType == ScalaTokenTypes.tCOMMA)) ||
+        (isOnlyTypeParamInClause && e.elementType == ScalaTokenTypes.tRSQBRACKET)
+    }.toSeq.lastOption
+
+    getContext.deleteChildRange(findStart().getOrElse(this), findEnd().getOrElse(this))
+  }
+
 }

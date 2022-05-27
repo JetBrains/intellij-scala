@@ -202,4 +202,46 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
        |  Bar()
        |}
        |""".stripMargin)
+
+  def test_class_type_parameter1(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A] { Seq.empty[A] }
+       |""".stripMargin
+  )
+
+  def test_class_type_parameter2(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A, B] { Seq.empty[A]; Seq.empty[B] }
+       |""".stripMargin
+  )
+
+  def test_class_type_parameter3(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A <: java.lang.Object] { Seq.empty[A] }
+       |""".stripMargin
+  )
+
+  def test_function_type_parameter1(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A] = { Seq.empty[A] }
+       |}
+       |""".stripMargin
+  )
+
+  def test_function_type_parameter2(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A, B] = { Seq.empty[A]; Seq.empty[B] }
+       |}
+       |""".stripMargin
+  )
+
+  def test_function_type_parameter3(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A, B <: java.lang.Object] = { Seq.empty[A]; Seq.empty[B] }
+       |}
+       |""".stripMargin
+  )
 }
