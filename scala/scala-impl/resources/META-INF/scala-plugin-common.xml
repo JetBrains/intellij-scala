@@ -1129,12 +1129,6 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="IsInstanceOf" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <!--<localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.typeChecking.PatternMayNeverMatchInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.pattern.may.never.match"
-                         groupPath="Scala" groupKey="group.general"
-                         shortName="PatternMayNeverMatch" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.functionExpressions.MatchToPartialFunctionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.match.statement.convertible.to.pattern.matching.anonymous.function"
