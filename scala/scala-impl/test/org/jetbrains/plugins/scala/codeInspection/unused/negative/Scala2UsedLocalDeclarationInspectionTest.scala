@@ -1,6 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.unused.negative
 
 import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.junit.Assert.assertTrue
 
 class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
@@ -244,4 +247,12 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
        |}
        |""".stripMargin
   )
+
+  def test_type_parameters_are_not_inspected_in_batch_mode(): Unit = {
+    configureByText("class Test[A]")
+    val unusedTypeParam = getFile.findElementAt(11).getContext
+    assert(unusedTypeParam.isInstanceOf[ScTypeParam])
+    val problems = (new ScalaUnusedDeclarationInspection).invoke(unusedTypeParam, isOnTheFly = false)
+    assertTrue(s"Found ${problems.size} problem(s) while 0 were expected", problems.isEmpty)
+  }
 }
