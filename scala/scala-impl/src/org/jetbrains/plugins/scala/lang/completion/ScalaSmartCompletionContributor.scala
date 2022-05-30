@@ -283,7 +283,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 
 object ScalaSmartCompletionContributor {
 
-  private class ScalaSmartCompletionProvider extends CompletionProvider[CompletionParameters] {
+  private class ScalaSmartCompletionProvider[T <: PsiElement] extends CompletionProvider[CompletionParameters] {
 
     override def addCompletions(parameters: CompletionParameters,
                                 context: ProcessingContext,
