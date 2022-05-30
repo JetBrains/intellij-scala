@@ -2,118 +2,89 @@ package org.jetbrains.plugins.scala.lang.formatter.tests.scala3
 
 class Scala3FormatterCommentsTest extends Scala3FormatterBaseTest {
 
-  private var oldKeepFirstColumnCommentSetting: Boolean = _
+  private def withIndent(indent: String, indents: Int)(text: String): String =
+    text.linesIterator.map(indent * indents + _).mkString("\n")
 
-  override def setUp(): Unit= {
-    super.setUp()
-    oldKeepFirstColumnCommentSetting = getSettings.KEEP_FIRST_COLUMN_COMMENT
-  }
-
-  override def tearDown(): Unit = {
-    getSettings.KEEP_FIRST_COLUMN_COMMENT = oldKeepFirstColumnCommentSetting
-    super.tearDown()
-  }
-
-  private def doTextTestWithStripWithAllCommentTypes(before: String, after: String): Unit = {
-    val beforeStripped = before.stripMargin
-    val afterStripped = after.stripMargin
-    doTextTest(beforeStripped, afterStripped)
-    doTextTest(
-      beforeStripped.replaceAll("// foo", "/* foo */"),
-      afterStripped.replaceAll("// foo", "/* foo */")
-    )
-    doTextTest(
-      beforeStripped.replaceAll("// foo", "/** foo */"),
-      afterStripped.replaceAll("// foo", "/** foo */")
-    )
-  }
-
-  private def doTextTestWithStripWithAllCommentTypes(text: String): Unit = {
-    val stripped = text.stripMargin
-    doTextTest(stripped)
-    doTextTest(stripped.replaceAll("// foo", "/* foo */"))
-    doTextTest(stripped.replaceAll("// foo", "/** foo */"))
-  }
-
-  def testIfThenElse(): Unit = doTextTestWithStripWithAllCommentTypes(
-    """class A {
-      |  if x < 0 then
-      |    // foo
-      |    "negative"
-      |  else if x == 0 then
-      |    // foo
-      |    "zero"
-      |  else
-      |    // foo
-      |    "positive"
-      |}
-      |"""
+  private val allComments = Seq(
+    "// foo",
+    "/* foo */",
+    "/** foo */",
+    """// foo
+      |// foo""".stripMargin,
+    """/* foo */
+      |/* foo */""".stripMargin,
+    """/* foo
+      |   foo */""".stripMargin,
+    """/**
+      |  * foo
+      |  */""".stripMargin
+  )
+  private val allContexts = Seq(
+    ("class A {", "}", 1),
+    ("class A:", "", 1),
+    ("object A {", "}", 1),
+    ("object A:", "", 1),
+    ("def a =", "", 1),
+  )
+  private val allIndents = Seq("  ", "    ", "\t")
+  private val allBodies = Seq(
+    "???",
+    """???
+      |???""".stripMargin
   )
 
-  def testIfThenElse_KeepFirstColumnComment(): Unit = {
-    getSettings.KEEP_FIRST_COLUMN_COMMENT = true
-    doTextTestWithStripWithAllCommentTypes(
-      """class A {
-        |  if x < 0 then
-        |// foo
-        |    "negative"
-        |  else if x == 0 then
-        |// foo
-        |    "zero"
-        |  else
-        |// foo
-        |    "positive"
-        |}
-        |"""
-    )
-  }
+  private def doCommentsFormatTest(text: String): Unit =
+    for {
+      comment <- allComments
+      (contextBefore, contextAfter, contextIndents) <- allContexts
+      indent <- allIndents
+      body <- allBodies
+    } {
+      val toContextIndent = withIndent(indent, contextIndents)(_)
+      val toBodyIndent = withIndent(indent, contextIndents + 1)(_)
+      val oldKeepFirstColumnCommentSetting: Boolean = getSettings.KEEP_FIRST_COLUMN_COMMENT
+      doTextTest(
+        s"""$contextBefore
+           |${toContextIndent(comment)}
+           |${toContextIndent(text)}
+           |${toBodyIndent(body)}
+           |$contextAfter
+           |""".stripMargin)
+      doTextTest(
+        s"""$contextBefore
+           |${toContextIndent(text)}
+           |${toBodyIndent(comment)}
+           |${toBodyIndent(body)}
+           |$contextAfter
+           |""".stripMargin)
+      getSettings.KEEP_FIRST_COLUMN_COMMENT = false
+      doTextTest(
+        s"""$contextBefore
+           |${toContextIndent(text)}
+           |$comment
+           |${toBodyIndent(body)}
+           |$contextAfter
+           |""".stripMargin,
+        s"""$contextBefore
+           |${toContextIndent(text)}
+           |${toBodyIndent(comment)}
+           |${toBodyIndent(body)}
+           |$contextAfter
+           |""".stripMargin
+      )
+      getSettings.KEEP_FIRST_COLUMN_COMMENT = true
+      doTextTest(
+        s"""$contextBefore
+           |${toContextIndent(text)}
+           |$comment
+           |${toBodyIndent(body)}
+           |$contextAfter
+           |""".stripMargin)
+      getSettings.KEEP_FIRST_COLUMN_COMMENT = oldKeepFirstColumnCommentSetting
+    }
 
-  def testIfThenElse_DoNotKeepFirstColumnComment(): Unit = {
-    getSettings.KEEP_FIRST_COLUMN_COMMENT = false
-    doTextTestWithStripWithAllCommentTypes(
-      """class A {
-        |  if x < 0 then
-        |// foo
-        |    "negative"
-        |  else if x == 0 then
-        |// foo
-        |    "zero"
-        |  else
-        |// foo
-        |    "positive"
-        |}
-        |""",
-      """class A {
-        |  if x < 0 then
-        |    // foo
-        |    "negative"
-        |  else if x == 0 then
-        |    // foo
-        |    "zero"
-        |  else
-        |    // foo
-        |    "positive"
-        |}
-        |"""
-    )
-  }
+  def testAssign(): Unit = doCommentsFormatTest("def x =")
 
   // SCL-20166
-  def testExtension(): Unit = doTextTestWithStripWithAllCommentTypes(
-    """extension (c: Circle)
-      |  // foo
-      |  def circumference: Double = c.radius * math.Pi * 2
-      |"""
-  )
-
-  def testExtension_Object(): Unit = doTextTestWithStripWithAllCommentTypes(
-    """object Example {
-      |  case class Circle(x: Double, y: Double, radius: Double)
-      |
-      |  extension (c: Circle)
-      |    // foo
-      |    def circumference: Double = c.radius * math.Pi * 2
-      |}
-      |"""
-  )
+  def testExtension(): Unit = doCommentsFormatTest("extension (c: Circle)")
 }
