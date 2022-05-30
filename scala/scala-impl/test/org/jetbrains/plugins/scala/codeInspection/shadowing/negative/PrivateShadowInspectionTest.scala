@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.shadowing.negative
 
-import org.jetbrains.plugins.scala.codeInspection.shadowing.FieldShadowInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.shadowing.PrivateShadowInspectionTestBase
 
-class SubclassFieldShadowInspectionTest extends FieldShadowInspectionTestBase {
+class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
   def test_subclass_field_doesnt_shadow_immutable_superclass_field(): Unit =
     checkTextHasNoErrors(
       s"""
@@ -15,7 +15,7 @@ class SubclassFieldShadowInspectionTest extends FieldShadowInspectionTestBase {
   def test_local_field_doesnt_shadow_private_superclass_field(): Unit =
     checkTextHasNoErrors(
       s"""
-         |  class A(private val a: Int)
+         |  class A(a: Int)
          |
          |  class B extends A(0) {
          |    def bbb(): Int = {

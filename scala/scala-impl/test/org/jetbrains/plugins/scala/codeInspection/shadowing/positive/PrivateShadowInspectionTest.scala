@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.codeInspection.shadowing.positive
 
-import org.jetbrains.plugins.scala.codeInspection.shadowing.FieldShadowInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.shadowing.PrivateShadowInspectionTestBase
 
-class SubclassFieldShadowInspectionTest extends FieldShadowInspectionTestBase {
+class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
   def test_subclass_field_shadows_superclass_mutable_field(): Unit =
     checkTextHasError(
       s"""
