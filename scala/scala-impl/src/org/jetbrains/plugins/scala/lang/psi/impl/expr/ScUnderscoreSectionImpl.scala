@@ -78,7 +78,7 @@ class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) 
 
             val idx = unders.indexWhere(_.getTextRange.getStartOffset == startOffset)
             idx match {
-              case -1 => Failure(ScalaBundle.message("failed.to.found.corresponging.underscore.section"))
+              case -1 => Failure(ScalaBundle.message("failed.to.found.corresponding.underscore.section"))
               case i =>
                 expr.expectedType(fromUnderscore = false) match {
                   case Some(functionLikeType(_, _, params)) =>

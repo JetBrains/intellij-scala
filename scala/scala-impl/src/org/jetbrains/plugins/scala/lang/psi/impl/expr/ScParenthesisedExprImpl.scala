@@ -22,7 +22,7 @@ class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) 
       case Some(x: ScExpression) =>
         val res = x.getNonValueType()
         res
-      case _ => Failure(ScalaBundle.message("no.expression.in.parentheseses"))
+      case _ => Failure(ScalaBundle.message("no.expression.in.parentheses"))
     }
   }
 

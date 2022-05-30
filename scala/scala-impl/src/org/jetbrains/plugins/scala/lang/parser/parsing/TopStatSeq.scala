@@ -36,7 +36,7 @@ object TopStatSeq {
         case _ =>
           TopStat.parse(parseState)(builder) match {
             case Some(EMPTY_STATE) =>
-              builder error ScalaBundle.message("wrong.top.statment.declaration")
+              builder error ScalaBundle.message("wrong.top.statement.declaration")
               builder.advanceLexer()
             case newState =>
               if (parseState == EMPTY_STATE) {

@@ -23,7 +23,7 @@ object ScalaPatterns extends ParsingRule {
         builder.enableNewlines()
       case _ => return false
     }
-    if (!parseXml()) builder error ErrMsg("xml.scala.patterns.exected")
+    if (!parseXml()) builder error ErrMsg("xml.scala.patterns.expected")
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END =>
         builder.advanceLexer()

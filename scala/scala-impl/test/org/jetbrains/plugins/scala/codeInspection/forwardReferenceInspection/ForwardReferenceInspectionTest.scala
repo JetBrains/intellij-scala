@@ -9,7 +9,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
     classOf[ForwardReferenceInspection]
 
   override protected val description =
-    ScalaBundle.message("suspicicious.forward.reference.template.body")
+    ScalaBundle.message("suspicious.forward.reference.template.body")
 
 
   def test_forward_ref(): Unit = checkTextHasError(

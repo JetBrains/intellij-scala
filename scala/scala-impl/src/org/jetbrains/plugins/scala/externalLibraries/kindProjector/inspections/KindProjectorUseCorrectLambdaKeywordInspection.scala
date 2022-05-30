@@ -27,7 +27,7 @@ class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(
           simple.getText match {
             case "Lambda" if useGreekLambda =>
               val changeKeywordFix = new KindProjectorUseCorrectLambdaKeywordQuickFix(simple, "λ")
-              holder.registerProblem(simple, ScalaInspectionBundle.message("kind.projector.replace.lambda.with.lamda.char"), changeKeywordFix)
+              holder.registerProblem(simple, ScalaInspectionBundle.message("kind.projector.replace.lambda.with.lambda.char"), changeKeywordFix)
               val changeSettingsFix = new ChangeLambdaCodeStyleSetting(!useGreekLambda)
               holder.registerProblem(simple, codeStyleSettingUseWordLambda, changeSettingsFix)
             case "λ" if !useGreekLambda =>
@@ -66,6 +66,6 @@ class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFi
 object KindProjectorUseCorrectLambdaKeywordInspection {
   val inspectionName: String = ScalaInspectionBundle.message("kind.projector.use.correct.lambda.keyword")
   val inspectionId: String = "KindProjectorUseCorrectLambdaKeyword"
-  val codeStyleSettingUseGreekLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lamda.char")
-  val codeStyleSettingUseWordLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lamda.word")
+  val codeStyleSettingUseGreekLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lambda.char")
+  val codeStyleSettingUseWordLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lambda.word")
 }

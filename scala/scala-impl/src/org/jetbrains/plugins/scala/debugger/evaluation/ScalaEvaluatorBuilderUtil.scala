@@ -1040,7 +1040,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         //todo: handle infix with tuple right pattern
         case _: ScCompositePattern => throw EvaluationException(ScalaBundle.message("pattern.alternatives.cannot.bind.vars"))
         case _: ScXmlPattern => throw EvaluationException(ScalaBundle.message("xml.patterns.not.supported")) //todo: xml patterns
-        case _ => throw EvaluationException(ScalaBundle.message("kind.of.patterns.not.supported", pattern.getText)) //todo: xml patterns
+        case _ => throw EvaluationException(ScalaBundle.message("kind.of.pattern.not.supported", pattern.getText)) //todo: xml patterns
       }
     }
   }

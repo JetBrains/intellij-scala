@@ -26,7 +26,7 @@ object RefineStatSeq extends ParsingRule {
         //otherwise parse TopStat
         case _ =>
           if (!RefineStat()) {
-            builder error ScalaBundle.message("wrong.top.statment.declaration")
+            builder error ScalaBundle.message("wrong.top.statement.declaration")
             return
           }
           else {
