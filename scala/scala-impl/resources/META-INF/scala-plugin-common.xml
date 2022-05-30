@@ -1997,7 +1997,7 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift L"/>
         </action>
-        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConvertions.ShowImplicitConversionsAction">
+        <action id="Scala.ShowImplicitConversions" class="org.jetbrains.plugins.scala.actions.implicitConversions.ShowImplicitConversionsAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control shift Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl Q"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift Q" remove="true"/>
