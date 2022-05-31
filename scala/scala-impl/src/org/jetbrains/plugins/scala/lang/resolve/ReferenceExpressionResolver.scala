@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonName
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScObject, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createParameterFromText
@@ -457,7 +457,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
                                     baseProcessor: BaseProcessor,
                                     index: Int): Unit = {
       def processConstructor(typeable: Typeable)
-                            (isTargetClass: ScClass => Boolean)
+                            (isTargetClass: ScConstructorOwner => Boolean)
                             (isAcceptableConstructor: ScFunction => Boolean): Unit = for {
         scType <- typeable.`type`().toOption
         (clazz, subst) <- scType.extractClassType
@@ -517,7 +517,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
           val state = ScalaResolveState.withSubstitutor(subst)
           clazz match {
-            case clazz: ScClass =>
+            case clazz: ScConstructorOwner =>
               if (isTargetClass(clazz)) {
                 for {
                   constructor <- clazz.secondaryConstructors
@@ -752,5 +752,5 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 object ReferenceExpressionResolver {
   import com.intellij.openapi.util.Key
 
-  val ConstructorProxyHolderKey = Key.create[Boolean]("scala.resolve.synthetic.constructor.proxy.holder")
+  val ConstructorProxyHolderKey: Key[Boolean] = Key.create[Boolean]("scala.resolve.synthetic.constructor.proxy.holder")
 }
