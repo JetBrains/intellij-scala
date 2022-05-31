@@ -26,13 +26,7 @@ object CompilerInspectionOptions {
       case ComplyToCompilerOption => elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
       case _                      => false
     }
-
-  def comboboxForCompilerOption(label:              String,
-                                compilerOptionName: String,
-                                getSelectedIndex:   () => Int,
-                                setSelectedIndex:   Int => Unit): InspectionOptionsComboboxPanel =
-    InspectionOptionsComboboxPanel.singleComboBox(label, createOptions(compilerOptionName), getSelectedIndex, setSelectedIndex)
-
+  
   private def createOptions(compilerOptionName: String): Seq[String] =
     Seq(
       ScalaInspectionBundle.message("inspection.option.enabled"),
