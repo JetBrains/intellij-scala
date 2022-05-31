@@ -4,6 +4,8 @@ import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
@@ -70,14 +72,17 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
     else
       elem.nameContext match {
         case _ if isInspectionAllowed(elem, mutableShadowing, "-Xlint:private-shadow") =>
-          // if the field under inspection is a class/trait field, it may shadow a non-private var from a parent type (see the compiler option -Xlint:private-shadow)
+          lazy val isUsed = {
+            val scope = new LocalSearchScope(typeDefinition)
+            ReferencesSearch.search(elem, scope).findFirst() != null
+          }
+
           suspects.exists {
-            case s: ScVariable if !s.isPrivate => true
-            case s: ScClassParameter if s.isVar && !s.isPrivate => true
+            case s: ScVariable if !s.isPrivate => isUsed
+            case s: ScClassParameter if s.isVar && !s.isPrivate => isUsed
             case _ => false
           }
          case _ =>
-          // otherwise we assume that class/trait fields "shadowing" fields from parent types are in fact overriding them
           false
       }
   }
@@ -86,14 +91,8 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
   var mutableShadowing: Boolean = false
 
   @Override
-  override def createOptionsPanel(): JComponent = {
-/*    val panel = new InspectionOptionsPanel(this)
-    panel.add(new JLabel(ScalaInspectionBundle.message("suspicious.shadowing.label")), "spanx")
-    panel.addCheckbox(ScalaInspectionBundle.message("suspicious.shadowing.mutable.label"), "mutableShadowing")
-    panel*/
-
+  override def createOptionsPanel(): JComponent =
     InspectionOptionsPanel.singleCheckBox(this,ScalaInspectionBundle.message("suspicious.shadowing.mutable.label"), "mutableShadowing")
-  }
 }
 
 object PrivateShadowInspection {

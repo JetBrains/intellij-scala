@@ -5,12 +5,14 @@
     <title>Suspicious shadowing of a superclass field by a private field or class parameter</title>
 </head>
 <body>
-<p>This is about a corner case in extending a class where the user might suspect the value in the subclass overrides
-    the one from the superclass, but in fact it is only shadowed. That sometimes leads to non-trivial errors.
-    The Scala compiler takes the option <code>-Xlint:private-shadow</code> which issues a warning in such case.</p>
+<p>This is about a corner case in extending a class where the user might suspect a private value or a class parameter
+    in the subclass overrides the one from the superclass, but in fact it is only shadowed. That sometimes leads to
+    non-trivial errors. The Scala compiler takes the option <code>-Xlint:private-shadow</code> which issues a warning
+    in such case.</p>
 <p> The checkbox allows for controlling how to highlight this corner case. You can leave it unchecked to <b>always</b>
     highlight the suspicious shadowing, or you can check it to <b>comply with the compiler option</b> and
     let the inspection behave accordingly.</p>
+<p> <b>Please note</b> that the highlight will appear only if the value is actually used.</p>
 
 <pre><code>
 class C(var c: Int)
