@@ -21,27 +21,26 @@ public final class CodeGenerationPanel extends ScalaCodeStylePanelBase {
     CodeGenerationPanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("codegeneration.panel.title"));
 
+        myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
+        myCommenterForm.showStandardOptions(SupportedCommenterStandardOptionNames.toArray(new String[]{}));
+
         panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(IdeBorderFactory.createEmptyBorder(new JBInsets(0, 10, 10, 10)));
-
-        myCommenterForm = new CommenterForm(ScalaLanguage.INSTANCE);
-        // TODO: show also BLOCK_COMMENT_ADD_SPACE and use it
-        myCommenterForm.showStandardOptions(SupportedCommenterStandardOptionNames.toArray(new String[]{}));
-
         panel.add(myCommenterForm.getCommenterPanel());
     }
 
     public static ImmutableList<String> SupportedCommenterStandardOptionNames = ContainerUtil.immutableList(
-            CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
             CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_ADD_SPACE.name(),
-            CodeStyleSettingsCustomizable.CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name()
+            CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_ADD_SPACE_ON_REFORMAT.name(),
+            CodeStyleSettingsCustomizable.CommenterOption.LINE_COMMENT_AT_FIRST_COLUMN.name(),
+            CodeStyleSettingsCustomizable.CommenterOption.BLOCK_COMMENT_AT_FIRST_COLUMN.name(),
+            CodeStyleSettingsCustomizable.CommenterOption.BLOCK_COMMENT_ADD_SPACE.name()
     );
 
     @Override
     public void apply(CodeStyleSettings settings) {
-        if (isModified(settings))
-            myCommenterForm.apply(settings);
+        if (isModified(settings)) myCommenterForm.apply(settings);
     }
 
     @Override
