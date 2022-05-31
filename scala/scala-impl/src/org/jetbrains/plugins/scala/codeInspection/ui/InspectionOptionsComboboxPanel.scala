@@ -35,14 +35,10 @@ class InspectionOptionsComboboxPanel(owner: InspectionProfileEntry) extends Insp
 }
 
 object InspectionOptionsComboboxPanel {
-  val AlwaysEnabled: Int = 0
-  val ComplyToCompilerOption: Int = 1
-  val AlwaysDisabled: Int = 2
-
-  def apply(label:            String,
-            options:          Seq[String],
-            getSelectedIndex: () => Int,
-            setSelectedIndex: Int => Unit): InspectionOptionsComboboxPanel = {
+  def singleComboBox(label:            String,
+                     options:          Seq[String],
+                     getSelectedIndex: () => Int,
+                     setSelectedIndex: Int => Unit): InspectionOptionsComboboxPanel = {
     val panel = new InspectionOptionsComboboxPanel(null)
     panel.addCombobox(label, options, getSelectedIndex, setSelectedIndex)
     panel

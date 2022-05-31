@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection.ui
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel.{AlwaysEnabled, ComplyToCompilerOption}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.project.ModuleExt
 
@@ -14,11 +13,15 @@ object CompilerInspectionOptions {
       panel.addCombobox(label, createOptions(compilerOptionName), getSelectedIndex, setSelectedIndex)
   }
 
-  def isInspectionAllowed(elem: ScalaPsiElement, checkboxValue: Boolean, compilerOptionName: String): Boolean =
-    !checkboxValue || elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
+  val AlwaysEnabled: Int = 0
+  val ComplyToCompilerOption: Int = 1
+  val AlwaysDisabled: Int = 2
 
-  def isInspectionAllowed(elem: ScalaPsiElement, comboboxValue: Int, compilerOptionName: String): Boolean =
-    comboboxValue match {
+  def isInspectionAllowed(elem: ScalaPsiElement, checkCompilerOption: Boolean, compilerOptionName: String): Boolean =
+    !checkCompilerOption || elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
+
+  def isInspectionAllowed(elem: ScalaPsiElement, checkCompilerOption: Int, compilerOptionName: String): Boolean =
+    checkCompilerOption match {
       case AlwaysEnabled          => true
       case ComplyToCompilerOption => elem.module.exists(_.scalaCompilerSettings.additionalCompilerOptions.contains(compilerOptionName))
       case _                      => false
@@ -28,7 +31,7 @@ object CompilerInspectionOptions {
                                 compilerOptionName: String,
                                 getSelectedIndex:   () => Int,
                                 setSelectedIndex:   Int => Unit): InspectionOptionsComboboxPanel =
-    InspectionOptionsComboboxPanel(label, createOptions(compilerOptionName), getSelectedIndex, setSelectedIndex)
+    InspectionOptionsComboboxPanel.singleComboBox(label, createOptions(compilerOptionName), getSelectedIndex, setSelectedIndex)
 
   private def createOptions(compilerOptionName: String): Seq[String] =
     Seq(
