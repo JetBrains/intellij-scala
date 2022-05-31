@@ -243,15 +243,10 @@ object Main {
     }
     val forceBuild = false
 
-    val scopes = if (moduleNames.isEmpty) {
-      // This means that scala.highlighting.compilation.per.module is disabled. Fall back to compiling the whole project.
-      CmdlineProtoUtil.createAllModulesScopes(forceBuild)
-    } else {
-      Seq(
-        CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.PRODUCTION.getTypeId, moduleNames.asJava, forceBuild),
-        CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.TEST.getTypeId, moduleNames.asJava, forceBuild)
-      ).asJava
-    }
+    val scopes = Seq(
+      CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.PRODUCTION.getTypeId, moduleNames.asJava, forceBuild),
+      CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.TEST.getTypeId, moduleNames.asJava, forceBuild)
+    ).asJava
 
     client.compilationStart()
     try {

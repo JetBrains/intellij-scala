@@ -10,7 +10,6 @@ import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.compiler.CompileServerClient
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 
 import java.io.File
 
@@ -31,16 +30,12 @@ private[externalHighlighters] object IncrementalCompiler {
       if (ProjectUtilCore.isExternalStorageEnabled(project)) Some(ProjectUtil.getExternalConfigurationDir(project).toString)
       else None
 
-    val moduleNames =
-      if (ScalaHighlightingMode.perModuleEnabled) modules.map(_.getName).distinct
-      else Seq.empty
-
     val command = CompileServerCommand.CompileJps(
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath,
       externalConfigurationDir,
-      moduleNames
+      modules.map(_.getName).distinct
     )
 
     CompileServerClient.get(project).execCommand(command, client)

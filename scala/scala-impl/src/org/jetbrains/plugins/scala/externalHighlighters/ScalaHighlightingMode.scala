@@ -85,9 +85,6 @@ object ScalaHighlightingMode {
   def compilationTimeoutToShowProgress: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.timeout.to.show.progress.millis")
 
-  def perModuleEnabled: Boolean =
-    Registry.get("scala.highlighting.compilation.per.module").asBoolean()
-
   def documentCompilerEnabled: Boolean =
     Registry.get("scala.highlighting.compilation.document.compiler.enabled").asBoolean()
 }
