@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.server
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 
 object CompileServerToken {
@@ -15,6 +16,6 @@ object CompileServerToken {
 
   private def readStringFrom(path: Path): Option[String] =
     if (path.toFile.exists)
-      Some(new String(Files.readAllBytes(path)))
+      Some(new String(Files.readAllBytes(path), StandardCharsets.UTF_8))
     else None
 }
