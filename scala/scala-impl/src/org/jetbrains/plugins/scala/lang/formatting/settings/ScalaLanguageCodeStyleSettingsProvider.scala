@@ -210,7 +210,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
     //comments generation
     if (settingsType == SettingsType.COMMENTER_SETTINGS) {
       enableSettings(
-        OtherCodeStylePanel.SupportedCommenterStandardOptionNames.asScala.toSeq: _*
+        CodeGenerationPanel.SupportedCommenterStandardOptionNames.asScala.toSeq: _*
       )
     }
 
