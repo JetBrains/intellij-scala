@@ -213,6 +213,7 @@ public class NailgunRunner {
       return scalaCompileServerSystemDir.resolve("tokens").resolve(Integer.toString(port));
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     static void writeTokenTo(Path path, UUID uuid) throws IOException {
       File directory = path.getParent().toFile();
 
@@ -222,9 +223,21 @@ public class NailgunRunner {
         }
       }
 
-      Files.createFile(path, PosixFilePermissions.asFileAttribute(
-              new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE))
-      ));
+      final boolean isPosix = path.getFileSystem().supportedFileAttributeViews().contains("posix");
+
+      if (isPosix) {
+        Files.createFile(path, PosixFilePermissions.asFileAttribute(
+                new HashSet<>(asList(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE))
+        ));
+      } else {
+        // Windows
+        final File file = path.toFile();
+        file.createNewFile();
+        file.setExecutable(false);
+        file.setReadable(/* readable */ true, /* ownerOnly */ true);
+        file.setWritable(/* writable */ true, /* ownerOnly */ true);
+      }
+
       Files.write(path, uuid.toString().getBytes(StandardCharsets.UTF_8));
     }
 
