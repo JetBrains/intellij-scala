@@ -37,24 +37,31 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
   private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this)
 
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
-                                     (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor =
+                                     (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
+    val showAsError =
+      fatalWarningsCompilerOption &&
+        (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
+
     manager.createProblemDescriptor(
       elem,
       description,
       isOnTheFly,
       Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction),
-      ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+      if (showAsError) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
+  }
 
   private def isElementShadowing(elem: ScNamedElement): Boolean =
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) =>
         false
-      case _ =>
+      case _: ScClassParameter =>
         findTypeDefinition(elem) match {
           case Some(typeDefinition) if isElementShadowing(elem, typeDefinition) => true
           case _  => false
         }
+      case _ =>
+        false
     }
 
   private def isElementShadowing(elem: ScNamedElement, typeDefinition: ScTypeDefinition) : Boolean = {
@@ -71,7 +78,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
       false
     else
       elem.nameContext match {
-        case _ if isInspectionAllowed(elem, mutableShadowing, "-Xlint:private-shadow") =>
+        case _ if isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") =>
           lazy val isUsed = {
             val scope = new LocalSearchScope(typeDefinition)
             ReferencesSearch.search(elem, scope).findFirst() != null
@@ -88,19 +95,26 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
   }
 
   @BooleanBeanProperty
-  var mutableShadowing: Boolean = false
+  var privateShadowCompilerOption: Boolean = true
+
+  @BooleanBeanProperty
+  var fatalWarningsCompilerOption: Boolean = true
 
   @Override
-  override def createOptionsPanel(): JComponent =
-    InspectionOptionsPanel.singleCheckBox(this,ScalaInspectionBundle.message("suspicious.shadowing.mutable.label"), "mutableShadowing")
+  override def createOptionsPanel(): JComponent = {
+    val panel = new InspectionOptionsPanel(this)
+    panel.addCheckbox(ScalaInspectionBundle.message("private.shadow.compiler.option.label"), "privateShadowCompilerOption")
+    panel.addCheckbox(ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"), "fatalWarningsCompilerOption")
+    panel
+  }
 }
 
 object PrivateShadowInspection {
   @Nls
-  val annotationDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.description")
+  val annotationDescription: String = ScalaInspectionBundle.message("private.shadow.description")
 
   @Nls
-  private val renameQuickFixDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.rename.identifier")
+  private val renameQuickFixDescription: String = ScalaInspectionBundle.message("private.shadow.rename.identifier")
 
   private def findTypeDefinition(elem: PsiElement): Option[ScTypeDefinition] =
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition]))
