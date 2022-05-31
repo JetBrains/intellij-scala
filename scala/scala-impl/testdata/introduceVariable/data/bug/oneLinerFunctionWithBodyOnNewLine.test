@@ -1,0 +1,11 @@
+object O {
+  def foo =
+    println(<begin>42<end>)
+}
+------
+object O {
+  def foo = {
+    val value: Int = 42
+    println(value)
+  }
+}

@@ -368,7 +368,9 @@ object IntroduceExpressions {
               firstRange = firstRange.shiftRight(1)
               val replaced = commonParent.replace(createExpressionFromText("{" + commonParent.getText + "}"))
               replaced.getPrevSibling match {
-                case ws: PsiWhiteSpace if ws.getText.contains("\n") => ws.delete()
+                case ws: PsiWhiteSpace if ws.getText.contains("\n") =>
+                  firstRange = firstRange.shiftLeft(ws.getTextLength)
+                  ws.delete()
                 case _ =>
               }
               replaced
