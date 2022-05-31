@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -222,6 +222,7 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
         case _ => Seq.empty
       }
       elements.flatMap {
+        case _: ScTypeParam if !isOnTheFly => Seq.empty
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
         case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
