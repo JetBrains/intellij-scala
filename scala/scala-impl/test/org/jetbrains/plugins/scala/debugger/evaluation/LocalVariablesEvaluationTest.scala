@@ -171,7 +171,7 @@ abstract class LocalVariablesEvaluationTestBase extends ExpressionEvaluationTest
 
   def testNoBackingFieldParam(): Unit = {
     expressionEvaluationTest() { implicit ctx =>
-      evalFailsWith("noBackingField", "constructor parameter 'noBackingField' is inaccessible outside of the class constructor")
+      evalFailsWith("noBackingField", "constructor parameter 'noBackingField' is inaccessible outside the class constructor")
     }
   }
 
