@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.implicitConvertions;
+package org.jetbrains.plugins.scala.actions.implicitConversions;
 
 import com.intellij.ide.util.PsiElementListCellRenderer;
 import com.intellij.psi.PsiNamedElement;

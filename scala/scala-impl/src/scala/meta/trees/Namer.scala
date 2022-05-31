@@ -78,7 +78,7 @@ trait Namer {
     case se: impl.toplevel.synthetic.SyntheticNamedElement =>
       die(ScalaMetaBundle.message("synthetic.elements.not.implemented")) // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>
-      unreachable(ScalaMetaBundle.message("package.and.object.types.shoud.be.singleton.not.name...", elem.getText))
+      unreachable(ScalaMetaBundle.message("package.and.object.types.should.be.singleton.not.name...", elem.getText))
     // Java stuff starts here
     case pc: PsiClass =>
       m.Type.Name(pc.getName)

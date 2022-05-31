@@ -47,7 +47,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
 
   override def getTestMap: Map[String, Set[String]] = {
     val classFqns = if (isDumb) {
-      if (classBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.can.nott.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
+      if (classBuf.isEmpty) throw executionException(ScalaBundle.message("test.config.can.not.run.while.indexing.no.class.names.memorized.from.previous.iterations"))
       classBuf.asScala
     } else {
       findTestSuites(getScope)

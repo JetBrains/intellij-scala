@@ -99,7 +99,7 @@ object ScalaCompletionUtil {
         if (node.is[PsiWhiteSpace]) node = node.getPrevSibling
         node match {
           case x: PsiErrorElement =>
-            val s = ErrMsg("wrong.top.statment.declaration")
+            val s = ErrMsg("wrong.top.statement.declaration")
             x.getErrorDescription match {
               case `s` => return (true, true)
               case _ => return (true, false)

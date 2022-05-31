@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.actions.implicitConvertions
+package org.jetbrains.plugins.scala.actions.implicitConversions
 
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.icons.AllIcons

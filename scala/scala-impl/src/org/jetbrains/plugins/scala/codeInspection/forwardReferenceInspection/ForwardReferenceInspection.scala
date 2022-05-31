@@ -33,7 +33,7 @@ class ForwardReferenceInspection extends AbstractRegisteredInspection {
         )
 
         if (isSuspicious) {
-          val description = ScalaBundle.message("suspicicious.forward.reference.template.body")
+          val description = ScalaBundle.message("suspicious.forward.reference.template.body")
           Some(manager.createProblemDescriptor(ref, description, isOnTheFly, Array.empty[LocalQuickFix], highlightType))
         } else None
 

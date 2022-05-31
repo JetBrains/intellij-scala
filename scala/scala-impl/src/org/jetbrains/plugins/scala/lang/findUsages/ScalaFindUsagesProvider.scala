@@ -48,7 +48,7 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _ => element.getText
     }
     //noinspection ReferencePassedToNls
-    Option(name) getOrElse ScalaBundle.message("descritive.name.anonymous")
+    Option(name) getOrElse ScalaBundle.message("descriptive.name.anonymous")
   }
 
   @NotNull
@@ -65,6 +65,6 @@ class ScalaFindUsagesProvider extends FindUsagesProvider {
       case _ => element.getText
     }
     //noinspection ReferencePassedToNls
-    Option(name) getOrElse ScalaBundle.message("descritive.name.anonymous")
+    Option(name) getOrElse ScalaBundle.message("descriptive.name.anonymous")
   }
 }

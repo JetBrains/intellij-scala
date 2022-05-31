@@ -87,7 +87,7 @@ class ScalaMalformedFormatStringInspection extends AbstractInspection {
           ScalaInspectionBundle.message("no.argument.at.position", position.toString))
 
       case UnboundExpression(argument) =>
-        holder.registerProblem(argument, ScalaInspectionBundle.message("no.format.specifer.for.an.argument", argument.getText),
+        holder.registerProblem(argument, ScalaInspectionBundle.message("no.format.specifier.for.an.argument", argument.getText),
           ProblemHighlightType.LIKE_UNUSED_SYMBOL)
 
       case _ =>

@@ -49,6 +49,7 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
     addTab(new MultiLineStringCodeStylePanel(settings))
     addTab({typeAnnotationsPanel = new TypeAnnotationsPanel(settings); typeAnnotationsPanel})
     addTab(new ScalaArrangementPanel(settings))
+    addTab(new CodeGenerationPanel(settings))
     addTab(new OtherCodeStylePanel(settings))
     initOuterFormatterPanel()
   }
@@ -180,6 +181,7 @@ object ScalaTabbedCodeStylePanel {
       addTab(new MultiLineStringCodeStylePanel(settings))
       addTab(new TypeAnnotationsPanel(settings))
       addTab(new ScalaArrangementPanel(settings))
+      addTab(new CodeGenerationPanel(settings))
       val otherCodeStylePanel: OtherCodeStylePanel = new OtherCodeStylePanel(settings)
       addTab(otherCodeStylePanel)
       otherCodeStylePanel.toggleExternalFormatter(true)
