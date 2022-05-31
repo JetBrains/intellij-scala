@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.shadowing.positive
 import org.jetbrains.plugins.scala.codeInspection.shadowing.PrivateShadowInspectionTestBase
 
 class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
-  def test_subclass_field_shadows_superclass_mutable_field(): Unit =
+  def test_subclass_parameter_shadows_superclass_mutable_field(): Unit =
     checkTextHasError(
       s"""
          |class C(var c: Int)
@@ -12,17 +12,14 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
          |""".stripMargin
     )
 
-  def test_object_field_shadows_trait_field(): Unit =
+  def test_subclass_field_shadows_superclass_mutable_field(): Unit =
     checkTextHasError(
       s"""
-         |trait TraitA {
-         |  def n: Int = 1
-         |}
+         |class C(var c: Int)
          |
-         |object ObjectA extends TraitA {
-         |  def foo(): Unit = {
-         |    val ${START}n${END}: Int = 0
-         |  }
+         |class D extends C(0) {
+         |  private val ${START}c${END}: Int = 0
+         |  def f: Int = c
          |}
          |""".stripMargin
     )
