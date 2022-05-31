@@ -262,19 +262,16 @@ lazy val scalaImpl: sbt.Project =
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
-val nailgunJar = settingKey[File]("location of nailgun jar").withRank(KeyRanks.Invisible)
-(ThisBuild / nailgunJar) := (scalaCommunity / unmanagedBase).value / "nailgun.jar"
-
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      packageMethod            :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
-      Compile/unmanagedJars    += nailgunJar.value,
-      libraryDependencies      ++= Seq(Dependencies.zincInterface, Dependencies.scalaParallelCollections),
-      packageLibraryMappings   ++= Seq(
+      packageMethod := PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
+      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.zincInterface, Dependencies.scalaParallelCollections),
+      packageLibraryMappings ++= Seq(
+        Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
         Dependencies.scalaParallelCollections -> Some("lib/jps/scala-parallel-collections.jar")
       )
@@ -294,9 +291,9 @@ lazy val compilerShared =
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      Compile/unmanagedJars += nailgunJar.value,
-      libraryDependencies ++= Seq(Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
+      libraryDependencies ++= Seq(Dependencies.nailgun, Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
       packageLibraryMappings ++= Seq(
+        Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
         Dependencies.compilerIndicesProtocol -> Some("lib/scala-compiler-indices-protocol_2.12-0.1.1.jar")
       ),
       packageMethod := PackagingMethod.Standalone("lib/compiler-shared.jar", static = true)
@@ -387,8 +384,8 @@ lazy val nailgunRunners =
     .settings(
       (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
-      Compile/unmanagedJars += nailgunJar.value,
-      packageFileMappings += nailgunJar.value -> "lib/jps/nailgun.jar",
+      libraryDependencies += Dependencies.nailgun,
+      packageLibraryMappings += Dependencies.nailgun -> Some("lib/jps/nailgun.jar"),
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
     )
 
