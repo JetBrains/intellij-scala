@@ -269,12 +269,12 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   private boolean isInnerClass() {
     return multipleOutputCombobox.getSelectedItem() != null
-        && multipleOutputCombobox.getSelectedItem().equals("Inner case class");
+        && multipleOutputCombobox.getSelectedItem().equals("Inner class");
   }
 
   private boolean isCaseClass() {
     return multipleOutputCombobox.getSelectedItem() != null
-        && multipleOutputCombobox.getSelectedItem().equals("Inner class");
+        && multipleOutputCombobox.getSelectedItem().equals("Inner case class");
   }
 
   private boolean isPublic() {
