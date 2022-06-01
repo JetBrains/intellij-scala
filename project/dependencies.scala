@@ -11,6 +11,8 @@ object Versions {
   val zincVersion = "1.6.1"
   val intellijVersion = "222.2680.4"
 
+  val nailgunVersion = "1.1.1"
+
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
     intellijRepository_ForManagedIntellijDependencies
@@ -113,7 +115,7 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % "1.1.0"
+  val nailgun = "org.jetbrains" % "nailgun-server-for-scala-plugin" % nailgunVersion
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion excludeAll ExclusionRule(organization = "org.apache.logging.log4j")
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
