@@ -234,15 +234,17 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
     textAfter.foreach(check)
   }
 
-  protected def prepareText(actual0: String): String = {
-    val actual1 = if (actual0.startsWith("\n")) actual0.substring(1) else actual0
-    val actual2 =  if (actual1.startsWith("\n")) actual1.substring(1) else actual1
-    // Strip trailing spaces
-    val doc = EditorFactory.getInstance.createDocument(actual2)
+  protected def prepareText(text: String): String = {
+    val textTrimmed = text.trim
+    stripTrailingSpaces(textTrimmed)
+  }
+
+  private def stripTrailingSpaces(text: String): String = {
+    val doc = EditorFactory.getInstance.createDocument(text)
     runCommandInWriteAction(() => {
       doc.asInstanceOf[DocumentImpl].stripTrailingSpaces(getProject)
-    }, "formatting", null)
-    doc.getText.trim
+    }, "formatting: strip trailing spaces", null)
+    doc.getText
   }
 
   //noinspection ReferencePassedToNls
