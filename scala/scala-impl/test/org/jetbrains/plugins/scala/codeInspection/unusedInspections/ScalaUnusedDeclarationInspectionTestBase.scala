@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.unused
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager

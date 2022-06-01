@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.unused.positive
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections.positive
 
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 
 class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
   private def addFile(text: String): Unit = myFixture.addFileToProject("Foo.scala", text)

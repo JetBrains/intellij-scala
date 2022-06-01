@@ -76,7 +76,19 @@ On the sbt shell:
 The "fast tests" can take over an hour. To get a quick feedback on project health, run only the type inference tests:
 
     > runTypeInferenceTests
-    
+
+## Generating test coverage reports
+
+You might want to generate a test coverage report for a given package. It can be done by running for example the following:
+```
+sbt "project scala-impl;set coverageEnabled := true;project scalaCommunity;testOnly org.jetbrains.plugins.scala.codeInspection.unusedInspections.*;scala-impl/coverageReport"
+```
+Close to the very tail of the output of this command you will find a line that gives you the location of the generated report, for example:
+```
+[info] Written HTML coverage report [/Users/alice/intellij-scala/scala/scala-impl/target/scala-2.13/scoverage-report/index.html]
+```
+Note that in order to continue working from IntelliJ IDEA again you need to perform Build > Rebuild Project.
+
 ### [Docs for writing tests for IntelliJ plugins](https://plugins.jetbrains.com/docs/intellij/testing-plugins.html) 
 
 ## GitHub Actions build

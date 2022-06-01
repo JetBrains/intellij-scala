@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.unused.negative
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections.negative
 
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.junit.Assert.assertTrue
