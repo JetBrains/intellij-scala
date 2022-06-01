@@ -16,7 +16,6 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
-import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -24,13 +23,11 @@ import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServe
 import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
-import java.io.{File, IOException}
+import java.io.{BufferedReader, File, IOException, InputStreamReader}
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import javax.swing.event.HyperlinkEvent
-import scala.annotation.tailrec
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -76,46 +73,9 @@ object CompileServerLauncher {
   })
 
   def tryToStart(project: Project): Boolean = serverStartLock.synchronized {
-    if (running) true else {
-      val started = start(project)
-      if (started) {
-        sendDummyRequest(project)
-      }
-      started
-    }
+    if (running) true
+    else start(project)
   }
-
-  // TODO: implement proper wait for server initialization
-  //  addDisconnectListener command doesn't even exist
-  //  com.facebook.nailgun.builtins.DefaultNail.nailMain will be used instead
-  //  it sends an error to the socket output (as a NGConstants.CHUNKTYPE_STDERR chunk)
-  //  but we ignore it because we use DummyClient
-  private val MaxReconnectAttempt = 10
-  private val SleepTimeBetweenReconnectAttempts = 1.second
-  @tailrec
-  private def sendDummyRequest(project: Project): Unit = {
-    var reconnectAttempt = 1
-    try {
-      LOG.traceWithDebugInDev(s"waiting for compile server initialization... ($reconnectAttempt / $MaxReconnectAttempt)")
-      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, DummyClient.Instance)
-    } catch {
-      case ex: IOException =>
-        if (isUnitTestMode) {
-          if (reconnectAttempt < MaxReconnectAttempt) {
-            reconnectAttempt += 1
-            Thread.sleep(SleepTimeBetweenReconnectAttempts.toMillis)
-            sendDummyRequest(project)
-          }
-          else {
-            throw new RuntimeException("compile server hasn't been initialised", ex)
-          }
-        }
-        else {
-          LOG.warn(ex)
-        }
-    }
-  }
-
 
   private def isUnitTestMode: Boolean =
     ApplicationManager.getApplication.isUnitTestMode
@@ -261,6 +221,19 @@ object CompileServerLauncher {
           .either(builder.start())
           .left.map(e => CompileServerProblem.UnexpectedException(e))
           .map { process =>
+            val bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream))
+            var cont = true
+            while (cont) {
+              val line = bufferedReader.readLine()
+              if (line eq null) {
+                // Reached the end of the stream. The process listener will take care of the rest.
+                cont = false
+              } else if (line.startsWith("NGServer") && line.contains("started on") && line.contains(freePort.toString)) {
+                // The NGServer is ready to accept connections.
+                cont = false
+              }
+            }
+
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
