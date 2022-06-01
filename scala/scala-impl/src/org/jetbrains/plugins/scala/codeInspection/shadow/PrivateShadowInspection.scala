@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
+import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -34,7 +36,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
       case _ => None
     }
 
-  private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this)
+  private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this) with LowPriorityAction
 
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
@@ -42,12 +44,15 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
       fatalWarningsCompilerOption &&
         (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
 
+    val range = new TextRange(0, if (elem.getText.contains(":")) elem.getText.indexOf(":") else elem.getText.length)
+
     manager.createProblemDescriptor(
       elem,
+      range,
       description,
+      if (showAsError) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
       isOnTheFly,
-      Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction),
-      if (showAsError) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+      new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction
     )
   }
 
