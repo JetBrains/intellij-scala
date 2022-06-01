@@ -53,14 +53,13 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
   override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-
     val elementIsOnlyVisibleInLocalFile = isOnlyVisibleInLocalFile(element)
 
     if (elementIsOnlyVisibleInLocalFile && isOnTheFly) {
       localSearch(element)
     } else if (elementIsOnlyVisibleInLocalFile && !isOnTheFly) {
-      referencesSearch(element)
-    } else if (referencesSearch(element)) {
+      isElementReferencedInTheSameFile(element)
+    } else if (isElementReferencedInTheSameFile(element)) {
       true
     } else if (!reportPublicDeclarations) {
       true
@@ -90,7 +89,7 @@ class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
   }
 
   // this case is for elements accessible not only in a local scope, but within the same file
-  private def referencesSearch(element: ScNamedElement): Boolean = {
+  private def isElementReferencedInTheSameFile(element: ScNamedElement): Boolean = {
     val elementsForSearch = element match {
       // if the element is an enum case, we also look for usage in a few synthetic methods generated for the enum class
       case enumCase: ScEnumCase =>
