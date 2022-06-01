@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.codeInspection.unused.testingFrameworks
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections.testingFrameworks
 
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.LibrariesOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 
 class JUnit4Test extends ScalaUnusedDeclarationInspectionTestBase with LibrariesOwner {
 

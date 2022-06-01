@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala
 package codeInspection
-package unused
+package unusedInspections
 
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.VarCouldBeValInspection

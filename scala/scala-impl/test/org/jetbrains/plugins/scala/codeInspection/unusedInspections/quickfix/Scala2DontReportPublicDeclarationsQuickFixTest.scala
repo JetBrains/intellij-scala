@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.unused.quickfix
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections.quickfix
 
-import org.jetbrains.plugins.scala.codeInspection.unused.ScalaUnusedDeclarationInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 import org.junit.Assert.assertFalse
 
 class Scala2DontReportPublicDeclarationsQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.unused
+package org.jetbrains.plugins.scala.codeInspection.unusedInspections
 
 class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectionTestBase {
 
