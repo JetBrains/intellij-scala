@@ -2,12 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Class parameter shadows superclass variable</title>
+    <title>Class parameter shadows superclass var</title>
 </head>
 <body>
-<p>When extending a class with a non-private variable, the user might suspect that a class parameter of the subclass
-    will override the variable from the superclass, but in fact it will only shadow it. This may sometimes lead to
-    non-trivial errors.</p>
+<p>Reports class parameters that shadow a superclass var</p>
 <pre>
 class Animal {
   var name: String = ""
@@ -17,6 +15,9 @@ class Cat(name: String) extends Animal {
   def usage = name
 }
 </pre>
+<p>When extending a class with a non-private var, the user might suspect that a class parameter of the subclass
+    will override the var from the superclass, but in fact it will only shadow it. This may sometimes lead to
+    non-trivial errors.</p>
 <p>Please note that the highlight will appear only if the value is actually used.</p>
 <!-- tooltip end -->
 </body>

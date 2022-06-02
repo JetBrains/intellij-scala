@@ -42,7 +42,8 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
     val showAsError =
-      fatalWarningsCompilerOption &&
+      privateShadowCompilerOption &&
+        fatalWarningsCompilerOption &&
         (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
 
     val range = new TextRange(0, if (elem.getText.contains(":")) elem.getText.indexOf(":") else elem.getText.length)
@@ -51,7 +52,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
       elem,
       range,
       description,
-      if (showAsError) ProblemHighlightType.ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
+      if (showAsError) ProblemHighlightType.GENERIC_ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
       isOnTheFly,
       new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction
     )
