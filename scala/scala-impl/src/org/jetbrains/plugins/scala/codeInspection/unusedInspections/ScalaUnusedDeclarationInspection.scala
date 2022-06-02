@@ -4,6 +4,7 @@ import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.deadCode.UnusedDeclarationInspectionBase
 import com.intellij.openapi.roots.TestSourcesFilter
 import com.intellij.psi._
+import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
 import org.jetbrains.annotations.Nls
@@ -14,16 +15,14 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPatternList, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter, ScTypeParam}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
@@ -194,19 +193,12 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             true
           } else {
             used = (e2, Option(e2.getParent)) match {
-              case (_: ScStableCodeReference, _) => true
-              case (_: ScalaFile, _) => false
-              case (_: ScTypeDefinition, _) => false
-              case (_: ScExtendsBlock, _) => false
-              case (_: ScTemplateBody, _) => false
-              case (_: ScPatternDefinition, _) => false
-              case (_: ScPatternList, _) => false
-              case (_: ScReferencePattern, _) => false
-              case (_: ScStringLiteral, _) => false
-              case (_, Some(_: ScStringLiteral)) => false
               case (_, Some(_: ScReferencePattern)) => false
               case (_, Some(_: ScTypeDefinition)) => false
-              case _ => true
+              case (_: PsiIdentifier, _) => true
+              case (l: LeafPsiElement, _) if l.isIdentifier => true
+              case (_: ScStableCodeReference, _) => true
+              case _ => false
             }
             !used
           }
