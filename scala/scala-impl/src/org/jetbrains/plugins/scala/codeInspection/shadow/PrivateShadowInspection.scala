@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
+import java.awt.event.ItemEvent
 import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
 
@@ -108,8 +109,18 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
   @Override
   override def createOptionsPanel(): JComponent = {
     val panel = new InspectionOptionsPanel(this)
-    panel.addCheckbox(ScalaInspectionBundle.message("private.shadow.compiler.option.label"), "privateShadowCompilerOption")
-    panel.addCheckbox(ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"), "fatalWarningsCompilerOption")
+    val compilerOptionCheckbox = panel.addCheckboxEx(
+      ScalaInspectionBundle.message("private.shadow.compiler.option.label"),
+      "privateShadowCompilerOption"
+    )
+    val fatalWarningsCheckbox = panel.addDependentCheckBox(
+      ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"),
+      "fatalWarningsCompilerOption",
+      compilerOptionCheckbox
+    )
+    compilerOptionCheckbox.addItemListener { e =>
+      if (e.getStateChange == ItemEvent.DESELECTED) fatalWarningsCheckbox.setSelected(false)
+    }
     panel
   }
 }

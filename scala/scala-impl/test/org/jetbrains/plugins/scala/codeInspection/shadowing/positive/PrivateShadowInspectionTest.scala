@@ -8,7 +8,7 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
       s"""
          |class C(var c: Int)
          |
-         |class D(${START}c: Int${END}) extends C(c)
+         |class D(${START}c${END}: Int) extends C(c)
          |""".stripMargin
     )
 }
