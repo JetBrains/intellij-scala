@@ -81,7 +81,7 @@ class VarargPatternSyntaxScala3Test extends VarargPatternSyntaxScala3TestBase {
       s"""List(1, 2, 3) match {
          |  case List(first, _$START@$END _*) =>
          |}
-         |"""
+         |""".stripMargin
     val codeFixed =
       s"""List(1, 2, 3) match {
          |  case List(first, _*) =>

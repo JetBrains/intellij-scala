@@ -21,7 +21,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    else ${START}2$END
        |
        |    0
-       |}"""
+       |}""".stripMargin
   }
 
   def testTuple(): Unit = checkTextHasError {
@@ -29,14 +29,14 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    var x = 0
        |    $START(0, 2)$END
        |    0
-       |}"""
+       |}""".stripMargin
   }
 
   def testReference(): Unit = checkTextHasError {
     s"""def foo(): Int = {
        |    $START(0, 2)._1$END
        |    0
-       |}"""
+       |}""".stripMargin
   }
 
   def testReferenceToVal(): Unit = checkTextHasError {
@@ -44,7 +44,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |  val a = 1
        |  ${START}a$END
        |  0
-       |}"""
+       |}""".stripMargin
   }
 
   def testTypedAndParenthesized(): Unit = checkTextHasError {
@@ -52,14 +52,14 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |  val s = "aaa"
        |  $START(s: String).substring(0)$END
        |  0
-       |}"""
+       |}""".stripMargin
   }
 
   def testReferenceToByNameParam(): Unit = checkTextHasNoErrors {
     s"""def foo(i: => Int): Int = {
        |  i
        |  0
-       |}"""
+       |}""".stripMargin
   }
 
   def testStringBuffer(): Unit = checkTextHasNoErrors {
@@ -67,14 +67,14 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |  val b = new StringBuffer()
        |  b.append("a")
        |  0
-       |}"""
+       |}""".stripMargin
   }
 
   def testObjectMethodWithSideEffects(): Unit = checkTextHasNoErrors {
     s"""def foo(): Int = {
        |  "1".wait()
        |  0
-       |}"""
+       |}""".stripMargin
   }
 
   def testImmutableCollection(): Unit = checkTextHasError {
@@ -84,7 +84,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    case 1 =>
        |  }
        |  1
-       |}"""
+       |}""".stripMargin
   }
 
   def testImmutableCollection2(): Unit = checkTextHasError {
@@ -94,7 +94,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    case 1 =>
        |  }
        |  1
-       |}"""
+       |}""".stripMargin
   }
 
   def testImmutableCollection3(): Unit = checkTextHasNoErrors {
@@ -105,7 +105,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    case 1 =>
        |  }
        |  1
-       |}"""
+       |}""".stripMargin
   }
 
   def testImmutableCollection4(): Unit = checkTextHasError {
@@ -115,7 +115,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    case 1 =>
        |  }
        |  1
-       |}"""
+       |}""".stripMargin
   }
 
   def testThisReference(): Unit = checkTextHasError {
@@ -129,7 +129,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    }
        |    1
        |  }
-       |}"""
+       |}""".stripMargin
   }
 
   def testUnusedFunctionRef(): Unit = checkTextHasError {
@@ -169,7 +169,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
     s"""def foo(f: Int => Unit): Unit = {
        |  List(1) foreach f
        |}
-       """
+       """.stripMargin
   }
 
   def testUnusedFunctionalParam(): Unit = checkTextHasError {
@@ -212,7 +212,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    case 1 =>
        |  }
        |  1
-       |}"""
+       |}""".stripMargin
   }
 
   def testNoForAssignment(): Unit = checkTextHasNoErrors {
@@ -220,7 +220,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    var x = 0
        |    x += 1
        |    0
-       |}"""
+       |}""".stripMargin
   }
 
   def testNoForAssignment2(): Unit = checkTextHasNoErrors {
@@ -228,7 +228,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |    var x = 0
        |    x = 1
        |    0
-       |}"""
+       |}""".stripMargin
   }
 
   def testUnitFunction(): Unit = checkTextHasError {
@@ -236,13 +236,13 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |  var z = 0
        |  if (true) z = 1
        |  else ${START}2$END
-       |}"""
+       |}""".stripMargin
   }
 
   def testUnitFunction2(): Unit = checkTextHasNoErrors {
     s"""def foo(): Unit = {
        |  "1".wait()
-       |}"""
+       |}""".stripMargin
   }
 
   def testImplicitClass(): Unit = checkTextHasNoErrors {
@@ -252,7 +252,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |
        |def foo(): Unit = {
        |  "1".print()
-       |}"""
+       |}""".stripMargin
   }
 
   def testImplicitFunction(): Unit = checkTextHasNoErrors {
@@ -260,7 +260,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
        |
        |def foo(): Unit = {
        |  $START"1".intValue()$END
-       |}"""
+       |}""".stripMargin
   }
 
   def testConstructorCall(): Unit = checkTextHasNoErrors {
@@ -276,7 +276,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |  println("hello")
       |}
       |
-      """
+      """.stripMargin
   }
 
   def testUnderscoreApply(): Unit = checkTextHasNoErrors {
@@ -288,7 +288,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |  def doItToo() = todo.foreach(_.apply())
       |  todo.foreach(_())
       |}
-    """
+    """.stripMargin
   }
 
   def testStringGetChars(): Unit = checkTextHasNoErrors {
@@ -297,7 +297,7 @@ class UnusedExpressionInspectionTest extends UnusedExpressionInspectionTestBase 
       |  val target = Array.empty[Char]
       |  "abcde".getChars(0, 1, target, 0)
       |}
-    """
+    """.stripMargin
   }
 
   def test_SCL15653_0(): Unit = checkTextHasError(
@@ -455,7 +455,7 @@ class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTes
        |  }
        |  ${START}tr.get$END
        |}
-      """
+      """.stripMargin
   }
 
   def testUnsafeHead(): Unit = checkTextHasError {
@@ -464,7 +464,7 @@ class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTes
        |  val list: List[String] = Nil
        |  ${START}list.head$END
        |}
-      """
+      """.stripMargin
   }
 
   def testUnsafeGetProjection(): Unit = checkTextHasError {
@@ -473,6 +473,6 @@ class UnusedExpressionThrowsInspectionTest extends UnusedExpressionInspectionTes
        |  val left = Left("a")
        |  ${START}Left("a").right.get$END
        |}
-      """
+      """.stripMargin
   }
 }

@@ -4,15 +4,12 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.codeInsight.intentions
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 abstract class StringConversionTestBase extends intentions.ScalaIntentionTestBase  {
-
-  override def normalize(text: String): String =
-    text.replace("\r", "")
 
   // NOTE: current implementation only works when each intention action does not adds new lines or removes any lines
   protected def doBulkTest(
@@ -22,7 +19,7 @@ abstract class StringConversionTestBase extends intentions.ScalaIntentionTestBas
   ): Unit = {
     implicit val project: Project = getProject
 
-    myFixture.configureByText(fileType, normalize(text)).asInstanceOf[ScalaFile]
+    myFixture.configureByText(fileType, text.replace("\r", "")).asInstanceOf[ScalaFile]
 
     placeCaretAtEachLineContent(getEditor)
 

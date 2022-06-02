@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
-  override def familyName: String             = ToggleTypeAnnotation.FamilyName
+  override def familyName: String = ToggleTypeAnnotation.FamilyName
 
   override def setUp(): Unit = {
     super.setUp()
@@ -41,14 +41,12 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
   )
 
   def testCompoundType(): Unit = doTest(
-    """
-      |val foo = new Runnable {
+    """val foo = new Runnable {
       |  def helper(): Unit = ???
       |
       |  override def run(): Unit = ???
       |}""".stripMargin,
-    """
-      |val foo: Runnable = new Runnable {
+    """val foo: Runnable = new Runnable {
       |  def helper(): Unit = ???
       |
       |  override def run(): Unit = ???
@@ -133,7 +131,7 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
        |def foo(): Map[Int, Map[Int, String]] = ???
        |val b${caretTag}ar = foo()
      """.stripMargin,
-     s"""
+    s"""
        |import scala.annotation.showAsInfix
        |
        |@showAsInfix class Map[A, B]
@@ -144,20 +142,16 @@ class ToggleTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
   )
 
   def testTupledFunction(): Unit = doTest(
-    s"""
-       |class Test {
+    s"""class Test {
        |  def g(f: (String, Int) => Unit): Unit = {
        |    val ${caretTag}t = f.tupled // Add type annotation to value definition
        |  }
-       |}
-     """.stripMargin,
-    s"""
-       |class Test {
+       |}""".stripMargin,
+    s"""class Test {
        |  def g(f: (String, Int) => Unit): Unit = {
        |    val ${caretTag}t: ((String, Int)) => Unit = f.tupled // Add type annotation to value definition
        |  }
-       |}
-     """
+       |}""".stripMargin
   )
 
   def testTypeLambdaInline(): Unit = doTest(

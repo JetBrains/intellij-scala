@@ -105,7 +105,7 @@ class SpaceInsertTest extends EditorTypeActionTestBase {
       s"""class B {
          |  def foo = 42 +
          |      $CARET
-         |}""",
+         |}""".stripMargin,
       "    "
     )
 }

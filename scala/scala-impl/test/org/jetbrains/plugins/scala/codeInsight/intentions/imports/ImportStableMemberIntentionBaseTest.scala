@@ -10,8 +10,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  scala.Option.<caret>empty[Int]
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.Option.empty
         |
@@ -25,8 +24,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  math.P<caret>i
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.Pi
         |
@@ -40,8 +38,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  val x: math.BigDecimal.RoundingMode.R<caret>oundingMode = null
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.BigDecimal.RoundingMode.RoundingMode
         |
@@ -55,8 +52,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  BigDecimal.<caret>RoundingMode
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.BigDecimal.RoundingMode
         |
@@ -70,8 +66,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  math.<caret>Pi * math.Pi
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.Pi
         |
@@ -87,8 +82,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
         |
         |object A {
         |  math.<caret>E
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.{E, Pi}
         |
@@ -102,8 +96,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  math <caret>floor math.Pi
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.floor
         |
@@ -118,8 +111,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
       """
         |object A {
         |  math <caret>floor math.floor(math Pi)
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.floor
         |
@@ -133,8 +125,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  println(math <caret>Pi)
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import scala.math.Pi
         |
@@ -148,8 +139,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  java.util.GregorianCalendar.<caret>BC
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import java.util.GregorianCalendar.BC
         |
@@ -163,8 +153,7 @@ abstract class ImportStableMemberIntentionBaseTest extends ScalaIntentionTestBas
     val text =
       """object A {
         |  java.util.Arrays.<caret>fill(new Array[Int](1), 1)
-        |}
-      """.stripMargin
+        |}""".stripMargin
     val result =
       """import java.util.Arrays.fill
         |

@@ -21,18 +21,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                      |  }
                      |  val f1 = ${START}A.f(_, _)$END
                      |}
-                     |"""
+                     |""".stripMargin
     checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1 = A.f(_, _)
-                 |}"""
+                 |}""".stripMargin
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1 = A.f _
-                   |}"""
+                   |}""".stripMargin
     testQuickFix(text, result, hintAnon)
   }
 
@@ -42,7 +42,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  }
                  |  val f1 = A f (_, _)
                  |}
-                 |"""
+                 |""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -52,7 +52,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  }
                  |  val f1 = A.f _
                  |}
-                 |"""
+                 |""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -61,18 +61,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                        |  def f(x: Int, y: Int) {
                        |  }
                        |  val f1: (Int, Int) => Unit = ${START}A.f(_, _)$END
-                       |}"""
+                       |}""".stripMargin
     checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1: (Int, Int) => Unit = A.f(_, _)
-                 |}"""
+                 |}""".stripMargin
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
-                   |}"""
+                   |}""".stripMargin
     testQuickFix(text, result, hintAnon)
   }
 
@@ -81,18 +81,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                        |  def f(x: Int, y: Int) {
                        |  }
                        |  val f1: (Int, Int) => Unit = ${START}A.f _$END
-                       |}"""
+                       |}""".stripMargin
     checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int) {
                  |  }
                  |  val f1: (Int, Int) => Unit = A.f _
-                 |}"""
+                 |}""".stripMargin
     val result = """object A {
                    |  def f(x: Int, y: Int) {
                    |  }
                    |  val f1: (Int, Int) => Unit = A.f
-                   |}"""
+                   |}""".stripMargin
     testQuickFix(text, result, hintEta)
   }
 
@@ -101,18 +101,18 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                        |  def f(x: Int, y: Int = 0) {
                        |  }
                        |  val f1 = ${START}A.f(_, _)$END
-                       |}"""
+                       |}""".stripMargin
     checkTextHasError(selected)
     val text = """object A {
                  |  def f(x: Int, y: Int = 0) {
                  |  }
                  |  val f1 = A.f(_, _)
-                 |}"""
+                 |}""".stripMargin
     val result = """object A {
                    |  def f(x: Int, y: Int = 0) {
                    |  }
                    |  val f1 = A.f _
-                   |}"""
+                   |}""".stripMargin
     testQuickFix(text, result, hintAnon)
   }
 
@@ -122,7 +122,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  }
                  |  val f1: (Int) => Unit = A.f(_)
                  |}
-                 |"""
+                 |""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -132,7 +132,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  }
                  |  val f1: (Int) => Unit = A f _
                  |}
-                 |"""
+                 |""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -141,7 +141,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  def f(x: Any, y: Int = 0) {
                  |  }
                  |  val f1 = A.f(_: Int, _)
-                 |}"""
+                 |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -150,7 +150,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |  def f(x: Any, y: Int = 0) {
                  |  }
                  |  val f1 = A f (_: Int, _: Int)
-                 |}"""
+                 |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -166,7 +166,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
                  |    )
                  |  }
                  |}
-                 |"""
+                 |""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -174,7 +174,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
     val text = """class A {
                  |  def inc(f: Int) = f+1
                  |  val set = Set(inc _)
-                 |}"""
+                 |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -186,7 +186,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
         |    x.map(1 + _)
         |  }
         |}
-      """
+      """.stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -194,7 +194,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
     val text =
       """class InspectionTest1[T](translator: T => T = identity[T] _) {
         |  def translate(t: T): T = translator(t)
-        |}"""
+        |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 

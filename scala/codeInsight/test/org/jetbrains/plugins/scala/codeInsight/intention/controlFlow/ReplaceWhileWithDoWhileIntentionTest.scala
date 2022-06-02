@@ -3,22 +3,17 @@ package codeInsight
 package intention
 package controlFlow
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * User: Nikolay.Tropin
   * Date: 4/17/13
   */
 class ReplaceWhileWithDoWhileIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.while.with.do.while")
 
   def testReplaceWhile1(): Unit = {
     val text =
-      s"""
-         |class X {
+      s"""class X {
          |  val flag: Boolean
          |
          |  def f {

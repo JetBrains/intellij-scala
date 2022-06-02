@@ -54,7 +54,7 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
       val document = FileDocumentManager.getInstance().getDocument(getFile.getVirtualFile)
       document.commit(project)
       CodeStyleManager.getInstance(project).reformat(getFile)
-      val normalizedResultText = normalize(resultText)
+      val normalizedResultText = resultText.replace("\r", "")
 
       try {
         myFixture.checkResult(normalizedResultText)
@@ -64,9 +64,6 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
           throw err
       }
     }
-
-  protected def normalize(text: String): String =
-    ScalaLightCodeInsightFixtureTestAdapter.normalize(text)
 
   protected def checkIntentionIsNotAvailable(text: String): Unit =
     assertFalse("Intention is found", intentionIsAvailable(text))
@@ -78,7 +75,7 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
     findIntention(text, fileType)
 
   private def findIntention(text: String, fileType: FileType): Option[IntentionAction] = {
-    myFixture.configureByText(fileType, normalize(text))
+    myFixture.configureByText(fileType, text)
     findIntentionByName(familyName)
   }
 

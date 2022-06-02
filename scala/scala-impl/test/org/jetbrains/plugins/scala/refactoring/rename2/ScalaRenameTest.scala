@@ -13,7 +13,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |
       |  getX()
       |}
-      |""",
+      |""".stripMargin,
     """
       |import reflect.BeanProperty
       |object X {
@@ -22,7 +22,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |
       |  getY()
       |}
-      """
+      """.stripMargin
   )
 
   def testRenameBooleanBeanProperty(): Unit = doRenameTest("y",
@@ -33,7 +33,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  val x<caret> = 1
       |
       |  isX()
-      |}""",
+      |}""".stripMargin,
     """
       |import reflect.BooleanBeanProperty
       |object X {
@@ -41,7 +41,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  val y<caret> = 1
       |
       |  isY()
-      |}"""
+      |}""".stripMargin
   )
 
   def testRenameBeanVarProperty(): Unit = doRenameTest("y",
@@ -53,7 +53,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |
       |  getX()
       |  setX(2)
-      |}""",
+      |}""".stripMargin,
     """
       |import reflect.BeanProperty
       |object X {
@@ -63,7 +63,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  getY()
       |  setY(2)
       |}
-      """
+      """.stripMargin
   )
 
   def testRenameBooleanBeanVarProperty(): Unit = doRenameTest("y",
@@ -76,7 +76,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  isX()
       |  setX(2)
       |}
-      """,
+      """.stripMargin,
     """
       |import reflect.BooleanBeanProperty
       |object X {
@@ -86,7 +86,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  isY()
       |  setY(2)
       |}
-      """
+      """.stripMargin
   )
 
   def testRenameNamingParameter(): Unit = doRenameTest("y",
@@ -97,7 +97,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
-      """,
+      """.stripMargin,
     """
       |class Check {
       |  def method(y: String) = {
@@ -105,7 +105,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  }
       |}
       |case class CaseClass2(attrib: String) {}
-      """
+      """.stripMargin
   )
 
   def testRenameCaseClass(): Unit = doRenameTest("Inde",
@@ -127,7 +127,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case <caret>Index() =>
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |class A {
       |
@@ -146,7 +146,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case Inde() =>
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testRenameInterpolatedStringPrefix(): Unit = doRenameTest("bbb",
@@ -160,7 +160,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  implicit def ctxToB(ctx: StringContext) = new BBB
       |
       |  val a = aaa"blah blah"
-      |}""",
+      |}""".stripMargin,
     """
       |object AAA {
       |
@@ -171,7 +171,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  implicit def ctxToB(ctx: StringContext) = new BBB
       |
       |  val a = bbb"blah blah"
-      |}"""
+      |}""".stripMargin
   )
 
   def testObjectToCaseClass(): Unit = doRenameTest("I",
@@ -183,7 +183,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  Test1(2)
       |  <caret>Test1.apply(1)
       |}
-      """,
+      """.stripMargin,
     """
       |object ObjectToCaseClass {
       |
@@ -192,7 +192,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |  I(2)
       |  <caret>I.apply(1)
       |}
-      """
+      """.stripMargin
   )
 
   def testCaseClassConstructor(): Unit = doRenameTest("I",
@@ -207,7 +207,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case Test1(1) =>
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |object CaseClassConstructor {
       |
@@ -219,7 +219,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case I(1) =>
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testCaseClassApply(): Unit = doRenameTest("I",
@@ -234,7 +234,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case Test1(1) =>
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |object CaseClassApply {
       |
@@ -246,7 +246,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case I(1) =>
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testCaseClassUnapply(): Unit = doRenameTest("I",
@@ -261,7 +261,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case <caret>Test1(1) =>
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |object CaseClassUnapply {
       |
@@ -273,7 +273,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    case I(1) =>
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testSameNameObjectsApply(): Unit = doRenameTest("newName",
@@ -300,7 +300,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    val CustomerContact2.circus(s) = "hello"
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |trait HasApply {
       |  def apply(str:String) = ""
@@ -324,7 +324,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    val CustomerContact2.newName(s) = "hello"
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testSameNameObjectsApply2(): Unit = doRenameTest("newName",
@@ -351,7 +351,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    val CustomerContact2.circus(s) = "hello"
       |  }
       |}
-      """,
+      """.stripMargin,
     """
       |trait HasApply {
       |  def apply(str:String) = ""
@@ -375,7 +375,7 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |    val CustomerContact2.circus(s) = "hello"
       |  }
       |}
-      """
+      """.stripMargin
   )
 
   def testApplyDefinition(): Unit = doRenameTest("BBB",
@@ -385,14 +385,14 @@ class ScalaRenameTest extends ScalaRenameTestBase {
       |object B {
       |  val a = AAA(123)
       |}
-      |""",
+      |""".stripMargin,
     """object BBB {
       |  def apply(i: Int): Int = 123
       |}
       |object B {
       |  val a = BBB(123)
       |}
-      |"""
+      |""".stripMargin
   )
 
 }

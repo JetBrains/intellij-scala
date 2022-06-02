@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import org.jetbrains.plugins.scala.extensions.StringExt
 
 /**
  * User: Alefas
@@ -10,8 +10,8 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.
 
 abstract class ScalaRenameTestBase extends ScalaFixtureTestCase {
   protected def doRenameTest(newName: String, fileText: String, resultText: String): Unit = {
-    myFixture.configureByText("dummy.scala", normalize(fileText))
+    myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator.trim)
     myFixture.renameElementAtCaret(newName)
-    myFixture.checkResult(normalize(resultText))
+    myFixture.checkResult(resultText.withNormalizedSeparator.trim)
   }
 }

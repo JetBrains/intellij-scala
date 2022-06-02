@@ -116,14 +116,14 @@ class ConvertParameterToUnderscoreIntentionTest  extends ScalaIntentionTestBase{
     |    1
     |  }
     |}
-    """
+    """.stripMargin
     val resultText = """
     |val x: Int => Int = <caret>{
     |  _ + {
     |    1
     |  }
     |}
-    """
+    """.stripMargin
 
     doTest(text, resultText)
   }

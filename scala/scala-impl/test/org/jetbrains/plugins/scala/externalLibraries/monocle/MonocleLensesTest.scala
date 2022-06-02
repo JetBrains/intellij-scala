@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.externalLibraries.monocle
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
@@ -29,7 +29,7 @@ class MonocleLensesTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected def folderPath: String = TestUtils.getTestDataPath
 
   def doTest(text: String, methodName: String, expectedType: String): Unit = {
-    val normalized = normalize(text)
+    val normalized = text.withNormalizedSeparator.trim
     val caretPos = normalized.indexOf("<caret>")
     configureFromFileTextAdapter("dummy.scala", normalized.replace("<caret>", ""))
     val exp = PsiTreeUtil.findElementOfClassAtOffset(getFileAdapter, caretPos, classOf[ScalaPsiElement], false).asInstanceOf[ScObject]

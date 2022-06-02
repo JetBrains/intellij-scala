@@ -37,7 +37,7 @@ class ProcedureDefinitionInspectionTest extends ScalaInspectionTestBase {
       text =
         s"""def haha() {}
            |def ${START}hoho$END() {}
-           |def hihi()""",
+           |def hihi()""".stripMargin,
       allowAdditionalHighlights = true
     )
 
@@ -45,11 +45,11 @@ class ProcedureDefinitionInspectionTest extends ScalaInspectionTestBase {
       text =
         s"""def haha() {}
            |def ho${CARET_MARKER}ho() {}
-           |def hihi()""",
+           |def hihi()""".stripMargin,
       expected =
         """def haha() {}
           |def hoho(): Unit = {}
-          |def hihi()""",
+          |def hihi()""".stripMargin,
       hint
     )
   }

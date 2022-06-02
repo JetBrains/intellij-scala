@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation
 
 import com.intellij.codeInsight.template.impl.TemplateManagerImpl
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert.{assertEquals, assertNotNull}
 
@@ -42,7 +41,7 @@ class NoTargetNameAnnotationForOperatorLikeDefinitionInspectionTest extends Scal
       templateState.gotoEnd(false)
     }(getProject)
 
-    myFixture.checkResult(normalize(expectedAfterTemplateFinished), true)
+    myFixture.checkResult(expectedAfterTemplateFinished.withNormalizedSeparator.trim, true)
   }
 
   def testSingle(): Unit = {

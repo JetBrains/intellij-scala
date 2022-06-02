@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.codeInspection.format
 
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.findCaretOffset
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
+import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 

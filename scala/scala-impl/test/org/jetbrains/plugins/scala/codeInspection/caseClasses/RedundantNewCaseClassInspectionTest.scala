@@ -40,7 +40,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaInspectionTestBase {
       s"""
          |case class A[T](x: T)
          |val a = ${START}new$END A(5)
-     """
+     """.stripMargin
 
     val expected =
       s"""

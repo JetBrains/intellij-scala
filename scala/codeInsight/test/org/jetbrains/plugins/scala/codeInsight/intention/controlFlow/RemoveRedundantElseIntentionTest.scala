@@ -3,15 +3,11 @@ package codeInsight
 package intention
 package controlFlow
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author Ksenia.Sautina
   * @since 6/8/12
   */
 class RemoveRedundantElseIntentionTest extends intentions.ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.remove.redundant.else")
 
@@ -139,8 +135,7 @@ class RemoveRedundantElseIntentionTest extends intentions.ScalaIntentionTestBase
          |    System.out.println("else")
          |    return false
          |  }
-         |}
-      """.stripMargin
+         |}""".stripMargin
 
     doTest(text, resultText)
   }

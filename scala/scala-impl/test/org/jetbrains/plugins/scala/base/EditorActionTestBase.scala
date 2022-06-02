@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
+import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffsets
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
@@ -22,8 +23,6 @@ import scala.util.control.NonFatal
   * @author adkozlov
   */
 abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
-
-  import ScalaLightCodeInsightFixtureTestAdapter.findCaretOffsets
 
   protected val q  : String = "\""
   protected val qq : String = "\"\""

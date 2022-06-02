@@ -14,7 +14,6 @@ class ExpandPatternIntentionTest extends ScalaIntentionTestBase {
          |p match {
          |  case Seq(perso${CARET}n: Person) => "a person"
          |}
-         |
          |""".stripMargin,
     resultText =
       s"""
@@ -35,7 +34,6 @@ class ExpandPatternIntentionTest extends ScalaIntentionTestBase {
          |p match {
          |  case Seq(_: Per${CARET}son) => "a person"
          |}
-         |
          |""".stripMargin,
     resultText =
       s"""

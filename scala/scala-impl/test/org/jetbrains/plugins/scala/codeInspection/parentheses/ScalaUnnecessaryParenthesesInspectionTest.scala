@@ -91,7 +91,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
          |  case even if $START(even % 2 == 0)$END => (even + 1)
          |  case odd => 1 + (odd * 3)
          |}
-       """
+       """.stripMargin
     checkTextHasErrors(selected)
 
     val text =
@@ -100,14 +100,14 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
          |  case even if (${CARET_MARKER}even % 2 == 0) => (even + 1)
          |  case odd => 1 + (odd * 3)
          |}
-       """
+       """.stripMargin
     val result =
       """
         |def f(n: Int): Int = n match {
         |  case even if even % 2 == 0 => (even + 1)
         |  case odd => 1 + (odd * 3)
         |}
-      """
+      """.stripMargin
     val hint = hintBeginning + " (even % 2 == 0)"
     testQuickFix(text, result, hint)
   }
@@ -119,7 +119,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
          |  case even if (even % 2 == 0) => $START(even + 1)$END
          |  case odd => 1 + (odd * 3)
          |}
-       """
+       """.stripMargin
     checkTextHasErrors(selected)
 
     val text =
@@ -128,14 +128,14 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
          |  case even if (even % 2 == 0) => (even + 1$CARET_MARKER)
          |  case odd => 1 + (odd * 3)
          |}
-      """
+      """.stripMargin
     val result =
       """
         |def f(n: Int): Int = n match {
         |  case even if (even % 2 == 0) => even + 1
         |  case odd => 1 + (odd * 3)
         |}
-      """
+      """.stripMargin
     val hint = hintBeginning + " (even + 1)"
     testQuickFix(text, result, hint)
   }
@@ -158,7 +158,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
   def test_7(): Unit = {
     val text =
       """def a(x: Any): Boolean = true
-        |List() count (a(_))"""
+        |List() count (a(_))""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -177,7 +177,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
       """(List("a")
         |    :+ new String("b")
         |    :+ new String("c")
-        |    :+ new String("d"))"""
+        |    :+ new String("d"))""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -196,7 +196,7 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala2 extends ScalaUnnecessaryP
     checkTextHasErrors(selected)
 
     val text = s"($CARET_MARKER/*1*/ 6 /*2*/ /*3*/)"
-    val result = "/*1*/ 6 /*2*/\n\r/*3*/"
+    val result = "/*1*/ 6 /*2*/\n/*3*/"
     val hint = hintBeginning + " (6)"
     testQuickFix(text, result, hint)
   }

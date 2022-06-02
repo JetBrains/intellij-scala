@@ -37,12 +37,12 @@ class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
       """
         |val name: String = "gfgfgfgfg"
         |val nameHasUpperCase = name.exists(<caret>_.isUpper)
-      """
+        |""".stripMargin
     val resultText =
       """
         |val name: String = "gfgfgfgfg"
         |val nameHasUpperCase = name.exists(c => c.isUpper)
-      """
+        |""".stripMargin
 
     doTest(text, resultText)
   }

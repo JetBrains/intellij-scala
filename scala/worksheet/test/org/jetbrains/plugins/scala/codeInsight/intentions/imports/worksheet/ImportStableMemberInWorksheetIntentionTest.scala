@@ -6,11 +6,9 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.imports.ImportStableMe
 class ImportStableMemberInWorksheetIntentionTest extends ImportStableMemberIntentionBaseTest with ScalaWorksheetIntentionTestBase {
 
   def testParameterizedDef_TopLevelStatement(): Unit = doTest(
-    """scala.Option.<caret>empty[Int]
-      |""".stripMargin,
+    "scala.Option.<caret>empty[Int]",
     """<caret>import scala.Option.empty
       |
-      |empty[Int]"""
-      .stripMargin
+      |empty[Int]""".stripMargin
   )
 }

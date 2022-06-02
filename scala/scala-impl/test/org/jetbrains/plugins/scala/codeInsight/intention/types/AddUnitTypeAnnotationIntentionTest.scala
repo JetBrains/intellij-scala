@@ -13,10 +13,10 @@ class AddUnitTypeAnnotationIntentionTest extends ScalaIntentionTestBase {
     text =
       s"""class NameParameters {
          |  def doSomethin${CARET}g(flag: Boolean) {}
-         |}""",
+         |}""".stripMargin,
     resultText =
       s"""class NameParameters {
          |  def doSomethin${CARET}g(flag: Boolean): Unit = {}
-         |}"""
+         |}""".stripMargin
   )
 }

@@ -11,8 +11,6 @@ import com.intellij.testFramework.EditorTestUtil
  */
 class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends intentions.ScalaIntentionTestBase {
 
-  import EditorTestUtil.{CARET_TAG => CARET}
-
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.method.call.expression")
 
   def testReplaceEquality(): Unit = {
@@ -44,7 +42,7 @@ class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends intentions.Sc
   }
 
   def testReplaceTuple_2(): Unit = {
-    val text = s"if((true, false).equ${CARET}als  (false, false)) return "
+    val text = s"if((true, false).equ${CARET}als  (false, false)) return"
     val resultText = s"if ((true, false) $CARET== (false, false)) return"
 
     doTest(text, resultText)

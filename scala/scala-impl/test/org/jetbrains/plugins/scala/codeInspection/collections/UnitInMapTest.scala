@@ -76,7 +76,7 @@ class UnitInMapTest extends OperationsOnCollectionInspectionTest {
        |  Seq(1, 2).map(${START}println$END)
        |  3
        |}
-     """
+     """.stripMargin
   )
 
   def test_Unit(): Unit = checkTextHasError(

@@ -87,42 +87,39 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
   def testIntentionIsNotAvailable(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
-        |import $converters
-        |
-        |class UsesScalaCollections {
-        |  val list = List<caret>(1,2,3).asJava
-        |}
+         |import $converters
+         |
+         |class UsesScalaCollections {
+         |  val list = List<caret>(1,2,3).asJava
+         |}
       """)
   }
 
   def testIntentionIsNotAvailable2(): Unit = {
     checkIntentionIsNotAvailable(
       s"""
-        |import $converters
-        |
-        |class UsesScalaCollections {
-        |  val iter = Iterable(1)
-        |  val javaIter = iter.as<caret>Java
-        |}
+         |import $converters
+         |
+         |class UsesScalaCollections {
+         |  val iter = Iterable(1)
+         |  val javaIter = iter.as<caret>Java
+         |}
       """)
   }
 
   def testIntentionAction_Simple(): Unit = {
     val text =
-      """
-        |
-        |class UsesScalaCollections {
+      """class UsesScalaCollections {
         |  val map = Map<caret>("1" -> 1)
         |}
-      """
+        |""".stripMargin
     val resultText =
-      s"""
-        |import $converters
-        |
-        |class UsesScalaCollections {
-        |  val map = Map<caret>("1" -> 1).asJava
-        |}
-      """
+      s"""import $converters
+         |
+         |class UsesScalaCollections {
+         |  val map = Map<caret>("1" -> 1).asJava
+         |}
+         |""".stripMargin
 
     doTest(text, resultText)
   }
@@ -130,22 +127,22 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
   def testIntentionAction_Import_Already_Exists(): Unit = {
     val text =
       s"""
-        |import scala.collection.mutable
-        |import $converters
-        |
-        |class UsesScalaCollections {
-        |  val map = mutable.HashMap<caret>(1 -> "1")
-        |}
-      """
+         |import scala.collection.mutable
+         |import $converters
+         |
+         |class UsesScalaCollections {
+         |  val map = mutable.HashMap<caret>(1 -> "1")
+         |}
+         |""".stripMargin
     val resultText =
       s"""
-        |import scala.collection.mutable
-        |import $converters
-        |
-        |class UsesScalaCollections {
-        |  val map = mutable.HashMap<caret>(1 -> "1").asJava
-        |}
-      """
+         |import scala.collection.mutable
+         |import $converters
+         |
+         |class UsesScalaCollections {
+         |  val map = mutable.HashMap<caret>(1 -> "1").asJava
+         |}
+         |""".stripMargin
 
     doTest(text, resultText)
   }

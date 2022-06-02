@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ElementToImport, ScalaImportElementFix}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.junit.Assert.{assertEquals, fail}
 
 import scala.jdk.CollectionConverters._
@@ -35,7 +35,7 @@ abstract class ImportElementFixTestBase[Psi <: PsiElement : ClassTag]
       case None       => fail(s"No elements found with qualified name $selected")
       case Some(elem) => action.addImportTestOnly(elem)
     }
-    assertEquals("Result doesn't match expected text", normalize(expectedText), normalize(getFile.getText))
+    assertEquals("Result doesn't match expected text", expectedText.withNormalizedSeparator.trim, getFile.getText.withNormalizedSeparator.trim)
   }
 
   private def configureAndCreateFix(fileText: String): ScalaImportElementFix[_ <: ElementToImport] = {

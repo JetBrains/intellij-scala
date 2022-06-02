@@ -63,19 +63,17 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
 
   def testIntentionAction_Simple(): Unit = {
     val text =
-      """
-        |class UsesJavaCollections {
+      """class UsesJavaCollections {
         |  val list = new java.util.HashMap<caret>[String, Int]()
         |}
-      """
+        |""".stripMargin
     val resultText =
-      s"""
-        |import $converters
-        |
-        |class UsesJavaCollections {
-        |  val list = new java.util.HashMap<caret>[String, Int]().asScala
-        |}
-      """
+      s"""import $converters
+         |
+         |class UsesJavaCollections {
+         |  val list = new java.util.HashMap<caret>[String, Int]().asScala
+         |}
+         |""".stripMargin
 
     doTest(text, resultText)
   }
@@ -83,22 +81,22 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
   def testIntentionAction_Import_Already_Exists(): Unit = {
     val text =
       s"""
-        |import java.util
-        |import $converters
-        |
-        |class UsesJavaCollections {
-        |  val list = new util.HashMap<caret>[String, Int]()
-        |}
-      """
+         |import java.util
+         |import $converters
+         |
+         |class UsesJavaCollections {
+         |  val list = new util.HashMap<caret>[String, Int]()
+         |}
+         |""".stripMargin
     val resultText =
       s"""
-        |import java.util
-        |import $converters
-        |
-        |class UsesJavaCollections {
-        |  val list = new util.HashMap<caret>[String, Int]().asScala
-        |}
-      """
+         |import java.util
+         |import $converters
+         |
+         |class UsesJavaCollections {
+         |  val list = new util.HashMap<caret>[String, Int]().asScala
+         |}
+         |""".stripMargin
 
     doTest(text, resultText)
   }
