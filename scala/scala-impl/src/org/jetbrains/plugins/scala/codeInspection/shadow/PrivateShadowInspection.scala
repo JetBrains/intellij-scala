@@ -113,14 +113,11 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
       ScalaInspectionBundle.message("private.shadow.compiler.option.label"),
       "privateShadowCompilerOption"
     )
-    val fatalWarningsCheckbox = panel.addDependentCheckBox(
+    panel.addDependentCheckBox(
       ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"),
       "fatalWarningsCompilerOption",
       compilerOptionCheckbox
     )
-    compilerOptionCheckbox.addItemListener { e =>
-      if (e.getStateChange == ItemEvent.DESELECTED) fatalWarningsCheckbox.setSelected(false)
-    }
     panel
   }
 }
