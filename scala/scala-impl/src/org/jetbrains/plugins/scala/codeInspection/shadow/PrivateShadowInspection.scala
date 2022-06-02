@@ -46,15 +46,12 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
         fatalWarningsCompilerOption &&
         (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
 
-    val range = new TextRange(0, if (elem.getText.contains(":")) elem.getText.indexOf(":") else elem.getText.length)
-
     manager.createProblemDescriptor(
-      elem,
-      range,
+      elem.nameId,
       description,
-      if (showAsError) ProblemHighlightType.GENERIC_ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
       isOnTheFly,
-      new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction
+      Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction),
+      if (showAsError) ProblemHighlightType.GENERIC_ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
   }
 
