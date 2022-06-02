@@ -2,26 +2,26 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.{FlakyTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class ScalaCompilerHighlightingTest_3_0 extends ScalaCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_0
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 class ScalaCompilerHighlightingTest_3_1 extends ScalaCompilerHighlightingTest_3 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_3_1
 }
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
 
   def testImportTypeFix(): Unit = runTestCase(

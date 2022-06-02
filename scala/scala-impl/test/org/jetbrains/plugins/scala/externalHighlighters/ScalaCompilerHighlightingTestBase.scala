@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
@@ -22,7 +22,7 @@ import java.util.Collections.emptyList
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[SlowTests]))
+@Category(Array(classOf[FlakyTests]))
 abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
