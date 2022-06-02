@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.editor.copy
+package org.jetbrains.plugins.scala.lang.actions.editor.copy
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil

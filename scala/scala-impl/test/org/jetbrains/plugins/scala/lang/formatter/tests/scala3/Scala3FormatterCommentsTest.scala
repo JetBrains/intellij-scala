@@ -93,7 +93,7 @@ class Scala3FormatterCommentsTest extends Scala3FormatterBaseTest {
 
   def testClass(): Unit = doCommentsFormatTest("class A:")
 
-  def testClassWithParamenter(): Unit = doCommentsFormatTest("class C(x: Int):")
+  def testClassWithParameter(): Unit = doCommentsFormatTest("class C(x: Int):")
 
   def testClassExtends(): Unit = doCommentsFormatTest("class A extends B:")
 
