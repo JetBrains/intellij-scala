@@ -57,7 +57,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) =>
         false
-      case p: ScClassParameter if p.getModifierList.accessModifier.forall(access => access.isPrivate && access.isThis) =>
+      case p: ScClassParameter if p.getModifierList.accessModifier.isEmpty =>
         findTypeDefinition(p) match {
           case Some(typeDefinition) if isElementShadowing(p, typeDefinition) => true
           case _  => false
