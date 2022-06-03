@@ -1167,4 +1167,22 @@ class ClosingBraceRemoveTest extends ScalaBackspaceHandlerBaseTest {
 
     doTest(before, after)
   }
+
+  def testNotRemove_NotActivated(): Unit = {
+    val before =
+      s"""def foo() = {${|}
+         |  someMethod()
+         |}
+         |""".stripMargin
+    val after =
+      s"""def foo() = ${|}
+         |  someMethod()
+         |}
+         |""".stripMargin
+
+    val settingBefore = ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE
+    ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = false
+    doTest(before, after)
+    ScalaApplicationSettings.getInstance.DELETE_CLOSING_BRACE = settingBefore
+  }
 }
