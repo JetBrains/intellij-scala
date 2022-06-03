@@ -14,5 +14,5 @@ final class DontReportPublicDeclarationsQuickFix(named: ScNamedElement)
   override def getFamilyName: String = getText
 
   override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
-    ScalaUnusedDeclarationPass.inspection(project).setReportPublicDeclarationsEnabled(false)
+    ScalaUnusedDeclarationPass.inspection(project).setReportPublicDeclarations(false)
 }
