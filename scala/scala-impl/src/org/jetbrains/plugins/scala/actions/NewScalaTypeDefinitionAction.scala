@@ -163,6 +163,10 @@ object NewScalaTypeDefinitionAction {
     var text: String = null
     try {
       text = template.getText(properties)
+      //workaround for IDEA-295002 (can remove when it's fixed)
+      if (text.contains('\r')) {
+        text = StringUtil.convertLineSeparators(text)
+      }
     }
     catch {
       case c: ControlFlowException => throw c

@@ -13,32 +13,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion, base}
 import org.junit.Assert
 
-import scala.annotation.nowarn
 import scala.util.Try
 
 class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
-  @nowarn("msg=overriding method version in trait ScalaSdkOwner is deprecated")
-  override def version: ScalaVersion = supportedScalaLib
-
-  private implicit val supportedScalaLib: ScalaVersion = ScalaVersion.Latest.Scala_2_13.withMinor("3")
-
-  // should be fixed in 2.13.4: https://github.com/scala/scala/pull/9099
-  private val knownProblems: Seq[KnownProblem] = Seq(
-    KnownProblem("scala/collection/mutable/ArrayDeque.scala", "alloc", "len")
-  )
-
-  private def isKnown(unresolved: UnresolvedMacroInfo): Boolean =
-    knownProblems.contains(KnownProblem(unresolved))
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
 
   def testAllMacroAreResolved(): Unit = {
     ScalaDocContentGenerator.unresolvedMacro.clear()
 
     val scalaSdkLoader = librariesLoaders.toArray.findByType[ScalaSDKLoader].get
-    val sourceLibrarySourcesRoot = scalaSdkLoader.sourceRoot
+    val scalaLibrarySourcesRoot = scalaSdkLoader.sourceRoot
 
     VfsUtilCore.processFilesRecursively(
-      sourceLibrarySourcesRoot,
+      scalaLibrarySourcesRoot,
       (file: VirtualFile) => {
         //println(s"processing: ${relativeFilePath(file)}")
         generateAllDocs(file)
@@ -47,14 +35,13 @@ class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeI
     )
 
     val unresolvedMacro = ScalaDocContentGenerator.unresolvedMacro
-    val unresolvedUnknownMacro = unresolvedMacro.filterNot(isKnown)
-    if (unresolvedUnknownMacro.nonEmpty) {
-      val details = unresolvedUnknownMacro
+    if (unresolvedMacro.nonEmpty) {
+      val details = unresolvedMacro
         .map { case UnresolvedMacroInfo(file, commentOwnerName, macroKey) =>
           s"symbol: $commentOwnerName  macro: $macroKey file: ${relativeFilePath(file)}"
         }
         .mkString("\n")
-      Assert.fail(s"Unresolved macro detected during scaladoc generation for scala library ${supportedScalaLib.minor}:\n$details")
+      Assert.fail(s"Unresolved macro detected during scaladoc generation for scala library ${version.minor}:\n$details")
     }
   }
 

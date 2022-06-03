@@ -35,6 +35,10 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Try, Using}
 
+/**
+ * ATTENTION: when updating any paths which might be cached between builds
+ * ensure to update org.jetbrains.scalateamcity.common.Caching fields
+ */
 abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner {
 
   private val Log = Logger.getInstance(getClass)

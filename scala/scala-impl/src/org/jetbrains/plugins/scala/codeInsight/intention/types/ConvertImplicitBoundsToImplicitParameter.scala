@@ -89,7 +89,7 @@ object ConvertImplicitBoundsToImplicitParameter {
 
     // add clause
     val clause = createImplicitClauseFromTextWithContext(existingParams.map(_.getText) ++ newParamsTexts, parameterOwner, isClass)
-    CodeEditUtil.setNodeGenerated(clause.getNode, true)
+    CodeEditUtil.setNodeGeneratedRecursively(clause.getNode, true)
     function.parameterList.addClause(clause)
 
     // remove bounds
