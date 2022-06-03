@@ -5,32 +5,31 @@ class Scala3FormatterCommentsTest extends Scala3FormatterBaseTest {
   private def withIndent(indent: String, indents: Int)(text: String): String =
     text.linesIterator.map(indent * indents + _).mkString("\n")
 
-  private val allComments = Seq(
+  private val comments = Seq(
     "// foo",
     "/* foo */",
-    "/** foo */",
     """// foo
       |// foo""".stripMargin,
     """/* foo */
       |/* foo */""".stripMargin,
     """/* foo
       |   foo */""".stripMargin,
-    """/**
-      |  * foo
-      |  */""".stripMargin
   )
-  private val allContexts = Seq(
+  private val docComments = Seq(
+    "/** foo */",
+    """/**
+      | * foo
+      | */""".stripMargin
+  )
+  private val contexts = Seq(
     ("", "", 0),
     ("{", "}", 1),
     ("class A {", "}", 1),
-    ("class A:", "", 1),
-    ("object A {", "}", 1),
     ("object A:", "", 1),
     ("def a = {", "}", 1),
     ("def a =", "", 1)
   )
-  private val allIndents = Seq("  ", "    ", "\t")
-  private val allBodies = Seq(
+  private val bodies = Seq(
     "???",
     """???
       |???""".stripMargin
@@ -38,52 +37,72 @@ class Scala3FormatterCommentsTest extends Scala3FormatterBaseTest {
 
   private def doCommentsFormatTest(text: String): Unit =
     for {
-      comment <- allComments
-      (contextBefore, contextAfter, contextIndents) <- allContexts
-      indent <- allIndents
-      body <- allBodies
+      (contextBefore, contextAfter, contextIndents) <- contexts
+      body <- bodies
     } {
-      val toContextIndent = withIndent(indent, contextIndents)(_)
-      val toBodyIndent = withIndent(indent, contextIndents + 1)(_)
-      val oldKeepFirstColumnCommentSetting: Boolean = getSettings.KEEP_FIRST_COLUMN_COMMENT
-      doTextTest(
-        s"""$contextBefore
-           |${toContextIndent(comment)}
-           |${toContextIndent(text)}
-           |${toBodyIndent(body)}
-           |$contextAfter
-           |""".stripMargin)
-      doTextTest(
-        s"""$contextBefore
-           |${toContextIndent(text)}
-           |${toBodyIndent(comment)}
-           |${toBodyIndent(body)}
-           |$contextAfter
-           |""".stripMargin)
-      getSettings.KEEP_FIRST_COLUMN_COMMENT = false
-      doTextTest(
-        s"""$contextBefore
-           |${toContextIndent(text)}
-           |$comment
-           |${toBodyIndent(body)}
-           |$contextAfter
-           |""".stripMargin,
-        s"""$contextBefore
-           |${toContextIndent(text)}
-           |${toBodyIndent(comment)}
-           |${toBodyIndent(body)}
-           |$contextAfter
-           |""".stripMargin
-      )
-      getSettings.KEEP_FIRST_COLUMN_COMMENT = true
-      doTextTest(
-        s"""$contextBefore
-           |${toContextIndent(text)}
-           |$comment
-           |${toBodyIndent(body)}
-           |$contextAfter
-           |""".stripMargin)
-      getSettings.KEEP_FIRST_COLUMN_COMMENT = oldKeepFirstColumnCommentSetting
+      val toContextIndent = withIndent("  ", contextIndents)(_)
+      val toBodyIndent = withIndent("  ", contextIndents + 1)(_)
+      val oldKeepFirstColumnCommentSetting: Boolean = getCommonSettings.KEEP_FIRST_COLUMN_COMMENT
+      getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = false
+
+      for {comment <- docComments ++ comments} {
+        doTextTest(
+          s"""$contextBefore
+             |${toContextIndent(comment)}
+             |${toContextIndent(text)}
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin)
+        doTextTest(
+          s"""$contextBefore
+             |$comment
+             |${toContextIndent(text)}
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin,
+          s"""$contextBefore
+             |${toContextIndent(comment)}
+             |${toContextIndent(text)}
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin
+        )
+      }
+
+      for {comment <- comments} {
+        getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = false
+        doTextTest(
+          s"""$contextBefore
+             |${toContextIndent(text)}
+             |${toBodyIndent(comment)}
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin)
+        doTextTest(
+          s"""$contextBefore
+             |${toContextIndent(text)}
+             |$comment
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin,
+          s"""$contextBefore
+             |${toContextIndent(text)}
+             |${toBodyIndent(comment)}
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin
+        )
+        getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = true
+        doTextTest(
+          s"""$contextBefore
+             |${toContextIndent(text)}
+             |$comment
+             |${toBodyIndent(body)}
+             |$contextAfter
+             |""".stripMargin)
+      }
+
+      getCommonSettings.KEEP_FIRST_COLUMN_COMMENT = oldKeepFirstColumnCommentSetting
     }
 
   // SCL-20166
