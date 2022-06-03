@@ -4,7 +4,6 @@ import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -20,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
-import java.awt.event.ItemEvent
 import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
 
@@ -59,7 +57,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) =>
         false
-      case p: ScClassParameter if p.getModifierList.accessModifier.forall(access => access.isPrivate && access.isThis) =>
+      case p: ScClassParameter if p.getModifierList.accessModifier.isEmpty =>
         findTypeDefinition(p) match {
           case Some(typeDefinition) if isElementShadowing(p, typeDefinition) => true
           case _  => false
