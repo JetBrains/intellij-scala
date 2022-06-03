@@ -498,7 +498,7 @@ package object extensions {
     }
 
     def lowercased: String =
-      if (string == null || string.length == 0 || !string.charAt(0).isUpper) string
+      if (string == null || string.isEmpty || !string.charAt(0).isUpper) string
       else string.updated(0, string.charAt(0).toLower)
 
     def escapeNonIdentifiers: String = {
@@ -772,6 +772,16 @@ package object extensions {
       }
       inner(PsiTreeUtil.nextLeaf(element))
     }
+
+    def getPrevIndentWhitespace: String = {
+      val prev = element.getPrevNonEmptyLeaf
+      if (prev != null && prev.isWhitespace) {
+        val text = prev.getText
+        text.substring(text.lastIndexOf('\n'))
+      } else ""
+    }
+
+    def isIndented: Boolean = getPrevIndentWhitespace.nonEmpty
 
     def getPrevSiblingNotWhitespace: PsiElement = {
       var prev: PsiElement = element.getPrevSibling

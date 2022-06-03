@@ -88,6 +88,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       if (bracesShifted && b.isEnclosedByBraces) Indent.getNormalIndent
       else Indent.getNoneIndent
 
+    @inline def canIndentChildComment: Boolean = !settings.KEEP_FIRST_COLUMN_COMMENT || child.getPsi.isIndented
+
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {
       case _: ScParameters if scalaSettings.INDENT_FIRST_PARAMETER_CLAUSE => Indent.getContinuationIndent
@@ -371,6 +373,8 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         childElementType != ScalaTokenTypes.tLBRACE                    => Indent.getNormalIndent
       case Parent(_: ScReferenceExpression) if childElementType == ScalaElementType.TYPE_ARGS =>
         Indent.getContinuationWithoutFirstIndent
+      // TODO this is only needed until ScExtensionBody comments get parsed correctly, see SCL-20286
+      case _: ScExtension if child.isInstanceOf[PsiComment] && canIndentChildComment => Indent.getNormalIndent
       case _ =>
         Indent.getNoneIndent
     }
