@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScTuplePattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = t match {
-    case Some(parameterizedType@ParameterizedType(ScDesignatorType(ClassQualifiedName(qName)), args)) if qName == s"scala.Tuple${subpatterns.length}" =>
+    case Some(parameterizedType@ParameterizedType(ScDesignatorType(ClassQualifiedName(qName)), _)) if qName == s"scala.Tuple${subpatterns.length}" =>
       subpatterns.corresponds(parameterizedType.typeArguments) {
         case (pattern, ty) => pattern.isIrrefutableFor(Some(ty))
       }

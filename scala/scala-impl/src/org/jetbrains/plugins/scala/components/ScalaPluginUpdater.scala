@@ -215,13 +215,6 @@ object ScalaPluginUpdater {
       info.map(new UpdateStrategy(infoImpl.getBuild, _, UpdateSettings.getInstance()).checkForUpdates())
     }
 
-    def isUpToDatePlatform(result: PlatformUpdates): Boolean =
-      result match {
-        case loaded: PlatformUpdates.Loaded =>
-          loaded.getNewBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
-        case _ => true
-      }
-
     val notification = getPlatformUpdateResult match {
       case Some(_: PlatformUpdates.Loaded) =>
         Some(createPlatformUpdateSuggestPopup())

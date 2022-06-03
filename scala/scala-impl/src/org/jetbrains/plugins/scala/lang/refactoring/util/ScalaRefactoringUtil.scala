@@ -7,9 +7,9 @@ import com.intellij.codeInsight.PsiEquivalenceUtil
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.unwrap.ScopeHighlighter
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, EditorColorsScheme}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
-import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel, VisualPosition}
+import com.intellij.openapi.editor.{Editor, RangeMarker, SelectionModel}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.TextRange
@@ -42,7 +42,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.Component
@@ -77,32 +76,6 @@ object ScalaRefactoringUtil {
       fileText.charAt(end - 1) == '\n' ||
       fileText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
-  }
-
-  def getExprFrom(expr: ScExpression): ScExpression = {
-    var e = unparExpr(expr)
-    e match {
-      case x: ScReferenceExpression =>
-        x.resolve() match {
-          case _: ScReferencePattern => return e
-          case _ =>
-        }
-      case _ =>
-    }
-    var hasNlToken = false
-    val text = e.getText
-    var i = text.length - 1
-    while (i >= 0 && (text(i) == ' ' || text(i) == '\n')) {
-      if (text(i) == '\n') hasNlToken = true
-      i = i - 1
-    }
-
-    implicit val projectContext: ProjectContext = e.projectContext
-    if (hasNlToken) e = createExpressionFromText(text.substring(0, i + 1))
-    e.getParent match {
-      case x: ScMethodCall if x.args.exprs.nonEmpty => createExpressionFromText(e.getText + " _")
-      case _ => e
-    }
   }
 
   def inTemplateParents(typeElement: ScTypeElement): Boolean = {
@@ -169,11 +142,6 @@ object ScalaRefactoringUtil {
     }
 
     ownersBuilder.result()
-  }
-
-  def getMinOwner(ownres: Array[ScTypeParametersOwner], currentFile: PsiFile): PsiElement = {
-    val filtered = ownres.filter((value: ScTypeParametersOwner) => value.getContainingFile == currentFile)
-    PsiTreeUtil.findCommonParent(filtered: _*)
   }
 
   def getExpression(file: PsiFile)
@@ -406,10 +374,8 @@ object ScalaRefactoringUtil {
   }
 
   def getOccurrencesInInheritors(typeElement: ScTypeElement,
-                                 currentElement: ScTypeDefinition,
-                                 conflictsReporter: ConflictsReporter,
-                                 project: Project,
-                                 editor: Editor): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
+                                 currentElement: ScTypeDefinition
+                                ): (Array[ScTypeElement], Array[ScalaTypeValidator]) = {
 
     val scope: GlobalSearchScope = GlobalSearchScope.allScope(currentElement.getProject)
     val inheritors = ScalaInheritors.directInheritorCandidates(currentElement, scope)
@@ -442,17 +408,6 @@ object ScalaRefactoringUtil {
     case _ => expression
   }
 
-  def hasNltoken(e: PsiElement): Boolean = {
-    var hasNlToken = false
-    val text = e.getText
-    var i = text.length - 1
-    while (i >= 0 && (text(i) == ' ' || text(i) == '\n')) {
-      if (text(i) == '\n') hasNlToken = true
-      i = i - 1
-    }
-    hasNlToken
-  }
-
   def getCompatibleTypeNames(myTypes: Seq[ScType])
                             (implicit context: TypePresentationContext): ju.LinkedHashMap[String, ScType] = {
     val map = new ju.LinkedHashMap[String, ScType]
@@ -465,7 +420,6 @@ object ScalaRefactoringUtil {
 
     if (editor != null) {
       val highlightManager = HighlightManager.getInstance(project)
-      val colorsScheme = EditorColorsManager.getInstance.getGlobalScheme
       val attributes = EditorColors.SEARCH_RESULT_ATTRIBUTES
 
       occurrences.foreach { occurrence =>
@@ -717,17 +671,6 @@ object ScalaRefactoringUtil {
     builder.toString()
   }
 
-  private[refactoring] def getLineText(editor: Editor): String = {
-    val lineNumber = Option(editor.getSelectionModel.getSelectionEndPosition.getLine)
-      .getOrElse(editor.getCaretModel.getLogicalPosition.line)
-    if (lineNumber >= editor.getDocument.getLineCount) return ""
-    val lineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber, 0))
-    val nextLineStart = editor.visualToLogicalPosition(new VisualPosition(lineNumber + 1, 0))
-    val start = editor.logicalPositionToOffset(lineStart)
-    val end = editor.logicalPositionToOffset(nextLineStart)
-    editor.getDocument.getImmutableCharSequence.substring(start, end)
-  }
-
   /**
    * Collects expressions in the same line that may be extracted as variable or parameter
    */
@@ -854,15 +797,6 @@ object ScalaRefactoringUtil {
   def commonParent(file: PsiFile, textRanges: Seq[TextRange]): PsiElement = {
     val offsets = textRanges.map(_.getStartOffset) ++ textRanges.map(_.getEndOffset - 1)
     PsiTreeUtil.findCommonParent(offsets.map(file.findElementAt).asJava)
-  }
-
-  def isLiteralPattern(file: PsiFile, textRange: TextRange): Boolean = {
-    val maybeParent = Option(commonParent(file, textRange))
-    val maybePattern = maybeParent.flatMap(element => Option(getParentOfType(element, classOf[ScLiteralPattern])))
-
-    maybePattern
-      .map(_.getTextRange)
-      .contains(textRange)
   }
 
   def showErrorHintWithException(@Nls message: String,
@@ -1140,13 +1074,6 @@ object ScalaRefactoringUtil {
       case maybeCandidate => maybeCandidate
     }
   } else None
-
-  def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
-    aClass.extendsBlock.templateParents match {
-      case Some(parents) if parents.isAncestorOf(element) => true
-      case _ => false
-    }
-  }
 
   def selectedElements(editor: Editor, file: ScalaFile, trimComments: Boolean): Seq[PsiElement] = {
     trimSpacesAndComments(editor, file, trimComments = trimComments)

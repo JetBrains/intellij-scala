@@ -111,21 +111,6 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
   @inline private def isEof(offset: Int = myTokenEndOffset): Boolean =
     offset >= myBufferEndOffset
 
-  @inline private def skipWhiteSpaces(startIdx: Int): Int = {
-    var idx = startIdx
-    while (!isEof(idx) && myBuffer.charAt(idx).isWhitespace)
-      idx += 1
-    idx
-  }
-
-  @inline private def isInTagSpace(state: Int) = state match {
-    case _ScalaDocLexer.PARAM_TAG_SPACE |
-         _ScalaDocLexer.TAG_DOC_SPACE |
-         _ScalaDocLexer.INLINE_TAG_NAME |
-         _ScalaDocLexer.DOC_TAG_VALUE_IN_PAREN => true
-    case _ => false
-  }
-
   private def flexLocateToken(): Unit = try {
     if (needItalic) {
       needItalic = false
@@ -165,27 +150,4 @@ private final class ScalaDocAsteriskStripperLexer private[lexer](
     case _: IOException => // Can't be
   }
 
-  // maybe use com.intellij.util.text.CharArrayUtil.isEmptyOrSpaces?
-  private def hasWhitespacesOnly(buffer: CharSequence, start: Int, end: Int): Boolean = {
-    var i = start
-    while (i < end) {
-      if (buffer.charAt(i) > ' ') //see String#trim method
-      return false
-      i += 1
-    }
-    true
-  }
-}
-
-object ScalaDocAsteriskStripperLexer {
-
-  private def contains(char: Char, text: CharSequence, start: Int, end: Int): Boolean = {
-    var idx = start
-    while (start < end){
-      if (text.charAt(idx) == char)
-        return true
-      idx += 1
-    }
-    false
-  }
 }

@@ -22,7 +22,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
   public Self isRegExpLiteral() {
     return with(new PatternCondition<T>("isRegExpLiteral") {
       public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
-        return ScalaElementPatternImpl.isRegExpLiteral(literal, context);
+        return ScalaElementPatternImpl.isRegExpLiteral(literal);
       }
     });
   }

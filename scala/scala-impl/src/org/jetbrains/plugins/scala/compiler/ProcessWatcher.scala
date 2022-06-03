@@ -32,7 +32,6 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
   def running: Boolean = !processHandler.isProcessTerminated
 
   def pid: Long = process.pid()
-  def exitValue: Long = process.exitValue()
 
   def errorsText(): String = {
     lock.synchronized {

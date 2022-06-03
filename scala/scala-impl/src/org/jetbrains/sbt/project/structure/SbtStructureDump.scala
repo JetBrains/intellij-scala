@@ -397,8 +397,4 @@ object SbtStructureDump {
 
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
-
-  sealed trait ImportType
-  case object ShellImport extends ImportType
-  case object ProcessImport extends ImportType
 }

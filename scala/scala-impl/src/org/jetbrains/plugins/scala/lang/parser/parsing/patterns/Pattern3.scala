@@ -20,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Pattern3 extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
-    type Stack[X] = List[X]
     var markerStack = List.empty[PsiBuilder.Marker]
     var opStack = List.empty[String]
     var backupMarker = builder.mark()

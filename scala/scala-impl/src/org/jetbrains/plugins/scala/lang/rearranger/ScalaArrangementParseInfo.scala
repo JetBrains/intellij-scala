@@ -106,28 +106,28 @@ private class ScalaArrangementParseInfo {
     Some(result)
   }
 
-  def registerJavaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry): Unit = {
+  def registerJavaGetter(key: (String, PsiElement), entry: ScalaArrangementEntry): Unit = {
     javaPropertiesData.get(key) match {
       case Some(existingData) => javaPropertiesData += (key -> new ScalaPropertyInfo(entry, existingData.setter))
       case None               => javaPropertiesData += (key -> new ScalaPropertyInfo(entry, null))
     }
   }
 
-  def registerJavaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry): Unit = {
+  def registerJavaSetter(key: (String, PsiElement), entry: ScalaArrangementEntry): Unit = {
     javaPropertiesData.get(key) match {
       case Some(existingData) => javaPropertiesData += (key -> new ScalaPropertyInfo(existingData.getter, entry))
       case None               => javaPropertiesData += (key -> new ScalaPropertyInfo(null, entry))
     }
   }
 
-  def registerScalaGetter(key: (String, PsiElement), getter: ScFunction, entry: ScalaArrangementEntry): Unit = {
+  def registerScalaGetter(key: (String, PsiElement), entry: ScalaArrangementEntry): Unit = {
     scalaPropertiesData.get(key) match {
       case Some(existingData) => scalaPropertiesData += (key -> new ScalaPropertyInfo(entry, existingData.setter))
       case None               => scalaPropertiesData += (key -> new ScalaPropertyInfo(entry, null))
     }
   }
 
-  def registerScalaSetter(key: (String, PsiElement), setter: ScFunction, entry: ScalaArrangementEntry): Unit = {
+  def registerScalaSetter(key: (String, PsiElement), entry: ScalaArrangementEntry): Unit = {
     scalaPropertiesData.get(key) match {
       case Some(existingData) => scalaPropertiesData += (key -> new ScalaPropertyInfo(existingData.getter, entry))
       case None               => scalaPropertiesData += (key -> new ScalaPropertyInfo(null, entry))

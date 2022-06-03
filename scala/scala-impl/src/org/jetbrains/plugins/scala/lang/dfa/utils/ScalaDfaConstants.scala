@@ -23,8 +23,6 @@ object ScalaDfaConstants {
 
   final object Packages {
 
-    val ScalaPrefix = "scala."
-
     val ScalaInt = "scala.Int"
 
     val ScalaLong = "scala.Long"
@@ -34,8 +32,6 @@ object ScalaDfaConstants {
     val ScalaFloat = "scala.Float"
 
     val ScalaBoolean = "scala.Boolean"
-
-    val ScalaNil = "scala.Nil"
 
     val ScalaNone = "scala.None"
 

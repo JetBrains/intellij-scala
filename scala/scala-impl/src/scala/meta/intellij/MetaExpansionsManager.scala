@@ -4,7 +4,6 @@ import com.intellij.openapi.compiler._
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{ModuleRootManager, OrderEnumerator}
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
@@ -35,10 +34,6 @@ class MetaExpansionsManager {
 
   def invalidateModuleClassloader(module: Module): Option[URLClassLoader] = annotationClassLoaders.remove(module.getName)
 
-  def getMetaLibsForModule(module: Module): Seq[Library] = {
-    module.libraries.filter(_.getName.contains("org.scalameta")).toSeq
-  }
-
   def getCompiledMetaAnnotClass(annot: ScAnnotation): Option[Class[_]] = {
 
     def toUrl(f: VirtualFile) = new File(f.getPath.replaceAll("!", "")).toURI.toURL
@@ -57,7 +52,7 @@ class MetaExpansionsManager {
 
     def projectOutputDirs(project: Project) = project.modulesWithScala.flatMap(outputDirs).distinct.toList
 
-    def classLoaderForModule(module: Module)(contextCP: Seq[URL]): URLClassLoader = {
+    def classLoaderForModule(module: Module): URLClassLoader = {
       annotationClassLoaders.getOrElseUpdate(module.getName, {
         val dependencyCP: List[URL] = OrderEnumerator.orderEntries(module).getClassesRoots.toList.map(toUrl)
         val outDirs = projectOutputDirs(module.getProject).map(str => new File(str).toURI.toURL)
@@ -78,10 +73,9 @@ class MetaExpansionsManager {
       parent <- resolved.parentElement.map(_.asInstanceOf[ScClass])
     } yield parent
     val metaModule = annotClass.flatMap(_.module)
-    val contextCP = annot.module.map(m=>outputDirs(m).map(new File(_).toURI.toURL)).getOrElse(Nil)
     val classLoader = metaModule
-      .map(classLoaderForModule(_)(contextCP))  // try annotation's own module first - if it exists as a part of rhe codebase
-      .orElse(annot.module.map(classLoaderForModule(_)(contextCP))) // otherwise it's somewhere among current module dependencies
+      .map(classLoaderForModule)  // try annotation's own module first - if it exists as a part of rhe codebase
+      .orElse(annot.module.map(classLoaderForModule)) // otherwise it's somewhere among current module dependencies
     try {
       annotClass.flatMap(clazz =>
         classLoader.map(  loader =>

@@ -285,13 +285,7 @@ private class CommandTask(project: Project, modules: Array[Module], command: Str
 }
 
 object CommandTask {
-
   private val WARN_PREFIX = "[warn]"
   private val ERROR_PREFIX = "[error]"
-
 }
 
-private case class SbtBuildResult(warnings: Seq[String] = Seq.empty) extends SuccessResult {
-  override def isUpToDate = false
-  override def getWarnings: util.List[Warning] = warnings.map(BuildWarning.apply(_) : Warning).asJava
-}

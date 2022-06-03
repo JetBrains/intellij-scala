@@ -44,8 +44,6 @@ class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
 }
 
 private object ScalaReadWriteAccessDetector {
-  def isAccessedForReading(expression: ScExpression): Boolean = !isAccessedForWriting(expression)
-
   //Now it's just inverse prev method
   def isAccessedForWriting(expression: ScExpression): Boolean = {
     expression.getParent match {

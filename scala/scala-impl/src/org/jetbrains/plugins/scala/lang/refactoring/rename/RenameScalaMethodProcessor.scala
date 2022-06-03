@@ -116,7 +116,7 @@ class PrepareRenameScalaMethodProcessor extends RenamePsiElementProcessor {
         }
       }
     }
-    RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
+    RenameSuperMembersUtil.prepareSuperMembers(newName, allRenames)
     ScalaElementToRenameContributor.addAllElements(element, newName, allRenames)
   }
 

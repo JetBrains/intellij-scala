@@ -29,7 +29,7 @@ final class ScalaReferenceContributor extends PsiReferenceContributor {
   override def registerReferenceProviders(registrar: PsiReferenceRegistrar): Unit = {
     def literalCapture: PsiJavaElementPattern.Capture[ScStringLiteral] = psiElement(classOf[ScStringLiteral])
 
-    registrar.registerReferenceProvider(literalCapture, new ScalaFilePathReferenceProvider(false), PsiReferenceRegistrar.LOWER_PRIORITY)
+    registrar.registerReferenceProvider(literalCapture, new ScalaFilePathReferenceProvider(), PsiReferenceRegistrar.LOWER_PRIORITY)
     registrar.registerReferenceProvider(literalCapture, new InterpolatedStringReferenceProvider())
     registrar.registerReferenceProvider(literalCapture, new ArbitraryPlaceUrlReferenceProvider())
 
@@ -87,7 +87,7 @@ private class InterpolatedStringPsiReference(ref: ScReferenceExpression, literal
   override def resolve(): PsiElement = null
 }
 
-private class ScalaFilePathReferenceProvider(private val myEndingSlashNotAllowed: Boolean) extends FilePathReferenceProvider {
+private class ScalaFilePathReferenceProvider() extends FilePathReferenceProvider {
   import ScalaFilePathReferenceProvider._
 
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] =

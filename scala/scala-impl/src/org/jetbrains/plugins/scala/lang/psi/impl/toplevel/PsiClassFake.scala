@@ -7,7 +7,6 @@ package toplevel
 import com.intellij.openapi.util.Pair
 import com.intellij.psi.PsiReferenceList.Role
 import com.intellij.psi._
-import com.intellij.psi.meta.PsiMetaData
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 
@@ -69,8 +68,6 @@ trait PsiClassFake extends PsiClassAdapter with PsiReferenceList with ScDocComme
 
   override def findMethodsAndTheirSubstitutorsByName(name: String, checkBases: Boolean): List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
 
-  def findMethodsAndTheirSubstitutors: List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
-
   override def getAllMethodsAndTheirSubstitutors: List[Pair[PsiMethod, PsiSubstitutor]] = Collections.emptyList[Pair[PsiMethod, PsiSubstitutor]]
 
   override def findInnerClassByName(name: String, checkBases: Boolean): PsiClass = null
@@ -90,10 +87,6 @@ trait PsiClassFake extends PsiClassAdapter with PsiReferenceList with ScDocComme
   override def getModifierList: PsiModifierList = ScalaPsiUtil.getEmptyModifierList(getManager)
 
   override def hasModifierProperty(name: String): Boolean = name.equals(PsiModifier.PUBLIC)
-
-  def getMetaData: PsiMetaData = null
-
-  def isMetaEnough: Boolean = false
 
   override def hasTypeParameters: Boolean = false
 

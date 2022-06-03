@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
@@ -53,7 +52,7 @@ trait ScalaInplaceRenameHandler {
     PsiElementRenameHandler.rename(element, project, nameSuggestionContext, editor)
   }
 
-  def afterElementSubstitution(elementToRename: PsiElement, editor: Editor, dataContext: DataContext)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
+  def afterElementSubstitution(elementToRename: PsiElement, editor: Editor)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
     def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
       val list = JListCompatibility.createJBListFromListData(positive, cancel)
@@ -91,7 +90,7 @@ trait ScalaInplaceRenameHandler {
       val positive = ScalaBundle.message("rename.special.method.rename.class", clazzType)
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
     }
-    def aliasedElementPopup(ref: ScReference): Unit = {
+    def aliasedElementPopup(): Unit = {
       val title = ScalaBundle.message("rename.aliased.title")
       val positive = ScalaBundle.message("rename.aliased.rename.actual")
       showSubstitutePopup(title, positive, ScalaRenameUtil.findSubstituteElement(elementToRename))
@@ -123,7 +122,7 @@ trait ScalaInplaceRenameHandler {
       case e =>
         if (nameId != null) nameId.getParent match {
           case ref: ScReference if ScalaRenameUtil.isAliased(ref) =>
-            aliasedElementPopup(ref)
+            aliasedElementPopup()
             return null
           case _ =>
         }

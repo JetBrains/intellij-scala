@@ -199,7 +199,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         case ScExistentialType(q, Seq(w)) if checkWildcard =>
           if (q == w) placeholder(w)
           else existentialTypeText(existentialType, checkWildcard = false, stable)
-        case ScExistentialType(quant @ ParameterizedType(des, typeArgs), wildcards) =>
+        case ScExistentialType(quant @ ParameterizedType(_, typeArgs), wildcards) =>
           val usedMoreThanOnce = ScExistentialArgument.usedMoreThanOnce(quant)
 
           def mayBePlaceholder(arg: ScExistentialArgument): Boolean =
@@ -297,7 +297,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
       case FunctionType(ret, params) if !t.isAliasType =>
         val paramsText = params match {
           case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
-          case Seq(tup@TupleType(tps))     => innerTypeText(tup).parenthesize()
+          case Seq(tup@TupleType(_))     => innerTypeText(tup).parenthesize()
           case Seq(head)                   => innerTypeText(head)
           case _                           => typesText(params)
         }

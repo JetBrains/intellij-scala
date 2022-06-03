@@ -13,12 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-trait Ttt {
-  type Alias
-  def foo(p1: Int, p2: => String = "qwe"): (String, Long)
-  val x: (String, Int)
-}
-
 /**
 * User: Alexander Podkhalyuzin
 * Date: 11.07.2008

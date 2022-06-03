@@ -233,8 +233,6 @@ class FormattedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter 
       case Injection(_, Some(Specifier(Span(_, 1, 5), "%##d"))) :: Nil =>
     }
 
-    //unbound
-    val FNil: PartialFunction[List[StringPart], Unit] = { case Nil => }
     assertMatches(parseFull(""""%".format()""")) { case UnboundSpecifier(Specifier(Span(_, 1, 2), "%")) :: Nil => }
     assertMatches(parseFull(""""%  d".format()""")){ case UnboundSpecifier(Specifier(Span(_, 1, 5), "%  d")) :: Nil => }
   }

@@ -72,7 +72,7 @@ object SettingQueryHandler {
     new SettingQueryHandler(settingsEntry.settingName, settingsEntry.task, settingsEntry. sbtProjectUri,
       settingsEntry.sbtProjectId, comm)
 
-  private val EmptyListener: EventAggregator[Result] = (v1: Result, v2: ShellEvent) => v1
+  private val EmptyListener: EventAggregator[Result] = (v1: Result, _: ShellEvent) => v1
 
   private class BufferedListener(handler: SettingQueryHandler) extends EventAggregator[Result]() {
     private val filterPrefix = "[info] "

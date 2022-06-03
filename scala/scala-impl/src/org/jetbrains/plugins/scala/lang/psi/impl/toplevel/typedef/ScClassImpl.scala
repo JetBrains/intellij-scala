@@ -176,7 +176,6 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
       case Some(constr) => constr.parameters.map { param =>
         param.`type`() match {
           case Right(tp: TypeParameterType) if tp.psiTypeParameter.findAnnotation("scala.specialized") != null =>
-            val psiTypeText: String = tp.toPsiType.getCanonicalText
             val lightField = ScLightField(param.getName, tp, this, PsiModifier.PUBLIC, PsiModifier.FINAL)
             Option(lightField)
           case _ => None

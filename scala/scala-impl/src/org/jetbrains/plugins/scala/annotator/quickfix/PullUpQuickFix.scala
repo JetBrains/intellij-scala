@@ -5,6 +5,7 @@ package quickfix
 import com.intellij.codeInsight.intention.AbstractIntentionAction
 import com.intellij.codeInsight.navigation.NavigationUtil.getPsiElementPopup
 import com.intellij.ide.util.{PsiClassListCellRenderer, PsiElementListCellRenderer}
+import com.intellij.java.JavaBundle
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -50,7 +51,7 @@ final class PullUpQuickFix(member: ScMember, name: String) extends AbstractInten
       getPsiElementPopup(
         superClasses.toArray,
         (new PsiClassListCellRenderer).asInstanceOf[PsiElementListCellRenderer[ScTypeDefinition]],
-        ScalaBundle.message("choose.class"),
+        JavaBundle.message("choose.class"),
         new PullUpProcessor(executor)
       ).showInBestPositionFor(editor)
     }

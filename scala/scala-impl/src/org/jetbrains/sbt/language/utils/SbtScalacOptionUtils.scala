@@ -2,7 +2,7 @@ package org.jetbrains.sbt.language.utils
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.{Key, ModificationTracker}
+import com.intellij.openapi.util.ModificationTracker
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.collections.isSeq
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -24,8 +24,6 @@ object SbtScalacOptionUtils {
   private val log = LoggerFactory.getLogger(getClass)
 
   val SCALAC_OPTIONS = "scalacOptions"
-
-  val SCALAC_OPTIONS_DOC_KEY: Key[String] = Key.create("SCALAC_OPTION_DOC")
 
   val SEQ_OPS = Set("++=", "--=", ":=")
   val SINGLE_OPS = Set("+=", "-=")

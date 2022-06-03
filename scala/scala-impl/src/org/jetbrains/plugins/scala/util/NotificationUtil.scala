@@ -27,7 +27,7 @@ object NotificationUtil  {
 
     def setGroup(@NonNls group: String): this.type = {this.group = group; this}
     def setTitle(@Nls title: String): this.type = {this.title = Some(title); this}
-    def removeTitle(): this.type = {this.title = None; this}
+
     def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}
     // @deprecated TODO: yeah! but why? and replace with what?
     def setDisplayType(displayType: NotificationDisplayType): this.type = {this.displayType = displayType; this}

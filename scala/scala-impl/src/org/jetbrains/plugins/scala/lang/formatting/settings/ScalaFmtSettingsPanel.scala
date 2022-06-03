@@ -454,8 +454,6 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
 
 object ScalaFmtSettingsPanel {
 
-  private val Log = Logger.getInstance(classOf[ScalaFmtSettingsPanel])
-
   object SearchFilter {
     // TODO: will not work in non-english localization, also see ScalaCompileServerForm
     def ScalafmtConfiguration = "Scalafmt Configuration"

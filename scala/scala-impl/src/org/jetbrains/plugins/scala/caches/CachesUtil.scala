@@ -3,20 +3,18 @@ package caches
 
 
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util._
 import com.intellij.psi._
-import com.intellij.psi.impl.compiled.ClsFileImpl
 import com.intellij.psi.util._
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder._
 import org.jetbrains.plugins.scala.caches.stats.{CacheCapabilities, CacheTracker}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.{ScalaFileImpl, ScalaPsiManager}
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
+import scala.annotation.unused
 import scala.util.control.ControlThrowable
 
 /**
@@ -54,21 +52,12 @@ object CachesUtil {
     }
   }
 
-  def libraryAwareModTracker(element: PsiElement): ModificationTracker = {
-    val rootManager = ProjectRootManager.getInstance(element.getProject)
-    element.getContainingFile match {
-      case file: ScalaFile if file.isCompiled && rootManager.getFileIndex.isInLibrary(file.getVirtualFile) => rootManager
-      case _: ClsFileImpl => rootManager
-      case _ => BlockModificationTracker(element)
-    }
-  }
-
   case class ProbablyRecursionException[Data](elem: PsiElement,
                                               data: Data,
                                               key: Key[_],
                                               set: Set[ScFunction]) extends ControlThrowable
 
-  //used in caching macro annotations
+  @unused("used in caching macro annotations")
   def getOrCreateCachedMap[Dom: ProjectUserDataHolder, Data, Result](elem: Dom,
                                                                      key: Key[CachedMap[Data, Result]],
                                                                      cacheTypeId: String,
@@ -91,7 +80,7 @@ object CachesUtil {
     cachedValue.getValue
   }
 
-  //used in caching macro annotations
+  @unused("used in caching macro annotations")
   def getOrCreateCachedRef[Dom: ProjectUserDataHolder, Result >: Null](elem: Dom,
                                                                        key: Key[CachedRef[Result]],
                                                                        cacheTypeId: String,
@@ -114,7 +103,7 @@ object CachesUtil {
     cachedValue.getValue
   }
 
-  //used in CachedWithRecursionGuard
+  @unused("used in CachedWithRecursionGuard")
   def handleRecursiveCall[Data, Result](e: PsiElement,
                                         data: Data,
                                         key: Key[_],

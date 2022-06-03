@@ -437,16 +437,14 @@ class ScalaApplicationConfigurationProducerTest_Scala3 extends ScalaApplicationC
     val config2 = doTest(location2, "mainFoo2", packagePrefix + "mainFoo2")
     val config3 = doTest(location3, "MyObject1", packagePrefix + "MyObject1")
     val config4 = doTest(location4, "MyObject2", packagePrefix + "MyObject2")
-    val config5 = doTest(location5, "MyObject2", packagePrefix + "MyObject2")
-    val config6 = doTest(location6, "mainFoo3InObject", packagePrefix + "mainFoo3InObject")
+    val config5 = doTest(location6, "mainFoo3InObject", packagePrefix + "mainFoo3InObject")
 
     saveConfigurationsInRunManager(
       config1,
       config2,
       config3,
       config4,
-      //config5, // skipping cause should be the same as for config4
-      config6
+      config5
     )
 
     val config11 = findOrCreateConfiguration(location1)
@@ -461,7 +459,7 @@ class ScalaApplicationConfigurationProducerTest_Scala3 extends ScalaApplicationC
     assertIsTheSame(config3, config33)
     assertIsTheSame(config4, config44)
     assertIsTheSame(config4, config55) // config created when right clicking on main method should be the same when clicking on object itself
-    assertIsTheSame(config6, config66)
+    assertIsTheSame(config5, config66)
   }
 
   def testAnnotatedMainFunction_InSameFileNearSingleTopLevelClass(): Unit = {

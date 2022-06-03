@@ -96,7 +96,7 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
   override def annotate(literal: ScLongLiteral, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     annotate(literal) match {
-      case Some((target, _)) if ConvertMarker.isApplicableTo(literal) =>
+      case Some(_) if ConvertMarker.isApplicableTo(literal) =>
         val range = literal.getTextRange
         holder.newAnnotation(HighlightSeverity.WARNING, ScalaBundle.message("lowercase.long.marker"))
           .range(TextRange.from(range.getEndOffset - 1, 1))

@@ -19,8 +19,6 @@ case class InvokedElement(psiElement: PsiElement) {
     case _ => s"Invoked element of unknown type: $psiElement"
   }
 
-  def isSynthetic: Boolean = psiElement.is[ScSyntheticFunction]
-
   def simpleName: Option[String] = psiElement match {
     case namedElement: PsiNamedElement => Some(namedElement.name)
     case _ => None

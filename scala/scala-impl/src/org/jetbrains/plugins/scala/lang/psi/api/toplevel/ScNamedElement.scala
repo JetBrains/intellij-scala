@@ -6,7 +6,6 @@ package toplevel
 
 import com.intellij.extapi.psi.StubBasedPsiElementBase
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
@@ -105,7 +104,6 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
     val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
       override def getPresentableText: String = name
-      def getTextAttributesKey: TextAttributesKey = null
       override def getLocationString: String = clazz match {
         case _: ScTypeDefinition => "(" + clazz.qualifiedName + ")"
         case _: ScNewTemplateDefinition => "(<anonymous>)"

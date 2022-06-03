@@ -132,7 +132,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
     if (!isForBinding) {
       myVarCheckbox = new NonFocusableCheckBox(ScalaBundle.message("introduce.variable.declare.as.var"))
       myVarCheckbox.setMnemonic('v')
-      myVarCheckbox.addActionListener((e: ActionEvent) => {
+      myVarCheckbox.addActionListener((_: ActionEvent) => {
         writeCommandAction(myProject)
           .withName(getCommandName)
           .withGroupId(getCommandName)
@@ -263,7 +263,7 @@ class ScalaInplaceVariableIntroducer(expr: ScExpression,
       typePanel.add(myLinkContainer)
 
       val link = TypeAnnotationUtil.createTypeAnnotationsHLink(project, ScalaBundle.message("default.ta.settings"))
-      link.addHyperlinkListener((e: HyperlinkEvent) => {
+      link.addHyperlinkListener((_: HyperlinkEvent) => {
         extensions.invokeLater {
           mySpecifyTypeChb.setSelected(needTypeDefault)
         }

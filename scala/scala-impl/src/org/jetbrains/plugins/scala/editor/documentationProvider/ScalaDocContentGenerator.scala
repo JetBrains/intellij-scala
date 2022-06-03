@@ -326,7 +326,7 @@ object ScalaDocContentGenerator {
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
-  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement, rendered: Boolean): String = {
+  def generatePsiElementLink(ref: ScStableCodeReference, context: PsiElement): String = {
     val resolved = resolvePsiElementLink(ref, context)
     resolved
       .map(res => hyperLinkToPsi(res.refText, escapeHtml(res.label), plainLink = false))

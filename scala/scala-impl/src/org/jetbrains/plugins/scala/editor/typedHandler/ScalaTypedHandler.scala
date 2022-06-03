@@ -110,11 +110,11 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     })) {
       completeInterpolatedStringBraces
     } else if (c == '>' || c == '-') {
-      replaceArrowTask(file, editor)
+      replaceArrowTask()
     } else if (c == '$') {
       startAutoPopupCompletion(file, editor)
     } else if (c == '{') {
-      convertToInterpolated(file, editor)
+      convertToInterpolated(file)
     } else if (c == '.' && shouldAdjustIndentAfterDot(editor)) {
       prepareIndentAdjustmentBeforeDot(document, offset)
       adjustIndentBeforeDot(editor)
@@ -367,7 +367,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       ScalaPsiUtil.getParent(_, 2).exists(_.is[ScValue])
     )
 
-  private def replaceArrowTask(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
+  private def replaceArrowTask()(document: Document, project: Project, element: PsiElement, offset: Int): Unit = {
     @inline def replaceElement(replaceWith: String): Unit = {
       document.replaceString(element.startOffset, element.endOffset, replaceWith)
       document.commit(project)
@@ -421,7 +421,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       }
     }
 
-  private def convertToInterpolated(file: PsiFile, editor: Editor)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
+  private def convertToInterpolated(file: PsiFile)(document: Document, project: Project, element: PsiElement, offset: Int): Unit =
     if (ScalaApplicationSettings.getInstance().UPGRADE_TO_INTERPOLATED) {
       element.getParent match {
         case l: ScLiteral =>

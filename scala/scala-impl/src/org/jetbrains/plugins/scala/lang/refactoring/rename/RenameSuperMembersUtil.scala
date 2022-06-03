@@ -66,7 +66,7 @@ object RenameSuperMembersUtil {
     afterChoosingSuperMember(maxSuperMembers, named, editor)(processor.execute)
   }
 
-  def prepareSuperMembers(element: PsiElement, newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
+  def prepareSuperMembers(newName: String, allRenames: util.Map[PsiElement, String]): Unit = {
     for (elem <- superMembersToRename) {
       allRenames.put(elem, newName)
       superMembersToRename -= elem

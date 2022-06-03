@@ -15,11 +15,9 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.Presentation.htmlWithBody
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
 import java.awt.Point
@@ -187,9 +185,6 @@ private object ScalaImportElementFix {
     val boundedTaskExecutor: ExecutorService =
       AppExecutorUtil.createBoundedApplicationPoolExecutor("ScalaImportElementFixExecutor", 2)
   }
-
-  private def isScala3AndErrorsFromCompiler(file: PsiFile) =
-    file.isInScala3Module && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
 
   implicit class EditorEx(val editor: Editor) extends AnyVal {
     def caretNear(place: PsiElement): Boolean =

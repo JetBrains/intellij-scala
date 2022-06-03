@@ -51,7 +51,7 @@ trait Namer {
           }
           case None => throw new ScalaMetaResolveError(cr)
         }
-      case se: impl.toplevel.synthetic.SyntheticNamedElement =>
+      case _: impl.toplevel.synthetic.SyntheticNamedElement =>
         throw new SyntheticException
       //    case cs: ScConstructor =>
       //      toTermName(cs.reference.get)
@@ -75,7 +75,7 @@ trait Namer {
       toTypeName(re.resolve())
     case sc: impl.toplevel.synthetic.ScSyntheticClass =>
       m.Type.Name(sc.className)
-    case se: impl.toplevel.synthetic.SyntheticNamedElement =>
+    case _: impl.toplevel.synthetic.SyntheticNamedElement =>
       die(ScalaMetaBundle.message("synthetic.elements.not.implemented")) // FIXME: find a way to resolve synthetic elements
     case _: PsiPackage | _: ScObject =>
       unreachable(ScalaMetaBundle.message("package.and.object.types.should.be.singleton.not.name...", elem.getText))
@@ -120,20 +120,11 @@ trait Namer {
     if (res != null) res else die(ScalaMetaBundle.message("failed.to.convert.type.tp", tp))
   }
 
-  def toCtorName(c: ScStableCodeReference): m.Term.Name = {
-//     FIXME: what about other cases of m.Ctor ?
-    val resolved = toTermName(c)
-    resolved match {
-      case termName: m.Term.Name => termName
-      case _ => unreachable
-    }
-  }
-
   def toParamName(param: Parameter): m.Term.Name = {
     m.Term.Name(param.name)
   }
 
-  def toPrimaryCtorName(t: ScPrimaryConstructor): m.Name =
+  def toPrimaryCtorName: m.Name =
     m.Name.Anonymous()
 
   def ind(cr: ScStableCodeReference): m.Name.Indeterminate = {
@@ -150,7 +141,7 @@ trait Namer {
     @tailrec
     def loop(mtp: m.Type): m.Name = {
       mtp match {
-        case n@m.Type.Name(value) => m.Name.Indeterminate(value)
+        case m.Type.Name(value) => m.Name.Indeterminate(value)
         case _: m.Type.Select => loop(mtp.stripped)
         case _: m.Type.Project => loop(mtp.stripped)
         case other => throw new AbortException(other, ScalaMetaBundle.message("super.selector.cannot.be.non.name.type"))
@@ -159,12 +150,4 @@ trait Namer {
     tp.staticSuper.map(t=>loop(toType(t))).getOrElse(m.Name.Anonymous())
   }
 
-  // FIXME: everything
-  def ctorParentName(tpe: types.ScTypeElement): m.Name = {
-    val raw = toType(tpe)
-    raw.stripped match {
-      case name: m.Type.Name => name
-      case other => die(ScalaMetaBundle.message("unexpected.type.in.parents.other", other))
-    }
-  }
 }

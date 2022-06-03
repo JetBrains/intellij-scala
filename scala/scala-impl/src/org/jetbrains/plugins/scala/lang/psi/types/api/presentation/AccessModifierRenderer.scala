@@ -38,12 +38,12 @@ object AccessModifierRenderer {
         if (modifier.isThis) "this" else {
           val res = for {
             id <- modifier.idText
-            qualifier <- resolveAccessQualifier(modifier, id)
+            qualifier <- resolveAccessQualifier(modifier)
           } yield HtmlPsiUtils.psiElementLink(qualifier, id)
           res.getOrElse("")
         }
 
-      private def resolveAccessQualifier(modifier: ScAccessModifier, idText: String): Option[String] =
+      private def resolveAccessQualifier(modifier: ScAccessModifier): Option[String] =
         modifier.getReference match {
           case ResolvesTo(element) => element match {
             case clazz: PsiClass  => Some(clazz.qualifiedName)

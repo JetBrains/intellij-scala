@@ -94,7 +94,7 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
               rangeHighlighters.forEach { a => highlightManager.removeSegmentHighlighter(editor, a) }
             }
           },
-            (s: String, t: String) => !(t.length == 0 || t.charAt(t.length - 1) == ' '))
+            (_: String, t: String) => !(t.length == 0 || t.charAt(t.length - 1) == ' '))
 
           highlightMatched()
           editor.getCaretModel.moveToOffset(offset)

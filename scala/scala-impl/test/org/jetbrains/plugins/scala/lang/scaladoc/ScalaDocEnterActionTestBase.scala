@@ -1,10 +1,7 @@
 package org.jetbrains.plugins.scala.lang.scaladoc
 
 import com.intellij.openapi.actionSystem.IdeActions
-import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
-import com.intellij.openapi.editor.impl.DocumentImpl
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -12,8 +9,6 @@ import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
-import org.junit.Assert._
-
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
 abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter
@@ -36,32 +31,6 @@ abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureT
       handler.execute(editor, editor.getCaretModel.getCurrentCaret, new MyDataContext(file))
     })
 
-
     myFixture.checkResult(expectedAfter.withNormalizedSeparator, stripTrailingSpaces)
-    //checkResultWithCaret(expectedAfter.withNormalizedSeparator, myFixture, stripTrailingSpaces)
-  }
-
-  private def checkResultWithCaret(expected: String, fixture: CodeInsightTestFixture, stripTrailingSpaces: Boolean): Unit = {
-    val expectedFixed1 =
-      if (stripTrailingSpaces) doStripTrailingSpaces(expected)
-      else expected
-    val expectedCaretPosition = expectedFixed1.indexOf(CARET)
-    val expectedFixed2 = expectedCaretPosition match {
-      case -1 => expectedFixed1
-      case _  => expectedFixed1.replace(CARET, "")
-    }
-    fixture.checkResult(expectedFixed2, stripTrailingSpaces)
-    if (expectedCaretPosition != -1) {
-      assertEquals(
-        "caret position is wrong",
-        expectedCaretPosition, editor.getCaretModel.getOffset
-      )
-    }
-  }
-
-  private def doStripTrailingSpaces(actualText: String): String = {
-    val document = EditorFactory.getInstance.createDocument(actualText)
-    document.asInstanceOf[DocumentImpl].stripTrailingSpaces(getProject)
-    document.getText
   }
 }

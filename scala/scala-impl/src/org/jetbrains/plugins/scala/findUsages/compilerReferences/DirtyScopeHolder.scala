@@ -136,8 +136,6 @@ abstract class DirtyScopeHolder[Scope](
     if (dirtyScopes.isEmpty) GlobalSearchScope.EMPTY_SCOPE
     else                     GlobalSearchScope.union(dirtyScopes.map(scopeToSearchScope).asJavaCollection)
 
-  def contains(file: VirtualFile): Boolean = dirtyScope.contains(file)
-
   def dirtyScopes: Set[Scope] = {
     val dirty = Set.newBuilder[Scope]
     dirty ++= vfsChangedScopes.asScala

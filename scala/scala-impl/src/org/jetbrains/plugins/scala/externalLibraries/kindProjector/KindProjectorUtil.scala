@@ -50,7 +50,6 @@ class KindProjectorUtil(project: Project) {
 }
 
 object KindProjectorUtil {
-  sealed trait KindProjectorMode
 
   def syntaxIdsFor(e: PsiElement): Seq[String] =
     if (e.kindProjectorEnabled) {

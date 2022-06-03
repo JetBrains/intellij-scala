@@ -28,12 +28,6 @@ trait LocationLineManager {
 
   private val syntheticProvider = SyntheticTypeComponentProvider.EP_NAME.findExtension(classOf[ScalaSyntheticProvider])
 
-  def clearLocationLineCaches(): Unit = {
-    customizedLocationsCache.clear()
-    lineToCustomizedLocationCache.clear()
-    seenRefTypes.clear()
-  }
-
   def exactLineNumber(location: Location): Int = location match {
     case gen: GeneratedLocation =>
       gen.lineNumber()

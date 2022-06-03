@@ -20,10 +20,7 @@ private object TechHubStarterProjects {
   private val API_URI = s"https://example.lightbend.com/$API_VERSION/api"
   private val TEMPLATES_ENDPOINT = "all-templates"
 
-  def templateFileName(id: String) = s"$id.zip"
-
   val dummyEntry: IndexEntry = IndexEntry("","","","","","","",Array.empty, Array.empty, EntryFeatured(0))
-
 
   def downloadIndex(): Try[Map[String, IndexEntry]] = {
     val jsonTry = TechHubDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5000)

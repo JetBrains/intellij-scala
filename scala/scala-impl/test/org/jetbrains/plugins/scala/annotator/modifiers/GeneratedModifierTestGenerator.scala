@@ -39,11 +39,6 @@ object GeneratedModifierTestGenerator {
     Seq(Private, Protected, Final, Abstract, Override, Implicit, Sealed, Lazy, Case).map(_.text())
   }
 
-  private val scala3Modifiers = {
-    import ScalaModifier._
-    Seq(Inline, Transparent, Open, Opaque, Infix).map(_.text())
-  }
-
   private def scala2ModifierCombinations: Seq[String] =
     Seq("") ++ scala2Modifiers ++ (
       for (m1 <- scala2Modifiers; m2 <- scala2Modifiers)

@@ -12,7 +12,6 @@ import scala.collection.mutable.ArrayBuffer
  */
 class MethodRepr private (val itself: ScExpression,
                           val optionalBase: Option[ScExpression],
-                          val optionalMethodRef: Option[ScReferenceExpression],
                           val args: Seq[ScExpression])
 
 object MethodRepr {
@@ -73,8 +72,8 @@ object MethodRepr {
     }
   }
 
-  def apply(itself: ScExpression, optionalBase: Option[ScExpression], optionalMethodRef: Option[ScReferenceExpression], args: Seq[ScExpression]): MethodRepr = {
-    new MethodRepr(itself, optionalBase, optionalMethodRef, args)
+  def apply(itself: ScExpression, optionalBase: Option[ScExpression], args: Seq[ScExpression]): MethodRepr = {
+    new MethodRepr(itself, optionalBase, args)
   }
 
 }
@@ -85,8 +84,8 @@ object MethodSeq {
     @tailrec
     def extractMethods(expr: ScExpression): Unit = {
       expr match {
-        case MethodRepr(_, optionalBase, optionalMethodRef, args) =>
-          result += MethodRepr(expr, optionalBase, optionalMethodRef, args.toSeq)
+        case MethodRepr(_, optionalBase, _, args) =>
+          result += MethodRepr(expr, optionalBase, args.toSeq)
           optionalBase match {
             case Some(ScParenthesisedExpr(inner)) => extractMethods(stripped(inner))
             case Some(expression) => extractMethods(expression)

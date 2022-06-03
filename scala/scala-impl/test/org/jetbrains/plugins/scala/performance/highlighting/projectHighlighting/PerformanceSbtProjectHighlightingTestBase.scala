@@ -28,7 +28,7 @@ abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndI
             annotator.annotate(element)(mock)
             super.visitScalaElement(element)
           } catch {
-            case ignored: Throwable => //this should be checked in AllProjectHighlightingTest
+            case _: Throwable => //this should be checked in AllProjectHighlightingTest
           }
         }
       }

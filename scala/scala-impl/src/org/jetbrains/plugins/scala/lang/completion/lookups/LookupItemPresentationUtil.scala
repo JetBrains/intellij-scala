@@ -2,12 +2,9 @@ package org.jetbrains.plugins.scala.lang.completion.lookups
 
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, _}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters, ScTypeParam, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer.AccessQualifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -41,12 +38,6 @@ private object LookupItemPresentationUtil {
         presentationStringForScalaType(psiType.toScType(), substitutor)
     }
 
-
-  def presentationStringForPsiElement(element: ScalaPsiElement): String = {
-    val substitutor = ScSubstitutor.empty
-    val projectContext = element.projectContext
-    presentationStringForPsiElement(element, substitutor)(projectContext)
-  }
 
   def presentationStringForPsiElement(element: PsiElement, substitutor: ScSubstitutor)
                                      (implicit project: ProjectContext): String = {
@@ -130,9 +121,6 @@ private object LookupItemPresentationUtil {
     buffer.append(presentationStringForJavaType(param.getType, substitutor))
     buffer.toString
   }
-
-  private def accessModifierText(modifier: ScAccessModifier): String =
-    new AccessModifierRenderer(new AccessQualifierRenderer.SimpleText(textEscaper)).render(modifier)
 
   private def textEscaper: TextEscaper = TextEscaper.Html
 }

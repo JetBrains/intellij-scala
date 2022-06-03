@@ -53,11 +53,6 @@ object Dependency {
     }
   }
 
-  def dependenciesIn(scope: PsiElement): Seq[Dependency] = scope.depthFirst()
-    .filterByType[ScReference]
-    .toList
-    .flatMap(dependenciesFor)
-
   def dependenciesFor(reference: ScReference): List[Dependency] =
     fastResolve(reference).flatMap { result =>
       dependencyFor(reference, result.element, result.fromType)

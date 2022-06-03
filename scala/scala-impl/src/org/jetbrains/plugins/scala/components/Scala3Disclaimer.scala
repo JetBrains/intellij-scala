@@ -29,8 +29,7 @@ object Scala3Disclaimer {
       return // otherwise, it can lead to project leaks in tests
 
     if (!isShownIn(project) && project.hasScala3 && !ScalaPluginUpdater.pluginIsNightly) {
-      showDisclaimerIn(project,
-        ScalaBundle.message("scala.3.support.is.experimental"),
+      showDisclaimerIn(ScalaBundle.message("scala.3.support.is.experimental"),
         configureUpdatesActionIn(project))
       setShownIn(project)
     }
@@ -43,7 +42,7 @@ object Scala3Disclaimer {
     ScalaProjectSettings.getInstance(project).setScala3DisclaimerShown(true)
   }
 
-  private def showDisclaimerIn(project: Project, message: String, actions: AnAction*): Unit = {
+  private def showDisclaimerIn(message: String, actions: AnAction*): Unit = {
     val notification =
       ScalaNotificationGroups.stickyBalloonGroup
         .createNotification(message, NotificationType.INFORMATION)

@@ -107,7 +107,7 @@ object ParserUtils {
             case ScalaTokenTypes.tLPARENTHESIS => count += 1
             case ScalaTokenTypes.tRPARENTHESIS => count -= 1
             case acc if accepted.contains(acc) => seen += 1
-            case o => return false
+            case _ => return false
           }
 
           builder.advanceLexer()

@@ -63,8 +63,6 @@ object RearrangerUtils {
   val scalaTypesValues = HashSet(TYPE, FUNCTION, CLASS, VAL, VAR, TRAIT, MACRO, CONSTRUCTOR, OBJECT)
   private val scalaTypesById = scalaTypesValues.map(t => t.getId -> t).toMap
 
-  private type tokensType = (String, ArrangementSettingsToken)
-
   val supportedOrders = HashSet(StdArrangementTokens.Order.BY_NAME, StdArrangementTokens.Order.KEEP)
 
   val scalaAccessModifiers  = ListSet(PUBLIC, PROTECTED, PRIVATE)

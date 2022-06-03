@@ -57,7 +57,7 @@ trait IntroduceTypeAlias {
       val currentDataObject = editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO)
 
       if (currentDataObject.possibleScopes == null) {
-        currentDataObject.setPossibleScopes(ScopeSuggester.suggestScopes(this, project, editor, file, inTypeElement))
+        currentDataObject.setPossibleScopes(ScopeSuggester.suggestScopes(inTypeElement))
       }
 
       if (currentDataObject.possibleScopes.isEmpty) {
@@ -146,13 +146,13 @@ trait IntroduceTypeAlias {
           }
 
           val enteredName = currentDataObject.getNamedElement.getName
-          ScalaInplaceTypeAliasIntroducer.revertState(editor, currentDataObject.currentScope, currentDataObject.getNamedElement)
+          ScalaInplaceTypeAliasIntroducer.revertState(editor)
 
           runWithDialog(fromInplace = true, currentDataObject.currentScope, enteredName)
           //          editor.getUserData(IntroduceTypeAlias.REVERT_TYPE_ALIAS_INFO).clearData()
         } else {
           currentDataObject.setInintialInfo(inTypeElement.getTextRange)
-          afterScopeChoosing(project, editor, file, currentDataObject.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
+          afterScopeChoosing(editor, currentDataObject.possibleScopes, INTRODUCE_TYPEALIAS_REFACTORING_NAME) {
             case simpleScope: SimpleScopeItem if simpleScope.usualOccurrences.nonEmpty =>
               handleScope(simpleScope, needReplacement = true)
             case packageScope: PackageScopeItem =>
@@ -201,7 +201,7 @@ trait IntroduceTypeAlias {
       case packageScope: PackageScopeItem =>
         packageScope.fileEncloser match {
           case suggestedDirectory: PsiDirectory =>
-            createAndGetPackageObjectBody(typeElement, suggestedDirectory, packageScope.needDirectoryCreating, scope.name)
+            createAndGetPackageObjectBody(suggestedDirectory, packageScope.needDirectoryCreating, scope.name)
           case _ =>
             packageScope.fileEncloser
         }
@@ -241,8 +241,8 @@ trait IntroduceTypeAlias {
     editor.getSelectionModel.removeSelection()
   }
 
-  def afterScopeChoosing(project: Project, editor: Editor, file: PsiFile, scopes: Array[ScopeItem],
-                         refactoringName: String)(invokesNext: (ScopeItem) => Unit): Unit = {
+  private def afterScopeChoosing(editor: Editor, scopes: Array[ScopeItem],
+                                 refactoringName: String)(invokesNext: (ScopeItem) => Unit): Unit = {
 
     def chooseScopeItem(item: ScopeItem): Unit = {
       invokesNext(item)
@@ -252,7 +252,7 @@ trait IntroduceTypeAlias {
       ScalaBundle.message("choose.scope.for", refactoringName), (elem: ScopeItem) => elem.toString)
   }
 
-  def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias): Array[ScTypeElement] = {
+  private def replaceTypeElements(occurrences: Array[ScTypeElement], name: String, typeAlias: ScTypeAlias): Array[ScTypeElement] = {
     def replaceHelper(typeElement: ScTypeElement, inName: String): ScTypeElement = {
       val replacement = ScalaPsiElementFactory.createTypeElementFromText(inName, typeElement.getContext, typeElement)
       //remove parethesis around typeElement
@@ -280,7 +280,7 @@ trait IntroduceTypeAlias {
   }
 
 
-  def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String): Unit = {
+  private def showTypeAliasChooser[T](editor: Editor, elements: Array[T], pass: T => Unit, @Nls title: String, elementName: T => String): Unit = {
     class Selection {
       val selectionModel: SelectionModel = editor.getSelectionModel
       val (start, end) = (selectionModel.getSelectionStart, selectionModel.getSelectionEnd)
@@ -351,10 +351,9 @@ trait IntroduceTypeAlias {
       .showInBestPositionFor(editor): @nowarn("cat=deprecation")
   }
 
-  protected def createAndGetPackageObjectBody(typeElement: ScTypeElement,
-                                              suggestedDirectory: PsiDirectory,
-                                              needCreateDirectory: Boolean,
-                                              inNewDirectoryName: String): ScTemplateBody = {
+  private def createAndGetPackageObjectBody(suggestedDirectory: PsiDirectory,
+                                            needCreateDirectory: Boolean,
+                                            inNewDirectoryName: String): ScTemplateBody = {
     val newDirectoryName = if (needCreateDirectory) {
       inNewDirectoryName
     } else {
@@ -386,7 +385,7 @@ trait IntroduceTypeAlias {
       case _: PackageScopeItem => Seq.empty[TextRange]
     }
 
-    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, mainScope, this, editor)
+    val dialog = new ScalaIntroduceTypeAliasDialog(project, typeElement, possibleScopes, mainScope, this)
 
     this.runWithDialogImpl(dialog, occurrences) { dialog =>
       val occurrences = OccurrenceData(typeElement,

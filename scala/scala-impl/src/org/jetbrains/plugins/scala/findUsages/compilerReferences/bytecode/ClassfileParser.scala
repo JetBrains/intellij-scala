@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package bytecode
 
-import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.BitUtil.isSet
 import org.jetbrains.org.objectweb.asm.Opcodes._
 import org.jetbrains.org.objectweb.asm._
@@ -23,16 +22,6 @@ private[compilerReferences] object ClassfileParser {
   private[this] implicit class RichScalaSigSymbol(private val sym: Symbol) extends AnyVal {
     def encodedName: String = NameTransformer.encode(sym.name)
 
-    @tailrec
-    final def enclClass: Symbol = sym match {
-      case _: ClassSymbol | _: ObjectSymbol => sym
-      case _ =>
-        sym.parent match {
-          case Some(p) => p.enclClass
-          case _       => throw new AssertionError("Failed to resolve parent for enclosing class.")
-        }
-    }
-
     def ownerChain: Seq[Symbol] = {
       @tailrec
       def loop(sym: Symbol, acc: List[Symbol] = Nil): List[Symbol] =
@@ -45,7 +34,7 @@ private[compilerReferences] object ClassfileParser {
       loop(sym)
     }
 
-    private[this] def className(s: Symbol): String = {
+    private[this] def className(): String = {
       val classes = ownerChain.collect {
         case cs: ClassSymbol   => cs
         case obj: ObjectSymbol => obj
@@ -61,9 +50,8 @@ private[compilerReferences] object ClassfileParser {
      */
     def qualifiedName: String = sym match {
       case _: MethodSymbol =>
-        val owner = sym.enclClass
-        s"${className(owner)}.${sym.encodedName}"
-      case _: ClassSymbol | _: ObjectSymbol => className(sym)
+        s"${className()}.${sym.encodedName}"
+      case _: ClassSymbol | _: ObjectSymbol => className()
       case _                                => ""
     }
   }
@@ -109,14 +97,8 @@ private[compilerReferences] object ClassfileParser {
     visitor.result
   }
 
-  def parse(bytes: Array[Byte], synthetics: Set[String]): ParsedClass =
-    parse(new ByteArrayInputStream(bytes), synthetics)
-
   def parse(file: File, synthetics: Set[String]): ParsedClass =
     parse(new BufferedInputStream(new FileInputStream(file)), synthetics)
-
-  def parse(vfile: VirtualFile, synthetics: Set[String]): ParsedClass =
-    parse(vfile.getInputStream, synthetics)
 
   private[this] val pattern = Pattern.compile("/")
   private[this] def fqnFromInternalName(internal: String): String  = pattern.matcher(internal).replaceAll(".")
@@ -179,7 +161,7 @@ private[compilerReferences] object ClassfileParser {
         name != "$init$" &&
         !name.contains("$anonfun$")
 
-    private[this] def isSynthetic(access: Int, name: String): Boolean = {
+    private[this] def isSynthetic(name: String): Boolean = {
       val simpleClassName = className.split("\\.").lastOption.getOrElse("")
       synthetics.contains(s"$simpleClassName.$name")
     }
@@ -191,7 +173,7 @@ private[compilerReferences] object ClassfileParser {
       signature:  String,
       exceptions: Array[String]
     ): MethodVisitor =
-      if (isStaticForwarder(access, name) || isSynthetic(access, name)) null
+      if (isStaticForwarder(access, name) || isSynthetic(name)) null
       else                                                              methodVisitor
 
 

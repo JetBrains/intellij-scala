@@ -102,7 +102,6 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val containingClass = resolveResult.fromType match {
       case Some(ScThisType(clazz)) => clazz
       case Some(tp) =>
-        val project = elem.getProject
         tp.extractClass match {
           case Some(x) => x
           case None => getContextClass(elem)
@@ -271,7 +270,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     def binaryEvalForBoxes(operatorName: String, boxesName: String): Evaluator = {
       binaryEval(operatorName, binaryEvaluator(_, _, boxesName))
     }
-    def equalsEval(opName: String): Evaluator = {
+    def equalsEval(): Evaluator = {
       val rawText = JVMNameUtil.getJVMRawText("(Ljava/lang/Object;Ljava/lang/Object;)Z")
       binaryEval(name, (l, r) => ScalaMethodEvaluator(BOXES_RUN_TIME, "equals", rawText, boxed(l, r)))
     }
@@ -318,8 +317,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             ScalaMethodEvaluator(SCALA_RUNTIME_STATICS, "anyHash", JVMNameUtil.getJVMRawText("(Ljava/lang/Object;)I"), boxed(eval))
           ScalaDuplexEvaluator(newSyntheticHash, oldSyntheticHash)
         })
-      case "==" => equalsEval("==")
-      case "!=" => unaryEvaluator(equalsEval("!="), "takeNot")
+      case "==" => equalsEval()
+      case "!=" => unaryEvaluator(equalsEval(), "takeNot")
       case "unary_!" => unaryEvalForBoxes("!", "takeNot")
       case "unary_~" => unaryEvalForBoxes("~", "complement")
       case "unary_+" => unaryEvalForBoxes("+", "positive")
@@ -527,13 +526,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val evaluator = new ScalaLocalVariableEvaluator(name, fileName)
     fun match {
       case funDef: ScFunctionDefinition =>
-        def paramIndex(fun: ScFunctionDefinition, context: PsiElement, elem: PsiElement): Int = {
+        def paramIndex(fun: ScFunctionDefinition, elem: PsiElement): Int = {
           val locIndex = DebuggerUtil.localParamsForFunDef(fun).indexOf(elem)
           val funParams = fun.effectiveParameterClauses.flatMap(_.effectiveParameters)
           if (locIndex < 0) funParams.indexOf(elem)
           else locIndex + funParams.size
         }
-        val pIndex = paramIndex(funDef, getContextClass(fun), resolve)
+        val pIndex = paramIndex(funDef, resolve)
         evaluator.setParameterIndex(pIndex)
         evaluator.setMethodName(funDef.name)
       case funExpr: ScFunctionExpr =>
@@ -1084,7 +1083,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
               case Some(clazz) =>
                 val jvmName = DebuggerUtil.getClassJVMName(clazz)
                 val typeEvaluator = new ScalaTypeEvaluator(jvmName)
-                val argumentEvaluators = constructorArgumentsEvaluators(templ, constrInvocation, clazz)
+                val argumentEvaluators = constructorArgumentsEvaluators(constrInvocation)
                 constrInvocation.reference.map(_.resolve()) match {
                   case Some(named: PsiNamedElement) =>
                     val signature = DebuggerUtil.constructorSignature(named)
@@ -1101,9 +1100,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def constructorArgumentsEvaluators(newTd: ScNewTemplateDefinition,
-                                     constrInvocation: ScConstructorInvocation,
-                                     clazz: PsiClass): Seq[Evaluator] = {
+  private def constructorArgumentsEvaluators(constrInvocation: ScConstructorInvocation): Seq[Evaluator] = {
     val constrDef = constrInvocation.reference match {
       case Some(ResolvesTo(elem)) => elem
       case _ => throw EvaluationException(ScalaBundle.message("could.not.resolve.constructor"))

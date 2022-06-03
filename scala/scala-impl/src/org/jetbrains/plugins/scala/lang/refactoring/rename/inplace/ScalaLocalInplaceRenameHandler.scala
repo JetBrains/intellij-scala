@@ -35,7 +35,7 @@ class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with S
   }
 
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
-    afterElementSubstitution(elementToRename, editor, dataContext) {
+    afterElementSubstitution(elementToRename, editor) {
       super.doRename(_, editor, dataContext)
     }
   }

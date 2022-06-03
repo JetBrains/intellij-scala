@@ -60,8 +60,6 @@ object ComparingUtil {
       return false
     val (subClass, supClass) = (subClassOpt.get, supClassOpt.get)
 
-    def isNeverSameType(sub: ScType, sup: ScType) = isNeverSubType(sub, sup, sameType = true)
-
     def isNeverSubArgs(subTps: Iterable[ScType], supTps: Iterable[ScType], tparams: Iterable[PsiTypeParameter]): Boolean = {
       def isNeverSubArg(subTp: ScType, supTp: ScType, variance: Variance): Boolean = {
 

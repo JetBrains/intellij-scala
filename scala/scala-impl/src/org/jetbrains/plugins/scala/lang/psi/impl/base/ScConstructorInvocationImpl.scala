@@ -88,7 +88,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
   }
 
   //todo: duplicate ScSimpleTypeElementImpl
-  def parameterize(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType =
+  private def parameterize(tp: ScType, clazz: PsiClass): ScType =
     if (clazz.getTypeParameters.isEmpty) tp
     else
       ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
@@ -120,9 +120,7 @@ class ScConstructorInvocationImpl(node: ASTNode)
         case _ =>
           parameterize(
             ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).getOrElse(return FAILURE),
-            clazz,
-            subst
-          )
+            clazz)
       }
 
       val res = constr match {

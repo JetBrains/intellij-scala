@@ -90,12 +90,6 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
     useSbtShell = params.isUseSbtShell
   }
 
-  def determineMainClass(launcherPath: String): String =
-    Using.resource(new JarFile(new File(launcherPath))) { jf =>
-      val attributes = jf.getManifest.getMainAttributes
-      Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
-    }
-
   protected def preprocessTasks(): String = if (!useSbtShell || tasks.trim.startsWith(";")) tasks else {
     val commands = ParametersListUtil.parse(tasks, false).asScala
     if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
@@ -105,12 +99,10 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
 class SbtCommandLineState(val processedCommands: String, val configuration: SbtRunConfiguration, environment: ExecutionEnvironment,
                           private var listener: Option[String => Unit] = None) extends JavaCommandLineState(environment) {
   def getListener: Option[String => Unit] = listener
-  
-  def setListener(l: Option[String => Unit]): Unit = listener = l
 
   override def execute(executor: Executor, runner: ProgramRunner[_]): ExecutionResult = {
     val r = super.execute(executor, runner)
-    listener.foreach(l => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
+    listener.foreach(_ => Option(r.getProcessHandler).foreach(_.addProcessListener(new OutputListener() {
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = super.onTextAvailable(event, outputType)
     })))
     r

@@ -5,8 +5,7 @@ import com.intellij.ui.table.JBTable
 import com.intellij.util.ui.UIUtil
 import com.intellij.util.ui.UIUtil.{FontColor, FontSize}
 
-import java.awt.geom.Rectangle2D
-import java.awt.{Color, Graphics2D}
+import java.awt.Color
 
 object Common {
 
@@ -35,6 +34,4 @@ object Common {
   final val MemoryLineStroke = ThickStroke
   final val ProgressLineStroke = ThinStroke
 
-  def printTopBorder(graphics: Graphics2D, bounds: Rectangle2D): Unit =
-    graphics.printBorder(bounds, Side.North, LineColor, BorderStroke)
 }

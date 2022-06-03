@@ -52,26 +52,4 @@ object MapGetOrElse extends SimplificationType() {
     }
   }
 
-  def checkTypes(optionalBase: Option[ScExpression], mapArgs: Seq[ScExpression], getOrElseArgs: Seq[ScExpression]): Boolean = {
-    val (mapArg, getOrElseArg) = (mapArgs, getOrElseArgs) match {
-      case (Seq(a1), Seq(a2)) => (a1, a2)
-      case _ => return false
-    }
-    val baseExpr = optionalBase match {
-      case Some(e) => e
-      case _ => return false
-    }
-    val mapArgRetType = mapArg.`type`() match {
-      case Right(FunctionType(retType, _)) => retType
-      case _ => return false
-    }
-
-    val firstArgText = stripped(getOrElseArg).getText
-    val secondArgText = stripped(mapArg).getText
-    val newExprText = s"${baseExpr.getText}.fold {$firstArgText}{$secondArgText}"
-    ScalaPsiElementFactory.createExpressionFromText(newExprText, baseExpr.getContext) match {
-      case ScMethodCall(ScMethodCall(_, Seq(firstArg)), _) => mapArgRetType.conforms(firstArg.`type`().getOrNothing)
-      case _ => false
-    }
-  }
 }

@@ -16,7 +16,6 @@ object DynamicResolveProcessor {
   val APPLY_DYNAMIC = "applyDynamic"
   val SELECT_DYNAMIC = "selectDynamic"
   val UPDATE_DYNAMIC = "updateDynamic"
-  val NAMED = "Named"
 
   def getDynamicNameForMethodInvocation(expressions: Iterable[ScExpression]): String = {
     val qualifiers = expressions.collect {

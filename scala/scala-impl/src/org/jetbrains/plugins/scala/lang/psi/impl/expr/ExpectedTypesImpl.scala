@@ -416,9 +416,9 @@ class ExpectedTypesImpl extends ExpectedTypes {
         }
         buffer.toArray
       case infix@ScInfixExpr.withAssoc(_, _, `sameInContext`) if !expr.isInstanceOf[ScTuple] =>
-        val zExpr: ScExpression = expr match {
-          case p: ScParenthesisedExpr => p.innerElement.getOrElse(return Array.empty)
-          case _ => expr
+        expr match {
+          case p: ScParenthesisedExpr if p.innerElement.isEmpty => return Array.empty
+          case _ =>
         }
         expectedTypesForArg(infix)
       //SLS[4.1]

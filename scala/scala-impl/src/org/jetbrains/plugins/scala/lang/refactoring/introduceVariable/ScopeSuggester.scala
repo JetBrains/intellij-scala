@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable
 
-import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
@@ -35,11 +34,7 @@ object ScopeSuggester {
 
   import PsiTreeUtil._
   
-  def suggestScopes(conflictsReporter: ConflictsReporter,
-                    project: Project,
-                    editor: Editor,
-                    file: PsiFile,
-                    currentElement: ScTypeElement): Array[ScopeItem] = {
+  def suggestScopes(currentElement: ScTypeElement): Array[ScopeItem] = {
 
     def getParent(element: PsiElement, isScriptFile: Boolean): PsiElement =
       if (isScriptFile) getParentOfType(element, classOf[ScTemplateBody], classOf[ScalaFile])
@@ -186,7 +181,7 @@ object ScopeSuggester {
   }
 
   def handleOnePackage(typeElement: ScTypeElement, inPackageName: String, containingDirectory: PsiDirectory,
-                       conflictsReporter: ConflictsReporter, project: Project, editor: Editor, isReplaceAll: Boolean, inputName: String): PackageScopeItem = {
+                       conflictsReporter: ConflictsReporter, project: Project, isReplaceAll: Boolean, inputName: String): PackageScopeItem = {
     def getFilesToSearchIn(currentDirectory: PsiDirectory): Array[ScalaFile] = {
       if (!isReplaceAll) {
         Array(typeElement.getContainingFile.asInstanceOf[ScalaFile])
@@ -336,9 +331,6 @@ case class SimpleScopeItem(override val name: String,
     name.startsWith("class")
   }
 
-  def isObject: Boolean = {
-    name.startsWith("object")
-  }
 }
 
 case class PackageScopeItem(override val name: String,

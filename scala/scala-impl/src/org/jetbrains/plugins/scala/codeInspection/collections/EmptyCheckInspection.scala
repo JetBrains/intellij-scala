@@ -58,7 +58,7 @@ object CheckNonEmpty extends SimplificationType {
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = expr match {
     // TODO infix notation?
-    case `.nonEmpty`(qual) => None
+    case `.nonEmpty`(_) => None
     case CheckNonEmpty(qual, start, end) if !isOption(qual) && !isArray(qual) =>
       Some(replace(expr).withText(invocationText(qual, "nonEmpty")).highlightRange(start, end))
     case _ => None

@@ -111,7 +111,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
   private final class IndexCompilationInfoTask(info: CompilationInfo, callback: () => Unit)
       extends Task.Backgroundable(project, ScalaBundle.message("bytecode.indices.indexing"), true) {
 
-    private[this] def processInfo(progressIndicator: ProgressIndicator): Unit = {
+    private[this] def processInfo(): Unit = {
       val start = System.currentTimeMillis()
       indexWriter match {
         case None =>
@@ -141,7 +141,7 @@ private class CompilerReferenceIndexer(project: Project, expectedIndexVersion: I
 
     override def run(progressIndicator: ProgressIndicator): Unit =
       if (!isShutdown) {
-        if (!info.isEmpty) processInfo(progressIndicator)
+        if (!info.isEmpty) processInfo()
         else               callback()
       } else log.error("Unable to start indexing, since executors are shutdown.")
   }

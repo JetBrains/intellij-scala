@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import java.util
-import scala.annotation.tailrec
+import scala.annotation.{tailrec, unused}
 import scala.jdk.CollectionConverters._
 
 class ScalaBlock(val parentBlock: ScalaBlock,
@@ -290,8 +290,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   def suggestedWrap: Wrap = {
     if (_suggestedWrap == null) {
-      val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-      _suggestedWrap = ScalaWrapManager.suggestedWrap(this, scalaSettings)
+      _suggestedWrap = ScalaWrapManager.suggestedWrap(this)
     }
     _suggestedWrap
   }
@@ -313,6 +312,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   //noinspection HardCodedStringLiteral
   // use these methods only for debugging
+  @unused("debug print utility")
   private def printSubBlocksDebugInfoToConsole(): Unit = {
     println("#########################################")
     println(s"Parent: ${node.getPsi.getClass.getSimpleName} $getTextRange $indent $alignment")
@@ -326,6 +326,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
   }
 
   //noinspection HardCodedStringLiteral
+  @unused("debug print utility")
   private def printSubBlocksSpacingDebugInfoToConsole(child1: Block, child2: Block, spacing: Spacing): Unit = {
     (child1, child2, spacing) match {
       case (c1: ScalaBlock, c2: ScalaBlock, s: SpacingImpl) =>

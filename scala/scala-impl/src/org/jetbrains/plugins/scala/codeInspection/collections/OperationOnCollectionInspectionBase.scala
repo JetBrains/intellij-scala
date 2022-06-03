@@ -147,7 +147,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
           val newPattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
           addPattern(newPattern)
         }
-      }).setRemoveAction((t: AnActionButton) => {
+      }).setRemoveAction((_: AnActionButton) => {
         patternJBList.getSelectedIndices.foreach(listModel.removeElementAt)
         resetValues()
       }).disableUpDownActions.createPanel

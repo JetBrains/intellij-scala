@@ -76,7 +76,7 @@ object ScalaColorSchemeAnnotator {
         DefaultHighlighter.ABSTRACT_CLASS
       case _: ScTypeParam =>
         DefaultHighlighter.TYPEPARAM
-      case x: ScTypeAlias =>
+      case _: ScTypeAlias =>
         DefaultHighlighter.TYPE_ALIAS
       case _: ScClass if referenceIsToCompanionObjectOfClass(refElement) =>
         DefaultHighlighter.OBJECT

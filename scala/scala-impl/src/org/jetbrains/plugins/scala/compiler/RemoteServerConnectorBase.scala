@@ -91,8 +91,6 @@ abstract class RemoteServerConnectorBase(
     worksheetArgs = worksheetArgs
   )
 
-  protected def settings: ScalaCompileServerSettings = ScalaCompileServerSettings.getInstance()
-
   protected def compilerSettings: ScalaCompilerSettings = module.scalaCompilerSettings
 
   private def findJdk = CompileServerLauncher.compileServerJdk(module.getProject)

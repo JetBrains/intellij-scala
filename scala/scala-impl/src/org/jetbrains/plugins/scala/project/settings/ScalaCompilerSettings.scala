@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.project.settings
 
-import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, SbtIncrementalOptions, ScalaCompilerSettingsState}
+import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLevel, ScalaCompilerSettingsState}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
@@ -37,9 +37,6 @@ case class ScalaCompilerSettings(compileOrder: CompileOrder,
                                  plugins: Seq[String]) {
 
   import ScalaCompilerSettings.{DebuggingInfoLevelToScalacOption, ToggleOptions}
-
-  def sbtIncOptions: SbtIncrementalOptions =
-    SbtIncrementalOptions(nameHashing, recompileOnMacroDef, transitiveStep, recompileAllFraction)
 
   //TODO: SCL-16881 Support "Debugging info level" for dotty
   def getOptionsAsStrings(forScala3Compiler: Boolean): Seq[String] = {

@@ -27,5 +27,4 @@ trait ScCommentOwner {
 
   def allComments: Seq[PsiComment] = scDocComment.toSeq ++ simpleComment
 
-  def hasComments: Boolean = allComments.nonEmpty
 }

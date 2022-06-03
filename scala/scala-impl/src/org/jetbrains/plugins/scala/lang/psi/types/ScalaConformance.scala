@@ -73,7 +73,6 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
 
   private def retryTypeParamsConformance(
     lhs:         TypeParameterType,
-    rhs:         TypeParameterType,
     l:           ScType,
     r:           ScType,
     constraints: ConstraintSystem
@@ -910,7 +909,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
           val args1 = p.typeArguments
           val args2 = p2.typeArguments
           (des1, des2) match {
-            case (lhs: TypeParameterType, rhs: TypeParameterType) =>
+            case (lhs: TypeParameterType, _: TypeParameterType) =>
               if (des1.equiv(des2)) {
                 if (args1.length != args2.length) {
                   result = ConstraintsResult.Left
@@ -918,7 +917,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                   result = checkParameterizedType(lhs.typeParameters, args1, args2,
                     constraints, visited, checkWeak)
                 }
-              } else result = retryTypeParamsConformance(lhs, rhs, l, r, constraints)
+              } else result = retryTypeParamsConformance(lhs, l, r, constraints)
             case (UndefinedOrWildcard(_, _), UndefinedOrWildcard(typeParameter, addBound)) =>
               if (TypeVariableUnification.unifiableKinds(p, p2)) {
                 if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, des1)

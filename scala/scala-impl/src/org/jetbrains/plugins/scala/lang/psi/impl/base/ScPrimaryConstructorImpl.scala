@@ -64,8 +64,6 @@ class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: AST
 
   override def findDeepestSuperMethods: Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  def getReturnTypeNoResolve: PsiType = PsiType.VOID
-
   override def findSuperMethodSignaturesIncludingStatic(checkAccess: Boolean) =
     new util.ArrayList[MethodSignatureBackedByPsiMethod]()
 

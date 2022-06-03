@@ -22,8 +22,8 @@ object SortFilter extends SimplificationType {
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
       // TODO infix notation
-      case `.sort`(qual)`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
-      case qual`.sort`(_)`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
+      case `.sort`(_)`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
+      case _ `.sort`(_)`.filter`(pred) if !hasSideEffects(pred) => swapLastTwoMethods(expr)
       case _ => None
     }
   }

@@ -40,7 +40,6 @@ class TypeAnnotationInspection extends AbstractInspection {
 }
 
 object TypeAnnotationInspection {
-  private[typeAnnotation] val DescriptionPrefix = "Type annotation required for "
 
   private def inspect(element: ScalaPsiElement,
                       anchor: PsiElement,

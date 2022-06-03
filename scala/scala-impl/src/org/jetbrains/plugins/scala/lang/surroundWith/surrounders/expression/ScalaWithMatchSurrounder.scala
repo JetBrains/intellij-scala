@@ -66,7 +66,7 @@ object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
         case _ => return null
       }
       case x: ScMatch => x
-      case x => return null
+      case _ => return null
     }
 
     val patternNode = matchExpr.caseClauses

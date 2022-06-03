@@ -26,12 +26,12 @@ object TooltipUI {
   def apply(errorTooltip: ErrorTooltip, editor: Editor): TooltipUI = {
     errorTooltip match {
       case ErrorTooltip.JustText(message) =>
-        HintUI(message, editor)
+        HintUI(message)
       case ErrorTooltip.WithAction(message, action, element) =>
         if (element.isValid && action.isAvailable(element.getProject, editor, element.getContainingFile))
           PopupUI(message, action, element, editor)
         else
-          HintUI(message, editor)
+          HintUI(message)
     }
   }
 }

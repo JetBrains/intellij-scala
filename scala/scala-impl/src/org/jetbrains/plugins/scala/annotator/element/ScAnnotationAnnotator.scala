@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.macros.expansion.RecompileAnnotationActi
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import scala.annotation.unused
 import scala.meta.intellij.{MetaExpansionsManager, isMetaAnnotationExpansionEnabled}
 
 object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
@@ -19,7 +20,7 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
     PrivateBeanProperty.annotate(element)
   }
 
-  private def checkAnnotationType(element: ScAnnotation)
+  private def checkAnnotationType(@unused("will be used after resolving TODO") element: ScAnnotation)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     //TODO: check annotation is inheritor for class scala.Annotation
   }

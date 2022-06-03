@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.transformation.Transformer.ReformatActio
 class CompoundTransformationTest extends TransformationTest {
 
   override protected def transform(element: PsiElement, file: PsiFile, reformat: ReformatAction): Unit = {
-    Transformer.applyTransformersAndReformat(element, file, reformat = reformat)
+    Transformer.applyTransformersAndReformat(file, reformat = reformat)
   }
 
   // TODO

@@ -84,7 +84,7 @@ class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaR
         addBeanMethods(elem, newOverriderName)
       }
     }
-    RenameSuperMembersUtil.prepareSuperMembers(element, newName, allRenames)
+    RenameSuperMembersUtil.prepareSuperMembers(newName, allRenames)
   }
   override def findCollisions(element: PsiElement, newName: String,
                               allRenames: util.Map[_ <: PsiElement, String], result: util.List[UsageInfo]): Unit = {/*todo*/}

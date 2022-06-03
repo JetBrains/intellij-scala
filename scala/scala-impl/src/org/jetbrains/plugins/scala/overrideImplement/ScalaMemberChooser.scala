@@ -84,9 +84,7 @@ class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: Ar
 
   private def setUpHyperLink(): HyperlinkLabel = {
     val link = createTypeAnnotationsHLink(targetClass.getProject, ScalaBundle.message("default.ta.settings"))
-
-    link.addHyperlinkListener((e: HyperlinkEvent) => extensions.invokeLater(updateSpecifyTypeChb()))
-
+    link.addHyperlinkListener((_: HyperlinkEvent) => extensions.invokeLater(updateSpecifyTypeChb()))
     link
   }
 

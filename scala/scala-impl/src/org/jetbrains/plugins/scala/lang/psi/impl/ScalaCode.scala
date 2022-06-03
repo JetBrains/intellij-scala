@@ -35,8 +35,6 @@ object ScalaCode {
   // "unquote-splicing"
   case class @@(es: Seq[PsiElement], separator: String = ", ")
 
-  def parseElement(s: String)(implicit project: ProjectContext): PsiElement = parse(s).getFirstChild
-
   private def parse(s: String)(implicit project: ProjectContext): ScalaFile =
     PsiFileFactory.getInstance(project)
       .createFileFromText(FileName, ScalaFileType.INSTANCE, s).asInstanceOf[ScalaFile]

@@ -41,7 +41,4 @@ object CommonQualifiedNames {
   final val StringContext = Scala + "StringContext"
   final val StringContextCanonical = Root + StringContext
 
-  final val PredefFqn = Scala + "Predef"
-  final val PredefCanonical = Root + PredefFqn
-
 }

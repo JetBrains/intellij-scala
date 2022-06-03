@@ -300,13 +300,13 @@ private class ScalaArrangementVisitor(parseInfo: ScalaArrangementParseInfo,
     val psiParent = method.getParent
     if (ScalaArrangementVisitor.isJavaGetter(method)) {
       parseInfo.registerJavaGetter((if (methodName.startsWith("get")) StringUtil.decapitalize(methodName.substring(3))
-      else StringUtil.decapitalize(methodName.substring(2)), psiParent), method, entry)
+      else StringUtil.decapitalize(methodName.substring(2)), psiParent), entry)
     } else if (ScalaArrangementVisitor.isJavaSetter(method)) {
-      parseInfo.registerJavaSetter((StringUtil.decapitalize(methodName.substring(3)), psiParent), method, entry)
+      parseInfo.registerJavaSetter((StringUtil.decapitalize(methodName.substring(3)), psiParent), entry)
     } else if (ScalaArrangementVisitor.isScalaGetter(method)) {
-      parseInfo.registerScalaGetter((methodName, psiParent), method, entry)
+      parseInfo.registerScalaGetter((methodName, psiParent), entry)
     } else if (ScalaArrangementVisitor.isScalaSetter(method)) {
-      parseInfo.registerScalaSetter((ScalaArrangementVisitor.removeScalaSetterEnding(methodName), psiParent), method,
+      parseInfo.registerScalaSetter((ScalaArrangementVisitor.removeScalaSetterEnding(methodName), psiParent),
         entry)
     }
   }

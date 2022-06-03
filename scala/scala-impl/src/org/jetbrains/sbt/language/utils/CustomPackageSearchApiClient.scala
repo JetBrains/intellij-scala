@@ -6,7 +6,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.HttpRequests
 import spray.json._
@@ -36,9 +35,6 @@ object CustomPackageSearchApiClient {
 
   sealed trait ContentTypes
   private object ContentTypes {
-    object Standard extends ContentTypes {
-      override def toString: String = "application/vnd.jetbrains.packagesearch.standard.v2+json"
-    }
     object Minimal extends ContentTypes {
       override def toString: String = "application/vnd.jetbrains.packagesearch.minimal.v2+json"
     }
@@ -114,14 +110,6 @@ object CustomPackageSearchApiClient {
 
   private def createFullTextURL(text: String): String = s"$baseUrl/package?query=${encode(text)}"
 
-  private def createSuggestPrefixURL(groupId: String, artifactId: String): String = {
-    val questionMark = if (groupId.nonEmpty || artifactId.nonEmpty) "?" else ""
-    val groupParam = if (StringUtil.isEmpty(groupId)) "" else s"groupId=${encode(groupId.trim)}"
-    val artifactParam = if (StringUtil.isEmpty(artifactId)) "" else s"artifactId=${encode(artifactId.trim)}"
-    val text = if (groupParam.nonEmpty && artifactParam.nonEmpty) s"$groupParam&$artifactParam" else s"$groupParam$artifactParam"
-    s"$baseUrl/package$questionMark$text"
-  }
-
   private def extractDepFromJson(pkg: JsValue): SbtExtendedArtifactInfo = {
     pkg.asJsObject.getFields("group_id", "artifact_id", "versions") match {
       case Seq(JsString(groupId), JsString(artifactId), JsArray(versions)) =>
@@ -178,25 +166,6 @@ object CustomPackageSearchApiClient {
 
   }
 
-  def searchPrefixFromServer(groupId: String,
-                             artifactId: String,
-                             contentTypes: ContentTypes = ContentTypes.Minimal
-                            ): () => List[SbtExtendedArtifactInfo] = () => try {
-    if (groupId.nonEmpty) {
-      val reqRes = handleRequest(createSuggestPrefixURL(groupId, artifactId), contentTypes.toString, timeoutInSeconds)
-      extractDepsJson(reqRes)
-
-    }
-    else Nil
-
-  } catch {
-    case c: ControlFlowException => throw c
-    case e: Exception =>
-      logger.warn("Problem arises when retrieving library dependencies from server using prefix search", e)
-      Nil
-
-  }
-
   def searchExactDependency(groupId: String,
                             artifactId: String,
                             searchParams: CustomPackageSearchParams,
@@ -211,15 +180,6 @@ object CustomPackageSearchApiClient {
                      contentTypes: ContentTypes = ContentTypes.Minimal,
                      consumer: SbtExtendedArtifactInfo => Unit): Future[List[SbtExtendedArtifactInfo]] = {
     performSearch(text, searchParams, consumer, searchFullTextFromServer(text, contentTypes))
-  }
-
-  def searchPrefix(groupId: String,
-                   artifactId: String,
-                   searchParams: CustomPackageSearchParams,
-                   contentTypes: ContentTypes = ContentTypes.Minimal,
-                   consumer: SbtExtendedArtifactInfo => Unit): Future[List[SbtExtendedArtifactInfo]] = {
-    val cacheKey = s"_$groupId:$artifactId"
-    performSearch(cacheKey, searchParams, consumer, searchPrefixFromServer(groupId, artifactId, contentTypes))
   }
 
   private def encode(s: String): String = URLEncoder.encode(s.trim, StandardCharsets.UTF_8)

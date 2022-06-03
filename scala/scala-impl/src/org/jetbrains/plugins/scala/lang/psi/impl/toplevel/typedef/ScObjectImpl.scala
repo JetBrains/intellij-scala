@@ -170,7 +170,7 @@ class ScObjectImpl(
 
   @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))
   override protected def desugaredInner: Option[ScTemplateDefinition] = {
-    def toPsi(tree: scala.meta.Defn.Object, isSynthetic: Boolean): ScTemplateDefinition = {
+    def toPsi(tree: scala.meta.Defn.Object): ScTemplateDefinition = {
       val text = tree.toString()
 
       ScalaPsiElementFactory.createObjectWithContext(text, getContext, this)
@@ -180,20 +180,20 @@ class ScObjectImpl(
     import scala.meta.intellij.psi._
     import scala.meta.{Defn, Term}
 
-    val (expansion, isSynthetic) = this.metaExpand match {
+    val expansion = this.metaExpand match {
       case Right(tree: Defn.Object) =>
-        Some(tree) -> false
+        Some(tree)
       case _ => fakeCompanionClassOrCompanionClass match {
         case ah: ScAnnotationsHolder => ah.metaExpand match {
           case Right(Term.Block(Seq(_, obj: Defn.Object))) =>
-            Some(obj) -> true
-          case _ => None -> false
+            Some(obj)
+          case _ => None
         }
-        case _ => None -> false
+        case _ => None
       }
     }
 
-    expansion.map(toPsi(_, isSynthetic))
+    expansion.map(toPsi)
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ObjectKeyword

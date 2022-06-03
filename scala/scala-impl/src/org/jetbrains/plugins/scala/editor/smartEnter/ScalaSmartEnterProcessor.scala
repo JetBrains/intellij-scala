@@ -182,9 +182,6 @@ class ScalaSmartEnterProcessor extends SmartEnterProcessor {
     editor.getCaretModel.moveToOffset(editor.getCaretModel.getOffset + by)
   }
 
-  protected def isUncommited(project: Project): Boolean =
-    PsiDocumentManager.getInstance(project).hasUncommitedDocuments
-
   protected def plainEnter(editor: Editor): Unit =
     getEnterHandler.execute(editor, editor.getCaretModel.getCurrentCaret, editor.asInstanceOf[EditorEx].getDataContext)
 

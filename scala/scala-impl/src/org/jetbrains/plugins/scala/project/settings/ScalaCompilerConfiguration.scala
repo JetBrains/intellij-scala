@@ -63,10 +63,6 @@ class ScalaCompilerConfiguration(project: Project) extends PersistentStateCompon
 
   def allProfiles: Seq[ScalaCompilerSettingsProfile] = defaultProfile +: customProfiles
 
-  def hasSettingForHighlighting(module: Module)
-                               (hasSetting: ScalaCompilerSettings => Boolean): Boolean =
-    settingsForHighlighting(module).exists(hasSetting)
-
   //currently we cannot rely on compiler options for shared source modules
   def settingsForHighlighting(module: Module): Seq[ScalaCompilerSettings] = {
     val modules = module.getModuleTypeName match{
@@ -162,11 +158,6 @@ object ScalaCompilerConfiguration extends SimpleModificationTracker {
   //to call as static method from java
   override def incModificationCount(): Unit = super.incModificationCount()
 
-  def hasCompilerPlugin(module: Module, pattern: String): Boolean = {
-    val config = instanceIn(module.getProject)
-    val settings = config.getSettingsForModule(module)
-    settings.plugins.exists(_.contains(pattern))
-  }
 }
 
 trait CompilerProfileAwareModule {

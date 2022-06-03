@@ -8,7 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod.{getter, setter}
-import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName.withoutBackticks
 
@@ -76,22 +75,19 @@ object PropertyMethods extends Enumeration {
   private def scalaMethodName(scalaName: String, decoration: String => String): String =
     clean(decoration(withoutBackticks(scalaName)))
 
-  def propertyMethodNames(name: String): Seq[String] =
-    (values - SIMPLE_ROLE).map(methodName(name, _)).toSeq
-
   def getPropertyMethod(t: ScTypedDefinition, role: DefinitionRole): Option[PsiMethod] = {
     if (!mayHavePropertyMethod(t, role))
       return None
 
     cache.atomicGetOrElseUpdate((t, role),
-      getPropertyMethodImpl(t, t.`type`().getOrAny, role))
+      getPropertyMethodImpl(t, role))
   }
 
   def getBeanMethods(t: ScTypedDefinition): Seq[PsiMethod] = beanMethods.flatMap(getPropertyMethod(t, _))
 
   def isProperty(t: ScTypedDefinition): Boolean = {
     t.nameContext match {
-      case v: ScValueOrVariable => true
+      case _: ScValueOrVariable => true
       case c: ScClassParameter if c.isClassMember => true
       case _ => false
     }
@@ -104,7 +100,6 @@ object PropertyMethods extends Enumeration {
   }
 
   private def getPropertyMethodImpl(property: ScTypedDefinition,
-                                    propertyType: ScType,
                                     role: DefinitionRole): Option[PsiMethod] = {
     val member = property.nameContext.asInstanceOf[ScMember]
     val isVar = property.isVar

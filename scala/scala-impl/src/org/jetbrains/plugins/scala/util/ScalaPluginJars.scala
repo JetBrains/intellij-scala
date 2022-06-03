@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.util
 
-import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.openapi.util.io.{FileUtil, FileUtilRt}
 import com.intellij.util.PathUtil
 import gnu.trove.TByteArrayList
@@ -38,7 +37,6 @@ object ScalaPluginJars {
 
 object IntellijPlatformJars {
 
-  val appJar         = new File(PathUtil.getJarPathForClass(classOf[GeneralCommandLine]))
   val jpsBuildersJar = new File(PathUtil.getJarPathForClass(classOf[BuilderService]))
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val utilRtJar      = new File(PathUtil.getJarPathForClass(classOf[FileUtilRt]))

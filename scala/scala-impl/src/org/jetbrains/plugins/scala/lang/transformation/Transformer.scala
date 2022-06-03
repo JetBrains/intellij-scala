@@ -74,8 +74,7 @@ object Transformer {
 
   // TODO use in debugger's "evaluate expression" to simpify its code and to support many language features automatically (e.g. string interpolation)
   // TODO support fine-grained recursion with dependencies
-  def applyTransformersAndReformat(e: PsiElement,
-                                   file: PsiFile,
+  def applyTransformersAndReformat(file: PsiFile,
                                    range: Option[RangeMarker] = None,
                                    transformers: Iterable[Transformer] = createFullSet,
                                    reformat: ReformatAction = defaultReformat): Unit = {

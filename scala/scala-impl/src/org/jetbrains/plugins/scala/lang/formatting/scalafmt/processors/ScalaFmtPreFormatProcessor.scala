@@ -522,7 +522,7 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private def findMarker(text: String, markerRegex: Regex): Int =
-    return markerRegex.findFirstMatchIn(text).map(_.start).getOrElse(-1)
+    markerRegex.findFirstMatchIn(text).map(_.start).getOrElse(-1)
 
   /** this is a partial copy of [[PsiTreeUtil.getElementsOfRange]] except this method does not fail
    * if sibling element becomes null, it simply stops iterating
@@ -1040,7 +1040,6 @@ object ScalaFmtPreFormatProcessor {
   }
 
   private sealed trait FormattingError
-  private object DocumentNotFoundError extends FormattingError
   private case class ScalafmtFormatError(cause: Throwable) extends FormattingError
   private case class CantFindMarkerElementInFormattedCode(isStartMarker: Boolean) extends FormattingError
 

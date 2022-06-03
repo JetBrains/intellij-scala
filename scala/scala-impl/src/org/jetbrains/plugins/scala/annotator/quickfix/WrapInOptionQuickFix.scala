@@ -23,7 +23,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprTyp
   override def getFamilyName: String = ScalaBundle.message("wrap.in.option.name")
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    WrapInOptionQuickFix.isAvailable(expr, expectedType, exprType)
+    WrapInOptionQuickFix.isAvailable(expectedType, exprType)
   }
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
@@ -39,7 +39,7 @@ class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprTyp
 
 object WrapInOptionQuickFix {
 
-  def isAvailable(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult): Boolean = {
+  def isAvailable(expectedType: TypeResult, exprType: TypeResult): Boolean = {
     var result = false
     for {
       scType <- exprType

@@ -50,8 +50,6 @@ class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.v
 
   def isAddDefaultArgs: Boolean = myRbAddDefaultArg.isSelected
 
-  def isModifyCalls: Boolean = myRbModifyCalls.isSelected
-
   def forceIsModifyCalls(): Unit = {
     myRbModifyCalls.setSelected(true)
     myRbModifyCalls.setEnabled(false)

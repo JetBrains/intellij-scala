@@ -44,7 +44,7 @@ abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: P
     val value: Value = evaluator.evaluate(evaluationContext)
     if (value != null) {
       inReadAction {
-        getCastableRuntimeType(project, value)(ElementScope(project, process.getSearchScope))
+        getCastableRuntimeType(value)(ElementScope(project, process.getSearchScope))
           .map(new PsiImmediateClassType(_, PsiSubstitutor.EMPTY)).orNull
       }
     } else throw EvaluationException(JavaDebuggerBundle.message("evaluation.error.surrounded.expression.null"))
@@ -57,7 +57,7 @@ object ScalaRuntimeTypeEvaluator {
 
   private val stdTypeNames = Set("java.lang.Object", "scala.Any", "scala.AnyRef", "scala.AnyVal")
 
-  private def getCastableRuntimeType(project: Project, value: Value)(implicit elementScope: ElementScope): Option[PsiClass] = {
+  private def getCastableRuntimeType(value: Value)(implicit elementScope: ElementScope): Option[PsiClass] = {
     val unwrapped = DebuggerUtil.unwrapScalaRuntimeRef(value)
     val jdiType: Type = unwrapped.asInstanceOf[Value].`type`
 

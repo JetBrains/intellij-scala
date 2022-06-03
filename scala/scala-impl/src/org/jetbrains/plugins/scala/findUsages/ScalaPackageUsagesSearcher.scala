@@ -7,7 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.util.Processor
-import org.jetbrains.annotations.{NotNull, Nullable}
+import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 
@@ -31,15 +31,6 @@ class ScalaPackageUsagesSearcher extends QueryExecutorBase[PsiReference, Referen
         val collector: SearchRequestCollector = parameters.getOptimizer
         collector.searchWord(name, scope, UsageSearchContext.IN_CODE, true, scPack)
       case _ =>
-    }
-  }
-
-  private class MyProcessor(myTarget: PsiElement, @Nullable prefix: String, mySession: SearchSession) extends RequestResultProcessor(myTarget, prefix) {
-    override def processTextOccurrence(element: PsiElement, offsetInElement: Int, consumer: Processor[_ >: PsiReference]): Boolean = inReadAction {
-      val reference: PsiReference = element.getReference
-      if (reference == null || !reference.isReferenceTo(myTarget)) {
-        true
-      } else consumer.process(reference)
     }
   }
 }

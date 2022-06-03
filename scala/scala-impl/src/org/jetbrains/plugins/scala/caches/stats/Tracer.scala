@@ -144,7 +144,7 @@ object Tracer {
     tracersMap.clear()
 
   def getCurrentData: java.util.List[TracerData] =
-    tracersMap.map((k, v) => v.getCurrentData)
+    tracersMap.map((_, v) => v.getCurrentData)
 
   private val root = new Tracer("root-tracer-id$$", "<root>")
 

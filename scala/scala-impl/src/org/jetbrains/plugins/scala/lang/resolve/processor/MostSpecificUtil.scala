@@ -24,7 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
-import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
 /**
@@ -53,12 +52,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }, noImplicit = true).map(_.repr)
   }
 
-  def nextLayerSpecificForImplicitParameters(filterRest: Option[ScalaResolveResult],
-                                             rest: Seq[ScalaResolveResult]): (Option[ScalaResolveResult], Seq[ScalaResolveResult]) = {
-    val (next, r) = nextLayerSpecificGeneric(filterRest.map(toInnerSRR), rest.map(toInnerSRR))
-    (next.map(_.repr), r.map(_.repr))
-  }
-
   private def toInnerSRR(r: ScalaResolveResult): InnerScalaResolveResult[ScalaResolveResult] = {
     r.innerResolveResult match {
       case Some(rr) => new InnerScalaResolveResult(rr.element, implicitConversionClass(rr), r, ScSubstitutor.empty, implicitCase = true)
@@ -74,12 +67,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val inner = toInnerSRR(result)
 
     cand => !isMoreSpecific(inner, toInnerSRR(cand), checkImplicits = false)
-  }
-
-  def filterLessSpecific(result: ScalaResolveResult, rest: Set[ScalaResolveResult]): Set[ScalaResolveResult] = {
-    val inners = rest.map(toInnerSRR)
-    val innerResult = toInnerSRR(result)
-    inners.filter(!isMoreSpecific(innerResult, _, checkImplicits = false)).map(_.repr)
   }
 
   private class InnerScalaResolveResult[T](
@@ -303,29 +290,6 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     val result = calc(checkImplicits = false)
     if (!noImplicit && result.isEmpty) calc(checkImplicits = true)
     else result
-  }
-
-  private def nextLayerSpecificGeneric[T](filterRest: Option[InnerScalaResolveResult[T]],
-                                          rest: Seq[InnerScalaResolveResult[T]]): (Option[InnerScalaResolveResult[T]], Seq[InnerScalaResolveResult[T]]) = {
-
-    val filteredRest = filterRest match {
-      case Some(r) => rest.filter(!isMoreSpecific(r, _, checkImplicits = false))
-      case _ => rest
-    }
-    if (filteredRest.isEmpty) return (None, Seq.empty)
-    if (filteredRest.length == 1) return (Some(filteredRest.head), Seq.empty)
-    var found = filteredRest.head
-    val iter = filteredRest.tail.iterator
-    val builder = ArraySeq.newBuilder[InnerScalaResolveResult[T]]
-
-    while (iter.hasNext) {
-      val res = iter.next()
-      if (isDerived(getClazz(res), getClazz(found))) {
-        builder += found
-        found = res
-      } else builder += res
-    }
-    (Some(found), builder.result())
   }
 
   private def nextMostSpecificGeneric[T](rest: Iterable[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {

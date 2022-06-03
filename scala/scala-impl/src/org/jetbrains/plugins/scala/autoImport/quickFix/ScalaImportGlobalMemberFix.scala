@@ -122,7 +122,7 @@ private class MemberToImportComputation(ref: ScReferenceExpression) {
     val properties = ScalaIndexKeys.PROPERTY_NAME_KEY.elements(ref.refName, ref.resolveScope).flatMap(_.declaredElements)
     (functions ++ properties)
       .flatMap {
-        case (td: ScTypedDefinition) && inNameContext(m: ScMember)
+        case (_: ScTypedDefinition) && inNameContext(m: ScMember)
           if isAccessible(m, ref) && !hasImplicitModifier(m) =>
 
           findGlobalMembers(m, ref.resolveScope)(GlobalMember(_, _, _))

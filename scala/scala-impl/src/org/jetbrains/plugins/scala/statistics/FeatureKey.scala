@@ -39,7 +39,7 @@ object FeatureKey {
   final val existentialType                   : FeatureKey = "scala.existential.type"
 
   final val runWorksheet                      : FeatureKey = "scala.worksheet"
-  final def worksheetReplMode(mode: String)   : FeatureKey = s"scala.worksheet.repl.$mode"
+
   final def scFileModeSet(state: String)      : FeatureKey = s"scala.sc.file.set.$state"
   final def incrementalTypeSet(name: String)  : FeatureKey = s"scala.compiler.inc.type.set.$name"
 
@@ -49,7 +49,6 @@ object FeatureKey {
 
   final val convertFromJavaText               : FeatureKey = "scala.convert.javatext"
   final val rearrange                         : FeatureKey = "scala.rearrange"
-  final val macroExpandAction                 : FeatureKey = "scala.macro.expand"
   final val macroDefinition                   : FeatureKey = "scala.macro.definition"
 
   final val annotatorTypeAware                : FeatureKey = "scala.file.with.type.aware.annotated"

@@ -5,7 +5,7 @@ import com.intellij.application.options.RegistryManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
+import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
@@ -26,9 +26,6 @@ final class RemoteServerRunner(project: Project)
 
   override protected val socketConnectTimeout: FiniteDuration =
     RegistryManager.getInstance().intValue("scala.compile.server.socket.connect.timeout.milliseconds").milliseconds
-
-  def buildProcess(command: CompileServerCommand, client: Client): CompilationProcess =
-    buildProcess(command.id, command.asArgs, client)
 
   // TODO: make it cancelable, if request is hanging we cant cancel it now.
   //  E.g. when the server is down and we retry to connect to it.

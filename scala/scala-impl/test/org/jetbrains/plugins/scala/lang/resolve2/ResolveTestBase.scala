@@ -69,7 +69,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
   }
 
   def assertKnown(parameters: Parameters): Unit = {
-    for ((key, value) <- parameters) {
+    for ((key, _) <- parameters) {
       assertTrue("Unknown parameter: " + key + "\nAllowed: " + Parameters.mkString(", "),
         Parameters.contains(key))
     }

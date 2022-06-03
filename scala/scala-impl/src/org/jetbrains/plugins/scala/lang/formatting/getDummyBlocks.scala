@@ -154,10 +154,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.addAll(getInfixBlocks(node))
         return subBlocks
       case extendsBlock: ScExtendsBlock =>
-        subBlocks.addAll(getExtendsSubBlocks(node, extendsBlock))
+        subBlocks.addAll(getExtendsSubBlocks(extendsBlock))
         return subBlocks
       case _: ScFor =>
-        subBlocks.addAll(getForSubBlocks(node, node.getChildren(null)))
+        subBlocks.addAll(getForSubBlocks(node.getChildren(null)))
         return subBlocks
       case _: ScReferenceExpression | _: ScThisReference | _: ScSuperReference =>
         subBlocks.addAll(getMethodCallOrRefExprSubBlocks(node))
@@ -354,7 +354,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
 
     childrenFromNameElement match {
-      case tagName :: space :: tagParameter :: tail
+      case tagName :: _ :: tagParameter :: tail
         if Option(docTag.getValueElement).exists(_.getNode == tagParameter) =>
 
         subBlocks.add(subBlock(tagName))
@@ -500,7 +500,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     }
   }
 
-  private def getExtendsSubBlocks(node: ASTNode, extBlock: ScExtendsBlock): util.ArrayList[Block] = {
+  private def getExtendsSubBlocks(extBlock: ScExtendsBlock): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val firstChild = extBlock.getFirstChild
@@ -524,7 +524,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
     subBlocks
   }
 
-  private def getForSubBlocks(node: ASTNode, children: Array[ASTNode]): util.ArrayList[Block] = {
+  private def getForSubBlocks(children: Array[ASTNode]): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]()
 
     var prevChild: ASTNode = null

@@ -96,7 +96,6 @@ package object codeInspection {
     }
   }
 
-  val booleanExpr = new ExpressionOfTypeMatcher("scala.Boolean")
   val charExpr = new ExpressionOfTypeMatcher("scala.Char")
   val stringExpr = new ExpressionOfTypeMatcher("java.lang.String")
 }

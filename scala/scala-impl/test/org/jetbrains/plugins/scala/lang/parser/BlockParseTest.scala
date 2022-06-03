@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser
 import com.intellij.lang.PsiBuilderFactory
 import com.intellij.psi.impl.source.DummyHolderFactory
 import com.intellij.psi.impl.source.tree.{FileElement, TreeElement}
-import com.intellij.psi.{PsiElement, PsiFileFactory}
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
@@ -17,7 +17,6 @@ import org.junit.Assert
 
 class BlockParseTest extends SimpleTestCase {
   def parseBlock(s: String): PsiElement = {
-    val fileFactory = PsiFileFactory.getInstance(fixture.getProject)
     val context = parseText("")
     val holder: FileElement = DummyHolderFactory.createHolder(context.getManager, context).getTreeElement
     val builder: ScalaPsiBuilderImpl = {

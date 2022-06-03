@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.introduceVariable;
 
-import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.project.Project;
@@ -49,13 +48,11 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     private JCheckBox myReplaceCompanionObjectOcc;
     private JCheckBox myReplaceInInheritors;
     private JButton buttonOK;
-    private JButton buttonCancel;
 
     private Project project;
     private ScTypeElement myTypeElement;
     private EventListenerList myListenerList = new EventListenerList();
     private ConflictsReporter conflictsReporter;
-    private Editor editor;
     private ScopeItem currentScope;
     private Map<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>> inheritanceDataMap;
 
@@ -65,14 +62,12 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
                                          ScTypeElement myTypeElement,
                                          ScopeItem[] possibleScopes,
                                          ScopeItem mainScope,
-                                         ConflictsReporter conflictReporter,
-                                         Editor editor) {
+                                         ConflictsReporter conflictReporter) {
         super(project, true);
         this.project = project;
         this.myTypeElement = myTypeElement;
         this.currentScope = mainScope;
         this.conflictsReporter = conflictReporter;
-        this.editor = editor;
         this.inheritanceDataMap = new HashMap<ScopeItem, Tuple2<ScTypeElement[], ScalaTypeValidator[]>>();
 
         setUpNameComboBox(currentScope.availableNames());
@@ -98,7 +93,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         if (currentScope instanceof PackageScopeItem) {
             PackageScopeItem packageScopeItem = (PackageScopeItem) currentScope;
             currentScope = ScopeSuggester.handleOnePackage(myTypeElement, packageScopeItem.name(),
-                    (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(), editor,
+                    (PsiDirectory) packageScopeItem.fileEncloser(), conflictsReporter, myTypeElement.getProject(),
                     isReplaceAllOccurrences(), getEnteredName());
 
             validator = ((PackageScopeItem) currentScope).validator();
@@ -381,8 +376,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
             if (inheritanceDataMap.containsKey(selectedScope)) {
                 inheritors = inheritanceDataMap.get(selectedScope);
             } else {
-                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, classOrTrait,
-                        conflictsReporter, project, editor);
+                inheritors = ScalaRefactoringUtil.getOccurrencesInInheritors(myTypeElement, classOrTrait);
                 inheritanceDataMap.put(selectedScope, inheritors);
             }
 

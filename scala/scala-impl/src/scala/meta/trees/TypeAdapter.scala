@@ -67,7 +67,7 @@ trait TypeAdapter {
             case Some(t: ScInfixTypeElement) => m.Type.ApplyInfix(toType(t.left), toTypeName(t.operation), toType(t.rightOption.get))
             case _ => unreachable
           }
-        case t: ScTypeVariableTypeElement => die(ScalaMetaBundle.message("cannot.convert.into.type.variables"))
+        case _: ScTypeVariableTypeElement => die(ScalaMetaBundle.message("cannot.convert.into.type.variables"))
         case t: ScExistentialTypeElement =>
           val clauses = t.clause.declarations.map {
             case tp: ScTypeAliasDeclaration => toTypeDecl(tp)
@@ -112,14 +112,14 @@ trait TypeAdapter {
           toType(s(t.`type`().get)) // FIXME: what about typing context?
         case t: ScPackaging =>
           m.Type.Singleton(toTermName(t.reference.get))//.setTypechecked
-        case t: ScConstructorInvocation => ???
+        case _: ScConstructorInvocation => ???
 //          m.Type.Method(toParams(Seq(t.arguments:_*)), toType(t.newTemplate.get.getType(TypingContext.empty))).setTypechecked
-        case t: ScPrimaryConstructor => ???
+        case _: ScPrimaryConstructor => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.containingClass)).setTypechecked
-        case t: ScFunctionDefinition => ???
+        case _: ScFunctionDefinition => ???
 //          m.Type.Method(Seq(t.parameterList.clauses.map(convertParamClause):_*), toType(t.getTypeWithCachedSubst)).setTypechecked
         case t: ScFunction =>
-          m.Type.Function(t.parametersTypes.map(toType(_, t)).toList, toType(t.returnType)) //.setTypechecked
+          m.Type.Function(t.parametersTypes.map(toType(_)).toList, toType(t.returnType)) //.setTypechecked
         case t: ScParameter if dumbMode =>
           m.Type.Name(t.getText)
         case t: ScParameter =>
@@ -156,7 +156,7 @@ trait TypeAdapter {
     })
   }
 
-  def toType(tp: ptype.ScType, pivot: PsiElement = null): m.Type = {
+  def toType(tp: ptype.ScType): m.Type = {
     ProgressManager.checkCanceled()
     typeCache.getOrElseUpdate(tp, {
       tp match {
@@ -259,16 +259,4 @@ trait TypeAdapter {
     m.Type.Bounds(tp.lowerTypeElement.map(toType), tp.upperTypeElement.map(toType))//.setTypechecked
   }
 
-  def returnType(tr: ptype.result.TypeResult): m.Type = {
-    import ptype.result._
-    tr match {
-      case Right(t) => toType(t)
-      case Failure(cause) =>
-        LOG.warn(s"Failed to infer return type($cause)")
-        m.Type.Name("Unit")//.setTypechecked
-    }
-  }
-
-
-  def fromType(tpe: m.Type): ptype.ScType = ???
 }

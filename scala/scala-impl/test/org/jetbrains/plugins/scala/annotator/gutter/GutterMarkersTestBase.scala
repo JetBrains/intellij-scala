@@ -122,12 +122,6 @@ abstract class GutterMarkersTestBase extends ScalaFixtureTestCase {
       }
     }
 
-
-  private def toShortExpectedGutter(gutter: GutterMark): ExpectedGutter =
-    toExpectedGutter(gutter, extractFirstParagraph(_).getOrElse {
-      fail(s"couldn't extract first paragraph from gutter:\n${gutterDebugText(gutter)}").asInstanceOf[Nothing]
-    })
-
   private def toFullExpectedGutter(gutter: GutterMark): ExpectedGutter =
     toExpectedGutter(gutter, identity)
 

@@ -192,6 +192,5 @@ object ScalaTabbedCodeStylePanel {
     def exposeResetImpl(settings: CodeStyleSettings): Unit = super.resetImpl(settings)
 
     def onProjectSet(project: Project): Unit = scalaFmtSettingsPanel.onProjectSet(project)
-    def onModelSet(model: CodeStyleSchemesModel): Unit = scalaFmtSettingsPanel.setModel(model)
   }
 }

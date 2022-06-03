@@ -33,13 +33,13 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
                                              elementToRename: PsiNameIdentifierOwner,
                                              editor: Editor): MemberInplaceRenamer = {
     val (maybeFirstElement, maybeSecondElement) = substituted match {
-      case clazz: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
+      case _: PsiClass if elementToRename.isInstanceOf[PsiClassWrapper] =>
         (None, None)
       case definition: ScTypeDefinition =>
         (Some(definition), definition.baseCompanion)
       case clazz: PsiClass =>
         (Some(clazz), None)
-      case subst: PsiNamedElement =>
+      case _: PsiNamedElement =>
         (None, None)
       case _ => throw new IllegalArgumentException("Substituted element for renaming has no name")
     }
@@ -51,7 +51,7 @@ class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with Sc
   }
 
   override def doRename(elementToRename: PsiElement, editor: Editor, dataContext: DataContext): InplaceRefactoring = {
-    afterElementSubstitution(elementToRename, editor, dataContext) {
+    afterElementSubstitution(elementToRename, editor) {
       super.doRename(_, editor, dataContext)
     }
   }
