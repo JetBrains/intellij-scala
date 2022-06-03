@@ -966,11 +966,11 @@
                          groupPath="Scala" groupKey="group.general"
                          shortName="VariablePatternShadow" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.FieldShadowInspection"
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.PrivateShadowInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="suspicious.shadowing.description"
+                         key="private.shadow.description"
                          groupPath="Scala" groupKey="group.general"
-                         shortName="FieldShadow" level="WARNING"
+                         shortName="PrivateShadow" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.shadow.TypeParameterShadowInspection"
                          bundle="messages.ScalaInspectionBundle"

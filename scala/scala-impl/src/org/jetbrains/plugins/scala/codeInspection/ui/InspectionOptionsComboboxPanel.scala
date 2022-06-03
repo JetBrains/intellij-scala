@@ -33,3 +33,4 @@ class InspectionOptionsComboboxPanel(owner: InspectionProfileEntry) extends Insp
     add(combobox, "wrap, spanx")
   }
 }
+

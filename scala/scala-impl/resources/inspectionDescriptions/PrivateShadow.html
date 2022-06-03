@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Class parameter shadows superclass var</title>
+</head>
+<body>
+<p>Reports class parameters that shadow a superclass <code>var</code>.</p>
+<p><b>Example:</b></p>
+<pre>
+class Animal {
+  var name: String = ""
+}
+
+class Cat(name: String) extends Animal {
+  // Makes `name` a private[this] val, which shadows the var
+  def usage = name
+}
+</pre>
+<p>When extending a class with a non-<code>private</code> <code>var</code>, the user might expect that a class parameter of the subclass
+    will override the <code>var</code> from the superclass, but in fact it will only shadow it. This may sometimes lead to
+    non-trivial errors.</p>
+<p>Please note that the highlight will appear only if the value is actually used.</p>
+<!-- tooltip end -->
+</body>
+</html>

@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
+import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
+import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import com.intellij.psi.search.LocalSearchScope
+import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
-import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPanel
 import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
@@ -16,11 +20,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
-import javax.swing.{JComponent, JLabel}
-import scala.beans.{BeanProperty, BooleanBeanProperty}
+import java.awt.event.ItemEvent
+import javax.swing.JComponent
+import scala.beans.BooleanBeanProperty
 
-final class FieldShadowInspection extends AbstractRegisteredInspection {
-  import FieldShadowInspection._
+final class PrivateShadowInspection extends AbstractRegisteredInspection {
+  import PrivateShadowInspection._
 
   override protected def problemDescriptor(element:             PsiElement,
                                            maybeQuickFix:       Option[LocalQuickFix],
@@ -32,27 +37,35 @@ final class FieldShadowInspection extends AbstractRegisteredInspection {
       case _ => None
     }
 
-  private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this)
+  private lazy val disableInspectionToolAction = new DisableInspectionToolAction(this) with LowPriorityAction
 
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
-                                     (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor =
+                                     (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
+    val showAsError =
+      privateShadowCompilerOption &&
+        fatalWarningsCompilerOption &&
+        (isCompilerOptionPresent(elem, "-Xfatal-warnings") || isCompilerOptionPresent(elem, "-Werror"))
+
     manager.createProblemDescriptor(
-      elem,
+      elem.nameId,
       description,
       isOnTheFly,
       Array[LocalQuickFix](new RenameElementQuickfix(elem, renameQuickFixDescription), disableInspectionToolAction),
-      ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+      if (showAsError) ProblemHighlightType.GENERIC_ERROR else ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     )
+  }
 
   private def isElementShadowing(elem: ScNamedElement): Boolean =
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) =>
         false
-      case _ =>
-        findTypeDefinition(elem) match {
-          case Some(typeDefinition) if isElementShadowing(elem, typeDefinition) => true
+      case p: ScClassParameter if p.getModifierList.accessModifier.forall(access => access.isPrivate && access.isThis) =>
+        findTypeDefinition(p) match {
+          case Some(typeDefinition) if isElementShadowing(p, typeDefinition) => true
           case _  => false
         }
+      case _ =>
+        false
     }
 
   private def isElementShadowing(elem: ScNamedElement, typeDefinition: ScTypeDefinition) : Boolean = {
@@ -69,52 +82,50 @@ final class FieldShadowInspection extends AbstractRegisteredInspection {
       false
     else
       elem.nameContext match {
-        case e: ScMember if e.isLocal && localShadowing =>
-          // if the field under inspection is local, it may shadow any field in the same class/trait, but only non-private fields in parent types
-          suspects.exists { s => !s.isPrivate || findTypeDefinition(s).contains(typeDefinition) }
-        case _ if isInspectionAllowed(elem, mutableShadowing, "-Xlint:private-shadow") =>
-          // if the field under inspection is a class/trait field, it may shadow a non-private var from a parent type (see the compiler option -Xlint:private-shadow)
+        case _ if isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") =>
+          lazy val isUsed = {
+            val scope = new LocalSearchScope(typeDefinition)
+            ReferencesSearch.search(elem, scope).findFirst() != null
+          }
+
           suspects.exists {
-            case s: ScVariable if !s.isPrivate => true
-            case s: ScClassParameter if s.isVar && !s.isPrivate => true
+            case s: ScVariable if !s.isPrivate => isUsed
+            case s: ScClassParameter if s.isVar && !s.isPrivate => isUsed
             case _ => false
           }
          case _ =>
-          // otherwise we assume that class/trait fields "shadowing" fields from parent types are in fact overriding them
           false
       }
   }
 
   @BooleanBeanProperty
-  var localShadowing: Boolean = true
+  var privateShadowCompilerOption: Boolean = true
 
-  @BeanProperty
-  var mutableShadowing: Int = 0
+  @BooleanBeanProperty
+  var fatalWarningsCompilerOption: Boolean = true
 
   @Override
   override def createOptionsPanel(): JComponent = {
-    val panel = new InspectionOptionsComboboxPanel(this)
-    panel.add(new JLabel(ScalaInspectionBundle.message("suspicious.shadowing.label")), "spanx")
-    panel.addCombobox(
-      ScalaInspectionBundle.message("suspicious.shadowing.mutable.label"),
-      "-Xlint:private-shadow",
-      () => mutableShadowing,
-      mutableShadowing = _
+    val panel = new InspectionOptionsPanel(this)
+    val compilerOptionCheckbox = panel.addCheckboxEx(
+      ScalaInspectionBundle.message("private.shadow.compiler.option.label"),
+      "privateShadowCompilerOption"
     )
-    panel.addCheckbox(
-      ScalaInspectionBundle.message("suspicious.shadowing.local.label"),
-      "localShadowing"
+    panel.addDependentCheckBox(
+      ScalaInspectionBundle.message("private.shadow.fatal.warnings.label"),
+      "fatalWarningsCompilerOption",
+      compilerOptionCheckbox
     )
     panel
   }
 }
 
-object FieldShadowInspection {
+object PrivateShadowInspection {
   @Nls
-  val annotationDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.description")
+  val annotationDescription: String = ScalaInspectionBundle.message("private.shadow.description")
 
   @Nls
-  private val renameQuickFixDescription: String = ScalaInspectionBundle.message("suspicious.shadowing.rename.identifier")
+  private val renameQuickFixDescription: String = ScalaInspectionBundle.message("private.shadow.rename.identifier")
 
   private def findTypeDefinition(elem: PsiElement): Option[ScTypeDefinition] =
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition]))
