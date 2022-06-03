@@ -10,7 +10,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.FlakyTests
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, inReadAction, invokeAndWait}
@@ -22,7 +22,7 @@ import java.util.Collections.emptyList
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[FlakyTests]))
+@Category(Array(classOf[SlowTests]))
 abstract class ScalaCompilerHighlightingTestBase
   extends ScalaCompilerTestBase
     with HamcrestMatchers {
@@ -72,14 +72,14 @@ abstract class ScalaCompilerHighlightingTestBase
       } catch {
         case error: AssertionError =>
           if (attemptsLeft > 0) {
-            Thread.sleep(2000)
+            Thread.sleep(3000)
             rec(attemptsLeft - 1)
           } else {
             throw error
           }
       }
     }
-    rec(2)
+    rec(20)
   }
 
   protected def runTestCase(fileName: String,
@@ -87,8 +87,8 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = runWithErrorsFromCompiler(getProject) {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       invokeAndWait {
-        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
         compiler.rebuild()
+        FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
       }
     }
     runTestCase(fileName, content, expectedResult, waitUntilFileIsHighlighted)
