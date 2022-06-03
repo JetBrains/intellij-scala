@@ -4,7 +4,6 @@ import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
@@ -20,7 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
-import java.awt.event.ItemEvent
 import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
 
@@ -87,13 +85,12 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
             val scope = new LocalSearchScope(typeDefinition)
             ReferencesSearch.search(elem, scope).findFirst() != null
           }
-
           suspects.exists {
             case s: ScVariable if !s.isPrivate => isUsed
             case s: ScClassParameter if s.isVar && !s.isPrivate => isUsed
             case _ => false
           }
-         case _ =>
+        case _ =>
           false
       }
   }
