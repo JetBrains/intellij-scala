@@ -777,7 +777,10 @@ package object extensions {
       val prev = element.getPrevNonEmptyLeaf
       if (prev != null && prev.isWhitespace) {
         val text = prev.getText
-        text.substring(text.lastIndexOf('\n'))
+        val linebreak = text.lastIndexOf('\n')
+        if (linebreak >= 0)
+          text.substring(linebreak + 1)
+        else ""
       } else ""
     }
 
