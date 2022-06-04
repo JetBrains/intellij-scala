@@ -90,7 +90,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A
-      """
+      """.stripMargin
   
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     checkIntentionIsNotAvailable(text)

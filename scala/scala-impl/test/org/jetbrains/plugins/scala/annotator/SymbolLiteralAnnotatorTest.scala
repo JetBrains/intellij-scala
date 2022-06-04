@@ -16,14 +16,14 @@ class SymbolLiteralAnnotatorTest extends ScalaAnnotatorQuickFixTestBase {
     val code =
       s"""
          |val test = $START'$symbolName$END
-      """
+      """.stripMargin
     checkTextHasError(code)
 
     testQuickFix(
       code,
       s"""
          |val test = Symbol("$symbolName")
-      """,
+      """.stripMargin,
       hint
     )
   }

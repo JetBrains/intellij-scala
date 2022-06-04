@@ -149,10 +149,10 @@ class SAMGutterMarkersTest_2_12 extends SAMGutterMarkersTestBase {
         |val a: () => ScalaAbstractClass               = ScalaAbstractClass.staticBar00
         |val a: String => ScalaAbstractClass           = ScalaAbstractClass.staticBar1
         |val a: (String, String) => ScalaAbstractClass = ScalaAbstractClass.staticBar2
-        |"""
+        |""".stripMargin
 
     doTestAllGuttersShort(
-      scalaCode.stripMargin,
+      scalaCode,
       Seq(
         ExpectedGutter(28, (995, 1013), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),
         ExpectedGutter(29, (1053, 1071), s"""Implements member ${refToElement("ScalaAbstractClass", "abstractFoo", "abstractFoo in ScalaAbstractClass")}"""),

@@ -81,7 +81,7 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
          |case class MyClass(n: Int) extends MyTrait {
          |  override def doSomething: Unit = {}
          |}
-         |"""
+         |""".stripMargin
     )
   }
 
@@ -98,7 +98,7 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
          |      override def doSomething: Unit = {}
          |    }
          |  }
-         |}"""
+         |}""".stripMargin
     )
   }
 

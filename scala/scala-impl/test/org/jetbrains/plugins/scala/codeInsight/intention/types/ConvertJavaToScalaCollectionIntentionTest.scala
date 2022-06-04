@@ -15,7 +15,7 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
         |class UsesJavaCollections {
         |  val list = new java.util.ArrayList<caret>[String]()
         |}
-      """)
+      """.stripMargin)
   }
 
   def testIntentionIsAvailable_Iterable(): Unit = {
@@ -25,7 +25,7 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
         |  val list: java.lang.Iterable = new java.util.ArrayList[String]()
         |  val scalaList = lis<caret>t
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -36,7 +36,7 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
         |  val list: java.util.Collection[String] = new java.util.ArrayList[String]()
         |  val scalaList = lis<caret>t
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -46,7 +46,7 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
         |class UsesJavaCollections {
         |  val iter = new java.util.ArrayList[String]().itera<caret>tor
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -58,7 +58,7 @@ abstract class ConvertJavaToScalaCollectionIntentionBaseTest(converters: String)
         |class UsesJavaCollections {
         |  val list = new java.util.ArrayList<caret>[String]().asScala
         |}
-      """)
+      """.stripMargin)
   }
 
   def testIntentionAction_Simple(): Unit = {

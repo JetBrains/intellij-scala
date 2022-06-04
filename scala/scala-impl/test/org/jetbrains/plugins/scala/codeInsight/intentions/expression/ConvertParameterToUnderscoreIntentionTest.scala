@@ -62,7 +62,7 @@ class ConvertParameterToUnderscoreIntentionTest  extends ScalaIntentionTestBase{
     |     }
     |   }
     | }
-    """
+    """.stripMargin
     val resultText= """
     | val x: Int => Int = i => {
     |   i + {
@@ -71,7 +71,7 @@ class ConvertParameterToUnderscoreIntentionTest  extends ScalaIntentionTestBase{
     |     }
     |   }
     | }
-    """
+    """.stripMargin
 
     try {
       doTest(text, resultText)

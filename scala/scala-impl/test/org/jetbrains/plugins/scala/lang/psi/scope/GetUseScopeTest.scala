@@ -41,7 +41,7 @@ class GetUseScopeTest extends SimpleTestCase {
       |    val ${CARET_TAG}x = 1
       |    x + x
       |  }
-      |}""")
+      |}""".stripMargin)
 
   def testPrivateMethod(): Unit = assertIsLocal(
     s"""
@@ -50,7 +50,7 @@ class GetUseScopeTest extends SimpleTestCase {
        |    val x = 1
        |    x + i
        |  }
-       |}""")
+       |}""".stripMargin)
 
   def testPrivateThisMethod(): Unit = assertIsLocal(
     s"""
@@ -59,7 +59,7 @@ class GetUseScopeTest extends SimpleTestCase {
        |    val x = 1
        |    x + i
        |  }
-       |}""")
+       |}""".stripMargin)
 
 
   def testPrivateMethodParameter(): Unit = assertIsLocal(
@@ -69,13 +69,13 @@ class GetUseScopeTest extends SimpleTestCase {
        |    val x = 1
        |    x + i
        |  }
-       |}""")
+       |}""".stripMargin)
 
   def testPrivateMemberClass(): Unit = assertIsLocal(
     s"""object ABC {
        |  private class ${CARET_TAG}D
        |}
-    """
+    """.stripMargin
   )
 
   //may be used in named arguments
@@ -94,19 +94,19 @@ class GetUseScopeTest extends SimpleTestCase {
        |  val x = 123 match {
        |    case ${CARET_TAG}i => i
        |  }
-       |}""")
+       |}""".stripMargin)
 
   def testTopLevelObject(): Unit = assertIsNotLocal(
     s"""
        |object ${CARET_TAG}ABC {
        |
-       |}""")
+       |}""".stripMargin)
 
   def testPublic(): Unit = assertIsNotLocal(
     s"""
        |object ABC {
        |  def ${CARET_TAG}abc() = 1
-       |}""")
+       |}""".stripMargin)
 
   def testClassParameter(): Unit = assertIsNotLocal(
     s"class ABC(val ${CARET_TAG}a: Int)"

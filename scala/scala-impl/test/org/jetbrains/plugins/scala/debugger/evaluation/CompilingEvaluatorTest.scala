@@ -54,24 +54,24 @@ abstract class CompilingEvaluatorTestBase extends ExpressionEvaluationTestBase {
 
       evalEquals(
         """val result = for (z <- Seq(3, 4)) yield z * z
-          |result.mkString""", "916")
+          |result.mkString""".stripMargin, "916")
 
       evalEquals(
         """def sqr(x: Int) = x * x
           |val a = sqr(12)
           |val b = sqr(1)
-          |a + b""", "145")
+          |a + b""".stripMargin, "145")
 
       evalEquals(
         """Option(Seq(x)) match {
           |  case None => 1
           |  case Some(Seq(2)) => 2
           |  case Some(Seq(_)) => 0
-          |}""", "0")
+          |}""".stripMargin, "0")
 
       evalEquals(
         """case class AAA(s: String, i: Int)
-          |AAA("a", 1).toString""", "AAA(a,1)")
+          |AAA("a", 1).toString""".stripMargin, "AAA(a,1)")
     }
   }
 
@@ -99,7 +99,7 @@ abstract class CompilingEvaluatorTestBase extends ExpressionEvaluationTestBase {
           |val a = sqr(12)
           |val b = sqr(1)
           |a + b
-         """, "145")
+         """.stripMargin, "145")
     }
   }
 

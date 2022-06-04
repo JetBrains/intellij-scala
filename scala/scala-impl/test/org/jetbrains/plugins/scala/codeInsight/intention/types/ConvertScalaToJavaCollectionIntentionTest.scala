@@ -13,7 +13,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |class UsesScalaCollections {
         |  val list = N<caret>il
         |}
-      """)
+      """.stripMargin)
   }
 
   def testIntentionIsAvailable2(): Unit = {
@@ -23,7 +23,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val list = List(1,2,3)
         |  val javaList = lis<caret>t
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -36,7 +36,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val map = mutable.Map(1 -> "1")
         |  val javaMap = ma<caret>p
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -47,7 +47,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val seq = Seq("1")
         |  val javaList = se<caret>q
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -58,7 +58,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val set = Set("1")
         |  val javaSet = se<caret>t
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -69,7 +69,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val iter = Iterator(1)
         |  val javaIter = it<caret>er
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -80,7 +80,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
         |  val iter = Iterable(1)
         |  val javaIter = it<caret>er
         |}
-      """
+      """.stripMargin
     )
   }
 
@@ -92,7 +92,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
          |class UsesScalaCollections {
          |  val list = List<caret>(1,2,3).asJava
          |}
-      """)
+      """.stripMargin)
   }
 
   def testIntentionIsNotAvailable2(): Unit = {
@@ -104,7 +104,7 @@ abstract class ConvertScalaToJavaCollectionIntentionBaseTest(converters: String)
          |  val iter = Iterable(1)
          |  val javaIter = iter.as<caret>Java
          |}
-      """)
+      """.stripMargin)
   }
 
   def testIntentionAction_Simple(): Unit = {

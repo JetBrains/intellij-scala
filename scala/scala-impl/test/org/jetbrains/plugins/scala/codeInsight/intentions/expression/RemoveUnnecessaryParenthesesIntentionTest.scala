@@ -70,7 +70,7 @@ class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
     val text =
       """1 match {
         |  case i if (${CARET}i match {case 1 => true}) =>
-        |}"""
+        |}""".stripMargin
     checkIntentionIsNotAvailable(text)
   }
 }
