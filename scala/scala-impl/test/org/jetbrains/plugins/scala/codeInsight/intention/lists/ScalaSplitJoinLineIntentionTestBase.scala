@@ -43,6 +43,11 @@ abstract class ScalaSplitJoinLineIntentionTestBase extends ScalaIntentionTestBas
     str.split("\n").map(baseIndent + _).mkString("\n")
   }
 
+  protected def indentLineBreaks(str: String, spaces: Int = 2): String = {
+    val baseIndent = " " * spaces
+    str.replaceAll("\n", "\n" + baseIndent)
+  }
+
   protected def doTest(singleLineText: String, multiLineText: String): Unit =
     super.doTest(
       text = if (testType.isJoin) multiLineText else singleLineText,
