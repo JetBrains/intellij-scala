@@ -54,12 +54,25 @@ object ScalaExtractMethodUtils {
 
     val project = settings.elements(0).getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
-    val retType =
-      if ((settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.REMOVE) ||
-        (settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE
-          && !isTypeAnnotationRequiredFor(settings, settings.visibility))) " = "
-      else if (settings.calcReturnTypeIsUnit && !codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT) ""
-      else s": ${settings.calcReturnTypeText} ="
+
+    val retType = {
+      val typeBuilder = new mutable.StringBuilder()
+
+      val appendType =
+        settings.calcReturnTypeIsUnit && codeStyleSettings.TYPE_ANNOTATION_UNIT_TYPE ||
+          settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.ADD ||
+          settings.addReturnType == ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE && isTypeAnnotationRequiredFor(settings, settings.visibility)
+
+      val appendEqualSign = appendType || // if we append type, we cannot use procedure syntax
+        !settings.calcReturnTypeIsUnit ||
+        codeStyleSettings.ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT ||
+        settings.elements(0).isInScala3File // since 3.0 procedure syntax is not supported
+
+      if (appendType) typeBuilder.append(": ").append(settings.calcReturnTypeText)
+      if (appendEqualSign) typeBuilder.append(" = ")
+
+      typeBuilder.result()
+    }
 
     val notPassedParams = settings.parameters.filter(p => !p.passAsParameter).map {
       case ExtractMethodParameter(oldName, _, fromElement, tp, _) =>
