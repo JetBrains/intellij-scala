@@ -49,9 +49,8 @@ object ScalaExtractMethodUtils {
       typedName(oldName, tp.canonicalCodeText, param.isCallByNameParameter)(fromElement.getProject)
     }
 
-
     val parameters = settings.parameters.filter(_.passAsParameter).map(paramText)
-    val paramsText = if (parameters.nonEmpty) parameters.mkString("(", ", ", ")") else ""
+    val paramsText = if (parameters.nonEmpty || settings.calcReturnTypeIsUnit) parameters.mkString("(", ", ", ")") else ""
 
     val project = settings.elements(0).getProject
     val codeStyleSettings = ScalaCodeStyleSettings.getInstance(project)
@@ -385,7 +384,7 @@ object ScalaExtractMethodUtils {
     val params = settings.parameters.filter(_.passAsParameter)
       .map(param => parameterText(param) + (if (param.isFunction) " _" else ""))
 
-    val paramsText = if (params.nonEmpty) params.mkString("(", ", ", ")") else ""
+    val paramsText = if (params.nonEmpty || settings.calcReturnTypeIsUnit) params.mkString("(", ", ", ")") else ""
     val methodCallText = s"${settings.methodName}$paramsText"
     var needExtractorsFromMultipleReturn = false
 

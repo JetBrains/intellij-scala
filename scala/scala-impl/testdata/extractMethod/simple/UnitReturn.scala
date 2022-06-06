@@ -14,12 +14,12 @@ class UnitReturn {
     var i = 23
 
 
-    testMethodName
+    testMethodName()
 
     val j = i
   }
 
-  def testMethodName: Unit = {
+  def testMethodName(): Unit = {
     1;
     ()
   }
