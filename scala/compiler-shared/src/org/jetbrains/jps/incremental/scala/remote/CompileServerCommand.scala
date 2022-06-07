@@ -51,25 +51,6 @@ object CompileServerCommand {
     final val ExternalProjectConfigTag: String = "externalProjectConfig: "
   }
 
-  case class CompileSingleFileJps(projectPath: String,
-                                  globalOptionsPath: String,
-                                  dataStorageRootPath: String,
-                                  filePath: String,
-                                  externalProjectConfig: Option[String])
-    extends CompileServerCommand {
-
-    override def id: String = CommandIds.CompileSingleFileJps
-
-    override def asArgs: Seq[String] = Seq(
-      projectPath,
-      globalOptionsPath,
-      dataStorageRootPath,
-      filePath
-    ) ++ externalProjectConfig
-
-    override def isCompileCommand: Boolean = true
-  }
-
   case class GetMetrics()
     extends CompileServerCommand {
 

@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import com.facebook.nailgun.{NGContext, NGServer}
-import org.jetbrains.jps.api.CmdlineRemoteProto.Message.ControllerMessage.ParametersMessage.TargetTypeBuildScope
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.builders.java.JavaModuleBuildTargetType
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
@@ -193,8 +192,6 @@ object Main {
           compileLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           compileJpsLogic(compileJps, client)
-        case compileSingleFileJps: CompileServerCommand.CompileSingleFileJps =>
-          compileSingleFileJpsLogic(compileSingleFileJps, client)
         case getMetrics: CompileServerCommand.GetMetrics =>
           getMetricsLogic(getMetrics, client)
         case startMetering: CompileServerCommand.StartMetering =>
@@ -260,49 +257,6 @@ object Main {
         BuildType.BUILD,
         scopes,
         true
-      )
-    } finally {
-      client.compilationEnd(compiledFiles)
-      descriptor.release()
-    }
-  }
-
-  private def compileSingleFileJpsLogic(command: CompileServerCommand.CompileSingleFileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileSingleFileJps(projectPath, globalOptionsPath, dataStorageRootPath, filePath, externalProjectConfig) = command
-    val dataStorageRoot = new File(dataStorageRootPath)
-    val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
-    val buildRunner = new BuildRunner(loader)
-    var compiledFiles = Set.empty[File]
-    val messageHandler = new MessageHandler {
-      override def processMessage(msg: BuildMessage): Unit = msg match {
-        case customMessage: CustomBuilderMessage =>
-          CompilerEvent.fromCustomMessage(customMessage).foreach {
-            case CompilerEvent.MessageEmitted(_, _, msg) => client.message(msg)
-            case CompilerEvent.CompilationFinished(_, _, sources) => compiledFiles ++= sources
-            case _ => ()
-          }
-        case progressMessage: ProgressMessage =>
-          val text = Option(progressMessage.getMessageText).getOrElse("")
-          val done = Option(progressMessage.getDone).filter(_ >= 0.0)
-          client.progress(text, done)
-        case _ =>
-          ()
-      }
-    }
-    val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
-      buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
-    }
-    buildRunner.setFilePaths(List(filePath).asJava)
-
-    client.compilationStart()
-    try {
-      buildRunner.runBuild(
-        descriptor,
-        () => client.isCanceled,
-        messageHandler,
-        BuildType.BUILD,
-        List.empty[TargetTypeBuildScope].asJava,
-        false
       )
     } finally {
       client.compilationEnd(compiledFiles)

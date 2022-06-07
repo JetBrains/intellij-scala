@@ -35,7 +35,6 @@ public class NailgunRunner {
   private static final String[] COMMANDS = {
           "compile",
           "compile-jps",
-          "compile-single-file-jps",
           "get-metrics",
           "start-metering",
           "end-metering"

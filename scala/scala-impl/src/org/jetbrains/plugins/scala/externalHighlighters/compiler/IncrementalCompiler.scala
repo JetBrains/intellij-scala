@@ -12,7 +12,6 @@ import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
 import org.jetbrains.plugins.scala.compiler.CompileServerClient
 
 import java.io.File
-import java.nio.file.Path
 
 private[externalHighlighters] object IncrementalCompiler {
 
@@ -37,32 +36,6 @@ private[externalHighlighters] object IncrementalCompiler {
       dataStorageRootPath = dataStorageRootPath,
       externalConfigurationDir,
       modules.map(_.getName).distinct
-    )
-
-    CompileServerClient.get(project).execCommand(command, client)
-  }
-
-  def compileSingleFile(project: Project, filePath: Path, client: Client): Unit = {
-    val projectPath = Option(project.getPresentableUrl)
-      .map(VirtualFileManager.extractPath)
-      .getOrElse(throw new IllegalStateException("Can't determine project path"))
-    val globalOptionsPath = PathManager.getOptionsPath
-    val dataStorageRootPath = Utils.getDataStorageRoot(
-      new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory(project))),
-      projectPath
-    ).getCanonicalPath
-
-    /** @see `org.jetbrains.jps.incremental.scala.remote.Main.withModifiedExternalProjectPath` */
-    val externalConfigurationDir =
-      if (ProjectUtilCore.isExternalStorageEnabled(project)) Some(ProjectUtil.getExternalConfigurationDir(project).toString)
-      else None
-
-    val command = CompileServerCommand.CompileSingleFileJps(
-      projectPath = projectPath,
-      globalOptionsPath = globalOptionsPath,
-      dataStorageRootPath = dataStorageRootPath,
-      filePath = filePath.toString,
-      externalProjectConfig = externalConfigurationDir
     )
 
     CompileServerClient.get(project).execCommand(command, client)

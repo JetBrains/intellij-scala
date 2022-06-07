@@ -39,17 +39,6 @@ object CompileServerCommandParser
           case _ =>
             throwIllegalArgs(commandId, args)
         }
-      case CommandIds.CompileSingleFileJps =>
-        args match {
-          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, filePath, other @ _*) =>
-            CompileServerCommand.CompileSingleFileJps(
-              projectPath = projectPath,
-              globalOptionsPath = globalOptionsPath,
-              dataStorageRootPath = dataStorageRootPath,
-              filePath = filePath,
-              externalProjectConfig = other.headOption
-            )
-        }
       case CommandIds.GetMetrics =>
         args match {
           case Seq() =>
