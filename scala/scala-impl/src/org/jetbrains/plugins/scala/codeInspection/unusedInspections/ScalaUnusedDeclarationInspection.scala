@@ -62,7 +62,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   }
 
   private def isElementUsed(element: ScNamedElement, isOnTheFly: Boolean): Boolean = {
-    if (isReportingDisabledForElement(element)) {
+    if (!isReportingEnabledForElement(element)) {
       true
     } else if (isOnlyVisibleInLocalFile(element)) {
       if (isOnTheFly) {
@@ -88,13 +88,19 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     }
   }
 
-  private def isReportingDisabledForElement(element: ScNamedElement): Boolean =
-    element.nameContext match {
-      case m: ScMember if m.isLocal =>
-        val compilerOptions = element.module.map(_.scalaCompilerSettings.additionalCompilerOptions).getOrElse(Nil)
-        compilerOptions.contains("-Wunused:locals") || compilerOptions.contains("-Wunused:linted") || compilerOptions.contains("-Xlint:unused")
-      case _ =>
-        false
+  private def isReportingEnabledForElement(element: ScNamedElement): Boolean =
+    if (reportLocalDeclarations == AlwaysEnabled) {
+      true
+    } else {
+      element.nameContext match {
+        case m: ScMember if m.isLocal && reportLocalDeclarations == AlwaysDisabled =>
+          false
+        case m: ScMember if m.isLocal && reportLocalDeclarations == ComplyToCompilerOption =>
+          val compilerOptions = element.module.map(_.scalaCompilerSettings.additionalCompilerOptions).getOrElse(Nil)
+          compilerOptions.contains("-Wunused:locals") || compilerOptions.contains("-Wunused:linted") || compilerOptions.contains("-Xlint:unused")
+        case _ =>
+          true
+      }
     }
 
   // this case is for elements accessible only in a local scope
