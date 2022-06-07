@@ -7,9 +7,8 @@ import com.intellij.codeInsight.lookup.impl.LookupImpl
 import com.intellij.codeInsight.lookup.{Lookup, LookupElement, LookupElementPresentation, LookupManager}
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
+import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
 import org.junit.runner.RunWith
@@ -46,7 +45,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
                                             completionType: CompletionType = BASIC,
                                             invocationCount: Int = DEFAULT_TIME)
                                            (items: LookupImpl => Iterable[LookupElement] = allItems) = {
-    configureFromFileText(normalize(fileText))
+    configureFromFileText(fileText)
 
     changePsiAt(getEditorOffset)
 
@@ -145,7 +144,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
   }
 
   protected def checkResultByText(expectedFileText: String, ignoreTrailingSpaces: Boolean = true): Unit =
-    myFixture.checkResult(normalize(expectedFileText), ignoreTrailingSpaces)
+    myFixture.checkResult(expectedFileText.withNormalizedSeparator.trim, ignoreTrailingSpaces)
 }
 
 object ScalaCodeInsightTestBase {

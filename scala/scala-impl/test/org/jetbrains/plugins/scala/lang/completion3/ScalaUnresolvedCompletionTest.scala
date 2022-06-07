@@ -155,7 +155,7 @@ class ScalaUnresolvedCompletionTest extends ScalaCodeInsightTestBase {
          |   object $CARET
          |  }
          |}
-      """
+      """.stripMargin
     complete(fileText)
 
     myFixture.finishLookup(Lookup.REPLACE_SELECT_CHAR)

@@ -198,7 +198,7 @@ class Test13 extends ComparingUnrelatedTypesInspectionTest {
        |final class B extends Serializable
        |val a: A = new A
        |${START}a.isInstanceOf[B]$END
-      """
+      """.stripMargin
   )
 
   def testTraits(): Unit = checkTextHasError(

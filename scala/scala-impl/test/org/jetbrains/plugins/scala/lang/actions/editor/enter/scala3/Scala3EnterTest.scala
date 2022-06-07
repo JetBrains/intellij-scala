@@ -541,7 +541,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
   def testAfterCodeInCaseClause_EOF_1(): Unit = doEnterTest_NonStrippingTrailingSpaces(
     s"""Option(42) match
        |  case Some(1) =>
-       |    111$CARET""",
+       |    111$CARET""".stripMargin,
     s"""Option(42) match
        |  case Some(1) =>
        |    111
@@ -551,7 +551,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
   def testAfterCodeInCaseClause_EOF_2(): Unit = doEnterTest_NonStrippingTrailingSpaces(
     s"""Option(42) match
        |  case Some(1) =>
-       |    111$CARET  ${""}""",
+       |    111$CARET  ${""}""".stripMargin,
     s"""Option(42) match
        |  case Some(1) =>
        |    111
@@ -561,7 +561,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
   def testAfterCodeInCaseClause_EOF_3(): Unit = doEnterTest_NonStrippingTrailingSpaces(
     s"""Option(42) match
        |  case Some(1) =>
-       |    111   $CARET  ${""}""",
+       |    111   $CARET  ${""}""".stripMargin,
     s"""Option(42) match
        |  case Some(1) =>
        |    111   ${""}
@@ -572,7 +572,7 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
     s"""Option(42) match
        |  case Some(1) =>
        |    111$CARET
-       |""",
+       |""".stripMargin,
     s"""Option(42) match
        |  case Some(1) =>
        |    111

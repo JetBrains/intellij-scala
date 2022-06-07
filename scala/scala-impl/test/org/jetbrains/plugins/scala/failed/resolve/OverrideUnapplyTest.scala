@@ -28,7 +28,7 @@ class OverrideUnapplyTest extends SimpleTestCase {
         |    (a, b)
         |  }
         |}
-      """
+      """.stripMargin
     val trimmed = m.trim
     val pos = trimmed.indexOf(CARET)
     val psi = trimmed.replaceAll(CARET, "").parse

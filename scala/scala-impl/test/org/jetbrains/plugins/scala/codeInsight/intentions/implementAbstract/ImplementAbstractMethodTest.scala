@@ -21,8 +21,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |  def <caret>f: Int
         |}
         |
-        |class AA extends A
-      """
+        |class AA extends A""".stripMargin
     val result =
       s"""
         |trait A {
@@ -31,7 +30,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A {
         |  override def f = $START???$END
-        |}"""
+        |}""".stripMargin
     
     TypeAnnotationSettings.set(getProject,
       TypeAnnotationSettings.noTypeAnnotationForPublic(TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))))
@@ -46,8 +45,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |  def <caret>f: Int
         |}
         |
-        |class AA extends A {}
-      """
+        |class AA extends A {}""".stripMargin
     val result =
       s"""
         |abstract class A {
@@ -56,7 +54,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A {
         |  override def f: Int = $START???$END
-        |}"""
+        |}""".stripMargin
   
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)
@@ -69,8 +67,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |  def <caret>f: T
         |}
         |
-        |class AA extends A[Int] {}
-      """
+        |class AA extends A[Int] {}""".stripMargin
     val result =
       s"""
         |trait A[T] {
@@ -79,7 +76,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A[Int] {
         |  override def f: Int = $START???$END
-        |}"""
+        |}""".stripMargin
   
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)
@@ -93,7 +90,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |}
         |
         |class AA extends A
-      """
+      """.stripMargin
   
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     checkIntentionIsNotAvailable(text)
@@ -106,8 +103,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |  def <caret>f
         |}
         |
-        |class AA extends A
-      """
+        |class AA extends A""".stripMargin
     val result =
       s"""
         |trait A {
@@ -116,7 +112,7 @@ class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
         |
         |class AA extends A {
         |  override def f: Unit = $START???$END
-        |}"""
+        |}""".stripMargin
   
     TypeAnnotationSettings.set(getProject, TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject)))
     doTest(text, result)

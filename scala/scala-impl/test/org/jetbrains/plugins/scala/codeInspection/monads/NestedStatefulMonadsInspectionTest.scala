@@ -5,9 +5,9 @@ package monads
 import com.intellij.codeInspection.LocalInspectionTool
 
 /**
-  * @author Sergey Tolmachev (tolsi.ru@gmail.com)
-  * @since 29.09.15
-  */
+ * @author Sergey Tolmachev (tolsi.ru@gmail.com)
+ * @since 29.09.15
+ */
 class NestedStatefulMonadsInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
@@ -19,25 +19,25 @@ class NestedStatefulMonadsInspectionTest extends ScalaInspectionTestBase {
   def test_1(): Unit = checkTextHasNoErrors(
     text =
       """import scala.util.Try
-        |Try {}"""
+        |Try {}""".stripMargin
   )
 
   def test_2(): Unit = checkTextHasNoErrors(
     text =
       """import scala.concurrent.Future
-        |Future {}"""
+        |Future {}""".stripMargin
   )
 
   def test_3(): Unit = checkTextHasError(
     text =
       s"""import scala.util.Try
-         |${START}Try { Try {} }$END"""
+         |${START}Try { Try {} }$END""".stripMargin
   )
 
   def test_4(): Unit = checkTextHasError(
     text =
       s"""import scala.concurrent.Future
-         |${START}Future { Future {} }$END"""
+         |${START}Future { Future {} }$END""".stripMargin
   )
 
   def test_5(): Unit = checkTextHasNoErrors(
@@ -48,50 +48,50 @@ class NestedStatefulMonadsInspectionTest extends ScalaInspectionTestBase {
     text =
       s"""import scala.concurrent.Future
          |val a = Future { }
-         |${START}Future { a }$END"""
+         |${START}Future { a }$END""".stripMargin
   )
 
   def test_7(): Unit = checkTextHasError(
     text =
       s"""import scala.util._
-         |${START}Try { Success() }$END"""
+         |${START}Try { Success() }$END""".stripMargin
   )
 
   def test_8(): Unit = checkTextHasError(
     text =
       s"""import scala.util._
          |import scala.concurrent.Future
-         |${START}Try { Future.successful() }$END"""
+         |${START}Try { Future.successful() }$END""".stripMargin
   )
 
   def test_9(): Unit = checkTextHasError(
     text =
       s"""import scala.util._
-         |${START}Success(Success(1))$END"""
+         |${START}Success(Success(1))$END""".stripMargin
   )
 
   def test_10(): Unit = checkTextHasError(
     text =
       s"""import scala.util._
          |import scala.concurrent.Future
-         |${START}Future { Success() }$END"""
+         |${START}Future { Success() }$END""".stripMargin
   )
 
   def test_11(): Unit = checkTextHasNoErrors(
     text =
       """import scala.util._
-        |Array(Failure(1))"""
+        |Array(Failure(1))""".stripMargin
   )
 
   def test_12(): Unit = checkTextHasNoErrors(
     text =
       """import scala.util._
-        |Success(Array(1))"""
+        |Success(Array(1))""".stripMargin
   )
 
   def test_13(): Unit = checkTextHasError(
     text =
       s"""import scala.util._
-         |Array(${START}Success(Failure(1))$END)"""
+         |Array(${START}Success(Failure(1))$END)""".stripMargin
   )
 }

@@ -3,15 +3,11 @@ package codeInsight
 package intention
 package controlFlow
 
-import com.intellij.testFramework.EditorTestUtil
-
 /**
   * @author Ksenia.Sautina
   * @since 6/6/12
   */
 class MergeIfToOrIntentionTest extends intentions.ScalaIntentionTestBase {
-
-  import EditorTestUtil.{CARET_TAG => CARET}
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.merge.equivalent.ifs.to.ored.condition")
 
@@ -61,8 +57,7 @@ class MergeIfToOrIntentionTest extends intentions.ScalaIntentionTestBase {
          |      System.out.println("else")
          |    }
          |  }
-         |}
-      """.stripMargin
+         |}""".stripMargin
 
     doTest(text, resultText)
   }

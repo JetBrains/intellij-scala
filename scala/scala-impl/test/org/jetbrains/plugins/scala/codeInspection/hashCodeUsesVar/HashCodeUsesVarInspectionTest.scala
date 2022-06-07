@@ -23,7 +23,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Int = {
                    |      ${START}a$END
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -34,7 +34,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Int = {
                    |      ${START}a$END
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -46,7 +46,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |      val c = ${START}a$END
                    |      c
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -58,7 +58,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Int = {
                    |      ${START}a$END
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -69,7 +69,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Int = {
                    |      ${START}a$END._1
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -80,7 +80,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Int = {
                    |      (7 + 14 * ${START}a$END) / 21
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -91,7 +91,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |    override def hashCode(): Unit = {
                    |      ${START}a$END
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 
@@ -103,7 +103,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |      def f(): Int = ${START}a$END
                    |      f()
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -117,7 +117,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |      }
                    |      new B().f()
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasError(text)
   }
 
@@ -132,7 +132,7 @@ class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
                    |      r += b
                    |      r
                    |    }
-                   |}"""
+                   |}""".stripMargin
     checkTextHasNoErrors(text)
   }
 }

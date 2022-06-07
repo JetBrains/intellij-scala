@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.{ScalaInplaceRenameHandler, ScalaLocalInplaceRenameHandler, ScalaMemberInplaceRenameHandler}
 import org.junit.Assert
 
@@ -23,13 +23,13 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
   }
 
   private def checkIsLocalHandler(fileText: String): Unit = {
-    myFixture.configureByText("dummy.scala", normalize(fileText))
+    myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator.trim)
     checkIsAvailable(localHandler)
     checkIsNotAvailable(memberHandler)
   }
 
   private def checkIsMemberHandler(fileText: String): Unit = {
-    myFixture.configureByText("dummy.scala", normalize(fileText))
+    myFixture.configureByText("dummy.scala", fileText.withNormalizedSeparator.trim)
     checkIsAvailable(memberHandler)
     checkIsNotAvailable(localHandler)
   }
@@ -81,7 +81,7 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
          |case class MyClass(n: Int) extends MyTrait {
          |  override def doSomething: Unit = {}
          |}
-         |"""
+         |""".stripMargin
     )
   }
 
@@ -98,7 +98,7 @@ class ScalaInplaceRenameHandlerTest extends ScalaFixtureTestCase {
          |      override def doSomething: Unit = {}
          |    }
          |  }
-         |}"""
+         |}""".stripMargin
     )
   }
 

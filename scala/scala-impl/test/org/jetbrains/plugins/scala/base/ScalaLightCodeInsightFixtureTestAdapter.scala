@@ -18,10 +18,10 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{EditorTestUtil, LightProjectDescriptor}
 import org.jetbrains.jps.model.java.JavaSourceRootType
-import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
-import org.junit.Assert.{assertEquals, assertNotNull, fail}
+import org.junit.Assert.{assertEquals, assertNotNull}
 
 import scala.jdk.CollectionConverters._
 
@@ -34,7 +34,6 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     with ScalaSdkOwner
     with FailableTest {
 
-  import ScalaLightCodeInsightFixtureTestAdapter._
   import libraryLoaders._
 
   val CARET = EditorTestUtil.CARET_TAG
@@ -87,19 +86,19 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     configureFromFileText(ScalaFileType.INSTANCE, fileText)
 
   protected def configureFromFileText(fileType: FileType, fileText: String): PsiFile = {
-    val file = myFixture.configureByText(fileType, normalize(fileText))
+    val file = myFixture.configureByText(fileType, fileText.stripMargin.withNormalizedSeparator.trim)
     assertNotNull(file)
     file
   }
 
   protected def configureFromFileTextWithSomeName(fileType: String, fileText: String): PsiFile = {
-    val file = myFixture.configureByText("Test." + fileType, normalize(fileText))
+    val file = myFixture.configureByText("Test." + fileType, fileText.withNormalizedSeparator)
     assertNotNull(file)
     file
   }
 
   protected def configureFromFileText(fileName: String, fileText: String): PsiFile = {
-    val file = myFixture.configureByText(fileName: String, normalize(fileText))
+    val file = myFixture.configureByText(fileName: String, fileText.withNormalizedSeparator)
     assertNotNull(file)
     file
   }
@@ -126,7 +125,7 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   }
 
   protected def checkHasErrorAroundCaret(text: String): Unit = {
-    val normalizedText = normalize(text)
+    val normalizedText = text.withNormalizedSeparator
     myFixture.configureByText("dummy.scala", normalizedText)
     val caretIndex = normalizedText.indexOf(CARET)
 
@@ -237,43 +236,5 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   protected final def commitDocumentInEditor(): Unit =
     PsiDocumentManager.getInstance(getProject)
       .commitDocument(getEditor.getDocument)
-}
 
-object ScalaLightCodeInsightFixtureTestAdapter {
-
-  def normalize(text: String, trimContent: Boolean = true): String = {
-    val result = text.stripMargin.replace("\r", "")
-    if (trimContent) result.trim else result
-  }
-
-  def findCaretOffset(text: String, stripTrailingSpaces: Boolean): (String, Int) = {
-    val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
-    caretOffsets match {
-      case Seq(caretIdx) => (textActual, caretIdx)
-      case Seq() => (textActual, -1)
-      case _ => fail(s"single caret expected but found: ${caretOffsets.size}").asInstanceOf[Nothing]
-    }
-  }
-
-  def findCaretOffsets(text: String, trimText: Boolean): (String, Seq[Int]) = {
-    import EditorTestUtil.CARET_TAG
-
-    val textNormalized = normalize(text, trimText)
-
-    def caretIndex(offset: Int) = textNormalized.indexOf(CARET_TAG, offset)
-
-    @scala.annotation.tailrec
-    def collectCaretIndices(idx: Int)(indices: Seq[Int]): Seq[Int] =
-      if (idx < 0) indices else {
-        val nextIdx = caretIndex(idx + 1)
-        collectCaretIndices(nextIdx)(indices :+ idx)
-      }
-
-    val caretIndices = collectCaretIndices(caretIndex(0))(Seq[Int]())
-    val caretIndicesNormalized = caretIndices.zipWithIndex.map { case (caretIdx, idx) => caretIdx - idx * CARET_TAG.length }
-    (
-      textNormalized.replace(CARET_TAG, ""),
-      caretIndicesNormalized
-    )
-  }
 }

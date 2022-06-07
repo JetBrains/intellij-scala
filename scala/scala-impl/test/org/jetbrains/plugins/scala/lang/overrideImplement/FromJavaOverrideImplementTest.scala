@@ -41,19 +41,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |      return 1;
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy {
         |  override def foo(): Int = super.foo()
         |}
-      """
+      """.stripMargin
     runTest("foo", javaText, scalaText, expectedText, isImplement = false)
   }
 
@@ -63,19 +63,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |public abstract class JavaDummy {
         |    public abstract void vararg(int... args);
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy {
         |  def vararg(args: Int*): Unit = ???
         |}
-      """
+      """.stripMargin
     runTest("vararg", javaText, scalaText, expectedText, isImplement = true)
   }
 
@@ -85,19 +85,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |public class JavaDummy {
         |    public void vararg(int... args) {}
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy {
         |  override def vararg(args: Int*): Unit = super.vararg(args: _*)
         |}
-      """
+      """.stripMargin
     runTest("vararg", javaText, scalaText, expectedText, isImplement = false)
   }
 
@@ -107,19 +107,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |public class JavaDummy {
         |    public void def(int val) {}
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy {
         |  override def `def`(`val`: Int) = super.`def`(`val`)
         |}
-      """
+      """.stripMargin
     
     val settings = TypeAnnotationSettings.alwaysAddType(ScalaCodeStyleSettings.getInstance(getProject))
     runTest("def", javaText, scalaText, expectedText, isImplement = false, defaultSettings = TypeAnnotationSettings.noTypeAnnotationForPublic(settings))
@@ -137,19 +137,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |        }
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy.Inner {
         | <caret>
         |}
-      """
+      """.stripMargin
     val expected =
       """
         |class Child extends JavaDummy.Inner {
         |  override def method(number: Int): Unit = super.method(number)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
@@ -164,19 +164,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |        }
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy.Inner {
         | <caret>
         |}
-      """
+      """.stripMargin
     val expected =
       """
         |class Child extends JavaDummy.Inner {
         |  override def method(number: Int): Unit = super.method(number)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
@@ -188,19 +188,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |        return arg;
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy[Int] {
         | <caret>
         |}
-      """
+      """.stripMargin
     val expected =
       """
         |class Child extends JavaDummy[Int] {
         |  override def method(arg: Int): Int = super.method(arg)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
@@ -212,19 +212,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |        return arg;
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child[S] extends JavaDummy[S] {
         | <caret>
         |}
-      """
+      """.stripMargin
     val expected =
       """
         |class Child[S] extends JavaDummy[S] {
         |  override def method(arg: S): S = super.method(arg)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expected, isImplement = false)
   }
 
@@ -236,19 +236,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |        return null;
         |    }
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy[Int, Boolean] {
         | <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy[Int, Boolean] {
         |  override def method(arg: JavaDummy[_ <: Int, _ >: Boolean]): Int = super.method(arg)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expectedText, isImplement = false)
   }
 
@@ -262,19 +262,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |
         |    public static interface DummyInterface<S> {}
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy[Int] {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy[Int] {
         |  override def method[S <: JavaDummy[Int] with JavaDummy.DummyInterface[Int]](arg: Int): Int = super.method(arg)
         |}
-      """
+      """.stripMargin
     runTest("method", javaText, scalaText, expectedText, isImplement = false)
   }
 
@@ -284,19 +284,19 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |public class JavaDummy<T> {
         |    public int getValue() {return 0;}
         |}
-      """
+      """.stripMargin
     val scalaText =
       """
         |class Child extends JavaDummy[Int] {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class Child extends JavaDummy[Int] {
         |  override def getValue: Int = super.getValue
         |}
-      """
+      """.stripMargin
     runTest("getValue", javaText, scalaText, expectedText, isImplement = false)
 
   }
@@ -307,20 +307,20 @@ class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
         |public interface Map<K,V>
         |    void putAll(Map<? extends K, ? extends V> m);
         |}
-      """
+      """.stripMargin
     }
     val scalaText =
       """
         |class ExtendsMap[K, V] extends Map[K, V] {
         |  <caret>
         |}
-      """
+      """.stripMargin
     val expectedText =
       """
         |class ExtendsMap[K, V] extends Map[K, V] {
         |  def putAll(m: Map[_ <: K, _ <: V]): Unit = ???
         |}
-      """
+      """.stripMargin
     val methodName: String = "putAll"
     val isImplement = true
     runTest(methodName, javaText, scalaText, expectedText, isImplement)

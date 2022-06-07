@@ -4,6 +4,7 @@ package generation
 package actions
 
 import com.intellij.lang.LanguageCodeInsightActionHandler
+import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.junit.Assert._
 
 /**
@@ -11,8 +12,6 @@ import org.junit.Assert._
  * 8/23/13
  */
 abstract class ScalaGenerateTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
-
-  import base.ScalaLightCodeInsightFixtureTestAdapter._
 
   protected val handler: LanguageCodeInsightActionHandler
 

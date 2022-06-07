@@ -13,7 +13,7 @@ class ScalaUnnecessarySemicolonInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(
       s"""val x = 3$START;$END
          |println(x)
-         |"""
+         |""".stripMargin
     )
 
     testQuickFix(
@@ -28,10 +28,7 @@ class ScalaUnnecessarySemicolonInspectionTest extends ScalaInspectionTestBase {
   }
 
   def testAtEnd(): Unit = {
-    checkTextHasError(
-      s"""val x = 3$START;$END
-         |"""
-    )
+    checkTextHasError(s"val x = 3$START;$END")
 
     testQuickFix(
       """val x = 3;

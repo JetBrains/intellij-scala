@@ -4,7 +4,7 @@ import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.SurroundDescriptor
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
@@ -15,11 +15,10 @@ import org.junit.Assert.{assertFalse, assertTrue}
   */
 class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
-  import ScalaLightCodeInsightFixtureTestAdapter.normalize
   import SurroundWithWikiSyntaxTest._
 
   private def configureByText(text: String, stripTrailingSpaces: Boolean): Seq[PsiElement] = {
-    val normalizedText = normalize(text, stripTrailingSpaces)
+    val normalizedText = if (stripTrailingSpaces) text.withNormalizedSeparator.trim else text.withNormalizedSeparator
     myFixture.configureByText("dummy.scala", normalizedText)
 
     val selectionModel = getEditor.getSelectionModel
@@ -39,7 +38,8 @@ class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter
 
     val expected: String = {
       val tag = surrounder.getSyntaxTag
-      normalize(text.replace(START, tag).replace(END, tag), stripTrailingSpaces)
+      val normalized = text.replace(START, tag).replace(END, tag).withNormalizedSeparator
+      if (stripTrailingSpaces) normalized.trim else normalized
     }
     myFixture.checkResult(expected, stripTrailingSpaces)
   }

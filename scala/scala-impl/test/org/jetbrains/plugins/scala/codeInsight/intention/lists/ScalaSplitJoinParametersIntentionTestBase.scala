@@ -45,15 +45,15 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
   }
 
   private def methodDefBase(args: String): String =
-    s"""${indent(s"def foo$CARET" + args, 7)}: Unit = {}
+    s"""${indentLineBreaks(s"def foo$CARET" + args, 7)}: Unit = {}
        |""".stripMargin
 
   private def classDefBase(args: String): String =
-    s"""${indent(s"class Foo$CARET" + args, 9)}
+    s"""${indentLineBreaks(s"class Foo$CARET" + args, 9)}
        |""".stripMargin
 
   private def caseClassDefBase(args: String): String =
-    s"""${indent(s"case class Foo$CARET" + args, 14)}
+    s"""${indentLineBreaks(s"case class Foo$CARET" + args, 14)}
        |""".stripMargin
 
   private val methodDefText = methodDefBase(singleLine)

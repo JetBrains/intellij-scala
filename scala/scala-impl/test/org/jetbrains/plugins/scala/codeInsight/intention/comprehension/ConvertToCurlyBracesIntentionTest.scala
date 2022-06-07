@@ -9,8 +9,7 @@ class ConvertToCurlyBracesIntentionTest extends ScalaIntentionTestBase {
   private val resultOfSimple =
     """for {
       |  i <- 1 to 10
-      |} yield i + 1
-      |""".stripMargin
+      |} yield i + 1""".stripMargin
 
   def testIntentionBeforeOpenParen(): Unit = doTest(
     s"for$CARET(i <- 1 to 10) yield i + 1",
@@ -45,8 +44,7 @@ class ConvertToCurlyBracesIntentionTest extends ScalaIntentionTestBase {
     val result =
       """for {
         |  i <- 1 to 10
-        |} yield i + 1
-        |""".stripMargin
+        |} yield i + 1""".stripMargin
     doTest(text, result)
   }
 
@@ -56,8 +54,7 @@ class ConvertToCurlyBracesIntentionTest extends ScalaIntentionTestBase {
       """for {
         |  i <- 1 to 10
         |  c <- 'a' to 'e'
-        |} yield "" + c + i
-        |""".stripMargin
+        |} yield "" + c + i""".stripMargin
     doTest(text, result)
   }
 }

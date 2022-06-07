@@ -9,25 +9,24 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
   def testSimplePullUp(): Unit = {
     val code =
       s"""
-        |trait A
-        |class B extends A {
-        |   override $keyword ${START}sample$END: Int = 1
-        |}
-      """
+         |trait A
+         |class B extends A {
+         |   override $keyword ${START}sample$END: Int = 1
+         |}
+      """.stripMargin
     checkTextHasError(code)
 
     testQuickFix(
       code,
-      s"""
-        |trait A {
-        |
-        |  $keyword sample: Int
-        |}
-        |
-        |class B extends A {
-        |  override $keyword ${START}sample$END: Int = 1
-        |}
-      """,
+      s"""trait A {
+         |
+         |  $keyword sample: Int
+         |}
+         |
+         |class B extends A {
+         |  override $keyword ${START}sample$END: Int = 1
+         |}
+      """.stripMargin,
       s"Pull $memberType 'sample' to..."
     )
   }
@@ -35,10 +34,10 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
   def testDoNotExtractIfParentIsNotEditable(): Unit = {
     val code =
       s"""
-        |class A extends scala.App {
-        |   override $keyword ${START}sample$END: Int = 1
-        |}
-      """
+         |class A extends scala.App {
+         |   override $keyword ${START}sample$END: Int = 1
+         |}
+      """.stripMargin
     checkTextHasError(code)
     checkIsNotAvailable(code, s"Pull $memberType 'sample' to...")
   }
@@ -52,7 +51,7 @@ abstract class PullUpQuickFixTest(keyword: String) extends ScalaAnnotatorQuickFi
          |class B extends A {
          |   override $keyword ${START}sample$END: Int = 1
          |}
-      """
+      """.stripMargin
     checkTextHasNoErrors(code)
   }
 

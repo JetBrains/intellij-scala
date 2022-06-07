@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.macros.SynteticInjectorsTestUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
 
@@ -14,7 +14,7 @@ class NewTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
     super.librariesLoaders :+ IvyManagedLoader("io.estatico" %% "newtype" % "0.4.3")
 
   private def getSourceElement(text: String): ScObject = {
-    val normalized = normalize(text)
+    val normalized = text.withNormalizedSeparator.trim
     val caretPos = normalized.indexOf("<caret>")
     val file = configureFromFileText(normalized.replace("<caret>", ""))
     val cls = PsiTreeUtil.findElementOfClassAtOffset(file, caretPos, classOf[ScTypeDefinition], false)

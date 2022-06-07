@@ -45,7 +45,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |object Test {
        |  def apply(boolean: Boolean) = ${CARET}Test(0)
        |}
-      """,
+      """.stripMargin,
     expected = (is[ScClass], "Test")
   )
 
@@ -58,7 +58,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |    case ${CARET}Test(1) =>
        |  }
        |}
-      """,
+      """.stripMargin,
     expected = (is[ScClass], "Test")
   )
 
@@ -69,7 +69,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |object Test {
        |  Test(1).${CARET}copy(i = 2)
        |}
-      """,
+      """.stripMargin,
     expected = (is[ScClass], "Test")
   )
 
@@ -82,7 +82,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |
        |  ${CARET}Test(false)
        |}
-      """,
+      """.stripMargin,
     expected = (is[ScObject], "Test"), (is[ScFunction], Apply)
   )
 
@@ -95,7 +95,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |}
        |
        |import org.example.foo.b${CARET}ar.foo
-     """,
+     """.stripMargin,
     expected = (isPackageObject, "org.example.foo.bar")
   )
 
@@ -106,7 +106,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |package object bar { }
        |
        |import org.example.foo.b${CARET}ar
-     """,
+     """.stripMargin,
     expected = (isPackageObject, "org.example.foo.bar"),
     (_.isInstanceOf[PsiPackage], "org.example.foo.bar")
   )
@@ -124,7 +124,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |}
        |
        |import org.example.foo.ba${CARET}r.{Bar, baz}
-     """,
+     """.stripMargin,
     (_.isInstanceOf[PsiPackage], "org.example.foo.bar"),
     (isPackageObject, "org.example.foo.bar")
   )
@@ -143,7 +143,7 @@ class GoToDeclarationTest extends GotoDeclarationTestBase {
        |}
        |
        |import org.example.foo.ba${CARET}r.{qux, baz}
-     """,
+     """.stripMargin,
     expected = (isPackageObject, "org.example.foo.bar")
   )
 

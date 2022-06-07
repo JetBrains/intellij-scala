@@ -40,7 +40,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaInspectionTestBase {
       s"""
          |case class A[T](x: T)
          |val a = ${START}new$END A(5)
-     """
+     """.stripMargin
 
     val expected =
       s"""
@@ -164,7 +164,7 @@ class RedundantNewCaseClassInspectionTest extends ScalaInspectionTestBase {
        |def this(x: Int) = this(x, 0)
        |}
        |
-       |val a = new Foo(1)""")
+       |val a = new Foo(1)""".stripMargin)
 
   def testShouldNotShowIfProblemsExistInConstructorCall(): Unit = checkTextHasNoErrors(
     s"""

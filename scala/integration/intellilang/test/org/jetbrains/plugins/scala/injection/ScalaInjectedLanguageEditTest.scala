@@ -16,7 +16,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |    |  "a" : 42,$Caret
          |    |  "b" : 23
          |    |}$Quotes.stripMargin
-         |"""
+         |""".stripMargin
 
     val after =
       s"""val x =
@@ -26,7 +26,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |    |  $Caret
          |    |  "b" : 23
          |    |}$Quotes.stripMargin
-         |"""
+         |""".stripMargin
 
     // TODO: we should also test that language is actually injected, and we edit not just a common string
     //  we can't mixin AbstractLanguageInjectionTestCase easily now
@@ -42,7 +42,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |    #  "a" : 42,$Caret
          |    #  "b" : 23
          |    #}$Quotes.stripMargin('#')
-         |"""
+         |""".stripMargin
 
     val after =
       s"""val x =
@@ -52,7 +52,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |    #  $Caret
          |    #  "b" : 23
          |    #}$Quotes.stripMargin('#')
-         |"""
+         |""".stripMargin
 
     checkGeneratedTextAfterEnter(before, after)
   }
@@ -65,7 +65,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |     |  "a" : 42,$Caret
          |     |  "b" : 23
          |     |}$Quotes.stripMargin
-         |"""
+         |""".stripMargin
 
     val after =
       s"""val x =
@@ -75,7 +75,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |     |  $Caret
          |     |  "b" : 23
          |     |}$Quotes.stripMargin
-         |"""
+         |""".stripMargin
 
     checkGeneratedTextAfterEnter(before, after)
   }
@@ -88,7 +88,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |     #  "a" : 42,$Caret
          |     #  "b" : 23
          |     #}$Quotes.stripMargin('#')
-         |"""
+         |""".stripMargin
 
     val after =
       s"""val x =
@@ -98,7 +98,7 @@ class ScalaInjectedLanguageEditTest extends EditorActionTestBase {
          |     #  $Caret
          |     #  "b" : 23
          |     #}$Quotes.stripMargin('#')
-         |"""
+         |""".stripMargin
 
     checkGeneratedTextAfterEnter(before, after)
   }

@@ -6,8 +6,7 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AllOverridingMethodsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.junit.Assert
 
 import java.util
@@ -20,8 +19,8 @@ import scala.jdk.CollectionConverters._
 class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
 
   def findFromJava(javaText: String, scalaText: String, shouldFoundInClasses: Set[String]): Unit = {
-    myFixture.addFileToProject("DummyScala.scala", normalize(scalaText))
-    myFixture.configureByText("DummyJava.java", normalize(javaText))
+    myFixture.addFileToProject("DummyScala.scala", scalaText.withNormalizedSeparator.trim)
+    myFixture.configureByText("DummyJava.java", javaText.withNormalizedSeparator.trim)
 
     val atCaret = myFixture.getElementAtCaret
     val method = PsiTreeUtil.getParentOfType(atCaret, classOf[PsiMethod], false)

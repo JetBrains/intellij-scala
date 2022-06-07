@@ -88,14 +88,14 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
        |  case 1 =>
        |    val$CARET
        |}
-      """,
+      """.stripMargin,
     resultText =
       s"""
          |1 match {
          |  case 1 =>
          |    val $CARET
          |}
-      """,
+      """.stripMargin,
     item = "val",
     char = ' '
   )

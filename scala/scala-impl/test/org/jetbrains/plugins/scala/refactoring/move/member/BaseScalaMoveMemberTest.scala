@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.refactoring.move.member
 
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.normalize
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
-import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
 import org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersDialog
@@ -16,9 +15,9 @@ import scala.annotation.nowarn
 abstract class BaseScalaMoveMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def doTest(fromObject: String, toObject: String, memberName: String, fileText: String, expectedText: String): Unit = {
-    configureFromFileTextAdapter("dummy.scala", normalize(fileText))
+    configureFromFileTextAdapter("dummy.scala", fileText.withNormalizedSeparator.trim)
     performAction(fromObject, toObject, memberName)
-    Assert.assertEquals(normalize(expectedText), getFileAdapter.getText)
+    Assert.assertEquals(expectedText.withNormalizedSeparator.trim, getFileAdapter.getText)
   }
 
   private def performAction(fromObject: String, toObject: String, memberName: String): Unit = {

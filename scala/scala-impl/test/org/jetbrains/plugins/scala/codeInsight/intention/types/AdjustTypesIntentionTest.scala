@@ -14,7 +14,8 @@ class AdjustTypesIntentionTest extends ScalaIntentionTestBase {
     resultText =
       s"""import scala.collection.mutable
          |
-         |val test: mutable.Seq[String] = ???""".stripMargin
+         |val test: mutable.Seq[String] = ???
+         |""".stripMargin
   )
 
   def test_example_2(): Unit = doTest(
@@ -25,7 +26,8 @@ class AdjustTypesIntentionTest extends ScalaIntentionTestBase {
     resultText =
       s"""import scala.collection.mutable
          |
-         |val test: mutable.Seq[String] = ???""".stripMargin
+         |val test: mutable.Seq[String] = ???
+         |""".stripMargin
   )
 
   def test_example_3(): Unit = doTest(
@@ -80,7 +82,8 @@ class AdjustTypesIntentionTest extends ScalaIntentionTestBase {
        |
        |  val x: Random_Ranamed = ???
        |  val set: Set[_] = ???
-       |}""".stripMargin,
+       |}
+       |""".stripMargin,
     s"""import scala.util.{Properties => Properties_Unused, Random => Random_Ranamed, _}
        |import scala.collection.immutable.Set
        |import java.util.ArrayList

@@ -8,14 +8,13 @@ import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.StringExt
 
 /**
   * User: Dmitry.Naydanov
   * Date: 27.07.15.
   */
 abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-
-  import ScalaLightCodeInsightFixtureTestAdapter._
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
 
@@ -38,9 +37,9 @@ abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtu
   }
 
   def doCompletionTest(fileText: String, resultText: String): Unit = {
-    myFixture.configureByText(fileType, normalize(fileText))
+    myFixture.configureByText(fileType, fileText.withNormalizedSeparator.trim)
     myFixture.performEditorAction(ACTION_EDITOR_COMPLETE_STATEMENT)
-    myFixture.checkResult(normalize(resultText), /*stripTrailingSpaces = */ true)
+    myFixture.checkResult(resultText.withNormalizedSeparator.trim, true)
   }
 }
 

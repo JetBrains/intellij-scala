@@ -17,7 +17,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  val test = ${START}ref$END
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_forward_ref_in_expr(): Unit = checkTextHasError(
@@ -25,7 +25,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  val test = ${START}ref$END + 5
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_forward_ref_in_match(): Unit = checkTextHasError(
@@ -36,14 +36,14 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |    }
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_SCL15872(): Unit = checkTextHasError(
     s"""class Foo {
        |  println(${START}a$END)
        |  val a = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_lazy_val(): Unit = checkTextHasNoErrors(
@@ -51,7 +51,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  lazy val test = ref
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_def(): Unit = checkTextHasNoErrors(
@@ -59,7 +59,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  def test = ref
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_backward_ref(): Unit = checkTextHasNoErrors(
@@ -67,7 +67,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  val ref = 4
        |
        |  val test = ref
-       |}"""
+       |}""".stripMargin
   )
 
   def test_referencing_lazy_val(): Unit = checkTextHasNoErrors(
@@ -75,7 +75,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  val test = ref
        |
        |  lazy val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_in_class(): Unit = checkTextHasError(
@@ -90,7 +90,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  };
        |
        |  val ref = 4
-       |}"""
+       |}""".stripMargin
   )
 
   def test_different_instance(): Unit = checkTextHasNoErrors(
@@ -98,7 +98,7 @@ class ForwardReferenceInspectionTest extends ScalaInspectionTestBase {
        |  val test = outer.ref
        |
        |  val ref = 5
-       |}"""
+       |}""".stripMargin
   )
 
   def test_SCL15827_1(): Unit = checkTextHasNoErrors(
