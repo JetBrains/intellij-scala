@@ -90,8 +90,9 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     })
     val modules = ScalaHighlightingMode.compilerBasedHighlightingModules(project)
     val triggerService = TriggerCompilerHighlightingService.get(project)
+    val before = () => triggerService.beforeIncrementalCompilation()
     val after = () => triggerService.afterIncrementalCompilation()
-    CompilerHighlightingService.get(project).triggerIncrementalCompilation("manual trigger from tests", modules, () => (), after, delayedProgressShow = false)
+    CompilerHighlightingService.get(project).triggerIncrementalCompilation("manual trigger from tests", modules, before, after, delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
 }

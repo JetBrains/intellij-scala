@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiFileExt, ToNullSafe, inReadAction}
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.project.VirtualFileExt
+import org.jetbrains.plugins.scala.util.ScalaUtil
 
-import java.util.concurrent.atomic.AtomicBoolean
 import scala.collection.concurrent.TrieMap
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,8 +28,9 @@ import scala.concurrent.{ExecutionContext, Future}
 final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
 
-  private val initialCompilation: AtomicBoolean = new AtomicBoolean(true)
-  private val modifiedModules: TrieMap[Module, java.lang.Boolean] = TrieMap.empty
+  import TriggerCompilerHighlightingService.modulesForFiles
+
+  private val modifiedFiles: TrieMap[VirtualFile, java.lang.Boolean] = TrieMap.empty
 
   private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
@@ -42,7 +43,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           scalaFile.foreach(triggerWorksheetCompilation(_, document))
         else Future {
-          scalaFile.foreach(triggerSingleFileCompilation(debugReason, _, virtualFile))
+          triggerSingleFileCompilation(debugReason, virtualFile)
         }
       }
 
@@ -59,19 +60,14 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(psiFile.asInstanceOf[ScalaFile], document)
         else {
-          val modules = if (initialCompilation.getAndSet(false)) {
-            psiFile.module.toSeq
-          } else {
-            modifiedModules.keys.toSeq
-          }
-          triggerIncrementalCompilation(debugReason, modules)
+          registerAsModified(virtualFile)
+          triggerIncrementalCompilation(debugReason, modulesForFiles(modifiedFiles.keys.toSet)(project))
         }
       }
     }
 
   override def dispose(): Unit = {
-    initialCompilation.set(true)
-    modifiedModules.clear()
+    modifiedFiles.clear()
     threadPool.shutdownNow()
   }
 
@@ -97,13 +93,13 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   private def triggerIncrementalCompilation(debugReason: String, modules: Seq[Module]): Unit = {
     if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules, () => (), afterIncrementalCompilation)
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules, beforeIncrementalCompilation, afterIncrementalCompilation)
   }
 
-  private def triggerSingleFileCompilation(debugReason: String, scalaFile: ScalaFile, virtualFile: VirtualFile): Unit = {
+  private def triggerSingleFileCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
     if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined) {
       val filePath = virtualFile.toNioPath
-      CompilerHighlightingService.get(project).triggerSingleFileCompilation(debugReason, filePath, () => saveFileToDisk(virtualFile), () => registerAsModified(scalaFile))
+      CompilerHighlightingService.get(project).triggerSingleFileCompilation(debugReason, filePath, beforeIncrementalCompilation, () => registerAsModified(virtualFile))
     }
   }
 
@@ -123,16 +119,19 @@ final class TriggerCompilerHighlightingService(project: Project)
     openEditors.find(isEnabledFor)
   }
 
-  private def saveFileToDisk(vf: VirtualFile): Unit = {
-    inReadAction(vf.findDocument).foreach(_.syncToDisk(project))
+  def beforeIncrementalCompilation(): Unit = {
+    modifiedFiles
+      .keys
+      .flatMap { virtualFile => inReadAction(virtualFile.findDocument) }
+      .foreach(_.syncToDisk(project))
   }
 
   def afterIncrementalCompilation(): Unit = {
-    modifiedModules.clear()
+    modifiedFiles.clear()
   }
 
-  private def registerAsModified(file: ScalaFile): Unit = {
-    file.module.foreach(modifiedModules.put(_, java.lang.Boolean.TRUE))
+  private def registerAsModified(vf: VirtualFile): Unit = {
+    modifiedFiles.put(vf, java.lang.Boolean.TRUE)
   }
 
   private def triggerWorksheetCompilation(psiFile: ScalaFile,
@@ -147,4 +146,7 @@ object TriggerCompilerHighlightingService {
 
   private def hasErrors(psiFile: PsiFile): Boolean =
     psiFile.elements.findByType[PsiErrorElement].isDefined
+
+  private def modulesForFiles(virtualFiles: Set[VirtualFile])(implicit project: Project): Seq[Module] =
+    inReadAction(virtualFiles.flatMap(ScalaUtil.getModuleForFile).toSeq)
 }
