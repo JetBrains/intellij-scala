@@ -26,7 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
-import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
@@ -37,6 +36,7 @@ final class CompilerHighlightingService(project: Project)
   extends Disposable {
 
   private val incrementalExecutor = new RescheduledExecutor("IncrementalCompilerHighlighting", this)
+  private val documentExecutor = new RescheduledExecutor("DocumentCompilerHighlighting", this)
   // TODO: unify/merge worksheet highlighting implementation with  DocumentCompiler and documentExecutor
   //  they basically use the same idea: use temp file to highlight
   private val worksheetExecutor = new RescheduledExecutor("WorksheetCompilerHighlighting", this)
@@ -53,14 +53,12 @@ final class CompilerHighlightingService(project: Project)
   def triggerIncrementalCompilation(
     debugReason: String,
     modules: Seq[Module],
-    beforeCompilation: () => Unit,
-    afterCompilation: () => Unit,
     delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
     if (platformAutomakeEnabled(project)) {
       //we need to save documents right away or automake won't happen
-      beforeCompilation()
+      TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
 
       BuildManager.getInstance().scheduleAutoMake()
       //afterIncrementalCompilation is invoked in AutomakeBuildManagerListener
@@ -68,49 +66,41 @@ final class CompilerHighlightingService(project: Project)
     else {
       incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
         performCompilation(delayedProgressShow) { client =>
-          beforeCompilation()
+          TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
           try {
             IncrementalCompiler.compile(project, modules, client)
           } finally {
-            afterCompilation()
+            TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
           }
         }
       }
     }
   }
 
-  def triggerSingleFileCompilation(
+  def triggerDocumentCompilation(
     debugReason: String,
-    filePath: Path,
-    beforeCompilation: () => Unit,
-    afterCompilation: () => Unit,
-    delayedProgressShow: Boolean = true
+    document: Document,
+    afterCompilation: () => Unit = () => ()
   ): Unit = {
-    debug(s"triggerSingleFileCompilation: $debugReason")
-    if (platformAutomakeEnabled(project)) {
-      //we need to save documents right away or automake won't happen
-      beforeCompilation()
-
-      BuildManager.getInstance().scheduleAutoMake()
-      //afterIncrementalCompilation is invoked in AutomakeBuildManagerListener
-    }
-    else {
-      incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
-        performCompilation(delayedProgressShow) { client =>
-          beforeCompilation()
-          try {
-            IncrementalCompiler.compileSingleFile(project, filePath, client)
-          } finally {
-            afterCompilation()
-          }
-        }
+    debug(s"triggerDocumentCompilation: $debugReason")
+    scheduleDocumentCompilation(documentExecutor, document) { client =>
+      try {
+        DocumentCompiler.get(project).compile(document, client)
+      } finally {
+        afterCompilation()
       }
     }
   }
 
-  def triggerWorksheetCompilation(psiFile: ScalaFile, document: Document): Unit =
-    scheduleWorksheetCompilation(worksheetExecutor, document) { client =>
-      WorksheetHighlightingCompiler.compile(psiFile, document, client)
+  def triggerWorksheetCompilation(psiFile: ScalaFile,
+                                  document: Document,
+                                  afterCompilation: () => Unit = () => ()): Unit =
+    scheduleDocumentCompilation(worksheetExecutor, document) { client =>
+      try {
+        WorksheetHighlightingCompiler.compile(psiFile, document, client)
+      } finally {
+        afterCompilation()
+      }
     }
 
   def cancel(): Unit = {
@@ -132,7 +122,7 @@ final class CompilerHighlightingService(project: Project)
   private def saveProjectOnce(): Unit =
     if (!project.isDisposed || project.isDefault) project.save()
 
-  private def scheduleWorksheetCompilation(executor: RescheduledExecutor, document: Document)
+  private def scheduleDocumentCompilation(executor: RescheduledExecutor, document: Document)
                                          (compile: Client => Unit): Unit = {
     val action = new RescheduledExecutor.Action {
       override def perform(): Unit =
