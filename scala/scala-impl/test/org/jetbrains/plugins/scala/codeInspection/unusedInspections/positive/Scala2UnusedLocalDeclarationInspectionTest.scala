@@ -250,12 +250,6 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  def test_class_type_parameter3(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused class Test[A, ${START}B$END <: java.lang.Object] { Seq.empty[A] }
-       |""".stripMargin
-  )
-
   def test_function_type_parameter1(): Unit = checkTextHasError(
     s"""
        |@scala.annotation.unused class Test {
@@ -264,11 +258,19 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
+  def test_function_type_parameter2(): Unit = checkTextHasError(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A, ${START}B$END] = { Seq.empty[A] }
+       |}
+       |""".stripMargin
+  )
+
   def test_implicit_private_this_implicit_parameter(): Unit = checkTextHasError(
     s"""
        |@scala.annotation.unused
        |class MyClass()
-       |  (implicit ${START}param${END}: Boolean) {
+       |  (implicit ${START}param$END: Boolean) {
        |}
        |""".stripMargin
   )
@@ -277,7 +279,7 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
     s"""
        |@scala.annotation.unused
        |class MyClass()
-       |  (implicit private[this] val ${START}param${END}: Boolean) {
+       |  (implicit private[this] val ${START}param$END: Boolean) {
        |}
        |""".stripMargin
   )
@@ -286,23 +288,7 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
     s"""
        |@scala.annotation.unused
        |class MyClass()
-       |  (implicit private val ${START}param${END}: Boolean) {
-       |}
-       |""".stripMargin
-  )
-
- def test_function_type_parameter2(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused class Test {
-       |  @scala.annotation.unused def foo[A, ${START}B$END] = { Seq.empty[A] }
-       |}
-       |""".stripMargin
- )
-
-  def test_function_type_parameter3(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused class Test {
-       |  @scala.annotation.unused def foo[A, ${START}B$END <: java.lang.Object] = { Seq.empty[A] }
+       |  (implicit private val ${START}param$END: Boolean) {
        |}
        |""".stripMargin
   )
@@ -311,7 +297,7 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
     s"""
        |@scala.annotation.unused
        |class MyClass() {
-       |  implicit private val ${START}param${END}: Boolean = false
+       |  implicit private val ${START}param$END: Boolean = false
        |}
        |""".stripMargin
   )

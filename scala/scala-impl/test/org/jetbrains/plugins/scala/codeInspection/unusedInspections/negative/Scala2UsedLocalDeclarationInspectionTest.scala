@@ -362,4 +362,46 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     val problems = (new ScalaUnusedDeclarationInspection).invoke(unusedTypeParam, isOnTheFly = false)
     assertTrue(s"Found ${problems.size} problem(s) while 0 were expected", problems.isEmpty)
   }
+
+  def test_context_bounded_class_type_parameter1(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A <: java.lang.Object] {}
+       |""".stripMargin
+  )
+
+  def test_context_bounded_class_type_parameter2(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A : Ordering] {}
+       |""".stripMargin
+  )
+
+  def test_view_bounded_class_type_parameter(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test[A <% Ordering[A]] {}
+       |""".stripMargin
+  )
+
+  def test_context_bounded_function_type_parameter1(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A <: java.lang.Object] = { }
+       |}
+       |""".stripMargin
+  )
+
+  def test_context_bounded_function_type_parameter2(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A : Ordering] = { }
+       |}
+       |""".stripMargin
+  )
+
+  def test_view_bounded_function_type_parameter(): Unit = checkTextHasNoErrors(
+    s"""
+       |@scala.annotation.unused class Test {
+       |  @scala.annotation.unused def foo[A <% Ordering[A]] = { }
+       |}
+       |""".stripMargin
+  )
 }

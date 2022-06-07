@@ -238,6 +238,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       }
       elements.flatMap {
         case _: ScTypeParam if !isOnTheFly => Seq.empty
+        case typeParam: ScTypeParam if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
         case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
           Seq.empty
         case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
