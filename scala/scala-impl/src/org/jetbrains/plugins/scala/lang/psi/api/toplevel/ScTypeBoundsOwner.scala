@@ -19,6 +19,7 @@ trait ScTypeBoundsOwner extends ScalaPsiElement {
   def viewBound: Seq[ScType] = Nil
   def contextBound: Seq[ScType] = Nil
 
+  def hasBounds: Boolean = lowerTypeElement.nonEmpty || upperTypeElement.nonEmpty
   def hasImplicitBounds: Boolean = viewTypeElement.nonEmpty || contextBoundTypeElement.nonEmpty
 
   def lowerTypeElement: Option[ScTypeElement] = None
