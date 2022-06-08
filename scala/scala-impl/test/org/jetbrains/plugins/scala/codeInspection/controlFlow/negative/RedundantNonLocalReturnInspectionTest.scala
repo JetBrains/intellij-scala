@@ -32,7 +32,7 @@ class RedundantNonLocalReturnInspectionTest extends NonLocalReturnInspectionTest
     }
   }
 
-  def test_return_from_anon_function_not_highlighted_with_no_compiler_option(): Unit = {
+  def test_return_from_anon_function_not_highlighted_with_no_compiler_option_by_default(): Unit = {
     checkTextHasNoErrors {
       s"""
          |  def bar: Int =
@@ -44,15 +44,29 @@ class RedundantNonLocalReturnInspectionTest extends NonLocalReturnInspectionTest
     }
   }
 
-  def test_return_from_anon_partial_function_not_highlighted_with_no_compiler_option(): Unit = {
+  def test_return_from_synchronized_not_highlighted_1(): Unit = {
+    disableCheckingCompilerOption()
     checkTextHasNoErrors {
       s"""
-         |  def foo: Int =
-         |    Seq(1, 2, 3).reduce[Int] { case (acc, x) =>
-         |      val newAcc = acc + x
-         |      if (newAcc > 5) ${START}return newAcc${END}
-         |      newAcc
+         |  private val lock = new AnyRef
+         |
+         |  def foo1(x: Int): Int = {
+         |    lock.synchronized {
+         |      ${START}return 2${END}
          |    }
+         |    1
+         |  }
+         |    """.stripMargin
+    }
+  }
+
+  def test_return_from_synchronized_not_highlighted_2(): Unit = {
+    disableCheckingCompilerOption()
+    checkTextHasNoErrors {
+      s"""
+         |  def foo2(x: Int): Int = synchronized {
+         |    return 2
+         |  }
          |    """.stripMargin
     }
   }
