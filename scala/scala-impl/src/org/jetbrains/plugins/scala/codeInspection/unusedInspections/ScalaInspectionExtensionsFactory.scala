@@ -17,7 +17,7 @@ private class ScalaInspectionExtensionsFactory extends InspectionExtensionsFacto
     javaInspectionExtensionsFactory.createGlobalInspectionContextExtension()
 
   override def createRefManagerExtension(refManager: RefManager): RefManagerExtension[_] =
-    javaInspectionExtensionsFactory.createRefManagerExtension(refManager)
+    new RefScalaManager(refManager)
 
   override def createHTMLComposerExtension(composer: HTMLComposer): HTMLComposerExtension[_] =
     javaInspectionExtensionsFactory.createHTMLComposerExtension(composer)
