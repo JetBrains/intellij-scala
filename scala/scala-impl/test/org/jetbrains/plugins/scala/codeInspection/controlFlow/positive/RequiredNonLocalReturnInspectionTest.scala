@@ -108,4 +108,31 @@ class RequiredNonLocalReturnInspectionTest extends NonLocalReturnInspectionTestB
          |    """.stripMargin
     }
   }
+
+  def test_nonlocal_return_highlight_when_in_anon_functions_in_synchronized(): Unit = {
+    disableCheckingCompilerOption()
+    checkTextHasError {
+      s"""
+         |  private val lock = new AnyRef
+         |
+         |  def foo(x: Int): Int = synchronized {
+         |    lock.synchronized {
+         |      Seq(1, 2, 3).map { n =>
+         |        if (n > 5) ${START}return 0${END}
+         |        n * 2
+         |      }.sum
+         |      return 2
+         |    }
+         |    lock.synchronized {
+         |      Seq(1, 2, 3).map { n =>
+         |        if (n > 5) ${START}return 0${END}
+         |        n * 2
+         |      }.sum
+         |      return 2
+         |    }
+         |    1
+         |  }
+         |    """.stripMargin
+    }
+  }
 }
