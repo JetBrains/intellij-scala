@@ -19,8 +19,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScPrimaryConstructor, ScStableCodeReference}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScMethodCall, ScSelfInvocation}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -308,12 +309,15 @@ object SafeDeleteProcessorUtil {
   }
 
   private def findMethodOrConstructorInvocation(element: PsiElement): Iterator[ImplicitArgumentsOwner] = {
-    val parent = element.getParent
-    val invocation = element
-      .asOptionOf[MethodInvocation]
-      .orElse(parent.asOptionOf[MethodInvocation])
-      .orElse(element.asOptionOf[ScSelfInvocation])
-      .orElse(parent.getParent.asOptionOf[ScConstructorInvocation])
+    val invocation = element match {
+      case invocation: MethodInvocation => Some(invocation)
+      case Parent(invocation: MethodInvocation) => Some(invocation)
+      case Parent((_: ScGenericCall) && Parent(invocation: MethodInvocation)) => Some(invocation)
+      case invocation: ScSelfInvocation => Some(invocation)
+      case Parent(Parent(invocation: ScConstructorInvocation)) => Some(invocation)
+      case Parent(Parent((_: ScParameterizedTypeElement) && Parent(invocation: ScConstructorInvocation))) => Some(invocation)
+      case _ => None
+    }
 
     invocation match {
       case Some(call: ScMethodCall) => call.withParents.takeWhile(_.is[ScMethodCall]).map(_.asInstanceOf[ScMethodCall])
