@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScMethodCall, ScReturn}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScFunctionExpr, ScMethodCall, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import javax.swing.JComponent
@@ -60,6 +60,7 @@ object NonLocalReturnInspection {
       case _: ScFunctionDefinition => false
       case _: ScFunctionExpr       => true
       case _: ScMethodCall         => true
+      case _: ScFor                => true
       case parent: ScalaPsiElement => isInsideAnonymousFunction(parent)
     }
 }
