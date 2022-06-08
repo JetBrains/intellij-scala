@@ -16,7 +16,7 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
 
-  private def showCompilerErrorsScala2(project: Project): Boolean =
+  private[externalHighlighters] def showCompilerErrorsScala2(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
   def showCompilerErrorsScala3(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
@@ -39,19 +39,6 @@ object ScalaHighlightingMode {
       case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
       case _ => false
     }
-
-  /**
-   * Returns all modules from the project for which compiler based highlighting is enabled. Includes
-   * both Scala 2 and Scala 3 modules.
-   */
-  def compilerBasedHighlightingModules(project: Project): Seq[Module] = {
-    val allScalaModules = project.modulesWithScala
-    val cbhScala3 = showCompilerErrorsScala3(project)
-    val cbhScala2 = showCompilerErrorsScala2(project)
-    val scala3 = allScalaModules.filter(cbhScala3 && _.hasScala3)
-    val scala2 = allScalaModules.filter(cbhScala2 && _.hasScala)
-    scala3 ++ scala2
-  }
 
   private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {

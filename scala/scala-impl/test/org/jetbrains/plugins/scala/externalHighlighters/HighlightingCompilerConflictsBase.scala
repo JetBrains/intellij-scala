@@ -88,7 +88,18 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
         case _ => ()
       }
     })
-    val modules = ScalaHighlightingMode.compilerBasedHighlightingModules(project)
+
+    val modules = {
+      import org.jetbrains.plugins.scala.project._
+      import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode._
+      val allScalaModules = project.modulesWithScala
+      val cbhScala3 = showCompilerErrorsScala3(project)
+      val cbhScala2 = showCompilerErrorsScala2(project)
+      val scala3 = allScalaModules.filter(cbhScala3 && _.hasScala3)
+      val scala2 = allScalaModules.filter(cbhScala2 && _.hasScala)
+      scala3 ++ scala2
+    }
+
     CompilerHighlightingService.get(project).triggerIncrementalCompilation("manual trigger from tests", modules, delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
