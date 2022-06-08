@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
+import com.intellij.codeInspection.dataFlow.java.JavaClassDef
 import com.intellij.codeInspection.dataFlow.java.inst.{JvmPushInstruction, PrimitiveConversionInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.jvm.transfer.ExceptionTransfer
@@ -36,7 +37,7 @@ class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, pri
                                  context: ScalaPsiElement) {
 
   private val flow = new ControlFlow(factory, context)
-  private val trapTracker = new TrapTracker(factory, context)
+  private val trapTracker = new TrapTracker(factory, JavaClassDef.typeConstraintFactory(context))
 
   /**
    * Finishes building of this control flow and returns its representation. It can be further
