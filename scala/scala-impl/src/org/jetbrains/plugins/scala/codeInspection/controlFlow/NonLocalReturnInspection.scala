@@ -34,17 +34,17 @@ final class NonLocalReturnInspection extends AbstractRegisteredInspection {
                                            highlightType: ProblemHighlightType)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
     element match {
-      case function: ScFunctionDefinition if isInspectionAllowed(function, checkCompilerOption, "-Xlint:nonlocal-return") =>
-        function.returnUsages.collectFirst {
-            case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) =>
-              manager.createProblemDescriptor(
-                scReturn,
-                annotationDescription,
-                isOnTheFly,
-                Array.empty[LocalQuickFix],
-                ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-              )
-          }
+      case scReturn: ScReturn if isInsideAnonymousFunction(scReturn) &&
+        isInspectionAllowed(scReturn, checkCompilerOption, "-Xlint:nonlocal-return") =>
+        Some(
+            manager.createProblemDescriptor(
+              scReturn,
+              annotationDescription,
+              isOnTheFly,
+              Array.empty[LocalQuickFix],
+              ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+            )
+        )
       case _ =>
         None
     }
@@ -62,5 +62,6 @@ object NonLocalReturnInspection {
       case _: ScMethodCall         => true
       case _: ScFor                => true
       case parent: ScalaPsiElement => isInsideAnonymousFunction(parent)
+      case _                       => false
     }
 }

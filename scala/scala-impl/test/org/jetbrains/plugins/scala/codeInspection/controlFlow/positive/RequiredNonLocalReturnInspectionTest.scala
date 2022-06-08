@@ -63,7 +63,7 @@ class RequiredNonLocalReturnInspectionTest extends NonLocalReturnInspectionTestB
     }
   }
 
-  def test_return_from_for_syield_highlighted(): Unit = {
+  def test_return_from_for_yield_highlighted(): Unit = {
     disableCheckingCompilerOption()
     checkTextHasError {
       s"""
@@ -76,6 +76,34 @@ class RequiredNonLocalReturnInspectionTest extends NonLocalReturnInspectionTestB
          |      ${START}return x + y + z${END}
          |    }
          |    seq.sum
+         |  }
+         |    """.stripMargin
+    }
+  }
+
+  def test_multiple_returns_highlighted(): Unit = {
+    disableCheckingCompilerOption()
+    checkTextHasError {
+      s"""
+         |  def foo(x: Int): Int = {
+         |    val seq = 1 to 3
+         |    seq.foreach { _ =>
+         |      if (x == 1) {
+         |        ${START}return 1${END}
+         |      }
+         |    }
+         |    seq.foreach { _ =>
+         |      if (x == 2) {
+         |        ${START}return 2${END}
+         |      }
+         |    }
+         |    seq.foreach { _ =>
+         |      if (x == 3) {
+         |        ${START}return 3${END}
+         |      }
+         |    }
+         |
+         |    0
          |  }
          |    """.stripMargin
     }
