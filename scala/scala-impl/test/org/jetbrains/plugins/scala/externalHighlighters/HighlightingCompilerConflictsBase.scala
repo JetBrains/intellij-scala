@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.CompilerModuleExtension
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
+import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
+import org.jetbrains.plugins.scala.util.ScalaUtil
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
@@ -53,7 +56,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     compiler.make().assertNoProblems(allowWarnings = true)
 
     compiler.touch(sourceFile)
-    compileProjectWithJpsCompiler()
+    compileProjectWithJpsCompiler(sourceFile)
     val targetFileTimestampBefore = getTargetFileTimestamp(className)
 
     compiler.make().assertNoProblems(allowWarnings = true)
@@ -79,7 +82,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     optionResult.get
   }
 
-  private def compileProjectWithJpsCompiler(): Unit = {
+  private def compileProjectWithJpsCompiler(virtualFile: VirtualFile): Unit = {
     val promise = Promise[Unit]()
     val project = getProject
     project.getMessageBus.connect().subscribe(CompilerEventListener.topic, new CompilerEventListener {
@@ -89,18 +92,12 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
       }
     })
 
-    val modules = {
-      import org.jetbrains.plugins.scala.project._
-      import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode._
-      val allScalaModules = project.modulesWithScala
-      val cbhScala3 = showCompilerErrorsScala3(project)
-      val cbhScala2 = showCompilerErrorsScala2(project)
-      val scala3 = allScalaModules.filter(cbhScala3 && _.hasScala3)
-      val scala2 = allScalaModules.filter(cbhScala2 && _.hasScala)
-      scala3 ++ scala2
+    val module = ScalaUtil.getModuleForFile(virtualFile)(project)
+    val sourceScope = SourceScope.Production
+    module.foreach { m =>
+      CompilerHighlightingService.get(project)
+        .triggerIncrementalCompilation("manual trigger from tests", m, sourceScope, delayedProgressShow = false)
     }
-
-    CompilerHighlightingService.get(project).triggerIncrementalCompilation("manual trigger from tests", modules, delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
 }

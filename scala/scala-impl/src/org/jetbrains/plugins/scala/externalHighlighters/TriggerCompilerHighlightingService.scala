@@ -6,13 +6,13 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.JavaProjectRootsUtil
+import com.intellij.openapi.roots.{JavaProjectRootsUtil, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.TestOnly
+import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiFileExt, ToNullSafe, inReadAction}
@@ -43,7 +43,7 @@ final class TriggerCompilerHighlightingService(project: Project)
           else if (ScalaHighlightingMode.documentCompilerEnabled)
             scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _))
           else
-            triggerIncrementalCompilation(debugReason, ScalaUtil.getModuleForFile(virtualFile)(project).toSeq)
+            triggerIncrementalCompilation(debugReason, virtualFile)
         }
       }
 
@@ -61,7 +61,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(scalaFile, document)
         else
-          triggerIncrementalCompilation(debugReason, ScalaUtil.getModuleForFile(virtualFile)(project).toSeq)
+          triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
 
@@ -89,9 +89,17 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, modules: Seq[Module]): Unit = {
-    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, modules)
+  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
+    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined) {
+      val module = ScalaUtil.getModuleForFile(virtualFile)(project)
+      val sourceScope =
+        if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
+        else SourceScope.Production
+
+      module.foreach { m =>
+        CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
+      }
+    }
   }
 
   // SCL-18946

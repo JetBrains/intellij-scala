@@ -1,6 +1,6 @@
 package org.jetbrains.jps.incremental.scala.data
 
-import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand}
+import org.jetbrains.jps.incremental.scala.remote.{CommandIds, CompileServerCommand, SourceScope}
 
 import scala.concurrent.duration.DurationLong
 import scala.util.Try
@@ -22,19 +22,14 @@ object CompileServerCommandParser
         }
       case CommandIds.CompileJps =>
         args match {
-          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, other@_*) =>
-            val (externalProjectConfig, moduleNames) = other match {
-              case h +: t if h.startsWith(CompileServerCommand.CompileJps.ExternalProjectConfigTag) =>
-                (Some(h.stripPrefix(CompileServerCommand.CompileJps.ExternalProjectConfigTag)), t)
-              case moduleNames => (None, moduleNames)
-            }
-
+          case Seq(projectPath, globalOptionsPath, dataStorageRootPath, moduleName, sourceScope, other@_*) =>
             CompileServerCommand.CompileJps(
               projectPath = projectPath,
               globalOptionsPath = globalOptionsPath,
               dataStorageRootPath = dataStorageRootPath,
-              externalProjectConfig = externalProjectConfig,
-              moduleNames = moduleNames
+              moduleName = moduleName,
+              sourceScope = SourceScope.fromString(sourceScope),
+              externalProjectConfig = other.headOption
             )
           case _ =>
             throwIllegalArgs(commandId, args)

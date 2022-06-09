@@ -17,6 +17,7 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.ObjectExt
@@ -52,7 +53,8 @@ final class CompilerHighlightingService(project: Project)
 
   def triggerIncrementalCompilation(
     debugReason: String,
-    modules: Seq[Module],
+    module: Module,
+    sourceScope: SourceScope,
     delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
@@ -64,7 +66,7 @@ final class CompilerHighlightingService(project: Project)
       incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
         performCompilation(delayedProgressShow) { client =>
           try {
-            IncrementalCompiler.compile(project, modules, client)
+            IncrementalCompiler.compile(project, module, sourceScope, client)
           } finally {
             TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
           }

@@ -30,25 +30,22 @@ object CompileServerCommand {
   case class CompileJps(projectPath: String,
                         globalOptionsPath: String,
                         dataStorageRootPath: String,
-                        externalProjectConfig: Option[String],
-                        moduleNames: Seq[String])
+                        moduleName: String,
+                        sourceScope: SourceScope,
+                        externalProjectConfig: Option[String])
     extends CompileServerCommand {
-
-    import CompileJps.ExternalProjectConfigTag
 
     override def id: String = CommandIds.CompileJps
 
     override def asArgs: Seq[String] = Seq(
       projectPath,
       globalOptionsPath,
-      dataStorageRootPath
-    ) ++ externalProjectConfig.map(epc => s"$ExternalProjectConfigTag$epc") ++ moduleNames
+      dataStorageRootPath,
+      moduleName,
+      sourceScope.toString,
+    ) ++ externalProjectConfig
 
     override def isCompileCommand: Boolean = true
-  }
-
-  object CompileJps {
-    final val ExternalProjectConfigTag: String = "externalProjectConfig: "
   }
 
   case class GetMetrics()

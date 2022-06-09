@@ -8,14 +8,14 @@ import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.Client
-import org.jetbrains.jps.incremental.scala.remote.CompileServerCommand
+import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, SourceScope}
 import org.jetbrains.plugins.scala.compiler.CompileServerClient
 
 import java.io.File
 
 private[externalHighlighters] object IncrementalCompiler {
 
-  def compile(project: Project, modules: Seq[Module], client: Client): Unit = {
+  def compile(project: Project, module: Module, sourceScope: SourceScope, client: Client): Unit = {
     val projectPath = Option(project.getPresentableUrl)
       .map(VirtualFileManager.extractPath)
       .getOrElse(throw new IllegalStateException("Can't determine project path"))
@@ -34,8 +34,9 @@ private[externalHighlighters] object IncrementalCompiler {
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
       dataStorageRootPath = dataStorageRootPath,
-      externalConfigurationDir,
-      modules.map(_.getName).distinct
+      moduleName = module.getName,
+      sourceScope = sourceScope,
+      externalProjectConfig = externalConfigurationDir
     )
 
     CompileServerClient.get(project).execCommand(command, client)

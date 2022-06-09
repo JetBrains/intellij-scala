@@ -217,7 +217,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, externalProjectConfig, moduleNames) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, moduleName, sourceScope, externalProjectConfig) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -241,11 +241,14 @@ object Main {
     val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
       buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
     }
-    val forceBuild = false
+
+    val buildTargetType = sourceScope match {
+      case SourceScope.Production => JavaModuleBuildTargetType.PRODUCTION
+      case SourceScope.Test => JavaModuleBuildTargetType.TEST
+    }
 
     val scopes = Seq(
-      CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.PRODUCTION.getTypeId, moduleNames.asJava, forceBuild),
-      CmdlineProtoUtil.createTargetsScope(JavaModuleBuildTargetType.TEST.getTypeId, moduleNames.asJava, forceBuild)
+      CmdlineProtoUtil.createTargetsScope(buildTargetType.getTypeId, Seq(moduleName).asJava, false)
     ).asJava
 
     client.compilationStart()
