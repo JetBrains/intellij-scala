@@ -4,8 +4,8 @@ import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.Document
-import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
+import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
@@ -48,7 +48,7 @@ final class TriggerCompilerHighlightingService(project: Project)
       }
 
   def triggerOnSelectionChange(editor: FileEditor): Unit =
-    if (isHighlightingEnabled) {
+    if (ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
       val fileName = Option(editor.getFile).map(_.getName).getOrElse("<no file>")
       val debugReason = s"selected editor changed: $fileName"
       for {
@@ -56,6 +56,23 @@ final class TriggerCompilerHighlightingService(project: Project)
         psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
         if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
         document <- inReadAction(virtualFile.findDocument)
+        scalaFile <- psiFile.asOptionOf[ScalaFile]
+      } Future {
+        if (psiFile.isScalaWorksheet)
+          triggerWorksheetCompilation(scalaFile, document)
+        else
+          triggerIncrementalCompilation(debugReason, virtualFile)
+      }
+    }
+
+  private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit =
+    if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
+      val document = editor.getDocument
+      for {
+        virtualFile <- FileDocumentManager.getInstance().getFile(document).nullSafe
+        debugReason = s"Editor created for file: ${virtualFile.getCanonicalPath}"
+        psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
+        if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
         scalaFile <- psiFile.asOptionOf[ScalaFile]
       } Future {
         if (psiFile.isScalaWorksheet)
@@ -90,32 +107,14 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
-    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined) {
-      val module = ScalaUtil.getModuleForFile(virtualFile)(project)
-      val sourceScope =
-        if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
-        else SourceScope.Production
+    val module = ScalaUtil.getModuleForFile(virtualFile)(project)
+    val sourceScope =
+      if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
+      else SourceScope.Production
 
-      module.foreach { m =>
-        CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
-      }
+    module.foreach { m =>
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
     }
-  }
-
-  // SCL-18946
-  def showErrorsFromCompilerEnabledAtLeastForOneOpenEditor: Option[FileEditor] = {
-    val psiManager = PsiManager.getInstance(project)
-
-    def isEnabledFor(editor: FileEditor): Boolean = {
-      val isShowErrorsFromCompilerEnabled = for {
-        virtualFile <- Option(editor.getFile)
-        psiFile <- Option(inReadAction(psiManager.findFile(virtualFile)))
-      } yield ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-      isShowErrorsFromCompilerEnabled.getOrElse(false)
-    }
-
-    val openEditors = FileEditorManager.getInstance(project).getAllEditors
-    openEditors.find(isEnabledFor)
   }
 
   def afterIncrementalCompilation(): Unit = {
