@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.codeInspection.shadowing
+package org.jetbrains.plugins.scala.codeInspection.shadow
 
 
 import com.intellij.codeInspection.LocalInspectionTool

@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.codeInspection.shadowing.negative
+package org.jetbrains.plugins.scala.codeInspection.shadow.negative
 
-import org.jetbrains.plugins.scala.codeInspection.shadowing.PrivateShadowInspectionTestBase
+import org.jetbrains.plugins.scala.codeInspection.shadow.PrivateShadowInspectionTestBase
 
 class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
   def test_subclass_parameter_doesnt_shadow_immutable_superclass_field(): Unit =
