@@ -19,8 +19,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScConstructorPattern
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScConstructorInvocation, ScPrimaryConstructor, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -102,11 +102,29 @@ object SafeDeleteProcessorUtil {
       val index: Int = owner.getTypeParameterList.getTypeParameterIndex(typeParameter)
       referenceSearch(owner).forEach(new Processor[PsiReference] {
         override def process(reference: PsiReference): Boolean = {
+          def addScalaTypeArgUsageInfo(typeArgs: Seq[ScTypeElement]): Unit =
+            if (typeArgs.lengthIs > index)
+              usages.add(new SafeDeleteScalaTypeArgumentDeleteUsageInfo(typeArgs(index), typeParameter))
+
           reference match {
             case referenceElement: PsiJavaCodeReferenceElement =>
               val typeArgs: Array[PsiTypeElement] = referenceElement.getParameterList.getTypeParameterElements
               if (typeArgs.length > index) {
                 usages.add(new SafeDeleteReferenceJavaDeleteUsageInfo(typeArgs(index), typeParameter, true))
+              }
+            case ref: ScReference =>
+              ref.parentOfType(Seq(classOf[ScGenericCall], classOf[ScConstructorInvocation])) match {
+                case Some(ScGenericCall(referencedExpr, typeArgs)) if referencedExpr == ref || referencedExpr == ref.getParent =>
+                  addScalaTypeArgUsageInfo(typeArgs)
+                case Some(ScConstructorInvocation(ScParameterizedTypeElement(typeElement, typeArgs), _)) if ref.getParent == typeElement =>
+                  addScalaTypeArgUsageInfo(typeArgs)
+                case None =>
+                  // Nested type arguments like `def foo: Foo[Bar[A, Baz[B], C]]`
+                  ref.parentsInFile.takeWhile(_.is[ScTypeArgs, ScTypeElement]).collectFirst {
+                    case ScParameterizedTypeElement(_, typeArgs) =>
+                      addScalaTypeArgUsageInfo(typeArgs)
+                  }
+                case _ =>
               }
             case _ =>
           }

@@ -4,7 +4,7 @@ import com.intellij.refactoring.BaseRefactoringProcessor
 import com.intellij.refactoring.listeners.{RefactoringEventData, RefactoringEventListener}
 import com.intellij.refactoring.safeDelete.SafeDeleteHandler
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
 import org.jetbrains.plugins.scala.util.Markers
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 
@@ -12,6 +12,8 @@ import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers with AssertionMatchers {
+  protected def | : String = CARET
+
   private def wrapText(content: String): String = {
     val contentText = content.withNormalizedSeparator.trim.replace("\n", "\n  ").replace("  \n", "\n")
     val classText =
@@ -23,17 +25,21 @@ abstract class ScalaSafeDeleteTestBase extends ScalaLightCodeInsightFixtureTestA
     classText.withNormalizedSeparator.trim
   }
 
-  def doSafeDeleteTest(text: String, expectedResult: String, fileType: String = "scala", expectedUnsafeDeletions: Int = 0): Unit = {
-    configureFromFileTextWithSomeName(fileType, wrapText(text))
+  def doSafeDeleteTest(text: String,
+                       expectedResult: String,
+                       fileType: String = "scala",
+                       expectedUnsafeDeletions: Int = 0,
+                       wrapTextInClass: Boolean = true): Unit = {
+    configureFromFileTextWithSomeName(fileType, text.pipeIf(_ => wrapTextInClass)(wrapText))
 
     val foundNotSafeToDeletes = notSafeToDeletesIn {
       val element = myFixture.getElementAtCaret
-      BaseRefactoringProcessor.ConflictsInTestsException.withIgnoredConflicts( () =>
+      BaseRefactoringProcessor.ConflictsInTestsException.withIgnoredConflicts(() =>
         SafeDeleteHandler.invoke(getProject, Array(element), true)
       )
     }
 
-    getFile.getText shouldBe wrapText(expectedResult)
+    getFile.getText shouldBe expectedResult.pipeIf(_ => wrapTextInClass)(wrapText)
     foundNotSafeToDeletes shouldBe expectedUnsafeDeletions
   }
 

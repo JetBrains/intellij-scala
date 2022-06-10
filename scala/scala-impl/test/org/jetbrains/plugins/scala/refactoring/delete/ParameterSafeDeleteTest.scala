@@ -3,7 +3,6 @@ package refactoring
 package delete
 
 class ParameterSafeDeleteTest extends ScalaSafeDeleteTestBase {
-  private def | : String = CARET
 
   def test_unreferenced(): Unit = doSafeDeleteTest(
     s"""
