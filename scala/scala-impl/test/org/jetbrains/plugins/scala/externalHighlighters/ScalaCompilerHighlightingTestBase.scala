@@ -79,7 +79,7 @@ abstract class ScalaCompilerHighlightingTestBase
           }
       }
     }
-    rec(20)
+    rec(40)
   }
 
   protected def runTestCase(fileName: String,
@@ -87,7 +87,6 @@ abstract class ScalaCompilerHighlightingTestBase
                             expectedResult: ExpectedResult): Unit = runWithErrorsFromCompiler(getProject) {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       invokeAndWait {
-        compiler.rebuild()
         FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
       }
     }
