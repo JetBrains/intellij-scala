@@ -3,13 +3,13 @@ package org.jetbrains.plugins.scala.codeInspection.shadow.positive
 import org.jetbrains.plugins.scala.codeInspection.shadow.PrivateShadowInspectionTestBase
 
 class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
-  def test_subclass_parameter_shadows_abstract_class_var(): Unit =
+  def test_subclass_parameter_shadows_superclass_mutable_field(): Unit =
     checkTextHasError(
       s"""
-         |abstract class Animal(var cat: String)
+         |class C(var c: Int)
          |
-         |class Cat(${START}cat${END}: String = "cat") extends Animal("") {
-         |  cat
+         |class D(${START}c${END}: Int) extends C(c) {
+         |  def usage = c
          |}
          |""".stripMargin
     )

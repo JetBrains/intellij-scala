@@ -52,7 +52,18 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
       s"""
          |class C(var c: Int)
          |
-         |class D(private[this] val ${START}c${END}: Int) extends C(c)
+         |class D(private[this] val ${START}c${END}: Int) extends C(c) {
+         |  def usage = c
+         |}
+         |""".stripMargin
+    )
+
+  def test_subclass_parameter_not_highlighted_if_not_used_in_the_body(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |class C(var c: Int)
+         |
+         |class D(${START}c${END}: Int) extends C(c)
          |""".stripMargin
     )
 
