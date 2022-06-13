@@ -23,6 +23,7 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
+import com.intellij.util.ui.UI
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
@@ -160,10 +161,10 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private def reportConfigResolveError(configResolveError: ConfigResolveError): Unit = {
     import ConfigResolveError._
     configResolveError match {
-      case ConfigFileNotFound(configPath)      => reportConfigFileNotFound(configPath)
-      case ConfigParseError(_, exception)      => reportConfigParseError(exception.getMessage)
+      case ConfigFileNotFound(configPath) => reportConfigFileNotFound(configPath)
+      case ConfigParseError(_, exception) => reportConfigParseError(exception.getMessage)
       case ConfigCyclicDependenciesError(_, _) => reportConfigParseError(ScalaBundle.message("scalafmt.config.load.errors.cyclic.includes.detected"))
-      case ConfigScalafmtResolveError(error)   => reportCantResolveVersion(error.version)
+      case ConfigScalafmtResolveError(error) => reportCantResolveVersion(error.version)
     }
   }
 
@@ -303,13 +304,14 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       w
     }
     reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save"))
+    reformatOnFileSavePanel = UI.PanelFactory.panel(reformatOnFileSaveCheckBox).withTooltip(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip")).createPanel
     fallBackToDefaultSettings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.fallback.to.default.settings"))
 
     inner.add(showScalaFmtInvalidCodeWarnings,
       constraint(0, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(useIntellijFormatterWrapper,
       constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(reformatOnFileSaveCheckBox,
+    inner.add(reformatOnFileSavePanel,
       constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(fallBackToDefaultSettings,
       constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
@@ -381,6 +383,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
         textField.setText(text)
         updateConfigPath(text)
       }
+
       override def getText(textField: JTextField): String = {
         val path = ScalafmtConfigUtils.actualConfigPath(textField.getText)
         val absolutePath = projectOpt.flatMap(ScalafmtConfigUtils.projectConfigFileAbsolutePath(_, path))
@@ -391,6 +394,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     // if we typed only whitespaces and lost focus from text field we should display empty text placeholder
     val focusListener = new FocusListener {
       override def focusGained(e: FocusEvent): Unit = {}
+
       override def focusLost(e: FocusEvent): Unit = {
         val configPath = configPathFromUi
         if (StringUtils.isBlank(configPath)) {
@@ -446,8 +450,9 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
+  private var reformatOnFileSavePanel: JPanel = _
   private var fallBackToDefaultSettings: JBCheckBox = _
-  private val customSettingsTitle   = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
+  private val customSettingsTitle = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
   private val DefaultConfigFilePath = s".${File.separatorChar}${ScalafmtDynamicConfigService.DefaultConfigurationFileName}"
 }

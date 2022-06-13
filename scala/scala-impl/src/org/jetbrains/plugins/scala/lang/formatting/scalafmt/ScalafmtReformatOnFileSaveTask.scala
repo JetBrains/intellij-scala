@@ -21,7 +21,10 @@ final class ScalafmtReformatOnFileSaveTask extends ProjectManagerListener {
   override def projectOpened(project: Project): Unit = {
     val bus = ApplicationManager.getApplication.getMessageBus
     bus.connect(project.unloadAwareDisposable).subscribe(AppTopics.FILE_DOCUMENT_SYNC, new FileDocumentManagerListener {
-      override def beforeDocumentSaving(document: Document): Unit = reformatIfNeeded(document)(project)
+      override def beforeAllDocumentsSaving(): Unit = project.selectedDocument match {
+          case Some(document) => reformatIfNeeded(document)(project)
+          case _ =>
+        }
     })
   }
 
