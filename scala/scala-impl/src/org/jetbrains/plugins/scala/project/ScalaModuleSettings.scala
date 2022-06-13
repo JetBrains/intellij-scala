@@ -37,7 +37,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 
   val compilerPlugins: Set[String] = settingsForHighlighting.flatMap(_.plugins).toSet
 
-  def additionalCompilerOptions: Set[String] = settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet
+  val additionalCompilerOptions: Set[String] = settingsForHighlighting.flatMap(_.additionalCompilerOptions).toSet
 
   val isMetaEnabled: Boolean =
     compilerPlugins.exists(isMetaParadiseJar)
