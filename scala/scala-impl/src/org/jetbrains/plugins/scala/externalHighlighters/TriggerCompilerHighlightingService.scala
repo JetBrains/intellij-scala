@@ -37,13 +37,12 @@ final class TriggerCompilerHighlightingService(project: Project)
         val scalaFile = psiFile.asOptionOf[ScalaFile]
         val debugReason = s"file content changed: ${psiFile.getName}"
         Future {
-          document.syncToDisk(project)
           if (psiFile.isScalaWorksheet)
             scalaFile.foreach(triggerWorksheetCompilation(_, document))
           else if (ScalaHighlightingMode.documentCompilerEnabled)
             scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _))
           else
-            triggerIncrementalCompilation(debugReason, virtualFile)
+            triggerIncrementalCompilation(debugReason, virtualFile, document)
         }
       }
 
@@ -61,7 +60,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(scalaFile, document)
         else
-          triggerIncrementalCompilation(debugReason, virtualFile)
+          triggerIncrementalCompilation(debugReason, virtualFile, document)
       }
     }
 
@@ -78,7 +77,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(scalaFile, document)
         else
-          triggerIncrementalCompilation(debugReason, virtualFile)
+          triggerIncrementalCompilation(debugReason, virtualFile, document)
       }
     }
 
@@ -106,14 +105,14 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document): Unit = {
     val module = ScalaUtil.getModuleForFile(virtualFile)(project)
     val sourceScope =
       if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
       else SourceScope.Production
 
     module.foreach { m =>
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope, () => document.syncToDisk(project))
     }
   }
 

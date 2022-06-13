@@ -55,6 +55,7 @@ final class CompilerHighlightingService(project: Project)
     debugReason: String,
     module: Module,
     sourceScope: SourceScope,
+    beforeCompilation: () => Unit,
     delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
@@ -66,6 +67,7 @@ final class CompilerHighlightingService(project: Project)
       incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
         performCompilation(delayedProgressShow) { client =>
           try {
+            beforeCompilation()
             IncrementalCompiler.compile(project, module, sourceScope, client)
           } finally {
             TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
