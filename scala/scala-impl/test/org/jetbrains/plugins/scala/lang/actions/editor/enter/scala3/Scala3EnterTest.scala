@@ -41,6 +41,16 @@ class Scala3EnterTest extends DoEditorStateTestOps with Scala2AndScala3EnterActi
   def testAfterFunctionTypeArrow_4(): Unit =
     doEnterAfterFunctionTypeArrow(s"""type Contextual1[T] = ExecutionContext =>  $CARET  T""")
 
+  // TODO ignored until we fix parsing of comments, see SCL
+  def _testFunctionWithDocComment(): Unit = doEnterTest(
+    s"""// foo
+       |def foo =$CARET
+       |  ???""".stripMargin,
+    s"""// foo
+       |def foo =
+       |  $CARET
+       |  ???""".stripMargin)
+
   def textTopLevelFunctionWithNonEmptyBody_EOF(): Unit = {
     def doMyTest(context: String): Unit =
       checkIndentAfterTypingCode(context, CodeToType.BlankLines.code, myFixture)
