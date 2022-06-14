@@ -17,6 +17,7 @@ import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighligh
 import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui._
+import com.intellij.openapi.ui.panel.ComponentPanelBuilder
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleSettings
@@ -24,7 +25,6 @@ import com.intellij.ui.awt.RelativePoint
 import com.intellij.ui.components.panels.HorizontalLayout
 import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import com.intellij.util.ui.UI
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -306,15 +306,17 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       w
     }
     reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save", KeymapUtil.getShortcutText("SaveAll")))
-    reformatOnFileSavePanel = UI.PanelFactory.panel(reformatOnFileSaveCheckBox).withComment(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip", KeymapUtil.getShortcutText("ReformatCode"))).moveCommentRight.createPanel
+    reformatOnFileSaveComment = ComponentPanelBuilder.createCommentComponent(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip", KeymapUtil.getShortcutText("ReformatCode")), false)
     fallBackToDefaultSettings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.fallback.to.default.settings"))
 
     inner.add(showScalaFmtInvalidCodeWarnings,
       constraint(0, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(useIntellijFormatterWrapper,
       constraint(1, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
-    inner.add(reformatOnFileSavePanel,
-      constraint(2, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(reformatOnFileSaveCheckBox,
+      constraint(2, 0, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
+    inner.add(reformatOnFileSaveComment,
+      constraint(2, 1, 1, 2, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
     inner.add(fallBackToDefaultSettings,
       constraint(3, 0, 1, 3, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
 
@@ -452,7 +454,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
   private var useIntellijFormatterForRangeFormat: JBCheckBox = _
   private var useIntellijWarning: JLabel = _
   private var reformatOnFileSaveCheckBox: JBCheckBox = _
-  private var reformatOnFileSavePanel: JPanel = _
+  private var reformatOnFileSaveComment: JLabel = _
   private var fallBackToDefaultSettings: JBCheckBox = _
   private val customSettingsTitle = ScalaBundle.message("scalafmt.settings.panel.select.custom.scalafmt.configuration.file")
   //noinspection HardCodedStringLiteral
