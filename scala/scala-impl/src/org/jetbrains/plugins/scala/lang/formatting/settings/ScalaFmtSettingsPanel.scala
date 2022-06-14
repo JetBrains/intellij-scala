@@ -14,6 +14,7 @@ import com.intellij.openapi.editor.{EditorFactory, EditorSettings}
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory.getSyntaxHighlighter
+import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui._
 import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
@@ -26,6 +27,7 @@ import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.UI
 import org.apache.commons.lang.StringUtils
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService.ConfigResolveError.{ConfigError, ConfigScalafmtResolveError}
@@ -303,8 +305,8 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       w.add(useIntellijWarning, constraint(0, 1, 1, 1, ANCHOR_WEST, FILL_NONE, SIZEPOLICY_FIXED, SIZEPOLICY_FIXED))
       w
     }
-    reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save"))
-    reformatOnFileSavePanel = UI.PanelFactory.panel(reformatOnFileSaveCheckBox).withTooltip(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip")).createPanel
+    reformatOnFileSaveCheckBox = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save", KeymapUtil.getShortcutText("SaveAll")))
+    reformatOnFileSavePanel = UI.PanelFactory.panel(reformatOnFileSaveCheckBox).withComment(ScalaBundle.message("scalafmt.settings.panel.reformat.on.file.save.tooltip", KeymapUtil.getShortcutText("ReformatCode"))).moveCommentRight.createPanel
     fallBackToDefaultSettings = new JBCheckBox(ScalaBundle.message("scalafmt.settings.panel.fallback.to.default.settings"))
 
     inner.add(showScalaFmtInvalidCodeWarnings,
