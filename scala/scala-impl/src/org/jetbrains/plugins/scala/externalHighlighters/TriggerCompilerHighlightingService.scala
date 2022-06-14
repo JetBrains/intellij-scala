@@ -5,7 +5,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, Editor}
-import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor, FileEditorManager}
+import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
@@ -22,11 +22,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
+import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 
 @Service
 final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
+
+  private val filesCompiledWithDocumentCompiler: mutable.Set[VirtualFile] = mutable.Set.empty
 
   private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
@@ -39,10 +42,15 @@ final class TriggerCompilerHighlightingService(project: Project)
         Future {
           if (psiFile.isScalaWorksheet)
             scalaFile.foreach(triggerWorksheetCompilation(_, document))
-          else if (ScalaHighlightingMode.documentCompilerEnabled)
-            scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _))
-          else
-            triggerIncrementalCompilation(debugReason, virtualFile, document)
+          else if (ScalaHighlightingMode.documentCompilerEnabled) {
+            scalaFile.foreach { f =>
+              synchronized {
+                filesCompiledWithDocumentCompiler += virtualFile
+              }
+              triggerDocumentCompilation(debugReason, document, f)
+            }
+          } else
+            triggerIncrementalCompilation(debugReason, virtualFile)
         }
       }
 
@@ -60,7 +68,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(scalaFile, document)
         else
-          triggerIncrementalCompilation(debugReason, virtualFile, document)
+          triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
 
@@ -77,11 +85,14 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet)
           triggerWorksheetCompilation(scalaFile, document)
         else
-          triggerIncrementalCompilation(debugReason, virtualFile, document)
+          triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
 
   override def dispose(): Unit = {
+    synchronized {
+      filesCompiledWithDocumentCompiler.clear()
+    }
     threadPool.shutdownNow()
   }
 
@@ -105,14 +116,26 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile, document: Document): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
     val module = ScalaUtil.getModuleForFile(virtualFile)(project)
     val sourceScope =
       if (TestSourcesFilter.isTestSources(virtualFile, project)) SourceScope.Test
       else SourceScope.Production
 
     module.foreach { m =>
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope, () => document.syncToDisk(project))
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
+    }
+  }
+
+  private def saveFileToDisk(virtualFile: VirtualFile): Unit =
+    inReadAction(virtualFile.findDocument).foreach(_.syncToDisk(project))
+
+  def beforeIncrementalCompilation(): Unit = {
+    if (ScalaHighlightingMode.documentCompilerEnabled) {
+      synchronized {
+        filesCompiledWithDocumentCompiler.foreach(saveFileToDisk)
+        filesCompiledWithDocumentCompiler.clear()
+      }
     }
   }
 

@@ -55,11 +55,12 @@ final class CompilerHighlightingService(project: Project)
     debugReason: String,
     module: Module,
     sourceScope: SourceScope,
-    beforeCompilation: () => Unit,
     delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
     if (platformAutomakeEnabled(project)) {
+      //we need to save documents right away or automake won't happen
+      TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
       BuildManager.getInstance().scheduleAutoMake()
       //afterIncrementalCompilation is invoked in AutomakeBuildManagerListener
     }
@@ -67,7 +68,7 @@ final class CompilerHighlightingService(project: Project)
       incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
         performCompilation(delayedProgressShow) { client =>
           try {
-            beforeCompilation()
+            TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
             IncrementalCompiler.compile(project, module, sourceScope, client)
           } finally {
             TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
