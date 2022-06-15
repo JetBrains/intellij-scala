@@ -81,4 +81,29 @@ class ImplicitsTest extends TypeInferenceTestBase {
       |//String
     """.stripMargin.trim
   }
+
+  def testJavaRawStackOverflowSCL19526: Unit = {
+    addFileToProject("JavaRaw.java",
+      """
+        |public class JavaRaw {
+        |    public interface ResultKey<K, P extends ResultKey> { public String str(); }
+        |    public interface TypedEnum<K, P extends ResultKey> implements ResultKey<K, P> {}
+        |    public interface CalculationEnum<K> extends TypedEnum<K, Column> {}
+        |    public interface Column<V extends String> extends ResultKey<V, Column> {}
+        |}
+        |""".stripMargin)
+    doTest(
+      s"""
+        |class SCL19526 {
+        |  def javaRaw1(x: M[JavaRaw.CalculationEnum[_]]): Unit = {
+        |    ${START}x.extension.str()${END}
+        |  }
+        |  class M[A] { def a: A = ??? }
+        |  object M {
+        |    implicit def richM[A](ma: M[A]): { def extension: A } = ???
+        |  }
+        |}
+        |// String
+        |""".stripMargin)
+  }
 }

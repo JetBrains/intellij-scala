@@ -223,27 +223,37 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   private def psiTypeOf(typeParameter: PsiTypeParameter): PsiType =
     PsiSubstitutor.EMPTY.substitute(typeParameter)
 
-
+  private object RawTypeParamToExistentialMapBuilder {
+    val NoUpperBound = () => api.Any
+    val NoLowerBound = () => api.Nothing
+  }
   private class RawTypeParamToExistentialMapBuilder(rawClassResult: ClassResolveResult, paramTopLevel: Boolean) {
+    import RawTypeParamToExistentialMapBuilder._
 
     def buildMap: Map[PsiTypeParameter, ScExistentialArgument] = lazyMap
 
     private lazy val lazyMap = {
       val rawTypeParams = collectRawTypeParameters(rawClassResult.getElement, rawClassResult.getSubstitutor)
       rawTypeParams.map { tp =>
-        (tp, ScExistentialArgument.deferred(tp.getName, Seq.empty, () => Nothing, () => upperForRaw(tp)))
+        val upper = upperForRaw(tp)
+        val arg = if (upper eq NoUpperBound) {
+          // common case: no upper bound, no risk of cycles => just use a Complete type.
+          ScExistentialArgument(tp.getName, Seq.empty, NoLowerBound(), NoUpperBound())
+        } else
+          ScExistentialArgument.deferred(tp.getName, Seq.empty, Some(TypeParameter(tp)), NoLowerBound, upper)
+        (tp, arg)
       }.toMap
     }
 
-    private def upperForRaw(tp: PsiTypeParameter): ScType = {
+    private def upperForRaw(tp: PsiTypeParameter): () => ScType = {
       def convertBound(bound: PsiType) = {
         toScTypeInner(bound, paramTopLevel, rawExistentialArguments = Some(lazyMap))
       }
 
       tp.getExtendsListTypes match {
-        case Array() => api.Any
-        case Array(head) => convertBound(head)
-        case components => ScCompoundType(ArraySeq.unsafeWrapArray(components.map(convertBound)))
+        case Array() => NoUpperBound
+        case Array(head) => () => convertBound(head)
+        case components => () => ScCompoundType(ArraySeq.unsafeWrapArray(components.map(convertBound)))
       }
     }
 
