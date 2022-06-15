@@ -33,6 +33,7 @@ import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters._
 
 final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection {
+
   import ScalaUnusedDeclarationInspection._
   import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
 
@@ -220,39 +221,53 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     used
   }
 
-  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] =
+  override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
+
     if (!shouldProcessElement(element)) {
       Seq.empty
     } else {
-      val elements: Seq[PsiElement] = element match {
-        case named: ScNamedElement => Seq(named)
+
+      // Structure to encapsulate the possibility to check a delegate element to determine
+      // usedness of the original PsiElement passed into `invoke`.
+      // When a ProblemInfo is created, we still want it to pertain to the original element under inspection,
+      // that was passed into `invoke`, and not to the delegate.
+      // So we use the delegate only to determine usedness, and the original for all other operations.
+      case class InspectedElement(original: ScNamedElement, delegate: ScNamedElement)
+
+      val elements: Seq[InspectedElement] = element match {
+        case functionDeclaration: ScFunctionDeclaration
+          if Option(functionDeclaration.getContainingClass).exists(_.isSAMable) =>
+          Option(functionDeclaration.getContainingClass).toSeq
+            .collect { case named: ScNamedElement => named }
+            .map(InspectedElement(functionDeclaration, _))
+        case named: ScNamedElement => Seq(InspectedElement(named, named))
         case _ => Seq.empty
       }
       elements.flatMap {
-        case _: ScTypeParam if !isOnTheFly => Seq.empty
-        case typeParam: ScTypeParam if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
-        case inNameContext(holder: PsiAnnotationOwner) if hasUnusedAnnotation(holder) =>
+        case InspectedElement(_, _: ScTypeParam) if !isOnTheFly => Seq.empty
+        case InspectedElement(_, typeParam: ScTypeParam) if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
+        case InspectedElement(_, inNameContext(holder: PsiAnnotationOwner)) if hasUnusedAnnotation(holder) =>
           Seq.empty
-        case named: ScNamedElement if !isElementUsed(named, isOnTheFly) =>
+        case InspectedElement(original: ScNamedElement, delegate: ScNamedElement) if !isElementUsed(delegate, isOnTheFly) =>
 
           val dontReportPublicDeclarationsQuickFix =
-            if (isOnlyVisibleInLocalFile(named)) None else Some(new DontReportPublicDeclarationsQuickFix(named))
+            if (isOnlyVisibleInLocalFile(original)) None else Some(new DontReportPublicDeclarationsQuickFix(original))
 
-          val addScalaAnnotationUnusedQuickFix = if (named.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13)
-            None else Some(new AddScalaAnnotationUnusedQuickFix(named))
+          val addScalaAnnotationUnusedQuickFix = if (delegate.scalaLanguageLevelOrDefault < ScalaLanguageLevel.Scala_2_13)
+            None else Some(new AddScalaAnnotationUnusedQuickFix(original))
 
           val message = if (isOnTheFly) {
             ScalaUnusedDeclarationInspection.annotationDescription
           } else {
-            UnusedDeclarationVerboseProblemInfoMessage(named)
+            UnusedDeclarationVerboseProblemInfoMessage(original)
           }
 
           Seq(
             ProblemInfo(
-              named.nameId,
+              original.nameId,
               message,
               ProblemHighlightType.LIKE_UNUSED_SYMBOL,
-              DeleteUnusedElementFix.quickfixesFor(named) ++
+              DeleteUnusedElementFix.quickfixesFor(original) ++
                 dontReportPublicDeclarationsQuickFix ++
                 addScalaAnnotationUnusedQuickFix
             )
@@ -261,6 +276,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
           Seq.empty
       }
     }
+  }
 
   override def shouldProcessElement(elem: PsiElement): Boolean = elem match {
     case e if !isOnlyVisibleInLocalFile(e) && TestSourcesFilter.isTestSources(e.getContainingFile.getVirtualFile, e.getProject) => false
@@ -268,7 +284,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
     case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) && !ScalaPsiUtil.isImplicit(e) => false
     case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-    case t: ScTypeDefinition if t.isSAMable => false
     case n: ScNamedElement if n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
     case n: ScNamedElement =>
       n match {

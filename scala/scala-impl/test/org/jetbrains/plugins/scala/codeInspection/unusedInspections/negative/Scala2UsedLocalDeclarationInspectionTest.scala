@@ -77,12 +77,12 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
   def testImplicitParameter(): Unit = {
     val code =
       """
+        |import scala.annotation.unused
         |class Bar
-        |//noinspection ScalaUnusedSymbol
-        |class Baz(bar: Bar)
-        |class Moo {
-        |  def foo(_: Bar => Baz) = ???
-        |  foo { implicit bar => new Baz(bar)  }
+        |@unused class Baz(@unused bar: Bar)
+        |@unused class Moo {
+        |  def foo(@unused bar: Bar => Baz) = {}
+        |  foo { implicit bar => new Baz(bar) }
         |}
       """.stripMargin
     checkTextHasNoErrors(code)
@@ -401,6 +401,16 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     s"""
        |@scala.annotation.unused class Test {
        |  @scala.annotation.unused def foo[A <% Ordering[A]] = { }
+       |}
+       |""".stripMargin
+  )
+
+  def test_single_abstract_method(): Unit = checkTextHasNoErrors(
+    s"""
+       |import scala.annotation.unused
+       |@unused object ctx {
+       |  abstract class SamContainer { def iAmSam(@unused foobar: Int): Unit }
+       |  @unused class SamConsumer { @unused val samContainer: SamContainer = (i: Int) => println(i) }
        |}
        |""".stripMargin
   )
