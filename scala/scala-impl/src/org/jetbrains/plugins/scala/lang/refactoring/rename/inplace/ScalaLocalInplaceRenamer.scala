@@ -5,18 +5,21 @@ import com.intellij.lang.Language
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Pair, TextRange}
-import com.intellij.psi.search.LocalSearchScope
-import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement}
+import com.intellij.psi.search.{LocalSearchScope, SearchScope}
+import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElement, PsiReference}
 import com.intellij.refactoring.RefactoringActionHandler
 import com.intellij.refactoring.rename.inplace.VariableInplaceRenamer
 import com.intellij.refactoring.util.TextOccurrencesUtil.processUsagesInStringsAndComments
 import org.jetbrains.annotations.NotNull
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScBegin
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
+import scala.jdk.CollectionConverters.SeqHasAsJava
+import scala.util.chaining._
 
 /**
  * Nikolay.Tropin
@@ -47,6 +50,18 @@ class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor,
       }
     )
   }
+
+  override def collectRefs(referencesSearchScope: SearchScope): util.Collection[PsiReference] =
+    super.collectRefs(referencesSearchScope).tap { refs =>
+      elementToRename
+        .withParentsInFile
+        .findByType[ScBegin]
+        .filter(_.tag == elementToRename)
+        .flatMap(_.end)
+        .foreach { end =>
+          refs.addAll(end.getReferences.toSeq.asJava)
+        }
+    }
 
   override def isIdentifier(newName: String, language: Language): Boolean =
     ScalaNamesValidator.isIdentifier(newName)
