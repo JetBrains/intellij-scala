@@ -8,11 +8,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
+import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions.isCompilerOptionPresent
 
 object ScVarOverrideAnnotator extends ElementAnnotator[ScNamedElement] {
   override def annotate(element: ScNamedElement, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit =
-    if (isVarOverride(element))
+    if (!isCompilerOptionPresent(element, "-Yoverride-vars") && isVarOverride(element))
       holder.createErrorAnnotation(element, ScalaBundle.message("var.overriden.by.val"))
 
   private def isVarOverride(elem: ScNamedElement): Boolean =
