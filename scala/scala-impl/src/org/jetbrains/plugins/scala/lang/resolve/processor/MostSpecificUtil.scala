@@ -85,6 +85,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
           ScExistentialArgument.deferred(
             tp.name,
             tp.typeParameters,
+            None,
             () => existentialArgumentSubst(tp.lowerType),
             () => existentialArgumentSubst(tp.upperType)
           )

@@ -28,6 +28,8 @@ trait ScExistentialArgument extends NamedType with ValueType {
 
   def initialize(): Unit = {}
 
+  def typeParamOfRawArg: Option[TypeParameter] = None
+
   override def equivInner(r: ScType, constraints: ConstraintSystem, falseUndef: Boolean): ConstraintsResult = {
     r match {
       case arg: ScExistentialArgument =>
@@ -57,10 +59,11 @@ object ScExistentialArgument {
   //used for representing type parameters of a java raw class type
   //it may have a reference to itself in it's bounds, so it cannot be fully initialized in constructor
   private class Deferred(
-    override val name:           String,
-    override val typeParameters: Seq[TypeParameter],
-    var lowerBound:              () => ScType,
-    var upperBound:              () => ScType
+    override val name:              String,
+    override val typeParameters:    Seq[TypeParameter],
+    override val typeParamOfRawArg: Option[TypeParameter],
+    var lowerBound:                 () => ScType,
+    var upperBound:                 () => ScType
   ) extends ScExistentialArgument {
     @volatile
     private var isInitialized: Boolean = false
@@ -147,10 +150,11 @@ object ScExistentialArgument {
   def deferred(
     name:           String,
     typeParameters: Seq[TypeParameter],
+    typeParamOfRaw: Option[TypeParameter],
     lower:          () => ScType,
     upper:          () => ScType
   ): ScExistentialArgument =
-    new Deferred(name, typeParameters, lower, upper)
+    new Deferred(name, typeParameters, typeParamOfRaw, lower, upper)
 
   def unapply(arg: ScExistentialArgument): Option[(String, Seq[TypeParameter], ScType, ScType)] =
     Some((arg.name, arg.typeParameters, arg.lower, arg.upper))
