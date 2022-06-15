@@ -773,18 +773,31 @@ package object extensions {
       inner(PsiTreeUtil.nextLeaf(element))
     }
 
-    def getPrevIndentWhitespace: String = {
-      val prev = element.getPrevNonEmptyLeaf
-      if (prev != null && prev.isWhitespace) {
-        val text = prev.getText
-        val linebreak = text.lastIndexOf('\n')
-        if (linebreak >= 0)
-          text.substring(linebreak + 1)
-        else ""
-      } else ""
+    def getIndentWhitespace(ignoreComments: Boolean = true): String = {
+      var indent = ""
+      @tailrec
+      def inner(el: PsiElement): String = el match {
+        case null => indent
+        case ws: PsiWhiteSpace => {
+          val text = ws.getText
+          val linebreak = text.lastIndexOf('\n')
+          if (linebreak >= 0)
+            text.substring(linebreak + 1) + indent
+          else {
+            indent = text + indent
+            inner(PsiTreeUtil.prevLeaf(el))
+          }
+        }
+        case _: PsiComment if ignoreComments =>
+          inner(PsiTreeUtil.prevLeaf(el))
+        case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
+          inner(PsiTreeUtil.prevLeaf(el))
+        case _ => ""
+      }
+      inner(PsiTreeUtil.prevLeaf(element))
     }
 
-    def isIndented: Boolean = getPrevIndentWhitespace.nonEmpty
+    @inline def isIndented: Boolean = getIndentWhitespace().nonEmpty
 
     def getPrevSiblingNotWhitespace: PsiElement = {
       var prev: PsiElement = element.getPrevSibling
