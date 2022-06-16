@@ -6,14 +6,12 @@ import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightVisitorImpl}
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
-import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.annotator.{DummyScalaAnnotationBuilder, ScalaAnnotationBuilder, ScalaAnnotationHolder, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{DummyScalaAnnotationBuilder, ScalaAnnotationBuilder, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
  * @author Alexander Podkhalyuzin
@@ -31,11 +29,6 @@ final class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
       element.getContainingFile match {
         case javaFile: PsiJavaFile => highlightJavaElement(element, javaFile, holder)
-        case scalaFile: ScalaFile if !InjectedLanguageManager.getInstance(project).isInjectedFragment(scalaFile) => // todo: remove this after proper support of scala fragments in .md files
-          val annotator = new ScalaAnnotator() {
-            override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
-          }
-          annotator.annotate(element)(new DummyAnnotationHolder(element, holder))
         case _ =>
       }
     }
