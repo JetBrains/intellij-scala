@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.annotator
 
-class ScVarOverrideAnnotatorTest extends ScalaHighlightingTestBase {
+class ScNamedElementAnnotatorTest extends ScalaHighlightingTestBase {
   def testOverrideParameter(): Unit = {
     val scalaCode =
       """
@@ -51,5 +51,49 @@ class ScVarOverrideAnnotatorTest extends ScalaHighlightingTestBase {
 
     val errors = errorsFromScalaCode(scalaCode)
     assert(errors.exists(err => err.element == "override val cat: String"))
+  }
+
+  def testOverrideParamByVar(): Unit = {
+    val scalaCode =
+      """
+        |class Animal(var cat: String)
+        |
+        |class Cat extends Animal("") {
+        |  override var cat: String = "cat"
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.exists(err => err.element == "cat"))
+  }
+
+  def testOverrideParamByDef(): Unit = {
+    val scalaCode =
+      """
+        |class Animal(var cat: String)
+        |
+        |class Cat extends Animal("") {
+        |  override def cat: String = "cat"
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.exists(err => err.element == "cat"))
+  }
+
+  def testOverrideAbstractVarByVarIsOk(): Unit = {
+    val scalaCode =
+      """
+        |trait Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override var cat: String = ""
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty)
   }
 }
