@@ -60,7 +60,7 @@ class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 
-  override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
+  override def createCallerChooser(title: String, treeToReuse: Tree, callback: Consumer[_ >: util.Set[ScFunction]]): CallerChooserBase[ScFunction] = null
 
   override def createRefactoringProcessor(): BaseRefactoringProcessor = {
     val parameters = splittedItems.map(_.map(_.parameter))

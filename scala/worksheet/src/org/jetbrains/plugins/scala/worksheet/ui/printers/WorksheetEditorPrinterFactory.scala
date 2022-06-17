@@ -276,7 +276,7 @@ object WorksheetEditorPrinterFactory {
           if (CommonDataKeys.HOST_EDITOR.is(dataId)) editor
           else null
         }
-        jComp.putClientProperty(DataManager.CLIENT_PROPERTY_DATA_PROVIDER, dataProvider)
+        DataManager.registerDataProvider(jComp, dataProvider)
       case _ =>
     }
     editor
