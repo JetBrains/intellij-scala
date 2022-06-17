@@ -14,8 +14,7 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -29,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
 
-  private val filesCompiledWithDocumentCompiler: mutable.Set[VirtualFile] = mutable.Set.empty
+  private val modifiedFiles: mutable.Set[VirtualFile] = mutable.Set.empty
 
   private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
@@ -45,12 +44,16 @@ final class TriggerCompilerHighlightingService(project: Project)
           else if (ScalaHighlightingMode.documentCompilerEnabled) {
             scalaFile.foreach { f =>
               synchronized {
-                filesCompiledWithDocumentCompiler += virtualFile
+                modifiedFiles += virtualFile
               }
               triggerDocumentCompilation(debugReason, document, f)
             }
-          } else
+          } else {
+            synchronized {
+              modifiedFiles += virtualFile
+            }
             triggerIncrementalCompilation(debugReason, virtualFile)
+          }
         }
       }
 
@@ -91,7 +94,7 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   override def dispose(): Unit = {
     synchronized {
-      filesCompiledWithDocumentCompiler.clear()
+      modifiedFiles.clear()
     }
     threadPool.shutdownNow()
   }
@@ -127,16 +130,21 @@ final class TriggerCompilerHighlightingService(project: Project)
     }
   }
 
-  private def saveFileToDisk(virtualFile: VirtualFile): Unit =
-    inReadAction(virtualFile.findDocument).foreach(_.syncToDisk(project))
-
-  def beforeIncrementalCompilation(): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled) {
-      synchronized {
-        filesCompiledWithDocumentCompiler.foreach(saveFileToDisk)
-        filesCompiledWithDocumentCompiler.clear()
+  private def saveFileToDisk(file: VirtualFile): Unit = {
+    if (file.isValid) {
+      val manager = FileDocumentManager.getInstance()
+      invokeAndWait {
+        val document = manager.getDocument(file)
+        if (document ne null) {
+          manager.saveDocumentAsIs(document)
+        }
       }
     }
+  }
+
+  def beforeIncrementalCompilation(): Unit = synchronized {
+    modifiedFiles.foreach(saveFileToDisk)
+    modifiedFiles.clear()
   }
 
   def afterIncrementalCompilation(): Unit = {

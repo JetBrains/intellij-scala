@@ -44,15 +44,6 @@ package object editor {
     def virtualFile: Option[VirtualFile] =
       Option(FileDocumentManager.getInstance().getFile(document))
 
-    def syncToDisk(project: Project): Unit =
-      virtualFile.filter(_.isValid).foreach { file =>
-        invokeAndWait {
-          inWriteAction {
-            FileDocumentManager.getInstance.saveDocumentAsIs(document)
-          }
-        }
-      }
-
     def textWithConvertedSeparators(file: VirtualFile): String = {
       val separator = if (document.getLineCount > 1)
         FileDocumentManagerImpl.getLineSeparator(document, file)
