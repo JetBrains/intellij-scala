@@ -224,7 +224,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val to =
       s"""def bar() =
          |  print(2)
-         |  $Caret"""
+         |  $Caret
+         |"""
     val after =
       s"""def bar() =
          |  print(2)
@@ -233,7 +234,8 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |
-         |    baz()"""
+         |    baz()
+         |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
 
@@ -261,6 +263,74 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |  baz()
          |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF_1(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |def foo() =
+         |  def baz() =
+         |    print(1)
+         |  baz()"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF_2(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ???$Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  ???def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()"""
     doTestWithStripWithAllSelections(from, to, after)
   }
 
