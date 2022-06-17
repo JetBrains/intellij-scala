@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.editor.copy
 
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Caret, Editor, RawText}
+import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaLanguage
+import com.intellij.psi.{PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt}
 
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
@@ -29,17 +29,17 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     // if multi-line string and caret on new line, add caret indentation to all lines
     if (file.useIndentationBasedSyntax && text.contains('\n')) {
       val caret = editor.getCaretModel.getCurrentCaret
-      val indentWhitespace = file.elementAt(caret.getSelectionStart) match {
-        case Some(ws: PsiWhiteSpace) => {
-          if (ws.textContains('\n')) {
-            var wsText = ws.getText
-            wsText = wsText.substring(0, caret.getSelectionStart - ws.startOffset)
+      val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, caret.getSelectionStart)
+      val indentWhitespace = elementAtCaret match {
+        case null => ""
+        case ws: PsiWhiteSpace =>
+          var wsText = ws.getText
+          wsText = wsText.substring(0, caret.getSelectionStart - ws.startOffset)
+          if (wsText.contains('\n'))
             wsText.substring(wsText.lastIndexOf('\n') + 1)
-          } else ""
-        }
-        // TODO what about paste in text (caret not preceded by whitespace)
-        case Some(el) => el.getIndentWhitespace()
-        case _ => ""
+          else ""
+        // TODO what if caret not preceded by whitespace - take line indentation
+        case el => el.getIndentWhitespace()
       }
       text.linesIterator.map(indentWhitespace + _).mkString("\n").stripLeading()
     } else text
