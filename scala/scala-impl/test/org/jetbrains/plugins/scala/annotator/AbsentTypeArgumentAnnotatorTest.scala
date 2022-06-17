@@ -139,6 +139,24 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
       case Nil =>
     }
   }
+
+  def testParentheses(): Unit = {
+    assertMatches(messagesInContext("type T = (A1)[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = (A1)")) {
+      case List(Error(_, "Type A1 takes type parameters")) =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))")) {
+      case List(Error(_, "Type A1 takes type parameters")) =>
+    }
+  }
 }
 
 class AbsentTypeArgumentAnnotatorTest_Scala3 extends AbsentTypeArgumentAnnotatorTest_Scala2 {
