@@ -266,74 +266,6 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  def testInnerMethod_FromObject_EOF(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  $Caret"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |
-         |  def foo() =
-         |    def baz() =
-         |      print(1)
-         |
-         |    baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  def testInnerMethod_FromObject_EOF_1(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |$Caret"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |def foo() =
-         |  def baz() =
-         |    print(1)
-         |  baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  def testInnerMethod_FromObject_EOF_2(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ???$Caret"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ???def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
   def testInnerMethod_Braces(): Unit = {
     val from =
       s"""${Start}def foo() = {
@@ -445,6 +377,179 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |
          |    baz(1)
          |  }
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF_1(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |def foo() =
+         |  def baz() =
+         |    print(1)
+         |  baz()"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_EOF_2(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ???$Caret"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  ???def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Prefix(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ???$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  ???
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Postfix(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Infix(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ???$Caret ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  ???def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz() ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Infix_WithSpaces(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ??? $Caret ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  ??? def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz() ???
          |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
