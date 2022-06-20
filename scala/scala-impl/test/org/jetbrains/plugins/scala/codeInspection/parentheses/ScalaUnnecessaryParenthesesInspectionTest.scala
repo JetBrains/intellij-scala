@@ -542,4 +542,16 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
     val hint = hintBeginning + " (for (...) do {...})"
     testQuickFix(text, expected, hint)
   }
+
+  def testPolymorphicFunctionType(): Unit = {
+    checkTextHasErrors(s"type T = $START([X] => X => Any)$END")
+    checkTextHasErrors(s"type T = [X] => $START(X => Any)$END")
+  }
+
+  def testPolymorphicFunction(): Unit = {
+    checkTextHasErrors(s"val v = $START([X] => (x: X) => 0)$END")
+    checkTextHasErrors(s"val v = [X] => $START((x: X) => 0)$END")
+
+    checkTextHasNoErrors("val v = [X] => (x: X) => 0")
+  }
 }

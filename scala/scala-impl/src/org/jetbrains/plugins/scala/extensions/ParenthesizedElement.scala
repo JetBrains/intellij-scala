@@ -116,6 +116,7 @@ object ParenthesizedElement {
       case (ifx@ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)                        => ifx.isLeftAssoc
 
       case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement)       => true
+      case (pf: ScPolyFunctionTypeElement, _: ScFunctionalTypeElement) if pf.resultTypeElement.contains(parenthesized) => true
       case _                                                                                     => false
     }
   }
