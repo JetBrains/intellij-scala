@@ -5,13 +5,9 @@ package internal
 import com.intellij.codeInsight.daemon.impl.HighlightVisitor
 import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, HighlightVisitorImpl}
 import com.intellij.codeInspection._
-import com.intellij.lang.annotation._
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
-import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.annotator.{DummyScalaAnnotationBuilder, ScalaAnnotationBuilder, ScalaAnnotationHolder}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 /**
  * @author Alexander Podkhalyuzin
@@ -67,32 +63,5 @@ object AnnotatorBasedErrorInspection {
         null: TextRange
       )
     }
-  }
-
-  private class DummyAnnotationHolder(element: PsiElement, holder: ProblemsHolder) extends ScalaAnnotationHolder {
-
-    override def isBatchMode: Boolean = false
-
-    override def getCurrentAnnotationSession: AnnotationSession = {
-      new AnnotationSession(element.getContainingFile)
-    }
-
-    override def newAnnotation(severity: HighlightSeverity, message: String): ScalaAnnotationBuilder =
-      new MyAnnotationBuilder(severity, message)
-
-
-    override def newSilentAnnotation(severity: HighlightSeverity): ScalaAnnotationBuilder =
-      new MyAnnotationBuilder(severity)
-
-    private class MyAnnotationBuilder(severity: HighlightSeverity, message: String = null)
-      extends DummyScalaAnnotationBuilder(severity, message) {
-
-      override def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange): Unit = {
-        val rangeInElement = range.shiftLeft(element.startOffset)
-        holder.registerProblem(element, rangeInElement, message)
-      }
-
-    }
-
   }
 }
