@@ -449,13 +449,6 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return ArtifactCompileScope.createArtifactsScope(myProject, artifacts);
     }
 
-    @SuppressWarnings("deprecation")
-    protected Sdk setupJdkForModule(final String moduleName) {
-        final Sdk sdk = JavaAwareProjectJdkTableImpl.getInstanceEx().getInternalJdk();
-        ModuleRootModificationUtil.setModuleSdk(getModule(moduleName), sdk);
-        return sdk;
-    }
-
     protected static Sdk createJdk(String versionName) {
         return IdeaTestUtil.getMockJdk17(versionName);
     }
