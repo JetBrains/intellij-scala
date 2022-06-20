@@ -12,6 +12,7 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
+@SuppressWarnings("unchecked")
 abstract class VersionDialogBase extends DialogWrapper {
     protected SComboBox<String> myVersion;
     private JPanel myContent;
@@ -57,4 +58,5 @@ abstract class VersionDialogBase extends DialogWrapper {
     public JComponent $$$getRootComponent$$$() {
         return myContent;
     }
+
 }
