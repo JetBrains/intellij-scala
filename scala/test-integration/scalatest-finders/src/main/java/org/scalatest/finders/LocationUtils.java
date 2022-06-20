@@ -85,7 +85,8 @@ public class LocationUtils {
       finders = lookInSuperClasses(clazz);
     return finders;
   }
-  
+
+  @SuppressWarnings("unchecked")
   public static <T extends AstNode> T getParentOfType(AstNode node, Class<T> clazz) {
     T result = null;
     while (result == null && node.parent() != null) {
