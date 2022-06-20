@@ -16,15 +16,13 @@
 
 package org.scalatest.finders;
 
-import org.scalatest.finders.utils.CollectionUtils;
-
 import java.util.*;
 
 import static org.scalatest.finders.utils.StringUtils.isMethod;
 
 public class WordSpecFinder implements Finder {
-    
-  private final Set<String> scopeSet = CollectionUtils.newHasSet(
+
+  private final Set<String> scopeSet = Set.of(
       "should",
       "must",
       "can",
@@ -70,11 +68,11 @@ public class WordSpecFinder implements Finder {
             ? ((MethodInvocation) curInvocation.target()).target()
             : curInvocation.target();
         if (!target.canBePartOfTestName()) return null;
-        result.insert(0, target.toString() + " " );
+        result.insert(0, target + " " );
       } else {
         AstNode target = curInvocation.target();
         if (!target.canBePartOfTestName()) return null;
-        result.insert(0, (target.toString() + " " + curInvocation.name() + " "));
+        result.insert(0, (target + " " + curInvocation.name() + " "));
       }
 
       AstNode parent = curInvocation.parent();
