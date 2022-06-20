@@ -4,9 +4,7 @@ import com.intellij.openapi.observable.properties.GraphProperty;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.ui.components.JBCheckBox;
-import com.intellij.ui.dsl.builder.ButtonKt;
-import com.intellij.ui.dsl.builder.Cell;
-import com.intellij.ui.dsl.builder.ComboBoxKt;
+import com.intellij.ui.dsl.builder.*;
 import com.intellij.ui.layout.PropertyBinding;
 import com.intellij.ui.layout.ValidationInfoBuilder;
 import kotlin.Unit;
@@ -23,7 +21,7 @@ public class KotlinInteropUtils {
                     component.setSelectedItem(value);
                     return Unit.INSTANCE;
                 },
-                binding
+                MutablePropertyKt.MutableProperty(binding.getGet(), binding.getSet())
         );
     }
 
