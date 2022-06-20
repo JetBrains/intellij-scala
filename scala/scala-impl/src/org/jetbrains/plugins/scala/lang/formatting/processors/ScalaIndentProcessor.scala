@@ -9,6 +9,7 @@ import com.intellij.psi.PsiComment
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.{NEXT_LINE_SHIFTED, NEXT_LINE_SHIFTED2}
 import com.intellij.psi.impl.source.tree.{LeafPsiElement, PsiWhiteSpaceImpl}
 import com.intellij.psi.tree.TokenSet
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.isIndented
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
 import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isConstructorArgOrMemberFunctionParameter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -88,7 +89,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       if (bracesShifted && b.isEnclosedByBraces) Indent.getNormalIndent
       else Indent.getNoneIndent
 
-    @inline def canIndentChildComment: Boolean = !settings.KEEP_FIRST_COLUMN_COMMENT || child.getPsi.isIndented
+    @inline def canIndentChildComment: Boolean = !settings.KEEP_FIRST_COLUMN_COMMENT || isIndented(child.getPsi)
 
     //TODO these are hack methods to facilitate indenting in cases when comment before def/val/var adds one more level of blocks
     def funIndent = childPsi match {

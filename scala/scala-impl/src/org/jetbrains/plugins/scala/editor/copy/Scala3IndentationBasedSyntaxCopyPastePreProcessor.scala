@@ -4,6 +4,7 @@ import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
 import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiFile, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.{getIndentWhitespace, getLineIndentWhitespace}
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt}
 
@@ -18,7 +19,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       while (firstElement.exists(_.isWhitespace))
         firstElement = firstElement.get.nextVisibleLeaf
       if (firstElement.nonEmpty) {
-        val leadingSpaceOnLine = firstElement.get.getIndentWhitespace()
+        val leadingSpaceOnLine = getIndentWhitespace(firstElement.get)
         text.concat("\n").linesIterator.map(_.stripPrefix(leadingSpaceOnLine)).mkString("\n")
       } else null
     } else null
@@ -38,8 +39,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
           if (wsText.contains('\n'))
             wsText.substring(wsText.lastIndexOf('\n') + 1)
           else ""
-        // TODO what if caret not preceded by whitespace - take line indentation
-        case el => el.getIndentWhitespace()
+        case el => getLineIndentWhitespace(el)
       }
       text.linesIterator.map(indentWhitespace + _).mkString("\n").stripLeading()
     } else text
