@@ -147,12 +147,6 @@ final class TriggerCompilerHighlightingService(project: Project)
     modifiedFiles.clear()
   }
 
-  def afterIncrementalCompilation(): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled) {
-      DocumentCompiler.get(project).clearOutputDirectories()
-    }
-  }
-
   private def triggerDocumentCompilation(
     debugReason: String,
     document: Document,

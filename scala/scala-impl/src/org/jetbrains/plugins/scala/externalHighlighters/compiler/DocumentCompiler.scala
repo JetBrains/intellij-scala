@@ -36,14 +36,21 @@ final class DocumentCompiler(project: Project)
       client = client
     )
     
-  def clearOutputDirectories(): Unit =
+  private def clearOutputDirectories(): Unit =
     for {
       outputDir <- outputDirectories.values.asScala
       file <- outputDir.listFiles()
     } FileUtil.delete(file)
 
-  override def dispose(): Unit =
+  private def removeOutputDirectories(): Unit = {
+    outputDirectories.values().asScala.foreach(FileUtil.delete)
+  }
+
+  override def dispose(): Unit = {
+    clearOutputDirectories()
+    removeOutputDirectories()
     outputDirectories.clear()
+  }
 
   private def compileDocumentContent(originalSourceFile: File,
                                      content: String,
