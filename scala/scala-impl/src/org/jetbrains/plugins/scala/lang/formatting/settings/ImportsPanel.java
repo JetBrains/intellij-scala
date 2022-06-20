@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 
+@SuppressWarnings("unchecked")
 public final class ImportsPanel extends ScalaCodeStylePanelBase {
 
     private JPanel contentPanel;
