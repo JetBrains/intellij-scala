@@ -94,6 +94,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
     private static final AbstractDocumentationTooltipAction[] ourTooltipActions = {new ShowQuickDocAtPinnedWindowFromTooltipAction()};
     @Nullable
     private TooltipProvider myTooltipProvider = null;
+    @SuppressWarnings("deprecation")
     private final DocumentationManager myDocumentationManager;
     @Nullable
     private Point myPrevMouseLocation;
@@ -206,7 +207,9 @@ public class MouseHoverHandler implements ProjectManagerListener {
     public MouseHoverHandlerListeners(final Project project) {
       myProject = project;
       myProjectDisposable = UnloadAwareDisposable.forProject(myProject);
-      myDocumentationManager = DocumentationManager.getInstance(project);
+      @SuppressWarnings("deprecation")
+      final var documentationManager = DocumentationManager.getInstance(project);
+      myDocumentationManager = documentationManager;
       myDocAlarm = new Alarm(Alarm.ThreadToUse.POOLED_THREAD, myProjectDisposable);
       myTooltipAlarm = new Alarm(Alarm.ThreadToUse.SWING_THREAD, myProjectDisposable);
     }
@@ -275,7 +278,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
 
       public abstract boolean isValid(Document document);
 
-      public abstract void showDocInfo(@NotNull DocumentationManager docManager);
+      public abstract void showDocInfo(@SuppressWarnings("deprecation") @NotNull DocumentationManager docManager);
 
       protected boolean rangesAreCorrect(Document document) {
         final TextRange docRange = new TextRange(0, document.getTextLength());
@@ -320,7 +323,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
       }
 
       @Override
-      public void showDocInfo(@NotNull DocumentationManager docManager) {
+      public void showDocInfo(@SuppressWarnings("deprecation") @NotNull DocumentationManager docManager) {
 //      docManager.showJavaDocInfo(myTargetElement, myElementAtPointer, true, null);
         docManager.setAllowContentUpdateFromContext(false);
       }
