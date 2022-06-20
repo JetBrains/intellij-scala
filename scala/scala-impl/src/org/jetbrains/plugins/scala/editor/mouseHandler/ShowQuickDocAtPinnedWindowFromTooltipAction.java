@@ -43,6 +43,7 @@ public class ShowQuickDocAtPinnedWindowFromTooltipAction extends AbstractDocumen
       return;
     }
 
+    @SuppressWarnings("deprecation")
     DocumentationManager docManager = DocumentationManager.getInstance(project);
     docManager.setAllowContentUpdateFromContext(false);
     docManager.showJavaDocInfoAtToolWindow(docAnchor, originalElement); 
