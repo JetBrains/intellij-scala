@@ -21,5 +21,12 @@ trait ScParenthesizedElement extends ScalaPsiElement {
 
 
 object ScParenthesizedElement {
+  object InnermostElement {
+    def unapply(e: ScalaPsiElement): Option[ScalaPsiElement] = e match {
+      case ScParenthesizedElement(InnermostElement(e)) => Some(e)
+      case e => Some(e)
+    }
+  }
+
   def unapply(p: ScParenthesizedElement): Option[p.Kind] = p.innerElement
 }
