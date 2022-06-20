@@ -116,6 +116,8 @@ object ParenthesizedElement {
       case (ifx@ScInfixElement(`parenthesized`, _, _), _: ScInfixElement)                        => ifx.isLeftAssoc
 
       case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement)       => true
+      case (pf: ScPolyFunctionTypeElement, _: ScFunctionalTypeElement) if pf.resultTypeElement.contains(parenthesized) => true
+      case (pf: ScTypeLambdaTypeElement, _: ScTypeLambdaTypeElement | _: ScPolyFunctionTypeElement | _: ScFunctionalTypeElement) if pf.resultTypeElement.contains(parenthesized) => true
       case _                                                                                     => false
     }
   }
@@ -161,7 +163,7 @@ object ParenthesizedElement {
     case _: ScInfixTypeElement         => 3
     case _: ScExistentialTypeElement   => 4
     case _: ScWildcardTypeElement      => 5
-    case _: ScFunctionalTypeElement    => 6
+    case _: ScFunctionalTypeElement | _: ScPolyFunctionTypeElement | _: ScTypeLambdaTypeElement  => 6
     case _                             => throw new IllegalArgumentException(s"Unknown type element $te")
   }
 

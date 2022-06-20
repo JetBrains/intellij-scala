@@ -6,20 +6,20 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
 
 abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCase {
-  protected val prefix =
-    """object Test {
-      |  class A0
-      |  class A1[X]
-      |  trait A2[X, Y]
-      |
-      |""".stripMargin
-  protected val postfix = "\n}"
+  private final val Prefix =
+    """
+       object Test {
+         class A0
+         class A1[X]
+         trait A2[X, Y]
+    """
+
+  private final val Suffix = "\n}"
 
   protected def scalaLanguage: com.intellij.lang.Language
 
-  protected def messagesInContext(@Language(value = "Scala") code: String): List[Message] = {
-    messages(s"$prefix$code$postfix")
-  }
+  protected def messagesInContext(@Language(value = "Scala", prefix = Prefix, suffix  = Suffix) code: String): List[Message] =
+    messages(s"$Prefix$code$Suffix")
 
   protected def messages(@Language(value = "Scala") code: String): List[Message] = {
     val file: ScalaFile = parseText(code, scalaLanguage)
@@ -137,6 +137,24 @@ class AbsentTypeArgumentAnnotatorTest_Scala2 extends AbsentTypeArgumentAnnotator
 
     assertMatches(messagesInContext("class C[H[_], Z]; type T = A1 C A0")) {
       case Nil =>
+    }
+  }
+
+  def testParentheses(): Unit = {
+    assertMatches(messagesInContext("type T = (A1)[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))[Int]")) {
+      case Nil =>
+    }
+
+    assertMatches(messagesInContext("type T = (A1)")) {
+      case List(Error(_, "Type A1 takes type parameters")) =>
+    }
+
+    assertMatches(messagesInContext("type T = ((A1))")) {
+      case List(Error(_, "Type A1 takes type parameters")) =>
     }
   }
 }
