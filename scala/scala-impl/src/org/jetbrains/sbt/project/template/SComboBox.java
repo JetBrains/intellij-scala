@@ -47,9 +47,9 @@ public class SComboBox<T> extends ComboBox<T> {
   public void setTextRenderer2(final Function1<T, String> renderer) {
     setRenderer(new DefaultListCellRenderer() {
       @Override
+      @SuppressWarnings("unchecked")
       public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
         Component component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-        //noinspection unchecked
         setText(renderer.apply((T) value));
         return component;
       }
