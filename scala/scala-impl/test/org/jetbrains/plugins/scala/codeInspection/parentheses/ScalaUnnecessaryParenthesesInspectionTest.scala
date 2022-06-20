@@ -554,4 +554,13 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
 
     checkTextHasNoErrors("val v = [X] => (x: X) => 0")
   }
+
+  def testTypeLambda(): Unit = {
+    checkTextHasErrors(s"type T = $START([X] =>> Any)$END")
+    checkTextHasErrors(s"type T = $START([X] =>> [Y] => Any)$END")
+    checkTextHasErrors(s"type T = [X] =>> $START([Y] =>> Any)$END")
+
+    checkTextHasErrors(s"type T = [X] =>> $START(X => Any)$END")
+    checkTextHasErrors(s"type T = [X] =>> $START([X] => X => Any)$END")
+  }
 }

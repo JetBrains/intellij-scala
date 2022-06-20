@@ -117,6 +117,7 @@ object ParenthesizedElement {
 
       case (ScFunctionalTypeElement(_, Some(`parenthesized`)), _: ScFunctionalTypeElement)       => true
       case (pf: ScPolyFunctionTypeElement, _: ScFunctionalTypeElement) if pf.resultTypeElement.contains(parenthesized) => true
+      case (pf: ScTypeLambdaTypeElement, _: ScTypeLambdaTypeElement | _: ScPolyFunctionTypeElement | _: ScFunctionalTypeElement) if pf.resultTypeElement.contains(parenthesized) => true
       case _                                                                                     => false
     }
   }
