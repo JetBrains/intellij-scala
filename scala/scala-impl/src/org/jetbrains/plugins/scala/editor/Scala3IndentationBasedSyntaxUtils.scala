@@ -8,6 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScIf, ScWhile}
 
 import scala.annotation.tailrec
 
+// TODO rework this
+// TODO test this
 // see https://docs.scala-lang.org/scala3/reference/other-new-features/indentation.html
 object Scala3IndentationBasedSyntaxUtils {
   def indentedRegionCanStart(leaf: PsiElement): Boolean = leaf.elementType match {
@@ -56,7 +58,7 @@ object Scala3IndentationBasedSyntaxUtils {
     case _ => !outdentedRegionCanStart(leaf)
   }
 
-  def getIndentWhitespace(element: PsiElement, ignoreComments: Boolean = true, skipElementsOnLine: Boolean = false): String = {
+  def indentWhitespace(element: PsiElement, ignoreComments: Boolean = true, skipElementsOnLine: Boolean = false): String = {
     var indent = ""
 
     @tailrec
@@ -84,8 +86,8 @@ object Scala3IndentationBasedSyntaxUtils {
     inner(PsiTreeUtil.prevLeaf(element))
   }
 
-  @inline def getLineIndentWhitespace(element: PsiElement): String =
-    getIndentWhitespace(element, skipElementsOnLine = true)
+  @inline def lineIndentWhitespace(element: PsiElement): String =
+    indentWhitespace(element, skipElementsOnLine = true)
 
-  @inline def isIndented(element: PsiElement): Boolean = getIndentWhitespace(element).isEmpty
+  @inline def isIndented(element: PsiElement): Boolean = indentWhitespace(element).isEmpty
 }
