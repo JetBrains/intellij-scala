@@ -239,7 +239,7 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
       |@unused
       |object Test {
       |  @unused
-      |  def test(implicit ${START}unused${END}: A): Unit = ()
+      |  def test(implicit ${START}unused$END: A): Unit = ()
       |}
       |""".stripMargin
   )
@@ -314,28 +314,6 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
       |
       |  foo()
       |}
-      |""".stripMargin
-  )
-
-  def testHighlightUnusedParametersInDeclarations(): Unit = checkTextHasError(
-    s"""
-      |import scala.annotation.unused
-      |@unused trait Base {
-      |  @unused def test(${START}i$END: Int): Unit
-      |}
-      |""".stripMargin
-  )
-
-  def testDontHighlightUnusedParametersInOverridingMethod(): Unit = checkTextHasNoErrors(
-    """
-      |trait Base {
-      |  def test(i: Int): Unit
-      |}
-      |
-      |class Test extends Base {
-      |  def test(i: Int): Unit = ()
-      |}
-      |new Test
       |""".stripMargin
   )
 

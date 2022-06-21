@@ -409,8 +409,17 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     s"""
        |import scala.annotation.unused
        |@unused object ctx {
-       |  abstract class SamContainer { def iAmSam(@unused foobar: Int): Unit }
+       |  private abstract class SamContainer { def iAmSam(foobar: Int): Unit }
        |  @unused class SamConsumer { @unused val samContainer: SamContainer = (i: Int) => println(i) }
+       |}
+       |""".stripMargin
+  )
+  
+  def test_parameter_of_abstract_method(): Unit = checkTextHasNoErrors(
+    s"""import scala.annotation.unused
+       |@unused trait Context {
+       |  @unused def someAbstractMethod1(unusedParam: Int): Unit
+       |  @unused def someAbstractMethod2(unusedParam: Int): Unit
        |}
        |""".stripMargin
   )
