@@ -248,13 +248,13 @@ object ImplicitProcessor {
       }
 
       def collectSupers(clazz: PsiClass, subst: ScSubstitutor): Unit = {
-          clazz match {
-            case td: ScTemplateDefinition =>
-              collectPartsIter(td.superTypes.map(subst))
-            case clazz: PsiClass =>
-              collectPartsIter(clazz.getSuperTypes.map(t => subst(t.toScType())))
-          }
+        clazz match {
+          case td: ScTemplateDefinition =>
+            collectPartsIter(td.superTypes.map(subst))
+          case clazz: PsiClass =>
+            collectPartsIter(clazz.getSuperTypes.map(t => subst(t.toScType())))
         }
+      }
 
       tp match {
         case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.`type`())
