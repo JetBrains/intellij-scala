@@ -96,4 +96,21 @@ class ScNamedElementAnnotatorTest extends ScalaHighlightingTestBase {
     val errors = errorsFromScalaCode(scalaCode)
     assert(errors.isEmpty)
   }
+
+  def testOverrideVarByValRequiresSetter(): Unit = {
+    val scalaCode =
+      """
+        |trait Animal {
+        |  var cat: String
+        |}
+        |
+        |class Cat extends Animal {
+        |  override val cat: String = ""
+        |  def cat_=(x: String): Unit = {}
+        |}
+        |""".stripMargin
+
+    val errors = errorsFromScalaCode(scalaCode)
+    assert(errors.isEmpty)
+  }
 }
