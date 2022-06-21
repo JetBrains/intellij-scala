@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.settings
 
 import com.intellij.openapi.options.{BeanConfigurable, SearchableConfigurable}
-import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.{JBUI, UI}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
@@ -10,10 +10,14 @@ import javax.swing._
 
 class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplicationSettings](ScalaApplicationSettings.getInstance) with SearchableConfigurable {
   override def getId: String = "ScalaSmartKeys"
+
   //noinspection ScalaExtractStringToBundle
   override def getDisplayName: String = "Scala"
+
   override def getHelpTopic: String = null
+
   override def enableSearch(option: String): Runnable = null
+
   override def disposeUIResources(): Unit = super.disposeUIResources()
 
   init()
@@ -25,8 +29,20 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
     checkBox(ScalaBundle.message("upgrade.to.interpolated"), () => settings.UPGRADE_TO_INTERPOLATED, settings.UPGRADE_TO_INTERPOLATED = _)
     checkBox(ScalaBundle.message("wrap.single.expression.body"), () => settings.WRAP_SINGLE_EXPRESSION_BODY, settings.WRAP_SINGLE_EXPRESSION_BODY = _)
     checkBox(ScalaBundle.message("delete.closing.brace"), () => settings.DELETE_CLOSING_BRACE, settings.DELETE_CLOSING_BRACE = _)
-    checkBox(ScalaBundle.message("insert.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = _)
-    checkBox(ScalaBundle.message("remove.block.braces.automatically.based.on.indentation"), () => settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = _)
+
+    // these checkboxes need special wrappers since they have tooltips
+    val addBracesCheckbox = new JCheckBox(ScalaBundle.message("insert.block.braces.automatically.based.on.indentation"))
+    component(
+      UI.PanelFactory.panel(addBracesCheckbox).withTooltip(ScalaBundle.message("insert.block.braces.automatically.based.on.indentation.tooltip")).createPanel(),
+      () => settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = _: Boolean,
+      () => addBracesCheckbox.isSelected, addBracesCheckbox.setSelected(_)
+    )
+    val removeBracesCheckbox = new JCheckBox(ScalaBundle.message("remove.block.braces.automatically.based.on.indentation"))
+    component(
+      UI.PanelFactory.panel(removeBracesCheckbox).withTooltip(ScalaBundle.message("remove.block.braces.automatically.based.on.indentation.tooltip")).createPanel(),
+      () => settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY, settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = _: Boolean,
+      () => removeBracesCheckbox.isSelected, removeBracesCheckbox.setSelected(_)
+    )
   }
 
   override def createComponent: JComponent = {
@@ -42,9 +58,16 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
     for {
       // get the panel
       panel <- result.getComponent(0).asOptionOf[JComponent]
+
       // get the auto-brace options
       panelComponents = panel.getComponents
-      autoBraceOptions = panelComponents.collect { case jbox: JCheckBox if isAutoBraceOptionTitle(jbox.getText) => jbox }
+      autoBraceOptions = panelComponents.collect {
+        case jpanel: JPanel if jpanel.getComponent(0).asOptionOf[JPanel].exists(
+          checkboxPanel => checkboxPanel.getComponent(0).asOptionOf[JCheckBox].exists(
+            checkbox => isAutoBraceOptionTitle(checkbox.getText)))
+        => jpanel
+      }
+
       if autoBraceOptions.nonEmpty
       gridLayout <- panel.getLayout.asOptionOf[GridLayout]
     } {
