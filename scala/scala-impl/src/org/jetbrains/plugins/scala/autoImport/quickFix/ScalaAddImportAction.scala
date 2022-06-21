@@ -19,14 +19,17 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelector
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createReferenceExpressionFromText, createScalaDocLinkValue}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 import java.awt.Point
 import javax.swing.event.ListSelectionEvent
 import javax.swing.{Icon, JLabel, JList}
+import scala.annotation.unused
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
   editor: Editor,
@@ -173,10 +176,19 @@ object ScalaAddImportAction {
     override protected def doAddImport(toImport: ToImport): Unit = {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
-        case _: MemberToImport           => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
-        case _: ExtensionMethodToImport  => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+        case _: MemberToImport |
+             _: ExtensionMethodToImport |
+             ClassInGivenImport()        => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
         case _                           => ref.bindToElement(toImport.element)
       }
+    }
+
+    private object ClassInGivenImport {
+      def unapply(@unused toImport: ClassToImport): Boolean =
+        ref.parentsInFile.find(!_.is[ScTypeElement]) match {
+          case Some(selector: ScImportSelector) => selector.isGivenSelector
+          case _                                => false
+        }
     }
   }
 
