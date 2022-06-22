@@ -83,7 +83,10 @@ object Scala3IndentationBasedSyntaxUtils {
       case _ => ""
     }
 
-    inner(PsiTreeUtil.prevLeaf(element))
+    if (element != null)
+      inner(PsiTreeUtil.prevLeaf(element))
+    else
+      ""
   }
 
   @inline def lineIndentWhitespace(element: PsiElement): String =

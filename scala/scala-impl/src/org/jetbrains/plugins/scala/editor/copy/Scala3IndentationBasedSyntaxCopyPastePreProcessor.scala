@@ -30,15 +30,17 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     // strip first-line indentation from all lines
     val leadingSpaceOnLine = indentWhitespace(firstElement.get)
     text
-      .concat("\n") // linesIterator removes last \n
-      .linesIterator
+      .linesWithSeparators
       .map(_.stripPrefix(leadingSpaceOnLine))
-      .mkString("\n")
+      .mkString("")
   }
 
   // the formatter is always run on pasted snippets, so we just need to adjust indentation so that the formatter recognizes it
   // this only called on single caret, paste for multiple carets is handled as raw text
   override def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
+    if (!file.useIndentationBasedSyntax)
+      return text
+
     // only change indentation for multi-line texts
     if (isSingleLine(text))
       return text
@@ -54,10 +56,10 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
 
     // add caret indentation to all lines
     text
-      .linesIterator
-      .map(indentWhitespace + _)
-      .mkString("\n")
-      .stripLeading() // first line does not need to be indented because caret is already indented
+      .linesWithSeparators
+      .map(indentWhitespace.concat)
+      .mkString("")
+      .stripPrefix(indentWhitespace)
   }
 
   @inline private def isSingleLine(text: String): Boolean = {
