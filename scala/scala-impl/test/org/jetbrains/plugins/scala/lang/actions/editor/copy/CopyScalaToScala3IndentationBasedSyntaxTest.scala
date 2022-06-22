@@ -56,8 +56,30 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |???
          |
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testMultiLine_Infix(): Unit = {
+    val from =
+      s"""object Example:
+         |  def foo() =
+         |    ${Start}if false then 1 else
+         |      2
+         |      3$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print($Caret)
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(if false then 1 else
+         |    2
+         |    3)
          |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
@@ -141,6 +163,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |"""
     val after =
       """object Example:
+        |
         |  case class Circle(x: Double, y: Double, radius: Double)
         |
         |  extension (c: Circle)
@@ -213,6 +236,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |  def foo() =
          |    def baz() =
          |      print(1)
@@ -239,6 +263,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |def foo() =
          |  def baz() =
          |    print(1)
@@ -362,6 +387,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |  def foo() =
          |    def baz() =
          |      print(1)
@@ -389,6 +415,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |def foo() =
          |  def baz() =
          |    print(1)
@@ -441,6 +468,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |  def foo() = {
          |    def baz() =
          |      print(1)
@@ -497,6 +525,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
+         |
          |  def foo() = {
          |    def baz() =
          |      print(1)
@@ -551,81 +580,6 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
-  def _testInnerMethod_FromObject_EOF_2(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ???$Caret"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ???def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  // TODO ignored
-  def _testInnerMethod_FromObject_Prefix(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ???$Caret
-         |"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ???
-         |  def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  // TODO ignored
-  def _testInnerMethod_FromObject_Prefix_WithSpaces(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ??? $Caret
-         |"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ???
-         |  def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
   def testInnerMethod_FromObject_Postfix(): Unit = {
     val from =
       s"""object Example:
@@ -646,56 +600,6 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
          |    def baz() =
          |      print(1)
          |    baz()???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  // TODO ignored
-  def _testInnerMethod_FromObject_Infix(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ???$Caret ???
-         |"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ???def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz() ???
-         |"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  // TODO ignored
-  def _testInnerMethod_FromObject_Infix_WithSpaces(): Unit = {
-    val from =
-      s"""object Example:
-         |  ${Start}def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz()$End
-         |"""
-    val to =
-      s"""def bar() =
-         |  print(2)
-         |  ??? $Caret ???
-         |"""
-    val after =
-      s"""def bar() =
-         |  print(2)
-         |  ??? def foo() =
-         |    def baz() =
-         |      print(1)
-         |    baz() ???
          |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
@@ -807,8 +711,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
-  def _testInnerMethod_FromObject_Comment_3(): Unit = {
+  def testInnerMethod_FromObject_Comment_3(): Unit = {
     val from =
       s"""object Example:
          |  ${Start}def foo() =
@@ -825,7 +728,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     val after =
       s"""def bar() =
          |  print(2)
-         |  /* foo */def foo() =
+         |  /* foo */ def foo() =
          |    def baz() =
          |      print(1)
          |    baz()
