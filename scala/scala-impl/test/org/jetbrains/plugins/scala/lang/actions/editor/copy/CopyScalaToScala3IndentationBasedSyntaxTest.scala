@@ -9,6 +9,147 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= ScalaVersion.Latest.Scala_3_0
 
+  def testWhitespace(): Unit = {
+    val from =
+      s"""$Start  $empty
+         |$End"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |    $empty
+         |
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testSingleLine(): Unit = {
+    val from =
+      s"""$Start  ???
+         |$End"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  ???
+         |
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testMultiLine(): Unit = {
+    val from =
+      s"""$Start
+         |  ???
+         |$End"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |$Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  // SCL-20036
+  def testExtension(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |"""
+    val to =
+      s"""object Example {
+         |  $Caret
+         |}"""
+    val after =
+      """object Example {
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |}"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testExtension_1(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |"""
+    val to =
+      s"""object Example:
+         |  $Caret
+         |"""
+    val after =
+      """object Example:
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testExtension_2(): Unit = {
+    val from =
+      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |"""
+    val to =
+      s"""object Example:
+         |$Caret
+         |"""
+    val after =
+      """object Example:
+        |case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |extension (c: Circle)
+        |  def circumference: Double = c.radius * math.Pi * 2
+        |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testExtension_3(): Unit = {
+    val from =
+      s"""$Start
+         |case class Circle(x: Double, y: Double, radius: Double)
+         |
+         |extension (c: Circle)
+         |  def circumference: Double = c.radius * math.Pi * 2
+         |$End
+         |"""
+    val to =
+      s"""object Example:
+         |  $Caret
+         |"""
+    val after =
+      """object Example:
+        |  case class Circle(x: Double, y: Double, radius: Double)
+        |
+        |  extension (c: Circle)
+        |    def circumference: Double = c.radius * math.Pi * 2
+        |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
   def testInnerMethod(): Unit = {
     val from =
       s"""${Start}def foo() =
@@ -476,6 +617,33 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
+  def testInnerMethod_FromObject_Prefix_WithSpaces(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  ??? $Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  ???
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
   def testInnerMethod_FromObject_Postfix(): Unit = {
     val from =
       s"""object Example:
@@ -554,90 +722,243 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  // SCL-20036
-  def testExtension(): Unit = {
+  def testInnerMethod_FromObject_InBlock(): Unit = {
     val from =
-      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
-    val to =
-      s"""object Example {
-         |  $Caret
-         |}"""
-    val after =
-      """object Example {
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |}"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  def testExtension_1(): Unit = {
-    val from =
-      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2$End
-         |"""
-    val to =
       s"""object Example:
-         |  $Caret
-         |"""
-    val after =
-      """object Example:
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |"""
-    doTestWithStripWithAllSelections(from, to, after)
-  }
-
-  def testExtension_2(): Unit = {
-    val from =
-      s"""${Start}case class Circle(x: Double, y: Double, radius: Double)
-         |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2$End
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
          |"""
     val to =
-      s"""object Example:
-         |$Caret
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |    ???
+         |  ???
          |"""
     val after =
-      """object Example:
-        |case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |extension (c: Circle)
-        |  def circumference: Double = c.radius * math.Pi * 2
-        |"""
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |    ???
+         |  ???
+         |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  def testExtension_3(): Unit = {
+  def testInnerMethod_FromObject_Comment(): Unit = {
     val from =
-      s"""$Start
-         |case class Circle(x: Double, y: Double, radius: Double)
+      s"""object Example:
+         |  /* foo */${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |  ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
          |
-         |extension (c: Circle)
-         |  def circumference: Double = c.radius * math.Pi * 2
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |  ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Comment_1(): Unit = {
+    val from =
+      s"""object Example:
+         |/* foo */  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |  ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |  ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Comment_2(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |/* foo */  $Caret
+         |  ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |/* foo */  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |  ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Comment_3(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         |    def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  /* foo */$Caret
+         |  ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  /* foo */def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |  ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Comment_4(): Unit = {
+    val from =
+      s"""object Example:
+         |  ${Start}def foo() =
+         | /* foo */   def baz() =
+         |      print(1)
+         |    baz()$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |  ???
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         | /* foo */   def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |  ???
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testInnerMethod_FromObject_Tabs(): Unit = {
+    val from =
+      s"""object Example:
+         |$tab${Start}def foo() =
+         |$tab${tab}def baz() =
+         |$tab$tab${tab}print(1)
+         |$tab${tab}baz()
          |$End
          |"""
     val to =
-      s"""object Example:
+      s"""def bar() =
+         |  print(2)
          |  $Caret
          |"""
     val after =
-      """object Example:
-        |  case class Circle(x: Double, y: Double, radius: Double)
-        |
-        |  extension (c: Circle)
-        |    def circumference: Double = c.radius * math.Pi * 2
-        |"""
+      s"""def bar() =
+         |  print(2)
+         |
+         |  def foo() =
+         |    def baz() =
+         |      print(1)
+         |
+         |    baz()
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testLesserIndentation(): Unit = {
+    val from =
+      s"""object A:
+         |  def foo() =
+         |    ${Start}1
+         |  2$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  1
+         |2
+         |"""
+    doTestWithStripWithAllSelections(from, to, after)
+  }
+
+  def testLesserIndentation_Tabs(): Unit = {
+    val from =
+      s"""object A:
+         |${tab}def foo() =
+         |$tab$tab${Start}1
+         |${tab}2$End
+         |"""
+    val to =
+      s"""def bar() =
+         |  print(2)
+         |  $Caret
+         |"""
+    val after =
+      s"""def bar() =
+         |  print(2)
+         |  1
+         |2
+         |"""
     doTestWithStripWithAllSelections(from, to, after)
   }
 }
+// TODO multiple selections
