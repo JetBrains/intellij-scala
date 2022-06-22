@@ -17,17 +17,22 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   val fromLangExtension: String = ".scala"
 
   private var oldSettings: ScalaCodeStyleSettings = _
+  private var oldBlankLineSetting: Int = _
 
   override protected def setUp(): Unit = {
     super.setUp()
 
     val project = getProject
     oldSettings = ScalaCodeStyleSettings.getInstance(project)
+    oldBlankLineSetting = oldSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES
+    oldSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = 0
     TypeAnnotationSettings.set(project, TypeAnnotationSettings.alwaysAddType(oldSettings))
   }
 
   override def tearDown(): Unit = {
-    TypeAnnotationSettings.set(getProject, oldSettings)
+    val project = getProject
+    ScalaCodeStyleSettings.getInstance(project).BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = oldBlankLineSetting
+    TypeAnnotationSettings.set(project, oldSettings)
     super.tearDown()
   }
 
