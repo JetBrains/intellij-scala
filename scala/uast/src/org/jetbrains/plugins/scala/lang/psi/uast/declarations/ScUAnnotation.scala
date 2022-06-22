@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
-import java.util
-
 import com.intellij.psi.{PsiAnnotation, PsiClass}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScConstructorInvocation, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUElement, ScUMultiResolvable}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
@@ -13,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.uast.ReferenceExt
 import org.jetbrains.uast.{UAnchorOwner, UAnnotation, UAnnotationAdapter, UAnnotationEx, UCallExpression, UExpression, UIdentifier, UNamedExpression}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**
@@ -70,16 +69,4 @@ final class ScUAnnotation(override protected val scElement: ScAnnotation,
   @Nullable
   override def getUastAnchor: UIdentifier =
     scReference.map(ref => createUIdentifier(ref.nameId, this)).orNull
-
-  def uastAnchor: Option[UIdentifier] = Option(getUastAnchor)
-}
-
-object ScUAnnotation {
-
-  object fromConstructorInvocation {
-    def unapply(arg: ScConstructorInvocation): Option[ScAnnotation] =
-      Option(arg.getParent)
-        .flatMap(annotationExpr => Option(annotationExpr.getParent))
-        .collect { case a: ScAnnotation => a }
-  }
 }

@@ -1,11 +1,12 @@
-package org.jetbrains.plugins.scala
-package uast
-
-import java.io.File
+package org.jetbrains.plugins.scala.uast
 
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
+
+import java.io.File
 import org.jetbrains.uast._
 import org.jetbrains.uast.visitor.AbstractUastVisitor
 
@@ -15,22 +16,27 @@ import scala.reflect.ClassTag
 abstract class AbstractUastFixtureTest
   extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
+
   override def runInDispatchThread() = false
 
   override def getTestDataPath: String = super.getTestDataPath + "uast"
 
-  def getTestFile(testName: String): File =
+  protected def getTestFile(testName: String): File =
     new File(getTestDataPath, testName + ".scala")
 
-  def check(testName: String, file: UFile): Unit
+  protected def check(testName: String, file: UFile): Unit
 
-  def doTest(testName: String = getTestName(false),
-             checkCallback: (String, UFile) => Unit = check): Unit = {
+  protected def doTest(
+    testName: String = getTestName(false),
+    checkCallback: (String, UFile) => Unit = check
+  ): Unit = {
     val testFile = getTestFile(testName)
     if (!testFile.exists())
       throw new IllegalStateException(s"File does not exist: $testFile")
     val psiFile = myFixture.configureByFile(testFile.getPath)
-    extensions.inReadAction {
+    inReadAction {
       psiFile.convertWithParentTo[UElement]() match {
         case Some(uFile: UFile) => checkCallback(testName, uFile)
         case _ =>

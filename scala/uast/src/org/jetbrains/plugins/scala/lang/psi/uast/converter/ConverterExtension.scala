@@ -32,11 +32,6 @@ trait ConverterExtension { converter: UastFabrics =>
   //endregion
 
   //region Common conversions
-  def convert(element: PsiElement,
-              @Nullable parent: UElement,
-              convertLambdas: Boolean = true): Option[UElement] =
-    convertTo[UElement](element, parent, convertLambdas)
-
   def convertWithParent(element: PsiElement): Option[UElement] =
     convertWithParentTo[UElement](element, convertLambdas = false)
 
