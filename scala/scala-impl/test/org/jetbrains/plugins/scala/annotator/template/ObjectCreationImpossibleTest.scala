@@ -6,16 +6,10 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-abstract class ObjectCreationImpossibleTestBase extends AnnotatorTestBase[ScTemplateDefinition] {
-  override protected def annotate(element: ScTemplateDefinition)
-                                 (implicit holder: ScalaAnnotationHolder): Unit =
-    ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(element)
-}
-
 /**
  * Pavel Fatin
  */
-class ObjectCreationImpossibleTest extends ObjectCreationImpossibleTestBase {
+class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
   def testFineNew(): Unit = {
     assertNothing(messages("class C; new C"))
     assertNothing(messages("class C; new C {}"))
@@ -90,11 +84,20 @@ class ObjectCreationImpossibleTest extends ObjectCreationImpossibleTestBase {
   def testSkipTypeDeclarationSCL2887(): Unit = {
     assertNothing(messages("trait A { type a }; new A {}"))
   }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateObjectCreationImpossible(element)
 }
 
-class ObjectCreationImpossibleTest_Scala3 extends ObjectCreationImpossibleTestBase {
-  def testSkipEnumCaseWithoutExplicitExtends(): Unit =
-    assertNothing(messages("trait T { def f }; enum E extends T { case C, D }", Scala3Language.INSTANCE))
+class EnumCaseCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
+  def testEnumCaseWithoutExplicitExtends(): Unit = {
+    val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
+
+    assertMatches(messages("trait T { def f }; enum E extends T { case C }", Scala3Language.INSTANCE)) {
+      case Error("C", `message`) :: Nil =>
+    }
+  }
 
   def testEnumCaseWithExplicitExtends(): Unit = {
     val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
@@ -104,13 +107,26 @@ class ObjectCreationImpossibleTest_Scala3 extends ObjectCreationImpossibleTestBa
     }
   }
 
-  def testEnumCaseWithExplicitExtendsAndMoreParents(): Unit = {
-    val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"), ("g: Unit", "Holder.R"))
-    val reversedMessage = objectCreationImpossibleMessage(("g: Unit", "Holder.R"), ("f: Unit", "Holder.T"))
+  def testEnumCaseWithTypeDeclarationInsideTrait(): Unit = {
+    val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 
-    assertMatches(messages("trait T { def f }; trait R { def g }; enum E extends T { case C extends E with R }", Scala3Language.INSTANCE)) {
-      case Error("C extends E with R", `message`) :: Nil =>
-      case Error("C extends E with R", `reversedMessage`) :: Nil =>
+    assertMatches(messages("trait T { type T1; def f }; enum E extends T { case C; case D(i: Int) }", Scala3Language.INSTANCE)) {
+      case Error("C", `message`) :: Error("D(i: Int)", `message`) :: Nil =>
+      case Error("D(i: Int)", `message`) :: Error("C", `message`) :: Nil =>
     }
   }
+
+  def testEnumCaseWithExplicitExtendsAndMoreParents(): Unit = {
+    val message1 = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
+    val message2 = objectCreationImpossibleMessage(("g: Unit", "Holder.R"))
+
+    assertMatches(messages("trait T { def f }; trait R { def g }; enum E extends T { case C extends E with R }", Scala3Language.INSTANCE)) {
+      case Error("C extends E with R", `message1`) :: Error("C extends E with R", `message2`) :: Nil =>
+      case Error("C extends E with R", `message2`) :: Error("C extends E with R", `message1`) :: Nil =>
+    }
+  }
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateEnumCaseCreationImpossible(element)
 }
