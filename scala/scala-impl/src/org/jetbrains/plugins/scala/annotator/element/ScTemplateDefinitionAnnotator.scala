@@ -266,7 +266,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
         val nameId = element.nameId
         val fixes = {
           val maybeModifierFix = element match {
-            case owner: ScModifierListOwner => Some(new ModifierQuickFix.Add(owner, nameId, ScalaModifier.Abstract))
+            case cls: ScClass => Some(new ModifierQuickFix.Add(cls, nameId, ScalaModifier.Abstract))
             case _ => None
           }
 
