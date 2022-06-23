@@ -261,13 +261,13 @@ class OverrideHighlightingTest extends ScalaHighlightingTestBase {
          |""".stripMargin
     assertErrors(code, Seq(
       Error("value", "Overriding type Int does not conform to base type String"),
-      Error("B3", "Class 'B3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
-      Error("C3", "Class 'C3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("class B3 extends Setter", "Class 'B3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("class C3 extends GetterWithSetter", "Class 'C3' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
       Error("value", "Overriding type Int does not conform to base type String"),
       //
       Error("value", "Overriding type Int does not conform to base type String"),
-      Error("B4", "Class 'B4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
-      Error("C4", "Class 'C4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("class B4(@BeanProperty var value: Int) extends Setter", "Class 'B4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
+      Error("class C4(@BeanProperty var value: Int) extends GetterWithSetter", "Class 'C4' must either be declared abstract or implement abstract member 'setValue(foo: String): Unit' in 'Setter'"),
       Error("value", "Overriding type Int does not conform to base type String"),
     ): _*)
   }

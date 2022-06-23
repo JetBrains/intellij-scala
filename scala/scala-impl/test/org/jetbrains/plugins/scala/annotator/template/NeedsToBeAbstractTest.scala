@@ -5,10 +5,21 @@ package template
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
+abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDefinition] {
+
+  override protected def annotate(element: ScTemplateDefinition)
+                                 (implicit holder: ScalaAnnotationHolder): Unit =
+    ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
+
+  protected def message(params: String*) =
+    ScalaBundle.message("member.implementation.required", params: _*)
+
+}
+
 /**
   * Pavel Fatin
   */
-class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
+class NeedsToBeAbstractTest extends NeedsToBeAbstractTestBase {
 
   def testFine(): Unit = {
     assertNothing(messages("class C"))
@@ -33,7 +44,7 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
     val message = this.message("Class", "C", "f: Unit", "Holder.C")
 
     assertMatches(messages("class C { def f }")) {
-      case Error("C", `message`) :: Nil =>
+      case Error("class C", `message`) :: Nil =>
     }
   }
 
@@ -41,11 +52,11 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
     val message = this.message("Class", "C", "f: Unit", "Holder.T")
 
     assertMatches(messages("trait T { def f }; class C extends T")) {
-      case Error("C", `message`) :: Nil =>
+      case Error("class C extends T", `message`) :: Nil =>
     }
 
     assertMatches(messages("trait T { def f }; class C extends T {}")) {
-      case Error("C", `message`) :: Nil =>
+      case Error("class C extends T", `message`) :: Nil =>
     }
   }
 
@@ -54,8 +65,24 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
     val reversedMessage = this.message("Class", "C", "a: Unit", "Holder.A")
 
     assertMatches(messages("trait A { def a }; trait B { def b }; class C extends A with B {}")) {
-      case Error("C", `message`) :: Nil =>
-      case Error("C", `reversedMessage`) :: Nil =>
+      case Error("class C extends A with B", `message`) :: Nil =>
+      case Error("class C extends A with B", `reversedMessage`) :: Nil =>
+    }
+  }
+
+  def testClassWithConstructor(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
+
+    assertMatches(messages("trait T { def f }; class C(i: Int) extends T {}")) {
+      case Error("class C(i: Int) extends T", `message`) :: Nil =>
+    }
+  }
+
+  def testClassWithMultipleConstructorClauses(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
+
+    assertMatches(messages("trait T { def f }; class C(i: Int)(d: Double)(implicit b: Boolean) extends T {}")) {
+      case Error("class C(i: Int)(d: Double)(implicit b: Boolean) extends T", `message`) :: Nil =>
     }
   }
 
@@ -64,11 +91,38 @@ class NeedsToBeAbstractTest extends AnnotatorTestBase[ScTemplateDefinition] {
       case Nil =>
     }
   }
+}
 
-  override protected def annotate(element: ScTemplateDefinition)
-                                 (implicit holder: ScalaAnnotationHolder): Unit =
-    ScTemplateDefinitionAnnotator.annotateNeedsToBeAbstract(element)
+class NeedsToBeAbstractTest_Scala3 extends NeedsToBeAbstractTestBase {
+  def testClassWithMultipleParents(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
 
-  private def message(params: String*) =
-    ScalaBundle.message("member.implementation.required", params: _*)
+    assertMatches(messages("trait T { def f }; trait R; class C extends T, R {}", Scala3Language.INSTANCE)) {
+      case Error("class C extends T, R", `message`) :: Nil =>
+    }
+  }
+
+  def testClassWithDerivesClause(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
+
+    assertMatches(messages("trait T { def f }; trait R[A]; object R { def derived[A]: R[A] = null }; class C extends T derives R {}", Scala3Language.INSTANCE)) {
+      case Error("class C extends T derives R", `message`) :: Nil =>
+    }
+  }
+
+  def testGivenDefinition(): Unit = {
+    val message = this.message("Class", "given_T", "f: Unit", "Holder.T")
+
+    assertMatches(messages("trait T { def f }; given T with {}", Scala3Language.INSTANCE)) {
+      case Error("given T with", `message`) :: Nil =>
+    }
+  }
+
+  def testEnum(): Unit = {
+    val message = this.message("Class", "E", "f: Unit", "Holder.T")
+
+    assertMatches(messages("trait T { def f }; enum E extends T {}", Scala3Language.INSTANCE)) {
+      case Error("enum E extends T", `message`) :: Nil =>
+    }
+  }
 }
