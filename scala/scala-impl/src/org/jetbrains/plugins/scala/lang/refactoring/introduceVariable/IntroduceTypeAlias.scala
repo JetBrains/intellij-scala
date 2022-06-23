@@ -7,11 +7,12 @@ import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsScheme}
 import com.intellij.openapi.editor.markup._
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupFactory, JBPopupListener, LightweightWindowEvent}
+import com.intellij.openapi.ui.popup.{JBPopupListener, LightweightWindowEvent, PopupChooserBuilder}
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.injected.InjectedLanguageEditorUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getChildOfType, getParentOfType}
+import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, ValidSmartPointer, executeWriteActionCommand, inWriteAction, invokeLaterInTransaction}
@@ -24,14 +25,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
-import org.jetbrains.plugins.scala.lang.refactoring.util.{DefaultListCellRendererAdapter, ScalaDirectoryService, ScalaRefactoringUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaDirectoryService, ScalaRefactoringUtil}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.Component
 import java.util
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
-import scala.annotation.nowarn
+import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
 
 /**
   * Created by Kate Ustyuzhanina
@@ -228,7 +228,6 @@ trait IntroduceTypeAlias {
       usualOccurrences.apply(typeElementIdx)
     }
 
-    implicit val manager: SmartPointerManager = SmartPointerManager.getInstance(file.getProject)
     (typeAlias.createSmartPointer, resultTypeElement.createSmartPointer)
   }
 
@@ -242,7 +241,7 @@ trait IntroduceTypeAlias {
   }
 
   private def afterScopeChoosing(editor: Editor, scopes: Array[ScopeItem],
-                                 refactoringName: String)(invokesNext: (ScopeItem) => Unit): Unit = {
+                                 refactoringName: String)(invokesNext: ScopeItem => Unit): Unit = {
 
     def chooseScopeItem(item: ScopeItem): Unit = {
       invokesNext(item)
@@ -301,22 +300,20 @@ trait IntroduceTypeAlias {
 
     val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model = JListCompatibility.createDefaultListModel()
-    for (element <- elements) {
-      JListCompatibility.addElement(model, element)
-    }
-    val list = JListCompatibility.createJListFromModel(model)
-    JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      override def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                                       value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
+    val model = new DefaultListModel[T]()
+    elements.foreach(model.addElement)
+    val list = new JBList[T](model)
+    list.setCellRenderer(new DefaultListCellRenderer {
+      override def getListCellRendererComponent(list: JList[_], value: AnyRef, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+
         val element: T = value.asInstanceOf[T]
         //        if (element.isValid) {
         setText(elementName(element))
         //        }
         rendererComponent
       }
-    })
+    }.asInstanceOf[ListCellRenderer[T]])
     list.addListSelectionListener(new ListSelectionListener {
       override def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()
@@ -337,10 +334,10 @@ trait IntroduceTypeAlias {
     }
 
     val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
-      pass(list.getSelectedValue.asInstanceOf[T])
+      pass(list.getSelectedValue)
     }
 
-    JBPopupFactory.getInstance.createListPopupBuilder(list)
+    new PopupChooserBuilder(list)
       .setTitle(title)
       .setMovable(false)
       .setResizable(false)
@@ -348,7 +345,7 @@ trait IntroduceTypeAlias {
       .setItemChoosenCallback(callback)
       .addListener(highlightingListener)
       .createPopup
-      .showInBestPositionFor(editor): @nowarn("cat=deprecation")
+      .showInBestPositionFor(editor)
   }
 
   private def createAndGetPackageObjectBody(suggestedDirectory: PsiDirectory,

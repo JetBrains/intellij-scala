@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.actions.implicitConversions
 
+import com.intellij.ide.util.PsiElementListCellRenderer
 import com.intellij.openapi.editor.colors.EditorColorsManager
 import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.{SimpleColoredComponent, SimpleTextAttributes}
@@ -15,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.{BorderLayout, Component, Container}
 import javax.swing._
@@ -26,7 +26,7 @@ import scala.annotation.nowarn
  * Date: 15.06.2010
  */
 private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
-  extends ScImplicitFunctionListCellRendererAdapter {
+  extends PsiElementListCellRenderer[PsiNamedElement] {
 
   override def getItemLocation(value: Any): TextWithIcon =
     value match {
@@ -34,8 +34,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
       case _                            => super.getItemLocation(value)
     }
 
-  override def getListCellRendererComponentAdapter(containter: JListCompatibility.JListContainer,
-                                                   value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+  override def getListCellRendererComponent(list: JList[_], value: Any, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
     val foregroundColor = Option(EditorColorsManager.getInstance().getGlobalScheme.getAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS))
       .getOrElse(DefaultHighlighter.IMPLICIT_CONVERSIONS.getDefaultAttributes)
       .getForegroundColor
@@ -44,7 +43,7 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
     val item = tuple.newExpression
     val firstPart = tuple.elements
 
-    val comp = getSuperListCellRendererComponent(containter.getList, item, index, isSelected, cellHasFocus)
+    val comp = super.getListCellRendererComponent(list, item, index, isSelected, cellHasFocus)
     comp match {
       case container: Container =>
         val components = container.getComponents

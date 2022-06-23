@@ -10,7 +10,6 @@ import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettingsUtil;
-import org.jetbrains.plugins.scala.util.JListCompatibility;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
@@ -57,7 +56,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         myReferencesWithPrefixModel = new DefaultListModel<>();
         referencesWithPrefixList.setModel(myReferencesWithPrefixModel);
         JPanel panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
-                new JListCompatibility.JListContainer(referencesWithPrefixList),
+                referencesWithPrefixList,
                 ScalaBundle.message("imports.panel.add.pattern.to.use.appropriate.classes.only.with.prefix"),
                 ScalaBundle.message("imports.panel.use.references.with.prefix"));
         myImportsWithPrefixPanel.add(panel, BorderLayout.CENTER);
@@ -66,7 +65,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         myImportLayoutModel = new DefaultListModel<>();
         JBList<String> importLayoutTable = new JBList<>(myImportLayoutModel);
         panel = ScalaProjectSettingsUtil.getUnsortedPatternListPanel(contentPanel,
-                new JListCompatibility.JListContainer(importLayoutTable),
+                importLayoutTable,
                 ScalaBundle.message("imports.panel.add.package.name"),
                 ScalaBundle.message("imports.panel.import.layout.manager"));
         importLayoutPanel.add(panel, BorderLayout.CENTER);
@@ -75,7 +74,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         alwaysUsedImportsModel = new DefaultListModel<>();
         alwaysUsedImportsList.setModel(alwaysUsedImportsModel);
         panel = ScalaProjectSettingsUtil.getPatternListPanel(contentPanel,
-                new JListCompatibility.JListContainer(alwaysUsedImportsList),
+                alwaysUsedImportsList,
                 ScalaBundle.message("imports.panel.add.import.to.always.mark.it.as.used"),
                 ScalaBundle.message("imports.panel.always.mark.as.used"));
         myAlwaysUsedImportsPanel.add(panel, BorderLayout.CENTER);

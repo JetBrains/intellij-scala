@@ -4,7 +4,6 @@ package project.module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ui.configuration.{ModuleConfigurationState, ModuleElementsEditor}
 import com.intellij.ui.CollectionListModel
-import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.sbt.resolvers.SbtResolver
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -22,7 +21,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
   import SbtModule._
 
   private val myForm = new SbtModuleSettingsForm
-  private val modelWrapper = new JListCompatibility.CollectionListModelWrapper(new CollectionListModel[String](Collections.emptyList[String]))
+  private val model = new CollectionListModel[String](Collections.emptyList)
   private val resolvers = Resolvers(getModel.getModule).toSeq
 
   override def getDisplayName: String = SbtBundle.message("sbt.settings.sbtModuleSettings")
@@ -31,7 +30,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
 
   override def createComponentImpl(): JPanel = {
     myForm.sbtImportsList.setEmptyText(SbtBundle.message("sbt.settings.noImplicitImportsFound"))
-    JListCompatibility.setModel(myForm.sbtImportsList, modelWrapper.getModelRaw)
+    myForm.sbtImportsList.setModel(model)
 
     myForm.mainPanel
   }
@@ -41,7 +40,7 @@ class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleEl
     val moduleSettings = SbtSettings.getInstance(state.getProject).getLinkedProjectSettings(module)
     myForm.sbtVersionTextField.setText(moduleSettings.map(_.sbtVersion).getOrElse(SbtBundle.message("sbt.settings.sbtVersionNotDetected")))
 
-    modelWrapper.getModel.replaceAll(Imports(module).asJava)
+    model.replaceAll(Imports(module).asJava)
 
     myForm.resolversTable.setModel(new ResolversModel(resolvers, state.getProject))
     if (myForm.resolversTable.getRowCount > 0)

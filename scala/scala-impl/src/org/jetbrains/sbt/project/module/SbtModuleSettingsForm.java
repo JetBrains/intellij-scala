@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 public class SbtModuleSettingsForm {
     public JPanel mainPanel;
     public JBTable resolversTable;
-    public JBList sbtImportsList;
+    public JBList<String> sbtImportsList;
     public JTextField sbtVersionTextField;
 
     public SbtModuleSettingsForm() {
