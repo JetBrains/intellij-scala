@@ -23,8 +23,8 @@ class ScalaEditorSmartKeysConfigurable extends BeanConfigurable[ScalaApplication
   init()
 
   def init(): Unit = {
-    val settings: ScalaApplicationSettings = getInstance();
-    setTitle("Scala")
+    val settings: ScalaApplicationSettings = getInstance()
+    checkBox(ScalaBundle.message("indent.pasted.lines.at.caret"), () => settings.INDENT_PASTED_LINES_AT_CARET, settings.INDENT_PASTED_LINES_AT_CARET = _)
     checkBox(ScalaBundle.message("insert.pair.multiline.quotes"), () => settings.INSERT_MULTILINE_QUOTES, settings.INSERT_MULTILINE_QUOTES = _)
     checkBox(ScalaBundle.message("upgrade.to.interpolated"), () => settings.UPGRADE_TO_INTERPOLATED, settings.UPGRADE_TO_INTERPOLATED = _)
     checkBox(ScalaBundle.message("wrap.single.expression.body"), () => settings.WRAP_SINGLE_EXPRESSION_BODY, settings.WRAP_SINGLE_EXPRESSION_BODY = _)
