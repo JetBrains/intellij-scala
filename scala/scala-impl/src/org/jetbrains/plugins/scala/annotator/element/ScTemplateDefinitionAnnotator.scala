@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiMethod, PsiModifier}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
-import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
+import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 
 object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefinition] {
 
@@ -37,6 +37,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     if (typeAware) {
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
+      annotateEnumCaseCreationImpossible(element)
     }
   }
 
@@ -95,10 +96,48 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       }
   }
 
+  def annotateEnumCaseCreationImpossible(element: ScTemplateDefinition)
+                                        (implicit holder: ScalaAnnotationHolder): Unit = {
+    val enumCase = element.asOptionOf[ScEnumCase].getOrElse(return)
+    val membersToImplement = ScalaOIUtil.getMembersToImplement(enumCase)
+      .collect {
+        case m: ScalaTypedMember => m // See SCL-2887
+      }
+
+    if (membersToImplement.isEmpty) return
+
+    val enumParents = enumCase.enumParent.syntheticClass
+      .fold(Set.empty[PsiClass])(_.getSupers.toSet)
+
+    val (canBeImplementedInEnum, cannotBeImplemented) = membersToImplement.partition {
+      case ScMethodMember(signature, _) =>
+        enumParents.contains(signature.method.containingClass)
+      case _ => false
+    }
+
+    val range = highlightRange(enumCase)
+
+    if (canBeImplementedInEnum.nonEmpty) {
+      holder.createErrorAnnotation(
+        range,
+        objectCreationImpossibleMessage(canBeImplementedInEnum.map(formatForObjectCreationImpossibleMessage): _*),
+        new ImplementMethodsQuickFix(enumCase.enumParent)
+      )
+    }
+
+    if (cannotBeImplemented.nonEmpty) {
+      holder.createErrorAnnotation(
+        range,
+        objectCreationImpossibleMessage(cannotBeImplemented.map(formatForObjectCreationImpossibleMessage): _*),
+        None
+      )
+    }
+  }
+
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (!element.is[ScNewTemplateDefinition, ScObject, ScEnumCase]) return
+    if (!element.is[ScNewTemplateDefinition, ScObject]) return
 
     val refs = superRefs(element)
 
@@ -112,25 +151,18 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           val undefined = for {
             member <- ScalaOIUtil.getMembersToImplement(element)
             if member.isInstanceOf[ScalaTypedMember] // See SCL-2887
-          } yield {
-            try {
-              (member.getText, member.getParentNodeDelegate.getText)
-            } catch {
-              case iae: IllegalArgumentException =>
-                throw new RuntimeException("member: " + member.getText, iae)
-            }
-          }
+          } yield formatForObjectCreationImpossibleMessage(member)
 
           if (undefined.nonEmpty) {
             val range = element match {
               case _: ScNewTemplateDefinition => defaultRange
-              case _: ScObject | _: ScEnumCase => highlightRange(element)
+              case _: ScObject => highlightRange(element)
             }
 
             holder.createErrorAnnotation(
               range,
               objectCreationImpossibleMessage(undefined: _*),
-              fixes = Option.when(!element.is[ScEnumCase])(new ImplementMethodsQuickFix(element))
+              new ImplementMethodsQuickFix(element)
             )
           }
         case _ =>
@@ -305,4 +337,12 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       .getOrElse(extendsBlock)
     TextRange.create(definition.startOffset, endElem.endOffset)
   }
+
+  private def formatForObjectCreationImpossibleMessage(member: overrideImplement.ClassMember): (String, String) =
+    try {
+      (member.getText, member.getParentNodeDelegate.getText)
+    } catch {
+      case iae: IllegalArgumentException =>
+        throw new RuntimeException("member: " + member.getText, iae)
+    }
 }
