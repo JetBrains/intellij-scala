@@ -71,6 +71,10 @@ object ScalaOIUtil {
 
     val clazz = file.findElementAt(editor.getCaretModel.getOffset - 1)
       .parentOfType(classOf[ScTemplateDefinition], strict = false)
+      .map {
+        case enumCase: ScEnumCase => enumCase.enumParent
+        case td => td
+      }
       .getOrElse(return)
 
     val classMembers =
