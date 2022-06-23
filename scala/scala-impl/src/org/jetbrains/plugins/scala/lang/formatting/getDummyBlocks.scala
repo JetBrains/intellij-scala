@@ -75,7 +75,9 @@ object getDummyBlocks {
 
   // TODO: rename to isNonEmptyNode
   // TODO: rename FormatterUtil to ScalaFormatterUtil
-  /** see [[com.intellij.psi.formatter.java.SimpleJavaBlock.isNotEmptyNode]] */
+  // NOTE: maybe com.intellij.psi.impl.source.tree.LazyParseableElement ?
+  // ATTENTION: current implementation will traverse the whole node together with all it's children
+  /** Originally copied from private method [[com.intellij.psi.formatter.java.SimpleJavaBlock.isNotEmptyNode]] */
   private def isNotEmptyNode(node: ASTNode): Boolean =
     !com.intellij.psi.formatter.FormatterUtil.containsWhiteSpacesOnly(node) &&
       node.getTextLength > 0

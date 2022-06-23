@@ -28,7 +28,7 @@ abstract class ScStubElementType[
   override def createElement(node: ASTNode): T
 
   override final def createStub(psi: T, parentStub: StubElement[_ <: PsiElement]): S = {
-    ScStubElementType.Processing {
+    ScStubElementType.Processing.run {
       createStubImpl(psi, parentStub)
     }
   }
@@ -80,22 +80,16 @@ object ScStubElementType {
   }
 
   object Processing {
-
     private[this] val flag = ThreadLocal.withInitial[Long](() => 0)
 
-    def apply[R](action: => R): R =
+    def run[R](action: => R): R =
       try {
-        this (()) += 1
+        flag.set(flag.get + 1)
         action
       } finally {
-        this (()) -= 1
+        flag.set(flag.get - 1)
       }
 
-    implicit def asBoolean(self: this.type): Boolean = apply(()) > 0
-
-    private[this] def apply(unit: Unit): Long = flag.get
-
-    private[this] def update(unit: Unit, long: Long): Unit = flag.set(long)
+    def isRunning: Boolean = flag.get > 0
   }
-
 }

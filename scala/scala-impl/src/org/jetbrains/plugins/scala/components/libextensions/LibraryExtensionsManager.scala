@@ -233,12 +233,12 @@ object LibraryExtensionsManager {
   def getInstance(project: Project): LibraryExtensionsManager =
     project.getService(classOf[LibraryExtensionsManager])
 
-  //noinspection TypeAnnotation
-  val MOD_TRACKER = new ModificationTracker {
+  class MyModificationTracker extends ModificationTracker {
     private var modCount = 0L
     def incModCount(): Unit = modCount += 1
     override def getModificationCount: Long = modCount
   }
+  val MOD_TRACKER = new MyModificationTracker()
 
   implicit class LibraryDescriptorExt(private val ld: LibraryDescriptor) extends AnyVal {
     import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier.Version

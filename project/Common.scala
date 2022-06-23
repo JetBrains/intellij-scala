@@ -18,8 +18,6 @@ object Common {
     "-Xlint:serial",
     "-Ymacro-annotations",
     "-Xfatal-warnings",
-    "-language:implicitConversions",
-    "-language:reflectiveCalls",
     "-language:existentials",
     "-Ytasty-reader",
   )

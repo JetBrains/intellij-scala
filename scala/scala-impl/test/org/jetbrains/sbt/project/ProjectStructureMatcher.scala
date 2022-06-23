@@ -341,6 +341,8 @@ object ProjectStructureMatcher {
     def apply(obj: T): String
   }
 
+  import scala.language.implicitConversions
+
   private implicit def convertMatchType(mt: DslUtils.MatchType): AttributeMatchType = mt match {
     case MatchType.Exact   => AttributeMatchType.Exact
     case MatchType.Inexact => AttributeMatchType.Inexact
