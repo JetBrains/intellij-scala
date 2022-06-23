@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiMethod, PsiModifier}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
@@ -57,7 +58,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateFinalClassInheritance(element: ScTemplateDefinition)
                                    (implicit holder: ScalaAnnotationHolder): Unit = {
-    val newInstance = element.isInstanceOf[ScNewTemplateDefinition]
+    val newInstance = element.is[ScNewTemplateDefinition]
     val hasBody = element.extendsBlock.templateBody.isDefined
 
     if (newInstance && !hasBody) return
@@ -97,10 +98,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    val isNew = element.isInstanceOf[ScNewTemplateDefinition]
-    val isObject = element.isInstanceOf[ScObject]
-
-    if (!isNew && !isObject) return
+    if (!element.is[ScNewTemplateDefinition, ScObject, ScEnumCase]) return
 
     val refs = superRefs(element)
 
@@ -126,13 +124,13 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           if (undefined.nonEmpty) {
             val range = element match {
               case _: ScNewTemplateDefinition => defaultRange
-              case scalaObject: ScObject => scalaObject.nameId.getTextRange
+              case _: ScObject | _: ScEnumCase => highlightRange(element)
             }
 
             holder.createErrorAnnotation(
               range,
               objectCreationImpossibleMessage(undefined: _*),
-              new ImplementMethodsQuickFix(element)
+              fixes = Option.when(!element.is[ScEnumCase])(new ImplementMethodsQuickFix(element))
             )
           }
         case _ =>
@@ -170,10 +168,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateUndefinedMember(element: ScTemplateDefinition)
                              (implicit holder: ScalaAnnotationHolder): Unit = {
-    val isNew = element.isInstanceOf[ScNewTemplateDefinition]
-    val isObject = element.isInstanceOf[ScObject]
-
-    if (!isNew && !isObject) return
+    if (!element.is[ScNewTemplateDefinition, ScObject]) return
 
     element.physicalExtendsBlock.members.foreach {
       case _: ScTypeAliasDeclaration => // abstract type declarations are allowed
@@ -224,7 +219,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateNeedsToBeAbstract(element: ScTemplateDefinition, typeAware: Boolean = true)
                                (implicit holder: ScalaAnnotationHolder): Unit = element match {
-    case _: ScNewTemplateDefinition | _: ScObject =>
+    case _: ScNewTemplateDefinition | _: ScObject | _: ScEnumCase =>
     case _ if !typeAware || isAbstract(element) =>
     case _ =>
       ScalaOIUtil.getMembersToImplement(element, withOwn = true).collectFirst {
@@ -243,19 +238,18 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
             case _ => None
           }
 
-          val maybeImplementFix = if (ScalaOIUtil.getMembersToImplement(element).nonEmpty) Some(new ImplementMethodsQuickFix(element))
-          else None
+          val maybeImplementFix =
+            Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMethodsQuickFix(element))
 
           maybeModifierFix ++ maybeImplementFix
-
         }
-        holder.createErrorAnnotation(nameId, message.nls, fixes)
+        holder.createErrorAnnotation(highlightRange(element), message.nls, fixes)
       }
   }
 
   def annotateNeedsToBeMixin(element: ScTemplateDefinition)
                             (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (element.isInstanceOf[ScTrait]) return
+    if (element.is[ScTrait]) return
 
     val nodes = TypeDefinitionMembers.getSignatures(element).allNodesIterator
 
@@ -302,5 +296,13 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       case (first, second) => ScalaBundle.message("member.is.not.defined", first, second)
     }.mkString("; ")
     ScalaBundle.message("object.creation.impossible.since", reasons)
+  }
+
+  private def highlightRange(definition: ScTemplateDefinition): TextRange = {
+    val extendsBlock = definition.extendsBlock
+    val endElem = extendsBlock.templateBody
+      .flatMap(_.prevElementNotWhitespace)
+      .getOrElse(extendsBlock)
+    TextRange.create(definition.startOffset, endElem.endOffset)
   }
 }
