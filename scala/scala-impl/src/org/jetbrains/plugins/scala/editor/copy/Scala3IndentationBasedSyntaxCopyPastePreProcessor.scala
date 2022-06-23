@@ -6,11 +6,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiComment, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.{indentWhitespace, lineIndentWhitespace}
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiFileExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
-    if (!file.useIndentationBasedSyntax)
+    if (!file.is[ScalaFile])
       return null
 
     if (startOffsets.length != 1 || endOffsets.length != 1)
@@ -38,7 +39,7 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
   // the formatter is always run on pasted snippets, so we just need to adjust indentation so that the formatter recognizes it
   // this only called on single caret, paste for multiple carets is handled as raw text
   override def preprocessOnPaste(project: Project, file: PsiFile, editor: Editor, text: String, rawText: RawText): String = {
-    if (!file.useIndentationBasedSyntax)
+    if (!file.is[ScalaFile])
       return text
 
     // only change indentation for multi-line texts
