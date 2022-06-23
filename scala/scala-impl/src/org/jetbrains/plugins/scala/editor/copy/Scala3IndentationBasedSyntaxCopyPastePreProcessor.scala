@@ -18,7 +18,8 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return null
 
     // only change indentation for multi-line texts
-    if (isSingleLine(text))
+    val lineBreaks = text.count(_ == '\n')
+    if (lineBreaks == 0)
       return null
 
     // get fist non-whitespace element in selection
@@ -28,8 +29,14 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
     if (firstElement.isEmpty || endOffsets(0) <= firstElement.get.startOffset)
       return null
 
-    // strip first-line indentation from all lines
+    // get leading whitespace
     val leadingSpaceOnLine = indentWhitespace(firstElement.get)
+
+    // don't adapt indentation for copying single line without selection
+    if (lineBreaks == 1 && text.endsWith("\n") && text.startsWith(leadingSpaceOnLine))
+      return null
+
+    // strip first-line indentation from all lines
     text
       .linesWithSeparators
       .map(_.stripPrefix(leadingSpaceOnLine))
@@ -43,7 +50,12 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return text
 
     // only change indentation for multi-line texts
-    if (isSingleLine(text))
+    val lineBreaks = text.count(_ == '\n')
+    if (lineBreaks == 0)
+      return text
+
+    // don't adapt indentation for copying line without selection
+    if (lineBreaks == 1 && text.endsWith("\n"))
       return text
 
     // get indentation at caret
@@ -61,12 +73,6 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       .map(indentWhitespace.concat)
       .mkString("")
       .stripPrefix(indentWhitespace)
-  }
-
-  @inline private def isSingleLine(text: String): Boolean = {
-    val lineBreaks = text.count(_ == '\n')
-    // don't adapt indentation for copying line without selection
-    lineBreaks == 0 || lineBreaks == 1 && text.endsWith("\n")
   }
 
   private def lineWhitespaceToCaret(ws: PsiWhiteSpace, caret: Caret): String = {
