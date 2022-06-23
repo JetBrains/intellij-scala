@@ -91,6 +91,8 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
               .replaceAll("""(?m)//.*$""", "")
 
     def parse: ScalaFile = parseText(s)
+    
+    def parse(lang: Language): ScalaFile = parseText(s, lang)
 
     def parseWithEventSystem: ScalaFile = parseText(s, enableEventSystem = true)
 
