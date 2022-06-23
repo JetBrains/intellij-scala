@@ -42,10 +42,11 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
         case virtualFile => virtualFile.getNameWithoutExtension
       }
 
-      val maybeDescriptors = scalaFile.typeDefinitions match {
+      val members = scalaFile.members
+      val maybeDescriptors = members.filterByType[ScTypeDefinition] match {
         case Seq(_, _, _, _*) => None
         case Seq(first, second) if first.name != second.name => None // with companion
-        case definitions if hasProblems(scalaFile, virtualFileName) =>
+        case definitions if hasProblems(scalaFile.name, virtualFileName, definitions, scalaFile.isScala3File, members.count(_.getParent.is[ScalaFile]) == 1) =>
           val descriptors = definitions.map { clazz =>
             val localQuickFixes = Array[LocalQuickFix](
               new RenameClassQuickFix(clazz, virtualFileName),
@@ -70,18 +71,18 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
 }
 
 object ScalaFileNameInspection {
-
-  private def hasProblems(scalaFile: ScalaFile,
-                          virtualFileName: String) =
-    !scalaFile.typeDefinitions.exists {
-      case scalaObject: ScObject if scalaFile.name == "package.scala" && scalaObject.isPackageObject =>
-        true
-      case clazz: ScTypeDefinition if scalaFile.isScala2File =>
-        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
-      case clazz: ScTypeDefinition if scalaFile.isScala3File && scalaFile.members.size == 1 =>
-        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
-      case _ =>
-        true
+  private def hasProblems(scalaFileName: String,
+                          virtualFileName: String,
+                          definitions: Seq[ScTypeDefinition],
+                          isScala3File: Boolean,
+                          hasOnlyOneTopMember: Boolean): Boolean =
+    definitions.exists {
+      case scalaObject: ScObject if scalaFileName == "package.scala" && scalaObject.isPackageObject =>
+        false
+      case clazz: ScTypeDefinition if isScala3File =>
+        hasOnlyOneTopMember && !ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
+      case clazz: ScTypeDefinition  =>
+        !ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
     }
 
   private abstract sealed class RenameQuickFixBase[T <: PsiNamedElement](element: T,
