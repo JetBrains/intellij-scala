@@ -11,4 +11,15 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
          |class D(${START}c${END}: Int) extends C(c)
          |""".stripMargin
     )
+
+  def test_subclass_parameter_shadows_abstract_class_var(): Unit =
+    checkTextHasError(
+      s"""
+         |abstract class Animal(var cat: String)
+         |
+         |class Cat(${START}cat${END}: String = "cat") extends Animal("") {
+         |  cat
+         |}
+         |""".stripMargin
+    )
 }

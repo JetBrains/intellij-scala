@@ -31,7 +31,10 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
                                            highlightType:       ProblemHighlightType)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
     element match {
-      case elem: ScNamedElement if isElementShadowing(elem) => Some(createProblemDescriptor(elem, annotationDescription))
+      case elem: ScNamedElement if
+        isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") &&
+        isElementShadowing(elem) =>
+        Some(createProblemDescriptor(elem, annotationDescription))
       case _ => None
     }
 
@@ -76,23 +79,19 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
         .collect { case term: ScNamedElement if !term.isEquivalentTo(elem) => term.nameContext }
         .collect { case nameContext: ScMember => nameContext }
 
-    if (suspects.isEmpty)
+    if (suspects.isEmpty) {
       false
-    else
-      elem.nameContext match {
-        case _ if isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") =>
-          lazy val isUsed = {
-            val scope = new LocalSearchScope(typeDefinition)
-            ReferencesSearch.search(elem, scope).findFirst() != null
-          }
-          suspects.exists {
-            case s: ScVariable if !s.isPrivate => isUsed
-            case s: ScClassParameter if s.isVar && !s.isPrivate => isUsed
-            case _ => false
-          }
-        case _ =>
-          false
+    } else {
+      lazy val isUsed = {
+        val scope = new LocalSearchScope(typeDefinition)
+        ReferencesSearch.search(elem, scope).findFirst() != null
       }
+      suspects.exists {
+        case s: ScVariable if !s.isPrivate && !s.isAbstract => isUsed
+        case s: ScClassParameter if s.isVar && !s.isPrivate => isUsed
+        case _ => false
+      }
+    }
   }
 
   @BooleanBeanProperty

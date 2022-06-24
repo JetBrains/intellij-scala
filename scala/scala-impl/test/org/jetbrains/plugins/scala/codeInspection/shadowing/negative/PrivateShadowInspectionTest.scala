@@ -55,4 +55,17 @@ class PrivateShadowInspectionTest extends PrivateShadowInspectionTestBase {
          |class D(private[this] val ${START}c${END}: Int) extends C(c)
          |""".stripMargin
     )
+
+  def test_abstract_class_parameter_doesnt_shadow_trait_var(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |trait Foo {
+         |  var v: Int
+         |}
+         |
+         |abstract class Bar(v: Int) extends Foo {
+         |  println(v)
+         |}
+         |""".stripMargin
+    )
 }
