@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.externalHighlighters
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
@@ -8,52 +9,42 @@ import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, TestSourcesFilter}
-import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
-import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
-import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
-import scala.collection.mutable
-import scala.concurrent.{ExecutionContext, Future}
+import java.nio.file.Path
+import scala.collection.concurrent.TrieMap
+import scala.util.control.NonFatal
 
 @Service
-final class TriggerCompilerHighlightingService(project: Project)
-  extends Disposable {
+private[scala] final class TriggerCompilerHighlightingService(project: Project) extends Disposable {
 
-  private val modifiedFiles: mutable.Set[VirtualFile] = mutable.Set.empty
-
-  private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
-  private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
+  private val documentCompilerAvailable: TrieMap[Path, java.lang.Boolean] = TrieMap.empty
 
   def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit =
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile))
       virtualFile.findDocument.foreach { document =>
         val scalaFile = psiFile.asOptionOf[ScalaFile]
-        val debugReason = s"file content changed: ${psiFile.getName}"
-        Future {
-          if (psiFile.isScalaWorksheet)
-            scalaFile.foreach(triggerWorksheetCompilation(_, document))
-          else if (ScalaHighlightingMode.documentCompilerEnabled) {
-            scalaFile.foreach { f =>
-              synchronized {
-                modifiedFiles += virtualFile
-              }
+        val debugReason = s"file content changed: ${psiFile.name}"
+        if (psiFile.isScalaWorksheet)
+          scalaFile.foreach(triggerWorksheetCompilation(_, document, debugReason))
+        else if (ScalaHighlightingMode.documentCompilerEnabled) {
+          scalaFile.foreach { f =>
+            if (documentCompilerAvailable.contains(virtualFile.toNioPath)) {
               triggerDocumentCompilation(debugReason, document, f)
+            } else {
+              triggerIncrementalCompilation(debugReason, virtualFile)
             }
-          } else {
-            synchronized {
-              modifiedFiles += virtualFile
-            }
-            triggerIncrementalCompilation(debugReason, virtualFile)
           }
+        } else {
+          triggerIncrementalCompilation(debugReason, virtualFile)
         }
       }
 
@@ -67,13 +58,17 @@ final class TriggerCompilerHighlightingService(project: Project)
         if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
         document <- inReadAction(virtualFile.findDocument)
         scalaFile <- psiFile.asOptionOf[ScalaFile]
-      } Future {
+      } {
         if (psiFile.isScalaWorksheet)
-          triggerWorksheetCompilation(scalaFile, document)
+          triggerWorksheetCompilation(scalaFile, document, debugReason)
         else
           triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
+
+  override def dispose(): Unit = {
+    documentCompilerAvailable.clear()
+  }
 
   private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit =
     if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
@@ -84,23 +79,15 @@ final class TriggerCompilerHighlightingService(project: Project)
         psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
         if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
         scalaFile <- psiFile.asOptionOf[ScalaFile]
-      } Future {
+      } {
         if (psiFile.isScalaWorksheet)
-          triggerWorksheetCompilation(scalaFile, document)
+          triggerWorksheetCompilation(scalaFile, document, debugReason)
         else
           triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
 
-  override def dispose(): Unit = {
-    synchronized {
-      modifiedFiles.clear()
-    }
-    threadPool.shutdownNow()
-  }
-
-  @TestOnly
-  var isAutoTriggerEnabled: Boolean =
+  private[scala] var isAutoTriggerEnabled: Boolean =
     !ApplicationManager.getApplication.isUnitTestMode
 
   private def isHighlightingEnabled: Boolean = {
@@ -126,25 +113,34 @@ final class TriggerCompilerHighlightingService(project: Project)
       else SourceScope.Production
 
     module.foreach { m =>
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, m, sourceScope)
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(virtualFile.toNioPath, m, sourceScope, debugReason)
     }
   }
 
-  private def saveFileToDisk(file: VirtualFile): Unit = {
-    if (file.isValid) {
-      val manager = FileDocumentManager.getInstance()
-      invokeAndWait {
-        val document = manager.getDocument(file)
-        if (document ne null) {
-          manager.saveDocumentAsIs(document)
+  def beforeIncrementalCompilation(): Unit = invokeAndWait {
+    val manager = FileDocumentManager.getInstance()
+    val unsaved = try manager.getUnsavedDocuments catch { case NonFatal(_) => Array.empty[Document] }
+    unsaved.foreach { document =>
+      if (manager.getFile(document).isValid) {
+        try manager.saveDocumentAsIs(document)
+        catch {
+          case NonFatal(_) =>
         }
       }
     }
   }
 
-  def beforeIncrementalCompilation(): Unit = synchronized {
-    modifiedFiles.foreach(saveFileToDisk)
-    modifiedFiles.clear()
+  def enableDocumentCompiler(path: Path): Unit = {
+    if (ScalaHighlightingMode.documentCompilerEnabled) {
+      inWriteAction(LocalFileSystem.getInstance().refresh(false))
+      documentCompilerAvailable.put(path, java.lang.Boolean.TRUE)
+    }
+  }
+
+  def disableDocumentCompiler(path: Path): Unit = {
+    if (ScalaHighlightingMode.documentCompilerEnabled) {
+      documentCompilerAvailable.remove(path, java.lang.Boolean.TRUE)
+    }
   }
 
   private def triggerDocumentCompilation(
@@ -154,19 +150,23 @@ final class TriggerCompilerHighlightingService(project: Project)
   ): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile))
       CompilerHighlightingService.get(project).triggerDocumentCompilation(
-        debugReason,
-        document
+        psiFile.getVirtualFile.toNioPath,
+        document,
+        debugReason
       )
 
   private def triggerWorksheetCompilation(psiFile: ScalaFile,
-                                          document: Document): Unit =
+                                          document: Document,
+                                          debugReason: String): Unit =
     CompilerHighlightingService.get(project).triggerWorksheetCompilation(
-      psiFile = psiFile,
-      document = document
+      psiFile.getVirtualFile.toNioPath,
+      psiFile,
+      document,
+      debugReason
     )
 }
 
-object TriggerCompilerHighlightingService {
+private[scala] object TriggerCompilerHighlightingService {
 
   def get(project: Project): TriggerCompilerHighlightingService =
     project.getService(classOf[TriggerCompilerHighlightingService])

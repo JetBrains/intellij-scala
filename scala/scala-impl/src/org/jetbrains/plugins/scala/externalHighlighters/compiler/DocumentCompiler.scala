@@ -35,19 +35,12 @@ final class DocumentCompiler(project: Project)
       module = module,
       client = client
     )
-    
-  private def clearOutputDirectories(): Unit =
-    for {
-      outputDir <- outputDirectories.values.asScala
-      file <- outputDir.listFiles()
-    } FileUtil.delete(file)
 
   private def removeOutputDirectories(): Unit = {
     outputDirectories.values().asScala.foreach(FileUtil.delete)
   }
 
   override def dispose(): Unit = {
-    clearOutputDirectories()
     removeOutputDirectories()
     outputDirectories.clear()
   }
@@ -73,6 +66,9 @@ final class DocumentCompiler(project: Project)
                                       module: Module,
                                       outputDir: File)
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
+
+    override protected def scalaParameters: Seq[String] =
+      super.scalaParameters :+ "-Ystop-before:erasure"
 
     def compile(originalSourceFile: File, client: Client): Unit = {
       val fixedClient = new DelegateClient(client) {

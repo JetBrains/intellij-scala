@@ -96,7 +96,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     val sourceScope = SourceScope.Production
     module.foreach { m =>
       CompilerHighlightingService.get(project)
-        .triggerIncrementalCompilation("manual trigger from tests", m, sourceScope, delayedProgressShow = false)
+        .triggerIncrementalCompilation(virtualFile.toNioPath, m, sourceScope, "manual trigger from tests")
     }
     Await.result(promise.future, 60.seconds)
   }
