@@ -29,6 +29,8 @@ object NlsString {
     new NlsString(nls)
   }
 
+  import scala.language.implicitConversions
+
   /**
    * Implicit conversion to a normal string
    */

@@ -21,7 +21,7 @@ import java.util.ResourceBundle;
 public class SbtModuleSettingsForm {
     public JPanel mainPanel;
     public JBTable resolversTable;
-    public JBList sbtImportsList;
+    public JBList<String> sbtImportsList;
     public JTextField sbtVersionTextField;
 
     public SbtModuleSettingsForm() {
@@ -72,6 +72,8 @@ public class SbtModuleSettingsForm {
         final JBScrollPane jBScrollPane2 = new JBScrollPane();
         panel2.add(jBScrollPane2, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         sbtImportsList = new JBList();
+        final DefaultListModel defaultListModel1 = new DefaultListModel();
+        sbtImportsList.setModel(defaultListModel1);
         jBScrollPane2.setViewportView(sbtImportsList);
     }
 

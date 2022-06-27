@@ -157,11 +157,13 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     val configPath = configFile.getPath
 
     val currentVFileTimestamp: Long = configFile.getModificationStamp
-    val document = FileDocumentManager.getInstance.getDocument(configFile)
+
+    val document = inReadAction {
+      FileDocumentManager.getInstance.getDocument(configFile)
+    }
     if (document == null)
       return Left(ConfigResolveError.ConfigFileNotFound(configFile.getPath + " (can't get Document for the file)"))
-
-    val currentDocTimestamp: Long = inReadAction(document).getModificationStamp
+    val currentDocTimestamp: Long = document.getModificationStamp
 
     val cachedConfig = configsCache.get(configPath)
     cachedConfig match {

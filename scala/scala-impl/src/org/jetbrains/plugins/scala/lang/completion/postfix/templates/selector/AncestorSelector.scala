@@ -59,7 +59,7 @@ object AncestorSelector {
 
   object SelectAllAncestors {
     def apply(surrounder: ScalaExpressionSurrounder): SelectAllAncestors =
-      new SelectAllAncestors(surrounder)
+      new SelectAllAncestors(surrounder.isApplicable(_: PsiElement))
   }
 
   final case class SelectTopmostAncestors(private val condition: Condition[PsiElement] = BooleanExpression) extends AncestorSelector(condition) {
@@ -68,7 +68,7 @@ object AncestorSelector {
 
   object SelectTopmostAncestors {
     def apply(surrounder: ScalaExpressionSurrounder): SelectTopmostAncestors =
-      new SelectTopmostAncestors(surrounder)
+      new SelectTopmostAncestors(surrounder.isApplicable(_: PsiElement))
   }
 
   val AnyExpression: Condition[PsiElement] = (_: PsiElement).is[ScExpression]
@@ -95,7 +95,4 @@ object AncestorSelector {
     }
     case _ => false
   }
-
-  private[this] implicit def surrounderToCondition(surrounder: ScalaExpressionSurrounder): Condition[PsiElement] =
-    surrounder.isApplicable(_: PsiElement)
 }

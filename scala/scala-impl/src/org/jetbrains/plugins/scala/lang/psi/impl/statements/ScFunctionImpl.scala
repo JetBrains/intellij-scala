@@ -295,7 +295,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def findSuperMethods(parentClass: PsiClass): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
 
-  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = PsiMethod.EMPTY_ARRAY
+  //NOTE: Currently `checkAccess` parameter is unused.
+  //Use it, if you find out that it's required in some place.
+  //I added dummy implementation which returns `findSuperMethods` in order to make `NonExtendableApiUsageInspection` work
+  //(under the hood it uses this version of overloaded method)
+  override def findSuperMethods(checkAccess: Boolean): Array[PsiMethod] = findSuperMethods
 
   override def findSuperMethods: Array[PsiMethod] = superMethods.toArray // TODO which other xxxSuperMethods can/should be implemented?
 

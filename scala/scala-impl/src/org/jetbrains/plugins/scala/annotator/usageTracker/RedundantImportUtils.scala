@@ -128,7 +128,7 @@ object RedundantImportUtils {
     isScala3: Boolean
   ): Boolean = {
     //noinspection TypeAnnotation
-    val resolveProcessor = new ResolveProcessor(ResolveTargets.values, importHolder, name) {
+    class MyResolveProcessor extends ResolveProcessor(ResolveTargets.values, importHolder, name) {
       var nameClasFound: Boolean = false
       override protected def execute(namedElement: PsiNamedElement)(implicit state: ResolveState): Boolean = {
         if (nameMatches(namedElement)) {
@@ -143,6 +143,7 @@ object RedundantImportUtils {
         else true
       }
     }
+    val resolveProcessor = new MyResolveProcessor()
 
     //for now this is just for debugging purposes
     var clashedImportExpr: ScImportExpr = null

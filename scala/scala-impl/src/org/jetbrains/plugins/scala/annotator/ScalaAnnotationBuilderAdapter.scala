@@ -10,13 +10,11 @@ import com.intellij.openapi.editor.markup.{GutterIconRenderer, TextAttributes}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
+
 class ScalaAnnotationBuilderAdapter(annotationBuilder: AnnotationBuilder)
   extends ScalaAnnotationBuilder {
 
   private var rangeTransformer: TextRange => TextRange = identity
-
-  private implicit def toScalaFixBuilder(fixBuilder: AnnotationBuilder.FixBuilder): ScalaAnnotationBuilder.FixBuilder =
-    new ScalaFixBuilderAdapter(fixBuilder)
 
   override def setRangeTransformer(transformer: TextRange => TextRange): this.type = {
     rangeTransformer = transformer
@@ -102,8 +100,12 @@ class ScalaAnnotationBuilderAdapter(annotationBuilder: AnnotationBuilder)
   override def create(): Unit =
     annotationBuilder.create()
 
+  import scala.language.implicitConversions
 
-  class ScalaFixBuilderAdapter(val fixBuilder: AnnotationBuilder.FixBuilder)
+  private implicit def toScalaFixBuilder(fixBuilder: AnnotationBuilder.FixBuilder): ScalaAnnotationBuilder.FixBuilder =
+    new ScalaFixBuilderAdapter(fixBuilder)
+
+  private class ScalaFixBuilderAdapter(val fixBuilder: AnnotationBuilder.FixBuilder)
     extends ScalaAnnotationBuilder.FixBuilder {
 
     override def range(range: TextRange): ScalaAnnotationBuilder.FixBuilder = fixBuilder.range(range)

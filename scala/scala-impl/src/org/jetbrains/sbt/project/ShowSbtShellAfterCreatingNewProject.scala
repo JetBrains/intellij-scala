@@ -34,6 +34,8 @@ final class ShowSbtShellAfterCreatingNewProject extends ExternalSystemSettingsLi
     if (ApplicationManager.getApplication.isUnitTestMode)
       return
 
+    import scala.language.existentials
+
     val sbtManager = externalSystemManager match {
       case manager: SbtExternalSystemManager => manager
       case _ => return

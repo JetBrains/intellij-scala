@@ -5,7 +5,7 @@ import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, PopupStep}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, PopupChooserBuilder, PopupStep}
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.psi.{NavigatablePsiElement, PsiDocumentManager, PsiElement, PsiNamedElement}
 import com.intellij.ui.awt.RelativePoint
@@ -16,11 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.util.JListCompatibility.GoToImplicitConversionAction
 
 import java.awt.Point
 import javax.swing.JList
-import scala.annotation.nowarn
 
 /**
   * @author Ksenia.Sautina
@@ -63,33 +61,14 @@ object MakeExplicitAction {
 
   private[this] var popup: JBPopup = _
 
-  def createPopup(list: JList[_]): JBPopup = {
+  def createPopup(list: JList[Parameters]): JBPopup = {
     GoToImplicitConversionAction.setList(list)
     popup = createPopupBuilder(list).createPopup
     popup
   }
 
-  def showMakeExplicitPopup(expression: ScExpression, function: ScFunction,
-                            elements: Seq[PsiNamedElement])
-                           (implicit project: Project, editor: Editor): Unit = {
-    val step = new ActionPopupStep(expression, function, elements.contains(function))
-    val list = GoToImplicitConversionAction.getList
-
-    PopupFactory.createListPopup(step)
-      .show(new RelativePoint(list, currentItemPoint(list)))
-  }
-
-  def currentItemPoint(list: JList[_], moveLeft: Int = 20): Point = list.getSelectedIndex match {
-    case -1 => throw new RuntimeException("Index = -1 is less than zero.")
-    case index =>
-      list.getCellBounds(index, index) match {
-        case null => throw new RuntimeException(s"No bounds for index = $index.")
-        case bounds => new Point(bounds.x + bounds.width - moveLeft, bounds.y)
-      }
-  }
-
-  private[this] def createPopupBuilder(list: JList[_]) = {
-    PopupFactory.createListPopupBuilder(list)
+  private[this] def createPopupBuilder(list: JList[Parameters]) =
+    new PopupChooserBuilder(list)
       .setTitle(ScalaBundle.message("title.choose.implicit.conversion.method"))
       .setAdText(ScalaBundle.message("press.alt.enter"))
       .setMovable(false)
@@ -108,7 +87,25 @@ object MakeExplicitAction {
 
           maybeSynthetic.getOrElse(navigable).navigate(true)
         case _ =>
-      }): @nowarn("cat=deprecation")
+      })
+
+  def showMakeExplicitPopup(expression: ScExpression, function: ScFunction,
+                            elements: Seq[PsiNamedElement])
+                           (implicit project: Project, editor: Editor): Unit = {
+    val step = new ActionPopupStep(expression, function, elements.contains(function))
+    val list = GoToImplicitConversionAction.getList
+
+    PopupFactory.createListPopup(step)
+      .show(new RelativePoint(list, currentItemPoint(list)))
+  }
+
+  def currentItemPoint(list: JList[_], moveLeft: Int = 20): Point = list.getSelectedIndex match {
+    case -1 => throw new RuntimeException("Index = -1 is less than zero.")
+    case index =>
+      list.getCellBounds(index, index) match {
+        case null => throw new RuntimeException(s"No bounds for index = $index.")
+        case bounds => new Point(bounds.x + bounds.width - moveLeft, bounds.y)
+      }
   }
 
   private class ActionPopupStep(expression: ScExpression, function: ScFunction,

@@ -26,7 +26,7 @@ abstract class FailedScalacTestsBase_2_12 extends ScalacTestdataHighlightingTest
   def fileName = getTestName(/*lowercaseFirstLetter*/ false).stripPrefix("_")
 
   def filesWithProblems: Map[String, Set[TextRange]] = {
-    import org.jetbrains.plugins.scala.projectHighlighting._
+    import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
     getTestName(true) match {
       case "_t7232c" => Map("t7232c/Test.scala" -> Set())
       case "_t7364b" => Map("t7364b/UseIt_2.scala" -> Set((68, 79), (56, 64)))

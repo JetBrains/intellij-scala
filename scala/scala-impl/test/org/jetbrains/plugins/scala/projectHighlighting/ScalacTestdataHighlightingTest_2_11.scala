@@ -19,6 +19,8 @@ import java.io.File
 //  (to the latest scala minor version in the corresponding version branch)
 class ScalacTestdataHighlightingTest_2_12 extends ScalacTestdataHighlightingTestBase_2_12 {
 
+  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+
   override val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems =
     Map(
       "pos/t2994a.scala" -> Set((636, 639),(641, 642)),

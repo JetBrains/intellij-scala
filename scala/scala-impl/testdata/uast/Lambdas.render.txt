@@ -1,6 +1,6 @@
 public final class Lambdas$ {
     public static fun lambdasUsage() : void {
-        final var seq: scala.collection.Seq<java.lang.Object> = Seq.empty()
+        final var seq: scala.collection.immutable.Seq<java.lang.Object> = Seq.empty()
         final var lambda: scala.Function1<java.lang.Object,java.lang.Object> = { public var x: int ->
             {
                 return x + 1

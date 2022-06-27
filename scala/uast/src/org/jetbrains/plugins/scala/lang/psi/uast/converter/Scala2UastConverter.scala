@@ -1,16 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang.psi.uast.converter
+package org.jetbrains.plugins.scala.lang.psi.uast.converter
 
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, childOf}
+import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscoreFunction
@@ -18,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
@@ -27,11 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.uast.declarations._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUBlockExpression._
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+import org.jetbrains.plugins.scala.lang.psi.uast.possibleSourceTypesCheckIsActive
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.plugins.scala.uast.{ScalaUastLanguagePlugin, ScalaUastSourceTypeMapping}
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._
-import org.jetbrains.uast.expressions.UInjectionHost
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
@@ -83,7 +82,6 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     sourcePsi: PsiElement,
     convertLambdas: Boolean = true
   ): Option[Free[U]] = {
-
     import ConverterUtils._
 
     val requiredType = implicitly[ClassTag[U]].runtimeClass.asInstanceOf[Class[U]]
@@ -128,25 +126,28 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             )
             .orNull
 
-        case e: ScTemplateBody =>
+        //Handle case with anonymous class: new SomeClass() { ... }
+        //NOTE: we attach `ScUAnonymousClass` UAST element to `ScExtendsBlock` PSI element and not to `ScTemplateBody` because here:
+        //com.intellij.codeInspection.NonExtendableApiUsageInspection.NonExtendableApiUsageProcessor.processReference
+        //it's assumed that `USimpleNameReferenceExpression` (representing `SomeClass` identifier) will have UClass as it's parent
+        case eb: ScExtendsBlock if eb.isAnonymousClass =>
           //noinspection ScalaUnusedSymbol
           (for {
-            eb @ (_x: ScExtendsBlock) <- Option(e.getParent)
-            nt @ (_x: ScNewTemplateDefinition) <- Option(eb.getParent)
-          } yield new ScUAnonymousClass(nt, _: LazyUElement)).orNull
+            nt @ (td: ScNewTemplateDefinition) <- Option(eb.getParent)
+          } yield new ScUAnonymousClass(nt, eb, _: LazyUElement)).orNull
 
         case e: ScNewTemplateDefinition if e.extendsBlock.isAnonymousClass =>
           new ScUObjectLiteralExpression(e, _)
 
-        /**
-          * [[UAnnotationUtils]]#getAnnotationEntry wants to be able
-          * to convert constructor invocation into [[UAnnotation]]
-          */
-        case ScUAnnotation.fromConstructorInvocation(scAnnotation)
-            if requiredType == classOf[UAnnotation] =>
-          new ScUAnnotation(scAnnotation, _)
+        case constructorInvocation: ScConstructorInvocation =>
+          val isAnnotationConstructorCall = constructorInvocation.getParent.is[ScAnnotationExpr]
+          if (isAnnotationConstructorCall)
+            null
+          else
+            new ScUConstructorCallExpression(constructorInvocation, _)
 
-        case e: ScAnnotation => new ScUAnnotation(e, _)
+        case e: ScAnnotation =>
+          new ScUAnnotation(e, _)
 
         // ========================= LAMBDAS ====================================
 
@@ -336,18 +337,14 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     convertLambdas && MethodValue.unapply(expr).isDefined
   }
 
-  private def firstConvertibleAncestor(element: PsiElement): Option[UElement] =
-    LazyList
-      .iterate(element.getParent)(_.getParent)
-      .takeWhile(_ != null)
-      .flatMap(e => convertWithParent(e))
-      .headOption
+  private def firstConvertibleParent(element: PsiElement): Option[UElement] =
+    element.parents.flatMap(convertWithParent).headOption
 
   private def makeUParent(sourcePsi: PsiElement,
                           free: Free[_ <: UElement]): Option[UElement] = {
 
     val detachedUElement = free.standalone
-    val firstPossibleParent = firstConvertibleAncestor(sourcePsi)
+    val firstPossibleParent = firstConvertibleParent(sourcePsi)
 
     doParentClarification(sourcePsi, detachedUElement, firstPossibleParent)
   }
@@ -358,8 +355,9 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     estimatedParent: Option[UElement]
   ): Option[UElement] = {
 
+    val tuple = (source, element, estimatedParent.orNull)
     val clarifiedParent =
-      Option((source, element, estimatedParent.orNull) match {
+      tuple match {
         // skips reference for methods leaving UIdentifier only
         // because otherwise they would have the same source psi
         case (_, _: UIdentifier, uParent: USimpleNameReferenceExpression) =>
@@ -458,10 +456,11 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
             if uElement == uParent && uElement.getSourcePsi != null =>
           uParent.getUastParent
 
-        case _ => estimatedParent.orNull
-      })
+        case _ =>
+          estimatedParent.orNull
+      }
 
-    clarifiedParent.map { parent =>
+    val result = Option(clarifiedParent).map { parent =>
       (source, element, parent) match {
 
         /** Wraps last statement in function in [[ScUImplicitReturnExpression]] */
@@ -494,6 +493,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case _ => parent
       }
     }
+    result
   }
 
   //todo: is there a better way to restrict possible conversions?

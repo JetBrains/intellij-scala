@@ -12,20 +12,6 @@ package object scala {
 
   def isUnitTestMode: Boolean = application.isUnitTestMode
 
-  private var _possibleSourceTypesCheckIsActive = false
-
-  def possibleSourceTypesCheckIsActive: Boolean = {
-    assert(isUnitTestMode, "This property should only be used in unit tests")
-    _possibleSourceTypesCheckIsActive
-  }
-
-  def withPossibleSourceTypesCheck[T](body: => T): T = {
-    assert(!possibleSourceTypesCheckIsActive)
-    _possibleSourceTypesCheckIsActive = true
-    try body
-    finally _possibleSourceTypesCheckIsActive = false
-  }
-
   def inWriteAction[T](body: => T): T = application match {
     case application if application.isWriteAccessAllowed => body
     case application => application.runWriteAction(body)

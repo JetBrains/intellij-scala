@@ -13,8 +13,6 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.bsp.BspBundle;
-import org.jetbrains.plugins.scala.util.JListCompatibility;
-import org.jetbrains.plugins.scala.util.JListCompatibility.CollectionListModelWrapper;
 import scala.runtime.BoxedUnit;
 
 import javax.swing.*;
@@ -35,17 +33,16 @@ import static java.util.stream.Collectors.*;
 public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfiguration> {
     final Project project;
     JPanel mainPanel;
-    JComboBox testModeCombobox;
+    JComboBox<TestMode> testModeCombobox;
 
     // Test classes selection form
     JPanel testClassFormWrapper;
     JTextField testClassNameRegex;
-    JBList matchedClassesList;
+    JBList<String> matchedClassesList;
     JButton refreshClassesButton;
-    CollectionListModelWrapper matchedClassesModel = new CollectionListModelWrapper(new CollectionListModel<String>(Collections.emptyList()));
+    CollectionListModel<String> matchedClassesModel = new CollectionListModel<>(Collections.emptyList());
     List<TestClass> lastRequestResult = Collections.emptyList();
 
-    @SuppressWarnings("unchecked")
     public BspTestConfigurationForm(Project project) {
         this.project = project;
         $$$setupUI$$$();
@@ -59,7 +56,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         }
         { // init matched classes list
             matchedClassesList.setEmptyText(BspBundle.message("bsp.test.no.matched.test.classes"));
-            JListCompatibility.setModel(matchedClassesList, matchedClassesModel.getModelRaw());
+            matchedClassesList.setModel(matchedClassesModel);
             updateMatchedClassesList(Collections.emptyMap());
             testClassNameRegex.getDocument().addDocumentListener(new DocumentAdapter() {
                 @Override
@@ -111,7 +108,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
 
 
     private void updateMatchedClassesList(Map<String, List<String>> matchedClasses) {
-        matchedClassesModel.getModel().replaceAll(matchedClasses.values().stream()
+        matchedClassesModel.replaceAll(matchedClasses.values().stream()
                 .flatMap(List::stream)
                 .sorted()
                 .collect(toList()));
@@ -173,7 +170,7 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         ALL_IN_PROJECT(BspBundle.message("bsp.test.all.in.project")),
         CLASS(BspBundle.message("bsp.test.scala.class"));
 
-        String displayText;
+        final String displayText;
 
         TestMode(String n) {
             this.displayText = n;
@@ -183,14 +180,6 @@ public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfigura
         public String toString() {
             return displayText;
         }
-    }
-
-    public TestMode getTestMode() {
-        return (TestMode) testModeCombobox.getSelectedItem();
-    }
-
-    public String getTestClassNameRegex() {
-        return testClassNameRegex.getText();
     }
 
     /**

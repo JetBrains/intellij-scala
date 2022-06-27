@@ -16,7 +16,7 @@ public final class ByteFunc$ {
         return ((t - 1) & 255).toByte()
     }
     public static fun in() : byte {
-        return scala.io.StdIn.readByte
+        return scala.io.StdIn.readByte()
     }
     public static fun out(t: byte) : void {
         print(t.toChar())

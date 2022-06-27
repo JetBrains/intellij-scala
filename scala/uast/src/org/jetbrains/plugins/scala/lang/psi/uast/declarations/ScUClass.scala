@@ -1,8 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.declarations
 
 import com.intellij.openapi.util.{Key, UserDataHolderBase}
-
-import java.{util => ju}
 import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTypesUtil
@@ -11,15 +9,18 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.psi.PsiClassAnonimousWrapper
+
+import java.{util => ju}
 import org.jetbrains.uast._
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 trait ScUClassCommon extends UClass with ScUAnnotated {
 
@@ -120,17 +121,19 @@ final class ScUClass(override protected val scElement: ScTypeDefinition,
 /**
   * [[ScNewTemplateDefinition]] adapter for the [[UClass]]
   *
-  * @param scAnonDefinition Scala PSI expression representing anonymous class
+  * @param newTemplateDefinition Scala PSI expression representing anonymous class
   *                         definition
   */
-final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
-                              override protected val parent: LazyUElement)
-    extends UClassAdapter(scAnonDefinition)
-    with ScUClassCommon
-    with ScUElement
-    with UAnonymousClass {
+final class ScUAnonymousClass(
+  newTemplateDefinition: ScNewTemplateDefinition,
+  extendsBlock: ScExtendsBlock,
+  override protected val parent: LazyUElement
+) extends UClassAdapter(newTemplateDefinition)
+  with ScUClassCommon
+  with ScUElement
+  with UAnonymousClass {
 
-  override protected val scTemplate: ScTemplateDefinition = scAnonDefinition
+  override protected val scTemplate: ScTemplateDefinition = newTemplateDefinition
 
   override def getUFields: Array[UField] = super[ScUClassCommon].getUFields
   override def getUMethods: Array[UMethod] = super[ScUClassCommon].getUMethods
@@ -140,26 +143,25 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
     super[ScUClassCommon].getUInnerClasses
 
   override type PsiFacade = PsiAnonymousClass
-  override protected val scElement: PsiFacade = new ScTemplateToPsiAnonymousClassAdapter(scAnonDefinition)
+  override protected val scElement: PsiFacade = new ScTemplateToPsiAnonymousClassAdapter(newTemplateDefinition)
 
   @Nullable
-  override def getSourcePsi: PsiElement =
-    scAnonDefinition.extendsBlock.templateBody.orNull
+  override def getSourcePsi: PsiElement = extendsBlock
 
   @Nullable
   override def getUastAnchor: UElement =
-    scAnonDefinition.extendsBlock.templateParents
+    extendsBlock.templateParents
       .flatMap(_.constructorInvocation)
       .map(createUIdentifier(_, this))
-      .getOrElse(createUIdentifier(scAnonDefinition.extendsBlock, this))
+      .getOrElse(createUIdentifier(extendsBlock, this))
 
   override def getBaseClassReference: PsiJavaCodeReferenceElement =
     JavaPsiFacade
-      .getElementFactory(scAnonDefinition.getProject)
+      .getElementFactory(newTemplateDefinition.getProject)
       .createReferenceElementByType(getBaseClassType)
 
   override def getBaseClassType: PsiClassType =
-    scAnonDefinition.extendsBlock.templateParents
+    extendsBlock.templateParents
       .flatMap(
         _.typeElements
           .flatMap(
@@ -167,8 +169,8 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
               scType =>
                 PsiType.getTypeByName(
                   scType.canonicalText,
-                  scAnonDefinition.getProject,
-                  scAnonDefinition.getResolveScope
+                  newTemplateDefinition.getProject,
+                  newTemplateDefinition.getResolveScope
               )
             )
           )
@@ -176,8 +178,8 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
       )
       .getOrElse(
         PsiType.getJavaLangObject(
-          PsiManager.getInstance(scAnonDefinition.getProject),
-          GlobalSearchScope.allScope(scAnonDefinition.getProject)
+          PsiManager.getInstance(newTemplateDefinition.getProject),
+          GlobalSearchScope.allScope(newTemplateDefinition.getProject)
         )
       )
 
@@ -185,7 +187,7 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
   override def getArgumentList: PsiExpressionList = null
 
   override def isInQualifiedNew: Boolean =
-    scAnonDefinition.extendsBlock.templateParents
+    extendsBlock.templateParents
       .flatMap(_.constructorInvocation)
       .flatMap(_.reference)
       .exists(_.qualifier.isDefined)
@@ -193,7 +195,7 @@ final class ScUAnonymousClass(scAnonDefinition: ScNewTemplateDefinition,
   // escapes looping caused by the default implementation
   @Nullable
   override def getSuperClass: UClass =
-    Option(scAnonDefinition.getSuperClass)
+    Option(newTemplateDefinition.getSuperClass)
       .flatMap(_.convertWithParentTo[UClass]())
       .orNull
 }

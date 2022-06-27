@@ -27,6 +27,7 @@ import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaLanguage;
+import org.jetbrains.plugins.scala.ScalaVersion;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
 
@@ -84,6 +85,13 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     @NotNull
     protected Language getLanguage() {
         return ScalaLanguage.INSTANCE;
+    }
+
+    //used just to propagate to ActualTest.supportedIn
+    //default implementation took from org.jetbrains.plugins.scala.base.ScalaSdkOwner.supportedIn
+    //TODO: consider using Scala 2.13 by default
+    protected boolean supportedInScalaVersion(ScalaVersion version) {
+        return true;
     }
 
     @NotNull
@@ -176,6 +184,11 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
 
         private ActualTest(@NotNull File testFile) {
             myTestFile = testFile;
+        }
+
+        @Override
+        public boolean supportedIn(ScalaVersion version) {
+            return supportedInScalaVersion(version);
         }
 
         @Override

@@ -20,6 +20,7 @@ import com.intellij.psi.search.{GlobalSearchScope, LocalSearchScope}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTreeUtil.{findElementOfClassAtRange, getParentOfType, isAncestor}
 import com.intellij.refactoring.util.CommonRefactoringUtil
+import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -42,12 +43,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.Component
 import java.util.Collections
 import java.{util => ju}
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
+import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
@@ -465,15 +466,12 @@ object ScalaRefactoringUtil {
 
     val selection = new Selection
     val highlighter: ScopeHighlighter = new ScopeHighlighter(editor)
-    val model = JListCompatibility.createDefaultListModel()
-    for (element <- elements) {
-      JListCompatibility.addElement(model, element)
-    }
-    val list = JListCompatibility.createJListFromModel(model)
-    JListCompatibility.setCellRenderer(list, new DefaultListCellRendererAdapter {
-      override def getListCellRendererComponentAdapter(container: JListCompatibility.JListContainer,
-                                                       value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
-        val rendererComponent: Component = getSuperListCellRendererComponent(container.getList, value, index, isSelected, cellHasFocus)
+    val model = new DefaultListModel[T]()
+    elements.foreach(model.addElement)
+    val list = new JBList[T](model)
+    list.setCellRenderer(new DefaultListCellRenderer {
+      override def getListCellRendererComponent(list: JList[_], value: Object, index: Int, isSelected: Boolean, cellHasFocus: Boolean): Component = {
+        val rendererComponent: Component = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus)
         val element: T = value.asInstanceOf[T]
         val psi = toHighlight(element)
         if (psi.isValid) {
@@ -481,7 +479,7 @@ object ScalaRefactoringUtil {
         }
         rendererComponent
       }
-    })
+    }.asInstanceOf[ListCellRenderer[T]])
     list.addListSelectionListener(new ListSelectionListener {
       override def valueChanged(e: ListSelectionEvent): Unit = {
         highlighter.dropHighlight()

@@ -9,6 +9,7 @@ import com.intellij.psi.util.PsiUtilBase.getElementAtCaret
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.InplaceRefactoring
 import com.intellij.refactoring.rename.{PsiElementRenameHandler, RenamePsiElementProcessor}
+import com.intellij.ui.components.JBList
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, invokeLaterInTransaction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -20,7 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScEndImpl.Target
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, PsiMethodWrapper}
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import scala.annotation.nowarn
 
@@ -55,7 +55,7 @@ trait ScalaInplaceRenameHandler {
   def afterElementSubstitution(elementToRename: PsiElement, editor: Editor)(inplaceRename: PsiElement => InplaceRefactoring): InplaceRefactoring = {
     def showSubstitutePopup(@Nls title: String, positive: String, subst: => PsiNamedElement): Unit = {
       val cancel = ScalaBundle.message("rename.cancel")
-      val list = JListCompatibility.createJBListFromListData(positive, cancel)
+      val list = new JBList[String](positive, cancel)
       val callback: Runnable = () => invokeLaterInTransaction(editor.getProject) {
         list.getSelectedValue match {
           case s: String if s == positive =>

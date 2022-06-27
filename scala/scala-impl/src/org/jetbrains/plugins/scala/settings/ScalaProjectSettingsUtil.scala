@@ -5,14 +5,14 @@ import com.intellij.openapi.application.ApplicationBundle
 import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.ui._
+import com.intellij.ui.components.JBList
 import com.intellij.util.IconUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.util
-import javax.swing.{JComponent, JPanel}
+import javax.swing.{DefaultListModel, JComponent, JPanel}
 import scala.annotation.tailrec
 
 /**
@@ -61,43 +61,43 @@ object ScalaProjectSettingsUtil {
     }
   }
 
-  def getPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
+  def getPatternListPanel(parent: JComponent, patternJBList: JBList[String], @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
+    def addPattern(pattern: String, patternJBList: JBList[String]): Unit = {
       if (pattern == null) return
-      val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
-        case null => return
-        case default => default
+      val listModel = patternJBList.getModel match {
+        case default: DefaultListModel[String] => default
+        case _ => return
       }
       val index: Int = - util.Arrays.binarySearch(listModel.toArray, pattern) - 1
       if (index < 0) return
-      JListCompatibility.add(listModel, index, pattern)
-      patternJBList.getList.setSelectedValue(pattern, true)
-      ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
-      IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
+      listModel.add(index, pattern)
+      patternJBList.setSelectedValue(pattern, true)
+      ScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
+      IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((_: AnActionButton) => {
+    ToolbarDecorator.createDecorator(patternJBList).setAddAction((_: AnActionButton) => {
       val validator: InputValidator = ScalaProjectSettingsUtil.getPatternValidator
       val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
       addPattern(pattern, patternJBList)
     }).disableUpDownActions.createPanel
   }
 
-  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JListCompatibility.JListContainer, @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
-    def addPattern(pattern: String, patternJBList: JListCompatibility.JListContainer): Unit = {
+  def getUnsortedPatternListPanel(parent: JComponent, patternJBList: JBList[String], @Nls inputMessage: String, @Nls inputTitle: String): JPanel = {
+    def addPattern(pattern: String, patternJBList: JBList[String]): Unit = {
       if (pattern == null) return
-      val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
-        case null => return
-        case default => default
+      val listModel = patternJBList.getModel match {
+        case default: DefaultListModel[String] => default
+        case _ => return
       }
-      val index = patternJBList.getList.getSelectedIndex
-      JListCompatibility.add(listModel, index + 1, pattern)
-      patternJBList.getList.setSelectedValue(pattern, true)
-      ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, index, 0)
-      IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
+      val index = patternJBList.getSelectedIndex
+      listModel.add(index + 1, pattern)
+      patternJBList.setSelectedValue(pattern, true)
+      ScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)
+      IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
     }
 
-    ToolbarDecorator.createDecorator(patternJBList.getList).setAddAction((_: AnActionButton) => {
+    ToolbarDecorator.createDecorator(patternJBList).setAddAction((_: AnActionButton) => {
       val validator: InputValidator = ScalaProjectSettingsUtil.getPackageValidator
       val pattern: String = Messages.showInputDialog(parent, inputMessage, inputTitle, Messages.getWarningIcon, "", validator)
       addPattern(pattern, patternJBList)
@@ -107,20 +107,20 @@ object ScalaProjectSettingsUtil {
       }
     }).setRemoveAction(new AnActionButtonRunnable {
       override def run(t: AnActionButton): Unit = {
-        val listModel = JListCompatibility.getDefaultListModel(patternJBList.getList.getModel) match {
-          case null => return
-          case default => default
+        val listModel = patternJBList.getModel match {
+          case default: DefaultListModel[String] => default
+          case _ => return
         }
-        val index = patternJBList.getList.getSelectedIndex
+        val index = patternJBList.getSelectedIndex
         if (index != -1) {
           if (listModel.get(index) == ScalaCodeStyleSettings.ALL_OTHER_IMPORTS) return
           if (listModel.get(index) == ScalaCodeStyleSettings.BASE_PACKAGE_IMPORTS) return
           val size = listModel.size()
           listModel.remove(index)
           val to = if (index == size - 1) index - 1 else index
-          patternJBList.getList.setSelectedIndex(to)
-          ScrollingUtil.ensureIndexIsVisible(patternJBList.getList, to, 0)
-          IdeFocusManager.getGlobalInstance.requestFocus(patternJBList.getList, false)
+          patternJBList.setSelectedIndex(to)
+          ScrollingUtil.ensureIndexIsVisible(patternJBList, to, 0)
+          IdeFocusManager.getGlobalInstance.requestFocus(patternJBList, false)
         }
       }
     }).createPanel

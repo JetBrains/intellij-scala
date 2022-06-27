@@ -422,7 +422,7 @@ package object project {
       Option(file.getUserData(UserDataKeys.SCALA_ATTACHED_MODULE)).flatMap(_.get)
 
     def isMetaEnabled: Boolean =
-      !ScStubElementType.Processing &&
+      !ScStubElementType.Processing.isRunning &&
         !DumbService.isDumb(file.getProject) &&
         isEnabledIn(_.isMetaEnabled)
 

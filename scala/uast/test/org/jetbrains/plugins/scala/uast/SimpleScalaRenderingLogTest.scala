@@ -69,8 +69,8 @@ class SimpleScalaRenderingLogTest
     new File(getTestDataPath(), substringBeforeLast(testName, '.') + '.' + ext)
   }
 
-  override def check(s: String, uFile: UFile): Unit =
-    RenderLogTestBase.DefaultImpls.check(this, s, uFile)
+  override def check(testName: String, uFile: UFile): Unit =
+    RenderLogTestBase.DefaultImpls.check(this, testName, uFile)
 
   override def check(testName: String,
                      file: UFile,

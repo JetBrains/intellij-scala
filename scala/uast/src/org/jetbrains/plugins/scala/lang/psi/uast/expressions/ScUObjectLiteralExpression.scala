@@ -32,10 +32,11 @@ final class ScUObjectLiteralExpression(
   override protected def scReference: Option[ScReference] =
     scElement.constructorInvocation.flatMap(_.reference)
 
-  override def getDeclaration: UClass =
-    scElement.extendsBlock.templateBody
-      .flatMap(_.convertTo[UAnonymousClass](this))
-      .getOrElse(new ScUErrorClass(scElement, LazyUElement.just(this)))
+  override def getDeclaration: UClass = {
+    val extendsBlock = scElement.extendsBlock
+    val anonymousClass = extendsBlock.convertTo[UAnonymousClass](this)
+    anonymousClass.getOrElse(new ScUErrorClass(scElement, LazyUElement.just(this)))
+  }
 
   private val uConstructor: Option[ScUConstructorCallExpression] =
     scElement.constructorInvocation.map(

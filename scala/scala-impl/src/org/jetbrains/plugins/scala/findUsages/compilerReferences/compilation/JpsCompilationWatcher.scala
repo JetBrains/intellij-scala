@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences
 package compilation
 
-import com.intellij.compiler.impl.ExitStatus
+import com.intellij.compiler.impl.{CompileDriver, ExitStatus}
 import com.intellij.compiler.server.{BuildManagerListener, CustomBuilderMessageHandler}
 import com.intellij.openapi.compiler.{CompilationStatusListener, CompileContext, CompilerTopics}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.Key
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compilerReferences.{Builder, Messages}
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService.CompilerIndicesState
@@ -13,7 +12,6 @@ import org.jetbrains.plugins.scala.indices.protocol.jps.JpsCompilationInfo
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt}
 
 import java.util.UUID
-import scala.annotation.nowarn
 
 private[compilerReferences] class JpsCompilationWatcher(
   override val project:          Project,
@@ -82,10 +80,8 @@ private[compilerReferences] class JpsCompilationWatcher(
       ): Unit = {
         val timestamp   = System.currentTimeMillis()
 
-        // noinspection ScalaDeprecation
-        // this key is declared private in CompileDriver
-        val key         = Option(Key.findKeyByName("COMPILE_SERVER_BUILD_STATUS"): @nowarn("cat=deprecation"))
-        val status      = key.flatMap(k => Option(compileContext.getUserData(k)))
+        //HACK: using TestOnly method because `CompileDriverCOMPILE_SERVER_BUILD_STATUS` is private
+        val status = Option(CompileDriver.getExternalBuildExitStatus(compileContext))
         val wasUpToDate = status.contains(ExitStatus.UP_TO_DATE)
 
         val modules =

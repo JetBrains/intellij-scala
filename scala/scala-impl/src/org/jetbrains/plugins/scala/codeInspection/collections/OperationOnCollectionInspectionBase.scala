@@ -6,12 +6,12 @@ import com.intellij.openapi.ui.{InputValidator, Messages}
 import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.PsiElement
 import com.intellij.ui._
+import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.{Component, GridLayout}
 import java.util
@@ -121,9 +121,9 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
 
     def createPatternListPanel(parent: JComponent, patternListKey: String): JComponent = {
       val patternList = patternLists(patternListKey)()
-      val listModel = JListCompatibility.createDefaultListModel()
-      patternList.foreach(JListCompatibility.add(listModel, listModel.size, _))
-      val patternJBList = JListCompatibility.createJBListFromModel(listModel)
+      val listModel = new DefaultListModel[String]()
+      patternList.foreach(listModel.add(listModel.size, _))
+      val patternJBList = new JBList[String](listModel)
       def resetValues(): Unit = {
         val newArray = listModel.toArray collect {case s: String => s}
         setPatternLists(patternListKey)(ArraySeq.unsafeWrapArray(newArray))
@@ -133,7 +133,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
           if (pattern == null) return
           val index: Int = - util.Arrays.binarySearch (listModel.toArray, pattern) - 1
           if (index < 0) return
-          JListCompatibility.add(listModel, index, pattern)
+          listModel.add(index, pattern)
           resetValues()
           patternJBList.setSelectedValue (pattern, true)
           ScrollingUtil.ensureIndexIsVisible(patternJBList, index, 0)

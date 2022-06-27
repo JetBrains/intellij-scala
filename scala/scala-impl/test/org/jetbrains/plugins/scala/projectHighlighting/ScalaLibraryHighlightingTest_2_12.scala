@@ -23,6 +23,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[HighlightingTests]))
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
+  import org.jetbrains.plugins.scala.projectHighlighting.ImplicitConversions.tupleToTextRange
+  
   private val filesWithProblems: Map[String, Set[TextRange]] = Map(
     "scala/reflect/ClassManifestDeprecatedApis.scala" -> Set((2714, 2721),(2947, 2954)),
   )

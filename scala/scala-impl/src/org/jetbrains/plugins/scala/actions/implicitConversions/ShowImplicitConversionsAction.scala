@@ -9,9 +9,10 @@ import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
+import com.intellij.ui.components.JBList
 import com.intellij.util.Alarm
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.actions.{MakeExplicitAction, Parameters, ScalaActionUtil}
+import org.jetbrains.plugins.scala.actions.{GoToImplicitConversionAction, MakeExplicitAction, Parameters, ScalaActionUtil}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -19,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.util.JListCompatibility
 
 import java.awt.Color
 import java.awt.event.{MouseAdapter, MouseEvent}
@@ -69,26 +69,28 @@ final class ShowImplicitConversionsAction extends AnAction(
       if (conversions.isEmpty) return true
 
       val conversionFun = implicitElement.orNull
-      val model = JListCompatibility.createDefaultListModel()
+      val model = new DefaultListModel[Parameters]
       var actualIndex = -1
       //todo actualIndex should be another if conversionFun is not one
 
       for (element <- conversions) {
         val elem = Parameters(element, expr, project, editor, conversions)
-        JListCompatibility.addElement(model, elem)
-        if (element == conversionFun) actualIndex = model.indexOf(elem)
+        model.addElement(elem)
+        if (element == conversionFun) {
+          actualIndex = model.indexOf(elem)
+        }
       }
 
-      val list = JListCompatibility.createJListFromModel(model)
+      val list = new JBList[Parameters](model)
       val renderer = new ScImplicitFunctionListCellRenderer(conversionFun)
       val font = editor.getColorsScheme.getFont(EditorFontType.PLAIN)
       renderer.setFont(font)
       list.setFont(font)
-      JListCompatibility.setCellRenderer(list, renderer)
+      list.setCellRenderer(renderer)
       list.getSelectionModel.addListSelectionListener(new ListSelectionListener {
         override def valueChanged(e: ListSelectionEvent): Unit = {
           hintAlarm.cancelAllRequests
-          val item = list.getSelectedValue.asInstanceOf[Parameters]
+          val item = list.getSelectedValue
           if (item == null) return
           updateHint(item)
         }
@@ -163,8 +165,6 @@ final class ShowImplicitConversionsAction extends AnAction(
       }
     }
   }
-
-  import JListCompatibility.GoToImplicitConversionAction
 
   private def updateHint(element: Parameters): Unit = {
     if (element.newExpression == null || !element.newExpression.isValid) return

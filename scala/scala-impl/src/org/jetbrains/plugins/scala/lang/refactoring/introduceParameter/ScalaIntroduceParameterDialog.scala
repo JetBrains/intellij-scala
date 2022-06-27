@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
-import org.jetbrains.plugins.scala.util.JListCompatibility
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType}
 
 import java.awt._
@@ -141,9 +140,7 @@ class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
     typeLabel.setLabelFor(typeCombobox)
     implicit val context: TypePresentationContext = method.getMethod
     typeMap = ScalaRefactoringUtil.getCompatibleTypeNames(introduceData.possibleTypes)
-    for (typeName <- typeMap.keySet.asScala) {
-      JListCompatibility.addItem(typeCombobox, typeName)
-    }
+    typeMap.keySet.asScala.foreach(typeCombobox.addItem)
     typeLabel.setDisplayedMnemonic('T')
     typeCombobox.addItemListener(_ => {
       val scType = typeMap.get(typeCombobox.getSelectedItem)

@@ -84,7 +84,9 @@
             <children>
               <component id="3f322" class="com.intellij.ui.components.JBList" binding="sbtImportsList">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <model/>
+                </properties>
               </component>
             </children>
           </scrollpane>

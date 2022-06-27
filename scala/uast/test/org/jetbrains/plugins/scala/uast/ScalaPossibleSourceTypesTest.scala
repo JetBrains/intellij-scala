@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.uast
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.{ScalaLanguage, withPossibleSourceTypesCheck}
+import org.jetbrains.plugins.scala.{ScalaLanguage, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
+import org.jetbrains.plugins.scala.lang.psi.uast.withPossibleSourceTypesCheck
 import org.jetbrains.uast._
 import org.jetbrains.uast.test.common.AllUastTypesKt.allUElementSubtypes
 import org.jetbrains.uast.test.common.PossibleSourceTypesTestBase
@@ -14,8 +15,14 @@ import org.junit.runners.AllTests
 import scala.jdk.CollectionConverters.IterableHasAsScala
 
 @RunWith(classOf[AllTests])
-class ScalaPossibleSourceTypesTest extends ScalaFileSetTestCase("/parser/data") with PossibleSourceTypesTestBase {
+class ScalaPossibleSourceTypesTest
+  extends ScalaFileSetTestCase("/parser/data")
+    with PossibleSourceTypesTestBase {
+
   override protected def getLanguage: Language = ScalaLanguage.INSTANCE
+
+  override protected def supportedInScalaVersion(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_2_13
 
   override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
     val file = createLightFile(content, project)

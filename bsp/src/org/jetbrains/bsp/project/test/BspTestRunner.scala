@@ -23,7 +23,6 @@ import org.jetbrains.bsp.data.BspMetadata
 import org.jetbrains.bsp.protocol.BspCommunication
 import org.jetbrains.bsp.protocol.BspNotifications.{BspNotification, LogMessage, TaskFinish, TaskStart}
 import org.jetbrains.bsp.protocol.session.BspSession.BspServer
-import org.jetbrains.bsp.settings.BspProjectSettings.AutoConfig
 import org.jetbrains.plugins.scala.build.BuildToolWindowReporter.CancelBuildAction
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, BuildToolWindowReporter}
 
@@ -99,28 +98,21 @@ class BspTestRunner(
     def this(n: String) = this(n, Map())
   }
 
-  case class NestedBspMsg(nested: AnyRef, msg: AnyRef)
+  case class BspMessageNestedData(dataKind: String, data: AnyRef)
 
-  type HasNested = {
-    def getDataKind: String
-    def getData: Object
-  }
-
-  private def extractNestedMessage(bspMessage: AnyRef): AnyRef = bspMessage match {
-    case x: HasNested@unchecked =>
-      val kind = x.getDataKind
-      val rawNested = x.getData
-      rawNested match {
-        case d: JsonObject => kind match {
-          case TEST_FINISH => gson.fromJson(d, classOf[TestFinish])
-          case TEST_TASK => gson.fromJson(d, classOf[TestTask])
-          case TEST_REPORT => gson.fromJson(d, classOf[TestReport])
-          case TEST_START => gson.fromJson(d, classOf[TestStart])
-          case _ => rawNested
-        }
+  private def extractNestedMessage(bspMessageData: BspMessageNestedData): AnyRef = {
+    val kind = bspMessageData.dataKind
+    val rawNested = bspMessageData.data
+    rawNested match {
+      case d: JsonObject => kind match {
+        case TEST_FINISH => gson.fromJson(d, classOf[TestFinish])
+        case TEST_TASK => gson.fromJson(d, classOf[TestTask])
+        case TEST_REPORT => gson.fromJson(d, classOf[TestReport])
+        case TEST_START => gson.fromJson(d, classOf[TestStart])
         case _ => rawNested
       }
-    case x => x
+      case _ => rawNested
+    }
   }
 
   class BspTestSession {
@@ -132,7 +124,7 @@ class BspTestRunner(
     n match {
       case LogMessage(params) => // TODO associate log messages with the running test correctly
         printProc(new Message(params.getMessage + System.lineSeparator(), "NORMAL", null))
-      case TaskStart(params) => extractNestedMessage(params) match {
+      case TaskStart(params) => extractNestedMessage(BspMessageNestedData(params.getDataKind, params.getData)) match {
         case t: TestTask =>
           printProc(new ServiceMsg("enteredTheMatrix"))
           printProc(new TestSuiteStarted("BSP"))
@@ -141,7 +133,7 @@ class BspTestRunner(
           session.startTime += (t.getDisplayName -> params.getEventTime)
         case _ =>
       }
-      case TaskFinish(params) => extractNestedMessage(params) match {
+      case TaskFinish(params) => extractNestedMessage(BspMessageNestedData(params.getDataKind, params.getData)) match {
         case t: TestReport => printProc(new TestSuiteFinished("BSP"))
         case t: TestFinish =>
           t.getStatus match {
