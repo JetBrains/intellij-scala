@@ -26,7 +26,7 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
     super.setupProject(project)
 
     //logging by analogy with com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.setupProject
-    logBuildSystemFinished(this)
+    logBuildSystemFinished(this: NewProjectWizardStep)
   }
 
   override def createAndSetupSwitcher(builder: Row): SegmentedButton[String] = {
@@ -34,7 +34,7 @@ final class ScalaNewProjectWizardStep(parent: NewProjectWizardLanguageStep)
     //com.intellij.ide.projectWizard.generators.JavaNewProjectWizard.Step.createAndSetupSwitcher
     super.createAndSetupSwitcher(builder)
       .whenItemSelectedFromUi(null, _ => {
-        logBuildSystemChanged(this)
+        logBuildSystemChanged(this: NewProjectWizardStep)
         kotlin.Unit.INSTANCE
       })
   }

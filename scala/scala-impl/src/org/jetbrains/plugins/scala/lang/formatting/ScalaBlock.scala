@@ -215,7 +215,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
    * In case there are any changes in IntelliJ formatter settings (even though scalafmt is selected),
    * we do not want these settings to be applicable in `getChildAttributesScalafmtInner`
    */
-  private val DefaultScalaCodeStyleSettings = new ScalaCodeStyleSettings
+  private val DefaultScalaCodeStyleSettings = new ScalaCodeStyleSettings(settings)
 
   // TODO: in latest scalafmt versions there are a lot of new more-precise indent values.
   //  We should handle all of them to provide proper indent on Enter handler

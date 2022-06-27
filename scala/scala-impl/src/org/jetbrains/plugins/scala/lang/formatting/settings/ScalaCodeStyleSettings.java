@@ -6,12 +6,9 @@ import com.intellij.openapi.util.InvalidDataException;
 import com.intellij.openapi.util.WriteExternalException;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
-import com.intellij.serialization.MutableAccessor;
-import com.intellij.util.xmlb.Serializer;
 import com.intellij.util.xmlb.SkipDefaultValuesSerializationFilters;
 import com.intellij.util.xmlb.XmlSerializer;
 import com.intellij.util.xmlb.annotations.OptionTag;
-import com.intellij.util.xmlb.annotations.Property;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -28,10 +25,6 @@ import java.util.Set;
  * Represents a dedicated tab panel in Scala code style settings
  */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
-  public ScalaCodeStyleSettings() {
-    super("ScalaCodeStyleSettings", null);
-  }
-
   public boolean WRAP_BEFORE_WITH_KEYWORD = false;
   public int METHOD_BRACE_FORCE = 0;
   public int FINALLY_BRACE_FORCE = 0;
@@ -121,7 +114,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   /**
    * NOTE! This setting is inferred:
-   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService#inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
+   * {@link org.jetbrains.plugins.scala.lang.formatting.settings.inference.CodeStyleSettingsInferService inferBestScaladocAsteriskAlignStyle(CodeStyleSettings)}
    */
   public boolean USE_SCALADOC2_FORMATTING = false;
 
@@ -265,7 +258,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public enum TrailingCommaMode {TRAILING_COMMA_KEEP, TRAILING_COMMA_REMOVE_WHEN_MULTILINE, TRAILING_COMMA_ADD_WHEN_MULTILINE}
 
   public TrailingCommaMode TRAILING_COMMA_MODE = TrailingCommaMode.TRAILING_COMMA_KEEP;
-  /** used via reflection in {@link org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel#scopeFields} */
+  /** used via reflection in {@link org.jetbrains.plugins.scala.lang.formatting.settings.TrailingCommaPanel scopeFields} */
   public boolean TRAILING_COMMA_ARG_LIST_ENABLED = true;
   public boolean TRAILING_COMMA_PARAMS_ENABLED = true;
   public boolean TRAILING_COMMA_TUPLE_ENABLED = false;
@@ -283,8 +276,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean REFORMAT_ON_COMPILE = false;
 
   /**
-   * If you reimplement ead/write logic, do not forget to replace OptionTag annotations with something appropriate
-   * @see com.intellij.util.xmlb.BeanBinding#createBinding(MutableAccessor, Serializer, Property.Style)
+   * If you reimplement read/write logic, do not forget to replace OptionTag annotations with something appropriate
+   * @see com.intellij.util.xmlb.BeanBinding createBinding(MutableAccessor, Serializer, Property.Style) method
    */
   @Override
   public void readExternal(Element parentElement) throws InvalidDataException {

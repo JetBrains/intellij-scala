@@ -67,9 +67,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             null,
             buildFile,
             PackageSearchSbtBundle.buildSystemType,
-            SbtProjectModuleType,
-            ScalaKotlinHelper.toKotlinFunction((_, _, _) => null),
-            emptyList()
+            SbtProjectModuleType
         )
         Some {
           if (!dumbMode)

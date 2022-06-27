@@ -58,7 +58,7 @@ public class AttachSourcesUtil {
         }
 
         @Override
-        public ActionCallback perform(List<LibraryOrderEntry> orderEntriesContainingFile) {
+        public ActionCallback perform(List<? extends LibraryOrderEntry> orderEntriesContainingFile) {
             final List<Library.ModifiableModel> modelsToCommit = new ArrayList<>();
             for (LibraryOrderEntry orderEntry : orderEntriesContainingFile) {
                 final Library library = orderEntry.getLibrary();
@@ -109,7 +109,7 @@ public class AttachSourcesUtil {
             return JavaUiBundle.message("library.attach.sources.action.busy.text");
         }
 
-        public ActionCallback perform(final List<LibraryOrderEntry> libraries) {
+        public ActionCallback perform(final List<? extends LibraryOrderEntry> libraries) {
             final Library firstLibrary = libraries.get(0).getLibrary();
             VirtualFile root = firstLibrary != null ? findRoot(firstLibrary) : null;
 

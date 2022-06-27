@@ -13,7 +13,7 @@ class DecompileScalaToJavaActionProvider extends AttachSourcesProvider {
 
   import AttachSourcesProvider.AttachSourcesAction
 
-  override def getActions(list: ju.List[LibraryOrderEntry],
+  override def getActions(list: ju.List[_ <: LibraryOrderEntry],
                           classFile: PsiFile): ju.Collection[AttachSourcesAction] =
     classFile match {
       case file: ScFile if file.isCompiled =>
@@ -22,7 +22,7 @@ class DecompileScalaToJavaActionProvider extends AttachSourcesProvider {
 
           override def getBusyText: String = "Scala Classfile"
 
-          override def perform(list: ju.List[LibraryOrderEntry]): ActionCallback = {
+          override def perform(list: ju.List[_ <: LibraryOrderEntry]): ActionCallback = {
             ScalaBytecodeDecompileTask.showDecompiledJavaCode(file)
             ActionCallback.DONE
           }

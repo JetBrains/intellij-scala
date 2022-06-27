@@ -3,14 +3,15 @@ package org.jetbrains.plugins.scala.lang.formatting.settings
 ;
 
 import com.intellij.openapi.util.JDOMUtil
-import junit.framework.TestCase
+import com.intellij.psi.codeStyle.CodeStyleSettings
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jdom.Element
 import org.junit.Assert._
 
-class ScalaCodeStyleSettingsTest extends TestCase {
+class ScalaCodeStyleSettingsTest extends LightJavaCodeInsightFixtureTestCase {
 
   def testReadLegacyMultilineStringSettingsNames(): Unit = {
-    val settings = new ScalaCodeStyleSettings()
+    val settings = new ScalaCodeStyleSettings(CodeStyleSettings.getDefaults)
 
     val input =
       """<code_scheme name="Project" version="173">
