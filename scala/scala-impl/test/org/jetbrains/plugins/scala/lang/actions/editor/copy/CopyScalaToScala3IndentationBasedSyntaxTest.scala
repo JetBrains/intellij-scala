@@ -790,8 +790,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
-  def _testLesserIndentation(): Unit = {
+  def testLesserIndentation(): Unit = {
     val from =
       s"""object A:
          |  def foo() =
@@ -812,8 +811,7 @@ class CopyScalaToScala3IndentationBasedSyntaxTest extends CopyPasteTestBase {
     doTestWithStripWithAllSelections(from, to, after)
   }
 
-  // TODO ignored
-  def _testLesserIndentation_Tabs(): Unit = {
+  def testLesserIndentation_Tabs(): Unit = {
     val from =
       s"""object A:
          |${tab}def foo() =
