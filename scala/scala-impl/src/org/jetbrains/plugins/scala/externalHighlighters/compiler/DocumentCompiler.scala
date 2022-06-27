@@ -1,13 +1,14 @@
 package org.jetbrains.plugins.scala.externalHighlighters.compiler
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.compiler.CompilerPaths
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.util.io.FileUtil
-import org.jetbrains.jps.incremental.scala.remote.CommandIds
+import org.jetbrains.jps.incremental.scala.remote.{CommandIds, SourceScope}
 import org.jetbrains.jps.incremental.scala.{Client, DelegateClient}
 import org.jetbrains.plugins.scala.compiler.{RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.editor.DocumentExt
@@ -15,17 +16,16 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 
 import java.io.File
-import java.nio.file.Files
+import java.nio.file.{Files, Path}
 import java.util.concurrent.ConcurrentHashMap
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
 @Service
-final class DocumentCompiler(project: Project)
-  extends Disposable {
+private[externalHighlighters] final class DocumentCompiler(project: Project) extends Disposable {
 
   private val outputDirectories = new ConcurrentHashMap[Module, File]
 
-  def compile(document: Document, client: Client): Unit =
+  def compile(document: Document, sourceScope: SourceScope, client: Client): Unit =
     for {
       virtualFile <- document.virtualFile
       module <- Option(ProjectFileIndex.getInstance(project).getModuleForFile(virtualFile))
@@ -33,14 +33,16 @@ final class DocumentCompiler(project: Project)
       originalSourceFile = virtualFile.toFile,
       content = document.textWithConvertedSeparators(virtualFile),
       module = module,
+      sourceScope = sourceScope,
       client = client
     )
-    
-  private def clearOutputDirectories(): Unit =
+
+  def clearOutputDirectories(): Unit = {
     for {
-      outputDir <- outputDirectories.values.asScala
+      outputDir <- outputDirectories.values().asScala
       file <- outputDir.listFiles()
     } FileUtil.delete(file)
+  }
 
   private def removeOutputDirectories(): Unit = {
     outputDirectories.values().asScala.foreach(FileUtil.delete)
@@ -55,6 +57,7 @@ final class DocumentCompiler(project: Project)
   private def compileDocumentContent(originalSourceFile: File,
                                      content: String,
                                      module: Module,
+                                     sourceScope: SourceScope,
                                      client: Client): Unit = {
     val tempSourceFile = FileUtil.createTempFile("tempSourceFile", null, false)
     val outputDir = outputDirectories.computeIfAbsent(module, { _: Module =>
@@ -63,7 +66,7 @@ final class DocumentCompiler(project: Project)
     })
     try {
       Files.writeString(tempSourceFile.toPath, content)
-      new RemoteServerConnector(tempSourceFile, module, outputDir).compile(originalSourceFile, client)
+      new RemoteServerConnector(tempSourceFile, module, sourceScope, outputDir).compile(originalSourceFile, client)
     } finally {
       FileUtil.delete(tempSourceFile)
     }
@@ -71,8 +74,19 @@ final class DocumentCompiler(project: Project)
 
   private class RemoteServerConnector(tempSourceFile: File,
                                       module: Module,
+                                      sourceScope: SourceScope,
                                       outputDir: File)
     extends RemoteServerConnectorBase(module, Some(Seq(tempSourceFile)), outputDir) {
+
+    override protected def assemblyRuntimeClasspath(): Seq[File] = {
+      val fromSuper = super.assemblyRuntimeClasspath()
+      val forTestClasses = sourceScope match {
+        case SourceScope.Production => false
+        case SourceScope.Test => true
+      }
+      val outputDir = CompilerPaths.getModuleOutputPath(module, forTestClasses)
+      (fromSuper :+ Path.of(outputDir).toFile).distinct
+    }
 
     def compile(originalSourceFile: File, client: Client): Unit = {
       val fixedClient = new DelegateClient(client) {
@@ -102,7 +116,7 @@ final class DocumentCompiler(project: Project)
   }
 }
 
-object DocumentCompiler {
+private[externalHighlighters] object DocumentCompiler {
 
   def get(project: Project): DocumentCompiler =
     project.getService(classOf[DocumentCompiler])
