@@ -27,63 +27,66 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
   override def checkFile(file: PsiFile,
                          manager: InspectionManager,
                          isOnTheFly: Boolean): Array[ProblemDescriptor] = file match {
-    case scalaFile: ScalaFile if !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
+    case scalaFile: ScalaFile if canHaveErrors(scalaFile) =>
+      val virtualFileName = scalaFile.getVirtualFile.getNameWithoutExtension
+      findSuspiciousTypeDefinitions(scalaFile, virtualFileName)
+        .map { createDescriptor(manager, scalaFile, virtualFileName, _, isOnTheFly) }
+        .toArray
+    case _ =>
+      EMPTY_ARRAY
+  }
+
+  private def canHaveErrors(scalaFile: ScalaFile): Boolean =
+    !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isScriptFile &&
       !scalaFile.isWorksheetFile &&
-      //if ScalaProjectSettings.TREAT_SCRATCH_AS_WORKSHEET == false
-      //isWorksheetFile also returns false
-      //but we do not want to handle scratch files anyway
-      !Option(scalaFile.getVirtualFile).exists(ScratchUtil.isScratch) =>
+      Option(scalaFile.getVirtualFile).isDefined &&
+      !ScratchUtil.isScratch(scalaFile.getVirtualFile)
 
-      val virtualFileName = scalaFile.getVirtualFile match {
-        case null => return EMPTY_ARRAY
-        case virtualFile => virtualFile.getNameWithoutExtension
+  private def findSuspiciousTypeDefinitions(scalaFile: ScalaFile, virtualFileName: String): Seq[ScTypeDefinition] = {
+    val members = scalaFile.members
+    val (definitions, others) = members.partition(_.is[ScTypeDefinition])
+    val typeDefinitions = definitions.asInstanceOf[Seq[ScTypeDefinition]]
+
+    if (others.nonEmpty || typeDefinitions.size > 2)
+      Seq.empty
+    else if (typeDefinitions.forall { p => ScalaNamesUtil.equivalent(p.name, virtualFileName) })
+      Seq.empty
+    else if (scalaFile.name == "package.scala" && typeDefinitions.exists {
+      case scalaObject: ScObject if scalaObject.isPackageObject => true
+      case _ => false
+    })
+      Seq.empty
+    else {
+      val hasObject = typeDefinitions.exists {
+        case _: ScObject => true
+        case _ => false
       }
+      if ((hasObject && typeDefinitions.size == 2) || typeDefinitions.size == 1)
+        typeDefinitions.filter { p => !ScalaNamesUtil.equivalent(p.name, virtualFileName) }
+      else
+        Seq.empty
+    }
+  }
 
-      val maybeDescriptors = scalaFile.typeDefinitions match {
-        case Seq(_, _, _, _*) => None
-        case Seq(first, second) if first.name != second.name => None // with companion
-        case definitions if hasProblems(scalaFile, virtualFileName) =>
-          val descriptors = definitions.map { clazz =>
-            val localQuickFixes = Array[LocalQuickFix](
-              new RenameClassQuickFix(clazz, virtualFileName),
-              new RenameFileQuickFix(scalaFile, clazz.name + "." + ScalaFileType.INSTANCE.getDefaultExtension)
-            )
+  private def createDescriptor(manager: InspectionManager, scalaFile: ScalaFile, virtualFileName: String, clazz: ScTypeDefinition, isOnTheFly: Boolean) = {
+    val localQuickFixes = Array[LocalQuickFix](
+      new RenameClassQuickFix(clazz, virtualFileName),
+      new RenameFileQuickFix(scalaFile, clazz.name + "." + ScalaFileType.INSTANCE.getDefaultExtension)
+    )
 
-            manager.createProblemDescriptor(clazz.nameId,
-              getDisplayName,
-              isOnTheFly,
-              localQuickFixes,
-              ProblemHighlightType.GENERIC_ERROR_OR_WARNING
-            )
-          }
-
-          Some(descriptors)
-        case _ => None
-      }
-
-      maybeDescriptors.fold(EMPTY_ARRAY)(_.toArray)
-    case _ => EMPTY_ARRAY
+    manager.createProblemDescriptor(clazz.nameId,
+      getDisplayName,
+      isOnTheFly,
+      localQuickFixes,
+      ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+    )
   }
 }
 
 object ScalaFileNameInspection {
-
-  private def hasProblems(scalaFile: ScalaFile,
-                          virtualFileName: String) =
-    !scalaFile.typeDefinitions.exists {
-      case scalaObject: ScObject if scalaFile.name == "package.scala" && scalaObject.isPackageObject =>
-        true
-      case clazz: ScTypeDefinition if scalaFile.isScala2File =>
-        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
-      case clazz: ScTypeDefinition if scalaFile.isScala3File && scalaFile.members.size == 1 =>
-        ScalaNamesUtil.equivalent(clazz.name, virtualFileName)
-      case _ =>
-        true
-    }
-
   private abstract sealed class RenameQuickFixBase[T <: PsiNamedElement](element: T,
                                                                          name: String,
                                                                          override final val getFamilyName: String)
@@ -115,8 +118,6 @@ object ScalaFileNameInspection {
     override protected def onElement(file: ScalaFile)
                                     (implicit project: Project): Unit =
       new RenameProcessor(project, file, name, false, false).run()
-
-    // new RenameRefactoringImpl(project, file, name, false, true)).run
   }
 
 }
