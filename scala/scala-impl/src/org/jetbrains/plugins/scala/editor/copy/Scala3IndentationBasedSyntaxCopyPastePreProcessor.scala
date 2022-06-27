@@ -1,14 +1,17 @@
 package org.jetbrains.plugins.scala.editor.copy
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.editorActions.CopyPastePreProcessor
-import com.intellij.openapi.editor.{Caret, Editor, RawText}
+import com.intellij.openapi.editor.{Editor, RawText}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiComment, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.{indentWhitespace, lineIndentWhitespace}
+import com.intellij.psi.{PsiComment, PsiFile}
+import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.editor.Scala3IndentationBasedSyntaxUtils.indentWhitespace
 import org.jetbrains.plugins.scala.editor.ScalaEditorUtils.findElementAtCaret_WithFixedEOF
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.jetbrains.plugins.scala.util.IndentUtil
 
 class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProcessor {
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
@@ -19,29 +22,21 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
       return null
 
     // only change indentation for multi-line texts
-    val lineBreaks = text.count(_ == '\n')
-    if (lineBreaks == 0)
+    if (!text.contains('\n'))
       return null
 
-    // get fist non-whitespace element in selection
+    // get first non-whitespace element in selection
     var firstElement = file.findElementAt(startOffsets(0)).toOption
     if (firstElement.exists(el => el.isWhitespace || el.is[PsiComment]))
       firstElement = firstElement.get.nextVisibleLeaf(true)
+
     if (firstElement.isEmpty || endOffsets(0) <= firstElement.get.startOffset)
+      // selection contains only whitespace or comments
       return null
 
-    // get leading whitespace
+    // add complete first-line indent to text
     val leadingSpaceOnLine = indentWhitespace(firstElement.get)
-
-    // don't adapt indentation for copying single line without selection
-    if (lineBreaks == 1 && text.endsWith("\n") && text.startsWith(leadingSpaceOnLine))
-      return null
-
-    // strip first-line indentation from all lines
-    text
-      .linesWithSeparators
-      .map(_.stripPrefix(leadingSpaceOnLine))
-      .mkString("")
+    leadingSpaceOnLine + text.dropWhile(c => c == ' ' || c == '\t')
   }
 
   // the formatter is always run on pasted snippets, so we just need to adjust indentation so that the formatter recognizes it
@@ -52,38 +47,38 @@ class Scala3IndentationBasedSyntaxCopyPastePreProcessor extends CopyPastePreProc
 
     // only change indentation for multi-line texts
     val lineBreaks = text.count(_ == '\n')
-    if (lineBreaks == 0)
+    if (lineBreaks == 0 || lineBreaks == 1 && text.endsWith("\n"))
       return text
 
-    // don't adapt indentation for copying line without selection
-    if (lineBreaks == 1 && text.endsWith("\n"))
-      return text
+    val settings = CodeStyle.getSettings(project)
+    val tabSize = settings.getTabSize(ScalaFileType.INSTANCE)
+    val useTabCharacter = settings.useTabCharacter(ScalaFileType.INSTANCE)
 
-    // get indentation at caret
     val caret = editor.getCaretModel.getCurrentCaret
     val elementAtCaret = findElementAtCaret_WithFixedEOF(file, editor.getDocument, caret.getSelectionStart)
-    val indentWhitespace = elementAtCaret match {
-      case null => ""
-      case ws: PsiWhiteSpace => lineWhitespaceToCaret(ws, caret)
-      case el => lineIndentWhitespace(el)
+    val caretIndentWhitespace = indentWhitespace(elementAtCaret, caret.getSelectionStart, ignoreComments = true, ignoreElementsOnLine = true)
+    val caretIndentSize = IndentUtil.calcIndent(caretIndentWhitespace, tabSize)
+
+    val firstLineIndentWhitespace = text.takeWhile(c => c == ' ' || c == '\t')
+    val firstLineIndentSize = IndentUtil.calcIndent(firstLineIndentWhitespace, tabSize)
+
+    def fixIndent(line: String): String = {
+      val lineIndentWhitespace = line.takeWhile(c => c == ' ' || c == '\t')
+      val lineIndentSize = IndentUtil.calcIndent(lineIndentWhitespace, tabSize)
+      val newIndentSize = lineIndentSize - firstLineIndentSize + caretIndentSize
+      if (useTabCharacter)
+        "\t" * (newIndentSize / tabSize) + line.stripPrefix(lineIndentWhitespace)
+      else
+        " " * newIndentSize + line.stripPrefix(lineIndentWhitespace)
     }
 
-    // add caret indentation to all lines
+    // align all lines with caret indentation
     text
       .linesWithSeparators
-      .map(indentWhitespace.concat)
+      .map(fixIndent)
       .mkString("")
-      .stripPrefix(indentWhitespace)
-  }
-
-  private def lineWhitespaceToCaret(ws: PsiWhiteSpace, caret: Caret): String = {
-    val wsTextToCaret = ws.getText.substring(0, caret.getSelectionStart - ws.startOffset)
-    if (wsTextToCaret.contains('\n'))
-      // caret starts from new line
-      wsTextToCaret.substring(wsTextToCaret.lastIndexOf('\n') + 1)
-    else
-      // caret does not start from new line
-      lineIndentWhitespace(ws)
+      // don't indent first line, as caret is already indented
+      .stripPrefix(caretIndentWhitespace)
   }
 
   override def requiresAllDocumentsToBeCommitted(editor: Editor, project: Project): Boolean = false

@@ -58,39 +58,36 @@ object Scala3IndentationBasedSyntaxUtils {
     case _ => !outdentedRegionCanStart(leaf)
   }
 
-  def indentWhitespace(element: PsiElement, ignoreComments: Boolean = true, skipElementsOnLine: Boolean = false): String = {
+  def indentWhitespace(element: PsiElement, endOffset: Int, ignoreComments: Boolean, ignoreElementsOnLine: Boolean): String = {
     var indent = ""
 
     @tailrec
-    def inner(el: PsiElement): String = el match {
+    def inner(el: PsiElement, first: Boolean = true): String = el match {
       case null => indent
       case ws: PsiWhiteSpace =>
-        val text = ws.getText
-        val linebreak = text.lastIndexOf('\n')
-        if (linebreak >= 0)
-          text.substring(linebreak + 1) + indent
+        val wsTextToEndOffset = ws.getText.substring(0, Math.min(ws.getTextLength, endOffset - ws.startOffset))
+        val wsLineBreak = wsTextToEndOffset.lastIndexOf('\n')
+        if (wsLineBreak >= 0)
+          wsTextToEndOffset.substring(wsLineBreak + 1) + indent
         else {
-          indent = text + indent
-          inner(PsiTreeUtil.prevLeaf(el))
+          indent = wsTextToEndOffset + indent
+          inner(PsiTreeUtil.prevLeaf(el), first = false)
         }
-      case _: PsiComment if ignoreComments =>
-        inner(PsiTreeUtil.prevLeaf(el))
+      case _: PsiComment if ignoreComments || first =>
+        inner(PsiTreeUtil.prevLeaf(el), first = false)
       case _ if el.getTextLength == 0 => // empty annotations, modifiers, parse errors, etc...
-        inner(PsiTreeUtil.prevLeaf(el))
-      case _ if skipElementsOnLine =>
+        inner(PsiTreeUtil.prevLeaf(el), first = false)
+      case _ if ignoreElementsOnLine || first =>
         indent = ""
-        inner(PsiTreeUtil.prevLeaf(el))
+        inner(PsiTreeUtil.prevLeaf(el), first = false)
       case _ => ""
     }
 
-    if (element != null)
-      inner(PsiTreeUtil.prevLeaf(element))
-    else
-      ""
+    inner(element)
   }
 
-  @inline def lineIndentWhitespace(element: PsiElement): String =
-    indentWhitespace(element, skipElementsOnLine = true)
+  @inline def indentWhitespace(element: PsiElement, ignoreComments: Boolean = true, ignoreElementsOnLine: Boolean = false): String =
+    indentWhitespace(element, element.endOffset, ignoreComments, ignoreElementsOnLine)
 
   @inline def isIndented(element: PsiElement): Boolean = indentWhitespace(element).isEmpty
 }
