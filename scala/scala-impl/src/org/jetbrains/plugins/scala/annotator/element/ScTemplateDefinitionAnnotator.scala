@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.psi.{PsiMethod, PsiModifier}
+import com.intellij.openapi.util.TextRange
+import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
@@ -18,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
-import org.jetbrains.plugins.scala.overrideImplement.{ScalaOIUtil, ScalaTypedMember}
+import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 
 object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefinition] {
 
@@ -36,6 +37,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     if (typeAware) {
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
+      annotateEnumCaseCreationImpossible(element)
     }
   }
 
@@ -57,7 +59,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateFinalClassInheritance(element: ScTemplateDefinition)
                                    (implicit holder: ScalaAnnotationHolder): Unit = {
-    val newInstance = element.isInstanceOf[ScNewTemplateDefinition]
+    val newInstance = element.is[ScNewTemplateDefinition]
     val hasBody = element.extendsBlock.templateBody.isDefined
 
     if (newInstance && !hasBody) return
@@ -94,13 +96,48 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       }
   }
 
+  def annotateEnumCaseCreationImpossible(element: ScTemplateDefinition)
+                                        (implicit holder: ScalaAnnotationHolder): Unit = {
+    val enumCase = element.asOptionOf[ScEnumCase].getOrElse(return)
+    val membersToImplement = ScalaOIUtil.getMembersToImplement(enumCase)
+      .collect {
+        case m: ScalaTypedMember => m // See SCL-2887
+      }
+
+    if (membersToImplement.isEmpty) return
+
+    val enumParents = enumCase.enumParent.syntheticClass
+      .fold(Set.empty[PsiClass])(_.getSupers.toSet)
+
+    val (canBeImplementedInEnum, cannotBeImplemented) = membersToImplement.partition {
+      case ScMethodMember(signature, _) =>
+        enumParents.contains(signature.method.containingClass)
+      case _ => false
+    }
+
+    val range = highlightRange(enumCase)
+
+    if (canBeImplementedInEnum.nonEmpty) {
+      holder.createErrorAnnotation(
+        range,
+        objectCreationImpossibleMessage(canBeImplementedInEnum.map(formatForObjectCreationImpossibleMessage): _*),
+        new ImplementMethodsQuickFix(enumCase.enumParent)
+      )
+    }
+
+    if (cannotBeImplemented.nonEmpty) {
+      holder.createErrorAnnotation(
+        range,
+        objectCreationImpossibleMessage(cannotBeImplemented.map(formatForObjectCreationImpossibleMessage): _*),
+        None
+      )
+    }
+  }
+
   // TODO package private
   def annotateObjectCreationImpossible(element: ScTemplateDefinition)
                                       (implicit holder: ScalaAnnotationHolder): Unit = {
-    val isNew = element.isInstanceOf[ScNewTemplateDefinition]
-    val isObject = element.isInstanceOf[ScObject]
-
-    if (!isNew && !isObject) return
+    if (!element.is[ScNewTemplateDefinition, ScObject]) return
 
     val refs = superRefs(element)
 
@@ -114,19 +151,12 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           val undefined = for {
             member <- ScalaOIUtil.getMembersToImplement(element)
             if member.isInstanceOf[ScalaTypedMember] // See SCL-2887
-          } yield {
-            try {
-              (member.getText, member.getParentNodeDelegate.getText)
-            } catch {
-              case iae: IllegalArgumentException =>
-                throw new RuntimeException("member: " + member.getText, iae)
-            }
-          }
+          } yield formatForObjectCreationImpossibleMessage(member)
 
           if (undefined.nonEmpty) {
             val range = element match {
               case _: ScNewTemplateDefinition => defaultRange
-              case scalaObject: ScObject => scalaObject.nameId.getTextRange
+              case _: ScObject => highlightRange(element)
             }
 
             holder.createErrorAnnotation(
@@ -170,10 +200,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateUndefinedMember(element: ScTemplateDefinition)
                              (implicit holder: ScalaAnnotationHolder): Unit = {
-    val isNew = element.isInstanceOf[ScNewTemplateDefinition]
-    val isObject = element.isInstanceOf[ScObject]
-
-    if (!isNew && !isObject) return
+    if (!element.is[ScNewTemplateDefinition, ScObject]) return
 
     element.physicalExtendsBlock.members.foreach {
       case _: ScTypeAliasDeclaration => // abstract type declarations are allowed
@@ -224,7 +251,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   // TODO package private
   def annotateNeedsToBeAbstract(element: ScTemplateDefinition, typeAware: Boolean = true)
                                (implicit holder: ScalaAnnotationHolder): Unit = element match {
-    case _: ScNewTemplateDefinition | _: ScObject =>
+    case _: ScNewTemplateDefinition | _: ScObject | _: ScEnumCase =>
     case _ if !typeAware || isAbstract(element) =>
     case _ =>
       ScalaOIUtil.getMembersToImplement(element, withOwn = true).collectFirst {
@@ -239,23 +266,22 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
         val nameId = element.nameId
         val fixes = {
           val maybeModifierFix = element match {
-            case owner: ScModifierListOwner => Some(new ModifierQuickFix.Add(owner, nameId, ScalaModifier.Abstract))
+            case cls: ScClass => Some(new ModifierQuickFix.Add(cls, nameId, ScalaModifier.Abstract))
             case _ => None
           }
 
-          val maybeImplementFix = if (ScalaOIUtil.getMembersToImplement(element).nonEmpty) Some(new ImplementMethodsQuickFix(element))
-          else None
+          val maybeImplementFix =
+            Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMethodsQuickFix(element))
 
           maybeModifierFix ++ maybeImplementFix
-
         }
-        holder.createErrorAnnotation(nameId, message.nls, fixes)
+        holder.createErrorAnnotation(highlightRange(element), message.nls, fixes)
       }
   }
 
   def annotateNeedsToBeMixin(element: ScTemplateDefinition)
                             (implicit holder: ScalaAnnotationHolder): Unit = {
-    if (element.isInstanceOf[ScTrait]) return
+    if (element.is[ScTrait]) return
 
     val nodes = TypeDefinitionMembers.getSignatures(element).allNodesIterator
 
@@ -303,4 +329,20 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }.mkString("; ")
     ScalaBundle.message("object.creation.impossible.since", reasons)
   }
+
+  private def highlightRange(definition: ScTemplateDefinition): TextRange = {
+    val extendsBlock = definition.extendsBlock
+    val endElem = extendsBlock.templateBody
+      .flatMap(_.prevElementNotWhitespace)
+      .getOrElse(extendsBlock)
+    TextRange.create(definition.startOffset, endElem.endOffset)
+  }
+
+  private def formatForObjectCreationImpossibleMessage(member: overrideImplement.ClassMember): (String, String) =
+    try {
+      (member.getText, member.getParentNodeDelegate.getText)
+    } catch {
+      case iae: IllegalArgumentException =>
+        throw new RuntimeException("member: " + member.getText, iae)
+    }
 }
