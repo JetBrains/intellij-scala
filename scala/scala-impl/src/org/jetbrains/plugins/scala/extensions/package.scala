@@ -18,6 +18,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi._
 import com.intellij.psi.impl.PsiImplUtil
+import com.intellij.psi.impl.light.LightMethod
 import com.intellij.psi.impl.source.tree.SharedImplUtil
 import com.intellij.psi.impl.source.{PostprocessReformattingAspect, PsiFileImpl}
 import com.intellij.psi.search.GlobalSearchScope
@@ -1036,8 +1037,13 @@ package object extensions {
       res.toVector
     }
 
-    def processWrappersForSignature(signature: TermSignature, isStatic: Boolean, isInterface: Boolean)
-                                   (processMethod: PsiMethod => Unit, processName: String => Unit = _ => ()): Unit = {
+    def processWrappersForSignature(
+      signature:     TermSignature,
+      isStatic:      Boolean,
+      isInterface:   Boolean
+    )(processMethod: PsiMethod => Unit,
+      processName:   String => Unit = _ => ()
+    ): Unit = {
 
       //search for a class to place implementation of trait's method
       def concreteForTrait(t: ScTrait): Option[PsiClass] = {
@@ -1061,17 +1067,19 @@ package object extensions {
           case _ =>
         }
 
-        ScalaPsiUtil.nameContext(typedDef) match {
-          case m: ScMember =>
-            m.containingClass match {
-              case _: ScTrait if isStatic =>
-                Some(clazz) //companion object extends some trait, static method generated in a companion class
-              case t: ScTrait =>
-                concreteForTrait(t)
-              case _ => None
-            }
-          case _ => None
-        }
+        signature.exportedIn.orElse(
+          ScalaPsiUtil.nameContext(typedDef) match {
+            case m: ScMember =>
+              m.containingClass match {
+                case _: ScTrait if isStatic =>
+                  Some(clazz) //companion object extends some trait, static method generated in a companion class
+                case t: ScTrait =>
+                  concreteForTrait(t)
+                case _ => None
+              }
+            case _ => None
+          }
+        )
       }
 
       val element = signature.namedElement
@@ -1084,7 +1092,7 @@ package object extensions {
       if (!element.isValid || isInline)
         return
 
-      signature.namedElement match {
+      element match {
         case fun: ScFunction if !fun.isConstructor =>
           val wrappers = fun.getFunctionWrappers(isStatic, isAbstract = fun.isAbstractMember, concreteClassFor(fun))
           wrappers.foreach(processMethod)
@@ -1092,18 +1100,31 @@ package object extensions {
         case method: PsiMethod if !method.isConstructor =>
           if (isStatic) {
             if (method.containingClass != null && !method.containingClass.isJavaLangObject) {
-              processMethod(StaticPsiMethodWrapper.getWrapper(method, clazz))
+              processMethod(StaticPsiMethodWrapper.getWrapper(method, signature.exportedIn.getOrElse(clazz)))
               processName(method.getName)
             }
-          }
-          else {
-            processMethod(method)
-            processName(method.getName)
+          } else {
+            val toProcess = signature.exportedIn.fold(method) { 
+              exportedCls =>
+                val wrapper = new LightMethod(method.getManager, method, exportedCls)
+                wrapper.setNavigationElement(method.getNavigationElement)
+                wrapper
+            }
+            
+            processMethod(toProcess)
+            processName(toProcess.getName)
           }
         case t: ScTypedDefinition if t.isVal || t.isVar ||
           (t.is[ScClassParameter] && t.asInstanceOf[ScClassParameter].isCaseClassVal) =>
-
-          PsiTypedDefinitionWrapper.processWrappersFor(t, concreteClassFor(t), signature.name, isStatic, isInterface, processMethod, processName)
+          PsiTypedDefinitionWrapper.processWrappersFor(
+            t,
+            concreteClassFor(t),
+            signature.name,
+            isStatic,
+            isInterface,
+            processMethod,
+            processName
+          )
         case _ =>
       }
     }

@@ -17,12 +17,23 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
                          substitutor: ScSubstitutor)
                         (implicit visited: Set[ScType]): ScType = {
 
-    val updSignatureMap = ct.signatureMap.map {
-      case (s: TermSignature, tp) =>
-        val tParams = s.typeParams.map(updateTypeParameter(_, substitutor, Invariant))
-        val paramTypes = s.substitutedTypes.map(_.map(f => () => substitutor.recursiveUpdateImpl(f(), variance, isLazySubtype = true)))
-        val updSignature = new TermSignature(s.name, paramTypes, tParams, s.substitutor.followed(substitutor), s.namedElement, s.hasRepeatedParam)
-        (updSignature, substitutor.recursiveUpdateImpl(tp, Covariant))
+    val updSignatureMap = ct.signatureMap.map { case (s: TermSignature, tp) =>
+      val tParams = s.typeParams.map(updateTypeParameter(_, substitutor, Invariant))
+
+      val paramTypes =
+        s.substitutedTypes.map(_.map(f => () => substitutor.recursiveUpdateImpl(f(), variance, isLazySubtype = true)))
+
+      val updSignature = new TermSignature(
+        s.name,
+        paramTypes,
+        tParams,
+        s.substitutor.followed(substitutor),
+        s.namedElement,
+        s.exportedIn,
+        s.hasRepeatedParam
+      )
+
+      (updSignature, substitutor.recursiveUpdateImpl(tp, Covariant))
     }
 
     val updatedTypes = ct.typesMap.map {

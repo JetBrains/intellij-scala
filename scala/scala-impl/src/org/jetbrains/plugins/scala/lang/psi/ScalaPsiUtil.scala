@@ -563,7 +563,7 @@ object ScalaPsiUtil {
   }
 
   def namedElementSig(x: PsiNamedElement): TermSignature =
-    TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x, None)
+    TermSignature(x.name, Seq.empty, ScSubstitutor.empty, x, None, exportedIn = None)
 
   def superValsSignatures(x: PsiNamedElement, withSelfType: Boolean = false): Seq[TermSignature] = {
     val empty = Seq.empty
