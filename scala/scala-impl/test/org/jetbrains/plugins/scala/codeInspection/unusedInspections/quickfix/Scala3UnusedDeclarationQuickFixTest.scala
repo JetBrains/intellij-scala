@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections.quickfix
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 
-class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase{
+class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
@@ -50,7 +50,6 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     testQuickFix(text, expected, removeUnusedElementHint)
   }
 
-
   def test_enum_case3(): Unit = {
     val text =
       s"""
@@ -70,6 +69,202 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
          |  end Fruit
          |  Fruit.Strawberry match { case _ => }
          |end Foo
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_single_named_using_param(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using s: String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo() = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_single_anonymous_using_param(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo() = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_first(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using s: String, @unused i: Int, @unused d: Double) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_in_the_middle(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused i: Int, s: String, @unused d: Double) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_last(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused i: Int, @unused d: Double, s: String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_first(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using String, @unused Int, @unused Double) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int, @unused Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_in_the_middle(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int, String, @unused Double) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int, @unused Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_last(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int, @unused Double, String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int, @unused Double) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_first_clause(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using s: String)(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_clause_in_the_middle(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using s: String)(using @unused Boolean) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_named_using_param_last_clause(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean)(using s: String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_first_clause(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using String)(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_clause_in_the_middle(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using String)(using @unused Boolean) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
+         |""".stripMargin
+    testQuickFix(text, expected, removeUnusedElementHint)
+  }
+
+  def test_anonymous_using_param_last_clause(): Unit = {
+    val text =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean)(using String) = ()
+         |""".stripMargin
+    val expected =
+      s"""
+         |import scala.annotation.unused
+         |@unused def foo(using @unused Int)(using @unused Boolean) = ()
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }

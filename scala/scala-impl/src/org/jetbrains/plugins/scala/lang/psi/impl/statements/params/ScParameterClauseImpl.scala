@@ -81,8 +81,8 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
 
     def hasImplicitKeyword =
       findChildByType(ScalaTokenTypes.kIMPLICIT) != null ||
-      findChild[ScClassParameter]
-        .exists(_.getModifierList.isImplicit)
+        findChild[ScClassParameter]
+          .exists(_.getModifierList.isImplicit)
 
     byStubOrPsi(_.isImplicit)(hasImplicitKeyword)
   }
@@ -125,15 +125,15 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     val isParameter = parameters.exists(_.getNode == child)
     def childIsLastParameterToBeDeleted = parameters.length == 1 && isParameter
     def isSingleParameterClause =
-      !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause] &&
-        !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScParameterClause]
+      !this.getPrevSiblingNotWhitespaceComment.is[ScParameterClause] &&
+        !this.getNextSiblingNotWhitespaceComment.is[ScParameterClause]
 
     if (childIsLastParameterToBeDeleted && !isSingleParameterClause) {
       this.delete()
     } else if (isParameter) {
       if (childIsLastParameterToBeDeleted) {
         val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(child.getTreePrev)
-        if (prev.hasElementType(ScalaTokenTypes.kIMPLICIT)) {
+        if (prev.hasElementType(ScalaTokenTypes.kIMPLICIT) || prev.hasElementType(ScalaTokenType.UsingKeyword)) {
           deleteChildInternal(prev)
         }
       }
