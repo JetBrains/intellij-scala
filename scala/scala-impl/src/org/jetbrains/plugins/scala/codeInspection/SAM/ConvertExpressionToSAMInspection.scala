@@ -52,7 +52,7 @@ class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName
   private def hasConstructorArgs(newTd: ScNewTemplateDefinition): Boolean = {
     // this is for arguments passed to java constructors or secondary constructors
     // we don't have to check for implicits or desugared stuff because SAMUtil.toSAMType will take care of that
-    newTd.constructorInvocation.exists(_.arguments.nonEmpty)
+    newTd.firstConstructorInvocation.exists(_.arguments.nonEmpty)
   }
 
   private def inspectAccordingToExpectedType(expected: ScType, definition: ScNewTemplateDefinition, holder: ProblemsHolder): Unit = {

@@ -170,7 +170,7 @@ object ScalaWrapManager {
           else null
         } else {
           e.templateParents match {
-            case Some(tp) if tp.typeElements.contains(childPsi) => suggestedWrap
+            case Some(tp) if tp.parentClauses.tail.contains(childPsi) => suggestedWrap
             case _ => null
           }
         }

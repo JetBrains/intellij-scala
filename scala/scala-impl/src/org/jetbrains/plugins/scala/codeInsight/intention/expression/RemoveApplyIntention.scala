@@ -7,7 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiMethod, PsiNamedElement}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScalaConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -144,9 +143,9 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
 
       case templ: ScNewTemplateDefinition =>
         for {
-          parent <- templ.extendsBlock.templateParents
-          constrInvocation <- parent.constructorInvocation
-          ref <- constrInvocation.reference
+          parent           <- templ.extendsBlock.templateParents
+          constrInvocation <- parent.firstParentClause
+          ref              <- constrInvocation.reference
         } {
           ref.resolve() match {
             case ScalaConstructor(constr) =>

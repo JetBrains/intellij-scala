@@ -84,7 +84,7 @@ object InvocationInfo {
   }
 
   def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo = {
-    val invocationInfo = newTemplateDefinition.constructorInvocation
+    val invocationInfo = newTemplateDefinition.firstConstructorInvocation
       .filter(_.matchedParameters.size <= ArgumentCountLimit)
       .map { constructorInvocation =>
         val target = constructorInvocation.reference.flatMap(_.bind())
