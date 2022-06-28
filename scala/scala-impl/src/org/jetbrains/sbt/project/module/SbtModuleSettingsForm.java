@@ -18,6 +18,7 @@ import java.util.ResourceBundle;
  * @author Nikolay Obedin
  * @since 12/1/14.
  */
+@SuppressWarnings("unchecked")
 public class SbtModuleSettingsForm {
     public JPanel mainPanel;
     public JBTable resolversTable;
