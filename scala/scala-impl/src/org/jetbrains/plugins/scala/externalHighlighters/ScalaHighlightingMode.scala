@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-//noinspection ApiStatus,UnstableApiUsage
+import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightingSettingsPerFile}
+//noinspection ApiStatus
 import com.intellij.ide.impl.TrustedProjects
-import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiFile, PsiJavaFile}
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
-import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaProjectSettings}
 
 import scala.concurrent.duration._
@@ -39,6 +39,15 @@ object ScalaHighlightingMode {
       case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
       case _ => false
     }
+
+  private[externalHighlighters] def shouldHighlightBasedOnFileLevel(psiFile: PsiFile, project: Project): Boolean = {
+    val level = HighlightingSettingsPerFile.getInstance(project).getHighlightingSettingForRoot(psiFile)
+    import FileHighlightingSetting.{ESSENTIAL, FORCE_HIGHLIGHTING}
+    level match {
+      case ESSENTIAL | FORCE_HIGHLIGHTING => true
+      case _ => false
+    }
+  }
 
   private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {

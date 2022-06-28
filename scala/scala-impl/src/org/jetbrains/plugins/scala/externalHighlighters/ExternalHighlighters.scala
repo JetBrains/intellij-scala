@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scala.externalHighlighters
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
@@ -22,7 +24,7 @@ import scala.jdk.CollectionConverters._
 object ExternalHighlighters {
 
   // A random number of highlighters group to avoid conflicts with standard groups.
-  private final val ScalaCompilerPassId = 979132998
+  private[externalHighlighters] final val ScalaCompilerPassId = 979132998
   
   def applyHighlighting(project: Project,
                         editor: Editor,
@@ -71,9 +73,22 @@ object ExternalHighlighters {
       val errorTypes = Set(HighlightInfoType.ERROR, HighlightInfoType.WRONG_REF)
       ProblemSolverUtils.clearAllProblemsFromExternalSource(project, this)
       val wolf = WolfTheProblemSolver.getInstance(project)
-      val errorFiles = state.filesWithHighlightings(errorTypes)
+      val errorFiles = filterFilesToHighlightBasedOnFileLevel(state.filesWithHighlightings(errorTypes), project)
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
+
+  private[externalHighlighters] def filterFilesToHighlightBasedOnFileLevel(
+    files: Set[VirtualFile],
+    project: Project
+  ): Set[VirtualFile] = {
+    val manager = PsiManager.getInstance(project)
+    inReadAction {
+      files.filter { vf =>
+        val psiFile = manager.findFile(vf)
+        if (psiFile ne null) ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project) else false
+      }
+    }
+  }
 
   private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
     val message = highlighting.message

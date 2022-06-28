@@ -115,14 +115,16 @@ private class UpdateCompilerGeneratedStateListener(project: Project)
     oldState.copy(files = newFileStates)
   }
 
-  private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit =
+  private def updateHighlightings(virtualFiles: Set[VirtualFile], state: HighlightingState): Unit = {
+    val filteredVirtualFiles = ExternalHighlighters.filterFilesToHighlightBasedOnFileLevel(virtualFiles, project)
     for {
       editor <- EditorFactory.getInstance.getAllEditors
       editorProject <- Option(editor.getProject)
       if editorProject == project
       vFile <- editor.getDocument.virtualFile
-      if virtualFiles contains vFile
+      if filteredVirtualFiles contains vFile
     } ExternalHighlighters.applyHighlighting(project, editor, state)
+  }
 }
 
 object UpdateCompilerGeneratedStateListener {
