@@ -399,6 +399,8 @@ private[importing] object BspResolverLogic {
     data
   }
 
+  private final val MaxFileNameLength = FileSystem.getCurrent.getMaxFileNameLength - 50
+
   private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
     val upperCaseWords = """(?<!(^|[A-Z]))(?=[A-Z])""".r
     val pascalCaseWords = """(?<!^)(?=[A-Z][a-z])""".r
@@ -418,9 +420,9 @@ private[importing] object BspResolverLogic {
     }
     val ret = head.map(combine).mkString +
       (if (tail.nonEmpty) tail.map(combine).mkString("(", "", ")") else tail.mkString)
-    if (ret.length > FileSystem.getCurrent.getMaxFileNameLength) {
+    if (ret.length > MaxFileNameLength) {
       val suffix = DigestUtils.md5Hex(ret)
-      val prefix = ret.substring(0, FileSystem.getCurrent.getMaxFileNameLength - suffix.length)
+      val prefix = ret.substring(0, MaxFileNameLength - suffix.length)
       prefix + suffix
     } else {
       ret
