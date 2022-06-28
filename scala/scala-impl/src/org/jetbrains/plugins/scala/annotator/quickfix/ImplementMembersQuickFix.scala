@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
  * Date: 22.09.2008
  */
 
-class ImplementMethodsQuickFix(clazz: ScTemplateDefinition) extends IntentionAction {
+class ImplementMembersQuickFix(clazz: ScTemplateDefinition) extends IntentionAction {
 
-  override def getText: String = ScalaBundle.message("implement.methods.fix")
+  override def getText: String = ScalaBundle.message("implement.members.fix")
   override def startInWriteAction: Boolean = false
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
@@ -34,5 +34,5 @@ class ImplementMethodsQuickFix(clazz: ScTemplateDefinition) extends IntentionAct
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     ScalaOIUtil.invokeOverrideImplement(file, isImplement = true)(project, editor)
 
-  override def getFamilyName: String = ScalaBundle.message("implement.methods.fix")
+  override def getFamilyName: String = ScalaBundle.message("implement.members.fix")
 }
