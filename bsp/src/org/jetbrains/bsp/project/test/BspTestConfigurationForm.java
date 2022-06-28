@@ -29,7 +29,7 @@ import java.util.regex.PatternSyntaxException;
 
 import static java.util.stream.Collectors.*;
 
-
+@SuppressWarnings("unchecked")
 public class BspTestConfigurationForm extends SettingsEditor<BspTestRunConfiguration> {
     final Project project;
     JPanel mainPanel;
