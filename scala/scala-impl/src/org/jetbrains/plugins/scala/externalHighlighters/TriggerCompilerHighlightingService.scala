@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.concurrent.TrieMap
@@ -41,8 +40,6 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
           val document = FileDocumentManager.getInstance().getDocument(virtualFile)
           if (document ne null) {
             triggerDocumentCompilation(virtualFile, document, psiFile, debugReason)
-          } else {
-            triggerIncrementalCompilation(debugReason, virtualFile)
           }
         } else {
           triggerIncrementalCompilation(debugReason, virtualFile)
@@ -53,23 +50,24 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  def triggerOnSelectionChange(editor: FileEditor): Unit =
+  private[externalHighlighters] def triggerOnSelectionChange(editor: FileEditor): Unit = {
     if (ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
-      val fileName = Option(editor.getFile).map(_.getName).getOrElse("<no file>")
-      val debugReason = s"selected editor changed: $fileName"
-      for {
-        virtualFile <- editor.getFile.nullSafe
-        psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
-        if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
-        document <- inReadAction(virtualFile.findDocument)
-        scalaFile <- psiFile.asOptionOf[ScalaFile]
-      } {
-        if (psiFile.isScalaWorksheet)
-          triggerWorksheetCompilation(virtualFile, scalaFile, document, debugReason)
-        else
-          triggerIncrementalCompilation(debugReason, virtualFile)
+      val virtualFile = editor.getFile
+      if (virtualFile ne null) {
+        val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
+        if (isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+          val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
+          if (document ne null) {
+            val debugReason = s"selected editor changed: ${virtualFile.getName}"
+            if (psiFile.isScalaWorksheet)
+              triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+            else
+              triggerIncrementalCompilation(debugReason, virtualFile)
+          }
+        }
       }
     }
+  }
 
   override def dispose(): Unit = {
     documentCompilerAvailable.clear()
