@@ -36,4 +36,27 @@ class ImplicitConversionsResolveTest extends ScalaLightCodeInsightFixtureTestAda
       |}
       |""".stripMargin
   )
+
+  def testSCL15323(): Unit = checkTextHasNoErrors(
+    """
+      |object SelfTypeTests {
+      |  trait Foo {
+      |    def foo(): Int = 42
+      |  }
+      |
+      |  object Foo {
+      |    implicit class Ext(private val f: Foo) extends AnyVal {
+      |      def fooExt(): Int = 23
+      |    }
+      |  }
+      |
+      |  trait Bar { self: Foo =>
+      |    def bar(): Int = {
+      |      self.foo()
+      |      self.fooExt()
+      |    }
+      |  }
+      |}
+      |""".stripMargin
+  )
 }
