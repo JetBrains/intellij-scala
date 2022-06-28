@@ -6,7 +6,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
-import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMethodsQuickFix, ModifierQuickFix}
+import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
@@ -121,7 +121,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
       holder.createErrorAnnotation(
         range,
         objectCreationImpossibleMessage(canBeImplementedInEnum.map(formatForObjectCreationImpossibleMessage): _*),
-        new ImplementMethodsQuickFix(enumCase.enumParent)
+        new ImplementMembersQuickFix(enumCase.enumParent)
       )
     }
 
@@ -162,7 +162,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
             holder.createErrorAnnotation(
               range,
               objectCreationImpossibleMessage(undefined: _*),
-              new ImplementMethodsQuickFix(element)
+              new ImplementMembersQuickFix(element)
             )
           }
         case _ =>
@@ -271,7 +271,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           }
 
           val maybeImplementFix =
-            Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMethodsQuickFix(element))
+            Option.when(ScalaOIUtil.getMembersToImplement(element).nonEmpty)(new ImplementMembersQuickFix(element))
 
           maybeModifierFix ++ maybeImplementFix
         }
