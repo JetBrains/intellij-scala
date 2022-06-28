@@ -1,30 +1,54 @@
 package org.jetbrains.plugins.scala
 package externalHighlighters
 
+import com.intellij.codeInsight.daemon.impl.UpdateHighlightersUtil
+import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, FileHighlightingSettingListener}
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
-import com.intellij.openapi.editor.{Document, Editor}
+import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.collection.concurrent.TrieMap
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 @Service
 private[scala] final class TriggerCompilerHighlightingService(project: Project) extends Disposable {
 
+  import TriggerCompilerHighlightingService._
+
   private val documentCompilerAvailable: TrieMap[VirtualFile, java.lang.Boolean] = TrieMap.empty
+
+  project.getMessageBus.connect(this).subscribe[FileHighlightingSettingListener](
+    FileHighlightingSettingListener.SETTING_CHANGE,
+    (root: PsiElement, _: FileHighlightingSetting) => {
+      val virtualFile = root.getContainingFile.getVirtualFile
+      if (virtualFile ne null) {
+        val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+        invokeAndWait {
+          val document = FileDocumentManager.getInstance().getDocument(virtualFile)
+          EditorFactory.getInstance().getEditors(document).foreach { editor =>
+            UpdateHighlightersUtil.setHighlightersToEditor(
+              project, document,
+              0, document.getTextLength, Seq.empty.asJava,
+              editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+          }
+        }
+        triggerIncrementalCompilation(debugReason, virtualFile)
+      }
+    }
+  )
 
   private[externalHighlighters] def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit = {
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
@@ -104,7 +128,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       case _ if psiFile.isScalaWorksheet => true
       case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
       case _ => false
-    })
+    }) && ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
