@@ -54,7 +54,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
         val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
-        if (isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+        if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
           val document = inReadAction(FileDocumentManager.getInstance().getDocument(virtualFile))
           if (document ne null) {
             val debugReason = s"selected editor changed: ${virtualFile.getName}"
@@ -72,22 +72,22 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     documentCompilerAvailable.clear()
   }
 
-  private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit =
+  private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit = {
     if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
       val document = editor.getDocument
-      for {
-        virtualFile <- FileDocumentManager.getInstance().getFile(document).nullSafe
-        debugReason = s"Editor created for file: ${virtualFile.getCanonicalPath}"
-        psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
-        if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
-        scalaFile <- psiFile.asOptionOf[ScalaFile]
-      } {
-        if (psiFile.isScalaWorksheet)
-          triggerWorksheetCompilation(virtualFile, scalaFile, document, debugReason)
-        else
-          triggerIncrementalCompilation(debugReason, virtualFile)
+      val virtualFile = FileDocumentManager.getInstance().getFile(document)
+      if (virtualFile ne null) {
+        val debugReason = s"Editor created for file: ${virtualFile.getCanonicalPath}"
+        val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
+        if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
+          if (psiFile.isScalaWorksheet)
+            triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
+          else
+            triggerIncrementalCompilation(debugReason, virtualFile)
+        }
       }
     }
+  }
 
   private[scala] var isAutoTriggerEnabled: Boolean =
     !ApplicationManager.getApplication.isUnitTestMode
