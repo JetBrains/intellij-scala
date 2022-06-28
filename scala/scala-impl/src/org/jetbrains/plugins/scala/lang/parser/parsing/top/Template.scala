@@ -11,7 +11,7 @@ sealed abstract class Template extends ParsingRule {
 
   import lexer.ScalaTokenTypes._
 
-  protected def parentsRule: Parents = ClassParents
+  protected def parentsRule: Parents = TypeDefinitionParents
 
   protected def bodyRule: Body = TemplateBody
 
@@ -65,10 +65,7 @@ object ClassTemplate extends Template
 /**
  * [[TraitTemplate]] ::= 'extends' [[TraitTemplate]] | [ ['extends'] [[TemplateBody]] ]
  */
-object TraitTemplate extends Template {
-
-  override protected def parentsRule: MixinParents.type = MixinParents
-}
+object TraitTemplate extends Template
 
 /**
  * [[EnumTemplate]] ::= [[InheritClauses]] [[EnumBody]]

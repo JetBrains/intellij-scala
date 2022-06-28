@@ -10,14 +10,16 @@ import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix,
 import org.jetbrains.plugins.scala.annotator.template._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunctionDefinition, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
 
 import scala.util.chaining._
@@ -32,15 +34,76 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     annotateUndefinedMember(element)
     annotateSealedclassInheritance(element)
     annotateEnumClassInheritance(element)
-    annotateNeedsToBeAbstract(element, typeAware)
     annotateNeedsToBeMixin(element)
+    annotateTraitPassingConstructorParameters(element)
+    annotateParentTraitConstructorParameters(element)
 
     if (typeAware) {
+      annotateNeedsToBeAbstract(element)
       annotateIllegalInheritance(element)
       annotateObjectCreationImpossible(element)
       annotateEnumCaseCreationImpossible(element)
     }
   }
+
+  /**
+   * 1. If a class C extends a parameterized trait T, and its superclass does not, C must pass arguments to T.
+   * 2. If a class C extends a parameterized trait T, and its superclass does as well, C must not pass arguments to T.
+   */
+  private def annotateParentTraitConstructorParameters(
+    tdef: ScTemplateDefinition
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit = {
+    def resolveNoCons(ref: ScStableCodeReference): Option[ScalaResolveResult] = ref.resolveNoConstructor match {
+      case Array(srr) => srr.toOption
+      case _          => None
+    }
+
+    val superClass = for {
+      parents     <- tdef.physicalExtendsBlock.templateParents
+      firstParent <- parents.firstParentClause
+      ref         <- firstParent.reference
+      cls         <- resolveNoCons(ref)
+    } yield cls.element
+
+    val directSupers = tdef.extendsBlock.templateParents.toSeq.flatMap(_.parentClauses)
+
+    directSupers.collect {
+      case parentClause =>
+        val resolvedSuper = parentClause.reference.flatMap(resolveNoCons)
+
+        resolvedSuper.collect {
+          case ScalaResolveResult(superTrait: ScTrait, _) if parentClause.args.nonEmpty =>
+            superClass.collect {
+              case cls: PsiClass =>
+                if (ScalaPsiUtil.isInheritorDeep(cls, superTrait))
+                  holder.createErrorAnnotation(
+                    parentClause,
+                    ScalaBundle.message("trait.is.already.implemented.by.superclass", superTrait.name, cls.name)
+                  )
+            }
+        }
+    }
+  }
+
+  /**
+   * 3.Traits must never pass arguments to parent traits.
+   */
+  private def annotateTraitPassingConstructorParameters(
+    tdef: ScTemplateDefinition
+  )(implicit
+    holder: ScalaAnnotationHolder
+  ): Unit =
+    if (tdef.is[ScTrait])
+      for {
+        templateParents <- tdef.physicalExtendsBlock.templateParents.toSeq
+        clause          <- templateParents.parentClauses
+        if clause.args.nonEmpty
+      } holder.createErrorAnnotation(
+        clause,
+        ScalaBundle.message("trait.may.not.call.constructor", tdef.name, clause.typeElement.getText)
+      )
 
   private def annotateEnumClassInheritance(
     tdef: ScTemplateDefinition
@@ -250,10 +313,10 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }
 
   // TODO package private
-  def annotateNeedsToBeAbstract(element: ScTemplateDefinition, typeAware: Boolean = true)
+  def annotateNeedsToBeAbstract(element: ScTemplateDefinition)
                                (implicit holder: ScalaAnnotationHolder): Unit = element match {
     case _: ScNewTemplateDefinition | _: ScObject | _: ScEnumCase =>
-    case _ if !typeAware || isAbstract(element) =>
+    case _ if isAbstract(element) =>
     case _ =>
       ScalaOIUtil.getMembersToImplement(element, withOwn = true).collectFirst {
         case member: ScalaTypedMember /* SCL-2887 */ =>

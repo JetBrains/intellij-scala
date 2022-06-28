@@ -49,11 +49,11 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
 
   override def getIcon(flags: Int): Icon = Icons.CLASS
 
-  override def constructorInvocation: Option[ScConstructorInvocation] =
+  override def firstConstructorInvocation: Option[ScConstructorInvocation] =
     Option(extendsBlock)
       .flatMap(_.templateParents)
       .filter(_.typeElements.length == 1)
-      .flatMap(_.constructorInvocation)
+      .flatMap(_.firstParentClause)
 
   override protected def updateImplicitArguments(): Unit = {
     // for regular case implicits are owned by ScConstructor
@@ -143,14 +143,14 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
   }
 
   override def desugaredApply: Option[ScExpression] = {
-    if (constructorInvocation.forall(_.arguments.size <= 1)) None
+    if (firstConstructorInvocation.forall(_.arguments.size <= 1)) None
     else cachedDesugaredApply
   }
 
   //It's very rare case, when we need to desugar `.apply` first.
   @CachedInUserData(this, BlockModificationTracker(this))
   private def cachedDesugaredApply: Option[ScExpression] = {
-    val resolvedConstructor = constructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
+    val resolvedConstructor = firstConstructorInvocation.flatMap(_.reference).flatMap(_.resolve().toOption)
     val constrParamLength = resolvedConstructor.map {
       case ScalaConstructor(constr)         => constr.effectiveParameterClauses.length
       case JavaConstructor(_)               => 1
@@ -158,7 +158,7 @@ final class ScNewTemplateDefinitionImpl(stub: ScTemplateDefinitionStub[ScNewTemp
     }
     val excessArgs =
       for {
-        arguments   <- constructorInvocation.map(_.arguments)
+        arguments   <- firstConstructorInvocation.map(_.arguments)
         paramLength <- constrParamLength
         if paramLength >= 0
       } yield {

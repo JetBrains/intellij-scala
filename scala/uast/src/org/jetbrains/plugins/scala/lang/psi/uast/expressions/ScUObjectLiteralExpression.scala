@@ -30,7 +30,7 @@ final class ScUObjectLiteralExpression(
   override type PsiFacade = PsiElement
 
   override protected def scReference: Option[ScReference] =
-    scElement.constructorInvocation.flatMap(_.reference)
+    scElement.firstConstructorInvocation.flatMap(_.reference)
 
   override def getDeclaration: UClass = {
     val extendsBlock = scElement.extendsBlock
@@ -39,7 +39,7 @@ final class ScUObjectLiteralExpression(
   }
 
   private val uConstructor: Option[ScUConstructorCallExpression] =
-    scElement.constructorInvocation.map(
+    scElement.firstConstructorInvocation.map(
       new ScUConstructorCallExpression(_, LazyUElement.Empty)
     )
 

@@ -236,7 +236,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
         case e: ScNewTemplateDefinition =>
           //noinspection ScalaUnnecessaryParentheses
-          e.constructorInvocation
+          e.firstConstructorInvocation
             .map(c => new ScUConstructorCallExpression(c, _: LazyUElement))
             .getOrElse(null)
 
