@@ -8,7 +8,7 @@ import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, Editor}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.{JavaProjectRootsUtil, TestSourcesFilter}
+import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.util.ScalaUtil
 
 import scala.collection.concurrent.TrieMap
 import scala.util.control.NonFatal
@@ -101,19 +100,19 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
-    lazy val isJavaOrScalaFile = psiFile match {
+    virtualFile.isInLocalFileSystem && (psiFile match {
       case _ if psiFile.isScalaWorksheet => true
       case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
       case _ => false
-    }
-    virtualFile.isInLocalFileSystem && isJavaOrScalaFile
+    })
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
-    val module = ScalaUtil.getModuleForFile(virtualFile)(project)
-    val sourceScope = calculateSourceScope(virtualFile)
-    module.foreach { m =>
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(virtualFile, m, sourceScope, debugReason)
+    val module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(virtualFile)
+    if (module ne null) {
+      val sourceScope = calculateSourceScope(virtualFile)
+      CompilerHighlightingService.get(project)
+        .triggerIncrementalCompilation(virtualFile, module, sourceScope, debugReason)
     }
   }
 
