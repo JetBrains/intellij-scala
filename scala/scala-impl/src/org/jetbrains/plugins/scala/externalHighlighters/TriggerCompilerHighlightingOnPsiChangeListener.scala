@@ -2,16 +2,14 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
 import com.intellij.psi.impl.compiled.ClsFileImpl
-import com.intellij.psi.{PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe}
+import com.intellij.psi.{PsiFile, PsiManager, PsiTreeChangeAdapter, PsiTreeChangeEvent}
 import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnPsiChangeListener.PsiChangeListener
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.unused
 
 @unused("registered in scala-plugin-common.xml")
-private class TriggerCompilerHighlightingOnPsiChangeListener
-  extends ProjectManagerListener {
+private class TriggerCompilerHighlightingOnPsiChangeListener extends ProjectManagerListener {
 
   override def projectOpened(project: Project): Unit = {
     val listener = new PsiChangeListener(project)
@@ -21,22 +19,31 @@ private class TriggerCompilerHighlightingOnPsiChangeListener
 
 object TriggerCompilerHighlightingOnPsiChangeListener {
 
-  private class PsiChangeListener(project: Project)
-    extends PsiTreeChangeAdapter {
+  private class PsiChangeListener(project: Project) extends PsiTreeChangeAdapter {
 
-    override def childrenChanged(event: PsiTreeChangeEvent): Unit =
-      for {
-        psiFile <- event.getFile.nullSafe
-        virtualFile <- psiFile.getVirtualFile.nullSafe
-      } TriggerCompilerHighlightingService.get(project).triggerOnFileChange(psiFile, virtualFile)
+    private val triggerService: TriggerCompilerHighlightingService = TriggerCompilerHighlightingService.get(project)
 
-    override def childRemoved(event: PsiTreeChangeEvent): Unit =
-      if (event.getFile eq null)
-        for {
-          child <- event.getChild.nullSafe
-          if !child.is[ClsFileImpl]
-          psiFile <- child.getContainingFile.nullSafe
-          virtualFile <- psiFile.getVirtualFile.nullSafe
-        } TriggerCompilerHighlightingService.get(project).triggerOnFileChange(psiFile, virtualFile)
+    override def childrenChanged(event: PsiTreeChangeEvent): Unit = {
+      triggerOnFileChange(event.getFile)
+    }
+
+    override def childRemoved(event: PsiTreeChangeEvent): Unit = {
+      if (event.getFile eq null) {
+        val child = event.getChild
+        child match {
+          case null | _: ClsFileImpl => ()
+          case _ => triggerOnFileChange(child.getContainingFile)
+        }
+      }
+    }
+
+    private[this] def triggerOnFileChange(psiFile: PsiFile): Unit = {
+      if (psiFile ne null) {
+        val virtualFile = psiFile.getVirtualFile
+        if (virtualFile ne null) {
+          triggerService.triggerOnFileChange(psiFile, virtualFile)
+        }
+      }
+    }
   }
 }
