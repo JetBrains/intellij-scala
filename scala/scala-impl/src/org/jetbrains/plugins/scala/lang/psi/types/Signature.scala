@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.types
 
-import com.intellij.psi.{PsiModifierListOwner, PsiNamedElement}
+import com.intellij.psi.{PsiClass, PsiModifierListOwner, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
@@ -32,6 +32,8 @@ trait Signature {
   def isSynthetic: Boolean
 
   def isExtensionMethod: Boolean = false
+
+  def exportedIn: Option[PsiClass]
 
   def isPrivate: Boolean = namedElement match {
     case param: ScClassParameter if !param.isClassMember => true
