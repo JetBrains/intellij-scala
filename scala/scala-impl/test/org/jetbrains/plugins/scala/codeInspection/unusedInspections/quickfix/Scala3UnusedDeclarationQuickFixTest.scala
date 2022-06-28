@@ -76,13 +76,15 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
   def test_single_named_using_param(): Unit = {
     val text =
       s"""
-         |import scala.annotation.unused
-         |@unused def foo(using s: String) = ()
+         |def foo(using s: String) = ()
+         |
+         |foo(using "boo")
          |""".stripMargin
     val expected =
       s"""
-         |import scala.annotation.unused
-         |@unused def foo() = ()
+         |def foo() = ()
+         |
+         |foo()
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -90,13 +92,15 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
   def test_single_anonymous_using_param(): Unit = {
     val text =
       s"""
-         |import scala.annotation.unused
-         |@unused def foo(using String) = ()
+         |def foo(using String) = ()
+         |
+         |foo(using "boo")
          |""".stripMargin
     val expected =
       s"""
-         |import scala.annotation.unused
-         |@unused def foo() = ()
+         |def foo() = ()
+         |
+         |foo()
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -105,12 +109,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using s: String, @unused i: Int, @unused d: Double) = ()
+         |def foo(using s: String, @unused i: Int, @unused d: Double) = ()
+         |
+         |foo(using "boo", 42, 0.0)
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |def foo(using @unused i: Int, @unused d: Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -119,12 +127,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused i: Int, s: String, @unused d: Double) = ()
+         |def foo(using @unused i: Int, s: String, @unused d: Double) = ()
+         |
+         |foo(using 42, "boo", 0.0)
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |def foo(using @unused i: Int, @unused d: Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -133,12 +145,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused i: Int, @unused d: Double, s: String) = ()
+         |def foo(using @unused i: Int, @unused d: Double, s: String) = ()
+         |
+         |foo(using 42, 0.0, "boo")
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused i: Int, @unused d: Double) = ()
+         |def foo(using @unused i: Int, @unused d: Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -147,12 +163,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using String, @unused Int, @unused Double) = ()
+         |def foo(using String, @unused Int, @unused Double) = ()
+         |
+         |foo(using "boo", 42, 0.0)
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused Int, @unused Double) = ()
+         |def foo(using @unused Int, @unused Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -161,12 +181,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused Int, String, @unused Double) = ()
+         |def foo(using @unused Int, String, @unused Double) = ()
+         |
+         |foo(using 42, "boo", 0.0)
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused Int, @unused Double) = ()
+         |def foo(using @unused Int, @unused Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
@@ -175,12 +199,16 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     val text =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused Int, @unused Double, String) = ()
+         |def foo(using @unused Int, @unused Double, String) = ()
+         |
+         |foo(using 42, 0.0, "boo")
          |""".stripMargin
     val expected =
       s"""
          |import scala.annotation.unused
-         |@unused def foo(using @unused Int, @unused Double) = ()
+         |def foo(using @unused Int, @unused Double) = ()
+         |
+         |foo(using 42, 0.0)
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }

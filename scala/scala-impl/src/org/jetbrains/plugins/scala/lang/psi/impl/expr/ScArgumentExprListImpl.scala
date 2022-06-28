@@ -6,7 +6,8 @@ package expr
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import com.intellij.psi.impl.PsiImplUtil
+import org.jetbrains.plugins.scala.extensions.{ASTNodeExt, ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ConstructorInvocationLike, ScConstructorInvocation}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -129,19 +130,25 @@ class ScArgumentExprListImpl(node: ASTNode) extends ScalaPsiElementImpl(node) wi
   override def deleteChildInternal(child: ASTNode): Unit = {
     val exprs = this.exprs
     val childIsArgument = exprs.exists(_.getNode == child)
-    def childIsLastArgumentTeBeDeleted = exprs.length == 1 && childIsArgument
+    def childIsLastArgumentToBeDeleted = exprs.lengthIs == 1 && childIsArgument
     def isLastArgumentClause = getParent match {
       case method@ScMethodCall(base, _) =>
-        !base.isInstanceOf[ScMethodCall] && !method.getParent.isInstanceOf[ScMethodCall]
+        !base.is[ScMethodCall] && !method.getParent.is[ScMethodCall]
       case _: ConstructorInvocationLike =>
-        !this.getPrevSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList] &&
-          !this.getNextSiblingNotWhitespaceComment.isInstanceOf[ScArgumentExprList]
+        !this.getPrevSiblingNotWhitespaceComment.is[ScArgumentExprList] &&
+          !this.getNextSiblingNotWhitespaceComment.is[ScArgumentExprList]
       case _ => true
     }
 
-    if (childIsLastArgumentTeBeDeleted && !isLastArgumentClause) {
+    if (childIsLastArgumentToBeDeleted && !isLastArgumentClause) {
       this.delete()
     } else if (childIsArgument){
+      if (childIsLastArgumentToBeDeleted) {
+        val prev = PsiImplUtil.skipWhitespaceAndCommentsBack(child.getTreePrev)
+        if (prev.hasElementType(ScalaTokenType.UsingKeyword)) {
+          deleteChildInternal(prev)
+        }
+      }
       ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
     } else {
       super.deleteChildInternal(child)
