@@ -37,12 +37,22 @@ class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
   override def getTypeParameters: Array[PsiTypeParameter] = getStubOrPsiChildren(TYPE_PARAM, PsiTypeParameter.ARRAY_FACTORY)
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
-    if (!processor.isInstanceOf[BaseProcessor] || isResolveInSyntheticClause(lastParent)) {
+    if (!processor.is[BaseProcessor] || isResolveInSyntheticClause(lastParent)) {
       for (param <- typeParameters) {
         if (!processor.execute(param, state)) return false
       }
     }
     true
+  }
+
+  override def deleteChildInternal(child: ASTNode): Unit = {
+    val params = this.typeParameters
+    val childIsTypeParam = params.exists(_.getNode == child)
+    def childIsLastParamToBeDeleted = params.lengthIs == 1 && childIsTypeParam
+
+    if (childIsLastParamToBeDeleted) this.delete()
+    else if (childIsTypeParam) ScalaPsiUtil.deleteElementInCommaSeparatedList(this, child)
+    else super.deleteChildInternal(child)
   }
 
   //scala syntax doesn't allow type parameters for constructors, but we need them for type inference, so they are synthetic
