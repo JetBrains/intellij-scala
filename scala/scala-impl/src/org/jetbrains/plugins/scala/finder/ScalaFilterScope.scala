@@ -30,7 +30,7 @@ sealed abstract class FilterScope(val delegate: GlobalSearchScope)
     fileIndex.isInLibraryClasses(file)
 
   override final def contains(file: VirtualFile): Boolean =
-    (delegate == null || delegate.contains(file)) && mayContain(file)
+    (null == delegate || delegate.contains(file)) && mayContain(file)
 
   protected def mayContain(file: VirtualFile): Boolean
 
