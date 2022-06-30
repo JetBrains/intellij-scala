@@ -368,6 +368,12 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   private String[] IMPORT_LAYOUT = DEFAULT_IMPORT_LAYOUT;
 
+  // TODO For some reason, SkipDefaultValuesSerializationFilters uses reflection to instantiate the class and needs an empty constructor.
+  @SuppressWarnings("deprecation")
+  public ScalaCodeStyleSettings() {
+    this(new CodeStyleSettings());
+  }
+
   public ScalaCodeStyleSettings(CodeStyleSettings container) {
     super("ScalaCodeStyleSettings", container);
   }
