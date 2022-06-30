@@ -142,13 +142,11 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
 
   def beforeIncrementalCompilation(): Unit = invokeAndWait {
     val manager = FileDocumentManager.getInstance()
-    val unsaved = try manager.getUnsavedDocuments catch { case NonFatal(_) => Array.empty[Document] }
+    val unsaved = manager.getUnsavedDocuments
     unsaved.foreach { document =>
-      if (manager.getFile(document).isValid) {
-        try manager.saveDocumentAsIs(document)
-        catch {
-          case NonFatal(_) =>
-        }
+      try manager.saveDocumentAsIs(document)
+      catch {
+        case NonFatal(_) =>
       }
     }
   }
