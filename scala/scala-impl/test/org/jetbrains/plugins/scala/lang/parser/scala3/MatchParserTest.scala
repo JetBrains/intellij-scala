@@ -110,16 +110,15 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |        ScMatchTypeCaseImpl(match type case)
       |          PsiElement(case)('case')
       |          PsiWhiteSpace(' ')
-      |          TypePattern
-      |            ParametrizedType: Seq[x]
-      |              SimpleType: Seq
-      |                CodeReferenceElement: Seq
-      |                  PsiElement(identifier)('Seq')
-      |              TypeArgumentsList
-      |                PsiElement([)('[')
-      |                TypeVariable: x
-      |                  PsiElement(identifier)('x')
-      |                PsiElement(])(']')
+      |          ParametrizedType: Seq[x]
+      |            SimpleType: Seq
+      |              CodeReferenceElement: Seq
+      |                PsiElement(identifier)('Seq')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              TypeVariable: x
+      |                PsiElement(identifier)('x')
+      |              PsiElement(])(']')
       |          PsiWhiteSpace(' ')
       |          PsiElement(=>)('=>')
       |          PsiWhiteSpace(' ')
