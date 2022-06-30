@@ -30,4 +30,12 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
   def testGivenAliasParam(): Unit = doResolveTest(
     s"given mySummon[A](using ${REFTGT}value: A): A = ${REFSRC}value"
   )
+
+  def testTypeVariableMatch(): Unit = doResolveTest(
+    s"??? match { case _: Seq[${REFTGT}x] => ??? : ${REFSRC}x }"
+  )
+
+  def testTypeVariableMatchType(): Unit = doResolveTest(
+    s"type T = Seq[Int] match { case Seq[${REFTGT}x] => Option[${REFSRC}x] }"
+  )
 }

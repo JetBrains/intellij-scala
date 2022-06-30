@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.base.patterns
 
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{Sc3TypedPattern, ScBindingPattern, ScPattern, ScReferencePattern, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeVariableTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenerator
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaRecursiveElementVisitor}
@@ -32,6 +32,12 @@ trait ScPatternImpl extends ScPattern {
     def inner(p: ScPattern): Unit = {
       p match {
         case ScTypedPattern(te) =>
+          te.accept(new ScalaRecursiveElementVisitor {
+            override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
+              builder += tvar
+            }
+          })
+        case Sc3TypedPattern(_, te) =>
           te.accept(new ScalaRecursiveElementVisitor {
             override def visitTypeVariableTypeElement(tvar: ScTypeVariableTypeElement): Unit = {
               builder += tvar
