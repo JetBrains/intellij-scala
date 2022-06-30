@@ -5,6 +5,7 @@ import com.intellij.execution._
 import com.intellij.execution.actions.{ConfigurationContext, ConfigurationFromContext, RunConfigurationProducer}
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationProducer, ApplicationConfigurationType}
 import com.intellij.execution.impl.RunManagerImpl
+import com.intellij.execution.junit.JavaRunConfigurationProducerBase
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi._
@@ -31,8 +32,9 @@ object ScalaApplicationConfigurationProducer {
     configuration.getCopyableUserData(key) == TRUE
 }
 
+@scala.annotation.nowarn("msg=constructor JavaRunConfigurationProducerBase in class JavaRunConfigurationProducerBase is deprecated")
 abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfiguration](configurationType: ApplicationConfigurationType)
-  extends JavaRuntimeConfigurationProduceBaseAdapter[T](configurationType)
+  extends JavaRunConfigurationProducerBase[T](configurationType)
     with Cloneable {
 
   override def findModule(configuration: T, contextModule: Module): Module =

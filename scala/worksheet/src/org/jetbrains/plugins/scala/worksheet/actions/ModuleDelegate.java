@@ -19,7 +19,7 @@ import org.picocontainer.PicoContainer;
 import java.nio.file.Path;
 import java.util.Map;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings("UnstableApiUsage")
 public abstract class ModuleDelegate implements Module {
 
     private final Module module;
@@ -28,6 +28,7 @@ public abstract class ModuleDelegate implements Module {
         this.module = module;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NotNull MessageBus getMessageBus() {
         return module.getMessageBus();
@@ -63,11 +64,13 @@ public abstract class ModuleDelegate implements Module {
         return module.isLoaded();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setOption(@NotNull String key, @Nullable String value) {
         module.setOption(key, value);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NonNls @Nullable String getOptionValue(@NotNull String key) {
         return module.getOptionValue(key);
@@ -128,6 +131,8 @@ public abstract class ModuleDelegate implements Module {
         return module.getComponent(interfaceClass);
     }
 
+    @NotNull
+    @SuppressWarnings("deprecation")
     @Override
     public <T> T[] getComponents(@NotNull Class<T> baseClass) {
         return module.getComponents(baseClass);
