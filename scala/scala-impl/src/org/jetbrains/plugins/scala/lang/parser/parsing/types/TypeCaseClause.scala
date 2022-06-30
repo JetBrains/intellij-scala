@@ -5,9 +5,10 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.TypePattern
 
 /**
- * TypeCaseClause ::= ‘case’ InfixType ‘=>’ Type [nl]
+ * TypeCaseClause ::= ‘case’ TypePattern ‘=>’ Type [nl]
  */
 object TypeCaseClause extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -21,7 +22,7 @@ object TypeCaseClause extends ParsingRule {
         return false
     }
 
-    if (!InfixType()) builder.error(ScalaBundle.message("wrong.type"))
+    if (!TypePattern()) builder.error(ScalaBundle.message("wrong.type"))
 
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
