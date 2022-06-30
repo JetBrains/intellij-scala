@@ -34,4 +34,8 @@ class Scala3ResolveTest extends SimpleResolveTestBase {
   def testTypeVariableMatch(): Unit = doResolveTest(
     s"??? match { case _: Seq[${REFTGT}x] => ??? : ${REFSRC}x }"
   )
+
+  def testTypeVariableMatchType(): Unit = doResolveTest(
+    s"type T = Seq[Int] match { case Seq[${REFTGT}x] => Option[${REFSRC}x] }"
+  )
 }
