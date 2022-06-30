@@ -8,5 +8,5 @@ class ScMatchTypeCaseImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
 
   override def patternTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
 
-  override def resultTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
+  override def resultTypeElement: Option[ScTypeElement] = findLastChild[ScTypeElement]
 }
