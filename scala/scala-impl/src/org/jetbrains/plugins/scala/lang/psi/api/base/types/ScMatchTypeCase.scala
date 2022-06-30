@@ -1,17 +1,19 @@
 package org.jetbrains.plugins.scala.lang.psi.api.base.types
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypePattern
 
 /**
  * A single case inside a match type `case P_i => T_i`, where
- * both `P_i` and `T_i` are type elements.
+ * `P_i` is a type pattern and `T_i` is a type.
  */
 trait ScMatchTypeCase extends ScalaPsiElement {
-  def patternTypeElement: Option[ScTypeElement]
-  def resultTypeElement: Option[ScTypeElement]
+  def pattern: Option[ScTypePattern]
+
+  def result: Option[ScTypeElement]
 }
 
 object ScMatchTypeCase {
-  def unapply(cse: ScMatchTypeCase): Some[(Option[ScTypeElement], Option[ScTypeElement])] =
-    Some((cse.patternTypeElement, cse.resultTypeElement))
+  def unapply(cse: ScMatchTypeCase): Some[(Option[ScTypePattern], Option[ScTypeElement])] =
+    Some((cse.pattern, cse.result))
 }
