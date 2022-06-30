@@ -24,6 +24,7 @@ public interface ScalaDocElementTypes {
   @NotNull
   ILazyParseableElementType SCALA_DOC_COMMENT = new ILazyParseableElementType("SCALA_DOC_COMMENT", ScalaDocLanguage.INSTANCE) {
 
+    @Override
     @Nullable
     public ASTNode parseContents(@NotNull ASTNode lazyNode) {
       Project project = JavaPsiFacade.getInstance(lazyNode.getTreeParent().getPsi().getProject()).getProject();

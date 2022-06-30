@@ -21,6 +21,7 @@ public class SbtShellCommandImpl extends ASTWrapperPsiElement implements SbtShel
     visitor.visitCommand(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof SbtShellVisitor) accept((SbtShellVisitor)visitor);
     else super.accept(visitor);

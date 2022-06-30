@@ -103,15 +103,18 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         updateOkStatus();
     }
 
+    @Override
     @Nullable
     protected JComponent createCenterPanel() {
         return contentPane;
     }
 
+    @Override
     public JComponent getContentPane() {
         return contentPane;
     }
 
+    @Override
     @Nullable
     public String getEnteredName() {
         if (myNameComboBox.getEditor().getItem() instanceof String &&
@@ -122,6 +125,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         }
     }
 
+    @Override
     public boolean isReplaceAllOccurrences() {
         return myReplaceAllChb.isSelected();
     }
@@ -270,6 +274,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
+                                                                                                    @Override
                                                                                                     public void documentChanged(@NotNull DocumentEvent event) {
                                                                                                         fireNameDataChanged();
                                                                                                     }
@@ -321,10 +326,12 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         }));
     }
 
+    @Override
     public JComponent getPreferredFocusedComponent() {
         return myNameComboBox;
     }
 
+    @Override
     @NotNull
     protected Action[] createActions() {
         return new Action[]{getOKAction(), getCancelAction(), getHelpAction()};
@@ -345,6 +352,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
         }
     }
 
+    @Override
     protected void doOKAction() {
         if (!reporter.isOK(this)) return;
         saveSettings();
@@ -355,6 +363,7 @@ public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDia
     }
 
 
+    @Override
     protected void doHelpAction() {
         HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_FIELD);
     }

@@ -43,10 +43,12 @@ public class ScalaCompileServerSettings implements PersistentStateComponent<Scal
 
   public boolean USE_PROJECT_HOME_AS_WORKING_DIR = false;
 
+  @Override
   public ScalaCompileServerSettings getState() {
     return this;
   }
 
+  @Override
   public void loadState(ScalaCompileServerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }

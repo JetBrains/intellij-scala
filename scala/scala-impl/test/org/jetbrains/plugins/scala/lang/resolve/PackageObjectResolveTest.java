@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 public class PackageObjectResolveTest extends ScalaResolveTestCase{
 
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/packageObject/";
   }

@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait;
  * Date: 01.11.11
  */
 public class ResolveClassLoc2Test extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/loc2/";
   }

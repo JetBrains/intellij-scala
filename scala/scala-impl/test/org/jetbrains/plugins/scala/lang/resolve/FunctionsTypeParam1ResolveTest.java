@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
  * Date: 01.11.11
  */
 public class FunctionsTypeParam1ResolveTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/functions/typeParam1/";
   }

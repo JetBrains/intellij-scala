@@ -15,6 +15,7 @@ import scala.Option;
  * @author ven
  */
 public class ResolveCallTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "/resolve/call/";
   }

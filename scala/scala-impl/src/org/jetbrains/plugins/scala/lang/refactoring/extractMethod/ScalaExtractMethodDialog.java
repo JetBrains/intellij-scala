@@ -455,13 +455,16 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       super(project, variableData);
     }
 
+    @Override
     protected void updateSignature() {
       ScalaExtractMethodDialog.this.updateSignature();
     }
 
+    @Override
     protected void doEnterAction() {
     }
 
+    @Override
     protected void doCancelAction() {
     }
   }

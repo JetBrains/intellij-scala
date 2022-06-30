@@ -101,14 +101,17 @@ public class AttachSourcesUtil {
             myParentComponent = parentComponent;
         }
 
+        @Override
         public String getName() {
             return JavaUiBundle.message("module.libraries.attach.sources.button");
         }
 
+        @Override
         public String getBusyText() {
             return JavaUiBundle.message("library.attach.sources.action.busy.text");
         }
 
+        @Override
         public ActionCallback perform(final List<? extends LibraryOrderEntry> libraries) {
             final Library firstLibrary = libraries.get(0).getLibrary();
             VirtualFile root = firstLibrary != null ? findRoot(firstLibrary) : null;

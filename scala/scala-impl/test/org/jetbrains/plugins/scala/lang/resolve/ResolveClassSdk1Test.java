@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
  * Date: 01.11.11
  */
 public class ResolveClassSdk1Test extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/sdk1/";
   }

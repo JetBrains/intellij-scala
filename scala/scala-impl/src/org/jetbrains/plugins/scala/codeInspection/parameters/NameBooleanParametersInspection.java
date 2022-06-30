@@ -16,10 +16,12 @@ public class NameBooleanParametersInspection extends NameBooleanParametersInspec
 
   public boolean ignoreSingleParameter = true;
 
+  @Override
   public boolean isIgnoreSingleParameter() {
     return ignoreSingleParameter;
   }
 
+  @Override
   public void setIgnoreSingleParameter(boolean ignoreSingleParameter) {
     this.ignoreSingleParameter = ignoreSingleParameter;
   }

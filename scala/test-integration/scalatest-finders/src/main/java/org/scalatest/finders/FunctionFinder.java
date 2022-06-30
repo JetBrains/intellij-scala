@@ -19,6 +19,7 @@ package org.scalatest.finders;
 abstract class FunctionFinder implements Finder {
   protected abstract String getName();
   
+  @Override
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {

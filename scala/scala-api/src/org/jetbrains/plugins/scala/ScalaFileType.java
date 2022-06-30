@@ -35,6 +35,7 @@ final public class ScalaFileType extends LanguageFileTypeBase {
         return "." + getDefaultExtension();
     }
 
+    @Override
     @NotNull
     public Icon getIcon() {
         return IconLoader.getIcon("/org/jetbrains/plugins/scala/images/fileScala.svg", ScalaFileType.class);

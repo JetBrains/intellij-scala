@@ -1203,6 +1203,7 @@ public class _ScalaCoreLexer implements FlexLexer {
       public RegularLevel(CharSequence intepolator) {
         super(intepolator);
       }
+      @Override
       public int getState() {
         return INSIDE_INTERPOLATED_STRING;
       }
@@ -1212,6 +1213,7 @@ public class _ScalaCoreLexer implements FlexLexer {
       public MultilineLevel(CharSequence intepolator) {
         super(intepolator);
       }
+      @Override
       public int getState() {
         return INSIDE_MULTI_LINE_INTERPOLATED_STRING;
       }
@@ -1507,6 +1509,7 @@ public class _ScalaCoreLexer implements FlexLexer {
    * @return      the next token
    * @exception   java.io.IOException  if any I/O-Error occurs
    */
+  @Override
   public IElementType advance() throws java.io.IOException {
     int zzInput;
     int zzAction;

@@ -217,6 +217,7 @@ abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
   }
 
 
+  @Override
   @NotNull
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,

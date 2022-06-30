@@ -31,6 +31,7 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         showOuterVariables.setSelected(settings.SHOW_VARIABLES_FROM_OUTER_SCOPES);
     }
 
+    @Override
     @Nls
     public String getDisplayName() {
         return ScalaBundle.message("scala.debug.caption");
@@ -40,32 +41,38 @@ public class ScalaDebuggerSettingsConfigurable implements Configurable {
         return Icons.SCALA_SMALL_LOGO;
     }
 
+    @Override
     public String getHelpTopic() {
         return null;
     }
 
+    @Override
     public JComponent createComponent() {
         return myPanel;
     }
 
+    @Override
     public boolean isModified() {
         return mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED != friendlyDisplayOfScalaCheckBox.isSelected() ||
                 mySettings.DONT_SHOW_RUNTIME_REFS != dontShowRuntimeRefs.isSelected() ||
                 mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES != showOuterVariables.isSelected();
     }
 
+    @Override
     public void apply() throws ConfigurationException {
         mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED = friendlyDisplayOfScalaCheckBox.isSelected();
         mySettings.DONT_SHOW_RUNTIME_REFS = dontShowRuntimeRefs.isSelected();
         mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES = showOuterVariables.isSelected();
     }
 
+    @Override
     public void reset() {
         friendlyDisplayOfScalaCheckBox.setSelected(mySettings.FRIENDLY_COLLECTION_DISPLAY_ENABLED);
         dontShowRuntimeRefs.setSelected(mySettings.DONT_SHOW_RUNTIME_REFS);
         showOuterVariables.setSelected(mySettings.SHOW_VARIABLES_FROM_OUTER_SCOPES);
     }
 
+    @Override
     public void disposeUIResources() {
     }
 

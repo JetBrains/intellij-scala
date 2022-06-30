@@ -39,22 +39,27 @@ public class MethodDefinition implements AstNode {
     this.paramTypes = paramTypes;
   }
   
+  @Override
   public String className() {
     return className;
   }
   
+  @Override
   public AstNode parent() {
     return parent;
   }
   
+  @Override
   public AstNode[] children() {
     return children.toArray(new AstNode[0]);
   }
   
+  @Override
   public String name() {
     return name;
   }
   
+  @Override
   public void addChild(AstNode node) {
     if (!children.contains(node))
       children.add(node);

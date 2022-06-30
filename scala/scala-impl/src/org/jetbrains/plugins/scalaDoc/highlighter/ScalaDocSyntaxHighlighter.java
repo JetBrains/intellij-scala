@@ -27,6 +27,7 @@ public final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
         super();
     }
 
+    @Override
     @NotNull
     public Lexer getHighlightingLexer() {
         return LanguageParserDefinitions.INSTANCE
@@ -34,6 +35,7 @@ public final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
                 .createLexer(null);
     }
 
+    @Override
     @NotNull
     public TextAttributesKey[] getTokenHighlights(IElementType tokenType) {
         return pack(ATTRIBUTES.get(tokenType));

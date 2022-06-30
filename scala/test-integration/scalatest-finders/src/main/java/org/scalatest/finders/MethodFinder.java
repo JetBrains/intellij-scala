@@ -18,6 +18,7 @@ package org.scalatest.finders;
 
 public class MethodFinder implements Finder {
 
+    @Override
     public Selection find(AstNode node) {
       Selection result = null;
       while (result == null) {

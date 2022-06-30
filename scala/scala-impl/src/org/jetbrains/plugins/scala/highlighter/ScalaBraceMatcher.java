@@ -53,11 +53,13 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
       new BracePair(ScalaTokenTypes.tXML_COMMENT_START, ScalaTokenTypes.tXML_COMMENT_END, false)
   };
 
+  @Override
   @NotNull
   public BracePair[] getPairs() {
     return PAIRS;
   }
 
+  @Override
   public boolean isPairedBracesAllowedBeforeType(@NotNull IElementType type, @Nullable IElementType tokenType) {
     return tokenType == null
         || ScalaTokenTypes.tWHITE_SPACE_IN_LINE == tokenType
@@ -71,6 +73,7 @@ public class ScalaBraceMatcher implements PairedBraceMatcher {
         || tokenType == ScalaTokenTypes.tRBRACE;
   }
 
+  @Override
   public int getCodeConstructStart(PsiFile file, int openingBraceOffset) {
     return openingBraceOffset;
   }

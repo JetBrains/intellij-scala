@@ -30,22 +30,27 @@ public class StringLiteral implements AstNode {
     this.value = value;
   }
   
+  @Override
   public String className() {
     return className;
   }
   
+  @Override
   public AstNode parent() {
     return parent;
   }
   
+  @Override
   public AstNode[] children() {
     return new AstNode[0];
   }
   
+  @Override
   public String name() {
     return "StringLiteral";
   }
   
+  @Override
   public void addChild(AstNode node) {
     throw new UnsupportedOperationException("StringLiteral does not support addChild method.");  
   }

@@ -20,10 +20,12 @@ public class ScaladocSettings implements PersistentStateComponent<ScaladocSettin
   public Boolean verbose = null;
   public Boolean openInBrowser = null;
 
+  @Override
   public ScaladocSettings getState() {
     return this;
   }
 
+  @Override
   public void loadState(@NotNull ScaladocSettings state) {
     XmlSerializerUtil.copyBean(state, this); // TODO: from docs:  defensive copying is not required.
   }

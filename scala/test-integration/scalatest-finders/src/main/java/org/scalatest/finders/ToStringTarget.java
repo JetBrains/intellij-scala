@@ -37,10 +37,12 @@ public class ToStringTarget implements AstNode {
     this.target = target;
   }
   
+  @Override
   public String className() {
     return className;
   }
   
+  @Override
   public AstNode parent() {
     return parent;
   }
@@ -52,14 +54,17 @@ public class ToStringTarget implements AstNode {
     parent.addChild(this);
   }
   
+  @Override
   public AstNode[] children() {
     return new AstNode[0];
   }
   
+  @Override
   public String name() {
     return target.toString();
   }
     
+  @Override
   public void addChild(AstNode node) {
     if (!children.contains(node))
       children.add(node);

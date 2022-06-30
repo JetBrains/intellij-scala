@@ -770,39 +770,48 @@ public abstract class LayeredParser implements PsiParser {
         }
       }
 
+      @Override
       public void drop() {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       @NotNull
       public PsiBuilder.Marker precede() {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void rollbackTo() {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void done(@NotNull IElementType type) {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void collapse(@NotNull IElementType type) {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void doneBefore(@NotNull IElementType type, @NotNull Marker before) {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void doneBefore(@NotNull IElementType type, @NotNull PsiBuilder.Marker before, String errorMessage) {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void error(String message) {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void errorBefore(String message, @NotNull PsiBuilder.Marker before) {
         throw new UnsupportedOperationException();
       }
@@ -811,6 +820,7 @@ public abstract class LayeredParser implements PsiParser {
         throw new UnsupportedOperationException();
       }
 
+      @Override
       public void setCustomEdgeTokenBinders(@Nullable WhitespacesAndCommentsBinder left,
                                             @Nullable WhitespacesAndCommentsBinder right) {
         throw new UnsupportedOperationException();
@@ -866,6 +876,7 @@ public abstract class LayeredParser implements PsiParser {
         return createdAt;
       }
 
+      @Override
       public int getStartOffset() {
         return myStart;
       }
@@ -1067,7 +1078,8 @@ public abstract class LayeredParser implements PsiParser {
   }
 
   private class DefaultConflictResolver implements ConflictResolver {
-    public boolean needDoBackStep(IElementType backStepTokenType, IElementType astDoneElementType, 
+    @Override
+    public boolean needDoBackStep(IElementType backStepTokenType, IElementType astDoneElementType,
                                   IElementType currentElementType, CharSequence tokenText) {
       return !("}".equals(tokenText) || ">".equals(tokenText) || "]".equals(tokenText) || ")".equals(tokenText));
     }
@@ -1173,6 +1185,7 @@ public abstract class LayeredParser implements PsiParser {
   }
   
   private class NullStateFlusher implements StateFlusher {
+    @Override
     public boolean isFlushOnBuilderNeeded(IElementType currentTokenType) {
       return false;
     }

@@ -67,6 +67,7 @@ public class ScalaTestReporterWithLocation implements Reporter {
         return url != null ? SCAlA_TEST_URL_PREFIX + url : null;
     }
 
+    @Override
     public void apply(Event event) {
         Ordinal ordinal = event.ordinal();
         if (event instanceof RunStarting) {

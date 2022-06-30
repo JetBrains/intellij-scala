@@ -12,6 +12,7 @@ import scala.Option;
  * Date: 01.11.11
  */
 public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/aux1/idea/test";
   }

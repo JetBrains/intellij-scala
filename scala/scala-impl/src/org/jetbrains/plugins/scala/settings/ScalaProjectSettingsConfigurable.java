@@ -20,15 +20,18 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
     myComponent = myPanel.getPanel();
   }
 
+  @Override
   @Nls
   public String getDisplayName() {
     return "Scala";
   }
 
+  @Override
   public String getHelpTopic() {
     return null;
   }
 
+  @Override
   public JComponent createComponent() {
     return myComponent;
   }
@@ -37,18 +40,22 @@ public class ScalaProjectSettingsConfigurable implements Configurable {
     myPanel.selectUpdatesTab();
   }
 
+  @Override
   public boolean isModified() {
     return myPanel.isModified();
   }
 
+  @Override
   public void apply() throws ConfigurationException {
     myPanel.apply();
   }
 
+  @Override
   public void reset() {
     myPanel.resetImpl();
   }
 
+  @Override
   public void disposeUIResources() {
     myPanel.dispose();
     myPanel = null;

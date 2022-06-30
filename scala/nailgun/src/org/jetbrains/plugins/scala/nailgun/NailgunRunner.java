@@ -172,6 +172,7 @@ public class NailgunRunner {
       this.scalaCompileServerSystemDir = scalaCompileServerSystemDir;
     }
 
+    @Override
     public void run() {
       TokensGenerator.deleteTokenFor(scalaCompileServerSystemDir, myServer.getPort());
 

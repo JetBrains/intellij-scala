@@ -17,14 +17,17 @@ public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> imple
     myState = state;
   }
 
+  @Override
   public boolean isCompileServerEnabled() {
     return myState.COMPILE_SERVER_ENABLED;
   }
 
+  @Override
   public int getCompileServerPort() {
     return myState.COMPILE_SERVER_PORT;
   }
 
+  @Override
   public String getCompileServerSdk() {
     return myState.COMPILE_SERVER_SDK;
   }

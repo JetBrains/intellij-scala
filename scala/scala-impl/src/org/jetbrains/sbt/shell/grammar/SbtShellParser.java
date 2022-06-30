@@ -14,11 +14,13 @@ import static org.jetbrains.sbt.shell.grammar.SbtShellTypes.*;
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class SbtShellParser implements PsiParser, LightPsiParser {
 
+  @Override
   public ASTNode parse(IElementType t, PsiBuilder b) {
     parseLight(t, b);
     return b.getTreeBuilt();
   }
 
+  @Override
   public void parseLight(IElementType t, PsiBuilder b) {
     boolean r;
     b = adapt_builder_(t, b, this, null);

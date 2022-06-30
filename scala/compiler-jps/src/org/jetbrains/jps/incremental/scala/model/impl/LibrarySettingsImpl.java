@@ -20,6 +20,7 @@ public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> imp
     myState = state;
   }
 
+  @Override
   public File[] getCompilerClasspath() {
     String[] classpath = myState.compilerClasspath;
     return classpath == null ? new File[0] : toFiles(classpath);

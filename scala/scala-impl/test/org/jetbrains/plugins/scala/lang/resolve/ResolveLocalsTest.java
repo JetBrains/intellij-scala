@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
  */
 public class ResolveLocalsTest extends ScalaResolveTestCase{
 
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/local/";
   }

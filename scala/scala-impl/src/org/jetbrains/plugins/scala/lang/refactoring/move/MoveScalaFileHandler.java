@@ -69,6 +69,7 @@ public class MoveScalaFileHandler extends MoveFileHandler {
     }
   }
 
+  @Override
   public List<UsageInfo> findUsages(PsiFile psiFile, PsiDirectory newParent, boolean searchInComments, boolean searchInNonJavaFiles) {
     final List<UsageInfo> result = new ArrayList<UsageInfo>();
     if (psiFile instanceof ScalaFile) {

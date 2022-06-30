@@ -74,6 +74,7 @@ public class SpecFinder implements Finder {
     return results;
   }
 
+  @Override
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {

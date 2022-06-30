@@ -18,6 +18,7 @@ public class SbtShellParamsImpl extends ASTWrapperPsiElement implements SbtShell
     visitor.visitParams(this);
   }
 
+  @Override
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof SbtShellVisitor) accept((SbtShellVisitor)visitor);
     else super.accept(visitor);

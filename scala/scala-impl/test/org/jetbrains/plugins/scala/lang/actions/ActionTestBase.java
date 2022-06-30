@@ -54,6 +54,7 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
       myFile = file;
     }
 
+    @Override
     @Nullable
     public Object getData(@NotNull @NonNls String dataId) {
       if (LangDataKeys.LANGUAGE.is(dataId)) return myFile.getLanguage();

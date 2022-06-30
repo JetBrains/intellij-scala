@@ -22,6 +22,7 @@ public class SequentialTreeBuilder implements TreeBuilder {
   private static int id = 0;
   private int getCurrentId() {return idStack.peek();}
 
+  @Override
   public void initRun(RunStarting runStarting) {
     idStack.push(0);
   }

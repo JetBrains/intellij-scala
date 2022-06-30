@@ -21,6 +21,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public Self isRegExpLiteral() {
     return with(new PatternCondition<T>("isRegExpLiteral") {
+      @Override
       public boolean accepts(@NotNull final T literal, final ProcessingContext context) {
         return ScalaElementPatternImpl.isRegExpLiteral(literal);
       }
@@ -29,6 +30,7 @@ public class ScalaElementPattern<T extends ScalaPsiElement, Self extends ScalaEl
 
   public Self callArgument(final int index, final ElementPattern<? extends PsiMethod> methodPattern) {
     return with(new PatternCondition<T>("callArgument") {
+      @Override
       public boolean accepts(@NotNull final T host, final ProcessingContext context) {
         return ScalaElementPatternImpl.isMethodCallArgument(host, context, index, methodPattern);
       }

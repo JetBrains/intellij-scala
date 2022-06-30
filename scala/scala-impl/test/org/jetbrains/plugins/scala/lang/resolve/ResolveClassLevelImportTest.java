@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
  * Date: 01.11.11
  */
 public class ResolveClassLevelImportTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/classLevelImport/";
   }

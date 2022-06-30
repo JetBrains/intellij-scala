@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor;
  * Date: 01.11.11
  */
 public class ResolveClassWild2Test extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/wild2/";
   }

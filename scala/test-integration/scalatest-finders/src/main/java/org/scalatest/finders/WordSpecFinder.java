@@ -31,6 +31,7 @@ public class WordSpecFinder implements Finder {
       "that" // 'that' is deprecated
   );
 
+  @Override
   public Selection find(final AstNode node) {
     Selection result = null;
 

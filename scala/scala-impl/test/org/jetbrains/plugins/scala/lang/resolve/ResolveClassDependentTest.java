@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
  * Date: 01.11.11
  */
 public class ResolveClassDependentTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/dependent/";
   }

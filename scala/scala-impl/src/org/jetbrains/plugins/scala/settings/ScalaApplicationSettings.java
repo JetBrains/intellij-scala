@@ -88,10 +88,12 @@ public class ScalaApplicationSettings implements PersistentStateComponent<ScalaA
 
   public boolean SUGGEST_LEGACY_IMPORT_LAYOUT = true;
 
+  @Override
   public ScalaApplicationSettings getState() {
     return this;
   }
 
+  @Override
   public void loadState(@NotNull ScalaApplicationSettings scalaApplicationSettings) {
     XmlSerializerUtil.copyBean(scalaApplicationSettings, this);
   }

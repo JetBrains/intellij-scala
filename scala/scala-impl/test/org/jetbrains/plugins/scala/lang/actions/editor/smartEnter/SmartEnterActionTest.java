@@ -15,6 +15,7 @@ public class SmartEnterActionTest extends AbstractActionTestBase {
     super("/actions/editor/smartEnter");
   }
 
+  @Override
   protected EditorActionHandler getMyHandler() {
     return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_COMPLETE_STATEMENT);
   }

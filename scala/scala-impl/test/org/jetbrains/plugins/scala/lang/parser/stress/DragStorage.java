@@ -32,6 +32,7 @@ public class DragStorage {
   }
 
   static class RangeComparator implements Comparator<Pair<TextRange, Integer>> {
+    @Override
     public int compare(Pair<TextRange, Integer> pair1, Pair<TextRange, Integer> pair2) {
       TextRange range1 = pair1.getFirst();
       TextRange range2 = pair2.getFirst();

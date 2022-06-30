@@ -21,6 +21,7 @@ import java.util.List;
 
 public class FeatureSpecFinder implements Finder {
   
+  @Override
   public Selection find(AstNode node) {
     Selection result = null;
     while (result == null) {

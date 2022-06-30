@@ -23,6 +23,7 @@ public class InlineInlayRendererWithContextMenu extends LinearOrderInlayRenderer
         this.contextMenu = contextMenu;
     }
 
+    @Override
     public boolean isAcceptablePlacement(Inlay.Placement placement) {
         return placement == Inlay.Placement.INLINE;
     }

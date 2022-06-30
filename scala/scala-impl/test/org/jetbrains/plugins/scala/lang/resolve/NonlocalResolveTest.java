@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
  */
 public class NonlocalResolveTest extends ScalaResolveTestCase{
 
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/nonlocal/";
   }

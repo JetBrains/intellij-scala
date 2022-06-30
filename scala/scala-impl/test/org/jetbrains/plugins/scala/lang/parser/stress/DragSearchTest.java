@@ -33,6 +33,7 @@ public class DragSearchTest extends ScalaFileSetTestCase {
     transform(testName, content, project);
   }
 
+  @Override
   @NotNull
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,

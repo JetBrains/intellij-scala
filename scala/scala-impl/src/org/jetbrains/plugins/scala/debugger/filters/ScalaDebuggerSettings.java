@@ -41,10 +41,12 @@ public class ScalaDebuggerSettings extends XDebuggerSettings<ScalaDebuggerSettin
     }
   }
 
+  @Override
   public ScalaDebuggerSettings getState() {
     return this;
   }
 
+  @Override
   public void loadState(@NotNull final ScalaDebuggerSettings state) {
     XmlSerializerUtil.copyBean(state, this);
   }

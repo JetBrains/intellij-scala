@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
  * @author ilyas
  */
 public class DependenciesResolveTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/aux1/idea/";
   }

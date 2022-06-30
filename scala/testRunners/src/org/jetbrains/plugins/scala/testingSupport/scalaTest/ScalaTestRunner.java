@@ -107,9 +107,11 @@ public class ScalaTestRunner {
         public boolean apply() {
           return stopRequested();
         }
+        @Override
         public boolean stopRequested() {
           return stopRequested;
         }
+        @Override
         public void requestStop() {
           stopRequested = true;
         }

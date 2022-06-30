@@ -46,19 +46,23 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
                 new ScalaPasteFromJavaDialog(project, projectSettings, copyFrom).showAndGet();
     }
 
+    @Override
     protected JComponent createCenterPanel() {
         return myPanel;
     }
 
+    @Override
     public Container getContentPane() {
         return myPanel;
     }
 
+    @Override
     @NotNull
     protected Action[] createActions() {
         return new Action[]{getOKAction(), getCancelAction()};
     }
 
+    @Override
     protected void doOKAction() {
         if (donTShowThisCheckBox.isSelected()) {
             mySettings.setDontShowConversionDialog(true);

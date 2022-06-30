@@ -15,6 +15,7 @@ public class JoinLinesActionTest extends AbstractActionTestBase {
     super("/actions/editor/joinLines");
   }
 
+  @Override
   protected EditorActionHandler getMyHandler() {
     return EditorActionManager.getInstance().getActionHandler(IdeActions.ACTION_EDITOR_JOIN_LINES);
   }

@@ -77,6 +77,7 @@ public final class ScalaLexer extends Lexer {
     myCurrentLexer = myScalaPlainLexer;
   }
 
+  @Override
   public void start(@NotNull CharSequence buffer, int startOffset, int endOffset, int initialState) {
     myCurrentLexer = myScalaPlainLexer;
     myCurrentLexer.start(buffer, startOffset, endOffset, initialState & MASK);
@@ -90,6 +91,7 @@ public final class ScalaLexer extends Lexer {
     myTokenType = null;
   }
 
+  @Override
   public int getState() {
     locateToken();
     int state = 0;
@@ -102,6 +104,7 @@ public final class ScalaLexer extends Lexer {
     return state;
   }
 
+  @Override
   @Nullable
   public IElementType getTokenType() {
     locateToken();
@@ -380,21 +383,25 @@ public final class ScalaLexer extends Lexer {
     return true;
   }
 
+  @Override
   public int getTokenStart() {
     locateToken();
     if (myTokenType == null) return myTokenEnd;
     return myTokenStart;
   }
 
+  @Override
   public int getTokenEnd() {
     locateToken();
     return myTokenEnd;
   }
 
+  @Override
   public void advance() {
     myTokenType = null;
   }
 
+  @Override
   @NotNull
   public LexerPosition getCurrentPosition() {
     return new MyPosition(
@@ -408,6 +415,7 @@ public final class ScalaLexer extends Lexer {
             myLayeredTagStack));
   }
 
+  @Override
   public void restore(@NotNull LexerPosition position) {
     MyPosition pos = (MyPosition) position;
     myBraceStack = pos.state.braceStack;
@@ -423,11 +431,13 @@ public final class ScalaLexer extends Lexer {
     );
   }
 
+  @Override
   @NotNull
   public CharSequence getBufferSequence() {
     return myBuffer;
   }
 
+  @Override
   public int getBufferEnd() {
     return myBufferEnd;
   }
@@ -465,10 +475,12 @@ public final class ScalaLexer extends Lexer {
       this.state = state;
     }
 
+    @Override
     public int getOffset() {
       return start;
     }
 
+    @Override
     public int getState() {
       return state.currentLexer.getState();
     }

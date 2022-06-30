@@ -24,6 +24,7 @@ public class ScalaDocParser implements PsiParser, LightPsiParser {
     new MyScaladocParsing(builder, tabSize).parse(root);
   }
 
+  @Override
   @NotNull
   public ASTNode parse(@NotNull IElementType root, @NotNull PsiBuilder builder) {
     parseLight(root, builder);

@@ -401,6 +401,7 @@ public class _SbtShellLexer implements FlexLexer {
    * @return      the next token
    * @exception   java.io.IOException  if any I/O-Error occurs
    */
+  @Override
   public IElementType advance() throws java.io.IOException {
     int zzInput;
     int zzAction;

@@ -7,6 +7,7 @@ import com.intellij.psi.PsiReference;
  * Date: 11.03.2009
  */
 public class DefaultPackageResolveTest extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/defaultPackage/";
   }

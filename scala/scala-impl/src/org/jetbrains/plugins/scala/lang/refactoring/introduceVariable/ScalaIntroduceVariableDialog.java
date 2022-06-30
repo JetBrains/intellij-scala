@@ -96,15 +96,18 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         updateOkStatus();
     }
 
+    @Override
     @Nullable
     protected JComponent createCenterPanel() {
         return contentPane;
     }
 
+    @Override
     public JComponent getContentPane() {
         return contentPane;
     }
 
+    @Override
     @Nullable
     public String getEnteredName() {
         if (myNameComboBox.getEditor().getItem() instanceof String &&
@@ -115,6 +118,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         }
     }
 
+    @Override
     public boolean isReplaceAllOccurrences() {
         return myCbReplaceAllOccurences.isSelected();
     }
@@ -222,6 +226,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
+                                                                                                    @Override
                                                                                                     public void documentChanged(@NotNull DocumentEvent event) {
                                                                                                         fireNameDataChanged();
                                                                                                     }
@@ -235,15 +240,18 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
         }
     }
 
+    @Override
     public JComponent getPreferredFocusedComponent() {
         return myNameComboBox;
     }
 
+    @Override
     @NotNull
     protected Action[] createActions() {
         return new Action[]{getOKAction(), getCancelAction(), getHelpAction()};
     }
 
+    @Override
     protected void doOKAction() {
         if (!reporter.isOK(this)) {
             return;
@@ -255,6 +263,7 @@ public class ScalaIntroduceVariableDialog extends DialogWrapper implements Named
     }
 
 
+    @Override
     protected void doHelpAction() {
         HelpManager.getInstance().invokeHelp(HelpID.INTRODUCE_VARIABLE);
     }

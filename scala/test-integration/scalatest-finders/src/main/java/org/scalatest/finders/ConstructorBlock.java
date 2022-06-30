@@ -35,22 +35,27 @@ public class ConstructorBlock implements AstNode {
     children.addAll(Arrays.asList(childrenArr));
   }
     
+  @Override
   public String className() {
     return className;
   }
   
+  @Override
   public AstNode parent() {
     return parent;
   }
   
+  @Override
   public AstNode[] children() {
     return children.toArray(new AstNode[0]);
   }
   
+  @Override
   public String name() {
     return "constructor";
   }
   
+  @Override
   public void addChild(AstNode node) {
     if (!children.contains(node)) 
         children.add(node);

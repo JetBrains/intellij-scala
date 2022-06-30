@@ -32,6 +32,7 @@ public class CancellableFuture<T> extends CompletableFuture<T> {
         return super.cancel(mayInterruptIfRunning);
     }
 
+    @Override
     public <U> CompletableFuture<U> newIncompleteFuture() {
         return new CancellableFuture<>(original);
     }

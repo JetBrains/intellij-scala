@@ -47,11 +47,13 @@ class RestoreReferencesDialog extends DialogWrapper {
     myList.setSelectionInterval(0, myNamedElements.length - 1);
   }
 
+  @Override
   protected void doOKAction() {
     mySelectedElements = myList.getSelectedValuesList();
     super.doOKAction();
   }
 
+  @Override
   protected JComponent createCenterPanel() {
     final JPanel panel = new JPanel(new BorderLayout(UIUtil.DEFAULT_HGAP, UIUtil.DEFAULT_VGAP));
     myList = new JBList<>(myNamedElements);
@@ -75,6 +77,7 @@ class RestoreReferencesDialog extends DialogWrapper {
   }
 
 
+  @Override
   protected String getDimensionServiceKey(){
     return "#com.intellij.codeInsight.editorActions.RestoreReferencesDialog";
   }

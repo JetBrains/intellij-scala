@@ -47,6 +47,7 @@ public class SurroundWithTest extends ScalaFileSetTestCase {
     }
   }
 
+  @Override
   @NotNull
   protected String transform(@NotNull String testName,
                              @NotNull String fileText,

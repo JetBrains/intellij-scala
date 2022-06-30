@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
  * Date: 01.11.11
  */
 public class ResolveClassWild4Test extends ScalaResolveTestCase {
+  @Override
   public String folderPath() {
     return super.folderPath() + "resolve/class/wild4/";
   }

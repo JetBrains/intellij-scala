@@ -24,6 +24,7 @@ import static org.scalatest.finders.utils.StringUtils.is;
 
 public class FlatSpecFinder implements Finder {
 
+  @Override
   public Selection find(AstNode node) {
     Selection result = null;
 

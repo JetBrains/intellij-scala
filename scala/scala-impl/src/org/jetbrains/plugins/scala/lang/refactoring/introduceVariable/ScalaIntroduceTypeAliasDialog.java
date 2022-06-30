@@ -81,6 +81,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         updateOkStatus();
     }
 
+    @Override
     protected void doOKAction() {
         if (currentScope instanceof SimpleScopeItem) {
             if (!handleInheritedClasses((SimpleScopeItem) currentScope)) {
@@ -111,6 +112,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         super.doOKAction();
     }
 
+    @Override
     public JComponent getPreferredFocusedComponent() {
         return myNameComboBox;
     }
@@ -128,6 +130,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
 
         myNameComboBox.addItemListener(
                 new ItemListener() {
+                    @Override
                     public void itemStateChanged(ItemEvent e) {
                         fireNameDataChanged();
                     }
@@ -135,6 +138,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         );
 
         ((EditorTextField) myNameComboBox.getEditor().getEditorComponent()).addDocumentListener(new DocumentListener() {
+                                                                                                    @Override
                                                                                                     public void documentChanged(DocumentEvent event) {
                                                                                                         fireNameDataChanged();
                                                                                                     }
@@ -142,6 +146,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         );
 
         contentPane.registerKeyboardAction(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 myNameComboBox.requestFocus();
             }
@@ -329,11 +334,13 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
         }
     }
 
+    @Override
     @Nullable
     protected JComponent createCenterPanel() {
         return contentPane;
     }
 
+    @Override
     public boolean isReplaceAllOccurrences() {
         return myCbReplaceAllOccurences.isSelected();
     }
@@ -347,6 +354,7 @@ public class ScalaIntroduceTypeAliasDialog extends DialogWrapper implements Name
     }
 
 
+    @Override
     @Nullable
     public String getEnteredName() {
         if (myNameComboBox.getEditor().getItem() instanceof String &&

@@ -35,6 +35,7 @@ public class ScalaWordsScanner extends DefaultWordsScanner {
     mySkipCodeContextTokenSet = skipCodeContextTokenSet;
   }
 
+  @Override
   public void processWords(@NotNull CharSequence fileText,
                            @NotNull Processor<? super WordOccurrence> processor) {
     myLexer.start(fileText);

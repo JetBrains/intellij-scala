@@ -17,6 +17,7 @@
 package org.scalatest.finders;
 
 public class FunSuiteFinder extends FunctionFinder {
+  @Override
   protected String getName() {
     return "test";
   }

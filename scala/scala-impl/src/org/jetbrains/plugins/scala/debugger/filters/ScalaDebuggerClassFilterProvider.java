@@ -17,6 +17,7 @@ public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProv
     private static final ClassFilter[] FILTERS =
             Arrays.stream(PROHIBITED_CLASS_PATTERNS).map(ClassFilter::new).toArray(ClassFilter[]::new);
 
+    @Override
     public List<ClassFilter> getFilters() {
         final var settings = ScalaDebuggerSettings.getInstance();
         final var flag = settings.DEBUG_DISABLE_SPECIFIC_SCALA_METHODS;
