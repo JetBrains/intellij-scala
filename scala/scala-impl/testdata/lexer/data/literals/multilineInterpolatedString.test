@@ -37,7 +37,7 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {"""blah blah}
+interpolated multiline string {"""blah blah}
 interpolated string end {"""}
 white space in line {
   }
@@ -49,11 +49,11 @@ white space in line { }
 white space in line {
     }
 interpolated string id {s}
-interpolatedmultiline string {"""
+interpolated multiline string {"""
       }
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string { blah
+interpolated multiline string { blah
       blah
     }
 interpolated string end {"""}
@@ -66,12 +66,12 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {"""hjklhkjl }
+interpolated multiline string {"""hjklhkjl }
 interpolated string injection {$}
 identifier {b}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string escape {$$}
-interpolatedmultiline string {  }
+interpolated multiline string {  }
 interpolated string injection {$}
 { {{}
 identifier {a}
@@ -84,7 +84,7 @@ identifier {b}
 . {.}
 identifier {length}
 } {}}
-interpolatedmultiline string { blah blah}
+interpolated multiline string { blah blah}
 interpolated string end {"""}
 white space in line {
   }
@@ -95,7 +95,7 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {f}
-interpolatedmultiline string {"""blah blah}
+interpolated multiline string {"""blah blah}
 interpolated string end {"""}
 white space in line {
   }
@@ -106,16 +106,16 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {f}
-interpolatedmultiline string {"""sss }
+interpolated multiline string {"""sss }
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string injection {$}
 identifier {b}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string injection {$}
 identifier {c}
-interpolatedmultiline string { dfkjh}
+interpolated multiline string { dfkjh}
 interpolated string end {"""}
 white space in line {
   }
@@ -126,7 +126,7 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {f}
-interpolatedmultiline string {"""
+interpolated multiline string {"""
     ssdkhfjs
     }
 interpolated string injection {$}
@@ -176,7 +176,7 @@ integer {1}
 white space in line {
     }
 } {}}
-interpolatedmultiline string {
+interpolated multiline string {
     sdfhjkusd
   }
 interpolated string end {"""}
@@ -190,9 +190,9 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {f}
-interpolatedmultiline string {"""blah blah }
+interpolated multiline string {"""blah blah }
 wrong string content {$}
-interpolatedmultiline string { blah}
+interpolated multiline string { blah}
 interpolated string end {"""}
 white space in line {
 }

@@ -48,25 +48,25 @@ comment {//valid unicode}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuuu0025}
 interpolated string end {"""}
 white space in line {
@@ -76,26 +76,26 @@ comment {//incomplete unicode}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u}
+interpolated multiline string {"""}
+interpolated multiline string {\u}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\uu}
+interpolated multiline string {"""}
+interpolated multiline string {\uu}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\uuu}
+interpolated multiline string {"""}
+interpolated multiline string {\uuu}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u002}
+interpolated multiline string {"""}
+interpolated multiline string {\u002}
 interpolated string end {"""}
 white space in line {
 
@@ -104,33 +104,16 @@ comment {//non-unicode (backslash is for some reason not attached to 'u')}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\\}
-interpolatedmultiline string {u0025}
+interpolated multiline string {"""}
+interpolated multiline string {\\}
+interpolated multiline string {u0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\\}
-interpolatedmultiline string {uu0025}
-interpolated string end {"""}
-white space in line {
-
-}
-comment {////////////////}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {""" }
-interpolatedmultiline string {\u002}
-interpolated string end {"""}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u002}
-interpolatedmultiline string { }
+interpolated multiline string {"""}
+interpolated multiline string {\\}
+interpolated multiline string {uu0025}
 interpolated string end {"""}
 white space in line {
 
@@ -139,45 +122,15 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u002}
-interpolatedmultiline string { }
-interpolatedmultiline string {\}
+interpolated multiline string {""" }
+interpolated multiline string {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\ }
-interpolatedmultiline string {\u002}
-interpolated string end {"""}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u002}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u}
-interpolated string end {"""}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\u002}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u002}
-interpolated string end {"""}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\uu002}
-interpolated string end {"""}
-white space in line {
-}
-interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\uuu002}
+interpolated multiline string {"""}
+interpolated multiline string {\u002}
+interpolated multiline string { }
 interpolated string end {"""}
 white space in line {
 
@@ -186,45 +139,92 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
+interpolated multiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
+interpolated multiline string {\ }
+interpolated multiline string {\u002}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
+interpolated multiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\u}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
+interpolated multiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\u002}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
+interpolated multiline string {\uu002}
+interpolated string end {"""}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
+interpolated multiline string {\uuu002}
+interpolated string end {"""}
+white space in line {
+
+}
+comment {////////////////}
+white space in line {
+}
+interpolated string id {raw}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 string content {""}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 interpolated string injection {$}
 { {{}
 string content {""}
 } {}}
-interpolatedmultiline string { }
+interpolated multiline string { }
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u002}
+interpolated multiline string { }
+interpolated multiline string {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
+interpolated multiline string {\u002}
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 string content {""}
@@ -237,77 +237,77 @@ comment {/////////////////////}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""uu}
+interpolated multiline string {"""uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {uu}
+interpolated multiline string {uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {uu}
+interpolated multiline string {uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}

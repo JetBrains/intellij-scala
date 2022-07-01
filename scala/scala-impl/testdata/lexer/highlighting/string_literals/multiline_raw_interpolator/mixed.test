@@ -27,55 +27,55 @@ comment {// backslash}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\}
+interpolated multiline string {"""}
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\ }
-interpolatedmultiline string {\ }
-interpolatedmultiline string {\}
+interpolated multiline string {"""}
+interpolated multiline string {\ }
+interpolated multiline string {\ }
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\\}
+interpolated multiline string {"""}
+interpolated multiline string {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\\}
-interpolatedmultiline string {\}
+interpolated multiline string {"""}
+interpolated multiline string {\\}
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\\}
-interpolatedmultiline string {\\}
+interpolated multiline string {"""}
+interpolated multiline string {\\}
+interpolated multiline string {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\f}
-interpolatedmultiline string {\t}
-interpolatedmultiline string {\n}
-interpolatedmultiline string {\r}
+interpolated multiline string {"""}
+interpolated multiline string {\f}
+interpolated multiline string {\t}
+interpolated multiline string {\n}
+interpolated multiline string {\r}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\f}
-interpolatedmultiline string {\t}
-interpolatedmultiline string {\n}
-interpolatedmultiline string {\r}
-interpolatedmultiline string {\}
+interpolated multiline string {"""}
+interpolated multiline string {\f}
+interpolated multiline string {\t}
+interpolated multiline string {\n}
+interpolated multiline string {\r}
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 
@@ -84,22 +84,22 @@ comment {// backslash with wrong escaped if it was ordinary interpolator}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\q}
-interpolatedmultiline string {\w}
-interpolatedmultiline string {\e}
+interpolated multiline string {"""}
+interpolated multiline string {\q}
+interpolated multiline string {\w}
+interpolated multiline string {\e}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\q}
-interpolatedmultiline string {\w}
-interpolatedmultiline string {\e}
-interpolatedmultiline string {\t}
-interpolatedmultiline string {\n}
-interpolatedmultiline string {\r}
-interpolatedmultiline string {\f}
+interpolated multiline string {"""}
+interpolated multiline string {\q}
+interpolated multiline string {\w}
+interpolated multiline string {\e}
+interpolated multiline string {\t}
+interpolated multiline string {\n}
+interpolated multiline string {\r}
+interpolated multiline string {\f}
 interpolated string end {"""}
 white space in line {
 
@@ -108,52 +108,52 @@ comment {//backslashes with injections}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\}
+interpolated multiline string {"""}
+interpolated multiline string {\}
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string {\}
+interpolated multiline string {\}
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string {\}
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\ }
+interpolated multiline string {"""}
+interpolated multiline string {\ }
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\ }
+interpolated multiline string { }
+interpolated multiline string {\ }
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\}
+interpolated multiline string { }
+interpolated multiline string {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
-interpolatedmultiline string {\t}
+interpolated multiline string {"""}
+interpolated multiline string {\t}
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string {\t}
+interpolated multiline string {\t}
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string {\r}
+interpolated multiline string {\r}
 interpolated string injection {$}
 { {{}
 integer {42}
@@ -166,8 +166,8 @@ comment {//backslashes with inner string injections}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""a}
-interpolatedmultiline string {\a}
+interpolated multiline string {"""a}
+interpolated multiline string {\a}
 interpolated string injection {$}
 { {{}
 interpolated string id {s}
@@ -186,15 +186,15 @@ VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string {b}
 interpolated string end {"}
 } {}}
-interpolatedmultiline string {a}
-interpolatedmultiline string {\a}
+interpolated multiline string {a}
+interpolated multiline string {\a}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""1 }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { }
+interpolated multiline string {"""1 }
+interpolated multiline string {\u}
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 white space in line { }
@@ -203,16 +203,16 @@ interpolated string {"2}
 interpolated string end {"}
 white space in line { }
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { 1}
+interpolated multiline string { }
+interpolated multiline string {\u}
+interpolated multiline string { 1}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""1 }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { }
+interpolated multiline string {"""1 }
+interpolated multiline string {\u}
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 white space in line { }
@@ -221,16 +221,16 @@ interpolated string {"2}
 interpolated string end {"}
 white space in line { }
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { 1}
+interpolated multiline string { }
+interpolated multiline string {\u}
+interpolated multiline string { 1}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""1 }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { }
+interpolated multiline string {"""1 }
+interpolated multiline string {\u}
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 white space in line { }
@@ -261,7 +261,7 @@ interpolated string { 2}
 interpolated string end {"}
 white space in line { }
 } {}}
-interpolatedmultiline string {  }
+interpolated multiline string {  }
 interpolated string injection {$}
 { {{}
 interpolated string id {raw}
@@ -270,16 +270,16 @@ interpolated string {\u}
 interpolated string { 3}
 interpolated string end {"}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\u}
-interpolatedmultiline string { 1}
+interpolated multiline string { }
+interpolated multiline string {\u}
+interpolated multiline string { 1}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""outer }
-interpolatedmultiline string {\a}
-interpolatedmultiline string { }
+interpolated multiline string {"""outer }
+interpolated multiline string {\a}
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 interpolated string id {s}
@@ -288,9 +288,9 @@ INVALID_CHARACTER_ESCAPE_TOKEN {\a}
 interpolated string { inner}
 interpolated string end {"}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\a}
-interpolatedmultiline string { outer }
+interpolated multiline string { }
+interpolated multiline string {\a}
+interpolated multiline string { outer }
 interpolated string injection {$}
 { {{}
 interpolated string id {s}
@@ -299,7 +299,7 @@ INVALID_CHARACTER_ESCAPE_TOKEN {\a}
 interpolated string { inner}
 interpolated string end {"}
 } {}}
-interpolatedmultiline string { }
-interpolatedmultiline string {\a}
-interpolatedmultiline string { outer"}
+interpolated multiline string { }
+interpolated multiline string {\a}
+interpolated multiline string { outer"}
 interpolated string end {"""}

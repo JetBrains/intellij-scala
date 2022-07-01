@@ -61,26 +61,26 @@ comment {/////////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string injection {$}
 { {{}
@@ -89,7 +89,7 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string injection {$}
 { {{}
@@ -98,7 +98,7 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string injection {$}
@@ -111,7 +111,7 @@ comment {/////////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\d}
 INVALID_CHARACTER_ESCAPE_TOKEN {\g}
 INVALID_CHARACTER_ESCAPE_TOKEN {\h}
@@ -120,7 +120,7 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\t}
 VALID_STRING_ESCAPE_TOKEN {\n}
 VALID_STRING_ESCAPE_TOKEN {\r}
@@ -132,40 +132,40 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\uu}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\uuu}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
-interpolatedmultiline string {u0025}
+interpolated multiline string {u0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
-interpolatedmultiline string {uu0025}
+interpolated multiline string {uu0025}
 interpolated string end {"""}
 white space in line {
 }
@@ -173,15 +173,15 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {""" }
+interpolated multiline string {""" }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string end {"""}
 white space in line {
 }
@@ -189,44 +189,44 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\ }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\uu002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_UNICODE_ESCAPE_TOKEN {\uuu002}
 interpolated string end {"""}
 white space in line {
@@ -235,45 +235,45 @@ comment {////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 string content {""}
 } {}}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 interpolated string injection {$}
 { {{}
 string content {""}
 } {}}
-interpolatedmultiline string { }
+interpolated multiline string { }
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_UNICODE_ESCAPE_TOKEN {\u002}
-interpolatedmultiline string { }
+interpolated multiline string { }
 interpolated string injection {$}
 { {{}
 string content {""}
@@ -285,79 +285,79 @@ comment {/////////////////////}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
 VALID_STRING_ESCAPE_TOKEN {\u0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
 VALID_STRING_ESCAPE_TOKEN {\uu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""uu}
+interpolated multiline string {"""uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {uu}
+interpolated multiline string {uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {uu}
+interpolated multiline string {uu}
 VALID_STRING_ESCAPE_TOKEN {\uuu0025}
-interpolatedmultiline string {666}
+interpolated multiline string {666}
 interpolated string end {"""}
 white space in line {
 }
@@ -365,13 +365,13 @@ comment {// backslash}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\ }
 INVALID_CHARACTER_ESCAPE_TOKEN {\ }
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
@@ -379,27 +379,27 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\\}
 VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\f}
 VALID_STRING_ESCAPE_TOKEN {\t}
 VALID_STRING_ESCAPE_TOKEN {\n}
@@ -408,7 +408,7 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\f}
 VALID_STRING_ESCAPE_TOKEN {\t}
 VALID_STRING_ESCAPE_TOKEN {\n}
@@ -421,7 +421,7 @@ comment {// backslash with wrong escaped if it was ordinary interpolator}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\q}
 INVALID_CHARACTER_ESCAPE_TOKEN {\w}
 INVALID_CHARACTER_ESCAPE_TOKEN {\e}
@@ -429,7 +429,7 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\q}
 INVALID_CHARACTER_ESCAPE_TOKEN {\w}
 INVALID_CHARACTER_ESCAPE_TOKEN {\e}
@@ -444,7 +444,7 @@ comment {//backslashes with injections}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string injection {$}
 { {{}
@@ -460,25 +460,25 @@ interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 INVALID_CHARACTER_ESCAPE_TOKEN {\ }
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_CHARACTER_ESCAPE_TOKEN {\ }
 interpolated string injection {$}
 { {{}
 integer {42}
 } {}}
-interpolatedmultiline string { }
+interpolated multiline string { }
 INVALID_CHARACTER_ESCAPE_TOKEN {\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\t}
 interpolated string injection {$}
 { {{}

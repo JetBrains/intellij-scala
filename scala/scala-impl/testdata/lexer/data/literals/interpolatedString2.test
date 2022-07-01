@@ -71,13 +71,13 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string {"}
+interpolated multiline string {"}
 interpolated string injection {$}
 identifier {b}
-interpolatedmultiline string {" }
+interpolated multiline string {" }
 interpolated string end {"""}
 white space in line {
 }

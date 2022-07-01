@@ -11,8 +11,8 @@ integer {42}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""one "}
+interpolated multiline string {"""one "}
 interpolated string injection {$}
 identifier {x}
-interpolatedmultiline string {/* two}
+interpolated multiline string {/* two}
 interpolated string end {"""}

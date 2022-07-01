@@ -29,11 +29,11 @@ ScalaFile
       InterpolatedStringLiteral
         InterpolatedExpressionPrefix: s
           PsiElement(interpolated string id)('s')
-        PsiElement(interpolatedmultiline string)('"""blah blah ')
+        PsiElement(interpolated multiline string)('"""blah blah ')
         PsiElement(interpolated string injection)('$')
         ReferenceExpression: a
           PsiElement(identifier)('a')
-        PsiElement(interpolatedmultiline string)(' blah ')
+        PsiElement(interpolated multiline string)(' blah ')
         PsiElement(interpolated string injection)('$')
         BlockExpression
           PsiElement({)('{')

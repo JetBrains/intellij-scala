@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
-import java.awt.datatransfer.{DataFlavor, Transferable}
 import com.intellij.codeInsight.editorActions.TextBlockTransferableData
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -8,17 +7,18 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CodeStyleManager
-import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.conversion.ConverterUtil.ConvertedCode
 import org.jetbrains.plugins.scala.conversion.copy.ScalaPasteFromJavaDialog.CopyFrom
+import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor._
 import org.jetbrains.plugins.scala.conversion.copy.{ScalaPasteFromJavaDialog, SingularCopyPastePostProcessor}
+import org.jetbrains.plugins.scala.conversion.{ConverterUtil, JavaToScala}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-import org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor._
+
+import java.awt.datatransfer.{DataFlavor, Transferable}
 
 /**
   * Created by Kate Ustyuzhanina on 12/19/16.
@@ -74,8 +74,8 @@ final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcesso
         Stats.trigger(FeatureKey.convertFromJavaText)
 
         inWriteAction {
-          val fileWithAdditionalImports = createFileWithAdditionalImports(javaCodeWithContext, file.resolveScope)
-          fileWithAdditionalImports.foreach { javaFile =>
+          val javaFileOpt = javaCodeWithContext.createJavaFile
+          javaFileOpt.foreach { javaFile =>
             //remove java pasted java code from file for treating file as a valid scala file
             //it needs for SCL-11425
             ConverterUtil.performePaste(editor, bounds, " " * (bounds.getEndOffset - bounds.getStartOffset), project)
@@ -140,13 +140,6 @@ object TextJavaCopyPastePostProcessor {
     withNewLine(convertStatement(javaFile.getPackageStatement)) +
       convertStatement(javaFile.getImportList) +
       scalaFileText
-  }
-
-
-  private def createFileWithAdditionalImports(codeWithContext: CodeWithCopyContext, scope: GlobalSearchScope): Option[PsiJavaFile] = {
-    codeWithContext
-      .createJavaFile
-      .map(new AdditionalImportsResolver(_, scope).addImports())
   }
 
   private def computeJavaCodeWithCopyContext(text: String)(implicit project: Project): Option[CodeWithCopyContext] = {

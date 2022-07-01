@@ -29,7 +29,7 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 interpolated string injection {$}
 identifier {a}
 interpolated string end {"""}
@@ -42,10 +42,10 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {""""}
+interpolated multiline string {""""}
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string {"}
+interpolated multiline string {"}
 interpolated string end {"""}
 white space in line {
 }
@@ -56,10 +56,10 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {""" lkjdhg dkfhgkdslfg  ""}
+interpolated multiline string {""" lkjdhg dkfhgkdslfg  ""}
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string {""}
+interpolated multiline string {""}
 interpolated string end {"""}
 white space in line {
 }
@@ -70,10 +70,10 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {"""""}
+interpolated multiline string {"""""}
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string {""}
+interpolated multiline string {""}
 interpolated string end {"""}
 white space in line {
 }
@@ -84,10 +84,10 @@ white space in line { }
 = {=}
 white space in line { }
 interpolated string id {s}
-interpolatedmultiline string {""" ""}
+interpolated multiline string {""" ""}
 interpolated string injection {$}
 identifier {a}
-interpolatedmultiline string {""}
+interpolated multiline string {""}
 interpolated string end {"""}
 white space in line {
 }

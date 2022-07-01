@@ -76,36 +76,36 @@ multiline string {""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string { }
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string {  }
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string {0 }
+interpolated multiline string { }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated multiline string {  }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string { }
+interpolated multiline string {0 }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated multiline string { }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
 VALID_STRING_ESCAPE_TOKEN {\\}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string { }
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string {  }
-VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string {0 }
+interpolated multiline string { }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated multiline string {  }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string { }
+interpolated multiline string {0 }
 VALID_STRING_ESCAPE_TOKEN {\u005c}
-interpolatedmultiline string {\}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated multiline string { }
+VALID_STRING_ESCAPE_TOKEN {\u005c}
+interpolated multiline string {\}
 interpolated string end {"""}

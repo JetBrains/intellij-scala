@@ -28,12 +28,12 @@ multiline string {"""}
 white space in line {
 }
 interpolated string id {s}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u005c}
 interpolated string end {"""}

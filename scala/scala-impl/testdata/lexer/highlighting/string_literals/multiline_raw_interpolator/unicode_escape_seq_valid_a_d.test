@@ -2,12 +2,12 @@ raw"""\u000A"""
 raw"""\u000D"""
 -----
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u000A}
 interpolated string end {"""}
 white space in line {
 }
 interpolated string id {raw}
-interpolatedmultiline string {"""}
+interpolated multiline string {"""}
 VALID_STRING_ESCAPE_TOKEN {\u000D}
 interpolated string end {"""}

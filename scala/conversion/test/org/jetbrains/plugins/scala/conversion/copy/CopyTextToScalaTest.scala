@@ -124,15 +124,6 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     doTestToEmptyFile(fromText, expected)
   }
 
-  def testPrefixedExpression(): Unit = {
-    val fromText = s"""${Start}Arrays.asList("peter", "anna", "mike", "xenia");$End""".stripMargin
-    val expected =
-      """import java.util
-        |
-        |util.Arrays.asList("peter", "anna", "mike", "xenia")""".stripMargin
-    doTestToEmptyFile(fromText, expected)
-  }
-
   def testJavaMethodWithoutLatestCurlyBrackets(): Unit = {
     val fromText =
       s"""
@@ -184,6 +175,36 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     doTest(fromText, toText, expected)
   }
 
+  def testCopyFromTextToScalaShouldNotTryGuessingWhichImportsToAdd(): Unit = {
+    val fromText =
+      s"""${Start}List<String> names = Arrays.asList("peter", "anna", "mike", "xenia");
+        |
+        |Collections.sort(names, new Comparator<String>() {
+        |    @Override
+        |    public int compare(String a, String b) {
+        |        return b.compareTo(a);
+        |    }
+        |});$End""".stripMargin
+
+    val toText =
+      s"""class A {
+         |  $Caret
+         |}
+         |""".stripMargin
+
+    val expected =
+      """class A {
+        |  val names: Nothing = Arrays.asList("peter", "anna", "mike", "xenia")
+        |
+        |  Collections.sort(names, new Nothing() {
+        |    def compare(a: String, b: String): Int = b.compareTo(a)
+        |  })
+        |}
+        |""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
   /** ****************** Valid scala code. No conversion expected. ******************/
 
   def testNoConversion1(): Unit = {
@@ -193,6 +214,10 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
   def testNoConversion2(): Unit = {
     doTestToEmptyFile(s"${Start}class Test extends Any$End", "class Test extends Any")
   }
+
+
+  /** ****************** Paste to string literals shouldn't invoke conversion ***************** */
+
 
   def testPasteToString(): Unit = {
     val fromText =

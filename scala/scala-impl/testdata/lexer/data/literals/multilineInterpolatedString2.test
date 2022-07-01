@@ -23,11 +23,11 @@ white space in line {
     
 }
 interpolated string id {s}
-interpolatedmultiline string {""""}
+interpolated multiline string {""""}
 interpolated string injection {$}
 identifier {key}
-interpolatedmultiline string {" -> "}
+interpolated multiline string {" -> "}
 interpolated string injection {$}
 identifier {value}
-interpolatedmultiline string {"}
+interpolated multiline string {"}
 interpolated string end {"""}

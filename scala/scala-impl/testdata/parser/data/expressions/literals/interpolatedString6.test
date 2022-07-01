@@ -63,7 +63,7 @@ ScalaFile
           InterpolatedStringLiteral
             InterpolatedExpressionPrefix: s
               PsiElement(interpolated string id)('s')
-            PsiElement(interpolatedmultiline string)('"""\n    ')
+            PsiElement(interpolated multiline string)('"""\n    ')
             PsiElement(interpolated string injection)('$')
             BlockExpression
               PsiElement({)('{')
@@ -113,7 +113,7 @@ ScalaFile
                     PsiElement(})('}')
               PsiWhiteSpace('\n    ')
               PsiElement(})('}')
-            PsiElement(interpolatedmultiline string)('\n  ')
+            PsiElement(interpolated multiline string)('\n  ')
             PsiElement(interpolated string end)('"""')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
