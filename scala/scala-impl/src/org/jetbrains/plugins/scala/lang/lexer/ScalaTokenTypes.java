@@ -62,7 +62,7 @@ public interface ScalaTokenTypes {
     IElementType tMULTILINE_STRING = new ScalaTokenType("multiline string");
     IElementType tINTERPOLATED_STRING = new ScalaTokenType("interpolated string");
     // TODO: add a space between `interpolated` and `multiline` in debug name
-    IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaTokenType("interpolatedmultiline string");
+    IElementType tINTERPOLATED_MULTILINE_STRING = new ScalaTokenType("interpolated multiline string");
     IElementType tINTERPOLATED_STRING_ID = new ScalaTokenType("interpolated string id");
     IElementType tINTERPOLATED_STRING_INJECTION = new ScalaTokenType("interpolated string injection");
     IElementType tINTERPOLATED_STRING_END = new ScalaTokenType("interpolated string end");
@@ -264,7 +264,8 @@ public interface ScalaTokenTypes {
             // tWRONG_LINE_BREAK_IN_STRING // TODO: should we add it here?
             tMULTILINE_STRING,
             tINTERPOLATED_STRING,
-            tINTERPOLATED_MULTILINE_STRING
+            tINTERPOLATED_MULTILINE_STRING,
+            tINTERPOLATED_STRING_END
     );
 
     TokenSet VAL_VAR_TOKEN_SET = TokenSet.create(kVAL, kVAR);

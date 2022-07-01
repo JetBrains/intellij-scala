@@ -183,6 +183,78 @@ class CopyJavaToScalaTest extends CopyPasteTestBase {
     doTest(fromText, toText, expected)
   }
 
+  def testPasteToString_WithExistingText(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;$End
+         |
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  "${Caret}existing text"
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  "public static int number = 42;existing text"
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+  def testPasteToInterpolatedString(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;$End
+         |
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  s"$Caret"
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  s"public static int number = 42;"
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+  def testPasteToInterpolatedString_WithSomeText(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;$End
+         |
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  s"${Caret}existing text"
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  s"public static int number = 42;existing text"
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
   def testPasteToMultilineString(): Unit = {
     val fromText =
       s"""public class Test {
@@ -210,5 +282,84 @@ class CopyJavaToScalaTest extends CopyPasteTestBase {
     doTest(fromText, toText, expected)
   }
 
+  def testPasteToMultilineString_WithExistingText(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;
+         |$End
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
 
+    val qqq = "\"\"\""
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  $qqq${Caret}existing text$qqq
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  ${qqq}public static int number = 42;
+         |    |existing text$qqq.stripMargin
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+  def testPasteToMultilineInterpolatedString(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;
+         |$End
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val qqq = "\"\"\""
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  s$qqq$Caret$qqq
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  s${qqq}public static int number = 42;
+         |     |$qqq.stripMargin
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
+
+  def testPasteToMultilineInterpolatedString_WithExistingText(): Unit = {
+    val fromText =
+      s"""public class Test {
+         |   ${Start}public static int number = 42;
+         |$End
+         |   public static int number2 = Test.number;
+         |}
+         |""".stripMargin
+
+    val qqq = "\"\"\""
+
+    val toText =
+      s"""
+         |abstract class ScalaClass {
+         |  s$qqq${Caret}existing text$qqq
+         |}""".stripMargin
+
+    val expected =
+      s"""
+         |abstract class ScalaClass {
+         |  s${qqq}public static int number = 42;
+         |     |existing text$qqq.stripMargin
+         |}""".stripMargin
+
+    doTest(fromText, toText, expected)
+  }
 }

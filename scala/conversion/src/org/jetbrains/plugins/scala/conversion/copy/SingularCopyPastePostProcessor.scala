@@ -63,12 +63,14 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
     psiFile match {
       case scalaFile: ScalaFile =>
         val element = scalaFile.findElementAt(caretOffset)
-        element match {
-          case ElementType(ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING) => //do nothing
-          case _ =>
-            values.forEach {
-              processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
-            }
+        val isStringLiteral = element != null && ScalaTokenTypes.STRING_LITERAL_TOKEN_SET.contains(element.getNode.getElementType)
+        if (isStringLiteral) {
+          //skip
+        }
+        else {
+          values.forEach {
+            processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
+          }
         }
       case _ =>
     }
