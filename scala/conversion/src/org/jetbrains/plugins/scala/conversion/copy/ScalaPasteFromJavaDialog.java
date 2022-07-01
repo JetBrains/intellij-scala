@@ -40,6 +40,9 @@ public class ScalaPasteFromJavaDialog extends DialogWrapper {
 
     public enum CopyFrom {JavaFile, Text}
 
+    /**
+     * @return true if we should continue the conversion from Java to Scala
+     */
     public static boolean showAndGet(CopyFrom copyFrom, Project project) {
         ScalaProjectSettings projectSettings = ScalaProjectSettings.getInstance(project);
         return projectSettings.isDontShowConversionDialog() ||

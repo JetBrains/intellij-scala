@@ -1,9 +1,4 @@
-package org.jetbrains.plugins.scala
-package conversion
-package copy
-
-import java.awt.datatransfer.{DataFlavor, Transferable}
-import java.{util => ju}
+package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.editorActions.{CopyPastePostProcessor, TextBlockTransferableData}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
@@ -14,43 +9,62 @@ import org.jetbrains.plugins.scala.extensions.ElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import java.awt.datatransfer.{DataFlavor, Transferable}
+import java.lang.{Boolean => JBoolean}
+import java.{util => ju}
+
 /**
-  * @author Pavel Fatin
-  *
-  *         Common adapter for legacy interface implementations.
-  */
+ * @author Pavel Fatin
+ *
+ *         Common adapter for legacy interface implementations.
+ */
 abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](dataFlavor: DataFlavor)
   extends CopyPastePostProcessor[T] {
 
   import ju.Collections._
 
-  override final def collectTransferableData(file: PsiFile, editor: Editor,
-                                             startOffsets: Array[Int], endOffsets: Array[Int]): ju.List[T] =
-    collectTransferableData(startOffsets, endOffsets)(file, editor).fold(emptyList[T]())(singletonList)
+  override final def collectTransferableData(
+    file: PsiFile,
+    editor: Editor,
+    startOffsets: Array[Int],
+    endOffsets: Array[Int]
+  ): ju.List[T] = {
+    val transferableData = collectTransferableData(startOffsets, endOffsets)(file, editor)
+    transferableData.fold(emptyList[T]())(singletonList)
+  }
 
-  def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
-                             (implicit file: PsiFile, editor: Editor): Option[T] = None
+  protected def collectTransferableData(
+    startOffsets: Array[Int],
+    endOffsets: Array[Int]
+  )(implicit file: PsiFile, editor: Editor): Option[T]
 
-  override final def extractTransferableData(content: Transferable): ju.List[T] =
-    extractTransferableDataImpl(content).fold(emptyList[T]()) { value =>
+  override final def extractTransferableData(content: Transferable): ju.List[T] = {
+    val transferableData = extractTransferableDataImpl(content)
+    transferableData.fold(emptyList[T]()) { value =>
       singletonList(value.asInstanceOf[T])
     }
+  }
 
   protected def extractTransferableDataImpl(content: Transferable): Option[AnyRef] =
-    dataFlavor match {
-      case flavor if content.isDataFlavorSupported(flavor) => Some(content.getTransferData(flavor))
-      case _ => None
-    }
+    if (content.isDataFlavorSupported(dataFlavor))
+      Some(content.getTransferData(dataFlavor))
+    else
+      None
 
-  import java.lang.{Boolean => JBoolean}
-
-  override final def processTransferableData(project: Project, editor: Editor,
-                                             bounds: RangeMarker, caretOffset: Int,
-                                             ref: Ref[_ >: JBoolean], values: ju.List[_ <: T]): Unit =
-    PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument) match {
+  override final def processTransferableData(
+    project: Project,
+    editor: Editor,
+    bounds: RangeMarker,
+    caretOffset: Int,
+    ref: Ref[_ >: JBoolean],
+    values: ju.List[_ <: T]
+  ): Unit = {
+    val psiFile = PsiDocumentManager.getInstance(project).getPsiFile(editor.getDocument)
+    psiFile match {
       case scalaFile: ScalaFile =>
-        Option(scalaFile.findElementAt(caretOffset)) match {
-          case Some(ElementType(ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING)) => //do nothing
+        val element = scalaFile.findElementAt(caretOffset)
+        element match {
+          case ElementType(ScalaTokenTypes.tSTRING | ScalaTokenTypes.tMULTILINE_STRING) => //do nothing
           case _ =>
             values.forEach {
               processTransferableData(bounds, caretOffset, ref, _)(project, editor, scalaFile)
@@ -58,10 +72,16 @@ abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](da
         }
       case _ =>
     }
+  }
 
-  def processTransferableData(bounds: RangeMarker, caretOffset: Int,
-                              ref: Ref[_ >: JBoolean], value: T)
-                             (implicit project: Project,
-                              editor: Editor,
-                              file: ScalaFile): Unit
+  protected def processTransferableData(
+    bounds: RangeMarker,
+    caretOffset: Int,
+    ref: Ref[_ >: JBoolean],
+    value: T
+  )(implicit
+    project: Project,
+    editor: Editor,
+    file: ScalaFile
+  ): Unit
 }
