@@ -33,19 +33,22 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   project.getMessageBus.connect(this).subscribe[FileHighlightingSettingListener](
     FileHighlightingSettingListener.SETTING_CHANGE,
     (root: PsiElement, _: FileHighlightingSetting) => {
-      val virtualFile = root.getContainingFile.getVirtualFile
-      if (virtualFile ne null) {
-        val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-        invokeAndWait {
-          val document = FileDocumentManager.getInstance().getDocument(virtualFile)
-          EditorFactory.getInstance().getEditors(document).foreach { editor =>
-            UpdateHighlightersUtil.setHighlightersToEditor(
-              project, document,
-              0, document.getTextLength, Seq.empty.asJava,
-              editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+      val psiFile = root.getContainingFile
+      if (psiFile ne null) {
+        val virtualFile = psiFile.getVirtualFile
+        if ((virtualFile ne null) && isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
+          val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+          invokeAndWait {
+            val document = FileDocumentManager.getInstance().getDocument(virtualFile)
+            EditorFactory.getInstance().getEditors(document).foreach { editor =>
+              UpdateHighlightersUtil.setHighlightersToEditor(
+                project, document,
+                0, document.getTextLength, Seq.empty.asJava,
+                editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
+            }
           }
+          triggerIncrementalCompilation(debugReason, virtualFile)
         }
-        triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
   )
@@ -62,7 +65,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
         if (documentCompilerAvailable.contains(virtualFile)) {
           val document = FileDocumentManager.getInstance().getDocument(virtualFile)
           if (document ne null) {
-            triggerDocumentCompilation(virtualFile, document, psiFile, debugReason)
+            triggerDocumentCompilation(virtualFile, document, debugReason)
           }
         } else {
           triggerIncrementalCompilation(debugReason, virtualFile)
@@ -124,11 +127,14 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
-    virtualFile.isInLocalFileSystem && (psiFile match {
-      case _ if psiFile.isScalaWorksheet => true
-      case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
-      case _ => false
-    }) && ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
+    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile) &&
+      virtualFile.isInLocalFileSystem &&
+      (psiFile match {
+        case _ if psiFile.isScalaWorksheet => true
+        case _: ScalaFile | _: PsiJavaFile if !JavaProjectRootsUtil.isOutsideJavaSourceRoot(psiFile) => true
+        case _ => false
+      }) &&
+      ScalaHighlightingMode.shouldHighlightBasedOnFileLevel(psiFile, project)
   }
 
   private def triggerIncrementalCompilation(debugReason: String, virtualFile: VirtualFile): Unit = {
@@ -167,17 +173,10 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   private def triggerDocumentCompilation(
     virtualFile: VirtualFile,
     document: Document,
-    psiFile: PsiFile,
     debugReason: String
   ): Unit = {
     val sourceScope = calculateSourceScope(virtualFile)
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile))
-      CompilerHighlightingService.get(project).triggerDocumentCompilation(
-        virtualFile,
-        document,
-        sourceScope,
-        debugReason
-      )
+    CompilerHighlightingService.get(project).triggerDocumentCompilation(virtualFile, document, sourceScope, debugReason)
   }
 
   private def triggerWorksheetCompilation(
