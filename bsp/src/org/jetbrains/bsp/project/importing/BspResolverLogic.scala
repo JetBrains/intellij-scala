@@ -400,7 +400,7 @@ private[importing] object BspResolverLogic {
   }
 
   //IntelliJ may attempt to append " (shared)" to the file name, putting it back over the max limit
-  //so we substract 50 characters just in this case
+  //so we subtract 50 characters just in this case
   private final val MaxFileNameLength = FileSystem.getCurrent.getMaxFileNameLength - 50
 
   private[importing] def sharedModuleId(targets: Seq[BuildTarget]): String = {
