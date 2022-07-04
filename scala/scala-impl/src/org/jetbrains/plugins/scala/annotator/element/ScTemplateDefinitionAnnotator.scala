@@ -102,7 +102,16 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           }
 
           val isOk = isDirectlyImplemented || isExtendedBySuperClass
-          if (!isOk) holder.createErrorAnnotation(tdef.nameId, ScalaBundle.message("parameterised.trait.is.implemented.indirectly", tr.name))
+          if (!isOk) {
+            val anchor =
+              if (tdef.is[ScNewTemplateDefinition]) tdef.getFirstChild
+              else                                  tdef.nameId
+
+            holder.createErrorAnnotation(
+              anchor,
+              ScalaBundle.message("parameterised.trait.is.implemented.indirectly", tr.name)
+            )
+          }
       }
     }
   }
