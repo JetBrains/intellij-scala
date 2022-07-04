@@ -99,6 +99,15 @@ class EnumCaseCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinit
     }
   }
 
+  def testEnumCasesInOneLine(): Unit = {
+    val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
+
+    assertMatches(messages("trait T { def f }; enum E extends T { case C, D }", Scala3Language.INSTANCE)) {
+      case Error("C", `message`) :: Error("D", `message`) :: Nil =>
+      case Error("D", `message`) :: Error("C", `message`) :: Nil =>
+    }
+  }
+
   def testEnumCaseWithExplicitExtends(): Unit = {
     val message = objectCreationImpossibleMessage(("f: Unit", "Holder.T"))
 

@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier}
+import com.intellij.psi.{PsiClass, PsiMethod, PsiModifier, PsiModifierList}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.ErrorAnnotationMessage
 import org.jetbrains.plugins.scala.annotator.quickfix.{ImplementMembersQuickFix, ModifierQuickFix}
@@ -15,11 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScEnumCase, ScFunctionDefinition, ScTypeAliasDeclaration}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, TypePresentationContext, ValueClassType}
 import org.jetbrains.plugins.scala.overrideImplement.{ScMethodMember, ScalaOIUtil, ScalaTypedMember}
+
+import scala.util.chaining._
 
 object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefinition] {
 
@@ -330,13 +331,34 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     ScalaBundle.message("object.creation.impossible.since", reasons)
   }
 
-  private def highlightRange(definition: ScTemplateDefinition): TextRange = {
+  private def highlightRange(definition: ScTemplateDefinition): TextRange =
+    TextRange.create(getHighlightingStartOffset(definition), getHighlightingEndOffset(definition))
+
+  private def getHighlightingStartOffset(definition: ScTemplateDefinition): Int =
+    definition match {
+      case enumCase: ScEnumCase => enumCase.nameId.startOffset
+      case _ =>
+        definition.getModifierList
+          .pipe { modifierList =>
+            if (modifierList == null) definition.nameId.startOffset
+            else stripAnnotationsFromModifierList(modifierList)
+          }
+    }
+
+  private def getHighlightingEndOffset(definition: ScTemplateDefinition): Int = {
     val extendsBlock = definition.extendsBlock
-    val endElem = extendsBlock.templateBody
+    extendsBlock.templateBody
       .flatMap(_.prevElementNotWhitespace)
       .getOrElse(extendsBlock)
-    TextRange.create(definition.startOffset, endElem.endOffset)
+      .endOffset
   }
+
+  private def stripAnnotationsFromModifierList(list: PsiModifierList): Int =
+    list.getAnnotations
+      .lastOption
+      .flatMap(_.nextLeafs.filterNot(_.isWhitespaceOrComment).nextOption())
+      .getOrElse(list)
+      .startOffset
 
   private def formatForObjectCreationImpossibleMessage(member: overrideImplement.ClassMember): (String, String) =
     try {
