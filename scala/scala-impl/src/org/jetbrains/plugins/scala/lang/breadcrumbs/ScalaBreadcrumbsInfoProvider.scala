@@ -106,7 +106,7 @@ object ScalaBreadcrumbsInfoProvider {
         case Some(c) =>
           s"${c.typeElement.getText}"
       }
-      val hasOtherTypes = newDef.extendsBlock.templateParents.exists(_.typeElementsWithoutConstructor.nonEmpty)
+      val hasOtherTypes = newDef.extendsBlock.templateParents.exists(_.parentClauses.size > 1)
       val otherTypesHolder = if (hasOtherTypes) " with ..." else ""
       val text = s"new $constructor$otherTypesHolder"
       limitText(text, limit = MAX_STRING_LENGTH*2)

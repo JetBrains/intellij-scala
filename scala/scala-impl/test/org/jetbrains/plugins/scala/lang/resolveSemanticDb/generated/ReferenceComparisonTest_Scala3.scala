@@ -2166,7 +2166,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_t6948(): Unit = doTest("t6948", false)
   def test_t6963c(): Unit = doTest("t6963c", true)
   def test_t6966(): Unit = doTest("t6966", true)
-  def test_t6976(): Unit = doTest("t6976", false)
+  def test_t6976(): Unit = doTest("t6976", true)
   def test_t6994(): Unit = doTest("t6994", true)
   def test_t7011(): Unit = doTest("t7011", true)
   def test_t7014(): Unit = doTest("t7014", true)
