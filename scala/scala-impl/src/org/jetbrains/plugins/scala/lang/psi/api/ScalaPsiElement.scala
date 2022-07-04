@@ -7,8 +7,6 @@ import com.intellij.extapi.psi.PsiFileBase
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
-import com.intellij.uast.UastVisitorAdapter
-import org.jetbrains.plugins.scala.codeInspection.unusedInspections.RefScalaManager
 import org.jetbrains.plugins.scala.extensions.Valid
 
 import scala.collection.immutable.ArraySeq
@@ -106,17 +104,9 @@ trait ScalaPsiElement extends PsiElement
     Option(child.asInstanceOf[T])
   }
 
-  abstract override def accept(visitor: PsiElementVisitor): Unit = {
-    visitor match {
-      case visitor: ScalaElementVisitor => acceptScala(visitor)
-      case uastVisitorAdapter: UastVisitorAdapter => uastVisitorAdapter.visitElement(this)
-      case _ =>
-        if (visitor.toString.contains("reference.RefManagerImpl$ProjectIterator")) {
-          visitor.visitElement(this)
-        } else {
-          super.accept(visitor)
-        }
-    }
+  abstract override def accept(visitor: PsiElementVisitor): Unit = visitor match {
+    case visitor: ScalaElementVisitor => acceptScala(visitor)
+    case _ => super.accept(visitor)
   }
 
   protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
