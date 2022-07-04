@@ -907,15 +907,6 @@
                          key="displayname.unused.declaration"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
-        <globalInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaGlobalUnusedDeclarationInspection"
-                          shortName="ScalaGlobalUnusedDeclaration"
-                          level="WEAK WARNING"
-                          bundle="messages.ScalaInspectionBundle"
-                          key="displayname.unused.global.declaration"
-                          groupPath="Scala" groupKey="group.general"
-                          enabledByDefault="true"
-                          language="Scala"/>
-        <codeInspection.InspectionExtension implementation="org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaInspectionExtensionsFactory"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.use.correct.lambda.keyword"
