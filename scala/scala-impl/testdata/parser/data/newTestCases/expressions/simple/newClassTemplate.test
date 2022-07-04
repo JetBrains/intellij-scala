@@ -40,8 +40,9 @@ ScalaFile
               PsiWhiteSpace(' ')
               PsiElement(with)('with')
               PsiWhiteSpace(' ')
-              SimpleType: h
-                CodeReferenceElement: h
-                  PsiElement(identifier)('h')
+              ConstructorInvocation
+                SimpleType: h
+                  CodeReferenceElement: h
+                    PsiElement(identifier)('h')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

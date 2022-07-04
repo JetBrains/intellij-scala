@@ -43,9 +43,10 @@ ScalaFile
         PsiWhiteSpace(' ')
         PsiElement(with)('with')
         PsiWhiteSpace(' ')
-        SimpleType: D
-          CodeReferenceElement: D
-            PsiElement(identifier)('D')
+        ConstructorInvocation
+          SimpleType: D
+            CodeReferenceElement: D
+              PsiElement(identifier)('D')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')

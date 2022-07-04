@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScMember, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createOverrideImplementVariableWithClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers._
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -178,7 +178,7 @@ object ScalaOIUtil {
     if (visited.contains(clazz)) false
     else
       clazz match {
-        case td: ScTypeDefinition if td.isCase =>
+        case td: ScTypeDefinition if td.isCase || td.is[ScEnum] =>
           m.name == "apply" ||
             m.name == "canEqual" || {
             val clazz = m.containingClass
@@ -232,17 +232,22 @@ object ScalaOIUtil {
     val m = sign.method
     val name = if (m == null) "" else m.name
     val place = clazz.extendsBlock
+
     m match {
-      case _ if isProductAbstractMethod(m, clazz) => false
+      case _ if isProductAbstractMethod(m, clazz)              => false
       case method if !ResolveUtils.isAccessible(method, place) => false
-      case _ if name == "$tag" || name == "$init$" => false
-      case x if !withOwn && x.containingClass == clazz => false
-      case x if x.containingClass != null && x.containingClass.isInterface &&
-        !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") => true
-      case x if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
-        !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] => true
+      case _ if name == "$tag" || name == "$init$"             => false
+      case x if !withOwn && x.containingClass == clazz         => false
+      case x
+          if x.containingClass != null && x.containingClass.isInterface &&
+            !x.containingClass.isInstanceOf[ScTrait] && x.hasModifierProperty("abstract") =>
+        true
+      case x
+          if x.hasModifierPropertyScala("abstract") && !x.isInstanceOf[ScFunctionDefinition] &&
+            !x.isInstanceOf[ScPatternDefinition] && !x.isInstanceOf[ScVariableDefinition] =>
+        true
       case x: ScFunctionDeclaration if !x.isNative => true
-      case _ => false
+      case _                                       => false
     }
   }
 
