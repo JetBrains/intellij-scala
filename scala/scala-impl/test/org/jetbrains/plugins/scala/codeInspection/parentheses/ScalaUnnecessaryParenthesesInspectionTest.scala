@@ -563,4 +563,13 @@ class ScalaUnnecessaryParenthesesInspectionTest_Scala3 extends ScalaUnnecessaryP
     checkTextHasErrors(s"type T = [X] =>> $START(X => Any)$END")
     checkTextHasErrors(s"type T = [X] =>> $START([X] => X => Any)$END")
   }
+
+  def testMatchType(): Unit = {
+    checkTextHasErrors(s"type T[A] = $START(A match { case Int => Char })$END")
+
+    checkTextHasNoErrors(s"type T[A] = (A match { case Int => Char }) match { case Long => String }")
+
+    checkTextHasNoErrors(s"type T[A] = (A match { case Int => Char }) => Any")
+    checkTextHasNoErrors(s"type T[A] = [X] => (A match { case Int => Char }) => Any")
+  }
 }
