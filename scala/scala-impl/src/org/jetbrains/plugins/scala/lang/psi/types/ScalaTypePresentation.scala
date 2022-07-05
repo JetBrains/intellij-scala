@@ -298,6 +298,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         val paramsText = params match {
           case Seq(fun@FunctionType(_, _)) => innerTypeText(fun).parenthesize()
           case Seq(tup@TupleType(_))     => innerTypeText(tup).parenthesize()
+          case Seq(mt: ScMatchType)        => innerTypeText(mt).parenthesize()
           case Seq(head)                   => innerTypeText(head)
           case _                           => typesText(params)
         }
@@ -345,6 +346,11 @@ trait ScalaTypePresentation extends api.TypePresentation {
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
       case ScLiteralType(value, _) =>
         value.presentation
+      case ScMatchType(scrutinee, cases) =>
+        val scrutineeText = innerTypeText(scrutinee)
+        val caseTexts = cases.map(cs => "case " + cs._1 + " => " + cs._2)
+        val parenthesesRequired = scrutinee.is[ScMatchType] || FunctionType.isFunctionType(scrutinee)
+        (if (parenthesesRequired) scrutineeText.parenthesize() else scrutineeText)  + " match " + caseTexts.mkString("{ ", "; ", " }")
       case _ => "" //todo
     }
 
