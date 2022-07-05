@@ -13,6 +13,9 @@ class ScalaTypePresentationTest extends ScalaLightCodeInsightFixtureTestAdapter 
   def testPolymorphicFunction(): Unit = assertPresentationIs(
     "[X] => Any => Nothing")
 
+  def testLambda(): Unit = assertPresentationIs(
+    "[X] =>> Any")
+
   private def assertPresentationIs(tpe: String): Unit = assertPresentationIs(tpe, tpe)
 
   private def assertPresentationIs(tpe: String, expected: String): Unit = {
