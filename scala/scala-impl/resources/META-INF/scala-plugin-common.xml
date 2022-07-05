@@ -316,6 +316,8 @@
         <internalFileTemplate name="Scala Object"/>
         <internalFileTemplate name="Scala Script"/>
         <internalFileTemplate name="Package Object"/>
+        <internalFileTemplate name="Scala File"/>
+        <internalFileTemplate name="Scala Enum"/>
         <defaultTemplatePropertiesProvider implementation="org.jetbrains.plugins.scala.actions.ScalaDefaultTemplatePropertiesProvider"/>
 
         <indexPatternBuilder implementation="org.jetbrains.plugins.scala.editor.todo.ScalaIndexPatternBuilder"/>
@@ -1954,7 +1956,7 @@
 
     </projectListeners>
     <actions>
-        <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
+        <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaFileAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewGroup1"/>
         </action>
         <action id="Scala.NewPackageObject" class="org.jetbrains.plugins.scala.actions.NewPackageObjectAction">
