@@ -3,6 +3,8 @@ package annotator
 package template
 
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
+import org.jetbrains.plugins.scala.base.ScalaSdkOwner
+import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDefinition] {
@@ -89,6 +91,56 @@ class NeedsToBeAbstractTest extends NeedsToBeAbstractTestBase {
   def testObjectOverrideDef(): Unit = {
     assertMatches(messages("trait A { def a }; class D extends A { object a };")) {
       case Nil =>
+    }
+  }
+
+  def testClassWithScaladoc(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
+    val code =
+      s"""
+         |trait T { def f }
+         |
+         |/**
+         | * Test
+         | */
+         |class C extends T
+         |""".stripMargin
+
+    assertMatches(messages(code)) {
+      case Error("class C extends T", `message`) :: Nil =>
+    }
+  }
+}
+
+class NeedsToBeAbstractTest_WithScalaSdk extends NeedsToBeAbstractTestBase with ScalaSdkOwner {
+  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(ScalaSDKLoader())
+
+  override def setUp(): Unit = {
+    super.setUp()
+    setUpLibraries(fixture.getModule)
+  }
+
+  override def tearDown(): Unit = {
+    disposeLibraries(fixture.getModule)
+    super.tearDown()
+  }
+
+  def testClassWithScaladocAnnotationAnotherCommentAndModifiers(): Unit = {
+    val message = this.message("Class", "C", "f: Unit", "Holder.T")
+    val code =
+      s"""
+         |trait T { def f }
+         |
+         |/**
+         | * Test
+         | */
+         |@deprecated
+         |// another comment
+         |private class C extends T
+         |""".stripMargin
+
+    assertMatches(messages(code)) {
+      case Error("private class C extends T", `message`) :: Nil =>
     }
   }
 }
