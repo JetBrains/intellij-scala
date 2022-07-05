@@ -376,7 +376,7 @@ object Main {
 
       synchronized {
         cancelShutdownTimer()
-        shutdownTimer = new Timer()
+        shutdownTimer = new Timer(true)
         shutdownTimer.schedule(shutdownTask, t.toMillis)
       }
     }
