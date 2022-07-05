@@ -126,7 +126,8 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
                                (implicit visited: Set[ScType]): ScType =
     ScTypePolymorphicType(
       substitutor.recursiveUpdateImpl(tpt.internalType, variance),
-      tpt.typeParameters.map(updateTypeParameter(_, substitutor, -variance))
+      tpt.typeParameters.map(updateTypeParameter(_, substitutor, -variance)),
+      isLambdaTypeElement = tpt.isLambdaTypeElement
     )
 
   def updateTypeParameter(tp: TypeParameter,
