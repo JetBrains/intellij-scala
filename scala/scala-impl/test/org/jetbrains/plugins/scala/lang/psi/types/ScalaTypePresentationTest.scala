@@ -16,6 +16,28 @@ class ScalaTypePresentationTest extends ScalaLightCodeInsightFixtureTestAdapter 
   def testLambda(): Unit = assertPresentationIs(
     "[X] =>> Any")
 
+  def testMatchSingleCase(): Unit = assertPresentationIs(
+    "A match { case Int => Char }")
+
+  def testMatchMultipleCases(): Unit = assertPresentationIs(
+    "A match { case Int => Char; case Long => String }")
+
+  def testMatchrParenthesesInner(): Unit = {
+    assertPresentationIs(
+      "(A match { case Int => Char }) match { case Long => String }")
+
+    assertPresentationIs(
+      "(A => Any) match { case Int => Char }")
+  }
+
+  def testMatchrParenthesesOuter(): Unit = {
+    assertPresentationIs(
+      "(A match { case Int => Char }) => Any")
+
+    assertPresentationIs(
+      "[X] => (A match { case Int => Char }) => Any")
+  }
+
   private def assertPresentationIs(tpe: String): Unit = assertPresentationIs(tpe, tpe)
 
   private def assertPresentationIs(tpe: String, expected: String): Unit = {

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Contravariant, Covariant, Invariant, JavaArrayType, TypeParameter, Variance}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith, Stop}
-import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScExistentialArgument, ScExistentialType, ScParameterizedType, ScType, TermSignature, TypeAliasSignature}
+import org.jetbrains.plugins.scala.lang.psi.types._
 
 private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean) {
 
@@ -130,6 +130,15 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       isLambdaTypeElement = tpt.isLambdaTypeElement
     )
 
+  private def updateMatchType(mt: ScMatchType,
+                              variance: Variance,
+                              substitutor: ScSubstitutor)
+                             (implicit visited: Set[ScType]): ScType = {
+    val scrutinee = substitutor.recursiveUpdateImpl(mt.scrutinee, variance)
+    val cases = mt.cases.map(cs => (substitutor.recursiveUpdateImpl(cs._1, variance), substitutor.recursiveUpdateImpl(cs._2, variance)))
+    ScMatchType(scrutinee, cases)
+  }
+
   def updateTypeParameter(tp: TypeParameter,
                           substitutor: ScSubstitutor,
                           variance: Variance = Invariant)
@@ -155,6 +164,7 @@ private abstract class SubtypeUpdater(needVariance: Boolean, needUpdate: Boolean
       case t: ScProjectionType      => updateProjectionType     (t, substitutor)
       case t: ScMethodType          => updateMethodType         (t, variance, substitutor)
       case t: ScTypePolymorphicType => updateTypePolymorphicType(t, variance, substitutor)
+      case t: ScMatchType           => updateMatchType          (t, variance, substitutor)
       case leaf                     => leaf
     }
 
