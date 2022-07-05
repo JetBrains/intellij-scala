@@ -163,7 +163,7 @@ object ParenthesizedElement {
     case _: ScInfixTypeElement         => 3
     case _: ScExistentialTypeElement   => 4
     case _: ScWildcardTypeElement      => 5
-    case _: ScFunctionalTypeElement | _: ScPolyFunctionTypeElement | _: ScTypeLambdaTypeElement  => 6
+    case _: ScFunctionalTypeElement | _: ScPolyFunctionTypeElement | _: ScTypeLambdaTypeElement | _: ScMatchTypeElement  => 6
     case _                             => throw new IllegalArgumentException(s"Unknown type element $te")
   }
 
