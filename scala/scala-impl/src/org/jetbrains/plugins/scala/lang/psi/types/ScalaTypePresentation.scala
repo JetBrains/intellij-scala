@@ -337,7 +337,8 @@ trait ScalaTypePresentation extends api.TypePresentation {
             parameter.name + boundsRenderer.lowerBoundText(lowerType)(_.toString) + boundsRenderer.upperBoundText(upperType)(_.toString)
         }
         val typeParametersText = typeParametersTexts.commaSeparated(model = Model.SquareBrackets)
-        val separator = if (pt.isLambdaTypeElement) TypeLambdaArrowWithSpaces else " "
+        // TODO Custom lambda and polymorphic function types, SCL-20394
+        val separator = if (pt.isLambdaTypeElement) TypeLambdaArrowWithSpaces else if (FunctionType.isFunctionType(internalType)) s" ${ScalaPsiUtil.functionArrow} " else " "
         typeParametersText + separator + internalType.toString
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
