@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala.debugger
 package ui
 
 import com.intellij.debugger.engine.evaluation.EvaluationContext
-import com.intellij.debugger.engine.evaluation.expression.{Evaluator, ExpressionEvaluator, ExpressionEvaluatorImpl, IdentityEvaluator}
+import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.debugger.engine.{DebuggerUtils, JVMNameUtil}
 import com.intellij.debugger.ui.tree.render.{ChildrenBuilder, DescriptorLabelListener}
 import com.intellij.debugger.ui.tree.{NodeDescriptor, ValueDescriptor}
 import com.intellij.xdebugger.impl.ui.XDebuggerUIConstants
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.{IntEvaluator, ScalaFieldEvaluator, ScalaMethodEvaluator, ScalaTypeEvaluator}
+import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.filters.ScalaDebuggerSettings
 import org.jetbrains.plugins.scala.debugger.ui.util._
 
@@ -39,16 +39,11 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   override def calcLabel(descriptor: ValueDescriptor, context: EvaluationContext, listener: DescriptorLabelListener): String = {
     val ref = descriptor.getValue.asInstanceOf[ObjectReference]
 
-    def computeSize(hasDefiniteSize: Boolean): CompletableFuture[String] =
-      if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(_.toString)
-      else CompletableFuture.completedFuture("?")
-
-    val sizeLabel = for {
-      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
-      size <- computeSize(hasDefiniteSize)
-    } yield s"size = $size"
-
-    sizeLabel.attempt.flatTap {
+    onDebuggerManagerThread(context) {
+      val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
+      val size = if (hasDefiniteSize) evaluateSize(ref, context).toString else "?"
+      s"size = $size"
+    }.attempt.flatTap {
       case Left(t) =>
         onDebuggerManagerThread(context) {
           descriptor.setValueLabelFailed(evaluationExceptionFromThrowable(t))
@@ -72,63 +67,58 @@ class ScalaCollectionRenderer extends ScalaClassRenderer {
   }
 
   private def renderStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int): CompletableFuture[Unit] =
-    for {
-      dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
-      taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 100, context))
-      array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
-      _ <- onDebuggerManagerThread(context) {
-        val elements = allValues(array)
-        val descs = elements.zipWithIndex.map { case (v, i) =>
-          val desc = new CollectionElementDescriptor(context.getProject, i + index, v)
-          builder.getNodeManager.createNode(desc, context)
-        }
-        builder.addChildren(descs.asJava, false)
+    onDebuggerManagerThread(context) {
+      val dropped = evaluateDrop(ref, index, context)
+      val taken = evaluateTake(dropped, 100, context)
+      val vector = evaluateToVector(taken, context)
+      val vectorSize = evaluateSize(vector, context)
+      val descs = (0 until vectorSize).map { i =>
+        val v = evaluateVectorApply(vector, i, context)
+        val desc = new CollectionElementDescriptor(context.getProject, i + index, v)
+        builder.getNodeManager.createNode(desc, context)
       }
-      size <- onDebuggerManagerThread(context)(evaluateSize(ref, context))
-      _ <- onDebuggerManagerThread(context) {
-        val remaining = math.max(size - array.length() - index, 0)
-        if (remaining == 0) builder.addChildren(List.empty.asJava, true)
-        else {
-          val runnable: Runnable = () => renderStrictCollection(ref, builder, context, index + 100)
-          builder.tooManyChildren(remaining, runnable)
-        }
+      builder.addChildren(descs.asJava, false)
+      val size = evaluateSize(ref, context)
+      val remaining = math.max(size - vectorSize - index, 0)
+      if (remaining == 0)
+        builder.addChildren(List.empty.asJava, true)
+      else {
+        val runnable: Runnable = () => renderStrictCollection(ref, builder, context, index + 100)
+        builder.tooManyChildren(remaining, runnable)
       }
-    } yield ()
+    }
 
-  private def renderNonStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int): CompletableFuture[Unit] = {
-    def renderNextElement(index: Int): CompletableFuture[Unit] =
+  private def renderNonStrictCollection(ref: ObjectReference, builder: ChildrenBuilder, context: EvaluationContext, index: Int): CompletableFuture[Unit] =
+    onDebuggerManagerThread(context) {
+      def renderNextElement(index: Int): CompletableFuture[Unit] = onDebuggerManagerThread(context) {
+        val dropped = evaluateDrop(ref, index, context)
+        val taken = evaluateTake(dropped, 1, context)
+        val vector = evaluateToVector(taken, context)
+        val length = evaluateSize(vector, context)
+        if (length == 1) {
+          val desc = new CollectionElementDescriptor(context.getProject, index, evaluateVectorApply(vector, 0, context))
+          val node = builder.getNodeManager.createNode(desc, context)
+          builder.addChildren(List(node).asJava, false)
+        }
+      }
+
+      val newIndex = index + 10
       for {
-        dropped <- onDebuggerManagerThread(context)(evaluateDrop(ref, index, context))
-        taken <- onDebuggerManagerThread(context)(evaluateTake(dropped, 1, context))
-        array <- onDebuggerManagerThread(context)(evaluateToArray(taken, context))
+        _ <- (index until newIndex)
+          .map(n => () => renderNextElement(n))
+          .foldLeft(CompletableFuture.completedFuture(()))((acc, fn) => acc.flatMap(_ => fn()))
         _ <- onDebuggerManagerThread(context) {
-          val length = array.length()
-          if (length == 1) {
-            val desc = new CollectionElementDescriptor(context.getProject, index, array.getValue(0))
-            val node = builder.getNodeManager.createNode(desc, context)
-            builder.addChildren(List(node).asJava, false)
+          val hasDefiniteSize = evaluateHasDefiniteSize(ref, context)
+          val size = if (hasDefiniteSize) Some(evaluateSize(ref, context)) else None
+          if (size.isEmpty) {
+            val runnable: Runnable = () => renderNonStrictCollection(ref, builder, context, newIndex)
+            builder.tooManyChildren(-1, runnable)
+          } else {
+            builder.addChildren(List.empty.asJava, true)
           }
         }
       } yield ()
-
-    val newIndex = index + 10
-    for {
-      _ <- (index until newIndex)
-        .map(n => () => renderNextElement(n))
-        .foldLeft(CompletableFuture.completedFuture(()))((acc, fn) => acc.flatMap(_ => fn()))
-      hasDefiniteSize <- onDebuggerManagerThread(context)(evaluateHasDefiniteSize(ref, context))
-      size <- if (hasDefiniteSize) onDebuggerManagerThread(context)(evaluateSize(ref, context)).map(Some(_)) else CompletableFuture.completedFuture(None)
-      _ <- onDebuggerManagerThread(context) {
-        if (size.isEmpty) {
-          val runnable: Runnable = () => renderNonStrictCollection(ref, builder, context, index + 10)
-          builder.tooManyChildren(-1, runnable)
-        } else {
-          builder.addChildren(List.empty.asJava, true)
-          builder.getParentDescriptor.getLabel
-        }
-      }
-    } yield ()
-  }
+    }
 }
 
 private object ScalaCollectionRenderer {
@@ -168,7 +158,7 @@ private object ScalaCollectionRenderer {
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
       name,
-      JVMNameUtil.getJVMRawText("(I;)Lscala/collection/Iterable"),
+      null, // Different collection types have different `take` method signatures, depending on specializations, search only by name
       Seq(new IntEvaluator(n))
     ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
 
@@ -178,22 +168,21 @@ private object ScalaCollectionRenderer {
   def evaluateTake(ref: ObjectReference, n: Int, context: EvaluationContext): ObjectReference =
     evaluateIterableOperation("take")(ref, n, context)
 
-  def evaluateToArray(ref: ObjectReference, context: EvaluationContext): ArrayReference =
+  def evaluateToVector(ref: ObjectReference, context: EvaluationContext): ObjectReference =
     ScalaMethodEvaluator(
       new IdentityEvaluator(ref),
-      "toArray",
-      JVMNameUtil.getJVMRawText("(scala.reflect.ClassTag;)[Ljava/lang/Object"),
-      Seq(ObjectClassTagEvaluator)
-    ).asExpressionEvaluator.evaluate(context).asInstanceOf[ArrayReference]
+      "toVector",
+      JVMNameUtil.getJVMRawText("()Lscala/collection/immutable/Vector;"),
+      Seq.empty
+    ).asExpressionEvaluator.evaluate(context).asInstanceOf[ObjectReference]
 
-  def allValues(arr: ArrayReference): Vector[Value] =
-    arr.getValues.asScala.toVector
-
-  private[this] val ObjectClassTagEvaluator: ScalaMethodEvaluator = {
-    val classTagName = JVMNameUtil.getJVMRawText("scala.reflect.ClassTag$")
-    val module = ScalaFieldEvaluator(new ScalaTypeEvaluator(classTagName), "MODULE$")
-    ScalaMethodEvaluator(module, "Object", JVMNameUtil.getJVMRawText("()Lscala/reflect/ClassTag"), Seq.empty)
-  }
+  def evaluateVectorApply(ref: ObjectReference, n: Int, context: EvaluationContext): Value =
+    ScalaMethodEvaluator(
+      new IdentityEvaluator(ref),
+      "apply",
+      JVMNameUtil.getJVMRawText("(I)Ljava/lang/Object;"),
+      Seq(new IntEvaluator(n))
+    ).asExpressionEvaluator.evaluate(context)
 
   private[this] implicit class EvaluatorToExpressionEvaluatorOps(private val evaluator: Evaluator) extends AnyVal {
     def asExpressionEvaluator: ExpressionEvaluator = new ExpressionEvaluatorImpl(evaluator)
