@@ -112,7 +112,8 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
    */
   private def packageNameFromFile(file: PsiDirectory, packagePrefix: Option[String]): Option[String] = {
     val vFile = file.getVirtualFile
-    val withoutPrefix = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.iterator
+    // If there are nested source roots, prefer inner, SCL-20397
+    val withoutPrefix = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.sortBy(_.getPath.length).reverseIterator
       .flatMap { root =>
         if (VfsUtilCore.isAncestor(root, vFile, false)) {
           FileUtil.getRelativePath(root.getPath, vFile.getPath, '/')
