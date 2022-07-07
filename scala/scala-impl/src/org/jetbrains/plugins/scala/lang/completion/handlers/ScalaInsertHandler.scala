@@ -10,6 +10,7 @@ import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.isRedundantBlock
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.tIDENTIFIER
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScReference, ScStableCodeReference}
@@ -372,15 +373,25 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
                 } else if (endOffset == document.getTextLength || document.getCharsSequence.charAt(endOffset) != '(') {
                   disableParenthesesCompletionChar()
                   if (!item.etaExpanded) {
-                    if (completionChar == '{') {
-                      if (ScalaPsiUtil.getSettings(project).SPACE_BEFORE_BRACE_METHOD_CALL) {
-                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = true, withSomeNum = false)
-                      } else {
-                        insertIfNeeded(placeInto = true, openChar = '{', closeChar = '}', withSpace = false, withSomeNum = false)
-                      }
-                    } else {
-                      insertIfNeeded(placeInto = true, openChar = '(', closeChar = ')', withSpace = false, withSomeNum = false)
+                    val (openChar, closeChar, withSpace) = completionChar match {
+                      case '{' => (completionChar, '}', ScalaPsiUtil.getSettings(project).SPACE_BEFORE_BRACE_METHOD_CALL)
+                      case '(' => (completionChar, ')', false)
+                      case _ =>
+                        val (openChar, withSpace) = element match {
+                          case Parent((ref: ScReferenceExpression) && Parent(call: ScMethodCall)) if call.getInvokedExpr == ref && !call.args.prevSibling.exists(s => s.is[PsiWhiteSpace] && s.textContains('\n')) =>
+                            val char = call.args.getNode.getFirstChildNode match {
+                              case block: ScBlockExpr => block.getLBrace.fold('(')(_ => '{')
+                              case node if node != null && node.getElementType == ScalaTokenTypes.tLBRACE => '{'
+                              case _ => '('
+                            }
+                            val withSpace = char == '{' && ScalaPsiUtil.getSettings(project).SPACE_BEFORE_BRACE_METHOD_CALL ||
+                              ref.nextElement.exists(_.is[PsiWhiteSpace])
+                            (char, withSpace)
+                          case _ => ('(', false)
+                        }
+                        (openChar, if (openChar == '(') ')' else '}', withSpace)
                     }
+                    insertIfNeeded(placeInto = true, openChar = openChar, closeChar = closeChar, withSpace = withSpace, withSomeNum = false)
                   } else {
                     document.insertString(endOffset, " _")
                     endOffset += 2

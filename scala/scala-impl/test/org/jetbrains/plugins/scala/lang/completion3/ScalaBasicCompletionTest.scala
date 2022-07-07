@@ -926,6 +926,40 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     char = '{'
   )
 
+  def testBraceCompletionChar2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class aaa {
+         |  Seq(1, 2, 3).ma$CARET {}
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class aaa {
+         |  Seq(1, 2, 3).map {$CARET}
+         |}
+      """.stripMargin,
+    item = "map",
+    char = '{'
+  )
+
+  def testBraceCompletionChar3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class aaa {
+         |  Seq(1, 2, 3).ma$CARET{}
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |class aaa {
+         |  Seq(1, 2, 3).map {$CARET}
+         |}
+      """.stripMargin,
+    item = "map",
+    char = '{'
+  )
+
   def testTailrecBasicCompletion(): Unit = doCompletionTest(
     fileText =
       s"""
@@ -1002,6 +1036,111 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "foo"
   )
 
+  def testParenthesisExists2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET ()
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo ($CARET)
+      """.stripMargin,
+    item = "foo"
+  )
+
+  def testParenthesesExistBraceCompletionChar2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET ()
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo {$CARET} ()
+      """.stripMargin,
+    item = "foo",
+    char = '{'
+  )
+
+  def testBracesExists(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET{}
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo {$CARET}
+      """.stripMargin,
+    item = "foo"
+  )
+
+  def testBracesExists2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET {}
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo {$CARET}
+      """.stripMargin,
+    item = "foo"
+  )
+
+  def testBracesExists3(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET {
+         |
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo {$CARET
+         |
+         |}
+      """.stripMargin,
+    item = "foo"
+  )
+
+  def testBracesExistsParenthesesCompletionChar(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET{}
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo($CARET){}
+      """.stripMargin,
+    item = "foo",
+    char = '('
+  )
+
+  def testBracesExistsParenthesesCompletionChar2(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |def foo(x: Int) = 1
+         |fo$CARET {}
+      """.stripMargin,
+    resultText =
+      s"""
+         |def foo(x: Int) = 1
+         |foo($CARET) {}
+      """.stripMargin,
+    item = "foo",
+    char = '('
+  )
+
   def testBracketsExists(): Unit = doCompletionTest(
     fileText = s"clas$CARET[]",
     resultText = s"classOf[$CARET]",
@@ -1035,6 +1174,21 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     resultText = s"List(1, 2, 3) takeRight $CARET",
     item = "takeRight",
     char = ' '
+  )
+
+  def testNoEtaExpansionParenthesesCompletionChar(): Unit = doCompletionTest(
+    fileText = s"List(1, 2, 3) takeRight$CARET",
+    resultText = s"List(1, 2, 3) takeRight($CARET)",
+    item = "takeRight",
+    char = '('
+  )
+
+
+  def testNoEtaExpansionBraceCompletionChar(): Unit = doCompletionTest(
+    fileText = s"List(1, 2, 3) takeRight$CARET",
+    resultText = s"List(1, 2, 3) takeRight {$CARET}",
+    item = "takeRight",
+    char = '{'
   )
 
   def testTypeIsFirst(): Unit = {
@@ -1156,6 +1310,24 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |object Z {
          |  def xxx: String = "abc"
          |  s"$${xxx.substring($CARET)}"
+         |}
+      """.stripMargin,
+    item = "substring"
+  )
+
+  def testInterpolatedStringDotCompletionBracesExist(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object Z {
+         |  def xxx: String = "abc"
+         |  s"$${xxx.$CARET {}}"
+         |}
+      """.stripMargin,
+    resultText =
+      s"""
+         |object Z {
+         |  def xxx: String = "abc"
+         |  s"$${xxx.substring {$CARET}}"
          |}
       """.stripMargin,
     item = "substring"
@@ -1484,6 +1656,28 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |    val testValue = ""
          |    testValue.charAt($CARET)
          |    ()
+         |  }
+         |}
+         |""".stripMargin,
+    item = "charAt"
+  )
+
+  def testCompletionAfterDotNotLastInBlock2(): Unit = doCompletionTest(
+    fileText =
+      s"""class TestClass {
+         |  def unitReturnFunc: Unit = {
+         |    val testValue = ""
+         |    testValue.$CARET
+         |    {}
+         |  }
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""class TestClass {
+         |  def unitReturnFunc: Unit = {
+         |    val testValue = ""
+         |    testValue.charAt($CARET)
+         |    {}
          |  }
          |}
          |""".stripMargin,
