@@ -10,10 +10,8 @@ import org.jetbrains.sbt.language.completion.SbtPsiElementPatterns._
 
 // TODO: Reimplement when https://youtrack.jetbrains.com/issue/IDEA-272935 is fixed
 /** Disable ML Sorting for completion in:
- * <ul>
- * <li><code>scalaVersion</code>/<code>libraryDependencies</code> versions in <code>.scala</code> and <code>.sbt</code> files</li>
- * <li><code>sbt.version</code> in <code>.properties</code> files</li>
- * </ul>
+ *  - `scalaVersion`/`libraryDependencies` versions in `.scala` and `.sbt` files
+ *  - `sbt.version` in `.properties` files
  */
 class SbtDependencyVersionCompletionMLPolicy extends CompletionMLPolicy {
   override def isReRankingDisabled(params: CompletionParameters): Boolean =
