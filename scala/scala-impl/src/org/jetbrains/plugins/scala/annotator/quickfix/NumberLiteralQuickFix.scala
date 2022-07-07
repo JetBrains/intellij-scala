@@ -21,8 +21,7 @@ sealed abstract class NumberLiteralQuickFix[L <: Numeric](private[this] val lite
   override final def isAvailable(project: Project,
                                  editor: Editor,
                                  file: PsiFile): Boolean =
-    literal.isValid &&
-      literal.getManager.isInProject(file)
+    literal.isValid
 
   override final def invoke(project: Project,
                             editor: Editor,

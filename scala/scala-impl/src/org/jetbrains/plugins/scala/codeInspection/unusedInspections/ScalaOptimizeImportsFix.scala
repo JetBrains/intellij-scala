@@ -21,7 +21,7 @@ sealed abstract class ScalaOptimizeImportsFixBase extends IntentionAction {
   override final def startInWriteAction: Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    file.getManager.isInProject(file) && file.hasScalaPsi
+    file.hasScalaPsi
 
   /**
    * We can't just select ScalaImportOptimizer because of Play2 templates

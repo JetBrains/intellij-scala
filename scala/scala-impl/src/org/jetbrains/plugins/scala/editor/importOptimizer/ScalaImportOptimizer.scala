@@ -1,10 +1,12 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.concurrency.JobLauncher
+import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.{ASTNode, ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -190,7 +192,10 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
   //we should not apply this to Play2ScalaFile, it is covered by Play2ImportOptimizer
   override def supports(file: PsiFile): Boolean =
-    file.is[ScalaFile] && !file.getVirtualFile.getName.endsWith(".html")
+    file.is[ScalaFile] && !file.getVirtualFile.getName.endsWith(".html") && {
+      val vFile = file.getViewProvider.getVirtualFile
+      ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSource(vFile) || ScratchUtil.isScratch(vFile)
+    }
 
   def replaceWithNewImportInfos(
     range: RangeInfo,
