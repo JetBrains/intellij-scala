@@ -16,7 +16,7 @@ class ConvertToExplicitSymbolQuickFix(symbolLiteral: ScSymbolLiteral) extends In
   override final def getFamilyName: String = ScalaBundle.message("convert.to.explicit.symbol.family")
 
   override final def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    symbolLiteral.isValid && symbolLiteral.getManager.isInProject(file)
+    symbolLiteral.isValid
 
   override final def invoke(project: Project,
                             editor: Editor,

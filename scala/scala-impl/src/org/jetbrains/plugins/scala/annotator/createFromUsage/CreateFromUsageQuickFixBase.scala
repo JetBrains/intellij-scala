@@ -8,7 +8,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
@@ -22,18 +21,11 @@ abstract class CreateFromUsageQuickFixBase(ref: ScReference)
 
   override implicit val projectContext: ProjectContext = ref
 
-  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean = {
-    if (!ref.isValid) return false
-
-    val scalaFile = file match {
-      case sf: ScalaFile => sf
-      case _ => return false
-    }
-    if (!ScalaPsiManager.isInProjectOrStrachFile(scalaFile)) return false
-    if (scalaFile.is[ScalaCodeFragment]) return false
-    
-    true
-  }
+  override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
+    if (file.is[ScalaCodeFragment]) false
+    else if (!file.is[ScalaFile]) false
+    else if (!ref.isValid) false
+    else true
 
   override def startInWriteAction() = false
 
