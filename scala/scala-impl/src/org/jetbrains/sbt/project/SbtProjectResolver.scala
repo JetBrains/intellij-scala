@@ -219,26 +219,41 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       Failure(new UnsupportedOperationException(message))
     }
     else {
-      val structureFileReused = new File(FileUtil.getTempDirectory) / s"sbt-structure-reused-${projectRoot.getName}.xml"
-      if (RegistryManager.getInstance().is("sbt.project.import.reuse.previous.structure.file")){
-        if (structureFileReused.exists()) {
-          log.warn(s"reused structure file: $structureFileReused")
-          val elem = XML.load(structureFileReused.toURI.toURL)
-          Try((elem, BuildMessages.empty))
-        }
-        else {
-          log.warn(s"reused structure file created: $structureFileReused")
-          doDumpStructure(structureFileReused)
-        }
-      }
-      else {
-        if (structureFileReused.exists()) {
-          structureFileReused.delete()
-        }
+      val structureFilePath = getStructureFilePath(projectRoot)
+      val (readStructureFile, writeStructureFile) = getStructureFileReuseMode
+
+      if (readStructureFile && structureFilePath.exists()) {
+        log.warn(s"reused structure file: $structureFilePath")
+        val elem = XML.load(structureFilePath.toURI.toURL)
+        Try((elem, BuildMessages.empty))
+      } else if (writeStructureFile) {
+        log.warn(s"reused structure file created: $structureFilePath")
+        doDumpStructure(structureFilePath)
+      } else {
         usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
           doDumpStructure(structureFile)
         }
       }
+    }
+  }
+
+  private def getStructureFilePath(projectRoot: File): File = {
+    var structureFileFolder = new File(Option(System.getProperty("sbt.project.structure.location")).getOrElse(FileUtil.getTempDirectory))
+    if (!structureFileFolder.isAbsolute) {
+      structureFileFolder = projectRoot.toPath.resolve(structureFileFolder.toPath).normalize().toFile
+    }
+    structureFileFolder / s"sbt-structure-reused-${projectRoot.getName}.xml"
+  }
+
+  private def getStructureFileReuseMode: (Boolean, Boolean) = {
+    if (RegistryManager.getInstance().is("sbt.project.import.reuse.previous.structure.file")) {
+      (true, true)
+    } else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.readWrite"))) {
+      (true, true)
+    } else if (java.lang.Boolean.parseBoolean(System.getProperty("sbt.project.structure.read"))) {
+      (true, false)
+    } else {
+      (false, false)
     }
   }
 
