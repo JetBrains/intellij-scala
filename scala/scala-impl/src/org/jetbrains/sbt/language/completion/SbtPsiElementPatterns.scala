@@ -38,7 +38,7 @@ object SbtPsiElementPatterns {
   def sbtModuleIdPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isSbtModuleIdPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
-        case expr: ScInfixExpr => expr.left.getText == "libraryDependencies" && SEQ_ADD_OPS.contains(expr.operation.refName) || SBT_MODULE_ID_TYPE.contains(expr.`type`().getOrAny.canonicalText)
+        case expr: ScInfixExpr => expr.left.textMatches("libraryDependencies") && SEQ_ADD_OPS.contains(expr.operation.refName) || SBT_MODULE_ID_TYPE.contains(expr.`type`().getOrAny.canonicalText)
         case patDef: ScPatternDefinition =>
           SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText) || SBT_MODULE_ID_TYPE.exists(patDef.`type`().getOrAny.canonicalText.contains)
         case _ => false
@@ -64,10 +64,10 @@ object SbtPsiElementPatterns {
           infix.left match {
             /* ThisBuild / scalaVersion := ... */
             case subInfix: ScInfixExpr =>
-              subInfix.operation.refName == "/" && subInfix.right.getText == "scalaVersion"
+              subInfix.operation.refName == "/" && subInfix.right.textMatches("scalaVersion")
             /* scalaVersion := ... */
             case other =>
-              other.getText == "scalaVersion"
+              other.textMatches("scalaVersion")
           }
         case property: Property =>
           property.getKey == "sbt.version" && property.getValue.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
