@@ -11,7 +11,7 @@ object Versions {
   val bloopVersion = "1.4.13-2-c3139cab"
   val zincVersion = "1.5.7"
 
-  val intellijVersion = "221.5080.210"
+  val intellijVersion = "221.6008.1"
 
   private val ideaBuildType = Utils.inferIdeaBuildType(intellijVersion)
 

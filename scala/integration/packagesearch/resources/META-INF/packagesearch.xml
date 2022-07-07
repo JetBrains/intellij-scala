@@ -1,6 +1,5 @@
 <idea-plugin>
     <depends>com.jetbrains.packagesearch.intellij-plugin</depends>
-    <depends>com.intellij.externalSystem.dependencyUpdater</depends>
     <extensions defaultExtensionNs="com.intellij">
         <externalSystem.dependencyModifier implementation="org.jetbrains.plugins.scala.packagesearch.SbtDependencyModifier"/>
         <packagesearch.moduleTransformer implementation="org.jetbrains.plugins.scala.packagesearch.SbtModuleTransformer"/>
