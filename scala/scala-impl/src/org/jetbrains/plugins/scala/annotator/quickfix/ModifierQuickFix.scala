@@ -22,8 +22,7 @@ sealed abstract class ModifierQuickFix(listOwner: ScModifierListOwner)
 
   override final def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
     listOwner.isValid &&
-      listOwner.getContainingFile == file &&
-      listOwner.getManager.isInProject(file)
+      listOwner.getContainingFile == file
 
   override final def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     listOwner.getModifierList match {

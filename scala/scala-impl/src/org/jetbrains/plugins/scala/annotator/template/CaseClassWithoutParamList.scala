@@ -45,7 +45,7 @@ class AddEmptyParenthesesToPrimaryConstructorFix(c: ScClass) extends IntentionAc
   override def startInWriteAction: Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    c.isValid && c.getManager.isInProject(file)
+    c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit =
     c.clauses foreach {
@@ -61,7 +61,7 @@ final class ConvertToObjectFix(c: ScClass) extends IntentionAction {
   override def startInWriteAction: Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    c.isValid && c.getManager.isInProject(file)
+    c.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     val classKeywordTextRange = c.targetToken.getTextRange

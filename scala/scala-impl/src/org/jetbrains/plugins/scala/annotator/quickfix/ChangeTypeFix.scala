@@ -31,7 +31,7 @@ class ChangeTypeFix(typeElement: ScTypeElement, newType: ScType) extends Intenti
   override def startInWriteAction: Boolean = true
 
   override def isAvailable(project: Project, editor: Editor, file: PsiFile): Boolean =
-    typeElement.isValid && typeElement.getManager.isInProject(file)
+    typeElement.isValid
 
   override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
     if (!typeElement.isValid) return
