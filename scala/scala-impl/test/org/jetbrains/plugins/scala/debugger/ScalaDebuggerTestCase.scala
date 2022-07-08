@@ -49,7 +49,7 @@ abstract class ScalaDebuggerTestCase extends DebuggerTestCase with ScalaSdkOwner
 
   private def testDataDebuggerPath: Path = Path.of(TestUtils.getTestDataPath, testDataDirectoryName)
 
-  private def versionSpecific: Path = Path.of(s"scala-${version.major}")
+  private def versionSpecific: Path = Path.of(s"scala-${version.minor}")
 
   private def testAppPath: Path = testDataDebuggerPath.resolve(getClass.getSimpleName).resolve(versionSpecific)
 
