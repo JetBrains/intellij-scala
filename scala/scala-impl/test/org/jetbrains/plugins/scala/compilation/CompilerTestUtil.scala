@@ -6,7 +6,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
-import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.util.Try
@@ -168,9 +168,9 @@ object CompilerTestUtil {
       enabled
     )
     val revertible3 = withModifiedSetting[Boolean](
-      TriggerCompilerHighlightingService.get(project).isAutoTriggerEnabled,
-      TriggerCompilerHighlightingService.get(project).isAutoTriggerEnabled = _,
-      true
+      ScalaHighlightingMode.compilerHighlightingEnabledInTests,
+      ScalaHighlightingMode.compilerHighlightingEnabledInTests = _,
+      enabled
     )
     revertible1 |+| revertible2 |+| revertible3
   }
@@ -179,9 +179,6 @@ object CompilerTestUtil {
     val revertable: RevertableChange = withErrorsFromCompiler(project, enabled = true)
     revertable.run(body)
   }
-
-  def withErrorsFromCompilerDisabled(project: Project): RevertableChange =
-    withErrorsFromCompiler(project, enabled = false)
 
   def withModifiedSetting[Settings, T](instance: => Settings)
                                       (value: T)
