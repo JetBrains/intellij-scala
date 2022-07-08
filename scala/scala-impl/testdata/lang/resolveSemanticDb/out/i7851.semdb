@@ -1,0 +1,101 @@
+Document tests/pos/i7851.scala
+(2:7..2:16) _empty_/Wrappable# -> 1:7
+(2:17..2:22) scala/Float#
+(4:23..4:32) _empty_/Wrappable# -> 1:7
+(4:41..4:42) _empty_/Wrapped#[T] -> 4:20
+(7:32..7:37) scala/Tuple#
+(7:52..7:57) scala/Tuple#
+(7:61..7:68) _empty_/Wrapper# -> 6:7
+(7:69..7:70) _empty_/Wrapper.Aux#[T] -> 7:27
+(7:90..7:99) _empty_/Wrapper.Aux#[WrappedT0] -> 7:39
+(9:7..9:14) _empty_/Wrapper# -> 6:7
+(9:15..9:25) scala/Tuple$package.EmptyTuple#
+(9:50..9:60) scala/Tuple$package.EmptyTuple#
+(11:11..11:20) _empty_/Wrappable# -> 1:7
+(11:23..11:30) _empty_/Wrapper# -> 6:7
+(11:31..11:32) _empty_/i7851$package.given_Wrapper_T#[T] -> 11:8
+(11:57..11:64) _empty_/Wrapped# -> 4:12
+(11:65..11:66) _empty_/i7851$package.given_Wrapper_T#[T] -> 11:8
+(13:11..13:20) _empty_/Wrappable# -> 1:7
+(13:27..13:32) scala/Tuple#
+(13:47..13:52) scala/Tuple#
+(13:60..13:67) _empty_/Wrapper. -> 7:8
+(13:68..13:71) _empty_/Wrapper.Aux# -> 7:23
+(13:72..13:73) _empty_/i7851$package.`given_Wrapper_*:`#[T] -> 13:22
+(13:72..13:73) _empty_/i7851$package.`given_Wrapper_*:`().[T] -> 13:22
+(13:75..13:84) _empty_/i7851$package.`given_Wrapper_*:`#[WrappedT0] -> 13:34
+(13:75..13:84) _empty_/i7851$package.`given_Wrapper_*:`().[WrappedT0] -> 13:34
+(13:88..13:95) _empty_/Wrapper# -> 6:7
+(13:96..13:97) _empty_/i7851$package.`given_Wrapper_*:`#[H] -> 13:8
+(13:98..13:100) scala/`*:`#
+(13:101..13:102) _empty_/i7851$package.`given_Wrapper_*:`#[T] -> 13:22
+(14:19..14:26) _empty_/Wrapped# -> 4:12
+(14:27..14:28) _empty_/i7851$package.`given_Wrapper_*:`#[H] -> 13:8
+(14:30..14:32) scala/`*:`#
+(14:33..14:42) _empty_/i7851$package.`given_Wrapper_*:`#[WrappedT0] -> 13:34
+(17:33..17:38) scala/Tuple#
+(17:56..17:61) scala/Tuple#
+(17:66..17:75) _empty_/Wrappable# -> 1:7
+(18:13..18:14) _empty_/i7851$package.wrappedFunction().[F] -> 17:21
+(19:10..19:15) _empty_/i7851$package.wrappedFunction().[FArgs] -> 17:24
+(20:7..20:11) scala/util/
+(20:12..20:26) scala/util/TupledFunction#
+(20:27..20:28) _empty_/i7851$package.wrappedFunction().[F] -> 17:21
+(20:30..20:42) _empty_/i7851$package.wrappedFunction().[WrapperFArgs] -> 17:40
+(20:46..20:53) _empty_/Wrapped# -> 4:12
+(20:54..20:55) _empty_/i7851$package.wrappedFunction().[R] -> 17:63
+(21:7..21:14) _empty_/Wrapper. -> 7:8
+(21:15..21:18) _empty_/Wrapper.Aux# -> 7:23
+(21:19..21:24) _empty_/i7851$package.wrappedFunction().[FArgs] -> 17:24
+(21:26..21:38) _empty_/i7851$package.wrappedFunction().[WrapperFArgs] -> 17:40
+(22:5..22:6) _empty_/i7851$package.wrappedFunction().[R] -> 17:63
+(22:8..22:9) _empty_/i7851$package.wrappedFunction().[R] -> 17:63
+(22:13..22:19) scala/Option#
+(22:20..22:25) _empty_/i7851$package.wrappedFunction().[FArgs] -> 17:24
+(23:23..23:28) _empty_/i7851$package.wrappedFunction().(input) -> 19:3
+(23:29..23:41) scala/Any#asInstanceOf().
+(23:42..23:54) _empty_/i7851$package.wrappedFunction().[WrapperFArgs] -> 17:40
+(24:16..24:18) _empty_/i7851$package.wrappedFunction().(tf) -> 20:3
+(24:19..24:25) scala/util/TupledFunction#tupled().
+(24:26..24:34) _empty_/i7851$package.wrappedFunction().(function) -> 18:3
+(24:36..24:49) local10 -> 23:7
+(25:11..25:17) local11 -> 24:7
+(25:18..25:23) _empty_/Wrapped#value. -> 4:34
+(25:29..25:30) _empty_/i7851$package.wrappedFunction().[R] -> 17:63
+(25:35..25:39) scala/None.
+(29:16..29:23) _empty_/Wrapped# -> 4:12
+(29:24..29:29) scala/Float#
+(29:35..29:42) _empty_/Wrapped# -> 4:12
+(29:43..29:48) scala/Float#
+(29:54..29:61) _empty_/Wrapped# -> 4:12
+(29:62..29:67) scala/Float#
+(29:71..29:78) _empty_/Wrapped# -> 4:12
+(29:79..29:84) scala/Float#
+(29:90..29:91) _empty_/WrapperTest.test1().(x) -> 29:13
+(30:15..30:22) _empty_/Wrapped# -> 4:12
+(30:23..30:28) scala/Float#
+(30:31..30:38) _empty_/Wrapped# -> 4:12
+(30:39..30:44) scala/Float#
+(30:47..30:54) _empty_/Wrapped# -> 4:12
+(30:55..30:60) scala/Float#
+(30:66..30:73) _empty_/Wrapped# -> 4:12
+(30:74..30:79) scala/Float#
+(30:98..30:99) local1 -> 30:86
+(32:18..32:23) scala/Array#
+(32:24..32:30) scala/Predef.String#
+(32:34..32:38) scala/Unit#
+(33:5..33:20) _empty_/i7851$package.wrappedFunction(). -> 17:5
+(33:21..33:26) _empty_/WrapperTest.test1(). -> 29:7
+(33:29..33:36) _empty_/Wrapped# -> 4:12
+(33:37..33:42) scala/Float#
+(33:45..33:52) _empty_/Wrapped# -> 4:12
+(33:53..33:58) scala/Float#
+(33:61..33:68) _empty_/Wrapped# -> 4:12
+(33:69..33:74) scala/Float#
+(33:80..33:87) _empty_/Wrapped# -> 4:12
+(33:88..33:93) scala/Float#
+(34:5..34:20) _empty_/i7851$package.wrappedFunction(). -> 17:5
+(34:21..34:26) _empty_/WrapperTest.test1(). -> 29:7
+(35:5..35:20) _empty_/i7851$package.wrappedFunction(). -> 17:5
+(35:21..35:26) _empty_/WrapperTest.test2. -> 30:7
+

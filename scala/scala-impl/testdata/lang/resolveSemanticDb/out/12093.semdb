@@ -54,6 +54,7 @@ Document tests/pos/12093.scala
 (23:13..23:15) _empty_/`#:`# -> 5:18
 (23:24..23:28) local2 -> 23:8
 (24:10..24:16) _empty_/`12093$package`.Contains#[Needle] -> 21:34
+(25:10..25:11) scala/Any#
 (25:15..25:23) _empty_/`12093$package`.Contains# -> 21:6
 (25:24..25:28) local3 -> 23:16
 (25:30..25:36) _empty_/`12093$package`.Contains#[Needle] -> 21:34
@@ -69,6 +70,7 @@ Document tests/pos/12093.scala
 (31:19..31:25) _empty_/`12093$package`.Remove# -> 28:6
 (31:26..31:30) local5 -> 30:16
 (31:32..31:37) _empty_/`12093$package`.Remove#[Value] -> 28:28
+(32:10..32:11) scala/Any#
 (32:15..32:19) local4 -> 30:8
 (32:20..32:22) _empty_/`#:`# -> 5:18
 (32:23..32:29) _empty_/`12093$package`.Remove# -> 28:6

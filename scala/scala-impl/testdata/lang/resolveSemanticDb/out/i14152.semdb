@@ -1,0 +1,40 @@
+Document tests/pos/i14152.scala
+(2:21..2:27) scala/AnyRef#
+(3:3..3:8) scala/Array.
+(3:9..3:11) local1
+(5:9..5:14) scala/Array#
+(5:20..5:26) scala/AnyRef#
+(5:30..5:33) _empty_/i14152$package.aa1. -> 7:5
+(8:21..8:27) scala/AnyRef#
+(9:3..9:8) scala/Array.
+(9:9..9:14) scala/Array.
+(9:15..9:17) local4
+(11:10..11:15) scala/Array#
+(11:21..11:26) scala/Array#
+(11:32..11:38) scala/AnyRef#
+(11:43..11:46) _empty_/i14152$package.aa1. -> 7:5
+(14:21..14:27) scala/AnyRef#
+(15:3..15:8) scala/Array.
+(15:9..15:14) scala/Array.
+(15:15..15:20) scala/Array.
+(15:21..15:23) local7
+(17:11..17:16) scala/Array#
+(17:22..17:27) scala/Array#
+(17:33..17:38) scala/Array#
+(17:44..17:50) scala/AnyRef#
+(17:56..17:60) _empty_/i14152$package.aaa1. -> 13:5
+(22:17..22:18) _empty_/Inv#[T] -> 22:11
+(24:36..24:37) _empty_/i14152$package.foo().[F] -> 24:9
+(24:38..24:39) local9 -> 24:20
+(25:21..25:27) scala/AnyRef#
+(26:14..26:16) _empty_/i14152$package.foo().(fn) -> 24:15
+(26:25..26:27) _empty_/i14152$package.foo().(fn) -> 24:15
+(26:32..26:35) _empty_/Inv# -> 22:7
+(26:36..26:38) local13
+(26:45..26:47) local13
+(27:13..27:14) _empty_/i14152$package.foo().[F] -> 24:9
+(27:15..27:16) _empty_/i14152$package.foo().[F] -> 24:9
+(27:17..27:19) local13
+(27:29..27:33) local15 -> 26:7
+(28:3..28:7) local16 -> 27:7
+

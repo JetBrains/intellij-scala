@@ -1,0 +1,8 @@
+Document tests/pos/i14048.scala
+(2:21..2:25) scala/Unit#
+(2:28..2:31) _empty_/T#bar(). -> 3:22
+(3:29..3:33) scala/Unit#
+(5:13..5:14) _empty_/T# -> 1:7
+(5:18..5:19) _empty_/i14048$package.test().(t) -> 5:10
+(5:20..5:23) _empty_/T#foo(). -> 2:14
+

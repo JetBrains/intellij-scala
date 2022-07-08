@@ -13,7 +13,7 @@
 [42,50]: SingletonTypeTree
 [45,50]: Literal
 [53,67]: CaseDef
-[58,59]: TypeBoundsTree
+[58,59]: Ident
 [60,67]: SingletonTypeTree
 [63,67]: Literal
 [70,95]: TypeDef

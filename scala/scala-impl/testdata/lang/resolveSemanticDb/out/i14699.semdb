@@ -1,0 +1,11 @@
+Document tests/pos/i14699.scala
+(1:22..1:26) scala/Unit#
+(1:29..1:33) scala/Unit#
+(2:18..2:21) scala/Int#
+(2:34..2:38) scala/Unit#
+(2:41..2:45) scala/Unit#
+(5:11..5:17) _empty_/i14699$package.always(). -> 1:5
+(6:11..6:15) scala/Unit#
+(6:18..6:19) local0 -> 5:7
+(7:3..7:9) _empty_/i14699$package.always(+1). -> 2:5
+

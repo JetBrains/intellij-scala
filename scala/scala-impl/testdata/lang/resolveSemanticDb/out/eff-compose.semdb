@@ -57,12 +57,12 @@ Document tests/pos/eff-compose.scala
 (33:22..33:23) _empty_/Test.mapFn().[E] -> 20:19
 (34:25..34:29) scala/package.List#
 (34:30..34:31) _empty_/Test.mapFn().[A] -> 20:13
-(34:35..34:38) local12 -> 33:16
+(34:35..34:38) local14 -> 33:16
 (34:43..34:47) scala/package.List#
 (34:48..34:49) _empty_/Test.mapFn().[B] -> 20:16
 (35:13..35:16) _empty_/Test.map(). -> 15:7
-(35:17..35:18) local10 -> 31:17
-(35:20..35:22) local13 -> 34:21
+(35:17..35:18) local12 -> 31:17
+(35:20..35:22) local15 -> 34:21
 (39:30..39:36) _empty_/Test.Effect# -> 3:9
 (39:44..39:50) _empty_/Test.Effect# -> 3:9
 (39:61..39:63) _empty_/Test.combine().[E1] -> 39:24
@@ -152,7 +152,7 @@ Document tests/pos/eff-compose.scala
 (72:31..72:33) _empty_/Test.composeFn().[E2] -> 48:40
 (73:28..73:29) _empty_/Test.composeFn().[A] -> 48:17
 (73:33..73:40) _empty_/Test.compose(). -> 42:7
-(73:41..73:42) local36 -> 64:17
-(73:44..73:45) local42 -> 70:21
-(73:47..73:48) local45 -> 73:25
+(73:41..73:42) local41 -> 64:17
+(73:44..73:45) local49 -> 70:21
+(73:47..73:48) local52 -> 73:25
 

@@ -1,0 +1,10 @@
+Document tests/pos/surrogates.scala
+(9:14..9:16) _empty_/`𐐀`#`𐐀`(). -> 5:7
+(9:16..9:17) scala/StringContext#s().
+(10:16..10:17) scala/StringContext#s().
+(13:20..13:23) scala/Int#
+(14:14..14:15) _empty_/`𐐀𐐀`#n. -> 13:17
+(15:17..15:18) _empty_/`𐐀𐐀`#n. -> 13:17
+(15:19..15:20) scala/Int#`+`(+4).
+(15:21..15:22) _empty_/`𐐀𐐀`#n. -> 13:17
+

@@ -1,0 +1,11 @@
+[1,93]: PackageDef
+[9,16]: Ident
+[17,93]: ExtMethods
+[28,41]: ValDef
+[35,41]: Ident
+[43,93]: DefDef
+[51,78]: ValDef
+[64,71]: Ident
+[74,78]: Literal
+[82,88]: Ident
+[91,93]: Literal

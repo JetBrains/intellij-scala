@@ -5,6 +5,7 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.sourcePath
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.junit.Assert.assertTrue
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
@@ -22,7 +23,8 @@ abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapte
       if (Files.isDirectory(testDirPath)) {
         (testDirPath, testDirPath)
       } else {
-        assert(Files.isRegularFile(testFilePath))
+        assertTrue(s"Test file does not exist: $testFilePath", Files.exists(testFilePath))
+        assertTrue(s"Test file is not a regular file: $testFilePath", Files.isRegularFile(testFilePath))
         (testFilePath, sourcePath)
       }
 

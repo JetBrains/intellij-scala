@@ -2,37 +2,27 @@ Document tests/pos/t0851.scala
 (4:29..4:30) test/test1.Foo#[T] -> 4:18
 (4:31..4:33) test/test1.Foo#[T2] -> 4:20
 (4:38..4:44) scala/Predef.String#
-(4:57..4:58) test/test1.Foo#[T] -> 4:18
-(4:59..4:61) test/test1.Foo#[T2] -> 4:20
-(4:67..4:73) scala/Predef.String#
 (5:19..5:20) test/test1.Foo#[T] -> 4:18
 (5:27..5:29) test/test1.Foo#[T2] -> 4:20
 (5:34..5:35) test/test1.Foo#f. -> 4:24
 (5:36..5:37) test/test1.Foo#apply().(t) -> 5:15
 (5:38..5:39) local0 -> 5:25
-(6:20..6:21) test/test1.Foo#[T] -> 4:18
-(6:22..6:24) test/test1.Foo#[T2] -> 4:20
-(6:29..6:30) test/test1.Foo#f. -> 4:24
-(6:31..6:32) test/test1.Foo#apply(+1).(p) -> 6:15
-(6:33..6:35) scala/Tuple2#_1.
-(6:36..6:37) test/test1.Foo#apply(+1).(p) -> 6:15
-(6:38..6:40) scala/Tuple2#_2.
-(8:26..8:27) test/test1.g().[T] -> 8:18
-(8:28..8:34) scala/Predef.String#
-(8:39..8:45) scala/Predef.String#
-(8:48..8:51) test/test1.Foo# -> 4:14
-(8:52..8:53) test/test1.g().[T] -> 8:18
-(8:55..8:61) scala/Predef.String#
-(8:65..8:68) test/test1.Foo.
-(8:69..8:70) test/test1.g().(f) -> 8:21
-(9:19..9:24) scala/Array#
-(9:25..9:31) scala/Predef.String#
-(9:36..9:40) scala/Unit#
-(10:16..10:19) scala/Int#
-(10:22..10:28) scala/Predef.String#
-(10:33..10:34) local2 -> 10:20
-(10:35..10:36) java/lang/String#`+`().
-(10:37..10:38) local1 -> 10:14
-(11:5..11:12) scala/Predef.println(+1).
-(11:13..11:14) local3 -> 10:9
+(7:26..7:27) test/test1.g().[T] -> 7:18
+(7:28..7:34) scala/Predef.String#
+(7:39..7:45) scala/Predef.String#
+(7:48..7:51) test/test1.Foo# -> 4:14
+(7:52..7:53) test/test1.g().[T] -> 7:18
+(7:55..7:61) scala/Predef.String#
+(7:65..7:68) test/test1.Foo.
+(7:69..7:70) test/test1.g().(f) -> 7:21
+(8:19..8:24) scala/Array#
+(8:25..8:31) scala/Predef.String#
+(8:36..8:40) scala/Unit#
+(9:16..9:19) scala/Int#
+(9:22..9:28) scala/Predef.String#
+(9:33..9:34) local2 -> 9:20
+(9:35..9:36) java/lang/String#`+`().
+(9:37..9:38) local1 -> 9:14
+(10:5..10:12) scala/Predef.println(+1).
+(10:13..10:14) local3 -> 9:9
 

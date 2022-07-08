@@ -1,0 +1,99 @@
+Document tests/pos/i13816.scala
+(1:8..1:16) scala/language.
+(1:17..1:29) scala/language.experimental.
+(1:30..1:45) scala/language.experimental.saferExceptions.
+(3:19..3:28) scala/package.Exception#
+(4:19..4:28) scala/package.Exception#
+(6:13..6:16) scala/Int#
+(6:19..6:23) scala/Unit#
+(6:31..6:34) _empty_/Ex1# -> 3:7
+(6:42..6:45) _empty_/Ex2# -> 4:7
+(7:6..7:7) _empty_/i13816$package.foo1().(i) -> 6:10
+(7:8..7:9) scala/Int#`>`(+3).
+(7:27..7:30) _empty_/Ex1# -> 3:7
+(7:46..7:49) _empty_/Ex2# -> 4:7
+(9:13..9:16) scala/Int#
+(9:19..9:23) scala/Unit#
+(9:31..9:34) _empty_/Ex1# -> 3:7
+(9:37..9:40) _empty_/Ex2# -> 4:7
+(10:6..10:7) _empty_/i13816$package.foo2().(i) -> 9:10
+(10:8..10:9) scala/Int#`>`(+3).
+(10:27..10:30) _empty_/Ex1# -> 3:7
+(10:46..10:49) _empty_/Ex2# -> 4:7
+(12:13..12:16) scala/Int#
+(12:19..12:23) scala/Unit#
+(12:32..12:35) _empty_/Ex1# -> 3:7
+(12:38..12:41) _empty_/Ex2# -> 4:7
+(13:6..13:7) _empty_/i13816$package.foo3().(i) -> 12:10
+(13:8..13:9) scala/Int#`>`(+3).
+(13:27..13:30) _empty_/Ex1# -> 3:7
+(13:46..13:49) _empty_/Ex2# -> 4:7
+(15:13..15:16) scala/Int#
+(15:24..15:32) scala/CanThrow#
+(15:33..15:36) _empty_/Ex1# -> 3:7
+(15:39..15:47) scala/CanThrow#
+(15:48..15:51) _empty_/Ex2# -> 4:7
+(15:55..15:59) scala/Unit#
+(16:6..16:7) _empty_/i13816$package.foo4().(i) -> 15:10
+(16:8..16:9) scala/Int#`>`(+3).
+(16:27..16:30) _empty_/Ex1# -> 3:7
+(16:46..16:49) _empty_/Ex2# -> 4:7
+(18:13..18:16) scala/Int#
+(18:24..18:32) scala/CanThrow#
+(18:33..18:36) _empty_/Ex1# -> 3:7
+(18:45..18:53) scala/CanThrow#
+(18:54..18:57) _empty_/Ex2# -> 4:7
+(18:61..18:65) scala/Unit#
+(19:6..19:7) _empty_/i13816$package.foo5().(i) -> 18:10
+(19:8..19:9) scala/Int#`>`(+3).
+(19:27..19:30) _empty_/Ex1# -> 3:7
+(19:46..19:49) _empty_/Ex2# -> 4:7
+(21:13..21:16) scala/Int#
+(21:24..21:32) scala/CanThrow#
+(21:33..21:36) _empty_/Ex1# -> 3:7
+(21:37..21:38) scala/`|`#
+(21:39..21:42) _empty_/Ex2# -> 4:7
+(21:46..21:50) scala/Unit#
+(22:6..22:7) _empty_/i13816$package.foo6().(i) -> 21:10
+(22:8..22:9) scala/Int#`>`(+3).
+(22:27..22:30) _empty_/Ex1# -> 3:7
+(22:46..22:49) _empty_/Ex2# -> 4:7
+(24:13..24:16) scala/Int#
+(24:24..24:32) scala/CanThrow#
+(24:33..24:36) _empty_/Ex1# -> 3:7
+(24:40..24:44) scala/Unit#
+(24:52..24:55) _empty_/Ex2# -> 4:7
+(25:6..25:7) _empty_/i13816$package.foo7().(i) -> 24:10
+(25:8..25:9) scala/Int#`>`(+3).
+(25:27..25:30) _empty_/Ex1# -> 3:7
+(25:46..25:49) _empty_/Ex2# -> 4:7
+(27:13..27:16) scala/Int#
+(27:24..27:32) scala/CanThrow#
+(27:33..27:36) _empty_/Ex2# -> 4:7
+(27:40..27:44) scala/Unit#
+(27:52..27:55) _empty_/Ex1# -> 3:7
+(28:6..28:7) _empty_/i13816$package.foo8().(i) -> 27:10
+(28:8..28:9) scala/Int#`>`(+3).
+(28:27..28:30) _empty_/Ex1# -> 3:7
+(28:46..28:49) _empty_/Ex2# -> 4:7
+(30:13..30:17) scala/Unit#
+(32:5..32:9) _empty_/i13816$package.foo1(). -> 6:5
+(33:5..33:9) _empty_/i13816$package.foo2(). -> 9:5
+(34:5..34:9) _empty_/i13816$package.foo3(). -> 12:5
+(35:5..35:9) _empty_/i13816$package.foo4(). -> 15:5
+(36:5..36:9) _empty_/i13816$package.foo5(). -> 18:5
+(37:5..37:9) _empty_/i13816$package.foo6(). -> 21:5
+(38:5..38:9) _empty_/i13816$package.foo7(). -> 24:5
+(39:5..39:9) _empty_/i13816$package.foo8(). -> 27:5
+(41:13..41:16) _empty_/Ex1# -> 3:7
+(42:13..42:16) _empty_/Ex2# -> 4:7
+(46:7..46:11) _empty_/i13816$package.foo1(). -> 6:5
+(47:7..47:11) _empty_/i13816$package.foo2(). -> 9:5
+(48:7..48:11) _empty_/i13816$package.foo3(). -> 12:5
+(49:7..49:11) _empty_/i13816$package.foo4(). -> 15:5
+(50:7..50:11) _empty_/i13816$package.foo5(). -> 18:5
+(52:7..52:11) _empty_/i13816$package.foo7(). -> 24:5
+(53:7..53:11) _empty_/i13816$package.foo8(). -> 27:5
+(55:15..55:18) _empty_/Ex1# -> 3:7
+(57:13..57:16) _empty_/Ex2# -> 4:7
+

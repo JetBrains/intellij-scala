@@ -30,6 +30,7 @@ Document tests/pos/8647.scala
 (35:12..35:15) _empty_/Two# -> 1:13
 (35:16..35:19) _empty_/Bla# -> 5:13
 (35:30..35:33) scala/Int#
+(36:12..36:13) scala/Any#
 (36:17..36:23) scala/Predef.String#
 (39:10..39:11) _empty_/Test3.M# -> 32:8
 (39:12..39:19) scala/Boolean#
@@ -46,6 +47,7 @@ Document tests/pos/8647.scala
 (48:16..48:19) _empty_/Bla# -> 5:13
 (48:20..48:23) local2 -> 47:13
 (48:32..48:35) scala/Int#
+(49:12..49:13) scala/Any#
 (49:17..49:23) scala/Predef.String#
 (52:10..52:11) _empty_/Test4.M# -> 45:8
 (52:12..52:19) scala/Boolean#

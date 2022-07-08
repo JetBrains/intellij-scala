@@ -79,7 +79,8 @@ Document tests/pos/i11864.scala
 (42:35..42:36) _empty_/CallbackTo.MapGuard#[A] -> 42:17
 (43:29..43:37) _empty_/CallbackTo.MapGuard# -> 42:8
 (43:38..43:39) _empty_/CallbackTo.MapGuard().[A] -> 43:25
-(43:43..43:46) scala/Predef.`???`().
+(43:43..43:54) scala/compiletime/
+(43:55..43:66) scala/compiletime/package$package.erasedValue().
 (45:26..45:30) scala/package.List#
 (45:31..45:32) _empty_/CallbackTo.traverse().[A] -> 45:16
 (45:36..45:46) _empty_/CallbackTo# -> 36:13

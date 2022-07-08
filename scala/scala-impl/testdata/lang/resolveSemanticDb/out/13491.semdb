@@ -25,6 +25,7 @@ Document tests/pos/13491.scala
 (19:22..19:24) _empty_/`::`# -> 6:18
 (19:25..19:26) local0 -> 19:13
 (19:28..19:29) local1 -> 19:16
+(20:10..20:11) scala/Any#
 (20:22..20:23) _empty_/HListable.HL0#[T] -> 16:12
 (20:24..20:26) _empty_/`::`# -> 6:18
 (20:27..20:31) _empty_/HNil# -> 8:14
@@ -82,6 +83,7 @@ Document tests/pos/13491.scala
 (53:106..53:108) _empty_/TailSwitch.TailSwitch0#[TI] -> 53:57
 (54:10..54:11) _empty_/TailSwitch.TailSwitch0#[L] -> 53:20
 (54:15..54:16) _empty_/TailSwitch.TailSwitch0#[R] -> 53:70
+(55:10..55:11) scala/Any#
 (56:5..56:7) _empty_/TailSwitch.TailSwitch0#[LI] -> 53:32
 (57:12..57:13) _empty_/TailSwitch.TailSwitch0#[T] -> 53:45
 (57:17..57:25) _empty_/TailSwitch.Prepend0# -> 40:8
@@ -193,27 +195,28 @@ Document tests/pos/13491.scala
 (88:57..88:58) _empty_/Rule.rule().[I] -> 88:12
 (88:60..88:61) _empty_/Rule.rule().[O] -> 88:24
 (88:65..88:68) scala/Predef.`???`().
-(89:31..89:34) scala/Predef.Map#
-(89:35..89:41) scala/Predef.String#
-(89:43..89:44) _empty_/Rule.valueMap().[T] -> 89:25
-(89:59..89:68) _empty_/HListable# -> 11:7
-(89:69..89:70) _empty_/Rule.valueMap().[T] -> 89:25
-(89:74..89:79) _empty_/Rule.RuleN# -> 86:8
-(89:80..89:81) _empty_/Rule.valueMap().(h) -> 89:56
-(89:82..89:85) _empty_/HListable#Out# -> 12:8
-(89:89..89:92) scala/Predef.`???`().
-(93:10..93:14) _empty_/Rule. -> 84:8
-(94:15..94:18) scala/Predef.Map#
-(94:19..94:25) scala/Predef.String#
-(94:27..94:30) scala/Int#
-(94:34..94:37) scala/Predef.Map.
-(94:44..94:46) scala/Predef.ArrowAssoc#`->`().
-(94:58..94:60) scala/Predef.ArrowAssoc#`->`().
-(94:71..94:73) scala/Predef.ArrowAssoc#`->`().
-(95:12..95:17) _empty_/Rule.Rule0# -> 85:8
-(95:19..95:22) scala/Predef.`???`().
-(96:11..96:15) _empty_/Rule.rule(). -> 88:7
-(96:16..96:22) _empty_/Test.colors. -> 94:7
-(96:23..96:24) _empty_/Rule#`~`(). -> 78:7
-(96:25..96:28) _empty_/Test.EOI(). -> 95:7
+(90:36..90:41) _empty_/HList# -> 5:14
+(90:46..90:49) scala/Predef.Map#
+(90:50..90:56) scala/Predef.String#
+(90:58..90:59) _empty_/Rule.valueMap().[T] -> 90:25
+(90:74..90:83) _empty_/HListable# -> 11:7
+(90:84..90:85) _empty_/Rule.valueMap().[T] -> 90:25
+(90:89..90:94) _empty_/Rule.RuleN# -> 86:8
+(90:95..90:96) _empty_/Rule.valueMap().(h) -> 90:71
+(90:97..90:100) _empty_/HListable#Out# -> 12:8
+(90:104..90:107) scala/Predef.`???`().
+(94:10..94:14) _empty_/Rule. -> 84:8
+(95:15..95:18) scala/Predef.Map#
+(95:19..95:25) scala/Predef.String#
+(95:27..95:30) scala/Int#
+(95:34..95:37) scala/Predef.Map.
+(95:44..95:46) scala/Predef.ArrowAssoc#`->`().
+(95:58..95:60) scala/Predef.ArrowAssoc#`->`().
+(95:71..95:73) scala/Predef.ArrowAssoc#`->`().
+(96:12..96:17) _empty_/Rule.Rule0# -> 85:8
+(96:19..96:22) scala/Predef.`???`().
+(97:11..97:15) _empty_/Rule.rule(). -> 88:7
+(97:16..97:22) _empty_/Test.colors. -> 95:7
+(97:23..97:24) _empty_/Rule#`~`(). -> 78:7
+(97:25..97:28) _empty_/Test.EOI(). -> 96:7
 

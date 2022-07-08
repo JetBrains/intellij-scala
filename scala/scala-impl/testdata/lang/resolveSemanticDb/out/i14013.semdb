@@ -1,0 +1,64 @@
+Document tests/pos/i14013.scala
+(1:8..1:31) _empty_/LightTypeTagInheritance. -> 5:8
+(6:38..6:61) _empty_/LightTypeTagInheritance# -> 14:7
+(7:17..7:20) _empty_/LightTypeTagInheritance.Ctx# -> 6:28
+(7:23..7:26) _empty_/LightTypeTagInheritance.Ctx.
+(7:27..7:31) _empty_/LightTypeTagInheritance.Ctx#self. -> 6:32
+(9:56..9:59) _empty_/LightTypeTagInheritance.Ctx# -> 6:28
+(9:69..9:75) scala/AnyVal#
+(10:25..10:40) _empty_/LightTypeTagRef# -> 3:7
+(10:50..10:65) _empty_/LightTypeTagRef# -> 3:7
+(10:68..10:75) scala/Boolean#
+(10:78..10:81) _empty_/LightTypeTagInheritance.CtxExt#ctx. -> 9:51
+(10:82..10:86) _empty_/LightTypeTagInheritance.Ctx#self. -> 6:32
+(10:87..10:94) _empty_/LightTypeTagInheritance#isChild(+1). -> 20:15
+(10:95..10:98) _empty_/LightTypeTagInheritance.CtxExt#ctx. -> 9:51
+(10:99..10:103) _empty_/LightTypeTagInheritance.Ctx#next(). -> 7:9
+(10:107..10:113) _empty_/LightTypeTagInheritance.CtxExt#isChild().(selfT0) -> 10:17
+(10:115..10:121) _empty_/LightTypeTagInheritance.CtxExt#isChild().(thatT0) -> 10:42
+(16:18..16:33) _empty_/LightTypeTagRef# -> 3:7
+(16:38..16:53) _empty_/LightTypeTagRef# -> 3:7
+(16:56..16:63) scala/Boolean#
+(17:5..17:12) _empty_/LightTypeTagInheritance#isChild(+1). -> 20:15
+(17:17..17:20) _empty_/LightTypeTagInheritance.Ctx# -> 6:28
+(17:28..17:29) _empty_/LightTypeTagInheritance#isChild().(s) -> 16:15
+(17:31..17:32) _empty_/LightTypeTagInheritance#isChild().(t) -> 16:35
+(20:28..20:31) _empty_/LightTypeTagInheritance.Ctx# -> 6:28
+(20:36..20:51) _empty_/LightTypeTagRef# -> 3:7
+(20:56..20:71) _empty_/LightTypeTagRef# -> 3:7
+(20:74..20:81) scala/Boolean#
+(21:5..21:8) _empty_/LightTypeTagInheritance#isChild(+1).(ctx) -> 20:23
+(21:9..21:16) _empty_/LightTypeTagInheritance.CtxExt#isChild(). -> 10:9
+(21:17..21:18) _empty_/LightTypeTagInheritance#isChild(+1).(s) -> 20:33
+(21:20..21:21) _empty_/LightTypeTagInheritance#isChild(+1).(t) -> 20:53
+(26:20..26:23) scala/App#
+(27:3..27:10) scala/Predef.println(+1).
+(27:11..27:34) _empty_/LightTypeTagInheritance. -> 5:8
+(32:21..32:24) scala/Int#
+(34:38..34:41) _empty_/Foo.Bar# -> 32:14
+(35:17..35:20) _empty_/Foo.Bar.
+(35:21..35:24) _empty_/Foo.BarOps#bar. -> 34:33
+(35:25..35:26) _empty_/Foo.Bar#i. -> 32:18
+(35:27..35:28) scala/Int#`*`(+3).
+(40:13..40:16) _empty_/Foo. -> 31:8
+(40:17..40:20) _empty_/Foo.Bar.
+(40:24..40:29) _empty_/Foo.BarOps#twice(). -> 35:9
+(43:21..43:24) scala/App#
+(44:3..44:10) scala/Predef.println(+1).
+(44:16..44:19) _empty_/Foo# -> 39:7
+(44:21..44:24) _empty_/Foo#bar(). -> 40:7
+(48:21..48:24) scala/Int#
+(50:25..50:31) scala/AnyRef#
+(51:21..51:24) _empty_/Foo2.Bar# -> 48:14
+(52:18..52:21) _empty_/Foo2.Bar# -> 48:14
+(52:24..52:27) _empty_/Foo2.Bar.
+(52:28..52:31) _empty_/Foo2.BarOps.twice().(bar) -> 51:16
+(52:32..52:33) _empty_/Foo2.Bar#i. -> 48:18
+(52:34..52:35) scala/Int#`*`(+3).
+(57:13..57:17) _empty_/Foo2. -> 47:8
+(57:18..57:21) _empty_/Foo2.Bar.
+(60:21..60:24) scala/App#
+(61:3..61:10) scala/Predef.println(+1).
+(61:16..61:20) _empty_/Foo2# -> 56:7
+(61:22..61:25) _empty_/Foo2#bar(). -> 57:7
+

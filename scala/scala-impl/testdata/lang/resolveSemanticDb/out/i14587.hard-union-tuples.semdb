@@ -1,0 +1,13 @@
+Document tests/pos/i14587.hard-union-tuples.scala
+(3:14..3:20) scala/Option#
+(3:21..3:27) scala/Predef.String#
+(3:29..3:30) scala/`|`#
+(3:31..3:37) scala/Option#
+(3:38..3:41) scala/Int#
+(5:17..5:20) _empty_/Test#Foo# -> 3:8
+(7:7..7:10) _empty_/Test#test().(foo) -> 5:12
+(8:14..8:18) scala/Some.
+(8:22..8:28) scala/Predef.String#
+(8:38..8:39) local0 -> 8:19
+(10:5..10:9) local1 -> 6:13
+

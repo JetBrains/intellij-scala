@@ -1,0 +1,12 @@
+Document tests/pos/i13941.scala
+(1:8..1:13) scala/
+(1:14..1:24) scala/annotation/
+(1:25..1:32) scala/annotation/tailrec#
+(4:11..4:17) scala/Option.
+(4:23..4:26) scala/Option#map().
+(5:6..5:13) scala/annotation/tailrec#
+(6:17..6:20) scala/Int#
+(10:17..10:26) scala/package.Throwable#
+(11:11..11:15) local1 -> 6:9
+(13:5..13:6) local0 -> 4:29
+

@@ -44,6 +44,7 @@ Document tests/pos/10747-onnxmin.scala
 (26:15..26:18) _empty_/OnnxMin.`:::`# -> 10:20
 (26:27..26:31) local0 -> 26:10
 (27:12..27:18) _empty_/OnnxMin.CContains#[Needle] -> 25:39
+(28:12..28:13) scala/Any#
 (28:17..28:26) _empty_/OnnxMin.CContains# -> 25:8
 (28:27..28:31) local1 -> 26:19
 (28:33..28:39) _empty_/OnnxMin.CContains#[Needle] -> 25:39

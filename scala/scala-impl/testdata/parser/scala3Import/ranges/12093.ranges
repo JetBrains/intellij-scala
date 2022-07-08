@@ -142,7 +142,7 @@
 [747,754]: SingletonTypeTree
 [750,754]: Literal
 [759,791]: CaseDef
-[764,765]: TypeBoundsTree
+[764,765]: Ident
 [769,791]: AppliedTypeTree
 [769,777]: Ident
 [778,782]: Ident
@@ -175,7 +175,7 @@
 [938,942]: Ident
 [944,949]: Ident
 [955,992]: CaseDef
-[960,961]: TypeBoundsTree
+[960,961]: Ident
 [965,992]: InfixOp
 [965,969]: Ident
 [970,972]: Ident

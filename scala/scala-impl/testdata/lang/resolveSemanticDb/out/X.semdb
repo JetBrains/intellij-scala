@@ -11,6 +11,7 @@ Document tests/pos/X.scala
 (8:70..8:71) local0 -> 8:60
 (8:110..8:118) _empty_/FunctorK# -> 3:7
 (8:119..8:120) _empty_/FunctorK.derived().(m) -> 8:30
+(8:121..8:138) local2 -> 8:80
 (8:142..8:150) _empty_/FunctorK# -> 3:7
 (8:151..8:152) _empty_/FunctorK.derived().[F] -> 8:15
 (8:160..8:168) _empty_/FunctorK# -> 3:7

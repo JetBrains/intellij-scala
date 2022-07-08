@@ -1,0 +1,38 @@
+Document tests/pos/complex-self-call.scala
+(7:34..7:52) _empty_/SupervisorStrategy# -> 4:7
+(7:55..7:58) scala/Predef.`???`().
+(9:29..9:32) scala/Predef.`???`().
+(11:26..11:32) _empty_/Config# -> 13:7
+(11:35..11:41) scala/Option#
+(11:42..11:49) _empty_/Resizer# -> 3:7
+(11:53..11:56) scala/Predef.`???`().
+(14:19..14:25) scala/Predef.String#
+(14:28..14:31) scala/Int#
+(14:34..14:37) scala/Predef.`???`().
+(15:20..15:26) scala/Predef.String#
+(15:29..15:36) scala/Boolean#
+(15:39..15:42) scala/Predef.`???`().
+(18:20..18:23) scala/Int#
+(19:18..19:24) scala/Option#
+(19:25..19:32) _empty_/Resizer# -> 3:7
+(19:36..19:40) scala/None.
+(20:29..20:47) _empty_/SupervisorStrategy# -> 4:7
+(20:50..20:54) _empty_/Pool. -> 6:8
+(20:55..20:80) _empty_/Pool.defaultSupervisorStrategy(). -> 7:7
+(21:27..21:33) scala/Predef.String#
+(21:36..21:47) _empty_/Dispatchers. -> 8:8
+(21:48..21:67) _empty_/Dispatchers.DefaultDispatcherId(). -> 9:7
+(22:28..22:35) scala/Boolean#
+(23:13..23:17) _empty_/Pool# -> 5:7
+(25:20..25:26) _empty_/Config# -> 13:7
+(27:7..27:20) _empty_/BroadcastPool#`<init>`().(nrOfInstances)
+(27:23..27:29) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
+(27:30..27:36) _empty_/Config#getInt(). -> 14:7
+(28:7..28:14) _empty_/BroadcastPool#`<init>`().(resizer)
+(28:17..28:24) _empty_/Resizer. -> 10:8
+(28:25..28:35) _empty_/Resizer.fromConfig(). -> 11:7
+(28:36..28:42) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
+(29:7..29:24) _empty_/BroadcastPool#`<init>`().(usePoolDispatcher)
+(29:27..29:33) _empty_/BroadcastPool#`<init>`(+1).(config) -> 25:12
+(29:34..29:41) _empty_/Config#hasPath(). -> 15:7
+

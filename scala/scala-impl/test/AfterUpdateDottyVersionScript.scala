@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.sbt.lang.completion.UpdateScalacOptionsInfo
-import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.Assert.{assertEquals, assertTrue, fail}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
 
@@ -36,25 +36,29 @@ class AfterUpdateDottyVersionScript
   def testRunAllScripts(): Unit = {
     val tests =
       Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
-      Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
-      Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
-      Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
-      Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3]) #::
-      Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]) #::
+        Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
+        Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
+        Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
+        Script.FromTestCase(classOf[ReferenceComparisonTestsGenerator_Scala3.ScriptTestCase]) #::
+        Script.FromTestCase(classOf[UpdateScalacOptionsInfo.ScriptTestCase]) #::
         LazyList.empty
     tests.foreach(runScript)
   }
 
-  private def runScript[A](script: Script): Unit = script match {
+  private def runScript(script: Script): Unit = script match {
     case Script.FromTestCase(clazz) =>
-      println(s"${clazz.getSimpleName} STARTED")
+      val classSimpleName = clazz.getSimpleName
+      println(s"$classSimpleName STARTED")
       val result = new JUnitCore().run(clazz)
+      if (result.getIgnoreCount > 0) {
+        fail(s"Don't expect ignored tests for $classSimpleName")
+      }
       result.getFailures.asScala.headOption match {
         case Some(failure) =>
-          System.err.println(s"${clazz.getSimpleName} FAILED")
+          System.err.println(s"$classSimpleName FAILED")
           throw failure.getException
         case None =>
-          println(s"${clazz.getSimpleName} COMPLETED")
+          println(s"$classSimpleName COMPLETED")
       }
     case Script.FromTestSuite(suite) =>
       val result = new TestResult
@@ -86,16 +90,24 @@ object AfterUpdateDottyVersionScript {
     repoDir
   }
 
-  private def cloneRepository(url: String): File = {
+  private def cloneRepository(url: String, branchOpt: Option[String]): File = {
     val cloneDir = newTempDir()
-    val sc = Process("git" :: "clone" :: url :: "." :: "--depth=1" :: Nil, cloneDir).!
+
+    val branchOption: List[String] = branchOpt match {
+      case Some(branch) => "--branch" :: branch :: Nil
+      case None => Nil
+    }
+    val commands: Seq[String] =
+      "git" :: "clone" :: branchOption ::: url :: "." :: "--depth=1" :: Nil
+
+    val sc = Process(commands, cloneDir).!
     assert(sc == 0, s"Failed ($sc) to clone $url into $cloneDir")
     cloneDir
   }
 
   /**
    * Recompile some classes needed in tests
- */
+   */
   class RecompileMacroPrinter3
     extends ScalaCompilerTestBase {
 
@@ -156,13 +168,15 @@ object AfterUpdateDottyVersionScript {
 
   /**
    * Imports Tests from the dotty repositiory
- */
+   */
   class Scala3ImportedParserTest_Import_FromDottyDirectory
     extends TestCase {
 
     def test(): Unit = {
       // we have to clone the repo because it needs a git history
-      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/").toPath
+      //example of release branch: release-3.1.3
+      val branch =  "release-" + ScalaVersion.Latest.Scala_3.minor
+      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
       val srcDir = repoPath.resolve(Paths.get("tests", "pos")).toAbsolutePath.toString
 
       clearDirectory(dottyParserTestsSuccessDir)
@@ -227,12 +241,14 @@ object AfterUpdateDottyVersionScript {
 
   /**
    * Imports semanticdb tests from the dotty repositiory
- */
+   */
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory
     extends TestCase {
 
     def test(): Unit = {
-      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/").toPath
+      val branch = "release-" + ScalaVersion.Latest.Scala_3.minor
+      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/", Some(branch)).toPath
+      println(s"### Repo path: $repoPath")
 
       clearDirectory(ComparisonTestBase.sourcePath.toString)
       clearDirectory(ComparisonTestBase.outPath.toString)
@@ -315,7 +331,7 @@ object AfterUpdateDottyVersionScript {
           |""".stripMargin
       )
 
-      runSbt(s"testCompilation --from-tasty ${File.separator}pos${File.separator}", repoPath)
+      runSbt(s"testCompilation --from-tasty pos", repoPath)
 
       copyRecursively(repoPath.resolve("tests/pos"), ComparisonTestBase.sourcePath)
 
@@ -485,10 +501,15 @@ object AfterUpdateDottyVersionScript {
     assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
   }
 
-  def runSbt(cmdline: String, dir: Path): Unit = {
+  private def runSbt(cmdline: String, dir: Path): Unit = {
+    println(
+      s"""### Running sbt command: $cmdline
+         |### in directory: $dir""".stripMargin
+    )
     val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
     val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
-    val sc2 = Process(sbtExecutable :: cmdline :: Nil, dir.toFile).!
+    val process = Process(sbtExecutable :: cmdline :: Nil, dir.toFile)
+    val sc2 = process.!
     assert(sc2 == 0, s"sbt failed with exit code $sc2")
   }
 

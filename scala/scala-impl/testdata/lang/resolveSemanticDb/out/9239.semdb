@@ -44,6 +44,7 @@ Document tests/pos/9239.scala
 (25:20..25:23) _empty_/ABug.One# -> 11:8
 (26:12..26:15) _empty_/ABug.One# -> 11:8
 (26:19..26:22) _empty_/ABug.One# -> 11:8
+(27:12..27:13) scala/Any#
 (27:17..27:18) _empty_/ABug.`!`# -> 23:8
 (27:19..27:21) _empty_/ABug.`--`# -> 13:8
 (27:22..27:23) _empty_/ABug.`!`#[N] -> 23:10

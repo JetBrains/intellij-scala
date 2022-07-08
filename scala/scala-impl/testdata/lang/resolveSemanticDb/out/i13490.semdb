@@ -1,0 +1,13 @@
+Document tests/pos/i13490.scala
+(2:18..2:21) scala/Int#
+(3:20..3:26) _empty_/MyApi.MyEnum# -> 2:8
+(5:21..5:27) _empty_/MyApi.MyEnum# -> 2:8
+(9:10..9:15) _empty_/MyApi. -> 1:8
+(10:10..10:16) _empty_/Test.MyEnum.
+(11:3..11:6) _empty_/Test.Foo.
+(11:7..11:13) _empty_/Test.MyEnum.
+(11:14..11:15) _empty_/MyApi.MyEnum.A. -> 3:10
+(12:10..12:13) _empty_/MyApi.Foo.unapply().
+(13:7..13:8) local0 -> 12:14
+(14:14..14:15) _empty_/MyApi.MyEnum.A. -> 3:10
+

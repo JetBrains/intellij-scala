@@ -118,7 +118,7 @@
 [527,530]: Ident
 [534,537]: Ident
 [544,568]: CaseDef
-[549,550]: TypeBoundsTree
+[549,550]: Ident
 [554,568]: InfixOp
 [554,562]: AppliedTypeTree
 [554,555]: Ident

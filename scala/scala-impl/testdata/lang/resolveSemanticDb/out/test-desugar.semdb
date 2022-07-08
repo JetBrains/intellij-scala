@@ -1,226 +1,228 @@
 Document tests/pos/test-desugar.scala
-(4:10..4:13) scala/Int#
-(5:11..5:12) _empty_/desugar.x(). -> 4:7
-(5:13..5:14) scala/Int#`*`(+3).
-(5:15..5:16) _empty_/desugar.x(). -> 4:7
-(6:14..6:18) scala/package.List.
-(8:12..8:15) scala/Int#
-(8:18..8:19) _empty_/desugar.y(). -> 5:7
-(10:19..10:22) scala/Int#
-(10:32..10:35) scala/Int#
-(10:48..10:51) scala/Int#
-(10:59..10:64) _empty_/desugar.foo0().(first) -> 10:12
-(10:65..10:66) scala/Int#`+`(+4).
-(10:67..10:73) _empty_/desugar.foo0().(second) -> 10:24
+(1:8..1:16) scala/language.
+(1:17..1:27) scala/language.postfixOps.
+(5:10..5:13) scala/Int#
+(6:11..6:12) _empty_/desugar.x(). -> 5:7
+(6:13..6:14) scala/Int#`*`(+3).
+(6:15..6:16) _empty_/desugar.x(). -> 5:7
+(7:14..7:18) scala/package.List.
+(9:12..9:15) scala/Int#
+(9:18..9:19) _empty_/desugar.y(). -> 6:7
 (11:19..11:22) scala/Int#
 (11:32..11:35) scala/Int#
 (11:48..11:51) scala/Int#
-(11:59..11:64) _empty_/desugar.foo1().(first) -> 11:12
+(11:59..11:64) _empty_/desugar.foo0().(first) -> 11:12
 (11:65..11:66) scala/Int#`+`(+4).
-(11:67..11:73) _empty_/desugar.foo1().(second) -> 11:24
+(11:67..11:73) _empty_/desugar.foo0().(second) -> 11:24
 (12:19..12:22) scala/Int#
 (12:32..12:35) scala/Int#
 (12:48..12:51) scala/Int#
-(12:59..12:64) _empty_/desugar.foo2().(first) -> 12:12
+(12:59..12:64) _empty_/desugar.foo1().(first) -> 12:12
 (12:65..12:66) scala/Int#`+`(+4).
-(12:67..12:73) _empty_/desugar.foo2().(second) -> 12:24
-(16:17..16:18) _empty_/desugar.caseClasses.List#[T] -> 15:17
-(17:17..17:21) _empty_/desugar.caseClasses.List# -> 15:11
-(17:22..17:23) _empty_/desugar.caseClasses.List#[T] -> 15:17
-(20:35..20:36) _empty_/desugar.caseClasses.Cons#[T] -> 20:22
-(20:48..20:52) _empty_/desugar.caseClasses.List# -> 15:11
-(20:53..20:54) _empty_/desugar.caseClasses.Cons#[T] -> 20:22
-(20:65..20:69) _empty_/desugar.caseClasses.List# -> 15:11
-(20:70..20:71) _empty_/desugar.caseClasses.Cons#[T] -> 20:22
-(23:26..23:27) _empty_/desugar.caseClasses.Cons.apply(+1).[T] -> 23:17
-(23:30..23:34) _empty_/desugar.caseClasses.Cons# -> 20:16
-(23:35..23:36) _empty_/desugar.caseClasses.Cons.apply(+1).[T] -> 23:17
-(23:40..23:45) _empty_/desugar.caseClasses.Cons.apply().
-(23:46..23:50) _empty_/desugar.caseClasses.Cons.apply(+1).(head) -> 23:20
-(23:52..23:55) _empty_/desugar.caseClasses.Nil. -> 26:17
-(26:29..26:33) _empty_/desugar.caseClasses.List# -> 15:11
-(26:34..26:41) scala/Nothing#
-(27:28..27:33) scala/package.Error#
+(12:67..12:73) _empty_/desugar.foo1().(second) -> 12:24
+(13:19..13:22) scala/Int#
+(13:32..13:35) scala/Int#
+(13:48..13:51) scala/Int#
+(13:59..13:64) _empty_/desugar.foo2().(first) -> 13:12
+(13:65..13:66) scala/Int#`+`(+4).
+(13:67..13:73) _empty_/desugar.foo2().(second) -> 13:24
+(17:17..17:18) _empty_/desugar.caseClasses.List#[T] -> 16:17
+(18:17..18:21) _empty_/desugar.caseClasses.List# -> 16:11
+(18:22..18:23) _empty_/desugar.caseClasses.List#[T] -> 16:17
+(21:35..21:36) _empty_/desugar.caseClasses.Cons#[T] -> 21:22
+(21:48..21:52) _empty_/desugar.caseClasses.List# -> 16:11
+(21:53..21:54) _empty_/desugar.caseClasses.Cons#[T] -> 21:22
+(21:65..21:69) _empty_/desugar.caseClasses.List# -> 16:11
+(21:70..21:71) _empty_/desugar.caseClasses.Cons#[T] -> 21:22
+(24:26..24:27) _empty_/desugar.caseClasses.Cons.apply(+1).[T] -> 24:17
+(24:30..24:34) _empty_/desugar.caseClasses.Cons# -> 21:16
+(24:35..24:36) _empty_/desugar.caseClasses.Cons.apply(+1).[T] -> 24:17
+(24:40..24:45) _empty_/desugar.caseClasses.Cons.apply().
+(24:46..24:50) _empty_/desugar.caseClasses.Cons.apply(+1).(head) -> 24:20
+(24:52..24:55) _empty_/desugar.caseClasses.Nil. -> 27:17
+(27:29..27:33) _empty_/desugar.caseClasses.List# -> 16:11
+(27:34..27:41) scala/Nothing#
 (28:28..28:33) scala/package.Error#
-(34:12..34:23) _empty_/desugar.caseClasses. -> 14:10
-(36:13..36:17) _empty_/desugar.caseClasses.List# -> 15:11
-(36:18..36:21) scala/Int#
-(36:25..36:29) _empty_/desugar.caseClasses.Cons. -> 22:12
-(36:33..36:37) _empty_/desugar.caseClasses.Cons. -> 22:12
-(36:41..36:44) _empty_/desugar.caseClasses.Nil. -> 26:17
-(38:9..38:13) _empty_/desugar.caseClasses.Cons. -> 22:12
-(38:23..38:25) _empty_/desugar.patDefs.xs. -> 36:9
-(39:9..39:13) _empty_/desugar.caseClasses.Cons. -> 22:12
-(39:22..39:24) _empty_/desugar.patDefs.xs. -> 36:9
-(40:9..40:13) _empty_/desugar.caseClasses.Cons. -> 22:12
-(40:22..40:24) _empty_/desugar.patDefs.xs. -> 36:9
-(42:29..42:31) _empty_/desugar.patDefs.xs. -> 36:9
-(44:21..44:24) scala/Int#
-(49:5..49:6) _empty_/desugar.Binops.x. -> 51:9
-(49:10..49:11) _empty_/desugar.Binops.y. -> 51:14
-(49:15..49:18) scala/package.Nil.
-(51:11..51:13) scala/package.`::`.
-(51:16..51:18) scala/package.`::`.
-(51:19..51:22) scala/package.Nil.
-(51:25..51:29) _empty_/desugar.list. -> 6:7
-(57:15..57:19) scala/package.List.
+(29:28..29:33) scala/package.Error#
+(35:12..35:23) _empty_/desugar.caseClasses. -> 15:10
+(37:13..37:17) _empty_/desugar.caseClasses.List# -> 16:11
+(37:18..37:21) scala/Int#
+(37:25..37:29) _empty_/desugar.caseClasses.Cons. -> 23:12
+(37:33..37:37) _empty_/desugar.caseClasses.Cons. -> 23:12
+(37:41..37:44) _empty_/desugar.caseClasses.Nil. -> 27:17
+(39:9..39:13) _empty_/desugar.caseClasses.Cons. -> 23:12
+(39:23..39:25) _empty_/desugar.patDefs.xs. -> 37:9
+(40:9..40:13) _empty_/desugar.caseClasses.Cons. -> 23:12
+(40:22..40:24) _empty_/desugar.patDefs.xs. -> 37:9
+(41:9..41:13) _empty_/desugar.caseClasses.Cons. -> 23:12
+(41:22..41:24) _empty_/desugar.patDefs.xs. -> 37:9
+(43:29..43:31) _empty_/desugar.patDefs.xs. -> 37:9
+(45:21..45:24) scala/Int#
+(50:5..50:6) _empty_/desugar.Binops.x. -> 52:9
+(50:10..50:11) _empty_/desugar.Binops.y. -> 52:14
+(50:15..50:18) scala/package.Nil.
+(52:11..52:13) scala/package.`::`.
+(52:16..52:18) scala/package.`::`.
+(52:19..52:22) scala/package.Nil.
+(52:25..52:29) _empty_/desugar.list. -> 7:7
 (58:15..58:19) scala/package.List.
-(58:32..58:33) local3 -> 58:10
-(58:34..58:35) scala/Int#`%`(+3).
-(58:38..58:40) scala/Int#`==`(+3).
-(58:50..58:51) local3 -> 58:10
-(58:52..58:53) scala/Int#`*`(+3).
-(58:54..58:55) local3 -> 58:10
 (59:15..59:19) scala/package.List.
-(59:37..59:39) scala/runtime/RichInt#to().
-(59:40..59:41) local4 -> 59:10
-(59:49..59:50) local4 -> 59:10
-(59:51..59:52) scala/Int#`*`(+3).
-(59:53..59:54) local5 -> 59:30
+(59:32..59:33) local3 -> 59:10
+(59:34..59:35) scala/Int#`%`(+3).
+(59:38..59:40) scala/Int#`==`(+3).
+(59:50..59:51) local3 -> 59:10
+(59:52..59:53) scala/Int#`*`(+3).
+(59:54..59:55) local3 -> 59:10
 (60:15..60:19) scala/package.List.
 (60:37..60:39) scala/runtime/RichInt#to().
-(60:40..60:41) local6 -> 60:10
-(60:46..60:47) local6 -> 60:10
-(60:48..60:49) scala/Int#`+`(+4).
-(60:50..60:51) local7 -> 60:30
-(60:52..60:53) scala/Int#`%`(+3).
-(60:56..60:58) scala/Int#`==`(+3).
-(60:68..60:69) local6 -> 60:10
-(60:70..60:71) scala/Int#`*`(+3).
-(60:72..60:73) local7 -> 60:30
-(61:10..61:11) local8 -> 61:10
+(60:40..60:41) local4 -> 60:10
+(60:49..60:50) local4 -> 60:10
+(60:51..60:52) scala/Int#`*`(+3).
+(60:53..60:54) local5 -> 60:30
 (61:15..61:19) scala/package.List.
-(61:30..61:31) local9 -> 61:30
-(61:34..61:35) local8 -> 61:10
-(61:36..61:37) scala/Int#`*`(+3).
-(61:38..61:39) local8 -> 61:10
-(61:44..61:45) local8 -> 61:10
-(61:46..61:47) scala/Int#`+`(+4).
-(61:48..61:49) local9 -> 61:30
-(61:50..61:51) scala/Int#`%`(+3).
-(61:54..61:56) scala/Int#`==`(+3).
-(61:66..61:67) local8 -> 61:10
-(61:68..61:69) scala/Int#`*`(+3).
-(61:70..61:71) local9 -> 61:30
-(62:10..62:11) local11 -> 62:10
+(61:37..61:39) scala/runtime/RichInt#to().
+(61:40..61:41) local6 -> 61:10
+(61:46..61:47) local6 -> 61:10
+(61:48..61:49) scala/Int#`+`(+4).
+(61:50..61:51) local7 -> 61:30
+(61:52..61:53) scala/Int#`%`(+3).
+(61:56..61:58) scala/Int#`==`(+3).
+(61:68..61:69) local6 -> 61:10
+(61:70..61:71) scala/Int#`*`(+3).
+(61:72..61:73) local7 -> 61:30
+(62:10..62:11) local8 -> 62:10
 (62:15..62:19) scala/package.List.
-(62:30..62:31) local12 -> 62:30
-(62:34..62:35) local11 -> 62:10
+(62:30..62:31) local9 -> 62:30
+(62:34..62:35) local8 -> 62:10
 (62:36..62:37) scala/Int#`*`(+3).
-(62:38..62:39) local11 -> 62:10
-(62:41..62:42) local13 -> 62:41
-(62:45..62:46) local11 -> 62:10
-(62:47..62:48) scala/Int#`*`(+3).
-(62:49..62:50) local12 -> 62:30
-(62:59..62:61) scala/runtime/RichInt#to().
-(62:62..62:63) local12 -> 62:30
-(62:71..62:72) local11 -> 62:10
-(62:73..62:74) scala/Int#`*`(+3).
-(62:75..62:76) local12 -> 62:30
-(62:77..62:78) scala/Int#`*`(+3).
-(62:79..62:80) local13 -> 62:41
-(62:81..62:82) scala/Int#`*`(+3).
-(62:83..62:84) local15 -> 62:52
-(64:15..64:19) scala/package.List.
-(64:30..64:37) scala/Predef.println(+1).
-(64:38..64:39) local16 -> 64:10
+(62:38..62:39) local8 -> 62:10
+(62:44..62:45) local8 -> 62:10
+(62:46..62:47) scala/Int#`+`(+4).
+(62:48..62:49) local9 -> 62:30
+(62:50..62:51) scala/Int#`%`(+3).
+(62:54..62:56) scala/Int#`==`(+3).
+(62:66..62:67) local8 -> 62:10
+(62:68..62:69) scala/Int#`*`(+3).
+(62:70..62:71) local9 -> 62:30
+(63:10..63:11) local11 -> 63:10
+(63:15..63:19) scala/package.List.
+(63:30..63:31) local12 -> 63:30
+(63:34..63:35) local11 -> 63:10
+(63:36..63:37) scala/Int#`*`(+3).
+(63:38..63:39) local11 -> 63:10
+(63:41..63:42) local13 -> 63:41
+(63:45..63:46) local11 -> 63:10
+(63:47..63:48) scala/Int#`*`(+3).
+(63:49..63:50) local12 -> 63:30
+(63:59..63:61) scala/runtime/RichInt#to().
+(63:62..63:63) local12 -> 63:30
+(63:71..63:72) local11 -> 63:10
+(63:73..63:74) scala/Int#`*`(+3).
+(63:75..63:76) local12 -> 63:30
+(63:77..63:78) scala/Int#`*`(+3).
+(63:79..63:80) local13 -> 63:41
+(63:81..63:82) scala/Int#`*`(+3).
+(63:83..63:84) local15 -> 63:52
 (65:15..65:19) scala/package.List.
-(65:32..65:33) local17 -> 65:10
-(65:34..65:35) scala/Int#`%`(+3).
-(65:38..65:40) scala/Int#`==`(+3).
-(65:44..65:51) scala/Predef.println(+1).
-(65:52..65:53) local17 -> 65:10
-(65:54..65:55) scala/Int#`*`(+3).
-(65:56..65:57) local17 -> 65:10
+(65:30..65:37) scala/Predef.println(+1).
+(65:38..65:39) local16 -> 65:10
 (66:15..66:19) scala/package.List.
-(66:37..66:39) scala/runtime/RichInt#to().
-(66:40..66:41) local18 -> 66:10
-(66:43..66:50) scala/Predef.println(+1).
-(66:51..66:52) local18 -> 66:10
-(66:53..66:54) scala/Int#`*`(+3).
-(66:55..66:56) local19 -> 66:30
+(66:32..66:33) local17 -> 66:10
+(66:34..66:35) scala/Int#`%`(+3).
+(66:38..66:40) scala/Int#`==`(+3).
+(66:44..66:51) scala/Predef.println(+1).
+(66:52..66:53) local17 -> 66:10
+(66:54..66:55) scala/Int#`*`(+3).
+(66:56..66:57) local17 -> 66:10
 (67:15..67:19) scala/package.List.
 (67:37..67:39) scala/runtime/RichInt#to().
-(67:40..67:41) local20 -> 67:10
-(67:46..67:47) local20 -> 67:10
-(67:48..67:49) scala/Int#`+`(+4).
-(67:50..67:51) local21 -> 67:30
-(67:52..67:53) scala/Int#`%`(+3).
-(67:56..67:58) scala/Int#`==`(+3).
-(67:62..67:69) scala/Predef.println(+1).
-(67:70..67:71) local20 -> 67:10
-(67:72..67:73) scala/Int#`*`(+3).
-(67:74..67:75) local21 -> 67:30
-(68:10..68:11) local22 -> 68:10
+(67:40..67:41) local18 -> 67:10
+(67:43..67:50) scala/Predef.println(+1).
+(67:51..67:52) local18 -> 67:10
+(67:53..67:54) scala/Int#`*`(+3).
+(67:55..67:56) local19 -> 67:30
 (68:15..68:19) scala/package.List.
-(68:30..68:31) local23 -> 68:30
-(68:34..68:35) local22 -> 68:10
-(68:36..68:37) scala/Int#`*`(+3).
-(68:38..68:39) local22 -> 68:10
-(68:44..68:45) local22 -> 68:10
-(68:46..68:47) scala/Int#`+`(+4).
-(68:48..68:49) local23 -> 68:30
-(68:50..68:51) scala/Int#`%`(+3).
-(68:54..68:56) scala/Int#`==`(+3).
-(68:60..68:67) scala/Predef.println(+1).
-(68:68..68:69) local22 -> 68:10
-(68:70..68:71) scala/Int#`*`(+3).
-(68:72..68:73) local23 -> 68:30
-(69:10..69:11) local25 -> 69:10
+(68:37..68:39) scala/runtime/RichInt#to().
+(68:40..68:41) local20 -> 68:10
+(68:46..68:47) local20 -> 68:10
+(68:48..68:49) scala/Int#`+`(+4).
+(68:50..68:51) local21 -> 68:30
+(68:52..68:53) scala/Int#`%`(+3).
+(68:56..68:58) scala/Int#`==`(+3).
+(68:62..68:69) scala/Predef.println(+1).
+(68:70..68:71) local20 -> 68:10
+(68:72..68:73) scala/Int#`*`(+3).
+(68:74..68:75) local21 -> 68:30
+(69:10..69:11) local22 -> 69:10
 (69:15..69:19) scala/package.List.
-(69:30..69:31) local26 -> 69:30
-(69:34..69:35) local25 -> 69:10
+(69:30..69:31) local23 -> 69:30
+(69:34..69:35) local22 -> 69:10
 (69:36..69:37) scala/Int#`*`(+3).
-(69:38..69:39) local25 -> 69:10
-(69:41..69:42) local27 -> 69:41
-(69:45..69:46) local25 -> 69:10
-(69:47..69:48) scala/Int#`*`(+3).
-(69:49..69:50) local26 -> 69:30
-(69:59..69:61) scala/runtime/RichInt#to().
-(69:62..69:63) local26 -> 69:30
-(69:65..69:72) scala/Predef.println(+1).
-(69:73..69:74) local25 -> 69:10
-(69:75..69:76) scala/Int#`*`(+3).
-(69:77..69:78) local26 -> 69:30
-(69:79..69:80) scala/Int#`*`(+3).
-(69:81..69:82) local27 -> 69:41
-(69:83..69:84) scala/Int#`*`(+3).
-(69:85..69:86) local29 -> 69:52
-(73:5..73:11) scala/Symbol.
-(74:18..74:19) _empty_/desugar.x(). -> 4:7
-(74:24..74:25) _empty_/desugar.x(). -> 4:7
-(74:26..74:27) scala/Int#`+`(+4).
-(74:28..74:29) _empty_/desugar.y(). -> 5:7
-(74:37..74:38) scala/StringContext#s().
-(75:20..75:26) scala/Tuple2#
-(75:27..75:28) _empty_/desugar.misc.`~`#[X] -> 75:12
-(75:30..75:31) _empty_/desugar.misc.`~`#[Y] -> 75:15
-(76:15..76:18) scala/Int#
-(76:19..76:20) _empty_/desugar.misc.`~`# -> 75:10
-(76:21..76:27) scala/Predef.String#
-(76:32..76:34) scala/Predef.ArrowAssoc#`->`().
-(77:17..77:20) scala/Int#
-(77:25..77:27) _empty_/desugar.misc.foo().(xs) -> 77:13
-(77:28..77:34) scala/collection/SeqOps#length().
-(78:5..78:8) _empty_/desugar.misc.foo(). -> 77:9
-(78:9..78:13) _empty_/desugar.list. -> 6:7
-(79:6..79:10) _empty_/desugar.list. -> 6:7
-(79:11..79:17) scala/collection/immutable/List#length().
-(80:5..80:6) scala/Int#`-`(+3).
-(80:7..80:14) _empty_/desugar. -> 1:8
-(80:15..80:16) _empty_/desugar.x(). -> 4:7
-(81:19..81:22) scala/Int#
-(81:26..81:27) _empty_/desugar.misc.bar().(x) -> 81:13
-(82:6..82:7) _empty_/desugar.x(). -> 4:7
-(82:8..82:9) scala/Int#`+`(+4).
-(82:10..82:11) _empty_/desugar.y(). -> 5:7
-(82:13..82:14) scala/Int#`+`(+4).
-(83:12..83:13) _empty_/desugar.x(). -> 4:7
-(83:14..83:15) scala/Int#`<`(+3).
-(83:20..83:21) _empty_/desugar.`x_=`().
-(83:20..83:21) _empty_/desugar.x(). -> 4:7
-(84:14..84:15) _empty_/desugar.`x_=`().
-(84:14..84:15) _empty_/desugar.x(). -> 4:7
-(84:23..84:24) _empty_/desugar.x(). -> 4:7
-(84:25..84:26) scala/Int#`>`(+3).
+(69:38..69:39) local22 -> 69:10
+(69:44..69:45) local22 -> 69:10
+(69:46..69:47) scala/Int#`+`(+4).
+(69:48..69:49) local23 -> 69:30
+(69:50..69:51) scala/Int#`%`(+3).
+(69:54..69:56) scala/Int#`==`(+3).
+(69:60..69:67) scala/Predef.println(+1).
+(69:68..69:69) local22 -> 69:10
+(69:70..69:71) scala/Int#`*`(+3).
+(69:72..69:73) local23 -> 69:30
+(70:10..70:11) local25 -> 70:10
+(70:15..70:19) scala/package.List.
+(70:30..70:31) local26 -> 70:30
+(70:34..70:35) local25 -> 70:10
+(70:36..70:37) scala/Int#`*`(+3).
+(70:38..70:39) local25 -> 70:10
+(70:41..70:42) local27 -> 70:41
+(70:45..70:46) local25 -> 70:10
+(70:47..70:48) scala/Int#`*`(+3).
+(70:49..70:50) local26 -> 70:30
+(70:59..70:61) scala/runtime/RichInt#to().
+(70:62..70:63) local26 -> 70:30
+(70:65..70:72) scala/Predef.println(+1).
+(70:73..70:74) local25 -> 70:10
+(70:75..70:76) scala/Int#`*`(+3).
+(70:77..70:78) local26 -> 70:30
+(70:79..70:80) scala/Int#`*`(+3).
+(70:81..70:82) local27 -> 70:41
+(70:83..70:84) scala/Int#`*`(+3).
+(70:85..70:86) local29 -> 70:52
+(74:5..74:11) scala/Symbol.
+(75:18..75:19) _empty_/desugar.x(). -> 5:7
+(75:24..75:25) _empty_/desugar.x(). -> 5:7
+(75:26..75:27) scala/Int#`+`(+4).
+(75:28..75:29) _empty_/desugar.y(). -> 6:7
+(75:37..75:38) scala/StringContext#s().
+(76:20..76:26) scala/Tuple2#
+(76:27..76:28) _empty_/desugar.misc.`~`#[X] -> 76:12
+(76:30..76:31) _empty_/desugar.misc.`~`#[Y] -> 76:15
+(77:15..77:18) scala/Int#
+(77:19..77:20) _empty_/desugar.misc.`~`# -> 76:10
+(77:21..77:27) scala/Predef.String#
+(77:32..77:34) scala/Predef.ArrowAssoc#`->`().
+(78:17..78:20) scala/Int#
+(78:25..78:27) _empty_/desugar.misc.foo().(xs) -> 78:13
+(78:28..78:34) scala/collection/SeqOps#length().
+(79:5..79:8) _empty_/desugar.misc.foo(). -> 78:9
+(79:9..79:13) _empty_/desugar.list. -> 7:7
+(80:6..80:10) _empty_/desugar.list. -> 7:7
+(80:11..80:17) scala/collection/immutable/List#length().
+(81:5..81:6) scala/Int#`-`(+3).
+(81:7..81:14) _empty_/desugar. -> 2:8
+(81:15..81:16) _empty_/desugar.x(). -> 5:7
+(82:19..82:22) scala/Int#
+(82:26..82:27) _empty_/desugar.misc.bar().(x) -> 82:13
+(83:6..83:7) _empty_/desugar.x(). -> 5:7
+(83:8..83:9) scala/Int#`+`(+4).
+(83:10..83:11) _empty_/desugar.y(). -> 6:7
+(83:13..83:14) scala/Int#`+`(+4).
+(84:12..84:13) _empty_/desugar.x(). -> 5:7
+(84:14..84:15) scala/Int#`<`(+3).
+(84:20..84:21) _empty_/desugar.`x_=`().
+(84:20..84:21) _empty_/desugar.x(). -> 5:7
+(85:14..85:15) _empty_/desugar.`x_=`().
+(85:14..85:15) _empty_/desugar.x(). -> 5:7
+(85:23..85:24) _empty_/desugar.x(). -> 5:7
+(85:25..85:26) scala/Int#`>`(+3).
 

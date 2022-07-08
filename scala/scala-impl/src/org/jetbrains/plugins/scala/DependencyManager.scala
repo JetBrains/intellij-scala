@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 
 import com.intellij.application.options.RegistryManager
+import com.intellij.openapi.application.ApplicationManager
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.{ArtifactDownloadReport, ResolveReport}
@@ -28,7 +29,10 @@ abstract class DependencyManagerBase {
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
   protected def useFileSystemResolversOnly: Boolean =
-    RegistryManager.getInstance().is("scala.dependency.manager.use.file.system.resolvers.only")
+    if (ApplicationManager.getApplication == null) //to beable to use DependencyManagerBase outside IntelliJ App
+      false
+    else
+      RegistryManager.getInstance().is("scala.dependency.manager.use.file.system.resolvers.only")
 
   protected val artifactBlackList: Set[String] = Set.empty
 

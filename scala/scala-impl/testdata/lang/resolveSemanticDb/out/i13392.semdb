@@ -11,5 +11,4 @@ Document tests/pos/i13392.scala
 (9:2..9:14) scala/annotation/experimental#
 (11:22..11:30) scala/CanThrow# -> 7:14
 (11:31..11:40) scala/package.Exception#
-(11:44..11:47) scala/Predef.`???`().
 
