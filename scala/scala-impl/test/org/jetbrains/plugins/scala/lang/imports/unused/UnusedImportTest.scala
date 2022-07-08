@@ -662,11 +662,6 @@ class UnusedImportTest_213 extends UnusedImportTest_Common_2 {
 class UnusedImportTest_3 extends UnusedImportTestBase with MatcherAssertions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  override protected def setUp(): Unit = {
-    super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
-  }
-
   def testUnusedWildcard(): Unit = {
     val text =
       """

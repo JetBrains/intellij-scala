@@ -5,7 +5,6 @@ import com.intellij.codeInsight.daemon.impl.UpdateHighlightersUtil
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, FileHighlightingSettingListener}
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
@@ -116,12 +115,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private[scala] var isAutoTriggerEnabled: Boolean =
-    !ApplicationManager.getApplication.isUnitTestMode
-
   private def isHighlightingEnabled: Boolean = {
-    isAutoTriggerEnabled &&
-      !PowerSaveMode.isEnabled &&
+    !PowerSaveMode.isEnabled &&
       ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
       ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
   }

@@ -8,7 +8,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
@@ -26,11 +25,6 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val isScratchFile: Boolean = false
 
   override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
-  }
 
   protected def descriptionMatches(s: String): Boolean = s == description.withNormalizedSeparator.trim
 
