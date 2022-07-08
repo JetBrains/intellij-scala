@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToFunctionParameter extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (p: ScParameter) && Parent(e @ Parent(Parent(_: ScFunctionExpr))) if p.paramType.isEmpty =>

@@ -1,9 +1,5 @@
 package org.jetbrains.sbt
 
-/**
- * @author Nikolay Obedin
- * @since 8/4/15.
- */
 object DslUtils {
 
   /**

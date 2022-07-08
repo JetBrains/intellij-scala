@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author adkozlov
-  */
 trait PsiTypeBridge {
   typeSystem: TypeSystem =>
 

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 
 import scala.annotation.nowarn
 
-/**
-  * User: Alefas
-  * Date: 20.10.11
-  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class AddModifierTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
 

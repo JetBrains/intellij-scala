@@ -22,11 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, 
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
- * @author Aleksander Podkhalyuzin
- * Date: 25.03.2009
- */
-
 // TODO move to org.jetbrains.plugins.scala.lang.psi.annotator
 object AnnotatorUtils {
 

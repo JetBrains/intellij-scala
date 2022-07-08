@@ -7,9 +7,6 @@ import org.jetbrains.sbt.project.settings.SbtExecutionSettings
 
 import java.util
 
-/**
- * @author Pavel Fatin
- */
 class SbtTaskManager extends ExternalSystemTaskManager[SbtExecutionSettings] {
   override def executeTasks(id: ExternalSystemTaskId, taskNames: util.List[String], projectPath: String, settings: SbtExecutionSettings,
                    vmOptions: util.List[String], scriptParameters: util.List[String], debuggerSetup: String, listener: ExternalSystemTaskNotificationListener): Unit = {}

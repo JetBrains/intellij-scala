@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
-
 abstract class ScalaSuppressByLineCommentFix(key: HighlightDisplayKey) extends SuppressByCommentFix(key, classOf[ScalaPsiElement]) {
   override def createSuppression(project: Project, element: PsiElement, container: PsiElement): Unit = {
     val text: String = SuppressionUtilCore.SUPPRESS_INSPECTIONS_TAG_NAME + " " + key.getID

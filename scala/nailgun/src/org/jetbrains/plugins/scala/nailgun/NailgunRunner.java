@@ -26,7 +26,6 @@ import static java.util.Arrays.asList;
 
 /**
  * used from {@link org.jetbrains.plugins.scala.compiler.CompileServerLauncher}
- * @author Pavel Fatin
  */
 @SuppressWarnings("JavadocReference")
 public class NailgunRunner {

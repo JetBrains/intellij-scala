@@ -19,9 +19,6 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
   def applyQualifier(qual: String, position: PsiElement): Option[Integer] = {
     if (position == null) return None

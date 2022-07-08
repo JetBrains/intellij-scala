@@ -9,9 +9,6 @@ import java.awt.Point
 import java.awt.geom.Point2D
 import java.util
 
-/**
- * Pavel Fatin
- */
 class EditorMock(text: String, offset: Int) extends EditorStub {
   private val selection = new SelectionModelStub(this)
 

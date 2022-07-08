@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-/**
-  * Nikolay.Tropin
-  * 11/6/13
-  */
 object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] {
 
   override def annotate(annotation: ScAnnotation, typeAware: Boolean = false)

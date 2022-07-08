@@ -24,11 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 
 import scala.annotation.tailrec
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 22.11.2008
-  */
-
 class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
 
   override def getGotoDeclarationTargets(element: PsiElement, offset: Int, editor: Editor): Array[PsiElement] = {

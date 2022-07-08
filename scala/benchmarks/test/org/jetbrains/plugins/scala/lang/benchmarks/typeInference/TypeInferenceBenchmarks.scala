@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.lang.benchmarks.typeInference
 
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 
-/**
-  * @author Nikolay.Tropin
-  */
 class AmbiguousConversion extends TypeInferenceBenchmarkBase("AmbiguousConversion")
 
 class ConstructorPatternComplex extends TypeInferenceBenchmarkBase("ConstructorPatternComplex")

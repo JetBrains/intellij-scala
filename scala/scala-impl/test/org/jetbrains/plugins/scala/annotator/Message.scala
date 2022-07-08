@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.annotator
 
 import scala.math.Ordered.orderingToOrdered
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 sealed abstract class Message extends Ordered[Message] {
   def element: String
   def message: String

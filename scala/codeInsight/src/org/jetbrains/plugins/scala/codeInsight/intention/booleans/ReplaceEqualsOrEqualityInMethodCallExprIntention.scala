@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.annotation.tailrec
 
-/**
-  * @author Ksenia.Sautina
-  * @since 4/23/12
-  */
 final class ReplaceEqualsOrEqualityInMethodCallExprIntention extends PsiElementBaseIntentionAction {
 
   import ReplaceEqualsOrEqualityInMethodCallExprIntention._

@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 07.03.2008
-  *         Time: 9:24:19
-  */
 class ScParenthesisedExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScParenthesisedExpr {
 
   protected override def innerType: TypeResult = {

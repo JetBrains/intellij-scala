@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import java.{util => ju}
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 private[projectView] sealed abstract class FileNode(protected val file: ScalaFile)
                                                    (implicit project: Project, settings: ViewSettings)
   extends PsiFileNode(project, file, settings) with IconableNode {

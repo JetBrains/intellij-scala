@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.refactoring.rename.inplace.ScalaMemberInplaceRenamer
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 
-/**
- * Created by Kate Ustyuzhanina
- * on 8/10/15
- */
 object ScalaInplaceTypeAliasIntroducer {
 
   def revertState(myEditor: Editor): Unit = {

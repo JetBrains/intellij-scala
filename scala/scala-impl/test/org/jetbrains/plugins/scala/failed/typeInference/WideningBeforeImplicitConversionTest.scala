@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author Nikolay.Tropin
-  */
 class WideningBeforeImplicitConversionTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

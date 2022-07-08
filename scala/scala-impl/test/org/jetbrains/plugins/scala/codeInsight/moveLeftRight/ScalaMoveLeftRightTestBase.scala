@@ -4,9 +4,6 @@ import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformCodeInsightTestCase}
 import org.jetbrains.plugins.scala.util.TestUtils
 
-/**
-  * @author Nikolay.Tropin
-  */
 abstract class ScalaMoveLeftRightTestBase extends LightPlatformCodeInsightTestCase {
   protected def doTestFromLeftToRight(leftMostPosition: String, rightPositions: String*): Unit = {
     doTest(moveLeft = true, leftMostPosition)

@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
-/**
- * User: Dmitry Naydanov
- * Date: 4/16/12
- */
 public class MultiLineStringAllTest extends TestCase {
     public static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/indentAndMargin";
 

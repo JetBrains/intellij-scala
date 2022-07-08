@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
-/**
-  * Created by mucianm on 23.03.16.
-  */
 class ConstructorParametersTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false

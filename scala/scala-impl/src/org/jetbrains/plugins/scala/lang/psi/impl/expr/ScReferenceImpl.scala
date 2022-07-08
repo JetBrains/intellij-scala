@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor}
 
-/**
-  * Nikolay.Tropin
-  * 19-Jan-17
-  */
 abstract class ScReferenceImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScReference {
   override def resolve(): PsiElement = {
     bind() match {

@@ -7,9 +7,6 @@ import org.jetbrains.jps.model.JpsDummyElement;
 import org.jetbrains.jps.model.JpsElementFactory;
 import org.jetbrains.jps.model.serialization.module.JpsModulePropertiesSerializer;
 
-/**
-* @author Pavel Fatin
-*/
 public class SbtModuleSerializer extends JpsModulePropertiesSerializer<JpsDummyElement> {
   public SbtModuleSerializer() {
     super(SbtModuleType.INSTANCE, "SBT_MODULE", "dummy");

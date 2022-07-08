@@ -48,10 +48,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
 
-/**
-* Nikolay.Tropin
-* 2014-09-28
-*/
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 

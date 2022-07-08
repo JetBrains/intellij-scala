@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * @author Roman.Shein
- * @since 24.09.2015.
- */
 final class ScalaMethodReturnTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

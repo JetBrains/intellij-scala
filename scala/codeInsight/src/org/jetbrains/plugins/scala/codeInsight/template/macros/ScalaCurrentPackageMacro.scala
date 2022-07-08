@@ -8,10 +8,6 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * @author Roman.Shein
- * @since 22.09.2015.
- */
 final class ScalaCurrentPackageMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

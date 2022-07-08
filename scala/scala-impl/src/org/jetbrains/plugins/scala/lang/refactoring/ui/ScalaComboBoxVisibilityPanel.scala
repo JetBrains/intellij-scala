@@ -4,10 +4,6 @@ package lang.refactoring.ui
 import com.intellij.refactoring.ui.ComboBoxVisibilityPanel
 import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPanel._
 
-/**
- * Nikolay.Tropin
- * 2014-09-01
- */
 class ScalaComboBoxVisibilityPanel(additional: String*)
         extends ComboBoxVisibilityPanel[String](options(additional), names(additional))
 

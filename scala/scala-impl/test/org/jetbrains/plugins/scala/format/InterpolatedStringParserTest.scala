@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert.assertEquals
 
-/**
- * Pavel Fatin
- */
 class InterpolatedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testEmpty(): Unit = {
     assertMatches(parseF("")) { case Nil => }

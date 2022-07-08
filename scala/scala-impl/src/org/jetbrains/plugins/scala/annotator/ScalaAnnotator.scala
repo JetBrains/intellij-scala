@@ -40,10 +40,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.collection.mutable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 23.06.2008
- */
 class ScalaAnnotator extends Annotator
   with FunctionAnnotator
   with OverridingAnnotator

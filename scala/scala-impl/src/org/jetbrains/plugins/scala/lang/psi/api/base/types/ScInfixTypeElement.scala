@@ -5,11 +5,6 @@ package api
 package base
 package types
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 /*
 * Common trait for usual infix types and dotty and/or types.
 */

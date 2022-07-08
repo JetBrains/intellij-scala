@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
-/**
-  * @author Roman.Shein
-  * @since 23.09.2015.
-  */
 final class ScalaComponentTypeOfMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {

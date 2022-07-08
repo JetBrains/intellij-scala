@@ -10,9 +10,6 @@ import org.jetbrains.jps.incremental.Utils
 import scala.io.Source
 import scala.util.{Failure, Success, Using}
 
-/**
- * @author Pavel Fatin
- */
 case class SbtData(sbtInterfaceJar: File,
                    compilerInterfaceJar: File,
                    compilerBridges: SbtData.CompilerBridges,

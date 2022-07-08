@@ -4,11 +4,6 @@ package javaHighlighting
 import com.intellij.codeInsight.daemon.JavaErrorBundle
 import org.jetbrains.plugins.scala.annotator._
 
-
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 7/8/15
-  */
 class JavaHighlightingTest extends JavaHighlightingTestBase {
 
   def testSignatures(): Unit = {

@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 18.04.2008
-  */
-
 /*
  *  Content ::= [CharData] {Content1 [CharData]}
  *

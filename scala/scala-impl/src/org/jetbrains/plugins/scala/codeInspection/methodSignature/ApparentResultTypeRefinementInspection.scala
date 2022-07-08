@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScCompoundTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
-  * Pavel Fatin
-  */
 final class ApparentResultTypeRefinementInspection extends AbstractMethodSignatureInspection {
 
   import ApparentResultTypeRefinementInspection._

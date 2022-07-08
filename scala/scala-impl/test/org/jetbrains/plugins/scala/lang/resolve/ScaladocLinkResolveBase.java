@@ -15,10 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * User: Dmitry Naydanov
- * Date: 12/9/13
- */
 abstract public class ScaladocLinkResolveBase extends ScalaResolveTestCase {
   protected static final String testRef = "<testref>";
 

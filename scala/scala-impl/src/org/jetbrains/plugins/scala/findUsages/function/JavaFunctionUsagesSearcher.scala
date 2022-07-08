@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, StaticPsiM
 
 import scala.collection.mutable
 
-/**
- * @author Alefas
- * @since 28.02.12
- */
 class JavaFunctionUsagesSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val scope = inReadAction(queryParameters.getEffectiveSearchScope)

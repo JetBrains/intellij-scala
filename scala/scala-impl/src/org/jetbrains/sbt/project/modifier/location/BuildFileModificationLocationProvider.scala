@@ -4,10 +4,6 @@ import com.intellij.openapi.module.{Module => IJModule}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.sbt.project.modifier.BuildFileElementType
 
-/**
- * @author Roman.Shein
- * @since 16.03.2015.
- */
 trait BuildFileModificationLocationProvider {
 
   def getAddElementLocation(module: IJModule, elementType: BuildFileElementType, buildFile: PsiFile): Option[(PsiElement, Int)] = {

@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScPrimaryConstructorImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPrimaryConstructorStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 class ScPrimaryConstructorElementType extends ScStubElementType[ScPrimaryConstructorStub, ScPrimaryConstructor]("primary constructor") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScPrimaryConstructorStub =
     new ScPrimaryConstructorStubImpl(parentStub, this)

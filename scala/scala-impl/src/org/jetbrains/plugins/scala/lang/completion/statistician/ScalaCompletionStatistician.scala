@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-/**
- * @author Alefas
- * @since 06.07.12
- */
-
 class ScalaCompletionStatistician extends CompletionStatistician {
   override def serialize(element: LookupElement, location: CompletionLocation): StatisticsInfo = {
     ScalaLookupItem.delegate(element) match {

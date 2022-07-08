@@ -35,11 +35,6 @@ import java.util
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 18.01.2009
- */
-
 class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiElement, Any, ScExpression] {
 
   override def getArgListStopSearchClasses: util.Set[_ <: Class[_]] =

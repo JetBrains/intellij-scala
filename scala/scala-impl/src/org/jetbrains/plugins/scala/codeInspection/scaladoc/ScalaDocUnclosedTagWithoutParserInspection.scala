@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxE
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocSyntaxElement
 
-/**
- * User: Dmitry Naidanov
- * Date: 11/21/11
- */
-
 class ScalaDocUnclosedTagWithoutParserInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 

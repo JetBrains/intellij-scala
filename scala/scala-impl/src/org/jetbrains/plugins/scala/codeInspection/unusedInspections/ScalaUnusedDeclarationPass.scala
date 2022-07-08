@@ -5,9 +5,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
-  * Created by Svyatoslav Ilinskiy on 11.07.16.
-  */
 final class ScalaUnusedDeclarationPass(file: ScalaFile, doc: Option[Document])
   extends InspectionBasedHighlightingPass(file, doc, ScalaUnusedDeclarationPass.inspection(file.getProject))
 

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 import java.util.regex.Matcher
 
-/**
- * @author Nikolay.Tropin
- */
-
 object ScalaSuppressableInspectionTool {
   def findElementToolSuppressedIn(element: PsiElement, toolId: String): Option[PsiElement] = {
     if (element == null) return None

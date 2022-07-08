@@ -6,10 +6,6 @@ import com.intellij.codeInsight.hint.DeclarationRangeHandler
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
-  * @author Alefas
-  * @since 29/06/16
-  */
 final class ScFunctionDeclarationRangeHandler extends DeclarationRangeHandler[ScFunction] {
 
   override def getDeclarationRange(function: ScFunction): TextRange = {

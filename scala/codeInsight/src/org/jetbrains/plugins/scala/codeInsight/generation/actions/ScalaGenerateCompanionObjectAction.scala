@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getCompanionModule
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createNewLine, createObjectWithContext}
 
-/**
-  * Nikolay.Tropin
-  * 8/17/13
-  */
 final class ScalaGenerateCompanionObjectAction extends ScalaBaseGenerateAction(
   new ScalaGenerateCompanionObjectAction.Handler,
   ScalaCodeInsightBundle.message("generate.companion.object.action.text"),

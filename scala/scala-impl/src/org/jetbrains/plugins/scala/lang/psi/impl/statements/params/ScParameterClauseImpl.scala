@@ -21,10 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
 

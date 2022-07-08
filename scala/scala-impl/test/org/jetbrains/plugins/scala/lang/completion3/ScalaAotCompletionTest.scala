@@ -5,9 +5,6 @@ package completion3
 import com.intellij.codeInsight.lookup.Lookup
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTypeDefinitionImpl
 
-/**
- * @author Pavel Fatin
- */
 class ScalaAotCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._

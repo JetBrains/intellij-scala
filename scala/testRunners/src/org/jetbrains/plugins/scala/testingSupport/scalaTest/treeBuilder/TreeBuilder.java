@@ -9,10 +9,6 @@ import java.util.Stack;
 
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
 public interface TreeBuilder {
   void openScope(String message, Ordinal ordinal, String suiteId, boolean isTestStarted);
   void openSuite(String message, SuiteStarting suiteStarting);

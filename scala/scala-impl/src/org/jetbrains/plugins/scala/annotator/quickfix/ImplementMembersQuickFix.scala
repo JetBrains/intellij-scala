@@ -9,11 +9,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.09.2008
- */
-
 class ImplementMembersQuickFix(clazz: ScTemplateDefinition) extends IntentionAction {
 
   override def getText: String = ScalaBundle.message("implement.members.fix")

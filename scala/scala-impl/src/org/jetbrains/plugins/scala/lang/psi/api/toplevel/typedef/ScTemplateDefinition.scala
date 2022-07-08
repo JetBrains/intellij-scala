@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
- * @author ven
- */
 trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
 
   @Nullable

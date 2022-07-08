@@ -7,10 +7,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.{AnyRefExpression, SelectTopmostAncestors}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
-/**
- * @author Roman.Shein
- * @since 14.09.2015.
- */
 sealed abstract class ScalaNullPostfixTemplate(name: String, character: Char) extends ScalaStringBasedPostfixTemplate(
   name,
   s"if (expr $character= null) {}",

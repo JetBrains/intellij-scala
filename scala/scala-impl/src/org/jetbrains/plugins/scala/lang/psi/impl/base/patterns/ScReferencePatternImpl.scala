@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 28.02.2008
-  */
 class ScReferencePatternImpl private(stub: ScBindingPatternStub[ScReferencePattern], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.REFERENCE_PATTERN, node) with ScPatternImpl with ScReferencePattern with ContributedReferenceHost {
 

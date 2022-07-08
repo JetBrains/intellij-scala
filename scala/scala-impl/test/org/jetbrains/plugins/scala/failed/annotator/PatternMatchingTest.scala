@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-/**
-  * @author Anton.Yalyshev
-  * @since 02.12.2017.
-  */
 class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def shouldPass: Boolean = false
 

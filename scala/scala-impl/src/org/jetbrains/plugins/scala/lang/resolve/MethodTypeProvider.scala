@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import scala.annotation.tailrec
 import scala.language.implicitConversions
 
-/**
-  * Nikolay.Tropin
-  * 23-Dec-17
-  */
 sealed trait MethodTypeProvider[+T <: PsiElement] {
   protected def element: T
 

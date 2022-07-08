@@ -14,9 +14,6 @@ import java.nio.file.{Files, Path}
 import javax.swing.JLabel
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 package object template {
 
   import io.FileUtil._

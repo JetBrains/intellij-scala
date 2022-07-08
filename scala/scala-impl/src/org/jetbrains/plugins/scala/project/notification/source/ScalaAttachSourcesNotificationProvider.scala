@@ -23,10 +23,6 @@ import java.util
 import java.util._
 import scala.annotation.nowarn
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 //todo: possibly join with AttachSourcesNotificationProvider
 //todo: differences only in JavaEditorFileSwapper -> ScalaEditorFileSwapper
 @nowarn("cat=deprecation")

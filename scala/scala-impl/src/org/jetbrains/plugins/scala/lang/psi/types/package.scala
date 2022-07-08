@@ -19,9 +19,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.util.control.NoStackTrace
-/**
-  * @author adkozlov
-  */
+
 package object types {
 
   implicit class ScTypeExt(private val scType: ScType) extends AnyVal {

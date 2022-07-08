@@ -16,9 +16,6 @@ import javax.swing.{JComponent, JPanel, JTable}
 import scala.annotation.nowarn
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaChangeSignatureRowEditor(item: ScalaParameterTableModelItem, dialog: ScalaChangeSignatureDialog) extends JBTableRowEditor {
 
   private val project = dialog.project

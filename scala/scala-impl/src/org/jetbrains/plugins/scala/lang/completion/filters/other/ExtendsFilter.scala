@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCases
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
 class ExtendsFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

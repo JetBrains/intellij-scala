@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
-  * @author Roman.Shein
-  * @since 11.02.2015.
-  */
 abstract class Specs2WholeSuiteTest extends Specs2TestCase {
   addSourceFile("SpecificationTest.scala",
     s"""

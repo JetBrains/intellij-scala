@@ -8,10 +8,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 19.07.2009
-  */
 class ScFieldIdStubImpl(parent: StubElement[_ <: PsiElement],
                         elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                         name: String)

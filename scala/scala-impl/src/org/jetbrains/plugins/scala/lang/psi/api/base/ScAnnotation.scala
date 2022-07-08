@@ -4,11 +4,6 @@ import com.intellij.psi.PsiAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 07.03.2008
- */
-
 trait ScAnnotation extends ScalaPsiElement with PsiAnnotation {
   /**
    * Return full annotation only without @ token.

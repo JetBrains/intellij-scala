@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
-/**
- * @author Alefas
- * @since 03/04/14.
- */
 class DummyLightTypeParam(override val name: String)(implicit pc: ProjectContext)
   extends LightElement(pc, ScalaLanguage.INSTANCE) with ScTypeParam with PsiClassFake {
 

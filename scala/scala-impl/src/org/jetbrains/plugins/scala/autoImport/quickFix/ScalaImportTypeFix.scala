@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{isAccessible, kindMatches}
 import org.jetbrains.plugins.scala.settings._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.07.2009
- */
 final class ScalaImportTypeFix private (ref: ScReference)
   extends ScalaImportElementFix[ElementToImport](ref) {
 

@@ -16,10 +16,6 @@ import java.io.File
 import scala.io.{Codec, Source}
 import scala.util.Using
 
-/**
-  * Nikolay.Tropin
-  * 04-Aug-17
-  */
 trait SeveralFilesHighlightingTest {
 
   def getProject: Project

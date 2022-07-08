@@ -3,10 +3,6 @@ package codeInsight
 package intention
 package controlFlow
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/6/12
-  */
 class MergeIfToOrIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.merge.equivalent.ifs.to.ored.condition")

@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInfixElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeArgs
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ScInfixExpr extends ScExpression with ScSugarCallExpr with ScInfixElement {
 
   import ScInfixExpr._

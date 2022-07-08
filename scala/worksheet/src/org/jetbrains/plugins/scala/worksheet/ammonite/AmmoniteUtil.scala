@@ -26,10 +26,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.util.matching.Regex
 
-/**
- * User: Dmitry.Naydanov
- * Date: 01.08.17.
- */
 object AmmoniteUtil {
 
   val DEFAULT_VERSION = "2.12"

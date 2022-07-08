@@ -96,11 +96,8 @@ object ImplicitCollector {
 }
 
 /**
- * @param place        The call site
- * @param tp           Search for an implicit definition of this type. May have type variables.
- *
- * User: Alexander Podkhalyuzin
- * Date: 23.11.2009
+ * @param place The call site
+ * @param tp    Search for an implicit definition of this type. May have type variables.
  */
 class ImplicitCollector(
   place:                      PsiElement,

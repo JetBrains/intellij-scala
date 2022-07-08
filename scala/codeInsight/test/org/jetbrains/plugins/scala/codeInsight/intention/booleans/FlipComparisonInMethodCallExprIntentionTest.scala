@@ -5,10 +5,6 @@ package booleans
 
 import com.intellij.testFramework.EditorTestUtil
 
-/**
- * @author Ksenia.Sautina
- * @since 4/20/12
- */
 class FlipComparisonInMethodCallExprIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}

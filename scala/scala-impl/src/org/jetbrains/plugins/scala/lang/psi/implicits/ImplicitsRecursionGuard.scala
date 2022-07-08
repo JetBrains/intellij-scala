@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import scala.collection.immutable.HashMap
 
-/**
- * @author Alexander Podkhalyuzin
- */
 object ImplicitsRecursionGuard {
 
   type RecursionMap = Map[PsiElement, List[ScType]]

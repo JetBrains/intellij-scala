@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 13.09.17.
-  */
 class AmmoniteRunMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): RunLineMarkerContributor.Info = {
     element.getParent match {

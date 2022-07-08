@@ -17,9 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateDefinitionStubImpl
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * @author ilyas, alefas
- */
 abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](debugName: String,
                                                                                 language: Language = ScalaLanguage.INSTANCE)
   extends ScStubElementType.Impl[ScTemplateDefinitionStub[TypeDef], TypeDef](debugName, language) {

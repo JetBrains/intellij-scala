@@ -16,9 +16,6 @@ import java.util.concurrent.{ScheduledFuture, TimeUnit}
 import scala.annotation.{nowarn, unused}
 import scala.util.control.NoStackTrace
 
-/**
-  * @author Nikolay.Tropin
-  */
 class UIFreezingGuard extends RunOnceStartupActivity {
 
   private val periodMs = 10

@@ -10,10 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScDoImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScDo {
 
   override def body: Option[ScExpression] = findChild[ScExpression]

@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction;
 import scala.Option;
 
-/**
- * @author ven
- */
 public class ResolveCallTest extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

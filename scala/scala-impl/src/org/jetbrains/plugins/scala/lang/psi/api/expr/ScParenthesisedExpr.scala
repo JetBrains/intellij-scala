@@ -7,10 +7,6 @@ package expr
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 07.03.2008
-  */
 trait ScParenthesisedExpr extends ScInfixArgumentExpression with ScParenthesizedElement {
   type Kind = ScExpression
 

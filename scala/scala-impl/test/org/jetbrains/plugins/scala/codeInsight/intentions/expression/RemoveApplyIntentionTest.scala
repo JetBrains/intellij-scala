@@ -3,11 +3,6 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-/**
- * @author Ksenia.Sautina
- * @since 4/12/12
- */
-
 class RemoveApplyIntentionTest extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.remove.unnecessary.apply")
 

@@ -7,11 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 
 import java.util.function.Supplier
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 28.04.2010
- */
-
 trait ScalaEquivalence extends api.Equivalence {
   typeSystem: api.TypeSystem =>
 

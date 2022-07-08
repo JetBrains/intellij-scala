@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.highlighter
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
-  * @author Roman.Shein
-  *         Date: 11.01.2016
-  */
 object ScalaTestHighlighterUtil {
 
   private val scalaTestKeywords =

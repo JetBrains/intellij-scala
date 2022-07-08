@@ -3,9 +3,6 @@ package lang
 package transformation
 package general
 
-/**
-  * @author Pavel Fatin
-  */
 class AppendSemicolonTest extends TransformerTest(new AppendSemicolon()) {
 
   def testSingleLineSeparator(): Unit = check(

@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.Scal
 import java.{util => ju}
 import scala.annotation.tailrec
 
-/**
-  * @author Roman.Shein
-  * @since 08.09.2015.
-  */
 sealed abstract class AncestorSelector(condition: Condition[PsiElement])
   extends PostfixTemplateExpressionSelectorBase(condition) {
 

@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import java.util
 
-/**
-  * Created by user on 8/3/16.
-  */
 object TypeAnnotationSettings {
   // TODO remove?
   def set(project: Project, newSettings: ScalaCodeStyleSettings): Unit ={

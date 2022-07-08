@@ -40,9 +40,6 @@ import scala.concurrent.duration.Duration
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
-/**
-  * Created by jast on 2016-11-25.
-  */
 class SbtProjectTaskRunner extends ProjectTaskRunner {
 
   // will override the usual jps build thingies

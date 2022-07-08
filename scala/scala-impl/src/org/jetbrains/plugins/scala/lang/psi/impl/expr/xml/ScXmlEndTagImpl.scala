@@ -9,11 +9,6 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 21.04.2008
-*/
-
 class ScXmlEndTagImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlEndTag{
   override def toString: String = "XmlEndTag"
 

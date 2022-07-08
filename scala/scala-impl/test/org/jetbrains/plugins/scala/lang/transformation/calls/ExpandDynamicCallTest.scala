@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandDynamicCallTest extends TransformerTest(new ExpandDynamicCall()) {
 
   override protected val header: String =

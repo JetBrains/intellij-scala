@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.S
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 case class ScalaIntroduceParameterData(methodLike: ScMethodLike,
                                        methodToSearchFor: ScMethodLike,
                                        elems: Iterable[PsiElement],

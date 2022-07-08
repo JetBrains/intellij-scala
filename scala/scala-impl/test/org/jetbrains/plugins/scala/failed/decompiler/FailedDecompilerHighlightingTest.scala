@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.failed.decompiler
 
 import org.jetbrains.plugins.scala.lang.highlighting.decompiler.DecompilerHighlightingTestBase
 
-
-/**
-  * @author Roman.Shein
-  * @since 13.04.2016.
-  */
 class FailedDecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   override protected def shouldPass: Boolean = false

@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
-/**
-  * Pavel.Fatin, 28.04.2010
-  */
 class AddOrRemoveStrategy(editor: Option[Editor] = None) extends AddOnlyStrategy(editor) {
 
   import AddOrRemoveStrategy._

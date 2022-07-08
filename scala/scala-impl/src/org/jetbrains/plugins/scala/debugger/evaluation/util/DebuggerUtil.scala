@@ -37,10 +37,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
-/**
- * User: Alefas
- * Date: 19.10.11
- */
 object DebuggerUtil {
   val packageSuffix = ".package$"
 

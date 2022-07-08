@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.02.2008
-*/
-
 /*
   QualId ::= id {. id}
 */

@@ -7,10 +7,6 @@ import com.intellij.refactoring.listeners.RefactoringElementListener
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
-/**
- * Nikolay.Tropin
- * 10/21/13
- */
 class ScalaRunConfigurationRefactoringListenerProvider extends RunConfigurationRefactoringElementListenerProvider {
   private def wrap(td: ScTemplateDefinition) = new PsiClassWrapper(td, td.qualifiedName, td.name)
   private def decorate(listener: RefactoringElementListener): RefactoringElementListener = {

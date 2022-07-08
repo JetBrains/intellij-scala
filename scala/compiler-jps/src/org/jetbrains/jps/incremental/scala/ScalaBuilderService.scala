@@ -7,10 +7,6 @@ import org.jetbrains.jps.incremental._
 import org.jetbrains.jps.incremental.resources.ResourcesBuilder
 import org.jetbrains.jps.incremental.scala.sources.{SbtModuleType, SharedSourcesModuleType}
 
-/**
- * Nikolay.Tropin
- * 11/19/13
- */
 class ScalaBuilderService extends BuilderService {
   ResourcesBuilder.registerEnabler(module => {
     val moduleType = module.getModuleType

@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex
 
-/**
- * Pavel Fatin
- */
 object FormattedStringParser extends StringParser {
 
   private val FormatSpecifierWithoutConversionCharPattern = "%(\\d+\\$)?([-#+ 0,(<]*)?(\\d+)?(\\.\\d+)?([tT])?".r

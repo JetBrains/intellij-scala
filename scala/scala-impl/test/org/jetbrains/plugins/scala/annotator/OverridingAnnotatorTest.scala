@@ -1,10 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.01.12
-  */
-
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
   def testSyntheticUnapply(): Unit = {

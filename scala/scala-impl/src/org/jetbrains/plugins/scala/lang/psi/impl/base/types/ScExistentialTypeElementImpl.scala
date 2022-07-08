@@ -17,11 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Nothing, Singleton}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 13.03.2008
-*/
-
 class ScExistentialTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScExistentialTypeElement {
   override protected def innerType: TypeResult = {
     /** From SLS 3.2.10

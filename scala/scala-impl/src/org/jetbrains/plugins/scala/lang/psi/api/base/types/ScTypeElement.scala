@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
-/**
-* @author Alexander Podkhalyuzin
-*/
-
 trait ScTypeElement extends ScalaPsiElement with Typeable {
   protected val typeName: String
 

@@ -6,10 +6,6 @@ import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
-/**
-  * Nikolay.Tropin
-  * 25-Sep-17
-  */
 class IntroduceVariableTest extends TestCase
 
 object IntroduceVariableTest {

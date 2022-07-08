@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.settings._
 
 import java.awt.Color
 
-/**
- * Pavel Fatin
- */
-
 object ByNameParameter extends AnnotatorPart[ScExpression] {
 
   private val Foreground = new Color(128, 128, 128)

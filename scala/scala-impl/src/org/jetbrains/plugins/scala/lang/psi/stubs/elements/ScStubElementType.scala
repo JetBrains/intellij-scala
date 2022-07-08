@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType.isL
 
 import scala.annotation.tailrec
 
-/**
- * @author ilyas
- */
 abstract class ScStubElementType[
   S <: StubElement[T],
   T <: PsiElement

@@ -36,9 +36,6 @@ import java.nio.file.Paths
 import java.util.function.Predicate
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Nikolay.Tropin
-  */
 @Category(Array(classOf[SlowTests]))
 @RunWith(classOf[JUnit4])
 class MemoryLeakTest extends HeavyPlatformTestCase {

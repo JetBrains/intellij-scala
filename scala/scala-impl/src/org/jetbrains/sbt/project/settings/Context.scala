@@ -1,9 +1,6 @@
 package org.jetbrains.sbt
 package project.settings
 
-/**
- * @author Pavel Fatin
- */
 sealed trait Context
 
 object Context {

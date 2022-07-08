@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
-  * @author adkozlov
-  */
-
-/**
   * This type means type, which depends on place, where you want to get expression type.
   * For example
   *

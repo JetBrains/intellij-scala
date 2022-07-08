@@ -7,10 +7,6 @@ package patterns
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 29.02.2008
-*/
 object Patterns extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {

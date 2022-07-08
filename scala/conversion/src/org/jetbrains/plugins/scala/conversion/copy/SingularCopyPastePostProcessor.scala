@@ -14,9 +14,7 @@ import java.lang.{Boolean => JBoolean}
 import java.{util => ju}
 
 /**
- * @author Pavel Fatin
- *
- *         Common adapter for legacy interface implementations.
+ * Common adapter for legacy interface implementations.
  */
 abstract class SingularCopyPastePostProcessor[T <: TextBlockTransferableData](dataFlavor: DataFlavor)
   extends CopyPastePostProcessor[T] {

@@ -5,10 +5,6 @@ import com.intellij.execution.filters.Filter;
 import com.intellij.psi.search.GlobalSearchScope;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author Roman.Shein
- * @since 01.02.2015.
- */
 public class ScalaTestFailureLocationFilterFactory implements ExceptionFilterFactory {
   @NotNull
   @Override

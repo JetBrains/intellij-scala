@@ -4,9 +4,6 @@ package collections
 
 import org.jetbrains.plugins.scala.util.AliasExports
 
-/**
- * @author Nikolay.Tropin
- */
 class RangeToIndicesTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

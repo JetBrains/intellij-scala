@@ -95,9 +95,7 @@ object AfterUpdateDottyVersionScript {
 
   /**
    * Recompile some classes needed in tests
-   *
-   * @author artyom.semyonov
-   */
+ */
   class RecompileMacroPrinter3
     extends ScalaCompilerTestBase {
 
@@ -158,9 +156,7 @@ object AfterUpdateDottyVersionScript {
 
   /**
    * Imports Tests from the dotty repositiory
-   *
-   * @author tobias.kahlert
-   */
+ */
   class Scala3ImportedParserTest_Import_FromDottyDirectory
     extends TestCase {
 
@@ -231,9 +227,7 @@ object AfterUpdateDottyVersionScript {
 
   /**
    * Imports semanticdb tests from the dotty repositiory
-   *
-   * @author tobias.kahlert
-   */
+ */
   class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory
     extends TestCase {
 

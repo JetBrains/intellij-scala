@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject}
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
-
 class ScalaConstantExpressionEvaluator extends ConstantExpressionEvaluator {
   override def computeExpression(expression: PsiElement, throwExceptionOnOverflow: Boolean,
                                  auxEvaluator: AuxEvaluator): AnyRef = computeConstantExpression(expression, throwExceptionOnOverflow)

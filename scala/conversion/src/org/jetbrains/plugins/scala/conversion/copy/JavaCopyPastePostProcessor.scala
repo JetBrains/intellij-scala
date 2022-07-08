@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.settings._
 
 import scala.collection.mutable
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.11.2009
-  */
 class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode](ConverterUtil.ConvertedCode.flavor) {
 
   import ConverterUtil._

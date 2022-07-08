@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-* @author Alexander Podkhalyuzin
-*/
-
 class ScXmlExprImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScXmlExpr{
   override def toString: String = "XmlExpression"
 

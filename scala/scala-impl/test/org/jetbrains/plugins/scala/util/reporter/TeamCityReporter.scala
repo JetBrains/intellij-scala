@@ -4,10 +4,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgressIndicator
 
-/**
-  * @author mutcianm
-  * @since 16.05.17.
-  */
 class TeamCityReporter(name: String, override val filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean) extends ProgressReporter {
   import TeamCityReporter._
 

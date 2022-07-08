@@ -24,11 +24,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import java.awt.Color
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.02.2009
- */
-
 class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatternArgumentList, Any, ScPattern] {
   override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?

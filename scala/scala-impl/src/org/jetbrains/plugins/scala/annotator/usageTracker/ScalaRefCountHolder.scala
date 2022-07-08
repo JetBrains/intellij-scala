@@ -16,10 +16,6 @@ import java.lang.ref.Reference
 import java.util.concurrent.atomic.AtomicLong
 import java.{util => ju}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 31.05.2010
- */
 final class ScalaRefCountHolder private (file: PsiFile) {
 
   import ScalaRefCountHolder._

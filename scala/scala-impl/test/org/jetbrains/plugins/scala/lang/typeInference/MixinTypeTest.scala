@@ -4,10 +4,6 @@ package lang.typeInference
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Anton Yalyshev
-  * @since 07.09.2018.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
 

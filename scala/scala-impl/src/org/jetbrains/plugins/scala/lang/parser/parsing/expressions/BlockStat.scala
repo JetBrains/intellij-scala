@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
 import scala.annotation.tailrec
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
  * BlockStat ::= Import
  *             | ['implicit'] Def

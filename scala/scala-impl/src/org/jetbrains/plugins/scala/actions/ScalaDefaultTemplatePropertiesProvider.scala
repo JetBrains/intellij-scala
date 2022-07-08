@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util.Properties
 
-/**
- * Pavel Fatin
- */
-
 class ScalaDefaultTemplatePropertiesProvider extends TemplatePackagePropertyProvider {
   private val QualifiedPackagePattern = "(.+)\\.(.+?)".r
 

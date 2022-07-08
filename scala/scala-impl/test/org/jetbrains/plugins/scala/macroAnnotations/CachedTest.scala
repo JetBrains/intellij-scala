@@ -4,11 +4,6 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.junit.Assert._
 
-
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 9/17/15.
- */
 class CachedTest extends CachedTestBase {
   def testNoParametersSingleThread(): Unit = {
     class Foo extends Managed {

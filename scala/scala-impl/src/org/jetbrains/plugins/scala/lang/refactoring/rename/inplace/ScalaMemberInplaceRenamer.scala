@@ -18,10 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaR
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 6/20/13
- */
 class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
                                 substituted: PsiElement,
                                 editor: Editor,

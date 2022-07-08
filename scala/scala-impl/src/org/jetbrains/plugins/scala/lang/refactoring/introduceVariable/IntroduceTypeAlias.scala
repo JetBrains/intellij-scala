@@ -33,10 +33,6 @@ import java.util
 import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import javax.swing.{DefaultListCellRenderer, DefaultListModel, JList, ListCellRenderer}
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 9/18/15
-  */
 trait IntroduceTypeAlias {
   this: ScalaIntroduceVariableHandler =>
 

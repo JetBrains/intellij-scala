@@ -10,10 +10,6 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.util.TestUtils
 
-/**
-  * Created by kate
-  * on 2/10/16
-  */
 abstract class ScalaCompletionSortingTestCase extends ScalaCodeInsightTestBase {
 
   override protected def setUp(): Unit = {

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{StdTypes, TypeSystem}
 
 import scala.language.implicitConversions
 
-/**
-  * Nikolay.Tropin
-  * 19-Apr-17
-  */
 class ProjectContext(val project: Project) extends AnyVal {
   def stdTypes: StdTypes = StdTypes.instance(this)
 

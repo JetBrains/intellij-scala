@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import java.util.Collections
 import java.util.regex.Pattern
 
-
-/**
- * @author Roman.Shein
- * @since 07.07.2015.
- */
 class ScalaTestFinder extends JavaTestFinder {
   override def findTestsForClass(element: PsiElement): java.util.Collection[PsiElement] = {
     findSourceElement(element) match {

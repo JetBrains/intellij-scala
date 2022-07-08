@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * Created by kate on 3/25/16.
-  */
-
 class PartialFunctionTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

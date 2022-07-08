@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.compiler.CompileServerLauncher.CompileServerP
 
 import java.io.File
 
-/**
- * @author Pavel Fatin
- */
 package object compiler {
   case class JDK(executable: File, tools: Option[File], name: String, version: Option[JavaSdkVersion])
 

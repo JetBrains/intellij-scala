@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 class ScTypeParamElementType extends ScStubElementType[ScTypeParamStub, ScTypeParam]("type parameter") {
 
   override def serialize(stub: ScTypeParamStub, dataStream: StubOutputStream): Unit = {

@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.Markers
 
-/**
-  * Nikolay.Tropin
-  * 21-Aug-17
-  */
 class FindUsagesTest extends ScalaFixtureTestCase with Markers {
   private def classWithMembersOptions: FindUsagesOptions = {
     val options = new ScalaTypeDefinitionFindUsagesOptions(getProject)

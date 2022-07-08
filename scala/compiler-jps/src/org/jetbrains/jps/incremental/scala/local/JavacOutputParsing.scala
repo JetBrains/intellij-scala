@@ -12,9 +12,6 @@ import org.jetbrains.jps.incremental.scala.Client.PosInfo
 
 import scala.util.matching.Regex
 
-/**
- * @author Pavel Fatin
- */
 trait JavacOutputParsing extends Logger {
   private case class Header(file: File, line: Long, kind: Kind)
 

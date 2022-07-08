@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
- * @author Nikolay.Tropin
- */
 class AddBreakoutQuickFix(expr: ScExpression) extends IntentionAction {
   override def getText: String = ScalaBundle.message("add.collection.breakout.argument")
 

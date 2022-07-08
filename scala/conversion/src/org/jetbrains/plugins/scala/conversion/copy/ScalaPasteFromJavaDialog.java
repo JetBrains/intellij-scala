@@ -14,10 +14,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 30.11.2009
- */
 public class ScalaPasteFromJavaDialog extends DialogWrapper {
     private JPanel myPanel;
     private JCheckBox donTShowThisCheckBox;

@@ -4,10 +4,6 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.openapi.fileTypes.LanguageFileType;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/4/13
- */
 abstract public class ScalaLanguageDerivative {
 
     private static final ExtensionPointName<ScalaLanguageDerivative> EP_NAME =

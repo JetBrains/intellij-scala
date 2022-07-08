@@ -3,10 +3,6 @@ package lang.psi.applicability
 
 import org.jetbrains.plugins.scala.lang.psi.types._
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 class RepeatedTest extends ApplicabilityTestBase {
   def testMalformedDefinition(): Unit = {
     assertProblems("(a: A*, b: B)", "(A, B)") {

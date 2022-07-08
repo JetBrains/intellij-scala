@@ -10,10 +10,6 @@ import java.util.Stack;
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 import static org.jetbrains.plugins.scala.testingSupport.scalaTest.TeamcityReporter.reportMessage;
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
 public class SequentialTreeBuilder implements TreeBuilder {
 
   private final Stack<Integer> idStack = new Stack<>();

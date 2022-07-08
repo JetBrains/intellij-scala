@@ -5,9 +5,6 @@ import org.jetbrains.jps.incremental.scala.ChunkExclusionService;
 import org.jetbrains.jps.model.module.JpsModule;
 import org.jetbrains.jps.model.module.JpsModuleType;
 
-/**
- * @author Pavel Fatin
- */
 public class ModuleTypeExclusionService extends ChunkExclusionService {
   @Override
   public boolean isExcluded(ModuleChunk chunk) {

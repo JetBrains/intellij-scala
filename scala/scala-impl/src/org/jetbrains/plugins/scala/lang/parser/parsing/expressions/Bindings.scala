@@ -7,11 +7,6 @@ package expressions
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
  * Bindings ::= '(' Binding {',' Binding } ')'
  */

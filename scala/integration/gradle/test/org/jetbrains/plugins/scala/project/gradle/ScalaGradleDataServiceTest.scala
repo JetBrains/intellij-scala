@@ -21,11 +21,6 @@ import java.net.URI
 import java.util
 import scala.jdk.CollectionConverters._
 
-
-/**
- * @author Nikolay Obedin
- * @since 6/4/15.
- */
 class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   private def generateProject(scalaVersion: Option[String] = None,

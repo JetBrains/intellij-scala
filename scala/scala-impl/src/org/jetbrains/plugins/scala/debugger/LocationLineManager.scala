@@ -17,9 +17,6 @@ import java.util
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-/**
-  * @author Nikolay.Tropin
-  */
 trait LocationLineManager {
   self: ScalaPositionManager =>
 

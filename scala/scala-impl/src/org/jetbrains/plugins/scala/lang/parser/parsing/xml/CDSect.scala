@@ -7,11 +7,6 @@ package xml
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenTypesEx, ScalaXmlTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 18.04.2008
-*/
-
 object CDSect extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val cDataMarker = builder.mark()

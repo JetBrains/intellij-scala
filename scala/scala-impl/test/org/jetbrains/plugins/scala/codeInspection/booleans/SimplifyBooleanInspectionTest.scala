@@ -5,10 +5,6 @@ package booleans
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
-/**
- * Nikolay.Tropin
- * 4/24/13
- */
 class SimplifyBooleanInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 import scala.collection.mutable
 import scala.util.matching.Regex
 
-/**
- * Pavel Fatin
- */
 object InterpolatedStringParser extends StringParser {
 
   import FormattedStringParser.FormatSpecifierStartPattern

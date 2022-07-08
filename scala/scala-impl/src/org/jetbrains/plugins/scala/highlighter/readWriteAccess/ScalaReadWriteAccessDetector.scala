@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScVariableDefinition}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 06.10.2008
- */
-
 class ScalaReadWriteAccessDetector extends ReadWriteAccessDetector {
   override def getExpressionAccess(expression: PsiElement): Access = {
     expression match {

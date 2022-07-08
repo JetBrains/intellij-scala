@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 23.06.16.
-  */
 class ScalaBreadcrumbsInfoProvider extends BreadcrumbsProvider {
   override def getElementTooltip(e: PsiElement): String = {
     import ScalaBreadcrumbsInfoProvider.MyTextRepresentationUtil._

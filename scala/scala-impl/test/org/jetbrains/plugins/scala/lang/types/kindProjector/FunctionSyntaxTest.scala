@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.types.kindProjector
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 7/1/15
- */
 class FunctionSyntaxTest extends KindProjectorTestBase {
   override def folderPath = super.folderPath + "functionSyntax/"
 

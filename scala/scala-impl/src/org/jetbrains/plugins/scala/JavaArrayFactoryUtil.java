@@ -27,9 +27,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 
-/**
- * @author Alexander Podkhalyuzin
- */
 public class JavaArrayFactoryUtil {
 
   public static ArrayFactory<ScalaResolveResult> ScalaResolveResultFactory = ScalaResolveResult[]::new;

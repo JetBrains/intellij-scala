@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
-/**
- * Pavel Fatin
- */
 object FormattedStringFormatter extends StringFormatter {
 
   // just run the tests...

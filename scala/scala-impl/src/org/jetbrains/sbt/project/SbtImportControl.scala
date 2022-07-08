@@ -7,9 +7,6 @@ import com.intellij.openapi.util.NotNullFactory
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.settings.{SbtSettings, SbtSettingsControl}
 
-/**
- * @author Pavel Fatin
- */
 class SbtImportControl extends AbstractImportFromExternalSystemControl[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings](
   SbtProjectSystem.Id, SbtSettings.getInstance(ProjectManager.getInstance.getDefaultProject), SbtProjectSettings.default) {
 

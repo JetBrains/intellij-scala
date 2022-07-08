@@ -18,10 +18,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author ilyas
- */
-
 class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
                               endInsScope: ScalaPsiElement)
   extends ScalaRecursiveElementVisitor {

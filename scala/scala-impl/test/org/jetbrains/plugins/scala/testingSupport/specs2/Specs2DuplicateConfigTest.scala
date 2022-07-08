@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
- * @author Roman.Shein
- * @since 27.01.2015.
- */
 abstract class Specs2DuplicateConfigTest extends Specs2TestCase {
   addSourceFile("DuplicateConfigTest.scala",
     """

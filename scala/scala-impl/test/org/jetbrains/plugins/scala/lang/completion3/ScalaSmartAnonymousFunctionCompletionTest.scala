@@ -4,9 +4,6 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScalaSmartAnonymousFunctionCompletionTest extends ScalaCodeInsightTestBase {
 
   def testAbstractTypeInfoFromFirstClause(): Unit = doCompletionTest(

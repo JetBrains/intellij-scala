@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.junit.Assert._
 
-
-/**
- * @author ilyas
- */
 class ResolveClassTest extends ScalaResolveTestCase {
   override def folderPath = super.folderPath + "resolve/class/companion/"
 

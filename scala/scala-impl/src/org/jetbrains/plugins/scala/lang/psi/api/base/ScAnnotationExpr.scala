@@ -6,11 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScAssignment, ScExpression, ScNameValuePair}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScNameValuePairImpl
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
-
 trait ScAnnotationExpr extends ScalaPsiElement {
   def constructorInvocation: ScConstructorInvocation = findChild[ScConstructorInvocation].get
 

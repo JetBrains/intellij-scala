@@ -5,9 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveTestCase}
 import org.junit.Assert._
 
-/**
-  * @author Nikolay.Tropin
-  */
 abstract class FailableResolveTest(dirName: String) extends ScalaResolveTestCase with FailableTest {
 
   override def folderPath: String = s"${super.folderPath}resolve/failed/$dirName"

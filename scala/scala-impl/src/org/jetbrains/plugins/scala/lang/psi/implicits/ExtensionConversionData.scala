@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Nikolay.Tropin
-  */
 case class ExtensionConversionData(place: ScExpression,
                                    ref: ScExpression,
                                    refName: String,

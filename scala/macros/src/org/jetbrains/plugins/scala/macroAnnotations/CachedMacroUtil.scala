@@ -6,10 +6,6 @@ import scala.annotation.{nowarn, tailrec}
 import scala.language.experimental.macros
 import scala.reflect.macros.whitebox
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 9/22/15.
-  */
 object CachedMacroUtil {
   val debug: Boolean = false
 

@@ -20,11 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
-/**
- * Nikolay.Tropin
- * 2014-08-12
- */
-
 private[changeSignature] trait ScalaNamedElementUsageInfo {
   this: UsageInfo =>
 

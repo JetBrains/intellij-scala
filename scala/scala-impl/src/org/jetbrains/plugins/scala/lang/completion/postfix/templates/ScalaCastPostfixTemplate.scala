@@ -11,10 +11,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
- * @author Roman.Shein
- * @since 08.09.2015.
- */
 final class ScalaCastPostfixTemplate extends PostfixTemplateWithExpressionSelector(
   null,
   "cast",

@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
 
-/**
- * @author ilyas
- */
 object PackageObject extends ParsingRule {
 
   import lexer.ScalaTokenType.ObjectKeyword

@@ -25,10 +25,6 @@ import org.junit.Assert.{assertEquals, assertNotNull}
 
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/5/12
- */
 abstract class ScalaLightCodeInsightFixtureTestAdapter
   extends LightJavaCodeInsightFixtureTestCase
     with ScalaSdkOwner

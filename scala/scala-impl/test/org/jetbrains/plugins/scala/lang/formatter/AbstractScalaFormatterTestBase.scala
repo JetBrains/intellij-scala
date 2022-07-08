@@ -25,9 +25,6 @@ import java.io.File
 
 /**
  * Base class for java formatter tests that holds utility methods.
- *
- * @author Denis Zhdanov
- * @since Apr 27, 2010 6:26:29 PM
  */
 // NOTE: initially was almost duplicate from Java
 abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {

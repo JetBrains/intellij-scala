@@ -3,9 +3,6 @@ package lang
 package transformation
 package annotations
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToVariableDefinitionTest extends TransformerTest(new AddTypeToVariableDefinition()) {
 
   def testSinglePattern(): Unit = check(

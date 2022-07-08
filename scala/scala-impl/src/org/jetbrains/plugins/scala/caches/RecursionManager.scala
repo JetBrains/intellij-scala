@@ -12,11 +12,6 @@ import scala.annotation.unused
 import scala.jdk.CollectionConverters._
 
 /**
-  * Nikolay.Tropin
-  * 26-Jan-17
-  */
-
-/**
   * This class mimics [[com.intellij.openapi.util.RecursionManager]]
   *
   * It is used in macros to avoid unnecessary Computable.compute method call and thus reduce stack size.

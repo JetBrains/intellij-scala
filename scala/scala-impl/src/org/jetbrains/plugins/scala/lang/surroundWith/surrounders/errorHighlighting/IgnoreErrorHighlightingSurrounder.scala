@@ -6,11 +6,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 
-/**
- * @author Alefas
- * @since 10.04.12
- */
-
 class IgnoreErrorHighlightingSurrounder extends Surrounder {
   //noinspection ScalaExtractStringToBundle
   override def getTemplateDescription: String = "/*_*/.../*_*/"

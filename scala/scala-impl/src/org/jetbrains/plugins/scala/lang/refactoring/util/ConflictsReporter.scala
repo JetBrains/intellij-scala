@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import java.awt.Point
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ConflictsReporter {
   def reportConflicts(project: Project, conflicts: Seq[(PsiElement, String)]): Boolean
 }

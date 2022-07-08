@@ -6,9 +6,6 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaSourcePositionHighlighter extends SourcePositionHighlighter {
   override def getHighlightRange(sourcePosition: SourcePosition): TextRange = {
     if (sourcePosition.getFile.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) {

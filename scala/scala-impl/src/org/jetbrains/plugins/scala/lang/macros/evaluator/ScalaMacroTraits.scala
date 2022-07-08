@@ -21,11 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * @author Mikhail.Mutcianko
- *         date 22.12.14
- */
-
 case class MacroInvocationContext(call: MethodInvocation, resolveResult: ScalaResolveResult)
 
 case class MacroContext(place: PsiElement, expectedType: Option[ScType])

@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert._
 
-/**
-  * Created by kate on 6/15/16.
-  */
 class ResolveImplicitConversion extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/implicitConversion"
 

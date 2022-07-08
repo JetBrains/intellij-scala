@@ -12,10 +12,6 @@ import org.junit.Assert
 import java.io.File
 import java.net.URI
 
-/**
-  * @author Nikolay Obedin
-  * @since 6/9/15.
-  */
 class SbtBuildModuleDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._

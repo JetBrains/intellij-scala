@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.project.{ModuleExt, Version}
 import org.jetbrains.sbt.language.SbtFileImpl
 
-/**
- * @author Pavel Fatin
- */
 final class SbtAnnotator extends Annotator {
 
   import SbtAnnotator._

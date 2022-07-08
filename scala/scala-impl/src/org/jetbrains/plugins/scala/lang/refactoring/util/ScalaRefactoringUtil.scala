@@ -55,12 +55,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 23.06.2008
- */
-
 object ScalaRefactoringUtil {
   def trimSpacesAndComments(editor: Editor, file: PsiFile, trimComments: Boolean = true): Unit = {
     var start = editor.getSelectionModel.getSelectionStart

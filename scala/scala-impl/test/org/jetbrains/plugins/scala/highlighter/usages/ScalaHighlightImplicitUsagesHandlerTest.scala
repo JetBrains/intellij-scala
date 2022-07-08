@@ -7,9 +7,6 @@ import org.junit.Assert
 
 import scala.jdk.CollectionConverters.ListHasAsScala
 
-/**
-  * Created by Ignat Loskutov on 10.07.17.
-  */
 class ScalaHighlightImplicitUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testNoUsages(): Unit = {

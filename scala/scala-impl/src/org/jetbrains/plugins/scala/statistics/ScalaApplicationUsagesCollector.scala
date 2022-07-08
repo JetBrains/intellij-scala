@@ -17,10 +17,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.collection.JavaConverters.collectionAsScalaIterableConverter
 
-/**
- * @author Alefas
- * @since 03.03.14
- */
 class ScalaApplicationUsagesCollector extends AbstractProjectsUsagesCollector {
   override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
     extensions.inReadAction {

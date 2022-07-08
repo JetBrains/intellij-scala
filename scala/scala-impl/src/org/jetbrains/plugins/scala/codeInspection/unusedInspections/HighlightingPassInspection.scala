@@ -4,9 +4,6 @@ import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFixAndIntenti
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 
-/**
-  * Created by Svyatoslav Ilinskiy on 13.07.16.
-  */
 trait HighlightingPassInspection extends LocalInspectionTool {
   override final def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
     if (isOnTheFly) PsiElementVisitor.EMPTY_VISITOR //highlighting pass should take care of that

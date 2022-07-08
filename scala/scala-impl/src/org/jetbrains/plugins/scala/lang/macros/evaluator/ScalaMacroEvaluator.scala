@@ -28,11 +28,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.reflect.ClassTag
 
-/**
- * @author Mikhail.Mutcianko
- * date 19.12.14
- */
-
 class ScalaMacroEvaluator(project: Project) {
   import ScalaMacroEvaluator._
 

@@ -7,11 +7,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScFor}
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 1/29/13
- */
 @SuppressWarnings(Array("HardCodedStringLiteral"))
 class ScalaForStatementFixer extends ScalaFixer {
   override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {

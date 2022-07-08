@@ -27,11 +27,6 @@ import org.jetbrains.sbt.project.module.SbtModuleType
 
 import java.util.Properties
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.09.2009
- */
-
 final class NewScalaFileAction extends CreateTemplateInPackageAction[ScalaPsiElement](
   () => actionText,
   () => actionDescription,

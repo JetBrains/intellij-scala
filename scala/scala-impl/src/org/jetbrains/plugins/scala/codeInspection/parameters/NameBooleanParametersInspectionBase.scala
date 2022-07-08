@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Boolean
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/10/12
-  */
 abstract class NameBooleanParametersInspectionBase extends LocalInspectionTool {
 
   import NameBooleanParametersInspectionBase._

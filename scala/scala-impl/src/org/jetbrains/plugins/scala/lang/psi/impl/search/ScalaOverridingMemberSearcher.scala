@@ -22,11 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import scala.collection.mutable
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 10.11.2008
- */
-
-/**
  * This class is required for Ctrl+Alt+B action for cases when not PsiMethod overrides not PsiMethod (one of two cases)
  */
 class MethodImplementationsSearch extends QueryExecutor[PsiElement, PsiElement] {

@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Resolv
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.04.2010
- */
 final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
   pack.getManager.asInstanceOf[PsiManagerEx],
   pack.getQualifiedName

@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * Nikolay.Tropin
- * 6/28/13
- */
 abstract class ScalaIntroduceFieldHandlerBase extends ScalaRefactoringActionHandler {
 
   val REFACTORING_NAME: String = ScalaBundle.message("introduce.field.title")

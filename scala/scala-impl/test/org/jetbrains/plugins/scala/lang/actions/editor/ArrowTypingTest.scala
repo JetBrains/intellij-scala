@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import java.io.File
 
-/**
- * User: Dmitry.Naydanov
- * Date: 10.07.14.
- */
 class ArrowTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

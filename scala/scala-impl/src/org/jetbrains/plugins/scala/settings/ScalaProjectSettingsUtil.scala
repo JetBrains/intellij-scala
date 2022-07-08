@@ -15,11 +15,6 @@ import java.util
 import javax.swing.{DefaultListModel, JComponent, JPanel}
 import scala.annotation.tailrec
 
-/**
- * @author Alefas
- * @since 25.05.12
- */
-
 object ScalaProjectSettingsUtil {
   def isValidPackage(packageName: String, checkPlaceholder: Boolean = true): Boolean = {
     if (packageName.trim.startsWith(".") || packageName.trim.endsWith(".")) return false

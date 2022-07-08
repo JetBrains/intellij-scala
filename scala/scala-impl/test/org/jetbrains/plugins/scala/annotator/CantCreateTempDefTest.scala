@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 24.03.16.
-  */
 class CantCreateTempDefTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL7062(): Unit = {
     checkTextHasNoErrors(

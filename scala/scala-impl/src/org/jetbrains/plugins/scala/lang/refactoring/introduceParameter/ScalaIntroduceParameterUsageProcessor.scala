@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import java.util
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcessor {
 
   override def findUsages(info: ChangeInfo): Array[UsageInfo] = info match {

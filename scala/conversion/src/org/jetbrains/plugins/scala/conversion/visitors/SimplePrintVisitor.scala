@@ -6,10 +6,6 @@ import com.intellij.openapi.util._
 
 import scala.collection.mutable
 
-/**
- * Created by Kate Ustyuzhanina
- * on 11/24/15
- */
 class SimplePrintVisitor protected() {
 
   import SimplePrintVisitor._

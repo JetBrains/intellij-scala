@@ -19,10 +19,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 5/12/13
- */
 class InplaceRenameHelper(parent: PsiElement) {
   private val builder: TemplateBuilderImpl = TemplateBuilderFactory.getInstance().
           createTemplateBuilder(parent).asInstanceOf[TemplateBuilderImpl]

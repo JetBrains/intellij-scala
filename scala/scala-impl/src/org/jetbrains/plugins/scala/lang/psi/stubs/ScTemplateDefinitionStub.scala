@@ -6,9 +6,6 @@ package stubs
 import com.intellij.psi.impl.java.stubs.PsiClassStub
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
- * @author ilyas
- */
 trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
   extends ScTopLevelElementStub[T]
     with PsiClassStub[T]

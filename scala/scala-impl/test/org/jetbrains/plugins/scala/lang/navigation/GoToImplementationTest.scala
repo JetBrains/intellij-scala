@@ -5,10 +5,6 @@ package navigation
 import com.intellij.codeInsight.navigation.GotoImplementationHandler
 import org.junit.Assert.assertEquals
 
-/**
- * @author Alefas
- * @since 24.12.13
- */
 class GoToImplementationTest extends GoToTestBase {
 
   def testTraitImplementation(): Unit = {

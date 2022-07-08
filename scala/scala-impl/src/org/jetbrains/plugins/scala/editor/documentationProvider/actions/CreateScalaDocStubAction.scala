@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.collection.mutable
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/14/12
- */
 class CreateScalaDocStubAction extends AnAction(
   ScalaEditorBundle.message("create.scaladoc.stub.action.text"),
   ScalaEditorBundle.message("create.scaladoc.stub.action.description"),

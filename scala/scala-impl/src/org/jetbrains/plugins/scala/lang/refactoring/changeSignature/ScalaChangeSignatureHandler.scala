@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
 
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
 class ScalaChangeSignatureHandler extends ChangeSignatureHandler with ScalaRefactoringActionHandler {
 
   def invokeWithDialog(fun: ScMethodLike)

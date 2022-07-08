@@ -4,11 +4,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, StdKinds}
 
-
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class CollectMethodsProcessor(place: PsiElement, name: String)
         extends ResolveProcessor(StdKinds.methodsOnly, place, name) {
 

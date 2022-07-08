@@ -9,12 +9,6 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 
 import scala.collection.mutable.ArrayBuffer
 
-
-/**
- * User: Dmitry Naydanov
- * Date: 3/2/12
- */
-
 class ScalaDocCommentDataSurroundDescriptor extends SurroundDescriptor {
   val surrounders: Array[Surrounder] = Array[Surrounder](new ScalaDocWithBoldSurrounder, new ScalaDocWithUnderlinedSurrounder,
     new ScalaDocWithMonospaceSurrounder, new ScalaDocWithItalicSurrounder, new ScalaDocWithSubscriptSurrounder,

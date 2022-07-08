@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 
-/**
-  * Created by Kate Ustyuzhanina on 11/24/16.
-  */
 final class ScalaByExpectedTypeWeigher(maybeDefinition: Option[ScExpression])
                                       (implicit position: PsiElement) extends LookupElementWeigher("scalaExpectedType") {
 

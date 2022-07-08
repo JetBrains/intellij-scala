@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-/**
-  * Created by Anton.Yalyshev on 20/04/16.
-  */
 class MacrosTest extends FailedResolveCaretTestBase {
 
   def testSCL8507(): Unit = doResolveCaretTest(

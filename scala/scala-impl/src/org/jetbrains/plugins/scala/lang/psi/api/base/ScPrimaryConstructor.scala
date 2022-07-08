@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
 import scala.collection.immutable.ArraySeq
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
-
 trait ScPrimaryConstructor extends ScMember with ScMethodLike {
 
   /**

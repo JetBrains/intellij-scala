@@ -4,10 +4,6 @@ package functionExpressions
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-/**
-  * Nikolay.Tropin
-  * 9/27/13
-  */
 class MatchToPartialFunctionInspectionTest extends ScalaInspectionTestBase {
 
   import MatchToPartialFunctionInspection.DESCRIPTION

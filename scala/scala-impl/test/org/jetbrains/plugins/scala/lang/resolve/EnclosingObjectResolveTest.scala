@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.experimental.categories.Category
 
-/**
-  * @author mucianm 
-  * @since 28.03.16.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class EnclosingObjectResolveTest extends SimpleTestCase {
 

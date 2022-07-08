@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.annotation.nowarn
 
-/**
- * Pavel Fatin
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class RedundantBlockInspection extends AbstractInspection {
 

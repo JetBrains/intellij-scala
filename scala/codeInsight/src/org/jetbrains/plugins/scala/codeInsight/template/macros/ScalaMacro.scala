@@ -5,9 +5,6 @@ package macros
 
 import com.intellij.codeInsight.template._
 
-/**
-  * @author adkozlov
-  */
 abstract class ScalaMacro extends Macro {
 
   // 🔅 is added when -Didea.l10n=true flag is used

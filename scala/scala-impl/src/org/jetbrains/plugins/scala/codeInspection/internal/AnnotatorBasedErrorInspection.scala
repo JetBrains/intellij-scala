@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.annotator.{DummyScalaAnnotationBuilder, Scala
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * @author Alexander Podkhalyuzin
- */
 final class AnnotatorBasedErrorInspection extends LocalInspectionTool {
 
   import AnnotatorBasedErrorInspection._

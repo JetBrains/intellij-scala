@@ -7,10 +7,6 @@ package base
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 08.02.2008
- */
 trait Import extends ParsingRule {
 
   import lexer.ScalaTokenTypes._

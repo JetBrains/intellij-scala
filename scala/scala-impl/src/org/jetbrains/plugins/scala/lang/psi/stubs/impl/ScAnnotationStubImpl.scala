@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 22.06.2009
-  */
 class ScAnnotationStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                            override val annotationText: String,

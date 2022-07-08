@@ -17,10 +17,6 @@ import java.util
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-03-20
- */
 object ImportMembersUtil {
   def isPackagingName(element: PsiElement): Boolean = element match {
     case Parent(packaging: ScPackaging) => packaging.reference.contains(element)

@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Const
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.ParamClauses
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 13.02.2008
-*/
-
 /*
  * FunDef ::= FunSig [':' Type] '=' Expr
  *          | FunSig [nl] '{' Block '}'

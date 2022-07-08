@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.util.reporter.KnownErrors._
 
 import scala.collection.mutable
 
-/**
-  * @author mutcianm
-  * @since 16.05.17.
-  */
 trait ProgressReporter {
   val errorMessages: mutable.Map[String, Seq[ErrorDescriptor]] = mutable.Map.empty
 

@@ -3,10 +3,6 @@ package org.jetbrains.sbt.project.modifier.ui;
 import com.intellij.openapi.vcs.FileStatus;
 import org.jetbrains.sbt.SbtBundle;
 
-/**
- * @author Roman.Shein
- * @since 20.03.2015.
- */
 public enum BuildFileModifiedStatus {
   DETECTED, MODIFIED_AUTOMATICALLY, MODIFIED_MANUALLY, MODIFIED_BOTH;
 

@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 8/8/13
- */
 abstract class ScalaRuntimeTypeEvaluator(@Nullable editor: Editor, expression: PsiElement, context: DebuggerContextImpl, indicator: ProgressIndicator)
         extends RuntimeTypeEvaluator(editor, expression, context, indicator) {
 

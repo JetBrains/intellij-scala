@@ -9,10 +9,6 @@ import java.net.URL
 import javax.swing.event.HyperlinkEvent
 import scala.collection.mutable
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/27/13
- */
 // TODO Why do we need a mutable builder when we have named / default arguments?
 object NotificationUtil  {
   def builder(project: Project, @Nls message: String) = new NotificationBuilder(project, message)

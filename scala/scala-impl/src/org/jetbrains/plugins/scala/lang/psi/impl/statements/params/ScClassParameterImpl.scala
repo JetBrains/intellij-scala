@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScParameterStub
 
 import javax.swing.Icon
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
 final class ScClassParameterImpl private(stub: ScParameterStub, node: ASTNode)
   extends ScParameterImpl(stub, ScalaElementType.CLASS_PARAM, node) with ScClassParameter {
 

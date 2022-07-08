@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert._
 
-/**
-  * @author Nikolay.Tropin
-  */
 class OverloadedResolutionTest extends ScalaResolveTestCase {
 
   override def folderPath: String = s"${super.folderPath}resolve/overloadedResolution"

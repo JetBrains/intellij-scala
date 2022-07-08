@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScIdList}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScIdListStub
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 class ScIdListImpl private (stub: ScIdListStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, IDENTIFIER_LIST, node) with ScIdList {
 

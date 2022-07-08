@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang
 
-/**
-  * @author ilyas
-  */
-
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._

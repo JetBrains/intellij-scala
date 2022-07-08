@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ScAssignment extends ScExpression {
   def leftExpression: ScExpression = findChild[ScExpression].get
 

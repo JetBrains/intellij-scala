@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition;
 
-/**
- * @author ven
- */
 public class NonlocalResolveTest extends ScalaResolveTestCase{
 
   @Override

@@ -8,8 +8,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
 /**
  * Tests for toString method generation.
- *
- * @author Rado Buransky (buransky.com)
  */
 class GenerateToStringTest extends ScalaGenerateTestBase {
 

@@ -31,9 +31,6 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
 
-/**
-  * @author ilyas, Alexander Podkhalyuzin
-  */
 trait ScExpression extends ScBlockStatement
   with PsiAnnotationMemberValue
   with ImplicitArgumentsOwner

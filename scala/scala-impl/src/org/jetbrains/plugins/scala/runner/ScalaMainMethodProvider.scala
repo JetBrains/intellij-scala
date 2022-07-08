@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ScalaMainMethodProvider extends JavaMainMethodProvider {
   override def isApplicable(clazz: PsiClass): Boolean = clazz match {
     case _: ScTemplateDefinition => true

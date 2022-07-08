@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package implicits
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
@@ -20,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.03.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"

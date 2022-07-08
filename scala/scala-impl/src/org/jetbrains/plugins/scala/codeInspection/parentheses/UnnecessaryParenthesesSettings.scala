@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.parentheses
 
-/**
-  * Nikolay.Tropin
-  * 28-Apr-18
-  */
 case class UnnecessaryParenthesesSettings(ignoreClarifying: Boolean,
                                           ignoreAroundFunctionType: Boolean,
                                           ignoreAroundFunctionTypeParam: Boolean,

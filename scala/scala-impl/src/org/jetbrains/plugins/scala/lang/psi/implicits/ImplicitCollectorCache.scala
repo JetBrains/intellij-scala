@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder.toHashBuilder
 import java.lang.System.identityHashCode
 import java.util.concurrent.ConcurrentHashMap
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ImplicitCollectorCache(project: Project) {
   private val map =
     new ConcurrentHashMap[(ImplicitSearchScope, ScType), Seq[ScalaResolveResult]]()

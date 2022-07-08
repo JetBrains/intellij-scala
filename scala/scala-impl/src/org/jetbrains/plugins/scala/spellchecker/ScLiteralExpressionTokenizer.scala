@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 
 import java.util.Collections
 
-/**
- * @author Ksenia.Sautina
- * @since 2/3/13
- */
-
 class ScLiteralExpressionTokenizer extends Tokenizer[ScLiteral] {
   def processTextWithEscapeSequences(element: ScLiteral, text: String, consumer: TokenConsumer): Unit = {
     val unEscapedText = new java.lang.StringBuilder

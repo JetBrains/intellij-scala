@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package testingSupport
 package specs2
 
-/**
- * @author Roman.Shein
- * @since 16.10.2014.
- */
 abstract class SCL7228Test extends Specs2TestCase {
 
   addSourceFile("SCL7228Test.scala",

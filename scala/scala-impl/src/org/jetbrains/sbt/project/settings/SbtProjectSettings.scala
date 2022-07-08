@@ -11,9 +11,6 @@ import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
 
-/**
- * @author Pavel Fatin
- */
 //noinspection ConvertNullInitializerToUnderscore
 class SbtProjectSettings extends ExternalProjectSettings {
 

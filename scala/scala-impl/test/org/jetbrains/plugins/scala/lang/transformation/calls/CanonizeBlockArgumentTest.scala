@@ -5,10 +5,6 @@ package calls
 
 import org.junit.Ignore
 
-
-/**
-  * @author Pavel Fatin
-  */
 class CanonizeBlockArgumentTest extends TransformerTest(new CanonizeBlockArgument()) {
   def testMethodCall(): Unit = check(
     before = "f {A}",

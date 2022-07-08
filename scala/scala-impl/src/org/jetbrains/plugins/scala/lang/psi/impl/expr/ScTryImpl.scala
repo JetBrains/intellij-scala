@@ -17,9 +17,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScTryImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTry with ScBegin {
 
   import ScTryImpl._

@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.PhysicalMethodSignature
 
-/**
- * @author AlexanderPodkhalyuzin
- */
 trait ScTypeDefinition extends ScTemplateDefinition
   with ScMember.WithBaseIconProvider
   with NavigationItem

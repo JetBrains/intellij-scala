@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-/**
- * @author Roman.Shein
- * @since 31.05.2016.
- */
 abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with DecompilerTestBase with MatcherAssertions {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11

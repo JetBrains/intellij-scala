@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.codeInspection.collections.{`scalaOption`, li
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
-  * Nikolay.Tropin
-  * 07-Nov-17
-  */
 class OptionWithLiteralToSomeIntention extends PsiElementBaseIntentionAction  {
   import OptionWithLiteralToSomeIntention._
 

@@ -17,11 +17,6 @@ import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import scala.jdk.CollectionConverters._
 import scala.util.control.Exception._
 
-
-/**
- * Nikolay.Tropin
- * 11/18/13
- */
 class IdeClientSbt(compilerName: String,
                    context: CompileContext,
                    chunk: ModuleChunk,

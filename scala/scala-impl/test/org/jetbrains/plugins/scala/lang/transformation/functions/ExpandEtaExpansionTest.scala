@@ -3,9 +3,6 @@ package lang
 package transformation
 package functions
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandEtaExpansionTest extends TransformerTest(new ExpandEtaExpansion()) {
 
   def testExplicit(): Unit = check(

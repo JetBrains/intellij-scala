@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelectors}
 
-/**
- * @author Ksenia.Sautina
- * @since 4/10/12
- */
-
 class SingleImportInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 

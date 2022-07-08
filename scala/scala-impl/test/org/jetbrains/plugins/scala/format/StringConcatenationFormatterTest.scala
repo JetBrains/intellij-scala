@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.junit.Assert._
 
-/**
- * Pavel Fatin
- */
 class StringConcatenationFormatterTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testEmpty(): Unit = {
     assertEquals("\"\"", format())

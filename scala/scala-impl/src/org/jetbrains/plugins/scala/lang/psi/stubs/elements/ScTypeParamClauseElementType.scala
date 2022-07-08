@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParamCla
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTypeParamClauseStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 class ScTypeParamClauseElementType
   extends ScStubElementType[ScTypeParamClauseStub, ScTypeParamClause]("type parameter clause") {
 

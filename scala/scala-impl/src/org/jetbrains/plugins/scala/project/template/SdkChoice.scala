@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package project
 package template
 
-/**
- * @author Pavel Fatin
- */
 sealed abstract class SdkChoice(val sdk: ScalaSdkDescriptor,
                                 val source: String)
 

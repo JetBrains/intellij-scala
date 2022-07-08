@@ -9,10 +9,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 
-/**
-  * Created by kate
-  * on 2/17/16
-  */
 class ScalaScopeWeigher extends CompletionWeigher {
 
   override def weigh(element: LookupElement, location: CompletionLocation): Comparable[_] = element match {

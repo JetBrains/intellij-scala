@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Roman.Shein
-  *         Date: 24.01.2017
-  */
 //todo: Revalidate, add tests and remove
 final class LegacyCodeStyleSettingsComponent extends RunOnceStartupActivity {
 

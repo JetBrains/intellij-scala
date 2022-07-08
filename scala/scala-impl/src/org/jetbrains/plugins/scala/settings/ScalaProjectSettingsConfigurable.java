@@ -7,10 +7,6 @@ import org.jetbrains.annotations.Nls;
 
 import javax.swing.*;
 
-/**
- * @author Ksenia.Sautina
- * @since 4/25/12
- */
 public class ScalaProjectSettingsConfigurable implements Configurable {
   private JComponent myComponent;
   private ScalaProjectSettingsPanel myPanel;

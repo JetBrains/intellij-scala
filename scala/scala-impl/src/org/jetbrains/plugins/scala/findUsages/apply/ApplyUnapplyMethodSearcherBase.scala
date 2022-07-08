@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Nikolay.Tropin
- * 8/29/13
- */
 abstract class ApplyUnapplyMethodSearcherBase extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
 
   protected val names: Set[String]

@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-/**
-  * @author Alefas
-  * @since 23.03.12
-  */
 class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase {
 
   override def getTestDataPath: String =

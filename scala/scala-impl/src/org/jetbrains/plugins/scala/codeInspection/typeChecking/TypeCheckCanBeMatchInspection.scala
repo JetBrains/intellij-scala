@@ -28,10 +28,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, S
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 5/6/13
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCanBeMatchInspection.inspectionName) {
 

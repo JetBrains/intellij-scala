@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConso
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
 class ScalaStructureViewFactory extends PsiStructureViewFactory {
   override def getStructureViewBuilder(file: PsiFile): StructureViewBuilder = file match {
     case scalaFile: ScalaFile =>

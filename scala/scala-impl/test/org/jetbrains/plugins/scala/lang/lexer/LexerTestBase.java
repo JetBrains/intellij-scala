@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 
-/**
- * User: Dmitry Naidanov
- * Date: 11/21/11
- */
 abstract public class LexerTestBase extends ScalaFileSetTestCase {
 
     protected LexerTestBase(@NotNull @NonNls String dataPath) {

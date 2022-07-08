@@ -10,9 +10,6 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.EditorNotificationPanel
 import org.jetbrains.plugins.scala.ScalaBundle
 
-/**
- * @author Pavel Fatin
- */
 final class SetupJdkNotificationProvider(project: Project)
   extends AbstractNotificationProvider(ScalaBundle.message("kit.title.jdk"), project) {
 

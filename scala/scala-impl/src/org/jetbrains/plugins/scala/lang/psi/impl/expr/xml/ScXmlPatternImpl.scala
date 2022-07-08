@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 21.04.2008
-*/
-
 class ScXmlPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScXmlPattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = false
 

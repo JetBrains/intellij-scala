@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author t-kameyama
-  */
 class UnzipSingleElementInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(UnzipSingleElement)
 }

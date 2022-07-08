@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Ignore
 import org.junit.experimental.categories.Category
 
-/**
-  * Nikolay.Tropin
-  * 14-Dec-17
-  */
 abstract class LocalSbtProjectHighlightingTest extends ImportingProjectTestCase with AllProjectHighlightingTest {
   override def getProject: Project = myProject
 

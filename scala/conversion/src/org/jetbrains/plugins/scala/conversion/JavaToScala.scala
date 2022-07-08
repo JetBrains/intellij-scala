@@ -26,10 +26,6 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
 
-/**
-  * Author: Alexander Podkhalyuzin
-  * Date: 23.07.2009
-  */
 object JavaToScala {
 
   case class AssociationHelper(node: IntermediateNode, path: Path)

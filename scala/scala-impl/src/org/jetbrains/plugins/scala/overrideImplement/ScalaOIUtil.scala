@@ -25,11 +25,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.07.2008
- */
-
 object ScalaOIUtil {
 
   private[this] def toClassMember(signature: Signature, isOverride: Boolean): Option[ClassMember] = {

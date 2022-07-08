@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 
 import java.lang.{Boolean => JBoolean}
 
-/**
- * @author Pavel Fatin
- */
 final class SdkTableModel extends ListTableModel[SdkChoice](
   new ColumnInfo[SdkChoice, String](ScalaBundle.message("sdk.table.model.location")) {
     override def valueOf(item: SdkChoice): String = item.source

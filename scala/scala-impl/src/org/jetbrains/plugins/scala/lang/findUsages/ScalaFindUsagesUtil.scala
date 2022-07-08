@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
 
-/**
-  * Created by Svyatoslav Ilinskiy on 08.07.16.
-  */
 object ScalaFindUsagesUtil {
   def getType(element: PsiElement): String = element match {
     case _: ScTypeAlias => "type"

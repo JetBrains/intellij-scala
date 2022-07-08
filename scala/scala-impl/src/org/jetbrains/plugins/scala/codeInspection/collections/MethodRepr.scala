@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Nikolay.Tropin
- */
 class MethodRepr private (val itself: ScExpression,
                           val optionalBase: Option[ScExpression],
                           val args: Seq[ScExpression])

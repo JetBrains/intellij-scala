@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.extensions._
 
 import java.util.Properties
 
-/**
- * @author Alefas
- * @since 04.05.12
- */
 object ScalaFileTemplateUtil {
   val SCALA_IMPLEMENTED_METHOD_TEMPLATE = "Implemented Scala Method Body.scala"
   val SCALA_OVERRIDDEN_METHOD_TEMPLATE = "Overridden Scala Method Body.scala"

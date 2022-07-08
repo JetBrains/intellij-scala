@@ -66,9 +66,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.{ClassTag, NameTransformer}
 
-/**
-  * User: Alexander Podkhalyuzin
-  */
 object ScalaPsiUtil {
 
   //java has magic @PolymorphicSignature annotation in java.lang.invoke.MethodHandle

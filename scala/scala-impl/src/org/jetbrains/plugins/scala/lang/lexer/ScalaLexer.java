@@ -32,9 +32,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author ilyas
- */
 public final class ScalaLexer extends Lexer {
 
   private static final String XML_BEGIN_PATTERN = "<\\w";

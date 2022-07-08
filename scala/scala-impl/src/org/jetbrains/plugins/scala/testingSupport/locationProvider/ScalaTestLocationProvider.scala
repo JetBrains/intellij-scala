@@ -18,9 +18,6 @@ import java.{util => ju}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 24.02.2009
- *
  * For Specs, Specs2 and ScalaTest
  *
  * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.ScalaTestRunLineMarkerProvider]]

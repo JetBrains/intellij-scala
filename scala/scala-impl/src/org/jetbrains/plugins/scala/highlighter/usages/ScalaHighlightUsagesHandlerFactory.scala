@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.12.2009
- */
 final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFactory {
 
   import ScalaTokenType._

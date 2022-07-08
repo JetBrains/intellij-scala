@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 import java.util.Collections;
 import java.util.Map;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 23.07.2008
- */
 public final class ScalaDocSyntaxHighlighter extends SyntaxHighlighterBase {
 
     @NotNull

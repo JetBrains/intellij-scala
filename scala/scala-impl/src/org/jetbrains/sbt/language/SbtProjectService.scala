@@ -10,9 +10,6 @@ import org.jetbrains.idea.maven.indices.MavenIndicesManager
 
 import scala.annotation.nowarn
 
-/**
- * @author Pavel Fatin
- */
 final class SbtProjectService(project: Project) extends Disposable {
 
   setupMavenIndexes()

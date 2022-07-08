@@ -6,9 +6,6 @@ import org.jetbrains.jps.model.module.{JpsModule, JpsModuleDependency}
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 class SharedSourceDependenciesProviderService extends SourceDependenciesProviderService {
   override def getSourceDependenciesFor(chunk: ModuleChunk): Seq[JpsModule] = {
     val modules = chunk.getModules.asScala.toSeq

@@ -21,9 +21,6 @@ import _root_.java.{util => jutil}
 import _root_.scala.collection.immutable.ArraySeq
 import _root_.scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
   override def getPresentableName = "Scala sbt builder"
 

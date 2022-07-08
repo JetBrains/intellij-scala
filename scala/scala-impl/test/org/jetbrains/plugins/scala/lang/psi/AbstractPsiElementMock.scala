@@ -9,10 +9,6 @@ import com.intellij.psi._
 
 import javax.swing.Icon
 
-/**
- * Pavel.Fatin, 11.05.2010
- */
-
 abstract class AbstractPsiElementMock extends PsiElement {
   override def getIcon(flags: Int): Icon = null
 

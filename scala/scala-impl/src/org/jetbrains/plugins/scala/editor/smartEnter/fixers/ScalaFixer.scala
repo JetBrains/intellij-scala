@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 1/28/13
- */
 trait ScalaFixer {
   def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed
 

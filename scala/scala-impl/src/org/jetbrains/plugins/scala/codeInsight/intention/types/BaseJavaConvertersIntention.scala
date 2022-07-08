@@ -18,10 +18,6 @@ import org.jetbrains.plugins.scala.project._
 
 import scala.annotation.tailrec
 
-/**
- * @author Eugene Platonov
- *         23/07/13
- */
 abstract class BaseJavaConvertersIntention(methodName: String) extends PsiElementBaseIntentionAction {
 
   val targetCollections: Set[String]

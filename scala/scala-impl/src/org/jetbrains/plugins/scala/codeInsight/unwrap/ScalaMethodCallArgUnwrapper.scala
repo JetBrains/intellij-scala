@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpr
 import java.util
 import scala.annotation.tailrec
 
-/**
- * Nikolay.Tropin
- * 2014-06-26
- */
 class ScalaMethodCallArgUnwrapper extends ScalaUnwrapper with ShortTextDescription {
 
   override def getDescription(e: PsiElement): String = super.getDescription(e)

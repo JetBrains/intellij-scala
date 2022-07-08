@@ -8,10 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
-/**
- * Pavel Fatin
- */
-
 object ReportHighlightingErrorQuickFix extends IntentionAction {
 
   override def getText: String = ScalaBundle.message("report.highlighting.error.fix")

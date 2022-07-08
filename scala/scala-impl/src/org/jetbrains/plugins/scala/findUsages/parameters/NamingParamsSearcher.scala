@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
 import scala.collection.mutable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 17.08.2009
- */
 class NamingParamsSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject

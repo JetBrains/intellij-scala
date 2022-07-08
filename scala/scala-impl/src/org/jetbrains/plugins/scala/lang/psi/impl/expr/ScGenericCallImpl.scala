@@ -23,11 +23,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScGenericCall {
 
   /**

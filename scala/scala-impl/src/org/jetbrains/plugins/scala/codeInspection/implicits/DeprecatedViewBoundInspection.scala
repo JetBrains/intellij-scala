@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 
 import scala.annotation.nowarn
 
-/**
-* Nikolay.Tropin
-* 2014-11-18
-*/
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class DeprecatedViewBoundInspection extends AbstractInspection(description) {
 

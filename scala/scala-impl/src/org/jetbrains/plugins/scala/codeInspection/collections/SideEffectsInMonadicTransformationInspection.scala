@@ -7,9 +7,6 @@ import com.intellij.psi.PsiElement
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class SideEffectsInMonadicTransformationInspection extends OperationOnCollectionInspection {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

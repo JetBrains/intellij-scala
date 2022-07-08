@@ -4,7 +4,6 @@ import com.intellij.openapi.externalSystem.settings.{DelegatingExternalSystemSet
 
 /**
  * Stub to satisfy scaffolding of ExternalSystem
- * @author Pavel Fatin
  */
 class SbtProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener[SbtProjectSettings])
   extends DelegatingExternalSystemSettingsListener[SbtProjectSettings](listener) with SbtProjectSettingsListener

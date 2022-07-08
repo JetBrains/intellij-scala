@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.{CommonUtils, ParsingRule}
 
-/**
- * @author kfeodorov
- * @since 01.03.14.
- */
 object InterpolationPattern extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean =

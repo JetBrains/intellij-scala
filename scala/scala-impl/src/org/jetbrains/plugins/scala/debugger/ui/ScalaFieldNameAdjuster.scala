@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.debugger.ui.ScalaFieldNameAdjuster.objectSuff
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaFieldNameAdjuster extends NodeDescriptorNameAdjuster {
 
   override def isApplicable(descriptor: NodeDescriptor): Boolean = {

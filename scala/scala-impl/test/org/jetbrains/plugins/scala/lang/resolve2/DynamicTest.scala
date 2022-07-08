@@ -3,10 +3,6 @@ package lang.resolve2
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert
 
-/**
- * Pavel.Fatin, 02.02.2010
- */
-
 class DynamicTest extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "dynamic/"

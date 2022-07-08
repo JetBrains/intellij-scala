@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
-/**
-  * @author Nikolay.Tropin
-  */
 class CurriedConformanceTest extends TypeConformanceTestBase {
 
   def testSCL7488(): Unit = {

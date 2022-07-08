@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.lang.scaladoc
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-/**
- * User: Dmitry Naydanov
- * Date: 2/25/12
- */
 class WikiClosingTagTypedTest extends EditorActionTestBase {
 
   def testCodeLinkClosingTagInput(): Unit =

@@ -8,9 +8,6 @@ import com.intellij.problems.WolfTheProblemSolver;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Pavel Fatin
- */
 public class ProblemSolverUtils {
   // TODO Extend IDEA API by adding clearProblems() to the WolfTheProblemSolver interface
   static void clearProblemsIn(Project project) {

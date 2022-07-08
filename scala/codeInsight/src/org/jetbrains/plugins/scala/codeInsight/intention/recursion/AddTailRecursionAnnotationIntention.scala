@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.annotator.FunctionAnnotator
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 
-/**
-  * Pavel Fatin
-  */
 final class AddTailRecursionAnnotationIntention extends PsiElementBaseIntentionAction {
 
   import AddTailRecursionAnnotationIntention._

@@ -5,9 +5,6 @@ package template
 import org.jetbrains.plugins.scala.annotator.element.ScNewTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 
-/**
- * Pavel Fatin
- */
 class AbstractInstantiationTest extends AnnotatorTestBase[ScNewTemplateDefinition] {
 
   def testOrdinaryClass(): Unit = {

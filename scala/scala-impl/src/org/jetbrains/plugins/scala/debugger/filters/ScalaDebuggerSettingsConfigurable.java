@@ -14,9 +14,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * @author ilyas
- */
 public class ScalaDebuggerSettingsConfigurable implements Configurable {
     private JPanel myPanel;
     private JCheckBox friendlyDisplayOfScalaCheckBox;

@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.project.converter.ScalaModuleConversionProces
 
 import java.nio.file.Path
 
-/**
- * @author Pavel Fatin
- */
 private class ScalaModuleConversionProcessor(context: ConversionContext) extends ConversionProcessor[ModuleSettings] {
   private var createdSdks: Seq[ScalaSdkData] = Seq.empty
   private var newSdkFiles: Seq[Path] = Seq.empty

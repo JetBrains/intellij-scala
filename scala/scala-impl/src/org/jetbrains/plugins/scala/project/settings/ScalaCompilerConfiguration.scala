@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration.D
 import scala.annotation.{nowarn, tailrec}
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
 @State(
   name = "ScalaCompilerConfiguration",
   storages = Array(new Storage("scala_compiler.xml")),

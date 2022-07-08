@@ -27,10 +27,6 @@ import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Integer;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.Long;
 import static org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.*;
 
-/**
- * @author ilyas
- * Date: 24.09.2006
- */
 public interface ScalaTokenTypes {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

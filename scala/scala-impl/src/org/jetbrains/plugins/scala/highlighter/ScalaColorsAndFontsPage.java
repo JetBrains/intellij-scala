@@ -20,10 +20,6 @@ import java.util.Map;
 
 import static org.jetbrains.plugins.scala.highlighter.DefaultHighlighter.*;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.07.2008
- */
 public class ScalaColorsAndFontsPage implements RainbowColorSettingsPage {
   @NotNull
   @Override

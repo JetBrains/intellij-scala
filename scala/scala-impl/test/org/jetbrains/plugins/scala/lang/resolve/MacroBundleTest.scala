@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.junit.Assert
 
-/**
-  * Nikolay.Tropin
-  * 23-Mar-18
-  */
 class MacroBundleTest extends ScalaResolveTestCase {
   override protected def isIncludeReflectLibrary = true
 

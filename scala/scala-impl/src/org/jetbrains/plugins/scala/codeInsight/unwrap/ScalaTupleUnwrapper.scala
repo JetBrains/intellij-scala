@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScTuple}
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-26
- */
 class ScalaTupleUnwrapper extends ScalaUnwrapper with ShortTextDescription {
   override def isApplicableTo(e: PsiElement): Boolean = forTupledExpression(e)((_, _) => true)(false)
 

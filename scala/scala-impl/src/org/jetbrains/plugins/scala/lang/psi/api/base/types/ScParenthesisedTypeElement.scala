@@ -7,11 +7,6 @@ package types
 
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 13.03.2008
-*/
-
 trait ScParenthesisedTypeElement extends ScTypeElement with ScParenthesizedElement {
   override protected val typeName = "TypeInParenthesis"
 

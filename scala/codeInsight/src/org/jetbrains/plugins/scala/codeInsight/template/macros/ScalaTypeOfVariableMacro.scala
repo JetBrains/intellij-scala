@@ -5,10 +5,6 @@ package macros
 
 import com.intellij.codeInsight.template._
 
-/**
- * @author Roman.Shein
- * @since 29.09.2015.
- */
 final class ScalaTypeOfVariableMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =

@@ -31,10 +31,6 @@ import scala.concurrent.duration
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
-/**
- * Nikolay.Tropin
- * 2/26/14
- */
 abstract class ScalaCompilerTestBase extends JavaModuleTestCase with ScalaSdkOwner {
 
   private var compilerTester: CompilerTester = _

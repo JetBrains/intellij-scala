@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.lang.annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-/**
-  * Nikolay.Tropin
-  * 25-Sep-17
-  */
 class UnspecifiedValueParamImplicitTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL10845(): Unit = {
     checkTextHasNoErrors(

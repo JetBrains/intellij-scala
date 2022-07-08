@@ -7,9 +7,6 @@ import org.jetbrains.generate.tostring.GenerateToStringClassFilter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
-/**
-  * @author Nikolay.Tropin
-  */
 final class GenerateToStringScalaClassFilter extends GenerateToStringClassFilter {
 
   override def canGenerateToString(clazz: PsiClass): Boolean = clazz match {

@@ -33,10 +33,6 @@ import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-/**
-  * Nikolay.Tropin
-  * 2014-12-04
-  */
 class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
   override def isAvailable(sourcePosition: SourcePosition, evaluationContext: EvaluationContext): Boolean = {
     ScalaDebuggerSettings.getInstance().SHOW_VARIABLES_FROM_OUTER_SCOPES &&

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-/**
-  * @author Roman.Shein
-  * @since 28.03.2016.
-  */
 class OverridingAnnotatorTest2 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false

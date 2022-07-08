@@ -9,9 +9,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
- * @author ilyas
- */
 final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
   parent:                                        StubElement[_ <: PsiElement],
   elementType:                                   IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],

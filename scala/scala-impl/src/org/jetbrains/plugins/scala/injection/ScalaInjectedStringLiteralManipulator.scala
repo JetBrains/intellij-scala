@@ -8,10 +8,6 @@ import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 05.11.15.
-  */
 final class ScalaInjectedStringLiteralManipulator extends AbstractElementManipulator[ScLiteral] {
 
   override def handleContentChange(literal: ScLiteral,

@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
 import java.io.File
 import scala.reflect.NameTransformer
 
-
-/**
-  * Nikolay.Tropin
-  * 14-Aug-17
-  */
 abstract class FailedScalacTestsBase_2_12 extends ScalacTestdataHighlightingTestBase_2_12 {
 
   override lazy val reporter = new ConsoleReporter(filesWithProblems)

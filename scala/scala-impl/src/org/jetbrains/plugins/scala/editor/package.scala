@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 
 import scala.reflect.ClassTag
 
-/**
-  * Nikolay.Tropin
-  * 27-Oct-17
-  */
 package object editor {
   implicit class DocumentExt(private val document: Document) extends AnyVal {
     def commit(project: Project): Unit =

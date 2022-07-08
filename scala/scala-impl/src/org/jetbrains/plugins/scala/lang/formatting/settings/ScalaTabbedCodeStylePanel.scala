@@ -17,10 +17,6 @@ import java.awt.event.ItemEvent
 import javax.swing._
 import scala.annotation.nowarn
 
-/**
- * User: Alefas
- * Date: 23.09.11
- */
 class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: CodeStyleSettings)
   extends TabbedLanguageCodeStylePanel(ScalaLanguage.INSTANCE, currentSettings, settings) {
 

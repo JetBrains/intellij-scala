@@ -45,11 +45,6 @@ import static com.intellij.openapi.util.text.StringUtil.*;
 import static com.intellij.psi.impl.DebugUtil.psiToString;
 import static org.junit.Assert.*;
 
-/**
- * Author: Ilya Sergey
- * Date: 01.11.2006
- * Time: 15:51:24
- */
 public abstract class ScalaFileSetTestCase extends TestSuite {
 
     protected ScalaFileSetTestCase(@NotNull @NonNls String path, String... testFileExtensions) {

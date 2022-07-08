@@ -3,9 +3,6 @@ package lang
 package transformation
 package annotations
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToFunctionParameterTest extends TransformerTest(new AddTypeToFunctionParameter()) {
 
   override protected val header: String =

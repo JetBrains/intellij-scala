@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.PsiMethodWrapper.containingCla
 import org.jetbrains.plugins.scala.lang.psi.types.api.{AnyRef, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature}
 
-/**
- * User: Alefas
- * Date: 18.02.12
- */
 class PsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
                                 isStatic: Boolean,
                                 isAbstract: Boolean,

@@ -5,10 +5,6 @@ import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.{Nls, Nullable}
 
-/**
-  * @author Pavel Fatin
-  *         use [[org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection]] instead
-  */
 @deprecated(AbstractInspection.DeprecationText)
 abstract class AbstractInspection protected(@Nullable @Nls customDisplayName: String = null) extends LocalInspectionTool {
 

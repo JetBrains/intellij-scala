@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderIm
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.junit.Assert
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class BlockParseTest extends SimpleTestCase {
   def parseBlock(s: String): PsiElement = {
     val context = parseText("")

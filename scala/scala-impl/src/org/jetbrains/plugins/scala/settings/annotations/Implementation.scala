@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 
-/**
-  * @author Pavel Fatin
-  */
 sealed abstract class Implementation {
 
   import Implementation._

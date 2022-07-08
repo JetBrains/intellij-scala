@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 
 import scala.language.implicitConversions
 
-/**
-  * Nikolay.Tropin
-  * 01-Feb-18
-  */
 private abstract class DepMethodParamSubstitution extends LeafSubstitution {
 
   def substitutedType(parameter: ScParameter): Option[ScType]

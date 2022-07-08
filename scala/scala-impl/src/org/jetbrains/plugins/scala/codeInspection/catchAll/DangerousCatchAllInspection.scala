@@ -7,11 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScCatchBlock}
 
-/**
- * @author Ksenia.Sautina
- * @since 6/25/12
- */
-
 class DangerousCatchAllInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 

@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwn
 
 import _root_.java.util.{Collection, Collections, List}
 
-
-/**
- * @author ilyas
- */
-
 trait PsiClassFake extends PsiClassAdapter with PsiReferenceList with ScDocCommentOwner {
   //todo: this methods from PsiReferenceList to avoid NPE. It's possible for asking different roles, so we can
   //todo: have problems for simple implementation of them

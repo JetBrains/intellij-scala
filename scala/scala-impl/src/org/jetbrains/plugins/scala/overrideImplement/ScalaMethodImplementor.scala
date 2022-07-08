@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 12/25/13
- */
 class ScalaMethodImplementor extends MethodImplementor {
   val emptyConsumer: Consumer[PsiMethod] = (_: PsiMethod) => {}
 

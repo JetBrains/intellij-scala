@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 import org.openjdk.jmh.annotations.{Measurement, OutputTimeUnit, Warmup, _}
 import org.openjdk.jmh.infra.Blackhole
 
-/**
-  * @author Nikolay.Tropin
-  */
-
 @BenchmarkMode(Array(Mode.AverageTime))
 @Fork(1)
 @State(Scope.Benchmark)

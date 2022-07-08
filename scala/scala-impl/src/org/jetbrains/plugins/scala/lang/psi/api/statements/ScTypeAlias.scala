@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScExistentialClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScPolymorphicElement}
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- * Time: 9:46:00
- */
 trait ScTypeAlias extends ScNamedElement
   // TODO: ScDefinitionWithAssignment should go to ScTypeAliasDefinition but first, we should fix parser
   //  to parse incomplete type definition as definition with error, not declaration:

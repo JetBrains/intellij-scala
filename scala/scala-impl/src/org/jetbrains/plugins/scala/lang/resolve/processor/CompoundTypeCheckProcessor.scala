@@ -19,11 +19,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, StdKinds}
 
-
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class CompoundTypeCheckSignatureProcessor(s: TermSignature,
                                           retType: ScType,
                                           constraints: ConstraintSystem)

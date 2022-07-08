@@ -8,11 +8,6 @@ import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScTypeAliasDeclarationImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 18.10.2008
-  */
-
 class ScTypeAliasDeclarationElementType extends ScTypeAliasElementType[ScTypeAlias]("type alias declaration") {
   override def createElement(node: ASTNode): ScTypeAliasDeclaration = new ScTypeAliasDeclarationImpl(node)
 

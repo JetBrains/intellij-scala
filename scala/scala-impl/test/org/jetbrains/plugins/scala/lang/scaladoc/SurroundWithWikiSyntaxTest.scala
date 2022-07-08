@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDe
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 3/12/12
-  */
 class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import SurroundWithWikiSyntaxTest._

@@ -9,9 +9,6 @@ import com.intellij.testFramework.PsiTestUtil
 
 import java.io.File
 
-/**
-  * @author adkozlov
-  */
 case class SourcesLoader(rootPath: String) extends LibraryLoader {
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {

@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSimpleTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-/**
-  * @author Pavel Fatin
-  */
 package object annotations {
 
   import AddOnlyStrategy._

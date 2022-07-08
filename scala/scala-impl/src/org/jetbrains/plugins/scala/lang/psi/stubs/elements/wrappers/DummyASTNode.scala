@@ -11,9 +11,6 @@ import com.intellij.psi.impl.source.tree.{LeafElement, TreeElement, TreeElementV
 import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 
-/**
-  * @author ilyas
-  */
 object DummyASTNode extends TreeElement(new ScalaTokenType("Dummy Element")) {
 
   override def getText: String = null

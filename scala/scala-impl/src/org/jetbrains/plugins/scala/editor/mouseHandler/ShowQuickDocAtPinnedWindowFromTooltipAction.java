@@ -23,9 +23,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author Denis Zhdanov
- */
 public class ShowQuickDocAtPinnedWindowFromTooltipAction extends AbstractDocumentationTooltipAction {
 
   ShowQuickDocAtPinnedWindowFromTooltipAction() {

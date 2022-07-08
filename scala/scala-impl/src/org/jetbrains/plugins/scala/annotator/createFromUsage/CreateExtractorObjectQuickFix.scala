@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMethodFromText
 
-/**
- * Nikolay.Tropin
- * 2014-07-31
- */
 class CreateExtractorObjectQuickFix(ref: ScReference, p: ScPattern)
   extends CreateTypeDefinitionQuickFix(ref, Object) {
 

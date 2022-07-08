@@ -6,11 +6,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.Context.Configuration
 import org.jetbrains.sbt.project.settings._
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/25/13
- */
-class SbtExternalSystemConfigurable(project: Project) 
+class SbtExternalSystemConfigurable(project: Project)
   extends AbstractExternalSystemConfigurable[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings](project, SbtProjectSystem.Id) {
 
   override def createProjectSettingsControl(settings: SbtProjectSettings): SbtProjectSettingsControl = new SbtProjectSettingsControl(Configuration, settings)

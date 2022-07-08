@@ -8,11 +8,6 @@ package types
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 13.03.2008
-*/
-
 trait ScParameterizedTypeElement extends ScDesugarizableTypeElement {
   override protected val typeName = "ParametrizedType"
 

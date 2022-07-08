@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/29/12
-  */
 final class ExpandBooleanIntention extends PsiElementBaseIntentionAction {
 
   import ExpandBooleanIntention._

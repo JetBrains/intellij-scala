@@ -8,10 +8,6 @@ import _root_.org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScPathElement, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 14.03.2008
-  */
 trait ScSuperReference extends ScExpression with ScPathElement {
   /**
     * @return is reference in decompiled file from Self type class

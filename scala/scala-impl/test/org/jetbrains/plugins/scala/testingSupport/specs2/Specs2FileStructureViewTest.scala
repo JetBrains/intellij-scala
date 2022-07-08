@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.testingSupport.specs2
 
 import org.jetbrains.plugins.scala.lang.structureView.element.Test._
 
-/**
- * @author Roman.Shein
- * @since 20.04.2015.
- */
 abstract class Specs2FileStructureViewTest extends Specs2TestCase {
 
   private def prepareAndRunTestInner(status: Int, tests: String*): Unit = {

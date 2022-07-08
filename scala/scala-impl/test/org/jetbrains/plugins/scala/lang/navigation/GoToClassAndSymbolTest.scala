@@ -13,10 +13,6 @@ import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Alefas
- * @since 23.12.13
- */
 class GoToClassAndSymbolTest extends GoToTestBase {
 
   override protected def loadScalaLibrary = false

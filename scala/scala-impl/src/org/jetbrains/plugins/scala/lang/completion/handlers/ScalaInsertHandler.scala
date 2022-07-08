@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPr
 
 import scala.annotation.tailrec
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 28.07.2008
- */
 object ScalaInsertHandler {
 
   val AssignmentText = " = "

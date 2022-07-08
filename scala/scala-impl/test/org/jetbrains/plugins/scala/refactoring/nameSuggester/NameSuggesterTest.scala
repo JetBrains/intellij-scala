@@ -10,10 +10,6 @@ import org.junit.Assert.{assertEquals, assertNotNull}
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 2014-07-01
-  */
 class NameSuggesterTest extends AbstractNameSuggesterTest {
 
   def testStandard(): Unit = {

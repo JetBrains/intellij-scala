@@ -7,9 +7,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-/**
-  * Pavel Fatin
-  */
 final class AddEmptyParentheses(function: ScFunction)
   extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("empty.parentheses"), function) {
 

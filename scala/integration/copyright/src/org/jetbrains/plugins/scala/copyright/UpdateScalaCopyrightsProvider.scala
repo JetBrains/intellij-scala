@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api._
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 final class UpdateScalaCopyrightsProvider extends psi.UpdateCopyrightsProvider {
 
   override def createInstance(project: Project,

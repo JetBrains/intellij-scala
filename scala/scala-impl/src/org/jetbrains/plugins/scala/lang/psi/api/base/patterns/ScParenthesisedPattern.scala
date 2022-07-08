@@ -7,10 +7,6 @@ package patterns
 
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 
-/** 
-* @author Alexander Podkhalyuzin
-*/
-
 trait ScParenthesisedPattern extends ScPattern with ScParenthesizedElement {
   type Kind = ScPattern
 

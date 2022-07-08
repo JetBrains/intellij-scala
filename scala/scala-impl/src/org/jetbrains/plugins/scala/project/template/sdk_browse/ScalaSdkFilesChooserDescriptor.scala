@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.project.template.sdk_browse.ScalaSdkFilesChoo
 import org.jetbrains.plugins.scala.project.template.{FileExt, ScalaSdkComponent, ScalaSdkDescriptor}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
-/**
- * @author Pavel Fatin
- */
 private class ScalaSdkFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
   setTitle(ScalaBundle.message("title.scala.sdk.files"))
   setDescription(ScalaBundle.message("choose.either.a.scala.sdk.directory.or.scala.jar.files"))

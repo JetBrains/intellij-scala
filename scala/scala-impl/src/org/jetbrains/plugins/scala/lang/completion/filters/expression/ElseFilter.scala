@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
- * @author Alexander Podkhalyuzin
- * @since 22.05.2008
- */
 class ElseFilter extends ElementFilter {
 
   import ScalaCompletionUtil._

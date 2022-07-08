@@ -10,9 +10,6 @@ import org.jetbrains.sbt.project.data.{SbtCommandData, SbtModuleData, SbtSetting
 
 import java.util
 
-/**
-  * Created by jast on 2017-01-24.
-  */
 class SbtModuleDataService extends DefaultDataService[SbtModuleData, Module](SbtModuleData.Key)
 
 class SbtTaskDataService extends DefaultDataService[SbtTaskData, Module](SbtTaskData.Key)

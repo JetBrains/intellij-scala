@@ -11,11 +11,6 @@ import java.io.File
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
-
-/**
- * @author Nikolay Obedin
- * @since 7/14/15.
- */
 sealed abstract class SdkReference
 
 final case class JdkByName @PropertyMapping(Array("name")) (name: String) extends SdkReference

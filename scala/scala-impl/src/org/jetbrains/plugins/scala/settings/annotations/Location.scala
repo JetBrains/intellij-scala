@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScFileViewProvider, ScalaPsiUtil}
 
-/**
- * @author Pavel Fatin
- */
 sealed abstract class Location(protected val element: PsiElement) {
 
   def isInLocalScope: Boolean = element match {

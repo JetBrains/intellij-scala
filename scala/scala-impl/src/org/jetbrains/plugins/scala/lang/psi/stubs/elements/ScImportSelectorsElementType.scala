@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelecto
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportSelectorsImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportSelectorsStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 20.06.2009
-  */
 class ScImportSelectorsElementType extends ScStubElementType[ScImportSelectorsStub, ScImportSelectors]("import selectors") {
   override def serialize(stub: ScImportSelectorsStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.hasWildcard)

@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class HeadOrLastOptionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(IfElseToHeadOption, IfElseToLastOption, LiftToHeadOption, LiftToLastOption)

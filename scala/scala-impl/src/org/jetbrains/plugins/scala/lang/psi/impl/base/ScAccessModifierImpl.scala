@@ -20,10 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScAccessModifierStub
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 07.03.2008
-  */
 final class ScAccessModifierImpl private(stub: ScAccessModifierStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.ACCESS_MODIFIER, node) with ScAccessModifier {
 

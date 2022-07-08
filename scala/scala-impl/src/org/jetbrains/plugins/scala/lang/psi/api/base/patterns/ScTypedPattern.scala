@@ -7,9 +7,6 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
-/**
- * @author Alexander Podkhalyuzin
- */
 trait ScTypedPattern extends ScBindingPattern with ScTypedPatternLike
 
 object ScTypedPattern {

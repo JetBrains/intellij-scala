@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
 import java.util.Properties
 
-/**
- * Nikolay.Tropin
- * 12/25/13
- */
 class ScalaGenerationInfo(classMember: ClassMember)
         extends GenerationInfoBase {
 

@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.An
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.ScalaPostfixTemplatePsiInfo
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithTryCatchSurrounder
 
-/**
- * @author Roman.Shein
- * @since 05.09.2015.
- */
 final class ScalaTryPostfixTemplate extends SurroundPostfixTemplateBase(
   "try",
   "try { exp } catch {}",

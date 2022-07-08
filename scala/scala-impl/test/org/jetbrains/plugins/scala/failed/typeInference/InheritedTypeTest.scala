@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author Roman.Shein
-  * @since 28.03.2016.
-  */
 class InheritedTypeTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

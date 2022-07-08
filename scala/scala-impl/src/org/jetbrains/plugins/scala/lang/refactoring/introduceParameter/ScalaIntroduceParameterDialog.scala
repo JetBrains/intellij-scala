@@ -18,9 +18,6 @@ import java.util
 import javax.swing._
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaIntroduceParameterDialog(method: ScalaMethodDescriptor,
                                     introduceData: ScalaIntroduceParameterData)
                                    (implicit project: Project)

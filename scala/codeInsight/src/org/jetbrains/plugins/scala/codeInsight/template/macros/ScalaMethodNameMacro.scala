@@ -8,10 +8,6 @@ import com.intellij.codeInsight.template._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
- * @author Roman.Shein
- * @since 19.09.2015.
- */
 final class ScalaMethodNameMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result =

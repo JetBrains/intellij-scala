@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 14.03.2008
-  */
 class ScSuperReferenceImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSuperReference {
   override def isHardCoded: Boolean = {
     val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)

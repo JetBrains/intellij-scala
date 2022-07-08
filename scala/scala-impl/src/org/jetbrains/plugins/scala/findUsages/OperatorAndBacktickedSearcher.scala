@@ -21,10 +21,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBackti
 
 import java.{util => ju}
 
-/**
-  * Nikolay.Tropin
-  * 9/10/13
-  */
 class OperatorAndBacktickedSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
 
   override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {

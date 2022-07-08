@@ -20,9 +20,7 @@ import java.util.Properties
 import java.util.jar.JarFile
 import scala.jdk.CollectionConverters._
 import scala.util.Using
-/**
-  * Created by jast on 2017-02-20.
-  */
+
 object SbtUtil {
 
   object CommandLineOptions {

@@ -12,10 +12,6 @@ import org.junit.Assert
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 24-May-17
-  */
 class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
 
   def findFromJava(javaText: String, scalaText: String, shouldFoundInClasses: Set[String]): Unit = {

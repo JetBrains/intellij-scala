@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * Nikolay.Tropin
- * 4/17/13
- */
 final class ReplaceDoWhileWithWhileIntention extends PsiElementBaseIntentionAction {
 
   import ReplaceDoWhileWithWhileIntention._

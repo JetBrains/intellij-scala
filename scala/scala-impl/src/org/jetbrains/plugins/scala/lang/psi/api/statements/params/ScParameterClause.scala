@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin
-  * Date: 21.03.2008
-  */
 trait ScParameterClause extends ScalaPsiElement {
 
   def parameters: Seq[ScParameter]

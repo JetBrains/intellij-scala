@@ -8,10 +8,6 @@ import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
-  * Nikolay.Tropin
-  * 2014-05-27
-  */
 object ScalaChangeContextUtil {
 
 

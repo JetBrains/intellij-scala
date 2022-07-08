@@ -14,9 +14,6 @@ import java.nio.file.Path
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 private case class LibraryReference(level: Level, name: String) {
   def resolveIn(context: ConversionContext): Option[LibraryData] =
     level.librariesIn(context).find(_.name == name)

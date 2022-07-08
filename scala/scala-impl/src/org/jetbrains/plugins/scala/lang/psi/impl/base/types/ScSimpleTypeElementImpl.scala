@@ -34,11 +34,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- */
-
 class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScSimpleTypeElement {
 
   override protected def innerType: TypeResult = innerNonValueType(inferValueType = true)

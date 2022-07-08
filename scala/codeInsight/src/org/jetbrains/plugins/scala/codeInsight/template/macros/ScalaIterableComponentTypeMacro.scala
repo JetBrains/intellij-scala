@@ -6,10 +6,6 @@ package macros
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.codeInsight.template._
 
-/**
- * @author Roman.Shein
- * @since 25.09.2015.
- */
 final class ScalaIterableComponentTypeMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = params match {

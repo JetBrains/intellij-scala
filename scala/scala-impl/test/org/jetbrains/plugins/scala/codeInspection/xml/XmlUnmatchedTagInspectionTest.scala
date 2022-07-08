@@ -4,10 +4,6 @@ package xml
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 4/9/12
-  */
 abstract class XmlUnmatchedTagInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

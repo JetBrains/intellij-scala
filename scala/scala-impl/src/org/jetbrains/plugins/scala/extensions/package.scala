@@ -74,10 +74,6 @@ import scala.runtime.NonLocalReturnControl
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
 
-/**
-  * Pavel Fatin
-  */
-
 package object extensions {
 
   val Placeholder = "_"

@@ -7,11 +7,6 @@ package expressions
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Path
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 03.03.2008
-*/
-
 /*
  * PrefixExpr ::= ['-' | '+' | '~' | '!'] SimpleExpr
  */

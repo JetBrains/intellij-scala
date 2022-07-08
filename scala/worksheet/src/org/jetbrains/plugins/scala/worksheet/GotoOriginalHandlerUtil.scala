@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.worksheet
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
 
-/**
- * User: Dmitry.Naydanov
- * Date: 04.08.17.
- */
 private object GotoOriginalHandlerUtil {
   private val MY_KEY = new Key[PsiElement]("GOTO_ORIGINAL_HANDLER_BASE")
 

@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 
 import scala.annotation.nowarn
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 6/25/15
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(inspectionName) {
 

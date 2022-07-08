@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Pavel Fatin
- */
-
 object ResolvedWithSubst {
 
   def unapply(reference: PsiReference): Option[(PsiElement, ScSubstitutor)] = reference match {

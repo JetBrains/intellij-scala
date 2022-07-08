@@ -10,9 +10,6 @@ import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
 trait AutoImportAwareness extends ExternalSystemAutoImportAware {
   override final def getAffectedExternalProjectPath(changedFileOrDirPath: String, project: Project): String =
     if (isProjectDefinitionFile(project, new File(changedFileOrDirPath))) project.getBasePath

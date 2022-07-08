@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Block
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 
-/**
- * @author Jason Zaugg
- *
- * MacroDef ::= MacroDef ::= FunSig [‘:’ Type] ‘=’ ‘macro’ QualId [TypeArgs]
- */
 object MacroDef extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {

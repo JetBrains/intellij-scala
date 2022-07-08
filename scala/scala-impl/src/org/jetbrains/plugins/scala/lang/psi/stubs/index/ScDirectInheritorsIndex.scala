@@ -6,10 +6,6 @@ import com.intellij.psi.stubs.StubIndexKey
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 24.10.2008
-  */
 class ScDirectInheritorsIndex extends ScStringStubIndexExtension[ScExtendsBlock] {
 
   override def getKey: StubIndexKey[String, ScExtendsBlock] =

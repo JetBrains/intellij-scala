@@ -11,9 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 import scala.language.implicitConversions
 
-/**
-  * @author adkozlov
-  */
 package object params {
   private val typeParameterCounter = new AtomicLong(0)
   private val reusableIdMap = new ConcurrentHashMap[String, Long]()

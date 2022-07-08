@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package lang.psi.applicability
 
 import org.jetbrains.plugins.scala.lang.psi.types._
-/**
- * Pavel.Fatin, 18.05.2010
- */
 
 class BasicTest extends ApplicabilityTestBase {
   def testFine(): Unit = {

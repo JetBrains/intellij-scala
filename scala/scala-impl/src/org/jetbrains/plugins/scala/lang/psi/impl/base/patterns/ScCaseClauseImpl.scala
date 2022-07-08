@@ -11,11 +11,6 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 class ScCaseClauseImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScCaseClause {
 
   override def toString: String = "CaseClause"

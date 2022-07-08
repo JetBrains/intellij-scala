@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 //  this requires a lot of changes at usage place, but will allow us to avoid untyped
 /**
  * Base class to store import-provided reference elements
- *
- * @author ilyas
  */
 sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[PsiElement]) {
 

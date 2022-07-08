@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.light.PsiTypedDefinitionWrapper
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Nikolay.Tropin
- * 9/2/13
- */
 class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetElementEvaluatorEx {
 
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {

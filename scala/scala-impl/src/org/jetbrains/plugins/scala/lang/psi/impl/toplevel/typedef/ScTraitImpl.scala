@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import javax.swing.Icon
 
-/**
-* @author Alexander Podkhalyuzin
-* @since 20.02.2008
-*/
 final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
                         nodeType: ScTemplateDefinitionElementType[ScTrait],
                         node: ASTNode,

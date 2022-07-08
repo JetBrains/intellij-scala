@@ -7,9 +7,6 @@ import org.jetbrains.sbt.project.DummyModuleBuilder
 
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 class SharedSourcesModuleType extends ModuleType[DummyModuleBuilder]("SHARED_SOURCES_MODULE") {
   override def createModuleBuilder: DummyModuleBuilder = new DummyModuleBuilder()
 

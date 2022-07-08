@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author ilyas
- */
 class ScalaShortNamesCache(implicit project: Project) extends PsiShortNamesCache {
   override def getClassesByName(name: String, scope: GlobalSearchScope): Array[PsiClass] = {
     def isOkForJava(elem: ScalaPsiElement): Boolean = {

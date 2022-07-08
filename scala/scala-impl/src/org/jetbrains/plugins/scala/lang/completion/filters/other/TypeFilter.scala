@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 05.10.2008
- */
-
 class TypeFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false

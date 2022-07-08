@@ -7,9 +7,6 @@ import scala.Option;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * @author Pavel Fatin
- */
 public class SComboBox<T> extends ComboBox<T> {
   public SComboBox() {
   }

@@ -37,7 +37,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
   *
   * For references with parameters(methods, classes), completion list contains parameters with types.
   * For references with parameters(methods, classes) completion after `object` keyword generates apply method with parameters.
-  * Created by  Kate Ustyuzhanina on 17/03/2017.
   */
 class ScalaUnresolvedNameContributor extends ScalaCompletionContributor {
 

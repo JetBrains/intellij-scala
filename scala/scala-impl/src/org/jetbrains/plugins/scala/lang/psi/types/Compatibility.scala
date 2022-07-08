@@ -32,9 +32,6 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.meta.intellij.QuasiquoteInferUtil
 
-/**
- * @author ven
- */
 object Compatibility {
   private lazy val LOG =
     Logger.getInstance("#org.jetbrains.plugins.scala.lang.psi.types.Compatibility")

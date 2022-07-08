@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
-  * @author t-kameyama
-  */
 class CollectHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

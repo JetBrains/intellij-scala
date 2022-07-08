@@ -5,10 +5,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * User: Dmitry.Naydanov
- * Date: 09.07.14.
- */
 public class AddUnitReturnTypeTest extends TestCase {
     public static Test suite() {
         return new AbstractEnterActionTestBase("/actions/editor/enter/addunit") {

@@ -1,9 +1,5 @@
 package scala.meta.quasiquotes
 
-/**
-  * @author mutcianm
-  * @since 21.10.16.
-  */
 class StatApplyTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testClass(): Unit = doTest(

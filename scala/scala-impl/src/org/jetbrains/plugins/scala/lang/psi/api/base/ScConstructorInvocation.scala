@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 trait ScConstructorInvocation extends ScalaPsiElement with ConstructorInvocationLike {
   def typeElement: ScTypeElement
 

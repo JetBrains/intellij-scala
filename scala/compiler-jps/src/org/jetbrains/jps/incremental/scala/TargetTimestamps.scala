@@ -6,9 +6,6 @@ import org.jetbrains.jps.incremental.{CompileContext, ModuleBuildTarget}
 
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 class TargetTimestamps(context: CompileContext) {
   private val paths = context.getProjectDescriptor.dataManager.getDataPaths
 

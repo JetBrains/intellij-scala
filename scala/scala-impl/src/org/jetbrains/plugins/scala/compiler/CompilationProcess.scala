@@ -4,10 +4,6 @@ package compiler
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Promise}
 
-/**
- * Nikolay.Tropin
- * 2014-10-07
- */
 trait CompilationProcess {
   def run(): Unit
 

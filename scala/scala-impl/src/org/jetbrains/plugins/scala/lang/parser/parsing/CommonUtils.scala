@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScalaElementType}
 
-/**
- * @author kfeodorov
- * @since 03.03.14.
- */
 object CommonUtils {
 
   def parseInterpolatedString(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Unit = {

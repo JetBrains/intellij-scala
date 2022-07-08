@@ -1,9 +1,5 @@
 package scala.meta.quasiquotes
 
-/**
-  * @author mutcianm
-  * @since 28.10.16.
-  */
 class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testPatVarTermApply(): Unit = doTest(

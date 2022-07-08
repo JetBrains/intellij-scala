@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.sbt.settings.SbtSettings
 
-/**
-  * Nikolay.Tropin
-  * 24-Nov-17
-  */
 class ScalaProjectSettingsCollector extends AbstractProjectsUsagesCollector {
   override def getProjectUsages(project: Project): util.Set[UsageDescriptor] = {
     val result = new util.HashSet[UsageDescriptor]

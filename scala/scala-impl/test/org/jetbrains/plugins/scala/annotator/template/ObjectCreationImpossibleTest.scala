@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotat
 import org.jetbrains.plugins.scala.annotator.{AnnotatorTestBase, Error, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
- * Pavel Fatin
- */
 class ObjectCreationImpossibleTest extends AnnotatorTestBase[ScTemplateDefinition] {
   def testFineNew(): Unit = {
     assertNothing(messages("class C; new C"))

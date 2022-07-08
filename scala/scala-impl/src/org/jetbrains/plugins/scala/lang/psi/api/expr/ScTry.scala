@@ -4,9 +4,6 @@ package psi
 package api
 package expr
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ScTry extends ScExpression {
   def expression: Option[ScExpression]
 

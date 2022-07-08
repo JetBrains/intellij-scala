@@ -11,10 +11,6 @@ import com.intellij.psi.{PsiElement, PsiFile}
 
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 2014-06-03
- */
 class ScalaEvaluatorCache
   extends Disposable
     with DebuggerManagerListener {

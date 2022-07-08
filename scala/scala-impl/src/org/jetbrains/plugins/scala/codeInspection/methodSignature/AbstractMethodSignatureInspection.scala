@@ -6,9 +6,6 @@ import com.intellij.codeInspection._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
-  * Pavel Fatin
-  */
 abstract class AbstractMethodSignatureInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,

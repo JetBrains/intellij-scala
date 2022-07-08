@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-/**
- * @author adkozlov
- */
 trait ScValueOrVariable extends ScBlockStatement
   with ScMember.WithBaseIconProvider
   with ScDocCommentOwner

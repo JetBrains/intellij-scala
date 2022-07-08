@@ -30,10 +30,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Ilya.Sergey
- */
 public class TestUtils {
   private static final Logger LOG = Logger.getInstance("org.jetbrains.plugins.scala.util.TestUtils");
 

@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTy
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 02.07.2009
-  */
 final class ScalaFileNameInspection extends LocalInspectionTool {
 
   import ProblemDescriptor.EMPTY_ARRAY

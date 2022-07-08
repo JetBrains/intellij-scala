@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Scala 3
  * [[Pattern1]] ::= [[PatVar]] [':' [[RefinedType]] ]
  * | 'given' [[PatVar]] ':' [[RefinedType]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 28.02.2008
  */
 object Pattern1 extends ParsingRule {
 

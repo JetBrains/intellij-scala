@@ -5,10 +5,6 @@ import com.intellij.openapi.actionSystem.{ActionPromoter, AnAction, DataContext}
 import java.util
 import java.util.Collections
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 28.02.17.
-  */
 abstract class SingleActionPromoterBase extends ActionPromoter {
   def shouldPromote(anAction: AnAction, context: DataContext): Boolean
   

@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-/**
-  * Nikolay.Tropin
-  * 2014-05-27
-  */
 final class ScalaPullUpProcessor(project: Project,
                                  sourceClass: ScTemplateDefinition,
                                  targetClass: ScTemplateDefinition,

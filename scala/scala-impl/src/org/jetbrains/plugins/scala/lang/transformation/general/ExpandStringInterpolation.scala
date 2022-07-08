@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandStringInterpolation extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e@ScInterpolatedStringLiteral(reference) =>

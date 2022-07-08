@@ -25,10 +25,6 @@ import java.util.concurrent.atomic.AtomicReference
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class ScalaCodeFragmentFactory extends CodeFragmentFactory {
   override def createCodeFragment(item: TextWithImports, context: PsiElement, project: Project): JavaCodeFragment = {
     implicit val p: Project = project

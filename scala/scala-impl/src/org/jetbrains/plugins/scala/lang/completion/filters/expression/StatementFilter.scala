@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScStableReferenceP
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
-
 class StatementFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

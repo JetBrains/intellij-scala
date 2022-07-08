@@ -24,10 +24,6 @@ import java.util
 import javax.swing.Icon
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 9/19/13
- */
 object RenameSuperMembersUtil {
 
   private val superMembersToRename: mutable.Set[PsiElement] = mutable.Set.empty

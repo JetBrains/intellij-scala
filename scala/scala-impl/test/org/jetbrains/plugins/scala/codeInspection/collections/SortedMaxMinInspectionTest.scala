@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * @author Markus.Hauck
- */
 abstract class SortedMaxMinInspectionTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[SortedMaxMinInspection]

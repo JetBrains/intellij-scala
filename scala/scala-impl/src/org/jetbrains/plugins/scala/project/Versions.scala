@@ -10,9 +10,6 @@ import scala.io.Source
 import scala.util.Try
 import scala.util.matching.Regex
 
-/**
-  * @author Pavel Fatin
-  */
 case class Versions(defaultVersion: String,
                     versions: Seq[String])
 

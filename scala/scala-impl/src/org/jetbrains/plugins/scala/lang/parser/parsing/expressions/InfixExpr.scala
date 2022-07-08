@@ -10,12 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.TypeArgs
 import org.jetbrains.plugins.scala.lang.parser.util.PrecedenceClimbingInfixParsingRule
 
-
-/**
- * @author AlexanderPodkhalyuzin
-* Date: 03.03.2008
- */
-
 /*
  * InfixExpr ::= PrefixExpr
  *             | InfixExpr id [TypeArgs] [nl] InfixExpr

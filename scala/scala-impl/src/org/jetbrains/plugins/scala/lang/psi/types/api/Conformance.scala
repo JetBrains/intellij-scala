@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 
-/**
-  * @author adkozlov
-  */
 trait Conformance {
   typeSystem: TypeSystem =>
 

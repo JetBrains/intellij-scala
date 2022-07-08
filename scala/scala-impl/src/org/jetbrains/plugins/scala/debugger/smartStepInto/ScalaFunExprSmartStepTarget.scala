@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 
 import javax.swing.Icon
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaFunExprSmartStepTarget(val funExpr: ScExpression, val stmts: Seq[ScBlockStatement], label: String, expressionLines: Range[Integer])
         extends SmartStepTarget(label, funExpr, true, expressionLines) {
 

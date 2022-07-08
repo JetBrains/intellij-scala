@@ -5,9 +5,6 @@ import com.intellij.psi.search.{GlobalSearchScopesCore, PsiSearchHelper}
 import com.intellij.psi.{PsiDirectory, PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.util.Processor
 
-/**
-  * Created by Kate Ustyuzhanina on 8/25/15.
-  */
 object ScalaCompositeTypeValidator {
   def apply(validators: List[ScalaValidator],
             conflictsReporter: ConflictsReporter,

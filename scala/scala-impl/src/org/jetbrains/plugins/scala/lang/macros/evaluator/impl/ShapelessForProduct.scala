@@ -29,10 +29,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Mikhail.Mutcianko
-  *         date 22.12.14
-  */
 object ShapelessForProduct extends ScalaMacroTypeable {
 
   override val boundMacro: Seq[MacroImpl] =

@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclaration
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/**
-  * @author ilyas
-  */
 class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, FIELD_ID, node) with ScFieldId with ScImportableDeclarationsOwner {
 

@@ -4,11 +4,6 @@ package psi
 package api
 package base
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
-
 trait ScAccessModifier extends ScalaPsiElement {
 
   def idText: Option[String]

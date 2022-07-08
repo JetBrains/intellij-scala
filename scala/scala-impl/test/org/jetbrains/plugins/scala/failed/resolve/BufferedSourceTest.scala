@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.resolve
 
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase
 
-/**
-  * @author mucianm 
-  * @since 07.04.16.
-  */
 class BufferedSourceTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 

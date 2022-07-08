@@ -8,9 +8,6 @@ import java.nio.file.Path
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 class ScalaProjectConverter(context: ConversionContext) extends ProjectConverter {
   private val scalaModuleConverter = new ScalaModuleConversionProcessor(context)
 

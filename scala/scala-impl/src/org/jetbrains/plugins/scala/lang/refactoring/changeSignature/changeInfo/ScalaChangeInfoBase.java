@@ -5,10 +5,6 @@ import com.intellij.refactoring.changeSignature.JavaParameterInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo;
 
-/**
- * Nikolay.Tropin
- * 2014-09-02
- */
 abstract class ScalaChangeInfoBase implements JavaChangeInfo {
   private ScalaParameterInfo[] myNewParams;
 

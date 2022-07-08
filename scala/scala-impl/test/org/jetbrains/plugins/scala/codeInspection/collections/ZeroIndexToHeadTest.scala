@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 
-/**
- * @author Nikolay.Tropin
- */
 class ZeroIndexToHeadTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

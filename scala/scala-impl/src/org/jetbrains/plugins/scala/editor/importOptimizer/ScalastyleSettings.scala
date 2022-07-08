@@ -6,11 +6,8 @@ import java.util.regex.Pattern
 import scala.util.Try
 
 /**
-  * Nikolay.Tropin
-  * 10-Feb-17
-  *
-  * compareImports and compareNames are copy-pasted from [[org.scalastyle.scalariform.ImportOrderChecker]]
-  */
+ * compareImports and compareNames are copy-pasted from [[org.scalastyle.scalariform.ImportOrderChecker]]
+ */
 object ScalastyleSettings {
   val importOrderChecker = "org.scalastyle.scalariform.ImportOrderChecker"
 

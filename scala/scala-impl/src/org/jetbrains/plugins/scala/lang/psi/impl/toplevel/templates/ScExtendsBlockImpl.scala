@@ -30,10 +30,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * @author AlexanderPodkhalyuzin
-  *         Date: 20.02.2008
-  */
 class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, EXTENDS_BLOCK, node) with ScExtendsBlock {
 

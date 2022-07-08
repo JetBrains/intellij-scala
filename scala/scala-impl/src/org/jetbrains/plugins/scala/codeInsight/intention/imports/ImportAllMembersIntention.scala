@@ -15,11 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-
-/**
-* Nikolay.Tropin
-* 2014-03-19
-*/
 class ImportAllMembersIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.import.all.members")
 

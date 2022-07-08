@@ -23,9 +23,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * @author Pavel Fatin
- */
 @SuppressWarnings("deprecation")
 public class ScalaCompileServerForm implements Configurable {
     private JPanel myJvmSettingsPanel;

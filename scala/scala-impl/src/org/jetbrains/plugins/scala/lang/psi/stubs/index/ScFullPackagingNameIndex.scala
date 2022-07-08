@@ -5,9 +5,6 @@ package index
 import com.intellij.psi.stubs.StubIndexKey
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
-/**
-  * @author ilyas
-  */
 class ScFullPackagingNameIndex extends ScIntStubIndexExtension[ScPackaging] {
 
   override def getKey: StubIndexKey[Integer, ScPackaging] =

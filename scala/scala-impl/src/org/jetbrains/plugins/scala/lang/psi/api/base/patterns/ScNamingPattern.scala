@@ -5,10 +5,6 @@ package api
 package base
 package patterns
 
-/**
-* @author Alexander Podkhalyuzin
-*/
-
 trait ScNamingPattern extends ScBindingPattern {
   def named: ScPattern = findChild[ScPattern].get
 }

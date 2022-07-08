@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationCo
 
 import scala.annotation.nowarn
 
-/**
- * Pavel Fatin
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaRedundantCastInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.cast")) {
 

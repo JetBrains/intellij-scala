@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class SizeToLengthInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(SizeToLength)
 }

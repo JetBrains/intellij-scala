@@ -22,10 +22,6 @@ import org.junit.Assert._
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 7/17/13
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class IntroduceFieldTestBase() extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startMarker = "/*start*/"

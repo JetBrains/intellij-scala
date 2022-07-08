@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author mucianm 
-  * @since 07.04.16.
-  */
 class HigherKindedFunctionsVarargsTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

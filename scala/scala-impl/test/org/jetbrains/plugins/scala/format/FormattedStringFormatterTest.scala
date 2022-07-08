@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.junit.Assert._
 
-/**
- * Pavel Fatin
- */
-
 class FormattedStringFormatterTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testEmpty(): Unit = {

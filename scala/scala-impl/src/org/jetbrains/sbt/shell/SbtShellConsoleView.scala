@@ -20,9 +20,6 @@ import java.beans.{PropertyChangeEvent, PropertyChangeListener}
 import java.util.Collections
 import scala.collection.mutable
 
-/**
-  * Created by jast on 2017-05-17.
-  */
 final class SbtShellConsoleView private(project: Project, debugConnection: Option[RemoteConnection])
   extends LanguageConsoleImpl(project, SbtShellLanguage.getID, SbtShellLanguage) {
 

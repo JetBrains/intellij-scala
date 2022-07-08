@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReferences, ScExpressionExt, ScFunctionDefinition}
 import org.junit.Assert._
 
-/**
- * Pavel Fatin
- */
 class ScFunctionDefinitionImplTest extends SimpleTestCase {
 
   private val tailRecursion = (_: RecursiveReferences).tailRecursionOnly

@@ -8,9 +8,6 @@ import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
-/**
-  * @author adkozlov
-  */
 trait ScPropertyStub[P <: ScValueOrVariable] extends StubElement[P]
   with ScTopLevelElementStub[P]
   with ScTypeElementOwnerStub[P]

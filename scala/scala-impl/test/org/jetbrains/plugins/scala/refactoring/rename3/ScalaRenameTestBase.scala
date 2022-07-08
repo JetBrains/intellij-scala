@@ -23,10 +23,6 @@ import java.util
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 9/6/13
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ScalaRenameTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val caretMarker = "/*caret*/"

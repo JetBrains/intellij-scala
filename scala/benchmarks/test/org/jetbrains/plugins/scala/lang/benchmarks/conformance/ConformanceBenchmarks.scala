@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.benchmarks.conformance
 
-/**
-  * @author Nikolay.Tropin
-  */
-
 class Compound extends TypeConformanceBenchmarkBase("Compound")
 
 class StringToObject extends TypeConformanceBenchmarkBase("StringToObject")

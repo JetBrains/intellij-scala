@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
 
-/**
-  * Created by Anton Yalyshev on 07/06/16.
-  */
 class JavaAnnotationTest extends JavaHighlightingTestBase() {
   override protected def shouldPass: Boolean = false
   def testSCL10385(): Unit = {

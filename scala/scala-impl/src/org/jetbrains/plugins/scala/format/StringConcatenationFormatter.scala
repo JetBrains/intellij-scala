@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{AnyArrayType, ScLiteralType, 
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
- * Pavel Fatin
- */
 object StringConcatenationFormatter extends StringFormatter {
 
   override def format(parts0: Seq[StringPart]): String = {

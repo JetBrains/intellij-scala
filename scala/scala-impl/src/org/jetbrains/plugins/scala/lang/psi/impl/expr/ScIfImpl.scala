@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScIfImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScIf with ScBegin {
 
   override def condition: Option[ScExpression] = {

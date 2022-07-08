@@ -10,8 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
  * [[ConstrMods]] ::= [[Annotations]] [ [[AccessModifier]] ]
- *
- * @author adkozlov
  */
 object ConstrMods extends ParsingRule {
 

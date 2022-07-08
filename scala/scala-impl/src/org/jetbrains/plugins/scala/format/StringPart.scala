@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.util.{IllegalFormatConversionException, IllegalFormatException}
 
-/**
- * Pavel Fatin
- */
 sealed trait StringPart
 
 case class Text(value: String) extends StringPart

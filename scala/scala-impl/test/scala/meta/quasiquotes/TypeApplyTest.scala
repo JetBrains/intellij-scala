@@ -1,9 +1,5 @@
 package scala.meta.quasiquotes
 
-/**
-  * @author mutcianm
-  * @since 24.10.16.
-  */
 class TypeApplyTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testStdNames(): Unit = doTest(

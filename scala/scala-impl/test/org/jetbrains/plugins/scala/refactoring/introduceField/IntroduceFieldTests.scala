@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.introduceField
 
-/**
- * Nikolay.Tropin
- * 7/17/13
- */
 class IntroduceFieldTests extends IntroduceFieldTestBase {
   def testSimple(): Unit = doTest()
   def testSimpleReplaceAll(): Unit = doTest()

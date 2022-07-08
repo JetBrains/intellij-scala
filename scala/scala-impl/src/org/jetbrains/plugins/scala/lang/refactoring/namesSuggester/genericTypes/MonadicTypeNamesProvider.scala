@@ -6,9 +6,6 @@ package genericTypes
 
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
-/**
-  * @author adkozlov
-  */
 class MonadicTypeNamesProvider extends GenericTypeNamesProviderBase {
 
   import GenericTypeNamesProviderBase.argumentNames

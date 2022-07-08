@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsContributor, Sc
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil.isAmmoniteFile
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 02.08.18.
-  */
 final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContributor {
   import AmmoniteFileDeclarationsContributor._
   

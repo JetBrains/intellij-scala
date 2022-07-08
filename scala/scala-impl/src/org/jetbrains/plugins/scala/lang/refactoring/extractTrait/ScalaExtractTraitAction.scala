@@ -6,10 +6,6 @@ import com.intellij.refactoring.actions.ExtractSuperActionBase
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringSupportProvider
 
-/**
- * Nikolay.Tropin
- * 2014-05-20
- */
 class ScalaExtractTraitAction extends ExtractSuperActionBase {
   locally {
     val presentation = getTemplatePresentation

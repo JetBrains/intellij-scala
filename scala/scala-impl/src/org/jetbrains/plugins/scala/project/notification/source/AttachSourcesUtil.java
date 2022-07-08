@@ -33,10 +33,6 @@ import javax.swing.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 //todo: copy/paste from AttachSourcesNotificationProvider, remove it
 public class AttachSourcesUtil {
 

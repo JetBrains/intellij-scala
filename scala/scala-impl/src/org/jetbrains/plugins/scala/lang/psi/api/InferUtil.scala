@@ -32,10 +32,6 @@ import scala.annotation.{tailrec, unused}
 import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
-
 object InferUtil {
 
   val tagsAndManifists = Set(

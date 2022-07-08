@@ -9,11 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
-  * @author Dmitry Krasilschikov, alefas
-  *
-  *         Surrounds block with try - catch: try { Block } catch { <Cursor> }
-  */
 object ScalaWithTryCatchSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String = {
     val arrow = if (elements.length == 0) "=>" else ScalaPsiUtil.functionArrow(elements(0).getProject)

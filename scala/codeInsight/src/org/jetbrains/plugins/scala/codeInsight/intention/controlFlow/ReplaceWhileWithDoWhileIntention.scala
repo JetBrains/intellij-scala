@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScWhile
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
- * Nikolay.Tropin
- * 4/17/13
- */
 final class ReplaceWhileWithDoWhileIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {

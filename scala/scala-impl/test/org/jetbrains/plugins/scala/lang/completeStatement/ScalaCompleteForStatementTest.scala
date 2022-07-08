@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completeStatement
 
-/**
-  * @author Ksenia.Sautina
-  * @since 2/25/13
-  */
 class ScalaCompleteForStatementTest extends ScalaCompleteStatementTestBase {
 
   def testForStatement1(): Unit = doCompletionTest(

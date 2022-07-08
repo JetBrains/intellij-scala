@@ -12,9 +12,7 @@ import java.util
 
 /**
   * Selects a statement together with its trailing semicolon.
-  *
-  * @author yole
-  */
+ */
 class ScalaSemicolonSelectioner extends ExtendWordSelectionHandlerBase {
   override def canSelect(e: PsiElement): Boolean = e.isInstanceOf[ScBlockStatement]
 

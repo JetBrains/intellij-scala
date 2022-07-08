@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 
-/**
-  * Created by kate on 3/24/16.
-  */
-
 abstract class ApplicationAnnotatorTestBase extends AnnotatorSimpleTestCase {
   final val Header =
 """

@@ -3,9 +3,6 @@ package project.structure
 
 import com.intellij.openapi.util.Key
 
-/**
- * @author Pavel Fatin
- */
 sealed abstract class OutputType
 
 object OutputType {

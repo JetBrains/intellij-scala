@@ -3,9 +3,7 @@ package org.jetbrains.plugins.scala.lang.psi.api.base
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /** Generic type for parenthesised nodes.
-  *
-  * @author Clément Fournier
-  */
+ */
 trait ScParenthesizedElement extends ScalaPsiElement {
   /** Expression, type element or pattern */
   type Kind <: ScalaPsiElement

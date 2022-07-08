@@ -8,10 +8,6 @@ import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.01.2009
-  */
 final class ScalaFileTemplateContextType extends FileTypeBasedContextType(
   ScalaFileTemplateContextType.PresentableName.toUpperCase,
   ScalaFileTemplateContextType.PresentableName,

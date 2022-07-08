@@ -25,12 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefi
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateBodyStub
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:38:04
-*/
-
 class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TEMPLATE_BODY, node)
     with ScTemplateBody {

@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScAbstractType, ScL
 
 import scala.collection.immutable.LongMap
 
-/**
- * Nikolay.Tropin
- * 01-Feb-18
- */
 private case class TypeParamSubstitution(tvMap: LongMap[ScType]) extends LeafSubstitution {
 
   override def toString: String =

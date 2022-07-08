@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
 trait ScUnderscoreSection extends ScExpression {
   def bindingExpr: Option[ScExpression] =
     findChild[ScExpression]

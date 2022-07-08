@@ -7,9 +7,6 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.ObjectSerialization
 
-/**
- * @author Pavel Fatin
- */
 sealed abstract class Event {
   def toBytes: Array[Byte] =
     ObjectSerialization.toBytes(this)

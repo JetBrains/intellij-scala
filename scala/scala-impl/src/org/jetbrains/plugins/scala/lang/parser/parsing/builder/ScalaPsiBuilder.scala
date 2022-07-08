@@ -6,9 +6,6 @@ package builder
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ScalaPsiBuilder extends PsiBuilder {
 
   def twoNewlinesBeforeCurrentToken: Boolean

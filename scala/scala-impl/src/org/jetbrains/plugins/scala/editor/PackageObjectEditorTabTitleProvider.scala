@@ -7,10 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile
 
 import java.io.File
 
-/**
- * @author Alefas
- * @since 24/09/14.
- */
 class PackageObjectEditorTabTitleProvider extends EditorTabTitleProvider {
   override def getEditorTabTitle(project: Project, file: VirtualFile): String = {
     file.getName match {

@@ -5,10 +5,6 @@ import com.intellij.lang.properties.IProperty
 import com.intellij.util.PathUtil
 import org.junit.Assert
 
-/**
-  * Nikolay.Tropin
-  * 2014-09-26
-  */
 class ResolvePropertyKeyTest extends ScalaResolveTestCase {
 
   override def folderPath: String = {

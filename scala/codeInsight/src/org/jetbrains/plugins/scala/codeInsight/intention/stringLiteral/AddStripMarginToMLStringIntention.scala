@@ -11,10 +11,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{hasMarginChars, hasStripMarginCall}
 
-/**
- * User: Dmitry Naydanov
- * Date: 4/2/12
- */
 final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =

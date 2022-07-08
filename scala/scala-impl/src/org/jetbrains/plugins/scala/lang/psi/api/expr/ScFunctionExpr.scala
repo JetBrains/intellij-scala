@@ -7,9 +7,6 @@ package expr
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 
-/**
-  * @author Alexander Podkhalyuzin, ilyas
-  */
 trait ScFunctionExpr extends ScExpression with ScControlFlowOwner {
 
   def parameters: Seq[ScParameter]

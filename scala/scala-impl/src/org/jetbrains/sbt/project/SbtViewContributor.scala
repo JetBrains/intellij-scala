@@ -11,9 +11,6 @@ import org.jetbrains.sbt.project.data.{SbtCommandData, SbtSettingData, SbtTaskDa
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
-  * Created by jast on 2017-02-07.
-  */
 class SbtViewContributor extends ExternalSystemViewContributor {
 
   private val keys: List[Key[_]] = List(SbtTaskData.Key, SbtSettingData.Key, SbtCommandData.Key)

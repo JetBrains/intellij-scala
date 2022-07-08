@@ -16,10 +16,6 @@ import org.junit.experimental.categories.Category
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 23.09.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[CompletionTests]))
 abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {

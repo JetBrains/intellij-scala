@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-/**
- * @author max, Pavel Fatin
- */
 // Modified copy of the corresponding class in IDEA that propagates state in layers (see CHANGED label).
 // As we channel the main Scala lexer via a layer, we need this customization
 // for incremental highlighting to work properly (see LexerStateTest).

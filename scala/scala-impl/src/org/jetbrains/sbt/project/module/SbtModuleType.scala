@@ -8,9 +8,6 @@ import org.jetbrains.sbt.project.module.SbtModuleType.Id
 
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 class SbtModuleType extends ModuleType[DummyModuleBuilder](Id) {
   override def createModuleBuilder: DummyModuleBuilder = new DummyModuleBuilder()
 

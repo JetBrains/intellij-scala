@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.settings.annotations
 
-/**
-  * @author Pavel Fatin
-  */
 sealed trait Visibility
 
 object Visibility {

@@ -16,10 +16,6 @@ import java.util.concurrent.Callable
 import scala.annotation.nowarn
 import scala.util.{Failure, Try}
 
-/**
- * User: Dmitry.Naydanov
- * Date: 30.01.15.
- */
 object TechHubDownloadUtil {
   private val CONTENT_LENGTH_TEMPLATE: String = "${content-length}"
 

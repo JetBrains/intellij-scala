@@ -25,10 +25,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
-/**
- * @author Alexander Podkhalyuzin, ilyas
- */
-
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
   override def desugarizedText: String = {
     val inlineSyntaxIds = KindProjectorUtil.syntaxIdsFor(this).toSet

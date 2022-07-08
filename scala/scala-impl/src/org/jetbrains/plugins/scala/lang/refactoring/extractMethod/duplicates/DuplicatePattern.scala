@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
 
-/**
- * Nikolay.Tropin
- * 2014-05-15
- */
 class DuplicatePattern(val elements: Seq[PsiElement], parameters: Seq[ExtractMethodParameter])
                       (implicit val projectContext: ProjectContext) {
   val paramOccurences: Map[ScReferenceExpression, ExtractMethodParameter] = collectParamOccurences()

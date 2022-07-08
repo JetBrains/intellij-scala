@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.codeInsight.moveLeftRight
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ScalaMoveLeftRightTest extends ScalaMoveLeftRightTestBase {
   def testMethodArgs(): Unit = {
     doTestFromLeftToRight(

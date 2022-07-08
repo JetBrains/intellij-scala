@@ -19,9 +19,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.CommonUtils.remapRawStrin
  * | false
  * | null
  * | javaId"StringLiteral"
- *
- * @author Alexander Podkhalyuzin
- *         Date: 15.02.2008
  */
 object Literal extends ParsingRule {
 

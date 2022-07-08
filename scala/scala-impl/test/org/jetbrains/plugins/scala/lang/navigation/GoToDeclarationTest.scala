@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAl
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.junit.Assert._
 
-/**
-  * Nikolay.Tropin
-  * 08-Nov-17
-  */
 abstract class GotoDeclarationTestBase extends GoToTestBase {
   protected def doTest(fileText: String, expected: (PsiElement => Boolean, String)*): Unit = {
     configureFromFileText(fileText)

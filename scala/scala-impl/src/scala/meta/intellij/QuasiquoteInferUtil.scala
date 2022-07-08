@@ -20,10 +20,6 @@ import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
 import scala.meta.{Dialect, ScalaMetaBundle, _}
 
-/**
-  * @author Mikhail Mutcianko
-  * @since 11.09.16
-  */
 object QuasiquoteInferUtil {
 
   import scala.{meta => m}

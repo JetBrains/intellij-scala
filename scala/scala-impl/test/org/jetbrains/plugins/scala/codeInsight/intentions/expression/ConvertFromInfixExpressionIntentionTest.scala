@@ -3,11 +3,6 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-/**
- * @author Ksenia.Sautina
- * @since 4/9/12
- */
-
 class ConvertFromInfixExpressionIntentionTest extends ScalaIntentionTestBase {
   override val familyName = ScalaBundle.message("family.name.convert.from.infix.expression")
 

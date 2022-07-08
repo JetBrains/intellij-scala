@@ -4,12 +4,9 @@ package refactoring.rename2
 import org.junit.Assert
 
 /**
- * User: Jason Zaugg
- *
  * Tests functionality in [[org.jetbrains.plugins.scala.findUsages.ScalaAliasedImportedElementSearcher]]
  * and [[org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil.filterAliasedReferences]]
  */
-
 class ScalaRenameAliasedTest extends ScalaRenameTestBase {
   def testRenameValAliased(): Unit = {
     val fileText =

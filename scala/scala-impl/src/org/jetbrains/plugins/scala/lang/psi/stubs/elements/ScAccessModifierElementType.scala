@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAccessModifier
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScAccessModifierImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAccessModifierStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 class ScAccessModifierElementType extends ScStubElementType[ScAccessModifierStub, ScAccessModifier]("access modifier") {
   override def serialize(stub: ScAccessModifierStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isProtected)

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefin
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.junit.Assert
 
-/**
- * Pavel Fatin
- */
-
 class ScalaOIUtilTest extends SimpleTestCase {
   private final val Prefix = "object Holder {\n  "
 

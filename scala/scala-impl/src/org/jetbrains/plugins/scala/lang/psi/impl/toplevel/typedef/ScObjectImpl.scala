@@ -30,10 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 20.02.2008
- */
 class ScObjectImpl(
   stub:      ScTemplateDefinitionStub[ScObject],
   nodeType:  ScTemplateDefinitionElementType[ScObject],

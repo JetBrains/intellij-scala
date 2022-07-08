@@ -23,10 +23,6 @@ import scala.util.Random
 import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
-/**
-  * @author Mikhail Mutcianko
-  * @since 30.08.16
-  */
 trait AllProjectHighlightingTest {
 
   def getProject: Project

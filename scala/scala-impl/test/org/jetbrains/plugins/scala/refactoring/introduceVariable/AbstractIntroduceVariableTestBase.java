@@ -33,11 +33,6 @@ import scala.Option;
 import scala.Tuple2;
 import scala.collection.immutable.ArraySeq;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 02.07.2008
- */
-
 // TODO: rewrite this whole class
 abstract public class AbstractIntroduceVariableTestBase extends ActionTestBase {
 

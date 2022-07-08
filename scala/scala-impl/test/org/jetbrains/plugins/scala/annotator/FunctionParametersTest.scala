@@ -4,10 +4,6 @@ package annotator
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
-/**
-  * @author anton.yalyshev
-  * @since 14.04.16.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class FunctionParametersTest extends ScalaLightCodeInsightFixtureTestAdapter {
 

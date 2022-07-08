@@ -31,9 +31,6 @@ import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
-/**
- * @author ilyas
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaResolveTestCase extends ScalaLightPlatformCodeInsightTestCaseAdapter {

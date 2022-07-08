@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractTrait
 
-/**
- * Nikolay.Tropin
- * 2014-06-25
- */
 class ExtractTraitTestTypeParameters extends ExtractTraitTestBase {
 
   def testSimpleParameterizedClass(): Unit = {

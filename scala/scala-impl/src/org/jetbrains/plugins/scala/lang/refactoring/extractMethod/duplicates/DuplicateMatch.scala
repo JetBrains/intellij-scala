@@ -17,11 +17,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ExtractMethod
 
 import scala.collection.mutable
 
-
-/**
- * Nikolay.Tropin
- * 2014-05-15
- */
 class DuplicateMatch(pattern: DuplicatePattern, val candidates: Seq[PsiElement]) {
 
   private val parameterValues = mutable.Map[ExtractMethodParameter, ScExpression]()

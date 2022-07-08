@@ -14,10 +14,6 @@ import java.io._
 import scala.collection.mutable
 import scala.util.Using
 
-/**
-  * @author Mikhail Mutcianko
-  * @since 20.09.16
-  */
 class ReflectExpansionsCollector(project: Project) {
   import ReflectExpansionsCollector._
 

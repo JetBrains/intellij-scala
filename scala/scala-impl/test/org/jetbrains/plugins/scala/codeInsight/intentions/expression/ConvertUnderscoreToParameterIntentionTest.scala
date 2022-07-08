@@ -3,11 +3,6 @@ package codeInsight.intentions.expression
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-/**
- * @author Ksenia.Sautina
- * @since 4/13/12
- */
-
 class ConvertUnderscoreToParameterIntentionTest extends ScalaIntentionTestBase{
   override def familyName = ScalaBundle.message("family.name.convert.underscore.section.to.parameter")
 

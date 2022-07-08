@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 15.02.2008
-  */
-
 /*
  * StableId ::= id
  *            | Path '.' id

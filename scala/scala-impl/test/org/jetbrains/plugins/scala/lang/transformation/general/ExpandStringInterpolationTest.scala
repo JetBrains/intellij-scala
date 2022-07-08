@@ -3,9 +3,6 @@ package lang
 package transformation
 package general
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandStringInterpolationTest extends TransformerTest(new ExpandStringInterpolation()) {
 
   def testEmpty(): Unit = check(

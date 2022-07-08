@@ -4,9 +4,6 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author Nikolay.Tropin
-  */
 class Specs2ToScalaCheckImplicitTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

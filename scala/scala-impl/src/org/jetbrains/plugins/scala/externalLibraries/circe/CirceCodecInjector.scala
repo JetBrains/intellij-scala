@@ -14,8 +14,6 @@ import scala.util.Random
   * (in particular, no implicit search for Configuration),
   * so users may face errors when running actual compilation.
   *
-  * @author tkroman
-  * @since  06/10/2018
   */
 class CirceCodecInjector extends SyntheticMembersInjector {
   private val Jc: String = "JsonCodec"

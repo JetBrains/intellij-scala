@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandAutoTuplingTest extends TransformerTest(new ExpandAutoTupling()) {
 
   override protected val header: String =

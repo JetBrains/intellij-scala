@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
- * Pavel Fatin
- */
-
 object ConvertToParenthesesIntention {
   val FamilyName: String = ScalaBundle.message("intention.for.comprehension.convert.to.parentheses")
 }

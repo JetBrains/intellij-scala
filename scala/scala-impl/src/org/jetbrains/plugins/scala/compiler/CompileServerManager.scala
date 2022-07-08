@@ -28,9 +28,6 @@ import java.awt.Point
 import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
 import javax.swing.{Icon, Timer}
 
-/**
- * @author Pavel Fatin
- */
 final class CompileServerManager(project: Project) extends Disposable {
 
   private val IconRunning = Icons.COMPILE_SERVER

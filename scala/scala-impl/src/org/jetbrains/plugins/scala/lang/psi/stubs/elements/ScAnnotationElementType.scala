@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScAnnotationImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScAnnotationStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 22.06.2009
-  */
 final class ScAnnotationElementType extends ScStubElementType[ScAnnotationStub, ScAnnotation]("annotation") {
   override def serialize(stub: ScAnnotationStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.annotationText)

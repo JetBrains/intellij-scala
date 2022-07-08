@@ -9,10 +9,6 @@ import com.intellij.testFramework._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.junit.Assert
 
-/**
-  * Nikolay.Tropin
-  * 2014-03-27
-  */
 class ScalaDelegateToJavaMethodTest extends fixtures.JavaCodeInsightFixtureTestCase
   with ScalaDelegateMethodTestBase {
 

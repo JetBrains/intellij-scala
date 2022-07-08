@@ -18,11 +18,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.annotation.tailrec
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.01.2009
- */
-
 trait ScAnnotationsHolder extends ScalaPsiElement with PsiAnnotatedAdapter {
 
   @Cached(ModTracker.anyScalaPsiChange, this)

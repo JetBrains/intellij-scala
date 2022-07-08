@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTes
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
 
-/**
-  * Created by Roman.Shein on 13.04.2017.
-  */
 abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
   override def runInDispatchThread(): Boolean = false

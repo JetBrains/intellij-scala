@@ -10,10 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes;
 
-/**
- * Nikolay.Tropin
- * 12/24/13
- */
 public class ScalaWordsScanner extends DefaultWordsScanner {
   private final Lexer myLexer;
   private final TokenSet myIdentifierTokenSet;

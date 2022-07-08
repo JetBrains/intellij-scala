@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/**
- * @author ilyas
- */
 final class ScStableReferencePatternImpl(node: ASTNode,
                                          override val toString: String)
   extends ScalaPsiElementImpl(node)

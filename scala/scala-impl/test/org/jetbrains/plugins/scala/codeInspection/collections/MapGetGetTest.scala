@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * Nikolay.Tropin
- * 2014-05-08
- */
 class MapGetGetTest extends OperationsOnCollectionInspectionTest {
 
   override val hint = ScalaInspectionBundle.message("get.get.hint")

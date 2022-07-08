@@ -3,10 +3,6 @@ package lang
 package psi
 package types
 
-/**
- * User: Alefas
- * Date: 28.09.11
- */
 trait ScalaTypeVisitor {
 
   import api._

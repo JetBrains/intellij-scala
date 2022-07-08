@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateParentsImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 final class ScTemplateParentsElementType extends ScStubElementType[ScTemplateParentsStub, ScTemplateParents]("template parents") {
 
   override def createElement(node: ASTNode) = new ScTemplateParentsImpl(node)

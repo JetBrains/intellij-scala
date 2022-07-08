@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 
 /**
  * [[PatVarDef]] ::= [[Annotations]] {Modifier} ( 'val' PatDef | 'var' VarDef )
- *
-* @author Alexander Podkhalyuzin
-* Date: 06.02.2008
 */
 object PatVarDef extends ParsingRule {
 

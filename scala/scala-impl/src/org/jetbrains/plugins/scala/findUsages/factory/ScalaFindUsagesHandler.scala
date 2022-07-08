@@ -21,11 +21,6 @@ import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 
 import java.util
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 17.08.2009
- */
-
 class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandlerFactory)
         extends ScalaFindUsagesHandlerBase(element, factory) {
 

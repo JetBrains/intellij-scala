@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 13.02.2008
- */
 sealed abstract class Stat extends ParsingRule {
 
   import lexer.ScalaTokenType.ExportKeyword

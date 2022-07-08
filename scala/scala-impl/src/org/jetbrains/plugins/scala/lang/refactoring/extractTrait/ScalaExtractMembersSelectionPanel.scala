@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.{ScalaMemberSelectionPane
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-05-23
- */
 class ScalaExtractMembersSelectionPanel(@Nls title: String,
                                         memberInfo: util.List[ScalaExtractMemberInfo],
                                         abstractColumnHeader: String)

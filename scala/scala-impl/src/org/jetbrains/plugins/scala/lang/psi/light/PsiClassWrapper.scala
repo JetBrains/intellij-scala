@@ -32,10 +32,6 @@ import java.util
 import javax.swing._
 import _root_.scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Alefas
- * @since 10.02.12
- */
 class PsiClassWrapper(val definition: ScTemplateDefinition,
                       private var qualName: String,
                       private var name: String) extends LightElement(definition.getManager, definition.getLanguage) with PsiClassAdapter /*with SyntheticElement*/ {

@@ -8,10 +8,6 @@ import com.intellij.psi.{PsiField, PsiMethod, PsiReference}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
-/**
- * @author ilyas
- */
-
 class ImportsUsagesTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/imports/simple/"
 

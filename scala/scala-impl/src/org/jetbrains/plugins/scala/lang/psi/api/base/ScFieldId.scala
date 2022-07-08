@@ -6,8 +6,5 @@ package base
 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 
-/**
-  * @author ilyas
-  */
-//wrapper over an identifier for variable declarations 'var v : T' 
+//wrapper over an identifier for variable declarations 'var v : T'
 trait ScFieldId extends ScTypedDefinition

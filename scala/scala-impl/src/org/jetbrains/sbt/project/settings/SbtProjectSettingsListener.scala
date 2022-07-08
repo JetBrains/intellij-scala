@@ -4,6 +4,5 @@ import com.intellij.openapi.externalSystem.settings.ExternalSystemSettingsListen
 
 /**
  * A dummy to satisfy interface constraints of ExternalSystem
- * @author Pavel Fatin
  */
 trait SbtProjectSettingsListener extends ExternalSystemSettingsListener[SbtProjectSettings]

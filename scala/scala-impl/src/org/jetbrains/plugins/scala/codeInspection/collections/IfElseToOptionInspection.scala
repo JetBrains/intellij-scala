@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class IfElseToOptionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(IfElseToOption)
 }

@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author mattfowler
-  */
 class IfElseToFilteredOptionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(FilterOption)
 }

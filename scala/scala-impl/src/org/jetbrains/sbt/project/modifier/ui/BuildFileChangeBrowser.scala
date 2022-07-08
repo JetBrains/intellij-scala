@@ -10,10 +10,6 @@ import java.util
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
-/**
- * @author Roman.Shein
- * @since 20.03.2015.
- */
 class BuildFileChangeBrowser(val project: Project,
                              val changes: java.util.List[Change],
                              val fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)])

@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDo, ScWhile}
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaWhileUnwrapper extends ScalaUnwrapper {
   override def getDescription(e: PsiElement): String = CodeInsightBundle.message("unwrap.while")
 

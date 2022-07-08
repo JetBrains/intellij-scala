@@ -20,10 +20,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.IntroduceT
 import org.jetbrains.plugins.scala.lang.refactoring.util.DialogConflictsReporter
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 23.06.2008
-  */
 class ScalaIntroduceVariableHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter with IntroduceExpressions with IntroduceTypeAlias {
 
   private var occurrenceHighlighters: Seq[RangeHighlighter] = Seq.empty

@@ -9,9 +9,6 @@ import org.jetbrains.sbt.project.template.SComboBox;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * @author Pavel Fatin
- */
 @SuppressWarnings("unchecked")
 abstract class VersionDialogBase extends DialogWrapper {
     protected SComboBox<String> myVersion;

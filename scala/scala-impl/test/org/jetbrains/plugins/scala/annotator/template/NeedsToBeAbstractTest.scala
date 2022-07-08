@@ -18,9 +18,6 @@ abstract class NeedsToBeAbstractTestBase extends AnnotatorTestBase[ScTemplateDef
 
 }
 
-/**
-  * Pavel Fatin
-  */
 class NeedsToBeAbstractTest extends NeedsToBeAbstractTestBase {
 
   def testFine(): Unit = {

@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionTyp
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScInfixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScInfixExpr {
 
   import ScInfixExprImpl._

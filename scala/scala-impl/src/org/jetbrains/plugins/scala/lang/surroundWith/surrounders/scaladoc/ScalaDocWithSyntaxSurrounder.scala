@@ -9,11 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaDocSimpleData
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/3/12
- */
-
 trait ScalaDocWithSyntaxSurrounder extends Surrounder {
   override def isApplicable(elements: Array[PsiElement]): Boolean = elements != null && elements.length >= 1
 

@@ -25,11 +25,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-
-/**
- * Nikolay.Tropin
- * 6/27/13
- */
 class ScalaIntroduceFieldFromExpressionHandler extends ScalaIntroduceFieldHandlerBase {
 
   private var occurrenceHighlighters: Iterable[RangeHighlighter] = Seq.empty[RangeHighlighter]

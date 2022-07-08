@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 
 import java.{lang, util}
 
-/**
- * Pavel Fatin
- */
-
 object Types {
   def valueOf(aType: ScType): Any = {
     val stdTypes = aType.projectContext.stdTypes

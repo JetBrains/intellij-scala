@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChange
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert._
 
-/**
- * Nikolay.Tropin
- * 2014-09-11
- */
 class ChangeSignatureInScalaTest extends ChangeSignatureTestBase {
 
   override def findTargetElement: PsiMember = {

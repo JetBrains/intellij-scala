@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdenti
 
 import scala.annotation.tailrec
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaSourcePositionProvider extends SourcePositionProvider {
   override def computeSourcePosition(descriptor: NodeDescriptor,
                                      project: Project,

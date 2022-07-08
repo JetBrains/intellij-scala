@@ -8,10 +8,6 @@ import java.io.{File => jFile}
 import scala.io.Codec
 import scala.tools.nsc.io.File
 
-/**
- * @author Alefas
- * @since  11/09/15
- */
 trait DecompilerTestBase extends TestCase {
   def basePath: String = s"${TestUtils.getTestDataPath}/decompiler"
 

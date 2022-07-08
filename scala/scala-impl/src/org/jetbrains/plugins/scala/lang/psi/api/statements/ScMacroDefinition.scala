@@ -6,9 +6,6 @@ package statements
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 
-/**
- * @author Jason Zaugg
- */
 trait ScMacroDefinition extends ScFunction with ScDefinitionWithAssignment {
   def macroImplReference: Option[ScStableCodeReference]
 }

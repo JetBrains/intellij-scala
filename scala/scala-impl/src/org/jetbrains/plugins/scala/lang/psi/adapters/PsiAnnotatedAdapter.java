@@ -4,11 +4,6 @@ import com.intellij.psi.PsiAnnotation;
 import com.intellij.psi.PsiAnnotationOwner;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Nikolay.Tropin
- * 22-Aug-17
- */
-
 //This interface is required because it's impossible to implement
 //overloaded method with different array return types in scala.
 public interface PsiAnnotatedAdapter extends PsiAnnotationOwner {

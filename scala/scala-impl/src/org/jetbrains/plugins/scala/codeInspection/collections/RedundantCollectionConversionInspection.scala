@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
-
 object RedundantCollectionConversion extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("redundant.collection.conversion")
 

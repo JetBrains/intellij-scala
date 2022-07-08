@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-/**
-  * Created by Kate Ustyuzhanina on 11/25/16.
-  */
 class ScalaExpectedTypeTest extends ScalaCompletionSortingTestCase {
 
   override def getTestDataPath: String =

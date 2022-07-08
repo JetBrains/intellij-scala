@@ -22,10 +22,6 @@ import java.util.List;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
-/**
- * Nikolay.Tropin
- * 2014-05-23
- */
 public class ScalaExtractTraitDialog extends DialogWrapper {
 
   private static final String REFACTORING_NAME = ScalaBundle.message("extract.trait.name");

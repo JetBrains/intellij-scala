@@ -32,9 +32,6 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * A custom console outpit filter to build hyperlinks to exact test failure location in ScalaTest. Pretty much copies
  * {@link com.intellij.execution.filters.ExceptionFilter}.
- *
- * @author Roman.Shein
- * @since 01.02.2015.
  */
 public class ScalaTestFailureLocationFilter implements Filter {
 

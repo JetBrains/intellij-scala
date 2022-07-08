@@ -35,10 +35,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 /**
-  * @author Alexander Podkhalyuzin
-  */
-
-/**
   * This class mark processor that only implicit object important among all PsiClasses
   */
 abstract class ImplicitProcessor(override protected val getPlace: PsiElement,

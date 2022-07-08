@@ -4,9 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDeclaration, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author adkozlov
-  */
 package object toplevel {
 
   implicit class ScNamedElementExt(private val namedElement: ScNamedElement) extends AnyVal {

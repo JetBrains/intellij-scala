@@ -8,10 +8,6 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 
-/**
-  * Author: Alexander Podkhalyuzin
-  * Date: 06.03.2008
-  */
 trait ScCatchBlock extends ScalaPsiElement {
   def expression: Option[ScExpression] = findChild[ScExpression]
 

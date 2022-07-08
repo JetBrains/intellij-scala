@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.project.template.WizardEntity.{Module, Projec
 
 import javax.swing.Icon
 
-/**
-  * @author Pavel Fatin
-  */
 class ScalaProjectTemplate(entity: WizardEntity) extends ProjectTemplate {
   //noinspection ScalaExtractStringToBundle
   override def getName: String = entity match {

@@ -3,9 +3,6 @@ package lang
 package transformation
 package types
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandTupleTypeTest extends TransformerTest(new ExpandTupleType()) {
 
   def testTuple2(): Unit = check(

@@ -20,10 +20,6 @@ import javax.swing.event.ChangeEvent
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 
-/**
- * Nikolay.Tropin
- * 5/17/13
- */
 object OperationOnCollectionInspectionBase {
   val inspectionId: String = ScalaInspectionBundle.message("operation.on.collection.id")
   val inspectionName: String = ScalaInspectionBundle.message("operation.on.collection.name")

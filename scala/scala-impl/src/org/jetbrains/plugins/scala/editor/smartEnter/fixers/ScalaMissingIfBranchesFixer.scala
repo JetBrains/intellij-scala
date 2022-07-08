@@ -7,11 +7,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScIf}
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 1/31/13
- */
 class ScalaMissingIfBranchesFixer extends ScalaFixer {
   override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val ifStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScIf], false)

@@ -5,10 +5,6 @@ package completion3
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 04.01.12
-  */
 class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
 
   def testPrivateVal(): Unit = doCompletionTest(

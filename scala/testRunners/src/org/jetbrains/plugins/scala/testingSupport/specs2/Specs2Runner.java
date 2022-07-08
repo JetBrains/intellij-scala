@@ -11,9 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-/**
- * @author Alexander Podkhalyuzin
- */
 public class Specs2Runner {
 
   private static final String REPORTER_FQN = JavaSpecs2Notifier.class.getName();

@@ -13,9 +13,6 @@ import xsbti.compile.{ScalaInstance => _, _}
 import java.io.File
 import java.net.URLClassLoader
 
-/**
- * @author Pavel Fatin
- */
 class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 
   override def createCompiler(compilerData: CompilerData, client: Client, fileToStore: File => AnalysisStore): Compiler = {

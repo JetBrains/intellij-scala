@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingI
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
-/**
-  * @author Alexander Podkhalyuzin, Pavel Fatin
-  *         Date: 20.02.2008
-  */
 final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                          nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
                                          node: ASTNode)

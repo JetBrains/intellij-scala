@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportSelectorStub
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 20.02.2008
-  */
 class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, IMPORT_SELECTOR, node) with ScImportSelector {
 

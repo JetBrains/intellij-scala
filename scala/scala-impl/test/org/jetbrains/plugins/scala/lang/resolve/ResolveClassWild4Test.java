@@ -4,10 +4,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.11.11
- */
 public class ResolveClassWild4Test extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

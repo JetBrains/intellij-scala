@@ -5,10 +5,6 @@ package booleans
 
 import com.intellij.testFramework.EditorTestUtil
 
-/**
-  * Nikolay.Tropin
-  * 4/29/13
-  */
 class SimplifyBooleanExprWithLiteralTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}

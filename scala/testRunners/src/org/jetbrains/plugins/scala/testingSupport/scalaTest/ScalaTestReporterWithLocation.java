@@ -20,7 +20,6 @@ import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.formatTi
 
 /**
  * Reporter for sequential execution of scalaTest test suites. Do not use it with -P key (parallel execution of suites).
- * @author Alexander Podkhalyuzin
  */
 public class ScalaTestReporterWithLocation implements Reporter {
     private TreeBuilder treeBuilder = new ParallelTreeBuilder();

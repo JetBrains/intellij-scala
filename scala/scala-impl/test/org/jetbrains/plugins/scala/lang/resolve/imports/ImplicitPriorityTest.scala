@@ -5,9 +5,6 @@ package imports
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-/**
- * @author jzaugg
- */
 class ImplicitPriorityTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/implicitPriority/"
 

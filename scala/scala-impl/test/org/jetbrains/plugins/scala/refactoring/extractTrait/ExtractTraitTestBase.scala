@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTra
 
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 2014-06-02
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ExtractTraitTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 

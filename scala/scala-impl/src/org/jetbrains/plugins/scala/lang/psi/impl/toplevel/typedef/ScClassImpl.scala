@@ -36,9 +36,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import javax.swing.Icon
 
-/**
-  * @author Alexander.Podkhalyuzin
-  */
 class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                   nodeType: ScTemplateDefinitionElementType[ScClass],
                   node: ASTNode,

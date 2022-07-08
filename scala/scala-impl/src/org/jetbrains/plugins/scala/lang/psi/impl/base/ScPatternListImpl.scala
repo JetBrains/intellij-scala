@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPatternListStub
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 class ScPatternListImpl private(stub: ScPatternListStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PATTERN_LIST, node) with ScPatternList {
 

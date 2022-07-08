@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 import scala.annotation.tailrec
 
-/**
- * Nikolay.Tropin
- * 4/29/13
- */
 final class SimplifyBooleanExprWithLiteralIntention extends PsiElementBaseIntentionAction {
 
   import SimplifyBooleanExprWithLiteralIntention._

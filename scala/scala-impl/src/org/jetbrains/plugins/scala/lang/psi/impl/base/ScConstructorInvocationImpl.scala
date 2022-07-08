@@ -29,11 +29,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.collection.mutable
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 class ScConstructorInvocationImpl(node: ASTNode)
   extends ScalaPsiElementImpl(node)
     with ScConstructorInvocation with ConstructorInvocationLikeImpl {

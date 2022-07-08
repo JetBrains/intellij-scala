@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/8/12
-  */
 final class SplitIfIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =

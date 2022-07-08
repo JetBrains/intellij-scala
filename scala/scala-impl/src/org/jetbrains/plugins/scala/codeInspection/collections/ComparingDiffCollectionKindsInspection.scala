@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class ComparingDiffCollectionKindsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ComparingDiffCollectionKinds)
 }

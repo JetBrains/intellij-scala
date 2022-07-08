@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.junit.Assert
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 abstract class ApplicabilityTestBase extends SimpleTestCase {
   private val Header = """
   class Seq[+A] 

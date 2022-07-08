@@ -9,9 +9,6 @@ import org.jetbrains.jps.incremental.messages.{BuildMessage, CompilerMessage}
 import scala.collection.mutable
 import scala.util.Using
 
-/**
-  * @author Nikolay.Tropin
-  */
 class PackageObjectsData extends Serializable {
 
   private val baseSourceToPackageObjects = mutable.HashMap[File, Set[File]]()

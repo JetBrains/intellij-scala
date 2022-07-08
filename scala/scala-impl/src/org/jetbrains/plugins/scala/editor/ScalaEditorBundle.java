@@ -6,10 +6,6 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 
-/**
- * @author Ksenia.Sautina
- * @since 4/24/12
- */
 public class ScalaEditorBundle extends DynamicBundle {
   @NonNls
   private static final String BUNDLE = "messages.ScalaEditorBundle";

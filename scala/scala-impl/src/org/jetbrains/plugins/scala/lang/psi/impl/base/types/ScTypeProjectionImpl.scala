@@ -21,10 +21,6 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, CompletionProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 13.03.2008
-*/
 class ScTypeProjectionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScTypeProjection {
   override protected def innerType: TypeResult = {
     this.bind() match {

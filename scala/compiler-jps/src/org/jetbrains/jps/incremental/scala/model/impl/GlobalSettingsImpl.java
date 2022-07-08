@@ -5,9 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.incremental.scala.model.GlobalSettings;
 import org.jetbrains.jps.model.ex.JpsElementBase;
 
-/**
- * @author Pavel Fatin
- */
 public class GlobalSettingsImpl extends JpsElementBase<GlobalSettingsImpl> implements GlobalSettings {
   public static final GlobalSettings DEFAULT = new GlobalSettingsImpl(new State());
 

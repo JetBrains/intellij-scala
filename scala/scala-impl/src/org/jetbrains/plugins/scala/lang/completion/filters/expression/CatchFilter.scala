@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
-
 class CatchFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

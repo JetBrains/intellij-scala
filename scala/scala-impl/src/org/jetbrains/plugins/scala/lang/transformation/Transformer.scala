@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.transformation.types._
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
 trait Transformer {
   // TODO return updated element instead of Boolean to enable fine-grained recursion
   protected def transform(e: PsiElement): Boolean

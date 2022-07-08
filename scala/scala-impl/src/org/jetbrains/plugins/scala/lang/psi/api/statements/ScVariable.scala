@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 import javax.swing.Icon
 
-/**
- * @author Alexander Podkhalyuzin
- */
 trait ScVariable extends ScValueOrVariable {
 
   override protected def keywordElementType: IElementType = kVAR

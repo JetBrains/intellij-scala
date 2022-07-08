@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 
 import scala.collection.mutable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 10.01.2009
- */
 class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedElementsSearch.Parameters] {
 
   private def convertToLightField(fieldLike: ScValueOrVariable): Option[PsiField] =

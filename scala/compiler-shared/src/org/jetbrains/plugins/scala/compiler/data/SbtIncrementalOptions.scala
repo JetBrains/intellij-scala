@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.compiler.data
 
 import scala.util.Try
 
-/**
-  * @author Nikolay.Tropin
-  */
 case class SbtIncrementalOptions(nameHashing: Boolean, recompileOnMacroDef: Boolean, transitiveStep: Int, recompileAllFraction: Double) {
   def asString: String = s"$nameHashing;$recompileOnMacroDef;$transitiveStep;$recompileAllFraction"
 

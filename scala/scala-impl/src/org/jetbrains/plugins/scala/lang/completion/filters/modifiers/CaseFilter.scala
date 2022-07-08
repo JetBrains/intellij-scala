@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 22.05.2008
-*/
 class CaseFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

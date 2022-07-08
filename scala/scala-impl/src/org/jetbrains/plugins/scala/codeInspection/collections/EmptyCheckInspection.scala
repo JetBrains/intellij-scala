@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class EmptyCheckInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(CheckIsEmpty, CheckNonEmpty, CheckIsDefined)

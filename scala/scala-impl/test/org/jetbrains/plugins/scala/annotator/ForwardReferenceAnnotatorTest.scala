@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-/**
-  * @author Alefas
-  * @since 02/11/16
-  */
 class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = ""
 

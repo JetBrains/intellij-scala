@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParamClause}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
   override def getMovableSubElements(element: PsiElement): Array[PsiElement] = {
     element match {

@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
-/**
- * @author Pavel Fatin
- */
 package object projectView {
 
   private[projectView] type Node = AbstractTreeNode[_]

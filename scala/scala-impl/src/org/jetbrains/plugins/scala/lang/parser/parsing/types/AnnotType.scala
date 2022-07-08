@@ -7,11 +7,6 @@ package types
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 06.02.2008
-*/
-
 /*
  * AnnotType ::= {Annotation} SimpleType
  */

@@ -53,9 +53,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
-* @author ilyas
-*/
 public class ScalaPositionManager implements PositionManager {
 
   private static final Logger LOG = Logger.getInstance("#com.intellij.debugger.engine.PositionManagerImpl");

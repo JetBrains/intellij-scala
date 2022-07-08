@@ -8,10 +8,6 @@ import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
 public class ScalaDocParser implements PsiParser, LightPsiParser {
   private final int tabSize;
 

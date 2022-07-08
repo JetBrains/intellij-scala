@@ -50,9 +50,6 @@ public final class ScalaEditorHighlighterProvider implements EditorHighlighterPr
     }
 
     // TODO something is wrong with the highlighter, see comment in SCL-18701
-    /**
-     * @author ilyas
-     */
     private static final class ScalaEditorHighlighter extends LayeredLexerEditorHighlighter {
 
         private ScalaEditorHighlighter(@NotNull SyntaxHighlighter scalaHighlighter,

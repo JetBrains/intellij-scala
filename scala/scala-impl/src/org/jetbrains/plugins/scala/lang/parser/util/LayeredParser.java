@@ -18,7 +18,6 @@ import java.util.*;
 /**
  * HIGHLY experimental
  * 
- * @author Dmitry Naydanov
  */
 public abstract class LayeredParser implements PsiParser {
   private static final Logger LOG = Logger.getInstance("#org.jetbrains.plugins.scala.lang.parser.util.LayeredParser");

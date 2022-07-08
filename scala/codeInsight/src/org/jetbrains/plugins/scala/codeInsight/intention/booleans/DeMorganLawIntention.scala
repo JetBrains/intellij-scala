@@ -11,10 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/12/12
-  */
 final class DeMorganLawIntention extends PsiElementBaseIntentionAction {
 
   import DeMorganLawIntention._

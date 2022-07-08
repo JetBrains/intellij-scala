@@ -5,10 +5,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-/**
- * Nikolay.Tropin
- * 7/16/13
- */
 class IntroduceFieldSettings[T <: PsiElement](ifc: IntroduceFieldContext[T]) {
   private val scalaSettings = ScalaApplicationSettings.getInstance()
   private[this] var isVar = scalaSettings.INTRODUCE_FIELD_IS_VAR

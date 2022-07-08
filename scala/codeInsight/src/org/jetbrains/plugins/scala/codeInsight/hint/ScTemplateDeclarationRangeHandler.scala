@@ -7,10 +7,6 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 
-/**
-  * @author Alefas
-  * @since 30/06/16
-  */
 final class ScTemplateDeclarationRangeHandler extends DeclarationRangeHandler[ScTemplateDefinition] {
 
   import ScTemplateDeclarationRangeHandler._

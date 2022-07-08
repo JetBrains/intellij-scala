@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package resolve2
 
-
-/**
- * Pavel.Fatin, 02.02.2010
- */
-
 abstract class ImportElementTestBase extends ResolveTestBase {
   override def folderPath: String = {
     super.folderPath + "import/element/"

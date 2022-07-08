@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * Nikolay.Tropin
- * 5/30/13
- */
 class FilterHeadOptionTest extends OperationsOnCollectionInspectionTest {
 
   override val hint = ScalaInspectionBundle.message("filter.headOption.hint")

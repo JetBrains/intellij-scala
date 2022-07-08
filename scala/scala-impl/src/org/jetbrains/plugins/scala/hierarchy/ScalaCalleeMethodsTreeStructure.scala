@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScalaCalleeMethodsTreeStructure(project: Project, method: PsiMethod, myScopeType: String)
   extends HierarchyTreeStructure(project, new CallHierarchyNodeDescriptor(project, null, method, true, false)) {
 

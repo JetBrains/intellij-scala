@@ -16,10 +16,6 @@ import xsbti.compile.DependencyChanges
 
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 11/18/13
- */
 class IdeaIncrementalCompiler(scalac: AnalyzingCompiler)
   extends AbstractCompiler {
 

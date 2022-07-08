@@ -28,11 +28,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import java.util.regex.{Matcher, Pattern}
 
-/**
-* User: Alexander Podkhalyuzin
-* Date: 21.05.2008.
-*/
-
 object ScalaCompletionUtil {
 
   import ScalaTokenTypes._

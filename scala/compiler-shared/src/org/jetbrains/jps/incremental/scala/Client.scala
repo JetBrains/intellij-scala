@@ -9,8 +9,6 @@ import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, Co
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
- *
- * @author Pavel Fatin
  */
 trait Client {
 

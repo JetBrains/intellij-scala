@@ -15,12 +15,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  *         Time: 9:21:35
-  */
-
 /*
  * SimpleExpr ::= 'new' (ClassTemplate | TemplateBody)
  *              | BlockExpr

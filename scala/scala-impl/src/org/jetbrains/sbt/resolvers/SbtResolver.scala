@@ -5,10 +5,6 @@ import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.NlsString
 
-/**
-  * @author Mikhail Mutcianko
-  * @since 26.07.16
-  */
 sealed trait SbtResolver extends Serializable {
   def name: String
   def root: String

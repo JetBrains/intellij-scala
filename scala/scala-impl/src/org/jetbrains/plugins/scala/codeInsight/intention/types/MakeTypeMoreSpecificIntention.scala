@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.psi.types.{BaseTypes, ScType, ScTypeExt, TypePresentationContext}
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 22.12.15.
-  */
 class MakeTypeMoreSpecificIntention extends AbstractTypeAnnotationIntention {
 
   import MakeTypeMoreSpecificIntention._

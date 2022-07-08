@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.collection.immutable.ArraySeq
 import scala.util.control.ControlThrowable
 
-/**
- * @author Mikhail.Mutcianko
- * @since  26.12.14
- */
 class SyntheticMembersInjector {
   /**
     * This method allows to add custom functions to any class, object or trait.

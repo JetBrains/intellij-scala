@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class ToSetAndBackInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ToSetAndBackToDistinct)
 }

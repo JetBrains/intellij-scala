@@ -12,10 +12,6 @@ import javax.swing.JPanel
 import javax.swing.table.AbstractTableModel
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay Obedin
- * @since 12/1/14.
- */
 class SbtModuleSettingsEditor (state: ModuleConfigurationState) extends ModuleElementsEditor(state) {
 
   import SbtModule._

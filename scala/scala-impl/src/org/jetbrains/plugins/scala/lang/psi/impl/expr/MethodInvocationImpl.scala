@@ -26,11 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
-
-/**
-  * Nikolay.Tropin
-  * 19-Dec-17
-  */
 abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with MethodInvocation {
 
   import MethodInvocationImpl._

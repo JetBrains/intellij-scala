@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.settings._
 
-/**
-  * Pavel Fatin
-  */
 class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations](Associations.flavor) {
 
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])

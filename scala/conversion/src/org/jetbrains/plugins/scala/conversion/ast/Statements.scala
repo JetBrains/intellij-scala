@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/22/15
-  */
 case class IfStatement(condition: Option[IntermediateNode],
                        thenBranch: Option[IntermediateNode],
                        elseBranch: Option[IntermediateNode]) extends IntermediateNode

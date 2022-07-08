@@ -11,10 +11,6 @@ import org.junit.experimental.categories.Category
 
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 2014-04-03
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {

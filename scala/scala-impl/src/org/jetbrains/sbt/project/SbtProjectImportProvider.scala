@@ -7,9 +7,6 @@ import com.intellij.openapi.vfs.VirtualFile
 
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 final class SbtProjectImportProvider(builder: SbtProjectImportBuilder)
   extends AbstractExternalProjectImportProvider(builder, SbtProjectSystem.Id) {
 

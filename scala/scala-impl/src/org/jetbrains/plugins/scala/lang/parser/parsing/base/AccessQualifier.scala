@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
-  * @author adkozlov
-  */
-
 /*
  * AccessModifier ::= '[' (id | 'this') ']'
  */

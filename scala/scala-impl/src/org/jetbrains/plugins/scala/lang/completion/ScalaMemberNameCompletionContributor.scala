@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
-/**
- * @author Alefas
- * @since 31.03.12
- */
 final class ScalaMemberNameCompletionContributor extends ScalaCompletionContributor {
   //suggest class name
   extend(

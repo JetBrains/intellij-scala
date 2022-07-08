@@ -4,10 +4,6 @@ import com.intellij.openapi.editor.{CaretState, LogicalPosition}
 
 import java.util
 
-/**
- * Pavel Fatin
- */
-
 class CaretModelMock(offset: Int, pos: LogicalPosition) extends CaretModelStub {
 
   override def setCaretsAndSelections(caretStates: util.List[_ <: CaretState]): Unit = ()

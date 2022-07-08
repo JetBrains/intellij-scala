@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/13/12
-  */
 final class NegateComparisonIntention extends PsiElementBaseIntentionAction {
 
   import NegateComparisonIntention._

@@ -7,9 +7,6 @@ import org.jdom.{Attribute, Element}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 private class FacetProperties(element: Element) {
   def option(key: String): Option[String] = Option {
     XPath.selectSingleNode(element, s"configuration/option[@name='$key']/@value").asInstanceOf[Attribute]: @nowarn("cat=deprecation")

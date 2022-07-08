@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.SelfType
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 08.02.2008
- */
 sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) extends ParsingRule {
 
   import lexer.ScalaTokenTypes._

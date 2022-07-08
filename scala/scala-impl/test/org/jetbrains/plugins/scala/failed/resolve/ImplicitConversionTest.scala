@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-/**
-  * @author Nikolay.Tropin
-  */
 class ImplicitConversionTest extends FailableResolveTest("implicitConversion") {
   def testScl8709(): Unit = doTest()
 

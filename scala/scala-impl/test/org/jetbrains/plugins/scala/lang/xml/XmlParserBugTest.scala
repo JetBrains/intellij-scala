@@ -3,12 +3,6 @@ package lang.xml
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-
-/**
- * User: Dmitry Naydanov
- * Date: 3/3/12
- */
-
 class XmlParserBugTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL1699(): Unit = {
     val text =

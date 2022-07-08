@@ -13,9 +13,6 @@ import org.jetbrains.annotations.NotNull
 import java.awt.FlowLayout
 import javax.swing._
 
-/**
- * @author Pavel Fatin
- */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
   extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 

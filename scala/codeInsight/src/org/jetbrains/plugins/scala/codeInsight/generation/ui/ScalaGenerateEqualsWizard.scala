@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 8/20/13
-  */
 final class ScalaGenerateEqualsWizard(clazz: ScClass, needEquals: Boolean, needHashCode: Boolean)
                                      (implicit project: Project)
   extends AbstractGenerateEqualsWizard[ScClass, ScNamedElement, ScalaMemberInfo](project,

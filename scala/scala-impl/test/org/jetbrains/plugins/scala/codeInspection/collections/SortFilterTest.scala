@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * Nikolay.Tropin
- * 1/24/14
- */
 class SortFilterTest extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

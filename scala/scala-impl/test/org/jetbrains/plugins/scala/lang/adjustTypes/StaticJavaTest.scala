@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.junit.Assert
 
-/**
-  * @author Nikolay.Tropin
-  */
 class StaticJavaTest extends LightJavaCodeInsightFixtureTestCase {
 
   def testStaticJava(): Unit = {

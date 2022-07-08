@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.beans.{BeanProperty, BooleanBeanProperty}
 
-/**
- * Nikolay.Tropin
- * 2014-08-10
- */
 class ScalaParameterInfo(@BeanProperty var name: String,
                          @BeanProperty val oldIndex: Int,
                          var scType: ScType,

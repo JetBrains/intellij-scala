@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToMethodDefinition extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScFunctionDefinition) if e.hasAssign && e.returnTypeElement.isEmpty =>

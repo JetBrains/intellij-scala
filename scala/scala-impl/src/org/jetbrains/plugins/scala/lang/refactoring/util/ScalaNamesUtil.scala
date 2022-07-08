@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator._
 
 import scala.reflect.NameTransformer
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 24.06.2008
-  */
 object ScalaNamesUtil {
 
   def isOpCharacter(character: Char): Boolean = character match {

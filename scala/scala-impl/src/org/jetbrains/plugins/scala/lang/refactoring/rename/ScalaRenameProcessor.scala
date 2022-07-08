@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-03-27
- */
 trait ScalaRenameProcessor { this: RenamePsiElementProcessor =>
 
   override def findReferences(element: PsiElement,

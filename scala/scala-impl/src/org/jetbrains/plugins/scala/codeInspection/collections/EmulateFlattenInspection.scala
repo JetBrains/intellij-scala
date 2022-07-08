@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author Lukasz Piepiora
-  */
 class EmulateFlattenInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(FlattenSimplification)

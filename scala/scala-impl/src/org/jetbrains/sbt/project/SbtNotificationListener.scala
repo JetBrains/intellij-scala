@@ -4,9 +4,6 @@ package project
 import com.intellij.notification._
 import com.intellij.openapi.externalSystem.model.task.{ExternalSystemTaskId, ExternalSystemTaskNotificationListenerAdapter}
 
-/**
- * @author Pavel Fatin
- */
 // TODO Rely on the immediate UI interaction API when IDEA-123007 will be implemented
 class SbtNotificationListener extends ExternalSystemTaskNotificationListenerAdapter {
   override def onTaskOutput(id: ExternalSystemTaskId, text: String, stdOut: Boolean): Unit = {

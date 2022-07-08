@@ -4,11 +4,6 @@ package javaHighlighting
 
 import org.jetbrains.plugins.scala.annotator.Error
 
-
-/**
-  * @author Alefas
-  * @since 22/12/2016
-  */
 class JavaHighlightingScalaTest_since_2_12 extends JavaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12

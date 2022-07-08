@@ -4,9 +4,6 @@ import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 
-/**
-  * @author Alexander Podkhalyuzin, ilyas
-  */
 trait ScMatch extends ScExpression {
   def expression: Option[ScExpression] = findChild[ScExpression]
 

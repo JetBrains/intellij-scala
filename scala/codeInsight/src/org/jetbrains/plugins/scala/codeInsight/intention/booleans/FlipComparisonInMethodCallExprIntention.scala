@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-/**
- * @author Ksenia.Sautina
- * @since 4/20/12
- */
 final class FlipComparisonInMethodCallExprIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {

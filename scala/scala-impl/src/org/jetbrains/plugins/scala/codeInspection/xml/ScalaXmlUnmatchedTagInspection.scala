@@ -10,12 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiEl
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.{ScXmlEndTag, ScXmlStartTag}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
-
-/**
- * User: Dmitry Naydanov
- * Date: 4/7/12
- */
-
 class ScalaXmlUnmatchedTagInspection extends LocalInspectionTool{
   override def isEnabledByDefault: Boolean = true
 

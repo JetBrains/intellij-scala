@@ -13,10 +13,6 @@ import org.junit.Assert._
 import java.nio.file.Path
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
-/**
- * @author Roman.Shein
- * @since 20.01.2015.
- */
 trait IntegrationTest extends AnyRef
   with IntegrationTestConfigurationCreation
   with IntegrationTestConfigAssertions

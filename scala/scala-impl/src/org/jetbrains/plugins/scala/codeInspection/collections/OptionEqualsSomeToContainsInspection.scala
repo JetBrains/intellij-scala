@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageL
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class OptionEqualsSomeToContainsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(OptionEqualsSomeToContains, OptionNotEqualsSomeToNotContains)

@@ -3,9 +3,6 @@ package lang
 package transformation
 package declarations
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandProcedureSyntaxTest extends TransformerTest(new ExpandProcedureSyntax()) {
 
   def testProcedureSyntax(): Unit = check(

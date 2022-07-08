@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.util.NotificationUtil
 
 import scala.annotation.nowarn
 
-/**
- * @author Alexander Podkhalyuzin
- */
 class RenameJavaToScalaAction extends AnAction(
   ScalaConversionBundle.message("convert.java.to.scala.action.text"),
   ScalaConversionBundle.message("convert.java.to.scala.action.description"),

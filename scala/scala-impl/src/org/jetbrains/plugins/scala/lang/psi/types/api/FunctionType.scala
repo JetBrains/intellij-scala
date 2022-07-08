@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{AliasType, ScParameterizedTyp
 import scala.annotation.tailrec
 import scala.reflect.ClassTag
 
-/**
-  * @author adkozlov
-  */
 sealed trait FunctionTypeFactory[D <: ScTypeDefinition, T] {
 
   import FunctionTypeFactory._

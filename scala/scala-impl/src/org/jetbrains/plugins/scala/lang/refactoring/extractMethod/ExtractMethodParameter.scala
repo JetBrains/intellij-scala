@@ -6,11 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 30.03.2010
- */
-
 case class ExtractMethodParameter(oldName: String, newName: String, fromElement: ScTypedDefinition, tp: ScType,
                                   passAsParameter: Boolean) {
 

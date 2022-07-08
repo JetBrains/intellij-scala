@@ -7,10 +7,6 @@ package toplevel
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 
-/**
- * @author ilyas
- */
-
 trait ScImportableDeclarationsOwner extends ScalaPsiElement {
   self: ScTypedDefinition =>
 

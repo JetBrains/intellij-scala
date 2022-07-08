@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
 import scala.annotation.nowarn
 
-/**
- * User: Alefas
- * Date: 06.02.12
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.suspicious.shadowing.by.a.type.parameter")) {
 

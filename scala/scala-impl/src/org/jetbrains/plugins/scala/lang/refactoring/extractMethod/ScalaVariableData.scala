@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationConte
 import org.jetbrains.plugins.scala.lang.refactoring.ScTypePresentationExt
 import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.ScalaVariableData._
 
-/**
- * Nikolay.Tropin
- * 2014-04-10
- */
 class ScalaVariableData(val element: ScTypedDefinition,
                         val isInsideOfElements: Boolean,
                         val scType: ScType) 

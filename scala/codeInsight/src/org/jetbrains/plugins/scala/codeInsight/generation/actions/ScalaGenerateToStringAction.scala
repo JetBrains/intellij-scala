@@ -16,8 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 /**
   * Generate toString metod action.
-  *
-  * @author Rado Buransky (buransky.com)
   */
 final class ScalaGenerateToStringAction extends ScalaBaseGenerateAction(
   new ScalaGenerateToStringAction.Handler,

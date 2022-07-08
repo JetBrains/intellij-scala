@@ -5,10 +5,6 @@ package completion
 import com.intellij.codeInsight.completion._
 import com.intellij.patterns.PlatformPatterns
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 16.05.2008
-  */
 class ScalaBasicCompletionContributor extends ScalaCompletionContributor {
 
   extend(

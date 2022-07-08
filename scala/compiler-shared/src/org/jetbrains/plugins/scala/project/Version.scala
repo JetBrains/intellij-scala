@@ -4,9 +4,6 @@ import org.jetbrains.annotations.NonNls
 
 import scala.Ordering.Implicits._
 
-/**
- * @author Pavel Fatin
- */
 // TODO Make universal (move to a proper package) (it seems that this class is now used in lots of places ourside the "proect" package).
 case class Version(@NonNls presentation: String) extends Ordered[Version] {
 

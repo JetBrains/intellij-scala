@@ -8,8 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
   * This is the stub that a plugin should extend in order to genereate a result type for macro invocations on
   * interpolated strings.
   *
-  * @author Jan Lindemann
-  * @since  23.11.17.
   */
 abstract class InterpolatedStringMacroTypeProvider {
 

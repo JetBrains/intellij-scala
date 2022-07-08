@@ -8,10 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * [[Ids]] ::= id { ','  id}
- *
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
+ */
 object Ids extends ParsingRule {
 
   import ScalaElementType._

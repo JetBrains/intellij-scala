@@ -8,12 +8,6 @@ import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-
-/**
-* @author Alexander Podkhalyuzin
-* Date: 29.02.2008
-*/
-
 /*
  * Pattern3 ::= SimplePattern
  *            | SimplePattern { id [nl] SimplePattern}

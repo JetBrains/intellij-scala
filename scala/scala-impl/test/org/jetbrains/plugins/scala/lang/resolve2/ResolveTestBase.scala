@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.junit.Assert._
 
-/**
- * Pavel.Fatin, 02.02.2010
- */
-
 abstract class ResolveTestBase extends ScalaResolveTestCase {
   val pattern = """/\*\s*(.*?)\s*\*/\s*""".r
   type Parameters = Map[String, String]

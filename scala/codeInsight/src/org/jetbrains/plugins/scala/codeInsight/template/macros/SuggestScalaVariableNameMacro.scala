@@ -15,11 +15,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import scala.util._
 
 /**
-  * User: Alexander Podkhalyuzin
-  * Date: 31.01.2009
-  */
-
-/**
   * Macro for suggesting name.
   */
 final class SuggestScalaVariableNameMacro extends ScalaMacro {

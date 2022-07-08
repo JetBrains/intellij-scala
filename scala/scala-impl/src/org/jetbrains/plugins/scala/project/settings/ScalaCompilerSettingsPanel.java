@@ -21,9 +21,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * @author Pavel Fatin
- */
 @SuppressWarnings({"unchecked", "deprecation"})
 public class ScalaCompilerSettingsPanel {
     private JPanel myContentPanel;

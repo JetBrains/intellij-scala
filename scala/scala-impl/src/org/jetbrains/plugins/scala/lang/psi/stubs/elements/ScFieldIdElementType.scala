@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.impl.base.ScFieldIdImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFieldIdStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 19.07.2009
-  */
 class ScFieldIdElementType extends ScStubElementType[ScFieldIdStub, ScFieldId]("field id") {
   override def serialize(stub: ScFieldIdStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

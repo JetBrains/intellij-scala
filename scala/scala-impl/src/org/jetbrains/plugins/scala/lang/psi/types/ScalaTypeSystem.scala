@@ -5,9 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author adkozlov
-  */
 final class ScalaTypeSystem private (implicit override val projectContext: ProjectContext) extends api.TypeSystem
   with ScalaEquivalence
   with ScalaConformance

@@ -11,10 +11,6 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
-  * Nikolay.Tropin
-  * 8/17/13
-  */
 abstract class ScalaBaseGenerateAction(handler: ScalaCodeInsightActionHandler,
                                        @Nls actionText: String,
                                        @Nls actionDescription: String) extends BaseGenerateAction(handler) {

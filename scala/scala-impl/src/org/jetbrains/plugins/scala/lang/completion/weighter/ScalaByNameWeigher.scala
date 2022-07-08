@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition,
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 /**
- * Created by kate
  * Suggest type by name where type may be appears. Check on full equality of names, includence one to another
  * or partial alignment
  * on 3/2/16

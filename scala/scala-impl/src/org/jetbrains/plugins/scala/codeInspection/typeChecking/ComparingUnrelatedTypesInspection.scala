@@ -20,11 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 
-/**
-  * Nikolay.Tropin
-  * 5/30/13
-  */
-
 object ComparingUnrelatedTypesInspection {
   val inspectionName: String = ScalaInspectionBundle.message("comparing.unrelated.types.name")
   val inspectionId = "ComparingUnrelatedTypes"

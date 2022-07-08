@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class CanonizePostfixCallTest extends TransformerTest(new CanonizePostifxCall()) {
 
   override protected val header: String =

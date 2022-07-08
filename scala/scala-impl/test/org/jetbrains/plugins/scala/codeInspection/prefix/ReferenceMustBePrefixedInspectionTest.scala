@@ -6,10 +6,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections.ReferenceMustBePrefixedInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
-/**
- * Nikolay.Tropin
- * 2/25/14
- */
 class ReferenceMustBePrefixedInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

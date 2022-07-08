@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class MakeEtaExpansionExplicit extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case (e: ScReferenceExpression) && ReferenceTarget(_: ScFunction) &&

@@ -15,10 +15,6 @@ import java.util.jar.JarOutputStream
 import java.util.zip.ZipEntry
 import scala.util.Using
 
-/**
- * @author Nikolay Obedin
- * @since 8/18/15.
- */
 class SbtRunnerTest extends UsefulTestCase {
 
   def testSbtLaunch_0_12_4(): Unit =

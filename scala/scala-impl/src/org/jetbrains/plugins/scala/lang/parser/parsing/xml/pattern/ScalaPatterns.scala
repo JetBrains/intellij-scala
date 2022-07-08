@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns._
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 21.04.2008
-*/
-
 object ScalaPatterns extends ParsingRule {
 
   override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {

@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 /**
  * [[ClassParam]] ::= [[Annotations]] [{Modifier} ('val' | 'var')] id ':' ParamType ['=' Expr]
- *
-* @author Alexander Podkhalyuzin
-* Date: 08.02.2008
 */
 object ClassParam extends ParsingRule {
 

@@ -14,11 +14,6 @@ import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, Co
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
 
-
-/**
- * Nikolay.Tropin
- * 11/18/13
- */
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
                          chunk: ModuleChunk) extends Client {

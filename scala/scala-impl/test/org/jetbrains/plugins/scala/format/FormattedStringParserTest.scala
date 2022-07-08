@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions._
 import org.junit.Assert.{assertEquals, fail}
 
-/**
- * Pavel Fatin
- */
-
 class FormattedStringParserTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testEmpty(): Unit = {

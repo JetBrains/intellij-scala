@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 
 import scala.collection.mutable
 
-/**
-  * @author Aleksander Podkhalyuzin
-  * @since 25.03.2009
-  */
 private[annotator] object ModifierChecker {
 
   import ScalaModifier._

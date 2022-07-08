@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Method
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
-
-/**
-  * @author adkozlov
-  */
 case class ImplicitConversionResolveResult(resolveResult: ScalaResolveResult,
                                            `type`: ScType,
                                            implicitDependentSubstitutor: ScSubstitutor = ScSubstitutor.empty,

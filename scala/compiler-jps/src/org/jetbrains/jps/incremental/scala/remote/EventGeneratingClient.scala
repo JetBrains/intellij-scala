@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit
 import sbt.internal.inc.CompileFailed
 
 /**
- * @author Pavel Fatin
  * @see [[org.jetbrains.jps.incremental.scala.ClientEventProcessor]]
  */
 class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) extends Client with AutoCloseable {

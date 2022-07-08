@@ -7,10 +7,6 @@ import org.jetbrains.sbt.SbtBundle
 
 import javax.swing.Icon
 
-/**
- * User: Dmitry.Naydanov, Pavel Fatin
- * Date: 11.03.14.
- */
 class SbtProjectTemplate extends ProjectTemplate {
   //noinspection ReferencePassedToNls
   override def getName: String = Sbt.Name

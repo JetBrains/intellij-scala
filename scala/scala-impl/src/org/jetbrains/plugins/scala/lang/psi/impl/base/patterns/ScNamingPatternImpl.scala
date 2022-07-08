@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.NAMING_PATTERN, node) with ScPatternImpl with ScNamingPattern {
 

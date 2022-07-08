@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{P
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * Nikolay.Tropin
-  * 26-Apr-18
-  */
-
 trait ScExistentialArgument extends NamedType with ValueType {
   override implicit def projectContext: ProjectContext = lower.projectContext
 

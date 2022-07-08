@@ -17,10 +17,6 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.{Success, Try}
 
-/**
- * User: Alefas
- * Date: 12.10.11
- */
 case class ScalaMethodEvaluator(objectEvaluator: Evaluator,
                                 _methodName: String,
                                 signature: JVMName,

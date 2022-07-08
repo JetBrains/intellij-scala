@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocCommentImpl;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.07.2008
- */
 public interface ScalaDocElementTypes {
 
   /**

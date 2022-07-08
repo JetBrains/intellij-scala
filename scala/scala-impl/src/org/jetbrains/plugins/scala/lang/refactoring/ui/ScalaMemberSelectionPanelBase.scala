@@ -10,10 +10,6 @@ import java.awt.BorderLayout
 import java.util
 import javax.swing.JScrollPane
 
-/**
- * Nikolay.Tropin
- * 8/20/13
- */
 abstract class ScalaMemberSelectionPanelBase[M <: PsiElement, I <: ScalaMemberInfoBase[M]](@Nls title: String,
                                                                                            memberInfo: util.List[I],
                                                                                            abstractColumnHeader: String)

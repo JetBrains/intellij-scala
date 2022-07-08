@@ -4,10 +4,6 @@ package lang.resolve
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Roman.Shein
-  * @since 28.03.2016.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class TypeVisibilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
 

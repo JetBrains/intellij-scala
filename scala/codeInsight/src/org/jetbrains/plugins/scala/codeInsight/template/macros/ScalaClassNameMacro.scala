@@ -9,10 +9,6 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
-/**
- * @author Roman.Shein
- * @since 22.09.2015.
- */
 final class ScalaClassNameMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

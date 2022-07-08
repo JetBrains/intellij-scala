@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import java.{util => ju}
 import javax.swing.JComponent
 
-/**
- * @author Pavel Fatin
- */
 class ScalaModuleBuilder extends JavaModuleBuilder {
 
   private var _librariesContainer: LibrariesContainer = _

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.statistics
 
 import scala.language.implicitConversions
 
-/**
-  * Nikolay.Tropin
-  * 22-Nov-17
-  */
 class FeatureKey private (val s: String) extends AnyVal
 
 object FeatureKey {

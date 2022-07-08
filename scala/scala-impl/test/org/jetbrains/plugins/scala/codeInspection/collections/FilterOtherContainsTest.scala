@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
-  * @author Nikolay.Tropin
-  */
 abstract class FilterOtherTest extends OperationsOnCollectionInspectionTest {
 
   override val classOfInspection: Class[_ <: OperationOnCollectionInspection] =

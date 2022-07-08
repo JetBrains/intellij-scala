@@ -9,9 +9,6 @@ import org.jdom.{Attribute, Element}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 private case class LibraryData(name: String, classes: Seq[String], sources: Seq[String], docs: Seq[String]) {
   def classesAsFileUrls: Seq[String] =
     classes.map(url => "file" + url.substring(3, url.length - 2))

@@ -33,10 +33,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.annotation.tailrec
 import scala.meta.intellij.QuasiquoteInferUtil
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 trait ScPattern extends ScalaPsiElement with Typeable {
   def isIrrefutableFor(t: Option[ScType]): Boolean
 

@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 import scala.collection.mutable
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScSelfTypeElementImpl private(stub: ScSelfTypeElementStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.SELF_TYPE, node) with ScSelfTypeElement {
 

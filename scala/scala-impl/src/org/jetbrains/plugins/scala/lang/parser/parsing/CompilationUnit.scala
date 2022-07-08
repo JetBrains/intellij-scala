@@ -13,9 +13,6 @@ import scala.annotation.tailrec
 
 /**
  * [[CompilationUnit]] ::= [ 'package' [[QualId]] StatementSeparator ] [[TopStatSeq]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 05.02.2008
  */
 object CompilationUnit {
 

@@ -14,8 +14,6 @@ import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertC
 
 /**
  * TestCase class to use when testing ProjectDataService implementations
- * @author Nikolay Obedin
- * @since 6/5/15.
  */
 abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
 

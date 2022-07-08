@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 
 import javax.swing.{BoxLayout, JComponent, JPanel}
 
-/**
- * @author Alefas
- * @since 15.12.12
- */
 class ScalaTypeDefinitionUsagesDialog(element: ScTypeDefinition, project: Project, findUsagesOptions: FindUsagesOptions,
                                       toShowInNewTab: Boolean, mustOpenInNewTab: Boolean, isSingleFile: Boolean,
                                       handler: FindUsagesHandler)

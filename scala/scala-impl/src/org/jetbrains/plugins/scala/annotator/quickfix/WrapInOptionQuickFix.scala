@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/**
- * Nikolay.Tropin
- * 6/27/13
- */
 class WrapInOptionQuickFix(expr: ScExpression, expectedType: TypeResult, exprType: TypeResult) extends IntentionAction {
 
   override def getText: String = ScalaBundle.message("wrap.in.option.hint")

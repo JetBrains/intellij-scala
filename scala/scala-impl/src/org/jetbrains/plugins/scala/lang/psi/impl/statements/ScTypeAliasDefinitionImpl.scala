@@ -20,11 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
 import javax.swing.Icon
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:55:13
-*/
 final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_DEFINITION, node) with ScTypeAliasDefinition {
 

@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * Pavel.Fatin, 25.05.2010
- */
-
 object ScopeAnnotator extends ElementAnnotator[ScalaPsiElement] {
 
   private case class Definitions(types: List[ScNamedElement],

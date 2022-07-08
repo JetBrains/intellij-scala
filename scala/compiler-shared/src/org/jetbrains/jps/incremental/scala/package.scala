@@ -8,9 +8,6 @@ import _root_.java.net.URLClassLoader
 import _root_.scala.language.implicitConversions
 import _root_.scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 package object scala {
 
   def extractor[A, B](f: A => B) = new Extractor[A, B](f)

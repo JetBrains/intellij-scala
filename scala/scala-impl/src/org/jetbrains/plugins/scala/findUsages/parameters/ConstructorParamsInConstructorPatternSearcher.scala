@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
  *     case A(x) => /*found*/x
  *   }
  * }}}
- *
- * User: Jason Zaugg
  */
 class ConstructorParamsInConstructorPatternSearcher extends CustomUsageSearcher {
   override def processElementUsages(element: PsiElement, processor0: Processor[_ >: Usage], options: FindUsagesOptions): Unit = {

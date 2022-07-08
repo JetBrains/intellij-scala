@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValType
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
-/**
- * Nikolay.Tropin
- * 2014-08-13
- */
 private[changeSignature] object ConflictsUtil {
 
   type ConflictsMap = MultiMap[PsiElement, String]

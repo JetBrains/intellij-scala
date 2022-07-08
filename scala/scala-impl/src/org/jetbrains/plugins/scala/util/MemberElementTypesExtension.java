@@ -4,10 +4,6 @@ import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.psi.tree.TokenSet;
 import org.jetbrains.annotations.ApiStatus;
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/25/13
- */
 @ApiStatus.Internal
 abstract public class MemberElementTypesExtension {
   public static ExtensionPointName<MemberElementTypesExtension> EP_NAME = ExtensionPointName.create("org.intellij.scala.memberElementTypesExtension");

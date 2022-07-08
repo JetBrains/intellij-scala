@@ -16,10 +16,6 @@ import java.util
 import javax.swing.JComponent
 import javax.swing.border.Border
 
-/**
- * Pavel Fatin
- */
-
 class EditorStub extends Editor {
   override def putUserData[T](key: Key[T], value: T): Unit = {}
 

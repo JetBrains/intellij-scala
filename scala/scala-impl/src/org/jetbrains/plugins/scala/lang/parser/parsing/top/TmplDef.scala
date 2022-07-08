@@ -18,10 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.GivenDef
  * | 'trait' [[TraitDef]]
  * | 'enum' [[EnumDef]]
  * | 'given' [[GivenDef]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 05.02.2008
- **/
+ */
 object TmplDef extends ParsingRule {
 
   import ScalaElementType._

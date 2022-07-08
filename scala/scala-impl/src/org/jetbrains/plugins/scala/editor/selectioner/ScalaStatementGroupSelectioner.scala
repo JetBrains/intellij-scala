@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScBlockStatement}
 
 import java.util
 
-/**
-  * @author yole
-  */
-
 class ScalaStatementGroupSelectioner extends ExtendWordSelectionHandlerBase {
   override def canSelect(e: PsiElement): Boolean = {
     e match {

@@ -37,9 +37,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
 
-/**
- * @author ven
- */
 object ResolveUtils {
   def kindMatches(element: PsiElement, kinds: Set[ResolveTargets.Value]): Boolean = kinds == null ||
           (element match {

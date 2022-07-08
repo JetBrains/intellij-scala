@@ -16,9 +16,6 @@ import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Alexander Podkhalyuzin
- */
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,

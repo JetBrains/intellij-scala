@@ -8,9 +8,6 @@ import com.intellij.projectImport.ProjectOpenProcessor
 
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 class SbtProjectOpenProcessor extends ProjectOpenProcessor {
 
   //noinspection ReferencePassedToNls

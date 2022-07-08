@@ -7,10 +7,6 @@ import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, ScTypeElementOwnerStub}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 14.10.2008
-  */
 trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScTopLevelElementStub[F]
   with ScMemberOrLocal

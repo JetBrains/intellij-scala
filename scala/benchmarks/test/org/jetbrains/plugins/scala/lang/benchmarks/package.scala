@@ -5,9 +5,6 @@ import java.util.{Timer, TimerTask}
 import com.intellij.testFramework.EdtTestUtil
 import com.intellij.util.ThrowableRunnable
 
-/**
-  * @author Nikolay.Tropin
-  */
 package object benchmarks {
   def scheduleShutdown(delayMs: Long) = {
     val exitTask = new TimerTask {

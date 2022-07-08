@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * @author Alexander Podkhalyuzin, ilyas
- */
-
 class ScUnderscoreSectionImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScUnderscoreSection {
   protected override def innerType: TypeResult = {
     bindingExpr match {

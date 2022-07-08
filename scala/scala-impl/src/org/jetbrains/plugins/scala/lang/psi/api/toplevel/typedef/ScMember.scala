@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.util.BaseIconProvider
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * @author Alexander Podkhalyuzin
-  * Date: 04.05.2008
-  */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   override def getContainingClass: PsiClass = containingClass

@@ -27,10 +27,6 @@ import java.util.Collections.emptyList
 import javax.swing.{Icon, ListCellRenderer}
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 09.11.2008
- */
 object ScalaMarkerType {
   private[this] def sigToNavigatableElement(s: TermSignature): Option[NavigatablePsiElement] = s.namedElement match {
     case ne: NavigatablePsiElement => Option(ne)

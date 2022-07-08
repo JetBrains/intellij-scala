@@ -56,10 +56,6 @@ import org.jetbrains.sbt.project.settings.SbtProjectSettings;
 import java.io.IOException;
 import java.util.*;
 
-/**
- * @author Vladislav.Soroka
- * @since 6/30/2014
- */
 public abstract class ExternalSystemImportingTestCase extends ExternalSystemTestCase {
 
   @Override

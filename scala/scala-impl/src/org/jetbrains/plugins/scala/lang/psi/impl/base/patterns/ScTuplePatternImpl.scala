@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 class ScTuplePatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScTuplePattern {
   override def isIrrefutableFor(t: Option[ScType]): Boolean = t match {
     case Some(parameterizedType@ParameterizedType(ScDesignatorType(ClassQualifiedName(qName)), _)) if qName == s"scala.Tuple${subpatterns.length}" =>

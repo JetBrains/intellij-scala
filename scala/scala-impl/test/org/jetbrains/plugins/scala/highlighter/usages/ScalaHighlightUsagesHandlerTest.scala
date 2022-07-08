@@ -9,10 +9,6 @@ import org.junit.Assert
 
 import scala.jdk.CollectionConverters._
 
-
-/**
-  * Created by Svyatoslav Ilinskiy on 13.07.16.
-  */
 class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAdapter {
   val | = CARET
 

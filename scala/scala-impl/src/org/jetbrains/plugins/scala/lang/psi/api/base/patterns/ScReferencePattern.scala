@@ -9,10 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariableDefinition
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
 trait ScReferencePattern extends ScBindingPattern {
   override def setName(name: String): PsiElement = {
     this.parentsInFile

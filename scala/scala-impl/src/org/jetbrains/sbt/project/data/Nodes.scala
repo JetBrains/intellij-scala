@@ -7,9 +7,6 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 
 import java.net.URI
 
-/**
-  * @author Pavel Fatin
-  */
 class ProjectNode(override val data: ProjectData)
   extends Node[ProjectData] {
   def this(name: String, ideProjectFileDirectoryPath: String, linkedExternalProjectPath: String) = {

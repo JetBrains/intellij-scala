@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
- * @author Roman.Shein
- * @since 16.10.2014.
- */
 abstract class Specs2SingleTestTest extends Specs2TestCase {
   protected val specsTestFileName = "SpecificationTest.scala"
   protected val specsTestClassName = "SpecificationTest"

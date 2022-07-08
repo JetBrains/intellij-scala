@@ -5,9 +5,6 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.Duration
 
-/**
-  * Created by Roman.Shein on 27.03.2017.
-  */
 abstract class SettingQueryHandlerTest extends SbtProjectPlatformTestCase {
 
   def testFailedCommand(): Unit = {

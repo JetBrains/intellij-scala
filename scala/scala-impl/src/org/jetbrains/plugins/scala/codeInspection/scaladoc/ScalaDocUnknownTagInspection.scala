@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocTag
 
-/**
- * User: Dmitry Naydanov
- * Date: 11/21/11
- */
 class ScalaDocUnknownTagInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 

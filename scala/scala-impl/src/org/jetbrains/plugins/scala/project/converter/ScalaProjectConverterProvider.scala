@@ -3,9 +3,6 @@ package project.converter
 
 import com.intellij.conversion.{ConversionContext, ConverterProvider}
 
-/**
- * @author Pavel Fatin
- */
 class ScalaProjectConverterProvider extends ConverterProvider {
   override def getConversionDescription = ScalaBundle.message("scala.facets.will.be.converted.to.scala.sdks")
 

@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScTy
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * Nikolay.Tropin
-  * 8/19/13
-  */
 final class ScalaGenerateEqualsAction extends ScalaBaseGenerateAction(
   new ScalaGenerateEqualsAction.Handler,
   ScalaCodeInsightBundle.message("generate.equals.and.hashcode.methods.action.text"),

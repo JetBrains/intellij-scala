@@ -5,10 +5,6 @@ package impl
 package toplevel
 package typedef
 
-/**
- * @author ilyas
- */
-
 import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.psi._

@@ -8,9 +8,6 @@ import org.jetbrains.sbt.structure.Play2Data
 import java.io.File
 import scala.collection.immutable.HashMap
 
-/**
-  * @author Nikolay Obedin
-  */
 // TODO: @dmitry.naydanov: please, refactor Play2 part and then remove this class
 object Play2OldStructureAdapter {
   type ProjectId = String

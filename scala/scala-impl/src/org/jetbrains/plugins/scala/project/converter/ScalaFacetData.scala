@@ -4,9 +4,6 @@ package project.converter
 import com.intellij.conversion.ModuleSettings
 import org.jdom.Element
 
-/**
- * @author Pavel Fatin
- */
 private case class ScalaFacetData(languageLevel: String,
                                   basePackage: Option[String],
                                   fscEnabled: Boolean,

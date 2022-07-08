@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.experimental.categories.Category
 
-/**
-  * Created by Anton Yalyshev on 21/04/16.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class FailedResolveCaretTestBase extends SimpleTestCase {
 

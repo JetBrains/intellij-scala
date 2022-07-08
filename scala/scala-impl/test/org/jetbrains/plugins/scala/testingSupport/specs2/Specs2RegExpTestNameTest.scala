@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
- * @author Roman.Shein
- * @since 03.07.2015.
- */
 abstract class Specs2RegExpTestNameTest extends Specs2TestCase {
   protected val regExpClassName = "SpecsRegExpTest"
   protected val regExpFileName = regExpClassName + ".scala"

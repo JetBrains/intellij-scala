@@ -19,10 +19,6 @@ import org.junit.Assert._
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.03.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with ScalaFiles {
   private val refMarker = "/*ref*/" // todo to be replaced with <caret>

@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.junit.Assert._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.11.11
- */
 class ResolvePackagings2Test extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/packages/separated/my/scala/stuff/"
 

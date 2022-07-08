@@ -5,9 +5,6 @@ package transformation
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.transformation.Transformer.ReformatAction
 
-/**
-  * @author Pavel Fatin
-  */
 class CompoundTransformationTest extends TransformationTest {
 
   override protected def transform(element: PsiElement, file: PsiFile, reformat: ReformatAction): Unit = {

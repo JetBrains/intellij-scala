@@ -16,10 +16,6 @@ import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
 import java.util
 import scala.beans.BeanProperty
 
-/**
- * @author Pavel Fatin
- */
-
 @State(
   name = "ScalaSbtSettings",
   storages = Array(new Storage(value = "sbt.xml", roamingType = RoamingType.DISABLED)),

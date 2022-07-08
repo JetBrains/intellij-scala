@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.util.Markers
 
-/**
-  * @author Roman.Shein
-  *         Date: 27.11.2015
-  */
 class ScalaFormatSelectionTest extends AbstractScalaFormatterTestBase with Markers {
 
   def testSelection(): Unit = {

@@ -7,11 +7,6 @@ import com.intellij.testFramework.EditorTestUtil
 import com.intellij.testFramework.fixtures.CodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.base.libraryLoaders.{HeavyJDKLoader, LibraryLoader, ScalaSDKLoader}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 03.08.2009
- */
-
 abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with ScalaSdkOwner {
 
   protected val CARET = EditorTestUtil.CARET_TAG

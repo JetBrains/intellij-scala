@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.InfixType
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
-
 object ImportSelector extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark()

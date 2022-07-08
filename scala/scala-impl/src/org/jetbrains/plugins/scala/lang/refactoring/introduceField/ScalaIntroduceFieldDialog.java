@@ -43,10 +43,6 @@ import java.util.Set;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.07.2008
- */
 @SuppressWarnings({"unchecked", "deprecation"})
 public class ScalaIntroduceFieldDialog extends DialogWrapper implements NamedDialog {
     private JCheckBox myReplaceAllChb;

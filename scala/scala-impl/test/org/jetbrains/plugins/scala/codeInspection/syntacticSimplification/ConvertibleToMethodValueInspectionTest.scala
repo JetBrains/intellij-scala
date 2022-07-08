@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection.syntacticSimplification
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaInspectionTestBase}
 
-/**
- * Nikolay.Tropin
- * 6/3/13
- */
 class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]

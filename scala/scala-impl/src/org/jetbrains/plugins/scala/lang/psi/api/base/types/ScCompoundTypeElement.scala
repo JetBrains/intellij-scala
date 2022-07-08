@@ -5,12 +5,6 @@ package api
 package base
 package types
 
-
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 trait ScCompoundTypeElement extends ScTypeElement {
   override protected val typeName = "CompoundType"
 

@@ -4,10 +4,6 @@ import com.intellij.openapi.editor.event.SelectionListener
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.editor.{Editor, LogicalPosition, SelectionModel, VisualPosition}
 
-/**
- * Pavel Fatin
- */
-
 class SelectionModelStub(editor: Editor) extends SelectionModel {
   override def getTextAttributes: TextAttributes = null
 

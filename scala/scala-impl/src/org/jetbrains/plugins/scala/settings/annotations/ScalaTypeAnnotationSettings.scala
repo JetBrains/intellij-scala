@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
 trait ScalaTypeAnnotationSettings {
 
   def isTypeAnnotationRequiredFor(declaration: Declaration, location: Location,

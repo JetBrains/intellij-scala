@@ -15,10 +15,6 @@ import scala.annotation.nowarn
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 11/19/13
-  */
 class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuilder(category) {
 
   import ModuleLevelBuilder._

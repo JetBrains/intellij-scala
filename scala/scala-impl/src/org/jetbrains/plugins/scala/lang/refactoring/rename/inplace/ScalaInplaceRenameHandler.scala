@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 1/20/14
- */
 trait ScalaInplaceRenameHandler {
 
   def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean

@@ -3,9 +3,6 @@ package lang
 package transformation
 package conversions
 
-/**
-  * @author Pavel Fatin
-  */
 class MakeBoxingExplicitTest extends TransformerTest(new MakeBoxingExplicit()) {
 
   def testPrimitiveToAny(): Unit = check(

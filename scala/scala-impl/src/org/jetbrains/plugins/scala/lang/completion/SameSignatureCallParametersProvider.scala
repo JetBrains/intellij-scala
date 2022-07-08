@@ -27,10 +27,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import javax.swing.Icon
 
-/**
- * @author Alefas
- * @since 03.09.13
- */
 final class SameSignatureCallParametersProvider extends CompletionContributor {
 
   import SameSignatureCallParametersProvider._

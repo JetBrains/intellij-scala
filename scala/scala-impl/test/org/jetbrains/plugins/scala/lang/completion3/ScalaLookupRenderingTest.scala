@@ -5,10 +5,6 @@ package completion3
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.junit.Assert.assertTrue
 
-/**
- * @author Alefas
- * @since 23.03.12
- */
 class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._

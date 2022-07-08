@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
 import org.junit.Assert._
 
-/**
- * Pavel Fatin
- */
-
 abstract class StatementMoverTestBase extends SimpleTestCase {
   private def move(code: String, direction: Direction): Option[String] = {
     val preparedCode = code.replaceAll("\r\n", "\n")

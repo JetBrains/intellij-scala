@@ -10,10 +10,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 3/31/12
-  */
 final class InsertGapIntoStringIntention extends PsiElementBaseIntentionAction {
 
   import InsertGapIntoStringIntention._

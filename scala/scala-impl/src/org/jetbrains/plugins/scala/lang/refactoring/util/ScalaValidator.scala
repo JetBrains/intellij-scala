@@ -7,9 +7,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 
-/**
-  * @author Kate Ustyuzhanina
-  */
 class ValidationReporter(project: Project, conflictsReporter: ConflictsReporter, validator: ScalaValidator) {
   def isOK(dialog: NamedDialog): Boolean =
     isOK(dialog.getEnteredName, dialog.isReplaceAllOccurrences)

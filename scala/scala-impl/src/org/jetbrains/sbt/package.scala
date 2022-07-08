@@ -19,9 +19,6 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 package object sbt {
   implicit def toIdeaFunction1[A, B](f: A => B): IdeaFunction[A, B] =
     (a: A) => f(a)

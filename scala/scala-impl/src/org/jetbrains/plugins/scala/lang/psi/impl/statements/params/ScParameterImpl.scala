@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 
-/**
- * @author Alexander Podkhalyuzin
- */
-
 class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElementType[_ <: ScParameter], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, nodeType, node) with ScParameter {
 

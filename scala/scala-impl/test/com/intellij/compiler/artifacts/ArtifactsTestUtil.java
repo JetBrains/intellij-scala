@@ -22,9 +22,6 @@ import java.util.jar.Manifest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-/**
- * @author nik
- */
 public class ArtifactsTestUtil {
   public static String printToString(PackagingElement element, int level) {
     StringBuilder builder = new StringBuilder(StringUtil.repeatSymbol(' ', level));

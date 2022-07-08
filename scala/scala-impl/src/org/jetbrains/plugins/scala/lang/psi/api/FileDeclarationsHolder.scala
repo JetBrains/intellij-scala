@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, Resolv
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 12/12/12
-  */
 trait FileDeclarationsHolder
   extends ScDeclarationSequenceHolder
     with ScImportsHolder

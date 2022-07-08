@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-04-03
- */
 object ComparingUtil {
   //this relation is actually symmetric
   def isNeverSubClass(subClass: PsiClass, supClass: PsiClass): Boolean = {

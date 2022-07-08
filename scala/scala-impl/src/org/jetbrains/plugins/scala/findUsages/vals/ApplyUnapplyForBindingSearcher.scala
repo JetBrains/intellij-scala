@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScNewTemplat
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Nikolay.Tropin
- * 8/29/13
- */
 class ApplyUnapplyForBindingSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   override def execute(queryParameters: SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val project = queryParameters.getProject

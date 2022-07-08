@@ -22,10 +22,6 @@ import org.junit.Assert._
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 2014-08-14
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class ChangeSignatureTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   var targetMethod: PsiMember = null

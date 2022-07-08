@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-/**
-* @author ilyas
-*/
-
 trait ScModifierListOwner extends ScalaPsiElement with ScAnnotationsHolder with PsiModifierListOwnerAdapter {
 
   @Cached(ModTracker.anyScalaPsiChange, this)

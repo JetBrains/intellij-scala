@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, s
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 28.10.11
- */
 class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._

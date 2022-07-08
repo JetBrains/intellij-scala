@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.experimental.categories.Category
 
-/**
-  * @author ilinum
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class ValueClassAnnotatorTest extends SimpleTestCase {
 

@@ -32,10 +32,6 @@ import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
-/**
-* Nikolay.Tropin
-* 2014-03-21
-*/
 final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
   import overrideImplement._

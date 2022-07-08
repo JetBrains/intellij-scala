@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class ReverseTakeReverseInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ReverseTakeReverse)
 }

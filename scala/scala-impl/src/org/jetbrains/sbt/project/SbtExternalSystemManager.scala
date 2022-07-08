@@ -22,9 +22,6 @@ import org.jetbrains.sbt.settings.{SbtExternalSystemConfigurable, SbtSettings}
 import java.io.File
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 class SbtExternalSystemManager
   extends ExternalSystemManager[SbtProjectSettings, SbtProjectSettingsListener, SbtSettings, SbtLocalSettings, SbtExecutionSettings]
     with ExternalSystemConfigurableAware

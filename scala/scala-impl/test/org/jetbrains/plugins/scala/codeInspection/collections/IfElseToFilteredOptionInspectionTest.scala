@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.collections
 
-/**
-  * @author mattfowler
-  */
 class IfElseToFilteredOptionInspectionTest extends OperationsOnCollectionInspectionTest {
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[IfElseToFilteredOptionInspection]

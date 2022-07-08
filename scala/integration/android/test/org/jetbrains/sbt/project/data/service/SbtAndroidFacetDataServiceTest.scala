@@ -17,10 +17,6 @@ import org.junit.Ignore
 import scala.io.Source
 import scala.util.Using
 
-/**
- * @author Nikolay Obedin
- * @since 6/15/15.
- */
 @Ignore
 class SbtAndroidFacetDataServiceTest extends ProjectDataServiceTestCase {
 

@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScalaTypePresentation
  * Chooses to skip typeclass derivation (and requirements) in order to
  * provide a much faster editing experience. Users may experience
  * deriving failures when they run the real compiler.
- *
- * @author Sam Halliday
- * @since  24/08/2017
  */
 class ScalazDerivingInjector extends SyntheticMembersInjector {
   // fast check

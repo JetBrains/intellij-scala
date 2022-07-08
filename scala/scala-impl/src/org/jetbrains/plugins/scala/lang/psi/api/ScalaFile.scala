@@ -7,9 +7,6 @@ import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
-/**
- * @author ilyas
- */
 trait ScalaFile extends ScalaPsiElement
   with ScFile
   with ScImportsHolder

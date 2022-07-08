@@ -3,9 +3,6 @@ package lang
 package transformation
 package annotations
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToUnderscoreParameterTest extends TransformerTest(new AddTypeToUnderscoreParameter()) {
 
   override protected val header: String =

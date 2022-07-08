@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.nowarn
 
-/**
- * User: Alefas
- * Date: 06.02.12
- */
 class RenameElementQuickfix(myRef: PsiElement, @Nls name: String) extends AbstractFixOnPsiElement(name, myRef) {
 
   override protected def doApplyFix(element: PsiElement)

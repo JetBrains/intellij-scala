@@ -4,10 +4,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethodBuilder
 import org.jetbrains.plugins.scala.lang.psi.light.EmptyPrivateConstructor.constructorName
 
-/**
- * User: Alefas
- * Date: 20.02.12
- */
 class EmptyPrivateConstructor(c: PsiClass) extends LightMethodBuilder(c.getManager, constructorName(c)) {
   addModifier("private")
   setContainingClass(c)

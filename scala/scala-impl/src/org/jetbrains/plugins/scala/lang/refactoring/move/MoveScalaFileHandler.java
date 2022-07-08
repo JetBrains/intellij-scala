@@ -14,10 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * User: anna
- * Date: 05-Aug-2009
- */
 package org.jetbrains.plugins.scala.lang.refactoring.move;
 
 import com.intellij.codeInsight.ChangeContextUtil;

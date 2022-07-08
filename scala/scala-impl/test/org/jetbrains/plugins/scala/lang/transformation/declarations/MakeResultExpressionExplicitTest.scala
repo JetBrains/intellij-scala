@@ -3,9 +3,6 @@ package lang
 package transformation
 package declarations
 
-/**
-  * @author Pavel Fatin
-  */
 class MakeResultExpressionExplicitTest extends TransformerTest(new MakeResultExpressionExplicit()) {
 
   def testResultExpression(): Unit = check(

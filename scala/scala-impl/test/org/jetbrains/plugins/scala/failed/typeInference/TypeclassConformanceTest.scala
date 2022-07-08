@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
-/**
-  * @author Anton Yalyshev
-  * @since 06.07.2016.
-  */
 class TypeclassConformanceTest extends TypeConformanceTestBase {
 
   override protected def shouldPass = false

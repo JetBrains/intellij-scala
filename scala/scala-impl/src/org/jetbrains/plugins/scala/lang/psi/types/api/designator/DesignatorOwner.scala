@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.ValueType
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author adkozlov
-  */
 trait DesignatorOwner extends ValueType {
   val element: PsiNamedElement
 

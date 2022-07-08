@@ -9,10 +9,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScDo, ScExpression}
 
-/**
- * @author Alefas
- * @since 23.03.12
- */
 class WhileFilter extends ElementFilter {
 
   import ScalaCompletionUtil._

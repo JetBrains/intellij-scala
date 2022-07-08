@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.util.matching.Regex
 
-/**
-  * @author Pavel Fatin
-  */
 trait Declaration {
   def entity: Entity
 

@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReturn
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 class FunctionAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = "class A; class B\n"
 

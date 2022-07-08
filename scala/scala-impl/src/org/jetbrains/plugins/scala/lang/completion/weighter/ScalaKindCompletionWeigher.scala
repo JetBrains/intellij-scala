@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
 /**
- * Created by kate
  * lift fields before methods. threat class params as field.
  * on 1/18/16
  */

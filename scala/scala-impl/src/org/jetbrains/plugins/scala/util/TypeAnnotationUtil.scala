@@ -24,9 +24,6 @@ import org.jetbrains.plugins.scala.settings.annotations._
 import javax.swing.event.HyperlinkEvent
 import scala.jdk.CollectionConverters._
 
-/**
-  * Created by kate on 7/14/16.
-  */
 // TODO more refactoring needed
 object TypeAnnotationUtil {
   // We shouldn't convert _typed pattern_ to _variable pattern_, because typed pattern differs from type annotation:

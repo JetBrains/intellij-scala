@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
 class ScalaMethodDescriptor(val fun: ScMethodLike) extends MethodDescriptor[ScalaParameterInfo, String] {
   override def getName: String = fun match {
     case ScalaConstructor.in(c) => c.name

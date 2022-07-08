@@ -11,9 +11,6 @@
 //import java.util.ArrayList;
 //import java.util.List;
 //
-///**
-// * @author ilyas, Constatntine Plotnikov
-// */
 //public class ScalaAntCustomCompilerProvider extends ChunkCustomCompilerExtension {
 //  /**
 //   * The property for scalac task SDK

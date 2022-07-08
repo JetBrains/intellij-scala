@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.util.ScalaMainMethodUtil
 
 import javax.swing.Icon
 
-/**
- * User: Dmitry.Naydanov
- * Date: 23.10.15.
- */
 class ScalaRunLineMarkerContributor extends RunLineMarkerContributor {
   override def getInfo(element: PsiElement): Info = {
     element.getContainingFile match {

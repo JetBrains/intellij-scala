@@ -10,10 +10,6 @@ import org.junit.Assert.{assertNotNull, assertTrue}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Path, Paths}
 
-/**
-  * Nikolay.Tropin
-  * 14-Aug-17
-  */
 object PsiFileTestUtil {
   def addFileToProject(fileName: String, text: String, project: Project): PsiFile =
     addFileToProject(Paths.get(fileName), text, project)

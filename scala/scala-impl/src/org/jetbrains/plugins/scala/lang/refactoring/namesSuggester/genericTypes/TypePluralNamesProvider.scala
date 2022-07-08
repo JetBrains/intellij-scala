@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.namesByType
 
-/**
-  * @author adkozlov
-  */
 class TypePluralNamesProvider extends GenericTypeNamesProvider {
 
   import TypePluralNamesProvider._

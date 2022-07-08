@@ -21,10 +21,6 @@ import org.jetbrains.plugins.scala.testingSupport.test.structureView.TestNodePro
 import java.util
 import java.util.Comparator
 
-/**
- * @author Alexander Podkhalyuzin
- * @since 04.05.2008
- */
 class ScalaStructureViewModel(myRootElement: ScalaFile, console: Option[ScalaLanguageConsole] = None)
   extends TextEditorBasedStructureViewModel(myRootElement) with StructureViewModel.ElementInfoProvider {
 

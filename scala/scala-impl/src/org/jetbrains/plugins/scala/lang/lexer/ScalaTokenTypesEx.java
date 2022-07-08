@@ -17,9 +17,6 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.psi.tree.IElementType;
 
-/**
- * @author ilyas
- */
 public interface ScalaTokenTypesEx extends ScalaTokenTypes {
 
   IElementType SCALA_PLAIN_CONTENT = new ScalaTokenType("ScalaContent");

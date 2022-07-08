@@ -5,9 +5,6 @@ import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 
 import scala.util.Try
 
-/**
-  * @author Nikolay.Tropin
-  */
 case class FromLocalArgEvaluator(delegate: Evaluator) extends Evaluator {
   override def evaluate(context: EvaluationContextImpl): AnyRef =
     evaluateNotFromField(delegate, context)

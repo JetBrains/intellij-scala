@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.extractMethod.{ScalaExtractM
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-05-15
- */
 object DuplicatesUtil {
   def isSignificant(e: PsiElement): Boolean = e match {
     case _: PsiWhiteSpace => false
