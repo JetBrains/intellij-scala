@@ -1,13 +1,17 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
 
-  def testContextFunctionResolve(): Unit = checkTextHasNoErrors(
+  private def doTest(code: String): Unit =
+    runWithErrorsFromCompiler(getProject)(checkTextHasNoErrors(code))
+
+  def testContextFunctionResolve(): Unit = doTest(
     """
       |object A {
       |  type Executable[T] = ExecutionContext ?=> T
@@ -16,7 +20,7 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAd
       |""".stripMargin
   )
 
-  def testSimple(): Unit = checkTextHasNoErrors(
+  def testSimple(): Unit = doTest(
     """
       |object A {
       |  type Executable[T] = ExecutionContext ?=> T
@@ -29,7 +33,7 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAd
       |""".stripMargin
   )
 
-  def testBuilder(): Unit = checkTextHasNoErrors(
+  def testBuilder(): Unit = doTest(
     """
       |import scala.collection.mutable.ArrayBuffer
       |
@@ -82,7 +86,7 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAd
       |""".stripMargin
   )
 
-  def testPostconditions(): Unit = checkTextHasNoErrors(
+  def testPostconditions(): Unit = doTest(
     """
       |object PostConditions:
       |  opaque type WrappedResult[T] = T

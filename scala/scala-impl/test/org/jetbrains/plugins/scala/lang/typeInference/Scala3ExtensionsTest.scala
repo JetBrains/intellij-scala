@@ -1,17 +1,11 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
-
-  override def setUp(): Unit = {
-    super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
-  }
 
   def testSimpleExtension(): Unit = checkTextHasNoErrors(
     """

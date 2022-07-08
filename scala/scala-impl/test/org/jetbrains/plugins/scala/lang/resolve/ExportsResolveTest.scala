@@ -1,5 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class ExportsResolveTest extends SimpleResolveTestBase {
@@ -7,11 +7,6 @@ class ExportsResolveTest extends SimpleResolveTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version >= LatestScalaVersions.Scala_3_0
-
-  override def setUp(): Unit = {
-    super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
-  }
 
   def testExportSimple(): Unit =
     doResolveTest(

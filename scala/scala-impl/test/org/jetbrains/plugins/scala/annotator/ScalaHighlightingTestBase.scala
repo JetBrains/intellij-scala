@@ -5,7 +5,6 @@ import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
@@ -20,11 +19,6 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
   private var filesCreated: Boolean = false
 
   protected def withHints = false
-
-  override protected def setUp(): Unit = {
-    super.setUp()
-    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
-  }
 
   def assertNoErrors(code: String): Unit =
     assertErrors(code, Nil: _*)

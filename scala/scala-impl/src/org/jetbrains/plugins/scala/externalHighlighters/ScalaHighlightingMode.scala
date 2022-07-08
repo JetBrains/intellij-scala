@@ -1,11 +1,13 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightingSettingsPerFile}
+import com.intellij.openapi.application.ApplicationManager
 //noinspection ApiStatus
 import com.intellij.ide.impl.TrustedProjects
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiFile, PsiJavaFile}
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
@@ -16,10 +18,17 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
 
-  private[externalHighlighters] def showCompilerErrorsScala2(project: Project): Boolean =
-    ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
+  @TestOnly
+  private[scala] var compilerHighlightingEnabledInTests: Boolean = false
+
+  private def isInTestMode: Boolean = ApplicationManager.getApplication.isUnitTestMode
+
+  private def showCompilerErrorsScala2(project: Project): Boolean =
+    compilerHighlightingEnabledInTests ||
+      !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
   def showCompilerErrorsScala3(project: Project): Boolean =
-    ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
+    compilerHighlightingEnabledInTests ||
+      !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
 
   def addSettingsListener(project: Project)
                          (listener: CompilerHighlightingListener): Unit =

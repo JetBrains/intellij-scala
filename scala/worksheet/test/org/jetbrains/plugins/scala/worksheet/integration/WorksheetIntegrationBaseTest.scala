@@ -4,8 +4,6 @@ import com.intellij.openapi.compiler.CompilerMessage
 import com.intellij.openapi.editor.{Editor, FoldRegion}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange}
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
@@ -92,22 +90,12 @@ abstract class WorksheetIntegrationBaseTest
     }
   }
 
-  private var revertible: RevertableChange = NoOpRevertableChange
-
   override def setUp(): Unit = {
     super.setUp()
 
     val settings = ScalaProjectSettings.getInstance(project)
     settings.setInProcessMode(self.runInCompileServerProcess)
     settings.setAutoRunDelay(300)
-
-    revertible = CompilerTestUtil.withErrorsFromCompilerDisabled(getProject)
-    revertible.applyChange()
-  }
-
-  override protected def tearDown(): Unit = {
-    revertible.revertChange()
-    super.tearDown()
   }
 
   protected def doRenderTest(before: String,
