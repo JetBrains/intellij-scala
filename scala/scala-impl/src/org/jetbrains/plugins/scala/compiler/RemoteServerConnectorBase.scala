@@ -61,7 +61,7 @@ abstract class RemoteServerConnectorBase(
     f.getCanonicalPath.stripSuffix("!").stripSuffix("!/")
 
   protected def assemblyRuntimeClasspath(): Seq[File] = {
-    val enumerator = OrderEnumerator.orderEntries(module).compileOnly()
+    val enumerator = OrderEnumerator.orderEntries(module).compileOnly().recursively()
     enumerator.getClassesRoots.map(_.toFile).toSeq
   }
 
