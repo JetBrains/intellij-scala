@@ -187,7 +187,10 @@ final class ScParameterizedType private (override val designator: ScType, overri
 object ScParameterizedType {
 
   def apply(designator: ScType, typeArgs: Seq[ScType]): ValueType = {
-
+    CompileTimeOps(designator, typeArgs) match {
+      case Some(tpe) => return tpe
+      case None =>
+    }
     def simple = new ScParameterizedType(designator, typeArgs)
     designator match {
       // Any and Nothing can take type parameter but will always produce themselves ignoring the arguments
