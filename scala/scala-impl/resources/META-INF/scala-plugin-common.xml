@@ -875,6 +875,11 @@
                          key="displayname.unused.declaration"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.modifiers.AccessModifierCanBeWeakerInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.access.can.be.weaker"
+                         groupPath="Scala" groupKey="group.general" shortName="ScalaAccessCanBeWeaker"
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.use.correct.lambda.keyword"
