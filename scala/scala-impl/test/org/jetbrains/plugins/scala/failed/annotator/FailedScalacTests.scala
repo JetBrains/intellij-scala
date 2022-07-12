@@ -1,11 +1,9 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.projectHighlighting.ScalacTestdataHighlightingTestBase_2_12
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter
-import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.reflect.NameTransformer
@@ -124,13 +122,4 @@ class MacrosFailedScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
 
   def test_t8781(): Unit = doTest()
   def test_t8934a(): Unit = doTest()
-}
-
-//these tests pass locally but sometimes fail on teamcity
-@Category(Array(classOf[FlakyTests]))
-class FlakyScalacTests_2_12 extends FailedScalacTestsBase_2_12 {
-  override def testDirName = "flaky"
-
-  def test_t7516(): Unit = doTest()
-  def `test_annotated-treecopy`(): Unit = doTest()
 }
