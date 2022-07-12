@@ -1,11 +1,9 @@
 package org.jetbrains.sbt
 package annotator
 
-import org.jetbrains.plugins.scala.FlakyTests
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.Version
 import org.junit.Assert.assertTrue
-import org.junit.experimental.categories.Category
 
 abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
 
@@ -42,14 +40,6 @@ abstract class SbtAnnotatorConformanceTestBase extends SbtAnnotatorTestBase {
   }
 }
 
-/**
- * TODO: looks like org.jetbrains.plugins.scala.DependencyManagerBase works incorrectly:
- *  transitive dependencies for sbt from [[MockSbtBase.librariesLoaders]] are not downloaded
- *  It can be one of the reason why wo many sbt tests are flaky.
- *  Once the above issue is fixed unmark these tests as `FlakyTests`
- */
-
-@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase with MockSbt_0_12 {
   override implicit val sbtVersion: Version = Version("0.12.4")
 
@@ -58,7 +48,6 @@ class SbtAnnotatorConformanceTest_0_12_4 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("Seq[Project.Setting[_]]")
 }
 
-@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.1")
 
@@ -67,7 +56,6 @@ class SbtAnnotatorConformanceTest_0_13_1 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("Seq[Def.SettingsDefinition]")
 }
 
-@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase with MockSbt_0_13 {
   override implicit val sbtVersion: Version = Version("0.13.7")
 
@@ -76,7 +64,6 @@ class SbtAnnotatorConformanceTest_0_13_7 extends SbtAnnotatorConformanceTestBase
   def testSeqSettings(): Unit = testSeqSettings("sbt.internals.DslEntry")
 }
 
-@Category(Array(classOf[FlakyTests]))
 class SbtAnnotatorConformanceTest_latest extends SbtAnnotatorConformanceTestBase with MockSbt_1_0 {
   override implicit val sbtVersion: Version = Sbt.LatestVersion
 
