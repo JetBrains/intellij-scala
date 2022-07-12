@@ -1,14 +1,12 @@
 package org.jetbrains.plugins.scala.worksheet.integration.plain
 
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.{FlakyTests, WorksheetEvaluationTests}
-import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertStringMatches
 import org.jetbrains.plugins.scala.util.runners._
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
-import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.{Folding, ViewerEditorData}
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExceptionsTests.Folded
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBaseTest, WorksheetRunTestSettings, WorksheetRuntimeExceptionsTests}
@@ -16,14 +14,10 @@ import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.Workshe
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.jetbrains.plugins.scala.worksheet.settings.persistent.WorksheetFilePersistentSettings
-import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterPlain.{FoldingDataForTests, ViewerEditorState}
-import org.jetbrains.plugins.scala.worksheet.ui.printers.{WorksheetEditorPrinterFactory, WorksheetEditorPrinterPlain}
-import org.junit.Assert._
-import org.junit.ComparisonFailure
+import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterFactory
 import org.junit.experimental.categories.Category
 
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
-import scala.language.postfixOps
+import scala.concurrent.duration.DurationInt
 
 //noinspection RedundantBlock
 @Category(Array(classOf[WorksheetEvaluationTests]))
@@ -382,7 +376,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     // TODO: this is not the best way of testing, cause it relies on lucky threading conditions,
     //  but current architecture doesn't allow us do it some other way, think how this can be improved
     val stamp = viewer.getDocument.getModificationStamp
-    MyUiUtils.waitConditioned(5 seconds) { () =>
+    MyUiUtils.waitConditioned(5.seconds) { () =>
       viewer.getDocument.getModificationStamp != stamp
     }
 
@@ -405,7 +399,7 @@ abstract class WorksheetPlainIntegrationBaseTest extends WorksheetIntegrationBas
     robot.moveToEnd()
     robot.typeString("\n2 + unknownRef + 4\n")
 
-    MyUiUtils.wait(5 seconds)
+    MyUiUtils.wait(5.seconds)
 
     assertViewerEditorText(editor,
       """res0: Int = 42""".stripMargin
