@@ -592,7 +592,8 @@ addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
 addCommandAlias("runTypeInferenceTests", testOnlyCategories(typecheckerTests))
 addCommandAlias("runTestingSupportTests", testOnlyCategories(testingSupportTests))
 addCommandAlias("runWorksheetEvaluationTests", testOnlyCategories(worksheetEvaluationTests))
-addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests, highlightingTests))
+addCommandAlias("runHighlightingTests", testOnlyCategories(highlightingTests))
+addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
