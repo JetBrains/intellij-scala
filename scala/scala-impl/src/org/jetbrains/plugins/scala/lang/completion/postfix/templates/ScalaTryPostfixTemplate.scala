@@ -16,7 +16,8 @@ final class ScalaTryPostfixTemplate extends SurroundPostfixTemplateBase(
   "try",
   "try { exp } catch {}",
   ScalaPostfixTemplatePsiInfo,
-  SelectTopmostAncestors(ScalaWithTryCatchSurrounder)
+  SelectTopmostAncestors(ScalaWithTryCatchSurrounder),
+  null
 ) {
   override def getSurrounder: ScalaWithTryCatchSurrounder.type = ScalaWithTryCatchSurrounder
 }

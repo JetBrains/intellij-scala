@@ -9,7 +9,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ModuleTransformer, ProjectModule}
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AsyncModuleTransformer, ProjectModule}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
@@ -17,10 +17,11 @@ import org.jetbrains.sbt.language.utils.{SbtDependencyCommon, SbtDependencyUtils
 
 import java.io.File
 import java.util
-import java.util.Collections.emptyList
+import java.util.concurrent.CompletableFuture
+import scala.collection.mutable.ListBuffer
 import scala.jdk.CollectionConverters._
 
-class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
+class SbtModuleTransformer(private val project: Project) extends AsyncModuleTransformer {
   private val logger = Logger.getInstance(this.getClass)
 
   def findModulePaths(module: Module): Array[File] = {
@@ -57,7 +58,6 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
   }
 
   private def obtainProjectModulesFor(module: Module, dumbMode: Boolean): Option[ProjectModule] = try {
-
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
@@ -66,6 +66,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             module,
             null,
             buildFile,
+            buildFile.getParent,
             PackageSearchSbtBundle.buildSystemType,
             SbtProjectModuleType
         )
@@ -85,16 +86,21 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
       None
   }
 
-  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): util.List[ProjectModule] = {
+  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): CompletableFuture[util.List[ProjectModule]] = {
     val dumbMode = DumbService.isDumb(project)
 
-    nativeModules.asScala
-      .filter { m =>
-        SbtUtil.isSbtModule(m) &&
-          SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+    val futuresBuffer = ListBuffer.empty[CompletableFuture[Option[ProjectModule]]]
+    nativeModules.forEach { m =>
+      val acceptable = SbtUtil.isSbtModule(m) &&
+        SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+
+      if (acceptable) {
+        futuresBuffer += CompletableFuture.supplyAsync(() => obtainProjectModulesFor(m, dumbMode))
       }
-      .flatMap(m => obtainProjectModulesFor(m, dumbMode))
-      .distinct
-      .asJava
+    }
+
+    val futures = futuresBuffer.result()
+    CompletableFuture.allOf(futures: _*)
+      .thenApply[util.List[ProjectModule]](_ => futures.flatMap(_.join()).distinct.asJava)
   }
 }

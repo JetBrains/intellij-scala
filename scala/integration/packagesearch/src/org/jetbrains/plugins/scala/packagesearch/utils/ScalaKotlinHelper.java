@@ -15,6 +15,7 @@ public class ScalaKotlinHelper {
                 projectModule.getNativeModule(),
                 projectModule.getParent(),
                 projectModule.getBuildFile(),
+                projectModule.getProjectDir(),
                 projectModule.getBuildSystemType(),
                 projectModule.getModuleType(),
                 emptyList()
