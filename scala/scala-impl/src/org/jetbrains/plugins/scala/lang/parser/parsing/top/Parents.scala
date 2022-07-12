@@ -11,7 +11,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 import scala.annotation.tailrec
 
-sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = true) extends ParsingRule {
+sealed abstract class Parents(
+  val allowCommaSeparatedParentsInScala3: Boolean = true,
+  val allowEmptyParents:                  Boolean = false
+) extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
@@ -37,7 +40,7 @@ sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = 
   private def parseParent()(implicit builder: ScalaPsiBuilder): Boolean = {
     val result = Constructor()
 
-    if (!result) {
+    if (!result && !allowEmptyParents) {
       builder.error(ScalaBundle.message("identifier.expected"))
     }
 
@@ -50,6 +53,5 @@ sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = 
   }
 }
 
-
-object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false)
+object NewTemplateDefParents extends Parents(allowCommaSeparatedParentsInScala3 = false, allowEmptyParents = true)
 object TypeDefinitionParents extends Parents
