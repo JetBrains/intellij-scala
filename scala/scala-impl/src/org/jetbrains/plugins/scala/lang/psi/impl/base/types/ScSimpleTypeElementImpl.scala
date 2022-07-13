@@ -390,7 +390,7 @@ object ScSimpleTypeElementImpl {
         val typeFromMacro = macroEvaluator.checkMacro(f, MacroContext(ref, None))
         return typeFromMacro.map(Right(_)).getOrElse(Failure(ScalaBundle.message("unknown.macro.in.type.position")))
       case Some(r@ScalaResolveResult(n: PsiNamedElement, _)) => (n, r.fromType)
-      case _ => return Failure(ScalaBundle.message("cannot.resolve.ref"))
+      case _ => return Failure(ScalaBundle.message("cannot.resolve.ref", ref.refName))
     }
 
     def makeProjection(`type`: ScType) = ScProjectionType(`type`, resolvedElement)
