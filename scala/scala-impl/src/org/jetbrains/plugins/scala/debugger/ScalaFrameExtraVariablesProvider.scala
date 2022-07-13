@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.debugger
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation.{EvaluationContext, TextWithImports, TextWithImportsImpl}
 import com.intellij.debugger.engine.{DebuggerUtils, FrameExtraVariablesProvider}
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.impl.search.PsiSearchHelperImpl
 import com.intellij.psi.search.{LocalSearchScope, TextOccurenceProcessor, UsageSearchContext}
 import com.intellij.psi.util.PsiTreeUtil
@@ -113,7 +114,11 @@ class ScalaFrameExtraVariablesProvider extends FrameExtraVariablesProvider {
           val location = evaluationContext.getFrameProxy.location()
           val sourcePosition = ScalaPositionManager.instance(evaluationContext.getDebugProcess).map(_.getSourcePosition(location))
           if (sourcePosition.isEmpty) throw EvaluationException(ScalaBundle.message("debug.process.is.detached"))
-          ScalaEvaluatorBuilder.build(codeFragment, sourcePosition.get) match {
+          val builder =
+            if (Registry.is("scala.debugger.modern.evaluator.enabled")) evaluation.modern.EvaluatorBuilder
+            else ScalaEvaluatorBuilder
+
+          builder.build(codeFragment, sourcePosition.get) match {
             case _: ScalaCompilingExpressionEvaluator => throw new RuntimeException("Don't use compiling evaluator here")
             case e => e
           }
