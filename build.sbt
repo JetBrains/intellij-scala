@@ -14,12 +14,11 @@ import java.nio.file.Paths
 
 (ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
-(ThisBuild / resolvers) ++= Seq(
-   Resolver.sonatypeRepo("releases"),
-   Resolver.sonatypeRepo("staging"),
-   Resolver.sonatypeRepo("snapshots"),
-   "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
- )
+(ThisBuild / resolvers) ++=
+  Resolver.sonatypeOssRepos("releases") ++
+    Resolver.sonatypeOssRepos("staging") ++
+    Resolver.sonatypeOssRepos("snapshots") :+
+    ("scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/")
 
 (Global / javacOptions) := globalJavacOptions
 
