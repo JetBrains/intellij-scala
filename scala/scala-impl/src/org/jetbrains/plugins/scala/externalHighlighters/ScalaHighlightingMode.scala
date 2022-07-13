@@ -26,6 +26,7 @@ object ScalaHighlightingMode {
   private def showCompilerErrorsScala2(project: Project): Boolean =
     compilerHighlightingEnabledInTests ||
       !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
+
   def showCompilerErrorsScala3(project: Project): Boolean =
     compilerHighlightingEnabledInTests ||
       !isInTestMode && ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
@@ -82,14 +83,14 @@ object ScalaHighlightingMode {
     showCompilerErrorsScala3(javaFile.getProject) && javaFile.isInScala3Module
 
   private def nonNegativeDuration(key: String): FiniteDuration =
-    Seq(Registry.get(key).asInteger, 0).max.millis
+    math.max(Registry.intValue(key), 0).millis
 
   def compilationDelay: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.delay.millis")
-  
+
   def compilationTimeoutToShowProgress: FiniteDuration =
     nonNegativeDuration("scala.highlighting.compilation.timeout.to.show.progress.millis")
 
   def documentCompilerEnabled: Boolean =
-    Registry.get("scala.highlighting.compilation.document.compiler.enabled").asBoolean()
+    Registry.is("scala.highlighting.compilation.document.compiler.enabled")
 }
