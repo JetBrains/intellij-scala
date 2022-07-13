@@ -183,7 +183,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
     val indicator = new DeferredShowProgressIndicator(task)
     ProgressManager.getInstance.runProcessWithProgressAsynchronously(task, indicator)
     val Duration(length, unit) =
-      if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else Duration.Zero
+      if (delayIndicator) ScalaHighlightingMode.compilationTimeoutToShowProgress else 1.second
     val runnable: Runnable = () => indicator.show()
     indicatorExecutor.schedule(runnable, length, unit)
 
