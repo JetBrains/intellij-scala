@@ -1,0 +1,7 @@
+trait MyTrait {
+  def foo(): Unit
+}
+
+class MyClass extends MyTrait {
+  override def foo(): Unit = ???
+}

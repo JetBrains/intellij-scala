@@ -36,7 +36,7 @@ abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsight
 
     implicit val editor: Editor = getEditor
     ScalaApplicationSettings.getInstance.COPY_SCALADOC = copyScalaDoc
-    invokeOverrideImplement(getFile, isImplement, methodName)
+    invokeOverrideImplement(getFile, isImplement, Some(methodName))
 
     rollbackSettings(oldSettings)
     myFixture.checkResult(convertLineSeparators(expectedText))

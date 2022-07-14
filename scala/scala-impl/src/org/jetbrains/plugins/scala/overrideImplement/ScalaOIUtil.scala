@@ -58,47 +58,48 @@ object ScalaOIUtil {
     }
   }
 
-  def invokeOverrideImplement(file: PsiFile, isImplement: Boolean,
-                              methodName: String = null)
-                             (implicit project: Project, editor: Editor): Unit = {
+  def invokeOverrideImplement(file: PsiFile, isImplement: Boolean)
+                             (implicit project: Project, editor: Editor): Unit =
+    invokeOverrideImplement(file, isImplement, None)
 
-    Stats.trigger(FeatureKey.overrideImplement)
-
-    val clazz = file.findElementAt(editor.getCaretModel.getOffset - 1)
+  def invokeOverrideImplement(file: PsiFile, isImplement: Boolean, methodName: Option[String])
+                             (implicit project: Project, editor: Editor): Unit =
+    file.findElementAt(editor.getCaretModel.getOffset - 1)
       .parentOfType(classOf[ScTemplateDefinition], strict = false)
       .map {
         case enumCase: ScEnumCase => enumCase.enumParent
         case td => td
       }
-      .getOrElse(return)
+      .foreach(invokeOverrideImplement(_, isImplement, methodName))
 
+  def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean)
+                             (implicit project: Project, editor: Editor): Unit =
+    invokeOverrideImplement(clazz, isImplement, None)
+
+  def invokeOverrideImplement(clazz: ScTemplateDefinition, isImplement: Boolean, methodName: Option[String])
+                             (implicit project: Project, editor: Editor): Unit = {
+    Stats.trigger(FeatureKey.overrideImplement)
     val classMembers =
       if (isImplement) getMembersToImplement(clazz, withSelfType = true)
       else getMembersToOverride(clazz)
-    if (classMembers.isEmpty) return
 
-    val selectedMembers =
-      if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val chooser = new ScalaMemberChooser[ClassMember](classMembers.to(ArraySeq), false, true, isImplement, true, true, clazz)
-        chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
-        if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
-        chooser.show()
-
-        val elements = chooser.getSelectedElements
-        if (elements == null || elements.isEmpty) {
-          return
-        }
-        elements.asScala.to(ArraySeq)
-      } else {
-        classMembers.find {
-          case named: ScalaNamedMember if named.name == methodName => true
-          case _ => false
-        }.to(ArraySeq)
+    if (classMembers.nonEmpty) {
+      val selectedMembers = methodName match {
+        case None =>
+          val chooser = new ScalaMemberChooser[ClassMember](classMembers.to(ArraySeq), false, true, isImplement, true, true, clazz)
+          chooser.setTitle(if (isImplement) ScalaBundle.message("select.method.implement") else ScalaBundle.message("select.method.override"))
+          if (isImplement) chooser.selectElements(classMembers.toArray[JClassMember])
+          chooser.show()
+          Option(chooser.getSelectedElements).map(_.asScala.toSeq).getOrElse(Seq.empty)
+        case Some(name) =>
+          classMembers.find {
+            case named: ScalaNamedMember if named.name == name => true
+            case _ => false
+          }.toSeq
       }
-
-    runAction(selectedMembers, isImplement, clazz)
+      if (selectedMembers.nonEmpty) runAction(selectedMembers, isImplement, clazz)
+    }
   }
-
 
   def runAction(selectedMembers: Seq[ClassMember],
                 isImplement: Boolean,
