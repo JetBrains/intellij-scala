@@ -47,17 +47,11 @@ final class ScAbstractType(val typeParameter: TypeParameter) extends ScalaType w
   }
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitAbstractType(this)
-
-  //for allocation-free extractor
-  def isEmpty: Boolean = false
-  def get: ScAbstractType = this
-  def _1: TypeParameter = typeParameter
-  def _2: ScType = lower
-  def _3: ScType = upper
 }
 
 object ScAbstractType {
-  def unapply(arg: ScAbstractType): ScAbstractType = arg
+  def unapply(arg: ScAbstractType): Option[(TypeParameter, ScType, ScType)] =
+    Some(arg.typeParameter, arg.lower, arg.upper)
 
   def apply(tp: TypeParameter, lower: ScType, upper: ScType): ScAbstractType = {
     val abstractTp = TypeParameter(tp.psiTypeParameter, tp.typeParameters, lower, upper)

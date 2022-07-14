@@ -45,12 +45,6 @@ trait ParameterizedType extends ValueType {
         LightContextFunctionParameter(projectContext.project, s"ev$$$idx", tpe))
     case _ => Seq.empty
   }
-
-  //for name-based extractor
-  final def isEmpty: Boolean = false
-  final def get: ParameterizedType = this
-  final def _1: ScType = designator
-  final def _2: Seq[ScType] = typeArguments
 }
 
 object ParameterizedType {
@@ -60,6 +54,6 @@ object ParameterizedType {
   def apply(designator: ScType, typeArguments: Seq[ScType]): ValueType =
     designator.typeSystem.parameterizedType(designator, typeArguments)
 
-  //designator and type arguments
-  def unapply(p: ParameterizedType): ParameterizedType = p
+  def unapply(p: ParameterizedType): Option[(ScType, Seq[ScType])] =
+    Some((p.designator, p.typeArguments))
 }
