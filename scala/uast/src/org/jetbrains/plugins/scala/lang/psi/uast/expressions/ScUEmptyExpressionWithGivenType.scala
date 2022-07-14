@@ -19,7 +19,7 @@ final class ScUEmptyExpressionWithGivenType(
     with ScUAnnotated {
 
   def this(scExpression: ScExpression, parentProvider: LazyUElement) =
-    this(scExpression.`type`().map(_.toPsiType).getOrElse(null), parentProvider)
+    this(scExpression.`type`().mapToOption(_.toPsiType).getOrElse(null), parentProvider)
 
   override def asRenderString: String = asLogString()
   override def asLogString: String =

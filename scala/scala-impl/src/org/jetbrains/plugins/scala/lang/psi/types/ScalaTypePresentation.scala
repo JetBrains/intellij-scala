@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotatio
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.annotation.tailrec
@@ -351,6 +352,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
         val caseTexts = cases.map(cs => "case " + cs._1 + " => " + cs._2)
         val parenthesesRequired = scrutinee.is[ScMatchType] || FunctionType.isFunctionType(scrutinee)
         (if (parenthesesRequired) scrutineeText.parenthesize() else scrutineeText)  + " match " + caseTexts.mkString("{ ", "; ", " }")
+      case Failure(cause) => s"Failure($cause)"
       case _ => "" //todo
     }
 

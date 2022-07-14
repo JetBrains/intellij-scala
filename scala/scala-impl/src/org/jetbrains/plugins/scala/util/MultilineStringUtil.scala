@@ -69,7 +69,7 @@ object MultilineStringUtil {
   def needAddByType(literal: ScLiteral): Boolean = literal match {
     case ScInterpolatedStringLiteral(ResolvesTo(funDef: ScFunction)) =>
       funDef.returnType
-        .map(_.canonicalText)
+        .mapToOption(_.canonicalText)
         .exists { cannonicalText =>
           cannonicalText.endsWith("java.lang.String") ||
             cannonicalText.endsWith("scala.Predef.String")

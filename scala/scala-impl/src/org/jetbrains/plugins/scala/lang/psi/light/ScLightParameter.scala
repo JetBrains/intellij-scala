@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScLightParameter(name: String, tpe: () => PsiType, scope: PsiElement, isVarargs: Boolean = false)
   extends LightParameter(name, NullPsiType, scope, scope.getLanguage, isVarargs) {

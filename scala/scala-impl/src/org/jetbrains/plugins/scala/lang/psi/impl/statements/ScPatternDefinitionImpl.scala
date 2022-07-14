@@ -53,11 +53,11 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
       expr.toRight {
         new Failure(ScalaBundle.nls("cannot.infer.type.without.an.expression"))
       }.flatMap {
-        _.`type`()
+        _.`type`().toEither
       }.map {
         case literalType: ScLiteralType if this.hasFinalModifier => literalType
         case t => ScLiteralType.widenRecursive(t)
-      }
+      }.fold(identity, identity)
   }
 
   override def expr: Option[ScExpression] = byPsiOrStub(findChild[ScExpression])(_.bodyExpression)

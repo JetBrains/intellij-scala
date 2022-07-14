@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge.RawTypePara
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.NonValueType
-import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable

@@ -53,18 +53,18 @@ trait ScUMethodCallCommon
 
   @Nullable
   override def getReceiverType: PsiType =
-    getReferencedExpr.flatMap(_.`type`().map(_.toPsiType).toOption).orNull
+    getReferencedExpr.flatMap(_.`type`().mapToOption(_.toPsiType)).orNull
 
   @Nullable
   override def getReturnType: PsiType =
-    scExpression.`type`().map(_.toPsiType).getOrElse(null)
+    scExpression.`type`().mapToOption(_.toPsiType).getOrElse(null)
 
   override def getTypeArgumentCount: Int =
     getTypeArgs.map(_.getArgsCount).getOrElse(0)
 
   override def getTypeArguments: ju.List[PsiType] =
     getTypeArgs
-      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
+      .map(_.typeArgs.flatMap(_.`type`().mapToOption(_.toPsiType)))
       .getOrElse(Seq.empty)
       .asJava
 

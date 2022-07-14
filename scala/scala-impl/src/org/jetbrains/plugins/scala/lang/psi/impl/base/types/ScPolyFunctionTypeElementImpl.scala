@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScPolyFunctionTypeEl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
-import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScPolyFunctionTypeElementImpl(node: ASTNode)
   extends ScalaPsiElementImpl(node)

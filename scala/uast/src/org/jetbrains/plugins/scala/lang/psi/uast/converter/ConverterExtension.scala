@@ -45,7 +45,7 @@ trait ConverterExtension { converter: UastFabrics =>
   //region Extensions for PSI elements
   implicit class UTypeable(private val scElement: Typeable) {
     def uastType(): PsiType =
-      scElement.`type`().map(_.toPsiType).getOrElse(createUErrorType())
+      scElement.`type`().mapToOption(_.toPsiType).getOrElse(createUErrorType())
   }
 
   implicit class UConvertible(private val psiElement: PsiElement) {

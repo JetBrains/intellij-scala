@@ -62,7 +62,7 @@ final class ScUConstructorCallExpression(
         case _                  => None
       }
       .getOrElse(
-        scElement.typeElement.`type`().map(_.toPsiType).getOrElse(null)
+        scElement.typeElement.`type`().mapToOption(_.toPsiType).getOrElse(null)
       )
 
   override def getTypeArgumentCount: Int =
@@ -70,7 +70,7 @@ final class ScUConstructorCallExpression(
 
   override def getTypeArguments: util.List[PsiType] =
     scElement.typeArgList
-      .map(_.typeArgs.flatMap(_.`type`().map(_.toPsiType).toOption))
+      .map(_.typeArgs.flatMap(_.`type`().mapToOption(_.toPsiType)))
       .getOrElse(Seq.empty)
       .asJava
 

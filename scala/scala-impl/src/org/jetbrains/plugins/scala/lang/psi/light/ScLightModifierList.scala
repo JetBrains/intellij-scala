@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightModifierList._
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.annotation.tailrec
 

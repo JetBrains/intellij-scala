@@ -62,7 +62,7 @@ sealed abstract class ClassPatternComponents(`class`: PsiClass,
         case parent => throw new IllegalArgumentException(s"Simple type expected, actual `${parent.getClass}`: ${parent.getText}")
       }
     }.flatMap {
-      _.`type`()
+      _.`type`().toEither
     }.flatMap {
       suggestNamesByType(_)
         .headOption

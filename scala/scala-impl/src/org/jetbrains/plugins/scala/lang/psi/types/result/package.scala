@@ -3,15 +3,28 @@ package psi
 package types
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 package object result {
+  // TODO Use ScType directly. Don't use Left and Right (used to minimize the amount of changes).
 
-  import scala.util.{Either, Left, Right}
+  type TypeResult = ScType
 
-  type TypeResult = Either[Failure, ScType]
+  type Left[_ <: Failure, R <: ScType] = R
+
+  object Left {
+    def unapply(f: Failure): Option[Failure] = Some(f)
+  }
+
+  object Right {
+    def apply(t: ScType): TypeResult = t
+
+    def unapply(t: ScType): Option[ScType] = t match {
+      case _: Failure => None
+      case t => Some(t)
+    }
+  }
 
   implicit class OptionTypeExt(private val maybeRight: Option[ScType]) extends AnyVal {
 
@@ -22,18 +35,7 @@ package object result {
   }
 
   implicit class TypeResultExt(private val result: TypeResult) extends AnyVal {
-
-    def get: ScType = getOrApiType(null)
-
-    def getOrAny: ScType = getOrApiType(_.Any)
-
-    def getOrNothing: ScType = getOrApiType(_.Nothing)
-
-    private def getOrApiType(apiType: StdTypes => ScType): ScType = result match {
-      case Right(value) => value
-      case Left(failure) if apiType != null => apiType(failure.context.stdTypes)
-      case _ => throw new NoSuchElementException("Failure.get")
-    }
+    // TODO Add the remaining "extension" methods from ScType.
   }
 
   implicit class TypeableExt(private val typeable: ScalaPsiElement with Typeable) extends AnyVal {

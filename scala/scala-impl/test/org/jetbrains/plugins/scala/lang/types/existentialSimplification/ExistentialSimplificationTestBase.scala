@@ -15,9 +15,9 @@ abstract class ExistentialSimplificationTestBase extends ScPsiElementAssertionTe
   override def computeRepresentation(expr: ScExpression): Either[String, String] = {
     implicit val tpc: TypePresentationContext = TypePresentationContext(expr)
     expr.`type`() match {
-      case Right(ttypez: ScExistentialType) => Right(ttypez.simplify().presentableText)
-      case Right(tp)                        => Right(tp.presentableText)
-      case Failure(msg)                     => Left(msg)
+      case Right(ttypez: ScExistentialType) => scala.Right(ttypez.simplify().presentableText)
+      case Right(tp)                        => scala.Right(tp.presentableText)
+      case Failure(msg)                     => scala.Left(msg)
     }
   }
 }

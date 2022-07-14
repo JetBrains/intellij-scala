@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardPattern], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.SEQ_WILDCARD_PATTERN, node) with ScPatternImpl with ScSeqWildcardPattern {

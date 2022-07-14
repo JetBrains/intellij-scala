@@ -60,7 +60,7 @@ trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
           case SimplifiedPattern(expectedText) =>
             assertEqualsFailable(expectedText, TypePresentation.withoutAliases(ttypez))
           case JavaTypePattern(expectedText) =>
-            assertEqualsFailable(expectedText, expr.`type`().map(_.toPsiType.getPresentableText()).getOrElse("<none>"))
+            assertEqualsFailable(expectedText, expr.`type`().mapToOption(_.toPsiType.getPresentableText()).getOrElse("<none>"))
           case _ => assertEqualsFailable(output, res)
         }
       case Failure(msg) if shouldPass => fail(msg)

@@ -25,5 +25,5 @@ trait ScUExpression extends ScUElement with UExpression {
 
   @Nullable
   override def getExpressionType: PsiType =
-    scExpression.`type`().map(_.toPsiType).getOrElse(null)
+    scExpression.`type`().mapToOption(_.toPsiType).getOrElse(null)
 }

@@ -428,7 +428,7 @@ package object extensions {
   implicit class BooleanExt(private val b: Boolean) extends AnyVal {
     def option[A](a: => A): Option[A] = if (b) Option(a) else None
 
-    def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) Right(right) else Left(left)
+    def either[A, B](right: => B)(left: => A): Either[A, B] = if (b) scala.Right(right) else scala.Left(left)
 
     def seq[A](a: => A): Seq[A] = if (b) Seq(a) else Seq.empty
 

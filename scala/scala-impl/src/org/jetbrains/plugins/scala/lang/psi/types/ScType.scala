@@ -4,10 +4,91 @@ package psi
 package types
 
 import com.intellij.openapi.progress.ProgressManager
+import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
+import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, Left, Right, TypeResult}
 
 import scala.language.implicitConversions
 
 trait ScType extends project.ProjectContextOwner {
+
+  // TODO Defined in ScType to minimize the amount of imports. The hypothesis is that we can probably remove most of these methods.
+
+  def isLeft: Boolean = this.is[Failure]
+
+  def isRight: Boolean = !this.is[Failure]
+
+  def getRight: this.type = this match {
+    case f: Failure => throw new NoSuchElementException(f.cause)
+    case _ => this
+  }
+
+  def getOrElse[B >: this.type](default: => B): B = this match {
+    case _: Failure => default
+    case _ => this
+  }
+
+  def toOption: Option[this.type] = this match {
+    case _: Failure => None
+    case _ => Some(this)
+  }
+
+  def toEither: scala.Either[Failure, this.type] = this match {
+    case f: Failure => scala.Left(f)
+    case _ => scala.Right(this)
+  }
+
+  def toSeq: Seq[this.type] = this match {
+    case _: Failure => Seq.empty
+    case _ => Seq(this)
+  }
+
+  def foreach(f: this.type => Unit): Unit = this match {
+    case _: Failure =>
+    case _ => f(this)
+  }
+
+  def map[B <: ScType](f: this.type => B): TypeResult = this match {
+    case f: Failure => f
+    case _ => f(this).ensuring(_.isRight)
+  }
+
+  def mapToOption[B](f: this.type => B): Option[B] = this match {
+    case _: Failure => None
+    case _ => Some(f(this))
+  }
+
+  def flatMap(f: this.type => TypeResult): TypeResult = this match {
+    case f: Failure => f
+    case _ => f(this)
+  }
+
+  def leftFlatMap(f: Failure => TypeResult): TypeResult = this match {
+    case t: Failure => f(t)
+    case _ => Failure("")
+  }
+
+  def exists(p: this.type => Boolean): Boolean = this match {
+    case _: Failure => false
+    case _ => p(this)
+  }
+
+  def fold[B](f1: Failure => B, f2: this.type => B): B = this match {
+    case f: Failure => f1(f)
+    case _ => f2(this)
+  }
+
+  def get: ScType = getOrApiType(null)
+
+  def getOrAny: ScType = getOrApiType(_.Any)
+
+  def getOrNothing: ScType = getOrApiType(_.Nothing)
+
+  private def getOrApiType(apiType: StdTypes => ScType): ScType = this match {
+    case Right(value) => value
+    case Left(failure) if apiType != null => apiType(failure.context.stdTypes)
+    case _ => throw new NoSuchElementException("Failure.get")
+  }
 
   def typeSystem: api.TypeSystem = projectContext.typeSystem
 

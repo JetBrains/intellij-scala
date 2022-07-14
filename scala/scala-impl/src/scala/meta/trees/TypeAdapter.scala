@@ -93,14 +93,6 @@ trait TypeAdapter {
     }
   }
 
-  def toType(tr: TypeResult): m.Type = {
-    import org.jetbrains.plugins.scala.lang.psi.types.result._
-    tr match {
-      case Right(res) => toType(res)
-      case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause.nls)
-    }
-  }
-
   def toType(elem: PsiElement): m.Type = {
     ProgressManager.checkCanceled()
     psiElementTypeChache.getOrElseUpdate(elem, {
@@ -157,6 +149,10 @@ trait TypeAdapter {
   }
 
   def toType(tp: ptype.ScType): m.Type = {
+    tp match {
+      case Failure(cause) => throw new ScalaMetaTypeResultFailure(cause.nls)
+      case _ =>
+    }
     ProgressManager.checkCanceled()
     typeCache.getOrElseUpdate(tp, {
       tp match {

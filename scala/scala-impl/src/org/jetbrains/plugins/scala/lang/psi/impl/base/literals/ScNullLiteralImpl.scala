@@ -8,6 +8,7 @@ package literals
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, literals}
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 
 final class ScNullLiteralImpl(node: ASTNode,

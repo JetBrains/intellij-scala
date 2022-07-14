@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package annotator
 
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.Version
 import org.junit.Assert.assertTrue
 

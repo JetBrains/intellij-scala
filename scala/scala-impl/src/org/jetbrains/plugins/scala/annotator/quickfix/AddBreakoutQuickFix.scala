@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScInf
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 /**
  * @author Nikolay.Tropin

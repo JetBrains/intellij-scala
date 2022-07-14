@@ -107,12 +107,12 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
 
         def calcParams(tp: ScType, undefine: Boolean): Either[Seq[Parameter], ScType] = {
           tp match {
-            case ScMethodType(_, params, _) => Left(params)
+            case ScMethodType(_, params, _) => scala.Left(params)
             case ScTypePolymorphicType(ScMethodType(_, params, _), typeParams) =>
-              if (!undefine) Left(params)
+              if (!undefine) scala.Left(params)
               else {
                 val s = ScSubstitutor.bind(typeParams)(UndefinedType(_))
-                Left(params.map(p => p.copy(paramType = s(p.paramType))))
+                scala.Left(params.map(p => p.copy(paramType = s(p.paramType))))
               }
             case ScTypePolymorphicType(internal, typeParams) =>
               val existentialSubst = new ExistentialAbstractionBuilder(typeParams).substitutor
@@ -131,13 +131,13 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
                 case _ => ()
               }
 
-              Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result())))
-            case _ => Right(tp)
+              scala.Right(ScExistentialType(substedInternal, Option(argumentsBuilder.result())))
+            case _ => scala.Right(tp)
           }
         }
 
         val conformance = (calcParams(t1, undefine = false), calcParams(t2, undefine = true)) match {
-            case (Left(p1), Left(p2)) =>
+            case (scala.Left(p1), scala.Left(p2)) =>
               var (params1, params2) = (p1, p2)
               if ((t1.isInstanceOf[ScTypePolymorphicType] && t2.isInstanceOf[ScTypePolymorphicType] ||
                       (!(m1.isInstanceOf[ScFunction] || m1.isInstanceOf[ScFun] || m1.isInstanceOf[ScPrimaryConstructor]) ||
@@ -168,11 +168,11 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
               val exprs =
                 params1.map(p => Expression(p.paramType, elem)) ++ Seq.fill(i)(default)
               Compatibility.checkConformance(params2, exprs, checkImplicits)
-            case (Right(type1), Right(type2)) =>
+            case (scala.Right(type1), scala.Right(type2)) =>
               type1.conforms(type2, ConstraintSystem.empty) //todo: with implcits?
             //todo this is possible, when one variant is empty with implicit parameters, and second without parameters.
             //in this case it's logical that method without parameters must win...
-            case (Left(_), Right(_)) if !r1.implicitCase => return false
+            case (scala.Left(_), scala.Right(_)) if !r1.implicitCase => return false
             case _ => return true
           }
 

@@ -96,13 +96,13 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   }
 
   protected override def innerType: TypeResult =
-    polymorphicLambdaType.left.flatMap { _ =>
+    polymorphicLambdaType.leftFlatMap { _ =>
       val typeResult = referencedExpr.getNonValueType()
       convertReferencedType(typeResult, isShape = false)
     }
 
   override def shapeType: TypeResult =
-    polymorphicLambdaType.left.flatMap { _ =>
+    polymorphicLambdaType.leftFlatMap { _ =>
       val typeResult: TypeResult = referencedExpr match {
         case ref: ScReferenceExpression => ref.shapeType
         case expr => expr.getNonValueType()

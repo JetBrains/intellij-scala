@@ -42,7 +42,7 @@ trait ScUCommonReferenceExpression
 
   @Nullable
   override def getExpressionType: PsiType =
-    typeProvider.flatMap(_.`type`().map(_.toPsiType).toOption).orNull
+    typeProvider.flatMap(_.`type`().mapToOption(_.toPsiType)).orNull
 
   override protected def scReference: Option[ScReference] = Some(scElement)
 
@@ -151,7 +151,7 @@ final class ScUTypeReferenceExpression(
   @Nullable
   override def getQualifiedName: String =
     typeProvider
-      .flatMap(_.`type`().map(_.canonicalText).toOption)
+      .flatMap(_.`type`().mapToOption(_.canonicalText))
       .orNull
 }
 

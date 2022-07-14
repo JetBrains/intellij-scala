@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.types.kindProjector
 
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
+import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.types.utils.ScPsiElementAssertionTestBase
 
 class PolymorphicLambdasTest extends ScPsiElementAssertionTestBase[ScMethodCall] with KindProjectorSetUp {
@@ -8,8 +9,8 @@ class PolymorphicLambdasTest extends ScPsiElementAssertionTestBase[ScMethodCall]
 
   override def computeRepresentation(t: ScMethodCall) =
     t.`type`() match {
-      case Right(res) => Right(res.presentableText(t))
-      case Left(f)    => Left(f.toString)
+      case Right(res) => scala.Right(res.presentableText(t))
+      case Left(f)    => scala.Left(f.toString)
     }
 
   def testInfixApply(): Unit  = doTest()

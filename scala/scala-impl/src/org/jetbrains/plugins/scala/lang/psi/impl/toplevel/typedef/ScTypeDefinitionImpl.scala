@@ -311,7 +311,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   protected def qualifiedName(separator: String)
                              (nameTransformer: String => String): String =
-    toQualifiedName(packageName(this)(Right(this) :: Nil, separator))(nameTransformer)
+    toQualifiedName(packageName(this)(scala.Right(this) :: Nil, separator))(nameTransformer)
 
   override def getPresentation: ItemPresentation = {
     val presentableName = this match {
@@ -433,16 +433,16 @@ object ScTypeDefinitionImpl {
       packageName(packageObject)
     case definition: ScTypeDefinition =>
       packageName(definition)(
-        Right(definition) :: Left(separator) :: builder,
+        scala.Right(definition) :: scala.Left(separator) :: builder,
         separator
       )
     case packaging: ScPackaging =>
       val packageNamesList = packaging.fullPackageName
         .split('.').toSeq
         .intersperse(".")
-        .map(Left(_))
+        .map(scala.Left(_))
         .toList
-      packageNamesList ::: Left(".") :: builder
+      packageNamesList ::: scala.Left(".") :: builder
     case _: ScalaFile |
          _: PsiFile |
          _: ScBlock |
@@ -457,9 +457,9 @@ object ScTypeDefinitionImpl {
 
   def toQualifiedName(list: QualifiedNameList)
                      (nameTransformer: String => String = identity): String = list.map {
-    case Right(definition) => nameTransformer(definition.name)
-    case Left(".") => "."
-    case Left(string) => nameTransformer(string)
+    case scala.Right(definition) => nameTransformer(definition.name)
+    case scala.Left(".") => "."
+    case scala.Left(string) => nameTransformer(string)
   }.mkString
 
   private def isLocalOrInsideAnonymous(td: ScTypeDefinition): Boolean =
