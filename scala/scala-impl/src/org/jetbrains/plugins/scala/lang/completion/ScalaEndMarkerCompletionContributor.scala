@@ -155,7 +155,7 @@ object ScalaEndMarkerCompletionContributor {
       new EndMarkerToken(specifierToken, isKeyword = true, typeHint = templateParents.map(getTemplateParentsShortText))
 
     private def getTemplateParentsShortText(templateParents: ScTemplateParents): String = {
-      val constructor = templateParents.constructorInvocation.fold("Object")(_.typeElement.getText)
+      val constructor = templateParents.firstParentClause.fold("Object")(_.typeElement.getText)
       val hasMoreTypes = templateParents.allTypeElements.length > 1
 
       if (hasMoreTypes) s"$constructor with ..." else constructor

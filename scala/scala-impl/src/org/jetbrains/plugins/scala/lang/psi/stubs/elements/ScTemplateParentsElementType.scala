@@ -23,23 +23,20 @@ final class ScTemplateParentsElementType extends ScStubElementType[ScTemplatePar
 
   override def serialize(stub: ScTemplateParentsStub,
                          dataStream: StubOutputStream): Unit = {
-    dataStream.writeNames(stub.parentTypesTexts)
-    dataStream.writeOptionName(stub.constructorText)
+    dataStream.writeNames(stub.parentClausesText)
   }
 
-  override def deserialize(dataStream: StubInputStream,
-                           parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
-    parentStub,
-    this,
-    parentTypesTexts = dataStream.readNames,
-    constructorText = dataStream.readOptionName
-  )
+  override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]) =
+    new ScTemplateParentsStubImpl(
+      parentStub,
+      this,
+      parentClausesText = dataStream.readNames,
+    )
 
-  override def createStubImpl(templateParents: ScTemplateParents,
-                              parentStub: StubElement[_ <: PsiElement]) = new ScTemplateParentsStubImpl(
-    parentStub,
-    this,
-    parentTypesTexts = templateParents.typeElementsWithoutConstructor.asStrings(),
-    constructorText = templateParents.constructorInvocation.map(_.getText)
-  )
+  override def createStubImpl(templateParents: ScTemplateParents, parentStub: StubElement[_ <: PsiElement]) =
+    new ScTemplateParentsStubImpl(
+      parentStub,
+      this,
+      parentClausesText = templateParents.parentClauses.toArray.map(_.getText)
+    )
 }

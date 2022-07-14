@@ -16,21 +16,22 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        ParametrizedType: Repliable[Any, Any]
-          SimpleType: Repliable
-            CodeReferenceElement: Repliable
-              PsiElement(identifier)('Repliable')
-          TypeArgumentsList
-            PsiElement([)('[')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
-            PsiElement(,)(',')
-            PsiWhiteSpace(' ')
-            SimpleType: Any
-              CodeReferenceElement: Any
-                PsiElement(identifier)('Any')
-            PsiElement(])(']')
+        ConstructorInvocation
+          ParametrizedType: Repliable[Any, Any]
+            SimpleType: Repliable
+              CodeReferenceElement: Repliable
+                PsiElement(identifier)('Repliable')
+            TypeArgumentsList
+              PsiElement([)('[')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(,)(',')
+              PsiWhiteSpace(' ')
+              SimpleType: Any
+                CodeReferenceElement: Any
+                  PsiElement(identifier)('Any')
+              PsiElement(])(']')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')

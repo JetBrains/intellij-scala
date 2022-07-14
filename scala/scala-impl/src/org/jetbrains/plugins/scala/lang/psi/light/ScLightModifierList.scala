@@ -147,7 +147,7 @@ private[light] class ScLightModifierList(scalaElement: ScalaPsiElement,
           } else problem
         } else problem
       case n: ScNewTemplateDefinition =>
-        n.extendsBlock.templateParents.flatMap(_.constructorInvocation) match {
+        n.extendsBlock.templateParents.flatMap(_.firstParentClause) match {
           case Some(constr) =>
             constr.reference match {
               case Some(ref) =>

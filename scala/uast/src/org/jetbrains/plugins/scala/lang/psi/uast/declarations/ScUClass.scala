@@ -151,7 +151,7 @@ final class ScUAnonymousClass(
   @Nullable
   override def getUastAnchor: UElement =
     extendsBlock.templateParents
-      .flatMap(_.constructorInvocation)
+      .flatMap(_.firstParentClause)
       .map(createUIdentifier(_, this))
       .getOrElse(createUIdentifier(extendsBlock, this))
 
@@ -188,7 +188,7 @@ final class ScUAnonymousClass(
 
   override def isInQualifiedNew: Boolean =
     extendsBlock.templateParents
-      .flatMap(_.constructorInvocation)
+      .flatMap(_.firstParentClause)
       .flatMap(_.reference)
       .exists(_.qualifier.isDefined)
 
@@ -207,7 +207,7 @@ private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTempla
     JavaPsiFacade.getElementFactory(getProject).createReferenceElementByType(getBaseClassType)
 
   override def getBaseClassType: PsiClassType =
-    scTemplate.constructorInvocation.flatMap(_.reference)
+    scTemplate.firstConstructorInvocation.flatMap(_.reference)
       .flatMap(_.resolve().asOptionOf[PsiClass])
       .map(PsiTypesUtil.getClassType)
       .getOrElse(PsiType.getJavaLangObject(scTemplate.getManager, scTemplate.getResolveScope))

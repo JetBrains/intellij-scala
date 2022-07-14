@@ -30,8 +30,8 @@ class ScTypeParamStubImpl(parent: StubElement[_ <: PsiElement],
   extends ScNamedStubBase[ScTypeParam](parent, elementType, name)
     with ScTypeParamStub with ScBoundsOwnerStub[ScTypeParam] {
 
-  private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = null
-  private var contextElementsReferences: SofterReference[Seq[ScTypeElement]] = null
+  private var viewElementsReferences: SofterReference[Seq[ScTypeElement]] = _
+  private var contextElementsReferences: SofterReference[Seq[ScTypeElement]] = _
 
   override def viewBoundsTypeElements: Seq[ScTypeElement] = {
     getFromReference(viewElementsReferences) {

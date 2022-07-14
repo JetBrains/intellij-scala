@@ -29,7 +29,7 @@ object ClassTemplateBlock extends ParsingRule{
         nonEmpty = true
         //try to parse early definition if we can't => it's template body
         if (EarlyDef()) {
-          NewExprParents()
+          NewTemplateDefParents()
           //parse template body
           builder.getTokenType match {
             case ScalaTokenTypes.tLBRACE if !builder.twoNewlinesBeforeCurrentToken =>
@@ -50,7 +50,7 @@ object ClassTemplateBlock extends ParsingRule{
       //if we find nl => it could be TemplateBody only, but we can't find nl after extends keyword
       //In this case of course it's ClassParents
       case _ =>
-        if (NewExprParents()) nonEmpty = true
+        if (NewTemplateDefParents()) nonEmpty = true
         else if (true) {
           extendsMarker.drop()
           return false

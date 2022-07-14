@@ -73,7 +73,7 @@ object ImplicitUtil {
     def forTypeElem(typeElem: ScSimpleTypeElement) = {
       def newTd =
         Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScNewTemplateDefinition]))
-          .filter(_.constructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
+          .filter(_.firstConstructorInvocation.flatMap(_.simpleTypeElement).contains(typeElem))
 
       def constructor =
         Option(PsiTreeUtil.getParentOfType(typeElem, classOf[ScConstructorInvocation]))

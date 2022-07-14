@@ -73,9 +73,9 @@ class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
   // TODO: extract these methods into another class and use them to write path completion
 
   private def extractPathFromFileParam(element: PsiElement): Option[String] = element match {
-    case newFileDef : ScNewTemplateDefinition =>
+    case newFileDef: ScNewTemplateDefinition =>
       newFileDef.extendsBlock.getChildren.toSeq.headOption.collect {
-        case classParent: ScTemplateParents => classParent.constructorInvocation.flatMap(extractPathFromFileCtor)
+        case classParent: ScTemplateParents => classParent.firstParentClause.flatMap(extractPathFromFileCtor)
       }.flatten
     case expr@ScInfixExpr(_, op, _) if op.textMatches("/") =>
       extractPathFromConcatenation(expr)

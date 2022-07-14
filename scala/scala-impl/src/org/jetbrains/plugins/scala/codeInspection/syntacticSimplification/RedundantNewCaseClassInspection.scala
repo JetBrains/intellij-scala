@@ -68,9 +68,8 @@ class RedundantNewCaseClassInspection extends AbstractInspection(ScalaInspection
     * This prevents us from incorrectly displaying a warning when creating anonymous classes or instances with
     * mixin traits.
     */
-  private def isCreatingSameType(newTemplate: ScNewTemplateDefinition): Boolean = {
-    newTemplate.extendsBlock.templateParents.exists(_.typeElementsWithoutConstructor.isEmpty)
-  }
+  private def isCreatingSameType(newTemplate: ScNewTemplateDefinition): Boolean =
+    newTemplate.extendsBlock.templateParents.exists(_.parentClauses.size == 1)
 
   private def isTypeAlias(maybeResolveResult: Option[ScalaResolveResult]): Boolean = {
     maybeResolveResult.map(_.getActualElement).exists {
@@ -79,12 +78,11 @@ class RedundantNewCaseClassInspection extends AbstractInspection(ScalaInspection
     }
   }
 
-  private def getConstructorInvocationFromTemplate(newTemplate: ScNewTemplateDefinition): Option[ScConstructorInvocation] = {
+  private def getConstructorInvocationFromTemplate(newTemplate: ScNewTemplateDefinition): Option[ScConstructorInvocation] =
     newTemplate.extendsBlock.firstChild.flatMap {
-      case parents: ScTemplateParents => parents.constructorInvocation
-      case _ => None
+      case parents: ScTemplateParents => parents.firstParentClause
+      case _                          => None
     }
-  }
 
   private def constructorCallHasArgumentList(maybeConstructorInvocation: Option[ScConstructorInvocation]): Boolean = {
     maybeConstructorInvocation.flatMap(_.args).isDefined

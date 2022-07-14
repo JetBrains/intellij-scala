@@ -70,8 +70,11 @@ class ScGenericCallImpl(node: ASTNode) extends ScExpressionImplBase(node) with S
   private def substPolymorphicType: ScType => ScType = {
     case ScTypePolymorphicType(internal, tps) =>
       //type parameters of a method are appended to the right of ScTypePolymorphicType parameters
-      ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
-        .apply(internal)
+      val subst = ScSubstitutor.bind(tps.takeRight(arguments.length), arguments)(_.calcType)
+      val substedInternal = subst(internal)
+
+      if (arguments.length < tps.length) ScTypePolymorphicType(subst(internal), tps.dropRight(arguments.length))
+      else                               substedInternal
     case t => t
   }
 

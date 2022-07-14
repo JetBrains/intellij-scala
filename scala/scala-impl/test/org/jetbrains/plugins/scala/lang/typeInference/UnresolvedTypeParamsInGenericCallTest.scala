@@ -9,7 +9,7 @@ class UnresolvedTypeParamsInGenericCallTest extends TypeInferenceTestBase {
        |}
        |val f: Foo[Nothing, Int] = ???
        |${START}f.foo[String]$END
-       |//Foo[A, String]
+       |//Foo[Nothing, String]
        |""".stripMargin
   )
 }
