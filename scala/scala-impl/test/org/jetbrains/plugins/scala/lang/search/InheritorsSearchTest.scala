@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.lang.search
+package org.jetbrains.plugins.scala
+package lang.search
 
 import com.intellij.psi.PsiClass
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.junit.Assert.{assertEquals, assertTrue}
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+@Category(Array(classOf[LanguageTests]))
 class InheritorsSearchTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def doTest(fileText: String, expectedSubclassNames: String*): Unit = {
     val file = configureFromFileText(fileText)

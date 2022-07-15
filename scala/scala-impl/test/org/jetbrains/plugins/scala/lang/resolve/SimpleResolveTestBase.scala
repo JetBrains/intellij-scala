@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang.resolve
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -10,10 +11,12 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.util.{Failure, Success, Try}
 
+@Category(Array(classOf[TypecheckerTests]))
 abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import SimpleResolveTestBase._

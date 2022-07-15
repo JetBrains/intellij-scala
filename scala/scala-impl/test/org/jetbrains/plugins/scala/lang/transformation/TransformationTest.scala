@@ -8,10 +8,12 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiFileFactory}
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
 /**
   * @author Pavel Fatin
   */
+@Category(Array(classOf[LanguageTests]))
 abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestAdapter with util.Markers {
   @Language("Scala")
   protected val header: String = ""

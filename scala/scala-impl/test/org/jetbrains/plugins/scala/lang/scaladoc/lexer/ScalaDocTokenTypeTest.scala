@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.lang.scaladoc.lexer
+package org.jetbrains.plugins.scala
+package lang.scaladoc.lexer
 
 import com.intellij.psi.tree.IElementType
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.lang.reflect.Field
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaDocTokenTypeTest extends TestCase {
 
   def testAllScaladocSyntaxElementShouldHaveUniqueFlags(): Unit = {

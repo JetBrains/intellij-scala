@@ -3,7 +3,9 @@ package lang.xml
 
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class XmlAttributeQuotesTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

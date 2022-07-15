@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala
+package lang.scaladoc
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class WikiTagAutoCompletionTest extends EditorActionTestBase {
 
   def testCodeLinkAC(): Unit =

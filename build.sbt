@@ -585,6 +585,7 @@ import Common.TestCategory._
 def testOnlyCategories(categories: String*): String =
   s"testOnly -- --include-categories=${categories.mkString(",")} --exclude-categories=$flakyTests"
 
+addCommandAlias("runLanguageTests", testOnlyCategories(languageTests))
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
 addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
@@ -596,6 +597,7 @@ addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val fastTestOptions = "-v -s -a +c +q " +
+  s"--exclude-categories=$languageTests " +
   s"--exclude-categories=$slowTests " +
   s"--exclude-categories=$debuggerTests " +
   s"--exclude-categories=$scalacTests " +

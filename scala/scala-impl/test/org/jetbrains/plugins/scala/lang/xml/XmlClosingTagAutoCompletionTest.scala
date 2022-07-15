@@ -3,12 +3,14 @@ package lang.xml
 
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.junit.experimental.categories.Category
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/3/12
  */
 
+@Category(Array(classOf[LanguageTests]))
 class XmlClosingTagAutoCompletionTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

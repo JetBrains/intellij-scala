@@ -1,10 +1,12 @@
-package org.jetbrains.plugins.scala.lang.superMember
+package org.jetbrains.plugins.scala
+package lang.superMember
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtilCore}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -14,6 +16,7 @@ import scala.annotation.nowarn
  * Date: 15.11.2008
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[LanguageTests]))
 class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val CARET_MARKER = "<caret>"
 

@@ -11,8 +11,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
+import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors;
+import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 import scala.Tuple4;
@@ -23,6 +25,7 @@ import scala.Tuple4;
  */
 @SuppressWarnings({"ConstantConditions"})
 @RunWith(AllTests.class)
+@Category({LanguageTests.class})
 public class SurroundWithTest extends ScalaFileSetTestCase {
 
   public SurroundWithTest() {
@@ -54,7 +57,7 @@ public class SurroundWithTest extends ScalaFileSetTestCase {
                              @NotNull Project project) {
     Tuple4<String, Integer, Integer, Integer> res = SurroundWithTestUtil.prepareFile(fileText);
     final PsiFile psiFile = createLightFile(res._1(), project);
-    final Surrounder[] surrounder = ScalaSurroundDescriptors$.MODULE$.getSurroundDescriptors()[0].getSurrounders();
+    final Surrounder[] surrounder = ScalaSurroundDescriptors.getSurroundDescriptors()[0].getSurrounders();
 
     CommandProcessor.getInstance().executeCommand(
             project,

@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.lang.scaladoc
+package org.jetbrains.plugins.scala
+package lang.scaladoc
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.junit.experimental.categories.Category
 
 /**
  * User: Dmitry Naydanov
  * Date: 2/27/12
  */
+@Category(Array(classOf[LanguageTests]))
 class WikiPairedTagBackspaceTest extends EditorActionTestBase {
 
   def testDeleteUnderlinedTag(): Unit =
