@@ -46,8 +46,6 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     set
   }
 
-  override def couldShowInLookup: Boolean = true
-
   override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     implicit val tpc: TypePresentationContext = TypePresentationContext(context.getParameterOwner)

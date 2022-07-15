@@ -45,8 +45,6 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
   override def getArgListStopSearchClasses: util.Set[_ <: Class[_]] =
     util.Collections.singleton(classOf[PsiMethod])
 
-  override def couldShowInLookup: Boolean = true
-
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
   override def getActualParameters(elem: PsiElement): Array[ScExpression] = {

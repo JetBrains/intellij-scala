@@ -34,8 +34,6 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?
   }
 
-  override def couldShowInLookup: Boolean = true
-
   override def getActualParameterDelimiterType: IElementType = ScalaTokenTypes.tCOMMA
 
   override def getActualParameters(patternArgumentList: ScPatternArgumentList): Array[ScPattern] = patternArgumentList.patterns.toArray
@@ -158,8 +156,6 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
       }
     } else paramTypeText
   }
-
-
 
   override protected def findCall(context: ParameterInfoContext): ScPatternArgumentList = {
     val (file, offset) = (context.getFile, context.getOffset)
