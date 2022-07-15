@@ -199,7 +199,6 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
           // prevent other beforeTyped-handlers from being executed because psi tree is out of sync now
           Result.DEFAULT
         }
-
     } else if (c.isWhitespace) {
       findAutoBraceInsertionOpportunityWhenStartingStatement(c, offset, element)
         .fold(Result.CONTINUE) { info =>
@@ -210,6 +209,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else {
       Result.CONTINUE
     }
+  }
+
+  override def checkAutoPopup(charTyped: Char, project: Project, editor: Editor, file: PsiFile): Result = {
+    if (!file.is[ScalaFile]) Result.CONTINUE
+    else if (charTyped == '{' || charTyped == '[') {
+      AutoPopupController.getInstance(project).autoPopupParameterInfo(editor, null)
+      Result.STOP
+    } else Result.CONTINUE
   }
 
   @inline
