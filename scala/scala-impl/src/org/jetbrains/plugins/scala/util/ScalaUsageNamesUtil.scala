@@ -14,6 +14,26 @@ import java.util
 object ScalaUsageNamesUtil {
 
   val enumSyntheticMethodNames: Set[String] = Set("values", "valueOf", "fromOrdinal")
+  val operatorNames: Map[String, String] =
+    Map(
+      "+" -> "$plus",
+      "-" -> "$minus",
+      "~" -> "$tilde",
+      "==" -> "$eq$eq",
+      "<" -> "$less",
+      "<=" -> "$less$eq",
+      ">" -> "$greater",
+      ">=" -> "$greater$eq",
+      "!" -> "$bang",
+      "%" -> "$percent",
+      "^" -> "$up",
+      "&" -> "$amp",
+      "|" -> "$bar",
+      "*" -> "$times",
+      "/" -> "$div",
+      "\\" -> "$bslash",
+      "?" -> "$qmark",
+    )
 
   private def isLiteralIdentifier(id: String) = id.length > 2 && id.startsWith("`") && id.endsWith("`")
 
@@ -58,6 +78,9 @@ object ScalaUsageNamesUtil {
       case f: ScFunctionDefinition if f.name.endsWith("_=") =>
         result.add(f.name)
         result.add(f.name.substring(0, f.name.length - 2))
+      case f: ScFunctionDefinition if operatorNames.contains(f.name) =>
+        result.add(f.name)
+        result.add(operatorNames(f.name))
       case named: PsiNamedElement =>
         val name = named.name
         result.add(name)

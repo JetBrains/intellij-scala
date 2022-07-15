@@ -79,12 +79,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     } else if (ScalaPsiUtil.isImplicit(element)) {
       true
     } else {
-      element match {
-        case f: ScFunctionDefinition if !f.name.endsWith("_=") =>
-          ReferencesSearch.search(f).findFirst != null
-        case _ =>
-          textSearch(element)
-      }
+      textSearch(element)
     }
   }
 
@@ -289,11 +284,11 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
       n match {
         case p: ScModifierListOwner if hasOverrideModifier(p) => false
         case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
-        case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
+        case f: ScFunction if f.isSpecial || isOverridingFunction(f) || f.isConstructor => false
         case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
         case p: ScParameter =>
           p.parent.flatMap(_.parent.flatMap(_.parent)) match {
-            case Some(f: ScFunctionDeclaration) => false
+            case Some(_: ScFunctionDeclaration) => false
             case Some(f: ScFunctionDefinition) if ScalaOverridingMemberSearcher.search(f).nonEmpty ||
               isOverridingFunction(f) || ScalaMainMethodUtil.isMainMethod(f) => false
             case _ => true
