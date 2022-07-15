@@ -11,58 +11,65 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, isOnlyVisibleInLocalFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.util.ScalaUsageNamesUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitTargetExt
 
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.{CollectionHasAsScala, IterableHasAsScala}
+import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-sealed trait ElementUsage {
-  def targetCanBePrivate(): Boolean = {
-    this match {
-      case UnknownElementUsage => false
-      case KnownElementUsage(reference, target) =>
-
-        var result = false
-        val targetContainingClass = PsiTreeUtil.getParentOfType(target, classOf[PsiClass])
-        var refContainingClass = PsiTreeUtil.getParentOfType(reference, classOf[PsiClass])
-
-        val MaxSearchDepth = 10
-        var counter = 0
-
-        if (targetContainingClass != null) {
-          while (counter < MaxSearchDepth && refContainingClass != null && refContainingClass != targetContainingClass) {
-            refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
-            counter += 1
-          }
-
-          if (refContainingClass == targetContainingClass) result = true
-        }
-
-        result
-    }
-  }
-}
-case object UnknownElementUsage extends ElementUsage
-case class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage
+/**
+ * A cheap reference searcher, suitable for on-the-fly inspections.
+ *
+ * Rationale:
+ * Multiple on-the-fly inspections require fast reference searching. The specific case
+ * that led to the creation of the file you're looking at is
+ * [[org.jetbrains.plugins.scala.codeInspection.modifiers.AccessModifierCanBeWeakerInspection]],
+ * which turned out to require exactly the same heuristics as
+ * [[org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspection]],
+ * from which the search algorithm below was extracted.
+ *
+ * Contract:
+ * 1. It promises not to miss references, but there may be false positives.
+ *
+ * 2. Any search approach that can stop before having discovered all potential references,
+ * like text-search, will indeed stop after a reference outside the target element's
+ * private scope has been found.
+ *
+ * 3. Some references are only registered to exist, with no further information about them.
+ */
 
 object CheapRefSearcher {
 
-  /**
-   * Return certain as well as maybe references.
-   *
-   * Contract:
-   * 1. It promises not to miss references, but there may be false positives,
-   * such as references to a declaration with the same name but in a different package.
-   *
-   * 2. For any search approach that can be stopped, like text-search, the search will indeed stop
-   * after some reference outside the element's private scope has been found.
-   *
-   * 3. Some references are only registered to exist, with no further information about them.
-   */
+  sealed trait ElementUsage {
+    val targetCanBePrivate: Boolean
+  }
+
+  case object UnknownElementUsage extends ElementUsage {
+    override val targetCanBePrivate: Boolean = false
+  }
+
+  case class KnownElementUsage(reference: PsiElement, target: ScNamedElement) extends ElementUsage {
+    override lazy val targetCanBePrivate: Boolean = {
+      val targetContainingClass = PsiTreeUtil.getParentOfType(target, classOf[PsiClass])
+      var refContainingClass = PsiTreeUtil.getParentOfType(reference, classOf[PsiClass])
+
+      val MaxSearchDepth = 10
+      var counter = 0
+
+      if (targetContainingClass == null) false else {
+        while (counter < MaxSearchDepth && refContainingClass != null && refContainingClass != targetContainingClass) {
+          refContainingClass = PsiTreeUtil.getParentOfType(refContainingClass, classOf[PsiClass])
+          counter += 1
+        }
+
+        refContainingClass == targetContainingClass
+      }
+    }
+  }
+
   def search(element: ScNamedElement, isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Seq[ElementUsage] = {
 
     lazy val refSearch = referencesSearch(element)
@@ -129,7 +136,7 @@ object CheapRefSearcher {
           true
         } else {
           result.addOne(KnownElementUsage(e2, element))
-          result.last.targetCanBePrivate()
+          result.last.targetCanBePrivate
         }
     }
 
@@ -169,7 +176,7 @@ object CheapRefSearcher {
             case _ =>
           }
 
-          result.isEmpty || result.last.targetCanBePrivate()
+          result.isEmpty || result.last.targetCanBePrivate
         }
     }
 

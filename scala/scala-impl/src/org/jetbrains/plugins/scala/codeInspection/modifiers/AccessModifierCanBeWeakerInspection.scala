@@ -42,7 +42,7 @@ private[modifiers] final class AccessModifierCanBeWeakerInspection extends Local
     problemsHolder: ProblemsHolder,
     isOnTheFly: Boolean
   ): Unit = {
-    if (CheapRefSearcher.search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate())) {
+    if (CheapRefSearcher.search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
       val fix = new MakePrivateQuickFix(modifierListOwner)
       problemsHolder.registerProblem(element.nameId, "Can be private", ProblemHighlightType.WARNING, fix)
     }
