@@ -72,7 +72,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
   def deprecatedName: Option[String]
 
   def owner: PsiElement =
-    ScalaPsiUtil.getContextOfType(
+    PsiTreeUtil.getContextOfType(
       this,
       true,
       classOf[ScFunctionExpr],

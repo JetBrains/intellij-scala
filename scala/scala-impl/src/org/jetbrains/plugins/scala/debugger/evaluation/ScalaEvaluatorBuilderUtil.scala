@@ -497,9 +497,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val context = ScalaPsiUtil.nameContext(elem)
             val clazz = context.getContext match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                PsiTreeUtil.getContextOfType(context, true, classOf[PsiClass])
               case _ if context.isInstanceOf[ScClassParameter] =>
-                ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                PsiTreeUtil.getContextOfType(context, true, classOf[PsiClass])
               case _ => null
             }
             clazz match {

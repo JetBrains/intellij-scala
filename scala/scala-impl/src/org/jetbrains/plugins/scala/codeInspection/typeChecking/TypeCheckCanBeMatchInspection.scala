@@ -98,7 +98,7 @@ object TypeCheckCanBeMatchInspection {
 
     //method for finding and saving named type cast
     def checkAndStoreNameAndDef(asInstOfCall: ScGenericCall): Boolean = {
-      ScalaPsiUtil.getContextOfType(asInstOfCall, strict = true, classOf[ScPatternDefinition]) match {
+      PsiTreeUtil.getContextOfType(asInstOfCall, true, classOf[ScPatternDefinition]) match {
         case patternDef: ScPatternDefinition =>
           val bindings = patternDef.bindings
           //pattern consist of one assignment of asInstanceOf call

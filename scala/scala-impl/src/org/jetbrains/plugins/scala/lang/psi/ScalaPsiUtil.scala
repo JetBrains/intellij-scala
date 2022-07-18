@@ -19,7 +19,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
@@ -703,18 +703,6 @@ object ScalaPsiUtil {
   def getContext(element: PsiElement, level: Int): Option[PsiElement] =
     if (level == 0) Some(element) else if (element.getContext == null) None
     else getContext(element.getParent, level - 1)
-
-  /**
-    * For one classOf use PsiTreeUtil.getContextOfType instead
-   */
-  def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
-    var el: PsiElement = if (!strict) element else {
-      if (element == null) return null
-      element.getContext
-    }
-    while (el != null && !classes.exists(_.isInstance(el))) el = el.getContext
-    el
-  }
 
   def getCompanionModule(typeDefinition: ScTypeDefinition): Option[ScTypeDefinition] =
     typeDefinition match {

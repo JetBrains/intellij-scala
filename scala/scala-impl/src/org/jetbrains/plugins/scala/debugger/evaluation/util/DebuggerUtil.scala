@@ -465,7 +465,7 @@ object DebuggerUtil {
           case _ => true //todo: for generator/enumerators
         }
       case o: ScObject =>
-        !o.getContext.is[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
+        !o.getContext.is[ScTemplateBody] && PsiTreeUtil.getContextOfType(o, true, classOf[PsiClass]) != null
       case _ => false
     }
   }

@@ -257,7 +257,7 @@ class ScalaResolveResult(
             //TODO: unify this branch can be unified with `getClazzPrecedence` in 2022.3
             //  maybe we will need to review how qualifiedName caching is implemented for top-level ScMembers
 
-            val container = ScalaPsiUtil.getContextOfType(actualElement, false, classOf[PsiClass], classOf[ScPackaging], classOf[ScalaFile])
+            val container = PsiTreeUtil.getContextOfType(actualElement, false, classOf[PsiClass], classOf[ScPackaging], classOf[ScalaFile])
             val maybeContainingPackageOrPackageObjectName: Option[String] = container match {
               case o: ScObject if o.isPackageObject => Option(o.qualifiedName)
               case p: ScPackaging                   => Option(p.packageName) //top level definition

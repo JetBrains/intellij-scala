@@ -198,8 +198,8 @@ object ResolveUtils {
                 if (bind == null) return true
                 def processPackage(packageName: String): Boolean = {
                   def context(place: PsiElement): PsiElement =
-                    getContextOfType(place, true, classOf[ScPackaging],
-                      classOf[ScObject], classOf[ScalaFile])
+                    PsiTreeUtil.getContextOfType(place, true,
+                      classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
                   var placeEnclosing: PsiElement = context(place)
                   while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
                            !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
@@ -229,7 +229,7 @@ object ResolveUtils {
                   Such members can be accessed only from within the directly enclosing
                   template and its companion module or companion class
                 */
-                val enclosing = getContextOfType(scMember, true,
+                val enclosing = PsiTreeUtil.getContextOfType(scMember, true,
                   classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
                 enclosing match {
                   case td: ScTemplateDefinition =>
@@ -264,7 +264,7 @@ object ResolveUtils {
                 if (bind == null) return true
                 def processPackage(packageName: String): Option[Boolean] = {
                   def context(place: PsiElement): PsiElement =
-                    getContextOfType(place, true, classOf[ScPackaging],
+                    PsiTreeUtil.getContextOfType(place, true, classOf[ScPackaging],
                       classOf[ScObject], classOf[ScalaFile])
                   var placeEnclosing: PsiElement = context(place)
                   while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
@@ -299,7 +299,7 @@ object ResolveUtils {
                   case _ => return true
                 }
               }
-              val enclosing = getContextOfType(scMember, true,
+              val enclosing = PsiTreeUtil.getContextOfType(scMember, true,
                 classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
               assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
               if (am.isThis) {
@@ -330,7 +330,7 @@ object ResolveUtils {
                     case _: ScalaFile => ""
                     case packaging: ScPackaging => packaging.fullPackageName
                   }
-                  val placeEnclosing: PsiElement = getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+                  val placeEnclosing: PsiElement = PsiTreeUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
                   if (placeEnclosing == null) return false //not Scala
                   val placePackageName = placeEnclosing match {
                     case _: ScalaFile => ""
@@ -351,7 +351,7 @@ object ResolveUtils {
             case f: PsiClassOwner => f.getPackageName
             case _ => return false
           }
-          val placeEnclosing: PsiElement = getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
+          val placeEnclosing: PsiElement = PsiTreeUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
           if (placeEnclosing == null) return false
           val placePackageName = placeEnclosing match {
             case _: ScalaFile => ""
