@@ -8,6 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiReference}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert._
 
@@ -44,8 +45,8 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAda
     var src: PsiReference = null
     var tgt: PsiElement = target.orNull
 
-    def configureFile(file: (String, String), configureFun: (String, String) => PsiFile): Unit = {
-      val (source, fileName) = file
+    def configureFile(fileTextWithFileName: (String, String), configureFun: (String, String) => PsiFile): Unit = {
+      val (source, fileName) = fileTextWithFileName
       val trimmed = source.trim.replace("\r", "")
       val psiFile = configureFun(fileName, trimmed.replaceAll(REFSRC, "").replaceAll(REFTGT, ""))
       if (src == null) src = getSrc(trimmed, psiFile)
@@ -54,25 +55,33 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAda
 
     sources.dropRight(1).foreach(configureFile(_, myFixture.addFileToProject)) // add additional files first
 
-    sources.lastOption match {
+    val lastSource = sources.lastOption
+    lastSource match {
       case Some(file) =>
         configureFile(file, myFixture.configureByText) // last file is the one to be opened in editor
       case None =>
         fail("No testdata provided")
     }
 
-    assertNotNull("Failed to locate source element", src)
+    assertNotNull(s"Failed to locate source element in file:\n$lastSource", src)
     (src, tgt)
   }
 
   private def doResolveTest(target: Option[PsiElement], shouldResolve: Boolean, sources: (String, String)*): Unit = {
-    val (src, tgt) = setupResolveTest(target, sources: _*)
-    val result = src.resolve()
+    val (src, expectedResolvedElement) = setupResolveTest(target, sources: _*)
+
+    val resolveResultMightBeSynthetic = src.resolve()
+    //handle synthetic elements, for example reference to scala3 `enum` is resolved to synthetic element
+    val resolveResult = resolveResultMightBeSynthetic match {
+      case m: ScMember => Option(m.syntheticNavigationElement).getOrElse(resolveResultMightBeSynthetic)
+      case _ => resolveResultMightBeSynthetic
+    }
+
     val srcRefText = src.getElement.getText
 
     val testRunResult: Try[Unit] = Try {
       if (shouldResolve) {
-        if (result == null) {
+        if (resolveResult == null) {
           val multiResolveResult: Array[ScalaResolveResult] = src match {
             case scRef: ScReference => scRef.multiResolveScala(false)
             case _ => Array.empty
@@ -88,18 +97,24 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAda
         }
       }
       else {
-        if (result != null) {
+        if (resolveResult != null) {
           fail(s"Reference '$srcRefText' must not resolve.")
         }
       }
 
       // we might want to check if reference simply resolves to something
-      if (shouldResolve && tgt != null) {
+      if (shouldResolve && expectedResolvedElement != null) {
+        val actualLocation = elementLocationDescriptor(resolveResult)
+        val expectedLocation = elementLocationDescriptor(expectedResolvedElement)
         assertEquals(
-          s"""Reference($srcRefText) resolves to wrong place: ${elementLocationDescriptor(result)},
-             |text: ${result.getText}""".stripMargin,
-          tgt,
-          result
+          s"""Reference($srcRefText) resolves to wrong place: $actualLocation,
+             |actual resolved element text   : ${resolveResult.getText}
+             |expected resolved element text : ${expectedResolvedElement.getText}
+             |actual resolved location       : $actualLocation
+             |expected resolved location     : $expectedLocation
+             |""".stripMargin,
+          expectedResolvedElement,
+          resolveResult
         )
       }
 
@@ -123,7 +138,9 @@ abstract class SimpleResolveTestBase extends ScalaLightCodeInsightFixtureTestAda
 
   private def elementLocationDescriptor(element: PsiElement): String = {
     val file = element.getContainingFile
+    assertNotNull("file is null", file)
     val vFile = file.getVirtualFile
+    assertNotNull(s"vFile is null for file ${file.getName}", vFile)
     val document = PsiDocumentManager.getInstance(element.getProject).getDocument(file)
     s"location: ${vFile.getPath}:${document.getLineNumber(element.startOffset)}"
   }
