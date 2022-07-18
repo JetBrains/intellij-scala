@@ -1,10 +1,18 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.psi.{PsiFile, PsiManager}
+import org.jetbrains.plugins.scala.extensions.{OptionExt, PsiElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.resolve.SimpleResolveTestBase.{REFSRC, REFTGT}
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
 
+  //SCL-6146
   def testSCL6146(): Unit = doResolveTest(
     "case class Foo()" -> "Foo.scala",
 
@@ -337,11 +345,323 @@ abstract class ResolvePrecedenceTest extends SimpleResolveTestBase {
          |""".stripMargin -> "Main.scala"
     )
   }
+
+  protected val CommonDefinitionsOfAllTypes_Scala2 =
+    """class MyClass
+      |trait MyTrait
+      |object MyObject
+      |type MyTypeAlias = AliasedClass
+      |
+      |def myFunction = ???
+      |val myValue = ???
+      |var myVariable = ???
+      |val (myValueFromPattern1, myValueFromPattern2) = (???, ???)
+      |
+      |class AliasedClass
+      |""".stripMargin
+
+  protected val PackageObjectInSamePackageFileName = "org/example/package_object.scala"
+  protected val PackageObjectInSamePackageFileContent =
+    s"""package org
+       |
+       |package object example {
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |}
+       |""".stripMargin
+
+  protected val PackageObjectInOtherPackageFileName = "org/other/package_object.scala"
+  protected val PackageObjectInOtherPackageFileContent =
+    s"""package org
+       |
+       |package object other {
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |}
+       |""".stripMargin
+
+  protected val PackageObjectInParentPackageFileName = "org/package_object.scala"
+  protected val PackageObjectInParentPackageFileContent =
+    s"""package object org {
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |}
+       |""".stripMargin
+
+  protected val MainFileContent =
+    """package org.example
+      |
+      |import org.other._
+      |
+      |object Main {
+      |  def main(args: Array[String]): Unit = {
+      |    classOf[MyClass]
+      |    classOf[MyTrait]
+      |    MyObject.getClass
+      |    classOf[MyTypeAlias]
+      |    myFunction
+      |    myValue
+      |    myVariable
+      |    myValueFromPattern1
+      |    myValueFromPattern2
+      |  }
+      |}
+      |""".stripMargin
+
+  protected val MainFileContentWithSeparatePackagings =
+    """package org
+      |package example
+      |
+      |import org.other._
+      |
+      |object Main {
+      |  def main(args: Array[String]): Unit = {
+      |    classOf[MyClass]
+      |    classOf[MyTrait]
+      |    MyObject.getClass
+      |    classOf[MyTypeAlias]
+      |    myFunction
+      |    myValue
+      |    myVariable
+      |    myValueFromPattern1
+      |    myValueFromPattern2
+      |  }
+      |}
+      |""".stripMargin
+
+  protected def doTestResolvesToFqn(code: String, referenceTextInCode: String, expectedMemberFqn: String): Unit = {
+    val rootManager = ModuleRootManager.getInstance(getModule)
+
+    def childrenRecursive(dir: VirtualFile): Seq[VirtualFile] = {
+      val (dirs, files) = dir.getChildren.toSeq.partition(_.isDirectory)
+      files ++ dirs.flatMap(childrenRecursive)
+    }
+
+    val srcFiles: Seq[VirtualFile] = for {
+      srcRoot <- rootManager.getSourceRoots.toSeq if srcRoot.isDirectory
+      srcFile <- childrenRecursive(srcRoot)
+    } yield srcFile
+
+    val psiManager = PsiManager.getInstance(getProject)
+
+    val expectedMember = (for {
+      vFile <- srcFiles
+      psiFile = psiManager.findFile(vFile)
+      foundElement <- findNamedElementInFile(psiFile, expectedMemberFqn)
+    } yield foundElement).headOption.getOrElse {
+      throw new AssertionError(s"can't find psi element for fqn: $expectedMemberFqn")
+    }
+
+    doResolveTest(
+      expectedMember,
+      code.replace(referenceTextInCode, REFSRC + referenceTextInCode) -> "Example.scala"
+    )
+  }
+
+
+  //NOTE: this helper method is needed because we currently don't have some finder,
+  //which finds member of arbitrary type in project by fqn
+  //this is only implemented for template definitions (class,trait,...), but not for def/type/val/etc..
+  protected def findNamedElementInFile(file: PsiFile, elementFqn: String): Option[ScNamedElement] = {
+    def qualifier(fqn: String): String = {
+      val lastDot = fqn.lastIndexOf('.')
+      if (lastDot > 0) fqn.substring(0, lastDot)
+      else ""
+    }
+
+
+    def qualifiedNameOpt(element: ScNamedElement): Option[String] = {
+      import org.jetbrains.plugins.scala.extensions.PsiMemberExt
+      //Hacks required to properly support ScBindingPattern in val/var and extension methods
+      //for the details see comment to `org.jetbrains.plugins.scala.extensions.PsiMemberExt#qualifiedNameOpt`
+      val memberContext: Option[ScMember] = element.getParent match {
+        case eb: ScExtensionBody =>
+          Some(eb.getParent.asInstanceOf[ScExtension])
+        case _ =>
+          Option(element.nameContext).filterByType[ScMember]
+      }
+      for {
+        qualifier <- memberContext.flatMap(_.qualifiedNameOpt).map(qualifier)
+      } yield Seq(qualifier, element.name).mkString(".")
+    }
+
+    file.breadthFirst().collectFirst {
+      case m: ScNamedElement if qualifiedNameOpt(m).contains(elementFqn) => m
+    }
+  }
+
+  def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit
+  def testNameClashBetweenDefinitionsFromTopWildcardImportAndParentPackagingStatement(): Unit
 }
 
-class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
+class ResolvePrecedenceTest_3 extends ResolvePrecedenceTest_2_13 {
 
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_3
+
+  protected val CommonDefinitionsOfAllTypes_Scala3 =
+    """enum MyEnum
+      |given myGiven: String = ???
+      |extension (s: String)
+      |  def myExtension: String = ???
+      |""".stripMargin
+
+  protected val TopLevelDefinitionsInSamePackageFileName = "org/example/package_object.scala"
+  protected val TopLevelDefinitionsInSamePackageFileContent =
+    s"""package org.example
+       |
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |$CommonDefinitionsOfAllTypes_Scala3
+       |""".stripMargin
+
+  protected val TopLevelDefinitionsInOtherPackageFileName = "org/other/package_object.scala"
+  protected val TopLevelDefinitionsInOtherPackageFileContent =
+    s"""package org.other
+       |
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |$CommonDefinitionsOfAllTypes_Scala3
+       |""".stripMargin
+
+  protected val TopLevelDefinitionsInParentPackageFileName = "org/package_object.scala"
+  protected val TopLevelDefinitionsInParentPackageFileContent =
+    s"""package org
+       |
+       |$CommonDefinitionsOfAllTypes_Scala2
+       |$CommonDefinitionsOfAllTypes_Scala3
+       |""".stripMargin
+
+  def testNameClashBetweenDefinitionsFromTopWildcardImportAndTopLevelDefinitionInSamePackage(): Unit = {
+    myFixture.addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    myFixture.addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+
+    val mainFile =
+      """package org.example
+        |
+        |import org.other._
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    classOf[MyClass]
+        |    classOf[MyTrait]
+        |    MyObject.getClass
+        |    classOf[MyTypeAlias]
+        |    myFunction
+        |    myValue
+        |    myVariable
+        |    myValueFromPattern1
+        |    myValueFromPattern2
+        |
+        |    classOf[MyEnum]
+        |    myGiven
+        |    myExtension
+        |  }
+        |}
+        |""".stripMargin
+
+    doTestResolvesToFqn(mainFile, "MyClass", "org.other.MyClass")
+    doTestResolvesToFqn(mainFile, "MyTrait", "org.other.MyTrait")
+    doTestResolvesToFqn(mainFile, "MyObject", "org.other.MyObject")
+    doTestResolvesToFqn(mainFile, "MyTypeAlias", "org.other.MyTypeAlias")
+    doTestResolvesToFqn(mainFile, "myFunction", "org.other.myFunction")
+    doTestResolvesToFqn(mainFile, "myValue", "org.other.myValue")
+    doTestResolvesToFqn(mainFile, "myVariable", "org.other.myVariable")
+    doTestResolvesToFqn(mainFile, "myValueFromPattern1", "org.other.myValueFromPattern1")
+    doTestResolvesToFqn(mainFile, "myValueFromPattern2", "org.other.myValueFromPattern2")
+
+    doTestResolvesToFqn(mainFile, "MyEnum", "org.other.MyEnum")
+    doTestResolvesToFqn(mainFile, "myExtension", "org.other.myExtension")
+
+    //myGiven wasn't imported using `given`, thus resolving to org.example.myGiven
+    //TODO: replace expected fqn to `org.example.myGiven` when SCL-16166 is fixed
+    doTestResolvesToFqn(mainFile, "myGiven", "org.other.myGiven")
+  }
+
+  def testNameClashBetweenDefinitionsFromTopWildcardImportAndTopLevelDefinitionInParentPackagingStatement(): Unit = {
+    myFixture.addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    myFixture.addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+
+    val mainFile =
+      """package org
+        |package example
+        |
+        |import org.other._
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    classOf[MyClass]
+        |    classOf[MyTrait]
+        |    MyObject.getClass
+        |    classOf[MyTypeAlias]
+        |    myFunction
+        |    myValue
+        |    myVariable
+        |    myValueFromPattern1
+        |    myValueFromPattern2
+        |
+        |    classOf[MyEnum]
+        |    myExtension
+        |    myGiven
+        |  }
+        |}
+        |""".stripMargin
+
+    doTestResolvesToFqn(mainFile, "MyClass", "org.other.MyClass")
+    doTestResolvesToFqn(mainFile, "MyTrait", "org.other.MyTrait")
+    doTestResolvesToFqn(mainFile, "MyObject", "org.other.MyObject")
+    doTestResolvesToFqn(mainFile, "MyTypeAlias", "org.other.MyTypeAlias")
+    doTestResolvesToFqn(mainFile, "myFunction", "org.other.myFunction")
+    doTestResolvesToFqn(mainFile, "myValue", "org.other.myValue")
+    doTestResolvesToFqn(mainFile, "myVariable", "org.other.myVariable")
+    doTestResolvesToFqn(mainFile, "myValueFromPattern1", "org.other.myValueFromPattern1")
+    doTestResolvesToFqn(mainFile, "myValueFromPattern2", "org.other.myValueFromPattern2")
+
+    doTestResolvesToFqn(mainFile, "MyEnum", "org.other.MyEnum")
+    doTestResolvesToFqn(mainFile, "myExtension", "org.other.myExtension")
+
+    //myGiven wasn't imported using `given`, thus resolving to org.example.myGiven
+    //TODO: replace expected fqn to `org.example.myGiven` when SCL-16166 is fixed
+    doTestResolvesToFqn(mainFile, "myGiven", "org.other.myGiven")
+  }
+
+  def testNameClashBetweenDefinitionsFromTopGivenImportAndTopLevelDefinitionInSamePackage(): Unit = {
+    myFixture.addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+
+    myFixture.addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+
+    val MainFileContent_WithScala3 =
+      """package org.example
+        |
+        |import org.other.given
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    myGiven
+        |  }
+        |}
+        |""".stripMargin
+
+    doTestResolvesToFqn(MainFileContent_WithScala3, "myGiven", "org.other.myGiven")
+  }
+
+  def testNameClashBetweenDefinitionsFromTopGivenImportAndTopLevelDefinitionInParentPackagingStatement(): Unit = {
+    myFixture.addFileToProject(TopLevelDefinitionsInOtherPackageFileName, TopLevelDefinitionsInOtherPackageFileContent)
+    myFixture.addFileToProject(TopLevelDefinitionsInSamePackageFileName, TopLevelDefinitionsInSamePackageFileContent)
+
+    val MainFileContentWithSeparatePackagings_WithScala3 =
+      """package org
+        |package example
+        |
+        |import org.other.given
+        |
+        |object Main {
+        |  def main(args: Array[String]): Unit = {
+        |    myGiven
+        |  }
+        |}
+        |""".stripMargin
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings_WithScala3, "myGiven", "org.other.myGiven")
+  }
+}
+
+class ResolvePrecedenceTest_2_13 extends ResolvePrecedenceTest {
+
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_13
 
   def testSCL16057(): Unit = doResolveTest(
     s"""
@@ -588,12 +908,43 @@ class ResolvePrecedenceTest2_13 extends ResolvePrecedenceTest {
          |""".stripMargin -> "Usage.scala"
     )
   }
+
+  override def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit = {
+    myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    myFixture.addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+
+    doTestResolvesToFqn(MainFileContent, "MyClass", "org.other.MyClass")
+    doTestResolvesToFqn(MainFileContent, "MyTrait", "org.other.MyTrait")
+    doTestResolvesToFqn(MainFileContent, "MyObject", "org.other.MyObject")
+    doTestResolvesToFqn(MainFileContent, "MyTypeAlias", "org.other.MyTypeAlias")
+    doTestResolvesToFqn(MainFileContent, "myFunction", "org.other.myFunction")
+    doTestResolvesToFqn(MainFileContent, "myValue", "org.other.myValue")
+    doTestResolvesToFqn(MainFileContent, "myVariable", "org.other.myVariable")
+    doTestResolvesToFqn(MainFileContent, "myValueFromPattern1", "org.other.myValueFromPattern1")
+    doTestResolvesToFqn(MainFileContent, "myValueFromPattern2", "org.other.myValueFromPattern2")
+  }
+
+  override def testNameClashBetweenDefinitionsFromTopWildcardImportAndParentPackagingStatement(): Unit = {
+    myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    myFixture.addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyClass", "org.other.MyClass")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTrait", "org.other.MyTrait")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyObject", "org.other.MyObject")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTypeAlias", "org.other.MyTypeAlias")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myFunction", "org.other.myFunction")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValue", "org.other.myValue")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myVariable", "org.other.myVariable")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValueFromPattern1", "org.other.myValueFromPattern1")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValueFromPattern2", "org.other.myValueFromPattern2")
+  }
 }
 
-class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
+class ResolvePrecedenceTest_2_12 extends ResolvePrecedenceTest {
 
-  override protected def supportedIn(version: ScalaVersion) = version <= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_12
 
+  //SCL-16057
   def testSCL16057(): Unit = doResolveTest(
     s"""
        |package foo
@@ -872,5 +1223,36 @@ class ResolvePrecedenceTest2_12 extends ResolvePrecedenceTest {
          |}
          |""".stripMargin -> "Usage.scala"
     )
+  }
+
+
+  override def testNameClashBetweenDefinitionsFromTopWildcardImportAndSamePackage(): Unit = {
+    myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    myFixture.addFileToProject(PackageObjectInSamePackageFileName, PackageObjectInSamePackageFileContent)
+
+    doTestResolvesToFqn(MainFileContent, "MyClass", "org.example.MyClass")
+    doTestResolvesToFqn(MainFileContent, "MyTrait", "org.example.MyTrait")
+    doTestResolvesToFqn(MainFileContent, "MyObject", "org.example.MyObject")
+    doTestResolvesToFqn(MainFileContent, "MyTypeAlias", "org.example.MyTypeAlias")
+    doTestResolvesToFqn(MainFileContent, "myFunction", "org.example.myFunction")
+    doTestResolvesToFqn(MainFileContent, "myValue", "org.example.myValue")
+    doTestResolvesToFqn(MainFileContent, "myVariable", "org.example.myVariable")
+    doTestResolvesToFqn(MainFileContent, "myValueFromPattern1", "org.example.myValueFromPattern1")
+    doTestResolvesToFqn(MainFileContent, "myValueFromPattern2", "org.example.myValueFromPattern2")
+  }
+
+  override def testNameClashBetweenDefinitionsFromTopWildcardImportAndParentPackagingStatement(): Unit = {
+    myFixture.addFileToProject(PackageObjectInOtherPackageFileName, PackageObjectInOtherPackageFileContent)
+    myFixture.addFileToProject(PackageObjectInParentPackageFileName, PackageObjectInParentPackageFileName)
+
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyClass", "org.other.MyClass")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTrait", "org.other.MyTrait")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyObject", "org.other.MyObject")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "MyTypeAlias", "org.other.MyTypeAlias")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myFunction", "org.other.myFunction")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValue", "org.other.myValue")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myVariable", "org.other.myVariable")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValueFromPattern1", "org.other.myValueFromPattern1")
+    doTestResolvesToFqn(MainFileContentWithSeparatePackagings, "myValueFromPattern2", "org.other.myValueFromPattern2")
   }
 }

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
 final class PrecedenceTypes private (val defaultImports: Seq[String]) {
-  private[this] val defaultImportPrecedence =
+  private[this] val defaultImportPrecedence: Map[String, Int] =
     defaultImports.zipWithIndex.map { case (k,v) => (k, v + 1) }.toMap
 
   val defaultImportMaxPrecedence: Int = defaultImports.size
