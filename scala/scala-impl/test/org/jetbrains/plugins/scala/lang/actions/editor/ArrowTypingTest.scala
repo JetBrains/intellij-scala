@@ -6,6 +6,7 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.junit.experimental.categories.Category
 
 import java.io.File
 
@@ -13,6 +14,7 @@ import java.io.File
  * User: Dmitry.Naydanov
  * Date: 10.07.14.
  */
+@Category(Array(classOf[LanguageTests]))
 class ArrowTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

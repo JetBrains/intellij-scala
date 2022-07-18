@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-/** TODO: unify with [[org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandlerTest]] */
+/** TODO: unify with `org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandlerTest` */
 class StringTypingTest extends EditorTypeActionTestBase {
 
   override protected def typedChar: Char = '"'

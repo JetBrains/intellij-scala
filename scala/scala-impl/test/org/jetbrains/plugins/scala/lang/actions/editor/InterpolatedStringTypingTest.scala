@@ -5,11 +5,13 @@ import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
+import org.junit.experimental.categories.Category
 
 /**
  * User: Dmitry Naydanov
  * Date: 3/31/12
  */
+@Category(Array(classOf[LanguageTests]))
 class InterpolatedStringTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter
+package org.jetbrains.plugins.scala
+package lang.actions.editor.enter
 
 import junit.framework.Test
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedSetting
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 trait Scala2AndScala3EnterActionCommonTests extends Test {
   self: EditorActionTestBase =>
 

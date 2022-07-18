@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.actions.editor
+package org.jetbrains.plugins.scala
+package lang.actions.editor
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.experimental.categories.Category
 
 /** @see [[org.jetbrains.plugins.scala.lang.actions.editor.backspace.ClosingBraceRemoveTest]] */
+@Category(Array(classOf[LanguageTests]))
 class ClosingBraceInsertTest extends EditorActionTestBase {
 
   private def doTest(before: String, after: String): Unit = {

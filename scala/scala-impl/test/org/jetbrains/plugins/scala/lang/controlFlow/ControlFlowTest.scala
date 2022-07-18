@@ -1,19 +1,21 @@
-package org.jetbrains.plugins.scala.lang.controlFlow
+package org.jetbrains.plugins.scala
+package lang.controlFlow
 
 
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 /**
  * @author ilyas
  */
 
+@Category(Array(classOf[LanguageTests]))
 class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/controlFlow/"
 

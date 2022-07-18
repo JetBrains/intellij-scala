@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala
+package lang.completion3
 
 import com.intellij.codeInsight.editorActions.CompletionAutoPopupHandler
 import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.junit.Assert.assertNull
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaAutoPopupCompletionHandlerTest extends EditorActionTestBase {
   private[this] var myTester: CompletionAutoPopupTester = _
 

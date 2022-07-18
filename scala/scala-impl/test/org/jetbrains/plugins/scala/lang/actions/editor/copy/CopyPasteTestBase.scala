@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.copy
+package org.jetbrains.plugins.scala
+package lang.actions.editor.copy
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   protected val Start = EditorTestUtil.SELECTION_START_TAG
   protected val End = EditorTestUtil.SELECTION_END_TAG

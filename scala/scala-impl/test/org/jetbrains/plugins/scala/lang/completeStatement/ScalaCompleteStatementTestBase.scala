@@ -9,11 +9,13 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.StringExt
+import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
   * Date: 27.07.15.
   */
+@Category(Array(classOf[LanguageTests]))
 abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE

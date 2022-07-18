@@ -4,11 +4,13 @@ package dependency
 
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
 
+@Category(Array(classOf[LanguageTests]))
 class DependencyTest extends base.SimpleTestCase {
   def testClass(): Unit = {
     assertDependenciesAre("""

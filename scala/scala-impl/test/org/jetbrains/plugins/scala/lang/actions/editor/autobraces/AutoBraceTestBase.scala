@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
+package org.jetbrains.plugins.scala
+package lang.actions.editor.autobraces
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestIndentUtils
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 abstract class AutoBraceTestBase extends EditorActionTestBase {
   //helper variables used to insert trailing spaces, otherwise they will be removed from the code by IntelliJ
   val space = " "

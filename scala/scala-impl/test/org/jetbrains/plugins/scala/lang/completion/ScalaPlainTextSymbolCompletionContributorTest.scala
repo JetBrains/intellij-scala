@@ -5,7 +5,9 @@ package completion
 import com.intellij.codeInsight.completion.{PlainPrefixMatcher, PlainTextSymbolCompletionContributorEP}
 import com.intellij.psi.PsiFile
 import org.junit.Assert.{assertEquals, assertNotNull}
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaPlainTextSymbolCompletionContributorTest
   extends base.ScalaLightCodeInsightFixtureTestAdapter {
 

@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.scala.lang.autoImport
+package org.jetbrains.plugins.scala
+package lang.autoImport
 
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.autoImport.ImportOrderings._
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class AutoImportSortingTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
   import org.junit.Assert._
 
