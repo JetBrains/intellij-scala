@@ -1,0 +1,15 @@
+<html>
+<body>
+Reports fields, methods, classes, traits and objects that may have their access modifier narrowed down.
+<p>Example:</p>
+<pre><code>
+  class Sample {
+    def foo() {
+        bar("foo", "foo")
+    }
+    def bar(x: String, y: String): Unit = {} // can be private
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
