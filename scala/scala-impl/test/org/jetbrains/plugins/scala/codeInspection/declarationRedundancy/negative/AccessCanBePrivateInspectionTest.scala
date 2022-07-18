@@ -26,10 +26,24 @@ final class AccessCanBePrivateInspectionTest extends ScalaHighlightsTestBase {
     checkTextHasNoErrors(code)
   }
 
-  def test_used_class(): Unit = {
+  def test_class_used_by_public_class_in_other_file(): Unit = {
     val file = myFixture.addFileToProject("B.scala", "class B extends A")
     myFixture.openFileInEditor(file.getVirtualFile)
     val code = "class A"
+    checkTextHasNoErrors(code)
+  }
+
+  def test_trait_used_by_public_class_in_other_file(): Unit = {
+    val file = myFixture.addFileToProject("B.scala", "class B extends A")
+    myFixture.openFileInEditor(file.getVirtualFile)
+    val code = "trait A"
+    checkTextHasNoErrors(code)
+  }
+
+  def test_object_used_by_public_class_in_other_file(): Unit = {
+    val file = myFixture.addFileToProject("B.scala", "class B { A }")
+    myFixture.openFileInEditor(file.getVirtualFile)
+    val code = "object A"
     checkTextHasNoErrors(code)
   }
 }
