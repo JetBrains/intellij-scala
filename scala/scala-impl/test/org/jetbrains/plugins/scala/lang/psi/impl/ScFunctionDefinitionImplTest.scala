@@ -7,10 +7,12 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{RecursiveReferences, ScExpressionExt, ScFunctionDefinition}
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
+@Category(Array(classOf[LanguageTests]))
 class ScFunctionDefinitionImplTest extends SimpleTestCase {
 
   private val tailRecursion = (_: RecursiveReferences).tailRecursionOnly

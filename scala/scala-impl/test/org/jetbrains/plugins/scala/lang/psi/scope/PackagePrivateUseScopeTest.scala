@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.psi.scope
+package org.jetbrains.plugins.scala
+package lang.psi.scope
 
 import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -7,9 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject}
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.experimental.categories.Category
 
 import scala.reflect.ClassTag
 
+@Category(Array(classOf[LanguageTests]))
 class PackagePrivateUseScopeTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override def getTestDataPath = super.getTestDataPath + "/useScope/privatePackage"
 

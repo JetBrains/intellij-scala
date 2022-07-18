@@ -10,11 +10,13 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
 
+@Category(Array(classOf[LanguageTests]))
 abstract class ApplicabilityTestBase extends SimpleTestCase {
   private val Header = """
   class Seq[+A] 

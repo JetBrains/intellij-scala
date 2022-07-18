@@ -6,8 +6,10 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.searches.AllOverridingMethodsSearch
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
+import org.jetbrains.plugins.scala.LanguageTests
 import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, StringExt}
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -16,6 +18,7 @@ import scala.jdk.CollectionConverters._
   * Nikolay.Tropin
   * 24-May-17
   */
+@Category(Array(classOf[LanguageTests]))
 class ImplementationSearchTest extends JavaCodeInsightFixtureTestCase {
 
   def findFromJava(javaText: String, scalaText: String, shouldFoundInClasses: Set[String]): Unit = {

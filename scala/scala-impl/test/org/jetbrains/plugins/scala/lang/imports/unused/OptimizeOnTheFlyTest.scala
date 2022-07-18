@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.imports.unused
+package org.jetbrains.plugins.scala
+package lang.imports.unused
 
 import com.intellij.util.DocumentUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class OptimizeOnTheFlyTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private def checkOptimizeOnTheFly(text: String, expected: String): Unit = {
     val file = myFixture.configureByText("dummy.scala", text)

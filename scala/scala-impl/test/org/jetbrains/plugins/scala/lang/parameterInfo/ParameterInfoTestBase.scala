@@ -10,10 +10,12 @@ import com.intellij.testFramework.utils.parameterInfo.MockUpdateParameterInfoCon
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.awt.Color
 import scala.collection.mutable
 
+@Category(Array(classOf[LanguageTests]))
 abstract class ParameterInfoTestBase[Owner <: PsiElement] extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override def getTestDataPath: String =

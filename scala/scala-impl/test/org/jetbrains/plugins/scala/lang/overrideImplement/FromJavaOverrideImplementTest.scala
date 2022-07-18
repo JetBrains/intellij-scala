@@ -7,11 +7,13 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
 /**
  * Nikolay.Tropin
  * 12/18/13
  */
+@Category(Array(classOf[LanguageTests]))
 class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
   protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_]): Unit = {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)

@@ -4,7 +4,9 @@ package psi
 
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class AdjustElementAtOffsetTest extends ScalaLightCodeInsightFixtureTestAdapter {
   private val space = " "
   private val caret = "<caret>"

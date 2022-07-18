@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi.templateDefinitions
+package org.jetbrains.plugins.scala
+package lang.psi.templateDefinitions
 
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class QualifiedNameTest extends SimpleTestCase {
   private val caretMarker = EditorTestUtil.CARET_TAG
 

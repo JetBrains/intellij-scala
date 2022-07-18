@@ -8,7 +8,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaUsageTypeProviderTest extends ScalaFixtureTestCase {
   private val usageTypeProvider = new ScalaUsageTypeProvider
 

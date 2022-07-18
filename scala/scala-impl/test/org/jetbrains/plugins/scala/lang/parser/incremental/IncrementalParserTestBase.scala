@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.parser.incremental
+package org.jetbrains.plugins.scala
+package lang.parser.incremental
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.impl.DebugUtil.psiToString
@@ -10,7 +11,9 @@ import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
 import org.junit.ComparisonFailure
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 abstract class IncrementalParserTestBase extends EditorActionTestBase with AssertionMatchers {
   private implicit def p: Project = getProject
 

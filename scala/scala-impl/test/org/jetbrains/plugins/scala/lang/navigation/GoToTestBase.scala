@@ -8,9 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValue
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.junit.experimental.categories.Category
 
 import scala.reflect.ClassTag
 
+@Category(Array(classOf[LanguageTests]))
 abstract class GoToTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   protected final def actualName(actual: Any) = actual match {

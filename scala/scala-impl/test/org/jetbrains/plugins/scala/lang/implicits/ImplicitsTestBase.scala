@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -25,6 +26,7 @@ import scala.annotation.nowarn
  * Date: 10.03.2009
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[LanguageTests]))
 abstract class ImplicitsTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   private val startExprMarker = "/*start*/"
   private val endExprMarker = "/*end*/"

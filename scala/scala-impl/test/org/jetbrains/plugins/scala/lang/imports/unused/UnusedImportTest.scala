@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}

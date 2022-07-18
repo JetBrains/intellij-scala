@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.psi.impl.search
+package org.jetbrains.plugins.scala
+package lang.psi.impl.search
 
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.PsiSelectionUtil
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaOverridingMemberSearcherTest extends ScalaLightCodeInsightFixtureTestAdapter with PsiSelectionUtil {
 
 

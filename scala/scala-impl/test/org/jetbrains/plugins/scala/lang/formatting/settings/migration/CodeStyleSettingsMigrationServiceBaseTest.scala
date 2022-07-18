@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings.migration
+package org.jetbrains.plugins.scala
+package lang.formatting.settings.migration
 
 import com.intellij.testFramework.LightIdeaTestCase
 import org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase.Migrations
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class CodeStyleSettingsMigrationServiceBaseTest extends LightIdeaTestCase {
 
   def testValidateDefinedMigrations(): Unit = {

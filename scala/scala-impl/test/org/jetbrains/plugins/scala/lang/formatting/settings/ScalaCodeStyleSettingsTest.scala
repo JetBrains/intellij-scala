@@ -1,13 +1,14 @@
-package org.jetbrains.plugins.scala.lang.formatting.settings
-
-;
+package org.jetbrains.plugins.scala
+package lang.formatting.settings
 
 import com.intellij.openapi.util.JDOMUtil
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jdom.Element
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaCodeStyleSettingsTest extends LightJavaCodeInsightFixtureTestCase {
 
   def testReadLegacyMultilineStringSettingsNames(): Unit = {

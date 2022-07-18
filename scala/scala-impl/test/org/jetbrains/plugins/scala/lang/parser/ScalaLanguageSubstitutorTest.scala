@@ -1,8 +1,11 @@
-package org.jetbrains.plugins.scala.lang.parser
+package org.jetbrains.plugins.scala
+package lang.parser
 
 import junit.framework.TestCase
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaLanguageSubstitutorTest extends TestCase {
 
   import ScalaLanguageSubstitutor.looksLikeScala3LibSourcesJar

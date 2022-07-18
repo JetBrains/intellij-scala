@@ -1,12 +1,14 @@
-package org.jetbrains.plugins.scala.lang.psi.types
+package org.jetbrains.plugins.scala
+package lang.psi.types
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaTypePresentationTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 

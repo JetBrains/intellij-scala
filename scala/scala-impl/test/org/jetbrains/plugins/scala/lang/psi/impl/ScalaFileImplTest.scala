@@ -5,11 +5,13 @@ package impl
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
 
+@Category(Array(classOf[LanguageTests]))
 class ScalaFileImplTest extends SimpleTestCase {
 //  def testStripPackages() {
 //    assertPackagesStrippedAs("", "")

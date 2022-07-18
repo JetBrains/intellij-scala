@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.lang.optimize
+package org.jetbrains.plugins.scala
+package lang.optimize
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.editor.importOptimizer.BufferUpdate
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import scala.collection.mutable.ArrayBuffer
 
+@Category(Array(classOf[LanguageTests]))
 class IncrementalBufferUpdateTest extends TestCase {
 
   private def doTest(from: Array[String], finalResult: Array[String]): Unit = {
