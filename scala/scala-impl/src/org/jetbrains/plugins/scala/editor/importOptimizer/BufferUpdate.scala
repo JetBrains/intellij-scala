@@ -28,6 +28,3 @@ object BufferUpdate {
     }
   }
 }
-
-
-

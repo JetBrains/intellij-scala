@@ -1,3 +1,4 @@
+// Notification message: null
 class ImplicitParametersDeeperLevel {
 
   class A

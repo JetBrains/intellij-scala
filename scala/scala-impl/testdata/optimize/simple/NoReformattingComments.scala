@@ -1,3 +1,4 @@
+// Notification message: Removed 1 import
 package x
 
 import scala.collection.immutable.BitSet

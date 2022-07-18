@@ -1,3 +1,4 @@
+// Notification message: null
 case class A()
 
 object Show {

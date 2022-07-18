@@ -1,3 +1,4 @@
+// Notification message: null
 package overloaded
 object ImplicitsNewClass {
   class A

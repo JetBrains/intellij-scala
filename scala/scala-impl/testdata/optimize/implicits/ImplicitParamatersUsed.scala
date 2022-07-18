@@ -1,3 +1,4 @@
+// Notification message: null
 class ImplicitParamatersUsed {
   object Z {
     class A

@@ -1,3 +1,4 @@
+// Notification message: null
 trait TypeClass[T]
 
 class MyImplicitUser[T: TypeClass]

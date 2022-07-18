@@ -1,3 +1,4 @@
+// Notification message: null
 import java.awt.{BasicStroke, Color, Dimension, Graphics2D, Point}
 
 class NameClash {

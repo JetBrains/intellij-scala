@@ -1,3 +1,4 @@
+// Notification message: Rearranged imports
 class NameConflictTypeAlias {
   import Mess.{a, foo, s, AAAA, BBBB}
 

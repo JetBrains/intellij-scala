@@ -1,3 +1,4 @@
+// Notification message: null
 class FromRoot
 
 class Hello {

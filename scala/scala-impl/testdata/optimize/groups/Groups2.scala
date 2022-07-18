@@ -1,3 +1,4 @@
+// Notification message: Removed 1 import
 package pack {
 class G
 }

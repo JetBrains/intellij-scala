@@ -1,3 +1,4 @@
+// Notification message: Rearranged imports
 import scala.language.implicitConversions
 
 class ImplicitClass {

@@ -1,3 +1,4 @@
+// Notification message: Removed 4 imports
 object A {
   class X
   class Y

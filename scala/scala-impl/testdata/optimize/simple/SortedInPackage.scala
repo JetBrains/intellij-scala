@@ -1,3 +1,4 @@
+// Notification message: Rearranged imports
 package com.jetbrains
 package test
 

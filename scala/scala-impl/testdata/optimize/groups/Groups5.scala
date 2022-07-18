@@ -1,3 +1,4 @@
+// Notification message: Rearranged imports
 package pack {
 class G
 }

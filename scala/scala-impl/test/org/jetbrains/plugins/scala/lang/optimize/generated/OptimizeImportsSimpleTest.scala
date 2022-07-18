@@ -77,7 +77,8 @@ class OptimizeImportsSimpleTestBase extends OptimizeImportsTestBase {
         |  val a3: AbstractMethodError = ???
         |  val a4: Properties = ???
         |  val a5: Try[_] = ???
-        |}""".stripMargin
+        |}""".stripMargin,
+      "Removed 3 imports"
     )
   }
 
@@ -112,7 +113,8 @@ class OptimizeImportsSimpleTestBase extends OptimizeImportsTestBase {
         |  val a3: AbstractMethodError = ???
         |  val a4: Properties = ???
         |  val a5: Try[_] = ???
-        |}""".stripMargin
+        |}""".stripMargin,
+      "Removed 3 imports"
     )
   }
 }
