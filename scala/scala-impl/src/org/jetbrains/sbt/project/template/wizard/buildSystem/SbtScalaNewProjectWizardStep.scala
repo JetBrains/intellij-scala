@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project.template.wizard.buildSystem
 import com.intellij.ide.JavaUiBundle
 import com.intellij.ide.projectWizard.NewProjectWizardCollector.BuildSystem.{INSTANCE => BSLog}
 import com.intellij.ide.wizard.AbstractNewProjectWizardStep
+import com.intellij.openapi.GitRepositoryInitializer
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.module.{ModuleManager, StdModuleTypes}
 import com.intellij.openapi.observable.properties.{GraphProperty, ObservableProperty, PropertyGraph}
@@ -40,6 +41,11 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
   BindUtil.bindBooleanStorage(addSampleCodeProperty, "NewProjectWizard.addSampleCodeState")
   private def needToAddSampleCode: Boolean = addSampleCodeProperty.get()
 
+  private val gitProperty: GraphProperty[java.lang.Boolean] = propertyGraph.property(java.lang.Boolean.FALSE)
+  BindUtil.bindBooleanStorage(gitProperty, "NewProjectWizard.gitState")
+  private def isGitRepository: Boolean =
+    Option(GitRepositoryInitializer.getInstance()).isDefined && gitProperty.get()
+
   def getSdk: Sdk = sdkProperty.get()
   def getModuleName: String = moduleNameProperty.get()
 
@@ -76,8 +82,12 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
+    if (isGitRepository) addGitIgnore(project, projectRoot.toString)
+
     builder.commit(project)
   }
+
+
 
   override def setupUI(panel: Panel): Unit = {
     panel.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {

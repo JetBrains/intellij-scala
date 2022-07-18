@@ -40,12 +40,25 @@ package object buildSystem {
     val sourceCode = template.getText
 
     inWriteAction {
-      val fileDirectory = VfsUtil.createDirectoryIfMissing(path) match {
-        case null => throw new IllegalStateException("Unable to create src directory")
-        case fd => fd
-      }
+      val fileDirectory = createDirectoryIfMissing(path)
       val file: VirtualFile = fileDirectory.findOrCreateChildData(this, fileName)
       VfsUtil.saveText(file, sourceCode)
+      file
+    }
+  }
+
+  private def createDirectoryIfMissing(path: String): VirtualFile =
+    Option(VfsUtil.createDirectoryIfMissing(path))
+      .getOrElse(throw new IllegalStateException("Unable to create src directory"))
+
+  private[buildSystem]
+  def addGitIgnore(project: Project, path: String): VirtualFile = {
+    val manager = FileTemplateManager.getInstance(project)
+    val contents = manager.getInternalTemplate("scala-gitignore.txt").getText
+    inWriteAction {
+      val fileDirectory = createDirectoryIfMissing(path)
+      val file = fileDirectory.findOrCreateChildData(this, ".gitignore")
+      VfsUtil.saveText(file, contents)
       file
     }
   }
