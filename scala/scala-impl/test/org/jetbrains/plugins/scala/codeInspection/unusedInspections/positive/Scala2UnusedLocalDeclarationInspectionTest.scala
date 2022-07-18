@@ -216,18 +216,6 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  def test_private_auxiliary_constructor(): Unit = checkTextHasError(
-    s"""
-       |class Test(val s: Int) {
-       |  private def ${START}this$END() = this(s)
-       |}
-       |object Test {
-       |  def foo() = new Test(3)
-       |}
-       |Test.foo()
-       |""".stripMargin
-  )
-
   def test_property_assignment(): Unit = checkTextHasError(
     s"""object Test {
        |  private def data: Int = 0
