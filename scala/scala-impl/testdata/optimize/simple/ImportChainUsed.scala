@@ -1,3 +1,4 @@
+// Notification message: null
 object A {
   object R {
     object C {

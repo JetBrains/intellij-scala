@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.randomTyping
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.lang.CompoundRuntimeException
-import com.intellij.util.ui.EdtInvocationManager
+import com.intellij.util.ui.EDT
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.randomTyping.RandomTypingTest._
@@ -110,7 +110,7 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
       }(getProject)
 
       // process awt events... otherwise they will stack and we get a warning
-      EdtInvocationManager.dispatchAllInvocationEvents()
+      EDT.dispatchAllInvocationEvents()
     }
 
     val file = myFixture.configureByText("test.scala", "")

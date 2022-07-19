@@ -86,7 +86,7 @@ public class MouseHoverHandler implements ProjectManagerListener {
   public void projectOpened(@NotNull Project project) {
     MouseHoverHandlerListeners mouseHoverListeners = new MouseHoverHandlerListeners(project);
     StartupManager startupManager = StartupManager.getInstance(project);
-    startupManager.registerPostStartupActivity((DumbAwareRunnable) mouseHoverListeners::registerListeners);
+    startupManager.runAfterOpened((DumbAwareRunnable) mouseHoverListeners::registerListeners);
   }
 
   private static class MouseHoverHandlerListeners {

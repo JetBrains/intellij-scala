@@ -1,3 +1,4 @@
+// Notification message: Removed 1 import
 import java.util.{Date, AbstractList}
 
 abstract class DeleteBraces {

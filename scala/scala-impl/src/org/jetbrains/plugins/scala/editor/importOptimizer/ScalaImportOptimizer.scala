@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import com.intellij.concurrency.JobLauncher
 import com.intellij.ide.scratch.ScratchUtil
+import com.intellij.lang.ImportOptimizer.CollectingInfoRunnable
 import com.intellij.lang.{ASTNode, ImportOptimizer, LanguageImportStatements}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
@@ -41,6 +42,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
+import scala.util.chaining.scalaUtilChainingOps
 
 class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
@@ -145,7 +147,6 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 
     val rangeInfos = collectRanges(ImportInfo.createInfos(_, isImportUsed))
 
-
     if (indicator != null) {
       indicator.setText2(ScalaEditorBundle.message("imports.optimizing", file.name))
     }
@@ -159,7 +160,9 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       (range, optimizedImportInfos(range, importsSettings))
     }
 
-    new Runnable {
+    new CollectingInfoRunnable {
+      private var optimizationResult = ImportOptimizationResult.Empty
+
       override def run(): Unit = {
         val documentManager = PsiDocumentManager.getInstance(project)
         val document: Document = documentManager.getDocument(scalaFile)
@@ -171,7 +174,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
           else optimized
 
         for ((range, importInfos) <- ranges.reverseIterator) {
-          replaceWithNewImportInfos(range, importInfos, importsSettings, scalaFile)
+          optimizationResult += replaceWithNewImportInfos(range, importInfos, importsSettings, scalaFile)
         }
         documentManager.commitDocument(document)
       }
@@ -181,6 +184,23 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
           collectRanges(_ => Seq.empty)
         }.map {
           case ((_, infos), range) => (range, infos)
+        }
+      }
+
+      override def getUserNotificationInfo: String = {
+        val ImportOptimizationResult(deleted, inserted, rearranged) = optimizationResult
+
+        if (deleted == 0) {
+          if (rearranged) ScalaEditorBundle.message("import.optimizer.hint.rearranged.imports")
+          else null
+        } else {
+          //noinspection ReferencePassedToNls
+          ScalaEditorBundle.message("import.optimizer.hint.removed.imports", deleted, if (deleted == 1) 0 else 1)
+            .pipe { notification =>
+              if (inserted > 0)
+                notification + ScalaEditorBundle.message("import.optimizer.hint.added.imports", inserted, if (inserted == 1) 0 else 1)
+              else notification
+            }
         }
       }
     }
@@ -202,7 +222,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     importInfos: Iterable[ImportInfo],
     settings: OptimizeImportSettings,
     file: ScalaFile
-  ): Unit = {
+  ): ImportOptimizationResult = {
     replaceWithNewImportInfos(
       range.firstPsi.retrieve(),
       range.lastPsi.retrieve(),
@@ -220,7 +240,7 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
     importInfos: Iterable[ImportInfo],
     settings: OptimizeImportSettings,
     file: ScalaFile
-  ): Unit = {
+  ): ImportOptimizationResult = {
 
     def notValid(psi: PsiElement) = psi == null || !psi.isValid
 
@@ -292,7 +312,8 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
       //originally added to reduce  number of invalidated elements during refactorings
       //(currently it may not be used in move refactoring)
       val finalResult = dummyFile.getNode.getChildren(null)
-      BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText)
+      ImportOptimizationResult.calculate(buffer.asArray, finalResult)
+        .tap(_ => BufferUpdate.updateIncrementally(buffer, finalResult)(_.getText))
     }
   }
 
@@ -483,6 +504,61 @@ class ScalaImportOptimizer(isOnTheFly: Boolean) extends ImportOptimizer {
 object ScalaImportOptimizer {
 
   private case class UsedName(name: String, offset: Int)
+
+  /** Import optimization action run statistics
+   *
+   * @param deletedImports  number of removed imports
+   * @param insertedImports number of inserted imports
+   * @param rearranged      whether the imports are the same but in another order
+   */
+  final case class ImportOptimizationResult(deletedImports: Int, insertedImports: Int, rearranged: Boolean) {
+    def +(that: ImportOptimizationResult): ImportOptimizationResult =
+      ImportOptimizationResult(
+        deletedImports = this.deletedImports + that.deletedImports,
+        insertedImports = this.insertedImports + that.insertedImports,
+        rearranged = this.rearranged || that.rearranged
+      )
+  }
+
+  object ImportOptimizationResult {
+    val Empty: ImportOptimizationResult =
+      ImportOptimizationResult(deletedImports = 0, insertedImports = 0, rearranged = false)
+
+    def calculate(nodesBefore: Array[ASTNode], nodesAfter: Array[ASTNode]): ImportOptimizationResult = {
+      val oldImports = collectImports(nodesBefore)
+      val newImports = collectImports(nodesAfter)
+
+      val sameLength = oldImports.length == newImports.length
+      val nothingChanged = sameLength && oldImports == newImports
+
+      if (nothingChanged) ImportOptimizationResult.Empty
+      else {
+        val deleted = oldImports.diff(newImports).length
+        val added = newImports.diff(oldImports).length
+        val rearranged = sameLength && deleted == 0 && added == 0
+        ImportOptimizationResult(deleted, added, rearranged)
+      }
+    }
+
+    private final case class ImportDescriptor(path: String, nameOrSelector: String)
+
+    private object ImportDescriptor {
+      def apply(i: ScImportExpr): Seq[ImportDescriptor] = {
+        val qualifier = i.qualifier.fold("")(_.qualName)
+
+        i.selectorSet match {
+          case Some(selectorSet) => selectorSet.selectors.map(s => ImportDescriptor(qualifier, s.getText))
+          case None => i.reference.map(r => ImportDescriptor(qualifier, r.refName)).toList
+        }
+      }
+    }
+
+    private def collectImports(nodes: Array[ASTNode]): List[ImportDescriptor] =
+      nodes.toList
+        .flatMap(_.getPsi.asOptionOf[ScImportStmt])
+        .flatMap(_.importExprs)
+        .flatMap(ImportDescriptor(_))
+  }
 
   val NO_IMPORT_USED: Set[ImportUsed] = Set.empty
   val _root_prefix = "_root_"

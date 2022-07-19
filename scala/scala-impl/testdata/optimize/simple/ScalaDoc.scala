@@ -1,3 +1,4 @@
+// Notification message: null
 import scala.collection.immutable.HashMap
 
 /**

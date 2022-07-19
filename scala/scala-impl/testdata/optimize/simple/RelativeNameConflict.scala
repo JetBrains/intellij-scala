@@ -1,3 +1,4 @@
+// Notification message: Removed 1 import, added 1 import
 package a {
 
   import test.A

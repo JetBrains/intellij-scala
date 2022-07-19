@@ -1,3 +1,4 @@
+// Notification message: null
 class RR {
   class A {
     def foo = 123

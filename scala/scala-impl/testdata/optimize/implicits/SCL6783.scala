@@ -1,3 +1,4 @@
+// Notification message: null
 object SCL6783 {
   class O[T]
   object K {

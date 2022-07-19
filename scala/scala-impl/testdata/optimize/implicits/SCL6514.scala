@@ -1,3 +1,4 @@
+// Notification message: null
 object SCL6514 {
   class A
   class B

@@ -1,3 +1,4 @@
+// Notification message: null
 package scatch
 
 sealed trait Identity {

@@ -1,3 +1,4 @@
+// Notification message: null
 trait T
 trait U {
   def doSomething(something: Any)(implicit t: T): U = ???

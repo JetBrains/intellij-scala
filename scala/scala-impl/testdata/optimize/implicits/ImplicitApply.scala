@@ -1,3 +1,4 @@
+// Notification message: null
 package apply
 object ImplicitApply {
   class A

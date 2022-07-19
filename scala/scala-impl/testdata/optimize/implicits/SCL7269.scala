@@ -1,3 +1,4 @@
+// Notification message: null
 object T {
   implicit lazy val t: String = "sdf"
 }

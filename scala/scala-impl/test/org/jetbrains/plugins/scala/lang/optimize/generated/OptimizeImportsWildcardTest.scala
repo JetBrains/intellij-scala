@@ -136,7 +136,8 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
         |    println(Properties.versionString)
         |    println()
         |  }
-        |}""".stripMargin
+        |}""".stripMargin,
+      "Removed 1 import"
     )
   }
 
@@ -174,7 +175,8 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
         |    println(Properties.versionString)
         |    println()
         |  }
-        |}""".stripMargin
+        |}""".stripMargin,
+      "Removed 2 imports"
     )
   }
 
@@ -238,7 +240,8 @@ abstract class OptimizeImportsWildcardTestBase extends OptimizeImportsTestBase {
         |
         |  def useOtherClass(a: OtherClassA, b: OtherClassB, c: OtherClassC, d: OtherClassD, e: OtherClassE, f: OtherClassF)
         |  def useBarOtherClass(a: BarOtherClassA, b: BarOtherClassB, c: BarOtherClassC, d: BarOtherClassD, e: BarOtherClassE, f: BarOtherClassF)
-        |}""".stripMargin
+        |}""".stripMargin,
+      "Removed 6 imports, added 1 import"
     )
   }
 }
@@ -269,7 +272,8 @@ class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage,
-      CodeAfter_Common_212
+      CodeAfter_Common_212,
+      "Removed 2 imports"
     )
   }
 
@@ -277,7 +281,8 @@ class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1,
-      CodeAfter_Common_212
+      CodeAfter_Common_212,
+      "Removed 2 imports"
     )
   }
 
@@ -285,7 +290,8 @@ class OptimizeImportsWildcardTest_2_12 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2,
-      CodeAfter_Common_212
+      CodeAfter_Common_212,
+      "Removed 3 imports"
     )
   }
 }
@@ -318,7 +324,8 @@ class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage,
-      CodeAfter_Common_213
+      CodeAfter_Common_213,
+      "Removed 1 import"
     )
   }
 
@@ -326,7 +333,8 @@ class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_1,
-      CodeAfter_Common_213
+      CodeAfter_Common_213,
+      "Removed 1 import"
     )
   }
 
@@ -334,7 +342,8 @@ class OptimizeImportsWildcardTest_2_13 extends OptimizeImportsWildcardTestBase {
     addCommonDeclarationsWithNameClashes()
     doTest(
       CodeBefore_ClassName_FromWildcardImportAndDefaultPackage_ClashesWith_ExplicitlyImportedClass_FromSamePackage_2,
-      CodeAfter_Common_213
+      CodeAfter_Common_213,
+      "Removed 2 imports"
     )
   }
 }

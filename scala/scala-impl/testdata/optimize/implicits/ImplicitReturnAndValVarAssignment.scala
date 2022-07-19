@@ -1,3 +1,4 @@
+// Notification message: null
 trait Scratch {
   case object T
   case object U

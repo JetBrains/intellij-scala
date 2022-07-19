@@ -1,3 +1,4 @@
+// Notification message: Removed 5 imports, added 1 import
 import java.awt.{BasicStroke, Color, Dimension, Graphics2D, Point}
 
 class MayReplace {

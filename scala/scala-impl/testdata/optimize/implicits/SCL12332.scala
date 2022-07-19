@@ -1,3 +1,4 @@
+// Notification message: Removed 1 import
 object SCL12332 {
   import Ordering.Implicits._
   import java.util._

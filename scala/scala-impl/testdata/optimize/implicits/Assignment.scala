@@ -1,3 +1,4 @@
+// Notification message: null
 import java.awt.Dimension
 
 object T {
