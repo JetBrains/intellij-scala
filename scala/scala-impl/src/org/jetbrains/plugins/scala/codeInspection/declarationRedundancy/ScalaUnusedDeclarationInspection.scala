@@ -93,6 +93,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
               addScalaAnnotationUnusedQuickFix
           )
         )
+      case _ => Seq.empty
     }
   }
 

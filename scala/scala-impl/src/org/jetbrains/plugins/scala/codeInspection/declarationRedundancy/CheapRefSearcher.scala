@@ -194,7 +194,7 @@ object CheapRefSearcher {
   }
 
   private def isImplicitUsed(target: PsiElement): Seq[ElementUsage] =
-    target.getContainingFile.depthFirst().filter(target.refOrImplicitRefIn(_).nonEmpty).toSeq.map(_ => UnknownElementUsage)
+    target.getContainingFile.depthFirst().find(target.refOrImplicitRefIn(_).nonEmpty).toSeq.map(_ => UnknownElementUsage)
 
   private def shouldProcessElement(element: PsiElement): Boolean = {
 

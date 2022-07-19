@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.negative
 
-import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase
+import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase
 import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.ScalaAccessCanBeTightenedInspection
 
-final class AccessCanBePrivateInspectionTest extends ScalaHighlightsTestBase {
+final class AccessCanBePrivateInspectionTest extends ScalaAnnotatorQuickFixTestBase {
   override protected val description = "Access can be private"
 
   override def setUp(): Unit = {
