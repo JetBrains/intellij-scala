@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.rearranger;
+package org.jetbrains.plugins.scala.failed.rearranger;
 
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
@@ -20,35 +20,33 @@ import java.util.Collections;
  * @author Roman.Shein
  * Date: 26.07.13
  */
-public class RearrangerTest extends TestCase {
+public class FailedRearrangerTest extends TestCase {
+
     public static Test suite() {
-        return new ScalaFileSetTestCase("/rearranger/defaultSettingsData") {
+        return new ScalaFileSetTestCase("/rearranger/failedData") {
+            @Override
+            protected boolean shouldPass() {
+                return false;
+            }
+
             @NotNull
             @Override
-            protected String transform(@NotNull String testName,
-                                       @NotNull String fileText,
-                                       @NotNull Project project) {
+            protected String transform(@NotNull String testName, @NotNull String fileText, @NotNull Project project) {
                 final PsiFile file = createLightFile(fileText, project);
-                CommandProcessor.getInstance().executeCommand(
-                        project,
-                        () -> ApplicationManager.getApplication().runWriteAction(() -> {
-                            try {
-                                rearrange(file, project);
-                            } catch (IncorrectOperationException e) {
-                                e.printStackTrace();
-                            }
-                        }),
-                        null,
-                        null
-                );
+                CommandProcessor.getInstance().executeCommand(project, () -> ApplicationManager.getApplication().runWriteAction(() -> {
+                    try {
+                        rearrange(file, project);
+                    } catch (IncorrectOperationException e) {
+                        e.printStackTrace();
+                    }
+                }), null, null);
                 return file.getText();
             }
 
             private void rearrange(@NotNull PsiFile file, @NotNull Project project) {
-                project.getService(ArrangementEngine.class)
-                        .arrange(file, Collections.singletonList(file.getTextRange()));
+                project.getService(ArrangementEngine.class).arrange(file, Collections.singletonList(file.getTextRange()));
 
-                PsiDocumentManager documentManager = PsiDocumentManager.getInstance(project);
+                PsiDocumentManager documentManager = PsiDocumentManager.getInstance(file.getProject());
                 Document document = documentManager.getDocument(file);
 
                 Assert.assertNotNull("Wrong PsiFile type provided: the file has no document.", document);

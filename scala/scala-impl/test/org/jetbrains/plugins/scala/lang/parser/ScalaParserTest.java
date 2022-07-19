@@ -16,20 +16,14 @@
 package org.jetbrains.plugins.scala.lang.parser;
 
 import junit.framework.Test;
+import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
 
-@RunWith(AllTests.class)
-public class ScalaParserTest extends ScalaFileSetTestCase {
-
-    ScalaParserTest() {
-        super("/parser/data");
-    }
-
+public class ScalaParserTest extends TestCase {
     @NotNull
     public static Test suite() {
-        return new ScalaParserTest();
+        return new ScalaFileSetTestCase("/parser/data") {
+        };
     }
 }

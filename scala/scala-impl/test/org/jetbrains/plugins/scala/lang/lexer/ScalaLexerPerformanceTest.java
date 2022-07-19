@@ -4,41 +4,35 @@ import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.testFramework.PlatformTestUtil;
+import junit.framework.Test;
+import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
 
-@RunWith(AllTests.class)
-public class ScalaLexerPerformanceTest extends ScalaLexerTestBase {
-
-    ScalaLexerPerformanceTest() {
-        super("/lexer/performance");
-    }
-
+public class ScalaLexerPerformanceTest extends TestCase {
     @NotNull
-    @Override
-    protected String transform(@NotNull String testName,
-                               @NotNull String fileText,
-                               @NotNull Project project) {
-        String[] result = new String[1];
+    public static Test suite() {
+        return new ScalaLexerTestBase("/lexer/performance") {
+            @NotNull
+            @Override
+            protected String transform(@NotNull String testName,
+                                       @NotNull String fileText,
+                                       @NotNull Project project) {
+                String[] result = new String[1];
 
-        PlatformTestUtil.assertTiming(
-                "Lexer performance test",
-                1000,
-                () -> result[0] = ScalaLexerPerformanceTest.super.transform(testName, fileText, project)
-        );
+                PlatformTestUtil.assertTiming(
+                        "Lexer performance test",
+                        1000,
+                        () -> result[0] = super.transform(testName, fileText, project)
+                );
 
-        return result[0];
-    }
+                return result[0];
+            }
 
-    @Override
-    protected void onToken(@NotNull Lexer lexer,
-                           @NotNull IElementType tokenType,
-                           @NotNull StringBuilder builder) {
-    }
-
-    @NotNull
-    public static ScalaLexerPerformanceTest suite() {
-        return new ScalaLexerPerformanceTest();
+            @Override
+            protected void onToken(@NotNull Lexer lexer,
+                                   @NotNull IElementType tokenType,
+                                   @NotNull StringBuilder builder) {
+            }
+        };
     }
 }

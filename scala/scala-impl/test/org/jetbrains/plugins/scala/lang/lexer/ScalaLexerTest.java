@@ -15,22 +15,17 @@
 
 package org.jetbrains.plugins.scala.lang.lexer;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
 
 /**
  * @author ilyas
  */
-@RunWith(AllTests.class)
-public class ScalaLexerTest extends ScalaLexerTestBase {
-
-  ScalaLexerTest() {
-    super("/lexer/data");
-  }
-
-  @NotNull
-  public static ScalaLexerTest suite() {
-    return new ScalaLexerTest();
-  }
+public class ScalaLexerTest extends TestCase {
+    @NotNull
+    public static Test suite() {
+        return new ScalaLexerTestBase("/lexer/data") {
+        };
+    }
 }

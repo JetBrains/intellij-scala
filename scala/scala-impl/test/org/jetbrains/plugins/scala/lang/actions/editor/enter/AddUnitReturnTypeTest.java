@@ -2,28 +2,22 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter;
 
 import com.intellij.openapi.project.Project;
 import junit.framework.Test;
+import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
 
 /**
  * User: Dmitry.Naydanov
  * Date: 09.07.14.
  */
-@RunWith(AllTests.class)
-public class AddUnitReturnTypeTest extends AbstractEnterActionTestBase {
-  public AddUnitReturnTypeTest() {
-    super("/actions/editor/enter/addunit");
-  }
+public class AddUnitReturnTypeTest extends TestCase {
+    public static Test suite() {
+        return new AbstractEnterActionTestBase("/actions/editor/enter/addunit") {
+            @Override
+            protected void setSettings(@NotNull Project project) {
+                super.setSettings(project);
 
-  @Override
-  protected void setSettings(@NotNull Project project) {
-    super.setSettings(project);
-
-    getScalaSettings(project).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
-  }
-
-  public static Test suite() {
-    return new AddUnitReturnTypeTest();
-  }
+                getScalaSettings(project).ENFORCE_FUNCTIONAL_SYNTAX_FOR_UNIT = true;
+            }
+        };
+    }
 }

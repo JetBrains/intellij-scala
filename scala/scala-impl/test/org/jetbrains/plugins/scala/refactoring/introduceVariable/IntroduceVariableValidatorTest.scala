@@ -2,15 +2,12 @@ package org.jetbrains.plugins.scala
 package refactoring
 package introduceVariable
 
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
+import junit.framework.{Test, TestCase}
 
-@RunWith(classOf[AllTests])
-class IntroduceVariableValidatorTest extends AbstractIntroduceVariableValidatorTestBase("data") {
-
-  override protected def getName(fileText: String): String = "value"
-}
+class IntroduceVariableValidatorTest extends TestCase
 
 object IntroduceVariableValidatorTest {
-  def suite = new IntroduceVariableValidatorTest
+  def suite(): Test = new AbstractIntroduceVariableValidatorTestBase("data") {
+    override protected def getName(fileText: String): String = "value"
+  }
 }

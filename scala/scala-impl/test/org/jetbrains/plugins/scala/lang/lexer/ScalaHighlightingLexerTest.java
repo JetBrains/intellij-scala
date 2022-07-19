@@ -17,28 +17,22 @@ package org.jetbrains.plugins.scala.lang.lexer;
 
 import com.intellij.lexer.Lexer;
 import com.intellij.openapi.project.Project;
+import junit.framework.Test;
+import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighter;
 import org.jetbrains.plugins.scala.highlighter.ScalaSyntaxHighlighterFactory;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
 
-@RunWith(AllTests.class)
-public class ScalaHighlightingLexerTest extends ScalaLexerTestBase {
-
-  ScalaHighlightingLexerTest() {
-    super("/lexer/highlighting");
-  }
-
-  @NotNull
-  @Override
-  protected Lexer createLexer(@NotNull Project project) {
-    ScalaSyntaxHighlighter scalaSyntaxHighlighter = ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(project, null, getLanguage());
-    return scalaSyntaxHighlighter.getHighlightingLexer();
-  }
-
-  @NotNull
-  public static ScalaHighlightingLexerTest suite() {
-    return new ScalaHighlightingLexerTest();
-  }
+public class ScalaHighlightingLexerTest extends TestCase {
+    @NotNull
+    public static Test suite() {
+        return new ScalaLexerTestBase("/lexer/highlighting") {
+            @NotNull
+            @Override
+            protected Lexer createLexer(@NotNull Project project) {
+                ScalaSyntaxHighlighter scalaSyntaxHighlighter = ScalaSyntaxHighlighterFactory.createScalaSyntaxHighlighter(project, null, getLanguage());
+                return scalaSyntaxHighlighter.getHighlightingLexer();
+            }
+        };
+    }
 }

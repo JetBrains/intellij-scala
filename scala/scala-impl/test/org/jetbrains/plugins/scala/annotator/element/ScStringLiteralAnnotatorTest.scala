@@ -4,43 +4,37 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiFile
-import junit.framework.Test
+import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMockBase
-import org.jetbrains.plugins.scala.annotator.element.ScStringLiteralAnnotatorTest.{MyAnnotatorHolderMock, MyMessage}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
 
 import scala.annotation.nowarn
 import scala.math.Ordered.orderingToOrdered
 
-@RunWith(classOf[AllTests])
-class ScStringLiteralAnnotatorTest
-  extends ScalaFileSetTestCase("/annotator/string_literals/") {
-
-  override protected def transform(testName: String, fileText: String, project: Project): String = {
-    val lightFile = createLightFile(fileText, project)
-
-    val messages = collectMessages(lightFile)
-
-    messages.mkString("\n")
-  }
-
-  private def collectMessages(file: PsiFile): List[MyMessage] = {
-    val mock = new MyAnnotatorHolderMock(file)
-
-    val literals = file.depthFirst().filterByType[ScStringLiteral].toSeq
-    literals.foreach(ElementAnnotator.annotate(_)(mock))
-
-    mock.annotations
-  }
-}
+class ScStringLiteralAnnotatorTest extends TestCase
 
 object ScStringLiteralAnnotatorTest {
 
-  def suite: Test = new ScStringLiteralAnnotatorTest
+  def suite: Test = new ScalaFileSetTestCase("/annotator/string_literals/") {
+    override protected def transform(testName: String, fileText: String, project: Project): String = {
+      val lightFile = createLightFile(fileText, project)
+
+      val messages = collectMessages(lightFile)
+
+      messages.mkString("\n")
+    }
+
+    private def collectMessages(file: PsiFile): List[MyMessage] = {
+      val mock = new MyAnnotatorHolderMock(file)
+
+      val literals = file.depthFirst().filterByType[ScStringLiteral].toSeq
+      literals.foreach(ElementAnnotator.annotate(_)(mock))
+
+      mock.annotations
+    }
+  }
 
   implicit private object TextRangeOrdering extends scala.math.Ordering[TextRange] {
     override def compare(x: TextRange, y: TextRange): Int =

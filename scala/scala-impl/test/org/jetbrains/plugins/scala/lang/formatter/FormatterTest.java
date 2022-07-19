@@ -15,61 +15,19 @@
 
 package org.jetbrains.plugins.scala.lang.formatter;
 
-import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.command.CommandProcessor;
-import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.runner.RunWith;
-import org.junit.runners.AllTests;
-
-import java.util.Collections;
+import junit.framework.TestCase;
 
 /**
  * Created by IntelliJ IDEA.
  * User: Ilya.Sergey
  */
 
-@RunWith(AllTests.class)
-public class FormatterTest extends ScalaFileSetTestCase {
-
-  protected FormatterTest(@NotNull @NonNls String path) {
-    super(path);
-  }
-
-  public static Test suite() {
-    return new FormatterTest("/formatter/data/");
-  }
-
-  @Override
-  protected void setSettings(@NotNull Project project) {
-    super.setSettings(project);
-    getScalaSettings(project).USE_SCALADOC2_FORMATTING = true;
-  }
-
-  @NotNull
-  @Override
-  protected String transform(@NotNull String testName,
-                             @NotNull String fileText,
-                             @NotNull Project project) {
-    final PsiFile psiFile = createLightFile(fileText, project);
-    Runnable runnable = () -> ApplicationManager.getApplication().runWriteAction(() -> {
-          try {
-            CodeStyleManager.getInstance(project)
-                    .reformatText(psiFile, Collections.singletonList(psiFile.getTextRange()));
-          } catch (IncorrectOperationException e) {
-            e.printStackTrace();
-          }
-        }
-    );
-    CommandProcessor.getInstance().executeCommand(project, runnable, null, null);
-    return psiFile.getText();
-  }
+public class FormatterTest extends TestCase {
+    public static Test suite() {
+        return new FormatterTestSuite("/formatter/data/") {
+        };
+    }
 }
 
 
