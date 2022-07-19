@@ -11,6 +11,8 @@ import com.intellij.psi._
 import com.intellij.psi.stubs.{NamedStub, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.CheapRefSearcher
+import org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.CheapRefSearcher.ElementUsage
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -119,4 +121,16 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
       case _: ScCaseClause => Icons.PATTERN_VAL
       case x => x.getIcon(flags)
     }
+
+  /**
+   * Please read [[org.jetbrains.plugins.scala.codeInspection.declarationRedundancy.CheapRefSearcher]] docs
+   * before considering using this method.
+   */
+  // TODO Ideally org.jetbrains.plugins.scala.lang.psi has no dependencies on org.jetbrains.plugins.scala.codeInspection
+  //  so that our PSI implementation can function as an independent module.
+  //  For the reason of caching, for now this method lives here. If there is another feasible way to express
+  //  that some cached result must be invalidated upon any PSI change in the project, we should implement that way.
+  @Cached(ModTracker.physicalPsiChange(getProject), this)
+  def getUsages(isOnTheFly: Boolean, reportPublicDeclarations: Boolean): Seq[ElementUsage] =
+    CheapRefSearcher.search(this, isOnTheFly, reportPublicDeclarations)
 }

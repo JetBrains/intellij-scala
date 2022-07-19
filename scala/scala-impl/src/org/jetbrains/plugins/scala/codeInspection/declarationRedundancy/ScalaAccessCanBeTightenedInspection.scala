@@ -6,7 +6,7 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiFile}
 import org.jetbrains.plugins.scala.extensions.PsiModifierListOwnerExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPatternList
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 
@@ -41,14 +41,15 @@ private[declarationRedundancy] final class ScalaAccessCanBeTightenedInspection e
     problemsHolder: ProblemsHolder,
     isOnTheFly: Boolean
   ): Unit = {
-    if (CheapRefSearcher.search(element, isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
+    if (element.getUsages(isOnTheFly, reportPublicDeclarations = true).forall(_.targetCanBePrivate)) {
+      // TODO Change descriptionTemplate based on whether TypeAnnotationInspection adds a QuickFix or not
       val fix = new MakePrivateQuickFix(modifierListOwner)
       problemsHolder.registerProblem(element.nameId, "Access can be private", ProblemHighlightType.WARNING, fix)
     }
   }
 }
 
-private class MakePrivateQuickFix(element: ScModifierListOwner) extends LocalQuickFixOnPsiElement(element) {
+class MakePrivateQuickFix(element: ScModifierListOwner) extends LocalQuickFixOnPsiElement(element) {
 
   override def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit =
     element.setModifierProperty("private")
