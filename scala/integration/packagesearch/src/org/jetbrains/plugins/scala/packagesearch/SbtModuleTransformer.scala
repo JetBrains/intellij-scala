@@ -66,7 +66,7 @@ class SbtModuleTransformer(private val project: Project) extends AsyncModuleTran
             module,
             null,
             buildFile,
-            buildFile.getParent,
+            buildFile.getParent.toNioPath.toFile,
             PackageSearchSbtBundle.buildSystemType,
             SbtProjectModuleType
         )

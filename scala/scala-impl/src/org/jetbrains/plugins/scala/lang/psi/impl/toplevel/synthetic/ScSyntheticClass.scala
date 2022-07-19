@@ -552,7 +552,7 @@ object SyntheticClasses {
 
 class SyntheticClassesListener extends ProjectManagerListener {
   override def projectOpened(project: Project): Unit = {
-    StartupManager.getInstance(project).registerPostStartupActivity(
+    StartupManager.getInstance(project).runAfterOpened(
       // NOTE: run `registerClasses` on EDT!
       // Don't use `inReadAction`, it can significantly increase setup time for each test case.
       // Details: DumbAware startup activity is run on the background thread.

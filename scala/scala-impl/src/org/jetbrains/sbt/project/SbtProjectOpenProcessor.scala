@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.projectImport.ProjectOpenProcessor
@@ -20,5 +21,7 @@ class SbtProjectOpenProcessor extends ProjectOpenProcessor {
     SbtProjectImportProvider.canImport(file)
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame)
+    runUnderModalProgressIfIsEdt { continuation =>
+      new SbtOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
+    }
 }

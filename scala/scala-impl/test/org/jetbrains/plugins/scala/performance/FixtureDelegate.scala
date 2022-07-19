@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.performance
 import com.intellij.openapi.module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ex.ProjectManagerEx
+import com.intellij.project.TestProjectManager
 import com.intellij.testFramework.fixtures.IdeaProjectTestFixture
 import com.intellij.testFramework.{PlatformTestUtil, TestApplicationManager}
 import org.jetbrains.plugins.scala.project.ProjectExt
@@ -15,7 +16,7 @@ class FixtureDelegate(projectFile: Path) extends IdeaProjectTestFixture {
     override def setUp(): Unit = {
       TestApplicationManager.getInstance.setDataProvider(null)
       actualProject = ProjectManagerEx.getInstanceEx.loadProject(projectFile)
-      ProjectManagerEx.getInstanceEx.openProject(actualProject)
+      ProjectManagerEx.getInstanceEx.asInstanceOf[TestProjectManager].openProject(actualProject)
       PlatformTestUtil.dispatchAllInvocationEventsInIdeEventQueue()
     }
     override def tearDown(): Unit = {

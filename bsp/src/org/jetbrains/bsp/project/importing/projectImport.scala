@@ -1,14 +1,14 @@
 package org.jetbrains.bsp.project.importing
 
+import com.intellij.ide.impl.ProjectUtilKt.runUnderModalProgressIfIsEdt
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, WizardContext}
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.{AbstractOpenProjectProvider, ImportSpecBuilder}
-import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.model.internal.InternalExternalProjectInfo
 import com.intellij.openapi.externalSystem.model.project.ProjectData
+import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMode
-import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.externalSystem.service.project.wizard.{AbstractExternalProjectImportBuilder, AbstractExternalProjectImportProvider}
 import com.intellij.openapi.externalSystem.service.project.{ExternalProjectRefreshCallback, ProjectDataManager}
 import com.intellij.openapi.externalSystem.service.settings.AbstractImportFromExternalSystemControl
@@ -22,17 +22,17 @@ import com.intellij.openapi.util.{Disposer, NotNullFactory}
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.packaging.artifacts.ModifiableArtifactModel
 import com.intellij.projectImport.{ProjectImportBuilder, ProjectImportProvider, ProjectOpenProcessor}
+import org.jetbrains.bsp._
+import org.jetbrains.bsp.protocol.BspConnectionConfig
+import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp.settings._
+import org.jetbrains.sbt.project.SbtProjectImportProvider
 
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util
 import java.util.Collections
 import javax.swing._
-import org.jetbrains.bsp._
-import org.jetbrains.bsp.protocol.BspConnectionConfig
-import org.jetbrains.bsp.settings.BspProjectSettings._
-import org.jetbrains.bsp.settings._
-import org.jetbrains.sbt.project.SbtProjectImportProvider
 
 class BspProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[BspImportControl](
@@ -239,7 +239,9 @@ class BspProjectOpenProcessor extends ProjectOpenProcessor {
     BspProjectOpenProcessor.canOpenProject(file)
 
   override def doOpenProject(virtualFile: VirtualFile, projectToClose: Project, forceOpenInNewFrame: Boolean): Project =
-    new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame)
+    runUnderModalProgressIfIsEdt { continuation =>
+      new BspOpenProjectProvider().openProject(virtualFile, projectToClose, forceOpenInNewFrame, continuation)
+    }
 }
 
 object BspProjectOpenProcessor {
