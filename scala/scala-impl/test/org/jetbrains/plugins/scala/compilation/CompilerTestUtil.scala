@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.compilation
 
-import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
@@ -68,28 +67,11 @@ object CompilerTestUtil {
       XmlSerializerUtil.copyBean(settingsBefore, settings)
   }
 
-  def withEnabledCompileServer(enable: Boolean): RevertableChange = new CompositeRevertableChange(Seq(
-    withModifiedCompileServerSettings { settings =>
-      settings.COMPILE_SERVER_ENABLED = enable
-      settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
-      settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
-    },
-    new RevertableChange {
-      private var saveAllowedBefore: Boolean = _
-      private lazy val application: ApplicationEx = ApplicationManagerEx.getApplicationEx
-
-      override def applyChange(): Unit = {
-        saveAllowedBefore = application.isSaveAllowed
-        application.setSaveAllowed(true)
-        application.saveSettings()
-      }
-
-      override def revertChange(): Unit = {
-        application.setSaveAllowed(saveAllowedBefore)
-        application.saveSettings()
-      }
-    }
-  ))
+  def withEnabledCompileServer(enable: Boolean): RevertableChange = withModifiedCompileServerSettings { settings =>
+    settings.COMPILE_SERVER_ENABLED = enable
+    settings.COMPILE_SERVER_SHUTDOWN_IDLE = true
+    settings.COMPILE_SERVER_SHUTDOWN_DELAY = 30
+  }
 
   def withForcedJdkForBuildProcess(jdk: Sdk): RevertableChange = new RevertableChange {
     private var jdkBefore: Option[String] = None
