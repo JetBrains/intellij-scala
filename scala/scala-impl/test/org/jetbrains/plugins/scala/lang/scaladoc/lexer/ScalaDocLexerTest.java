@@ -3,15 +3,12 @@ package org.jetbrains.plugins.scala.lang.scaladoc.lexer;
 import com.intellij.lang.Language;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.lang.lexer.LexerTestBase;
 import org.jetbrains.plugins.scalaDoc.ScalaDocLanguage;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-@Category({LanguageTests.class})
 public class ScalaDocLexerTest extends LexerTestBase {
 
     public ScalaDocLexerTest() {

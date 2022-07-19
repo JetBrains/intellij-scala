@@ -6,13 +6,11 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.refactoring.mock.EditorMock
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
 
-@Category(Array(classOf[LanguageTests]))
 abstract class StatementMoverTestBase extends SimpleTestCase {
   private def move(code: String, direction: Direction): Option[String] = {
     val preparedCode = code.replaceAll("\r\n", "\n")

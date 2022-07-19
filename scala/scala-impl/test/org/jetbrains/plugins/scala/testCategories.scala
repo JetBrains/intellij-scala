@@ -28,5 +28,3 @@ trait HighlightingTests
 /** Tests that may fail intermittently or depending on environment. 
  * Eg run locally but not on build server. */
 trait FlakyTests
-
-trait LanguageTests

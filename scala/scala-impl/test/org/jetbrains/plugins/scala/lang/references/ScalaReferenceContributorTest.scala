@@ -1,5 +1,5 @@
-package org.jetbrains.plugins.scala
-package lang.references
+package org.jetbrains.plugins.scala.lang.references
+
 
 import com.intellij.openapi.paths.WebReference
 import com.intellij.psi.{PsiFile, PsiReference}
@@ -9,11 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.{MultilineQuotes => quotes}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.collection.mutable
 
-@Category(Array(classOf[LanguageTests]))
 class ScalaReferenceContributorTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testUrlReference(): Unit = {

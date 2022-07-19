@@ -14,13 +14,11 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys._
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex, ImplicitInstanceIndex}
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.collection.immutable.Iterable
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-@Category(Array(classOf[LanguageTests]))
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 

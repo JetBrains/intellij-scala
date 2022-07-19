@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
 import com.intellij.openapi.actionSystem.IdeActions
 import com.intellij.openapi.editor.actionSystem.EditorActionManager
@@ -10,10 +9,8 @@ import org.jetbrains.plugins.scala.lang.actions.ActionTestBase
 import org.jetbrains.plugins.scala.lang.actions.ActionTestBase.MyDataContext
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
-import org.junit.experimental.categories.Category
 
 // TODO: unify with org.jetbrains.plugins.scala.lang.actions.AbstractActionTestBase ?
-@Category(Array(classOf[LanguageTests]))
 abstract class ScalaDocEnterActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   with ShortCaretMarker{
 

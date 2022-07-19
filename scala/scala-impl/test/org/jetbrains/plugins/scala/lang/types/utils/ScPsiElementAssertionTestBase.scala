@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.types.utils
+package org.jetbrains.plugins.scala.lang.types.utils
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -10,14 +9,12 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
 import scala.reflect._
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-@Category(Array(classOf[LanguageTests]))
 abstract class ScPsiElementAssertionTestBase[T <: PsiElement : ClassTag]
   extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 

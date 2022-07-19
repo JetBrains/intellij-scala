@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.scaladoc
+package org.jetbrains.plugins.scala.lang.scaladoc
 
 import com.intellij.codeInsight.generation.surroundWith.SurroundWithHandler
 import com.intellij.lang.surroundWith.SurroundDescriptor
@@ -9,13 +8,11 @@ import org.jetbrains.plugins.scala.extensions.{StringExt, executeWriteActionComm
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.scaladoc._
 import org.junit.Assert.{assertFalse, assertTrue}
-import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry Naydanov
   * Date: 3/12/12
   */
-@Category(Array(classOf[LanguageTests]))
 class SurroundWithWikiSyntaxTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import SurroundWithWikiSyntaxTest._

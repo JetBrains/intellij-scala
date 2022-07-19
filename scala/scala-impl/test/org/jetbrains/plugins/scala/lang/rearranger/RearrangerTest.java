@@ -10,10 +10,8 @@ import com.intellij.psi.codeStyle.arrangement.engine.ArrangementEngine;
 import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.Assert;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -24,7 +22,6 @@ import java.util.Collections;
  * Date: 26.07.13
  */
 @RunWith(AllTests.class)
-@Category({LanguageTests.class})
 public class RearrangerTest extends ScalaFileSetTestCase {
 
   public RearrangerTest() {
