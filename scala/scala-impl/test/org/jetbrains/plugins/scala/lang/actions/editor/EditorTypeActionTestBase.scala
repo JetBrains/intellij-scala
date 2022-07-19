@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang.actions.editor
+package org.jetbrains.plugins.scala.lang.actions.editor
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 abstract class EditorTypeActionTestBase extends EditorActionTestBase {
 
   protected def typedChar: Char

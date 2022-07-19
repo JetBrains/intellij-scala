@@ -1,17 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang.adjustTypes
+package org.jetbrains.plugins.scala.lang.adjustTypes
 
 import com.intellij.psi.PsiNamedElement
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[LanguageTests]))
 class StaticJavaTest extends LightJavaCodeInsightFixtureTestCase {
 
   def testStaticJava(): Unit = {

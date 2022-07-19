@@ -12,11 +12,8 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.experimental.categories.Category;
 
-@Category({LanguageTests.class})
 public abstract class ActionTestBase extends ScalaFileSetTestCase {
 
   protected static final String CARET_MARKER = "<caret>";

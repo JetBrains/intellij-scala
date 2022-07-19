@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.dataFlow
+package org.jetbrains.plugins.scala.lang.dataFlow
 
 import com.intellij.openapi.editor.SelectionModel
 import com.intellij.psi.PsiElement
@@ -12,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.ScalaControlFlowBui
 import org.jetbrains.plugins.scala.lang.psi.dataFlow.DfaEngine
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 import scala.collection.mutable
 
@@ -20,7 +18,6 @@ import scala.collection.mutable
  * @author ilyas
  */
 
-@Category(Array(classOf[LanguageTests]))
 class ReachingDefsTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/dataFlow/reachingDefs/"
 

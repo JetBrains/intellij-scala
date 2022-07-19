@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.actions.editor.enter.scala3
+package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiDocumentManager
@@ -8,9 +7,7 @@ import com.intellij.testFramework.fixtures.JavaCodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestStringUtils.StringOps
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 abstract class CheckIndentAfterTypingCodeOps extends EditorActionTestBase {
 
   private implicit def project: Project = myFixture.getProject

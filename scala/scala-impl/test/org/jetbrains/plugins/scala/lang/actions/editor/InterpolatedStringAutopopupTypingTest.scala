@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.actions.editor
+package org.jetbrains.plugins.scala.lang.actions.editor
 
 import com.intellij.codeInsight.completion.CompletionPhase
 import com.intellij.codeInsight.completion.impl.CompletionServiceImpl
@@ -9,12 +8,10 @@ import com.intellij.testFramework.{EdtTestUtil, TestModeFlags}
 import com.intellij.util.TimeoutUtil
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration.{Duration, DurationInt}
 
 /** see [[com.intellij.codeInsight.completion.JavaCompletionAutoPopupTestCase]] */
-@Category(Array(classOf[LanguageTests]))
 class InterpolatedStringAutopopupTypingTest extends EditorActionTestBase {
 
   private val Dot = "."

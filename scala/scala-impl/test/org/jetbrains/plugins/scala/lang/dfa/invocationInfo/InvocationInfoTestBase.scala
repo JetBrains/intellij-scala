@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.dfa.invocationInfo
+package org.jetbrains.plugins.scala.lang.dfa.invocationInfo
 
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StringExt}
@@ -10,9 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.jetbrains.plugins.scala.util.assertions.AssertionMatchers
 import org.junit.Assert.assertTrue
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[InvocationInfoTestBase])

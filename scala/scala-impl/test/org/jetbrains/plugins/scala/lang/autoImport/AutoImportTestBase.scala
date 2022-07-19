@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -25,7 +24,6 @@ import scala.annotation.nowarn
  * Date: 15.03.2009
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-@Category(Array(classOf[LanguageTests]))
 abstract class AutoImportTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with ScalaFiles {
   private val refMarker = "/*ref*/" // todo to be replaced with <caret>
 

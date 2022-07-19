@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.actions.editor.backspace
+package org.jetbrains.plugins.scala.lang.actions.editor.backspace
 
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
@@ -7,13 +6,11 @@ import org.jetbrains.plugins.scala.extensions.{StringExt => StringExt1}
 import org.jetbrains.plugins.scala.lang.actions.editor.backspace.ScalaBackspaceHandlerBaseTest.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode.{CodeWithDebugName, WrapperCodeContexts, injectCodeWithIndentAdjust}
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
 //marker trait for better tests discoverability of the original class
 @RunWith(classOf[AllTests])
-@Category(Array(classOf[LanguageTests]))
 trait ScalaBackspaceHandlerTestLike
 
 abstract class ScalaBackspaceHandlerBaseTest extends EditorActionTestBase with ScalaBackspaceHandlerTestLike {

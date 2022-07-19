@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
+package org.jetbrains.plugins.scala.lang
 package completion
 package postfix
 
@@ -17,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertFalse, assertTrue}
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import java.io.File
@@ -31,7 +29,6 @@ import java.io.File
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_3_Latest
 ))
-@Category(Array(classOf[LanguageTests]))
 abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import PostfixTemplateTest._

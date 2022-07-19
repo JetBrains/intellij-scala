@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.{StringExt, invokeAndWait}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 
 import scala.jdk.CollectionConverters._
@@ -24,7 +23,6 @@ import scala.jdk.CollectionConverters._
   TestScalaVersion.Scala_2_12,
   TestScalaVersion.Scala_3_Latest
 ))
-@Category(Array(classOf[LanguageTests]))
 abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import CompletionType.BASIC
