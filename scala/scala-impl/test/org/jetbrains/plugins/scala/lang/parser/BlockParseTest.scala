@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.parser
+package org.jetbrains.plugins.scala.lang.parser
 
 import com.intellij.lang.PsiBuilderFactory
 import com.intellij.psi.impl.source.DummyHolderFactory
@@ -11,13 +10,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaLexer
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilderImpl
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 /**
  * @author Alexander Podkhalyuzin
  */
 
-@Category(Array(classOf[LanguageTests]))
 class BlockParseTest extends SimpleTestCase {
   def parseBlock(s: String): PsiElement = {
     val context = parseText("")

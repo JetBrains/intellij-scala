@@ -6,15 +6,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.tree.IElementType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.experimental.categories.Category;
 
 /**
  * User: Dmitry Naidanov
  * Date: 11/21/11
  */
-@Category({LanguageTests.class})
 abstract public class LexerTestBase extends ScalaFileSetTestCase {
 
     protected LexerTestBase(@NotNull @NonNls String dataPath) {

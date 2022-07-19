@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.scope
+package org.jetbrains.plugins.scala.lang.psi.scope
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.search.{LocalSearchScope, SearchScope}
@@ -8,9 +7,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 class GetUseScopeTest extends SimpleTestCase {
   
   private def doTest(fileText: String)(scopeAssertion: (ScNamedElement, SearchScope) => Unit): Unit = {

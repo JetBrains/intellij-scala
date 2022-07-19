@@ -1,18 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang.psi.types
+package org.jetbrains.plugins.scala.lang.psi.types
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
 
-@Category(Array(classOf[LanguageTests]))
 class ScLiteralTest extends SimpleTestCase {
   def testNullLiteral(): Unit = {
     assertTypeIs("null", Null)

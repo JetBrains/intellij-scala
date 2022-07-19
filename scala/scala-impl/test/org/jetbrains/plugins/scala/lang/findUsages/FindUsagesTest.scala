@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.findUsages
+package org.jetbrains.plugins.scala.lang.findUsages
 
 import com.intellij.find.findUsages.FindUsagesOptions
 import com.intellij.openapi.util.TextRange
@@ -11,13 +10,11 @@ import org.jetbrains.plugins.scala.findUsages.factory.{ScalaFindUsagesHandler, S
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.util.Markers
-import org.junit.experimental.categories.Category
 
 /**
   * Nikolay.Tropin
   * 21-Aug-17
   */
-@Category(Array(classOf[LanguageTests]))
 class FindUsagesTest extends ScalaFixtureTestCase with Markers {
   private def classWithMembersOptions: FindUsagesOptions = {
     val options = new ScalaTypeDefinitionFindUsagesOptions(getProject)

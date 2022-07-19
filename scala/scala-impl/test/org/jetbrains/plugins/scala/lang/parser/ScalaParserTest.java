@@ -17,14 +17,11 @@ package org.jetbrains.plugins.scala.lang.parser;
 
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
 @RunWith(AllTests.class)
-@Category({LanguageTests.class})
 public class ScalaParserTest extends ScalaFileSetTestCase {
 
     ScalaParserTest() {

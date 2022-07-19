@@ -1,10 +1,8 @@
-package org.jetbrains.plugins.scala
-package decompiler
+package org.jetbrains.plugins.scala.decompiler
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 import java.io.{File => jFile}
 import scala.io.Codec
@@ -14,7 +12,6 @@ import scala.tools.nsc.io.File
  * @author Alefas
  * @since  11/09/15
  */
-@Category(Array(classOf[LanguageTests]))
 trait DecompilerTestBase extends TestCase {
   def basePath: String = s"${TestUtils.getTestDataPath}/decompiler"
 

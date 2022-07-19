@@ -1,12 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang.parser
+package org.jetbrains.plugins.scala.lang.parser
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with ScalaParserTestOps {
 
   override def setUp(): Unit = {

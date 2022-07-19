@@ -10,10 +10,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.util.containers.ContainerUtil;
 import junit.framework.Test;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.Assert;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -21,7 +19,6 @@ import org.junit.runners.AllTests;
  * @author ilyas
  */
 @RunWith(AllTests.class)
-@Category({LanguageTests.class})
 public class DragSearchTest extends ScalaFileSetTestCase {
   private static final int MAX_ROLLBACKS = 30;
 

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.optimize
+package org.jetbrains.plugins.scala.lang.optimize
 
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.util.io.FileUtil
@@ -13,13 +12,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.{assertEquals, fail}
-import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-@Category(Array(classOf[LanguageTests]))
 abstract class OptimizeImportsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   final protected def baseRootPath: String = TestUtils.getTestDataPath + "/"

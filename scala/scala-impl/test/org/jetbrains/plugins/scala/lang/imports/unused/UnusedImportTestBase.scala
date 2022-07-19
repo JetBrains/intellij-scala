@@ -1,16 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang.imports.unused
+package org.jetbrains.plugins.scala.lang.imports.unused
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
 /**
   * Created by Svyatoslav Ilinskiy on 24.07.16.
   */
-@Category(Array(classOf[LanguageTests]))
 abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 

@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.psi.irrefutability
+package org.jetbrains.plugins.scala.lang.psi.irrefutability
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -7,9 +6,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMatch}
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[LanguageTests]))
 class IrrefutabilityTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private object MatchWithOneCasePatternMatch {

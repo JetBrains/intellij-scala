@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.parser.scala3.imported
+package org.jetbrains.plugins.scala.lang.parser.scala3.imported
 
 import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
@@ -12,14 +11,12 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.AllTests
 
 import java.nio.file.Paths
 
 @RunWith(classOf[AllTests])
-@Category(Array(classOf[LanguageTests]))
 abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTestCase(dir) {
   override protected def getLanguage: Language = Scala3Language.INSTANCE
 

@@ -1,15 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang.psi
+package org.jetbrains.plugins.scala.lang.psi
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator
-import org.junit.experimental.categories.Category
 
 import scala.annotation.nowarn
 
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
-@Category(Array(classOf[LanguageTests]))
 class ScalaConstantExpressionEvaluatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter{
 
   val pattern = "/*fold after this comment*/"

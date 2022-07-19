@@ -1,13 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang.psi.impl.base.literals.escapers
+package org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers
 
 import junit.framework.TestCase
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import java.lang
 
-@Category(Array(classOf[LanguageTests]))
 class ScalaStringParserTest extends TestCase {
 
   private def parse(content: String, isRaw: Boolean, exitOnEscapingWrongSymbol: Boolean = true): String = {

@@ -8,13 +8,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.junit.Assert
-import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
  */
 
-@Category(Array(classOf[LanguageTests]))
 class ScalaOIUtilTest extends SimpleTestCase {
   private final val Prefix = "object Holder {\n  "
 

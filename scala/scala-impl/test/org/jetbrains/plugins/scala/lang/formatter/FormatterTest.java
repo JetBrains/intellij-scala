@@ -24,9 +24,7 @@ import com.intellij.util.IncorrectOperationException;
 import junit.framework.Test;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.scala.LanguageTests;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
 
@@ -38,7 +36,6 @@ import java.util.Collections;
  */
 
 @RunWith(AllTests.class)
-@Category({LanguageTests.class})
 public class FormatterTest extends ScalaFileSetTestCase {
 
   protected FormatterTest(@NotNull @NonNls String path) {

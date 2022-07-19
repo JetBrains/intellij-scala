@@ -7,13 +7,11 @@ import com.intellij.openapi.editor.impl.EditorImpl
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.junit.Assert.assertEquals
-import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
   * Date: 29.07.14.
   */
-@Category(Array(classOf[LanguageTests]))
 class IncrementalLexerHighlightingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

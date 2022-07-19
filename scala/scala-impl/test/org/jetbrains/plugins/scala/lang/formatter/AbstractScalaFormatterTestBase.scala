@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang.formatter
+package org.jetbrains.plugins.scala.lang.formatter
 
 import com.intellij.application.options.CodeStyle
 import com.intellij.lang.Language
@@ -21,7 +20,6 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.ScalaFmtP
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.{MarkersUtils, TestUtils}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 import java.io.File
 
@@ -32,7 +30,6 @@ import java.io.File
  * @since Apr 27, 2010 6:26:29 PM
  */
 // NOTE: initially was almost duplicate from Java
-@Category(Array(classOf[LanguageTests]))
 abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
 
   protected def language: Language = ScalaLanguage.INSTANCE
