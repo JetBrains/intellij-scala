@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compilation
 
+import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
@@ -176,4 +177,19 @@ object CompilerTestUtil {
       before.foreach(set(instance, _))
   }
 
+  def withApplicationSettingsSaving: RevertableChange = new RevertableChange {
+    private var saveAllowedBefore: Boolean = _
+    private lazy val application: ApplicationEx = ApplicationManagerEx.getApplicationEx
+
+    override def applyChange(): Unit = {
+      saveAllowedBefore = application.isSaveAllowed
+      application.setSaveAllowed(true)
+      application.saveSettings()
+    }
+
+    override def revertChange(): Unit = {
+      application.setSaveAllowed(saveAllowedBefore)
+      application.saveSettings()
+    }
+  }
 }
