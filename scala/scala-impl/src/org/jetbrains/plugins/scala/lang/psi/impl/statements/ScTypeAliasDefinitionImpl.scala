@@ -16,12 +16,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.ScTopLevelStubBasedElement
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
 
 import javax.swing.Icon
 
 final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_DEFINITION, node) with ScTypeAliasDefinition {
+  extends ScalaStubBasedElementImpl[ScTypeAlias, ScTypeAliasStub](stub, ScalaElementType.TYPE_DEFINITION, node)
+    with ScTopLevelStubBasedElement[ScTypeAlias, ScTypeAliasStub]
+    with ScTypeAliasDefinition {
 
   def this(node: ASTNode) = this(null, node)
 

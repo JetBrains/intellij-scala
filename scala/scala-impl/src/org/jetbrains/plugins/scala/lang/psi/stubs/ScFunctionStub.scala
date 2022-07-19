@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
 
 trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   with ScTopLevelElementStub[F]
-  with ScMemberOrLocal
+  with ScMemberOrLocal[F]
   with ScTypeElementOwnerStub[F]
   with ScExpressionOwnerStub[F]
-  with ScImplicitStub
+  with ScImplicitStub[F]
   with ScGivenStub {
 
   def implicitConversionParameterClass: Option[String]

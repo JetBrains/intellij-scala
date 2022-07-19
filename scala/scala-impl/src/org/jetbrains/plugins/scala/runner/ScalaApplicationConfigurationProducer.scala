@@ -10,6 +10,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.{Key, Ref}
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectPsiElementExt}
@@ -137,7 +138,7 @@ abstract class BaseScalaApplicationConfigurationProducer[T <: ApplicationConfigu
 
   /** @note scala3 @main method always uses qualified name of the containing file even if the method is not top level  */
   private def mainClassNameForScala3AnnotatedMethod(fun: ScFunctionDefinition): String = {
-    val packageFqn = fun.topLevelQualifier.filter(_.nonEmpty)
+    val packageFqn = Option(ScalaPsiUtil.getPlacePackageName(fun)).filter(_.nonEmpty)
     (packageFqn.toSeq :+ fun.name).mkString(".")
   }
 }

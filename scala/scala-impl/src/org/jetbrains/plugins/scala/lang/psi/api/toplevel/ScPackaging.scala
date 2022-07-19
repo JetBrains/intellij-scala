@@ -13,8 +13,25 @@ trait ScPackaging extends ScImportsHolder
 
   def parentPackageName: String
 
+  /**
+   * @return name of the packaging<br>
+   * @note for the fully qualified name use [[fullPackageName]]
+   * @example {{{
+   *   package aaa.bbb
+   *   package ccc.ddd //results "ccc.ddd"
+   *   class MyClass
+   * }}}
+   */
   def packageName: String
 
+  /**
+   * @return fully qualified name of the packaging
+   * @example {{{
+   *   package aaa.bbb
+   *   package ccc.ddd //results "aaa.bbb.ccc.ddd"
+   *   class MyClass
+   * }}}
+   */
   def fullPackageName: String
 
   /**

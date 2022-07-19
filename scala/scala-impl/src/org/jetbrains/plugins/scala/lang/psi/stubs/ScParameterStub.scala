@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.{ScExpressionOwnerStub, S
 trait ScParameterStub extends NamedStub[ScParameter]
   with ScTypeElementOwnerStub[ScParameter]
   with ScExpressionOwnerStub[ScParameter]
-  with ScImplicitStub {
+  with ScImplicitStub[ScParameter] {
 
   def isStable: Boolean
 
