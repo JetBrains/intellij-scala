@@ -103,6 +103,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<>();
 
   {
+    INTERPOLATED_INJECTION_MAPPING.put("json", "JSON");
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
