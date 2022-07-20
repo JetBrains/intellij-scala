@@ -6,13 +6,14 @@ package toplevel
 package synthetic
 
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.project.{DumbAwareRunnable, ProjectManagerListener}
+import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.project.ProjectManagerListener
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.MultiMap
+import com.intellij.util.{IncorrectOperationException, ModalityUiUtil}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
@@ -562,7 +563,11 @@ class SyntheticClassesListener extends ProjectManagerListener {
       // And it calls `CoreProgressManager.sleepIfNeededToGivePriorityToAnotherThread`.
       // This method causes the parsing thread to sleep 1s each time there is some other thread with a higher priority.
       // This can increase light test project initialization from 0.1s to 12s on Windows (!)
-      (() => invokeAndWait(SyntheticClasses.get(project).registerClasses())): DumbAwareRunnable
+      () => ModalityUiUtil.invokeLaterIfNeeded(
+        ModalityState.NON_MODAL,
+        project.getDisposed,
+        () => SyntheticClasses.get(project).registerClasses()
+      )
     )
   }
 
@@ -570,4 +575,3 @@ class SyntheticClassesListener extends ProjectManagerListener {
     SyntheticClasses.get(project).clear()
   }
 }
-
