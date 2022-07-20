@@ -37,18 +37,18 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
   }
 
   def suite: TestSuite = {
-    val rootSuite = new TestSuite
+    val rootSuite = new TestSuite()
 
     def makeUniqueTestName(parts: String*) = uniqueName(parts.mkString(" | "))
 
-    def buildTestName(prefix: Seq[String], indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): String = {
+    def buildTestName(prefix: String, indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): String = {
       val lineWithCaret = indented.linesIterator.find(_.contains(CARET)).get
-      val nameParts = prefix :+ lineWithCaret :+ wrapper.debugName :+ typed.debugName
+      val nameParts = List(prefix, lineWithCaret, wrapper.debugName, typed.debugName)
       makeUniqueTestName(nameParts: _*)
     }
 
-    def createTest(indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): ActualTest = {
-      val testName = buildTestName(Nil, indented, wrapper, typed)
+    def createTest(prefix: String, indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): ActualTest = {
+      val testName = buildTestName(prefix, indented, wrapper, typed)
       val test = new ActualTest(TestData.Generated(indented, wrapper.code, typed.code))
       test.setName(testName)
       test
@@ -61,15 +61,15 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       test
     }
 
-    def createTests(indented: Seq[String], wrapper: Seq[CodeWithDebugName], typed: Seq[CodeWithDebugName]): Iterable[ActualTest] =
+    def createTests(prefix: String, indented: Seq[String], wrapper: Seq[CodeWithDebugName], typed: Seq[CodeWithDebugName]): Iterable[ActualTest] =
       for {
         indentedCode <- indented
         wrapperCode  <- wrapper
         typedCode    <- typed
-      } yield createTest(indentedCode, wrapperCode, typedCode)
+      } yield createTest(prefix, indentedCode, wrapperCode, typedCode)
 
-    def createTestsInAllWrapperContexts(indentedBlockContexts: Seq[String], codeToType: Seq[CodeWithDebugName]): Iterable[ActualTest] =
-      createTests(indentedBlockContexts, WrapperCodeContexts.AllContexts, codeToType)
+    def createTestsInAllWrapperContexts(prefix: String, indentedBlockContexts: Seq[String], codeToType: Seq[CodeWithDebugName]): Iterable[ActualTest] =
+      createTests(prefix, indentedBlockContexts, WrapperCodeContexts.AllContexts, codeToType)
 
     def createEditorStatesTestsInAllWrapperContexts(editorStates: EditorStates): Iterable[ActualTest] =
       createEditorStatesTestsInContexts(editorStates, WrapperCodeContexts.AllContexts)
@@ -93,12 +93,12 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     // Testing pressing Enter after different constructs which support indentation-based syntax
     //
     locally {
-      rootSuite += ("AfterAssignOrArrowSign", createTestsInAllWrapperContexts(IBC.AfterAssignOrArrowSign, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
-      rootSuite += ("ForEnumeratorsAll", createTestsInAllWrapperContexts(IBC.ForEnumeratorsAll, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
-      rootSuite += ("ControlFlow", createTestsInAllWrapperContexts(IBC.ControlFlow, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
-      rootSuite += ("Extensions", createTestsInAllWrapperContexts(IBC.Extensions, CTT.DefDef :: Nil))
-      rootSuite += ("TemplateDefinitions", createTestsInAllWrapperContexts(IBC.TemplateDefinitions, CTT.TemplateStat :: Nil))
-      rootSuite += ("GivenWith", createTestsInAllWrapperContexts(IBC.GivenWith, CTT.TemplateStat :: Nil))
+      rootSuite ++= createTestsInAllWrapperContexts("AfterAssignOrArrowSign",IBC.AfterAssignOrArrowSign, CTT.BlockStatements :: CTT.BlockExpressions :: Nil)
+      rootSuite ++= createTestsInAllWrapperContexts("ForEnumeratorsAll", IBC.ForEnumeratorsAll, CTT.BlockStatements :: CTT.BlockExpressions :: Nil)
+      rootSuite ++= createTestsInAllWrapperContexts("ControlFlow", IBC.ControlFlow, CTT.BlockStatements :: CTT.BlockExpressions :: Nil)
+      rootSuite ++= createTestsInAllWrapperContexts("Extensions", IBC.Extensions, CTT.DefDef :: Nil)
+      rootSuite ++= createTestsInAllWrapperContexts("TemplateDefinitions", IBC.TemplateDefinitions, CTT.TemplateStat :: Nil)
+      rootSuite ++= createTestsInAllWrapperContexts("GivenWith", IBC.GivenWith, CTT.TemplateStat :: Nil)
     }
 
     //
@@ -106,13 +106,6 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     // for example: def foo = <caret>println(42)
     //
     locally {
-      val suiteSpaceBeforeCaret = new TestSuite("CodeAfterCaret SpaceBeforeCaret")
-      val suiteSpaceAroundCaret = new TestSuite("CodeAfterCaret SpaceAroundCaret1")
-      val suiteSpaceAfterCaret = new TestSuite("CodeAfterCaret SpaceAfterCaret2")
-      rootSuite += suiteSpaceBeforeCaret
-      rootSuite += suiteSpaceAroundCaret
-      rootSuite += suiteSpaceAfterCaret
-
       val wrapperContexts = WCC.TopLevel_LastStatement :: WCC.ClassWithBraces :: WCC.NestedClassWithColonWithoutEndMarker :: Nil
 
       val codeToType = CTT.BlankLines :: CTT.BlockStatements :: CTT.BlockExpressions :: Nil
@@ -126,7 +119,7 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
         val CaretWithPotentialSpacesAround = s"[ ]+$CARET[ ]+".r
         // Example: `def foo=  <caret>identifier
         val SpaceBeforeCaret = baseIndentedBlockContexts.map(CaretWithPotentialSpacesAround.replaceAllIn(_, s"   $CARET$codeAfterCaret"))
-        suiteSpaceBeforeCaret += (groupName, createTests(SpaceBeforeCaret, wrapperContexts, codeToType))
+        rootSuite ++= createTests(groupName, SpaceBeforeCaret, wrapperContexts, codeToType)
 
         if (!onlySpacesBeforeCaret) {
           // Example: `def foo=  <caret>  identifier
@@ -134,8 +127,8 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
           // Example: `def foo=<caret>  identifier
           val SpaceAfterCaret = baseIndentedBlockContexts.map(CaretWithPotentialSpacesAround.replaceAllIn(_, s"$CARET   $codeAfterCaret"))
 
-          suiteSpaceAroundCaret += (groupName, createTests(SpaceAroundCaret, wrapperContexts, codeToType))
-          suiteSpaceAfterCaret += (groupName, createTests(SpaceAfterCaret, wrapperContexts, codeToType))
+          rootSuite ++= createTests(groupName, SpaceAroundCaret, wrapperContexts, codeToType)
+          rootSuite ++= createTests(groupName, SpaceAfterCaret, wrapperContexts, codeToType)
         }
       }
 
@@ -165,8 +158,7 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     //
     locally {
       import Scala3TestDataCaseClausesEditorStates._
-      rootSuite += (
-        "MatchCaseClausesAll",
+      rootSuite ++=
         MatchCaseClausesAll.flatMap(createEditorStatesTestsInAllWrapperContexts).filterNot(test => {
           // TODO: unmute when this issue is fixed (including the comment)
           //  https://github.com/lampepfl/dotty/issues/11905
@@ -175,23 +167,17 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
           test.getName.contains("MatchCaseClausesWithEmptyBodyStates | InsideCaseClausesNonLast") ||
             test.getName.contains("MatchCaseClausesWithNonEmptyBodyStates | InsideCaseClausesNonLast")
         })
-      )
-      rootSuite += (
-        "MatchCaseClausesAll (with braces)",
+      rootSuite ++=
         MatchCaseClausesAll_WithBraces.flatMap(createEditorStatesTestsInContexts(
           _, WCC.TopLevel :: WCC.NestedClassWithColonAndEndMarker_LastStatement :: Nil
         ))
-      )
-      rootSuite += (
-        "TryCatchCaseClausesAll",
+      rootSuite ++=
         TryCatchCaseClausesAll.flatMap(createEditorStatesTestsInAllWrapperContexts)
-      )
     }
-
 
     locally {
       import CodeToType._
-      rootSuite += ("Enter in simple nested block", (BlockStatements :: DefDef :: TemplateStat :: BlankLines :: Nil).map { codeToType =>
+      rootSuite ++= (BlockStatements :: DefDef :: TemplateStat :: BlankLines :: Nil).map { codeToType =>
         createTestWithName(
           s"""{
              |  {$CARET
@@ -200,7 +186,7 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
           codeToType,
           testNameBase = codeToType.debugName
         )
-      })
+      }
     }
 
     rootSuite
@@ -230,21 +216,8 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
   }
 
   implicit class TestSuiteOps(private val suite: TestSuite) extends AnyVal {
-    def addTests(tests: Iterable[Test]): Unit =
-      tests.foreach(suite.addTest)
-
     def ++=(tests: Iterable[Test]): Unit =
-      addTests(tests)
-
-    def +=(test: Test): Unit =
-      suite.addTest(test)
-
-    def +=(testsGroup: (String, Iterable[Test])): Unit = {
-      val (groupName, tests) = (testsGroup._1, testsGroup._2)
-      val group = new TestSuite(groupName)
-      group ++= tests
-      suite.addTest(group)
-    }
+      tests.foreach(suite.addTest)
   }
 
   private final class ActualTest(testData: TestData) extends DoEditorStateTestOps {
