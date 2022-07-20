@@ -1877,6 +1877,8 @@
         <postStartupActivity implementation="org.jetbrains.plugins.scala.util.UIFreezingGuard"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifierActivity"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor$Activity"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
+        <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.RegisterSyntheticClassesStartupActivity"/>
 
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightCreatedEditorListener"/>
 
@@ -1886,11 +1888,9 @@
 
     <applicationListeners>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.editor.mouseHandler.MouseHoverHandler"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassesListener"/>
+                  class="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.DeregisterSyntheticClassesListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManagerListener"/>
         <listener topic="com.intellij.compiler.server.BuildManagerListener"
