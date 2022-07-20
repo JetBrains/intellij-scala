@@ -6,8 +6,8 @@ package toplevel
 package synthetic
 
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.project.{DumbAwareRunnable, ProjectManagerListener}
-import com.intellij.openapi.startup.StartupManager
+import com.intellij.openapi.project.ProjectManagerListener
+import com.intellij.openapi.startup.StartupActivity
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
@@ -550,22 +550,22 @@ object SyntheticClasses {
 
 }
 
-class SyntheticClassesListener extends ProjectManagerListener {
-  override def projectOpened(project: Project): Unit = {
-    StartupManager.getInstance(project).runAfterOpened(
-      // NOTE: run `registerClasses` on EDT!
-      // Don't use `inReadAction`, it can significantly increase setup time for each test case.
-      // Details: DumbAware startup activity is run on the background thread.
-      // Under the hood `registerClasses` involves parsing of registered synthetic classes.
-      // This parsing can take a long time, if it's done on a background thread.
-      // This is because, during the parsing `ProgressManager.checkCanceled()` is being frequently called.
-      // And it calls `CoreProgressManager.sleepIfNeededToGivePriorityToAnotherThread`.
-      // This method causes the parsing thread to sleep 1s each time there is some other thread with a higher priority.
-      // This can increase light test project initialization from 0.1s to 12s on Windows (!)
-      (() => invokeAndWait(SyntheticClasses.get(project).registerClasses())): DumbAwareRunnable
-    )
+class RegisterSyntheticClassesStartupActivity extends StartupActivity.DumbAware {
+  override def runActivity(project: Project): Unit = {
+    // NOTE: run `registerClasses` on EDT!
+    // Don't use `inReadAction`, it can significantly increase setup time for each test case.
+    // Details: DumbAware startup activity is run on the background thread.
+    // Under the hood `registerClasses` involves parsing of registered synthetic classes.
+    // This parsing can take a long time, if it's done on a background thread.
+    // This is because, during the parsing `ProgressManager.checkCanceled()` is being frequently called.
+    // And it calls `CoreProgressManager.sleepIfNeededToGivePriorityToAnotherThread`.
+    // This method causes the parsing thread to sleep 1s each time there is some other thread with a higher priority.
+    // This can increase light test project initialization from 0.1s to 12s on Windows (!)
+    invokeLater(SyntheticClasses.get(project).registerClasses())
   }
+}
 
+class DeregisterSyntheticClassesListener extends ProjectManagerListener {
   override def projectClosing(project: Project): Unit = {
     SyntheticClasses.get(project).clear()
   }

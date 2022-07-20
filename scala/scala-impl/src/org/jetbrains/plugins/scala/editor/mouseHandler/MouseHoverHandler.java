@@ -39,8 +39,10 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.util.ProgressIndicatorUtils;
 import com.intellij.openapi.progress.util.ReadTask;
-import com.intellij.openapi.project.*;
-import com.intellij.openapi.startup.StartupManager;
+import com.intellij.openapi.project.DumbService;
+import com.intellij.openapi.project.IndexNotReadyException;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.startup.StartupActivity;
 import com.intellij.openapi.util.Ref;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.util.ThrowableComputable;
@@ -81,12 +83,12 @@ import java.util.EventObject;
 import java.util.List;
 
 //todo: move changes to CtrlMouseHandler!!! This is ok, for IDEA 12, but it's not ok for IDEA 13, where it's possible to patch.
-public class MouseHoverHandler implements ProjectManagerListener {
+public class MouseHoverHandler implements StartupActivity.DumbAware {
+
   @Override
-  public void projectOpened(@NotNull Project project) {
-    MouseHoverHandlerListeners mouseHoverListeners = new MouseHoverHandlerListeners(project);
-    StartupManager startupManager = StartupManager.getInstance(project);
-    startupManager.runAfterOpened((DumbAwareRunnable) mouseHoverListeners::registerListeners);
+  public void runActivity(@NotNull Project project) {
+    final var mouseHoverListeners = new MouseHoverHandlerListeners(project);
+    mouseHoverListeners.registerListeners();
   }
 
   private static class MouseHoverHandlerListeners {
