@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package performance
+package org.jetbrains.plugins.scala.performance
 
 import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
@@ -12,8 +11,9 @@ import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.search.{FileTypeIndex, GlobalSearchScopesCore}
-import com.intellij.testFramework.VfsTestUtil
 import com.intellij.testFramework.fixtures.{CodeInsightTestFixture, IdeaTestFixtureFactory}
+import com.intellij.testFramework.{TestLoggerFactory, VfsTestUtil}
+import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
@@ -108,7 +108,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     val projectDir = new File(projectDirPath)
 
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(projectDir)
-    extensions.inWriteAction {
+    inWriteAction {
       val jdk = getJdk
 
       val jdkTable = ProjectJdkTable.getInstance
@@ -130,7 +130,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
     }
   }
 
-  override def setUp(): Unit = {
+  override def setUp(): Unit = dumpLogsOnException {
     super.setUp()
     Registry.get("ast.loading.filter").setValue(true, getTestRootDisposable)
     if (!isProjectAlreadyCached || !isCachingEnabled)
@@ -139,6 +139,31 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
       reporter.notify("Project caching enabled, reusing last sbt import")
     if (isCachingEnabled)
       forceSaveProject()
+  }
+
+  /**
+   * This methos basically duplicates log dumping logic from [[com.intellij.testFramework.UsefulTestCase#wrapTestRunnable]].
+   * By default logs are not dumped in there was a failure in `setUp` method. But wee need them to debug failures
+   * during project importing process, which is done in `setUp` method.
+   *
+   * Actually, I wish this logic was implemented in the platform (both for `setUp` & `tearDown` methods).
+   * If there is a willing we might discuss it with IntelliJ platform team.
+   */
+  private def dumpLogsOnException(body: => Unit): Unit = {
+    val testDescription = "dummy test description"
+    TestLoggerFactory.onTestStarted()
+
+    var success = true
+    try {
+      body
+    } catch {
+      case t: Throwable =>
+        success = false
+        throw t
+    }
+    finally {
+      TestLoggerFactory.onTestFinished(success, testDescription)
+    }
   }
 
   override def tearDown(): Unit = {
