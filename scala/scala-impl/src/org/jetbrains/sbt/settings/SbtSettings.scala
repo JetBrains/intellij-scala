@@ -7,10 +7,11 @@ import com.intellij.openapi.externalSystem.settings.{AbstractExternalSystemSetti
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.annotations.XCollection
 import org.jetbrains.annotations.NotNull
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter, SbtTopic}
+import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener, SbtProjectSettingsListenerAdapter}
 import org.jetbrains.sbt.settings.SbtSettings.defaultMaxHeapSize
 
 import java.util
@@ -22,7 +23,7 @@ import scala.beans.BeanProperty
   reportStatistic = true
 )
 final class SbtSettings(project: Project)
-  extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtTopic, project)
+  extends AbstractExternalSystemSettings[SbtSettings, SbtProjectSettings, SbtProjectSettingsListener](SbtSettings.SbtTopic, project)
   with PersistentStateComponent[SbtSettings.State] {
 
   @BeanProperty var customLauncherEnabled: Boolean = false
@@ -67,7 +68,7 @@ final class SbtSettings(project: Project)
   override def subscribe(listener: ExternalSystemSettingsListener[SbtProjectSettings], parentDisposable: Disposable): Unit = {
     val adapter = new SbtProjectSettingsListenerAdapter(listener)
     val messageBus = getProject.getMessageBus
-    messageBus.connect(parentDisposable).subscribe(SbtTopic, adapter)
+    messageBus.connect(parentDisposable).subscribe(SbtSettings.SbtTopic, adapter)
   }
 
   override def copyExtraSettingsFrom(settings: SbtSettings): Unit = {
@@ -97,6 +98,8 @@ object SbtSettings {
 
   val defaultMaxHeapSize: String = ""
   val hiddenDefaultMaxHeapSize: JvmMemorySize = JvmMemorySize.Megabytes(1536)
+
+  val SbtTopic: Topic[SbtProjectSettingsListener] = new Topic("sbt-specific settings", classOf[SbtProjectSettingsListener])
 
   class State extends AbstractExternalSystemSettings.State[SbtProjectSettings] {
 

@@ -11,15 +11,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
+import org.jetbrains.bsp.settings.BspProjectSettings._
+import org.jetbrains.bsp._
+import org.jetbrains.plugins.scala.project.ProjectExt
 
 import java.io.File
 import java.nio.file.{Path, Paths}
 import java.util
 import javax.swing.JCheckBox
-import org.jetbrains.bsp.settings.BspProjectSettings.{AutoConfig, AutoPreImport, BspServerConfig, BspServerConfigConverter, PreImportConfig, PreImportConfigConverter}
-import org.jetbrains.bsp.{BspBundle, _}
-import org.jetbrains.plugins.scala.project.ProjectExt
-
 import scala.beans.BeanProperty
 
 class BspProjectSettings extends ExternalProjectSettings {
@@ -178,15 +177,12 @@ class BspProjectSettingsListenerAdapter(listener: ExternalSystemSettingsListener
   override def onServerConfigChanged(serverConfig: BspServerConfig): Unit = {}
 }
 
-
-object BspTopic extends Topic[BspProjectSettingsListener](BspBundle.message("bsp.protocol.specific.settings"), classOf[BspProjectSettingsListener])
-
 @State(
   name = "BspSettings",
   storages = Array(new Storage("bsp.xml"))
 )
 class BspSettings(project: Project)
-  extends AbstractExternalSystemSettings[BspSettings, BspProjectSettings, BspProjectSettingsListener](BspTopic, project)
+  extends AbstractExternalSystemSettings[BspSettings, BspProjectSettings, BspProjectSettingsListener](BspSettings.BspTopic, project)
     with PersistentStateComponent[BspSettings.State]
 {
 
@@ -194,7 +190,7 @@ class BspSettings(project: Project)
 
   override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
     val adapter = new BspProjectSettingsListenerAdapter(listener)
-    getProject.getMessageBus.connect(getProject.unloadAwareDisposable).subscribe(BspTopic, adapter)
+    getProject.getMessageBus.connect(getProject.unloadAwareDisposable).subscribe(BspSettings.BspTopic, adapter)
   }
 
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
@@ -234,6 +230,8 @@ object BspSettings {
   }
 
   def getInstance(project: Project): BspSettings = project.getService(classOf[BspSettings])
+
+  val BspTopic: Topic[BspProjectSettingsListener] = new Topic(BspBundle.message("bsp.protocol.specific.settings"), classOf[BspProjectSettingsListener])
 }
 
 
