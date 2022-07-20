@@ -7,7 +7,7 @@ public abstract interface Func {
     public abstract fun out(t: T) : void = UastEmptyExpression
 }
 
-public final class ByteFunc$ {
+public final class ByteFunc$ : Func<java.lang.Object> {
     public final var zero: byte = 0
     public static fun inc(t: byte) : byte {
         return ((t + 1) & 255).toByte()

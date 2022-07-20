@@ -48,29 +48,30 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     element: PsiElement,
     @Nullable parent: UElement,
     convertLambdas: Boolean = true
-  ): Option[U] =
-    convertToFree[U](element, convertLambdas).map(_.pinTo(parent))
+  ): Option[U] = {
+    val converted = convertToFree[U](element, convertLambdas)
+    converted.map(_.pinTo(parent))
+  }
 
   override def convertWithParentTo[U <: UElement: ClassTag: NotNothing](
     element: PsiElement,
     convertLambdas: Boolean = true
-  ): Option[U] =
-    convertToFree[U](element, convertLambdas)
-      .map(makeUParentAndPin(element, _))
+  ): Option[U] = {
+    val converted = convertToFree[U](element, convertLambdas)
+    converted.map(makeUParentAndPin(element, _))
+  }
 
   override def convertWithParentToUExpressionOrEmpty(
     element: PsiElement,
     convertLambdas: Boolean
-  ): UExpression =
-    convertWithParentTo[UExpression](element, convertLambdas)
-      .getOrElse(
-        makeUParentAndPin(
-          element,
-          Free.fromConstructor[UExpression](
-            createUEmptyExpression(element = null, _: UElement)
-          )
-        )
-      )
+  ): UExpression = {
+    val converted = convertWithParentTo[UExpression](element, convertLambdas)
+    converted.getOrElse {
+      val empty = Free.fromConstructor[UExpression](createUEmptyExpression(element = null, _: UElement))
+      val pinned = makeUParentAndPin(element, empty)
+      pinned
+    }
+  }
 
   private def makeUParentAndPin[U <: UElement](sourcePsi: PsiElement,
                                                converted: Free[U]): U =

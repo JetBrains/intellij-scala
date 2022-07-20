@@ -6,10 +6,11 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTypesUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.{ScUAnchorOwner, ScUAnnotated, ScUElement}
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
@@ -29,14 +30,23 @@ trait ScUClassCommon extends UClass with ScUAnnotated {
   override def getUastDeclarations: ju.List[UDeclaration] =
     Seq.concat[UDeclaration](getUFields, getUInitializers, getUMethods, getUInnerClasses).asJava
 
-  override def getUastSuperTypes: ju.List[UTypeReferenceExpression] =
-    scTemplate.extendsBlock.templateParents
-      .map(
-        _.typeElements
-          .flatMap(_.convertTo[UTypeReferenceExpression](this))
-          .asJava
-      )
-      .getOrElse(ju.Collections.emptyList())
+  override def getUastSuperTypes: ju.List[UTypeReferenceExpression] = {
+    val templateParents = scTemplate.extendsBlock.templateParents
+    val superReferences = templateParents.map(uastSuperTypesReferences)
+    superReferences.map(_.asJava).getOrElse(ju.Collections.emptyList())
+  }
+
+  private def uastSuperTypesReferences(templateParents: ScTemplateParents): Seq[UTypeReferenceExpression] = {
+    val typeElements = templateParents.typeElements
+    typeElements.flatMap { te =>
+      val referenceTypeElement = te match {
+        //in case we have type representing `BaseClass[TypeArg]` we need to get `BaseClass`
+        case pte: ScParameterizedTypeElement => pte.typeElement
+        case _ => te
+      }
+      referenceTypeElement.convertTo[UTypeReferenceExpression](this)
+    }
+  }
 
   def getUFields: Array[UField] = {
     val uFields = ArrayBuffer.empty[UField]
