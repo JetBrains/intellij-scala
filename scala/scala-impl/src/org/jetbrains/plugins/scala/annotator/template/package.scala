@@ -16,7 +16,7 @@ package object template {
   def collectSuperRefs[T](definition: ScTemplateDefinition)
                          (extractor: ScType => Option[T]): Seq[(TextRange, T)] =
     for {
-      parents     <- definition.physicalExtendsBlock.templateParents.toList
+      parents     <- definition.extendsBlock.templateParents.toList
       typeElement <- parents.typeElements
       scType      <- typeElement.`type`().toOption
       extracted   <- extractor(scType)

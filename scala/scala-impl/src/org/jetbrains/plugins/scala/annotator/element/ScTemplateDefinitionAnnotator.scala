@@ -61,7 +61,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     }
 
     val superClass = for {
-      parents     <- tdef.physicalExtendsBlock.templateParents
+      parents     <- tdef.extendsBlock.templateParents
       firstParent <- parents.firstParentClause
       ref         <- firstParent.reference
       cls         <- resolveNoCons(ref)
@@ -126,7 +126,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
   ): Unit =
     if (tdef.is[ScTrait])
       for {
-        templateParents <- tdef.physicalExtendsBlock.templateParents.toSeq
+        templateParents <- tdef.extendsBlock.templateParents.toSeq
         clause          <- templateParents.parentClauses
         if clause.args.nonEmpty
       } holder.createErrorAnnotation(
@@ -295,7 +295,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
                              (implicit holder: ScalaAnnotationHolder): Unit = {
     if (!element.is[ScNewTemplateDefinition, ScObject]) return
 
-    element.physicalExtendsBlock.members.foreach {
+    element.extendsBlock.members.foreach {
       case _: ScTypeAliasDeclaration => // abstract type declarations are allowed
       case declaration: ScDeclaration =>
         val isNative = declaration match {

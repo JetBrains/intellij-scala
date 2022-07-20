@@ -56,10 +56,8 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
   override def additionalClassJavaName: Option[String] =
     if (isCase) Some(getName() + "$") else None
 
-  override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
-    case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
-    case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
-  }
+  override def constructor: Option[ScPrimaryConstructor] =
+    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
 
   import com.intellij.psi.scope.PsiScopeProcessor
   import com.intellij.psi.{PsiElement, ResolveState}
@@ -77,14 +75,11 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
                                                   state: ResolveState,
                                                   lastParent: PsiElement,
                                                   place: PsiElement): Boolean = {
-    if (DumbService.getInstance(getProject).isDumb) return true
+    if (DumbService.getInstance(getProject).isDumb)
+      return true
 
-    desugaredElement match {
-      case Some(td: ScTemplateDefinitionImpl[_]) => return td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
-      case _ =>
-    }
-
-    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place)) return false
+    if (!super.processDeclarationsForTemplateBody(processor, state, lastParent, place))
+      return false
 
     constructor match {
       case Some(constr) if place != null && PsiTreeUtil.isContextAncestor(constr, place, false) =>
@@ -94,13 +89,15 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
           ProgressManager.checkCanceled()
           if (processor.isInstanceOf[BaseProcessor]) {
             // don't expose class parameters to Java.
-            if (!processor.execute(p, state)) return false
+            if (!processor.execute(p, state))
+              return false
           }
         }
     }
 
     //process context-applied synthetic elements
-    if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place)) return false
+    if (!super[SyntheticElementsOwner].processDeclarations(processor, state, lastParent, place))
+      return false
 
     super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place)
   }

@@ -28,11 +28,7 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
   // do not confuse with desugaredElement
   def isDesugared: Boolean = originalElement.isDefined
 
-  def desugaredElement: Option[ScTemplateDefinition] = None
-
   def targetToken: LeafPsiElement
-
-  def physicalExtendsBlock: ScExtendsBlock
 
   def extendsBlock: ScExtendsBlock
 

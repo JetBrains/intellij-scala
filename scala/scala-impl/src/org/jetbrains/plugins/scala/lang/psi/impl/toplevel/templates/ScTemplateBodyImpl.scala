@@ -79,16 +79,8 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
                                    place: PsiElement): Boolean = {
     val td = PsiTreeUtil.getContextOfType(this, classOf[ScTemplateDefinitionImpl[_]])
     if (td != null) {
-      td.desugaredElement match {
-        case Some(td: ScTemplateDefinition) =>
-          return td
-            .extendsBlock
-            .templateBody // use last child of synthetic templateBody to avoid expensive lookups of same lastParent
-            .exists(tb => tb.processDeclarations(processor, state, tb.getLastChild, place))
-        case _ =>
-      }
-
-      if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place)) return false
+      if (!td.processDeclarationsForTemplateBody(processor, state, td.extendsBlock, place))
+        return false
     }
     processDeclarationsFromImports(processor, state, lastParent, place)
   }

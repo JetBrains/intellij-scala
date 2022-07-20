@@ -51,10 +51,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
-  override def typeParameters: Seq[ScTypeParam] = desugaredElement match {
-    case Some(td: ScTypeDefinition) => td.typeParameters
-    case _ => super.typeParameters
-  }
+  override def typeParameters: Seq[ScTypeParam] =
+    super.typeParameters
 
   override def add(element: PsiElement): PsiElement = element match {
     case member: ScMember => addMember(member, None)

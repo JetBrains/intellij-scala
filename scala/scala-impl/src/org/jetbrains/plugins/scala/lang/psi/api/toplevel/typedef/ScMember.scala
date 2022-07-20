@@ -82,7 +82,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       (ctx == extendsBlock ||
         extendsBlock.templateBody.contains(ctx) ||
         extendsBlock.earlyDefinitions.contains(ctx) ||
-        found.physicalExtendsBlock.templateBody.contains(ctx)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
+        found.extendsBlock.templateBody.contains(ctx)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
 
     val isCorrectExtension = context match {
       case eb: ScExtensionBody =>
