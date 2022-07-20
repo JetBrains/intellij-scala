@@ -1,41 +1,42 @@
 package org.jetbrains.plugins.scala.injection
 
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ThrowableRunnable
-import junit.framework.TestSuite
+import junit.framework.{TestCase, TestSuite}
 import org.intellij.lang.regexp.RegExpLanguage
-import org.jetbrains.plugins.scala.injection.RegexpLanguageInjectionTest._
 import org.junit.Assert._
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
 
 import java.io.File
 
-@RunWith(classOf[AllTests])
-class RegexpLanguageInjectionTest(
-  testFile: File,
-  testName: String,
-  testIdx: Int,
-) extends AbstractLanguageInjectionTestCase {
-
-  override def getTestName(lowercaseFirstLetter: Boolean): String = ""
-  override def getName: String = testName
-
-  override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    val ParsedTestCase(input, expectedResult, testLine) = readTestCaseContent(testFile, testIdx)
-    printFileOnFailure(testFile, testLine) {
-      doRegexTest(input, expectedResult)
-    }
-  }
-
-  private def doRegexTest(text: String, injectedFileExpectedText: String): Unit = {
-    doTest(RegExpLanguage.INSTANCE.getID, text, injectedFileExpectedText)
-  }
-}
+class RegexpLanguageInjectionTest extends TestCase
 
 object RegexpLanguageInjectionTest {
+
+  private final class ActualTest(
+    testFile: File,
+    testName: String,
+    testIdx: Int,
+  ) extends AbstractLanguageInjectionTestCase {
+
+    // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
+    private[RegexpLanguageInjectionTest] def this() = this(null, null, 0)
+
+    override def getTestName(lowercaseFirstLetter: Boolean): String = ""
+
+    override def getName: String = testName
+
+    override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+      val ParsedTestCase(input, expectedResult, testLine) = readTestCaseContent(testFile, testIdx)
+      printFileOnFailure(testFile, testLine) {
+        doRegexTest(input, expectedResult)
+      }
+    }
+
+    private def doRegexTest(text: String, injectedFileExpectedText: String): Unit = {
+      doTest(RegExpLanguage.INSTANCE.getID, text, injectedFileExpectedText)
+    }
+  }
 
   private val regexTestDataDir: File =
     new File("./scala/integration/intellilang/testData/language_injection/regex")
@@ -71,7 +72,7 @@ object RegexpLanguageInjectionTest {
     suite
   }
 
-  private def collectFileTests(file: File): Seq[RegexpLanguageInjectionTest] = {
+  private def collectFileTests(file: File): Seq[ActualTest] = {
     val commonPrefix = regexTestDataDir.getAbsolutePath
 
     val testCases = readTestCasesRawContents(file, includeContent = false)
@@ -80,7 +81,7 @@ object RegexpLanguageInjectionTest {
       val suffixWithDescription = suffixWithIndex + descriptionOpt.fold("")(" " + _)
       val testName = file.getAbsolutePath.stripPrefix(commonPrefix).stripPrefix(File.separator) + suffixWithDescription
 
-      new RegexpLanguageInjectionTest(file, testName, testIdx)
+      new ActualTest(file, testName, testIdx)
     }
   }
 

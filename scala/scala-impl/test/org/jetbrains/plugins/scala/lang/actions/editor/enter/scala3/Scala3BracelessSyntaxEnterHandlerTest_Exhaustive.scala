@@ -3,14 +3,11 @@ package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.EditorTestUtil
 import com.intellij.util.ThrowableRunnable
-import junit.framework.{Test, TestSuite}
+import junit.framework.{Test, TestCase, TestSuite}
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions.StringExt
-import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3BracelessSyntaxEnterHandlerTest_Exhaustive.TestData
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
 
 // TODO: add tests for parameter default value after it's fixed in parser:
 //  https://youtrack.jetbrains.com/issue/SCL-16603#focus=Comments-27-4772356.0-0
@@ -26,7 +23,9 @@ import org.junit.runners.AllTests
 //  + with & without space after CARET in the starting position
 //  + with some content after caret (on each step)
 //  + with trimmed data & with extra spaces after it
-private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
+class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive extends TestCase
+
+object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
 
   import EditorTestUtil.{CARET_TAG => CARET}
 
@@ -39,7 +38,6 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
 
   def suite: TestSuite = {
     val rootSuite = new TestSuite
-    type MyTest = Scala3BracelessSyntaxEnterHandlerTest_Exhaustive
 
     def makeUniqueTestName(parts: String*) = uniqueName(parts.mkString(" | "))
 
@@ -49,39 +47,39 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       makeUniqueTestName(nameParts: _*)
     }
 
-    def createTest(indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): MyTest = {
+    def createTest(indented: String, wrapper: CodeWithDebugName, typed: CodeWithDebugName): ActualTest = {
       val testName = buildTestName(Nil, indented, wrapper, typed)
-      val test = new Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(TestData.Generated(indented, wrapper.code, typed.code))
+      val test = new ActualTest(TestData.Generated(indented, wrapper.code, typed.code))
       test.setName(testName)
       test
     }
 
-    def createTestWithName(context: String, typed: CodeWithDebugName, testNameBase: String): MyTest = {
+    def createTestWithName(context: String, typed: CodeWithDebugName, testNameBase: String): ActualTest = {
       val testName = makeUniqueTestName(testNameBase, typed.debugName)
-      val test = new Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(TestData.Generated(context, typed.code))
+      val test = new ActualTest(TestData.Generated(context, typed.code))
       test.setName(testName)
       test
     }
 
-    def createTests(indented: Seq[String], wrapper: Seq[CodeWithDebugName], typed: Seq[CodeWithDebugName]): Iterable[MyTest] =
+    def createTests(indented: Seq[String], wrapper: Seq[CodeWithDebugName], typed: Seq[CodeWithDebugName]): Iterable[ActualTest] =
       for {
         indentedCode <- indented
         wrapperCode  <- wrapper
         typedCode    <- typed
       } yield createTest(indentedCode, wrapperCode, typedCode)
 
-    def createTestsInAllWrapperContexts(indentedBlockContexts: Seq[String], codeToType: Seq[CodeWithDebugName]): Iterable[MyTest] =
+    def createTestsInAllWrapperContexts(indentedBlockContexts: Seq[String], codeToType: Seq[CodeWithDebugName]): Iterable[ActualTest] =
       createTests(indentedBlockContexts, WrapperCodeContexts.AllContexts, codeToType)
 
-    def createEditorStatesTestsInAllWrapperContexts(editorStates: EditorStates): Iterable[MyTest] =
+    def createEditorStatesTestsInAllWrapperContexts(editorStates: EditorStates): Iterable[ActualTest] =
       createEditorStatesTestsInContexts(editorStates, WrapperCodeContexts.AllContexts)
 
-    def createEditorStatesTestsInContexts(editorStates: EditorStates, contexts: Seq[CodeWithDebugName]): Iterable[MyTest] =
+    def createEditorStatesTestsInContexts(editorStates: EditorStates, contexts: Seq[CodeWithDebugName]): Iterable[ActualTest] =
       for {
         wrapperCode  <- contexts
       } yield {
         val testData = TestData.ExplicitEditorStates(editorStates, wrapperCode)
-        val test = new Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(testData)
+        val test = new ActualTest(testData)
         val testName = makeUniqueTestName(testData.editorStates.debugName.getOrElse("unnamed"))
         test.setName(testName)
         test
@@ -248,30 +246,32 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       suite.addTest(group)
     }
   }
-}
 
-@RunWith(classOf[AllTests])
-class Scala3BracelessSyntaxEnterHandlerTest_Exhaustive(testData: TestData) extends DoEditorStateTestOps {
+  private final class ActualTest(testData: TestData) extends DoEditorStateTestOps {
 
-  private implicit def p: Project = getProject
+    // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.
+    private[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive] def this() = this(null)
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
+    private implicit def p: Project = getProject
 
-  override def setUp(): Unit = {
-    super.setUp()
-    // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
-    // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
-    ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
-    getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
-  }
+    override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
-  override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
-    testData match {
-      case TestData.ExplicitEditorStates(editorStates) =>
-        doEditorStateTest(myFixture, editorStates)
+    override def setUp(): Unit = {
+      super.setUp()
+      // indirect way of disabling compiler-based highlighting which is triggered on each editor changes
+      // see org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.condition
+      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED = false
+      getScalaSettings.USE_SCALA3_INDENTATION_BASED_SYNTAX = true
+    }
 
-      case TestData.Generated(contextCode, codeToType) =>
-        checkIndentAfterTypingCode(contextCode, codeToType, myFixture)
+    override def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
+      testData match {
+        case TestData.ExplicitEditorStates(editorStates) =>
+          doEditorStateTest(myFixture, editorStates)
+
+        case TestData.Generated(contextCode, codeToType) =>
+          checkIndentAfterTypingCode(contextCode, codeToType, myFixture)
+      }
     }
   }
 }

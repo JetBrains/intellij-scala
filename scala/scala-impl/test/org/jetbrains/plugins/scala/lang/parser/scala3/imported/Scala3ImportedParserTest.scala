@@ -5,19 +5,17 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.impl.DebugUtil.psiToString
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile}
+import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.Scala3ImportedParserTest.rangesDirectory
 import org.junit.Assert._
-import org.junit.runner.RunWith
-import org.junit.runners.AllTests
 
 import java.nio.file.Paths
 
-@RunWith(classOf[AllTests])
-abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTestCase(dir) {
+private[imported] abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTestCase(dir) {
   override protected def getLanguage: Language = Scala3Language.INSTANCE
 
   protected def findErrorElements(fileText: String, project: Project): (Seq[PsiErrorElement], PsiFile) = {
@@ -123,29 +121,25 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
   override protected def shouldPass = true
 }
 
-
-@RunWith(classOf[AllTests])
-class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3ImportedParserTest.directory) {
-  override protected def shouldHaveErrors: Boolean = false
-}
+class Scala3ImportedParserTest extends TestCase
 
 object Scala3ImportedParserTest {
   val directory = "/parser/scala3Import/success"
   val rangesDirectory = "/parser/scala3Import/ranges"
-  def suite = new Scala3ImportedParserTest()
+  def suite(): Test = new Scala3ImportedParserTestBase(directory) {
+    override protected def shouldHaveErrors: Boolean = false
+  }
 }
-
 
 /**
  * If this tests fails because you fixed parser stuff,
  * run [[Scala3ImportedParserTest_Move_Fixed_Tests]].
  */
-@RunWith(classOf[AllTests])
-class Scala3ImportedParserTest_Fail extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
-  override protected def shouldHaveErrors: Boolean = true
-}
+class Scala3ImportedParserTest_Fail extends TestCase
 
 object Scala3ImportedParserTest_Fail {
   val directory = "/parser/scala3Import/fail"
-  def suite = new Scala3ImportedParserTest_Fail()
+  def suite(): Test = new Scala3ImportedParserTestBase(directory) {
+    override protected def shouldHaveErrors: Boolean = true
+  }
 }
