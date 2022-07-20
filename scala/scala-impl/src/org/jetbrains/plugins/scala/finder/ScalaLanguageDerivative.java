@@ -17,7 +17,8 @@ abstract public class ScalaLanguageDerivative {
     protected abstract LanguageFileType getFileType();
 
     public static boolean existsFor(@NotNull LanguageFileType fileType) {
-        return EP_NAME.extensions()
+        return EP_NAME.getExtensionList()
+                .stream()
                 .map(ScalaLanguageDerivative::getFileType)
                 .anyMatch(fileType::equals);
     }
