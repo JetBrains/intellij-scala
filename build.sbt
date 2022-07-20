@@ -582,8 +582,10 @@ lazy val runtimeDependencies2 =
 // Testing keys and settings
 import Common.TestCategory._
 
+val junitInterfaceFlags = "-v -s -a +c +q"
+
 def testOnlyCategories(categories: String*): String =
-  s"testOnly -- --include-categories=${categories.mkString(",")} --exclude-categories=$flakyTests"
+  s"testOnly -- $junitInterfaceFlags --include-categories=${categories.mkString(",")}"
 
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
@@ -595,16 +597,19 @@ addCommandAlias("runHighlightingTests", testOnlyCategories(highlightingTests))
 addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
-val fastTestOptions = "-v -s -a +c +q " +
-  s"--exclude-categories=$slowTests " +
-  s"--exclude-categories=$debuggerTests " +
-  s"--exclude-categories=$scalacTests " +
-  s"--exclude-categories=$typecheckerTests " +
-  s"--exclude-categories=$testingSupportTests " +
-  s"--exclude-categories=$highlightingTests " +
-  s"--exclude-categories=$worksheetEvaluationTests " +
-  s"--exclude-categories=$randomTypingTests " +
-  s"--exclude-categories=$flakyTests "
+val categoriesToExclude = List(
+  slowTests,
+  debuggerTests,
+  scalacTests,
+  typecheckerTests,
+  testingSupportTests,
+  highlightingTests,
+  worksheetEvaluationTests,
+  randomTypingTests,
+  flakyTests
+)
+
+val fastTestOptions = s"$junitInterfaceFlags --exclude-categories=${categoriesToExclude.mkString(",")}"
 
 addCommandAlias("runFastTests", s"testOnly -- $fastTestOptions")
 // subsets of tests to split the complete test run into smaller chunks
