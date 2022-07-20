@@ -37,11 +37,14 @@ trait FileDeclarationsHolder
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
     if (isProcessLocalClasses(lastParent) &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place))
+      return false
 
-    if (!processDeclarationsFromImports(processor, state, lastParent, place)) return false
+    if (!processDeclarationsFromImports(processor, state, lastParent, place))
+      return false
 
-    if (this.context != null) return true
+    if (this.context != null)
+      return true
 
     if (place.kindProjectorEnabled) {
       KindProjectorUtil(place.getProject)
@@ -61,14 +64,17 @@ trait FileDeclarationsHolder
     val defaultPackage = ScPackageImpl.findPackage("")
     place match {
       case ref: ScReference if ref.refName == "_root_" && ref.qualifier.isEmpty =>
-        if (defaultPackage != null && !processor.execute(defaultPackage, state.withRename("_root_"))) return false
+        if (defaultPackage != null && !processor.execute(defaultPackage, state.withRename("_root_")))
+          return false
       case _ =>
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
-            !packageProcessDeclarations(defaultPackage)(processor, state, null, place)) return false
+            !packageProcessDeclarations(defaultPackage)(processor, state, null, place))
+            return false
           if (defaultPackage != null &&
             this.isInScala3Module &&
-            !defaultPackage.processTopLevelDeclarations(processor, state, place)) return false
+            !defaultPackage.processTopLevelDeclarations(processor, state, place))
+            return false
 
         }
         else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
@@ -83,7 +89,8 @@ trait FileDeclarationsHolder
             val iterator = packages.iterator
             while (iterator.hasNext) {
               val pack = iterator.next()
-              if (!processor.execute(pack, state)) return false
+              if (!processor.execute(pack, state))
+                return false
             }
             val migration = PsiMigrationManager.getInstance(getProject).getCurrentMigration
             if (migration != null) {
@@ -92,14 +99,16 @@ trait FileDeclarationsHolder
               val iterator = packages.iterator
               while (iterator.hasNext) {
                 val pack = iterator.next()
-                if (!processor.execute(pack, state)) return false
+                if (!processor.execute(pack, state))
+                  return false
               }
             }
           } else {
             manager.getCachedPackageInScope(name)
               .map(ScPackageImpl(_))
               .foreach { `package` =>
-                if (!processor.execute(`package`, state)) return false
+                if (!processor.execute(`package`, state))
+                  return false
               }
           }
         }
@@ -117,10 +126,12 @@ trait FileDeclarationsHolder
 
     if (checkPredefinedClassesAndPackages) {
       if (ScalaProjectSettings.in(getProject).aliasExportsEnabled && lastParent.defaultImports.exists(s => s == "scala" || s == "scala.Predef")) {
-        if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place))) return false;
+        if (aliasImports.exists(!_.processDeclarations(processor, state, lastParent, place)))
+          return false;
       }
 
-      if (!processImplicitImports(processor, state, place)) return false
+      if (!processImplicitImports(processor, state, place))
+        return false
     }
 
     true
@@ -242,19 +253,23 @@ object FileDeclarationsHolder {
       case s: ScalaPsiElement => s.getDeepSameElementInContext
       case _ => _place
     }
-    if (place == null || place.hasOnlyStub) return false
+    if (place == null || place.hasOnlyStub)
+      return false
 
     place.getContainingFile match {
-      case scalaFile: ScalaFile if scalaFile.isWorksheetFile => true
+      case scalaFile: ScalaFile if scalaFile.isWorksheetFile =>
+        true
       case scalaFile: ScalaFile =>
         val file = Option(scalaFile.getOriginalFile.getVirtualFile).getOrElse(scalaFile.getViewProvider.getVirtualFile)
-        if (file == null) return false
+        if (file == null)
+          return false
 
         val index = ProjectRootManager.getInstance(place.getProject).getFileIndex
         val belongsToProject =
           index.isInSourceContent(file) || index.isInLibraryClasses(file)
         !belongsToProject
-      case _ => false
+      case _ =>
+        false
     }
   }
 
