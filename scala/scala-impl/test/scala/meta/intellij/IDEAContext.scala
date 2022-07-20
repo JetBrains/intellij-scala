@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 import scala.meta.trees.TreeConverter
 
-class IDEAContext(project: =>Project) extends TreeConverter {
+class IDEAContext(project: => Project) extends TreeConverter {
 
   override def getCurrentProject: Project = project
 

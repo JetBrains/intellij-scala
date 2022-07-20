@@ -3,122 +3,111 @@ package scala.meta.quasiquotes
 class RandomQQTest extends QuasiQuoteTypeInferenceTestBase {
 
   def testPatVarTermApply(): Unit = doTest(
-    s"""
-       |${START}p"Foo"$END
+    s"""${START}p"Foo"$END
        |//Pat.Var
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testPatCaseApply(): Unit = doTest(
-    s"""
-       |${START}p"case Foo(x) =>"$END
+    s"""${START}p"case Foo(x) =>"$END
        |//Case
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testPatExtractApply(): Unit = doTest(
-    s"""
-       |${START}p"Some(x)"$END
+    s"""${START}p"Some(x)"$END
        |//Pat.Extract
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testPatTypeVarApply(): Unit = doTest(
-    s"""
-       |${START}t"foo"$END
+    s"""${START}t"foo"$END
        |//Type.Name
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testPatTypeWildcardApply(): Unit = doTest(
-    s"""
-       |${START}t"_"$END
+    s"""${START}t"_"$END
        |//Type.Placeholder
-     """.stripMargin
-  )
-
-  def testTermArgApply(): Unit = doTest(
-    s"""
-       |${START}arg"a: Int"$END
-       |//Term.Ascribe
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testModAnnotApply(): Unit = doTest(
-    s"""
-       |${START}mod"@foo"$END
+    s"""${START}mod"@foo"$END
        |//Mod.Annot
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testTypeArgInfixApply(): Unit = doTest(
-    s"""
-       |${START}t"T ^ U"$END
+    s"""${START}t"T ^ U"$END
        |//Type.ApplyInfix
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testPatArgTypedApply(): Unit = doTest(
-    s"""
-       |${START}p"a:Int"$END
+    s"""${START}p"a:Int"$END
        |//Pat.Typed
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testCtorApplyApply(): Unit = doTest(
-    s"""
-       |${START}q"A(b)"$END
+    s"""${START}q"A(b)"$END
        |//Term.Apply
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testCtorRefNameApply(): Unit = doTest(
-    s"""
-       |${START}q"A"$END
+    s"""${START}q"A"$END
        |//Term.Name
-     """.stripMargin
+       |""".stripMargin
+  )
+
+
+  def testInit(): Unit = doTest(
+    s"""${START}init"A(b)"$END
+       |//Init
+       |""".stripMargin
+  )
+
+  def testSelf(): Unit = doTest(
+    s"""${START}self"A"$END
+       |//Self
+       |""".stripMargin
   )
 
   def testTermParamApply(): Unit = doTest(
-    s"""
-       |${START}param"a: A"$END
+    s"""${START}param"a: A"$END
        |//Term.Param
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testTypeParamApply(): Unit = doTest(
-    s"""
-       |${START}tparam"f <: A with B forSome { val x: Int }"$END
+    s"""${START}tparam"f <: A with B forSome { val x: Int }"$END
        |//Type.Param
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testSourceApply(): Unit = doTest(
-    s"""
-       |${START}source"class Foo"$END
+    s"""${START}source"class Foo"$END
        |//Source
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testImporterApply(): Unit = doTest(
-    s"""
-       |${START}importer"foo.bar"$END
+    s"""${START}importer"foo.bar"$END
        |//Importer
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testImporteeApply(): Unit = doTest(
-    s"""
-       |${START}importee"foo"$END
+    s"""${START}importee"foo"$END
        |//Importee.Name
-     """.stripMargin
+       |""".stripMargin
   )
 
   def testEnumeratorApply(): Unit = doTest(
-    s"""
-       |${START}enumerator"x <- y"$END
+    s"""${START}enumerator"x <- y"$END
        |//Enumerator.Generator
-     """.stripMargin
+       |""".stripMargin
   )
-
 }

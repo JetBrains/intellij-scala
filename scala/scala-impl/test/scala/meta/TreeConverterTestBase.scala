@@ -6,7 +6,9 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 import scala.meta.intellij.IDEAContext
 
-abstract class TreeConverterTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TreeConverterTestUtils {
+abstract class TreeConverterTestBase
+  extends ScalaLightCodeInsightFixtureTestAdapter
+    with TreeConverterTestUtils {
 
   private var _context = new IDEAContext(fixture.getProject) {
     override def dumbMode: Boolean = true
@@ -29,5 +31,5 @@ abstract class TreeConverterTestBaseNoLibrary extends TreeConverterTestBase {
 }
 
 abstract class TreeConverterTestBaseWithLibrary extends TreeConverterTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 }

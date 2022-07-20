@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
+import scala.annotation.{nowarn, switch}
 import scala.meta.inputs.Input
 import scala.meta.parsers.{ParseException, Parsed}
 import scala.meta.{Dialect, ScalaMetaBundle, _}
@@ -112,14 +112,12 @@ object QuasiquoteInferUtil {
 
   private def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {
     val p: (Dialect, Input) = dialect(text)
-    prefix match {
+    (prefix: @switch) match {
       // FIXME: this seems wrong - reference q parser only parses Stat or Ctor, however this way many qqs couldn't be parsed
       case "q"          => p.parse[m.Stat].orElse(p.parse[m.Source])
       case "t"          => p.parse[m.Type]
       case "p"          => p.parse[m.Case].orElse(p.parse[m.Pat])
-      case "arg"        => p.parse[m.Term]
       case "mod"        => p.parse[m.Mod]
-      case "ctor"       => p.parse[m.Init]
       case "param"      => p.parse[m.Term.Param]
       case "tparam"     => p.parse[m.Type.Param]
       case "source"     => p.parse[m.Source]
@@ -127,7 +125,14 @@ object QuasiquoteInferUtil {
       case "importer"   => p.parse[m.Importer]
       case "importee"   => p.parse[m.Importee]
       case "enumerator" => p.parse[m.Enumerator]
-      case _ => Parsed.Error(null, ScalaMetaBundle.message("unknown.quasiquote.kind.prefix", prefix), new MatchError(prefix))
+      //prefixes are NOT present in version 1.8 but present in 4.5
+      case "init"       => p.parse[m.Init]
+      case "self"       => p.parse[m.Self]
+      //prefixes are present in version 1.8 NOT present in 4.5
+      case "ctor"       => p.parse[m.Init]
+      case "arg"        => p.parse[m.Term]
+      case _ =>
+        Parsed.Error(null, ScalaMetaBundle.message("unknown.quasiquote.kind.prefix", prefix), new MatchError(prefix))
     }
   }
 
