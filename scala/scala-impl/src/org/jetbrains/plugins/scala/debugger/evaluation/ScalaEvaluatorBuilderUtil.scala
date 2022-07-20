@@ -1050,7 +1050,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         if (parents.typeElements.length != 1) {
           throw new NeedCompilationException(ScalaBundle.message("anon.classes.not.supported"))
         }
-        parents.constructorInvocation match {
+        parents.firstParentClause match {
           case Some(constrInvocation) =>
             constrInvocation.typeElement.calcType.extractClass match {
               case Some(clazz) if clazz.qualifiedName == "scala.Array" =>

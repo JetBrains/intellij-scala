@@ -8,47 +8,28 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs.{IStubElementType, StubBase, StubElement}
 import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateParents
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createConstructorFromText, createTypeElementFromText}
-import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateParentsStubImpl._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createConstructorFromText
 
-/**
-  * User: Alexander Podkhalyuzin
-  */
-final class ScTemplateParentsStubImpl(parent: StubElement[_ <: PsiElement],
-                                      elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
-                                      override val parentTypesTexts: Array[String],
-                                      override val constructorText: Option[String])
-  extends StubBase[ScTemplateParents](parent, elementType) with ScTemplateParentsStub with PsiOwner[ScTemplateParents] {
+import scala.collection.immutable.ArraySeq
 
-  private var constructorAndParentTypeElementsReference: SofterReference[Data] = null
 
-  private def constructorAndParentTypeElements: Data = {
-    getFromReferenceWithFilter[PsiElement, Data](constructorAndParentTypeElementsReference, {
-      case (context, child) =>
-        val constructor = constructorText.flatMap { text =>
-          Option(createConstructorFromText(text, context, child))
-        }
-        val parentTypeElems = parentTypesTexts.toSeq.map {
-          createTypeElementFromText(_, context, child)
-        }
-        (constructor, parentTypeElems)
-    }, constructorAndParentTypeElementsReference = _)
-  }
+final class ScTemplateParentsStubImpl(
+  parent:                         StubElement[_ <: PsiElement],
+  elementType:                    IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
+  override val parentClausesText: Array[String]
+) extends StubBase[ScTemplateParents](parent, elementType)
+    with ScTemplateParentsStub
+    with PsiOwner[ScTemplateParents] {
 
-  override def parentTypeElements: Seq[ScTypeElement] = {
-    constructorAndParentTypeElements match {
-      case (Some(constr), typeElems) => constr.typeElement +: typeElems
-      case (_, typeElems) => typeElems
-    }
-  }
-}
+  private var constructorAndParentTypeElementsReference: SofterReference[Seq[ScConstructorInvocation]] = _
 
-private object ScTemplateParentsStubImpl {
-  type Data = (Option[ScConstructorInvocation], Seq[ScTypeElement])
+  override def parentClauses: Seq[ScConstructorInvocation] =
+    getFromReference(constructorAndParentTypeElementsReference) { case (context, child) =>
+        val parentElems = parentClausesText.map(
+          createConstructorFromText(_, context, child)
+        )
 
-  implicit def flatten: Data => Seq[PsiElement] = {
-    case (opt, seq) => opt.toSeq ++ seq
-  }
+        ArraySeq.unsafeWrapArray(parentElems)
+      } (constructorAndParentTypeElementsReference = _)
 }

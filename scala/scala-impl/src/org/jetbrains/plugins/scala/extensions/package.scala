@@ -971,13 +971,27 @@ package object extensions {
     def qualifiedNameOpt: Option[String] = member match {
       case c: PsiClass => c.qualifiedName.toOption
       case _ =>
+        //TODO: shouldn't we use name/getName instead of names?
+        // It looks like for ScPatternDefinition, fqn should be null.
+        // It should be not-null when called on inner element ScReferencePattern
+        // Example: `val (x, y) = (1, 2)`
+        // fqn for the whole ScPatternDefinition (entire line of code) doesn't make any sense
+        // fqn should be called on ScReferencePattern instead (e.g. on x or y)
+        // The issue with `ScReferencePattern` is that currently it's not a instance of ScMember
+        // and it's not clear whether it should be
+        // ----
+        // The same is applicable to extensions
+        // Currently ScExtension is instance of ScMember and `names` returns names of all extension methods inside
+        val containingClassFqn = member.containingClass.toOption.flatMap(_.qualifiedName.toOption)
+        val containerFqnOpt = containingClassFqn.orElse(member match {
+          case sm: ScMember => sm.topLevelQualifier
+          case _ => None
+        })
+
         for {
-          cClass      <- containingClass.toOption
-          classQName  <- cClass.qualifiedName.toOption
-          name        <- names.headOption
-        } yield {
-          s"$classQName.$name"
-        }
+          containerFqn <- containerFqnOpt
+          name <- names.headOption
+        } yield s"$containerFqn.$name"
     }
   }
 

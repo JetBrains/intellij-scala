@@ -197,11 +197,7 @@ trait TreeAdapter {
     val exprs   = t.templateBody.map (it => List(it.exprs.map(expression): _*))
     val members = t.templateBody.map (it => it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]).toList)
     val early   = t.earlyDefinitions.map (it => it.members.map(ideaToMeta(_).asInstanceOf[m.Stat]).toList).getOrElse(Nil)
-    val ctor = t.templateParents
-      .flatMap(_.children.find(_.isInstanceOf[ScConstructorInvocation]))
-      .map(c=>toCtor(c.asInstanceOf[ScConstructorInvocation]))
-      .toList
-    val mixins = t.templateParents.map(x => x.typeElementsWithoutConstructor.map(toType).map(toCtor).toList).getOrElse(Nil)
+    val parents = t.templateParents.toSeq.flatMap(_.parentClauses).map(toCtor).toList
     val self    = t.selfType match {
       case Some(tpe: ptype.ScType) =>
         m.Self(m.Term.Name("self"), Some(toType(tpe)))
@@ -215,7 +211,7 @@ trait TreeAdapter {
       case (None, Some(hld))  => hld
       case (None, None)       => Nil
     }
-    m.Template(early, ctor ++ mixins, self, stats)
+    m.Template(early, parents, self, stats)
   }
 
   // Java conversion
@@ -229,7 +225,7 @@ trait TreeAdapter {
       .getOrElse(Nil)
     val ctor = t.extendsBlock.templateParents match {
       case Some(parents) =>
-        parents.constructorInvocation match {
+        parents.firstParentClause match {
           case Some(constrInvocation) => toCtor(constrInvocation)
           case None => unreachable(ScalaMetaBundle.message("no.constructor.found.in.class", t.qualifiedName))
         }

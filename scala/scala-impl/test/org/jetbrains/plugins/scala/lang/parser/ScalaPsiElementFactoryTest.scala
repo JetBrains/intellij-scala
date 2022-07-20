@@ -10,7 +10,7 @@ class ScalaPsiElementFactoryTest extends SimpleTestCase {
   def testConstructorWithArgListOnNewLines(): Unit = {
     val methodCall = "Seq(new A)".parse[ScMethodCall]
     val argExpr = methodCall.argumentExpressions.head.asInstanceOf[ScNewTemplateDefinition]
-    val place = argExpr.constructorInvocation.get
+    val place = argExpr.firstConstructorInvocation.get
     val constructorText = """Abc(12)
                             |(34)""".stripMargin.withNormalizedSeparator
 

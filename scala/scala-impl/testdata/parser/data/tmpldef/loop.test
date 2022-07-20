@@ -16,9 +16,10 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        SimpleType: TypeFunction1
-          CodeReferenceElement: TypeFunction1
-            PsiElement(identifier)('TypeFunction1')
+        ConstructorInvocation
+          SimpleType: TypeFunction1
+            CodeReferenceElement: TypeFunction1
+              PsiElement(identifier)('TypeFunction1')
       PsiWhiteSpace(' ')
       ScTemplateBody
         PsiElement({)('{')

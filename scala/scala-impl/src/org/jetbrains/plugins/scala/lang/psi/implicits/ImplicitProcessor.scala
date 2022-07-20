@@ -199,12 +199,8 @@ object ImplicitProcessor {
       }
     }
 
-    def collectPartsTr(option: TypeResult): Unit = {
-      option match {
-        case Right(t) => collectParts(t)
-        case _ =>
-      }
-    }
+    def collectPartsTr(tr: TypeResult): Unit =
+      tr.foreach(collectParts)
 
     // Java Raw types are converted to F[ScExistentialArgument.Deferred("A", .....), ...]
     // In combination with F-Bounds this can lead to different instantiations that are not ==,
@@ -247,24 +243,23 @@ object ImplicitProcessor {
         case _                         =>
       }
 
-      def collectSupers(clazz: PsiClass, subst: ScSubstitutor): Unit = {
+      def collectSupers(clazz: PsiClass, subst: ScSubstitutor): Unit =
         clazz match {
           case td: ScTemplateDefinition =>
             collectPartsIter(td.superTypes.map(subst))
-          case clazz: PsiClass =>
-            collectPartsIter(clazz.getSuperTypes.map(t => subst(t.toScType())))
+            td.selfType.foreach(stpe => collectParts(subst(stpe)))
+          case clazz: PsiClass => collectPartsIter(clazz.getSuperTypes.map(t => subst(t.toScType())))
         }
-      }
 
       tp match {
         case ScDesignatorType(v: ScBindingPattern) => collectPartsTr(v.`type`())
-        case ScDesignatorType(v: ScFieldId) => collectPartsTr(v.`type`())
-        case ScDesignatorType(p: ScParameter) => collectPartsTr(p.`type`())
-        case ScCompoundType(comps, _, _) => collectPartsIter(comps)
+        case ScDesignatorType(v: ScFieldId)        => collectPartsTr(v.`type`())
+        case ScDesignatorType(p: ScParameter)      => collectPartsTr(p.`type`())
+        case ScCompoundType(comps, _, _)           => collectPartsIter(comps)
         case ParameterizedType(a: ScAbstractType, args) =>
           collectParts(a)
           collectPartsIter(args)
-        case p@ParameterizedType(des, args) =>
+        case p @ ParameterizedType(des, args) =>
           p.extractClassType match {
             case Some((clazz, subst)) =>
               parts += des
@@ -277,25 +272,29 @@ object ImplicitProcessor {
           }
         case j: JavaArrayType =>
           val parameterizedType = j.getParameterizedType
-          collectParts(parameterizedType.getOrElse(return))
-        case proj@ScProjectionType(projected, _) =>
+          collectParts(
+            parameterizedType.getOrElse(
+              return
+            )
+          )
+        case proj @ ScProjectionType(projected, _) =>
           collectParts(projected)
           proj.actualElement match {
             case v: ScBindingPattern => collectPartsTr(v.`type`().map(proj.actualSubst))
-            case v: ScFieldId => collectPartsTr(v.`type`().map(proj.actualSubst))
-            case v: ScParameter => collectPartsTr(v.`type`().map(proj.actualSubst))
-            case _ =>
+            case v: ScFieldId        => collectPartsTr(v.`type`().map(proj.actualSubst))
+            case v: ScParameter      => collectPartsTr(v.`type`().map(proj.actualSubst))
+            case _                   =>
           }
+
           tp.extractClassType match {
             case Some((clazz, subst)) =>
               parts += tp
               collectSupers(clazz, subst)
             case _ =>
           }
-        case ScAbstractType(_, _, upper) =>
-          collectParts(upper)
+        case ScAbstractType(_, _, upper) => collectParts(upper)
         case ScExistentialType(quant, _) => collectParts(quant)
-        case tpt: TypeParameterType => collectParts(tpt.upperType)
+        case tpt: TypeParameterType      => collectParts(tpt.upperType)
         case _ =>
           tp.extractClassType match {
             case Some((clazz, subst)) =>

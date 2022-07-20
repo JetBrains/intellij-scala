@@ -27,9 +27,10 @@ ScalaFile
       PsiElement(extends)('extends')
       PsiWhiteSpace(' ')
       TemplateParents
-        SimpleType: b
-          CodeReferenceElement: b
-            PsiElement(identifier)('b')
+        ConstructorInvocation
+          SimpleType: b
+            CodeReferenceElement: b
+              PsiElement(identifier)('b')
   PsiWhiteSpace('\n')
   ScTrait: b
     AnnotationsList

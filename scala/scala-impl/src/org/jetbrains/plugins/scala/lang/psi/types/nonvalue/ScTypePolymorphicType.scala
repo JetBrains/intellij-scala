@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.Pr
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-final case class ScTypePolymorphicType(
+final case class ScTypePolymorphicType private (
   internalType: ScType,
   typeParameters: Seq[TypeParameter],
   // TODO: a dirty hack parameter, created in order ScalaTypePresentation.typeText generates proper text
@@ -181,5 +181,6 @@ final case class ScTypePolymorphicType(
 }
 
 object ScTypePolymorphicType {
-  def unapply(arg: ScTypePolymorphicType): Option[(ScType, Seq[TypeParameter])] = Some((arg.internalType, arg.typeParameters))
+  def unapply(arg: ScTypePolymorphicType): Option[(ScType, Seq[TypeParameter])] =
+    Some((arg.internalType, arg.typeParameters))
 }

@@ -375,7 +375,7 @@ object DebuggerUtil {
     fun.body match { //to exclude references from default parameters
       case Some(b) => localParams(b, fun, container, visited)
       case _ => Seq.empty
-    } 
+    }
   }
 
   def localParamsForConstructor(cl: ScClass, visited: mutable.Set[PsiElement] = mutable.Set.empty): Seq[ScTypedDefinition] = {
@@ -476,7 +476,7 @@ object DebuggerUtil {
 
   def generatesAnonClass(newTd: ScNewTemplateDefinition): Boolean = {
     val extBl = newTd.extendsBlock
-    extBl.templateBody.nonEmpty || extBl.templateParents.exists(_.typeElementsWithoutConstructor.nonEmpty)
+    extBl.templateBody.nonEmpty || extBl.templateParents.exists(_.parentClauses.size > 1)
   }
 
   @tailrec

@@ -11,6 +11,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[HighlightingTests]))
 class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
+  //NOTE: doesn't work with JDK 11 due to bug in sbt 0.13.8 used in the this project at this revision
+  //see https://github.com/sbt/sbt/issues/1593
   override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
 
   override def githubUsername = "pathikrit"
