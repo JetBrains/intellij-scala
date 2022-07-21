@@ -254,15 +254,6 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  def test_private_implicit_val(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit private val ${START}param$END: Boolean = false
-       |}
-       |""".stripMargin
-  )
-
   def test_single_abstract_method(): Unit = checkTextHasError(
     s"private abstract class ${START}SamContainer$END { def ${START}iAmSam$END(i: Int): Unit }"
   )
