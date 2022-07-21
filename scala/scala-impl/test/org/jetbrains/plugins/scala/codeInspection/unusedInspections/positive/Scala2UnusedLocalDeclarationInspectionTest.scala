@@ -254,33 +254,6 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  def test_implicit_private_this_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_this_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private[this] val ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private val ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
-  )
-
   def test_private_implicit_val(): Unit = checkTextHasError(
     s"""
        |@scala.annotation.unused

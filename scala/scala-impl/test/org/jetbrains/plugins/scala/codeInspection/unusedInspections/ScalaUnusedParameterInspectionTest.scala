@@ -296,23 +296,18 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
     "(1)(new Unused, new T1)", "(1)(new T1)"
   )*/
 
-  def testHighlightUsedImplicit(): Unit = checkTextHasNoErrors(
+  def testNotHighlightUsedImplicit(): Unit = checkTextHasNoErrors(
     """
-      |trait Used
       |import scala.annotation.unused
+      |trait Used
       |@unused
       |object Test {
-      |  private def test()(implicit used2: Used): Unit = {
+      |  implicit val used: Used = null
+      |  test()
+      |  private def test()(implicit used: Used): Unit = {
       |    test2()
       |  }
-      |  private def test2()(implicit used3: Used): Used = used3
-      |
-      |  def foo(): Unit = {
-      |    implicit val used1: Used = null
-      |    test()
-      |  }
-      |
-      |  foo()
+      |  private def test2()(implicit used: Used): Used = used
       |}
       |""".stripMargin
   )
