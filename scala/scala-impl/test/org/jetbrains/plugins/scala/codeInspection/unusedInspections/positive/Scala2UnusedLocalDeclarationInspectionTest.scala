@@ -254,6 +254,10 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
+  // TODO -- Once we have a sustainable implementation of unused declaration inspection for implicit
+  //  parameters, uncomment the below tests and they should Just Work. For more information see
+  //  Scala3UnusedDeclarationQuickFixTest.
+  /* ===== START OF SHELVED TESTS AS PART OF SCL-20352 (don't touch)
   def test_implicit_private_this_implicit_parameter(): Unit = checkTextHasError(
     s"""
        |@scala.annotation.unused
@@ -289,6 +293,7 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |}
        |""".stripMargin
   )
+  */
 
   def test_single_abstract_method(): Unit = checkTextHasError(
     s"private abstract class ${START}SamContainer$END { def ${START}iAmSam$END(i: Int): Unit }"

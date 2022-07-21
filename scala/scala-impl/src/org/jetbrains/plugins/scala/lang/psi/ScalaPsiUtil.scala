@@ -238,8 +238,6 @@ object ScalaPsiUtil {
   @tailrec
   def isOnlyVisibleInLocalFile(elem: PsiElement): Boolean = {
     (elem, elem.getContext) match {
-      case (param: ScClassParameter, _) if param.isLocal || param.isPrivate || param.isPrivateThis =>
-        true
       case (_,             _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions) =>
         false
       case (mem: ScMember, _) if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
@@ -1533,8 +1531,8 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def isImplicit(element: PsiElement): Boolean =
-    element match {
+  def isImplicit(namedElement: PsiNamedElement): Boolean =
+    namedElement match {
       case _: ScGiven                                           => true
       case _: ScGivenPattern                                    => true
       case Implicit0Binding()                                   => true /** See [[BetterMonadicForSupport]] */

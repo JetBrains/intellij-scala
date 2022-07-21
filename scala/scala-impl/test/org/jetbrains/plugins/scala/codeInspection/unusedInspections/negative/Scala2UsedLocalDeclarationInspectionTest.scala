@@ -88,6 +88,10 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     checkTextHasNoErrors(code)
   }
 
+  // TODO -- Once we have a sustainable implementation of unused declaration inspection for implicit
+  //  parameters, uncomment the below tests and they should Just Work. For more information see
+  //  Scala3UnusedDeclarationQuickFixTest.
+  /* ===== START OF SHELVED TESTS AS PART OF SCL-20352 (don't touch)
   def test_public_implicit_parameter(): Unit = checkTextHasNoErrors(
     s"""
        |@scala.annotation.unused
@@ -193,6 +197,7 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
        |}
        |""".stripMargin
   )
+  */
 
   // SCL-17181
   def test_overriding_declaration(): Unit = checkTextHasNoErrors(
@@ -414,7 +419,7 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
        |}
        |""".stripMargin
   )
-  
+
   def test_parameter_of_abstract_method(): Unit = checkTextHasNoErrors(
     s"""import scala.annotation.unused
        |@unused trait Context {
