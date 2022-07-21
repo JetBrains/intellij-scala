@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupIte
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -25,6 +26,7 @@ import scala.jdk.CollectionConverters._
  * @author Alexander Podkhalyuzin
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[CompletionTests]))
 abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def folderPath: String = baseRootPath + "keywordCompletion/"

@@ -31,3 +31,6 @@ trait FlakyTests
 
 /** Test cases generated from testdata file sets. Mostly contains lexer and parser tests. */
 trait FileSetTests
+
+/** Completion tests became very slow due to platform changes in the project loading and setup. */
+trait CompletionTests

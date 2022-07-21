@@ -104,6 +104,7 @@ object Common {
     private def cat(name: String) = s"$pkg.$name"
 
     val fileSetTests: String = cat("FileSetTests")
+    val completionTests: String = cat("CompletionTests")
     val slowTests: String = cat("SlowTests")
     val debuggerTests: String = cat("DebuggerTests")
     val scalacTests: String = cat("ScalacTests")

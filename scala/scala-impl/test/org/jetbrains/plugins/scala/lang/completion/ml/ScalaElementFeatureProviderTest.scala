@@ -9,10 +9,12 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions._
+import org.junit.experimental.categories.Category
 
 import java.util
 import scala.collection.mutable
 
+@Category(Array(classOf[CompletionTests]))
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   import MLFeatureValue._

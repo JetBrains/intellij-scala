@@ -11,6 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -20,6 +21,7 @@ import scala.annotation.nowarn
  * Date: 23.09.2009
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[CompletionTests]))
 abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
   // Must be lazy so it can be overriden without early initializers
   protected lazy val caretMarker = "/*caret*/"
