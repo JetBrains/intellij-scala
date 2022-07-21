@@ -28,3 +28,6 @@ trait HighlightingTests
 /** Tests that may fail intermittently or depending on environment. 
  * Eg run locally but not on build server. */
 trait FlakyTests
+
+/** Test cases generated from testdata file sets. Mostly contains lexer and parser tests. */
+trait FileSetTests

@@ -26,10 +26,12 @@ import com.intellij.util.ThrowableRunnable;
 import junit.framework.TestSuite;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.plugins.scala.FileSetTests;
 import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.ScalaVersion;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 import org.jetbrains.plugins.scala.util.TestUtils;
+import org.junit.experimental.categories.Category;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -178,6 +180,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
     }
 
     @SuppressWarnings("UnconstructableJUnitTestCase")
+    @Category({FileSetTests.class})
     private final class ActualTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
         private final File myTestFile;

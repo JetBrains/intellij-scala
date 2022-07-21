@@ -103,6 +103,7 @@ object Common {
     private val pkg = "org.jetbrains.plugins.scala"
     private def cat(name: String) = s"$pkg.$name"
 
+    val fileSetTests: String = cat("FileSetTests")
     val slowTests: String = cat("SlowTests")
     val debuggerTests: String = cat("DebuggerTests")
     val scalacTests: String = cat("ScalacTests")

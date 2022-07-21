@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.injection
+package org.jetbrains.plugins.scala
+package injection
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -6,6 +7,7 @@ import com.intellij.util.ThrowableRunnable
 import junit.framework.{TestCase, TestSuite}
 import org.intellij.lang.regexp.RegExpLanguage
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 
@@ -13,6 +15,7 @@ class RegexpLanguageInjectionTest extends TestCase
 
 object RegexpLanguageInjectionTest {
 
+  @Category(Array(classOf[FileSetTests]))
   private final class ActualTest(
     testFile: File,
     testName: String,

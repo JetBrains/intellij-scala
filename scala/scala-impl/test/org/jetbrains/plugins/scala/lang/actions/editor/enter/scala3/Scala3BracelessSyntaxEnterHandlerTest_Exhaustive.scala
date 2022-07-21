@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
+package org.jetbrains.plugins.scala
+package lang.actions.editor.enter.scala3
 
 import com.intellij.openapi.project.Project
 import com.intellij.testFramework.EditorTestUtil
@@ -8,6 +9,7 @@ import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDataBracelessCode._
+import org.junit.experimental.categories.Category
 
 // TODO: add tests for parameter default value after it's fixed in parser:
 //  https://youtrack.jetbrains.com/issue/SCL-16603#focus=Comments-27-4772356.0-0
@@ -220,6 +222,7 @@ object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
       tests.foreach(suite.addTest)
   }
 
+  @Category(Array(classOf[FileSetTests]))
   private final class ActualTest(testData: TestData) extends DoEditorStateTestOps {
 
     // Unused, but needed to suppress inspection that JUnit test class cannot be constructed.

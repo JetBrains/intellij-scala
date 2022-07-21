@@ -587,6 +587,7 @@ val junitInterfaceFlags = "-v -s -a +c +q"
 def testOnlyCategories(categories: String*): String =
   s"testOnly -- $junitInterfaceFlags --include-categories=${categories.mkString(",")}"
 
+addCommandAlias("runFileSetTests", testOnlyCategories(fileSetTests))
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
 addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
@@ -598,6 +599,7 @@ addCommandAlias("runNightlyTests", testOnlyCategories(randomTypingTests))
 addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests")
 
 val categoriesToExclude = List(
+  fileSetTests,
   slowTests,
   debuggerTests,
   scalacTests,
