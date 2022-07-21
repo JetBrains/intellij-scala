@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.documentationProvider
+package org.jetbrains.plugins.scala
+package editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationProvider
 import com.intellij.openapi.editor.Editor
@@ -9,7 +10,9 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[SlowTests]))
 abstract class DocumentationProviderTestBase
   extends ScalaLightCodeInsightFixtureTestAdapter
     with DocumentationTesting {

@@ -4,8 +4,10 @@ package annotator
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiManager
 import com.intellij.testFramework.HeavyPlatformTestCase
+import org.jetbrains.plugins.scala.SlowTests
 import org.jetbrains.plugins.scala.util.TestUtils.getTestDataPath
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import java.io.File
 
@@ -13,6 +15,7 @@ import java.io.File
  * @author Nikolay Obedin
  * @since 8/4/14.
  */
+@Category(Array(classOf[SlowTests]))
 abstract class AnnotatorTestBase extends HeavyPlatformTestCase {
 
   protected def testdataPath: String = s"$getTestDataPath/annotator/Sbt"
