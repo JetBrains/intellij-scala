@@ -585,7 +585,7 @@ import Common.TestCategory._
 val junitInterfaceFlags = "-v -s -a +c +q"
 
 def testOnlyCategories(categories: String*): String =
-  s"testOnly -- $junitInterfaceFlags --include-categories=${categories.mkString(",")}"
+  s"testOnly -- $junitInterfaceFlags --include-categories=${categories.mkString(",")} --exclude-categories=$flakyTests"
 
 addCommandAlias("runFileSetTests", testOnlyCategories(fileSetTests))
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
