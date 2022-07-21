@@ -12,9 +12,11 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue}
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
+@Category(Array(classOf[InspectionAndIntentionTests]))
 abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def familyName: String

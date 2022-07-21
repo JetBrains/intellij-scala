@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.codeInspection
+package org.jetbrains.plugins.scala
+package codeInspection
 
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.ide.scratch.ScratchRootType
@@ -11,9 +12,11 @@ import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, StringExt}
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffset
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
+@Category(Array(classOf[InspectionAndIntentionTests]))
 abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   self: ScalaLightCodeInsightFixtureTestAdapter =>
 
