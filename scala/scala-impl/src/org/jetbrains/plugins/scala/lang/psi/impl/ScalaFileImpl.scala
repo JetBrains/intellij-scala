@@ -36,7 +36,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import java.{util => ju}
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class ScalaFileImpl(
@@ -254,26 +253,23 @@ class ScalaFileImpl(
   }
 
   override def getClasses: Array[PsiClass] =
-    if (isScriptFile || isWorksheetFile) PsiClass.EMPTY_ARRAY
+    if (isScriptFile || isWorksheetFile)
+      PsiClass.EMPTY_ARRAY
     else {
-      val definitions = this.typeDefinitions
-
-      if (isDuringMoveRefactoring) definitions.toArray
-      else {
-        val arrayBuffer = mutable.ArrayBuffer.empty[PsiClass]
-        for (definition <- definitions) {
-          val toAdd = definition :: (definition match {
+      val (definitions, others) = typeDefinitionsAndOthers
+      if (others.nonEmpty)
+        PsiClass.EMPTY_ARRAY
+      else if (isDuringMoveRefactoring)
+        definitions.toArray
+      else
+        definitions.flatMap { definition =>
+          definition :: (definition match {
             case o: ScObject => o.fakeCompanionClass.toList
-            case t: ScTrait =>
-              t.fakeCompanionClass :: t.fakeCompanionModule.toList
-            case c: ScClass => c.fakeCompanionModule.toList
+            case t: ScTrait  => t.fakeCompanionClass :: t.fakeCompanionModule.toList
+            case c: ScClass  => c.fakeCompanionModule.toList
             case _ => Nil
           })
-
-          arrayBuffer ++= toAdd
-        }
-        arrayBuffer.toArray
-      }
+        }.toArray
     }
 
   override def findReferenceAt(offset: Int): PsiReference = super.findReferenceAt(offset)
@@ -356,6 +352,11 @@ class ScalaFileImpl(
 
     members ++ packagings.flatMap(_.members)
   }
+
+  override def typeDefinitionsAndOthers: (Seq[ScTypeDefinition], Seq[ScMember]) =
+    members.partition(_.is[ScTypeDefinition]) match {
+      case (tps, ots) => (tps.asInstanceOf[Seq[ScTypeDefinition]], ots)
+    }
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
     case null => byPsi

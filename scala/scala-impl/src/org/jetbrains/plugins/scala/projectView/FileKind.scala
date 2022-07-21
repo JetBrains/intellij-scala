@@ -14,45 +14,37 @@ import org.jetbrains.plugins.scala.util.BaseIconProvider
 import javax.swing.Icon
 
 sealed trait FileKind {
-
   protected val delegate: ScTypeDefinition
 
   def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode]
 }
 
 object FileKind {
-
   import extensions._
   import icons.Icons._
 
-  def unapply(file: ScalaFile): Option[FileKind] = Option {
-    file.typeDefinitions.toList match {
-      case (definition: ScObject) :: Nil if definition.isPackageObject => PackageObject(definition)
-      case firstDefinition :: tail if matchesFileName(firstDefinition) =>
-        tail match {
-          case Nil => TypeDefinition(firstDefinition)
-          case secondDefinition :: Nil if firstDefinition.name == secondDefinition.name =>
-            (firstDefinition, secondDefinition) match {
-              case (firstDefinition: ScClass, companionObject: ScObject) => ClassAndCompanionObject(firstDefinition, companionObject)
-              case (companionObject: ScObject, secondDefinition: ScClass) => ClassAndCompanionObject(secondDefinition, companionObject)
-              case (firstDefinition: ScTrait, companionObject: ScObject) => TraitAndCompanionObject(firstDefinition, companionObject)
-              case (companionObject: ScObject, secondDefinition: ScTrait) => TraitAndCompanionObject(secondDefinition, companionObject)
-              case _ => null
-            }
-          case _ => null
-        }
-      case _ => null
-    }
-  }
+  def unapply(file: ScalaFile): Option[FileKind] = {
+    val fileName = clean(getNameWithoutExtension(file.name))
 
-  private def matchesFileName(definition: ScTypeDefinition): Boolean = {
-    val cleanDefinitionName = clean(definition.name)
+    def matchesFileName(definition: ScTypeDefinition): Boolean =
+      clean(definition.name) == fileName
 
-    definition.containingFile.iterator
-      .map(_.getName)
-      .map(getNameWithoutExtension)
-      .map(clean)
-      .forall(_ == cleanDefinitionName)
+    def bothMatchFileName(first: ScTypeDefinition, second: ScTypeDefinition): Boolean =
+      first.name == second.name && clean(first.name) == fileName
+
+    val (typeDefinitions, others) = file.typeDefinitionsAndOthers
+    if (others.nonEmpty)
+      None
+    else
+      typeDefinitions.toList match {
+        case (definition: ScObject)                  :: Nil if definition.isPackageObject       => Some(PackageObject(definition))
+        case definition                              :: Nil if matchesFileName(definition)      => Some(TypeDefinition(definition))
+        case (first: ScClass)  :: (second: ScObject) :: Nil if bothMatchFileName(first, second) => Some(ClassAndCompanionObject(first, second))
+        case (first: ScObject) :: (second: ScClass)  :: Nil if bothMatchFileName(first, second) => Some(ClassAndCompanionObject(second, first))
+        case (first: ScTrait)  :: (second: ScObject) :: Nil if bothMatchFileName(first, second) => Some(TraitAndCompanionObject(first, second))
+        case (first: ScObject) :: (second: ScTrait)  :: Nil if bothMatchFileName(first, second) => Some(TraitAndCompanionObject(second, first))
+        case _ => None
+      }
   }
 
   private sealed trait SingleDefinition extends FileKind
@@ -64,20 +56,18 @@ object FileKind {
   }
 
   private case class TypeDefinition(override protected val delegate: ScTypeDefinition) extends SingleDefinition {
-
     override def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode] =
       Some(new TypeDefinitionNode(delegate))
   }
 
   private sealed trait PairedDefinition extends FileKind with Iconable {
-
     protected val companionObject: ScObject
 
-    override def node(implicit project: Project, settings: ViewSettings): Option[PsiFileNode with IconableNode] =
+    override def node(implicit project: Project, settings: ViewSettings): Option[Node with IconableNode] =
       if (settings != null && settings.isShowMembers) {
         None
       } else {
-        class LeafNode extends PsiFileNode(project, delegate.getContainingFile, settings) with IconableNode {
+        final class LeafNode extends PsiFileNode(project, delegate.getContainingFile, settings) with IconableNode {
 
           override def getIcon(flags: Int): Icon = PairedDefinition.this.getIcon(flags)
 
@@ -89,6 +79,7 @@ object FileKind {
           override def updateImpl(data: PresentationData): Unit = {
             super.updateImpl(data)
             setIcon(data)
+            data.setPresentableText(delegate.name)
           }
         }
 
@@ -96,17 +87,16 @@ object FileKind {
       }
   }
 
-  private case class ClassAndCompanionObject(override protected val delegate: ScClass,
-                                             override protected val companionObject: ScObject)
+  private final case class ClassAndCompanionObject(override protected val delegate: ScClass,
+                                                   override protected val companionObject: ScObject)
     extends PairedDefinition with BaseIconProvider {
-
     protected override val baseIcon: Icon =
       if (delegate.hasAbstractModifier) ABSTRACT_CLASS_AND_OBJECT else CLASS_AND_OBJECT
   }
 
-  private case class TraitAndCompanionObject(override protected val delegate: ScTrait,
-                                             override protected val companionObject: ScObject) extends PairedDefinition {
-
-    override def getIcon(flags: Int): Icon = TRAIT_AND_OBJECT
+  private final case class TraitAndCompanionObject(override protected val delegate: ScTrait,
+                                                   override protected val companionObject: ScObject)
+    extends PairedDefinition with BaseIconProvider {
+    protected override val baseIcon: Icon = TRAIT_AND_OBJECT
   }
 }

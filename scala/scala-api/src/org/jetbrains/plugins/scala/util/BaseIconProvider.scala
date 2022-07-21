@@ -16,9 +16,9 @@ trait BaseIconProvider extends Iconable {
 
   // TODO baseIcon shouldn't return null in ScVariable and ScFunction
   override def getIcon(flags: Int): Icon = baseIcon match {
-    case _: Icon if delegate.isValid =>
+    case icon: Icon if delegate.isValid =>
       val layerFlags = getLayerFlags(flags)
-      val layeredIcon = IconManager.getInstance.createLayeredIcon(delegate, baseIcon, layerFlags)
+      val layeredIcon = IconManager.getInstance.createLayeredIcon(delegate, icon, layerFlags)
       ElementPresentationUtil.addVisibilityIcon(delegate, flags, layeredIcon)
     case _ => null
   }

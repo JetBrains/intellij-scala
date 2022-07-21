@@ -46,10 +46,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       !ScratchUtil.isScratch(scalaFile.getVirtualFile)
 
   private def findSuspiciousTypeDefinitions(scalaFile: ScalaFile, virtualFileName: String): Seq[ScTypeDefinition] = {
-    val members = scalaFile.members
-    val (definitions, others) = members.partition(_.is[ScTypeDefinition])
-    val typeDefinitions = definitions.asInstanceOf[Seq[ScTypeDefinition]]
-
+    val (typeDefinitions, others) = scalaFile.typeDefinitionsAndOthers
     if (others.nonEmpty || typeDefinitions.size > 2)
       Seq.empty
     else if (typeDefinitions.forall { p => ScalaNamesUtil.equivalent(p.name, virtualFileName) })

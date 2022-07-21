@@ -27,6 +27,8 @@ public interface Icons {
     Icon SCALA_SMALL_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scalaSmallLogo.svg", Icons.class);
     Icon SCRIPT_FILE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scalaScriptIcon.svg", Icons.class);
 
+    Icon SCALA_FILE = getIcon("/org/jetbrains/plugins/scala/images/fileScala.svg", Icons.class);
+
     Icon ADD_CLAUSE = getIcon("/org/jetbrains/plugins/scala/images/addClause.svg", Icons.class);
     Icon REMOVE_CLAUSE = getIcon("/org/jetbrains/plugins/scala/images/removeClause.svg", Icons.class);
 
