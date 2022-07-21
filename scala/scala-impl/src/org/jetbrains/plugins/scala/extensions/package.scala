@@ -646,33 +646,31 @@ package object extensions {
 
     def parent: Option[PsiElement] = Option(element.getParent)
 
-    import PsiTreeUtil._
-
     def parentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
       parentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
 
     def parentOfType[Psi <: PsiElement](clazz: Class[Psi], strict: Boolean = true): Option[Psi] =
-      Option(getParentOfType(element, clazz, strict))
+      Option(PsiTreeUtil.getParentOfType(element, clazz, strict))
 
     def parentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
-      Option(getParentOfType(element, classes: _*))
+      Option(PsiTreeUtil.getParentOfType(element, classes: _*))
 
     def nonStrictParentOfType[Psi <: PsiElement: ClassTag]: Option[Psi] =
       nonStrictParentOfType(implicitly[ClassTag[Psi]].runtimeClass.asInstanceOf[Class[Psi]])
 
     def nonStrictParentOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
-      Option(getNonStrictParentOfType(element, clazz))
+      Option(PsiTreeUtil.getNonStrictParentOfType(element, clazz))
 
     def nonStrictParentOfType(classes: Seq[Class[_ <: PsiElement]]): Option[PsiElement] =
-      Option(getNonStrictParentOfType(element, classes: _*))
+      Option(PsiTreeUtil.getNonStrictParentOfType(element, classes: _*))
 
 
     def findContextOfType[Psi <: PsiElement](clazz: Class[Psi]): Option[Psi] =
-      Option(getContextOfType(element, clazz))
+      Option(PsiTreeUtil.getContextOfType(element, clazz))
 
     def elementAt(offset: Int): Option[PsiElement] = Option(element.findElementAt(offset))
 
-    def isAncestorOf(otherElement: PsiElement): Boolean = isAncestor(element, otherElement, true)
+    def isAncestorOf(otherElement: PsiElement): Boolean = PsiTreeUtil.isAncestor(element, otherElement, true)
 
     def parents: Iterator[PsiElement] = new ParentsIterator(element)
 
