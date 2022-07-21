@@ -7,6 +7,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.search._
 import com.intellij.psi.search.searches.ReferencesSearch
+import org.jdom.Element
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
@@ -75,8 +76,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     } else if (!reportPublicDeclarations) {
       true
     } else if (checkIfEnumUsedOutsideScala(element)) {
-      true
-    } else if (ScalaPsiUtil.isImplicit(element)) {
       true
     } else {
       textSearch(element)
@@ -277,9 +276,9 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     case e if !isOnlyVisibleInLocalFile(e) && TestSourcesFilter.isTestSources(e.getContainingFile.getVirtualFile, e.getProject) => false
     case _: ScSelfTypeElement => false
     case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
-    case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) && !ScalaPsiUtil.isImplicit(e) => false
+    case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
     case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-    case n: ScNamedElement if n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
+    case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
     case n: ScNamedElement =>
       n match {
         case p: ScModifierListOwner if hasOverrideModifier(p) => false
