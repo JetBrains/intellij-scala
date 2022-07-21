@@ -233,13 +233,13 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedDeclarationInspectio
       |""".stripMargin
   )
 
-  def testHighlightImplicitParameter(): Unit = checkTextHasError(
-    s"""
+  def testDontHighlightImplicitParameter(): Unit = checkTextHasNoErrors(
+    """
       |import scala.annotation.unused
       |@unused
       |object Test {
       |  @unused
-      |  def test(implicit ${START}unused$END: A): Unit = ()
+      |  def test(implicit unused: A): Unit = ()
       |}
       |""".stripMargin
   )

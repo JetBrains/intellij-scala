@@ -73,6 +73,24 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
     testQuickFix(text, expected, removeUnusedElementHint)
   }
 
+  /*
+  The below tests are shelved as part of SCL-20352.
+
+  Summary of what happened: An attempt was made to enable unused declaration inspection
+  for implicit parameters. This seemed to work fine, so it was approved and merged.
+
+  Later Timur discovered that the QuickFixes that were available after these changes for
+  some cases involving 'using' did not work well. So the below tests were written as part
+  of a fix that addressed this.
+
+  Then we discovered the problems detailed in SCL-20352. We decided to revert the changes
+  made for implicit parameters. This invalidated the very tests that are commented out below.
+  */
+
+  // TODO -- Once we have a sustainable implementation of unused declaration inspection for implicit
+  //  parameters, uncomment the below tests and they should Just Work.
+
+  /* ===== START OF SHELVED TESTS AS PART OF SCL-20352 (don't touch)
   def test_single_named_using_param(): Unit = {
     val text =
       s"""
@@ -296,6 +314,7 @@ class Scala3UnusedDeclarationQuickFixTest extends ScalaUnusedDeclarationInspecti
          |""".stripMargin
     testQuickFix(text, expected, removeUnusedElementHint)
   }
+  ===== END OF SHELVED TESTS AS PART OF SCL-20352 */
 
   def test_last_enum_case(): Unit = {
     val text = "@scala.annotation.unused enum Fruit { case Banana }"
