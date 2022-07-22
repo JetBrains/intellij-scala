@@ -40,6 +40,8 @@ ScalaFile
                 Modifiers
                   <empty list>
                 PsiElement(identifier)('x')
+                PsiErrorElement:':' expected
+                  <empty list>
               PsiElement())(')')
             ParametersClause
               PsiElement(()('(')
@@ -51,6 +53,8 @@ ScalaFile
                 Modifiers
                   <empty list>
                 PsiElement(identifier)('x')
+                PsiErrorElement:':' expected
+                  <empty list>
               PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')

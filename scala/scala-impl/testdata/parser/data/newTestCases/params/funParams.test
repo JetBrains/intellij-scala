@@ -62,6 +62,8 @@ ScalaFile
                   <empty list>
                 PsiWhiteSpace(' ')
                 PsiElement(identifier)('b')
+                PsiErrorElement:':' expected
+                  <empty list>
               PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
