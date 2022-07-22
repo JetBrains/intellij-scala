@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.editor.documentationProvider
+package org.jetbrains.plugins.scala
+package editor.documentationProvider
 
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -12,9 +13,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaVersion, base}
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 import scala.util.Try
 
+@Category(Array(classOf[SlowTests]))
 class ScalaLibraryQuickDocGenerationHealthCheckTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
