@@ -50,7 +50,7 @@ object Param extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!Expr()) builder error ErrMsg("wrong.expression")
+        if (!Expr()) builder error ErrMsg("expression.expected")
       case _ =>
     }
     paramMarker.done(ScalaElementType.PARAM)
