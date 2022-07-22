@@ -37,6 +37,7 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 
 import scala.annotation.tailrec
 
+//noinspection InstanceOf
 object ResolveUtils {
   def kindMatches(element: PsiElement, kinds: Set[ResolveTargets.Value]): Boolean = kinds == null ||
           (element match {
@@ -284,9 +285,7 @@ object ResolveUtils {
                   case _ => return true
                 }
               }
-              val enclosing = PsiTreeUtil.getContextOfType(scMember, true,
-                classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
-              assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
+
               if (accessModifier.isThis) {
                 place match {
                   case ref: ScReference =>
@@ -302,10 +301,16 @@ object ResolveUtils {
                   case _ =>
                 }
               }
+
+              val enclosing = PsiTreeUtil.getContextOfType(scMember, true, classOf[ScalaFile], classOf[ScPackaging], classOf[ScTemplateDefinition])
+              assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
+
               enclosing match {
                 case td: ScTypeDefinition =>
-                  if (smartContextAncestor(td, place, withCompanion)) return true
-                  checkProtected(td, withCompanion)
+                  if (smartContextAncestor(td, place, withCompanion))
+                    true
+                  else
+                    checkProtected(td, withCompanion)
                 case td: ScTemplateDefinition =>
                   //it'd anonymous class, has access only inside
                   PsiTreeUtil.isContextAncestor(td, place, false)
