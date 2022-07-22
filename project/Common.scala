@@ -105,7 +105,7 @@ object Common {
 
     val fileSetTests: String = cat("FileSetTests")
     val completionTests: String = cat("CompletionTests")
-    val inspectionAndIntentionTests: String = cat("InspectionAndIntentionTests")
+    val editorTests: String = cat("EditorTests")
     val slowTests: String = cat("SlowTests")
     val debuggerTests: String = cat("DebuggerTests")
     val scalacTests: String = cat("ScalacTests")

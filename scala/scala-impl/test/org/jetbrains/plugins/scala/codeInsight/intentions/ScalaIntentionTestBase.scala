@@ -16,7 +16,7 @@ import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 
-@Category(Array(classOf[InspectionAndIntentionTests]))
+@Category(Array(classOf[EditorTests]))
 abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def familyName: String

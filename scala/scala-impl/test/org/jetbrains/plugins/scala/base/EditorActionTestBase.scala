@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.base
+package org.jetbrains.plugins.scala
+package base
 
 import com.intellij.openapi.actionSystem.IdeActions.{ACTION_EDITOR_BACKSPACE, ACTION_EDITOR_ENTER, ACTION_EXPAND_LIVE_TEMPLATE_BY_TAB}
 import com.intellij.openapi.editor.CaretState
@@ -15,6 +16,7 @@ import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
 import org.jetbrains.plugins.scala.util.FindCaretOffset.findCaretOffsets
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
@@ -22,6 +24,7 @@ import scala.util.control.NonFatal
 /**
   * @author adkozlov
   */
+@Category(Array(classOf[EditorTests]))
 abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
 
   protected val q  : String = "\""
@@ -80,7 +83,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     val (expectedText, expectedCarets) = findCaretOffsets(textAfter, trimTestDataText)
 
     /**
-     * Copied from [[com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.checkResult]]
+     * Copied from `com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.checkResult`
      * Replaced inner `checkResult` call with `checkCaretOffsets`
      * It allows to see caret positions together with file text directly in the diff view of failed test
      * It's more convenient then operating with caret offset (as simple integer value)

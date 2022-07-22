@@ -35,6 +35,10 @@ trait FileSetTests
 /** Completion tests became very slow due to platform changes in the project loading and setup. */
 trait CompletionTests
 
-/** Applied to [[org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase]] and
- * [[org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase]]. */
-trait InspectionAndIntentionTests
+/**
+ * Applied to [[org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase]],
+ * [[org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase]],
+ * [[org.jetbrains.plugins.scala.base.EditorActionTestBase]] and
+ * `org.jetbrains.plugins.scala.codeInsight.InlayHintsTestBase`.
+ */
+trait EditorTests

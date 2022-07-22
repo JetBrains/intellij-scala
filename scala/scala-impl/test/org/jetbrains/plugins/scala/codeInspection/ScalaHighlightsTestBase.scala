@@ -16,7 +16,7 @@ import org.junit.experimental.categories.Category
 
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-@Category(Array(classOf[InspectionAndIntentionTests]))
+@Category(Array(classOf[EditorTests]))
 abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   self: ScalaLightCodeInsightFixtureTestAdapter =>
 

@@ -589,7 +589,8 @@ def testOnlyCategories(categories: String*): String =
 
 addCommandAlias("runFileSetTests", testOnlyCategories(fileSetTests))
 addCommandAlias("runCompletionTests", testOnlyCategories(completionTests))
-addCommandAlias("runInspectionAndIntentionTests", testOnlyCategories(inspectionAndIntentionTests))
+addCommandAlias("runInspectionAndIntentionTests", testOnlyCategories(editorTests))
+addCommandAlias("runEditorTests", testOnlyCategories(editorTests))
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
 addCommandAlias("runScalacTests", testOnlyCategories(scalacTests))
@@ -603,7 +604,7 @@ addCommandAlias("runFlakyTests", s"testOnly -- --include-categories=$flakyTests"
 val categoriesToExclude = List(
   fileSetTests,
   completionTests,
-  inspectionAndIntentionTests,
+  editorTests,
   slowTests,
   debuggerTests,
   scalacTests,
