@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.lang.resolve.testAllResolve
+package org.jetbrains.plugins.scala
+package lang.resolve.testAllResolve
 
 import _root_.org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaRecursiveElementVisitor}
 import com.intellij.openapi.util.io.FileUtil
@@ -6,6 +7,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.annotation.nowarn
@@ -15,6 +17,7 @@ import scala.annotation.nowarn
  * Date: 24.11.2009
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[TypecheckerTests]))
 abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   def folderPath: String = baseRootPath + "resolve/testAllResolve/"
 

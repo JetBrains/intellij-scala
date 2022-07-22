@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.failed.resolve
+package org.jetbrains.plugins.scala
+package failed.resolve
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
@@ -6,11 +7,13 @@ import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.junit.experimental.categories.Category
 
 /**
   * @author Roman.Shein
   * @since 25.03.2016.
   */
+@Category(Array(classOf[TypecheckerTests]))
 class ArgumentTypeMismatchTest extends SimpleTestCase {
   override protected def shouldPass: Boolean = false
 

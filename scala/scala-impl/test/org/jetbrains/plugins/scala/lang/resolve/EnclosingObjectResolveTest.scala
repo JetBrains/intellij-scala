@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang.resolve
 
 import com.intellij.testFramework.EditorTestUtil
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 
   * @since 28.03.16.
   */
+@Category(Array(classOf[TypecheckerTests]))
 class EnclosingObjectResolveTest extends SimpleTestCase {
 
   def testSCL10015(): Unit = {

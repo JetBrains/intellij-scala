@@ -1,10 +1,13 @@
-package org.jetbrains.plugins.scala.lang.resolve
+package org.jetbrains.plugins.scala
+package lang.resolve
 
 import com.intellij.openapi.editor.Editor
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.IvyManagedLoader
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class PropertyKeyFoldingTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   private def assertFolded(editor: Editor, foldedText: String, placeholder: String): Unit = {

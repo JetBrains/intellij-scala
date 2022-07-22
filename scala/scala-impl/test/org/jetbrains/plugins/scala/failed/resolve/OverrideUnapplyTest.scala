@@ -1,14 +1,17 @@
-package org.jetbrains.plugins.scala.failed.resolve
+package org.jetbrains.plugins.scala
+package failed.resolve
 
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 
   * @since 25.03.16.
   */
+@Category(Array(classOf[TypecheckerTests]))
 class OverrideUnapplyTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false
