@@ -159,9 +159,9 @@ object ResolveUtils {
         // if member is a scala member, the modifier list also have to be a scala one
         scModifierList.accessModifier match {
           case None => true
-          case Some(am: ScAccessModifier) =>
-            if (am.isPrivate) {
-              if (am.isThis) {
+          case Some(accessModifier: ScAccessModifier) =>
+            if (accessModifier.isPrivate) {
+              if (accessModifier.isThis) {
                 val containingClass = scMember.containingClass
                 if (containingClass == null) return true
 
@@ -192,25 +192,16 @@ object ResolveUtils {
                     return PsiTreeUtil.isContextAncestor(containingClass, place, false)
                 }
               }
-              val ref = am.getReference
+              val ref = accessModifier.getReference
               if (ref != null) {
                 val bind = ref.resolve
                 if (bind == null) return true
                 def processPackage(packageName: String): Boolean = {
-                  def context(place: PsiElement): PsiElement =
-                    PsiTreeUtil.getContextOfType(place, true,
-                      classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
-                  var placeEnclosing: PsiElement = context(place)
-                  while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
-                           !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
-                    placeEnclosing = context(placeEnclosing)
-                  if (placeEnclosing == null) return false //not Scala
-                  val placePackageName = placeEnclosing match {
-                    case _: ScalaFile => ""
-                    case obj: ScObject => obj.qualifiedName
-                    case pack: ScPackaging => pack.fullPackageName
-                  }
-                  packageContains(packageName, placePackageName)
+                  val placePackageName = ScalaPsiUtil.getPlacePackageName(place)
+                  if (placePackageName == null)
+                    false
+                  else
+                    packageContains(packageName, placePackageName)
                 }
                 bind match {
                   case td: ScTemplateDefinition if smartContextAncestor(td, place, checkCompanion = true) =>
@@ -257,28 +248,22 @@ object ResolveUtils {
                 }
               }
             } else { //todo: it's wrong if reference after not appropriate class type
-              val withCompanion = !am.isThis
-              val ref = am.getReference
+              val withCompanion = !accessModifier.isThis
+              val ref = accessModifier.getReference
               if (ref != null) {
                 val bind = ref.resolve
                 if (bind == null) return true
+
                 def processPackage(packageName: String): Option[Boolean] = {
-                  def context(place: PsiElement): PsiElement =
-                    PsiTreeUtil.getContextOfType(place, true, classOf[ScPackaging],
-                      classOf[ScObject], classOf[ScalaFile])
-                  var placeEnclosing: PsiElement = context(place)
-                  while (placeEnclosing != null && placeEnclosing.is[ScObject] &&
-                           !placeEnclosing.asInstanceOf[ScObject].isPackageObject)
-                    placeEnclosing = context(placeEnclosing)
-                  if (placeEnclosing == null) return Some(false) //not Scala
-                  val placePackageName = placeEnclosing match {
-                    case _: ScalaFile => ""
-                    case obj: ScObject => obj.qualifiedName
-                    case pack: ScPackaging => pack.fullPackageName
-                  }
-                  if (packageContains(packageName, placePackageName)) return Some(true)
-                  None
+                  val placePackageName = ScalaPsiUtil.getPlacePackageName(place)
+                  if (placePackageName == null)
+                    Some(false)
+                  else if (packageContains(packageName, placePackageName))
+                    Some(true)
+                  else
+                    None
                 }
+
                 bind match {
                   case td: ScTemplateDefinition =>
                     if (smartContextAncestor(td, place, checkCompanion = true)) return true
@@ -302,7 +287,7 @@ object ResolveUtils {
               val enclosing = PsiTreeUtil.getContextOfType(scMember, true,
                 classOf[ScalaFile], classOf[ScTemplateDefinition], classOf[ScPackaging])
               assert(enclosing != null, s"Enclosing is null in file ${scMember.getContainingFile.getName}:\n${scMember.getContainingFile.getText}")
-              if (am.isThis) {
+              if (accessModifier.isThis) {
                 place match {
                   case ref: ScReference =>
                     ref.qualifier match {
@@ -339,12 +324,12 @@ object ResolveUtils {
                   packageContains(packageName, placePackageName)
               }
             }
-      }
+        }
       case _ =>
         if (modifierList.hasModifierProperty("public")) true
         else if (modifierList.hasModifierProperty("private")) false
         else if (modifierList.hasModifierProperty("protected") &&
-                checkProtected(member.containingClass, withCompanion = true)) true
+          checkProtected(member.containingClass, withCompanion = true)) true
         else {
           val packageName = member.getContainingFile match {
             case _: ScalaFile => ""
