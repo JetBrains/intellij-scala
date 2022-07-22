@@ -260,7 +260,7 @@ class ScalaResolveResult(
             val container = PsiTreeUtil.getContextOfType(actualElement, false, classOf[PsiClass], classOf[ScPackaging], classOf[ScalaFile])
             val maybeContainingPackageOrPackageObjectName: Option[String] = container match {
               case o: ScObject if o.isPackageObject => Option(o.qualifiedName)
-              case p: ScPackaging                   => Option(p.packageName) //top level definition
+              case p: ScPackaging                   => Option(p.fullPackageName) //top level definition
               case _: ScalaFile                     => Some("") //top level definition in root package (no container `packaging` statement)
               case _                                => None
             }
