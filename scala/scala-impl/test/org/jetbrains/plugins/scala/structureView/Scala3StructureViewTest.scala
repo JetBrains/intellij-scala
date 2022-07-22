@@ -15,7 +15,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
   override protected def check(@org.intellij.lang.annotations.Language("Scala 3") code: String, nodes: Node*): Unit =
     super.check(code, nodes: _*)
 
-  private val EnumCaseIcon = CLASS
+  private val EnumCaseIcon = ENUM
   private val BlockIcon = PlatformIcons.CLASS_INITIALIZER
 
   private val TopLevelDefinitionsText =
