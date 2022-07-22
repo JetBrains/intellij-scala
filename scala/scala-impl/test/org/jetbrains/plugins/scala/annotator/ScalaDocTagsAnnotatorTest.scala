@@ -1,9 +1,12 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class ScalaDocTagsAnnotatorTest extends SimpleTestCase {
 
   private def textWithComment(paramTag: String = "bar", typeParamTag: String = "T"): String = {

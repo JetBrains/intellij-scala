@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaBundle
@@ -7,7 +8,9 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class SelfInvocationAnnotatorTest extends SimpleTestCase {
 
   def messagesForNonGeneric(auxConstr: String): List[Message] = messages(

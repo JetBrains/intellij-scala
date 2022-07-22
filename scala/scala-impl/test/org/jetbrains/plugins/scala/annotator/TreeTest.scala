@@ -1,12 +1,14 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.annotator.Tree._
 import org.jetbrains.plugins.scala.annotator.TypeDiff._
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
-class TreeTest
-  extends TestCase {
+@Category(Array(classOf[TypecheckerTests]))
+class TreeTest extends TestCase {
 
   import fastparse._
   import NoWhitespace._

@@ -1,13 +1,16 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.junit.experimental.categories.Category
 
 /**
   * @author ilinum
   */
+@Category(Array(classOf[TypecheckerTests]))
 class ValueClassAnnotatorTest extends SimpleTestCase {
 
   def testPrimaryConstructorParameters(): Unit = {

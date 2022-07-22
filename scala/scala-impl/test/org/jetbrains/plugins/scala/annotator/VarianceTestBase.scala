@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
@@ -10,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeBoundsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 abstract class VarianceTestBase extends SimpleTestCase {
   // needs to be constant :( .stripMargin is not constant
   final val Header = """

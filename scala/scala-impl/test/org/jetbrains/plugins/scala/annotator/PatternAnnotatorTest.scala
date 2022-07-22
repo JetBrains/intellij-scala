@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.junit.Assert
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
 import scala.annotation.nowarn
 
@@ -15,6 +16,7 @@ import scala.annotation.nowarn
  * 2014-04-03
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@Category(Array(classOf[TypecheckerTests]))
 class PatternAnnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   private def fruitless(exprType: String, patType: String) = ScalaBundle.message("fruitless.type.test", exprType, patType)

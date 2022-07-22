@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel Fatin
@@ -19,6 +20,7 @@ import org.junit.Assert._
 // On the other hand, this couples a test with a very particular implementation, which makes the implementation less flexible.
 // Also, the SCL-15138 (Only highlight initial, not derivative errors) meta issue requires to test the interplay between different parts of the annotator implementation.
 // It's probably better to use otherwise valid code in the test, so that we can rely on the general "annotate" functionality (but we, obviously still may write specialized tests).
+@Category(Array(classOf[TypecheckerTests]))
 abstract class AnnotatorTestBase[T <: ScalaPsiElement : reflect.ClassTag] extends SimpleTestCase {
 
   final val Prefix = "object Holder { class Object; "

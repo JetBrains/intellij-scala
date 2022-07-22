@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator.modifiers
+package org.jetbrains.plugins.scala
+package annotator.modifiers
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.CharsetToolkit
@@ -8,9 +9,11 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.junit.experimental.categories.Category
 
 import java.io.File
 
+@Category(Array(classOf[TypecheckerTests]))
 class GeneratedModifierTest extends SimpleTestCase {
 
   def test_all(): Unit = {

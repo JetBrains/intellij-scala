@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert.assertEquals
+import org.junit.experimental.categories.Category
 
 // NOTE: there are some false negatives comparing to compiler result for Scala 2.11 and 2.12:
 // Those are due to compiler bugs:
@@ -25,6 +26,7 @@ import org.junit.Assert.assertEquals
 //  1. "Expression of type String doesn't conform to expected type () => String")
 //  2. "Type mismatch, expected: () => String, actual: String"
 //  in prod only 2nd variant can be observed
+@Category(Array(classOf[TypecheckerTests]))
 abstract class SingleAbstractMethodTestBase extends ScalaFixtureTestCase with MatcherAssertions {
 
   protected def checkCodeHasNoErrors(scalaCode: String, javaCode: Option[String] = None): Unit =

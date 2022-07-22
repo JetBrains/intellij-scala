@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import com.intellij.lang.Language
 import com.intellij.psi.PsiFile
@@ -10,8 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.junit.experimental.categories.Category
 
-
+@Category(Array(classOf[TypecheckerTests]))
 trait ScParameterizedTypeElementAnnotatorTestBase extends SimpleTestCase {
   protected val language: Language
 
@@ -367,6 +369,7 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
   ))
 }
 
+@Category(Array(classOf[TypecheckerTests]))
 class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 
   def messages(code: String) = {

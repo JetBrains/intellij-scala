@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class ConstructorTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testScl7255(): Unit = {

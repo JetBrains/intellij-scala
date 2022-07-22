@@ -12,8 +12,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Failure
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 // TODO Work in progress
+@Category(Array(classOf[TypecheckerTests]))
 class TypeDiffTest extends ScalaFixtureTestCase {
   // TODO test separation of matched elements, such as [ or ]
 

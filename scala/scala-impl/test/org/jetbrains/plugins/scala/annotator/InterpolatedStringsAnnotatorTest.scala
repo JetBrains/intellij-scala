@@ -4,11 +4,13 @@ package annotator
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
+import org.junit.experimental.categories.Category
 
 /**
  * User: Dmitry Naydanov
  * Date: 7/3/12
  */
+@Category(Array(classOf[TypecheckerTests]))
 class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   import InterpolatedStringsAnnotatorTest._

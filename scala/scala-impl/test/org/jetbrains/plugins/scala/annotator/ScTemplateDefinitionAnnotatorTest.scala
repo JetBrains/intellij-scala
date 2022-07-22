@@ -1,11 +1,14 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class ScTemplateDefinitionAnnotatorTest extends SimpleTestCase {
   def testTraitPassingConstructorParameters(): Unit =
     assertMessages(messages(

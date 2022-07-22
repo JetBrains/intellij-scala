@@ -1,4 +1,5 @@
-package org.jetbrains.plugins.scala.annotator
+package org.jetbrains.plugins.scala
+package annotator
 
 import org.jetbrains.plugins.scala.annotator.element.{ScGenericCallAnnotator, ScReferenceAnnotator}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
@@ -6,8 +7,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.junit.experimental.categories.Category
 
-
+@Category(Array(classOf[TypecheckerTests]))
 class ScGenericCallAnnotatorTest extends SimpleTestCase {
   def testTooFewTypeParameter(): Unit = {
     assertMessages(messages("test[Int]"))(

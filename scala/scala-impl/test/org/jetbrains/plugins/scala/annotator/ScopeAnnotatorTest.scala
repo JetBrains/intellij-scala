@@ -5,11 +5,12 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.Assert
+import org.junit.experimental.categories.Category
 
 /**
  * Pavel.Fatin, 18.05.2010
  */
-
+@Category(Array(classOf[TypecheckerTests]))
 class ScopeAnnotatorTest extends SimpleTestCase {
   // TODO List of explicit clash groups, report scope 
   // ("Foo is already defined as class Foo, object Foo in object Holder")

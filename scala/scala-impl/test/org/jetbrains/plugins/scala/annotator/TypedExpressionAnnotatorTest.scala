@@ -6,7 +6,9 @@ import org.jetbrains.plugins.scala.annotator.element.ScTypedExpressionAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class TypedExpressionAnnotatorTest extends SimpleTestCase {
   private final val Header = "class A; class B; object A extends A; object B extends B\n"
 
