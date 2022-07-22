@@ -330,24 +330,25 @@ object ResolveUtils {
               }
             }
         }
-      case _ =>
-        if (modifierList.hasModifierProperty("public")) true
-        else if (modifierList.hasModifierProperty("private")) false
-        else if (modifierList.hasModifierProperty("protected") &&
+      case _ => //non-scala member, Java code
+        if (modifierList.hasModifierProperty(PsiModifier.PUBLIC)) true
+        else if (modifierList.hasModifierProperty(PsiModifier.PRIVATE)) false
+        else if (modifierList.hasModifierProperty(PsiModifier.PROTECTED) &&
           checkProtected(member.containingClass, withCompanion = true)) true
         else {
-          val packageName = member.getContainingFile match {
-            case _: ScalaFile => ""
+          val containingFile = member.getContainingFile
+          val packageName = containingFile match {
+            case _: ScalaFile =>
+              throw new AssertionError("not expecting scala file here")
             case f: PsiClassOwner => f.getPackageName
-            case _ => return false
+            case _ =>
+              return false
           }
-          val placeEnclosing: PsiElement = PsiTreeUtil.getContextOfType(place, true, classOf[ScPackaging], classOf[ScalaFile])
-          if (placeEnclosing == null) return false
-          val placePackageName = placeEnclosing match {
-            case _: ScalaFile => ""
-            case pack: ScPackaging => pack.fullPackageName
-          }
-          packageContains(packageName, placePackageName)
+          val placePackageName = ScalaPsiUtil.getPlacePackageName(place)
+          if (placePackageName == null)
+            false
+          else
+            packageContains(packageName, placePackageName)
         }
     }
   }
