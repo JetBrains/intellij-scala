@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.completion
 
 import scala.jdk.CollectionConverters._
 
-abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
+abstract class SbtCompletionTestBase extends completion.FileTestDataCompletionTestBase {
   self: MockSbtBase =>
 
   override protected lazy val caretMarker = EditorTestUtil.CARET_TAG
