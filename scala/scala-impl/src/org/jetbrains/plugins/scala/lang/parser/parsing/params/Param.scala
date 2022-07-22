@@ -45,7 +45,7 @@ object Param extends ParsingRule {
         builder error ErrMsg("colon.expected")
     }
 
-    if (!ParamType()) builder error ErrMsg("wrong.type")
+    if (!ParamType()) builder error ErrMsg("parameter.type.expected")
 
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>

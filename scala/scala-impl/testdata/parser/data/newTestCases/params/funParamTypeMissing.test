@@ -1,0 +1,49 @@
+class a {
+  def foo(x: )
+}
+-----
+ScalaFile
+  ScClass: a
+    AnnotationsList
+      <empty list>
+    Modifiers
+      <empty list>
+    PsiElement(class)('class')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('a')
+    PrimaryConstructor
+      AnnotationsList
+        <empty list>
+      Modifiers
+        <empty list>
+      Parameters
+        <empty list>
+    PsiWhiteSpace(' ')
+    ExtendsBlock
+      ScTemplateBody
+        PsiElement({)('{')
+        PsiWhiteSpace('\n  ')
+        ScFunctionDeclaration: foo
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(def)('def')
+          PsiWhiteSpace(' ')
+          PsiElement(identifier)('foo')
+          Parameters
+            ParametersClause
+              PsiElement(()('(')
+              Parameter: x
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(identifier)('x')
+                PsiElement(:)(':')
+                PsiErrorElement:Parameter type expected
+                  <empty list>
+              PsiWhiteSpace(' ')
+              PsiElement())(')')
+        PsiWhiteSpace('\n')
+        PsiElement(})('}')
