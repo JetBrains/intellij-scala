@@ -1,7 +1,10 @@
-package org.jetbrains.plugins.scala.lang.typeInference
+package org.jetbrains.plugins.scala
+package lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class ProjectionFromUndefinedTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL17581(): Unit = checkTextHasNoErrors(
     """

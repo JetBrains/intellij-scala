@@ -36,7 +36,7 @@ class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {
     lazy val frameProxy: StackFrameProxyImpl = context.getFrameProxy
-    var objRef: Value = (context.getThisObject: @nowarn("cat=deprecation")) match {
+    var objRef: Value = context.computeThisObject() match {
       case null => //so we possibly in trait $class
         try {
           val variable: LocalVariableProxyImpl = frameProxy.visibleVariableByName("$this")

@@ -1,8 +1,11 @@
-package org.jetbrains.plugins.scala.lang.typeInference
+package org.jetbrains.plugins.scala
+package lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
+import org.junit.experimental.categories.Category
 
+@Category(Array(classOf[TypecheckerTests]))
 class OverloadedHigherOrderFunTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
 
