@@ -36,26 +36,32 @@ final class ScPackageImpl private(val pack: PsiPackage) extends PsiPackageImpl(
     def processPackageObject(`object`: ScObject): Boolean =
       ScPackageLike.processPackageObject(`object`)(processor, state, lastParent, place)
 
-    getQualifiedName match {
-      case ScalaLowerCase if isInScalaContext =>
-        implicit val scope: GlobalSearchScope = findScope(processor, place)
+    val qualifiedName = getQualifiedName
+    if (qualifiedName == ScalaLowerCase && isInScalaContext) {
+      implicit val scope: GlobalSearchScope = findScope(processor, place)
 
-        if (!BaseProcessor.isImplicitProcessor(processor)) {
-          processScalaPackage(processor)
-        }
+      if (!BaseProcessor.isImplicitProcessor(processor)) {
+        processScalaPackage(processor)
+      }
 
-        manager.getCachedClasses(scope, ScalaLowerCase)
-          .findByType[ScObject]
-          .forall(processPackageObject)
-      case _ if !packageProcessDeclarations(pack)(processor, state, lastParent, place) => false
-      case _ if isInScalaContext =>
-        val scope = findScope(processor, place)
-        if (!findPackageObject(scope).forall(processPackageObject)) return false
-        if (!processTopLevelDeclarations(processor, state, place)) return false
-        true
-      case _ =>
+      val cachedClasses = manager.getCachedClasses(scope, ScalaLowerCase)
+      val scObject = cachedClasses.findByType[ScObject]
+      scObject.forall(processPackageObject)
+    }
+    else if (!packageProcessDeclarations(pack)(processor, state, lastParent, place))
+      false
+    else if (isInScalaContext) {
+      val scope = findScope(processor, place)
+      val foundPackageObject = findPackageObject(scope)
+      if (!foundPackageObject.forall(processPackageObject))
+        false
+      else if (!processTopLevelDeclarations(processor, state, place))
+        false
+      else
         true
     }
+    else
+      true
   }
 
   @CachedInUserData(this, ScalaPsiManager.instance(getProject).TopLevelModificationTracker)
@@ -222,10 +228,12 @@ object ScPackageImpl {
               case r: ResolveProcessor => r.getResolveScope
               case _ => place.resolveScope
             }
-            val iterator = manager.getClasses(`package`)(scope).iterator
+            val classes = manager.getClasses(`package`)(scope)
+            val iterator = classes.iterator
             while (iterator.hasNext) {
               val clazz = iterator.next()
-              if (clazz.containingClass == null && !processor.execute(clazz, state)) return false
+              if (clazz.containingClass == null && !processor.execute(clazz, state))
+                return false
             }
           }
 
