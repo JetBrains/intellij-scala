@@ -62,7 +62,7 @@ object Common {
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,
-      pathExcludeFilter := excludePathsFromPackage,
+      pathExcludeFilter := excludePathsFromPackage _,
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
       (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers"
