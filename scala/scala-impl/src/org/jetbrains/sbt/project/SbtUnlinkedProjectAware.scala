@@ -76,5 +76,5 @@ object SbtUnlinkedProjectAwareHelper {
   private val EpName = ExtensionPointName.create[SbtUnlinkedProjectAwareHelper]("org.intellij.scala.sbtUnlinkedProjectAwareHelper")
 
   def isLinkedProject(project: Project, externalProjectPath: String): Boolean =
-    EpName.extensions().anyMatch(_.isLinkedProject(project, externalProjectPath))
+    EpName.getExtensionList.stream().anyMatch(_.isLinkedProject(project, externalProjectPath))
 }

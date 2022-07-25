@@ -8,6 +8,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ex.ApplicationUtil
 import com.intellij.openapi.application.{ApplicationManager, ModalityState, TransactionGuard}
 import com.intellij.openapi.command.{CommandProcessor, UndoConfirmationPolicy, WriteCommandAction}
+import com.intellij.openapi.components.ComponentManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
@@ -1438,6 +1439,21 @@ package object extensions {
     ApplicationManager.getApplication.invokeLater(new Runnable {
       override def run(): Unit = body
     }, modalityState)
+
+  def disposeAwareInvokeLater(componentManager: ComponentManager)(body: => Unit): Unit = {
+    val runnable: Runnable = () => body
+    val condition: Condition[Any] = _ => !componentManager.isDisposed
+    ApplicationManager.getApplication.invokeLater(runnable, condition)
+  }
+
+  def disposeAwareInvokeAndWait(componentManager: ComponentManager)(body: => Unit): Unit = {
+    val runnable: Runnable = () => {
+      if (!componentManager.isDisposed) {
+        body
+      }
+    }
+    ApplicationManager.getApplication.invokeAndWait(runnable)
+  }
 
   def invokeAndWait[T](body: => T): T = {
     val result = new AtomicReference[T]()

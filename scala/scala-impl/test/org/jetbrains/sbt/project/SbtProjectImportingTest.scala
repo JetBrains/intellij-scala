@@ -12,7 +12,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.plugins.scala.extensions.inWriteAction
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
@@ -398,17 +398,15 @@ class SbtProjectImportingTest extends ImportingTestCase
     doRunTest()
 
     // Emulate User changing the settings manually
-    ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(myProject) {
-      override def execute(): Unit = {
-        val ManuallySetTarget = "9"
-        val ManuallySetSource = LanguageLevel.JDK_1_9
+    disposeAwareInvokeAndWait(myProject) {
+      val ManuallySetTarget = "9"
+      val ManuallySetSource = LanguageLevel.JDK_1_9
 
-        setOptions(myProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
+      setOptions(myProject, ManuallySetSource, ManuallySetTarget, Seq("-some-root-option"))
 
-        val projectModules = myProject.modules
-        projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
-      }
-    })
+      val projectModules = myProject.modules
+      projectModules.foreach(setOptions(_, ManuallySetSource, ManuallySetTarget, Seq("-some-module-option")))
+    }
 
     // Manually set settings should be rewritten if no explicit javac options provided
     doRunTest()

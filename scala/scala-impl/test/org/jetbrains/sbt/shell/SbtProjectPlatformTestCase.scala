@@ -9,6 +9,7 @@ import com.intellij.openapi.project.ProjectManager
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.Key
+import com.intellij.testFramework.common.ThreadLeakTracker
 import com.intellij.testFramework.{HeavyPlatformTestCase, ThreadTracker}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
@@ -57,7 +58,7 @@ abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
   override def setUp(): Unit = {
     super.setUp()
     //TODO this is hacky, but sometimes 'main' gets leaked
-    ThreadTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
+    ThreadLeakTracker.longRunningThreadCreated(ApplicationManager.getApplication, "ForkJoinPool")
     myComm = SbtShellCommunication.forProject(getProject)
     myRunner = SbtProcessManager.forProject(getProject).acquireShellRunner()
     myRunner.getProcessHandler.addProcessListener(logger)

@@ -15,7 +15,8 @@ import com.intellij.openapi.project.{DumbService, Project, ProjectManager}
 import com.intellij.openapi.startup.StartupManager
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import com.intellij.psi.{PsiFile, PsiManager}
-import com.intellij.testFramework.{HeavyPlatformTestCase, LeakHunter, ThreadTracker}
+import com.intellij.testFramework.common.ThreadLeakTracker
+import com.intellij.testFramework.{HeavyPlatformTestCase, LeakHunter}
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
@@ -49,7 +50,7 @@ class MemoryLeakTest extends HeavyPlatformTestCase {
   override protected def setUpProject(): Unit = {}
 
   override def tearDown(): Unit = {
-    ThreadTracker.longRunningThreadCreated(
+    ThreadLeakTracker.longRunningThreadCreated(
       UnloadAwareDisposable.scalaPluginDisposable,
       "SbtCompilationSupervisor server connection thread"
     )
