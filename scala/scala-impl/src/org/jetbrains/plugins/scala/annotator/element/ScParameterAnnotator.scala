@@ -18,11 +18,14 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
       case null =>
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
-      case _: ScMethodLike | _: ScExtension | _: ScGivenDefinition =>
+      case _: ScGivenDefinition =>
         if (element.typeElement.isEmpty) {
           val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
           holder.createErrorAnnotation(element, message)
         }
+        if (element.isCallByNameParameter)
+          annotateCallByNameParameter(element)
+      case _: ScMethodLike | _: ScExtension =>
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
       case _: ScFunctionExpr =>
