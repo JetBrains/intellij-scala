@@ -365,7 +365,7 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
   .dependsOn(scalatestFinders)
   .settings(
     scalatestFindersTestSettings,
-    scalaVersion := "2.12.13",
+    scalaVersion := "2.12.16",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
     intellijMainJars := Nil
   )
@@ -373,7 +373,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
   .dependsOn(scalatestFinders)
   .settings(
     scalatestFindersTestSettings,
-    scalaVersion := "2.13.4",
+    scalaVersion := "2.13.8",
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
     intellijMainJars := Nil
   )
