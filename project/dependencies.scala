@@ -18,6 +18,8 @@ object Versions {
     intellijRepository_ForManagedIntellijDependencies
   ) = Utils.getDataForManagedIntellijDependencies(intellijVersion)
 
+  val junitInterfaceVersion: String = "0.13.3"
+
   val bspVersion = "2.0.0"
   val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
@@ -85,11 +87,11 @@ object Dependencies {
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
   val commonsLang: ModuleID = "org.apache.commons" % "commons-lang3" % "3.12.0"
-  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % "0.13.3" % Test excludeAll(
+  val junitInterface: ModuleID = "com.github.sbt" % "junit-interface" % junitInterfaceVersion % Test excludeAll(
     // to avoid multiple junit jars in the classpath SCL-18768
     ExclusionRule(organization = "junit"),
     ExclusionRule(organization = "org.junit"),
-    ExclusionRule(organization = "org.harmset"),
+    ExclusionRule(organization = "org.hamcrest"),
   )
   val ivy2: ModuleID = "org.apache.ivy" % "ivy" % "2.5.0"
 

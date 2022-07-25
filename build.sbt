@@ -181,13 +181,13 @@ lazy val worksheetReplInterface =
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
     intellijMainJars := Seq.empty,
-    scalaVersion := "3.1.2",
-    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.1",
+    scalaVersion := "3.1.3",
+    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.3",
     (Compile / scalacOptions) := Seq("-color", "always"), // NOTE: Setting dummy "color" options because if there are no unique options, sbt import adds the module to a profile with macros enabled
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
-    libraryDependencies += "com.github.sbt" % "junit-interface" % "0.12" % Test
+    libraryDependencies += "com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test
   )
 
 lazy val scalacPatches: sbt.Project =
