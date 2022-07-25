@@ -39,7 +39,7 @@ class BspProjectDataService extends ScalaAbstractProjectDataService[BspProjectDa
 
     val detectedRoots = {
       val detector = project.getService(classOf[VcsRootDetector])
-      val detected = mutable.Set[VcsRoot](currentVcsRoots.toIndexedSeq: _*)
+      val detected = mutable.Set[VcsRoot]()
       vcsRootsCandidates
         .iterator
         .map(LocalFileSystem.getInstance.findFileByIoFile)
