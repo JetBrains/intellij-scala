@@ -29,17 +29,11 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
       case _: ScFunctionExpr =>
-        element.typeElement match {
-          case None =>
-            element.expectedParamType match {
-              case None =>
-                val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
-                if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
-                  holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
-                }
-              case _ =>
-            }
-          case _ =>
+        if (element.typeElement.isEmpty && element.expectedParamType.isEmpty) {
+          val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
+          if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
+            holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
+          }
         }
     }
   }
