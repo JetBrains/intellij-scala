@@ -19,11 +19,9 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
       case _: ScMethodLike | _: ScExtension | _: ScGivenDefinition =>
-        element.typeElement match {
-          case None =>
-            val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
-            holder.createErrorAnnotation(element, message)
-          case _ =>
+        if (element.typeElement.isEmpty) {
+          val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
+          holder.createErrorAnnotation(element, message)
         }
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
@@ -53,7 +51,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
       case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("""'var'""")
       case cp: ScClassParameter if cp.isCaseClassVal => errorWithMessageAbout("case class")
       case p if p.isImplicitParameter && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
-          errorWithMessageAbout("implicit")
+        errorWithMessageAbout("implicit")
       case _ =>
     }
   }
