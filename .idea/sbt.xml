@@ -4,52 +4,37 @@
     <option name="customVMPath" />
     <option name="linkedExternalProjectsSettings">
       <SbtProjectSettings>
-        <option name="converterVersion" value="1" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/bsp" />
-            <option value="$PROJECT_DIR$/pluginXml" />
             <option value="$PROJECT_DIR$/project" />
             <option value="$PROJECT_DIR$/scala/codeInsight" />
             <option value="$PROJECT_DIR$/scala/compiler-jps" />
             <option value="$PROJECT_DIR$/scala/compiler-shared" />
             <option value="$PROJECT_DIR$/scala/conversion" />
             <option value="$PROJECT_DIR$/scala/decompiler" />
-            <option value="$PROJECT_DIR$/scala/dfa" />
             <option value="$PROJECT_DIR$/scala/integration/android" />
             <option value="$PROJECT_DIR$/scala/integration/copyright" />
             <option value="$PROJECT_DIR$/scala/integration/devKit" />
             <option value="$PROJECT_DIR$/scala/integration/gradle" />
-            <option value="$PROJECT_DIR$/scala/integration/intellilang" />
+            <option value="$PROJECT_DIR$/scala/integration/intelliLang" />
             <option value="$PROJECT_DIR$/scala/integration/java-decompiler" />
             <option value="$PROJECT_DIR$/scala/integration/maven" />
-            <option value="$PROJECT_DIR$/scala/integration/ml-completion" />
-            <option value="$PROJECT_DIR$/scala/integration/packagesearch" />
             <option value="$PROJECT_DIR$/scala/integration/properties" />
             <option value="$PROJECT_DIR$/scala/macros" />
             <option value="$PROJECT_DIR$/scala/nailgun" />
             <option value="$PROJECT_DIR$/scala/runners" />
             <option value="$PROJECT_DIR$/scala/scala-api" />
             <option value="$PROJECT_DIR$/scala/scala-impl" />
-            <option value="$PROJECT_DIR$/scala/tasty-reader" />
-            <option value="$PROJECT_DIR$/scala/test-integration/scalatest-finders" />
-            <option value="$PROJECT_DIR$/scala/test-integration/scalatest-finders/tests-2" />
-            <option value="$PROJECT_DIR$/scala/test-integration/scalatest-finders/tests-3_0" />
-            <option value="$PROJECT_DIR$/scala/test-integration/scalatest-finders/tests-3_2" />
-            <option value="$PROJECT_DIR$/scala/testRunners" />
-            <option value="$PROJECT_DIR$/scala/testRunners_spec2_2x" />
-            <option value="$PROJECT_DIR$/scala/traceLogViewer" />
-            <option value="$PROJECT_DIR$/scala/traceLogger" />
             <option value="$PROJECT_DIR$/scala/uast" />
             <option value="$PROJECT_DIR$/scala/worksheet" />
-            <option value="$PROJECT_DIR$/scala/worksheet-repl-interface" />
-            <option value="$PROJECT_DIR$/scalac-patches" />
+            <option value="$PROJECT_DIR$/target/tools/idea-runner" />
             <option value="$PROJECT_DIR$/target/tools/zinc" />
           </set>
         </option>
-        <option name="sbtVersion" value="1.6.2" />
+        <option name="sbtVersion" value="0.13.18" />
         <option name="useSbtShellForImport" value="true" />
       </SbtProjectSettings>
     </option>
