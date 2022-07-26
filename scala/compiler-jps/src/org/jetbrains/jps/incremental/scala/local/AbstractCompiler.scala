@@ -8,9 +8,9 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import xsbti._
 import xsbti.compile._
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 
 abstract class AbstractCompiler extends Compiler {
 
@@ -119,16 +119,16 @@ abstract class AbstractCompiler extends Compiler {
     }
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
-      val source = pos.sourceFile.toOption
+      val source = pos.sourceFile.toScala
       val from = PosInfo(
-        line = pos.line().toOption.map(_.toLong),
-        column = pos.pointer().toOption.map(_.toLong + 1L),
-        offset = pos.offset().toOption.map(_.toLong)
+        line = pos.line().toScala.map(_.toLong),
+        column = pos.pointer().toScala.map(_.toLong + 1L),
+        offset = pos.offset().toScala.map(_.toLong)
       )
       val to = PosInfo(
-        line = pos.endLine().toOption.map(_.toLong),
-        column = pos.endColumn().toOption.map(_.toLong + 1L),
-        offset = pos.endOffset().toOption.map(_.toLong)
+        line = pos.endLine().toScala.map(_.toLong),
+        column = pos.endColumn().toScala.map(_.toLong + 1L),
+        offset = pos.endOffset().toScala.map(_.toLong)
       )
       //noinspection ReferencePassedToNls
       client.message(kind, msg, source, from, to)

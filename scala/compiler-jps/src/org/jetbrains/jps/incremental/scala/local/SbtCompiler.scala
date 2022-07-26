@@ -1,7 +1,7 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
+import org.jetbrains.jps.incremental.scala.local.zinc.Utils.virtualFileConverter
 import org.jetbrains.jps.incremental.scala.local.zinc._
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, CompileOrder}
 import sbt.internal.inc._
@@ -9,6 +9,7 @@ import xsbti.compile.{CompileOrder => SbtCompileOrder, _}
 
 import java.io.File
 import java.util.Optional
+import scala.jdk.OptionConverters._
 import scala.util.Try
 
 /**
@@ -66,7 +67,7 @@ class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileTo
       Array.empty)
     val previousResult = PreviousResult.create(
       Optional.of(previousAnalysis: CompileAnalysis),
-      previousSetup.toOptional
+      previousSetup.toJava
     )
     val inputs = incrementalCompiler.inputs(
       compilationData.classpath.toArray.map(file => Utils.virtualFileConverter.toVirtualFile(file.toPath)),

@@ -7,12 +7,12 @@ import java.util.ServiceLoader
 
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 import org.jetbrains.plugins.scala.compiler.data.CompilationData
 import sbt.internal.inc.Analysis
 import xsbti.compile.{AnalysisContents, AnalysisStore, CompileResult, MiniSetup}
 
 import scala.jdk.CollectionConverters._
+import scala.jdk.OptionConverters._
 import scala.util.Try
 import scala.util.control.NonFatal
 
@@ -67,7 +67,7 @@ object CompilationMetadata {
 
     val cachedResults: List[CacheResult] = cacheProviders.map{
       provider =>
-        try provider.loadCache(analysisFromLocalStore.toOption) catch {
+        try provider.loadCache(analysisFromLocalStore.toScala) catch {
           case NonFatal(e) =>
             loaderErrored(e)
           case e: ClassNotFoundException =>
