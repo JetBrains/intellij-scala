@@ -10,6 +10,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs._
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework._
+import com.intellij.testFramework.common.ThreadLeakTracker
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
@@ -186,7 +187,7 @@ object ScalaCompilerTestBase {
   )
 
   private def markCompileServerThreadsLongRunning(): Unit = {
-    ThreadTracker.longRunningThreadCreated(
+    ThreadLeakTracker.longRunningThreadCreated(
       UnloadAwareDisposable.scalaPluginDisposable,
       "scalaCompileServer",
       "BaseDataReader: output stream of scalaCompileServer",

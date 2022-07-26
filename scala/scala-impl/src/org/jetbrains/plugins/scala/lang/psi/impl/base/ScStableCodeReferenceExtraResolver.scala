@@ -35,5 +35,5 @@ object ScStableCodeReferenceExtraResolver {
     ExtensionPointName.create(CLASS_NAME)
 
   def resolveWithFileCheck(ref: ScStableCodeReference): Option[PsiNamedElement] =
-    EP_NAME.extensions().iterator().asScala.map(_.resolveWithFileCheck(ref)).headOption.flatten
+    EP_NAME.getExtensionList.stream().iterator().asScala.map(_.resolveWithFileCheck(ref)).headOption.flatten
 }

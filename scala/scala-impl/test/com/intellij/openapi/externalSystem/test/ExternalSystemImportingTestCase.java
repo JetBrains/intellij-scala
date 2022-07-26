@@ -25,8 +25,6 @@ import com.intellij.openapi.externalSystem.service.project.ExternalProjectRefres
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager;
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings;
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings;
-import com.intellij.openapi.externalSystem.util.DisposeAwareProjectChange;
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil;
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -51,6 +49,8 @@ import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootProperties;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType;
+import org.jetbrains.plugins.scala.externalSystem.util.DisposeAwareProjectChange;
+import org.jetbrains.plugins.scala.externalSystem.util.ExternalSystemApiUtil;
 import org.jetbrains.sbt.project.settings.SbtProjectSettings;
 
 import java.io.IOException;
@@ -369,7 +369,8 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
 
   @SuppressWarnings("unchecked")
   private void doImportProject(final Sdk sdk) {
-    AbstractExternalSystemSettings systemSettings = ExternalSystemApiUtil.getSettings(myProject, getExternalSystemId());
+    AbstractExternalSystemSettings systemSettings =
+            com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil.getSettings(myProject, getExternalSystemId());
     final ExternalProjectSettings projectSettings = getCurrentExternalProjectSettings();
     projectSettings.setExternalProjectPath(getProjectPath());
     if (sdk != null) {
@@ -391,15 +392,12 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
               fail("Got null External project after import");
               return;
             }
-            ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(myProject) {
+            ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(myProject) {
               @Override
               public void execute() {
-                ProjectRootManagerEx.getInstanceEx(myProject).mergeRootsChangesDuring(new Runnable() {
-                  @Override
-                  public void run() {
-                    ProjectDataManager ProjectDataManager = ApplicationManager.getApplication().getService(ProjectDataManager.class);
-                    ProjectDataManager.importData(Collections.singleton(externalProject), myProject, true);
-                  }
+                ProjectRootManagerEx.getInstanceEx(myProject).mergeRootsChangesDuring(() -> {
+                  ProjectDataManager ProjectDataManager = ApplicationManager.getApplication().getService(ProjectDataManager.class);
+                  ProjectDataManager.importData(Collections.singleton(externalProject), myProject, true);
                 });
               }
             });
