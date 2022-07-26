@@ -190,7 +190,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
             Indent.getNormalIndent
           case _ => Indent.getNoneIndent
         }
-      case _: ScMatch | _: ScMatchTypeElement=>
+      case _: ScMatch | _: ScMatchTypeElement =>
         childPsi match {
           case _: ScCaseClauses | _: ScMatchTypeCases if settings.INDENT_CASE_FROM_SWITCH => Indent.getNormalIndent
           case _: PsiComment => Indent.getNormalIndent
@@ -227,6 +227,18 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case _: ScRefinement | _: ScExistentialClause | _: ScBlockExpr  =>
         childElementType match {
           case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE => Indent.getNoneIndent
+          case _ if isBraceNextLineShifted1 => Indent.getNoneIndent
+          case _ => Indent.getNormalIndent
+        }
+      case _: ScQuotedBlock =>
+        childElementType match {
+          case ScalaTokenType.QuoteStart | ScalaTokenTypes.tRBRACE => Indent.getNoneIndent
+          case _ if isBraceNextLineShifted1 => Indent.getNoneIndent
+          case _ => Indent.getNormalIndent
+        }
+      case _: ScSplicedBlock | _: ScSplicedPatternExpr =>
+        childElementType match {
+          case ScalaTokenType.SpliceStart | ScalaTokenTypes.tRBRACE => Indent.getNoneIndent
           case _ if isBraceNextLineShifted1 => Indent.getNoneIndent
           case _ => Indent.getNormalIndent
         }
@@ -294,7 +306,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
       case block: ScBlockImpl =>
         val blockParent = block.getParent
         blockParent match {
-          case _: ScCaseClause | _: ScFunctionExpr=>
+          case _: ScCaseClause | _: ScFunctionExpr =>
             childPsi match {
               case _: ScBlockExpr =>
                 if(isBraceNextLineShifted || block.getChildren.length > 1) {

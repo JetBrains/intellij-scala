@@ -141,12 +141,12 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
   @inline
   @nowarn("cat=deprecation")
   private def getSpacingImpl(
-                              left: ScalaBlock,
-                              right: ScalaBlock,
-                              leftIsLineComment: Boolean,
-                              settings: CommonCodeStyleSettings,
-                              scalaSettings: ScalaCodeStyleSettings
-                            ): Spacing = {
+    left: ScalaBlock,
+    right: ScalaBlock,
+    leftIsLineComment: Boolean,
+    settings: CommonCodeStyleSettings,
+    scalaSettings: ScalaCodeStyleSettings
+  ): Spacing = {
 
     // if keepLineBreaks is disabled but we have a line comment on a previous line,
     // we shouldn't remove the line break, because it can lead to a broken code, for example:
@@ -246,6 +246,23 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
     if (leftPsi.isInstanceOf[PsiComment] && rightPsi.isInstanceOf[PsiComment]) {
       return ON_NEW_LINE
+    }
+
+    //Scala 3 quotation/splicing start tokens: '{ or ${
+    leftElementType match {
+      case ScalaTokenType.QuoteStart | ScalaTokenType.SpliceStart if rightElementType == tLBRACE =>
+        return NO_SPACING
+      case _ =>
+    }
+    leftNodeParentElementType match {
+      case QUOTED_BLOCK | SPLICED_BLOCK_EXPR | SPLICED_PATTERN_EXPR =>
+        val result = {
+          //empty quoted block: '{ } should be formatted just as '{}
+          if (leftElementType == tLBRACE && rightElementType == tRBRACE) NO_SPACING
+          else COMMON_SPACING
+        }
+        return result
+      case _ =>
     }
 
     val elementTypesWithParents  = (leftElementType, rightElementType, leftNodeParentElementType, rightNodeParentElementType)
