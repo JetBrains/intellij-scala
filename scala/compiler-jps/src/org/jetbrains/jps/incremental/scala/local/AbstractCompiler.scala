@@ -12,10 +12,6 @@ import org.jetbrains.jps.incremental.scala.local.zinc.Utils._
 
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 11/18/13
- */
 abstract class AbstractCompiler extends Compiler {
 
   def getReporter(client: Client): Reporter = new ClientReporter(client)
@@ -124,13 +120,18 @@ abstract class AbstractCompiler extends Compiler {
 
     private def logInClient(msg: String, pos: Position, kind: Kind): Unit = {
       val source = pos.sourceFile.toOption
-      val fromPosInfo = PosInfo(
-        line = pos.line.toOption.map(_.toLong),
-        column = pos.pointer.toOption.map(_.toLong + 1L),
-        offset = pos.offset.toOption.map(_.toLong)
+      val from = PosInfo(
+        line = pos.line().toOption.map(_.toLong),
+        column = pos.pointer().toOption.map(_.toLong + 1L),
+        offset = pos.offset().toOption.map(_.toLong)
+      )
+      val to = PosInfo(
+        line = pos.endLine().toOption.map(_.toLong),
+        column = pos.endColumn().toOption.map(_.toLong + 1L),
+        offset = pos.endOffset().toOption.map(_.toLong)
       )
       //noinspection ReferencePassedToNls
-      client.message(kind, msg, source, fromPosInfo)
+      client.message(kind, msg, source, from, to)
     }
   }
 

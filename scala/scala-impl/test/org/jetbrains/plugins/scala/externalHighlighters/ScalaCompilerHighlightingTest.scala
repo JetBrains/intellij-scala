@@ -8,6 +8,23 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[SlowTests]))
 class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBase with ScalaCompilerHighlightingCommonScala2Scala3Test {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == ScalaVersion.Latest.Scala_2_13
+
+  def testFunctionLiteral(): Unit = runTestCase(
+    fileName = "FunctionLiteral.scala",
+    content =
+      """object FunctionLiteral {
+        |  val fn: Int => Int = _.toString
+        |}
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(50, 58)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = s"type mismatch;${System.lineSeparator()} found   : String${System.lineSeparator()} required: Int"
+      )
+    )
+  )
 }
 
 @Category(Array(classOf[SlowTests]))
@@ -53,6 +70,20 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     ))
   )
 
+  def testFunctionLiteral(): Unit = runTestCase(
+    fileName = "FunctionLiteral.scala",
+    content =
+      """val fn: Int => Int = _.toString
+        |""".stripMargin,
+    expectedResult = expectedResult(
+      ExpectedHighlighting(
+        severity = HighlightSeverity.ERROR,
+        range = Some(new TextRange(21, 31)),
+        quickFixDescriptions = Seq.empty,
+        msgPrefix = s"Found:    String${System.lineSeparator()}Required: Int"
+      )
+    )
+  )
 }
 
 trait ScalaCompilerHighlightingCommonScala2Scala3Test {
