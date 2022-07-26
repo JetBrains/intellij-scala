@@ -18,7 +18,7 @@ package org.jetbrains.plugins.scala.util;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.testFramework.ThreadTracker;
+import com.intellij.testFramework.common.ThreadLeakTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Assert;
@@ -138,8 +138,8 @@ public class TestUtils {
 
 
   public static void disableTimerThread() {
-    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "Timer");
-    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "BaseDataReader");
-    ThreadTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "ProcessWaitFor");
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "Timer");
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "BaseDataReader");
+    ThreadLeakTracker.longRunningThreadCreated(UnloadAwareDisposable.scalaPluginDisposable(), "ProcessWaitFor");
   }
 }

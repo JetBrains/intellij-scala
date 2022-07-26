@@ -5,10 +5,10 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, ProjectSystemId}
 import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.externalSystem.service.project.{IdeModifiableModelsProviderImpl, ProjectDataManager}
-import com.intellij.openapi.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ex.ProjectRootManagerEx
 import com.intellij.testFramework.HeavyPlatformTestCase
+import org.jetbrains.plugins.scala.externalSystem.util.{DisposeAwareProjectChange, ExternalSystemApiUtil}
 import org.jetbrains.plugins.scala.project.external.{ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 
@@ -51,7 +51,7 @@ abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
 object ProjectDataServiceTestCase {
 
   def importProjectData(projectData: DataNode[ProjectData], project: Project): Unit =
-    ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(project) {
+    ExternalSystemApiUtil.executeProjectChangeAction(new DisposeAwareProjectChange(project) {
       override def execute(): Unit =
         ProjectRootManagerEx.getInstanceEx(project).mergeRootsChangesDuring(() => {
           val projectDataManager = ApplicationManager.getApplication.getService(classOf[ProjectDataManager])
