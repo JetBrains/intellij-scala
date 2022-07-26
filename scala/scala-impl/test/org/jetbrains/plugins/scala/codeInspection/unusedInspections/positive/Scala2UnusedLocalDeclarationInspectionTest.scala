@@ -254,46 +254,21 @@ class Scala2UnusedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationI
        |""".stripMargin
   )
 
-  // TODO -- Once we have a sustainable implementation of unused declaration inspection for implicit
-  //  parameters, uncomment the below tests and they should Just Work. For more information see
-  //  Scala3UnusedDeclarationQuickFixTest.
-  /* ===== START OF SHELVED TESTS AS PART OF SCL-20352 (don't touch)
-  def test_implicit_private_this_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
+  def test_implicit_class_constructor_parameter(): Unit = checkTextHasError(
+    s"@scala.annotation.unused class A()(implicit ${START}i$END: Int) {}"
   )
 
-  def test_private_this_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private[this] val ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
+  def test_implicit_private_this_class_constructor_val(): Unit = checkTextHasError(
+    s"@scala.annotation.unused class A()(implicit private[this] val ${START}i$END: Int) {}"
   )
 
-  def test_private_implicit_parameter(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private val ${START}param$END: Boolean) {
-       |}
-       |""".stripMargin
+  def test_implicit_private_class_constructor_val(): Unit = checkTextHasError(
+    s"@scala.annotation.unused class A()(implicit private val ${START}i$END: Int) {}"
   )
 
-  def test_private_implicit_val(): Unit = checkTextHasError(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit private val ${START}param$END: Boolean = false
-       |}
-       |""".stripMargin
+  def test_implicit_private_val(): Unit = checkTextHasError(
+    s"@scala.annotation.unused class A() { implicit private val ${START}i$END: Int = 42 }"
   )
-  */
 
   def test_single_abstract_method(): Unit = checkTextHasError(
     s"private abstract class ${START}SamContainer$END { def ${START}iAmSam$END(i: Int): Unit }"

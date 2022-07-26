@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.codeInspection.ui.InspectionOptionsComboboxPa
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isOnlyVisibleInLocalFile, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{inNameContext, isImplicit, isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel}
+import org.jetbrains.plugins.scala.util.ImplicitUtil.ImplicitTargetExt
 import org.jetbrains.plugins.scala.util.SAMUtil.PsiClassToSAMExt
 import org.jetbrains.plugins.scala.util.{ScalaMainMethodUtil, ScalaUsageNamesUtil}
 
@@ -65,7 +66,9 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     if (!isReportingEnabledForElement(element)) {
       true
     } else if (isOnlyVisibleInLocalFile(element)) {
-      if (isOnTheFly) {
+      if (isImplicit(element)) {
+        isImplicitUsed(element)
+      } else if (isOnTheFly) {
         localSearch(element)
       } else {
         referencesSearch(element)
@@ -156,7 +159,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
         .processElementsWithWord(
           processor,
           element.getUseScope,
-          e.getName, // for usage of enum methods through `EnumName.methodName(...)`
+          e.name, // for usage of enum methods through `EnumName.methodName(...)`
           (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
           true
         )
@@ -167,7 +170,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
           .processElementsWithWord(
             processor,
             element.getUseScope,
-            s"${e.getName}$$.MODULE$$", // for usage of enum methods through `EnumName$.MODULE$.methodName(...)`
+            s"${e.name}$$.MODULE$$", // for usage of enum methods through `EnumName$.MODULE$.methodName(...)`
             (UsageSearchContext.IN_CODE | UsageSearchContext.IN_FOREIGN_LANGUAGES).toShort,
             true
           )
@@ -215,7 +218,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
   }
 
   override def invoke(element: PsiElement, isOnTheFly: Boolean): Seq[ProblemInfo] = {
-
     if (!shouldProcessElement(element)) {
       Seq.empty
     } else {
@@ -229,13 +231,14 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
 
       val elements: Seq[InspectedElement] = element match {
         case functionDeclaration: ScFunctionDeclaration
-          if Option(functionDeclaration.getContainingClass).exists(_.isSAMable) =>
-          Option(functionDeclaration.getContainingClass).toSeq
+          if Option(functionDeclaration.containingClass).exists(_.isSAMable) =>
+          Option(functionDeclaration.containingClass).toSeq
             .collect { case named: ScNamedElement => named }
             .map(InspectedElement(functionDeclaration, _))
         case named: ScNamedElement => Seq(InspectedElement(named, named))
         case _ => Seq.empty
       }
+
       elements.flatMap {
         case InspectedElement(_, _: ScTypeParam) if !isOnTheFly => Seq.empty
         case InspectedElement(_, typeParam: ScTypeParam) if typeParam.hasBounds || typeParam.hasImplicitBounds => Seq.empty
@@ -250,7 +253,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
             None else Some(new AddScalaAnnotationUnusedQuickFix(original))
 
           val message = if (isOnTheFly) {
-            ScalaUnusedDeclarationInspection.annotationDescription
+            annotationDescription
           } else {
             UnusedDeclarationVerboseProblemInfoMessage(original)
           }
@@ -277,7 +280,8 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
     case e: ScalaPsiElement if e.module.exists(_.isBuildModule) => false
     case e: PsiElement if UnusedDeclarationInspectionBase.isDeclaredAsEntryPoint(e) => false
     case obj: ScObject if ScalaMainMethodUtil.hasScala2MainMethod(obj) => false
-    case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) || n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
+    case n: ScNamedElement if ScalaPsiUtil.isImplicit(n) => isOnlyVisibleInLocalFile(n)
+    case n: ScNamedElement if n.nameId == null || n.name == "_" || isOverridingOrOverridden(n) => false
     case n: ScNamedElement =>
       n match {
         case p: ScModifierListOwner if hasOverrideModifier(p) => false
@@ -318,4 +322,7 @@ object ScalaUnusedDeclarationInspection {
       // not entirely correct, but if we find @nowarn here in this situation
       // we can assume that it is directed at the unusedness of the symbol
       holder.hasAnnotation("scala.annotation.nowarn")
+
+  private def isImplicitUsed(target: PsiElement): Boolean =
+    target.getContainingFile.depthFirst().exists(target.refOrImplicitRefIn(_).nonEmpty)
 }

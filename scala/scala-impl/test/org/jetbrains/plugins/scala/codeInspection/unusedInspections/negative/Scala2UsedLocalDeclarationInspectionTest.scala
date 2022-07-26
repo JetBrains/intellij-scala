@@ -88,116 +88,51 @@ class Scala2UsedLocalDeclarationInspectionTest extends ScalaUnusedDeclarationIns
     checkTextHasNoErrors(code)
   }
 
-  // TODO -- Once we have a sustainable implementation of unused declaration inspection for implicit
-  //  parameters, uncomment the below tests and they should Just Work. For more information see
-  //  Scala3UnusedDeclarationQuickFixTest.
-  /* ===== START OF SHELVED TESTS AS PART OF SCL-20352 (don't touch)
-  def test_public_implicit_parameter(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit val param: Boolean) {
-       |}
+  def test_implicit_class_constructor_val(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused class A()(implicit val i: Int) {}"
+  )
+
+  def test_implicit_protected_class_constructor_val(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused class A()(implicit protected val i: Int) {}"
+  )
+
+  def test_implicit_val(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused class A() { implicit val i: Int = 42 }"
+  )
+
+  def test_implicit_protected_val(): Unit = checkTextHasNoErrors(
+    "@scala.annotation.unused class A() { implicit protected val i: Int = 42 }"
+  )
+
+  def test_implicit_constructor_parameter_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
+    """@scala.annotation.unused class A()(implicit i: Int) { A.b() }
+      |object A { def b()(implicit i: Int): Int = i }
+      |""".stripMargin
+  )
+
+  def test_implicit_private_this_class_constructor_val_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
+    s"""@scala.annotation.unused class A()(implicit private[this] val i: Int) { A.b() }
+       |object A { def b()(implicit i: Int): Int = i }
        |""".stripMargin
   )
 
-  def test_protected_implicit_parameter(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit protected val param: Boolean) {
-       |}
+  def test_implicit_private_class_constructor_val_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
+    s"""@scala.annotation.unused class A()(implicit private val i: Int) { A.b() }
+       |object A { def b()(implicit i: Int): Int = i }
        |""".stripMargin
   )
 
-  def test_public_implicit_val(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit val field: Boolean = false
-       |}
+  def test_implicit_private_this_val_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
+    s"""@scala.annotation.unused class A() { implicit private[this] val i: Int = 42; A.b() }
+       |object A { def b()(implicit i: Int): Int = i }
        |""".stripMargin
   )
 
-  def test_protected_implicit_val(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit protected val field: Boolean = false
-       |}
+  def test_implicit_private_val_with_implicit_method_parameter(): Unit = checkTextHasNoErrors(
+    s"""@scala.annotation.unused class A() { implicit private val i: Int = 42; A.b() }
+       |object A { def b()(implicit i: Int): Int = i }
        |""".stripMargin
   )
-
-  def test_implicit_private_this_implicit_parameter(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit param: Boolean) {
-       |  MyClass.foo()
-       |}
-       |
-       |object MyClass {
-       |  def foo()(implicit p: Boolean): Boolean = p
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_this_implicit_parameter(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private[this] val param: Boolean) {
-       |  MyClass.foo()
-       |}
-       |
-       |object MyClass {
-       |  def foo()(implicit p: Boolean): Boolean = p
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_implicit_parameter(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass()
-       |  (implicit private val param: Boolean) {
-       |  MyClass.foo()
-       |}
-       |
-       |object MyClass {
-       |  def foo()(implicit p: Boolean): Boolean = p
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_this_implicit_val(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit private[this] val param: Boolean = false
-       |  MyClass.foo()
-       |}
-       |
-       |object MyClass {
-       |  def foo()(implicit p: Boolean): Boolean = p
-       |}
-       |""".stripMargin
-  )
-
-  def test_private_implicit_val(): Unit = checkTextHasNoErrors(
-    s"""
-       |@scala.annotation.unused
-       |class MyClass() {
-       |  implicit private val param: Boolean = false
-       |    MyClass.foo()
-       |}
-       |
-       |object MyClass {
-       |  def foo()(implicit p: Boolean): Boolean = p
-       |}
-       |""".stripMargin
-  )
-  */
 
   // SCL-17181
   def test_overriding_declaration(): Unit = checkTextHasNoErrors(
