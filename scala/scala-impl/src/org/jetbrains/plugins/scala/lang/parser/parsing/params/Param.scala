@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotations,
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 /**
- * [[Param]] ::= [[Annotations]] id [':' ParamType] ['=' Expr]
+ * [[Param]] ::= [[Annotations]] id ':' ParamType ['=' Expr]
  *
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
@@ -41,13 +41,16 @@ object Param extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!ParamType()) builder error ErrMsg("wrong.type")
       case _ =>
+        builder error ErrMsg("colon.expected")
     }
+
+    if (!ParamType()) builder error ErrMsg("parameter.type.expected")
+
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (!Expr()) builder error ErrMsg("wrong.expression")
+        if (!Expr()) builder error ErrMsg("expression.expected")
       case _ =>
     }
     paramMarker.done(ScalaElementType.PARAM)

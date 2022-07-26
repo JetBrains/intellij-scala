@@ -18,27 +18,22 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
       case null =>
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
-      case _: ScMethodLike | _: ScExtension | _: ScGivenDefinition =>
-        element.typeElement match {
-          case None =>
-            val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
-            holder.createErrorAnnotation(element, message)
-          case _ =>
+      case _: ScGivenDefinition =>
+        if (element.typeElement.isEmpty) {
+          val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)
+          holder.createErrorAnnotation(element, message)
         }
         if (element.isCallByNameParameter)
           annotateCallByNameParameter(element)
+      case _: ScMethodLike | _: ScExtension =>
+        if (element.isCallByNameParameter)
+          annotateCallByNameParameter(element)
       case _: ScFunctionExpr =>
-        element.typeElement match {
-          case None =>
-            element.expectedParamType match {
-              case None =>
-                val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
-                if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
-                  holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
-                }
-              case _ =>
-            }
-          case _ =>
+        if (element.typeElement.isEmpty && element.expectedParamType.isEmpty) {
+          val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
+          if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
+            holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
+          }
         }
     }
   }
@@ -53,7 +48,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
       case cp: ScClassParameter if cp.isVar => errorWithMessageAbout("""'var'""")
       case cp: ScClassParameter if cp.isCaseClassVal => errorWithMessageAbout("case class")
       case p if p.isImplicitParameter && p.scalaLanguageLevel.forall(_ < ScalaLanguageLevel.Scala_2_13) =>
-          errorWithMessageAbout("implicit")
+        errorWithMessageAbout("implicit")
       case _ =>
     }
   }

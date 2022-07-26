@@ -1,5 +1,5 @@
 class a {
-  def foo(x)(implicit x)
+  def foo(x: Int = )
 }
 -----
 ScalaFile
@@ -40,21 +40,17 @@ ScalaFile
                 Modifiers
                   <empty list>
                 PsiElement(identifier)('x')
-                PsiErrorElement:':' expected
+                PsiElement(:)(':')
+                PsiWhiteSpace(' ')
+                ParameterType
+                  SimpleType: Int
+                    CodeReferenceElement: Int
+                      PsiElement(identifier)('Int')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiErrorElement:Expression expected
                   <empty list>
-              PsiElement())(')')
-            ParametersClause
-              PsiElement(()('(')
-              PsiElement(implicit)('implicit')
               PsiWhiteSpace(' ')
-              Parameter: x
-                AnnotationsList
-                  <empty list>
-                Modifiers
-                  <empty list>
-                PsiElement(identifier)('x')
-                PsiErrorElement:':' expected
-                  <empty list>
               PsiElement())(')')
         PsiWhiteSpace('\n')
         PsiElement(})('}')
