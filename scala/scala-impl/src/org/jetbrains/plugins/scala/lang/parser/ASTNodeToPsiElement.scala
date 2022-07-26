@@ -55,6 +55,7 @@ object ASTNodeToPsiElement {
       case LITERAL_TYPE => new ScLiteralTypeElementImpl(node)
       case TYPE_VARIABLE => new ScTypeVariableTypeElementImpl(node)
       case SPLICED_BLOCK_TYPE => new ScSplicedBlockImpl(node)
+      case SPLICED_PATTERN_EXPR => new ScSplicedPatternExprImpl(node)
       case TYPE_LAMBDA => new ScTypeLambdaTypeElementImpl(node)
       case MATCH_TYPE => new ScMatchTypeElementImpl(node)
       case POLY_FUNCTION_TYPE => new ScPolyFunctionTypeElementImpl(node)
@@ -133,6 +134,7 @@ object ASTNodeToPsiElement {
       case CASE_CLAUSE => new ScCaseClauseImpl(node)
       case CASE_CLAUSES => new ScCaseClausesImpl(node)
       case LITERAL_PATTERN => new ScLiteralPatternImpl(node)
+      case QUOTED_PATTERN => new ScQuotedPatternImpl(node)
       case INTERPOLATION_PATTERN => new ScInterpolationPatternImpl(node)
       case StableReferencePattern =>
         new ScStableReferencePatternImpl(node, StableReferencePattern.toString)

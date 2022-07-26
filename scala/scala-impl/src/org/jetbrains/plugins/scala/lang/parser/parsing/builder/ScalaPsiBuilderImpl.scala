@@ -20,6 +20,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
 
   private var newlinesEnabled = List.empty[Boolean]
 
+  private var inQuotedPattern: Int = 0
+
   private lazy val containingFile = Option {
     myDelegate.getUserData(CONTAINING_FILE_KEY)
   }
@@ -92,6 +94,18 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override final def enableNewlines(): Unit = {
     newlinesEnabled = true :: newlinesEnabled
   }
+
+  override final def enterQuotedPattern(): Unit = {
+    inQuotedPattern += 1
+  }
+
+  override final def exitQuotedPattern(): Unit = {
+    assert(inQuotedPattern > 0)
+    inQuotedPattern -= 1
+  }
+
+  override final def isInQuotedPattern: Boolean =
+    inQuotedPattern > 0
 
   override final def restoreNewlinesState(): Unit = {
     assert(newlinesEnabled.nonEmpty)

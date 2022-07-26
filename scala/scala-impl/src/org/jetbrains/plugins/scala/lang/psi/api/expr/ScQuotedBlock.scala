@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.psi.api.expr
 
-/** A Quoted block
- *
+/**
+ * A Quoted block {{{
  * val expr = '{ quoted expr }
  *            |--------------|
- *             ScQuotedBlock
+ *            ScQuotedBlock
+ * }}}
  */
-trait ScQuotedBlock extends ScExpression with ScQuoted with ScBlock {
-
-}
+trait ScQuotedBlock extends ScExpression
+  with ScQuoted
+  with ScBlock

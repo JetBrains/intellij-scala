@@ -2,16 +2,17 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
-/** A Spliced Block
- *
+/**
+ * A Spliced Block {{{
  * val x = ${ test }
  *         |-------|
- *        SplicedBlock
+ *         SplicedBlock
  *
- * val x: ${ test } = ???
+ * val y: ${ test } = ???
  *        |-------|
- *       SplicedBlock
+ *        SplicedBlock
+ * }}}
  */
-trait ScSplicedBlock extends ScBlock with ScTypeElement with ScSpliced {
-
-}
+trait ScSplicedBlock extends ScBlock
+  with ScTypeElement
+  with ScSpliced

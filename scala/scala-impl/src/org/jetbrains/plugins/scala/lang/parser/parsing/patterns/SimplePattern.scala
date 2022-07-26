@@ -6,7 +6,7 @@ package patterns
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Literal
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Quoted}
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{CompoundType, StableId}
 import org.jetbrains.plugins.scala.lang.parser.parsing.xml.pattern.XmlPattern
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
@@ -113,6 +113,17 @@ object SimplePattern extends ParsingRule {
     if (Literal()) {
       simplePatternMarker.done(ScalaElementType.LITERAL_PATTERN)
       return true
+    }
+
+    if (builder.getTokenType == ScalaTokenType.QuoteStart) {
+      builder.enterQuotedPattern()
+      try
+        if (Quoted()) {
+          simplePatternMarker.done(ScalaElementType.QUOTED_PATTERN)
+          return true
+        }
+      finally
+        builder.exitQuotedPattern()
     }
 
     if (XmlPattern()) {

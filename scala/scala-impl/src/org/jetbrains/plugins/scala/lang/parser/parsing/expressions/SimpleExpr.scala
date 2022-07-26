@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import scala.annotation.tailrec
 
 /*
+ * Scala 2:
  * SimpleExpr ::= 'new' (ClassTemplate | TemplateBody)
  *              | BlockExpr
  *              | SimpleExpr1 ['_']
@@ -28,6 +29,25 @@ import scala.annotation.tailrec
  *               | SimpleExpr TypeArgs
  *               | SimpleExpr1 ArgumentExprs
  *               | XmlExpr
+ *
+ * -------------------------------------------------------
+ *
+ * Scala 3:
+ * SimpleExpr        ::=  SimpleRef
+ *                     |  Literal
+ *                     |  ‘_’
+ *                     |  BlockExpr
+ *                     |  ‘$’ ‘{’ Block ‘}’                                        -- unless inside quoted pattern
+ *                     |  ‘$’ ‘{’ Pattern ‘}’                                      -- only inside quoted pattern
+ *                     |  Quoted
+ *                     |  quoteId                                                  -- only inside splices
+ *                     |  ‘new’ ConstrApp {‘with’ ConstrApp} [TemplateBody]
+ *                     |  ‘new’ TemplateBody
+ *                     |  ‘(’ ExprsInParens ‘)’
+ *                     |  SimpleExpr ‘.’ id
+ *                     |  SimpleExpr ‘.’ MatchClause
+ *                     |  SimpleExpr TypeArgs
+ *                     |  SimpleExpr ArgumentExprs
  */
 object SimpleExpr extends ParsingRule {
 
@@ -65,7 +85,12 @@ object SimpleExpr extends ParsingRule {
       case `SpliceStart` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        SplicedExpr()
+        if (builder.isInQuotedPattern) {
+          SplicedPatternExpr()
+        }
+        else {
+          SplicedExpr()
+        }
       case `QuoteStart` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
@@ -179,7 +204,7 @@ object SimpleExpr extends ParsingRule {
       }
     }
     subparse(newMarker)
-    
+
     true
   }
 }

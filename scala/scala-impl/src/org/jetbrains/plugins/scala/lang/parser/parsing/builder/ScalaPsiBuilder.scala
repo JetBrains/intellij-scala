@@ -16,6 +16,12 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def enableNewlines(): Unit
 
+  def enterQuotedPattern(): Unit
+
+  def exitQuotedPattern(): Unit
+
+  def isInQuotedPattern: Boolean
+
   def restoreNewlinesState(): Unit
 
   def isTrailingComma: Boolean

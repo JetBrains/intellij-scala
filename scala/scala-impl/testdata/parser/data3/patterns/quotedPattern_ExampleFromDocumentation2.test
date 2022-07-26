@@ -1,0 +1,394 @@
+//example from: https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html#recovering-precise-types-using-patterns
+
+private def showMeExpr(sc: Expr[StringContext], argsExpr: Expr[Seq[Any]])(using Quotes): Expr[String] =
+  import quotes.reflect.report
+  argsExpr match
+    case Varargs(argExprs) =>
+      val argShowedExprs = argExprs.map {
+        case '{ $arg: tp } =>
+          Expr.summon[Show[tp]] match
+            case Some(showExpr) =>
+              '{ $showExpr.show($arg) }
+            case None =>
+              report.error(s"could not find implicit for ${Type.show[Show[tp]]}", arg); '{???}
+      }
+      val newArgsExpr = Varargs(argShowedExprs)
+      '{ $sc.s($newArgsExpr: _*) }
+    case _ =>
+      // `new StringContext(...).showMeExpr(args: _*)` not an explicit `showMeExpr"..."`
+      report.error(s"Args must be explicit", argsExpr)
+      '{???}
+-----
+ScalaFile
+  PsiComment(comment)('//example from: https://dotty.epfl.ch/docs/reference/metaprogramming/macros.html#recovering-precise-types-using-patterns')
+  PsiWhiteSpace('\n\n')
+  ScFunctionDefinition: showMeExpr
+    AnnotationsList
+      <empty list>
+    Modifiers
+      AccessModifier
+        PsiElement(private)('private')
+    PsiWhiteSpace(' ')
+    PsiElement(def)('def')
+    PsiWhiteSpace(' ')
+    PsiElement(identifier)('showMeExpr')
+    Parameters
+      ParametersClause
+        PsiElement(()('(')
+        Parameter: sc
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('sc')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Expr[StringContext]
+              SimpleType: Expr
+                CodeReferenceElement: Expr
+                  PsiElement(identifier)('Expr')
+              TypeArgumentsList
+                PsiElement([)('[')
+                SimpleType: StringContext
+                  CodeReferenceElement: StringContext
+                    PsiElement(identifier)('StringContext')
+                PsiElement(])(']')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        Parameter: argsExpr
+          AnnotationsList
+            <empty list>
+          Modifiers
+            <empty list>
+          PsiElement(identifier)('argsExpr')
+          PsiElement(:)(':')
+          PsiWhiteSpace(' ')
+          ParameterType
+            ParametrizedType: Expr[Seq[Any]]
+              SimpleType: Expr
+                CodeReferenceElement: Expr
+                  PsiElement(identifier)('Expr')
+              TypeArgumentsList
+                PsiElement([)('[')
+                ParametrizedType: Seq[Any]
+                  SimpleType: Seq
+                    CodeReferenceElement: Seq
+                      PsiElement(identifier)('Seq')
+                  TypeArgumentsList
+                    PsiElement([)('[')
+                    SimpleType: Any
+                      CodeReferenceElement: Any
+                        PsiElement(identifier)('Any')
+                    PsiElement(])(']')
+                PsiElement(])(']')
+        PsiElement())(')')
+      ParametersClause
+        PsiElement(()('(')
+        PsiElement(using)('using')
+        PsiWhiteSpace(' ')
+        Parameter: Quotes
+          ParameterType
+            SimpleType: Quotes
+              CodeReferenceElement: Quotes
+                PsiElement(identifier)('Quotes')
+        PsiElement())(')')
+    PsiElement(:)(':')
+    PsiWhiteSpace(' ')
+    ParametrizedType: Expr[String]
+      SimpleType: Expr
+        CodeReferenceElement: Expr
+          PsiElement(identifier)('Expr')
+      TypeArgumentsList
+        PsiElement([)('[')
+        SimpleType: String
+          CodeReferenceElement: String
+            PsiElement(identifier)('String')
+        PsiElement(])(']')
+    PsiWhiteSpace(' ')
+    PsiElement(=)('=')
+    BlockExpression
+      PsiWhiteSpace('\n  ')
+      ScImportStatement
+        PsiElement(import)('import')
+        PsiWhiteSpace(' ')
+        ImportExpression
+          CodeReferenceElement: quotes.reflect.report
+            CodeReferenceElement: quotes.reflect
+              CodeReferenceElement: quotes
+                PsiElement(identifier)('quotes')
+              PsiElement(.)('.')
+              PsiElement(identifier)('reflect')
+            PsiElement(.)('.')
+            PsiElement(identifier)('report')
+      PsiWhiteSpace('\n  ')
+      MatchStatement
+        ReferenceExpression: argsExpr
+          PsiElement(identifier)('argsExpr')
+        PsiWhiteSpace(' ')
+        PsiElement(match)('match')
+        PsiWhiteSpace('\n    ')
+        CaseClauses
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            ConstructorPattern
+              CodeReferenceElement: Varargs
+                PsiElement(identifier)('Varargs')
+              Pattern Argument List
+                PsiElement(()('(')
+                ReferencePattern: argExprs
+                  PsiElement(identifier)('argExprs')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace('\n      ')
+            BlockOfExpressions
+              ScPatternDefinition: argShowedExprs
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: argShowedExprs
+                    PsiElement(identifier)('argShowedExprs')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: argExprs.map
+                    ReferenceExpression: argExprs
+                      PsiElement(identifier)('argExprs')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('map')
+                  PsiWhiteSpace(' ')
+                  ArgumentList
+                    BlockExpression
+                      PsiElement({)('{')
+                      PsiWhiteSpace('\n        ')
+                      CaseClauses
+                        CaseClause
+                          PsiElement(case)('case')
+                          PsiWhiteSpace(' ')
+                          QuotedPattern
+                            QuotedBlock
+                              PsiElement(')(''')
+                              PsiElement({)('{')
+                              PsiWhiteSpace(' ')
+                              TypedExpression
+                                ReferenceExpression: $arg
+                                  PsiElement(identifier)('$arg')
+                                PsiElement(:)(':')
+                                PsiWhiteSpace(' ')
+                                SimpleType: tp
+                                  CodeReferenceElement: tp
+                                    PsiElement(identifier)('tp')
+                              PsiWhiteSpace(' ')
+                              PsiElement(})('}')
+                          PsiWhiteSpace(' ')
+                          PsiElement(=>)('=>')
+                          PsiWhiteSpace('\n          ')
+                          BlockOfExpressions
+                            MatchStatement
+                              GenericCall
+                                ReferenceExpression: Expr.summon
+                                  ReferenceExpression: Expr
+                                    PsiElement(identifier)('Expr')
+                                  PsiElement(.)('.')
+                                  PsiElement(identifier)('summon')
+                                TypeArgumentsList
+                                  PsiElement([)('[')
+                                  ParametrizedType: Show[tp]
+                                    SimpleType: Show
+                                      CodeReferenceElement: Show
+                                        PsiElement(identifier)('Show')
+                                    TypeArgumentsList
+                                      PsiElement([)('[')
+                                      SimpleType: tp
+                                        CodeReferenceElement: tp
+                                          PsiElement(identifier)('tp')
+                                      PsiElement(])(']')
+                                  PsiElement(])(']')
+                              PsiWhiteSpace(' ')
+                              PsiElement(match)('match')
+                              PsiWhiteSpace('\n            ')
+                              CaseClauses
+                                CaseClause
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  ConstructorPattern
+                                    CodeReferenceElement: Some
+                                      PsiElement(identifier)('Some')
+                                    Pattern Argument List
+                                      PsiElement(()('(')
+                                      ReferencePattern: showExpr
+                                        PsiElement(identifier)('showExpr')
+                                      PsiElement())(')')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace('\n              ')
+                                  BlockOfExpressions
+                                    QuotedBlock
+                                      PsiElement(')(''')
+                                      PsiElement({)('{')
+                                      PsiWhiteSpace(' ')
+                                      MethodCall
+                                        ReferenceExpression: $showExpr.show
+                                          ReferenceExpression: $showExpr
+                                            PsiElement(identifier)('$showExpr')
+                                          PsiElement(.)('.')
+                                          PsiElement(identifier)('show')
+                                        ArgumentList
+                                          PsiElement(()('(')
+                                          ReferenceExpression: $arg
+                                            PsiElement(identifier)('$arg')
+                                          PsiElement())(')')
+                                      PsiWhiteSpace(' ')
+                                      PsiElement(})('}')
+                                PsiWhiteSpace('\n            ')
+                                CaseClause
+                                  PsiElement(case)('case')
+                                  PsiWhiteSpace(' ')
+                                  StableElementPattern
+                                    ReferenceExpression: None
+                                      PsiElement(identifier)('None')
+                                  PsiWhiteSpace(' ')
+                                  PsiElement(=>)('=>')
+                                  PsiWhiteSpace('\n              ')
+                                  BlockOfExpressions
+                                    MethodCall
+                                      ReferenceExpression: report.error
+                                        ReferenceExpression: report
+                                          PsiElement(identifier)('report')
+                                        PsiElement(.)('.')
+                                        PsiElement(identifier)('error')
+                                      ArgumentList
+                                        PsiElement(()('(')
+                                        InterpolatedStringLiteral
+                                          InterpolatedExpressionPrefix: s
+                                            PsiElement(interpolated string id)('s')
+                                          PsiElement(interpolated string)('"could not find implicit for ')
+                                          PsiElement(interpolated string injection)('$')
+                                          BlockExpression
+                                            PsiElement({)('{')
+                                            GenericCall
+                                              ReferenceExpression: Type.show
+                                                ReferenceExpression: Type
+                                                  PsiElement(identifier)('Type')
+                                                PsiElement(.)('.')
+                                                PsiElement(identifier)('show')
+                                              TypeArgumentsList
+                                                PsiElement([)('[')
+                                                ParametrizedType: Show[tp]
+                                                  SimpleType: Show
+                                                    CodeReferenceElement: Show
+                                                      PsiElement(identifier)('Show')
+                                                  TypeArgumentsList
+                                                    PsiElement([)('[')
+                                                    SimpleType: tp
+                                                      CodeReferenceElement: tp
+                                                        PsiElement(identifier)('tp')
+                                                    PsiElement(])(']')
+                                                PsiElement(])(']')
+                                            PsiElement(})('}')
+                                          PsiElement(interpolated string end)('"')
+                                        PsiElement(,)(',')
+                                        PsiWhiteSpace(' ')
+                                        ReferenceExpression: arg
+                                          PsiElement(identifier)('arg')
+                                        PsiElement())(')')
+                                    PsiElement(;)(';')
+                                    PsiWhiteSpace(' ')
+                                    QuotedBlock
+                                      PsiElement(')(''')
+                                      PsiElement({)('{')
+                                      ReferenceExpression: ???
+                                        PsiElement(identifier)('???')
+                                      PsiElement(})('}')
+                      PsiWhiteSpace('\n      ')
+                      PsiElement(})('}')
+              PsiWhiteSpace('\n      ')
+              ScPatternDefinition: newArgsExpr
+                AnnotationsList
+                  <empty list>
+                Modifiers
+                  <empty list>
+                PsiElement(val)('val')
+                PsiWhiteSpace(' ')
+                ListOfPatterns
+                  ReferencePattern: newArgsExpr
+                    PsiElement(identifier)('newArgsExpr')
+                PsiWhiteSpace(' ')
+                PsiElement(=)('=')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: Varargs
+                    PsiElement(identifier)('Varargs')
+                  ArgumentList
+                    PsiElement(()('(')
+                    ReferenceExpression: argShowedExprs
+                      PsiElement(identifier)('argShowedExprs')
+                    PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              QuotedBlock
+                PsiElement(')(''')
+                PsiElement({)('{')
+                PsiWhiteSpace(' ')
+                MethodCall
+                  ReferenceExpression: $sc.s
+                    ReferenceExpression: $sc
+                      PsiElement(identifier)('$sc')
+                    PsiElement(.)('.')
+                    PsiElement(identifier)('s')
+                  ArgumentList
+                    PsiElement(()('(')
+                    TypedExpression
+                      ReferenceExpression: $newArgsExpr
+                        PsiElement(identifier)('$newArgsExpr')
+                      PsiElement(:)(':')
+                      PsiWhiteSpace(' ')
+                      SequenceArgumentType
+                        PsiElement(_)('_')
+                        PsiElement(identifier)('*')
+                    PsiElement())(')')
+                PsiWhiteSpace(' ')
+                PsiElement(})('}')
+          PsiWhiteSpace('\n    ')
+          CaseClause
+            PsiElement(case)('case')
+            PsiWhiteSpace(' ')
+            WildcardPattern
+              PsiElement(_)('_')
+            PsiWhiteSpace(' ')
+            PsiElement(=>)('=>')
+            PsiWhiteSpace('\n      ')
+            PsiComment(comment)('// `new StringContext(...).showMeExpr(args: _*)` not an explicit `showMeExpr"..."`')
+            PsiWhiteSpace('\n      ')
+            BlockOfExpressions
+              MethodCall
+                ReferenceExpression: report.error
+                  ReferenceExpression: report
+                    PsiElement(identifier)('report')
+                  PsiElement(.)('.')
+                  PsiElement(identifier)('error')
+                ArgumentList
+                  PsiElement(()('(')
+                  InterpolatedStringLiteral
+                    InterpolatedExpressionPrefix: s
+                      PsiElement(interpolated string id)('s')
+                    PsiElement(interpolated string)('"Args must be explicit')
+                    PsiElement(interpolated string end)('"')
+                  PsiElement(,)(',')
+                  PsiWhiteSpace(' ')
+                  ReferenceExpression: argsExpr
+                    PsiElement(identifier)('argsExpr')
+                  PsiElement())(')')
+              PsiWhiteSpace('\n      ')
+              QuotedBlock
+                PsiElement(')(''')
+                PsiElement({)('{')
+                ReferenceExpression: ???
+                  PsiElement(identifier)('???')
+                PsiElement(})('}')
