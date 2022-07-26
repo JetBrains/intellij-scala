@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
+import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.documentation.DocumentationManagerUtil
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.docsyntax.ScalaDocSyntaxElementType
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
+import org.jetbrains.plugins.scala.util.IndentUtil
 
 import scala.collection.{Map, mutable}
 import scala.util.{Failure, Success, Try}
@@ -125,24 +127,52 @@ private class ScalaDocContentGenerator(
   private def visitNodes(buffer: StringBuilder, elements: IterableOnce[PsiElement]): Unit =
     elements.iterator.foreach(visitNode(buffer, _))
 
-  private def visitNode(buffer: StringBuilder, element: PsiElement): Unit = {
-    val isLeafNode = element.getFirstChild == null
-    if (isLeafNode)
+  private def isLeaf(element: PsiElement): Boolean = element.getFirstChild == null
+
+  private def visitNode(buffer: StringBuilder, element: PsiElement): Unit =
+    if (isLeaf(element))
       visitLeafNode(buffer, element)
     else element match {
       case syntax: ScDocSyntaxElement  => visitSyntaxNode(buffer, syntax)
       case inlinedTag: ScDocInlinedTag => visitInlinedTag(buffer, inlinedTag)
       case list: ScDocList             => visitDocList(buffer, list)
-      case _                           => element.children.foreach(visitNode(buffer, _))
+      case code: ScDocInnerCodeElement => visitDocCode(buffer, code)
+      case _                           => visitNodes(buffer, element.children)
     }
+
+  private def calcMinIndent(element: PsiElement, tabSize: Int): Option[Int] = {
+    val text = element.getText
+    if (text.forall(_.isWhitespace))
+      None
+    else
+      element.getNode.getElementType match {
+        case ScalaDocTokenType.DOC_INNER_CODE =>
+          Some(IndentUtil.calcIndent(text, tabSize))
+        case _ =>
+          element.children.flatMap(calcMinIndent(_, tabSize)).minOption
+      }
+  }
+
+  private def visitDocCode(buffer: StringBuilder, code: ScDocInnerCodeElement): Unit = {
+    def visit(element: PsiElement, dropIndent: Int): Unit =
+      if (isLeaf(element))
+        visitLeafNode(buffer, element, dropIndent)
+      else
+        element.children.foreach(visit(_, dropIndent))
+
+    val tabSize = CodeStyle.getIndentOptions(code.getContainingFile).TAB_SIZE
+    visit(code, calcMinIndent(code, tabSize).getOrElse(0))
   }
 
   private def visitParagraph(buffer: StringBuilder, paragraph: ScDocParagraph, skipParagraphElement: Boolean): Unit = {
     if (!skipParagraphElement)
-      buffer.append(HtmlParagraph)
-    paragraph.children
+      buffer.append(HtmlStartParagraph)
+    paragraph
+      .children
       .dropWhile(_.elementType == ScalaDocTokenType.DOC_WHITESPACE)
       .foreach(visitNode(buffer, _))
+    if (!skipParagraphElement)
+      buffer.append(HtmlEndParagraph).append("\n")
   }
 
   private def visitDocList(buffer: StringBuilder, list: ScDocList): Unit = {
@@ -251,28 +281,25 @@ private class ScalaDocContentGenerator(
     Some(hyperLink(href, label))
   }
 
-  private def visitLeafNode(
-    result: StringBuilder,
-    element: PsiElement
-  ): Unit = {
-    val elementType = element.getNode.getElementType
-    elementType match {
+  private def visitLeafNode(result: StringBuilder, element: PsiElement, dropIndent: Int = 0): Unit =
+    element.getNode.getElementType match {
       // leading '*' only can come from tags description, filtered for main content description
       case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS =>
       case ScalaDocTokenType.DOC_TAG_NAME                  =>
       case ScalaDocTokenType.DOC_TAG_VALUE_TOKEN           =>
       case ScalaDocTokenType.DOC_INNER_CODE_TAG            => result.append("""<pre><code>""")
-      case ScalaDocTokenType.DOC_INNER_CODE                => result.append(escapeHtml(element.getText))
+      case ScalaDocTokenType.DOC_INNER_CODE                =>
+        val text = if (dropIndent > 0) element.getText.drop(dropIndent) else element.getText
+        result.append(escapeHtml(text))
       case ScalaDocTokenType.DOC_INNER_CLOSE_CODE_TAG      => result.append("""</code></pre>""")
       case ScalaDocTokenType.DOC_MACROS                    => appendMacroValue(result, element)
       case _ if isDocLineBreak(element)                    => result.append("\n") // ignore other spaces except line break
       case _                                               =>
-        val text0: String = element.getText
+        val text0: String = if (dropIndent > 0) element.getText.drop(dropIndent) else element.getText
         val text1: String = unescape(text0)
         val text2: String = if (isInWikiSyntaxElement) escapeHtml(text1) else text1
         result.append(text2)
     }
-  }
 
   private def unescape(text: String): String = {
     val escapedDollar = "\\$"
@@ -322,7 +349,8 @@ object ScalaDocContentGenerator {
 
   private val Log = Logger.getInstance(classOf[ScalaDocContentGenerator])
 
-  private val HtmlParagraph = "<p>"
+  private val HtmlStartParagraph = "<p>"
+  private val HtmlEndParagraph = "</p>"
 
   private case class PsiElementResolveResult(refText: String, label: String)
 
