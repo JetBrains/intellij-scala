@@ -589,7 +589,6 @@ def testOnlyCategories(categories: String*): String =
 
 addCommandAlias("runFileSetTests", testOnlyCategories(fileSetTests))
 addCommandAlias("runCompletionTests", testOnlyCategories(completionTests))
-addCommandAlias("runInspectionAndIntentionTests", testOnlyCategories(editorTests))
 addCommandAlias("runEditorTests", testOnlyCategories(editorTests))
 addCommandAlias("runSlowTests", testOnlyCategories(slowTests))
 addCommandAlias("runDebuggerTests", testOnlyCategories(debuggerTests))
