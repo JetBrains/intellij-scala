@@ -37,6 +37,12 @@ object ScalaHighlightingMode {
       .connect(project.unloadAwareDisposable)
       .subscribe(CompilerHighlightingListener.Topic, listener)
 
+
+  /**
+   * Should only be used in situations where there is no reference to a [[com.intellij.psi.PsiFile]] instance. The other
+   * method that takes in a PsiFile instance as an argument should be preferred, as it does the same checks, but also
+   * takes into consideration the Scala language version.
+   */
   //noinspection ApiStatus,UnstableApiUsage
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
     TrustedProjects.isTrusted(project) &&

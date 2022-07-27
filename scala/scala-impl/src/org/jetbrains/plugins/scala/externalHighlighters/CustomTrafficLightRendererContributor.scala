@@ -31,7 +31,7 @@ class CustomTrafficLightRendererContributor
 
         if (!project.isDisposed) { // EA-246923
           val compilerHighlightingInProgress =
-            isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+            isHighlightingCompilerRunning(project) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
 
           val errorAnalyzingFinished = status.errorAnalyzingFinished && !compilerHighlightingInProgress
           status.errorAnalyzingFinished = errorAnalyzingFinished

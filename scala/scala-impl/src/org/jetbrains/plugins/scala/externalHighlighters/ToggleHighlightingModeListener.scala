@@ -20,19 +20,19 @@ class ToggleHighlightingModeListener
   
   override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-    project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(s"project roots changed", project) }
+    project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(project) }
 
     object listener extends CompilerHighlightingListener {
       override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(s"highlighting mode toggled (Scala 2)", project)
+        compileOrEraseHighlightings(project)
       override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(s"highlighting mode toggled (Scala 3)", project)
+        compileOrEraseHighlightings(project)
     }
     
     ScalaHighlightingMode.addSettingsListener(project)(listener)
   }
   
-  private def compileOrEraseHighlightings(debugReason: String, project: Project): Unit =
+  private def compileOrEraseHighlightings(project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
         AnnotatorHints.clearIn(project)

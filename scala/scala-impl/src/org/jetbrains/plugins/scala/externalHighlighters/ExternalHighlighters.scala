@@ -26,28 +26,25 @@ object ExternalHighlighters {
   // A random number of highlighters group to avoid conflicts with standard groups.
   private[externalHighlighters] final val ScalaCompilerPassId = 979132998
   
-  def applyHighlighting(project: Project,
-                        editor: Editor,
-                        state: HighlightingState): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      val document = editor.getDocument
-      for {
-        virtualFile <- document.virtualFile
-        psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
-        if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-      } invokeLater {
-        val externalHighlights = state.externalHighlightings(virtualFile)
-        val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, document, psiFile))
-        UpdateHighlightersUtil.setHighlightersToEditor(
-          project,
-          document, 0, document.getTextLength,
-          highlightInfos.toSeq.asJava,
-          editor.getColorsScheme,
-          ScalaCompilerPassId
-        )
-      }
+  def applyHighlighting(project: Project, editor: Editor, state: HighlightingState): Unit = {
+    val document = editor.getDocument
+    for {
+      virtualFile <- document.virtualFile
+      psiFile <- Option(inReadAction(PsiManager.getInstance(project).findFile(virtualFile)))
+      if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
+    } invokeLater {
+      val externalHighlights = state.externalHighlightings(virtualFile)
+      val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, document, psiFile))
+      UpdateHighlightersUtil.setHighlightersToEditor(
+        project,
+        document, 0, document.getTextLength,
+        highlightInfos.toSeq.asJava,
+        editor.getColorsScheme,
+        ScalaCompilerPassId
+      )
     }
-  
+  }
+
   def eraseAllHighlightings(project: Project): Unit = {
     for {
       editor <- EditorFactory.getInstance.getAllEditors

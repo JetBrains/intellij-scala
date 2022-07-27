@@ -76,7 +76,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private[externalHighlighters] def triggerOnSelectionChange(editor: FileEditor): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
+    if (ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled &&
+      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
         val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
@@ -99,7 +100,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit = {
-    if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled) {
+    if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled &&
+      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val document = editor.getDocument
       val virtualFile = FileDocumentManager.getInstance().getFile(document)
       if (virtualFile ne null) {
@@ -115,11 +117,8 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     }
   }
 
-  private def isHighlightingEnabled: Boolean = {
-    !PowerSaveMode.isEnabled &&
-      ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
-      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
-  }
+  private def isHighlightingEnabled: Boolean =
+    !PowerSaveMode.isEnabled && ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED
 
   private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
     ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile) &&
