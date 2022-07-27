@@ -287,7 +287,7 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
         case p: ScModifierListOwner if hasOverrideModifier(p) => false
         case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
         case f: ScFunction if f.isSpecial || isOverridingFunction(f) || f.isConstructor => false
-        case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal => false
+        case p: ScClassParameter if p.isCaseClassVal || p.isEnumVal || p.isEnumCaseVal || isImplicit(p.containingClass) => false
         case p: ScParameter =>
           p.parent.flatMap(_.parent.flatMap(_.parent)) match {
             case Some(_: ScFunctionDeclaration) => false

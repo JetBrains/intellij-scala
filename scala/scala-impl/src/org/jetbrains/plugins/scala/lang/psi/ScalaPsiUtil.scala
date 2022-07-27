@@ -235,7 +235,7 @@ object ScalaPsiUtil {
   @tailrec
   def isOnlyVisibleInLocalFile(elem: PsiElement): Boolean = {
     (elem, elem.getContext) match {
-      case (param: ScClassParameter, _) if param.isLocal || param.isPrivate || param.isPrivateThis =>
+      case (param: ScClassParameter, _) if param.isPrivate || param.isPrivateThis =>
         true
       case (_,             _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions) =>
         false
