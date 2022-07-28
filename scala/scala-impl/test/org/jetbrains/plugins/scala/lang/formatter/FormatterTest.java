@@ -18,11 +18,6 @@ package org.jetbrains.plugins.scala.lang.formatter;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
-/**
- * Created by IntelliJ IDEA.
- * User: Ilya.Sergey
- */
-
 public class FormatterTest extends TestCase {
     public static Test suite() {
         return new FormatterTestSuite("/formatter/data/") {

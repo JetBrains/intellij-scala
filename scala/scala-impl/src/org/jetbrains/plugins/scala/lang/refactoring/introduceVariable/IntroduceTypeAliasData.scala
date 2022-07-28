@@ -5,10 +5,6 @@ import com.intellij.psi.PsiFile
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
 
-/**
- * Created by Kate Ustyuzhanina
- * on 9/7/15
- */
 class IntroduceTypeAliasData {
   var currentScope: ScopeItem = null
   var initialTypeElement: TextRange = null

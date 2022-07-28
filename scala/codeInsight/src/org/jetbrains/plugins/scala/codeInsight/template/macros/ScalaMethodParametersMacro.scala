@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Roman.Shein
-  * @since 22.09.2015.
-  */
 final class ScalaMethodParametersMacro extends ScalaMacro {
 
   override def calculateResult(params: Array[Expression], context: ExpressionContext): Result = {

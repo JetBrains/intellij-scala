@@ -11,9 +11,6 @@ import scala.language.implicitConversions
 
 /**
  * See also [[org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl]]
- *
- * @author Nikolay Obedin
- * @since 8/4/15.
  */
 object ProjectStructureDsl {
 

@@ -18,11 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, TypeParamet
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 class ScConstructorPatternImpl(node: ASTNode) extends ScalaPsiElementImpl (node) with ScPatternImpl with ScConstructorPattern {
 
   override def toString: String = "ConstructorPattern"

@@ -8,10 +8,6 @@ import org.junit.experimental.categories.Category
 
 import scala.util.Try
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 03.08.2009
- */
 @Category(Array(classOf[SlowTests]))
 class HighlightingPerformanceTest extends ScalaFixtureTestCase {
   def doTest(text: String, TIMEOUT: Int): Unit = {

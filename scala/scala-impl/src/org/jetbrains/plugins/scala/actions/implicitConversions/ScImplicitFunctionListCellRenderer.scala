@@ -21,10 +21,6 @@ import java.awt.{BorderLayout, Component, Container}
 import javax.swing._
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.06.2010
- */
 private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
   extends PsiElementListCellRenderer[PsiNamedElement] {
 

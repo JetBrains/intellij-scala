@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author adkozlov
-  */
 trait ScalaType extends ScType {
   override def typeSystem: ScalaTypeSystem = ScalaTypeSystem.instance
 }

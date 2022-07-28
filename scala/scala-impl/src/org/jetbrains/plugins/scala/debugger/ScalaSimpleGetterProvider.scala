@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScR
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaSimpleGetterProvider extends SimplePropertyGetterProvider {
   override def isInsideSimpleGetter(element: PsiElement): Boolean = {
     PsiTreeUtil.getParentOfType(element, classOf[ScFunctionDefinition]) match {

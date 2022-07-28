@@ -64,10 +64,17 @@ abstract class BaseProcessor(val kinds: Set[ResolveTargets.Value])
   protected var accessibility = true
   def doNotCheckAccessibility(): Unit = {accessibility = false}
 
-  override final def execute(element: PsiElement, state: ResolveState): Boolean = element match {
-    case namedElement: PsiNamedElement if ResolveUtils.kindMatches(namedElement, kinds) => execute(namedElement)(state)
-    case _                                                                              => true
-  }
+  override final def execute(element: PsiElement, state: ResolveState): Boolean =
+    element match {
+      case namedElement: PsiNamedElement =>
+        val kindMatches = ResolveUtils.kindMatches(namedElement, kinds)
+        if (kindMatches)
+          execute(namedElement)(state)
+        else
+          true
+      case _ =>
+        true
+    }
 
   protected def execute(namedElement: PsiNamedElement)
                        (implicit state: ResolveState): Boolean

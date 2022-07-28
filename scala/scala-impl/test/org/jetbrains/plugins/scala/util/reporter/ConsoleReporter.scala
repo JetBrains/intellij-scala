@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.util.reporter.ConsoleReporter.StringExt
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgressIndicator
 import org.junit.Assert
 
-/**
-  * @author mutcianm
-  * @since 16.05.17.
-  */
 class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]]) extends ProgressReporter {
   private val report = new StringBuilder("\n")
 

@@ -5,9 +5,6 @@ import java.lang.ref.SoftReference
 import java.util
 import java.util.Map.Entry
 
-/**
- * @author Pavel Fatin
- */
 class Cache[K, V](capacity: Int) {
   private val lock = new Object()
 

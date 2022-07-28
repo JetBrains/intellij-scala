@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.types.ValueClassType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * Nikolay.Tropin
- * 2014-06-10
- */
-
 class ScalaMethodFilter(function: ScMethodLike, callingExpressionLines: Range[Integer]) extends MethodFilter {
   private val unknownName: String = "!unknownName!"
   private val myTargetMethodSignature = DebuggerUtil.getFunctionJVMSignature(function)

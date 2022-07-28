@@ -5,9 +5,6 @@ package implicits
 
 import scala.language.implicitConversions
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandImplicitConversionTest extends TransformerTest(new ExpandImplicitConversion()) {
 
   def testTypeConversionMethod(): Unit = check(

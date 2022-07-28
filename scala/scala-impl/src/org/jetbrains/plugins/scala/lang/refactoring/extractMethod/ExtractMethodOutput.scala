@@ -5,11 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 30.03.2010
- */
-
 case class ExtractMethodOutput(paramName: String, returnType: ScType, needNewDefinition: Boolean, fromElement: ScTypedDefinition) {
 
   val isVal: Boolean = ScalaPsiUtil.nameContext(fromElement) match {

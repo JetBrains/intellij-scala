@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportExprStub
 
-/**
- * @author AlexanderPodkhalyuzin
-* Date: 20.02.2008
- */
-
 class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, IMPORT_EXPR, node) with ScImportExpr {
 

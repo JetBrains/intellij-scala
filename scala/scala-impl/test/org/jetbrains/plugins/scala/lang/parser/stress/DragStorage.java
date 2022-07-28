@@ -5,9 +5,6 @@ import com.intellij.openapi.util.TextRange;
 
 import java.util.*;
 
-/**
- * @author ilyas
- */
 public class DragStorage {
 
   private final Map<TextRange, Integer> myRanges = new HashMap<>();

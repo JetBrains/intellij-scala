@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
-  * @author Alefas
-  * @since 29/08/16
-  */
 class AddUnitTypeAnnotationIntention extends PsiElementBaseIntentionAction {
 
   import AddUnitTypeAnnotationIntention._

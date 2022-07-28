@@ -4,10 +4,6 @@ package lang.refactoring.extractMethod
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.refactoring._
 
-/**
- * Nikolay.Tropin
- * 2014-05-13
- */
 case class InnerClassSettings(needClass: Boolean, className: String, outputs: Array[ExtractMethodOutput], isCase: Boolean) {
   def classText(canonTextForTypes: Boolean): String = {
     def paramText(output: ExtractMethodOutput) = {

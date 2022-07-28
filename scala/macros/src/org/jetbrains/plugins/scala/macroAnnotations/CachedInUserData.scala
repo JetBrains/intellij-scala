@@ -10,9 +10,6 @@ import scala.reflect.macros.whitebox
   * UserDataHolder type should have instance of a `org.jetbrains.plugins.scala.caches.ProjectUserDataHolder` type class
   *
   * Caches are invalidated on change of `dependencyItem`.
-  *
-  * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
-  * Date: 9/25/15.
   */
 class CachedInUserData(userDataHolder: Any, modificationTracker: Object, tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedInUserData.cachedInsideUserDataImpl

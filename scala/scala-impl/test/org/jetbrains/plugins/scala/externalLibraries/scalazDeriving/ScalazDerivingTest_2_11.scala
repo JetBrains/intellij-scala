@@ -15,9 +15,6 @@ import org.junit.Assert._
 
 /**
  * IntelliJ's equivalent of scalaz-deriving's built-in PresentationCompilerTest
- *
- * @author Sam Halliday
- * @since  24/08/2017
  */
 class ScalazDerivingTest_2_11 extends ScalaLightCodeInsightFixtureTestAdapter {
 

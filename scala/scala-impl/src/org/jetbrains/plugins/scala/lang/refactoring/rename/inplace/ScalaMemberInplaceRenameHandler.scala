@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * Nikolay.Tropin
- * 6/20/13
- */
 class ScalaMemberInplaceRenameHandler extends MemberInplaceRenameHandler with ScalaInplaceRenameHandler {
 
   override def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean = {

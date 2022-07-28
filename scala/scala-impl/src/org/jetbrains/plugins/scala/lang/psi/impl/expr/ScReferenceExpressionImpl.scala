@@ -38,10 +38,6 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
 
-/**
-  * @author AlexanderPodkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) with ScReferenceExpression {
 
   private[this] var maybeAssignment: Option[ScAssignment] = None

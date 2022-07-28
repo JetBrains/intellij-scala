@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.collections;
 
 import java.util.Arrays;
 
-/**
- * Nikolay.Tropin
- * 5/28/13
- */
 public abstract class OperationOnCollectionInspection extends OperationOnCollectionInspectionBase {
   public Boolean[] simplificationTypesEnabled = new Boolean[possibleSimplificationTypes().size()];
 

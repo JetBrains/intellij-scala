@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author ilyas
- */
 public class ScalaDebuggerClassFilterProvider implements DebuggerClassFilterProvider {
 
     private static final String[] PROHIBITED_CLASS_PATTERNS = {"scala.*"};

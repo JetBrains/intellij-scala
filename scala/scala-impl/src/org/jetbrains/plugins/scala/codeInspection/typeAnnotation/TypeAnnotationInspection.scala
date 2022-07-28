@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.util._
 
 import scala.annotation.nowarn
 
-/**
-  * Pavel Fatin
-  */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class TypeAnnotationInspection extends AbstractInspection {
   import TypeAnnotationInspection._

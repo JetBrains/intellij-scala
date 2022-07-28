@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
-/**
- * Nikolay.Tropin
- * 12/27/13
- */
 class ImplementAbstractMethodTest extends ScalaIntentionTestBase {
 
   override def familyName: String = new ImplementAbstractMethodAction().getFamilyName

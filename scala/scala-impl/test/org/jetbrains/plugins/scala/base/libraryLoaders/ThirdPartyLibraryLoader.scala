@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.project.ModuleExt
 import java.io.File
 import scala.annotation.nowarn
 
-/**
-  * @author adkozlov
-  */
 trait ThirdPartyLibraryLoader extends LibraryLoader {
   protected val name: String
 

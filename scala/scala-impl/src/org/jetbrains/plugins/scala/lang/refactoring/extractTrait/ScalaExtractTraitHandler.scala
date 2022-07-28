@@ -27,10 +27,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-05-20
- */
 class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
 
   val REFACTORING_NAME: String = ScalaBundle.message("extract.trait.title")

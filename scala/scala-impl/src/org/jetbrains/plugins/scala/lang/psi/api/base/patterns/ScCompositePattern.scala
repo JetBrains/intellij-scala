@@ -4,9 +4,6 @@ package psi
 package api
 package base
 package patterns;
-/**
-* @author ilyas 
-*/
 
 trait ScCompositePattern extends ScPattern {
 

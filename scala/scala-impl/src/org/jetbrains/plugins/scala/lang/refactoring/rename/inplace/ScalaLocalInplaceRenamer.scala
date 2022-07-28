@@ -21,10 +21,6 @@ import java.util
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.util.chaining._
 
-/**
- * Nikolay.Tropin
- * 1/20/14
- */
 class ScalaLocalInplaceRenamer(elementToRename: PsiNamedElement, editor: Editor, project: Project, initialName: String, oldName: String)
         extends VariableInplaceRenamer(elementToRename, editor, project, initialName, oldName) {
 

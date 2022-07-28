@@ -5,10 +5,6 @@ import com.intellij.refactoring.changeSignature.ThrownExceptionInfo
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-08-28
- */
 private[changeInfo] trait UnsupportedJavaInfo {
 
   def getNewExceptions: Array[ThrownExceptionInfo] = Array()

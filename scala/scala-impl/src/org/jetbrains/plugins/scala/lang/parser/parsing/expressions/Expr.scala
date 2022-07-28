@@ -7,11 +7,6 @@ package expressions
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 03.03.2008
- */
-
 /*
  * Expr ::= (Bindings | [‘implicit’] id | ‘_’) ‘=>’ Expr
  *         | Expr1

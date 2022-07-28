@@ -5,10 +5,6 @@ package api
 package base
 package types
 
-/**
- * Author: Alexander Podkhalyuzin
- * Date: 22.02.2008
- */
 trait ScSimpleTypeElement extends ScTypeElement {
   override protected val typeName = "SimpleType"
 

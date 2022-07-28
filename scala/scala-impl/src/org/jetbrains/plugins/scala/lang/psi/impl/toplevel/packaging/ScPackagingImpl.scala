@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingI
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
 
-/**
-  * @author Alexander Podkhalyuzin, Pavel Fatin
-  *         Date: 20.02.2008
-  */
 final class ScPackagingImpl private[psi](stub: ScPackagingStub,
                                          nodeType: ScStubElementType[ScPackagingStub, ScPackaging],
                                          node: ASTNode)
@@ -62,9 +58,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def packageName: String = byStubOrPsi(_.packageName)(reference.fold("")(_.qualName))
 
-  override def parentPackageName: String = byStubOrPsi(_.parentPackageName)(ScPackagingImpl.parentPackageName(this))
+  override def parentPackageName: String = byStubOrPsi(_.parentPackageName)(ScPackagingImpl.getParentPackageName(this))
 
-  override def fullPackageName: String = ScPackagingImpl.fullPackageName(parentPackageName, packageName)
+  override def fullPackageName: String = ScPackagingImpl.getFullPackageName(parentPackageName, packageName)
 
   override def declaredElements: Seq[ScPackageImpl] = {
     val name = packageName
@@ -73,7 +69,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
       case index => name.substring(0, index)
     }
 
-    val top = ScPackagingImpl.fullPackageName(parentPackageName, topRefName)
+    val top = ScPackagingImpl.getFullPackageName(parentPackageName, topRefName)
     findPackage(top).toSeq
   }
 
@@ -86,23 +82,27 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     val isTreeWalkUp = lastParent != null && lastParent.getContext == this
 
     if (isTreeWalkUp && FileDeclarationsHolder.isProcessLocalClasses(lastParent) &&
-      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
+      !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place))
+      return false
 
     //If stub is not null, then we are not trying to resolve packaging reference.
     if (getStub != null || !reference.contains(lastParent)) {
       ProgressManager.checkCanceled()
 
-      findPackage(fullPackageName) match {
-        case Some(p) if !p.processDeclarations(processor, state, lastParent, place) => return false
+      val foundPackage = findPackage(fullPackageName)
+      foundPackage match {
+        case Some(p) if !p.processDeclarations(processor, state, lastParent, place) =>
+          return false
         case _                                                                      =>
       }
 
-      if (!findPackageObject(place.resolveScope)
-            .forall(processPackageObject(_)(processor, state, lastParent, place)))
+      val foundPackageObject = findPackageObject(place.resolveScope)
+      if (!foundPackageObject.forall(processPackageObject(_)(processor, state, lastParent, place)))
         return false
 
       if (this.isInScala3Module) {
-        if (!processTopLevelDeclarations(processor, state, place)) return false
+        if (!processTopLevelDeclarations(processor, state, place))
+          return false
       }
     }
 
@@ -155,9 +155,10 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
   override def immediateMembers: Seq[ScMember] =
     getStubOrPsiChildren(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq
 
-  private def findPackage(name: String) =
-    Option(JavaPsiFacade.getInstance(getProject).findPackage(name))
-      .map(ScPackageImpl(_))
+  private def findPackage(name: String): Option[ScPackageImpl] = {
+    val found = JavaPsiFacade.getInstance(getProject).findPackage(name)
+    Option(found).map(ScPackageImpl(_))
+  }
 
   override protected def keywordTokenType: IElementType = ScalaTokenTypes.kPACKAGE
 
@@ -168,20 +169,20 @@ object ScPackagingImpl {
 
   private val LeftBraceOrColon = TokenSet.create(ScalaTokenTypes.tLBRACE, ScalaTokenTypes.tCOLON)
 
-  private def fullPackageName(parentPackageName: String, packageName: String): String = {
-    val infix = parentPackageName match {
-      case "" => ""
-      case _ => "."
-    }
-    s"$parentPackageName$infix$packageName"
-  }
+  private def getFullPackageName(parentPackageName: String, packageName: String): String =
+    if (parentPackageName.isEmpty)
+      packageName
+    else
+      s"$parentPackageName.$packageName"
 
-  private def parentPackageName(element: PsiElement): String = element.getParent match {
-    case packaging: ScPackaging =>
-      fullPackageName(parentPackageName(packaging), packaging.packageName)
-    case _: ScalaFile |
-         null => ""
-    case parent => parentPackageName(parent)
+  private def getParentPackageName(element: PsiElement): String = element.getParent match {
+    case parentPackage: ScPackaging =>
+      val parentPackageName = getParentPackageName(parentPackage)
+      getFullPackageName(parentPackageName, parentPackage.packageName)
+    case _: ScalaFile | null =>
+      ""
+    case parent =>
+      getParentPackageName(parent)
   }
 }
 

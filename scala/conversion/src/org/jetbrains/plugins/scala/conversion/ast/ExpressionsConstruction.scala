@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.conversion.ast
 
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/22/15
-  */
-
 case class ArrayAccess(expression: IntermediateNode, idxExpression: IntermediateNode)
   extends IntermediateNode
 

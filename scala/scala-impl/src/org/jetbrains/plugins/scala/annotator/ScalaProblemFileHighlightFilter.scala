@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter._
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
-  * @author Pavel Fatin
-  */
 class ScalaProblemFileHighlightFilter(project: Project) extends Condition[VirtualFile] {
   /**
     * @see [[com.intellij.codeInsight.problems.DefaultProblemFileHighlightFilter]]

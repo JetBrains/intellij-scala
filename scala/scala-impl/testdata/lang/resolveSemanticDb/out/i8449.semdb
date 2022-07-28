@@ -6,6 +6,7 @@ Document tests/pos/i8449.scala
 (5:17..5:20) scala/Int#
 (5:25..5:28) scala/Int#
 (5:31..5:32) _empty_/Test.Fib#[N] -> 5:12
+(8:10..8:11) scala/Any#
 (8:15..8:18) _empty_/Test.Fib# -> 5:8
 (8:19..8:20) _empty_/Test.Fib#[N] -> 5:12
 (8:21..8:22) scala/compiletime/ops/int.`-`#

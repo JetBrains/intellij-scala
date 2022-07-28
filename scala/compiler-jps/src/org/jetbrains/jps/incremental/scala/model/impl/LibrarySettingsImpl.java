@@ -10,9 +10,6 @@ import org.jetbrains.jps.util.JpsPathUtil;
 
 import java.io.File;
 
-/**
- * @author Pavel Fatin
- */
 public class LibrarySettingsImpl extends JpsElementBase<LibrarySettingsImpl> implements LibrarySettings {
   private State myState;
 

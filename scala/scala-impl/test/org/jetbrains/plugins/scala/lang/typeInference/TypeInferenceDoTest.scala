@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-/**
-  * Created by Svyatoslav Ilinskiy on 01.07.16.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 trait TypeInferenceDoTest extends FailableTest with ScalaSdkOwner {
   protected val START = "/*start*/"

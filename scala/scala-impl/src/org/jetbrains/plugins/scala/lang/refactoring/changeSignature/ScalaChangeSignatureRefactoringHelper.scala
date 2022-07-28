@@ -6,10 +6,6 @@ import com.intellij.usageView.UsageInfo
 
 import java.util
 
-/**
-  * Nikolay.Tropin
-  * 12-Jan-17
-  */
 class ScalaChangeSignatureRefactoringHelper extends RefactoringHelper[Unit] {
   override def prepareOperation(usages: Array[UsageInfo]): Unit = {
     def priority(usageInfo: UsageInfo) = usageInfo match {

@@ -25,7 +25,7 @@ final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilde
 
   private val GH_WITH_EXAMPLES_URL  = "https://github.com/JetBrains/sbt-idea-example/archive/examples.zip"
   private val GH_NO_EXAMPLES_URL    = "https://github.com/JetBrains/sbt-idea-example/archive/noexamples.zip"
-  private def FALLBACK_URL          = getClass.getClassLoader.getResource("sbt-idea-example.zip")
+  private def FALLBACK_URL          = getClass.getClassLoader.getResource("example_projects/sbt-idea-example.zip")
 
   override def archiveURL: URL = {
     if (newProjectSettings.includeSamples)

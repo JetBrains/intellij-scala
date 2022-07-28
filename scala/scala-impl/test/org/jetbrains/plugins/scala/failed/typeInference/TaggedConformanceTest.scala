@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
 
-/**
-  * @author Roman.Shein
-  * @since 02.04.2016.
-  */
 class TaggedConformanceTest extends TypeConformanceTestBase {
 
   override protected def shouldPass: Boolean = false

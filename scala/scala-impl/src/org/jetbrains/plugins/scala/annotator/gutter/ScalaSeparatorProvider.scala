@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 
-/**
- * Pavel.Fatin, 20.01.2010
- */
 trait ScalaSeparatorProvider {
   val DefaultGroup = 0
   val MultilineLevel = 10

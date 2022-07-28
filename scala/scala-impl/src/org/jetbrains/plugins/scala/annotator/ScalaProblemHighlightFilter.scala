@@ -8,10 +8,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.console.ScalaConsoleInfo
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * @author Alefas
- * @since 15/12/15
- */
 final class ScalaProblemHighlightFilter extends ProblemHighlightFilter {
 
   override def shouldHighlight(file: PsiFile): Boolean = file match {

@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaFileFromText
 
-/**
- * User: Alefas
- * Date: 09.02.12
- */
-
 class ScalaUnnecessarySemicolonInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = false
 

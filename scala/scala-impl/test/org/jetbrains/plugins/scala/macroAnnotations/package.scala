@@ -7,10 +7,6 @@ import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 01-Feb-17
-  */
 package object macroAnnotations {
   def incModCount(project: Project): Unit = {
     val manager = PsiManager.getInstance(project)

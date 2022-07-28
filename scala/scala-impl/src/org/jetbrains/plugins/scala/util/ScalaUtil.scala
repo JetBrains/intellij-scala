@@ -9,10 +9,6 @@ import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 16.11.11
- */
 object ScalaUtil {
 
   def getScalaVersion(file: PsiFile): Option[String] = file match {

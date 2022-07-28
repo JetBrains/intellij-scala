@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.StubIndexKeyExt
 
-/**
- * @author Alexander Podkhalyuzin
- */
 final class ImplicitConversionIndex extends ScStringStubIndexExtension[ScMember] {
 
   //noinspection TypeAnnotation

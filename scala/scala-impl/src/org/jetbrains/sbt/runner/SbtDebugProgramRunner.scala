@@ -10,10 +10,6 @@ import com.intellij.execution.{ExecutionResult, Executor}
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.shell.SbtProcessManager
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 14.08.18.
-  */
 class SbtDebugProgramRunner extends GenericDebuggerRunner with SbtProgramRunnerBase {
   override def createContentDescriptor(state: RunProfileState, environment: ExecutionEnvironment): RunContentDescriptor = {
     state match {

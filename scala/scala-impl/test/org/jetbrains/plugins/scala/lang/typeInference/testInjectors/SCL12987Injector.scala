@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTyp
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
-  * @author Jan Lindemann
-  * @since  23.11.17.
-  */
 class SCL12987Injector extends InterpolatedStringMacroTypeProvider {
   /**
     * This method is used to decide whether an interpolated string expression is a macro and its type could be infered

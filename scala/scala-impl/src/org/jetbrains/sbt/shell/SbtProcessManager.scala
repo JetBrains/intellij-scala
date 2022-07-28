@@ -46,8 +46,6 @@ import scala.jdk.CollectionConverters._
 /**
   * Manages the sbt shell process instance for the project.
   * Instantiates an sbt instance when initially requested.
-  *
-  * Created by jast on 2016-11-27.
   */
 final class SbtProcessManager(project: Project) extends Disposable {
 

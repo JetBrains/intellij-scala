@@ -10,9 +10,6 @@ import com.intellij.openapi.module.{Module, ModuleType, ModuleTypeId}
 import com.intellij.openapi.roots.ui.configuration.FacetsProvider
 import com.intellij.openapi.roots.{ModifiableModelsProvider, ModifiableRootModel}
 
-/**
- * @author Pavel Fatin
- */
 //noinspection TypeAnnotation
 final class ScalaFrameworkType extends FrameworkTypeEx(ScalaLanguage.INSTANCE.getID) {
 

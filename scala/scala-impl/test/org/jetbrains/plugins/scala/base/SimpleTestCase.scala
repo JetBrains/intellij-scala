@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 import scala.reflect.ClassTag
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
 
   var fixture: CodeInsightTestFixture = _

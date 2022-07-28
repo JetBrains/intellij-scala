@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-/**
-  * Nikolay.Tropin
-  * 16-Feb-18
-  */
 object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner] {
 
   override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean = true)

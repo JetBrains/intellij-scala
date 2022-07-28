@@ -30,11 +30,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 26.01.12
- */
-
 class ScalaSmartStepIntoHandler extends JvmSmartStepIntoHandler {
 
   override def findStepIntoTargets(position: SourcePosition, session: DebuggerSession): Promise[JList[SmartStepTarget]] = {

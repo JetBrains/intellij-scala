@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Variance
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, Stop}
 import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 
-/**
-  * Nikolay.Tropin
-  * 11-Aug-17
-  */
 class Extensions(val tp: ScType) extends AnyVal {
 
   def recursiveVarianceUpdate(variance: Variance = Variance.Covariant)(update: Update): ScType =

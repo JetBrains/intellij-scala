@@ -3,9 +3,6 @@ package lang
 package transformation
 package annotations
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToMethodDefinitionTest extends TransformerTest(new AddTypeToMethodDefinition()) {
 
   def testImplicitType(): Unit = check(

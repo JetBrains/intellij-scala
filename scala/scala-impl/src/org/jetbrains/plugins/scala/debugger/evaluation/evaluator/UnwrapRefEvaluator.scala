@@ -5,10 +5,6 @@ import com.intellij.debugger.engine.evaluation.EvaluationContextImpl
 import com.intellij.debugger.engine.evaluation.expression.{Evaluator, Modifier}
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-/**
- * Nikolay.Tropin
- * 2014-10-16
- */
 class UnwrapRefEvaluator(parent: Evaluator) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {

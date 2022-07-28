@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.xml.ScXmlPairedTag
 
 import java.util
 
-/**
- * User: Dmitry Naydanov
- * Date: 4/8/12
- */
 class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler {
   override def isAvailableOnDataContext(dataContext: DataContext): Boolean = {
     val editor = CommonDataKeys.EDITOR.getData(dataContext)

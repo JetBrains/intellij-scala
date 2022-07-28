@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author ilyas
- */
-
 sealed class InstructionImpl(override val num: Int,
                              override val element: Option[ScalaPsiElement])
         extends Instruction with Cloneable {

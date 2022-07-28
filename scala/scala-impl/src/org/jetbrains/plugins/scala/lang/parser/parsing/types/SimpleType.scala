@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Spl
 
 import scala.annotation.tailrec
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 15.02.2008
-*/
-
 /*
  * SimpleType ::= SimpleType TypeArgs
  *              | SimpleType '#' id

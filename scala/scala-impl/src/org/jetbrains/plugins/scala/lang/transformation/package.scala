@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-/**
-  * @author Pavel Fatin
-  */
 package object transformation {
   private val SimpleName = new Regex("(?:.+\\.)?(.+)")
   private val PartiallyQualifiedName = new Regex(".+\\.(.+\\..+)")

@@ -6,11 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
 /**
-  * Nikolay.Tropin
-  * 26-Dec-17
-  */
-
-/**
   * From ProductArgs documentation:
   *
   * Trait supporting mapping dynamic argument lists to HList arguments.

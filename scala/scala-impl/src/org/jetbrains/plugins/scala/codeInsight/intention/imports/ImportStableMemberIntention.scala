@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
-/**
-* Nikolay.Tropin
-* 2014-03-17
-*/
 class ImportStableMemberIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.import.member.with.stable.path")
 

@@ -5,9 +5,6 @@ import org.jetbrains.jps.service.JpsServiceManager
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 abstract class ChunkExclusionService {
   def isExcluded(chunk: ModuleChunk): Boolean
 }

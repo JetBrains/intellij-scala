@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotations, ScAnnotatio
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-/**
- * @author ilyas
- */
-
 import com.intellij.psi.PsiDocCommentOwner
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.annotations.Nullable

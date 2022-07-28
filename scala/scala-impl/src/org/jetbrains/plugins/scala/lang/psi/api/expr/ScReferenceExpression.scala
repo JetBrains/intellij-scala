@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 trait ScReferenceExpression extends ScExpression
   with ScReference {
 

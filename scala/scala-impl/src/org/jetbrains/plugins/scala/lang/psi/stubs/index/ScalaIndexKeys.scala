@@ -23,9 +23,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.reflect.ClassTag
 
-/**
- * @author ilyas
- */
 //noinspection TypeAnnotation
 object ScalaIndexKeys {
 

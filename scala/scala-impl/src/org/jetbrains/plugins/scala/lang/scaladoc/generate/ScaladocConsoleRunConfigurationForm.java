@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.ScalaBundle;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * User: DarthGamer
- * Date: 01.10.11
- */
 public class ScaladocConsoleRunConfigurationForm {
   private JPanel myPanel1;
   private JTextField additionalFlagsField;

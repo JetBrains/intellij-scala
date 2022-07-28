@@ -6,10 +6,6 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.refactoring.ui.CodeFragmentTableCellEditorBase
 
-/**
- * Nikolay.Tropin
- * 2014-09-01
- */
 class ScalaCodeFragmentTableCellEditor(project: Project)
   extends CodeFragmentTableCellEditorBase(project, ScalaFileType.INSTANCE) {
 

@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiEl
 
 import java.util
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
 class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequence)
   extends LazyParseablePsiElement(elementType, buffer) with ScBlockExpr {
 

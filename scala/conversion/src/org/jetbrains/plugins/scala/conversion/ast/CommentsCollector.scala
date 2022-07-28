@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 12/4/15
-  */
 object CommentsCollector {
 
   def collectCommentsAtStart(element: PsiElement)

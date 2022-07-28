@@ -35,14 +35,12 @@
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
-        <!--<syntheticMemberInjector implementation="scala.meta.MetaAnnotationInjector"/>-->
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.CaseClassAndCompanionMembersInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.DerivesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.monocle.MonocleInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.scalazDeriving.ScalazDerivingInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.circe.CirceCodecInjector"/>
-        <syntheticMemberInjector implementation="scala.meta.intellij.MetaSupportInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype.NewTypeInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.simulacrum.SimulacrumInjector"/>
@@ -328,7 +326,6 @@
         <directClassInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaDirectClassInheritorsSearcher"/>
         <classInheritorsSearch implementation="org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaLocalInheritorsSearcher"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaLineMarkerProvider"/>
-        <codeInsight.lineMarkerProvider language="Scala" implementationClass="scala.meta.intellij.editor.MetaExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.macros.expansion.ReflectExpansionLineMarkerProvider"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.RecursiveCallLineMarkerProvider"/>
         <codeInsight.gotoSuper language="Scala" implementationClass="org.jetbrains.plugins.scala.annotator.gutter.ScalaGoToSuperActionHandler"/>
@@ -573,7 +570,6 @@
         <projectService serviceImplementation="org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.externalHighlighters.CompilerLock"
                         serviceImplementation="org.jetbrains.plugins.scala.externalHighlighters.CompilerLockImpl"/>
-        <projectService serviceImplementation="scala.meta.intellij.MetaExpansionsManager"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"
                         serviceImplementation="org.jetbrains.plugins.scala.settings.ScalaProjectSettings"/>
         <projectService serviceInterface="org.jetbrains.plugins.scala.compiler.CompileServerClient"
@@ -1926,8 +1922,6 @@
     </applicationListeners>
 
     <projectListeners>
-        <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
-                  class="scala.meta.intellij.ClearMetaExpansionManagerListener"/>
         <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
         <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"

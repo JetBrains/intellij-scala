@@ -33,10 +33,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 11.01.2010
- */
 class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   private val REFACTORING_NAME: String = ScalaBundle.message("extract.method.title")
 

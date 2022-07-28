@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
- * @author Roman.Shein
- * @since 18.06.2015.
- */
 abstract class Specs2StaticStringTest extends Specs2TestCase {
   val valClassName = "ValStringTest"
   val valFileName = valClassName + ".scala"

@@ -17,9 +17,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScAssignment {
 
   protected override def innerType: TypeResult = {

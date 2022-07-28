@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 23.11.2008
-  */
 class ScalaNameSuggestionProvider extends AbstractNameSuggestionProvider {
 
   import NameSuggester.suggestNames

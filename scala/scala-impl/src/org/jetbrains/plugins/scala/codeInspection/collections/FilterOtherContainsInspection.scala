@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFunctionEx
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 class FilterOtherContainsInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(FilterContainsToIntersect, FilterNotContainsToDiff)

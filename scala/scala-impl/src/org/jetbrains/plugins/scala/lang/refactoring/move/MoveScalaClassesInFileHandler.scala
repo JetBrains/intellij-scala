@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import java.lang.{Boolean => JBoolean}
 import java.{util => ju}
 
-/**
-  * Nikolay.Tropin
-  * 10/25/13
-  */
 final class MoveScalaClassesInFileHandler extends MoveAllClassesInFileHandler {
 
   override def processMoveAllClassesInFile(allClasses: ju.Map[PsiClass, JBoolean],

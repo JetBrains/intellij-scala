@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.lang.macros
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition}
 
-/**
-  * Nikolay.Tropin
-  * 15-Dec-17
-  */
 object MacroDef {
   private val macroImpl = "scala.reflect.macros.internal.macroImpl"
 

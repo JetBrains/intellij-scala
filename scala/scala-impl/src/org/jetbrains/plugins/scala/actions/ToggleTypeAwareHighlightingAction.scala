@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 27.01.2010
- */
-
 class ToggleTypeAwareHighlightingAction extends AnAction(
   ScalaBundle.message("toggle.type.aware.highlighting.menu.action.text"),
   ScalaBundle.message("toggle.type.aware.highlighting.menu.action.description"),

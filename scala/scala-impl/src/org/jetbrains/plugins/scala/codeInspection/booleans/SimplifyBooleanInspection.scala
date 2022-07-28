@@ -17,11 +17,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 4/23/13
- *
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class SimplifyBooleanInspection extends AbstractInspection(ScalaInspectionBundle.message("simplify.boolean.expression")) {
 

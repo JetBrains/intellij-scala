@@ -20,9 +20,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-/**
- * @author ilyas
- */
 final public class ScalaFileType extends LanguageFileTypeBase {
 
     public static final ScalaFileType INSTANCE = new ScalaFileType();

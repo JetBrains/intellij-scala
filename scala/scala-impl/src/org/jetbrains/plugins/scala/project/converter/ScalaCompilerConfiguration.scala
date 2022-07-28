@@ -7,9 +7,6 @@ import com.intellij.openapi.components.StorageScheme
 import java.nio.file.Path
 import scala.xml.Elem
 
-/**
- * @author Pavel Fatin
- */
 class ScalaCompilerConfiguration(defaultSettings: ScalaCompilerSettings, profiles: Seq[ScalaCompilerSettingsProfile]) extends XmlConversion {
   def createIn(context: ConversionContext): Option[Path] = {
     val optionsElement = createOptionsElement()

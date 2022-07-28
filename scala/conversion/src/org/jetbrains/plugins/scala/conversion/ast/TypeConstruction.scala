@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/22/15
-  */
 case class TypeConstruction(inType: String) extends IntermediateNode with TypedElement {
   def getDefaultTypeValue: String = {
     inType match {

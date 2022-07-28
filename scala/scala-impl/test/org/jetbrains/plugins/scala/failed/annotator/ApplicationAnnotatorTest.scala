@@ -3,9 +3,6 @@ package annotator
 
 import org.jetbrains.plugins.scala.annotator._
 
-/**
-  * Created by kate on 3/24/16.
-  */
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   override protected def shouldPass: Boolean = false
 

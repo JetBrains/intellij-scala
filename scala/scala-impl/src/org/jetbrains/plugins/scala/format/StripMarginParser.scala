@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScCharLiteral, ScStringLiteral}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScMethodCall, ScReferenceExpression}
 
-/**
- * Nikolay.Tropin
- * 3/6/14
- */
 object StripMarginParser extends StringParserLike[ScStringLiteral] {
 
   override def parse(literal: ScStringLiteral): Option[Seq[StringPart]] = literal match {

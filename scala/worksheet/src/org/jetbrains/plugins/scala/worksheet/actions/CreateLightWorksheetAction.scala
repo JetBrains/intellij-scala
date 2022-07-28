@@ -9,10 +9,6 @@ import com.intellij.openapi.util.text.StringUtil.notNullize
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil.enableAndShowIfInScalaFile
 import org.jetbrains.plugins.scala.worksheet.ScalaScratchFileCreationHelper.worksheetScratchFileType
 
-/**
- * User: Dmitry.Naydanov
- * Date: 26.05.14.
- */
 final class CreateLightWorksheetAction extends AnAction(
   WorksheetBundle.message("create.light.scala.worksheet.menu.action.text"),
   WorksheetBundle.message("create.light.scala.worksheet.menu.action.description"),

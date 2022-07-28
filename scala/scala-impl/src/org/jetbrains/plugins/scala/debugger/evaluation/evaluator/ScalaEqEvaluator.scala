@@ -8,12 +8,6 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.11.11
- */
-
 class ScalaEqEvaluator(left: Evaluator, right: Evaluator) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {

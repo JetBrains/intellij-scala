@@ -16,10 +16,6 @@ import org.junit.Assert
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * Created by user 
- * on 10/15/15
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class AbstractScopeSuggesterTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val BEGIN_MARKER: String = "/*begin*/"

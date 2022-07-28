@@ -7,11 +7,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.PropertyKey;
 import org.jetbrains.jps.api.JpsDynamicBundle;
 
-/**
- * User: Dmitry.Krasilschikov
- * Date: 02.10.2006
- *
- */
 public class JpsBundle extends JpsDynamicBundle {
     @NonNls
     private static final String BUNDLE = "messages.ScalaJpsBundle";

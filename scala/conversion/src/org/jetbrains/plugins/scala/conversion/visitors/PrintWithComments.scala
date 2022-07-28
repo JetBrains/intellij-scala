@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.conversion.ast.IntermediateNode
 
 import scala.collection.mutable
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 11/24/15
-  */
 final class PrintWithComments private() extends SimplePrintVisitor {
 
   import ast._

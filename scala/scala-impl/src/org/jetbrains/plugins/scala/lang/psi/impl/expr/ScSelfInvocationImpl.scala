@@ -24,11 +24,6 @@ import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState, StdKinds}
 
-
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 class ScSelfInvocationImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScSelfInvocation with ConstructorInvocationLikeImpl {
 
   override def args: Option[ScArgumentExprList] =

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 
 import java.util
 
-/**
- * @author yole
- */
-
 class ScalaCodeBlockSelectioner extends ExtendWordSelectionHandlerBase {
   override def canSelect(e: PsiElement): Boolean = e.isInstanceOf[ScBlockExpr]
 

@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completeStatement
 
-/**
-  * @author Ksenia.Sautina
-  * @author Dmitry.Naydanov
-  * @since 2/25/13
-  */
 class ScalaCompleteWhileConditionTest extends ScalaCompleteStatementTestBase {
 
   def testWhileCondition1(): Unit = doCompletionTest(

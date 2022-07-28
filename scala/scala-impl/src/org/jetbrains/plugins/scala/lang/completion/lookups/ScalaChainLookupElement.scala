@@ -9,10 +9,6 @@ import gnu.trove.THashSet
 
 import java.util
 
-/**
- * @author Alefas
- * @since 31.03.12
- */
 final class ScalaChainLookupElement(override val getDelegate: ScalaLookupItem,
                                     private val prefix: ScalaLookupItem)
   extends LookupElementDecorator[ScalaLookupItem](getDelegate) {

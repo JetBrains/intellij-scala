@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-/**
-  * Created by kate on 6/7/16.
-  */
 class ApplyTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL10253(): Unit = {
     val code =

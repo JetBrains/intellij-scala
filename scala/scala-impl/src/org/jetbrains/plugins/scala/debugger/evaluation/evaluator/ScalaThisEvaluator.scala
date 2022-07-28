@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alefas
- * Date: 12.10.11
- */
 class ScalaThisEvaluator(iterations: Int = 0) extends Evaluator {
   private def getOuterObject(objRef: ObjectReference): ObjectReference = {
     if (objRef == null) {

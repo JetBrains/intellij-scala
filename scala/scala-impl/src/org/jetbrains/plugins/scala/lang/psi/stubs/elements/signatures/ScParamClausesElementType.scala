@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParametersImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClausesStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 19.10.2008
-  */
 class ScParamClausesElementType extends ScStubElementType[ScParamClausesStub, ScParameters]("parameter clauses") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScParamClausesStub =
     new ScParamClausesStubImpl(parentStub, this)

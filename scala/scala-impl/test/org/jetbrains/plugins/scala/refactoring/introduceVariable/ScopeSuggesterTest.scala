@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.introduceVariable
 
-/**
- * Created by user 
- * on 10/15/15
- */
 class ScopeSuggesterTest extends AbstractScopeSuggesterTest{
   def testOkSimple(): Unit =  doTest(Seq("class OkSimple"))
 

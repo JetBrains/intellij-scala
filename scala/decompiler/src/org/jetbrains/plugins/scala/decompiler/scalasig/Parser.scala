@@ -11,11 +11,6 @@ import scala.language.implicitConversions
 import scala.reflect.ClassTag
 import scala.reflect.internal.pickling.PickleFormat._
 
-/**
-  * Nikolay.Tropin
-  * 18-Jul-17
-  */
-
 //Some parts of scala.reflect.internal.pickling.UnPickler used
 object Parser {
 

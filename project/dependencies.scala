@@ -99,7 +99,7 @@ object Dependencies {
   val scalariform: ModuleID = "org.scalariform" %% "scalariform" % "0.2.10"
 
   val fastparseVersion = "2.3.1"
-  val scalaMetaVersion = "4.5.5"
+  val scalaMetaVersion = "4.5.9"
   val scalafmtVersion = "3.5.3"
   val scalafmtDynamic = "org.scalameta" %% "scalafmt-dynamic" % scalafmtVersion
   val scalaMetaCore: ModuleID = "org.scalameta" %% "scalameta" % scalaMetaVersion withSources() exclude("com.google.protobuf", "protobuf-java")

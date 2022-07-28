@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 
 import scala.annotation.tailrec
 
-/**
-  * Nikolay.Tropin
-  * 27-Apr-18
-  */
 object ParenthesizedElement {
 
   implicit class Ops(private val parenthesized: ScParenthesizedElement) extends AnyVal {

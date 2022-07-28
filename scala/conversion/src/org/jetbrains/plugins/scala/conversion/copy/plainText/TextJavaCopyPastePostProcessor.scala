@@ -20,9 +20,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.awt.datatransfer.{DataFlavor, Transferable}
 
-/**
-  * Created by Kate Ustyuzhanina on 12/19/16.
-  */
 final class TextJavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[ConverterUtil.ConvertedCode](DataFlavor.stringFlavor) {
 
   override protected def collectTransferableData(

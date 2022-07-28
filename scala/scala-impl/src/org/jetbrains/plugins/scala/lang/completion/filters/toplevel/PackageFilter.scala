@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 21.05.2008
-*/
 class PackageFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

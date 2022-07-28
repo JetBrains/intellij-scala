@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-10-09
- */
 class ScalaCompilingEvaluator(psiContext: PsiElement, fragment: ScalaCodeFragment)
         extends Evaluator {
 

@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.refactoring.rename.RenameSuperMembersUtil
 import org.jetbrains.plugins.scala.util.ImplicitUtil._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 17.08.2009
- */
 class ScalaFindUsagesHandlerFactory(project: Project) extends FindUsagesHandlerFactory { self =>
   private[factory] val typeDefinitionOptions  = new ScalaTypeDefinitionFindUsagesOptions(project)
   private[factory] val memberOptions          = new ScalaMemberFindUsagesOptions(project)

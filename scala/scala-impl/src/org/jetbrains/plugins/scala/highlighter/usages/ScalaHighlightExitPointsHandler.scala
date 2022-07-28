@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import java.util
 import java.util.Collections
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.12.2009
- */
-
 class ScalaHighlightExitPointsHandler(fun: ScFunctionDefinition, editor: Editor,
                                       file: PsiFile, keyword: PsiElement)
   extends HighlightUsagesHandlerBase[PsiElement](editor, file) {

@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
  * NOTE: tokens duplicates of [[com.intellij.psi.xml.XmlTokenType]].
  * Tokens obtained from IDEA XmlLexer are converted to their Scala versions in
  * [[org.jetbrains.plugins.scala.lang.lexer.ScalaXmlLexer.ScalaXmlTokenType.apply]]
- *
- * User: Dmitry.Naydanov
- * Date: 15.04.15.
  */
 object ScalaXmlTokenTypes {
 

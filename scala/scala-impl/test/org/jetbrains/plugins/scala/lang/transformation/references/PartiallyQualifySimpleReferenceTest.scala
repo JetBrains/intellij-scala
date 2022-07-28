@@ -3,9 +3,6 @@ package lang
 package transformation
 package references
 
-/**
-  * @author Pavel Fatin
-  */
 class PartiallyQualifySimpleReferenceTest extends TransformerTest(new PartiallyQualifySimpleReference()) {
 
   def testUnqualified(): Unit = check(

@@ -11,9 +11,6 @@ import java.io.File
 import java.{util => ju}
 import javax.swing.{Icon, JComponent}
 
-/**
- * @author Pavel Fatin
- */
 final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLibraryType.Kind) {
 
   override def getIcon(properties: ScalaLibraryProperties): Icon = icons.Icons.SCALA_SDK

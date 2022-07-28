@@ -13,9 +13,6 @@ import org.jetbrains.sbt.Sbt
 import java.util.function
 import javax.swing.JComponent
 
-/**
- * @author adkozlov
- */
 //noinspection ApiStatus,UnstableApiUsage
 abstract class AbstractNotificationProvider(@Nls kitTitle: String,
                                             project: Project)

@@ -6,10 +6,6 @@ package actions
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
-/**
- * Nikolay.Tropin
- * 8/23/13
- */
 class GenerateCompanionObjectTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

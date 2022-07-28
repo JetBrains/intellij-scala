@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-/**
-  * Created by Anton Yalyshev on 21/04/16.
-  */
 class PatternResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL5895(): Unit = {

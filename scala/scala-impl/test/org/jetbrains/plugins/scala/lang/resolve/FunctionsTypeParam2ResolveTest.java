@@ -4,10 +4,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiReference;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.11.11
- */
 public class FunctionsTypeParam2ResolveTest extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

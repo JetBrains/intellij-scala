@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package refactoring.extractTrait
 
-/**
- * Nikolay.Tropin
- * 2014-06-04
- */
 class ExtractTraitTestConflicts extends ExtractTraitTestBase {
   def testPrivateMember(): Unit = {
     val text =

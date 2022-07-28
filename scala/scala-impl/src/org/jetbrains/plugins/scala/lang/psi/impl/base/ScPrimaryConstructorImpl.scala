@@ -19,11 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPrimaryConstructorStub
 import java.util
 import javax.swing.Icon
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 07.03.2008
-  */
-
 class ScPrimaryConstructorImpl private(stub: ScPrimaryConstructorStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PRIMARY_CONSTRUCTOR, node) with ScPrimaryConstructor {
 

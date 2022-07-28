@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.ScTypeText
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 22.12.15.
-  */
-
 abstract class ChooseValueExpression[T](lookupItems: Seq[T], defaultItem: T) extends Expression {
   def lookupString(elem: T): String
   def result(element: T): String

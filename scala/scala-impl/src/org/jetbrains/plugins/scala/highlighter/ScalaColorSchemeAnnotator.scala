@@ -28,10 +28,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.ScalaCollectionHighlightingLevel
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.07.2008
-  */
 class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._
 

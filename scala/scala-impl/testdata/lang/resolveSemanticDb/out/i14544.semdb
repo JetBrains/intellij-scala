@@ -1,0 +1,28 @@
+Document tests/pos/i14544.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:37) scala/language.strictEquality.
+(3:30..3:36) scala/Predef.String#
+(3:45..3:46) _empty_/MyClass#[A] -> 3:20
+(6:7..6:15) scala/CanEqual#
+(6:16..6:25) _empty_/Something# -> 5:7
+(6:27..6:36) _empty_/Something# -> 5:7
+(6:40..6:48) scala/CanEqual.
+(6:49..6:56) scala/CanEqual.derived.
+(8:9..8:16) _empty_/MyClass. -> 3:12
+(8:17..8:26) _empty_/Something# -> 5:7
+(8:40..8:49) _empty_/Something# -> 5:7
+(9:9..9:16) _empty_/MyClass. -> 3:12
+(9:17..9:26) _empty_/Something# -> 5:7
+(9:40..9:49) _empty_/Something# -> 5:7
+(10:13..10:22) _empty_/Something# -> 5:7
+(11:13..11:22) _empty_/Something# -> 5:7
+(13:13..13:20) scala/Predef.println(+1).
+(13:21..13:22) _empty_/i14544$package.a. -> 8:5
+(13:23..13:25) scala/Any#`==`().
+(13:26..13:27) _empty_/i14544$package.b. -> 9:5
+(14:13..14:20) scala/Predef.println(+1).
+(14:21..14:22) _empty_/i14544$package.c. -> 10:5
+(14:23..14:25) scala/Any#`==`().
+(14:26..14:27) _empty_/i14544$package.d. -> 11:5
+

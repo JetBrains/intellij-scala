@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScC
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaCaseClauseRemover extends ScalaUnwrapper {
 
   override def isApplicableTo(e: PsiElement): Boolean = forCaseClause(e)(_ => true)(false)

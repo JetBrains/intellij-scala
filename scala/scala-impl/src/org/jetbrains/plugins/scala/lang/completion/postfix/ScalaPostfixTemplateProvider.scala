@@ -9,10 +9,6 @@ import com.intellij.psi.PsiFile
 import java.{util => ju}
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Roman.Shein
-  * @since 03.09.2015.
-  */
 final class ScalaPostfixTemplateProvider extends PostfixTemplateProvider {
 
   override def getTemplates: ju.Set[PostfixTemplate] = {

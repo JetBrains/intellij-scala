@@ -12,9 +12,6 @@ import org.jetbrains.sbt.project.SbtImportControl.SbtImportControlFactory
 import java.io.File
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 class SbtProjectImportBuilder
   extends AbstractExternalProjectImportBuilder[SbtImportControl](ProjectDataManager.getInstance(), SbtImportControlFactory, SbtProjectSystem.Id) {
 

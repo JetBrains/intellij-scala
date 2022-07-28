@@ -7,9 +7,6 @@ package genericTypes
 import org.jetbrains.plugins.scala.lang.psi.types.ScParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 
-/**
-  * @author adkozlov
-  */
 class FunctionTypeNamesProvider extends GenericTypeNamesProvider {
 
   import FunctionTypeNamesProvider.default

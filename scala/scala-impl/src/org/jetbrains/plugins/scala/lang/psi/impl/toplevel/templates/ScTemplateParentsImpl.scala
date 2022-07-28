@@ -20,9 +20,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TEMPLATE_PARENTS, node) with ScTemplateParents {
 

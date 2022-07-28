@@ -4,9 +4,6 @@ package project.template
 import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.platform.ProjectTemplate
 
-/**
-  * @author Pavel Fatin
-  */
 class ScalaProjectTemplatesFactory extends ScalaProjectTemplatesFactoryBase {
 
   override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = {

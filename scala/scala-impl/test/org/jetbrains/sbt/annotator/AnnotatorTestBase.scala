@@ -11,10 +11,6 @@ import org.junit.experimental.categories.Category
 
 import java.io.File
 
-/**
- * @author Nikolay Obedin
- * @since 8/4/14.
- */
 @Category(Array(classOf[SlowTests]))
 abstract class AnnotatorTestBase extends HeavyPlatformTestCase {
 

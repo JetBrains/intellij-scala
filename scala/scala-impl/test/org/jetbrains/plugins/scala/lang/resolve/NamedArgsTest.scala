@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-/**
-  * @author mucianm
-  * @since 05.04.16.
-  */
 class NamedArgsTest extends SimpleResolveTestBase {
   import SimpleResolveTestBase._
 

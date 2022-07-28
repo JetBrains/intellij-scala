@@ -4,10 +4,6 @@ package annotator
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api._
 
-/**
- * @author Ye Xianjin
- * @since 11/27/14
- */
 class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
 
   import IntegerLiteralCheckTest._

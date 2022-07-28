@@ -8,11 +8,6 @@ package imports
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 20.02.2008
- */
-
 trait ScImportExpr extends ScalaPsiElement {
   def reference: Option[ScStableCodeReference]
 

@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.junit.Assert._
 
-/**
-  * @author Alefas
-  * @since 01/07/16
-  */
 class ResolveCallScalaTest extends ScalaResolveTestCase {
   override def folderPath: String = super.folderPath + "resolve/call"
 

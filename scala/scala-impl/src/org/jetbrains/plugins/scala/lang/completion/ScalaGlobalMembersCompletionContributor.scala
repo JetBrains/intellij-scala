@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 
-/**
- * @author Alexander Podkhalyuzin
- */
 final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaGlobalMembersCompletionContributor._

@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import _root_.scala.collection.immutable.HashMap
 
-/**
-  * @author Alefas
-  * @since 27.02.12
-  */
 class StaticPsiMethodWrapper private(val method: PsiMethod, containingClass: PsiClass)
   extends LightMethod(method.getManager, method, containingClass) {
 

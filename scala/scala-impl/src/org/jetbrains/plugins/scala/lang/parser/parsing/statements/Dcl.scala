@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
  *         | 'var' VarDcl
  *         | 'def' FunDcl
  *         | 'type' {nl} TypeDcl)
- *
- * @author Alexander Podkhalyuzin
- *         Date: 11.02.2008
  */
 object Dcl {
 

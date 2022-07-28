@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScValue, ScVariable}
 
-/**
- * Nikolay.Tropin
- * 1/20/14
- */
-
 class RenameScalaBindingPatternProcessor extends RenamePsiElementProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
     case pattern: ScBindingPattern =>

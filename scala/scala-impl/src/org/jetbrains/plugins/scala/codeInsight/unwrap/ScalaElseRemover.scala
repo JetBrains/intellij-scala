@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaElseRemover extends ScalaElseUnwrapperBase {
   override protected def unwrapElseBranch(expr: ScExpression, ifStmt: ScIf, context: ScalaUnwrapContext): Unit = {
     expr.getParent match {

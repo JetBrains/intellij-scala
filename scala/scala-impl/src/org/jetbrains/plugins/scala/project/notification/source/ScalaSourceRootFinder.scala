@@ -9,9 +9,6 @@ import com.intellij.util.NullableFunction
 
 import scala.annotation.tailrec
 
-/**
- * @author Alexander Podkhalyuzin
- */
 //noinspection TypeAnnotation
 final class ScalaSourceRootFinder extends JavaSourceRootDetector {
 

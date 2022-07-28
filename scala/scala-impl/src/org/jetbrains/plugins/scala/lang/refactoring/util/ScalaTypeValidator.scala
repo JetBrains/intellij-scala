@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveState}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 8/3/15
-  */
 class ScalaTypeValidator(val selectedElement: PsiElement, override val noOccurrences: Boolean, enclosingContainerAll: PsiElement, enclosingOne: PsiElement)
   extends ScalaValidator(selectedElement, noOccurrences, enclosingContainerAll, enclosingOne) {
 

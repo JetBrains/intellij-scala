@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author t-kameyama
-  */
 class IndexBoundsCheckInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(IndexBoundsCheck)
 }

@@ -15,7 +15,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     holder: ScalaAnnotationHolder
   ): Unit = {
     val enumDef = cse.enumParent
-    val parents = cse.physicalExtendsBlock.toOption.flatMap(_.templateParents)
+    val parents = cse.extendsBlock.toOption.flatMap(_.templateParents)
 
     def isDesignatedToEnumParent(tpe: ScType): Boolean =
       tpe.extractClass.filterByType[ScTypeDefinition].exists(ScEnum.isDesugaredEnumClass)
@@ -47,7 +47,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     //if an enum case has an explicit extends clause it must extend its parent enum class
     if (needsExplicitExtendsParent) {
       holder.createErrorAnnotation(
-        cse.physicalExtendsBlock,
+        cse.extendsBlock,
         ScalaBundle.message("annotator.error.enum.case.must.extend.parent", enumDef.name)
       )
     }

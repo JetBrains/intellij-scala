@@ -25,11 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
-
 class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
                                                           nodeType: ScFunctionElementType[S],
                                                           node: ASTNode)

@@ -12,8 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 
 /**
-  * Created by Kate Ustyuzhanina on 12/27/16.
-  *
   * This code assume that Scala files don't have semicolon at the end of line at all and
   * Java files could miss semicolon at the end of line or last curly bracket.
   * Java file without any semicolon could be treated as scala

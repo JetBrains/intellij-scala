@@ -8,10 +8,6 @@ import java.net.URI
 import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 
-/**
- * Pavel Fatin
- */
-
 object DesktopUtils {
 
   def browse(url: String): Unit = {

@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.annotation.tailrec
 
-/**
-  * Nikolay.Tropin
-  * 26-Jan-18
-  */
 package object expression {
 
   @tailrec

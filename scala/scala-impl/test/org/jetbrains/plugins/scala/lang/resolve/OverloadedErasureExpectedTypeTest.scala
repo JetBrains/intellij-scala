@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-/**
-  * @author mucianm 
-  * @since 07.04.16.
-  */
 class OverloadedErasureExpectedTypeTest extends SimpleResolveTestBase {
 
   import SimpleResolveTestBase._

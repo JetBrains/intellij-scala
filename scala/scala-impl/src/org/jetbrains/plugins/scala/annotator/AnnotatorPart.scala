@@ -3,9 +3,6 @@ package annotator
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
-/**
-  * Pavel Fatin
-  */
 abstract class AnnotatorPart[T <: ScalaPsiElement : reflect.ClassTag] {
 
   def annotate(element: T, typeAware: Boolean)

@@ -9,9 +9,6 @@ import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.assertEquals
 
-/**
-  * @author Pavel Fatin
-  */
 abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestAdapter with util.Markers {
   @Language("Scala")
   protected val header: String = ""

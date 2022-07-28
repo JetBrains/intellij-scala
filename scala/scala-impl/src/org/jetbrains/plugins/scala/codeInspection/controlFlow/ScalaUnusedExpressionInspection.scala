@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.{IntentionAvailabilityChecker, SideEffectsUtil}
 
-/**
-  * Nikolay.Tropin
-  * 2014-09-22
-  */
 final class ScalaUnusedExpressionInspection extends AbstractRegisteredInspection {
 
   import ScalaUnusedExpressionInspection._

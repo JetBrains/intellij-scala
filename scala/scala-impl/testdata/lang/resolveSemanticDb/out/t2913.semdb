@@ -20,70 +20,60 @@ Document tests/pos/t2913.scala
 (36:29..36:30) _empty_/test1.Foo#[T] -> 36:18
 (36:31..36:33) _empty_/test1.Foo#[T2] -> 36:20
 (36:38..36:44) scala/Predef.String#
-(36:57..36:58) _empty_/test1.Foo#[T] -> 36:18
-(36:59..36:61) _empty_/test1.Foo#[T2] -> 36:20
-(36:67..36:73) scala/Predef.String#
 (37:19..37:20) _empty_/test1.Foo#[T] -> 36:18
 (37:27..37:29) _empty_/test1.Foo#[T2] -> 36:20
 (37:34..37:35) _empty_/test1.Foo#f. -> 36:24
 (37:36..37:37) _empty_/test1.Foo#apply().(t) -> 37:15
 (37:38..37:39) local0 -> 37:25
-(38:20..38:21) _empty_/test1.Foo#[T] -> 36:18
-(38:22..38:24) _empty_/test1.Foo#[T2] -> 36:20
-(38:29..38:30) _empty_/test1.Foo#f. -> 36:24
-(38:31..38:32) _empty_/test1.Foo#apply(+1).(p) -> 38:15
-(38:33..38:35) scala/Tuple2#_1.
-(38:36..38:37) _empty_/test1.Foo#apply(+1).(p) -> 38:15
-(38:38..38:40) scala/Tuple2#_2.
-(40:26..40:27) _empty_/test1.g().[T] -> 40:18
-(40:28..40:34) scala/Predef.String#
-(40:39..40:45) scala/Predef.String#
-(40:48..40:53) _empty_/test1. -> 35:8
-(40:54..40:57) _empty_/test1.Foo# -> 36:14
-(40:58..40:59) _empty_/test1.g().[T] -> 40:18
-(40:60..40:66) scala/Predef.String#
-(40:70..40:73) _empty_/test1.Foo.
-(40:74..40:75) _empty_/test1.g().(f) -> 40:21
-(41:19..41:24) scala/Array#
-(41:25..41:31) scala/Predef.String#
-(41:36..41:40) scala/Unit#
-(42:16..42:19) scala/Int#
-(42:22..42:28) scala/Predef.String#
-(42:33..42:34) local2 -> 42:20
-(42:35..42:36) java/lang/String#`+`().
-(42:37..42:38) local1 -> 42:14
-(43:5..43:12) scala/Predef.println(+1).
-(43:13..43:14) local3 -> 42:9
-(48:19..48:24) scala/Array#
-(48:25..48:31) scala/Predef.String#
-(48:35..48:39) scala/Unit#
-(49:19..49:22) scala/Int#
-(49:30..49:36) scala/Predef.String#
-(49:47..49:48) java/lang/String#`+`().
-(49:49..49:50) local4 -> 49:15
-(49:51..49:52) java/lang/String#`+`().
-(49:63..49:64) java/lang/String#`+`().
-(49:65..49:68) local5 -> 49:24
-(50:29..50:30) local7 -> 50:21
-(50:31..50:37) scala/Predef.String#
-(50:42..50:48) scala/Predef.String#
-(50:51..50:52) local7 -> 50:21
-(50:56..50:62) scala/Predef.String#
-(50:68..50:69) local7 -> 50:21
-(50:74..50:75) local8 -> 50:24
-(50:76..50:77) local9 -> 50:66
-(51:5..51:12) scala/Predef.println(+1).
-(51:13..51:15) local6 -> 49:9
-(58:28..58:29) _empty_/A# -> 2:7
-(58:32..58:37) _empty_/RichA# -> 6:7
-(58:44..58:49) _empty_/RichA# -> 6:7
-(60:15..60:16) _empty_/A# -> 2:7
-(61:3..61:4) _empty_/TestWithAutoTupling.a. -> 60:7
-(61:5..61:8) _empty_/RichA#foo(+2). -> 9:7
-(62:3..62:4) _empty_/TestWithAutoTupling.a. -> 60:7
-(62:5..62:8) _empty_/A#foo(). -> 3:7
-(64:3..64:4) _empty_/TestWithAutoTupling.a. -> 60:7
-(64:5..64:8) _empty_/RichA#foo(). -> 7:7
-(73:3..73:4) _empty_/TestWithAutoTupling.a. -> 60:7
-(73:5..73:8) _empty_/RichA#foo(+1). -> 8:7
+(39:26..39:27) _empty_/test1.g().[T] -> 39:18
+(39:28..39:34) scala/Predef.String#
+(39:39..39:45) scala/Predef.String#
+(39:48..39:53) _empty_/test1. -> 35:8
+(39:54..39:57) _empty_/test1.Foo# -> 36:14
+(39:58..39:59) _empty_/test1.g().[T] -> 39:18
+(39:60..39:66) scala/Predef.String#
+(39:70..39:73) _empty_/test1.Foo.
+(39:74..39:75) _empty_/test1.g().(f) -> 39:21
+(40:19..40:24) scala/Array#
+(40:25..40:31) scala/Predef.String#
+(40:36..40:40) scala/Unit#
+(41:16..41:19) scala/Int#
+(41:22..41:28) scala/Predef.String#
+(41:33..41:34) local2 -> 41:20
+(41:35..41:36) java/lang/String#`+`().
+(41:37..41:38) local1 -> 41:14
+(42:5..42:12) scala/Predef.println(+1).
+(42:13..42:14) local3 -> 41:9
+(47:19..47:24) scala/Array#
+(47:25..47:31) scala/Predef.String#
+(47:35..47:39) scala/Unit#
+(48:19..48:22) scala/Int#
+(48:30..48:36) scala/Predef.String#
+(48:47..48:48) java/lang/String#`+`().
+(48:49..48:50) local4 -> 48:15
+(48:51..48:52) java/lang/String#`+`().
+(48:63..48:64) java/lang/String#`+`().
+(48:65..48:68) local5 -> 48:24
+(49:29..49:30) local7 -> 49:21
+(49:31..49:37) scala/Predef.String#
+(49:42..49:48) scala/Predef.String#
+(49:51..49:52) local7 -> 49:21
+(49:56..49:62) scala/Predef.String#
+(49:68..49:69) local7 -> 49:21
+(49:74..49:75) local8 -> 49:24
+(49:76..49:77) local9 -> 49:66
+(50:5..50:12) scala/Predef.println(+1).
+(50:13..50:15) local6 -> 48:9
+(57:28..57:29) _empty_/A# -> 2:7
+(57:32..57:37) _empty_/RichA# -> 6:7
+(57:44..57:49) _empty_/RichA# -> 6:7
+(59:15..59:16) _empty_/A# -> 2:7
+(60:3..60:4) _empty_/TestWithAutoTupling.a. -> 59:7
+(60:5..60:8) _empty_/RichA#foo(+2). -> 9:7
+(61:3..61:4) _empty_/TestWithAutoTupling.a. -> 59:7
+(61:5..61:8) _empty_/A#foo(). -> 3:7
+(63:3..63:4) _empty_/TestWithAutoTupling.a. -> 59:7
+(63:5..63:8) _empty_/RichA#foo(). -> 7:7
+(72:3..72:4) _empty_/TestWithAutoTupling.a. -> 59:7
+(72:5..72:8) _empty_/RichA#foo(+1). -> 8:7
 

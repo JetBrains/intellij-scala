@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.ScImportExprImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportExprStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 20.06.2009
-  */
 class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImportExpr]("import expression") {
   override def serialize(stub: ScImportExprStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeOptionName(stub.referenceText)

@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.awt.Color
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.02.2009
- */
 class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs, Any, ScTypeElement] {
   override def getArgListStopSearchClasses: java.util.Set[_ <: Class[_]] = {
     java.util.Collections.singleton(classOf[PsiMethod]) //todo: ?

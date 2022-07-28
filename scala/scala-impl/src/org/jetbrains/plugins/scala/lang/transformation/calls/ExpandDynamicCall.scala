@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandDynamicCall extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case ScMethodCall(r @ RenamedReference(id, "applyDynamic"), _) =>

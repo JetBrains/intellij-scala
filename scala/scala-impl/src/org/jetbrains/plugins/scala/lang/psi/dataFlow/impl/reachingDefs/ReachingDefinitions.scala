@@ -3,9 +3,6 @@ package impl.reachingDefs
 
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.impl.{DefinitionInstruction, DefinitionType, ReadWriteVariableInstruction}
-/**
- * @author ilyas
- */
 
 object ReachingDefinitions {
 

@@ -4,10 +4,6 @@ import java.util.jar.{JarFile, Manifest}
 
 import scala.util.Using
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 29.09.16.
-  */
 case class ManifestHandler(jarFile: java.io.File) {
   private[this] val separatorChar = java.io.File.separatorChar
 

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-/**
-  * @author Roman.Shein
-  * @since 31.03.2016.
-  */
 class MixinTypeTest extends ScalaLightCodeInsightFixtureTestAdapter{
 
   override protected def shouldPass: Boolean = false

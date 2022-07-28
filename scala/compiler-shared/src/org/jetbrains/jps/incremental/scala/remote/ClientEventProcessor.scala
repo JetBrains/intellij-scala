@@ -2,7 +2,6 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 /**
- * @author Pavel Fatin
  * @see [[org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient]]
  */
 class ClientEventProcessor(client: Client) {

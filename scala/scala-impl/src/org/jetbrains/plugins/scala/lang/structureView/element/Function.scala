@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
 private class Function(function: ScFunction, inherited: Boolean)
   extends AbstractTreeElementDelegatingChildrenToPsi(function, inherited) {
 

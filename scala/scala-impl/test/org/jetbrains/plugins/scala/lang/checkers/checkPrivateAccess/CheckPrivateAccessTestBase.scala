@@ -18,10 +18,6 @@ import org.junit.Assert._
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.10.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class CheckPrivateAccessTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val refMarker = "/*ref*/"

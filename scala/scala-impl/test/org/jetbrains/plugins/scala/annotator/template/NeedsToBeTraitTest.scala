@@ -5,9 +5,6 @@ package template
 import org.jetbrains.plugins.scala.annotator.element.ScTemplateDefinitionAnnotator
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
-  * Pavel Fatin
-  */
 class NeedsToBeTraitTest extends AnnotatorTestBase[ScTemplateDefinition] {
 
   def testNeedsToBeTrait(): Unit = {

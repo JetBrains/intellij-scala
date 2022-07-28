@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.unusedInspections.quickfix
 
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedDeclarationInspectionTestBase
 
-/**
- * Created by Svyatoslav Ilinskiy on 11.07.16.
- */
 class Scala2DeleteUnusedElementFixQuickFixTest extends ScalaUnusedDeclarationInspectionTestBase {
 
   def test_private_field(): Unit = {

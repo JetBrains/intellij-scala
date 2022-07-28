@@ -5,10 +5,6 @@ import com.intellij.psi.{PsiEllipsisType, PsiMember, PsiMethod, PsiType}
 import com.intellij.refactoring.changeSignature._
 import org.junit.Assert._
 
-/**
- * Nikolay.Tropin
- * 2014-08-14
- */
 class ChangeSignatureFromJavaTest extends ChangeSignatureTestBase {
 
   override def folderPath: String = baseRootPath + "changeSignature/fromJava/"

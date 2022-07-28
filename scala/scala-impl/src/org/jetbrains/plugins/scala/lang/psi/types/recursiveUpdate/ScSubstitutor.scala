@@ -14,11 +14,6 @@ import scala.annotation.tailrec
 import scala.collection.immutable.LongMap
 import scala.util.hashing.MurmurHash3
 
-/**
-  * Nikolay.Tropin
-  * 01-Feb-18
-  */
-
 /** [[ScSubstitutor]] is a transformation of a type which is applied recursively from top to leaves.
   * Examples of such transformation:
   * - replacing type parameter with it's bound or actual argument

@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-/**
- * @author Alefas
- * @since 14.05.12
- */
 abstract class ScalaOverrideImplementTestBase extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
   protected def runTest(methodName: String,

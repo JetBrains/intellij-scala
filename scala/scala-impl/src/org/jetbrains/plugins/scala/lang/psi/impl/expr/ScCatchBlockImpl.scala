@@ -9,10 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/** 
- * Author: Alexander Podkhalyuzin
- * Date: 06.03.2008
- */
 class ScCatchBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScCatchBlock {
 
   override def getLeftParenthesis: Option[PsiElement] = {

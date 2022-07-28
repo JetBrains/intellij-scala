@@ -3,10 +3,6 @@ package lang
 package typeInference
 package generated
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 07.12.15.
-  */
 class TypeInferenceBugsScala211Test extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "bugs211/"
 

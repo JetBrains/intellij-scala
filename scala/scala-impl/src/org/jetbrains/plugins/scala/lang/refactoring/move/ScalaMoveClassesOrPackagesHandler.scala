@@ -20,10 +20,6 @@ import java.{util => ju}
 import javax.swing._
 import scala.annotation.nowarn
 
-/**
- * @author Alefas
- * @since 02.11.12
- */
 final class ScalaMoveClassesOrPackagesHandler extends JavaMoveClassesOrPackagesHandler {
   override def doMove(project: Project, elements: Array[PsiElement], targetContainer: PsiElement, callback: MoveCallback): Unit = {
     def refactoringIsNotSupported(): Unit = {

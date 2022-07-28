@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScControlFlowOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
-/**
- * @author ilyas
- */
 
 class ControlFlowTest extends LightJavaCodeInsightFixtureTestCase {
   protected override def getBasePath = TestUtils.getTestDataPath + "/controlFlow/"

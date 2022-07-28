@@ -9,10 +9,6 @@ import org.junit.Assert._
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.11.2008
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class SuperMemberTest extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   val CARET_MARKER = "<caret>"

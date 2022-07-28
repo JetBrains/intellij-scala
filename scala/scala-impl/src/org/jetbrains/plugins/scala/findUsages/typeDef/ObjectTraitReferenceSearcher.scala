@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 
-/**
- * User: Alefas
- * Date: 18.02.12
- */
-
 class ObjectTraitReferenceSearcher extends QueryExecutor[PsiReference, ReferencesSearch.SearchParameters] {
   override def execute(queryParameters: ReferencesSearch.SearchParameters, consumer: Processor[_ >: PsiReference]): Boolean = {
     val scope = inReadAction(queryParameters.getEffectiveSearchScope)

@@ -28,10 +28,6 @@ import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 
 import scala.collection.mutable
 
-/**
- * User: Dmitry.Naydanov
- * Date: 03.08.17.
- */
 class AmmoniteScriptWrappersHolder(project: Project) {
   import AmmoniteScriptWrappersHolder._
 

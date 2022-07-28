@@ -4,10 +4,6 @@ import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * Nikolay.Tropin
-  * 19-Jul-17
-  */
 class ScalaSig(val entries: Array[Entry]) {
   private var initialized: Boolean = false
 

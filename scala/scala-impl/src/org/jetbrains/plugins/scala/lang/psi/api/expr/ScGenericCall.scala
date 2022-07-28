@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeEl
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 trait ScGenericCall extends ScExpression {
 
   def referencedExpr: ScExpression = findChild[ScExpression].get

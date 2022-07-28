@@ -19,7 +19,7 @@ import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.tree.TokenSet
-import com.intellij.psi.util._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiNamedElementExt, _}
@@ -66,9 +66,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.reflect.{ClassTag, NameTransformer}
 
-/**
-  * User: Alexander Podkhalyuzin
-  */
 object ScalaPsiUtil {
 
   //java has magic @PolymorphicSignature annotation in java.lang.invoke.MethodHandle
@@ -706,18 +703,6 @@ object ScalaPsiUtil {
   def getContext(element: PsiElement, level: Int): Option[PsiElement] =
     if (level == 0) Some(element) else if (element.getContext == null) None
     else getContext(element.getParent, level - 1)
-
-  /**
-    * For one classOf use PsiTreeUtil.getContextOfType instead
-   */
-  def getContextOfType(element: PsiElement, strict: Boolean, classes: Class[_ <: PsiElement]*): PsiElement = {
-    var el: PsiElement = if (!strict) element else {
-      if (element == null) return null
-      element.getContext
-    }
-    while (el != null && !classes.exists(_.isInstance(el))) el = el.getContext
-    el
-  }
 
   def getCompanionModule(typeDefinition: ScTypeDefinition): Option[ScTypeDefinition] =
     typeDefinition match {
@@ -1667,4 +1652,32 @@ object ScalaPsiUtil {
 
   def parentImportStatement(element: PsiElement): Option[ScImportStmt] =
     Option(getParentImportStatement(element))
+
+  /**
+   * @return Fully qualified name of the package (or package object) which is the closest to the `element`
+   *         in the tree hierarchy.<br>
+   *         It will return some value even for local members.<br>
+   */
+  @tailrec
+  @Nullable
+  def getPlacePackageName(element: PsiElement): String = {
+    val context = getEnclosingTopLevelContextCandidate(element)
+    context match {
+      case p: ScPackaging                   => p.fullPackageName
+      case o: ScObject if o.isPackageObject => o.qualifiedName
+      case o: ScObject                      => getPlacePackageName(o)
+      case _: ScalaFile                     => ""
+      //NOTE: I don't know any example for the default branch, bu being safe here
+      case _                                => null
+    }
+  }
+
+  /**
+   * @return scala file/packaging/object context
+   * @note it might still return `ScObject` instance which is not a top level context (not a package object)
+   */
+  @Nullable
+  def getEnclosingTopLevelContextCandidate(element: PsiElement) = {
+    PsiTreeUtil.getContextOfType(element, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
+  }
 }

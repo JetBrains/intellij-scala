@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 trait ScBlockExpr extends ScExpression with ScBlock with ScControlFlowOwner {
   def asSimpleExpression: Option[ScExpression] = Some(exprs) collect {
     case Seq(it) if !it.is[ScBlockExpr] => it

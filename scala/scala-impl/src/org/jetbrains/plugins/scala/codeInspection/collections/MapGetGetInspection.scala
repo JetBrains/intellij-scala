@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * Nikolay.Tropin
- * 2014-05-07
- */
 class MapGetGetInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(MapGetGet)

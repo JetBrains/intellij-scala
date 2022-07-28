@@ -5,10 +5,6 @@ package dependency
 import org.intellij.lang.annotations.Language
 import org.junit.Assert
 
-/**
- * Pavel Fatin
- */
-
 class DependencyTest extends base.SimpleTestCase {
   def testClass(): Unit = {
     assertDependenciesAre("""

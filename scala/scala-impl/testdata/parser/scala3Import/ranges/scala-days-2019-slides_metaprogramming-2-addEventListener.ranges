@@ -28,7 +28,7 @@
 [156,170]: Select
 [156,159]: Ident
 [175,194]: CaseDef
-[180,181]: TypeBoundsTree
+[180,181]: Ident
 [185,194]: Select
 [185,188]: Ident
 [202,294]: DefDef

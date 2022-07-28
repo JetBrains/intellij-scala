@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author Alefas
- * @since 14.09.12
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class RelativeImportInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.relative.import")) {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual

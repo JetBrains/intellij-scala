@@ -19,11 +19,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 /**
-  * Surrounds an expression and return an expression
-  *
-  * User: Dmitry.Krasilschikov
-  * Date: 09.01.2007
-  */
+ * Surrounds an expression and return an expression
+ */
 abstract class ScalaExpressionSurrounder extends Surrounder {
 
   import ScalaTokenTypes.{COMMENTS_TOKEN_SET, tSEMICOLON => Semicolon}

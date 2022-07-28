@@ -11,9 +11,6 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.function.Supplier
 import scala.util.DynamicVariable
 
-/**
-  * @author adkozlov
-  */
 trait Equivalence {
   typeSystem: TypeSystem =>
 

@@ -17,11 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
-/**
-  * Nikolay.Tropin
-  * 24-May-17
-  */
-
 /*
 * Raw types from java are viewed as existential types by scalac, but java overrider search doesn't know about that.
 * */

@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import javax.swing.Icon
 
 /**
- * @author Alexander Podkhalyuzin
- */
-
-/**
  * Represents Scala's internal function definitions and declarations
  */
 trait ScFunction

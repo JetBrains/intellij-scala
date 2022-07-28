@@ -6,10 +6,6 @@ package functionParameterInfo
 import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport
 import com.intellij.psi.PsiElement
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 02.03.2009
-  */
 abstract class FunctionParameterInfoTestBase extends ParameterInfoTestBase[PsiElement] {
 
   override def getTestDataPath: String =

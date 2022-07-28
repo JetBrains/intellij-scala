@@ -5,9 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author t-kameyama
-  */
 class CollectHeadOptionInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(CollectHeadOption)
 }

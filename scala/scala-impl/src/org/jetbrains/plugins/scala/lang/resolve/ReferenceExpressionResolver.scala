@@ -298,11 +298,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     def resolveUnqualifiedExpression(processor: BaseProcessor): Unit = {
       @tailrec
       def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
-        if (place == null) return
-        if (!place.processDeclarations(processor, state, lastParent, ref)) return
+        if (place == null)
+          return
+        if (!place.processDeclarations(processor, state, lastParent, ref))
+          return
         place match {
           case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
-          case _ => if (!processor.changedLevel) return
+          case _ =>
+            if (!processor.changedLevel)
+              return
         }
 
         val newState = place match {

@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 final class ScVariableDeclarationImpl private[psi] (
   stub:     ScPropertyStub[ScVariableDeclaration],
   nodeType: ScPropertyElementType[ScVariableDeclaration],

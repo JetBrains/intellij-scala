@@ -25,8 +25,6 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 /**
-  * Created by kate
-  * on 3/1/16
   * contribute override/implement elements. May be called on override keyword (ove<caret>)
   * or after override/implement element definition (override def <caret>)
   * or on method/field/type name (without override) -> this will add override keyword if there is appropriate setting

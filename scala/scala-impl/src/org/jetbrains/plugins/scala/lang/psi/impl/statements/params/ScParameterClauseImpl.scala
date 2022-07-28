@@ -8,6 +8,7 @@ package params
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.PsiImplUtil
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
@@ -21,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.PARAM_CLAUSE, node) with ScParameterClause {
 
@@ -144,7 +141,7 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
   }
 
   override def owner: PsiElement =
-    ScalaPsiUtil.getContextOfType(
+    PsiTreeUtil.getContextOfType(
       this,
       true,
       classOf[ScFunctionExpr],

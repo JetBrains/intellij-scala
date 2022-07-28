@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-/**
- * Pavel Fatin
- */
-
 class CreateApplyQuickFix(td: ScTypeDefinition, call: ScMethodCall)
   extends CreateApplyOrUnapplyQuickFix(td) {
 

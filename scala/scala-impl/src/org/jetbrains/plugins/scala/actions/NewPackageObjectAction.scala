@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 
-/**
- * Pavel Fatin
- */
-
 class NewPackageObjectAction extends LazyFileTemplateAction(
   "Package Object",
   ScalaBundle.message("new.packageobject.menu.action.text"),

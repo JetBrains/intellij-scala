@@ -4,10 +4,6 @@ package monads
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-/**
- * @author Sergey Tolmachev (tolsi.ru@gmail.com)
- * @since 29.09.15
- */
 class NestedStatefulMonadsInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

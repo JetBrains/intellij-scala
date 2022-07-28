@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 18.04.2008
-*/
-
 /*
  * ScalaExpr ::= '{' Block '}'
  */

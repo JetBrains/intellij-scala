@@ -4,10 +4,6 @@ package ast
 
 import scala.collection.mutable
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/21/15
-  */
 abstract class IntermediateNode {
 
   import IntermediateNode._

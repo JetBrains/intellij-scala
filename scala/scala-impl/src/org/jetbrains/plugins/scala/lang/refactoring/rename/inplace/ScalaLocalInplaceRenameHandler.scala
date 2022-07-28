@@ -8,10 +8,6 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiNamedElement}
 import com.intellij.refactoring.rename.inplace.{InplaceRefactoring, VariableInplaceRenameHandler, VariableInplaceRenamer}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * Nikolay.Tropin
- * 1/20/14
- */
 class ScalaLocalInplaceRenameHandler extends VariableInplaceRenameHandler with ScalaInplaceRenameHandler {
 
   override def isAvailable(element: PsiElement, editor: Editor, file: PsiFile): Boolean = {

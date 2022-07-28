@@ -4,9 +4,6 @@ import org.jetbrains.plugins.scala.compiler.data.ScalaCompilerSettingsState
 
 import java.util.concurrent.atomic.AtomicReference
 
-/**
- * @author Pavel Fatin
- */
 // TODO This class is needed for the "imported" ScalaCompilerConfigurationPanel.
 // TODO It's better to replace it with immutable case classes later.
 class ScalaCompilerSettingsProfile(name: String) {

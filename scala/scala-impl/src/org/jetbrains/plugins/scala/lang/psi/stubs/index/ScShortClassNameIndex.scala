@@ -5,9 +5,6 @@ package index
 import com.intellij.psi.PsiClass
 import com.intellij.psi.stubs.{StringStubIndexExtension, StubIndexKey}
 
-/**
-  * @author ilyas
-  */
 class ScShortClassNameIndex extends StringStubIndexExtension[PsiClass] {
   override def getKey: StubIndexKey[String, PsiClass] =
     ScalaIndexKeys.SHORT_NAME_KEY

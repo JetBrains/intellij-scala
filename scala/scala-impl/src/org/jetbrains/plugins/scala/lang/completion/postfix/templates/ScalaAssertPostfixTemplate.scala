@@ -6,10 +6,6 @@ package templates
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectTopmostAncestors
 
-/**
- * @author Roman.Shein
- * @since 08.09.2015.
- */
 final class ScalaAssertPostfixTemplate extends ScalaStringBasedPostfixTemplate(
   "assert",
   "assert(expr)",

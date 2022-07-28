@@ -5,10 +5,6 @@ import org.jetbrains.sbt.project.modifier.BuildFileElementType
 
 import java.io.File
 
-/**
- * @author Roman.Shein
- * @since 16.03.2015.
- */
 object ProjectRootBuildFileProvider extends BuildFileProvider {
   override def findIoFile(module: IJModule, elementType: BuildFileElementType): Option[BuildFileEntry[File]] = {
     import org.jetbrains.sbt._

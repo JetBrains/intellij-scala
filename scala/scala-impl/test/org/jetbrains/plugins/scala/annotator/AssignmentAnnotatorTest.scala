@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
 class AssignmentAnnotatorTest extends AnnotatorSimpleTestCase {
   final val Header = """
   class A; class B

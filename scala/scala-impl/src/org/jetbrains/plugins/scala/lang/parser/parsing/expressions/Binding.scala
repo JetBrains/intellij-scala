@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 /**
- * @author Aleksander Podkhalyuzin
- * @date 05.04.2009
- */
-
-/**
  * Binding ::= (id | '_') [':' Type]
  */
 object Binding extends ParsingRule {

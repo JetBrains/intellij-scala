@@ -10,10 +10,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Arrays;
 
-/**
- * User: Dmitry.Naydanov
- * Date: 29.01.15.
- */
 public abstract class TechHubTemplateListBase {
   private JPanel mainPanel;
   protected JBList<IndexEntry> list1;

@@ -6,12 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.errorHighlighting.IgnoreErrorHighlightingSurrounder
 
-
-/**
- * @author Alefas
- * @since 10.04.12
- */
-
 class ScalaIgnoreErrorHighlightingSurroundDescriptor extends SurroundDescriptor {
   override def getElementsToSurround(file: PsiFile, startOffset: Int, endOffset: Int): Array[PsiElement] = {
     if (!file.isInstanceOf[ScalaFile]) return PsiElement.EMPTY_ARRAY

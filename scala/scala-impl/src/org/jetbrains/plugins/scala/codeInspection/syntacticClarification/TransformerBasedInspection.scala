@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Tra
 
 import scala.annotation.nowarn
 
-/**
-  * @author Pavel Fatin
-  */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class TransformerBasedInspection(@Nls name: String, @Nls solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
 

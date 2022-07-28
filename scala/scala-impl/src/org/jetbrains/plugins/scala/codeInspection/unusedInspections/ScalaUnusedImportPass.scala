@@ -24,11 +24,6 @@ import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import java.{util => ju}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.06.2009
- */
-
 class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override val document: Document,
                             highlightInfoProcessor: HighlightInfoProcessor)
   extends ProgressableTextEditorHighlightingPass(

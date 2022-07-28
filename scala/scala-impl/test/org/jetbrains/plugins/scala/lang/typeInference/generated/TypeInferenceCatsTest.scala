@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Nikolay.Tropin
-  */
 @Category(Array(classOf[SlowTests]))
 class TypeInferenceCatsTest extends TypeInferenceTestBase {
 

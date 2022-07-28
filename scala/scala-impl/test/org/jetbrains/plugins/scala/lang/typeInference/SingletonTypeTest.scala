@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-/**
- * @author Nikolay.Tropin
- */
 class SingletonTypeTest extends TypeInferenceTestBase {
   def testSCL9053(): Unit = {
     val text =

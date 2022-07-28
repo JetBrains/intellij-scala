@@ -5,10 +5,6 @@ package methodSignature
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
-/**
-  * Nikolay.Tropin
-  * 6/25/13
-  */
 class ProcedureDefinitionInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

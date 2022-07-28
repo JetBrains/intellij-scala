@@ -21,11 +21,6 @@ import org.jetbrains.plugins.scala.editor.smartEnter.fixers._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 1/28/13
- */
 object ScalaSmartEnterProcessor {
   private val LOG = Logger.getInstance(getClass)
 

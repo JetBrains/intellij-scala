@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * @author kfeodorov 
- * @since 15.03.14.
- */
 final class ScInterpolatedExpressionPrefix(node: ASTNode) extends ScReferenceExpressionImpl(node) {
 
   import ScalaResolveResult.EMPTY_ARRAY

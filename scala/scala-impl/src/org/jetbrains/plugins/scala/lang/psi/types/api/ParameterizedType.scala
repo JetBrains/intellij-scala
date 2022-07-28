@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 
-/**
-  * @author adkozlov
-  */
 trait ParameterizedType extends ValueType {
 
   override implicit def projectContext: ProjectContext = designator.projectContext

@@ -15,9 +15,6 @@ import scala.reflect.macros.whitebox
   *
   * NOTE !IMPORTANT!: function annotated with @Cached must be on top-most level because generated code generates fields
   * right outside the cached function and if this function is inner it won't work.
-  *
-  * Author: Svyatoslav Ilinskiy
-  * Date: 10/20/15.
   */
 class CachedWithoutModificationCount(valueWrapper: ValueWrapper,
                                      cleanupScheduler: Any,

@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/6/12
-  */
 final class InvertIfConditionIntention extends PsiElementBaseIntentionAction {
 
   import InvertIfConditionIntention._

@@ -5,10 +5,6 @@ import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaForStmtUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e match {
     case fSt: ScFor => fSt.body.isDefined

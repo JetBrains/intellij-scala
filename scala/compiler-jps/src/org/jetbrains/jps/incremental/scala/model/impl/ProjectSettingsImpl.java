@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.compiler.data.IncrementalityType;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Pavel Fatin
- */
 public class ProjectSettingsImpl extends JpsElementBase<ProjectSettingsImpl> implements ProjectSettings {
 
   public static final ProjectSettingsImpl DEFAULT =

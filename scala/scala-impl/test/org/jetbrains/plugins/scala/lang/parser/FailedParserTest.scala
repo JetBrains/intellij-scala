@@ -5,9 +5,6 @@ package parser
 import junit.framework.{Test, TestCase}
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 
-/**
- * @author Nikolay.Tropin
- */
 class FailedParserTest extends TestCase
 
 object FailedParserTest {

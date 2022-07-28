@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.actions.MakeExplicitAction
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/4/12
-  */
 class MakeImplicitConversionExplicit extends PsiElementBaseIntentionAction {
 
   import MakeImplicitConversionExplicit._

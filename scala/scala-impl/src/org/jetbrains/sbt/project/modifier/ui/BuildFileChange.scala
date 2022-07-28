@@ -3,10 +3,6 @@ package org.jetbrains.sbt.project.modifier.ui
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.{Change, ContentRevision}
 
-/**
- * @author Roman.Shein
- * @since 23.03.2015.
- */
 class BuildFileChange (val beforeRevision: ContentRevision, val afterRevision: ContentRevision,
                       val buildFileStatus: BuildFileModifiedStatus) extends Change(beforeRevision, afterRevision, buildFileStatus.getChangeStatus) {
 

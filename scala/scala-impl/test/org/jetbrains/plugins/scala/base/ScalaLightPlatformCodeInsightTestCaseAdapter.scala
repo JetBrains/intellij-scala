@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 
-/**
- * @author Alexander Podkhalyuzin
- * @deprecated use [[org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter]] instead
- */
 @deprecated
 abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatformCodeInsightTestCase with ScalaSdkOwner {
   import LightPlatformTestCase._

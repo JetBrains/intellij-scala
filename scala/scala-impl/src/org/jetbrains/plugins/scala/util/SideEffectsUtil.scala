@@ -19,9 +19,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.nameFitT
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author Nikolay.Tropin
-  */
 object SideEffectsUtil {
 
   private val immutableClasses = listImmutableClasses

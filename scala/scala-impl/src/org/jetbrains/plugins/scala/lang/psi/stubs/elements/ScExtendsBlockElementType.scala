@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 
 import scala.collection.immutable.ArraySeq
 
-
-/**
-  * @author ilyas
-  */
 class ScExtendsBlockElementType extends ScStubElementType[ScExtendsBlockStub, ScExtendsBlock]("extends block") {
 
   override def serialize(stub: ScExtendsBlockStub, dataStream: StubOutputStream): Unit = {

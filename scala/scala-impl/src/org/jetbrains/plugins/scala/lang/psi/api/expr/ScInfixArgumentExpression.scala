@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.psi.api.expr
 
-/**
- * @author Alefas
- * @since 25/03/14.
- */
 trait ScInfixArgumentExpression extends ScExpression {
   /**
    * Return true if this expression is arguments for method invocation

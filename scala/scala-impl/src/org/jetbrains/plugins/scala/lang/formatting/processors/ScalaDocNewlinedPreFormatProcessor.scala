@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocList, ScDocParagraph, ScDocTag}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * @author Roman.Shein
- *         Date: 12.11.2015
- */
 final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with ScalaIntellijFormatterLike {
 
   private class ScalaDocNewlinedPreFormatVisitor(settings: ScalaCodeStyleSettings) extends ScalaElementVisitor {

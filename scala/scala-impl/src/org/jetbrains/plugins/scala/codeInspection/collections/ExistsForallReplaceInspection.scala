@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author Ignat Loskutov
-  */
-
 class ExistsForallReplaceInspection extends OperationOnCollectionInspection {
   override def possibleSimplificationTypes: ArraySeq[SimplificationType] =
     ArraySeq(ReplaceForallWithExists, ReplaceExistsWithForall)

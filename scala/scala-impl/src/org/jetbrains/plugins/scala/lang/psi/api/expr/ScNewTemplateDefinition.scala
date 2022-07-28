@@ -7,10 +7,6 @@ package expr
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
 trait ScNewTemplateDefinition extends ScExpression with ScTemplateDefinition {
   def firstConstructorInvocation: Option[ScConstructorInvocation]
 

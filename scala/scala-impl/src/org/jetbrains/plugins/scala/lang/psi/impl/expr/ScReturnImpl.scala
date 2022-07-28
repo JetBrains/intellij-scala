@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScReturnImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScReturn {
 
   override def keyword: PsiElement = findChildByType(kRETURN)

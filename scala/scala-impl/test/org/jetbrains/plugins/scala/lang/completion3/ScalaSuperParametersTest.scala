@@ -5,10 +5,6 @@ package completion3
 import com.intellij.codeInsight.completion.CompletionType
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
-/**
- * @author Alefas
- * @since 04.09.13
- */
 class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBase {
 
   import ScalaCodeInsightTestBase._

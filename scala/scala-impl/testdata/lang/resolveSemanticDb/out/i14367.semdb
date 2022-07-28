@@ -1,0 +1,15 @@
+Document tests/pos/i14367.scala
+(1:10..1:13) scala/Int#
+(1:18..1:19) _empty_/i14367$package.m().(i) -> 1:7
+(1:20..1:23) scala/collection/IterableOnceOps#sum().
+(2:10..2:11) _empty_/i14367$package.m(). -> 1:5
+(3:15..3:16) _empty_/i14367$package.m(). -> 1:5
+(3:17..3:18) local1 -> 3:10
+(5:10..5:13) scala/package.Seq#
+(5:14..5:17) scala/Int#
+(5:22..5:23) _empty_/i14367$package.n().(i) -> 5:7
+(5:24..5:27) scala/collection/IterableOnceOps#sum().
+(6:10..6:11) _empty_/i14367$package.n(). -> 5:5
+(7:15..7:16) _empty_/i14367$package.n(). -> 5:5
+(7:17..7:18) local3 -> 7:10
+

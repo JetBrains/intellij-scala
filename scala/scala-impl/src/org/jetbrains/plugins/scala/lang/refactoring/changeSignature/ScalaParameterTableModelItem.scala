@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.refactoring._
 
 import scala.collection.mutable.ListBuffer
 
-
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
 class ScalaParameterTableModelItem(parameter: ScalaParameterInfo,
                                    typeCodeFragment: ScalaCodeFragment,
                                    defaultValue: ScalaCodeFragment,

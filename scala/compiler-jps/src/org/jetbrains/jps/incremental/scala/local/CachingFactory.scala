@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, Sb
 import sbt.internal.inc.AnalyzingCompiler
 import xsbti.compile.AnalysisStore
 
-/**
- * @author Pavel Fatin
- */
 class CachingFactory(delegate: CompilerFactory, compilersLimit: Int, analysisLimit: Int, scalacLimit: Int) extends CompilerFactory {
   private val compilerCache = new Cache[CompilerData, Compiler](compilersLimit)
 

@@ -5,11 +5,6 @@ package api
 package base
 package patterns
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 trait ScInfixPattern extends ScPattern with ScInfixElement {
   type Kind = ScPattern
   type Reference = ScStableCodeReference

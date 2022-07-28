@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author Nikolay.Tropin
-  */
 final class UnitInMapInspection extends OperationOnCollectionInspection {
 
   import UnitInMapInspection._

@@ -30,10 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 20.02.2008
- */
 class ScObjectImpl(
   stub:      ScTemplateDefinitionStub[ScObject],
   nodeType:  ScTemplateDefinitionElementType[ScObject],
@@ -166,34 +162,6 @@ class ScObjectImpl(
 
   override def getInterfaces: Array[PsiClass] = {
     getSupers.filter(_.isInterface)
-  }
-
-  @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))
-  override protected def desugaredInner: Option[ScTemplateDefinition] = {
-    def toPsi(tree: scala.meta.Defn.Object): ScTemplateDefinition = {
-      val text = tree.toString()
-
-      ScalaPsiElementFactory.createObjectWithContext(text, getContext, this)
-        .setOriginal(actualElement = this)
-    }
-
-    import scala.meta.intellij.psi._
-    import scala.meta.{Defn, Term}
-
-    val expansion = this.metaExpand match {
-      case Right(tree: Defn.Object) =>
-        Some(tree)
-      case _ => fakeCompanionClassOrCompanionClass match {
-        case ah: ScAnnotationsHolder => ah.metaExpand match {
-          case Right(Term.Block(Seq(_, obj: Defn.Object))) =>
-            Some(obj)
-          case _ => None
-        }
-        case _ => None
-      }
-    }
-
-    expansion.map(toPsi)
   }
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.ObjectKeyword

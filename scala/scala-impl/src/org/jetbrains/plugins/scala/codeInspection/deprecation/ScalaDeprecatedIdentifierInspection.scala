@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection,
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaDeprecatedIdentifierInspection extends AbstractRegisteredInspection {
   import ScalaDeprecatedIdentifierInspection._
 

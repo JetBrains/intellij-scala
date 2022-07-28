@@ -5,9 +5,6 @@ package caseClasses
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.CaseClassParamInspection
 
-/**
-  * @author Nikolay.Tropin
-  */
 class CaseClassParameterInspectionTest extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[CaseClassParamInspection]
 

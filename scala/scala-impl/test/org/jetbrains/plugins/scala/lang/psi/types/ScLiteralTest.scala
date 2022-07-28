@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.junit.Assert
 
-/**
- * Pavel Fatin
- */
-
 class ScLiteralTest extends SimpleTestCase {
   def testNullLiteral(): Unit = {
     assertTypeIs("null", Null)

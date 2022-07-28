@@ -1,12 +1,5 @@
 package org.jetbrains.plugins.scala.conversion.ast
 
-/**
-  * Created by jetbrains on 09/03/2017.
-  */
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/22/15
-  */
 //TODO setter&getter
 case class FieldConstruction(modifiers: IntermediateNode, name: IntermediateNode,
                              ftype: IntermediateNode, isVar: Boolean,

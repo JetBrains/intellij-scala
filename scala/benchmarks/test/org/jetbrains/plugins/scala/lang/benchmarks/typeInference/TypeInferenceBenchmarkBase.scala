@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 import org.openjdk.jmh.annotations._
 import org.openjdk.jmh.infra.Blackhole
 
-/**
-  * @author Nikolay.Tropin
-  */
-
 @BenchmarkMode(Array(Mode.AverageTime))
 @Fork(1)
 @State(Scope.Benchmark)

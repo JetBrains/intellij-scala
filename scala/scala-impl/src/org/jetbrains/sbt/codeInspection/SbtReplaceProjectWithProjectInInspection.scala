@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.annotation.nowarn
 
-/**
- * @author Nikolay Obedin
- * @since 8/5/14.
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class SbtReplaceProjectWithProjectInInspection extends AbstractInspection {
 

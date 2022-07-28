@@ -16,10 +16,6 @@ import org.junit.Assert;
 
 import java.util.Collections;
 
-/**
- * @author Roman.Shein
- * Date: 26.07.13
- */
 public class FailedRearrangerTest extends TestCase {
 
     public static Test suite() {

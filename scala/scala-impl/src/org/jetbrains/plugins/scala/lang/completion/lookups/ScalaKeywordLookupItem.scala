@@ -14,10 +14,6 @@ import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.util.ui.EmptyIcon
 import org.jetbrains.plugins.scala.extensions.{BooleanExt, PsiFileExt}
 
-/**
- * @author Alefas
- * @since 27.03.12
- */
 object ScalaKeywordLookupItem {
 
   def apply(keyword: String): LookupElement =

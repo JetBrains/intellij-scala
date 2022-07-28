@@ -3,10 +3,6 @@ package codeInsight
 package intention
 package controlFlow
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/8/12
-  */
 class RemoveRedundantElseIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.remove.redundant.else")

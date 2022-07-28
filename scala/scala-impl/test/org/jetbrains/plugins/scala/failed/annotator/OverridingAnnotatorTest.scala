@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.annotator.{Message, OverridingAnnotatorTestBase}
 
-/**
-  * Created by mucianm on 22.03.16.
-  */
 class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
 
   override protected def shouldPass: Boolean = false

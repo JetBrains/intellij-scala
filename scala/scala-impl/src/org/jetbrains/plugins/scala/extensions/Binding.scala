@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.extensions
 
-/**
-  * @author Pavel Fatin
-  */
 class Binding[T](getLeft: => T, getRight: => T)(setLeft: (T) => Unit, setRight: (T) => Unit) {
   def copyLeftToRight(): Unit = setRight(getLeft)
 

@@ -1,0 +1,17 @@
+[0,77]: PackageDef
+[0,0]: Ident
+[0,77]: ModuleDef
+[21,75]: Template
+[21,21]: DefDef
+[21,21]: TypeTree
+[21,36]: Import
+[28,34]: Ident
+[40,75]: ValDef
+[47,53]: Ident
+[56,75]: TypeApply
+[56,62]: Ident
+[63,74]: Tuple
+[64,69]: SingletonTypeTree
+[64,69]: Literal
+[71,73]: SingletonTypeTree
+[71,73]: Literal

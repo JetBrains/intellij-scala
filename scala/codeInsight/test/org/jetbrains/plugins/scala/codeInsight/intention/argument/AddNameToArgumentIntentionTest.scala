@@ -3,10 +3,6 @@ package codeInsight
 package intention
 package argument
 
-/**
-  * @author Ksenia.Sautina
-  * @since 5/14/12
-  */
 class AddNameToArgumentIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.use.named.arguments")

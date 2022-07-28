@@ -18,9 +18,6 @@ import org.jetbrains.sbt.project.module.SbtModule.{Build, Imports}
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 final class SbtFileImpl private[language](provider: FileViewProvider)
   extends ScalaFileImpl(provider, SbtFileType)
     with ScDeclarationSequenceHolder {

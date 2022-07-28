@@ -4,9 +4,6 @@ import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceDoTest
 
-/**
-  * Created by Svyatoslav Ilinskiy on 01.07.16.
-  */
 class PackageTypeInferenceTest extends ScalaFixtureTestCase with TypeInferenceDoTest {
   def testImplicitPackageObjects(): Unit = {
     val foo =

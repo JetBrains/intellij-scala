@@ -14,10 +14,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.jetbrains.plugins.scala.testingSupport.TestRunnerUtil.escapeString;
 import static org.jetbrains.plugins.scala.testingSupport.scalaTest.TeamcityReporter.reportMessage;
 
-/**
- * @author Roman.Shein
- * @since 11.02.2015.
- */
 public class ParallelTreeBuilder implements TreeBuilder {
 
   private static List<Integer> getOrdinalList(Ordinal ordinal) {

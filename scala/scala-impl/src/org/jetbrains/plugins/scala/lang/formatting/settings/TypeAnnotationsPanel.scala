@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.extensions.Binding
 import java.util
 import javax.swing._
 
-/**
-  * @author Pavel Fatin
-  */
 final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnotationsPanelBase(settings) {
 
   import TypeAnnotationsPanel._

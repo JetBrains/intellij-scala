@@ -1,0 +1,5 @@
+Document tests/pos/i15166/Test_2.scala
+(3:10..3:39) _empty_/InterfaceAudience_JAVA_ONLY_1#
+(3:40..3:46) _empty_/InterfaceAudience_JAVA_ONLY_1#Public#
+(3:49..3:52) scala/Predef.`???`().
+

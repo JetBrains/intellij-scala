@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 import scala.util.Try
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaParameterNameAdjuster extends NodeDescriptorNameAdjuster {
   override def isApplicable(descriptor: NodeDescriptor): Boolean = {
     descriptor match {

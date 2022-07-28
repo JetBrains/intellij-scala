@@ -3,9 +3,6 @@ package lang
 package transformation
 package annotations
 
-/**
-  * @author Pavel Fatin
-  */
 class AddTypeToReferencePatternTest extends TransformerTest(new AddTypeToReferencePattern()) {
 
   def testCaseClause(): Unit = check(

@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.jetbrains.plugins.scala.lang.surroundWith.descriptors.ScalaSurroundDescriptors$;
 import scala.Tuple4;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.11.2008
- */
 public class SurroundWithTest extends TestCase {
     public static Test suite() {
         return new ScalaFileSetTestCase("/surroundWith/data/") {

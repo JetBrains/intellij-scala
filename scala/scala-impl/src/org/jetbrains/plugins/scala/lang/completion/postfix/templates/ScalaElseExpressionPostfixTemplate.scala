@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.An
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.ScalaPostfixTemplatePsiInfo
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithIfConditionSurrounder
 
-/**
- * @author Roman.Shein
- * @since 09.09.2015.
- */
 final class ScalaElseExpressionPostfixTemplate extends ElseExpressionPostfixTemplateBase(
   ScalaPostfixTemplatePsiInfo,
   SelectTopmostAncestors(ScalaWithIfConditionSurrounder)

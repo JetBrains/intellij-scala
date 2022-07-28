@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarati
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 14.10.2008
-  */
 abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
                                                         language: Language = ScalaLanguage.INSTANCE)
   extends ScStubElementType[ScFunctionStub[Fun], Fun](debugName, language) {

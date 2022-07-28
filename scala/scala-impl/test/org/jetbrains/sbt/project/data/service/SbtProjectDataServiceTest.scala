@@ -23,10 +23,6 @@ import org.junit.Assert._
 import java.io.File
 import java.net.URI
 
-/**
- * @author Nikolay Obedin
- * @since 6/15/15.
- */
 class SbtProjectDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._

@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
-/**
- * @author Alefas
- * @since 25.06.12
- */
-
 class ScalaQualifiedNameProvider extends QualifiedNameProvider {
 
   override def adjustElementToCopy(element: PsiElement): PsiElement = null

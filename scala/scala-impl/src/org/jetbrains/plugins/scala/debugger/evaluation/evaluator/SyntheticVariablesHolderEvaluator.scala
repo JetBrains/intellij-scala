@@ -8,9 +8,6 @@ import com.sun.jdi.{Type, Value, VirtualMachine}
 
 import scala.collection.mutable
 
-/**
- * @author Nikolay.Tropin
- */
 class SyntheticVariablesHolderEvaluator(parentEvaluator: CodeFragmentEvaluator) extends CodeFragmentEvaluator(parentEvaluator) {
   private val mySyntheticLocals = mutable.HashMap[String, Value]()
 

@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 class ScPrefixExprImpl(node: ASTNode) extends MethodInvocationImpl(node) with ScPrefixExpr {
 
   override def argumentExpressions: Seq[ScExpression] = Seq.empty

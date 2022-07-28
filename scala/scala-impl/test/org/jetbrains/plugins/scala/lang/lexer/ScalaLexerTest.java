@@ -19,9 +19,6 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author ilyas
- */
 public class ScalaLexerTest extends TestCase {
     @NotNull
     public static Test suite() {

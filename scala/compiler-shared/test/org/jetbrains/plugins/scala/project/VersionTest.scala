@@ -6,9 +6,6 @@ import org.junit.Test
 import java.io.{ByteArrayOutputStream, ObjectOutputStream}
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 class VersionTest {
   @Test
   def parsing(): Unit = {

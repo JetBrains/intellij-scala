@@ -1,0 +1,11 @@
+Document tests/pos/i14151.scala
+(1:27..1:28) _empty_/BoundedPair#[A] -> 1:19
+(2:23..2:34) _empty_/BoundedPair# -> 1:7
+(2:35..2:36) _empty_/BoundedPair#Second#[A] -> 2:15
+(2:43..2:44) _empty_/BoundedPair#Second#[A] -> 2:15
+(2:50..2:51) _empty_/BoundedPair#Second#[A] -> 2:15
+(2:54..2:55) _empty_/BoundedPair#Second#[T] -> 2:18
+(2:69..2:80) _empty_/BoundedPair# -> 1:7
+(2:81..2:82) _empty_/BoundedPair#Second#[A] -> 2:15
+(2:90..2:91) local0 -> 2:84
+

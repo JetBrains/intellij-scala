@@ -4,9 +4,6 @@ import com.intellij.openapi.vfs.{VirtualFile, VirtualFileListener, VirtualFileSy
 
 import java.io.File
 
-/**
- * @author Pavel Fatin
- */
 class AbsentLocalFile(url: String, path: String) extends VirtualFile {
   override def getName = throw new UnsupportedOperationException()
 

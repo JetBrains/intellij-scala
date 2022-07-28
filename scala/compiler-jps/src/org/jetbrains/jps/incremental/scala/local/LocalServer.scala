@@ -11,9 +11,6 @@ import java.io.File
 import java.util.ServiceLoader
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 final class LocalServer extends Server {
 
   import LocalServer._

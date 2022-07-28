@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.extensions.implementation.iterator
 
 import com.intellij.psi.PsiElement
 
-/**
- * Pavel.Fatin, 11.05.2010
- */
-
-
 class NextSiblingsIteratorTest extends IteratorTestCase {
   def testEmpty(): Unit = {
     assertIterates("", parse("0 (1.1)").getFirstChild)

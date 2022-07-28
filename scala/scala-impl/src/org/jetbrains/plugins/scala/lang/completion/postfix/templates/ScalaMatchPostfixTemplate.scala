@@ -11,10 +11,8 @@ import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.An
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithMatchSurrounder
 
 /**
-  * @author Roman.Shein
-  * @since 09.09.2015.
-  * @see [[ScalaExhaustiveMatchPostfixTemplate]]
-  */
+ * @see [[ScalaExhaustiveMatchPostfixTemplate]]
+ */
 final class ScalaMatchPostfixTemplate extends PostfixTemplateWithExpressionSelector(
   null,
   ScalaWithMatchSurrounder.getTemplateDescription,

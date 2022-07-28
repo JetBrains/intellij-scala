@@ -22,10 +22,6 @@ import java.io.File
 import scala.collection.mutable
 import scala.util.{Success, Try}
 
-/**
- * User: Dmitry.Naydanov
- * Date: 17.01.18.
- */
 object ImportAmmoniteDependenciesFix {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.worksheet.ammonite.ImportAmmoniteDependenciesFix")

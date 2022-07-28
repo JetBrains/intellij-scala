@@ -7,9 +7,6 @@ import junit.framework.TestCase;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author Alexander Podkhalyuzin
- */
 public class EnterActionTest extends TestCase {
     @NonNls
     private static final String DATA_PATH = "/actions/editor/enter/data";

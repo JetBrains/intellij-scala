@@ -9,11 +9,6 @@ import org.junit.experimental.categories.Category
 
 import java.io.File
 
-/**
-  * Nikolay.Tropin
-  * 04-Aug-17
-  */
-
 // TODO 1: the tests should be run for 2_13 as well
 // TODO 2: there should be an easy way to update the test data
 //  (to the latest scala minor version in the corresponding version branch)

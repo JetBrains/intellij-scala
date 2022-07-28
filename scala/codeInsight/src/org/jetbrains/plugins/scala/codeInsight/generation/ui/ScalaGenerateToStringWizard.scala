@@ -23,7 +23,6 @@ import scala.jdk.CollectionConverters.SeqHasAsJava
   *
   * @param project      IntelliJ project.
   * @param classMembers Class members to choose from.
-  * @author Rado Buransky (buransky.com)
   */
 final class ScalaGenerateToStringWizard(classMembers: Seq[ScNamedElement])
                                        (implicit project: Project)

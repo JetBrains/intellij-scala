@@ -9,11 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotations}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScAnnotationsStub
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
-
 class ScAnnotationsImpl private (stub: ScAnnotationsStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.ANNOTATIONS, node) with ScAnnotations {
 

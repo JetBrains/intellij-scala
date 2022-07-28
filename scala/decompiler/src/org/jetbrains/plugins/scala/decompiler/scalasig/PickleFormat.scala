@@ -1,10 +1,5 @@
 package org.jetbrains.plugins.scala.decompiler.scalasig
 
-/**
-  * Nikolay.Tropin
-  * 19-Jul-17
-  */
-
 object PickleFormat {
   //37 LITERALsymbol len_Nat name_Ref
   final val LITERALsymbol = 37 //is added to PickleFormat in scala 2.13

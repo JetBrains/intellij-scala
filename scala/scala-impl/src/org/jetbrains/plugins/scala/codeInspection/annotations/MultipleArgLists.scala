@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
 import scala.annotation.nowarn
 
-/**
- * User: Dmitry.Naydanov
- * Date: 30.09.15.
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class MultipleArgLists extends AbstractInspection {
 

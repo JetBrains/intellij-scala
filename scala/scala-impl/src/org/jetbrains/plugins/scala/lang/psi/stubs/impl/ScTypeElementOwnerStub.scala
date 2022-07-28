@@ -6,9 +6,6 @@ import com.intellij.util.SofterReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTypeElementFromText
 
-/**
-  * @author adkozlov
-  */
 trait ScTypeElementOwnerStub[E <: PsiElement] extends PsiOwner[E] {
 
   def typeText: Option[String]

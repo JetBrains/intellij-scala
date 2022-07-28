@@ -7,46 +7,52 @@ Document tests/pos/widen-union.scala
 (5:14..5:15) scala/`|`#
 (5:16..5:22) scala/Predef.String#
 (5:25..5:26) _empty_/Test1.y. -> 4:7
-(8:14..8:17) scala/Int#
-(8:18..8:19) scala/`|`#
-(8:20..8:26) scala/Predef.String#
-(9:21..9:24) _empty_/Test2.Sig# -> 8:8
-(9:29..9:32) _empty_/Test2.Sig# -> 8:8
-(9:35..9:42) scala/Boolean#
-(9:45..9:48) scala/Predef.`???`().
-(11:27..11:31) scala/package.List#
-(11:32..11:35) _empty_/Test2.Sig# -> 8:8
-(11:42..11:46) scala/package.List#
-(11:47..11:50) _empty_/Test2.Sig# -> 8:8
-(11:54..11:61) scala/Boolean#
-(12:8..12:10) _empty_/Test2.consistentLists().(xs) -> 11:23
-(12:11..12:22) scala/collection/immutable/List#corresponds().
-(12:23..12:25) _empty_/Test2.consistentLists().(ys) -> 11:38
-(12:27..12:37) _empty_/Test2.consistent(). -> 9:7
-(13:5..13:7) scala/Boolean#`||`().
-(13:8..13:10) _empty_/Test2.consistentLists().(xs) -> 11:23
-(13:11..13:22) scala/collection/immutable/List#corresponds().
-(13:23..13:25) _empty_/Test2.consistentLists().(ys) -> 11:38
-(13:27..13:37) _empty_/Test2.consistent(). -> 9:7
-(17:15..17:16) _empty_/Test3.g().[X] -> 17:9
-(17:17..17:18) scala/`|`#
-(17:19..17:25) scala/Predef.String#
-(17:28..17:31) scala/Int#
-(17:34..17:37) scala/Predef.`???`().
-(18:10..18:17) scala/Boolean#
-(18:18..18:19) scala/`|`#
-(18:20..18:26) scala/Predef.String#
-(18:29..18:32) scala/Predef.`???`().
-(19:3..19:4) _empty_/Test3.g(). -> 17:7
-(19:5..19:12) scala/Boolean#
-(19:14..19:15) _empty_/Test3.y(). -> 18:7
-(20:3..20:4) _empty_/Test3.g(). -> 17:7
-(20:5..20:6) _empty_/Test3.y(). -> 18:7
-(21:3..21:4) _empty_/Test3.g(). -> 17:7
-(21:5..21:12) scala/Boolean#
-(21:14..21:22) scala/Predef.identity().
-(21:23..21:24) _empty_/Test3.y(). -> 18:7
-(22:3..22:4) _empty_/Test3.g(). -> 17:7
-(22:5..22:13) scala/Predef.identity().
-(22:14..22:15) _empty_/Test3.y(). -> 18:7
+(8:12..8:13) scala/`|`#
+(9:11..9:12) _empty_/Test2.x. -> 8:7
+(10:10..10:13) scala/Int#
+(10:14..10:15) scala/`|`#
+(10:16..10:22) scala/Predef.String#
+(10:25..10:26) _empty_/Test2.y. -> 9:7
+(13:14..13:17) scala/Int#
+(13:18..13:19) scala/`|`#
+(13:20..13:26) scala/Predef.String#
+(14:21..14:24) _empty_/Test3.Sig# -> 13:8
+(14:29..14:32) _empty_/Test3.Sig# -> 13:8
+(14:35..14:42) scala/Boolean#
+(14:45..14:48) scala/Predef.`???`().
+(16:27..16:31) scala/package.List#
+(16:32..16:35) _empty_/Test3.Sig# -> 13:8
+(16:42..16:46) scala/package.List#
+(16:47..16:50) _empty_/Test3.Sig# -> 13:8
+(16:54..16:61) scala/Boolean#
+(17:8..17:10) _empty_/Test3.consistentLists().(xs) -> 16:23
+(17:11..17:22) scala/collection/immutable/List#corresponds().
+(17:23..17:25) _empty_/Test3.consistentLists().(ys) -> 16:38
+(17:27..17:37) _empty_/Test3.consistent(). -> 14:7
+(18:5..18:7) scala/Boolean#`||`().
+(18:8..18:10) _empty_/Test3.consistentLists().(xs) -> 16:23
+(18:11..18:22) scala/collection/immutable/List#corresponds().
+(18:23..18:25) _empty_/Test3.consistentLists().(ys) -> 16:38
+(18:27..18:37) _empty_/Test3.consistent(). -> 14:7
+(22:15..22:16) _empty_/Test4.g().[X] -> 22:9
+(22:17..22:18) scala/`|`#
+(22:19..22:25) scala/Predef.String#
+(22:28..22:31) scala/Int#
+(22:34..22:37) scala/Predef.`???`().
+(23:10..23:17) scala/Boolean#
+(23:18..23:19) scala/`|`#
+(23:20..23:26) scala/Predef.String#
+(23:29..23:32) scala/Predef.`???`().
+(24:3..24:4) _empty_/Test4.g(). -> 22:7
+(24:5..24:12) scala/Boolean#
+(24:14..24:15) _empty_/Test4.y(). -> 23:7
+(25:3..25:4) _empty_/Test4.g(). -> 22:7
+(25:5..25:6) _empty_/Test4.y(). -> 23:7
+(26:3..26:4) _empty_/Test4.g(). -> 22:7
+(26:5..26:12) scala/Boolean#
+(26:14..26:22) scala/Predef.identity().
+(26:23..26:24) _empty_/Test4.y(). -> 23:7
+(27:3..27:4) _empty_/Test4.g(). -> 22:7
+(27:5..27:13) scala/Predef.identity().
+(27:14..27:15) _empty_/Test4.y(). -> 23:7
 

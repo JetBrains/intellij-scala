@@ -3,10 +3,6 @@ package lang
 package typeInference
 package generated
 
-/**
- * @author Alefas
- * @since 16.09.13
- */
 class TypeInferenceNewExtractorsTest extends TypeInferenceTestBase {
   override def folderPath: String = super.folderPath + "newExtractors/"
 

@@ -5,9 +5,6 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Created by Svyatoslav Ilinskiy on 24.07.16.
-  */
 abstract class UnusedImportTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 

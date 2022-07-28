@@ -8,10 +8,6 @@ import com.intellij.openapi.editor.Document
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-/**
- * @author Roman.Shein
- * @since 22.09.2015.
- */
 case class ScalaTypeResult(`type`: ScType) extends Result {
 
   //TODO maybe add a more meaningful implementation

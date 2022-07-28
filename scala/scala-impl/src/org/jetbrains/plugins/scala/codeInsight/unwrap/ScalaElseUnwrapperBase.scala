@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf}
 
 import scala.annotation.tailrec
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 abstract class ScalaElseUnwrapperBase extends ScalaUnwrapper {
 
   override def isApplicableTo(e: PsiElement): Boolean = elseBranch(e).isDefined

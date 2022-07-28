@@ -25,9 +25,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{a
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * @author Alexander Podkhalyuzin
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class IntroduceParameterTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
   protected def folderPath = baseRootPath + "introduceParameter/"

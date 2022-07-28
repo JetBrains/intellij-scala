@@ -6,9 +6,6 @@ import com.intellij.patterns.PlatformPatterns
 import com.intellij.util.ProcessingContext
 import org.jetbrains.annotations.NonNls
 
-/**
-  * Created by jast on 2016-09-28.
-  */
 class SbtShellCompletionContributor extends CompletionContributor {
 
   extend(

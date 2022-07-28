@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.annotator
 
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
 
-/**
-  * @author Anton Yalyshev
-  * @since 06/09/18
-  */
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
   def testSCL12136(): Unit = {

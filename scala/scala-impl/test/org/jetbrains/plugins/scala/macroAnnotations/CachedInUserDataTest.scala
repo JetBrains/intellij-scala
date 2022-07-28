@@ -6,10 +6,6 @@ import com.intellij.psi.util.PsiModificationTracker
 import org.jetbrains.plugins.scala.caches.ProjectUserDataHolder
 import org.junit.Assert._
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 9/25/15.
- */
 class CachedInUserDataTest extends CachedWithRecursionGuardTestBase {
 
   def testSimple(): Unit = {

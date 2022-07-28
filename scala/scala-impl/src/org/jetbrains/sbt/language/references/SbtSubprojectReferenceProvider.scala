@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplatePar
 import java.io.File
 import scala.jdk.CollectionConverters.CollectionHasAsScala
 
-/**
- * @author Nikolay Obedin
- * @since 8/26/14.
- */
 class SbtSubprojectReferenceProvider extends PsiReferenceProvider {
 
   override def getReferencesByElement(element: PsiElement, context: ProcessingContext): Array[PsiReference] = {

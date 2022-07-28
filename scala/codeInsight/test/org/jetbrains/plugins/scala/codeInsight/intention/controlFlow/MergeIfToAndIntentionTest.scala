@@ -5,10 +5,6 @@ package controlFlow
 
 import com.intellij.testFramework.EditorTestUtil
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/6/12
-  */
 class MergeIfToAndIntentionTest extends intentions.ScalaIntentionTestBase {
 
   import EditorTestUtil.{CARET_TAG => CARET}

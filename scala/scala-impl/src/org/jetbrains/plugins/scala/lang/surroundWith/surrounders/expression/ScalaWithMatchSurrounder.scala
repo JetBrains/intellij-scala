@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
-/**
-  * @author AlexanderPodkhalyuzin
-  *         Date: 28.04.2008
-  */
 object ScalaWithMatchSurrounder extends ScalaExpressionSurrounder {
 
   import ScalaPsiUtil.{functionArrow, isLineTerminator}

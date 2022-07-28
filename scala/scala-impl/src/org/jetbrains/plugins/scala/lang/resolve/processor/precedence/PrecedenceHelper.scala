@@ -1,25 +1,19 @@
 package org.jetbrains.plugins.scala.lang.resolve.processor.precedence
 
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.containers.SmartHashSet
 import gnu.trove.{THashSet, TObjectHashingStrategy}
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util
-import scala.annotation.tailrec
 
 trait PrecedenceHelper {
-
-  import PrecedenceHelper._
 
   protected def getPlace: PsiElement
 
   protected val precedenceTypes: PrecedenceTypes = PrecedenceTypes.forElement(getPlace)
-  protected lazy val placePackageName: String = getPlacePackage(getPlace)
+  protected lazy val placePackageName: String = Option(ScalaPsiUtil.getPlacePackageName(getPlace)).getOrElse("")
 
   protected abstract class NameUniquenessStrategy extends TObjectHashingStrategy[ScalaResolveResult] {
 
@@ -115,18 +109,4 @@ trait PrecedenceHelper {
   protected def precedence(result: ScalaResolveResult): Int =
     if (result.prefixCompletion) precedenceTypes.PREFIX_COMPLETION
     else                         result.getPrecedence(getPlace, placePackageName, precedenceTypes)
-}
-
-object PrecedenceHelper {
-
-  @tailrec
-  private def getPlacePackage(place: PsiElement): String = {
-    val context = getContextOfType(place, true, classOf[ScPackaging], classOf[ScObject], classOf[ScalaFile])
-    context match {
-      case pack: ScPackaging                    => pack.fullPackageName
-      case obj: ScObject if obj.isPackageObject => obj.qualifiedName
-      case obj: ScObject                        => getPlacePackage(obj)
-      case null | _: ScalaFile                  => ""
-    }
-  }
 }

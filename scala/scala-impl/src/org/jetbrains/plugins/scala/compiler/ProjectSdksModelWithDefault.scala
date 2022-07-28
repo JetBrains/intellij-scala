@@ -5,10 +5,6 @@ import com.intellij.openapi.projectRoots.impl.ProjectJdkImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, Sdk}
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
 
-/**
-  * Nikolay.Tropin
-  * 13-Jul-17
-  */
 private[compiler] class ProjectSdksModelWithDefault extends ProjectSdksModel {
   class DefaultSdk(versionString: String)
     extends ProjectJdkImpl("Project Default", JavaSdk.getInstance(), "", versionString) {

@@ -13,9 +13,6 @@ import java.util
 import java.util.Comparator
 import javax.swing.{JComponent, JTree}
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   extends CallHierarchyBrowserBase(project, method) {
   override protected def createTrees(type2TreeMap: util.Map[_ >: String,_ >: JTree]): Unit = {

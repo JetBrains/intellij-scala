@@ -39,11 +39,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.06.2009
- */
-
 class ScalaInlineHandler extends InlineHandler {
 
   override def removeDefinition(element: PsiElement, settings: InlineHandler.Settings): Unit = {

@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
-/**
- * Pavel.Fatin, 21.07.2010
- */
-
 class StringLiteralPreProcessor extends CopyPastePreProcessor {
   override def preprocessOnCopy(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int], text: String): String = {
     val literal = startOffsets.zip(endOffsets).forall { case (a, b) =>

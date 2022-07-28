@@ -20,10 +20,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-05-20
- */
 object ExtractSuperUtil {
 
   def classPresentableName(clazz: ScTemplateDefinition): String = {

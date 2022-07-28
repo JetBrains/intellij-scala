@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScDocCommentOwner
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
-/**
- * @author Nikolay.Tropin
- */
-
 trait ScCommentOwner {
   self: ScalaPsiElement =>
 

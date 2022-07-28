@@ -8,10 +8,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.junit.Assert.assertEquals
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 29.07.14.
-  */
 class IncrementalLexerHighlightingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

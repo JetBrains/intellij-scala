@@ -9,9 +9,6 @@ import com.intellij.util.{ArrayFactory, ArrayUtil}
 import org.jetbrains.plugins.scala.extensions.{ArrayExt, IterableExt}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
-  * @author adkozlov
-  */
 package object elements {
 
   implicit class StubInputStreamExt(private val dataStream: StubInputStream) extends AnyVal {

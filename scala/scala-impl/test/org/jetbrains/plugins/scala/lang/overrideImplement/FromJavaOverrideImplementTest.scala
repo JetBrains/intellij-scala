@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import org.junit.Assert.assertEquals
 
-/**
- * Nikolay.Tropin
- * 12/18/13
- */
 class FromJavaOverrideImplementTest extends JavaCodeInsightFixtureTestCase {
   protected override def tuneFixture(moduleBuilder: JavaModuleFixtureBuilder[_]): Unit = {
     moduleBuilder.setMockJdkLevel(JavaModuleFixtureBuilder.MockJdkLevel.jdk15)

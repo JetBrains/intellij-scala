@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-/**
- * Nikolay.Tropin
- * 27-Sep-17
- */
 @Category(Array(classOf[HighlightingTests]))
 class ScalaLibraryHighlightingTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 

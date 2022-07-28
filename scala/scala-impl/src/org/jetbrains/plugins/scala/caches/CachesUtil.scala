@@ -17,10 +17,6 @@ import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
 import scala.annotation.unused
 import scala.util.control.ControlThrowable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.06.2009
- */
 object CachesUtil {
   /**
    * Do not delete this type alias, it is used by [[org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard]]

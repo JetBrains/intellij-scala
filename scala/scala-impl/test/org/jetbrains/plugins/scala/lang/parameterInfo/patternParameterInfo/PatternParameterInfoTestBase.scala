@@ -7,10 +7,6 @@ import com.intellij.lang.parameterInfo.ParameterInfoHandlerWithTabActionSupport
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPatternArgumentList
 
-/**
-  * @author Aleksander Podkhalyuzin
-  * @since 25.04.2009
-  */
 abstract class PatternParameterInfoTestBase extends ParameterInfoTestBase[ScPatternArgumentList] {
 
   override def getTestDataPath: String =

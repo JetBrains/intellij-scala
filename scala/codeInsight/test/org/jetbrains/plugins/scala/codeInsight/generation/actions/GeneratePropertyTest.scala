@@ -6,10 +6,6 @@ package actions
 import com.intellij.lang.LanguageCodeInsightActionHandler
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 
-/**
- * Nikolay.Tropin
- * 2014-09-22
- */
 class GeneratePropertyTest extends ScalaGenerateTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

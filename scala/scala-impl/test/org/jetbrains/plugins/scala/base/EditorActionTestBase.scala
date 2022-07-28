@@ -21,9 +21,6 @@ import org.junit.experimental.categories.Category
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-/**
-  * @author adkozlov
-  */
 @Category(Array(classOf[EditorTests]))
 abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdapter with ShortCaretMarker {
 

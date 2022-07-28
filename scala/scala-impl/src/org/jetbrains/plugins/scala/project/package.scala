@@ -36,9 +36,6 @@ import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
 
-/**
- * @author Pavel Fatin
- */
 package object project {
 
   object UserDataKeys {

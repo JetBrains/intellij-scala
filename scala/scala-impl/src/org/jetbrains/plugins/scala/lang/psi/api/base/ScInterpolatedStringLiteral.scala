@@ -7,10 +7,6 @@ package base
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScMethodCall, ScReferenceExpression}
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 3/17/12
-  */
 trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
 
   def kind: base.ScInterpolatedStringLiteral.Kind

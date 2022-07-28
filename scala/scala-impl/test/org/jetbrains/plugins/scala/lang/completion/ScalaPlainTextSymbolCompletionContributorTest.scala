@@ -11,6 +11,9 @@ import org.junit.experimental.categories.Category
 class ScalaPlainTextSymbolCompletionContributorTest
   extends base.ScalaLightCodeInsightFixtureTestAdapter {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == ScalaVersion.Latest.Scala_3
+
   def testTopLevelDefinitions(): Unit = {
     implicit val file: PsiFile = configureFromFileText(
       s"""sealed trait Foo {
@@ -21,15 +24,26 @@ class ScalaPlainTextSymbolCompletionContributorTest
          |
          |case object Baz extends Foo {
          |  override def foo = 42
-         |}""".stripMargin
+         |}
+         |
+         |def topLevelDef: String = ???
+         |val topLevelVal: String = ???
+         |val (topLevelVal1, topLevelVal2): String = ???
+         |var topLevelVar: String = ???
+         |given topLevelGiven: String = ???
+         |type TopLevelTypeAlias
+         |""".stripMargin
     )
 
-    doAutoPopupTest("", "Foo", "Bar", "Baz")
-    doAutoPopupTest("f", "Foo")
-    doAutoPopupTest("B", "Bar", "Baz")
+    val scala3TopLevelDefsAll = Seq("topLevelDef", "topLevelVal", "topLevelVal1", "topLevelVal2", "topLevelVar", "topLevelGiven", "TopLevelTypeAlias")
 
-    doBasicTest("f", "Foo", "foo")
-    // TODO top level functions in Scala 3
+    doAutoPopupTest("", Seq("Foo", "Bar", "Baz") ++ scala3TopLevelDefsAll: _*)
+    doAutoPopupTest("fo", "Foo")
+    doAutoPopupTest("Ba", "Bar", "Baz")
+    doAutoPopupTest("top", scala3TopLevelDefsAll: _*)
+
+    doBasicTest("fo", "Foo", "foo")
+    doBasicTest("top", scala3TopLevelDefsAll: _*)
   }
 
   def testInnerDefinitions(): Unit = {

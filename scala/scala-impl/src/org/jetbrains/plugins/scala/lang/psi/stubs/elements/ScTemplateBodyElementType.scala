@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.templates.ScTemplateBodyImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScTemplateBodyStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 class ScTemplateBodyElementType extends ScStubElementType[ScTemplateBodyStub, ScTemplateBody]("template body") {
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScTemplateBodyStub =
     new ScTemplateBodyStubImpl(parentStub, this)

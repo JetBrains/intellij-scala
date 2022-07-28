@@ -38,20 +38,20 @@ Document tests/pos/conversion-function-prototype.scala
 (31:42..31:43) scala/Test.X#T# -> 25:10
 (31:47..31:65) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
 (31:70..31:71) scala/Test.X# -> 24:9
-(31:76..31:77) local4 -> 31:67
+(31:76..31:77) local5 -> 31:67
 (31:78..31:79) scala/Test.X#t(). -> 26:9
 (33:12..33:13) scala/Test.x. -> 28:7
 (33:14..33:15) scala/Test.X#T# -> 25:10
 (33:18..33:36) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
 (33:37..33:40) scala/`conversion-function-prototype$package`.ConversionFunction.get(). -> 9:7
 (33:45..33:46) scala/Test.X# -> 24:9
-(33:51..33:52) local7 -> 33:42
+(33:51..33:52) local8 -> 33:42
 (33:53..33:54) scala/Test.X#T# -> 25:10
 (33:56..33:61) scala/Function1#apply().
 (33:62..33:63) scala/Test.x. -> 28:7
 (37:11..37:29) scala/`conversion-function-prototype$package`.ConversionFunction# -> 13:6
 (37:34..37:35) scala/Test.X# -> 24:9
-(37:40..37:41) local10 -> 37:31
+(37:40..37:41) local11 -> 37:31
 (37:42..37:43) scala/Test.X#T# -> 25:10
 (37:47..37:65) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
 (37:68..37:69) scala/Test.X#t(). -> 26:9
@@ -60,7 +60,7 @@ Document tests/pos/conversion-function-prototype.scala
 (39:18..39:36) scala/`conversion-function-prototype$package`.ConversionFunction. -> 4:8
 (39:37..39:40) scala/`conversion-function-prototype$package`.ConversionFunction.get(). -> 9:7
 (39:45..39:46) scala/Test.X# -> 24:9
-(39:51..39:52) local14 -> 39:42
+(39:51..39:52) local16 -> 39:42
 (39:53..39:54) scala/Test.X#T# -> 25:10
 (39:56..39:61) scala/Function1#apply().
 (39:62..39:63) scala/Test.x. -> 28:7

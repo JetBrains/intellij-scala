@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaSyntheticSteppingFilter extends ExtraSteppingFilter {
 
   override def isApplicable(context: SuspendContext): Boolean = {

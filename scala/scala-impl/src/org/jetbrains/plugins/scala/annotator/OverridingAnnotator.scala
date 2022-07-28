@@ -20,11 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TermSignature, TypePr
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.01.12
-  */
-
 trait OverridingAnnotator {
   import OverridingAnnotator._
   import lang.psi.ScalaPsiUtil._

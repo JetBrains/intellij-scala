@@ -7,11 +7,6 @@ package types
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 trait ScFunctionalTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "FunctionalType"
 

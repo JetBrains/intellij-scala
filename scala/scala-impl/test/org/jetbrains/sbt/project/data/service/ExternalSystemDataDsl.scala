@@ -37,9 +37,6 @@ import scala.language.implicitConversions
  * More examples are in test cases in org.jetbrains.sbt.project package
  *
  * See also [[org.jetbrains.sbt.project.ProjectStructureDsl]]
- *
- * @author Nikolay Obedin
- * @since 6/5/15.
  */
 object ExternalSystemDataDsl {
 

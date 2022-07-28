@@ -22,7 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
  * @param argListsInEvaluationOrder arguments (split into original argument lists) in the order in which they should
  *                                  be evaluated, including those not passed explicitly, like default parameters,
  *                                  '''this''' argument etc.
- * @author Gerard Dróżdż
  */
 case class InvocationInfo(invokedElement: Option[InvokedElement],
                           argListsInEvaluationOrder: List[List[Argument]]) {

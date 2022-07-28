@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.tailrec
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 trait ScMethodCall extends ScExpression with MethodInvocation {
 
   @tailrec

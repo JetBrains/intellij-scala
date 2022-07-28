@@ -3,10 +3,6 @@ package codeInsight
 package intentions
 package expression
 
-/**
- * Nikolay.Tropin
- * 5/16/13
- */
 class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
 
   override def familyName: String = ScalaBundle.message("family.name.replace.type.check.with.pattern.matching")

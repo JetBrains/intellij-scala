@@ -7,9 +7,6 @@ package genericTypes
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
 
-/**
-  * @author adkozlov
-  */
 abstract class TwoTypesNamesProvider extends GenericTypeNamesProviderBase {
 
   import GenericTypeNamesProviderBase.argumentNames

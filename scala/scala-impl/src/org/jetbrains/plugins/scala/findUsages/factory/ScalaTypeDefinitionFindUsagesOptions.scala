@@ -4,10 +4,6 @@ package findUsages.factory
 import com.intellij.find.findUsages.JavaFindUsagesOptions
 import com.intellij.openapi.project.Project
 
-/**
-  * @author Alefas
-  * @since 15.12.12
-  */
 class ScalaTypeDefinitionFindUsagesOptions(project: Project) extends JavaFindUsagesOptions(project) {
   isSearchForTextOccurrences = false
 

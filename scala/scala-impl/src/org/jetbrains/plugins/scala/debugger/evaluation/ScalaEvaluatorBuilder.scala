@@ -23,10 +23,6 @@ import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
-/**
- * Nikolay.Tropin
- * 2014-09-28
- */
 object ScalaEvaluatorBuilder extends EvaluatorBuilder {
   override def build(codeFragment: PsiElement, position: SourcePosition): ExpressionEvaluator = {
     if (codeFragment.getLanguage.isInstanceOf[JavaLanguage])

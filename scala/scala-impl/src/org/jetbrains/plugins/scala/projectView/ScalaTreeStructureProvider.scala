@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 
 import java.util
 
-/**
- * @author Pavel Fatin
- */
 final class ScalaTreeStructureProvider extends TreeStructureProvider with DumbAware {
 
   import ScalaTreeStructureProvider._

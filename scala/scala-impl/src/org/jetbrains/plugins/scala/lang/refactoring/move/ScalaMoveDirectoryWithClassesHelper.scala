@@ -22,9 +22,6 @@ import java.{util => ju}
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaMoveDirectoryWithClassesHelper extends MoveDirectoryWithClassesHelper {
 
   override def findUsages(filesToMove: ju.Collection[PsiFile],

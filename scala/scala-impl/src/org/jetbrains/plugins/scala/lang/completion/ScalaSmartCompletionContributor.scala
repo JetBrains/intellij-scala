@@ -40,10 +40,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.09.2009
-  */
 final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaSmartCompletionContributor._

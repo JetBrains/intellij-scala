@@ -10,10 +10,6 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-/**
- * User: Alefas
- * Date: 12.10.11
- */
 case class ScalaFieldEvaluator(objectEvaluator: Evaluator, _fieldName: String,
                           classPrivateThisField: Boolean = false) extends Evaluator {
   private var myEvaluatedQualifier: AnyRef = _

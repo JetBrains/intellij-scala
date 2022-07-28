@@ -6,10 +6,6 @@ package impl
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.junit.Assert
 
-/**
- * Pavel Fatin
- */
-
 class ScalaFileImplTest extends SimpleTestCase {
 //  def testStripPackages() {
 //    assertPackagesStrippedAs("", "")

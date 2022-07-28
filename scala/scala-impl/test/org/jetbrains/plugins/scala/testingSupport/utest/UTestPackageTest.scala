@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.utest
 
-/**
- * @author Roman.Shein
- * @since 05.09.2015.
- */
 trait UTestPackageTest extends UTestTestCase {
   val packageName = "myPackage"
   val secondPackageName = "otherPackage"

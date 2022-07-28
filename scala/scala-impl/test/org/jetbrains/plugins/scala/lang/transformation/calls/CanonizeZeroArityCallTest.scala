@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class CanonizeZeroArityCallTest extends TransformerTest(new CanonizeZeroArityCall()) {
 
   override protected val header: String =

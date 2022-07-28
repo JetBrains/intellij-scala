@@ -1,0 +1,41 @@
+expr match
+  case '{ foo(${_*}) } => ???
+-----
+ScalaFile
+  MatchStatement
+    ReferenceExpression: expr
+      PsiElement(identifier)('expr')
+    PsiWhiteSpace(' ')
+    PsiElement(match)('match')
+    PsiWhiteSpace('\n  ')
+    CaseClauses
+      CaseClause
+        PsiElement(case)('case')
+        PsiWhiteSpace(' ')
+        QuotedPattern
+          QuotedBlock
+            PsiElement(')(''')
+            PsiElement({)('{')
+            PsiWhiteSpace(' ')
+            MethodCall
+              ReferenceExpression: foo
+                PsiElement(identifier)('foo')
+              ArgumentList
+                PsiElement(()('(')
+                SplicedPatternExpression
+                  PsiElement($)('$')
+                  PsiElement({)('{')
+                  PsiErrorElement:Pattern expected
+                    <empty list>
+                  PsiElement(_)('_')
+                  PsiElement(identifier)('*')
+                  PsiElement(})('}')
+                PsiElement())(')')
+            PsiWhiteSpace(' ')
+            PsiElement(})('}')
+        PsiWhiteSpace(' ')
+        PsiElement(=>)('=>')
+        PsiWhiteSpace(' ')
+        BlockOfExpressions
+          ReferenceExpression: ???
+            PsiElement(identifier)('???')

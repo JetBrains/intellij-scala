@@ -13,9 +13,6 @@ import scala.Option;
 
 import java.util.Set;
 
-/**
- * @author Pavel Fatin
- */
 public class SettingsManager {
   public static final JpsElementChildRoleBase<GlobalSettings> GLOBAL_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala global settings");
   public static final JpsElementChildRoleBase<ProjectSettings> PROJECT_SETTINGS_ROLE = JpsElementChildRoleBase.create("scala project settings");

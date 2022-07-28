@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-* User: Alexander Podkhalyuzin
-* Date: 11.07.2008
-*/
 sealed trait ScalaNamedMember {
   val name: String
 }

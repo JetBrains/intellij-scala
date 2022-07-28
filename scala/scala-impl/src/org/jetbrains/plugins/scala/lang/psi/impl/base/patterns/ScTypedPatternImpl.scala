@@ -18,11 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing, Parameteriz
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, api, _}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPED_PATTERN, node)
     with ScPatternImpl

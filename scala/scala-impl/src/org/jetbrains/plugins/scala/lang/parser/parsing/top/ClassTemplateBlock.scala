@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 /**
  * [[ClassTemplateBlock]] ::= [EarlyDefs] ClassParents [TemplateBody]
  * | TemplateBody (for 'new' statement)
- *
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-* Time: 9:31:16
 */
 object ClassTemplateBlock extends ParsingRule{
 

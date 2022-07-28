@@ -30,11 +30,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import javax.swing.Icon
 import scala.annotation.tailrec
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 class ScTypeParamImpl private (stub: ScTypeParamStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ScalaElementType.TYPE_PARAM, node)
     with ScTypeBoundsOwnerImpl with ScTypeParam with PsiClassFake {

@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 import java.util.Map
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.09.2009
- */
-
 class ScalaChangeUtilSupport extends TreeCopyHandler {
   override def encodeInformation(element: TreeElement, original: ASTNode, encodingState: Map[Object, Object]): Unit = {
     if (!element.isInstanceOf[ScalaPsiElement]) return

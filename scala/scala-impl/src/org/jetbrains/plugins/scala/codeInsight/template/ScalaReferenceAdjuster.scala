@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursive
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Alefas
- * @since 03/09/14.
- */
 class ScalaReferenceAdjuster extends ReferenceAdjuster {
   //todo: expression adjuster
   //todo: process returns element, should return element after replacement

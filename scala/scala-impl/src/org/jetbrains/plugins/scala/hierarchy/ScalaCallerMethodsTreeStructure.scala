@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
 import scala.collection.mutable
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
-
 final class ScalaCallerMethodsTreeStructure(project: Project, method: PsiMethod, scopeType: String)
   extends HierarchyTreeStructure(project, new CallHierarchyNodeDescriptor(project, null, method, true, false)) {
 

@@ -25,11 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import javax.swing.Icon
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-* Time: 9:54:54
-*/
 final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_DECLARATION, node) with ScTypeAliasDeclaration {
 

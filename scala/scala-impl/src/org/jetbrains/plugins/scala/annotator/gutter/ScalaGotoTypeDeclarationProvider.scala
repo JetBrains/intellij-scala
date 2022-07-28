@@ -5,11 +5,6 @@ import com.intellij.psi.{PsiClass, PsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScType, ScTypeExt}
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 22.12.2009
- */
-
 class ScalaGotoTypeDeclarationProvider extends TypeDeclarationProvider {
   override def getSymbolTypeDeclarations(symbol: PsiElement): Array[PsiElement] = {
     symbol match {

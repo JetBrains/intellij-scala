@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-/**
- * User: Dmitry.Naydanov
- * Date: 09.07.14.
- */
 class AddUnitTypeEnterHandler extends EnterHandlerDelegateAdapter {
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
     if (!isApplicable(file, editor)) return Result.Continue

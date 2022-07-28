@@ -24,10 +24,6 @@ import org.jetbrains.plugins.scala.util.BaseIconProvider
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * @author Alexander Podkhalyuzin
-  * Date: 04.05.2008
-  */
 trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   override def getContainingClass: PsiClass = containingClass
@@ -67,7 +63,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     this match {
       case stub: StubBasedPsiElementBase[_] =>
         stub.getGreenStub match {
-          case member: ScMemberOrLocal if member.isLocal => return null
+          case member: ScMemberOrLocal[_] if member.isLocal => return null
           case _ =>
         }
       case _ =>
@@ -86,7 +82,7 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       (ctx == extendsBlock ||
         extendsBlock.templateBody.contains(ctx) ||
         extendsBlock.earlyDefinitions.contains(ctx) ||
-        found.physicalExtendsBlock.templateBody.contains(ctx)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
+        found.extendsBlock.templateBody.contains(ctx)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
 
     val isCorrectExtension = context match {
       case eb: ScExtensionBody =>
@@ -123,11 +119,8 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   def isLocal: Boolean = containingClass == null && !isTopLevel && {
-    // TODO: this might be non-actual in Andrey S. branch
-    val isExtensionMethod = this match {
-      case Parent(Parent(_: ScExtension)) => true
-      case _                              => false
-    }
+    val parent = getParent
+    val isExtensionMethod = parent.is[ScExtensionBody]
     !isExtensionMethod
   }
 
@@ -139,26 +132,17 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
   }
 
   /**
-   * There is an inconsistency in method behaviour for root & non-root packages.<br>
-   * In root package it returns None for non-top-level methods.<br>
-   * In non=root package it returns Some(file package fqn)<br>
-   *
-   * TODO:
-   *  1. in 2021.3 make it always return None for all non-top level members<br>
-   *     remember that @main methods in objects also should be considered as with a top-level quolifier<br>
-   *     probably a separate utility method should be created
-   *  2. `isTopLevel` should be equal to topLevelQualifier.nonEmpty`<br>
-   *     we might even remove isTopLevel from the stubs
+   * @return Some package name in case member is a top level definition<br>
+   *         None otherwise
    */
-  def topLevelQualifier: Option[String] =
-    PsiTreeUtil
-      .getStubOrPsiParentOfType(this, classOf[ScPackaging])
-      .toOption
-      .map(_.fullPackageName)
-      .orElse {
-        if (this.getContext.is[ScalaFile]) Some("") //default package
-        else None
-      }
+  def topLevelQualifier: Option[String] = {
+    val parent = PsiTreeUtil.getStubOrPsiParent(this)
+    parent match {
+      case p: ScPackaging => Some(p.fullPackageName)
+      case _: ScalaFile => Some("") //default package
+      case _ => None
+    }
+  }
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {

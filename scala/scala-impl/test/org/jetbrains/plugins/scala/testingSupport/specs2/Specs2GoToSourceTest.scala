@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.specs2
 
-/**
- * @author Roman.Shein
- * @since 26.01.2015.
- */
 abstract class Specs2GoToSourceTest extends Specs2TestCase {
 
   val testName = "Specs2GoToSourceTest"

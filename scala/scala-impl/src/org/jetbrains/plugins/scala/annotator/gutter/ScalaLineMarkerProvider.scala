@@ -36,10 +36,6 @@ import java.util.Collections.singletonList
 import java.{util => ju}
 import javax.swing.Icon
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 31.10.2008
- */
 final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with ScalaSeparatorProvider {
 
   import Gutter._

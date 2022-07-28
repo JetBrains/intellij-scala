@@ -29,7 +29,7 @@ class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
     }
 
   private def checkLookupElementsOrder(fileText: String, expectedItems: List[String]): Unit = {
-    val (_, items) = activeLookupWithItems(fileText, CompletionType.BASIC, DEFAULT_TIME)()
+    val (_, items) = activeLookupWithItems(fileText, CompletionType.BASIC, DEFAULT_TIME)
     val actualItems = items.toList.map(_.getLookupString).filter(_.startsWith("end "))
 
     Assert.assertArrayEquals(expectedItems.toArray[AnyRef], actualItems.toArray[AnyRef])

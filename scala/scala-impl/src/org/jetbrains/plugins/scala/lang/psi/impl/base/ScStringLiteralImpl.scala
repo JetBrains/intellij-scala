@@ -18,10 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.escapers.{ScLiter
 import org.jetbrains.plugins.scala.lang.psi.types._
 
 // todo: move to "literals" subpackage, but check usages
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 22.02.2008
- */
+
 class ScStringLiteralImpl(node: ASTNode,
                           override val toString: String)
   extends QuotedLiteralImplBase(node, toString)

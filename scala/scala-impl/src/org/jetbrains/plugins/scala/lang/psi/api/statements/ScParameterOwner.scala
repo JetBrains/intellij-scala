@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-/**
-* @author ilyas
-*/
-
 trait ScParameterOwner extends ScalaPsiElement {
   def parameters: Seq[ScParameter]
   def clauses: Option[ScParameters]

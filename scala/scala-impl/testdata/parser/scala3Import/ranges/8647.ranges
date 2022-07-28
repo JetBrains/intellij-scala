@@ -115,7 +115,7 @@
 [523,524]: TypeBoundsTree
 [529,532]: Ident
 [539,555]: CaseDef
-[544,545]: TypeBoundsTree
+[544,545]: Ident
 [549,555]: Ident
 [568,613]: ValDef
 [575,608]: AppliedTypeTree
@@ -161,7 +161,7 @@
 [755,756]: TypeBoundsTree
 [761,764]: Ident
 [771,787]: CaseDef
-[776,777]: TypeBoundsTree
+[776,777]: Ident
 [781,787]: Ident
 [800,849]: ValDef
 [807,845]: AppliedTypeTree

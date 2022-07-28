@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import java.util.Objects
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 07.03.2008
-  */
 class ScAnnotationImpl private(stub: ScAnnotationStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, ANNOTATION, node) with ScAnnotation {
 

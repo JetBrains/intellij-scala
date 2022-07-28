@@ -8,14 +8,9 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableId}
 
-/**
-* User: Alexander.Podkhalyuzin
-*/
-
 /*
  *  ImportExpr ::= StableId  '.'  (id | '_'  | ImportSelectors)
  */
-
 object ImportExpr extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val importExprMarker = builder.mark()

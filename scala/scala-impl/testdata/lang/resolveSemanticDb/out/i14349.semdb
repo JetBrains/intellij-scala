@@ -1,0 +1,24 @@
+Document tests/pos/i14349.scala
+(3:13..3:19) _empty_/Module# -> 1:7
+(4:14..4:18) _empty_/Module# -> 1:7
+(4:19..4:20) _empty_/Module#X# -> 7:8
+(5:14..5:18) _empty_/Module# -> 1:7
+(5:19..5:20) _empty_/Module#Y# -> 8:8
+(10:15..10:21) _empty_/Expose# -> 12:7
+(10:22..10:23) _empty_/Module#X# -> 7:8
+(10:25..10:26) _empty_/Module#Y# -> 8:8
+(10:28..10:29) _empty_/Module#M# -> 3:8
+(15:10..15:16) _empty_/Module# -> 1:7
+(15:28..15:30) _empty_/Expose#[X0] -> 13:5
+(15:41..15:43) _empty_/Expose#[Y0] -> 14:5
+(18:14..18:17) scala/package.Seq#
+(18:18..18:24) scala/Option#
+(18:25..18:31) _empty_/Module# -> 1:7
+(18:36..18:39) scala/package.Seq#
+(18:40..18:46) _empty_/Expose# -> 12:7
+(19:3..19:5) _empty_/i14349$package.test().(ms) -> 18:10
+(19:6..19:13) scala/collection/IterableOps#collect().
+(19:21..19:25) scala/Some.
+(19:37..19:43) local8 -> 19:26
+(19:44..19:50) _empty_/Module#expose(). -> 10:7
+

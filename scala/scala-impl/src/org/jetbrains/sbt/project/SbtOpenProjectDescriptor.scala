@@ -4,9 +4,6 @@ package project
 import com.intellij.ide.actions.OpenProjectFileChooserDescriptor
 import com.intellij.openapi.vfs.VirtualFile
 
-/**
- * @author Pavel Fatin
- */
 class SbtOpenProjectDescriptor extends OpenProjectFileChooserDescriptor(true) {
 
   override def isFileVisible(file: VirtualFile, showHiddenFiles: Boolean): Boolean =

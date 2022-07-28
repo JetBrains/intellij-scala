@@ -3,9 +3,6 @@ package lang
 package transformation
 package types
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandFunctionTypeTest extends TransformerTest(new ExpandFunctionType()) {
 
   def testSingleArgument(): Unit = check(

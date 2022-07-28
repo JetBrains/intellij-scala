@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * Nikolay.Tropin
- * 2014-07-28
- */
 abstract class CreateFromUsageQuickFixBase(ref: ScReference)
   extends IntentionAction with ProjectContextOwner {
 

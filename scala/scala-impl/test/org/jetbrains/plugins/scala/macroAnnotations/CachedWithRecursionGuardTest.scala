@@ -5,10 +5,6 @@ import org.junit.Assert._
 
 import java.util.concurrent.atomic.AtomicInteger
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 9/29/15.
-  */
 class CachedWithRecursionGuardTest extends CachedWithRecursionGuardTestBase {
   def testWithoutParameters(): Unit = {
     class Elem extends CachedMockPsiElement {

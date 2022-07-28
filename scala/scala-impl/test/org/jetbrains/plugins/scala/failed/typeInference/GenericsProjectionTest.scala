@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
-/**
-  * @author mucianm 
-  * @since 07.04.16.
-  */
 class GenericsProjectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testSCL8969(): Unit = {

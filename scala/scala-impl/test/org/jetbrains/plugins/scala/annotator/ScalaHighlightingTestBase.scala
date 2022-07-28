@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Alefas
-  * @since 23/03/16
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
 

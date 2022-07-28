@@ -27,10 +27,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 2014-08-13
- */
 private[changeSignature] trait ScalaChangeSignatureUsageHandler {
 
   protected def handleChangedName(change: ChangeInfo, usage: UsageInfo): Unit = {

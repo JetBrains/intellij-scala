@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderscoreSection
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 
-/**
-  * Pavel.Fatin, 22.04.2010
-  */
 class ToggleTypeAnnotation extends AbstractTypeAnnotationIntention {
 
   import ToggleTypeAnnotation._

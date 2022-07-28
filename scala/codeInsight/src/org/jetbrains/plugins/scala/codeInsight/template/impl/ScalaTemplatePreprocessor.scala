@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 
 import scala.annotation.tailrec
 
-/**
-  * @author Roman.Shein
-  *         Date: 19.10.2015
-  */
 final class ScalaTemplatePreprocessor extends TemplatePreprocessor {
 
   import ScalaTemplatePreprocessor._

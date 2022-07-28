@@ -10,9 +10,6 @@ import com.intellij.util.{Consumer, PlatformIcons}
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaImportingInsertHandler
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 
-/**
- * @author Alexander Podkhalyuzin
- */
 final class ScalaImportStaticLookupActionProvider extends LookupActionProvider {
 
   override def fillActions(element: LookupElement,

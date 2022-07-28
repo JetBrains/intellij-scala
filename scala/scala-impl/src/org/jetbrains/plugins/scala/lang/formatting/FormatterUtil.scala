@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScIf
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
- * User: Alexander Podkhalyuzin
- * Date: 05.10.2008
- *
  * @todo consider unifying with [[org.jetbrains.plugins.scala.util.IndentUtil]]
  */
 object FormatterUtil {

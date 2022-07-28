@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
  * Converts expression representing java collection to
  * scala equivalent using [[scala.collection.JavaConverters]] before Scala 2.13
  * and [[scala.jdk.CollectionConverters]] since Scala 2.13
- *
- * @author Eugene Platonov
- *         04/07/13
  */
 class ConvertJavaToScalaCollectionIntention extends BaseJavaConvertersIntention("asScala") {
 

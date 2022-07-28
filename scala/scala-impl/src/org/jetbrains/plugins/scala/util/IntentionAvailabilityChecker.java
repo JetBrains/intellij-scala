@@ -5,10 +5,6 @@ import com.intellij.codeInspection.InspectionProfileEntry;
 import com.intellij.openapi.extensions.ExtensionPointName;
 import com.intellij.psi.PsiElement;
 
-/**
- * User: Dmitry Naydanov
- * Date: 10/1/12
- */
 abstract public class IntentionAvailabilityChecker {
   private static final ExtensionPointName<IntentionAvailabilityChecker> EP_NAME =
       ExtensionPointName.create("org.intellij.scala.scalaIntentionAvailabilityChecker");

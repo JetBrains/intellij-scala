@@ -3,10 +3,6 @@ package codeInsight
 package intention
 package controlFlow
 
-/**
-  * Nikolay.Tropin
-  * 4/17/13
-  */
 final class ReplaceDoWhileWithWhileIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.do.while.with.while")

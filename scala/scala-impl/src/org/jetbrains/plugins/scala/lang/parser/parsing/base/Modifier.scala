@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * | [[OpaqueModifier]]
  * | [[LocalModifier]]
  * | [[AccessModifier]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 15.02.2008
  */
 object Modifier extends ParsingRule {
 

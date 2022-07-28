@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.ScModifierListImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScModifiersStubImpl
 import org.jetbrains.plugins.scala.util.EnumSet
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 21.01.2009
-  */
 class ScModifiersElementType(debugName: String)
   extends ScStubElementType[ScModifiersStub, ScModifierList](debugName) {
 

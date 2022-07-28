@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.optimize.OptimizeImportsTestBase
 
 import java.util.regex.Pattern
 
-/**
-  * Nikolay.Tropin
-  * 13-Feb-17
-  */
 class OptimizeImportsScalastyleGroupsTest extends OptimizeImportsTestBase {
   override def folderPath: String = super.folderPath + "scalastyle/"
 

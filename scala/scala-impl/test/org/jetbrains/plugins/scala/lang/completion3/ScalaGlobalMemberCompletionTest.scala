@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.junit.Assert.assertEquals
 
-/**
- * @author Alexander Podkhalyuzin
- */
 class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
 
   import ScalaCodeInsightTestBase._

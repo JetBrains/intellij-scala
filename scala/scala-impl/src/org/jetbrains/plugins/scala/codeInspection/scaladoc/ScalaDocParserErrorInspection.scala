@@ -7,11 +7,6 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiErrorElement}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
-/**
- * User: Dmitry Naidanov
- * Date: 11/19/11
- */
-
 class ScalaDocParserErrorInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
 

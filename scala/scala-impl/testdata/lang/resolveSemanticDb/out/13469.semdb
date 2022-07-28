@@ -27,6 +27,7 @@ Document tests/pos/13469.scala
 (14:20..14:28) _empty_/Meta.Contains# -> 12:8
 (14:29..14:30) local2 -> 14:15
 (14:32..14:33) _empty_/Meta.Contains#[X] -> 12:29
+(15:10..15:11) scala/Any#
 (17:26..17:31) scala/Tuple#
 (17:39..17:44) scala/Tuple#
 (17:47..17:48) _empty_/Meta.RemoveStrict#[T] -> 17:21
@@ -34,6 +35,7 @@ Document tests/pos/13469.scala
 (18:26..18:30) local3 -> 18:10
 (19:12..19:13) _empty_/Meta.RemoveStrict#[X] -> 17:33
 (19:17..19:21) local4 -> 18:18
+(20:12..20:13) scala/Any#
 (20:17..20:21) local3 -> 18:10
 (20:22..20:24) scala/`*:`#
 (20:25..20:37) _empty_/Meta.RemoveStrict# -> 17:8

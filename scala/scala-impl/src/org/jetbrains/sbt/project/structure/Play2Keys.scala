@@ -7,10 +7,6 @@ import org.jetbrains.annotations.NonNls
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * User: Dmitry.Naydanov
- * Date: 26.09.14.
- */
 object Play2Keys {
   val GLOBAL_TAG = "$global$"
   val ROOT_TAG = "root"

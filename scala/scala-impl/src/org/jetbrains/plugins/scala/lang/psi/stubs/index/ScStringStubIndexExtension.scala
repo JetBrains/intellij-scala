@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.finder.ScalaFilterScope
 
 import java.{util => ju}
 
-/**
-  * @author adkozlov
-  */
 abstract class ScStringStubIndexExtension[E <: PsiElement] extends StringStubIndexExtension[E] {
 
   override final def get(key: String, project: Project, scope: GlobalSearchScope): ju.Collection[E] =

@@ -2,11 +2,6 @@ package scala.meta.collections
 
 import scala.collection.mutable
 
-/**
-  * @author mucianm 
-  * @since 03.06.16.
-  */
-
 class TwoWayCache[T, U] {
   private lazy val t2u = mutable.WeakHashMap[T, U]()
   private lazy val u2t = mutable.WeakHashMap[U, T]()

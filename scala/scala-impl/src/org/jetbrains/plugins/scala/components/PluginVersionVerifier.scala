@@ -16,10 +16,6 @@ import java.io.File
 import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 
-/**
-  * @author Alefas
-  * @since 31.10.12
-  */
 abstract class ScalaPluginVersionVerifier {
   def getSinceVersion: String
 

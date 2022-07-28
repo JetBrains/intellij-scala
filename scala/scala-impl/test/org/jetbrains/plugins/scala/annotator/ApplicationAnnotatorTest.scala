@@ -1,11 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
 
   def testEmpty(): Unit = {

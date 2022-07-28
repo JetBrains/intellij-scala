@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.{ResolveTargets, ScalaResolveResult}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 30.04.2010
-  */
 class ConstructorResolveProcessor(constr: PsiElement, refName: String, args: List[Seq[Expression]],
                                   typeArgs: Seq[ScTypeElement], kinds: Set[ResolveTargets.Value],
                                   shapeResolve: Boolean, allConstructors: Boolean)

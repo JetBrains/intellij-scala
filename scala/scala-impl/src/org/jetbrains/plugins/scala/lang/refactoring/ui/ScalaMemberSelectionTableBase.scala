@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScOb
 
 import javax.swing.Icon
 
-/**
- * Nikolay.Tropin
- * 8/20/13
- */
 abstract class ScalaMemberSelectionTableBase[M <: PsiElement, I <: ScalaMemberInfoBase[M]](memberInfos: java.util.Collection[I],
                                 memberInfoModel: MemberInfoModel[M, I],
                                 abstractColumnHeader: String)

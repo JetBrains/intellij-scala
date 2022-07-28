@@ -28,11 +28,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
- * @author Ksenia.Sautina
- * @since 7/17/12
- */
-
 object ScalaI18nUtil {
   trait AnnotationChecker {
     def check(owner: PsiModifierListOwner): Boolean

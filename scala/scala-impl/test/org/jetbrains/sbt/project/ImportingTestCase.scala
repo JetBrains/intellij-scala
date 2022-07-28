@@ -16,10 +16,6 @@ import org.junit.Assert.assertNotNull
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * @author Nikolay Obedin
- * @since 8/4/15.
- */
 abstract class ImportingTestCase extends ExternalSystemImportingTestCase with ProjectStructureMatcher {
 
   val Log = Logger.getInstance(this.getClass)

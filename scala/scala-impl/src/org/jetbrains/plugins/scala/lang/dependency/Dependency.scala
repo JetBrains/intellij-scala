@@ -25,10 +25,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * Pavel Fatin
-  */
-
 case class Dependency(target: PsiElement, path: Path)
 
 object Dependency {

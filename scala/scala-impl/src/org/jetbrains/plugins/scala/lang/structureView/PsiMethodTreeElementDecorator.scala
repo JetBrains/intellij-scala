@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.lang.structureView
 import com.intellij.ide.structureView.impl.java.PsiMethodTreeElement
 import com.intellij.psi.PsiMethod
 
-/**
-  * @author Pavel Fatin
-  */
 private class PsiMethodTreeElementDecorator(method: PsiMethod, inherited: Boolean) extends PsiMethodTreeElement(method, inherited) {
   override def getPresentableText: String =
     PsiMethodTreeElementDecorator.asScalaType(super.getPresentableText)

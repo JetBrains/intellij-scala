@@ -1,0 +1,44 @@
+Document tests/pos/i13859.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/deriving/
+(4:25..4:26) _empty_/Test.Kind1#[C] -> 4:14
+(5:28..5:29) _empty_/Test.Kind1#[O] -> 4:17
+(5:30..5:31) local0 -> 5:23
+(6:29..6:30) _empty_/Test.Kind1#[O] -> 4:17
+(6:31..6:34) scala/Any#
+(7:34..7:39) scala/Tuple#
+(10:28..10:29) _empty_/Test.Kind2#[C] -> 10:14
+(11:31..11:32) _empty_/Test.Kind2#[O] -> 10:17
+(11:33..11:34) local4 -> 11:23
+(11:36..11:37) local5 -> 11:26
+(12:29..12:30) _empty_/Test.Kind2#[O] -> 10:17
+(12:31..12:34) scala/Any#
+(12:36..12:39) scala/Any#
+(13:37..13:42) scala/Tuple#
+(16:19..16:20) _empty_/Test.Test#[X] -> 16:13
+(16:22..16:29) scala/Boolean#
+(17:22..17:23) _empty_/Test.Swap#[Y] -> 17:16
+(17:25..17:26) _empty_/Test.Swap#[X] -> 17:13
+(19:3..19:10) scala/Predef.locally().
+(20:13..20:19) scala/Predef.summon().
+(20:20..20:25) _empty_/Test.Kind1# -> 4:8
+(20:26..20:32) scala/deriving/Mirror.
+(20:33..20:40) scala/deriving/Mirror.Product#
+(20:42..20:46) _empty_/Test.Test# -> 16:8
+(21:5..21:6) local10 -> 20:9
+(21:8..21:14) scala/deriving/Mirror.
+(21:15..21:22) scala/deriving/Mirror.Product#
+(22:36..22:37) local19 -> 22:30
+(22:39..22:46) scala/Boolean#
+(26:3..26:10) scala/Predef.locally().
+(27:13..27:19) scala/Predef.summon().
+(27:20..27:25) _empty_/Test.Kind2# -> 10:8
+(27:26..27:32) scala/deriving/Mirror.
+(27:33..27:40) scala/deriving/Mirror.Product#
+(27:42..27:46) _empty_/Test.Swap# -> 17:8
+(28:5..28:6) local22 -> 27:9
+(28:8..28:14) scala/deriving/Mirror.
+(28:15..28:22) scala/deriving/Mirror.Product#
+(29:39..29:40) local32 -> 29:33
+(29:42..29:43) local31 -> 29:30
+

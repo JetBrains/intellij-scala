@@ -4,10 +4,6 @@ import com.intellij.pom.java.LanguageLevel
 import org.jetbrains.plugins.scala.HighlightingTests
 import org.junit.experimental.categories.Category
 
-/**
-  * Nikolay.Tropin
-  * 01-Aug-17
-  */
 @Category(Array(classOf[HighlightingTests]))
 class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 

@@ -1,6 +1,7 @@
 Document tests/pos/tuple-filter.scala
 (1:14..1:21) scala/Boolean#
 (1:24..1:25) _empty_/`tuple-filter$package`.P#[x] -> 1:8
+(3:8..3:9) scala/Any#
 (8:3..8:9) scala/Predef.summon().
 (8:10..8:15) scala/Tuple.
 (8:16..8:22) scala/Tuple.Filter#

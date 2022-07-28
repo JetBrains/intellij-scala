@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScTypeExt}
 
-/**
- * @author Alexander Podkhalyuzin
- */
 object ScEquivalenceUtil {
   def areClassesEquivalent(clazz1: PsiClass, clazz2: PsiClass): Boolean = {
     if (clazz1 == clazz2)

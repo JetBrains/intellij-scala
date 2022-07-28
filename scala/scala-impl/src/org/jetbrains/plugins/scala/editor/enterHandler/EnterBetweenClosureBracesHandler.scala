@@ -21,8 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScFunctionExpr}
 
 /**
   * Mostly copy-pasted from [[com.intellij.codeInsight.editorActions.enter.EnterBetweenBracesHandler]]
-  * @author jamesbrain
-  * @since 14.07.2016
   */
 class EnterBetweenClosureBracesHandler extends EnterHandlerDelegateAdapter {
   private val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler")

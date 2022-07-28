@@ -1,0 +1,32 @@
+Document tests/pos/i12216.scala
+(1:8..1:13) scala/
+(1:14..1:22) scala/language.
+(1:23..1:42) scala/language.implicitConversions.
+(6:32..6:40) _empty_/CtorType# -> 3:23
+(6:41..6:42) _empty_/CtorType.Props#[P] -> 6:21
+(7:30..7:31) _empty_/CtorType.Props#[P] -> 6:21
+(7:34..7:38) scala/Unit#
+(11:24..11:32) _empty_/CtorType# -> 3:23
+(11:33..11:34) _empty_/Comp#`<init>`().[CT][p] -> 11:18
+(12:13..12:15) _empty_/Comp#[CT] -> 11:15
+(12:16..12:17) _empty_/Comp#[P] -> 11:12
+(15:37..15:45) _empty_/CtorType# -> 3:23
+(15:46..15:47) _empty_/Comp.autoCtor().[CT][p] -> 15:31
+(15:53..15:57) _empty_/Comp# -> 11:7
+(15:58..15:59) _empty_/Comp.autoCtor().[P] -> 15:25
+(15:61..15:63) _empty_/Comp.autoCtor().[CT] -> 15:28
+(15:67..15:69) _empty_/Comp.autoCtor().[CT] -> 15:28
+(15:70..15:71) _empty_/Comp.autoCtor().[P] -> 15:25
+(15:75..15:76) _empty_/Comp.autoCtor().(c) -> 15:50
+(15:77..15:81) _empty_/Comp#ctor. -> 12:7
+(19:13..19:17) _empty_/Comp# -> 11:7
+(19:18..19:21) scala/Int#
+(19:23..19:31) _empty_/CtorType. -> 5:8
+(19:41..19:44) scala/Predef.`???`().
+(21:3..21:7) _empty_/Test.comp. -> 19:7
+(21:8..21:21) _empty_/CtorType.Props#whyHelloThere(). -> 7:9
+(23:3..23:7) _empty_/Comp. -> 14:8
+(23:8..23:16) _empty_/Comp.autoCtor(). -> 15:16
+(23:17..23:21) _empty_/Test.comp. -> 19:7
+(23:23..23:36) _empty_/CtorType.Props#whyHelloThere(). -> 7:9
+

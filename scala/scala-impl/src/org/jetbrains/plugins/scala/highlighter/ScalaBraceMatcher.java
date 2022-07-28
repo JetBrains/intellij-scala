@@ -27,11 +27,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaXmlTokenTypes;
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
 
-/**
- * @author ilyas
- *         Date: 29.09.2006
- *         Time: 20:26:52
- */
 public class ScalaBraceMatcher implements PairedBraceMatcher {
 
   private static final BracePair[] PAIRS = new BracePair[]{

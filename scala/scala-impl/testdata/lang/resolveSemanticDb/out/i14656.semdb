@@ -1,0 +1,24 @@
+Document tests/pos/i14656.scala
+(3:22..3:32) scala/package.BigDecimal#
+(4:20..4:30) scala/package.BigDecimal#
+(4:33..4:37) _empty_/BigDecimalNewType#Type# -> 3:15
+(4:40..4:45) _empty_/BigDecimalNewType#apply().(value) -> 4:13
+(5:20..5:24) _empty_/BigDecimalNewType#Type# -> 3:15
+(6:16..6:26) scala/package.BigDecimal#
+(6:29..6:33) _empty_/BigDecimalNewType#value().(self) -> 5:14
+(7:21..7:25) _empty_/BigDecimalNewType#Type# -> 3:15
+(7:28..7:32) _empty_/BigDecimalNewType#Type# -> 3:15
+(7:35..7:40) _empty_/BigDecimalNewType#apply(). -> 4:7
+(7:41..7:45) _empty_/BigDecimalNewType#`+`().(self) -> 5:14
+(7:46..7:51) _empty_/BigDecimalNewType#value(). -> 6:9
+(7:52..7:53) scala/math/BigDecimal#`+`().
+(7:54..7:55) _empty_/BigDecimalNewType#`+`().(y) -> 7:18
+(7:56..7:61) _empty_/BigDecimalNewType#value(). -> 6:9
+(9:23..9:40) _empty_/BigDecimalNewType# -> 2:7
+(10:11..10:17) _empty_/Amount. -> 9:8
+(11:11..11:12) _empty_/BigDecimalNewType#`+`(). -> 7:16
+(11:12..11:13) _empty_/Amount.x. -> 10:7
+(11:14..11:15) _empty_/BigDecimalNewType#`+`(). -> 7:16
+(11:16..11:17) _empty_/Amount.x. -> 10:7
+(11:21..11:22) _empty_/Amount.x. -> 10:7
+

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.conversion.ast
 
 import org.jetbrains.plugins.scala.conversion.ast.ClassConstruction.ClassType.ClassType
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 10/22/15
-  */
 object ClassConstruction {
 
   object ClassType extends Enumeration {

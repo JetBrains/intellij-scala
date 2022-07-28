@@ -37,6 +37,8 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
     ModuleRootModificationUtil.updateModel(module, (model: ModifiableRootModel) => {
       PsiTestUtil.addProjectLibrary(model, "annotations", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[org.jetbrains.annotations.ApiStatus.NonExtendable])))
       PsiTestUtil.addProjectLibrary(model, "library", util.Arrays.asList(getTestDataPath + "library_root"))
+
+      PsiTestUtil.addProjectLibrary(model, "intellij_platform_utils", util.Arrays.asList(PathUtil.getJarPathForClass(classOf[com.intellij.util.messages.Topic[_]])))
     })
   }
 
@@ -152,6 +154,40 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         HighlightMessage((2466, 2479), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((2529, 2542), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((2599, 2612), "Method 'doNotOverride()' must not be overridden"),
+      ),
+      actualHighlightMessages
+    )
+  }
+
+  def `test com.intellij.util.messages.Topic`(): Unit = {
+    val text =
+      """import com.intellij.util.messages.Topic
+        |
+        |//with explicit type element
+        |object MyTopicClass extends Topic[String](classOf[String])
+        |class MyTopicObject extends Topic[String](classOf[String])
+        |trait MyTopicTrait extends Topic[String]
+        |
+        |//without explicit type element
+        |object MyTopicClass extends Topic(classOf[String])
+        |class MyTopicObject extends Topic(classOf[String])
+        |trait MyTopicTrait extends Topic
+        |""".stripMargin
+
+    //NOTE: here I use `configureByText` not as it was originally intended by configureByText
+    // this is because I want to test each inspection message more fine-grainy
+    val ScalaHighlightsTestBase.TestPrepareResult(_, _, actualHighlights) = configureByText(text)
+
+    val actualHighlightMessages: Seq[HighlightMessage] = actualHighlights.map(HighlightMessage.apply)
+    assertCollectionEquals(
+      Seq[HighlightMessage](
+        HighlightMessage((98,103),"Class 'com.intellij.util.messages.Topic' must not be extended"),
+        HighlightMessage((157,162),"Class 'com.intellij.util.messages.Topic' must not be extended"),
+        HighlightMessage((215,220),"Class 'com.intellij.util.messages.Topic' must not be extended"),
+
+        HighlightMessage((290,295),"Class 'com.intellij.util.messages.Topic' must not be extended"),
+        HighlightMessage((341,346),"Class 'com.intellij.util.messages.Topic' must not be extended"),
+        HighlightMessage((391,396),"Class 'com.intellij.util.messages.Topic' must not be extended"),
       ),
       actualHighlightMessages
     )

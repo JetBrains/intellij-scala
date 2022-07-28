@@ -5,10 +5,6 @@ package booleans
 
 import com.intellij.testFramework.EditorTestUtil
 
-/**
- * @author Ksenia.Sautina
- * @since 4/20/12
- */
 class ReplaceEqualsOrEqualityInMethodCallExprIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.replace.equals.or.equality.in.method.call.expression")

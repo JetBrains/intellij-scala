@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScExistentialArgument
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, Nothing}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
- * @author Alefas
- * @since 26/09/14.
- */
 class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScTypeVariableTypeElement {
   override protected def innerType: TypeResult =
     Right(ScExistentialArgument(name, List.empty, Nothing, Any))

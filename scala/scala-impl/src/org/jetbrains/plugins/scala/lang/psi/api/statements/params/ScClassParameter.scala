@@ -8,10 +8,6 @@ package params
 import com.intellij.lang.jvm.JvmElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
 trait ScClassParameter extends ScParameter with ScMember.WithBaseIconProvider {
   def isVal: Boolean
 

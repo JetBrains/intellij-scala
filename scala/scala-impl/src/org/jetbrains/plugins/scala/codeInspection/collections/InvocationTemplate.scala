@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 import scala.util.Try
 
-/**
- * @author Nikolay.Tropin
- */
-
 abstract class InvocationTemplate(nameCondition: String => Boolean) {
 
   protected class Condition[T](f: T => Boolean) {

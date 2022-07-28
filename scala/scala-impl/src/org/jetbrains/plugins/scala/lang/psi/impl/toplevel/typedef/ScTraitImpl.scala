@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.Scala_2_12
 
 import javax.swing.Icon
 
-/**
-* @author Alexander Podkhalyuzin
-* @since 20.02.2008
-*/
 final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
                         nodeType: ScTemplateDefinitionElementType[ScTrait],
                         node: ASTNode,
@@ -45,12 +41,9 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
   override def processDeclarationsForTemplateBody(processor: PsiScopeProcessor,
                                                   state: ResolveState,
                                                   lastParent: PsiElement,
-                                                  place: PsiElement): Boolean = desugaredElement match {
-    case Some(td: ScTemplateDefinitionImpl[_]) =>
-      td.processDeclarationsForTemplateBody(processor, state, getLastChild, place)
-      case _ =>
-        super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
-          super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
+                                                  place: PsiElement): Boolean = {
+    super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place) &&
+      super.processDeclarationsForTemplateBody(processor, state, lastParent, place)
   }
 
   override def processDeclarations(processor: PsiScopeProcessor,
@@ -87,10 +80,8 @@ final class ScTraitImpl(stub: ScTemplateDefinitionStub[ScTrait],
 
   private def withSuffix(name: String) = s"$name$$class"
 
-  override def constructor: Option[ScPrimaryConstructor] = desugaredElement match {
-    case Some(templateDefinition: ScConstructorOwner) => templateDefinition.constructor
-    case _ => this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
-  }
+  override def constructor: Option[ScPrimaryConstructor] =
+    this.stubOrPsiChild(ScalaElementType.PRIMARY_CONSTRUCTOR)
 
   override protected def keywordTokenType: IElementType = ScalaTokenType.TraitKeyword
 

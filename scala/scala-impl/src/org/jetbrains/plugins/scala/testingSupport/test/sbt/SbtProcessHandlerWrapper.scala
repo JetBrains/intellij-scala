@@ -6,11 +6,10 @@ import org.jetbrains.annotations.ApiStatus
 import java.io.OutputStream
 import scala.collection.mutable
 
-/** Process wrapper used to imitate termination of process so that 'stop' button in UI stops tests, but foes not kill
-  * sbt shell.
-  * @author Roman.Shein
-  *         Date: 16.02.2017
-  */
+/**
+ * Process wrapper used to imitate termination of process so that 'stop' button in UI stops tests, but foes not kill
+ * sbt shell.
+ */
 @ApiStatus.Internal
 case class SbtProcessHandlerWrapper(inner: OSProcessHandler) extends ProcessHandler() {
 

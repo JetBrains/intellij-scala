@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Roman.Shein
- * @since 21.09.2015.
- */
 final class ScalaAnnotatedMacro extends ScalaMacro {
 
   protected def getAnnotatedMembers(params: Array[Expression], context: ExpressionContext): Query[PsiMember] = {

@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 import scala.Option;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.11.11
- */
 public class DependenciesFromJavaResolveTest extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

@@ -4,11 +4,6 @@ import java.nio.charset.StandardCharsets
 
 import scala.annotation.tailrec
 
-/**
-  * Nikolay.Tropin
-  * 19-Jul-17
-  */
-
 //Based on scala.reflect.internal.pickling.PickleBuffer
 class ScalaSigReader(bytes: Array[Byte]) {
   var readIndex = 0

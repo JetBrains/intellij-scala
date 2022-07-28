@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * Nikolay.Tropin
- * 12/19/13
- */
 class ScalaGoToClassContributor extends GotoClassContributor {
 
   import ScalaIndexKeys._

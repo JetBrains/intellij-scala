@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import java.io.File
 import scala.concurrent.duration.Duration
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 10/29/15.
- */
 abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
   def doFileTest(stringsToType: String*)(implicit timeout: Duration): Unit = {

@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project._
 
-/**
-  * @author Nikolay.Tropin
-  */
 case class ImplicitSearchScope(representative: PsiElement) {
 
   @CachedWithRecursionGuard(representative, Set.empty, BlockModificationTracker(representative))

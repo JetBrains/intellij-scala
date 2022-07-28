@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTrait
 
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 02.06.2009
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class AbstractValueInTraitInspection
   extends AbstractInspection(ScalaInspectionBundle.message("display.name.abstract.value.in.trait")) {

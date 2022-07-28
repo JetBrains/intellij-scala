@@ -12,10 +12,6 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-/**
- * Nikolay.Tropin
- * 2014-12-03
- */
 class ScalaSyntheticProvider extends SyntheticTypeComponentProvider {
   override def isSynthetic(typeComponent: TypeComponent): Boolean = ScalaSyntheticProvider.isSynthetic(typeComponent)
 

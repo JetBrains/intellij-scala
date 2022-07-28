@@ -12,6 +12,7 @@ Document tests/pos/8649.scala
 (7:29..7:31) _empty_/handler.Go# -> 14:8
 (7:32..7:35) _empty_/`8649$package`.Handler#[API] -> 7:14
 (14:18..14:21) _empty_/handler.Go#[API] -> 14:11
+(15:10..15:11) scala/Any#
 (16:7..16:20) _empty_/handler.HandlerSingle# -> 18:8
 (16:21..16:24) _empty_/handler.Go#[API] -> 14:11
 (18:27..18:28) _empty_/handler.HandlerSingle#[X] -> 18:22
@@ -21,6 +22,7 @@ Document tests/pos/8649.scala
 (23:35..23:37) _empty_/Minimized.M2# -> 29:8
 (23:38..23:39) _empty_/Minimized.HandlerAlt#[A] -> 23:25
 (25:16..25:17) _empty_/Minimized.M1#[X] -> 25:11
+(26:10..26:11) scala/Any#
 (26:15..26:17) _empty_/Minimized.M2# -> 29:8
 (26:18..26:19) _empty_/Minimized.M1#[X] -> 25:11
 (29:16..29:17) _empty_/Minimized.M2#[X] -> 29:11

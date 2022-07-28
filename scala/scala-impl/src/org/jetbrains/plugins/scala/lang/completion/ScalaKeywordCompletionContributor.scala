@@ -10,10 +10,6 @@ import com.intellij.util.ProcessingContext
 
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 17.09.2009
- */
 final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaKeyword._

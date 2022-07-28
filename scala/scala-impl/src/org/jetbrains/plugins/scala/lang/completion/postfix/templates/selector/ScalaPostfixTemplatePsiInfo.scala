@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression.ScalaWithUnaryNotSurrounder
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Roman.Shein
-  * @since 09.09.2015.
-  */
 object ScalaPostfixTemplatePsiInfo extends PostfixTemplatePsiInfo {
 
   import ScalaPsiElementFactory.createExpressionFromText

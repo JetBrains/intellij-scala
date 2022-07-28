@@ -141,24 +141,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   protected def addFromCompanion(companion: ScTypeDefinition): Boolean = false
 
-  override def physicalExtendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
-
-  override def extendsBlock: ScExtendsBlock = {
-    desugaredElement.map(_.extendsBlock)
-      .getOrElse(physicalExtendsBlock)
-  }
-
-  override def desugaredElement: Option[ScTemplateDefinition] = {
-    def mayBeDesugared = getContainingFile match {
-      case sf: ScalaFile => !sf.isCompiled && sf.isValid && sf.isMetaEnabled
-      case _             => false
-    }
-
-    if (!isDesugared && mayBeDesugared) desugaredInner
-    else None
-  }
-
-  protected def desugaredInner: Option[ScTemplateDefinition] = None
+  override def extendsBlock: ScExtendsBlock = this.stubOrPsiChild(ScalaElementType.EXTENDS_BLOCK).orNull
 
   override final def getAllFields: Array[PsiField] =
     PsiClassImplUtil.getAllFields(this)

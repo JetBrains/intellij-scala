@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
-/**
- * Pavel Fatin
- */
 object InterpolatedStringFormatter extends StringFormatter {
   override def format(parts: Seq[StringPart]): String = {
     val toMultiline = parts.exists {

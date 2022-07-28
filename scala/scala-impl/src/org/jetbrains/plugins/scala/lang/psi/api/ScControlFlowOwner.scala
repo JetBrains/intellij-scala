@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 
 /**
  * Represents elements with control flow cached
- * @author ilyas
  */
 
 trait ScControlFlowOwner extends ScalaPsiElement {

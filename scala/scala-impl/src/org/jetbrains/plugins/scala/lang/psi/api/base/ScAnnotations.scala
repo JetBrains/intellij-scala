@@ -7,11 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 
-/**
- * @author Alexander Podkhalyuzin
- *                         Date: 07.03.2008
- */
-
 trait ScAnnotations extends ScalaPsiElement with PsiReferenceList {
 
   def getAnnotations: Array[ScAnnotation]

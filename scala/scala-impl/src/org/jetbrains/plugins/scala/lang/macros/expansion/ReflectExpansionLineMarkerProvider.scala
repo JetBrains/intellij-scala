@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.macros.expansion
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScAnnotationsHolder}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
@@ -14,13 +15,15 @@ class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvide
 
   override protected def getExpandMarker(element: PsiElement): Option[Marker] = {
     val collector = ReflectExpansionsCollector.getInstance(element.getProject)
-     extensions.inReadAction {collector.getExpansion(element)} match {
-      case Some(expansion) => Some(createExpandMarker(element)( _ => expandReflectMacro(element, expansion)))
-      case None => None
+    val expansionOpt = inReadAction {
+      collector.getExpansion(element)
+    }
+    expansionOpt.map { expansion =>
+      createExpandMarker(element, (_, _) => expandReflectMacro(element, expansion))
     }
   }
 
-  private def expandReflectMacro(element: PsiElement, expansion: MacroExpansion) = {
+  private def expandReflectMacro(element: PsiElement, expansion: MacroExpansion): Unit = {
     @tailrec
     def walkUp(elem: PsiElement, findAnnotee: Boolean = false): Option[PsiElement] = elem match {
       case null => None
@@ -45,8 +48,6 @@ class ReflectExpansionLineMarkerProvider extends MacroExpansionLineMarkerProvide
         extensions.inWriteAction(e.replace(psi))
     }
   }
-
-  override protected def getUndoMarker(element: PsiElement): Option[Marker] = None // TODO ?
 
   def ensugarExpansion(text: String): String = {
     @tailrec

@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-/**
-  * @author Roman.Shein
-  *         Date: 13.12.2016
-  */
 class ParametersTupleTest extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL11092(): Unit = {
     checkTextHasNoErrors(

@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 
 
 /**
- * @author Alefas
- * @since 02.04.12
- *
  * TODO: move to DevKit module
  */
 class ScalaWrongPlatformMethodsUsageInspection extends LocalInspectionTool {

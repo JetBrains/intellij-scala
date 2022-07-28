@@ -18,8 +18,6 @@ import scala.jdk.CollectionConverters._
  * and original build file. Notice that a trick is used to display proper paths in changes tree view: changes have
  * 'before/'after' revisions switch places so that in tree view path to 'before' is used while in diff view revisions
  * are in default places.
- * @author Roman.Shein
- * @since 19.03.2015.
  */
 class ChangesConfirmationDialog private (val project: IJProject, private val changes: List[BuildFileChange], var myChangesBrowser: BuildFileChangeBrowser,
                                          val fileStatusMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]) extends DialogWrapper(project) {

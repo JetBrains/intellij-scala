@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.worksheet
 import scala.language.experimental.macros
 import scala.reflect.macros._
 
-/**
- * User: Dmitry Naydanov
- * Date: 1/21/14
- */
 object MacroPrinter {
   def printDefInfo[T](toPrint: T): String = macro printDefImpl[T]
 

@@ -19,8 +19,6 @@ import scala.collection.mutable
 /**
  * Provides means to modify build files associated with IJ modules. Should be used for introducing/eliminating
  * dependencies, modifying sbt build options and so on.
- * @author Roman.Shein
- * @since 16.03.2015.
  */
 trait BuildFileModifier {
   /**

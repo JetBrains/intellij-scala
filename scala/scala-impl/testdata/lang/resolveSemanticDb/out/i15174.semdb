@@ -1,0 +1,38 @@
+Document tests/pos/i15174.scala
+(4:17..4:18) _empty_/Codec#[A] -> 2:29
+(4:21..4:27) scala/package.Either#
+(4:28..4:33) _empty_/Error# -> 1:7
+(4:35..4:43) _empty_/Codec#AvroType# -> 3:8
+(9:28..9:33) _empty_/Codec# -> 2:23
+(9:34..9:35) _empty_/Codec.Aux#[A] -> 9:23
+(10:21..10:30) _empty_/Codec.Aux#[AvroType0] -> 9:12
+(14:15..14:16) _empty_/Codec.instance().[A] -> 13:33
+(14:20..14:26) scala/package.Either#
+(14:27..14:32) _empty_/Error# -> 1:7
+(14:34..14:43) _empty_/Codec.instance().[AvroType0] -> 13:22
+(16:6..16:11) _empty_/Codec. -> 8:8
+(16:12..16:15) _empty_/Codec.Aux# -> 9:8
+(16:16..16:25) _empty_/Codec.instance().[AvroType0] -> 13:22
+(16:27..16:28) _empty_/Codec.instance().[A] -> 13:33
+(16:33..16:36) scala/Predef.`???`().
+(18:48..18:53) _empty_/Codec# -> 2:23
+(18:54..18:55) _empty_/Codec.option().[A] -> 18:29
+(18:59..18:64) _empty_/Codec# -> 2:23
+(18:65..18:71) scala/Option#
+(18:72..18:73) _empty_/Codec.option().[A] -> 18:29
+(18:78..18:81) scala/Predef.`???`().
+(19:9..19:14) _empty_/Codec. -> 8:8
+(19:15..19:18) _empty_/Codec.Aux# -> 9:8
+(19:19..19:22) scala/Int#
+(19:24..19:27) scala/Int#
+(19:31..19:34) scala/Predef.`???`().
+(23:2..23:6) scala/main#
+(24:23..24:28) _empty_/Codec# -> 2:23
+(24:29..24:35) scala/Option#
+(24:36..24:39) scala/Int#
+(25:5..25:10) _empty_/Codec. -> 8:8
+(25:11..25:19) _empty_/Codec.instance(). -> 13:13
+(26:7..26:12) _empty_/Codec. -> 8:8
+(26:13..26:19) _empty_/Codec.option(). -> 18:22
+(26:20..26:23) scala/Int#
+

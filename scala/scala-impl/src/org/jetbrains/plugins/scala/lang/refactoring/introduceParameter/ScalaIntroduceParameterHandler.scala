@@ -36,10 +36,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 11.06.2009
- */
 class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with DialogConflictsReporter {
 
   private var occurrenceHighlighters: Iterable[RangeHighlighter] = Seq.empty[RangeHighlighter]

@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Ids
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
-
 /*
  * ValDcl ::= ids ':' Type
  */

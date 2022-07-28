@@ -32,10 +32,6 @@ import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 9/18/15
-  */
 trait IntroduceExpressions {
   this: ScalaIntroduceVariableHandler =>
 

@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-/**
- * Nikolay.Tropin
- * 2014-09-23
- */
 class AddReturnTypeFix(fun: ScFunctionDefinition, tp: ScType) extends IntentionAction {
   override def getText: String = ScalaBundle.message("add.return.type")
 

@@ -17,10 +17,6 @@ import java.{util => ju}
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 7/15/13
- */
 class IntroduceFieldContext[T <: PsiElement](val project: Project,
                                              val editor: Editor,
                                              val file: PsiFile,

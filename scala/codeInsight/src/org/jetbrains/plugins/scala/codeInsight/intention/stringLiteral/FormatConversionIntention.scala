@@ -19,9 +19,6 @@ import org.jetbrains.plugins.scala.util.MultilineStringUtil
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
- * Pavel Fatin
- */
 sealed abstract class FormatConversionIntention[P <: StringParser](
   override val getText: String,
   protected val parser: P,

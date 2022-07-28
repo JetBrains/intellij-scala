@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.{ProcessSubtypes, ReplaceWith}
 import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScType}
 
-/**
-  * Nikolay.Tropin
-  * 01-Feb-18
-  */
 private abstract class LeafSubstitution extends SimpleUpdate {
 
   protected val subst: PartialFunction[LeafType, ScType]

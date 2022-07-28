@@ -165,6 +165,7 @@ Document tests/pos/scala-days-2019-slides/metaprogramming-2-addEventListener.sca
 (8:49..8:51) _empty_/JS.EventTypeOf#[Tp] -> 8:20
 (9:21..9:24) _empty_/JS.dom. -> 3:10
 (9:25..9:35) _empty_/JS.dom.MouseEvent# -> 5:10
+(10:10..10:11) scala/Any#
 (10:15..10:18) _empty_/JS.dom. -> 3:10
 (10:19..10:24) _empty_/JS.dom.Event# -> 4:10
 (13:30..13:36) scala/Predef.String#

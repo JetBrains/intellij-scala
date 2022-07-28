@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * Nikolay.Tropin
- * 5/30/13
- */
 class FindIsDefinedTest extends OperationsOnCollectionInspectionTest {
   override val classOfInspection = classOf[FindEmptyCheckInspection]
   override val hint = ScalaInspectionBundle.message("find.isDefined.hint")

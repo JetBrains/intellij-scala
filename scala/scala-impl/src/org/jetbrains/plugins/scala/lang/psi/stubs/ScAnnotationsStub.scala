@@ -6,8 +6,4 @@ package stubs
 import com.intellij.psi.stubs.StubElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotations
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 22.06.2009
-  */
 trait ScAnnotationsStub extends StubElement[ScAnnotations]

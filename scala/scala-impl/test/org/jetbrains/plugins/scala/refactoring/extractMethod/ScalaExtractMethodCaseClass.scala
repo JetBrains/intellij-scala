@@ -4,10 +4,6 @@ package refactoring.extractMethod
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 
-/**
- * Nikolay.Tropin
- * 2014-05-20
- */
 class ScalaExtractMethodCaseClass extends ScalaExtractMethodTestBase {
   override def folderPath: String = super.folderPath + "caseClass/"
 

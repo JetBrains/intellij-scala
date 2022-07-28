@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 13.09.17.
-  */
 class AmmoniteRunScriptAction extends AnAction(WorksheetBundle.message("ammonite.run.script")) {
   def this(target: ScalaFile) = {
     this()

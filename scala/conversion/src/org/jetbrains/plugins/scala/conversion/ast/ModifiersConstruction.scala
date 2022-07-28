@@ -5,11 +5,6 @@ import org.jetbrains.plugins.scala.conversion.ast.ModifierType.ModifierType
 
 import scala.collection.mutable.ArrayBuffer
 
-
-/**
-  * Created by user
-  * on 10/27/15
-  */
 trait Modifier {
   def modificator: ModifierType
 }

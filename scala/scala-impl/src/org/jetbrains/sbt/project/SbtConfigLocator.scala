@@ -10,10 +10,6 @@ import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay Obedin
- * @since 2/16/15.
- */
 class SbtConfigLocator extends ExternalSystemConfigLocator {
   override def getTargetExternalSystemId: ProjectSystemId = SbtProjectSystem.Id
 

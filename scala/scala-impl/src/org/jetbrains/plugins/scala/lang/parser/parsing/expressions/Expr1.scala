@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.CaseClauses
 import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 03.03.2008
-*/
-
 /*
  * Expr1 ::= ['inline'] 'if' '(' Expr ')' {nl} Expr [[semi] else Expr]
  *         | ['inline'] ‘if’  Expr ‘then’ Expr [[semi] ‘else’ Expr]

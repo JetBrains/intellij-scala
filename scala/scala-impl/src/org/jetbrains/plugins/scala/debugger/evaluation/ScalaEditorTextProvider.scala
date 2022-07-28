@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.util.SideEffectsUtil
 
 import scala.util.Try
 
-/**
- * @author Alefas
- * @since 15.05.12
- */
-
 class ScalaEditorTextProvider extends EditorTextProvider {
   override def getEditorText(elementAtCaret: PsiElement): TextWithImports = {
     val result: String = findExpressionInner(elementAtCaret, allowMethodCalls = true).map(_.getText).getOrElse("")

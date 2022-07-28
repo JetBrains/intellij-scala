@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaBreakpointMethodFilter(psiMethod: Option[PsiMethod],
                                   firstStatementPosition: Option[SourcePosition],
                                   lastStatementPosition: Option[SourcePosition],

@@ -22,11 +22,6 @@ import org.junit.Assert._
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 16.06.2009
- */
-
 abstract class InlineRefactoringTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   val caretMarker = "/*caret*/"
 

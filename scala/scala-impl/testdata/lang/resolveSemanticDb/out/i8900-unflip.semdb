@@ -1,0 +1,39 @@
+Document tests/pos/i8900-unflip.scala
+(6:25..6:27) _empty_/LazyOption#[A3] -> 5:18
+(6:32..6:33) _empty_/LazyOption#fold().[X] -> 6:12
+(6:44..6:45) _empty_/LazyOption#fold().[X] -> 6:12
+(6:48..6:49) _empty_/LazyOption#fold().[X] -> 6:12
+(6:52..6:55) scala/Predef.`???`().
+(8:37..8:39) _empty_/IndexedStore#[A4] -> 8:23
+(8:43..8:45) _empty_/IndexedStore#[B4] -> 8:27
+(8:47..8:48) _empty_/IndexedStore#[I] -> 8:20
+(12:42..12:45) _empty_/PL.plensFamily().[A1x] -> 12:19
+(12:49..12:55) scala/Option#
+(12:56..12:68) _empty_/IndexedStore# -> 8:7
+(12:69..12:72) _empty_/PL.plensFamily().[B1x] -> 12:29
+(12:74..12:77) _empty_/PL.plensFamily().[B2x] -> 12:34
+(12:79..12:82) _empty_/PL.plensFamily().[A2x] -> 12:24
+(12:87..12:98) _empty_/PLensFamily# -> 3:7
+(12:99..12:102) _empty_/PL.plensFamily().[A1x] -> 12:19
+(12:104..12:107) _empty_/PL.plensFamily().[A2x] -> 12:24
+(12:109..12:112) _empty_/PL.plensFamily().[B1x] -> 12:29
+(12:114..12:117) _empty_/PL.plensFamily().[B2x] -> 12:34
+(12:121..12:124) scala/Predef.`???`().
+(14:25..14:26) _empty_/PL.lazySome().[T] -> 14:16
+(14:29..14:39) _empty_/LazyOption# -> 5:7
+(14:40..14:41) _empty_/PL.lazySome().[T] -> 14:16
+(14:45..14:48) scala/Predef.`???`().
+(16:38..16:49) _empty_/PLensFamily# -> 3:7
+(16:50..16:60) _empty_/LazyOption# -> 5:7
+(16:61..16:64) _empty_/PL.lazySomePLensFamily().[A1y] -> 16:27
+(16:67..16:77) _empty_/LazyOption# -> 5:7
+(16:78..16:81) _empty_/PL.lazySomePLensFamily().[A2y] -> 16:32
+(16:84..16:87) _empty_/PL.lazySomePLensFamily().[A1y] -> 16:27
+(16:89..16:92) _empty_/PL.lazySomePLensFamily().[A2y] -> 16:32
+(17:5..17:16) _empty_/PL.plensFamily(). -> 12:7
+(17:19..17:23) _empty_/LazyOption#fold(). -> 6:7
+(17:29..17:33) scala/Some.
+(17:47..17:55) _empty_/PL.lazySome(). -> 14:7
+(17:60..17:61) local0 -> 17:24
+(17:65..17:69) scala/None.
+

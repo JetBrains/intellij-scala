@@ -5,10 +5,6 @@ package impl
 package toplevel
 package typedef
 
-/**
- * @author ilyas
- */
-
 import com.intellij.lang.ASTNode
 import com.intellij.navigation._
 import com.intellij.psi._
@@ -55,10 +51,8 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   override def hasTypeParameters: Boolean = typeParameters.nonEmpty
 
-  override def typeParameters: Seq[ScTypeParam] = desugaredElement match {
-    case Some(td: ScTypeDefinition) => td.typeParameters
-    case _ => super.typeParameters
-  }
+  override def typeParameters: Seq[ScTypeParam] =
+    super.typeParameters
 
   override def add(element: PsiElement): PsiElement = element match {
     case member: ScMember => addMember(member, None)
@@ -389,29 +383,6 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
 
   @CachedWithRecursionGuard(this, PsiMethod.EMPTY_ARRAY, ModTracker.libraryAware(this))
   override def psiMethods: Array[PsiMethod] = getAllMethods.filter(_.containingClass == this)
-
-  @CachedWithRecursionGuard(this, None, BlockModificationTracker(this))
-  override protected def desugaredInner: Option[ScTemplateDefinition] = {
-    def toPsi(tree: scala.meta.Tree): ScTemplateDefinition = {
-      ScalaPsiElementFactory.createTemplateDefinitionFromText(tree.toString(), getContext, this)
-        .setOriginal(actualElement = this)
-    }
-
-    import scala.meta.intellij.psi._
-    import scala.meta.{Defn, Term}
-
-    val defn = this.metaExpand match {
-      case Right(templ: Defn.Class) => Some(templ)
-      case Right(templ: Defn.Trait) => Some(templ)
-      case Right(templ: Defn.Object) => Some(templ)
-      case Right(Term.Block(Seq(templ: Defn.Class, _))) => Some(templ)
-      case Right(Term.Block(Seq(templ: Defn.Trait, _))) => Some(templ)
-      case Right(Term.Block(Seq(templ: Defn.Object, _))) => Some(templ)
-      case _ => None
-    }
-
-    defn.map(toPsi)
-  }
 }
 
 object ScTypeDefinitionImpl {

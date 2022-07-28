@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package dependency
 
-/**
-  * Pavel Fatin
-  */
 case class Path(entity: String,
                 maybeMember: Option[String] = None) {
 

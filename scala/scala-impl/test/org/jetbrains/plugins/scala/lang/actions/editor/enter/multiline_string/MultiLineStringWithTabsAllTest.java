@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.actions.editor.enter.AbstractEnterActionTestBase;
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings;
 
-/**
- * User: Dmitry Naydanov
- * Date: 10/1/12
- */
 public class MultiLineStringWithTabsAllTest extends TestCase {
     private static final String DATA_PATH = "/actions/editor/enter/multiLineStringData/withTabs/indentAndMargin/2tabs";
 

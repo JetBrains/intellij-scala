@@ -18,9 +18,6 @@ import scala.io.Source
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
-/**
- * Pavel.Fatin, 14.01.2010
- */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class LineMarkerTestBase extends LightJavaCodeInsightFixtureTestCase {
   val marker = "// -"

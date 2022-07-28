@@ -39,9 +39,6 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.{Elem, XML}
 
-/**
- * @author Pavel Fatin
- */
 class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSettings] with ExternalSourceRootResolution {
 
   private val log = Logger.getInstance(getClass)

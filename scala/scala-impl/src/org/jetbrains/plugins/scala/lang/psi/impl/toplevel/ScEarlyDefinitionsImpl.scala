@@ -16,10 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScEarlyDefinitionsStub
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 class ScEarlyDefinitionsImpl private(stub: ScEarlyDefinitionsStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, EARLY_DEFINITIONS, node) with ScEarlyDefinitions {
 

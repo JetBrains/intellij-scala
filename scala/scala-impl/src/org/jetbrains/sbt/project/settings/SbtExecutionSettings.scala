@@ -5,9 +5,6 @@ import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutio
 
 import java.io.File
 
-/**
- * @author Pavel Fatin
- */
 class SbtExecutionSettings(val realProjectPath: String,
                            val vmExecutable: File,
                            val vmOptions: Seq[String],

@@ -6,10 +6,6 @@ package impl
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api._
 
-/**
-  * @author Alefas
-  * @since 18/12/14.
-  */
 final class ScalaStringContextType extends ScalaFileTemplateContextType.ElementContextType("STRING", ScalaCodeInsightBundle.message("element.context.type.string")) {
 
   override protected def isInContext(offset: Int)

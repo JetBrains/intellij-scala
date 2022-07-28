@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
-
 /**
  * This class can be used in two ways:
  * 1. foo(a, b, c)

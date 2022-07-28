@@ -29,10 +29,7 @@ import org.junit.Assert
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util
-/**
-  * Nikolay.Tropin
-  * 14-Dec-17
-  */
+
 abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase {
 
   protected var codeInsightFixture: CodeInsightTestFixture = _

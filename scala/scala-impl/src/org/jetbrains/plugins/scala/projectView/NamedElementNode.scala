@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import java.util
 import java.util.Collections
 
-/**
-  * @author Pavel Fatin
-  */
 private class NamedElementNode(element: ScNamedElement)(implicit project: ProjectContext, settings: ViewSettings)
   extends AbstractPsiBasedNode[ScNamedElement](project, element, settings) {
 

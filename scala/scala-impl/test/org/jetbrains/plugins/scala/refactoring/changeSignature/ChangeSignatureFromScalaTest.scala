@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.{ScalaChangeSignatureHandler, ScalaParameterInfo}
 import org.junit.Assert._
 
-/**
- * Nikolay.Tropin
- * 2014-09-05
- */
 class ChangeSignatureFromScalaTest extends ChangeSignatureTestBase {
   override def folderPath: String = baseRootPath + "changeSignature/fromScala/"
 

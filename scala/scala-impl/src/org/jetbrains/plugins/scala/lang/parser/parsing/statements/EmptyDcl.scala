@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.base.Modifier
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 
-/**
- * @author Alexander Podkhalyuzin
- */
 object EmptyDcl {
 
   def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {

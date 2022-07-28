@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScMeth
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 1/31/13
- */
 class ScalaMethodCallFixer extends ScalaFixer {
   override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val args = psiElement match {

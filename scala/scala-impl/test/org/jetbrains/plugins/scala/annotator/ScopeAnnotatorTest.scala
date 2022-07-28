@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.junit.Assert
 import org.junit.experimental.categories.Category
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
 @Category(Array(classOf[TypecheckerTests]))
 class ScopeAnnotatorTest extends SimpleTestCase {
   // TODO List of explicit clash groups, report scope 

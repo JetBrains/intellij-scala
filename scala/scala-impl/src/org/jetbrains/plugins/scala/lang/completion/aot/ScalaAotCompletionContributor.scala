@@ -20,9 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, 
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 
-/**
- * @author Pavel Fatin
- */
 final class ScalaAotCompletionContributor extends ScalaCompletionContributor {
 
   import CompletionType.BASIC

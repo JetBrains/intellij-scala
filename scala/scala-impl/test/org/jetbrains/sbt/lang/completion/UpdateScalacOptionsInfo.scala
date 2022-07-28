@@ -79,18 +79,12 @@ object UpdateScalacOptionsInfo {
   }
 
   private def updateJsonFile(content: String): Unit = {
-    val path = Path.of(TestUtils.getTestDataPath)
+    val scalacOptionsJsonPath = Path.of(TestUtils.getTestDataPath)
       .getParent
-      .resolve("resources")
-      .resolve("org")
-      .resolve("jetbrains")
-      .resolve("sbt")
-      .resolve("language")
-      .resolve("completion")
-      .resolve("scalac-options.json")
+      .resolve("resources/org/jetbrains/sbt/language/completion/scalac-options.json")
 
-    Files.writeString(path, content, StandardCharsets.UTF_8,
-      StandardOpenOption.WRITE, StandardOpenOption.CREATE)
+    Files.writeString(scalacOptionsJsonPath, content, StandardCharsets.UTF_8,
+      StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)
   }
 
   private val versionPattern = ".+>(\\d+\\.\\d+\\.\\d+)/<.*".r

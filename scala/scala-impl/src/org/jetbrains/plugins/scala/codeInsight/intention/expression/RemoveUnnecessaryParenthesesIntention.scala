@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.extensions.ParenthesizedElement.Ops
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScParenthesizedElement
 
-
-/**
- * Nikolay.Tropin
- * 4/29/13
- */
 class RemoveUnnecessaryParenthesesIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("remove.unnecessary.parentheses")
 

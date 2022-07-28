@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * | 'implicit'
  * | 'lazy'
  * | [[LocalSoftModifier]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 15.02.2008
  */
 object LocalModifier extends ParsingRule {
 

@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.project.converter.ScalaCompilerSettings._
 
 import scala.xml.Node
 
-/**
- * @author Pavel Fatin
- */
 case class ScalaCompilerSettings(compileOrder: String,
                                  warnings: Boolean,
                                  deprecationWarnings: Boolean,

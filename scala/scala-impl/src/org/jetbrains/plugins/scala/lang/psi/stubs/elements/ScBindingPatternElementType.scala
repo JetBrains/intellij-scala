@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.{ScNamingPatternImpl, ScReferencePatternImpl, ScSeqWildcardPatternImpl, ScTypedPatternImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScBindingPatternStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.07.2009
-  */
 abstract class ScBindingPatternElementType[P <: ScBindingPattern](debugName: String) extends ScStubElementType[ScBindingPatternStub[P], P](debugName) {
   override def serialize(stub: ScBindingPatternStub[P], dataStream: StubOutputStream): Unit = {
     dataStream.writeName(stub.getName)

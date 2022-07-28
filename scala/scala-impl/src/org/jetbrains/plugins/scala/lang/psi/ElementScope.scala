@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, UndefinedTy
 import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType, ScalaType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * Nikolay.Tropin
-  * 19-Apr-17
-  */
 case class ElementScope(project: Project, scope: GlobalSearchScope) {
   implicit def projectContext: ProjectContext = project
 

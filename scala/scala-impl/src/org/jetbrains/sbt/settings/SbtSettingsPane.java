@@ -23,9 +23,6 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-/**
- * @author Pavel Fatin
- */
 @SuppressWarnings("deprecation")
 public class SbtSettingsPane {
     private JRadioButton myBundledButton;

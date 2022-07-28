@@ -21,10 +21,6 @@ import org.junit.experimental.categories.Category
 
 import java.io.File
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 10.03.2009
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"

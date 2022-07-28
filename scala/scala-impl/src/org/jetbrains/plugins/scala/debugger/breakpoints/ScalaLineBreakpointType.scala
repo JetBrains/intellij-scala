@@ -34,9 +34,6 @@ import java.util.{Collections, List => JList}
 import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaLineBreakpointType extends JavaLineBreakpointType("scala-line", ScalaBundle.message("line.breakpoints.tab.title")) {
 
   override def getDisplayName: String = ScalaBundle.message("line.breakpoints.tab.title")

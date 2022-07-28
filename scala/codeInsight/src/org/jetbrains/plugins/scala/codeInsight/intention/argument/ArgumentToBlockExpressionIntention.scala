@@ -15,9 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createA
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
- * Pavel Fatin
- */
 final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {

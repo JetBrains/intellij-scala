@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
- * User: Alefas
- * Date: 14.10.11
- */
 class ScalaPositionManagerFactory extends PositionManagerFactory {
   override def createPositionManager(process: DebugProcess): PositionManager = {
     invokeLater {

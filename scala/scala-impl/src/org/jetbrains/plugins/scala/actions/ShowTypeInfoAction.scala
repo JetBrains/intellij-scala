@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresen
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getExpression
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-
-/**
- * Pavel.Fatin, 16.04.2010
- */
 class ShowTypeInfoAction extends AnAction(
   ScalaBundle.message("type.info.text"),
   ScalaBundle.message("type.info.description"),

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.conversion.ast
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 11/9/15
-  */
 case class MainConstruction() extends IntermediateNode {
   val children = new ArrayBuffer[IntermediateNode]()
 

@@ -4,10 +4,6 @@ package lang.typeInference
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Alefas
-  * @since 29/08/16
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
   def testSCL4990(): Unit = {

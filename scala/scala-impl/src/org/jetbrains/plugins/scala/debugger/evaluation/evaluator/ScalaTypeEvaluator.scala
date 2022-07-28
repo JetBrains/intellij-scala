@@ -5,9 +5,6 @@ import com.intellij.debugger.engine.evaluation.{EvaluateException, EvaluationCon
 import com.intellij.debugger.engine.{JVMName, JVMNameUtil}
 import com.sun.jdi.ReferenceType
 
-/**
- * @author Nikolay.Tropin
- */
 class ScalaTypeEvaluator(jvmName: JVMName) extends TypeEvaluator(jvmName) {
   override def evaluate(context: EvaluationContextImpl): ReferenceType = {
     try super.evaluate(context)

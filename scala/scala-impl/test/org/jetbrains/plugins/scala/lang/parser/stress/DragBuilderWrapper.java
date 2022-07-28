@@ -11,9 +11,6 @@ import com.intellij.util.diff.FlyweightCapableTreeStructure;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-/**
- * @author ilyas
- */
 public class DragBuilderWrapper implements PsiBuilder {
   final Project myProject;
   final PsiBuilder myBuilder;

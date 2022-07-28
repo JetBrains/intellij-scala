@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-/**
- * @author Svyatoslav ILINSKIY
- * @since  6/27/2014.
- */
 class VarianceTest extends VarianceTestBase {
   def testVarianceParameter(): Unit = {
     assertMatches(messages("trait Agent[+S] { def nextAction(state: S) }")) {

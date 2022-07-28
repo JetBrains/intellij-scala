@@ -48,9 +48,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
 import javax.swing.Icon
 import scala.annotation.tailrec
 
-/**
-  * @author ilyas
-  */
 abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
                                                nodeType: ScFunctionElementType[F],
                                                node: ASTNode)

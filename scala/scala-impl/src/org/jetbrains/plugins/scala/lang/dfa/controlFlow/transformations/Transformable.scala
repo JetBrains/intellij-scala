@@ -6,8 +6,6 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 /**
  * Interface for abstractions over Scala PSI elements that can be transformed into Intermediate Representation
  * (stack-based, bytecode-like control flow representation, compatible with [[DataFlowInterpreter]]).
- *
- * @author Gerard Dróżdż
  */
 trait Transformable {
 

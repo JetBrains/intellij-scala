@@ -4,10 +4,6 @@ package codeInsight.unwrap
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScFinallyBlock}
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaCatchOrFinallyRemover extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e match {
     case _: ScFinallyBlock | _: ScCatchBlock => true

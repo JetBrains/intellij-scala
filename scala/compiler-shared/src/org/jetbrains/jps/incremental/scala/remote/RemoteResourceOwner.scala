@@ -12,10 +12,6 @@ import java.util.Base64
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- * @author Dmitry Naydanov
- */
 trait RemoteResourceOwner {
 
   protected def address: InetAddress

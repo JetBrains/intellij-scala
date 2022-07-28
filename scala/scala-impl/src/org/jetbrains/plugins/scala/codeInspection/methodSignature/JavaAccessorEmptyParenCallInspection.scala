@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, result}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolve.processor.CollectMethodsProcessor
 
-/**
-  * Pavel Fatin
-  */
 final class JavaAccessorEmptyParenCallInspection extends AbstractRegisteredInspection {
 
   override protected def problemDescriptor(element: PsiElement,

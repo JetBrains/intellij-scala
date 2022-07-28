@@ -7,11 +7,6 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.editor.smartEnter.ScalaSmartEnterProcessor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
 
-/**
- * @author Dmitry.Naydanov
- * @author Ksenia.Sautina
- * @since 2/5/13
- */
 class ScalaMissingForBodyFixer  extends ScalaFixer {
   override def apply(editor: Editor, processor: ScalaSmartEnterProcessor, psiElement: PsiElement): OperationPerformed = {
     val forStatement = PsiTreeUtil.getParentOfType(psiElement, classOf[ScFor], false)

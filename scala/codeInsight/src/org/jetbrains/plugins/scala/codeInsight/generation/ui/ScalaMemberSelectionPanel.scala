@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui._
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Nikolay.Tropin
-  * 2014-05-28
-  */
 class ScalaMemberSelectionPanel(@Nls title: String, infos: ju.List[ScalaMemberInfo])
                                (model: AbstractMemberInfoModel[ScNamedElement, ScalaMemberInfo])
   extends ScalaMemberSelectionPanelBase[ScNamedElement, ScalaMemberInfo](title, infos, null) {

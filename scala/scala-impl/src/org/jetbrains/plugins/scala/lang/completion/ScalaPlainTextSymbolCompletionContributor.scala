@@ -5,6 +5,7 @@ package completion
 import com.intellij.codeInsight.completion.PlainTextSymbolCompletionContributor
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.extensions.PsiMemberExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
@@ -24,20 +25,25 @@ final class ScalaPlainTextSymbolCompletionContributor extends PlainTextSymbolCom
       case scalaFile: ScalaFile =>
         val result = new ju.ArrayList[LookupElement]
         for {
-          definition <- scalaFile.typeDefinitions
-
-          name = definition.name
+          member <- scalaFile.members
+          if member.isPhysical
+          name <- member.names
           if name != null
         } {
-          result.add(createElement(name, definition.getIcon(0)))
+          result.add(createElement(name, member.getIcon(0)))
 
           val topLevelOnly = invocationCount == 0
-          splitAtDot(prefix, name) match {
-            case Some(suffix) =>
-              processClassBody(result, definition, topLevelOnly)(name, suffix)
-            case _ if !topLevelOnly =>
-              foreachMemberIn(definition) {
-                case (_, memberName, icon) => result.add(createElement(memberName, icon))
+          member match {
+            case typeDefinition: ScTypeDefinition =>
+              splitAtDot(prefix, name) match {
+                case Some(suffix) =>
+                  processClassBody(result, typeDefinition, topLevelOnly)(name, suffix)
+                case _ if !topLevelOnly =>
+                  foreachMemberIn(typeDefinition) {
+                    case (_, memberName, icon) =>
+                      result.add(createElement(memberName, icon))
+                  }
+                case _ =>
               }
             case _ =>
           }

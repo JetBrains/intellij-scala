@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
 import javax.swing.*;
 
-/**
- * Nikolay.Tropin
- * 6/26/13
- */
 @SuppressWarnings("WeakerAccess")
 public class ScalaUnnecessaryParenthesesInspection extends ScalaUnnecessaryParenthesesInspectionBase {
   public boolean ignoreClarifying = true;

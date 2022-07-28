@@ -13,9 +13,7 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
 /**
   * Utility class for implicit conversions.
-  *
-  * @author alefas, ilyas
-  */
+ */
 object ScImplicitlyConvertible {
 
   def implicits(place: ScExpression, fromUnderscore: Boolean): Seq[PsiNamedElement] =

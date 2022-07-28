@@ -9,10 +9,6 @@ import com.intellij.openapi.project.Project
 import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.11.11
- */
 class ScalaArrayAccessEvaluator(arrayReferenceEvaluator: Evaluator, indexEvaluator: Evaluator) extends Evaluator {
 
   override def evaluate(context: EvaluationContextImpl): AnyRef = {

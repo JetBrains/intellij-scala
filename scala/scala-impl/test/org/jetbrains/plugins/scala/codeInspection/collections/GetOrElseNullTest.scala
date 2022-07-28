@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-/**
- * Nikolay.Tropin
- * 2014-05-06
- */
 class GetOrElseNullTest extends OperationsOnCollectionInspectionTest {
 
   override val hint: String = ScalaInspectionBundle.message("getOrElse.null.hint")

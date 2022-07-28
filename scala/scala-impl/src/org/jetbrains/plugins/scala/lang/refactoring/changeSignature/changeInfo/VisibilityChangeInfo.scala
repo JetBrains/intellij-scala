@@ -3,10 +3,7 @@ package lang.refactoring.changeSignature.changeInfo
 
 import com.intellij.psi.PsiModifier
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
+
 private[changeInfo] trait VisibilityChangeInfo {
   this: ScalaChangeInfo =>
 

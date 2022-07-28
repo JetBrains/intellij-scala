@@ -7,5 +7,6 @@ Document tests/pos/dep-match.scala
 (6:29..6:33) scala/Unit#
 (7:12..7:15) _empty_/Test.Bar# -> 3:8
 (7:16..7:19) _empty_/Test.baz().(foo) -> 6:18
+(7:20..7:21) local0 -> 2:25
 (7:25..7:28) scala/Predef.`???`().
 

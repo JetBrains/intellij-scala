@@ -1,0 +1,6 @@
+Document tests/pos/forwardCompat-excludedExport/Test_r3.0.scala
+(2:10..2:15) scala/Tuple.
+(87:4..87:16) scala/annotation/experimental#
+(99:4..99:16) scala/annotation/experimental#
+(112:4..112:16) scala/annotation/experimental#
+

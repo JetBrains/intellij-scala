@@ -12,11 +12,6 @@ import org.jetbrains.plugins.scala.lang.surroundWith.surrounders.expression._
 
 import scala.annotation.tailrec
 
-/**
-  * User: Dmitry.Krasilschikov
-  * Date: 09.01.2007
-  *
-  */
 final class ScalaExpressionSurroundDescriptor extends SurroundDescriptor {
 
   import ScalaExpressionSurroundDescriptor._

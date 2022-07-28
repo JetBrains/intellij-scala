@@ -11,9 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 
 /**
  * Represents Scala functions for Java.
- *
- * @author Alefas
- * @since 27.02.12
  */
 class ScFunctionWrapper(override val delegate: ScFunction,
                         isStatic: Boolean,

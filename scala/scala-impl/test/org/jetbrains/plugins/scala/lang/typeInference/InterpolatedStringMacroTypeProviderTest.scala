@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.typeInference.testInjectors.SCL12987Inje
 
 import scala.annotation.nowarn
 
-/**
-  * @author Jan Lindemann
-  * @since  23.11.17.
-  */
 class InterpolatedStringMacroTypeProviderTest extends TypeInferenceTestBase {
   protected def doTypeProviderTest(text: String, extension: InterpolatedStringMacroTypeProvider): Unit = {
     val extensionPoint = Extensions.getRootArea

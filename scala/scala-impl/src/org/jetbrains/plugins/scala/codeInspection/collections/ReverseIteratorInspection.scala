@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * @author Nikolay.Tropin
- */
 object ReverseIterator extends SimplificationType {
   override def hint: String = ScalaInspectionBundle.message("replace.reverse.iterator")
 

@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypesAsClassParams
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 08.02.2008
-*/
-
 /*
  * ClassParamClause ::= [nl] '(' [ClassParam {',' ClassParam}] ')'
  */

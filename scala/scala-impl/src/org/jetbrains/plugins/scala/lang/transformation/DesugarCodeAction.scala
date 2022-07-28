@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
-  * @author Pavel Fatin
-  */
 class DesugarCodeAction extends AnAction(
   ScalaBundle.message("desugar.scala.code.action.text"),
   ScalaBundle.message("desugar.scala.code.action.description"),

@@ -6,9 +6,6 @@ package builder
 import com.intellij.lang.PsiBuilder
 import org.jetbrains.plugins.scala.project.ScalaFeatures
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 trait ScalaPsiBuilder extends PsiBuilder {
 
   def twoNewlinesBeforeCurrentToken: Boolean
@@ -18,6 +15,12 @@ trait ScalaPsiBuilder extends PsiBuilder {
   def disableNewlines(): Unit
 
   def enableNewlines(): Unit
+
+  def enterQuotedPattern(): Unit
+
+  def exitQuotedPattern(): Unit
+
+  def isInQuotedPattern: Boolean
 
   def restoreNewlinesState(): Unit
 

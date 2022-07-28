@@ -26,11 +26,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 import java.util
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 21.11.2008
- */
-
 class RenameScalaVariableProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element match {
     case c: ScNamedElement => ScalaPsiUtil.nameContext(c) match {

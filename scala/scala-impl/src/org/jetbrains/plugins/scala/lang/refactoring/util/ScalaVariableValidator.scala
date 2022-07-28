@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil._
 
-
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 24.06.2008
-  */
 object ScalaVariableValidator {
 
   def empty = new ScalaVariableValidator(null, true, null, null)

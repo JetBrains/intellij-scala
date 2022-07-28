@@ -18,9 +18,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.overrideImplement.ScalaOIUtil.{getMembersToImplement, runAction}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-/**
- * @author Alexander Podkhalyuzin
- */
 final class ScalaConstructorInsertHandler(typeParametersEvaluator: (ScType => String) => String,
                                           hasSubstitutionProblem: Boolean,
                                           isInterface: Boolean,

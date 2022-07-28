@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.failed.annotator
 
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
 
-/**
-  * @author Alefas
-  * @since 23/03/16
-  */
 class JavaHighlightingTest extends JavaHighlightingTestBase() {
   override protected def shouldPass: Boolean = false
 

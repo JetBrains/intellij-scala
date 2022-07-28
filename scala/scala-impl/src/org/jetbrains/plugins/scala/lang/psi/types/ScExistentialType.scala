@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
 
-/**
-  * @author ilyas
-  */
 final class ScExistentialType private (
   val quantified:         ScType,
   val wildcards:          List[ScExistentialArgument],

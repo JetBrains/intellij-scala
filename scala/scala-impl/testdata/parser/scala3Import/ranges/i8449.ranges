@@ -28,7 +28,7 @@
 [118,122]: SingletonTypeTree
 [121,122]: Literal
 [127,160]: CaseDef
-[132,133]: TypeBoundsTree
+[132,133]: Ident
 [137,160]: InfixOp
 [137,147]: AppliedTypeTree
 [137,140]: Ident

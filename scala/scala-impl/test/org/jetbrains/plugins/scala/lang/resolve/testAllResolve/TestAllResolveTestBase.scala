@@ -12,10 +12,6 @@ import org.junit.experimental.categories.Category
 import java.io.File
 import scala.annotation.nowarn
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 24.11.2009
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TestAllResolveTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {

@@ -4,9 +4,6 @@ package api
 
 import org.jetbrains.plugins.scala.project.ProjectContextOwner
 
-/**
-  * @author adkozlov
-  */
 trait TypeSystem extends ProjectContextOwner
   with Equivalence
   with Conformance

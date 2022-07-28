@@ -18,10 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * Created by kate
-  * on 1/29/16
-  */
 class CaseClassParametersCompletionContributor extends ScalaCompletionContributor {
 
   extend(CompletionType.BASIC,

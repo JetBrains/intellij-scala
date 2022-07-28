@@ -32,11 +32,6 @@ import org.jetbrains.plugins.scala.settings.annotations._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 11.01.2010
-  */
-
 object ScalaExtractMethodUtils {
   def createMethodFromSettings(settings: ScalaExtractMethodSettings): ScFunction = {
     val accessMod = settings.visibility

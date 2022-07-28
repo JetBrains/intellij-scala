@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import java.util
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 14.10.2008
- */
 class ScalaGoToSymbolContributor extends GotoClassContributor {
 
   override def getNames(project: Project, includeNonProjectItems: Boolean): Array[String] = {

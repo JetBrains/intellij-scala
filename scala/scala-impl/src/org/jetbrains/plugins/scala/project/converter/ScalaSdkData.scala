@@ -15,9 +15,6 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.xml.{Elem, PrettyPrinter}
 
-/**
- * @author Pavel Fatin
- */
 private case class ScalaSdkData(name: String, standardLibrary: LibraryData, languageLevel: String, compilerClasspath: Seq[String]) {
   def isEquivalentTo(compilerLibrary: LibraryData): Boolean =
     compilerClasspath.toSet == compilerLibrary.classesAsFileUrls.toSet

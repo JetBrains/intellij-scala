@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createNewLine
 
-/**
- * Nikolay.Tropin
- * 2014-06-26
- */
 class ScalaUnwrapContext extends AbstractUnwrapper.AbstractContext {
   override def isWhiteSpace(element: PsiElement): Boolean = element.isInstanceOf[PsiWhiteSpace]
 

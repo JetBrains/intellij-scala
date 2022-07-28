@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElem
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandFunctionType extends AbstractTransformer {
   override protected def transformation(implicit project: ProjectContext): PartialFunction[PsiElement, Unit] = {
     case e @ ScFunctionalTypeElement(l, Some(r)) =>

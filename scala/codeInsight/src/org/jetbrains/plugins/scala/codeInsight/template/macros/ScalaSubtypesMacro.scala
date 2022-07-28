@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ExtractClass
 
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Roman.Shein
-  * @since 29.09.2015.
-  */
 final class ScalaSubtypesMacro extends ScalaMacro {
 
   override def calculateResult(expressions: Array[Expression], context: ExpressionContext): Result =

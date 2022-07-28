@@ -3,11 +3,6 @@ package lang.completion
 
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 
-/**
- * @author Nikolay Obedin
- * @since 7/17/14.
- */
-
 abstract class SbtCompletionDefinitionTestBase extends SbtCompletionTestBase {
   self: MockSbtBase =>
 

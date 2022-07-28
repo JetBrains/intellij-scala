@@ -6,10 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.icons.Icons
 
 import javax.swing.Icon
-/**
- * @author Roman.Shein
- * @since 09.04.2015.
- */
+
 // TODO move to the implemenation of testing support
 class Test(elem: PsiElement,
            val testName: String,

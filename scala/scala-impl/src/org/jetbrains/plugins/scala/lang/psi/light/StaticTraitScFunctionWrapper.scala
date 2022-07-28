@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.light.StaticTraitScFunctionWrapper.m
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.AnyRef
 
-/**
- * @author Alefas
- * @since 28.02.12
- */
 class StaticTraitScFunctionWrapper(override val delegate: ScFunction, containingClass: PsiClassWrapper)
   extends PsiMethodWrapper(delegate, methodName(delegate), containingClass) {
 

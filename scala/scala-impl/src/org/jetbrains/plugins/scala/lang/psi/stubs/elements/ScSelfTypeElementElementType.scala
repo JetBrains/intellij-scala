@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSelfTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScSelfTypeElementStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 19.06.2009
-  */
 class ScSelfTypeElementElementType extends ScStubElementType[ScSelfTypeElementStub, ScSelfTypeElement]("self type element") {
 
   override def serialize(stub: ScSelfTypeElementStub, dataStream: StubOutputStream): Unit = {

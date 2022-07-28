@@ -9,9 +9,6 @@ import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.ProcessWatcher.{Log, ignoreErrorTextLine}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
-/**
- * @author Pavel Fatin
- */
 private class ProcessWatcher(project: Project, process: Process, commandLine: String) {
   private val processHandler = new OSProcessHandler(process, commandLine) {
     override def readerOptions(): BaseOutputReader.Options = BaseOutputReader.Options.BLOCKING

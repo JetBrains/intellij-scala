@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
 import org.junit.experimental.categories.Category
 
-/**
-  * @author mucianm 
-  * @since 23.03.16.
-  */
 @Category(Array(classOf[TypecheckerTests]))
 class OverrideSetterTest extends SimpleTestCase {
 

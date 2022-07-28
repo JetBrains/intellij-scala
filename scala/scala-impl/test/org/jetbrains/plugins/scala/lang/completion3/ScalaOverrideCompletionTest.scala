@@ -56,10 +56,6 @@ abstract class ScalaOverrideCompletionTestBase extends ScalaCodeInsightTestBase 
     super.checkResultByText(prepareFileText(expectedFileText), ignoreTrailingSpaces)
 }
 
-/**
- * Created by kate
- * on 3/11/16
- */
 class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
 
   def testFunction(): Unit = doRawCompletionTest(

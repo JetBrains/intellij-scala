@@ -4,9 +4,6 @@ package completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScalaSomeSmartCompletionTest extends ScalaCodeInsightTestBase {
 
   def testSomeSmart1(): Unit = doCompletionTest(

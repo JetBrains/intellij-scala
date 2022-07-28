@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
 import java.{util => ju}
 
-/**
- * @author Alefas
- * @since 06.11.12
- */
 class RenameScalaPackageProcessor extends RenamePsiPackageProcessor with ScalaRenameProcessor {
 
   override def findReferences(element: PsiElement,

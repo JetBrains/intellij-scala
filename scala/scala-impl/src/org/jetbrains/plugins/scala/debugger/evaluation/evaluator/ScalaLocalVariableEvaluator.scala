@@ -11,11 +11,6 @@ import com.sun.jdi._
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-/**
- * User: Alefas
- * Date: 12.10.11
- */
-
 class ScalaLocalVariableEvaluator(name: String, sourceName: String) extends Evaluator {
   import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaLocalVariableEvaluator.LOG
   private val depthOfSearch = 20

@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass;
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveTestCase;
 
-/**
- * @author ilyas
- */
 public class DependenciesResolveTest extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

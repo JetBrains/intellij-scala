@@ -3,7 +3,6 @@ package lang
 package refactoring
 package rename
 
-
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.util.Pass
 import com.intellij.psi.{PsiElement, PsiNamedElement}
@@ -13,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 
 import java.util
-
-/**
- * User: Jason Zaugg
- */
 
 class RenameScalaTypeAliasProcessor extends RenameJavaMemberProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = element.isInstanceOf[ScTypeAlias]

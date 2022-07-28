@@ -40,10 +40,6 @@ import java.util.ResourceBundle;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 01.07.2008
- */
 @SuppressWarnings(value = "unchecked")
 public class ScalaIntroduceVariableDialog extends DialogWrapper implements NamedDialog {
     private JCheckBox declareVariableCheckBox;

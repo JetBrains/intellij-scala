@@ -29,10 +29,6 @@ import _root_.scala.annotation.tailrec
 import _root_.scala.collection.mutable.ArrayBuffer
 import _root_.scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-08-10
- */
 class ScalaChangeSignatureUsageProcessor extends ChangeSignatureUsageProcessor with ScalaChangeSignatureUsageHandler {
 
   override def findUsages(info: ChangeInfo): Array[UsageInfo] = {

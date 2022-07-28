@@ -6,6 +6,7 @@ package base
 package patterns
 
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -32,10 +33,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
 import scala.annotation.tailrec
 import scala.meta.intellij.QuasiquoteInferUtil
-
-/**
- * @author Alexander Podkhalyuzin
- */
 
 trait ScPattern extends ScalaPsiElement with Typeable {
   def isIrrefutableFor(t: Option[ScType]): Boolean
@@ -237,7 +234,7 @@ object ScPattern {
             if (funTypeParams.isEmpty) substitutor
             else {
               val undefSubst = ScSubstitutor.bind(funTypeParams)(UndefinedType(_))
-              val clazz = ScalaPsiUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
+              val clazz = PsiTreeUtil.getContextOfType(pattern, true, classOf[ScTemplateDefinition])
               val withThisType = clazz match {
                 case clazz: ScTemplateDefinition =>
                   undefSubst.followed(ScSubstitutor(ScThisType(clazz)))

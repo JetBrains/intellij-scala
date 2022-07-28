@@ -12,9 +12,6 @@ import java.util.Optional
 import scala.jdk.OptionConverters._
 import scala.util.Try
 
-/**
-  * @author Pavel Fatin
-  */
 class SbtCompiler(javaTools: JavaTools, optScalac: Option[ScalaCompiler], fileToStore: File => AnalysisStore) extends AbstractCompiler {
 
   override def compile(compilationData: CompilationData, client: Client): Unit = optScalac match {

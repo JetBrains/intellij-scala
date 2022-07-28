@@ -4,10 +4,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 04.05.2008
-*/
 // TODO Provide the element dynamically (or, at least, test how all that works in console)
 private class File(file: () => ScalaFile) extends AbstractTreeElementDelegatingChildrenToPsi(file()) {
   override def getPresentableText: String = file().name

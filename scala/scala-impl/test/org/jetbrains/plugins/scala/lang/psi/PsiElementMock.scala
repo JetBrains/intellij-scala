@@ -4,10 +4,6 @@ import com.intellij.psi.PsiElement
 
 import scala.util.parsing.combinator._
 
-/**
- * Pavel.Fatin, 11.05.2010
- */
-
 class PsiElementMock(val name: String, children: PsiElementMock*) extends AbstractPsiElementMock {
   private var parent: PsiElement = _
   private var prevSibling: PsiElement = _

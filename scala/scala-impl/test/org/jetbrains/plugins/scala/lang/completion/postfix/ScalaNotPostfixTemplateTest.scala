@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.completion.postfix
 
-/**
-  * @author Roman.Shein
-  * @since 05.05.2016.
-  */
 class ScalaNotPostfixTemplateTest extends PostfixTemplateTest {
   override def testPath(): String = super.testPath() + "not/"
 

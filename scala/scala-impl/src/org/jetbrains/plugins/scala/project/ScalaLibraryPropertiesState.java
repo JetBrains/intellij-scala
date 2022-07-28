@@ -7,9 +7,6 @@ import com.intellij.util.xmlb.annotations.XCollection;
 import java.util.Arrays;
 import java.util.Objects;
 
-/**
- * @author Pavel Fatin
- */
 public final class ScalaLibraryPropertiesState {
 
     // We have to rely on the Java's enumeration for serialization

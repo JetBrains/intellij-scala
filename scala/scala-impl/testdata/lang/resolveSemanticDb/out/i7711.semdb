@@ -3,8 +3,11 @@ Document tests/pos/i7711/crash1_1.scala
 (3:16..3:26) scala/reflect/Selectable.
 (3:27..3:47) scala/reflect/Selectable.reflectiveSelectable().
 (6:35..6:36) local1 -> 6:13
+(6:37..6:41) local0 -> 6:24
 (6:45..6:46) local1 -> 6:13
+(6:47..6:51) local0 -> 6:24
 (6:55..6:56) local1 -> 6:13
+(6:57..6:61) local0 -> 6:24
 (8:15..8:18) scalaLibV/crash1_1$package.IFT# -> 6:6
 (9:18..9:19) local4 -> 9:8
 

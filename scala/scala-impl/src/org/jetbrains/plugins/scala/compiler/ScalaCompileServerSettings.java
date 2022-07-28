@@ -9,9 +9,6 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 
 import java.util.UUID;
 
-/**
- * @author Pavel Fatin
- */
 @State(
         name = "ScalaSettings",
         storages = {@Storage("scala.xml")},

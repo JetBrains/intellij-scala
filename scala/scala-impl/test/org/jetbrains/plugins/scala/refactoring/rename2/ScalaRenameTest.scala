@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.refactoring.rename2
 
-/**
- * User: Alefas
- * Date: 04.10.11
- */
 class ScalaRenameTest extends ScalaRenameTestBase {
   def testRenameBeanProperty(): Unit = doRenameTest("y",
     """import reflect.BeanProperty

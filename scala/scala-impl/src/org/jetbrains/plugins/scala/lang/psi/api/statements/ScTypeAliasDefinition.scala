@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{Invariant, TypeParameterT
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 22.02.2008
-*/
-
 trait ScTypeAliasDefinition extends ScTypeAlias {
   override def isDefinition: Boolean = true
 

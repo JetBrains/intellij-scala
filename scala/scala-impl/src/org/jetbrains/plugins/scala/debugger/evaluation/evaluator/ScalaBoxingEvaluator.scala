@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.debugger.evaluation.EvaluationException
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
-/**
- * Nikolay.Tropin
- * 2014-10-24
- */
 case class ScalaBoxingEvaluator(evaluator: Evaluator) extends Evaluator {
   
   override def evaluate(context: EvaluationContextImpl): AnyRef = ScalaBoxingEvaluator.box(evaluator.evaluate(context), context)

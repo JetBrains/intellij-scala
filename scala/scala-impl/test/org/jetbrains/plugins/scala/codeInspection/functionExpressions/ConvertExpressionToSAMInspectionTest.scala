@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 6/30/15
-  */
 class ConvertExpressionToSAMInspectionTest extends ScalaInspectionTestBase {
 
   // todo: fix for versions >= 2.12

@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /**
  * TODO: move to presentation package
- * @author adkozlov
  */
 trait TypePresentation {
 

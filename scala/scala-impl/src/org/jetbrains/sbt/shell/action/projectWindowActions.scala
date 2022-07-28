@@ -44,9 +44,6 @@ abstract class SbtTaskAction extends SbtNodeAction[SbtTaskData](classOf[SbtTaskD
 abstract class SbtSettingAction extends SbtNodeAction[SbtSettingData](classOf[SbtSettingData])
 abstract class SbtCommandAction extends SbtNodeAction[SbtCommandData](classOf[SbtCommandData])
 
-/**
-  * Created by jast on 2017-02-13.
-  */
 class RunTaskAction extends SbtTaskAction {
   setText(SbtBundle.message("sbt.shell.action.run.task"))
   setDescription(SbtBundle.message("sbt.shell.action.run.task.description"))

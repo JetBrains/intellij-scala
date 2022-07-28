@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction;
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter;
 
-/**
- * @author ilyas
- */
 public class ResolveLocalsTest extends ScalaResolveTestCase{
 
   @Override

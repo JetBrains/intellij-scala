@@ -16,10 +16,6 @@ import org.junit.experimental.categories.Category
 import java.io.File
 import scala.annotation.nowarn
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 10.03.2009
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestAdapter with TypeInferenceDoTest {
 

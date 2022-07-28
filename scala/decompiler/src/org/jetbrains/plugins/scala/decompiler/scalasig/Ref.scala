@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
-/**
-  * Nikolay.Tropin
-  * 19-Jul-17
-  */
 class Ref[T <: Entry : ClassTag](val index: Int)(implicit val scalaSig: ScalaSig) {
 
   def get: T = {

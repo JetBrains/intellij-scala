@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression,
 import org.jetbrains.plugins.scala.lang.psi.impl.base.literals.QuotedLiteralImplBase._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 
-/**
- * @author kfeodorov
- * @since 03.03.14.
- */
 trait ScInterpolated extends ScalaPsiElement {
 
   import lexer.ScalaTokenTypes._

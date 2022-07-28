@@ -5,10 +5,6 @@ import junit.framework.TestCase
 import org.jetbrains.plugins.scala.lang.psi.PsiElementMock
 import org.junit.Assert
 
-/**
- * Pavel.Fatin, 11.05.2010
- */
-
 abstract class IteratorTestCase extends TestCase {
   protected def assertIterates(expectation: String, expression: String): Unit = {
     assertIterates(expectation, PsiElementMock.parse(expression))

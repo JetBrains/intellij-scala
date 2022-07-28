@@ -22,10 +22,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * Author: ilyas, alefas
- */
-
 trait ScBlock extends ScExpression
   with ScDeclarationSequenceHolder
   with ScImportsHolder

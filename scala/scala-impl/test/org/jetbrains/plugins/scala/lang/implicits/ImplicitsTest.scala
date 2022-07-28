@@ -2,11 +2,6 @@ package org.jetbrains.plugins.scala.lang.implicits
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author Anton Yalyshev
-  * @since 07/09/18
-  */
-
 class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL7955(): Unit = doTest(

@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import java.awt.event.{ItemEvent, ItemListener}
 import javax.swing._
 
-/**
- * Nikolay.Tropin
- * 2014-09-05
- */
 class DefaultValuesUsagePanel(labelText: String = ScalaBundle.message("default.values")) extends JPanel {
   private val myRbModifyCalls: JRadioButton = new JRadioButton
   private val myRbAddDefaultArg: JRadioButton = new JRadioButton

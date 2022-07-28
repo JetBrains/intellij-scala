@@ -15,12 +15,6 @@ import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert._
 import org.junit.experimental.categories.Category
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 23.03.16.
-  * 
-  *  
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 

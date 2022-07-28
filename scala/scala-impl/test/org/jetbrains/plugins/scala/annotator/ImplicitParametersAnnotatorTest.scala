@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.junit.experimental.categories.Category
 
-/**
-  * Nikolay.Tropin
-  * 16-Feb-18
-  */
 abstract class ImplicitParametersAnnotatorTestBase extends AnnotatorTestBase[ImplicitArgumentsOwner] {
   protected def notFound(types: String*) = ImplicitParametersAnnotator.message(types)
 

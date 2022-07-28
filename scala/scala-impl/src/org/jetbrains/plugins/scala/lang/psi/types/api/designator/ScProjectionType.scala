@@ -25,10 +25,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 
 /**
- * @author ilyas
- */
-
-/**
  * This type means type projection:
  * SomeType#member
  * member can be class or type alias

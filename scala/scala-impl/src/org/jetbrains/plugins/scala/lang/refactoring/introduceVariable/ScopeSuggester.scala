@@ -26,10 +26,6 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
-/**
- * Created by Kate Ustyuzhanina
- * on 8/12/15
- */
 object ScopeSuggester {
 
   import PsiTreeUtil._

@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaCodeFragmentTableCel
 import javax.swing.table.TableCellEditor
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
 class ScalaParameterTableModel(typeContext: PsiElement,
                                defaultValueContext: PsiElement,
                                methodDescriptor: ScalaMethodDescriptor,

@@ -1,0 +1,13 @@
+Document tests/pos/i14349.min.scala
+(6:12..6:18) _empty_/Module# -> 3:7
+(7:26..7:27) _empty_/Module#X# -> 4:8
+(8:26..8:27) _empty_/Module#Y# -> 5:8
+(10:20..10:23) _empty_/Inv# -> 1:7
+(10:24..10:25) _empty_/Module#M# -> 6:8
+(11:54..11:55) local2 -> 11:49
+(11:56..11:62) _empty_/Module#expose(). -> 10:7
+(13:12..13:15) _empty_/Inv# -> 1:7
+(13:21..13:27) _empty_/Module# -> 3:7
+(13:54..13:55) local3 -> 13:49
+(13:56..13:62) _empty_/Module#expose(). -> 10:7
+

@@ -7,9 +7,6 @@ import org.jetbrains.jps.model.JpsDummyElement;
 import org.jetbrains.jps.model.JpsElementFactory;
 import org.jetbrains.jps.model.serialization.module.JpsModulePropertiesSerializer;
 
-/**
-* @author Pavel Fatin
-*/
 public class SharedSourcesModuleSerializer extends JpsModulePropertiesSerializer<JpsDummyElement> {
   public SharedSourcesModuleSerializer() {
     super(SharedSourcesModuleType.INSTANCE, "SHARED_SOURCES_MODULE", "dummy");

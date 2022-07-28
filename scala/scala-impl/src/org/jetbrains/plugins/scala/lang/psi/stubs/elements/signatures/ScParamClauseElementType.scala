@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterClauseImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScParamClauseStubImpl
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 19.10.2008
-  */
 class ScParamClauseElementType extends ScStubElementType[ScParamClauseStub, ScParameterClause]("parameter clause") {
   override def serialize(stub: ScParamClauseStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeBoolean(stub.isImplicit)

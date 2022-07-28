@@ -8,9 +8,6 @@ import org.jetbrains.jps.incremental.messages.ProgressMessage;
 import java.io.File;
 import java.io.IOException;
 
-/**
- * @author Pavel Fatin
- */
 public class ResourceUpdater {
   // Modified copy of org.jetbrains.jps.incremental.resources.ResourcesBuilder.copyResource
   public static void updateResource(CompileContext context, ResourceRootDescriptor rd, File file, File outputRoot) throws IOException {

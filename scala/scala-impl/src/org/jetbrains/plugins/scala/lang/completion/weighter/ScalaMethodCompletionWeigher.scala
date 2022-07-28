@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
- * @author Alexander Podkhalyuzin
- */
 class ScalaMethodCompletionWeigher extends CompletionWeigher {
   case class MethodNameComparable(name: String, hasParameters: Boolean) extends Comparable[MethodNameComparable] {
     override def compareTo(o: MethodNameComparable): Int = {

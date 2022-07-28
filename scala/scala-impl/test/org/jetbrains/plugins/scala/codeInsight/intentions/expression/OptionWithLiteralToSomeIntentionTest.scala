@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.codeInsight.intentions.expression
 import org.jetbrains.plugins.scala.codeInsight.intention.expression.OptionWithLiteralToSomeIntention
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-/**
-  * Nikolay.Tropin
-  * 07-Nov-17
-  */
 class OptionWithLiteralToSomeIntentionTest extends ScalaIntentionTestBase {
   override val familyName = OptionWithLiteralToSomeIntention.familyName
 

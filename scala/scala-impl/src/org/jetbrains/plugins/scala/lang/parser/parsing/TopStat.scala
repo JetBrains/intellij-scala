@@ -18,9 +18,6 @@ import scala.annotation.tailrec
  * | [[Export]]
  * | [[Extension]]
  * | [[Packaging]]
- *
- * @author Alexander Podkhalyuzin
- *         Date: 05.02.2008
  */
 object TopStat {
 

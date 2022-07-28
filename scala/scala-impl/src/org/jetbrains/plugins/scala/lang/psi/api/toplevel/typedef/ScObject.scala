@@ -9,10 +9,6 @@ import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHolder
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 20.02.2008
-*/
 trait ScObject extends ScTypeDefinition
   with ScTypedDefinition
   with ScMember

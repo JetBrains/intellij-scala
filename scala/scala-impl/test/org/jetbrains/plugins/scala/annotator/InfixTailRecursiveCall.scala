@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.annotator
 
-/**
-  * Created by kate on 3/29/16.
-  */
 class InfixTailRecursiveCall extends AnnotatorLightCodeInsightFixtureTestAdapter {
   def testSCL8792(): Unit = {
     checkTextHasNoErrors(

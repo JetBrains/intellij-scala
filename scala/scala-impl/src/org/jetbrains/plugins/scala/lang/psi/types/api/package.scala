@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.types
 import com.intellij.psi.PsiTypeParameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
-  * @author adkozlov
-  */
 package object api {
 
   implicit class TypeParametersArrayExt(private val typeParameters: Array[TypeParameter]) extends AnyVal {

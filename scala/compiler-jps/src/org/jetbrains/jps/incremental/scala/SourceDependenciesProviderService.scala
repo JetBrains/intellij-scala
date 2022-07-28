@@ -9,9 +9,6 @@ import org.jetbrains.jps.service.JpsServiceManager
 
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 abstract class SourceDependenciesProviderService {
   def getSourceDependenciesFor(chunk: ModuleChunk): Seq[JpsModule]
 }

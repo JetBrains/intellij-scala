@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBloc
 
 import scala.collection.immutable.ArraySeq
 
-/**
-  * @author ilyas
-  */
 class ScExtendsBlockStubImpl(parent: StubElement[_ <: PsiElement],
                              elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                              override val baseClasses: ArraySeq[String])

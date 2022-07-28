@@ -6,9 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.types.utils.ScPsiElementAssertionTestBase
 
-/**
- * @author Alexander Podkhalyuzin
- */
 abstract class ExistentialSimplificationTestBase extends ScPsiElementAssertionTestBase[ScExpression] {
   override def folderPath: String = baseRootPath + "types/existentialSimplification/"
 

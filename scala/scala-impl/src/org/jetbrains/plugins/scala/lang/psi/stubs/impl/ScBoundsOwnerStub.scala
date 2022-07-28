@@ -4,9 +4,6 @@ import com.intellij.psi.PsiNamedElement
 import com.intellij.psi.stubs.NamedStub
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
-/**
-  * @author adkozlov
-  */
 trait ScBoundsOwnerStub[E <: PsiNamedElement] extends NamedStub[E] with PsiOwner[E] {
 
   private val lowerBoundStub = new ScTypeElementOwnerStubImpl[E](lowerBoundText, this)

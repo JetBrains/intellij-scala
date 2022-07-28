@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpr
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * Nikolay.Tropin
- * 2014-10-17
- */
 // TODO Implement selectively, not by ScExpression
 trait ImplicitArgumentsOwner extends ScalaPsiElement {
 

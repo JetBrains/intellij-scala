@@ -5,11 +5,6 @@ import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Nikolay.Tropin
- * 22-Aug-17
- */
-
 //This interface is required because it's impossible to implement
 //overloaded method with different array return types in scala.
 public interface PsiClassAdapter extends PsiClass, PsiTypeParametersOwnerAdapter {

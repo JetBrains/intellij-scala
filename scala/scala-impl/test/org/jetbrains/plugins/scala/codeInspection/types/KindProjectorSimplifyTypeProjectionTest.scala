@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaI
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 7/6/15
- */
 class KindProjectorSimplifyTypeProjectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

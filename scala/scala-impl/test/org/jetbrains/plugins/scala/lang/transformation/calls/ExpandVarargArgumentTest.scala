@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandVarargArgumentTest extends TransformerTest(new ExpandVarargArgument()) {
 
   override protected val header: String =

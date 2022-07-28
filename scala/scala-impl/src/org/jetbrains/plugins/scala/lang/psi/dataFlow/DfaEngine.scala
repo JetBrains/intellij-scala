@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.lang.psi.controlFlow.Instruction
 
 import scala.collection.mutable
 
-/**
- * @author ilyas
- */
-
 final class DfaEngine[E](cfg: Seq[Instruction],
                          dfa: DfaInstance[E],
                          l: Semilattice[E]) {

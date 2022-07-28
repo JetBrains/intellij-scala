@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
-  * Nikolay.Tropin
-  * 5/28/13
-  */
 class OperationOnCollectionQuickFix(@Nls hint: String,
                                     expression: ScExpression,
                                     replacementText: String) extends AbstractFixOnPsiElement(hint, expression) {

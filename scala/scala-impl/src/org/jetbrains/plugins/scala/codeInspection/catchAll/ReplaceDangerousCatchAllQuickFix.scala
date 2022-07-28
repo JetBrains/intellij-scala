@@ -6,11 +6,6 @@ import org.jetbrains.plugins.scala.codeInsight.intention.types.AddOnlyStrategy
 import org.jetbrains.plugins.scala.codeInspection.AbstractFixOnPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern, ScWildcardPattern}
 
-/**
- * @author Ksenia.Sautina
- * @since 6/25/12
- */
-
 class ReplaceDangerousCatchAllQuickFix(caseClause: ScCaseClause)
         extends AbstractFixOnPsiElement(ScalaBundle.message("specify.type.of.exception"), caseClause) {
 

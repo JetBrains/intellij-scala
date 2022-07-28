@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
-import com.intellij.psi.stubs.IndexSink
+import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.{IndexSink, StubElement}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.ArrayUtil.EMPTY_STRING_ARRAY
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
@@ -13,7 +14,7 @@ import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 
 import scala.annotation.tailrec
 
-trait ScImplicitStub {
+trait ScImplicitStub[T <: PsiElement] extends StubElement[T] {
 
   /**
    * Non-trivial class names of a return type of implicit function or val,

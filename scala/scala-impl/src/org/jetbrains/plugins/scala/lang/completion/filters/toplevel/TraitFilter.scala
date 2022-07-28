@@ -9,11 +9,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
-/** 
-* User: Alexander Podkhalyuzin
-* Date: 03.07.2008
-*/
-
 class TraitFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false

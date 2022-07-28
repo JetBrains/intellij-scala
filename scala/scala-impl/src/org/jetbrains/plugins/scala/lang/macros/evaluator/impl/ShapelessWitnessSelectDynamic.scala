@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
-  * Nikolay.Tropin
-  * 15-Jan-18
-  */
 object ShapelessWitnessSelectDynamic extends ScalaMacroTypeable with ShapelessUtils {
 
   override val boundMacro: Seq[MacroImpl] = MacroImpl("selectDynamic", "shapeless.Witness") :: Nil

@@ -4,10 +4,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 22.03.16.
-  */
 abstract class BadCodeIsGreenTest extends ScalaInspectionTestBase {
 
   override protected def shouldPass: Boolean = false

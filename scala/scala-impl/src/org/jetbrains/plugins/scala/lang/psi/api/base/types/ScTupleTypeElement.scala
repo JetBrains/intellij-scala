@@ -5,10 +5,6 @@ package api
 package base
 package types
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 07.03.2008
-*/
 trait ScTupleTypeElement extends ScDesugarizableToParametrizedTypeElement {
   override protected val typeName = "TupleType"
 

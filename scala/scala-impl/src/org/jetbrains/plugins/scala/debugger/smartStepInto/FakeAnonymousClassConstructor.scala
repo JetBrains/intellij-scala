@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import javax.swing.Icon
 
-
-/**
- * @author Nikolay.Tropin
- */
 class FakeAnonymousClassConstructor(templ: ScNewTemplateDefinition, interfaceName: String)
   extends FakePsiMethod(templ, Some(templ), interfaceName) {
   override def isConstructor: Boolean = true

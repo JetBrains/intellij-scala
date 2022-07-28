@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.adjustTypes.AdjustTypesTestBase
 
-/**
-  * Nikolay.Tropin
-  * 7/11/13
-  */
 class AdjustTypesTests extends AdjustTypesTestBase {
 
   def testSimpleJava(): Unit = doTest()

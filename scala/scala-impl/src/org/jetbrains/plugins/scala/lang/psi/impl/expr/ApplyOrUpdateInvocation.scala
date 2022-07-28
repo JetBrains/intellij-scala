@@ -13,11 +13,6 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcesso
 import org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
 
-/**
-  * Nikolay.Tropin
-  * 15-Dec-17
-  */
-
 //data collected to resolve update/apply/dynamic calls
 case class ApplyOrUpdateInvocation(call: MethodInvocation,
                                    argClauses: List[Seq[Expression]],

@@ -10,10 +10,6 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType, api}
 
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 22.02.2008
- */
 trait ScLiteral extends ScExpression
   with PsiLiteral {
 

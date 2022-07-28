@@ -4,10 +4,6 @@ package annotator
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 
-/**
-  * Nikolay.Tropin
-  * 23-May-18
-  */
 class AkkaHttpHighlightingTest_2_12 extends ScalaHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12

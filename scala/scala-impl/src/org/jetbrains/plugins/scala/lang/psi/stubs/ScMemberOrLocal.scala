@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.psi.stubs
 
-/**
- * @author Alefas
- * @since 30.03.12
- */
+import com.intellij.psi.PsiElement
+import com.intellij.psi.stubs.StubElement
 
-trait ScMemberOrLocal {
+trait ScMemberOrLocal[T <: PsiElement] extends StubElement[T] {
   def isLocal: Boolean
 }

@@ -2,9 +2,6 @@ package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * Created by mucianm on 23.03.16.
-  */
 class PrimitivesTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

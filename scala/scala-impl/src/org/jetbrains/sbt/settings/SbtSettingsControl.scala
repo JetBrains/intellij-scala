@@ -2,9 +2,6 @@ package org.jetbrains.sbt.settings
 
 import com.intellij.openapi.externalSystem.util.{ExternalSystemSettingsControl, ExternalSystemUiUtil, PaintAwarePanel}
 
-/**
- * @author Pavel Fatin
- */
 class SbtSettingsControl(settings: SbtSettings) extends ExternalSystemSettingsControl[SbtSettings] {
 
   private val pane = new SbtSettingsPane(settings.getProject)

@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-/**
- * Nikolay.Tropin
- * 2014-05-05
- */
 class SimplifiableFoldOrReduceInspection extends OperationOnCollectionInspection {
   val foldSum: FoldSimplificationType = new FoldSimplificationType(this, "0", "+", "sum") {
     override def hint: String = ScalaInspectionBundle.message("fold.sum.hint")

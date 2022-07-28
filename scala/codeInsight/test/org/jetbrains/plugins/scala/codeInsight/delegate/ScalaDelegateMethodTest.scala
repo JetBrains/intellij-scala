@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import scala.annotation.nowarn
 
-/**
-  * Nikolay.Tropin
-  * 2014-03-26
-  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 class ScalaDelegateMethodTest extends base.ScalaLightPlatformCodeInsightTestCaseAdapter
   with ScalaDelegateMethodTestBase {

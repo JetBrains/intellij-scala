@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScIf, ScPare
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 29.09.2008
-  */
 object ScalaWithIfConditionSurrounder extends ScalaExpressionSurrounder {
   override def getTemplateAsString(elements: Array[PsiElement]): String =
     "if (" + super.getTemplateAsString(elements) + ") {}"

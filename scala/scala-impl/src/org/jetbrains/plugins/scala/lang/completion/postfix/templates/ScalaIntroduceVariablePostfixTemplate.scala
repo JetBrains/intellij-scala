@@ -9,10 +9,6 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.completion.postfix.templates.selector.AncestorSelector.SelectAllAncestors
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 
-/**
- * @author Roman.Shein
- * @since 11.09.2015.
- */
 final class ScalaIntroduceVariablePostfixTemplate extends PostfixTemplateWithExpressionSelector(
   null,
   "var",

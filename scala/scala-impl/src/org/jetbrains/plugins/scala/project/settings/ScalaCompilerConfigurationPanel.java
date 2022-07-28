@@ -12,9 +12,6 @@ import java.awt.*;
 import java.lang.reflect.Method;
 import java.util.ResourceBundle;
 
-/**
- * @author Pavel Fatin
- */
 @SuppressWarnings(value = "unchecked")
 public class ScalaCompilerConfigurationPanel {
 

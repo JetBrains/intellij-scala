@@ -45,10 +45,6 @@ import static org.jetbrains.plugins.scala.settings.ScalaProjectSettings.*;
 import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.ComponentWithSettings;
 import static org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings.EP_NAME;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 30.07.2008
- */
 // TODO: cleanup
 //  1) split this panel into multiple per-tab
 @SuppressWarnings(value = "unchecked")

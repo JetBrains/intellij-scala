@@ -3,10 +3,6 @@ package lang.psi.applicability
 
 import org.jetbrains.plugins.scala.lang.psi.types._
 
-/**
- * Pavel.Fatin, 18.05.2010
- */
-
 class NamedTest extends ApplicabilityTestBase {
   def testFine(): Unit = {
     assertProblems("(a: A)", "(a = A)") {

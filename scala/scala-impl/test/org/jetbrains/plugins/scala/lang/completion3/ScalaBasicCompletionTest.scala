@@ -1198,10 +1198,9 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
            |  def typeSomething = 1
            |
            |  type$CARET
-           |""".stripMargin
-    ) { lookup =>
-      Option(lookup.getCurrentItem) // getCurrentItem is nullable
-    }
+           |""".stripMargin,
+      itemsExtractor = lookup => Option(lookup.getCurrentItem) // getCurrentItem is nullable
+    )
 
     assertTrue(items.exists(hasLookupString(_, "type")))
   }

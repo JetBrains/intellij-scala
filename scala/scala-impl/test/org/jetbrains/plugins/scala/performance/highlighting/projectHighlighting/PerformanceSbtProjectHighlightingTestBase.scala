@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScalaPsiElement, ScalaRecursive
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.sbt.Sbt
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 10/23/15.
-  */
 abstract class PerformanceSbtProjectHighlightingTestBase extends DownloadingAndImportingTestCase {
   def doTest(filename: String, timeoutInMillis: Int): Unit = {
     val file = findFile(filename)

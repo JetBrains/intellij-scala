@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.highlighting.decompiler
 
-/**
-  * @author Roman.Shein
-  * @since 31.05.2016.
-  */
 class DecompilerHighlightingTest extends DecompilerHighlightingTestBase {
 
   def testSettings(): Unit = doTest("Settings.class")

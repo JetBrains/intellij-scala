@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntr
 
 import scala.beans.BeanProperty
 
-/**
- * Nikolay.Tropin
- * 2014-08-28
- */
 case class ScalaChangeInfo(newVisibility: String,
                            function: ScMethodLike,
                            @BeanProperty newName: String,

@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.decompiler.scalasig
 
 import scala.reflect.internal.pickling.PickleFormat._
 
-/**
-  * Nikolay.Tropin
-  * 19-Jul-17
-  */
 object TagGroups {
   def isSymbolTag(tag: Int): Boolean = firstSymTag <= tag && tag <= lastExtSymTag
 

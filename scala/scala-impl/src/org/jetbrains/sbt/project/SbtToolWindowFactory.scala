@@ -5,9 +5,6 @@ import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettin
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.settings.SbtSettings
 
-/**
- * @author Pavel Fatin
- */
 class SbtToolWindowFactory extends AbstractExternalSystemToolWindowFactory(SbtProjectSystem.Id) {
 
   override def getSettings(project: Project): AbstractExternalSystemSettings[_, _, _] =

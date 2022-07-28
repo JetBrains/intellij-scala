@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScClassParameterImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ScalaIndexKeys.CLASS_PARAMETER_NAME_KEY
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 19.10.2008
- */
 final class ScClassParameterElementType extends ScParamElementType[ScClassParameter]("class parameter") {
 
   override def createPsi(stub: ScParameterStub) = new ScClassParameterImpl(stub)

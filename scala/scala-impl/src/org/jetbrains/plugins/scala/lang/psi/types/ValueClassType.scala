@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParamet
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ValType}
 
-/**
- * Nikolay.Tropin
- * 2014-10-02
- */
 object ValueClassType {
 
   object Param {

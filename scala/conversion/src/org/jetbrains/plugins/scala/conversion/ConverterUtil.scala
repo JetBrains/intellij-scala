@@ -25,10 +25,6 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-/**
-  * Created by Kate Ustyuzhanina
-  * on 12/8/15
-  */
 object ConverterUtil {
   def getTopElements(file: PsiFile, startOffsets: Array[Int], endOffsets: Array[Int]): (Seq[Part], mutable.HashSet[PsiElement]) = {
 

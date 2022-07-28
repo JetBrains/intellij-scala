@@ -8,11 +8,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.ParserState._
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.isOutdent
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 05.02.2008
-  */
-
 /*
 *  TopStatSeq ::= TopStat {semi TopStat}
 */

@@ -14,9 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase;
 import org.junit.Assert;
 
-/**
- * @author ilyas
- */
 public class DragSearchTest extends TestCase {
     private static final int MAX_ROLLBACKS = 30;
 

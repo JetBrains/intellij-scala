@@ -9,11 +9,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScInfixTypeElement
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.05.2008
-*/
-
 class ForSomeFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.isInstanceOf[PsiComment]) return false

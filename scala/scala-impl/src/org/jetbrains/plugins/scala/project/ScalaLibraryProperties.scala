@@ -8,9 +8,6 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import java.io.File
 
-/**
- * @author Pavel Fatin
- */
 final class ScalaLibraryProperties private(
   private[this] var _languageLevel: ScalaLanguageLevel,
   private[this] var _compilerClasspath: Seq[File],

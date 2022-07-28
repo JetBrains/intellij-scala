@@ -1,0 +1,8 @@
+Document tests/pos/t12494.scala
+(3:13..3:17) _empty_/Base# -> 2:7
+(3:26..3:29) scala/Int#
+(6:23..6:27) _empty_/Base# -> 2:7
+(7:15..7:19) _empty_/Base. -> 5:8
+(7:28..7:31) scala/Int#
+(8:16..8:17) _empty_/Base.Child#f(). -> 7:25
+

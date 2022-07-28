@@ -19,10 +19,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-/**
- * Nikolay.Tropin
- * 2014-08-01
- */
 abstract class CreateApplyOrUnapplyQuickFix(td: ScTypeDefinition)
         extends IntentionAction {
   private implicit val ctx: ProjectContext = td.projectContext

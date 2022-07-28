@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.ArgumentExprs
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleType}
 
-/**
- * @author AlexanderPodkhalyuzin
- */
-
 /*
  * Constr ::= AnnotType {ArgumentExprs}
  */

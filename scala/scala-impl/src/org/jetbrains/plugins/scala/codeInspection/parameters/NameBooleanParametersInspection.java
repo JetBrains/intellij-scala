@@ -6,11 +6,6 @@ import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle;
 
 import javax.swing.*;
 
-/**
- * Nikolay.Tropin
- * 5/28/13
- */
-
 //for consistency with java reflection-based system of persistent storage of settings
 public class NameBooleanParametersInspection extends NameBooleanParametersInspectionBase {
 

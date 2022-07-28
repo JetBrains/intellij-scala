@@ -18,10 +18,6 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * User: Dmitry Naydanov
- * Date: 2/18/13
- */
 @SuppressWarnings("WeakerAccess")
 public class ScalaInterpolatedPrefixMappingTable extends JBTable implements DependencyAwareInjectionSettings.ComponentWithSettings {
   private final MyTableModel tableModel;

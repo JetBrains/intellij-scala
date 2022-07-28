@@ -4,10 +4,6 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
-/**
-  * @author mucianm
-  * @since 28.03.16.
-  */
 class ScalaZTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false

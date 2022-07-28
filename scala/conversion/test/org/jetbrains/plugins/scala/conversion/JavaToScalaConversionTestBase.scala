@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.util.TypeAnnotationSettings
 import scala.annotation.nowarn
 import scala.collection.mutable
 
-/**
- * @author Alexander Podkhalyuzin
- */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class JavaToScalaConversionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
 

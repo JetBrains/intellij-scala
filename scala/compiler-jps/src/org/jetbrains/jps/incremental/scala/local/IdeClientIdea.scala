@@ -19,10 +19,6 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-/**
-  * Nikolay.Tropin
-  * 11/18/13
-  */
 class IdeClientIdea(compilerName: String,
                     context: CompileContext,
                     chunk: ModuleChunk,

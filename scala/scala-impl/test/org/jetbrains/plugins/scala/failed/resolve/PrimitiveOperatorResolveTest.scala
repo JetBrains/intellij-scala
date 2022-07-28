@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-/**
-  * Created by Anton.Yalyshev on 02/05/16.
-  */
 class PrimitiveOperatorResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL9645(): Unit = {

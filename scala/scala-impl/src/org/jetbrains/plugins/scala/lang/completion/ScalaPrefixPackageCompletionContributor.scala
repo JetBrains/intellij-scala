@@ -14,9 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
- * @author Nikolay.Tropin
- */
 final class ScalaPrefixPackageCompletionContributor extends ScalaCompletionContributor {
 
   import ScalaPrefixPackageCompletionContributor._

@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFinallyBlock, ScTry}
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-27
- */
 class ScalaTryWithFinallyUnwrapper extends ScalaUnwrapper {
   override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
     case ScTry(Some(tryBl), _, Some(finBl@ScFinallyBlock(_))) if tryBl == e || finBl == e  => true

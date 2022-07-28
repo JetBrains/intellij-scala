@@ -17,10 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypesExt
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * Pavel.Fatin, 18.05.2010
-  */
-
 trait FunctionAnnotator {
   self: ScalaAnnotator =>
 

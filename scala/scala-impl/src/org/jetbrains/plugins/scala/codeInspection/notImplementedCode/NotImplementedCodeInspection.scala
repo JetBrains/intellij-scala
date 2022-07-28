@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 
 import scala.annotation.nowarn
 
-/**
- * Pavel Fatin
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class NotImplementedCodeInspection extends AbstractInspection {
 

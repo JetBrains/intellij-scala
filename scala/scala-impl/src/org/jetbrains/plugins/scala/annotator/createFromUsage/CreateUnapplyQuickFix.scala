@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
-/**
- * Nikolay.Tropin
- * 2014-08-01
- */
 class CreateUnapplyQuickFix(clazz: ScTypeDefinition, pattern: ScPattern) extends CreateApplyOrUnapplyQuickFix(clazz) {
   override def getFamilyName: String = ScalaBundle.message("family.name.create.unapply.method")
 

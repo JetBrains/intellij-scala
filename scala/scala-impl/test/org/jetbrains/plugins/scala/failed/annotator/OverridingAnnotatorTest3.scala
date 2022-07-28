@@ -4,9 +4,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.codeInspection.internal.AnnotatorBasedErrorInspection
 
-/**
-  * @author adkozlov
-  */
 class OverridingAnnotatorTest3 extends ScalaInspectionTestBase {
 
   override protected def shouldPass: Boolean = false

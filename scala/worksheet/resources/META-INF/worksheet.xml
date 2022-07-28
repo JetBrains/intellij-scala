@@ -61,9 +61,6 @@
         <registryKey key="scala.worksheet.show.repl.errors.in.editor" defaultValue="false" restartRequired="false"
                      description="Display REPL errors in worksheet viewer editor"/>
 
-        <registryKey key="scala.meta.annotation.expansion.legacy.support" defaultValue="false" restartRequired="false"
-                     description="Enables legacy support for scala meta annotation expansion (deprecated)"/>
-
         <runLineMarkerContributor implementationClass="org.jetbrains.plugins.scala.worksheet.ammonite.runconfiguration.AmmoniteRunMarkerContributor" language="Scala"/>
         <codeInsight.lineMarkerProvider language="Scala" implementationClass="org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetLineMarkerProvider"/>
 

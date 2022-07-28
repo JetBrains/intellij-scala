@@ -9,10 +9,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 
-/**
-  * User: Dmitry Naydanov
-  * Date: 4/2/12
-  */
 final class AddReplaceSlashRToMLStringIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =

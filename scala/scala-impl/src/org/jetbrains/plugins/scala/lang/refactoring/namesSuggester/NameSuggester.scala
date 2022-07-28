@@ -19,10 +19,6 @@ import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 
-/**
-  * @author Alexander Podkhalyuzin
-  * @since 26.06.2008
-  */
 object NameSuggester {
 
   private val DefaultName = "value"

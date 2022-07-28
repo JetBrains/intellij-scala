@@ -4,10 +4,6 @@ package surroundWith
 package surrounders
 package expression
 
-/**
-  * author: Dmitry Krasilschikov
-  */
-
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement

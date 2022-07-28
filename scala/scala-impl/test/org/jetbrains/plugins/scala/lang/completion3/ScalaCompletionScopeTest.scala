@@ -36,7 +36,7 @@ class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
            |  $prefix$CARET
            |}""".stripMargin,
       invocationCount = invocationCount
-    )()
+    )
 
     val namedElements = for {
       item <- items

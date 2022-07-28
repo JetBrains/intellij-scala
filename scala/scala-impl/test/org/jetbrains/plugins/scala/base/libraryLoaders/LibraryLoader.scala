@@ -4,9 +4,6 @@ package libraryLoaders
 
 import com.intellij.openapi.module.Module
 
-/**
-  * @author adkozlov
-  */
 trait LibraryLoader {
   def init(implicit module: Module, version: ScalaVersion): Unit
 

@@ -10,10 +10,6 @@ import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.extensions.StringExt
 
-/**
-  * User: Dmitry.Naydanov
-  * Date: 27.07.15.
-  */
 abstract class ScalaCompleteStatementTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE

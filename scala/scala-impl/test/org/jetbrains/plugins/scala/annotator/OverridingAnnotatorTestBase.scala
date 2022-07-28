@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-/**
-  * Created by mucianm on 22.03.16.
-  */
 trait OverridingAnnotatorTestBase extends AnnotatorSimpleTestCase {
 
   import lang.psi.api._

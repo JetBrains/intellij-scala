@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 
 import scala.annotation.nowarn
 
-/**
-  * @author Roman.Shein
-  * @since 21.03.2016.
-  */
 class ArgumentToBlockExpressionIntentionTest extends intentions.ScalaIntentionTestBase {
 
   override def familyName = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")

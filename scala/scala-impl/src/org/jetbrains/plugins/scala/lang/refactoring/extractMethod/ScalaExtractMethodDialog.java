@@ -35,10 +35,6 @@ import java.util.Objects;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 11.01.2010
- */
 @SuppressWarnings(value = "unchecked")
 public class ScalaExtractMethodDialog extends DialogWrapper {
   private final String REFACTORING_NAME = ScalaBundle.message("extract.method.title");

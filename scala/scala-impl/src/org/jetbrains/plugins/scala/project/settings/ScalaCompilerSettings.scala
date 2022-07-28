@@ -4,7 +4,6 @@ import org.jetbrains.plugins.scala.compiler.data.{CompileOrder, DebuggingInfoLev
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 /**
- * @author Pavel Fatin
  * @see [[org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings]]
  * @see [[org.jetbrains.jps.incremental.scala.model.CompilerSettingsImpl]]
  */

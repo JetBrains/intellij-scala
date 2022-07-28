@@ -10,11 +10,6 @@ import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression, ScGuard}
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 trait ScCaseClause extends ScalaPsiElement {
   def pattern: Option[ScPattern] = findChild[ScPattern]
   def expr: Option[ScExpression] = findChild[ScExpression]

@@ -20,10 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import java.awt.Point
 import javax.swing.JList
 
-/**
-  * @author Ksenia.Sautina
-  * @since 6/20/12
-  */
 final class MakeExplicitAction extends AnAction(
   ScalaBundle.message("make.implicit.conversion.explicit.action.text"),
   ScalaBundle.message("make.implicit.conversion.explicit.action.description"),

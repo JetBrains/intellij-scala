@@ -4,10 +4,6 @@ package lang.typeInference
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.junit.experimental.categories.Category
 
-/**
-  * Created by Anton Yalyshev on 07/09/18.
-  */
-
 @Category(Array(classOf[TypecheckerTests]))
 class BoundsConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 

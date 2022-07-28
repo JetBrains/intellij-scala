@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.extensions
 
 import com.intellij.psi.{PsiClass, PsiMember}
 
-/**
- * Pavel Fatin
- */
-
 object ContainingClass {
 
   def unapply(member: PsiMember): Option[PsiClass] = member match {

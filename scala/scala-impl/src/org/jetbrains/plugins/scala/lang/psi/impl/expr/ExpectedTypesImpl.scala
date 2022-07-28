@@ -38,12 +38,6 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-/**
- * @author ilyas
- *
- * Utility class to calculate expected type of any expression
- */
-
 class ExpectedTypesImpl extends ExpectedTypes {
   /**
    * Do not use this method inside of resolve or type inference.

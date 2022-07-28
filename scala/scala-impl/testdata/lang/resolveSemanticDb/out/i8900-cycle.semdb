@@ -1,0 +1,17 @@
+Document tests/pos/i8900-cycle.scala
+(5:17..5:18) _empty_/Test#foo().[S] -> 5:11
+(5:21..5:22) _empty_/Test#foo().[S] -> 5:11
+(6:17..6:20) _empty_/Cov# -> 2:7
+(6:21..6:22) _empty_/Test#rec1().[T] -> 6:12
+(6:26..6:32) _empty_/Contra# -> 1:7
+(6:33..6:34) _empty_/Test#rec1().[T] -> 6:12
+(7:17..7:20) _empty_/Cov# -> 2:7
+(7:21..7:22) _empty_/Test#rec2().[U] -> 7:25
+(7:30..7:31) _empty_/Test#rec2().[T] -> 7:12
+(7:34..7:40) _empty_/Contra# -> 1:7
+(7:41..7:42) _empty_/Test#rec2().[T] -> 7:12
+(9:11..9:14) _empty_/Test#foo(). -> 5:7
+(10:5..10:9) _empty_/Test#rec1(). -> 6:7
+(12:11..12:14) _empty_/Test#foo(). -> 5:7
+(13:5..13:9) _empty_/Test#rec2(). -> 7:7
+

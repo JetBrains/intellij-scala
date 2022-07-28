@@ -3,9 +3,6 @@ package lang
 package transformation
 package general
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandTupleInstantiationTest extends TransformerTest(new ExpandTupleInstantiation()) {
 
   def testTuple2(): Unit = check(

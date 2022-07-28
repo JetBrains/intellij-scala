@@ -7,10 +7,6 @@ import org.jetbrains.annotations.Nls
 
 import scala.annotation.tailrec
 
-/**
- * Nikolay.Tropin
- * 2014-09-28
- */
 object EvaluationException {
   def apply(@Nls message: String): EvaluateException = EvaluateExceptionUtil.createEvaluateException(message)
   def apply(thr: Throwable): EvaluateException = createEvaluateException(null, thr)

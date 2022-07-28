@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.types.api.Nothing
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin, ilyas
-  */
 class ScThrowImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScThrow {
   protected override def innerType: TypeResult = Right(Nothing)
 

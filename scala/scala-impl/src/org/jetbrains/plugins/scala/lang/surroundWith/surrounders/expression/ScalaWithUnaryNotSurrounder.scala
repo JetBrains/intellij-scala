@@ -11,10 +11,6 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.api
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 29.09.2008
-  */
 class ScalaWithUnaryNotSurrounder extends ScalaExpressionSurrounder {
 
   override def getTemplateAsString(elements: Array[PsiElement]): String =

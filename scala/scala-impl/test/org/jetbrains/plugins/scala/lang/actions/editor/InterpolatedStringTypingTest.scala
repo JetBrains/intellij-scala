@@ -6,10 +6,6 @@ import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.RevertableChange
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/31/12
- */
 class InterpolatedStringTypingTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 26.04.2010
- */
 case class MostSpecificUtil(elem: PsiElement, length: Int) {
   implicit def ctx: ProjectContext = elem
 

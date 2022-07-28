@@ -6,10 +6,6 @@ import com.intellij.refactoring.changeSignature.{ChangeSignatureProcessorBase, C
 import com.intellij.usageView.{UsageInfo, UsageViewDescriptor}
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
-/**
- * Nikolay.Tropin
- * 2014-09-01
- */
 final class ScalaChangeSignatureProcessor(changeInfo: ScalaChangeInfo)
                                          (implicit project: Project)
         extends ChangeSignatureProcessorBase(project, changeInfo) {

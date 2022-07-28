@@ -3,9 +3,6 @@ package lang
 package transformation
 package calls
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandAssignmentCallTest extends TransformerTest(new ExpandAssignmentCall()) {
 
   override protected val header: String =

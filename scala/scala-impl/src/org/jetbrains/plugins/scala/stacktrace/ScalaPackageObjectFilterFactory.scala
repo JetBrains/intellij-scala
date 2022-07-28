@@ -11,10 +11,6 @@ import java.util.regex.Pattern
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-/**
-  * Nikolay.Tropin
-  * 09-Nov-17
-  */
 class ScalaPackageObjectFilterFactory extends ExceptionFilterFactory {
   override def create(scope: GlobalSearchScope): Filter =
     new ScalaPackageObjectFilter(scope)

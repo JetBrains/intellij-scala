@@ -28,7 +28,7 @@
 [132,135]: Ident
 [139,149]: Ident
 [154,190]: CaseDef
-[159,160]: TypeBoundsTree
+[159,160]: Ident
 [164,190]: InfixOp
 [164,167]: Ident
 [168,170]: Ident
@@ -101,7 +101,7 @@
 [512,513]: Ident
 [515,519]: Ident
 [527,565]: CaseDef
-[532,533]: TypeBoundsTree
+[532,533]: Ident
 [537,565]: InfixOp
 [537,538]: Ident
 [539,541]: Ident

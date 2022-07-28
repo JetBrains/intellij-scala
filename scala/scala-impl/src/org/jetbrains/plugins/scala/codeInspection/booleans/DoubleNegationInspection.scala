@@ -11,11 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
-
-/**
- * Nikolay.Tropin
- * 4/23/13
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class DoubleNegationInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.double.negation")) {
 

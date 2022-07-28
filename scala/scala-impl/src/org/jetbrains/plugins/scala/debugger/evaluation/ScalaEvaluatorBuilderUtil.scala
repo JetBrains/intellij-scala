@@ -48,10 +48,6 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import scala.annotation.tailrec
 import scala.reflect.NameTransformer
 
-/**
-* Nikolay.Tropin
-* 2014-09-28
-*/
 private[evaluation] trait ScalaEvaluatorBuilderUtil {
   this: ScalaEvaluatorBuilder =>
 
@@ -501,9 +497,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val context = ScalaPsiUtil.nameContext(elem)
             val clazz = context.getContext match {
               case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                PsiTreeUtil.getContextOfType(context, true, classOf[PsiClass])
               case _ if context.isInstanceOf[ScClassParameter] =>
-                ScalaPsiUtil.getContextOfType(context, true, classOf[PsiClass])
+                PsiTreeUtil.getContextOfType(context, true, classOf[PsiClass])
               case _ => null
             }
             clazz match {

@@ -8,9 +8,6 @@ import java.util.Properties
 import scala.collection.immutable.ListSet
 import scala.util.Using
 
-/**
- * @author Pavel Fatin
- */
 sealed abstract class Artifact(
   val prefix: String,
   val propertiesResource: Option[String] = None

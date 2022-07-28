@@ -13,9 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Unit
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 final class ScFunctionDeclarationImpl private[psi](stub: ScFunctionStub[ScFunctionDeclaration],
                                                    nodeType: ScFunctionElementType[ScFunctionDeclaration],
                                                    node: ASTNode)

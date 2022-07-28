@@ -4,11 +4,6 @@ package lang.xml
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-/**
- * User: Dmitry Naydanov
- * Date: 3/3/12
- */
-
 class XmlClosingTagAutoCompletionTest extends EditorActionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

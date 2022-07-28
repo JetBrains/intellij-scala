@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-30
- */
 class ScalaBracesUnwrapper extends ScalaUnwrapper {
 
   override def isApplicableTo(e: PsiElement): Boolean = e match {

@@ -9,9 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScPrimaryCon
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
 
-/**
-  * @author adkozlov
-  */
 trait ScConstructorOwner extends ScTypeDefinition
   with ScParameterOwner {
 

@@ -4,9 +4,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
 /** Generic infix operation, covers infix types, patterns, and expressions.
-  *
-  * @author Clément Fournier
-  */
+ */
 trait ScInfixElement extends ScalaPsiElement {
   //expression, type element or pattern
   type Kind <: ScalaPsiElement

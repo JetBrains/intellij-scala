@@ -8,11 +8,6 @@ package patterns
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 28.02.2008
-*/
-
 trait ScTuplePattern extends ScPattern {
   def patternList: Option[ScPatterns] = findChild[ScPatterns]
 

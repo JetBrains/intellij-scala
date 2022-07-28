@@ -13,10 +13,6 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-/**
-  * @author Ksenia.Sautina
-  * @since 4/20/12
-  */
 final class FlipComparisonInInfixExprIntention extends PsiElementBaseIntentionAction {
 
   import FlipComparisonInInfixExprIntention._

@@ -15,10 +15,6 @@ import java.io.File
 import scala.annotation.{tailrec, unused}
 import scala.collection.mutable
 
-/**
- * Nikolay.Tropin
- * 2014-10-07
- */
 class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()

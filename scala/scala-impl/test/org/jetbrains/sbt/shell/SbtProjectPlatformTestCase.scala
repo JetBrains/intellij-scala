@@ -21,9 +21,6 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import java.io.File
 import scala.concurrent.{Future, Promise}
 
-/**
-  * Created by Roman.Shein on 27.03.2017.
-  */
 abstract class SbtProjectPlatformTestCase extends HeavyPlatformTestCase {
 
   override def setUpProject(): Unit = {

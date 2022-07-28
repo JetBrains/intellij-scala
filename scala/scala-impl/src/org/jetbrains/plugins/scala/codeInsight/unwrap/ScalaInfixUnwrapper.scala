@@ -6,10 +6,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-26
- */
 class ScalaInfixUnwrapper extends ScalaUnwrapper with ShortTextDescription {
   override def isApplicableTo(e: PsiElement): Boolean = e.getParent match {
     case ScInfixExpr(left, _, right) => e == left || e == right

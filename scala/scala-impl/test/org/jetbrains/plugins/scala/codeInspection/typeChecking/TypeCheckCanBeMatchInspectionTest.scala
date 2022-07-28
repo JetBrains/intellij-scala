@@ -5,10 +5,6 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 
-/**
- * Nikolay.Tropin
- * 5/15/13
- */
 class TypeCheckCanBeMatchInspectionTest extends ScalaInspectionTestBase {
 
   import CodeInsightTestFixture.CARET_MARKER

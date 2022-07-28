@@ -7,10 +7,6 @@ package expr
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSequenceArg, ScTypeElement}
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 06.03.2008
-  */
 trait ScTypedExpression extends ScExpression {
   def expr: ScExpression = findChild[ScExpression].get
 

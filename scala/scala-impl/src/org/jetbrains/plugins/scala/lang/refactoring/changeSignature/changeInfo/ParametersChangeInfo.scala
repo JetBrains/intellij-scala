@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.ScalaParameterInfo
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
-/**
- * Nikolay.Tropin
- * 2014-08-29
- */
 private[changeInfo] trait ParametersChangeInfo {
   this: ScalaChangeInfo =>
 

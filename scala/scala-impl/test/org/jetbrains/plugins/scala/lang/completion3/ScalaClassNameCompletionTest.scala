@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObj
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
-/**
-  * User: Alefas
-  * Date: 27.03.12
-  */
 abstract class ScalaClassNameCompletionTest extends ScalaCodeInsightTestBase {
 
   protected def predicate(lookup: LookupElement,

@@ -37,10 +37,6 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.reflect.NameTransformer
 
-/**
- * User: Alefas
- * Date: 19.10.11
- */
 object DebuggerUtil {
   val packageSuffix = ".package$"
 
@@ -469,7 +465,7 @@ object DebuggerUtil {
           case _ => true //todo: for generator/enumerators
         }
       case o: ScObject =>
-        !o.getContext.is[ScTemplateBody] && ScalaPsiUtil.getContextOfType(o, true, classOf[PsiClass]) != null
+        !o.getContext.is[ScTemplateBody] && PsiTreeUtil.getContextOfType(o, true, classOf[PsiClass]) != null
       case _ => false
     }
   }

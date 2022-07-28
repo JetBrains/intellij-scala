@@ -14,11 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScDerivesCla
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api._
 
-/**
- * @author ilyas
- * @author Alexander Podkhalyuzin
- */
-
 class ScalaRecursiveElementVisitor extends ScalaElementVisitor {
   private var referencesStack = List.empty[ScReference]
 

@@ -10,9 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScLiteralType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Singleton, TupleType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
- * @author ilyas, Alexander Podkhalyuzin
- */
 class ScTupleImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScTuple {
 
   protected override def innerType: TypeResult =

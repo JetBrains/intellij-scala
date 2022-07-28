@@ -5,10 +5,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
-/**
-  * @author Alefas
-  * @since 28.02.12
-  */
 class StaticPsiTypedDefinitionWrapper(override val delegate: ScTypedDefinition,
                                       role: DefinitionRole,
                                       containingClass: PsiClassWrapper)

@@ -30,8 +30,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
  * wrap this element in a proper [[Transformable]]
  * instance. Then pass it an instance of this builder by calling ```transformable.transform(builder)```.
  * After that, call ```builder.build()``` to finalize building and collect the result.
- *
- * @author Gerard Dróżdż
  */
 class ScalaDfaControlFlowBuilder(val analysedMethodInfo: AnalysedMethodInfo, private val factory: DfaValueFactory,
                                  context: ScalaPsiElement) {

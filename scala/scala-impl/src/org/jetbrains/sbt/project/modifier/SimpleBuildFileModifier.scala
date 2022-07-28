@@ -14,9 +14,6 @@ import scala.collection.mutable
 /**
  * Adds dependencies, resolvers and options to the build file in given location. Supposes that all changes of the same
  * type should be added as Seq(...) additions to library dependencies/resovlers/scalacOptions.
- *
- * @author Roman.Shein
- * @since 16.03.2015.
  */
 class SimpleBuildFileModifier(val libDependencies: Seq[String],
                               val resolvers: Seq[String],

@@ -21,10 +21,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-/**
- * @author Nikolay Obedin
- * @since 7/10/14.
- */
 final class SbtCompletionContributor extends ScalaCompletionContributor {
 
   private val afterInfixOperator = sbtFilePattern && infixExpressionChildPattern

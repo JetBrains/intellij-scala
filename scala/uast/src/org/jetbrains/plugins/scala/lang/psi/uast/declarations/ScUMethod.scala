@@ -58,8 +58,10 @@ final class ScUMethod(override protected val scElement: ScMethodLike,
   @Nullable
   override def getReturnType: PsiType = scElement match {
     case funDef: ScFunctionDefinition =>
-      funDef.returnType.map(_.toPsiType).getOrElse(createUErrorType())
-    case _ => scElement.getReturnType
+      val rt = funDef.returnType
+      rt.map(_.toPsiType).getOrElse(createUErrorType())
+    case _ =>
+      scElement.getReturnType
   }
 
   override def isConstructor: Boolean = scElement.isConstructor

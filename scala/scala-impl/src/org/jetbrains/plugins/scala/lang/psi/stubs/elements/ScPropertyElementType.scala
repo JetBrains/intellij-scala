@@ -12,9 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.statements._
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScPropertyStubImpl
 
-/**
-  * @author adkozlov
-  */
 sealed abstract class ScPropertyElementType[P <: ScValueOrVariable](debugName: String)
   extends ScStubElementType[ScPropertyStub[P], P](debugName) {
 

@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import java.util
 
-/**
- * Nikolay.Tropin
- * 2014-06-30
- */
 class ScalaInterpolatedStringUnwrapper extends ScalaUnwrapper {
   
   override def isApplicableTo(e: PsiElement): Boolean = forInjection(e)((_, _) => true)(false)

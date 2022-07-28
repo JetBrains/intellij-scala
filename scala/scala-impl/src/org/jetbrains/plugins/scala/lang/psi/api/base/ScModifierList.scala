@@ -8,10 +8,6 @@ import com.intellij.psi.PsiModifierList
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.util.EnumSet._
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 trait ScModifierList extends ScalaPsiElement with PsiModifierList {
 
   //only one access modifier can occur in a particular modifier list

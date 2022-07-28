@@ -12,10 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTe
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
 
-/**
- * Nikolay.Tropin
- * 2014-05-23
- */
 abstract class ScalaMemberInfoBase[Member <: PsiElement](member: Member) extends MemberInfoBase[Member](member: Member) {
 
   member match {

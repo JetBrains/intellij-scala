@@ -16,11 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeParamClauseStub
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 
-
-/**
-* @author Alexander Podkhalyuzin
-* @since 22.02.2008
-*/
 class ScTypeParamClauseImpl private (stub: ScTypeParamClauseStub, node: ASTNode)
   extends ScalaStubBasedElementImpl(stub, TYPE_PARAM_CLAUSE, node) with ScTypeParamClause {
 

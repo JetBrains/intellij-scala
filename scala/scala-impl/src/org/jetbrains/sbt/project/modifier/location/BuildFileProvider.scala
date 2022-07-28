@@ -10,10 +10,6 @@ import org.jetbrains.sbt.project.modifier.BuildFileElementType
 import java.io.File
 import scala.collection.mutable
 
-/**
- * @author Roman.Shein
- * @since 17.03.2015.
- */
 trait BuildFileProvider {
   def findBuildFile(module: IJModule, elementType: BuildFileElementType,
                     vfsFileToCopy: mutable.Map[VirtualFile, LightVirtualFile]): Option[BuildFileEntry[PsiFile]] = {

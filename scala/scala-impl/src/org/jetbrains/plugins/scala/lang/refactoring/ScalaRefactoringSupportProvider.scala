@@ -18,11 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.introduceField.ScalaIntroduc
 import org.jetbrains.plugins.scala.lang.refactoring.introduceParameter.ScalaIntroduceParameterHandler
 import org.jetbrains.plugins.scala.lang.refactoring.introduceVariable.ScalaIntroduceVariableHandler
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 29.03.2009
- */
-
 class ScalaRefactoringSupportProvider extends RefactoringSupportProvider {
   override def isInplaceRenameAvailable(element: PsiElement, context: PsiElement): Boolean = {
     false // handled by ScalaInplaceRenameHandler

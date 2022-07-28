@@ -29,10 +29,6 @@ import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
 
 import java.{util => ju}
 
-/**
- * @author ven
- * @author alefas
- */
 object TypeDefinitionMembers {
 
   def isValSignature(signature: TermSignature): Boolean = signature match {

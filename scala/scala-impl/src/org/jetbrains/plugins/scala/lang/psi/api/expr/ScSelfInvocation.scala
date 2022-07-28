@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ConstructorInvocationLike
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
-/**
-  * @author Alexander Podkhalyuzin
-  *         Date: 22.02.2008
-  */
 trait ScSelfInvocation extends ScalaPsiElement with PsiReference with ConstructorInvocationLike {
   def args: Option[ScArgumentExprList]
 

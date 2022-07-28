@@ -7,10 +7,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScBoundsOwnerStub
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 17.06.2009
-  */
 trait ScTypeParamStub extends ScBoundsOwnerStub[ScTypeParam] {
   def viewBoundsTexts: Array[String]
 

@@ -22,10 +22,6 @@ import org.junit.runner.RunWith
 
 import java.io.File
 
-/**
-  * @author Roman.Shein
-  * @since 14.09.2015.
-  */
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12,

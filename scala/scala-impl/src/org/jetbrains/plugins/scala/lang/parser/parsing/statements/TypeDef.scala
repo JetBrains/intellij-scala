@@ -9,10 +9,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypeParamClause
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, Type}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 13.02.2008
-*/
 object TypeDef extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {

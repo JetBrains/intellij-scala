@@ -10,10 +10,6 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.experimental.categories.Category
 
-/**
-  * @author Alefas
-  * @since 23/03/16
-  */
 @Category(Array(classOf[TypecheckerTests]))
 abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with MatcherAssertions {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11

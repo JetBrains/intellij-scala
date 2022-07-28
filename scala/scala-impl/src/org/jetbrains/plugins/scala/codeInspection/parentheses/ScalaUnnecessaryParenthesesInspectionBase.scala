@@ -18,10 +18,6 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker.checkInspec
 
 import scala.annotation.nowarn
 
-/**
- * Nikolay.Tropin
- * 4/25/13
- */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 abstract class ScalaUnnecessaryParenthesesInspectionBase
   extends AbstractInspection(ScalaBundle.message("remove.unnecessary.parentheses")) {

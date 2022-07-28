@@ -9,6 +9,7 @@ Document tests/pos/9890.scala
 (6:49..6:52) _empty_/Test.Range#[Min] -> 6:14
 (7:10..7:13) _empty_/Test.Range#[Max] -> 6:26
 (7:17..7:27) scala/Tuple$package.EmptyTuple#
+(8:10..8:11) scala/Any#
 (8:15..8:18) _empty_/Test.Range#[Min] -> 6:14
 (8:19..8:21) scala/`*:`#
 (8:22..8:27) _empty_/Test.Range# -> 6:8
@@ -40,6 +41,7 @@ Document tests/pos/9890.scala
 (18:20..18:30) _empty_/Test.TupleDedup# -> 15:8
 (18:31..18:32) local3 -> 17:15
 (18:34..18:38) _empty_/Test.TupleDedup#[Mask] -> 15:33
+(19:12..19:13) scala/Any#
 (19:17..19:18) local2 -> 17:10
 (19:19..19:21) scala/`*:`#
 (19:22..19:32) _empty_/Test.TupleDedup# -> 15:8

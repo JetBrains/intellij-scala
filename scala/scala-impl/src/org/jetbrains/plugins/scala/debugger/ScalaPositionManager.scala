@@ -50,9 +50,6 @@ import scala.jdk.CollectionConverters._
 import scala.reflect.NameTransformer
 import scala.util.Try
 
-/**
-  * @author ilyas
-  */
 class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManager with MultiRequestPositionManager with LocationLineManager {
 
   protected[debugger] val caches = new ScalaPositionManagerCaches(debugProcess)

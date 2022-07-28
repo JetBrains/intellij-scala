@@ -8,10 +8,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClause, ParamClauses}
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
 //TODO: rewrite this
 object FunSig extends ParsingRule {
 

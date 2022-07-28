@@ -3,10 +3,6 @@ package org.jetbrains.plugins.scala.lang.resolve;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScParameterImpl;
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.params.ScTypeParamImpl;
 
-/**
- * User: Dmitry Naydanov
- * Date: 12/5/11
- */
 public class ScaladocLinkResolveTest extends ScaladocLinkResolveBase {
 
   public void testCodeLinkResolve() throws Exception {

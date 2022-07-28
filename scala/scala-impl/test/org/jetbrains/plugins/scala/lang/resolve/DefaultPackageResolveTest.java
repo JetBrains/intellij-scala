@@ -2,10 +2,6 @@ package org.jetbrains.plugins.scala.lang.resolve;
 
 import com.intellij.psi.PsiReference;
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 11.03.2009
- */
 public class DefaultPackageResolveTest extends ScalaResolveTestCase {
   @Override
   public String folderPath() {

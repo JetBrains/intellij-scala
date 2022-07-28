@@ -6,10 +6,6 @@ import com.intellij.platform.ProjectTemplate
 import org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactoryBase
 import org.jetbrains.sbt.project.template.techhub.TechHubProjectTemplate
 
-/**
-  * User: Dmitry.Naydanov, Pavel Fatin
-  * Date: 11.03.14.
-  */
 class SbtProjectTemplateFactory extends ScalaProjectTemplatesFactoryBase {
 
   override def createTemplates(group: String, context: WizardContext): Array[ProjectTemplate] = {

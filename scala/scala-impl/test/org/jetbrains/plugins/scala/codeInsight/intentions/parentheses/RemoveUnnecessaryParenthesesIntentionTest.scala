@@ -3,13 +3,7 @@ package codeInsight.intentions.parentheses
 
 import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
-/**
- * Nikolay.Tropin
- * 6/27/13
- *
- * TODO: merge this test class with [[.expression.RemoveUnnecessaryParenthesesIntentionTest]]?
- */
-
+//TODO: merge this test class with [[.expression.RemoveUnnecessaryParenthesesIntentionTest]]?
 //test only removing clarifying paretheses here
 class RemoveUnnecessaryParenthesesIntentionTest extends ScalaIntentionTestBase {
   override def familyName: String = ScalaBundle.message("remove.unnecessary.parentheses")

@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 import scala.annotation.tailrec
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 11.02.2008
-*/
-
 /*
  *  ImportSelectors ::=  {  {ImportSelector  , } (ImportSelector |  _ )  }
  */

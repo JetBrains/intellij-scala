@@ -26,10 +26,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
 
 import javax.swing.Icon
 
-/**
- * Nikolay.Tropin
- * 2014-07-28
- */
 abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
         extends CreateFromUsageQuickFixBase(ref) {
   private final val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.annotator.createFromUsage.CreateTemplateDefinitionQuickFix")

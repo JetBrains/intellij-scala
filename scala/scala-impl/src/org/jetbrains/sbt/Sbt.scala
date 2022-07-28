@@ -7,9 +7,6 @@ import org.jetbrains.plugins.scala.project.Version
 
 import javax.swing.Icon
 
-/**
- * @author Pavel Fatin
- */
 object Sbt {
   @NonNls val Name = "sbt"
 

@@ -3,9 +3,6 @@ package org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages
 import com.intellij.psi.{PsiNamedElement, SmartPsiElementPointer}
 import org.jetbrains.plugins.scala.extensions._
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 sealed trait ValueUsed {
   val pointer: SmartPsiElementPointer[PsiNamedElement]
 

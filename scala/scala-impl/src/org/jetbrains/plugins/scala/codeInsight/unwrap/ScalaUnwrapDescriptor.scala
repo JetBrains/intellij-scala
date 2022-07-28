@@ -3,10 +3,6 @@ package codeInsight.unwrap
 
 import com.intellij.codeInsight.unwrap.{UnwrapDescriptorBase, Unwrapper}
 
-/**
- * Nikolay.Tropin
- * 2014-06-26
- */
 class ScalaUnwrapDescriptor extends UnwrapDescriptorBase {
   override def createUnwrappers(): Array[Unwrapper] = Array (
     new ScalaInfixUnwrapper,

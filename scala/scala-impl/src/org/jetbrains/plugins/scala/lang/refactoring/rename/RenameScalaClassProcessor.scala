@@ -23,11 +23,6 @@ import java.util
 import javax.swing.{JCheckBox, JComponent, JPanel}
 import scala.annotation.tailrec
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 15.09.2009
- */
-
 class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
     element.is[ScTypeDefinition, PsiClassWrapper, ScTypeParam]

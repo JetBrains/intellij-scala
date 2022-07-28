@@ -3,9 +3,6 @@ package lang
 package transformation
 package functions
 
-/**
-  * @author Pavel Fatin
-  */
 class ExpandPlaceholderSyntaxTest extends TransformerTest(new ExpandPlaceholderSyntax()) {
 
   def testUnderscore(): Unit = check(

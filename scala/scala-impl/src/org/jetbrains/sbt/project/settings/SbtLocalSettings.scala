@@ -6,9 +6,6 @@ import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemLocalS
 import com.intellij.openapi.project.Project
 import org.jetbrains.sbt.project.SbtProjectSystem
 
-/**
- * @author Pavel Fatin
- */
 @State(
   name = "SbtLocalSettings",
   storages = Array(new Storage(StoragePathMacros.WORKSPACE_FILE))

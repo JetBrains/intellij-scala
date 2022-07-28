@@ -14,10 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.{LeafType, ScCompoundType, ScT
 
 import scala.annotation.tailrec
 
-/**
-  * Nikolay.Tropin
-  * 01-Feb-18
-  */
 private case class ThisTypeSubstitution(target: ScType) extends LeafSubstitution {
 
   override def toString: String = s"`this` -> $target"

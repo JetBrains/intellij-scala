@@ -3,9 +3,6 @@ package lang
 package transformation
 package implicits
 
-/**
-  * @author Pavel Fatin
-  */
 class InscribeImplicitParametersTest extends TransformerTest(new InscribeImplicitParameters()) {
 
   override protected val header: String =

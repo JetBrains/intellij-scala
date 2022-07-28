@@ -7,10 +7,6 @@ import org.junit.Assert
 
 import java.io.File
 
-/**
-  * Author: Svyatoslav Ilinskiy
-  * Date: 11/17/2015
-  */
 abstract class DownloadingAndImportingTestCase extends ImportingProjectTestCase with GithubRepo {
 
   implicit class IntExt(private val i: Int) {

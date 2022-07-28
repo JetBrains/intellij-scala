@@ -16,9 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ContextFunctionType, Func
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, api}
 
-/**
-  * @author Alexander Podkhalyuzin
-  */
 class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScFunctionExpr {
 
   override def parameters: Seq[ScParameter] = params.params

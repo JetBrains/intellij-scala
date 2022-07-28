@@ -6,11 +6,6 @@ package expr
 
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScPattern
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 trait ScEnumerators extends ScalaPsiElement {
 
   def forBindings: Seq[ScForBinding]

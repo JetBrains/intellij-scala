@@ -15,11 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScPropertyStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScPropertyElementType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-/**
- * @author Alexander Podkhalyuzin
- * Date: 22.02.2008
- * Time: 9:55:28
- */
 final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDeclaration],
                                                 nodeType: ScPropertyElementType[ScValueDeclaration],
                                                 node: ASTNode)

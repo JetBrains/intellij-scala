@@ -6,9 +6,6 @@ package quickfix
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-/**
-  * Pavel Fatin
-  */
 final class RemoveParentheses(function: ScFunction)
   extends AbstractFixOnPsiElement(ScalaInspectionBundle.message("redundant.parentheses"), function) {
 

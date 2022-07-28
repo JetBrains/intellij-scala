@@ -3,10 +3,6 @@ package lang
 package psi
 package types
 
-/**
- * @author ilyas
- */
-
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}

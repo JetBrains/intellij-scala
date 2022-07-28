@@ -5,9 +5,6 @@ import org.jetbrains.annotations.NonNls
 /**
  * Marker class used to distinguish between requests when searching for a modification location using
  * BuildFileModificationLocationProvider.
- *
- * @author Roman.Shein
- * @since 16.03.2015.
  */
 case class BuildFileElementType(@NonNls id: String)
 

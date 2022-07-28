@@ -12,9 +12,6 @@ import scala.reflect.macros.whitebox
  * `org.jetbrains.plugins.scala.caches.RecursionManager`
  * `org.jetbrains.plugins.scala.caches.CachesUtil.handleRecursiveCall`
  * `org.jetbrains.plugins.scala.macroAnnotations.CachedMacroUtil.handleProbablyRecursiveException`
- *
- * Author: Svyatoslav Ilinskiy, Nikolay.Tropin
- * Date: 9/28/15.
  */
 class CachedWithRecursionGuard(element: Any, defaultValue: => Any, dependecyItem: Object, tracked: Any*) extends StaticAnnotation {
   def macroTransform(annottees: Any*): Any = macro CachedWithRecursionGuard.cachedWithRecursionGuardImpl
