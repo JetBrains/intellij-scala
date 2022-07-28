@@ -82,11 +82,11 @@
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
                                 order="first" id="sbtPackageSearchDependencyCompletionContributor"/>
         <completion.contributor language="any"
-                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor"
-                                order="first" id="sbtScalaVersionCompletionContributor"/>
+                                implementationClass="org.jetbrains.sbt.language.completion.ScalaVersionCompletionContributor"
+                                order="first" id="scalaVersionCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor"
-                                order="first, before sbtScalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
+                                order="first, before scalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionArgumentsCompletionContributor"
                                 order="first, before sbtScalacOptionsCompletionContributor" id="sbtScalacOptionArgumentsCompletionContributor"/>

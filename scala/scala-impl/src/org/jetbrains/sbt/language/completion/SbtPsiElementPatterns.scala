@@ -26,6 +26,9 @@ object SbtPsiElementPatterns {
     psiFile.withFileType(instanceOf(classOf[ScalaFileType]))
   }
 
+  /**
+   * WARNING: Uses a class ([[PropertiesFileType]]) defined in properties plugin. Only call from places dependent on this plugin
+   */
   def propertiesFilePattern: Capture[PsiElement] = psiElement.inFile {
     psiFile.withFileType(instanceOf(classOf[PropertiesFileType]))
   }
@@ -57,7 +60,7 @@ object SbtPsiElementPatterns {
       override def accepts(expr: ScStringLiteral, context: ProcessingContext): Boolean = isScalacOption(expr)
     })
 
-  def versionPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isVersionPattern") {
+  def versionPattern: Capture[PsiElement] = psiElement().`with`(new PatternCondition[PsiElement]("isVersionPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
         case infix: ScInfixExpr if infix.operation.refName == ":=" =>
@@ -69,11 +72,19 @@ object SbtPsiElementPatterns {
             case other =>
               other.textMatches("scalaVersion")
           }
-        case property: Property =>
-          property.getKey == "sbt.version" && property.getValue.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         case _ => false
       }
     }
   })
 
+  /**
+   * WARNING: Uses a class ([[Property]]) defined in properties plugin. Only call from places dependent on this plugin
+   */
+  def versionPropertyPattern: Capture[PsiElement] = psiElement().`with`(new PatternCondition[PsiElement]("isVersionPropertyPattern") {
+    override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = elem match {
+      case property: Property =>
+        property.getKey == "sbt.version" && property.getValue.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
+      case _ => false
+    }
+  })
 }

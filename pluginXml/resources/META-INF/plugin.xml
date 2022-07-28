@@ -42,6 +42,7 @@
     <depends optional="true" config-file="intellilang-scala-support.xml">org.intellij.intelliLang</depends>
     <depends optional="true" config-file="copyright.xml">com.intellij.copyright</depends>
     <depends optional="true" config-file="scala-i18n.xml">com.intellij.java-i18n</depends>
+    <depends optional="true" config-file="scala-properties-integration.xml">com.intellij.properties</depends>
     <depends optional="true" config-file="scala-gradle-integration.xml">com.intellij.gradle</depends>
     <depends optional="true" config-file="android-support.xml">org.jetbrains.android</depends>
     <depends optional="true" config-file="decompile-scala-to-java.xml">org.jetbrains.java.decompiler</depends>
