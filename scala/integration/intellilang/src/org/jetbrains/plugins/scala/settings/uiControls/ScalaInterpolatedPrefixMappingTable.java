@@ -48,6 +48,8 @@ public class ScalaInterpolatedPrefixMappingTable extends JBTable implements Depe
       if (index != -1) data.add(new PrefixLanguagePair(pair.getKey(), index));
     }
 
+    data.sort(Comparator.comparing(PrefixLanguagePair::getMyPrefix));
+
     tableModel.fireTableDataChanged();
   }
 
