@@ -16,7 +16,7 @@ class InterpolatedStringsAnnotatorTest extends base.ScalaLightCodeInsightFixture
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    ScalaAnnotator.forProject(getProject).annotate(file.getLastChild)
+    new ScalaAnnotator().annotate(file.getLastChild)
     mock.annotations
   }
 

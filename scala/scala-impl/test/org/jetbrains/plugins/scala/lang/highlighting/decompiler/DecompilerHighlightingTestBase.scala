@@ -33,7 +33,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with 
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
 
     getFile.depthFirst().foreach(annotator.annotate)
 

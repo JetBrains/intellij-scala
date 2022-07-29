@@ -44,7 +44,7 @@ abstract class JavaHighlightingTestBase extends ScalaFixtureTestCase with Matche
     PsiDocumentManager.getInstance(getProject).commitAllDocuments()
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(getFile)
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
 
     getFile.depthFirst().foreach(annotator.annotate)
     mock.annotations.filter {

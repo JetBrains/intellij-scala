@@ -77,5 +77,5 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   def annotate(element: PsiElement)
               (implicit holder: ScalaAnnotationHolder): Unit =
-    ScalaAnnotator.forProject.annotate(element)
+    new ScalaAnnotator().annotate(element)
 }

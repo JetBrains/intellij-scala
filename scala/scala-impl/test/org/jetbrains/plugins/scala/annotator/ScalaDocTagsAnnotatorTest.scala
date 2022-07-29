@@ -34,7 +34,7 @@ class ScalaDocTagsAnnotatorTest extends SimpleTestCase {
   )
 
   private def messages(code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
     val file: ScalaFile = code.parse
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 

@@ -68,7 +68,7 @@ class IntegerLiteralCheckTest extends AnnotatorSimpleTestCase {
   }
 
   private def messages(literalText: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
     val file: ScalaFile = ("val x = " + literalText).parse
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)

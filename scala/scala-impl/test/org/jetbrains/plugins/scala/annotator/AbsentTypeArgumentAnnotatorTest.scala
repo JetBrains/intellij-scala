@@ -24,7 +24,7 @@ abstract class AbsentTypeArgumentAnnotatorTestBase extends AnnotatorSimpleTestCa
   protected def messages(@Language(value = "Scala") code: String): List[Message] = {
     val file: ScalaFile = parseText(code, scalaLanguage)
 
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst().foreach(annotator.annotate)

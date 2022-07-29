@@ -40,7 +40,7 @@ class ForwardReferenceAnnotatorTest extends AnnotatorSimpleTestCase {
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
     val parse: ScalaFile = (Header + code).parse
 
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(parse)

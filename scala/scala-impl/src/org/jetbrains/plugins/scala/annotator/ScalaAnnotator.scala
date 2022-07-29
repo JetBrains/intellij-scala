@@ -420,10 +420,6 @@ object ScalaAnnotator {
     hasScala && (shouldInspect || isUnitTestMode)
   }
 
-  def apply(implicit project: Project): ScalaAnnotator = new ScalaAnnotator() {}
-
-  def forProject(implicit context: ProjectContext): ScalaAnnotator = apply(context.project)
-
   // TODO place the method in HighlightingAdvisor
   def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
     element.getContainingFile.toOption

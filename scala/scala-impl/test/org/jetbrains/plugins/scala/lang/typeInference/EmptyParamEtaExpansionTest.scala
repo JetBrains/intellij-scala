@@ -14,7 +14,7 @@ import org.junit.experimental.categories.Category
 abstract class EmptyParamEtaExpansionTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
 
   protected def errorMessages(code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject(getProject)
+    val annotator = new ScalaAnnotator()
 
     myFixture.configureByText("a.scala", code)
     val file = myFixture.getFile.asInstanceOf[ScalaFile]

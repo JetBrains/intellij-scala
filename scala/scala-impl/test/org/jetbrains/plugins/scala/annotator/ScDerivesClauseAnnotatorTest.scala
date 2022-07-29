@@ -106,7 +106,7 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
     )(Error("Foo", "Value derived is not a member of object Foo"))
 
   def messages(@Language("Scala")code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
 
     val file =
       PsiFileFactory

@@ -41,7 +41,7 @@ class B;
   }
 
   def messages(@Language(value = "Scala", prefix = Header) code: String): List[Message] = {
-    val annotator = ScalaAnnotator.forProject
+    val annotator = new ScalaAnnotator()
     val file: ScalaFile = (Header + code).parse
     val mock = new AnnotatorHolderMock(file)
 

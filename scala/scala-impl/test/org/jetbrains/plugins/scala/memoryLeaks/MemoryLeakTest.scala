@@ -159,7 +159,7 @@ object MemoryLeakTest {
   }
 
   private[this] def annotateFile(implicit file: PsiFile): Unit =
-    ScalaAnnotator.forProject.annotate(file)(new AnnotatorHolderMock(file))
+    new ScalaAnnotator().annotate(file)(new AnnotatorHolderMock(file))
 
   private[this] def inspectFile(implicit file: PsiFile): Unit = {
 

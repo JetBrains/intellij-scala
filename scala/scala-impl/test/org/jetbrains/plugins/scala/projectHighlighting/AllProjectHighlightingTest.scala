@@ -119,7 +119,7 @@ object AllProjectHighlightingTest {
       }
     }
 
-    val annotator = ScalaAnnotator.forProject(scalaFile)
+    val annotator = new ScalaAnnotator()
 
     val elements = scalaFile.depthFirst().filter(_.isInstanceOf[ScalaPsiElement]).toSeq
     val elementsShuffled = random.shuffle(elements)
