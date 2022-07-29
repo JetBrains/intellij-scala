@@ -7,7 +7,7 @@ import com.intellij.codeInsight.daemon.impl.analysis.{HighlightInfoHolder, Highl
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator
+import org.jetbrains.plugins.scala.annotator.{HighlightingAdvisor, ScalaAnnotator}
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
@@ -23,7 +23,7 @@ final class ScalaRefCountVisitor(project: Project) extends HighlightVisitor {
   private var myRefCountHolder: ScalaRefCountHolder = _
 
   override def suitableForFile(file: PsiFile): Boolean =
-    ScalaAnnotator.isSuitableForFile(file)
+    HighlightingAdvisor.shouldInspect(file)
 
   override def visit(element: PsiElement): Unit =
     registerElementsAndImportsUsed(element)

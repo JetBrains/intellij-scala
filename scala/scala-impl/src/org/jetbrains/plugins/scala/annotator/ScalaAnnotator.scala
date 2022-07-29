@@ -1,17 +1,13 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.lang.annotation._
-import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
-import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
-import org.jetbrains.plugins.scala.annotator.ScalaAnnotator.isSuitableForFile
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
@@ -33,12 +29,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
-import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
-import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
-
-import scala.collection.mutable
 
 class ScalaAnnotator extends Annotator
   with FunctionAnnotator
@@ -50,19 +41,19 @@ class ScalaAnnotator extends Annotator
 
     val typeAware =
       if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false
-      else ScalaAnnotator.isAdvancedHighlightingEnabled(element)
+      else HighlightingAdvisor.isTypeAwareHighlightingEnabled(element)
 
     annotate(element, typeAware)(new ScalaAnnotationHolderAdapter(holder))
   }
 
   // Added for preserving binary compatibility.
   def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
-    annotate(element, ScalaAnnotator.isAdvancedHighlightingEnabled(element))
+    annotate(element, HighlightingAdvisor.isTypeAwareHighlightingEnabled(element))
   }
 
   def annotate(element: PsiElement, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
     val file = element.getContainingFile
-    if (!isSuitableForFile(file))
+    if (!HighlightingAdvisor.shouldInspect(file))
       return
 
     val (compiled, isInSources) = file match {
@@ -406,81 +397,4 @@ class ScalaAnnotator extends Annotator
     }
     typeParam.recursiveVarianceUpdate(variance)(functionToSendIn)
   }
-}
-
-object ScalaAnnotator {
-
-  def isSuitableForFile(file: PsiFile): Boolean = {
-    val hasScala = file.hasScalaPsi
-    // TODO: we currently only check
-    //  HighlightingLevelManager.shouldInspect ~ "Highlighting: All Problems" in code analyses widget,
-    //  but we ignore HighlightingLevelManager.shouldInspect ~ "Highlighting: Syntax"
-    //  we should review all our annotators and split them accordingly
-    val shouldInspect = HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file)
-    hasScala && (shouldInspect || isUnitTestMode)
-  }
-
-  // TODO place the method in HighlightingAdvisor
-  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = {
-    element.getContainingFile.toOption
-      .exists { f =>
-        isAdvancedHighlightingEnabled(f) && !isInIgnoredRange(element, f)
-      }
-  }
-
-  // TODO: what is advanced highlighting? Add comment please
-  def isAdvancedHighlightingEnabled(file: PsiFile): Boolean = {
-    val settings = ScalaProjectSettings.getInstance(file.getProject)
-    file match {
-      case scalaFile: ScalaFile =>
-        settings.isTypeAwareHighlightingEnabled && !isLibrarySource(scalaFile) && !(ScalaHighlightingMode.showCompilerErrorsScala3(file.getProject) && scalaFile.isInScala3Module)
-      case _: DummyHolder =>
-        settings.isTypeAwareHighlightingEnabled
-      case _ => false
-    }
-  }
-
-  private def isInIgnoredRange(element: PsiElement, file: PsiFile): Boolean = {
-    @CachedInUserData(file, file.getManager.getModificationTracker)
-    def ignoredRanges(): Set[TextRange] = {
-      val chars = file.charSequence
-      val indexes = mutable.ArrayBuffer.empty[Int]
-      var lastIndex = 0
-      while (chars.indexOf("/*_*/", lastIndex) >= 0) {
-        lastIndex = chars.indexOf("/*_*/", lastIndex) + 5
-        indexes += lastIndex
-      }
-      if (indexes.isEmpty) return Set.empty
-
-      if (indexes.length % 2 != 0) indexes += chars.length
-
-      var res = Set.empty[TextRange]
-      for (i <- indexes.indices by 2) {
-        res += new TextRange(indexes(i), indexes(i + 1))
-      }
-      res
-    }
-
-    val ignored = ignoredRanges()
-    if (ignored.isEmpty || element.isInstanceOf[PsiFile]) false
-    else {
-      val noCommentWhitespace = element.children.find {
-        case _: PsiComment | _: PsiWhiteSpace => false
-        case _ => true
-      }
-      val offset =
-        noCommentWhitespace
-          .map(_.getTextOffset)
-          .getOrElse(element.getTextOffset)
-      ignored.exists(_.contains(offset))
-    }
-  }
-
-  private def isLibrarySource(file: ScalaFile): Boolean = {
-    val vFile = file.getVirtualFile
-    val index = ProjectFileIndex.getInstance(file.getProject)
-
-    !file.isCompiled && vFile != null && index.isInLibrarySource(vFile)
-  }
-
 }
