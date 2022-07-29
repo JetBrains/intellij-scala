@@ -29,9 +29,7 @@ final class AnnotatorBasedErrorInspection extends LocalInspectionTool {
       element.getContainingFile match {
         case javaFile: PsiJavaFile => highlightJavaElement(element, javaFile, holder)
         case scalaFile: ScalaFile if !InjectedLanguageManager.getInstance(project).isInjectedFragment(scalaFile) => // todo: remove this after proper support of scala fragments in .md files
-          val annotator = new ScalaAnnotator() {
-            override def isAdvancedHighlightingEnabled(element: PsiElement): Boolean = true
-          }
+          val annotator = new ScalaAnnotator()
           annotator.annotate(element)(new DummyAnnotationHolder(element, holder))
         case _ =>
       }

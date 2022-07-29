@@ -45,15 +45,26 @@ class ScalaAnnotator extends Annotator
   with OverridingAnnotator
   with DumbAware {
 
-  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
-    annotate(element)(new ScalaAnnotationHolderAdapter(holder))
+  override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
+    val file = element.getContainingFile
 
+    val typeAware =
+      if ((file ne null) && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)) false
+      else ScalaAnnotator.isAdvancedHighlightingEnabled(element)
+
+    annotate(element, typeAware)(new ScalaAnnotationHolderAdapter(holder))
+  }
+
+  // Added for preserving binary compatibility.
   def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
+    annotate(element, ScalaAnnotator.isAdvancedHighlightingEnabled(element))
+  }
+
+  def annotate(element: PsiElement, typeAware: Boolean)(implicit holder: ScalaAnnotationHolder): Unit = {
     val file = element.getContainingFile
     if (!isSuitableForFile(file))
       return
 
-    val typeAware = isAdvancedHighlightingEnabled(element)
     val (compiled, isInSources) = file match {
       case file: ScalaFile =>
         val isInSources = file.getVirtualFile.nullSafe.exists {
@@ -83,7 +94,7 @@ class ScalaAnnotator extends Annotator
           ByNameParameter.annotate(expr, typeAware)
         }
 
-        if (isAdvancedHighlightingEnabled(element)) {
+        if (typeAware) {
           expr.getTypeAfterImplicitConversion() match {
             case ExpressionTypeResult(Right(_), _, Some(_)) =>
               highlightImplicitView(expr)
@@ -207,10 +218,6 @@ class ScalaAnnotator extends Annotator
 
     //todo: super[ControlFlowInspections].annotate(element, holder)
   }
-
-
-  def isAdvancedHighlightingEnabled(element: PsiElement): Boolean =
-    ScalaAnnotator.isAdvancedHighlightingEnabled(element)
 
   def checkBoundsVariance(toCheck: PsiElement, toHighlight: PsiElement, checkParentOf: PsiElement,
                           upperV: Variance = Covariant, checkTypeDeclaredSameBracket: Boolean = true)
