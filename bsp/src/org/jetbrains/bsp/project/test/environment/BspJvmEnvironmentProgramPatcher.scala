@@ -24,7 +24,7 @@ class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
           javaParameters.getClassPath.clear()
           javaParameters.getClassPath.addAll(newClassPath.asJava)
 
-          javaParameters.setWorkingDirectory(env.workdir)
+          javaParameters.setWorkingDirectory(env.workdir.toAbsolutePath.toString)
           javaParameters.getVMParametersList.addAll(env.jvmOptions.asJava)
         }
       case _ =>
