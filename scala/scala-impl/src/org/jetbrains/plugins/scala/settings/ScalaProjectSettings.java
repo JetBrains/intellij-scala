@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.settings;
 
+import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
@@ -14,6 +15,7 @@ import com.intellij.util.xmlb.annotations.OptionTag;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import org.jetbrains.plugins.scala.ScalaLanguage;
 import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
@@ -108,9 +110,24 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private Map<String, String> INTERPOLATED_INJECTION_MAPPING = new HashMap<>();
 
   {
+    //NOTE: second value of the pair should have the correct case (it should be equal to the language ID)
+    INTERPOLATED_INJECTION_MAPPING.put("html", "HTML");
+    INTERPOLATED_INJECTION_MAPPING.put("xhtml", "XHTML");
+    INTERPOLATED_INJECTION_MAPPING.put("css", "CSS");
+    INTERPOLATED_INJECTION_MAPPING.put("less", "LESS");
+    INTERPOLATED_INJECTION_MAPPING.put("js", "JavaScript");
+    INTERPOLATED_INJECTION_MAPPING.put("json", "JSON");
+    INTERPOLATED_INJECTION_MAPPING.put("json5", "JSON5");
     INTERPOLATED_INJECTION_MAPPING.put("sql", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("sqlu", "SQL");
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
+    INTERPOLATED_INJECTION_MAPPING.put("scala", ScalaLanguage.INSTANCE.getID());
+    INTERPOLATED_INJECTION_MAPPING.put("java", JavaLanguage.INSTANCE.getID());
+    INTERPOLATED_INJECTION_MAPPING.put("kotlin", "Kotlin");
+    INTERPOLATED_INJECTION_MAPPING.put("svg", "SVG");
+    INTERPOLATED_INJECTION_MAPPING.put("xpath", "XPath");
+    INTERPOLATED_INJECTION_MAPPING.put("yaml", "yaml");
+    INTERPOLATED_INJECTION_MAPPING.put("protobuf", "protobuf");
   }
 
   public enum TypeChecker {BuiltIn, Compiler}
