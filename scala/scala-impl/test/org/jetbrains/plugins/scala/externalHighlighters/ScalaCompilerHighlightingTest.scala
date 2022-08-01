@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.externalHighlighters
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.{SlowTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[SlowTests]))
@@ -19,8 +19,7 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(50, 58)),
-        quickFixDescriptions = Seq.empty,
+        range = new TextRange(50, 58),
         msgPrefix = s"type mismatch;${System.lineSeparator()} found   : String${System.lineSeparator()} required: Int"
       )
     )
@@ -50,8 +49,7 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(new TextRange(34, 51)),
-      quickFixDescriptions = Seq("Import 'java.util.concurrent.ConcurrentHashMap'"),
+      range = new TextRange(34, 51),
       msgPrefix = "Not found: type ConcurrentHashMap"
     ))
   )
@@ -64,8 +62,7 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(new TextRange(9, 16)),
-      quickFixDescriptions = Seq("Import 'scala.util.Random.nextInt'", "Import as 'Random.nextInt'"),
+      range = new TextRange(9, 16),
       msgPrefix = "Not found: nextInt"
     ))
   )
@@ -78,8 +75,7 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(21, 31)),
-        quickFixDescriptions = Seq.empty,
+        range = new TextRange(21, 31),
         msgPrefix = s"Found:    String${System.lineSeparator()}Required: Int"
       )
     )
@@ -102,8 +98,7 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.WARNING,
-      range = Some(new TextRange(70, 76)),
-      quickFixDescriptions = Nil,
+      range = new TextRange(70, 76),
       msgPrefix = "match may not be exhaustive"
     ))
   )
@@ -118,8 +113,7 @@ trait ScalaCompilerHighlightingCommonScala2Scala3Test {
         |""".stripMargin,
     expectedResult = expectedResult(ExpectedHighlighting(
       severity = HighlightSeverity.ERROR,
-      range = Some(new TextRange(7, 33)),
-      quickFixDescriptions = Nil,
+      range = new TextRange(7, 33),
       msgPrefix = "class AbstractMethodInClassError needs to be abstract"
     ))
   )

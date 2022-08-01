@@ -1,10 +1,10 @@
-package org.jetbrains.plugins.scala.externalHighlighters
+package org.jetbrains.plugins.scala
+package externalHighlighters
 
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
@@ -68,14 +68,12 @@ class ScalaWorksheetCompilerHighlightingTest_2_13 extends ScalaWorksheetCompiler
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(72, 87)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(72, 87),
         msgPrefix = "not found: value unknownFunction"
       ),
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(208, 209)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(208, 209),
         msgPrefix = "x is already defined as value x"
       )
     )
@@ -93,14 +91,12 @@ class ScalaWorksheetCompilerHighlightingTest_3_0 extends ScalaWorksheetCompilerH
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(72, 87)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(72, 87),
         msgPrefix = "Not found: unknownFunction"
       ),
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(208, 209)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(208, 209),
         msgPrefix = "Double definition:\nval x: Int in worksheet.sc at line 8 and\nval x: Int in worksheet.sc at line 9"
       )
     )
@@ -115,14 +111,12 @@ class ScalaWorksheetCompilerHighlightingTest_3_0 extends ScalaWorksheetCompilerH
     expectedResult = expectedResult(
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(14, 17)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(14, 17),
         msgPrefix = "value foo is not a member of object X"
       ),
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
-        range = Some(new TextRange(25, 28)),
-        quickFixDescriptions = Nil,
+        range = new TextRange(25, 28),
         msgPrefix = "value bar is not a member of worksheet.sc"
       )
     )

@@ -2,20 +2,16 @@ package org.jetbrains.plugins.scala
 package externalHighlighters
 
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
-import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
-import com.intellij.openapi.project.{DumbService, Project}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.problems.WolfTheProblemSolver
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.xml.util.XmlStringUtil
-import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.{Pos, PosRange}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
 
 import java.util.Collections
@@ -97,19 +93,13 @@ object ExternalHighlighters {
       highlightRange <- calculateRangeToHighlight(posRange, message, document, psiFile)
     } yield {
       val description = message.trim.stripSuffix(lineText(message))
-      val highlightInfo = HighlightInfo
+      HighlightInfo
         .newHighlightInfo(highlighting.highlightType)
         .range(highlightRange)
         .description(description)
         .escapedToolTip(escapeHtmlWithNewLines(description))
         .group(ScalaCompilerPassId)
         .create()
-
-      executeOnPooledThread {
-        val fixes = inReadAction(findQuickFixes(psiFile, highlightRange, highlighting.highlightType))
-        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
-      }
-      highlightInfo
     }
   }
 
@@ -191,18 +181,4 @@ object ExternalHighlighters {
     } else {
       None
     }
-
-  private def findQuickFixes(file: PsiFile,
-                             range: TextRange,
-                             highlightInfoType: HighlightInfoType): Seq[IntentionAction] = {
-    // e.g. on opening project we are in dump mode, and can't do resolve to search quickfixes
-    if (DumbService.isDumb(file.getProject))
-      return Seq.empty
-
-    val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
-
-    if (ref != null && highlightInfoType == HighlightInfoType.WRONG_REF && ref.multiResolveScala(false).isEmpty)
-      UnresolvedReferenceFixProvider.fixesFor(ref)
-    else Seq.empty
-  }
 }
