@@ -12,7 +12,7 @@ final class ScalaSdkProvider(
   scalaJarDetectors: Seq[ScalaSdkDetector]
 ) {
 
-  def discoverSDKs(callback: Consumer[SdkChoice]): Unit = {
+  def discoverSDKs(callback: Consumer[SdkChoice], onFinish: => Unit): Unit = {
     // TODO: coursier SDKs are shown with a big delay because coursier needs to scan more folders
     //  we could show the progress "Searching for SDKs in coursier" in the dialog itself
     scalaJarDetectors.foreach { detector: ScalaSdkDetector =>
@@ -24,5 +24,6 @@ final class ScalaSdkProvider(
       val sdkChaisesSorted = sdkChoices.sortBy(_.sdk.version).reverse
       sdkChaisesSorted.foreach(callback.accept)
     }
+    onFinish
   }
 }

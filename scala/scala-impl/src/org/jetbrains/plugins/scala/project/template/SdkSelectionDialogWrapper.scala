@@ -18,8 +18,10 @@ import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import java.awt.Dimension
 import java.awt.event.ActionEvent
 import java.io.File
+import java.util.Collections
 import javax.swing._
 import javax.swing.event.ListSelectionEvent
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWrapper(true) {
 
@@ -157,7 +159,11 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
 
       val scalaJarDetectors = ScalaSdkDetector.allDetectors(contextDirectory)
       val scalaSdkProvider = new ScalaSdkProvider(indicator, scalaJarDetectors)
-      scalaSdkProvider.discoverSDKs(this.addToTable)
+      scalaSdkProvider.discoverSDKs(this.addToTable, SwingUtilities.invokeLater { () =>
+        if (myTable.getSelectedRow == -1) {
+          myTable.getItems.asScala.find(!_.sdk.isScala3).foreach(sdk => myTable.setSelection(Collections.singleton(sdk)))
+        }
+      })
 
       sdkScanIndicator = None
     }
