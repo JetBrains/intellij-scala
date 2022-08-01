@@ -15,7 +15,8 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAd
     runWithErrorsFromCompiler(getProject)(checkTextHasNoErrors(code))
 
   def testContextFunctionResolve(): Unit = doTest(
-    """
+    """import scala.concurrent.ExecutionContext
+      |
       |object A {
       |  type Executable[T] = ExecutionContext ?=> T
       |  type Executable2[T] = ContextFunction1[ExecutionContext, T]
@@ -24,7 +25,8 @@ class ContextFunctionHighlightingTest extends ScalaLightCodeInsightFixtureTestAd
   )
 
   def testSimple(): Unit = doTest(
-    """
+    """import scala.concurrent.ExecutionContext
+      |
       |object A {
       |  type Executable[T] = ExecutionContext ?=> T
       |  def g(arg: Executable[Int]) = ???
