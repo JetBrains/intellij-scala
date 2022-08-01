@@ -7,6 +7,7 @@ import com.intellij.openapi.observable.properties.GraphProperty
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
+import com.intellij.openapi.roots.ui.configuration.libraryEditor.ExistingLibraryEditor
 import com.intellij.openapi.roots.ui.configuration.projectRoot.{LibrariesContainer, LibrariesContainerFactory}
 import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.openapi.ui.validation.DialogValidation
@@ -21,6 +22,7 @@ import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizardStep
 
 import java.nio.file.{Path, Paths}
+import java.util.Collections
 import javax.swing.{JComboBox, JComponent}
 
 /** inspired by [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard]] */
@@ -75,6 +77,9 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       components.foreach { component =>
         val cell = component match {
           case comboBox: JComboBox[_] =>
+            Iterator.range(0, comboBox.getItemCount).map(comboBox.getModel.getElementAt)
+              .find { case editor: ExistingLibraryEditor => !isScala3SdkLibrary(editor.getLibrary) }
+              .foreach(comboBox.setSelectedItem)
             //apply validation only for the combobox component with the library selection
             row.cell(comboBox).validation((() => {
               if (comboBox.getSelectedIndex == -1)
