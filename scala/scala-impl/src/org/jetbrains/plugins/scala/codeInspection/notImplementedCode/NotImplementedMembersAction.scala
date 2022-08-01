@@ -15,7 +15,7 @@ final class NotImplementedMembersAction extends BaseElementAtCaretIntentionActio
   override def getFamilyName: String = getText
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
-    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) &&
+    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(element.getContainingFile) &&
       (element.getContext match {
         case clazz: ScTemplateDefinition =>
           ScalaOIUtil.getMembersToImplement(clazz, withOwn = true).nonEmpty
