@@ -3,42 +3,37 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 import com.intellij.codeInsight.intention.LowPriorityAction
 import com.intellij.codeInspection.ex.DisableInspectionToolAction
 import com.intellij.codeInspection.ui.InspectionOptionsPanel
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.psi.PsiElement
+import com.intellij.codeInspection._
 import com.intellij.psi.search.LocalSearchScope
 import com.intellij.psi.search.searches.ReferencesSearch
-import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.codeInspection.ui.CompilerInspectionOptions._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScModifierListOwner, ScNamedElement}
 import org.jetbrains.plugins.scala.util.EnumSet.EnumSetOps
 
 import javax.swing.JComponent
 import scala.beans.BooleanBeanProperty
 
-final class PrivateShadowInspection extends AbstractRegisteredInspection {
+final class PrivateShadowInspection extends LocalInspectionTool {
   import PrivateShadowInspection._
 
-  override protected def problemDescriptor(element:             PsiElement,
-                                           maybeQuickFix:       Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType:       ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = new PsiElementVisitor {
+    override def visitElement(element: PsiElement): Unit = element match {
       case elem: ScNamedElement if
         isInspectionAllowed(elem, privateShadowCompilerOption, "-Xlint:private-shadow") &&
-          isRegularClassParameter(elem) && isElementShadowing(elem) =>
-        Some(createProblemDescriptor(elem, annotationDescription))
+          isClassParamWithoutAccessModsAndOverride(elem) && isElementShadowing(elem) =>
+        holder.registerProblem(createProblemDescriptor(elem, annotationDescription)(holder.getManager, isOnTheFly))
       case _ =>
-        None
     }
+  }
 
   private def createProblemDescriptor(elem: ScNamedElement, @Nls description: String)
                                      (implicit manager: InspectionManager, isOnTheFly: Boolean): ProblemDescriptor = {
@@ -56,7 +51,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
     )
   }
 
-  private def isRegularClassParameter(elem: ScNamedElement): Boolean =
+  private def isClassParamWithoutAccessModsAndOverride(elem: ScNamedElement): Boolean =
     elem.nameContext match {
       case e: ScModifierListOwner if e.getModifierList.modifiers.contains(ScalaModifier.Override) => false
       case p: ScClassParameter if p.getModifierList.accessModifier.isEmpty                        => true
@@ -65,8 +60,7 @@ final class PrivateShadowInspection extends AbstractRegisteredInspection {
 
   private def isElementShadowing(elem: ScNamedElement) : Boolean =
     // Fields suspected of being shadowed are all fields belonging to the containing class or trait with the same name
-    // as the element under inspection, but not itself, and for which we can get the name context implementing ScMember,
-    // so we can later check its modifiers.
+    // as the element under inspection, but not itself.
     Option(PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition])).exists { typeDefinition =>
       typeDefinition
         .allTermsByName(elem.name)

@@ -4,7 +4,6 @@ package org.jetbrains.plugins.scala.codeInspection.shadow
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
-import org.jetbrains.plugins.scala.codeInspection.shadow.PrivateShadowInspection
 
 abstract class PrivateShadowInspectionTestBase extends ScalaInspectionTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[PrivateShadowInspection]
