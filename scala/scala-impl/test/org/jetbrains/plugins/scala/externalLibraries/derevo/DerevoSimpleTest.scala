@@ -3,10 +3,24 @@ package org.jetbrains.plugins.scala.externalLibraries.derevo
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_13
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val settings       = defaultProfile.getSettings
+
+    val newSettings = settings.copy(
+      plugins = settings.plugins :+ "kind-projector"
+    )
+
+    defaultProfile.setSettings(newSettings)
+  }
 
   override def librariesLoaders: Seq[LibraryLoader] = super.librariesLoaders :+ IvyManagedLoader(
     "tf.tofu" %% "derevo-core" % "0.13.0",
@@ -164,5 +178,52 @@ class DerevoSimpleTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |  implicitly[TypeClass2[Target]]
        |}
        |""".stripMargin
+  )
+
+  def testKindProjector(): Unit = checkTextHasNoErrors(
+    """
+      |import derevo._
+      |
+      |trait TwoArgsTrait[A, B]
+      |
+      |object kpTrait extends Derivation[TwoArgsTrait[String, *]] {
+      |  def instance[T]: TwoArgsTrait[String, T] = null
+      |}
+      |
+      |object KindProjectorTest {
+      |  @derive(kpTrait) case class Foo()
+      |
+      |  val impl = implicitly[TwoArgsTrait[String, Foo]]
+      |}
+      |""".stripMargin
+  )
+
+  def testThisProjection(): Unit = checkTextHasNoErrors(
+    """
+      |import derevo._
+      |
+      |object Scope {
+      |
+      |  trait MyShow[A]
+      |  object MyShow extends Derivation[MyShow] {
+      |    def instance[A]: MyShow[A] = ???
+      |  }
+      |
+      |  type MyShowAlias[A] = MyShow[A]
+      |  object MyShowAlias extends Derivation[MyShowAlias] {
+      |    def instance[A]: MyShowAlias[A] = ???
+      |  }
+      |
+      |  @derive(MyShow)
+      |  case class Foo()
+      |
+      |  implicitly[MyShow[Foo]]
+      |
+      |  @derive(MyShowAlias)
+      |  case class Bar()
+      |
+      |  implicitly[MyShowAlias[Bar]]
+      |}
+      |""".stripMargin
   )
 }

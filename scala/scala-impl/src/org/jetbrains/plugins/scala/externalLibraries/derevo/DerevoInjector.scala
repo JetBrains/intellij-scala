@@ -13,8 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorTy
 import org.jetbrains.plugins.scala.lang.psi.types.{ScCompoundType, ScParameterizedType, ScType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.tailrec
-
 class DerevoInjector extends SyntheticMembersInjector {
   val derevoDerive = "derevo.derive"
   val derevoComposite = "derevo.composite"
@@ -23,65 +21,58 @@ class DerevoInjector extends SyntheticMembersInjector {
     val supertypes = derivationObject.extendsBlock.superTypes
     val keepRefinements = supertypes.exists {
       case d: ScDesignatorType =>
-        d.extractDesignated(true).exists { case t: ScTrait => t.qualifiedName == "derevo.KeepRefinements"; case _ => false }
+        d.extractDesignated(true).exists {
+          case t: ScTrait => t.qualifiedName == "derevo.KeepRefinements"; case _ => false
+        }
       case _ =>
         false
     }
 
-    @tailrec def typeargToTc(typearg: ScType): Option[TypeConstructor] = typearg match {
+    def typeArgToTc(typearg: ScType): Option[TypeConstructor] = typearg match {
       case d: ScDesignatorType =>
         d.extractDesignated(false).flatMap {
-          case t: ScTemplateDefinition => Some(new TypeConstructor {
-            override def apply(tpe: String): String = s"_root_.${t.qualifiedName}[$tpe]"
+          case t: ScTemplateDefinition =>
+            Some(new TypeConstructor {
+              override def apply(tpe: String): String = s"_root_.${t.qualifiedName}[$tpe]"
 
-            override def qualifiedName: String = "_root_." + t.qualifiedName
-          })
+              override def qualifiedName: String = "_root_." + t.qualifiedName
+            })
           case _ => None
         }
-
-      case p: ScProjectionType =>
-        p.projected match {
-          case d: ScDesignatorType =>
-            p.element -> d.extractDesignated(true) match {
-              case (t: ScTrait, Some(_: ScObject)) => typeargToTc(ScDesignatorType(t))
-              case _ => None
+      case ScProjectionType(c: ScCompoundType, elem) =>
+        for {
+          t <- c.typesMap.get(elem.name)
+          if t.typeParams.size == 1
+          d          <- t.typeAlias.asOptionOf[ScTypeAliasDefinition]
+          p          <- d.aliasedType.toOption.filterByType[ScParameterizedType]
+          designated <- p.extractDesignated(expandAliases = true).filterByType[ScTypeDefinition]
+        } yield new TypeConstructor {
+          override def apply(tpe: String): String = {
+            val fixedTpeArgs = p.typeArguments.map {
+              case _: TypeParameterType => tpe
+              case typeArg              => typeArg.canonicalText
             }
 
-          case c: ScCompoundType =>
-            for {
-              t <- c.typesMap.get(p.element.name)
-              if t.typeParams.size == 1
-              d <- t.typeAlias.asOptionOf[ScTypeAliasDefinition]
-              p <- d.aliasedType.toOption.filterByType[ScParameterizedType]
-              designated <- p.extractDesignated(expandAliases = true).filterByType[ScTypeDefinition]
-            } yield new TypeConstructor {
-              override def apply(tpe: String): String = {
-                val fixedTpeArgs = p.typeArguments.map {
-                  case _: TypeParameterType => tpe
-                  case typeArg => typeArg.canonicalText
-                }
+            s"_root_.${designated.qualifiedName}[${fixedTpeArgs.mkString(", ")}]"
+          }
 
-                s"_root_.${designated.qualifiedName}[${fixedTpeArgs.mkString(", ")}]"
-              }
-
-              override def qualifiedName: String = "_root_." + designated.qualifiedName
-            }
-          case _ => None
+          override def qualifiedName: String = "_root_." + designated.qualifiedName
         }
-      case _ => None
+      case tpe =>
+        tpe.extractDesignated(true).flatMap {
+          case t: ScTrait => typeArgToTc(ScDesignatorType(t))
+          case _          => None
+        }
     }
 
-    supertypes
-      .collect { case s: ScParameterizedType => s }
-      .map(s => s.extractDesignated(true) -> s.typeArguments)
-      .collectFirst {
-        case (Some(t: ScTrait), Seq(typearg)) if t.qualifiedName == "derevo.Derivation" =>
-          typeargToTc(typearg).map(x => DeriveAnnotParams(keepRefinements, x, x))
-        case (Some(t: ScTrait), Seq(from, to, _)) if t.qualifiedName == "derevo.SpecificDerivation" =>
-          typeargToTc(from).zip(typeargToTc(to))
-            .map { case (fromTc, toTc) => DeriveAnnotParams(keepRefinements, fromTc, toTc) }
-      }
-      .flatten
+    supertypes.collect { case s: ScParameterizedType => s.extractDesignated(true) -> s.typeArguments }.collectFirst {
+      case (Some(t: ScTrait), Seq(typearg)) if t.qualifiedName == "derevo.Derivation" =>
+        typeArgToTc(typearg).map(x => DeriveAnnotParams(keepRefinements, x, x))
+      case (Some(t: ScTrait), Seq(from, to, _)) if t.qualifiedName == "derevo.SpecificDerivation" =>
+        typeArgToTc(from).zip(typeArgToTc(to)).map { case (fromTc, toTc) =>
+          DeriveAnnotParams(keepRefinements, fromTc, toTc)
+        }
+    }.flatten
   }
 
   def extractTypeclassTpeFromExpr(expr: ScExpression, methodCallResultTpe: Option[ScType]): IterableOnce[(TypeConstructor, TypeConstructor)] = {
@@ -149,10 +140,8 @@ class DerevoInjector extends SyntheticMembersInjector {
                   case _ => Nil
                 }
               }
-            case f: ScFunction =>
-              extractTcsFromDefDef(f)
-
-            case _ => Nil
+            case f: ScFunction => extractTcsFromDefDef(f)
+            case _             => Nil
           }
         } else Nil
       case _ => Nil
