@@ -11,7 +11,8 @@ import com.intellij.openapi.fileEditor.{FileDocumentManager, FileEditor}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager, TestSourcesFilter}
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
+import com.intellij.problems.WolfTheProblemSolver
+import com.intellij.psi._
 import org.jetbrains.jps.incremental.scala.remote.SourceScope
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.extensions._
@@ -35,18 +36,20 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
       val psiFile = root.getContainingFile
       if (psiFile ne null) {
         val virtualFile = psiFile.getVirtualFile
-        if ((virtualFile ne null) && isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
-          val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
-          invokeAndWait {
-            val document = FileDocumentManager.getInstance().getDocument(virtualFile)
-            EditorFactory.getInstance().getEditors(document).foreach { editor =>
-              UpdateHighlightersUtil.setHighlightersToEditor(
-                project, document,
-                0, document.getTextLength, Seq.empty.asJava,
-                editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
-            }
+        if (virtualFile ne null) {
+          val document = FileDocumentManager.getInstance().getDocument(virtualFile)
+          EditorFactory.getInstance().getEditors(document).foreach { editor =>
+            UpdateHighlightersUtil.setHighlightersToEditor(
+              project, document,
+              0, document.getTextLength, Seq.empty.asJava,
+              editor.getColorsScheme, ExternalHighlighters.ScalaCompilerPassId)
           }
-          triggerIncrementalCompilation(debugReason, virtualFile)
+          WolfTheProblemSolver.getInstance(project).clearProblemsFromExternalSource(virtualFile, ExternalHighlighters)
+
+          if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile)) {
+            val debugReason = s"FileHighlightingSetting changed for ${virtualFile.getCanonicalPath}"
+            triggerIncrementalCompilation(debugReason, virtualFile)
+          }
         }
       }
     }
