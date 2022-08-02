@@ -9,6 +9,8 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.{VfsUtil, VirtualFile}
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 
+import scala.jdk.CollectionConverters.MapHasAsJava
+
 package object buildSystem {
 
   private[buildSystem] def setProjectOrModuleSdk(
@@ -32,12 +34,12 @@ package object buildSystem {
   }
 
   private[buildSystem]
-  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean): VirtualFile = {
+  def addScalaSampleCode(project: Project, path: String, isScala3: Boolean, packagePrefix: Option[String]): VirtualFile = {
     val manager = FileTemplateManager.getInstance(project)
     val (template, fileName) =
       if (isScala3) (manager.getInternalTemplate("scala3-sample-code.scala"), "main.scala")
       else (manager.getInternalTemplate("scala-sample-code.scala"), "Main.scala")
-    val sourceCode = template.getText
+    val sourceCode = template.getText(packagePrefix.map(prefix => Map("PACKAGE_NAME" -> prefix)).getOrElse(Map.empty).asJava)
 
     inWriteAction {
       val fileDirectory = createDirectoryIfMissing(path)
