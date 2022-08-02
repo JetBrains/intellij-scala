@@ -78,7 +78,7 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     ExternalProjectsManagerImpl.setupCreatedProject(project)
 
     if (needToAddSampleCode) {
-      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")))
+      val file = addScalaSampleCode(project, s"$projectRoot/src/main/scala", isScala3 = this.selections.scalaVersion.exists(_.startsWith("3.")), this.selections.packagePrefix)
       builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
@@ -111,6 +111,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
+    panel.row(packagePrefixLabel, (row: Row) => {
+      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
+      KUnit
+    })
     panel.row(null: JLabel, (row: Row) => {
       val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
       ButtonKt.bindSelected(cb, addSampleCodeProperty: com.intellij.openapi.observable.properties.ObservableMutableProperty[java.lang.Boolean])
@@ -131,12 +135,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
             .horizontalAlign(HorizontalAlign.FILL)
             .validationOnInput(validator)
             .validationOnApply(validator)
-          KUnit
-        }).bottomGap(BottomGap.SMALL)
-
-        panel.row(packagePrefixLabel, (row: Row) => {
-          row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
-          row.layout(RowLayout.INDEPENDENT)
           KUnit
         })
       }

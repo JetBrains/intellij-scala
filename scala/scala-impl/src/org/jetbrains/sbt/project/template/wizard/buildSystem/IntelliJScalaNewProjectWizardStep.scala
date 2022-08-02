@@ -51,7 +51,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
     /** copied from [[com.intellij.ide.projectWizard.generators.IntelliJJavaNewProjectWizard.Step#setupProject]] */
     if (getAddSampleCode) {
       val isScala3 = isScala3SdkLibrary(librarySettings.getSelectedLibrary)
-      val file = addScalaSampleCode(project, s"$getContentRoot/src", isScala3)
+      val file = addScalaSampleCode(project, s"$getContentRoot/src", isScala3, builder.packagePrefix)
       builder.openFileEditorAfterProjectOpened = Some(file)
     }
 
@@ -94,13 +94,8 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       }
       KUnit
     })
-  }
-
-  override def customAdditionalOptions(panel: Panel): Unit = {
-    //TODO: (minor) align label and text field with other options in the "Advanced settings" (requires patching IntelliJ sources)
     panel.row(packagePrefixLabel, (row: Row) => {
-      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
-      row.layout(RowLayout.INDEPENDENT)
+      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
       KUnit
     })
   }
