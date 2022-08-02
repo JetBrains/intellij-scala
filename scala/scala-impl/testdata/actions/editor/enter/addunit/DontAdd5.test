@@ -1,0 +1,9 @@
+object A {
+  def foo: Boolean {<caret>}
+}
+-----
+object A {
+  def foo: Boolean {
+  <caret>
+  }
+}

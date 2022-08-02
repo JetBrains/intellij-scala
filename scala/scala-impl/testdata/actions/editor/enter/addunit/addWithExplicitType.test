@@ -1,5 +1,5 @@
 object A {
-  def foo {<caret>}
+  def foo: Unit {<caret>}
 }
 -----
 object A {
