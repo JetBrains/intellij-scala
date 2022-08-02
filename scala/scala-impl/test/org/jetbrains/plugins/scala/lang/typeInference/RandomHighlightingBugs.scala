@@ -306,4 +306,17 @@ class RandomHighlightingBugs extends ScalaLightCodeInsightFixtureTestAdapter {
        |}
        |""".stripMargin
   )
+
+  def testUnicodeOperatorPrecedence(): Unit = checkTextHasNoErrors(
+    s"""
+       |object A {
+       |  implicit class X(val x: Int) {
+       |    def ≟(y: Int): Boolean = ???
+       |  }
+       |
+       |  val x: Int = 123
+       |  (x ≟ 456 || x ≟ 123)
+       |}
+       |""".stripMargin
+  )
 }

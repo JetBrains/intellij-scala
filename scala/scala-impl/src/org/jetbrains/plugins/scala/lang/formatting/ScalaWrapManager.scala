@@ -29,8 +29,8 @@ object ScalaWrapManager {
       psi.getParent match {
         case parent: PsiElement if elementMatch(parent) =>
           import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.priority
-          val parentPriority = priority(elementOperation(parent).getText, assignments)
-          val childPriority = priority(elementOperation(psi).getText, assignments)
+          val parentPriority = priority(elementOperation(parent), assignments)
+          val childPriority = priority(elementOperation(psi), assignments)
           val notSamePriority = parentPriority != childPriority
           if (notSamePriority) {
             Wrap.createChildWrap(block.getWrap, WrapType.byLegacyRepresentation(settings.BINARY_OPERATION_WRAP), false)
