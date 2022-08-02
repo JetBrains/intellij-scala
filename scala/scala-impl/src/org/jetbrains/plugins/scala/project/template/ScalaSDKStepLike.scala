@@ -30,13 +30,20 @@ trait ScalaSDKStepLike extends PackagePrefixStepLike {
 
 trait PackagePrefixStepLike {
 
+  protected val packagePrefixHelpText: String = ScalaBundle.message("package.prefix.help")
+
+  /**
+   * In NewProjectWizard we can't use `prefixPanel` created with  `UI.PanelFactory.panel.withTooltip`
+   * because it adds some strange indent to the left of the panel, which looks ugly.<br>
+   * I didn't find a nice way to fix this, so we set tooltip on a fielf when using NPW
+   */
   protected val packagePrefixTextField: JBTextField = {
     val tf = new JBTextField()
     tf.getEmptyText.setText(ScalaBundle.message("package.prefix.example"))
+    tf.setToolTipText(packagePrefixHelpText)
+    tf.setColumns(25)
     tf
   }
-
-  protected val packagePrefixHelpText: String = ScalaBundle.message("package.prefix.help")
 
   protected val packagePrefixPanelWithTooltip: JPanel = UI.PanelFactory
     .panel(packagePrefixTextField)
@@ -45,15 +52,7 @@ trait PackagePrefixStepLike {
 
   protected val packagePrefixLabelText: String = ScalaBundle.message("package.prefix.label")
 
-  /**
-   * In NewProjectWizard we can't use `prefixPanel` created with  `UI.PanelFactory.panel.withTooltip`
-   * because it adds some strange indent to the left of the panel, which looks ugly.<br>
-   * I didn't find a nice way to fix this, so we set tooltip on a label when using NPW
-   */
-  protected val packagePrefixLabel: JLabel = {
-    val label = ComponentsKt.Label(packagePrefixLabelText, null, null, false, null)
-    label.setToolTipText(packagePrefixHelpText)
-    label
-  }
+  protected val packagePrefixLabel: JLabel =
+    ComponentsKt.Label(packagePrefixLabelText, null, null, false, null)
 
 }
