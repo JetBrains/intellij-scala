@@ -713,10 +713,10 @@ class getDummyBlocks(private val block: ScalaBlock) {
   }
 
   private def infixPriority(node: ASTNode): Int = node.getPsi match {
-    case inf: ScInfixExpr => ParserUtils.priority(inf.operation.getText, assignments = true)
-    case inf: ScInfixPattern => ParserUtils.priority(inf.operation.getText, assignments = false)
-    case inf: ScInfixTypeElement => ParserUtils.priority(inf.operation.getText, assignments = false)
-    case _ => 0
+    case inf: ScInfixExpr        => ParserUtils.priority(inf.operation, assignments = true)
+    case inf: ScInfixPattern     => ParserUtils.priority(inf.operation, assignments = false)
+    case inf: ScInfixTypeElement => ParserUtils.priority(inf.operation, assignments = false)
+    case _                       => 0
   }
 
   private def getMethodCallOrRefExprSubBlocks(node: ASTNode): util.ArrayList[Block] = {

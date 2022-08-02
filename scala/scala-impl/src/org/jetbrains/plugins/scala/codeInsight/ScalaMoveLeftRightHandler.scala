@@ -53,8 +53,8 @@ class ScalaMoveLeftRightHandler extends MoveElementLeftRightHandler {
 
   private def operatorPriority(ref: Option[ScReference]): Int = {
     ref match {
-      case Some(refExpr: ScReferenceExpression) => ParserUtils.priority(refExpr.refName)
-      case _ => -1
+      case Some(refExpr: ScReferenceExpression) => ParserUtils.priority(refExpr)
+      case _                                    => -1
     }
   }
 
