@@ -18,7 +18,6 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
 final class ScalaFileNameInspection extends LocalInspectionTool {
-
   import ProblemDescriptor.EMPTY_ARRAY
   import ScalaFileNameInspection._
 
@@ -49,7 +48,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
       Seq.empty
     else if (typeDefinitions.size > 2)
       Seq.empty
-    else if (typeDefinitions.forall { p => ScalaNamesUtil.equivalent(p.name, virtualFileName) })
+    else if (typeDefinitions.exists { p => ScalaNamesUtil.equivalent(p.name, virtualFileName) })
       Seq.empty
     else if (scalaFile.name == "package.scala" && typeDefinitions.exists {
       case scalaObject: ScObject if scalaObject.isPackageObject => true
@@ -57,14 +56,11 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
     })
       Seq.empty
     else {
-      val hasObject = typeDefinitions.exists {
-        case _: ScObject => true
-        case _ => false
-      }
-      if ((hasObject && typeDefinitions.size == 2) || typeDefinitions.size == 1)
-        typeDefinitions.filter { p => !ScalaNamesUtil.equivalent(p.name, virtualFileName) }
-      else
+      val suspicious = typeDefinitions.filter { p => !ScalaNamesUtil.equivalent(p.name, virtualFileName) }
+      if (suspicious.size == 2 && suspicious.head.name != suspicious(1).name)
         Seq.empty
+      else
+        suspicious
     }
   }
 

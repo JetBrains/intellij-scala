@@ -68,4 +68,28 @@ class Scala3FileNameInspectionTest extends ScalaInspectionTestBase {
          |}
          |""".stripMargin
     )
+
+  def test_multiple_typedefs_one_matching(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |object Foo
+         |class Bar
+         |""".stripMargin
+    )
+
+  def test_multiple_typedefs_all_matching(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |class Foo
+         |object Foo
+         |""".stripMargin
+    )
+
+  def test_multiple_typedefs_none_matching(): Unit =
+    checkTextHasNoErrors(
+      s"""
+         |class Bar
+         |object Boo
+         |""".stripMargin
+    )
 }
