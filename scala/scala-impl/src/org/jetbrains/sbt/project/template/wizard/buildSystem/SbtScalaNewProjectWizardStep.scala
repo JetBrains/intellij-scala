@@ -101,6 +101,10 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
       row.cell(downloadScalaSourcesCheckbox)
       KUnit
     })
+    panel.row(packagePrefixLabel, (row: Row) => {
+      row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.LEFT)
+      KUnit
+    })
     panel.row(null: JLabel, (row: Row) => {
       val cb = row.checkBox(UIBundle.message("label.project.wizard.new.project.add.sample.code"))
       ButtonKt.bindSelected(cb, addSampleCodeProperty)
@@ -122,12 +126,6 @@ final class SbtScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
             .horizontalAlign(HorizontalAlign.FILL)
             .validationOnInput(validator)
             .validationOnApply(validator)
-          KUnit
-        }).bottomGap(BottomGap.SMALL)
-
-        panel.row(packagePrefixLabel, (row: Row) => {
-          row.cell(packagePrefixTextField).horizontalAlign(HorizontalAlign.FILL)
-          row.layout(RowLayout.INDEPENDENT)
           KUnit
         })
       }
