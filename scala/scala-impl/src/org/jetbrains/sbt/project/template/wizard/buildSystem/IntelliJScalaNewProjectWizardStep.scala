@@ -78,7 +78,7 @@ final class IntelliJScalaNewProjectWizardStep(parent: ScalaNewProjectWizardStep)
         val cell = component match {
           case comboBox: JComboBox[_] =>
             Iterator.range(0, comboBox.getItemCount).map(comboBox.getModel.getElementAt)
-              .find { case editor: ExistingLibraryEditor => !isScala3SdkLibrary(editor.getLibrary) }
+              .find { case null => false; case editor: ExistingLibraryEditor => !isScala3SdkLibrary(editor.getLibrary) }
               .foreach(comboBox.setSelectedItem)
             //apply validation only for the combobox component with the library selection
             row.cell(comboBox).validation((() => {
