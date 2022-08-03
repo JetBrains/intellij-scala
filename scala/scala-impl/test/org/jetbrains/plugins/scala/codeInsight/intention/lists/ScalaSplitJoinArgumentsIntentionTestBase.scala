@@ -3,29 +3,6 @@ package org.jetbrains.plugins.scala.codeInsight.intention.lists
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings.{NEW_LINE_ALWAYS, NEW_LINE_FOR_MULTIPLE_ARGUMENTS, NO_NEW_LINE}
 
 abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
-  override protected val first: String = "42"
-  override protected val second: String = """"boo""""
-
-  override protected val noNewLines: String =
-    s"""($first,
-       |  $second)""".stripMargin
-
-  override protected val newLineAfterLeftParen: String =
-    s"""(
-       |  $first,
-       |  $second)""".stripMargin
-
-  override protected val newLineBeforeRightParen: String =
-    s"""($first,
-       |  $second
-       |)""".stripMargin
-
-  override protected val newLineAfterLeftParenAndBeforeRightParen: String =
-    s"""(
-       |  $first,
-       |  $second
-       |)""".stripMargin
-
   private def doTestWithCallArgsSettings(newLineAfterLParen: Int, newLineBeforeRParen: Boolean)
                                         (singleLineText: String, multiLineText: String): Unit = {
     val commonSettings = getCommonSettings
@@ -40,6 +17,7 @@ abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLi
       doTest(
         singleLineText = singleLineText,
         multiLineText = multiLineText,
+        listStartChar = '(',
       )
     } finally {
       scalaSettings.CALL_PARAMETERS_NEW_LINE_AFTER_LPAREN = oldLParen
@@ -47,96 +25,150 @@ abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLi
     }
   }
 
-  private def methodCallBase(args: String): String =
-    s"""def foo(i: Int, s: String): Unit = {}
-       |
-       |object Test {
-       |${indent(s"foo$CARET" + args)}
-       |}
-       |""".stripMargin
-
-  private def classCreationBase(args: String): String =
-    s"""class Foo(i: Int, s: String)
-       |
-       |object Test {
-       |${indent(s"new Foo$CARET" + args)}
-       |}
-       |""".stripMargin
-
-  private def caseClassCreationBase(args: String): String =
-    s"""case class Foo(i: Int, s: String)
-       |
-       |object Test {
-       |${indent(s"Foo$CARET" + args)}
-       |}
-       |""".stripMargin
-
-  private val methodCallText = methodCallBase(singleLine)
-  private val methodCallTrailingCommaText = methodCallBase(singleLineWithTrailingComma)
-
-  private val classCreationText = classCreationBase(singleLine)
-  private val classCreationTrailingCommaText = classCreationBase(singleLineWithTrailingComma)
-
-  private val caseClassCreationText = caseClassCreationBase(singleLine)
-  private val caseClassCreationTrailingCommaText = caseClassCreationBase(singleLineWithTrailingComma)
-
   // Method Calls
 
   def testMethodCall1(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(noNewLines),
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testMethodCall2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(newLineBeforeRightParen)
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testMethodCall3(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = false)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(newLineAfterLeftParen)
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testMethodCall4(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = true)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testMethodCall5(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = false)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(newLineAfterLeftParen)
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin,
     )
 
   def testMethodCall6(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = true)(
-      singleLineText = methodCallText,
-      multiLineText = methodCallBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin,
     )
 
   def testMethodCallTrailingComma(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = methodCallTrailingCommaText,
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        methodCallBase(
-          s"""($first,
-             |  $second,
-             |)""".stripMargin
-        )
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42,
+          |    "boo",
+          |  )
+          |}""".stripMargin
     )
 
   def testMethodCallTrailingComma2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = methodCallTrailingCommaText,
+      singleLineText =
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        methodCallBase(
-          s"""($first,
-             |  $second,)""".stripMargin
-        )
+        """def foo(i: Int, s: String): Unit = {}
+          |
+          |object Test {
+          |  foo(42,
+          |    "boo",)
+          |}""".stripMargin
     )
 
   def testPatternCall(): Unit = {
@@ -151,7 +183,7 @@ abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLi
       s"""def foo(i: Int, s: String, b: Boolean): Unit = {}
          |
          |object Test {
-         |  val pattern = foo($first, _, _)
+         |  val pattern = foo(42, _, _)
          |  pattern$CARET$args
          |}
          |""".stripMargin
@@ -163,7 +195,7 @@ abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLi
       s"""def foo(i: Int): Unit = {}
          |
          |object Test {
-         |  foo$CARET($first)
+         |  foo$CARET(42)
          |}""".stripMargin
     )
 
@@ -180,117 +212,291 @@ abstract class ScalaSplitJoinArgumentsIntentionTestBase extends ScalaSplitJoinLi
 
   def testClassCreation1(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(noNewLines)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testClassCreation2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(newLineBeforeRightParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testClassCreation3(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = false)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(newLineAfterLeftParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testClassCreation4(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = true)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testClassCreation5(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = false)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(newLineAfterLeftParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testClassCreation6(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = true)(
-      singleLineText = classCreationText,
-      multiLineText = classCreationBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testClassCreationTrailingComma(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = classCreationTrailingCommaText,
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        classCreationBase(
-          s"""($first,
-             |  $second,
-             |)""".stripMargin
-        )
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42,
+          |    "boo",
+          |  )
+          |}""".stripMargin
     )
 
   def testClassCreationTrailingComma2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = classCreationTrailingCommaText,
+      singleLineText =
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        classCreationBase(
-          s"""($first,
-             |  $second,)""".stripMargin
-        )
+        """class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  new Foo(42,
+          |    "boo",)
+          |}""".stripMargin
     )
 
   // Case class creation
 
   def testCaseClassCreation1(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(noNewLines)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testCaseClassCreation2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(newLineBeforeRightParen)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testCaseClassCreation3(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = false)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(newLineAfterLeftParen)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testCaseClassCreation4(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_FOR_MULTIPLE_ARGUMENTS, newLineBeforeRParen = true)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testCaseClassCreation5(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = false)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(newLineAfterLeftParen)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(
+          |    42,
+          |    "boo")
+          |}""".stripMargin
     )
 
   def testCaseClassCreation6(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NEW_LINE_ALWAYS, newLineBeforeRParen = true)(
-      singleLineText = caseClassCreationText,
-      multiLineText = caseClassCreationBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo")
+          |}""".stripMargin,
+      multiLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(
+          |    42,
+          |    "boo"
+          |  )
+          |}""".stripMargin
     )
 
   def testCaseClassCreationTrailingComma(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = true)(
-      singleLineText = caseClassCreationTrailingCommaText,
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        caseClassCreationBase(
-          s"""($first,
-             |  $second,
-             |)""".stripMargin
-        )
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42,
+          |    "boo",
+          |  )
+          |}""".stripMargin
     )
 
   def testCaseClassCreationTrailingComma2(): Unit =
     doTestWithCallArgsSettings(newLineAfterLParen = NO_NEW_LINE, newLineBeforeRParen = false)(
-      singleLineText = caseClassCreationTrailingCommaText,
+      singleLineText =
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42, "boo",)
+          |}""".stripMargin,
       multiLineText =
-        caseClassCreationBase(
-          s"""($first,
-             |  $second,)""".stripMargin
-        )
+        """case class Foo(i: Int, s: String)
+          |
+          |object Test {
+          |  Foo(42,
+          |    "boo",)
+          |}""".stripMargin
     )
 }

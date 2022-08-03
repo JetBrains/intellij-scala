@@ -1,29 +1,6 @@
 package org.jetbrains.plugins.scala.codeInsight.intention.lists
 
 abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinLineIntentionTestBase {
-  override protected val first: String = "i: Int"
-  override protected val second: String = "s: String"
-
-  override protected val noNewLines: String =
-    s"""($first,
-       | $second)""".stripMargin
-
-  override protected val newLineAfterLeftParen: String =
-    s"""(
-       |  $first,
-       |  $second)""".stripMargin
-
-  override protected val newLineBeforeRightParen: String =
-    s"""($first,
-       | $second
-       |)""".stripMargin
-
-  override protected val newLineAfterLeftParenAndBeforeRightParen: String =
-    s"""(
-       |  $first,
-       |  $second
-       |)""".stripMargin
-
   private def doTestWithMethodParamSettings(newLineAfterLParen: Boolean, newLineBeforeRParen: Boolean)
                                            (singleLineText: String, multiLineText: String): Unit = {
     val settings = getCommonSettings
@@ -36,7 +13,8 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
       doTest(
         singleLineText = singleLineText,
-        multiLineText = multiLineText
+        multiLineText = multiLineText,
+        listStartChar = '(',
       )
     } finally {
       settings.METHOD_PARAMETERS_LPAREN_ON_NEXT_LINE = oldLParen
@@ -44,72 +22,65 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
     }
   }
 
-  private def methodDefBase(args: String): String =
-    s"""${indentLineBreaks(s"def foo$CARET" + args, 7)}: Unit = {}
-       |""".stripMargin
-
-  private def classDefBase(args: String): String =
-    s"""${indentLineBreaks(s"class Foo$CARET" + args, 9)}
-       |""".stripMargin
-
-  private def caseClassDefBase(args: String): String =
-    s"""${indentLineBreaks(s"case class Foo$CARET" + args, 14)}
-       |""".stripMargin
-
-  private val methodDefText = methodDefBase(singleLine)
-  private val methodDefTrailingCommaText = methodDefBase(singleLineWithTrailingComma)
-
-  private val classDefText = classDefBase(singleLine)
-  private val classDefTrailingCommaText = classDefBase(singleLineWithTrailingComma)
-
-  private val caseClassDefText = caseClassDefBase(singleLine)
-  private val caseClassDefTrailingCommaText = caseClassDefBase(singleLineWithTrailingComma)
-
   // Method Calls
 
   def testMethodDef1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = methodDefText,
-      multiLineText = methodDefBase(noNewLines)
+      singleLineText =
+        """def foo(i: Int, s: String)""",
+      multiLineText =
+        """def foo(i: Int,
+          |        s: String)""".stripMargin
     )
 
   def testMethodDef2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = methodDefText,
-      multiLineText = methodDefBase(newLineBeforeRightParen)
+      singleLineText =
+        """def foo(i: Int, s: String)""",
+      multiLineText =
+        """def foo(i: Int,
+          |        s: String
+          |       )""".stripMargin
     )
 
   def testMethodDef3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
-      singleLineText = methodDefText,
-      multiLineText = methodDefBase(newLineAfterLeftParen)
+      singleLineText =
+        """def foo(i: Int, s: String)""",
+      multiLineText =
+        """def foo(
+          |         i: Int,
+          |         s: String)""".stripMargin
     )
 
   def testMethodDef4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
-      singleLineText = methodDefText,
-      multiLineText = methodDefBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """def foo(i: Int, s: String)""",
+      multiLineText =
+        """def foo(
+          |         i: Int,
+          |         s: String
+          |       )""".stripMargin
     )
 
   def testMethodDefTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = methodDefTrailingCommaText,
+      singleLineText =
+        """def foo(i: Int, s: String,)""",
       multiLineText =
-        methodDefBase(
-          s"""($first,
-             | $second,
-             |)""".stripMargin
-        )
+        """def foo(i: Int,
+          |        s: String,
+          |       )""".stripMargin
     )
 
   def testMethodDefTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = methodDefTrailingCommaText,
+      singleLineText =
+        """def foo(i: Int, s: String,)""",
       multiLineText =
-        methodDefBase(
-          s"""($first,
-             | $second,)""".stripMargin
-        )
+        """def foo(i: Int,
+          |        s: String,)""".stripMargin
     )
 
   def testMethodDefWithOneArg(): Unit =
@@ -128,93 +99,120 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
 
   def testClass1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = classDefText,
-      multiLineText = classDefBase(noNewLines)
+      singleLineText =
+        """class Foo(i: Int, s: String)""",
+      multiLineText =
+        """class Foo(i: Int,
+          |          s: String)""".stripMargin
     )
 
   def testClass2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = classDefText,
-      multiLineText = classDefBase(newLineBeforeRightParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)""",
+      multiLineText =
+        """class Foo(i: Int,
+          |          s: String
+          |         )""".stripMargin
     )
 
   def testClass3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
-      singleLineText = classDefText,
-      multiLineText = classDefBase(newLineAfterLeftParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)""",
+      multiLineText =
+        """class Foo(
+          |           i: Int,
+          |           s: String)""".stripMargin
     )
 
   def testClass4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
-      singleLineText = classDefText,
-      multiLineText = classDefBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        """class Foo(i: Int, s: String)""",
+      multiLineText =
+        """class Foo(
+          |           i: Int,
+          |           s: String
+          |         )""".stripMargin
     )
 
   def testClassTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = classDefTrailingCommaText,
+      singleLineText =
+        """class Foo(i: Int, s: String,)""",
       multiLineText =
-        classDefBase(
-          s"""($first,
-             | $second,
-             |)""".stripMargin
-        )
+        s"""class Foo(i: Int,
+           |          s: String,
+           |         )""".stripMargin
     )
 
   def testClassTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = classDefTrailingCommaText,
+      singleLineText =
+        """class Foo(i: Int, s: String,)""",
       multiLineText =
-        classDefBase(
-          s"""($first,
-             | $second,)""".stripMargin
-        )
+        s"""class Foo(i: Int,
+           |          s: String,)""".stripMargin
     )
 
   // Case class
 
   def testCaseClass1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = caseClassDefText,
-      multiLineText = caseClassDefBase(noNewLines)
+      singleLineText =
+        "case class Foo(i: Int, s: String)",
+      multiLineText =
+        """case class Foo(i: Int,
+          |               s: String)""".stripMargin
     )
 
   def testCaseClass2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = caseClassDefText,
-      multiLineText = caseClassDefBase(newLineBeforeRightParen)
+      singleLineText =
+        "case class Foo(i: Int, s: String)",
+      multiLineText =
+        """case class Foo(i: Int,
+          |               s: String
+          |              )""".stripMargin
+
     )
 
   def testCaseClass3(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = false)(
-      singleLineText = caseClassDefText,
-      multiLineText = caseClassDefBase(newLineAfterLeftParen)
+      singleLineText =
+        "case class Foo(i: Int, s: String)",
+      multiLineText =
+        """case class Foo(
+          |                i: Int,
+          |                s: String)""".stripMargin
     )
 
   def testCaseClass4(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = true, newLineBeforeRParen = true)(
-      singleLineText = caseClassDefText,
-      multiLineText = caseClassDefBase(newLineAfterLeftParenAndBeforeRightParen)
+      singleLineText =
+        "case class Foo(i: Int, s: String)",
+      multiLineText =
+        """case class Foo(
+          |                i: Int,
+          |                s: String
+          |              )""".stripMargin
     )
 
   def testCaseClassTrailingComma(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = true)(
-      singleLineText = caseClassDefTrailingCommaText,
+      singleLineText = "case class Foo(i: Int, s: String,)",
       multiLineText =
-        caseClassDefBase(
-          s"""($first,
-             | $second,
-             |)""".stripMargin
-        )
+        s"""case class Foo(i: Int,
+           |               s: String,
+           |              )""".stripMargin
     )
 
   def testCaseClassTrailingComma2(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(
-      singleLineText = caseClassDefTrailingCommaText,
+      singleLineText = "case class Foo(i: Int, s: String,)",
       multiLineText =
-        caseClassDefBase(
-          s"""($first,
-             | $second,)""".stripMargin
-        )
+        s"""case class Foo(i: Int,
+           |               s: String,)""".stripMargin
     )
 }
