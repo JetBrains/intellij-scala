@@ -29,7 +29,6 @@ import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeRefe
 import java.awt.Point
 import javax.swing.event.ListSelectionEvent
 import javax.swing.{Icon, JLabel, JList}
-import scala.annotation.unused
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
   editor: Editor,
@@ -177,18 +176,13 @@ object ScalaAddImportAction {
       toImport match {
         case PrefixPackageToImport(pack) => ref.bindToPackage(pack, addImport = true)
         case _: MemberToImport |
-             _: ExtensionMethodToImport |
-             ClassInGivenImport()        => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+             _: ExtensionMethodToImport  => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
+        case _ if ref.parentsInFile
+          .find(!_.is[ScTypeElement])
+          .flatMap(_.asOptionOf[ScImportSelector])
+          .exists(_.isGivenSelector)     => ScImportsHolder(ref).addImportForPath(toImport.qualifiedName)
         case _                           => ref.bindToElement(toImport.element)
       }
-    }
-
-    private object ClassInGivenImport {
-      def unapply(@unused toImport: ClassToImport): Boolean =
-        ref.parentsInFile.find(!_.is[ScTypeElement]) match {
-          case Some(selector: ScImportSelector) => selector.isGivenSelector
-          case _                                => false
-        }
     }
   }
 
@@ -348,4 +342,3 @@ object ScalaAddImportAction {
   private def html(text: String): String =
     s"""<html>$text</html>"""
 }
-
