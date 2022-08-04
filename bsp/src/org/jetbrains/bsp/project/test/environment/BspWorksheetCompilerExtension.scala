@@ -11,7 +11,7 @@ class BspWorksheetCompilerExtension extends WorksheetCompilerExtension {
   override def worksheetClasspath(module: Module): Option[Seq[File]] = {
     if (BspUtil.isBspModule(module)) {
       BspJvmEnvironment.resolveForWorksheet(module).toOption.map { env =>
-        env.classpath.map(path => new File(path))
+        env.classpath.map(_.toFile)
       }
     } else None
   }

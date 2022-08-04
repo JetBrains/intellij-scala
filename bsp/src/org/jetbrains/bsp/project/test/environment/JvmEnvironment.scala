@@ -7,7 +7,7 @@ import java.nio.file.{Path, Paths}
 import scala.jdk.CollectionConverters._
 
 case class JvmEnvironment(
-  classpath: Seq[String],
+  classpath: Seq[Path],
   workdir: Path,
   environmentVariables: Map[String, String],
   jvmOptions: Seq[String]
@@ -24,7 +24,7 @@ object JvmEnvironment {
 
   def fromBsp(environment: JvmEnvironmentItem): JvmEnvironment = {
     JvmEnvironment(
-      classpath = environment.getClasspath.asScala.map(x => new URI(x).getPath).toSeq,
+      classpath = environment.getClasspath.asScala.map(fromUriOrPath).toSeq,
       workdir = fromUriOrPath(environment.getWorkingDirectory),
       environmentVariables = environment.getEnvironmentVariables.asScala.toMap,
       jvmOptions = environment.getJvmOptions.asScala.toList
