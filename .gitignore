@@ -20,6 +20,7 @@
 target/
 .bloop/
 .bsp/
+compilation-cache/
 
 scala/scala-impl/testdata/debugger
 scala/scala-impl/testdata/projects
