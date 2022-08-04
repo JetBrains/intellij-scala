@@ -22,7 +22,7 @@ class BspJvmEnvironmentProgramPatcher extends JavaProgramPatcher {
           val oldClasspath = javaParameters.getClassPath.getPathList.asScala.toList
           val newClassPath = env.classpath ++ oldClasspath
           javaParameters.getClassPath.clear()
-          javaParameters.getClassPath.addAll(newClassPath.asJava)
+          javaParameters.getClassPath.addAll(newClassPath.map(_.toString).asJava)
 
           javaParameters.setWorkingDirectory(env.workdir.toAbsolutePath.toString)
           javaParameters.getVMParametersList.addAll(env.jvmOptions.asJava)
