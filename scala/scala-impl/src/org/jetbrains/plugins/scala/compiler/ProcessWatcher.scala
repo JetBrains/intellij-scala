@@ -67,7 +67,7 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
             if (text.contains(CompileServerSharedMessages.ProcessWasIdleFor)) {
               _terminatedByIdleTimeout = true
               invokeLater {
-                if (project.isDisposed) {
+                if (!project.isDisposed) {
                   CompileServerManager(project).showStoppedByIdleTimoutNotification()
                 }
               }
