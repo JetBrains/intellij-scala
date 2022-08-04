@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 import java.awt.event.MouseEvent
 
-final class ScalaVcsCodeVisionContext extends VcsCodeVisionLanguageContext {
+private final class ScalaVcsCodeVisionContext extends VcsCodeVisionLanguageContext {
 
   import ScalaVcsCodeVisionContext._
 
@@ -26,7 +26,7 @@ final class ScalaVcsCodeVisionContext extends VcsCodeVisionLanguageContext {
   }
 }
 
-object ScalaVcsCodeVisionContext {
+private object ScalaVcsCodeVisionContext {
   private def isAcceptedTemplateDefinition(element: PsiElement): Boolean =
     element.is[ScClass, ScObject, ScTrait, ScEnum, ScGivenDefinition]
 
