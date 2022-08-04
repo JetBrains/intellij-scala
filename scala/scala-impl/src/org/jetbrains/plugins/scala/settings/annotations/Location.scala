@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.settings.annotations
 import com.intellij.openapi.roots.TestSourcesFilter.isTestSources
 import com.intellij.psi.search.GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
 import com.intellij.psi.{FileViewProvider, PsiClass, PsiCodeFragment, PsiElement, PsiModifier}
-import org.jetbrains.plugins.scala.extensions.ViewProviderExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ViewProviderExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.getModule
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtensionBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScModifierListOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -44,12 +45,8 @@ object Location {
     override def isInLocalScope: Boolean = element match {
       case _: ScTemplateBody => false
       case _ =>
-        element.getParent match {
-          case _: ScTemplateBody |
-               _: PsiClass => false
-          case _: ScalaFile => false
-          case _ => true
-        }
+        val container = element.getParent
+        !container.is[ScTemplateBody, PsiClass, ScalaFile, ScExtensionBody]
     }
 
     override final def isInCodeFragment: Boolean =

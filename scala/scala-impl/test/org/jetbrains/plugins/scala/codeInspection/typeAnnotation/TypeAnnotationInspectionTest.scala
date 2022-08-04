@@ -87,6 +87,26 @@ class MembersTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
      """.stripMargin
 }
 
+class MembersTypeAnnotationInspectionTest_Scala3 extends TypeAnnotationInspectionTest {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version.isScala3
+
+  //Using "test1" + 42 in test data in order it's not just a primitive type in RHS
+  def testExtensionMethods(): Unit = testQuickFix(
+    text =
+      s"""extension (s: String)
+         |  def ${START}extension1${END} = "test1" + 42
+         |  def extension2: String = "test2" + 42
+         |  private def extension3 = "test3" + 42
+         |""".stripMargin,
+    expected =
+      s"""extension (s: String)
+         |  def extension1: String = "test1" + 42
+         |  def extension2: String = "test2" + 42
+         |  private def extension3 = "test3" + 42
+         |""".stripMargin
+  )
+}
+
 class SuperTypeAnnotationInspectionTest extends TypeAnnotationInspectionTest {
   
   def testImplementingMethod(): Unit = testQuickFix (
