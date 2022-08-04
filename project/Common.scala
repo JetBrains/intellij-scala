@@ -1,4 +1,4 @@
-import sbt._
+import sbt.{Def, _}
 import Keys._
 import org.jetbrains.sbtidea.Keys._
 import org.jetbrains.sbtidea.packaging.PackagingKeys._
@@ -46,6 +46,16 @@ object Common {
     "--release", "8"
   )
 
+  val headCommitSum: String =
+    scala.sys.process.Process("git rev-parse HEAD").!!.trim.take(7)
+
+  val compilationCacheSettings: Seq[Def.Setting[_]] = Seq(
+    Compile / remoteCacheId := headCommitSum,
+    Compile / pushRemoteCacheConfiguration ~= (_.withOverwrite(true)),
+    Test / remoteCacheId := headCommitSum,
+    Test / pushRemoteCacheConfiguration ~= (_.withOverwrite(true))
+  )
+
   def newProject(projectName: String, base: File): Project =
     Project(projectName, base).settings(
       name := projectName,
@@ -65,8 +75,8 @@ object Common {
       pathExcludeFilter := excludePathsFromPackage _,
       (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
       (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
-      (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers"
-    )
+      (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers",
+    ).settings(compilationCacheSettings)
 
   implicit class ProjectOps(private val project: Project) extends AnyVal {
     def withCompilerPluginIn(plugin: Project): Project = project

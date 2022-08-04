@@ -189,6 +189,7 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
     libraryDependencies += "com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test
   )
+  .settings(compilationCacheSettings)
 
 lazy val scalacPatches: sbt.Project =
   Project("scalac-patches", file("scalac-patches"))
@@ -199,6 +200,7 @@ lazy val scalacPatches: sbt.Project =
       libraryDependencies ++= Seq(Dependencies.scalaCompiler),
       packageMethod := PackagingMethod.Skip(),
     )
+    .settings(compilationCacheSettings)
 
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
@@ -339,6 +341,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
     intellijMainJars := Nil, //without this lineon SDK is still added (as "Provided"), while it shouldn't
   )
+  .settings(compilationCacheSettings)
 
 lazy val scalatestFindersTests: Seq[Project] = Seq(
   scalatestFindersTests_2,
@@ -361,6 +364,8 @@ lazy val scalatestFindersTests_2 = Project("scalatest-finders-tests-2", scalates
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_2 % Test),
     intellijMainJars := Nil
   )
+  .settings(compilationCacheSettings)
+
 lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scalatestFindersRootDir / "tests-3_0")
   .dependsOn(scalatestFinders)
   .settings(
@@ -369,6 +374,8 @@ lazy val scalatestFindersTests_3_0 = Project("scalatest-finders-tests-3_0", scal
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_0 % Test),
     intellijMainJars := Nil
   )
+  .settings(compilationCacheSettings)
+
 lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scalatestFindersRootDir / "tests-3_2")
   .dependsOn(scalatestFinders)
   .settings(
@@ -377,6 +384,7 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
     libraryDependencies := Seq("org.scalatest" %% "scalatest" % scalatestLatest_3_2 % Test),
     intellijMainJars := Nil
   )
+  .settings(compilationCacheSettings)
 
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
@@ -553,6 +561,7 @@ lazy val runtimeDependencies =
         }
       }
     )
+    .settings(compilationCacheSettings)
 
 // workaround for https://github.com/JetBrains/sbt-idea-plugin/issues/110
 lazy val runtimeDependencies2 =
@@ -573,6 +582,7 @@ lazy val runtimeDependencies2 =
       localRepoDependencies := List(),
       packageFileMappings := Nil
     )
+    .settings(compilationCacheSettings)
 
 //lazy val jmhBenchmarks =
 //  newProject("benchmarks", file("scala/benchmarks"))
@@ -626,3 +636,5 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 // run dfa tests directly in that module
 addCommandAlias("runDfaTests", "dfa/test")
 
+// Compilation cache setup
+ThisBuild / pushRemoteCacheTo := Some(MavenCache("compilation-cache", (ThisBuild / baseDirectory).value / "compilation-cache"))
