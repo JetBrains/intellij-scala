@@ -70,8 +70,6 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def allSignatures: Iterator[TermSignature]
 
-  def isScriptFileClass: Boolean
-
   def addMember(member: ScMember, anchor: Option[PsiElement]): ScMember
 
   def deleteMember(member: ScMember): Unit

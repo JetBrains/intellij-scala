@@ -48,7 +48,6 @@ public interface ScalaTokenTypes {
     IElementType tDOC_COMMENT = new ScalaTokenType("DocComment");
     IElementType tLINE_COMMENT = new ScalaTokenType("comment");
     IElementType tBLOCK_COMMENT = new ScalaTokenType("BlockComment");
-    IElementType tSH_COMMENT = new ScalaTokenType("ShellComment");
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////// Strings & chars //////////////////////////////////////////////////////////////////////////////
@@ -183,7 +182,6 @@ public interface ScalaTokenTypes {
     TokenSet COMMENTS_TOKEN_SET = TokenSet.create(
             tLINE_COMMENT,
             tBLOCK_COMMENT,
-            tSH_COMMENT,
             tDOC_COMMENT,
             ScalaDocElementTypes.SCALA_DOC_COMMENT
     );

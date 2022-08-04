@@ -29,7 +29,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
     dataStream.writeName(stub.javaQualifiedName)
     dataStream.writeOptionName(stub.additionalJavaName)
     dataStream.writeBoolean(stub.isPackageObject)
-    dataStream.writeBoolean(stub.isScriptFileClass)
     dataStream.writeBoolean(stub.isDeprecated)
     dataStream.writeBoolean(stub.isLocal)
     dataStream.writeBoolean(stub.isVisibleInJava)
@@ -53,7 +52,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       javaQualifiedName                = dataStream.readNameString,
       additionalJavaName               = dataStream.readOptionName,
       isPackageObject                  = dataStream.readBoolean,
-      isScriptFileClass                = dataStream.readBoolean,
       isDeprecated                     = dataStream.readBoolean,
       isLocal                          = dataStream.readBoolean,
       isVisibleInJava                  = dataStream.readBoolean,
@@ -129,7 +127,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
       javaQualifiedName                = definition.getQualifiedName,
       additionalJavaName               = additionalJavaName,
       isPackageObject                  = isPackageObject,
-      isScriptFileClass                = definition.isScriptFileClass,
       isDeprecated                     = isDeprecated,
       isLocal                          = isLocal,
       isVisibleInJava                  = isVisibleInJava,
@@ -146,7 +143,6 @@ abstract class ScTemplateDefinitionElementType[TypeDef <: ScTemplateDefinition](
   override final def indexStub(stub: ScTemplateDefinitionStub[TypeDef], sink: IndexSink): Unit = {
     import index.ScalaIndexKeys._
 
-    if (stub.isScriptFileClass) return
     val scalaName = stub.getName
     val javaName = stub.javaName
 

@@ -60,7 +60,6 @@ object ScalaSyntaxHighlighter {
 
   private val tBLOCK_COMMENTS = TokenSet.create(
     tBLOCK_COMMENT,
-    tSH_COMMENT
   )
 
   // XML tags

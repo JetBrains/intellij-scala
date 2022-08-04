@@ -227,16 +227,15 @@ object ScalaCompletionUtil {
 
   /**
    * @param leaf Start PsiElement
-   * @return (End PsiElement, ContainingFile.isScriptFile)
+   * @return End PsiElement
    */
-  def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = Option(leaf) map {
-    l => l.getContainingFile match {
-      case scriptFile: ScalaFile if scriptFile.isScriptFile => (leaf.getParent, true)
-      case _: ScalaFile => (leaf, false)
-      case _ => (null, false)
-    }
-  } getOrElse (null, false)
-
+  def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = {
+    val result =
+      if (leaf == null) null
+      else if (leaf.getContainingFile.is[ScalaFile]) leaf
+      else null
+    (result, false)
+  }
 
   //find objects which may be used to import this member
   //select a single one if possible

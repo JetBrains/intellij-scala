@@ -38,7 +38,6 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
     !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
-      !scalaFile.isScriptFile &&
       !scalaFile.isWorksheetFile &&
       Option(scalaFile.getVirtualFile).isDefined &&
       !ScratchUtil.isScratch(scalaFile.getVirtualFile)

@@ -19,8 +19,6 @@ trait ScTemplateDefinitionStub[T <: ScTemplateDefinition]
 
   def isVisibleInJava: Boolean
 
-  def isScriptFileClass: Boolean
-
   def isImplicitObject: Boolean
 
   def additionalJavaName: Option[String]

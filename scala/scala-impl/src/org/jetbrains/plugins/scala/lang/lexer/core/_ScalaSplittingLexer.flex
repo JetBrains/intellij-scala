@@ -51,8 +51,6 @@ CHARACTER_LITERAL="'"([^\\\'\r\n]|{ESCAPE_SEQUENCE}|{UNICODE_ESCAPE}|{SOME_ESCAP
 STRING_LITERAL = \"([^\\\"\r\n] | {ESCAPE_SEQUENCE})*(\"|\\)? | {MULTI_LINE_STRING}
 MULTI_LINE_STRING = \"\"\" ( (\"(\")?)? [^\"] )* \"\"\" (\")* // Multi-line string
 
-SH_COMMENT="#!" [^]* "!#" | "::#!" [^]* "::!#"
-
 BACKQUOTED_IDENTIFIER=\`[^`]*\`
 
 END_OF_LINE_COMMENT="/""/"[^\r\n]*
@@ -66,7 +64,6 @@ END_OF_LINE_COMMENT="/""/"[^\r\n]*
 %%
 
 <YYINITIAL>{
-{SH_COMMENT}               {  return SCALA_PLAIN_CONTENT; }
 {CHARACTER_LITERAL}        {  return SCALA_PLAIN_CONTENT; }
 {STRING_LITERAL}           {  return SCALA_PLAIN_CONTENT; }
 {BACKQUOTED_IDENTIFIER}    {  return SCALA_PLAIN_CONTENT; }

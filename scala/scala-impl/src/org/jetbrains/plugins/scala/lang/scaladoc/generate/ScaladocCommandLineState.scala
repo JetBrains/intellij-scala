@@ -5,7 +5,11 @@ import com.intellij.analysis.AnalysisScope
 import com.intellij.execution.ExecutionException
 import com.intellij.execution.configurations._
 import com.intellij.execution.filters.TextConsoleBuilderFactory
-import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
+import com.intellij.execution.process.{
+  OSProcessHandler,
+  ProcessAdapter,
+  ProcessEvent
+}
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
@@ -25,9 +29,11 @@ import scala.jdk.CollectionConverters._
 import scala.util.Using
 
 class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
-  extends JavaCommandLineState(env) {
+    extends JavaCommandLineState(env) {
 
-  setConsoleBuilder(TextConsoleBuilderFactory.getInstance.createBuilder(project))
+  setConsoleBuilder(
+    TextConsoleBuilderFactory.getInstance.createBuilder(project)
+  )
 
   private val MainClassScala2 = "scala.tools.nsc.ScalaDoc"
   private val classpathDelimeter = File.pathSeparator
@@ -61,7 +67,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     outputDir = dir
 
   override protected def startProcess: OSProcessHandler = {
-    val handler: OSProcessHandler = JavaCommandLineStateUtil.startProcess(createCommandLine)
+    val handler: OSProcessHandler =
+      JavaCommandLineStateUtil.startProcess(createCommandLine)
     if (showInBrowser) {
       handler.addProcessListener(new ProcessAdapter {
         override def processTerminated(event: ProcessEvent): Unit = {
@@ -75,20 +82,25 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     handler
   }
 
-  private def visitAll(file: VirtualFile, scope: AnalysisScope): List[VirtualFile] = {
+  private def visitAll(
+      file: VirtualFile,
+      scope: AnalysisScope
+  ): List[VirtualFile] = {
     val acc = mutable.ListBuffer[VirtualFile]()
 
     def visitInner(
-      file: VirtualFile,
-      scope: AnalysisScope
+        file: VirtualFile,
+        scope: AnalysisScope
     ): Unit =
       if (file.isDirectory) {
         for (c <- file.getChildren)
           visitInner(c, scope)
-      }
-      else if (file.getExtension == "scala" && file.isValid && scope.contains(file)) {
+      } else if (
+        file.getExtension == "scala" && file.isValid && scope.contains(file)
+      ) {
         PsiManager.getInstance(project).findFile(file) match {
-          case f: ScalaFile if !f.isScriptFile => acc += file
+          case f: ScalaFile =>
+            acc += file
           case _ => // do nothing
         }
       }
@@ -104,10 +116,13 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     paramTokens.foldLeft(false) {
       case (true, _) =>
         false
-      case (_, param: String) if ScaladocCommandLineState.generatedParamsWithArgs.contains(param) =>
+      case (_, param: String)
+          if ScaladocCommandLineState.generatedParamsWithArgs.contains(param) =>
         true
       case (_, param: String) =>
-        if (!ScaladocCommandLineState.generatedParamsWithoutArgs.contains(param))
+        if (
+          !ScaladocCommandLineState.generatedParamsWithoutArgs.contains(param)
+        )
           result += param
         false
     }
@@ -121,7 +136,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     (params + " ").foldLeft(false) { case (inQuotes, char) =>
       char match {
-        case ' '  =>
+        case ' ' =>
           if (inQuotes) {
             acc.append(' ')
           } else {
@@ -157,7 +172,9 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     jp.getClassPath.addScalaCompilerClassPath(scalaModule)
     jp.setCharset(null)
     if (scalaModule.hasScala3) {
-      throw new ExecutionException(s"""Scaladoc generation is not supported for Scala 3, use sbt command instead""")
+      throw new ExecutionException(
+        s"""Scaladoc generation is not supported for Scala 3, use sbt command instead"""
+      )
     }
     jp.setMainClass(MainClassScala2)
 
@@ -173,26 +190,38 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     val modules = ModuleManager.getInstance(project).getModules
 
-    val sourcePath = OrderEnumerator.orderEntries(project).withoutLibraries().withoutSdk().getAllSourceRoots
+    val sourcePath = OrderEnumerator
+      .orderEntries(project)
+      .withoutLibraries()
+      .withoutSdk()
+      .getAllSourceRoots
     val documentableFilesList = mutable.ListBuffer.empty[String]
     val allModules = mutable.HashSet(modules.toSeq: _*)
     val modulesNeeded = mutable.HashSet.empty[Module]
 
     def filterModulesList(files: VirtualFile*): Unit = {
-      modulesNeeded ++= allModules.filter(m => files.exists(f => m.getModuleScope.contains(f)))
+      modulesNeeded ++= allModules.filter(m =>
+        files.exists(f => m.getModuleScope.contains(f))
+      )
       allModules --= modulesNeeded
     }
-    
+
     def collectCPSources(
-      target: OrderEnumerator,
-      classesCollector: collection.mutable.HashSet[String],
-      sourcesCollector: collection.mutable.HashSet[String]
+        target: OrderEnumerator,
+        classesCollector: collection.mutable.HashSet[String],
+        sourcesCollector: collection.mutable.HashSet[String]
     ): Unit = {
-      Set(classesCollector -> target.classes, sourcesCollector -> target.sources)
+      Set(
+        classesCollector -> target.classes,
+        sourcesCollector -> target.sources
+      )
         .foreach { case (collector, enumerator) =>
           val roots = enumerator.withoutSelfModuleOutput().getRoots
           val strings = roots.map { virtualFile =>
-            virtualFile.getPath.replaceAll(Pattern.quote(".") + "(\\S{2,6})" + Pattern.quote("!/"), ".$1/")
+            virtualFile.getPath.replaceAll(
+              Pattern.quote(".") + "(\\S{2,6})" + Pattern.quote("!/"),
+              ".$1/"
+            )
           }
           collector ++= strings
         }
@@ -207,10 +236,18 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
       if (modulesNeeded.nonEmpty) {
         for (module <- modulesNeeded) {
-          collectCPSources(OrderEnumerator.orderEntries(module), allEntries, allSourceEntries)
+          collectCPSources(
+            OrderEnumerator.orderEntries(module),
+            allEntries,
+            allSourceEntries
+          )
         }
       } else {
-        collectCPSources(OrderEnumerator.orderEntries(project), allEntries, allSourceEntries)
+        collectCPSources(
+          OrderEnumerator.orderEntries(project),
+          allEntries,
+          allSourceEntries
+        )
       }
       allEntries.foreach(classpathWithFacet.append)
       allSourceEntries.foreach(sourcepathWithFacet.append)
@@ -272,13 +309,14 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
     if (JdkUtil.useDynamicClasspath(project)) {
       try {
-        val tempParamsFile: File = File.createTempFile("scaladocfileargs", ".tmp")
-        Using.resource(new PrintStream(new FileOutputStream(tempParamsFile))) { pw =>
-          paramListSimple.map(escapeParam).foreach(pw.println)
+        val tempParamsFile: File =
+          File.createTempFile("scaladocfileargs", ".tmp")
+        Using.resource(new PrintStream(new FileOutputStream(tempParamsFile))) {
+          pw =>
+            paramListSimple.map(escapeParam).foreach(pw.println)
         }
         paramList.add("@" + tempParamsFile.getAbsolutePath)
-      }
-      catch {
+      } catch {
         case e: IOException => throw new ExecutionException("I/O Error", e)
       }
     } else {
@@ -289,7 +327,9 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
   }
 
   private def escapeParam(param: String) =
-    if (param.contains(" ") && !(param.startsWith("\"") && param.endsWith("\"")))
+    if (
+      param.contains(" ") && !(param.startsWith("\"") && param.endsWith("\""))
+    )
       "\"" + param + "\""
     else
       param

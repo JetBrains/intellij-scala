@@ -12,7 +12,6 @@ public class ScalaCodeFoldingOptionsProvider extends BeanConfigurable<ScalaCodeF
     ScalaCodeFoldingSettings s = getInstance();
 
     checkBox(ScalaEditorBundle.message("checkbox.collapse.block.comments"), s::isCollapseBlockComments, s::setCollapseBlockComments);
-    checkBox(ScalaEditorBundle.message("checkbox.collapse.shell.comments"), s::isCollapseShellComments, s::setCollapseShellComments);
     checkBox(ScalaEditorBundle.message("checkbox.collapse.method.call.bodies"), s::isCollapseMethodCallBodies, s::setCollapseMethodCallBodies);
     checkBox(ScalaEditorBundle.message("checkbox.collapse.template.bodies"), s::isCollapseTemplateBodies, s::setCollapseTemplateBodies);
     checkBox(ScalaEditorBundle.message("checkbox.collapse.other.definition.bodies"), s::isCollapseDefinitionWithAssignmentBodies, s::setCollapseDefinitionWithAssignmentBodies);

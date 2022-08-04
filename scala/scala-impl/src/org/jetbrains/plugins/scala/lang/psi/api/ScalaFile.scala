@@ -22,8 +22,6 @@ trait ScalaFile extends ScalaPsiElement
 
   def packagingRanges: Seq[TextRange]
 
-  def isScriptFile: Boolean
-
   def isMultipleDeclarationsAllowed: Boolean
 
   def isWorksheetFile: Boolean

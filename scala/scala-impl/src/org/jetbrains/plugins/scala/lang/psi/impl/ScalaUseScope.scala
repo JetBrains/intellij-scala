@@ -32,7 +32,7 @@ private object ScalaUseScope {
 
 
   def apply(baseUseScope: SearchScope, file: ScalaFile): SearchScope = {
-    if (file.isWorksheetFile || file.isScriptFile) {
+    if (file.isWorksheetFile) {
       // elements from worksheets (including scratch files) can only be used in that files
       file match {
         case ScFile.VirtualFile(virtualFile) => GlobalSearchScope.fileScope(file.getProject, virtualFile)

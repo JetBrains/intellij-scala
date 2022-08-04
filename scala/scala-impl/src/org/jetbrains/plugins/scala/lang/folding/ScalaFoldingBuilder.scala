@@ -52,7 +52,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     val psi = node.getPsi
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
-        case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
+        case ScalaTokenTypes.tBLOCK_COMMENT |  ScalaDocElementTypes.SCALA_DOC_COMMENT =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
         case EXTENSION_BODY =>
           // extensions template body do not support `:` in the beginning,
@@ -244,8 +244,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case MatchExprOrMatchType() =>
           val info = multilineBodyInMatch(node)
           return info.map(_.placeholder).getOrElse("{...}")
-        case ScalaTokenTypes.tSH_COMMENT if node.getText.charAt(0) == ':' => return "::#!...::!#"
-        case ScalaTokenTypes.tSH_COMMENT => return "#!...!#"
         case _ =>
       }
 
@@ -335,8 +333,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           if foldingSettings.isCollapsePackagings => true
         case ImportStatement
           if foldingSettings.isCollapseImports => true
-        case ScalaTokenTypes.tSH_COMMENT
-          if foldingSettings.isCollapseShellComments => true
         case MatchExprOrMatchType()
           if foldingSettings.isCollapseMultilineBlocks => true
         case ScCodeBlockElementType.BlockExpression

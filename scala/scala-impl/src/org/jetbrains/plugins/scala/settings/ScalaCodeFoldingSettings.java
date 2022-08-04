@@ -13,8 +13,6 @@ public abstract class ScalaCodeFoldingSettings {
   public abstract boolean isCollapseLineComments(); // from JavaCodeFoldingSettings
   public abstract boolean isCollapseScalaDocComments(); // from CodeFoldingSettings
 
-  public abstract boolean isCollapseShellComments();
-  public abstract void setCollapseShellComments(boolean value);
   public abstract boolean isCollapseBlockComments();
   public abstract void setCollapseBlockComments(boolean value);
   public abstract boolean isCollapseCustomRegions();

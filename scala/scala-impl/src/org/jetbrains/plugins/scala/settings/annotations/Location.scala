@@ -22,7 +22,7 @@ sealed abstract class Location(protected val element: PsiElement) {
       element.getParent match {
         case _: ScTemplateBody |
              _: PsiClass => false
-        case file: ScalaFile if !file.isScriptFile => false
+        case _: ScalaFile => false
         case _ => true
       }
   }

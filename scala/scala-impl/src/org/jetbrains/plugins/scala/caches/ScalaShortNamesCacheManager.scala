@@ -24,19 +24,9 @@ final class ScalaShortNamesCacheManager(implicit project: Project) {
     }
 
     classesFromIndex(fqn, scope)
-      .find {
-        case cls if cls.qualifiedName != null && equivalentFqn(fqn, cls.qualifiedName) =>
-          // throws PsiInvalidElementAccessException
-          Try(cls.getContainingFile)
-            .map {
-              case file: ScalaFile if file.isScriptFile =>
-                false
-              case _ =>
-                true
-            }
-            .getOrElse(false)
-
-        case _ => false
+      .find { cls =>
+        val qualifiedName = cls.qualifiedName
+        qualifiedName != null && equivalentFqn(fqn, qualifiedName)
       }
       .orNull
   }

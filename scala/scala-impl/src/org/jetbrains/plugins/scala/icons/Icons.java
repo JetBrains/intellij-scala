@@ -25,7 +25,6 @@ public interface Icons {
     Icon COMPILATION_CHARTS = getIcon("/org/jetbrains/plugins/scala/images/compilationCharts.svg", Icons.class);
 
     Icon SCALA_SMALL_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scalaSmallLogo.svg", Icons.class);
-    Icon SCRIPT_FILE_LOGO = getIcon("/org/jetbrains/plugins/scala/images/scalaScriptIcon.svg", Icons.class);
 
     Icon SCALA_FILE = getIcon("/org/jetbrains/plugins/scala/images/fileScala.svg", Icons.class);
 

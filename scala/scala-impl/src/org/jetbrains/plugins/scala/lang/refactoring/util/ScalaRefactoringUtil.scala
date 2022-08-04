@@ -758,21 +758,13 @@ object ScalaRefactoringUtil {
     }
   }
 
-  def fileEncloser(file: PsiFile)
-                  (implicit selectionModel: SelectionModel): Option[PsiElement] =
-    fileEncloser(file, selectionModel.getSelectionStart)
-
-  def fileEncloser(file: PsiFile, startOffset: Int): Option[PsiElement] =
-    file match {
-      case scalaFile: ScalaFile if scalaFile.isScriptFile => Some(file)
-      case _ =>
-        val maybeElement = Option(file.findElementAt(startOffset))
-          .flatMap(element => Option(getParentOfType(element, classOf[ScExtendsBlock], classOf[PsiFile])))
-
-        maybeElement.orElse {
-          file.getChildren.find(_.getTextRange.contains(startOffset))
-        }
+  def fileEncloser(file: PsiFile, startOffset: Int): Option[PsiElement] = {
+    val elementAtOffset = Option(file.findElementAt(startOffset))
+    val parentContainer = elementAtOffset.safeMap(getParentOfType(_, classOf[ScExtendsBlock], classOf[PsiFile]))
+    parentContainer.orElse {
+      file.getChildren.find(_.getTextRange.contains(startOffset))
     }
+  }
 
   def isInplaceAvailable(editor: Editor): Boolean =
     editor.getSettings.isVariableInplaceRenameEnabled && !ApplicationManager.getApplication.isUnitTestMode

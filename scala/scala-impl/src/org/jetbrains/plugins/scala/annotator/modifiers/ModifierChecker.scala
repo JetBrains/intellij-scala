@@ -225,7 +225,7 @@ private[annotator] object ModifierChecker {
                 owner match {
                   case c@(_: ScClass | _: ScObject) =>
                     val onTopLevel = c.getContext match {
-                      case file: ScalaFile if !file.isScriptFile && !file.isWorksheetFile => true
+                      case file: ScalaFile if !file.isWorksheetFile => true
                       case _: ScPackaging => true
                       case _ => false
                     }

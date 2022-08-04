@@ -273,7 +273,6 @@
         <internalFileTemplate name="Scala CaseObject"/>
         <internalFileTemplate name="Scala Trait"/>
         <internalFileTemplate name="Scala Object"/>
-        <internalFileTemplate name="Scala Script"/>
         <internalFileTemplate name="Package Object"/>
         <internalFileTemplate name="Scala File"/>
         <internalFileTemplate name="Scala Enum"/>

@@ -4,9 +4,12 @@ package org.jetbrains.plugins.scala.lang.lexer.core;
 
 import com.intellij.lexer.FlexLexer;
 import com.intellij.psi.tree.IElementType;
+import java.util.*;
+import java.lang.reflect.Field;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypesEx;
-import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes;
+import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType;
 
 
 /**
@@ -55,8 +58,8 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
 
   /* The ZZ_CMAP_A table has 256 entries */
   static final char ZZ_CMAP_A[] = zzUnpackCMap(
-    "\12\0\1\6\2\0\1\6\23\0\1\15\1\13\1\14\3\0\1\12\2\0\1\2\4\0\1\1\1\10\7\3\2"+
-    "\4\1\16\6\0\1\11\5\4\25\0\1\5\3\0\1\17\6\4\16\0\1\7\212\0");
+    "\12\0\1\6\2\0\1\6\24\0\1\13\4\0\1\12\2\0\1\2\4\0\1\1\1\10\7\3\2\4\7\0\1\11"+
+    "\5\4\25\0\1\5\3\0\1\14\6\4\16\0\1\7\212\0");
 
   /** 
    * Translates DFA states to action switch labels.
@@ -64,12 +67,11 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ACTION = zzUnpackAction();
 
   private static final String ZZ_ACTION_PACKED_0 =
-    "\2\0\7\1\3\2\1\3\1\4\2\0\3\1\3\0"+
-    "\1\5\1\6\1\7\5\0\1\10\4\0\1\1\7\0"+
-    "\1\1\3\0\1\1";
+    "\2\0\5\1\3\2\1\3\1\4\2\0\3\1\1\0"+
+    "\1\5\1\6\1\7\3\0\1\10\11\0\1\1\1\0";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[48];
+    int [] result = new int[36];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -94,15 +96,14 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ROWMAP = zzUnpackRowMap();
 
   private static final String ZZ_ROWMAP_PACKED_0 =
-    "\0\0\0\20\0\40\0\60\0\100\0\120\0\140\0\160"+
-    "\0\200\0\40\0\220\0\240\0\260\0\300\0\320\0\340"+
-    "\0\360\0\u0100\0\u0110\0\u0120\0\u0130\0\200\0\40\0\40"+
-    "\0\u0140\0\u0150\0\u0160\0\u0170\0\u0180\0\u0190\0\40\0\u01a0"+
-    "\0\u01b0\0\u01c0\0\u01d0\0\u0120\0\u01e0\0\u01f0\0\u0200\0\u0210"+
-    "\0\u0220\0\u0230\0\u0240\0\u0250\0\u0260\0\u0270\0\u0280\0\u01e0";
+    "\0\0\0\15\0\32\0\47\0\64\0\101\0\116\0\32"+
+    "\0\133\0\150\0\165\0\202\0\217\0\234\0\251\0\266"+
+    "\0\303\0\116\0\32\0\32\0\320\0\335\0\352\0\367"+
+    "\0\32\0\u0104\0\u0111\0\u011e\0\u012b\0\u0138\0\u0145\0\u0152"+
+    "\0\u015f\0\u016c\0\u0179\0\u0186";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[48];
+    int [] result = new int[36];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -125,30 +126,26 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_TRANS = zzUnpackTrans();
 
   private static final String ZZ_TRANS_PACKED_0 =
-    "\1\3\1\4\10\3\1\5\1\6\1\7\1\3\1\10"+
-    "\1\11\1\12\1\13\1\14\15\12\21\0\1\15\1\16"+
-    "\15\0\5\17\1\20\1\0\3\17\1\0\5\17\5\21"+
-    "\1\22\1\0\4\21\1\23\4\21\15\0\1\24\20\0"+
-    "\1\25\1\0\17\26\1\3\2\0\1\27\16\0\1\30"+
-    "\16\0\6\15\1\0\11\15\2\0\1\31\22\0\1\3"+
-    "\4\0\1\3\5\0\3\17\1\32\2\17\1\0\1\33"+
-    "\1\32\7\17\5\21\1\22\1\0\4\21\1\3\12\21"+
-    "\1\0\11\21\13\0\1\34\4\0\15\24\1\35\2\24"+
-    "\14\0\1\36\4\0\1\37\21\0\1\40\1\0\1\3"+
-    "\2\0\1\40\1\0\1\3\10\0\2\41\1\3\2\0"+
-    "\1\42\1\41\1\3\5\0\13\34\1\43\4\34\14\24"+
-    "\1\44\1\35\2\24\15\0\1\45\5\0\1\17\1\0"+
-    "\1\3\2\0\1\17\1\0\1\3\10\0\2\46\3\0"+
-    "\2\46\11\0\2\46\3\0\1\47\1\46\6\0\13\34"+
-    "\1\50\4\34\16\45\1\51\1\45\3\0\2\52\3\0"+
-    "\2\52\11\0\2\52\3\0\1\53\1\52\6\0\13\34"+
-    "\1\54\4\34\16\45\1\55\1\45\3\0\2\17\3\0"+
-    "\2\17\11\0\2\17\3\0\1\17\1\56\21\0\1\54"+
-    "\4\0\15\45\1\57\1\55\1\45\12\0\1\3\5\0"+
-    "\14\45\1\60\1\45\1\51\1\45";
+    "\1\3\1\4\10\3\1\5\1\6\1\7\1\10\1\11"+
+    "\1\12\12\10\16\0\1\13\1\14\12\0\5\15\1\16"+
+    "\1\0\3\15\1\0\2\15\5\17\1\20\1\0\4\17"+
+    "\1\21\1\17\14\22\1\3\2\0\1\23\13\0\1\24"+
+    "\13\0\6\13\1\0\6\13\2\0\1\25\17\0\1\3"+
+    "\4\0\1\3\2\0\3\15\1\26\2\15\1\0\1\27"+
+    "\1\26\4\15\5\17\1\20\1\0\4\17\1\3\7\17"+
+    "\1\0\6\17\13\0\1\30\2\0\1\31\16\0\1\32"+
+    "\1\0\1\3\2\0\1\32\1\0\1\3\5\0\2\33"+
+    "\1\3\2\0\1\34\1\33\1\3\2\0\13\30\1\35"+
+    "\1\30\3\0\1\15\1\0\1\3\2\0\1\15\1\0"+
+    "\1\3\5\0\2\36\3\0\2\36\6\0\2\36\3\0"+
+    "\1\37\1\36\3\0\13\30\1\40\1\30\3\0\2\41"+
+    "\3\0\2\41\6\0\2\41\3\0\1\42\1\41\3\0"+
+    "\13\30\1\43\1\30\3\0\2\15\3\0\2\15\6\0"+
+    "\2\15\3\0\1\15\1\44\16\0\1\43\13\0\1\3"+
+    "\2\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[656];
+    int [] result = new int[403];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -186,12 +183,11 @@ public class _ScalaSplittingLexer implements FlexLexer, ScalaTokenTypesEx, Scala
   private static final int [] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
   private static final String ZZ_ATTRIBUTE_PACKED_0 =
-    "\2\0\1\11\6\1\1\11\4\1\2\0\3\1\3\0"+
-    "\2\11\1\1\5\0\1\11\4\0\1\1\7\0\1\1"+
-    "\3\0\1\1";
+    "\2\0\1\11\4\1\1\11\4\1\2\0\3\1\1\0"+
+    "\2\11\1\1\3\0\1\11\11\0\1\1\1\0";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[48];
+    int [] result = new int[36];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;

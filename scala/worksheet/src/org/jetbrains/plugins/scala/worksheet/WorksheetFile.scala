@@ -13,8 +13,6 @@ final class WorksheetFile(viewProvider: FileViewProvider, language: Language wit
 
   override def isWorksheetFile = true
 
-  override def isScriptFile: Boolean = super.isScriptFile
-
   def isRepl: Boolean = {
     // isRepl can be used in completion, so extracting original virtualFile for in-memory psi file
     val vFile = ScFile.VirtualFile.unapply(this)

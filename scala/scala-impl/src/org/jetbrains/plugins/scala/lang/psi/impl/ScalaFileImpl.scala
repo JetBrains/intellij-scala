@@ -25,8 +25,6 @@ import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -71,57 +69,6 @@ class ScalaFileImpl(
     findChildByClass[T](clazz)
 
   override final def getName: String = super.getName
-
-  override def processDeclarations(processor: PsiScopeProcessor,
-                                   state: ResolveState,
-                                   lastParent: PsiElement,
-                                   place: PsiElement): Boolean =
-    if (isScriptFile && !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place))
-      false
-    else
-      super.processDeclarations(processor, state, lastParent, place)
-
-  private def isScriptFileImpl: Boolean = {
-    // scala3 supports top level definitions, so no script files for scala3 for now
-    // this is needed to:
-    //  1. make ScalaRunLineMarkerContributor work for scala3 main methods
-    //  2. show normal icon in project view for files with top level definitions
-    if (this.isScala3File)
-      return false
-
-    val empty = this.children.forall {
-      case _: PsiWhiteSpace => true
-      case _: PsiComment => true
-      case _ => false
-    }
-    if (empty) return true // treat empty or commented files as scripts to avoid project recompilations
-
-    val childrenIterator = getNode.getChildren(null).iterator
-    while (childrenIterator.hasNext) {
-      val node = childrenIterator.next()
-      node.getElementType match {
-        case ScalaTokenTypes.tSH_COMMENT => return true
-        case _ =>
-          node.getPsi match {
-            case _: ScPackaging => return false
-            case _: ScValueOrVariable |
-                 _: ScFunction |
-                 _: ScTypeAlias |
-                 _: ScExpression => return true
-            case _ =>
-          }
-      }
-    }
-
-    false
-  }
-
-  @CachedInUserData(this, ModTracker.anyScalaPsiChange)
-  override def isScriptFile: Boolean = getViewProvider match {
-    case _: ScFileViewProvider =>
-      foldStub(isScriptFileImpl)(Function.const(false))
-    case _ => false
-  }
 
   override def isMultipleDeclarationsAllowed: Boolean = false
 
@@ -238,7 +185,7 @@ class ScalaFileImpl(
   }
 
   private def packageName: String = {
-    if (isScriptFile || isWorksheetFile) return null
+    if (isWorksheetFile) return null
 
     @tailrec
     def inner(packagings: Seq[ScPackaging], result: StringBuilder): String =
@@ -253,7 +200,7 @@ class ScalaFileImpl(
   }
 
   override def getClasses: Array[PsiClass] =
-    if (isScriptFile || isWorksheetFile)
+    if (isWorksheetFile)
       PsiClass.EMPTY_ARRAY
     else {
       val (definitions, others) = typeDefinitionsAndOthers
@@ -326,16 +273,8 @@ class ScalaFileImpl(
     case element => element.getNextSibling
   }
 
-  override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement = {
-    if (isScriptFile) {
-      first match {
-        case c: PsiComment if c.getNode.getElementType == ScalaTokenTypes.tSH_COMMENT => addImportAfter(importSt, c)
-        case _ => super.insertFirstImport(importSt, first)
-      }
-    } else {
-      super.insertFirstImport(importSt, first)
-    }
-  }
+  override protected def insertFirstImport(importSt: ScImportStmt, first: PsiElement): PsiElement =
+    super.insertFirstImport(importSt, first)
 
   override def typeDefinitions: Seq[ScTypeDefinition] = {
     val typeDefinitions = foldStub(findChildren[ScTypeDefinition]) { stub =>

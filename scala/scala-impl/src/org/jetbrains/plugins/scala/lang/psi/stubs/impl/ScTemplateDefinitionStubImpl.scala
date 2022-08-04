@@ -19,7 +19,6 @@ final class ScTemplateDefinitionStubImpl[TypeDef <: ScTemplateDefinition](
   override val javaQualifiedName:                String,
   override val additionalJavaName:               Option[String],
   override val isPackageObject:                  Boolean,
-  override val isScriptFileClass:                Boolean,
   override val isDeprecated:                     Boolean,
   override val isLocal:                          Boolean,
   override val isVisibleInJava:                  Boolean,

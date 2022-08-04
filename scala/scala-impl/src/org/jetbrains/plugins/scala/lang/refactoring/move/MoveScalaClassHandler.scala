@@ -109,7 +109,7 @@ object MoveScalaClassHandler {
 
     val file = clazz.getContainingFile.asInstanceOf[ScalaFile]
     val elementToDelete = file.typeDefinitions match {
-      case Seq(`clazz`) if !(file.isScriptFile || file.isWorksheetFile) => file
+      case Seq(`clazz`) if !file.isWorksheetFile => file
       case _ => clazz
     }
     elementToDelete.delete()

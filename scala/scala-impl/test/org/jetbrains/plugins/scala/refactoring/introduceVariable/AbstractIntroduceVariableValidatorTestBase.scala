@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.{getExpression, getTypeElement}
 import org.jetbrains.plugins.scala.lang.refactoring.util._
 import org.jetbrains.plugins.scala.util.TestUtils._
 
@@ -82,13 +81,11 @@ object AbstractIntroduceVariableValidatorTestBase {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
     getParentOfType(file.findElementAt(selectionModel.getSelectionStart), classOf[ScExpression], classOf[ScTypeElement]) match {
-      case _: ScExpression => getExpression(file).map(getVariableValidator(_, file))
-      case _: ScTypeElement => getTypeElement(file).map(getTypeValidator(_, file))
+      case _: ScExpression => ScalaRefactoringUtil.getExpression(file).map(getVariableValidator(_, file))
+      case _: ScTypeElement => ScalaRefactoringUtil.getTypeElement(file).map(getTypeValidator(_, file))
       case _ => None
     }
   }
-
-  import ScalaRefactoringUtil._
 
   private[this] def getContainerOne(file: PsiFile, length: Int)
                                    (implicit selectionModel: SelectionModel): PsiElement = {
@@ -106,20 +103,20 @@ object AbstractIntroduceVariableValidatorTestBase {
 
   private[this] def getVariableValidator(expression: ScExpression, file: PsiFile)
                                         (implicit selectionModel: SelectionModel): ScalaVariableValidator = {
-    val occurrences = getOccurrenceRanges(expression, fileEncloser(file).orNull)
+    val occurrences = ScalaRefactoringUtil.getOccurrenceRanges(expression, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     val containerOne = getContainerOne(file, occurrences.length)
 
-    val parent = commonParent(file, occurrences)
-    new ScalaVariableValidator(expression, occurrences.isEmpty, enclosingContainer(parent), containerOne)
+    val parent = ScalaRefactoringUtil.commonParent(file, occurrences)
+    new ScalaVariableValidator(expression, occurrences.isEmpty, ScalaRefactoringUtil.enclosingContainer(parent), containerOne)
   }
 
   private[this] def getTypeValidator(typeElement: ScTypeElement, file: PsiFile)
                                     (implicit selectionModel: SelectionModel): ScalaTypeValidator = {
-    val occurrences = getTypeElementOccurrences(typeElement, fileEncloser(file).orNull)
+    val occurrences = ScalaRefactoringUtil.getTypeElementOccurrences(typeElement, ScalaRefactoringUtil.fileEncloser(file, selectionModel.getSelectionStart).orNull)
     val containerOne = getContainerOne(file, occurrences.length)
 
     val parent = findCommonParent(occurrences: _*)
-    new ScalaTypeValidator(typeElement, occurrences.isEmpty, enclosingContainer(parent), containerOne)
+    new ScalaTypeValidator(typeElement, occurrences.isEmpty, ScalaRefactoringUtil.enclosingContainer(parent), containerOne)
   }
 
 }
