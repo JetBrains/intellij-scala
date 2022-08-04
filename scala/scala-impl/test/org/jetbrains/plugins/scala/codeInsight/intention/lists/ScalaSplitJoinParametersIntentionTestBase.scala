@@ -22,7 +22,7 @@ abstract class ScalaSplitJoinParametersIntentionTestBase extends ScalaSplitJoinL
     }
   }
 
-  // Method Calls
+  // Methods
 
   def testMethodDef1(): Unit =
     doTestWithMethodParamSettings(newLineAfterLParen = false, newLineBeforeRParen = false)(

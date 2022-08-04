@@ -370,6 +370,10 @@
 
         <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinArgumentsContext"/>
         <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinParametersContext"/>
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinTupleTypesContext"/>
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinTuplesContext"/>
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinTypeArgumentsContext"/>
+        <listSplitJoinContext language="Scala" implementationClass="org.jetbrains.plugins.scala.codeInsight.intention.lists.ScalaSplitJoinTypeParametersContext"/>
 
         <typeDeclarationProvider implementation="org.jetbrains.plugins.scala.annotator.gutter.ScalaGotoTypeDeclarationProvider"/>
         <commentCompleteHandler implementation="org.jetbrains.plugins.scala.lang.scaladoc.ScalaIsCommentComplete"/>
