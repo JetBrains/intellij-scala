@@ -92,6 +92,13 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     byStubOrPsi(_.isUsing)(hasUsingKeyword)
   }
 
+  @Cached(ModTracker.anyScalaPsiChange, this)
+  override def isInline: Boolean = {
+    def hasInlineKeyword =
+      parameters.exists(_.findFirstChildByTypeScala(ScalaTokenType.InlineKeyword).isDefined)
+    byStubOrPsi(_.isInline)(hasInlineKeyword)
+  }
+
   override def addParameter(param: ScParameter): ScParameterClause = {
     val params = parameters
     val vararg =
