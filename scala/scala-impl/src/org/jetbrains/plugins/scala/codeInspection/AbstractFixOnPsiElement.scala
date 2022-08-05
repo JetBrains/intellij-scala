@@ -25,7 +25,7 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](@Nls name: String, eleme
     @NotNull startElement: PsiElement,
     @NotNull endElement: PsiElement
   ): Unit = {
-    if (!FileModificationService.getInstance.prepareFileForWrite(file))
+    if (file.isPhysical && !FileModificationService.getInstance.prepareFileForWrite(file))
       return
 
     if (!startElement.isValid)
