@@ -6,6 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.injection.InjectedLanguageManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.refactoring.RefactoringFactory
 import com.intellij.refactoring.rename.RenameProcessor
@@ -104,6 +105,15 @@ object ScalaFileNameInspection {
     override protected def onElement(clazz: ScTypeDefinition)
                                     (implicit project: Project): Unit =
       RefactoringFactory.getInstance(project).createRename(clazz, name).run()
+
+    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo = {
+      val typeDef = PsiTreeUtil.getParentOfType(previewDescriptor.getPsiElement, classOf[ScTypeDefinition])
+      if (typeDef == null) IntentionPreviewInfo.EMPTY
+      else {
+        typeDef.setName(name)
+        IntentionPreviewInfo.DIFF
+      }
+    }
   }
 
   private final class RenameFileQuickFix(file: ScalaFile, name: String)
