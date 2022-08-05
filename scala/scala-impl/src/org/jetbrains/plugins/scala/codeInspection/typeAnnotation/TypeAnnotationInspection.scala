@@ -3,6 +3,7 @@ package codeInspection
 package typeAnnotation
 
 import com.intellij.codeInspection._
+import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions._
@@ -72,7 +73,9 @@ object TypeAnnotationInspection {
   @nowarn("cat=deprecation")
   private class LearnWhyQuickFix extends LocalQuickFixBase(ScalaInspectionBundle.message("learn.why")) {
     override def applyFix(project: Project, problemDescriptor: ProblemDescriptor): Unit =
-      DesktopUtils.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
+      BrowserUtil.browse("https://blog.jetbrains.com/scala/2016/10/05/beyond-code-style/")
+
+    override def startInWriteAction(): Boolean = false
   }
 
   @nowarn("cat=deprecation")
