@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package codeInspection
 
+import com.intellij.codeInsight.intention.preview.IntentionPreviewInfo
 import com.intellij.codeInspection._
 import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.injection.InjectedLanguageManager
@@ -111,6 +112,8 @@ object ScalaFileNameInspection {
     override protected def onElement(file: ScalaFile)
                                     (implicit project: Project): Unit =
       new RenameProcessor(project, file, name, false, false).run()
-  }
 
+    override def generatePreview(project: Project, previewDescriptor: ProblemDescriptor): IntentionPreviewInfo =
+      IntentionPreviewInfo.rename(previewDescriptor.getPsiElement.getContainingFile, name)
+  }
 }
