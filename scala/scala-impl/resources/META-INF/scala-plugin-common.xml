@@ -195,6 +195,7 @@
         <!-- NOTE: order="before ..." doesn't work because backspace handlers do not have orderIds -->
         <backspaceHandlerDelegate order="first" implementation="org.jetbrains.plugins.scala.editor.backspaceHandler.Scala3IndentationBasedSyntaxBackspaceHandler"/>
         <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.PackageJoinLinesHandler"/>
+        <joinLinesHandler implementation="org.jetbrains.plugins.scala.editor.joinLines.StripMarginJoinLinesHandler"/>
         <!-- TODO: now the order of lang.smartEnterProcessor matters because ScalaSmartEnterProcessor.process always returns true
         Ideally, if we want to use several ScalaSmartEnterProcessor.process should return false it does not handle some case.
         Another solution is to move PackageSplitSmartEnterProcessor logic into ScalaSmartEnterProcessor -->
