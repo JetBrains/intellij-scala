@@ -42,15 +42,16 @@ object VarCouldBeValInspection {
   val ID: String = "VarCouldBeVal"
 
   class VarToValFix(variable: ScVariableDefinition) extends LocalQuickFixAndIntentionActionOnPsiElement(variable) {
-    override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit = {
-      val fileModificationService = FileModificationService.getInstance
+    override def invoke(project: Project, file: PsiFile, editor: Editor, startElement: PsiElement, endElement: PsiElement): Unit =
       startElement match {
-        case variable: ScVariableDefinition if fileModificationService.prepareFileForWrite(variable.getContainingFile) =>
-          val replacement = createValFromVarDefinition(variable)
-          variable.replace(replacement)
+        case variable: ScVariableDefinition =>
+          val file = variable.getContainingFile
+          if (file != null && (!file.isPhysical || FileModificationService.getInstance.prepareFileForWrite(file))) {
+            val replacement = createValFromVarDefinition(variable)
+            variable.replace(replacement)
+          }
         case _ =>
       }
-    }
 
     override def getText: String = ScalaInspectionBundle.message("convert.var.to.val")
 
