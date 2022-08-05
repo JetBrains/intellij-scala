@@ -9,4 +9,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterCla
 trait ScParamClauseStub extends StubElement[ScParameterClause] {
   def isImplicit: Boolean
   def isUsing: Boolean
+
+  def isInline: Boolean
 }
