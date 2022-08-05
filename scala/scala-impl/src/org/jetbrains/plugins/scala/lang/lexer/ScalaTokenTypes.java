@@ -96,6 +96,7 @@ public interface ScalaTokenTypes {
     ScalaModifierTokenType kABSTRACT = ScalaModifierTokenType.of(ScalaModifier.Abstract);
     ScalaModifierTokenType kCASE = ScalaModifierTokenType.of(ScalaModifier.Case);
     ScalaModifierTokenType kIMPLICIT = ScalaModifierTokenType.of(ScalaModifier.Implicit);
+
     ScalaModifierTokenType kFINAL = ScalaModifierTokenType.of(ScalaModifier.Final);
     ScalaModifierTokenType kLAZY = ScalaModifierTokenType.of(ScalaModifier.Lazy);
     ScalaModifierTokenType kOVERRIDE = ScalaModifierTokenType.of(ScalaModifier.Override);
