@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion.filters.modifiers
 
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.GivenFilter._
@@ -12,9 +12,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScStableCode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 
 class GivenFilter extends ElementFilter {
-  override def isAcceptable(element: Any, context: PsiElement): Boolean = {
-    if (!context.isInScala3File || context.is[PsiComment]) return false
-    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+  override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
+    if (context == null || !context.isInScala3File || context.is[PsiComment]) return false
+    val leaf = getLeafOfContext(context)
 
     if (leaf != null) {
       val parent = leaf.getParent

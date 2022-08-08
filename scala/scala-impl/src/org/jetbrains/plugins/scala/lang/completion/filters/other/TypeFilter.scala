@@ -1,19 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package filters.other
+package org.jetbrains.plugins.scala.lang.completion.filters.other
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 
 class TypeFilter extends ElementFilter {
-  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.isInstanceOf[PsiComment]) return false
-    val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
+  override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
+    if (context == null || context.isInstanceOf[PsiComment]) return false
+    val leaf = getLeafOfContext(context)
 
     val imp = leaf.parentOfType(classOf[ScImportStmt], strict = false)
     if (imp.isDefined) return false

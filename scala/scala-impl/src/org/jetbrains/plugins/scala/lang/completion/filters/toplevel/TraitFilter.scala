@@ -1,18 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
-package filters.toplevel
+package org.jetbrains.plugins.scala.lang.completion.filters.toplevel
 
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 
 class TraitFilter extends ElementFilter {
-  override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.is[PsiComment]) return false
-    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+  override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
+    if (context == null || context.is[PsiComment]) return false
+    val leaf = getLeafOfContext(context)
 
     if (leaf != null) {
       val parent = leaf.getParent

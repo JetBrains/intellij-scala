@@ -62,11 +62,25 @@ object ScalaCompletionUtil {
     prefix.nonEmpty && prefix.charAt(0).isUpper
   }
 
+
+  def getLeafOfContext(element: PsiElement): PsiElement = {
+    val containingFile = element.getContainingFile
+    val offset = element.getTextRange.getStartOffset
+    getLeafByOffset(containingFile, offset)
+  }
+
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {
-    if (offset < 0) {
+    if (offset < 0)
       return null
-    }
-    var candidate: PsiElement = element.getContainingFile
+
+    getLeafByOffset(element.getContainingFile, offset)
+  }
+
+  def getLeafByOffset(file: PsiFile, offset: Int): PsiElement = {
+    if (offset < 0)
+      return null
+
+    var candidate: PsiElement = file
     if (candidate == null || candidate.getNode == null) return null
     while (candidate.getNode.getChildren(null).nonEmpty) {
       candidate = candidate.findElementAt(offset)
@@ -223,18 +237,6 @@ object ScalaCompletionUtil {
       if (checkErrors(child)) return true
     }
     false
-  }
-
-  /**
-   * @param leaf Start PsiElement
-   * @return End PsiElement
-   */
-  def processPsiLeafForFilter(leaf: PsiElement): (PsiElement, Boolean) = {
-    val result =
-      if (leaf == null) null
-      else if (leaf.getContainingFile.is[ScalaFile]) leaf
-      else null
-    (result, false)
   }
 
   //find objects which may be used to import this member
