@@ -1959,11 +1959,6 @@
         <action id="Scala.ExtractTrait" class="org.jetbrains.plugins.scala.lang.refactoring.extractTrait.ScalaExtractTraitAction">
             <add-to-group group-id="IntroduceActionsGroup"/>
         </action>
-        <action id="Scala.ShowDiscoveredTests"
-                class="org.jetbrains.plugins.scala.testDiscovery.actions.ScalaShowAffectedTestsAction">
-            <add-to-group group-id="RunMenu" anchor="before" relative-to-action="DebugMainMenu"/>
-            <add-to-group group-id="ChangesViewPopupMenu" anchor="last"/>
-        </action>
         <action id="Scala.RunActionOnPsiElementWithTraceLogger"
                 internal="true"
                 class="org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTraceLoggerAction">
