@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion.filters.expression
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi._
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
@@ -14,13 +15,17 @@ class CatchFilter extends ElementFilter {
     if (context == null || context.is[PsiComment]) return false
     val leaf = getLeafOfContext(context)
     if (leaf != null) {
-      var i = getPrevNotWhitespaceAndComment(context.getTextRange.getStartOffset - 1, context)
-      var leaf1 = getLeafByOffset(i, context)
-      if (leaf1 == null || leaf1.getNode.getElementType == ScalaTokenTypes.kTRY) return false
-      val prevIsRBrace = leaf1.textMatches("}")
-      val prevIsRParan = leaf1.textMatches(")")
-      while (leaf1 != null && !leaf1.is[ScTry]) {
-        leaf1 match {
+      val prevCodeLeaf = PsiTreeUtil.prevCodeLeaf(context)
+      if (prevCodeLeaf == null || prevCodeLeaf.getNode.getElementType == ScalaTokenTypes.kTRY)
+        return false
+
+      val prevCodeLeafNode = prevCodeLeaf.getNode
+      val prevIsRBrace = prevCodeLeafNode.getElementType == ScalaTokenTypes.tRBRACE
+      val prevIsRParan = prevCodeLeafNode.getElementType == ScalaTokenTypes.tRPARENTHESIS
+
+      var curLeaf = prevCodeLeaf
+      while (curLeaf != null && !curLeaf.is[ScTry]) {
+        curLeaf match {
           case _: ScFinallyBlock =>
             return false
           case _: ScParenthesisedExpr | _: ScArguments if !prevIsRParan =>
@@ -29,17 +34,20 @@ class CatchFilter extends ElementFilter {
             return false
           case _ =>
         }
-        leaf1 = leaf1.getParent
+        curLeaf = curLeaf.getParent
       }
-      if (leaf1 == null) return false
-      //if (leaf1.getNode.getChildren(null).exists(_.getElementType == ScalaElementType.CATCH_BLOCK)) return false
-      i = getNextNotWhitespaceAndComment(context.getTextRange.getEndOffset, context)
-      if (leaf1.asInstanceOf[ScTry].catchBlock.isDefined) return false
-      if (getLeafByOffset(i, context).textMatches("catch")) return false
-      return true
-    }
 
-    false
+      if (curLeaf == null)
+        return false
+      if (curLeaf.asInstanceOf[ScTry].catchBlock.isDefined)
+        return false
+      val nextCodeLeaf = PsiTreeUtil.nextCodeLeaf(context)
+      if (nextCodeLeaf != null && nextCodeLeaf.getNode.getElementType == ScalaTokenTypes.kCATCH)
+        return false
+
+      true
+    }
+    else false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
