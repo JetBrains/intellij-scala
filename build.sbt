@@ -34,6 +34,20 @@ val intellijPluginsScopeFilter: ScopeFilter =
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
+val remoteCacheCompileScopeFilter: ScopeFilter =
+  ScopeFilter(
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) &&
+      inProjects(nailgunRunners, testRunners_spec2_2x, compilerJps),
+    inConfigurations(Compile)
+  )
+
+val remoteCacheTestScopeFilter: ScopeFilter =
+  ScopeFilter(
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) &&
+      inProjects(nailgunRunners, testRunners_spec2_2x, compilerJps),
+    inConfigurations(Test)
+  )
+
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
@@ -77,7 +91,11 @@ lazy val scalaCommunity: sbt.Project =
       packageMethod := PackagingMethod.Standalone(),
       intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
       // all sub-project tests need to be run within main project's classpath
-      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
+      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten,
+      Compile / pushRemoteCache := pushRemoteCache.all(remoteCacheCompileScopeFilter).value,
+      Compile / pullRemoteCache := pullRemoteCache.all(remoteCacheCompileScopeFilter).value,
+      Test / pushRemoteCache := pushRemoteCache.all(remoteCacheTestScopeFilter).value,
+      Test / pullRemoteCache := pullRemoteCache.all(remoteCacheTestScopeFilter).value
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
