@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
+package lang.psi.api
 
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiClassOwnerEx

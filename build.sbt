@@ -106,6 +106,8 @@ lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
 lazy val scalaApi = newProject(
   "scala-api",
   file("scala/scala-api")
+).settings(
+  idePackagePrefix := Some("org.jetbrains.plugins.scala"),
 )
 
 lazy val codeInsight = newProject(

@@ -5,6 +5,7 @@ import com.intellij.openapi.util.Iconable
 import com.intellij.psi.impl.{ElementBase, ElementPresentationUtil}
 import com.intellij.psi.{PsiModifier, PsiModifierListOwner}
 import com.intellij.ui.IconManager
+
 import javax.swing.Icon
 
 //noinspection ScalaWrongMethodsUsage

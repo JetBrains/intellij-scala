@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala
-package lang
-package psi
+package lang.psi
 
 import com.intellij.lang.Language
 import com.intellij.openapi.vfs.VirtualFile
