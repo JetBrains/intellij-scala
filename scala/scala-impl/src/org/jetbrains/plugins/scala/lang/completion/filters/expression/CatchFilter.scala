@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScArguments
 class CatchFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
-    val leaf = getLeafOfContext(context)
+    val leaf = PsiTreeUtil.getDeepestFirst(context)
     if (leaf != null) {
       val prevCodeLeaf = PsiTreeUtil.prevCodeLeaf(context)
       if (prevCodeLeaf == null || prevCodeLeaf.getNode.getElementType == ScalaTokenTypes.kTRY)

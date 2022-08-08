@@ -2,16 +2,16 @@ package org.jetbrains.plugins.scala.lang.completion.filters.definitions
 
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.{PsiComment, PsiElement, PsiErrorElement, PsiWhiteSpace}
+import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.parser.ErrMsg
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtensionBody
 
 class ExtensionDefFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
-    val leaf = getLeafOfContext(context)
+    val leaf = PsiTreeUtil.getDeepestFirst(context)
 
     if (leaf != null && leaf.getParent.is[ScExtensionBody]) {
       val errorBeforeDefStart = leaf.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()

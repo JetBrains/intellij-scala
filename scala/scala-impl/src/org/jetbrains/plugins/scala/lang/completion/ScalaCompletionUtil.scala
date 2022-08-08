@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
@@ -8,7 +6,8 @@ import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.util.PsiTreeUtil
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
@@ -60,13 +59,6 @@ object ScalaCompletionUtil {
 
     val prefix = prefixMatcher.getPrefix
     prefix.nonEmpty && prefix.charAt(0).isUpper
-  }
-
-
-  def getLeafOfContext(element: PsiElement): PsiElement = {
-    val containingFile = element.getContainingFile
-    val offset = element.getTextRange.getStartOffset
-    getLeafByOffset(containingFile, offset)
   }
 
   def getLeafByOffset(offset: Int, element: PsiElement): PsiElement = {
