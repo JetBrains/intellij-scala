@@ -28,6 +28,12 @@ import java.nio.file.Paths
 //todo remove after fixing leak in sbt.internal.inc.HashUtil.farmHash
 Global / concurrentRestrictions := Seq(Tags.limitAll(3))
 
+val intellijPluginsScopeFilter: ScopeFilter =
+  ScopeFilter(inDependencies(ThisProject, includeRoot = false))
+
+val definedTestsScopeFilter: ScopeFilter =
+  ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
+
 // Main projects
 lazy val scalaCommunity: sbt.Project =
   newProject("scalaCommunity", file("."))
@@ -69,9 +75,9 @@ lazy val scalaCommunity: sbt.Project =
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       packageMethod := PackagingMethod.Standalone(),
-      intellijPlugins := intellijPlugins.all(ScopeFilter(inDependencies(ThisProject, includeRoot = false))).value.flatten.distinct,
-      (Test / definedTests) := { // all sub-project tests need to be run within main project's classpath
-        definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
+      intellijPlugins := intellijPlugins.all(intellijPluginsScopeFilter).value.flatten.distinct,
+      // all sub-project tests need to be run within main project's classpath
+      Test / definedTests := definedTests.all(definedTestsScopeFilter).value.flatten
     )
 
 lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
