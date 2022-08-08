@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
-import dotty.tools.tasty.TastyFormat.NameTags.{DEFAULTGETTER, EXPANDED, EXPANDPREFIX, QUALIFIED, SIGNED, TARGETSIGNED, UNIQUE, UTF8}
+import TermName.*
+
+import dotty.tools.tasty.TastyFormat.NameTags.*
 import dotty.tools.tasty.TastyReader
-import TermName._
 
 import scala.io.Codec
 
 // See dotty.tools.dotc.core.tasty.TastyUnpickler
 
 private class NameTableReader(in: TastyReader) {
-  import in._
+  import in.*
 
   val nameAtRef: NameTable = new NameTable()
 

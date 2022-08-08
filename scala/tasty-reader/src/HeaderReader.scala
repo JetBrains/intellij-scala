@@ -8,7 +8,7 @@ import java.util.UUID
 // See dotty.tools.tasty.TastyHeaderUnpickler
 
 private class HeaderReader(in: TastyReader) {
-  import in._
+  import in.*
 
   def readFullHeader(): TastyHeader = {
     for (i <- header.indices)

@@ -206,6 +206,7 @@ lazy val worksheetReplInterface =
 
 lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
   .settings(
+    idePackagePrefix := Some("org.jetbrains.plugins.scala.tasty.reader"),
     intellijMainJars := Seq.empty,
     scalaVersion := "3.1.3",
     libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.1.3",

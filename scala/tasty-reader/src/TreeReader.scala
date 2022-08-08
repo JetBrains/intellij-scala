@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
 import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
-import dotty.tools.tasty.TastyFormat._
+import dotty.tools.tasty.TastyFormat.*
 import dotty.tools.tasty.{TastyReader, UnpickleException}
 
 private class TreeReader(nameAtRef: NameTable) {

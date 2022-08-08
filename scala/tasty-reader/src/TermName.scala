@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
-import dotty.tools.tasty.TastyFormat.NameTags
-
 // dotty.tools.tasty.TastyFormat.NameTags
 // dotty.tools.dotc.core.NameKinds
 // dotty.tools.dotc.core.StdNames

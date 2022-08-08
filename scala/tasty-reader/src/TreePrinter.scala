@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.tasty.reader
 
+import Node.{Node1, Node2, Node3}
+import TreePrinter.Keywords
+
 import dotty.tools.tasty.TastyBuffer.Addr
 import dotty.tools.tasty.TastyFormat.*
-import org.jetbrains.plugins.scala.tasty.reader.Node.{Node1, Node2, Node3}
-import org.jetbrains.plugins.scala.tasty.reader.TreePrinter.Keywords
 
 import java.lang.Double.longBitsToDouble
 import java.lang.Float.intBitsToFloat
