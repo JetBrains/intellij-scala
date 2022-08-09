@@ -100,11 +100,11 @@ class CompletionProcessor(override val kinds: Set[ResolveTargets.Value],
       case maybeSignature => regularCase(_, maybeSignature)
     }
 
-    findCandidates(namedElement)
-      .filter(ResolveUtils.kindMatches(_, kinds))
-      .map(toResolveResult)
-      .filter(predicate)
-      .foreach(addResult)
+    val candidates = findCandidates(namedElement)
+    val candidatesWithSameKind = candidates.filter(ResolveUtils.kindMatches(_, kinds))
+    val resolveResults = candidatesWithSameKind.map(toResolveResult)
+    val resolveResultsFiltered = resolveResults.filter(predicate)
+    resolveResultsFiltered.foreach(addResult)
 
     true
   }

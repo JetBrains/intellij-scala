@@ -1,13 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion
+package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.openapi.actionSystem.{ActionManager, IdeActions}
 import com.intellij.openapi.keymap.KeymapUtil.getFirstKeyboardShortcutText
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.patterns.{PatternCondition, PsiElementPattern, StandardPatterns}
+import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion.filters.toplevel.IsTopLevelElementInProductionScalaFileFilter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression, ScSugarCallExpr}
 
@@ -16,9 +18,15 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
   import ScalaGlobalMembersCompletionContributor._
   import global._
 
+  private val InsideScalaReference_NotTopLevel: PsiElementPattern.Capture[PsiElement] =
+    psiElement.withParent(
+      StandardPatterns.instanceOf(classOf[ScReferenceExpression])
+        .without(TopLevelScalaReferenceInProductionScalaFile)
+    )
+
   extend(
     CompletionType.BASIC,
-    psiElement.withParent(classOf[ScReferenceExpression]),
+    InsideScalaReference_NotTopLevel,
     new CompletionProvider[CompletionParameters] {
 
       override def addCompletions(parameters: CompletionParameters,
@@ -66,6 +74,11 @@ final class ScalaGlobalMembersCompletionContributor extends ScalaCompletionContr
 }
 
 object ScalaGlobalMembersCompletionContributor {
+
+  private object TopLevelScalaReferenceInProductionScalaFile extends PatternCondition[ScReferenceExpression]("top-level-scala-reference") {
+    override def accepts(ref: ScReferenceExpression, context: ProcessingContext): Boolean =
+      IsTopLevelElementInProductionScalaFileFilter.check(ref)
+  }
 
   private def addLookupAdvertisement(resultSet: CompletionResultSet): Unit =
     Option(ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))

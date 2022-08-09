@@ -6,7 +6,7 @@ class ScalaCompletionOrderTest extends ScalaCompletionSortingTestCase {
     super.getTestDataPath + "order/"
 
   def testCaseClauseParamAsLocal(): Unit =
-    checkFirst("retparam", "retField")
+    checkFirst("retLocal", "retparam", "retField")
 
   def testInImportSelector(): Unit =
     checkFirst("foo3", "foo2", "foo1")

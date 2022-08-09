@@ -5,8 +5,7 @@ package parsing
 
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr}
-import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, Def, EmptyDcl}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotation
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.TemplateStat
 
@@ -21,51 +20,34 @@ import scala.annotation.tailrec
  */
 object TopStat {
 
-  import ParserState._
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
 
   @tailrec
-  final def parse(state: ParserState)
-                 (implicit builder: ScalaPsiBuilder): Option[ParserState] =
+  final def parse()(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case `kIMPORT` =>
         Import()
-        None
+        true
       case ExportKeyword =>
         Export()
-        None
-      case _ if Extension() =>
-        None
+        true
       case `kPACKAGE` =>
         if (builder.lookAhead(kPACKAGE, ObjectKeyword))
-          if (PackageObject()) Some(FILE_STATE)
-          else Some(EMPTY_STATE)
+          PackageObject()
         else
-          if (Packaging()) Some(FILE_STATE)
-          else Some(EMPTY_STATE)
+          Packaging()
+      case _ if Extension() =>
+        true
       case _ if builder.skipExternalToken() =>
-        if (!builder.eof()) parse(state) else None
+        if (builder.eof())
+          true
+        else
+          TopStat.parse()
       case _ =>
-        state match {
-          case EMPTY_STATE =>
-            if (TmplDef()) None
-            else if (Def() || Dcl() || EmptyDcl())
-              None
-            else if (Expr())
-              None
-            else incompleteAnnotationOrFallback()
-          case FILE_STATE if builder.isScala3 =>
-            if (TemplateStat()) Some(FILE_STATE)
-            else incompleteAnnotationOrFallback()
-          case FILE_STATE =>
-            if (TmplDef()) Some(FILE_STATE)
-            else incompleteAnnotationOrFallback()
-        }
+        //For simplicity parse all definitions for Scala3, Scala2
+        //even though Scala 2 doesn't support top-level definitions.
+        //Also parse expressions, even though the file might be not a worksheet
+        TemplateStat()
     }
-
-  private def incompleteAnnotationOrFallback()(implicit builder: ScalaPsiBuilder): Some[EMPTY_STATE.type] = {
-    Annotation.skipUnattachedAnnotations(ErrMsg("missing.toplevel.statement.for.annotation"))
-    Some(EMPTY_STATE)
-  }
 }

@@ -8,6 +8,7 @@ class CaseClauseParamAsLocal {
     def testCase = {
       classParam match {
         case A(retparam) =>
+          val retLocal = 23
           ret<caret>
         case _ =>
       }

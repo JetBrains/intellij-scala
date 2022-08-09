@@ -8,7 +8,6 @@
 abstract
 case
 class
-extends
 final
 implicit
 import

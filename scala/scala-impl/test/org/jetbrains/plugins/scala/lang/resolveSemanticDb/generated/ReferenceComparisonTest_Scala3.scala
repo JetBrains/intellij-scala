@@ -219,7 +219,8 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_existential_java_case_class(): Unit = doTest("existential-java-case-class", true)
   def test_existentials(): Unit = doTest("existentials", true)
   def test_existentials_harmful(): Unit = doTest("existentials-harmful", true)
-  def test_experimental_erased(): Unit = doTest("experimental-erased", true)
+  //top level "erased" is not recognized as a (soft?) keyword and is parsed as reference, which is not resolved
+  def test_experimental_erased(): Unit = doTest("experimental-erased", false)
   def test_experimental_erased_2(): Unit = doTest("experimental-erased-2", false)
   def test_experimentalErased(): Unit = doTest("experimentalErased", false)
   def test_experimentalExperimental(): Unit = doTest("experimentalExperimental", true)

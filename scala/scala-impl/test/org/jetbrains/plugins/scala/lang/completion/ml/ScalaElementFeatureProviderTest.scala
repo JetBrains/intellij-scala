@@ -7,11 +7,13 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.{CompletionTests, ScalaLanguage}
 import org.jetbrains.plugins.scala.base.{HelperFixtureEditorOps, ScalaLightCodeInsightFixtureTestCase}
 import org.jetbrains.plugins.scala.extensions._
+import org.junit.Assert
 import org.junit.experimental.categories.Category
 
 import java.util
 import scala.collection.mutable
 
+//noinspection ApiStatus,UnstableApiUsage
 @Category(Array(classOf[CompletionTests]))
 class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
 
@@ -629,15 +631,26 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCa
 
   private def assertContext(name: String, expected: MLFeatureValue)(fileText: String): Unit = {
     val elementsFeatures = computeElementsFeatures(fileText)
-    AssertFeatureValues.equals(expected, elementsFeatures.head._2.get(name))
+    AssertFeatureValues.equals(expected, elementsFeatures.head._2(name))
   }
 
   private def assertElement(name: String, element: String, expected: MLFeatureValue)(fileText: String): Unit = {
-    val elementFeatures = computeElementsFeatures(fileText)
-    AssertFeatureValues.equals(expected, elementFeatures(element).get(name))
+    val map1: Map[String, Map[String, MLFeatureValue]] =
+      computeElementsFeatures(fileText)
+    val map2: Map[String, MLFeatureValue] =
+      map1(element)
+    val features = map2.get(name).orNull
+    if (features == null) {
+      val names = map2.keys.toSeq.sorted.mkString(", ")
+      Assert.fail(
+        s"""No feature found for name `$name`.
+           |All features for element: $names""".stripMargin
+      )
+    }
+    AssertFeatureValues.equals(expected, features)
   }
 
-  private def computeElementsFeatures(fileText: String): Map[String, util.Map[String, MLFeatureValue]] = {
+  private def computeElementsFeatures(fileText: String): Map[String, Map[String, MLFeatureValue]] = {
     class ScalaElementFeatureProviderWrapper extends ElementFeatureProvider {
 
       private val original = new ScalaElementFeatureProvider
@@ -671,7 +684,8 @@ class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCa
       val handler = new CodeCompletionHandlerBase(CompletionType.BASIC, false, false, true)
       handler.invokeCompletion(getProject, getEditor, 1)
 
-      provider.elements.toMap
+      import scala.jdk.CollectionConverters._
+      provider.elements.view.mapValues(_.asScala.toMap).toMap
     }
     finally {
       ElementFeatureProvider.EP_NAME.removeExplicitExtension(ScalaLanguage.INSTANCE, provider)

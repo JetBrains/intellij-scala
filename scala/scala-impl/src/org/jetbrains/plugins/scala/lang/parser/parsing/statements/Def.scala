@@ -10,12 +10,15 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.TmplDef
 
 /**
- * [[Def]] ::= [ [[Annotations]] {Modifier}]
- *          ('val' ValDef
- *         | 'var' VarDef
- *         | 'def' FunDef
- *         | 'def' MacroDef
- *         | 'type' {nl} TypeDef)
+ * [[Def]] ::= {{{
+ *             [Annotations {Modifier}]
+ *             'val' ValDef
+ *           | 'var' VarDef
+ *           | 'def' FunDef
+ *           | 'def' MacroDef
+ *           | 'type' {nl} TypeDef
+ *           | TmplDef
+ * }}}
  */
 object Def extends ParsingRule {
 

@@ -7,9 +7,13 @@ class KeywordCompletionToplevelTest extends KeywordCompletionTestBase {
 
   def testcaseClass(): Unit = doTest()
 
-  def testcaseClause(): Unit = doTest()
+  def testcaseClassToplevel(): Unit = doTest()
 
-  def testclass(): Unit = doTest()
+  def testcaseClassToplevel2(): Unit = doTest()
+
+  def testcaseClassToplevelWithPackage(): Unit = doTest()
+
+  def testcaseClause(): Unit = doTest()
 
   def testimport(): Unit = doTest()
 

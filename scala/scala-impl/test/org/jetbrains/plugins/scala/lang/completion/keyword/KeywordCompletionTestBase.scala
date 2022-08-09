@@ -30,12 +30,15 @@ abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTes
     SharedTestProjectToken(this.getClass.getName + "_" + this.version.toString)
 
   protected def doTest(): Unit = {
-    val filePath = folderPath + getTestName(false) + ".scala"
+    val lowercaseFirstLetterOfTestFile = true
+    val testFileName = getTestName(lowercaseFirstLetterOfTestFile) + ".scala"
+
+    val filePath = folderPath + testFileName
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assertNotNull(s"file $filePath not found", file)
 
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileText(getTestName(false) + ".scala", fileText)
+    configureFromFileText(testFileName, fileText)
 
     val scalaFile = getFile.asInstanceOf[ScalaFile]
     val offset = fileText.indexOf(EditorTestUtil.CARET_TAG)

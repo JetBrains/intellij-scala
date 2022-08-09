@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.completion.filters.expression.QuietCatch
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClauses
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScCatchBlock, ScReferenceExpression, ScTry}
 
+/** Also see [[org.jetbrains.plugins.scala.lang.completion.filters.modifiers.CaseFilter]] */
 class QuietCatchCaseFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || !context.isInScala3File || context.is[PsiComment]) return false

@@ -619,36 +619,44 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
 
   def testElseMultiline(): Unit = doCompletionTest(
     fileText =
-      s"""val x = 0
+      s"""object Wrapper {
+         |val x = 0
          |if x < 0 then
          |  "negative"
          |e$CARET
+         |}
          |""".stripMargin,
     resultText =
-      s"""val x = 0
+      s"""object Wrapper {
+         |val x = 0
          |if x < 0 then
          |  "negative"
          |else $CARET
+         |}
          |""".stripMargin,
     item = "else"
   )
 
   def testElseMultiline2(): Unit = doCompletionTest(
     fileText =
-      s"""val x = 0
+      s"""object Wrapper {
+         |val x = 0
          |if x < 0 then
          |  "negative"
          |else if x == 0 then
          |  "zero"
          |e$CARET
+         |}
          |""".stripMargin,
     resultText =
-      s"""val x = 0
+      s"""object Wrapper {
+         |val x = 0
          |if x < 0 then
          |  "negative"
          |else if x == 0 then
          |  "zero"
          |else $CARET
+         |}
          |""".stripMargin,
     item = "else"
   )
@@ -1666,29 +1674,81 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "extends"
   )
 
-  /// toplevel DEF
+  /// members after annotation
+
+  def testDefAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
+    resultText = s"""class Test { @deprecated def $CARET}""".stripMargin,
+    item = "def"
+  )
+
+  def testTypeAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
+    resultText = s"""class Test { @deprecated type $CARET}""".stripMargin,
+    item = "type"
+  )
+
+  def testClassAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""class Test { @deprecated $CARET}""".stripMargin,
+    resultText = s"""class Test { @deprecated class $CARET}""".stripMargin,
+    item = "class"
+  )
+
+  /// toplevel members
 
   def testToplevelDef(): Unit = doCompletionTest(
-    fileText =
-      s"""package foo.bar
-         |
-         |@main d$CARET""".stripMargin,
-    resultText =
-      s"""package foo.bar
-         |
-         |@main def $CARET""".stripMargin,
+    fileText = s"""$CARET""".stripMargin,
+    resultText = s"""def $CARET""".stripMargin,
     item = "def"
   )
 
-  def testToplevelDefWithoutPackage(): Unit = doCompletionTest(
-    fileText = s"@main d$CARET",
-    resultText = s"@main def $CARET",
+  def testToplevelType(): Unit = doCompletionTest(
+    fileText = s"""$CARET""".stripMargin,
+    resultText = s"""type $CARET""".stripMargin,
+    item = "type"
+  )
+
+  def testToplevelClass(): Unit = doCompletionTest(
+    fileText = s"""$CARET""".stripMargin,
+    resultText = s"""class $CARET""".stripMargin,
+    item = "class"
+  )
+
+  /// toplevel members after annotation
+
+  def testToplevelDefAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""@deprecated $CARET""".stripMargin,
+    resultText = s"""@deprecated def $CARET""".stripMargin,
     item = "def"
   )
 
-  def testToplevelDefWithoutPackage2(): Unit = doCompletionTest(
+  def testToplevelTypeAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""@deprecated $CARET""".stripMargin,
+    resultText = s"""@deprecated type $CARET""".stripMargin,
+    item = "type"
+  )
+
+  def testToplevelClassAfterAnnotation(): Unit = doCompletionTest(
+    fileText = s"""@deprecated $CARET""".stripMargin,
+    resultText = s"""@deprecated class $CARET""".stripMargin,
+    item = "class"
+  )
+
+  def testToplevelDefAfterFullyQualifiedAnnotation(): Unit = doCompletionTest(
     fileText = s"@scala.annotation.tailrec d$CARET",
     resultText = s"@scala.annotation.tailrec def $CARET",
+    item = "def"
+  )
+
+  def testToplevelDefAfterAnnotationWithPackage(): Unit = doCompletionTest(
+    fileText =
+      s"""package org.example
+         |
+         |@deprecated d$CARET""".stripMargin,
+    resultText =
+      s"""package org.example
+         |
+         |@deprecated def $CARET""".stripMargin,
     item = "def"
   )
 

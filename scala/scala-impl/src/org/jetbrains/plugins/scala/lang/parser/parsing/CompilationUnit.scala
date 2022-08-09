@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
-import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import scala.annotation.tailrec
 
@@ -16,21 +15,13 @@ import scala.annotation.tailrec
  */
 object CompilationUnit {
 
-  import ParserState._
   import lexer.ScalaTokenType.ObjectKeyword
   import lexer.ScalaTokenTypes._
 
-  def apply()(implicit builder: ScalaPsiBuilder): ParserState = {
-    var parseState: ParserState = EMPTY_STATE
-
-    def parsePackagingBody(hasPackage: Boolean): Unit = {
+  def apply()(implicit builder: ScalaPsiBuilder): Unit = {
+    def parsePackagingBody(): Unit = {
       while (builder.getTokenType != null) {
-        TopStatSeq(waitBrace = false, hasPackage) match {
-          case EMPTY_STATE =>
-          case FILE_STATE =>
-            parseState = FILE_STATE
-        }
-        builder.advanceLexer()
+        TopStatSeq.parse(waitBrace = false)
       }
     }
 
@@ -66,9 +57,9 @@ object CompilationUnit {
                     // Detect explicit packaging with curly braces
 
                     builder.getTokenType match {
-                      case `tLBRACE` | InScala3(ScalaTokenTypes.tCOLON) =>
+                      case `tLBRACE` | InScala3(ScalaTokenTypes.tCOLON) if !builder.twoNewlinesBeforeCurrentToken =>
                         newMarker.rollbackTo()
-                        parsePackagingBody(true)
+                        parsePackagingBody()
                         parsePackage
                       case _ =>
                         parsePackageSequence(completed = false) {
@@ -83,20 +74,19 @@ object CompilationUnit {
                 }
               case _ =>
                 // Parse the remainder of a file
-                parsePackagingBody(true)
+                parsePackagingBody()
                 parsePackage
             }
         }
 
         parsePackageSequence(completed = true) {}
-      case _ => parsePackagingBody(false)
+      case _ =>
+        parsePackagingBody()
     }
 
     while (!builder.eof()) {
       builder.error(ScalaBundle.message("out.of.compilation.unit"))
       builder.advanceLexer()
     }
-
-    parseState
   }
 }

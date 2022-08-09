@@ -4,17 +4,18 @@ import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.{NonNls, Nullable}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
-import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.CaseFilter._
+import org.jetbrains.plugins.scala.lang.completion.filters.toplevel.IsTopLevelElementInProductionScalaFileFilter
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 
+/** Also see [[org.jetbrains.plugins.scala.lang.completion.filters.expression.QuietCatchCaseFilter]] */
 class CaseFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
@@ -22,7 +23,7 @@ class CaseFilter extends ElementFilter {
 
     if (leaf != null && leaf.getParent != null) {
       val parent =
-        if (isToplevelScala3Leaf(leaf)) leaf.getParent.getParent
+        if (CaseFilter.isToplevelLeaf(leaf)) leaf.getParent.getParent
         else leaf.getParent
       parent match {
         case _: ScalaFile =>
@@ -102,8 +103,9 @@ class CaseFilter extends ElementFilter {
 }
 
 object CaseFilter {
-  private def isToplevelScala3Leaf(leaf: PsiElement) = leaf.getParent match {
-    case ref: ScReferenceExpression if ref.isInScala3File => ref.getParent.is[ScPackaging, ScFile]
+  private def isToplevelLeaf(leaf: PsiElement) = leaf.getParent match {
+    case ref: ScReferenceExpression =>
+      IsTopLevelElementInProductionScalaFileFilter.check(ref)
     case _ => false
   }
 }

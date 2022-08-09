@@ -187,7 +187,7 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testGlobalMemberJava3(): Unit = {
-    configureFromFileText("sort" + CARET)
+    configureFromFileText(s"object Wrapper { sort$CARET }")
 
     val actual = completeBasic(2)
       .count { lookup =>
@@ -1087,12 +1087,16 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""import java.util.Collections.emptyList
          |
-         |e$CARET
+         |object Wrapper {
+         |  e$CARET
+         |}
          |""".stripMargin,
     resultText =
       s"""import java.util.Collections.{emptyList, emptyMap}
          |
-         |emptyMap()$CARET
+         |object Wrapper {
+         |  emptyMap()$CARET
+         |}
          |""".stripMargin
   ) {
     hasItemText(_, "emptyMap")(
@@ -1105,12 +1109,16 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
     fileText =
       s"""import Thread.currentThread
          |
-         |$CARET
+         |object Wrapper {
+         |  $CARET
+         |}
          |""".stripMargin,
     resultText =
       s"""import Thread.{currentThread, defaultUncaughtExceptionHandler}
          |
-         |defaultUncaughtExceptionHandler$CARET
+         |object Wrapper {
+         |  defaultUncaughtExceptionHandler$CARET
+         |}
          |""".stripMargin,
     item = "defaultUncaughtExceptionHandler",
     time = 2
@@ -1126,7 +1134,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  def bar(): Unit = {}
          |}
          |
-         |b$CARET
+         |object Wrapper {
+         |  b$CARET
+         |}
          |""".stripMargin,
     resultText =
       s"""import Foo.{bar, foo}
@@ -1137,7 +1147,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  def bar(): Unit = {}
          |}
          |
-         |bar()$CARET
+         |object Wrapper {
+         |  bar()$CARET
+         |}
          |""".stripMargin,
     item = "bar"
   )
@@ -1152,7 +1164,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  val bar = 42
          |}
          |
-         |b$CARET
+         |object Wrapper {
+         |  b$CARET
+         |}
          |""".stripMargin,
     resultText =
       s"""import Foo.{bar, foo}
@@ -1163,7 +1177,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  val bar = 42
          |}
          |
-         |bar$CARET
+         |object Wrapper {
+         |  bar$CARET
+         |}
          |""".stripMargin,
     item = "bar"
   )
@@ -1178,7 +1194,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  var bar = 42
          |}
          |
-         |b$CARET
+         |object Wrapper {
+         |  b$CARET
+         |}
          |""".stripMargin,
     resultText =
       s"""import Foo.{bar, foo}
@@ -1189,7 +1207,9 @@ class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
          |  var bar = 42
          |}
          |
-         |bar$CARET
+         |object Wrapper {
+         |  bar$CARET
+         |}
          |""".stripMargin,
     item = "bar"
   )

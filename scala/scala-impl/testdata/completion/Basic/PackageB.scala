@@ -1,5 +1,7 @@
 import collection.mutable
-mut/*caret*/
+object Wrapper {
+  mut/*caret*/
+}
 /*
 mutable
  */

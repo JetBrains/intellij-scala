@@ -11,9 +11,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 
-class DefTypeFilter extends ElementFilter {
+class DefOrTypeFilter extends ElementFilter {
   override def isAcceptable(element: Object, @Nullable context: PsiElement): Boolean = {
     if (context == null || context.is[PsiComment]) return false
     val leaf = PsiTreeUtil.getDeepestFirst(context)
@@ -21,8 +22,6 @@ class DefTypeFilter extends ElementFilter {
       val parent = leaf.getParent
       parent match {
         case _: ScReferenceExpression =>
-        case file: ScalaFile if file.isScala3File =>
-          return awful(parent, leaf)
         case _ => return false
       }
       parent.getParent match {

@@ -28,12 +28,11 @@ object Packaging extends ParsingRule {
         //parsing body of regular packaging
         val (blockIndentation, baseIndentation) = builder.getTokenType match {
           case ScalaTokenTypes.tLBRACE =>
-            if (builder.twoNewlinesBeforeCurrentToken) {
-              builder error ScalaBundle.message("lbrace.expected")
-              packMarker.done(ScalaElementType.PACKAGING)
-              return true
+            if (!builder.twoNewlinesBeforeCurrentToken) {
+              builder.advanceLexer() //Ate '{'
+            } else {
+              //if there are two new lines after `package` then parse it as block expression
             }
-            builder.advanceLexer() //Ate '{'
             BlockIndentation.create -> None
           case InScala3(ScalaTokenTypes.tCOLON) =>
             // TODO: looks like this check is not required, `:` can go with arbitrary new lines before it
@@ -67,7 +66,7 @@ object Packaging extends ParsingRule {
         builder.enableNewlines()
         builder.maybeWithIndentationWidth(baseIndentation) {
           parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
-            TopStatSeq(baseIndent = baseIndentation)
+            TopStatSeq.parse(waitBrace = true, baseIndent = baseIndentation)
             true
           }
         }

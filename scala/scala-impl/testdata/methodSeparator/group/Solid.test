@@ -12,7 +12,7 @@ trait T {}
 object O {}
 {}
 println
-new Runnable {
+new Runnable { // -
   def run = {
   }
 }

@@ -12,12 +12,14 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 import org.jetbrains.plugins.scala.lang.parser.parsing.top.template.GivenDef
 
 /**
- * [[TmplDef]] ::= [[Annotations]] { [[Modifier]] }
- * ['case'] 'class' [[ClassDef]]
- * | ['case'] 'object' [[ObjectDef]]
- * | 'trait' [[TraitDef]]
- * | 'enum' [[EnumDef]]
- * | 'given' [[GivenDef]]
+ * [[TmplDef]] ::= {{{
+ *                 Annotations { Modifier }
+ *                 ['case'] 'class' ClassDef
+ *               | ['case'] 'object' ObjectDef
+ *               | 'trait' TraitDef
+ *               | 'enum' EnumDef
+ *               | 'given' GivenDef
+ * }}}
  */
 object TmplDef extends ParsingRule {
 

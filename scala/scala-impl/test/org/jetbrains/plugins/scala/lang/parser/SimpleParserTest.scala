@@ -268,7 +268,7 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |        SimpleType: c
       |          CodeReferenceElement: c
       |            PsiElement(identifier)('c')
-      |  PsiErrorElement:Missing toplevel statement for annotation
+      |  PsiErrorElement:Missing statement for annotation
       |    <empty list>
       |""".stripMargin
   )

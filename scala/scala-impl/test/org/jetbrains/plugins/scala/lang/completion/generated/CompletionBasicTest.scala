@@ -25,4 +25,6 @@ class CompletionBasicTest extends FileTestDataCompletionTestBase {
   def testToString(): Unit = doTest()
 
   def testTuple(): Unit = doTest()
+
+  def testTupleInPackage(): Unit = doTest()
 }

@@ -3,8 +3,10 @@ class A {
   def +:::(x: B): Int = 45
 }
 
-val xx: B = new B
-val a: A = new A
+object Wrapper {
+  val xx: B = new B
+  val a: A = new A
 
-x/*caret*/ +::: a
+  x/*caret*/ +::: a
+}
 //xx

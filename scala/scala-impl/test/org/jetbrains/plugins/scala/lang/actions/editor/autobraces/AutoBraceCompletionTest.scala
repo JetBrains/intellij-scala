@@ -5,6 +5,7 @@ package editor
 package autobraces
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
@@ -22,43 +23,47 @@ class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   def testAutoBraceCompletionWithNewline(): Unit = doRawCompletionTest(
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  e$CARET
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    e$CARET
        |
-       |blub
-       |""".stripMargin,
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true) {
-       |  4
-       |  ella($CARET)
+       |  blub
        |}
+       |""".stripMargin,
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true) {
+       |    4
+       |    ella($CARET)
+       |  }
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
     '\n'
   )(_.getLookupString.contains("ella"))
 
   def testAutoBraceCompletionWithTab(): Unit = doRawCompletionTest(
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  e$CARET
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    e$CARET
        |
-       |blub
-       |""".stripMargin,
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true) {
-       |  4
-       |  ella($CARET)
+       |  blub
        |}
+       |""".stripMargin,
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true) {
+       |    4
+       |    ella($CARET)
+       |  }
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
     '\t'
   )(_.getLookupString.contains("ella"))
@@ -86,21 +91,23 @@ class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
   }
 
   def testAutoBraceAbortionContinuationKeyword(): Unit = checkNonEmptyCompletionWithKeyAbortion(
-    s"""
-       |def elsa(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  els$CARET
+    s"""object Test {
+       |  def elsa(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    els$CARET
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
-    s"""
-       |def elsa(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  else$CARET
+    s"""object Test {
+       |  def elsa(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    else$CARET
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
     'e'
   )
@@ -127,41 +134,45 @@ class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
   )
 
   def testAutoBraceAbortionAfterUncertainContinuation(): Unit = checkEmptyCompletionAbortion(
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  ex$CARET
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    ex$CARET
        |
-       |blub
-       |""".stripMargin,
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true) {
-       |  4
-       |  ex$CARET
+       |  blub
        |}
+       |""".stripMargin,
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true) {
+       |    4
+       |    ex$CARET
+       |  }
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
   )
 
   def testAutoBraceAbortionAfterPossibleContinuation(): Unit = checkEmptyCompletionAbortion(
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  el$CARET
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    el$CARET
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
-    s"""
-       |def ella(i: Int): Unit = ()
-       |if (true)
-       |  4
-       |  el$CARET
+    s"""object Test {
+       |  def ella(i: Int): Unit = ()
+       |  if (true)
+       |    4
+       |    el$CARET
        |
-       |blub
+       |  blub
+       |}
        |""".stripMargin,
   )
 
