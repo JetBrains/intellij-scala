@@ -8,12 +8,13 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.FileContentUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ToggleTypeAwareHighlightingAction.toggleSettingAndRehighlight
+import org.jetbrains.plugins.scala.components.TypeAwareWidgetFactory
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.jdk.CollectionConverters._
 
-class ToggleTypeAwareHighlightingAction extends AnAction(
+final class ToggleTypeAwareHighlightingAction extends AnAction(
   ScalaBundle.message("toggle.type.aware.highlighting.menu.action.text"),
   ScalaBundle.message("toggle.type.aware.highlighting.menu.action.description"),
   /* icon = */ null
@@ -31,6 +32,11 @@ object ToggleTypeAwareHighlightingAction {
   def toggleSettingAndRehighlight(project: Project): Unit = {
     val settings = ScalaProjectSettings.getInstance(project)
     settings.toggleTypeAwareHighlighting()
+
+    project.getMessageBus
+      .syncPublisher(TypeAwareWidgetFactory.Topic)
+      .updateWidget()
+
     invokeLater(ModalityState.NON_MODAL) {
       reparseActiveFiles(project)
     }
