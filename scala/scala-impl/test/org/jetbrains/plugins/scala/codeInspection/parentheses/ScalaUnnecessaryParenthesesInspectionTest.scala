@@ -6,7 +6,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.util.TextRange
 import com.intellij.profile.codeInspection.InspectionProfileManager
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture.CARET_MARKER
-import org.jetbrains.plugins.scala.codeInspection.ScalaHighlightsTestBase.{ExpectedHighlight, TestPrepareResult}
+import org.jetbrains.plugins.scala.codeInspection.ScalaAnnotatorQuickFixTestBase.{ExpectedHighlight, TestPrepareResult}
 import org.jetbrains.plugins.scala.extensions.TextRangeExt
 
 abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspectionTestBase {
@@ -19,9 +19,13 @@ abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspec
   protected val hintBeginning = "Remove unnecessary parentheses"
 
   protected def defaultSettings = UnnecessaryParenthesesSettings.default
+
   protected def considerClarifying = defaultSettings.copy(ignoreClarifying = false)
+
   protected def ignoreAroundFunctionType = defaultSettings.copy(ignoreAroundFunctionType = true)
+
   protected def ignoreAroundFunctionTypeParam = defaultSettings.copy(ignoreAroundFunctionTypeParam = true)
+
   protected def ignoreAroundFunctionExprParam = defaultSettings.copy(ignoreAroundFunctionExprParam = true)
 
   protected def withSettings(settings: UnnecessaryParenthesesSettings)(body: => Unit): Unit = {
@@ -48,7 +52,7 @@ abstract class ScalaUnnecessaryParenthesesInspectionTestBase extends ScalaInspec
     val TestPrepareResult(fileText, expectedHighlights, actualHighlights) = configureByText(text)
     val expectedParenthesesHighlights: Seq[ExpectedHighlight] = {
       val ExpectedHighlight(range) = expectedHighlights.head
-      val left  = TextRange.from(range.getStartOffset, 1)
+      val left = TextRange.from(range.getStartOffset, 1)
       val right = TextRange.from(range.getEndOffset - 1, 1)
       val ranges = if (range.getLength >= 4) {
         val middle = range.shrink(2)
