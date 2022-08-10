@@ -15,6 +15,7 @@ import java.io.File
 import scala.annotation.{tailrec, unused}
 import scala.collection.mutable
 
+//noinspection ApiStatus
 class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
@@ -78,7 +79,7 @@ object ScalaEvaluatorCompileHelper {
       instance(project).clearTempFiles()
 
       if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-        CompileServerLauncher.ensureServerNotRunning(project)
+        CompileServerLauncher.ensureServerNotRunning()
       }
     }
   }
