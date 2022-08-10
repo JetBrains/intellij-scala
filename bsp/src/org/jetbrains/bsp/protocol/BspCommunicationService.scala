@@ -1,29 +1,26 @@
-package org.jetbrains.bsp.protocol
+package org.jetbrains.bsp
+package protocol
+
+import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
+import com.intellij.openapi.util.Disposer
+import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
+import org.jetbrains.plugins.scala.util.ScalaShutDownTracker
 
 import java.io.File
 import java.net.URI
 import java.nio.file._
 import java.util.concurrent.TimeUnit
-
-import com.intellij.openapi.Disposable
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ServiceManager
-import com.intellij.openapi.project.{Project, ProjectManager, ProjectManagerListener, ProjectUtil}
-import com.intellij.openapi.util.Disposer
-import com.intellij.util.concurrency.AppExecutorUtil
-import org.jetbrains.bsp.settings.BspProjectSettings.BspServerConfig
-import org.jetbrains.bsp.project.BspExternalSystemManager
-import org.jetbrains.bsp.settings.BspExecutionSettings
-import org.jetbrains.plugins.scala.util.{ScalaShutDownTracker, UnloadAwareDisposable}
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Try}
+import scala.util.Try
 
 class BspCommunicationService extends Disposable {
 
-  import BspCommunicationService.projectPath
+  import BspCommunicationService.{projectPath, updateWidget}
 
   { // init
     ScalaShutDownTracker.registerShutdownTask(() => this.dispose())
@@ -48,6 +45,7 @@ class BspCommunicationService extends Disposable {
       if (comm.isIdle(now, timeout))
         comm.closeSession()
     }
+    updateWidget()
   }
 
   private[protocol] def communicate(base: File, config: BspServerConfig): BspCommunication =
@@ -56,6 +54,7 @@ class BspCommunicationService extends Disposable {
       {
         val comm = new BspCommunication(base, config)
         Disposer.register(this, comm)
+        updateWidget()
         comm
       }
     )
@@ -73,6 +72,7 @@ class BspCommunicationService extends Disposable {
 
     Future.fromTry(tryComm)
       .flatMap(_.closeSession())(ExecutionContext.global)
+      .map(_ => updateWidget())(ExecutionContext.global)
   }
 
   def exitCommands(base: URI, config: BspServerConfig): Try[List[List[String]]] = {
@@ -84,12 +84,13 @@ class BspCommunicationService extends Disposable {
 
   def closeAll: Future[Unit] = {
     import ExecutionContext.Implicits.global
-    Future.traverse(comms.values)(_.closeSession()).map(_ => ())
+    Future.traverse(comms.values)(_.closeSession()).map(_ => updateWidget())
   }
 
   override def dispose(): Unit = {
     comms.values.foreach(_.closeSession())
     commCleaner.cancel(true)
+    updateWidget()
   }
 
   private object MyProjectListener extends ProjectManagerListener {
@@ -97,7 +98,7 @@ class BspCommunicationService extends Disposable {
       path <- projectPath(project)
       uri = Paths.get(path).toUri
       session <- comms.view.filterKeys(_._1 == uri).values
-    } session.closeSession()
+    } session.closeSession().map(_ => updateWidget())(ExecutionContext.global)
   }
 }
 
@@ -109,4 +110,7 @@ object BspCommunicationService {
   private def projectPath(implicit project: Project): Option[String] =
     Option(ProjectUtil.guessProjectDir(project))
       .map(_.getCanonicalPath)
+
+  private def updateWidget(): Unit =
+    ApplicationManager.getApplication.getMessageBus.syncPublisher(BspServerWidgetProvider.Topic).updateWidget()
 }
