@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerSettings, Scal
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.advanced.language.features")) {
+class LanguageFeatureInspection extends AbstractInspection() {
 
   private val Features = Seq(
     Feature(ScalaInspectionBundle.message("language.feature.postfix.operator.notation"), "scala.language", "postfixOps", _.postfixOps, _.copy(postfixOps = true),

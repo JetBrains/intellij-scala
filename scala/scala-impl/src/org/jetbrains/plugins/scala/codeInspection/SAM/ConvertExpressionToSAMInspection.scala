@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.util.SAMUtil
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class ConvertExpressionToSAMInspection extends AbstractInspection(inspectionName) {
+class ConvertExpressionToSAMInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case definition: ScNewTemplateDefinition

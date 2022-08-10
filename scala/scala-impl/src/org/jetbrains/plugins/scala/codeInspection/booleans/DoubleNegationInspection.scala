@@ -12,7 +12,7 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class DoubleNegationInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.double.negation")) {
+class DoubleNegationInspection extends AbstractInspection() {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>

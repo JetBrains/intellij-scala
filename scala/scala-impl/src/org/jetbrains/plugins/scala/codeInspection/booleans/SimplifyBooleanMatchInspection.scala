@@ -17,7 +17,7 @@ import scala.annotation.nowarn
 import scala.language.implicitConversions
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class SimplifyBooleanMatchInspection extends AbstractInspection(ScalaInspectionBundle.message("displayname.trivial.match.can.be.simplified")) {
+class SimplifyBooleanMatchInspection extends AbstractInspection() {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case stmt: ScMatch if stmt.isValid && SimpleBooleanMatchUtil.isSimpleBooleanMatchStmt(stmt) =>

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class VariableNullInitializerInspection extends AbstractInspection(Message) {
+class VariableNullInitializerInspection extends AbstractInspection() {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case definition: ScVariableDefinition if definition.isDefinedInClass =>
       if (definition.declaredType.exists(isApplicable)) {

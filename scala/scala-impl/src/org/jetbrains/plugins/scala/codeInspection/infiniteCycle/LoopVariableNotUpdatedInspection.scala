@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class LoopVariableNotUpdatedInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.loop.variable.not.updated.inside.loop")) {
+class LoopVariableNotUpdatedInspection extends AbstractInspection() {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {

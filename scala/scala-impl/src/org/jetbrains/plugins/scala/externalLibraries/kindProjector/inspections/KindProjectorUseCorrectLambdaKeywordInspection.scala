@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createTy
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection(inspectionName) {
+class KindProjectorUseCorrectLambdaKeywordInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case param: ScParameterizedTypeElement if param.kindProjectorPluginEnabled =>

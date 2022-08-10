@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-final class FieldFromDelayedInitInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.field.from.delayedinit")) {
+final class FieldFromDelayedInitInspection extends AbstractInspection() {
 
   import FieldFromDelayedInitInspection._
 

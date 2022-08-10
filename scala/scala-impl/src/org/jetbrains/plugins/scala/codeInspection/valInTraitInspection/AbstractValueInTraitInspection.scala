@@ -12,7 +12,7 @@ import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class AbstractValueInTraitInspection
-  extends AbstractInspection(ScalaInspectionBundle.message("display.name.abstract.value.in.trait")) {
+  extends AbstractInspection() {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     //todo: we should use dataflow analysis to get if it's safe to use declaration here
     case v: ScValueDeclaration if v.getParent.isInstanceOf[ScTemplateBody] =>

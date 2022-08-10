@@ -29,7 +29,7 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-final class TypeCheckCanBeMatchInspection extends AbstractInspection(TypeCheckCanBeMatchInspection.inspectionName) {
+final class TypeCheckCanBeMatchInspection extends AbstractInspection() {
 
   import TypeCheckCanBeMatchInspection._
 

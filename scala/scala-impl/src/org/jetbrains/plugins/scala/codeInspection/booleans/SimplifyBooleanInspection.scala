@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class SimplifyBooleanInspection extends AbstractInspection(ScalaInspectionBundle.message("simplify.boolean.expression")) {
+class SimplifyBooleanInspection extends AbstractInspection() {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions

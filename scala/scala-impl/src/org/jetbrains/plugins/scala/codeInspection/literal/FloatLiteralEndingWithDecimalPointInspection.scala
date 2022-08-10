@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.floating.point.literal.ending.with.dot")) {
+class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection() {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>
       holder.registerProblem(lit, getDisplayName, new MakeDoubleFix(lit), new MakeFloatFix(lit), new AddZeroAfterDecimalPoint(lit))

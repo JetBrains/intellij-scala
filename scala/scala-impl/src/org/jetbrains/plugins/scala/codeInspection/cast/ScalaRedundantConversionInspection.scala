@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, TypePresentationCo
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class ScalaRedundantConversionInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.conversion")) {
+class ScalaRedundantConversionInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case element @ ScReferenceExpression.withQualifier(qualifier) && PsiReferenceEx.resolve(target) =>

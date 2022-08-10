@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.transformation.{AbstractTransformer, Tra
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class TransformerBasedInspection(@Nls name: String, @Nls solution: String, transformer: AbstractTransformer) extends AbstractInspection(name) {
+class TransformerBasedInspection(@Nls name: String, @Nls solution: String, transformer: AbstractTransformer) extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = new PartialFunction[PsiElement, Any] {
     override def isDefinedAt(e: PsiElement): Boolean = transformer.isApplicableTo(e)

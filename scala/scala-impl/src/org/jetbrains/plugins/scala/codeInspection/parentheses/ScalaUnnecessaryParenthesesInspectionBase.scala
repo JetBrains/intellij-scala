@@ -20,7 +20,7 @@ import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 abstract class ScalaUnnecessaryParenthesesInspectionBase
-  extends AbstractInspection(ScalaBundle.message("remove.unnecessary.parentheses")) {
+  extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case p: ScParenthesizedElement if isProblem(p) =>

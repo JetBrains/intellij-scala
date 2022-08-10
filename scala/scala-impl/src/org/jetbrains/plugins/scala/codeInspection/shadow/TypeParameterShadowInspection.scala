@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class TypeParameterShadowInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.suspicious.shadowing.by.a.type.parameter")) {
+class TypeParameterShadowInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (type lambdas, etc.), SCL-19723

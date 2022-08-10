@@ -53,7 +53,7 @@ object OperationOnCollectionInspectionBase {
 }
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-abstract class OperationOnCollectionInspectionBase extends AbstractInspection(inspectionName) {
+abstract class OperationOnCollectionInspectionBase extends AbstractInspection() {
   private val settings = ScalaApplicationSettings.getInstance()
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

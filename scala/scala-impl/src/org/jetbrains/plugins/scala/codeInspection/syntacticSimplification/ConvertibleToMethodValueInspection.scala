@@ -50,7 +50,7 @@ object ConvertibleToMethodValueInspection {
 }
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class ConvertibleToMethodValueInspection extends AbstractInspection(inspectionName) {
+class ConvertibleToMethodValueInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ArgumentToPolymorphicLambda() => () // disallowed by kind projector rules

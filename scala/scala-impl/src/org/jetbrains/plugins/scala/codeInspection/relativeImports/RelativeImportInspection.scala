@@ -15,7 +15,7 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable.ArrayBuffer
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class RelativeImportInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.relative.import")) {
+class RelativeImportInspection extends AbstractInspection() {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {

@@ -24,7 +24,7 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class MatchToPartialFunctionInspection extends AbstractInspection(MatchToPartialFunctionInspection.ID) {
+class MatchToPartialFunctionInspection extends AbstractInspection() {
 
   import MatchToPartialFunctionInspection._
 

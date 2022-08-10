@@ -12,7 +12,7 @@ import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class BuiltinMatcherExistsInspection
-  extends AbstractInspection(ScalaInspectionBundle.message("specs2.builtin.matcher.alternative.exists")) {
+  extends AbstractInspection() {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>

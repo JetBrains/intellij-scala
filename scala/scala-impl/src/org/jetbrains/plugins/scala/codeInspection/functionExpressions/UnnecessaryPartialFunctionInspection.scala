@@ -24,7 +24,7 @@ object UnnecessaryPartialFunctionInspection {
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class UnnecessaryPartialFunctionInspection
-  extends AbstractInspection(inspectionName) {
+  extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case expression: ScBlockExpr =>

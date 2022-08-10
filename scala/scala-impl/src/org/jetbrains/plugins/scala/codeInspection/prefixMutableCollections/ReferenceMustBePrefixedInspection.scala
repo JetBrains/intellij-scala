@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class ReferenceMustBePrefixedInspection extends AbstractInspection(ScalaInspectionBundle.message("reference.must.be.prefixed")) {
+class ReferenceMustBePrefixedInspection extends AbstractInspection() {
 
   import ReferenceMustBePrefixedInspection._
 

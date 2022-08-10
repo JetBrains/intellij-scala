@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class PostfixMethodCallInspection extends AbstractInspection(ScalaInspectionBundle.message("use.of.postfix.method.call")) {
+class PostfixMethodCallInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case pexpr: ScPostfixExpr if !safe(pexpr) =>

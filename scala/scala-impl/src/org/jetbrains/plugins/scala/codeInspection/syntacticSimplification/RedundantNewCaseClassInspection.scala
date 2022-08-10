@@ -20,7 +20,7 @@ import scala.annotation.nowarn
   * 5/7/2016
   */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class RedundantNewCaseClassInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.new.on.case.class")) {
+class RedundantNewCaseClassInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case newTemplate: ScNewTemplateDefinition if !newTemplate.extendsBlock.isAnonymousClass =>

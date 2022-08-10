@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class AbsoluteImportInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.absolute.import")) {
+class AbsoluteImportInspection extends AbstractInspection() {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case importExpr@ScImportExpr.qualifier(qualifier) =>
 

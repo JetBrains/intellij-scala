@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExpressionExt, ScF
 import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class RemoveRedundantReturnInspection extends AbstractInspection(ScalaInspectionBundle.message("display.name.redundant.return")) {
+class RemoveRedundantReturnInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case function: ScFunctionDefinition =>

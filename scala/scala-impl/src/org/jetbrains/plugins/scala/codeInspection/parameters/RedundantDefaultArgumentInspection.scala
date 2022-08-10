@@ -13,7 +13,7 @@ import scala.annotation.nowarn
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class RedundantDefaultArgumentInspection
-  extends AbstractInspection(ScalaInspectionBundle.message("argument.duplicates.corresponding.parameter.default.value")) {
+  extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case ScMethodCall(referenceExpression: ScReferenceExpression, arguments: Seq[ScExpression]) =>

@@ -124,7 +124,7 @@ object ComparingUnrelatedTypesInspection {
 }
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)
-class ComparingUnrelatedTypesInspection extends AbstractInspection(inspectionName) {
+class ComparingUnrelatedTypesInspection extends AbstractInspection() {
 
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
