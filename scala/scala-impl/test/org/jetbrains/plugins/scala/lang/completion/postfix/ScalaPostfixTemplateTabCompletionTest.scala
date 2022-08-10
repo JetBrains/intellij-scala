@@ -10,6 +10,8 @@ import org.junit.runner.RunWith
 abstract class ScalaPostfixTemplateTabCompletionTestBase extends ScalaLightCodeInsightFixtureTestCase {
   override def getTestDataPath = super.getTestDataPath + "postfixTemplate/tabCompletion"
 
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
+
   protected def doTest(testName: String = getTestName(true))(textToType: String = "." + testName): Unit = {
     myFixture.configureByFile(testName + ".scala")
     myFixture.`type`(textToType + "\t")

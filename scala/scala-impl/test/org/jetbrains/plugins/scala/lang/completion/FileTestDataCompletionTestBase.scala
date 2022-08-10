@@ -22,6 +22,8 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
 
   def folderPath: String = getTestDataPath + "completion/"
 
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
+
   /**
    * Fetches last PSI element, checks if it is comment or not
    * If it is some kind of comment, treat it like an expected result string

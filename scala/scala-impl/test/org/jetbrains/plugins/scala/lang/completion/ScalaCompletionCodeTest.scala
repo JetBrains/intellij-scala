@@ -2,10 +2,13 @@ package org.jetbrains.plugins.scala.lang.completion
 
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase
 
 //NOTE: if the class becomes big feel free to split it into more meaningful entities
 class ScalaCompletionCodeTest extends ScalaCodeInsightTestBase {
+
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   private val ScalaFileTextInSamePackage =
     s"""package org.example

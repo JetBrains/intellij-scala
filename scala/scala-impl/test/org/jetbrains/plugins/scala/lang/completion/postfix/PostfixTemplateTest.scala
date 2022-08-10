@@ -34,6 +34,8 @@ abstract class PostfixTemplateTest extends ScalaLightCodeInsightFixtureTestCase 
 
   def testPath(): String = TestUtils.getTestDataPath + "/postfixTemplate/"
 
+  override protected def sharedProjectToken = SharedTestProjectToken((version, librariesLoaders))
+
   protected final def parseTestData(): (String, String) = {
     var fileText: String = FileUtil.loadFile(new File(testPath() + getTestName(true) + ".test"), CharsetToolkit.UTF8)
     fileText = StringUtil.convertLineSeparators(fileText)

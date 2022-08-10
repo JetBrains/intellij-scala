@@ -26,8 +26,7 @@ abstract class KeywordCompletionTestBase extends ScalaLightCodeInsightFixtureTes
 
   def folderPath: String = getTestDataPath + "keywordCompletion/"
 
-  override protected def sharedProjectToken: SharedTestProjectToken =
-    SharedTestProjectToken(this.getClass.getName + "_" + this.version.toString)
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   protected def doTest(): Unit = {
     val lowercaseFirstLetterOfTestFile = true

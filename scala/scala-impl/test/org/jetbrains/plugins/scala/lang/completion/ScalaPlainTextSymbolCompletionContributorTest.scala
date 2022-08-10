@@ -4,6 +4,7 @@ package completion
 
 import com.intellij.codeInsight.completion.{PlainPrefixMatcher, PlainTextSymbolCompletionContributorEP}
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.junit.Assert.{assertEquals, assertNotNull}
 import org.junit.experimental.categories.Category
 
@@ -13,6 +14,8 @@ class ScalaPlainTextSymbolCompletionContributorTest
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version == ScalaVersion.Latest.Scala_3
+
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   def testTopLevelDefinitions(): Unit = {
     implicit val file: PsiFile = configureFromFileText(

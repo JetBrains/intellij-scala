@@ -15,7 +15,7 @@ import scala.collection.mutable
 
 //noinspection ApiStatus,UnstableApiUsage
 @Category(Array(classOf[CompletionTests]))
-class ScalaElementFeatureProviderTest extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
+class ScalaElementFeatureProviderTest extends MLCompletionTest {
 
   import MLFeatureValue._
 

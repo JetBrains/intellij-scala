@@ -10,6 +10,7 @@ trait LibrariesOwner {
   self: Test with ScalaVersionProvider =>
 
   protected def librariesLoaders: Seq[LibraryLoader]
+  final def librariesLoadersPublic: Seq[LibraryLoader] = librariesLoaders
 
   private lazy val myLoaders = mutable.ListBuffer.empty[LibraryLoader]
 
