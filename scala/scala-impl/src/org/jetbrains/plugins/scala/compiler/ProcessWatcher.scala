@@ -9,13 +9,13 @@ import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.plugins.scala.compiler.ProcessWatcher.{Log, ignoreErrorTextLine}
 import org.jetbrains.plugins.scala.extensions.invokeLater
 
-private class ProcessWatcher(project: Project, process: Process, commandLine: String) {
+private final class ProcessWatcher(project: Project, process: Process, commandLine: String) {
   private val processHandler = new OSProcessHandler(process, commandLine) {
     override def readerOptions(): BaseOutputReader.Options = BaseOutputReader.Options.BLOCKING
   }
-  private var errorTextBuilder: StringBuilder = new StringBuilder
+
+  @volatile
   private var errorInStdOut = false
-  private val lock = new Object()
 
   addProcessListener(MyProcessListener)
 
@@ -30,17 +30,6 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
 
   def pid: Long = process.pid()
 
-  def errorsText(): String = {
-    lock.synchronized {
-      if (errorTextBuilder.nonEmpty) {
-        val result = errorTextBuilder
-        errorTextBuilder = new StringBuilder
-        result.mkString.linesIterator.filterNot(ignoreErrorTextLine).mkString("\n")
-      }
-      else ""
-    }
-  }
-
   //true if process exited before timeout
   def destroyAndWait(ms: Long): Boolean = {
     processHandler.destroyProcess()
@@ -48,7 +37,7 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
   }
 
   private var _terminatedByIdleTimeout = false
-  def isTerminatedByIdleTimeout = _terminatedByIdleTimeout
+  def isTerminatedByIdleTimeout: Boolean = _terminatedByIdleTimeout
 
   private object MyProcessListener extends ProcessAdapter {
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
@@ -56,7 +45,7 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
 
       //print(s"[$outputType] $text")
       outputType match {
-        case ProcessOutputTypes.STDOUT => lock.synchronized {
+        case ProcessOutputTypes.STDOUT =>
           if (errorInStdOut || ProcessWatcher.ExceptionPattern.matcher(text).find) {
             errorInStdOut = true
             processErrorText(text, outputType)
@@ -73,11 +62,9 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
               }
             }
           }
-        }
 
-        case ProcessOutputTypes.STDERR => lock.synchronized {
+        case ProcessOutputTypes.STDERR =>
           processErrorText(text, outputType)
-        }
 
         case _ => // do nothing
       }
@@ -85,7 +72,8 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
 
     private def processErrorText(text: String, outputType: Key[_]): Unit = {
       Log.warn(s"[$outputType] ${text.trim}")
-      errorTextBuilder.append(text)
+      val filtered = text.linesIterator.filterNot(ignoreErrorTextLine).mkString(System.lineSeparator())
+      project.getMessageBus.syncPublisher(CompileServerManager.ErrorTopic).onError(filtered)
     }
 
     override def processTerminated(event: ProcessEvent): Unit = {

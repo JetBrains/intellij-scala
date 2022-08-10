@@ -17,7 +17,9 @@ import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
 import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.messages.{MessageBusConnection, Topic}
 import com.intellij.util.ui.PositionTracker
+import com.intellij.util.ui.update.{MergingUpdateQueue, Update}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -25,30 +27,35 @@ import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
 
 import java.awt.Point
-import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
-import javax.swing.{Icon, Timer}
+import java.awt.event.MouseEvent
+import javax.swing.Icon
 
-final class CompileServerManager(project: Project) extends Disposable {
+final class CompileServerManager(project: Project) extends Disposable with CompileServerManager.ErrorListener {
 
   private val IconRunning = Icons.COMPILE_SERVER
   private val IconStopped = IconLoader.getDisabledIcon(IconRunning)
 
-  private val timer = new Timer(1000, TimerListener)
   private var installed = false
 
-  { // init
-    if (! ApplicationManager.getApplication.isUnitTestMode) {
+  private var connection: MessageBusConnection = _
 
+  private val errorNotificationUpdateQueue: MergingUpdateQueue =
+    new MergingUpdateQueue("ErrorNotificationQueue", 1000, true, MergingUpdateQueue.ANY_COMPONENT, this)
+
+  { // init
+    if (!ApplicationManager.getApplication.isUnitTestMode) {
       configureWidget()
-      timer.setRepeats(true)
-      timer.start()
+      connection = project.getMessageBus.connect()
+      connection.subscribe(CompileServerManager.ServerStatusTopic, Widget)
+      connection.subscribe(CompileServerManager.ErrorTopic, this)
     }
   }
 
   override def dispose(): Unit = {
-    if (ApplicationManager.getApplication.isUnitTestMode) return
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      return
 
-    timer.stop()
+    connection.dispose()
     removeWidget()
   }
 
@@ -74,7 +81,8 @@ final class CompileServerManager(project: Project) extends Disposable {
       case (true, true) => // do nothing
       case (true, false) =>
         statusBar.foreach { b =>
-          b.addWidget(Widget, "before Position", project.unloadAwareDisposable)
+          //noinspection ApiStatus
+          b.addWidget(Widget, StatusBar.Anchors.before("Position"), project.unloadAwareDisposable)
           installed = true
         }
       case (false, true) =>
@@ -84,7 +92,9 @@ final class CompileServerManager(project: Project) extends Disposable {
 
   private def removeWidget(): Unit = {
     if (installed) {
+      //noinspection ApiStatus
       statusBar.foreach(_.removeWidget(Widget.ID))
+      Widget.dispose()
       installed = false
     }
   }
@@ -93,43 +103,47 @@ final class CompileServerManager(project: Project) extends Disposable {
     statusBar.foreach(_.updateWidget(Widget.ID))
   }
 
-  private object Widget extends StatusBarWidget {
+  private object Widget extends StatusBarWidget
+    with StatusBarWidget.IconPresentation with Consumer[MouseEvent] with ServerStatusListener {
+    private var icon: Icon = IconStopped
+
     override def ID = "Compile server"
 
-    override def getPresentation: Presentation.type = Presentation
+    override def getPresentation: StatusBarWidget.WidgetPresentation = this
 
     override def install(statusBar: StatusBar): Unit = {}
 
-    override def dispose(): Unit = {}
-
-    object Presentation extends StatusBarWidget.IconPresentation {
-      override def getIcon: Icon = if (running) IconRunning else IconStopped
-
-      override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
-
-      //noinspection ReferencePassedToNls
-      override def getTooltipText: String = {
-        val portDetail = launcher.port.map(p => s"TCP $p")
-        val pidDetail = launcher.pid.map(p => s"PID $p")
-        val details = portDetail ++ pidDetail
-        val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")
-        title + detailsText
-      }
-
-      private object ClickConsumer extends Consumer[MouseEvent] {
-        override def consume(t: MouseEvent): Unit = toggleList(t)
-      }
+    override def dispose(): Unit = {
+      icon = null
     }
-  }
 
-  private def toggleList(e: MouseEvent): Unit = {
-    val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
-    val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
-    val context = DataManager.getInstance.getDataContext(e.getComponent)
-    val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
-    val dimension = popup.getContent.getPreferredSize
-    val at = new Point(0, -dimension.height)
-    popup.show(new RelativePoint(e.getComponent, at))
+    override def getIcon: Icon = icon
+
+    override def getClickConsumer: Consumer[MouseEvent] = this
+
+    //noinspection ReferencePassedToNls
+    override def getTooltipText: String = {
+      val portDetail = launcher.port.map(p => s"TCP $p")
+      val pidDetail = launcher.pid.map(p => s"PID $p")
+      val details = portDetail ++ pidDetail
+      val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")
+      title + detailsText
+    }
+
+    override def consume(e: MouseEvent): Unit = {
+      val mnemonics = JBPopupFactory.ActionSelectionAid.MNEMONICS
+      val group = new DefaultActionGroup(Start, Stop, Separator.getInstance, Configure)
+      val context = DataManager.getInstance.getDataContext(e.getComponent)
+      val popup = JBPopupFactory.getInstance.createActionGroupPopup(title, group, context, mnemonics, true)
+      val dimension = popup.getContent.getPreferredSize
+      val at = new Point(0, -dimension.height)
+      popup.show(new RelativePoint(e.getComponent, at))
+    }
+
+    override def onServerStatus(running: Boolean): Unit = {
+      icon = if (running) IconRunning else IconStopped
+      updateWidget()
+    }
   }
 
   private object Start extends AnAction(ScalaBundle.message("action.run"), ScalaBundle.message("start.compile.server"), AllIcons.Actions.Execute) with DumbAware {
@@ -145,7 +159,7 @@ final class CompileServerManager(project: Project) extends Disposable {
       e.getPresentation.setEnabled(launcher.running)
 
     override def actionPerformed(e: AnActionEvent): Unit =
-      launcher.stopForProject(e.getProject)
+      launcher.stop()
   }
 
   private object Configure extends AnAction(ScalaBundle.message("action.configure"), ScalaBundle.message("configure.compile.server"), AllIcons.General.Settings) with DumbAware {
@@ -153,28 +167,23 @@ final class CompileServerManager(project: Project) extends Disposable {
       showCompileServerSettingsDialog(project)
   }
 
-  private object TimerListener extends ActionListener {
-    override def actionPerformed(e: ActionEvent): Unit = {
-      checkErrorsFromProcessOutput()
+  private val errorsBuffer: java.lang.StringBuilder = new java.lang.StringBuilder()
+
+  private val showNotificationUpdate: Update = new Update(this) {
+    override def run(): Unit = {
+      val text = synchronized {
+        val text = errorsBuffer.toString
+        errorsBuffer.setLength(0)
+        text
+      }
+      val message = text.replace(System.lineSeparator(), "<br/>")
+      showNotification(message, NotificationType.ERROR)
     }
   }
 
-  private[compiler] def checkErrorsFromProcessOutput(): Unit = {
-    val nowRunning = running
-
-    configureWidget()
-
-    if (installed || nowRunning)
-      updateWidget()
-
-    // TODO: getter-like method `errors` removes retrieved errors under the hood
-    val errorsText = launcher.errorsText()
-
-    if (errorsText.nonEmpty) {
-      //noinspection ReferencePassedToNls
-      val message = errorsText.replace("\n", "<br/>")
-      showNotification(message, NotificationType.ERROR)
-    }
+  override def onError(errorsText: String): Unit = {
+    synchronized(errorsBuffer.append(errorsText))
+    errorNotificationUpdateQueue.queue(showNotificationUpdate)
   }
 
   def showNotification(@Nls message: String, notificationType: NotificationType): Unit = {
@@ -190,22 +199,29 @@ final class CompileServerManager(project: Project) extends Disposable {
 
 object CompileServerManager {
 
+  private[compiler] trait ErrorListener {
+    def onError(text: String): Unit
+  }
+
+  private[compiler] val ErrorTopic: Topic[ErrorListener] =
+    new Topic("Scala compile server errors text topic", classOf[ErrorListener])
+
+  private[compiler] trait ServerStatusListener {
+    def onServerStatus(running: Boolean): Unit
+  }
+
+  private[compiler] val ServerStatusTopic: Topic[ServerStatusListener] =
+    new Topic("Scala compile server status topic", classOf[ServerStatusListener])
+
   def apply(project: Project): CompileServerManager =
     project.getService(classOf[CompileServerManager])
 
-  def configureWidget(project: Project): Unit =
-    // in unit tests we preload compile server before any project is started
-    if (project == null && isUnitTestMode || project.isDisposed) {
-     // ok, nothing to configure
-    } else {
-      val instance = CompileServerManager(project)
-      instance.configureWidget()
-    }
+  private[compiler] def init(project: Project): CompileServerManager = apply(project)
 
   def showCompileServerSettingsDialog(project: Project, filter: String = ""): Unit =
     ShowSettingsUtilImplExt.showSettingsDialog(project, classOf[ScalaCompileServerForm], filter)
 
-  def enableCompileServer(project: Project): Unit = {
+  def enableCompileServer(): Unit = {
     val settings = ScalaCompileServerSettings.getInstance()
     settings.COMPILE_SERVER_ENABLED = true
   }

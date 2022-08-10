@@ -79,7 +79,7 @@ final class RemoteServerRunner(project: Project)
     override def stop(): Unit = {
       // TODO: SCL-17265 do not stop the whole server!
       // Investigate whether we can cancel single NGSession thread to stop worksheet execution
-      CompileServerLauncher.ensureServerNotRunning(project)
+      CompileServerLauncher.ensureServerNotRunning()
     }
   }
 }

@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
 import org.jetbrains.plugins.scala.util._
+//noinspection ApiStatus,UnstableApiUsage
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
 
 import java.io.{BufferedReader, File, IOException, InputStreamReader}
@@ -59,9 +60,6 @@ object CompileServerLauncher {
       val compileServerRequired = settings.COMPILE_SERVER_ENABLED && project.hasScala
       LOG.traceWithDebugInDev(s"Listener.compileServerRequired: $compileServerRequired")
       if (compileServerRequired) {
-        invokeAndWait {
-          CompileServerManager.configureWidget(project)
-        }
         CompileServerLauncher.ensureServerRunning(project)
       }
     }
@@ -88,9 +86,6 @@ object CompileServerLauncher {
 
     result match {
       case Right(_) =>
-        invokeLater {
-          CompileServerManager.configureWidget(project)
-        }
         CompileServerNotificationsService.get(project).resetNotifications()
         true
       case Left(error)  =>
@@ -235,16 +230,17 @@ object CompileServerLauncher {
             }
 
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
-            val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            val instance = new ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
+            // initialize the compile server manager service instance for the project which holds the widget state
+            CompileServerManager.init(project)
+            project.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(true)
             watcher.startNotify()
             watcher.addProcessListener(new ProcessAdapter {
               override def processTerminated(event: ProcessEvent): Unit = {
                 // CS can terminate if we close IDEA and the project will be disposed already
                 if (!project.isDisposed) {
-                  CompileServerManager(project).checkErrorsFromProcessOutput()
-
                   val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
                   if (!isExpectedProcessTermination) {
                     invokeLater {
@@ -255,6 +251,9 @@ object CompileServerLauncher {
                 }
 
                 serverInstance = None
+                if (!project.isDisposed) {
+                  project.getMessageBus.syncPublisher(CompileServerManager.ServerStatusTopic).onServerStatus(false)
+                }
               }
             })
             infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
@@ -296,17 +295,7 @@ object CompileServerLauncher {
     TeamcityUtils.logUnderTeamcity(message)
   }
 
-  def stopForProject(project: Project, debugReason: Option[String] = None): Unit = {
-    stop()
-
-    invokeLater {
-      CompileServerManager.configureWidget(project)
-    }
-  }
-
   def running: Boolean = serverInstance.exists(_.running)
-
-  def errorsText(): String = serverInstance.map(_.errorsText()).getOrElse("")
 
   def port: Option[Int] = serverInstance.map(_.port)
   def pid: Option[Long] = serverInstance.map(_.watcher.pid)
@@ -409,11 +398,7 @@ object CompileServerLauncher {
     }.getOrElse(Seq.empty)
   }
 
-  def ensureServerNotRunning(project: Project): Unit = serverStartLock.synchronized {
-    if (running) stopForProject(project, debugReason = Some("ensureServerNotRunning (for project)"))
-  }
-
-  private def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
+  def ensureServerNotRunning(): Unit = serverStartLock.synchronized {
     if (running) stop(debugReason = Some("ensureServerNotRunning"))
   }
 
@@ -476,34 +461,4 @@ object CompileServerLauncher {
 
   def scalaCompileServerSystemDir: Path =
     PathManagerEx.getAppSystemDir.resolve("scala-compile-server")
-}
-
-private case class ServerInstance(watcher: ProcessWatcher,
-                                  port: Int,
-                                  workingDir: File,
-                                  jdk: JDK,
-                                  jvmParameters: Set[String]) {
-  private var _stopped = false
-
-  def running: Boolean = !_stopped && watcher.running
-
-  def stopped: Boolean = _stopped
-
-  def errorsText(): String = watcher.errorsText()
-
-  def pid: Long = watcher.pid
-
-  def destroyAndWait(timeoutMs: Long): Boolean = {
-    _stopped = true
-    watcher.destroyAndWait(timeoutMs)
-  }
-  def summary: String = {
-    s"pid: $pid" +
-      s", port: $port" +
-      s", jdk: $jdk" +
-      s", jvmParameters: ${jvmParameters.mkString(",")}" +
-      s", stopped: ${_stopped}" +
-      s", running: $running" +
-      s", errors: ${errorsText()}"
-  }
 }

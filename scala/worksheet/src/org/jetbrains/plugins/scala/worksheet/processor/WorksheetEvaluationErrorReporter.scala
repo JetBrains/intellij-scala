@@ -68,7 +68,7 @@ class WorksheetEvaluationErrorReporter(
       .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.enable.compile.server")) {
         override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
           notification.expire()
-          CompileServerManager.enableCompileServer(project)
+          CompileServerManager.enableCompileServer()
         }
       })
       .addAction(new NotificationAction(WorksheetBundle.message("worksheet.configuration.errors.configure.compile.server")) {
