@@ -1,10 +1,9 @@
-import sbtcrossproject.{crossProject, CrossType}
 lazy val cross =
   crossProject(JSPlatform, JVMPlatform, NativePlatform)
     .settings(
       // %%% now include Scala Native. It applies to all selected platforms
-      scalaVersion := "2.11.12",
-      libraryDependencies += "com.lihaoyi" %%% "utest" % "0.6.0" % Test,
+      scalaVersion := "2.12.16",
+      libraryDependencies += "com.lihaoyi" %%% "utest" % "0.8.0" % Test,
       testFrameworks += new TestFramework("utest.runner.Framework")
     )
 

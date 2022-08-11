@@ -284,8 +284,11 @@ class SbtProjectImportingTest extends ImportingTestCase
       lazy val crossJVM = new module("crossJVM", Array("cross"))
       lazy val crossNative = new module("crossNative", Array("cross"))
       lazy val crossSources = new module("cross-sources", Array("cross"))
+      lazy val jsJvmSources = new module("js-jvm-sources", Array("cross"))
+      lazy val jsNativeSources = new module("js-native-sources", Array("cross"))
+      lazy val jvmNativeSources = new module("jvm-native-sources", Array("cross"))
 
-      modules := Seq(root, crossJS, crossJVM, crossNative, crossSources)
+      modules := Seq(root, crossJS, crossJVM, crossNative, crossSources, jsJvmSources, jsNativeSources, jvmNativeSources)
     }
   )
 
@@ -379,7 +382,7 @@ class SbtProjectImportingTest extends ImportingTestCase
     def doRunTest(): Unit = runTest(
       new project("java-language-level-and-target-byte-code-level-no-options") {
         javacOptions := Nil
-        javaLanguageLevel := LanguageLevel.JDK_11
+        javaLanguageLevel := LanguageLevel.JDK_17
         javaTargetBytecodeLevel := null
 
         def moduleX(name: String, source: LanguageLevel, @Nullable target: String): module = new module(name) {
@@ -388,8 +391,8 @@ class SbtProjectImportingTest extends ImportingTestCase
           javacOptions := Nil
         }
 
-        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", LanguageLevel.JDK_11, null)
-        val module1 = moduleX("module1", LanguageLevel.JDK_11, null)
+        val root = moduleX("java-language-level-and-target-byte-code-level-no-options", LanguageLevel.JDK_17, null)
+        val module1 = moduleX("module1", LanguageLevel.JDK_17, null)
 
         modules := Seq(root, module1)
       }
@@ -467,7 +470,7 @@ class SbtProjectImportingTest extends ImportingTestCase
         // no storing project level options
         javacOptions := Nil
         javaTargetBytecodeLevel := null
-        javaLanguageLevel := LanguageLevel.JDK_11 // from internal sdk
+        javaLanguageLevel := LanguageLevel.JDK_17 // from internal sdk
 
         val root: module = new module("javac-special-options-for-root-project") {
           javaLanguageLevel := LanguageLevel.JDK_1_9
