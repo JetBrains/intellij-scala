@@ -24,8 +24,7 @@ object Common {
 
   // options for modules which classes can only be used in IDEA process (uses JRE 11)
   val globalJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq(
-    "-source", "11",
-    "-target", "11"
+    "--release", "11"
   )
   val globalScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq(
     // there is a bug in scalac 2.13.4 https://github.com/scala/bug/issues/12340
