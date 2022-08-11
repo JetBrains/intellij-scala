@@ -1,17 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.annotations
 
-import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class MultipleArgLists extends AbstractInspection {
+@unused("registered in scala-plugin-common.xml")
+class MultipleArgLists extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case annotation: ScAnnotation if annotation.constructorInvocation.arguments.length > 1 =>
       holder.registerProblem(annotation, ScalaInspectionBundle.message("implementation.limitation.multiple.argument.lists"))
+    case _ =>
   }
 }

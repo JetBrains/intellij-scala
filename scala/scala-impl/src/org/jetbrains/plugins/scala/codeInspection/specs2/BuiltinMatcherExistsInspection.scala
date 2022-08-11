@@ -1,51 +1,44 @@
 package org.jetbrains.plugins.scala.codeInspection.specs2
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.ElementText
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionWithContextFromText
 
-import scala.annotation.nowarn
+class BuiltinMatcherExistsInspection extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class BuiltinMatcherExistsInspection
-  extends AbstractInspection() {
-
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && optional(inner) =>
-      suggestFixForOptional(elem)
+      suggestFixForOptional(elem, holder)
     case elem@ScMethodCall(matcher, Seq(inner: ScExpression)) if equalToMatcher(matcher) && optional(inner) =>
-      suggestFixForOptional(elem)
+      suggestFixForOptional(elem, holder)
     case elem@ScMethodCall(matcher, Seq(ScMethodCall(inner, _))) if equalToMatcher(matcher) && either(inner) =>
-      suggestFixForEither(elem)
+      suggestFixForEither(elem, holder)
     case elem@ScInfixExpr(_, op, ScMethodCall(inner, _)) if equalToOperator(op) && optional(inner) =>
-      suggestFixForMustOptional(elem)
+      suggestFixForMustOptional(elem, holder)
     case elem@ScInfixExpr(_, op, ScMethodCall(inner, _)) if equalToOperator(op) && either(inner) =>
-      suggestFixForMustEither(elem)
+      suggestFixForMustEither(elem, holder)
     case elem@ScInfixExpr(_, op, inner: ScExpression) if equalToOperator(op) && optional(inner) =>
-      suggestFixForMustOptional(elem)
+      suggestFixForMustOptional(elem, holder)
+    case _ =>
   }
 
-  private def suggestFixForOptional(elem: PsiElement)
-                                   (implicit holder: ProblemsHolder): Unit =
+  private def suggestFixForOptional(elem: PsiElement, holder: ProblemsHolder): Unit =
     holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithBeSomeOrNoneQuickFix(elem))
 
-  private def suggestFixForMustOptional(elem: PsiElement)
-                                       (implicit holder: ProblemsHolder): Unit =
+  private def suggestFixForMustOptional(elem: PsiElement, holder: ProblemsHolder): Unit =
     holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceMustWithBeSomeOrNoneQuickFix(elem))
 
-  private def suggestFixForEither(elem: PsiElement)
-                                 (implicit holder: ProblemsHolder): Unit =
+  private def suggestFixForEither(elem: PsiElement, holder: ProblemsHolder): Unit =
     holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithBeLeftOrRightQuickFix(elem))
 
-  private def suggestFixForMustEither(elem: PsiElement)
-                                     (implicit holder: ProblemsHolder): Unit =
+  private def suggestFixForMustEither(elem: PsiElement, holder: ProblemsHolder): Unit =
     holder.registerProblem(elem, ScalaInspectionBundle.message("specs2.use.builtin.matcher"),
       new ReplaceWithMustBeLeftOrRightQuickFix(elem))
 

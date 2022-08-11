@@ -4,10 +4,6 @@ package hashCodeUsesVar
 
 import com.intellij.codeInspection.LocalInspectionTool
 
-/**
-  * Daniyar Itegulov
-  * 2016-02-08
-  */
 class HashCodeUsesVarInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

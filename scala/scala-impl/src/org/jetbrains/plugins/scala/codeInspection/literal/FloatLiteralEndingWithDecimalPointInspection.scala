@@ -2,19 +2,19 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package literal
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class FloatLiteralEndingWithDecimalPointInspection extends AbstractInspection() {
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+@unused("registered in scala-plugin-common.xml")
+class FloatLiteralEndingWithDecimalPointInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case lit: ScLiteral if lit.getText.endsWith(".") =>
       holder.registerProblem(lit, getDisplayName, new MakeDoubleFix(lit), new MakeFloatFix(lit), new AddZeroAfterDecimalPoint(lit))
+    case _ =>
   }
 }
 

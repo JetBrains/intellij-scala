@@ -1,10 +1,9 @@
 package org.jetbrains.plugins.scala
 package codeInspection.booleans
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -15,16 +14,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, api}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.getShortText
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
+class SimplifyBooleanInspection extends LocalInspectionTool {
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class SimplifyBooleanInspection extends AbstractInspection() {
-
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case _: ScParenthesisedExpr => //do nothing to avoid many similar expressions
     case expr: ScExpression if SimplifyBooleanUtil.canBeSimplified(expr) =>
         holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.simplify.boolean.expression"),
                                ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new SimplifyBooleanQuickFix(expr))
+    case _ =>
   }
 
 }
@@ -42,7 +39,7 @@ class SimplifyBooleanQuickFix(expr: ScExpression)
 }
 
 object SimplifyBooleanUtil {
-  val boolInfixOperations = Set("==", "!=", "&&", "&", "||", "|", "^")
+  private val boolInfixOperations = Set("==", "!=", "&&", "&", "||", "|", "^")
 
   def canBeSimplified(expr: ScExpression, isTopLevel: Boolean = true): Boolean = {
     expr match {

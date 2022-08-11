@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.functionExpressions
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiClass, PsiElement, PsiFile}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.psi.{PsiClass, PsiFile}
 import org.jetbrains.plugins.scala.codeInspection.functionExpressions.UnnecessaryPartialFunctionInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElementExt
@@ -14,19 +14,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.api.{UndefinedType, ValueType}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
-
 object UnnecessaryPartialFunctionInspection {
   private val PartialFunctionClassName = classOf[PartialFunction[_, _]].getCanonicalName
   private val Function1ClassName       = classOf[(_) => _].getCanonicalName
   val inspectionName: String           = ScalaInspectionBundle.message("displayname.unnecessary.partial.function")
 }
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class UnnecessaryPartialFunctionInspection
-  extends AbstractInspection() {
+class UnnecessaryPartialFunctionInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case expression: ScBlockExpr =>
       def isNotPartialFunction(expectedType: ScType) =
         findPartialFunctionType(holder.getFile).exists(!expectedType.conforms(_))
@@ -46,6 +42,7 @@ class UnnecessaryPartialFunctionInspection
         ProblemHighlightType.GENERIC_ERROR_OR_WARNING,
         new UnnecessaryPartialFunctionQuickFix(expression)
       )
+    case _ =>
   }
 
   private def findType(file: PsiFile, className: String, parameterTypes: PsiClass => Seq[ScType]): Option[ValueType] ={

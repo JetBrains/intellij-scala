@@ -1,20 +1,19 @@
 package org.jetbrains.plugins.scala.worksheet.ammonite
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractInspection
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.implementation.iterator.ParentsIterator
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class AmmoniteUnresolvedLibraryInspection extends AbstractInspection() {
-  override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+@unused("registered in scala-plugin-common.xml")
+class AmmoniteUnresolvedLibraryInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case stableRef: ScStableCodeReference => stableRef.qualifier.foreach(processExpr(stableRef, _, holder))
     case selector: ScImportSelector =>
       new ParentsIterator(selector).find {
@@ -22,6 +21,7 @@ class AmmoniteUnresolvedLibraryInspection extends AbstractInspection() {
           true
         case _ => false
       }
+    case _ =>
   }
   
   private def processExpr(ref: ScReference, qualifier: ScStableCodeReference, holder: ProblemsHolder): Unit = {

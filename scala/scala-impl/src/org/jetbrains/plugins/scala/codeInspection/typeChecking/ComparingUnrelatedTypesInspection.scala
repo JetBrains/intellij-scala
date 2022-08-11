@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.typeChecking
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
-import com.intellij.psi.{PsiElement, PsiMethod}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import com.intellij.psi.PsiMethod
 import com.siyeh.ig.psiutils.MethodUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.typeChecking.ComparingUnrelatedTypesInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -17,11 +17,10 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 
 object ComparingUnrelatedTypesInspection {
-  val inspectionName: String = ScalaInspectionBundle.message("displayname.comparing.unrelated.types")
   val inspectionId = "ComparingUnrelatedTypes"
 
   sealed abstract class Comparability(val shouldNotBeCompared: Boolean)
@@ -123,10 +122,9 @@ object ComparingUnrelatedTypesInspection {
   }
 }
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class ComparingUnrelatedTypesInspection extends AbstractInspection() {
+class ComparingUnrelatedTypesInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case e if e.isInScala3File => () // TODO Handle Scala 3 code (`CanEqual` instances, etc.), SCL-19722
     case MethodRepr(expr, Some(left), Some(oper), Seq(right)) if isComparingFunctions(oper.refName) =>
       // "blub" == 3
@@ -174,6 +172,7 @@ class ComparingUnrelatedTypesInspection extends AbstractInspection() {
         val message = generateComparingUnrelatedTypesMsg(t1, t2)(call)
         holder.registerProblem(call, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
       }
+    case _ =>
   }
 
   @Nls

@@ -1,26 +1,27 @@
 package org.jetbrains.plugins.scala
 package codeInspection.infiniteCycle
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class LoopVariableNotUpdatedInspection extends AbstractInspection() {
+@unused("registered in scala-plugin-common.xml")
+class LoopVariableNotUpdatedInspection extends LocalInspectionTool {
   private val ComparisonOperators = Set("==", "!=", ">", "<", ">=", "<=")
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ScWhile(
-      Some(ScInfixExpr((ref: ScReferenceExpression) && (ResolvesTo(target@Parent(Parent(_: ScVariable)))), ElementText(operator), _)),
+      Some(ScInfixExpr((ref: ScReferenceExpression) && ResolvesTo(target@Parent(Parent(_: ScVariable))), ElementText(operator), _)),
       Some(body)) if !ref.isQualified && ComparisonOperators.contains(operator) && !isMutatedWithing(body, target) =>
         holder.registerProblem(ref.asInstanceOf[PsiReference],
           getDisplayName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
+    case _ =>
   }
 
   private def isMutatedWithing(scope: ScalaPsiElement, target: PsiElement): Boolean = {

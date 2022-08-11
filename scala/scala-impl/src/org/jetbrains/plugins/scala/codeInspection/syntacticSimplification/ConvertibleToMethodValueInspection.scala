@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala
 package codeInspection.syntacticSimplification
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ConvertibleToMethodValueInspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions.{&&, PsiElementExt, PsiModifierListOwnerExt, ResolvesTo, childOf}
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.PolymorphicLambda
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -25,8 +25,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-
-import scala.annotation.nowarn
 
 object ConvertibleToMethodValueInspection {
   val inspectionName: String = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
@@ -49,10 +47,9 @@ object ConvertibleToMethodValueInspection {
   }
 }
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class ConvertibleToMethodValueInspection extends AbstractInspection() {
+class ConvertibleToMethodValueInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ArgumentToPolymorphicLambda() => () // disallowed by kind projector rules
     case MethodRepr(_, _, Some(ref), _)
       if ref.bind().exists(involvesImplicitsOrByNameParams) => //do nothing
@@ -70,6 +67,8 @@ class ConvertibleToMethodValueInspection extends AbstractInspection() {
 
       if (!isInParameterOfParameterizedClass && mayReplace())
         registerProblem(holder, und, ScalaInspectionBundle.message("convertible.to.method.value.eta.hint"))
+
+    case _ =>
   }
 
   private def hasInitialEmptyArgList(element: PsiElement): Boolean =

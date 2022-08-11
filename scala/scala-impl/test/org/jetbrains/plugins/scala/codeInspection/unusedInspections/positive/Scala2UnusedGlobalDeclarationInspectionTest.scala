@@ -81,4 +81,6 @@ class Scala2UnusedGlobalDeclarationInspectionTest extends ScalaUnusedDeclaration
     addFile("object Ctx1 { trait Abc }")
     checkTextHasError(s"@scala.annotation.unused object Ctx2 { trait ${START}Abc$END }")
   }
+
+  def test_that_fails_in_order_to_prevent_merge(): Unit = throw new Exception
 }

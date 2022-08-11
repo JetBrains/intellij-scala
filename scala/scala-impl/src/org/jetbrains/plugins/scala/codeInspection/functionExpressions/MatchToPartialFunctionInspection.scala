@@ -20,31 +20,27 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class MatchToPartialFunctionInspection extends AbstractInspection() {
+class MatchToPartialFunctionInspection extends LocalInspectionTool {
 
   import MatchToPartialFunctionInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case function@ScFunctionExpr(Seq(param), Some(statement@ScMatch(ScReferenceExpression(resolved), _)))
       if resolved == param && isValid(function) =>
-      registerProblem(statement, function)
+      registerProblem(statement, function, holder)
     case function@ScFunctionExpr(Seq(param), Some(ScBlock(statement@ScMatch(ScReferenceExpression(resolved), _))))
       if resolved == param && isValid(function) =>
-      registerProblem(statement, function) //if fun is last statement in block, result can be block without braces
+      registerProblem(statement, function, holder) //if fun is last statement in block, result can be block without braces
     case statement@ScMatch(_: ScUnderscoreSection, _) if checkSameResolve(statement) =>
-      registerProblem(statement, statement)
+      registerProblem(statement, statement, holder)
+    case _ =>
   }
 }
 
 object MatchToPartialFunctionInspection {
 
-  //noinspection ScalaExtractStringToBundle
-  @Nls
-  private[functionExpressions] val ID = "MatchToPartialFunction"
   @Nls
   private[functionExpressions] val DESCRIPTION = ScalaInspectionBundle.message("convert.match.statement.to.pattern.matching.function")
 
@@ -75,8 +71,7 @@ object MatchToPartialFunctionInspection {
     }
   }
 
-  private def registerProblem(statement: ScMatch, expression: ScExpression)
-                             (implicit holder: ProblemsHolder): Unit = {
+  private def registerProblem(statement: ScMatch, expression: ScExpression, holder: ProblemsHolder): Unit = {
     findLeftBrace(statement).map { token =>
       token.getTextRange.getStartOffset - expression.getTextRange.getStartOffset
     }.map(new TextRange(0, _)).foreach { range =>

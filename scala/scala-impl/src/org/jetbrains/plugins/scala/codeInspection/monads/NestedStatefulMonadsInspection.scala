@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package monads
 
-import com.intellij.codeInspection.ProblemsHolder
-import com.intellij.psi.PsiElement
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -11,20 +10,18 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-import scala.annotation.nowarn
-
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-final class NestedStatefulMonadsInspection extends AbstractInspection() {
+final class NestedStatefulMonadsInspection extends LocalInspectionTool {
 
   import NestedStatefulMonadsInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case call: ScMethodCall =>
       import call.projectContext
       for {
         Typeable(genericType@ParameterizedType(_, arguments)) <- Some(call)
         if isStatefulMonadType(genericType) && arguments.exists(isStatefulMonadType)
       } holder.registerProblem(call, Description)
+    case _ =>
   }
 }
 

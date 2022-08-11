@@ -5,10 +5,6 @@ package caseClasses
 import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.RedundantNewCaseClassInspection
 
-/**
-  * mattfowler
-  * 5/7/2016
-  */
 class RedundantNewCaseClassInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =

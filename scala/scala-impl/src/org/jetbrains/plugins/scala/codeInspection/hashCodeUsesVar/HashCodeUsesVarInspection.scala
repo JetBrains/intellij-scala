@@ -1,24 +1,17 @@
 package org.jetbrains.plugins.scala.codeInspection.hashCodeUsesVar
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi._
 import com.siyeh.ig.psiutils.MethodUtils
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariable
 
-import scala.annotation.nowarn
+class HashCodeUsesVarInspection extends LocalInspectionTool {
 
-/**
-  * Daniyar Itegulov
-  * 2016-02-08
-  */
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class HashCodeUsesVarInspection extends AbstractInspection {
-
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case hashCodeMethod: PsiMethod if MethodUtils.isHashCode(hashCodeMethod) =>
       hashCodeMethod.accept(new ScalaRecursiveElementVisitor {
         override def visitReferenceExpression(exp: ScReferenceExpression): Unit = {
@@ -34,5 +27,6 @@ class HashCodeUsesVarInspection extends AbstractInspection {
           }
         }
       })
+    case _ =>
   }
 }

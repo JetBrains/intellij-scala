@@ -1,24 +1,24 @@
 package org.jetbrains.plugins.scala
 package codeInspection.relativeImports
 
-import com.intellij.codeInspection.{LocalQuickFix, ProblemDescriptor, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemDescriptor, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.{PsiElement, PsiPackage}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import com.intellij.psi.PsiPackage
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createReferenceFromText
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.{tailrec, unused}
 import scala.collection.mutable.ArrayBuffer
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class RelativeImportInspection extends AbstractInspection() {
+@unused("registered in scala-plugin-common.xml")
+class RelativeImportInspection extends LocalInspectionTool {
   import org.jetbrains.plugins.scala.codeInspection.relativeImports.RelativeImportInspection.qual
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ScImportExpr.qualifier(qualifier) =>
       val q = qual(qualifier)
       val resolve = q.multiResolveScala(false)
@@ -39,6 +39,7 @@ class RelativeImportInspection extends AbstractInspection() {
           case _ =>
         }
       }
+    case _ =>
   }
 }
 

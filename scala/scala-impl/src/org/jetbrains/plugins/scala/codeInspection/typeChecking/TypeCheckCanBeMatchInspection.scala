@@ -3,7 +3,7 @@ package codeInspection
 package typeChecking
 
 import com.intellij.codeInsight.PsiEquivalenceUtil
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -25,15 +25,14 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester
 import org.jetbrains.plugins.scala.lang.refactoring.util.{InplaceRenameHelper, ScalaVariableValidator}
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-final class TypeCheckCanBeMatchInspection extends AbstractInspection() {
+final class TypeCheckCanBeMatchInspection extends LocalInspectionTool {
 
   import TypeCheckCanBeMatchInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case IsInstanceOfCall(call) =>
       for {
         ifStmt <- Option(PsiTreeUtil.getParentOfType(call, classOf[ScIf]))
@@ -44,6 +43,7 @@ final class TypeCheckCanBeMatchInspection extends AbstractInspection() {
         val fix = new TypeCheckCanBeMatchQuickFix(call, ifStmt)
         holder.registerProblem(call, inspectionName, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, fix)
       }
+    case _ =>
   }
 
   private def typeCheckIsUsedEnough(ifStmt: ScIf, isInstOf: ScGenericCall): Boolean = {

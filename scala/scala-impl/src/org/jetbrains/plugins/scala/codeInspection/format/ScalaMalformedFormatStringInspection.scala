@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala
 package codeInspection.format
 
-import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.format.Injection._
 import org.jetbrains.plugins.scala.format._
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
-
-import scala.annotation.nowarn
 
 /**
  * NOTE!!!<br>
@@ -40,11 +37,11 @@ import scala.annotation.nowarn
  *  f"${a}%2.2%"
  * }}}
  */
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class ScalaMalformedFormatStringInspection extends AbstractInspection {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
-    case element =>
+class ScalaMalformedFormatStringInspection extends LocalInspectionTool {
+
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    element =>
       val res0 = FormattedStringParser.parse(element)
       val res1 = res0.orElse(FormattedPrintStringParser.parse(element))
       val res2 = res1.orElse(InterpolatedStringParser.parse(element))

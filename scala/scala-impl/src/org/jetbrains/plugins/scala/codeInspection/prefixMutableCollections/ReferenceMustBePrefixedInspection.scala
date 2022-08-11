@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.codeInspection.prefixMutableCollections
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference.qualifier
@@ -16,25 +16,22 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createE
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult.withActual
 
-import scala.annotation.nowarn
-
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class ReferenceMustBePrefixedInspection extends AbstractInspection() {
+class ReferenceMustBePrefixedInspection extends LocalInspectionTool {
 
   import ReferenceMustBePrefixedInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case reference: ScReference if reference.qualifier.isEmpty && !reference.getParent.isInstanceOf[ScImportSelector] =>
       reference.bind().collect {
         case result@withActual(clazz: PsiClass) if result.renamed.isEmpty && isValid(clazz, reference) => clazz
-      }.flatMap(validFqnSegments)
+      }.flatMap(validFqnSegments(_, holder))
         .map(_.toIndexedSeq)
         .map(new AddPrefixQuickFix(reference, _))
-        .foreach(registerProblem(reference, _))
+        .foreach(registerProblem(reference, _, holder))
+    case _ =>
   }
 
-  private def registerProblem(reference: ScReference, quickFix: AddPrefixQuickFix)
-                             (implicit holder: ProblemsHolder): Unit = {
+  private def registerProblem(reference: ScReference, quickFix: AddPrefixQuickFix, holder: ProblemsHolder): Unit = {
     holder.registerProblem(reference, getDisplayName, quickFix)
   }
 }
@@ -43,8 +40,7 @@ object ReferenceMustBePrefixedInspection {
   private def isValid(clazz: PsiClass, reference: ScReference): Boolean =
     ScalaPsiUtil.hasStablePath(clazz) && !PsiTreeUtil.isAncestor(clazz.containingClass, reference, true)
 
-  private def validFqnSegments(clazz: PsiClass)
-                              (implicit holder: ProblemsHolder): Option[Array[String]] = {
+  private def validFqnSegments(clazz: PsiClass, holder: ProblemsHolder): Option[Array[String]] = {
     val settings = ScalaCodeStyleSettings.getInstance(holder.getProject)
     val qualifiedName = clazz.qualifiedName
 

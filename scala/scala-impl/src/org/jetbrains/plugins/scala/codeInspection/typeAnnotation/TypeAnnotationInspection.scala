@@ -17,23 +17,23 @@ import org.jetbrains.plugins.scala.util._
 
 import scala.annotation.nowarn
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class TypeAnnotationInspection extends AbstractInspection {
+class TypeAnnotationInspection extends LocalInspectionTool {
   import TypeAnnotationInspection._
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case value: ScPatternDefinition if value.isSimple && !value.hasExplicitType =>
-      inspect(value, value.bindings.head, value.expr)
+      inspect(value, value.bindings.head, value.expr, holder)
     case variable: ScVariableDefinition if variable.isSimple && !variable.hasExplicitType =>
-      inspect(variable, variable.bindings.head, variable.expr)
+      inspect(variable, variable.bindings.head, variable.expr, holder)
     case method: ScFunctionDefinition if method.hasAssign && !method.hasExplicitType && !method.isConstructor =>
-      inspect(method, method.nameId, method.body)
+      inspect(method, method.nameId, method.body, holder)
     case (parameter: ScParameter) && Parent(Parent(Parent(_: ScFunctionExpr))) if parameter.typeElement.isEmpty =>
-      inspect(parameter, parameter.nameId, implementation = None)
+      inspect(parameter, parameter.nameId, implementation = None, holder)
     case (underscore: ScUnderscoreSection) && Parent(parent) if underscore.getTextRange.getLength == 1 &&
       !parent.isInstanceOf[ScTypedExpression] && !parent.isInstanceOf[ScFunctionDefinition] &&
       !parent.isInstanceOf[ScPatternDefinition] && !parent.isInstanceOf[ScVariableDefinition] =>
-      inspect(underscore, underscore, implementation = None)
+      inspect(underscore, underscore, implementation = None, holder)
+    case _ =>
   }
 }
 
@@ -41,8 +41,8 @@ object TypeAnnotationInspection {
 
   private def inspect(element: ScalaPsiElement,
                       anchor: PsiElement,
-                      implementation: Option[ScExpression])
-                     (implicit holder: ProblemsHolder): Unit = {
+                      implementation: Option[ScExpression],
+                      holder: ProblemsHolder): Unit = {
 
     val declaration = Declaration(element)
     val location = Location(element)

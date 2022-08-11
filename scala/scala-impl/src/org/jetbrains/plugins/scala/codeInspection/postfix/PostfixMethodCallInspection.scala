@@ -2,23 +2,23 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package postfix
 
-import com.intellij.codeInspection.ProblemsHolder
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
-import scala.annotation.nowarn
+import scala.annotation.unused
 
-@nowarn("msg=" + AbstractInspection.DeprecationText)
-class PostfixMethodCallInspection extends AbstractInspection() {
+@unused("registered in scala-plugin-common.xml")
+class PostfixMethodCallInspection extends LocalInspectionTool {
 
-  override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case pexpr: ScPostfixExpr if !safe(pexpr) =>
       holder.registerProblem(pexpr, getDisplayName, new AddDotFix(pexpr))
+    case _ =>
   }
 
   private def safe(pexpr: ScPostfixExpr): Boolean = {
