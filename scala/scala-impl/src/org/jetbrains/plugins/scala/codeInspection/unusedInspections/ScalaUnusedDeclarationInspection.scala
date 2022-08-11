@@ -40,8 +40,6 @@ final class ScalaUnusedDeclarationInspection extends HighlightingPassInspection 
 
   override def isEnabledByDefault: Boolean = true
 
-  override def getDisplayName: String = ScalaInspectionBundle.message("display.name.unused.declaration")
-
   @BooleanBeanProperty
   var reportPublicDeclarations: Boolean = true
 

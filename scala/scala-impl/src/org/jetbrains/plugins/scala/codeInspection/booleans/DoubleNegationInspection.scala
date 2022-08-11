@@ -16,7 +16,7 @@ class DoubleNegationInspection extends AbstractInspection() {
 
   override protected def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Any] = {
     case expr: ScExpression if DoubleNegationUtil.hasDoubleNegation(expr) =>
-      holder.registerProblem(expr, ScalaInspectionBundle.message("display.name.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
+      holder.registerProblem(expr, ScalaInspectionBundle.message("displayname.double.negation"), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, new DoubleNegationQuickFix(expr))
     case _ =>
   }
 }

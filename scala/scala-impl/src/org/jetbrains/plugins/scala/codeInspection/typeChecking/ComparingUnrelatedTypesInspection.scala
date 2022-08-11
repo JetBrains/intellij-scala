@@ -21,7 +21,7 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.immutable.ArraySeq
 
 object ComparingUnrelatedTypesInspection {
-  val inspectionName: String = ScalaInspectionBundle.message("comparing.unrelated.types.name")
+  val inspectionName: String = ScalaInspectionBundle.message("displayname.comparing.unrelated.types")
   val inspectionId = "ComparingUnrelatedTypes"
 
   sealed abstract class Comparability(val shouldNotBeCompared: Boolean)

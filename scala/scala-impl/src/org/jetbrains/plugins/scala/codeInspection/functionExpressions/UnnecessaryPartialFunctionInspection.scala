@@ -19,7 +19,7 @@ import scala.annotation.nowarn
 object UnnecessaryPartialFunctionInspection {
   private val PartialFunctionClassName = classOf[PartialFunction[_, _]].getCanonicalName
   private val Function1ClassName       = classOf[(_) => _].getCanonicalName
-  val inspectionName: String           = ScalaInspectionBundle.message("unnecessary.partial.function")
+  val inspectionName: String           = ScalaInspectionBundle.message("displayname.unnecessary.partial.function")
 }
 
 @nowarn("msg=" + AbstractInspection.DeprecationText)

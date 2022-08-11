@@ -32,7 +32,7 @@ class ConvertToImplicitParametersQuickFix(owner: ScTypeBoundsOwner) extends Abst
 object DeprecatedViewBoundInspection {
   val id = "DeprecatedViewBound"
   @Nls
-  val description: String = ScalaInspectionBundle.message("view.bounds.are.deprecated")
+  val description: String = ScalaInspectionBundle.message("displayname.view.bounds.are.deprecated")
   @Nls
   val fixDescription: String = ScalaInspectionBundle.message("replace.with.implicit.parameters")
 }

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import scala.annotation.nowarn
 
 object ConvertibleToMethodValueInspection {
-  val inspectionName: String = ScalaInspectionBundle.message("convertible.to.method.value.name")
+  val inspectionName: String = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
   val inspectionId = "ConvertibleToMethodValue"
 
   /**

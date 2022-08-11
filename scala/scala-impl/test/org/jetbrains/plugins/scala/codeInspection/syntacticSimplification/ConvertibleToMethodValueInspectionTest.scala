@@ -7,7 +7,7 @@ class ConvertibleToMethodValueInspectionTest extends ScalaInspectionTestBase {
 
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[ConvertibleToMethodValueInspection]
 
-  override val description = ScalaInspectionBundle.message("convertible.to.method.value.name")
+  override val description = ScalaInspectionBundle.message("displayname.anonymous.function.convertible.to.a.method.value")
   val hintAnon = ScalaInspectionBundle.message("convertible.to.method.value.anonymous.hint")
   val hintEta = ScalaInspectionBundle.message("convertible.to.method.value.eta.hint")
 

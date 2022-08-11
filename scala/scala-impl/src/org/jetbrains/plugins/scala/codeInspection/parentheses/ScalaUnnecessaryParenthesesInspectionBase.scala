@@ -102,6 +102,6 @@ abstract class ScalaUnnecessaryParenthesesInspectionBase
   }
 
   private def registerProblem(elt: ScalaPsiElement, qf: LocalQuickFix)(implicit holder: ProblemsHolder, isOnTheFly: Boolean): Unit = {
-    registerRedundantParensProblem(ScalaInspectionBundle.message("unnecessary.parentheses"), elt, qf)
+    registerRedundantParensProblem(ScalaInspectionBundle.message("displayname.unnecessary.parentheses"), elt, qf)
   }
 }

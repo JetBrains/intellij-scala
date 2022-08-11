@@ -30,7 +30,7 @@ final class NestedStatefulMonadsInspection extends AbstractInspection() {
 
 object NestedStatefulMonadsInspection {
   @Nls
-  private[monads] final val Description = ScalaInspectionBundle.message("nested.stateful.monads")
+  private[monads] final val Description = ScalaInspectionBundle.message("displayname.nested.stateful.monads")
 
   private final val StatefulMonadsTypesNames = Set("scala.concurrent.Future", "scala.util.Try")
 

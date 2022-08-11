@@ -60,7 +60,7 @@ class ChangeLambdaCodeStyleSetting(useGreekLambda: Boolean) extends LocalQuickFi
 }
 
 object KindProjectorUseCorrectLambdaKeywordInspection {
-  val inspectionName: String = ScalaInspectionBundle.message("kind.projector.use.correct.lambda.keyword")
+  val inspectionName: String = ScalaInspectionBundle.message("displayname.in.kind.projector.use.correct.lambda.keyword")
   val inspectionId: String = "KindProjectorUseCorrectLambdaKeyword"
   val codeStyleSettingUseGreekLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lambda.char")
   val codeStyleSettingUseWordLambda: String = ScalaInspectionBundle.message("kind.projector.code.style.setting.use.lambda.word")
