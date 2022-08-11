@@ -189,7 +189,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
 
   //todo fix for Scala 3
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testConstructorCallAfterNew(): Unit = doCompletionTest(
     fileText =
@@ -212,7 +212,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testConstructorCallAfterNew2(): Unit = doCompletionTest(
     fileText =
@@ -241,7 +241,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testConstructorCallAfterNew3(): Unit = doCompletionTest(
     fileText =
@@ -270,7 +270,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testConstructorCallAfterNew3Smart(): Unit = doCompletionTest(
     fileText =
@@ -300,7 +300,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testConstructorCallAfterNewLookupElement(): Unit = checkLookupElement(
     fileText =
@@ -325,7 +325,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testAfterParenthesisOnlyInConstructorAfterNew(): Unit = checkNoCompletion(
     fileText =
@@ -350,7 +350,7 @@ class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBa
   )
 
   @RunWithScalaVersions(Array(
-    TestScalaVersion.Scala_2_12,
+    TestScalaVersion.Scala_2_13,
   ))
   def testPositionInConstructorAfterNew(): Unit = doCompletionTest(
     fileText =

@@ -59,7 +59,7 @@ abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
 }
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
 class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 

@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
 class AutoBraceCompletionTest extends ScalaCompletionTestBase {
 

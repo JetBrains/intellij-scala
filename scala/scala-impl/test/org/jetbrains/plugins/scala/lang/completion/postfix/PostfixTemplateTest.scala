@@ -24,7 +24,7 @@ import java.io.File
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))
 @Category(Array(classOf[CompletionTests]))

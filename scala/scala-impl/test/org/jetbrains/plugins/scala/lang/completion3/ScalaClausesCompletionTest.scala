@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
 
@@ -831,8 +831,8 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
          """.stripMargin,
     resultText =
       s"""(_: List[String]) match {
-         |  case Nil => $START$CARET???$END
-         |  case ::(head, tl) => ???
+         |  case ::(head, next) => $START$CARET???$END
+         |  case Nil => ???
          |}
         """.stripMargin
   )

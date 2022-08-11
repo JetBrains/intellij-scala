@@ -261,9 +261,9 @@ class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
-class ScalaKeywordCompletionTest_2_12 extends ScalaCompletionTestBase {
+class ScalaKeywordCompletionTest_2_13 extends ScalaCompletionTestBase {
   def testMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET",

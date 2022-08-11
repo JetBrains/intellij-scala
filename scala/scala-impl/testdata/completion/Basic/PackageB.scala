@@ -3,5 +3,7 @@ object Wrapper {
   mut/*caret*/
 }
 /*
+copyArrayToImmutableIndexedSeq
+mutable
 mutable
  */

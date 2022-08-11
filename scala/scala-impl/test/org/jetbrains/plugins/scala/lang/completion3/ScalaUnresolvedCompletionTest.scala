@@ -9,7 +9,9 @@ import org.junit.Assert
 
 //todo fix for Scala 3
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
+  TestScalaVersion.Scala_3_0,
 ))
 class ScalaUnresolvedCompletionTest extends ScalaCompletionTestBase {
 

@@ -10,7 +10,7 @@ abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTes
 }
 
 class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionTestBase {
-  def testCollectionFactory(): Unit = doCompletionTest(
+  def testCollectionFactory1(): Unit = doCompletionTest(
     fileText =
       s"""object O {
          |  val v:$CARET = Seq.empty[String]
@@ -22,16 +22,16 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
     item = "Seq[String]"
   )
 
-  def testOptionFactory(): Unit = doCompletionTest(
+  def testCollectionFactory2(): Unit = doCompletionTest(
     fileText =
       s"""object O {
-         |  val v: $CARET= Option.empty[String].to[Option]
+         |  val v:$CARET = Seq.empty[String].to(Iterable)
          |}""".stripMargin,
     resultText =
       s"""object O {
-         |  val v: Option[String]$CARET = Option.empty[String].to[Option]
+         |  val v: Iterable[String]$CARET = Seq.empty[String].to(Iterable)
          |}""".stripMargin,
-    item = "Option[String]"
+    item = "Iterable[String]"
   )
 
   def testCompoundType(): Unit = doCompletionTest(
@@ -199,8 +199,8 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
   )
 }
 
-class ScalaTypeAnnotationsCompletionTest_with_2_12 extends ScalaTypeAnnotationsCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= ScalaVersion.Latest.Scala_2_12
+class ScalaTypeAnnotationsCompletionTest_with_2_13 extends ScalaTypeAnnotationsCompletionTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= ScalaVersion.Latest.Scala_2_13
 
   def testShowAsInfixAnnotation(): Unit = doCompletionTest(
     fileText =
@@ -240,17 +240,17 @@ class ScalaTypeAnnotationsCompletionTest_with_kind_projector extends ScalaTypeAn
   def testTypeLambdaInline(): Unit = doCompletionTest(
     fileText =
       s"""object O {
-         |  def foo: ({type L[A] = Either[String, A]})#L
+         |  def foo: ({type L[A] = Either[String, A]})#L[_]
          |
          |  val v:$CARET = foo
          |}""".stripMargin,
     resultText =
       s"""object O {
-         |  def foo: ({type L[A] = Either[String, A]})#L
+         |  def foo: ({type L[A] = Either[String, A]})#L[_]
          |
-         |  val v: Either[String, ?]$CARET = foo
+         |  val v: Either[String, _]$CARET = foo
          |}""".stripMargin,
-    item = "Either[String, ?]"
+    item = "Either[String, _]"
   )
 
   def testTypeLambda(): Unit = doCompletionTest(

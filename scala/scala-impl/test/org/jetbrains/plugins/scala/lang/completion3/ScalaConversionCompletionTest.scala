@@ -8,7 +8,7 @@ import org.junit.Assert.fail
 import org.junit.runner.RunWith
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12,
+  TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_2_13,
   TestScalaVersion.Scala_3_Latest
 ))

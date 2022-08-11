@@ -6,7 +6,7 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
-import org.jetbrains.plugins.scala.CompletionTests
+import org.jetbrains.plugins.scala.{CompletionTests, ScalaVersion}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestCase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.junit.Assert._
@@ -23,6 +23,8 @@ abstract class FileTestDataCompletionTestBase extends ScalaLightCodeInsightFixtu
   def folderPath: String = getTestDataPath + "completion/"
 
   override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_13
 
   /**
    * Fetches last PSI element, checks if it is comment or not

@@ -28,7 +28,7 @@ abstract class ScalaClassNameCompletionTest extends ScalaCompletionTestBase {
 }
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
 class ClassNameCompletionTest extends ScalaClassNameCompletionTest {
 
@@ -271,7 +271,7 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
 }
 
 @RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_12
+  TestScalaVersion.Scala_2_13
 ))
 class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
 

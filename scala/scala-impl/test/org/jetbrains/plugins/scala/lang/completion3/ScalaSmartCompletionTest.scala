@@ -490,8 +490,8 @@ class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 }
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
-@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-class ScalaSmartCompletionTest_2_12 extends ScalaCompletionTestBase {
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13))
+class ScalaSmartCompletionTest_2_13 extends ScalaCompletionTestBase {
   //Return type for inserting method is generated according to TypeAnnotations Settings
   def testNewFunction(): Unit = {
     val project = getProject

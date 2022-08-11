@@ -177,9 +177,9 @@ sealed abstract class ScalaTextLookupItem(protected val reference: ScReference)
 
     def createParameter: ScExpression => (String, ScType) = {
       case assign@ScAssignment(_, Some(assignment)) =>
-        suggester(assign.referenceName) -> assignment.`type`().getOrAny
+        suggester(assign.referenceName) -> assignment.`type`().getOrAny.widen
       case expression =>
-        val `type` = expression.`type`().getOrAny
+        val `type` = expression.`type`().getOrAny.widen
         suggester(`type`) -> `type`
     }
 
