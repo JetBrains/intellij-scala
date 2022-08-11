@@ -20,7 +20,7 @@ class ScalaCompilerHighlightingTest_2_13 extends ScalaCompilerHighlightingTestBa
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
         range = new TextRange(50, 58),
-        msgPrefix = s"type mismatch;${System.lineSeparator()} found   : String${System.lineSeparator()} required: Int"
+        msgPrefix = s"type mismatch;"
       )
     )
   )
@@ -76,7 +76,7 @@ abstract class ScalaCompilerHighlightingTest_3 extends ScalaCompilerHighlighting
       ExpectedHighlighting(
         severity = HighlightSeverity.ERROR,
         range = new TextRange(21, 31),
-        msgPrefix = s"Found:    String${System.lineSeparator()}Required: Int"
+        msgPrefix = s"Found:    String"
       )
     )
   )
