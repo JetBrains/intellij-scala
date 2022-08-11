@@ -18,7 +18,7 @@ object ScalaBundleSortingTest {
   }
 
   @Category(Array(classOf[FileSetTests]))
-  final class ActualTest(moduleInfo: ModuleInfo) extends TestCase with AssertionMatchers {
+  final class ActualTest(moduleInfo: ModuleWithBundleInfo) extends TestCase with AssertionMatchers {
 
     this.setName(moduleInfo.bundleAbsolutePath)
 
@@ -29,7 +29,7 @@ object ScalaBundleSortingTest {
       checkDirectory(moduleInfo)
     }
 
-    private def checkDirectory(info: ModuleInfo): Unit = {
+    private def checkDirectory(info: ModuleWithBundleInfo): Unit = {
       val findings = findKeysInModule(info)
       val I18nBundleContent(entries) = read(info.bundleAbsolutePath)
 
