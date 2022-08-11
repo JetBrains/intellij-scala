@@ -224,6 +224,20 @@ class ScGenericCallAnnotatorTest extends SimpleTestCase {
     ))
   }
 
+  def testReturnsInstanceWithApplyMethod(): Unit =
+    assertNothing(messages(
+      """
+        |class Flags {
+        |  def apply[T](name: T): Int = 123
+        |}
+        |
+        |class Problem {
+        |  def flag: Flags = new Flags
+        |  val x = flag[Int](123)
+        |}
+        |""".stripMargin
+    ))
+
   def messages(code: String): List[Message] = {
     val header =
       """
