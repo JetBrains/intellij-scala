@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 
-class ScalaDocCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaDocCompletionTest extends ScalaCompletionTestBase {
 
   import ScalaDocCompletionTest.DEFAULT_TIME
 

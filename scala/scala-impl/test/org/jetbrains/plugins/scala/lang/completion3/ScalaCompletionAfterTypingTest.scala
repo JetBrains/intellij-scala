@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-class ScalaCompletionAfterTypingTest extends ScalaCodeInsightTestBase {
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+
+class ScalaCompletionAfterTypingTest extends ScalaCompletionTestBase {
   private var myTextToType: String = ""
 
   override protected def changePsiAt(offset: Int): Unit = {

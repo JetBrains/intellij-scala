@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
+
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 
 class Scala3ClausesCompletionTest extends ScalaClausesCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
 
   def testScala3Enum(): Unit = doMatchCompletionTest(
     fileText =

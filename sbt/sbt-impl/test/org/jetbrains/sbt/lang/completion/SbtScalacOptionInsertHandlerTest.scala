@@ -1,10 +1,10 @@
 package org.jetbrains.sbt.lang.completion
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.sbt.language.SbtFileType
 
-class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
+class SbtScalacOptionInsertHandlerTest extends ScalaCompletionTestBase {
   private val LOOKUP_ITEM = "-Yno-generic-signatures" // flag with multiple dashes
   private val RESULT_OPTION = s""""$LOOKUP_ITEM""""
 

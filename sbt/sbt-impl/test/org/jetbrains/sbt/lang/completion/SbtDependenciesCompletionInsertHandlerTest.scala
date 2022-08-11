@@ -1,10 +1,10 @@
 package org.jetbrains.sbt.lang.completion
 
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.sbt.language.SbtFileType
 
-class SbtDependenciesCompletionInsertHandlerTest extends ScalaCodeInsightTestBase {
+class SbtDependenciesCompletionInsertHandlerTest extends ScalaCompletionTestBase {
   private val GROUP_ID = "org.scalatest"
   private val ARTIFACT_ID = "scalatest"
   private val RENDERING_PLACEHOLDER = "Sbtzzz"

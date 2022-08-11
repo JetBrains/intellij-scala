@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang.completion3
 
-class ScalaExpectedTypeTest extends ScalaCompletionSortingTestCase {
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionSortingTestBase
+
+class ScalaExpectedTypeTest extends ScalaCompletionSortingTestBase {
 
   override def getTestDataPath: String =
     super.getTestDataPath + "expectedType/"

@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3.base
 
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
@@ -23,12 +21,11 @@ import scala.jdk.CollectionConverters._
   TestScalaVersion.Scala_3_Latest
 ))
 @Category(Array(classOf[CompletionTests]))
-//TODO: rename to completion test (wait, it's probably already done in my other branch, where there is a huge refactoring of the tests)
-abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTestCase with HelperFixtureEditorOps {
+abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTest {
 
   import CompletionType.BASIC
   import Lookup.REPLACE_SELECT_CHAR
-  import ScalaCodeInsightTestBase._
+  import ScalaCompletionTestBase._
 
   override protected def sharedProjectToken = SharedTestProjectToken((version, librariesLoaders))
 
@@ -153,7 +150,7 @@ abstract class ScalaCodeInsightTestBase extends ScalaLightCodeInsightFixtureTest
     myFixture.checkResult(expectedFileText.withNormalizedSeparator.trim, ignoreTrailingSpaces)
 }
 
-object ScalaCodeInsightTestBase {
+object ScalaCompletionTestBase {
 
   val DEFAULT_TIME: Int = 1
 

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.completion3
+package org.jetbrains.plugins.scala.lang.completion3.base
 
 import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.codeInsight.completion.StatisticsUpdate
@@ -10,7 +10,7 @@ import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
 import org.jetbrains.plugins.scala.util.TestUtils
 
-abstract class ScalaCompletionSortingTestCase extends ScalaCodeInsightTestBase {
+abstract class ScalaCompletionSortingTestBase extends ScalaCompletionTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -24,7 +24,6 @@ abstract class ScalaCompletionSortingTestCase extends ScalaCodeInsightTestBase {
     LookupManager.getInstance(getProject).hideActiveLookup()
     UISettings.getInstance.setSortLookupElementsLexicographically(false)
     CodeInsightSettings.getInstance.setCompletionCaseSensitive(CodeInsightSettings.FIRST_LETTER)
-
   } finally {
     super.tearDown()
   }

@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3.base
 
 import com.intellij.codeInsight.lookup.LookupElement
+import org.jetbrains.plugins.scala.lang.completion
 
-trait ScalaClausesCompletionTestBase extends ScalaCodeInsightTestBase {
+abstract class ScalaClausesCompletionTestBase extends ScalaCompletionTestBase {
 
-  import ScalaCodeInsightTestBase.{DEFAULT_TIME, hasItemText}
   import completion.ScalaKeyword.{CASE, MATCH}
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{DEFAULT_TIME, hasItemText}
 
   protected def doPatternCompletionTest(fileText: String, resultText: String, itemText: String): Unit =
     doRawCompletionTest(fileText, resultText) {

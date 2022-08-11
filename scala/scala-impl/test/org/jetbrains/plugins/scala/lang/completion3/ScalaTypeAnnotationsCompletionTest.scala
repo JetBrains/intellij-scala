@@ -1,12 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-trait ScalaTypeAnnotationsCompletionTestBase extends ScalaCodeInsightTestBase {
-  self =>
+trait ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase { self =>
   override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(self.getClass)
 }
 
@@ -201,7 +200,7 @@ class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionT
 }
 
 class ScalaTypeAnnotationsCompletionTest_with_2_12 extends ScalaTypeAnnotationsCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version >= ScalaVersion.Latest.Scala_2_12
 
   def testShowAsInfixAnnotation(): Unit = doCompletionTest(
     fileText =

@@ -1,18 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
 import com.intellij.codeInsight.lookup.LookupElement
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaSmartCompletionTest extends ScalaCompletionTestBase {
 
-  import ScalaCodeInsightTestBase._
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   def testAfterPlaceholder(): Unit = doCompletionTest(
     fileText =
@@ -492,7 +491,7 @@ class ScalaSmartCompletionTest extends ScalaCodeInsightTestBase {
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_2_12))
-class ScalaSmartCompletionTest_2_12 extends ScalaCodeInsightTestBase {
+class ScalaSmartCompletionTest_2_12 extends ScalaCompletionTestBase {
   //Return type for inserting method is generated according to TypeAnnotations Settings
   def testNewFunction(): Unit = {
     val project = getProject
@@ -517,7 +516,7 @@ class ScalaSmartCompletionTest_2_12 extends ScalaCodeInsightTestBase {
 
 @RunWith(classOf[MultipleScalaVersionsRunner])
 @RunWithScalaVersions(Array(TestScalaVersion.Scala_3_Latest))
-class ScalaSmartCompletionTest_3_Latest extends ScalaCodeInsightTestBase {
+class ScalaSmartCompletionTest_3_Latest extends ScalaCompletionTestBase {
   //Return type for inserting method is generated according to TypeAnnotations Settings
   def testNewFunction(): Unit = {
     val project = getProject

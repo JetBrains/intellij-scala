@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.junit.Assert
 
-class ScalaEndMarkerCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaEndMarkerCompletionTest extends ScalaCompletionTestBase {
 
-  import ScalaCodeInsightTestBase._
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= ScalaVersion.Latest.Scala_3_0
 
   private def checkLookupElement(fileText: String,
                                  resultText: String,

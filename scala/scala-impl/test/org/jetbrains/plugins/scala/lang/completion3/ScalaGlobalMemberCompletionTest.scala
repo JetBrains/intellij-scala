@@ -1,16 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil.getAllMethods
 import org.jetbrains.plugins.scala.base.libraryLoaders.{LibraryLoader, SourcesLoader}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.junit.Assert.assertEquals
 
-class ScalaGlobalMemberCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaGlobalMemberCompletionTest extends ScalaCompletionTestBase {
 
-  import ScalaCodeInsightTestBase._
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   override def getTestDataPath: String =
     s"${super.getTestDataPath}globalMember"

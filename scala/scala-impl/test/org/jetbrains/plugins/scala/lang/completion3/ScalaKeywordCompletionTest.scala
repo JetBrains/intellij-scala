@@ -1,11 +1,10 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.runner.RunWith
 
-class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaKeywordCompletionTest extends ScalaCompletionTestBase {
 
   def testPrivateVal(): Unit = doCompletionTest(
     fileText =
@@ -264,7 +263,7 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12
 ))
-class ScalaKeywordCompletionTest_2_12 extends ScalaCodeInsightTestBase {
+class ScalaKeywordCompletionTest_2_12 extends ScalaCompletionTestBase {
   def testMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET",
@@ -290,7 +289,7 @@ class ScalaKeywordCompletionTest_2_12 extends ScalaCodeInsightTestBase {
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
-class ScalaKeywordCompletionTest_3_Latest extends ScalaCodeInsightTestBase {
+class ScalaKeywordCompletionTest_3_Latest extends ScalaCompletionTestBase {
   def testMatch(): Unit = doCompletionTest(
     fileText =
       s"42 m$CARET",

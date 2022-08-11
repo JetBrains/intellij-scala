@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType.SMART
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 
-class ScalaSomeSmartCompletionTest extends ScalaCodeInsightTestBase {
+class ScalaSomeSmartCompletionTest extends ScalaCompletionTestBase {
 
   def testSomeSmart1(): Unit = doCompletionTest(
     fileText =

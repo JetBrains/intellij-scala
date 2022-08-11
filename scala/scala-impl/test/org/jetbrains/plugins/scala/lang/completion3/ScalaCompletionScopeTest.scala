@@ -1,15 +1,14 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.psi.{PsiMember, PsiNamedElement, PsiPackage}
 import org.jetbrains.plugins.scala.lang.completion.isAccessible
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 import org.junit.Assert.assertTrue
 
-class ScalaCompletionScopeTest extends ScalaCodeInsightTestBase {
+class ScalaCompletionScopeTest extends ScalaCompletionTestBase {
 
-  import extensions._
+  import org.jetbrains.plugins.scala.extensions.{PsiMemberExt, PsiElementExt}
 
   def testBasicCompletion0(): Unit = checkCompletionsAreInScopeAndAccessible("File", 0)
 

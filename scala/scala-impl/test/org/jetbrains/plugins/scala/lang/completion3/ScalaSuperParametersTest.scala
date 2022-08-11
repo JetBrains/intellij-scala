@@ -1,14 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 class ScalaSuperParametersTest extends SameSignatureCallParametersProviderTestBase {
 
-  import ScalaCodeInsightTestBase._
-  import icons.Icons.{PARAMETER, PATTERN_VAL}
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
+  import org.jetbrains.plugins.scala.icons.Icons.{PARAMETER, PATTERN_VAL}
 
   def testConstructorCall(): Unit = doCompletionTest(
     fileText =

@@ -1,14 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{DEF, OVERRIDE}
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.TypeAnnotationSettings.{alwaysAddType, set}
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
-abstract class ScalaOverrideCompletionTestBase extends ScalaCodeInsightTestBase {
+abstract class ScalaOverrideCompletionTestBase extends ScalaCompletionTestBase {
 
   protected override def setUp(): Unit = {
     super.setUp()
@@ -277,7 +276,7 @@ class ScalaOverrideCompletionTest extends ScalaOverrideCompletionTestBase {
   )
 }
 
-class ScalaOverrideCompletionTest2 extends ScalaCodeInsightTestBase {
+class ScalaOverrideCompletionTest2 extends ScalaCompletionTestBase {
 
   def testParamsFromClass(): Unit = doRawCompletionTest(
     fileText =

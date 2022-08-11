@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 
 import junit.framework.ComparisonFailure
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.fail
 import org.junit.runner.RunWith
@@ -42,7 +43,7 @@ class ScalaConversionCompletionTest extends AbstractConversionCompletionTest {
   }
 }
 
-abstract class AbstractConversionCompletionTest extends ScalaCodeInsightTestBase {
+abstract class AbstractConversionCompletionTest extends ScalaCompletionTestBase {
 
   protected def convertersNames: Seq[String]
 

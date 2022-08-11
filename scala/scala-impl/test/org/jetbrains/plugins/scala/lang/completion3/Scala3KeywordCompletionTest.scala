@@ -1,17 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_3_Latest
 ))
-class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
+class Scala3KeywordCompletionTest extends ScalaCompletionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= ScalaVersion.Latest.Scala_3_0
 
   /// INFIX
 

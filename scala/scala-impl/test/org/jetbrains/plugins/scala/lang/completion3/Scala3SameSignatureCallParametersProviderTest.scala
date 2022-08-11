@@ -1,16 +1,16 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.codeInsight.completion.CompletionType
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.SameSignatureCallParametersProviderTestBase
 
 class Scala3SameSignatureCallParametersProviderTest extends SameSignatureCallParametersProviderTestBase {
 
-  import ScalaCodeInsightTestBase._
-  import icons.Icons.{PARAMETER, PATTERN_VAL}
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
+  import org.jetbrains.plugins.scala.icons.Icons.{PARAMETER, PATTERN_VAL}
 
   override protected def supportedIn(version: ScalaVersion): Boolean =
-    version >= LatestScalaVersions.Scala_3_0
+    version >= ScalaVersion.Latest.Scala_3_0
 
   /// extends TRAIT
 

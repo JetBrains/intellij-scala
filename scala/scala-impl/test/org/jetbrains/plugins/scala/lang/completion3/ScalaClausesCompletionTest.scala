@@ -1,21 +1,21 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.application.options.CodeStyle
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaClausesCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
-//todo: fix for Scala 3
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12
 ))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 
-  import ScalaCodeInsightTestBase._
-  import completion.ScalaKeyword.{CASE, MATCH}
-  import completion.clauses.DirectInheritors.FqnBlockList
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_12
+
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
+  import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{CASE, MATCH}
+  import org.jetbrains.plugins.scala.lang.completion.clauses.DirectInheritors.FqnBlockList
 
   def testSyntheticUnapply(): Unit = doPatternCompletionTest(
     fileText =
@@ -1305,7 +1305,7 @@ class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
 
   private def withCaseAlignment(doTest: => Unit): Unit = {
     val settings = CodeStyle.getSettings(getProject)
-      .getCustomSettings(classOf[formatting.settings.ScalaCodeStyleSettings])
+      .getCustomSettings(classOf[org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings])
     val oldValue = settings.ALIGN_IN_COLUMNS_CASE_BRANCH
 
     try {

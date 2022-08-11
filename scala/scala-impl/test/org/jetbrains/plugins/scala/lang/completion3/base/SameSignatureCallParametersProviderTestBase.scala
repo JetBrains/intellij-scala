@@ -1,15 +1,13 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3.base
 
 import com.intellij.codeInsight.completion.JavaCompletionUtil
 import com.intellij.ui.LayeredIcon
 import com.intellij.ui.icons.RowIcon
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.{createPresentation, hasItemText, hasLookupString}
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.{createPresentation, hasItemText, hasLookupString}
 
 import javax.swing.Icon
 
-abstract class SameSignatureCallParametersProviderTestBase extends ScalaCodeInsightTestBase {
+abstract class SameSignatureCallParametersProviderTestBase extends ScalaCompletionTestBase {
 
 
   protected def checkLookupElement(fileText: String,

@@ -1,21 +1,17 @@
-package org.jetbrains.plugins.scala
-package lang
-package actions
-package editor
-package autobraces
+package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceLookupListenerService
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 
 @RunWithScalaVersions(Array(
   TestScalaVersion.Scala_2_12
 ))
-class AutoBraceCompletionTest extends ScalaCodeInsightTestBase {
+class AutoBraceCompletionTest extends ScalaCompletionTestBase {
 
   protected override def setUp(): Unit = {
     super.setUp()

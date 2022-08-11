@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.junit.Assert.assertTrue
 
-class ScalaLookupRenderingTest extends ScalaCodeInsightTestBase {
+class ScalaLookupRenderingTest extends ScalaCompletionTestBase {
 
-  import ScalaCodeInsightTestBase._
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   def testJavaVarargs(): Unit = {
     configureJavaFile(

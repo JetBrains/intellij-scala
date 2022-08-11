@@ -1,16 +1,15 @@
-package org.jetbrains.plugins.scala
-package lang
-package completion3
+package org.jetbrains.plugins.scala.lang.completion3
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.extensions.invokeAndWait
-import org.jetbrains.plugins.scala.lang.completion3.ScalaCodeInsightTestBase.hasItemText
+import org.jetbrains.plugins.scala.extensions.{inWriteAction, invokeAndWait}
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
+import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase.hasItemText
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.util.ConfigureJavaFile.configureJavaFile
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert.{assertEquals, assertTrue}
 
-abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
+abstract class ScalaBasicCompletionTestBase extends ScalaCompletionTestBase {
 
   override protected def changePsiAt(offset: Int): Unit = {
     retypeLineAt(offset)
@@ -64,7 +63,7 @@ abstract class ScalaBasicCompletionTestBase extends ScalaCodeInsightTestBase {
 ))
 class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
 
-  import ScalaCodeInsightTestBase._
+  import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
 
   def testInImportSelector(): Unit = doCompletionTest(
     fileText = s"import scala.collection.immutable.{VBuil$CARET}",
