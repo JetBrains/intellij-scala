@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.util.runners
 
 import com.intellij.pom.java.{LanguageLevel => JdkVersion}
 import junit.extensions.TestDecorator
-import junit.framework.{Test, TestCase, TestSuite}
+import junit.framework.{Test, TestCase, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.{InjectableJdk, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
@@ -15,7 +15,6 @@ import org.junit.runner.{Describable, Description}
 import java.lang.annotation.Annotation
 import java.util
 import scala.annotation.{tailrec, unused}
-import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class MultipleScalaVersionsRunner(private val myTest: Test, klass: Class[_]) extends JUnit38ClassRunner(myTest) {
@@ -53,35 +52,58 @@ private object MultipleScalaVersionsRunner {
 
   class MyBaseTestSuite(name: String) extends TestSuite(name) with Filterable {
 
-    private val mutedTests = mutable.HashSet.empty[Test]
-
     override def filter(filter: Filter): Unit = {
-      // asInstanceOf is needed. we have multiple junit versions in compiler classpath (3.8, 4.11, 4.12) and jar files order is undefined. See: SCL-18768
-      val tests = super.tests().asScala.toSeq.asInstanceOf[Seq[Test]]
-      tests.foreach {
-        case test: Filterable =>
+      var mutedTestsIndexes = List.empty[Int]
+
+      myTestsScala.zipWithIndex.foreach {
+        case (test: Filterable, _) =>
           test.filter(filter)
-        case test =>
-          val shouldRun = filter.shouldRun(makeDescription(test.getClass, test))
-          if (shouldRun)
-            mutedTests.remove(test)
-          else
-            mutedTests.add(test)
+        case (test, testIdx) =>
+          val description = makeDescription(test.getClass, test)
+          val shouldRun = filter.shouldRun(description)
+          if (!shouldRun) {
+            mutedTestsIndexes ::= testIdx
+          }
       }
+
+      //the list is already in the reversed order
+      mutedTestsIndexes.foreach(myTests.remove)
+    }
+
+    private val myTests: util.List[Test] = new util.ArrayList[Test]
+    private def myTestsScala: Seq[Test] = {
+      //noinspection ScalaRedundantCast
+      // asInstanceOf is needed. we have multiple junit versions in compiler classpath (3.8, 4.11, 4.12) and jar files order is undefined. See: SCL-18768
+      myTests.asScala.toSeq.asInstanceOf[Seq[Test]]
+    }
+
+    override def addTest(test: Test): Unit = {
+      myTests.add(test)
+    }
+
+    override def addTestSuite(testClass: Class[_]): Unit = {
+      super.addTestSuite(testClass)
     }
 
     override def tests(): util.Enumeration[Test] =
-      util.Collections.enumeration(filteredTests.asJava)
-    override def testAt(index: Int): Test =
-      filteredTests(index)
-    override def testCount: Int =
-      filteredTests.size
+      util.Collections.enumeration(myTests)
 
-    private def filteredTests: Seq[Test] = {
-      // asInstanceOf is needed. we have multiple junit versions in compiler classpath (3.8, 4.11, 4.12) and jar files order is undefined. See: SCL-18768
-      val tests = super.tests().asScala.toSeq.asInstanceOf[Seq[Test]]
-      val filtered = tests.filterNot(mutedTests.contains)
-      filtered
+    override def testAt(index: Int): Test =
+      myTests.get(index)
+
+    override def testCount: Int =
+      myTests.size
+
+    override def run(result: TestResult): Unit = {
+      var continue = true
+      for (each <- myTestsScala if continue) {
+        if (result.shouldStop) {
+          continue = false
+        }
+        else {
+          runTest(each, result)
+        }
+      }
     }
   }
 

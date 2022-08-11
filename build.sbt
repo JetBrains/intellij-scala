@@ -240,7 +240,13 @@ lazy val tastyReader = Project("tasty-reader", file("scala/tasty-reader"))
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
     (Test / unmanagedResourceDirectories) += baseDirectory.value / "testdata",
-    libraryDependencies += "com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test,
+    libraryDependencies ++= Seq(
+      ("com.github.sbt" % "junit-interface" % Versions.junitInterfaceVersion % Test).excludeAll(
+        // to avoid multiple junit jars in the classpath SCL-18768
+        ExclusionRule("junit", "junit")
+      ),
+      "junit" % "junit" % "4.13.2" % Provided
+    ),
     compilationCacheSettings
   )
 
