@@ -73,7 +73,9 @@ private final class ProcessWatcher(project: Project, process: Process, commandLi
     private def processErrorText(text: String, outputType: Key[_]): Unit = {
       Log.warn(s"[$outputType] ${text.trim}")
       val filtered = text.linesIterator.filterNot(ignoreErrorTextLine).mkString(System.lineSeparator())
-      project.getMessageBus.syncPublisher(CompileServerManager.ErrorTopic).onError(filtered)
+      if (filtered.nonEmpty) {
+        project.getMessageBus.syncPublisher(CompileServerManager.ErrorTopic).onError(filtered)
+      }
     }
 
     override def processTerminated(event: ProcessEvent): Unit = {

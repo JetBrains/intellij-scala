@@ -46,8 +46,6 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(text)
   }
 
-  //TODO: this might fail when IDEA-294924 is fixed
-  //  simply add new expected highlighting
   def testAllInOne(): Unit = {
     val text =
       """import library.JavaClass
@@ -134,6 +132,7 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         HighlightMessage((548, 561), "Interface 'library.JavaInterface' must not be implemented"),
         HighlightMessage((609, 622), "Interface 'library.JavaInterface' must not be extended"),
         HighlightMessage((668, 677), "Class 'library.JavaClass' must not be extended"),
+        HighlightMessage((824,841), "Class 'library.JavaClass' must not be extended"),
         HighlightMessage((938, 951), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((1058, 1071), "Method 'doNotOverride()' must not be overridden"),
 
@@ -141,12 +140,14 @@ class NonExtendableApiUsageInspectionTest extends ScalaInspectionTestBase {
         HighlightMessage((1411, 1426), "Interface 'library.KotlinInterface' must not be implemented"),
         HighlightMessage((1476, 1491), "Interface 'library.KotlinInterface' must not be extended"),
         HighlightMessage((1539, 1550), "Class 'library.KotlinClass' must not be extended"),
+        HighlightMessage((1703,1722), "Class 'library.KotlinClass' must not be extended"),
         HighlightMessage((1823, 1836), "Method 'doNotOverride()' must not be overridden"),
         HighlightMessage((1947, 1960), "Method 'doNotOverride()' must not be overridden"),
 
         //in AnonymousClasses
         HighlightMessage((2120, 2129), "Class 'library.JavaClass' must not be extended"),
         HighlightMessage((2141, 2154), "Interface 'library.JavaInterface' must not be implemented"),
+        HighlightMessage((2166,2183), "Class 'library.JavaClass' must not be extended"),
         HighlightMessage((2256, 2267), "Class 'library.KotlinClass' must not be extended"),
         HighlightMessage((2279, 2294), "Interface 'library.KotlinInterface' must not be implemented"),
 
