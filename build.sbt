@@ -273,20 +273,21 @@ lazy val scalaImpl: sbt.Project =
       ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
-        name, version, scalaVersion, sbtVersion,
-        BuildInfoKey.constant("bloopVersion", Versions.bloopVersion),
-        BuildInfoKey.constant("sbtStructureVersion", Versions.sbtStructureVersion),
-        BuildInfoKey.constant("sbtIdeaShellVersion", Versions.sbtIdeaShellVersion),
-        BuildInfoKey.constant("sbtIdeaCompilerIndicesVersion", Versions.compilerIndicesVersion),
-        BuildInfoKey.constant("sbtLatest_0_12", Versions.Sbt.latest_0_12),
-        BuildInfoKey.constant("sbtLatest_0_13", Versions.Sbt.latest_0_13),
-        BuildInfoKey.constant("sbtLatest_1_0", Versions.Sbt.latest_1_0),
-        BuildInfoKey.constant("sbtLatestVersion", Versions.sbtVersion),
-        BuildInfoKey.constant("sbtStructurePath_0_13", 
-          relativeJarPath(sbtDep("org.jetbrains.scala","sbt-structure-extractor", Versions.sbtStructureVersion, "0.13"))),
-        BuildInfoKey.constant("sbtStructurePath_1_0", 
-          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0")))
-        )
+        sbtVersion,
+        "bloopVersion" -> Versions.bloopVersion,
+        "sbtStructureVersion" -> Versions.sbtStructureVersion,
+        "sbtIdeaShellVersion" -> Versions.sbtIdeaShellVersion,
+        "sbtIdeaCompilerIndicesVersion" -> Versions.compilerIndicesVersion,
+        "sbtLatest_0_12" -> Versions.Sbt.latest_0_12,
+        "sbtLatest_0_13" -> Versions.Sbt.latest_0_13,
+        "sbtLatest_1_0" -> Versions.Sbt.latest_1_0,
+        "sbtLatestVersion" -> Versions.sbtVersion,
+        "sbtStructurePath_0_13" ->
+          relativeJarPath(sbtDep("org.jetbrains.scala","sbt-structure-extractor", Versions.sbtStructureVersion, "0.13")),
+        "sbtStructurePath_1_0" ->
+          relativeJarPath(sbtDep("org.jetbrains.scala", "sbt-structure-extractor", Versions.sbtStructureVersion, "1.0"))
+      ),
+      buildInfoOptions += BuildInfoOption.ConstantValue
     )
     .withCompilerPluginIn(scalacPatches) // TODO Add to other modules
 
