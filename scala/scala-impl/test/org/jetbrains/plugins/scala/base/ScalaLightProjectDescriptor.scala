@@ -50,4 +50,7 @@ object SharedTestProjectToken {
 
   def ByScalaSdkAndProjectLibraries(test: LibrariesOwner with ScalaSdkOwner): SharedTestProjectToken =
     SharedTestProjectToken((test.version, test.librariesLoadersPublic))
+
+  def ByTestClassAndScalaSdkAndProjectLibraries(test: LibrariesOwner with ScalaSdkOwner): SharedTestProjectToken =
+    SharedTestProjectToken((test.getClass, test.version, test.librariesLoadersPublic))
 }

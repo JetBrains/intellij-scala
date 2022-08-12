@@ -8,9 +8,12 @@ import com.intellij.ide.ui.UISettings
 import com.intellij.openapi.util.text.StringUtil.getShortName
 import com.intellij.psi.statistics.StatisticsManager
 import com.intellij.psi.statistics.impl.StatisticsManagerImpl
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.util.TestUtils
 
 abstract class ScalaCompletionSortingTestBase extends ScalaCompletionTestBase {
+
+  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -30,7 +33,7 @@ abstract class ScalaCompletionSortingTestBase extends ScalaCompletionTestBase {
 
   override def getTestDataPath: String = TestUtils.getTestDataPath + "/completion3/"
 
-  def invokeCompletion: LookupImpl = {
+  private def invokeCompletion(): LookupImpl = {
     val path = getTestName(false) + ".scala"
 
     val projectFile = myFixture.copyFileToProject(path, getShortName(path, '/'))
@@ -44,7 +47,7 @@ abstract class ScalaCompletionSortingTestBase extends ScalaCompletionTestBase {
     LookupManager.getActiveLookup(getEditor).asInstanceOf[LookupImpl]
 
   def checkFirst(expected: String*): Unit = {
-    invokeCompletion
+    invokeCompletion()
     assertPreferredItems(expected: _*)
   }
 

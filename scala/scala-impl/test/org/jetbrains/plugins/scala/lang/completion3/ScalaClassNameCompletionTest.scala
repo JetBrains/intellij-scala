@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.completion3
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
@@ -275,6 +276,8 @@ class ImportsWithPrefixCompletionTest extends ScalaClassNameCompletionTest {
 class FullQualifiedImportsCompletionTest extends ScalaClassNameCompletionTest {
 
   private var isAddFullQualifiedImports: Boolean = false
+
+  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 
   protected override def setUp(): Unit = {
     super.setUp()

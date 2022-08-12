@@ -27,7 +27,7 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTest 
   import Lookup.REPLACE_SELECT_CHAR
   import ScalaCompletionTestBase._
 
-  override protected def sharedProjectToken = SharedTestProjectToken((version, librariesLoaders))
+  override protected def sharedProjectToken = SharedTestProjectToken.ByScalaSdkAndProjectLibraries(this)
 
   protected override def setUp(): Unit = {
     super.setUp()
@@ -94,7 +94,12 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTest 
       case Some(item) =>
         lookup.finishLookup(char, item)
         checkResultByText(resultText)
-      case _ => fail("Lookup not found")
+      case _ =>
+        fail(
+          s"""Lookup not found.
+             |All lookups:
+             |${lookupItemsDebugText(items)}""".stripMargin
+        )
     }
   }
 
@@ -112,6 +117,13 @@ abstract class ScalaCompletionTestBase extends ScalaLightCodeInsightFixtureTest 
     configureFromFileText(fileText)
 
     val lookups = myFixture.complete(`type`, invocationCount)
+    if (lookups != null && lookups.exists(predicate)) {
+      fail(
+        s"""Expected no lookups matching predicate.
+           |All lookups:
+           |${lookupItemsDebugText(lookups)}""".stripMargin
+      )
+    }
     assertFalse(lookups != null && lookups.exists(predicate))
   }
 
@@ -182,7 +194,22 @@ object ScalaCompletionTestBase {
         presentation.getTailText == tailText &&
         presentation.getTypeText == typeText &&
         isTailGrayed(presentation) == grayed
-    case _ => false
+    case _ =>
+      false
+  }
+
+  private def lookupItemsDebugText(items: Iterable[LookupElement]): String =
+    items.map(lookupItemDebugText).mkString("\n")
+
+  //TODO: unify with hasItemText and show difference in test error message
+  private def lookupItemDebugText(item: LookupElement): String = {
+    val presentation = createPresentation(item)
+    "ItemText: " + presentation.getItemText +
+      ", TailText: " + presentation.getTailText +
+      ", TypeText: " + presentation.getTypeText +
+      ", Italic: " + presentation.isItemTextItalic +
+      ", Bold: " + presentation.isItemTextBold +
+      ", TailGrayed: " + isTailGrayed(presentation)
   }
 
   private def isTailGrayed(presentation: LookupElementPresentation): Boolean = {

@@ -11,8 +11,6 @@ import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScala
 ))
 class ScalaClausesCompletionTest extends ScalaClausesCompletionTestBase {
 
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_2_12
-
   import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase._
   import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword.{CASE, MATCH}
   import org.jetbrains.plugins.scala.lang.completion.clauses.DirectInheritors.FqnBlockList

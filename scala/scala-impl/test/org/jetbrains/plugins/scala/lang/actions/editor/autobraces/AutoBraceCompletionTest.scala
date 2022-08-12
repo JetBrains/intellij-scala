@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScala
 ))
 class AutoBraceCompletionTest extends ScalaCompletionTestBase {
 
+  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
+
   protected override def setUp(): Unit = {
     super.setUp()
     getProject.getService(classOf[AutoBraceLookupListenerService])

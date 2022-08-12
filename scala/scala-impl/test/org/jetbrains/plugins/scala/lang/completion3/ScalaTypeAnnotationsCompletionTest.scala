@@ -5,8 +5,8 @@ import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.lang.completion3.base.ScalaCompletionTestBase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-trait ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase { self =>
-  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(self.getClass)
+abstract class ScalaTypeAnnotationsCompletionTestBase extends ScalaCompletionTestBase {
+  override protected def sharedProjectToken = SharedTestProjectToken.ByTestClassAndScalaSdkAndProjectLibraries(this)
 }
 
 class ScalaTypeAnnotationsCompletionTest extends ScalaTypeAnnotationsCompletionTestBase {
