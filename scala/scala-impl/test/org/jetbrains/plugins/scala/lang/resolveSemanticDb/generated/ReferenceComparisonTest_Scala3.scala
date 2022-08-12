@@ -264,7 +264,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_gadt_param_unification(): Unit = doTest("gadt-param-unification", true)
   def test_gadt_simpleEQ(): Unit = doTest("gadt-simpleEQ", true)
   def test_gadt_strip_refinement(): Unit = doTest("gadt-strip-refinement", true)
-  def test_gadt_TailCalls(): Unit = doTest("gadt-TailCalls", false)
+  def test_gadt_TailCalls(): Unit = doTest("gadt-TailCalls", true)
   def test_gadt_TypeSafeLambda(): Unit = doTest("gadt-TypeSafeLambda", false)
   def test_gadt_upcast(): Unit = doTest("gadt-upcast", true)
   def test_gadt_variant_hkt(): Unit = doTest("gadt-variant-hkt", true) // #enum
