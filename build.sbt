@@ -365,7 +365,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     crossPaths := false, // disable using the Scala version in output paths and artifacts
     autoScalaLibrary := false, // removes Scala dependency,
     scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
-    javacOptions := Seq("--release", "11"), // finders are run in IDEA process, so using JDK 11
+    javacOptions := Seq("--release", "17"), // finders are run in IDEA process, so using JDK 17
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar"),
     intellijMainJars := Nil, //without this lineon SDK is still added (as "Provided"), while it shouldn't
   )
