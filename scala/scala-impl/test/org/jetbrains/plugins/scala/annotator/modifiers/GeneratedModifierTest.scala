@@ -13,6 +13,9 @@ import org.junit.experimental.categories.Category
 
 import java.io.File
 
+/**
+ * See also [[org.jetbrains.plugins.scala.annotator.modifiers.ModifierCheckerTestBase]]
+ */
 @Category(Array(classOf[TypecheckerTests]))
 class GeneratedModifierTest extends SimpleTestCase {
 
