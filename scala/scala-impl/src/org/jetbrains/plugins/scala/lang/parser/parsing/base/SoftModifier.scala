@@ -1,37 +1,52 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package base
+package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
-import com.intellij.psi.tree.{IElementType, TokenSet}
+import com.intellij.psi.tree.TokenSet
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaModifier, ScalaModifierTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 // See https://dotty.epfl.ch/docs/reference/soft-modifier.html
-sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRule {
+object SoftModifier extends ParsingRule {
+
+  private val modifiers = Seq(
+    Inline,
+    Transparent,
+    Open,
+    Infix,
+    Opaque,
+  )
 
   import ScalaTokenTypes._
 
-  override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
-    case IsSoftModifier(tokenType) if isAllowed(tokenType) =>
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = SoftModifier(builder) match {
+    case Some(remappedTokenType) if isAllowed(remappedTokenType) =>
       val marker = builder.mark()
 
-      builder.remapCurrentToken(tokenType)
+      builder.remapCurrentToken(remappedTokenType)
       builder.advanceLexer() // ate soft modifier
 
       // soft modifiers must me followed either by:
       // * a hard modifier;
       // * a definition start;
       // * another soft modifier;
-      val result = builder.getTokenType match {
-        case `kCASE` => isCaseDefinition.contains(builder.lookAhead(1))
-        case tokenType if isDefinitionStart.contains(tokenType) ||
-          isHardModifier.contains(tokenType) => true
-        case IsSoftModifier(_) => isFollowedBySoftModifier()
-        case _ => false
+      val nextTokenType = builder.getTokenType
+      val result = nextTokenType match {
+        case `kCASE` =>
+          isCaseDefinition.contains(builder.lookAhead(1))
+        case _ =>
+          if (isDefinitionStart.contains(nextTokenType) || isHardModifier.contains(nextTokenType))
+            true
+          else {
+            val maybeSoftModifier = SoftModifier(builder)
+            maybeSoftModifier match {
+              case Some(_) =>
+                isFollowedBySoftModifier()
+              case None =>
+                false
+            }
+          }
       }
 
       if (result) marker.drop()
@@ -47,16 +62,18 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
   private def isAllowed(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
     builder.isScala3 || isAllowedInSource3(tokenType)
 
-  protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = false
-
-  private object IsSoftModifier {
-
-    def unapply(tokenType: IElementType)
-               (implicit builder: ScalaPsiBuilder): Option[ScalaModifierTokenType] =
-      Option(ScalaModifier.byText(builder.getTokenText))
-        .filter(modifiers.contains)
-        .map(ScalaModifierTokenType(_))
+  private def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val modifier = tokenType.modifier
+    if (modifier == Open || modifier == Infix)
+      builder.features.`soft keywords open and infix`
+    else
+      false
   }
+
+  private def SoftModifier(builder: ScalaPsiBuilder): Option[ScalaModifierTokenType] =
+    Option(ScalaModifier.byText(builder.getTokenText))
+      .filter(modifiers.contains)
+      .map(ScalaModifierTokenType(_))
 
   private def isFollowedBySoftModifier()(implicit builder: ScalaPsiBuilder): Boolean = {
     // check if there is another soft modifier
@@ -95,28 +112,3 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
     ObjectKeyword,
   )
 }
-
-/**
- * [[LocalSoftModifier]] ::= 'inline'
- * * | 'transparent'
- * * | 'open'
- */
-object LocalSoftModifier extends SoftModifier(
-  Inline,
-  Transparent,
-  Open,
-  Infix,
-) {
-  override protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.features.`soft keywords open and infix` && {
-      val modifier = tokenType.modifier
-      modifier == Open || modifier == Infix
-    }
-}
-
-/**
- * [[OpaqueModifier]] ::= 'opaque'
- */
-object OpaqueModifier extends SoftModifier(
-  Opaque
-)

@@ -1,10 +1,7 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package base
+package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kOVERRIDE
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
@@ -20,8 +17,8 @@ object Modifier extends ParsingRule {
       builder.advanceLexer() // Ate override
       true
     case _ =>
-      OpaqueModifier() ||
-        LocalModifier() ||
+      LocalNonSoftModifier() ||
+        SoftModifier() ||
         AccessModifier()
   }
 }

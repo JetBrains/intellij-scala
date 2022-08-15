@@ -1,21 +1,19 @@
-package org.jetbrains.plugins.scala
-package lang
-package parser
-package parsing
-package base
+package org.jetbrains.plugins.scala.lang.parser.parsing.base
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
- * [[LocalModifier]] ::= 'abstract'
- * | 'final'
- * | 'sealed'
- * | 'implicit'
- * | 'lazy'
- * | [[LocalSoftModifier]]
+ * {{{
+ * LocalModifier ::= 'abstract'
+ *                 | 'final'
+ *                 | 'sealed'
+ *                 | 'implicit'
+ *                 | 'lazy'
+ * }}}
  */
-object LocalModifier extends ParsingRule {
+object LocalNonSoftModifier extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case `kABSTRACT` |
@@ -25,6 +23,7 @@ object LocalModifier extends ParsingRule {
          `kLAZY` =>
       builder.advanceLexer() // Ate modifier
       true
-    case _ => LocalSoftModifier()
+    case _ =>
+      false
   }
 }
