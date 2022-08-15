@@ -1,36 +1,29 @@
-package org.jetbrains.plugins.scala
-package codeInspection
-package recursion
+package org.jetbrains.plugins.scala.codeInspection.recursion
 
-import com.intellij.codeInspection._
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.FunctionAnnotator
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, intention}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
-final class NoTailRecursionAnnotationInspection extends AbstractRegisteredInspection {
+final class NoTailRecursionAnnotationInspection extends LocalInspectionTool {
 
   import intention.recursion.AddTailRecursionAnnotationIntention._
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
-      case CanBeTailRecursive(function) if FunctionAnnotator.canBeTailRecursive(function) =>
-        val quickFix = new AbstractFixOnPsiElement(
-          ScalaCodeInsightBundle.message("no.tailrec.annotation.fix"),
-          function
-        ) {
-          override protected def doApplyFix(function: ScFunctionDefinition)
-                                           (implicit project: Project): Unit = {
-            addTailRecursionAnnotation(function)
-          }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case element@CanBeTailRecursive(function) if FunctionAnnotator.canBeTailRecursive(function) =>
+      val quickFix = new AbstractFixOnPsiElement(
+        ScalaCodeInsightBundle.message("no.tailrec.annotation.fix"),
+        function
+      ) {
+        override protected def doApplyFix(function: ScFunctionDefinition)
+                                         (implicit project: Project): Unit = {
+          addTailRecursionAnnotation(function)
         }
+      }
 
-        super.problemDescriptor(element, Some(quickFix), descriptionTemplate, highlightType)
-      case _ => None
-    }
+      holder.registerProblem(element, getDisplayName, quickFix)
+    case _ => None
+  }
 }

@@ -1,23 +1,23 @@
 package org.jetbrains.plugins.scala.codeInspection.targetNameAnnotation
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.AbstractRegisteredInspection
+import org.jetbrains.plugins.scala.codeInspection.PsiElementVisitorSimple
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
-trait TargetNameInspectionBase extends AbstractRegisteredInspection {
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager,
-                                           isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    if (element.isInScala3File)
-      findProblemElement.lift(element).flatMap { case ProblemElement(elem, quickFix, description) =>
+trait TargetNameInspectionBase extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = { element =>
+    if (element.isInScala3File) {
+      findProblemElement.lift(element).foreach { problemElement =>
         //noinspection ReferencePassedToNls
-        super.problemDescriptor(elem, quickFix, description.getOrElse(descriptionTemplate), highlightType)
+        holder.registerProblem(
+          problemElement.element,
+          problemElement.maybeDescription.getOrElse(getDisplayName),
+          problemElement.maybeQuickFix.toArray: _*
+        )
       }
-    else None
+    }
+  }
 
   protected def findProblemElement: PartialFunction[PsiElement, ProblemElement]
 }

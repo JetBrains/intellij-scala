@@ -5,14 +5,14 @@ package i18n
 package internal
 
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.codeInspection.{BatchQuickFix, CommonProblemDescriptor, InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{BatchQuickFix, CommonProblemDescriptor, LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.ui.Messages
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.format.AnyTopmostStringParts
 import org.jetbrains.plugins.scala.lang.psi.ScImportsHolder
@@ -24,28 +24,22 @@ import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.Bundle
 import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.ScalaExtractStringToBundleInspection._
 
 import java.util
+import scala.annotation.unused
 
 //noinspection ScalaExtractStringToBundle
-class ScalaExtractStringToBundleInspection extends AbstractRegisteredInspection {
+class ScalaExtractStringToBundleInspection extends LocalInspectionTool {
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix] = None,
-                                           descriptionTemplate: String = getDisplayName,
-                                           highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    element match {
-      case element@AnyTopmostStringParts(parts) if !shouldBeIgnored(element, parts) =>
-        val isNaturalLang = containsNaturalLangString(element, parts)
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case element@AnyTopmostStringParts(parts) if !shouldBeIgnored(element) =>
+      val isNaturalLang = containsNaturalLangString(element, parts)
 
-        if (isNaturalLang || (isOnTheFly && !ApplicationManager.getApplication.isUnitTestMode )) {
-          val quickFixes = Array[LocalQuickFix](new ScalaMoveToBundleQuickFix(element)) ++ maybeQuickFix
-          val highlight =
-            if (isNaturalLang) highlightType
-            else ProblemHighlightType.INFORMATION // make quickfix available for all strings
-          Some(manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlight))
-        } else None
-      case _ => None
-    }
+      if (isNaturalLang || (isOnTheFly && !ApplicationManager.getApplication.isUnitTestMode)) {
+        val highlight =
+          if (isNaturalLang) ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+          else ProblemHighlightType.INFORMATION // make quickfix available for all strings
+        holder.registerProblem(element, getDisplayName, highlight, new ScalaMoveToBundleQuickFix(element))
+      }
+    case _ =>
   }
 }
 
@@ -57,21 +51,24 @@ object ScalaExtractStringToBundleInspection {
       case _ => false
     }
 
-  private def isNaturalLangString(element: PsiElement, string: String): Boolean =
+  // TODO -- Looks like we should remove the commented code and call ScalaI18nUtil.isPassedToNls directly
+  private def isNaturalLangString(element: PsiElement, @unused string: String): Boolean =
     ScalaI18nUtil.isPassedToNls(element)
-    //string.length > 3 &&
-    //hasAtLeastOneLetters(string) &&
-    //!hasCamelCase(string)
+  //string.length > 3 &&
+  //hasAtLeastOneLetters(string) &&
+  //!hasCamelCase(string)
 
-  private lazy val letterRegex = raw"""\w""".r
-  private def hasAtLeastOneLetters(string: String): Boolean =
-    letterRegex.findFirstIn(string).isDefined
+//  private lazy val letterRegex = raw"""\w""".r
 
-  private lazy val camelCaseRegex = raw"""\p{Lower}\p{Upper}""".r
-  private def hasCamelCase(string: String): Boolean =
-    camelCaseRegex.findFirstIn(string).isDefined
+//  private def hasAtLeastOneLetters(string: String): Boolean =
+//    letterRegex.findFirstIn(string).isDefined
 
-  private def shouldBeIgnored(element: PsiElement, parts: Seq[format.StringPart]): Boolean =
+//  private lazy val camelCaseRegex = raw"""\p{Lower}\p{Upper}""".r
+//
+//  private def hasCamelCase(string: String): Boolean =
+//    camelCaseRegex.findFirstIn(string).isDefined
+
+  private def shouldBeIgnored(element: PsiElement): Boolean =
     hasNonNLSAnnotation(element) ||
       isTestSource(element) ||
       isInBundleMessageCall(element)
@@ -96,6 +93,7 @@ object ScalaExtractStringToBundleInspection {
   private class ScalaMoveToBundleQuickFix(_element: ScExpression)
     extends AbstractFixOnPsiElement("Extract to bundle", _element) with BatchQuickFix {
     override def startInWriteAction(): Boolean = false
+
     override protected def doApplyFix(element: ScExpression)(implicit project: Project): Unit = {
       val parts = element match {
         case AnyTopmostStringParts(parts) => parts.flatMap(ExtractPart.from)
@@ -103,7 +101,7 @@ object ScalaExtractStringToBundleInspection {
       }
 
       executeBundleExtraction(element, parts, project) {
-        case BundleExtractionInfo(bundleClassName, bundleQualifiedClassName, key, arguments ) =>
+        case BundleExtractionInfo(bundleClassName, bundleQualifiedClassName, key, arguments) =>
           // add import
           val importsHolder: ScImportsHolder =
             Option(PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]))

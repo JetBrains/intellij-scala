@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, ScalaInspectionBundle}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.DeprecatedKindProjectorSyntaxInspection.DeprecatedIdentifier
@@ -13,20 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.project._
 
-class DeprecatedKindProjectorSyntaxInspection extends AbstractRegisteredInspection {
-  override protected def problemDescriptor(
-    element:             PsiElement,
-    maybeQuickFix:       Option[LocalQuickFix],
-    descriptionTemplate: String,
-    highlightType:       ProblemHighlightType
-  )(implicit
-    manager:    InspectionManager,
-    isOnTheFly: Boolean
-  ): Option[ProblemDescriptor] = element match {
+class DeprecatedKindProjectorSyntaxInspection extends LocalInspectionTool {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case DeprecatedIdentifier(e, qf, message) =>
       //noinspection ReferencePassedToNls
-      super.problemDescriptor(e, qf, message, ProblemHighlightType.LIKE_DEPRECATED)
-    case _ => None
+      holder.registerProblem(e, message, ProblemHighlightType.LIKE_DEPRECATED, qf.toArray[LocalQuickFix]: _*)
+    case _ =>
   }
 }
 

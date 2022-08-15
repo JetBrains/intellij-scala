@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package shadow
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, LocalQuickFix, ProblemsHolder}
 import com.intellij.openapi.project.Project
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.codeInspection.quickfix.RenameElementQuickfix
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -13,27 +12,21 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createP
 import org.jetbrains.plugins.scala.lang.resolve.StdKinds
 import org.jetbrains.plugins.scala.lang.resolve.processor.ResolveProcessor
 
-class VariablePatternShadowInspection extends AbstractRegisteredInspection {
+import scala.annotation.unused
+
+@unused("registered in scala-plugin-common.xml")
+class VariablePatternShadowInspection extends LocalInspectionTool {
+
   import VariablePatternShadowInspection._
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    element match {
-      case refPat: ScReferencePattern if isInCaseClause(refPat) && doesShadowOtherPattern(refPat) =>
-        val quickFixes = Array[LocalQuickFix](
-          new ConvertToStableIdentifierPatternFix(refPat),
-          new RenameVariablePatternFix(refPat)
-        )
-        val descriptor =
-          manager.createProblemDescriptor(refPat.nameId, description, isOnTheFly, quickFixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-
-        Some(descriptor)
-      case _ =>
-        None
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case refPat: ScReferencePattern if isInCaseClause(refPat) && doesShadowOtherPattern(refPat) =>
+      val quickFixes = Array[LocalQuickFix](
+        new ConvertToStableIdentifierPatternFix(refPat),
+        new RenameVariablePatternFix(refPat)
+      )
+      holder.registerProblem(refPat.nameId, description, quickFixes: _*)
+    case _ =>
   }
 }
 
@@ -50,7 +43,7 @@ object VariablePatternShadowInspection {
       proc = new ResolveProcessor(StdKinds.valuesRef, dummyRef, ref.name)
       results = dummyRef.doResolve(proc)
     } yield results.exists(rr => proc.isAccessible(rr.getElement, ref))
-  ).getOrElse(false)
+    ).getOrElse(false)
 }
 
 class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)

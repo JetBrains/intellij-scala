@@ -1,38 +1,30 @@
 package org.jetbrains.plugins.scala.codeInspection.deprecation
 
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.{AbstractRegisteredInspection, ScalaInspectionBundle}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
+import org.jetbrains.plugins.scala.codeInspection.{PsiElementVisitorSimple, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-class ScalaDeprecatedIdentifierInspection extends AbstractRegisteredInspection {
+import scala.annotation.unused
+
+@unused("registered in scala-plugin-common.xml")
+class ScalaDeprecatedIdentifierInspection extends LocalInspectionTool {
   import ScalaDeprecatedIdentifierInspection._
 
-  override protected def problemDescriptor(
-    element:             PsiElement,
-    maybeQuickFix:       Option[LocalQuickFix],
-    descriptionTemplate: String,
-    highlightType:       ProblemHighlightType
-  )(implicit
-    manager:    InspectionManager,
-    isOnTheFly: Boolean
-  ): Option[ProblemDescriptor] = element match {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
     case ref: ScReference if deprecatedNames.contains(ref.refName) =>
-      super.problemDescriptor(
+      holder.registerProblem(
         ref.nameId,
-        None,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", ref.refName),
         ProblemHighlightType.LIKE_DEPRECATED
       )
     case named: ScNamedElement if deprecatedNames.contains(named.name) =>
-      super.problemDescriptor(
+      holder.registerProblem(
         named.nameId,
-        None,
         ScalaInspectionBundle.message("usage.of.deprecatedname.as.identifier.is.deprecated", named.name),
         ProblemHighlightType.LIKE_DEPRECATED
       )
-    case _ => None
+    case _ =>
   }
 }
 

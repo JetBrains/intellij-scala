@@ -1,31 +1,23 @@
 package org.jetbrains.plugins.scala.codeInspection.resourceLeaks
 
 import com.intellij.codeInspection._
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, Qualified, invocation, unqualifed}
 import org.jetbrains.plugins.scala.codeInspection._
+import org.jetbrains.plugins.scala.codeInspection.collections.{MethodRepr, Qualified, invocation, unqualifed}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 
 import scala.collection.immutable.ArraySeq
 
-class SourceNotClosedInspection extends AbstractRegisteredInspection {
+class SourceNotClosedInspection extends LocalInspectionTool {
 
-  override def problemDescriptor(element: PsiElement,
-                                 maybeQuickFix: Option[LocalQuickFix],
-                                 descriptionTemplate: String,
-                                 highlightType: ProblemHighlightType)
-                                (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    element match {
-      case MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) && NonClosingMethodOfSource() =>
-        super.problemDescriptor(element, maybeQuickFix, ScalaInspectionBundle.message("source.not.closed"), highlightType)
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case element@MethodRepr(_, Some(SourceCreatingMethod(_)), _, _) && NonClosingMethodOfSource() =>
+      holder.registerProblem(element, ScalaInspectionBundle.message("source.not.closed"))
 
-      case SourceCreatingMethod(expr) if expressionResultIsNotUsed(expr) =>
-        super.problemDescriptor(element, maybeQuickFix, ScalaInspectionBundle.message("source.not.closed"), highlightType)
+    case element@SourceCreatingMethod(expr) if expressionResultIsNotUsed(expr) =>
+      holder.registerProblem(element, ScalaInspectionBundle.message("source.not.closed"))
 
-      case _ =>
-        None
-    }
+    case _ =>
   }
 
   private object NonClosingMethodOfSource {
@@ -33,6 +25,7 @@ class SourceNotClosedInspection extends AbstractRegisteredInspection {
       "ch", "descr", "getLines", "hasNext", "mkString", "nerrors", "next",
       "nwarnings", "pos", "report", "reportError", "reportWarning", "reset"
     )
+
     private val sourceNonClosingMethods =
       invocation(sourceNonClosingMethodNames).from(ArraySeq("scala.io.Source", "scala.io.BufferedSource"))
 

@@ -5,11 +5,11 @@ package i18n
 package internal
 
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{LocalInspectionTool, ProblemsHolder}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.psi.{PsiElement, PsiReference}
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, PsiElementVisitorSimple}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotationsHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScConstructorPattern, ScPatternArgumentList}
@@ -20,30 +20,18 @@ import org.jetbrains.plugins.scala.scalai18n.codeInspection.i18n.internal.Refere
 
 import scala.collection.mutable
 
-class ReferencePassedToNlsInspection extends AbstractRegisteredInspection {
+class ReferencePassedToNlsInspection extends LocalInspectionTool {
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix] = None,
-                                           descriptionTemplate: String = getDisplayName,
-                                           highlightType: ProblemHighlightType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
-    val expr = element match {
-      case _: PsiReference | _: MethodInvocation if isPassedToNls(element) =>
-        resolveToNotNlsAnnotated(element)
-      case _ =>
-        None
-    }
-
-    expr
-      .map {
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case element@(_: PsiReference | _: MethodInvocation) if isPassedToNls(element) =>
+      resolveToNotNlsAnnotated(element).foreach {
         case Annotatable(ref) if isInProjectSource(ref) =>
-          val quickFixes = Array[LocalQuickFix](new AnnotateWithNls(ref)) ++ maybeQuickFix
-          manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
+          holder.registerProblem(element, getDisplayName, new AnnotateWithNls(ref))
 
         case _ =>
-          val quickFixes = Array[LocalQuickFix]() ++ maybeQuickFix
-          manager.createProblemDescriptor(element, descriptionTemplate, isOnTheFly, quickFixes, highlightType)
+          holder.registerProblem(element, getDisplayName)
       }
+    case _ =>
   }
 }
 

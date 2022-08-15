@@ -5,6 +5,7 @@ import com.intellij.codeInspection._
 import com.intellij.psi.{PsiElement, PsiElementVisitor}
 import org.jetbrains.annotations.Nls
 
+@deprecated("Implement com.intellij.codeInspection.LocalInspectionTool.LocalInspectionTool directly", "2022.3")
 abstract class AbstractRegisteredInspection extends LocalInspectionTool {
 
   protected def problemDescriptor(element: PsiElement,

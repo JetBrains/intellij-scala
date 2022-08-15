@@ -6,22 +6,15 @@ import com.intellij.codeInspection._
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-abstract class AbstractMethodSignatureInspection extends AbstractRegisteredInspection {
+abstract class AbstractMethodSignatureInspection extends LocalInspectionTool {
 
-  override protected def problemDescriptor(element: PsiElement,
-                                           maybeQuickFix: Option[LocalQuickFix],
-                                           descriptionTemplate: String,
-                                           highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager,
-                                           isOnTheFly: Boolean): Option[ProblemDescriptor] =
-    element match {
-      case function: ScFunction if isApplicable(function) =>
-        findProblemElement(function) match {
-          case Some(problemElement) => super.problemDescriptor(problemElement, createQuickFix(function), descriptionTemplate, highlightType)
-          case _ => None
-        }
-      case _ => None
-    }
+  override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitorSimple = {
+    case function: ScFunction if isApplicable(function) =>
+      findProblemElement(function).foreach {
+        holder.registerProblem(_, getDisplayName, createQuickFix(function).toArray: _*)
+      }
+    case _ =>
+  }
 
   protected def isApplicable(function: ScFunction): Boolean
 
