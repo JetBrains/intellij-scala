@@ -1,5 +1,6 @@
 package org.jetbrains.bsp.settings
 
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components._
 import com.intellij.openapi.externalSystem.model.settings.ExternalSystemExecutionSettings
@@ -11,9 +12,8 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.messages.Topic
 import com.intellij.util.xmlb.Converter
 import com.intellij.util.xmlb.annotations.{OptionTag, XCollection}
-import org.jetbrains.bsp.settings.BspProjectSettings._
 import org.jetbrains.bsp._
-import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.bsp.settings.BspProjectSettings._
 
 import java.io.File
 import java.nio.file.{Path, Paths}
@@ -188,10 +188,8 @@ class BspSettings(project: Project)
 
   def getSystemSettings: BspSystemSettings = BspSystemSettings.getInstance
 
-  override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings]): Unit = {
-    val adapter = new BspProjectSettingsListenerAdapter(listener)
-    getProject.getMessageBus.connect(getProject.unloadAwareDisposable).subscribe(BspSettings.BspTopic, adapter)
-  }
+  override def subscribe(listener: ExternalSystemSettingsListener[BspProjectSettings], parentDisposable: Disposable): Unit =
+    doSubscribe(new BspProjectSettingsListenerAdapter(listener), parentDisposable)
 
   override def copyExtraSettingsFrom(settings: BspSettings): Unit = {}
 
