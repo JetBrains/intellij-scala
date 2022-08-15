@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package varCouldBeValInspection
 
-import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.{LocalQuickFixAndIntentionActionOnPsiElement, ProblemHighlightType}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -46,7 +46,7 @@ object VarCouldBeValInspection {
       startElement match {
         case variable: ScVariableDefinition =>
           val file = variable.getContainingFile
-          if (file != null && (!file.isPhysical || FileModificationService.getInstance.prepareFileForWrite(file))) {
+          if (file != null && IntentionPreviewUtils.prepareElementForWrite(file)) {
             val replacement = createValFromVarDefinition(variable)
             variable.replace(replacement)
           }

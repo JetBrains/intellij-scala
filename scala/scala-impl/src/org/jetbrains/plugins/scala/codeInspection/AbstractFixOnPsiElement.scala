@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.codeInspection
 
-import com.intellij.codeInsight.FileModificationService
+import com.intellij.codeInsight.intention.preview.IntentionPreviewUtils
 import com.intellij.codeInspection.LocalQuickFixOnPsiElement
 import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiElement, PsiFile}
@@ -25,7 +25,7 @@ abstract class AbstractFixOnPsiElement[T <: PsiElement](@Nls name: String, eleme
     @NotNull startElement: PsiElement,
     @NotNull endElement: PsiElement
   ): Unit = {
-    if (file.isPhysical && !FileModificationService.getInstance.prepareFileForWrite(file))
+    if (!IntentionPreviewUtils.prepareElementForWrite(file))
       return
 
     if (!startElement.isValid)
@@ -48,7 +48,7 @@ abstract class AbstractFixOnTwoPsiElements[T <: PsiElement, S <: PsiElement](@Nl
   override def getFamilyName: String = getText
 
   override final def invoke(project: Project, file: PsiFile, startElement: PsiElement, endElement: PsiElement): Unit = {
-    if (!FileModificationService.getInstance.prepareFileForWrite(file)) return
+    if (!IntentionPreviewUtils.prepareElementForWrite(file)) return
 
     (myStartElement, myEndElement) match {
       case (ValidSmartPointer(first: T@unchecked), ValidSmartPointer(second: S@unchecked)) => doApplyFix(first, second)(project)
