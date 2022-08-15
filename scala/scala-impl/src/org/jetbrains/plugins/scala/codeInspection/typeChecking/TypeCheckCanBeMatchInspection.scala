@@ -249,9 +249,8 @@ object TypeCheckCanBeMatchInspection {
   @tailrec
   def findIsInstanceOfCalls(condition: ScExpression, onlyFirst: Boolean = false): List[ScGenericCall] = condition match {
     case _ if !onlyFirst =>
-      separateConditions(condition).collect {
-        case IsInstanceOfCall(call) => call
-      }
+      val conditionsSeparate = separateConditions(condition)
+      conditionsSeparate.collect {  case IsInstanceOfCall(call) => call }
     case IsInstanceOfCall(call) => call :: Nil
     case IsConjunction(left, _) => findIsInstanceOfCalls(left, onlyFirst)
     case ScParenthesisedExpr(expression) => findIsInstanceOfCalls(expression, onlyFirst)
@@ -339,16 +338,17 @@ object TypeCheckCanBeMatchInspection {
   }
 
   private def findGuardCondition(condition: ScExpression)
-                                (predicate: ScExpression => Boolean): Option[ScExpression] =
-    separateConditions(condition)
-      .filterNot(predicate)
-      .map(_.getText)
-      .mkString(" && ") match {
-      case text if text.isEmpty => None
-      case text => Some(createExpressionFromText(text, condition))
-    }
+                                (predicate: ScExpression => Boolean): Option[ScExpression] = {
+    val conditionsSeparate = separateConditions(condition)
+    val conditionsSeparateFiltered = conditionsSeparate.filterNot(predicate)
+    val text = conditionsSeparateFiltered.map(_.getText).mkString(" && ")
+    if (text.isEmpty)
+      None
+    else
+      Some(createExpressionFromText(text, condition))
+  }
 
-  private def equiv =
+  private def equiv: (PsiElement, PsiElement) => Boolean =
     PsiEquivalenceUtil.areElementsEquivalent(
       _: PsiElement,
       _: PsiElement, {
@@ -367,21 +367,26 @@ object TypeCheckCanBeMatchInspection {
       false
     )
 
-  private def separateConditions(expression: ScExpression) = {
+  private def separateConditions(expression: ScExpression): List[ScExpression] = {
     @tailrec
     def separateConditions(expressions: List[ScExpression],
                            accumulator: List[ScExpression]): List[ScExpression] = expressions match {
       case Nil => accumulator
       case head :: tail =>
         val (newExpressions, newAccumulator) = head match {
-          case IsConjunction(left, right) => (left :: right :: tail, accumulator)
-          case ScParenthesisedExpr(infixExpression: ScInfixExpr) => (infixExpression :: tail, accumulator)
-          case ScParenthesisedExpr(call: ScGenericCall) => (tail, call :: accumulator)
-          case _ => (tail, head :: accumulator)
+          case IsConjunction(left, right) =>
+            (left :: right :: tail, accumulator)
+          case ScParenthesisedExpr(infixExpression: ScInfixExpr) =>
+            (infixExpression :: tail, accumulator)
+          case ScParenthesisedExpr(call: ScGenericCall) =>
+            (tail, call :: accumulator)
+          case _ =>
+            (tail, head :: accumulator)
         }
         separateConditions(newExpressions, newAccumulator)
     }
 
-    separateConditions(List(expression), Nil)
+    val result = separateConditions(List(expression), Nil)
+    result.reverse
   }
 }

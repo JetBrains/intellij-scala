@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala
-package codeInsight
-package intentions
-package expression
+package org.jetbrains.plugins.scala.codeInsight.intentions.expression
+
+import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.intentions.ScalaIntentionTestBase
 
 class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
 
@@ -73,7 +73,7 @@ class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
        |}""".stripMargin,
     """val x = 0
       |x match {
-      |  case y: Int if y == 1 && x > 0 =>
+      |  case y: Int if x > 0 && y == 1 =>
       |    println(y)
       |  case _ =>
       |}""".stripMargin
@@ -217,4 +217,41 @@ class ReplaceTypeCheckWithMatchIntentionTest extends ScalaIntentionTestBase {
       |  case _ =>
       |}""".stripMargin
   )
+
+  def testIfChecksOrderShouldRemain(): Unit = {
+    doTest(
+      s"""abstract class Node {
+         |  val parent: Node = ???
+         |}
+         |
+         |class MyNode1 extends Node
+         |
+         |object Example {
+         |  val node: Node = ???
+         |
+         |  if (node.${CARET}isInstanceOf[MyNode1] && node.parent != null && node.parent.parent != null && node.parent.parent.parent != null) {
+         |    println(1)
+         |  }
+         |  else {
+         |    println(2)
+         |  }
+         |}""".stripMargin,
+      """abstract class Node {
+        |  val parent: Node = ???
+        |}
+        |
+        |class MyNode1 extends Node
+        |
+        |object Example {
+        |  val node: Node = ???
+        |
+        |  node match {
+        |    case _: MyNode1 if node.parent != null && node.parent.parent != null && node.parent.parent.parent != null =>
+        |      println(1)
+        |    case _ =>
+        |      println(2)
+        |  }
+        |}""".stripMargin
+    )
+  }
 }

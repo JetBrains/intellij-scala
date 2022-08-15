@@ -22,7 +22,9 @@ final class ReplaceTypeCheckWithMatchIntention extends PsiElementBaseIntentionAc
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     instanceOfCall(element).exists { case (iioCall, _) =>
       val offset = editor.getCaretModel.getOffset
-      iioCall.getTextRange.containsOffset(offset)
+
+      val range = iioCall.getTextRange
+      offset >= range.getStartOffset && offset <= range.getEndOffset
     }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit =
