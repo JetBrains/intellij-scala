@@ -7,7 +7,8 @@ import com.intellij.psi._
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-final class ScalaCommentContextType extends ScalaFileTemplateContextType.ElementContextType("COMMENT", ScalaCodeInsightBundle.message("element.context.type.comment")) {
+final class ScalaCommentContextType
+  extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.comment")) {
 
   override protected def isInContext(offset: Int)
                                     (implicit file: ScalaFile): Boolean =

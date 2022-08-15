@@ -102,7 +102,8 @@
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
         <defaultLiveTemplates file="liveTemplates/sbt"/>
-        <liveTemplateContext implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
+        <liveTemplateContext contextId="sbt"
+                             implementation="org.jetbrains.sbt.codeInsight.template.SbtLiveTemplateContextType"/>
 
         <!--suppress PluginXmlCapitalization -->
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtReplaceProjectWithProjectInInspection"

@@ -5,7 +5,8 @@ package impl
 
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-final class ScalaCodeContextType extends ScalaFileTemplateContextType.ElementContextType("CODE", ScalaCodeInsightBundle.message("element.context.type.code")) {
+final class ScalaCodeContextType
+  extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.code")) {
 
   override protected def isInContext(offset: Int)
                                     (implicit file: ScalaFile): Boolean =

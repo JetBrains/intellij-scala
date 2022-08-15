@@ -31,13 +31,26 @@
 
         <defaultLiveTemplates file="liveTemplates/scala"/>
         <liveTemplatePreprocessor implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaTemplatePreprocessor"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitValueClassContextType"/>
-        <liveTemplateContext implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaBlankLineContextType"/>
+        <liveTemplateContext contextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaFileTemplateContextType"/>
+        <liveTemplateContext contextId="SCALA_XML"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaXmlContextType"/>
+        <liveTemplateContext contextId="SCALA_COMMENT"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCommentContextType"/>
+        <liveTemplateContext contextId="SCALA_STRING"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaStringContextType"/>
+        <liveTemplateContext contextId="SCALA_CODE"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaCodeContextType"/>
+        <liveTemplateContext contextId="SCALA_IMPLICIT_VALUE_CLASS"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaImplicitValueClassContextType"/>
+        <liveTemplateContext contextId="SCALA_BLANK_LINE"
+                             baseContextId="SCALA"
+                             implementation="org.jetbrains.plugins.scala.codeInsight.template.impl.ScalaBlankLineContextType"/>
 
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaAnnotatedMacro"/>
         <liveTemplateMacro implementation="org.jetbrains.plugins.scala.codeInsight.template.macros.ScalaVariableOfTypeMacro$RegularVariable"/>

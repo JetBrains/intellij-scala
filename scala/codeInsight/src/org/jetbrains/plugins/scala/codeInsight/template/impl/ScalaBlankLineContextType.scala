@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.codeInsight.template.impl
 import com.intellij.psi.PsiWhiteSpace
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
-import org.jetbrains.plugins.scala.extensions.{&&, ObjectExt, Parent, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{&&, Parent, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 
 final class ScalaBlankLineContextType
-  extends ScalaFileTemplateContextType.ElementContextType("BLANK_LINE", ScalaCodeInsightBundle.message("element.context.type.blank.line")) {
+  extends ScalaFileTemplateContextType.ElementContextType(ScalaCodeInsightBundle.message("element.context.type.blank.line")) {
 
   override protected def isInContext(offset: Int)
                                     (implicit file: ScalaFile): Boolean = {

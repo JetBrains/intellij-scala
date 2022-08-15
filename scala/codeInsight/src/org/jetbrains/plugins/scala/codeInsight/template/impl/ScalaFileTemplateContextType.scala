@@ -9,17 +9,14 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 
 final class ScalaFileTemplateContextType extends FileTypeBasedContextType(
-  ScalaFileTemplateContextType.PresentableName.toUpperCase,
-  ScalaFileTemplateContextType.PresentableName,
+  ScalaLanguage.INSTANCE.getDisplayName,
   ScalaFileType.INSTANCE
 )
 
 object ScalaFileTemplateContextType {
 
-  private val PresentableName = "Scala"
-
-  private[impl] abstract class ElementContextType(idSuffix: String, @Nls presentableName: String)
-    extends TemplateContextType(s"${PresentableName}_$idSuffix".toUpperCase, presentableName, classOf[ScalaFileTemplateContextType]) {
+  private[impl] abstract class ElementContextType(@Nls presentableName: String)
+    extends TemplateContextType(presentableName) {
 
     protected def isInContext(offset: Int)
                              (implicit file: ScalaFile): Boolean
