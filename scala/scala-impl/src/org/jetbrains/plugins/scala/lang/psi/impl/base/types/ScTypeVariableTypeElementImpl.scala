@@ -4,10 +4,10 @@ package lang.psi.impl.base.types
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, ifReadAllowed}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypePattern, ScTypedPatternLike}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScTypeArgs, ScTypeElement, ScTypeVariableTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScTypePattern, ScTypedPatternLike}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeVariableTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -24,23 +24,20 @@ class ScTypeVariableTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(n
   @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")), BlockModificationTracker(this))
   override def inferredType: TypeResult = inferredType0
 
-  private def inferredType0: TypeResult = {
-    // There's no case in a pattern definition and no typed pattern in a match type case.
-    this.parents.takeWhile(_.is[ScTypeArgs, ScTypeElement, ScPattern, ScTypePattern]).findByType[ScTypedPatternLike] match {
-      case Some(typedPattern) =>
-        def patternConformsTo(t: ScParameterizedType) =
-          getParent.getParent.asInstanceOf[ScParameterizedTypeElementImpl].typeElement.`type`().exists(t.designator.conforms)
-        typedPattern.expectedType match {
-          case Some(existentialType: ScExistentialType) =>
-            existentialType.quantified match {
-              case expected: ScParameterizedType if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
-              case _ => Failure("Fruitless type test")
-            }
-          case Some(expected: ScParameterizedType) if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
-          case _ => Failure("Fruitless type test")
-        }
-      case None => Right(existentialArgumentWith(None))
-    }
+  private def inferredType0: TypeResult = getParent match {
+    case (_: ScTypeArgs) && Parent((_: ScParameterizedTypeElement) && Parent((_: ScTypePattern) && Parent(typedPattern: ScTypedPatternLike))) =>
+      def patternConformsTo(t: ScParameterizedType) =
+        getParent.getParent.asInstanceOf[ScParameterizedTypeElementImpl].typeElement.`type`().exists(t.designator.conforms)
+      typedPattern.expectedType match {
+        case Some(existentialType: ScExistentialType) =>
+          existentialType.quantified match {
+            case expected: ScParameterizedType if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
+            case _ => Failure("Fruitless type test")
+          }
+        case Some(expected: ScParameterizedType) if patternConformsTo(expected) => Right(existentialArgumentWith(boundsGiven(expected)))
+        case _ => Failure("Fruitless type test")
+      }
+    case _ => Right(existentialArgumentWith(None))
   }
 
   private def existentialArgumentWith(bounds: Option[(ScType, ScType)]): ScExistentialArgument = bounds match {

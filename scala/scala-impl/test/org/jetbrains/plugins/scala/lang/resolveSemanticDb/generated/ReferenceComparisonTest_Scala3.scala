@@ -23,7 +23,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_6709(): Unit = doTest("6709", true) // #matchType, #enum
   def test_7512(): Unit = doTest("7512", true) // #matchType
   def test_8313(): Unit = doTest("8313", false) // #matchType
-  def test_8647(): Unit = doTest("8647", false) // #matchType
+  def test_8647(): Unit = doTest("8647", true) // #matchType
   def test_8649(): Unit = doTest("8649", true) // #matchType
   def test_8778(): Unit = doTest("8778", false) // #matchType, #unionType
   def test_8905(): Unit = doTest("8905", true)

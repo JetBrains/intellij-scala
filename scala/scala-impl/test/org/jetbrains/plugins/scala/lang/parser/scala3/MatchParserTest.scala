@@ -127,4 +127,70 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('x')
       |      PsiWhiteSpace(' ')
       |      PsiElement(})('}')""".stripMargin)
+
+  def testTypeVariableNested(): Unit = checkTree(
+    "type T = Seq[Seq[Int]] match { case Seq[Seq[x]] => x }",
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MatchType: Seq[Seq[Int]] match { case Seq[Seq[x]] => x }
+      |      ParametrizedType: Seq[Seq[Int]]
+      |        SimpleType: Seq
+      |          CodeReferenceElement: Seq
+      |            PsiElement(identifier)('Seq')
+      |        TypeArgumentsList
+      |          PsiElement([)('[')
+      |          ParametrizedType: Seq[Int]
+      |            SimpleType: Seq
+      |              CodeReferenceElement: Seq
+      |                PsiElement(identifier)('Seq')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
+      |              PsiElement(])(']')
+      |          PsiElement(])(']')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(match)('match')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace(' ')
+      |      ScMatchTypeCasesImpl(match type cases)
+      |        ScMatchTypeCaseImpl(match type case)
+      |          PsiElement(case)('case')
+      |          PsiWhiteSpace(' ')
+      |          ParametrizedType: Seq[Seq[x]]
+      |            SimpleType: Seq
+      |              CodeReferenceElement: Seq
+      |                PsiElement(identifier)('Seq')
+      |            TypeArgumentsList
+      |              PsiElement([)('[')
+      |              ParametrizedType: Seq[x]
+      |                SimpleType: Seq
+      |                  CodeReferenceElement: Seq
+      |                    PsiElement(identifier)('Seq')
+      |                TypeArgumentsList
+      |                  PsiElement([)('[')
+      |                  TypeVariable: x
+      |                    PsiElement(identifier)('x')
+      |                  PsiElement(])(']')
+      |              PsiElement(])(']')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: x
+      |            CodeReferenceElement: x
+      |              PsiElement(identifier)('x')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(})('}')""".stripMargin)
 }
