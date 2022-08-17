@@ -32,7 +32,7 @@ final class WorksheetFileDeclarationsContributor extends FileDeclarationsContrib
 
   override def accept(holder: PsiElement): Boolean =
     holder match {
-      case file: WorksheetFile => file.isRepl
+      case file: WorksheetFile => ResNUtils.isResNSupportedInFile(file)
       case _ => false
     }
 
@@ -90,7 +90,7 @@ final class WorksheetFileDeclarationsContributor extends FileDeclarationsContrib
             case patternDef: ScPatternDefinition =>
               val declaredElements = patternDef.declaredElements
               declaredElements.foreach { declared =>
-                GotoOriginalHandlerUtil.storeNonModifiablePsi(declared, expr)
+                GotoOriginalHandlerUtil.setGoToTarget2(declared, expr)
 
                 val continue = processor.execute(declared, state)
                 continueLoop = continue

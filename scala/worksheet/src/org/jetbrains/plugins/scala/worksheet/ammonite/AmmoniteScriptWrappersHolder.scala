@@ -42,7 +42,7 @@ class AmmoniteScriptWrappersHolder(project: Project) {
     val obj = GotoOriginalHandlerUtil.createPsi((from: ScalaFile) => ScalaPsiElementFactory.createObjectWithContext(
       s"object ${AmmoniteScriptWrappersHolder.getWrapperName(from)} {\n${from.getText} }", from, from.getFirstChild
     ), from)
-    GotoOriginalHandlerUtil.storePsi(obj.getContainingFile, from)
+    GotoOriginalHandlerUtil.setGoToTarget(obj.getContainingFile, from)
 
     obj
   }
