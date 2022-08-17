@@ -84,6 +84,8 @@ final class WorksheetSyntheticModule(
 
   override def compilerProfileName: String =
     WorksheetFileSettings(getProject, virtualFile).getCompilerProfileName
+
+  override def hasComponent(interfaceClass: Class[_]): Boolean = cpModule.hasComponent(interfaceClass)
 }
 
 object WorksheetSyntheticModule {
