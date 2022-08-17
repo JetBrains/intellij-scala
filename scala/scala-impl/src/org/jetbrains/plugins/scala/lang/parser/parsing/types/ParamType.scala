@@ -21,16 +21,16 @@ trait ParamType extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.build(ScalaElementType.PARAM_TYPE) {
-      parseWithoutScParamTypeCreation(builder)
+      parseWithoutScParamTypeCreation()(builder)
     }
 
-  def parseWithoutScParamTypeCreation(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseWithoutScParamTypeCreation(isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val isByName = builder.getTokenType == ScalaTokenTypes.tFUNTYPE
     if (isByName) {
       builder.advanceLexer()
     }
     val allowStar = !isByName || builder.isScala3
-    val parsedType = `type`(star = allowStar)
+    val parsedType = `type`(isPattern = isPattern, star = allowStar)
 
     if (parsedType && allowStar) {
       builder.getTokenText match {

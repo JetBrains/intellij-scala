@@ -158,8 +158,9 @@ trait InfixType {
       override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
         parseInfixWildcardType() || componentType(star, isPattern)
 
+      // TODO Disambiguate between _: A | _: B in a match expression and A | B in a match type, see MatchParserTest.testMatchTypeInfixTypeWithoutParentheses
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
-        (!isPattern || builder.getTokenText != "|") && super.shouldContinue
+        (!isPattern || builder.getTokenText != "|" || star) && super.shouldContinue
 }
 
     infixParsingRule()
