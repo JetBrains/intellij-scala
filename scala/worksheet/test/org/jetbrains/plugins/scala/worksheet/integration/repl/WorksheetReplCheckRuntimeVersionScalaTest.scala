@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
-import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.plugins.scala.util.runners.{RunWithJdkVersions, RunWithScalaVersions, TestJdkVersion, TestScalaVersion}
 
-@RunWithJdkVersions(Array(
-  TestJdkVersion.JDK_1_8,
-  TestJdkVersion.JDK_11,
-))
+import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+
 class WorksheetReplCheckRuntimeVersionScalaTest extends WorksheetReplIntegrationBaseTest {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = true
