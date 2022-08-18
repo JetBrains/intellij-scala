@@ -43,6 +43,8 @@ public class NailgunRunner {
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.facebook.nailgun.builtins.NGStop";
 
+  private static final String JPS_COMPILATION_MAX_THREADS_KEY = "compile.parallel.max.threads";
+
   /**
    * An alternative to default nailgun main {@link com.facebook.nailgun.NGServer#main(java.lang.String[])}
    */
@@ -136,11 +138,13 @@ public class NailgunRunner {
   private static NGServer createServer(InetAddress address, int port, String id, Path scalaCompileServerSystemDir, URLClassLoader classLoader)
           throws Exception {
 
+    final String nailgunDefault = Integer.toString(NGServer.DEFAULT_SESSIONPOOLSIZE);
+    final int sessionPoolSize = Integer.parseInt(System.getProperty(JPS_COMPILATION_MAX_THREADS_KEY, nailgunDefault));
+
     NGServer server = new NGServer(
             address,
             port,
-            // explicitly pass default argument values to remind their existence
-            NGServer.DEFAULT_SESSIONPOOLSIZE,
+            sessionPoolSize,
             NGConstants.HEARTBEAT_TIMEOUT_MILLIS
     );
 
