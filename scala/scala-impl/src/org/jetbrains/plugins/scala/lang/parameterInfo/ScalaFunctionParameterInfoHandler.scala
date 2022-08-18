@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFuncti
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScConstructorOwner, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
+import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.TypeAnnotationRenderer.ParameterTypeDecorateOptions
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.{ModifiersRenderer, ParameterRenderer, TypeAnnotationRenderer, TypeRenderer}
@@ -91,10 +92,10 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
         }
         p match {
           case x: String if x == "" =>
-            buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            noParams(buffer)
           case (a: AnnotationParameters, _: Int) =>
             val seq = a.seq
-            if (seq.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            if (seq.isEmpty) noParams(buffer)
             else {
               val paramsSeq: Seq[(Parameter, String)] = seq.zipWithIndex.map {
                 case ((name, tp, value), paramIndex) =>
@@ -109,115 +110,135 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
             }
           case (sign: PhysicalMethodSignature, i: Int) => //i  can be -1 (it's update method)
             val subst = sign.substitutor
-            sign.method match {
-              case method: ScFunction =>
-                val clauses = method.effectiveParameterClauses
-                if (clauses.length <= i || (i == -1 && clauses.isEmpty)) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
-                  val length = clause.effectiveParameters.length
 
-                  val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
-                  val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
+            def processMethod(psiMethod: PsiMethod): Unit = {
+              def processApplyMethod(tpe: ScType): Unit = {
+                val maybeApplyMethod = tpe.extractClass.flatMap(_.getAllMethods.find {
+                  case fn: ScFunction             => fn.isApplyMethod
+                  case wrapper: ScFunctionWrapper => wrapper.delegate.isApplyMethod
+                  case _                          => false
+                })
 
-                  val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+                maybeApplyMethod.fold(noParams(buffer))(processMethod)
+              }
 
-                  def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
-                    val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
-                    parameters.map(param => (Parameter(param), paramText(param, subst)))
+              psiMethod match {
+                case method: ScFunction =>
+                  val clauses = method.effectiveParameterClauses
+                  if (clauses.length <= i || (i == -1 && clauses.isEmpty)) {
+                    if (clauses.isEmpty && i == 0) { // SCL-20512
+                      method.returnType.fold(_ => noParams(buffer), processApplyMethod)
+                    }
+                    else noParams(buffer)
                   }
+                  else {
+                    val clause: ScParameterClause = if (i >= 0) clauses(i) else clauses.head
+                    val length = clause.effectiveParameters.length
 
-                  preceedingClauses.foreach { clause =>
-                    buffer.append("(")
-                    val parameters = parametersOf(clause)
-                    if (parameters.nonEmpty) {
-                      applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                    val preceedingClauses = if (i == -1) Seq.empty else clauses.take(i)
+                    val remainingClauses = if (i == -1) Seq.empty else clauses.drop(i + 1)
+
+                    val multipleLists = preceedingClauses.nonEmpty || remainingClauses.nonEmpty
+
+                    def parametersOf(clause: ScParameterClause): Seq[(Parameter, String)] = {
+                      val parameters: Seq[ScParameter] = if (i != -1) clause.effectiveParameters else clause.effectiveParameters.take(length - 1)
+                      parameters.map(param => (Parameter(param), paramText(param, subst)))
                     }
-                    buffer.append(")")
+
+                    preceedingClauses.foreach { clause =>
+                      buffer.append("(")
+                      val parameters = parametersOf(clause)
+                      if (parameters.nonEmpty) {
+                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                      }
+                      buffer.append(")")
+                    }
+
+                    if (multipleLists) {
+                      buffer.append("(")
+                    }
+                    isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
+                    if (multipleLists) {
+                      buffer.append(")")
+                    }
+
+                    remainingClauses.foreach { clause =>
+                      buffer.append("(")
+                      val parameters = parametersOf(clause)
+                      if (parameters.nonEmpty) {
+                        applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
+                      }
+                      buffer.append(")")
+                    }
                   }
+                case method: FakePsiMethod =>
+                  val params = method.params
+                  if (params.length == 0) processApplyMethod(method.retType)
+                  else {
+                    buffer.append(params.
+                      map((param: Parameter) => {
+                        val buffer: StringBuilder = new StringBuilder("")
+                        val paramType = param.paramType
+                        val name = param.name
+                        if (name != "") {
+                          buffer.append(name)
+                          buffer.append(": ")
+                        }
+                        buffer.append(paramType.presentableText)
+                        if (param.isRepeated) buffer.append("*")
 
-                  if (multipleLists) {
-                    buffer.append("(")
+                        if (param.isDefault) buffer.append(" = _")
+
+                        val isBold = if (params.indexOf(param) == index || (param.isRepeated && params.indexOf(param) <= index)) true
+                        else {
+                          //todo: check type
+                          false
+                        }
+                        val paramText = buffer.toString()
+                        if (isBold) "<b>" + paramText + "</b>" else paramText
+                      }).mkString(", "))
                   }
-                  isGrey = applyToParameters(parametersOf(clause), subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, index)
-                  if (multipleLists) {
-                    buffer.append(")")
+                case method: PsiMethod =>
+                  val p = method.getParameterList
+                  if (p.getParameters.isEmpty) noParams(buffer)
+                  else {
+                    buffer.append(p.getParameters.
+                      map((param: PsiParameter) => {
+                        val buffer: StringBuilder = new StringBuilder("")
+                        val list = param.getModifierList
+                        if (list == null) return
+                        val lastSize = buffer.length
+                        for (a <- list.getAnnotations) {
+                          if (lastSize != buffer.length) buffer.append(" ")
+                          val element = a.getNameReferenceElement
+                          if (element != null) buffer.append("@").append(element.getText)
+                        }
+                        if (lastSize != buffer.length) buffer.append(" ")
+
+                        val name = param.name
+                        if (name != null) {
+                          buffer.append(name)
+                        }
+                        buffer.append(": ")
+                        buffer.append(subst(param.paramType()).presentableText)
+                        if (param.isVarArgs) buffer.append("*")
+
+                        val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
+                        else {
+                          //todo: check type
+                          false
+                        }
+                        val paramText = buffer.toString()
+                        if (isBold) "<b>" + paramText + "</b>" else paramText
+                      }).mkString(", "))
                   }
-
-                  remainingClauses.foreach { clause =>
-                    buffer.append("(")
-                    val parameters = parametersOf(clause)
-                    if (parameters.nonEmpty) {
-                      applyToParameters(parameters, subst, canBeNaming = true, isImplicit = clause.isImplicit)(args, buffer, -1)
-                    }
-                    buffer.append(")")
-                  }
-                }
-              case method: FakePsiMethod =>
-                val params = method.params
-                if (params.length == 0) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  buffer.append(params.
-                          map((param: Parameter) => {
-                    val buffer: StringBuilder = new StringBuilder("")
-                    val paramType = param.paramType
-                    val name = param.name
-                    if (name != "") {
-                      buffer.append(name)
-                      buffer.append(": ")
-                    }
-                            buffer.append(paramType.presentableText)
-                    if (param.isRepeated) buffer.append("*")
-
-                    if (param.isDefault) buffer.append(" = _")
-
-                    val isBold = if (params.indexOf(param) == index || (param.isRepeated && params.indexOf(param) <= index)) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                    val paramText = buffer.toString()
-                    if (isBold) "<b>" + paramText + "</b>" else paramText
-                  }).mkString(", "))
-                }
-              case method: PsiMethod =>
-                val p = method.getParameterList
-                if (p.getParameters.isEmpty) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
-                else {
-                  buffer.append(p.getParameters.
-                          map((param: PsiParameter) => {
-                    val buffer: StringBuilder = new StringBuilder("")
-                    val list = param.getModifierList
-                    if (list == null) return
-                    val lastSize = buffer.length
-                    for (a <- list.getAnnotations) {
-                      if (lastSize != buffer.length) buffer.append(" ")
-                      val element = a.getNameReferenceElement
-                      if (element != null) buffer.append("@").append(element.getText)
-                    }
-                    if (lastSize != buffer.length) buffer.append(" ")
-
-                    val name = param.name
-                    if (name != null) {
-                      buffer.append(name)
-                    }
-                    buffer.append(": ")
-                            buffer.append(subst(param.paramType()).presentableText)
-                    if (param.isVarArgs) buffer.append("*")
-
-                    val isBold = if (p.getParameters.indexOf(param) == index || (param.isVarArgs && p.getParameters.indexOf(param) <= index)) true
-                    else {
-                      //todo: check type
-                      false
-                    }
-                    val paramText = buffer.toString()
-                    if (isBold) "<b>" + paramText + "</b>" else paramText
-                  }).mkString(", "))
-                }
+              }
             }
+
+            processMethod(sign.method)
           case (constructor: ScPrimaryConstructor, subst: ScSubstitutor, i: Int) if constructor.isValid =>
             val clauses = constructor.effectiveParameterClauses
-            if (clauses.length <= i) buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+            if (clauses.length <= i) noParams(buffer)
             else {
               val clause: ScParameterClause = clauses(i)
               val preceedingClauses = clauses.take(i)
@@ -267,6 +288,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
       case _ =>
     }
   }
+
+  private def noParams(buffer: StringBuilder): Unit = buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
 
   private def applyToParameters(parameters: Seq[(Parameter, String)],
                                 subst: ScSubstitutor,
@@ -384,7 +407,7 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
           }
         } else isGrey = true
       }
-    } else buffer.append(CodeInsightBundle.message("parameter.info.no.parameters"))
+    } else noParams(buffer)
 
     isGrey
   }
