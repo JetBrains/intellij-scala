@@ -11,7 +11,7 @@ object Versions {
   val zincVersion = "1.7.1"
   val intellijVersion = "223.3148"
 
-  val nailgunVersion = "1.2.0"
+  val nailgunVersion = "1.2.1"
 
   val Utils.DataForManagedIntellijDependencies(
     intellijVersion_ForManagedIntellijDependencies,
