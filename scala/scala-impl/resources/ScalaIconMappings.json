@@ -1,0 +1,68 @@
+{
+  "org": {
+    "jetbrains": {
+      "plugins": {
+        "scala": {
+          "images": {
+            "expui": {
+              "abstractClassObjectScala.svg": "org/jetbrains/plugins/scala/images/abstractClassObjectScala.svg",
+              "abstractClassScala.svg": "org/jetbrains/plugins/scala/images/abstractClassScala.svg",
+              "abstractFieldVariable.svg": "org/jetbrains/plugins/scala/images/abstractFieldVariable.svg",
+              "abstractTypeAlias.svg": "org/jetbrains/plugins/scala/images/abstractTypeAlias.svg",
+              "addClause.svg": "org/jetbrains/plugins/scala/images/addClause.svg",
+              "addClause_dark.svg": "org/jetbrains/plugins/scala/images/addClause_dark.svg",
+              "classCompanion.svg": "org/jetbrains/plugins/scala/images/classCompanion.svg",
+              "classCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/classCompanionSwapped.svg",
+              "classCompanionSwapped_dark.svg": "org/jetbrains/plugins/scala/images/classCompanionSwapped_dark.svg",
+              "classCompanion_dark.svg": "org/jetbrains/plugins/scala/images/classCompanion_dark.svg",
+              "classObjectScala.svg": "org/jetbrains/plugins/scala/images/classObjectScala.svg",
+              "classScala.svg": "org/jetbrains/plugins/scala/images/classScala.svg",
+              "compileServer.svg": "org/jetbrains/plugins/scala/images/compileServer.svg",
+              "enumScala.svg": "org/jetbrains/plugins/scala/images/enumScala.svg",
+              "fieldValue.svg": "org/jetbrains/plugins/scala/images/fieldValue.svg",
+              "fieldVariable.svg": "org/jetbrains/plugins/scala/images/fieldVariable.svg",
+              "function.svg": "org/jetbrains/plugins/scala/images/function.svg",
+              "lambda.svg": "org/jetbrains/plugins/scala/images/lambda.svg",
+              "lightbendLogo.svg": "org/jetbrains/plugins/scala/images/lightbendLogo.svg",
+              "multipleTypeDefinitions.svg": "org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg",
+              "objectCompanion.svg": "org/jetbrains/plugins/scala/images/objectCompanion.svg",
+              "objectCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/objectCompanionSwapped.svg",
+              "objectCompanionSwapped_dark.svg": "org/jetbrains/plugins/scala/images/objectCompanionSwapped_dark.svg",
+              "objectCompanion_dark.svg": "org/jetbrains/plugins/scala/images/objectCompanion_dark.svg",
+              "objectScala.svg": "org/jetbrains/plugins/scala/images/objectScala.svg",
+              "packageObject.svg": "org/jetbrains/plugins/scala/images/packageObject.svg",
+              "parameter.svg": "org/jetbrains/plugins/scala/images/parameter.svg",
+              "patternValue.svg": "org/jetbrains/plugins/scala/images/patternValue.svg",
+              "recursion.svg": "org/jetbrains/plugins/scala/images/recursion.svg",
+              "recursion_dark.svg": "org/jetbrains/plugins/scala/images/recursion_dark.svg",
+              "sbtFile.svg": "org/jetbrains/plugins/scala/images/sbtFile.svg",
+              "sbtFile_dark.svg": "org/jetbrains/plugins/scala/images/sbtFile_dark.svg",
+              "sbtFolder.svg": "org/jetbrains/plugins/scala/images/sbtFolder.svg",
+              "sbtFolder_dark.svg": "org/jetbrains/plugins/scala/images/sbtFolder_dark.svg",
+              "sbtIcon.svg": "org/jetbrains/plugins/scala/images/sbtIcon.svg",
+              "sbtIcon_dark.svg": "org/jetbrains/plugins/scala/images/sbtIcon_dark.svg",
+              "sbtLoadChanges.svg": "org/jetbrains/plugins/scala/images/sbtLoadChanges.svg",
+              "sbtLoadChanges_dark.svg": "org/jetbrains/plugins/scala/images/sbtLoadChanges_dark.svg",
+              "sbtShell.svg": "org/jetbrains/plugins/scala/images/sbtShell.svg",
+              "sbtShell_dark.svg": "org/jetbrains/plugins/scala/images/sbtShell_dark.svg",
+              "scala16.svg": "org/jetbrains/plugins/scala/images/scala16.svg",
+              "scalaConsole.svg": "org/jetbrains/plugins/scala/images/scalaConsole.svg",
+              "scalaTest.svg": "org/jetbrains/plugins/scala/images/scalaTest.svg",
+              "traitCompanion.svg": "org/jetbrains/plugins/scala/images/traitCompanion.svg",
+              "traitCompanionSwapped.svg": "org/jetbrains/plugins/scala/images/traitCompanionSwapped.svg",
+              "traitCompanionSwapped_dark.svg": "org/jetbrains/plugins/scala/images/traitCompanionSwapped_dark.svg",
+              "traitCompanion_dark.svg": "org/jetbrains/plugins/scala/images/traitCompanion_dark.svg",
+              "traitObjectScala.svg": "org/jetbrains/plugins/scala/images/traitObjectScala.svg",
+              "traitScala.svg": "org/jetbrains/plugins/scala/images/traitScala.svg",
+              "typeAlias.svg": "org/jetbrains/plugins/scala/images/typeAlias.svg",
+              "typed.svg": "org/jetbrains/plugins/scala/images/typed.svg",
+              "untyped.svg": "org/jetbrains/plugins/scala/images/untyped.svg",
+              "value.svg": "org/jetbrains/plugins/scala/images/value.svg",
+              "variable.svg": "org/jetbrains/plugins/scala/images/variable.svg"
+            }
+          }
+        }
+      }
+    }
+  }
+}

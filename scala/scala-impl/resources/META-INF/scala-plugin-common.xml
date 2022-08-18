@@ -1892,6 +1892,8 @@
         <editorFactoryListener implementation="org.jetbrains.plugins.scala.externalHighlighters.HighlightCreatedEditorListener"/>
 
         <resolveScopeProvider implementation="org.jetbrains.plugins.scala.lang.psi.impl.ScalaOutOfSourcesResolveScopeProvider"/>
+        
+        <iconMapper mappingFile="ScalaIconMappings.json" />
 
     </extensions>
 
