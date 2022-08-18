@@ -160,7 +160,6 @@ object CompileServerLauncher {
           Seq(s"-Dshutdown.delay.seconds=$shutdownDelay")
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
-        val parallelCompilation = s"-D${GlobalOptions.COMPILE_PARALLEL_OPTION}=${settings.COMPILE_SERVER_PARALLEL_COMPILATION}"
 
         val vmOptions: Seq[String] = if (isUnitTestMode && project == null) Seq() else {
           val buildProcessParameters = BuildProcessParametersProvider.EP_NAME.getExtensions(project).asScala.iterator
@@ -196,7 +195,6 @@ object CompileServerLauncher {
             userJvmParameters ++:
             shutdownDelayArg ++:
             isScalaCompileServer +:
-            parallelCompilation +:
             addOpensOptions ++:
             vmOptions ++:
             NailgunRunnerFQN +:
