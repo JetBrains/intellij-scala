@@ -27,7 +27,7 @@ trait LocationLineManager {
 
   def exactLineNumber(location: Location): Int = location match {
     case gen: GeneratedLocation =>
-      gen.lineNumber()
+      ScalaPositionManager.checkedLineNumber(gen)
     case _ =>
       checkAndUpdateCaches(location.declaringType())
       customizedLocationsCache.getOrElse(location, ScalaPositionManager.checkedLineNumber(location))
