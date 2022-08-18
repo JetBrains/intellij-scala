@@ -18,4 +18,10 @@ class FunctionParameterInfoApplyTest extends FunctionParameterInfoTestBase {
   def testObjectGenericApply(): Unit = doTest()
 
   def testAliasedApply(): Unit = doTest()
+
+  def testTransitiveApplyNoParamsDef(): Unit = doTest()
+
+  def testTransitiveApplyWithParamsDef(): Unit = doTest()
+
+  def testTransitiveApplyWithParamsDef2(): Unit = doTest()
 }
