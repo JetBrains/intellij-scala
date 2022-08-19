@@ -1,8 +1,10 @@
 package org.jetbrains.plugins.scala.collectors
 
+//noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.beans.MetricEvent
 import com.intellij.internal.statistic.eventLog.EventLogGroup
 import com.intellij.internal.statistic.eventLog.events.EventFields.{StringValidatedByRegexp, String => FString}
+//noinspection ApiStatus,UnstableApiUsage
 import com.intellij.internal.statistic.service.fus.collectors.ProjectUsagesCollector
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.collectors.ScalaProjectStateCollector._
@@ -18,6 +20,7 @@ import scala.jdk.CollectionConverters.{SeqHasAsJava, SetHasAsJava}
 import scala.util.Using
 import scala.xml.XML
 
+//noinspection ApiStatus,UnstableApiUsage
 class ScalaProjectStateCollector extends ProjectUsagesCollector {
 
   override def getGroup: EventLogGroup =
@@ -43,11 +46,9 @@ class ScalaProjectStateCollector extends ProjectUsagesCollector {
       .flatMap(_.plugins)
       .toSet[String]
       .map(new File(_))
+      .filterNot(_.isDirectory)
       .flatMap(getScalacPluginInfo)
-      .filter { case (name, _) =>
-        CompilerPluginsWhiteList.get.contains(name)
-      }
-      .map { case (name, version) =>
+      .collect { case (name, version) if CompilerPluginsWhiteList.get.contains(name) =>
         CompilerPlugin.metric(name, version)
       }
 
@@ -64,15 +65,18 @@ object ScalaProjectStateCollector {
 
   private final val Group = new EventLogGroup("scala.project.state", 1)
 
+  //noinspection UnstableApiUsage
   private final val SbtInfoEvent = Group.registerEvent("sbt.info",
     StringValidatedByRegexp("version", "version")
   )
 
+  //noinspection UnstableApiUsage
   private final val CompilerPlugin = Group.registerEvent("compiler.plugin",
     FString("name", CompilerPluginsWhiteList.get.toList.asJava),
     StringValidatedByRegexp("version", "version")
   )
 
+  //noinspection UnstableApiUsage
   private final val ScalaLangLevelEvent = Group.registerEvent("scala.lang.level",
     StringValidatedByRegexp("value", "version")
   )
