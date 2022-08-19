@@ -99,10 +99,6 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
     documentCompilerAvailable.clear()
   }
 
-  private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit = {
-
-  }
-
   private def isHighlightingEnabled: Boolean =
     !PowerSaveMode.isEnabled && ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED
 
