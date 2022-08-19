@@ -2,7 +2,7 @@ package org.jetbrains.jps.incremental.scala
 package remote
 
 /**
- * @see [[org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient]]
+ * @see `org.jetbrains.jps.incremental.scala.remote.EventGeneratingClient`
  */
 class ClientEventProcessor(client: Client) {
 
@@ -52,9 +52,6 @@ class ClientEventProcessor(client: Client) {
 
       case CompilationStartedInSbtEvent(file) =>
         client.sourceStarted(file)
-
-      case MeteringInfoEvent(info) =>
-        client.meteringInfo(info)
 
       case MetricsEvent(metrics) =>
         client.metrics(metrics)

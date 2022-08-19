@@ -1,11 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
-import java.io._
-
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
 import org.jetbrains.plugins.scala.util.ObjectSerialization
+
+import java.io._
 
 sealed abstract class Event {
   def toBytes: Array[Byte] =
@@ -65,9 +65,6 @@ case class WorksheetOutputEvent(text: String) extends Event
 
 @SerialVersionUID(1L)
 case class CompilationStartedInSbtEvent(path: String) extends Event
-
-@SerialVersionUID(1L)
-case class MeteringInfoEvent(info: CompileServerMeteringInfo) extends Event
 
 @SerialVersionUID(1L)
 case class MetricsEvent(metrics: CompileServerMetrics) extends Event

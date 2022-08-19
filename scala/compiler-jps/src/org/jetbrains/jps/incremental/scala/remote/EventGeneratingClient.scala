@@ -1,13 +1,13 @@
 package org.jetbrains.jps.incremental.scala
 package remote
 
+import sbt.internal.inc.CompileFailed
+
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-import sbt.internal.inc.CompileFailed
-
 /**
- * @see [[org.jetbrains.jps.incremental.scala.ClientEventProcessor]]
+ * @see `org.jetbrains.jps.incremental.scala.ClientEventProcessor`
  */
 class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) extends Client with AutoCloseable {
 
@@ -72,9 +72,6 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
 
   override def sourceStarted(source: String): Unit =
     publishEvent(CompilationStartedInSbtEvent(source))
-
-  override def meteringInfo(info: CompileServerMeteringInfo): Unit =
-    publishEvent(MeteringInfoEvent(info))
 
   override def metrics(value: CompileServerMetrics): Unit =
     publishEvent(MetricsEvent(value))

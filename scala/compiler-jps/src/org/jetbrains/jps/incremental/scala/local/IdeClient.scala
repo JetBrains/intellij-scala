@@ -1,18 +1,18 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.io.File
-import java.util
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.incremental.CompileContext
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.messages.{CompilerMessage, FileDeletedEvent, ProgressMessage}
 import org.jetbrains.jps.incremental.scala.Client.PosInfo
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, CompileServerMetrics}
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 import org.jetbrains.plugins.scala.compiler.{CompilationUnitId, CompilerEvent}
 import org.jetbrains.plugins.scala.util.CompilationId
+
+import java.io.File
+import java.util
 
 abstract class IdeClient(compilerName: String,
                          context: CompileContext,
@@ -80,8 +80,6 @@ abstract class IdeClient(compilerName: String,
     val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))
     context.processMessage(new FileDeletedEvent(paths))
   }
-
-  override def meteringInfo(info: CompileServerMeteringInfo): Unit = ()
 
   override def metrics(value: CompileServerMetrics): Unit = ()
 

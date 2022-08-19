@@ -1,7 +1,8 @@
 package org.jetbrains.jps.incremental.scala
-import java.io.File
 
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, CompileServerMetrics}
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
+
+import java.io.File
 
 class DelegateClient(client: Client)
   extends Client {
@@ -53,9 +54,6 @@ class DelegateClient(client: Client)
 
   override def sourceStarted(source: String): Unit =
     client.sourceStarted(source)
-
-  override def meteringInfo(info: CompileServerMeteringInfo): Unit =
-    client.meteringInfo(info)
 
   override def metrics(value: CompileServerMetrics): Unit =
     client.metrics(value)

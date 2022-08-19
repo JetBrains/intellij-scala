@@ -1,11 +1,11 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
-
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.Client.{ClientMsg, PosInfo}
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, CompileServerMetrics}
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
+
+import java.io.File
 
 /**
  * TODO: add documentation with method contracts, currently there are too many methods with vague meaning
@@ -76,8 +76,6 @@ trait Client {
 
   /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recompile */
   def sourceStarted(source: String): Unit
-
-  def meteringInfo(info: CompileServerMeteringInfo): Unit // TODO replace with metrics
 
   def metrics(value: CompileServerMetrics): Unit
 }

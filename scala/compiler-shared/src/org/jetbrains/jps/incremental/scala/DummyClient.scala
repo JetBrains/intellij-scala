@@ -1,9 +1,8 @@
 package org.jetbrains.jps.incremental.scala
 
-import java.io.File
+import org.jetbrains.jps.incremental.scala.remote.CompileServerMetrics
 
-import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
-import org.jetbrains.jps.incremental.scala.remote.{CompileServerMeteringInfo, CompileServerMetrics}
+import java.io.File
 
 class DummyClient extends Client {
   override def message(msg: Client.ClientMsg): Unit = ()
@@ -22,7 +21,6 @@ class DummyClient extends Client {
   override def compilationEnd(sources: Set[File]): Unit = ()
   override def processingEnd(): Unit = ()
   override def sourceStarted(source: String): Unit = ()
-  override def meteringInfo(info: CompileServerMeteringInfo): Unit = ()
   override def metrics(value: CompileServerMetrics): Unit = ()
 }
 
