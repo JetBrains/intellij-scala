@@ -139,7 +139,9 @@ public class NailgunRunner {
           throws Exception {
 
     final String nailgunDefault = Integer.toString(NGServer.DEFAULT_SESSIONPOOLSIZE);
-    final int sessionPoolSize = Integer.parseInt(System.getProperty(JPS_COMPILATION_MAX_THREADS_KEY, nailgunDefault));
+    // Add another thread to the nailgun pool for our metrics calls.
+    final int sessionPoolSize =
+            Integer.parseInt(System.getProperty(JPS_COMPILATION_MAX_THREADS_KEY, nailgunDefault)) + 1;
 
     NGServer server = new NGServer(
             address,
