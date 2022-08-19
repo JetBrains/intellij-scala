@@ -245,7 +245,7 @@ lazy val scalaImpl: sbt.Project =
     .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
     .enablePlugins(BuildInfoPlugin)
     .settings(
-      ideExcludedDirectories := Seq(baseDirectory.value / "testdata" / "projects"),
+      ideExcludedDirectories := Seq(baseDirectory.value / "target", baseDirectory.value / "testdata" / "projects"),
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       intellijPlugins ++= Seq(
