@@ -10,7 +10,6 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
-import org.jetbrains.jps.incremental.scala.remote.MeteringScheduler.ArgsParsed
 import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
@@ -23,7 +22,6 @@ import java.io._
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Timer, TimerTask}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.jdk.CollectionConverters._
@@ -373,40 +371,6 @@ object Main {
 
   private def shutdownDelay: Option[FiniteDuration] =
     Option(System.getProperty("shutdown.delay.seconds")).map(_.toInt.seconds)
-}
-
-object MeteringScheduler {
-
-  private val lock = new Object
-  @volatile private var executor: ScheduledExecutorService = _
-  @volatile private var meteringInfo: CompileServerMeteringInfo = _
 
   final case class ArgsParsed(token: String, command: CompileServerCommand)
-
-  def start(meteringInterval: FiniteDuration): Unit = lock.synchronized {
-    executor = Executors.newScheduledThreadPool(1)
-    meteringInfo = CompileServerMeteringInfo(0, 0)
-    executor.scheduleWithFixedDelay({ () =>
-      val currentParallelism = Main.getCurrentParallelism
-      val newMaxParallelism = math.max(meteringInfo.maxParallelism, currentParallelism)
-
-      val currentHeapSizeMb = (Runtime.getRuntime.totalMemory / 1024 / 1024).toInt
-      val newMaxHeapSizeMb = math.max(meteringInfo.maxHeapSizeMb, currentHeapSizeMb)
-      
-      // TODO more useful metrics
-
-      meteringInfo = meteringInfo.copy(
-        maxParallelism = newMaxParallelism,
-        maxHeapSizeMb = newMaxHeapSizeMb
-      )
-    }, 0, meteringInterval.length, meteringInterval.unit)
-  }
-
-  def stop(): CompileServerMeteringInfo = lock.synchronized {
-    Option(executor).foreach(_.awaitTermination(2, TimeUnit.SECONDS))
-    val result = Option(meteringInfo)
-    executor = null
-    meteringInfo = null
-    result.getOrElse(throw new IllegalStateException("MeteringScheduler wasn't started"))
-  }
 }
