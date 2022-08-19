@@ -34,7 +34,7 @@ class MultiLineStringCopyPastePreProcessorTest extends CopyPasteTestBase {
     }
   }
 
-  def testSimple(): Unit = doTestWithStrip(
+  def testSimple(): Unit = doTest(
     s"""val x = ${Start}42$End""",
     s"""val y = 2${Caret}3""",
     s"""val y = 2423"""

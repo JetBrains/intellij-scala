@@ -12,14 +12,11 @@ class CopyTextToScalaTest extends CopyPasteTestBase {
     ScalaProjectSettings.getInstance(getProject).setDontShowConversionDialog(true)
   }
 
-  override protected def doTest(fromText: String, toText: String, expectedText: String): Unit = {
+  override protected def doTest(from: String, to: String, after: String, fromFileName: String, toFileName: String): Unit = {
     val insideIdeBefore = TextJavaCopyPastePostProcessor.insideIde
     TextJavaCopyPastePostProcessor.insideIde = false
-    try {
-      super.doTest(fromText, toText, expectedText)
-    } finally {
-      TextJavaCopyPastePostProcessor.insideIde = insideIdeBefore
-    }
+    super.doTest(fromText, toText, expectedText)
+    TextJavaCopyPastePostProcessor.insideIde = true
   }
 
   def testWrapWithExpression(): Unit = {
