@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.parameterInfo.functionParameterInfo
+
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class FunctionParameterInfoCurringsTest extends FunctionParameterInfoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 
   override def getTestDataPath: String =
     s"${super.getTestDataPath}currings/"
@@ -16,4 +17,8 @@ class FunctionParameterInfoCurringsTest extends FunctionParameterInfoTestBase {
   def testFunctionTypeCurrings(): Unit = doTest()
 
   def testNoCurrings(): Unit = doTest()
+
+  def testTransitiveApplyCurrings(): Unit = doTest()
+
+  def testTransitiveApplyCurrings2(): Unit = doTest()
 }

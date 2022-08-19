@@ -113,10 +113,11 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
 
             def processMethod(psiMethod: PsiMethod): Unit = {
               def processApplyMethod(tpe: ScType): Unit = {
-                val maybeApplyMethod = tpe.extractClass.flatMap(_.getAllMethods.find {
-                  case fn: ScFunction             => fn.isApplyMethod
-                  case wrapper: ScFunctionWrapper => wrapper.delegate.isApplyMethod
-                  case _                          => false
+                val maybeApplyMethod = tpe.extractClass.flatMap(_.getAllMethods.collectFirst {
+                  case fn: ScFunction if fn.isApplyMethod =>
+                    fn
+                  case wrapper: ScFunctionWrapper if wrapper.delegate.isApplyMethod =>
+                    wrapper.delegate
                 })
 
                 maybeApplyMethod.fold(noParams(buffer))(processMethod)
@@ -554,6 +555,8 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
                   case Some(ScalaResolveResult(function: ScFunction, subst: ScSubstitutor)) if function.
                     effectiveParameterClauses.length >= count =>
                     resultBuilder += ((new PhysicalMethodSignature(function, subst.followed(collectSubstitutor(function))), count - 1))
+                  case Some(ScalaResolveResult(function: ScFunction, _)) if function.effectiveParameterClauses.isEmpty =>
+                    function.`type`().foreach(collectForType)
                   case _ =>
                     call match {
                       case invocation: MethodInvocation =>
