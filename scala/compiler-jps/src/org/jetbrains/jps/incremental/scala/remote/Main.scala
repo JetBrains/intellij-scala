@@ -194,10 +194,6 @@ object Main {
           compileJpsLogic(compileJps, client)
         case getMetrics: CompileServerCommand.GetMetrics =>
           getMetricsLogic(getMetrics, client)
-        case startMetering: CompileServerCommand.StartMetering =>
-          startMeteringLogic(startMetering, client)
-        case endMetering: CompileServerCommand.EndMetering =>
-          endMeteringLogic(endMetering, client)
       }
     }
   }
@@ -314,16 +310,6 @@ object Main {
       currentParallelism = getCurrentParallelism
     )
     client.metrics(metrics)
-  }
-
-  private def startMeteringLogic(command: CompileServerCommand.StartMetering, client: Client): Unit = {
-    val CompileServerCommand.StartMetering(meteringInterval) = command
-    MeteringScheduler.start(meteringInterval)
-  }
-
-  private def endMeteringLogic(command: CompileServerCommand.EndMetering, client: Client): Unit = {
-    val result = MeteringScheduler.stop()
-    client.meteringInfo(result)
   }
 
   private def parseArgs(command: String, argsRaw: Seq[String]): Try[ArgsParsed] = {

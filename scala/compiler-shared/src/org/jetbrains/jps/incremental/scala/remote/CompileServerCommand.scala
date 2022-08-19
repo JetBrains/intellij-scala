@@ -2,8 +2,6 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 
-import scala.concurrent.duration.FiniteDuration
-
 sealed trait CompileServerCommand {
   def asArgs: Seq[String]
 
@@ -57,27 +55,4 @@ object CompileServerCommand {
 
     override def isCompileCommand: Boolean = false
   }
-
-  // TODO replace with GetMetrics
-  case class StartMetering(meteringInterval: FiniteDuration)
-    extends CompileServerCommand {
-
-    override def asArgs: Seq[String] = Seq(meteringInterval.toSeconds.toString)
-
-    override def id: String = CommandIds.StartMetering
-
-    override def isCompileCommand: Boolean = false
-  }
-
-  // TODO replace with GetMetrics
-  case class EndMetering()
-    extends CompileServerCommand {
-
-    override def asArgs: Seq[String] = Seq()
-
-    override def id: String = CommandIds.EndMetering
-
-    override def isCompileCommand: Boolean = false
-  }
 }
-

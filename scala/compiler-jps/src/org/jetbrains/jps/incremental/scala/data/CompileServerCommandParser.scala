@@ -41,15 +41,6 @@ object CompileServerCommandParser
           case _ =>
             throwIllegalArgs(commandId, args)
         }
-      case CommandIds.StartMetering =>
-        args match {
-          case Seq(meteringInterval) =>
-            CompileServerCommand.StartMetering(meteringInterval.toLong.seconds)
-          case _ =>
-            throwIllegalArgs(commandId, args)
-        }
-      case CommandIds.EndMetering =>
-        CompileServerCommand.EndMetering()
       case unknownCommand =>
         throw new IllegalArgumentException(s"Unknown commandId: $unknownCommand")
     }
