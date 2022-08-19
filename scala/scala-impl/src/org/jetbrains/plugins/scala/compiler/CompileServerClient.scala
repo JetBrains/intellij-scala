@@ -3,27 +3,32 @@ package org.jetbrains.plugins.scala.compiler
 import com.intellij.openapi.project.Project
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, CompileServerMeteringInfo, CompileServerMetrics}
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
+import org.jetbrains.plugins.scala.util.ScheduledService
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration._
 
 trait CompileServerClient {
 
   def execCommand(command: CompileServerCommand, client: Client): Unit
 
-  // TODO replace with getMetrics
-  final def withMetering[A](meteringInterval: FiniteDuration)
-                           (action: => Unit): CompileServerMeteringInfo = {
-    val startCommand = CompileServerCommand.StartMetering(meteringInterval)
-    val endCommand = CompileServerCommand.EndMetering()
+  final def withMetering(meteringInterval: FiniteDuration)(action: => Unit): CompileServerMeteringInfo = {
+    val aggregator = new MetricsAggregator()
 
-    execCommand(startCommand, new DummyClient)
-    action
-    var result: CompileServerMeteringInfo = null
-    execCommand(endCommand, new DummyClient {
-      override def meteringInfo(info: CompileServerMeteringInfo): Unit = result = info
-      override def trace(exception: Throwable): Unit = throw exception
-    })
-    result
+    val service = new ScheduledService(meteringInterval) {
+      override def runnable: Runnable = () => {
+        val metrics = getMetrics()
+        aggregator.update(metrics)
+      }
+    }
+
+    service.startScheduling()
+    try {
+      action
+    } finally {
+      service.stopScheduling()
+    }
+
+    aggregator.result()
   }
 
   final def getMetrics(): CompileServerMetrics = {

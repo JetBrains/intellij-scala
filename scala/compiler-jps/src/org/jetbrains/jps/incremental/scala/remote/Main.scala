@@ -306,9 +306,12 @@ object Main {
 
   private def getMetricsLogic(command: CompileServerCommand.GetMetrics, client: Client): Unit = {
     val runtime = Runtime.getRuntime
+    val currentHeapSize = runtime.totalMemory()
     val metrics = CompileServerMetrics(
-      heapUsed = runtime.totalMemory() - runtime.freeMemory(),
-      maxHeapSize = maxHeapSize
+      heapUsed = currentHeapSize - runtime.freeMemory(),
+      currentHeapSize = currentHeapSize,
+      maxHeapSize = maxHeapSize,
+      currentParallelism = getCurrentParallelism
     )
     client.metrics(metrics)
   }
