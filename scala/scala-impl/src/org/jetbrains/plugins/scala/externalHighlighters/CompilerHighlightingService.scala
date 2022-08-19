@@ -148,7 +148,7 @@ private final class CompilerHighlightingService(project: Project) extends Dispos
   ): Unit = {
     val CompilationRequest.IncrementalRequest(module, sourceScope, debugReason) = request
     debug(s"incrementalCompilation: $debugReason")
-    performCompilation(!ScalaHighlightingMode.documentCompilerEnabled) { client =>
+    performCompilation(delayIndicator = false) { client =>
       val triggerService = TriggerCompilerHighlightingService.get(project)
       triggerService.beforeIncrementalCompilation()
       try IncrementalCompiler.compile(project, module, sourceScope, client)

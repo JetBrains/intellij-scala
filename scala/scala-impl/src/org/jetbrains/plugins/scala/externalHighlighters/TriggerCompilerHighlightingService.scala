@@ -63,7 +63,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
         if (document ne null) {
           triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
         }
-      } else if (ScalaHighlightingMode.documentCompilerEnabled) {
+      } else {
         if (documentCompilerAvailable.contains(virtualFile)) {
           val document = FileDocumentManager.getInstance().getDocument(virtualFile)
           if (document ne null) {
@@ -72,15 +72,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
         } else {
           triggerIncrementalCompilation(debugReason, virtualFile)
         }
-      } else {
-        triggerIncrementalCompilation(debugReason, virtualFile)
       }
     }
   }
 
   private[externalHighlighters] def triggerOnSelectionChange(editor: FileEditor): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled &&
-      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+    if (isHighlightingEnabled && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
       val virtualFile = editor.getFile
       if (virtualFile ne null) {
         val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
@@ -103,21 +100,7 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   private[externalHighlighters] def triggerOnEditorCreated(editor: Editor): Unit = {
-    if (!ScalaHighlightingMode.documentCompilerEnabled && isHighlightingEnabled &&
-      ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-      val document = editor.getDocument
-      val virtualFile = FileDocumentManager.getInstance().getFile(document)
-      if (virtualFile ne null) {
-        val debugReason = s"Editor created for file: ${virtualFile.getCanonicalPath}"
-        val psiFile = inReadAction(PsiManager.getInstance(project).findFile(virtualFile))
-        if ((psiFile ne null) && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)) {
-          if (psiFile.isScalaWorksheet)
-            triggerWorksheetCompilation(virtualFile, psiFile.asInstanceOf[ScalaFile], document, debugReason)
-          else
-            triggerIncrementalCompilation(debugReason, virtualFile)
-        }
-      }
-    }
+
   }
 
   private def isHighlightingEnabled: Boolean =
@@ -155,16 +138,12 @@ private[scala] final class TriggerCompilerHighlightingService(project: Project) 
   }
 
   def enableDocumentCompiler(virtualFile: VirtualFile): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled) {
-      DocumentCompiler.get(project).clearOutputDirectories()
-      documentCompilerAvailable.put(virtualFile, java.lang.Boolean.TRUE)
-    }
+    DocumentCompiler.get(project).clearOutputDirectories()
+    documentCompilerAvailable.put(virtualFile, java.lang.Boolean.TRUE)
   }
 
   def disableDocumentCompiler(virtualFile: VirtualFile): Unit = {
-    if (ScalaHighlightingMode.documentCompilerEnabled) {
-      documentCompilerAvailable.remove(virtualFile, java.lang.Boolean.TRUE)
-    }
+    documentCompilerAvailable.remove(virtualFile, java.lang.Boolean.TRUE)
   }
 
   private def triggerDocumentCompilation(
