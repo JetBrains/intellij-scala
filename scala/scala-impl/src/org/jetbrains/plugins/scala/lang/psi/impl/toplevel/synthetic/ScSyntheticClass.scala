@@ -1,9 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package toplevel
-package synthetic
+package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic
 
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.project.ProjectManagerListener
@@ -13,15 +8,20 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
 import com.intellij.util.containers.MultiMap
+import org.jetbrains.plugins.scala.{NlsString, ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.PsiClassFake
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitProcessor
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -30,9 +30,10 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 import javax.swing.Icon
 import scala.collection.mutable
 
-abstract class SyntheticNamedElement(name: String)
-                                    (implicit projectContext: ProjectContext)
+abstract sealed class SyntheticNamedElement(name: String)
+                                           (implicit projectContext: ProjectContext)
   extends LightElement(projectContext, ScalaLanguage.INSTANCE) with PsiNameIdentifierOwner {
+
   override def getName: String = name
   override def getText = ""
   override def setName(newName: String) : PsiElement = throw new IncorrectOperationException("nonphysical element")
@@ -45,7 +46,7 @@ abstract class SyntheticNamedElement(name: String)
   override def getNameIdentifier: PsiIdentifier = null
 }
 
-class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
+final class ScSyntheticTypeParameter(override val name: String, override val owner: ScFun)
   extends SyntheticNamedElement(name)(owner.projectContext) with ScTypeParam with PsiClassFake {
 
   override def nameId: PsiElement = null
@@ -61,9 +62,9 @@ class ScSyntheticTypeParameter(override val name: String, override val owner: Sc
   override def isCovariant = false
   override def isContravariant = false
 
-  override def lowerBound = Right(Nothing)
+  override def lowerBound: Right[Nothing, StdType] = Right(Nothing)
 
-  override def upperBound = Right(Any)
+  override def upperBound: TypeResult = Right(Any)
 
   override def getIndex: Int = -1
   override def getOwner: PsiTypeParameterListOwner = null
@@ -77,6 +78,7 @@ class ScSyntheticTypeParameter(override val name: String, override val owner: Sc
 
   override val typeParamId: Long = -1
 }
+
 // we could try and implement all type system related stuff
 // with class types, but it is simpler to indicate types corresponding to synthetic classes explicitly
 sealed class ScSyntheticClass(val className: String, val stdType: StdType)
@@ -112,7 +114,7 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
         syntheticMethods.get(name).forEach { method =>
           if (!processor.execute(method, state)) return false
         }
-      case _: implicits.ImplicitProcessor => //do nothing, there is no implicit synthetic methods
+      case _: ImplicitProcessor => //do nothing, there is no implicit synthetic methods
       case _: BaseProcessor =>
         //method toString and hashCode exists in java.lang.Object
         syntheticMethods.values().forEach { method =>
@@ -135,11 +137,12 @@ sealed class ScSyntheticClass(val className: String, val stdType: StdType)
   }
 }
 
-class ScSyntheticFunction(val name: String,
-                          override val retType: ScType,
-                          override val paramClauses: Seq[Seq[Parameter]],
-                          typeParameterNames: Seq[String])
-                         (implicit projectContext: ProjectContext)
+sealed class ScSyntheticFunction(
+  val name: String,
+  override val retType: ScType,
+  override val paramClauses: Seq[Seq[Parameter]],
+  typeParameterNames: Seq[String]
+)(implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name) with ScFun {
   def isStringPlusMethod: Boolean = {
     if (name != "+") return false
@@ -159,7 +162,7 @@ class ScSyntheticFunction(val name: String,
     typeParameterNames.map { name => new ScSyntheticTypeParameter(name, this) }
   override def typeParameters: Seq[ScTypeParam] = typeParams
 
-  override def getIcon(flags: Int): Icon = icons.Icons.FUNCTION
+  override def getIcon(flags: Int): Icon = Icons.FUNCTION
 
   override def toString = "Synthetic method"
 
@@ -177,17 +180,17 @@ class ScSyntheticFunction(val name: String,
   }
 }
 
-class ScSyntheticValue(val name: String, val tp: ScType)
-                      (implicit projectContext: ProjectContext)
+final class ScSyntheticValue(val name: String, val tp: ScType)
+                            (implicit projectContext: ProjectContext)
   extends SyntheticNamedElement(name) {
-  override def getIcon(flags: Int): Icon = icons.Icons.VAL
+  override def getIcon(flags: Int): Icon = Icons.VAL
 
   override def toString = "Synthetic value"
 }
 
 import com.intellij.openapi.project.Project
 
-class SyntheticClasses(project: Project) {
+final class SyntheticClasses(project: Project) {
   implicit def ctx: ProjectContext = project
 
   private[synthetic] def clear(): Unit = {
@@ -217,6 +220,7 @@ class SyntheticClasses(project: Project) {
   var integer: mutable.Set[ScSyntheticClass]          = new mutable.HashSet[ScSyntheticClass]
   val syntheticObjects: mutable.Map[String, ScObject] = new mutable.HashMap[String, ScObject]
 
+  private[synthetic]
   var file : PsiFile = _
 
   def registerClasses(): Unit = {
@@ -225,8 +229,9 @@ class SyntheticClasses(project: Project) {
     val typeParameters = SyntheticClasses.TypeParameter :: Nil
 
     all = new mutable.HashMap[String, PsiClass]
-    file = PsiFileFactory.getInstance(project).createFileFromText(
-      "dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, "")
+    val fileName = s"dummy-synthetics.scala"
+    val emptyScalaFile = PsiFileFactory.getInstance(project).createFileFromText(fileName, ScalaFileType.INSTANCE, "")
+    file = emptyScalaFile
 
     val any = registerClass(Any, "Any")
     any.addMethod(new ScSyntheticFunction("==", Boolean, Seq(Seq(Any))))
@@ -300,23 +305,23 @@ class SyntheticClasses(project: Project) {
     }
     stringPlusMethod = new ScSyntheticFunction("+", _, Seq(Seq(Any)))
 
-    //register synthetic objects
-    def registerObject(fileText: String): Unit = {
-      val dummyFile = PsiFileFactory
+    def createDummyFile(debugName: String, fileText: String) = {
+      val fileName = s"dummy-synthetic-$debugName.scala"
+      PsiFileFactory
         .getInstance(project)
-        .createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, fileText)
+        .createFileFromText(fileName, ScalaFileType.INSTANCE, fileText)
         .asInstanceOf[ScalaFile]
+    }
 
+    //register synthetic objects
+    def registerObject(debugName: String, fileText: String): Unit = {
+      val dummyFile = createDummyFile(debugName: String, fileText)
       val obj = dummyFile.typeDefinitions.head.asInstanceOf[ScObject]
       syntheticObjects.put(obj.qualifiedName, obj)
     }
 
-    def createAndRegisterClass(fileText: String): Unit = {
-      val dummyFile = PsiFileFactory
-        .getInstance(project)
-        .createFileFromText("dummy." + ScalaFileType.INSTANCE.getDefaultExtension, ScalaFileType.INSTANCE, fileText)
-        .asInstanceOf[ScalaFile]
-
+    def createAndRegisterClass(debugName: String, fileText: String): Unit = {
+      val dummyFile = createDummyFile(debugName: String, fileText)
       val cls = dummyFile.typeDefinitions.head.asInstanceOf[PsiClass]
       all.put(cls.name, cls)
     }
@@ -325,7 +330,7 @@ class SyntheticClasses(project: Project) {
       val typeParameters    = (1 to n).map(i => s"-T$i").mkString(", ")
       val contextParameters = (1 to n).map(i => s"x$i: T$i").mkString(", ")
 
-      createAndRegisterClass(
+      createAndRegisterClass("ContextFunction",
        s"""
            |package scala
            |
@@ -336,7 +341,7 @@ class SyntheticClasses(project: Project) {
       )
     }
 
-    registerObject(
+    registerObject("Boolean",
 """
 package scala
 
@@ -347,7 +352,7 @@ object Boolean {
 """
     )
 
-    registerObject(
+    registerObject("Byte",
 """
 package scala
 
@@ -360,7 +365,7 @@ object Byte {
 """
     )
 
-    registerObject(
+    registerObject("Char",
 """
 package scala
 
@@ -373,7 +378,7 @@ object Char {
 """
     )
 
-    registerObject(
+    registerObject("Double",
 """
 package scala
 
@@ -394,7 +399,7 @@ object Double {
 """
     )
 
-    registerObject(
+    registerObject("Float",
 """
 package scala
 
@@ -415,7 +420,7 @@ object Float {
 """
     )
 
-    registerObject(
+    registerObject("Int",
 """
 package scala
 
@@ -428,7 +433,7 @@ object Int {
 """
     )
 
-    registerObject(
+    registerObject("Long",
 """
 package scala
 
@@ -441,7 +446,7 @@ object Long {
 """
     )
 
-    registerObject(
+    registerObject("Short",
 """
 package scala
 
@@ -454,7 +459,7 @@ object Short {
 """
     )
 
-    registerObject(
+    registerObject("Unit",
 """
 package scala
 
@@ -520,7 +525,7 @@ object Unit
   }
 }
 
-class SyntheticClassElementFinder(project: Project) extends PsiElementFinder {
+final class SyntheticClassElementFinder(project: Project) extends PsiElementFinder {
   private[this] val instance = SyntheticClasses.get(project)
 
   override def findClass(
@@ -550,7 +555,7 @@ object SyntheticClasses {
 
 }
 
-class RegisterSyntheticClassesStartupActivity extends StartupActivity.DumbAware {
+final class RegisterSyntheticClassesStartupActivity extends StartupActivity.DumbAware {
   override def runActivity(project: Project): Unit = {
     // NOTE: run `registerClasses` on EDT!
     // Don't use `inReadAction`, it can significantly increase setup time for each test case.
