@@ -15,7 +15,7 @@ abstract class CopyPasteTestBase extends ScalaLightCodeInsightFixtureTestAdapter
   protected val tab = "\t"
   protected val empty = ""
 
-  def fromLangExtension: String = ".scala"
+  def fromLangExtension: String = "scala"
 
   private var oldSettings: ScalaCodeStyleSettings = _
   private var oldBlankLineSetting: Int = _

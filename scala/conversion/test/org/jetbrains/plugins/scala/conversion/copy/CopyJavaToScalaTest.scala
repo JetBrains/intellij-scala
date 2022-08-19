@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProj
  * [[org.jetbrains.plugins.scala.conversion.JavaToScalaConversionTestBase]]
  */
 class CopyJavaToScalaTest extends CopyPasteTestBase {
-  override val fromLangExtension: String = ".java"
+  override val fromLangExtension: String = "java"
 
   override def setUp(): Unit = {
     super.setUp()
