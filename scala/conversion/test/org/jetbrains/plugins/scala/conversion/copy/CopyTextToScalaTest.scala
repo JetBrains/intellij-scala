@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.actions.editor.copy.CopyPasteTestBase
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class CopyTextToScalaTest extends CopyPasteTestBase {
-  override val fromLangExtension: String = ".txt"
+  override val fromLangExtension: String = "txt"
 
   override protected def setUp(): Unit = {
     super.setUp()
