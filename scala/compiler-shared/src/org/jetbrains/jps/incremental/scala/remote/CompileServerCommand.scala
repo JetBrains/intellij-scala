@@ -46,8 +46,7 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = true
   }
 
-  case class GetMetrics()
-    extends CompileServerCommand {
+  case object GetMetrics extends CompileServerCommand {
 
     override def asArgs: Seq[String] = Seq.empty
 

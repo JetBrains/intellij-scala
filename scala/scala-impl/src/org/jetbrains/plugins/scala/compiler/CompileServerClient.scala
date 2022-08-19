@@ -32,7 +32,7 @@ trait CompileServerClient {
   }
 
   final def getMetrics(): CompileServerMetrics = {
-    val command = CompileServerCommand.GetMetrics()
+    val command = CompileServerCommand.GetMetrics
     var result: CompileServerMetrics = null
     val client = new DummyClient {
       override def metrics(value: CompileServerMetrics): Unit = result = value

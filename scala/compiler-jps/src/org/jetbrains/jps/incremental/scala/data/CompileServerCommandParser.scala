@@ -37,7 +37,7 @@ object CompileServerCommandParser
       case CommandIds.GetMetrics =>
         args match {
           case Seq() =>
-            CompileServerCommand.GetMetrics()
+            CompileServerCommand.GetMetrics
           case _ =>
             throwIllegalArgs(commandId, args)
         }

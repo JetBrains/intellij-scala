@@ -190,8 +190,8 @@ object Main {
           compileLogic(arguments, client)
         case compileJps: CompileServerCommand.CompileJps =>
           compileJpsLogic(compileJps, client)
-        case getMetrics: CompileServerCommand.GetMetrics =>
-          getMetricsLogic(getMetrics, client)
+        case CompileServerCommand.GetMetrics =>
+          getMetricsLogic(client)
       }
     }
   }
@@ -298,7 +298,7 @@ object Main {
     }
   }
 
-  private def getMetricsLogic(command: CompileServerCommand.GetMetrics, client: Client): Unit = {
+  private def getMetricsLogic(client: Client): Unit = {
     val runtime = Runtime.getRuntime
     val currentHeapSize = runtime.totalMemory()
     val metrics = CompileServerMetrics(
