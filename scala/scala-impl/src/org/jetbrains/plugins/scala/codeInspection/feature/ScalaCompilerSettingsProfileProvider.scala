@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.codeInspection.feature
 import com.intellij.psi.PsiFile
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.ExtensionPointDeclaration
-import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettingsProfile
 
 @ApiStatus.Internal
@@ -18,5 +17,5 @@ object ScalaCompilerSettingsProfileProvider
   ) {
 
   def settingsFor(file: PsiFile): Option[ScalaCompilerSettingsProfile] =
-    implementations.iterator.flatMap(_.provide(file)).headOption
+    implementations.iterator.flatMap(_.provide(file)).nextOption()
 }

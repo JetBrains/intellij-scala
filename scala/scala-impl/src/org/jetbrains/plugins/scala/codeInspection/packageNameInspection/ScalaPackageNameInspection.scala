@@ -123,7 +123,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
             }
         } else None
       }
-      .headOption
+      .nextOption()
 
     withoutPrefix.map {
       case "" => packagePrefix.getOrElse("")

@@ -44,7 +44,7 @@ final class PullUpQuickFix(member: ScMember, name: String) extends AbstractInten
     val superClasses = applicableScalaSupers(executor.sourceClass)
 
     if (isUnitTestMode) {
-      superClasses.headOption.foreach {
+      superClasses.nextOption().foreach {
         executor(_)
       }
     } else {

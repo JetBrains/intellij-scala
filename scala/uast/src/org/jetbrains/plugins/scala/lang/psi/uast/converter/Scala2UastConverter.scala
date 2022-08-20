@@ -4,7 +4,7 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
@@ -339,7 +339,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   }
 
   private def firstConvertibleParent(element: PsiElement): Option[UElement] =
-    element.parents.flatMap(convertWithParent).headOption
+    element.parents.flatMap(convertWithParent).nextOption()
 
   private def makeUParent(sourcePsi: PsiElement,
                           free: Free[_ <: UElement]): Option[UElement] = {

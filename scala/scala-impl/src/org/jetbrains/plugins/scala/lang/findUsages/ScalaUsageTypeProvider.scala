@@ -54,7 +54,7 @@ final class ScalaUsageTypeProvider extends UsageTypeProviderEx {
         case _ =>
           element.withParentsInFile
             .flatMap(usageType(_, element))
-            .headOption
+            .nextOption()
       }
     }.orNull
 }

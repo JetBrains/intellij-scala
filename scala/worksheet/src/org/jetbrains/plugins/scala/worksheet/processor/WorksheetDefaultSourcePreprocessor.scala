@@ -4,7 +4,7 @@ import com.intellij.openapi.editor.Document
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{JavaDirectoryService, PsiElement, PsiErrorElement, PsiFile, _}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScTypedPattern
@@ -527,7 +527,7 @@ object WorksheetDefaultSourcePreprocessor {
         psi.getFirstChild match {
           case comment: PsiComment =>
             val nonEmptyElements = comment.nextSiblings.filterNot(el => el.is[PsiComment, PsiWhiteSpace] || el.getTextLength == 0)
-            nonEmptyElements.headOption.getOrElse(psi)
+            nonEmptyElements.nextOption().getOrElse(psi)
           case _ =>
             psi
         }

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.editor.documentationProvider
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember, ScTemplateDefinition}
@@ -60,7 +60,7 @@ private class MacroFinderImpl(
       if defineKey.nonEmpty && defineKey == macroName
     } yield defineTagValue(comment, defineTag)
 
-    val macroValue = macroValues.headOption
+    val macroValue = macroValues.nextOption()
     macroValue.foreach { value =>
       myCache.put(macroName, value)
     }

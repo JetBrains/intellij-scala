@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiClassExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -94,7 +94,7 @@ class ScalaTestSingleTestLocationFinderOld(
         testName               <- findTestName(suite)
       } yield (suite, testName)
 
-    val suiteWithTestName = searchResults.headOption
+    val suiteWithTestName = searchResults.nextOption()
     suiteWithTestName.map(_._2)
   }
 

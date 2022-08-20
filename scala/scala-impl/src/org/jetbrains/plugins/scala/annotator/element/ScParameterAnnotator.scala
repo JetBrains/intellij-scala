@@ -30,7 +30,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
           annotateCallByNameParameter(element)
       case _: ScFunctionExpr =>
         if (element.typeElement.isEmpty && element.expectedParamType.isEmpty) {
-          val inFunctionLiteral = element.parents.drop(2).headOption.exists(_.is[ScFunctionExpr])
+          val inFunctionLiteral = element.parents.drop(2).nextOption().exists(_.is[ScFunctionExpr])
           if (!inFunctionLiteral) { // ScFunctionExprAnnotator does that more gracefully
             holder.createErrorAnnotation(element, ScalaBundle.message("missing.parameter.type.name", element.name))
           }

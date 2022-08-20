@@ -162,7 +162,7 @@ object I18nBundleContent {
             bundleClassRegex.findFirstIn(fileName).isDefined
           }
       }
-      .headOption
+      .nextOption()
   }
 
   private def findBundleFileForClass(resourcePath: String, expectedPath: String, bundleName: String): String = {

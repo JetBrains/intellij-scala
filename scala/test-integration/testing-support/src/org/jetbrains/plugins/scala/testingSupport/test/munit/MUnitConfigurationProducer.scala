@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test.munit
 import com.intellij.execution.actions.RunConfigurationProducer
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.openapi.util.text.StringUtil
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
@@ -40,8 +40,9 @@ final class MUnitConfigurationProducer extends AbstractTestConfigurationProducer
 
     def matchesSomeTestSuite(typ: ScTemplateDefinition): Boolean = suitePaths.exists(isInheritor(typ, _))
 
+    import org.jetbrains.plugins.scala.extensions.IteratorExt
     val parentClasses = element.withParentsInFile.filterByType[ScTypeDefinition]
-    val suiteClass = parentClasses.filter(matchesSomeTestSuite).headOption match {
+    val suiteClass = parentClasses.filter(matchesSomeTestSuite).nextOption() match {
       case Some(value) =>
         value
       case _ =>

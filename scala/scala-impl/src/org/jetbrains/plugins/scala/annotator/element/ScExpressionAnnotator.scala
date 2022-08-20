@@ -225,7 +225,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
                 case t: DesignatorOwner if t.isSingleton => () // Expected type is a singleton type
                 case _ => exprType match {
                   case Right(t: DesignatorOwner) if t.isSingleton =>
-                    t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").headOption).map(_.method) match {
+                    t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").nextOption()).map(_.method) match {
                       case Some(method: ScFunctionDefinition) =>
                         val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`().getOrNothing.presentableText(target)).mkString(", ")
                         holder.createErrorAnnotation(target, ScalaBundle.message("annotator.error.unspecified.value.parameters", missingParameters))

@@ -400,7 +400,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       case head :: _ =>
         buf.iterator
           .filter(isSimilarMemberForNavigation(_, strictCheck = true))
-          .headOption
+          .nextOption()
           .getOrElse(head)
     }
   }

@@ -9,7 +9,7 @@ import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import com.intellij.util.FunctionUtil
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.worksheet.{WorksheetBundle, WorksheetFile}
 
@@ -23,7 +23,7 @@ class WorksheetLineMarkerProvider extends LineMarkerProvider {
                                       result: ju.Collection[_ >: LineMarkerInfo[_]]): Unit =
     // assuming that all elements are from the same file
     for {
-      firstElement <- elements.iterator.asScala.headOption
+      firstElement <- elements.iterator.asScala.nextOption()
       scalaFile    <- worksheetFile(firstElement)
       marker       <- lineMarkerInfo(elements, scalaFile)
     } result.add(marker)

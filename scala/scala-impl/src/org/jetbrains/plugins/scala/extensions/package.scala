@@ -1280,11 +1280,6 @@ package object extensions {
       delegate.exists(aClass.isInstance)
     }
 
-    def headOption: Option[A] = {
-      if (delegate.hasNext) Some(delegate.next())
-      else None
-    }
-
     def lastOption: Option[A] = {
       if (!delegate.hasNext)
         return None

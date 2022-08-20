@@ -249,7 +249,7 @@ private object ScalaMethodChainInlayHintsPass {
           blk.caseClauses.flatMap(_.caseClause.toOption).exists(
             clause => clause.children
               .dropWhile(e => !e.textContains('\n') && !isArrowToken(e))
-              .headOption
+              .nextOption()
               .filter(isArrowToken)
               .exists(_.followedByNewLine(ignoreComments = false))
           )

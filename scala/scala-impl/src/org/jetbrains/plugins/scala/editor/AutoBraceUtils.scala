@@ -33,7 +33,7 @@ object AutoBraceUtils {
         .withParentsInFile
         .takeWhile(_.endOffset <= orgStartOffset)
         .flatMap(toIndentedExpression)
-        .headOption
+        .nextOption()
     }
   }
 

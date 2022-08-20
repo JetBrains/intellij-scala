@@ -16,7 +16,7 @@ import com.sun.jdi.{ClassType, ReferenceType, Type, Value}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaRuntimeTypeEvaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.inReadAction
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 
 import scala.jdk.CollectionConverters._
@@ -65,7 +65,7 @@ object ScalaRuntimeTypeEvaluator {
         else
           classType.interfaces.iterator().asScala
             .flatMap(findPsiClass(_))
-            .headOption
+            .nextOption()
       case _ =>
         None
     }

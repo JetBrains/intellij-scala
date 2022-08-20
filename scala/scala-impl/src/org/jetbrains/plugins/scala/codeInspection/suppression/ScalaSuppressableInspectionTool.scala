@@ -4,7 +4,7 @@ package codeInspection.suppression
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInspection.{SuppressQuickFix, SuppressionUtil}
 import com.intellij.psi.{PsiComment, PsiDirectory, PsiElement, PsiFile}
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
 
 import java.util.regex.Matcher
@@ -27,7 +27,7 @@ object ScalaSuppressableInspectionTool {
     extensions.inReadAction {
       element.withParentsInFile
         .flatMap(commentWithSuppression)
-        .headOption
+        .nextOption()
     }
   }
 

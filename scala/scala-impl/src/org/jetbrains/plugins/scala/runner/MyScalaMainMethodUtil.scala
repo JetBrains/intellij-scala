@@ -80,7 +80,7 @@ private object MyScalaMainMethodUtil {
    */
   private def findMainMethodInParentFileOrPackagings(element: PsiElement): Option[MainMethodInfo] = {
     val fromTopLevels = element.withParentsInFile.flatMap(maybeTopLevelMainMethod)
-    fromTopLevels.headOption
+    fromTopLevels.nextOption()
   }
 
   def maybeTopLevelMainMethod(psiElement: PsiElement): Option[MainMethodInfo] =
@@ -99,7 +99,7 @@ private object MyScalaMainMethodUtil {
         case _                                                => None
       }
     } yield result
-    iterator.headOption
+    iterator.nextOption()
   }
 
   /**

@@ -364,7 +364,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   private def multilineBodyInMatch(node: ASTNode): Option[FoldingInfo] = {
     val children: Iterator[PsiElement] = node.getPsi.children
 
-    val mathKeyword = children.dropWhile(_.elementType != ScalaTokenTypes.kMATCH).headOption
+    val mathKeyword = children.dropWhile(_.elementType != ScalaTokenTypes.kMATCH).nextOption()
     mathKeyword.flatMap  { mk =>
       val textAfter = node.getText.substring(mk.getStartOffsetInParent)
       val isMultiline = textAfter.contains('\n')

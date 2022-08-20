@@ -265,7 +265,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
       case _ => None
     }
 
-    position.parentsInFile.flatMap(packageWithName).headOption
+    position.parentsInFile.flatMap(packageWithName).nextOption()
   }
 
   private def filterAllClasses(condition: ReferenceType => Boolean, packageName: Option[String]): collection.Seq[ReferenceType] = {

@@ -13,7 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.testingSupport.locationProvider.{PsiLocationWithName, ScalaTestLocationProvider}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.actions.ScalaRerunFailedTestsAction.MyScalaRunProfile
@@ -139,7 +139,7 @@ object ScalaRerunFailedTestsAction {
         parent <- parents
         parentName = parent.getName
         classFqn <- classNames.get(parentName)
-      } yield classFqn).headOption
+      } yield classFqn).nextOption()
     }
 
     private def fqnToSimpleName(classFqn: String): String = {

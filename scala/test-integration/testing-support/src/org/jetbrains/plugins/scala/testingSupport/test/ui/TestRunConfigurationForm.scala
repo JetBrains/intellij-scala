@@ -16,7 +16,7 @@ import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumCo
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.JBUI
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.extensions.IteratorExt
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
@@ -361,7 +361,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
           suitePath  <- mySuitePaths.iterator
           suiteClass <- ScalaPsiManager.instance(project).getCachedClasses(getScope, suitePath).iterator
           if ScalaPsiUtil.isInheritorDeep(aClass, suiteClass)
-        } yield suiteClass).headOption
+        } yield suiteClass).nextOption()
     }
 
     override protected def findClass(className: String): PsiClass = {

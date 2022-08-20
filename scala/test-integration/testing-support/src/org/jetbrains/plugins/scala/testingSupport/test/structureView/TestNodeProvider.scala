@@ -10,7 +10,7 @@ import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt, PsiElementExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScReferencePattern, ScTuplePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPatternList}
@@ -438,7 +438,7 @@ object TestNodeProvider {
       ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v1: _*),
       ExtractEntry("Scenario", true, true, scMethodCallDefaultArgScalaTest3_v2: _*),
     )
-    entries.iterator.flatMap(extractScMethodCall(expr, _)).headOption
+    entries.iterator.flatMap(extractScMethodCall(expr, _)).nextOption()
   }
 
   private def extractPropSpec(expr: ScMethodCall): Option[Test] = {

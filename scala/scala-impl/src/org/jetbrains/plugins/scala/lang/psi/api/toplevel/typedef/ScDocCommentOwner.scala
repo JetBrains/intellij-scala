@@ -17,7 +17,7 @@ trait ScDocCommentOwner extends PsiDocCommentOwner {
   @Cached(ModTracker.anyScalaPsiChange, this)
   final def docComment: Option[ScDocComment] =
     this.children.dropWhile(_.is[ScAnnotations, ScModifierList, PsiWhiteSpace])
-      .headOption
+      .nextOption()
       .filterByType[ScDocComment]
 
   @Nullable

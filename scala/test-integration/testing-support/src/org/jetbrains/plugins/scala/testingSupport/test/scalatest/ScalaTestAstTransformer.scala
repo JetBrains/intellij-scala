@@ -77,7 +77,7 @@ object ScalaTestAstTransformer {
 
   private def getSelectedAstNode(className: String, element: PsiElement): Option[AstNode] = {
     val withParentsNodes = element.withParents.flatMap(transformNode(className, _))
-    val astNode = withParentsNodes.headOption
+    val astNode = withParentsNodes.nextOption()
     astNode
   }
 

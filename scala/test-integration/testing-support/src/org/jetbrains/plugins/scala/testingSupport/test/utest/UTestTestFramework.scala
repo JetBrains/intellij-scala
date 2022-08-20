@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package testingSupport.test.utest
 
 import com.intellij.testIntegration.TestFramework
-import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.isInheritorDeep
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition}
@@ -26,7 +25,7 @@ final class UTestTestFramework extends AbstractTestFramework with TestFrameworkS
     if (!definition.isInstanceOf[ScObject]) return false
 
     val elementScope = ElementScope(definition.getProject)
-    val cachedClass = baseSuitePaths.iterator.flatMap(elementScope.getCachedClass).headOption
+    val cachedClass = baseSuitePaths.iterator.flatMap(elementScope.getCachedClass).nextOption()
     cachedClass.exists(isInheritorDeep(definition, _))
   }
 

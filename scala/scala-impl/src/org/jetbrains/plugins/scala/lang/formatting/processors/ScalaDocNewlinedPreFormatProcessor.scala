@@ -107,7 +107,7 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
       // dropping error elements e.g. for unclosed wiki-syntax in the end of the comment
       nextLeaves
         .dropWhile(_.isInstanceOf[PsiErrorElement])
-        .headOption.orNull
+        .nextOption().orNull
     }
     val parent      = element.getParent
 
@@ -183,7 +183,7 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
     import ScalaDocNewlinedPreFormatProcessor._
     val asterisksOpt = element.withPrevSiblings
       .dropWhile(_.elementType != ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS)
-      .headOption
+      .nextOption()
     val asterisks = asterisksOpt match {
       case Some(el) => el
       case _        => return None

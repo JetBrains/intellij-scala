@@ -48,7 +48,7 @@ object TypeMismatchHints {
       element.nextElement
         .fold(Iterator.empty: Iterator[PsiElement])(_.withNextSiblings)
         .dropWhile(e => e.is[PsiWhiteSpace] && !e.textContains('\n'))
-        .headOption
+        .nextOption()
         .exists(e => ElementsPreceededByWhitespace.contains(e.getNode.getElementType))
 
     val offsetDelta =

@@ -11,7 +11,7 @@ import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
 import com.intellij.util.EnvironmentUtil
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.ApiStatus
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.{ModuleExt, PathsListExt, ProjectExt}
 import org.jetbrains.plugins.scala.testingSupport.test.CustomTestRunnerBasedStateProvider.TestFrameworkRunnerInfo
 import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommandLineState._
@@ -79,7 +79,7 @@ class ScalaTestFrameworkCommandLineState(
     if (testConfigurationData.searchTestsInWholeProject) {
       def anyJdk: Option[Sdk] = {
         val modules = project.modules.iterator.filterNot(_.isBuildModule)
-        modules.map(JavaParameters.getValidJdkToRunModule(_, false)).headOption
+        modules.map(JavaParameters.getValidJdkToRunModule(_, false)).nextOption()
       }
       val sdk = maybeCustomSdk.orElse(anyJdk)
       // TODO: handle case if  project contains multiple scala versions, runtime contains garbage with multiple versions

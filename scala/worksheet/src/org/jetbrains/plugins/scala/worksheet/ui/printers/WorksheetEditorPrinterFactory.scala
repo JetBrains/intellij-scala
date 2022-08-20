@@ -15,7 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.FileAttribute
 import com.intellij.ui.JBSplitter
 import org.jetbrains.annotations.TestOnly
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, StringExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{StringExt, invokeLater}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.util.ui.extensions.JComponentExt
 import org.jetbrains.plugins.scala.worksheet.WorksheetBundle
@@ -204,7 +204,7 @@ object WorksheetEditorPrinterFactory {
     viewerSettings.setLineMarkerAreaShown(false)
     viewerSettings.setLineNumbersShown(false)
 
-    val prop = editorComponent.components.headOption
+    val prop = editorComponent.components.nextOption()
       .collect { case splitter: JBSplitter => splitter.getProportion }
       .getOrElse(DEFAULT_WORKSHEET_VIEWERS_RATIO)
 

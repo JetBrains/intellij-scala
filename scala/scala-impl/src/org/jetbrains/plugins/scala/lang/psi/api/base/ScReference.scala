@@ -319,7 +319,7 @@ trait ScReference extends ScalaPsiElement with PsiPolyVariantReference {
         importExpr   <- importStmt.importExprs.iterator
         importUsed   <- ImportUsed.buildAllFor(importExpr).iterator
         if isImportOfPackage(importUsed, packageFqn)
-      } yield importExpr).headOption
+      } yield importExpr).nextOption()
     alreadyImportedPackage.isDefined
   }
 
