@@ -7,7 +7,7 @@
         <copyPastePostProcessor
                 implementation="org.jetbrains.plugins.scala.conversion.copy.JavaCopyPastePostProcessor"/>
         <copyPastePostProcessor
-                implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessorWithRichCopySettingsAwareness"/>
+                implementation="org.jetbrains.plugins.scala.conversion.copy.ScalaCopyPastePostProcessor"/>
         <copyPastePostProcessor
                 implementation="org.jetbrains.plugins.scala.conversion.copy.plainText.TextJavaCopyPastePostProcessor"/>
 

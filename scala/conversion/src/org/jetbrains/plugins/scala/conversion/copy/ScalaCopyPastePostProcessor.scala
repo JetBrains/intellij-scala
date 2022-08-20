@@ -1,8 +1,7 @@
-package org.jetbrains.plugins.scala
-package conversion
-package copy
+package org.jetbrains.plugins.scala.conversion.copy
 
 import com.intellij.codeInsight.CodeInsightSettings
+import com.intellij.openapi.editor.richcopy.settings.RichCopySettings
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.ui.DialogWrapper
@@ -13,22 +12,30 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.refactoring._
 import org.jetbrains.plugins.scala.settings._
 
+private[copy]
 class ScalaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Associations](Associations.flavor) {
 
   override def collectTransferableData(startOffsets: Array[Int], endOffsets: Array[Int])
                                       (implicit file: PsiFile,
-                                       editor: Editor): Option[Associations] = file match {
-    case scalaFile: ScalaFile if !DumbService.getInstance(scalaFile.getProject).isDumb =>
-      startOffsets match {
-        case Array(0) => None
-        case _ =>
-          val ranges = startOffsets.zip(endOffsets).map {
-            case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
-          }
+                                       editor: Editor): Option[Associations] = {
+    if (!RichCopySettings.getInstance().isEnabled)
+      return None //// copy as plain text
+    if (DumbService.getInstance(file.getProject).isDumb)
+      return None
 
-          Option(Associations.collectAssociations(ranges.toSeq: _*)(scalaFile))
-      }
-    case _ => None
+    file match {
+      case scalaFile: ScalaFile  =>
+        startOffsets match {
+          case Array(0) => None
+          case _ =>
+            val ranges = startOffsets.zip(endOffsets).map {
+              case (startOffset, endOffset) => TextRange.create(startOffset, endOffset)
+            }
+
+            Option(Associations.collectAssociations(ranges.toSeq: _*)(scalaFile))
+        }
+      case _ => None
+    }
   }
 
   override def processTransferableData(bounds: RangeMarker, caretOffset: Int,
