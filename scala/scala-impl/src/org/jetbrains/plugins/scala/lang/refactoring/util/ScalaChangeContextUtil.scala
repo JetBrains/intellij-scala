@@ -1,13 +1,12 @@
-package org.jetbrains.plugins.scala
-package lang
-package refactoring
-package util
+package org.jetbrains.plugins.scala.lang.refactoring.util
 
 import com.intellij.openapi.project.DumbService
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.refactoring.Associations
 
+private [refactoring]
 object ScalaChangeContextUtil {
 
 
