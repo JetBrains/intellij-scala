@@ -62,7 +62,7 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
-      copyrightIntegration % "test->test;compile->compile",
+      copyrightIntegration,
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
@@ -470,7 +470,7 @@ lazy val androidIntegration =
 
 lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
-    .dependsOn(scalaImpl % "test->test;compile->compile")
+    .dependsOn(scalaImpl)
     .settings(
       intellijPlugins += "com.intellij.copyright".toPlugin
     )
