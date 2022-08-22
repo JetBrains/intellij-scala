@@ -75,14 +75,8 @@ lazy val scalaCommunity: sbt.Project =
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target", baseDirectory.value / "compilation-cache"),
       packageAdditionalProjects := Seq(
-        scalaApi,
         compilerJps,
-        /*worksheetReplReporters,*/
-        repackagedZinc,
-        decompiler,
-        compilerShared,
         nailgunRunners,
-        runners,
         runtimeDependencies,
         runtimeDependencies2,
       ),
