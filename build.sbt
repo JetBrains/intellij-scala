@@ -35,15 +35,15 @@ val definedTestsScopeFilter: ScopeFilter =
 
 val remoteCacheCompileScopeFilter: ScopeFilter =
   ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) &&
-      inProjects(nailgunRunners, testRunners_spec2_2x, compilerJps),
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) ||
+      inProjects(compilerJps, nailgunRunners, testRunners_spec2_2x),
     inConfigurations(Compile)
   )
 
 val remoteCacheTestScopeFilter: ScopeFilter =
   ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) &&
-      inProjects(nailgunRunners, testRunners_spec2_2x, compilerJps),
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) ||
+      inProjects(compilerJps, nailgunRunners, testRunners_spec2_2x),
     inConfigurations(Test)
   )
 
