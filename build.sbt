@@ -519,7 +519,7 @@ lazy val propertiesIntegration =
 
 lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
-    .dependsOn(scalaApi % Compile)
+    .dependsOn(scalaApi)
     .settings(
       intellijPlugins += "org.jetbrains.java.decompiler".toPlugin
     )
