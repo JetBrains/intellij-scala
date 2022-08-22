@@ -212,7 +212,6 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |      PsiWhiteSpace(' ')
       |      PsiElement(})('}')""".stripMargin)
 
-/* TODO See InfixType.parseInScala3
   def testMatchTypeInfixTypeWithoutParentheses(): Unit = checkTree(
     "type T = Any match { case Int | Long => Nothing }",
     """ScalaFile
@@ -259,9 +258,8 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |              PsiElement(identifier)('Nothing')
       |      PsiWhiteSpace(' ')
       |      PsiElement(})('}')""".stripMargin)
-*/
 
-  def testTypePatternLowercase(): Unit = checkTree(
+  def testMatchExpressionTypePatternLowercase(): Unit = checkTree(
     "??? match { case _: t => }",
     """ScalaFile
       |  MatchStatement
@@ -291,6 +289,47 @@ class MatchParserTest extends SimpleScala3ParserTestBase {
       |          <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(})('}')""".stripMargin)
+
+/* TODO See InfixType.parseInScala3
+  def testMatchTypeTypePatternLowercase(): Unit = checkTree(
+    "type T = Int match { case t => Nothing }",
+    """ScalaFile
+      |  ScTypeAliasDefinition: T
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(type)('type')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('T')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    MatchType: Int match { case t => Nothing }
+      |      SimpleType: Int
+      |        CodeReferenceElement: Int
+      |          PsiElement(identifier)('Int')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(match)('match')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace(' ')
+      |      ScMatchTypeCasesImpl(match type cases)
+      |        ScMatchTypeCaseImpl(match type case)
+      |          PsiElement(case)('case')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: t
+      |            CodeReferenceElement: t
+      |              PsiElement(identifier)('t')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          SimpleType: Nothing
+      |            CodeReferenceElement: Nothing
+      |              PsiElement(identifier)('Nothing')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(})('}')""".stripMargin)
+*/
 
   def testTypeVariable(): Unit = checkTree(
     "type T = Seq[Int] match { case Seq[x] => x }",

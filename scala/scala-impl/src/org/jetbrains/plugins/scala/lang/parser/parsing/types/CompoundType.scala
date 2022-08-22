@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object CompoundType extends Type {
   override protected def infixType: InfixType = InfixType
 
-  override def apply(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def apply(star: Boolean, isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val compoundMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>

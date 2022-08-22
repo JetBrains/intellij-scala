@@ -30,9 +30,9 @@ trait InfixType {
     ScalaTokenTypes.tCOMMA,         // def test(x: Int*,)      -- especially with trailing comma
   )
 
-  final def apply(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+  final def apply(star: Boolean = false, isPattern: Boolean = false, typeVariables: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.isScala3) {
-      return parseInScala3(star, isPattern)(builder)
+      return parseInScala3(star, isPattern, typeVariables)(builder)
     }
 
     var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op
@@ -139,7 +139,7 @@ trait InfixType {
     }
   }
 
-  private def parseInScala3(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseInScala3(star: Boolean, isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val infixParsingRule = new PrecedenceClimbingInfixParsingRule {
       override protected def referenceElementType: IElementType = ScalaElementType.REFERENCE
       override protected def infixElementType: IElementType = ScalaElementType.INFIX_TYPE
@@ -158,13 +158,10 @@ trait InfixType {
       override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
         parseInfixWildcardType() || parseTypeVariable() || componentType(star, isPattern)
 
-      // TODO Disambiguate between _: A | _: B in a match expression and A | B in a match type, see MatchParserTest.testMatchTypeInfixTypeWithoutParentheses
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
-        (!isPattern || builder.getTokenText != "|" || star) && super.shouldContinue
+        (!isPattern || typeVariables || builder.getTokenText != "|") && super.shouldContinue
 
-    // TODO Disambiguate between _: t and _: C[t] lowercase identifiers more properly
-    private def parseTypeVariable(): Boolean = if (isPattern && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
-      builder.getCurrentOffset > 1 && builder.getOriginalText.charAt(builder.getCurrentOffset - 2) != ':') {
+    private def parseTypeVariable(): Boolean = if (isPattern && typeVariables && builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
         val firstChar = builder.getTokenText.charAt(0)
         if (firstChar != '`' && firstChar.isLower) {
           val typeVariableMarker = builder.mark()

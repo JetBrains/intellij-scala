@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
  *                       | [[DepFunParams]] '=>' [[Type]]
  */
 object InfixTypePrefix {
-  def apply(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(star: Boolean, isPattern: Boolean, typeVariables: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     if (builder.isScala3 && DepFunParams()) {
@@ -38,7 +38,7 @@ object InfixTypePrefix {
         builder.advanceLexer() // 'given'
       } else givenMarker.drop()
 
-      if (InfixType(star, isPattern)) {
+      if (InfixType(star, isPattern, typeVariables)) {
         if (isImplicitFunctionType) {
           if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS)
             builder.advanceLexer()
