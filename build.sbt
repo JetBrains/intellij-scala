@@ -33,17 +33,19 @@ val intellijPluginsScopeFilter: ScopeFilter =
 val definedTestsScopeFilter: ScopeFilter =
   ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))
 
+// Projects which are not classpath dependencies of `scalaCommunity`
+val additionalProjects: Seq[ProjectReference] =
+  Seq(compilerJps, nailgunRunners, copyrightIntegration, packageSearchIntegration, javaDecompilerIntegration, testRunners_spec2_2x)
+
 val remoteCacheCompileScopeFilter: ScopeFilter =
   ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) ||
-      inProjects(compilerJps, nailgunRunners, testRunners_spec2_2x),
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) || inProjects(additionalProjects: _*),
     inConfigurations(Compile)
   )
 
 val remoteCacheTestScopeFilter: ScopeFilter =
   ScopeFilter(
-    inDependencies(scalaCommunity, transitive = true, includeRoot = false) ||
-      inProjects(compilerJps, nailgunRunners, testRunners_spec2_2x),
+    inDependencies(scalaCommunity, transitive = true, includeRoot = false) || inProjects(additionalProjects: _*),
     inConfigurations(Test)
   )
 
@@ -62,13 +64,10 @@ lazy val scalaCommunity: sbt.Project =
       scalaImpl % "test->test;compile->compile",
       devKitIntegration % "test->test;compile->compile",
       androidIntegration % "test->test;compile->compile",
-      copyrightIntegration,
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
-      packageSearchIntegration,
       propertiesIntegration % "test->test;compile->compile",
-      javaDecompilerIntegration,
       mlCompletionIntegration % "test->test;compile->compile",
       pluginXml,
     )
@@ -77,6 +76,9 @@ lazy val scalaCommunity: sbt.Project =
       packageAdditionalProjects := Seq(
         compilerJps,
         nailgunRunners,
+        copyrightIntegration,
+        packageSearchIntegration,
+        javaDecompilerIntegration,
         runtimeDependencies,
         runtimeDependencies2,
       ),
@@ -466,7 +468,8 @@ lazy val copyrightIntegration =
   newProject("copyright", file("scala/integration/copyright"))
     .dependsOn(scalaImpl)
     .settings(
-      intellijPlugins += "com.intellij.copyright".toPlugin
+      intellijPlugins += "com.intellij.copyright".toPlugin,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
 lazy val gradleIntegration =
@@ -512,7 +515,8 @@ lazy val javaDecompilerIntegration =
   newProject("java-decompiler", file("scala/integration/java-decompiler"))
     .dependsOn(scalaApi)
     .settings(
-      intellijPlugins += "org.jetbrains.java.decompiler".toPlugin
+      intellijPlugins += "org.jetbrains.java.decompiler".toPlugin,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
 lazy val mlCompletionIntegration =
@@ -529,9 +533,8 @@ lazy val packageSearchIntegration =
     .dependsOn(scalaImpl)
     .settings(
       // should be same plugins as in .../packagesearch/resources/META-INF/packagesearch.xml
-      intellijPlugins ++= Seq(
-        "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
-      ),
+      intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity)
     )
 
 
