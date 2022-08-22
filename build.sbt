@@ -233,10 +233,10 @@ lazy val scalaImpl: sbt.Project =
       traceLogger,
       decompiler % "test->test;compile->compile",
       tastyReader % "test->test;compile->compile",
+      scalatestFinders,
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
     )
-    .dependsOn(scalatestFinders % "compile->compile")
     // scala-test-finders use different scala versions, so do not depend on it, just aggregate the tests
     .aggregate(scalatestFindersTests.map(sbt.Project.projectToLocalProject): _*)
     .enablePlugins(BuildInfoPlugin)
