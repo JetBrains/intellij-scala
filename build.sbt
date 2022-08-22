@@ -253,7 +253,6 @@ lazy val scalaImpl: sbt.Project =
       ).map(_.toPlugin),
       intellijPluginJars :=
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
-      packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
       packageLibraryMappings := Seq(
         "org.scalameta" %% ".*" % ".*"                     -> Some("lib/scalameta.jar"),
         // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
