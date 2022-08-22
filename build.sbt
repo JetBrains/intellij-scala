@@ -245,10 +245,7 @@ lazy val scalaImpl: sbt.Project =
       //scalacOptions in Global += "-Xmacro-settings:analyze-caches",
       libraryDependencies ++= DependencyGroups.scalaCommunity,
       intellijPlugins ++= Seq(
-        "org.intellij.intelliLang",
-        "com.intellij.java-i18n",
         "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
-        "com.jetbrains.packagesearch.intellij-plugin",
         "JUnit"
       ).map(_.toPlugin),
       intellijPluginJars :=
