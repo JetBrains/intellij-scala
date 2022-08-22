@@ -11,7 +11,7 @@ import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{VirtualFile, VirtualFileManager}
 import com.intellij.psi.PsiManager
-import org.gradle.internal.impldep.org.jetbrains.annotations.ApiStatus
+import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils

@@ -251,9 +251,6 @@ lazy val scalaImpl: sbt.Project =
       intellijPlugins ++= Seq(
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
-//        "com.intellij.stats.completion", // required for ml completion testing (plugin manager returns 404 for it)
-        "com.intellij.gradle",     // required by Android
-        "org.intellij.groovy",     // required by Gradle
         "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
         "com.jetbrains.packagesearch.intellij-plugin",
         "JUnit"
