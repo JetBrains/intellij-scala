@@ -451,13 +451,12 @@ lazy val bsp =
 
 // Integration with other IDEA plugins
 
-lazy val devKitIntegration = newProject(
-  "devKit",
-  file("scala/integration/devKit"))
-  .dependsOn(scalaImpl)
-  .settings(
-  intellijPlugins += "DevKit".toPlugin
-)
+lazy val devKitIntegration =
+  newProject("devKit", file("scala/integration/devKit"))
+    .dependsOn(scalaImpl)
+    .settings(
+      intellijPlugins += "DevKit".toPlugin
+    )
 
 lazy val androidIntegration =
   newProject("android", file("scala/integration/android"))
