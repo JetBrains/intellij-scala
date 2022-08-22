@@ -23,13 +23,13 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_6709(): Unit = doTest("6709", true) // #matchType, #enum
   def test_7512(): Unit = doTest("7512", true) // #matchType
   def test_8313(): Unit = doTest("8313", false) // #matchType
-  def test_8647(): Unit = doTest("8647", false) // #matchType
+  def test_8647(): Unit = doTest("8647", true) // #matchType
   def test_8649(): Unit = doTest("8649", true) // #matchType
   def test_8778(): Unit = doTest("8778", false) // #matchType, #unionType
   def test_8905(): Unit = doTest("8905", true)
   def test_8905_2(): Unit = doTest("8905-2", true)
-  def test_9239(): Unit = doTest("9239", false) // #matchType
-  def test_9623(): Unit = doTest("9623", false) // #matchType
+  def test_9239(): Unit = doTest("9239", true) // #matchType
+  def test_9623(): Unit = doTest("9623", true) // #matchType
   def test_9675(): Unit = doTest("9675", false) // #matchType
   def test_9757(): Unit = doTest("9757", false) // #matchType, #unionType
   def test_9871(): Unit = doTest("9871", false) // #matchType
@@ -1151,7 +1151,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i12390_gadt(): Unit = doTest("i12390-gadt", false) // #enum
   def test_i12395(): Unit = doTest("i12395", true)
   def test_i12396(): Unit = doTest("i12396", true)
-  def test_i12474(): Unit = doTest("i12474", false)
+  def test_i12474(): Unit = doTest("i12474", true)
   def test_i12476(): Unit = doTest("i12476", true)
   def test_i12508(): Unit = doTest("i12508", true)
   def test_i12508a(): Unit = doTest("i12508a", true)
@@ -1263,7 +1263,7 @@ class ReferenceComparisonTest_Scala3 extends ReferenceComparisonTestBase_Scala3 
   def test_i14760(): Unit = doTest("i14760", true) // #enum
   def test_i14771(): Unit = doTest("i14771", true)
   def test_i14903a(): Unit = doTest("i14903a", true) // #matchType
-  def test_i14903b(): Unit = doTest("i14903b", false) // #matchType
+  def test_i14903b(): Unit = doTest("i14903b", true) // #matchType
   def test_i14921(): Unit = doTest("i14921", false) // #matchType, #extension
   def test_i15158(): Unit = doTest("i15158", false) // #matchType, #intersectionType, #typeLambda
   def test_i15166(): Unit = doTest("i15166", true)

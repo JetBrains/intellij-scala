@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *  typeArgs ::= '[' Types ']'
  */
 object TypeArgs extends TypeArgs {
-  override protected def parseComponent()(implicit builder: ScalaPsiBuilder): Boolean = Type()
+  override protected def parseComponent(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = Type(isPattern = isPattern, typeVariables = true)
 }
 
 trait TypeArgs {
@@ -48,12 +48,12 @@ trait TypeArgs {
             } else false
           }
 
-          if (checkTypeVariable || parseComponent()) {
+          if (checkTypeVariable || parseComponent(isPattern)) {
             var parsedType = true
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA && parsedType &&
               !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
               builder.advanceLexer()
-              parsedType = checkTypeVariable || parseComponent()
+              parsedType = checkTypeVariable || parseComponent(isPattern)
               if (!parsedType) builder error ScalaBundle.message("wrong.type")
             }
           } else builder error ScalaBundle.message("wrong.type")
@@ -69,5 +69,5 @@ trait TypeArgs {
       }
     }
 
-  protected def parseComponent()(implicit builder: ScalaPsiBuilder): Boolean
+  protected def parseComponent(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean
 }

@@ -39,10 +39,10 @@ object Type extends Type {
 trait Type {
   protected def infixType: InfixType
 
-  def apply(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(star: Boolean = false, isPattern: Boolean = false, typeVariables: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark()
 
-    if (InfixTypePrefix(star, isPattern)) {
+    if (InfixTypePrefix(star, isPattern, typeVariables)) {
       typeMarker.drop()
       true
     } else if (PolyFunOrTypeLambda(star, isPattern)) {

@@ -71,7 +71,7 @@ trait SimpleType {
         val tupleMarker = builder.mark()
         builder.advanceLexer()
         builder.disableNewlines()
-        val (_, isTuple) = types()
+        val (_, isTuple) = types(isPattern, typeVariables = true)
         builder.getTokenType match {
           case ScalaTokenTypes.tCOMMA =>
             builder.advanceLexer() //Ate ,
